@@ -1,10 +1,34 @@
 # SOD1820 — W0 2027 POST ROOT URL IMMUTABILITY GATE V1
 
-**Status:** W0 HARD ROUTE/SEO INVARIANT · DOCS ONLY · BRANCH ONLY · NOT IMPLEMENTED  
+**Historical W0 status:** HARD ROUTE/SEO INVARIANT · DOCS ONLY · BRANCH ONLY · NOT IMPLEMENTED AT THAT CHECKPOINT
 **Owner check:** `EXTEND_EXISTING` — existing routing/SEO/content owners; no new route registry, post store or URL owner.  
 **Human Gate:** ZURIEL, 2026-09-09.
 
-## 0. Live facts verified before this addendum
+## Current scope reconciliation — 2026-11-03
+
+The later explicit ZURIEL decision, implemented before this documentation pass
+and recorded in Doc37, distinguishes **old/imported durable root addresses**
+from **approved native/AI-era publications using `/post/:slug`**. Thus the blanket
+all-post-root statements in historical §§1–2 are superseded **only for the
+approved modern-publication scope**. The old addresses do not move. Root aliases,
+query/hash/exact return, source content, identity and canonical/share continuity
+remain protected. Missing or ambiguous provenance never authorizes a migration.
+
+The existing implementation is `src/lib/publicPostUrls.js` on product
+`9d3a09689a05bd0b72ca484335c1fbce8b538170`, using source/import provenance and
+reviewed exceptions, not “today minus six months”. This annotation records that
+already-approved binding exception; it does not invent a new cutoff, exception,
+redirect, URL owner or release permission. All collision, inbound/SEO and
+release/rollback requirements below remain in force for their applicable scope.
+
+Current inventory/acceptance: [existing address map §8](w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03).
+Evidence: Doc37 §12.29; AFTER `e18c1cb9-0ea0-4e6c-9617-232bb296d31b`; scoped
+documentation BEFORE `6750d9ff-102b-4aea-85e9-262cbff1155b`.
+The historical W0 status/counts below are preserved, not current Production
+claims. This is the only contract clarification in this synchronization;
+runtime, protections and shared DB owner bodies are unchanged.
+
+## 0. Historical live facts verified before this addendum
 
 Canonical Supabase project: `linswmnnkjxvweumprav`.
 

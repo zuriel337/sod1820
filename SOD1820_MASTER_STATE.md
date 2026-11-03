@@ -1,11 +1,55 @@
 # SOD1820 — MASTER STATE v3 COMPACT
 
-**Date:** 2026-10-01  
+**Date:** 2026-11-03 (documentation synchronization; historical seals retained)
 **Status:** CURRENT DOCUMENTED STATE · **G2 CLOSED · G3 CLOSED** · HUMAN-GATE CONTROLLED  
 **Canonical Supabase:** `linswmnnkjxvweumprav`  
 **G2 closure base release:** `27900d3f696a26cda598463a58bcff4e74d5832d`
 
 ## 1. Authority
+
+**Current verified checkpoint · 2026-11-03 · PUBLIC CUTOVER NOT ACCEPTED:**
+
+- Product candidate: `gpt/2029-site-search-gematria-20261103`,
+  `9d3a09689a05bd0b72ca484335c1fbce8b538170`; protected Preview only:
+  `dpl_1Jyk6PdVpSaygjuD5E64CH5FiBez`,
+  https://sod1820-issbcgxlc-sod1820-s-projects.vercel.app.
+- Separately verified `origin/main`: `2195c9784c5c9f0b1ec3cd3c1137fbd76045845b`.
+  Live website remains Legacy `d1837efcf5a978d10a514010f3695680f231e116`,
+  deployment `dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2`. A branch/Preview is not main or Production.
+- Documentation/privacy branch: `gpt/2029-url-continuity-plan-20261103`,
+  saved evidence `4015ed8b82099e3543e472b7310394985cc265a4`, followed by this
+  documentation-only synchronization. Its only application delta is the two
+  requested PrivacyPage contact changes to `zyz997@gmail.com`; not deployed.
+- G3 remains CLOSED. Formal G4 and Public Cutover remain OPEN. Successful
+  Isolation/G4 workflows on `c8e05790` do not close formal G4 or certify a new SHA.
+  A3's accepted isolated evidence is reusable: all 29 input hashes match product
+  `9d3a0968`. The current review did not rerun those gates.
+- H1 real database restore remains accepted (AFTER
+  `629e1ce9-8658-43b7-9b58-54dbee03ffca`; cleanup
+  `a149f1a1-6876-40e5-8616-7addbc67232e`). Current backup freshness, media file
+  coverage and relevant delta acceptance remain open; H1 itself is not missing.
+- Existing community/chat/account/service continuation is required by the later
+  Human Gate. The candidate's earlier restricted public-reading acceptance is
+  narrower than that requirement. Known URL/availability failures and untested
+  identity, source, security, operations and recovery conditions are separated in
+  the [existing-condition reconciliation](docs/reviews/url-continuity-plan-20261103/coverage.md).
+  Shared identity/mail proposal `b21ed1ff` remains **HELD_BY_USER**.
+- Later clarification in this documentation pass: restored tag/content pages
+  must reach the approved Posts-level visual quality at launch, using existing
+  Design V2 and centered responsive composition. This is **PLANNED acceptance**,
+  not a new rendered page or a claim that the current tag 404 was fixed.
+
+Canonical planning details stay in `project_codex.id=37`, §12.29 and its
+documentation-sync addendum. The [existing address map](docs/w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03)
+remains the migration inventory; collected JSON/CSV and the review table are
+supporting evidence, not new owners or runtime registries. Provenance:
+`work_log.id=e18c1cb9-0ea0-4e6c-9617-232bb296d31b`; documentation scope BEFORE
+`2b9004b6-5285-4aee-93e2-4b1174ec06cf`. No cutover, domain, shared configuration,
+product-data or main change is authorized or performed by this synchronization.
+
+**Historical checkpoints below:** their counts, runtime states and Preview IDs
+apply to their recorded dates/SHAs. They are not the current product pointer and
+do not override the later decisions/status above or in Doc37.
 
 **Scoped documented checkpoint · 2026-10-31 · World/Topics/Galleries, BRANCH ONLY:**
 the existing planning map `public.project_codex.id=37`, §12.10
@@ -182,7 +226,7 @@ Exact owners are resolved from `SOD1820_MASTER_OWNER_INDEX.md` and reverified li
 - Personal Reality is an authorized contextual projection; personal context may change relevance but never global truth.
 - Capability Fabric/Context Compiler are owner-qualified composition contracts, not a central capability registry or Context store.
 - Missing source evidence remains a Contextual Source Gap/research task until exact evidence is acquired; a recommendation is not evidence.
-- Dimension Five is the future-primary content direction; Or Geula remains preserved but strategically supporting/legacy.
+- Historical strategic direction: Dimension Five is the future-primary content direction; Or Geula remains preserved but strategically supporting/legacy. **Launch presentation superseded by the later Human Gate in Doc37 HOME-01/HOME-03:** event documentation leads Home; Dimension Five and the other approved series remain visible in the second tier. This does not discard the future direction or source content.
 - Home/Global Now, Share, Personal Area, Follow/Attention and future G3 surfaces are projections over existing Foundation owners; their names do not create owners.
 
 ## 7. Exact release language

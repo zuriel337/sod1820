@@ -1,0 +1,4314 @@
+{
+  "method": "Read-only offline comparison of captured public-boundary identity census and quoted href paths; one URI decode and trailing slash normalization; source match only, no HTTP proof. No missing identity is automatically a404 or proven deleted. Root route explicitly included (index route not captured by path literal extraction). Counts are original distinct-path rows; URI variants are not deduplicated after normalization.",
+  "counts": {
+    "historical_resource_or_api": 196,
+    "public_post_identity_present": 279,
+    "static_route_exists_source_only": 17,
+    "no_matching_public_post_identity_or_known_static": 71,
+    "dynamic_family_identity_not_reconciled": 136,
+    "nested_under_known_post_unresolved": 239
+  },
+  "occurrences": {
+    "historical_resource_or_api": 365,
+    "public_post_identity_present": 837,
+    "static_route_exists_source_only": 125,
+    "no_matching_public_post_identity_or_known_static": 147,
+    "dynamic_family_identity_not_reconciled": 243,
+    "nested_under_known_post_unresolved": 267
+  },
+  "examples": {
+    "historical_resource_or_api": [
+      {
+        "path": "/wp-content/plugins/gallery-images/Front_end/../style/colorbox-3.css",
+        "source_posts": 56,
+        "example_post_ids": [
+          "4",
+          "13",
+          "21"
+        ]
+      },
+      {
+        "path": "/wp-content/plugins/gallery-images/Front_end/../style/style2-os.css",
+        "source_posts": 56,
+        "example_post_ids": [
+          "4",
+          "13",
+          "21"
+        ]
+      },
+      {
+        "path": "/audio/m/010.wav",
+        "source_posts": 1,
+        "example_post_ids": [
+          "1255"
+        ]
+      },
+      {
+        "path": "/audio/m/064.wav",
+        "source_posts": 1,
+        "example_post_ids": [
+          "1255"
+        ]
+      },
+      {
+        "path": "/wp-json/wp/v2/posts",
+        "source_posts": 2,
+        "example_post_ids": [
+          "20",
+          "139"
+        ]
+      },
+      {
+        "path": "/audio/246.wav",
+        "source_posts": 1,
+        "example_post_ids": [
+          "1226"
+        ]
+      },
+      {
+        "path": "/audio/dynovisz/20160327_hebreugoel.mp3",
+        "source_posts": 1,
+        "example_post_ids": [
+          "1016"
+        ]
+      },
+      {
+        "path": "/audio/dynovisz/20160519_hebreubehar.mp3",
+        "source_posts": 1,
+        "example_post_ids": [
+          "1016"
+        ]
+      },
+      {
+        "path": "/audio/dynovisz/20160523_hebreuhod1.mp3",
+        "source_posts": 1,
+        "example_post_ids": [
+          "1016"
+        ]
+      },
+      {
+        "path": "/audio/dynovisz/20160524_hebreu2.mp3",
+        "source_posts": 1,
+        "example_post_ids": [
+          "1016"
+        ]
+      }
+    ],
+    "public_post_identity_present": [
+      {
+        "path": "/סיכום-רשימת-הגימטריות-776-5776-מתעדכן",
+        "source_posts": 23,
+        "example_post_ids": [
+          "1251",
+          "1276",
+          "1277"
+        ]
+      },
+      {
+        "path": "/סוד-1820",
+        "source_posts": 25,
+        "example_post_ids": [
+          "92",
+          "203",
+          "233"
+        ]
+      },
+      {
+        "path": "/רשימת-גימטריות-1692-2756",
+        "source_posts": 14,
+        "example_post_ids": [
+          "1256",
+          "1272",
+          "1276"
+        ]
+      },
+      {
+        "path": "/סוף-גלות-ישראל-בימינו",
+        "source_posts": 19,
+        "example_post_ids": [
+          "1158",
+          "1214",
+          "1265"
+        ]
+      },
+      {
+        "path": "/סרט-חדש-תשעה-עת-צרה-2-הספירה-לאחור-החלה",
+        "source_posts": 15,
+        "example_post_ids": [
+          "1277",
+          "1309",
+          "1312"
+        ]
+      },
+      {
+        "path": "/רשימת-גימטריות-2212",
+        "source_posts": 14,
+        "example_post_ids": [
+          "1256",
+          "1265",
+          "1271"
+        ]
+      },
+      {
+        "path": "/נאום-נתניהו-בקונגרס-בערב-פורים-רמזים-מ",
+        "source_posts": 16,
+        "example_post_ids": [
+          "1133",
+          "1289",
+          "1300"
+        ]
+      },
+      {
+        "path": "/סוגי-גימטריות",
+        "source_posts": 13,
+        "example_post_ids": [
+          "211",
+          "233",
+          "270"
+        ]
+      },
+      {
+        "path": "/רמזי-גאולה-חנוכה-תשפג-רמזי-טראמפ-חדש",
+        "source_posts": 8,
+        "example_post_ids": [
+          "117",
+          "127",
+          "140"
+        ]
+      },
+      {
+        "path": "/סרט-חדש-ומדהים-המקדש-בצפונות-התורה",
+        "source_posts": 14,
+        "example_post_ids": [
+          "1261",
+          "1276",
+          "1283"
+        ]
+      }
+    ],
+    "static_route_exists_source_only": [
+      {
+        "path": "/reality",
+        "source_posts": 28,
+        "example_post_ids": [
+          "5062",
+          "5066",
+          "5067"
+        ]
+      },
+      {
+        "path": "/beit-midrash",
+        "source_posts": 10,
+        "example_post_ids": [
+          "92",
+          "2600",
+          "2606"
+        ]
+      },
+      {
+        "path": "/gematria",
+        "source_posts": 8,
+        "example_post_ids": [
+          "5066",
+          "5067",
+          "5093"
+        ]
+      },
+      {
+        "path": "/codes",
+        "source_posts": 3,
+        "example_post_ids": [
+          "5022",
+          "5026",
+          "5035"
+        ]
+      },
+      {
+        "path": "/research",
+        "source_posts": 4,
+        "example_post_ids": [
+          "5045",
+          "5066",
+          "5067"
+        ]
+      },
+      {
+        "path": "/code",
+        "source_posts": 4,
+        "example_post_ids": [
+          "5020",
+          "5022",
+          "5025"
+        ]
+      },
+      {
+        "path": "/spatial-gematria",
+        "source_posts": 2,
+        "example_post_ids": [
+          "5041",
+          "5044"
+        ]
+      },
+      {
+        "path": "/contact",
+        "source_posts": 3,
+        "example_post_ids": [
+          "8",
+          "101",
+          "5018"
+        ]
+      },
+      {
+        "path": "/gematria-3d",
+        "source_posts": 2,
+        "example_post_ids": [
+          "5038",
+          "5084"
+        ]
+      },
+      {
+        "path": "/archive",
+        "source_posts": 2,
+        "example_post_ids": [
+          "5018",
+          "5062"
+        ]
+      }
+    ],
+    "no_matching_public_post_identity_or_known_static": [
+      {
+        "path": "/משיח-בשנת-התשעו",
+        "source_posts": 15,
+        "example_post_ids": [
+          "1277",
+          "1292",
+          "1298"
+        ]
+      },
+      {
+        "path": "/1424-2",
+        "source_posts": 7,
+        "example_post_ids": [
+          "1309",
+          "1311",
+          "1314"
+        ]
+      },
+      {
+        "path": "/סרטים",
+        "source_posts": 6,
+        "example_post_ids": [
+          "1274",
+          "1308",
+          "1311"
+        ]
+      },
+      {
+        "path": "/עת-רצון-להתגלות-משיח",
+        "source_posts": 7,
+        "example_post_ids": [
+          "1271",
+          "1308",
+          "1322"
+        ]
+      },
+      {
+        "path": "/רמזים-לגאולה-במספר-45-גאולה-מתעדכן",
+        "source_posts": 7,
+        "example_post_ids": [
+          "162",
+          "191",
+          "267"
+        ]
+      },
+      {
+        "path": "/yom",
+        "source_posts": 4,
+        "example_post_ids": [
+          "1056",
+          "1107",
+          "1110"
+        ]
+      },
+      {
+        "path": "/צור-קשר/טופס-הזמנת-עלונים-ודיסקים",
+        "source_posts": 5,
+        "example_post_ids": [
+          "1292",
+          "1340",
+          "1345"
+        ]
+      },
+      {
+        "path": "/משיח-בשנת-התשעו/מתי-שנת-הגאולה",
+        "source_posts": 4,
+        "example_post_ids": [
+          "1292",
+          "1332",
+          "1350"
+        ]
+      },
+      {
+        "path": "/אובמה-נחש-2",
+        "source_posts": 3,
+        "example_post_ids": [
+          "1366",
+          "1379",
+          "1395"
+        ]
+      }
+    ],
+    "dynamic_family_identity_not_reconciled": [
+      {
+        "path": "/number/1820",
+        "source_posts": 7,
+        "example_post_ids": [
+          "1342",
+          "1799",
+          "2606"
+        ]
+      },
+      {
+        "path": "/tag/67",
+        "source_posts": 5,
+        "example_post_ids": [
+          "1165",
+          "1182",
+          "1295"
+        ]
+      },
+      {
+        "path": "/number/631",
+        "source_posts": 2,
+        "example_post_ids": [
+          "5032",
+          "5098"
+        ]
+      },
+      {
+        "path": "/number/26",
+        "source_posts": 2,
+        "example_post_ids": [
+          "5018",
+          "5098"
+        ]
+      },
+      {
+        "path": "/number/671",
+        "source_posts": 1,
+        "example_post_ids": [
+          "5098"
+        ]
+      },
+      {
+        "path": "/number/מפתח לגן",
+        "source_posts": 1,
+        "example_post_ids": [
+          "5018"
+        ]
+      },
+      {
+        "path": "/number/86",
+        "source_posts": 1,
+        "example_post_ids": [
+          "5018"
+        ]
+      },
+      {
+        "path": "/number/424",
+        "source_posts": 4,
+        "example_post_ids": [
+          "1079",
+          "2607",
+          "5028"
+        ]
+      },
+      {
+        "path": "/number/1671",
+        "source_posts": 1,
+        "example_post_ids": [
+          "5098"
+        ]
+      },
+      {
+        "path": "/number/1258",
+        "source_posts": 2,
+        "example_post_ids": [
+          "5018",
+          "5078"
+        ]
+      }
+    ],
+    "nested_under_known_post_unresolved": [
+      {
+        "path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/פתאום-יבוא",
+        "source_posts": 3,
+        "example_post_ids": [
+          "1314",
+          "1330",
+          "1345"
+        ]
+      },
+      {
+        "path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/5776-1335-7",
+        "source_posts": 3,
+        "example_post_ids": [
+          "1338",
+          "1347",
+          "1395"
+        ]
+      },
+      {
+        "path": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/67-תומכים-בסנאט",
+        "source_posts": 3,
+        "example_post_ids": [
+          "1347",
+          "1358",
+          "1363"
+        ]
+      },
+      {
+        "path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/attachment/7676",
+        "source_posts": 3,
+        "example_post_ids": [
+          "1314",
+          "1347",
+          "1356"
+        ]
+      },
+      {
+        "path": "/בגיל-של-חמינאי-ובמחלתו-יש-רמז-ברור-לגאו/attachment/76",
+        "source_posts": 3,
+        "example_post_ids": [
+          "1356",
+          "1363",
+          "1370"
+        ]
+      },
+      {
+        "path": "/מסר-חדש-העולם-בדרך-למלחמה/5776-1335-4",
+        "source_posts": 3,
+        "example_post_ids": [
+          "1314",
+          "1330",
+          "1367"
+        ]
+      },
+      {
+        "path": "/מסר-חדש-יותר-טוב-מגן-עדן/attachment/777",
+        "source_posts": 3,
+        "example_post_ids": [
+          "1314",
+          "1330",
+          "1367"
+        ]
+      },
+      {
+        "path": "/אובמה-נחש/לכידה-15",
+        "source_posts": 2,
+        "example_post_ids": [
+          "1347",
+          "1395"
+        ]
+      },
+      {
+        "path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/11027459_1102614776431436_889746206596284092_n",
+        "source_posts": 2,
+        "example_post_ids": [
+          "1347",
+          "1358"
+        ]
+      },
+      {
+        "path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/76-2",
+        "source_posts": 2,
+        "example_post_ids": [
+          "1347",
+          "1356"
+        ]
+      }
+    ]
+  },
+  "unmatched_candidates": [
+    {
+      "path": "/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a9%d7%a0%d7%aa-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/",
+      "link_occurrences": 17,
+      "source_posts": 15,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1277",
+        "1292",
+        "1298"
+      ],
+      "normalized_path": "/משיח-בשנת-התשעו",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/1424-2/",
+      "link_occurrences": 9,
+      "source_posts": 7,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1309",
+        "1311",
+        "1314"
+      ],
+      "normalized_path": "/1424-2",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a1%d7%a8%d7%98%d7%99%d7%9d/",
+      "link_occurrences": 8,
+      "source_posts": 6,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1274",
+        "1308",
+        "1311"
+      ],
+      "normalized_path": "/סרטים",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a2%d7%aa-%d7%a8%d7%a6%d7%95%d7%9f-%d7%9c%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa-%d7%9e%d7%a9%d7%99%d7%97/",
+      "link_occurrences": 8,
+      "source_posts": 7,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1271",
+        "1308",
+        "1322"
+      ],
+      "normalized_path": "/עת-רצון-להתגלות-משיח",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-45-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/",
+      "link_occurrences": 8,
+      "source_posts": 7,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "162",
+        "191",
+        "267"
+      ],
+      "normalized_path": "/רמזים-לגאולה-במספר-45-גאולה-מתעדכן",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/yom/",
+      "link_occurrences": 7,
+      "source_posts": 4,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1056",
+        "1107",
+        "1110"
+      ],
+      "normalized_path": "/yom",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a6%d7%95%d7%a8-%d7%a7%d7%a9%d7%a8/%d7%98%d7%95%d7%a4%d7%a1-%d7%94%d7%96%d7%9e%d7%a0%d7%aa-%d7%a2%d7%9c%d7%95%d7%a0%d7%99%d7%9d-%d7%95%d7%93%d7%99%d7%a1%d7%a7%d7%99%d7%9d/",
+      "link_occurrences": 5,
+      "source_posts": 5,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1292",
+        "1340",
+        "1345"
+      ],
+      "normalized_path": "/צור-קשר/טופס-הזמנת-עלונים-ודיסקים",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a9%d7%a0%d7%aa-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/%d7%9e%d7%aa%d7%99-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/",
+      "link_occurrences": 4,
+      "source_posts": 4,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1292",
+        "1332",
+        "1350"
+      ],
+      "normalized_path": "/משיח-בשנת-התשעו/מתי-שנת-הגאולה",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a4%d7%aa%d7%90%d7%95%d7%9d-%d7%99%d7%91%d7%95%d7%90/",
+      "link_occurrences": 3,
+      "source_posts": 3,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314",
+        "1330",
+        "1345"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/פתאום-יבוא",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/5776-1335-7/",
+      "link_occurrences": 3,
+      "source_posts": 3,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1338",
+        "1347",
+        "1395"
+      ],
+      "normalized_path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/5776-1335-7",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/67-%d7%aa%d7%95%d7%9e%d7%9b%d7%99%d7%9d-%d7%91%d7%a1%d7%a0%d7%90%d7%98/",
+      "link_occurrences": 3,
+      "source_posts": 3,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1347",
+        "1358",
+        "1363"
+      ],
+      "normalized_path": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/67-תומכים-בסנאט",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/attachment/7676/",
+      "link_occurrences": 3,
+      "source_posts": 3,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314",
+        "1347",
+        "1356"
+      ],
+      "normalized_path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/attachment/7676",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%92%d7%99%d7%9c-%d7%a9%d7%9c-%d7%97%d7%9e%d7%99%d7%a0%d7%90%d7%99-%d7%95%d7%91%d7%9e%d7%97%d7%9c%d7%aa%d7%95-%d7%99%d7%a9-%d7%a8%d7%9e%d7%96-%d7%91%d7%a8%d7%95%d7%a8-%d7%9c%d7%92%d7%90%d7%95/attachment/76/",
+      "link_occurrences": 3,
+      "source_posts": 3,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1356",
+        "1363",
+        "1370"
+      ],
+      "normalized_path": "/בגיל-של-חמינאי-ובמחלתו-יש-רמז-ברור-לגאו/attachment/76",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%91%d7%93%d7%a8%d7%9a-%d7%9c%d7%9e%d7%9c%d7%97%d7%9e%d7%94/5776-1335-4/",
+      "link_occurrences": 3,
+      "source_posts": 3,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314",
+        "1330",
+        "1367"
+      ],
+      "normalized_path": "/מסר-חדש-העולם-בדרך-למלחמה/5776-1335-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a0%d7%97%d7%a9-2/",
+      "link_occurrences": 3,
+      "source_posts": 3,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1366",
+        "1379",
+        "1395"
+      ],
+      "normalized_path": "/אובמה-נחש-2",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%99%d7%95%d7%aa%d7%a8-%d7%98%d7%95%d7%91-%d7%9e%d7%92%d7%9f-%d7%a2%d7%93%d7%9f/attachment/777/",
+      "link_occurrences": 3,
+      "source_posts": 3,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314",
+        "1330",
+        "1367"
+      ],
+      "normalized_path": "/מסר-חדש-יותר-טוב-מגן-עדן/attachment/777",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a0%d7%97%d7%a9/%d7%9c%d7%9b%d7%99%d7%93%d7%94-15/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1347",
+        "1395"
+      ],
+      "normalized_path": "/אובמה-נחש/לכידה-15",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%90%d7%97%d7%93%d7%95%d7%aa/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1300",
+        "1312"
+      ],
+      "normalized_path": "/אחדות",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%91%d7%99-1/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1017",
+        "1129"
+      ],
+      "normalized_path": "/ביבי-1",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%91%d7%99-2/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1017",
+        "1129"
+      ],
+      "normalized_path": "/ביבי-2",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%91%d7%99-3/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1017",
+        "1129"
+      ],
+      "normalized_path": "/ביבי-3",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%93%d7%a3-%d7%94%d7%91%d7%99%d7%aa/",
+      "link_occurrences": 2,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1311"
+      ],
+      "normalized_path": "/דף-הבית",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%94%d7%91%d7%98%d7%97%d7%94-%d7%9c%d7%90%d7%91%d7%95%d7%aa/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314",
+        "1361"
+      ],
+      "normalized_path": "/הבטחה-לאבות",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11027459_1102614776431436_889746206596284092_n/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1347",
+        "1358"
+      ],
+      "normalized_path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/11027459_1102614776431436_889746206596284092_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/76-2/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1347",
+        "1356"
+      ],
+      "normalized_path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/76-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330",
+        "1363"
+      ],
+      "normalized_path": "/המלכות-האחרונה",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%94%d7%a0%d7%97%d7%a9-%d7%90%d7%a8%d7%91-%d7%9c%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1017",
+        "1129"
+      ],
+      "normalized_path": "/הנחש-ארב-לנתניהו",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%99%d7%aa%d7%99-%d7%95%d7%9c%d7%90-%d7%90%d7%97%d7%9e%d7%99%d7%a0%d7%94/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1370",
+        "1376"
+      ],
+      "normalized_path": "/יתי-ולא-אחמינה",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%91%d7%93%d7%a8%d7%9a-%d7%9c%d7%9e%d7%9c%d7%97%d7%9e%d7%94/%d7%9e%d7%9c%d7%97%d7%9e%d7%aa-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%94%d7%a9%d7%9c%d7%99%d7%a9%d7%99%d7%aa/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314",
+        "1376"
+      ],
+      "normalized_path": "/מסר-חדש-העולם-בדרך-למלחמה/מלחמת-העולם-השלישית",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%a9%d7%99%d7%97-%d7%99%d7%91%d7%95%d7%90/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1300",
+        "1312"
+      ],
+      "normalized_path": "/משיח-יבוא",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%a6%d7%97/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1017",
+        "1129"
+      ],
+      "normalized_path": "/נתניהו-צח",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/%d7%94%d7%9e%d7%a1%d7%a4%d7%a8%d7%99%d7%9d-67/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1347",
+        "1356"
+      ],
+      "normalized_path": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/המספרים-67",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11088216_10206082827368946_1336004358_n/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1347",
+        "1363"
+      ],
+      "normalized_path": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/11088216_10206082827368946_1336004358_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%95%d7%a8-%d7%a7%d7%a9%d7%a8/%d7%aa%d7%a8%d7%95%d7%9e%d7%95%d7%aa-donate/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1346",
+        "1378"
+      ],
+      "normalized_path": "/צור-קשר/תרומות-donate",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%96%d7%95-%d7%a9%d7%a0%d7%aa-2015/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314",
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/זו-שנת-2015",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93-%d7%94-%d7%99%d7%aa%d7%92%d7%9c%d7%94/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314",
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/סוד-ה-יתגלה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%93%d7%95%d7%93-%d7%9e%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%a1%d7%91%d7%99%d7%91/%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-33/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1017",
+        "1129"
+      ],
+      "normalized_path": "/רמזים-לביאת-משיח-בן-דוד-מאירועים-סביב/נתניהו-33",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%9e%d7%92%d7%94-%d7%a8%d7%a2%d7%94/",
+      "link_occurrences": 2,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1309"
+      ],
+      "normalized_path": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/מגה-רעה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d-2/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1341",
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/היום-עם-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%99%d7%9f-%d7%9c%d7%9a-%d7%90%d7%93%d7%9d-%d7%a9%d7%90%d7%99%d7%9f-%d7%9c%d7%95-%d7%a9%d7%a2%d7%94/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314",
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/אין-לך-אדם-שאין-לו-שעה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a9%d7%97%d7%a8%d7%95%d7%a8-%d7%94%d7%90%d7%a1%d7%99%d7%a8%d7%99%d7%9d-%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%95%d7%a2%d7%9e%d7%99%d7%a8/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1308",
+        "1379"
+      ],
+      "normalized_path": "/שחרור-האסירים-פולארד-ועמיר",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/588/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330",
+        "1395"
+      ],
+      "normalized_path": "/588",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%9e%d7%a7%d7%93%d7%a9-%d7%90%d7%97%d7%a8%d7%95%d7%9f/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314",
+        "1318"
+      ],
+      "normalized_path": "/cnn-ממליץ-לקוראיו-לבקר-בכיפת-הסלע-לפני-שי/מקדש-אחרון",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%aa%d7%91%d7%a0%d7%94-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%9d/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314",
+        "1318"
+      ],
+      "normalized_path": "/cnn-ממליץ-לקוראיו-לבקר-בכיפת-הסלע-לפני-שי/תבנה-ירושלם",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/shimon-haimov-english-gold",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "5018",
+        "5078"
+      ],
+      "normalized_path": "/shimon-haimov-english-gold",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/unnamed-1-3/",
+      "link_occurrences": 2,
+      "source_posts": 2,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1370",
+        "1376"
+      ],
+      "normalized_path": "/unnamed-1-3",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%9e%d7%a9%d7%a4%d7%97%d7%95%d7%aa-%d7%9e%d7%a9%d7%a4%d7%97%d7%95%d7%aa-%d7%9c%d7%91%d7%93/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1054"
+      ],
+      "normalized_path": "/משפחות-משפחות-לבד",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%9e%d7%a9%d7%a4%d7%97%d7%95%d7%aa-%d7%9e%d7%a9%d7%a4%d7%97%d7%95%d7%aa/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1054"
+      ],
+      "normalized_path": "/משפחות-משפחות",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%99%d7%94%d7%95%d7%94-%d7%99%d7%a9%d7%95%d7%91-%d7%9c%d7%a6%d7%99%d7%95%d7%9f/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1306"
+      ],
+      "normalized_path": "/המעיין-הפלאי-שיצא-מקדש-הקדשים/יהוה-ישוב-לציון",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/%d7%9c%d7%9b%d7%99%d7%93%d7%94-12/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1372"
+      ],
+      "normalized_path": "/נאום-נתניהו-בקונגרס-בערב-פורים-רמזים-מ/לכידה-12",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/%d7%9e%d7%91%d7%99%d7%a9/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1372"
+      ],
+      "normalized_path": "/נאום-נתניהו-בקונגרס-בערב-פורים-רמזים-מ/מביש",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/11005543_1092073034151487_99141475_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1372"
+      ],
+      "normalized_path": "/נאום-נתניהו-בקונגרס-בערב-פורים-רמזים-מ/11005543_1092073034151487_99141475_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%a9%d7%9b%d7%99%d7%a0%d7%94-%d7%aa%d7%a9%d7%9b%d7%9f/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1306"
+      ],
+      "normalized_path": "/המעיין-הפלאי-שיצא-מקדש-הקדשים/השכינה-תשכן",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%a8%d7%97%d7%9e%d7%99%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1306"
+      ],
+      "normalized_path": "/המעיין-הפלאי-שיצא-מקדש-הקדשים/הגאולה-ברחמים",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%94%d7%aa%d7%a9%d7%a2%d7%95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1307"
+      ],
+      "normalized_path": "/סוד-האותיות-במילה-משיח-מוצפן-עת-הגאולה/התשעו",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%9c%d7%9a-%d7%94%d7%9e%d7%a9%d7%99%d7%97/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1307"
+      ],
+      "normalized_path": "/סוד-האותיות-במילה-משיח-מוצפן-עת-הגאולה/מלך-המשיח",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a8%d7%99%d7%91%d7%95%d7%a2-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1307"
+      ],
+      "normalized_path": "/סוד-האותיות-במילה-משיח-מוצפן-עת-הגאולה/משיח-בריבוע-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%a6%d7%9e%d7%97-%d7%93%d7%95%d7%99%d7%93-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1307"
+      ],
+      "normalized_path": "/סוד-האותיות-במילה-משיח-מוצפן-עת-הגאולה/צמח-דויד-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%99%d7%91%d7%95%d7%90-%d7%91%d7%90%d7%97%d7%93%d7%95%d7%aa-%d7%a8%d7%97%d7%9e%d7%99-%d7%94-%d7%a8/%d7%94%d7%a7%d7%91%d7%94-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%90%d7%97%d7%93/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1312"
+      ],
+      "normalized_path": "/סוד-האותיות-משיח-יבוא-באחדות-רחמי-ה-ר/הקבה-עם-ישראל-אחד",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%99%d7%91%d7%95%d7%90-%d7%91%d7%90%d7%97%d7%93%d7%95%d7%aa-%d7%a8%d7%97%d7%9e%d7%99-%d7%94-%d7%a8/%d7%a8%d7%97%d7%9e%d7%99%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1312"
+      ],
+      "normalized_path": "/סוד-האותיות-משיח-יבוא-באחדות-רחמי-ה-ר/רחמים",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%91%d7%a8%d7%90%d7%a7-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1306"
+      ],
+      "normalized_path": "/המעיין-הפלאי-שיצא-מקדש-הקדשים/בראק-אובאמה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%a7%d7%a8%d7%99%d7%aa-%d7%9e%d7%9c%d7%90%d7%9b%d7%99/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "131"
+      ],
+      "normalized_path": "/המלחמה-והכרעת-החמאס-מובילה-לגילוי-מלכ/קרית-מלאכי",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a4%d7%99%d7%92%d7%95%d7%a2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "131"
+      ],
+      "normalized_path": "/המלחמה-והכרעת-החמאס-מובילה-לגילוי-מלכ/מלאכי-פיגוע",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%95%d7%93-%d7%94%d7%9e%d7%aa%d7%9e%d7%98%d7%99%d7%a7%d7%94-%d7%95%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%aa%d7%9e%d7%98%d7%99%d7%a7%d7%94-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1300"
+      ],
+      "normalized_path": "/סוד-המתמטיקה-ומשיח-רמזים-על-שנת-הגאולה/מתמטיקה-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%95%d7%a8-%d7%a0%d7%91%d7%95%d7%90%d7%aa-%d7%93%d7%a0%d7%99%d7%90%d7%9c-%d7%99%d6%b4%d7%aa%d6%b0%d7%91%d6%b8%d6%bc%d7%a8%d6%b2%d7%a8%d7%95%d6%bc-%d7%95%d6%b0%d7%99%d6%b4%d7%aa/%d7%93%d7%a0%d7%99%d7%90%d7%9c-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1338"
+      ],
+      "normalized_path": "/ביאור-נבואת-דניאל-יִתְבָּרֲרוּ-וְיִת/דניאל-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%a4%d7%99%d7%a1%d7%91%d7%95%d7%a7/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1259"
+      ],
+      "normalized_path": "/אובמה-משחק-בפה-רך-עם-ישראל-שנחשוב-שהוא-נ/בנימין-נתניהו-פיסבוק",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%9b%d7%91%d7%99%d7%a9-65/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "131"
+      ],
+      "normalized_path": "/המלחמה-והכרעת-החמאס-מובילה-לגילוי-מלכ/כביש-65",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%95%d7%93-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%99%d7%95%d7%a1%d7%a3-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95-%d7%a1%d7%95%d7%93-%d7%94%d7%97%d7%a9%d7%9e%d7%9c-%d7%90%d7%95%d7%93%d7%99/%d7%90%d7%99%d7%aa%d7%95-%d7%91%d7%90-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1323"
+      ],
+      "normalized_path": "/סוד-משיח-בן-יוסף-בימינו-סוד-החשמל-אודי/איתו-בא-אובאמה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%94%d7%a0%d7%99%d7%a6%d7%97%d7%95%d7%9f-%d7%94%d7%9e%d7%95%d7%97%d7%9c%d7%98/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "131"
+      ],
+      "normalized_path": "/המלחמה-והכרעת-החמאס-מובילה-לגילוי-מלכ/הניצחון-המוחלט",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/5776-1335-8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1358"
+      ],
+      "normalized_path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/5776-1335-8",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/%d7%a4%d7%99%d7%a1%d7%91%d7%95%d7%a7-%d7%90%d7%95%d7%91%d7%9e%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1259"
+      ],
+      "normalized_path": "/אובמה-משחק-בפה-רך-עם-ישראל-שנחשוב-שהוא-נ/פיסבוק-אובמה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11393000_1435172586790415_3351433622621510855_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1358"
+      ],
+      "normalized_path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/11393000_1435172586790415_3351433622621510855_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%95%d7%a3-%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/%d7%a1%d7%99%d7%9f-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1332"
+      ],
+      "normalized_path": "/סוף-גלות-ישראל-בימינו/סין-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%95%d7%a3-%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/%d7%aa%d7%9e%d7%95%d7%a0%d7%95%d7%aa-%d7%9b%d7%a8%d7%9e%d7%99%d7%90%d7%9c/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1332"
+      ],
+      "normalized_path": "/סוף-גלות-ישראל-בימינו/תמונות-כרמיאל",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%95%d7%a3-%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1312"
+      ],
+      "normalized_path": "/סוף-גלות-ישראל-2",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11266242_1127160193976894_3479014414611178489_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1358"
+      ],
+      "normalized_path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/11266242_1127160193976894_3479014414611178489_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1358"
+      ],
+      "normalized_path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/נתניהו",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%9c%d7%9b%d7%99%d7%93%d7%94-16/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1358"
+      ],
+      "normalized_path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/לכידה-16",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%a2%d7%a8%d7%aa-%d7%94%d7%95%d7%a8%d7%99%d7%a7%d7%9f-%d7%91%d7%aa%d7%99%d7%9e%d7%9f-%d7%9e%d7%a8%d7%9e%d7%96%d7%aa-%d7%a2%d7%9c-%d7%91%d7%95%d7%90-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%9c%d7%a4/%d7%9e%d7%a9%d7%95%d7%92%d7%a2%d7%99%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1261"
+      ],
+      "normalized_path": "/סערת-הוריקן-בתימן-מרמזת-על-בוא-המשיח-לפ/משוגעים",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%a2%d7%a8%d7%aa-%d7%94%d7%95%d7%a8%d7%99%d7%a7%d7%9f-%d7%91%d7%aa%d7%99%d7%9e%d7%9f-%d7%9e%d7%a8%d7%9e%d7%96%d7%aa-%d7%a2%d7%9c-%d7%91%d7%95%d7%90-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%9c%d7%a4/%d7%9e%d7%aa%d7%95%d7%9a-%d7%94%d7%a1%d7%a8%d7%98/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1261"
+      ],
+      "normalized_path": "/סערת-הוריקן-בתימן-מרמזת-על-בוא-המשיח-לפ/מתוך-הסרט",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%a8%d7%98-%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94-%d7%a9%d7%aa%d7%aa%d7%97%d7%99%d7%9c-%d7%94%d7%9b%d7%99-%d7%9e%d7%90%d7%95%d7%97%d7%a8-%d7%91%d7%97/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1274"
+      ],
+      "normalized_path": "/סרט-המלחמה-האחרונה-שתתחיל-הכי-מאוחר-בח",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%96%d7%95%d7%92-%d7%91%d7%a0%d7%99-67/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1358"
+      ],
+      "normalized_path": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/זוג-בני-67",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a1%d7%a8%d7%98-%d7%97%d7%93%d7%a9-%d7%a9%d7%97%d7%a8%d7%95%d7%a8-%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%9c%d7%a4%d7%99-%d7%a1%d7%95%d7%93-1820/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1308"
+      ],
+      "normalized_path": "/סרט-חדש-שחרור-פולארד-לפי-סוד-1820",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/10950715_849193685139831_9120334813592457000_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1363"
+      ],
+      "normalized_path": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/10950715_849193685139831_9120334813592457000_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11050223_1029693773724797_8202568535958198743_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1363"
+      ],
+      "normalized_path": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/11050223_1029693773724797_8202568535958198743_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11076270_821959114541179_1007068228820036296_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1363"
+      ],
+      "normalized_path": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/11076270_821959114541179_1007068228820036296_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11106512_1579897672285306_308671975_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1347"
+      ],
+      "normalized_path": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/11106512_1579897672285306_308671975_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/67-%d7%94%d7%a8%d7%95%d7%92%d7%99%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1363"
+      ],
+      "normalized_path": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/67-הרוגים",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%95%d7%9b%d7%97%d7%95%d7%aa-%d7%9c%d7%90%d7%9e%d7%99%d7%aa%d7%95%d7%aa-%d7%94%d7%aa%d7%95%d7%a8%d7%94-%d7%9e%d7%a9%d7%9e%d7%99%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1293"
+      ],
+      "normalized_path": "/הוכחות-לאמיתות-התורה-משמים",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a2%d7%9e%d7%95%d7%93-49/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1376"
+      ],
+      "normalized_path": "/עמוד-49",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a2%d7%aa-%d7%a0%d7%95%d7%9f/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1312"
+      ],
+      "normalized_path": "/עת-נון",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%97%d7%96%d7%a7-%d7%a2%d7%9c-%d7%97%d7%95%d7%93%d7%a9-%d7%90%d7%99%d7%99%d7%a8-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-2021-%d7%a8%d7%9e%d7%96%d7%99-%d7%94%d7%a2%d7%a6%d7%9e/%d7%90%d7%99%d7%99%d7%a8-%d7%aa%d7%a9%d7%a4%d7%90/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "904"
+      ],
+      "normalized_path": "/צופן-חזק-על-חודש-אייר-בדילוג-2021-רמזי-העצמ/אייר-תשפא",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%91%d7%91%d7%90-%d7%a1%d7%90%d7%9c%d7%99-%d7%91%d7%97%d7%9c%d7%95%d7%9d-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a4%d7%aa%d7%97-%d7%99%d7%95%d7%aa%d7%a8-%d7%9e%d7%aa%d7%9e%d7%99%d7%93/%d7%9e%d7%a9%d7%99%d7%97-%d7%98%d7%91%d7%aa-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1341"
+      ],
+      "normalized_path": "/הבבא-סאלי-בחלום-המשיח-בפתח-יותר-מתמיד/משיח-טבת-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%99%d7%95%d7%9d-%d7%9e%d7%a9%d7%99%d7%97/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "140"
+      ],
+      "normalized_path": "/צופן-מדהים-בתורה-בדילוג-5784-חותים-אירן-גא/יום-משיח",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%9b%d7%91%d7%90%d7%93%d7%a8-%d7%94%d7%aa%d7%a9%d7%a4%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "140"
+      ],
+      "normalized_path": "/צופן-מדהים-בתורה-בדילוג-5784-חותים-אירן-גא/כבאדר-התשפה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a2%d7%95%d7%96%d7%95%d7%97%d7%a8%d7%91/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "140"
+      ],
+      "normalized_path": "/צופן-מדהים-בתורה-בדילוג-5784-חותים-אירן-גא/עוזוחרב",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a4%d7%a8%d7%99%d7%9d-5785-%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%94%d7%97%d7%95%d7%aa%d7%99/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "140"
+      ],
+      "normalized_path": "/צופן-מדהים-בתורה-בדילוג-5784-חותים-אירן-גא/פרים-5785-מלחמה-החותי",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a7%d7%a5-%d7%9e%d7%a9%d7%99%d7%97-%d7%90%d7%93%d7%a8-%d7%94%d7%aa%d7%a9%d7%a4%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "140"
+      ],
+      "normalized_path": "/צופן-מדהים-בתורה-בדילוג-5784-חותים-אירן-גא/קץ-משיח-אדר-התשפה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%91%d7%91%d7%90-%d7%a1%d7%90%d7%9c%d7%99-%d7%91%d7%97%d7%9c%d7%95%d7%9d-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a4%d7%aa%d7%97-%d7%99%d7%95%d7%aa%d7%a8-%d7%9e%d7%aa%d7%9e%d7%99%d7%93/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d-3/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1341"
+      ],
+      "normalized_path": "/הבבא-סאלי-בחלום-המשיח-בפתח-יותר-מתמיד/היום-עם-3",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%95%d7%a8-%d7%94%d7%aa%d7%a9%d7%a2%d7%95-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/אור-התשעו-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%99%d7%9e%d7%aa%d7%99/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/אימתי",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%94%d7%a0%d7%91%d7%99%d7%90-%d7%99%d7%91%d7%a9%d7%a8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/אליהו-הנביא-יבשר",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%99%d7%95%d7%9d-%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa-%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/יום-התגלות-ה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93-%d7%93%d7%95%d7%99%d7%93-%d7%a2%d7%91%d7%93%d7%9a-%d7%99%d7%aa%d7%92%d7%9c%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/סוד-דויד-עבדך-יתגלה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/yuval-kogan-echad-hasichim-hamashiach",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "5035"
+      ],
+      "normalized_path": "/yuval-kogan-echad-hasichim-hamashiach",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93%d7%9a-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/סודך-משיח-בימינו",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%a6%d7%a4%d7%94-%d7%9c%d7%9e%d7%a9%d7%99%d7%97/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/עם-ישראל-מצפה-למשיח",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a2%d7%aa-%d7%a1%d7%95%d7%93/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/עת-סוד",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a4%d7%9c%d7%90-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/פלא-התשעו",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%aa%d7%9e%d7%95-%d7%9b%d7%9c-%d7%94%d7%a7%d7%99%d7%a6%d7%99%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/תמו-כל-הקיצים",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/attachment/7760/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/attachment/7760",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%97%d7%9e%d7%99-%d7%99%d7%94%d7%95%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1312"
+      ],
+      "normalized_path": "/רחמי-יהוה",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%91%d7%97%d7%99%d7%a8%d7%aa-%d7%a7%d7%95%d7%91%d7%99-%d7%9e%d7%a8%d7%99%d7%9e%d7%99-%d7%9c%d7%99%d7%99%d7%a6%d7%92-%d7%90%d7%aa-%d7%99/%d7%aa%d7%97%d7%a8%d7%95%d7%aa-%d7%94%d7%a9%d7%99%d7%a8-%d7%94%d7%99%d7%a9%d7%a8%d7%90%d7%9c%d7%99/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1140"
+      ],
+      "normalized_path": "/רמזי-גאולה-בבחירת-קובי-מרימי-לייצג-את-י/תחרות-השיר-הישראלי",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99-%d7%9c%d7%91%d7%a0%d7%95%d7%9f-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%92%d7%95%d7%93%d7%9c-%d7%a2%d7%96%d7%94-45-%d7%95%d7%9c%d7%91%d7%a0%d7%95%d7%9f/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "165"
+      ],
+      "normalized_path": "/רמזי-לבנון-מתעדכן/גודל-עזה-45-ולבנון",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/raza-deshabbat-910",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "5041"
+      ],
+      "normalized_path": "/raza-deshabbat-910",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%93%d7%a3-%d7%94%d7%91%d7%99%d7%aa/%d7%a1%d7%a4%d7%a8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1356"
+      ],
+      "normalized_path": "/דף-הבית/ספר",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9C%D7%92%D7%90%D7%95%D7%9C%D7%94-%D7%91%D7%9E%D7%A1%D7%A4%D7%A8-45-%D7%92%D7%90%D7%95%D7%9C%D7%94-%D7%9E%D7%AA%D7%A2%D7%93%D7%9B%D7%9F/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1295"
+      ],
+      "normalized_path": "/רמזים-לגאולה-במספר-45-גאולה-מתעדכן",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%90%d7%95%d7%aa-%d7%97%d7%99%d7%99%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1392"
+      ],
+      "normalized_path": "/רמזים-מדהימים-לביאת-המשיח-רמז-בשם-החלל/אות-חיים",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%a8%d7%95%d7%96%d7%98%d7%90-%d7%a4%d7%9c%d7%90%d7%99/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1392"
+      ],
+      "normalized_path": "/רמזים-מדהימים-לביאת-המשיח-רמז-בשם-החלל/רוזטא-פלאי",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%a9%d7%91%d7%99%d7%98/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1392"
+      ],
+      "normalized_path": "/רמזים-מדהימים-לביאת-המשיח-רמז-בשם-החלל/שביט",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%93%d7%a3-%d7%94%d7%91%d7%99%d7%aa/%d7%94%d7%92%d7%99%d7%a2-%d7%94%d7%96%d7%9e%d7%9f-%d7%9c%d7%a2%d7%a9%d7%95%d7%aa-%d7%aa%d7%a9%d7%95%d7%91%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1371"
+      ],
+      "normalized_path": "/דף-הבית/הגיע-הזמן-לעשות-תשובה",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a9%d7%a8%d7%99%d7%a4%d7%95%d7%aa-%d7%a2%d7%a8%d7%91-%d7%99%d7%95%d7%9d-%d7%94%d7%a2%d7%a6%d7%9e%d7%90%d7%95%d7%aa-%d7%9477-%d7%9c%d7%9e%d7%93%d7%99%d7%a0/%d7%9e%d7%a9%d7%95%d7%90%d7%95%d7%aa/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "48"
+      ],
+      "normalized_path": "/רמזים-מהשריפות-ערב-יום-העצמאות-ה77-למדינ/משואות",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a9%d7%a8%d7%99%d7%a4%d7%95%d7%aa-%d7%a2%d7%a8%d7%91-%d7%99%d7%95%d7%9d-%d7%94%d7%a2%d7%a6%d7%9e%d7%90%d7%95%d7%aa-%d7%9477-%d7%9c%d7%9e%d7%93%d7%99%d7%a0/%d7%a9%d7%a8%d7%a4%d7%95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "48"
+      ],
+      "normalized_path": "/רמזים-מהשריפות-ערב-יום-העצמאות-ה77-למדינ/שרפו",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a9%d7%a8%d7%a9-%d7%a0%d7%97%d7%a9/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1309"
+      ],
+      "normalized_path": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/אובמה-שרש-נחש",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%9b%d7%95%d7%9b%d7%91-%d7%a4%d7%9c%d7%95%d7%98%d7%95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1309"
+      ],
+      "normalized_path": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/כוכב-פלוטו",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a4%d7%a7%d7%a1-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1309"
+      ],
+      "normalized_path": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/פקס-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a4%d7%a7%d7%a1-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1309"
+      ],
+      "normalized_path": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/פקס-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a7%d7%a8%d7%99%d7%a1%d7%aa-%d7%9e%d7%92%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1309"
+      ],
+      "normalized_path": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/קריסת-מגה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "149"
+      ],
+      "normalized_path": "/רמזים-מנפילת-גל-מאיר-איזנקוט/איזנקוט-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/%d7%a7%d7%95%d7%aa/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "149"
+      ],
+      "normalized_path": "/רמזים-מנפילת-גל-מאיר-איזנקוט/קות",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/3%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "149"
+      ],
+      "normalized_path": "/רמזים-מנפילת-גל-מאיר-איזנקוט/3איזנקוט-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%90%d7%95%d7%a8-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/אור-התשעו",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%96%d7%9b%d7%95%d7%aa-%d7%9c%d7%99%d7%9e%d7%95%d7%93-%d7%a4%d7%a0%d7%99%d7%9e%d7%99%d7%95%d7%aa-%d7%94%d7%aa%d7%95%d7%a8%d7%94-%d7%a0%d7%96%d7%9b%d7%94-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%99%d7%a4%d7%a7%d7%95%d7%9f-%d7%9e%d7%9f-%d7%92%d7%9c%d7%95%d7%aa%d7%90-%d7%91%d7%a8%d7%97%d7%9e%d7%99/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1316"
+      ],
+      "normalized_path": "/בזכות-לימוד-פנימיות-התורה-נזכה-לגאולה/יפקון-מן-גלותא-ברחמי",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/היום-עם",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%95%d7%9e%d7%a4%d7%9c%d7%99%d7%90-1111/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/ומפליא-1111",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%95%d7%9e%d7%a4%d7%9c%d7%99%d7%90/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/ומפליא",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%94%d7%95%d7%94-%d7%9e%d7%a4%d7%9c%d7%99%d7%90-%d7%9c%d7%a2%d7%a9%d7%95%d7%aa-776/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/יהוה-מפליא-לעשות-776",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%94%d7%95%d7%94-%d7%9e%d7%a4%d7%9c%d7%99%d7%90-776/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/יהוה-מפליא-776",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%a4%d7%a7%d7%95%d7%9f-%d7%9e%d7%9f-%d7%92%d7%9c%d7%95%d7%aa%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1341"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/יפקון-מן-גלותה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a1%d7%a4%d7%a8-%d7%9e%d7%a1%d7%aa%d7%aa%d7%a8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/מספר-מסתתר",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a6%d7%a4%d7%95%d7%9f-%d7%aa%d7%a4%d7%aa%d7%97-%d7%94%d7%a8%d7%a2%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/מצפון-תפתח-הרעה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a7%d7%93%d7%a9-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/מקדש-בימינו",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%a1%d7%95%d7%93-%d7%9e%d7%a1%d7%a4%d7%a8-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/סוד-מספר-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%a9%d7%9e%d7%a2-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9b%d7%99-%d7%9c%d7%94-%d7%94%d7%9e%d7%9c%d7%95%d7%9b%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1368"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/שמע-ישראל-כי-לה-המלוכה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/unnamed-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1361"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/unnamed-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94-%d7%90%d7%99%d7%a9-%d7%a9%d7%97%d7%95%d7%a8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/אובאמה-איש-שחור",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%94%d7%a2%d7%91%d7%a8%d7%99%d7%aa/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/אותיות-העברית",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%99%d7%a8%d7%9f/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/אירן",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%91%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/באותיות",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%91%d7%9e%d7%94%d7%a8%d7%94-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/במהרה-בימינו",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%94%d7%99%d7%95%d7%9d-%d7%90%d7%9d-%d7%91%d7%a7%d7%95%d7%9c%d7%95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/היום-אם-בקולו",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%97%d7%9e%d7%a9-%d7%a9%d7%91%d7%a2-%d7%a9%d7%91%d7%a2-%d7%a9%d7%a9-%d7%91%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/חמש-שבע-שבע-שש-באותיות",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%a1%d7%95%d7%9b%d7%95%d7%aa/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/סוכות",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%a7%d7%a8%d7%99-%d7%a2%d7%9c-%d7%a7%d7%91%d7%99%d7%99%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/קרי-על-קביים",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/1948-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/1948-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-3/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/1948-3",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/776-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/776-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/776-2-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1331"
+      ],
+      "normalized_path": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/776-2-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/%d7%94%d7%aa%d7%97%d7%9c%d7%aa-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1322"
+      ],
+      "normalized_path": "/רצח-מלאכי-רוזנפלד-היד-מרמז-על-עת-גאולת/התחלת-תהליך-הגאולה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/%d7%9c%d7%9b%d7%99%d7%93%d7%94-18/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1322"
+      ],
+      "normalized_path": "/רצח-מלאכי-רוזנפלד-היד-מרמז-על-עת-גאולת/לכידה-18",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/11650674_1416273165368413_1545951058_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1322"
+      ],
+      "normalized_path": "/רצח-מלאכי-רוזנפלד-היד-מרמז-על-עת-גאולת/11650674_1416273165368413_1545951058_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/2212-%d7%94%d7%aa%d7%97%d7%9c%d7%aa-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1322"
+      ],
+      "normalized_path": "/רצח-מלאכי-רוזנפלד-היד-מרמז-על-עת-גאולת/2212-התחלת-תהליך-הגאולה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/unnamed-4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1322"
+      ],
+      "normalized_path": "/רצח-מלאכי-רוזנפלד-היד-מרמז-על-עת-גאולת/unnamed-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-2015/%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94-%d7%a2%d7%99%d7%a6%d7%95%d7%91-1-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1325"
+      ],
+      "normalized_path": "/רשימת-גימטריות-2015/שנת-הגאולה-האחרונה-עיצוב-1-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-2015/%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94-%d7%a2%d7%99%d7%a6%d7%95%d7%91-2-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1325"
+      ],
+      "normalized_path": "/רשימת-גימטריות-2015/שנת-הגאולה-האחרונה-עיצוב-2-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a9%d7%97%d7%a8%d7%95%d7%a8-%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%91-2015/%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%99%d7%a9%d7%95%d7%97%d7%a8%d7%a8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1308"
+      ],
+      "normalized_path": "/שחרור-פולארד-ב-2015/פולארד-ישוחרר",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a9%d7%99%d7%a2%d7%95%d7%a8%d7%99-%d7%94%d7%a8%d7%91-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%95%d7%99%d7%a0%d7%98%d7%a8%d7%95%d7%91-%d7%96%d7%a6%d7%9c-%d7%9e%d7%aa/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1276"
+      ],
+      "normalized_path": "/שיעורי-הרב-ישראל-אליהו-וינטרוב-זצל-מת",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-05-at-13-40-51/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/whatsapp-image-2019-06-05-at-13-40-51",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-02-at-17-09-15-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/whatsapp-image-2019-06-02-at-17-09-15-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a9%d7%a0%d7%99-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%94%d7%90%d7%95%d7%9d-%d7%a2%d7%9e%d7%9c%d7%a7-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a4%d7%95%d7%97%d7%93%d7%99%d7%9d-%d7%9e%d7%94/%d7%90%d7%95%d7%9e-%d7%a2%d7%9e%d7%9c%d7%a7/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1328"
+      ],
+      "normalized_path": "/שני-צפנים-האום-עמלק-עם-ישראל-פוחדים-מה/אומ-עמלק",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a9%d7%a0%d7%99-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%94%d7%90%d7%95%d7%9d-%d7%a2%d7%9e%d7%9c%d7%a7-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a4%d7%95%d7%97%d7%93%d7%99%d7%9d-%d7%9e%d7%94/%d7%9e%d7%95%d7%9b%d7%9f/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1328"
+      ],
+      "normalized_path": "/שני-צפנים-האום-עמלק-עם-ישראל-פוחדים-מה/מוכן",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%a9%d7%a0%d7%aa-%d7%94%d7%9e%d7%95%d7%a1%d7%9c%d7%9e%d7%99%d7%9d-1445/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "165"
+      ],
+      "normalized_path": "/שנת-המוסלמים-1445",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%aa%d7%94%d7%99%d7%94-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "98"
+      ],
+      "normalized_path": "/תהיה-הגאולה",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-02-at-17-09-15-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/whatsapp-image-2019-06-02-at-17-09-15-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%97%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9b%d7%aa%d7%91%d7%94-%d7%91%d7%a8%d7%95%d7%a1%d7%99%d7%aa-67-%d7%91%d7%94%d7%a4%d7%92%d7%a0%d7%aa-%d7%94%d7%90%d7%aa%d7%99%d7%95%d7%a4%d7%99%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1347"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלחמת-גוג-ומגוג-מתעדכן/כתבה-ברוסית-67-בהפגנת-האתיופים",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%9c%d7%93%d7%93-%d7%95%d7%9e%d7%99%d7%93%d7%93/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/אלדד-ומידד",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%a8%d7%92%d7%95%d7%9f-%d7%93%d7%a2%d7%90%d7%a9/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/ארגון-דעאש",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%aa%d7%a8-%d7%90%d7%9e%d7%a8%d7%99%d7%a7%d7%90%d7%99-%d7%94%d7%a2%d7%95%d7%a7%d7%91-%d7%90%d7%97%d7%a8%d7%99-%d7%a8%d7%a2%d7%99%d7%93%d7%95%d7%aa-%d7%90%d7%93%d7%9e%d7%94-%d7%98%d7%95%d7%a2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/אתר-אמריקאי-העוקב-אחרי-רעידות-אדמה-טוע",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%94%d7%a1%d7%a2%d7%a8%d7%94-%d7%94%d7%91%d7%90%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/הסערה-הבאה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%94%d7%a8%d7%a2%d7%99%d7%93%d7%94-%d7%94%d7%99%d7%aa%d7%94-%d7%91%d7%a1%d7%99%d7%a0%d7%99-%d7%9e%d7%a8%d7%97%d7%a7-67-%d7%a7%d7%9e-%d7%9e%d7%91%d7%99%d7%a8%d7%aa-%d7%90%d7%97%d7%aa-%d7%94%d7%9e/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/הרעידה-היתה-בסיני-מרחק-67-קמ-מבירת-אחת-המ",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%9c%d7%98%d7%91%d7%99%d7%94-67/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/לטביה-67",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%aa%d7%93%d7%9e%d7%95%d7%a8-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1304"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/תדמור-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11227764_1605515579737821_4938321619123122234_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/11227764_1605515579737821_4938321619123122234_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11693975_1002192813132990_7920557341476677114_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/11693975_1002192813132990_7920557341476677114_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11745891_1605515559737823_842211307216230030_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/11745891_1605515559737823_842211307216230030_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/2-%d7%aa%d7%93%d7%9e%d7%95%d7%a8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1304"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/2-תדמור",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/5776-1335-11/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/5776-1335-11",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/67-3/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/67-3",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%98%d7%a7%d7%a1-67/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/טקס-67",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%9b%d7%95%d7%9b%d7%91/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/כוכב",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%9c%d7%9b%d7%99%d7%93%d7%94-17/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/לכידה-17",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%a9%d7%a2%d7%a8-%d7%93%d7%95%d7%9c%d7%a8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/שער-דולר",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/11351132_887065378019328_7872186057453411798_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/11351132_887065378019328_7872186057453411798_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/11354980_841423615945393_754417561_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/11354980_841423615945393_754417561_n",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%90%d7%99%d7%a8%d7%9f/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-אירן",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%9e%d7%98%d7%a8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-מטר",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%a2%d7%95%d7%9c%d7%99%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-עולים",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-776/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1326"
+      ],
+      "normalized_path": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-776",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-05-30-at-16-59-38/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/whatsapp-image-2019-05-30-at-16-59-38",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/12165530_1509416599369418_1722946031_o/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1332"
+      ],
+      "normalized_path": "/12165530_1509416599369418_1722946031_o",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/12168395_1509416686036076_273889519_o/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1332"
+      ],
+      "normalized_path": "/12168395_1509416686036076_273889519_o",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/12169974_1509416636036081_1320886906_o/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1332"
+      ],
+      "normalized_path": "/12169974_1509416636036081_1320886906_o",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/14-45/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "165"
+      ],
+      "normalized_path": "/14-45",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/1400-%d7%a0%d7%a8%d7%95%d7%aa-%d7%91%d7%95%d7%99%d7%9c%d7%a0%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "165"
+      ],
+      "normalized_path": "/1400-נרות-בוילנה",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-05-30-at-16-59-38-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/whatsapp-image-2019-05-30-at-16-59-38-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/2701-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "233"
+      ],
+      "normalized_path": "/2701-2",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%9e%d7%9c%d7%9a-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%aa%d7%92%d7%9c%d7%94-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/מלך-ישראל-מתגלה-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/464378687028017/videos/vb.464378687028017/727568620709021/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": true,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1262"
+      ],
+      "normalized_path": "/464378687028017/videos/vb.464378687028017/727568620709021",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/776-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1361"
+      ],
+      "normalized_path": "/776-2",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%99%d7%97%d7%9c%d7%99%d7%a3-%d7%90%d7%aa/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/יחליף-את",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/86AND26/videos/vb.103870716369907/801439149946390/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": true,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1341"
+      ],
+      "normalized_path": "/86AND26/videos/vb.103870716369907/801439149946390",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/האמיתי",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%91%d7%99%d7%91%d7%99-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/ביבי-נתניהו-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/סוד-הפיכת-האותיות-למספרים-סוד-החשמל",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "5089"
+      ],
+      "normalized_path": "/סוד-הפיכת-האותיות-למספרים-סוד-החשמל",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/sod1820/videos/vb.617996338259568/1042960175763180/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": true,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1244"
+      ],
+      "normalized_path": "/sod1820/videos/vb.617996338259568/1042960175763180",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%99%d7%91%d7%a0%d7%95-%d7%91%d7%99%d7%aa-%d7%9e%d7%a7%d7%93%d7%a9/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1318"
+      ],
+      "normalized_path": "/cnn-ממליץ-לקוראיו-לבקר-בכיפת-הסלע-לפני-שי/יבנו-בית-מקדש",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%90%d7%99%d7%a8%d7%9f-844111/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "127"
+      ],
+      "normalized_path": "/אירן-844111",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/cnn-%d7%9e%d7%a6%d7%99%d7%a2-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1318"
+      ],
+      "normalized_path": "/cnn-ממליץ-לקוראיו-לבקר-בכיפת-הסלע-לפני-שי/cnn-מציע-לבקר-בכיפת-הסלע",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%9e%d7%90%d7%93-%d7%a8%d7%9e%d7%96-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%a8%d7%97%d7%9e%d7%99%d7%9d-%d7%9e%d7%90%d7%9e/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1328"
+      ],
+      "normalized_path": "/גאולה-בקרוב-מאד-רמז-לגאולה-ברחמים-מאמ",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%91%d7%a8%d7%90%d7%a7-%d7%97%d7%95%d7%a1%d7%99%d7%99%d7%9f-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%9c%d7%94%d7%9e%d7%9f-%d7%94/%d7%91%d7%a8%d7%90%d7%a7-%d7%97%d7%95%d7%a1%d7%99%d7%9f-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1374"
+      ],
+      "normalized_path": "/בראק-חוסיין-אובאמה-הקשר-לפורים-להמן-ה/בראק-חוסין-אובאמה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-5/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1147"
+      ],
+      "normalized_path": "/בקרוב-יהיה-מלך-בירושלים-זה-תלוי-בכל-אחד/הינוקא-5",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-3/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1147"
+      ],
+      "normalized_path": "/בקרוב-יהיה-מלך-בירושלים-זה-תלוי-בכל-אחד/הינוקא-3",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1147"
+      ],
+      "normalized_path": "/בקרוב-יהיה-מלך-בירושלים-זה-תלוי-בכל-אחד/הינוקא-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1147"
+      ],
+      "normalized_path": "/בקרוב-יהיה-מלך-בירושלים-זה-תלוי-בכל-אחד/הינוקא-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/img_20231023_154530/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "165"
+      ],
+      "normalized_path": "/img_20231023_154530",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/k1820/videos/839307259461807/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1362"
+      ],
+      "normalized_path": "/k1820/videos/839307259461807",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/k1820/videos/vb.617996338259568/839307259461807/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": true,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1362"
+      ],
+      "normalized_path": "/k1820/videos/vb.617996338259568/839307259461807",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/lemi-ata-neeman-ot-umofet",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "5089"
+      ],
+      "normalized_path": "/lemi-ata-neeman-ot-umofet",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/mataamim-1254",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "5044"
+      ],
+      "normalized_path": "/mataamim-1254",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%91%d7%a0%d7%99%d7%99%d7%aa-%d7%94%d7%a7%d7%a4%d7%99%d7%98%d7%95%d7%9c-%d7%91%d7%95%d7%95%d7%a9%d7%99%d7%a0%d7%92%d7%98%d7%95%d7%9f-%d7%a0%d7%a2%d7%a9%d7%94-%d7%a2%d7%9c-%d7%94%d7%9e%d7%95%d7%93/_84478046_compeagle/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1304"
+      ],
+      "normalized_path": "/בניית-הקפיטול-בוושינגטון-נעשה-על-המוד/_84478046_compeagle",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%a0%d7%99%d7%99%d7%aa-%d7%94%d7%a7%d7%a4%d7%99%d7%98%d7%95%d7%9c-%d7%91%d7%95%d7%95%d7%a9%d7%99%d7%a0%d7%92%d7%98%d7%95%d7%9f-%d7%a0%d7%a2%d7%a9%d7%94-%d7%a2%d7%9c-%d7%94%d7%9e%d7%95%d7%93/_82373332_82373327/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1304"
+      ],
+      "normalized_path": "/בניית-הקפיטול-בוושינגטון-נעשה-על-המוד/_82373332_82373327",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa9-4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "138"
+      ],
+      "normalized_path": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית9-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%90%d7%95%d7%a1%d7%a3-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%9e%d7%9c%d7%97%d7%9e%d7%95%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%aa%d7%9e%d7%95%d7%96/%d7%9b%d7%93-%d7%aa%d7%9e%d7%95%d7%96/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1333"
+      ],
+      "normalized_path": "/אוסף-רמזים-על-מלחמות-גוג-ומגוג-תמוז/כד-תמוז",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa8-4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "138"
+      ],
+      "normalized_path": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית8-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa7-4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "138"
+      ],
+      "normalized_path": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית7-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa4-4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "138"
+      ],
+      "normalized_path": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית4-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa4-3/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "138"
+      ],
+      "normalized_path": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית4-3",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa3-4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "138"
+      ],
+      "normalized_path": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית3-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa3-3/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "138"
+      ],
+      "normalized_path": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית3-3",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa2-4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "138"
+      ],
+      "normalized_path": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית2-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa2-3/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "138"
+      ],
+      "normalized_path": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית2-3",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa10-4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "138"
+      ],
+      "normalized_path": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית10-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/showimage/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1259"
+      ],
+      "normalized_path": "/אובמה-משחק-בפה-רך-עם-ישראל-שנחשוב-שהוא-נ/showimage",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%a6%d7%9e%d7%97-%d7%93%d7%95%d7%93/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1337"
+      ],
+      "normalized_path": "/הרמז-האלוקי-של-דייויד-בלאט-והקשר-לגאול/צמח-דוד",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%a8%d7%a6%d7%90%d7%95%d7%aa-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%95%d7%aa/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1399"
+      ],
+      "normalized_path": "/הרצאות-מדהימות",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "176"
+      ],
+      "normalized_path": "/השיר-שסוחף-את-כל-העולם-jerusalema-ירושלים-הבית-ש/תגובות-ירושלים-חלק-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "176"
+      ],
+      "normalized_path": "/השיר-שסוחף-את-כל-העולם-jerusalema-ירושלים-הבית-ש/תגובות-ירושלים-חלק-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-3/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "176"
+      ],
+      "normalized_path": "/השיר-שסוחף-את-כל-העולם-jerusalema-ירושלים-הבית-ש/תגובות-ירושלים-חלק-3",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "176"
+      ],
+      "normalized_path": "/השיר-שסוחף-את-כל-העולם-jerusalema-ירושלים-הבית-ש/תגובות-ירושלים-חלק-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%90%d7%a8%d7%99%d7%9b%d7%99%d7%9d-%d7%95%d7%94%d7%96%d7%9e%d7%a0%d7%99%d7%9d-%d7%9c%d7%97%d7%95%d7%93%d7%a9-%d7%94%d7%a7%d7%a8%d7%95%d7%91-%d7%90%d7%9c%d7%95%d7%9c-%d7%91%d7%a9%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1276"
+      ],
+      "normalized_path": "/התאריכים-והזמנים-לחודש-הקרוב-אלול-בשם",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%93%d7%99%d7%95%d7%99%d7%93/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1337"
+      ],
+      "normalized_path": "/הרמז-האלוקי-של-דייויד-בלאט-והקשר-לגאול/דיויד",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-39-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-39-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-3/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-39-3",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-39",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-40-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-40-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-40/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-40",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-41-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-41-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-41/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-41",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-42-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-42-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-42",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43-1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-43-1",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-43-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-43",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-44/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1057"
+      ],
+      "normalized_path": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-44",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%95%d6%b0%d7%90%d6%b8%d7%91%d6%b7%d7%93-%d7%9e%d6%b6%d7%9c%d6%b6%d7%9a%d6%b0-%d7%9e%d6%b5%d7%a2%d6%b7%d7%96%d6%b8%d6%bc%d7%94-%d7%a0%d7%91%d7%95%d7%90%d7%aa-%d7%96%d7%9b%d7%a8%d7%99%d7%94-%d7%a2/45-%d7%a0%d7%94%d7%a8%d7%a1%d7%95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "165"
+      ],
+      "normalized_path": "/וְאָבַד-מֶלֶךְ-מֵעַזָּה-נבואת-זכריה-ע/45-נהרסו",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%91%d7%99%d7%90%d7%aa-%d7%a2%d7%9c-%d7%97%d7%9e%d7%95%d7%a8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1272"
+      ],
+      "normalized_path": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/ביאת-על-חמור",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1272"
+      ],
+      "normalized_path": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/הגאולה-האחרונה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1272"
+      ],
+      "normalized_path": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/התגלות",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%a1%d7%95%d7%93-%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%94%d7%95%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1272"
+      ],
+      "normalized_path": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/סוד-התגלות-יהוה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/7760-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1272"
+      ],
+      "normalized_path": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/7760-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/attachment/2660/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1272"
+      ],
+      "normalized_path": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/attachment/2660",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/attachment/533/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1272"
+      ],
+      "normalized_path": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/attachment/533",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%D7%96%D7%95%D7%94%D7%A8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1371"
+      ],
+      "normalized_path": "/זוהר",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%96%d7%9e%d7%9f-%d7%94%d7%a7%d7%a5-%d7%94%d7%aa%d7%a9%d7%a2%d7%95-%d7%a8%d7%9e%d7%95%d7%96-%d7%91%d7%9e%d7%93%d7%95%d7%99%d7%a7-%d7%91%d7%9e%d7%99%d7%9c%d7%99%d7%9d-%d7%aa%d7%99%d7%a4%d7%97/%d7%aa%d7%99%d7%a4%d7%97-%d7%a8%d7%95%d7%97%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1330"
+      ],
+      "normalized_path": "/זמן-הקץ-התשעו-רמוז-במדויק-במילים-תיפח/תיפח-רוחם",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%9c%d7%9b%d7%99%d7%93%d7%94-11/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1399"
+      ],
+      "normalized_path": "/חדש-עדויות-של-עשרות-אנשים-בארץ-ששמעו-קו/לכידה-11",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a2%d7%93%d7%95%d7%aa-%d7%a9%d7%95%d7%a4%d7%a8/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1399"
+      ],
+      "normalized_path": "/חדש-עדויות-של-עשרות-אנשים-בארץ-ששמעו-קו/עדות-שופר",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a7%d7%95%d7%9c-%d7%a9%d7%95%d7%a4%d7%a8-%d7%9c%d7%95%d7%93-5-7-2015/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1399"
+      ],
+      "normalized_path": "/חדש-עדויות-של-עשרות-אנשים-בארץ-ששמעו-קו/קול-שופר-לוד-5-7-2015",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a7%d7%95%d7%9c-%d7%a9%d7%95%d7%a4%d7%a8-%d7%a0%d7%a9%d7%a8-5-7-2015/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1399"
+      ],
+      "normalized_path": "/חדש-עדויות-של-עשרות-אנשים-בארץ-ששמעו-קו/קול-שופר-נשר-5-7-2015",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%97%d7%95%d7%91%d7%a8%d7%aa-%d7%a1%d7%95%d7%93-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%90/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1314"
+      ],
+      "normalized_path": "/חוברת-סוד-הגאולה-א",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/%d7%97%d7%95%d7%aa%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1241"
+      ],
+      "normalized_path": "/חותם-שהתגלה-היום-בעיר-דוד-מרמז-על-הגאול/חותם",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/img-20160307-wa0064/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1241"
+      ],
+      "normalized_path": "/חותם-שהתגלה-היום-בעיר-דוד-מרמז-על-הגאול/img-20160307-wa0064",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/img-20160307-wa0065/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1241"
+      ],
+      "normalized_path": "/חותם-שהתגלה-היום-בעיר-דוד-מרמז-על-הגאול/img-20160307-wa0065",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa1-4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "138"
+      ],
+      "normalized_path": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית1-4",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%92%d7%95%d7%a0%d7%a1/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1337"
+      ],
+      "normalized_path": "/הרמז-האלוקי-של-דייויד-בלאט-והקשר-לגאול/גונס",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/ביאת-המשיח",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%99%d7%9e%d7%95%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-1-jpeg/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/ימות-המשיח-1-jpeg",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%9b%d7%98-%d7%90%d7%9c%d7%95%d7%9c/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1107"
+      ],
+      "normalized_path": "/כט-אלול",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%9b%d7%9e%d7%95-%d7%a9%d7%a4%d7%aa%d7%90%d7%95%d7%9d-%d7%91%d7%94%d7%99%d7%a1%d7%97-%d7%94%d7%93%d7%a2%d7%aa-%d7%90%d7%96%d7%a8%d7%97%d7%99-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%94%d7%91%d7%99%d7%a0/unnamed-1-2/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1399"
+      ],
+      "normalized_path": "/כמו-שפתאום-בהיסח-הדעת-אזרחי-ישראל-הבינ/unnamed-1-2",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9c%d7%94%d7%92%d7%99%d7%a2-%d7%9c%d7%a0%d7%a6%d7%97-%d7%9e%d7%a1%d7%a8-%d7%9c%d7%a7%d7%98-%d7%90%d7%a1%d7%95%d7%a0%d7%95%d7%aa-%d7%98%d7%91%d7%a2-%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%99%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1198"
+      ],
+      "normalized_path": "/להגיע-לנצח-מסר-לקט-אסונות-טבע-אחרונים",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%9e%d7%93%d7%91%d7%a8%d7%99-%d7%94%d7%a8%d7%9e%d7%97%d7%9c-%d7%94%d7%a9%d7%9c%d7%9e%d7%aa-%d7%94%d7%90%d7%93%d7%9d-%d7%91%d7%a9%d7%a0%d7%aa-%d7%aa%d7%a9%d7%a4-%d7%9e%d7%94%d7%99%d7%a8%d7%95/%d7%a8%d7%9e%d7%97%d7%9c-%d7%aa%d7%a9%d7%a4/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1086"
+      ],
+      "normalized_path": "/מדברי-הרמחל-השלמת-האדם-בשנת-תשפ-מהירו/רמחל-תשפ",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%a1%d7%91%d7%a8-%d7%a2%d7%9c-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%91%d7%aa%d7%a9%d7%a2%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c/%d7%94%d7%aa%d7%90%d7%a8%d7%99%d7%9a-%d7%a0%d7%a4%d7%9c/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1354"
+      ],
+      "normalized_path": "/הסבר-על-תהליך-גילוי-אליהו-בתשעה-הקשר-ל/התאריך-נפל",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%97%d7%91%d7%9c%d7%99%d7%9d-%d7%a7%d7%98%d7%a0%d7%99%d7%9d-%d7%95%d7%a7%d7%98%d7%99%d7%a0%d7%99%d7%9d-%d7%90%d7%99%d7%a4%d7%94-%d7%94%d7%99%d7%99%d7%aa%d7%9d-%d7%a2%d7%93-%d7%94%d7%99/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1274"
+      ],
+      "normalized_path": "/מחבלים-קטנים-וקטינים-איפה-הייתם-עד-הי",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%90%d7%99%d7%9c%d7%aa-%d7%a9%d7%a7%d7%93-67/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1295"
+      ],
+      "normalized_path": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/אילת-שקד-67",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%a1%d7%95%d7%a4%d7%a8-%d7%94%d7%a9%d7%95%d7%93%d7%99/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1295"
+      ],
+      "normalized_path": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/הסופר-השודי",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%98%d7%a0%d7%a7-67/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1295"
+      ],
+      "normalized_path": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/טנק-67",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/167-%d7%97%d7%93%d7%a9/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1295"
+      ],
+      "normalized_path": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/167-חדש",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/67-%d7%9e%d7%90%d7%a1%d7%a8%d7%99-%d7%a2%d7%95%d7%9c%d7%9d/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1295"
+      ],
+      "normalized_path": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/67-מאסרי-עולם",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/67-%d7%a8%d7%a2%d7%99%d7%93%d7%94-%d7%91%d7%a6%d7%99%d7%9c%d7%94/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1295"
+      ],
+      "normalized_path": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/67-רעידה-בצילה",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/baregalim95/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1221"
+      ],
+      "normalized_path": "/ממצאים-מעניינים-בדילוגי-אותיות-עמים-ה/baregalim95",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/haam_shivtei_israel77/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1221"
+      ],
+      "normalized_path": "/ממצאים-מעניינים-בדילוגי-אותיות-עמים-ה/haam_shivtei_israel77",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/yeasfu_aseifah204/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1221"
+      ],
+      "normalized_path": "/ממצאים-מעניינים-בדילוגי-אותיות-עמים-ה/yeasfu_aseifah204",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/yeasfu51/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1221"
+      ],
+      "normalized_path": "/ממצאים-מעניינים-בדילוגי-אותיות-עמים-ה/yeasfu51",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%94%d7%a1%d7%91%d7%a8-%d7%a2%d7%9c-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%91%d7%aa%d7%a9%d7%a2%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c/%d7%90%d7%9c%d7%99%d7%94-%d7%9e%d7%a9%d7%99%d7%97/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1354"
+      ],
+      "normalized_path": "/הסבר-על-תהליך-גילוי-אליהו-בתשעה-הקשר-ל/אליה-משיח",
+      "classification": "nested_under_known_post_unresolved"
+    },
+    {
+      "path": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%95%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%a9%d7%91%d7%99%d7%a7%d7%a9-%d7%9c%d7%94%d7%a4%d7%99%d7%a5-%d7%94%d7%92%d7%a8%d7%97-%d7%a7%d7%a0%d7%99%d7%99%d7%91%d7%a1/11025115_614479468686688_3298901099533139475_n/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1356"
+      ],
+      "normalized_path": "/מסר-חדש-ומדהים-שביקש-להפיץ-הגרח-קנייבס/11025115_614479468686688_3298901099533139475_n",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    },
+    {
+      "path": "/%d7%94%d7%a0%d7%99%d7%a1%d7%99%d7%95%d7%9f-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%9f-%d7%97%d7%95%d7%91%d7%94-%d7%9c%d7%a7%d7%a8%d7%95%d7%90/",
+      "link_occurrences": 1,
+      "source_posts": 1,
+      "has_query": false,
+      "has_anchor": false,
+      "example_post_ids": [
+        "1345"
+      ],
+      "normalized_path": "/הניסיון-האחרון-חובה-לקרוא",
+      "classification": "no_matching_public_post_identity_or_known_static"
+    }
+  ]
+}
