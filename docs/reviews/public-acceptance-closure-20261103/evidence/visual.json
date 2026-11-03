@@ -1,0 +1,22 @@
+{
+  "sha": "8f8a6dffb9aecf0464af62637065a54803bef8f8",
+  "cases": [
+    {
+      "width": 390,
+      "noticeY": -714.21875,
+      "photos": 7,
+      "sw": true,
+      "overflow": false,
+      "noticeBeforeInput": true
+    },
+    {
+      "width": 1440,
+      "noticeY": -761,
+      "photos": 14,
+      "sw": true,
+      "overflow": false,
+      "noticeBeforeInput": true
+    }
+  ],
+  "liveWrites": false
+}

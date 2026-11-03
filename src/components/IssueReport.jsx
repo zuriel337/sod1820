@@ -155,7 +155,7 @@ export default function IssueReport({
         <small id="sod29-issue-report-count">{text.length}/{ISSUE_REPORT_MAX_TEXT}</small>
       </label>
       {context.source_href ? <p className="sod29-contact-privacy" style={{ overflowWrap: "anywhere" }}>מקור הפנייה: <bdi dir="ltr">{context.source_href}</bdi></p> : null}
-      {PUBLIC_READING_RELEASE ? <div role="status"><p>השליחה אינה זמינה בפריוויו הזה. אפשר להעתיק את הטיוטה ולשמור אותה אצלכם.</p><button type="button" className="sod29-action" onClick={async () => setCopied(await copyLink(text + (context.source_href ? `\n\n${context.source_href}` : "")))}>{copied ? "הטיוטה הועתקה" : "העתקת הטיוטה"}</button></div> : null}
+      {PUBLIC_READING_RELEASE ? <div role="status"><p>אפשר להעתיק את הטיוטה ולשמור אותה אצלכם.</p><button type="button" className="sod29-action" onClick={async () => setCopied(await copyLink(text + (context.source_href ? `\n\n${context.source_href}` : "")))}>{copied ? "הטיוטה הועתקה" : "העתקת הטיוטה"}</button></div> : null}
       <button className="sod29-action primary" type="submit" disabled={PUBLIC_READING_RELEASE}>שלח דיווח</button>
     </form>
   );

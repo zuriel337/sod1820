@@ -1,5 +1,13 @@
 # SOD1820 — MASTER ROADMAP v6.12 COMPACT
 
+**עדכון קבלה ממוקד 3.11 — ממשיך את 3f23b26f:**
+[ספירת הכתובות, תיקוני התמונות/הטיקר, הדיווח וחסמי המעבר](docs/reviews/public-acceptance-closure-20261103/README.md).
+33,667 רשומות סווגו אוטומטית: אין זו קבלת HTTP מלאה. 641 הפניות כוללות
+258 יעדים לא מטופלים; 211 רשומות נוספות אינן מטופלות ישירות. שמירת דיווח
+מפורש הוכנה כהצעה נפרדת מזהות ודיוור וטרם הופעלה. חשבון אמיתי, מבקר חוזר,
+S2/CP1, עדכניות גיבוי וכיסוי מדיה ו־Production activation נשארים פתוחים.
+H1/G3 נשמרים; אין מעבר לחי. BEFORE a8d1af3f-c987-40c8-a582-c59dc2c27109.
+
 **Date:** 2026-11-03 (navigation/status synchronization; existing gate sequence retained)
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 CLOSED · G3→G4 TRANSITION** · HUMAN-GATE CONTROLLED
 

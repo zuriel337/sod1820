@@ -387,3 +387,7 @@ Residual media/attachment/entry ambiguities, real-account and action/service
 acceptance remain explicit. No redirects or settings were changed on Legacy
 Production. Contract history, G3/H1 acceptance and formal G4 distinction remain.
 Coordination BEFORE: `5fbf9e75-b445-4da4-bf24-dfc485387b8f`; Doc37 §12.30.
+
+### 8.2 Acceptance count correction · 3 November 2026
+
+[Complete inventory classification and its limits](reviews/public-acceptance-closure-20261103/README.md) supersedes the 33 application-alias count for total redirect coverage: 641 hosting/application redirects, including 258 unmatched target routes; 211 additional direct unmatched routes. No full HTTP acceptance or blanket missing-content waiver. Original inventory and post address contract unchanged.

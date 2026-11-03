@@ -25,7 +25,7 @@ for(const row of inventory.rows){
   const state=publicReadingPath(u.pathname,{search:u.search});
   const staticPath=resolve('public-reading-deploy/dist','.'+u.pathname);
   const staticFile=staticPath.startsWith(resolve('public-reading-deploy/dist')+'/')&&existsSync(staticPath)&&/\.[a-z0-9]{2,5}$/i.test(u.pathname);
-  if(redirected)redirectTargetStates[state]=(redirectTargetStates[state]||0)+1;
+  if(redirected){redirectTargetStates[state]=(redirectTargetStates[state]||0)+1;if(state==='missing')exceptions.push({url:row.url,family:row.family,redirectTarget:u.pathname,redirected:true});}
   kind=redirected?'redirected':staticFile||state==='public'?'direct_route_candidate':state==='post-lookup'?'post_lookup_required':['closed','service-closed'].includes(state)?'building_or_held':state==='account'?'account':'unhandled_by_adapter';
   if(kind==='unhandled_by_adapter')exceptions.push({url:row.url,family:row.family});
  }

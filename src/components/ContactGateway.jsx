@@ -157,7 +157,7 @@ function ContactForm({ kind, initialText, pathname, contactContext, user, onDone
       <label className="sod29-contact-field"><span>{idea ? "אימייל (לא חובה)" : "אימייל"}</span><input dir="ltr" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
     </div>
     {contactContext?.source_href ? <p className="sod29-contact-privacy" style={{ overflowWrap: "anywhere" }}>מקור הפנייה: <bdi dir="ltr">{contactContext.source_href}</bdi></p> : null}
-    {PUBLIC_READING_RELEASE ? <div role="status"><p>השליחה אינה זמינה בפריוויו הזה. אפשר להעתיק את הטיוטה ולשמור אותה אצלכם.</p><button type="button" className="sod29-action" onClick={async () => setCopied(await copyLink(message + (contactContext?.source_href ? `\n\n${contactContext.source_href}` : "")))}>{copied ? "הטיוטה הועתקה" : "העתקת הטיוטה"}</button></div> : null}
+    {PUBLIC_READING_RELEASE ? <div role="status"><p>אפשר להעתיק את הטיוטה ולשמור אותה אצלכם.</p><button type="button" className="sod29-action" onClick={async () => setCopied(await copyLink(message + (contactContext?.source_href ? `\n\n${contactContext.source_href}` : "")))}>{copied ? "הטיוטה הועתקה" : "העתקת הטיוטה"}</button></div> : null}
     {error ? <div className="sod29-contact-error" role="alert">{error}</div> : null}
     <button className="sod29-action primary" type="submit" disabled={busy || PUBLIC_READING_RELEASE}>{busy ? "שולח…" : "שליחה"}</button>
   </form>;
