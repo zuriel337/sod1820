@@ -2,6 +2,7 @@ import{readFileSync,writeFileSync,existsSync}from'node:fs';import{execFileSync}f
 import{publicReadingPath,publicReadingContinuation}from'../../../src/lib/publicReadingRelease2029.js';
 import{publicPostHref,decodePostSlug,postAddressSlug}from'../../../src/lib/publicPostUrls.js';
 import{publicReadingCapability}from'../../../src/lib/publicReadingRelease2029.js';
+import{reviewResidual205}from'./residual205/review.mjs';
 const old=await import('data:text/javascript;base64,'+Buffer.from(execFileSync('git',['show','6c140d82:src/lib/publicReadingRelease2029.js'])).toString('base64'));
 const baselineConfig=JSON.parse(execFileSync('git',['show','6c140d82:public-reading-deploy/vercel.json']));const config=JSON.parse(readFileSync('public-reading-deploy/vercel.json'));
 const inventory=JSON.parse(readFileSync('docs/reviews/url-continuity-plan-20261103/url-inventory.json'));
@@ -35,7 +36,7 @@ for(const [cohort,inputs]of[['post_lookup',lookup],['unhandled',unhandled]])for(
  else if(path.startsWith('/audio/')){row.reason='historical_audio_bytes_location_missing';row.launchImpact='historical audio unavailable; not main text, no false binary200';}
  else if(/\/videos\//.test(path)){row.reason='external_embed_or_link_without_exact_absolute_source';row.launchImpact='external video-source continuation pending; data-href is not necessarily navigation';}
  else if(cohort==='post_lookup'){row.reason='no_exact_admitted_post_identity';row.launchImpact=(original.kinds||[]).some(k=>k.includes('content'))?'unresolved public-content link; source recovery required':'source-only reference; no public destination established';}
- rows.push(row);
+ rows.push(reviewResidual205(row));
 }
 assert.equal(rows.length,2609);assert.equal(new Set(rows.map(x=>x.sourceUrl)).size,2609);
 const counts={},groups={};for(const r of rows){counts[r.status]=(counts[r.status]||0)+1;const key=r.cohort+':'+r.family+':'+r.reason;groups[key]??={family:r.family,status:r.status,reason:r.reason,count:0,sourceUrls:[]};groups[key].count++;groups[key].sourceUrls.push(r.sourceUrl);}

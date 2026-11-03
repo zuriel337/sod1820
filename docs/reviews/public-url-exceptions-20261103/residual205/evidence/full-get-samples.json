@@ -1,0 +1,62 @@
+{
+  "kind": "non-range-read-only-samples-and-external-access",
+  "baseSha": "b80ad895a23b51107fd58d533d4dd93f6d4c431f",
+  "writes": 0,
+  "rows": [
+    {
+      "url": "https://sod1820.co.il/audio/m/1.wav",
+      "rangeHeader": false,
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "https://sod1820.co.il/audio/m/1.wav",
+      "contentType": "text/html; charset=utf-8",
+      "sampleSha256": "4a69dc6cd3f004a51f8511340fa6d01b0b2e795b09673ac7be3645d3319c7bc6",
+      "magicHex": "3c21646f63747970652068746d6c3e0a",
+      "sampleBytes": 4096
+    },
+    {
+      "url": "https://sod1820.co.il/audio/246.wav",
+      "rangeHeader": false,
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "https://sod1820.co.il/audio/246.wav",
+      "contentType": "text/html; charset=utf-8",
+      "sampleSha256": "4a69dc6cd3f004a51f8511340fa6d01b0b2e795b09673ac7be3645d3319c7bc6",
+      "magicHex": "3c21646f63747970652068746d6c3e0a",
+      "sampleBytes": 4096
+    },
+    {
+      "url": "https://sod1820.co.il/audio/dynovisz/20160327_hebreugoel.mp3",
+      "rangeHeader": false,
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "https://sod1820.co.il/audio/dynovisz/20160327_hebreugoel.mp3",
+      "contentType": "text/html; charset=utf-8",
+      "sampleSha256": "4a69dc6cd3f004a51f8511340fa6d01b0b2e795b09673ac7be3645d3319c7bc6",
+      "magicHex": "3c21646f63747970652068746d6c3e0a",
+      "sampleBytes": 4096
+    },
+    {
+      "url": "https://www.facebook.com/86AND26/videos/801439149946390/",
+      "rangeHeader": false,
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "https://www.facebook.com/86AND26/videos/801439149946390/",
+      "contentType": "text/html; charset=\"utf-8\"",
+      "sampleSha256": "a07965ba59be0a9924bcddd8051444c40d8b6aa53787606b0139863a8068b320",
+      "magicHex": "3c21444f43545950452068746d6c3e3c",
+      "sampleBytes": 4096
+    },
+    {
+      "url": "https://www.facebook.com/k1820/videos/839307259461807/",
+      "rangeHeader": false,
+      "method": "GET",
+      "status": 200,
+      "finalUrl": "https://www.facebook.com/k1820/videos/839307259461807/",
+      "contentType": "text/html; charset=\"utf-8\"",
+      "sampleSha256": "ab54eb766fc4bd979216285d33ff6ed05caa49607ec0e96a9a0b61e6bcf972f4",
+      "magicHex": "3c21444f43545950452068746d6c3e3c",
+      "sampleBytes": 4096
+    }
+  ]
+}

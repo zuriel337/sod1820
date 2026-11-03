@@ -1,0 +1,95 @@
+{
+  "kind": "existing-book-handoff-preservation",
+  "productBase": "b80ad895a23b51107fd58d533d4dd93f6d4c431f",
+  "bookBranch": "codex/ahavat-preview-open-20261031",
+  "remoteBookSha": "23e03e82a478bee55c6840252b7962ffe6ba5958",
+  "alreadyAncestorOfProductBase": true,
+  "files": [
+    {
+      "path": "docs/research-library/ahavat-torah/DOSSIER_INDEX.md",
+      "sameAtProductBase": true,
+      "handoffSha256": "e95a8aca35d3696ac85594b8f5a8b4e37b84f736354b1ba1a3027664a25268f7",
+      "baseSha256": "e95a8aca35d3696ac85594b8f5a8b4e37b84f736354b1ba1a3027664a25268f7"
+    },
+    {
+      "path": "docs/reviews/ahavat-preview-open-and-public-library-20261031.md",
+      "sameAtProductBase": true,
+      "handoffSha256": "6b1452a23f59f4b8474abba5054e6c22934a4cf1aaa880779f77a1af5aca5bb1",
+      "baseSha256": "6b1452a23f59f4b8474abba5054e6c22934a4cf1aaa880779f77a1af5aca5bb1"
+    },
+    {
+      "path": "public/book-data/books.preparation.json",
+      "sameAtProductBase": true,
+      "handoffSha256": "2e2b75ba6c18eaf4481cff1bcb46b3a694adcdf142f75d3f037fe763c060ac9d",
+      "baseSha256": "2e2b75ba6c18eaf4481cff1bcb46b3a694adcdf142f75d3f037fe763c060ac9d"
+    },
+    {
+      "path": "scripts/build-book-preparation-2029.mjs",
+      "sameAtProductBase": true,
+      "handoffSha256": "b8899d016e58274512327addf11b1109c744ddcfc35d1c24ce2a7f07e9508d8b",
+      "baseSha256": "b8899d016e58274512327addf11b1109c744ddcfc35d1c24ce2a7f07e9508d8b"
+    },
+    {
+      "path": "src/components/books2029/ahavatBookEntry2029.css",
+      "sameAtProductBase": true,
+      "handoffSha256": "0548bcdca9fb40f01c76a3c95165c694128faf28241faff35151395e32b90eb0",
+      "baseSha256": "0548bcdca9fb40f01c76a3c95165c694128faf28241faff35151395e32b90eb0"
+    },
+    {
+      "path": "src/components/books2029/ahavatLetterStudy2029.css",
+      "sameAtProductBase": true,
+      "handoffSha256": "866ca07a63a3a4bde5f7a2eaa8307ab5953a8a1faec0c59af08113c4fcb72819",
+      "baseSha256": "866ca07a63a3a4bde5f7a2eaa8307ab5953a8a1faec0c59af08113c4fcb72819"
+    },
+    {
+      "path": "src/components/books2029/booksLibraryCard2029.css",
+      "sameAtProductBase": true,
+      "handoffSha256": "f7f620ce6633242efbd5737a785c75411864bfd5e4a10438dca07ba8cfd5bbb1",
+      "baseSha256": "f7f620ce6633242efbd5737a785c75411864bfd5e4a10438dca07ba8cfd5bbb1"
+    },
+    {
+      "path": "src/data/bookPreparation2029.js",
+      "sameAtProductBase": true,
+      "handoffSha256": "8a3212d715de5fcabda19b0e32832f3cd61e236dce8e64e5ed6f34474375b0c7",
+      "baseSha256": "8a3212d715de5fcabda19b0e32832f3cd61e236dce8e64e5ed6f34474375b0c7"
+    },
+    {
+      "path": "src/pages/AhavatTorahSystem2029Page.jsx",
+      "sameAtProductBase": true,
+      "handoffSha256": "e1d5cf7e58da6a2bc47c1617071d2e76ec46200110fc78cdd51dbf56d0bf0487",
+      "baseSha256": "e1d5cf7e58da6a2bc47c1617071d2e76ec46200110fc78cdd51dbf56d0bf0487"
+    },
+    {
+      "path": "src/pages/Books2029Page.jsx",
+      "sameAtProductBase": false,
+      "handoffSha256": "bca3e437680be0bc92a64fb5fa0a2d3efd18dad645e2c81c5a11b5367d743e2e",
+      "baseSha256": "506371fabdf435aa8913d1964f79c4b5b79d3f333cc686af0e25c69f68b8b393"
+    },
+    {
+      "path": "test/ahavat-book-prototype-2029.browser.test.mjs",
+      "sameAtProductBase": true,
+      "handoffSha256": "a4f5519adf2030332254b6db36185c78b33d2a8c6984e59bcb0689b2faf184d7",
+      "baseSha256": "a4f5519adf2030332254b6db36185c78b33d2a8c6984e59bcb0689b2faf184d7"
+    },
+    {
+      "path": "test/ahavat-responsive-entry-2029.browser.test.mjs",
+      "sameAtProductBase": true,
+      "handoffSha256": "f66570f7487c359db8bb1ecc03deaefcd887961afa81101a5bd158d72668c30d",
+      "baseSha256": "f66570f7487c359db8bb1ecc03deaefcd887961afa81101a5bd158d72668c30d"
+    },
+    {
+      "path": "test/books-preparation-2029.browser.test.mjs",
+      "sameAtProductBase": true,
+      "handoffSha256": "58da31810ed0e97ce9c07a823db71bcbea6bade307be60dc91ba08e83093ceb5",
+      "baseSha256": "58da31810ed0e97ce9c07a823db71bcbea6bade307be60dc91ba08e83093ceb5"
+    },
+    {
+      "path": "test/books-preparation-2029.test.mjs",
+      "sameAtProductBase": true,
+      "handoffSha256": "c597db8a943429352b0c98fdf5349b7ce0828eeddc924fb4b79396aad732b787",
+      "baseSha256": "c597db8a943429352b0c98fdf5349b7ce0828eeddc924fb4b79396aad732b787"
+    }
+  ],
+  "identicalAtBase": 13,
+  "action": "No branch imported; restore adopted cards/meters and Ahavat entry in existing public consumer only"
+}

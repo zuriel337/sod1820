@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { AHAVAT_BOOK_SLUG, AHAVAT_COVER_IMAGE, ahavatDivisionForPage, ahavatNavigationHierarchy, ahavatNavigationSearch } from "../../data/ahavatBookNavigation2029.js";
 import { AHAVAT_DS01_BOOKS, AHAVAT_DS01_SOURCE_PAGE, AHAVAT_DS01_TOTAL, ahavatDs01RowSum } from "../../data/ahavatTorahDs01Source2029.js";
 import { AHAVAT_TORAH_DATASETS, sectionForPage } from "../../data/ahavatTorahSystem2029.js";
@@ -57,19 +58,23 @@ export function AhavatBookToc2029({ page, onOpenPage, onSelectDataset }) {
   </section>;
 }
 
-function SelectionActions({ page, selection }) {
+function SelectionActions({ page, selection, publicReadOnly = false }) {
+  const location = useLocation();
   const research = useResearch();
   const [book, setBook] = useState(null);
   const [note, setNote] = useState("");
   const subject = research?.context?.subject;
   const numeric = selection?.total && /^[\d,]+$/.test(selection.total) ? selection.total.replaceAll(",", "") : "";
+  const sourceParams = new URLSearchParams(location.search);
+  sourceParams.set("reader", "source"); sourceParams.set("page", String(page));
+  const exactReturn = location.pathname + location.search + location.hash;
 
   useEffect(() => {
-    if (!selection) return undefined;
+    if (!selection || publicReadOnly) return undefined;
     let alive = true;
     fetchBookEntityBySlug(AHAVAT_BOOK_SLUG).then(found => { if (alive) setBook(found || null); }).catch(() => { if (alive) setBook(null); });
     return () => { alive = false; };
-  }, [Boolean(selection)]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [Boolean(selection), publicReadOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addSelection = () => {
     const sourceRef = dossierSelectionSourceRef(book, { id: selection.id, pdf_page: page }, "id");
@@ -80,8 +85,8 @@ function SelectionActions({ page, selection }) {
 
   return <div className="ahavat29-selection-actions" aria-label="פעולות לבחירה הנוכחית">
     <a href={`#ahavat29-source`} onClick={event => { event.preventDefault(); selection?.onSource?.(); }}>המקור · PDF {page}</a>
-    <a href={`/2029/control?surface=books-unified-reader&book=${AHAVAT_BOOK_SLUG}&page=${page}`}>בקורא האחיד</a>
-    {numeric ? <a href={`/2029/number/${numeric}`}>המספר {selection.total}</a> : null}
+    <a href={publicReadOnly ? `/book/${AHAVAT_BOOK_SLUG}?${sourceParams}` : `/2029/control?surface=books-unified-reader&book=${AHAVAT_BOOK_SLUG}&page=${page}`}>בקורא האחיד</a>
+    {numeric ? <a href={publicReadOnly ? `/number/${numeric}?returnTo=${encodeURIComponent(exactReturn)}` : `/2029/number/${numeric}`}>המספר {selection.total}</a> : null}
     {subject?.href ? <a href={subject.href}>חזרה למחקר: {subject.label || "המחקר הנוכחי"}</a> : null}
     {book && selection ? <button type="button" onClick={addSelection}>הוסף למחקר</button> : null}
     {note ? <span role="status">{note}</span> : null}
@@ -93,7 +98,7 @@ function SelectionActions({ page, selection }) {
 
 // Selected-unit panel above the explanation column. For DS-01 it projects the
 // existing PDF 6 reading as a five-book picker; it computes nothing new.
-export function AhavatSelectionPanel2029({ page, datasetId, onOpenPage }) {
+export function AhavatSelectionPanel2029({ page, datasetId, onOpenPage, publicReadOnly = false }) {
   const [bookId, setBookId] = useState(AHAVAT_DS01_BOOKS[0].id);
   const [parasha, setParasha] = useState("");
   const division = ahavatDivisionForPage(page);
@@ -120,6 +125,6 @@ export function AhavatSelectionPanel2029({ page, datasetId, onOpenPage }) {
       </div>
       {row ? <p className="ahavat29-selection-picked" role="status">פרשת {row[0]}: {row[1]} מופעים בקריאת הספר · הטבלה המודפסת בעמוד 6.</p> : null}
     </div> : null}
-    <SelectionActions page={page} selection={selection} />
+    <SelectionActions page={page} selection={selection} publicReadOnly={publicReadOnly} />
   </section>;
 }

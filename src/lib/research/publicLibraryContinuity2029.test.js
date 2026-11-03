@@ -141,15 +141,16 @@ test("source-file check omits credentials, rejects redirect/HTML/error and never
   assert.equal(await source("application/pdf", true, "https://elsewhere.example/file.pdf"), false);
 });
 
-test("external book without CORS keeps its admitted source link and a named in-page reader state", async () => {
+test("external binding is preserved, but unfinished books stay closed without a source request or implied publication", async () => {
   const external = book({ book_slug: "bentov-brief-tour-higher-consciousness", source_ref_prefixes: ["book:bentov-brief-tour-higher-consciousness"],
     identity_tiers: { digital_object: { mime: "application/pdf", url: "https://avalonlibrary.net/ebooks/Itzhak%20Bentov%20-%20Brief%20Tour%20of%20Higher%20Consciousness.pdf" } } });
   const projected = projectPublicBook2029(external);
   assert.equal(projected.readerState, "source_bound");
   const currentFile = async () => ({ ok: true, url: projected.sourceHref, headers: new Headers({ "content-type": "application/pdf" }) });
   assert.equal(await publicBookSourceAvailable2029(projected.manifest, { fetchImpl: currentFile }), false);
-  const item = await fetchPublicLibraryItem2029("books", external.book_slug, { readRows: async () => [external], checkBookSource: async () => false });
-  assert.equal(item.readerState, "external_source_reader_unavailable");
+  const item = await fetchPublicLibraryItem2029("books", external.book_slug, { readRows: async () => [external], checkBookSource: async () => assert.fail('closed book fetched source') });
+  assert.equal(item.readerState, "preparation_closed");
+  assert.equal(item.manifest,null);
   assert.equal(item.sourceHref, projected.sourceHref);
   assert.equal(publicLibraryMetadata2029({ kind: "books", item, detail: true }).noindex, true);
 });

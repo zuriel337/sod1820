@@ -28,7 +28,7 @@ test('all 2609 source URL strings survive reconciliation and every attachment ru
  const proofs=JSON.parse(readFileSync(new URL('evidence/attachment-bindings.json',root)));
  const rules=JSON.parse(readFileSync(new URL('../public-reading-deploy/vercel.json',import.meta.url))).redirects;
  assert.equal(data.rows.length,2609);assert.equal(new Set(data.rows.map(r=>r.sourceUrl)).size,2609);
- assert.deepEqual(data.counts,{invalid:4,resolved:2352,intentionally_closed:48,pending_decision:205});
+ assert.deepEqual(data.counts,{invalid:5,resolved:2355,intentionally_closed:52,pending_decision:197});
  assert.equal(data.rows.filter(r=>r.cohort==='post_lookup').length,2140);
  assert.equal(data.rows.filter(r=>r.cohort==='unhandled').length,469);
  for(const proof of proofs){const row=data.rows.find(r=>r.sourceUrl===proof.sourceUrl);assert.equal(row.postId,proof.postId);assert.equal(row.mediaHref,proof.mediaHref);assert.ok(row.chain.length);

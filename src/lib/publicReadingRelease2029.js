@@ -75,7 +75,13 @@ export function publicReadingCapability(pathname) {
     || /^\/2029\/me\/(?:public-page|page-editor|profile|messages|notifications|progress)$/.test(path || '')) {
     return { title: 'האזור האישי', description: 'החשבון והמידע הקיימים נשמרים. הגישה המלאה באזור הזה עדיין בתהליך בדיקה; מידע אישי אינו מוצג בדף הציבורי.', links: [['/login', 'כניסה לחשבון']] };
   }
-  const externalSources={"/464378687028017/videos/vb.464378687028017/727568620709021":"https://www.facebook.com/464378687028017/videos/727568620709021/","/sod1820/videos/vb.617996338259568/1042960175763180":"https://www.facebook.com/sod1820/videos/1042960175763180/"};
+  const externalSources={"/464378687028017/videos/vb.464378687028017/727568620709021":"https://www.facebook.com/464378687028017/videos/727568620709021/","/sod1820/videos/vb.617996338259568/1042960175763180":"https://www.facebook.com/sod1820/videos/1042960175763180/",
+    // Same saved XFBML block binds relative video/cite paths to the explicit
+    // facebook.com author profile and immutable video ID. Never infer a host
+    // from a title or apply this conversion to arbitrary relative links.
+    "/86AND26/videos/vb.103870716369907/801439149946390":"https://www.facebook.com/86AND26/videos/801439149946390/",
+    "/k1820/videos/839307259461807":"https://www.facebook.com/k1820/videos/839307259461807/",
+    "/k1820/videos/vb.617996338259568/839307259461807":"https://www.facebook.com/k1820/videos/839307259461807/"};
   if(externalSources[path])return {title:"סרטון המקור בפייסבוק",description:"הקישור הזה נשמר מתוך פרסום ישן. הסרטון נמצא באתר המקור; זמינותו שם תלויה בפרסום ובהרשאות של פייסבוק.",links:[[externalSources[path],"לסרטון באתר המקור"]]};
   const historicalServices={"/צור-קשר/טופס-הזמנת-עלונים-ודיסקים/":"הזמנת עלונים ודיסקים","/צור-קשר/תרומות-donate":"תרומה לאתר"};
   const service=historicalServices[path]||historicalServices[path+"/"];

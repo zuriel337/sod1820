@@ -9,6 +9,7 @@ import { AHAVAT_CARD_TOPICS, AHAVAT_COVER_IMAGE, ahavatDivisionForPage, ahavatNa
 const read = file => readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
 const page = read("src/pages/AhavatTorahSystem2029Page.jsx");
 const books = read("src/pages/Books2029Page.jsx");
+const cards = read("src/components/books2029/BooksLibraryCards2029.jsx");
 const entry = read("src/components/books2029/AhavatBookEntry2029.jsx");
 
 test("seven divisions cover all 99 source pages exactly once and invent no chapter", () => {
@@ -71,13 +72,14 @@ test("five coverage metrics moved into the source disclosure with their values i
 });
 
 test("only Ahavat Torah receives the prototype card; no third reader and no BookHubPage", () => {
-  assert.match(books, /if \(slug === AHAVAT_BOOK_SLUG && reader\) return <AhavatPrototypeCard/);
-  assert.equal((books.match(/AhavatPrototypeCard/g) || []).length, 2);
-  for (const source of [page, books, entry]) assert.doesNotMatch(source, /BookHubPage/);
-  assert.match(books, /className="sod29-book-tile books29-card"/);
+  assert.match(books, /import \{ BookCard \} from .*BooksLibraryCards2029/);
+  assert.match(cards, /if \(slug === AHAVAT_BOOK_SLUG && reader\) return <AhavatPrototypeCard/);
+  assert.equal((cards.match(/AhavatPrototypeCard/g) || []).length, 2);
+  for (const source of [page, books, cards, entry]) assert.doesNotMatch(source, /BookHubPage/);
+  assert.match(cards, /className="sod29-book-tile books29-card"/);
   assert.equal(AHAVAT_CARD_TOPICS.length, 4);
-  assert.match(books, /<h3 id="books29-card-ahavat-title">/);
-  assert.match(books, /פתח את הספר/);
+  assert.match(cards, /<h3 id="books29-card-ahavat-title">/);
+  assert.match(cards, /פתח את הספר/);
 });
 
 test("the card shows a real source page, not a generated illustration", () => {

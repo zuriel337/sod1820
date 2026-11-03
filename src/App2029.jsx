@@ -184,7 +184,8 @@ function CanonicalBookAlias2029() {
 
 function BooksEntry2029() {
   const { isAdmin, loading } = useAuth();
-  if (PUBLIC_READING_RELEASE && (!isAdmin || loading)) return <PublicLibraryContinuity2029Page kind="books" />;
+  const { slug } = useParams();
+  if (PUBLIC_READING_RELEASE && (!isAdmin || loading || slug === "ahavat-torah")) return <PublicLibraryContinuity2029Page kind="books" />;
   return <Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>;
 }
 

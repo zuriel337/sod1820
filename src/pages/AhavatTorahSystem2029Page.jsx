@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "rea
 import BookFullscreenButton2029 from "../components/books2029/BookFullscreenButton2029.jsx";
 import BookReadingLayout2029 from "../components/books2029/BookReadingLayout2029.jsx";
 import CanonicalProgress from "../components/CanonicalProgress.jsx";
+import { PreparationStatus } from "../components/books2029/BooksLibraryCards2029.jsx";
 import { getBookReaderManifest } from "../data/bookReader2029.js";
 import AhavatLetterStudy2029 from "../components/books2029/AhavatLetterStudy2029.jsx";
 import AhavatLetterParasha2029 from "../components/books2029/AhavatLetterParasha2029.jsx";
@@ -888,7 +889,7 @@ function ExtractionLayers({ onPage }) {
   </section>;
 }
 
-export default function AhavatTorahSystem2029Page() {
+export default function AhavatTorahSystem2029Page({ publicReadOnly = false, preparation, returnTo = "/books" }) {
   const [page, setPage] = useState(requestedPage);
   const [readingLayout, setReadingLayout] = useState("balanced");
   const [letterFocus, setLetterFocus] = useState(() => {
@@ -957,10 +958,10 @@ export default function AhavatTorahSystem2029Page() {
     applySeo({
       title: `אהבת תורה · מערכת מקור ומחקר · עמוד ${page}`,
       description: "תצוגת Preview מוגנת לספר אהבת תורה: מקור PDF, מפת הספר וממצאים במעמדים נפרדים.",
-      path: "/2029/control",
+      path: publicReadOnly ? "/book/ahavat-torah" : "/2029/control",
       noindex: true,
     });
-  }, [page]);
+  }, [page, publicReadOnly]);
 
   useEffect(() => {
     let id;
@@ -1100,6 +1101,7 @@ export default function AhavatTorahSystem2029Page() {
     <main className="ahavat29" data-study-focus={letterFocus ? "letters" : "book"} data-preview-only="true" data-publication-effect="none" data-source-identity={AHAVAT_TORAH_SOURCE.identity}>
       <section className="ahavat29-intro" aria-labelledby="ahavat29-title">
         <div>
+          {publicReadOnly ? <a className="sod29-action" href={returnTo}>→ חזרה לספרייה</a> : null}
           <span>ר׳ פנחס זלמן הורוויץ · תרס״ה</span>
           <h1 id="ahavat29-title">{letterFocus ? <>אהבת תורה <em>· מסע באותיות</em></> : <>אהבת תורה<br /><em>לקרוא, להבין ולחקור</em></>}</h1>
           <p>מנייני התורה, אותיותיה וחידושי הפרשות — עם הסבר בהיר לצד צילום הספר.</p>
@@ -1116,6 +1118,7 @@ export default function AhavatTorahSystem2029Page() {
 
       <details className="ahavat29-source-details ahavat29-source-status">
         <summary>פרטי המקור ומצב ההשלמה</summary>
+        {publicReadOnly ? <PreparationStatus entry={preparation} title="אהבת תורה" previewOpen/> : null}
         <div className="ahavat29-intro-identity" role="group" aria-label="זהות הספר"><span>{AHAVAT_TORAH_SOURCE.author}</span><span>{AHAVAT_TORAH_SOURCE.imprint}</span><span>{AHAVAT_TORAH_SOURCE.pdfPages} עמודי מקור</span></div>
         <p>הספר המלא זמין לדפדוף, חיפוש ומסך מלא. יחידות הלימוד מסבירות קטעים נבחרים; צילום העמוד נשאר נגיש לאורך הקריאה.</p>
         <section className="ahavat29-metrics" aria-label="מצב מערכת אהבת תורה">
@@ -1131,7 +1134,7 @@ export default function AhavatTorahSystem2029Page() {
       <BookReadingLayout2029 mode={readingLayout} onMode={setReadingLayout} />
       <div className="ahavat29-layout books29-reading-layout" data-reading-layout={readingLayout}>
         <div className="ahavat29-story">
-          {letterFocus ? null : <AhavatSelectionPanel2029 page={page} datasetId={datasetId} onOpenPage={(nextPage, contextId, options) => openPage(nextPage, contextId || "", "", options)} />}
+          {letterFocus ? null : <AhavatSelectionPanel2029 publicReadOnly={publicReadOnly} page={page} datasetId={datasetId} onOpenPage={(nextPage, contextId, options) => openPage(nextPage, contextId || "", "", options)} />}
           <OrbitMap selectedId={selectedSection.id} onSelect={selectSection} />
           <div id="ahavat29-reader"><SectionReader section={selectedSection} onPage={openPage} /></div>
 

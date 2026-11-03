@@ -164,6 +164,10 @@ export async function fetchPublicLibraryItem2029(kind, slug, options = {}) {
   if (rows.length !== 1) return null;
   const item = kind === "books" ? projectPublicBook2029(rows[0]) : projectPublicCipher2029(rows[0], { detail: true });
   if (item?.slug !== slugValue(slug)) return null;
+  // Existing launch decision: the approved Ahavat prototype can be read while
+  // incomplete. Other unfinished books keep their identity and preparation
+  // card; entering one must not load a closed source reader/PDF in the background.
+  if (kind === "books" && item.slug !== "ahavat-torah") return { ...item, readerState:"preparation_closed", manifest:null };
   if (kind === "books" && item.readerState === "source_bound") {
     let available = false;
     try { available = await (options.checkBookSource || publicBookSourceAvailable2029)(item.manifest, { signal: options.signal }); }
@@ -180,7 +184,7 @@ export function publicLibraryMetadata2029({ kind = "codes", item = null, detail 
   const known = !loading && !failed && (!detail || item);
   return {
     title: known && item ? item.title : detail ? loading ? "פותח את המקור" : failed ? "המקור לא נטען" : "הפריט אינו זמין לציבור" : title,
-    description: known && item ? item.description || (kind === "books" ? "קריאה במקור הספר." : "פרסום צופן שמור. החישוב והפרשנות מוצגים בנפרד מן המקור.") : `${title} · קריאה במקורות ציבוריים.`,
+    description: known && item ? item.readerState === "preparation_closed" ? "הספר בהכנה. המקור והעבודה הקיימת נשמרים; הקריאה תיפתח בנפרד." : item.description || (kind === "books" ? "קריאה במקור הספר." : "פרסום צופן שמור. החישוב והפרשנות מוצגים בנפרד מן המקור.") : `${title} · קריאה במקורות ציבוריים.`,
     image: known ? item?.image || undefined : undefined,
     noindex: !known || collection === "research" || item?.sourceCollection === "research" || kind === "books" && detail && item?.readerState !== "ready",
   };

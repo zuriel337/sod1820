@@ -100,12 +100,13 @@ export function ahavatReaderQuery(params, key) {
   return (params.get(key) || "").slice(0, 200);
 }
 
-export function ahavatReaderUnitHref(id, currentUrl = "/2029/control") {
+export function ahavatReaderUnitHref(id, currentUrl = typeof window !== "undefined" && window.location.pathname === "/book/ahavat-torah" ? window.location.href : "/2029/control") {
   const unit = ahavatReaderUnit(id);
   if (!unit) return "";
   const url = new URL(currentUrl, "https://books.invalid");
-  url.pathname = "/2029/control";
-  url.searchParams.set("surface", "ahavat-torah-system");
+  if (url.pathname === "/book/ahavat-torah") url.searchParams.delete("surface");
+  else { url.pathname = "/2029/control"; url.searchParams.set("surface", "ahavat-torah-system"); }
+  url.searchParams.delete("reader");
   url.searchParams.set("readerUnit", unit.id);
   if (unit.datasetId) url.searchParams.set("dataset", unit.datasetId);
   else url.searchParams.delete("dataset");
