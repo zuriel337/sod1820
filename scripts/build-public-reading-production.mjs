@@ -7,18 +7,25 @@ import { buildPublicReadingWorker, publicReadingBootstrap, PUBLIC_READING_POLICY
 import { SUPABASE_ANON } from "../src/lib/supabase.js";
 import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
 import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deploy/deployment-policy.js";
-import { protectedReviewBuildIdentity, protectedReviewConfigMaterialization } from "../public-reading-deploy/review-admission.js";
+import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedReviewConfigMaterialization } from "../public-reading-deploy/review-admission.js";
 import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from "../src/lib/brandAssets2029.js";
 
 // Default artifact stays dormant. A separate explicit deployment-scoped review
 // command may admit only an exact Git source with no application edits on the
-// existing protected Vercel Preview project. Its verified config materialization
+// existing protected Vercel project. A separate Production-target review flag
+// admits only a staged review; domain assignment is an independent platform
+// operation that must be disabled and verified by the release operator.
+// Its verified config materialization
 // remains recorded as dirty. Never clear/fake platform environment variables.
 const args = process.argv.slice(2);
-const reviewMode = args.includes("--protected-review");
+const previewReviewMode = args.includes("--protected-review");
+const productionReviewMode = args.includes("--protected-production-review");
+const publicCandidateMode = args.includes("--public-production-candidate");
+const reviewMode = previewReviewMode || productionReviewMode || publicCandidateMode;
+const reviewTarget = productionReviewMode || publicCandidateMode ? "production" : "preview";
 const pins = args.filter(value => value.startsWith("--review-source="));
-if (args.some(value => value !== "--protected-review" && !value.startsWith("--review-source="))
-  || args.filter(value => value === "--protected-review").length > 1
+if (args.some(value => !["--protected-review", "--protected-production-review", "--public-production-candidate"].includes(value) && !value.startsWith("--review-source="))
+  || args.filter(value => ["--protected-review", "--protected-production-review", "--public-production-candidate"].includes(value)).length > 1
   || pins.length > 1 || Boolean(pins.length) !== reviewMode)
   throw new Error("invalid_public_reading_build_arguments");
 if ((process.env.VERCEL || process.env.VERCEL_ENV) && !reviewMode)
@@ -38,10 +45,10 @@ if (reviewMode && trackedStatus === " M vercel.json\0") {
   const committedConfig = execFileSync("git", ["show", `${sha}:public-reading-deploy/vercel.json`], { cwd: root, encoding: "utf8" });
   const workingConfig = await readFile(resolve(root, "vercel.json"), "utf8");
   const trackedDiff = execFileSync("git", ["diff", "--raw", "-z", "--no-abbrev", "--no-ext-diff", "--no-textconv", "--", "vercel.json"], { cwd: root, encoding: "utf8" });
-  if (protectedReviewConfigMaterialization({ reviewMode, env: process.env, trackedStatus, trackedDiff,
+  if (protectedReviewConfigMaterialization({ reviewMode, reviewTarget, env: process.env, trackedStatus, trackedDiff,
     committedConfig, workingConfig })) platformConfigMaterialization = { committedConfig, workingConfig, trackedDiff };
 }
-const protectedReview = reviewMode ? protectedReviewBuildIdentity({ env: process.env,
+const protectedReview = reviewMode ? (publicCandidateMode ? publicCandidateBuildIdentity : protectedReviewBuildIdentity)({ env: process.env, reviewTarget,
   sourceSha: sha, sourceDirty: dirty && !platformConfigMaterialization,
   requestedSourceSha: pins[0].slice("--review-source=".length) }) : null;
 // Reuse the existing verified-origin configuration. A Vercel-owned alias alone
@@ -108,7 +115,8 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
   schema: 1, sourceSha: sha, sourceDirty: dirty, buildTarget: "2029", releaseProfile: PUBLIC_READING_PROFILE_ID,
   applicationSourceDirty: dirty && !platformConfigMaterialization,
   policy: PUBLIC_READING_POLICY_ID, activation: PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,
-  protectedReview,
+  protectedReview, productionReviewOnly: productionReviewMode,
+  cutoverAuthorized: false, domainAssignmentAuthorized: false,
   // sourceDirty above is the raw Git observation and stays true on Vercel.
   // This separate receipt proves only the known nested-config materialization.
   platformConfigMaterialization: platformConfigMaterialization ? {
@@ -123,6 +131,8 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
   deploymentConfigSha256: hash(await readFile(resolve(root, "public-reading-deploy/vercel.json"))),
   documentTemplateSha256: hash(document), documentTemplatePublic: false,
   deployed: false, productionReady: false, generalProductWrites: false,
+  publicCandidatePrepared: publicCandidateMode, publicTrafficTransferred: false,
+  canonicalServingRequiresSeparateTrafficApproval: true,
   signedLegacyUnsubscribe: "existing-token-bound-mutation-only",
   adminActions: "explicit-server-verified-admin-only",
   accountEntry: "existing-site-auth-default", newSignup: true,
@@ -133,4 +143,5 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
   workerSha256: hash(worker), legacyRollbackWorkerSha256: hash(await readFile(resolve(root, "public/sw.js"))),
   files: files.sort((a, b) => a.path.localeCompare(b.path)),
 }, null, 2) + "\n");
-console.log(protectedReview ? "Protected Preview review artifact built. Production/cutover remain denied." : "Dormant public-reading artifact built from actual 2029 source. No deployment or cutover is authorized.");
+console.log(publicCandidateMode ? "Public-capable candidate built for protected unrouted acceptance; no traffic switch is authorized." : productionReviewMode ? "Staged Production-target review artifact built. Canonical serving, indexing and cutover remain denied."
+  : protectedReview ? "Protected Preview review artifact built. Production/cutover remain denied." : "Dormant public-reading artifact built from actual 2029 source. No deployment or cutover is authorized.");

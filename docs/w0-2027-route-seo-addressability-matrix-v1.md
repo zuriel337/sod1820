@@ -447,3 +447,8 @@ ZURIEL accepts the unverified freshness/media coverage risk for continuing prepa
 ### 8.10 — Public-config proposal prepared, accepted runtime unchanged
 
 [Exact combined proposal and49 local checks](reviews/public-url-exceptions-20261103/residual205/evidence/final-preparation/production-activation/public-candidate/README.md) fill the code-preparation gap after stage-only review. It is not applied. Product/Preview01662, all original URLs and public source eligibility remain unchanged. Canonical serving/indexing is prepared only in a separately selected Production candidate; immutable host, API, private/missing and noneligible pages stay noindex. Public-capable code would serve if canonical traffic were routed, so safe protected/unrouted creation and final exact cutover remain separate requirements. No HTTP inventory or runtime acceptance is reclassified as fullG4. OnlyF32 preparation status changes.
+
+
+### 8.11 — Approved guard integration, branch only
+
+The exact nine-file proposal approved by ZURIEL at8882d7c5 is now applied and passed49 artifact/guard tests,33 account-authorization tests and a real local dormant build. The earlier8.10 proposal-only snapshot is superseded only for source integration. Protected Preview acceptance is prepared; real Production creation, canonical traffic and indexing activation remain unauthorized. All original inventory address strings and prior two-account acceptance are retained. F26/F27 now distinguish the existing insert-only signup trigger from unappliedA2, and pendingB/D from Auth continuity. No new launch plan or fullG4 claim.

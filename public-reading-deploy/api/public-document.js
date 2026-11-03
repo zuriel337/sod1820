@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import deploymentConfig from "../vercel.json" with { type: "json" };
 import ogHandler from "../../api/og.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation } from "../../src/lib/publicReadingRelease2029.js";
-import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, protectedReviewAuthOrigin, deploymentAuthorized } from "../authorization.js";
+import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, protectedReviewAuthOrigin, publicCandidateOrigin, publicIndexingAllowed, deploymentAuthorized } from "../authorization.js";
 
 export function requestOrigin(req) {
   const host = req.headers?.host;
@@ -37,7 +37,7 @@ export function mergeProductionDocumentMetadata(document, metadata, { noindex = 
 
 // Dependency injection remains a local synthetic test seam. Hosted admission
 // uses only the exact generated protected-review receipt; no request selects it.
-export function publicReadingDocumentHandler({ authorized = deploymentAuthorized,
+export function publicReadingDocumentHandler({ authorized = deploymentAuthorized, indexable = publicIndexingAllowed,
   readDocument = () => readFile(new URL("../.generated/2029.html", import.meta.url), "utf8"),
   metadataHandler = ogHandler } = {}) {
   return async (req, res) => {
@@ -66,7 +66,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
     if (path === "/wp-json/wp/v2/posts") {
       res.setHeader("Content-Type", "application/json");return res.status(404).send(req.method === "HEAD" ? "" : '{"error":"legacy_wordpress_api_unavailable"}');
     }
-    if (origin !== CANONICAL_ORIGIN && origin !== protectedReviewOrigin() && origin !== protectedReviewAuthOrigin() && originalDocument) {
+    if (origin !== CANONICAL_ORIGIN && origin !== protectedReviewOrigin() && origin !== protectedReviewAuthOrigin() && origin !== publicCandidateOrigin() && originalDocument) {
       // URL.search preserves the original bytes, repeated parameters and the
       // legitimate user key `path`. Never reconstruct it from rewrite query.
       res.setHeader("Location", CANONICAL_ORIGIN + path + original.search);
@@ -103,7 +103,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
         return res.status(308).send("");
       }
       if (status >= 500) throw new Error("public_source_unavailable");
-      const noindex = Boolean(protectedReviewOrigin()) || closed || state === "account" || status !== 200;
+      const noindex = !originalDocument || !indexable(origin) || closed || state === "account" || status !== 200;
       const html = mergeProductionDocumentMetadata(await readDocument(), metadata, { noindex });
       const robots = html.match(/<meta\b[^>]*name=["']robots["'][^>]*content=["']([^"']+)/i)?.[1];
       if (!robots) throw new Error("public_robots_unavailable");

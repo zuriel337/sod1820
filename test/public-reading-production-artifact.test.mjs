@@ -64,7 +64,7 @@ test("Production document uses canonical owner, preserves old/native/encoded/wp 
   for (const [path, post, canonical] of paths) await withFetch(async (url) => {
     assert.ok(String(url).includes("/rest/v1/posts?")); return json([post]);
   }, async () => {
-    const res = response(); await publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document })(req(path), res);
+    const res = response(); await publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document })(req(path), res);
     assert.equal(res.code, 200, path); assert.match(res.body, new RegExp(`rel="canonical" href="${SITE}${canonical}"`, "i"));
     assert.equal(res.headers.get("cache-control"), "no-store"); assert.equal(res.headers.get("x-robots-tag"), "index, follow");
     assert.ok(res.body.includes("existing shell")); assert.ok(!res.body.includes("http-equiv=\"refresh\""));
@@ -72,19 +72,19 @@ test("Production document uses canonical owner, preserves old/native/encoded/wp 
   for (const [source, status] of [[[], 404], [[{ ...modern, tags: ["טיוטה"] }], 404], [null, 503]]) await withFetch(async () => {
     if (source === null) throw Error("synthetic outage"); return json(source);
   }, async () => {
-    const res = response(); await publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document })(req("/missing-post"), res);
+    const res = response(); await publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document })(req("/missing-post"), res);
     assert.equal(res.code, status); assert.match(res.headers.get("x-robots-tag"), /noindex/); assert.equal(res.headers.get("cache-control"), "no-store");
   });
 });
 
 test("closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe", async () => {
   await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
-    const handler=publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document });
+    const handler=publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
     // Fragments are kept by the browser across redirects, never sent in HTTP.
     const alias=response();await handler(req('/2029/me?returnTo=%2Fworld'),alias);
     assert.equal(alias.code,308);assert.equal(alias.headers.get('location'),'/2029/me/research?returnTo=%2Fworld');assert.match(alias.headers.get('x-robots-tag'),/noindex/);
     for (const path of ["/login", "/2029/me/research?returnTo=%2Fworld#private", "/community/researcher/me", "/journey", "/raziel", "/els", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
-      const res = response(); await publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document })(req(path), res);
+      const res = response(); await publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document })(req(path), res);
       assert.equal(res.code, 200, path); assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
       assert.ok(!res.body.includes("e=synthetic"));
       if (path.startsWith("/unsubscribe")) { assert.match(res.body, /הסרה מהדיוור/); assert.equal(res.headers.get("referrer-policy"), "no-referrer"); }
@@ -94,7 +94,7 @@ test("closed, private and unknown routes remain noindex without product lookups;
 
 test("public aliases and named existing capabilities retain truthful continuations without publicizing unknown slugs", async () => {
   await withFetch(async url => { assert.ok(/\/(?:posts|channel_updates)\?/.test(String(url))); return json([]); }, async () => {
-    const handler = publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document });
+    const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
     for (const path of ["/2029", "/2029/posts", "/2029/gematria/viral", "/2029/calculator"]) {
       const res = response(); await handler(req(path), res); assert.equal(res.code, 200, path);
     }
@@ -113,7 +113,7 @@ test("public aliases and named existing capabilities retain truthful continuatio
 
 test("HTTP origin, path and method boundaries cannot select metadata profile or enter private readers", async () => {
   let metadataCalls = 0;
-  const handler = publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document,
+  const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document,
     metadataHandler: async (_req, res) => { metadataCalls++; return res.status(200).send('<head><meta name="robots" content="index, follow"/></head>'); } });
   for (const path of ["//evil.test/x", "/%ZZ", "/%00", "/%5cprivate", "/a?b", "/a#b"]) {
     const res = response(); await handler(req("/api/public-document", { query: { path } }), res); assert.equal(res.code, 400, path);
@@ -140,11 +140,11 @@ test("Numbers/phrases use the same canonical indexability readers; source failur
       if (String(url).includes("/rpc/")) { assert.ok(String(url).endsWith(rpc)); assert.deepEqual(JSON.parse(options.body), expectedBody); return json(value); }
       return json([]);
     }, async () => {
-      const res = response(); await publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document })(req(path), res);
+      const res = response(); await publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document })(req(path), res);
       assert.equal(res.code, value === null ? 503 : 200); assert.match(res.headers.get("x-robots-tag"), value === true ? /^index/ : /^noindex/);
     });
   }
-  const res = response(); await publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document })(req("/gematria?q=דוד&n=1"), res);
+  const res = response(); await publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document })(req("/gematria?q=דוד&n=1"), res);
   assert.equal(res.code, 200); assert.match(res.headers.get("x-robots-tag"), /noindex/); assert.ok(!res.body.includes('content="דוד = 1'));
 });
 
@@ -154,7 +154,7 @@ test("public topic/writer/video missing and failed source responses keep 404 and
       if (path.startsWith("/community")) assert.match(String(url), /active=eq.true.*locked=not.is.true.*visibility.eq.public/);
       return json(data);
     }, async () => {
-      const res = response(); await publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document })(req(path), res);
+      const res = response(); await publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document })(req(path), res);
       assert.equal(res.code, code, path); assert.match(res.headers.get("x-robots-tag"), /noindex/);
     });
   }
@@ -184,7 +184,7 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     throw Error("unexpected public source " + new URL(value).pathname);
   };
   await withFetch(fetcher, async () => {
-    const res = response(); await publicReadingSitemapHandler({ authorized: () => true })(req("/sitemap.xml"), res);
+    const res = response(); await publicReadingSitemapHandler({ authorized: () => true, indexable: origin => origin === SITE })(req("/sitemap.xml"), res);
     assert.equal(res.code, 200); assert.equal(res.headers.get("cache-control"), "no-store");
     for (const path of ["/old-post", "/post/new-post", "/number/1820", "/number/" + encodeURIComponent("בראשית"),
       "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/codes/published-cipher"])
@@ -193,13 +193,13 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     assert.ok(!calls.some(url => /site_flags|research_contributions/.test(url)));
   });
   await withFetch(async () => { throw Error("synthetic outage"); }, async () => {
-    const res = response(); await publicReadingSitemapHandler({ authorized: () => true })(req("/sitemap.xml"), res); assert.equal(res.code, 503);
+    const res = response(); await publicReadingSitemapHandler({ authorized: () => true, indexable: origin => origin === SITE })(req("/sitemap.xml"), res); assert.equal(res.code, 503);
   });
 });
 
 test("robots follows Production canonical sitemap while dormant mode fails closed; public GET APIs strip Legacy authority and reject POST", async () => {
   const dormant = response(); publicReadingRobotsHandler()(req("/robots.txt"), dormant); assert.equal(dormant.code, 503); assert.match(dormant.body, /Disallow: \//);
-  const robots = response(); publicReadingRobotsHandler({ authorized: () => true })(req("/robots.txt"), robots);
+  const robots = response(); publicReadingRobotsHandler({ authorized: () => true, indexable: origin => origin === SITE })(req("/robots.txt"), robots);
   assert.equal(robots.code, 200); assert.match(robots.body, /Allow: \/\n/); assert.match(robots.body, /Sitemap: https:\/\/sod1820.co.il\/sitemap.xml/);
   let calls = 0;
   const api = publicReadingReadOnlyApi((request, res) => {

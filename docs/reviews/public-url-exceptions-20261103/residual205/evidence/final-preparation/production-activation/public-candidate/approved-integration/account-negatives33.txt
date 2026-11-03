@@ -1,0 +1,41 @@
+✔ server verifies JWT and same principal; local metadata never admits a mismatched account (1.554125ms)
+✔ reading account storage stays separate and tab scoped; only the exact callback can complete PKCE (0.283555ms)
+✔ verified admin can enter existing private surfaces while public and unknown services remain closed (2.705422ms)
+✔ real AuthProvider reading mode verifies admin role without credits, marketing, visitor, avatar or referral side effects (22.83842ms)
+✔ account switch revokes old admin immediately; stale profile cannot grant role to replacement (3.298795ms)
+✔ token verification failure clears prior admin and prevents profile fetch (9.480914ms)
+✔ same-principal token refresh preserves local navigation identity but revokes admin until server revalidation (6.595951ms)
+✔ canonical feature state opens verified admin, denies public, missing flags and pending verification (26.056708ms)
+✔ Heichal public view rejects direct action handlers before model, telemetry or write (12.112873ms)
+✔ Book save stays disabled for public/member, including direct handler invocation (6.391877ms)
+✔ ELS public view never mounts operational readers, replay or engine (10.235034ms)
+✔ admin Book save uses the existing explicit operation and ELS operational surface (9.713676ms)
+✔ role revoke/regrant cannot reuse cached flags before the fresh policy read (3.965256ms)
+✔ worker policy changed and exact callback alone consumes tab-bound PKCE (0.986518ms)
+✔ Google and Facebook share verified exact callback and reject unapproved Preview origins (0.686398ms)
+✔ emitted account transport admits existing login, new signup, verification and exact PKCE exchange (40.399539ms)
+✔ new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants (10.204429ms)
+✔ historical Preview Auth remains password-only unless explicitly opted in by this worker (0.83984ms)
+✔ explicit admin actions verify canonical JWT and exact own role before forwarding original request (8.39484ms)
+✔ anonymous/member/spoofed identity, stale role, JWT failure and transport failure cannot invoke action (9.781818ms)
+✔ no private role cache survives revocation or replacement; denied action never reaches endpoint (0.796375ms)
+✔ financial, shared flag, mail delivery and foreign writes remain unavailable even to admin (9.850161ms)
+✔ signed private media TUS requires verified admin JWT on every chunk; signature alone grants nothing (8.406561ms)
+✔ same-origin private adapter preserves only same-origin protection cookies; it independently verifies the current server principal (3.766438ms)
+✔ server private wrapper checks deployment, host, method and verified admin independently of worker (2.098129ms)
+✔ prepared full-account helper retains actual SDK PKCE shapes and exact callbacks, separately from current emitted restriction (16.619229ms)
+✔ existing publishable fallback is used only for verification; original target bearer is never replaced (3.971524ms)
+✔ public-reading reuses existing Auth without acquisition, while untrusted callback and metadata still fail closed (3.97776ms)
+✔ emitted OAuth navigation requires exact callback, genuine PKCE shape and bounded provider scopes before browser navigation (2.940193ms)
+✔ actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT (19.894767ms)
+✔ private upload retains signed intent and fresh caller identity on every chunk, verify and bind (29.000639ms)
+✔ account change between chunks fails closed before another upload or bind (2.34002ms)
+✔ untrusted intent or upload Location never receives a caller JWT (1.463693ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 252.594574

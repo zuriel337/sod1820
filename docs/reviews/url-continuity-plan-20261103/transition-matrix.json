@@ -550,7 +550,7 @@
     "permissions": "זהותשרת; אין שיווק/חיובבכניסה",
     "parameters_anchors": "returnTo,OAuthstate/PKCE/hash; לא לתעד טוקנים",
     "acceptance": "Google/Facebook/password/יציאה; החזרה המדויקת;חדשלעומתקיים",
-    "open_task": "C5: exact revised A2/B/D shared approval + truthful enabled signup notices + OAuth/new-signup owner acceptance",
+    "open_task": "C5: exact Preview callback allowlist verification and genuine Google/Facebook owner acceptance; no A2 prerequisite. B/D remain separate mail approval.",
     "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_SIGNUP_PENDING",
     "continuity_closure_previous_checkpoint": {
       "verified_status": "חשבוןקייםעובדבתנאיםמבוקרים;Social/signup ממתינים"
@@ -569,7 +569,10 @@
     "four_completions_previous_checkpoint": {
       "verified_status": "כניסה קיימת וכל פעולות שני החשבונות התקבלו בדיווח המשתמש על7360. החלטת צוריאל החדשה: חשבון חדש ומאומת כולל עדכוני אתר כברירת מחדל עם הסרה; A הישן הוחלף ואינו מיועד להחלה. A2/B/D נבדקו בהצעה בלבד; Google/Facebook והרשמה חדשה עדיין ממתינים לשרת, לנוסח נכון גם בלגאסי, ל־callback מדויק ולקבלה אמיתית. כניסה רגילה אינה משנה דיוור; הסרות קודמות נשמרות. OTP לחשבון קיים נשמר; אין מערכת שחזור חדשה."
     },
-    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md"
+    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md",
+    "guard_integration_previous_checkpoint": {
+      "open_task": "C5: exact revised A2/B/D shared approval + truthful enabled signup notices + OAuth/new-signup owner acceptance"
+    }
   },
   {
     "id": "F27",
@@ -577,7 +580,7 @@
     "evidence": "PublicServices; signedunsubscribe; proposalHELD",
     "meaning": "פרטיות/הסכמה/ביטול הסכמה",
     "target_2029": "/privacy; /updates; /unsubscribe; חלונית אורח במעטפת הקיימת — אותו מוצר עדכוני האתר",
-    "verified_status": "פרטיותzyz997@gmail.com וחלונית ההרשמה2029 נשמרות. הרשמה ידנית היא opt-inל־site-updates; חשבון חדש כולל אותה כברירת מחדל רק אחרי אימות לפי החלטת צוריאל החדשה. A2/B/Dטרם הוחלו; השרת עדיין מפרסםopening-parts-v1 והטופס מבהיר אי־זמינות לפני מילוי.22קבוצותDBמבודדות ל־A2ו־16בדיקות handlerל־Dעברו. אין חידוש הסרה קודמת, ואין הצגת הרשמה/הסרה חיה כמתקבלת. קמפייןCנפרד.",
+    "verified_status": "פרטיות וכתובת המייל נשמרות. טופס עדכוני האתר הוא opt-in למטרה site-updates וממתין ל־B; אישור הסרה שגוי ממתין ל־D. הטריגר הפעיל כבר מצרף חשבון חדש כברירת מחדל ואינו משנה מנוי קיים או פועל בכניסה רגילה. A2 לא הוחל ואין לייחס לשרת את ההמתנה לאימות המוצעת בו. הרשמות opening-only והסרות ישנות נשמרות; קמפיין C נפרד. אין קבלת הרשמה/הסרה חיה.",
     "permissions": "בעלותכתובת/חתימה; no-referrer/noindex",
     "parameters_anchors": "e,t בתיםמדויקים; לא analytics או querylogs",
     "acceptance": "חתימהשגויה/אפסהתאמות/כשל; הסרה אמיתית אינה תרגיל; email עודכןבמקור",
@@ -603,7 +606,10 @@
     "four_completions_previous_checkpoint": {
       "open_task": "C5: revised exact shared A2/B/D approval and real owner signup/unsubscribe acceptance"
     },
-    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md"
+    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md",
+    "guard_integration_previous_checkpoint": {
+      "verified_status": "פרטיותzyz997@gmail.com וחלונית ההרשמה2029 נשמרות. הרשמה ידנית היא opt-inל־site-updates; חשבון חדש כולל אותה כברירת מחדל רק אחרי אימות לפי החלטת צוריאל החדשה. A2/B/Dטרם הוחלו; השרת עדיין מפרסםopening-parts-v1 והטופס מבהיר אי־זמינות לפני מילוי.22קבוצותDBמבודדות ל־A2ו־16בדיקות handlerל־Dעברו. אין חידוש הסרה קודמת, ואין הצגת הרשמה/הסרה חיה כמתקבלת. קמפייןCנפרד."
+    }
   },
   {
     "id": "F28",
@@ -704,11 +710,11 @@
     "evidence": "DB href/src; api/sitemap; publicfiles; hosting",
     "meaning": "משאב אמיתי/SEO/API; גם probe אפשרי",
     "target_2029": "המשאב/הנכס המדויק אם זמין",
-    "verified_status": "193 נתיבי השמע נשמרו עם ראיות HTML במקום audio ומשימת שחזור; נדחו לאחר ההשקה באישור צוריאל. אין שחזור בתים או הפניה כללית. XML כולל את הכתובות הקנוניות של שלושת דפי WP ההיסטוריים; גבולות משאבים ו־404 נשמרו. המשך12.39: תצורתאינדוקסציבורימוכנהכהצעהבלבד,49בדיקותמבודדותובנייתdormantעברו;הפריוויונשארמוגן/noindex.איןקבלתProductionמתארחאו מעברלחי. direct documentAPI נשארnoindexגםבהצעה.",
+    "verified_status": "193 נתיבי השמע נשמרו עם ראיות HTML במקום audio ומשימת שחזור; נדחו לאחר ההשקה באישור צוריאל. אין שחזור בתים או הפניה כללית. XML כולל את הכתובות הקנוניות של שלושת דפי WP ההיסטוריים; גבולות משאבים ו־404 נשמרו. המשך12.39: תצורתאינדוקסציבורימוכנהכהצעהבלבד,49בדיקותמבודדותובנייתdormantעברו;הפריוויונשארמוגן/noindex.איןקבלתProductionמתארחאו מעברלחי. direct documentAPI נשארnoindexגםבהצעה. המשך12.40: צוריאל אישר שילוב שער בענף בלבד; כל9טביעות תואמות,49+33בדיקות ובנייהמקומיתעברו. Previewחדשבהכנה; לאנוצרProductionולאשויכודומיינים.",
     "permissions": "publicasset לעומתחתום/פרטי; API לפי owner",
     "parameters_anchors": "שם קובץ,טווח זמן,range,queryAPI מותרים",
     "acceptance": "HEAD/GET/MIME/CSP; אין HTML200 במקום תמונה/שמע;probe נשאר 404",
-    "open_task": "C4: retain193audio user deferral; exact publication guard approval, proven no-domain Git-source creation and real hosted public-config acceptance; final cutover separate",
+    "open_task": "C4: retain193audio owner deferral; exact guard integration accepted; protected Preview source verification; proven no-domain Git-source Production creation route and separate authorization/hosted acceptance; final cutover separate",
     "treatment": "PARTIAL_EXACT_RESOURCE_ACCEPTANCE_AUDIO_SOURCE_OPEN",
     "exception_previous_checkpoint": {
       "verified_status": "193audio hrefs; לא כל בקשת WP היאתוכן אמיתי",
@@ -727,7 +733,11 @@
       "verified_status": "193 נתיבי השמע נשמרו עם ראיות HTML במקום audio ומשימת שחזור; נדחו לאחר ההשקה באישור צוריאל. אין שחזור בתים או הפניה כללית. XML כולל את הכתובות הקנוניות של שלושת דפי WP ההיסטוריים; גבולות משאבים ו־404 נשמרו.",
       "open_task": "C4"
     },
-    "public_candidate_proposal_evidence": "../public-url-exceptions-20261103/residual205/evidence/final-preparation/production-activation/public-candidate/README.md"
+    "public_candidate_proposal_evidence": "../public-url-exceptions-20261103/residual205/evidence/final-preparation/production-activation/public-candidate/README.md",
+    "guard_integration_previous_checkpoint": {
+      "verified_status": "193 נתיבי השמע נשמרו עם ראיות HTML במקום audio ומשימת שחזור; נדחו לאחר ההשקה באישור צוריאל. אין שחזור בתים או הפניה כללית. XML כולל את הכתובות הקנוניות של שלושת דפי WP ההיסטוריים; גבולות משאבים ו־404 נשמרו. המשך12.39: תצורתאינדוקסציבורימוכנהכהצעהבלבד,49בדיקותמבודדותובנייתdormantעברו;הפריוויונשארמוגן/noindex.איןקבלתProductionמתארחאו מעברלחי. direct documentAPI נשארnoindexגםבהצעה.",
+      "open_task": "C4: retain193audio user deferral; exact publication guard approval, proven no-domain Git-source creation and real hosted public-config acceptance; final cutover separate"
+    }
   },
   {
     "id": "F33",

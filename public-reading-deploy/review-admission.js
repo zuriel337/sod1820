@@ -1,21 +1,26 @@
-// Pure admission checks for this existing artifact's protected review only.
+// Pure admission checks for the existing protected review artifact.
+// A staged Production-target review does not authorize canonical serving,
+// indexing, domain assignment or cutover; those remain separately dormant.
 // The operator pins an exact Git SHA in this deployment's build command; the
 // compiler records its own platform identity, which runtime must match exactly.
 // No user request/header/query or shared site flag selects this mode.
 export const REVIEW_PROJECT_ID = "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq";
 export const REVIEW_BRANCH = "gpt/2029-public-cutover-final-preparation-20261103";
+export const PRODUCTION_REVIEW_BRANCH = "gpt/2029-public-cutover-final-preparation-20261103";
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.
 export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";
 const sourceShaPattern = /^[0-9a-f]{40}$/;
 const deploymentPattern = /^dpl_[A-Za-z0-9]+$/;
 const hostPattern = /^sod1820-[a-z0-9]+-sod1820-s-projects\.vercel\.app$/;
-function previewPlatform(env) {
-  return Boolean(env) && typeof env === "object"
-    && env.VERCEL === "1" && env.VERCEL_ENV === "preview"
-    && env.VERCEL_TARGET_ENV === "preview"
+function reviewPlatform(env, target = "preview") {
+  const branch = target === "preview" ? REVIEW_BRANCH
+    : target === "production" ? PRODUCTION_REVIEW_BRANCH : null;
+  return Boolean(branch) && Boolean(env) && typeof env === "object"
+    && env.VERCEL === "1" && env.VERCEL_ENV === target
+    && env.VERCEL_TARGET_ENV === target
     && env.VERCEL_PROJECT_ID === REVIEW_PROJECT_ID
-    && env.VERCEL_GIT_COMMIT_REF === REVIEW_BRANCH
+    && env.VERCEL_GIT_COMMIT_REF === branch
     && sourceShaPattern.test(env.VERCEL_GIT_COMMIT_SHA || "")
     && deploymentPattern.test(env.VERCEL_DEPLOYMENT_ID || "")
     && hostPattern.test(env.VERCEL_URL || "");
@@ -26,9 +31,9 @@ function previewPlatform(env) {
 // matches the nested config read from the pinned Git commit. Array order counts;
 // the ordinary file mode must also remain 100644 in Git's raw worktree diff.
 // This does not ignore dirty files or authorize any platform/runtime identity.
-export function protectedReviewConfigMaterialization({ reviewMode, env, trackedStatus, trackedDiff,
+export function protectedReviewConfigMaterialization({ reviewMode, reviewTarget = "preview", env, trackedStatus, trackedDiff,
   committedConfig, workingConfig }) {
-  if (reviewMode !== true || !previewPlatform(env) || trackedStatus !== " M vercel.json\0"
+  if (reviewMode !== true || !reviewPlatform(env, reviewTarget) || trackedStatus !== " M vercel.json\0"
     || !/^:100644 100644 [0-9a-f]{40} 0{40} M\0vercel\.json\0$/.test(trackedDiff || "")
     || typeof committedConfig !== "string" || typeof workingConfig !== "string") return false;
   function equal(left, right) {
@@ -46,24 +51,55 @@ export function protectedReviewConfigMaterialization({ reviewMode, env, trackedS
   } catch { return false; }
 }
 
-export function protectedReviewBuildIdentity({ env, sourceSha, sourceDirty, requestedSourceSha }) {
-  if (!previewPlatform(env) || sourceDirty || !sourceShaPattern.test(sourceSha || "")
+export function protectedReviewBuildIdentity({ env, sourceSha, sourceDirty, requestedSourceSha, reviewTarget = "preview" }) {
+  if (!reviewPlatform(env, reviewTarget) || sourceDirty || !sourceShaPattern.test(sourceSha || "")
     || requestedSourceSha !== sourceSha || env.VERCEL_GIT_COMMIT_SHA !== sourceSha)
     throw new Error("public_reading_protected_review_identity_rejected");
-  return Object.freeze({ schema: 1, mode: "protected-preview-review", target: "preview",
-    sourceSha, branch: REVIEW_BRANCH, projectId: REVIEW_PROJECT_ID,
+  return Object.freeze({ schema: 1, mode: reviewTarget === "production" ? "staged-production-review" : "protected-preview-review", target: reviewTarget,
+    sourceSha, branch: reviewTarget === "production" ? PRODUCTION_REVIEW_BRANCH : REVIEW_BRANCH, projectId: REVIEW_PROJECT_ID,
     deploymentId: env.VERCEL_DEPLOYMENT_ID, host: env.VERCEL_URL,
-    ...(env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST ? { authHost: REVIEW_AUTH_HOST } : {}),
-    productionAuthorized: false, indexingAuthorized: false });
+    ...(reviewTarget === "preview" && env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST ? { authHost: REVIEW_AUTH_HOST } : {}),
+    productionAuthorized: false, indexingAuthorized: false,
+    ...(reviewTarget === "production" ? { cutoverAuthorized: false, domainAssignmentAuthorized: false } : {}) });
 }
 export function protectedReviewRuntimeAuthorized(identity, env) {
-  return identity?.schema === 1 && identity.mode === "protected-preview-review"
-    && identity.target === "preview" && identity.productionAuthorized === false
-    && identity.indexingAuthorized === false && previewPlatform(env)
+  const target = identity?.mode === "protected-preview-review" ? "preview"
+    : identity?.mode === "staged-production-review" ? "production" : null;
+  return Boolean(target) && identity?.schema === 1
+    && identity.target === target && identity.productionAuthorized === false
+    && identity.indexingAuthorized === false && reviewPlatform(env, target)
+    && (target !== "production" || identity.cutoverAuthorized === false
+      && identity.domainAssignmentAuthorized === false)
     && identity.projectId === env.VERCEL_PROJECT_ID
     && identity.branch === env.VERCEL_GIT_COMMIT_REF
     && identity.sourceSha === env.VERCEL_GIT_COMMIT_SHA
     && identity.deploymentId === env.VERCEL_DEPLOYMENT_ID
     && identity.host === env.VERCEL_URL
-    && (identity.authHost === undefined || identity.authHost === REVIEW_AUTH_HOST && env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST);
+    && (identity.authHost === undefined || target === "preview" && identity.authHost === REVIEW_AUTH_HOST && env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST);
+}
+
+// Explicit public-capable Production candidate. It is created unrouted and
+// protected; only a separately authorized platform traffic switch is cutover.
+// No request parameter, host header, shared flag or environment switch can
+// generate this compiled receipt. Production creation needs its own approval.
+export function publicCandidateBuildIdentity({env,sourceSha,sourceDirty,requestedSourceSha}) {
+  if (!reviewPlatform(env,"production") || sourceDirty || !sourceShaPattern.test(sourceSha || "")
+      || requestedSourceSha !== sourceSha || env.VERCEL_GIT_COMMIT_SHA !== sourceSha)
+    throw new Error("public_production_candidate_identity_rejected");
+  return Object.freeze({schema:1,mode:"public-production-candidate",target:"production",
+    sourceSha,branch:PRODUCTION_REVIEW_BRANCH,projectId:REVIEW_PROJECT_ID,
+    deploymentId:env.VERCEL_DEPLOYMENT_ID,host:env.VERCEL_URL,
+    canonicalServingPrepared:true,indexingPrepared:true,
+    productionAuthorized:false,cutoverAuthorized:false,domainAssignmentAuthorized:false});
+}
+export function publicCandidateRuntimeAuthorized(identity,env) {
+  return identity?.schema === 1 && identity.mode === "public-production-candidate"
+    && identity.target === "production" && identity.canonicalServingPrepared === true
+    && identity.indexingPrepared === true && identity.productionAuthorized === false
+    && identity.cutoverAuthorized === false && identity.domainAssignmentAuthorized === false
+    && identity.authHost === undefined && reviewPlatform(env,"production")
+    && identity.projectId === env.VERCEL_PROJECT_ID
+    && identity.branch === env.VERCEL_GIT_COMMIT_REF
+    && identity.sourceSha === env.VERCEL_GIT_COMMIT_SHA
+    && identity.deploymentId === env.VERCEL_DEPLOYMENT_ID && identity.host === env.VERCEL_URL;
 }
