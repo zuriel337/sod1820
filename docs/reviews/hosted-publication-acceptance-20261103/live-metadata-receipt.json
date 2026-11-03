@@ -1,0 +1,70 @@
+{
+  "task": "PUBLIC_HOSTED_PUBLICATION_ACCEPTANCE_20261103",
+  "productSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+  "productBranch": "gpt/2029-doc37-unified-alignment-20261102",
+  "evidenceBase": "463128b124b54a7dfb641f257284ffaa3f8dc489",
+  "beforeId": "7f2b6fa5-17b7-4d62-90f5-5856fc3fdeb4",
+  "artifact": {
+    "checkedAt": "2026-11-03T01:05:19.903Z",
+    "name": "artifact",
+    "isError": false,
+    "result": [
+      {
+        "id": "dpl_BN3p9bEC4mGuUSoMC4BqXfy2PiCy",
+        "url": "sod1820-edca56j3h-sod1820-s-projects.vercel.app",
+        "readyState": "READY",
+        "target": null,
+        "gitSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+        "gitRef": "gpt/2029-doc37-unified-alignment-20261102"
+      }
+    ]
+  },
+  "product": {
+    "checkedAt": "2026-11-03T01:05:20.078Z",
+    "name": "product",
+    "isError": false,
+    "result": [
+      {
+        "id": "dpl_8YZUjAG9Df9F58MUXFXmdnAeuFWS",
+        "url": "sod1820-nd7st17o8-sod1820-s-projects.vercel.app",
+        "readyState": "READY",
+        "target": null,
+        "gitSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+        "gitRef": "gpt/2029-doc37-unified-alignment-20261102"
+      }
+    ]
+  },
+  "project": {
+    "checkedAt": "2026-11-03T01:05:19.341Z",
+    "name": "project",
+    "isError": false,
+    "result": [
+      {
+        "id": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+        "name": "sod1820",
+        "accountId": "team_vtfWHZfKvdbob8gvynQb5N89",
+        "ssoProtection": {
+          "enabled": true,
+          "deploymentType": "all_except_custom_domains"
+        }
+      }
+    ]
+  },
+  "legacyAliases": {
+    "checkedAt": "2026-11-03T01:05:19.320Z",
+    "name": "legacyAliases",
+    "isError": false,
+    "result": [
+      "www.sod1820.co.il",
+      "sod1820-sod1820-s-projects.vercel.app",
+      "sod1820.vercel.app",
+      "sod1820-git-gpt-legacy-ticker-only-li-94c59e-sod1820-s-projects.vercel.app",
+      "sod1820.co.il"
+    ]
+  },
+  "productionDeploymentChanged": false,
+  "sourceChanged": false,
+  "guardChanged": false,
+  "performanceAcceptedWithoutRerun": true,
+  "restoredPrivateData": false
+}

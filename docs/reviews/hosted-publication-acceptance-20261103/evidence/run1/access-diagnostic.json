@@ -1,0 +1,18 @@
+[
+  {
+    "label": "scoped-access",
+    "status": 302,
+    "contentType": "text/plain",
+    "locationHost": "vercel.com",
+    "locationPath": "/sso-api",
+    "title": null
+  },
+  {
+    "label": "manifest",
+    "status": 302,
+    "contentType": "text/plain",
+    "locationHost": "vercel.com",
+    "locationPath": "/sso-api",
+    "title": null
+  }
+]

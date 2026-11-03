@@ -1,0 +1,41 @@
+{
+  "productSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+  "files": [
+    {
+      "path": "evidence/run1/receipt.json",
+      "bytes": 1130,
+      "sha256": "ad7f0c2e0d24d61c00468ad8c08ac8cc6fcbe8c678e69049e0a6e1cf17e6c6c2"
+    },
+    {
+      "path": "evidence/run1/access-diagnostic.json",
+      "bytes": 348,
+      "sha256": "bb6a18ac1c8b9b0305ed31d3a8ea2ab6aad6f7c06c6e576662604334577acc54"
+    },
+    {
+      "path": "evidence/run2/receipt.json",
+      "bytes": 21180,
+      "sha256": "580921cc815d9c72ae1d1449707770540a4f7cfc39ae87377a31185f4e56623f"
+    },
+    {
+      "path": "evidence/run2/mail-390.png",
+      "bytes": 103780,
+      "sha256": "b45be7a1fcf48a904ab0e89daba51007d7a3dcb438b1b531c631263a3cdb8e54"
+    },
+    {
+      "path": "evidence/run2/mail-1440.png",
+      "bytes": 487958,
+      "sha256": "44512dca8a7df3b24b2a3f077a83c6e31dd3c170730e39f8983937d051cdb12f"
+    },
+    {
+      "path": "evidence/run2/login-390.png",
+      "bytes": 92907,
+      "sha256": "982f36f2b5d040184b01223ddb782eaa77813bf6290ea12634e63875b223bfa2"
+    },
+    {
+      "path": "evidence/run2/login-1440.png",
+      "bytes": 282120,
+      "sha256": "68d5bb39fcbbe9a1e5cdf460cf09332b3b7d52715d3a729a8821d6d1ed49fafc"
+    }
+  ],
+  "scope": "sanitized receipts and blank-account public screenshots only; no private access config or cookies"
+}

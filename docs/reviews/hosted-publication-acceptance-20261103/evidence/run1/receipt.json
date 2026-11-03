@@ -1,0 +1,42 @@
+{
+  "kind": "additional-hosted-service-boundary",
+  "productSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+  "origin": "https://sod1820-edca56j3h-sod1820-s-projects.vercel.app",
+  "actualSW": true,
+  "performanceComparison": false,
+  "liveLogin": false,
+  "liveSignup": false,
+  "liveUnsubscribe": false,
+  "mailSent": false,
+  "sameIndependentRPCReadInventory": true,
+  "cases": [
+    {
+      "width": 390,
+      "startedAt": "2026-11-03T01:07:32.908Z",
+      "checks": [],
+      "documents": [],
+      "errors": [],
+      "ok": false,
+      "failure": {
+        "name": "SyntaxError",
+        "message": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+      },
+      "finishedAt": "2026-11-03T01:07:35.280Z"
+    },
+    {
+      "width": 1440,
+      "startedAt": "2026-11-03T01:07:35.280Z",
+      "checks": [],
+      "documents": [],
+      "errors": [],
+      "ok": false,
+      "failure": {
+        "name": "SyntaxError",
+        "message": "Unexpected token '<', \"<!DOCTYPE \"... is not valid JSON"
+      },
+      "finishedAt": "2026-11-03T01:07:37.240Z"
+    }
+  ],
+  "browser": "154.0.8037.57",
+  "ok": false
+}

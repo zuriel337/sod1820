@@ -1,0 +1,659 @@
+{
+  "kind": "additional-hosted-service-boundary",
+  "productSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+  "origin": "https://sod1820-edca56j3h-sod1820-s-projects.vercel.app",
+  "actualSW": true,
+  "performanceComparison": false,
+  "liveLogin": false,
+  "liveSignup": false,
+  "liveUnsubscribe": false,
+  "mailSent": false,
+  "sameIndependentRPCReadInventory": true,
+  "cases": [
+    {
+      "width": 390,
+      "startedAt": "2026-11-03T01:09:31.520Z",
+      "checks": [
+        "no-startup-signup-probe",
+        "real-intent-OPTIONS-contract-through-actual-SW",
+        "blank-email-unchecked-consent-disabled-submit",
+        "existing-account-password-entry-only",
+        "return-query-and-fragment-preserved",
+        "no-login-submission",
+        "tokenless-unsubscribe-invalid-no-request",
+        "five-anonymous-large-system-routes-closed"
+      ],
+      "documents": [
+        {
+          "label": "mail-ready-no-submission",
+          "path": "/",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/functions/v1/newsletter-signup",
+              "method": "OPTIONS",
+              "status": 200,
+              "contract": "opening-parts-v1"
+            }
+          ],
+          "denied": [],
+          "viewport": 390,
+          "documentWidth": 375
+        },
+        {
+          "label": "login-anonymous",
+          "path": "/login",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/auth/v1/settings",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            }
+          ],
+          "denied": [],
+          "viewport": 390,
+          "documentWidth": 375
+        },
+        {
+          "label": "unsubscribe-without-token",
+          "path": "/unsubscribe",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST"
+            }
+          ],
+          "denied": [],
+          "viewport": 390,
+          "documentWidth": 375
+        },
+        {
+          "label": "closed:/code",
+          "path": "/code",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST"
+            }
+          ],
+          "denied": [],
+          "viewport": 390,
+          "documentWidth": 375
+        },
+        {
+          "label": "closed:/heichal",
+          "path": "/heichal",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            }
+          ],
+          "denied": [],
+          "viewport": 390,
+          "documentWidth": 375
+        },
+        {
+          "label": "closed:/2029/journey",
+          "path": "/2029/journey",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST"
+            }
+          ],
+          "denied": [],
+          "viewport": 390,
+          "documentWidth": 375
+        },
+        {
+          "label": "closed:/2029/raziel",
+          "path": "/2029/raziel",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET"
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            }
+          ],
+          "denied": [],
+          "viewport": 390,
+          "documentWidth": 375
+        },
+        {
+          "label": "closed:/community/chat",
+          "path": "/community/chat",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            }
+          ],
+          "denied": [],
+          "viewport": 390,
+          "documentWidth": 375
+        }
+      ],
+      "errors": [],
+      "identity": {
+        "sourceSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+        "productionReady": false,
+        "workerSha256": "abbbdc3b97b473fcafe0d47083eff2d0c58b4e74e9df58b04ca7dc36b9a44baa"
+      },
+      "phase": "anonymous-closed-routes",
+      "ok": true,
+      "finishedAt": "2026-11-03T01:09:45.833Z"
+    },
+    {
+      "width": 1440,
+      "startedAt": "2026-11-03T01:09:45.833Z",
+      "checks": [
+        "no-startup-signup-probe",
+        "real-intent-OPTIONS-contract-through-actual-SW",
+        "blank-email-unchecked-consent-disabled-submit",
+        "existing-account-password-entry-only",
+        "return-query-and-fragment-preserved",
+        "no-login-submission",
+        "tokenless-unsubscribe-invalid-no-request",
+        "five-anonymous-large-system-routes-closed"
+      ],
+      "documents": [
+        {
+          "label": "mail-ready-no-submission",
+          "path": "/",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 206
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/convergence_meter",
+              "method": "POST",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/functions/v1/newsletter-signup",
+              "method": "OPTIONS",
+              "status": 200,
+              "contract": "opening-parts-v1"
+            }
+          ],
+          "denied": [],
+          "viewport": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "label": "login-anonymous",
+          "path": "/login",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/auth/v1/settings",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            }
+          ],
+          "denied": [],
+          "viewport": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "label": "unsubscribe-without-token",
+          "path": "/unsubscribe",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            }
+          ],
+          "denied": [],
+          "viewport": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "label": "closed:/code",
+          "path": "/code",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET"
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST"
+            }
+          ],
+          "denied": [],
+          "viewport": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "label": "closed:/heichal",
+          "path": "/heichal",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            }
+          ],
+          "denied": [],
+          "viewport": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "label": "closed:/2029/journey",
+          "path": "/2029/journey",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            }
+          ],
+          "denied": [],
+          "viewport": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "label": "closed:/2029/raziel",
+          "path": "/2029/raziel",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            }
+          ],
+          "denied": [],
+          "viewport": 1440,
+          "documentWidth": 1425
+        },
+        {
+          "label": "closed:/community/chat",
+          "path": "/community/chat",
+          "controller": "/sw.js",
+          "reads": [
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/topic_cards_public",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/posts",
+              "method": "GET",
+              "status": 200
+            },
+            {
+              "origin": "https://linswmnnkjxvweumprav.supabase.co",
+              "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+              "method": "POST",
+              "status": 200
+            }
+          ],
+          "denied": [],
+          "viewport": 1440,
+          "documentWidth": 1425
+        }
+      ],
+      "errors": [],
+      "identity": {
+        "sourceSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+        "productionReady": false,
+        "workerSha256": "abbbdc3b97b473fcafe0d47083eff2d0c58b4e74e9df58b04ca7dc36b9a44baa"
+      },
+      "phase": "anonymous-closed-routes",
+      "ok": true,
+      "finishedAt": "2026-11-03T01:09:56.664Z"
+    }
+  ],
+  "browser": "154.0.8037.57",
+  "ok": true
+}
