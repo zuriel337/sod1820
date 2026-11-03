@@ -47,7 +47,7 @@ dependencies and lockfile remain unchanged.
 and reload at320/390/1440, separate reader failures, member and guest denial.
 All Supabase replies are fixtures, including auth and admin reads; no real
 credential/account, model or live product write is used. Its result is a render
-regression test, **not real administrator acceptance**. Hosted receipt to follow.
+regression test, **not real administrator acceptance**. Hosted receipt: `hosted-accepted6.json` — all six scenarios accepted on source `1bc8260adaa889d7903aaa33ef43510df09817f2`, deployment `dpl_ADnf6NL9VznxiiysCQZqoGPguJSE`, READY/targetNULL. Three admin width/reload scenarios passed initially. The other three passed a targeted retry after fixing only the harness: FrameState renders alert/strong, and public/member entry stays on a dedicated private status page instead of redirecting. Initial failures remain in `hosted-initial-with-harness-failures.json`. No runtime changes between those runs. No horizontal document overflow or browser errors in accepted cases; screenshot inspected at390. Actual live data acceptance remains unclaimed.
 
 Owner's latest decision skips manual Google/Facebook acceptance:
 `SKIPPED_BY_OWNER_NOT_TESTED`. Their unconfirmed Preview callback and strict
@@ -58,3 +58,17 @@ the corrected Preview is ready.
 
 No main/site Production/domain action or fresh backup claim; prior B/D receipt,
 historical H1 restore and owner's current-backup risk decision remain unchanged.
+
+
+## Exact handoff Preview
+
+https://sod1820-96jzc6z50-sod1820-s-projects.vercel.app/login?returnTo=%2F2029%2Fcontrol
+
+The existing stable branch host also resolves to that exact deployment. The owner
+can reuse his existing Vercel-protected browser session at:
+https://sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app/login?returnTo=%2F2029%2Fcontrol
+
+Only Preview is deployed. No application Auth secret, share grant or browser
+state is in these artifacts. Production remains Legacy. A future Production
+creation/cutover request must be rebased onto this accepted runtime rather than
+the historical B/D source; no new authorization is implied.

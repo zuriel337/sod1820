@@ -13,17 +13,22 @@ const report = { sha: cfg.sha, deployment: cfg.deploymentId, syntheticIdentity: 
   liveAccountAcceptance: false, liveProductWrites: 0, liveModelCalls: 0, cases: [] };
 const flush = () => fs.writeFileSync(output + '/receipt.json', JSON.stringify(report, null, 2) + '\n');
 const safe = e => String(e.stack || e.message || e).replace(/_vercel_share=[^\s"')&]+/g, '_vercel_share=[REDACTED]').slice(0, 2500);
+const scenarios = [
+  { name: 'admin-320', width: 320 }, { name: 'admin-390', width: 390 },
+  { name: 'admin-1440', width: 1440 }, { name: 'read-failures-390', width: 390, failedReaders: true },
+  { name: 'member-denied-390', width: 390, role: 'member' }, { name: 'guest-denied-390', width: 390, guest: true },
+];
+const requested = process.argv.slice(4);
+assert.ok(requested.every(name => scenarios.some(scenario => scenario.name === name)));
+const selected = scenarios.filter(scenario => !requested.length || requested.includes(scenario.name));
+report.selectedCases = selected.map(scenario => scenario.name);
 (async () => {
   let browser;
   try {
     browser = await chromium.launch({ executablePath: '/usr/bin/chromium', headless: true,
       args: ['--no-sandbox', '--disable-dev-shm-usage'],
       ...(process.env.HTTPS_PROXY ? { proxy: { server: process.env.HTTPS_PROXY, bypass: '127.0.0.1,localhost' } } : {}) });
-    for (const scenario of [
-      { name: 'admin-320', width: 320 }, { name: 'admin-390', width: 390 },
-      { name: 'admin-1440', width: 1440 }, { name: 'read-failures-390', width: 390, failedReaders: true },
-      { name: 'member-denied-390', width: 390, role: 'member' }, { name: 'guest-denied-390', width: 390, guest: true },
-    ]) {
+    for (const scenario of selected) {
       const row = { ...scenario, errors: [] }; report.cases.push(row); flush();
       const context = await browser.newContext({ viewport: { width: scenario.width, height: 900 }, locale: 'he-IL', isMobile: scenario.width < 600 });
       try {
@@ -69,7 +74,8 @@ const safe = e => String(e.stack || e.message || e).replace(/_vercel_share=[^\s"
         page.setDefaultNavigationTimeout(60000);
         if (scenario.guest) {
           await page.goto(cfg.origin + '/2029/control', { waitUntil: 'domcontentloaded' });
-          await expect(page).not.toHaveURL(/\/2029\/control(?:[?#]|$)/, { timeout: 30000 });
+          await expect(page.getByRole('heading', { name: 'מרכז הבקרה', exact: true })).toBeVisible({ timeout: 30000 });
+          await expect(page.getByRole('heading', { name: 'Control Plane', exact: true })).toHaveCount(0);
         } else {
           await page.goto(cfg.origin + '/login?returnTo=%2F2029%2Fcontrol', { waitUntil: 'domcontentloaded' });
           await page.getByRole('button', { name: 'כניסה עם סיסמה', exact: true }).click({ timeout: 45000 });
@@ -77,12 +83,13 @@ const safe = e => String(e.stack || e.message || e).replace(/_vercel_share=[^\s"
           await page.locator('input[type="password"]').fill('synthetic-not-a-real-password');
           await page.getByRole('button', { name: 'כניסה לחשבון ←', exact: true }).click();
           if (scenario.role === 'member') {
-            await expect(page).toHaveURL(/\/2029$/, { timeout: 30000 });
+            await expect(page.getByRole('heading', { name: 'מרכז הבקרה', exact: true })).toBeVisible({ timeout: 30000 });
+            await expect(page.getByRole('heading', { name: 'Control Plane', exact: true })).toHaveCount(0);
           } else {
             await expect(page.getByRole('heading', { name: 'Control Plane', exact: true })).toBeVisible({ timeout: 30000 });
             await expect(page.locator('.surface-control')).toBeVisible();
             if (scenario.failedReaders) {
-              for (const title of ['לא ניתן לקרוא את מצב המערכת', 'לא ניתן לקרוא את מצב הווידאו', 'לא ניתן לקרוא traces כרגע']) await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible();
+              for (const title of ['לא ניתן לקרוא את מצב המערכת', 'לא ניתן לקרוא את מצב הווידאו', 'לא ניתן לקרוא traces כרגע']) await expect(page.getByRole('alert').filter({ hasText: title })).toBeVisible();
               await expect(page.getByText('רשימת ה־traces שהתקבלה ריקה', { exact: true })).toHaveCount(0);
             } else await expect(page.getByText('רשימת ה־traces שהתקבלה ריקה', { exact: true })).toBeVisible();
             // Direct reload with the SDK-owned synthetic session reproduces the
@@ -110,7 +117,7 @@ const safe = e => String(e.stack || e.message || e).replace(/_vercel_share=[^\s"
   finally {
     await browser?.close();
     report.passed = report.cases.filter(c => c.passed).length;
-    report.ok = !report.fatal && report.cases.length === 6 && report.passed === 6;
+    report.ok = !report.fatal && report.cases.length === selected.length && report.passed === selected.length;
     flush(); console.log(JSON.stringify({ ok: report.ok, passed: report.passed, total: report.cases.length, fatal: report.fatal }));
     process.exitCode = report.ok ? 0 : 1;
   }

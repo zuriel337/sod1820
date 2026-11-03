@@ -1,0 +1,30 @@
+{
+  "baseSha": "fd23e9ebfaa3aaf870f4abd1077da3bb90c188bf",
+  "productSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "focusedPassed": 37,
+  "hostedAcceptedSynthetic": 6,
+  "initialHarnessFailuresRetained": 3,
+  "actualAdminAcceptance": "RETRY_PENDING_NOT_CLAIMED",
+  "socialManualTest": "SKIPPED_BY_OWNER_NOT_TESTED",
+  "accountAcceptance": "RETAINED_TWO_ACCOUNTS_USER_REPORTED",
+  "build2029": "PASS",
+  "dormantArtifactBuild": "PASS_CLEAN_SOURCE",
+  "experienceContextGate": "PASS",
+  "legacyProductionLock": "PASS",
+  "runtimeDiffAfterProductSha": "EMPTY",
+  "gitDiffCheck": "PASS",
+  "scopedSecretPatternScan": "PASS",
+  "scanFiles": 29,
+  "productionHosts": {
+    "sod1820.co.il": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+    "www.sod1820.co.il": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+    "sod1820.vercel.app": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+  },
+  "mainSha": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "sharedConfigurationChanged": false,
+  "liveProductWrites": 0,
+  "modelCalls": 0,
+  "newEdgeDeploy": false,
+  "doc37Section": "12.42",
+  "doc37BodyMd5": "08d33a7d9d9a1cdbc929e88a840f7e7e"
+}

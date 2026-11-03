@@ -546,12 +546,12 @@
     "evidence": "AccountEntry; oauthReturn; JoinPage",
     "meaning": "כניסה/הרשמה/הכוונה/קמפיין אינם אותה פעולה",
     "target_2029": "מסכי Auth קיימים; adapters למשמעותשנשמרת",
-    "verified_status": "המשכיות החשבון הקיים התקבלה בשני החשבונות. חוברו שוב Google/Facebook/OTP למימושAuth הקיים, ללאשינוי טריגר/העדפות. callback ענףPreviewקבוע נקשרל־Vercel; בדיקתפתיחהוביטולעדכניתשניהםחזרהProduction,ונדרשתבדיקתרשומתRedirectURLsואזשניספקיםאנושיים. A2מוצעבלבדולאנדרשלהמשכיות. איןמודל/חיוב/דיוורגורףבכניסה.",
+    "verified_status": "המשכיות החשבונות האישיים התקבלה בשני חשבונות הבעלים ונשמרת. בדיקת Google/Facebook הידנית דולגה בהוראתו: SKIPPED_BY_OWNER_NOT_TESTED, לא PASS. בדיקת callback הקודמת אינה הוכחת כניסה חברתית; המקור המאושר בפריוויו נשאר[] ולא שונו Auth, הגנות או הספקים שעובדים בלגאסי. תיקון1bc8260a לבקרת המנהל אינו שינוי Auth. B/D מוחלים בנפרד.",
     "permissions": "זהותשרת; אין שיווק/חיובבכניסה",
     "parameters_anchors": "returnTo,OAuthstate/PKCE/hash; לא לתעד טוקנים",
     "acceptance": "Google/Facebook/password/יציאה; החזרה המדויקת;חדשלעומתקיים",
-    "open_task": "C5: exact Preview callback allowlist verification and genuine Google/Facebook owner acceptance; no A2 prerequisite. B/D applied independently without changing account trigger or existing subscribers.",
-    "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_SIGNUP_PENDING",
+    "open_task": "אין בקשה חוזרת לבדיקה החברתית שדולגה. Preview callback עדיין לא אומת; הפעלה עתידית דורשת אימות קיים בלי החלשת מקור. קבלתCP1 אמיתית נפרדת פתוחה; A2/C אינם כלולים.",
+    "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_TEST_SKIPPED_BY_OWNER",
     "continuity_closure_previous_checkpoint": {
       "verified_status": "חשבוןקייםעובדבתנאיםמבוקרים;Social/signup ממתינים"
     },
@@ -578,7 +578,13 @@
       "open_task": "C5: exact Preview callback allowlist verification and genuine Google/Facebook owner acceptance; no A2 prerequisite. B/D remain separate mail approval.",
       "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_SIGNUP_PENDING"
     },
-    "bd_applied_evidence": "../public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/README.md"
+    "bd_applied_evidence": "../public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/README.md",
+    "admin_black_screen_previous_checkpoint": {
+      "verified_status": "המשכיות החשבון הקיים התקבלה בשני החשבונות. חוברו שוב Google/Facebook/OTP למימושAuth הקיים, ללאשינוי טריגר/העדפות. callback ענףPreviewקבוע נקשרל־Vercel; בדיקתפתיחהוביטולעדכניתשניהםחזרהProduction,ונדרשתבדיקתרשומתRedirectURLsואזשניספקיםאנושיים. A2מוצעבלבדולאנדרשלהמשכיות. איןמודל/חיוב/דיוורגורףבכניסה.",
+      "open_task": "C5: exact Preview callback allowlist verification and genuine Google/Facebook owner acceptance; no A2 prerequisite. B/D applied independently without changing account trigger or existing subscribers.",
+      "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_SIGNUP_PENDING"
+    },
+    "admin_black_screen_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/README.md"
   },
   {
     "id": "F27",
@@ -667,12 +673,12 @@
     "evidence": "App.jsx; Admin admission",
     "meaning": "מסכים פרטיים/מנהל",
     "target_2029": "כניסה ויעדמקביל רק לפי הרשאה",
-    "verified_status": "S2ושתי זרועותexceptionב־admin_system_healthהוחלו באישור במיגרציות20261103175116/175126.8hashes,owner/ACLומדיניותהמנהלנשמרו;0טיוטותאנונימיות/3Forum/13approvedשפות.4מסלוליפרווימושפעיםעברו. תצוגתהבקרהמבחינהfailed/empty/staleומבודדתזהות; CP1מנהל אמיתי וחותם S2רחבעדייןפתוחים. egress6.10STALE; איןcollectorחדש/אפסמדומה.",
+    "verified_status": "S2 וקורא הבקרה שהוחלו נשמרים. כשל מנהל אמיתי דווח בנייד; שחזור סינתטי בפריוויוd8ee2753 הוכיח קריסת admin לא מוכר במעטפת. מקור1bc8260a תוקן ל־control עם תצוגת בדיקה קיימת ומצב אימות גלוי.37בדיקות ושישה תרחישי דפדפןסינתטיים עםSW בפריסהdpl_ADnf6NL9VznxiiysCQZqoGPguJSEעברו, כולל320/390/1440,רענון,כשלי קוראים וחסימתחבר/אורח. איןJWTמנהל אמיתי/קריאתבקרה חיה; קבלתCP1אמיתית ממתינה לניסיוןחוזר. egressישןאינומדידהעדכנית.",
     "permissions": "מנהל/בעלים בשרת, failclosed",
     "parameters_anchors": "returnTo בטוח; בלי דליפת metadata",
     "acceptance": "אנונימי/חבר/admin;401/403/404 לפי חוזה",
-    "open_task": "CP1: short genuine admin read/refresh/existing-trace acceptance; valid S2 and health fix evidence retained; no fullG4 claim",
-    "treatment": "IMPLEMENTED_CONTROLLED_TESTED_ADMIN_ACCEPTANCE_OPEN",
+    "open_task": "CP1: ניסיון חוזר של הבעלים בכניסה למנהל, רענון ו־trace קיים אם יש, לקריאה בלבד. תיקון הקריסה אינו קבלת חשבון אמיתי/סגירתG4; ראיותS2/שני החשבונות נשמרות.",
+    "treatment": "BLACK_SCREEN_FIXED_HOSTED_SYNTHETIC_ACCEPTED_REAL_ADMIN_RETRY_OPEN",
     "exception_previous_checkpoint": {
       "verified_status": "אין להפוךכתובתאמיתיתלציבורית",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
@@ -695,7 +701,13 @@
     "four_completions_previous_checkpoint": {
       "open_task": "CP1 genuine operator acceptance; remaining pre-cutover security classification/negative scope; not a full G4 seal"
     },
-    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md"
+    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md",
+    "admin_black_screen_previous_checkpoint": {
+      "verified_status": "S2ושתי זרועותexceptionב־admin_system_healthהוחלו באישור במיגרציות20261103175116/175126.8hashes,owner/ACLומדיניותהמנהלנשמרו;0טיוטותאנונימיות/3Forum/13approvedשפות.4מסלוליפרווימושפעיםעברו. תצוגתהבקרהמבחינהfailed/empty/staleומבודדתזהות; CP1מנהל אמיתי וחותם S2רחבעדייןפתוחים. egress6.10STALE; איןcollectorחדש/אפסמדומה.",
+      "open_task": "CP1: short genuine admin read/refresh/existing-trace acceptance; valid S2 and health fix evidence retained; no fullG4 claim",
+      "treatment": "IMPLEMENTED_CONTROLLED_TESTED_ADMIN_ACCEPTANCE_OPEN"
+    },
+    "admin_black_screen_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/README.md"
   },
   {
     "id": "F31",
