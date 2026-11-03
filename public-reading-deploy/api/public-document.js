@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import ogHandler from "../../api/og.js";
-import { PUBLIC_READING_PROFILE_ID, publicReadingPath } from "../../src/lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation } from "../../src/lib/publicReadingRelease2029.js";
 import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, deploymentAuthorized } from "../authorization.js";
 
 export function requestOrigin(req) {
@@ -54,7 +54,13 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       return res.status(308).send("");
     }
     try {
-      const state = publicReadingPath(path);
+      const search = originalDocument ? original.search : new URLSearchParams(Object.entries(req.query || {}).filter(([key]) => key !== "path")).toString();
+      const continuation = publicReadingContinuation(path, search);
+      if (continuation) {
+        res.setHeader("Location", continuation);
+        return res.status(308).send("");
+      }
+      const state = publicReadingPath(path, { search });
       const closed = ["closed", "missing", "service-closed"].includes(state);
       let metadata = "", status = state === "missing" ? 404 : 200;
       // Closed and unknown addresses never invoke unrelated/private readers.
@@ -64,6 +70,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
         publicFoundationPreview: true,
         publicReadingRelease: PUBLIC_READING_PROFILE_ID,
         publicReadingProductionArtifact: true,
+        publicReadingSearch: search,
         query: { ...req.query, path: metadataPath, crawler: "search" },
       }, { setHeader() {}, status(code) { if (!closed) status = code; return this; }, send(value) { metadata = String(value); } });
       if (status >= 500) throw new Error("public_source_unavailable");

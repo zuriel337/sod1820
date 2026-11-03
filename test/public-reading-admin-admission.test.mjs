@@ -31,19 +31,26 @@ test('reading account storage stays separate and tab scoped; only the exact call
 });
 
 test('verified admin can enter existing private surfaces while public and unknown services remain closed', () => {
- for(const path of ['/code','/els','/books','/book/existing','/heichal','/היכל']) {
+ for(const path of ['/code','/els','/heichal','/היכל']) {
   assert.equal(publicReadingPath(path),'closed');
   assert.equal(publicReadingPath(path,{isAdmin:true}),'admin-view');
  }
- for(const path of ['/2029/journey','/2029/me/overview','/community/chat','/beit-midrash/milui','/research']) {
+ for(const path of ['/2029/journey','/2029/me/overview','/beit-midrash','/research']) {
   assert.equal(publicReadingPath(path,{isAdmin:true}),'admin-view');
   assert.equal(publicReadingPath(path),'closed');
  }
+ // Public source continuations are now admitted; they do not enable writes.
+ for(const path of ['/books','/book/existing','/community/chat']) {
+  assert.equal(publicReadingPath(path),'public');
+  assert.equal(publicReadingPath(path,{isAdmin:true}),'admin-view');
+ }
+ assert.equal(publicReadingPath('/beit-midrash/unverified-method'),'missing');
  for(const path of ['/api/unknown','/auth/unknown'])assert.equal(publicReadingPath(path,{isAdmin:true}),'closed');
  assert.equal(publicReadingPath('/auth/callback'),'account');
  assert.equal(publicReadingPath('/unknown/surface',{isAdmin:true}),'missing');
  assert.equal(publicReadingPath('/login'),'account');
- for(const key of ['lock_els','lock_heichal','lock_books','lock_raziel_site','lock_life_journey','unknown'])assert.equal(publicReadingFeatureLock(key).enabled,true);
+ for(const key of ['lock_els','lock_heichal','lock_raziel_site','lock_life_journey','unknown'])assert.equal(publicReadingFeatureLock(key).enabled,true);
+ assert.equal(publicReadingFeatureLock('lock_books').enabled,false);
 });
 
 async function mountAuth({profileReader=async id=>({id,role:'admin'}),verify=async token=>({data:{user:{id:token,user_metadata:{avatar_url:'https://example.invalid/avatar'}}}})}={}) {

@@ -15,7 +15,7 @@ const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.j
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
 import FeatureClosedNotice from "./components/FeatureClosedNotice.jsx";
-import { PUBLIC_READING_RELEASE, publicReadingPath } from "./lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability } from "./lib/publicReadingRelease2029.js";
 
 // Admit Home's component code before preparing the first Post. The existing
 // Post preparation still starts before a click, without blocking Home's module
@@ -56,6 +56,10 @@ const publicFoundationPreview = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW =
 const PublicPostAddress2029Page = lazy(loadPublicPostAddress);
 const NumberAddress2029Page = lazy(() => import("./pages/NumberAddress2029Page.jsx"));
 const PublicServices2029Page = lazy(() => import("./pages/PublicServices2029Page.jsx"));
+const PostsTaxonomy2029Page = lazy(() => import("./pages/PostsTaxonomy2029Page.jsx"));
+const CommunityCalculator2029Page = lazy(() => import("./pages/CommunityCalculator2029Page.jsx"));
+const PublicLibraryContinuity2029Page = lazy(() => import("./pages/PublicLibraryContinuity2029Page.jsx"));
+const PublicContinuity2029Page = lazy(() => import("./pages/PublicContinuity2029Page.jsx"));
 
 // Gallery pilot reuses the existing World document route and lock. No parallel
 // document rewrite, global navigation change or Legacy route is introduced.
@@ -174,7 +178,14 @@ function RouteEffects2029() {
 // Exact-return or an explicit navigation to a non-2029 URL crosses the document boundary instead.
 function CanonicalBookAlias2029() {
   const { slug } = useParams();
-  return <Navigate replace to={slug ? `/book/${slug}` : "/books"} />;
+  const location = useLocation();
+  return <Navigate replace to={`${slug ? `/book/${encodeURIComponent(slug)}` : "/books"}${location.search}${location.hash}`} />;
+}
+
+function BooksEntry2029() {
+  const { isAdmin, loading } = useAuth();
+  if (PUBLIC_READING_RELEASE && (!isAdmin || loading)) return <PublicLibraryContinuity2029Page kind="books" />;
+  return <Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>;
 }
 
 function ElsAddressAlias2029() {
@@ -250,7 +261,12 @@ function FramedGate2029({ flag, surface, title, children }) {
 function PublicReadingBoundary({ children }) {
   const location = useLocation();
   const { isAdmin, loading } = useAuth();
-  const state = PUBLIC_READING_RELEASE ? publicReadingPath(location.pathname, { isAdmin: !loading && isAdmin }) : null;
+  const continuation = PUBLIC_READING_RELEASE ? publicReadingContinuation(location.pathname, location.search, location.hash) : null;
+  const state = PUBLIC_READING_RELEASE ? publicReadingPath(location.pathname, { isAdmin: !loading && isAdmin, search: location.search }) : null;
+  if (continuation) return <Navigate replace to={continuation} />;
+  const capability = PUBLIC_READING_RELEASE ? publicReadingCapability(location.pathname) : null;
+  if (state === "closed" && capability) return <PublicContinuity2029Page kind="status" {...capability}
+    links={capability.links.map(([href, label]) => [href === '/login' ? `/login?returnTo=${encodeURIComponent(location.pathname + location.search + location.hash)}` : href, label])} />;
   if (state === "closed") return <>
     {isAdmin && <aside role="status" className="sod29-card" data-admin-view="service-unavailable" dir="rtl">🔒 תצוגת מנהל · סגור לציבור. השירות באזור זה עדיין אינו זמין בגרסת הקריאה.</aside>}
     <PublicServices2029Page kind="launch-closed" />
@@ -281,6 +297,20 @@ export default function App2029() {
                 <Route path="/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><NumberAddress2029Page /></Locked>} />
                 <Route path="/gallery" element={<Locked flag="lock_world" homeHref="/2029"><Gallery2029Page /></Locked>} />
                 <Route path="/gematria" element={<GematriaEntry2029 />} />
+                <Route path="/tag/:slug" element={<PostsTaxonomy2029Page />} />
+                <Route path="/category/:slug" element={<PostsTaxonomy2029Page />} />
+                <Route path="/community" element={<Community2029Page />} />
+                <Route path="/community/calculator" element={<CommunityCalculator2029Page />} />
+                <Route path="/community/researchers" element={<PublicContinuity2029Page kind="people" />} />
+                <Route path="/members" element={<PublicContinuity2029Page kind="people" />} />
+                <Route path="/community/comments" element={<PublicContinuity2029Page kind="comments" />} />
+                <Route path="/forum" element={<PublicContinuity2029Page kind="forum" />} />
+                <Route path="/forum/:id" element={<PublicContinuity2029Page kind="forum" />} />
+                <Route path="/or-geula" element={<PublicContinuity2029Page kind="or-geula" />} />
+                <Route path="/or-geula/video/:id" element={<PublicContinuity2029Page kind="or-geula" />} />
+                <Route path="/contact" element={<PublicContinuity2029Page kind="contact" />} />
+                <Route path="/codes" element={<PublicLibraryContinuity2029Page kind="codes" />} />
+                <Route path="/codes/:slug" element={<PublicLibraryContinuity2029Page kind="codes" />} />
                 {["privacy", "unsubscribe", "updates", "map"].map(kind => <Route key={kind} path={`/${kind}`} element={<PublicServices2029Page kind={kind} />} />)}
                 <Route path="/:slug" element={<PublicPostAddress2029Page />} />
               </>}
@@ -312,9 +342,9 @@ export default function App2029() {
               <Route path="/2029/journey" element={<FramedGate2029 flag="lock_life_journey" surface="journey" title="מסע החיים"><LifeJourney2029Page /></FramedGate2029>} />
               <Route path="/post/:slug" element={<PostEntry2029 />} />
               <Route path="/video/:assetId" element={<Video2029Page />} />
-              <Route path="/books" element={<Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>} />
+              <Route path="/books" element={<BooksEntry2029 />} />
               <Route path="/books/:slug" element={<CanonicalBookAlias2029 />} />
-              <Route path="/book/:slug" element={<Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>} />
+              <Route path="/book/:slug" element={<BooksEntry2029 />} />
               <Route path="/code" element={<FramedGate2029 flag="lock_els" surface="els" title="הצופן התנ״כי"><Els2029Page /></FramedGate2029>} />
               <Route path="/els" element={<ElsAddressAlias2029 />} />
               <Route path="/heichal" element={<Locked flag="lock_heichal" requireFlag allowAdminView homeHref="/2029"><Heichal2029Page /></Locked>} />

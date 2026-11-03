@@ -52,7 +52,7 @@ test("only dedicated 2029 compiler target can enable the signed service; default
     .replace("import.meta.env?.VITE_PUBLIC_READING_RELEASE", JSON.stringify("public-reading-20261101"));
   for (const [build, production, expected] of [[false, true, false], [true, false, false], [true, true, true]]) {
     const result = vm.runInNewContext(source + ';[PUBLIC_READING_PRODUCTION_ARTIFACT,publicReadingPath("/unsubscribe"),publicReadingPath("/updates")];',
-      { __SOD_2029_BUILD__: build, __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__: production });
+      { __SOD_2029_BUILD__: build, __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__: production, URLSearchParams });
     assert.equal(result[0], expected); assert.equal(result[1], expected ? "public" : "service-closed"); assert.equal(result[2], "service-closed");
   }
 });
@@ -79,7 +79,7 @@ test("Production document uses canonical owner, preserves old/native/encoded/wp 
 
 test("closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe", async () => {
   await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
-    for (const path of ["/login", "/2029/me", "/journey", "/raziel", "/els", "/books", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
+    for (const path of ["/login", "/2029/me", "/journey", "/raziel", "/els", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
       const res = response(); await publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document })(req(path), res);
       assert.equal(res.code, path === "/2029/control" ? 404 : 200, path); assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
       assert.ok(!res.body.includes("e=synthetic"));
@@ -88,13 +88,16 @@ test("closed, private and unknown routes remain noindex without product lookups;
   });
 });
 
-test("public aliases reuse metadata owner while old static tool names resolve through the actual Post boundary", async () => {
-  await withFetch(async url => { assert.ok(String(url).includes("/posts?")); return json([]); }, async () => {
+test("public aliases and named existing capabilities retain truthful continuations without publicizing unknown slugs", async () => {
+  await withFetch(async url => { assert.ok(/\/(?:posts|channel_updates)\?/.test(String(url))); return json([]); }, async () => {
     const handler = publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document });
     for (const path of ["/2029", "/2029/posts", "/2029/gematria/viral", "/2029/calculator"]) {
       const res = response(); await handler(req(path), res); assert.equal(res.code, 200, path);
     }
     for (const path of ["/name", "/or-geula", "/forum"]) {
+      const res = response(); await handler(req(path), res); assert.equal(res.code, 200, path);
+    }
+    for (const path of ["/invented-capability", "/forum/invented-thread"]) {
       const res = response(); await handler(req(path), res); assert.equal(res.code, 404, path); assert.match(res.headers.get("x-robots-tag"), /noindex/);
     }
   });
@@ -158,6 +161,8 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     if (value.includes("/sitemap_phrases_v1?")) return json([{ phrase: "בראשית" }]);
     if (value.includes("/topic_cards_public?")) return json([{ slug: "subject" }]);
     if (value.includes("/contributors?")) { assert.match(value, /active=eq.true.*visibility.eq.public/); return json([{ slug: "writer", code: "2042" }]); }
+    if (value.includes("/els_records?")) { assert.match(value, /status=eq.published.*visibility=eq.public/); assert.match(value, /source.neq.research/); return json([{ slug: 'published-cipher' }]); }
+    if (value.includes("/nodes?")) { assert.match(value, /type=eq.book.*is_active=eq.true/); return json([]); }
     if (value.includes("/video_media_assets_v1?")) return json([{ public_id: assetId, title: "Video", google_indexable: true,
       primary_source_type: "channel_update", primary_source_id: "00000000-0000-4000-8000-000000000001",
       media_url: API + "/storage/v1/object/public/gallery/movie.mp4", video_kind: "selfhost", primary_page_url: SITE + "/video/" + assetId }]);
@@ -174,10 +179,10 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     const res = response(); await publicReadingSitemapHandler({ authorized: () => true })(req("/sitemap.xml"), res);
     assert.equal(res.code, 200); assert.equal(res.headers.get("cache-control"), "no-store");
     for (const path of ["/old-post", "/post/new-post", "/number/1820", "/number/" + encodeURIComponent("בראשית"),
-      "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery"])
+      "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/codes/published-cipher"])
       assert.ok(res.body.includes(`<loc>${SITE}${path}</loc>`), path);
-    for (const path of ["/login", "/journey", "/books", "/unsubscribe", "/code"]) assert.ok(!res.body.includes(`<loc>${SITE}${path}</loc>`), path);
-    assert.ok(!calls.some(url => /site_flags|research_contributions|els_records/.test(url)));
+    for (const path of ["/login", "/journey", "/unsubscribe", "/code", "/codes/מחקר"]) assert.ok(!res.body.includes(`<loc>${SITE}${path}</loc>`), path);
+    assert.ok(!calls.some(url => /site_flags|research_contributions/.test(url)));
   });
   await withFetch(async () => { throw Error("synthetic outage"); }, async () => {
     const res = response(); await publicReadingSitemapHandler({ authorized: () => true })(req("/sitemap.xml"), res); assert.equal(res.code, 503);

@@ -1,4 +1,6 @@
-import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_PROFILE_ID, publicReadingContinuation } from "../src/lib/publicReadingRelease2029.js";
+import { projectPublicBook2029, publicBookSourceAvailable2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
+import { postsTaxonomyRoute2029, postMatchesTaxonomy2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { publicPostHref, publicPostUrl, postAddressSlug } from "../src/lib/publicPostUrls.js";
 import { publicPostOnlyFilter } from "../src/lib/research/publicPostBoundary.js";
 import { publicVideoSitemapAssets2029 } from "../src/lib/research/publicVideo2029Reading.js";
@@ -193,12 +195,14 @@ export default async function handler(req, res) {
   const foundation = req.publicFoundationPreview === true;
   const foundationStatics = new Set(["/", "/world", "/post", "/map", "/privacy", "/number"]);
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID) foundationStatics.add("/gematria");
+  if (productionReading) for (const path of ['/books', '/codes', '/or-geula', '/community/researchers']) foundationStatics.add(path);
   const urls = foundation ? STATIC.filter(row => foundationStatics.has(row.loc)) : [...STATIC];
   if (foundation && !urls.some(row => row.loc === "/number")) urls.push({ loc: "/number", priority: "0.6", changefreq: "monthly" });
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID && !urls.some(row => row.loc === "/gallery")) urls.push({ loc: "/gallery", priority: "0.6", changefreq: "weekly" });
+  if (productionReading) urls.push({ loc: '/community/researchers', priority: '0.5', changefreq: 'weekly' });
   let foundationSourceFailed = false;
   let posts;
-  try { posts = await fetchAll(`posts?select=id,slug,source,link,wp_id,modified,date${POST_PUBLISHED_FILTER}&order=date.desc`); }
+  try { posts = await fetchAll(`posts?select=id,slug,source,link,wp_id,modified,date${productionReading ? ',tags,categories' : ''}${POST_PUBLISHED_FILTER}&order=date.desc`); }
   catch { res.setHeader("Cache-Control", "no-store"); return res.status(503).send("sitemap source unavailable"); }
   const postBySlug = new Map(posts.filter(post => post.slug).map(post => [postAddressSlug(publicPostHref(post)), post]));
   const videoPage = raw => {
@@ -207,7 +211,7 @@ export default async function handler(req, res) {
       const post = postBySlug.get(postAddressSlug(url.pathname));
       if (post) return publicPostUrl(post);
       if (foundation && !/^\/(?:number|topic)(?:\/|$)/.test(url.pathname) && !foundationStatics.has(url.pathname)
-        && !(productionReading && /^\/video\/[0-9a-f]{32}$/i.test(url.pathname))) return null;
+        && !(productionReading && (/^\/video\/[0-9a-f]{32}$/i.test(url.pathname) || /^\/or-geula\/video\/[0-9a-f-]{36}$/i.test(url.pathname)))) return null;
       return url.origin + url.pathname;
     } catch { return null; }
   };
@@ -254,6 +258,21 @@ export default async function handler(req, res) {
       urls.push({ loc: postHref, lastmod, changefreq: 'monthly', priority: '0.7' });
     }
   } catch (e) { /* ממשיכים גם בלי פוסטים */ }
+
+  if (productionReading) {
+    // Reuse already-admitted Posts, never an independent taxonomy census.
+    // Publish only labels that round-trip through the existing address rule.
+    const seen = new Set();
+    for (const post of posts) for (const [kind, field] of [['tag', 'tags'], ['category', 'categories']]) {
+      for (const label of Array.isArray(post[field]) ? post[field] : []) {
+        if (typeof label !== 'string') continue;
+        const path = `/${kind}/${encodeURIComponent(label.replace(/ /g, '-'))}`;
+        const scope = postsTaxonomyRoute2029(path);
+        if (!scope || !postMatchesTaxonomy2029(post, scope) || seen.has(path) || publicReadingContinuation(path)) continue;
+        seen.add(path); urls.push({ loc: path, changefreq: 'weekly', priority: '0.4' });
+      }
+    }
+  }
 
   // ── דפי מספר → /number/:n — יהלומים: גלריות ∪ גימטריה עשירה(≥20) ∪ התכנסויות (RPC sitemap_numbers).
   // כולל lastmod (אות re-crawl לתבנית ה-story-top) + priority לפי עושר. ספרה בודדת מפנה ל-/sulamot → ≥10.
@@ -313,28 +332,32 @@ export default async function handler(req, res) {
 
   // ── צפנים מאושרים → /codes/:slug (els_records published) ──
   try {
-    if (foundation) throw new Error("outside-public-foundation");
-    const codes = await fetchAll('els_records?select=slug,created_at&status=eq.published');
+    if (foundation && !productionReading) throw new Error("outside-public-foundation");
+    const codes = await fetchAll('els_records?select=slug,created_at&status=eq.published' + (productionReading ? '&visibility=eq.public&or=(source.is.null,source.neq.research)' : ''));
     for (const c of codes) {
       if (!c.slug) continue;
       const lastmod = (c.created_at || '').slice(0, 10) || undefined;
       urls.push({ loc: '/codes/' + encodeURIComponent(c.slug), lastmod, changefreq: 'monthly', priority: '0.7' });
     }
-  } catch (e) { /* ממשיכים גם בלי צפנים */ }
+  } catch (e) { if (productionReading) foundationSourceFailed = true; }
 
   // ── ספרים משוחררים → /book/:slug (nodes.type='book', is_active=true — אותו שער-שחרור
   //    שה-Book Hub עצמו כבר משתמש בו לרשימת-הספרים הציבורית; רק metadata/label ציבוריים,
   //    לא research_objects, exactly-once per book) ──
   try {
-    if (foundation) throw new Error("outside-public-foundation");
-    const books = await fetchAll('nodes?select=metadata,created_at&type=eq.book&is_active=eq.true');
+    if (foundation && !productionReading) throw new Error("outside-public-foundation");
+    const books = await fetchAll('nodes?select=' + (productionReading
+      ? 'id,type,label,description,identity_key,is_active,created_at,book_slug:metadata->>slug,source_ref_prefixes:metadata->source_ref_prefixes,identity_tiers:metadata->identity_tiers'
+      : 'metadata,created_at') + '&type=eq.book&is_active=eq.true');
     for (const b of books) {
-      const slug = b?.metadata?.slug;
+      const item = productionReading ? projectPublicBook2029(b) : null;
+      if (productionReading && (item?.readerState !== 'source_bound' || !await publicBookSourceAvailable2029(item.manifest))) continue;
+      const slug = productionReading ? item?.slug : b?.metadata?.slug;
       if (!slug) continue;
       const lastmod = (b.created_at || '').slice(0, 10) || undefined;
       urls.push({ loc: '/book/' + encodeURIComponent(slug), lastmod, changefreq: 'weekly', priority: '0.7' });
     }
-  } catch (e) { /* ממשיכים גם בלי ספרים */ }
+  } catch (e) { if (productionReading) foundationSourceFailed = true; }
 
   // ── דפי הכתבים → /community/researcher/:slug (contributors עם slug/code) ──
   // המשטח הציבורי/SEO של כל חוקר — קיר-ההצלבות, האוצרות והרמזים שלו. אותו slug שה-OG מזהה (code||slug).

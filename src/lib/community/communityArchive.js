@@ -2,6 +2,8 @@ import { supabase } from "../supabase.js";
 import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../publicLaunch2029.js";
 import { getPublicResearchClient } from "../research/researchViewMode.js";
 import { addContribution } from "../contributions.js";
+import { COMMUNITY_THREAD_UUID as UUID_PATTERN } from "./communityThreadFocus.js";
+export { normalizeCommunityThreadFocus } from "./communityThreadFocus.js";
 
 // Public reading never borrows the current account or admin session.
 // Ordinary builds keep their existing client; explicit reader injection is retained.
@@ -10,7 +12,6 @@ const communityReadClient = () => PUBLIC_LAUNCH_READ_ONLY_PREVIEW ? getPublicRes
 export const COMMUNITY_PAGE_SIZE = 40;
 export const COMMUNITY_REPLY_PAGE_SIZE = 20;
 export const COMMUNITY_ARCHIVE_TOTAL = 41080;
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const COMMUNITY_ORIGINS = ["openweb", "community_2029"];
 // Project at the API boundary. Older Community RPCs also expose joined dossier
 // columns; this consumer requests only public message credit, never private
@@ -125,15 +126,6 @@ export function normalizeCommunityRow(row) {
     editedAt: row.edited_at || null,
     isDeleted: false,
   };
-}
-
-export function normalizeCommunityThreadFocus({ threadId = "", replyId = "", path = "" } = {}) {
-  if (!UUID_PATTERN.test(threadId) || replyId && !UUID_PATTERN.test(replyId)) return null;
-  const ids = path ? String(path).split(",") : [threadId, replyId].filter(Boolean);
-  if (!ids.length || ids.length > 30 || ids.some(id => !UUID_PATTERN.test(id))
-      || new Set(ids).size !== ids.length || ids[0] !== threadId
-      || replyId && ids[ids.length - 1] !== replyId) return null;
-  return { threadId, replyId: ids.length > 1 ? ids[ids.length - 1] : null, path: ids };
 }
 
 export function legacyLikeCount(reactions) {
