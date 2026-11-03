@@ -24,6 +24,7 @@ export function postsTaxonomyScope2029(kind, value) {
       ? "כאן מופיעים פוסטים שסווגו בעבר כווידאו. זו אינה ספריית כל הסרטונים; סוג המדיה נקבע מהמדיה עצמה."
       : series ? "זהו הסיווג השמור בפוסטים. רשימת הסדרה מציגה רק פריטים ששיוכם לסדרה הוגדר." : null,
     seriesLink: series ? { href: `/2029/posts?series=${encodeURIComponent(series.key)}`, label: `לסדרת ${series.label}` } : null,
+    sourceLink: legacyVideo ? { href: "/or-geula", label: "לסרטוני אור הגאולה במקור" } : null,
   };
 }
 
