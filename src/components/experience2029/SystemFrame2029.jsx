@@ -1577,7 +1577,9 @@ function SystemFrame2029Body({
   const locale = context?.locale || "he";
   const direction = directionForLocale(locale);
   const experience = useMemo(() => resolveExperienceContext({
-    surface,
+    // The existing operational frame reuses the approved inspection projection.
+    // Keep its raw "control" mode for the feed/context guards below.
+    surface: surface === "control" ? "heichal" : surface,
     locale,
     lens: context?.lens || "kingdom",
     reducedMotion,

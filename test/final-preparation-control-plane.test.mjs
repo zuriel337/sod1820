@@ -86,6 +86,14 @@ test('guest and loading identity perform no privileged reads',async()=>{
   }
 });
 
+test('pending admin verification has a visible status, without any privileged reads',async()=>{
+  const f=fixture({user:null,isAdmin:false,loading:true}),root=await mount(f);
+  assert.equal(f.calls.length,0);
+  assert.equal(root.root.findByType('main').props.role,'status');
+  assert.ok(text(root).includes('מאמתים את חשבון המנהל'));
+  await act(async()=>root.unmount());
+});
+
 test('old observed egress is labelled last observation, never current24h zero',async()=>{
   const f=fixture(),root=await mount(f);
   await settle(f,{health:{...snapshot,cron:null,security:{unacked:null,recent_24h:null},usage:{storage_egress_observed_latest:{at:'2026-10-06T06:59:12Z',bytes:123456},storage_egress_guard:{state:'STALE'},storage_egress_observed_history_24h:[]}}});

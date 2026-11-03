@@ -144,7 +144,7 @@ function ControlPlaneBody({ auth }) {
   const spans = Array.isArray(detail.data?.spans) ? detail.data.spans : [];
   const selected = useMemo(() => state.traces.find(row => row.trace_id === selectedId) || null, [state.traces, selectedId]);
 
-  if (authLoading) return <div aria-label="טוען" style={{ minHeight: "100vh" }} />;
+  if (authLoading) return <main role="status" aria-label="אימות חשבון המנהל" dir="rtl" className="sod29-section" style={{ minHeight: "100vh" }}><p>מאמתים את חשבון המנהל…</p></main>;
   if (!isAdmin || !principal) return <Navigate replace to="/2029" />;
 
   return <Sod2029Shell
@@ -152,7 +152,7 @@ function ControlPlaneBody({ auth }) {
     eyebrow="2029 · INTERNAL"
     description="בריאות, עלות ו־No Black Box במקום אחד — מהאגרגציה אל root trace ו־spans."
     status="ADMIN · READ ONLY"
-    surface="admin"
+    surface="control"
     symbol={<NavigationIcon2029 name="tools" />}
     wide
   >
