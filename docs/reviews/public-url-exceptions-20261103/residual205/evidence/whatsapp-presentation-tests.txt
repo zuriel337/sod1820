@@ -1,0 +1,24 @@
+✔ follow adapter preserves measured missing rows and canonicalizes existing aliases once (1.666154ms)
+✔ native DM targets preserve the exact conversation without accepting external targets (0.800671ms)
+✔ real inbox adapter uses one strict bounded read and native conversation mapping (5.25115ms)
+✔ failed or malformed inbox reads reject rather than proving zero (2.550836ms)
+✔ preferences and public writer links are read in one batch, with no private/ambiguous link (3.060812ms)
+✔ known absent preferences are empty but malformed preferences stay unavailable (1.40652ms)
+✔ unknown channel selections stay unknown without discarding valid follows (3.236221ms)
+✔ every operation rejects a changed account before touching the transport (0.525505ms)
+✔ unfollow reuses canonical engine and explicit false/source without changing channels (1.180815ms)
+✔ account change during transport rejects the prior account result (0.738166ms)
+✔ mark-read adapter requires and returns only existing strict acknowledgment evidence (3.190886ms)
+follow center model 2029: PASS
+✔ test/follow-center-model-2029.test.mjs (152.270676ms)
+✔ exact reviewed artifacts match the shared descriptor build and release hashes (4.790184ms)
+✔ series release preserves Legacy category normalization and existing authorization primitives (0.708701ms)
+✔ apply and rollback refuse stale function and trigger bases without removing data (0.684278ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 179.422486

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import vm from 'node:vm';
-import {PUBLIC_READING_PROFILE_ID,publicReadingFeatureLock,publicReadingPath} from '../src/lib/publicReadingRelease2029.js';
+import {PUBLIC_READING_PROFILE_ID,publicReadingFeatureLock,publicReadingPath,publicReadingContinuation} from '../src/lib/publicReadingRelease2029.js';
 import {calculatorEntryParams,buildCalculatorShareUrl,parseCalculatorShareState} from '../src/lib/research/calculator2029Viral.js';
 import {buildCalculatorNumberNavigation} from '../src/lib/research/calculator2029Model.js';
 import {publicDocumentHandler} from '../preview-deploy/api/public-document.js';
@@ -11,7 +11,12 @@ const branch='gpt/2029-public-reading-release-configuration-20261101';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 test('one release scope opens only the approved readers; closed aliases cannot enter product routes',()=>{
  for(const path of ['/','/world','/post','/post/existing','/old-post','/number/1820','/number/בראשית','/gematria','/gallery','/map','/topic/existing','/community/researcher/zvi'])assert.ok(['public','post-lookup'].includes(publicReadingPath(path)),path);
- for(const path of ['/code','/els','/journey','/2029/journey','/raziel','/2029/raziel','/2029/me','/admin','/heichal','/היכל'])assert.equal(publicReadingPath(path),'closed',path);
+ for(const path of ['/code','/els','/journey','/2029/journey','/raziel','/2029/raziel','/admin','/heichal','/היכל'])assert.equal(publicReadingPath(path),'closed',path);
+ // Existing-account continuation was explicitly accepted after this test was
+ // authored. It must remain a private account destination, never a public read.
+ assert.equal(publicReadingPath('/2029/me'),'continuation');
+ assert.equal(publicReadingContinuation('/2029/me','?returnTo=%2Fworld','#private'),'/2029/me/research?returnTo=%2Fworld#private');
+ assert.equal(publicReadingPath('/2029/me/research'),'account');
  for(const path of ['/books','/book/existing','/codes','/community/chat','/community/calculator'])assert.equal(publicReadingPath(path),'public',path);
  for(const p of ['/login','/auth/callback'])assert.equal(publicReadingPath(p),'account');
  assert.equal(publicReadingPath('/auth/callback/forged'),'closed');

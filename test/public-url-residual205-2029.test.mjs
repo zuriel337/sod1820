@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { publicReadingCapability, publicReadingPath } from "../src/lib/publicReadingRelease2029.js";
+import { publicReadingCapability, publicReadingPath, publicReadingExternalSourceHref } from "../src/lib/publicReadingRelease2029.js";
 import { publicReadingDocumentHandler } from "../public-reading-deploy/api/public-document.js";
 const root=new URL("../docs/reviews/public-url-exceptions-20261103/",import.meta.url);
 const read=name=>JSON.parse(readFileSync(new URL(name,root)));
@@ -30,9 +30,11 @@ test("only the three proven Facebook source aliases continue; no guessed video I
   const prior=globalThis.fetch;globalThis.fetch=()=>{throw Error("source continuation must not query private or unrelated content");};
   try{for(const [path,destination]of entries){
     assert.equal(publicReadingCapability(path.replace(/\/$/,"")).links[0][0],destination);
+    assert.equal(publicReadingExternalSourceHref(destination),destination);
     const res={code:null,headers:{},body:"",setHeader(k,v){this.headers[k.toLowerCase()]=v;},status(n){this.code=n;return this;},send(v){this.body=v;return this;}};
     await publicReadingDocumentHandler({authorized:()=>true,readDocument:async()=>"<html><head></head><body></body></html>"})({method:"GET",url:path,headers:{host:"sod1820.co.il"},query:{}},res);
     assert.equal(res.code,200);assert.match(res.headers["x-robots-tag"],/noindex/);
   }}finally{globalThis.fetch=prior;}
   for(const path of ["/k1820/videos/839307259461808/","/other/videos/839307259461807/","/k1820/videos/vb.999/839307259461807/"])assert.equal(publicReadingPath(path),"missing");
+  for(const href of [null,"javascript:alert(1)","//facebook.com/k1820/videos/839307259461807/","https://www.facebook.com/k1820/videos/839307259461808/","https://www.facebook.com@evil.example/k1820/videos/839307259461807/","https://www.facebook.com.evil.example/k1820/videos/839307259461807/","https://www.facebook.com/k1820/videos/839307259461807/?redirect=other"])assert.equal(publicReadingExternalSourceHref(href),null);
 });

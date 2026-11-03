@@ -87,3 +87,15 @@ assert.equal(selectedOnly.channels[0].available, false, "a stored choice never a
 assert.equal(selectedOnly.lifecycle[2].state, "done");
 assert.equal(selectedOnly.lifecycle[3].state, "unknown", "delivery has its own unmeasured owner state");
 assert.match(selectedOnly.channels[0].note, /נבחר.*מצב המשלוח לא נבדק/);
+
+// User acceptance found that a stored WhatsApp choice looked like a working
+// settings/phone-link flow. Keep the consent, never claim a verified binding.
+const waPreferences=["whatsapp"];
+const waChoice=buildFollowCenterModel({principal:"registered",follows:{state:"ready",topics:[],channelState:"ready",channels:waPreferences}});
+const wa=waChoice.channels.find(channel=>channel.key==="whatsapp");
+assert.equal(wa.chosen,true);assert.equal(wa.consentKnown,true);assert.equal(wa.available,false);
+assert.deepEqual(waPreferences,["whatsapp"]);
+assert.match(wa.note,/בחירה שמורה אינה חיבור מספר מאומת/);
+assert.match(wa.note,/אינם זמינים כרגע באזור הזה/);
+assert.equal(waChoice.lifecycle[3].state,"unavailable");
+assert.match(unreadChannels.channels.find(channel=>channel.key==="whatsapp").note,/מצב הערוץ לא נבדק/);

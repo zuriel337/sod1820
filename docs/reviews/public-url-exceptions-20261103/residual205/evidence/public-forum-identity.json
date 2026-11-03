@@ -1,0 +1,24 @@
+{
+  "kind": "bounded-current-anonymous-exact-forum-identity",
+  "checkedAt": "2026-11-03",
+  "credentialsRecorded": false,
+  "rows": [
+    {
+      "id": 5029,
+      "slug": "yuval-kogan-echad-hasichim-hamashiach",
+      "tags": [
+        "יובל קוגן",
+        "המשיח",
+        "ישמעאל",
+        "בראשית",
+        "באר שבע",
+        "גאולה",
+        "פורום"
+      ]
+    }
+  ],
+  "legacyCodeSha": "d1837efcf5a978d10a514010f3695680f231e116",
+  "legacyReader": "getPostBySlug; non-admin excludes draft, not forum",
+  "candidateBoundary": "publicPostBoundary excludes forum from regular Post; /forum/:id reads research_contributions and does not establish this Post identity",
+  "limitation": "Identity/anonymous visibility are proven; live Legacy body rendering could not be accepted due browser access denial"
+}

@@ -92,9 +92,10 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
     const ready = known && channel.key === "push" && device.push === "available";
     const consentKnown = known && kind === "registered" && fState === "ready" && follows.channelState === "ready" && Array.isArray(follows.channels);
     const chosen = consentKnown ? follows.channels.includes(channel.key) : known ? ready && device.pushSubscribed === true : null;
+    const note = consentKnown ? chosen ? "נבחר בהעדפות החשבון. מצב המשלוח לא נבדק." : "לא נבחר בהעדפות החשבון."
+      : !known ? "מצב הערוץ לא נבדק. ההעדפות הקיימות נשמרות." : ready ? (device.pushSubscribed ? "פעיל במכשיר הזה" : "אפשר להפעיל במכשיר הזה") : channel.note;
     return { key: channel.key, icon: CHANNEL_ICON[channel.key] || "help", label: channel.label, known, consentKnown, available: ready, chosen,
-      note: consentKnown ? chosen ? "נבחר בהעדפות החשבון. מצב המשלוח לא נבדק." : "לא נבחר בהעדפות החשבון."
-        : !known ? "מצב הערוץ לא נבדק. ההעדפות הקיימות נשמרות." : ready ? (device.pushSubscribed ? "פעיל במכשיר הזה" : "אפשר להפעיל במכשיר הזה") : channel.note };
+      note: channel.key === "whatsapp" ? `${note} בחירה שמורה אינה חיבור מספר מאומת. חיבור מספר ועריכת העדפת WhatsApp אינם זמינים כרגע באזור הזה; החיבור הקיים לחשבון אינו משתנה.` : note };
   });
   return {
     principal: kind,

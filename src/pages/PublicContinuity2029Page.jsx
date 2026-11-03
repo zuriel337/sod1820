@@ -4,6 +4,7 @@ import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { applySeo } from "../lib/seo.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
+import { publicReadingExternalSourceHref } from "../lib/publicReadingRelease2029.js";
 import {
   loadPublicOrGeulaCollection2029, loadPublicOrGeulaOccurrence2029,
   loadPublicPeopleContinuation2029, loadPublicForumContinuation2029,
@@ -235,7 +236,9 @@ function StatusContent({ kind, title, description, links = [] }) {
     <div className="continuity-related">
       {links.length ? <nav className="continuity-actions" aria-label="אפשרויות להמשך">{links.map((link, index) => {
         const [href, label] = Array.isArray(link) ? link : [link.href, link.label];
-        return typeof href === "string" && /^\/(?!\/)/.test(href) && !href.includes("\\") ? <Link key={`${href}:${index}`} className="continuity-action" to={href}>{label}</Link> : null;
+        if (typeof href === "string" && /^\/(?!\/)/.test(href) && !href.includes("\\")) return <Link key={`${href}:${index}`} className="continuity-action" to={href}>{label}</Link>;
+        const external = publicReadingExternalSourceHref(href);
+        return external ? <a key={`${href}:${index}`} className="continuity-action" href={external} target="_blank" rel="noopener noreferrer">{label}</a> : null;
       })}</nav> : <Link className="continuity-action" to="/map">למפת האתר</Link>}
     </div>
   </ContentPlane>;
