@@ -1,0 +1,244 @@
+{
+  "scope": "torah",
+  "corpusSha256": "0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b",
+  "corpusLetters": 1204583,
+  "scopeLetters": 304805,
+  "matcher": "tools/els/els-code.template.html::findAtSkips",
+  "verification": "local exact letter replay only; no historical authorship or statistical significance verification",
+  "cases": [
+    {
+      "id": "elections",
+      "title": "ימין נ״ג · התשפז · מ״א שמאל",
+      "material_provider": "איגור פיסיצקי",
+      "discovery_credit": {
+        "name": "איגור פיסיצקי",
+        "basis": "self-report supplied by user"
+      },
+      "message_date": "3.11",
+      "original": "originals/elections.jpg",
+      "width": 8483,
+      "box": {
+        "r0": 0,
+        "r1": 18,
+        "c0": 7336,
+        "c1": 7385
+      },
+      "quote_keys": [
+        "elections_he",
+        "elections_year_he",
+        "elections_lexicon_he"
+      ],
+      "findings": [
+        {
+          "term": "ימיננג",
+          "label": "ימין נ״ג",
+          "skip": 16965,
+          "dir": -1,
+          "start": 109170,
+          "color": "#438ff4",
+          "positions": [
+            109170,
+            92205,
+            75240,
+            58275,
+            41310,
+            24345
+          ],
+          "localExactReplay": true,
+          "kind": "els",
+          "serverVerified": false
+        },
+        {
+          "term": "התשפז",
+          "label": "ה׳תשפ״ז",
+          "skip": 16965,
+          "dir": 1,
+          "start": 83718,
+          "color": "#34c99c",
+          "positions": [
+            83718,
+            100683,
+            117648,
+            134613,
+            151578
+          ],
+          "localExactReplay": true,
+          "kind": "els",
+          "serverVerified": false
+        },
+        {
+          "term": "מאשמאל",
+          "label": "מ״א שמאל",
+          "skip": 5,
+          "dir": -1,
+          "start": 117646,
+          "color": "#f4ab42",
+          "positions": [
+            117646,
+            117641,
+            117636,
+            117631,
+            117626,
+            117621
+          ],
+          "localExactReplay": true,
+          "kind": "els",
+          "serverVerified": false
+        }
+      ],
+      "additional_originals": [
+        "originals/elections-skip.jpg",
+        "originals/elections-detail.jpg"
+      ]
+    },
+    {
+      "id": "columbia",
+      "title": "מות על קולמביה",
+      "material_provider": "איגור פיסיצקי",
+      "discovery_credit": {
+        "name": "איגור פיסיצקי",
+        "basis": "self-report supplied by user; discovery after disaster is testimony"
+      },
+      "message_date": "2.11, 15:19",
+      "original": "originals/columbia.jpg",
+      "width": 1822,
+      "box": {
+        "r0": 0,
+        "r1": 12,
+        "c0": 267,
+        "c1": 316
+      },
+      "quote_keys": [
+        "columbia_he"
+      ],
+      "findings": [
+        {
+          "term": "מותעלקולמביה",
+          "label": "מות על קולמביה",
+          "skip": 1822,
+          "dir": 1,
+          "start": 292,
+          "color": "#f5c857",
+          "positions": [
+            292,
+            2114,
+            3936,
+            5758,
+            7580,
+            9402,
+            11224,
+            13046,
+            14868,
+            16690,
+            18512,
+            20334
+          ],
+          "localExactReplay": true,
+          "kind": "els",
+          "serverVerified": false
+        },
+        {
+          "term": "משמעלפניכלהארצ",
+          "label": "משם על פני כל הארץ",
+          "start": 13042,
+          "skip": 1,
+          "dir": 1,
+          "color": "#ee6d78",
+          "kind": "plain-source-context",
+          "positions": [
+            13042,
+            13043,
+            13044,
+            13045,
+            13046,
+            13047,
+            13048,
+            13049,
+            13050,
+            13051,
+            13052,
+            13053,
+            13054,
+            13055
+          ],
+          "localExactReplay": true,
+          "serverVerified": false
+        }
+      ],
+      "source_context": {
+        "term": "משמעלפניכלהארצ",
+        "label": "משם על פני כל הארץ",
+        "start": 13042,
+        "skip": 1,
+        "dir": 1,
+        "color": "#ee6d78",
+        "kind": "plain-source-context"
+      }
+    },
+    {
+      "id": "ramon-rips",
+      "title": "אל״מ רמון · אמן הטיס",
+      "material_provider": "איגור פיסיצקי",
+      "discovery_credit": {
+        "name": "פרופ׳ אליהו ריפס ז״ל",
+        "basis": "attributed by Igor; no independent historical authorship verification"
+      },
+      "message_date": "2.11, 15:19–15:20",
+      "original": "originals/ramon-rips.jpg",
+      "width": 15,
+      "box": {
+        "r0": 4238,
+        "r1": 4256,
+        "c0": 0,
+        "c1": 14
+      },
+      "quote_keys": [
+        "ramon_he",
+        "ramon_attribution"
+      ],
+      "english_quote_key": "ramon_en",
+      "findings": [
+        {
+          "term": "אלמרמונ",
+          "label": "אל״מ רמון",
+          "skip": 14,
+          "dir": -1,
+          "start": 63786,
+          "color": "#438ff4",
+          "positions": [
+            63786,
+            63772,
+            63758,
+            63744,
+            63730,
+            63716,
+            63702
+          ],
+          "localExactReplay": true,
+          "kind": "els",
+          "serverVerified": false
+        },
+        {
+          "term": "אמנהטיס",
+          "label": "אמן הטיס",
+          "skip": 16,
+          "dir": 1,
+          "start": 63637,
+          "color": "#ee6d78",
+          "positions": [
+            63637,
+            63653,
+            63669,
+            63685,
+            63701,
+            63717,
+            63733
+          ],
+          "localExactReplay": true,
+          "kind": "els",
+          "serverVerified": false
+        }
+      ]
+    }
+  ]
+}

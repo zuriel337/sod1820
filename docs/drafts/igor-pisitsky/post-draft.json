@@ -1,0 +1,29 @@
+{
+  "status": "draft",
+  "author": "איגור פיסיצקי",
+  "author_id": null,
+  "source": "ai",
+  "lang": "he",
+  "title": "איגור פיסיצקי — ממצאים וסיפורים",
+  "proposed_slug": "igor-pisitsky-cipher-stories",
+  "content_file": "post-content.html",
+  "ai_addition_file": "ai-addition.html",
+  "attachment_paths": [
+    "originals/elections.jpg",
+    "matrices/elections.svg",
+    "originals/columbia.jpg",
+    "matrices/columbia.svg",
+    "originals/ramon-rips.jpg",
+    "matrices/ramon-rips.svg"
+  ],
+  "publication": {
+    "state": "draft",
+    "public_url": null,
+    "database_saved": false,
+    "profile_created": false,
+    "translation_state": "pending-existing-translation-workflow",
+    "categories": [],
+    "tags": []
+  },
+  "note": "Preparation manifest only; not an API payload. Upload assets and resolve existing author/taxonomy records when the user opens the page."
+}

@@ -1,0 +1,228 @@
+{
+  "display_name": "איגור פיסיצקי",
+  "source_name_variants": [
+    "איגור פיסצקי"
+  ],
+  "lang": "he",
+  "status": "draft",
+  "base_sha": "dc50f4164a19a269beb66e3cc754832386cc3ada",
+  "source": "user-supplied messages and photographs",
+  "profile_creation": "deferred_by_user",
+  "author_id": null,
+  "quotes": {
+    "columbia_he": "אסון מעבורות החלל קולומביה. משנת 2003. מות על קולמביה . מצאתי את זה רק אחרי האסון! למה לא חיפשתי קודם? אם הייתי רואה את המסר הייתה מיד מרים טלפון לפרופ . ריפס זצ\"ל. הוא היה מתקשר להארולד גאנס ( מפצח צפנים ראשי של הסוכנות לביטחון לאומי של ארצות הברית בדימוס). לגאנס היה קשר עם קונדוליזה רייס ( יועצת לבטחון לאומי של נשיא בוש הבן. ). משם הדרך ל NASA קצרה. 4 טלפונים! אולי עוד באותו יום עוד שהם היו בחלל  היה ניתן לנסות משהו? אני אוכל את עצמי עד היום. 16 ימים הם היו בחלל ואני כל הזמן רציתי לבדוק ופשווט הייתה עסוק בעבודה בלימודים  בקשר רומנטי ..... לא היה לי אז מחשב נייד. רק נייח. לא הצלחתי.... למה ? למה?",
+    "ramon_he": "אל\"מ רמון. אמן הטיס בכתיב חסר. הביטוי אמן הטיס בדילוג 16רמז אדיר : רמון היה מפקד טייסת f16,   מסימה בחלל הייתה 16 יום.. קולומביה עשתה. 16  הקפות ביממה סביב כדור הארץ. הם עבדו  16 שעות ביממה. הנחיתה הייתה אמורה להתבצע ב 16.16 זמן מקומי.",
+    "ramon_en": "Colonel Ramon. (Israeli astronaut tragically died on Columbia disaster). Master of pilotage! Scip 16 is not by chance! He was a chief officer commander of F16 escadrille . The space mission was for 16 days. Columbia space shuttle make 16 circles around Earth each day. The work 16 hours each day. They must landing exactly on 16.16 local time.",
+    "ramon_attribution": "ממצא של פרופ' אליהו ריפס זצ\"ל",
+    "elections_he": "באותו מקום: מ\"א שמאל  ( 41 מנדטים לשמאל ). ללא 7  של ליברמן! הם נשארים עם 41 כי ליברמן היום אמר שבשום מקרה הוא לא ישב עם הערבים!  . דילוג מינימלי ראשון בכל התורה עבור ביטוי זה!",
+    "elections_year_he": "ימין  נ\"ג (53) . ( מנדטים). התשפז ( השנה העברית). בדילוג מקביל  עבור 2 הביטויים! מדהים!",
+    "elections_lexicon_he": "מצאתי  היום בלילה. הבנת שטכניקה לשלב גימטריה בלקסיקון היא מאוד נכונה והיא עובדת. היה לי כבר ניסייון עם זה."
+  },
+  "cases": [
+    {
+      "id": "elections",
+      "title": "ימין נ״ג · התשפז · מ״א שמאל",
+      "material_provider": "איגור פיסיצקי",
+      "discovery_credit": {
+        "name": "איגור פיסיצקי",
+        "basis": "self-report supplied by user"
+      },
+      "message_date": "3.11",
+      "original": "originals/elections.jpg",
+      "width": 8483,
+      "box": {
+        "r0": 0,
+        "r1": 18,
+        "c0": 7336,
+        "c1": 7385
+      },
+      "quote_keys": [
+        "elections_he",
+        "elections_year_he",
+        "elections_lexicon_he"
+      ],
+      "findings": [
+        {
+          "term": "ימיננג",
+          "label": "ימין נ״ג",
+          "skip": 16965,
+          "dir": -1,
+          "start": 109170,
+          "color": "#438ff4"
+        },
+        {
+          "term": "התשפז",
+          "label": "ה׳תשפ״ז",
+          "skip": 16965,
+          "dir": 1,
+          "start": 83718,
+          "color": "#34c99c"
+        },
+        {
+          "term": "מאשמאל",
+          "label": "מ״א שמאל",
+          "skip": 5,
+          "dir": -1,
+          "start": 117646,
+          "color": "#f4ab42"
+        }
+      ],
+      "additional_originals": [
+        "originals/elections-skip.jpg",
+        "originals/elections-detail.jpg"
+      ]
+    },
+    {
+      "id": "columbia",
+      "title": "מות על קולמביה",
+      "material_provider": "איגור פיסיצקי",
+      "discovery_credit": {
+        "name": "איגור פיסיצקי",
+        "basis": "self-report supplied by user; discovery after disaster is testimony"
+      },
+      "message_date": "2.11, 15:19",
+      "original": "originals/columbia.jpg",
+      "width": 1822,
+      "box": {
+        "r0": 0,
+        "r1": 12,
+        "c0": 267,
+        "c1": 316
+      },
+      "quote_keys": [
+        "columbia_he"
+      ],
+      "findings": [
+        {
+          "term": "מותעלקולמביה",
+          "label": "מות על קולמביה",
+          "skip": 1822,
+          "dir": 1,
+          "start": 292,
+          "color": "#f5c857"
+        }
+      ],
+      "source_context": {
+        "term": "משמעלפניכלהארצ",
+        "label": "משם על פני כל הארץ",
+        "start": 13042,
+        "skip": 1,
+        "dir": 1,
+        "color": "#ee6d78",
+        "kind": "plain-source-context"
+      }
+    },
+    {
+      "id": "ramon-rips",
+      "title": "אל״מ רמון · אמן הטיס",
+      "material_provider": "איגור פיסיצקי",
+      "discovery_credit": {
+        "name": "פרופ׳ אליהו ריפס ז״ל",
+        "basis": "attributed by Igor; no independent historical authorship verification"
+      },
+      "message_date": "2.11, 15:19–15:20",
+      "original": "originals/ramon-rips.jpg",
+      "width": 15,
+      "box": {
+        "r0": 4238,
+        "r1": 4256,
+        "c0": 0,
+        "c1": 14
+      },
+      "quote_keys": [
+        "ramon_he",
+        "ramon_attribution"
+      ],
+      "english_quote_key": "ramon_en",
+      "findings": [
+        {
+          "term": "אלמרמונ",
+          "label": "אל״מ רמון",
+          "skip": 14,
+          "dir": -1,
+          "start": 63786,
+          "color": "#438ff4"
+        },
+        {
+          "term": "אמנהטיס",
+          "label": "אמן הטיס",
+          "skip": 16,
+          "dir": 1,
+          "start": 63637,
+          "color": "#ee6d78"
+        }
+      ]
+    }
+  ],
+  "historical_sources": [
+    {
+      "id": "mission",
+      "url": "https://www.nasa.gov/mission/sts-107/",
+      "title": "NASA — STS-107",
+      "supports": [
+        "16-day mission",
+        "loss on 2003-02-01",
+        "seven crew members"
+      ]
+    },
+    {
+      "id": "timeline",
+      "url": "https://www.nasa.gov/history/columbia-chronology/",
+      "title": "NASA — Columbia Chronology",
+      "supports": [
+        "planned touchdown 09:16 EST on 2003-02-01"
+      ]
+    },
+    {
+      "id": "ramon-bio",
+      "url": "https://www.nasa.gov/wp-content/uploads/2016/01/ramon.pdf",
+      "title": "NASA — Ilan Ramon biography, May 2004",
+      "supports": [
+        "F-16 squadron commander 1990–1992",
+        "15 days 22 hours 20 minutes in space",
+        "research around the clock in two alternating shifts"
+      ]
+    },
+    {
+      "id": "orbits",
+      "url": "https://eol.jsc.nasa.gov/Tools/orbitTutorial.htm",
+      "title": "NASA — Orbit tutorial",
+      "supports": [
+        "approximately 16 orbits daily for 90–93 minute orbits; general context, not an exact STS-107 daily count"
+      ]
+    },
+    {
+      "id": "israel-time",
+      "url": "https://www.walla.co.il/news/environment-science/343645",
+      "title": "וואלה, 1.2.2003 — המעבורת קולומביה התפוצצה באוויר",
+      "supports": [
+        "planned touchdown 16:16 Israel time"
+      ]
+    }
+  ],
+  "derived_material": {
+    "files": [
+      "derived/local-two-word-readings.json",
+      "derived/local-two-word-readings.png",
+      "derived/local-scan-matches.csv"
+    ],
+    "source_case": "elections",
+    "discovery_credit": "בדיקה מקומית של המערכת על המטריצה שמסר איגור",
+    "instruction": "Keep under Igor material home, but do not attribute these system-found extensions to Igor as their discoverer.",
+    "scan_scope": {
+      "displayed_cells": 950,
+      "numeric_els_sequences": 1360,
+      "unit_directions": 8,
+      "note": "Bounded previous scan, not all possible skips or all possible word segmentations; numeric sequences are candidates, not independent meaningful messages."
+    }
+  },
+  "publication": {
+    "state": "draft",
+    "public_url": null,
+    "database_saved": false,
+    "profile_created": false,
+    "translation_state": "pending-existing-translation-workflow",
+    "categories": [],
+    "tags": []
+  }
+}
