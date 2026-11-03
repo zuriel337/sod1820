@@ -79,7 +79,11 @@ test("Production document uses canonical owner, preserves old/native/encoded/wp 
 
 test("closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe", async () => {
   await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
-    for (const path of ["/login", "/2029/me", "/journey", "/raziel", "/els", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
+    const handler=publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document });
+    // Fragments are kept by the browser across redirects, never sent in HTTP.
+    const alias=response();await handler(req('/2029/me?returnTo=%2Fworld'),alias);
+    assert.equal(alias.code,308);assert.equal(alias.headers.get('location'),'/2029/me/research?returnTo=%2Fworld');assert.match(alias.headers.get('x-robots-tag'),/noindex/);
+    for (const path of ["/login", "/2029/me/research?returnTo=%2Fworld#private", "/community/researcher/me", "/journey", "/raziel", "/els", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
       const res = response(); await publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document })(req(path), res);
       assert.equal(res.code, 200, path); assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
       assert.ok(!res.body.includes("e=synthetic"));

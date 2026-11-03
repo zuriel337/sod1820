@@ -84,7 +84,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       const closed = ["closed", "missing", "service-closed"].includes(state);
       let metadata = "", status = state === "missing" ? 404 : 200;
       // Closed and unknown addresses never invoke unrelated/private readers.
-      const metadataPath = state === "account" && /^\/2029\/me\//.test(path) ? "/login" : ({ "/2029": "/", "/2029/posts": "/post",
+      const metadataPath = state === "account" ? "/login" : ({ "/2029": "/", "/2029/posts": "/post",
         "/2029/gematria/viral": "/2029/gematria", "/2029/calculator": "/2029/gematria" })[path] || path;
       await metadataHandler({ ...req,
         publicFoundationPreview: true,
@@ -94,7 +94,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
         query: { ...req.query, path: metadataPath, crawler: "search" },
       }, { setHeader() {}, status(code) { if (!closed) status = code; return this; }, send(value) { metadata = String(value); } });
       if (status >= 500) throw new Error("public_source_unavailable");
-      const noindex = Boolean(protectedReviewOrigin()) || closed || status !== 200;
+      const noindex = Boolean(protectedReviewOrigin()) || closed || state === "account" || status !== 200;
       const html = mergeProductionDocumentMetadata(await readDocument(), metadata, { noindex });
       const robots = html.match(/<meta\b[^>]*name=["']robots["'][^>]*content=["']([^"']+)/i)?.[1];
       if (!robots) throw new Error("public_robots_unavailable");

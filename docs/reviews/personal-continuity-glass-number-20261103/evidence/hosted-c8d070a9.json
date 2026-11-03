@@ -1,0 +1,657 @@
+{
+  "kind": "hosted-public-readonly",
+  "origin": "https://sod1820-k1kktklgm-sod1820-s-projects.vercel.app",
+  "sourceSha": "c8d070a91a489c8d518dec5da58d65b5a8ad3843",
+  "cases": [
+    {
+      "name": "existing-account entry, exact personal return, actual worker",
+      "passed": true
+    },
+    {
+      "name": "candidate app manifest and complete existing brand asset hash",
+      "passed": true
+    },
+    {
+      "name": "glass and contained layout",
+      "width": 320,
+      "preset": "dark",
+      "passed": true,
+      "metrics": {
+        "width": 320,
+        "documentWidth": 305,
+        "header": {
+          "background": "color(srgb 0.960784 0.960784 0.941176 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 305,
+          "left": 0,
+          "right": 305
+        },
+        "dock": {
+          "background": "color(srgb 0.960784 0.960784 0.941176 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 296,
+          "left": 4.5,
+          "right": 300.5
+        },
+        "sw": true
+      }
+    },
+    {
+      "name": "glass and contained layout",
+      "width": 320,
+      "preset": "light",
+      "passed": true,
+      "metrics": {
+        "width": 320,
+        "documentWidth": 305,
+        "header": {
+          "background": "color(srgb 0.0901961 0.168627 0.27451 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 305,
+          "left": 0,
+          "right": 305
+        },
+        "dock": {
+          "background": "color(srgb 0.0901961 0.168627 0.27451 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 296,
+          "left": 4.5,
+          "right": 300.5
+        },
+        "sw": true
+      }
+    },
+    {
+      "name": "glass and contained layout",
+      "width": 320,
+      "preset": "parchment",
+      "passed": true,
+      "metrics": {
+        "width": 320,
+        "documentWidth": 305,
+        "header": {
+          "background": "color(srgb 0.192157 0.168627 0.137255 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 305,
+          "left": 0,
+          "right": 305
+        },
+        "dock": {
+          "background": "color(srgb 0.192157 0.168627 0.137255 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 296,
+          "left": 4.5,
+          "right": 300.5
+        },
+        "sw": true
+      }
+    },
+    {
+      "name": "glass and contained layout",
+      "width": 390,
+      "preset": "dark",
+      "passed": true,
+      "metrics": {
+        "width": 390,
+        "documentWidth": 375,
+        "header": {
+          "background": "color(srgb 0.960784 0.960784 0.941176 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 375,
+          "left": 0,
+          "right": 375
+        },
+        "dock": {
+          "background": "color(srgb 0.960784 0.960784 0.941176 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 330,
+          "left": 22.5,
+          "right": 352.5
+        },
+        "sw": true
+      }
+    },
+    {
+      "name": "glass and contained layout",
+      "width": 390,
+      "preset": "light",
+      "passed": true,
+      "metrics": {
+        "width": 390,
+        "documentWidth": 375,
+        "header": {
+          "background": "color(srgb 0.0901961 0.168627 0.27451 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 375,
+          "left": 0,
+          "right": 375
+        },
+        "dock": {
+          "background": "color(srgb 0.0901961 0.168627 0.27451 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 330,
+          "left": 22.5,
+          "right": 352.5
+        },
+        "sw": true
+      }
+    },
+    {
+      "name": "glass and contained layout",
+      "width": 390,
+      "preset": "parchment",
+      "passed": true,
+      "metrics": {
+        "width": 390,
+        "documentWidth": 375,
+        "header": {
+          "background": "color(srgb 0.192157 0.168627 0.137255 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 375,
+          "left": 0,
+          "right": 375
+        },
+        "dock": {
+          "background": "color(srgb 0.192157 0.168627 0.137255 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 330,
+          "left": 22.5,
+          "right": 352.5
+        },
+        "sw": true
+      }
+    },
+    {
+      "name": "glass and contained layout",
+      "width": 1440,
+      "preset": "dark",
+      "passed": true,
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1425,
+        "header": {
+          "background": "color(srgb 0.960784 0.960784 0.941176 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 1343,
+          "left": 10,
+          "right": 1353
+        },
+        "dock": {
+          "background": "color(srgb 0.960784 0.960784 0.941176 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 330,
+          "left": 547.5,
+          "right": 877.5
+        },
+        "sw": true
+      }
+    },
+    {
+      "name": "glass and contained layout",
+      "width": 1440,
+      "preset": "light",
+      "passed": true,
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1425,
+        "header": {
+          "background": "color(srgb 0.0901961 0.168627 0.27451 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 1343,
+          "left": 10,
+          "right": 1353
+        },
+        "dock": {
+          "background": "color(srgb 0.0901961 0.168627 0.27451 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 330,
+          "left": 547.5,
+          "right": 877.5
+        },
+        "sw": true
+      }
+    },
+    {
+      "name": "glass and contained layout",
+      "width": 1440,
+      "preset": "parchment",
+      "passed": true,
+      "metrics": {
+        "width": 1440,
+        "documentWidth": 1425,
+        "header": {
+          "background": "color(srgb 0.192157 0.168627 0.137255 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 1343,
+          "left": 10,
+          "right": 1353
+        },
+        "dock": {
+          "background": "color(srgb 0.192157 0.168627 0.137255 / 0.06)",
+          "backdrop": "blur(22px) saturate(1.5)",
+          "width": 330,
+          "left": 547.5,
+          "right": 877.5
+        },
+        "sw": true
+      }
+    },
+    {
+      "name": "anonymous direct private route never exposes notebook",
+      "passed": true
+    },
+    {
+      "name": "public number/phrase hidden-crossing reader",
+      "path": "/number/1820",
+      "passed": true,
+      "sourceExcerpt": "ביטוי / מספר\n1820\nRoot 1820 · השיטה הפעילה משנה את התוצאה, לא את זהות הביטוי\nהמספר\n1820\nחיים\nטוען שכבות…\nחפש ✦\nרגיל = 1820\nביטויים רגילים על אותו מספר\nטוען ביטויים…\nשש שיטות ראשיות · כל השאר בעומק\n0 שיטות זמינות · 6 גלויות מיד\n\nהחישוב זמין. המקורות והחיבורים עדיין נטענים…"
+    },
+    {
+      "name": "public number/phrase hidden-crossing reader",
+      "path": "/number/%D7%90%D7%97%D7%AA%20%D7%90%D7%A8%D7%91%D7%A2%20%D7%A9%D7%91%D7%A2%20%D7%95%D7%A9%D7%AA%D7%99%D7%99%D7%9D",
+      "passed": true,
+      "sourceExcerpt": "ביטוי / מספר\nאחת ארבע שבע ושתיים\nRoot 1820 · השיטה הפעילה משנה את התוצאה, לא את זהות הביטוי\nהמספר\n1820\n♛\nחיים\n10 שכבות\nחפש ✦\nרגיל = 1820\nביטויים רגילים על אותו מספר\n30 ביטויים · ↔ גרור ימינה / שמאלה\nאין סוף אין קץ אין תכלית אין מספר\n= 1820 · רגיל\nמספר שמות יהוה בכל התורה\n= 1820 · רגיל\n💎\nיעלז שדי וכל אשר בו אז ירננו כל עצי יער\n= 1820 · רגיל\nסוד אלף שמונה מאות עשרים כי לה המלוכה\n= 1820 · רגיל\n💎\nתורתי אמת המשיח\n= 1820 · רגיל\nהקדוש ברוך הוא תורה יש"
+    }
+  ],
+  "errors": [],
+  "network": [
+    {
+      "path": "/assets/2029-B86neW0i.js",
+      "host": "sod1820-k1kktklgm-sod1820-s-projects.vercel.app",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/brand/2029/canonical-lockup-128.webp",
+      "host": "sod1820-k1kktklgm-sod1820-s-projects.vercel.app",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5047.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5033.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgg.woff2",
+      "host": "fonts.gstatic.com",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3pQPwlBFgg.woff2",
+      "host": "fonts.gstatic.com",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgg.woff2",
+      "host": "fonts.gstatic.com",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5047.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "path": "/rest/v1/rpc/convergence_meter",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/convergence_meter",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/convergence_meter",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3twJwlBFgg.woff2",
+      "host": "fonts.gstatic.com",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3vAOwlBFgg.woff2",
+      "host": "fonts.gstatic.com",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/s/ibmplexmono/v20/-F6qfjptAgt5VM-kVkqdyU8n3pQPwlBFgg.woff2",
+      "host": "fonts.gstatic.com",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5047.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5114-cover-20261012/thumb-fast-v1.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/11/4509929f-346c-43ac-ac92-a8236fb94bdc/derivatives/preview.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/11/530dc608-1bae-4c95-9f61-7871735ffc30/derivatives/thumb.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/biton-election-5126/derivatives/preview.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5047.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "path": "/rest/v1/rpc/convergence_meter",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5047.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/11/4509929f-346c-43ac-ac92-a8236fb94bdc/derivatives/preview.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/biton-election-5126/derivatives/preview.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/11/530dc608-1bae-4c95-9f61-7871735ffc30/derivatives/thumb.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/els-icon.png",
+      "host": "sod1820.co.il",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5114-cover-20261012/thumb-fast-v1.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5047.jpg",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_FAILED"
+    },
+    {
+      "path": "/rest/v1/edges",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_dossier",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_zero_scale",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/entity_types",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/research_objects",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/nodes",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/research_objects",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_journey",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/research_objects",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/edges",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/number_anchors",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_number_lookup",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/gallery_images",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_method_profile",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/lang_links_list",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/edges",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/rest/v1/rpc/number_neighbors",
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "liveWrites": 0,
+  "realAccountAcceptance": "OPEN_USER_DEFERRED",
+  "artifact": {
+    "sourceSha": "c8d070a91a489c8d518dec5da58d65b5a8ad3843",
+    "policy": "public-reading-owned-account-continuity-20261103"
+  },
+  "passed": 14,
+  "finishedAt": "2026-11-03T13:38:58.078Z"
+}
