@@ -204,11 +204,11 @@ test("robots follows Production canonical sitemap while dormant mode fails close
 });
 
 function workerHarness({ clients = {}, fetcher = async () => json([]) } = {}) {
-  const listeners = {}, calls = [];
+  const listeners = {}, calls = [], claims = [];
   vm.runInNewContext(buildPublicReadingWorker(sha), { self: { location: { origin: SITE }, skipWaiting() {},
-    clients: { claim() {}, get: async id => clients[id] }, addEventListener: (name, handler) => { listeners[name] = handler; } },
+    clients: { claim() {claims.push(true);return Promise.resolve();}, get: async id => clients[id] }, addEventListener: (name, handler) => { listeners[name] = handler; } },
     URL, Response, Request, Set, JSON, fetch: async (...args) => { calls.push(args); return fetcher(...args); } });
-  return { calls, listeners, async request(path, { method = "POST", body = "{}", clientId = "", origin = API, destination = "", mode } = {}) {
+  return { calls, listeners, claims, async request(path, { method = "POST", body = "{}", clientId = "", origin = API, destination = "", mode } = {}) {
     let pending;
     const request = new Request(origin + path, { method, ...(mode ? {mode} : {}), ...(!["GET", "HEAD"].includes(method) ? { body } : {}) });
     Object.defineProperty(request, "destination", {value: destination});
@@ -226,6 +226,13 @@ test("exact emitted worker denies A3/models/Auth/credits/writes through GET/POST
   for (const path of ["/api/preview-raziel", "/api/contributor-self", "/api/contributor-interactions"])
     assert.equal((await harness.request(path, { origin: SITE })).status, 403, path);
   assert.equal(harness.calls.length, 0);
+});
+
+test("active worker claims only a same-origin window requesting its exact source and policy",async()=>{
+ const h=workerHarness(),source={type:'window',url:SITE+'/login'};
+ const data={type:'public-reading-claim',policy:PUBLIC_READING_POLICY_ID,sourceSha:sha};
+ for(const event of [{data:{...data,sourceSha:'b'.repeat(40)},source},{data:{...data,policy:'legacy'},source},{data,source:{...source,url:'https://foreign.invalid/'}},{data,source:{...source,type:'worker'}},{data,source:null}])h.listeners.message({...event,waitUntil:()=>assert.fail('invalid message claimed')});
+ assert.equal(h.claims.length,0);let waited=false;h.listeners.message({data,source,waitUntil:promise=>{assert.ok(promise instanceof Promise);waited=true;}});assert.equal(h.claims.length,1);assert.equal(waited,true);
 });
 
 test("emitted worker retains public calculator/STABLE GET/community projection reads and context checks, never raw replies", async () => {
@@ -297,6 +304,9 @@ test("bootstrap bounds every worker phase, rejects redundant/wrong policy and ne
     updates++; reused.navigator.serviceWorker.controller = current;
   } });
   assert.equal(await startPublicReading(config, reused), true); assert.equal(updates, 1); assert.equal(reused.imports.length, 1);
+  const unclaimed=runtime({controller:null});let claimRequests=0;
+  unclaimed.navigator.serviceWorker.register=async()=>({active:{postMessage(message){assert.equal(message.type,'public-reading-claim');assert.equal(message.policy,config.policy);assert.equal(message.sourceSha,sha);claimRequests++;unclaimed.navigator.serviceWorker.controller=current;}},update:async()=>{}});
+  assert.equal(await startPublicReading(config,unclaimed),true);assert.equal(claimRequests,1);assert.equal(unclaimed.imports.length,1);
   const stalledUpdate = runtime();
   stalledUpdate.navigator.serviceWorker.register = async () => ({ active: {}, update: () => new Promise(() => {}) });
   assert.equal(await startPublicReading(config, stalledUpdate), false); assert.equal(stalledUpdate.imports.length, 0);

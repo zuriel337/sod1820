@@ -45,6 +45,7 @@ await test("real inbox adapter uses one strict bounded read and native conversat
     assert.equal(rows[0].link, `/2029/me/messages?dm=${OTHER}`);
     assert.equal(calls.length, 1); assert.equal(calls[0].params.get("limit"), "30");
     assert.equal(calls[0].params.get("order"), "created_at.desc");
+    assert.equal(calls[0].params.get("user_id"), "eq." + ACCOUNT);
   });
 });
 await test("failed or malformed inbox reads reject rather than proving zero", async () => {
@@ -109,5 +110,6 @@ await test("mark-read adapter requires and returns only existing strict acknowle
     assert.deepEqual(await followCenterIO.markAll(ACCOUNT), { ok: true, markedIds: ["n1"] });
     assert.equal(calls[0].method, "PATCH"); assert.equal(calls[0].params.get("select"), "id,read_at");
     assert.equal(calls[0].params.get("read_at"), "is.null"); assert.deepEqual(Object.keys(calls[0].body), ["read_at"]);
+    assert.equal(calls[0].params.get("user_id"), "eq." + ACCOUNT);
   });
 });

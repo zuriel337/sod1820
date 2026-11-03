@@ -71,6 +71,14 @@ function installPublicReadingWorker(policy) {
   self.addEventListener("message", event => {
     if (event.data?.type === "public-reading-policy" && event.ports?.[0])
       event.ports[0].postMessage({ policy: policy.id, sourceSha: policy.sourceSha });
+    // A navigation can finish between activation and clients.claim(). Updating
+    // an identical active script does not activate it again. Reclaim only our
+    // exact admitted worker, then the caller still validates its handshake.
+    if (event.data?.type === "public-reading-claim" && event.data.policy === policy.id
+      && event.data.sourceSha === policy.sourceSha && event.source?.type === "window") {
+      try { if (new URL(event.source.url).origin === self.location.origin) event.waitUntil(self.clients.claim()); }
+      catch { /* Foreign/malformed client messages never change control. */ }
+    }
   });
   self.addEventListener("fetch", event => {
     const req = event.request, url = new URL(req.url);
@@ -241,6 +249,8 @@ export async function startPublicReading(config, runtime) {
       });
       check(); phase = "readiness"; await navigator.serviceWorker.ready; check();
       phase = "control";
+      if (!navigator.serviceWorker.controller && registration.active?.postMessage)
+        registration.active.postMessage({ type: "public-reading-claim", policy: config.policy, sourceSha: config.sourceSha });
       if (!navigator.serviceWorker.controller) await new Promise(resolve => {
         const change = () => { if (navigator.serviceWorker.controller) resolve(); };
         cleanup.push(() => navigator.serviceWorker.removeEventListener("controllerchange", change));
