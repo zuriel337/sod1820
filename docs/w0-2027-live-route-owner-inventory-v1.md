@@ -1,6 +1,15 @@
 # SOD1820 — W0 2027 LIVE ROUTE / OWNER INVENTORY V1
 
-**Status:** W0 DETAILED LIVE PASS · DOCS ONLY · EXTEND_EXISTING · NOT IMPLEMENTED
+**Status:** HISTORICAL W0 DETAILED LIVE PASS · DOCS ONLY · EXTEND_EXISTING · NOT IMPLEMENTED AT THAT CHECKPOINT
+
+**Historical snapshot notice · synchronized 2026-11-03:** “live/current”,
+open W0 drift and proposed destinations below refer to the recorded W0 base,
+not today's candidate. Keep this evidence; do not reopen W0/G3 or reimport old
+branches from it. The existing authoritative migration inventory is
+[the route/addressability matrix §8](w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03).
+Current product `9d3a0968` is protected Preview only. Current state and later
+Human-Gate decisions are routed through Master State, Roadmap and Doc37 §12.29.
+Provenance: AFTER `e18c1cb9-0ea0-4e6c-9617-232bb296d31b`.
 
 **Sources verified for this pass:**
 - `origin/main` current head verified at `cf4d8df54cde53a22f5d217d2f79c11f0f734e13`

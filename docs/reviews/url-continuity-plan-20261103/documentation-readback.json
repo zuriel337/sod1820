@@ -1,0 +1,172 @@
+{
+  "task": "PUBLIC_URL_CONTINUITY_PLAN_20261103",
+  "kind": "documentation readback; not runtime/visual/cutover acceptance",
+  "baseDocumentationSha": "4015ed8b82099e3543e472b7310394985cc265a4",
+  "productSha": "9d3a09689a05bd0b72ca484335c1fbce8b538170",
+  "checks": {
+    "only_documentation_changed_in_sync": true,
+    "historical_g3_seal_and_program_section_preserved": true,
+    "historical_118_route_rows_preserved": true,
+    "post_url_invariant_history_preserved": true,
+    "family_parity_rollback_checklist_unchanged": true,
+    "existing_roadmap_gates_preserved": true,
+    "protected_product_and_live_legacy_are_distinct": true,
+    "formal_g4_remains_open": true,
+    "held_shared_change_remains_held": true,
+    "tag_quality_planned_not_implemented": true,
+    "design_contract_unchanged": true,
+    "new_relative_links_and_anchors_resolve": true
+  },
+  "newRelativeLinks": [
+    {
+      "document": "SOD1820_MASTER_ROADMAP.md",
+      "target": "SOD1820_MASTER_STATE.md#1-authority",
+      "valid": true
+    },
+    {
+      "document": "SOD1820_MASTER_ROADMAP.md",
+      "target": "docs/reviews/url-continuity-plan-20261103/coverage.md",
+      "valid": true
+    },
+    {
+      "document": "SOD1820_MASTER_ROADMAP.md",
+      "target": "docs/w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03",
+      "valid": true
+    },
+    {
+      "document": "SOD1820_MASTER_ROADMAP.md",
+      "target": "docs/g3-2029-cutover-acceptance-checklist.md#cutover-gate-extensions--2026-10-04",
+      "valid": true
+    },
+    {
+      "document": "SOD1820_MASTER_ROADMAP.md",
+      "target": "docs/reviews/url-continuity-plan-20261103/source-boundaries-evidence.md",
+      "valid": true
+    },
+    {
+      "document": "SOD1820_MASTER_STATE.md",
+      "target": "docs/reviews/url-continuity-plan-20261103/coverage.md",
+      "valid": true
+    },
+    {
+      "document": "SOD1820_MASTER_STATE.md",
+      "target": "docs/w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03",
+      "valid": true
+    },
+    {
+      "document": "docs/reviews/url-continuity-plan-20261103/README.md",
+      "target": "../../w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03",
+      "valid": true
+    },
+    {
+      "document": "docs/reviews/url-continuity-plan-20261103/README.md",
+      "target": "../../g3-2029-cutover-acceptance-checklist.md",
+      "valid": true
+    },
+    {
+      "document": "docs/reviews/url-continuity-plan-20261103/coverage.md",
+      "target": "../../w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03",
+      "valid": true
+    },
+    {
+      "document": "docs/reviews/url-continuity-plan-20261103/coverage.md",
+      "target": "#h",
+      "valid": true
+    },
+    {
+      "document": "docs/reviews/url-continuity-plan-20261103/coverage.md",
+      "target": "#d",
+      "valid": true
+    },
+    {
+      "document": "docs/reviews/url-continuity-plan-20261103/coverage.md",
+      "target": "./transition-matrix.md",
+      "valid": true
+    },
+    {
+      "document": "docs/reviews/url-continuity-plan-20261103/coverage.md",
+      "target": "../../../SOD1820_DESIGN_CONTRACT_V2.md#82-balanced-rtl-composition--human-gate-zuriel--26102026",
+      "valid": true
+    },
+    {
+      "document": "docs/w0-2027-live-route-owner-inventory-v1.md",
+      "target": "w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03",
+      "valid": true
+    },
+    {
+      "document": "docs/w0-2027-post-url-immutability-gate-v1.md",
+      "target": "w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03",
+      "valid": true
+    },
+    {
+      "document": "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+      "target": "#8-current-2029-reconciliation--2026-11-03",
+      "valid": true
+    },
+    {
+      "document": "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+      "target": "w0-2027-post-url-immutability-gate-v1.md#current-scope-reconciliation--2026-11-03",
+      "valid": true
+    },
+    {
+      "document": "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+      "target": "reviews/url-continuity-plan-20261103/transition-matrix.md",
+      "valid": true
+    },
+    {
+      "document": "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+      "target": "reviews/url-continuity-plan-20261103/url-inventory.json",
+      "valid": true
+    },
+    {
+      "document": "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+      "target": "reviews/url-continuity-plan-20261103/README.md",
+      "valid": true
+    },
+    {
+      "document": "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+      "target": "reviews/url-continuity-plan-20261103/hosted/receipt.json",
+      "valid": true
+    },
+    {
+      "document": "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+      "target": "g3-2029-cutover-acceptance-checklist.md",
+      "valid": true
+    },
+    {
+      "document": "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+      "target": "reviews/url-continuity-plan-20261103/coverage.md",
+      "valid": true
+    }
+  ],
+  "changedMarkdown": [
+    {
+      "path": "SOD1820_MASTER_ROADMAP.md",
+      "sha256": "250493e98a6d8f11f4cd115e83778ca22308f31f350e409fd9b4aa2199a68e87"
+    },
+    {
+      "path": "SOD1820_MASTER_STATE.md",
+      "sha256": "21d2333aaae4cd341ae4e0a40c06ae087ebfd720557168e2a724937d3eee5aac"
+    },
+    {
+      "path": "docs/reviews/url-continuity-plan-20261103/README.md",
+      "sha256": "090a4075c428db4d9ec726fa59cf31238b257f30b666b44e79be3a534cce8c64"
+    },
+    {
+      "path": "docs/reviews/url-continuity-plan-20261103/coverage.md",
+      "sha256": "bd815d65f80e6b820cf3603faa035dcab52f7ddfbf9fbbc5617165d78c7c90dd"
+    },
+    {
+      "path": "docs/w0-2027-live-route-owner-inventory-v1.md",
+      "sha256": "adad107ec562847ba595f310c5cd9ebd9ae3c2f3e8552725fe77eb09fc859325"
+    },
+    {
+      "path": "docs/w0-2027-post-url-immutability-gate-v1.md",
+      "sha256": "ba531c0b6cbf755306cb2670cdbae34e4e7541feeba5da41ee6f456c23feb900"
+    },
+    {
+      "path": "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+      "sha256": "a2a3989135a7ddbd604dd8a237575e4f8970f577919a36b9313937e752e1a6f1"
+    }
+  ]
+}

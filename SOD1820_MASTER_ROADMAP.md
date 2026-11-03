@@ -1,9 +1,50 @@
 # SOD1820 — MASTER ROADMAP v6.12 COMPACT
 
-**Date:** 2026-10-07  
+**Date:** 2026-11-03 (navigation/status synchronization; existing gate sequence retained)
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 CLOSED · G3→G4 TRANSITION** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
+
+**Current navigation checkpoint · 2026-11-03:** continue the existing
+G3→G4 / Public Cutover lane; no new launch stage. Product `9d3a0968` is a protected
+Preview candidate, not Production. The working-site scope now explicitly
+includes preservation of existing community, chat, accounts, public libraries
+and services; only unfinished/new capabilities may use their approved closed
+states. Earlier public-reading-only acceptance is insufficient for that scope.
+Explicitly retired experiments and private access boundaries remain governed by
+their existing decisions; preserving a real public service does not reopen them.
+G3 remains CLOSED; formal G4 and Public Cutover remain OPEN.
+
+Current evidence/status belongs in [Master State](SOD1820_MASTER_STATE.md#1-authority)
+and Doc37 §12.29. The [condition-by-condition reconciliation](docs/reviews/url-continuity-plan-20261103/coverage.md)
+links requirements, evidence SHAs, missing acceptance and explicit deferrals.
+The [existing address map](docs/w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03)
+owns route-inventory navigation. Provenance: AFTER
+`e18c1cb9-0ea0-4e6c-9617-232bb296d31b`; documentation BEFORE
+`2b9004b6-5285-4aee-93e2-4b1174ec06cf`.
+
+**Next work under the existing gates, in dependency order:** preserve real
+public URLs/services and their source boundaries; finish the affected
+Posts/Skeleton, identity and exact-return acceptance; close the existing S2
+security/CP1 operational requirements; then accept the exact publication and
+recovery/rollback evidence. Shared identity/mail changes remain HELD_BY_USER.
+Reuse valid G3/H1/A3 and unchanged component evidence. Workflow G4 success is not
+formal G4 closure. World/Home high-fidelity Goldens and other explicitly deferred
+systems stay at their existing later positions; active public content/API paths
+do not receive an exemption because a larger UI is closed.
+
+**Tag/content-page acceptance clarification, 3.11:** restoring a real tag page
+includes its specific content and a finished, polished 2029 presentation using
+the approved Posts language and Design V2. A bare technical list, right-pinned
+controls or a generic World redirect does not close the family. Reuse existing
+components; inspect Legacy for content/behavior when unclear. This scoped
+quality requirement does not move the deferred whole-World/Home Goldens forward.
+
+One integrated candidate does not waive the existing
+[family cutover/rollback and automated parity requirements](docs/g3-2029-cutover-acceptance-checklist.md#cutover-gate-extensions--2026-10-04).
+Exact activation is still unapproved. AGENTS.md requires an explicit 2029
+Production cutover authorization naming the final SHA and deployment, and
+separate authorization for a release-guard change when applicable.
 
 ## Current position
 
@@ -38,6 +79,11 @@ Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependen
 
 **Human-Gate implementation focus · 2026-09-22 — 2029 FIRST.**
 
+**Later scope clarification, 3.11:** this historical implementation direction
+does not authorize blanket closure of existing community/chat/services. Their
+meaning and capabilities must continue through the new presentation; the
+availability rule for genuinely unfinished systems remains. See Doc37 §12.29.
+
 - product/UX engineering effort goes to the 2029 tree, not to improving the Legacy experience for temporary parity;
 - a Legacy UI/route may be frozen, hidden or explicitly unavailable during transition instead of receiving repair/polish when no current 2029 dependency requires that UI;
 - if a capability has no safe 2029 renderer yet, prefer a truthful `BUILDING / unavailable` state over maintaining two competing product runtimes;
@@ -45,7 +91,7 @@ Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependen
 - source/writer retirement still requires replacement proof + live-consumer proof under existing owners; destructive/permanent retirement and major route cutover remain Human-Gated;
 - target end-state: one 2029 product tree; Legacy survives only as bounded source/adapter/provenance until safely absorbed or retired.
 
-**Release-semantics pointer:** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. Active `deploy_on_request` **v3** + `inter_agent_coordination_law` **v13** provide standing Human-Gate authorization for routine gate-clean, dependency-clean releases; any older wording in planning/history that requires a fresh `תעלה` for every routine merge/deploy is superseded. Explicit Human Gate remains required for governed-truth canonicalization/publication where required, irreversible/destructive changes, pricing/economics, major Legacy→2029 cutover, privacy/security weakening, and permanent capability/history retirement.
+**Historical release-semantics pointer (superseded for current coordination and this cutover authorization):** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. At that checkpoint, `deploy_on_request` **v3** + `inter_agent_coordination_law` **v13** provided standing Human-Gate authorization for routine gate-clean, dependency-clean releases; older planning wording requiring a fresh `תעלה` for every routine merge/deploy was superseded. Current coordination is v17 via AGENTS/Owner Index; the 22.10 Legacy lock and later explicit task restrictions govern this candidate. No standing routine-release wording grants 2029 cutover, main push or guard modification. Governed publication, irreversible changes, pricing, privacy/security weakening and permanent retirement retain their owner/Human-Gate requirements.
 
 ## 2029 North Star — owner pointers only
 
@@ -96,8 +142,16 @@ Purpose: make 2029 the coherent visible product shell quickly, without pretendin
 - Posts Golden acceptance must prove generic relationships and navigation rather than slug-specific semantics: Post↔Topic/Number/Book/Source connections, list→post→context→return, and shared Research Path behavior. Decision-changing failures descend only to their owning lower seam.
 - G4 begins with the **Posts Index + Post Golden** over this semantic shell. Design readiness must never masquerade as experience acceptance.
 
-- **Accepted 2029 composition · Human Gate ZURIEL · 12.10.2026:** one slim anchored real-update strip over natural living source sections; one desktop LEFT Companion with **עדכונים | הקשר**, contextual Golden Projector nested within it, and one BOTTOM Command Island with optional section-based progress inside its trail. The RIGHT global navigation remains distinct. **Owners:** Design V2 §§8.1/11.8, System Frame V2 addendum §3.5.3, current Publishing/Research Intake/Reality Graph and Owner Index. **G4 remaining sequence:** certified source-native fragment + revision reader → Post/Home/World exact update/return → 320/390/desktop + Night/Day/Parchment/anon/admin visual/privacy acceptance. PR #1039 (Posts) and PR #1044 (Companion) remain independent unmerged implementation candidates; approval of direction is not Golden PASS, major cutover authorization, or an additional Golden.
+- **Historical accepted 2029 composition · Human Gate ZURIEL · 12.10.2026:** one slim anchored real-update strip over natural living source sections; one desktop LEFT Companion with **עדכונים | הקשר**, contextual Golden Projector nested within it, and one BOTTOM Command Island with optional section-based progress inside its trail. The RIGHT global navigation remains distinct. **Owners:** Design V2 §§8.1/11.8, System Frame V2 addendum §3.5.3, current Publishing/Research Intake/Reality Graph and Owner Index. **G4 remaining sequence at that checkpoint:** certified source-native fragment + revision reader → Post/Home/World exact update/return → 320/390/desktop + Night/Day/Parchment/anon/admin visual/privacy acceptance. PR #1039 (Posts) and PR #1044 (Companion) were independent unmerged implementation candidates at that checkpoint; approval of direction was not Golden PASS, major cutover authorization, or an additional Golden.
+- **Later composition decisions supersede only the conflicting presentation:** the old source Companion is hidden; Context, Now and the ticker remain active. Home follows the event-first/visible-series and later construction-panel decisions in Doc37. This does not reopen deferred meter/timeline work, restore an old sidebar or require historical PR reimport.
 ### Source-world completion timing after the 2026-10-07 corpus census
+
+**Current evidence correction, 3.11:** P0-A/B maps were completed in AFTER
+`af62469b-834a-4d61-9bea-b8cecb5333e8`; P0-C has the accepted archive-only research
+admission decision. Their historical maps are not missing. The obligations below
+now apply to the material delta and active public consumers, not a repeated deep
+scan. [Receipt and precise limits](docs/reviews/url-continuity-plan-20261103/source-boundaries-evidence.md).
+An archive admission decision is not permission to close chat or lose history.
 
 - **Now / before the Posts Golden is accepted:** close only the selective identity/linkage repairs and exact source/provenance seams actually used by the Golden fixtures. The completed Zvi + Sod Hashmal maps are sufficient to proceed; do **not** deep-map the whole remaining world first.
 - **During G4, before the Cross-Surface Skeleton Golden and before any 2029 Public Cutover:** complete the three P0 source-boundary maps discovered by the census: **P0-A Legacy Published Posts family**, **P0-B non-Zvi Channel/WhatsApp source-occurrence + identity**, and **P0-C OpenWeb/community admission boundary**. Required closure is boundary/identity/provenance sufficient to prevent duplicate source authority, false evidence independence and wrong attribution on active Post/Topic/Number/World/Book/Source projections; it is **not** a requirement to deep-extract every legacy item.

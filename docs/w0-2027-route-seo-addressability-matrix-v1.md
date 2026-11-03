@@ -1,10 +1,17 @@
 # SOD1820 — W0 2027 ROUTE / SEO / ADDRESSABILITY MATRIX V1
 
-**Status:** W0 SPECIFICATION · DOCS ONLY · BRANCH ONLY · NOT IMPLEMENTED  
-**Verified main:** `cf4d8df54cde53a22f5d217d2f79c11f0f734e13`  
+**Status:** EXISTING MIGRATION INVENTORY · HISTORICAL W0 + CURRENT 2029 RECONCILIATION · DOCS ONLY · CUTOVER NOT ACCEPTED
+**Historical W0 verified main:** `cf4d8df54cde53a22f5d217d2f79c11f0f734e13`
 **Owner check:** `EXTEND_EXISTING` — existing React Router + SEO owners + Reality Graph identity registry; no new route/SEO registry.
 
-## 0. Live facts
+**Read current status first:** [§8](#8-current-2029-reconciliation--2026-11-03)
+is the 3.11.2026 reconciliation. §§0–7 retain the dated W0 snapshot and its
+continuity rules. Counts, “current/live” wording and specification closure in
+that snapshot are not assertions about today's runtime or a cutover acceptance.
+The explicit modern-post exception in §8 supersedes only the old blanket
+all-post-root wording; it does not migrate protected old root addresses.
+
+## 0. Historical W0 live facts
 
 - `src/App.jsx` currently contains **118** `<Route path>` registrations, independently enumerated by Claude and re-read in this W0 pass.
 - Root-level `/:slug` is the canonical post catch-all.
@@ -28,7 +35,7 @@
 
 Classification is migration/continuity guidance, not truth/access state.
 
-## 2. Exact current route ledger — 118 registrations
+## 2. Historical W0 route ledger — 118 registrations
 
 | Route | W0 class |
 |---|---|
@@ -154,6 +161,11 @@ Classification is migration/continuity guidance, not truth/access state.
 
 ## 3. Root-post URL immutability + slug reservation law
 
+**Current scope:** apply this protection to durable old/imported root addresses.
+For the later approved native-publication `/post/:slug` policy, see §8 and the
+[same invariant's reconciliation](w0-2027-post-url-immutability-gate-v1.md#current-scope-reconciliation--2026-11-03).
+The historical blanket wording below is retained, not reapplied to modern posts.
+
 Because SOD1820 is a long-lived site and `/:slug` is the canonical identity of the public post corpus, individual post addresses receive a stricter rule than ordinary Class A.
 
 ### 3.1 Individual post address
@@ -221,7 +233,7 @@ Rules:
 
 This extends existing routing/access/UI owners; no new owner/store is required.
 
-## 5. Identity addressability matrix
+## 5. Historical W0 identity addressability matrix
 
 Live `entity_types` has 14 rows; six declare a `route_pattern`.
 
@@ -272,7 +284,7 @@ Before any route is removed/repointed during W1–W9:
 
 Legacy aliases may survive indefinitely when cheap and harmless. Clean architecture does not justify breaking good inbound URLs.
 
-## 7. W0 closure verdict for this matrix
+## 7. Historical W0 specification closure verdict
 
 **ROUTE/SEO LEDGER:** CLOSED AT SPECIFICATION LEVEL.  
 **POST ROOT URL IMMUTABILITY:** CLOSED AT SPECIFICATION LEVEL; implementation/build gate belongs to W1 routing acceptance.  
@@ -280,3 +292,74 @@ Legacy aliases may survive indefinitely when cheap and harmless. Clean architect
 **HONEST TERMINAL:** SPECIFIED, implementation belongs to W1 acceptance.
 
 No route code, post row, post slug, canonical URL or redirect was changed by this document.
+
+## 8. Current 2029 reconciliation — 2026-11-03
+
+This file remains the migration inventory named by the existing global cutover
+contract. It is not a runtime routing registry. Product inspected:
+`9d3a09689a05bd0b72ca484335c1fbce8b538170`; protected Preview
+`dpl_1Jyk6PdVpSaygjuD5E64CH5FiBez`. Production remains Legacy
+`d1837efcf5a978d10a514010f3695680f231e116`; main is `2195c978`.
+The documentation/privacy branch is `gpt/2029-url-continuity-plan-20261103`.
+
+**Detailed current inventory and evidence, subordinate to this map:**
+
+- [36 family/exception rows](reviews/url-continuity-plan-20261103/transition-matrix.md):
+  old pattern, existence evidence, meaning, existing/proposed target, state,
+  treatment, permission, parameters/anchors, acceptance and open implementation.
+  Its CSV/JSON are the same review table, not separate route owners.
+- [Collected URL union](reviews/url-continuity-plan-20261103/url-inventory.json)
+  and [coverage/limits](reviews/url-continuity-plan-20261103/README.md): 33,667
+  distinct URL strings/templates, 376 not yet assigned. These are not counts of
+  real pages, defects or accepted addresses. No complete historical coverage is
+  claimed. Current code has 125 Legacy patterns and 45 2029 patterns plus four
+  dynamic services; the live sitemap contains 21,911 locations. Existing 92
+  literal redirect sources are preserved; content/parameter/runtime parity is
+  still a separate obligation.
+- [Actual 9d observations](reviews/url-continuity-plan-20261103/hosted/receipt.json):
+  36 observations at 390/1440 with the real SW, retaining 404/closed results.
+  This is diagnostic evidence, not 36 accepted routes or Production acceptance.
+
+**Decisions and unresolved state:**
+
+1. Old/imported post URLs remain at their durable root addresses. Approved native
+   publications use `/post/:slug` through the existing `publicPostUrls.js`
+   provenance adapter, not a moving date window. Its immutable import boundary
+   and reviewed exceptions are evidence for that implementation, not another
+   reserved-slug registry. Root aliases, identity, query/hash and exact return
+   remain; ambiguous provenance does not authorize a move.
+2. Existing community/chat, forum, taxonomies, public code/book libraries,
+   calculators, media and services need a precise continuation. An unfinished
+   new engine does not authorize closing published material or a working
+   existing service. The current candidate still has proven missing/closed
+   destinations. Proposed targets in the review table are **not implemented**.
+3. Preserve the requested item/filter/author/source and parameter meaning.
+   Community calculator parity is not established by the general calculator;
+   person, contributor and source collection are distinct. Signed/private and
+   unpublished URLs retain their authorization and terminal behavior. No generic
+   Home/World/building fallback or fabricated public record is approved.
+4. [Existing family parity/rollback checklist](g3-2029-cutover-acceptance-checklist.md)
+   still applies, including automated URL-by-URL browser/crawler comparison and
+   zero unapproved regression. Existing fixture/Preview successes are reused
+   within their scope, not counted as this missing full-family acceptance.
+   One combined candidate does not itself waive deployment units or rollback.
+5. Current acceptance statuses and remaining P0/Skeleton/security/operations/
+   recovery conditions are in the [coverage table](reviews/url-continuity-plan-20261103/coverage.md)
+   under the existing Roadmap. G3/H1 are accepted; formal G4 and cutover are not.
+6. **Later tag-page clarification from ZURIEL:** the restored `/tag/:slug`
+   family and missing public content continuations require finished visual
+   quality at launch, matching the approved Posts language through existing
+   cards, typography, media and shared actions. Design V2 §§5/8.2 already govern
+   a centered bounded content plane, balanced mobile padding and usable controls;
+   do not create another design contract. A precise tag heading and its actual
+   published results must survive, including pagination, loading/empty/failure
+   and exact return. Compare 320/390/desktop and supported themes. A plain
+   placeholder list or generic World redirect is not acceptance. Consult Legacy
+   for missing content/behavior evidence, not as an instruction to copy old
+   styling. This requirement is planned; the current tag route is still missing.
+
+Doc37 §12.29 preserves the decisions and later overrides. Evidence provenance:
+AFTER `e18c1cb9-0ea0-4e6c-9617-232bb296d31b`; documentation BEFORE
+`2b9004b6-5285-4aee-93e2-4b1174ec06cf`. No routing, product-data, deployment or
+permission change was made by this synchronization. Historical W0 closure
+above remains a specification receipt, not an exemption from current acceptance.
