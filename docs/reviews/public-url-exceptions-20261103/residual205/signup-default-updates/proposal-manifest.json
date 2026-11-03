@@ -1,0 +1,31 @@
+{
+  "base_sha": "94fd851a5bed844e36886edf48e42ec3ce33a1ff",
+  "shared_applied": false,
+  "old_function_body_md5": "8cbc40e56e8d8ce9869f70e09535a7e5",
+  "proposed_function_body_md5": "843e021938ff32b506e592302a1ca543",
+  "files": {
+    "read-only-source-snapshot.json": "896a8e79ee7116939b7a7414599a6b58a70093c970bd53a11e631acdb224ecea",
+    "auth-copy.proposed.md": "bb24c77f26bebfc6b63c9648a0deafda52a8ae53495ee50d5046a1dbcec06e43",
+    "owner-addendum.proposed.md": "af6a6b1c11d9731ed1721945d160a35e2c15004641511f55c480614dc979c29c",
+    "README.md": "17d3485bb6fd9d7d2e0b32bfc065b051940bf465a864733b1e6a81fff3ddff3a",
+    "test-output.initial-harness-failure.txt": "e8c8dad7eb3b5ca5f17dc082e22bb120d2b32fb719e7407a50711d5e8472887f",
+    "isolated-test-receipt.json": "1f2f004f9ae097167ef000a291beae7995ce98390946c0cb469e3b224829604b",
+    "test-output.txt": "8fc7e829670611b6ea34008a93ceeb211c79f9d237f556f9bbbc3ff5ef99d856",
+    "run-isolated-tests.mjs": "79911e445e578665f0348b3573e04564d75b9a4070a08a76dcca40ab03e6360f",
+    "site-updates-purpose.prerequisite.sql": "81940598246fbbebd79de2434a82f32bf14cbc11060713af5a4800e4cc2fb63d",
+    "handle-new-user.proposed-body.txt": "9611520e29abf558ce341ccb05b65d50fe4844d2f26868a4d9c14ea9bcf41310",
+    "handle-new-user.before.sql": "52da6784463dbe3f1d64fda8093b586fc7a61d664def1cba15f9e5e7e1b892ec",
+    "handle-new-user-default-updates.rollback.sql": "49137ddde886ad36379ab1a1c93f0b61eac58333d51141fc106e8f53869d373c",
+    "handle-new-user-default-updates.proposal.sql": "f56dc303ecd5a531d2c14d4a54f199d1adf9a430cd808d7634e9c2ff1811519a",
+    "build-proposal.py": "cb05229e96e62802db1277c3987c25f9f2341fa1453895b18a7db5e6f68889f1",
+    "test-output.permanent-runner.txt": "dec10febd3b1e858fda8add8734519d57721cdb50b852c13b5a5ef201069a6bf"
+  },
+  "checks": {
+    "synthetic_test_groups_passed": 22,
+    "shared_applied": false,
+    "local_secret_pattern_scan": "PASS",
+    "trailing_whitespace": "PASS",
+    "live_readonly_snapshot_verified": true
+  },
+  "permanent_runner_note": "Same exact SQL, portable own-directory resolution; reexecuted22/22 in the synthetic Unix-socket-only fixture."
+}

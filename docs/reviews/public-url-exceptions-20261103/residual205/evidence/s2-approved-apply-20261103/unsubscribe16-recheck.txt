@@ -1,0 +1,24 @@
+✔ v9 baseline reproduces false success for an SDK failure; synthetic only (38.907977ms)
+✔ signed GET acknowledges only one confirmed suppression, preserving consent/source fields (9.126394ms)
+✔ signed one-click POST keeps existing machine contract and HTML acknowledgement (2.698774ms)
+✔ sequential replay and concurrent duplicate requests never rewrite suppression timestamp (5.266083ms)
+✔ already-inactive recipients remain unchanged, including historical null timestamp (3.970425ms)
+✔ SDK update errors and exceptions cannot report success or expose their diagnostic (3.679281ms)
+✔ zero matches plus missing subscriber is not successful opt-out (1.747613ms)
+✔ zero-update acknowledgement while row remains active fails closed (1.596841ms)
+✔ malformed/wrong/multiple acknowledgement rows cannot report success (4.779404ms)
+✔ idempotency lookup error or exception is not an empty/success result (3.027242ms)
+✔ missing URL/service/HMAC config fails closed before DB client creation (2.703208ms)
+✔ existing fallback HMAC key remains compatible when separate secret is absent (2.746598ms)
+✔ invalid signature/email/encoding and duplicate identity parameters never touch DB (5.901117ms)
+✔ GET/POST only; unsupported methods fail before mutation and OPTIONS remains inert (4.475304ms)
+✔ HTML reports error status honestly and escapes signed email text (4.738074ms)
+✔ proposal retains single existing handler, no mail/model calls or schema changes (1.194579ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 169.052226

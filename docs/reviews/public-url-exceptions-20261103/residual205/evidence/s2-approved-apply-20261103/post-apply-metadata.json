@@ -1,0 +1,223 @@
+[
+  {
+    "observed_at": "2026-11-03 17:52:30.546433+00",
+    "reader_role": "supabase_read_only_user",
+    "reader_bypass_rls": true,
+    "posts_count": 1320,
+    "language_links_count": 13,
+    "contributors_count": 2331,
+    "research_contributions_count": 41527,
+    "max_migration": "20261103175126",
+    "migration_count": 1110,
+    "functions": [
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public, pg_temp"
+        ],
+        "definer": true,
+        "signature": "admin_system_health()",
+        "prosrc_md5": "ef8336c67f7bae8c1176699805c1c2c6",
+        "volatility": "s"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "chat_search_facts(text,integer)",
+        "prosrc_md5": "6a51702f61bad7fdf4c79b310f971132",
+        "volatility": "s"
+      },
+      {
+        "acl": [
+          "=X/postgres",
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "cross_source_posts(text[])",
+        "prosrc_md5": "671dc2f7c7338b1f2cb13bcb84257150",
+        "volatility": "s"
+      },
+      {
+        "acl": [
+          "=X/postgres",
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "hot_posts_live(integer,integer)",
+        "prosrc_md5": "0eb84329484552ceed66164fab913a66",
+        "volatility": "v"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=pg_catalog, public"
+        ],
+        "definer": true,
+        "signature": "lang_links_list(text)",
+        "prosrc_md5": "9cf329e46bac6a9d2ed00811d539d5a8",
+        "volatility": "s"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "name_lab_research(text,integer)",
+        "prosrc_md5": "726d0538b89945264439e6eadbbf998c",
+        "volatility": "v"
+      },
+      {
+        "acl": [
+          "=X/postgres",
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "number_dossier_json(integer)",
+        "prosrc_md5": "ea1d01059a7f7823a99ab7947957f4fa",
+        "volatility": "s"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "post_conversation_projection(bigint,integer)",
+        "prosrc_md5": "be92850a2aa7e74be8bbb141b213e11b",
+        "volatility": "s"
+      }
+    ],
+    "posts_policies": [
+      {
+        "cmd": "ALL",
+        "qual": "(EXISTS ( SELECT 1\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.role = 'admin'::text))))",
+        "roles": [
+          "authenticated"
+        ],
+        "permissive": "PERMISSIVE",
+        "policyname": "posts_admin_write",
+        "with_check": "(EXISTS ( SELECT 1\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.role = 'admin'::text))))"
+      },
+      {
+        "cmd": "SELECT",
+        "qual": "(NOT (COALESCE(tags, '{}'::text[]) && ARRAY['טיוטה'::text]))",
+        "roles": [
+          "anon"
+        ],
+        "permissive": "PERMISSIVE",
+        "policyname": "posts_anon_read",
+        "with_check": null
+      },
+      {
+        "cmd": "SELECT",
+        "qual": "(NOT (COALESCE(tags, '{}'::text[]) && ARRAY['טיוטה'::text]))",
+        "roles": [
+          "authenticated"
+        ],
+        "permissive": "PERMISSIVE",
+        "policyname": "posts_auth_read",
+        "with_check": null
+      }
+    ],
+    "relations": [
+      {
+        "acl": [
+          "postgres=arwdDxtm/postgres",
+          "anon=m/postgres",
+          "authenticated=m/postgres",
+          "service_role=arwdDxtm/postgres"
+        ],
+        "rls": true,
+        "name": "language_links",
+        "owner": "postgres",
+        "options": null
+      },
+      {
+        "acl": [
+          "postgres=arwdDxtm/postgres",
+          "anon=rm/postgres",
+          "authenticated=arwdm/postgres",
+          "service_role=arwdDxtm/postgres",
+          "ai_reader=r/postgres"
+        ],
+        "rls": true,
+        "name": "posts",
+        "owner": "postgres",
+        "options": null
+      },
+      {
+        "acl": [
+          "postgres=arwdDxtm/postgres",
+          "anon=rm/postgres",
+          "authenticated=rm/postgres",
+          "service_role=arwdDxtm/postgres"
+        ],
+        "rls": false,
+        "name": "redirect_map",
+        "owner": "postgres",
+        "options": null
+      }
+    ],
+    "redirect_view_md5": "91d72f34d8dc7a91c0d65d99934b6556",
+    "applied_migrations": [
+      {
+        "name": "public_s2_guarded_readers",
+        "version": "20261103175116"
+      },
+      {
+        "name": "control_health_unknown_failures",
+        "version": "20261103175126"
+      }
+    ]
+  }
+]

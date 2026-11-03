@@ -1,0 +1,19 @@
+{
+  "changedFamilies": [
+    "F25",
+    "F26",
+    "F27",
+    "F30"
+  ],
+  "originalUrlStringsPreserved": true,
+  "csvJsonAffectedStatusesMatch": true,
+  "runtimeDeltaVs94": [
+    "src/pages/LanguagesPage.jsx"
+  ],
+  "public2029RuntimeUnchanged": true,
+  "legacyCopyCandidateOnly": true,
+  "exactProposalHashMatches": true,
+  "governanceV21FullTextRetained": true,
+  "mailSharedApplied": false,
+  "notFullG4": true
+}

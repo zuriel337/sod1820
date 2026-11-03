@@ -1,0 +1,7 @@
+{
+  "checked_at": "2026-11-03T18:11:10.157031+00:00",
+  "files_checked": 14,
+  "secret_pattern_matches": 0,
+  "trailing_whitespace_files": 0,
+  "limitation": "pattern scan of local proposal/test artifacts, not an entire repository secret scan"
+}

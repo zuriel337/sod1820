@@ -1,0 +1,28 @@
+{
+  "kind": "canonical-governance-documentation-only",
+  "runtimeApplied": false,
+  "sharedMailApplied": false,
+  "before": "951a982f-6d23-4d1f-8a1e-cf4131320545",
+  "readback": [
+    {
+      "id": "08a34366-1311-4210-b84e-f41b405e5b4c",
+      "rule_version": 22,
+      "is_active": true,
+      "supersedes_version": 21,
+      "description_md5": "c677126201763faae5a8cd80cf397a81",
+      "old_description_preserved": true,
+      "decision": {
+        "new_owner": false,
+        "activation": "fixed_future_cutoff_after_exact_shared_approval_B_D_notice",
+        "approved_by": "ZURIEL",
+        "approved_date": "2026-11-03",
+        "release_state": "product_decision_approved_exact_shared_proposal_tested_not_applied",
+        "before_work_log": "951a982f-6d23-4d1f-8a1e-cf4131320545",
+        "ordinary_login_enrolls": false,
+        "previous_optout_preserved": true,
+        "future_verified_accounts_only": true
+      }
+    }
+  ],
+  "initialAttempt": "SQL syntax guard failed before execution; corrected transaction succeeded; no partial owner change"
+}

@@ -1,0 +1,112 @@
+{
+  "kind": "isolated-native-postgresql-default-signup-proposal",
+  "baseSha": "94fd851a5bed844e36886edf48e42ec3ce33a1ff",
+  "liveConnection": false,
+  "liveWrites": 0,
+  "externalMailOrAuthCalls": 0,
+  "sharedApplied": false,
+  "database": "signup_default_fixture",
+  "serverVersion": "17.11 (Debian 17.11-1.pgdg13+2)",
+  "proposalSha256": "f56dc303ecd5a531d2c14d4a54f199d1adf9a430cd808d7634e9c2ff1811519a",
+  "cases": [
+    {
+      "name": "missing purpose schema B fails closed and leaves old trigger/source",
+      "passed": true
+    },
+    {
+      "name": "migration changes no historical data and repeated apply preserves immutable cutoff",
+      "passed": true
+    },
+    {
+      "name": "verified Google and Facebook new signup enroll only site-updates with factual audit",
+      "passed": true
+    },
+    {
+      "name": "password and OTP pending verification create users/profiles but no newsletter; first confirmation enrolls once",
+      "passed": true
+    },
+    {
+      "name": "active existing general/opening subscribers add only new authorized purpose and retain every old field",
+      "passed": true
+    },
+    {
+      "name": "inactive, previously unsubscribed and already-updates rows are byte-for-byte preserved with no fake enrollment event",
+      "passed": true
+    },
+    {
+      "name": "ordinary historical login and first confirmation do not backfill",
+      "passed": true
+    },
+    {
+      "name": "cutoff boundary accepts exactly cutoff; older creation and anonymous identities are excluded",
+      "passed": true
+    },
+    {
+      "name": "email change, anonymous conversion and created_at rewriting cannot enroll through confirmation update",
+      "passed": true
+    },
+    {
+      "name": "case-normalized same email works; malformed/no email remains identity-only",
+      "passed": true
+    },
+    {
+      "name": "shared Legacy-shaped new signup follows same new policy without acquisition, visitor or general enrollment",
+      "passed": true
+    },
+    {
+      "name": "admin role and 35 existing credits remain; malicious metadata cannot elevate new users or credit profiles",
+      "passed": true
+    },
+    {
+      "name": "B public insert policy cannot forge new typed default signup consent",
+      "passed": true
+    },
+    {
+      "name": "concurrent opt-out wins before new signup: no reactivation or enrollment event",
+      "passed": true
+    },
+    {
+      "name": "new signup locks first; concurrent opt-out still wins final state and preserves the one historical enrollment event",
+      "passed": true
+    },
+    {
+      "name": "audit failure atomically rolls back signup/provisioning/enrollment instead of reporting a partial success",
+      "passed": true
+    },
+    {
+      "name": "reapply after traffic preserves cutoff, rows and audit history exactly",
+      "passed": true
+    },
+    {
+      "name": "no Follow, notification, ledger, campaign, delivery, general analytics or visitor writes",
+      "passed": true
+    },
+    {
+      "name": "guard rejects changed source, trigger shape, missing cutoff and additional side-effect triggers",
+      "passed": true
+    },
+    {
+      "name": "guard rejects weakened purpose validation or direct public typed-consent insert",
+      "passed": true
+    },
+    {
+      "name": "function fixed search_path, SECURITY DEFINER, owner and ACL are retained",
+      "passed": true
+    },
+    {
+      "name": "rollback twice restores exact old objects only, preserving subscriber/event/profile data",
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Synthetic Auth rows verify database behavior, not actual Google/Facebook/password/OTP delivery or dashboard callback settings",
+    "Native PostgreSQL 17 fixture is not a full Supabase Auth deployment",
+    "Default signup depends on separately approved purpose schema B, signup wording, and effective signed unsubscribe D",
+    "Rollback restores prior Legacy implicit-general enrollment only for future signup; subscriber data/history are retained"
+  ],
+  "resolvedSyntheticActivationUtc": "2026-11-03T18:16:28.829208Z",
+  "note": "Fixture left in exact old-object rollback state; no private data or real account created.",
+  "finishedAt": "2026-11-03T18:16:30.161Z",
+  "passed": 22,
+  "failed": 0
+}

@@ -1,0 +1,51 @@
+# Default site updates for new, verified site accounts — revised A
+
+Status: **PROPOSED + TESTED IN ISOLATED POSTGRESQL ONLY**. No shared SQL/Edge deployment, real Auth signup, newsletter send or client change was made by this review. Base: `94fd851a5bed844e36886edf48e42ec3ce33a1ff`. Root coordination: `951a982f-6d23-4d1f-8a1e-cf4131320545`.
+
+The user's latest decision supersedes the old held A proposal that removed every automatic signup enrollment. Do not apply `handle-new-user-consent.proposal.sql`. The replacement below adds only the existing `site-updates` purpose after verified NEW account creation, preserves prior unsubscribe, and changes neither ordinary login nor Follow.
+
+## Exact minimum shared change
+
+1. Apply the separately reviewed purpose schema **B** (`site-updates-purpose.prerequisite.sql`) if not already present. It adds the existing purpose's timestamp column/constraint and narrows public typed-consent inserts. It does not change existing subscriber rows.
+2. Deploy and verify the separately prepared effective signed unsubscribe repair **D** before default enrollment is activated. The current v9 handler has an independently documented false-success path; do not treat it as acceptance of active removal. Proposed D source SHA256: `7da57eaad6c43ce14f2f26ad7ded1a01f7977dc3bd7829e32cbac2b64aa792b9` (actual-handler mock tests already passed separately).
+3. Apply only `handle-new-user-default-updates.proposal.sql` after exact approval. It extends the existing `public.handle_new_user()` and replaces its existing `on_auth_user_created` trigger with `AFTER INSERT OR UPDATE OF email_confirmed_at`. It creates no new table, callable RPC, job, flag, queue or owner.
+4. Only after server readback and truthful signup notice, enable the already-prepared OAuth/new-account client paths. Maintain verified exact callback origins, PKCE, trusted JWT identity and all private/admin authorization. No new password recovery feature is part of this change.
+
+The shared trigger necessarily covers NEW canonical Supabase Auth accounts created by **both Legacy and 2029**. Auth does not provide a trustworthy browser-origin field for restricting the rule to one UI; client metadata must not decide this. Future Legacy signup changes from immediate general-mail enrollment to verified `site-updates` enrollment. Existing users, existing subscriber state, Legacy routes and production deployment do not change. The UI notice must therefore cover enabled signup entry points in both clients, or the affected new-account entry must remain held until its notice is correct. Separate existing-account password/OTP login remains available.
+
+## Proven eligibility and exact writes
+
+- On INSERT, preserve canonical `public.users` + `public.profiles` creation and fixed `role=user`, `tier=free`; ignore metadata privilege claims. On confirmation UPDATE, never recreate profiles, change roles or touch credits.
+- Newness is `auth.users.created_at >= activation cutoff`. Cutoff is server UTC captured **once**, while holding a bounded lock on `auth.users`, and stored as the sole argument of the existing trigger. Reapplication reads and preserves that literal byte-for-byte. Record the resulting trigger definition/cutoff in the migration receipt. No rolling window and no historical backfill.
+- Require `is_anonymous=false`, a usable normalized email and **actual** `email_confirmed_at`. A provider name or user metadata `email_verified=true` is not verification. Google/Facebook may supply trusted confirmation immediately or via the first confirmation update. Password/OTP pending confirmation creates only identity/profile; sending OTP does not enroll.
+- UPDATE qualifies only for `OLD.email_confirmed_at IS NULL -> NEW nonnull`, unchanged creation time and same normalized email, with a nonanonymous prior identity. Ordinary login/refresh, old-account confirmation, email change and anonymous-account conversion do not enroll. Harmless case normalization of the same address is accepted.
+- A fresh subscriber row uses `source=site-signup-default-updates-v1`, `email_purposes={site-updates}`, actual confirmation time, `active=true`, no acquisition or visitor metadata, and no `general`/`site-openings` purpose.
+- If the email already exists, lock its one canonical `lower(email)` row. Only `active=true AND unsubscribed_at IS NULL` may receive the **one additional** `site-updates` purpose. Preserve all previous purposes, source, acquisition, creation/opening consent times and any already recorded site-update time. Existing inactive or suppressed rows remain byte-for-byte unchanged. Already-site-updates rows remain unchanged without duplicate audit.
+- Record only an actual committed enrollment in the existing `subscribe_events`: trusted `NEW.id`, `source=site-signup-default-updates-v1`, `action=signup`, `topic=newsletter`, actual confirmation time; visitor_id is omitted. This is default-signup provenance, **not a claim that a checkbox was selected**. No Follow, channel preference, conversion/acquisition counter or campaign event is fabricated.
+- Row locks serialize concurrent removal. If unsubscribe wins first, enrollment skips. If signup wins first, the later unsubscribe still leaves `active=false`. The proof includes both real two-connection orders. Write/audit errors roll back the transaction, including a new Auth insert, instead of reporting success with partial state.
+
+There are no live noninternal triggers on either `subscribers` or `subscribe_events` in the fresh read-only snapshot. The proposal refuses installation if any appear. It does not call a mail provider. Existing general-mail jobs filter `email_purposes` for `general`; newly inserted site-updates-only rows are outside that audience. An existing general subscriber retains that existing audience, source and creation time. Newsletter **sending C** remains a separate campaign capability/approval, not an automatic side effect of signup. Signup acceptance does not mean a campaign was sent or delivered.
+
+## Guards and dependency evidence
+
+Fresh canonical read-only source is still MD5 `8cbc40e56e8d8ce9869f70e09535a7e5`; one existing AFTER INSERT trigger; `site_updates_consented_at` is still absent at the time of this review. Proposal checks the exact old/proposed function source, function attributes, exact owned trigger shape, no other Auth triggers, B's exact validated purpose constraint and direct-insert policy, enabled subscriber RLS, canonical unique `lower(email)`, and absence of subscriber/event side-effect triggers. Function owner/ACL are preserved. PostgreSQL may be upgraded; a changed normalized constraint rendering stops for review rather than silently bypassing the guard.
+
+Canonical semantics were read live: `subscription_funnel_law` **v21** (its label/index still says v19) and `person_foundation_contract_law` v6. Current v18/v19 newsletter clauses prohibit automatic enrollment in general and delivery channels from ordinary login/Follow. The new user decision creates a narrow prospective exception for NEW verified account default `site-updates`, not a rewrite of Follow or historical consent. See `owner-addendum.proposed.md`; extend the existing owner/version, no new law or pipeline.
+
+## Validation
+
+`run-isolated-tests.mjs`: **22/22 groups passed** on native PostgreSQL **17.11**, Unix socket only, synthetic `signup_default_fixture`, no TCP listener, no live connection or private data. Cases cover source/schema/trigger drift, stable cutoff replay, new verified Google/Facebook-like rows, password/OTP first confirmation, active existing general/opening recipients, suppressed addresses, old login, email change, role/35-credit preservation, exact audit/no unrelated writes, RLS direct-forgery denial, real concurrent opt-out races, atomic failure and exact object rollback.
+
+One initial test-harness run used `CREATE TRIGGER` to restore a test trigger instead of `CREATE OR REPLACE TRIGGER`. The harness was corrected; the failed output is retained in `test-output.initial-harness-failure.txt`. The tested signup function did not fail that case. Final receipt and output are separate. Tests do not prove real provider/email delivery, ownership confirmation, dashboard callbacks or unsubscribe link delivery; those remain explicit owner-controlled acceptance.
+
+## Application and non-destructive rollback
+
+Before approved application, reread the function/trigger/schema/side-effect metadata and relevant ownership. Save exact old source, version/hash, current trigger definition and the new apply receipt; never dump subscriber emails or tokens into evidence. Apply B and accepted D first; apply revised A atomically. Read back function MD5, owner/security/ACL and literal cutoff. A second identical migration preserves the activation time. Do not run a live signup as a test without separate owner-controlled acceptance.
+
+`handle-new-user-default-updates.rollback.sql` accepts only the exact proposed or original source and owned trigger shape. It restores the original function and INSERT-only trigger. It updates/deletes **no** subscribers, events, identities, profiles or purpose columns. Already enrolled recipients and their audit remain. It is safe to repeat.
+
+**Rollback limitation:** the exact old source resumes the historical immediate `general` enrollment for future Legacy-style signup. If that old rule is not desired during incident handling, hold new-account entry first through the existing client/deployment path while keeping existing-account login; do not quietly substitute the superseded A or reactivate removed recipients. Re-enabling revised A after an intentional rollback is a fresh activation decision with a new cutoff; pending/earlier accounts are not backfilled. Preserve the old/new activation receipts for provenance.
+
+## User-facing copy and remaining acceptance
+
+Use `auth-copy.proposed.md`. Public Home remains signup-only; the working signed removal service and per-email removal link remain available. No test newsletter is sent. Real-owner signup/verification and opt-out confirmation, plus exact Google/Facebook return paths, remain separate acceptance. Do not show a successful subscription before verification or after a failed/filtered write.

@@ -1,0 +1,21 @@
+{
+  "baseSha": "94fd851a5bed844e36886edf48e42ec3ce33a1ff",
+  "signupDefaultProposalGroups": 22,
+  "signupLiveApplied": false,
+  "unsubscribeActualHandlerTests": 16,
+  "fullLegacyAnd2029Build": "PASS",
+  "buildInitialFailure": "ENOSPC in npm cache on root overlay before build; cache routed to existing /tmp location and build passed",
+  "legacyProductionLock": "PASS",
+  "diffCheck": "PASS",
+  "newBroadPerformanceRound": false,
+  "affectedHostedRealPublicCases": 4,
+  "public2029SourceUnchanged": true,
+  "testMail": 0,
+  "liveTestSignup": 0,
+  "prodSiteDeploy": false,
+  "sharedMigrationsApplied": [
+    "20261103175116",
+    "20261103175126"
+  ],
+  "newCanonicalRuleVersion": "subscription_funnel_law v22 (decision documentation only)"
+}

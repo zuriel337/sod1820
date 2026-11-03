@@ -171,7 +171,7 @@ Historical `unified_ai_brain_law` and `metatron_single_mind_law` carry explicit 
 | Responsibility | Canonical owner |
 |---|---|
 | Person / group / personal-data processing / Personal Reality projection | `person_foundation_contract_law` **v6 ACTIVE** |
-| Follow / notification / subscription funnel | `subscription_funnel_law` v19 |
+| Follow / notification / subscription funnel | `subscription_funnel_law` v22 (3.11.2026; new verified-account default site-updates decision, runtime proposal pending; v21 preserved inactive) |
 | entitlement/access product seam | `platform_tiers_law` **v5 ACTIVE** |
 | one credit currency | `unified_credit_system` under Access |
 

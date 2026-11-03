@@ -1,0 +1,212 @@
+[
+  {
+    "observed_at": "2026-11-03 17:47:58.461608+00",
+    "reader_role": "supabase_read_only_user",
+    "posts_count": 1320,
+    "language_links_count": 13,
+    "contributors_count": 2331,
+    "research_contributions_count": 41527,
+    "max_migration": "20261102130833",
+    "migration_count": 1108,
+    "functions": [
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "authenticated=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public, pg_temp"
+        ],
+        "definer": true,
+        "signature": "admin_system_health()",
+        "prosrc_md5": "335efe0f77d33570d9c0e06fd2a9fd32",
+        "volatility": "s"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "service_role=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "chat_search_facts(text,integer)",
+        "prosrc_md5": "7b39aef3ed6d61853642d98253e2522e",
+        "volatility": "s"
+      },
+      {
+        "acl": [
+          "=X/postgres",
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "cross_source_posts(text[])",
+        "prosrc_md5": "f08037b7525a41877ee79322ce55e39c",
+        "volatility": "s"
+      },
+      {
+        "acl": [
+          "=X/postgres",
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "hot_posts_live(integer,integer)",
+        "prosrc_md5": "9504a95791d5fd9c4fce8ff66463ea16",
+        "volatility": "v"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "lang_links_list(text)",
+        "prosrc_md5": "5ac5cd537e243ca661bd6194ba9ac0aa",
+        "volatility": "v"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "name_lab_research(text,integer)",
+        "prosrc_md5": "d75a95a78b1f156dac9fbddced7c9391",
+        "volatility": "v"
+      },
+      {
+        "acl": [
+          "=X/postgres",
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "number_dossier_json(integer)",
+        "prosrc_md5": "de11202c2a95853d4888d44d28180853",
+        "volatility": "s"
+      },
+      {
+        "acl": [
+          "postgres=X/postgres",
+          "anon=X/postgres",
+          "authenticated=X/postgres",
+          "service_role=X/postgres"
+        ],
+        "owner": "postgres",
+        "config": [
+          "search_path=public"
+        ],
+        "definer": true,
+        "signature": "post_conversation_projection(bigint,integer)",
+        "prosrc_md5": "21fd4a74595d566d8e9488d793c0e379",
+        "volatility": "s"
+      }
+    ],
+    "posts_policies": [
+      {
+        "cmd": "ALL",
+        "qual": "(EXISTS ( SELECT 1\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.role = 'admin'::text))))",
+        "roles": [
+          "authenticated"
+        ],
+        "permissive": "PERMISSIVE",
+        "policyname": "posts_admin_write",
+        "with_check": "(EXISTS ( SELECT 1\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.role = 'admin'::text))))"
+      },
+      {
+        "cmd": "SELECT",
+        "qual": "true",
+        "roles": [
+          "anon"
+        ],
+        "permissive": "PERMISSIVE",
+        "policyname": "posts_anon_read",
+        "with_check": null
+      },
+      {
+        "cmd": "SELECT",
+        "qual": "true",
+        "roles": [
+          "authenticated"
+        ],
+        "permissive": "PERMISSIVE",
+        "policyname": "posts_auth_read",
+        "with_check": null
+      }
+    ],
+    "relations": [
+      {
+        "acl": [
+          "postgres=arwdDxtm/postgres",
+          "anon=m/postgres",
+          "authenticated=m/postgres",
+          "service_role=arwdDxtm/postgres"
+        ],
+        "rls": true,
+        "name": "language_links",
+        "owner": "postgres",
+        "options": null
+      },
+      {
+        "acl": [
+          "postgres=arwdDxtm/postgres",
+          "anon=rm/postgres",
+          "authenticated=arwdm/postgres",
+          "service_role=arwdDxtm/postgres",
+          "ai_reader=r/postgres"
+        ],
+        "rls": true,
+        "name": "posts",
+        "owner": "postgres",
+        "options": null
+      },
+      {
+        "acl": [
+          "postgres=arwdDxtm/postgres",
+          "anon=rm/postgres",
+          "authenticated=rm/postgres",
+          "service_role=arwdDxtm/postgres"
+        ],
+        "rls": false,
+        "name": "redirect_map",
+        "owner": "postgres",
+        "options": null
+      }
+    ],
+    "redirect_view_md5": "e364dd14e1d92a4c50f0047a8c73e0bb"
+  }
+]

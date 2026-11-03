@@ -1,5 +1,7 @@
 # S2 — הצעה מדויקת לשרת משותף, טרם הופעלה
 
+**עדכון12.37:** התיקון המדויק אושר והוחל דרך `20261103175116_public_s2_guarded_readers.sql`. [ראיות מקור/הרשאות/ספירות/דפדפן](../evidence/s2-approved-apply-20261103/README.md). נוסח Legacy יושם בענף בלבד. יתר המסמך הוא הצעת המקור ההיסטורית; סטטוס NOT_APPLIED להלן הוחלף לגבי התיקון בלבד. אין חותם אבטחה/G4 מלא.
+
 STATUS: PREPARED_AND_ISOLATED_TESTED_NOT_APPLIED. S2 נשאר OPEN.
 הצעה זו אינה אישור ל־Production/cutover, אינה הצעת Auth/דיוור b21ed1ff והיא אינה מפעילה אותה.
 

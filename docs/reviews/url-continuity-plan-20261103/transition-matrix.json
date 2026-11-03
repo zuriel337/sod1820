@@ -505,7 +505,7 @@
     "permissions": "JWT/RLS שלבעל החשבון; לא admin-only לכלקהילה",
     "parameters_anchors": "module,returnTo,hash",
     "acceptance": "כניסה/יציאה/החלפה/בידוד; פרופילציבורי נפרד",
-    "open_task": "C4: הפעולות האישיות התקבלו; social/signup והפעלת WhatsApp/CP1/S2 נפרדים. אין תלות של כניסה קיימת בכל חבילתb21.",
+    "open_task": "C4: הפעולות האישיות התקבלו; social/signup ו־WhatsApp/CP1 נפרדים. תיקוןS2 הוחל ונבדק ממוקד; אינו חותם שער מלא. אין צורך לחזור על פעולות שני החשבונות.",
     "treatment": "ACCEPTED_USER_REPORTED_BOUNDED_DELTA_TESTED",
     "planning_snapshot": {
       "target_2029": "/2029/me/profile ומודולים קיימים",
@@ -534,7 +534,11 @@
     "final_preparation_previous_checkpoint": {
       "open_task": "C4 (רק social/signup/recovery בהמתנה, WhatsApp linking/delivery ו־CP1/S2 נפרדים)"
     },
-    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
+    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "s2_signup_default_previous_checkpoint": {
+      "open_task": "C4: הפעולות האישיות התקבלו; social/signup והפעלת WhatsApp/CP1/S2 נפרדים. אין תלות של כניסה קיימת בכל חבילתb21."
+    },
+    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
   },
   {
     "id": "F26",
@@ -542,11 +546,11 @@
     "evidence": "AccountEntry; oauthReturn; JoinPage",
     "meaning": "כניסה/הרשמה/הכוונה/קמפיין אינם אותה פעולה",
     "target_2029": "מסכי Auth קיימים; adapters למשמעותשנשמרת",
-    "verified_status": "כניסה,יציאה,כניסה מחדש,שמירות ועריכה והחלפת חשבון התקבלו בדיווח המשתמש בשני החשבונות על7360. Google/Facebook והרשמה חדשה טרם התקבלו; תלותA היא הפסקת צירוף אוטומטי לדיוור בטריגר, לא כל חבילתb21. שחזור סיסמה חדש אינו קיים גם בLegacy ואינו חלקb21; OTPקיים לחשבון קיים נשמר.",
+    "verified_status": "כניסה קיימת וכל פעולות שני החשבונות התקבלו בדיווח המשתמש על7360. החלטת צוריאל החדשה: חשבון חדש ומאומת כולל עדכוני אתר כברירת מחדל עם הסרה; A הישן הוחלף ואינו מיועד להחלה. A2/B/D נבדקו בהצעה בלבד; Google/Facebook והרשמה חדשה עדיין ממתינים לשרת, לנוסח נכון גם בלגאסי, ל־callback מדויק ולקבלה אמיתית. כניסה רגילה אינה משנה דיוור; הסרות קודמות נשמרות. OTP לחשבון קיים נשמר; אין מערכת שחזור חדשה.",
     "permissions": "זהותשרת; אין שיווק/חיובבכניסה",
     "parameters_anchors": "returnTo,OAuthstate/PKCE/hash; לא לתעד טוקנים",
     "acceptance": "Google/Facebook/password/יציאה; החזרה המדויקת;חדשלעומתקיים",
-    "open_task": "C5",
+    "open_task": "C5: exact revised A2/B/D shared approval + truthful enabled signup notices + OAuth/new-signup owner acceptance",
     "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_SIGNUP_PENDING",
     "continuity_closure_previous_checkpoint": {
       "verified_status": "חשבוןקייםעובדבתנאיםמבוקרים;Social/signup ממתינים"
@@ -556,7 +560,12 @@
       "verified_status": "כניסה/יציאה/כניסה מחדש בחשבונות קיימים התקבלו בדיווח המשתמש על7360. Google/Facebook,הרשמה חדשה ושחזור לא התקבלו; שינוייb21ed1ff עדיין HELD_BY_USER. SDK Legacy קנוני נבדק בסביבה מבודדת; Preview מבודד, www/Vercel דורשים כניסה רגילה מחדש",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
     },
-    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
+    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "s2_signup_default_previous_checkpoint": {
+      "verified_status": "כניסה,יציאה,כניסה מחדש,שמירות ועריכה והחלפת חשבון התקבלו בדיווח המשתמש בשני החשבונות על7360. Google/Facebook והרשמה חדשה טרם התקבלו; תלותA היא הפסקת צירוף אוטומטי לדיוור בטריגר, לא כל חבילתb21. שחזור סיסמה חדש אינו קיים גם בLegacy ואינו חלקb21; OTPקיים לחשבון קיים נשמר.",
+      "open_task": "C5"
+    },
+    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
   },
   {
     "id": "F27",
@@ -564,11 +573,11 @@
     "evidence": "PublicServices; signedunsubscribe; proposalHELD",
     "meaning": "פרטיות/הסכמה/ביטול הסכמה",
     "target_2029": "/privacy; /updates; /unsubscribe; חלונית אורח במעטפת הקיימת — אותו מוצר עדכוני האתר",
-    "verified_status": "פרטיות עםzyz997@gmail.com נשמרת. חלוניתLegacy חוברה לטופס2029 ולמטרהsite-updates,22שניות/גלילה,תמונה מקומית ופונטים2029,ללא קוד המציאות.11בדיקות דפדפן מבוקרות עברו; אין קריאה בפתיחה ואין הרשמה כללית כחלופה. B(מטרה+signup) ו־D(הסרה עםאישור אמיתי) מוכנים/מבודדים אך לא הוחלו. כתובות קיימות במטרה אחרת או שהוסרו אינן מופעלות מחדש; אימות בעלות לא הושלם.",
+    "verified_status": "פרטיותzyz997@gmail.com וחלונית ההרשמה2029 נשמרות. הרשמה ידנית היא opt-inל־site-updates; חשבון חדש כולל אותה כברירת מחדל רק אחרי אימות לפי החלטת צוריאל החדשה. A2/B/Dטרם הוחלו; השרת עדיין מפרסםopening-parts-v1 והטופס מבהיר אי־זמינות לפני מילוי.22קבוצותDBמבודדות ל־A2ו־16בדיקות handlerל־Dעברו. אין חידוש הסרה קודמת, ואין הצגת הרשמה/הסרה חיה כמתקבלת. קמפייןCנפרד.",
     "permissions": "בעלותכתובת/חתימה; no-referrer/noindex",
     "parameters_anchors": "e,t בתיםמדויקים; לא analytics או querylogs",
     "acceptance": "חתימהשגויה/אפסהתאמות/כשל; הסרה אמיתית אינה תרגיל; email עודכןבמקור",
-    "open_task": "C5",
+    "open_task": "C5: revised exact shared A2/B/D approval and real owner signup/unsubscribe acceptance",
     "treatment": "UI_IMPLEMENTED_TESTED_SERVER_APPROVAL_AND_REAL_MAIL_ACCEPTANCE_OPEN",
     "planning_snapshot": {
       "target_2029": "המסלולים הקיימים",
@@ -581,7 +590,12 @@
       "verified_status": "פרטיות: המייל עודכן במועמד ל־zyz997@gmail.com. שירותי דיוור/הסרה נשמרו; שינויי שרת HELD, ללא משלוח/ביטול אמיתי",
       "treatment": "PARTIAL_MAIL_HELD"
     },
-    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
+    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "s2_signup_default_previous_checkpoint": {
+      "verified_status": "פרטיות עםzyz997@gmail.com נשמרת. חלוניתLegacy חוברה לטופס2029 ולמטרהsite-updates,22שניות/גלילה,תמונה מקומית ופונטים2029,ללא קוד המציאות.11בדיקות דפדפן מבוקרות עברו; אין קריאה בפתיחה ואין הרשמה כללית כחלופה. B(מטרה+signup) ו־D(הסרה עםאישור אמיתי) מוכנים/מבודדים אך לא הוחלו. כתובות קיימות במטרה אחרת או שהוסרו אינן מופעלות מחדש; אימות בעלות לא הושלם.",
+      "open_task": "C5"
+    },
+    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
   },
   {
     "id": "F28",
@@ -627,11 +641,11 @@
     "evidence": "App.jsx; Admin admission",
     "meaning": "מסכים פרטיים/מנהל",
     "target_2029": "כניסה ויעדמקביל רק לפי הרשאה",
-    "verified_status": "תצוגתCP1 מבודדת קריאות בריאות/וידאו/trace; כשל,ריק,מידע ישן ואפס נפרדים. החלפת זהות ובקשות מאוחרות נבדקו בבקר האמיתי. הצעתadmin_system_health משנה2זרועותכשל בלבד ונבדקה ב9קבוצותPostgreSQL עםACL/owner/drift. לא הוחלה. S2 המפורט עדיין ממתין לאישור; קבלת מנהל אמיתית לCP1 נותרה פתוחה.",
+    "verified_status": "S2ושתי זרועותexceptionב־admin_system_healthהוחלו באישור במיגרציות20261103175116/175126.8hashes,owner/ACLומדיניותהמנהלנשמרו;0טיוטותאנונימיות/3Forum/13approvedשפות.4מסלוליפרווימושפעיםעברו. תצוגתהבקרהמבחינהfailed/empty/staleומבודדתזהות; CP1מנהל אמיתי וחותם S2רחבעדייןפתוחים. egress6.10STALE; איןcollectorחדש/אפסמדומה.",
     "permissions": "מנהל/בעלים בשרת, failclosed",
     "parameters_anchors": "returnTo בטוח; בלי דליפת metadata",
     "acceptance": "אנונימי/חבר/admin;401/403/404 לפי חוזה",
-    "open_task": "C6",
+    "open_task": "CP1 genuine operator acceptance; remaining pre-cutover security classification/negative scope; not a full G4 seal",
     "treatment": "IMPLEMENTED_CONTROLLED_TESTED_ADMIN_ACCEPTANCE_OPEN",
     "exception_previous_checkpoint": {
       "verified_status": "אין להפוךכתובתאמיתיתלציבורית",
@@ -646,7 +660,12 @@
       "verified_status": "נעילות/הרשאות קיימות נשמרות. תוקן ControlPlane: נתון חסר/כשל אינו0. קבלת מנהל לתצוגות תפעול קריטיות עדיין פתוחה; S2 פתוח ונשמרה הצעת שרת מדויקת עם6 קבוצותPostgreSQLמבודדות, ללא החלה",
       "treatment": "IMPLEMENTED_NAMED_PRIVATE_STATE_REAL_ACCOUNT_OPEN"
     },
-    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
+    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "s2_signup_default_previous_checkpoint": {
+      "verified_status": "תצוגתCP1 מבודדת קריאות בריאות/וידאו/trace; כשל,ריק,מידע ישן ואפס נפרדים. החלפת זהות ובקשות מאוחרות נבדקו בבקר האמיתי. הצעתadmin_system_health משנה2זרועותכשל בלבד ונבדקה ב9קבוצותPostgreSQL עםACL/owner/drift. לא הוחלה. S2 המפורט עדיין ממתין לאישור; קבלת מנהל אמיתית לCP1 נותרה פתוחה.",
+      "open_task": "C6"
+    },
+    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
   },
   {
     "id": "F31",
