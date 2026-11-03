@@ -1,0 +1,22 @@
+{
+  "environment": "isolated PGlite PostgreSQL, synthetic data only",
+  "checks": [
+    "clean: twice-applied SQL preserves every existing row and historical consent; no consent invented",
+    "clean: anon Legacy general insert unchanged; scoped consent/timestamp spoof, select and update denied",
+    "clean: authenticated Legacy general insert unchanged; scoped consent/timestamp spoof, select and update denied",
+    "clean: server typed consent allowed; unknown/missing consent denied; general/opening cohorts excluded",
+    "clean: unchanged global suppression excludes site-updates",
+    "clean: old Edge shapes remain compatible after non-destructive rollback; new consent retained",
+    "existing: twice-applied SQL preserves every existing row and historical consent; no consent invented",
+    "existing: anon Legacy general insert unchanged; scoped consent/timestamp spoof, select and update denied",
+    "existing: authenticated Legacy general insert unchanged; scoped consent/timestamp spoof, select and update denied",
+    "existing: server typed consent allowed; unknown/missing consent denied; general/opening cohorts excluded",
+    "existing: unchanged global suppression excludes site-updates",
+    "existing: old Edge shapes remain compatible after non-destructive rollback; new consent retained"
+  ],
+  "passed": 12,
+  "failed": 0,
+  "liveWrites": 0,
+  "emailSent": false,
+  "migrationApplied": false
+}

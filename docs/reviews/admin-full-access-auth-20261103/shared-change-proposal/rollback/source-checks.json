@@ -1,0 +1,17 @@
+[
+  {
+    "path": "send-newsletter/index.ts",
+    "sha256": "4f31a0d61b79bad8c74b00b8bba25039ecb589f57456a18a7ca9b5d4d01c6531",
+    "equals_c8": true
+  },
+  {
+    "path": "newsletter-signup/index.ts",
+    "sha256": "dd8c98113dddcad128028171341785772b1c6c5e1417c0505ef7f9ed5fc68ab3",
+    "equals_c8": true
+  },
+  {
+    "path": "newsletter-signup/purpose.js",
+    "sha256": "6750fb82dfc29de4c73df21176581798e4562766cfd29cd6498ba958efe3cd32",
+    "equals_c8": true
+  }
+]

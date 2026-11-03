@@ -1,0 +1,21 @@
+{
+  "task": "PUBLIC_LAUNCH_ADMIN_FULL_ACCESS_AUTH_20261103",
+  "run_at": "2026-11-03T02:50:19.481Z",
+  "engine": "PGlite isolated PostgreSQL; synthetic data only",
+  "before_prosrc_md5": "8cbc40e56e8d8ce9869f70e09535a7e5",
+  "applied_live": false,
+  "checks": [
+    "old observed function reproduced implicit active newsletter signup",
+    "proposal applied twice idempotently on existing shape",
+    "all new Google/Facebook/email/Legacy fixture accounts get canonical user+profile, no newsletter/event, no privilege from metadata",
+    "historical subscribers and opening-only consent unchanged, unsubscribed address not reactivated, existing 35 credits untouched",
+    "existing SECURITY DEFINER and fixed search_path preserved",
+    "rollback twice restores old behavior only for future signup, no retrospective subscription or data deletion",
+    "proposal and rollback reject independently changed function"
+  ],
+  "limitations": [
+    "No full live auth signup or email sent",
+    "Shared change requires separate approval; affects implicit newsletter behavior for new Legacy accounts too",
+    "Existing explicit newsletter forms and delivery/suppression not changed by this proposal"
+  ]
+}
