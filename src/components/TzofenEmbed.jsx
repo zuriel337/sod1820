@@ -231,13 +231,23 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
     if (savedState?.verification?.state !== "MATCH") { postToTool({ type: "saved", ok: false }); if (native) completeNative({ ok: false, error: "verification_required" }); return; }
     try {
       let contextMatrix = nativeSavedRowRef.current || matrix;
+      if (native && contextMatrix?.id && contextMatrix.owner_user_id === user?.id
+        && contextMatrix.visibility === "private" && !contextMatrix.self_published && contextMatrix.status !== "published") {
+        const { getElsAccountMatrix } = await import("../lib/research/elsLexiconAccount.js");
+        contextMatrix = await getElsAccountMatrix(supabase, user.id, contextMatrix.id,
+          () => messageContextRef.current.user?.id === user.id);
+      }
       // Classic edit ids and route props are not proof of current access/visibility.
       // Resolve the saved row before rendering data can reach public Storage.
       const classicContexts = [];
       if (!native) {
         for (const id of new Set([matrix?.id, nativeSavedRowRef.current?.id].filter(Boolean))) {
-          const row = await getMatrixById(id);
+          let row = await getMatrixById(id);
           if (!row?.visibility) throw new Error("save_context_unavailable");
+          if (row.owner_user_id === user?.id && row.visibility === "private" && !row.self_published && row.status !== "published") {
+            const { getElsAccountMatrix } = await import("../lib/research/elsLexiconAccount.js");
+            row = await getElsAccountMatrix(supabase, user.id, id, () => messageContextRef.current.user?.id === user.id);
+          }
           classicContexts.push(row);
           if (id === contextMatrix?.id) contextMatrix = row;
         }
@@ -252,7 +262,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       const nativeOpenedEditId = native && matrix?.id && savedMatrixMatchesAxis(matrix, savedState)
         && matrix.owner_user_id === user?.id && matrix.visibility === "private"
         && !matrix.self_published && matrix.status !== "published" ? matrix.id : null;
-      const editId = native ? nativeOpenedEditId : (d.editId || (isReSave ? contextMatrix.id : null));
+      const editId = native ? (nativeOpenedEditId || (isReSave && contextMatrix.owner_user_id === user?.id && contextMatrix.positions?.lexiconScans?.length ? contextMatrix.id : null)) : (d.editId || (isReSave ? contextMatrix.id : null));
       let editMatrix = null;
       if (editId) {
         editMatrix = editId === contextMatrix?.id ? contextMatrix : await getMatrixById(editId);
@@ -284,11 +294,22 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
       // updates retain server ownership/publication checks and never downgrade
       // a failed private update into a new public submission.
       if (editId) {
-        const { error } = await supabase.rpc("update_els_matrix", {
-          p_id: editId, p_positions: positions,
-          p_image_url: imageUrl || null, p_description: d.desc || null,
-          p_engine_detail: engineDetail,
-        });
+        let error = null;
+        if (isAdmin && editMatrix?.owner_user_id === user?.id && editMatrix.visibility === "private"
+          && !editMatrix.self_published && editMatrix.status !== "published" && editMatrix.positions?.lexiconScans?.length) {
+          try {
+            const { compareAndSetElsAccountMatrix } = await import("../lib/research/elsLexiconAccount.js");
+            await compareAndSetElsAccountMatrix(supabase, user.id, editMatrix,
+              { positions, ...(imageUrl ? { image_url: imageUrl } : {}), ...(d.desc ? { description: d.desc } : {}), ...(engineDetail ? { engine_detail: engineDetail } : {}) },
+              () => messageContextRef.current.user?.id === user.id);
+          } catch (failure) { error = failure; }
+        } else {
+          ({ error } = await supabase.rpc("update_els_matrix", {
+            p_id: editId, p_positions: positions,
+            p_image_url: imageUrl || null, p_description: d.desc || null,
+            p_engine_detail: engineDetail,
+          }));
+        }
         if (!error) {
           postToTool({ type: "saved", ok: true, status: "updated" });
           if (native) {

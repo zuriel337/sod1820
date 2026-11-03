@@ -869,8 +869,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const cameraStageRef = useRef(null);
   const [cameraFullscreen, setCameraFullscreen] = useState(false);
   const [guidedMatrixOpen, setGuidedMatrixOpen] = useState(false);
-  const [lexiconVisited, setLexiconVisited] = useState(false);
-  const [researchToolsOpen, setResearchToolsOpen] = useState(false);
+  const [lexiconVisited, setLexiconVisited] = useState(() => new URLSearchParams(window.location.search).has("lexiconScan"));
+  const [researchToolsOpen, setResearchToolsOpen] = useState(() => new URLSearchParams(window.location.search).has("lexiconScan"));
   const [lexiconResponse, setLexiconResponse] = useState(null);
   useEffect(() => {
     const sync = () => setCameraFullscreen(document.fullscreenElement === cameraStageRef.current);

@@ -1,4 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useAuth } from "../../lib/AuthContext.jsx";
+import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
+import { supabase } from "../../lib/supabase.js";
+import { publicReadingActionsLocked } from "../../lib/publicReadingRelease2029.js";
+import { buildElsSavedScan, elsSavedScanLoad, elsSavedScanMatchesState } from "../../lib/research/elsLexiconSavedScan.js";
+import { listElsAccountScans, loadElsAccountScan, saveElsAccountScan } from "../../lib/research/elsLexiconAccount.js";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import { elsLexiconWindowKey, prepareElsLexiconFindings, ELS_LEXICON_PRESETS, expandElsLexiconPlan, filterElsForwardSource } from "../../lib/research/elsLexiconResearch.js";
 import { groupElsLexiconDiscoveries, ELS_DISCOVERY_GROUP_LABELS } from "../../lib/research/elsStructureInspection.js";
@@ -16,6 +22,25 @@ const sources = { canonical_tanakh_words: "מילות התנ״ך", maftech_core_
   hebrew_numeral_notation: "כתיב מספרי עברי", hebrew_year_notation: "כתיב שנה עברית" };
 
 export default function ElsLexiconResearch2029({ state, visible, busy, response, onRequest, onRestore, color, onFocus, onFindWords }) {
+  const { user, isAdmin } = useAuth();
+  const account = user?.id || null;
+  const allowed = !!account && isAdmin === true && !publicReadingActionsLocked(isAdmin);
+  const principal = useRef(null); principal.current = allowed ? account : null;
+  const mounted = useRef(true), cloudOperation = useRef(false), savedEntity = useRef(null);
+  const [archive, setArchive] = useState({ owner: null, rows: [], error: false });
+  const [cloudBusy, setCloudBusy] = useState(false);
+  const [restoredScan, setRestoredScan] = useState(null);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const owns = owner => mounted.current && principal.current === owner && !!owner;
+  const refreshArchive = async owner => {
+    try {
+      const rows = await listElsAccountScans(supabase, owner, () => owns(owner));
+      if (owns(owner)) setArchive({ owner, rows, error: false });
+    } catch { if (owns(owner)) setArchive({ owner, rows: [], error: true }); }
+  };
+  useEffect(() => {
+    if (allowed && visible) void refreshArchive(account);
+  }, [account, allowed, visible]);
   const [run, setRun] = useState(null), [result, setResult] = useState(null), [notice, setNotice] = useState("");
   const [page, setPage] = useState(0), [kind, setKind] = useState("groups"), [groupType, setGroupType] = useState("all");
   const [inspectionVisited, setInspectionVisited] = useState(false);
@@ -48,7 +73,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     if (response.pending) { setRun(current => ({ ...current, progress: response })); return; }
     const runKey = active.current.key; active.current = null; setRun(null);
     if (!response.ok) { setNotice(errors[response.reason] || errors["scan-failed"]); return; }
-    setResult({ key: runKey, state, data: response }); setPage(0); setNotice("");
+    savedEntity.current = null; setRestoredScan(null); setResult({ key: runKey, state, data: response }); setPage(0); setNotice("");
     if (["language", "numbers"].includes(response.plan?.mode)) setKind("els");
   }, [response, key]);
   const startPlan = selectedPlan => {
@@ -66,12 +91,59 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     if (field === "maxLength" && next.minLength > next.maxLength) next.minLength = next.maxLength;
     return next;
   });
-  const data = result?.data, current = result?.key === key && !!key;
+  const restoredCurrent = restoredScan && elsSavedScanMatchesState(restoredScan, state);
+  const data = result?.data, current = !!key && (restoredScan ? restoredCurrent : result?.key === key);
+  const saveScan = async () => {
+    if (!allowed || !current || cloudOperation.current || run || busy) return;
+    const owner = account;
+    const signature = JSON.stringify([data, state?.findings, state?.ui, state?.geometry]);
+    const entity = savedEntity.current?.signature === signature ? savedEntity.current.entity : buildElsSavedScan(state, data);
+    if (!entity) { setNotice("לא ניתן לשמור את הסריקה: הנתונים אינם שלמים או גדולים מהמגבלה."); return; }
+    savedEntity.current = { entity, signature }; cloudOperation.current = true; setCloudBusy(true);
+    setNotice("שומר את הסריקה בחשבון…");
+    try {
+      await saveElsAccountScan(supabase, owner, entity, () => owns(owner));
+      if (owns(owner)) { setNotice("הסריקה נשמרה בחשבון. אין עותק קבוע במכשיר."); await refreshArchive(owner); }
+    } catch (error) {
+      if (owns(owner)) setNotice(error.message === "save_matrix_first"
+        ? "שמרו תחילה את הצופן בחשבון באמצעות כלי השמירה, ואז שמרו את הסריקה."
+        : error.message === "scan_save_conflict" ? "הממצא השתנה בזמן השמירה. הסריקה לא אושרה כשמורה; נסו שוב אחרי רענון."
+        : error.message === "archive_full" ? "ארכיון הסריקות בממצא מלא. לא נשמרה סריקה נוספת."
+        : "שמירת הסריקה בחשבון לא אושרה. אין שמירה חלופית במכשיר.");
+    } finally { cloudOperation.current = false; if (owns(owner)) setCloudBusy(false); }
+  };
+  const openScan = async (recordId, scanId) => {
+    if (!allowed || cloudOperation.current || run || busy) return;
+    const owner = account; cloudOperation.current = true; setCloudBusy(true);
+    try {
+      const scan = await loadElsAccountScan(supabase, owner, recordId, scanId, () => owns(owner));
+      const load = elsSavedScanLoad(scan);
+      if (!load) throw new Error("scan_invalid");
+      if (!owns(owner)) return;
+      savedEntity.current = null; setRestoredScan(scan);
+      setPlan(scan.data.plan); setResult({ key: null, state: null, data: scan.data }); setPage(0); setKind("els");
+      setNotice("הסריקה נטענה מהחשבון. המטריצה נשלחה לאימות מחדש; הקריאות השמורות הן מועמדות לבדיקה.");
+      onRestore?.(load);
+    } catch { if (owns(owner)) setNotice("לא ניתן לפתוח את הסריקה מהחשבון. אין עותק חלופי במכשיר."); }
+    finally { cloudOperation.current = false; if (owns(owner)) setCloudBusy(false); }
+  };
+  const requestedArchive = useRef(null);
+  useEffect(() => {
+    if (!allowed || archive.owner !== account) return;
+    const params = new URLSearchParams(window.location.search), scanId = params.get("lexiconScan"), recordId = params.get("scanRecord");
+    if (!scanId || !recordId || requestedArchive.current === `${account}:${recordId}:${scanId}`) return;
+    if (!archive.rows.some(r => r.recordId === recordId && r.id === scanId)) return;
+    requestedArchive.current = `${account}:${recordId}:${scanId}`;
+    void openScan(recordId, scanId);
+  }, [archive, account, allowed]);
+  // Structural grouping uses one real verified state per window, not every UI tick.
+  const groupingState = useMemo(() => restoredScan ? restoredCurrent ? state : null : result?.state,
+    [restoredScan, restoredCurrent, key, result]);
   const presented = useMemo(() => {
     if (!result) return null;
     const items = filterElsForwardSource(result.data.items, hideForwardSource);
-    return { items, structures: groupElsLexiconDiscoveries(result.state, { ...result.data, items }, result.data.plan) };
-  }, [result, hideForwardSource]);
+    return { items, structures: groupElsLexiconDiscoveries(groupingState, { ...result.data, items }, result.data.plan) };
+  }, [result, hideForwardSource, groupingState]);
   const structures = presented?.structures;
   const groups = structures?.groups || [];
   const rows = kind === "groups" ? groups.filter(group => groupType === "all" || group.types.includes(groupType))
@@ -91,6 +163,19 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
   return <section hidden={!visible} className="els29-lexicon-research" aria-label="גילוי וקשרים במטריצה">
     <h3>גילוי וקשרים במטריצה</h3>
     <p>גלו מילים וקשרים בחלון הנוכחי, ובחרו קבוצה לבדיקה ולסימון על אותה מטריצה. ללא AI.</p>
+    <details><summary>סריקות שמורות בחשבון</summary>
+      <p>תוצאות הסריקה נשמרות בתוך הצופן הפרטי בחשבון. פתיחה מחדש טוענת מהשרת ושולחת את המטריצה לאימות. אין שמירה קבועה במכשיר.</p>
+      {!allowed ? <p>נדרשים חשבון מנהל והרשאה פעילה לכלי המחקר בגרסה זו.</p> : <>
+        <button type="button" disabled={cloudBusy} onClick={() => refreshArchive(account)}>רענן מהחשבון</button>
+        {archive.owner === account && archive.error ? <p role="alert">לא ניתן לטעון את הסריקות מהחשבון.</p> : null}
+        {archive.owner === account && !archive.error && !archive.rows.length ? <p>לא נמצאו סריקות שמורות בחשבון בחלון הרשומות שנבדק.</p> : null}
+        <ul>{(archive.owner === account ? archive.rows : []).map(row => <li key={`${row.recordId}:${row.id}`}>
+          <button type="button" disabled={cloudBusy || !!run || busy} onClick={() => openScan(row.recordId, row.id)}>{row.title || "סריקה שמורה"} · {bilingualDateLabel(row.savedAt)}</button>
+          <a href={`/code?mode=research&scanRecord=${encodeURIComponent(row.recordId)}&lexiconScan=${encodeURIComponent(row.id)}`}>פתח בעמוד</a>
+        </li>)}</ul>
+        <small>מוצגות סריקות מתוך עד 100 רשומות צופן פרטיות שיש בהן סריקות שמורות.</small>
+      </>}
+    </details>
     <label>מה לגלות?<select aria-label="מסלול הגילוי" disabled={!!run} value={numericPlan ? "numbers" : languagePlan ? "language" : "words"}
       onChange={event => setPlan(current => event.target.value === "numbers"
         ? { ...current, mode: "numbers", minLength: 4, maxLength: 15, ...elsNumericPlan(current) }
@@ -148,8 +233,9 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     </div>
     {run ? <CanonicalProgress compact title={numericPlan ? "סריקת מספרים ושנים" : languagePlan ? "בדיקת ביטויים" : "סריקה מילונית"} phase={run.progress?.phase === "scan" ? "בודק קווים בחלון" : "טוען ומאמת את אוצר הלשון"}
       current={run.progress?.coverage?.completedRays ?? null} total={run.progress?.coverage?.totalRays ?? null} onCancel={() => cancel()} /> : null}
-    <p role="status">{notice || (!key ? "בחרו מופע מאומת לפני סריקה." : !data ? "הסריקה מתחילה רק בלחיצה. התוצאות זמניות בעמוד זה; מעבר מצב עוצר סריקה פעילה." : "")}</p>
+    <p role="status">{notice || (!key ? "בחרו מופע מאומת לפני סריקה." : !data ? "הסריקה מתחילה רק בלחיצה. התוצאות נשארות בעמוד עד לשמירתן בחשבון; מעבר מצב עוצר סריקה פעילה." : "")}</p>
     {data ? <div aria-label="תוצאות הסריקה המילונית">
+        <div className="els29-discovery-actions"><button type="button" disabled={!allowed || !current || cloudBusy || !!run || busy} onClick={saveScan}>{cloudBusy ? "פועל מול החשבון…" : "שמור סריקה בחשבון"}</button></div>
       {data.axisNumericReadings?.length ? <div aria-label="קריאות מספריות בציר הנבחר">
         <p>קריאות מוצעות בציר הנבחר; הציר נשמר ואינו נספר כממצא חדש:</p>
         {data.axisNumericReadings.map((reading, index) => <p key={index}><bdi>{reading.label}</bdi> · {reading.value}{reading.kind === "hebrew-year" ? " (שנה עברית)" : " (ערך החלק המספרי)"}</p>)}
@@ -168,7 +254,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
         {data.plan?.mode === "numbers" ? <p>קריאה מספרית מוצעת · מספרים {data.plan.numberMin}–{data.plan.numberMax} · שנים {data.plan.yearMin}–{data.plan.yearMax}. הכיסוי מתייחס לחלון שנבדק; אין קביעה על דילוג מינימלי בכל התורה או על משמעות המספר.</p> : null}
         {data.plan ? <p>בוצע: <bdi>{data.plan.minLength}–{data.plan.maxLength}</bdi> אותיות, עד {data.plan.maxDistance} תאים מהציר, לפחות {data.plan.minMembers} מופעים בקבוצה.</p> : null}
         {hideForwardSource ? <p>הקבוצות נבנו מחדש מהקריאות שנותרו; הסינון אינו משלים התאמות שלא נשמרו בגלל תקרת הסריקה.</p> : null}
-        <p>התחלת הציר: <bdi>{data.origin.start}</bdi>. {data.coverage.completedRays}/{data.coverage.totalRays} קווים · {data.coverage.windows} רצפים נבדקו. התוצאות זמניות בעמוד זה ולא נשמרות ברענון.</p>
+      <p>התחלת הציר: <bdi>{data.origin.start}</bdi>. {data.coverage.completedRays}/{data.coverage.totalRays} קווים · {data.coverage.windows} רצפים נבדקו. כדי לחזור לתוצאות אחרי רענון, שמרו את הצופן ואת הסריקה בחשבון. השמירה אינה מרחיבה את הכיסוי שנבדק.</p>
         <p>הסריקה מצאה התאמות לאותיות, לא דירוג של משמעות או נדירות. חלקי הציר ({data.coverage.axisFragments}) לא נספרו כממצאים חדשים.</p>
         <p>{groups.length} קבוצות מוצגות מתוך {structures?.totalGroups ?? 0} שנבנו מאותן מילים. קשרים מבניים מוצגים לפני אשכולות של קרבה בלבד; בתוך כל סוג — קרבה לציר ואז מספר המופעים. זה סדר תצוגה, לא ציון חוזק.</p>
         <p>אוצר: מילות התנ״ך ומילון הליבה, {data.lexicon.entryCount} ערכים. התאמה מדויקת לאחר נרמול אותיות סופיות; אין השלמת אותיות.</p>
