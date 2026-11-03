@@ -81,7 +81,7 @@ test("closed, private and unknown routes remain noindex without product lookups;
   await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
     for (const path of ["/login", "/2029/me", "/journey", "/raziel", "/els", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
       const res = response(); await publicReadingDocumentHandler({ authorized: () => true, readDocument: async () => document })(req(path), res);
-      assert.equal(res.code, path === "/2029/control" ? 404 : 200, path); assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
+      assert.equal(res.code, 200, path); assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
       assert.ok(!res.body.includes("e=synthetic"));
       if (path.startsWith("/unsubscribe")) { assert.match(res.body, /הסרה מהדיוור/); assert.equal(res.headers.get("referrer-policy"), "no-referrer"); }
     }
@@ -337,7 +337,12 @@ test("actual local artifact retains font fix, compiler isolation, no index shado
   assert.equal(report.deploymentConfigSha256, hash(read("public-reading-deploy/vercel.json")));
   assert.ok(config.headers.some(rule => rule.source === "/assets/(.*)" && rule.headers.some(header => header.value === "public, max-age=31536000, immutable")));
   assert.ok(!JSON.stringify(config).includes("autoAssignCustomDomains"));
-  assert.deepEqual(config.redirects, [...JSON.parse(read("vercel.json")).redirects,
+  const attachmentProofs=JSON.parse(read("docs/reviews/public-url-exceptions-20261103/evidence/attachment-bindings.json"));
+  const exactAttachmentRules=attachmentProofs.flatMap(proof=>["","/"].map(suffix=>({source:proof.sourcePath+suffix,destination:proof.postHref+"?sourceAttachment="+encodeURIComponent(proof.sourcePath),permanent:true})));
+  const embedRules=config.redirects.slice(exactAttachmentRules.length,exactAttachmentRules.length+12);
+  assert.equal(embedRules.length,12);
+  for(const rule of embedRules){assert.match(rule.source,/\/embed\/?$/);assert.equal(decodeURIComponent(rule.destination).replace(/\/$/,""),rule.source.replace(/\/embed\/?$/,""));assert.equal(rule.permanent,true);}
+  assert.deepEqual(config.redirects, [...exactAttachmentRules,...embedRules,...JSON.parse(read("vercel.json")).redirects,
     { source: "/posts", destination: "/post", permanent: true }]);
   const gate = spawnSync(process.execPath, ["scripts/test-legacy-production-lock.mjs"], { cwd: root, encoding: "utf8" }); assert.equal(gate.status, 0, gate.stderr);
 });

@@ -1,4 +1,5 @@
 import { readFile } from "node:fs/promises";
+import deploymentConfig from "../vercel.json" with { type: "json" };
 import ogHandler from "../../api/og.js";
 import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation } from "../../src/lib/publicReadingRelease2029.js";
 import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, deploymentAuthorized } from "../authorization.js";
@@ -8,6 +9,18 @@ export function requestOrigin(req) {
   if (typeof host !== "string" || !publicReadingOriginAllowed(`https://${host}`)) return null;
   if (req.headers?.["x-forwarded-proto"] && req.headers["x-forwarded-proto"] !== "https") return null;
   return `https://${host}`;
+}
+
+// The existing deployment table is also matched at the document boundary:
+// platform literal matching does not decode historical percent-encoded slugs.
+// No second address registry and no inferred child/parent mapping.
+export function sourceDocumentContinuation(path, search = "") {
+  const normalized = value => { try { return decodeURIComponent(value).replace(/\/+$/, ""); } catch { return null; } };
+  const key = normalized(path);
+  const rule = deploymentConfig.redirects.find(row =>
+    (row.destination.includes("?sourceAttachment=") || /\/embed\/?$/.test(row.source))
+    && normalized(row.source) === key);
+  return rule ? rule.destination + (search ? (rule.destination.includes("?") ? "&" : "?") + search.replace(/^\?/, "") : "") : null;
 }
 
 export function mergeProductionDocumentMetadata(document, metadata, { noindex = false } = {}) {
@@ -61,9 +74,10 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
     }
     try {
       const search = originalDocument ? original.search : new URLSearchParams(Object.entries(req.query || {}).filter(([key]) => key !== "path")).toString();
-      const continuation = publicReadingContinuation(path, search);
+      const continuation = sourceDocumentContinuation(path, search) || publicReadingContinuation(path, search);
       if (continuation) {
-        res.setHeader("Location", continuation);
+        const target = new URL(continuation, origin);
+        res.setHeader("Location", target.pathname + target.search + target.hash);
         return res.status(308).send("");
       }
       const state = publicReadingPath(path, { search });

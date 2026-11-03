@@ -45,6 +45,15 @@ test('known route continuations retain query multiplicity and fragments; unknown
  for(const p of ['/editor','/research-viewer','/2029/control','/צור-קשר/תרומות-donate','/sulamot11'])assert.equal(publicReadingPath(p),'closed');
 });
 
+test('real document fallback matches encoded literal source paths and emits header-safe Unicode targets with exact repeated query bytes',async()=>{
+ await isolated(()=>{throw Error('redirect must not read data');},async()=>{
+  const proof=JSON.parse(readFileSync(new URL('../docs/reviews/public-url-exceptions-20261103/evidence/attachment-bindings.json',import.meta.url)))[0];
+  const r=await request(proof.sourceUrl+'?ref=a&ref=b&encoded=%2f%2F+%20');assert.equal(r.code,308);
+  const u=new URL(r.headers.get('location'),'https://sod1820.co.il');assert.equal(u.searchParams.get('sourceAttachment'),proof.sourcePath);assert.deepEqual(u.searchParams.getAll('ref'),['a','b']);assert.ok(u.search.endsWith('&encoded=%2f%2F+%20'));assert.match(r.headers.get('location'),/^[\x20-\x7e]+$/);
+  const c=await request('/category/'+encodeURIComponent('סוד-האותיות')+'/'+encodeURIComponent('גלריות-גימטריה')+'/?page=1');assert.equal(c.code,308);assert.equal(new URL(c.headers.get('location'),'https://sod1820.co.il').pathname,'/category/'+encodeURIComponent('גלריות-גימטריה'));
+ });
+});
+
 test('missing historical bytes and private cache paths never masquerade as successful HTML media',async()=>{
  await isolated(()=>{throw Error('must not call a reader');},async()=>{
   for(const p of ['/audio/m/1.wav','/audio/246.wav','/data/user/0/app/cache/image.jpg','/wp-content/plugins/gallery-images/style/spinner.gif']){const r=await request(p);assert.equal(r.code,404);assert.match(r.headers.get('content-type'),/^text\/plain/);}
