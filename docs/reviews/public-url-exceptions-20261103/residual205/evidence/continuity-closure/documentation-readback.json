@@ -1,0 +1,28 @@
+{
+  "sameTransitionRows": 36,
+  "jsonCsvMarkdownAgree": true,
+  "frozenInventoryAndLegacyBookInputsUnchanged": [
+    "vercel.json",
+    "src/App.jsx",
+    "src/lib/publicLaunch2029.js",
+    "scripts/test-legacy-production-lock.mjs",
+    "public/sw.js",
+    "public/site.webmanifest",
+    "public/book-data/books.preparation.json",
+    "docs/reviews/url-continuity-plan-20261103/url-inventory.json",
+    "docs/reviews/url-continuity-plan-20261103/db-census.json",
+    "docs/reviews/public-url-exceptions-20261103/evidence/attachment-bindings.json"
+  ],
+  "reconciliation": {
+    "invalid": 5,
+    "resolved": 2357,
+    "intentionally_closed": 52,
+    "deferred_post_launch": 195
+  },
+  "doc37PreservedPrefixMd5": "6e4b316e6f5f7cef8a6c642e1e118060",
+  "doc37AfterMd5": "5b57cc7bc9a1286e7ea6f59657f646c0",
+  "oldOpenSnapshotsMarkedHistorical": true,
+  "contractsChanged": false,
+  "runtimeSha": "76cf61e6689acbfbf8e314417dbd607e7e7cef3e",
+  "latestRealAccountAcceptance": "ACCEPTED_USER_REPORTED_ON_7360; both owned accounts, all listed basic operations"
+}

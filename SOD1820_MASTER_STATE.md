@@ -1,5 +1,14 @@
 # SOD1820 — MASTER STATE v3 COMPACT
 
+**עדכון נוכחי 12.35 · 3.11.2026 · ענף ופריוויו בלבד:**
+[מסירת ההמשכיות](docs/reviews/public-url-exceptions-20261103/residual205/continuity-closure-20261103.md), BEFORE `07df5ea9` ותוספות `ee6e6b41`/`cddffd60`. המוצר ממשיך את `7360f1d8` ב־`76cf61e6`: עברו 26 בדיקות פריוויו מוגן, 107 בדיקות ממוקדות ובניות Legacy ו־2029. באותו מכנה של 2,609 חריגים: 2,357 טופלו, 52 סגורים במכוון, 5 אינם תקינים ו־195 נדחו לשחזור באישור צוריאל. אין הכרעת זהות פתוחה בתוך הקבוצה; אין בכך קבלת HTTP מלאה לכל מלאי האתר.
+
+הפורום המוכח ממשיך לצ׳אט. שלושה דפי הרצאות היסטוריים שוחזרו בכתובותיהם, עם תאריכי המקור וקישורים מאומתים. המשתמש אישר שכל פעולות הכניסה, השמורים, השמירה, העריכה, הרענון והחלפת החשבון עברו בשני חשבונותיו בפריוויו `7360`. שינויי החזרה, בחירת Session קנוני וקריאת מצב WhatsApp נבדקו בנפרד בסביבה מבודדת; לא הופעלו OTP, משלוח, מודלים או קרדיטים.
+
+S2 נשאר פתוח: [הצעת שרת משותף](docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/README.md) מוכנה ונבדקה ב־PostgreSQL מבודד, אך לא אושרה ולא הוחלה. קבלת CP1 תפעולי, עדכניות גיבוי המסד וכיסוי המדיה, קבלת יחידות המעבר בתצורת הפרסום והפעלת Production/חזרה נשארות נפרדות. H1 ו־G3 תקפים; שינויי Auth ודיוור `b21ed1ff` נשארים בהמתנה. אין חותם Isolation או G4 מלא ואין מעבר לחי.
+
+**החלפת סטטוס מוגבלת:** עדכוני12.34/12.33 וספירת197 להלן הם צילומי זמן היסטוריים. מצב OPEN לפעולות החשבון המפורטות וההמלצה לדחיית195 הוחלפו רק כפי שנקבע לעיל; יתר התנאים נשארו בתוקף.
+
 **עדכון ממוקד12.34 · 3.11 — מועמדb80 ממשיך, ללא מעבר לחי:**
 [ראיות205 ושימור הספרים](docs/reviews/public-url-exceptions-20261103/residual205/README.md), BEFORE1db8d430. אותו מכנה2609:2355 נפתרו לפי זהות/מסלול,52 סגורים,5 לא תקינים,197 ממתינים. 193שמע+2קישורים הם כשלים קיימים שמומלץ לדחות במפורש;ForumPost ואינדקס הרצאות דורשים המשך/הכרעה לפני פטור. אין כיסוי מלא. מסירת הספרים23e03e82 כלולה; תוקן חיבור הכרטיסים/המדים וקריאת אהבת תורה, ללא ייבוא חוזר. משתמש דיווח עלDMאמיתי תקין; יתר קבלת החשבונות ו־WhatsAppעדיין פתוחים לפי הפירוט. גיבויGit3.11 הוא קודmain בלבד;H1ההיסטורי תקף, עדכניות מסד ומדיה נפרדות. S2/CP1,מבקר חוזר והפעלה/חזרה נשמרים; b21ed1ff בהמתנה. אין סגירתG4 או אישורProduction.
 
@@ -36,7 +45,7 @@ Product73dc continues on `gpt/2029-personal-continuity-glass-number-20261103`,
 runtime7937f084, continued by worker-control fixffdaf3e4 and accepted glass/number runtimec023fd6f. The existing personal area now admits verified ordinary accounts
 and admins to owned saves/edits/notebook/profile APIs, independently of model,
 credit or marketing activation. Controlled two-account browser acceptance passed;
-ZURIEL initially deferred genuine login; he now reports a successful real-account DM and generally correct UI on b80. Full two-account save/edit/refresh/switch acceptance remains OPEN, as do social/signup, Legacy-session migration and existing S2/CP1/
+ZURIEL initially deferred genuine login; he now reports a successful real-account DM and generally correct UI on b80. Historical checkpoint superseded by§12.35: the user accepted both accounts on7360; social/signup, final canonical migration acceptance and S2/CP1/ remain separately open. Prior snapshot:
 backup-media/activation gates. Shared proposal b21ed1ff remains HELD_BY_USER.
 [Exact evidence/status](docs/reviews/personal-continuity-glass-number-20261103/README.md);
 coordination BEFORE1498dc11/addendum8e9d4b7c. Mobile glass/hidden-cross/PWA brand
