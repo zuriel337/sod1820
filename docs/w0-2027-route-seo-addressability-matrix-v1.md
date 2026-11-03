@@ -414,3 +414,11 @@ is explicit and separate. [Evidence and real-account limits](reviews/personal-co
 The two requested real accounts still require user login acceptance; no private
 content was copied into public evidence. Social/signup and held shared proposal
 b21ed1ff remain open/held. No new inventory, public identity, route schema or cutover.
+
+### 8.5 Frozen205 live review and adopted books · 3 November 2026
+
+[Focused continuation](reviews/public-url-exceptions-20261103/residual205/README.md), BEFORE1db8d430.
+All205 originals now have live HTTP/source review in the existing reconciliation:2355 resolved by exact identity/route,52 intentionally closed,5 invalid,197 pending.
+193 audio paths already return HTML on Legacy;2 named links already404. Recovery/explicit deferral remains open. One exact public ForumPost and the historical lecture-index page need a valid continuation/decision; denied browser access is not deletion evidence. Three exact Facebook source links do not prove playback.
+Book23e03e82 is already an ancestor of b80; no reimport. Adopted cards/meters and Ahavat's source-bound prototype are reused; other unfinished public books stay closed. Seven anonymous active identities do not imply an eighth static preparation record is published.
+The user reports a successful real-account DM on b80; full save/edit/switch acceptance remains per-action open. WhatsApp stored consent is distinct from verified phone binding/delivery, whose2029 connection is not accepted. Sharedb21 remains held. Prior§8.3/8.4 are dated checkpoints superseded only for these facts; inventory/routes/P0 and G3/H1 unchanged. No cutover/G4 completion.

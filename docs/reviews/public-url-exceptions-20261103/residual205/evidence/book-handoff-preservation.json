@@ -91,5 +91,29 @@
     }
   ],
   "identicalAtBase": 13,
-  "action": "No branch imported; restore adopted cards/meters and Ahavat entry in existing public consumer only"
+  "action": "No branch imported; restore adopted cards/meters and Ahavat entry in existing public consumer only",
+  "priorBranch": {
+    "branch": "codex/ahavat-responsive-library-readiness-20261031",
+    "remoteSha": "1a07b6843e8a539d3a79c2943bb59c3dc992af90",
+    "alreadyIncluded": true
+  },
+  "separateSpatialHandoff": {
+    "sha": "b352aa399fb15cde22788ef5ec6a81b6bc940d6a",
+    "alreadyAncestorOfProductBase": true,
+    "bookContractFiles": [
+      {
+        "path": "docs/2029-books-hebrew-presentation-contract-v1.md",
+        "sameAtCurrentProduct": true
+      },
+      {
+        "path": "docs/reviews/books-spatial-experience-binding-contract-20261027.json",
+        "sameAtCurrentProduct": true
+      },
+      {
+        "path": "docs/reviews/books-spatial-experience-binding-contract-20261027.md",
+        "sameAtCurrentProduct": true
+      }
+    ],
+    "limitation": "Included contract provenance is not full spatial reader acceptance; no contract edited by this task"
+  }
 }

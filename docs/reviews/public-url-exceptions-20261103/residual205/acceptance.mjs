@@ -14,7 +14,7 @@ const report={kind:'residual205-books-hosted-anonymous-acceptance',sourceSha:con
 const flush=()=>writeFile(out+'/receipt.json',JSON.stringify(report,null,2)+'\n');
 const safeError=e=>String(e.message||e).replaceAll(config.shareUrl||'PRIVATE_NON_MATCH','[private grant]').replace(/_vercel_share=[^\s"'&]+/g,'_vercel_share=[redacted]').slice(0,1400);
 let page;
-async function run(name,width,fn){const row={name,width,passed:false};report.cases.push(row);try{await fn(row);row.passed=true;}catch(e){row.error=safeError(e);if(page){row.path=new URL(page.url()).pathname;row.body=(await page.locator('body').innerText()).slice(0,800);await page.screenshot({path:out+'/failure-'+report.cases.length+'.png'}).catch(()=>{});}}await flush();console.log(JSON.stringify(row));}
+async function run(name,width,fn){if(process.env.RESIDUAL_ONLY&&!new RegExp(process.env.RESIDUAL_ONLY).test(name))return;const row={name,width,passed:false};report.cases.push(row);try{await fn(row);row.passed=true;}catch(e){row.error=safeError(e);if(page){row.path=new URL(page.url()).pathname;row.body=(await page.locator('body').innerText()).slice(0,800);await page.screenshot({path:out+'/failure-'+report.cases.length+'.png'}).catch(()=>{});}}await flush();console.log(JSON.stringify(row));}
 const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,...(process.env.HTTPS_PROXY?{proxy:{server:process.env.HTTPS_PROXY,bypass:'127.0.0.1,localhost'}}:{}),args:['--no-sandbox','--disable-dev-shm-usage']});
 try{for(const width of [390,1440]){
  const context=await browser.newContext({viewport:{width,height:900},locale:'he-IL',reducedMotion:'reduce'});

@@ -1,6 +1,9 @@
 # SOD1820 — MASTER STATE v3 COMPACT
 
-**עדכון חריגי כתובות · 3.11 — המשך6c140d82 (Preview בלבד):**
+**עדכון ממוקד12.34 · 3.11 — מועמדb80 ממשיך, ללא מעבר לחי:**
+[ראיות205 ושימור הספרים](docs/reviews/public-url-exceptions-20261103/residual205/README.md), BEFORE1db8d430. אותו מכנה2609:2355 נפתרו לפי זהות/מסלול,52 סגורים,5 לא תקינים,197 ממתינים. 193שמע+2קישורים הם כשלים קיימים שמומלץ לדחות במפורש;ForumPost ואינדקס הרצאות דורשים המשך/הכרעה לפני פטור. אין כיסוי מלא. מסירת הספרים23e03e82 כלולה; תוקן חיבור הכרטיסים/המדים וקריאת אהבת תורה, ללא ייבוא חוזר. משתמש דיווח עלDMאמיתי תקין; יתר קבלת החשבונות ו־WhatsAppעדיין פתוחים לפי הפירוט. גיבויGit3.11 הוא קודmain בלבד;H1ההיסטורי תקף, עדכניות מסד ומדיה נפרדות. S2/CP1,מבקר חוזר והפעלה/חזרה נשמרים; b21ed1ff בהמתנה. אין סגירתG4 או אישורProduction.
+
+**צילום קבלה קודם12.32 — הוחלף בבירור205 העדכני שלהלן/לעיל; Preview בלבד:**
 [קבלה לפי כתובת מקור וסיבת חריגה](docs/reviews/public-url-exceptions-20261103/README.md).
 מכנה469+2140 נשמר במלואו: **2352 נפתרו לפי ראיה מדויקת;48 סגורים במכוון;
 4 לא תקינים;205 חסרי ראיית מקור** (193 שמע,8 זהויות פוסט,3 סרטונים חיצוניים
@@ -33,8 +36,7 @@ Product73dc continues on `gpt/2029-personal-continuity-glass-number-20261103`,
 runtime7937f084, continued by worker-control fixffdaf3e4 and accepted glass/number runtimec023fd6f. The existing personal area now admits verified ordinary accounts
 and admins to owned saves/edits/notebook/profile APIs, independently of model,
 credit or marketing activation. Controlled two-account browser acceptance passed;
-ZURIEL deferred genuine login to the two existing accounts. That release gate
-remains OPEN, as do social/signup, Legacy-session migration and existing S2/CP1/
+ZURIEL initially deferred genuine login; he now reports a successful real-account DM and generally correct UI on b80. Full two-account save/edit/refresh/switch acceptance remains OPEN, as do social/signup, Legacy-session migration and existing S2/CP1/
 backup-media/activation gates. Shared proposal b21ed1ff remains HELD_BY_USER.
 [Exact evidence/status](docs/reviews/personal-continuity-glass-number-20261103/README.md);
 coordination BEFORE1498dc11/addendum8e9d4b7c. Mobile glass/hidden-cross/PWA brand

@@ -22,7 +22,7 @@
     "evidence": "publicPostUrls.js:5–49; db-census posts1307",
     "meaning": "פוסט מסוים",
     "target_2029": "אותה כתובת לפי publicPostHref",
-    "verified_status": "במכנה בירור2140: 2095 כתובות מזהות1306 פוסטים לפי slug/ID/כתובת מקור; 8 כתובות ללא התאמה ציבורית נשארות פתוחות. 37 האחרות הן נתיבים/תבניות, לא פוסטים. אין טענת HTTP לכל פוסט",
+    "verified_status": "2095 זהויות המקור הקודמות נשמרו. מתוך8 החריגים:4 טיוטות מוגבלות,2 כתובות404 קיימות ללא זהות,1 רשומתForumPost ציבורית הדורשת המשך ו־1 לשוניתimage לא פעילה. אין פרסום או ניחוש לפי כותרת; מדיניות הכתובות נשמרת",
     "permissions": "ציבור רק לאחר publicPostBoundary",
     "parameters_anchors": "מזהה WP, קידוד, כל query חוזר, hash, scroll",
     "acceptance": "כל 1307 זהויות דרך המתאם; דוגמת ישן/חדש/WP/טיוטה; לא שינוי גורף",
@@ -31,7 +31,11 @@
     "exception_previous_checkpoint": {
       "verified_status": "מנגנון התקבל; 1177 Legacy/130 חדשים לפי נתוני המקור"
     },
-    "exception_evidence": "../public-url-exceptions-20261103/README.md"
+    "exception_evidence": "../public-url-exceptions-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "במכנה בירור2140: 2095 כתובות מזהות1306 פוסטים לפי slug/ID/כתובת מקור; 8 כתובות ללא התאמה ציבורית נשארות פתוחות. 37 האחרות הן נתיבים/תבניות, לא פוסטים. אין טענת HTTP לכל פוסט"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md"
   },
   {
     "id": "F02",
@@ -200,7 +204,7 @@
     "evidence": "App.jsx:393,424,429; sitemap forum rows",
     "meaning": "פורום/שרשור/תגובת פוסט; לא כולם אותו מאגר",
     "target_2029": "/forum[/id] מצב ייעודי; /community/comments?p=wp_id → קישור לפוסט המדויק",
-    "verified_status": "הפורום אינו פורסם מחדש: רק קיום פריט מאושר; פרטי/לא קיים404. תגובות מפנות לפוסט ציבורי. פעולות הפורום עדיין פתוחות לקבלה",
+    "verified_status": "המשךUUIDהקיים נשמר; פרטי/לא קיים404. בבירור205 נמצאה כתובתForumPost ציבורית אחת ממאגרPosts, שאינה אותו research_contribution; המשך הקריאה באותה זהות עדיין חסם בירור, בלי החלשתP0-A",
     "permissions": "הרשאת שרת; סיסמת JS אינה הרשאה",
     "parameters_anchors": "id,parent,reply,comment anchor,page",
     "acceptance": "תוכן וזהות שרשור; תגובה על פוסט חוזרת לפוסט; פרטיות",
@@ -211,7 +215,11 @@
       "verified_status": "אין יעד 2029 שלם; תגובות WP אינן ציבוריות אוטומטית",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
     },
-    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "הפורום אינו פורסם מחדש: רק קיום פריט מאושר; פרטי/לא קיים404. תגובות מפנות לפוסט ציבורי. פעולות הפורום עדיין פתוחות לקבלה"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md"
   },
   {
     "id": "F11",
@@ -416,18 +424,23 @@
     "evidence": "App2029:315–317; existingBooks; XML",
     "meaning": "קריאת ספר ציבורי לעומת מערכת מחקר",
     "target_2029": "/books; /book/:slug; /books/:slug → /book/:slug",
-    "verified_status": "קריאת מקור מאומתת; שבע זהויות ספר ציבוריות, שישה קבצים זמינים. מקור חיצוני ללאCORS מופנה אליו ביושר; פריט לא פורסם404",
+    "verified_status": "מסירת23e03e82 כבר כלולה בבסיסb80. הוחזרו כרטיסים ומדי הכנה לצרכן הציבורי הקיים;7 זהויות פעילות, אהבת תורה פתוח ב־59% ושאר6 סגורים לציבור ללא טעינתPDF.8 מדדים מתועדים נשמרים;מאמר אסתר אינו זהות ציבורית פעילה. מקור99עמודים וחזרה התקבלו בפריוויוb80cc, 18/18 מקרי קבלת625adf97 עברו, עםSWאמיתי ואפס כתיבות בדיקה",
     "permissions": "ספר מפורסם בנפרד מכלים החדשים",
     "parameters_anchors": "slug,chapter,page,q,hash",
     "acceptance": "אותו ספר/פרק; לא הפניה לספרייה נעולה; תוקףקובץ",
     "open_task": "C2",
-    "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN",
+    "treatment": "IMPLEMENTED_ADOPTED_LIBRARY_SOURCE_ACCEPTED_FINAL_REVIEW",
     "planning_snapshot": {
       "target_2029": "קורא הספרים הקיים; חיבור פרסומים מוכנים",
       "verified_status": "קיים אך נעול; aliasReact מאבד query/hash",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
     },
-    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "קריאת מקור מאומתת; שבע זהויות ספר ציבוריות, שישה קבצים זמינים. מקור חיצוני ללאCORS מופנה אליו ביושר; פריט לא פורסם404",
+      "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md"
   },
   {
     "id": "F23",
@@ -473,12 +486,12 @@
     "evidence": "writerPersonal2029; App2029",
     "meaning": "חשבון אישי קיים",
     "target_2029": "/profile → /2029/me/profile; /me/<מודול ידוע> → /2029/me/<מודול>; שמורים,פנקס,פרופיל ותיבות קיימות",
-    "verified_status": "7937f084: תוקנה חסימת חבר רגיל ושמירה/עריכה בבעלות; 18 מקרי דפדפן מלאכותיים עברו ב־390/1440. קבלת שני החשבונות האמיתיים נדחתה בידי המשתמש ופתוחה; אין קבלת Auth/RLS חי בכתיבה; קבלת ציבור/SW/זכוכיתc023:14 מקרים; הכניסה האמיתית עדיין פתוחה",
+    "verified_status": "המשכיות החשבון7937/18בדיקות מבוקרות נשמרת. המשתמש דיווח על תצוגה תקינה ושליחתDM אמיתית בפריוויוb80ad895. שמירה/עריכה/רענון/יציאה/כניסה והחלפת שני החשבונות שלא פורטו נשארות לקבלה. תוקן ניסוחWhatsApp: בחירה שמורה אינה חיבור; קישור מספר ועריכת הערוץ אינם מחוברים לאזור2029. social/signup/b21עדיין בהמתנה",
     "permissions": "JWT/RLS שלבעל החשבון; לא admin-only לכלקהילה",
     "parameters_anchors": "module,returnTo,hash",
     "acceptance": "כניסה/יציאה/החלפה/בידוד; פרופילציבורי נפרד",
     "open_task": "C5",
-    "treatment": "IMPLEMENTED_CONTROLLED_TESTED_REAL_ACCOUNT_OPEN",
+    "treatment": "IMPLEMENTED_REAL_DM_REPORTED_FULL_ACCOUNT_ACCEPTANCE_OPEN",
     "planning_snapshot": {
       "target_2029": "/2029/me/profile ומודולים קיימים",
       "verified_status": "קיים אך חסימת publicprofile כוללת גם חבר רגיל",
@@ -491,7 +504,12 @@
       "treatment": "PARTIAL_ACCOUNT_ACCEPTANCE_OPEN",
       "old_address": "/profile; /community/researcher/me; /2029/me/:module"
     },
-    "personal_evidence": "../personal-continuity-glass-number-20261103/README.md"
+    "personal_evidence": "../personal-continuity-glass-number-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "7937f084: תוקנה חסימת חבר רגיל ושמירה/עריכה בבעלות; 18 מקרי דפדפן מלאכותיים עברו ב־390/1440. קבלת שני החשבונות האמיתיים נדחתה בידי המשתמש ופתוחה; אין קבלת Auth/RLS חי בכתיבה; קבלת ציבור/SW/זכוכיתc023:14 מקרים; הכניסה האמיתית עדיין פתוחה",
+      "treatment": "IMPLEMENTED_CONTROLLED_TESTED_REAL_ACCOUNT_OPEN"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md"
   },
   {
     "id": "F26",
@@ -606,7 +624,7 @@
     "evidence": "DB href/src; api/sitemap; publicfiles; hosting",
     "meaning": "משאב אמיתי/SEO/API; גם probe אפשרי",
     "target_2029": "המשאב/הנכס המדויק אם זמין",
-    "verified_status": "193 קישורי שמע היסטוריים עדיין ללא מיפוי מוכח לקובצי מקור. משאב חסר/מטמון מכשיר/API WordPress ותוסף ישן מחזירים404 עם MIME תקין, לא HTML200 מתחזה",
+    "verified_status": "193/193 קישורי שמע מחזיריםHTML כבר בלגאסי, גםGETרגיל בדגימה מכל משפחה. מיפויmedia_map/תור/Storageלא סיפקoriginal-path→bytes. אין ניחוש קובץ/יעד כללי. מומלץ לדחות שחזור במפורש; טרם התקבל פטור.404עםMIMEנכון נשמר במועמד",
     "permissions": "publicasset לעומתחתום/פרטי; API לפי owner",
     "parameters_anchors": "שם קובץ,טווח זמן,range,queryAPI מותרים",
     "acceptance": "HEAD/GET/MIME/CSP; אין HTML200 במקום תמונה/שמע;probe נשאר 404",
@@ -616,7 +634,11 @@
       "verified_status": "193audio hrefs; לא כל בקשת WP היאתוכן אמיתי",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
     },
-    "exception_evidence": "../public-url-exceptions-20261103/README.md"
+    "exception_evidence": "../public-url-exceptions-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "193 קישורי שמע היסטוריים עדיין ללא מיפוי מוכח לקובצי מקור. משאב חסר/מטמון מכשיר/API WordPress ותוסף ישן מחזירים404 עם MIME תקין, לא HTML200 מתחזה"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md"
   },
   {
     "id": "F33",
@@ -661,16 +683,21 @@
     "evidence": "url-inventory evidence לכלשורה",
     "meaning": "קישורמתוכן/מפה אינו הוכחהשעדייןקיים",
     "target_2029": "ללא יעד מומצא; תור בירור פרטני",
-    "verified_status": "מכל469+2140 נשמרו2609 מקורות:2352 נפתרו לפי זהות,48 סגורים במכוון,4 לא תקינים,205 חסרי ראיית מקור. קבלת זהות אוטומטית אינה HTTP מלא לכל המלאי",
+    "verified_status": "כל205 היתרות נבדקו ב־HTTPחי ובמקורות קיימים; באותו מכנה2609:2355 נפתרו לפי זהות/מסלול,52 סגורים במכוון,5 לא תקינים,197 ממתינים:193 שמע,2 פוסטים404,ForumPost ואינדקס הרצאות.403בדפדפן לא הוצג כמחיקה. אין כיסוי מלא או דחייה מאושרת",
     "permissions": "unknown/private/draft אינם public",
     "parameters_anchors": "שומריםמקורראיה וקידוד; לא מעתיקים סודות",
     "acceptance": "DB+מקור+HTTP: תוכן מאומת/הוסר/שגוי/לא ברור;404 אמיתי נשמר",
     "open_task": "C7",
-    "treatment": "BOUNDED_RECONCILED_205_SOURCE_EVIDENCE_OPEN",
+    "treatment": "BOUNDED_RESIDUAL205_REVIEWED_197_OPEN",
     "exception_previous_checkpoint": {
       "verified_status": "אין קבלת כיסוי מלא",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
     },
-    "exception_evidence": "../public-url-exceptions-20261103/README.md"
+    "exception_evidence": "../public-url-exceptions-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "מכל469+2140 נשמרו2609 מקורות:2352 נפתרו לפי זהות,48 סגורים במכוון,4 לא תקינים,205 חסרי ראיית מקור. קבלת זהות אוטומטית אינה HTTP מלא לכל המלאי",
+      "treatment": "BOUNDED_RECONCILED_205_SOURCE_EVIDENCE_OPEN"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md"
   }
 ]
