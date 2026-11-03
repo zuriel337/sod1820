@@ -33,7 +33,7 @@ async function installGuard(context) {
         u.pathname.startsWith('/rest/v1/') && (!rpc || permitted.has(rpc)) &&
           (['GET', 'HEAD'].includes(req.method) || rpc && req.method === 'POST') ||
         req.method === 'GET' && ['/auth/v1/settings', '/auth/v1/user'].includes(u.pathname) ||
-        req.method === 'GET' && u.pathname.startsWith('/storage/v1/object/public/'));
+        ['GET','HEAD'].includes(req.method) && u.pathname.startsWith('/storage/v1/object/public/'));
       const probe = u.origin === db && u.pathname === '/functions/v1/newsletter-signup' &&
         !u.search && req.method === 'OPTIONS' && req.body === null;
       const local = req.method === 'GET' && u.origin === origin &&
@@ -68,7 +68,7 @@ const cases = [
   ['/', 200], ['/post', 200], ['/tag/נתניהו', 200], ['/category/וידאו', 200],
   ['/category/אסונות%2Fתופעות-טבע', 200], ['/tag/צאט', 200, '/community/chat'],
   ['/chat?utm_source=continuity#discussion', 200, '/community/chat'], ['/community', 200],
-  ['/community/calculator?name=שלום', 200], ['/codes', 200], ['/books', 200],
+  ['/community/calculator?w=שלום', 200], ['/codes', 200], ['/books', 200],
   ['/books/sefer-yetzirah?page=2#reader', 200, '/book/sefer-yetzirah'],
   ['/or-geula?v=8216a3eb-06ba-4587-a3db-8036f85ff482', 200],
   ['/community/researchers', 200], ['/forum/5d48d3fc-500a-4c80-9538-3d9caf064b91', 200],
@@ -83,9 +83,11 @@ const cases = [
   ['/or-geula?v=', 404], ['/real-url-audit-nonexistent-20261103', 404],
 ];
 
+let activePage;
 async function record(name, width, action) {
+  if(process.env.URL_ACCEPTANCE_ONLY && !new RegExp(process.env.URL_ACCEPTANCE_ONLY).test(name))return;
   const row={name,width,passed:false}; report.cases.push(row);
-  try {await action(row);row.passed=true;} catch(error){row.failure=safeError(error);}
+  try {await action(row);row.passed=true;} catch(error){row.failure=safeError(error);if(activePage){row.finalPath=await activePage.evaluate(()=>location.pathname+location.search);row.visibleText=(await activePage.locator('body').innerText()).slice(0,800);row.pageErrors=activePage.__errors||[];await activePage.screenshot({path:output+'/failure-'+width+'-'+report.cases.length+'.png'});}}
   flush();console.log(JSON.stringify({name,width,passed:row.passed,failure:row.failure}));
 }
 async function settled(page) {
@@ -109,12 +111,12 @@ async function geometry(page) {
 (async()=>{
  const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,...(process.env.HTTPS_PROXY?{proxy:{server:process.env.HTTPS_PROXY,bypass:'127.0.0.1,localhost'}}:{}),args:['--no-sandbox','--disable-dev-shm-usage']});
  try{
-  for(const width of [390,1440]){
+  for(const width of (process.env.URL_ACCEPTANCE_WIDTH?[Number(process.env.URL_ACCEPTANCE_WIDTH)]:[390,1440])){
    const context=await browser.newContext({viewport:{width,height:900},locale:'he-IL'});
    if(config.accessUrl)await context.request.get(config.accessUrl);
    const meta=await context.request.get(config.origin+'/public-reading-artifact.json');assert.equal(meta.status(),200);report.artifact=await meta.json();assert.equal(report.artifact.sourceSha,config.sha);
    await installGuard(context);
-   const page=await context.newPage(); const cdp=await context.newCDPSession(page);await cdp.send('Network.enable');await cdp.send('Network.setBlockedURLs',{urls:['https://vercel.live/_next-live/feedback/feedback.js','*://*.google-analytics.com/*','*://*.googletagmanager.com/*','*://www.facebook.com/tr*','*://connect.facebook.net/*','*://*.clarity.ms/*']});
+   const page=await context.newPage();activePage=page;page.__errors=[];page.on('pageerror',error=>page.__errors.push(safeError(error))); const cdp=await context.newCDPSession(page);await cdp.send('Network.enable');await cdp.send('Network.setBlockedURLs',{urls:['https://vercel.live/_next-live/feedback/feedback.js','*://*.google-analytics.com/*','*://*.googletagmanager.com/*','*://www.facebook.com/tr*','*://connect.facebook.net/*','*://*.clarity.ms/*']});
    for(const [path,status,destination] of cases){
     await record('route '+path,width,async row=>{
      const errors=[];const listener=e=>errors.push(safeError(e));page.on('pageerror',listener);
@@ -126,6 +128,7 @@ async function geometry(page) {
       Object.assign(row,await geometry(page));row.errors=errors;
       assert.equal(row.notice,NOTICE);assert.equal(row.noticeClipped,false);assert.equal(row.animations.length,0);
       assert.ok(row.documentWidth<=width+1,'horizontal overflow');assert.equal(errors.length,0,'pageerror');
+      if(path==='/books/sefer-yetzirah?page=2#reader'){await expect(page.locator('[data-public-source-reader]')).toBeVisible();await expect(page.locator('[data-book-pdf-frame] canvas,[data-book-pdf-frame] iframe')).toBeVisible();row.realSourceReader=true;}
       if(path==='/category/וידאו')await expect(page.getByRole('link',{name:'לסרטוני אור הגאולה במקור ←'})).toBeVisible();
       if(['/tag/נתניהו','/community/chat','/community/calculator?name=שלום','/category/וידאו','/codes'].includes(path))await page.screenshot({path:output+'/page-'+width+'-'+cases.findIndex(x=>x[0]===path)+'.png'});
      } finally{page.off('pageerror',listener);}
@@ -143,7 +146,7 @@ async function geometry(page) {
     await page.locator('[data-command-mode="global"]').getByRole('button',{name:'שיתוף',exact:true}).click();
     await expect(page.locator('[data-share-owner="ShareActions"]')).toBeVisible();
     row.shareChoices=await page.locator('[data-share-owner="ShareActions"]').innerText();
-    row.shareLinks=await page.locator('[data-share-owner="ShareActions"] a').evaluateAll(xs=>xs.map(x=>({text:x.textContent,href:x.href})));
+    row.shareLinks=await page.locator('[data-share-owner="ShareActions"] a').evaluateAll(xs=>xs.map(x=>({text:x.textContent,href:x.href.replace(/rid%3D[^%&]+/g,'rid%3DREDACTED')})));
     assert.ok(row.shareChoices.includes('WhatsApp')||row.shareChoices.includes('וואטסאפ'));
     assert.ok(!JSON.stringify(row.shareLinks).includes('synthetic-secret'));
     await page.screenshot({path:output+'/share-'+width+'.png'});
@@ -151,10 +154,51 @@ async function geometry(page) {
     const g=await geometry(page);row.dock=g.dock;assert.ok(g.dock&&g.dock.width<=(width>800?600:width));
     row.networkDenied=g.denied;
    });
+   await record('public-cipher-source-detail',width,async row=>{
+    await page.goto(config.origin+'/codes',{waitUntil:'domcontentloaded'});await settled(page);
+    const link=page.locator('.public-library29-card > a').first();await link.waitFor({timeout:30000});row.publicHref=await link.getAttribute('href');
+    await link.click();await expect(page.locator('.public-library29-detail')).toBeVisible();
+    await expect(page.locator('[data-experience-capability="cipher-search-unavailable"]')).toBeVisible();
+    row.publicSourceRef=await page.locator('.public-library29-detail').getAttribute('data-public-source-ref');assert.ok(row.publicSourceRef);
+    const response=await page.reload({waitUntil:'domcontentloaded'});assert.equal(response.status(),200);
+    await expect(page.locator('.public-library29-detail')).toBeVisible();
+    await page.goBack({waitUntil:'domcontentloaded'});await expect(page).toHaveURL(/\/codes$/);
+   });
+   await record('community-public-thread-return-no-writes',width,async row=>{
+    await page.goto(config.origin+'/community/chat',{waitUntil:'domcontentloaded'});await settled(page);
+    const article=page.locator('article[id^="message-"]:not(.sod29-community-thread--deleted)').first();await article.waitFor({timeout:30000});
+    const ids=await page.locator('article[id^="message-"]').evaluateAll(xs=>xs.map(x=>x.id));assert.equal(new Set(ids).size,ids.length);
+    assert.equal(await page.locator('.sod29-community-composer').count(),0);
+    assert.equal(await page.locator('iframe[src*="openweb"],iframe[src*="spot.im"]').count(),0);
+    const id=(await article.getAttribute('id')).slice(8);row.publicThread=id;
+    const response=await page.goto(config.origin+'/community/chat?thread='+id+'#message-'+id,{waitUntil:'domcontentloaded'});assert.equal(response.status(),200);
+    await expect(page.locator('#message-'+id)).toBeVisible();row.exactThreadVisible=true;
+    await page.reload({waitUntil:'domcontentloaded'});await expect(page.locator('#message-'+id)).toBeVisible();
+    await page.goBack({waitUntil:'domcontentloaded'});assert.equal(new URL(page.url()).search,'');
+    row.denied=(await geometry(page)).denied;
+   });
+   await record('calculator-method-number-return',width,async row=>{
+    await page.goto(config.origin+'/community/calculator?w='+encodeURIComponent('שלום'),{waitUntil:'domcontentloaded'});await settled(page);
+    const input=page.locator('#community-calculator-name');await expect(input).toHaveValue('שלום');
+    const link=page.locator('.sod29-community-calc-method').first().getByRole('link',{name:'למספר ולביטוי ←'});await link.waitFor();
+    row.href=await link.getAttribute('href');assert.match(row.href,/376/);await link.click();
+    await expect(page).toHaveURL(/\/number\//);await settled(page);assert.equal(await page.locator('[role="dialog"]').count(),0);
+    await page.goBack({waitUntil:'domcontentloaded'});await expect(input).toHaveValue('שלום');row.exactReturn=true;
+   });
+   await record('controlled-taxonomy-failure-retry',width,async row=>{
+    row.controlledFailure=true;row.dataAfterRetry='real anonymous published data';
+    await page.addInitScript(()=>{const fetchOriginal=window.fetch.bind(window);window.__fixturePostsFailure=new URLSearchParams(location.search).has('continuityFailure');window.fetch=(input,init)=>{const url=typeof input==='string'?input:input.url;return window.__fixturePostsFailure&&new URL(url,location.href).pathname==='/rest/v1/posts'?Promise.reject(Error('synthetic taxonomy transport failure')):fetchOriginal(input,init);};});
+    await page.goto(config.origin+'/tag/נתניהו?continuityFailure=1',{waitUntil:'domcontentloaded'});
+    await expect(page.locator('[data-taxonomy-state="unavailable"]')).toBeVisible();
+    await expect(page.getByText('לא הצלחתי לפתוח את הפוסטים',{exact:true})).toBeVisible();
+    assert.equal(await page.getByText('לא נמצאו פוסטים לחיפוש הזה',{exact:true}).count(),0);
+    await page.evaluate(()=>{window.__fixturePostsFailure=false;});await page.getByRole('button',{name:'ניסיון טעינה נוסף',exact:true}).click();
+    await expect(page.locator('[data-taxonomy-state="ready"]')).toBeVisible();row.recovered=true;
+   });
    await record('taxonomy-post-browser-return',width,async row=>{
     await page.goto(config.origin+'/tag/נתניהו',{waitUntil:'domcontentloaded'});await settled(page);
     const card=page.locator('[data-experience-surface="posts-index"] .sod29-posts-library-grid a').first();
-    if(!await card.count())throw Error('post_card_selector_missing');
+    await card.waitFor({timeout:30000});
     await card.waitFor();row.postHref=await card.getAttribute('href');await card.click();
     await expect(page).not.toHaveURL(/\/tag\//);await page.waitForTimeout(600);row.postPath=new URL(page.url()).pathname;
     await page.goBack({waitUntil:'domcontentloaded'});await expect(page).toHaveURL(/\/tag\//);await settled(page);

@@ -96,7 +96,9 @@ export function communityCalculatorHref(location = {}, state = {}, resultValue) 
 
 export function communityCalculatorNumberNavigation({ value, expression, method = "רגיל", returnHref, current = {} }) {
   const origin = new URL(returnHref, "https://sod1820.co.il");
-  const destination = buildCalculatorNumberNavigation({ expression, methodKey: method, resultValue: value }, origin, current);
+  // A first anonymous visit has no ResearchProvider context yet. The canonical
+  // navigation builder expects an object, not that legitimate null state.
+  const destination = buildCalculatorNumberNavigation({ expression, methodKey: method, resultValue: value }, origin, current || {});
   if (destination) destination.context.returnTo.label = "מחשבון הקהילה";
   return destination;
 }

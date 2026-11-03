@@ -134,6 +134,14 @@ test("sharing retains harmless parameters but excludes credentials through the e
   assert.deepEqual(url.searchParams.getAll("source"), ["one", "two"]);
 });
 
+test("a direct expression link on a first visit has no prior research context", () => {
+  const destination = communityCalculatorNumberNavigation({ value: 376, expression: "שלום",
+    method: "רגיל", current: null, returnHref: "/community/calculator?w=%D7%A9%D7%9C%D7%95%D7%9D" });
+  assert.equal(destination.context.selection.resultValue, 376);
+  assert.equal(new URL(destination.href, "https://sod1820.co.il").searchParams.get("focus"), "שלום");
+  assert.equal(destination.context.returnTo.href, "/community/calculator?w=%D7%A9%D7%9C%D7%95%D7%9D");
+});
+
 test("presentation is opt-in; public mount guards existing wall, telemetry and AI entry points", () => {
   const controller = fs.readFileSync(new URL("../src/pages/CommunityCalculatorPage.jsx", import.meta.url), "utf8");
   const adapter = fs.readFileSync(new URL("../src/pages/CommunityCalculator2029Page.jsx", import.meta.url), "utf8");
