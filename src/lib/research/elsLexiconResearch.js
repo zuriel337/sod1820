@@ -1,4 +1,5 @@
 import { captureElsResearchReturn, elsResearchSnapshotMatches, elsResearchReturnLoad } from "./elsResearchReturnSnapshot.js";
+import { isElsNumericCandidate } from "./elsNumericLexicon.js";
 
 // Presentation plans only; the canonical scanner independently bounds every field.
 export const ELS_LEXICON_PRESETS = Object.freeze({
@@ -14,6 +15,7 @@ export function filterElsForwardSource(items, hideForwardSource) {
 // A phrase is an exact sequence with proposed spaces, not a rewritten headword.
 // Longer terms are admitted only from this explicit, bounded language projection.
 export function isElsLexiconCandidate(item, result) {
+  if (result?.plan?.mode === "numbers") return isElsNumericCandidate(item?.term, item?.numericReadings, result.plan);
   if (!/^[א-ת]{3,16}$/.test(item?.term)) return false;
   if (result?.plan?.mode !== "language") return item.term.length <= 10;
   const language = item.language, tokens = language?.tokens;

@@ -20,6 +20,8 @@ tmpl  = open(os.path.join(HERE, "els-code.template.html"), encoding="utf-8").rea
 # Embed the app's dependency-free reference presentation in the standalone tool.
 ref_formatter_path = os.path.join(HERE, "..", "..", "src", "lib", "presentation", "tanakhReferenceParts.js")
 ref_formatter = open(ref_formatter_path, encoding="utf-8").read().replace("export function ", "function ")
+numeric_lexicon_path = os.path.join(HERE, "..", "..", "src", "lib", "research", "elsNumericLexicon.js")
+numeric_lexicon = open(numeric_lexicon_path, encoding="utf-8").read().replace("export function ", "function ").replace("export const ", "const ")
 tk    = d("tk-letters.txt")           # כל התנ״ך, מנורמל (בלי סופיות), 1,204,583 אותיות
 nq    = d("niqqud-compact.txt")       # ניקוד — תורה בלבד (מיושר 1:1)
 vlens = d("tk-vlens.txt").strip()     # אורך-אותיות לכל פסוק (23,204)
@@ -118,6 +120,7 @@ assert len(tk) == 1204583, "tk-letters.txt must be the canonical 1,204,583-lette
 
 out = (tmpl.replace("__TORAH_DATA__", gz64(tk)).replace("__NIQQUD_DATA__", gz64(nq))
           .replace("__TANAKH_REFERENCE_FORMATTER__", ref_formatter)
+          .replace("__ELS_NUMERIC_LEXICON__", numeric_lexicon)
           .replace("__VERSE_LENS__", vlens).replace("__VERSE_CHAP__", vchap)
           .replace("__VERSE_TEXT__", gz64(vtext)).replace("__BOOK_NAMES__", books)
           .replace("__ELS_LOGO__", logo)

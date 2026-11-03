@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import { elsLexiconWindowKey, prepareElsLexiconFindings, ELS_LEXICON_PRESETS, expandElsLexiconPlan, filterElsForwardSource } from "../../lib/research/elsLexiconResearch.js";
 import { groupElsLexiconDiscoveries, ELS_DISCOVERY_GROUP_LABELS } from "../../lib/research/elsStructureInspection.js";
+import { elsNumericPlan } from "../../lib/research/elsNumericLexicon.js";
 import ElsStructureResearch2029 from "./ElsStructureResearch2029.jsx";
 import "./elsLexiconResearch2029.css";
 
@@ -11,7 +12,8 @@ const errors = {
   "results-changed": "המופע השתנה. הפעילו סריקה חדשה במפורש.",
   "scan-failed": "הסריקה לא הושלמה. אין להסיק מכך שאין מילים באזור.",
 };
-const sources = { canonical_tanakh_words: "מילות התנ״ך", maftech_core_snapshot: "מילון הליבה" };
+const sources = { canonical_tanakh_words: "מילות התנ״ך", maftech_core_snapshot: "מילון הליבה",
+  hebrew_numeral_notation: "כתיב מספרי עברי", hebrew_year_notation: "כתיב שנה עברית" };
 
 export default function ElsLexiconResearch2029({ state, visible, busy, response, onRequest, onRestore, color, onFocus, onFindWords }) {
   const [run, setRun] = useState(null), [result, setResult] = useState(null), [notice, setNotice] = useState("");
@@ -20,6 +22,8 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
   const [plan, setPlan] = useState({ minLength: 5, maxLength: 10, maxDistance: 120, minMembers: 2 });
   const [hideForwardSource, setHideForwardSource] = useState(false);
   const languagePlan = plan.mode === "language";
+  const numericPlan = plan.mode === "numbers";
+  const numericBounds = elsNumericPlan(plan);
   const scanButton = useRef(null);
   const active = useRef(null), request = useRef(onRequest); request.current = onRequest;
   const key = elsLexiconWindowKey(state);
@@ -45,10 +49,13 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     const runKey = active.current.key; active.current = null; setRun(null);
     if (!response.ok) { setNotice(errors[response.reason] || errors["scan-failed"]); return; }
     setResult({ key: runKey, state, data: response }); setPage(0); setNotice("");
-    if (response.plan?.mode === "language") setKind("els");
+    if (["language", "numbers"].includes(response.plan?.mode)) setKind("els");
   }, [response, key]);
   const startPlan = selectedPlan => {
     if (!visible || busy || !key || active.current) return;
+    if (selectedPlan.mode === "numbers" && Object.entries(elsNumericPlan(selectedPlan)).some(([field, value]) => selectedPlan[field] !== value)) {
+      setNotice("בדקו את הטווחים: מספרים 1–999 ושנים 5001–5999, מהערך הקטן לגדול."); return;
+    }
     const target = { scanId: crypto.randomUUID(), hitId: state.axis.hitId, scope: state.scope, plan: { ...selectedPlan } };
     const next = { key, target }; active.current = next; setRun(next); setResult(null); setNotice(""); onRequest(target);
   };
@@ -84,23 +91,32 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
   return <section hidden={!visible} className="els29-lexicon-research" aria-label="גילוי וקשרים במטריצה">
     <h3>גילוי וקשרים במטריצה</h3>
     <p>גלו מילים וקשרים בחלון הנוכחי, ובחרו קבוצה לבדיקה ולסימון על אותה מטריצה. ללא AI.</p>
-    <label>מה לגלות?<select aria-label="מסלול הגילוי" disabled={!!run} value={languagePlan ? "language" : "words"}
-      onChange={event => setPlan(current => event.target.value === "language"
-        ? { ...current, mode: "language", minLength: 5, maxLength: 16 }
+    <label>מה לגלות?<select aria-label="מסלול הגילוי" disabled={!!run} value={numericPlan ? "numbers" : languagePlan ? "language" : "words"}
+      onChange={event => setPlan(current => event.target.value === "numbers"
+        ? { ...current, mode: "numbers", minLength: 4, maxLength: 15, ...elsNumericPlan(current) }
+        : event.target.value === "language" ? { ...current, mode: "language", minLength: 5, maxLength: 16 }
         : { ...current, mode: "words", minLength: 5, maxLength: 10 })}>
       <option value="words">מילים ומבנים — התאמה מילונית</option>
       <option value="language">ביטויים וחלוקת רצפים — קורא הלשון</option>
+      <option value="numbers">מספרים ושנים לצד מילים</option>
     </select></label>
     {languagePlan ? <p>מילים וחלוקה לשתי מילים על אותו קו, במדגם מוגבל סביב הציר. האותיות נשמרות; הרווחים מוצעים לבדיקה שלכם.</p> : null}
-    <details className="els29-discovery-plan"><summary>{languagePlan ? "גבולות בדיקת הביטויים" : "תכנית סריקה · מהיר, רחב או עמוק"}</summary>
+    {numericPlan ? <p>כתיב מספרי בן 2–5 אותיות בצמוד למילה מהלקסיקון, או שנה עם ה׳ לציון האלפים. האותיות מדויקות; החלוקה והמשמעות הן הצעות לקריאה. מספר לבדו אינו נכלל.</p> : null}
+    <details className="els29-discovery-plan"><summary>{numericPlan ? "גבולות בדיקת המספרים והשנים" : languagePlan ? "גבולות בדיקת הביטויים" : "תכנית סריקה · מהיר, רחב או עמוק"}</summary>
       <p>הגדירו אילו מילים לחפש וכמה להתרחק מהציר. שינוי הגדרה אינו מתחיל סריקה.</p>
-      {!languagePlan ? <div className="els29-discovery-actions" role="group" aria-label="תבניות סריקה">
+      {!languagePlan && !numericPlan ? <div className="els29-discovery-actions" role="group" aria-label="תבניות סריקה">
         {[["quick", "מהיר"], ["broad", "רחב"], ["deep", "עמוק"]].map(([id, label]) => <button type="button" key={id} disabled={!!run}
           aria-pressed={Object.keys(ELS_LEXICON_PRESETS[id]).every(field => plan[field] === ELS_LEXICON_PRESETS[id][field])}
           onClick={() => setPlan({ ...ELS_LEXICON_PRESETS[id] })}>{label}</button>)}
       </div> : null}
       <fieldset disabled={!!run}><legend>גבולות הסריקה בחלון הפעיל</legend>
-        {!languagePlan ? <><label>מינימום אותיות<select aria-label="מינימום אותיות בגילוי" value={plan.minLength} onChange={event => updatePlan("minLength", event.target.value)}>
+        {numericPlan ? <>
+          <label>מספר מזערי<input type="number" min="1" max="999" value={plan.numberMin} onChange={event => updatePlan("numberMin", event.target.value)} /></label>
+          <label>מספר מרבי<input type="number" min={numericBounds.numberMin} max="999" value={plan.numberMax} onChange={event => updatePlan("numberMax", event.target.value)} /></label>
+          <label>משנה עברית<input type="number" min="5001" max="5999" value={plan.yearMin} onChange={event => updatePlan("yearMin", event.target.value)} /></label>
+          <label>עד שנה עברית<input type="number" min={numericBounds.yearMin} max="5999" value={plan.yearMax} onChange={event => updatePlan("yearMax", event.target.value)} /></label>
+          <p>מילים בנות 3–10 אותיות; עד 15 אותיות בחיבור עם מספר. שנים מפוענחות כתאריך באלף השישי, ולא כסכום גימטרי רגיל של הרצף.</p>
+        </> : !languagePlan ? <><label>מינימום אותיות<select aria-label="מינימום אותיות בגילוי" value={plan.minLength} onChange={event => updatePlan("minLength", event.target.value)}>
           {[3,4,5,6,7,8,9,10].map(n => <option key={n} value={n}>{n}</option>)}
         </select></label>
         <label>מקסימום אותיות<select aria-label="מקסימום אותיות בגילוי" value={plan.maxLength} onChange={event => updatePlan("maxLength", event.target.value)}>
@@ -113,7 +129,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
           {[2,3,4,5,6].map(n => <option key={n} value={n}>{n}</option>)}
         </select></label>
       </fieldset>
-      {!languagePlan ? <p>המילון הנוכחי תומך עד 10 אותיות. בחירה ב־3–4 אותיות מוגבלת לעד 12 תאים סביב ציר מאומת באורך 5 אותיות ומעלה. „עמוק” מרחיב את התכנית בתוך החלון בלבד, לא את כל התורה.</p>
+      {numericPlan ? <p>כתיב מספרי נבדק לפי הסדר המקובל, כולל ט״ו וט״ז. מילה יכולה להתאים גם לקריאה מספרית; אין הכרעה אוטומטית על משמעותה. רצף בן 4 אותיות מוגבל לעד 12 תאים מציר מאומת בן 5 אותיות ומעלה.</p> : !languagePlan ? <p>המילון הנוכחי תומך עד 10 אותיות. בחירה ב־3–4 אותיות מוגבלת לעד 12 תאים סביב ציר מאומת באורך 5 אותיות ומעלה. „עמוק” מרחיב את התכנית בתוך החלון בלבד, לא את כל התורה.</p>
         : <p>המרחק מסנן את הקריאות שהקורא החזיר; הוא אינו מרחיב את מדגם הקווים או את חלון המטריצה.</p>}
     </details>
     <label className="els29-discovery-source-filter"><input type="checkbox" checked={hideForwardSource}
@@ -121,18 +137,23 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
     <details><summary>היקף הסריקה והמגבלות</summary>
       <p>הסתרת טקסט רגיל חלה על קריאה קדימה בלבד. קריאה לאחור בדילוג 1 נשארת מוצגת, ומסומנת כקריאה הפוכה. הסינון משנה גם את הקבוצות, בלי למחוק תוצאות או להריץ סריקה.</p>
       <p>התכנית הבאה: {plan.minLength}–{plan.maxLength} אותיות · עד {plan.maxDistance} תאים מהציר · לפחות {plan.minMembers} מופעים בקבוצה, כולל הציר כשהוא משתתף. עד 8,192 תאים, 256 שורות ו־129 עמודות.</p>
+      {numericPlan ? <p>מספרים {numericBounds.numberMin}–{numericBounds.numberMax} ושנים {numericBounds.yearMin}–{numericBounds.yearMax}. חלוקת הרצף למספר ולמילה מוסיפה השערות קריאה; אינה הוכחת מובהקות, דילוג מינימלי או תחזית.</p> : null}
       <p>{languagePlan ? "קורא הלשון: עד 24 קווים, עד 24 אותיות בכל קו, בשני הכיוונים. עד 9,216 בדיקות רצף ו־196,608 בדיקות באינדקס. עד 24 קריאות ועד 24 חלוקות לפני סינון כפילויות, חלקי ציר ומרחק. אינו סריקה ממצה." : "התאמה מילונית: עד 100,000 בדיקות רצף ו־300 התאמות · עד 10 שניות חישוב לאחר הטעינה."}</p>
       <p>המילון נטען רק בלחיצה. הסריקה אינה מקיפה את כל התורה, את כל הדילוגים או כל ביטוי עברי. שמות וכתיבים שאינם במילון עלולים להחמיץ; אפשר לחפש אותם ידנית.</p>
       <p>שורות, טורים ושני האלכסונים בשני הכיוונים. קבוצות נבנות רק מההתאמות שנשמרו: מקבילות עד 8 תאים עם תמיכה משותפת, המשכים עד 3 תאים, חיתוכים, חזרות, מסדרונות ואשכולות של 3 מופעים ומעלה עד 4 תאים בין כל זוג. עד 240 קבוצות, עד 8 מופעים בקבוצה.</p>
     </details>
     <div className="els29-discovery-actions">
-      <button ref={scanButton} type="button" disabled={!key || busy || !!run} onClick={start}>{languagePlan ? "בדוק ביטויים וחלוקת רצפים" : "גלה מילים ומבנים"}</button>
+      <button ref={scanButton} type="button" disabled={!key || busy || !!run} onClick={start}>{numericPlan ? "גלה מספרים ושנים" : languagePlan ? "בדוק ביטויים וחלוקת רצפים" : "גלה מילים ומבנים"}</button>
       {onFindWords ? <button type="button" disabled={!key || busy || !!run} onClick={onFindWords}>חפש מילה מסוימת</button> : null}
     </div>
-    {run ? <CanonicalProgress compact title={languagePlan ? "בדיקת ביטויים" : "סריקה מילונית"} phase={run.progress?.phase === "scan" ? "בודק קווים בחלון" : "טוען ומאמת את אוצר הלשון"}
+    {run ? <CanonicalProgress compact title={numericPlan ? "סריקת מספרים ושנים" : languagePlan ? "בדיקת ביטויים" : "סריקה מילונית"} phase={run.progress?.phase === "scan" ? "בודק קווים בחלון" : "טוען ומאמת את אוצר הלשון"}
       current={run.progress?.coverage?.completedRays ?? null} total={run.progress?.coverage?.totalRays ?? null} onCancel={() => cancel()} /> : null}
     <p role="status">{notice || (!key ? "בחרו מופע מאומת לפני סריקה." : !data ? "הסריקה מתחילה רק בלחיצה. התוצאות זמניות בעמוד זה; מעבר מצב עוצר סריקה פעילה." : "")}</p>
     {data ? <div aria-label="תוצאות הסריקה המילונית">
+      {data.axisNumericReadings?.length ? <div aria-label="קריאות מספריות בציר הנבחר">
+        <p>קריאות מוצעות בציר הנבחר; הציר נשמר ואינו נספר כממצא חדש:</p>
+        {data.axisNumericReadings.map((reading, index) => <p key={index}><bdi>{reading.label}</bdi> · {reading.value}{reading.kind === "hebrew-year" ? " (שנה עברית)" : " (ערך החלק המספרי)"}</p>)}
+      </div> : null}
       <p>המופע שנסרק: <bdi>{data.origin.term}</bdi> · {data.origin.corpus === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{data.origin.skip}</bdi>.</p>
       {!current ? <p role="note">התוצאה שייכת לחלון קודם. סרקו את החלון הנוכחי לפני הוספת ממצא.</p> : null}
       <p>{data.plan?.mode === "language" ? "בדיקת מדגם קווים — לא סריקה מלאה של החלון" : data.coverage.complete ? "הסריקה המוגדרת הושלמה" : "סריקה חלקית — הושגה תקרת החישוב או התוצאות"} · {presented.items.length} קריאות מוצגות מתוך {data.items.length} שנשמרו · {groups.length} קבוצות להצגה.</p>
@@ -144,6 +165,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
       {structures?.truncated ? <p>מוצג מדגם של עד 240 קבוצות מכל סוגי הקשרים שנמצאו. בחרו סוג קשר למיקוד; המספרים מציינים כמה מוצגות מתוך הקבוצות שנבנו.</p> : null}
       {structures?.excluded ? <p>{structures.excluded} התאמות עם זהות או מיקום לא שלמים לא צורפו לקבוצות.</p> : null}
       <details><summary>מקור, כיסוי וגבולות</summary>
+        {data.plan?.mode === "numbers" ? <p>קריאה מספרית מוצעת · מספרים {data.plan.numberMin}–{data.plan.numberMax} · שנים {data.plan.yearMin}–{data.plan.yearMax}. הכיסוי מתייחס לחלון שנבדק; אין קביעה על דילוג מינימלי בכל התורה או על משמעות המספר.</p> : null}
         {data.plan ? <p>בוצע: <bdi>{data.plan.minLength}–{data.plan.maxLength}</bdi> אותיות, עד {data.plan.maxDistance} תאים מהציר, לפחות {data.plan.minMembers} מופעים בקבוצה.</p> : null}
         {hideForwardSource ? <p>הקבוצות נבנו מחדש מהקריאות שנותרו; הסינון אינו משלים התאמות שלא נשמרו בגלל תקרת הסריקה.</p> : null}
         <p>התחלת הציר: <bdi>{data.origin.start}</bdi>. {data.coverage.completedRays}/{data.coverage.totalRays} קווים · {data.coverage.windows} רצפים נבדקו. התוצאות זמניות בעמוד זה ולא נשמרות ברענון.</p>
@@ -163,7 +185,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
       </details> : null}
       <label>סוג התוצאות <select aria-label="סוג התוצאות" value={kind} onChange={event => { setKind(event.target.value); setPage(0); }}>
         <option value="groups">קבוצות ומבנים ({groups.length})</option>
-        <option value="els">{data.plan?.mode === "language" ? "מילים וביטויים בדילוג" : "מילים בדילוג"} ({presented.items.filter(item => item.kind === "els").length})</option>
+        <option value="els">{data.plan?.mode === "numbers" ? "קריאות מספריות בדילוג" : data.plan?.mode === "language" ? "מילים וביטויים בדילוג" : "מילים בדילוג"} ({presented.items.filter(item => item.kind === "els").length})</option>
         <option value="source">רצפי מקור וקריאות הפוכות ({presented.items.filter(item => item.kind === "source").length})</option>
       </select></label>
       {kind === "groups" ? <label>סוג הקשר <select aria-label="סוג הקשר" value={groupType} onChange={event => { setGroupType(event.target.value); setPage(0); }}>
@@ -178,6 +200,7 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
         if (kind === "groups") return <li key={item.id}>
           <strong>{item.types.map(type => ELS_DISCOVERY_GROUP_LABELS[type]).join(" · ")}</strong>
           <p>{item.includesAxis ? <><bdi>{data.origin.term}</bdi> · </> : null}{item.items.map((word, index) => <React.Fragment key={`${word.term}:${word.hitId}`}>{index ? " · " : ""}<bdi>{word.label || word.term}</bdi></React.Fragment>)}</p>
+          {item.items.some(word => word.numericReadings?.length) ? <p>קריאות מוצעות: {item.items.flatMap(word => word.numericReadings || []).map((reading, index) => <React.Fragment key={index}>{index ? " · " : ""}<bdi>{reading.label}</bdi> = {reading.value}{reading.kind === "hebrew-year" ? " (שנה)" : " (מספר)"}</React.Fragment>)}</p> : null}
           <details><summary>מה מחבר ביניהם?</summary>{item.reasons.map(reason => <p key={reason}>{reason}</p>)}
             {item.items.map(word => <p key={`${word.term}:${word.hitId}`}><bdi>{word.label || word.term}</bdi> · {word.kind === "source" ? word.dir < 0 ? "קריאה הפוכה בדילוג 1" : "רצף מקור" : "ELS"} · דילוג <bdi>{word.skip}</bdi> · התחלה <bdi>{word.start}</bdi> · {word.dir < 0 ? "אחורה" : "קדימה"}</p>)}
           </details>
@@ -186,6 +209,11 @@ export default function ElsLexiconResearch2029({ state, visible, busy, response,
         </li>;
         const added = isAdded(item);
         return <li key={`${item.term}:${item.hitId}`} data-lexicon-hit={item.hitId}><strong>{item.label}</strong><p>{item.skip === 1 ? item.dir < 0 ? "קריאה הפוכה · " : "טקסט מקור קדימה · " : ""}דילוג <bdi>{item.skip}</bdi> · {item.dir < 0 ? "אחורה" : "קדימה"} · התחלה <bdi>{item.start}</bdi> · {item.lexiconSources.map(source => sources[source] || source).join(" + ")}</p>
+          {item.numericReadings ? <details><summary>האותיות והקריאות המספריות המוצעות</summary>
+            <p>רצף מדויק: <bdi>{item.term}</bdi>. הרווחים וסימני המספר נוספו לצורך הקריאה; אימות המנוע בודק אותיות ומיקום.</p>
+            {item.numericReadings.map((reading, index) => <p key={index}><bdi>{reading.label}</bdi> · {reading.kind === "hebrew-year" ? "שנה עברית מוצעת" : "ערך החלק המספרי"}: {reading.value} · אותיות המספר: <bdi>{reading.numericLetters}</bdi></p>)}
+            <p>הקשר לאירוע, לכמות או לשנה מסוימת דורש פרשנות נפרדת. ייתכנו קריאות חלופיות.</p>
+          </details> : null}
           {item.language ? <details><summary>האותיות והחלוקה המוצעת</summary>
             <p>האותיות ברצף: <bdi>{item.term}</bdi>. הרווחים בכותרת מוצעים לקריאה בלבד; האימות בודק אותיות ומיקום, לא את משמעות הביטוי.</p>
             {item.language.tokens.some(token => token.relation !== "exact-lexicon-match") ? <p>הזיהוי נעזר בצורות לשון או בכתיב חסר. מילות הבסיס במילון: {item.language.tokens.map(token => token.baseTerm).join(" · ")}. אלו אינן תחליף לאותיות המטריצה.</p> : null}
