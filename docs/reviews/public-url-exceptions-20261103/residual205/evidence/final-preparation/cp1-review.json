@@ -1,0 +1,381 @@
+{
+  "task": "FINAL_PREPARATION_CP1_READ_ONLY_REVIEW",
+  "base_sha": "957e4a6a7148f20cadd921303d8c9a86a8b6a7b5",
+  "workspace": "/tmp/sod1820-continuity-closure",
+  "written_at_utc": "2026-11-03T16:48:09.555053+00:00",
+  "scope": {
+    "repo_writes": false,
+    "shared_writes": false,
+    "deployments": false,
+    "models_or_test_mail": false,
+    "auth_impersonation": false,
+    "raw_private_payload_read": false,
+    "agents_spawned": false,
+    "browser_acceptance_run": false,
+    "only_outputs": [
+      "/tmp/finalprep-cp1-review.json",
+      "/tmp/finalprep-cp1-review.md"
+    ]
+  },
+  "reader": {
+    "connector": "sod1820_supabase_readonly_execute_sql",
+    "database": "postgres",
+    "database_role": "supabase_read_only_user",
+    "transaction_read_only": "on",
+    "verified_at": "2026-11-03T16:35:12.299005Z"
+  },
+  "coordination": {
+    "latest_bounded_match": "f64d1fd0-b313-4585-9cd2-d52b171843da",
+    "task": "PUBLIC_CUTOVER_CONTINUITY_CLOSURE_20261103",
+    "status": "AFTER_BOUNDED_ACCEPTED_SHARED_GATES_OPEN_SCOPE_RELEASED",
+    "created_at": "2026-11-03T16:25:40.91295Z",
+    "note": "Read-only task; root owns any subsequent fixes. Unrelated working changes were not touched."
+  },
+  "existing_rpcs": [
+    {
+      "name": "admin_system_health",
+      "arguments": [],
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "admin_check": "rd_is_admin() unless service_role",
+      "shape": {
+        "db": [
+          "connections",
+          "max_connections",
+          "longest_active_query_seconds",
+          "idle_in_transaction",
+          "database_bytes"
+        ],
+        "cron": [
+          {
+            "job_name": "string",
+            "active": "boolean",
+            "last_status": "string|null",
+            "last_run_at": "timestamp|null",
+            "failures_24h": "number"
+          }
+        ],
+        "security": [
+          "unacked",
+          "recent_24h"
+        ],
+        "bots": [
+          "outbox_pending",
+          "outbox_failed",
+          "cron"
+        ],
+        "communications": "status counts",
+        "media": "storage/delivery-risk/dedupe aggregates",
+        "usage": "AI/Vercel/storage/provider values with bases",
+        "retention": "summary",
+        "generated_at": "query timestamp, not freshness of every source"
+      },
+      "definition_md5": "bdc9892e60a4233cbab08afd48edd6fd"
+    },
+    {
+      "name": "admin_video_map_health",
+      "arguments": [],
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "admin_check": "rd_is_admin() unless service_role JWT",
+      "shape": {
+        "contract": "VIDEO_MEDIA_PROJECTION_2029_V1",
+        "owners": [
+          "projection",
+          "enrichment_worker",
+          "google",
+          "research_2029",
+          "storage_2029"
+        ],
+        "ai_policy": [
+          "deterministic_mapping_tokens",
+          "metadata_provider",
+          "metadata_model",
+          "metadata_token_log_source",
+          "stt_provider",
+          "stt_model",
+          "stt_mode",
+          "stt_runs_from_cron"
+        ],
+        "summary": "placement/asset/indexability/native-storage counts",
+        "channel_enrichment": "aggregate pending/enriched/retry/metadata coverage and by_channel",
+        "cron": [
+          "job_name",
+          "schedule",
+          "active",
+          "last_status",
+          "last_run_at",
+          "failures_24h"
+        ],
+        "ai": [
+          "calls_7d",
+          "input_tokens_7d",
+          "output_tokens_7d",
+          "estimated_cost_usd_7d",
+          "estimated_cost_ils_7d",
+          "cost_basis",
+          "models"
+        ],
+        "generated_at": "query timestamp"
+      },
+      "definition_md5": "46cd21ce32d03b7278b0683e1de5ddc7"
+    },
+    {
+      "name": "admin_op_trace_list_v1",
+      "arguments": {
+        "p_days": 7,
+        "p_limit": 100
+      },
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "admin_check": "rd_is_admin() unless service_role",
+      "shape": "array only; no total count",
+      "row_fields": [
+        "trace_id",
+        "started_at",
+        "ended_at",
+        "capability",
+        "surface",
+        "channel",
+        "identity_class",
+        "outcome",
+        "span_count",
+        "linked_ai_calls",
+        "linked_ai_cost_ils",
+        "cost_certainty"
+      ],
+      "limit": "UI100; helper/RPC cap500; not total traces7d",
+      "definition_md5": "a367496c7e8fed95fc3cc51fcbd6eded"
+    },
+    {
+      "name": "admin_op_trace_v1",
+      "arguments": [
+        "p_trace_id"
+      ],
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "admin_check": "rd_is_admin() unless service_role",
+      "shape": [
+        "trace",
+        "spans",
+        "rollup"
+      ],
+      "privacy_note": "No actual trace/spans payload retrieved in this review; UI renders bounded operational subset.",
+      "definition_md5": "26e2a7c8b4dd238a6cd1c6ae22663c6e"
+    }
+  ],
+  "egress_shape": {
+    "usage_fields": [
+      "storage_egress_observed_latest",
+      "storage_egress_observed_latest_at",
+      "storage_egress_observed_24h_bytes",
+      "storage_egress_observed_history_24h",
+      "storage_egress_observed_basis",
+      "storage_egress_guard",
+      "supabase_cached_egress",
+      "supabase_cached_egress_basis",
+      "supabase_egress_historical_exact"
+    ],
+    "history_fields": [
+      "at",
+      "bytes",
+      "bot_share",
+      "largest_get_bytes",
+      "burst_files"
+    ],
+    "basis": "OBSERVED_STORAGE_LOGS",
+    "provider_billing_basis": "UNKNOWN unless separately recorded provider history",
+    "stale_after_hours": 2,
+    "live_sql_difference": "Live24h_bytes uses nullif(sum(...),0); tracked20260928113000 migration has coalesce(sum(...),0). Treat null/absent/empty historical window as unknown, not measured zero."
+  },
+  "aggregate_observations": {
+    "traces_7d": {
+      "count": 822,
+      "latest_started_at": "2026-11-03T16:30:04.95Z",
+      "exact_outcome_error_or_failed": 0,
+      "limitation": "Only exact outcomes error/failed; does not prove absence of provider_error, failed_with_reason, browser/network errors, or uninstrumented failures."
+    },
+    "security": {
+      "unacked": 66,
+      "recent_24h": 3,
+      "latest_alert_at": "2026-11-03T05:07:00.029452Z",
+      "limitation": "Counts only; no severity, incident detail or acknowledgement made."
+    },
+    "egress_hourly": {
+      "retained_rows": 181,
+      "latest_at": "2026-10-06T06:59:12.477772Z",
+      "rows_24h": 0,
+      "age_hours_at_observation": 681.7
+    },
+    "egress_legacy_observed": {
+      "retained_rows": 1,
+      "latest_at": "2026-09-28T08:20:48.970657Z",
+      "rows_24h": 0
+    },
+    "egress_deadman": {
+      "stale_alerts_24h": 4,
+      "last_stale_alert_at": "2026-11-03T15:00:00.137128Z"
+    },
+    "cron": [
+      {
+        "job_name": "health-watch",
+        "active": true,
+        "schedule": "*/15 * * * *",
+        "last_run_at": "2026-11-03T16:30:00.099502Z",
+        "last_status": "succeeded"
+      },
+      {
+        "job_name": "security_spike_hourly",
+        "active": true,
+        "schedule": "7 * * * *",
+        "last_run_at": "2026-11-03T16:07:00.033897Z",
+        "last_status": "succeeded"
+      },
+      {
+        "job_name": "traffic-daily-refresh",
+        "active": true,
+        "schedule": "25 * * * *"
+      },
+      {
+        "job_name": "video-map-enrich",
+        "active": true,
+        "schedule": "*/30 * * * *"
+      }
+    ],
+    "cron_limit": "Scheduled SQL success is not proof of email/WhatsApp delivery or provider collection; no cron commands/secrets retrieved."
+  },
+  "minimum_operational_questions": [
+    {
+      "question": "Which exact artifact/profile is being prepared, what stays closed, and what is the rollback?",
+      "existing_answer": "Root release/preview manifests and accepted cutover/rollback artifacts; current ControlPlane has no release SHA/profile panel.",
+      "gap": "No proof this answer is reachable from the existing2029 ControlPlane; no live deployment/cutover inferred."
+    },
+    {
+      "question": "Is operational data current, or did reading fail?",
+      "existing_answer": "health.generated_at and video.generated_at; per-cron last_run_at/status; egress_latest_at/guard; existing Refresh.",
+      "gap": "Query timestamps and cron/security omitted; missing booleans/calls rendered inactive/0; same trace detail does not refresh."
+    },
+    {
+      "question": "What needs attention now: DB pressure, security alerts, failing/stale jobs?",
+      "existing_answer": "health.db, health.cron, health.security, bots/communication aggregates already returned.",
+      "gap": "Only DB counts currently shown; root can project cron/security without adding a source. Source catches silently collapse some errors to0/[]; cannot claim all healthy."
+    },
+    {
+      "question": "Can an operator inspect a recent action/outcome/cost and tell what the list covers?",
+      "existing_answer": "Four authorized RPCs include recent root traces and selected detail.",
+      "gap": "100-row cap presented as7d total; no total_count exists; selected detail can remain old on Refresh/failure."
+    },
+    {
+      "question": "What are media/AI costs and egress risks, and what is merely estimated or stale?",
+      "existing_answer": "Existing media/usage/video bases, dates and thresholds.",
+      "gap": "No fresh hourly storage observations; provider current billed egress unknown. Missing history incorrectly described as never observed."
+    },
+    {
+      "question": "Are general2029 errors/vitals, traffic/discovery and recommendations operationally covered?",
+      "existing_answer": "Existing CP1 plan and prior audits identify additional owners; current four RPCs cover only part of this.",
+      "gap": "Trace outcomes/indexable-video count do not prove browser-error, all-traffic, SEO/indexing or all10-lens CP1 acceptance. No new plan/dashboard/source built in this review."
+    }
+  ],
+  "narrow_source_findings": [
+    {
+      "id": "CP1_VIEW_EXISTING_CRON_SECURITY_TIME",
+      "file": "src/pages/ControlPlane2029Page.jsx",
+      "lines": [
+        90,
+        130
+      ],
+      "finding": "Existing health.cron/security/generated_at and video.generated_at not displayed.",
+      "action": "Root projects existing safe counts/status/dates in current layout."
+    },
+    {
+      "id": "CP1_VIDEO_UNKNOWN",
+      "file": "src/pages/ControlPlane2029Page.jsx",
+      "lines": [
+        215,
+        228,
+        229
+      ],
+      "finding": "Absent cron.active becomes inactive; calls_7d absent becomes0; absent stt_runs_from_cron becomes manual-only.",
+      "action": "Render true/false/unknown distinctly; preserve real measured0."
+    },
+    {
+      "id": "CP1_TRACE_CAP",
+      "file": "src/pages/ControlPlane2029Page.jsx",
+      "lines": [
+        65,
+        133
+      ],
+      "finding": "UI requests100 and labels length as traces7d total; actual readonly aggregate822.",
+      "action": "Label returned recent capped list, never insert snapshot822 as live total."
+    },
+    {
+      "id": "CP1_STALE_EGRESS",
+      "file": "src/pages/ControlPlane2029Page.jsx",
+      "lines": [
+        153,
+        207
+      ],
+      "finding": "Last observation labeled last hour and empty24h list described as no first observation despite historic rows.",
+      "action": "Show age/stale snapshot and unknown current interval, distinguish error/empty/stale."
+    },
+    {
+      "id": "CP1_REFRESH_DETAIL",
+      "file": "src/pages/ControlPlane2029Page.jsx",
+      "lines": [
+        67,
+        69,
+        77,
+        88
+      ],
+      "finding": "Refresh retains selectedID; detail effect lacks refresh revision. Old detail may survive list refresh failure or removal.",
+      "action": "Refresh same detail through existing fourthRPC; clear invalid selection/detail and ignore late results."
+    },
+    {
+      "id": "CP1_SOURCE_ERROR_FALLBACK",
+      "file": "supabase/migrations/20260928113000_egress_hardening_monitoring_v1.sql",
+      "finding": "Live health source catch returns security0/0 and cron[] on internal failure. Current underlying reads succeeded.",
+      "action": "Do not describe these counts as universal verified health; any structured per-source-error contract fix is shared-source work to prepare separately, not changed here."
+    }
+  ],
+  "egress_owner_and_next_action": {
+    "canonical_owner_refs": [
+      "traffic_intelligence_law v11",
+      "system_suggestions_law v5"
+    ],
+    "existing_store": "public.analytics_cache infra_egress_hour:* and older infra_egress_observed:*",
+    "reader": "admin_system_health",
+    "staleness_watch": "fn_health_watch via health-watch every15minutes",
+    "producer_identity": "UNVERIFIED / missing collector interface",
+    "proof": "Only reader/watch public function bodies mention exact prefixes. No current cron name or command contains egress/storage. Existing20261102 infrastructure receipt already records the missing collector. No tracked collector found in bounded scripts/functions/workflows scan.",
+    "not_proven": "External provider/collector absence, absence of all backups, or total quota/cost safety.",
+    "next_action": "Locate the existing authorized Storage-log collector configuration and last run under the existing owner. Prepare exact repair/reconnect diff and rollback for that same collector; verify new hourly entry+time/basis without synthetic metrics or a new store/daemon. Do not re-enable unrelated jobs or expose secrets.",
+    "launch_disposition": "Known observability limitation; previous accepted infrastructure receipt calls it nonblocking unless fresh quota/cost assurance is needed for cutover. Do not report current usage as zero or silently waive any actual quota constraint."
+  },
+  "acceptance_boundary": {
+    "source_and_metadata": "Verified live existence/ACL/admin checks and aggregate source reachability through genuine readonly connector, without invoking adminRPCs under assumed identity.",
+    "controlled_checks": "Existing test-2029-control-plane.mjs is static source/helper checking despite Native step name; earlier controlled-role fixtures are not a genuine signed-in admin UI receipt.",
+    "genuine_admin_ui": "Not performed in this review; no current authenticated admin session was assumed.",
+    "minimal_remaining_user_action_if_root_has_no_admin_session": "After root narrow fixes on exact final protected preview: an existing signed-in admin opens /2029/control, presses Refresh, sees query time/security/cron with truthful stale egress and bounded traces, and opens one existing trace. Return read-only success/error status without private payload or credentials. No account save/edit retest, no AI/mail/write action.",
+    "full_cp1": "NOT ACCEPTED by this review. Existing10-lens requirement remains; source metadata/4RPC view alone is not complete operational/admin acceptance.",
+    "accepted_user_account_tests": "User already accepted basic two-account save/edit/etc; not reopened.",
+    "backup_risk": "User accepts historical H1/current DB-media freshness verification risk; not a blocker to preparation in this review.",
+    "production": "No merge/deploy/domain/flag/shared-source changes."
+  },
+  "references": [
+    "docs/2029-control-plane-attention-observability-plan-v1.md:47",
+    "docs/reviews/public-acceptance-closure-20261103/README.md:60",
+    "src/pages/ControlPlane2029Page.jsx:56",
+    "src/lib/visits.js:256",
+    "scripts/test-2029-control-plane.mjs",
+    ".github/workflows/2029-isolation-gate.yml:177",
+    "supabase/migrations/20260928113000_egress_hardening_monitoring_v1.sql",
+    "supabase/migrations/20260928090955_unified_video_projection_2029_v1.sql:406",
+    "supabase/migrations/20260922191500_operational_trace_runtime_v1.sql:579",
+    "SOD1820_MASTER_OWNER_INDEX.md:216",
+    "/workspace/sod1820-doc37-infra/docs/reviews/doc37-alignment-20261102/infrastructure/LAUNCH-DEPENDENCIES.md:84"
+  ]
+}

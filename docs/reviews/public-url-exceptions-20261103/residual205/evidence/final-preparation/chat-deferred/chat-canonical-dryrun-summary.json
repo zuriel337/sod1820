@@ -1,0 +1,20 @@
+{
+  "kind": "REAL_PUBLIC_INPUT_PURE_CANONICAL_PLANNER_DRY_RUN_NO_DB_WRITES",
+  "rows": 24,
+  "roots": 7,
+  "replies": 17,
+  "newSourceIdentities": 1,
+  "linkedAuthUsers": 0,
+  "sourceEmailClaims": 0,
+  "unresolvedParents": 0,
+  "topologicalOrder": true,
+  "replayPlan": {
+    "insert": 0,
+    "skip": 24
+  },
+  "payloadPath": "/tmp/finalprep-chat-public24-rpc-payload.json",
+  "payloadSha256": "5eb7f50565b70e5a930908f22325c29c29b4150940843865f0dad699152fe2ed",
+  "payloadMode": "0600",
+  "plannerSha256": "ec0719b453fd36c2773cc57a7ccf7004682d24f290ed21faebd432210de31b9c",
+  "orderingModuleSha256": "ba591b20c95971c8ec3daf7c1006485eef22e7b004fc1151f2af6c72718a4000"
+}

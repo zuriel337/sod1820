@@ -1,0 +1,42 @@
+{
+  "status": "PROPOSAL_ONLY_NOT_APPLIED",
+  "base_sha": "957e4a6a7148f20cadd921303d8c9a86a8b6a7b5",
+  "files": [
+    {
+      "path": "public-reading-deploy/review-admission.js",
+      "before_sha256": "bfe42cc43e2846c175e6fd65cc0728cbb6bc7a5348bc34fec70d05efe153ccdd",
+      "proposed_sha256": "c6f5241ec508338bf3505a0eaa8f7e7df52ac88391e9c86c07854755494dbb08"
+    },
+    {
+      "path": "public-reading-deploy/authorization.js",
+      "before_sha256": "b2c80eb17dce467cb370a49532dbb8c983f39fe67156b9c122709dc2bc1a505b",
+      "proposed_sha256": "f3a6183dc76632720eb6836b810c66857d0e9a00ca84b89db75f0476437494b3"
+    },
+    {
+      "path": "scripts/build-public-reading-production.mjs",
+      "before_sha256": "6be331627090e7929b1d36838c16166b573aec37d1bd31a9988b15df72847a11",
+      "proposed_sha256": "5a89171bc26f4c575d5d17ec85a6e795581c37390d8cb013c1e04be6901a0312"
+    }
+  ],
+  "legacy_guard_sha256": "edb822d3da9a957997ab85f2e0a8b757cec916bcc8768587fec22b7040dd478e",
+  "legacy_guard_changed": false,
+  "root_vercel_config_changed": false,
+  "deployment_policy_changed": false,
+  "cutover_authorization": false,
+  "runtime_domain_assignment_proof": false,
+  "proposal_sha256": "e186c652aa691a16770b9b327e058b630bc9ac03271250d2d222c87e49ac707e",
+  "validation": {
+    "syntax_checks": "PASS proposed3source files and newtest",
+    "patch_apply_checks": "PASS both patches",
+    "tests_executed": false,
+    "build_executed": false,
+    "deployment_executed": false
+  },
+  "configuration_only": {
+    "protected_preview": "Existing mode only with its exact admitted branch/identity",
+    "actual_production_target": false
+  },
+  "platform_blocker": "Connected create_deployment request has no skip-domain/autoAssignCustomDomains; CLI documented but not onPATH/authverified; realGit/platform identity compatibility not yet demonstrated.",
+  "root_test_execution": "5/5 proposed tests passed in isolated copied fixture, no deployment or guard change",
+  "candidate_preview_branch": "gpt/2029-public-cutover-final-preparation-20261103"
+}

@@ -1,0 +1,159 @@
+{
+  "task": "CP1_READ_ONLY_HEALTH_DEFINITION_AND_LINKED_RECEIPTS",
+  "status": "PROPOSAL_ONLY_NOT_APPLIED",
+  "base_sha": "957e4a6a7148f20cadd921303d8c9a86a8b6a7b5",
+  "live_definition": {
+    "proname": "admin_system_health",
+    "identity_arguments": "",
+    "prosecdef": true,
+    "provolatile": "s",
+    "proconfig": [
+      "search_path=public, pg_temp"
+    ],
+    "prosrc_md5": "335efe0f77d33570d9c0e06fd2a9fd32",
+    "definition_md5": "bdc9892e60a4233cbab08afd48edd6fd",
+    "observed_at": "2026-11-03 16:49:27.897837+00",
+    "reader_role": "supabase_read_only_user",
+    "transaction_read_only": "on",
+    "sql_path": "/tmp/finalprep-admin-system-health-current.sql",
+    "definition_sha256": "4e3593d711d71f88b55b90b7c1244eaa600c11f97c18580c34b88a6cb456eb88",
+    "definition_length": 15669,
+    "credential_pattern_scan": "no credential-shaped literals found"
+  },
+  "only_proposed_changes": [
+    {
+      "line": 61,
+      "before": "v_cron := '[]'::jsonb;",
+      "after": "v_cron := NULL;",
+      "on": "cron-read exception only"
+    },
+    {
+      "line": 233,
+      "before": "v_security := jsonb_build_object('unacked', 0, 'recent_24h', 0);",
+      "after": "v_security := jsonb_build_object('unacked', NULL, 'recent_24h', NULL);",
+      "on": "security-read exception only"
+    }
+  ],
+  "compatibility": {
+    "unchanged": "Function name/arguments, return object keys, authorization, search_path, stable marker, successful[]/0 responses, DB/media/usage/retention logic, all other exception branches, ownership/grants.",
+    "null_semantics": "Only failed source reads lose fabricated[]/zeros. Cron is null; security keeps existing keys with null values. This is unknown/failure-compatible data, not a claim of measured-empty.",
+    "legacy": "Legacy getSystemHealth UI consumes usage/media and is unaffected by these two failure fields; it already uses nullable media values.",
+    "existing_operator_caveat": "ai-analyze system_overview/system_faults safely accepts null but maps non-array cron to[] and may still say nojobs/no failures. Security nulls render?. This separate consumer is not fixed by the two-line proposal. No Edge edit/deploy suggested by this review.",
+    "rollback": "Reapply the exact saved CREATE OR REPLACE definition with current owner/grants preserved. No data rollback; no collector change."
+  },
+  "isolated_tests_root_should_prepare": [
+    "Normal cron jobs and security counts unchanged.",
+    "Successful empty cron[] and measured security0 remain distinct from forced-source exceptions.",
+    "Forced cron permission/source failure produces cron JSONnull while security/DB fields remain available.",
+    "Forced security failure retains keys with JSONnull and no misleading0.",
+    "Existing admin guard/anonymous denial, function properties and ACL remain unchanged.",
+    "UI controlled cases show failure/unknown; no fallback empty-array/0 health claim."
+  ],
+  "tests_run_here": [],
+  "linked_receipts": [
+    {
+      "lens": "Release identity and gates",
+      "link_source": "docs/reviews/url-continuity-plan-20261103/coverage.md#H",
+      "commit": "7c0badfcf96ece17790d8fb4048dc00180aeb915",
+      "paths": [
+        "docs/reviews/hosted-publication-acceptance-20261103/README.md",
+        "docs/reviews/home-js-critical-path-20261102/FINAL-C8-VALIDATION.md"
+      ],
+      "evidence": "Actual c8 source/deploy metadata, protected product and dormant publication-artifact manifests, source fingerprints, realSW, full GitHub Isolation/A3 and G4 for c8.",
+      "limit": "Historical exact-source receipts; do not identify current Production or close current artifact acceptance without root latest manifest. No ControlPlane release identity projection proven."
+    },
+    {
+      "lens": "Performance and browser errors",
+      "link_source": "coverage.md#P and #H",
+      "commit": "4fab7dd9ab73a42aeab1fcb97f6e2a08566a05a0",
+      "path": "docs/reviews/home-js-critical-path-20261102/acceptance/matched-tables.md",
+      "evidence": "Measured0d4→257, n3 per viewport/state,13 journey stages and separate visibleHome; maximum documentCLS<=.05422. c8 preserves measured input parity. H also records no pageerror in16 controlled service cases.",
+      "limit": "Release/browser evidence, not current RUM/live-error coverage and not957 timings. Later public-layout changes prevent blanket timing inheritance."
+    },
+    {
+      "lens": "Explicit issue intake",
+      "link_source": "SOD1820_MASTER_STATE.md → docs/reviews/public-acceptance-closure-20261103/README.md",
+      "runtime": "629f9030",
+      "evidence": "One approved contact UI201 plus one approved canonical issue API204, each verified one stored row; controlled UI/worker tests.",
+      "limit": "Auto browser was bot-classified; no real human issue-submit UI acceptance. No general runtime-error collection proof, no test writes repeated."
+    },
+    {
+      "lens": "Operational jobs/authority",
+      "link_source": "coverage.md#O",
+      "commit": "b5fd1077c3b790149a31d1fa7369f178a98215cf",
+      "path": "docs/reviews/doc37-alignment-20261102/infrastructure/post-apply-receipt.json",
+      "evidence": "125–127 paused; current-view history projection fixed; no history deletion.",
+      "limit": "Not a receipt that current traffic/SEO/error lenses are fresh or rendered in2029."
+    },
+    {
+      "lens": "Current exact product and accepted user operations",
+      "link_source": "SOD1820_MASTER_STATE.md → residual205/continuity-closure-20261103.md and final-preparation.md",
+      "runtime": "76cf61e6689acbfbf8e314417dbd607e7e7cef3e",
+      "base": "957e4a6a7148f20cadd921303d8c9a86a8b6a7b5",
+      "evidence": "26 protected hosted cases,107 focused checks, accepted real-user basic two-account operations on7360;957 docs-only over76.",
+      "limit": "Explicitly states CP1 not accepted. No new perf run. Accepted user operations not reopened."
+    }
+  ],
+  "existing_other_interfaces_not_invoked": {
+    "admin_2029_analytics": {
+      "client": "src/lib/analytics2029.js:get2029Analytics({hours=24,pathPrefix=null})",
+      "arguments": [
+        "p_hours integer",
+        "p_path_prefix text"
+      ],
+      "live_definition_md5": "8f2a62223a8da2b5ef66ca49e09a1432",
+      "tracked_shape": [
+        "meta",
+        "summary",
+        "visitors"
+      ],
+      "tracked_summary_fields": [
+        "page_views",
+        "people",
+        "sessions",
+        "identified_people",
+        "anonymous_people",
+        "internal_admin_people",
+        "external_people",
+        "internal_admin_page_views",
+        "external_page_views",
+        "engaged_ms",
+        "internal_admin_engaged_ms",
+        "external_engaged_ms",
+        "clean_human_sessions",
+        "clean_unknown_sessions",
+        "clean_bot_sessions"
+      ],
+      "privacy": "Raw visitors includes person/account identity and paths. No payload fetched; mere function presence is not authorization to expose raw visitors.",
+      "limit": "Tracked shape inspected; live catalog existence/args/hash verified, no payload/freshness query and no claim full definition equality."
+    },
+    "admin_traffic_insights": {
+      "client": "src/lib/visits.js:getTrafficInsights(days=30)",
+      "arguments": [
+        "p_days integer"
+      ],
+      "live_definition_md5": "23a339b17bfd0932c0b4e97ea8c1f59f",
+      "known_consumed_shape": "array of insight icon/text/link, not total traffic itself"
+    },
+    "admin_command_center": {
+      "client": "src/lib/visits.js:getCommandCenter()",
+      "arguments": [],
+      "live_definition_md5": "299d51f7ae21bd9109a1a8bcc74e9f4a",
+      "payload": "not read; no shape assumption"
+    },
+    "provider_adapters": [
+      "getGaInsights(days28) → /api/ga-insights",
+      "getVercelInsights(days30) → /api/vercel-insights",
+      "getSearchConsole(days90) → /api/search-console"
+    ],
+    "provider_boundary": "Existing verified-admin session token used by adapters; no endpoint invoked, no token obtained, no current configured/fresh claim."
+  },
+  "current_policy_correction": {
+    "App2029.jsx:151-160": "PUBLIC_READING_RELEASE returns before GA/marketing/identity/WebVitals/visit/engagement activation.",
+    "tracking.js:20-30": "Public-reading runtime_error uses bounded sanitized local console warning and returns; does not emit general server telemetry.",
+    "webVitals2029": "Existing collector uses performance/web_vital through ingest_event, document_navigation_hard_load_only, but is not activated by the current public-reading RouteEffects.",
+    "conclusion": "October6 plan statements that all telemetry is active are historical. Empty/current missing analytics cannot be called zero users/no errors. Earlier release measurements remain valid in their exact scope; no telemetry activation or CP1V2 work here."
+  },
+  "full_cp1": "NOT_ACCEPTED; directly-linked receipts do not establish all required operational questions reachable by a genuine signed-in admin in current2029.",
+  "writes": "Only sanitized/tmp artifacts; no repo/shared writes, deployment, auth impersonation, private data, model or test mail."
+}

@@ -11,7 +11,7 @@ import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 
 // Native presentation of the same newsletter owner. Consent is separate from
 // login and following. Tests substitute the transport; never send a test email.
-export function NewsletterSignup2029() {
+export function NewsletterSignup2029({ submitLabel = "הרשמה לעדכוני האתר", onSubscribed = null } = {}) {
   const { user } = useAuth();
   const [availability, setAvailability] = useState("idle");
   const [email, setEmail] = useState("");
@@ -44,7 +44,7 @@ export function NewsletterSignup2029() {
       const result = await submitNewsletterSignup({ email, consent, purpose: "site-updates" }, {
         endpoint: `${SUPABASE_URL}/functions/v1/newsletter-signup`, signal: controller.signal,
       });
-      if (!controller.signal.aborted) { setState(result.status); setEmail(""); setConsent(false); }
+      if (!controller.signal.aborted) { setState(result.status); setEmail(""); setConsent(false); onSubscribed?.(result); }
     } catch (error) {
       if (!controller.signal.aborted) {
         const unavailable = error?.message === "newsletter-purpose-unavailable";
@@ -54,7 +54,7 @@ export function NewsletterSignup2029() {
     }
     finally { if (pending.current === controller) pending.current = null; }
   }
-  const label = "הרשמה לעדכוני האתר";
+  const label = submitLabel;
   return <section className="sod29-section sod29-site-updates" aria-label="עדכוני האתר">
     <h2>עדכוני האתר</h2>
     <p>פרסומים חדשים וחלקים שנפתחים, במייל.</p>

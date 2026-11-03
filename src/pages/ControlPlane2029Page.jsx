@@ -1,5 +1,5 @@
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Navigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -11,7 +11,8 @@ const cost = v => !Number.isFinite(n(v)) ? "—" : `₪${n(v).toFixed(4)}`;
 const mib = v => !Number.isFinite(n(v)) ? "—" : `${(n(v) / 1048576).toLocaleString("he-IL", { maximumFractionDigits: 1 })} MiB`;
 const gib = v => !Number.isFinite(n(v)) ? "—" : `${(n(v) / 1073741824).toLocaleString("he-IL", { maximumFractionDigits: 2 })} GiB`;
 const pct = v => !Number.isFinite(n(v)) ? "—" : `${(n(v) * 100).toLocaleString("he-IL", { maximumFractionDigits: 1 })}%`;
-const when = v => v ? new Date(v).toLocaleString("he-IL") : "—";
+const when = v => v && Number.isFinite(Date.parse(v)) ? new Date(v).toLocaleString("he-IL") : "—";
+const activeLabel = v => v === true ? "פעיל" : v === false ? "לא פעיל" : "לא נבדק";
 const certainty = v => v === "exact" ? "מדויק" : v === "estimated" ? "הערכה" : v === "not_billable" ? "לא לחיוב" : "לא ידוע";
 
 function Metric({ label, value, note }) {
@@ -28,7 +29,7 @@ function TraceRow({ row, active, open }) {
     style={{ width: "100%", textAlign: "start", cursor: "pointer" }}>
     <div>
       <strong>{row.capability || "interaction"} · {row.surface || "surface"}</strong>
-      <small>{when(row.started_at)} · {row.outcome || "open"} · {row.span_count || 0} spans</small>
+      <small>{when(row.started_at)} · {row.outcome || "לא נבדק"} · {num(row.span_count)} spans</small>
     </div>
     <div className="sod29-actions">
       <span className="sod29-chip">{cost(row.linked_ai_cost_ils)}</span>
@@ -54,42 +55,78 @@ function SpanRow({ span }) {
 }
 
 export default function ControlPlane2029Page() {
-  const { loading: authLoading, isAdmin } = useAuth();
-  const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], error: null });
+  const auth = useAuth();
+  // A new verified identity gets a fresh view before it can render the prior
+  // identity's trace selection, rather than waiting for a passive effect.
+  return <ControlPlaneBody key={`${auth.user?.id || "guest"}:${auth.isAdmin === true}:${auth.loading === true}`} auth={auth} />;
+}
+
+function ControlPlaneBody({ auth }) {
+  const { user, loading: authLoading, isAdmin } = auth;
+  const principal = user?.id || null;
+  const scope = useRef({ principal, isAdmin });
+  scope.current = { principal, isAdmin };
+  const requestVersion = useRef(0);
+  const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], healthError: null, videoError: null, traceError: null, traceLoading: true, traceVersion: 0 });
   const [selectedId, setSelectedId] = useState(null);
   const [detail, setDetail] = useState({ loading: false, data: null, error: null });
 
   const load = useCallback(async () => {
-    setState(current => ({ ...current, loading: true, error: null }));
-    try {
-      const [health, traces, videoMap] = await Promise.all([getSystemHealth(), getOperationalTraceList(7, 100), getVideoMapHealth()]);
-      setState({ loading: false, health, videoMap, traces, error: null });
-      setSelectedId(current => current || traces?.[0]?.trace_id || null);
-    } catch (error) {
-      setState({ loading: false, health: null, videoMap: null, traces: [], error });
-    }
-  }, []);
+    if (!principal || !isAdmin) return;
+    const version = ++requestVersion.current;
+    const valid = () => requestVersion.current === version && scope.current.principal === principal && scope.current.isAdmin;
+    setState({ loading: true, health: null, videoMap: null, traces: [], healthError: null, videoError: null, traceError: null, traceLoading: true, traceVersion: version });
+    setDetail({ loading: false, data: null, error: null });
+    const reads = [
+      ["health", getSystemHealth],
+      ["videoMap", getVideoMapHealth],
+      ["traces", () => getOperationalTraceList(7, 100)],
+    ];
+    await Promise.allSettled(reads.map(async ([kind, read]) => {
+      try {
+        const value = await read();
+        if (!valid()) return;
+        if (kind === "traces") {
+          if (!Array.isArray(value)) throw new Error("לא התקבלה רשימת traces תקינה");
+          setState(current => ({ ...current, traces: value, traceLoading: false, traceVersion: version }));
+          setSelectedId(current => value.some(row => row.trace_id === current) ? current : value[0]?.trace_id || null);
+        } else {
+          if (!value || typeof value !== "object" || Array.isArray(value) || !Number.isFinite(Date.parse(value.generated_at))) throw new Error("לא התקבלה דגימת מצב תקינה");
+          setState(current => ({ ...current, [kind]: value }));
+        }
+      } catch (error) {
+        if (!valid()) return;
+        const key = kind === "health" ? "healthError" : kind === "videoMap" ? "videoError" : "traceError";
+        setState(current => ({ ...current, [key]: error, ...(kind === "traces" ? { traceLoading: false, traces: [], traceVersion: version } : {}) }));
+        if (kind === "traces") setSelectedId(null);
+      }
+    }));
+    if (valid()) setState(current => ({ ...current, loading: false }));
+  }, [principal, isAdmin]);
 
   useEffect(() => {
-    if (!authLoading && isAdmin) load();
-  }, [authLoading, isAdmin, load]);
+    if (!authLoading && isAdmin && principal) load();
+    return () => { requestVersion.current++; };
+  }, [authLoading, isAdmin, principal, load]);
 
   useEffect(() => {
-    if (!isAdmin || !selectedId) {
+    if (!isAdmin || !principal || !selectedId || state.traceLoading || state.traceError) {
       setDetail({ loading: false, data: null, error: null });
       return;
     }
     let alive = true;
     setDetail({ loading: true, data: null, error: null });
     getOperationalTrace(selectedId)
-      .then(data => alive && setDetail({ loading: false, data, error: null }))
-      .catch(error => alive && setDetail({ loading: false, data: null, error }));
+      .then(data => alive && scope.current.principal === principal && scope.current.isAdmin && setDetail({ loading: false, data, error: null }))
+      .catch(error => alive && scope.current.principal === principal && scope.current.isAdmin && setDetail({ loading: false, data: null, error }));
     return () => { alive = false; };
-  }, [isAdmin, selectedId]);
+  }, [isAdmin, principal, selectedId, state.traceLoading, state.traceError, state.traceVersion]);
 
   const health = state.health || {};
   const usage = health.usage || {};
   const db = health.db || {};
+  const jobs = Array.isArray(health.cron) ? health.cron : null;
+  const security = health.security || {};
   const media = health.media || {};
   const deliveryRisk = media.delivery_risk || {};
   const dedupe = media.dedupe_latest || {};
@@ -108,7 +145,7 @@ export default function ControlPlane2029Page() {
   const selected = useMemo(() => state.traces.find(row => row.trace_id === selectedId) || null, [state.traces, selectedId]);
 
   if (authLoading) return <div aria-label="טוען" style={{ minHeight: "100vh" }} />;
-  if (!isAdmin) return <Navigate replace to="/2029" />;
+  if (!isAdmin || !principal) return <Navigate replace to="/2029" />;
 
   return <Sod2029Shell
     title="Control Plane"
@@ -125,13 +162,26 @@ export default function ControlPlane2029Page() {
           <div className="sod29-muted">המסך מקרין owners חיים; הוא אינו מקור אמת חדש.</div></div>
         <div className="sod29-actions"><button className="sod29-action" type="button" onClick={load} disabled={state.loading}>{state.loading ? "מרענן…" : "רענן"}</button></div>
       </div>
-      {state.error ? <FrameState kind="error" title="לא ניתן לקרוא את מצב המערכת">{String(state.error?.message || state.error)}</FrameState> : null}
+      {state.healthError ? <FrameState kind="error" title="לא ניתן לקרוא את מצב המערכת">{String(state.healthError?.message || state.healthError)}</FrameState> : null}
+      <p className="sod29-muted">דגימת מצב: {when(health.generated_at)}. כל מקטע מוצג לפי הקריאה שלו; נתון חסר אינו מדידה של אפס.</p>
       <div className="sod29-grid">
         <Metric label="AI · 7 ימים" value={usage.ai_cost_usd_7d == null ? "—" : `$${n(usage.ai_cost_usd_7d).toFixed(3)}`} note={`בסיס: ${usage.ai_cost_basis || "UNKNOWN"}`} />
         <Metric label="DB connections" value={`${num(db.connections)} / ${num(db.max_connections)}`} note={`idle tx: ${num(db.idle_in_transaction)}`} />
         <Metric label="Media objects" value={num(media.storage?.total_objects ?? media.storage_object_count ?? media.migration_queue_objects)} note="aggregate קיים" />
-        <Metric label="Traces · 7 ימים" value={num(state.traces.length)} note="לחיצה פותחת spans ועלות" />
+        <Metric label="Traces מוצגים" value={state.traceLoading || state.traceError ? "—" : num(state.traces.length)} note="עד 100 משבעת הימים האחרונים; זו רשימה מוגבלת, לא ספירה כוללת. לחיצה פותחת spans ועלות." />
       </div>
+    </section>
+
+    <section className="sod29-section" data-experience-capability="operational-health-summary">
+      <div className="sod29-section-head"><div><div className="sod29-kicker">תזמון ואבטחה</div><h2>הסיכומים הקיימים של השרת</h2><p className="sod29-muted">מצב ריצות והתראות, לקריאה בלבד. סיכום זה אינו קבלת הרשאות S2 או אישור פרסום.</p></div></div>
+      <div className="sod29-grid">
+        <Metric label="התראות שטרם טופלו" value={num(security.unacked)} note={`24 שעות: ${num(security.recent_24h)}`} />
+        <Metric label="משימות בתצלום" value={jobs ? num(jobs.length) : "—"} note="לא ספירה של כל תהליכי הרקע; מציג רק את בחירת הקורא הקיים" />
+      </div>
+      {jobs ? jobs.length ? <div className="sod29-list">{jobs.map(job => <div className="sod29-row" key={job.job_name}>
+        <div><strong>{job.job_name}</strong><small>ריצה אחרונה: {when(job.last_run_at)}</small></div>
+        <div className="sod29-actions"><span className="sod29-chip">{activeLabel(job.active)}</span><span className="sod29-chip">{job.last_status || "לא נבדק"}</span><span className="sod29-chip">כשלים ב־24 שעות: {num(job.failures_24h)}</span></div>
+      </div>)}</div> : <p className="sod29-muted">הקורא החזיר רשימה ריקה. אין בכך הוכחה שאין תהליכי רקע אחרים.</p> : <p className="sod29-muted">לא התקבל מידע על המשימות.</p>}
     </section>
 
     <section className="sod29-section" data-experience-capability="storage-egress-health">
@@ -150,9 +200,9 @@ export default function ControlPlane2029Page() {
       </div>
       <div className="sod29-grid">
         <Metric
-          label="Observed · שעה אחרונה"
+          label="Observed · המדידה האחרונה"
           value={mib(egressLatest.storage_get_bytes)}
-          note={`snapshot: ${when(usage.storage_egress_observed_latest_at)}`}
+          note={`snapshot: ${when(usage.storage_egress_observed_latest_at)} · מצב: ${egressGuard.state || "לא נבדק"}. נתון ישן אינו תעבורה נוכחית.`}
         />
         <Metric
           label="Observed · 24 שעות"
@@ -204,7 +254,7 @@ export default function ControlPlane2029Page() {
             {n(row.burst_files) > 1 ? <span className="sod29-chip">{num(row.burst_files)} MP4 burst</span> : null}
           </div>
         </div>)}
-      </div> : <FrameState kind="empty" title="אין עדיין hourly snapshots">ה־dead-man יופעל אחרי observation ראשון; עד אז provider usage נשאר UNKNOWN.</FrameState>}
+      </div> : <FrameState kind="empty" title="אין מדידות תעבורה ב־24 השעות האחרונות">{usage.storage_egress_observed_latest_at ? `קיימת מדידה קודמת מ־${when(usage.storage_egress_observed_latest_at)}. היא אינה מדידה עדכנית.` : "לא התקבל תאריך של מדידה קודמת."} מצב הספק נשאר לא ידוע; התראה פעילה אינה מחליפה את אוסף המדידות.</FrameState>}
     </section>
 
     <section className="sod29-section">
@@ -212,10 +262,12 @@ export default function ControlPlane2029Page() {
         <div><div className="sod29-kicker">VIDEO MAP · 2029</div><h2>וידאו — מיפוי, Google ועלות</h2>
           <div className="sod29-muted">Projection אחד מעל Posts · WhatsApp · Home Videos · Stories. המיפוי הדטרמיניסטי אינו צורך טוקנים.</div></div>
         <div className="sod29-actions">
-          <span className="sod29-chip">{videoCron.active ? "cron פעיל" : "cron לא פעיל"}</span>
+          <span className="sod29-chip">{`cron: ${activeLabel(videoCron.active)}`}</span>
           <span className="sod29-chip">{videoCron.schedule || "—"}</span>
         </div>
       </div>
+      {state.videoError ? <FrameState kind="error" title="לא ניתן לקרוא את מצב הווידאו">הנתונים אינם ידועים; אין בכך הוכחה שהמשימה כבויה או שאין פעילות.</FrameState> : null}
+      <p className="sod29-muted">דגימת וידאו: {when(videoMap.generated_at)}</p>
       <div className="sod29-grid">
         <Metric label="Video assets" value={num(videoSummary.unique_assets)} note={`${num(videoSummary.placements)} placements · ${num(videoSummary.duplicate_assets)} assets כפולים`} />
         <Metric label="Google Video" value={num(videoSummary.google_indexable_assets)} note={`${num(videoSummary.generic_google_pages)} דפי /video fallback`} />
@@ -225,8 +277,8 @@ export default function ControlPlane2029Page() {
       </div>
       <div className="sod29-list">
         <div className="sod29-row"><div><strong>Projection owner</strong><small>{videoMap.owners?.projection || "—"}</small></div><span className="sod29-chip">0 tokens</span></div>
-        <div className="sod29-row"><div><strong>Metadata worker</strong><small>{videoMap.owners?.enrichment_worker || "—"} · {videoMap.ai_policy?.metadata_provider || "—"}</small></div><span className="sod29-chip">{videoAi.calls_7d || 0} calls / 7d</span></div>
-        <div className="sod29-row"><div><strong>STT</strong><small>{videoMap.ai_policy?.stt_provider || "—"} · {videoMap.ai_policy?.stt_model || "—"}</small></div><span className="sod29-chip">{videoMap.ai_policy?.stt_runs_from_cron ? "cron" : "ידני בלבד"}</span></div>
+        <div className="sod29-row"><div><strong>Metadata worker</strong><small>{videoMap.owners?.enrichment_worker || "—"} · {videoMap.ai_policy?.metadata_provider || "—"}</small></div><span className="sod29-chip">{num(videoAi.calls_7d)} calls / 7d</span></div>
+        <div className="sod29-row"><div><strong>STT</strong><small>{videoMap.ai_policy?.stt_provider || "—"} · {videoMap.ai_policy?.stt_model || "—"}</small></div><span className="sod29-chip">{videoMap.ai_policy?.stt_runs_from_cron === true ? "cron" : videoMap.ai_policy?.stt_runs_from_cron === false ? "ידני בלבד" : "לא נבדק"}</span></div>
         <div className="sod29-row"><div><strong>2029 storage</strong><small>{videoMap.owners?.storage_2029 || "—"}</small></div><span className="sod29-chip">{num(videoSummary.native_2029_storage_assets)} native</span></div>
       </div>
     </section>
@@ -234,11 +286,11 @@ export default function ControlPlane2029Page() {
     <section className="sod29-section">
       <div className="sod29-section-head"><div><div className="sod29-kicker">NO BLACK BOX</div><h2>Root traces</h2>
         <div className="sod29-muted">עלות לא ידועה נשארת לא ידועה; אין חיבור מומצא בין אגרגציות.</div></div></div>
-      {state.loading ? <FrameState kind="loading" title="טוען traces" /> :
-        state.error ? <FrameState kind="error" title="לא ניתן לקרוא traces כרגע">מצב הנתונים לא ידוע; אין בכך הוכחה שאין traces.</FrameState> :
+      {state.traceLoading ? <FrameState kind="loading" title="טוען traces" /> :
+        state.traceError ? <FrameState kind="error" title="לא ניתן לקרוא traces כרגע">מצב הנתונים לא ידוע; אין בכך הוכחה שאין traces.</FrameState> :
         state.traces.length ? <div className="sod29-list">{state.traces.map(row =>
           <TraceRow key={row.trace_id} row={row} active={row.trace_id === selectedId} open={setSelectedId} />
-        )}</div> : <FrameState kind="empty" title="אין traces בטווח הזה">אין root traces להצגה בשבעת הימים האחרונים.</FrameState>}
+        )}</div> : <FrameState kind="empty" title="רשימת ה־traces שהתקבלה ריקה">הקריאה המוגבלת לשבעת הימים האחרונים הסתיימה בהצלחה ללא פריטים.</FrameState>}
     </section>
 
     <section className="sod29-section">

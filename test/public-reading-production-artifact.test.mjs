@@ -98,9 +98,13 @@ test("public aliases and named existing capabilities retain truthful continuatio
     for (const path of ["/2029", "/2029/posts", "/2029/gematria/viral", "/2029/calculator"]) {
       const res = response(); await handler(req(path), res); assert.equal(res.code, 200, path);
     }
-    for (const path of ["/name", "/or-geula", "/forum"]) {
+    for (const path of ["/name", "/or-geula"]) {
       const res = response(); await handler(req(path), res); assert.equal(res.code, 200, path);
     }
+    // ZURIEL's accepted Forum continuation preserves the exact public chat
+    // destination. It is a redirect, not a generic200 status placeholder.
+    const forum=response();await handler(req('/forum?part=2&part=7'),forum);
+    assert.equal(forum.code,308);assert.equal(forum.headers.get('location'),'/community/chat?part=2&part=7');
     for (const path of ["/invented-capability", "/forum/invented-thread"]) {
       const res = response(); await handler(req(path), res); assert.equal(res.code, 404, path); assert.match(res.headers.get("x-robots-tag"), /noindex/);
     }
@@ -356,7 +360,14 @@ test("actual local artifact retains font fix, compiler isolation, no index shado
   const embedRules=config.redirects.slice(exactAttachmentRules.length,exactAttachmentRules.length+12);
   assert.equal(embedRules.length,12);
   for(const rule of embedRules){assert.match(rule.source,/\/embed\/?$/);assert.equal(decodeURIComponent(rule.destination).replace(/\/$/,""),rule.source.replace(/\/embed\/?$/,""));assert.equal(rule.permanent,true);}
-  assert.deepEqual(config.redirects, [...exactAttachmentRules,...embedRules,...JSON.parse(read("vercel.json")).redirects,
+  const legacyRedirects=JSON.parse(read("vercel.json")).redirects;
+  const recoveredSources=legacyRedirects.filter(rule=>decodeURIComponent(rule.source)==='/משיח-בשנת-התשעו');
+  assert.deepEqual(recoveredSources,[
+    {source:'/משיח-בשנת-התשעו',destination:'/code',permanent:true},
+    {source:'/%D7%9E%D7%A9%D7%99%D7%97-%D7%91%D7%A9%D7%A0%D7%AA-%D7%94%D7%AA%D7%A9%D7%A2%D7%95',destination:'/code',permanent:true},
+  ]);
+  assert.ok(!config.redirects.some(rule=>recoveredSources.some(source=>source.source===rule.source)),'recovered WP2481 must stay at its own original address');
+  assert.deepEqual(config.redirects, [...exactAttachmentRules,...embedRules,...legacyRedirects.filter(rule=>!recoveredSources.includes(rule)),
     { source: "/posts", destination: "/post", permanent: true }]);
   const gate = spawnSync(process.execPath, ["scripts/test-legacy-production-lock.mjs"], { cwd: root, encoding: "utf8" }); assert.equal(gate.status, 0, gate.stderr);
 });

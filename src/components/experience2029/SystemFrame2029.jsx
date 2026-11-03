@@ -87,6 +87,8 @@ import "./googleEntry2029.css";
 
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
 const SiteSearch2029 = React.lazy(() => import("./SiteSearch2029.jsx"));
+const GuestNewsletterInvite2029 = React.lazy(() => import("./GuestNewsletterInvite2029.jsx"));
+import { dismissGuestNewsletterInvite2029, guestNewsletterRoute2029, useGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
@@ -102,6 +104,7 @@ const TRANSIENT = Object.freeze({
   WORKSPACE: "workspace",
   ISSUE: "issue",
   CONTEXT: "context",
+  NEWSLETTER: "newsletter-invite",
 });
 
 const ShellContext = createContext({
@@ -456,7 +459,7 @@ function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKin
         className="sod29-frame-panel"
         ref={panelRef}
         role="dialog"
-        aria-modal="false"
+        aria-modal={panelKind === "newsletter" ? "true" : "false"}
         aria-label={title}
         data-experience-capability="contextual-sidecar"
         data-desktop-projection="left-context-sidecar"
@@ -1739,9 +1742,10 @@ function SystemFrame2029Body({
   }, [context?.returnTo, navigate, research, surface]);
 
   const closeTransient = useCallback(() => {
+    if (transient?.kind === TRANSIENT.NEWSLETTER) dismissGuestNewsletterInvite2029();
     setTransient(null);
     requestAnimationFrame(() => returnFocusRef.current?.focus?.());
-  }, []);
+  }, [transient?.kind]);
 
   const closeMobileNav = useCallback((restoreFocus = true) => {
     setNavOpen(false);
@@ -1761,6 +1765,16 @@ function SystemFrame2029Body({
     setTransient({ kind, payload });
     setNavOpen(false);
   }, [navOpen, completeSurfaceEntry, contextLocked]);
+
+  useGuestNewsletterInvite2029({
+    eligible: !authLoading && !user && (surface === "post" || guestNewsletterRoute2029(location.pathname)),
+    blocked: navOpen || Boolean(transient),
+    routeKey: location.pathname + location.search,
+    onOpen: () => openTransient(TRANSIENT.NEWSLETTER),
+  });
+  useEffect(() => {
+    if (authLoading || user) setTransient(current => current?.kind === TRANSIENT.NEWSLETTER ? null : current);
+  }, [authLoading, user?.id]);
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
   // Keep the existing numeric entry used by World/menu callers; only global
@@ -1867,7 +1881,7 @@ function SystemFrame2029Body({
     const panel = panelRef.current;
     // A contextual sidecar and its canonical dock form one keyboard scope.
     // Background page controls stay outside; global actions remain usable.
-    const dock = panel.closest(".sod29-root")?.querySelector(".sod29-command-island") || document.querySelector(".sod29-command-island");
+    const dock = transient?.kind === TRANSIENT.NEWSLETTER ? null : panel.closest(".sod29-root")?.querySelector(".sod29-command-island") || document.querySelector(".sod29-command-island");
     const panelControls = () => [...panel.querySelectorAll(`${FOCUSABLE},summary`)].filter(node => node.getClientRects().length && !node.matches('[role="option"][tabindex="-1"]'));
     const focusables = panelControls();
     const initial = panel.querySelector("[data-autofocus]") || focusables[0] || panel;
@@ -2110,6 +2124,7 @@ function SystemFrame2029Body({
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
+    if (transientKind === TRANSIENT.NEWSLETTER) return <PanelShell {...common} panelKind="newsletter" icon="✉" kicker="עדכוני האתר" title="עולם חדש של גילוי נבנה עכשיו"><GuestNewsletterInvite2029 onClose={closeTransient} /></PanelShell>;
     if (transientKind === TRANSIENT.SEARCH) return <PanelShell {...common} icon="⌕" kicker="תוכן האתר" title="חיפוש באתר"><SiteSearch2029 query={siteSearchQuery} setQuery={setSiteSearchQuery} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="123" kicker="גימטריה" title="מספר / ביטוי"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
     if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${contextDisplayTitle(pageContext, inspectTarget) || "ההקשר הנוכחי"}`}><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><ActionProjection surface={surface} target={inspectTarget} context={pageContext} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;

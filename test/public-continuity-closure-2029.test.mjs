@@ -91,5 +91,5 @@ test('operational numeric projection distinguishes missing/error from measured z
  const source=read('src/pages/ControlPlane2029Page.jsx');const block=source.slice(source.indexOf('const n ='),source.indexOf('const when ='));
  const format=vm.runInNewContext(block+';({num,cost,mib,gib,pct});');
  for(const value of [null,undefined,'',false,'broken',Infinity,NaN])for(const [name,fn]of Object.entries(format))assert.equal(fn(value),'—',name+':'+value);
- assert.equal(format.num(0),'0');assert.equal(format.cost(0),'₪0.0000');assert.equal(format.pct(0),'0%');assert.ok(source.includes('state.error ? <FrameState kind="error" title="לא ניתן לקרוא traces כרגע"'));
+ assert.equal(format.num(0),'0');assert.equal(format.cost(0),'₪0.0000');assert.equal(format.pct(0),'0%');assert.ok(source.includes('state.traceError ? <FrameState kind="error" title="לא ניתן לקרוא traces כרגע"'));
 });
