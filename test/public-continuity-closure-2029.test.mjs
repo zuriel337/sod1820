@@ -18,11 +18,12 @@ const json=rows=>new Response(JSON.stringify(rows),{headers:{'Content-Type':'app
 
 test('three exact public historical pages retain original body bytes, dates, parent dependencies and source video order',()=>{
  assert.equal(pages.length,3);assert.deepEqual(pages.map(p=>p.path),PUBLIC_HISTORICAL_LECTURE_PATHS);
- const bodies=['parent-original-entry.html','lecture-original-entry.html','proofs-original-entry.html'];
+ const bodies=['parent-original-entry.json','lecture-original-entry.json','proofs-original-entry.json'];
  const counts=[17,6,7];
  pages.forEach((page,index)=>{
   assert.equal(createHash('sha256').update(page.html).digest('hex'),page.bodySha256);
-  assert.equal(page.html,read('docs/reviews/public-url-exceptions-20261103/residual205/evidence/lecture-recovery/'+bodies[index]));
+  const preserved=JSON.parse(read('docs/reviews/public-url-exceptions-20261103/residual205/evidence/lecture-recovery/'+bodies[index]));
+  const bytes=Buffer.from(preserved.data,'base64');assert.equal(bytes.length,preserved.byteLength);assert.equal(createHash('sha256').update(bytes).digest('hex'),preserved.sha256);assert.equal(page.html,bytes.toString());
   assert.equal(publicHistoricalLecturePage2029(encodeURI(page.path)).wpPageId,page.wpPageId);
   assert.equal(publicReadingPath(encodeURI(page.path)),'public');
   assert.equal(publicReadingContinuation('/','?page_id='+page.wpPageId+'&part=2&part=7','#original'),page.path+'?page_id='+page.wpPageId+'&part=2&part=7#original');
