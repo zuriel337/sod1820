@@ -371,3 +371,8 @@ test('actual Supabase insert array columns are admitted exactly; extra columns a
  for(const search of ['?columns=id','?columns=%22email%22,%22message%22,%22name%22,%22subject%22&select=*'])assert.equal((await h.request('/rest/v1/contact_messages'+search,{body:JSON.stringify({name:'synthetic',email:'x@y',subject:'test',message:'synthetic'})})).status,403);
  assert.equal(h.calls.length,1);
 });
+test('explicit report retains canonical anonymous session correlation without accepting visitor identity',async()=>{
+ const h=workerHarness();const body={p_sod_id:null,p_surface:'issue_report',p_event_type:'issue_report',p_path:'/',p_props:{message:'synthetic'},p_is_bot:false,p_session_id:'7b160de1-ff4c-4da2-a00a-421ed39a4996'};
+ assert.equal((await h.request('/rest/v1/rpc/ingest_event',{body:JSON.stringify(body)})).status,200);
+ assert.equal((await h.request('/rest/v1/rpc/ingest_event',{body:JSON.stringify({...body,p_session_id:'arbitrary-identity'})})).status,403);assert.equal(h.calls.length,1);
+});

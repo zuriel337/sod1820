@@ -133,7 +133,8 @@ function installPublicReadingWorker(policy) {
         if (!plainObject(body)) return denied();
         if (url.pathname.endsWith("/ingest_event")) {
           const fields = ["path","source_href","surface","capability","concept","learn_stage","action_tried","at","locale","viewport","auth","interaction_id","message"];
-          if (Object.keys(body).sort().join(",") !== "p_event_type,p_is_bot,p_path,p_props,p_sod_id,p_surface"
+          if (!["p_event_type,p_is_bot,p_path,p_props,p_sod_id,p_surface", "p_event_type,p_is_bot,p_path,p_props,p_session_id,p_sod_id,p_surface"].includes(Object.keys(body).sort().join(","))
+            || body.p_session_id != null && !uuid(body.p_session_id)
             || body.p_sod_id !== null || body.p_is_bot !== false || body.p_surface !== "issue_report" || body.p_event_type !== "issue_report"
             || typeof body.p_path !== "string" || body.p_path.length > 200 || !body.p_path.startsWith("/") || /[?#]/.test(body.p_path)
             || !plainObject(body.p_props) || Object.keys(body.p_props).some(key => !fields.includes(key))
