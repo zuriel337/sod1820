@@ -66,11 +66,17 @@ export function buildWorldPublicPeopleIndex(rows = []) {
   });
 }
 
-export async function fetchWorldPublicPeopleIndex({ client = getPublicResearchClient() } = {}) {
+export async function fetchWorldPublicPeopleIndex({ client = getPublicResearchClient(), search = null, limit = 4, signal } = {}) {
   if (!client) throw new Error("public_people_reader_unavailable");
+  const bounded = search !== null;
+  const term = bounded ? clean(search).replace(/\s+/g, " ") : "";
+  if (bounded && (term.length < 2 || term.length > 120 || /[\u0000-\u001f]/.test(term))) throw new Error("invalid_public_people_search");
+  const cap = Number.isInteger(limit) ? Math.max(1, Math.min(8, limit)) : 4;
+  const canceled = () => { if (signal?.aborted) throw new DOMException("Public people reading canceled", "AbortError"); };
+  canceled();
   const rows = [];
   for (let offset = 0; ; offset += PAGE_READ_SIZE) {
-    const { data, error } = await client.from("contributors")
+    let query = client.from("contributors")
       .select("id,slug,code,display_name,avatar_url,role,active,locked,building,trusted,created_at,updated_at,public_visibility:dossier_settings->>visibility,public_avatar:dossier_settings->public_avatar")
       .eq("active", true)
       .or("locked.is.null,locked.eq.false")
@@ -78,9 +84,14 @@ export async function fetchWorldPublicPeopleIndex({ client = getPublicResearchCl
       .or("dossier_settings->>visibility.is.null,dossier_settings->>visibility.eq.public")
       .order("display_name", { ascending: true })
       .order("slug", { ascending: true })
-      .range(offset, offset + PAGE_READ_SIZE - 1);
+      .range(offset, bounded ? cap : offset + PAGE_READ_SIZE - 1);
+    if (bounded) query = query.ilike("display_name", `%${term.replace(/[\\%_*]/g, "\\$&")}%`);
+    if (signal) query = query.abortSignal(signal);
+    const { data, error } = await query;
+    canceled();
     if (error) throw error;
     const page = Array.isArray(data) ? data : [];
+    if (bounded) return { ...buildWorldPublicPeopleIndex(page.slice(0, cap)), hasMore: page.length > cap };
     rows.push(...page);
     if (page.length < PAGE_READ_SIZE) break;
   }

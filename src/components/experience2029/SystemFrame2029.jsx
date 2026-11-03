@@ -85,9 +85,11 @@ import "./systemFrame2029-unified-bar.css";
 import "./googleEntry2029.css";
 
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
+const SiteSearch2029 = React.lazy(() => import("./SiteSearch2029.jsx"));
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
+  SEARCH: "site-search",
   ACTION: "action",
   CAPABILITY: "capability",
   INSPECT: "inspect",
@@ -473,7 +475,7 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
         />
         <button className="sod29-action primary" type="submit">בדוק</button>
       </form>
-      <div className="sod29-frame-hint"><kbd>⌘K</kbd><span>פתיחה מכל מקום</span><kbd>Esc</kbd><span>חזרה בדיוק למקום</span></div>
+      <div className="sod29-frame-hint"><span>מספרים, ביטויים ושיטות חישוב</span><kbd>Esc</kbd><span>חזרה בדיוק למקום</span></div>
       <button className="sod29-action" type="button" onClick={onClose}>סגור</button>
     </>
   );
@@ -1518,6 +1520,7 @@ function SystemFrame2029Body({
   useEffect(() => { if (!activeToolDock) setSystemDockMode(false); }, [activeToolDock]);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
   const [commandQuery, setCommandQuery] = useState("");
+  const [siteSearchQuery, setSiteSearchQuery] = useState("");
   const [reducedMotion, setReducedMotion] = useState(false);
   const [surfaceFamiliarity, setSurfaceFamiliarity] = useState(() => getSurfaceFamiliarity(surface));
   const panelRef = useRef(null);
@@ -1712,7 +1715,7 @@ function SystemFrame2029Body({
     if (!document.activeElement?.closest?.(".sod29-frame-panel")) {
       returnFocusRef.current = navOpen ? (mobileMenuRef.current || document.activeElement) : document.activeElement;
     }
-    if ([TRANSIENT.COMMAND, TRANSIENT.ACTION, TRANSIENT.CAPABILITY, TRANSIENT.INSPECT, TRANSIENT.CONTEXT, TRANSIENT.MORE, TRANSIENT.TOOLS, TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(kind)) {
+    if ([TRANSIENT.COMMAND, TRANSIENT.SEARCH, TRANSIENT.ACTION, TRANSIENT.CAPABILITY, TRANSIENT.INSPECT, TRANSIENT.CONTEXT, TRANSIENT.MORE, TRANSIENT.TOOLS, TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(kind)) {
       completeSurfaceEntry(kind === TRANSIENT.CAPABILITY ? (payload?.capability || "capability") : kind);
     }
     setTransient({ kind, payload });
@@ -1720,6 +1723,9 @@ function SystemFrame2029Body({
   }, [navOpen, completeSurfaceEntry, contextLocked]);
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
+  // Keep the existing numeric entry used by World/menu callers; only global
+  // site search and its keyboard shortcut use the new content projection.
+  const openSiteSearch = useCallback(() => openTransient(TRANSIENT.SEARCH), [openTransient]);
   const handleGlobalNavAction = useCallback((action) => {
     if (action === "workspace") openTransient(TRANSIENT.WORKSPACE);
     if (action === "number-search") openCommand();
@@ -1799,7 +1805,7 @@ function SystemFrame2029Body({
     const onKeyDown = (event) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        openCommand();
+        openSiteSearch();
       }
       if (event.key === "Escape") {
         if (transient) { event.preventDefault(); closeTransient(); }
@@ -1808,7 +1814,7 @@ function SystemFrame2029Body({
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [openCommand, closeTransient, closeMobileNav, transient, navOpen]);
+  }, [openSiteSearch, closeTransient, closeMobileNav, transient, navOpen]);
 
   useEffect(() => {
     if (!transient || !panelRef.current) return undefined;
@@ -1816,7 +1822,7 @@ function SystemFrame2029Body({
     // A contextual sidecar and its canonical dock form one keyboard scope.
     // Background page controls stay outside; global actions remain usable.
     const dock = panel.closest(".sod29-root")?.querySelector(".sod29-command-island") || document.querySelector(".sod29-command-island");
-    const panelControls = () => [...panel.querySelectorAll(`${FOCUSABLE},summary`)].filter(node => node.getClientRects().length);
+    const panelControls = () => [...panel.querySelectorAll(`${FOCUSABLE},summary`)].filter(node => node.getClientRects().length && !node.matches('[role="option"][tabindex="-1"]'));
     const focusables = panelControls();
     const initial = panel.querySelector("[data-autofocus]") || focusables[0] || panel;
     requestAnimationFrame(() => initial.focus?.());
@@ -2058,7 +2064,8 @@ function SystemFrame2029Body({
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
-    if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="חיפוש" title="חיפוש"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
+    if (transientKind === TRANSIENT.SEARCH) return <PanelShell {...common} icon="⌕" kicker="תוכן האתר" title="חיפוש באתר"><SiteSearch2029 query={siteSearchQuery} setQuery={setSiteSearchQuery} go={go} /></PanelShell>;
+    if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="123" kicker="גימטריה" title="מספר / ביטוי"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
     if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${contextDisplayTitle(pageContext, inspectTarget) || "ההקשר הנוכחי"}`}><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><ActionProjection surface={surface} target={inspectTarget} context={pageContext} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
@@ -2092,7 +2099,7 @@ function SystemFrame2029Body({
       </div>
       {shareHref ? <section className="sod29-panel-share" aria-label="שיתוף העמוד" data-share-owner="ShareActions"><h3>שיתוף</h3><ShareActions type={surface === "post" ? "post" : "page"} url={shareHref} title={title || "SOD1820"} sourceSurface={surface} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} force /></section> : <FrameState title="עמוד אישי">אין קישור ציבורי לשיתוף מתוך העמוד האישי.</FrameState>}
     </PanelShell>;
-    if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><button className="sod29-action" type="button" onClick={openCommand}>חיפוש</button><ToolsProjection surface={surface} target={inspectTarget} go={go} onCapability={openCapability} /></PanelShell>;
+    if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><button className="sod29-action" type="button" onClick={openSiteSearch}>חיפוש באתר</button><ToolsProjection surface={surface} target={inspectTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} panelKind="raziel" icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={pageContext} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} onSignup={openWorkspace} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
@@ -2183,7 +2190,7 @@ function SystemFrame2029Body({
                 {pageContext?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{contextDisplayTitle(pageContext) || "ההקשר הנוכחי"}</span></span> : null}
               </div>
             </div>
-            <button className="sod29-header-search" type="button" onClick={openCommand} aria-label="חיפוש">
+            <button className="sod29-header-search" type="button" onClick={openSiteSearch} aria-label="חיפוש באתר" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.SEARCH}>
               <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
               <span className="sod29-search-pill-icon" aria-hidden="true">⌕</span>
               <span className="label">חיפוש</span>
@@ -2292,7 +2299,7 @@ function SystemFrame2029Body({
             }
             const value = researchContextNumber(surfaceFocus?.number ?? (activeTarget?.type === "number" ? activeTarget.id : null));
             openNumber(value != null ? { id: String(value), type: "number", label: String(value) } : activeTarget);
-          }} disabled={numberLocked} aria-label={numberLocked ? "מספר · נעול כרגע" : "מספר · פתח חלונית מספר"} aria-haspopup="dialog"><NavigationIcon2029 name="number" /><small>מספר</small></button>
+          }} disabled={numberLocked} aria-label={numberLocked ? "גימטריה · נעולה כרגע" : "גימטריה · מספר, ביטוי ושיטות חישוב"} aria-haspopup="dialog"><NavigationIcon2029 name="number" /><small>גימטריה</small></button>
           <RazielOrb compact active={!razielLocked && transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} locked={razielLocked} />
           <button type="button" onClick={research.elsResearchOperation?.task ? openWorkspace : openAttention} aria-label={research.elsResearchOperation?.task ? `עכשיו · ${research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות"}` : feed.newCount > 0 ? `עכשיו · ${feed.newCount} חדשים` : "עכשיו"} aria-haspopup="dialog" aria-expanded={transientKind === (research.elsResearchOperation?.task ? TRANSIENT.WORKSPACE : TRANSIENT.ATTENTION)}><NavigationIcon2029 name="now" /><small>{research.elsResearchOperation?.task ? research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות" : "עכשיו"}</small>{feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
           <button type="button" onClick={openMore} aria-label={ephemeralSelection ? "עוד · פעולות על הבחירה, כלים ושיתוף" : "עוד · פעולות, כלים ושיתוף"} aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.MORE}><NavigationIcon2029 name="tools" /><small>עוד</small></button>

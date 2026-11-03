@@ -173,13 +173,13 @@ export async function fetchPostFollowTargets2029({ post = null, scope = null, cl
 }
 
 const CATALOG_COLUMNS = "id,wp_id,source,link,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified";
-function publicCatalogQuery({ scope, search, client, head = false }) {
+function publicCatalogQuery({ scope, search, client, head = false, includeTotal = true }) {
   if (!client || scope.kind === "invalid" || !["all", "category", "series"].includes(scope.kind)) throw new Error("בחירת התוכן אינה זמינה.");
   // Re-resolve a series by its owned key, never trust a caller-supplied spec/author/filter.
   const spec = scope.kind === "series" ? contentSeriesByKey(scope.key) : null;
   if (scope.kind === "series" && !spec) throw new Error("הסדרה אינה זמינה.");
   let query = client.from("posts")
-    .select(head ? "id" : CATALOG_COLUMNS, { count: "exact", ...(head ? { head: true } : {}) })
+    .select(head ? "id" : CATALOG_COLUMNS, { ...(includeTotal ? { count: "exact" } : {}), ...(head ? { head: true } : {}) })
     .or(publicPostOnlyFilter());
   if (scope.kind === "category") {
     const names = postCategoryFilterNames(scope.key);
@@ -192,7 +192,7 @@ function publicCatalogQuery({ scope, search, client, head = false }) {
   }
   const term = postsSearch2029(search);
   // One escaped column filter on the existing public catalog, not a second search index.
-  if (term) query = query.ilike("title", `%${term.replace(/[\\%_]/g, "\\$&")}%`);
+  if (term) query = query.ilike("title", `%${term.replace(/[\\%_*]/g, "\\$&")}%`);
   return { query, spec, term };
 }
 
@@ -206,6 +206,23 @@ function validatePostRows(data, spec) {
   if (!Array.isArray(data) || data.some(row => hasSuppressedPublicPostTag(row) || spec && (!hasExactMembership(row, spec) || spec.exactAuthor && row.author !== spec.exactAuthor))) {
     throw new Error("לא ניתן לאמת את שיוך התוכן.");
   }
+}
+
+// Top-frame suggestions use the SAME public catalog/filter and URL policy,
+// without a count query or loading an entire catalog page on every keystroke.
+export async function fetchPostSearchSuggestions2029({ search = "", limit = 4, client = getPublicResearchClient(), signal } = {}) {
+  const term = postsSearch2029(search);
+  cancelCatalog(signal);
+  if (term.length < 2) return { posts: [], hasMore: false };
+  const cap = Number.isInteger(limit) ? Math.max(1, Math.min(8, limit)) : 4;
+  const { query } = publicCatalogQuery({ scope: postsCatalogScope2029(), search: term, client, includeTotal: false });
+  const ordered = query.order("modified", { ascending: false, nullsFirst: false }).order("id", { ascending: true }).range(0, cap);
+  if (signal) ordered.abortSignal(signal);
+  const { data, error } = await ordered;
+  cancelCatalog(signal);
+  if (error) throw error;
+  validatePostRows(data, null);
+  return { posts: data.slice(0, cap), hasMore: data.length > cap };
 }
 
 export async function fetchPostsCatalog2029({ scope = postsCatalogScope2029(), page = 1, search = "", client = getPublicResearchClient(), signal, allowApprovedSourcePage = false } = {}) {

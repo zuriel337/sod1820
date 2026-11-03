@@ -1,0 +1,697 @@
+{
+  "sourceHashes": {
+    "src/components/experience2029/SystemFrame2029.jsx": "028636161965278803ff9591a38b1b6ba91086a07868f91594f2bf7683b47632",
+    "src/components/experience2029/systemFrame2029-command-island-polish.css": "777727823ede1667e89d44b9b1092d4442053ec0d7c77b73096976b2bbdf45bd",
+    "src/components/experience2029/HomeComposition2029.jsx": "1c02c8f78b610505bb60a85c9d7ebbbfce3d80dd541f92c679c6b78573121b80",
+    "src/components/experience2029/HomeUpdatesPreview2029.jsx": "b66d7f6aa08e456dd3f42bf0edd8251a5237c1e92075f6ba2918ad726957111a",
+    "src/components/experience2029/homeComposition2029.css": "28ba72aa6e7ca7edb462cb67a8d10cd44a923e391a5ded7ce6e56d05f0116961",
+    "src/components/StayUpdatedCTA.jsx": "5fd2cca93d2bc8a72f095e406338f787ce1b171e6a7f088daffc22cc3b24c110",
+    "src/components/MaintenanceLock.jsx": "f33c58326d3851abee0156ba87d4b2aeb0613d8a74378b3e3e09de21586005cc",
+    "src/lib/research/ResearchProvider.jsx": "a2ef964a782d6d3d204fc3f5402d356b3aba9ef7f1472e9d0bab39398acbfe43"
+  },
+  "scope": "Controlled actual Home/Frame components and CSS; no real identity, mail or model acceptance; not a performance run; external network blocked",
+  "cases": [
+    {
+      "width": 320,
+      "theme": "dark",
+      "geometry": {
+        "x": 12,
+        "width": 296,
+        "height": 60,
+        "viewport": 320,
+        "overflow": false,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)",
+        "buttons": [
+          {
+            "x": 257,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          },
+          {
+            "x": 200.203125,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          },
+          {
+            "x": 136.015625,
+            "y": 836,
+            "w": 48,
+            "h": 48
+          },
+          {
+            "x": 86.609375,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          },
+          {
+            "x": 29.8125,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          }
+        ]
+      },
+      "hereGeometry": {
+        "label": {
+          "x": 268.09375,
+          "y": 865.296875,
+          "width": 21.828125,
+          "height": 15.390625
+        },
+        "badge": {
+          "x": 264.21875,
+          "y": 829,
+          "width": 40.78125,
+          "height": 17.5
+        },
+        "overlap": 0
+      },
+      "cardGeometry": {
+        "width": 296,
+        "height": 346.109375,
+        "top": 136
+      },
+      "reducedMotionRunningAnimations": 0,
+      "publicClosed": true,
+      "adminButtonsOpen": true,
+      "roleLossClosesPanels": true,
+      "nowPublicOpen": true,
+      "blockedExternalRequests": 0,
+      "unexpectedIO": []
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "geometry": {
+        "x": 12,
+        "width": 296,
+        "height": 60,
+        "viewport": 320,
+        "overflow": false,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)",
+        "buttons": [
+          {
+            "x": 257,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          },
+          {
+            "x": 200.203125,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          },
+          {
+            "x": 136.015625,
+            "y": 836,
+            "w": 48,
+            "h": 48
+          },
+          {
+            "x": 86.609375,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          },
+          {
+            "x": 29.8125,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          }
+        ]
+      },
+      "hereGeometry": {
+        "label": {
+          "x": 268.09375,
+          "y": 865.296875,
+          "width": 21.828125,
+          "height": 15.390625
+        },
+        "badge": {
+          "x": 264.21875,
+          "y": 829,
+          "width": 40.78125,
+          "height": 17.5
+        },
+        "overlap": 0
+      },
+      "cardGeometry": {
+        "width": 296,
+        "height": 346.109375,
+        "top": 136
+      },
+      "reducedMotionRunningAnimations": 0,
+      "publicClosed": true,
+      "adminButtonsOpen": true,
+      "roleLossClosesPanels": true,
+      "nowPublicOpen": true,
+      "blockedExternalRequests": 0,
+      "unexpectedIO": []
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "geometry": {
+        "x": 12,
+        "width": 296,
+        "height": 60,
+        "viewport": 320,
+        "overflow": false,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)",
+        "buttons": [
+          {
+            "x": 257,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          },
+          {
+            "x": 200.203125,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          },
+          {
+            "x": 136.015625,
+            "y": 836,
+            "w": 48,
+            "h": 48
+          },
+          {
+            "x": 86.609375,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          },
+          {
+            "x": 29.8125,
+            "y": 835,
+            "w": 44,
+            "h": 50
+          }
+        ]
+      },
+      "hereGeometry": {
+        "label": {
+          "x": 268.09375,
+          "y": 865.296875,
+          "width": 21.828125,
+          "height": 15.390625
+        },
+        "badge": {
+          "x": 264.21875,
+          "y": 829,
+          "width": 40.78125,
+          "height": 17.5
+        },
+        "overlap": 0
+      },
+      "cardGeometry": {
+        "width": 296,
+        "height": 346.109375,
+        "top": 136
+      },
+      "reducedMotionRunningAnimations": 0,
+      "publicClosed": true,
+      "adminButtonsOpen": true,
+      "roleLossClosesPanels": true,
+      "nowPublicOpen": true,
+      "blockedExternalRequests": 0,
+      "unexpectedIO": []
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "geometry": {
+        "x": 30,
+        "width": 330,
+        "height": 60,
+        "viewport": 390,
+        "overflow": false,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)",
+        "buttons": [
+          {
+            "x": 308,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          },
+          {
+            "x": 244.40625,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          },
+          {
+            "x": 171.015625,
+            "y": 836,
+            "w": 48,
+            "h": 48
+          },
+          {
+            "x": 117.203125,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          },
+          {
+            "x": 53.609375,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          }
+        ]
+      },
+      "hereGeometry": {
+        "label": {
+          "x": 319.59375,
+          "y": 865.296875,
+          "width": 21.828125,
+          "height": 15.390625
+        },
+        "badge": {
+          "x": 316.21875,
+          "y": 829,
+          "width": 40.78125,
+          "height": 17.5
+        },
+        "overlap": 0
+      },
+      "cardGeometry": {
+        "width": 366,
+        "height": 346.109375,
+        "top": 136
+      },
+      "reducedMotionRunningAnimations": 0,
+      "publicClosed": true,
+      "adminButtonsOpen": true,
+      "roleLossClosesPanels": true,
+      "nowPublicOpen": true,
+      "blockedExternalRequests": 0,
+      "unexpectedIO": []
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "geometry": {
+        "x": 30,
+        "width": 330,
+        "height": 60,
+        "viewport": 390,
+        "overflow": false,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)",
+        "buttons": [
+          {
+            "x": 308,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          },
+          {
+            "x": 244.40625,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          },
+          {
+            "x": 171.015625,
+            "y": 836,
+            "w": 48,
+            "h": 48
+          },
+          {
+            "x": 117.203125,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          },
+          {
+            "x": 53.609375,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          }
+        ]
+      },
+      "hereGeometry": {
+        "label": {
+          "x": 319.59375,
+          "y": 865.296875,
+          "width": 21.828125,
+          "height": 15.390625
+        },
+        "badge": {
+          "x": 316.21875,
+          "y": 829,
+          "width": 40.78125,
+          "height": 17.5
+        },
+        "overlap": 0
+      },
+      "cardGeometry": {
+        "width": 366,
+        "height": 346.109375,
+        "top": 136
+      },
+      "reducedMotionRunningAnimations": 0,
+      "publicClosed": true,
+      "adminButtonsOpen": true,
+      "roleLossClosesPanels": true,
+      "nowPublicOpen": true,
+      "blockedExternalRequests": 0,
+      "unexpectedIO": []
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "geometry": {
+        "x": 30,
+        "width": 330,
+        "height": 60,
+        "viewport": 390,
+        "overflow": false,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)",
+        "buttons": [
+          {
+            "x": 308,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          },
+          {
+            "x": 244.40625,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          },
+          {
+            "x": 171.015625,
+            "y": 836,
+            "w": 48,
+            "h": 48
+          },
+          {
+            "x": 117.203125,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          },
+          {
+            "x": 53.609375,
+            "y": 835,
+            "w": 45,
+            "h": 50
+          }
+        ]
+      },
+      "hereGeometry": {
+        "label": {
+          "x": 319.59375,
+          "y": 865.296875,
+          "width": 21.828125,
+          "height": 15.390625
+        },
+        "badge": {
+          "x": 316.21875,
+          "y": 829,
+          "width": 40.78125,
+          "height": 17.5
+        },
+        "overlap": 0
+      },
+      "cardGeometry": {
+        "width": 366,
+        "height": 346.109375,
+        "top": 136
+      },
+      "reducedMotionRunningAnimations": 0,
+      "publicClosed": true,
+      "adminButtonsOpen": true,
+      "roleLossClosesPanels": true,
+      "nowPublicOpen": true,
+      "blockedExternalRequests": 0,
+      "unexpectedIO": []
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "geometry": {
+        "x": 555,
+        "width": 330,
+        "height": 62,
+        "viewport": 1440,
+        "overflow": false,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)",
+        "buttons": [
+          {
+            "x": 816.40625,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          },
+          {
+            "x": 752.8125,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          },
+          {
+            "x": 696.015625,
+            "y": 835,
+            "w": 48,
+            "h": 48
+          },
+          {
+            "x": 625.609375,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          },
+          {
+            "x": 562.015625,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          }
+        ]
+      },
+      "hereGeometry": {
+        "label": {
+          "x": 836.296875,
+          "y": 864.296875,
+          "width": 21.828125,
+          "height": 15.390625
+        },
+        "badge": {
+          "x": 841.21875,
+          "y": 827,
+          "width": 40.78125,
+          "height": 17.5
+        },
+        "overlap": 0
+      },
+      "cardGeometry": {
+        "width": 1112,
+        "height": 225.609375,
+        "top": 186
+      },
+      "reducedMotionRunningAnimations": 0,
+      "publicClosed": true,
+      "adminButtonsOpen": true,
+      "roleLossClosesPanels": true,
+      "nowPublicOpen": true,
+      "blockedExternalRequests": 0,
+      "unexpectedIO": []
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "geometry": {
+        "x": 555,
+        "width": 330,
+        "height": 62,
+        "viewport": 1440,
+        "overflow": false,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)",
+        "buttons": [
+          {
+            "x": 816.40625,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          },
+          {
+            "x": 752.8125,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          },
+          {
+            "x": 696.015625,
+            "y": 835,
+            "w": 48,
+            "h": 48
+          },
+          {
+            "x": 625.609375,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          },
+          {
+            "x": 562.015625,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          }
+        ]
+      },
+      "hereGeometry": {
+        "label": {
+          "x": 836.296875,
+          "y": 864.296875,
+          "width": 21.828125,
+          "height": 15.390625
+        },
+        "badge": {
+          "x": 841.21875,
+          "y": 827,
+          "width": 40.78125,
+          "height": 17.5
+        },
+        "overlap": 0
+      },
+      "cardGeometry": {
+        "width": 1112,
+        "height": 225.609375,
+        "top": 186
+      },
+      "reducedMotionRunningAnimations": 0,
+      "publicClosed": true,
+      "adminButtonsOpen": true,
+      "roleLossClosesPanels": true,
+      "nowPublicOpen": true,
+      "blockedExternalRequests": 0,
+      "unexpectedIO": []
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "geometry": {
+        "x": 555,
+        "width": 330,
+        "height": 62,
+        "viewport": 1440,
+        "overflow": false,
+        "purple": "radial-gradient(circle at 32% 25%, rgb(196, 167, 245) 0%, rgb(150, 98, 215) 27%, rgb(112, 60, 179) 62%, rgb(69, 38, 111) 100%)",
+        "buttons": [
+          {
+            "x": 816.40625,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          },
+          {
+            "x": 752.8125,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          },
+          {
+            "x": 696.015625,
+            "y": 835,
+            "w": 48,
+            "h": 48
+          },
+          {
+            "x": 625.609375,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          },
+          {
+            "x": 562.015625,
+            "y": 833,
+            "w": 61.59375,
+            "h": 52
+          }
+        ]
+      },
+      "hereGeometry": {
+        "label": {
+          "x": 836.296875,
+          "y": 864.296875,
+          "width": 21.828125,
+          "height": 15.390625
+        },
+        "badge": {
+          "x": 841.21875,
+          "y": 827,
+          "width": 40.78125,
+          "height": 17.5
+        },
+        "overlap": 0
+      },
+      "cardGeometry": {
+        "width": 1112,
+        "height": 225.609375,
+        "top": 186
+      },
+      "reducedMotionRunningAnimations": 0,
+      "publicClosed": true,
+      "adminButtonsOpen": true,
+      "roleLossClosesPanels": true,
+      "nowPublicOpen": true,
+      "blockedExternalRequests": 0,
+      "unexpectedIO": []
+    },
+    {
+      "normalMotion": true,
+      "animations": [
+        {
+          "iterations": 1,
+          "duration": 460
+        },
+        {
+          "iterations": 1,
+          "duration": 460
+        },
+        {
+          "iterations": 1,
+          "duration": 460
+        },
+        {
+          "iterations": 1,
+          "duration": 420
+        },
+        {
+          "iterations": 1,
+          "duration": 420
+        },
+        {
+          "iterations": 1,
+          "duration": 520
+        },
+        {
+          "iterations": 1,
+          "duration": 520
+        },
+        {
+          "iterations": 1,
+          "duration": 520
+        },
+        {
+          "iterations": 1,
+          "duration": 1500
+        }
+      ],
+      "completedOnce": true
+    }
+  ],
+  "errors": []
+}
