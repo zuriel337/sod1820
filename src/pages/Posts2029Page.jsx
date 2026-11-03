@@ -15,6 +15,7 @@ import PostFollowBox from "../components/PostFollowBox.jsx";
 import { AUTHORS } from "../lib/authors.js";
 import { publicPostHref } from "../lib/publicPostUrls.js";
 import { capturePostsCatalogDeparture2029, readPostsCatalogViewport2029, rememberPostsCatalogViewport2029, startPostsCatalogViewportRestore2029, trackPostsCatalogViewport2029 } from "../lib/research/postsCatalogViewport2029.js";
+import { postsTaxonomyPage2029 } from "../lib/research/postsTaxonomy2029Route.js";
 import "./posts2029.css";
 
 // The actual messages participate in intrinsic sizing. Only the active message
@@ -94,6 +95,7 @@ function PostIndexCard({ post, index, seriesItem = null, publicationOrder = fals
   return <article
     className="sod29-library-post-card"
     data-experience-capability="post-index-card"
+    data-post-source={post?.id ? `posts:${post.id}` : undefined}
     data-series-source={seriesItem?.sourceRef}
     data-series-kind={seriesItem?.kind}
     style={{ "--post-order": index }}
@@ -124,7 +126,7 @@ function PostIndexCard({ post, index, seriesItem = null, publicationOrder = fals
   </article>;
 }
 
-export default function Posts2029Page() {
+export default function Posts2029Page({ taxonomyScope = null, onSearchParams = null } = {}) {
   const location = useLocation();
   const navigationType = useNavigationType();
   const currentHref = `${location.pathname}${location.search}${location.hash}`;
@@ -135,13 +137,18 @@ export default function Posts2029Page() {
   const viewportRestoreRef = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [attempt, setAttempt] = useState(0);
-  const scope = postsCatalogScope2029(searchParams);
+  const scope = postsCatalogScope2029(searchParams, taxonomyScope);
+  const isTaxonomy = Boolean(taxonomyScope) || searchParams.has("tag") || searchParams.has("category");
+  const taxonomyLabel = scope.kind === "tag" || location.pathname.startsWith("/tag/") || searchParams.has("tag") ? "תגית" : "קטגוריה";
+  const allPostsHref = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/post" : "/2029/posts";
+  const updateSearchParams = onSearchParams || setSearchParams;
   const mixedSeries = scope.kind === "series" && Boolean(scope.spec?.approvedSources?.length);
   const search = searchParams.get("q") || "";
   const [draftSearch, setDraftSearch] = useState(search);
   useEffect(() => { setDraftSearch(search); }, [search]);
-  const title = scope.kind === "all" ? "פוסטים" : scope.label;
-  const scopeKey = JSON.stringify([scope.kind, scope.key, search]);
+  const title = scope.kind === "all" ? "פוסטים" : isTaxonomy && scope.key ? scope.key : scope.label;
+  const taxonomyPage = isTaxonomy ? postsTaxonomyPage2029(searchParams) : 1;
+  const scopeKey = JSON.stringify([scope.kind, scope.key, search, ...(isTaxonomy ? [taxonomyPage !== null] : [])]);
   const requestedPage = Number(searchParams.get("page") || 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 10000 ? requestedPage : 1;
   const [state, setState] = useState({ page, scopeKey, loading: true, posts: [], total: null, error: null });
@@ -171,27 +178,46 @@ export default function Posts2029Page() {
     applySeo({
       title: `${scope.label} · SOD1820 2029`,
       description: "אינדקס הפוסטים של SOD1820.",
-      path: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/post" : "/2029/posts",
+      path: taxonomyScope ? location.pathname : allPostsHref,
       noindex: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW !== "true" || scope.kind !== "all" || Boolean(search) || page > 1,
     });
 
     let live = true;
     const controller = new AbortController();
     setState({ page, scopeKey, loading: true, posts: [], total: null, error: null });
+    if (isTaxonomy && scope.kind === "invalid") {
+      setState({ page, scopeKey, loading: false, posts: [], total: 0, error: null, taxonomy: { state: "missing", status: 404 } });
+      return () => { live = false; controller.abort(); };
+    }
+    if (isTaxonomy && taxonomyPage === null) {
+      setState({ page, scopeKey, loading: false, posts: [], total: 0, error: null, taxonomy: { state: "page-missing", status: 404 } });
+      return () => { live = false; controller.abort(); };
+    }
     fetchPostsCatalog2029({ scope, page, search, signal: controller.signal, allowApprovedSourcePage: mixedSeries })
-      .then(({ posts, total }) => {
+      .then(({ posts, total, taxonomy }) => {
         if (!live) return;
         setState({ page, scopeKey, loading: false, posts, total, postTotal: total, basePosts: posts,
-          sourceItems: [], sourceTotal: null, mixedComplete: !mixedSeries, mixedError: null, error: null });
+          sourceItems: [], sourceTotal: null, mixedComplete: !mixedSeries, mixedError: null, error: null, taxonomy });
       })
       .catch((error) => {
         if (!live) return;
-        const message = error?.code === "PGRST103" ? "העמוד הזה נמצא מעבר לפוסטים הזמינים." : error?.message || "טעינת הפוסטים נכשלה";
+        const message = isTaxonomy ? "רשימת הפוסטים אינה זמינה כרגע." : error?.code === "PGRST103" ? "העמוד הזה נמצא מעבר לפוסטים הזמינים." : error?.message || "טעינת הפוסטים נכשלה";
         setState({ page, scopeKey, loading: false, posts: [], total: null, error: message });
       });
 
     return () => { live = false; controller.abort(); };
   }, [page, scopeKey, attempt]);
+
+  useEffect(() => {
+    if (!isTaxonomy) return;
+    const verified = state.scopeKey === scopeKey && state.page === page && !state.loading && !state.error && state.taxonomy?.status === 200;
+    applySeo({
+      title: `${scope.kind === "invalid" ? title : `${taxonomyLabel}: ${title}`} · SOD1820 2029`,
+      description: `פוסטים ב${taxonomyLabel} ${title} באתר SOD1820.`,
+      path: taxonomyScope ? location.pathname : `${allPostsHref}?${scope.kind}=${encodeURIComponent(scope.key)}`,
+      noindex: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW !== "true" || !verified || Boolean(search) || page > 1,
+    });
+  }, [isTaxonomy, taxonomyScope, location.pathname, scopeKey, page, state]);
 
   useEffect(() => {
     if (!mixedSeries || state.loading || state.error || state.mixedComplete && state.mixedCatalog === seriesReading || state.scopeKey !== scopeKey || state.page !== page
@@ -216,6 +242,8 @@ export default function Posts2029Page() {
   const posts = sameScope ? state.posts : [];
   const loading = state.loading || !sameScope;
   const error = sameScope ? state.error : null;
+  const taxonomyMissing = isTaxonomy && !loading && !error && state.taxonomy?.state === "missing";
+  const taxonomyPageMissing = isTaxonomy && !loading && !error && state.taxonomy?.state === "page-missing";
   const sameSeries = seriesReading.activeKey === scope.key;
   const selectedSeries = sameSeries ? seriesReading.series.find(series => series.key === scope.key) : null;
   const sourceItems = mixedSeries && sameScope && state.mixedComplete && state.mixedCatalog === seriesReading ? state.sourceItems || [] : [];
@@ -241,7 +269,7 @@ export default function Posts2029Page() {
     const next = new URLSearchParams(searchParams);
     if (nextPage === 1) next.delete("page");
     else next.set("page", String(nextPage));
-    setSearchParams(next);
+    updateSearchParams(next);
     document.getElementById("posts-catalog")?.scrollIntoView({ block: "start", behavior: "instant" });
   };
 
@@ -251,18 +279,28 @@ export default function Posts2029Page() {
     const next = new URLSearchParams(searchParams);
     if (draftSearch.trim()) next.set("q", draftSearch.trim()); else next.delete("q");
     next.delete("page");
-    setSearchParams(next);
+    updateSearchParams(next);
+  };
+
+  const clearSearch = () => {
+    rememberViewport();
+    const next = new URLSearchParams(searchParams);
+    next.delete("q"); next.delete("page");
+    updateSearchParams(next);
   };
 
   return <Sod2029Shell surface="post" title={title} introVariant="none" symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
-    <main ref={catalogRootRef} className="sod29-posts-library" data-experience-surface="posts-index"
+    <main ref={catalogRootRef} className={`sod29-posts-library${isTaxonomy ? " is-taxonomy" : ""}`} data-experience-surface="posts-index"
+      data-posts-taxonomy={isTaxonomy ? scope.kind : undefined} data-taxonomy-state={isTaxonomy ? loading ? "loading" : error ? "unavailable" : state.taxonomy?.state : undefined}
       onClickCapture={event => capturePostsCatalogDeparture2029(event, { entryKey: location.key, href: currentHref })}>
       <header className="sod29-posts-library-hero" data-experience-capability="posts-index-hero">
-        {scope.kind !== "all" ? <Link className="sod29-posts-library-back" to="/2029/posts">לכל הפוסטים <span aria-hidden="true">←</span></Link> : null}
+        {scope.kind !== "all" ? <Link className="sod29-posts-library-back" to={isTaxonomy ? allPostsHref : "/2029/posts"}>לכל הפוסטים <span aria-hidden="true">←</span></Link> : null}
         <div className="sod29-posts-library-hero-grid">
           <div>
+            {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-taxonomy-label"><NavigationIcon2029 name="layers" size={20} />{taxonomyLabel}</p> : null}
             <h1>{title}</h1>
             {scope.kind === "all" ? <p className="sod29-posts-library-intro">סיפורים, רמזים וחיבורים שמעוררים התבוננות</p> : null}
+            {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-library-intro">{scope.kind === "tag" ? "לקרוא ולגלות דרך הפוסטים עם התגית הזו" : "הפוסטים שנאספו תחת הסיווג הזה"}</p> : null}
             {scope.compatibilityNote ? <p>{scope.compatibilityNote} {scope.seriesLink ? <Link to={scope.seriesLink.href}>{scope.seriesLink.label} ←</Link> : null}</p> : null}
             <details className="sod29-post-details sod29-library-post-about">
               <summary>על הפוסטים <span aria-hidden="true">⌄</span></summary>
@@ -277,10 +315,11 @@ export default function Posts2029Page() {
         </div>
       </header>
 
-      <form className="sod29-posts-search" role="search" aria-label="חיפוש פוסטים וסדרות" onSubmit={submitSearch}>
-        <label htmlFor="posts-search"><NavigationIcon2029 name="search" size={20} /> חיפוש לפי כותרת פוסט או שם סדרה</label>
-        <div><input id="posts-search" type="search" value={draftSearch} maxLength={120} onChange={event => setDraftSearch(event.target.value)} placeholder="מה תרצו לקרוא?" dir="auto" /><button type="submit">חיפוש</button></div>
-        {search ? <button type="button" onClick={() => { rememberViewport(); const next = new URLSearchParams(searchParams); next.delete("q"); next.delete("page"); setSearchParams(next); }}>ניקוי החיפוש</button> : null}
+      <form className="sod29-posts-search" role="search" aria-label={isTaxonomy ? `חיפוש פוסטים ב${taxonomyLabel}` : "חיפוש פוסטים וסדרות"} onSubmit={submitSearch}>
+        <label htmlFor="posts-search"><NavigationIcon2029 name="search" size={20} /> {isTaxonomy ? `חיפוש לפי כותרת בתוך ה${taxonomyLabel}` : "חיפוש לפי כותרת פוסט או שם סדרה"}</label>
+        <div><input id="posts-search" type="search" value={draftSearch} maxLength={120} onChange={event => setDraftSearch(event.target.value)} placeholder={isTaxonomy ? "איזה פוסט תרצו למצוא?" : "מה תרצו לקרוא?"} dir="auto" /><button type="submit">חיפוש</button></div>
+        {isTaxonomy && scope.key ? <div className="sod29-posts-taxonomy-filter" aria-label="הבחירה הנוכחית"><span>{taxonomyLabel}: <strong>{scope.key}</strong></span>{search ? <span>חיפוש: <bdi>{search}</bdi></span> : null}</div> : null}
+        {search ? <button type="button" onClick={clearSearch}>ניקוי החיפוש</button> : null}
       </form>
 
       {scope.kind === "all" || scope.kind === "series" ? <SeriesEntrances2029 activeKey={scope.kind === "series" ? scope.key : null} search={search} onRead={setSeriesReading} refreshKey={attempt} /> : null}
@@ -299,14 +338,17 @@ export default function Posts2029Page() {
         readyText="הסדרה מסודרת לפי מועד הפרסום במקור."
         retryLabel="ניסיון טעינה נוסף" onRetry={() => setAttempt(value => value + 1)} /> : null}
       {!loading && !error && !hasItems && !sourcePending && !sourceFailed
-        ? <FrameState kind="empty" title="אין פוסטים בעמוד הזה">
-          {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : "אין כרגע מקורות זמינים להצגה."}
+        ? <FrameState kind="empty" title={taxonomyMissing ? "הבחירה הזו אינה זמינה" : isTaxonomy && search && !taxonomyPageMissing ? "לא נמצאו פוסטים לחיפוש הזה" : "אין פוסטים בעמוד הזה"}>
+          {taxonomyMissing ? <p>לא נמצאו פוסטים ציבוריים בכתובת הזו. אפשר להמשיך לעיין <Link to={allPostsHref}>בכל הפוסטים</Link>.</p>
+            : page > 1 || taxonomyPageMissing ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button>
+              : isTaxonomy && search ? <><p>אפשר לנסות כותרת אחרת או לחזור לכל הפוסטים ב{taxonomyLabel}.</p><button type="button" onClick={clearSearch}>לכל הפוסטים ב{taxonomyLabel}</button></>
+                : "אין כרגע מקורות זמינים להצגה."}
         </FrameState>
         : null}
 
       {hasItems ? <section id="posts-catalog" className="sod29-posts-library-stage" aria-label={mixedSeries ? "פוסטים ומקורות בסדרה" : "פוסטים"} data-posts-page={page}>
         <div className="sod29-posts-library-stage-head">
-          <h2>{mixedSeries ? "הפוסטים והמקורות בסדרה" : scope.kind === "all" ? "כל הפוסטים" : "הפוסטים בבחירה"}</h2>
+          <h2>{mixedSeries ? "הפוסטים והמקורות בסדרה" : isTaxonomy ? search ? "הפוסטים שנמצאו" : `הפוסטים ב${taxonomyLabel}` : scope.kind === "all" ? "כל הפוסטים" : "הפוסטים בבחירה"}</h2>
           <span><bdi className="sod29-posts-numeric">{state.total}</bdi> {mixedSeries && state.sourceTotal != null ? "פריטים" : "פוסטים"} · עמוד <bdi className="sod29-posts-numeric">{page}</bdi> מתוך <bdi className="sod29-posts-numeric">{pages}</bdi></span>
           <small>{scope.kind === "series" ? "לפי מועד הפרסום במקור" : "הפוסטים האחרונים · לפי עדכון הפוסט"}</small>
         </div>
@@ -320,7 +362,7 @@ export default function Posts2029Page() {
         <span aria-live="polite">עמוד {page} מתוך {pages}</span>
         <button type="button" disabled={page >= pages} onClick={() => goToPage(page + 1)}>פוסטים קודמים</button>
       </nav> : null}
-      {!loading && !awaitingPageAssignment && !error && state.total > 0 && ["category", "series"].includes(scope.kind) ? <PostFollowBox variant="2029" scope={scope} source={search ? "posts_search_2029" : scope.kind === "series" ? "posts_series_footer_2029" : "posts_category_footer_2029"} /> : null}
+      {!taxonomyScope && !loading && !awaitingPageAssignment && !error && state.total > 0 && ["category", "series"].includes(scope.kind) ? <PostFollowBox variant="2029" scope={scope} source={search ? "posts_search_2029" : scope.kind === "series" ? "posts_series_footer_2029" : "posts_category_footer_2029"} /> : null}
     </main>
   </Sod2029Shell>;
 }

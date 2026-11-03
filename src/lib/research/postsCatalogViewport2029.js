@@ -10,7 +10,8 @@ const coordinate = value => typeof value === "number" && Number.isFinite(value) 
 function sameEntry(win, entryKey, href) {
   if (!win?.history || typeof href !== "string" || typeof entryKey !== "string"
     || currentHref(win) !== href || currentKey(win) !== entryKey) return false;
-  return ["/post", "/2029/posts", "/posts"].includes(win.location.pathname.replace(/\/$/, ""));
+  const pathname = win.location.pathname.replace(/\/$/, "");
+  return ["/post", "/2029/posts", "/posts"].includes(pathname) || /^\/(?:tag|category)\/[^/?#]+$/.test(pathname);
 }
 
 // Read the existing entry without recording or changing its viewport. Callers
