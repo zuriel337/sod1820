@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
+import { persistExplicitIssueReport } from "../lib/events.js";
 import { track } from "../lib/tracking.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
@@ -76,6 +77,7 @@ export function buildIssueReportPayload(context, text) {
 
 export function emitIssueReport(context, text) {
   const payload = buildIssueReportPayload(context, text);
+  if (PUBLIC_READING_RELEASE) return persistExplicitIssueReport(payload);
   track(ISSUE_REPORT_SECTION, context?.surface ?? null, ISSUE_REPORT_EVENT, payload);
   return payload;
 }
@@ -95,6 +97,7 @@ export default function IssueReport({
   const { user, isAdmin } = useAuth() || {};
   const [text, setText] = useState(() => boundIssueText(initialText));
   const [sent, setSent] = useState(false);
+  const [sendError, setSendError] = useState(false);
   const [copied, setCopied] = useState(false);
   const sentRef = useRef(false);
 
@@ -113,12 +116,12 @@ export default function IssueReport({
     interactionId: newInteractionId(),
   }), [pathname, sourceHref, surface, capability, concept, learnStage, actionTried, locale, user, isAdmin]);
 
-  const submit = useCallback((event) => {
+  const submit = useCallback(async (event) => {
     event.preventDefault();
-    if (PUBLIC_READING_RELEASE || sentRef.current) return;
+    if (sentRef.current) return;
     sentRef.current = true;
-    emitIssueReport(context, text);
-    setSent(true);
+    try { await emitIssueReport(context, text); setSent(true); }
+    catch { setSendError(true); /* outcome may be unknown; never auto-resend */ }
   }, [context, text]);
 
   if (sent) {
@@ -141,7 +144,7 @@ export default function IssueReport({
         <h3>ספר לנו מה קרה.</h3>
         <p>{context.source_href ? "כתובת המקור ומיקום הקריאה יצורפו לדיווח בלי פרטי התחברות או קישורי חשבון." : "אפשר לשלוח גם בלי לכתוב כלום. נצרף רק את המקום באתר, סוג המסך והשעה, בלי כתובת מלאה ובלי פרטים אישיים."}</p>
       </div>
-      {PUBLIC_READING_RELEASE ? <p role="status" className="sod29-contact-privacy">השליחה אינה זמינה בפריוויו הזה. אפשר למלא טיוטה ולהעתיק אותה; היא לא תישמר ולא תישלח לצוות.</p> : null}
+      {sendError ? <p role="alert">לא התקבל אישור שמירה. מצב הדיווח אינו ידוע; לא נשלח ניסיון נוסף אוטומטי.</p> : null}
       <label className="sod29-issue-report-field">
         <span>מה ראית? (לא חובה)</span>
         <textarea
@@ -156,7 +159,7 @@ export default function IssueReport({
       </label>
       {context.source_href ? <p className="sod29-contact-privacy" style={{ overflowWrap: "anywhere" }}>מקור הפנייה: <bdi dir="ltr">{context.source_href}</bdi></p> : null}
       {PUBLIC_READING_RELEASE ? <div role="status"><p>אפשר להעתיק את הטיוטה ולשמור אותה אצלכם.</p><button type="button" className="sod29-action" onClick={async () => setCopied(await copyLink(text + (context.source_href ? `\n\n${context.source_href}` : "")))}>{copied ? "הטיוטה הועתקה" : "העתקת הטיוטה"}</button></div> : null}
-      <button className="sod29-action primary" type="submit" disabled={PUBLIC_READING_RELEASE}>שלח דיווח</button>
+      <button className="sod29-action primary" type="submit" disabled={sentRef.current}>שלח דיווח</button>
     </form>
   );
 }

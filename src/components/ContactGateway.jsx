@@ -101,7 +101,7 @@ function ContactForm({ kind, initialText, pathname, contactContext, user, onDone
 
   const submit = async (event) => {
     event.preventDefault();
-    if (PUBLIC_READING_RELEASE) return;
+    /* Explicit contact insertion approved independently of account/newsletter. */
     const body = normalize(message);
     if (!body) { setError("כתבו לנו כמה מילים כדי שנדע במה לעזור."); return; }
     if (!idea && email.trim().length < 3) { setError("כדי שנוכל לחזור אליכם, הוסיפו אימייל."); return; }
@@ -146,7 +146,7 @@ function ContactForm({ kind, initialText, pathname, contactContext, user, onDone
       <h3>{idea ? "מה הייתם רוצים שיהיה כאן?" : "מה תרצו לספר לנו?"}</h3>
       <p>{idea ? "ספרו במילים שלכם. המיקום באתר מצורף אוטומטית כדי שנבין את ההקשר." : "אפשר לכתוב כאן פנייה כללית לצוות."}</p>
     </div>
-    {PUBLIC_READING_RELEASE ? <p role="status" className="sod29-contact-privacy">השליחה אינה זמינה בפריוויו הזה. אפשר למלא טיוטה ולהעתיק אותה; היא לא תישמר ולא תישלח לצוות.</p> : null}
+
     <label className="sod29-contact-field">
       <span>הודעה</span>
       <textarea data-autofocus rows={5} maxLength={MAX_INTAKE} value={message} onChange={(e) => { setMessage(e.target.value); setCopied(false); }} />
@@ -159,7 +159,7 @@ function ContactForm({ kind, initialText, pathname, contactContext, user, onDone
     {contactContext?.source_href ? <p className="sod29-contact-privacy" style={{ overflowWrap: "anywhere" }}>מקור הפנייה: <bdi dir="ltr">{contactContext.source_href}</bdi></p> : null}
     {PUBLIC_READING_RELEASE ? <div role="status"><p>אפשר להעתיק את הטיוטה ולשמור אותה אצלכם.</p><button type="button" className="sod29-action" onClick={async () => setCopied(await copyLink(message + (contactContext?.source_href ? `\n\n${contactContext.source_href}` : "")))}>{copied ? "הטיוטה הועתקה" : "העתקת הטיוטה"}</button></div> : null}
     {error ? <div className="sod29-contact-error" role="alert">{error}</div> : null}
-    <button className="sod29-action primary" type="submit" disabled={busy || PUBLIC_READING_RELEASE}>{busy ? "שולח…" : "שליחה"}</button>
+    <button className="sod29-action primary" type="submit" disabled={busy}>{busy ? "שולח…" : "שליחה"}</button>
   </form>;
 }
 
@@ -252,7 +252,7 @@ export default function ContactGateway({
       <p>תקלה, משהו לא ברור, רעיון או רמז — כתבו במילים שלכם, והמערכת תציע את המסלול המתאים.</p>
     </div>
 
-    {PUBLIC_READING_RELEASE ? <p role="status" className="sod29-contact-privacy">השליחה אינה זמינה בפריוויו הזה. אפשר למלא טיוטה ולהעתיק אותה; היא לא תישמר ולא תישלח לצוות.</p> : null}
+
     <label className="sod29-contact-field">
       <span>ספרו לנו מה קרה או מה חסר לכם…</span>
       <textarea data-autofocus rows={4} maxLength={MAX_INTAKE} value={text} onChange={(e) => setText(e.target.value)} />

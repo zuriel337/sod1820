@@ -119,6 +119,29 @@ function installPublicReadingWorker(policy) {
     if (url.origin === authOrigin && req.method === "GET" && req.destination === "image"
       && req.mode === "no-cors" && !url.search && !url.hash
       && /^\/storage\/v1\/object\/public\/(?:media|gallery|magar)\//.test(url.pathname)) return;
+    if (url.origin === authOrigin && req.method === "POST" && !url.search
+      && ["/rest/v1/rpc/ingest_event", "/rest/v1/contact_messages"].includes(url.pathname)) {
+      event.respondWith((async () => {
+        const raw = await req.clone().text();
+        if (raw.length > 8192) return denied();
+        const parsed = JSON.parse(raw);
+        const body = url.pathname.endsWith("/contact_messages") && Array.isArray(parsed) && parsed.length === 1 ? parsed[0] : parsed;
+        if (!plainObject(body)) return denied();
+        if (url.pathname.endsWith("/ingest_event")) {
+          const fields = ["path","source_href","surface","capability","concept","learn_stage","action_tried","at","locale","viewport","auth","interaction_id","message"];
+          if (Object.keys(body).sort().join(",") !== "p_event_type,p_is_bot,p_path,p_props,p_sod_id,p_surface"
+            || body.p_sod_id !== null || body.p_is_bot !== false || body.p_surface !== "issue_report" || body.p_event_type !== "issue_report"
+            || typeof body.p_path !== "string" || body.p_path.length > 200 || !body.p_path.startsWith("/") || /[?#]/.test(body.p_path)
+            || !plainObject(body.p_props) || Object.keys(body.p_props).some(key => !fields.includes(key))
+            || Object.values(body.p_props).some(value => value !== null && typeof value !== "string")
+            || JSON.stringify(body.p_props).length > 4000 || String(body.p_props.message || "").length > 500) return denied();
+        } else if (Object.keys(body).sort().join(",") !== "email,message,name,subject"
+          || Object.values(body).some(value => typeof value !== "string")
+          || body.name.length < 1 || body.name.length > 100 || body.email.length < 3 || body.email.length > 200
+          || body.subject.length > 200 || body.message.length < 1 || body.message.length > 3000) return denied();
+        return readFetch(req); // acknowledge only committed canonical RPC/insert
+      })().catch(() => denied())); return;
+    }
     if (url.origin === authOrigin) {
       const ambiguous = url.pathname.includes("//") || url.pathname.includes("%") && !url.pathname.startsWith("/storage/v1/");
       if (ambiguous || url.pathname.startsWith("/realtime/v1")) {

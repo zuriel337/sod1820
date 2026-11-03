@@ -351,3 +351,11 @@ test("actual local artifact retains font fix, compiler isolation, no index shado
  assert.equal(h.calls.length,2); // existing API wrapper still owns these reads
  assert.equal((await h.request("/storage/v1/object/public/gallery/a.jpg",{method:"POST"})).status,403);
  });
+
+test('approved explicit report receipt path permits no identity-bearing, generic telemetry or unrelated writes',async()=>{
+ const h=workerHarness();const body={p_sod_id:null,p_surface:'issue_report',p_event_type:'issue_report',p_path:'/post',p_props:{message:'synthetic'},p_is_bot:false};
+ assert.equal((await h.request('/rest/v1/rpc/ingest_event',{body:JSON.stringify(body)})).status,200);
+ assert.equal((await h.request('/rest/v1/contact_messages',{body:JSON.stringify([{name:'synthetic',email:'owner@example.invalid',subject:'test',message:'synthetic'}])})).status,200);
+ for(const invalid of [{...body,p_sod_id:'spoofed'},{...body,p_event_type:'view'},{...body,p_is_bot:true},{...body,p_props:{email:'private@example.invalid'}},{...body,p_props:{message:'x'.repeat(501)}}])assert.equal((await h.request('/rest/v1/rpc/ingest_event',{body:JSON.stringify(invalid)})).status,403);
+ assert.equal(h.calls.length,2);
+});

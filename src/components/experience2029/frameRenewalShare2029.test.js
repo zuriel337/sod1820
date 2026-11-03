@@ -59,33 +59,27 @@ test("renewal ribbon renders one exact notice and one explicit contact action wi
   assert.match(css, /white-space:normal/); assert.match(css, /min-height:44px/);
 });
 
-test("blocked contact/idea and issue submit handlers never send or display success, while source metadata stays separate from text", async () => {
-  const source = "https://preview.example/community/chat?thread=11111111-1111-4111-8111-111111111111&email=SECRET#token=SECRET";
-  const gateway = await componentFixture("../ContactGateway.jsx", ["ContactGateway", "ContactForm", "buildContactGatewayContext"]);
-  const context = gateway.buildContactGatewayContext({ surface: "community", sourceHref: source });
-  assert.doesNotMatch(context.source_href, /SECRET|email|token/);
-  assert.equal("source_href" in gateway.buildContactGatewayContext({}), false, "Legacy context keeps its existing shape");
-  for (const kind of ["idea", "contact"]) {
-    const props = { kind, pathname: "/community/chat", contactContext: context, initialText: "הטקסט שלי", user: {} };
-    const form = gateway.render(gateway.ContactForm, props);
-    await form.props.onSubmit({ preventDefault() {} });
-    assert.deepEqual(gateway.transportCalls, [], "blocked handler must not call even a failing transport");
-    const after = gateway.render(gateway.ContactForm, props);
-    assert.match(text(after), /השליחה אינה זמינה בפריוויו הזה/);
-    assert.doesNotMatch(text(after), /קיבלנו, תודה|הפנייה הגיעה/);
-    assert.equal(elements(after).find(node => node.type === "textarea").props.value, "הטקסט שלי");
-    assert.equal(elements(after).find(node => node.type === "button" && node.props.type === "submit").props.disabled, true);
+test("approved explicit forms wait for persistence and never claim success after failure", async () => {
+  for (const kind of ["idea", "contact"]) for (const fails of [false,true]) {
+    let ack; const pending=new Promise(resolve=>{ack=resolve}); let calls=0;
+    const h=await componentFixture("../ContactGateway.jsx",["ContactForm"],{sendContactMessage:async()=>{calls++;await pending;if(fails)throw Error("synthetic unavailable");}});
+    const props={kind,initialText:"synthetic",pathname:"/post/current",contactContext:{},user:{email:"owner@example.invalid"}};
+    const form=h.render(h.ContactForm,props);assert.equal(calls,0);
+    const submit=form.props.onSubmit({preventDefault(){}});assert.equal(calls,1);
+    assert.doesNotMatch(text(h.render(h.ContactForm,props)),/קיבלנו, תודה/);ack();await submit;
+    const result=text(h.render(h.ContactForm,props));
+    if(fails){assert.doesNotMatch(result,/קיבלנו, תודה/);assert.match(result,/לא הצלחנו לשלוח/);}else assert.match(result,/קיבלנו, תודה/);
   }
-  const issue = await componentFixture("../IssueReport.jsx", ["IssueReport", "buildIssueReportContext"]);
-  assert.equal("source_href" in issue.buildIssueReportContext({ pathname: "/legacy?private=1#private" }), false);
-  const props = { pathname: "/community/chat", sourceHref: source, initialText: "הטקסט שלי" };
-  const form = issue.render(issue.IssueReport, props);
-  form.props.onSubmit({ preventDefault() {} });
-  assert.deepEqual(issue.transportCalls, []);
-  const after = issue.render(issue.IssueReport, props);
-  assert.match(text(after), /השליחה אינה זמינה בפריוויו הזה/);
-  assert.doesNotMatch(text(after), /הדיווח נשלח|SECRET/);
-  assert.equal(elements(after).find(node => node.type === "button" && node.props.type === "submit").props.disabled, true);
+  for(const fails of [false,true]){
+    let ack;const pending=new Promise(resolve=>ack=resolve);let calls=0;
+    const h=await componentFixture("../IssueReport.jsx",["IssueReport"],{persistExplicitIssueReport:async()=>{calls++;await pending;if(fails)throw Error("synthetic rejection");}});
+    const props={pathname:"/number/1820",initialText:"synthetic"};const form=h.render(h.IssueReport,props);
+    const submit=form.props.onSubmit({preventDefault(){}});assert.equal(calls,1);
+    assert.doesNotMatch(text(h.render(h.IssueReport,props)),/הדיווח נשלח/);
+    await form.props.onSubmit({preventDefault(){}});assert.equal(calls,1);ack();await submit;
+    const result=text(h.render(h.IssueReport,props));
+    if(fails){assert.doesNotMatch(result,/הדיווח נשלח/);assert.match(result,/לא התקבל אישור שמירה/);}else assert.match(result,/הדיווח נשלח/);
+  }
 });
 
 test("ordinary contact and issue forms retain their existing emitters and optional source metadata", async () => {
