@@ -13,14 +13,14 @@
 
 ## נוסח האישור המוכן — לביצוע רק לאחר פתרון יכולת החיבור
 
-״אני מאשר יצירת תוצר בדיקה אחד בלבד בפרויקט prj_43q7k7QFAcWnin1tcBjce5xOi7Cq, בענף gpt/2029-public-cutover-final-preparation-20261103, ממקור ה־SHA המדויק שנקוב בקבלת הפריוויו הסופית וברשומת AFTER של B/D. היעד Production אך ללא שיוך אוטומטי או ידני של sod1820.co.il, www.sod1820.co.il או sod1820.vercel.app. ה־build משתמש ב־public-production-candidate וב־review-source השווה לאותו SHA, עם זהות פלטפורמה ו־Git אמיתיות. התוצר נשאר מוגן ב־Vercel Authentication ובמקור הבלתי־משתנה בלבד. נבדקים snapshots של שלושת הדומיינים לפני ואחרי, והם נשארים ב־Legacy המאומת באותו רגע. אין promote, alias, שינוי DNS, שינוי הגדרות הפרויקט, main push/merge או 2029 Production cutover. אם תנאי המקור, ההגנה, החיבור, ה־canary או מניעת השיוך אינו מוכח — לא יוצרים תוצר.״
+״אני מאשר יצירת תוצר בדיקה אחד בלבד בפרויקט prj_43q7k7QFAcWnin1tcBjce5xOi7Cq, בענף gpt/2029-public-cutover-final-preparation-20261103, ממקור SHA d8ee2753482ee9c264795b19c52745da494be63a. היעד Production אך ללא שיוך אוטומטי או ידני של sod1820.co.il, www.sod1820.co.il או sod1820.vercel.app. ה־build משתמש ב־public-production-candidate וב־review-source השווה לאותו SHA, עם זהות פלטפורמה ו־Git אמיתיות. התוצר נשאר מוגן ב־Vercel Authentication ובמקור הבלתי־משתנה בלבד. נבדקים snapshots של שלושת הדומיינים לפני ואחרי, והם נשארים ב־Legacy המאומת באותו רגע. אין promote, alias, שינוי DNS, שינוי הגדרות הפרויקט, main push/merge או 2029 Production cutover. אם תנאי המקור, ההגנה, החיבור, ה־canary או מניעת השיוך אינו מוכח — לא יוצרים תוצר.״
 
-לפני הצגת בקשה זו כאישור בר־ביצוע יש להצמיד את ה־SHA הסופי בפועל ולציין את פעולת הכלי/CLI הנתמכת. כל עוד חסר המסלול, זהו נוסח מותנה בלבד ולא בקשת אישור ביצוע מוכנה. אין להציג אישור כללי כפתרון לחסם טכני.
+מקור הקוד הוצמד ל־d8ee2753482ee9c264795b19c52745da494be63a והתקבל בפריוויו dpl_6DekQkT2ByVnPhtPbrFTYmD7bDgZ. לפני הצגת בקשה זו כאישור בר־ביצוע עדיין יש לציין פעולת כלי/CLI נתמכת שמקיימת את שני תנאי החיבור. כל עוד חסר המסלול, זהו נוסח מותנה בלבד ולא בקשת אישור ביצוע מוכנה. אין להציג אישור כללי כפתרון לחסם טכני.
 
 Build מותנה באותו מקור:
 
 ```text
-cd .. && VITE_AUTH_VERIFIED_PREVIEW_ORIGINS='[]' node scripts/build-public-reading-production.mjs --public-production-candidate --review-source=<EXACT_ACCEPTED_SOURCE_SHA>
+cd .. && VITE_AUTH_VERIFIED_PREVIEW_ORIGINS='[]' node scripts/build-public-reading-production.mjs --public-production-candidate --review-source=d8ee2753482ee9c264795b19c52745da494be63a
 ```
 
 לאחר READY נדרשת קבלת התוצר המתארח בתצורתו האמיתית, לרבות HEAD/GET, מקור/קנוניקל/XML/robots/שיתוף/SW ושלילות. רק לאחר מכן תוגש בקשת 2029 Production cutover נפרדת עם SHA ו־deployment מדויקים. יצירת תוצר אינה החלפת האתר. חזרת אתר/SW נפרדת משחזור מסד ומדיה; אין ביטול S2 או מחיקת העדפות/מידע.

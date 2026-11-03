@@ -1,0 +1,76 @@
+{
+  "productSha": "d8ee2753482ee9c264795b19c52745da494be63a",
+  "deployment": "dpl_6DekQkT2ByVnPhtPbrFTYmD7bDgZ",
+  "liveSharedEndpoint": true,
+  "actualSW": true,
+  "signupSubmitted": false,
+  "unsubscribeSubmitted": false,
+  "testMail": false,
+  "existingAccountAcceptance": "RETAINED_NOT_REPEATED",
+  "cases": [
+    {
+      "width": 390,
+      "path": "/updates",
+      "newsletterRequests": [
+        {
+          "path": "/functions/v1/newsletter-signup",
+          "method": "OPTIONS",
+          "status": 200,
+          "contract": "opening-parts-v1,site-updates-v1"
+        }
+      ],
+      "passed": true,
+      "consentChecked": false,
+      "emailEntered": false
+    },
+    {
+      "width": 390,
+      "path": "/",
+      "newsletterRequests": [
+        {
+          "path": "/functions/v1/newsletter-signup",
+          "method": "OPTIONS",
+          "status": 200,
+          "contract": "opening-parts-v1,site-updates-v1"
+        }
+      ],
+      "passed": true,
+      "consentChecked": false,
+      "emailEntered": false
+    },
+    {
+      "width": 1440,
+      "path": "/updates",
+      "newsletterRequests": [
+        {
+          "path": "/functions/v1/newsletter-signup",
+          "method": "OPTIONS",
+          "status": 200,
+          "contract": "opening-parts-v1,site-updates-v1"
+        }
+      ],
+      "passed": true,
+      "consentChecked": false,
+      "emailEntered": false
+    },
+    {
+      "width": 1440,
+      "path": "/",
+      "newsletterRequests": [
+        {
+          "path": "/functions/v1/newsletter-signup",
+          "method": "OPTIONS",
+          "status": 200,
+          "contract": "opening-parts-v1,site-updates-v1"
+        }
+      ],
+      "passed": true,
+      "consentChecked": false,
+      "emailEntered": false
+    }
+  ],
+  "errors": [],
+  "passed": 4,
+  "failed": 0,
+  "ok": true
+}
