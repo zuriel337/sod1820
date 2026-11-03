@@ -1,0 +1,48 @@
+{
+  "scope": "Only the 7 task documentation/diagnostic files listed; bounded patterns, not a repository-wide security audit",
+  "files": [
+    {
+      "file": "README.md",
+      "bytes": 7831,
+      "sha256": "5f27d62bfdea508859bf60830562aa953a9f0a7747a669616b3aa34407b61e1b"
+    },
+    {
+      "file": "REMAINING-ACCEPTANCE.md",
+      "bytes": 9906,
+      "sha256": "610407f9f295fc276b89ee2adb93b12fb21c0db35388018431e52858c9f236bf"
+    },
+    {
+      "file": "manual-checklist.md",
+      "bytes": 9574,
+      "sha256": "724624d194e5a16bd4ef9c7c35e3cc27377649e3737c55ae14a5b1f58ef4e58e"
+    },
+    {
+      "file": "recovery-h1-receipt.json",
+      "bytes": 18338,
+      "sha256": "6cbd97c4cc48949188cf6646083559446ca9dac93821342d4b349069902062bb"
+    },
+    {
+      "file": "recovery-h1-reconciliation.md",
+      "bytes": 11895,
+      "sha256": "6734fcacb5953734f451a8ac676eb3701cc7efd808b0e647d13c1033aee3eba7"
+    },
+    {
+      "file": "unsubscribe-offline-proof.cjs",
+      "bytes": 3544,
+      "sha256": "961daa3a941c3397e6d8565310eb0526c5a4216b91505329a24dd6515549af45"
+    },
+    {
+      "file": "unsubscribe-offline-proof.json",
+      "bytes": 1080,
+      "sha256": "26122fe1b0c205b687a3c6eec57cb6bb4501404f46257d870abf05226028cbee"
+    }
+  ],
+  "findings": [],
+  "brokenLocalLinks": [],
+  "jsonValid": true,
+  "productSourceEdited": false,
+  "diagnosticCases": 4,
+  "liveNetworkCallsInDiagnostic": 0,
+  "diffCheck": "PASS",
+  "finalCheckScope": "Staged exact task files, after removing trailing blank lines detected by staged diff --check"
+}

@@ -1,0 +1,519 @@
+{
+  "checkedAt": "2026-11-03",
+  "readPath": "canonical dedicated read-only Supabase connector",
+  "historicalAcceptance": [
+    {
+      "id": "629e1ce9-8658-43b7-9b58-54dbee03ffca",
+      "created_at": "2026-09-29 23:46:09.181661+00",
+      "topic": "actor=GPT FROM=ZURIEL TO=GPT task=G3_H1_PHYSICAL_BACKUP_RESTORE_DRILL_V1 — AFTER",
+      "status": "H1_RESTORE_DRILL_PASS_TEMP_PROJECT_CLEANUP_PENDING",
+      "task_key": "G3_H1_PHYSICAL_BACKUP_RESTORE_DRILL_V1",
+      "what_we_did": "Human-Gated physical-backup restore drill PASS on isolated Supabase project usogkvaogvswgcjizpih (name Zuriel), same org/region. Source backup selected: 29 Sep 2026 17:07:07 +0000. PostgreSQL restore logs show last-known source uptime 17:03:58 UTC and DB ready to accept connections at 23:40:47.514 UTC after clone project creation 23:36:51.836759 UTC => observed RTO <= 3m55.7s. Selected-backup data age at clone creation ~= 6h32m54s from actual last-known source point; daily-backup worst-case remains roughly one day absent PITR. Isolation: restored project had no Edge Functions. Physical restore brought pg_cron/pg_net/vault state; 35 cron rows restored. Three internal coordination recovery jobs ran once at 23:41 before isolation and were verified to contain no pg_net/http calls. All cron jobs were then disabled through cron.alter_job; active_after=0. Database integrity: 1005 migration rows through 20260929135823 with checksum 271b9d569797201a6510d0ab13265b51 matched Production-as-of-backup subset exactly. Identity/data checksums matched exactly for auth.users=146, public.users=146, credit_ledger=372, gallery_images=2559, research_contributions=41472, research_objects=1393, op_trace_roots=151. work_log differed only at the live-write edge: backup contains the 17:03:54 assignment at an earlier status and excludes the 17:06:23 assignment; this is consistent with restore log actual snapshot point around 17:03:58, not random loss. Security/ACL on restore: 290 public tables, 0 without RLS, 199 policies, canonical anon/auth/service_role/authenticator roles present, Research Path and agent memory direct access closed, credit_ledger anon closed/auth owner-read only. Deterministic Gematria Goldens match Production exactly: משיח ragil=358, gadol=358, misratar=552, siduri=52; צמח ragil=138. Installed extension fingerprint matched exactly: 10 installed, checksum edff2b50006dafc81a755ff1dc281d83.",
+      "open_threads": "Cleanup only: delete restored project usogkvaogvswgcjizpih after evidence capture and delete accidental empty project kcrwavftpopgpxomlwjx. Tooling lacks project-delete capability, so ZURIEL must delete both from Supabase Dashboard. No further H1 technical blocker.",
+      "assignment_scope": "Canonical Production was read-only. Mutations were limited to disabling cron jobs on isolated restored project. No Production restore or destructive action.",
+      "parent_assignment_id": null
+    },
+    {
+      "id": "a149f1a1-6876-40e5-8616-7addbc67232e",
+      "created_at": "2026-09-30 00:19:11.522511+00",
+      "topic": "actor=GPT FROM=ZURIEL TO=GPT task=G3_H1_PHYSICAL_BACKUP_RESTORE_DRILL_V1 — CLEANUP AFTER",
+      "status": "H1_RESTORE_DRILL_PASS_CLEANUP_COMPLETE",
+      "task_key": "G3_H1_PHYSICAL_BACKUP_RESTORE_DRILL_V1",
+      "what_we_did": "ZURIEL deleted both temporary Supabase projects used by H1: usogkvaogvswgcjizpih (physical restore clone Zuriel) and kcrwavftpopgpxomlwjx (accidental empty temp). Fresh list_projects now returns only canonical Sod1820 linswmnnkjxvweumprav ACTIVE_HEALTHY. H1 technical PASS therefore has no remaining privacy/billing cleanup residue.",
+      "open_threads": "",
+      "assignment_scope": "Cleanup verification only; no production mutation.",
+      "parent_assignment_id": "629e1ce9-8658-43b7-9b58-54dbee03ffca"
+    }
+  ],
+  "linkedEvidenceReviewed": [
+    {
+      "id": "e8ac8fbc-f7f7-4ae1-9c62-943281ceb674",
+      "time": "2026-09-30T00:03:34Z",
+      "finding": "Independent read of restored cron: 35 total, 0 active; H1 restore evidence PASS; cleanup then still pending."
+    },
+    {
+      "id": "934df968-9fc9-48ec-bf40-7fc29524c951",
+      "time": "2026-09-30T00:05:44Z",
+      "finding": "Maintenance matrix accepts real physical H1 restore with migration/data/RLS/ACL/extensions/Goldens parity; technical PASS, cleanup then pending."
+    },
+    {
+      "id": "d2b29a79-82fc-4771-8a64-234affe759ff",
+      "time": "2026-09-30T00:07:46Z",
+      "finding": "Independent challenge accepts technical restore; demanded removal of the private temporary clone."
+    },
+    {
+      "id": "663f93eb-1d16-4bdf-88dd-f3487508b7bc",
+      "time": "2026-10-01T08:00:00Z",
+      "finding": "Record body verdict PASS_G3_LIVE_CLOSURE_READY; roadmap seal corroborates completed cleanup and post-H1 G3 runtime acceptance. Record administrative status DEFERRED_GPT_AGENTS_API_OUTPUT_MISSING is historical routing, not a new restore run."
+    }
+  ],
+  "evidenceLimit": "Read persisted historical acceptance and linked challenge/maintenance records. No standalone raw restore-log archive was found in those direct pointers; no historical clone exists to query now. This is retained prior acceptance, not a new restore or proof of current backup/media freshness.",
+  "appliedMigrationMetadata": {
+    "total": 1108,
+    "lastVersion": "20261102130833",
+    "h1LastVersion": "20260929135823",
+    "h1Count": 1005,
+    "newSinceH1": 103,
+    "versions": [
+      {
+        "name": "g3_reliability_preclose_v1",
+        "version": "20260929184254"
+      },
+      {
+        "name": "g3_els_provenance_v3_to_v9_reconciliation_v1",
+        "version": "20260929200732"
+      },
+      {
+        "name": "g3_compaction_integrity_root_fix_v1",
+        "version": "20260929212123"
+      },
+      {
+        "name": "g3_cache_billable_acceptance_v1",
+        "version": "20260929213043"
+      },
+      {
+        "name": "g3_privacy_rls_agent_stats_hardening_v1",
+        "version": "20260929213608"
+      },
+      {
+        "name": "g3_h2_erasure_export_closure_v1",
+        "version": "20260929221222"
+      },
+      {
+        "name": "g3_security_preclosure_admin_rpc_authorization_v1",
+        "version": "20260929224006"
+      },
+      {
+        "name": "g3_h2_legacy_subscription_export_erasure_coverage_v1",
+        "version": "20260929225411"
+      },
+      {
+        "name": "g3_h2_financial_retention_detach_v1",
+        "version": "20260929231715"
+      },
+      {
+        "name": "g3_els_one_engine_compat_wrapper_closure_v1",
+        "version": "20260930004844"
+      },
+      {
+        "name": "g3_a1_trace_cost_exact_v1",
+        "version": "20260930005533"
+      },
+      {
+        "name": "g3_els_tanakh_canonical_stream_build_v1",
+        "version": "20260930083354"
+      },
+      {
+        "name": "ticker_messages_link_url_v1",
+        "version": "20260930090844"
+      },
+      {
+        "name": "g3_els_verify_batch_v1",
+        "version": "20260930123615"
+      },
+      {
+        "name": "g3_els_publish_truth_gate_v1",
+        "version": "20260930123633"
+      },
+      {
+        "name": "g3_retention_enforcement_preview_and_worklog_v1",
+        "version": "20260930134140"
+      },
+      {
+        "name": "g3_worklog_archive_runtime_guard_v1",
+        "version": "20260930142003"
+      },
+      {
+        "name": "g3_telemetry_retention_120d_v2",
+        "version": "20260930150618"
+      },
+      {
+        "name": "g3_telemetry_retention_120d_v2_snapshot_fix",
+        "version": "20260930150635"
+      },
+      {
+        "name": "g3_capacity_growth_runtime_v1",
+        "version": "20260930161312"
+      },
+      {
+        "name": "g3_endgame_authority_person_engine_enforcement_v2",
+        "version": "20261001073445"
+      },
+      {
+        "name": "g3_wa_db_held_http_cutover_v1",
+        "version": "20261001073507"
+      },
+      {
+        "name": "g3_wa_db_held_http_cutover_v2",
+        "version": "20261001073816"
+      },
+      {
+        "name": "g3_wa_db_held_http_cutover_v4_internal_acl",
+        "version": "20261001073825"
+      },
+      {
+        "name": "g3_wa_db_held_http_cutover_v5_outbox",
+        "version": "20261001073835"
+      },
+      {
+        "name": "g3_canonical_data_inventory_projection_v1",
+        "version": "20261001073844"
+      },
+      {
+        "name": "name_shared_numbers_jsonb_cast_fix_v1",
+        "version": "20261002183846"
+      },
+      {
+        "name": "source_availability_existing_corpus_v1",
+        "version": "20261003213632"
+      },
+      {
+        "name": "zvi_stable_writer_binding_v1",
+        "version": "20261004064040"
+      },
+      {
+        "name": "contact_gateway_ai_triage_status_v2",
+        "version": "20261004142156"
+      },
+      {
+        "name": "sys_save_post_service_only_acl_v1",
+        "version": "20261005021130"
+      },
+      {
+        "name": "post_writers_id_alloc_advisory_lock_v1",
+        "version": "20261005021135"
+      },
+      {
+        "name": "video_transcripts_single_original_invariant_v1",
+        "version": "20261005021140"
+      },
+      {
+        "name": "raziel_route_token_boundary_match_v1",
+        "version": "20261005122833"
+      },
+      {
+        "name": "raziel_intelligence_core_v1_phase_a_plan_first",
+        "version": "20261005200355"
+      },
+      {
+        "name": "raziel_intelligence_core_v1_phase_c_operator_read",
+        "version": "20261005200401"
+      },
+      {
+        "name": "raziel_intelligence_core_v1_phase_d2_plan_signals",
+        "version": "20261005200407"
+      },
+      {
+        "name": "raziel_intelligence_core_v1_phase_e_l4_tool_research",
+        "version": "20261005200413"
+      },
+      {
+        "name": "raziel_intelligence_core_v1_phase_f_sandalphon_source",
+        "version": "20261005200420"
+      },
+      {
+        "name": "raziel_intelligence_core_v1_phase_g_source_l4_combination",
+        "version": "20261005200426"
+      },
+      {
+        "name": "raziel_intelligence_core_v1_phase_h_reality_number_context",
+        "version": "20261005200433"
+      },
+      {
+        "name": "raziel_intelligence_core_v1_phase_k_operator_coordination_read",
+        "version": "20261005200439"
+      },
+      {
+        "name": "raziel_intelligence_core_v1_phase_l_personal_research_continuity_read",
+        "version": "20261005200445"
+      },
+      {
+        "name": "raziel_beta_els_prefix_intent_hotfix_v1",
+        "version": "20261005201759"
+      },
+      {
+        "name": "cardcom_payment_bridge_v1",
+        "version": "20261005210123"
+      },
+      {
+        "name": "cardcom_payment_bridge_hardening_v2",
+        "version": "20261005211025"
+      },
+      {
+        "name": "cardcom_payment_alert_dedupe_v3",
+        "version": "20261005211425"
+      },
+      {
+        "name": "cardcom_admin_smoke_package_v1",
+        "version": "20261006012328"
+      },
+      {
+        "name": "raziel_wa_native_media_intake_bridge_v1",
+        "version": "20261006180933"
+      },
+      {
+        "name": "raziel_whatsapp_unified_notifications_v1",
+        "version": "20261006223450"
+      },
+      {
+        "name": "video_semantic_tree_projector_v1",
+        "version": "20261007115619"
+      },
+      {
+        "name": "g4_kpi_funnel_aggregation_v1",
+        "version": "20261008172144"
+      },
+      {
+        "name": "g4_funnel_immediate_landing_fix",
+        "version": "20261008172430"
+      },
+      {
+        "name": "world_group_source_arrivals_and_provenance_v2",
+        "version": "20261008193732"
+      },
+      {
+        "name": "els_native_private_save_compatibility",
+        "version": "20261009224033"
+      },
+      {
+        "name": "agent_dispatch_one_directional_results_v16",
+        "version": "20261011170858"
+      },
+      {
+        "name": "els_public_save_private_draft_isolation",
+        "version": "20261012082819"
+      },
+      {
+        "name": "post_image_representations_v2",
+        "version": "20261012125823"
+      },
+      {
+        "name": "p0_f01_work_log_history_admin_guard",
+        "version": "20261013074626"
+      },
+      {
+        "name": "p0_f02_remove_exact_temporary_storage_write_policies",
+        "version": "20261013074630"
+      },
+      {
+        "name": "community_reaction_public_visibility_gate_v1",
+        "version": "20261013081348"
+      },
+      {
+        "name": "public_launch_closed_capabilities",
+        "version": "20261013081353"
+      },
+      {
+        "name": "disable_gpt_agent_delivery_zuriel_v17",
+        "version": "20261014031828"
+      },
+      {
+        "name": "number_lookup_method_flags_20261014",
+        "version": "20261014161358"
+      },
+      {
+        "name": "number_core_exclude_encrypted_20261014",
+        "version": "20261014163411"
+      },
+      {
+        "name": "runtime_switches_fx_20261014",
+        "version": "20261014164651"
+      },
+      {
+        "name": "runtime_switch_fx_analytics_20261014",
+        "version": "20261014192723"
+      },
+      {
+        "name": "runtime_switch_any_fx_key_20261014",
+        "version": "20261014200635"
+      },
+      {
+        "name": "number_lookup_2029_page",
+        "version": "20261015001747"
+      },
+      {
+        "name": "number_opening_projection_2029",
+        "version": "20261018091842"
+      },
+      {
+        "name": "community_edit_soft_delete_threads",
+        "version": "20261019194049"
+      },
+      {
+        "name": "community_restore_report_search_history",
+        "version": "20261019215028"
+      },
+      {
+        "name": "community_auto_claim_legacy_by_email",
+        "version": "20261019215048"
+      },
+      {
+        "name": "community_reply_notification_link",
+        "version": "20261019215109"
+      },
+      {
+        "name": "raziel_number_definition_intent_v1_20261021235500",
+        "version": "20261022091130"
+      },
+      {
+        "name": "zvi_publication_access_v1",
+        "version": "20261022202550"
+      },
+      {
+        "name": "zvi_contributor_research_projection_v1",
+        "version": "20261022202833"
+      },
+      {
+        "name": "research_objects_rls_select_grant_v1",
+        "version": "20261022203114"
+      },
+      {
+        "name": "world_gematria_lexical_lookup_v1",
+        "version": "20261022204547"
+      },
+      {
+        "name": "world_spatial_structures_metadata_v1",
+        "version": "20261023030314"
+      },
+      {
+        "name": "world_contributor_research_public_governance_filter_v1",
+        "version": "20261023050443"
+      },
+      {
+        "name": "writer_ariel_privacy_restoration_20261023",
+        "version": "20261023221059"
+      },
+      {
+        "name": "writer_proven_owner_publication_20261023",
+        "version": "20261023221329"
+      },
+      {
+        "name": "writer_public_contributions_reader_20261023",
+        "version": "20261023221514"
+      },
+      {
+        "name": "writer_source_proven_publication_20261023",
+        "version": "20261023222233"
+      },
+      {
+        "name": "p0_emergency_public_surface_containment_v1",
+        "version": "20261024154345"
+      },
+      {
+        "name": "family_claim_self_redeem_owner_reader_v1",
+        "version": "20261025012451"
+      },
+      {
+        "name": "life_journey_remove_family_member_v1",
+        "version": "20261025225207"
+      },
+      {
+        "name": "cardcom_membership_pilot_v1",
+        "version": "20261028134841"
+      },
+      {
+        "name": "zvi_safe_auto_tree_promotion_v2",
+        "version": "20261028212137"
+      },
+      {
+        "name": "zvi_calculation_tree_batch_v1",
+        "version": "20261028212902"
+      },
+      {
+        "name": "zvi_calculation_tree_batch_v2",
+        "version": "20261028213049"
+      },
+      {
+        "name": "zvi_calculation_tree_batch_v3",
+        "version": "20261028213215"
+      },
+      {
+        "name": "zvi_verified_suffix_sources_tree_batch",
+        "version": "20261028224148"
+      },
+      {
+        "name": "number_1563_verified_zvi_tree_target",
+        "version": "20261028224753"
+      },
+      {
+        "name": "zvi_atomic_verified_multi_value_findings",
+        "version": "20261028225309"
+      },
+      {
+        "name": "els_matrix_reading_durable_jobs",
+        "version": "20261029140635"
+      },
+      {
+        "name": "cardcom_membership_pilot_4ils_monthly_v1",
+        "version": "20261030005849"
+      },
+      {
+        "name": "community_verified_message_owner_actions_v1",
+        "version": "20261031082010"
+      },
+      {
+        "name": "community_authenticated_media_paths_v1",
+        "version": "20261031090008"
+      },
+      {
+        "name": "research_item_hint_private_media_v1",
+        "version": "20261031232920"
+      },
+      {
+        "name": "doc37_current_authority_views",
+        "version": "20261102130753"
+      },
+      {
+        "name": "newsletter_opening_parts_consent",
+        "version": "20261102130833"
+      }
+    ]
+  },
+  "currentBoundedMetadata": {
+    "observed_at": "2026-11-03T01:53:06.114444+00:00",
+    "paused_coordination": [
+      {
+        "jobid": 125,
+        "active": false
+      },
+      {
+        "jobid": 126,
+        "active": false
+      },
+      {
+        "jobid": 127,
+        "active": false
+      }
+    ],
+    "credit_engine_tables": {
+      "credit_reservations": false,
+      "credit_action_prices": false,
+      "membership_credit_cycles": false,
+      "credit_reservation_allocations": false
+    }
+  },
+  "githubCodeBackup": {
+    "workflow": ".github/workflows/daily-backup.yml",
+    "latestObservedSuccessfulRun": "https://github.com/zuriel337/sod1820/actions/runs/41430759026",
+    "scheduledCron": "0 3 * * *",
+    "actualRunCreatedAt": "2026-11-02T10:41:00Z",
+    "release": "https://github.com/zuriel337/sod1820/releases/tag/backup-2026-11-02",
+    "tag": "backup-2026-11-02",
+    "target": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+    "releasePublishedAt": "2026-11-02T10:41:10Z",
+    "uploadedAssets": 0,
+    "covers": "Git repository snapshot at the selected GITHUB_SHA only",
+    "doesNotCover": [
+      "live database",
+      "Supabase Storage object bytes",
+      "hosted Edge/config/secrets",
+      "unmerged c8 candidate through the observed main-only run"
+    ]
+  },
+  "productSha": "c8e05790fe68c8f548e22a7c02e5094ddc5b8755",
+  "productRemoteVerified": true,
+  "productChanged": false,
+  "newRestorePerformed": false,
+  "privateDataExported": false,
+  "paidResourceCreated": false
+}

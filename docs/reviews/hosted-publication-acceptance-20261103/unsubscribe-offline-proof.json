@@ -1,0 +1,41 @@
+{
+  "diagnostic": "REPRODUCED_UNSUBSCRIBE_FALSE_SUCCESS_NOT_ACCEPTANCE",
+  "checkedSourceSha256": "13101bb6374057625d05414d216af2eab173c7fb4ad45d39f6f075578bc1d2c4",
+  "fixtureOnly": true,
+  "liveWrites": false,
+  "sourceParity": "Exact source independently matched deployed newsletter-unsubscribe v9 on 2026-11-03",
+  "cases": [
+    {
+      "case": "sdk_error",
+      "httpStatus": 200,
+      "reportedSuccess": true,
+      "fakeUpdateAttempts": 1,
+      "actualNetworkCalls": 0,
+      "persistedRows": 0
+    },
+    {
+      "case": "exception",
+      "httpStatus": 200,
+      "reportedSuccess": true,
+      "fakeUpdateAttempts": 1,
+      "actualNetworkCalls": 0,
+      "persistedRows": 0
+    },
+    {
+      "case": "zero_matched_rows",
+      "httpStatus": 200,
+      "reportedSuccess": true,
+      "fakeUpdateAttempts": 1,
+      "actualNetworkCalls": 0,
+      "persistedRows": 0
+    },
+    {
+      "case": "bad_signature",
+      "httpStatus": 400,
+      "reportedSuccess": false,
+      "fakeUpdateAttempts": 0,
+      "actualNetworkCalls": 0,
+      "persistedRows": 0
+    }
+  ]
+}
