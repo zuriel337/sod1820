@@ -1,0 +1,107 @@
+{
+  "sourceSha": "7fe889e16e62945f1b5b546d9640b0b6ae782225",
+  "branch": "gpt/2029-public-cutover-final-preparation-20261103",
+  "deploymentId": "dpl_5hKnPxXX7caHAzWu23132GMdM5ry",
+  "realPublicData": true,
+  "actualSW": true,
+  "modelCalls": 0,
+  "liveWrites": 0,
+  "testMail": 0,
+  "accountAcceptance": "existing user-reported two-account receipt retained separately; no new account test",
+  "cases": [
+    {
+      "name": "exact protected artifact and real Home/SW",
+      "width": 390,
+      "passed": true,
+      "worker": "/sw.js",
+      "series": 4
+    },
+    {
+      "name": "Now, shared context/dock and compact desktop bar retained",
+      "width": 390,
+      "passed": true,
+      "dock": {
+        "x": 22.5,
+        "y": 830,
+        "width": 330,
+        "height": 60
+      },
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 375,
+        "height": 6525.4375
+      },
+      "viewport": {
+        "innerWidth": 390,
+        "clientWidth": 390,
+        "bodyWidth": 375
+      }
+    },
+    {
+      "name": "World, calculator and guest personal/admin gates remain truthful",
+      "width": 390,
+      "passed": true,
+      "privilegedReads": "no genuine admin session used; named private state retained without revealing CP1"
+    },
+    {
+      "name": "exact protected artifact and real Home/SW",
+      "width": 1440,
+      "passed": true,
+      "worker": "/sw.js",
+      "series": 4
+    },
+    {
+      "name": "Now, shared context/dock and compact desktop bar retained",
+      "width": 1440,
+      "passed": true,
+      "dock": {
+        "x": 547.5,
+        "y": 828,
+        "width": 330,
+        "height": 62
+      },
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 1425,
+        "height": 4626.859375
+      },
+      "viewport": {
+        "innerWidth": 1440,
+        "clientWidth": 1440,
+        "bodyWidth": 1425
+      }
+    },
+    {
+      "name": "World, calculator and guest personal/admin gates remain truthful",
+      "width": 1440,
+      "passed": true,
+      "privilegedReads": "no genuine admin session used; named private state retained without revealing CP1"
+    }
+  ],
+  "errors": [],
+  "denied": [
+    {
+      "width": 390,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/world_group_source_arrivals_v2"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/world_group_source_arrivals_v2"
+        }
+      ]
+    }
+  ],
+  "finishedAt": "2026-11-03T17:30:46.087Z",
+  "passed": 6,
+  "failed": 0
+}

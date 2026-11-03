@@ -1,0 +1,20 @@
+{
+  "documents": [
+    "SOD1820_MASTER_STATE.md",
+    "SOD1820_MASTER_ROADMAP.md",
+    "docs/reviews/url-continuity-plan-20261103/transition-matrix.json",
+    "docs/reviews/url-continuity-plan-20261103/transition-matrix.csv",
+    "docs/reviews/url-continuity-plan-20261103/transition-matrix.md",
+    "docs/reviews/url-continuity-plan-20261103/coverage.md",
+    "docs/w0-2027-route-seo-addressability-matrix-v1.md"
+  ],
+  "familyCount": 36,
+  "historicalDecisionsPreserved": true,
+  "originalInventoryUnchanged": true,
+  "booksLegacyRootAndWorkerUnchanged": true,
+  "backupRiskNotPass": true,
+  "chatDeferredZeroImported": true,
+  "sharedApprovalsPending": true,
+  "contractChange": false,
+  "doc37": "execution appendix will be CAS-appended to existing37 after final head verification"
+}

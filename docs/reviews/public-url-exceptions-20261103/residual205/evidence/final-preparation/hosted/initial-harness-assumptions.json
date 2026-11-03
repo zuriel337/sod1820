@@ -1,0 +1,213 @@
+{
+  "sourceSha": "7fe889e16e62945f1b5b546d9640b0b6ae782225",
+  "branch": "gpt/2029-public-cutover-final-preparation-20261103",
+  "deploymentId": "dpl_5hKnPxXX7caHAzWu23132GMdM5ry",
+  "realPublicData": true,
+  "actualSW": true,
+  "modelCalls": 0,
+  "liveWrites": 0,
+  "testMail": 0,
+  "accountAcceptance": "existing user-reported two-account receipt retained separately; no new account test",
+  "cases": [
+    {
+      "name": "exact protected artifact and real Home/SW",
+      "width": 390,
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\ntrue !== false\n"
+    },
+    {
+      "name": "Legacy invitation template, actual2029 fonts/images and old contract denied before email",
+      "width": 390,
+      "passed": false,
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok((await sheet.innerText()).includes('בלי הצפה — רק עדכונים חשובים באמת'))\n"
+    },
+    {
+      "name": "Now, shared context/dock and compact desktop bar retained",
+      "width": 390,
+      "passed": true,
+      "dock": {
+        "x": 22.5,
+        "y": 830,
+        "width": 330,
+        "height": 60
+      }
+    },
+    {
+      "name": "real old Post, full Number/Phrase and exact browser return",
+      "width": 390,
+      "passed": false,
+      "postId": "1259",
+      "error": "locator.waitFor: Timeout 35000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-number-core-root]').first() to be visible\u001b[22m\n"
+    },
+    {
+      "name": "World, calculator and guest personal/admin gates remain truthful",
+      "width": 390,
+      "passed": false,
+      "error": "locator.waitFor: Timeout 35000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.sod29-root.surface-calculator') to be visible\u001b[22m\n"
+    },
+    {
+      "name": "exact protected artifact and real Home/SW",
+      "width": 1440,
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\ntrue !== false\n"
+    },
+    {
+      "name": "Legacy invitation template, actual2029 fonts/images and old contract denied before email",
+      "width": 1440,
+      "passed": true,
+      "visual": {
+        "bodyFont": "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        "titleFont": "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        "logo": 128,
+        "atmosphere": 720,
+        "fonts": [
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "Noto Sans Hebrew",
+            "status": "loaded"
+          },
+          {
+            "family": "Noto Sans Hebrew",
+            "status": "loaded"
+          },
+          {
+            "family": "Rubik",
+            "status": "loaded"
+          },
+          {
+            "family": "Rubik",
+            "status": "loaded"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Now, shared context/dock and compact desktop bar retained",
+      "width": 1440,
+      "passed": false,
+      "dock": {
+        "x": 547.5,
+        "y": 828,
+        "width": 330,
+        "height": 62
+      },
+      "error": "The expression evaluated to a falsy value:\n\n  assert.ok(Math.abs(row.dock.x+row.dock.width/2-width/2)<2)\n"
+    },
+    {
+      "name": "real old Post, full Number/Phrase and exact browser return",
+      "width": 1440,
+      "passed": false,
+      "postId": "1259",
+      "error": "locator.waitFor: Timeout 35000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-number-core-root]').first() to be visible\u001b[22m\n"
+    },
+    {
+      "name": "World, calculator and guest personal/admin gates remain truthful",
+      "width": 1440,
+      "passed": false,
+      "error": "locator.waitFor: Timeout 35000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.sod29-root.surface-calculator') to be visible\u001b[22m\n"
+    }
+  ],
+  "errors": [],
+  "denied": [
+    {
+      "width": 390,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/world_group_source_arrivals_v2"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/world_group_source_arrivals_v2"
+        }
+      ]
+    }
+  ],
+  "finishedAt": "2026-11-03T17:26:29.164Z",
+  "passed": 2,
+  "failed": 8
+}

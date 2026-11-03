@@ -1,0 +1,20 @@
+{
+  "acceptedRuntimeSha": "7fe889e16e62945f1b5b546d9640b0b6ae782225",
+  "comparedPaths": [
+    "src",
+    "api",
+    "public-reading-deploy",
+    "preview-deploy",
+    "scripts",
+    "supabase",
+    "public",
+    "vercel.json",
+    "package.json",
+    "package-lock.json"
+  ],
+  "runtimeDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "runtimeDiffBytes": 0,
+  "continuation": "documentation/evidence/test-only",
+  "newTimingClaim": false,
+  "fullIsolationOrG4Claim": false
+}

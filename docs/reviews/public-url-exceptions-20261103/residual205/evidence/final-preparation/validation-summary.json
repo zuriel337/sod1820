@@ -34,5 +34,13 @@
       "kind": "fixture CSS asset resolution",
       "detail": "esbuild browser fixture initially treated Vite public URL as filesystem import; declared public images external and served actual files locally; no live network"
     }
-  ]
+  ],
+  "runtimeSha": "7fe889e16e62945f1b5b546d9640b0b6ae782225",
+  "cleanHeadNode": 109,
+  "cleanHeadArtifact": "PASS applicationSourceDirty=false; local sourceDirty=false",
+  "hostedRealPublicDistinctCases": 10,
+  "hostedRuntime": "7fe889e16e62945f1b5b546d9640b0b6ae782225",
+  "hostedPartialRetriesPreserved": true,
+  "sharedApprovals": "PENDING_EXPLICIT_USER_REPLY",
+  "chat": "DEFERRED_USER_DECISION_0_IMPORTED"
 }
