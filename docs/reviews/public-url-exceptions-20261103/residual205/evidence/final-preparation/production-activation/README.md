@@ -1,5 +1,7 @@
 # Proposed staged Production-target review — no application or deployment
 
+**עדכון12.39:** [ההצעה המשולבת](public-candidate/README.md) כוללת כעת גם תוצר ציבורי ולא רקstage, ומשמרת את מצבstage ואת בדיקותיו.49 בדיקות ובנייתdormant מבודדת עברו; הקוד לא הוחל. ה־patch המשולב כולל את הדלתא שכאן, ולכן אין להחיל את שתיהן בנפרד. ערךautoAssignלא נצפה ו־CLIאינו מחובר; לא נוצרProduction. שאר המסמך מתעד את חתךstageהקודם והראיות התקפות שלו.
+
 **Current continuation:** the proposal patch is rebased over the same candidate's stable-preview Auth seam and existing-origin allowlist. The five affected isolated stage tests passed again; no stage guard was applied. The immutable exact deployment remains the stage boundary; its Preview-only Auth alias does not become an approved Production origin. Files in this folder are permanent; older /tmp references below describe the historical review. See `proposed-files.json` and `../../../four-completions.md`.
 
 Status: **PROPOSAL_ONLY / NOT_APPLIED / NO_DEPLOYMENT_AUTHORIZATION**.

@@ -442,3 +442,8 @@ ZURIEL accepts the unverified freshness/media coverage risk for continuing prepa
 ### 8.9 — Auth continuity on the same candidate, not a new URL inventory
 
 אותהטבלהומלאיהכתובותנשמרים. חיבורGoogle/Facebook/OTPמחדשמשתמשבשרתAuthהקייםבלי עדכוןהעדפות. callbackPreviewקבועזקוקלאימותדשבורדוקבלהאמיתית. A2עתידיאינופררקוויזיטלכניסה; B/Dממתיניםבנפרד. [צעדי קבלה](reviews/public-url-exceptions-20261103/residual205/four-completions.md) ותוכניתהמעבר/חזרהבאותותיקהראיות, ללאProduction/G4או בקשותחשבוןחוזרות.
+
+
+### 8.10 — Public-config proposal prepared, accepted runtime unchanged
+
+[Exact combined proposal and49 local checks](reviews/public-url-exceptions-20261103/residual205/evidence/final-preparation/production-activation/public-candidate/README.md) fill the code-preparation gap after stage-only review. It is not applied. Product/Preview01662, all original URLs and public source eligibility remain unchanged. Canonical serving/indexing is prepared only in a separately selected Production candidate; immutable host, API, private/missing and noneligible pages stay noindex. Public-capable code would serve if canonical traffic were routed, so safe protected/unrouted creation and final exact cutover remain separate requirements. No HTTP inventory or runtime acceptance is reclassified as fullG4. OnlyF32 preparation status changes.

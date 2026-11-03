@@ -704,11 +704,11 @@
     "evidence": "DB href/src; api/sitemap; publicfiles; hosting",
     "meaning": "משאב אמיתי/SEO/API; גם probe אפשרי",
     "target_2029": "המשאב/הנכס המדויק אם זמין",
-    "verified_status": "193 נתיבי השמע נשמרו עם ראיות HTML במקום audio ומשימת שחזור; נדחו לאחר ההשקה באישור צוריאל. אין שחזור בתים או הפניה כללית. XML כולל את הכתובות הקנוניות של שלושת דפי WP ההיסטוריים; גבולות משאבים ו־404 נשמרו.",
+    "verified_status": "193 נתיבי השמע נשמרו עם ראיות HTML במקום audio ומשימת שחזור; נדחו לאחר ההשקה באישור צוריאל. אין שחזור בתים או הפניה כללית. XML כולל את הכתובות הקנוניות של שלושת דפי WP ההיסטוריים; גבולות משאבים ו־404 נשמרו. המשך12.39: תצורתאינדוקסציבורימוכנהכהצעהבלבד,49בדיקותמבודדותובנייתdormantעברו;הפריוויונשארמוגן/noindex.איןקבלתProductionמתארחאו מעברלחי. direct documentAPI נשארnoindexגםבהצעה.",
     "permissions": "publicasset לעומתחתום/פרטי; API לפי owner",
     "parameters_anchors": "שם קובץ,טווח זמן,range,queryAPI מותרים",
     "acceptance": "HEAD/GET/MIME/CSP; אין HTML200 במקום תמונה/שמע;probe נשאר 404",
-    "open_task": "C4",
+    "open_task": "C4: retain193audio user deferral; exact publication guard approval, proven no-domain Git-source creation and real hosted public-config acceptance; final cutover separate",
     "treatment": "PARTIAL_EXACT_RESOURCE_ACCEPTANCE_AUDIO_SOURCE_OPEN",
     "exception_previous_checkpoint": {
       "verified_status": "193audio hrefs; לא כל בקשת WP היאתוכן אמיתי",
@@ -722,7 +722,12 @@
     "continuity_closure_previous_checkpoint": {
       "verified_status": "193/193 קישורי שמע מחזיריםHTML כבר בלגאסי, גםGETרגיל בדגימה מכל משפחה. מיפויmedia_map/תור/Storageלא סיפקoriginal-path→bytes. אין ניחוש קובץ/יעד כללי. מומלץ לדחות שחזור במפורש; טרם התקבל פטור.404עםMIMEנכון נשמר במועמד"
     },
-    "continuity_closure_evidence": "../public-url-exceptions-20261103/residual205/continuity-closure-20261103.md"
+    "continuity_closure_evidence": "../public-url-exceptions-20261103/residual205/continuity-closure-20261103.md",
+    "public_candidate_proposal_previous_checkpoint": {
+      "verified_status": "193 נתיבי השמע נשמרו עם ראיות HTML במקום audio ומשימת שחזור; נדחו לאחר ההשקה באישור צוריאל. אין שחזור בתים או הפניה כללית. XML כולל את הכתובות הקנוניות של שלושת דפי WP ההיסטוריים; גבולות משאבים ו־404 נשמרו.",
+      "open_task": "C4"
+    },
+    "public_candidate_proposal_evidence": "../public-url-exceptions-20261103/residual205/evidence/final-preparation/production-activation/public-candidate/README.md"
   },
   {
     "id": "F33",

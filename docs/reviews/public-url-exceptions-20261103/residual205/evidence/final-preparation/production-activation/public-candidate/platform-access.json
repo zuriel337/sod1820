@@ -1,0 +1,14 @@
+{
+  "mcpCreateDeployment": "connected and supports Git+SHA but no per-deployment skip-domain/autoAssignCustomDomains field",
+  "mcpUpdateProjectAutoAssignField": "present in typed tool and official PATCH/v9/projects schema; shared setting not changed",
+  "projectAutoAssignCurrentValue": "not returned by read-only project response; UNKNOWN, not false",
+  "projectFlagAlternative": "not accepted as a safe substitute: inheritance for manual creation/default domain behavior unproved; no mutation done",
+  "existingProjectProtectionPolicy": "all_except_custom_domains observed; not acceptance of an uncreated Production candidate",
+  "cliVersion": "65.11.0",
+  "cliAvailable": "via isolated npm cache runner",
+  "cliWhoami": "Logged out",
+  "cliLoginStarted": false,
+  "localCredentialsReadOrCopied": false,
+  "initialCliFailure": "root filesystem full for default CLI config directory; subsequent own /tmp config metadata check ran",
+  "allowedNextStep": "Establish a supported authenticated Git-source creation path that explicitly suppresses all three canonical aliases; obtain separate source guard/creation approval; retain no traffic change until exact cutover approval"
+}
