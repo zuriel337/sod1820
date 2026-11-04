@@ -48,4 +48,9 @@ assert.equal(dailyWordFor(new Date(2026, 10, 5)), dailyWordFor(new Date(2027, 2,
 assert.match(css, /\.sod29-calcpro-command \.sod29-calcpro-bar \{\s*display: flex;\s*grid-template-columns: none;/);
 assert.doesNotMatch(css, /^\.sod29-calcpro-bar \{\s*display: flex;/m, "no unscoped flex rule that the grid method-bar rule can override");
 assert.doesNotMatch(page, /זהה גם/, "tiles no longer carry the 'same in another method' wording");
+// Tile third line: core-trio role word + Hebrew-letter value; material states / "≡" note keep precedence.
+assert.match(page, /const CORE_TAG = Object\.freeze\(\{ "רגיל": "הגוף", "מילוי": "הנשמה", "מסתתר": "הנסתר" \}\)/);
+assert.match(page, /hebrewNumeral\(method\.computedValue\)/);
+assert.match(page, /EXCEPTIONAL_STATE_HE\[method\.exceptionalState\] \|\| unavailable \|\| \[tag, numeral\]\.filter\(Boolean\)\.join\(" · "\)/);
+assert.equal((page.match(/\{\.\.\.tileExtras\(method\)\}/g) || []).length, 2, "classic + families grids both use the extras");
 console.log("Calculator 2029 classic-default view contract: PASS");
