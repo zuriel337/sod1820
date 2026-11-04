@@ -69,7 +69,8 @@ jobs:
 
   mobile-accessibility:
     name: Mobile + Accessibility Acceptance
-    runs-on: ubuntu-latest
+    # Keep Playwright 1.55 on its supported image; ubuntu-latest now selects26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
 
     steps:

@@ -31,7 +31,19 @@ const authEntry = fs.readFileSync("src/components/auth2029/AccountEntry2029.jsx"
 assert.match(frame, /<AccountEntry2029 inline variant="account"/);
 for (const helper of ["requestEmailOtp", "verifyEmailOtp", "isValidEmailOtp", "sanitizeEmailOtp"]) assert.match(authEntry, new RegExp(helper));
 assert.match(frame, /data-workspace-section="account"/);
-assert.match(authEntry, /shouldCreateUser: !preview/);
+// Accepted public and functional preview registration remains available;
+// a read-only preview must still refuse account creation.
+const creationExpression = authEntry.match(/shouldCreateUser: ([^}]+) \}/)?.[1];
+assert.ok(creationExpression, "canonical OTP entry must choose account creation explicitly");
+assert.equal(creationExpression.trim(), 'PUBLIC_READING_RELEASE || !preview || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true"');
+const chooseCreation = new Function("PUBLIC_READING_RELEASE", "preview", "functionalPreview", `return (${creationExpression.replace("import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW", "functionalPreview")})`);
+for (const [name, publicReading, preview, functional, expected] of [
+  ["public registration", true, true, "false", true],
+  ["ordinary account entry", false, false, undefined, true],
+  ["approved functional preview", false, true, "true", true],
+  ["read-only preview", false, true, "false", false],
+  ["missing functional grant", false, true, undefined, false],
+]) assert.equal(chooseCreation(publicReading, preview, functional), expected, name);
 assert.match(authEntry, /signOut\(\{ scope: "local" \}\)/);
 assert.match(frame, /signOut/);
 assert.match(frame, /onClick: openAccount/);
@@ -59,7 +71,7 @@ assert.match(css, /@media\(max-width:640px\)/);
 // Workspace summaries are read-only; the accepted native center owns management.
 assert.match(frame, /getNotificationPrefs/);
 assert.match(frame, /followTopics\(row\)/);
-assert.match(frame, /getUnreadCount\(\{ strict: true \}\)/);
+assert.match(frame, /getUnreadCount\(\{ strict: true, userId \}\)/);
 assert.match(frame, /getMyProfile\(\{ strict: true, userId \}\)/);
 assert.doesNotMatch(frame, /watchToggle|markNotificationRead|getMyNotifications/);
 assert.match(frame, /openExistingModule\("notifications"\)/);

@@ -1,0 +1,25 @@
+{
+  "python312Version": "3.12.14",
+  "python314ChangedCompressedBytes": true,
+  "allDecodedCanonicalContentIdentical": true,
+  "githubDiffBlobPrefix": "456bff0",
+  "reproducedBlob": "456bff0dd98f9566be45b06e2597408978817ec5",
+  "exactGitHubBlobReproduced": true,
+  "streams": [
+    {
+      "decodedSha256": "0b022e8eef6f9c16a20c3836c11e652e5cac45469016766f7f4fc670c9f84e1b",
+      "decodedBytes": 2409166,
+      "compressedEqual": false
+    },
+    {
+      "decodedSha256": "9ac07eac736d2eeb27a7535201fc2a9ee79bc70c8e040625e9f7a56c768677b7",
+      "decodedBytes": 820304,
+      "compressedEqual": false
+    },
+    {
+      "decodedSha256": "134189ee3c5f9cb8d960bc14d958bccd598b280c7a861adc02b17728c6070093",
+      "decodedBytes": 2722983,
+      "compressedEqual": false
+    }
+  ]
+}

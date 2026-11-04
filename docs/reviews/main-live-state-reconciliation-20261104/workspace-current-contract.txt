@@ -1,0 +1,459 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /getUnreadCount\(\{ strict: true \}\)/. Input:
+
+'import NavigationIcon2029 from "./NavigationIcon2029.jsx";\n' +
+  'import { createPortal } from "react-dom";\n' +
+  'import React, {\n' +
+  '  createContext,\n' +
+  '  useCallback,\n' +
+  '  useContext,\n' +
+  '  useEffect,\n' +
+  '  useId,\n' +
+  '  useMemo,\n' +
+  '  useRef,\n' +
+  '  useState,\n' +
+  '} from "react";\n' +
+  'import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";\n' +
+  'import { PaletteProvider, use2029Palette } from "../../lib/palette.js";\n' +
+  'import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";\n' +
+  'import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";\n' +
+  'import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";\n' +
+  'import { resolveExperienceContext } from "../../lib/experienceContext.js";\n' +
+  'import { useResearch } from "../../lib/research/ResearchProvider.jsx";\n' +
+  'import { buildExactReturnPatch, researchContextNumber } from "../../lib/research/researchContext.js";\n' +
+  'import { useAuth } from "../../lib/AuthContext.jsx";\n' +
+  'import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";\n' +
+  'import { useFeatureState } from "../MaintenanceLock.jsx";\n' +
+  'import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked, personalActionsLocked } from "../../lib/publicLaunch2029.js";\n' +
+  'const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));\n' +
+  'import { makeEntity } from "../../lib/research/entity.js";\n' +
+  'import { getNotificationPrefs } from "../../lib/supabase.js";\n' +
+  'import { getUnreadCount } from "../../lib/notifications.js";\n' +
+  'import { getMyProfile } from "../../lib/commandCenter.js";\n' +
+  'import { WRITER_PERSONAL_MODULES, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";\n' +
+  'import { followTopics } from "../../lib/userCenter/followCenter2029.js";\n' +
+  'import { getVisitorId } from "../../lib/tracking.js";\n' +
+  'import { isRazielNextAction } from "../../lib/research/razielActionContract.js";\n' +
+  'import {\n' +
+  '  CONTEXT_ACTION_KIND,\n' +
+  '  resolveContextActions,\n' +
+  '  resolveContextTools,\n' +
+  '} from "../../lib/research/contextualCapabilities.js";\n' +
+  'import ShareActions from "../ShareActions.jsx";\n' +
+  'import CanonicalProgress from "../CanonicalProgress.jsx";\n' +
+  'import ContactGateway from "./ContactGatewayOnDemand2029.jsx";\n' +
+  'import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";\n' +
+  'import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";\n' +
+  'import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";\n' +
+  'const RazielCenter2029 = React.lazy(() => import("./RazielCenter2029.jsx"));\n' +
+  'const NowPublications2029 = React.lazy(() => import("./NowPublications2029.jsx"));\n' +
+  'import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";\n' +
+  'import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspaceRazielPresence2029.js";\n' +
+  'const RazielViewModeSelector2029 = React.lazy(() => import("./RazielViewModeSelector2029.jsx"));\n' +
+  'const RazielOneShotActions2029 = React.lazy(() => import("./RazielOneShotActions2029.jsx"));\n' +
+  'const ElsMatrixReadingActivity2029 = React.lazy(() => import("./ElsMatrixReadingActivity2029.jsx"));\n' +
+  'const ElsResearchActivity2029 = React.lazy(() => import("./ElsResearchActivity2029.jsx"));\n' +
+  'import { selectElsMatrixReadingActivity } from "../../lib/research/elsMatrixReadingActivity.js";\n' +
+  'import { publicContextLabel, contextDisplayTitle, contextNavigationItems2029, surfaceContextForRoute2029, entityTypeNounHe, razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";\n' +
+  '\n' +
+  'import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";\n' +
+  'import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";\n' +
+  'import { publicPageShareUrl, postAddressSlug } from "../../lib/publicPostUrls.js";\n' +
+  'import { contactSourceHref } from "./contactSource2029.js";\n' +
+  'import { useSystemFeed2029 } from "./useSystemFeed2029.js";\n' +
+  'import { recordTimeLabel } from "../../lib/relativeTime2029.js";\n' +
+  'import LearnMark2029 from "./LearnMark2029.jsx";\n' +
+  'import DiscoveryGateMark2029 from "./DiscoveryGateMark2029.jsx";\n' +
+  'import {\n' +
+  '  buildLearnHelpSeed,\n' +
+  '  classifyEntryArrival,\n' +
+  '  emitEntryLearn,\n' +
+  '  getConceptFamiliarity,\n' +
+  '  getLearnFragment,\n' +
+  '  getSurfaceFamiliarity,\n' +
+  '  isEntryLearnSurfaceActive,\n' +
+  '  LEARN_LAYER,\n' +
+  '  LEARN_SCOPE,\n' +
+  '  markConceptFamiliarity,\n' +
+  '  markSurfaceFamiliarity,\n' +
+  '  resolveEntryOrientation,\n' +
+  '} from "../../lib/entryLearn2029.js";\n' +
+  'import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";\n' +
+  'import { SystemToolDockContext2029, SystemToolDockActions2029 } from "./SystemToolDock2029.jsx";\n' +
+  'import "./sod2029.css";\n' +
+  'import "./sod2029-closed.css";\n' +
+  'import "./systemFrame2029.css";\n' +
+  'import "./myWorkspace2029.css";\n' +
+  'import "./discoveryGate2029.css";\n' +
+  'import "./systemToolDock2029.css";\n' +
+  'import "./systemFrame2029-unified-bar.css";\n' +
+  'import "./googleEntry2029.css";\n' +
+  '\n' +
+  'const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));\n' +
+  'const SiteSearch2029 = React.lazy(() => import("./SiteSearch2029.jsx"));\n' +
+  'const GuestNewsletterInvite2029 = React.lazy(() => import("./GuestNewsletterInvite2029.jsx"));\n' +
+  'import { dismissGuestNewsletterInvite2029, guestNewsletterRoute2029, useGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";\n' +
+  '\n' +
+  'const TRANSIENT = Object.freeze({\n' +
+  '  COMMAND: "command",\n' +
+  '  SEARCH: "site-search",\n' +
+  '  ACTION: "action",\n' +
+  '  CAPABILITY: "capability",\n' +
+  '  INSPECT: "inspect",\n' +
+  '  ATTENTION: "attention",\n' +
+  '  TOOLS: "tools",\n' +
+  '  MORE: "more",\n' +
+  '  RAZIEL: "raziel",\n' +
+  '  RAZIEL_LOCKED: "raziel_locked",\n' +
+  '  WORKSPACE: "workspace",\n' +
+  '  ISSUE: "issue",\n' +
+  '  CONTEXT: "context",\n' +
+  '  NEWSLETTER: "newsletter-invite",\n' +
+  '});\n' +
+  '\n' +
+  'const ShellContext = createContext({\n' +
+  '  openCommand: () => {},\n' +
+  '  openAction: () => {},\n' +
+  '  openCapability: () => {},\n' +
+  '  openInspect: () => {},\n' +
+  '  openNumber: () => {},\n' +
+  '  openAttention: () => {},\n' +
+  '  openTools: () => {},\n' +
+  '  openRaziel: () => {},\n' +
+  '  razielLocked: true,\n' +
+  '  closeRaziel: () => {},\n' +
+  '  openWorkspace: () => {},\n' +
+  '  openIssueReport: () => {},\n' +
+  '  closeWorkspace: () => {},\n' +
+  '  closeTransient: () => {},\n' +
+  '  go: () => {},\n' +
+  '  returnExact: () => {},\n' +
+  '  registerOrientationHost: () => {},\n' +
+  '  experience: null,\n' +
+  '});\n' +
+  '\n' +
+  'export const use2029Shell = () => useContext(ShellContext);\n' +
+  '\n' +
+  '\n' +
+  "// The current route is authoritative during navigation; a previous page's SEO\n" +
+  '// effect must never make the global share sheet target a stale document.\n' +
+  'export function framePublicShareHref(location, canonicalHref = null) {\n' +
+  '  let path;\n' +
+  '  try { path = decodeURIComponent(location?.pathname || "/"); } catch { return null; }\n' +
+  '  if (/^\\/(?:auth|login|join|welcome|unsubscribe|updates|credits|buy|admin|profile|journey|raziel|community\\/researcher\\/me|2029\\/(?:me|control|journey|raziel))(?:\\/|$)/.test(path)) return null;\n' +
+  '  const params = new URLSearchParams(location?.search || "");\n' +
+  '  if (params.has("claim") || params.has("dm")) return null;\n' +
+  '  params.delete("returnTo"); params.delete("back");\n' +
+  '  let canonical = null;\n' +
+  '  try {\n' +
+  '    const url = new URL(canonicalHref);\n' +
+  '    const currentSlug = postAddressSlug(location?.pathname);\n' +
+  '    if (url.pathname === location?.pathname || currentSlug && currentSlug === postAddressSlug(url.pathname)) canonical = url.href;\n' +
+  '  } catch { /* A missing or stale canonical falls back to this exact route. */ }\n' +
+  '  return publicPageShareUrl({ pathname: location?.pathname || "/", search: params.toString(), hash: location?.hash || "" }, canonical);\n' +
+  '}\n' +
+  '\n' +
+  'const publicFoundationPreview = (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101");\n' +
+  'const HOME_NAV = [\n' +
+  '  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },\n' +
+  '  { to: "/world", label: "העולם", icon: "◌" },\n' +
+  '  { to: "/heichal", label: "היכל", icon: "◇" },\n' +
+  '  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },\n' +
+  '  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },\n' +
+  '  { to: "/community/chat", label: "קהילה", icon: "◉" },\n' +
+  '];\n' +
+  '\n' +
+  'const DIRECT_NAV = [\n' +
+  '  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },\n' +
+  '  { action: "number-search", label: "דף המספר", icon: "123" },\n' +
+  '  { to: "/books", label: "ספרים ומקורות", icon: "▤" },\n' +
+  '  { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },\n' +
+  '  ...(publicFoundationPreview ? [\n' +
+  '    { to: "/map", label: "מפת האתר", icon: "◌" },\n' +
+  '    { to: "/updates", label: "עדכונים במייל", icon: "✉" },\n' +
+  '    { to: "/privacy", label: "פרטיות", icon: "◇" },\n' +
+  '  ] : []),\n' +
+  '];\n' +
+  '\n' +
+  'const CORE_HOME_NAV = [\n' +
+  '  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },\n' +
+  '  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },\n' +
+  '  { to: "/community/chat", label: "קהילה", icon: "◉" },\n' +
+  '  HOME_NAV[1],\n' +
+  '  { to: "/heichal", label: "היכל", icon: "◇" },\n' +
+  '  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },\n' +
+  '];\n' +
+  '\n' +
+  'const CORE_DIRECT_NAV = [\n' +
+  '  { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },\n' +
+  '  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },\n' +
+  '  { action: "number-search", label: "דף המספר", icon: "123" },\n' +
+  '  { to: "/books", label: "ספרים ומקורות", icon: "▤" },\n' +
+  '];\n' +
+  '\n' +
+  'const FOCUSABLE = [\n' +
+  '  "a[href]",\n' +
+  '  "button:not([disabled])",\n' +
+  '  "input:not([disabled])",\n' +
+  '  "select:not([disabled])",\n' +
+  '  "textarea:not([disabled])",\n' +
+  `  "[tabindex]:not([tabindex='-1'])",\n` +
+  '].join(",");\n' +
+  '\n' +
+  'function activeClass({ isActive }) {\n' +
+  '  return `sod29-nav-link${isActive ? " active" : ""}`;\n' +
+  '}\n' +
+  '\n' +
+  'function directionForLocale(locale) {\n' +
+  '  return /^(he|ar|fa|ur)(-|$)/i.test(locale || "he") ? "rtl" : "ltr";\n' +
+  '}\n' +
+  '\n' +
+  'function normalizeTarget(input, source = "context") {\n' +
+  '  if (!input) return null;\n' +
+  '  const type = input.type || input.entityType || input.kind || null;\n' +
+  '  const rawId = input.id ?? input.entityId ?? input.ref ?? input.locator ?? input.label ?? null;\n' +
+  '  if (rawId == null || !type) return null;\n' +
+  '  const id = String(rawId).trim();\n' +
+  '  if (!id) return null;\n' +
+  '  const resultValue = researchContextNumber(input.resultValue ?? input.number);\n' +
+  '  const number = researchContextNumber(input.number);\n' +
+  '  return {\n' +
+  '    id,\n' +
+  '    type: String(type),\n' +
+  '    label: String(in'... 130877 more characters
+
+    at file:///workspace/sod1820-bd-approved/scripts/test-my-workspace-2029.mjs:74:8
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'import NavigationIcon2029 from "./NavigationIcon2029.jsx";\n' +
+    'import { createPortal } from "react-dom";\n' +
+    'import React, {\n' +
+    '  createContext,\n' +
+    '  useCallback,\n' +
+    '  useContext,\n' +
+    '  useEffect,\n' +
+    '  useId,\n' +
+    '  useMemo,\n' +
+    '  useRef,\n' +
+    '  useState,\n' +
+    '} from "react";\n' +
+    'import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";\n' +
+    'import { PaletteProvider, use2029Palette } from "../../lib/palette.js";\n' +
+    'import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";\n' +
+    'import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";\n' +
+    'import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";\n' +
+    'import { resolveExperienceContext } from "../../lib/experienceContext.js";\n' +
+    'import { useResearch } from "../../lib/research/ResearchProvider.jsx";\n' +
+    'import { buildExactReturnPatch, researchContextNumber } from "../../lib/research/researchContext.js";\n' +
+    'import { useAuth } from "../../lib/AuthContext.jsx";\n' +
+    'import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";\n' +
+    'import { useFeatureState } from "../MaintenanceLock.jsx";\n' +
+    'import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked, personalActionsLocked } from "../../lib/publicLaunch2029.js";\n' +
+    'const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));\n' +
+    'import { makeEntity } from "../../lib/research/entity.js";\n' +
+    'import { getNotificationPrefs } from "../../lib/supabase.js";\n' +
+    'import { getUnreadCount } from "../../lib/notifications.js";\n' +
+    'import { getMyProfile } from "../../lib/commandCenter.js";\n' +
+    'import { WRITER_PERSONAL_MODULES, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";\n' +
+    'import { followTopics } from "../../lib/userCenter/followCenter2029.js";\n' +
+    'import { getVisitorId } from "../../lib/tracking.js";\n' +
+    'import { isRazielNextAction } from "../../lib/research/razielActionContract.js";\n' +
+    'import {\n' +
+    '  CONTEXT_ACTION_KIND,\n' +
+    '  resolveContextActions,\n' +
+    '  resolveContextTools,\n' +
+    '} from "../../lib/research/contextualCapabilities.js";\n' +
+    'import ShareActions from "../ShareActions.jsx";\n' +
+    'import CanonicalProgress from "../CanonicalProgress.jsx";\n' +
+    'import ContactGateway from "./ContactGatewayOnDemand2029.jsx";\n' +
+    'import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";\n' +
+    'import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";\n' +
+    'import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";\n' +
+    'const RazielCenter2029 = React.lazy(() => import("./RazielCenter2029.jsx"));\n' +
+    'const NowPublications2029 = React.lazy(() => import("./NowPublications2029.jsx"));\n' +
+    'import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";\n' +
+    'import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspaceRazielPresence2029.js";\n' +
+    'const RazielViewModeSelector2029 = React.lazy(() => import("./RazielViewModeSelector2029.jsx"));\n' +
+    'const RazielOneShotActions2029 = React.lazy(() => import("./RazielOneShotActions2029.jsx"));\n' +
+    'const ElsMatrixReadingActivity2029 = React.lazy(() => import("./ElsMatrixReadingActivity2029.jsx"));\n' +
+    'const ElsResearchActivity2029 = React.lazy(() => import("./ElsResearchActivity2029.jsx"));\n' +
+    'import { selectElsMatrixReadingActivity } from "../../lib/research/elsMatrixReadingActivity.js";\n' +
+    'import { publicContextLabel, contextDisplayTitle, contextNavigationItems2029, surfaceContextForRoute2029, entityTypeNounHe, razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";\n' +
+    '\n' +
+    'import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";\n' +
+    'import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";\n' +
+    'import { publicPageShareUrl, postAddressSlug } from "../../lib/publicPostUrls.js";\n' +
+    'import { contactSourceHref } from "./contactSource2029.js";\n' +
+    'import { useSystemFeed2029 } from "./useSystemFeed2029.js";\n' +
+    'import { recordTimeLabel } from "../../lib/relativeTime2029.js";\n' +
+    'import LearnMark2029 from "./LearnMark2029.jsx";\n' +
+    'import DiscoveryGateMark2029 from "./DiscoveryGateMark2029.jsx";\n' +
+    'import {\n' +
+    '  buildLearnHelpSeed,\n' +
+    '  classifyEntryArrival,\n' +
+    '  emitEntryLearn,\n' +
+    '  getConceptFamiliarity,\n' +
+    '  getLearnFragment,\n' +
+    '  getSurfaceFamiliarity,\n' +
+    '  isEntryLearnSurfaceActive,\n' +
+    '  LEARN_LAYER,\n' +
+    '  LEARN_SCOPE,\n' +
+    '  markConceptFamiliarity,\n' +
+    '  markSurfaceFamiliarity,\n' +
+    '  resolveEntryOrientation,\n' +
+    '} from "../../lib/entryLearn2029.js";\n' +
+    'import { buildElsRazielGuidance } from "../../lib/research/elsRazielContext.js";\n' +
+    'import { SystemToolDockContext2029, SystemToolDockActions2029 } from "./SystemToolDock2029.jsx";\n' +
+    'import "./sod2029.css";\n' +
+    'import "./sod2029-closed.css";\n' +
+    'import "./systemFrame2029.css";\n' +
+    'import "./myWorkspace2029.css";\n' +
+    'import "./discoveryGate2029.css";\n' +
+    'import "./systemToolDock2029.css";\n' +
+    'import "./systemFrame2029-unified-bar.css";\n' +
+    'import "./googleEntry2029.css";\n' +
+    '\n' +
+    'const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));\n' +
+    'const SiteSearch2029 = React.lazy(() => import("./SiteSearch2029.jsx"));\n' +
+    'const GuestNewsletterInvite2029 = React.lazy(() => import("./GuestNewsletterInvite2029.jsx"));\n' +
+    'import { dismissGuestNewsletterInvite2029, guestNewsletterRoute2029, useGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";\n' +
+    '\n' +
+    'const TRANSIENT = Object.freeze({\n' +
+    '  COMMAND: "command",\n' +
+    '  SEARCH: "site-search",\n' +
+    '  ACTION: "action",\n' +
+    '  CAPABILITY: "capability",\n' +
+    '  INSPECT: "inspect",\n' +
+    '  ATTENTION: "attention",\n' +
+    '  TOOLS: "tools",\n' +
+    '  MORE: "more",\n' +
+    '  RAZIEL: "raziel",\n' +
+    '  RAZIEL_LOCKED: "raziel_locked",\n' +
+    '  WORKSPACE: "workspace",\n' +
+    '  ISSUE: "issue",\n' +
+    '  CONTEXT: "context",\n' +
+    '  NEWSLETTER: "newsletter-invite",\n' +
+    '});\n' +
+    '\n' +
+    'const ShellContext = createContext({\n' +
+    '  openCommand: () => {},\n' +
+    '  openAction: () => {},\n' +
+    '  openCapability: () => {},\n' +
+    '  openInspect: () => {},\n' +
+    '  openNumber: () => {},\n' +
+    '  openAttention: () => {},\n' +
+    '  openTools: () => {},\n' +
+    '  openRaziel: () => {},\n' +
+    '  razielLocked: true,\n' +
+    '  closeRaziel: () => {},\n' +
+    '  openWorkspace: () => {},\n' +
+    '  openIssueReport: () => {},\n' +
+    '  closeWorkspace: () => {},\n' +
+    '  closeTransient: () => {},\n' +
+    '  go: () => {},\n' +
+    '  returnExact: () => {},\n' +
+    '  registerOrientationHost: () => {},\n' +
+    '  experience: null,\n' +
+    '});\n' +
+    '\n' +
+    'export const use2029Shell = () => useContext(ShellContext);\n' +
+    '\n' +
+    '\n' +
+    "// The current route is authoritative during navigation; a previous page's SEO\n" +
+    '// effect must never make the global share sheet target a stale document.\n' +
+    'export function framePublicShareHref(location, canonicalHref = null) {\n' +
+    '  let path;\n' +
+    '  try { path = decodeURIComponent(location?.pathname || "/"); } catch { return null; }\n' +
+    '  if (/^\\/(?:auth|login|join|welcome|unsubscribe|updates|credits|buy|admin|profile|journey|raziel|community\\/researcher\\/me|2029\\/(?:me|control|journey|raziel))(?:\\/|$)/.test(path)) return null;\n' +
+    '  const params = new URLSearchParams(location?.search || "");\n' +
+    '  if (params.has("claim") || params.has("dm")) return null;\n' +
+    '  params.delete("returnTo"); params.delete("back");\n' +
+    '  let canonical = null;\n' +
+    '  try {\n' +
+    '    const url = new URL(canonicalHref);\n' +
+    '    const currentSlug = postAddressSlug(location?.pathname);\n' +
+    '    if (url.pathname === location?.pathname || currentSlug && currentSlug === postAddressSlug(url.pathname)) canonical = url.href;\n' +
+    '  } catch { /* A missing or stale canonical falls back to this exact route. */ }\n' +
+    '  return publicPageShareUrl({ pathname: location?.pathname || "/", search: params.toString(), hash: location?.hash || "" }, canonical);\n' +
+    '}\n' +
+    '\n' +
+    'const publicFoundationPreview = (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101");\n' +
+    'const HOME_NAV = [\n' +
+    '  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },\n' +
+    '  { to: "/world", label: "העולם", icon: "◌" },\n' +
+    '  { to: "/heichal", label: "היכל", icon: "◇" },\n' +
+    '  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },\n' +
+    '  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },\n' +
+    '  { to: "/community/chat", label: "קהילה", icon: "◉" },\n' +
+    '];\n' +
+    '\n' +
+    'const DIRECT_NAV = [\n' +
+    '  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },\n' +
+    '  { action: "number-search", label: "דף המספר", icon: "123" },\n' +
+    '  { to: "/books", label: "ספרים ומקורות", icon: "▤" },\n' +
+    '  { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },\n' +
+    '  ...(publicFoundationPreview ? [\n' +
+    '    { to: "/map", label: "מפת האתר", icon: "◌" },\n' +
+    '    { to: "/updates", label: "עדכונים במייל", icon: "✉" },\n' +
+    '    { to: "/privacy", label: "פרטיות", icon: "◇" },\n' +
+    '  ] : []),\n' +
+    '];\n' +
+    '\n' +
+    'const CORE_HOME_NAV = [\n' +
+    '  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },\n' +
+    '  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },\n' +
+    '  { to: "/community/chat", label: "קהילה", icon: "◉" },\n' +
+    '  HOME_NAV[1],\n' +
+    '  { to: "/heichal", label: "היכל", icon: "◇" },\n' +
+    '  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },\n' +
+    '];\n' +
+    '\n' +
+    'const CORE_DIRECT_NAV = [\n' +
+    '  { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },\n' +
+    '  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },\n' +
+    '  { action: "number-search", label: "דף המספר", icon: "123" },\n' +
+    '  { to: "/books", label: "ספרים ומקורות", icon: "▤" },\n' +
+    '];\n' +
+    '\n' +
+    'const FOCUSABLE = [\n' +
+    '  "a[href]",\n' +
+    '  "button:not([disabled])",\n' +
+    '  "input:not([disabled])",\n' +
+    '  "select:not([disabled])",\n' +
+    '  "textarea:not([disabled])",\n' +
+    `  "[tabindex]:not([tabindex='-1'])",\n` +
+    '].join(",");\n' +
+    '\n' +
+    'function activeClass({ isActive }) {\n' +
+    '  return `sod29-nav-link${isActive ? " active" : ""}`;\n' +
+    '}\n' +
+    '\n' +
+    'function directionForLocale(locale) {\n' +
+    '  return /^(he|ar|fa|ur)(-|$)/i.test(locale || "he") ? "rtl" : "ltr";\n' +
+    '}\n' +
+    '\n' +
+    'function normalizeTarget(input, source = "context") {\n' +
+    '  if (!input) return null;\n' +
+    '  const type = input.type || input.entityType || input.kind || null;\n' +
+    '  const rawId = input.id ?? input.entityId ?? input.ref ?? input.locator ?? input.label ?? null;\n' +
+    '  if (rawId == null || !type) return null;\n' +
+    '  const id = String(rawId).trim();\n' +
+    '  if (!id) return null;\n' +
+    '  const resultValue = researchContextNumber(input.resultValue ?? input.number);\n' +
+    '  const number = researchContextNumber(input.number);\n' +
+    '  return {\n' +
+    '    id,\n' +
+    '    type: String(type),\n' +
+    '    label: String(in'... 130877 more characters,
+  expected: /getUnreadCount\(\{ strict: true \}\)/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

@@ -1,0 +1,52 @@
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ each successful CP1 section appears independently of failed/slow secondary readers (80.601091ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ measured empty and measured zero remain different from malformed/unknown snapshots (49.734382ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ same selected trace is refreshed and a delayed old detail cannot restore stale content (66.588939ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ identity change clears all prior view state before pending A replies settle (24.250495ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ guest and loading identity perform no privileged reads (2.000366ms)
+✔ pending admin verification has a visible status, without any privileged reads (1.089994ms)
+✔ old observed egress is labelled last observation, never current24h zero (23.434616ms)
+✔ worker policy changed and exact callback alone consumes tab-bound PKCE (1.89698ms)
+✔ Google and Facebook share verified exact callback and reject unapproved Preview origins (1.679432ms)
+✔ emitted account transport admits existing login, new signup, verification and exact PKCE exchange (43.507554ms)
+✔ new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants (11.335592ms)
+✔ historical Preview Auth remains password-only unless explicitly opted in by this worker (1.036914ms)
+✔ explicit admin actions verify canonical JWT and exact own role before forwarding original request (10.917281ms)
+✔ anonymous/member/spoofed identity, stale role, JWT failure and transport failure cannot invoke action (7.997379ms)
+✔ no private role cache survives revocation or replacement; denied action never reaches endpoint (0.679655ms)
+✔ financial, shared flag, mail delivery and foreign writes remain unavailable even to admin (9.441237ms)
+✔ signed private media TUS requires verified admin JWT on every chunk; signature alone grants nothing (8.537022ms)
+✔ same-origin private adapter preserves only same-origin protection cookies; it independently verifies the current server principal (4.016526ms)
+✔ server private wrapper checks deployment, host, method and verified admin independently of worker (1.439791ms)
+✔ prepared full-account helper retains actual SDK PKCE shapes and exact callbacks, separately from current emitted restriction (19.409627ms)
+✔ existing publishable fallback is used only for verification; original target bearer is never replaced (5.00056ms)
+✔ public-reading reuses existing Auth without acquisition, while untrusted callback and metadata still fail closed (3.861623ms)
+✔ emitted OAuth navigation requires exact callback, genuine PKCE shape and bounded provider scopes before browser navigation (3.042227ms)
+✔ actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT (24.360571ms)
+✔ restored native Community publishes for a verified ordinary member through the existing RPC (2.79264ms)
+✔ restored Community rejects guests, expired sessions, forged actors and malformed publication (11.283935ms)
+✔ reply and reaction targets require the canonical anonymous public context (10.371147ms)
+✔ original OpenWeb API and authenticated existing SSO are available without opening foreign writes or model access (4.724154ms)
+✔ published CSP admits the original OpenWeb service while retaining object/frame/base restrictions (1.424317ms)
+✔ unregistered repeatable likes use public context and the anonymous counter path on every press (5.507515ms)
+✔ guest repeatable mode cannot broaden emoji, body shape or nonpublic targets (1.782007ms)
+✔ explicit verified-account Community thread follow preserves the existing private and channel ceiling (9.592855ms)
+✔ reading continuation accepts only bounded public cursors and strips account credentials (7.113185ms)
+✔ replies to me requires canonical account verification and its exact private pagination contract (4.524853ms)
+✔ reply unread count is an exact own-inbox read; arbitrary filters and foreign accounts stay blocked (3.865999ms)
+✔ 2029 page, Community and account panel delegate authentication to the canonical entry (2.527592ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 357.07482

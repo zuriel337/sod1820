@@ -63,7 +63,13 @@ assert.match(research, /makeResearchAdmissionEnvelope/);
 assert.match(visits, /export async function getVideoMapHealth/);
 assert.match(visits, /rpc\("admin_video_map_health"\)/);
 assert.match(control, /VIDEO MAP · 2029/);
-assert.match(control, /getVideoMapHealth\(\)/);
+// The accepted control reader dispatches independent reads, with failures kept
+// separate from measured zero and account changes invalidating old results.
+assert.match(control, /\["videoMap", getVideoMapHealth\]/);
+assert.match(control, /Promise\.allSettled\(reads\.map/);
+assert.match(control, /const value = await read\(\)/);
+assert.match(control, /scope\.current\.principal === principal && scope\.current\.isAdmin/);
+assert.match(control, /kind === "videoMap" \? "videoError"/);
 assert.match(control, /Projection owner/);
 assert.match(control, />0 tokens</);
 assert.match(mig, /if v_role <> 'service_role' and not coalesce\(public\.rd_is_admin\(\), false\) then/);
