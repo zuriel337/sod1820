@@ -1516,6 +1516,8 @@ function SystemFrame2029Body({
   status = "2029 · BUILD",
   wide = false,
   surface = "home",
+  orientationCopy = null,
+  calmBottomChrome = false,
   symbol = "✦",
   introVariant = "hero",
 }) {
@@ -2203,7 +2205,7 @@ function SystemFrame2029Body({
     <ShellContext.Provider value={shellApi}>
     <SystemToolDockContext2029.Provider value={registerToolDock}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
+        className={`sod29-root closed-shell native-frame surface-${surface}${calmBottomChrome ? " calm-bottom-chrome" : ""}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
         data-companion-visibility="temporarily-hidden"
         dir={direction}
         style={shellStyle}
@@ -2275,13 +2277,13 @@ function SystemFrame2029Body({
           {orientation.mode !== "hidden" && orientation.manifest ? (() => {
             const mark = <LearnMark2029
               scope={LEARN_SCOPE.SURFACE}
-              label={orientation.manifest.label}
+              label={orientationCopy?.label || orientation.manifest.label}
               compact={orientation.mode === "compact"}
               prominent={orientation.mode === "prominent"}
               onOpen={expandOrientation}
               onDismiss={orientation.mode === "prominent" ? dismissOrientation : null}
             >
-              <p>{orientation.manifest.body}</p>
+              <p>{orientationCopy?.body || orientation.manifest.body}</p>
               <p><strong>{experience.experience.question}</strong></p>
             </LearnMark2029>;
             return orientationHost && surface === "post"

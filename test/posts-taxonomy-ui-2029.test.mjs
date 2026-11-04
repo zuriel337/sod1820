@@ -21,6 +21,7 @@ await build({ stdin: { contents: `
   import {postsCatalogScope2029,postClassification2029} from './src/lib/research/postsCatalog2029Projection.js';
   import {postsTaxonomyLocation2029,postsTaxonomyRoute2029,postsTaxonomyPage2029} from './src/lib/research/postsTaxonomy2029Route.js';
   import {publicPostHref} from './src/lib/publicPostUrls.js';
+  import {PUBLIC_READING_RELEASE} from './src/lib/publicReadingRelease2029.js';
   const fetchPostsCatalog2029=options=>globalThis.__taxonomyUi.read(options);
   const fetchContentSeriesCatalog2029=()=>{throw Error('taxonomy must not request series sources')};
   const completeMixedSeriesPostsPage2029=()=>{throw Error('taxonomy must not join series sources')};

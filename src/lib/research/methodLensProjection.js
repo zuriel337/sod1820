@@ -84,6 +84,36 @@ function sortItems(a, b) {
   return a.phrase.localeCompare(b.phrase, "he");
 }
 
+// Single source for "which lookup rows count as verified same-method matches" — shared by the lazy
+// Method Lens and the lightweight calculator equals-preview so the two can never disagree.
+export function collectVerifiedLookupMatches(lookup, { expression, methodKey, value } = {}) {
+  const phrase = clean(expression);
+  const key = clean(methodKey);
+  const numericValue = finite(value);
+  const seen = new Set();
+  const matches = [];
+  for (const row of Array.isArray(lookup) ? lookup : []) {
+    const rowPhrase = clean(row?.phrase);
+    if (!rowPhrase || !sameMethod(row?.method, key)) continue;
+    if (row?.is_verified !== true || row?.method_governed === false || row?.method_active === false) continue;
+    if (seen.has(rowPhrase)) continue;
+    seen.add(rowPhrase);
+    matches.push({
+      phrase: rowPhrase,
+      value: finite(row?.value) ?? numericValue,
+      methodKey: key,
+      methodLabel: canonicalMethodPublicLabel({ method_key: key, display_label: row?.method }),
+      current: rowPhrase === phrase,
+      source: clean(row?.source) || null,
+      category: clean(row?.category) || null,
+      leadRank: Number.isFinite(Number(row?.lead_rank)) ? Number(row.lead_rank) : null,
+      provenance: clean(row?.provenance) || null,
+      relation: relationShape(null),
+    });
+  }
+  return matches;
+}
+
 export async function fetchMethodLensProjection({
   expression,
   methodKey,
@@ -109,28 +139,7 @@ export async function fetchMethodLensProjection({
   }
 
   const lookup = await getNumberLookup(numericValue);
-  const seen = new Set();
-  const matches = [];
-
-  for (const row of Array.isArray(lookup) ? lookup : []) {
-    const rowPhrase = clean(row?.phrase);
-    if (!rowPhrase || !sameMethod(row?.method, key)) continue;
-    if (row?.is_verified !== true || row?.method_governed === false || row?.method_active === false) continue;
-    if (seen.has(rowPhrase)) continue;
-    seen.add(rowPhrase);
-    matches.push({
-      phrase: rowPhrase,
-      value: finite(row?.value) ?? numericValue,
-      methodKey: key,
-      methodLabel: canonicalMethodPublicLabel({ method_key: key, display_label: row?.method }),
-      current: rowPhrase === phrase,
-      source: clean(row?.source) || null,
-      category: clean(row?.category) || null,
-      leadRank: Number.isFinite(Number(row?.lead_rank)) ? Number(row.lead_rank) : null,
-      provenance: clean(row?.provenance) || null,
-      relation: relationShape(null),
-    });
-  }
+  const matches = collectVerifiedLookupMatches(lookup, { expression: phrase, methodKey: key, value: numericValue });
 
   const enrichable = matches.filter((item) => !item.current).slice(0, Math.max(0, Number(enrichLimit) || 0));
   const relationResults = await Promise.allSettled(

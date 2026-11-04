@@ -1,6 +1,10 @@
 import { METHODS, DEPTH_METHODS, normalizeForCalc } from "../gematria.js";
 import { indexGematriaMethodStates } from "./gematriaMethodRegistry.js";
 
+// Presentation consumes the engine-owned conditional-equivalence metadata
+// through this existing adapter, without importing or duplicating a raw engine.
+export { GADOL_BASE, hasSofiot } from "../gematria.js";
+
 // Existing client execution definitions remain the calculation implementation in this slice.
 // This adapter adds identity/state/provenance without changing a formula, key, or numeric result.
 export const CLIENT_GEMATRIA_METHODS = Object.freeze([...METHODS, ...DEPTH_METHODS]);

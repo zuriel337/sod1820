@@ -37,7 +37,7 @@ test("public header and command input expose accessible search labels", () => {
   // The adopted single bar opens the same search capability. A historical
   // surface-dependent source expression is no longer the accessibility contract.
   assert.match(src, /<input[\s\S]*?aria-label="חיפוש"/);
-  assert.match(src, /className="sod29-header-search"[^>]*aria-label="חיפוש"/);
+  assert.match(src, /className="sod29-header-search"[^>]*onClick=\{openSiteSearch\}[^>]*aria-label="חיפוש באתר"/);
   assert.ok(!src.includes("<small>פקודה</small>"));
 });
 

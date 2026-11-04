@@ -1,0 +1,662 @@
+TAP version 13
+# Subtest: encoded taxonomy addresses select one exact namespace and only the admitted category alias
+ok 1 - encoded taxonomy addresses select one exact namespace and only the admitted category alias
+  ---
+  duration_ms: 3.229532
+  type: 'test'
+  ...
+# Subtest: exact stored membership preserves public Post provenance without admitting research or Follow
+ok 2 - exact stored membership preserves public Post provenance without admitting research or Follow
+  ---
+  duration_ms: 0.987129
+  type: 'test'
+  ...
+# Subtest: catalog queries combine exact tag membership, public exclusion, bounded stable pagination and escaped title refinement
+ok 3 - catalog queries combine exact tag membership, public exclusion, bounded stable pagination and escaped title refinement
+  ---
+  duration_ms: 1.026028
+  type: 'test'
+  ...
+# Subtest: PostgREST serialization preserves labels containing quotes, commas, braces, backslashes or NULL
+ok 4 - PostgREST serialization preserves labels containing quotes, commas, braces, backslashes or NULL
+  ---
+  duration_ms: 16.206733
+  type: 'test'
+  ...
+# Subtest: unknown and draft-only taxonomies are missing; a known taxonomy with zero title matches has a public witness
+ok 5 - unknown and draft-only taxonomies are missing; a known taxonomy with zero title matches has a public witness
+  ---
+  duration_ms: 3.56619
+  type: 'test'
+  ...
+# Subtest: a page beyond the exact public count is 404, including the PostgREST range response
+ok 6 - a page beyond the exact public count is 404, including the PostgREST range response
+  ---
+  duration_ms: 0.47044
+  type: 'test'
+  ...
+# Subtest: unverified responses fail closed rather than claim an empty or public collection
+ok 7 - unverified responses fail closed rather than claim an empty or public collection
+  ---
+  duration_ms: 1.563449
+  type: 'test'
+  ...
+# Subtest: taxonomy query changes preserve exact address, unrelated parameters and hash without crossing namespaces
+ok 8 - taxonomy query changes preserve exact address, unrelated parameters and hash without crossing namespaces
+  ---
+  duration_ms: 0.470349
+  type: 'test'
+  ...
+# Subtest: exact tag/category history entries restore their saved viewport using the existing lifecycle
+ok 9 - exact tag/category history entries restore their saved viewport using the existing lifecycle
+  ---
+  duration_ms: 1.595527
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: tag entry reuses Posts cards, source credit and media; a pathname does not invent Follow
+not ok 10 - tag entry reuses Posts cards, source credit and media; a pathname does not invent Follow
+  ---
+  duration_ms: 36.207412
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-taxonomy-ui-2029.test.mjs:69:1'
+  failureType: 'testCodeFailure'
+  error: 'PUBLIC_READING_RELEASE is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    file:///workspace/sod1820-bd-approved/.test-taxonomy-ui-12149.mjs:23296:60
+    Object.react_stack_bottom_frame (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:16775:20)
+    runWithFiberInDEV (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:2503:30)
+    commitHookEffectListMount (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:9946:29)
+    commitHookPassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:10033:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12053:13)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12045:11)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12307:11)
+  ...
+# Subtest: search, pagination and clearing retain taxonomy identity and the exact route anchor
+not ok 11 - search, pagination and clearing retain taxonomy identity and the exact route anchor
+  ---
+  duration_ms: 5.217893
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-taxonomy-ui-2029.test.mjs:89:1'
+  failureType: 'testCodeFailure'
+  error: 'PUBLIC_READING_RELEASE is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    file:///workspace/sod1820-bd-approved/.test-taxonomy-ui-12149.mjs:23296:60
+    Object.react_stack_bottom_frame (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:16775:20)
+    runWithFiberInDEV (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:2503:30)
+    commitHookEffectListMount (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:9946:29)
+    commitHookPassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:10033:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12053:13)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12045:11)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12307:11)
+  ...
+# Subtest: canonical category identity retains the old address and does not acquire series or channel rows
+not ok 12 - canonical category identity retains the old address and does not acquire series or channel rows
+  ---
+  duration_ms: 4.792482
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-taxonomy-ui-2029.test.mjs:116:1'
+  failureType: 'testCodeFailure'
+  error: 'PUBLIC_READING_RELEASE is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    file:///workspace/sod1820-bd-approved/.test-taxonomy-ui-12149.mjs:23296:60
+    Object.react_stack_bottom_frame (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:16775:20)
+    runWithFiberInDEV (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:2503:30)
+    commitHookEffectListMount (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:9946:29)
+    commitHookPassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:10033:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12053:13)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12045:11)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12307:11)
+  ...
+# Subtest: unknown, empty-search and unavailable reads remain different useful states
+not ok 13 - unknown, empty-search and unavailable reads remain different useful states
+  ---
+  duration_ms: 2.927607
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-taxonomy-ui-2029.test.mjs:127:1'
+  failureType: 'testCodeFailure'
+  error: 'PUBLIC_READING_RELEASE is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    file:///workspace/sod1820-bd-approved/.test-taxonomy-ui-12149.mjs:23296:60
+    Object.react_stack_bottom_frame (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:16775:20)
+    runWithFiberInDEV (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:2503:30)
+    commitHookEffectListMount (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:9946:29)
+    commitHookPassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:10033:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12053:13)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12045:11)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12307:11)
+  ...
+# Subtest: suppressed taxonomy and conflicting selectors never request or render public Posts
+not ok 14 - suppressed taxonomy and conflicting selectors never request or render public Posts
+  ---
+  duration_ms: 2.665101
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-taxonomy-ui-2029.test.mjs:146:1'
+  failureType: 'testCodeFailure'
+  error: 'PUBLIC_READING_RELEASE is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    file:///workspace/sod1820-bd-approved/.test-taxonomy-ui-12149.mjs:23296:60
+    Object.react_stack_bottom_frame (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:16775:20)
+    runWithFiberInDEV (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:2503:30)
+    commitHookEffectListMount (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:9946:29)
+    commitHookPassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:10033:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12053:13)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12045:11)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12307:11)
+  ...
+# Subtest: malformed taxonomy pagination stays missing until an explicit return to the first page
+not ok 15 - malformed taxonomy pagination stays missing until an explicit return to the first page
+  ---
+  duration_ms: 2.819895
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-taxonomy-ui-2029.test.mjs:156:1'
+  failureType: 'testCodeFailure'
+  error: 'PUBLIC_READING_RELEASE is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    file:///workspace/sod1820-bd-approved/.test-taxonomy-ui-12149.mjs:23296:60
+    Object.react_stack_bottom_frame (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:16775:20)
+    runWithFiberInDEV (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:2503:30)
+    commitHookEffectListMount (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:9946:29)
+    commitHookPassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:10033:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12053:13)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12045:11)
+    recursivelyTraversePassiveMountEffects (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12001:11)
+    commitPassiveMountOnFiber (/tmp/sod1820-bd-test-tools/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:12307:11)
+  ...
+# Subtest: worker policy changed and exact callback alone consumes tab-bound PKCE
+ok 16 - worker policy changed and exact callback alone consumes tab-bound PKCE
+  ---
+  duration_ms: 2.342695
+  type: 'test'
+  ...
+# Subtest: Google and Facebook share verified exact callback and reject unapproved Preview origins
+ok 17 - Google and Facebook share verified exact callback and reject unapproved Preview origins
+  ---
+  duration_ms: 0.608929
+  type: 'test'
+  ...
+# Subtest: emitted account transport admits existing login, new signup, verification and exact PKCE exchange
+ok 18 - emitted account transport admits existing login, new signup, verification and exact PKCE exchange
+  ---
+  duration_ms: 48.810919
+  type: 'test'
+  ...
+# Subtest: new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants
+ok 19 - new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants
+  ---
+  duration_ms: 12.044163
+  type: 'test'
+  ...
+# Subtest: historical Preview Auth remains password-only unless explicitly opted in by this worker
+ok 20 - historical Preview Auth remains password-only unless explicitly opted in by this worker
+  ---
+  duration_ms: 1.111056
+  type: 'test'
+  ...
+# Subtest: explicit admin actions verify canonical JWT and exact own role before forwarding original request
+ok 21 - explicit admin actions verify canonical JWT and exact own role before forwarding original request
+  ---
+  duration_ms: 11.046426
+  type: 'test'
+  ...
+# Subtest: anonymous/member/spoofed identity, stale role, JWT failure and transport failure cannot invoke action
+ok 22 - anonymous/member/spoofed identity, stale role, JWT failure and transport failure cannot invoke action
+  ---
+  duration_ms: 11.470598
+  type: 'test'
+  ...
+# Subtest: no private role cache survives revocation or replacement; denied action never reaches endpoint
+ok 23 - no private role cache survives revocation or replacement; denied action never reaches endpoint
+  ---
+  duration_ms: 1.034832
+  type: 'test'
+  ...
+# Subtest: financial, shared flag, mail delivery and foreign writes remain unavailable even to admin
+ok 24 - financial, shared flag, mail delivery and foreign writes remain unavailable even to admin
+  ---
+  duration_ms: 13.675895
+  type: 'test'
+  ...
+# Subtest: signed private media TUS requires verified admin JWT on every chunk; signature alone grants nothing
+ok 25 - signed private media TUS requires verified admin JWT on every chunk; signature alone grants nothing
+  ---
+  duration_ms: 6.726419
+  type: 'test'
+  ...
+# Subtest: same-origin private adapter preserves only same-origin protection cookies; it independently verifies the current server principal
+ok 26 - same-origin private adapter preserves only same-origin protection cookies; it independently verifies the current server principal
+  ---
+  duration_ms: 17.107192
+  type: 'test'
+  ...
+# Subtest: server private wrapper checks deployment, host, method and verified admin independently of worker
+ok 27 - server private wrapper checks deployment, host, method and verified admin independently of worker
+  ---
+  duration_ms: 1.950313
+  type: 'test'
+  ...
+# Subtest: prepared full-account helper retains actual SDK PKCE shapes and exact callbacks, separately from current emitted restriction
+ok 28 - prepared full-account helper retains actual SDK PKCE shapes and exact callbacks, separately from current emitted restriction
+  ---
+  duration_ms: 25.546686
+  type: 'test'
+  ...
+# Subtest: existing publishable fallback is used only for verification; original target bearer is never replaced
+ok 29 - existing publishable fallback is used only for verification; original target bearer is never replaced
+  ---
+  duration_ms: 3.849459
+  type: 'test'
+  ...
+# Subtest: public-reading reuses existing Auth without acquisition, while untrusted callback and metadata still fail closed
+ok 30 - public-reading reuses existing Auth without acquisition, while untrusted callback and metadata still fail closed
+  ---
+  duration_ms: 3.081099
+  type: 'test'
+  ...
+# Subtest: emitted OAuth navigation requires exact callback, genuine PKCE shape and bounded provider scopes before browser navigation
+ok 31 - emitted OAuth navigation requires exact callback, genuine PKCE shape and bounded provider scopes before browser navigation
+  ---
+  duration_ms: 2.569737
+  type: 'test'
+  ...
+# Subtest: actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT
+ok 32 - actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT
+  ---
+  duration_ms: 19.51178
+  type: 'test'
+  ...
+# Subtest: restored native Community publishes for a verified ordinary member through the existing RPC
+ok 33 - restored native Community publishes for a verified ordinary member through the existing RPC
+  ---
+  duration_ms: 1.837442
+  type: 'test'
+  ...
+# Subtest: restored Community rejects guests, expired sessions, forged actors and malformed publication
+ok 34 - restored Community rejects guests, expired sessions, forged actors and malformed publication
+  ---
+  duration_ms: 9.03361
+  type: 'test'
+  ...
+# Subtest: reply and reaction targets require the canonical anonymous public context
+ok 35 - reply and reaction targets require the canonical anonymous public context
+  ---
+  duration_ms: 10.621993
+  type: 'test'
+  ...
+# Subtest: original OpenWeb API and authenticated existing SSO are available without opening foreign writes or model access
+ok 36 - original OpenWeb API and authenticated existing SSO are available without opening foreign writes or model access
+  ---
+  duration_ms: 4.003721
+  type: 'test'
+  ...
+# Subtest: published CSP admits the original OpenWeb service while retaining object/frame/base restrictions
+ok 37 - published CSP admits the original OpenWeb service while retaining object/frame/base restrictions
+  ---
+  duration_ms: 8.02237
+  type: 'test'
+  ...
+# Subtest: unregistered repeatable likes use public context and the anonymous counter path on every press
+ok 38 - unregistered repeatable likes use public context and the anonymous counter path on every press
+  ---
+  duration_ms: 4.060466
+  type: 'test'
+  ...
+# Subtest: guest repeatable mode cannot broaden emoji, body shape or nonpublic targets
+ok 39 - guest repeatable mode cannot broaden emoji, body shape or nonpublic targets
+  ---
+  duration_ms: 4.988978
+  type: 'test'
+  ...
+# Subtest: dormant default cannot be activated by environment, forged request or production branch name
+ok 40 - dormant default cannot be activated by environment, forged request or production branch name
+  ---
+  duration_ms: 472.317133
+  type: 'test'
+  ...
+# Subtest: only dedicated 2029 compiler target can enable the signed service; default, Preview and stray Legacy flags cannot
+ok 41 - only dedicated 2029 compiler target can enable the signed service; default, Preview and stray Legacy flags cannot
+  ---
+  duration_ms: 18.402196
+  type: 'test'
+  ...
+# Subtest: Production document uses canonical owner, preserves old/native/encoded/wp addresses and genuine missing/failure status
+ok 42 - Production document uses canonical owner, preserves old/native/encoded/wp addresses and genuine missing/failure status
+  ---
+  duration_ms: 64.046286
+  type: 'test'
+  ...
+# Subtest: closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe
+ok 43 - closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe
+  ---
+  duration_ms: 24.496362
+  type: 'test'
+  ...
+# Subtest: public aliases and named existing capabilities retain truthful continuations without publicizing unknown slugs
+ok 44 - public aliases and named existing capabilities retain truthful continuations without publicizing unknown slugs
+  ---
+  duration_ms: 35.521097
+  type: 'test'
+  ...
+# Subtest: HTTP origin, path and method boundaries cannot select metadata profile or enter private readers
+ok 45 - HTTP origin, path and method boundaries cannot select metadata profile or enter private readers
+  ---
+  duration_ms: 8.705886
+  type: 'test'
+  ...
+# Subtest: Numbers/phrases use the same canonical indexability readers; source failure is 503, false is noindex
+ok 46 - Numbers/phrases use the same canonical indexability readers; source failure is 503, false is noindex
+  ---
+  duration_ms: 20.308543
+  type: 'test'
+  ...
+# Subtest: public topic/writer/video missing and failed source responses keep 404 and 503 distinct
+ok 47 - public topic/writer/video missing and failed source responses keep 404 and 503 distinct
+  ---
+  duration_ms: 16.353404
+  type: 'test'
+  ...
+# Subtest: sitemap reuses eligible publication owner for both Post families, Numbers, phrases, topic, public writer and verified video
+ok 48 - sitemap reuses eligible publication owner for both Post families, Numbers, phrases, topic, public writer and verified video
+  ---
+  duration_ms: 10.900419
+  type: 'test'
+  ...
+# Subtest: robots follows Production canonical sitemap while dormant mode fails closed; public GET APIs strip Legacy authority and reject POST
+ok 49 - robots follows Production canonical sitemap while dormant mode fails closed; public GET APIs strip Legacy authority and reject POST
+  ---
+  duration_ms: 0.628058
+  type: 'test'
+  ...
+# Subtest: exact emitted worker denies A3/models/Auth/credits/writes through GET/POST/PATCH/DELETE and proxy paths before network
+ok 50 - exact emitted worker denies A3/models/Auth/credits/writes through GET/POST/PATCH/DELETE and proxy paths before network
+  ---
+  duration_ms: 12.901937
+  type: 'test'
+  ...
+# Subtest: active worker claims only a same-origin window requesting its exact source and policy
+ok 51 - active worker claims only a same-origin window requesting its exact source and policy
+  ---
+  duration_ms: 1.423478
+  type: 'test'
+  ...
+# Subtest: emitted worker retains public calculator/STABLE GET/community projection reads and context checks, never raw replies
+ok 52 - emitted worker retains public calculator/STABLE GET/community projection reads and context checks, never raw replies
+  ---
+  duration_ms: 6.019122
+  type: 'test'
+  ...
+# Subtest: language-link reader admits approved-only scope and denies visitor drafts before any network call
+ok 53 - language-link reader admits approved-only scope and denies visitor drafts before any network call
+  ---
+  duration_ms: 4.819291
+  type: 'test'
+  ...
+# Subtest: signed Legacy unsubscribe alone can reach its unchanged HMAC server from exact controlled service document
+ok 54 - signed Legacy unsubscribe alone can reach its unchanged HMAC server from exact controlled service document
+  ---
+  duration_ms: 2.381723
+  type: 'test'
+  ...
+# Subtest: bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout
+ok 55 - bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout
+  ---
+  duration_ms: 55.054149
+  type: 'test'
+  ...
+# Subtest: actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and byte-exact Legacy rollback worker
+not ok 56 - actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and byte-exact Legacy rollback worker
+  ---
+  duration_ms: 5.992371
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-reading-production-artifact.test.mjs:336:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + '1ebd3bd5bd97b0cb9dd8b4d55a55d94ae62b16724903c01b12106047cad05e3c'
+    - 'bfb07ca763b0c441dca026ca24ac31cc04b24aee6241163f9800fcc9d4a20c0f'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 'bfb07ca763b0c441dca026ca24ac31cc04b24aee6241163f9800fcc9d4a20c0f'
+  actual: '1ebd3bd5bd97b0cb9dd8b4d55a55d94ae62b16724903c01b12106047cad05e3c'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-reading-production-artifact.test.mjs:355:10)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: native public image loading retains opaque response compatibility without bypassing private reads or writes
+ok 57 - native public image loading retains opaque response compatibility without bypassing private reads or writes
+  ---
+  duration_ms: 2.136003
+  type: 'test'
+  ...
+# Subtest: approved explicit report receipt path permits no identity-bearing, generic telemetry or unrelated writes
+ok 58 - approved explicit report receipt path permits no identity-bearing, generic telemetry or unrelated writes
+  ---
+  duration_ms: 4.257985
+  type: 'test'
+  ...
+# Subtest: actual Supabase insert array columns are admitted exactly; extra columns and selectors remain denied
+ok 59 - actual Supabase insert array columns are admitted exactly; extra columns and selectors remain denied
+  ---
+  duration_ms: 39.054968
+  type: 'test'
+  ...
+# Subtest: explicit report retains canonical anonymous session correlation without accepting visitor identity
+ok 60 - explicit report retains canonical anonymous session correlation without accepting visitor identity
+  ---
+  duration_ms: 2.418139
+  type: 'test'
+  ...
+# Subtest: Production target needs explicit staged mode and remains non-cutover
+ok 61 - Production target needs explicit staged mode and remains non-cutover
+  ---
+  duration_ms: 1.560715
+  type: 'test'
+  ...
+# Subtest: staged admission rejects wrong SHA, dirty sources, copied deployment, main and missing platform identity
+ok 62 - staged admission rejects wrong SHA, dirty sources, copied deployment, main and missing platform identity
+  ---
+  duration_ms: 0.736802
+  type: 'test'
+  ...
+# Subtest: staged nested-config materialization permits no additional change
+ok 63 - staged nested-config materialization permits no additional change
+  ---
+  duration_ms: 0.606405
+  type: 'test'
+  ...
+# Subtest: compiler rejects combined/duplicate/missing-pin staged commands before build
+ok 64 - compiler rejects combined/duplicate/missing-pin staged commands before build
+  ---
+  duration_ms: 739.411416
+  type: 'test'
+  ...
+# Subtest: staged adapters accept only their immutable host and stay noindex before public source reads
+ok 65 - staged adapters accept only their immutable host and stay noindex before public source reads
+  ---
+  duration_ms: 266.123713
+  type: 'test'
+  ...
+# Subtest: exact clean source emits a frozen Preview-only receipt and admits only that runtime
+ok 66 - exact clean source emits a frozen Preview-only receipt and admits only that runtime
+  ---
+  duration_ms: 1.095943
+  type: 'test'
+  ...
+# Subtest: build identity rejects missing or wrong platform fields, targets, source pins and dirty source
+ok 67 - build identity rejects missing or wrong platform fields, targets, source pins and dirty source
+  ---
+  duration_ms: 0.671323
+  type: 'test'
+  ...
+# Subtest: runtime receipt cannot be activated by environment alone, Production or copied deployment identity
+ok 68 - runtime receipt cannot be activated by environment alone, Production or copied deployment identity
+  ---
+  duration_ms: 0.211138
+  type: 'test'
+  ...
+# Subtest: only Preview's sole unstaged root config may equal the complete committed nested config
+ok 69 - only Preview's sole unstaged root config may equal the complete committed nested config
+  ---
+  duration_ms: 0.823563
+  type: 'test'
+  ...
+# Subtest: compiler rejects an absent, duplicate or malformed review mode/pin before compiling
+ok 70 - compiler rejects an absent, duplicate or malformed review mode/pin before compiling
+  ---
+  duration_ms: 936.178304
+  type: 'test'
+  ...
+# Subtest: generated receipt is statically traced into Node and Edge-compatible authorization; missing process fails closed
+ok 71 - generated receipt is statically traced into Node and Edge-compatible authorization; missing process fails closed
+  ---
+  duration_ms: 44.930575
+  type: 'test'
+  ...
+# Subtest: actual hosted adapters preserve old URLs/canonical metadata while review stays noindex and rejects spoofing
+ok 72 - actual hosted adapters preserve old URLs/canonical metadata while review stays noindex and rejects spoofing
+  ---
+  duration_ms: 255.580345
+  type: 'test'
+  ...
+# Subtest: artifact root config cannot shadow the pinned review command; default package build stays dormant
+ok 73 - artifact root config cannot shadow the pinned review command; default package build stays dormant
+  ---
+  duration_ms: 5.817387
+  type: 'test'
+  ...
+# Subtest: default artifact records raw dirtiness without any platform materialization authority
+ok 74 - default artifact records raw dirtiness without any platform materialization authority
+  ---
+  duration_ms: 4.953775
+  type: 'test'
+  ...
+# Subtest: stable Auth alias needs the exact generated Preview platform proof; canonical and unrelated aliases remain denied
+ok 75 - stable Auth alias needs the exact generated Preview platform proof; canonical and unrelated aliases remain denied
+  ---
+  duration_ms: 11.04064
+  type: 'test'
+  ...
+# Subtest: public-capable candidate needs exact real-shaped Production identity but does not authorize traffic assignment
+ok 76 - public-capable candidate needs exact real-shaped Production identity but does not authorize traffic assignment
+  ---
+  duration_ms: 1.154332
+  type: 'test'
+  ...
+# Subtest: missing, wrong, copied, Preview, main, foreign, dirty and unpinned identities fail closed
+ok 77 - missing, wrong, copied, Preview, main, foreign, dirty and unpinned identities fail closed
+  ---
+  duration_ms: 0.698224
+  type: 'test'
+  ...
+# Subtest: Preview/stage receipts cannot select public serving and default remains dormant
+ok 78 - Preview/stage receipts cannot select public serving and default remains dormant
+  ---
+  duration_ms: 108.186908
+  type: 'test'
+  ...
+# Subtest: public build keeps the one exact nested-config exception; it cannot authorize unrelated dirty edits
+ok 79 - public build keeps the one exact nested-config exception; it cannot authorize unrelated dirty edits
+  ---
+  duration_ms: 0.681478
+  type: 'test'
+  ...
+# Subtest: canonical documents retain owner metadata; immutable staging is always noindex and no-store
+ok 80 - canonical documents retain owner metadata; immutable staging is always noindex and no-store
+  ---
+  duration_ms: 33.58798
+  type: 'test'
+  ...
+# Subtest: WWW redirects preserve raw encoded path and repeated query; old addresses and original path selector remain exact
+ok 81 - WWW redirects preserve raw encoded path and repeated query; old addresses and original path selector remain exact
+  ---
+  duration_ms: 23.658597
+  type: 'test'
+  ...
+# Subtest: genuine missing, closed, private, non-indexable and failed source states never become indexable successes
+ok 82 - genuine missing, closed, private, non-indexable and failed source states never become indexable successes
+  ---
+  duration_ms: 30.483686
+  type: 'test'
+  ...
+# Subtest: robots and XML allow canonical crawling while immutable stage stays private from indexing
+ok 83 - robots and XML allow canonical crawling while immutable stage stays private from indexing
+  ---
+  duration_ms: 21.741445
+  type: 'test'
+  ...
+# Subtest: foreign hosts, path spoofing and unsupported methods reject before public readers
+ok 84 - foreign hosts, path spoofing and unsupported methods reject before public readers
+  ---
+  duration_ms: 61.552924
+  type: 'test'
+  ...
+# Subtest: public deployment proof never replaces caller JWT or private authorization
+ok 85 - public deployment proof never replaces caller JWT or private authorization
+  ---
+  duration_ms: 14.09324
+  type: 'test'
+  ...
+# Subtest: Edge share renderer admits only exact allowed public candidate hosts
+ok 86 - Edge share renderer admits only exact allowed public candidate hosts
+  ---
+  duration_ms: 24.94633
+  type: 'test'
+  ...
+# Subtest: new build mode rejects mixed, duplicate and missing pins before any compiler or platform operation
+ok 87 - new build mode rejects mixed, duplicate and missing pins before any compiler or platform operation
+  ---
+  duration_ms: 742.619516
+  type: 'test'
+  ...
+# Subtest: direct document API remains noindex even for an eligible public post on the canonical host
+ok 88 - direct document API remains noindex even for an eligible public post on the canonical host
+  ---
+  duration_ms: 31.683806
+  type: 'test'
+  ...
+1..88
+# tests 88
+# suites 0
+# pass 81
+# fail 7
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2369.004909
