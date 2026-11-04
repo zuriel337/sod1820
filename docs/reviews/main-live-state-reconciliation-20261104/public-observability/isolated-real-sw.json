@@ -1,0 +1,104 @@
+{
+  "scope": "CONTROLLED ISOLATED LOOPBACK LAB; real Chromium and SW, fixture Google SDK/provider and fake local Supabase; NOT live provider/DB acceptance",
+  "network": {
+    "dns": "all browser hosts mapped only to127.0.0.1",
+    "listening": "127.0.0.1:443",
+    "productionWrites": 0,
+    "providerCalls": 0
+  },
+  "realServiceWorker": true,
+  "records": [
+    {
+      "kind": "ga",
+      "params": {
+        "v": "2",
+        "tid": "G-TEST12345",
+        "en": "page_view",
+        "dl": "https://sod1820.co.il/number/:value",
+        "dt": "SOD1820"
+      }
+    },
+    {
+      "kind": "rum",
+      "payload": {
+        "p_sod_id": null,
+        "p_surface": "performance",
+        "p_event_type": "web_vital",
+        "p_path": "/number/:value",
+        "p_app_context": "chrome",
+        "p_session_id": null,
+        "p_is_bot": false,
+        "p_props": {
+          "vitals_version": 1,
+          "cls": 0,
+          "lcp_ms": 72,
+          "inp_ms": null,
+          "fcp_ms": 72,
+          "ttfb_ms": 6.8,
+          "interaction_count": 0,
+          "cls_shift_sources": [],
+          "ratings": {
+            "cls": "good",
+            "lcp": "good",
+            "inp": null,
+            "fcp": "good",
+            "ttfb": "good"
+          },
+          "sample_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          "phase": "checkpoint",
+          "flush_reason": "15s_checkpoint",
+          "initial_path": "/number/:value",
+          "current_path": "/number/:value",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "nav_type": "navigate",
+          "visibility_at_flush": "visible"
+        }
+      },
+      "anonymousCredential": true
+    },
+    {
+      "kind": "rum",
+      "payload": {
+        "p_sod_id": null,
+        "p_surface": "performance",
+        "p_event_type": "web_vital",
+        "p_path": "/number/:value",
+        "p_app_context": "chrome",
+        "p_session_id": null,
+        "p_is_bot": false,
+        "p_props": {
+          "vitals_version": 1,
+          "cls": 0,
+          "lcp_ms": 72,
+          "inp_ms": null,
+          "fcp_ms": 72,
+          "ttfb_ms": 6.8,
+          "interaction_count": 0,
+          "cls_shift_sources": [],
+          "ratings": {
+            "cls": "good",
+            "lcp": "good",
+            "inp": null,
+            "fcp": "good",
+            "ttfb": "good"
+          },
+          "sample_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          "phase": "final",
+          "flush_reason": "pagehide",
+          "initial_path": "/number/:value",
+          "current_path": "/number/:value",
+          "collector": "performance_observer",
+          "measurement_scope": "document_navigation_hard_load_only",
+          "nav_type": "navigate",
+          "visibility_at_flush": "visible"
+        }
+      },
+      "anonymousCredential": true
+    }
+  ],
+  "negativeGenericEventStatus": 403,
+  "finalObserved": true,
+  "errors": [],
+  "pass": true
+}

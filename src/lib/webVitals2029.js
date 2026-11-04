@@ -6,6 +6,7 @@
 import { supabase, SUPABASE_URL, SUPABASE_ANON } from "./supabase.js";
 import { getSodId, appContext, sessionId } from "./identity.js";
 import { isBot } from "./botVerdict.js";
+import { readingTelemetryPath } from "./publicReadingTelemetry2029.js";
 import {
   WEB_VITALS_VERSION,
   buildWebVitalsSnapshot,
@@ -52,8 +53,16 @@ function navDiagnostics() {
   } catch { return { ttfbMs: null, navType: null }; }
 }
 
-function keepaliveSend(payload) {
+function keepaliveSend(payload, publicReading = false) {
   const body = JSON.stringify(payload);
+  if (publicReading) {
+    try {
+      fetch(`${SUPABASE_URL}/rest/v1/rpc/ingest_event`, { method: "POST",
+        headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON, Authorization: `Bearer ${SUPABASE_ANON}` },
+        body, keepalive: true, credentials: "omit" }).catch(() => {});
+    } catch { /* diagnostics never block a page */ }
+    return;
+  }
   try {
     if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
       const blob = new Blob([body], { type: "application/json" });
@@ -77,14 +86,14 @@ function ordinarySend(payload) {
   catch { /* observability must never break navigation */ }
 }
 
-function makePayload({ id, initialPath, phase, reason, snapshot, navType }) {
+function makePayload({ id, initialPath, phase, reason, snapshot, navType, publicReading }) {
   return {
-    p_sod_id: getSodId(),
+    p_sod_id: publicReading ? null : getSodId(),
     p_surface: "performance",
     p_event_type: "web_vital",
     p_path: initialPath,
     p_app_context: appContext(),
-    p_session_id: sessionId(),
+    p_session_id: publicReading ? null : sessionId(),
     p_is_bot: false,
     p_props: {
       ...snapshot,
@@ -92,7 +101,7 @@ function makePayload({ id, initialPath, phase, reason, snapshot, navType }) {
       phase,
       flush_reason: reason,
       initial_path: initialPath,
-      current_path: typeof location !== "undefined" ? location.pathname : initialPath,
+      current_path: publicReading ? initialPath : typeof location !== "undefined" ? location.pathname : initialPath,
       collector: "performance_observer",
       measurement_scope: "document_navigation_hard_load_only",
       nav_type: navType,
@@ -112,7 +121,10 @@ export function startWebVitals2029(deps = {}) {
 
   if (!production || bot || !win || !doc || !PerfObserver) return () => {};
 
-  const initialPath = deps.initialPath || win.location?.pathname || "/";
+  const sourcePath = deps.initialPath || win.location?.pathname || "/";
+  const publicReading = deps.publicReading === true;
+  const initialPath = publicReading ? readingTelemetryPath(sourcePath) : sourcePath;
+  if (!initialPath) return () => {};
   const id = deps.sampleId || sampleId();
   const clsState = createClsState();
   const inpState = createInpState();
@@ -128,7 +140,7 @@ export function startWebVitals2029(deps = {}) {
   // SPA route changes are not silently re-labeled as Core Web Vitals for the
   // destination URL. Observer callbacks after a client-side route change are ignored.
   const stillInitialPath = () => {
-    try { return (win.location?.pathname || "/") === initialPath; }
+    try { return (win.location?.pathname || "/") === sourcePath; }
     catch { return false; }
   };
 
@@ -178,14 +190,16 @@ export function startWebVitals2029(deps = {}) {
   }
 
   function send(phase, reason, keepalive = false) {
+    if (deps.shouldMeasure && !deps.shouldMeasure()) return null;
+    if (publicReading && !stillInitialPath()) return null;
     if (phase === "checkpoint" && checkpointSent) return null;
     if (phase === "final" && finalized) return null;
     if (phase === "checkpoint") checkpointSent = true;
     if (phase === "final") finalized = true;
 
-    const payload = makePayload({ id, initialPath, phase, reason, snapshot: snapshot(), navType });
+    const payload = makePayload({ id, initialPath, phase, reason, snapshot: snapshot(), navType, publicReading });
     try {
-      if (keepalive) keepaliveSend(payload);
+      if (keepalive) keepaliveSend(payload, publicReading);
       else ordinarySend(payload);
     } catch { /* never break UI */ }
     return payload;

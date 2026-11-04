@@ -11,8 +11,8 @@ import { resolve } from 'node:path';
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const outfile = resolve(`.test-finalprep-cp1-${process.pid}.mjs`);
 await build({ entryPoints: ['src/pages/ControlPlane2029Page.jsx'], outfile, bundle: true, platform: 'node', format: 'esm', external: ['react'], plugins: [{ name: 'owned-read-boundaries', setup(b) {
-  b.onResolve({ filter: /(?:AuthContext\.jsx|visits\.js|NavigationIcon2029\.jsx|Sod2029Shell\.jsx)$|^react-router-dom$/ }, a => ({ path: a.path, namespace: 'fixture' }));
-  b.onLoad({ filter: /.*/, namespace: 'fixture' }, a => ({ loader: 'jsx', contents: a.path.endsWith('AuthContext.jsx') ? 'export const useAuth=()=>globalThis.__cp1.auth;' : a.path.endsWith('visits.js') ? 'export const getSystemHealth=()=>globalThis.__cp1.read("health"),getVideoMapHealth=()=>globalThis.__cp1.read("video"),getOperationalTraceList=(...args)=>globalThis.__cp1.read("list",args),getOperationalTrace=id=>globalThis.__cp1.read("detail",id);' : a.path === 'react-router-dom' ? 'import React from "react";export const Navigate=()=> <p>signed-out</p>;' : a.path.endsWith('NavigationIcon2029.jsx') ? 'export default()=>null;' : 'import React from "react";export default({children})=><main>{children}</main>;export const FrameState=({title,children})=><section><h3>{title}</h3>{children}</section>;' }));
+  b.onResolve({ filter: /(?:AuthContext\.jsx|visits\.js|NavigationIcon2029\.jsx|Sod2029Shell\.jsx|OperationalMetrics2029\.jsx)$|^react-router-dom$/ }, a => ({ path: a.path, namespace: 'fixture' }));
+  b.onLoad({ filter: /.*/, namespace: 'fixture' }, a => ({ loader: 'jsx', contents: a.path.endsWith('OperationalMetrics2029.jsx') ? 'import React from "react";export default()=>{globalThis.__cp1.metricsMounted=(globalThis.__cp1.metricsMounted||0)+1;return <p>metrics-fixture</p>;};' : a.path.endsWith('AuthContext.jsx') ? 'export const useAuth=()=>globalThis.__cp1.auth;' : a.path.endsWith('visits.js') ? 'export const getSystemHealth=()=>globalThis.__cp1.read("health"),getVideoMapHealth=()=>globalThis.__cp1.read("video"),getOperationalTraceList=(...args)=>globalThis.__cp1.read("list",args),getOperationalTrace=id=>globalThis.__cp1.read("detail",id);' : a.path === 'react-router-dom' ? 'import React from "react";export const Navigate=()=> <p>signed-out</p>;' : a.path.endsWith('NavigationIcon2029.jsx') ? 'export default()=>null;' : 'import React from "react";export default({children})=><main>{children}</main>;export const FrameState=({title,children})=><section><h3>{title}</h3>{children}</section>;' }));
 } }] });
 const { default: Page } = await import(pathToFileURL(outfile));
 after(async () => { await unlink(outfile); delete globalThis.__cp1; });
@@ -99,5 +99,16 @@ test('old observed egress is labelled last observation, never current24h zero',a
   await settle(f,{health:{...snapshot,cron:null,security:{unacked:null,recent_24h:null},usage:{storage_egress_observed_latest:{at:'2026-10-06T06:59:12Z',bytes:123456},storage_egress_guard:{state:'STALE'},storage_egress_observed_history_24h:[]}}});
   assert.ok(text(root).includes('המדידה האחרונה'));assert.ok(text(root).includes('STALE'));assert.ok(text(root).includes('לא התקבל מידע על המשימות'));
   assert.ok(!text(root).includes('הקורא החזיר רשימה ריקה'));
+  await act(async()=>root.unmount());
+});
+
+test('provider projection stays unmounted until explicitly opened and disappears with revoked admin',async()=>{
+  const f=fixture(),root=await mount(f);
+  assert.equal(f.metricsMounted,undefined);assert.ok(!text(root).includes('metrics-fixture'));
+  const button=root.root.findAllByType('button').find(b=>b.children.includes('מדידה וגוגל'));
+  assert.ok(button);await act(async()=>{button.props.onClick();});
+  assert.ok(f.metricsMounted>=1);assert.ok(text(root).includes('metrics-fixture'));
+  f.auth={user:{id:'A'},isAdmin:false,loading:false};await act(async()=>root.update(React.createElement(Page)));
+  assert.ok(!text(root).includes('metrics-fixture'));assert.ok(text(root).includes('signed-out'));
   await act(async()=>root.unmount());
 });

@@ -73,12 +73,14 @@ await writeFile(resolve(templates, "protected-review-build.js"),
   `export const PROTECTED_REVIEW_BUILD = Object.freeze(${JSON.stringify(protectedReview)});\n`);
 
 process.env.SOD_BUILD_TARGET = "2029";
-const { build } = await import("vite");
+const { build, loadEnv } = await import("vite");
+const gaId = process.env.VITE_GA_ID || loadEnv("production", root, "VITE_GA_ID").VITE_GA_ID || "";
 const previewFlags = ["VITE_PUBLIC_FRAME_PREVIEW", "VITE_PUBLIC_FOUNDATION_PREVIEW", "VITE_PUBLIC_LAUNCH_READ_ONLY_PREVIEW", "VITE_INTEGRATED_PREVIEW", "VITE_KINGDOM_PREVIEW", "VITE_BOOK_PUBLICATION_REVIEW_PREVIEW", "VITE_UNLOCKED_2029_PREVIEW", "VITE_FUNCTIONAL_UNIFIED_PREVIEW"];
 await build({ root, define: {
   ...Object.fromEntries(previewFlags.map(key => ["import.meta.env." + key, JSON.stringify("false")])),
   "import.meta.env.VITE_PUBLIC_READING_RELEASE": JSON.stringify(PUBLIC_READING_PROFILE_ID),
   "import.meta.env.VITE_AUTH_VERIFIED_PREVIEW_ORIGINS": JSON.stringify(JSON.stringify(oauthOrigins)),
+  "import.meta.env.VITE_GA_ID": JSON.stringify(gaId),
   __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__: "true",
 }, build: { outDir: output, emptyOutDir: true, manifest: true } });
 let document = await readFile(resolve(output, "2029.html"), "utf8");
@@ -102,7 +104,7 @@ await rm(resolve(output, "2029.html"));
 await rm(resolve(output, "index.html"), { force: true });
 await rm(resolve(output, "robots.txt"), { force: true });
 await rm(resolve(output, "sitemap.xml"), { force: true });
-const worker = buildPublicReadingWorker(sha, { anonKey: SUPABASE_ANON });
+const worker = buildPublicReadingWorker(sha, { anonKey: SUPABASE_ANON, gaId });
 for (const name of ["sw.js", "public-reading-sw.js", "preview-readonly-sw.js"]) await writeFile(resolve(output, name), worker);
 await mkdir(resolve(output, "rollback"), { recursive: true });
 await copyFile(resolve(root, "public/sw.js"), resolve(output, "rollback/legacy-sw.js"));
@@ -120,6 +122,8 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
   schema: 1, sourceSha: sha, sourceDirty: dirty, buildTarget: "2029", releaseProfile: PUBLIC_READING_PROFILE_ID,
   applicationSourceDirty: dirty && !platformConfigMaterialization,
   policy: PUBLIC_READING_POLICY_ID, activation: PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,
+  measurement: { gaConfigured: /^G-[A-Z0-9]{5,20}$/.test(gaId), publicCanonicalHostsOnly: true,
+    rumSource: "events.performance.web_vital", anonymousRum: true, marketingEnabled: false },
   protectedReview, productionReviewOnly: productionReviewMode,
   cutoverAuthorized: false, domainAssignmentAuthorized: false,
   // sourceDirty above is the raw Git observation and stays true on Vercel.
