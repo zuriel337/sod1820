@@ -1,0 +1,328 @@
+{
+  "sha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "deployment": "dpl_ADnf6NL9VznxiiysCQZqoGPguJSE",
+  "syntheticIdentity": true,
+  "liveAccountAcceptance": false,
+  "liveProductWrites": 0,
+  "liveModelCalls": 0,
+  "ok": true,
+  "passed": 6,
+  "initialRun": {
+    "passed": 3,
+    "failed": 3,
+    "receipt": "hosted-initial-with-harness-failures.json"
+  },
+  "targetedRetry": {
+    "passed": 3,
+    "failed": 0,
+    "receipt": "hosted-targeted-retry.json"
+  },
+  "notes": "Only failed harness cases retried; product/SW/shell unchanged. FrameState uses role=alert+strong, not headings; public/member route stays on dedicated private status, not redirect. Negative reads assertions retained.",
+  "cases": [
+    {
+      "name": "admin-320",
+      "width": 320,
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/auth/v1/user",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/users",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/research_state_snapshot_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_system_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_video_map_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_op_trace_list_v1",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 320,
+        "documentWidth": 320,
+        "hasMain": true
+      },
+      "passed": true
+    },
+    {
+      "name": "admin-390",
+      "width": 390,
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/auth/v1/user",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/users",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/research_state_snapshot_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_system_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_video_map_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_op_trace_list_v1",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 390,
+        "documentWidth": 390,
+        "hasMain": true
+      },
+      "passed": true
+    },
+    {
+      "name": "admin-1440",
+      "width": 1440,
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/auth/v1/user",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/users",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/research_state_snapshot_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_system_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_video_map_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_op_trace_list_v1",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 1440,
+        "documentWidth": 1425,
+        "hasMain": true
+      },
+      "passed": true
+    },
+    {
+      "name": "read-failures-390",
+      "width": 390,
+      "failedReaders": true,
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/auth/v1/user",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/users",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/research_state_snapshot_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_system_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_video_map_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_op_trace_list_v1",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 390,
+        "documentWidth": 390,
+        "hasMain": true
+      },
+      "passed": true
+    },
+    {
+      "name": "member-denied-390",
+      "width": 390,
+      "role": "member",
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/auth/v1/settings",
+            "method": "GET"
+          },
+          {
+            "path": "/auth/v1/token",
+            "method": "POST"
+          },
+          {
+            "path": "/auth/v1/user",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/users",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/research_state_snapshot_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 390,
+        "documentWidth": 390,
+        "hasMain": true
+      },
+      "passed": true
+    },
+    {
+      "name": "guest-denied-390",
+      "width": 390,
+      "guest": true,
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 390,
+        "documentWidth": 390,
+        "hasMain": true
+      },
+      "passed": true
+    }
+  ]
+}

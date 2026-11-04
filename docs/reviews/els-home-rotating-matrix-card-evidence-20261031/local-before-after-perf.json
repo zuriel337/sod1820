@@ -1,0 +1,138 @@
+{
+  "runs": 6,
+  "note": "local, interleaved; static from 127.0.0.1, public reads over the real network",
+  "profiles": [
+    {
+      "profile": "desktop-1440 (no throttle)",
+      "before": {
+        "lcp_ms": 1992,
+        "lcp_all": [
+          1992,
+          1992,
+          2340,
+          1920,
+          2188,
+          1804
+        ],
+        "lcp_el": [
+          "IMG.h29-media "
+        ],
+        "cls_load": 0.1389,
+        "cls_total_after_scroll": 0.1412,
+        "cls_all": [
+          0.1399,
+          0.1425,
+          0.1383,
+          0.1419,
+          0.1418,
+          0.1406
+        ],
+        "requests": 160,
+        "transfer_kb": 4982,
+        "static_kb": 2253,
+        "frame_median_ms": 16.7,
+        "frame_p95_ms": 33.3,
+        "frames_over_50ms": 0,
+        "card_present": false
+      },
+      "after": {
+        "lcp_ms": 2282,
+        "lcp_all": [
+          2292,
+          2272,
+          2356,
+          3532,
+          2200,
+          2012
+        ],
+        "lcp_el": [
+          "IMG.h29-media "
+        ],
+        "cls_load": 0.1392,
+        "cls_total_after_scroll": 0.1439,
+        "cls_all": [
+          0.1469,
+          0.2147,
+          0.1472,
+          0.1409,
+          0.14,
+          0.1396
+        ],
+        "requests": 161,
+        "transfer_kb": 4996,
+        "static_kb": 2265,
+        "frame_median_ms": 16.7,
+        "frame_p95_ms": 33.4,
+        "frames_over_50ms": 1,
+        "card_present": true
+      }
+    },
+    {
+      "profile": "mobile-390 (CPU 4x, ~1.6Mbps/150ms)",
+      "before": {
+        "lcp_ms": 12518,
+        "lcp_all": [
+          12464,
+          12500,
+          12588,
+          9268,
+          12536,
+          12536
+        ],
+        "lcp_el": [
+          "H1.",
+          "SPAN."
+        ],
+        "cls_load": 0,
+        "cls_total_after_scroll": 0.7942,
+        "cls_all": [
+          0.6375,
+          0.6823,
+          0.7899,
+          0.8287,
+          0.8428,
+          0.7986
+        ],
+        "requests": 149,
+        "transfer_kb": 3314,
+        "static_kb": 2253,
+        "frame_median_ms": 16.7,
+        "frame_p95_ms": 16.8,
+        "frames_over_50ms": 0.5,
+        "card_present": false
+      },
+      "after": {
+        "lcp_ms": 10922,
+        "lcp_all": [
+          9124,
+          9176,
+          12652,
+          12656,
+          9256,
+          12588
+        ],
+        "lcp_el": [
+          "SPAN.",
+          "H1."
+        ],
+        "cls_load": 0,
+        "cls_total_after_scroll": 0.6401,
+        "cls_all": [
+          0.539,
+          0.506,
+          0.4931,
+          0.7413,
+          1.4784,
+          1.5483
+        ],
+        "requests": 150.5,
+        "transfer_kb": 3359,
+        "static_kb": 2265,
+        "frame_median_ms": 16.7,
+        "frame_p95_ms": 16.8,
+        "frames_over_50ms": 0,
+        "card_present": true
+      }
+    }
+  ]
+}

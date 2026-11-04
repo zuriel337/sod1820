@@ -1,0 +1,734 @@
+{
+  "captured_at": "2026-11-02T12:46:00Z",
+  "project": "linswmnnkjxvweumprav",
+  "functions": [
+    {
+      "slug": "smart-search",
+      "status": "ACTIVE",
+      "version": 17,
+      "verify_jwt": false,
+      "sha256": "538aacbc09c386b9c90931c625f6def2435b7acb0882e4b65e70af80874d2abb",
+      "updated_at": 1789193442533
+    },
+    {
+      "slug": "gallery-ocr",
+      "status": "ACTIVE",
+      "version": 18,
+      "verify_jwt": true,
+      "sha256": "470c11674aaa425bd309155ab605d5193c57e5171c45301d6073d8bdf2330741",
+      "updated_at": 1790756117219
+    },
+    {
+      "slug": "video-migrate",
+      "status": "ACTIVE",
+      "version": 19,
+      "verify_jwt": false,
+      "sha256": "a957bd80df0cfbb5fb4b575ebd2757fb317ef3abee9a8a3df6711a255f89e2b9",
+      "updated_at": 1791263615067
+    },
+    {
+      "slug": "migrate-media",
+      "status": "ACTIVE",
+      "version": 16,
+      "verify_jwt": false,
+      "sha256": "d9ad57fbbe3597070fd1268fb4b5966325d5ccc4c5ec80bf92bdf7efc496ee3c",
+      "updated_at": 1789193402301
+    },
+    {
+      "slug": "share-to-facebook",
+      "status": "ACTIVE",
+      "version": 15,
+      "verify_jwt": false,
+      "sha256": "eb905678ae7473bcce03b1d5615f6c01aa3221682e683e921e8782f433b141ae",
+      "updated_at": 1789191096602
+    },
+    {
+      "slug": "upload-image",
+      "status": "ACTIVE",
+      "version": 15,
+      "verify_jwt": true,
+      "sha256": "24204f044910a163caf5edb3d51703fd957dadaa0bc10e366cdaa4269f32b118",
+      "updated_at": 1789148944667
+    },
+    {
+      "slug": "meta-capi",
+      "status": "ACTIVE",
+      "version": 13,
+      "verify_jwt": false,
+      "sha256": "7d1bd5115ad76b2099ad58f779b5ec23519d041d0c178fc373fb28ae19561c66",
+      "updated_at": 1782320757407
+    },
+    {
+      "slug": "send-push",
+      "status": "ACTIVE",
+      "version": 12,
+      "verify_jwt": false,
+      "sha256": "5f11962401b5685ea44b66dd4392542e22aa59d9863d39e361c55c274936cd63",
+      "updated_at": 1782570379223
+    },
+    {
+      "slug": "post-to-storyboard",
+      "status": "ACTIVE",
+      "version": 12,
+      "verify_jwt": false,
+      "sha256": "5f85c49ccaeced60e884313d643cb58fcccc25fa30c2f69e8646223ea5796c40",
+      "updated_at": 1789192700597
+    },
+    {
+      "slug": "facebook-admin",
+      "status": "ACTIVE",
+      "version": 22,
+      "verify_jwt": false,
+      "sha256": "120f1c203995cecb6cc36cb9dbe3327b47ff9d46c43fc9a9eb11adae89721835",
+      "updated_at": 1783615326395
+    },
+    {
+      "slug": "fb-hide-test",
+      "status": "ACTIVE",
+      "version": 8,
+      "verify_jwt": false,
+      "sha256": "396c3f260299da0168647f9bcd9f335596fb1f36985b996786f515934c48210e",
+      "updated_at": 1789193427115
+    },
+    {
+      "slug": "fb-audit",
+      "status": "ACTIVE",
+      "version": 9,
+      "verify_jwt": false,
+      "sha256": "d6b722b98cb1d2ac1ea3b2cbadfc094953b859524556661eb8de400b47e40c7e",
+      "updated_at": 1789193413912
+    },
+    {
+      "slug": "storage-put",
+      "status": "ACTIVE",
+      "version": 9,
+      "verify_jwt": false,
+      "sha256": "b4b739d0d98d879be084e4346ea9fc76cbcf451cd321cff5d824ac5236168b29",
+      "updated_at": 1782594220102
+    },
+    {
+      "slug": "field-router",
+      "status": "ACTIVE",
+      "version": 10,
+      "verify_jwt": false,
+      "sha256": "bb3c913bd46e11ec0ee11ea27914adef7dcad193837abaccc4adacfd3583ffa6",
+      "updated_at": 1790756094548
+    },
+    {
+      "slug": "journey-message",
+      "status": "ACTIVE",
+      "version": 13,
+      "verify_jwt": false,
+      "sha256": "ef48bb9454ea73e0866bc56db502d3beb1be741de5860b4e10fed39c031309a7",
+      "updated_at": 1792856680509
+    },
+    {
+      "slug": "ai-analyze",
+      "status": "ACTIVE",
+      "version": 91,
+      "verify_jwt": true,
+      "sha256": "2c8100726a5cdd353bd10efb7bec0ec1b30339995787c824d262707294cb57eb",
+      "updated_at": 1793489387407
+    },
+    {
+      "slug": "newsletter-signup",
+      "status": "ACTIVE",
+      "version": 18,
+      "verify_jwt": false,
+      "sha256": "1fad38e517f21d0079b48e9109947d86be7bec1d890563e8ae541f3d17a97718",
+      "updated_at": 1788164234653
+    },
+    {
+      "slug": "send-newsletter",
+      "status": "ACTIVE",
+      "version": 15,
+      "verify_jwt": true,
+      "sha256": "a866b5e909a21bfb11f8fa37aa0fed70c58cc81308d48bf30a79625c4f9e6c30",
+      "updated_at": 1788737523279
+    },
+    {
+      "slug": "newsletter-unsubscribe",
+      "status": "ACTIVE",
+      "version": 9,
+      "verify_jwt": false,
+      "sha256": "c32fc315e6891cd9fd5b9a1e00fdb0685c515f2b9b87b5d41a6e73c902425975",
+      "updated_at": 1786478970319
+    },
+    {
+      "slug": "wa-webhook",
+      "status": "ACTIVE",
+      "version": 28,
+      "verify_jwt": false,
+      "sha256": "8173175876577ac168fb4587c941f0c5f94dadb29605f8ec11edb7875c9bb0cc",
+      "updated_at": 1790840215366
+    },
+    {
+      "slug": "wa-process",
+      "status": "ACTIVE",
+      "version": 18,
+      "verify_jwt": false,
+      "sha256": "84f91cabbe6f516d54e9d2bc035c5b6f89d4d165256898210f5ec3530c34aab5",
+      "updated_at": 1790840203605
+    },
+    {
+      "slug": "wa-poll",
+      "status": "ACTIVE",
+      "version": 11,
+      "verify_jwt": false,
+      "sha256": "6f12a7582e5d40d1cba35653c6c8dc47359258e960c9b756f8dd6cd57521eda5",
+      "updated_at": 1790840193331
+    },
+    {
+      "slug": "wa-ocr",
+      "status": "ACTIVE",
+      "version": 9,
+      "verify_jwt": false,
+      "sha256": "4dbc2ee4fbe1f45897117f905836f26389bf7caec8c3f2816d0e95c6febc0a7e",
+      "updated_at": 1790840189021
+    },
+    {
+      "slug": "wa-vip-backfill",
+      "status": "ACTIVE",
+      "version": 9,
+      "verify_jwt": false,
+      "sha256": "741a31d3a6e86a1197da3815de34f0061359711be0ed7dfa71afbb16842a4485",
+      "updated_at": 1790840227344
+    },
+    {
+      "slug": "wa-daily-digest",
+      "status": "ACTIVE",
+      "version": 9,
+      "verify_jwt": false,
+      "sha256": "0d52a04d054a3036ff47370707fe7eae85022d8fba0ef552690c8948543bfab6",
+      "updated_at": 1789193454529
+    },
+    {
+      "slug": "tmp-upload",
+      "status": "ACTIVE",
+      "version": 16,
+      "verify_jwt": true,
+      "sha256": "d5bc303ba9127f544e6fde05ada9bb8e03ad42c1e831186422e37e7112176551",
+      "updated_at": 1783256418078
+    },
+    {
+      "slug": "wa-channel-ingest",
+      "status": "ACTIVE",
+      "version": 31,
+      "verify_jwt": false,
+      "sha256": "3c1b4eec7fad7a6fe35d0f2c583390f56212f5605ab827b07902ff3ebb4e50a8",
+      "updated_at": 1791488306179
+    },
+    {
+      "slug": "reality-upload",
+      "status": "ACTIVE",
+      "version": 8,
+      "verify_jwt": false,
+      "sha256": "627633be88e8db3ebdf56fa229f6c4a366f7a26815bcf589305c1b23e1eccfd2",
+      "updated_at": 1789193380290
+    },
+    {
+      "slug": "admin-card-upload",
+      "status": "ACTIVE",
+      "version": 9,
+      "verify_jwt": true,
+      "sha256": "2692f6a55b4a701f299fa46005fd72ff232773c88643236d1c1bc1fc6f4a9a12",
+      "updated_at": 1783460304543
+    },
+    {
+      "slug": "gsc-sync",
+      "status": "ACTIVE",
+      "version": 10,
+      "verify_jwt": false,
+      "sha256": "da337c4acf552c6c362df5c737f578ea41513b8dc6fd98afdd083b4295ee9a5f",
+      "updated_at": 1783473726417
+    },
+    {
+      "slug": "email-ingest",
+      "status": "ACTIVE",
+      "version": 8,
+      "verify_jwt": false,
+      "sha256": "670548227d7b302fea14eec1eb87db2c834f73484fb22bc9585c2168e908a2ca",
+      "updated_at": 1789192642217
+    },
+    {
+      "slug": "wa-avatars",
+      "status": "ACTIVE",
+      "version": 10,
+      "verify_jwt": true,
+      "sha256": "9a446c348491a0f217ce1897f3efbb6d9446402c462289ed62d2ed0f596dd479",
+      "updated_at": 1790840160114
+    },
+    {
+      "slug": "wa-christina",
+      "status": "ACTIVE",
+      "version": 41,
+      "verify_jwt": false,
+      "sha256": "d42abf5badebd26cb3ad632a59cbb210dcdd9fec1fc0f504eb65e80949ae497c",
+      "updated_at": 1789193390515
+    },
+    {
+      "slug": "research-nurture",
+      "status": "ACTIVE",
+      "version": 9,
+      "verify_jwt": false,
+      "sha256": "1475732b0a4df4741e15b748b33aac00b5ac152d21e9042d295de206f44b28e9",
+      "updated_at": 1789190977003
+    },
+    {
+      "slug": "gen-thumb",
+      "status": "ACTIVE",
+      "version": 10,
+      "verify_jwt": false,
+      "sha256": "b0cbc04a99fd16bf8e33014b386d573901e89fa5915c3cfd6d08404c7460d3d2",
+      "updated_at": 1789189697343
+    },
+    {
+      "slug": "admin-upload-once",
+      "status": "ACTIVE",
+      "version": 5,
+      "verify_jwt": false,
+      "sha256": "e9841339f1c5ea9ff125fd38d5812b481ce8c253b1b55a74da541cf11d683225",
+      "updated_at": 1789193370110
+    },
+    {
+      "slug": "post-ai-edit",
+      "status": "ACTIVE",
+      "version": 5,
+      "verify_jwt": true,
+      "sha256": "e9d042c5932fb5191503c75179d813fc7a35a5d3bc65bca8bdf915adaeb0a8fd",
+      "updated_at": 1789191260720
+    },
+    {
+      "slug": "post-save",
+      "status": "ACTIVE",
+      "version": 4,
+      "verify_jwt": true,
+      "sha256": "cc3e823444a501546dd1bc9b9e013b16157f7591214686f32c2c5052f953b9cc",
+      "updated_at": 1789191232975
+    },
+    {
+      "slug": "ga-il-returning",
+      "status": "ACTIVE",
+      "version": 5,
+      "verify_jwt": false,
+      "sha256": "5813b84fbd6d5bd22009f9c3f8afccbb27133541773071fdd648cc8c497f6f59",
+      "updated_at": 1789193434538
+    },
+    {
+      "slug": "system-watchman",
+      "status": "ACTIVE",
+      "version": 8,
+      "verify_jwt": false,
+      "sha256": "08add44afcd018a277149a01993dd3904db11313efd7fc5126ee45a3f05b3546",
+      "updated_at": 1789193465264
+    },
+    {
+      "slug": "notify-approval",
+      "status": "ACTIVE",
+      "version": 4,
+      "verify_jwt": false,
+      "sha256": "1ce8bff4a520cc8dcb01f3185e8f4d8aa8312fb2547298efa696c4b3d75df8bb",
+      "updated_at": 1784184625335
+    },
+    {
+      "slug": "wa-uriel",
+      "status": "ACTIVE",
+      "version": 18,
+      "verify_jwt": false,
+      "sha256": "832270a385dec748180e3088ad66578f482f206867655bfade46ed494ac89851",
+      "updated_at": 1790840211607
+    },
+    {
+      "slug": "wa-michael",
+      "status": "ACTIVE",
+      "version": 7,
+      "verify_jwt": false,
+      "sha256": "63fa75cf1ceb8af2f19369b99b87da41bdbd8227d2f67ab01bc1f6f39e9c55d6",
+      "updated_at": 1790840182597
+    },
+    {
+      "slug": "wa-gabriel",
+      "status": "ACTIVE",
+      "version": 16,
+      "verify_jwt": false,
+      "sha256": "2d45c6a00096b75a4d1b63232b146121e4aa7402e74531edfe0a8b34f7bf4cd7",
+      "updated_at": 1790840167985
+    },
+    {
+      "slug": "wa-hatishbi",
+      "status": "ACTIVE",
+      "version": 8,
+      "verify_jwt": false,
+      "sha256": "d027d9231c273ee2f351c2c1ea615e6fed3fbbbf9733e0aff253ffe55d6692c5",
+      "updated_at": 1790840172248
+    },
+    {
+      "slug": "lab-teacher",
+      "status": "ACTIVE",
+      "version": 3,
+      "verify_jwt": false,
+      "sha256": "5ba666a2bd55090bb77db6910af3b654785bd3ac9fc0da43be41ff2866a75666",
+      "updated_at": 1790756181656
+    },
+    {
+      "slug": "wa-mora",
+      "status": "ACTIVE",
+      "version": 6,
+      "verify_jwt": false,
+      "sha256": "fe6c11dbb515cf7f377e9e7e699ab98af091bf8ac0b64c4df701849a3ffb3047",
+      "updated_at": 1790840185940
+    },
+    {
+      "slug": "lab-reflect",
+      "status": "ACTIVE",
+      "version": 3,
+      "verify_jwt": false,
+      "sha256": "75c4793fdf424d8c29fb3274f1ca65c2787f97365f8c8883b47b4d59930288ba",
+      "updated_at": 1789189726593
+    },
+    {
+      "slug": "send-test-mail",
+      "status": "ACTIVE",
+      "version": 21,
+      "verify_jwt": true,
+      "sha256": "05804cb2c99652ed5dfe155ef1f08d9ccccd51a164c9d5af24cede3072f1eb8e",
+      "updated_at": 1784745850619
+    },
+    {
+      "slug": "send-welcome-test",
+      "status": "ACTIVE",
+      "version": 5,
+      "verify_jwt": true,
+      "sha256": "829f5365d2d2412b4fd3cd2e278f62885c845a70b0f48ea0e84e5ea52e243bbd",
+      "updated_at": 1784764486658
+    },
+    {
+      "slug": "email-open",
+      "status": "ACTIVE",
+      "version": 3,
+      "verify_jwt": false,
+      "sha256": "b60849d6be14de48beb20b820e4bde15fac9cd29a384761ece5f6e22082e261f",
+      "updated_at": 1789193054001
+    },
+    {
+      "slug": "welcome-backfill",
+      "status": "ACTIVE",
+      "version": 7,
+      "verify_jwt": false,
+      "sha256": "68f06ec5834949277a39124300d558c81a61e4e8a29e0cdc553a3012df3fbba3",
+      "updated_at": 1789190838639
+    },
+    {
+      "slug": "wa-raziel",
+      "status": "ACTIVE",
+      "version": 21,
+      "verify_jwt": false,
+      "sha256": "6167766567cca19de23f2b10756227a9e1d4cc0cab9cd9fa4cd76ed36d221e1b",
+      "updated_at": 1793027180347
+    },
+    {
+      "slug": "research-extract",
+      "status": "ACTIVE",
+      "version": 8,
+      "verify_jwt": false,
+      "sha256": "7d645942c1863a6e1dab889cce87108e0d11caba203c4a6f1af5ca59edefb6c0",
+      "updated_at": 1792658449315
+    },
+    {
+      "slug": "tmp-pancher-upload",
+      "status": "ACTIVE",
+      "version": 3,
+      "verify_jwt": true,
+      "sha256": "6062a8d0175c152080994eccceee6e6f9f96c04a575e6cd4dae5c819ee602417",
+      "updated_at": 1784842354226
+    },
+    {
+      "slug": "gematria-api",
+      "status": "ACTIVE",
+      "version": 2,
+      "verify_jwt": false,
+      "sha256": "54f423c8beef2b22791639f8c632cebbe101d4518b8bd934e451a4057ffff684",
+      "updated_at": 1784908584284
+    },
+    {
+      "slug": "sign-upload",
+      "status": "ACTIVE",
+      "version": 4,
+      "verify_jwt": false,
+      "sha256": "7d0b7ee9d9a4379a7e9e687b9128fa5597f6645dbec1dd3164f9022098ce13c4",
+      "updated_at": 1789192995529
+    },
+    {
+      "slug": "notify-payment",
+      "status": "ACTIVE",
+      "version": 4,
+      "verify_jwt": false,
+      "sha256": "2fb4e07cf2674a5f1b7d023c5ec6bcd54cf6de934d2c426ffe0b518f4dc28fdb",
+      "updated_at": 1789193471562
+    },
+    {
+      "slug": "email-inbound",
+      "status": "ACTIVE",
+      "version": 5,
+      "verify_jwt": false,
+      "sha256": "0da46ead35a32c586e0e708ea7d2ef97a4f3ffc2a5614b27b3bc9ce85a2209bd",
+      "updated_at": 1789192666116
+    },
+    {
+      "slug": "email-reply",
+      "status": "ACTIVE",
+      "version": 4,
+      "verify_jwt": true,
+      "sha256": "b01ca47d0a6eaa59598c172a731a7df98151b1a7a647b5b873e9402fda95aa0e",
+      "updated_at": 1791922325908
+    },
+    {
+      "slug": "raw-put",
+      "status": "ACTIVE",
+      "version": 2,
+      "verify_jwt": false,
+      "sha256": "aae4aeeca6f87987ecd57c618bad47ba39d8ec935d43f87fc3382ee111eb8ba0",
+      "updated_at": 1789193009140
+    },
+    {
+      "slug": "number-researcher",
+      "status": "ACTIVE",
+      "version": 12,
+      "verify_jwt": false,
+      "sha256": "c94555c1a7be5081d06eb00dfe9bc8ed597de66c4c5bfb4da7e61fab844e7175",
+      "updated_at": 1790756193015
+    },
+    {
+      "slug": "media-thumb-queue",
+      "status": "ACTIVE",
+      "version": 3,
+      "verify_jwt": false,
+      "sha256": "d251bd6208cd4b72237e4d3d93db384da9db16c9d493302cb1a0374a14433460",
+      "updated_at": 1791166354892
+    },
+    {
+      "slug": "storage-put-raw",
+      "status": "ACTIVE",
+      "version": 2,
+      "verify_jwt": false,
+      "sha256": "1966d33fe7ca666d395df9adf34b2f2bd88315db2838eea15d0ec0fcac6e6461",
+      "updated_at": 1789193021898
+    },
+    {
+      "slug": "nl-track",
+      "status": "ACTIVE",
+      "version": 2,
+      "verify_jwt": false,
+      "sha256": "3fc175b18205ca05574ed489721785c862d185e9ae0f70dccc89375b38ba6b2a",
+      "updated_at": 1788737464045
+    },
+    {
+      "slug": "send-reengage",
+      "status": "ACTIVE",
+      "version": 2,
+      "verify_jwt": true,
+      "sha256": "7c64847e254c344cbee08386189270bbe01024484cac27558107a723408cb2fc",
+      "updated_at": 1788737492660
+    },
+    {
+      "slug": "video-transcribe",
+      "status": "ACTIVE",
+      "version": 7,
+      "verify_jwt": false,
+      "sha256": "8e957ab333374329d007c86499ebc714226e7e8308188b9553a1556769c88d79",
+      "updated_at": 1791374203313
+    },
+    {
+      "slug": "field-pack",
+      "status": "ACTIVE",
+      "version": 2,
+      "verify_jwt": true,
+      "sha256": "c9b6191144d0de07e7bf983678f46d31d693cbb7ca3378572f22c2e35fade132",
+      "updated_at": 1789192554870
+    },
+    {
+      "slug": "capture-video-thumb",
+      "status": "ACTIVE",
+      "version": 2,
+      "verify_jwt": false,
+      "sha256": "f3eb8b37f65c03d320c49830dc6e626828df11bdb5693ebf54d95c66f7205ca6",
+      "updated_at": 1792856777168
+    },
+    {
+      "slug": "notify-page-ready",
+      "status": "ACTIVE",
+      "version": 6,
+      "verify_jwt": false,
+      "sha256": "ae45e037f9d507afbc7bf75666a7582274628b18ffba46b3aeb0384ba0013396",
+      "updated_at": 1789190910565
+    },
+    {
+      "slug": "notify-reply-email",
+      "status": "ACTIVE",
+      "version": 2,
+      "verify_jwt": false,
+      "sha256": "efb63c0b83c53f6afee792d601db07459b52d2bc6955fb5b3e0bf4ebf5423020",
+      "updated_at": 1789190950220
+    },
+    {
+      "slug": "raziel-attention",
+      "status": "ACTIVE",
+      "version": 4,
+      "verify_jwt": true,
+      "sha256": "931386e340e527f71738fb3f8908c0cdcccefa64710324bc8ba2e1098d1cf45b",
+      "updated_at": 1790756206135
+    },
+    {
+      "slug": "storage-cleanup-oneoff",
+      "status": "ACTIVE",
+      "version": 8,
+      "verify_jwt": false,
+      "sha256": "cb545772897a2c26a3f15056dcfa4d54bde7b8bb6df0eef1bfff37579473726a",
+      "updated_at": 1790856796552
+    },
+    {
+      "slug": "expression-extract",
+      "status": "ACTIVE",
+      "version": 4,
+      "verify_jwt": true,
+      "sha256": "f5480e71a265a3b18dfc0c13d346ff4c76e7f5240511d084dd90e37ee74f068f",
+      "updated_at": 1788337622636
+    },
+    {
+      "slug": "ga-sync-server",
+      "status": "ACTIVE",
+      "version": 2,
+      "verify_jwt": false,
+      "sha256": "1d8b9081544473a687dc33d5f3fb5c7199701b65f29e694c0349007cf24254e9",
+      "updated_at": 1788931555557
+    },
+    {
+      "slug": "agent-upload",
+      "status": "ACTIVE",
+      "version": 32,
+      "verify_jwt": false,
+      "sha256": "7b5fe3acb6d504c8291c7931167e76cccc94d5d6f8bd6a76d510baa25df5ccde",
+      "updated_at": 1791167275911
+    },
+    {
+      "slug": "openweb-sso",
+      "status": "ACTIVE",
+      "version": 2,
+      "verify_jwt": false,
+      "sha256": "2723f64f318d4fbf0b7fbd63dc4ade0dcc3fc430ff945626232e2c2ab7e26b6c",
+      "updated_at": 1789053672365
+    },
+    {
+      "slug": "noop",
+      "status": "ACTIVE",
+      "version": 2,
+      "verify_jwt": true,
+      "sha256": "6b763ed1b71c56fe8b87421e1a70e011d7e9d34595f7d1d4bc5c4060aff6b35f",
+      "updated_at": 1789925553639
+    },
+    {
+      "slug": "facebook-publish",
+      "status": "ACTIVE",
+      "version": 1,
+      "verify_jwt": true,
+      "sha256": "1ba4fc893b84531449bb8ca642453ff575c9ae31f5fb4714938e33db665165ac",
+      "updated_at": 1789191277337
+    },
+    {
+      "slug": "sg-rate-limit",
+      "status": "ACTIVE",
+      "version": 1,
+      "verify_jwt": false,
+      "sha256": "a1b511ebf3bfceade5ecf8c4d1764f3d4bd6269ab5671503252ca2ffe6d5764c",
+      "updated_at": 1789460908026
+    },
+    {
+      "slug": "media-upload-intent",
+      "status": "ACTIVE",
+      "version": 3,
+      "verify_jwt": true,
+      "sha256": "768f21aa4cb0b9551f43525b092870d40d16e5de0753a0013bc6d98dc8265497",
+      "updated_at": 1793489377026
+    },
+    {
+      "slug": "wa-channel-research-intake",
+      "status": "ACTIVE",
+      "version": 7,
+      "verify_jwt": false,
+      "sha256": "61872c61707f668bc5d482fd898280e9349de64e4e9e5d3572de46f88c5233e1",
+      "updated_at": 1792658456003
+    },
+    {
+      "slug": "live-whatsapp-feed",
+      "status": "ACTIVE",
+      "version": 1,
+      "verify_jwt": false,
+      "sha256": "0b830df6582453402304047c10892597226474cb10e7fcc29d0548a9fa73057a",
+      "updated_at": 1790209961864
+    },
+    {
+      "slug": "g3-openweb-import-once",
+      "status": "ACTIVE",
+      "version": 6,
+      "verify_jwt": false,
+      "sha256": "fc36c38f9d0b2216ae8276fa8e6c0f50e86a86d163c6812e949f8ef53d846935",
+      "updated_at": 1791124829842
+    },
+    {
+      "slug": "els-search-bridge",
+      "status": "ACTIVE",
+      "version": 5,
+      "verify_jwt": true,
+      "sha256": "0343aef476d97d6457b82a3b92e73b180c2c3d044d77c49472bb9fc5cc9c2847",
+      "updated_at": 1791752052308
+    },
+    {
+      "slug": "research-run",
+      "status": "ACTIVE",
+      "version": 9,
+      "verify_jwt": true,
+      "sha256": "6118384ad165b82d1e830be0549e5edecd4433f1f6bd853a36d418e4413be6d9",
+      "updated_at": 1792889571059
+    },
+    {
+      "slug": "wa-video-enrich",
+      "status": "ACTIVE",
+      "version": 11,
+      "verify_jwt": false,
+      "sha256": "876989e287f50a0ec17fe77380bc740c551c4181b49de99e147e2e14ca4df908",
+      "updated_at": 1791374206705
+    },
+    {
+      "slug": "wa-system-outbox",
+      "status": "ACTIVE",
+      "version": 1,
+      "verify_jwt": false,
+      "sha256": "7e82434e29e6a5493949ec74eed4d8e16874be945db579c08b785a77bee567ef",
+      "updated_at": 1790840231422
+    },
+    {
+      "slug": "send-family-invitation-email",
+      "status": "ACTIVE",
+      "version": 1,
+      "verify_jwt": true,
+      "sha256": "8bd46f4a35e9c822946d1bec2ce55a89462ce67d9d3c5d6a38385745baabeef9",
+      "updated_at": 1792893238320
+    },
+    {
+      "slug": "claude-raziel",
+      "status": "ACTIVE",
+      "version": 1,
+      "verify_jwt": true,
+      "sha256": "5088254070855fe8f916ec55b3d527f796a2d6980ea2d077b7411b5e240160eb",
+      "updated_at": 1792964691774
+    },
+    {
+      "slug": "els-live-reading",
+      "status": "ACTIVE",
+      "version": 21,
+      "verify_jwt": true,
+      "sha256": "99dd6d8e05d719ad29ac843bdc3d68cfcc60f7b31ff0eccc5c2b9e3dbd97534b",
+      "updated_at": 1793365704659
+    }
+  ]
+}

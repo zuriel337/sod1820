@@ -1,0 +1,75 @@
+{
+  "project": "linswmnnkjxvweumprav",
+  "approvedProposal": "e8a72b22143933df2fedd68c1a78c1cd526e0dd4",
+  "migrations": [
+    "20261102130753_doc37_current_authority_views",
+    "20261102130833_newsletter_opening_parts_consent"
+  ],
+  "functions": {
+    "send-newsletter": {
+      "version": 16,
+      "verify_jwt": true,
+      "ezbr_sha256": "a6eead21a3dfda849d30575339965aa54c605fe590de64e43d086a363f2a00c4",
+      "status": "ACTIVE"
+    },
+    "welcome-backfill": {
+      "version": 8,
+      "verify_jwt": false,
+      "ezbr_sha256": "d1e9eeb3b121899be39c03cf228437aef4acc1010d04d3f723e6d40b273e1389",
+      "status": "ACTIVE"
+    },
+    "send-reengage": {
+      "version": 3,
+      "verify_jwt": true,
+      "ezbr_sha256": "94ece3eab47a9f30e714249c40dba52be1cf00c6ac10ddec159d23bfcd06bce7",
+      "status": "ACTIVE"
+    },
+    "nl-track": {
+      "version": 3,
+      "verify_jwt": false,
+      "ezbr_sha256": "c99e645e7fd87f7eca4c5f302c6abd1d20914b57f2ed385e74550ba2fa1b82ca",
+      "status": "ACTIVE"
+    },
+    "newsletter-signup": {
+      "version": 19,
+      "verify_jwt": false,
+      "ezbr_sha256": "83a39cd603ee18efed3191450c1a1e19ca535762726f167a670f9ae55dd89f31",
+      "status": "ACTIVE"
+    }
+  },
+  "unchangedUnsubscribeVersion": 9,
+  "negativeChecks": [
+    {
+      "method": "OPTIONS",
+      "status": 200,
+      "contract": "opening-parts-v1"
+    },
+    {
+      "method": "POST",
+      "case": "missing-consent",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "case": "invalid-address",
+      "status": 400
+    }
+  ],
+  "subscribersBeforeAfter": {
+    "rows": [
+      1021,
+      1021
+    ],
+    "nonGeneral": [
+      0,
+      0
+    ],
+    "openingConsent": [
+      0,
+      0
+    ]
+  },
+  "mailSentByTests": false,
+  "positiveSignupIsolatedOnly": true,
+  "websiteProductionCutover": false
+}

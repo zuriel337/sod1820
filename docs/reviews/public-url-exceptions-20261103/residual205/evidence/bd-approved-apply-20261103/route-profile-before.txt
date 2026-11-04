@@ -1,0 +1,52 @@
+✖ public publication profile mounts the same existing consent form on direct /updates (63.496807ms)
+✔ ordinary readonly Preview still cannot mount newsletter or removal actions (13.170826ms)
+✔ existing signed removal remains admitted in the public artifact only as before (0.804922ms)
+✔ full existing profile keeps the original newsletter route (12.037256ms)
+✔ privacy and genuine missing pages retain their existing components (1.536183ms)
+✖ public system map labels its admitted updates destination as available (4.304816ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 4
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 174.58942
+
+✖ failing tests:
+
+test at test/public-reading-service-capabilities.test.mjs:37:1
+✖ public publication profile mounts the same existing consent form on direct /updates (63.496807ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-fixture="existing-newsletter"/. Input:
+
+  '<main><section class="sod29-section"><h1>עדכונים במייל</h1><p>פעולות הדיוור אינן פעילות בגרסה זו. קישורי ההסרה הקיימים באתר הוותיק נשארים ללא שינוי.</p><a href="/privacy" data-discover="true">פרטיות ויצירת קשר</a></section></main>'
+
+      at TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-reading-service-capabilities.test.mjs:39:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '<main><section class="sod29-section"><h1>עדכונים במייל</h1><p>פעולות הדיוור אינן פעילות בגרסה זו. קישורי ההסרה הקיימים באתר הוותיק נשארים ללא שינוי.</p><a href="/privacy" data-discover="true">פרטיות ויצירת קשר</a></section></main>',
+    expected: /data-fixture="existing-newsletter"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at test/public-reading-service-capabilities.test.mjs:62:1
+✖ public system map labels its admitted updates destination as available (4.304816ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /href="\/updates"[^>]*>עדכונים במייל<\/a>/. Input:
+
+  '<main><section class="sod29-section"><h1>מפת האתר</h1><p>קריאה, מקורות ושירותים. חלק מהיכולות החדשות עדיין בבנייה; כניסה לדף אינה מפעילה כתיבה או כלי מחקר.</p><nav aria-label="דפי האתר" class="sod29-actions"><a class="sod29-action" href="/" data-discover="true">בית</a><a class="sod29-action" href="/world" data-discover="true">העולם</a><a class="sod29-action" href="/post" data-discover="true">פוסטים</a><a class="sod29-action" href="/number" data-discover="true">מספר או ביטוי</a><a class="sod29-action" href="/gematria" data-discover="true">מחשבון גימטריה</a><a class="sod29-action" href="/community/calculator" data-discover="true">מחשבון הקהילה</a><a class="sod29-action" href="/gallery" data-discover="true">גלריות</a><a class="sod29-action" href="/or-geula" data-discover="true">אור הגאולה</a><a class="sod29-action" href="/community/chat" data-discover="true">הצ׳אט הקהילתי · קריאה</a><a class="sod29-action" href="/community/researchers" data-discover="true">אנשים וכתבים</a><a class="sod29-action" href="/books" data-discover="true">ספרים ומקורות</a><a class="sod29-action" href="/codes" data-discover="true">צפנים שפורסמו</a><a class="sod29-action" href="/contact" data-discover="true">דיווח או הצעה</a><a class="sod29-action" href="/login" data-discover="true">כניסה לחשבון</a><a class="sod29-action" href="/updates" data-discover="true">עדכונים במייל · בהכנה</a><a class="sod29-action" href="/privacy" data-discover="true">פרטיות ומחיקת נתונים</a><a class="sod29-action" href="/unsubscribe" data-discover="true">הסרה מהדיוור</a></nav><h2>עדיין בבנייה</h2><nav class="sod29-actions" aria-label="יכולות בתהליך התאמה"><a class="sod29-action" href="/code" data-discover="true">כלי הצופן</a><a class="sod29-action" href="/heichal" data-discover="true">ההיכל</a><a class="sod29-action" href="/journey" data-discover="true">מסע החיים</a><a class="sod29-action" href="/raziel" data-discover="true">רזיאל</a><a class="sod29-action" href="/forum" data-discover="true">פורום המחקר</a><a class="sod29-action" href="/name" data-discover="true">מחקר השם</a><a class="sod29-action" href="/credits" data-discover="true">קרדיטים ותשלומים</a></nav></section></main>'
+
+      at TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-reading-service-capabilities.test.mjs:64:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '<main><section class="sod29-section"><h1>מפת האתר</h1><p>קריאה, מקורות ושירותים. חלק מהיכולות החדשות עדיין בבנייה; כניסה לדף אינה מפעילה כתיבה או כלי מחקר.</p><nav aria-label="דפי האתר" class="sod29-actions"><a class="sod29-action" href="/" data-discover="true">בית</a><a class="sod29-action" href="/world" data-discover="true">העולם</a><a class="sod29-action" href="/post" data-discover="true">פוסטים</a><a class="sod29-action" href="/number" data-discover="true">מספר או ביטוי</a><a class="sod29-action" href="/gematria" data-discover="true">מחשבון גימטריה</a><a class="sod29-action" href="/community/calculator" data-discover="true">מחשבון הקהילה</a><a class="sod29-action" href="/gallery" data-discover="true">גלריות</a><a class="sod29-action" href="/or-geula" data-discover="true">אור הגאולה</a><a class="sod29-action" href="/community/chat" data-discover="true">הצ׳אט הקהילתי · קריאה</a><a class="sod29-action" href="/community/researchers" data-discover="true">אנשים וכתבים</a><a class="sod29-action" href="/books" data-discover="true">ספרים ומקורות</a><a class="sod29-action" href="/codes" data-discover="true">צפנים שפורסמו</a><a class="sod29-action" href="/contact" data-discover="true">דיווח או הצעה</a><a class="sod29-action" href="/login" data-discover="true">כניסה לחשבון</a><a class="sod29-action" href="/updates" data-discover="true">עדכונים במייל · בהכנה</a><a class="sod29-action" href="/privacy" data-discover="true">פרטיות ומחיקת נתונים</a><a class="sod29-action" href="/unsubscribe" data-discover="true">הסרה מהדיוור</a></nav><h2>עדיין בבנייה</h2><nav class="sod29-actions" aria-label="יכולות בתהליך התאמה"><a class="sod29-action" href="/code" data-discover="true">כלי הצופן</a><a class="sod29-action" href="/heichal" data-discover="true">ההיכל</a><a class="sod29-action" href="/journey" data-discover="true">מסע החיים</a><a class="sod29-action" href="/raziel" data-discover="true">רזיאל</a><a class="sod29-action" href="/forum" data-discover="true">פורום המחקר</a><a class="sod29-action" href="/name" data-discover="true">מחקר השם</a><a class="sod29-action" href="/credits" data-discover="true">קרדיטים ותשלומים</a></nav></section></main>',
+    expected: /href="\/updates"[^>]*>עדכונים במייל<\/a>/,
+    operator: 'match',
+    diff: 'simple'
+  }

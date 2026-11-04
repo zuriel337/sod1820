@@ -1,0 +1,14 @@
+{
+  "compiledProductSHA": "5dece6da03a39dd791f56265343cf271856d070a",
+  "contexts": 48,
+  "readRequests": 3374,
+  "statusCounts": {
+    "200": 3261,
+    "206": 113
+  },
+  "errors": [],
+  "blockedRequests": [],
+  "allPOSTRPCsTranslatedToReadOnlyGET": true,
+  "modelsAndPrivateWritesBlocked": true,
+  "cookiesHeadersAndQueryStringsNotRecorded": true
+}

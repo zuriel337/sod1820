@@ -1,0 +1,226 @@
+{
+  "kind": "controlled-owned-account-browser",
+  "synthetic": true,
+  "realAccounts": false,
+  "liveWrites": 0,
+  "origin": "isolated-local-http",
+  "cases": [
+    {
+      "name": "existing A login and owned Legacy library",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "owned notebook save/edit and refresh",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "failed notebook write keeps text and never reports success; explicit retry",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "saved item edit reuses one identity",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "new explicit post save preserves source and exact URL after refresh",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "profile edit and explicit logout",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "regular B account never inherits A data",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "regular B can save without admin role",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "mobile/desktop private layout remains contained",
+      "width": 390,
+      "passed": true,
+      "geometry": {
+        "viewport": 390,
+        "width": 375,
+        "sw": true
+      }
+    },
+    {
+      "name": "existing A login and owned Legacy library",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "owned notebook save/edit and refresh",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "failed notebook write keeps text and never reports success; explicit retry",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "saved item edit reuses one identity",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "new explicit post save preserves source and exact URL after refresh",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "profile edit and explicit logout",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "regular B account never inherits A data",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "regular B can save without admin role",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "mobile/desktop private layout remains contained",
+      "width": 1440,
+      "passed": true,
+      "geometry": {
+        "viewport": 1440,
+        "width": 1425,
+        "sw": true
+      }
+    }
+  ],
+  "errors": [],
+  "authNetwork": [
+    {
+      "event": "request",
+      "path": "/auth/v1/token",
+      "queryKeys": [
+        "grant_type"
+      ],
+      "method": "POST",
+      "bodyKeys": [
+        "email",
+        "password",
+        "gotrue_meta_security"
+      ],
+      "securityKeys": []
+    },
+    {
+      "event": "response",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "event": "failed",
+      "path": "/auth/v1/logout",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "event": "request",
+      "path": "/auth/v1/token",
+      "queryKeys": [
+        "grant_type"
+      ],
+      "method": "POST",
+      "bodyKeys": [
+        "email",
+        "password",
+        "gotrue_meta_security"
+      ],
+      "securityKeys": []
+    },
+    {
+      "event": "response",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "event": "request",
+      "path": "/auth/v1/token",
+      "queryKeys": [
+        "grant_type"
+      ],
+      "method": "POST",
+      "bodyKeys": [
+        "email",
+        "password",
+        "gotrue_meta_security"
+      ],
+      "securityKeys": []
+    },
+    {
+      "event": "response",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "event": "failed",
+      "path": "/auth/v1/logout",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "event": "request",
+      "path": "/auth/v1/token",
+      "queryKeys": [
+        "grant_type"
+      ],
+      "method": "POST",
+      "bodyKeys": [
+        "email",
+        "password",
+        "gotrue_meta_security"
+      ],
+      "securityKeys": []
+    },
+    {
+      "event": "response",
+      "path": "/auth/v1/token",
+      "status": 200
+    }
+  ],
+  "passed": 18,
+  "finishedAt": "2026-11-03T13:22:02.072Z",
+  "accountRows": 2,
+  "fixtureCallCounts": {
+    "/auth/v1/settings": 4,
+    "/rest/v1/topic_cards_public": 34,
+    "/rest/v1/posts": 42,
+    "/rest/v1/rpc/world_group_source_arrivals_v2": 34,
+    "/auth/v1/token": 4,
+    "/auth/v1/user": 94,
+    "/rest/v1/users": 46,
+    "/rest/v1/site_flags": 28,
+    "/rest/v1/rpc/research_state_snapshot_v1": 22,
+    "/rest/v1/rpc/fn_research_path_resume_v1": 14,
+    "/rest/v1/user_notes": 14,
+    "/rest/v1/rpc/research_state_apply_ops_v1": 10,
+    "/rest/v1/contributors": 4,
+    "/rest/v1/user_activity": 4,
+    "/rest/v1/research_objects": 4,
+    "/api/contributor-self": 4,
+    "/auth/v1/logout": 2
+  },
+  "sourceBuild": {
+    "sourceSha": "7937f084a5a3d0f1ca65a95d12d16fe185dcace4",
+    "applicationSourceDirty": false,
+    "policy": "public-reading-owned-account-continuity-20261103"
+  },
+  "note": "Actual clean-source compiled UI and admission code; only worker outbound fetch replaced with isolated fixtures. No real account acceptance."
+}

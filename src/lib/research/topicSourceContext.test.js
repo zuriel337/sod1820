@@ -1,7 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { buildTopicSourceContext, INDIA_CAPTAIN_SOURCE, topicSourceContextPatch, TOPIC_SOURCE_LIMIT } from "./topicSourceContext.js";
+import { buildTopicSourceContext, buildGallerySourceContext, loadPublicGallerySourcePage, resolvePublicGallerySelection,
+  gallerySourceHref2029, galleryOccurrenceItem, loadPublicGallerySourceWindow,
+  INDIA_CAPTAIN_SOURCE, topicSourceContextPatch, TOPIC_SOURCE_LIMIT } from "./topicSourceContext.js";
 import { buildMediaEnvelope, dedupeMediaEnvelopes, mediaToLightboxImage } from "./galleryMediaEnvelope.js";
 import { fetchTopicSourceContext } from "./entityHubProjection.js";
 import { buildTopicGoldenProjection } from "./topicGoldenProjection.js";
@@ -12,6 +14,114 @@ const topicOf = (slug) => fixture.topics.find((topic) => topic.slug === slug);
 const project = (slug, changes = {}) => buildTopicSourceContext({ ...fixture, topic: topicOf(slug), occurrences: fixture.images, ...changes });
 const sharedImage = "5579cca1-ff12-4a9a-87ee-e32e89ca9af3";
 const railImage = "8940efb2-8423-4a27-a10a-d3fdd07cf595";
+
+test("native gallery locators preserve historical IDs without a pilot-only inventory", () => {
+  assert.equal(gallerySourceHref2029(29),"/world?view=gallery&gallery=29");
+  assert.equal(gallerySourceHref2029(81,sharedImage),`/world?view=gallery&gallery=81&image=${sharedImage}#gallery-source-${sharedImage}`);
+  for (const gallery of [1,54,69,73,105,99999]) assert.equal(gallerySourceHref2029(gallery),`/world?view=gallery&gallery=${gallery}`);
+  for(const [gallery,id] of [["29",sharedImage],[0,sharedImage],[-1,sharedImage],[NaN,sharedImage],[Number.MAX_SAFE_INTEGER+1,sharedImage],[29,"../private"],[81,""]]) assert.equal(gallerySourceHref2029(gallery,id),null);
+});
+
+test("native gallery deep selection fetches one bounded stored-order window, never scans the corpus", async () => {
+  const rows=Array.from({length:20},(_,n)=>({id:`10000000-0000-4000-8000-${String(n).padStart(12,"0")}`,wp_gallery_id:29,
+    ordering:n,published:1,min_tier:0,image_url:`https://example.test/storage/v1/object/public/media/${n}.png`,description:`כיתוב ${n}`}));
+  let listings=0;const reads=[];
+  const options={wpGalleryId:29,listGalleryImages:async()=>{listings++;return [...rows].reverse();},
+    fetchSourceContext:async({imageIds})=>{reads.push(imageIds);return {items:buildGallerySourceContext({images:rows.filter(row=>imageIds.includes(row.id))})};}};
+  const result=await loadPublicGallerySourceWindow({...options,imageId:rows[15].id});
+  assert.equal(listings,1);assert.equal(reads.length,1);assert.deepEqual(reads[0],rows.slice(12,18).map(row=>row.id));
+  assert.equal(result.page.offset,12);assert.equal(result.status,"ready");
+  assert.equal(galleryOccurrenceItem(result.selected).legacyPlacement.originalCaption,"כיתוב 15");
+  assert.equal((await loadPublicGallerySourceWindow({...options,imageId:sharedImage})).status,"unavailable");
+  assert.equal(reads.length,1,"missing row does not trigger an unbounded source read");
+  await assert.rejects(loadPublicGallerySourceWindow({...options,imageId:"bad"}),RangeError);
+  rows.push({...rows[0],id:"10000000-0000-4000-8000-000000000020",ordering:20,description:"מקור שהגיע עכשיו"});
+  const later=await loadPublicGallerySourceWindow({...options,offset:18});
+  assert.equal(later.page.totalListed,21,"newly listed material is available without a hardcoded page/source inventory");
+  assert.equal(resolvePublicGallerySelection(later.page,rows[20].id).status,"ready");
+});
+
+test("same-object gallery placements keep exact OCR, tags and caption without another source identity", async () => {
+  const a="10000000-0000-4000-8000-000000000001",b="10000000-0000-4000-8000-000000000002";
+  const images=[{id:a,wp_gallery_id:29,ordering:1,published:1,min_tier:0,image_type:"gematria",all_values:[1237],ocr_text:"אחד",description:"ראשון"},
+    {id:b,wp_gallery_id:29,ordering:2,published:1,min_tier:0,image_type:"hint",all_values:[3137],ocr_text:"שני",description:"שני"}]
+    .map(row=>({...row,image_url:"https://example.test/storage/v1/object/public/media/shared.png"}));
+  const items=buildGallerySourceContext({images});
+  const page=await loadPublicGallerySourcePage({wpGalleryId:29,listGalleryImages:async()=>images,
+    fetchSourceContext:async()=>({items})});
+  assert.equal(page.items.length,1);assert.equal(page.withheld,0);
+  const selected=galleryOccurrenceItem(resolvePublicGallerySelection(page,b));
+  assert.equal(selected.sourceIdentity,items[0].sourceIdentity);assert.equal(selected.occurrences,items[0].occurrences);
+  assert.equal(selected.intrinsic.extraction.text,"שני");assert.deepEqual(selected.storedNumbers.all,[3137]);
+  assert.equal(selected.sourceRef,`gallery_images:${b}`);assert.equal(selected.legacyPlacement.originalCaption,"שני");
+  assert.equal(selected.dateUse,"provenance_only");assert.equal(galleryOccurrenceItem({status:"unavailable"}),null);
+});
+
+test("native gallery wiring adds only a lazy 2029 route and reuses the existing public readers",()=>{
+  const app=fs.readFileSync(new URL("../../App2029.jsx",import.meta.url),"utf8");
+  const page=fs.readFileSync(new URL("../../pages/Gallery2029Page.jsx",import.meta.url),"utf8");
+  assert.match(app,/const Gallery2029Page = lazy/);assert.match(app,/get\("view"\) === "gallery"/);
+  assert.match(app,/<WorldEntry2029 \/>/);assert.doesNotMatch(app,/path="\/2029\/gallery/);
+  assert.match(page,/loadPublicGallerySourceWindow/);assert.match(page,/SourceMethodResearch/);
+  assert.doesNotMatch(page,/from ["'][^"']*(?:MuseumGallery|GalleryPage|ArchivePage|Lightbox|AuthContext)/);
+  // URLSearchParams.delete edits navigation, not stored data. Keep the mutation
+  // prohibition for everything else, and require the exact existing read imports.
+  assert.deepEqual(page.match(/import \{ ([^}]+) \} from "\.\.\/lib\/supabase.js"/)[1].split(',').map(s=>s.trim()).sort(),
+    ['getGalleriesOverview','getImagesByGallery','getRealityHints','searchArchiveOcrIds']);
+  assert.match(page,/const p=new URLSearchParams\(search\)/);
+  assert.match(page,/const set=new Set\(old\)/);
+  const noWrites = source => {
+    assert.doesNotMatch(source,/\.from\(|\.rpc\(|\bfetch\s*\(/);
+    assert.doesNotMatch(source.replace(/\bp\.delete\((?:key|'image'|'offset'|'take')\)/g,'URLSearchParams parameter removal')
+      .replace(/\bset\.delete\(id\)/g,'Set member removal'),
+      /setImageCuration|bulkSet|\.insert\(|\.upsert\(|\.update\(|\.delete\(/);
+  };
+  noWrites(page);
+  for (const operation of ['client.insert({})','client.upsert({})','client.update({})','client.delete()',
+    "supabase.from('gallery_images')",'supabase.rpc("mutation")','fetch("/write")']) {
+    assert.throws(()=>noWrites(page+'\n'+operation),assert.AssertionError,'must still reject '+operation);
+  }
+});
+
+test("gallery selection keeps the exact occurrence even when a public storage object is shared", () => {
+  const a = "10000000-0000-4000-8000-000000000001", b = "10000000-0000-4000-8000-000000000002";
+  const row = { id:a, image_url:"https://example.test/storage/v1/object/public/media/source.jpg", published:1,min_tier:0,
+    wp_gallery_id:29, ordering:4, description:"כיתוב ראשון",image_type:"gematria" };
+  const images=[row,{...row,id:b,wp_gallery_id:81,ordering:5,description:"כיתוב שני"}];
+  const items=buildGallerySourceContext({images});
+  assert.equal(items.length,1);
+  const page={wpGalleryId:81,scannedIds:[b],items};
+  const selected=resolvePublicGallerySelection(page,b);
+  assert.equal(selected.status,"ready");
+  assert.equal(selected.selection.galleryImageId,b);
+  assert.equal(selected.selection.sourceRef,`gallery_images:${b}`);
+  assert.equal(selected.selection.ordering,5);
+  assert.equal(selected.occurrence.legacyPlacement.originalCaption,"כיתוב שני");
+  assert.equal(selected.item,items[0],"no copied media or independent evidence identity");
+  assert.equal(resolvePublicGallerySelection(page,a).status,"not_in_loaded_window");
+  for(const bad of [{...page,wpGalleryId:29},{...page,items:[]},
+    {...page,items:[{...items[0],access:{scope:"private"}}]},
+    {...page,items:[items[0],items[0]]}]){
+    const rejected=resolvePublicGallerySelection(bad,b);
+    assert.equal(rejected.status,"unavailable");assert.equal(rejected.selection,null);
+  }
+  assert.equal(resolvePublicGallerySelection(null,b).status,"unavailable");
+});
+
+test("shared gallery pager is the same pilot implementation, bounded and advancing over withheld positions", async () => {
+  const {loadGalleryPage}=await import("./revelation1237Gate2029.js");
+  assert.equal(loadGalleryPage,loadPublicGallerySourcePage);
+  let calls=0;
+  const args={wpGalleryId:29,listGalleryImages:async()=>[{id:"b",ordering:2},{id:"a",ordering:1}],
+    fetchSourceContext:async()=>{calls++;return {items:[]};}};
+  const page=await loadPublicGallerySourcePage({...args,limit:1});
+  assert.deepEqual(page.scannedIds,["a"]);assert.equal(page.nextOffset,1);assert.equal(page.hasMore,true);
+  assert.equal(resolvePublicGallerySelection(page,"a").status,"unavailable");
+  assert.equal(resolvePublicGallerySelection(page,"b").status,"not_in_loaded_window");
+  for(const invalid of [{offset:-1},{limit:13},{limit:0},{wpGalleryId:"29"}])
+    await assert.rejects(loadPublicGallerySourcePage({...args,...invalid}),RangeError);
+  assert.equal(calls,1,"invalid windows do not reach any reader");
+});
 
 test("India pilot: all 13 public memberships + independently labelled public post figure; no graph inference", () => {
   const out = project("india-axis");
@@ -124,7 +234,7 @@ test("historical dates retain their basis; Lightbox does not relabel derived/upl
   assert.equal(image.created_at, null);
 });
 
-test("exact source reopen survives the existing context normalization; archive precision is explicit", () => {
+test("exact source reopen survives normalization and every gallery occurrence uses the native reader", () => {
   const item = project("hodu").items[0];
   const patch = topicSourceContextPatch(item, topicOf("hodu"));
   const context = normalizeResearchContext({ ...patch, returnTo: { href: item.reopen.topicHref, selection: patch.selection, dimensions: patch.dimensions } });
@@ -133,8 +243,9 @@ test("exact source reopen survives the existing context normalization; archive p
   assert.equal(context.returnTo.href, `/topic/hodu#topic-source-${railImage}`);
   assert.equal(context.dimensions.surfaceFocus.reference, item.sourceIdentity.ref);
   assert.equal(context.journey, null, "selection alone creates no Journey");
-  assert.deepEqual(item.reopen.galleries.map((g) => g.href), ["/archive?tab=galleries&gal=28", "/archive?tab=galleries&gal=54"]);
-  assert.ok(item.reopen.galleries.every((g) => g.routePrecision === "gallery_only" && g.selection.galleryImageId));
+  assert.deepEqual(item.reopen.galleries.map((g) => g.href), item.reopen.galleries.map(g => gallerySourceHref2029(g.selection.wpGalleryId, g.selection.galleryImageId)));
+  assert.deepEqual(item.reopen.galleries.map((g) => g.legacyHref), ["/archive?tab=galleries&gal=28", "/archive?tab=galleries&gal=54"]);
+  assert.ok(item.reopen.galleries.every((g) => g.routePrecision === "exact_gallery_image" && g.selection.galleryImageId));
   const orientation = topicSourceContextPatch(item, { slug: "hodu", title: "הודו", heroNumber: 21 });
   assert.equal(orientation.selection.entityType, "image");
   assert.equal(orientation.dimensions.surfaceFocus.type, "topic");

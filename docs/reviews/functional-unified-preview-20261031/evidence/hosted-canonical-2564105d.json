@@ -1,0 +1,326 @@
+{
+  "shaExpected": "2564105d2222647e4b96b88c717799cf03339acf",
+  "origin": "https://sod1820-git-gpt-2029-functional-unifi-18c668-sod1820-s-projects.vercel.app",
+  "readOnlyExecution": true,
+  "authenticatedUser": false,
+  "pages": [
+    {
+      "path": "/2029",
+      "url": "/2029",
+      "elapsedMs": 3523,
+      "root": true,
+      "title": "SOD1820 · העולם החדש · SOD1820",
+      "headings": [
+        "המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש",
+        "עדכונים אחרונים",
+        "התכנסויות בולטות",
+        "חיפוש בצופן התנ״כי",
+        "הצפנים האחרונים בתורה",
+        "הסרטים האחרונים",
+        "זרם המציאות",
+        "מה מגיע עכשיו"
+      ],
+      "dialogs": 0,
+      "horizontalOverflow": false,
+      "homeLeftRail": false
+    },
+    {
+      "path": "/login?returnTo=%2Fworld",
+      "url": "/login",
+      "elapsedMs": 2965,
+      "root": true,
+      "title": "כניסה לחשבון · SOD1820",
+      "headings": [
+        "טוב לראות אתכם כאן",
+        "כניסה לחשבון"
+      ],
+      "dialogs": 0,
+      "horizontalOverflow": false,
+      "homeLeftRail": false
+    },
+    {
+      "path": "/world",
+      "url": "/world",
+      "elapsedMs": 6356,
+      "root": true,
+      "title": "העולם · SOD1820 · SOD1820",
+      "headings": [
+        "העולם",
+        "לאן סיפור המטוס מוביל?",
+        "ציר הזמן",
+        "לאן ממשיכים מכאן?",
+        "תוכן ציבורי לפי נושא, מקור וסוג ידע",
+        "חדש בעולם",
+        "נושאים וחיבורים נבחרים"
+      ],
+      "dialogs": 0,
+      "horizontalOverflow": false,
+      "homeLeftRail": false
+    },
+    {
+      "path": "/code",
+      "url": "/code",
+      "elapsedMs": 3094,
+      "root": true,
+      "title": "ELS · SOD1820 · SOD1820",
+      "headings": [
+        "ELS",
+        "סיפור אחד נכנס. רק החיבורים החזקים נשארים.",
+        "חבילת הגילוי"
+      ],
+      "dialogs": 0,
+      "horizontalOverflow": false,
+      "homeLeftRail": false
+    },
+    {
+      "path": "/2029/journey",
+      "url": "/2029/journey",
+      "elapsedMs": 3035,
+      "root": true,
+      "title": "מסע החיים · SOD1820 · SOD1820",
+      "headings": [
+        "מסע החיים",
+        "מסע החיים הוא מרחב פרטי"
+      ],
+      "dialogs": 0,
+      "horizontalOverflow": false,
+      "homeLeftRail": false
+    },
+    {
+      "path": "/2029/posts",
+      "url": "/2029/posts",
+      "elapsedMs": 2959,
+      "root": true,
+      "title": "הפוסטים · SOD1820 2029 · SOD1820",
+      "headings": [
+        "פוסטים",
+        " לגלות דרך הסדרות",
+        "כל הפוסטים",
+        "המבחן האחרון לפני פריצת הדרך — למה העבר חוזר דווקא עכשיו? | מימד חמש",
+        "ציר הזמן הישן הושלם — אתה לא נכנס לפרק חדש, אלא לעצמי חדש | מימד חמש",
+        "בחירות 26 לכנסת ה־26 — ״הֲיִפָּלֵא מֵה׳ דָּבָר?״ | 27.10.2026",
+        "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות",
+        "הרב המקובל חושף מי ינצח בבחירות — ״בנימין זאב יטרף״ | הרב יוסף ביטון"
+      ],
+      "dialogs": 0,
+      "horizontalOverflow": false,
+      "homeLeftRail": false
+    },
+    {
+      "path": "/books",
+      "url": "/books",
+      "elapsedMs": 3018,
+      "root": true,
+      "title": "ספרים ומקורות · SOD1820 · SOD1820",
+      "headings": [
+        "ספרים ומקורות",
+        "ספרים לקריאה וללימוד",
+        "ספרי התנ״ך"
+      ],
+      "dialogs": 0,
+      "horizontalOverflow": false,
+      "homeLeftRail": false
+    },
+    {
+      "path": "/heichal",
+      "url": "/heichal",
+      "elapsedMs": 3112,
+      "root": true,
+      "title": "היכל · SOD1820 · SOD1820",
+      "headings": [
+        "היכל",
+        "היכל מתחיל משאלה,לא מקיר של כלים.",
+        "או התחל מפעולה"
+      ],
+      "dialogs": 0,
+      "horizontalOverflow": false,
+      "homeLeftRail": false
+    },
+    {
+      "path": "/2029/number/98",
+      "url": "/2029/number/98",
+      "elapsedMs": 3082,
+      "root": true,
+      "title": "98 · דף המספר · SOD1820",
+      "headings": [],
+      "dialogs": 0,
+      "horizontalOverflow": false,
+      "homeLeftRail": false
+    },
+    {
+      "path": "/community/chat",
+      "url": "/community/chat",
+      "elapsedMs": 3008,
+      "root": true,
+      "title": "הקהילה — סוד 1820 · SOD1820",
+      "headings": [
+        "שיחה (134.9K)כולל הצ׳אט הישן",
+        "כניסה לחשבון",
+        "ממשיכים לשוחח"
+      ],
+      "dialogs": 0,
+      "horizontalOverflow": false,
+      "homeLeftRail": false
+    },
+    {
+      "path": "/2029/me/public-page",
+      "url": "/2029/me/public-page",
+      "elapsedMs": 2924,
+      "root": true,
+      "title": "האזור האישי · SOD1820",
+      "headings": [
+        "הדף שלי",
+        "צריך להתחבר כדי לראות את האזור האישי"
+      ],
+      "dialogs": 0,
+      "horizontalOverflow": false,
+      "homeLeftRail": false
+    }
+  ],
+  "blocked": [
+    {
+      "path": "/rest/v1/gematria_words",
+      "method": "HEAD",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "method": "HEAD",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "method": "HEAD",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "method": "HEAD",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5078.jpg",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5047.jpg",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/media/_thumb/p/5033.jpg",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/derivatives/preview-v2.jpg",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/81b25305-dceb-4268-a225-8bba0ac7c64c/derivatives/preview.jpg",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "method": "HEAD",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "method": "HEAD",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "method": "HEAD",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/rest/v1/gematria_words",
+      "method": "HEAD",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/france-obadiah-cover-20261018/derivatives/preview.jpg",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/81b25305-dceb-4268-a225-8bba0ac7c64c/derivatives/preview.jpg",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5114-cover-20261012/thumb-fast-v1.jpg",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/gallery/sod1820/authors/baderech-lanetzach.gif",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/81b25305-dceb-4268-a225-8bba0ac7c64c/derivatives/preview.jpg",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/derivatives/preview-v2.jpg",
+      "method": "GET",
+      "origin": "https://linswmnnkjxvweumprav.supabase.co"
+    },
+    {
+      "path": "/vi/lkgixbvLOes/hqdefault.jpg",
+      "method": "GET",
+      "origin": "https://i.ytimg.com"
+    }
+  ],
+  "errors": [],
+  "identity": {
+    "sha": "2564105d2222647e4b96b88c717799cf03339acf",
+    "branch": "gpt/2029-functional-unified-preview-20261031",
+    "target": "preview",
+    "transport": "authenticated-preview-server-to-canonical-ai-analyze",
+    "model_trigger": "explicit-user-turn",
+    "requires_existing_account": false,
+    "product_writes": true,
+    "edge_deploy": false,
+    "matrix_jobs": "admin-explicit-cost-ack",
+    "product_write_scope": [
+      "own-person-family",
+      "own-research-state",
+      "own-private-hints-media",
+      "governed-community-actions",
+      "own-avatar",
+      "existing-verified-legacy-claim"
+    ],
+    "general_profile_writes": false,
+    "els_followup_server_contract": "requires-approved-shared-artifact",
+    "expected_server_sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f"
+  },
+  "capabilities": {
+    "status": 200,
+    "body": {
+      "target": "preview",
+      "serverIdentityAvailable": true,
+      "serverIdentityVerified": true,
+      "userAuthenticationRequired": true,
+      "production": false
+    }
+  },
+  "guestRaziel": {
+    "status": 401,
+    "body": {
+      "error": "authentication_required"
+    }
+  }
+}

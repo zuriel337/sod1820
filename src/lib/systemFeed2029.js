@@ -10,7 +10,8 @@ const DAY = 86400000;
 export function feedKindLabel(item) {
   if (item?.kind === "convergence") return "התכנסות";
   if (item?.kind === "finding") return "ממצא";
-  if (item?.kind === "source") return item.sourceKind === "group_message" ? "מקור · טרם נבדק" : "פוסט";
+  if (item?.kind === "source") return item.sourceKind === "group_message" ? "מקור · טרם נבדק"
+    : item.sourceKind === "channel_update" ? "עדכון ערוץ" : item.sourceKind === "gallery_update" ? "תמונה בזרם המציאות" : "פוסט";
   return "עדכון";
 }
 
@@ -45,13 +46,27 @@ export function feedRows(items = [], { now = Date.now(), seen = {}, strongIds = 
     isNew: isNewItem(item, now) && !seen[feedSeenKey(item)],
   }));
   // One kind must not drown the others (source-group messages arrive in bursts): cap each bucket by newest first.
-  const bucket = (row) => (row.kind === "source" ? (row.item.sourceKind === "group_message" ? "group" : "post") : row.kind);
+  // An item with an approved series identity is bucketed by series, so a series is represented even when the shared recent window is full.
+  const bucket = (row) => row.item?.seriesKey ? `series:${row.item.seriesKey}` : (row.kind === "source" ? (row.item.sourceKind === "group_message" ? "group" : row.item.sourceKind === "channel_update" ? `channel:${row.item.channel}` : row.item.sourceKind === "gallery_update" ? "gallery" : "post") : row.kind);
   const taken = {};
   const newestFirst = [...rows].sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || a.index - b.index);
   const kept = newestFirst.filter((row) => {
     const key = bucket(row); taken[key] = (taken[key] || 0) + 1;
-    return taken[key] <= (caps[key] ?? 2);
+    return taken[key] <= (caps[key] ?? (key.startsWith("series:") ? 12 : 2));
   });
   kept.sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || a.index - b.index);
   return kept.slice(0, limit);
+}
+
+// Dedupe actual source occurrences, never a number, wording or inferred topic.
+// A grouped source retains all its occurrences when its raw channel row also arrives.
+export function mergeSystemFeedItems(items = [], additional = []) {
+  const seen = new Set(), ids = new Set(), out = [];
+  for (const item of [...items, ...additional]) {
+    if (!item?.id || ids.has(item.id)) continue;
+    const refs = item.sourceRefs?.length ? item.sourceRefs : item.sourceRef ? [item.sourceRef] : [item.id];
+    if (refs.every(ref => seen.has(ref))) continue;
+    out.push(item);ids.add(item.id);refs.forEach(ref => seen.add(ref));
+  }
+  return out;
 }

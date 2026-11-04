@@ -1,0 +1,205 @@
+{
+  "baseCommit": "77d226d11594988266207d9054e791748e49895e",
+  "baselineRuntimeBuild": "5dece6da03a39dd791f56265343cf271856d070a",
+  "baselineRuntimeIdenticalToBase": true,
+  "pairs": 8,
+  "counterbalanced": true,
+  "workers": 1,
+  "sampling": "6500ms after hero visible; Chromium154,390/1440x900; no CPU/network throttling; local read-only transport, live public data; even pairs reverse visit order; not field/Production speed evidence",
+  "rows": [
+    {
+      "version": "before",
+      "width": 1440,
+      "repetition": 1,
+      "windowMs": 6500,
+      "cls": 0.07851539673353909,
+      "lcp": 1648,
+      "fcp": 304,
+      "overflow": false
+    },
+    {
+      "version": "after",
+      "width": 1440,
+      "repetition": 1,
+      "windowMs": 6500,
+      "cls": 0.027566724537037034,
+      "lcp": 728,
+      "fcp": 196,
+      "overflow": false
+    },
+    {
+      "version": "after",
+      "width": 1440,
+      "repetition": 2,
+      "windowMs": 6500,
+      "cls": 0.027566724537037034,
+      "lcp": 852,
+      "fcp": 280,
+      "overflow": false
+    },
+    {
+      "version": "before",
+      "width": 1440,
+      "repetition": 2,
+      "windowMs": 6500,
+      "cls": 0.07851539673353909,
+      "lcp": 1232,
+      "fcp": 204,
+      "overflow": false
+    },
+    {
+      "version": "before",
+      "width": 1440,
+      "repetition": 3,
+      "windowMs": 6500,
+      "cls": 0.07851539673353909,
+      "lcp": 1616,
+      "fcp": 288,
+      "overflow": false
+    },
+    {
+      "version": "after",
+      "width": 1440,
+      "repetition": 3,
+      "windowMs": 6500,
+      "cls": 0.027566724537037034,
+      "lcp": 720,
+      "fcp": 196,
+      "overflow": false
+    },
+    {
+      "version": "after",
+      "width": 1440,
+      "repetition": 4,
+      "windowMs": 6500,
+      "cls": 0.031044845250342932,
+      "lcp": 848,
+      "fcp": 300,
+      "overflow": false
+    },
+    {
+      "version": "before",
+      "width": 1440,
+      "repetition": 4,
+      "windowMs": 6500,
+      "cls": 0.07851539673353909,
+      "lcp": 1448,
+      "fcp": 236,
+      "overflow": false
+    },
+    {
+      "version": "before",
+      "width": 390,
+      "repetition": 1,
+      "windowMs": 6500,
+      "cls": 0.01719395061728395,
+      "lcp": 1844,
+      "fcp": 464,
+      "overflow": false
+    },
+    {
+      "version": "after",
+      "width": 390,
+      "repetition": 1,
+      "windowMs": 6500,
+      "cls": 0,
+      "lcp": 580,
+      "fcp": 204,
+      "overflow": false
+    },
+    {
+      "version": "after",
+      "width": 390,
+      "repetition": 2,
+      "windowMs": 6500,
+      "cls": 0,
+      "lcp": 740,
+      "fcp": 344,
+      "overflow": false
+    },
+    {
+      "version": "before",
+      "width": 390,
+      "repetition": 2,
+      "windowMs": 6500,
+      "cls": 0.011494425451092118,
+      "lcp": 1036,
+      "fcp": 200,
+      "overflow": false
+    },
+    {
+      "version": "before",
+      "width": 390,
+      "repetition": 3,
+      "windowMs": 6500,
+      "cls": 0.011494425451092118,
+      "lcp": 1092,
+      "fcp": 300,
+      "overflow": false
+    },
+    {
+      "version": "after",
+      "width": 390,
+      "repetition": 3,
+      "windowMs": 6500,
+      "cls": 0,
+      "lcp": 588,
+      "fcp": 220,
+      "overflow": false
+    },
+    {
+      "version": "after",
+      "width": 390,
+      "repetition": 4,
+      "windowMs": 6500,
+      "cls": 0,
+      "lcp": 660,
+      "fcp": 284,
+      "overflow": false
+    },
+    {
+      "version": "before",
+      "width": 390,
+      "repetition": 4,
+      "windowMs": 6500,
+      "cls": 0.011494425451092118,
+      "lcp": 1008,
+      "fcp": 208,
+      "overflow": false
+    }
+  ],
+  "summary": [
+    {
+      "width": 390,
+      "version": "before",
+      "n": 4,
+      "clsMax": 0.01719395061728395,
+      "fcpMedianMs": 254.0,
+      "lcpMedianMs": 1064.0
+    },
+    {
+      "width": 390,
+      "version": "after",
+      "n": 4,
+      "clsMax": 0,
+      "fcpMedianMs": 252.0,
+      "lcpMedianMs": 624.0
+    },
+    {
+      "width": 1440,
+      "version": "before",
+      "n": 4,
+      "clsMax": 0.07851539673353909,
+      "fcpMedianMs": 262.0,
+      "lcpMedianMs": 1532.0
+    },
+    {
+      "width": 1440,
+      "version": "after",
+      "n": 4,
+      "clsMax": 0.031044845250342932,
+      "fcpMedianMs": 238.0,
+      "lcpMedianMs": 788.0
+    }
+  ]
+}

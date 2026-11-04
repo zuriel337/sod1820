@@ -5,6 +5,12 @@ import { resolveThumb, isVideoUrl } from "./thumbResolve.js"; // Thumbnail Valid
 // כתובת האתר הקנונית (דומיין המותג). לשנות כאן אם הדומיין משתנה.
 export const SITE_URL = "https://sod1820.co.il";
 export const SITE_NAME = "SOD1820";
+// Approved homepage identity, projected by the existing client and OG owners.
+export const PUBLIC_HOME_SEO = Object.freeze({
+  fullTitle: "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
+  description: "מחקר חי של מספרים, גימטריה, צפנים בתורה, קוד המציאות, מקורות ומסעות גילוי — מערכת SOD1820 מחברת בין מספרים, מילים, פסוקים, אנשים ואירועים.",
+  path: "/",
+});
 export const DEFAULT_DESC =
   "אתר כי לה' המלוכה – רמזי הגאולה הגדול בעולם. 14 שנות מחקר, תוכנת דילוגי אותיות, מחשבון גימטריה, עץ המספרים, מאגר חי של צפנים, גילויים ותובנות וכלים לקריאת המציאות בשפת המספרים.";
 // תמונת ברירת מחדל לשיתוף — PNG (לא SVG: רשתות חברתיות וגוגל לא מציגות SVG).
@@ -75,7 +81,8 @@ export function applySeo(o = {}) {
 
   document.title = title;
   upsertMeta("name", "description", description);
-  upsertMeta("name", "robots", o.noindex ? "noindex, nofollow" : "index, follow");
+  const protectedPreview = import.meta.env?.VITE_INTEGRATED_PREVIEW === "true";
+  upsertMeta("name", "robots", (o.noindex || protectedPreview) ? "noindex, nofollow" : "index, follow");
   upsertLink("canonical", canonical);
 
   upsertMeta("property", "og:site_name", SITE_NAME);

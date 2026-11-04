@@ -1,0 +1,299 @@
+✔ Production target needs explicit staged mode and remains non-cutover (1.175141ms)
+✔ staged admission rejects wrong SHA, dirty sources, copied deployment, main and missing platform identity (0.635376ms)
+✔ staged nested-config materialization permits no additional change (0.507482ms)
+✔ compiler rejects combined/duplicate/missing-pin staged commands before build (560.066584ms)
+✔ staged adapters accept only their immutable host and stay noindex before public source reads (199.300437ms)
+✔ public-capable candidate needs exact real-shaped Production identity but does not authorize traffic assignment (0.977642ms)
+✔ missing, wrong, copied, Preview, main, foreign, dirty and unpinned identities fail closed (0.696273ms)
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    src/lib/publicReadingRelease2029.js:6:5:
+      6 │   && import.meta.env?.VITE_PUBLIC_READING_RELEASE === PUBLIC_READIN...
+        ╵      ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    public-reading-deploy/api/public-document.js:41:67:
+      41 │ ...File(new URL("../.generated/2029.html", import.meta.url), "utf8"),
+         ╵                                            ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+✖ Preview/stage receipts cannot select public serving and default remains dormant (85.499606ms)
+✔ public build keeps the one exact nested-config exception; it cannot authorize unrelated dirty edits (1.391674ms)
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    public-reading-deploy/api/public-document.js:41:67:
+      41 │ ...File(new URL("../.generated/2029.html", import.meta.url), "utf8"),
+         ╵                                            ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    src/lib/publicReadingRelease2029.js:6:5:
+      6 │   && import.meta.env?.VITE_PUBLIC_READING_RELEASE === PUBLIC_READIN...
+        ╵      ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+✖ canonical documents retain owner metadata; immutable staging is always noindex and no-store (33.319963ms)
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    public-reading-deploy/api/public-document.js:41:67:
+      41 │ ...File(new URL("../.generated/2029.html", import.meta.url), "utf8"),
+         ╵                                            ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    src/lib/publicReadingRelease2029.js:6:5:
+      6 │   && import.meta.env?.VITE_PUBLIC_READING_RELEASE === PUBLIC_READIN...
+        ╵      ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+✖ WWW redirects preserve raw encoded path and repeated query; old addresses and original path selector remain exact (21.864322ms)
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    public-reading-deploy/api/public-document.js:41:67:
+      41 │ ...File(new URL("../.generated/2029.html", import.meta.url), "utf8"),
+         ╵                                            ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    src/lib/publicReadingRelease2029.js:6:5:
+      6 │   && import.meta.env?.VITE_PUBLIC_READING_RELEASE === PUBLIC_READIN...
+        ╵      ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+✖ genuine missing, closed, private, non-indexable and failed source states never become indexable successes (25.495581ms)
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    public-reading-deploy/api/public-document.js:41:67:
+      41 │ ...File(new URL("../.generated/2029.html", import.meta.url), "utf8"),
+         ╵                                            ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    src/lib/publicReadingRelease2029.js:6:5:
+      6 │   && import.meta.env?.VITE_PUBLIC_READING_RELEASE === PUBLIC_READIN...
+        ╵      ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+✖ robots and XML allow canonical crawling while immutable stage stays private from indexing (24.331879ms)
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    public-reading-deploy/api/public-document.js:41:67:
+      41 │ ...File(new URL("../.generated/2029.html", import.meta.url), "utf8"),
+         ╵                                            ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    src/lib/publicReadingRelease2029.js:6:5:
+      6 │   && import.meta.env?.VITE_PUBLIC_READING_RELEASE === PUBLIC_READIN...
+        ╵      ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+✖ foreign hosts, path spoofing and unsupported methods reject before public readers (30.276176ms)
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    public-reading-deploy/api/public-document.js:41:67:
+      41 │ ...File(new URL("../.generated/2029.html", import.meta.url), "utf8"),
+         ╵                                            ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    src/lib/publicReadingRelease2029.js:6:5:
+      6 │   && import.meta.env?.VITE_PUBLIC_READING_RELEASE === PUBLIC_READIN...
+        ╵      ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+✖ public deployment proof never replaces caller JWT or private authorization (20.207249ms)
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    public-reading-deploy/api/public-document.js:41:67:
+      41 │ ...File(new URL("../.generated/2029.html", import.meta.url), "utf8"),
+         ╵                                            ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    src/lib/publicReadingRelease2029.js:6:5:
+      6 │   && import.meta.env?.VITE_PUBLIC_READING_RELEASE === PUBLIC_READIN...
+        ╵      ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+✖ Edge share renderer admits only exact allowed public candidate hosts (21.727182ms)
+✔ new build mode rejects mixed, duplicate and missing pins before any compiler or platform operation (548.710405ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 9
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 899.609543
+
+✖ failing tests:
+
+test at test/public-reading-public-candidate.test.mjs:53:1
+✖ Preview/stage receipts cannot select public serving and default remains dormant (85.499606ms)
+  evalmachine.<anonymous>:10
+      throw Error('Dynamic require of "' + x + '" is not supported');
+      ^
+
+  Error: Dynamic require of "node:fs/promises" is not supported
+      at evalmachine.<anonymous>:10:11
+      at evalmachine.<anonymous>:106:25
+      at evalmachine.<anonymous>:3569:3
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at context (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:34:27)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:56:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/public-reading-public-candidate.test.mjs:64:1
+✖ canonical documents retain owner metadata; immutable staging is always noindex and no-store (33.319963ms)
+  evalmachine.<anonymous>:10
+      throw Error('Dynamic require of "' + x + '" is not supported');
+      ^
+
+  Error: Dynamic require of "node:fs/promises" is not supported
+      at evalmachine.<anonymous>:10:11
+      at evalmachine.<anonymous>:106:25
+      at evalmachine.<anonymous>:3569:3
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at context (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:34:27)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:65:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/public-reading-public-candidate.test.mjs:69:1
+✖ WWW redirects preserve raw encoded path and repeated query; old addresses and original path selector remain exact (21.864322ms)
+  evalmachine.<anonymous>:10
+      throw Error('Dynamic require of "' + x + '" is not supported');
+      ^
+
+  Error: Dynamic require of "node:fs/promises" is not supported
+      at evalmachine.<anonymous>:10:11
+      at evalmachine.<anonymous>:106:25
+      at evalmachine.<anonymous>:3569:3
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at context (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:34:27)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:70:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/public-reading-public-candidate.test.mjs:73:1
+✖ genuine missing, closed, private, non-indexable and failed source states never become indexable successes (25.495581ms)
+  evalmachine.<anonymous>:10
+      throw Error('Dynamic require of "' + x + '" is not supported');
+      ^
+
+  Error: Dynamic require of "node:fs/promises" is not supported
+      at evalmachine.<anonymous>:10:11
+      at evalmachine.<anonymous>:106:25
+      at evalmachine.<anonymous>:3569:3
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at context (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:34:27)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:74:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/public-reading-public-candidate.test.mjs:80:1
+✖ robots and XML allow canonical crawling while immutable stage stays private from indexing (24.331879ms)
+  evalmachine.<anonymous>:10
+      throw Error('Dynamic require of "' + x + '" is not supported');
+      ^
+
+  Error: Dynamic require of "node:fs/promises" is not supported
+      at evalmachine.<anonymous>:10:11
+      at evalmachine.<anonymous>:106:25
+      at evalmachine.<anonymous>:3569:3
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at context (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:34:27)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:81:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/public-reading-public-candidate.test.mjs:87:1
+✖ foreign hosts, path spoofing and unsupported methods reject before public readers (30.276176ms)
+  evalmachine.<anonymous>:10
+      throw Error('Dynamic require of "' + x + '" is not supported');
+      ^
+
+  Error: Dynamic require of "node:fs/promises" is not supported
+      at evalmachine.<anonymous>:10:11
+      at evalmachine.<anonymous>:106:25
+      at evalmachine.<anonymous>:3569:3
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at context (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:34:27)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:88:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/public-reading-public-candidate.test.mjs:93:1
+✖ public deployment proof never replaces caller JWT or private authorization (20.207249ms)
+  evalmachine.<anonymous>:10
+      throw Error('Dynamic require of "' + x + '" is not supported');
+      ^
+
+  Error: Dynamic require of "node:fs/promises" is not supported
+      at evalmachine.<anonymous>:10:11
+      at evalmachine.<anonymous>:106:25
+      at evalmachine.<anonymous>:3569:3
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at context (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:34:27)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:94:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at test/public-reading-public-candidate.test.mjs:98:1
+✖ Edge share renderer admits only exact allowed public candidate hosts (21.727182ms)
+  evalmachine.<anonymous>:10
+      throw Error('Dynamic require of "' + x + '" is not supported');
+      ^
+
+  Error: Dynamic require of "node:fs/promises" is not supported
+      at evalmachine.<anonymous>:10:11
+      at evalmachine.<anonymous>:106:25
+      at evalmachine.<anonymous>:3569:3
+      at Script.runInContext (node:vm:149:12)
+      at Object.runInContext (node:vm:301:6)
+      at context (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:34:27)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///tmp/public-production-candidate-fixture/test/public-reading-public-candidate.test.mjs:99:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)

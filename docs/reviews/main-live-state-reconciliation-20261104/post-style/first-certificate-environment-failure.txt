@@ -1,0 +1,7 @@
+page.goto: net::ERR_CERT_VERIFIER_CHANGED at https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula
+Call log:
+[2m  - navigating to "https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula", waiting until "domcontentloaded"[22m
+
+    at /tmp/sod-post-restored-css-audit.cjs:6:439 {
+  name: 'Error'
+}

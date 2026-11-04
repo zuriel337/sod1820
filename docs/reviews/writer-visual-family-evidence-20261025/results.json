@@ -1,0 +1,191 @@
+{
+  "cases": [
+    {
+      "page": "tzvi",
+      "width": 320,
+      "theme": "light",
+      "messages": 1,
+      "body": 18,
+      "meta": 14,
+      "opened": true
+    },
+    {
+      "page": "tzvi",
+      "width": 320,
+      "theme": "parchment"
+    },
+    {
+      "page": "tzvi",
+      "width": 320,
+      "theme": "dark"
+    },
+    {
+      "page": "tzvi",
+      "width": 390,
+      "theme": "light",
+      "messages": 1,
+      "body": 18,
+      "meta": 14
+    },
+    {
+      "page": "tzvi",
+      "width": 390,
+      "theme": "parchment",
+      "messages": 1,
+      "body": 18,
+      "meta": 14,
+      "opened": true
+    },
+    {
+      "page": "tzvi",
+      "width": 390,
+      "theme": "dark",
+      "messages": 1,
+      "body": 18,
+      "meta": 14
+    },
+    {
+      "page": "tzvi",
+      "width": 1440,
+      "theme": "light"
+    },
+    {
+      "page": "tzvi",
+      "width": 1440,
+      "theme": "parchment"
+    },
+    {
+      "page": "tzvi",
+      "width": 1440,
+      "theme": "dark",
+      "messages": 1,
+      "body": 18,
+      "meta": 14,
+      "opened": true
+    },
+    {
+      "page": "yaniv",
+      "width": 320,
+      "theme": "light"
+    },
+    {
+      "page": "yaniv",
+      "width": 320,
+      "theme": "parchment",
+      "messages": 0,
+      "opened": true
+    },
+    {
+      "page": "yaniv",
+      "width": 320,
+      "theme": "dark"
+    },
+    {
+      "page": "yaniv",
+      "width": 390,
+      "theme": "light",
+      "messages": 0
+    },
+    {
+      "page": "yaniv",
+      "width": 390,
+      "theme": "parchment",
+      "messages": 0
+    },
+    {
+      "page": "yaniv",
+      "width": 390,
+      "theme": "dark",
+      "messages": 0,
+      "opened": true
+    },
+    {
+      "page": "yaniv",
+      "width": 1440,
+      "theme": "light",
+      "messages": 0,
+      "opened": true
+    },
+    {
+      "page": "yaniv",
+      "width": 1440,
+      "theme": "parchment"
+    },
+    {
+      "page": "yaniv",
+      "width": 1440,
+      "theme": "dark"
+    },
+    {
+      "page": "emily",
+      "width": 320,
+      "theme": "light"
+    },
+    {
+      "page": "emily",
+      "width": 320,
+      "theme": "parchment"
+    },
+    {
+      "page": "emily",
+      "width": 320,
+      "theme": "dark",
+      "messages": 1,
+      "body": 18,
+      "meta": 14,
+      "opened": true
+    },
+    {
+      "page": "emily",
+      "width": 390,
+      "theme": "light",
+      "messages": 1,
+      "body": 18,
+      "meta": 14,
+      "opened": true
+    },
+    {
+      "page": "emily",
+      "width": 390,
+      "theme": "parchment",
+      "messages": 1,
+      "body": 18,
+      "meta": 14
+    },
+    {
+      "page": "emily",
+      "width": 390,
+      "theme": "dark",
+      "messages": 1,
+      "body": 18,
+      "meta": 14
+    },
+    {
+      "page": "emily",
+      "width": 1440,
+      "theme": "light"
+    },
+    {
+      "page": "emily",
+      "width": 1440,
+      "theme": "parchment",
+      "messages": 1,
+      "body": 18,
+      "meta": 14,
+      "opened": true
+    },
+    {
+      "page": "emily",
+      "width": 1440,
+      "theme": "dark"
+    }
+  ],
+  "errors": [],
+  "unexpected_writes": [],
+  "blocked_telemetry": {
+    "link_identity": 42,
+    "track_visit": 62,
+    "ingest_event": 62
+  },
+  "mode": "real public data"
+}

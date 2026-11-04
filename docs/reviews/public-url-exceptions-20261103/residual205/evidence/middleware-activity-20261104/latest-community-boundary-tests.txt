@@ -1,0 +1,41 @@
+✔ device cursors preserve database microseconds and advance seen monotonically while allowing backscroll (4.709579ms)
+✔ cache is bounded, expires, ignores forged ancestry and separates account/guest scopes (0.902639ms)
+✔ public counts demand a complete valid projection and propagate outages instead of manufacturing zero (2.021131ms)
+✔ the owner-only reader includes imported posts only through a canonical account edge (1.661453ms)
+✔ Replies to me describes both community and research and builds an exact community return (1.1713ms)
+✔ the community route uses the existing public readers for an exact old thread (2.746686ms)
+✔ worker policy changed and exact callback alone consumes tab-bound PKCE (1.53247ms)
+✔ Google and Facebook share verified exact callback and reject unapproved Preview origins (1.41837ms)
+✔ emitted account transport admits existing login, new signup, verification and exact PKCE exchange (60.867784ms)
+✔ new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants (12.49472ms)
+✔ historical Preview Auth remains password-only unless explicitly opted in by this worker (0.860926ms)
+✔ explicit admin actions verify canonical JWT and exact own role before forwarding original request (10.574966ms)
+✔ anonymous/member/spoofed identity, stale role, JWT failure and transport failure cannot invoke action (11.54798ms)
+✔ no private role cache survives revocation or replacement; denied action never reaches endpoint (0.937371ms)
+✔ financial, shared flag, mail delivery and foreign writes remain unavailable even to admin (12.59192ms)
+✔ signed private media TUS requires verified admin JWT on every chunk; signature alone grants nothing (7.178829ms)
+✔ same-origin private adapter preserves only same-origin protection cookies; it independently verifies the current server principal (4.886393ms)
+✔ server private wrapper checks deployment, host, method and verified admin independently of worker (2.163443ms)
+✔ prepared full-account helper retains actual SDK PKCE shapes and exact callbacks, separately from current emitted restriction (30.820604ms)
+✔ existing publishable fallback is used only for verification; original target bearer is never replaced (5.812608ms)
+✔ public-reading reuses existing Auth without acquisition, while untrusted callback and metadata still fail closed (3.949493ms)
+✔ emitted OAuth navigation requires exact callback, genuine PKCE shape and bounded provider scopes before browser navigation (4.319926ms)
+✔ actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT (27.369031ms)
+✔ restored native Community publishes for a verified ordinary member through the existing RPC (2.299546ms)
+✔ restored Community rejects guests, expired sessions, forged actors and malformed publication (9.991333ms)
+✔ reply and reaction targets require the canonical anonymous public context (10.432012ms)
+✔ original OpenWeb API and authenticated existing SSO are available without opening foreign writes or model access (11.184056ms)
+✔ published CSP admits the original OpenWeb service while retaining object/frame/base restrictions (1.355426ms)
+✔ unregistered repeatable likes use public context and the anonymous counter path on every press (4.340878ms)
+✔ guest repeatable mode cannot broaden emoji, body shape or nonpublic targets (2.038286ms)
+✔ explicit verified-account Community thread follow preserves the existing private and channel ceiling (12.552661ms)
+✔ reading continuation accepts only bounded public cursors and strips account credentials (9.090827ms)
+✔ replies to me requires canonical account verification and its exact private pagination contract (5.210597ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 414.008282

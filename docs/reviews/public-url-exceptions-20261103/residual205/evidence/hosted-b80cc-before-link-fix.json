@@ -1,0 +1,245 @@
+{
+  "kind": "residual205-books-hosted-anonymous-acceptance",
+  "sourceSha": "b80cc947504a9e924363f2838727a584a8a82593",
+  "origin": "https://sod1820-q449kgt0j-sod1820-s-projects.vercel.app",
+  "realSW": true,
+  "syntheticData": false,
+  "liveWrites": 0,
+  "realAccount": "separate user observation on b80; not tested by this runner",
+  "cases": [
+    {
+      "name": "exact artifact and existing account entry (anonymous only)",
+      "width": 390,
+      "passed": true,
+      "artifact": {
+        "sourceSha": "b80cc947504a9e924363f2838727a584a8a82593",
+        "productionReady": false
+      }
+    },
+    {
+      "name": "seven admitted book cards retain preparation meters; only Ahavat open",
+      "width": 390,
+      "passed": true,
+      "meters": [
+        {
+          "label": "התקדמות הכנת אהבת תורה",
+          "value": 59
+        },
+        {
+          "label": "התקדמות הכנת דעת תבונות",
+          "value": 60
+        },
+        {
+          "label": "התקדמות הכנת יצחק בנטוב — סיור קצר בתודעה גבוהה",
+          "value": 40
+        },
+        {
+          "label": "התקדמות הכנת ספר הבהיר",
+          "value": 56
+        },
+        {
+          "label": "התקדמות הכנת ספר הפליאה",
+          "value": 45
+        },
+        {
+          "label": "התקדמות הכנת ספר יצירה",
+          "value": 54
+        },
+        {
+          "label": "התקדמות הכנת ספר רזיאל המלאך",
+          "value": 40
+        }
+      ]
+    },
+    {
+      "name": "public Ahavat prototype, source pixels and exact filtered library return",
+      "width": 390,
+      "passed": true,
+      "source": {
+        "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+        "page": 6,
+        "pages": 99,
+        "width": 307,
+        "height": 394,
+        "pixel": [
+          207,
+          207,
+          207,
+          255
+        ]
+      },
+      "returnTo": "/books?q=%D7%AA%D7%95%D7%A8%D7%94#library-list"
+    },
+    {
+      "name": "public source mode and 1820 return, no private control route",
+      "width": 390,
+      "passed": true,
+      "sourceHref": "/book/ahavat-torah?dataset=DS-01&page=6&returnTo=%2Fbooks&reader=source",
+      "numberHref": "/number/1820?returnTo=%2Fbook%2Fahavat-torah%3Fdataset%3DDS-01%26page%3D6%26returnTo%3D%252Fbooks%23ahavat29-selection"
+    },
+    {
+      "name": "other unfinished book direct link does not mount a PDF reader",
+      "width": 390,
+      "passed": true,
+      "preparation": "סגור — בהכנה\n60% השלמה מתועדת\nמה הושלם ומה נשאר?"
+    },
+    {
+      "name": "exact external continuation /86AND26/videos/vb.103870716369907/801439149946390/",
+      "width": 390,
+      "passed": false,
+      "error": "expect(locator).toHaveAttribute(expected) failed\n\nLocator: getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\nExpected: \"https://www.facebook.com/86AND26/videos/801439149946390/\"\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.have.attribute.value\" with timeout 30000ms\n  - waiting for getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\n",
+      "path": "/86AND26/videos/vb.103870716369907/801439149946390",
+      "body": "סרטון המקור בפייסבוק\n⌕\n☾\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nסוד 1820\nסרטון המקור בפייסבוק\n\nהקישור הזה נשמר מתוך פרסום ישן. הסרטון נמצא באתר המקור; זמינותו שם תלויה בפרסום ובהרשאות של פייסבוק.\n\nכאן\nבבנייה\n123\nגימטריה\nבבנייה\nעכשיו\n1\nשיתוף"
+    },
+    {
+      "name": "exact external continuation /k1820/videos/839307259461807/",
+      "width": 390,
+      "passed": false,
+      "error": "expect(locator).toHaveAttribute(expected) failed\n\nLocator: getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\nExpected: \"https://www.facebook.com/k1820/videos/839307259461807/\"\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.have.attribute.value\" with timeout 30000ms\n  - waiting for getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\n",
+      "path": "/k1820/videos/839307259461807",
+      "body": "סרטון המקור בפייסבוק\n⌕\n☾\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nסוד 1820\nסרטון המקור בפייסבוק\n\nהקישור הזה נשמר מתוך פרסום ישן. הסרטון נמצא באתר המקור; זמינותו שם תלויה בפרסום ובהרשאות של פייסבוק.\n\nכאן\nבבנייה\n123\nגימטריה\nבבנייה\nעכשיו\n1\nשיתוף"
+    },
+    {
+      "name": "exact external continuation /k1820/videos/vb.617996338259568/839307259461807/",
+      "width": 390,
+      "passed": false,
+      "error": "expect(locator).toHaveAttribute(expected) failed\n\nLocator: getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\nExpected: \"https://www.facebook.com/k1820/videos/839307259461807/\"\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.have.attribute.value\" with timeout 30000ms\n  - waiting for getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\n",
+      "path": "/k1820/videos/vb.617996338259568/839307259461807",
+      "body": "סרטון המקור בפייסבוק\n⌕\n☾\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nסוד 1820\nסרטון המקור בפייסבוק\n\nהקישור הזה נשמר מתוך פרסום ישן. הסרטון נמצא באתר המקור; זמינותו שם תלויה בפרסום ובהרשאות של פייסבוק.\n\nכאן\nבבנייה\n123\nגימטריה\nבבנייה\nעכשיו\n1\nשיתוף"
+    },
+    {
+      "name": "anonymous personal page remains private",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "exact artifact and existing account entry (anonymous only)",
+      "width": 1440,
+      "passed": true,
+      "artifact": {
+        "sourceSha": "b80cc947504a9e924363f2838727a584a8a82593",
+        "productionReady": false
+      }
+    },
+    {
+      "name": "seven admitted book cards retain preparation meters; only Ahavat open",
+      "width": 1440,
+      "passed": true,
+      "meters": [
+        {
+          "label": "התקדמות הכנת אהבת תורה",
+          "value": 59
+        },
+        {
+          "label": "התקדמות הכנת דעת תבונות",
+          "value": 60
+        },
+        {
+          "label": "התקדמות הכנת יצחק בנטוב — סיור קצר בתודעה גבוהה",
+          "value": 40
+        },
+        {
+          "label": "התקדמות הכנת ספר הבהיר",
+          "value": 56
+        },
+        {
+          "label": "התקדמות הכנת ספר הפליאה",
+          "value": 45
+        },
+        {
+          "label": "התקדמות הכנת ספר יצירה",
+          "value": 54
+        },
+        {
+          "label": "התקדמות הכנת ספר רזיאל המלאך",
+          "value": 40
+        }
+      ]
+    },
+    {
+      "name": "public Ahavat prototype, source pixels and exact filtered library return",
+      "width": 1440,
+      "passed": true,
+      "source": {
+        "sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+        "page": 6,
+        "pages": 99,
+        "width": 562,
+        "height": 721,
+        "pixel": [
+          255,
+          255,
+          255,
+          255
+        ]
+      },
+      "returnTo": "/books?q=%D7%AA%D7%95%D7%A8%D7%94#library-list"
+    },
+    {
+      "name": "public source mode and 1820 return, no private control route",
+      "width": 1440,
+      "passed": true,
+      "sourceHref": "/book/ahavat-torah?dataset=DS-01&page=6&returnTo=%2Fbooks&reader=source",
+      "numberHref": "/number/1820?returnTo=%2Fbook%2Fahavat-torah%3Fdataset%3DDS-01%26page%3D6%26returnTo%3D%252Fbooks%23ahavat29-selection"
+    },
+    {
+      "name": "other unfinished book direct link does not mount a PDF reader",
+      "width": 1440,
+      "passed": true,
+      "preparation": "סגור — בהכנה\n60% השלמה מתועדת\nמה הושלם ומה נשאר?"
+    },
+    {
+      "name": "exact external continuation /86AND26/videos/vb.103870716369907/801439149946390/",
+      "width": 1440,
+      "passed": false,
+      "error": "expect(locator).toHaveAttribute(expected) failed\n\nLocator: getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\nExpected: \"https://www.facebook.com/86AND26/videos/801439149946390/\"\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.have.attribute.value\" with timeout 30000ms\n  - waiting for getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\n",
+      "path": "/86AND26/videos/vb.103870716369907/801439149946390",
+      "body": "סוד 1820\nכי לה׳ המלוכה\n123\n›\nSOD1820\n/\nסרטון המקור בפייסבוק\n⌕\nחיפוש\n⌘K\n☀\nיום\n▤\nקלף\n☾\nלילה\nהתחברות\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nסוד 1820\nסרטון המקור בפייסבוק\n\nהקישור הזה נשמר מתוך פרסום ישן. הסרטון נמצא באתר המקור; זמינותו שם תלויה בפרסום ובהרשאות של פייסבוק.\n\nכאן\nבבנייה\n123\nגימטריה\nבבנייה\nעכשיו\n1\nשיתוף"
+    },
+    {
+      "name": "exact external continuation /k1820/videos/839307259461807/",
+      "width": 1440,
+      "passed": false,
+      "error": "expect(locator).toHaveAttribute(expected) failed\n\nLocator: getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\nExpected: \"https://www.facebook.com/k1820/videos/839307259461807/\"\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.have.attribute.value\" with timeout 30000ms\n  - waiting for getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\n",
+      "path": "/k1820/videos/839307259461807",
+      "body": "סוד 1820\nכי לה׳ המלוכה\n123\n›\nSOD1820\n/\nסרטון המקור בפייסבוק\n⌕\nחיפוש\n⌘K\n☀\nיום\n▤\nקלף\n☾\nלילה\nהתחברות\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nסוד 1820\nסרטון המקור בפייסבוק\n\nהקישור הזה נשמר מתוך פרסום ישן. הסרטון נמצא באתר המקור; זמינותו שם תלויה בפרסום ובהרשאות של פייסבוק.\n\nכאן\nבבנייה\n123\nגימטריה\nבבנייה\nעכשיו\n1\nשיתוף"
+    },
+    {
+      "name": "exact external continuation /k1820/videos/vb.617996338259568/839307259461807/",
+      "width": 1440,
+      "passed": false,
+      "error": "expect(locator).toHaveAttribute(expected) failed\n\nLocator: getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\nExpected: \"https://www.facebook.com/k1820/videos/839307259461807/\"\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.have.attribute.value\" with timeout 30000ms\n  - waiting for getByRole('link', { name: 'לסרטון באתר המקור', exact: true })\n",
+      "path": "/k1820/videos/vb.617996338259568/839307259461807",
+      "body": "סוד 1820\nכי לה׳ המלוכה\n123\n›\nSOD1820\n/\nסרטון המקור בפייסבוק\n⌕\nחיפוש\n⌘K\n☀\nיום\n▤\nקלף\n☾\nלילה\nהתחברות\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nסוד 1820\nסרטון המקור בפייסבוק\n\nהקישור הזה נשמר מתוך פרסום ישן. הסרטון נמצא באתר המקור; זמינותו שם תלויה בפרסום ובהרשאות של פייסבוק.\n\nכאן\nבבנייה\n123\nגימטריה\nבבנייה\nעכשיו\n1\nשיתוף"
+    },
+    {
+      "name": "anonymous personal page remains private",
+      "width": 1440,
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "denied": [
+    {
+      "width": 390,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/world_group_source_arrivals_v2"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/world_group_source_arrivals_v2"
+        }
+      ]
+    }
+  ],
+  "finishedAt": "2026-11-03T14:34:25.667Z",
+  "passed": 12,
+  "failed": 6
+}

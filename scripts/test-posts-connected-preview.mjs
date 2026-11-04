@@ -25,9 +25,9 @@ try {
     const cards=page.locator('[data-experience-capability="post-index-card"]');
     await cards.first().waitFor();
     assert.ok(await cards.count()>1);
-    assert.ok(await page.locator('.sod29-post-index-meta').filter({hasText:'עודכן'}).count()>0);
+    assert.ok(await page.locator('.sod29-library-post-meta').filter({hasText:'עודכן'}).count()>0);
     assert.equal(await page.getByText('מומלץ',{exact:true}).count(),0);
-    const election=page.locator('.sod29-post-index-card-link[href="/post/sharshar-elections-redemption-hints-draft"]');
+    const election=page.locator('.sod29-library-post-card-link[href="/post/sharshar-elections-redemption-hints-draft"]');
     await election.waitFor();
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false);
     await page.screenshot({path:`${out}/posts-${width}.png`});

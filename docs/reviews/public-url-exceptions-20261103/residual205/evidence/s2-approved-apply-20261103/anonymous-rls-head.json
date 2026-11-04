@@ -1,0 +1,26 @@
+{
+  "kind": "actual-anonymous-rest-rls-head-only",
+  "liveProductWrites": 0,
+  "privateBodiesRead": 0,
+  "serviceRoleUsed": false,
+  "cases": [
+    {
+      "name": "drafts",
+      "status": 200,
+      "count": 0,
+      "passed": true,
+      "method": "HEAD",
+      "rowBodiesTransferred": 0
+    },
+    {
+      "name": "public forum",
+      "status": 200,
+      "count": 3,
+      "passed": true,
+      "method": "HEAD",
+      "rowBodiesTransferred": 0
+    }
+  ],
+  "passed": 2,
+  "failed": 0
+}

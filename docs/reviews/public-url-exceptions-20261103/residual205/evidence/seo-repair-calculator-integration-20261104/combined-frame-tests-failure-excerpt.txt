@@ -1,0 +1,55 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /מספר · פתח חלונית מספר/. Input:
+
+'import NavigationIcon2029 from "./NavigationIcon2029.jsx";\n' +
+  'import { createPortal } from "react-dom";\n' +
+  'import React, {\n' +
+  '  createContext,\n' +
+  '  useCallback,\n' +
+  '  useContext,\n' +
+  '  useEffect,\n' +
+  '  useId,\n' +
+  '  useMemo,\n' +
+  '  useRef,\n' +
+  '  useState,\n' +
+  '} from "react";\n' +
+  'import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";\n' +
+  'import { PaletteProvider, use2029Palette } from "../../lib/palette.js";\n' +
+  'import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";\n' +
+  'import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";\n' +
+  'import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2
+[excerpt; original retained in execution workspace]
+dex='-1'])",\n` +
+    '].join(",");\n' +
+    '\n' +
+    'function activeClass({ isActive }) {\n' +
+    '  return `sod29-nav-link${isActive ? " active" : ""}`;\n' +
+    '}\n' +
+    '\n' +
+    'function directionForLocale(locale) {\n' +
+    '  return /^(he|ar|fa|ur)(-|$)/i.test(locale || "he") ? "rtl" : "ltr";\n' +
+    '}\n' +
+    '\n' +
+    'function normalizeTarget(input, source = "context") {\n' +
+    '  if (!input) return null;\n' +
+    '  const type = input.type || input.entityType || input.kind || null;\n' +
+    '  const rawId = input.id ?? input.entityId ?? input.ref ?? input.locator ?? input.label ?? null;\n' +
+    '  if (rawId == null || !type) return null;\n' +
+    '  const id = String(rawId).trim();\n' +
+    '  if (!id) return null;\n' +
+    '  const resultValue = researchContextNumber(input.resultValue ?? input.number);\n' +
+    '  const number = researchContextNumber(input.number);\n' +
+    '  return {\n' +
+    '    id,\n' +
+    '    type: String(type),\n' +
+    '    label: String(input.label || input.title || id),\n' +
+    '    locator: input.loca'... 130821 more characters,
+  expected: /מספר · פתח חלונית מספר/,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

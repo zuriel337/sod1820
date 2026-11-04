@@ -1,0 +1,654 @@
+{
+  "scope": "read-only canonical schema/function metadata only; no private row reads or RPC execution",
+  "base_sha": "7360f1d8337e468a69cc061686674d2225d731c4",
+  "observed_at": "2026-11-03T15:42:35.096837+00:00",
+  "columns": [
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "language_links",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "language_links",
+      "column_name": "hebrew",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "language_links",
+      "column_name": "foreign_word",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "language_links",
+      "column_name": "lang",
+      "is_nullable": "NO",
+      "column_default": "'en'::text"
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "language_links",
+      "column_name": "relationship_type",
+      "is_nullable": "NO",
+      "column_default": "'semantic'::text"
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "language_links",
+      "column_name": "note",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "language_links",
+      "column_name": "gematria_he",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "language_links",
+      "column_name": "status",
+      "is_nullable": "NO",
+      "column_default": "'pending'::text"
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "language_links",
+      "column_name": "created_by_name",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "language_links",
+      "column_name": "created_by_visitor",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "language_links",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "language_links",
+      "column_name": "reviewed_at",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "uuid",
+      "data_type": "uuid",
+      "table_name": "language_links",
+      "column_name": "reviewed_by",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "language_links",
+      "column_name": "method",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "language_links",
+      "column_name": "evidence_level",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "language_links",
+      "column_name": "translation_source",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "language_links",
+      "column_name": "human_verified",
+      "is_nullable": "YES",
+      "column_default": "false"
+    },
+    {
+      "udt_name": "int8",
+      "data_type": "bigint",
+      "table_name": "posts",
+      "column_name": "id",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "title",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "content",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "posts",
+      "column_name": "date",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "slug",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "link",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "_text",
+      "data_type": "ARRAY",
+      "table_name": "posts",
+      "column_name": "images",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "_text",
+      "data_type": "ARRAY",
+      "table_name": "posts",
+      "column_name": "categories",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "posts",
+      "column_name": "created_at",
+      "is_nullable": "YES",
+      "column_default": "now()"
+    },
+    {
+      "udt_name": "int8",
+      "data_type": "bigint",
+      "table_name": "posts",
+      "column_name": "wp_id",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "image_url",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "excerpt",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "author",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "_text",
+      "data_type": "ARRAY",
+      "table_name": "posts",
+      "column_name": "tags",
+      "is_nullable": "YES",
+      "column_default": "'{}'::text[]"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "posts",
+      "column_name": "modified",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "source",
+      "is_nullable": "NO",
+      "column_default": "'wordpress'::text"
+    },
+    {
+      "udt_name": "int2",
+      "data_type": "smallint",
+      "table_name": "posts",
+      "column_name": "tree_priority",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "space",
+      "is_nullable": "NO",
+      "column_default": "'core'::text"
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "content_old",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "posts",
+      "column_name": "verified",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "posts",
+      "column_name": "verified_at",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "verified_by",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "ai_addition",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "posts",
+      "column_name": "ai_touched",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "ai_touched_note",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "verify_level",
+      "is_nullable": "NO",
+      "column_default": "'none'::text"
+    },
+    {
+      "udt_name": "int2",
+      "data_type": "smallint",
+      "table_name": "posts",
+      "column_name": "convergence_score",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "udt_name": "_text",
+      "data_type": "ARRAY",
+      "table_name": "posts",
+      "column_name": "convergence_axes",
+      "is_nullable": "YES",
+      "column_default": "'{}'::text[]"
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "posts",
+      "column_name": "has_1820",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "verify_signature",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "posts",
+      "column_name": "has_1820_seal",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "udt_name": "int4",
+      "data_type": "integer",
+      "table_name": "posts",
+      "column_name": "ai_number",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "posts",
+      "column_name": "share_to_fb",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "udt_name": "timestamptz",
+      "data_type": "timestamp with time zone",
+      "table_name": "posts",
+      "column_name": "fb_posted_at",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "fb_post_id",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "fb_error",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "theme",
+      "is_nullable": "NO",
+      "column_default": "'auto'::text"
+    },
+    {
+      "udt_name": "_text",
+      "data_type": "ARRAY",
+      "table_name": "posts",
+      "column_name": "authors",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "int2",
+      "data_type": "smallint",
+      "table_name": "posts",
+      "column_name": "axis_pin",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "thumb_url",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "udt_name": "bool",
+      "data_type": "boolean",
+      "table_name": "posts",
+      "column_name": "home_hidden",
+      "is_nullable": "NO",
+      "column_default": "false"
+    },
+    {
+      "udt_name": "text",
+      "data_type": "text",
+      "table_name": "posts",
+      "column_name": "cipher_slug",
+      "is_nullable": "YES",
+      "column_default": null
+    }
+  ],
+  "policies": [
+    {
+      "cmd": "ALL",
+      "qual": "(EXISTS ( SELECT 1\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.role = 'admin'::text))))",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "posts",
+      "permissive": "PERMISSIVE",
+      "policyname": "posts_admin_write",
+      "schemaname": "public",
+      "with_check": "(EXISTS ( SELECT 1\n   FROM users u\n  WHERE ((u.id = auth.uid()) AND (u.role = 'admin'::text))))"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "true",
+      "roles": [
+        "anon"
+      ],
+      "tablename": "posts",
+      "permissive": "PERMISSIVE",
+      "policyname": "posts_anon_read",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "true",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "posts",
+      "permissive": "PERMISSIVE",
+      "policyname": "posts_auth_read",
+      "schemaname": "public",
+      "with_check": null
+    }
+  ],
+  "relation_acl": [
+    {
+      "relname": "language_links",
+      "relrowsecurity": true,
+      "relforcerowsecurity": false,
+      "relacl": "{postgres=arwdDxtm/postgres,anon=m/postgres,authenticated=m/postgres,service_role=arwdDxtm/postgres}"
+    },
+    {
+      "relname": "posts",
+      "relrowsecurity": true,
+      "relforcerowsecurity": false,
+      "relacl": "{postgres=arwdDxtm/postgres,anon=rm/postgres,authenticated=arwdm/postgres,service_role=arwdDxtm/postgres,ai_reader=r/postgres}"
+    }
+  ],
+  "related_views": [
+    {
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "anon=rm/postgres",
+        "authenticated=rm/postgres",
+        "service_role=arwdDxtm/postgres"
+      ],
+      "relname": "redirect_map",
+      "definition": " SELECT wp_id,\n    slug,\n    '/'::text || slug AS target_path\n   FROM posts\n  WHERE wp_id IS NOT NULL AND slug IS NOT NULL;",
+      "reloptions": null
+    },
+    {
+      "relacl": [
+        "postgres=arwdDxtm/postgres",
+        "service_role=arwdDxtm/postgres",
+        "anon=r/postgres",
+        "authenticated=r/postgres"
+      ],
+      "relname": "video_media_placements_v1",
+      "definition": " WITH post_base AS (\n         SELECT p.id,\n            p.title,\n            p.content,\n            p.date,\n            p.slug,\n            p.link,\n            p.images,\n            p.categories,\n            p.created_at,\n            p.wp_id,\n            p.image_url,\n            p.excerpt,\n            p.author,\n            p.tags,\n            p.modified,\n            p.source,\n            p.tree_priority,\n            p.space,\n            p.content_old,\n            p.verified,\n            p.verified_at,\n            p.verified_by,\n            p.ai_addition,\n            p.ai_touched,\n            p.ai_touched_note,\n            p.verify_level,\n            p.convergence_score,\n            p.convergence_axes,\n            p.has_1820,\n            p.verify_signature,\n            p.has_1820_seal,\n            p.ai_number,\n            p.share_to_fb,\n            p.fb_posted_at,\n            p.fb_post_id,\n            p.fb_error,\n            p.theme,\n            p.authors,\n            p.axis_pin,\n            p.thumb_url,\n            p.home_hidden,\n            p.cipher_slug,\n            (regexp_match(COALESCE(p.content, ''::text), '<iframe[^>]+src=[\"'']([^\"'']+)[\"'']'::text, 'i'::text))[1] AS iframe_url\n           FROM posts p\n          WHERE NOT ('טיוטה'::text = ANY (COALESCE(p.tags, '{}'::text[]))) AND NOT ('פורום'::text = ANY (COALESCE(p.tags, '{}'::text[])))\n        ), post_media_raw AS (\n         SELECT p.id AS post_id,\n            'selfhost'::text AS video_kind,\n            regexp_replace(m.m[1], '[?#].*$'::text, ''::text) AS media_url,\n            NULL::text AS youtube_id\n           FROM post_base p\n             CROSS JOIN LATERAL regexp_matches(COALESCE(p.content, ''::text), '(https?://[^\"''[:space:]<>]+\\.(?:mp4|webm|m4v)(?:\\?[^\"''[:space:]<>]*)?)'::text, 'gi'::text) m(m)\n        UNION ALL\n         SELECT p.id,\n            'youtube'::text,\n            'https://www.youtube.com/watch?v='::text || m.m[1],\n            m.m[1] AS m\n           FROM post_base p\n             CROSS JOIN LATERAL regexp_matches(COALESCE(p.content, ''::text), '(?:youtube(?:-nocookie)?\\.com/(?:embed/|watch\\?v=)|youtu\\.be/)([A-Za-z0-9_-]{11})'::text, 'gi'::text) m(m)\n        UNION ALL\n         SELECT p.id,\n            'vimeo'::text,\n            'https://vimeo.com/'::text || m.m[1],\n            NULL::text AS text\n           FROM post_base p\n             CROSS JOIN LATERAL regexp_matches(COALESCE(p.content, ''::text), 'vimeo\\.com/(?:video/)?([0-9]{5,})'::text, 'gi'::text) m(m)\n        UNION ALL\n         SELECT p.id,\n            'gdrive'::text,\n            'https://drive.google.com/file/d/'::text || m.m[1],\n            NULL::text AS text\n           FROM post_base p\n             CROSS JOIN LATERAL regexp_matches(COALESCE(p.content, ''::text), 'drive\\.google\\.com/(?:file/d/|open\\?id=)([A-Za-z0-9_-]+)'::text, 'gi'::text) m(m)\n        ), post_media_refs AS (\n         SELECT DISTINCT post_media_raw.post_id,\n            post_media_raw.video_kind,\n            post_media_raw.media_url,\n            post_media_raw.youtube_id\n           FROM post_media_raw\n        UNION ALL\n         SELECT p.id,\n            'legacy_external'::text AS text,\n            p.iframe_url,\n            NULL::text AS text\n           FROM post_base p\n          WHERE ('וידאו'::text = ANY (COALESCE(p.categories, '{}'::text[]))) AND p.iframe_url IS NOT NULL AND NOT (EXISTS ( SELECT 1\n                   FROM post_media_raw r\n                  WHERE r.post_id = p.id))\n        ), post_rows AS (\n         SELECT 'post'::text AS source_type,\n            p.id::text AS source_id,\n            p.date AS created_at,\n            p.modified AS updated_at,\n            p.title,\n            p.slug,\n            r.video_kind,\n            r.media_url,\n            r.youtube_id,\n            p.image_url AS poster_url,\n            p.thumb_url,\n            'https://sod1820.co.il/post/'::text || p.slug AS page_url,\n            p.title AS seo_title,\n            p.author AS speaker,\n            COALESCE(p.tags, '{}'::text[]) AS topics,\n            array_remove(ARRAY[\n                CASE\n                    WHEN 'מה קורה הבורא'::text = ANY (COALESCE(p.tags, '{}'::text[])) THEN 'mah-kore-habora'::text\n                    ELSE NULL::text\n                END,\n                CASE\n                    WHEN 'מימד חמש'::text = ANY (COALESCE(p.categories, '{}'::text[])) THEN 'dimension-five'::text\n                    ELSE NULL::text\n                END], NULL::text) AS series_keys,\n            p.cipher_slug,\n            COALESCE(p.categories, '{}'::text[]) AS categories,\n                CASE\n                    WHEN 'וידאו'::text = ANY (COALESCE(p.categories, '{}'::text[])) THEN 10\n                    ELSE 20\n                END AS placement_priority,\n            true AS dedicated_page,\n            r.video_kind = ANY (ARRAY['selfhost'::text, 'youtube'::text, 'vimeo'::text]) AS google_indexable,\n            r.video_kind <> ALL (ARRAY['selfhost'::text, 'youtube'::text, 'vimeo'::text]) AS needs_review\n           FROM post_base p\n             JOIN post_media_refs r ON r.post_id = p.id\n        ), channel_rows AS (\n         SELECT 'channel_update'::text AS source_type,\n            c.id::text AS source_id,\n            c.created_at,\n            c.enriched_at AS updated_at,\n            COALESCE(NULLIF(c.seo_title, ''::text), NULLIF(c.text, ''::text), 'סרטון'::text) AS title,\n            NULL::text AS slug,\n            'selfhost'::text AS video_kind,\n            regexp_replace(c.image_url, '[?#].*$'::text, ''::text) AS media_url,\n            NULL::text AS youtube_id,\n            c.thumb_url AS poster_url,\n            c.thumb_url,\n            NULL::text AS page_url,\n            c.seo_title,\n            c.speaker,\n            COALESCE(c.topics, '{}'::text[]) AS topics,\n            array_remove(ARRAY[\n                CASE\n                    WHEN c.channel = 'or-geula'::text THEN 'or-geula'::text\n                    ELSE NULL::text\n                END], NULL::text) AS series_keys,\n            NULL::text AS cipher_slug,\n            ARRAY[c.channel] AS categories,\n            60 AS placement_priority,\n            false AS dedicated_page,\n            false AS google_indexable,\n            false AS needs_review\n           FROM channel_updates c\n          WHERE c.status = 'live'::text AND c.image_url ~* '\\.(mp4|webm|m4v)(\\?|$)'::text\n        ), home_rows AS (\n         SELECT 'home_video'::text AS source_type,\n            h.id::text AS source_id,\n            h.created_at,\n            h.updated_at,\n            h.title,\n            h.slug,\n                CASE\n                    WHEN NULLIF(h.video_url, ''::text) IS NOT NULL THEN 'selfhost'::text\n                    ELSE 'youtube'::text\n                END AS video_kind,\n                CASE\n                    WHEN NULLIF(h.video_url, ''::text) IS NOT NULL THEN regexp_replace(h.video_url, '[?#].*$'::text, ''::text)\n                    WHEN NULLIF(h.yt, ''::text) IS NOT NULL THEN 'https://www.youtube.com/watch?v='::text || h.yt\n                    ELSE NULL::text\n                END AS media_url,\n            h.yt AS youtube_id,\n            h.poster_url,\n            h.poster_url AS thumb_url,\n                CASE\n                    WHEN NULLIF(h.slug, ''::text) IS NOT NULL THEN 'https://sod1820.co.il/post/'::text || h.slug\n                    ELSE NULL::text\n                END AS page_url,\n            h.title AS seo_title,\n            NULL::text AS speaker,\n            '{}'::text[] AS topics,\n            array_remove(ARRAY[\n                CASE\n                    WHEN h.cipher_slug IS NOT NULL THEN 'cipher'::text\n                    ELSE NULL::text\n                END], NULL::text) AS series_keys,\n            h.cipher_slug,\n            '{}'::text[] AS categories,\n            30 AS placement_priority,\n            NULLIF(h.slug, ''::text) IS NOT NULL AS dedicated_page,\n            NULLIF(h.slug, ''::text) IS NOT NULL AS google_indexable,\n            false AS needs_review\n           FROM home_videos h\n          WHERE h.is_active = true AND (NULLIF(h.video_url, ''::text) IS NOT NULL OR NULLIF(h.yt, ''::text) IS NOT NULL)\n        ), story_rows AS (\n         SELECT 'story'::text AS source_type,\n            s.id::text AS source_id,\n            s.created_at,\n            s.created_at AS updated_at,\n            s.title,\n            NULL::text AS slug,\n            'selfhost'::text AS video_kind,\n            regexp_replace(s.video_url, '[?#].*$'::text, ''::text) AS media_url,\n            NULL::text AS youtube_id,\n            s.image_url AS poster_url,\n            s.image_url AS thumb_url,\n                CASE\n                    WHEN s.link ~ '^https?://'::text THEN s.link\n                    WHEN s.link IS NOT NULL THEN 'https://sod1820.co.il'::text ||\n                    CASE\n                        WHEN s.link ~~ '/%'::text THEN s.link\n                        ELSE '/'::text || s.link\n                    END\n                    ELSE NULL::text\n                END AS page_url,\n            s.title AS seo_title,\n            NULL::text AS speaker,\n            '{}'::text[] AS topics,\n            '{}'::text[] AS series_keys,\n            NULL::text AS cipher_slug,\n            '{}'::text[] AS categories,\n            70 AS placement_priority,\n            s.link IS NOT NULL AS dedicated_page,\n            false AS google_indexable,\n            false AS needs_review\n           FROM stories s\n          WHERE s.active = true AND NULLIF(s.video_url, ''::text) IS NOT NULL\n        ), all_rows AS (\n         SELECT post_rows.source_type,\n            post_rows.source_id,\n            post_rows.created_at,\n            post_rows.updated_at,\n            post_rows.title,\n            post_rows.slug,\n            post_rows.video_kind,\n            post_rows.media_url,\n            post_rows.youtube_id,\n            post_rows.poster_url,\n            post_rows.thumb_url,\n            post_rows.page_url,\n            post_rows.seo_title,\n            post_rows.speaker,\n            post_rows.topics,\n            post_rows.series_keys,\n            post_rows.cipher_slug,\n            post_rows.categories,\n            post_rows.placement_priority,\n            post_rows.dedicated_page,\n            post_rows.google_indexable,\n            post_rows.needs_review\n           FROM post_rows\n        UNION ALL\n         SELECT channel_rows.source_type,\n            channel_rows.source_id,\n            channel_rows.created_at,\n            channel_rows.updated_at,\n            channel_rows.title,\n            channel_rows.slug,\n            channel_rows.video_kind,\n            channel_rows.media_url,\n            channel_rows.youtube_id,\n            channel_rows.poster_url,\n            channel_rows.thumb_url,\n            channel_rows.page_url,\n            channel_rows.seo_title,\n            channel_rows.speaker,\n            channel_rows.topics,\n            channel_rows.series_keys,\n            channel_rows.cipher_slug,\n            channel_rows.categories,\n            channel_rows.placement_priority,\n            channel_rows.dedicated_page,\n            channel_rows.google_indexable,\n            channel_rows.needs_review\n           FROM channel_rows\n        UNION ALL\n         SELECT home_rows.source_type,\n            home_rows.source_id,\n            home_rows.created_at,\n            home_rows.updated_at,\n            home_rows.title,\n            home_rows.slug,\n            home_rows.video_kind,\n            home_rows.media_url,\n            home_rows.youtube_id,\n            home_rows.poster_url,\n            home_rows.thumb_url,\n            home_rows.page_url,\n            home_rows.seo_title,\n            home_rows.speaker,\n            home_rows.topics,\n            home_rows.series_keys,\n            home_rows.cipher_slug,\n            home_rows.categories,\n            home_rows.placement_priority,\n            home_rows.dedicated_page,\n            home_rows.google_indexable,\n            home_rows.needs_review\n           FROM home_rows\n        UNION ALL\n         SELECT story_rows.source_type,\n            story_rows.source_id,\n            story_rows.created_at,\n            story_rows.updated_at,\n            story_rows.title,\n            story_rows.slug,\n            story_rows.video_kind,\n            story_rows.media_url,\n            story_rows.youtube_id,\n            story_rows.poster_url,\n            story_rows.thumb_url,\n            story_rows.page_url,\n            story_rows.seo_title,\n            story_rows.speaker,\n            story_rows.topics,\n            story_rows.series_keys,\n            story_rows.cipher_slug,\n            story_rows.categories,\n            story_rows.placement_priority,\n            story_rows.dedicated_page,\n            story_rows.google_indexable,\n            story_rows.needs_review\n           FROM story_rows\n        )\n SELECT source_type,\n    source_id,\n    created_at,\n    updated_at,\n    title,\n    slug,\n    video_kind,\n    media_url,\n    youtube_id,\n    poster_url,\n    thumb_url,\n    page_url,\n    seo_title,\n    speaker,\n    topics,\n    series_keys,\n    cipher_slug,\n    categories,\n    placement_priority,\n    dedicated_page,\n    google_indexable,\n    needs_review,\n        CASE\n            WHEN video_kind = 'youtube'::text AND youtube_id IS NOT NULL THEN 'youtube:'::text || youtube_id\n            WHEN video_kind = 'vimeo'::text THEN 'vimeo:'::text || regexp_replace(media_url, '.*/'::text, ''::text, 'g'::text)\n            WHEN video_kind = 'gdrive'::text THEN 'gdrive:'::text || regexp_replace(media_url, '.*/'::text, ''::text, 'g'::text)\n            WHEN video_kind = 'legacy_external'::text THEN 'external:'::text || md5(media_url)\n            WHEN media_url IS NOT NULL THEN 'url:'::text || regexp_replace(media_url, '[?#].*$'::text, ''::text)\n            ELSE (source_type || ':'::text) || source_id\n        END AS asset_key\n   FROM all_rows\n  WHERE media_url IS NOT NULL;",
+      "reloptions": [
+        "security_invoker=true"
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "signature": "chat_search_facts(text,integer)",
+      "prosecdef": true,
+      "provolatile": "s",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres,anon=X/postgres,authenticated=X/postgres}",
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "source_md5": "7b39aef3ed6d61853642d98253e2522e",
+      "definition": "CREATE OR REPLACE FUNCTION public.chat_search_facts(p_query text, p_limit integer DEFAULT 3)\n RETURNS text\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  v_posts text;\n  v_vals int[];\n  v_nums text := '';\nbegin\n  -- (1) פוסטים (RAG)\n  with toks as (\n    select array(\n      select w from (\n        select regexp_replace(t, '[^א-ת]', '', 'g') as w\n        from regexp_split_to_table(coalesce(p_query, ''), '\\s+') t\n      ) x\n      where char_length(w) >= 3\n        and w not in ('מה','יש','על','של','את','זה','זו','לי','לך','לו','גם','כי','לא','כן','אבל',\n          'הוא','היא','הם','אני','אתה','עם','או','רק','כל','אם','אז','מי','איך','למה','מתי','האם',\n          'אין','הכל','ספר','תספר','רוצה','תגיד','בבקשה','אותי','אותך','שלי','שלך','כמה','איזה',\n          'הזה','הזאת','עכשיו','תודה','שלום','היי','אולי','צריך','באמת','ממש')\n    ) as ws\n  ),\n  q as (\n    select case when array_length(ws, 1) is null then null\n                else to_tsquery('simple', array_to_string(ws, ' | ')) end as tsq\n    from toks\n  ),\n  ranked as (\n    select p.title,\n      left(regexp_replace(coalesce(nullif(p.excerpt, ''), p.content), '<[^>]+>|\\s+', ' ', 'g'), 280) as snip,\n      ts_rank(to_tsvector('simple', coalesce(p.title,'') || ' ' || coalesce(p.excerpt,'')), q.tsq) as rank\n    from public.posts p, q\n    where q.tsq is not null\n      and q.tsq @@ to_tsvector('simple', coalesce(p.title,'') || ' ' || coalesce(p.excerpt,''))\n    order by rank desc\n    limit greatest(1, least(coalesce(p_limit, 3), 5))\n  )\n  select string_agg('• ' || title || ': ' || trim(snip), E'\\n') into v_posts from ranked;\n\n  -- (2) 🔢 מספר בשאילתה → אינטליגנציית-המספר המלאה (number_dossier), מקור-אמת יחיד\n  select array_agg(distinct (m)[1]::int) into v_vals\n  from regexp_matches(coalesce(p_query, ''), '\\d{2,6}', 'g') m;\n\n  if v_vals is not null then\n    select string_agg(d, E'\\n\\n') into v_nums\n    from (select public.number_dossier(v) d from (select distinct unnest(v_vals) as v) t) z\n    where d is not null;\n  end if;\n\n  return nullif(concat_ws(E'\\n\\n', nullif(v_nums, ''), v_posts), '');\nend; $function$\n"
+    },
+    {
+      "signature": "cross_source_posts(text[])",
+      "prosecdef": true,
+      "provolatile": "s",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proacl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres}",
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "source_md5": "f08037b7525a41877ee79322ce55e39c",
+      "definition": "CREATE OR REPLACE FUNCTION public.cross_source_posts(p_labels text[])\n RETURNS TABLE(label text, slug text, title text, wp_id bigint, via text)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\nwith graph as (\n  select t.label, p.metadata->>'slug' as slug, p.label as title,\n         nullif(p.metadata->>'post_wp_id','')::bigint as wp_id, 'graph'::text as via,\n         row_number() over (partition by t.label order by coalesce(p.weight,3) desc) as rn\n  from unnest(p_labels) as t(label)\n  join nodes e on e.type='entity' and e.is_active and e.label = t.label\n  join edges ed on ed.relation_type='mentions' and ed.to_node = e.id\n  join nodes p on p.id = ed.from_node and p.type='post' and p.is_active\n             and coalesce(p.metadata->>'slug','') <> ''\n),\ntxt as (\n  select t.label, p.slug, p.title, p.wp_id::bigint, 'text'::text as via, p.rn\n  from unnest(p_labels) as t(label)\n  cross join lateral (\n    select slug, title, wp_id, row_number() over (order by (title ilike '%'||t.label||'%') desc, date desc) as rn\n    from posts\n    where (title ilike '%'||t.label||'%' or content ilike '%'||t.label||'%')\n      and slug is not null\n    limit 2\n  ) p\n  where not exists (select 1 from graph g where g.label = t.label)\n)\nselect label, slug, title, wp_id, via from graph where rn <= 2\nunion all\nselect label, slug, title, wp_id, via from txt where rn <= 2;\n$function$\n"
+    },
+    {
+      "signature": "hot_posts_live(integer,integer)",
+      "prosecdef": true,
+      "provolatile": "v",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proacl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres}",
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "source_md5": "9504a95791d5fd9c4fce8ff66463ea16",
+      "definition": "CREATE OR REPLACE FUNCTION public.hot_posts_live(days integer DEFAULT 7, lim integer DEFAULT 4)\n RETURNS TABLE(slug text, title text, image_url text, views bigint)\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select p.slug, p.title, p.image_url, count(*)::bigint as views\n  from public.page_views v\n  join public.posts p on p.slug = v.ref\n  where v.kind = 'post' and v.created_at > now() - make_interval(days => days)\n  group by p.slug, p.title, p.image_url\n  order by views desc limit lim;\n$function$\n"
+    },
+    {
+      "signature": "name_lab_research(text,integer)",
+      "prosecdef": true,
+      "provolatile": "v",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proacl": "{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres}",
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "source_md5": "d75a95a78b1f156dac9fbddced7c9391",
+      "definition": "CREATE OR REPLACE FUNCTION public.name_lab_research(p_word text, p_value integer DEFAULT NULL::integer)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  w text := btrim(coalesce(p_word,''));\n  v int := coalesce(p_value,0);\n  bridges jsonb; posts_j jsonb; posts_c int; treas_j jsonb; treas_c int; hints_j jsonb; hints_c int;\nbegin\n  if w = '' then return jsonb_build_object('bridges','[]'::jsonb,'posts','[]'::jsonb,'treasures','[]'::jsonb,'hints','[]'::jsonb); end if;\n\n  -- 🌉 גשרים — מהגרף (nodes type='language_bridge'), ישות-מחקר מלאה\n  bridges := public.get_graph_bridges(w, nullif(v,0));\n\n  select count(*) into posts_c from public.posts where title ilike '%'||w||'%';\n  select coalesce(jsonb_agg(to_jsonb(p)), '[]'::jsonb) into posts_j from (\n    select id, title, slug, image_url from public.posts where title ilike '%'||w||'%'\n    order by coalesce(modified, \"date\") desc nulls last limit 6) p;\n\n  if v > 0 then\n    select count(*) into treas_c from public.gallery_images where source='update' and primary_value = v;\n    select coalesce(jsonb_agg(to_jsonb(g)), '[]'::jsonb) into treas_j from (\n      select image_url, name, primary_value, occurred_at from public.gallery_images\n      where source='update' and primary_value = v order by coalesce(occurred_at, created_at) desc nulls last limit 6) g;\n    select count(*) into hints_c from public.insights where is_active and v = any(related_numbers);\n    select coalesce(jsonb_agg(to_jsonb(h)), '[]'::jsonb) into hints_j from (\n      select id, title, source_type, source_ref, origin from public.insights\n      where is_active and v = any(related_numbers) order by coalesce(convergence_score,0) desc, created_at desc limit 6) h;\n  else treas_c:=0; treas_j:='[]'::jsonb; hints_c:=0; hints_j:='[]'::jsonb; end if;\n\n  return jsonb_build_object(\n    'bridges', bridges,\n    'posts', posts_j, 'posts_count', posts_c,\n    'treasures', treas_j, 'treasures_count', treas_c,\n    'hints', hints_j, 'hints_count', hints_c);\nend $function$\n"
+    },
+    {
+      "signature": "number_dossier_json(integer)",
+      "prosecdef": true,
+      "provolatile": "s",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proacl": "{=X/postgres,postgres=X/postgres,anon=X/postgres,authenticated=X/postgres}",
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "source_md5": "de11202c2a95853d4888d44d28180853",
+      "definition": "CREATE OR REPLACE FUNCTION public.number_dossier_json(n integer)\n RETURNS jsonb\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  v_methods jsonb := '[]'::jsonb;\n  v_topics jsonb := '[]'::jsonb;\n  v_posts jsonb := '[]'::jsonb;\n  v_reality int := 0;\n  v_defs jsonb := '[]'::jsonb;\nbegin\n  if n is null or n < 1 then return null; end if;\n\n  begin\n    with u as (\n      select 'רגיל' method,1 prio,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where ragil=n and is_verified and coalesce(is_published,false)\n      union all select 'מסתתר',2,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where misratar=n and is_verified and coalesce(is_published,false)\n      union all select 'אתבש',3,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where atbash=n and is_verified and coalesce(is_published,false)\n      union all select 'קדמי',4,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where kadmi=n and is_verified and coalesce(is_published,false)\n      union all select 'גדול',5,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where gadol=n and is_verified and coalesce(is_published,false)\n      union all select 'מילוי',6,phrase,is_verified,category,source_wp_ids,node_id,lead_rank from gematria_words where miluy=n and is_verified and coalesce(is_published,false)\n    ), scored as (\n      select method,prio,phrase,\n        ((case when is_verified then 3 else 0 end)\n        +(case when category in ('משיח','משיח וגאולה','יהוה','גאולה') then 3 when category ilike 'מספר-אם%' then 2 when category is null or category in ('כללי','מנוקה אוטומטית','מאגר_ערכים','מהחיפושים') then 0 else 1 end)\n        +(case when source_wp_ids is not null and array_length(source_wp_ids,1)>0 then 2 else 0 end)\n        +(case when node_id is not null then 1 else 0 end)\n        +coalesce(10-least(lead_rank,9),0)) s\n      from u\n    ), ranked as (\n      select method,prio,phrase,row_number() over(partition by method order by s desc,char_length(phrase) desc,phrase) rn\n      from (select distinct method,prio,phrase,s from scored) d\n    )\n    select coalesce(jsonb_agg(jsonb_build_object('method',method,'phrases',phrases) order by prio),'[]'::jsonb)\n    into v_methods\n    from (\n      select method,prio,jsonb_agg(phrase order by rn) phrases\n      from ranked where rn<=7 group by method,prio\n    ) g;\n  exception when others then v_methods := '[]'::jsonb; end;\n\n  begin\n    select coalesce(jsonb_agg(jsonb_build_object('title',title,'meter',coalesce(meter_score,0))),'[]'::jsonb)\n    into v_topics\n    from (\n      select title,meter_score from topic_cards_public\n      where (n=any(numbers) or n=any(highlight_numbers))\n      order by meter_score desc nulls last limit 4\n    ) t;\n  exception when others then v_topics := '[]'::jsonb; end;\n\n  begin\n    select coalesce(jsonb_agg(title),'[]'::jsonb)\n    into v_posts\n    from (\n      select distinct p.title\n      from posts p\n      join gematria_words g on p.wp_id=any(g.source_wp_ids)\n      where (g.ragil=n or g.misratar=n or g.atbash=n)\n        and g.is_verified\n        and coalesce(g.is_published,false)\n        and p.wp_id is not null\n      limit 4\n    ) x;\n  exception when others then v_posts := '[]'::jsonb; end;\n\n  begin\n    select count(*) into v_reality\n    from gallery_images\n    where primary_value=n and source='update' and coalesce(curator_hidden,false)=false;\n  exception when others then v_reality := 0; end;\n\n  -- Truth Axes P1/P3 + Graph Privacy Foundation: public_candidate is an\n  -- intake/publication candidate state, not per-surface publication consent.\n  -- Until research_objects has an explicit public-surface publication authority,\n  -- the public Number dossier must not project statements from that table.\n  -- Preserve the legacy output shape with an empty definitions array.\n  v_defs := '[]'::jsonb;\n\n  return jsonb_build_object(\n    'value',n,\n    'methods',v_methods,\n    'topics',v_topics,\n    'posts',v_posts,\n    'reality',v_reality,\n    'definitions',v_defs\n  );\nend;\n$function$\n"
+    },
+    {
+      "signature": "post_conversation_projection(bigint,integer)",
+      "prosecdef": true,
+      "provolatile": "s",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "proacl": "{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "anon_execute": true,
+      "authenticated_execute": true,
+      "source_md5": "21fd4a74595d566d8e9488d793c0e379",
+      "definition": "CREATE OR REPLACE FUNCTION public.post_conversation_projection(p_post_wp_id bigint, p_limit integer DEFAULT 200)\n RETURNS TABLE(source_kind text, source_id text, parent_ref text, author_display_name text, author_is_contributor boolean, body text, reactions jsonb, created_at timestamp with time zone)\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\ndeclare\n  v_post_id bigint;\nbegin\n  select id into v_post_id from public.posts where wp_id = p_post_wp_id;\n  if v_post_id is null then\n    return; -- unresolved post_wp_id: never guess a canonical post to attach comments to\n  end if;\n\n  return query\n  select * from (\n    select\n      'wordpress'::text as source_kind,\n      c.wp_id::text as source_id,\n      c.parent_wp_id::text as parent_ref,\n      c.author_name as author_display_name,\n      false as author_is_contributor,\n      c.content as body,\n      null::jsonb as reactions,\n      c.date as created_at\n    from public.comments c\n    where c.post_wp_id = p_post_wp_id\n      and c.status = 'publish'\n\n    union all\n\n    select\n      'community'::text as source_kind,\n      rc.id::text as source_id,\n      rc.parent_id::text as parent_ref,\n      coalesce(rc.author_name, ct.display_name) as author_display_name,\n      (rc.author_contributor_id is not null) as author_is_contributor,\n      rc.body,\n      rc.reactions,\n      rc.created_at\n    from public.research_contributions rc\n    left join public.contributors ct on ct.id = rc.author_contributor_id\n    where rc.target_type = 'post'\n      and rc.target_id = v_post_id::text\n      and (rc.status = 'approved' or rc.author_user_id = auth.uid())\n      -- Phase 2.2 integrity fix: never project a visually empty Community reply into the post\n      -- conversation. A visible reply whose parent is one of these invisible rows keeps its\n      -- parent_ref by id; the WordPress half of this union is unaffected (its own source never\n      -- exhibited this blank-payload defect).\n      and (\n        coalesce(btrim(rc.body), '') <> ''\n        or coalesce(btrim(rc.title), '') <> ''\n        or rc.image_url is not null\n        or jsonb_array_length(rc.media) > 0\n      )\n  ) unified\n  order by created_at asc\n  limit greatest(1, least(coalesce(p_limit, 200), 500));\nend;\n$function$\n"
+    },
+    {
+      "proacl": [
+        "postgres=X/postgres",
+        "anon=X/postgres",
+        "authenticated=X/postgres",
+        "service_role=X/postgres"
+      ],
+      "result": "SETOF language_links",
+      "proconfig": [
+        "search_path=public"
+      ],
+      "prosecdef": true,
+      "signature": "lang_links_list(text)",
+      "definition": "CREATE OR REPLACE FUNCTION public.lang_links_list(p_visitor text DEFAULT NULL::text)\n RETURNS SETOF language_links\n LANGUAGE sql\n SECURITY DEFINER\n SET search_path TO 'public'\nAS $function$\n  select * from public.language_links\n  where status = 'approved'\n     or (p_visitor is not null and p_visitor <> '' and created_by_visitor = p_visitor)\n  order by (status <> 'approved') desc, created_at desc\n  limit 500;\n$function$\n",
+      "source_md5": "5ac5cd537e243ca661bd6194ba9ac0aa",
+      "provolatile": "v"
+    }
+  ]
+}

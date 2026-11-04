@@ -3,15 +3,16 @@
 // בלי טבלאות/מערכות מקבילות. הכל beta — הקרדיטים בהרצה.
 import { supabase } from "./supabase.js";
 import { getVisitorId } from "./tracking.js";
+import { plainMessageText } from "./community/messageFormatting.js";
 
 // 💬 הודעות פרטיות (DM) — עדשות-לקוח על direct_messages דרך RPCs (owner-gateway).
-export async function dmInbox() {
+export async function dmInbox({ strict = false } = {}) {
   if (!supabase) return [];
-  try { const { data } = await supabase.rpc("dm_inbox"); return Array.isArray(data) ? data : []; } catch { return []; }
+  try { const { data, error } = await supabase.rpc("dm_inbox"); if (error) throw error; return Array.isArray(data) ? data : []; } catch (error) { if (strict) throw error; return []; }
 }
-export async function dmThread(withUser, limit = 60) {
+export async function dmThread(withUser, limit = 60, { strict = false } = {}) {
   if (!supabase || !withUser) return [];
-  try { const { data } = await supabase.rpc("dm_thread", { p_with: withUser, p_limit: limit }); return Array.isArray(data) ? data : []; } catch { return []; }
+  try { const { data, error } = await supabase.rpc("dm_thread", { p_with: withUser, p_limit: limit }); if (error) throw error; return Array.isArray(data) ? data : []; } catch (error) { if (strict) throw error; return []; }
 }
 export async function dmSend(toUser, body) {
   if (!supabase) return { ok: false, error: "no_supabase" };
@@ -24,9 +25,9 @@ export async function dmUnreadCount() {
 // 🗣 תגובות אליי — תגובות על התרומות שלי (RPC · owner בלבד).
 // before (ISO string / Date, אופציונלי) = cursor ל-"טען עוד" (§4, COMMAND_CENTER_ATTENTION_CLOSURE
 // Pass 1) — בלי זה, ה-LIMIT הקבוע היה חוסם תגובות ותיקות מהתצוגה בלי דרך לראות אותן.
-export async function repliesToMe(limit = 40, before = null) {
+export async function repliesToMe(limit = 40, before = null, { strict = false } = {}) {
   if (!supabase) return [];
-  try { const { data } = await supabase.rpc("replies_to_me", { p_limit: limit, p_before: before || null }); return Array.isArray(data) ? data : []; } catch { return []; }
+  try { const { data, error } = await supabase.rpc("replies_to_me", { p_limit: limit, p_before: before || null }); if (error) throw error; if (!Array.isArray(data)) { if (strict) throw new Error("Replies unavailable"); return []; } return data.map(row => ({ ...row, body: plainMessageText(row.body || "") })); } catch (error) { if (strict) throw error; return []; }
 }
 
 // 🗨️ הפעילות שלי — התרומות והתגובות שאני-עצמי כתבתי (RPC · owner בלבד, כולל הקשר-אב).
@@ -43,12 +44,27 @@ export async function watchToggle(topic, source, on, visitorId = null) {
 }
 
 // 💰 הפרופיל+יתרת-הקרדיטים של המשתמש (RLS: כל אחד רואה רק את שלו). null אם אין עדיין רשומה.
-export async function getMyProfile() {
-  if (!supabase) return null;
+export async function getMyProfile({ strict = false, userId = null } = {}) {
+  if (!supabase) { if (strict) throw new Error("Profile reader unavailable"); return null; }
   try {
-    const { data } = await supabase.from("profiles").select("credits,xp,level,tier,streak").maybeSingle();
+    const checkAccount = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error || !userId || data?.session?.user?.id !== userId) throw new Error("Profile account changed");
+    };
+    if (strict) await checkAccount();
+    let query = supabase.from("profiles").select(strict ? "credits,xp,level,streak" : "credits,xp,level,tier,streak");
+    if (strict) query = query.eq("user_id", userId);
+    const { data, error } = await query.maybeSingle();
+    if (strict) {
+      if (error) throw error;
+      if (data !== null && (typeof data !== "object" || Array.isArray(data)
+        || ["credits", "xp", "level", "streak"].some(key => data[key] != null && !Number.isSafeInteger(data[key])))) {
+        throw new Error("Profile data unavailable");
+      }
+      await checkAccount();
+    }
     return data || null;
-  } catch { return null; }
+  } catch (error) { if (strict) throw error; return null; }
 }
 
 // 🎁 תביעת מענקי-מייסד ממתינים לפי המייל המאומת (idempotent). מחזיר את הסכום שנוסף (0 אם אין).

@@ -1,0 +1,82 @@
+[
+  {
+    "width": 390,
+    "version": "before",
+    "count": 4,
+    "totalMedianMs": 4318.5,
+    "totalRangeMs": [
+      3714,
+      4425
+    ],
+    "browserRequestMedian": 427.0,
+    "steps": {
+      "entry-home": 854.0,
+      "home-post": 503.5,
+      "post-world": 891.0,
+      "world-number-via-existing-drawer": 1601.0,
+      "back-number-world": 126.5,
+      "back-world-post": 166.0,
+      "back-post-home": 88.5
+    }
+  },
+  {
+    "width": 390,
+    "version": "after",
+    "count": 4,
+    "totalMedianMs": 4436.5,
+    "totalRangeMs": [
+      3895,
+      4515
+    ],
+    "browserRequestMedian": 458.5,
+    "steps": {
+      "entry-home": 878.0,
+      "home-post": 526.5,
+      "post-world": 871.5,
+      "world-number-via-existing-drawer": 1612.0,
+      "back-number-world": 156.5,
+      "back-world-post": 153.5,
+      "back-post-home": 224.5
+    }
+  },
+  {
+    "width": 1440,
+    "version": "before",
+    "count": 4,
+    "totalMedianMs": 5652.0,
+    "totalRangeMs": [
+      5484,
+      5954
+    ],
+    "browserRequestMedian": 459.0,
+    "steps": {
+      "entry-home": 1699.0,
+      "home-post": 492.5,
+      "post-world": 529.0,
+      "world-number-via-existing-drawer": 2232.0,
+      "back-number-world": 233.5,
+      "back-world-post": 237.5,
+      "back-post-home": 295.5
+    }
+  },
+  {
+    "width": 1440,
+    "version": "after",
+    "count": 4,
+    "totalMedianMs": 4758.0,
+    "totalRangeMs": [
+      4410,
+      4926
+    ],
+    "browserRequestMedian": 445.0,
+    "steps": {
+      "entry-home": 1334.5,
+      "home-post": 486.5,
+      "post-world": 507.5,
+      "world-number-via-existing-drawer": 1648.0,
+      "back-number-world": 193.0,
+      "back-world-post": 215.5,
+      "back-post-home": 367.5
+    }
+  }
+]

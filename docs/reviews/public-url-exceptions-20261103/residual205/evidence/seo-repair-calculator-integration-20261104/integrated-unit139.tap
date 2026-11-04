@@ -1,0 +1,866 @@
+TAP version 13
+# Subtest: projection contract preserves every existing client calculation exactly
+ok 1 - projection contract preserves every existing client calculation exactly
+  ---
+  duration_ms: 2.736211
+  type: 'test'
+  ...
+# Subtest: registry unavailable remains UNKNOWN rather than fabricating false state
+ok 2 - registry unavailable remains UNKNOWN rather than fabricating false state
+  ---
+  duration_ms: 0.247964
+  type: 'test'
+  ...
+# Subtest: registry axes stay separate and method identity/version are preserved
+ok 3 - registry axes stay separate and method identity/version are preserved
+  ---
+  duration_ms: 0.250177
+  type: 'test'
+  ...
+# Subtest: storage capability never fabricates that this particular result is stored
+ok 4 - storage capability never fabricates that this particular result is stored
+  ---
+  duration_ms: 0.193511
+  type: 'test'
+  ...
+# Subtest: representation keeps raw input separate from canonical normalization
+ok 5 - representation keeps raw input separate from canonical normalization
+  ---
+  duration_ms: 0.847526
+  type: 'test'
+  ...
+# Subtest: canonical engine confirms the three 776 expressions that sound interpretive
+ok 6 - canonical engine confirms the three 776 expressions that sound interpretive
+  ---
+  duration_ms: 0.722499
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: a newly selected value never commits phrases from the previous value, even before passive cleanup
+ok 7 - a newly selected value never commits phrases from the previous value, even before passive cleanup
+  ---
+  duration_ms: 55.605589
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: caller switch cancels partial data and never reuses another caller's lookup/cache
+ok 8 - caller switch cancels partial data and never reuses another caller's lookup/cache
+  ---
+  duration_ms: 5.874288
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: an empty helper response is not retained indefinitely and a later mount can retry
+ok 9 - an empty helper response is not retained indefinitely and a later mount can retry
+  ---
+  duration_ms: 4.024521
+  type: 'test'
+  ...
+# Subtest: World never labels the previous gallery/image as current reading, but keeps exact usable links
+ok 10 - World never labels the previous gallery/image as current reading, but keeps exact usable links
+  ---
+  duration_ms: 4.408781
+  type: 'test'
+  ...
+# Subtest: the public story can be current without changing subject, selection, Path or exact return
+ok 11 - the public story can be current without changing subject, selection, Path or exact return
+  ---
+  duration_ms: 3.517197
+  type: 'test'
+  ...
+# Subtest: exact expression/method query survives; missing destinations are not invented
+ok 12 - exact expression/method query survives; missing destinations are not invented
+  ---
+  duration_ms: 0.611891
+  type: 'test'
+  ...
+# Subtest: unsafe destinations never become context links; opaque IDs are not labels
+ok 13 - unsafe destinations never become context links; opaque IDs are not labels
+  ---
+  duration_ms: 0.57754
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public: catalog identity follows the existing release profile
+ok 14 - public: catalog identity follows the existing release profile
+  ---
+  duration_ms: 41.668431
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: foundation: catalog identity follows the existing release profile
+ok 15 - foundation: catalog identity follows the existing release profile
+  ---
+  duration_ms: 12.752748
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: golden: catalog identity follows the existing release profile
+ok 16 - golden: catalog identity follows the existing release profile
+  ---
+  duration_ms: 10.519074
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (q=synthetic)
+ok 17 - public catalog preserves selection privacy (q=synthetic)
+  ---
+  duration_ms: 8.387954
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (page=2)
+ok 18 - public catalog preserves selection privacy (page=2)
+  ---
+  duration_ms: 8.424328
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (series=synthetic-series)
+ok 19 - public catalog preserves selection privacy (series=synthetic-series)
+  ---
+  duration_ms: 13.722038
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public verified collection keeps its own canonical identity and server-approved indexability
+ok 20 - public verified collection keeps its own canonical identity and server-approved indexability
+  ---
+  duration_ms: 8.798832
+  type: 'test'
+  ...
+# Subtest: public tag canonical and admitted taxonomy state are retained
+ok 21 - public tag canonical and admitted taxonomy state are retained
+  ---
+  duration_ms: 7.985557
+  type: 'test'
+  ...
+# Subtest: encoded taxonomy addresses select one exact namespace and only the admitted category alias
+ok 22 - encoded taxonomy addresses select one exact namespace and only the admitted category alias
+  ---
+  duration_ms: 5.772359
+  type: 'test'
+  ...
+# Subtest: exact stored membership preserves public Post provenance without admitting research or Follow
+ok 23 - exact stored membership preserves public Post provenance without admitting research or Follow
+  ---
+  duration_ms: 6.057714
+  type: 'test'
+  ...
+# Subtest: catalog queries combine exact tag membership, public exclusion, bounded stable pagination and escaped title refinement
+ok 24 - catalog queries combine exact tag membership, public exclusion, bounded stable pagination and escaped title refinement
+  ---
+  duration_ms: 2.010549
+  type: 'test'
+  ...
+# Subtest: PostgREST serialization preserves labels containing quotes, commas, braces, backslashes or NULL
+ok 25 - PostgREST serialization preserves labels containing quotes, commas, braces, backslashes or NULL
+  ---
+  duration_ms: 27.343154
+  type: 'test'
+  ...
+# Subtest: unknown and draft-only taxonomies are missing; a known taxonomy with zero title matches has a public witness
+ok 26 - unknown and draft-only taxonomies are missing; a known taxonomy with zero title matches has a public witness
+  ---
+  duration_ms: 1.561632
+  type: 'test'
+  ...
+# Subtest: a page beyond the exact public count is 404, including the PostgREST range response
+ok 27 - a page beyond the exact public count is 404, including the PostgREST range response
+  ---
+  duration_ms: 0.773795
+  type: 'test'
+  ...
+# Subtest: unverified responses fail closed rather than claim an empty or public collection
+ok 28 - unverified responses fail closed rather than claim an empty or public collection
+  ---
+  duration_ms: 1.352276
+  type: 'test'
+  ...
+# Subtest: taxonomy query changes preserve exact address, unrelated parameters and hash without crossing namespaces
+ok 29 - taxonomy query changes preserve exact address, unrelated parameters and hash without crossing namespaces
+  ---
+  duration_ms: 0.320713
+  type: 'test'
+  ...
+# Subtest: exact tag/category history entries restore their saved viewport using the existing lifecycle
+ok 30 - exact tag/category history entries restore their saved viewport using the existing lifecycle
+  ---
+  duration_ms: 1.657597
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: tag entry reuses Posts cards, source credit and media; a pathname does not invent Follow
+ok 31 - tag entry reuses Posts cards, source credit and media; a pathname does not invent Follow
+  ---
+  duration_ms: 49.878316
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: search, pagination and clearing retain taxonomy identity and the exact route anchor
+ok 32 - search, pagination and clearing retain taxonomy identity and the exact route anchor
+  ---
+  duration_ms: 36.205132
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: canonical category identity retains the old address and does not acquire series or channel rows
+ok 33 - canonical category identity retains the old address and does not acquire series or channel rows
+  ---
+  duration_ms: 8.077306
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: unknown, empty-search and unavailable reads remain different useful states
+ok 34 - unknown, empty-search and unavailable reads remain different useful states
+  ---
+  duration_ms: 24.305088
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: suppressed taxonomy and conflicting selectors never request or render public Posts
+ok 35 - suppressed taxonomy and conflicting selectors never request or render public Posts
+  ---
+  duration_ms: 11.855377
+  type: 'test'
+  ...
+# Subtest: malformed taxonomy pagination stays missing until an explicit return to the first page
+ok 36 - malformed taxonomy pagination stays missing until an explicit return to the first page
+  ---
+  duration_ms: 7.60923
+  type: 'test'
+  ...
+# Subtest: /gematria: initial document and sharing use the public calculator canonical
+ok 37 - /gematria: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 10.001343
+  type: 'test'
+  ...
+# Subtest: /gematria: ordinary calculation stays noindex and never becomes published numeric truth
+ok 38 - /gematria: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 2.261426
+  type: 'test'
+  ...
+# Subtest: /gematria: HEAD keeps calculated-query privacy and has no document body
+ok 39 - /gematria: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 2.15106
+  type: 'test'
+  ...
+# Subtest: /2029/calculator: initial document and sharing use the public calculator canonical
+ok 40 - /2029/calculator: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 0.858883
+  type: 'test'
+  ...
+# Subtest: /2029/calculator: ordinary calculation stays noindex and never becomes published numeric truth
+ok 41 - /2029/calculator: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 0.948999
+  type: 'test'
+  ...
+# Subtest: /2029/calculator: HEAD keeps calculated-query privacy and has no document body
+ok 42 - /2029/calculator: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.764962
+  type: 'test'
+  ...
+# Subtest: /2029/gematria: initial document and sharing use the public calculator canonical
+ok 43 - /2029/gematria: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 0.678462
+  type: 'test'
+  ...
+# Subtest: /2029/gematria: ordinary calculation stays noindex and never becomes published numeric truth
+ok 44 - /2029/gematria: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 0.700666
+  type: 'test'
+  ...
+# Subtest: /2029/gematria: HEAD keeps calculated-query privacy and has no document body
+ok 45 - /2029/gematria: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.751752
+  type: 'test'
+  ...
+# Subtest: /2029/gematria/viral: initial document and sharing use the public calculator canonical
+ok 46 - /2029/gematria/viral: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 0.982691
+  type: 'test'
+  ...
+# Subtest: /2029/gematria/viral: ordinary calculation stays noindex and never becomes published numeric truth
+ok 47 - /2029/gematria/viral: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 13.544711
+  type: 'test'
+  ...
+# Subtest: /2029/gematria/viral: HEAD keeps calculated-query privacy and has no document body
+ok 48 - /2029/gematria/viral: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.71073
+  type: 'test'
+  ...
+# Subtest: Number alias 1820: canonical and admission use the existing public reader (true)
+ok 49 - Number alias 1820: canonical and admission use the existing public reader (true)
+  ---
+  duration_ms: 87.393036
+  type: 'test'
+  ...
+# Subtest: Number alias 1820: canonical and admission use the existing public reader (false)
+ok 50 - Number alias 1820: canonical and admission use the existing public reader (false)
+  ---
+  duration_ms: 4.09658
+  type: 'test'
+  ...
+# Subtest: Number alias 1820: source outage fails closed instead of advertising an indexed result
+ok 51 - Number alias 1820: source outage fails closed instead of advertising an indexed result
+  ---
+  duration_ms: 5.58719
+  type: 'test'
+  ...
+# Subtest: Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (true)
+ok 52 - Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (true)
+  ---
+  duration_ms: 1.788464
+  type: 'test'
+  ...
+# Subtest: Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (false)
+ok 53 - Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (false)
+  ---
+  duration_ms: 1.078194
+  type: 'test'
+  ...
+# Subtest: Number alias %D7%9E%D7%A9%D7%99%D7%97: source outage fails closed instead of advertising an indexed result
+ok 54 - Number alias %D7%9E%D7%A9%D7%99%D7%97: source outage fails closed instead of advertising an indexed result
+  ---
+  duration_ms: 1.463284
+  type: 'test'
+  ...
+# Subtest: Number alias HEAD reuses admission, remains no-store and sends no document body
+ok 55 - Number alias HEAD reuses admission, remains no-store and sends no document body
+  ---
+  duration_ms: 1.318205
+  type: 'test'
+  ...
+# Subtest: Gallery collection metadata is public without querying a Post or exposing a selected image
+ok 56 - Gallery collection metadata is public without querying a Post or exposing a selected image
+  ---
+  duration_ms: 0.660896
+  type: 'test'
+  ...
+# Subtest: Gallery HEAD is a real successful public document response with an empty body
+ok 57 - Gallery HEAD is a real successful public document response with an empty body
+  ---
+  duration_ms: 0.711622
+  type: 'test'
+  ...
+# Subtest: unverified Gallery selectors are not published as image metadata
+ok 58 - unverified Gallery selectors are not published as image metadata
+  ---
+  duration_ms: 1.582163
+  type: 'test'
+  ...
+# Subtest: ordinary Posts selection remains noindex (q=synthetic)
+ok 59 - ordinary Posts selection remains noindex (q=synthetic)
+  ---
+  duration_ms: 0.753625
+  type: 'test'
+  ...
+# Subtest: ordinary Posts selection remains noindex (page=2)
+ok 60 - ordinary Posts selection remains noindex (page=2)
+  ---
+  duration_ms: 0.520233
+  type: 'test'
+  ...
+# Subtest: ordinary Posts selection remains noindex (series=synthetic-series)
+ok 61 - ordinary Posts selection remains noindex (series=synthetic-series)
+  ---
+  duration_ms: 0.958268
+  type: 'test'
+  ...
+# Subtest: unfiltered public Posts retain their canonical identity and indexability
+ok 62 - unfiltered public Posts retain their canonical identity and indexability
+  ---
+  duration_ms: 1.09556
+  type: 'test'
+  ...
+# Subtest: a Gallery collection fix cannot turn an unknown Post/child path into a public success
+ok 63 - a Gallery collection fix cannot turn an unknown Post/child path into a public success
+  ---
+  duration_ms: 4.060807
+  type: 'test'
+  ...
+# Subtest: public normalization cannot strip internal aliases or grant account access
+ok 64 - public normalization cannot strip internal aliases or grant account access
+  ---
+  duration_ms: 1.200919
+  type: 'test'
+  ...
+# Subtest: dormant admission cannot be bypassed by selecting the newly fixed public routes
+ok 65 - dormant admission cannot be bypassed by selecting the newly fixed public routes
+  ---
+  duration_ms: 0.211037
+  type: 'test'
+  ...
+# Subtest: the standalone Golden Number metadata profile is unchanged by public document alias normalization
+ok 66 - the standalone Golden Number metadata profile is unchanged by public document alias normalization
+  ---
+  duration_ms: 0.77684
+  type: 'test'
+  ...
+# Subtest: worker policy changed and exact callback alone consumes tab-bound PKCE
+ok 67 - worker policy changed and exact callback alone consumes tab-bound PKCE
+  ---
+  duration_ms: 1.590145
+  type: 'test'
+  ...
+# Subtest: Google and Facebook share verified exact callback and reject unapproved Preview origins
+ok 68 - Google and Facebook share verified exact callback and reject unapproved Preview origins
+  ---
+  duration_ms: 0.944182
+  type: 'test'
+  ...
+# Subtest: emitted account transport admits existing login, new signup, verification and exact PKCE exchange
+ok 69 - emitted account transport admits existing login, new signup, verification and exact PKCE exchange
+  ---
+  duration_ms: 44.339804
+  type: 'test'
+  ...
+# Subtest: new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants
+ok 70 - new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants
+  ---
+  duration_ms: 9.798428
+  type: 'test'
+  ...
+# Subtest: historical Preview Auth remains password-only unless explicitly opted in by this worker
+ok 71 - historical Preview Auth remains password-only unless explicitly opted in by this worker
+  ---
+  duration_ms: 0.966946
+  type: 'test'
+  ...
+# Subtest: explicit admin actions verify canonical JWT and exact own role before forwarding original request
+ok 72 - explicit admin actions verify canonical JWT and exact own role before forwarding original request
+  ---
+  duration_ms: 9.927463
+  type: 'test'
+  ...
+# Subtest: anonymous/member/spoofed identity, stale role, JWT failure and transport failure cannot invoke action
+ok 73 - anonymous/member/spoofed identity, stale role, JWT failure and transport failure cannot invoke action
+  ---
+  duration_ms: 8.545281
+  type: 'test'
+  ...
+# Subtest: no private role cache survives revocation or replacement; denied action never reaches endpoint
+ok 74 - no private role cache survives revocation or replacement; denied action never reaches endpoint
+  ---
+  duration_ms: 0.885474
+  type: 'test'
+  ...
+# Subtest: financial, shared flag, mail delivery and foreign writes remain unavailable even to admin
+ok 75 - financial, shared flag, mail delivery and foreign writes remain unavailable even to admin
+  ---
+  duration_ms: 14.988821
+  type: 'test'
+  ...
+# Subtest: signed private media TUS requires verified admin JWT on every chunk; signature alone grants nothing
+ok 76 - signed private media TUS requires verified admin JWT on every chunk; signature alone grants nothing
+  ---
+  duration_ms: 7.582531
+  type: 'test'
+  ...
+# Subtest: same-origin private adapter preserves only same-origin protection cookies; it independently verifies the current server principal
+ok 77 - same-origin private adapter preserves only same-origin protection cookies; it independently verifies the current server principal
+  ---
+  duration_ms: 6.303885
+  type: 'test'
+  ...
+# Subtest: server private wrapper checks deployment, host, method and verified admin independently of worker
+ok 78 - server private wrapper checks deployment, host, method and verified admin independently of worker
+  ---
+  duration_ms: 2.483
+  type: 'test'
+  ...
+# Subtest: prepared full-account helper retains actual SDK PKCE shapes and exact callbacks, separately from current emitted restriction
+ok 79 - prepared full-account helper retains actual SDK PKCE shapes and exact callbacks, separately from current emitted restriction
+  ---
+  duration_ms: 29.280031
+  type: 'test'
+  ...
+# Subtest: existing publishable fallback is used only for verification; original target bearer is never replaced
+ok 80 - existing publishable fallback is used only for verification; original target bearer is never replaced
+  ---
+  duration_ms: 3.833113
+  type: 'test'
+  ...
+# Subtest: public-reading reuses existing Auth without acquisition, while untrusted callback and metadata still fail closed
+ok 81 - public-reading reuses existing Auth without acquisition, while untrusted callback and metadata still fail closed
+  ---
+  duration_ms: 10.088881
+  type: 'test'
+  ...
+# Subtest: emitted OAuth navigation requires exact callback, genuine PKCE shape and bounded provider scopes before browser navigation
+ok 82 - emitted OAuth navigation requires exact callback, genuine PKCE shape and bounded provider scopes before browser navigation
+  ---
+  duration_ms: 3.396766
+  type: 'test'
+  ...
+# Subtest: actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT
+ok 83 - actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT
+  ---
+  duration_ms: 56.522268
+  type: 'test'
+  ...
+# Subtest: restored native Community publishes for a verified ordinary member through the existing RPC
+ok 84 - restored native Community publishes for a verified ordinary member through the existing RPC
+  ---
+  duration_ms: 2.730069
+  type: 'test'
+  ...
+# Subtest: restored Community rejects guests, expired sessions, forged actors and malformed publication
+ok 85 - restored Community rejects guests, expired sessions, forged actors and malformed publication
+  ---
+  duration_ms: 12.658722
+  type: 'test'
+  ...
+# Subtest: reply and reaction targets require the canonical anonymous public context
+ok 86 - reply and reaction targets require the canonical anonymous public context
+  ---
+  duration_ms: 9.824431
+  type: 'test'
+  ...
+# Subtest: original OpenWeb API and authenticated existing SSO are available without opening foreign writes or model access
+ok 87 - original OpenWeb API and authenticated existing SSO are available without opening foreign writes or model access
+  ---
+  duration_ms: 8.518986
+  type: 'test'
+  ...
+# Subtest: published CSP admits the original OpenWeb service while retaining object/frame/base restrictions
+ok 88 - published CSP admits the original OpenWeb service while retaining object/frame/base restrictions
+  ---
+  duration_ms: 3.179075
+  type: 'test'
+  ...
+# Subtest: unregistered repeatable likes use public context and the anonymous counter path on every press
+ok 89 - unregistered repeatable likes use public context and the anonymous counter path on every press
+  ---
+  duration_ms: 12.258874
+  type: 'test'
+  ...
+# Subtest: guest repeatable mode cannot broaden emoji, body shape or nonpublic targets
+ok 90 - guest repeatable mode cannot broaden emoji, body shape or nonpublic targets
+  ---
+  duration_ms: 2.842338
+  type: 'test'
+  ...
+# Subtest: dormant default cannot be activated by environment, forged request or production branch name
+ok 91 - dormant default cannot be activated by environment, forged request or production branch name
+  ---
+  duration_ms: 430.476396
+  type: 'test'
+  ...
+# Subtest: only dedicated 2029 compiler target can enable the signed service; default, Preview and stray Legacy flags cannot
+ok 92 - only dedicated 2029 compiler target can enable the signed service; default, Preview and stray Legacy flags cannot
+  ---
+  duration_ms: 4.810467
+  type: 'test'
+  ...
+# Subtest: Production document uses canonical owner, preserves old/native/encoded/wp addresses and genuine missing/failure status
+ok 93 - Production document uses canonical owner, preserves old/native/encoded/wp addresses and genuine missing/failure status
+  ---
+  duration_ms: 41.507177
+  type: 'test'
+  ...
+# Subtest: closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe
+ok 94 - closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe
+  ---
+  duration_ms: 7.171028
+  type: 'test'
+  ...
+# Subtest: public aliases and named existing capabilities retain truthful continuations without publicizing unknown slugs
+ok 95 - public aliases and named existing capabilities retain truthful continuations without publicizing unknown slugs
+  ---
+  duration_ms: 7.936894
+  type: 'test'
+  ...
+# Subtest: HTTP origin, path and method boundaries cannot select metadata profile or enter private readers
+ok 96 - HTTP origin, path and method boundaries cannot select metadata profile or enter private readers
+  ---
+  duration_ms: 3.989148
+  type: 'test'
+  ...
+# Subtest: Numbers/phrases use the same canonical indexability readers; source failure is 503, false is noindex
+ok 97 - Numbers/phrases use the same canonical indexability readers; source failure is 503, false is noindex
+  ---
+  duration_ms: 9.053558
+  type: 'test'
+  ...
+# Subtest: public topic/writer/video missing and failed source responses keep 404 and 503 distinct
+ok 98 - public topic/writer/video missing and failed source responses keep 404 and 503 distinct
+  ---
+  duration_ms: 5.747831
+  type: 'test'
+  ...
+# Subtest: sitemap reuses eligible publication owner for both Post families, Numbers, phrases, topic, public writer and verified video
+ok 99 - sitemap reuses eligible publication owner for both Post families, Numbers, phrases, topic, public writer and verified video
+  ---
+  duration_ms: 5.723744
+  type: 'test'
+  ...
+# Subtest: robots follows Production canonical sitemap while dormant mode fails closed; public GET APIs strip Legacy authority and reject POST
+ok 100 - robots follows Production canonical sitemap while dormant mode fails closed; public GET APIs strip Legacy authority and reject POST
+  ---
+  duration_ms: 0.809371
+  type: 'test'
+  ...
+# Subtest: exact emitted worker denies A3/models/Auth/credits/writes through GET/POST/PATCH/DELETE and proxy paths before network
+ok 101 - exact emitted worker denies A3/models/Auth/credits/writes through GET/POST/PATCH/DELETE and proxy paths before network
+  ---
+  duration_ms: 15.921899
+  type: 'test'
+  ...
+# Subtest: active worker claims only a same-origin window requesting its exact source and policy
+ok 102 - active worker claims only a same-origin window requesting its exact source and policy
+  ---
+  duration_ms: 1.271588
+  type: 'test'
+  ...
+# Subtest: emitted worker retains public calculator/STABLE GET/community projection reads and context checks, never raw replies
+ok 103 - emitted worker retains public calculator/STABLE GET/community projection reads and context checks, never raw replies
+  ---
+  duration_ms: 6.333214
+  type: 'test'
+  ...
+# Subtest: language-link reader admits approved-only scope and denies visitor drafts before any network call
+ok 104 - language-link reader admits approved-only scope and denies visitor drafts before any network call
+  ---
+  duration_ms: 9.671295
+  type: 'test'
+  ...
+# Subtest: signed Legacy unsubscribe alone can reach its unchanged HMAC server from exact controlled service document
+ok 105 - signed Legacy unsubscribe alone can reach its unchanged HMAC server from exact controlled service document
+  ---
+  duration_ms: 4.638447
+  type: 'test'
+  ...
+# Subtest: bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout
+ok 106 - bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout
+  ---
+  duration_ms: 57.363391
+  type: 'test'
+  ...
+# Subtest: actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and byte-exact Legacy rollback worker
+ok 107 - actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and byte-exact Legacy rollback worker
+  ---
+  duration_ms: 65.847487
+  type: 'test'
+  ...
+# Subtest: native public image loading retains opaque response compatibility without bypassing private reads or writes
+ok 108 - native public image loading retains opaque response compatibility without bypassing private reads or writes
+  ---
+  duration_ms: 2.339739
+  type: 'test'
+  ...
+# Subtest: approved explicit report receipt path permits no identity-bearing, generic telemetry or unrelated writes
+ok 109 - approved explicit report receipt path permits no identity-bearing, generic telemetry or unrelated writes
+  ---
+  duration_ms: 5.486897
+  type: 'test'
+  ...
+# Subtest: actual Supabase insert array columns are admitted exactly; extra columns and selectors remain denied
+ok 110 - actual Supabase insert array columns are admitted exactly; extra columns and selectors remain denied
+  ---
+  duration_ms: 46.985451
+  type: 'test'
+  ...
+# Subtest: explicit report retains canonical anonymous session correlation without accepting visitor identity
+ok 111 - explicit report retains canonical anonymous session correlation without accepting visitor identity
+  ---
+  duration_ms: 2.377547
+  type: 'test'
+  ...
+# Subtest: Production target needs explicit staged mode and remains non-cutover
+ok 112 - Production target needs explicit staged mode and remains non-cutover
+  ---
+  duration_ms: 1.535813
+  type: 'test'
+  ...
+# Subtest: staged admission rejects wrong SHA, dirty sources, copied deployment, main and missing platform identity
+ok 113 - staged admission rejects wrong SHA, dirty sources, copied deployment, main and missing platform identity
+  ---
+  duration_ms: 0.501816
+  type: 'test'
+  ...
+# Subtest: staged nested-config materialization permits no additional change
+ok 114 - staged nested-config materialization permits no additional change
+  ---
+  duration_ms: 0.609879
+  type: 'test'
+  ...
+# Subtest: compiler rejects combined/duplicate/missing-pin staged commands before build
+ok 115 - compiler rejects combined/duplicate/missing-pin staged commands before build
+  ---
+  duration_ms: 586.673474
+  type: 'test'
+  ...
+# Subtest: staged adapters accept only their immutable host and stay noindex before public source reads
+ok 116 - staged adapters accept only their immutable host and stay noindex before public source reads
+  ---
+  duration_ms: 238.597185
+  type: 'test'
+  ...
+# Subtest: exact clean source emits a frozen Preview-only receipt and admits only that runtime
+ok 117 - exact clean source emits a frozen Preview-only receipt and admits only that runtime
+  ---
+  duration_ms: 1.109704
+  type: 'test'
+  ...
+# Subtest: build identity rejects missing or wrong platform fields, targets, source pins and dirty source
+ok 118 - build identity rejects missing or wrong platform fields, targets, source pins and dirty source
+  ---
+  duration_ms: 3.667282
+  type: 'test'
+  ...
+# Subtest: runtime receipt cannot be activated by environment alone, Production or copied deployment identity
+ok 119 - runtime receipt cannot be activated by environment alone, Production or copied deployment identity
+  ---
+  duration_ms: 0.301455
+  type: 'test'
+  ...
+# Subtest: only Preview's sole unstaged root config may equal the complete committed nested config
+ok 120 - only Preview's sole unstaged root config may equal the complete committed nested config
+  ---
+  duration_ms: 0.903824
+  type: 'test'
+  ...
+# Subtest: compiler rejects an absent, duplicate or malformed review mode/pin before compiling
+ok 121 - compiler rejects an absent, duplicate or malformed review mode/pin before compiling
+  ---
+  duration_ms: 708.575661
+  type: 'test'
+  ...
+# Subtest: generated receipt is statically traced into Node and Edge-compatible authorization; missing process fails closed
+ok 122 - generated receipt is statically traced into Node and Edge-compatible authorization; missing process fails closed
+  ---
+  duration_ms: 46.237553
+  type: 'test'
+  ...
+# Subtest: actual hosted adapters preserve old URLs/canonical metadata while review stays noindex and rejects spoofing
+ok 123 - actual hosted adapters preserve old URLs/canonical metadata while review stays noindex and rejects spoofing
+  ---
+  duration_ms: 324.20161
+  type: 'test'
+  ...
+# Subtest: artifact root config cannot shadow the pinned review command; default package build stays dormant
+ok 124 - artifact root config cannot shadow the pinned review command; default package build stays dormant
+  ---
+  duration_ms: 11.703415
+  type: 'test'
+  ...
+# Subtest: default artifact records raw dirtiness without any platform materialization authority
+ok 125 - default artifact records raw dirtiness without any platform materialization authority
+  ---
+  duration_ms: 2.992374
+  type: 'test'
+  ...
+# Subtest: stable Auth alias needs the exact generated Preview platform proof; canonical and unrelated aliases remain denied
+ok 126 - stable Auth alias needs the exact generated Preview platform proof; canonical and unrelated aliases remain denied
+  ---
+  duration_ms: 26.689323
+  type: 'test'
+  ...
+# Subtest: public-capable candidate needs exact real-shaped Production identity but does not authorize traffic assignment
+ok 127 - public-capable candidate needs exact real-shaped Production identity but does not authorize traffic assignment
+  ---
+  duration_ms: 1.810191
+  type: 'test'
+  ...
+# Subtest: missing, wrong, copied, Preview, main, foreign, dirty and unpinned identities fail closed
+ok 128 - missing, wrong, copied, Preview, main, foreign, dirty and unpinned identities fail closed
+  ---
+  duration_ms: 0.993498
+  type: 'test'
+  ...
+# Subtest: Preview/stage receipts cannot select public serving and default remains dormant
+ok 129 - Preview/stage receipts cannot select public serving and default remains dormant
+  ---
+  duration_ms: 93.550367
+  type: 'test'
+  ...
+# Subtest: public build keeps the one exact nested-config exception; it cannot authorize unrelated dirty edits
+ok 130 - public build keeps the one exact nested-config exception; it cannot authorize unrelated dirty edits
+  ---
+  duration_ms: 0.64283
+  type: 'test'
+  ...
+# Subtest: canonical documents retain owner metadata; immutable staging is always noindex and no-store
+ok 131 - canonical documents retain owner metadata; immutable staging is always noindex and no-store
+  ---
+  duration_ms: 31.397101
+  type: 'test'
+  ...
+# Subtest: WWW redirects preserve raw encoded path and repeated query; old addresses and original path selector remain exact
+ok 132 - WWW redirects preserve raw encoded path and repeated query; old addresses and original path selector remain exact
+  ---
+  duration_ms: 19.687239
+  type: 'test'
+  ...
+# Subtest: genuine missing, closed, private, non-indexable and failed source states never become indexable successes
+ok 133 - genuine missing, closed, private, non-indexable and failed source states never become indexable successes
+  ---
+  duration_ms: 21.44469
+  type: 'test'
+  ...
+# Subtest: robots and XML allow canonical crawling while immutable stage stays private from indexing
+ok 134 - robots and XML allow canonical crawling while immutable stage stays private from indexing
+  ---
+  duration_ms: 34.090759
+  type: 'test'
+  ...
+# Subtest: foreign hosts, path spoofing and unsupported methods reject before public readers
+ok 135 - foreign hosts, path spoofing and unsupported methods reject before public readers
+  ---
+  duration_ms: 63.52367
+  type: 'test'
+  ...
+# Subtest: public deployment proof never replaces caller JWT or private authorization
+ok 136 - public deployment proof never replaces caller JWT or private authorization
+  ---
+  duration_ms: 31.715225
+  type: 'test'
+  ...
+# Subtest: Edge share renderer admits only exact allowed public candidate hosts
+ok 137 - Edge share renderer admits only exact allowed public candidate hosts
+  ---
+  duration_ms: 41.061159
+  type: 'test'
+  ...
+# Subtest: new build mode rejects mixed, duplicate and missing pins before any compiler or platform operation
+ok 138 - new build mode rejects mixed, duplicate and missing pins before any compiler or platform operation
+  ---
+  duration_ms: 812.670295
+  type: 'test'
+  ...
+# Subtest: direct document API remains noindex even for an eligible public post on the canonical host
+ok 139 - direct document API remains noindex even for an eligible public post on the canonical host
+  ---
+  duration_ms: 17.561984
+  type: 'test'
+  ...
+1..139
+# tests 139
+# suites 0
+# pass 139
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3238.229839

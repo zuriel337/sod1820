@@ -1,0 +1,34 @@
+{
+  "purpose": "Current-source targeted HTTP readback after independent community-only commit; not a rerun of browser acceptance",
+  "deployment": {
+    "id": "dpl_8yput4peUzwKgnw62ntGaQFzSGBP",
+    "target": "production",
+    "readyState": "READY",
+    "sourceSha": "ae8deb7ae1775046dc616a41f66307a7881dfe70"
+  },
+  "artifactAfter": {
+    "status": 200,
+    "sourceSha": "ae8deb7ae1775046dc616a41f66307a7881dfe70"
+  },
+  "relevantSourceFilesUnchangedFromBrowserAudit": "git diff f4390dd3..ae8deb7a zero changes for api/og, public-document, authorization, App2029, publicReadingRelease, Posts, Number/Address, calculator pages, Gallery and build script",
+  "rows": [
+    {
+      "path": "/2029/number/1820",
+      "status": 200,
+      "canonical": "https://sod1820.co.il/2029/number/1820",
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/post",
+      "status": 200,
+      "canonical": "https://sod1820.co.il/post",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/gallery",
+      "status": 404,
+      "canonical": "https://sod1820.co.il/gallery",
+      "robots": "noindex, nofollow, noarchive"
+    }
+  ]
+}

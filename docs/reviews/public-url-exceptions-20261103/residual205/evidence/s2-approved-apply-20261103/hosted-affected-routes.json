@@ -1,0 +1,65 @@
+{
+  "sourceSha": "94fd851a5bed844e36886edf48e42ec3ce33a1ff",
+  "branch": "gpt/2029-public-cutover-final-preparation-20261103",
+  "deploymentId": "dpl_C5GWFUhhT7r2qSK8dNoBGYedKqp2",
+  "realPublicData": true,
+  "actualSW": true,
+  "modelCalls": 0,
+  "liveWrites": 0,
+  "testMail": 0,
+  "accountAcceptance": "existing user-reported two-account receipt retained separately; no new account test",
+  "cases": [
+    {
+      "name": "real old Post, full Number/Phrase and exact browser return",
+      "width": 390,
+      "passed": true,
+      "postId": "1259",
+      "returnTo": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?part=2&part=7#post-content",
+      "scope": "real direct entries plus browser history, not a new method-click acceptance"
+    },
+    {
+      "name": "World, calculator and guest personal/admin gates remain truthful",
+      "width": 390,
+      "passed": true,
+      "privilegedReads": "no genuine admin session used; named private state retained without revealing CP1"
+    },
+    {
+      "name": "real old Post, full Number/Phrase and exact browser return",
+      "width": 1440,
+      "passed": true,
+      "postId": "1259",
+      "returnTo": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?part=2&part=7#post-content",
+      "scope": "real direct entries plus browser history, not a new method-click acceptance"
+    },
+    {
+      "name": "World, calculator and guest personal/admin gates remain truthful",
+      "width": 1440,
+      "passed": true,
+      "privilegedReads": "no genuine admin session used; named private state retained without revealing CP1"
+    }
+  ],
+  "errors": [],
+  "denied": [
+    {
+      "width": 390,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/world_group_source_arrivals_v2"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/world_group_source_arrivals_v2"
+        }
+      ]
+    }
+  ],
+  "finishedAt": "2026-11-03T18:03:59.163Z",
+  "passed": 4,
+  "failed": 0
+}

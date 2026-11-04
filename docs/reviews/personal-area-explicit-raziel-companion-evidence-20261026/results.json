@@ -1,0 +1,202 @@
+{
+  "cases": [
+    {
+      "width": 320,
+      "theme": "light",
+      "current": true,
+      "title_search": true,
+      "landscape_lineage": true,
+      "dossier_explicit_links": true,
+      "resave_no_duplicate": true,
+      "scroll": true,
+      "open_model_calls": 0,
+      "explicit_companion_calls": 1,
+      "double_click_deduplicated": true
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "current": true,
+      "title_search": true,
+      "landscape_lineage": true,
+      "dossier_explicit_links": true,
+      "resave_no_duplicate": true,
+      "scroll": true,
+      "open_model_calls": 0,
+      "explicit_companion_calls": 1,
+      "double_click_deduplicated": true
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "current": true,
+      "title_search": true,
+      "landscape_lineage": true,
+      "dossier_explicit_links": true,
+      "resave_no_duplicate": true,
+      "scroll": true,
+      "open_model_calls": 0,
+      "explicit_companion_calls": 1,
+      "double_click_deduplicated": true
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "current": true,
+      "title_search": true,
+      "landscape_lineage": true,
+      "dossier_explicit_links": true,
+      "resave_no_duplicate": true,
+      "scroll": true,
+      "open_model_calls": 0,
+      "explicit_companion_calls": 1,
+      "double_click_deduplicated": true
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "current": true,
+      "title_search": true,
+      "landscape_lineage": true,
+      "dossier_explicit_links": true,
+      "resave_no_duplicate": true,
+      "scroll": true,
+      "open_model_calls": 0,
+      "explicit_companion_calls": 1,
+      "double_click_deduplicated": true
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "current": true,
+      "title_search": true,
+      "landscape_lineage": true,
+      "dossier_explicit_links": true,
+      "resave_no_duplicate": true,
+      "scroll": true,
+      "open_model_calls": 0,
+      "explicit_companion_calls": 1,
+      "double_click_deduplicated": true
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "current": true,
+      "title_search": true,
+      "landscape_lineage": true,
+      "dossier_explicit_links": true,
+      "resave_no_duplicate": true,
+      "scroll": true,
+      "open_model_calls": 0,
+      "explicit_companion_calls": 1,
+      "double_click_deduplicated": true
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "current": true,
+      "title_search": true,
+      "landscape_lineage": true,
+      "dossier_explicit_links": true,
+      "resave_no_duplicate": true,
+      "scroll": true,
+      "open_model_calls": 0,
+      "explicit_companion_calls": 1,
+      "double_click_deduplicated": true
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "current": true,
+      "title_search": true,
+      "landscape_lineage": true,
+      "dossier_explicit_links": true,
+      "resave_no_duplicate": true,
+      "scroll": true,
+      "open_model_calls": 0,
+      "explicit_companion_calls": 1,
+      "double_click_deduplicated": true
+    },
+    {
+      "guest_a_logout_b": true,
+      "private_sync": true,
+      "known_zero": true,
+      "rename_identity": true,
+      "confirmed_delete": true,
+      "no_ai": true
+    },
+    {
+      "stale_private_hydration_discarded": true,
+      "unknown_not_zero": true
+    },
+    {
+      "existing_buckets": true,
+      "saved_and_collection_share_session": true,
+      "source_exact_locator": true,
+      "reload": true,
+      "exact_return": true
+    },
+    {
+      "sync_error_truthful": true
+    },
+    {
+      "invalid_saved_conversation_fails_closed": true,
+      "no_ai": true
+    }
+  ],
+  "errors": [],
+  "model_calls": [
+    {
+      "capability": "personal_overview",
+      "focus": "current_step",
+      "opaque_ref_count": 0
+    },
+    {
+      "capability": "personal_overview",
+      "focus": "current_step",
+      "opaque_ref_count": 0
+    },
+    {
+      "capability": "personal_overview",
+      "focus": "current_step",
+      "opaque_ref_count": 0
+    },
+    {
+      "capability": "personal_overview",
+      "focus": "current_step",
+      "opaque_ref_count": 0
+    },
+    {
+      "capability": "personal_overview",
+      "focus": "current_step",
+      "opaque_ref_count": 0
+    },
+    {
+      "capability": "personal_overview",
+      "focus": "current_step",
+      "opaque_ref_count": 0
+    },
+    {
+      "capability": "personal_overview",
+      "focus": "current_step",
+      "opaque_ref_count": 0
+    },
+    {
+      "capability": "personal_overview",
+      "focus": "current_step",
+      "opaque_ref_count": 0
+    },
+    {
+      "capability": "personal_overview",
+      "focus": "current_step",
+      "opaque_ref_count": 0
+    }
+  ],
+  "unexpected_model_calls": [],
+  "els_calls": [],
+  "family_research_calls": [],
+  "unexpected_writes": [],
+  "private_telemetry": [],
+  "private_model_payload": [],
+  "live_requests": 0
+}

@@ -1,0 +1,132 @@
+/* Public writer gateway: one editorial family for the general writer page and the source-catalogue writer page.
+   Colors come only from the semantic palette tokens set on the section (--pc-*). */
+.public-contributor-2029{color:var(--pc-ink);font-family:var(--s29-font-ui,'Rubik','Noto Sans Hebrew',Arial,sans-serif);font-size:var(--s29-type-ui,16px);line-height:1.6;max-width:920px;margin-inline:auto;min-width:0;overflow-wrap:anywhere;padding:clamp(12px,3vw,32px);display:flex;flex-direction:column;gap:20px}
+.public-contributor-2029 *{box-sizing:border-box;min-width:0}
+.public-contributor-2029 h1,.public-contributor-2029 h2,.public-contributor-2029 h3,.public-contributor-2029 p{margin:0}
+.public-contributor-2029 h1{font-size:clamp(30px,5vw,44px);line-height:1.18;font-weight:600;letter-spacing:-.01em}
+.public-contributor-2029 h2{font-size:var(--s29-type-lead,21px);font-weight:600}
+.public-contributor-2029 h3{font-size:var(--s29-type-lead,21px);line-height:1.45;font-weight:600}
+.public-contributor-2029 button,.public-contributor-2029 select,.public-contributor-2029 input{font:inherit;color:var(--pc-ink);border:1px solid var(--pc-border);background:transparent;border-radius:10px;min-height:44px;min-width:44px;padding:8px 14px;max-width:100%;cursor:pointer}
+.public-contributor-2029 a{color:var(--pc-accent);text-underline-offset:4px}
+.public-contributor-2029 :is(a,button,select,input,summary):focus-visible{outline:2px solid var(--pc-focus);outline-offset:3px}
+.public-contributor-2029 h1{width:fit-content;max-width:100%}
+.public-contributor-2029 h1:focus-visible{outline-offset:8px;border-radius:12px}
+.public-contributor-2029 a.pc-return,.public-contributor-2029 .pc-open{display:inline-flex;align-items:center;gap:8px;min-height:44px}
+.public-contributor-2029 a.pc-return{align-self:flex-start;color:var(--pc-muted);text-decoration:none;font-size:var(--s29-type-small,16px)}
+.public-contributor-2029 .pc-inline{display:inline;border:0;background:none;padding:0 4px;min-height:44px;color:var(--pc-accent);text-decoration:underline;text-underline-offset:4px}
+
+/* Hero: the text leads, the rank portrait sits beside it as part of the same composition. */
+.pc-profile{order:1;display:flex;align-items:center;gap:clamp(16px,4vw,40px);padding-block:clamp(8px,3vw,24px) 4px;flex-wrap:wrap}
+.pc-profile-copy{display:grid;gap:12px;flex:1 1 340px}
+.pc-eyebrow{color:var(--pc-accent);font-size:var(--s29-type-small,16px);letter-spacing:.04em}
+.pc-role{color:var(--pc-muted);font-size:var(--s29-type-ui,16px)}
+.pc-bio,.pc-body{font-family:var(--s29-font-body,'Noto Sans Hebrew','Rubik',Arial,sans-serif);font-size:var(--s29-type-body,18px);line-height:1.85;white-space:pre-wrap;max-width:62ch}
+.pc-boundary{color:var(--pc-muted);font-size:var(--s29-type-small,16px)}
+.pc-reason,.pc-source-state{color:var(--pc-muted);font-size:var(--s29-type-small,16px)}
+.public-contributor-2029 .pc-avatar{width:72px;height:72px;border-radius:50%;object-fit:cover;flex:none;max-width:25%}
+
+/* Order: hero, actions, quiet facts, reading strip, navigation, content. */
+.public-contributor-2029>.cx-actions{order:2}
+.public-contributor-2029>.cx-overview{order:3}
+.public-contributor-2029>.rc-summary{order:4}
+.public-contributor-2029>.rc-featured,.public-contributor-2029>div:has(>.rc-featured){order:5}
+.public-contributor-2029>.pc-filters{order:6}
+.public-contributor-2029>.cx-studio{order:7}
+.public-contributor-2029>*:not(.pc-return,.pc-profile,.cx-actions,.cx-overview,.rc-summary,.rc-featured,.pc-filters,.cx-studio){order:8}
+.public-contributor-2029>.pc-return{order:0}
+
+/* One calm content navigation */
+.pc-filters{display:flex;flex-wrap:wrap;align-items:center;gap:4px 20px;margin-block:8px 0;border-block-end:1px solid var(--pc-border)}
+.public-contributor-2029 .pc-filters button{border:0;border-radius:0;background:none;padding:6px 2px;border-block-end:2px solid transparent;color:var(--pc-muted);display:inline-flex;align-items:center;gap:8px}
+.public-contributor-2029 .pc-filters button[aria-pressed=true]{border-block-end-color:var(--pc-accent);color:var(--pc-ink);font-weight:600}
+.pc-count{color:var(--pc-muted);font-size:var(--s29-type-small,16px);font-weight:400;font-family:var(--s29-font-numeric,'IBM Plex Mono',monospace)}
+.public-contributor-2029 .pc-filters .pc-world{margin-inline-start:auto;font-size:var(--s29-type-small,16px)}
+.public-contributor-2029 section>.pc-filters{margin-block:12px 4px;border:0;gap:8px}
+.public-contributor-2029 section>.pc-filters button{border:1px solid var(--pc-border);border-radius:999px;padding:6px 16px}
+.public-contributor-2029 section>.pc-filters button[aria-pressed=true]{border-color:var(--pc-accent);background:var(--pc-soft)}
+.pc-list-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-block:4px 8px}
+.pc-list-heading label{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--pc-muted);font-size:var(--s29-type-small,16px)}
+.pc-community-peek{padding-block:4px}
+.pc-community-peek h2{font-size:var(--s29-type-ui,16px);color:var(--pc-muted)}
+.pc-pagination{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-block:20px}
+
+/* Publication cards: media and title first, quiet metadata, one useful action. */
+.pc-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:24px 20px;margin-block-start:12px}
+.pc-item{display:flex;flex-direction:column;gap:10px;padding-block:16px;border-block-start:1px solid var(--pc-border);scroll-margin-block:90px}
+.pc-item>.pc-item-meta{order:-2}
+.pc-item>a:has(.pc-catalog-media),.pc-item>.pc-catalog-media{order:-1}
+.public-contributor-2029 .pc-catalog-media{display:block;max-height:260px;width:100%;object-fit:cover;border-radius:12px;background:var(--pc-soft)}
+.pc-item-meta{display:flex;gap:4px 14px;flex-wrap:wrap;color:var(--pc-muted);font-size:var(--s29-type-small,16px)}
+.pc-item-meta>span:first-child{color:var(--pc-secondary)}
+.pc-item h3 a{color:var(--pc-ink);text-decoration:none}
+.pc-item h3 a:hover{text-decoration:underline}
+.pc-item .pc-open{font-size:var(--s29-type-small,16px);align-self:flex-start}
+.public-contributor-2029 :is(.pc-items .pc-open,.pc-detail .pc-open,.pc-filters .pc-world){color:var(--pc-discovery)}
+.pc-paired{font-size:var(--s29-type-small,16px)}
+.pc-metrics{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:var(--s29-type-small,16px);color:var(--pc-muted)}
+.pc-number{font-family:var(--s29-font-numeric,'IBM Plex Mono',monospace)}
+.public-contributor-2029 .pc-disclose{justify-self:start;align-self:flex-start;border:0;padding-inline:0;color:var(--pc-accent);display:flex;gap:10px;align-items:center}
+.pc-item-actions:empty{display:none}
+.pc-detail{display:grid;gap:16px;border-top:1px solid var(--pc-border);padding-top:16px;max-width:100%}
+/* Adapt the existing source lens to this surface's readable UI scale, without changing it globally. */
+.pc-detail [data-experience-surface="contributor-findings-lens"] :is(div,p,span,button,select,input,summary){font-size:var(--s29-type-small,16px)!important}
+.pc-detail [data-experience-capability="contributor-source-fidelity"]>div:last-child{font-size:var(--s29-type-body,18px)!important}
+.pc-detail summary{min-height:44px;align-content:center}
+.public-contributor-2029 .pc-notice{border-inline-start:3px solid var(--pc-accent);padding:10px 16px;background:var(--pc-soft);font-size:var(--s29-type-small,16px);border-radius:0 8px 8px 0}
+.public-contributor-2029 .pc-more{display:block;margin:12px auto;background:var(--pc-soft)}
+.public-contributor-2029 :is(img,video){max-width:100%;height:auto}
+
+/* Existing community feed (ContributorCommunityActivity2029 -> CommunityLive2029): restyled in place with the page tokens. */
+.public-contributor-2029 .sod29-community-profile{--s29-ink:var(--pc-ink);--s29-muted:var(--pc-muted);--s29-line:var(--pc-border);--s29-panel:transparent;--s29-panel-soft:var(--pc-soft);--s29-accent:var(--pc-accent);--s29-accent-text:var(--pc-accent);max-width:none;padding:0;border:0;background:transparent;color:var(--pc-ink);font-family:var(--s29-font-ui,'Rubik','Noto Sans Hebrew',Arial,sans-serif)}
+.public-contributor-2029 .sod29-community-profile{width:100%;margin-inline:0}
+.public-contributor-2029 .sod29-community-profile-section{margin-top:0;align-items:center;padding-block-end:12px}
+.public-contributor-2029 .sod29-community-profile-section p{font-size:var(--s29-type-small,16px);color:var(--pc-muted)}
+/* Reading floor (Design V2): message text is 18px with a readable measure; metadata keeps the 14px floor; actions are 16px.
+   Replaces a blanket max(14px,1em) that shrank message text to 16px. */
+.public-contributor-2029 .sod29-community-profile :is(small,time){font-size:max(var(--s29-type-micro,14px),1em)}
+.public-contributor-2029 .sod29-community-body,.public-contributor-2029 .sod29-community-body :is(p,span,a,li){font-family:var(--s29-font-body,'Noto Sans Hebrew','Rubik',Arial,sans-serif);font-size:var(--s29-type-body,18px);line-height:1.8}
+.public-contributor-2029 .sod29-community-body{max-width:66ch;margin-block:8px 6px}
+.public-contributor-2029 .sod29-community-author time{font-size:var(--s29-type-micro,14px)}
+.public-contributor-2029 .sod29-community-activity-source{color:var(--pc-secondary);font-size:var(--s29-type-micro,14px);margin-top:6px}
+.public-contributor-2029 .sod29-community-activity-title{font-size:var(--s29-type-lead,21px);line-height:1.45}
+.public-contributor-2029 .sod29-community-thread-actions{gap:8px 16px;flex-wrap:wrap}
+.public-contributor-2029 .sod29-community-thread-actions :is(button,a){font-size:var(--s29-type-ui,16px);min-height:44px;display:inline-flex;align-items:center}
+.public-contributor-2029 .sod29-community-thread-actions a{color:var(--pc-discovery)}
+/* The shared ReactionBar sets 13px inline; inside this family its like control reads at the UI size with a 44px target. */
+.public-contributor-2029 .sod29-community-reactions button{min-height:44px;min-width:44px;font-size:var(--s29-type-ui,16px)!important}
+.public-contributor-2029 .sod29-community-reactions button span{font-size:var(--s29-type-ui,16px)!important}
+.public-contributor-2029 .sod29-community-feed{border-top:1px solid var(--pc-border)}
+.public-contributor-2029 .sod29-community-profile :is(.sod29-community-load,.sod29-community-secondary){min-height:44px;font-size:16px!important;border:1px solid var(--pc-border);background:transparent;color:var(--pc-accent)}
+.public-contributor-2029 .sod29-community-end{color:var(--pc-muted);font-size:var(--s29-type-small,16px)}
+
+@media(max-width:480px){.public-contributor-2029{gap:16px}.pc-items{grid-template-columns:minmax(0,1fr)}.public-contributor-2029 .pc-filters .pc-world{margin-inline-start:0}.pc-filters{gap:2px 14px}}
+@media(prefers-reduced-motion:reduce){.public-contributor-2029 *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Desktop: the medallion sits beside the name on the start side; role labels, available measurements and the path control
+   form one row under the introduction; the path panel spans the hero. */
+@media(min-width:641px){
+  .pc-profile{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"seal copy" "seal cap" "panel panel";column-gap:clamp(20px,4vw,40px);row-gap:10px;align-items:start}
+  .pc-profile-copy{grid-area:copy}
+  .pc-profile .pc-person-seal{grid-area:seal;align-self:start}
+  .pc-profile .pc-person-copy{grid-area:cap;display:flex;flex-wrap:wrap;align-items:center;gap:6px 20px;justify-items:start;text-align:start;flex:none}
+  .pc-profile .pc-person-panel{grid-area:panel}
+}
+
+/* Mobile: a compact hero (name and role beside the medallion, labels and the path control on one row), then a one-row swipeable navigation.
+   The full bio stays reachable from the path panel; desktop keeps the editorial layout above. */
+@media(max-width:640px){
+  .pc-profile{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"seal copy" "cap cap" "panel panel";align-items:center;gap:4px 12px;padding-block:0}
+  .pc-profile-copy{grid-area:copy;gap:4px}
+  .pc-profile h1{font-size:clamp(26px,8vw,32px)}
+  .pc-profile .pc-bio,.pc-profile .pc-boundary{display:none}
+  .pc-profile .pc-person-seal{grid-area:seal;margin:0}
+  .pc-profile .pc-person-copy{grid-area:cap;display:flex;flex-wrap:wrap;align-items:center;gap:2px 14px}
+  .pc-profile .pc-person-summary{gap:0 14px}
+  .pc-profile .pc-person-panel{grid-area:panel}
+  .pc-filters{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0 16px;margin-block:0}
+  .pc-filters::-webkit-scrollbar{display:none}
+  .public-contributor-2029 .pc-filters>*{flex:none;white-space:nowrap;scroll-snap-align:start;min-height:44px}
+  .public-contributor-2029 .pc-filters .pc-world{margin-inline-start:0}
+  .public-contributor-2029 .cx-facts{padding-block:6px;gap:0 20px}
+  .public-contributor-2029 .cx-facts>div{font-size:var(--s29-type-small,16px)}
+}

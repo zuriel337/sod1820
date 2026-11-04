@@ -1,5 +1,5 @@
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
@@ -7,21 +7,52 @@ import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNa
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchCanonicalTopicConvergenceFinding } from "../lib/research/topicConvergence.js";
 import { buildTopic2029Projection } from "../lib/research/topic2029Projection.js";
-import { fetchEntityHubProjection } from "../lib/research/entityHubProjection.js";
+import { publicSurfaceFindingsFromConnections } from "../lib/research/post2029ExperienceProjection.js";
+import { fetchEntityHubProjection, fetchGallerySourceContext, fetchTopicSourceContext as readTopicSourceContext } from "../lib/research/entityHubProjection.js";
+import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
+import { getImagesByGallery } from "../lib/supabase.js";
+import { createCanonicalRelationOpener } from "../lib/research/worldGraphRelationOpener2029.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
 import { buildTopicGoldenProjection } from "../lib/research/topicGoldenProjection.js";
-import { topicSourceAnchor, topicSourceContextPatch } from "../lib/research/topicSourceContext.js";
+import { gallerySourceHref2029, topicSourceAnchor, topicSourceContextPatch } from "../lib/research/topicSourceContext.js";
 import WorldSourceStory from '../components/research/WorldSourceStory.jsx';
 import { DISCOVERY_TOPIC_SLUGS } from '../lib/research/worldSourceConnections.js';
-import { resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { resolveTopicExpressionFocus2029 } from "../lib/research/topicExpressionFocus2029.js";
+import { gatePublicMethodRows, gateSourceSelectionIsCurrent } from "../lib/research/revelation1237Gate2029.js";
 import { applySeo, clearConvergenceJsonLd, setConvergenceJsonLd } from "../lib/seo.js";
 import "./topic2029.css";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
+import TopicNumberResearch2029 from "../components/research/TopicNumberResearch2029.jsx";
+import StoryTreeSequence2029 from "../components/research/StoryTreeSequence2029.jsx";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const textOf = (row) => clean(row?.text || row?.title || row?.phrase || row?.note);
 const sourceDiscoveryEnabled = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
+const expressionElementId = (row, fallback) => "topic-expression-" + encodeURIComponent(clean(row?.sourcePath) || fallback);
+const claimNumber = (value) => {
+  if (typeof value !== "number" && typeof value !== "string") return null;
+  if (typeof value === "string" && !/^\d+$/.test(value.trim())) return null;
+  const number = Number(value);
+  return Number.isSafeInteger(number) && number >= 0 ? number : null;
+};
+const EXPRESSION_ERRORS = Object.freeze({
+  needs_method: "השיטה לא צוינה במקור. נדרשת שיטה מפורשת כדי לפתוח את החישוב הזה.",
+  needs_exact_expression: "צריך לבחור ביטוי אחד וערך תקין כדי לפתוח חישוב מדויק.",
+  method_unavailable_or_value_mismatch: "השיטה אינה זמינה או שהתוצאה אינה תואמת לערך במקור. פרטי המקור נשארו כאן.",
+  profile_unavailable: "לא ניתן לטעון כרגע את החישוב. אפשר לנסות שוב; פרטי המקור נשארו כאן.",
+  method_definition_changed: "הגדרת השיטה השתנתה מאז טעינת הכרטיס. רעננו את הדף כדי לפתוח פירוט מתאים.",
+  source_selection_changed: "המקור אינו זמין או שהטקסט השמור השתנה. רעננו את המקור ובחרו את הביטוי מחדש.",
+});
+// Preview-only gate for topic:1237. It consumes existing readers only (see revelation1237Gate2029.js).
+const Revelation1237Gate2029 = React.lazy(() => import("../components/research/Revelation1237Gate2029.jsx"));
+const REVELATION_GATE_READERS = Object.freeze({
+  fetchMethodProfile: fetchNumberMethodProfile,
+  listGalleryImages: getImagesByGallery,
+  fetchGallerySourceContext,
+  fetchTopicSourceContext: readTopicSourceContext,
+  openRelations: createCanonicalRelationOpener(),
+});
 
 function TopicMapNav({ items = [] }) {
   if (!items.length) return null;
@@ -30,7 +61,7 @@ function TopicMapNav({ items = [] }) {
   </nav>;
 }
 
-function TopicPhrases({ rows = [], onOpenExpression, openingExpression = null }) {
+function TopicPhrases({ rows = [], onOpenExpression, openingKey = null }) {
   if (!rows.length) return null;
   return <section className="sod29-section sod29-topic-section" id="topic-phrases">
     <div className="sod29-section-head"><div><div className="sod29-kicker">ביטויים בציר</div><h2>אותו מספר, מילים שונות</h2></div><span className="sod29-chip">{rows.length}</span></div>
@@ -38,8 +69,9 @@ function TopicPhrases({ rows = [], onOpenExpression, openingExpression = null })
       {rows.map((row, index) => {
         const text = textOf(row);
         if (!text) return null;
-        const opening = openingExpression === text;
-        return <button className="sod29-topic-phrase" type="button" disabled={opening} onClick={() => onOpenExpression?.(text)} key={row.sourcePath || (text + "-" + index)}>
+        const id = expressionElementId(row, "phrase-" + index);
+        const opening = openingKey === id;
+        return <button id={id} className="sod29-topic-phrase" type="button" disabled={opening} aria-busy={opening || undefined} onClick={() => onOpenExpression?.({ ...row, text: row.text || text }, { key: id, locator: "#" + encodeURIComponent(id), sectionId: "topic-phrases" })} key={row.sourcePath || (text + "-" + index)}>
           <strong>{text}</strong><small>{opening ? "פותח…" : "פתח את החיבור ←"}</small>
         </button>;
       })}
@@ -47,7 +79,7 @@ function TopicPhrases({ rows = [], onOpenExpression, openingExpression = null })
   </section>;
 }
 
-function TopicFindings({ projection, onOpenExpression }) {
+function TopicFindings({ projection, onOpenExpression, openingKey = null }) {
   const S = projection.sections || {};
   const headline = (S.headline || []).map(textOf).filter(Boolean);
   const hints = (S.hint || []).map(textOf).filter(Boolean);
@@ -69,22 +101,29 @@ function TopicFindings({ projection, onOpenExpression }) {
     {bullets.length ? <ul className="sod29-topic-bullets">{bullets.map((text, i) => <li key={"b-" + i}>{text}</li>)}</ul> : null}
     {rows.length || numericClaims.length ? (() => {
       const allRows = [...numericClaims, ...rows];
-      const primaryRows = allRows.filter((row) => Number(row.value) === projection.heroNumber).slice(0, 3);
+      const primaryRows = allRows.filter((row) => claimNumber(row.value) != null && claimNumber(row.value) === projection.heroNumber).slice(0, 3);
       const primaryKeys = new Set(primaryRows.map((row) => row.sourcePath || clean(row.phrase || row.text)));
-      const supportingRows = allRows.filter((row) => Number(row.value) !== projection.heroNumber);
-      const depthRows = allRows.filter((row) => Number(row.value) === projection.heroNumber && !primaryKeys.has(row.sourcePath || clean(row.phrase || row.text)));
+      const supportingRows = allRows.filter((row) => claimNumber(row.value) == null || claimNumber(row.value) !== projection.heroNumber);
+      const depthRows = allRows.filter((row) => claimNumber(row.value) != null && claimNumber(row.value) === projection.heroNumber && !primaryKeys.has(row.sourcePath || clean(row.phrase || row.text)));
       const renderEquation = (row, i, kind) => {
         const phrase = clean(row.phrase || row.text);
-        const value = Number(row.value);
-        return <article className={`sod29-topic-equation is-${kind}`} key={row.sourcePath || phrase || i}>
+        const value = claimNumber(row.value);
+        const id = expressionElementId(row, `equation-${kind}-${i}`);
+        const opening = openingKey === id;
+        const open = () => onOpenExpression?.(row, { key: id, locator: "#" + encodeURIComponent(id), sectionId: "topic-findings" });
+        return <article id={id} className={`sod29-topic-equation is-${kind}`} key={row.sourcePath || phrase || i} aria-busy={opening || undefined}>
           <div className="sod29-topic-equation-line">
             {phrase && onOpenExpression
-              ? <button type="button" className="sod29-topic-equation-phrase" onClick={() => onOpenExpression(phrase)}>{phrase}</button>
+              ? <button type="button" className="sod29-topic-equation-phrase" disabled={opening} onClick={open}>{phrase}</button>
               : <span className="sod29-topic-equation-phrase">{phrase || "חיבור מספרי"}</span>}
-            {Number.isFinite(value) ? <span className="sod29-topic-equation-equals">=</span> : null}
-            {Number.isFinite(value) ? <Link className="sod29-topic-equation-value" to={"/2029/number/" + value}>{value}</Link> : null}
+            {value != null ? <span className="sod29-topic-equation-equals">=</span> : null}
+            {value != null ? <Link className="sod29-topic-equation-value" to={"/2029/number/" + value} onClick={(event) => {
+              if (!phrase || !onOpenExpression || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+              event.preventDefault();
+              if (!opening) open();
+            }}>{value}</Link> : null}
           </div>
-          {(row.method || row.note) ? <small className="sod29-topic-equation-note">{row.method || row.note}</small> : null}
+          {(row.methodLabel || row.method || row.note) ? <small className="sod29-topic-equation-note">{row.methodLabel || row.method || row.note}</small> : null}
         </article>;
       };
       return <div className="sod29-topic-claims">
@@ -267,7 +306,9 @@ function TopicSourcesMedia({ golden, projection }) {
                 {p.originalCredit.author || p.originalCredit.publication ? <p>קרדיט שמור: {[p.originalCredit.author, p.originalCredit.publication].filter(Boolean).join(" · ")}</p> : null}
                 <p className="sod29-topic-source-meta">מיקום שמור בגלריה: {p.ordering ?? "לא תועד"}</p>
                 {p.occurredAt ? <p className="sod29-topic-source-meta">תאריך שמור: {p.occurredAt}. {derived === "path" ? "נגזר מתיקייה" : derived === "name" ? "נגזר משם הפריט" : "מקור התיארוך לא אומת"}; אינו תאריך אירוע מאומת.</p> : null}
-                {target?.href ? <a href={target.href} onClick={() => rememberReturn(item)}>פתח את הגלריה המקורית בשלמותה</a> : null}
+                {gallerySourceHref2029(p.wpGalleryId, p.galleryImageId)
+                  ? <Link to={gallerySourceHref2029(p.wpGalleryId, p.galleryImageId)} onClick={() => rememberReturn(item)}>לתמונה המדויקת בגלריה ב־2029</Link>
+                  : target?.href ? <a href={target.href} onClick={() => rememberReturn(item)}>פתח את הגלריה המקורית בשלמותה</a> : null}
               </details>;
             })}
             {item.postPlacement ? <div className="sod29-topic-source-history">
@@ -355,14 +396,24 @@ function TopicCaveats({ projection }) {
 }
 
 function TopicBody() {
+  const location = useLocation();
   const { slug = "" } = useParams();
   const navigate = useNavigate();
   const shell = use2029Shell();
   const research = useResearch();
   const [state, setState] = useState({ loading: true, finding: null, error: null });
   const [goldenState, setGoldenState] = useState({ loading: false, hub: null, prominence: null, error: null });
-  const [expressionOpenState, setExpressionOpenState] = useState({ expression: null, error: null });
+  const [expressionOpenState, setExpressionOpenState] = useState({ key: null, error: null });
+  const [unavailableSourceIds, setUnavailableSourceIds] = useState([]);
+  const expressionRequestRef = useRef(0);
   const [activeSectionId, setActiveSectionId] = useState("topic-essential");
+
+  useEffect(() => {
+    expressionRequestRef.current += 1;
+    setExpressionOpenState({ key: null, error: null });
+    setUnavailableSourceIds([]);
+    return () => { expressionRequestRef.current += 1; };
+  }, [slug]);
 
   useEffect(() => {
     let alive = true;
@@ -376,10 +427,15 @@ function TopicBody() {
     return () => { alive = false; };
   }, [slug]);
 
+  const goldenMatchesTopic = goldenState.requestedSlug === slug
+    && goldenState.entityRef === state.finding?.identity?.entityRef;
+  const currentHub = goldenMatchesTopic ? goldenState.hub : null;
+  const currentProminence = goldenMatchesTopic ? goldenState.prominence : null;
+
   // A new route must never render/redirect using the previous Topic's result.
   const projection = useMemo(() => state.requestedSlug === slug
-    ? buildTopic2029Projection(state.finding, { sourceContext: goldenState.hub?.sourceContext }) : null,
-  [slug, state.requestedSlug, state.finding, goldenState.hub?.sourceContext]);
+    ? buildTopic2029Projection(state.finding, { sourceContext: currentHub?.sourceContext }) : null,
+  [slug, state.requestedSlug, state.finding, currentHub?.sourceContext]);
 
   useEffect(() => {
     if (!projection?.canonicalPath || slug === projection.slug) return;
@@ -394,50 +450,106 @@ function TopicBody() {
     const nodeId = clean(projection.entityRef).replace(/^node:/, "");
     if (!nodeId) return undefined;
     let alive = true;
-    setGoldenState({ loading: true, hub: null, prominence: null, error: null });
+    const scope = { requestedSlug: slug, entityRef: projection.entityRef };
+    setGoldenState({ ...scope, loading: true, hub: null, prominence: null, error: null });
 
     fetchEntityHubProjection({ nodeId, relationLimit: 90, researchLimit: 48, topicLimit: 16, topicSourceSlug: projection.slug })
       .then(async (hub) => {
         if (!alive) return;
-        setGoldenState({ loading: false, hub: hub || null, prominence: null, error: null });
+        setGoldenState({ ...scope, loading: false, hub: hub || null, prominence: null, error: null });
         if (!hub) return;
         try {
           const inputs = await fetchWorldProminenceInputs(hub);
           const prominence = buildWorldContextualProminence(hub, inputs, { limit: 7, timeAware: true, attentionFirst: false });
-          if (alive) setGoldenState({ loading: false, hub, prominence, error: null });
+          if (alive) setGoldenState({ ...scope, loading: false, hub, prominence, error: null });
         } catch (error) {
-          if (alive) setGoldenState({ loading: false, hub, prominence: null, error });
+          if (alive) setGoldenState({ ...scope, loading: false, hub, prominence: null, error });
         }
       })
-      .catch((error) => { if (alive) setGoldenState({ loading: false, hub: null, prominence: null, error }); });
+      .catch((error) => { if (alive) setGoldenState({ ...scope, loading: false, hub: null, prominence: null, error }); });
     return () => { alive = false; };
   }, [projection?.slug, projection?.entityRef]);
 
   const golden = useMemo(
-    () => buildTopicGoldenProjection(projection, { hub: goldenState.hub, prominence: goldenState.prominence }),
-    [projection, goldenState.hub, goldenState.prominence],
+    () => buildTopicGoldenProjection(projection, { hub: currentHub, prominence: currentProminence }),
+    [projection, currentHub, currentProminence],
   );
   const hasFindings = Object.values(projection?.sections || {}).some((rows) => Array.isArray(rows) && rows.length);
-  const navItems = projection ? [
+  const revelationGate = sourceDiscoveryEnabled && projection?.slug === "1237" && !projection.withheld;
+  const navItems = !projection ? [] : projection.withheld ? [
+    { id: "topic-essential", label: "עיקר" },
+  ] : revelationGate ? [
+    { id: "rv-center", label: "המרכז המספרי" },
+    { id: "rv-galleries", label: "גלריות" },
+    { id: "rv-news", label: "אירועים" },
+    { id: "rv-elections", label: "בחירות" },
+    { id: "rv-posts", label: "פוסטים" },
+    { id: "rv-connections", label: "חיבורים מתועדים ומועמדים" },
+    ...(projection.phrases.length ? [{ id: "topic-phrases", label: "ביטויים בציר" }] : []),
+    ...(hasFindings ? [{ id: "topic-findings", label: "המשך הציר השמור" }] : []),
+    ...(projection.numbers.some((value) => Number.isSafeInteger(value) && value >= 0)
+      ? [{ id: "topic-number-research", label: "ממצאים דרך המספר" }] : []),
+  ] : [
     { id: "topic-essential", label: "עיקר" },
     ...(sourceDiscoveryEnabled && DISCOVERY_TOPIC_SLUGS.includes(projection.slug) && !projection.withheld ? [{ id: 'topic-discovery', label: 'קריאה במקורות' }] : []),
     ...((projection.phrases.length || projection.numericClaims.length || projection.authoredRows.length) ? [{ id: "topic-phrases", label: "גימטריות", targetId: projection.phrases.length ? "topic-phrases" : "topic-findings" }] : []),
     ...(hasFindings ? [{ id: "topic-findings", label: "חיבורים" }] : []),
+    ...(!projection.withheld && projection.numbers.some((value) => Number.isSafeInteger(value) && value >= 0)
+      ? [{ id: "topic-number-research", label: "ממצאים דרך המספר" }] : []),
     ...(projection.relatedPosts.length ? [{ id: "topic-posts", label: "פוסטים" }] : []),
     ...((golden?.sources?.length || golden?.media?.length || golden?.people?.length) ? [{ id: "topic-sources", label: "מקורות" }] : []),
     ...(projection.relatedConvergences.length ? [{ id: "topic-related", label: "המשך" }] : []),
-  ] : [];
+  ];
+  const storyNodeId = projection?.entityRef?.replace(/^node:/, '');
+  if (!projection?.withheld && /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(storyNodeId || '')) {
+    navItems.push({ id: `story-tree-${storyNodeId}`, label: 'סיפורים מחוברים' });
+  }
+  const sectionMapSignature = JSON.stringify(navItems);
+  const currentSection = navItems.find((item) => item.id === activeSectionId) || navItems[0];
+  const currentSectionId = currentSection?.id || "topic-essential";
+  const currentSectionLabel = currentSection?.label || "עיקר";
+  const declaredConnections = JSON.stringify(projection?.withheld ? [] : [
+    ...(projection?.relatedPosts || []).map(row => ({id:`post:${row.slug}`,label:row.title || row.text,href:row.href || (row.slug ? `/post/${encodeURIComponent(row.slug)}` : null),reason:row.note,provenanceLabel:row.sourcePath,kind:"stored_reference"})),
+    ...(projection?.relatedConvergences || []).map(row => ({id:`topic:${row.slug}`,label:row.title || row.note,href:row.href || (row.slug ? `/topic/${encodeURIComponent(row.slug)}` : null),reason:row.note,provenanceLabel:row.sourcePath,kind:"stored_reference"})),
+  ].filter(row => row.href && !(projection?.publicConnections || []).some(item => item.href === row.href)).slice(0,8));
+  const connectionKey = slug + declaredConnections;
+  const [declaredState,setDeclaredState] = useState({key:null,items:[],status:"loading"});
+  useEffect(() => {
+    let alive=true;const connections=JSON.parse(declaredConnections);
+    if(!connections.length){setDeclaredState({key:connectionKey,items:[],status:"ready"});return;}
+    setDeclaredState({key:connectionKey,items:[],status:"loading"});
+    // Reuse the existing access-controlled Post/Topic URL resolver. No graph
+    // matching, numeric inference, publication or model request is introduced.
+    import("../lib/research/post2029ReadingProjection.js").then(({resolvePostExperienceConnections}) => resolvePostExperienceConnections({connections}))
+      .then(result => {if(alive)setDeclaredState({key:connectionKey,items:publicSurfaceFindingsFromConnections(result.connections),status:result.connections.some(row=>!row.href)?"partial":"ready"});})
+      .catch(() => {if(alive)setDeclaredState({key:connectionKey,items:[],status:"unavailable"});});
+    return () => {alive=false;};
+  },[connectionKey]);
+  const admittedDeclared = declaredState.key === connectionKey ? declaredState : {items:[],status:"loading"};
+  const publicConnections = publicSurfaceFindingsFromConnections([...(projection?.publicConnections || []),...admittedDeclared.items]);
+  const publicConnectionsSignature = JSON.stringify(publicConnections);
+  const publicConnectionsState = goldenState.loading || admittedDeclared.status === "loading" ? "loading" : admittedDeclared.status === "partial" || admittedDeclared.status === "unavailable" ? admittedDeclared.status : currentHub?.sourceContext?.access?.scope === "public" && currentHub.sourceContext.access.available !== false ? "ready" : "unavailable";
 
   useEffect(() => {
     if (!projection) return undefined;
+    // A section observer must not replace an explicitly selected calculation
+    // while the shared Number sheet is using the same Research Context.
+    if (research.context?.dimensions?.focusOrigin === "topic"
+      && research.context?.dimensions?.topicSlug === projection.slug
+      && research.context?.selection?.expression) return undefined;
     const subject = { id: projection.slug, type: "topic", label: projection.title, href: projection.canonicalPath };
     const selection = { entityId: projection.slug, entityType: "topic" };
     const heroNumber = projection.heroNumber ?? projection.highlightNumbers?.[0] ?? projection.numbers?.[0] ?? null;
     const dimensions = {
       ...(research.context?.dimensions || {}),
+      surfaceContextHref: location.pathname + location.search,
+      readingFocusSurfaceHref: location.pathname + location.search,
+      readingFocus: { id: projection.slug, type: "topic", label: projection.displayTitle || projection.title, href: projection.canonicalPath, locator: "#" + (currentSection?.targetId || currentSectionId) },
+      surfaceFindings: projection.withheld ? [] : publicConnections,
+      surfaceFindingsState: projection.withheld ? "unavailable" : publicConnectionsState,
       bottomTrail: [
         { id: "topic", label: "טופיק" },
-        { id: "section", label: activeSectionId === "topic-findings" ? "חיבורים" : activeSectionId === "topic-posts" ? "פוסטים" : activeSectionId === "topic-sources" ? "מקורות" : activeSectionId === "topic-related" ? "המשך" : activeSectionId === "topic-phrases" ? "גימטריות" : "עיקר" },
+        { id: "section", label: currentSectionLabel },
         ...(heroNumber != null ? [{ id: "number", label: String(heroNumber), active: true }] : []),
       ],
       surfaceSections: navItems.map((item) => ({
@@ -445,32 +557,74 @@ function TopicBody() {
         label: item.label,
         targetId: item.targetId || item.id,
       })),
-      activeSectionId,
+      activeSectionId: currentSectionId,
       surfaceMapLabel: "בתוך הציר",
       surfaceFocus: {
         id: projection.slug,
         type: "topic",
-        sectionLabel: activeSectionId === "topic-findings" ? "חיבורים" : activeSectionId === "topic-posts" ? "פוסטים" : activeSectionId === "topic-sources" ? "מקורות" : activeSectionId === "topic-related" ? "המשך" : activeSectionId === "topic-phrases" ? "גימטריות" : "עיקר",
+        sectionLabel: currentSectionLabel,
         label: projection.displayTitle || projection.title,
         primary: heroNumber != null ? String(heroNumber) : projection.title,
         number: heroNumber,
         signals: projection.phrases?.slice(0, 3).map((row) => textOf(row)).filter(Boolean) || [],
         sourceLabel: projection.createdBy || null,
-        locator: "#" + activeSectionId,
+        locator: "#" + (currentSection?.targetId || currentSectionId),
       },
     };
     if (!research.context?.subject) research.setResearchContext?.({ subject, selection, lens: "topic", dimensions });
     else research.updateResearchContext?.({ subject, selection, lens: "topic", dimensions });
     return undefined;
-  }, [projection?.slug, activeSectionId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [projection?.slug, currentSectionId, sectionMapSignature, publicConnectionsSignature, publicConnectionsState, location.pathname, location.search]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const openExpressionFocus = async (expression) => {
-    const expr = clean(expression);
-    if (!expr || !projection) return;
-    setExpressionOpenState({ expression: expr, error: null });
+  const rememberGallerySource = (item, slotKey, sectionId) => {
+    if (!projection || projection.withheld || item?.access?.scope !== "public") return;
+    const locator = `#${slotKey}`;
+    research.updateResearchContext?.({ returnTo: {
+      href: projection.canonicalPath + locator, label: projection.title,
+      subject: { id: projection.slug, type: "topic", label: projection.title, href: projection.canonicalPath },
+      selection: { entityId: item.galleryImageId, entityType: "image", sourceRef: item.sourceRef, locator },
+      lens: "topic", dimensions: { ...(research.context?.dimensions || {}), activeSectionId: sectionId,
+        galleryImageId: item.galleryImageId, galleryNumberPath: "stored_tag_not_verified_calculation" },
+      journey: research.context?.journey || null,
+    } });
+    // Preserve the exact card in the previous history entry as well, including
+    // when the destination's existing capability gate shows a maintenance page.
+    if (location.hash !== locator) navigate(projection.canonicalPath + locator, { replace: true });
+  };
+
+  const openExpressionFocus = async (row, origin) => {
+    if (!projection || projection.withheld) return false;
+    const request = ++expressionRequestRef.current;
+    // Browser history changes before React's passive slug effect may run.
+    // A held source/profile result must not open a sheet on the next route.
+    const startedPath = window.location.pathname;
+    const isCurrentRequest = () => request === expressionRequestRef.current && window.location.pathname === startedPath;
+    setExpressionOpenState({ key: origin.key, error: null });
     try {
-      const focus = await resolveExpressionFocus(expr);
-      if (!focus?.href) throw new Error("expression_focus_unavailable");
+      const fromSource = origin.kind === "gallery_text_selection";
+      if (fromSource) {
+        const currentSource = await fetchGallerySourceContext({ imageIds: [origin.galleryImageId] });
+        if (!isCurrentRequest()) return false;
+        const item = currentSource.items?.find((entry) => entry.galleryImageId === origin.galleryImageId);
+        if (!item) setUnavailableSourceIds((ids) => [...new Set([...ids, origin.galleryImageId])]);
+        if (!gateSourceSelectionIsCurrent(item, origin)
+          || row.text !== origin.sourceText.slice(origin.selectionStart, origin.selectionEnd)) {
+          setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.source_selection_changed, errorKey: origin.key });
+          return false;
+        }
+      }
+      const resolved = await resolveTopicExpressionFocus2029(row);
+      if (!isCurrentRequest()) return false;
+      const focus = resolved.focus;
+      if (resolved.status !== "ready" || !focus?.method) {
+        setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS[resolved.status] || EXPRESSION_ERRORS.profile_unavailable, errorKey: origin.key });
+        return false;
+      }
+      if (fromSource && !gatePublicMethodRows(focus.rows).some((entry) => entry.methodKey === focus.method
+        && entry.computedValue === focus.resultValue)) {
+        setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.method_unavailable_or_value_mismatch, errorKey: origin.key });
+        return false;
+      }
 
       const topicSubject = {
         id: projection.slug,
@@ -478,10 +632,31 @@ function TopicBody() {
         label: projection.title,
         href: projection.canonicalPath,
       };
-      const topicSelection = { entityId: projection.slug, entityType: "topic" };
+      const sourceRef = fromSource ? origin.sourceRef : projection.sourceRef;
+      const topicSelection = { entityId: fromSource ? origin.galleryImageId : projection.slug,
+        entityType: fromSource ? "image" : "topic", sourceRef, locator: origin.locator };
       const current = research.context || {};
+      const focusId = `topic:${projection.slug}:${resolved.sourcePath || origin.key}`;
+      const methodVersion = focus.rows.find((entry) => entry.methodKey === focus.method)?.definitionVersion;
+      if (origin.expectedMethodVersion != null && String(methodVersion ?? "") !== String(origin.expectedMethodVersion)) {
+        setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.method_definition_changed, errorKey: origin.key });
+        return false;
+      }
+      const surfaceFocus = { id: focusId, type: "gematria_expression", label: focus.expression, primary: focus.expression,
+        expression: focus.expression, method: focus.method, resultValue: focus.resultValue, number: focus.resultValue,
+        locator: origin.locator, sourceLabel: projection.title, href: projection.canonicalPath + origin.locator };
+      const returnDimensions = { ...(current.dimensions || {}), activeSectionId: origin.sectionId,
+        topicAuthoredSourcePath: origin.kind === "method_profile" || fromSource ? null : resolved.sourcePath,
+        topicPresentationSlot: origin.kind === "method_profile" ? resolved.sourcePath : null,
+        topicExpressionOrigin: fromSource ? "user_selected_stored_ocr" : origin.kind === "method_profile" ? "method_profile" : "authored_expression",
+        galleryImageId: fromSource ? origin.galleryImageId : null,
+        storedTextSelectionKind: fromSource ? "stored_ocr" : null,
+        storedTextSelectionStart: fromSource ? origin.selectionStart : null,
+        storedTextSelectionEnd: fromSource ? origin.selectionEnd : null,
+        storedTextSelectionSourceRef: fromSource ? sourceRef : null,
+        sourceMethodPairing: fromSource ? "not_asserted" : null };
 
-      research.setResearchContext?.({
+      const expressionContext = {
         subject: {
           id: String(focus.root),
           type: "number",
@@ -489,35 +664,48 @@ function TopicBody() {
           href: focus.href,
         },
         selection: {
-          entityId: String(focus.root),
-          entityType: "number",
+          entityId: focusId,
+          entityType: "gematria_expression",
+          sourceRef,
+          locator: origin.locator,
           expression: focus.expression,
           method: focus.method,
+          methodVersion: methodVersion == null ? null : String(methodVersion),
           resultValue: focus.resultValue,
           focusKind: "expression",
         },
-        lens: "number",
+        lens: "gematria",
         locale: current.locale || "he",
         dimensions: {
-          ...(current.dimensions || {}),
+          ...returnDimensions,
           expressionFocusExplicit: true,
           focusOrigin: "topic",
           topicSlug: projection.slug,
+          topicSourceRef: projection.sourceRef,
+          topicClaimStatus: fromSource ? "selected_text_profile_match_not_source_method_claim" : resolved.claimStatus,
+          surfaceFocus,
         },
         journey: current.journey || null,
         returnTo: {
-          href: projection.canonicalPath,
+          href: projection.canonicalPath + origin.locator,
           label: projection.title,
           subject: topicSubject,
           selection: topicSelection,
           lens: "topic",
-          dimensions: current.dimensions || {},
+          dimensions: returnDimensions,
           journey: current.journey || null,
         },
-      });
-      navigate(focus.href);
-    } catch (error) {
-      setExpressionOpenState({ expression: null, error });
+      };
+      // The existing activation API seeds a generic selection. Commit the richer
+      // checked Topic context after it, within the same batch, so source/version
+      // and exact return are not dropped by that generic activation.
+      shell.openNumber?.({ ...surfaceFocus, type: "phrase", source: fromSource ? "topic-gallery-text-selection" : origin.kind === "method_profile" ? "topic-method-profile" : "topic-authored-expression" });
+      research.setResearchContext?.(expressionContext);
+      setExpressionOpenState({ key: null, error: null });
+      return true;
+    } catch {
+      if (isCurrentRequest()) setExpressionOpenState({ key: null, error: EXPRESSION_ERRORS.profile_unavailable, errorKey: origin.key });
+      return false;
     }
   };
 
@@ -548,6 +736,31 @@ function TopicBody() {
     '424-mashiach-ben-david': 'מן השעה המצולמת בכותל אל דונלד טראמפ ואל הביטוי ״משיח בן דוד״. אפשר לפתוח את המקור ואת השיטה, ואז להבין את החיבור לאירועים אחרים.',
     trump: 'אדם אחד, כמה אירועים: המועמדות הרפובליקנית, הביקור בכותל ותיעוד מאוחר יותר. כל מעבר שומר את שנתו, את תפקיד המספר ואת המקור שלו.',
   })[projection.slug];
+
+  if (revelationGate) {
+    return <article className="sod29-topic2029 sod29-topic-gate-1237" data-entity-type="convergence" data-canonical-slug={projection.slug}
+      onClickCapture={(event) => {
+        const href = event.target.closest?.('a[href^="#"]')?.getAttribute("href");
+        const section = navItems.find((item) => `#${item.targetId || item.id}` === href);
+        if (section) setActiveSectionId(section.id);
+      }}>
+      <React.Suspense fallback={<FrameState kind="loading" title="פותח את השער">טוען את 1,237 — התגלות.</FrameState>}>
+        <Revelation1237Gate2029 readers={REVELATION_GATE_READERS} relatedPosts={projection.relatedPosts || []}
+          onOpenExpression={openExpressionFocus} onRememberSource={rememberGallerySource} unavailableSourceIds={unavailableSourceIds} openingKey={expressionOpenState.key}
+          focusError={expressionOpenState.error} focusErrorKey={expressionOpenState.errorKey} />
+      </React.Suspense>
+      {projection.phrases.length || hasFindings ? <section className="sod29-section" aria-label="העמקה בציר">
+        <div className="sod29-section-head"><div><div className="sod29-kicker">העמקה</div><h2>המשך הציר כפי שנשמר</h2></div></div>
+      </section> : null}
+      <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
+      {expressionOpenState.error && !/^rv-(?:method|source)-/.test(expressionOpenState.errorKey || "") ? <div className="sod29-topic-focus-error" role="status">{expressionOpenState.error}</div> : null}
+      <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
+      <TopicNumberResearch2029 key={projection.slug} projection={projection} />
+      <StoryTreeSequence2029 anchorNodeId={storyNodeId} anchorLabel={projection.displayTitle || projection.title} research={research} />
+      <TopicAuthoredConnections projection={projection} />
+      <TopicCaveats projection={projection} />
+    </article>;
+  }
 
   return <article className={`sod29-topic2029 is-${golden?.density || "medium"}`} data-entity-type="convergence" data-canonical-slug={projection.slug} data-topic-density={golden?.density || "medium"}>
     <header className="sod29-topic-hero">
@@ -590,14 +803,16 @@ function TopicBody() {
 
     {projection.withheld ? <FrameState kind="unavailable" title="גוף ההתכנסות אינו מוצג לציבור">קיימת זהות ציבורית, אבל מקור התוכן סימן את הגוף כלא־מיועד לפרסום. לא נעקוף את הסימון.</FrameState> : <>
       {sourceDiscoveryEnabled ? <WorldSourceStory research={research} shell={shell} topicSlug={projection.slug} /> : null}
-      <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingExpression={expressionOpenState.expression} />
-      {expressionOpenState.error ? <div className="sod29-topic-focus-error" role="status">הביטוי נשאר שמור כאן, אבל מנוע השיטות לא החזיר כרגע מספר פתיחה בטוח.</div> : null}
-      <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} />
+      <TopicPhrases rows={projection.phrases} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
+      {expressionOpenState.error ? <div className="sod29-topic-focus-error" role="status">{expressionOpenState.error}</div> : null}
+      <TopicFindings projection={projection} onOpenExpression={openExpressionFocus} openingKey={expressionOpenState.key} />
+      <TopicNumberResearch2029 key={projection.slug} projection={projection} />
       <TopicPosts projection={projection} />
+      <StoryTreeSequence2029 anchorNodeId={projection.entityRef?.replace(/^node:/, '')} anchorLabel={projection.displayTitle || projection.title} research={research} />
       <TopicAuthoredConnections projection={projection} />
       <TopicRelatedAxes projection={projection} />
       <TopicSourcesMedia golden={golden} projection={projection} />
-      <TopicProminence golden={golden} loading={goldenState.loading && !goldenState.hub} />
+      <TopicProminence golden={golden} loading={goldenMatchesTopic && goldenState.loading && !currentHub} />
       <TopicGraphConnections golden={golden} />
       <TopicCaveats projection={projection} />
     </>}

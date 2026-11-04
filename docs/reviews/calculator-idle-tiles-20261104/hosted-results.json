@@ -1,0 +1,97 @@
+{
+  "sourceSha": "d81e1b125d8a94fb41572e6a8d1493adb5572ce5",
+  "origin": "https://sod1820-n0z7ckyxb-sod1820-s-projects.vercel.app",
+  "realServiceWorker": true,
+  "syntheticResponses": false,
+  "productWrites": 0,
+  "modelCalls": 0,
+  "rows": [
+    {
+      "width": 320,
+      "evidence": {
+        "idleTiles": 9,
+        "idleCalculationReads": 0,
+        "shape": {
+          "width": 44,
+          "height": 44,
+          "radius": "50%",
+          "border": "1px",
+          "blur": "blur(14px) saturate(1.25)",
+          "animation": "none",
+          "overflow": false
+        },
+        "actualCanonicalRegularValue": 358,
+        "fullNumberHref": "/number/358?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%A8%D7%92%D7%99%D7%9C",
+        "exactReturn": true,
+        "clearRestoresIdle": true
+      },
+      "pass": true
+    },
+    {
+      "width": 390,
+      "evidence": {
+        "idleTiles": 9,
+        "idleCalculationReads": 0,
+        "shape": {
+          "width": 44,
+          "height": 44,
+          "radius": "50%",
+          "border": "1px",
+          "blur": "blur(14px) saturate(1.25)",
+          "animation": "none",
+          "overflow": false
+        },
+        "actualCanonicalRegularValue": 358,
+        "fullNumberHref": "/number/358?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%A8%D7%92%D7%99%D7%9C",
+        "exactReturn": true,
+        "clearRestoresIdle": true
+      },
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "evidence": {
+        "idleTiles": 9,
+        "idleCalculationReads": 0,
+        "shape": {
+          "width": 44,
+          "height": 44,
+          "radius": "50%",
+          "border": "1px",
+          "blur": "blur(14px) saturate(1.25)",
+          "animation": "none",
+          "overflow": false
+        },
+        "actualCanonicalRegularValue": 358,
+        "fullNumberHref": "/number/358?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%A8%D7%92%D7%99%D7%9C",
+        "exactReturn": true,
+        "clearRestoresIdle": true
+      },
+      "themes": [
+        {
+          "theme": "light",
+          "shape": {
+            "blur": "blur(14px) saturate(1.25)",
+            "background": "oklab(0.186937 0.00561253 0.00998198 / 0.22)"
+          }
+        },
+        {
+          "theme": "parchment",
+          "shape": {
+            "blur": "blur(14px) saturate(1.25)",
+            "background": "oklab(0.992385 0.0009777 0.00739284 / 0.22)"
+          }
+        },
+        {
+          "theme": "dark",
+          "shape": {
+            "blur": "blur(14px) saturate(1.25)",
+            "background": "oklab(0.983759 0.00203449 0.0157515 / 0.22)"
+          }
+        }
+      ],
+      "pass": true
+    }
+  ],
+  "ok": true
+}

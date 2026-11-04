@@ -1,0 +1,2 @@
+blank-page {"controlled":false,"images":[{"cors":false,"result":"loaded","width":360},{"cors":true,"result":"loaded","width":360}]}
+preview-page {"controlled":true,"images":[{"cors":false,"result":"loaded","width":360},{"cors":true,"result":"loaded","width":360}]}

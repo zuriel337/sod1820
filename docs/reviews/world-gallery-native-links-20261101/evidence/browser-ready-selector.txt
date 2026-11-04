@@ -1,0 +1,16 @@
+
+Running 4 tests using 1 worker
+
+[1A[2K(node:175853) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:175853) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/4] test/world-gallery-native-2029.browser.cjs:3:71 › worldGalleryStories 390
+[1A[2K[2/4] test/world-gallery-native-2029.browser.cjs:3:71 › worldGalleryConnections 390
+[1A[2K[3/4] test/world-gallery-native-2029.browser.cjs:3:71 › worldGalleryStories 1440
+[1A[2K[4/4] test/world-gallery-native-2029.browser.cjs:3:71 › worldGalleryConnections 1440
+[1A[2K  4 passed (47.4s)

@@ -1,0 +1,14 @@
+✔ public publication profile mounts the same existing consent form on direct /updates (56.670927ms)
+✔ ordinary readonly Preview still cannot mount newsletter or removal actions (16.340639ms)
+✔ existing signed removal remains admitted in the public artifact only as before (0.890464ms)
+✔ full existing profile keeps the original newsletter route (11.233801ms)
+✔ privacy and genuine missing pages retain their existing components (1.117176ms)
+✔ public system map labels its admitted updates destination as available (3.707955ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 156.050027

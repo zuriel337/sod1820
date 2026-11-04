@@ -1,0 +1,73 @@
+{
+  "wpPageId": 3288,
+  "entryContentSha256": "e6875e3fa535b3f53b1f5f550d4c01ff6e022af597bbc1defb950e46dc95e654",
+  "sourceUrlsInOriginalOrder": [
+    {
+      "offset": 630,
+      "rawOriginalUrl": "http://youtu.be/BwB-DyKJDXA",
+      "href": "http://youtu.be/BwB-DyKJDXA",
+      "videoId": "BwB-DyKJDXA",
+      "originalScheme": "http",
+      "originalQuery": ""
+    },
+    {
+      "offset": 704,
+      "rawOriginalUrl": "https://www.youtube.com/watch?v=Q2-c5Yj02o0&amp;list=UUQ135Sk3fwPllBKpRm-8Ogw",
+      "href": "https://www.youtube.com/watch?v=Q2-c5Yj02o0&list=UUQ135Sk3fwPllBKpRm-8Ogw",
+      "videoId": "Q2-c5Yj02o0",
+      "originalScheme": "https",
+      "originalQuery": "v=Q2-c5Yj02o0&list=UUQ135Sk3fwPllBKpRm-8Ogw"
+    },
+    {
+      "offset": 828,
+      "rawOriginalUrl": "https://www.youtube.com/watch?v=j6aoHB26TUI&amp;list=UUQ135Sk3fwPllBKpRm-8Ogw&amp;index=5",
+      "href": "https://www.youtube.com/watch?v=j6aoHB26TUI&list=UUQ135Sk3fwPllBKpRm-8Ogw&index=5",
+      "videoId": "j6aoHB26TUI",
+      "originalScheme": "https",
+      "originalQuery": "v=j6aoHB26TUI&list=UUQ135Sk3fwPllBKpRm-8Ogw&index=5"
+    },
+    {
+      "offset": 965,
+      "rawOriginalUrl": "https://www.youtube.com/watch?v=_nkM24pPi9M&amp;list=UUQ135Sk3fwPllBKpRm-8Ogw",
+      "href": "https://www.youtube.com/watch?v=_nkM24pPi9M&list=UUQ135Sk3fwPllBKpRm-8Ogw",
+      "videoId": "_nkM24pPi9M",
+      "originalScheme": "https",
+      "originalQuery": "v=_nkM24pPi9M&list=UUQ135Sk3fwPllBKpRm-8Ogw"
+    },
+    {
+      "offset": 1089,
+      "rawOriginalUrl": "https://www.youtube.com/watch?v=cHi5ohva-7c&amp;feature=youtu.be",
+      "href": "https://www.youtube.com/watch?v=cHi5ohva-7c&feature=youtu.be",
+      "videoId": "cHi5ohva-7c",
+      "originalScheme": "https",
+      "originalQuery": "v=cHi5ohva-7c&feature=youtu.be"
+    },
+    {
+      "offset": 1200,
+      "rawOriginalUrl": "https://www.youtube.com/watch?v=rTlr-fucsWE&amp;list=UUQ135Sk3fwPllBKpRm-8Ogw&amp;index=3",
+      "href": "https://www.youtube.com/watch?v=rTlr-fucsWE&list=UUQ135Sk3fwPllBKpRm-8Ogw&index=3",
+      "videoId": "rTlr-fucsWE",
+      "originalScheme": "https",
+      "originalQuery": "v=rTlr-fucsWE&list=UUQ135Sk3fwPllBKpRm-8Ogw&index=3"
+    },
+    {
+      "offset": 1337,
+      "rawOriginalUrl": "https://www.youtube.com/watch?v=gGVH402EccU",
+      "href": "https://www.youtube.com/watch?v=gGVH402EccU",
+      "videoId": "gGVH402EccU",
+      "originalScheme": "https",
+      "originalQuery": "v=gGVH402EccU"
+    }
+  ],
+  "plainVideoCount": 7,
+  "iframeCount": 0,
+  "originalPartHeadingOrder": [
+    "חלק 7",
+    "חלק 1",
+    "חלק 3",
+    "חלק 5",
+    "חלק 2",
+    "חלק 4",
+    "חלק 6"
+  ]
+}

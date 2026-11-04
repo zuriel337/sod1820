@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 import { supabase } from "../supabase.js";
 import { getCurrentTemporalContext } from "../timeFlow.js";
 import { fetchCurationCatalog2029 } from "./curationProjection2029.js";
@@ -43,7 +44,7 @@ function mergeLatestPublicWords(...groups) {
     .slice(0, PULSE_LATEST_LIMIT);
 }
 
-async function fetchHomeSystemPulse2029() {
+async function fetchHomeSystemPulse2029({ signal } = {}) {
   const since = new Date(Date.now() - PULSE_WINDOW_DAYS * 86400000).toISOString();
 
   const [
@@ -72,7 +73,7 @@ async function fetchHomeSystemPulse2029() {
       .gte("created_at", since)
       .order("created_at", { ascending: false })
       .limit(1000),
-  ]);
+  ].map(query => signal ? query.abortSignal(signal) : query));
 
   const hasCorpusError = [totalResult, createdResult, visibilityResult, overlapResult]
     .some((result) => Boolean(result?.error));
@@ -148,7 +149,7 @@ export function projectHomeWorldPreviewItem(item) {
   };
 }
 
-async function fetchHomeWorldPreview2029() {
+export async function fetchHomeWorldPreview2029() {
   const contributors = await fetchWorldLandingContributorProjection().catch(() => null);
   const publicPeople = Array.isArray(contributors?.people) ? contributors.people : [];
   const discovery = await fetchWorldDiscoveryStream({ limit: 8, publicPeople });
@@ -241,7 +242,7 @@ async function fetchApprovedContributions(value) {
 async function fetchPublicPostFindings(value) {
   const { data, error } = await supabase
     .from("posts")
-    .select("id,title,slug,link,modified,date,author,ai_addition,space,home_hidden")
+    .select("id,title,slug,link,source,wp_id,modified,date,author,ai_addition,space,home_hidden")
     .eq("space", "core")
     .eq("home_hidden", false)
     .not("ai_addition", "is", null)
@@ -261,7 +262,7 @@ async function fetchPublicPostFindings(value) {
         value: Number(value),
         attribution: finding.contributor || clean(post.author) || "מקור הפוסט",
         sourceTitle: clean(post.title),
-        sourceHref: post.slug ? `/${post.slug}` : clean(post.link) || null,
+        sourceHref: post.slug ? publicPostHref(post) : null,
         occurredAt: post.modified || post.date || null,
       });
     }
@@ -347,15 +348,17 @@ async function fetchTemporalTreasures(catalog) {
   return out.slice(0, 3);
 }
 
-export async function fetchHome2029Projection({ includeWorld = true, includeTemporal = true } = {}) {
-  const pulsePromise = fetchHomeSystemPulse2029().catch(() => null);
+export async function fetchHome2029Projection({ includeWorld = true, includeTemporal = true, includePulse = true, signal } = {}) {
+  const pulsePromise = includePulse ? fetchHomeSystemPulse2029({ signal }).catch(() => null) : Promise.resolve(null);
   const worldPreviewPromise = includeWorld ? fetchHomeWorldPreview2029().catch(() => null) : Promise.resolve(null);
   if (!includeTemporal) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
   const temporalContext = getCurrentTemporalContext();
   const value = Number(temporalContext?.hebrew?.year_value);
   if (!Number.isSafeInteger(value)) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
 
+  if (signal?.aborted) throw new DOMException("Home summary canceled", "AbortError");
   const yearVerification = await verifyCurrentYear(temporalContext);
+  if (signal?.aborted) throw new DOMException("Home summary canceled", "AbortError");
   if (!yearVerification.verified) return { temporalNow: null, systemPulse: await pulsePromise, worldPreview: await worldPreviewPromise };
 
   const curationCatalog = await fetchCurationCatalog2029().catch(() => null);

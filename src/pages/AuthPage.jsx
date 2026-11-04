@@ -1,16 +1,20 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { C, F, LOGO_URL } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
 import { GoldButton } from "../components/ui.jsx";
 import { signInWithGoogle, requestEmailOtp, verifyEmailOtp, signInWithPassword } from "../lib/auth.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../lib/emailOtp.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { safeOAuthReturnPath } from "../lib/oauthReturn.js";
 
 export default function AuthPage() {
   const P = usePalette();
+  const preview = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
   const { user, profile, signOut } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
+  const returnTo = safeOAuthReturnPath(new URLSearchParams(location.search).get("returnTo") || "/");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
@@ -52,6 +56,7 @@ export default function AuthPage() {
               {profile?.tier === "member" ? "👑 בני ההיכל" : "משתמש רשום"}
             </div>
             <div style={{ display: "flex", gap: 10, justifyContent: "center", marginTop: 26, flexWrap: "wrap" }}>
+              {returnTo !== "/" ? <GoldButton to={returnTo}>חזרה לעולם</GoldButton> : null}
               <GoldButton to="/profile">הפרופיל שלי</GoldButton>
               <GoldButton variant="secondary" onClick={async () => { await signOut(); navigate("/"); }}>התנתקות</GoldButton>
             </div>
@@ -66,7 +71,7 @@ export default function AuthPage() {
     setErr("");
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setErr("אנא הזן כתובת מייל תקינה"); return; }
     setBusy(true);
-    try { await requestEmailOtp(email); setStep("code"); }
+    try { await requestEmailOtp(email, { shouldCreateUser: !preview }); setStep("code"); }
     catch (e) { setErr(e.message || "שגיאה בשליחת הקוד"); }
     finally { setBusy(false); }
   }
@@ -78,7 +83,7 @@ export default function AuthPage() {
     setBusy(true);
     try {
       await verifyEmailOtp(email, code);
-      navigate("/");
+      navigate(returnTo, { replace: true });
     } catch (e) { setErr(e.message || "קוד שגוי או שפג תוקפו"); }
     finally { setBusy(false); }
   }
@@ -89,9 +94,24 @@ export default function AuthPage() {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())) { setErr("אנא הזן כתובת מייל תקינה"); return; }
     if (!password) { setErr("הזינו סיסמה"); return; }
     setBusy(true);
-    try { await signInWithPassword(email, password); navigate("/"); }
+    try { await signInWithPassword(email, password); navigate(returnTo, { replace: true }); }
     catch (e) { setErr(e.message || "מייל או סיסמה שגויים"); }
     finally { setBusy(false); }
+  }
+
+  async function loginGoogle() {
+    if (busy) return;
+    setBusy(true);
+    setErr("");
+    try {
+      const result = await signInWithGoogle({ returnTo });
+      if (result?.error) throw result.error;
+    } catch (e) {
+      setErr(e?.code === "OAUTH_PREVIEW_UNVERIFIED"
+        ? "הכניסה עם Google עדיין לא פעילה בפריוויו הזה. אפשר להיכנס עם קוד למייל או עם סיסמה."
+        : "לא הצלחנו לפתוח את הכניסה עם Google. אפשר להיכנס עם קוד למייל או עם סיסמה.");
+      setBusy(false);
+    }
   }
 
   return (
@@ -153,10 +173,11 @@ export default function AuthPage() {
           </form>
         ) : (
           <>
-            <button onClick={() => signInWithGoogle()} style={googleBtn}>
+            <button onClick={loginGoogle} disabled={busy} style={googleBtn}>
               <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.9 1.5l2.6-2.5C16.9 2.9 14.7 2 12 2 6.9 2 2.8 6.1 2.8 11.2S6.9 20.4 12 20.4c5.9 0 9.8-4.1 9.8-9.9 0-.7-.1-1.2-.2-1.7H12z"/></svg>
               המשך עם Google
             </button>
+            {err && <div style={{ color: C.danger, fontSize: 12, marginTop: 8, fontFamily: F.heading, textAlign: "center" }}>{err}</div>}
 
             <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "20px 0", color: P.inkSoft, fontSize: 12, fontFamily: F.heading }}>
               <div style={{ flex: 1, height: 1, background: P.border }} /> או <div style={{ flex: 1, height: 1, background: P.border }} />
@@ -182,7 +203,7 @@ export default function AuthPage() {
       </div>
 
       <div style={{ textAlign: "center", marginTop: 22 }}>
-        <Link to="/" style={{ color: P.accentDim, textDecoration: "none", fontFamily: F.heading, fontSize: 13 }}>← חזרה לאתר</Link>
+        <Link to={returnTo} style={{ color: P.accentDim, textDecoration: "none", fontFamily: F.heading, fontSize: 13 }}>← {returnTo === "/" ? "חזרה לאתר" : "חזרה לעולם"}</Link>
       </div>
     </div>
     </div>

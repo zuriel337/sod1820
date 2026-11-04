@@ -1,3 +1,4 @@
+import { publicPostHref } from "../src/lib/publicPostUrls.js";
 // ⚠️ הוחלף ב-api/sitemap.js — מפת אתר *חיה* (serverless) שמתעדכנת לבד בכל בקשה.
 // הקובץ הזה נשאר רק כגיבוי/הרצה ידנית offline. אל תריץ אותו לפרודקשן: הוא כותב
 // public/sitemap.xml, וקובץ סטטי כזה "מסתיר" את ה-rewrite של /sitemap.xml→/api/sitemap
@@ -66,7 +67,7 @@ async function main() {
   for (;;) {
     const { data, error } = await supabase
       .from('posts')
-      .select('slug, modified, date')
+      .select('id, slug, source, link, wp_id, modified, date')
       .order('date', { ascending: false })
       .range(from, from + PAGE - 1);
     if (error) { console.error('Supabase error:', error.message); break; }
@@ -77,7 +78,7 @@ async function main() {
       // סלאגים מוורדפרס כבר מקודדי-URL (%d7%aa...). encodeURI היה מקודד שוב את ה-% ל-%25
       // וגורם לקידוד-כפול שגוי שלא תואם ל-canonical. לכן מקודדים רק סלאגים בעברית "נקייה".
       const encodedSlug = p.slug.includes('%') ? p.slug : encodeURI(p.slug);
-      urls.push({ loc: '/' + encodedSlug, lastmod, changefreq: 'monthly', priority: '0.7' });
+      urls.push({ loc: publicPostHref(p), lastmod, changefreq: 'monthly', priority: '0.7' });
     }
     if (data.length < PAGE) break;
     from += PAGE;

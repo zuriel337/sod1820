@@ -1,9 +1,10 @@
+import { PUBLIC_READING_RELEASE } from "./publicReadingRelease2029.js";
 import { supabase } from "./supabase.js";
 import { trackConversion } from "./marketing.js";
 import { emit } from "./events.js"; // שלב 1: dual-write ל-pipeline החדש (events)
 import { getVisitorId } from "./visitorId.js"; // ONE TREE: בעלים יחיד ל-sod_vid (לא יוצרים כאן)
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1
-import { installRuntimeErrorCapture, getSharedCapture } from "./runtimeErrorCapture.js"; // G3_RELIABILITY_PRECLOSE
+import { installRuntimeErrorCapture, getSharedCapture, buildIncidentMeta, sanitizeRoute } from "./runtimeErrorCapture.js"; // G3_RELIABILITY_PRECLOSE
 
 // ===== אנליטיקה פנימית — מעקב מדורים ופעולות =====
 // כל גולש = visitor_id אנונימי ב-localStorage (לא PII).
@@ -16,6 +17,15 @@ export { getVisitorId };
 const pending = new Map(); // debounce per section key
 
 export function track(section, slug = null, eventType = "view", meta = null) {
+  if (PUBLIC_READING_RELEASE) {
+    // Preserve the existing bounded/deduplicated incident observer locally.
+    // Neither a normal read nor an error should attempt a denied telemetry write.
+    if (section === "runtime_error") {
+      try { console.warn("SOD1820 runtime incident", sanitizeRoute(slug), eventType,
+        buildIncidentMeta(meta?.message, meta || {})); } catch { /* optional console */ }
+    }
+    return;
+  }
   if (!supabase) return;
   // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — כיור-העל של האנליטיקה הפנימית. ל-visitor_events אין
   // עמודת is_bot, ולכן אי-אפשר לסמן כאן בוט — רק לא לכתוב. השער הזה מכסה בבת-אחת את כל
@@ -42,6 +52,7 @@ export function track(section, slug = null, eventType = "view", meta = null) {
 // שיתוף — מתעד פנימית (visitor_events) עם פילוח מלא: פלטפורמה + מכשיר/OS + מקור,
 // וגם שולח המרת share ל-Meta (Pixel/CAPI). כל כפתור שיתוף באתר קורא לזה.
 export const trackShare = (platform, slug, extraMeta = null) => {
+  if (PUBLIC_READING_RELEASE) return;
   const m = (() => { try { return appMeta(); } catch { return {}; } })();
   // extraMeta מאפשר לתעד *מה בדיוק* שותף (למשל image_url + הדף שממנו שותף) — כדי ששיתוף
   // תמונה יזוהה גם כשאין לה מזהה-מספרי (תיקון «gallery-» ריק).
@@ -102,6 +113,7 @@ export const trackWhatsapp = slug => trackShare("whatsapp", slug);
 // 🟢 לחיצה על CTA «הצטרפו לקבוצת וואטסאפ» — handler משותף אחד לכל ה-surfaces (Footer/Join/
 // UpdatesBox/פוסט). קליק=Conversion (event_type='click'), נפרד מ-view ומ-share. surface=מהיכן נלחץ.
 export const trackWhatsappJoin = (surface = null) => {
+  if (PUBLIC_READING_RELEASE) return;
   track("join", "whatsapp-group", "click", { surface: surface || null });
   try { trackConversion("whatsapp_join_click", { surface: surface || null }); } catch { /* noop */ }
 };
@@ -201,6 +213,7 @@ export function appMeta() {
 //   meta.tagged  — true אם הגיע מתיוג מפורש (אמין), false אם נוחש מ-referrer
 //   meta.landing — דף הנחיתה
 export function captureArrivalSource() {
+  if (PUBLIC_READING_RELEASE) return;
   if (typeof window === "undefined" || !supabase) return;
   try {
     if (sessionStorage.getItem("sod_src")) return; // כבר נרשם ל-session הזה
@@ -260,6 +273,7 @@ try { _firstEverVisit = (typeof localStorage !== "undefined") && !localStorage.g
 
 // נקרא בעליית האפליקציה (App). שומר first פעם-אחת, ומעדכן last בכל הגעה-אמיתית.
 export function captureAcquisition() {
+  if (PUBLIC_READING_RELEASE) return;
   if (typeof window === "undefined") return;
   try {
     const t = currentTouch();
@@ -315,6 +329,7 @@ let appInstallInited = false;
 
 // אתחול פעם אחת (בעליית האפליקציה). תופס את כל שלבי משפך ההתקנה.
 export function initAppInstallTracking() {
+  if (PUBLIC_READING_RELEASE) return;
   if (appInstallInited || typeof window === "undefined") return;
   appInstallInited = true;
 

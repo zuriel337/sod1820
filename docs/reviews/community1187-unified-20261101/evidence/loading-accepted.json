@@ -1,0 +1,1422 @@
+{
+  "fixture": "synthetic 40-thread public workload; independent deny-default transport; actual compiled clients; SW validated separately",
+  "baselineSha": "6df07087eabd78f7d1b56438b147e2d957ff0ac8",
+  "results": [
+    {
+      "version": "before",
+      "pair": 1,
+      "origin": "http://127.0.0.1:4196",
+      "width": 390,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1823,
+      "initialCLS": 0.04622222222222222,
+      "initialReplyReads": 0,
+      "initialTaskDurationSeconds": 1.663982,
+      "afterScrollReplyReads": 0,
+      "refreshReplyReads": 0,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 6,
+      "totalReplyBytes": 0,
+      "taskDurationSeconds": 1.961013,
+      "requests": [],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "after",
+      "pair": 1,
+      "origin": "http://127.0.0.1:4197",
+      "width": 390,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1731,
+      "initialCLS": 0,
+      "initialReplyReads": 2,
+      "initialTaskDurationSeconds": 1.842585,
+      "afterScrollReplyReads": 14,
+      "refreshReplyReads": 2,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 2,
+      "totalReplyBytes": 11198,
+      "taskDurationSeconds": 3.286141,
+      "requests": [
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000002",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000001",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000003",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000005",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000006",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000004",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000009",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000010",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000007",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000008",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000014",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000011",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        }
+      ],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "after",
+      "pair": 2,
+      "origin": "http://127.0.0.1:4197",
+      "width": 390,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1787,
+      "initialCLS": 0,
+      "initialReplyReads": 2,
+      "initialTaskDurationSeconds": 1.87934,
+      "afterScrollReplyReads": 14,
+      "refreshReplyReads": 2,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 2,
+      "totalReplyBytes": 11198,
+      "taskDurationSeconds": 3.252538,
+      "requests": [
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000001",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000002",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000006",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000003",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000004",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000005",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000008",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000007",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000009",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000010",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000014",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000011",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        }
+      ],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "before",
+      "pair": 2,
+      "origin": "http://127.0.0.1:4196",
+      "width": 390,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1741,
+      "initialCLS": 0.04622222222222222,
+      "initialReplyReads": 0,
+      "initialTaskDurationSeconds": 1.583632,
+      "afterScrollReplyReads": 0,
+      "refreshReplyReads": 0,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 6,
+      "totalReplyBytes": 0,
+      "taskDurationSeconds": 1.868311,
+      "requests": [],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "before",
+      "pair": 3,
+      "origin": "http://127.0.0.1:4196",
+      "width": 390,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1680,
+      "initialCLS": 0.04622222222222222,
+      "initialReplyReads": 0,
+      "initialTaskDurationSeconds": 1.443972,
+      "afterScrollReplyReads": 0,
+      "refreshReplyReads": 0,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 6,
+      "totalReplyBytes": 0,
+      "taskDurationSeconds": 1.6945,
+      "requests": [],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "after",
+      "pair": 3,
+      "origin": "http://127.0.0.1:4197",
+      "width": 390,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1684,
+      "initialCLS": 0,
+      "initialReplyReads": 2,
+      "initialTaskDurationSeconds": 1.557537,
+      "afterScrollReplyReads": 14,
+      "refreshReplyReads": 2,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 2,
+      "totalReplyBytes": 11198,
+      "taskDurationSeconds": 3.098525,
+      "requests": [
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000002",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000001",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000003",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000005",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000004",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000006",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000009",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000008",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000010",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000007",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000011",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000014",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        }
+      ],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "after",
+      "pair": 4,
+      "origin": "http://127.0.0.1:4197",
+      "width": 390,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1786,
+      "initialCLS": 0,
+      "initialReplyReads": 2,
+      "initialTaskDurationSeconds": 1.759326,
+      "afterScrollReplyReads": 14,
+      "refreshReplyReads": 2,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 2,
+      "totalReplyBytes": 11198,
+      "taskDurationSeconds": 3.491785,
+      "requests": [
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000001",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000002",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000004",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000006",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000005",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000003",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000009",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000007",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000010",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000008",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000011",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000014",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        }
+      ],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "before",
+      "pair": 4,
+      "origin": "http://127.0.0.1:4196",
+      "width": 390,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1667,
+      "initialCLS": 0.04622222222222222,
+      "initialReplyReads": 0,
+      "initialTaskDurationSeconds": 1.444761,
+      "afterScrollReplyReads": 0,
+      "refreshReplyReads": 0,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 6,
+      "totalReplyBytes": 0,
+      "taskDurationSeconds": 1.681465,
+      "requests": [],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "before",
+      "pair": 1,
+      "origin": "http://127.0.0.1:4196",
+      "width": 1440,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1840,
+      "initialCLS": 0.023450617283950616,
+      "initialReplyReads": 0,
+      "initialTaskDurationSeconds": 1.809306,
+      "afterScrollReplyReads": 0,
+      "refreshReplyReads": 0,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 6,
+      "totalReplyBytes": 0,
+      "taskDurationSeconds": 2.079125,
+      "requests": [],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "after",
+      "pair": 1,
+      "origin": "http://127.0.0.1:4197",
+      "width": 1440,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1918,
+      "initialCLS": 0,
+      "initialReplyReads": 2,
+      "initialTaskDurationSeconds": 2.06494,
+      "afterScrollReplyReads": 14,
+      "refreshReplyReads": 2,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 2,
+      "totalReplyBytes": 11198,
+      "taskDurationSeconds": 4.135903,
+      "requests": [
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000001",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000002",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000003",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000005",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000006",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000004",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000008",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000010",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000009",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000007",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000014",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000011",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        }
+      ],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "after",
+      "pair": 2,
+      "origin": "http://127.0.0.1:4197",
+      "width": 1440,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1721,
+      "initialCLS": 0,
+      "initialReplyReads": 2,
+      "initialTaskDurationSeconds": 1.679786,
+      "afterScrollReplyReads": 14,
+      "refreshReplyReads": 2,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 2,
+      "totalReplyBytes": 11198,
+      "taskDurationSeconds": 3.42524,
+      "requests": [
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000002",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000001",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000005",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000006",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000004",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000003",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000010",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000007",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000009",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000008",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000014",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000011",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        }
+      ],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "before",
+      "pair": 2,
+      "origin": "http://127.0.0.1:4196",
+      "width": 1440,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1675,
+      "initialCLS": 0.023450617283950616,
+      "initialReplyReads": 0,
+      "initialTaskDurationSeconds": 1.41336,
+      "afterScrollReplyReads": 0,
+      "refreshReplyReads": 0,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 6,
+      "totalReplyBytes": 0,
+      "taskDurationSeconds": 1.663856,
+      "requests": [],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "before",
+      "pair": 3,
+      "origin": "http://127.0.0.1:4196",
+      "width": 1440,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1767,
+      "initialCLS": 0.023450617283950616,
+      "initialReplyReads": 0,
+      "initialTaskDurationSeconds": 1.596984,
+      "afterScrollReplyReads": 0,
+      "refreshReplyReads": 0,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 6,
+      "totalReplyBytes": 0,
+      "taskDurationSeconds": 1.855927,
+      "requests": [],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "after",
+      "pair": 3,
+      "origin": "http://127.0.0.1:4197",
+      "width": 1440,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1736,
+      "initialCLS": 0,
+      "initialReplyReads": 2,
+      "initialTaskDurationSeconds": 1.729804,
+      "afterScrollReplyReads": 14,
+      "refreshReplyReads": 2,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 2,
+      "totalReplyBytes": 11198,
+      "taskDurationSeconds": 3.062459,
+      "requests": [
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000002",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000001",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000005",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000006",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000004",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000003",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000010",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000007",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000009",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000008",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000014",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000011",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        }
+      ],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "after",
+      "pair": 4,
+      "origin": "http://127.0.0.1:4197",
+      "width": 1440,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1879,
+      "initialCLS": 0,
+      "initialReplyReads": 2,
+      "initialTaskDurationSeconds": 1.874064,
+      "afterScrollReplyReads": 14,
+      "refreshReplyReads": 2,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 2,
+      "totalReplyBytes": 11198,
+      "taskDurationSeconds": 3.474012,
+      "requests": [
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000002",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "initial",
+          "parent": "20000000-0000-4000-8000-000000000001",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000004",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000005",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000003",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000006",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000010",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000007",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000008",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000009",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 699
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000014",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "scroll",
+          "parent": "20000000-0000-4000-8000-000000000011",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000012",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        },
+        {
+          "phase": "refresh",
+          "parent": "20000000-0000-4000-8000-000000000013",
+          "offset": 0,
+          "limit": 2,
+          "rows": 2,
+          "bytes": 701
+        }
+      ],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    },
+    {
+      "version": "before",
+      "pair": 4,
+      "origin": "http://127.0.0.1:4196",
+      "width": 1440,
+      "countsMode": "preview-denied",
+      "cpuThrottle": 4,
+      "syntheticReadLatencyMs": 120,
+      "syntheticRootCount": 40,
+      "firstRootMs": 1685,
+      "initialCLS": 0.023450617283950616,
+      "initialReplyReads": 0,
+      "initialTaskDurationSeconds": 1.47847,
+      "afterScrollReplyReads": 0,
+      "refreshReplyReads": 0,
+      "offscreenRefreshReplyReads": 0,
+      "nearRootCount": 6,
+      "totalReplyBytes": 0,
+      "taskDurationSeconds": 1.751479,
+      "requests": [],
+      "errors": [],
+      "productWritesForwarded": 0,
+      "modelCallsForwarded": 0
+    }
+  ]
+}

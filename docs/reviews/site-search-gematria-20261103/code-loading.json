@@ -1,0 +1,15 @@
+{
+  "before": {
+    "kind": "static JS graph only; not a latency measurement",
+    "files": 20,
+    "gzipBytes": 186092,
+    "searchInInitialStaticGraph": false
+  },
+  "after": {
+    "kind": "static JS graph only; not a latency measurement",
+    "files": 20,
+    "gzipBytes": 186132,
+    "searchInInitialStaticGraph": false,
+    "searchChunkGzipBytes": 4484
+  }
+}

@@ -1,0 +1,537 @@
+{
+  "task": "CENTRAL_HOME_ELS_CARD_ACCEPTANCE_INTEGRATION_20261031",
+  "central_branch": "gpt/2029-central-home-els-card-integration-20261031",
+  "central_base": "f4aedfe3ed2dc34dde184e978c396b10f8186f9a",
+  "source_branch": "ccr-4f7f2318-32ormn",
+  "source_head": "1027c3249e9cf72207e9dc0a1958c85fb97c65ee",
+  "source_base": "d52ff6b834fbbaf69d2fa79177750c4bdf73c2ad",
+  "source_commits": [
+    "a8daed3301d2d7d8d761856181372a6fd322333e",
+    "1027c3249e9cf72207e9dc0a1958c85fb97c65ee"
+  ],
+  "applied_commits": [
+    "8b3a1cb01a066dfec07c2e59a261a6df103ef5a2",
+    "3aad6ae42b36f24660ca60838375188b0db8c826"
+  ],
+  "before_id": "b6d95688-c66c-4560-a840-7f2af448ad01",
+  "source_release_id": "fa8e0a9f-d0d2-4b7d-b12b-d901e7236440",
+  "runtime_source_identity": [
+    {
+      "path": "src/components/experience2029/ElsRotatingMatrixCard2029.jsx",
+      "source_blob": "6e334535ce58b124c762e57f1ebf584ac1408269",
+      "integrated_blob": "6e334535ce58b124c762e57f1ebf584ac1408269"
+    },
+    {
+      "path": "src/components/experience2029/elsRotatingMatrixCard2029.css",
+      "source_blob": "5ae31fb51743ead6d4cc89f15a004762c1651119",
+      "integrated_blob": "5ae31fb51743ead6d4cc89f15a004762c1651119"
+    },
+    {
+      "path": "src/components/experience2029/HomeComposition2029.jsx",
+      "source_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b",
+      "integrated_blob": "ac62c9146cbd73aa6eca105056aafa2862ea261b"
+    },
+    {
+      "path": "src/pages/Home2029Page.jsx",
+      "source_blob": "053e587d5ecb15a81fb0d0759ae14544304b3d4e",
+      "integrated_blob": "053e587d5ecb15a81fb0d0759ae14544304b3d4e"
+    }
+  ],
+  "protected_files_unchanged": [
+    "src/components/experience2029/SystemFrame2029.jsx",
+    "src/lib/research/RazielSessionProvider2029.jsx",
+    "src/lib/research/ResearchProvider.jsx",
+    "src/lib/supabase.js",
+    "src/pages/World2029Page.jsx",
+    "scripts/build-integrated-preview.mjs",
+    "scripts/test-integrated-preview-auth-guard.mjs"
+  ],
+  "browser_result": {
+    "widths": [
+      {
+        "tag": "320px light",
+        "rect": {
+          "x": 12,
+          "w": 296,
+          "h": 397.46875
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          26,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          16
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-320-light.png"
+      },
+      {
+        "tag": "320px parchment",
+        "rect": {
+          "x": 12,
+          "w": 296,
+          "h": 397.46875
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          26,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          16
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-320-parchment.png"
+      },
+      {
+        "tag": "320px dark",
+        "rect": {
+          "x": 12,
+          "w": 296,
+          "h": 397.46875
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          26,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          16
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-320-dark.png"
+      },
+      {
+        "tag": "390px light",
+        "rect": {
+          "x": 12,
+          "w": 366,
+          "h": 461
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          30.576,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          17.472
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-390-light.png"
+      },
+      {
+        "tag": "390px parchment",
+        "rect": {
+          "x": 12,
+          "w": 366,
+          "h": 461
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          30.576,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          17.472
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-390-parchment.png"
+      },
+      {
+        "tag": "390px dark",
+        "rect": {
+          "x": 12,
+          "w": 366,
+          "h": 461
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          30.576,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          17.472
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-390-dark.png"
+      },
+      {
+        "tag": "768px light",
+        "rect": {
+          "x": 12,
+          "w": 744,
+          "h": 412
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          32,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          18
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-768-light.png"
+      },
+      {
+        "tag": "768px parchment",
+        "rect": {
+          "x": 12,
+          "w": 744,
+          "h": 412
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          32,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          18
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-768-parchment.png"
+      },
+      {
+        "tag": "768px dark",
+        "rect": {
+          "x": 12,
+          "w": 744,
+          "h": 412
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          32,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          18
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-768-dark.png"
+      },
+      {
+        "tag": "1440px light",
+        "rect": {
+          "x": 166,
+          "w": 1112,
+          "h": 412
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          43.29,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          18
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-1440-light.png"
+      },
+      {
+        "tag": "1440px parchment",
+        "rect": {
+          "x": 166,
+          "w": 1112,
+          "h": 412
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          43.29,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          18
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-1440-parchment.png"
+      },
+      {
+        "tag": "1440px dark",
+        "rect": {
+          "x": 166,
+          "w": 1112,
+          "h": 412
+        },
+        "title": [
+          "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+          43.29,
+          700
+        ],
+        "sentence": [
+          "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+          18
+        ],
+        "cta": [
+          168.34375,
+          48
+        ],
+        "overflow": [
+          0,
+          0
+        ],
+        "file": "card-1440-dark.png"
+      }
+    ],
+    "reducedMotion": [
+      {
+        "width": 390,
+        "rig": "none",
+        "running": 0,
+        "pause": "absent"
+      },
+      {
+        "width": 1440,
+        "rig": "none",
+        "running": 0,
+        "pause": "absent"
+      }
+    ],
+    "motionGates": {
+      "visible": "running",
+      "offscreen": {
+        "motion": "paused",
+        "play": "paused"
+      },
+      "back": "running",
+      "hiddenTab": {
+        "motion": "paused",
+        "play": "paused"
+      },
+      "shown": "running"
+    },
+    "keyboard": {
+      "pause": true,
+      "cta": true,
+      "ctaFocusRing": "solid 3px",
+      "pauseToggled": {
+        "paused": {
+          "pressed": "true",
+          "motion": "paused",
+          "play": "paused"
+        },
+        "resumed": {
+          "pressed": "false",
+          "motion": "running",
+          "top": 191,
+          "bottom": 652,
+          "innerH": 844,
+          "vis": "visible"
+        }
+      },
+      "enterOpens": true
+    },
+    "availability": [
+      {
+        "name": "open (lock_els disabled)",
+        "availability": "open",
+        "tag": "A",
+        "label": "פתח את הצופן\n←",
+        "h": 461
+      },
+      {
+        "name": "closed (lock_els enabled, mode all)",
+        "availability": "blocked",
+        "tag": "SPAN",
+        "label": "הצופן ייפתח בקרוב",
+        "h": 461
+      },
+      {
+        "name": "registered only (mode anon, signed out)",
+        "availability": "blocked",
+        "tag": "SPAN",
+        "label": "פתוח למשתמשים רשומים",
+        "h": 461
+      },
+      {
+        "name": "no flag row (default open)",
+        "availability": "open",
+        "tag": "A",
+        "label": "פתח את הצופן\n←",
+        "h": 461
+      },
+      {
+        "name": "loading->open",
+        "loadingH": 461,
+        "openH": 461
+      }
+    ],
+    "requests": {
+      "before": 120,
+      "after": 121,
+      "added": [
+        "GET /rest/v1/site_flags +1"
+      ]
+    },
+    "failures": []
+  },
+  "browser_io": {
+    "externalIO": "fully intercepted synthetic fixtures",
+    "forwardedExternal": 0,
+    "blockedMutations": {
+      "POST /rest/v1/rpc/link_identity": 44,
+      "POST /rest/v1/rpc/track_visit": 44,
+      "POST /rest/v1/rpc/ingest_event": 44,
+      "POST /rest/v1/rpc/fn_method_value": 22,
+      "POST /rest/v1/rpc/notification_prefs_guest_get_v1": 22,
+      "POST /rest/v1/rpc/world_group_source_arrivals_v2": 45
+    },
+    "fixtureRequests": {
+      "POST /rest/v1/rpc/link_identity": 44,
+      "POST /rest/v1/rpc/track_visit": 44,
+      "POST /rest/v1/rpc/ingest_event": 44,
+      "GET /rest/v1/posts": 177,
+      "GET /rest/v1/site_flags": 169,
+      "GET /rest/v1/gallery_images": 22,
+      "GET /rest/v1/home_videos": 22,
+      "GET /rest/v1/topic_cards_public": 67,
+      "HEAD /rest/v1/gematria_words": 88,
+      "GET /rest/v1/gematria_words": 44,
+      "GET /rest/v1/research_contributions": 22,
+      "POST /rest/v1/rpc/fn_method_value": 22,
+      "POST /rest/v1/rpc/notification_prefs_guest_get_v1": 22,
+      "GET /rest/v1/contributors": 44,
+      "POST /rest/v1/rpc/world_group_source_arrivals_v2": 45,
+      "GET /storage/v1/object/public/gallery/sod1820/broadcasts/logo-or-geula.png": 6,
+      "GET /rest/v1/channel_updates": 6
+    },
+    "edgeAttempts": [],
+    "webSocketsBlocked": 0
+  },
+  "card_static_tests": {
+    "total": 11,
+    "pass": 11,
+    "fail": 0
+  },
+  "related_selection": {
+    "total": 23,
+    "pass": 23,
+    "fail": 0,
+    "note": "Includes the 11 card tests; do not sum"
+  },
+  "auth_guard": {
+    "total": 9,
+    "pass": 9,
+    "fail": 0,
+    "limit": "Existing protected branch coverage only; new candidate needs builder-owner registration before hosted review"
+  },
+  "graph": {
+    "eager_gzip_bytes": 437845,
+    "recovery_bytes": 20897,
+    "required_recovery_bytes": 12288
+  },
+  "home_review_chunk_delta": {
+    "js_gzip_before": 17634,
+    "js_gzip_after": 19386,
+    "css_gzip_before": 3375,
+    "css_gzip_after": 5013,
+    "total_delta_bytes": 3390
+  },
+  "preview_guard_owner": {
+    "active_claim": "f89f7394-1a1b-4fce-ad9f-c0cfe5e82692",
+    "task": "COMMUNITY_QUICK_OWN_AVATAR_20261031",
+    "path": "scripts/build-integrated-preview.mjs",
+    "action": "Untouched; exact new branch readonly registration pending that owner handoff"
+  },
+  "release": {
+    "main": false,
+    "hosted_preview": false,
+    "edge": false,
+    "production": false,
+    "product_db_rls": false
+  },
+  "limitations": [
+    "Source performance figures are historical local measurements, no hosted LCP/CLS/GPU proof.",
+    "Current Home branding source-shape test and connected Golden old-post-layout guard fail identically on f4 baseline; public language3/3 passes.",
+    "Existing 17 source ELS/Raziel static failures from f4 remain outside card scope.",
+    "World d52 and later Claude river/ticker are not silently received by these two cherry-picks."
+  ]
+}

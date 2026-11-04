@@ -1,0 +1,2031 @@
+{
+  "status": "IMPLEMENTED_TESTED_PROTECTED_PREVIEW_READY_SCOPE_RELEASED",
+  "actor": "GPT",
+  "handoff_to": "ZURIEL",
+  "scope": "Existing Post occurrence reader, Post activation and existing source disclosure only; no shared Frame/Learn/Number/engine/CSS or product data change",
+  "base": "8b501aa47f7f25c3c086f80baf59e81feea26984",
+  "branch": "gpt/posts-integrated-backgrounds-20261030",
+  "canonical_law": {
+    "id": 18,
+    "body_md5": "05b73b416ab47804c9a0c807250b16f7"
+  },
+  "ownership": {
+    "live_bounded_path_check": "No matching active writer returned for the exact Post/Learn paths; no new live claim or release row asserted because only a read-only connector is available",
+    "visual_writer": "GPT for this explicitly authorized one-time visual followup. Default Claude lane remains unchanged outside this scope."
+  },
+  "matrix_scan": {
+    "id": 5003,
+    "modified": "2026-07-02 19:42:02.126909+00",
+    "source_content_md5": "619e9d005ae5715fbc29f14ffbb28e2e",
+    "raw_markings": 38,
+    "numeric_indirect_entries": 4,
+    "phrase_occurrences": 34,
+    "explicit_method_value_occurrences": 25,
+    "matched_live_profile_results": 25,
+    "mismatched_profile_results": 0,
+    "incomplete_context_occurrences": 9,
+    "trace_verification": "Not asserted by this audit; current engine profile parity only",
+    "occurrences": [
+      {
+        "ordinal": 1,
+        "expression": "המטריקס",
+        "sourceMethod": "רגיל",
+        "sourceValue": 424,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 424,
+        "result": "matched"
+      },
+      {
+        "ordinal": 2,
+        "expression": "משיח בן דוד",
+        "sourceMethod": "רגיל",
+        "sourceValue": 424,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 424,
+        "result": "matched"
+      },
+      {
+        "ordinal": 3,
+        "expression": "ניאו",
+        "sourceMethod": "רגיל",
+        "sourceValue": 67,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 67,
+        "result": "matched"
+      },
+      {
+        "ordinal": 4,
+        "expression": "בינה",
+        "sourceMethod": "רגיל",
+        "sourceValue": 67,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 67,
+        "result": "matched"
+      },
+      {
+        "ordinal": 5,
+        "expression": "עולם המחשבה",
+        "sourceMethod": null,
+        "sourceValue": 506,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 6,
+        "expression": "סוד",
+        "sourceMethod": null,
+        "sourceValue": 506,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 7,
+        "expression": "כבוד יהוה יתגלה",
+        "sourceMethod": "רגיל",
+        "sourceValue": 506,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 8,
+        "expression": "אני גואלך",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 9,
+        "expression": "עצבות",
+        "sourceMethod": "מסתתר",
+        "sourceValue": 506,
+        "canonicalMethod": "מסתתר",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 10,
+        "expression": "מערכת",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 11,
+        "expression": "סוד",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 12,
+        "expression": "כוח",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 13,
+        "expression": "דעת",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 14,
+        "expression": "גרזן",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 15,
+        "expression": "כבוד יהוה יתגלה",
+        "sourceMethod": "רגיל",
+        "sourceValue": 506,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 16,
+        "expression": "מטריקס",
+        "sourceMethod": null,
+        "sourceValue": null,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 17,
+        "expression": "יציאת מצרים",
+        "sourceMethod": null,
+        "sourceValue": null,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 18,
+        "expression": "גוף",
+        "sourceMethod": null,
+        "sourceValue": null,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 19,
+        "expression": "ארור המן",
+        "sourceMethod": null,
+        "sourceValue": null,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 20,
+        "expression": "ברוך מרדכי",
+        "sourceMethod": null,
+        "sourceValue": null,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 21,
+        "expression": "דעה את יהוה",
+        "sourceMethod": null,
+        "sourceValue": 506,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      },
+      {
+        "ordinal": 22,
+        "expression": "עולם המחשבה",
+        "sourceMethod": "רגיל",
+        "sourceValue": 506,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 23,
+        "expression": "סתום",
+        "sourceMethod": "רגיל",
+        "sourceValue": 506,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 24,
+        "expression": "כבוד יהוה יתגלה",
+        "sourceMethod": "רגיל",
+        "sourceValue": 506,
+        "canonicalMethod": "רגיל",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 25,
+        "expression": "סוד",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 26,
+        "expression": "כוח",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 27,
+        "expression": "דעת",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 28,
+        "expression": "מערכת",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 29,
+        "expression": "גרזן",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 30,
+        "expression": "אני גואלך",
+        "sourceMethod": "מילוי בלבד",
+        "sourceValue": 506,
+        "canonicalMethod": "מילוי בלבד",
+        "canonicalVersion": 2,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 31,
+        "expression": "עצבות",
+        "sourceMethod": "מסתתר",
+        "sourceValue": 506,
+        "canonicalMethod": "מסתתר",
+        "canonicalVersion": 1,
+        "engineValue": 506,
+        "result": "matched"
+      },
+      {
+        "ordinal": 32,
+        "expression": "מטריקס",
+        "sourceMethod": "קדמי",
+        "sourceValue": 1890,
+        "canonicalMethod": "קדמי",
+        "canonicalVersion": 1,
+        "engineValue": 1890,
+        "result": "matched"
+      },
+      {
+        "ordinal": 33,
+        "expression": "כבוד יהוה יתגלה",
+        "sourceMethod": "קדמי",
+        "sourceValue": 1891,
+        "canonicalMethod": "קדמי",
+        "canonicalVersion": 1,
+        "engineValue": 1891,
+        "result": "matched"
+      },
+      {
+        "ordinal": 34,
+        "expression": "יציאת מצרים",
+        "sourceMethod": null,
+        "sourceValue": 891,
+        "canonicalMethod": null,
+        "canonicalVersion": null,
+        "engineValue": null,
+        "result": "incomplete_source_context"
+      }
+    ]
+  },
+  "behavior": [
+    "Exact source-marked spelling, local explicit equality/method label and source version retained",
+    "Canonical profile resolves exact key/display alias; no partial label/value-based method selection or automatic regular fallback",
+    "Generated presentation locators use the source SHA-256 plus marking position; bound to an exact source snapshot, not source-native section identities",
+    "Re-admit source, content and permission before profile reads and again afterward; no new graph edges, claims, publication or database writes",
+    "Documented legacy tuples join the existing closed measure disclosure; missing versions and presentation locators are described honestly",
+    "Missing/ambiguous context and engine mismatches are explained next to the selected line; generic numeric entries remain indirect",
+    "Current occurrence is placed in browser history before full Number navigation, preserving browser Back after earlier calculations in the same Post",
+    "Generated equality operands and generic number links are explicitly distinguished from saved source markings"
+  ],
+  "visual_followup": {
+    "canonical_owner": "SOD1820_DESIGN_CONTRACT_V2.md §8.2",
+    "status": "IMPLEMENTED_UNDER_EXPLICIT_ONE_TIME_USER_EXCEPTION",
+    "recommendation": {
+      "content_plane": "Centered, bounded with balanced logical gutters",
+      "long_hebrew_prose": "text-align:start; no blanket center or justified alignment",
+      "short_identity_heading": "May center within the reading plane",
+      "quotes_and_equations": "May center when short and intentionally separate; keep long explanatory prose aligned to start",
+      "section_navigation": "Same centered content axis; evenly distributed when space allows; wrap rather than clip",
+      "surface_help": "One 44px minimum touch target, one visible outline, short visible label for screen-level help; inline with Post metadata rather than a standalone icon row"
+    },
+    "diagnosis": [
+      "LearnMark2029 compact hides its label and CSS draws both a trigger border and an inner circular symbol border",
+      "Post CSS forces details and orientation each to flex-basis:100% below620px, yielding the isolated help row",
+      "Shared section navigation has no explicit centering/distribution; the wrapper width alone does not center its buttons"
+    ],
+    "paths_for_existing_visual_owner": [
+      "src/components/experience2029/LearnMark2029.jsx",
+      "src/components/experience2029/learnMark2029.css",
+      "src/pages/post2029-reading.css"
+    ],
+    "acceptance": [
+      "320/390/1440px and all three presets",
+      "Separate content-plane centering from prose alignment",
+      "Visible label, 44px hit area, keyboard focus/expanded state, no clipped controls",
+      "Same source text/media/colors; no gold/decoration interpreted as verification"
+    ],
+    "base": "f2febb751e1d4f38c0498da88de226e9d8517d62",
+    "authorization": {
+      "actor": "ZURIEL",
+      "instruction": "תעקוף אותו הפעם",
+      "scope": "Shared LearnMark and Post reading centering/help integration only; no permanent visual-policy rewrite",
+      "permanent_policy_change": false
+    },
+    "implementation": [
+      "Removed the obsolete empty reading-spine grid track; source and section menu share the centered790px plane",
+      "Ordinary prose aligns to start; explicit quote/equation roles keep their separate alignment; source wording and colors unchanged",
+      "Surface help has a short visible label for both new/familiar readers and a visible label included in its full accessible name",
+      "Single decorative button outline, visible keyboard focus,44px minimum hit targets and existing readable UI tokens for help/actions",
+      "Existing portal wrappers participate in the metadata grid; the explanation opens below, at most520px wide, without moving the trigger",
+      "At320px section navigation uses two balanced columns, with an odd last item spanning the row",
+      "Source focus restoration keeps the control visible within its existing header/island scroll margins"
+    ],
+    "verification": {
+      "tests": 129,
+      "pass": 129,
+      "fail": 0,
+      "skipped": 0,
+      "node": 128,
+      "built_browser": 1,
+      "layout_theme_width_cases": 9,
+      "shared_concept_and_first_visit_cases": 3,
+      "actual_app_compact_cases": 12,
+      "actual_app_first_visit_cases": 2,
+      "actual_app_calculation_return_cases": 2,
+      "layout_artifacts": "/workspace/shared/downloads/posts-alignment-approved",
+      "first_visit_artifacts": "/workspace/shared/downloads/posts-alignment-first-visit-approved",
+      "calculation_artifacts": "/workspace/shared/downloads/posts-alignment-verified-calculations",
+      "layout_results": [
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 320,
+          "theme": "light",
+          "state": {
+            "theme": "light",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 284,
+              "height": 6071.890625,
+              "center": 160
+            },
+            "source": {
+              "x": 18,
+              "y": 744.34375,
+              "width": 284,
+              "height": 4839.859375,
+              "center": 160
+            },
+            "nav": {
+              "x": 18,
+              "y": 606.34375,
+              "width": 284,
+              "height": 110,
+              "center": 160
+            },
+            "navVisible": true,
+            "help": {
+              "x": 143.09375,
+              "y": 320.765625,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 215.046875
+            },
+            "details": {
+              "x": 33,
+              "y": 272.765625,
+              "width": 254,
+              "height": 44,
+              "center": 160
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 379.71875,
+            "width": 254,
+            "height": 164.953125
+          },
+          "openedHelp": {
+            "x": 143.09375,
+            "y": 320.765625,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 390,
+          "theme": "light",
+          "state": {
+            "theme": "light",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 5517.609375,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 656.53125,
+              "width": 354,
+              "height": 4392.140625,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 568.53125,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 239.171875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 240.640625,
+              "width": 168.09375,
+              "height": 44,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 298.125,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 239.171875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 1440,
+          "theme": "light",
+          "state": {
+            "theme": "light",
+            "article": {
+              "x": 373,
+              "y": 134,
+              "width": 944,
+              "height": 5439,
+              "center": 845
+            },
+            "source": {
+              "x": 450,
+              "y": 802.703125,
+              "width": 790,
+              "height": 4339.890625,
+              "center": 845
+            },
+            "nav": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "center": 0
+            },
+            "navVisible": false,
+            "help": {
+              "x": 388,
+              "y": 320.5,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 459.953125
+            },
+            "details": {
+              "x": 543.90625,
+              "y": 321.96875,
+              "width": 758.09375,
+              "height": 44,
+              "center": 922.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 388,
+            "y": 379.453125,
+            "width": 520,
+            "height": 112.171875
+          },
+          "openedHelp": {
+            "x": 388,
+            "y": 320.5,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 320,
+          "theme": "parchment",
+          "state": {
+            "theme": "parchment",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 284,
+              "height": 6071.890625,
+              "center": 160
+            },
+            "source": {
+              "x": 18,
+              "y": 744.34375,
+              "width": 284,
+              "height": 4839.859375,
+              "center": 160
+            },
+            "nav": {
+              "x": 18,
+              "y": 606.34375,
+              "width": 284,
+              "height": 110,
+              "center": 160
+            },
+            "navVisible": true,
+            "help": {
+              "x": 143.09375,
+              "y": 320.765625,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 215.046875
+            },
+            "details": {
+              "x": 33,
+              "y": 272.765625,
+              "width": 254,
+              "height": 44,
+              "center": 160
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 379.71875,
+            "width": 254,
+            "height": 164.953125
+          },
+          "openedHelp": {
+            "x": 143.09375,
+            "y": 320.765625,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 390,
+          "theme": "parchment",
+          "state": {
+            "theme": "parchment",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 5517.609375,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 656.53125,
+              "width": 354,
+              "height": 4392.140625,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 568.53125,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 239.171875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 240.640625,
+              "width": 168.09375,
+              "height": 44,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 298.125,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 239.171875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 1440,
+          "theme": "parchment",
+          "state": {
+            "theme": "parchment",
+            "article": {
+              "x": 373,
+              "y": 134,
+              "width": 944,
+              "height": 5439,
+              "center": 845
+            },
+            "source": {
+              "x": 450,
+              "y": 802.703125,
+              "width": 790,
+              "height": 4339.890625,
+              "center": 845
+            },
+            "nav": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "center": 0
+            },
+            "navVisible": false,
+            "help": {
+              "x": 388,
+              "y": 320.5,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 459.953125
+            },
+            "details": {
+              "x": 543.90625,
+              "y": 321.96875,
+              "width": 758.09375,
+              "height": 44,
+              "center": 922.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 388,
+            "y": 379.453125,
+            "width": 520,
+            "height": 112.171875
+          },
+          "openedHelp": {
+            "x": 388,
+            "y": 320.5,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 320,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 284,
+              "height": 6071.890625,
+              "center": 160
+            },
+            "source": {
+              "x": 18,
+              "y": 744.34375,
+              "width": 284,
+              "height": 4839.859375,
+              "center": 160
+            },
+            "nav": {
+              "x": 18,
+              "y": 606.34375,
+              "width": 284,
+              "height": 110,
+              "center": 160
+            },
+            "navVisible": true,
+            "help": {
+              "x": 143.09375,
+              "y": 320.765625,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 215.046875
+            },
+            "details": {
+              "x": 33,
+              "y": 272.765625,
+              "width": 254,
+              "height": 44,
+              "center": 160
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 379.71875,
+            "width": 254,
+            "height": 164.953125
+          },
+          "openedHelp": {
+            "x": 143.09375,
+            "y": 320.765625,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 390,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 5517.609375,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 656.53125,
+              "width": 354,
+              "height": 4392.140625,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 568.53125,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 239.171875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 240.640625,
+              "width": 168.09375,
+              "height": 44,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 298.125,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 239.171875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 1440,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 373,
+              "y": 134,
+              "width": 944,
+              "height": 5439,
+              "center": 845
+            },
+            "source": {
+              "x": 450,
+              "y": 802.703125,
+              "width": 790,
+              "height": 4339.890625,
+              "center": 845
+            },
+            "nav": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "center": 0
+            },
+            "navVisible": false,
+            "help": {
+              "x": 388,
+              "y": 320.5,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 459.953125
+            },
+            "details": {
+              "x": 543.90625,
+              "y": 321.96875,
+              "width": 758.09375,
+              "height": 44,
+              "center": 922.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 388,
+            "y": 379.453125,
+            "width": 520,
+            "height": 112.171875
+          },
+          "openedHelp": {
+            "x": 388,
+            "y": 320.5,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "mah-kore-france-october-obadiah",
+          "width": 390,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 2695.328125,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 591.546875,
+              "width": 354,
+              "height": 1781.53125,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 503.546875,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 190.1875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 191.65625,
+              "width": 168.09375,
+              "height": 44,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 249.140625,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 190.1875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "matrix-506",
+          "width": 390,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 8032.328125,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 632.140625,
+              "width": 354,
+              "height": 6931.25,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 544.140625,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 210.171875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 205.578125,
+              "width": 168.09375,
+              "height": 56.15625,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 273.734375,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 210.171875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "chibur-bein-hasafot-mafteach-lagan",
+          "width": 390,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 10468.140625,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 665.734375,
+              "width": 354,
+              "height": 9333.46875,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 577.734375,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 243.765625,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 239.171875,
+              "width": 168.09375,
+              "height": 56.15625,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 307.328125,
+            "width": 324,
+            "height": 138.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 243.765625,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "errors": [],
+          "blocked": []
+        }
+      ],
+      "first_visit_results": [
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 320,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 284,
+              "height": 6071.890625,
+              "center": 160
+            },
+            "source": {
+              "x": 18,
+              "y": 744.34375,
+              "width": 284,
+              "height": 4839.859375,
+              "center": 160
+            },
+            "nav": {
+              "x": 18,
+              "y": 606.34375,
+              "width": 284,
+              "height": 110,
+              "center": 160
+            },
+            "navVisible": true,
+            "help": {
+              "x": 143.09375,
+              "y": 320.765625,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 215.046875
+            },
+            "details": {
+              "x": 33,
+              "y": 272.765625,
+              "width": 254,
+              "height": 44,
+              "center": 160
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 379.71875,
+            "width": 254,
+            "height": 216.953125
+          },
+          "openedHelp": {
+            "x": 143.09375,
+            "y": 320.765625,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "secondary": [
+            {
+              "font": 18,
+              "height": 44
+            }
+          ],
+          "errors": [],
+          "blocked": []
+        },
+        {
+          "slug": "koach-hashtika-dim5",
+          "width": 390,
+          "theme": "dark",
+          "state": {
+            "theme": "dark",
+            "article": {
+              "x": 18,
+              "y": 84,
+              "width": 354,
+              "height": 5517.609375,
+              "center": 195
+            },
+            "source": {
+              "x": 18,
+              "y": 656.53125,
+              "width": 354,
+              "height": 4392.140625,
+              "center": 195
+            },
+            "nav": {
+              "x": 18,
+              "y": 568.53125,
+              "width": 354,
+              "height": 60,
+              "center": 195
+            },
+            "navVisible": true,
+            "help": {
+              "x": 33,
+              "y": 239.171875,
+              "width": 143.90625,
+              "height": 46.953125,
+              "center": 104.953125
+            },
+            "details": {
+              "x": 188.90625,
+              "y": 240.640625,
+              "width": 168.09375,
+              "height": 44,
+              "center": 272.953125
+            },
+            "label": "איך זה עובד?",
+            "helpFont": "18px",
+            "symbolBorder": "0px",
+            "proseAlignment": "start",
+            "overflow": false
+          },
+          "helpPanel": {
+            "x": 33,
+            "y": 298.125,
+            "width": 324,
+            "height": 190.5625
+          },
+          "openedHelp": {
+            "x": 33,
+            "y": 239.171875,
+            "width": 143.90625,
+            "height": 46.953125
+          },
+          "secondary": [
+            {
+              "font": 18,
+              "height": 44
+            }
+          ],
+          "errors": [],
+          "blocked": []
+        }
+      ],
+      "calculation_results": [
+        {
+          "width": 390,
+          "identity": "אני גואלך\nמילוי בלבד\n506",
+          "triangleIdentity": "מטריקס\nמשולש\n1890",
+          "fullNumber": "/2029/number/1890",
+          "returnVisible": true,
+          "unmappedNotice": "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית.",
+          "errors": [],
+          "blocked": [],
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "identity": "אני גואלך\nמילוי בלבד\n506",
+          "triangleIdentity": "מטריקס\nמשולש\n1890",
+          "fullNumber": "/2029/number/1890",
+          "returnVisible": true,
+          "unmappedNotice": "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית.",
+          "errors": [],
+          "blocked": [],
+          "overflow": false
+        }
+      ]
+    },
+    "entry_smoke_resolution": "Updated obsolete direct-open string assertions to the existing source/version-checked Number activation; no activation behavior was weakened."
+  },
+  "verification": {
+    "pending": false,
+    "node_and_built_browser": {
+      "tests": 125,
+      "pass": 125,
+      "fail": 0,
+      "skipped": 0
+    },
+    "local_actual_public_data": {
+      "scope": "Local exact read-only Preview build, actual anonymous public Post and canonical engine profile/trace; no product/model writes",
+      "results": [
+        {
+          "width": 390,
+          "identity": "אני גואלך\nמילוי בלבד\n506",
+          "triangleIdentity": "מטריקס\nמשולש\n1890",
+          "fullNumber": "/2029/number/1890",
+          "returnVisible": true,
+          "unmappedNotice": "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית.",
+          "errors": [],
+          "blocked": [],
+          "overflow": false
+        },
+        {
+          "width": 1440,
+          "identity": "אני גואלך\nמילוי בלבד\n506",
+          "triangleIdentity": "מטריקס\nמשולש\n1890",
+          "fullNumber": "/2029/number/1890",
+          "returnVisible": true,
+          "unmappedNotice": "להופעה הזאת אין ביטוי, שיטה ותוצאה מתועדים במלואם. לא נבחרה שיטה אוטומטית.",
+          "errors": [],
+          "blocked": [],
+          "overflow": false
+        }
+      ]
+    },
+    "builds": [
+      "Legacy PASS",
+      "2029 PASS",
+      "Read-only integrated Preview PASS"
+    ],
+    "gates": [
+      "Source isolation PASS",
+      "Built dependency graph PASS",
+      "Cheap hardening PASS",
+      "Experience Context PASS",
+      "Post characters PASS",
+      "Legacy Production lock PASS"
+    ],
+    "browser_cases": [
+      "Distinct regular/fill-only/triangle methods and same-value methods",
+      "Saved source markings coexist with generated equality buttons and number links",
+      "Close and explicit return, full Number browser Back, refresh and visible occurrence",
+      "Source SHA change invalidates presentation locator",
+      "New source method after build without a manual method list",
+      "Forged method/value rejected; incomplete method starts no engine RPC; revocation hides result"
+    ],
+    "limits": [
+      "Hosted visual browser acceptance not asserted; exact hosted identity/HTTP checks follow deployment",
+      "Signed-in/admin/RLS and physical phone frame rate not certified",
+      "Nine Matrix occurrences retain incomplete local source context; no automatic method inheritance"
+    ]
+  },
+  "production": "Legacy unchanged before and after Preview: dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA; no merge, main push or Production change",
+  "previous_hosted_preview": {
+    "deployment_id": "dpl_74dHb3BYPYtn64qsRouSKX579Ak4",
+    "url": "https://sod1820-89x1dutkz-sod1820-s-projects.vercel.app",
+    "status": "READY",
+    "target": "preview",
+    "runtime_sha": "417b1d419114d88eae7d195d34125da506dc7b83",
+    "build_duration_ms": 29431,
+    "checks": [
+      {
+        "path": "/posts-preview-identity.json",
+        "status": 200,
+        "identity": {
+          "branch": "gpt/posts-integrated-backgrounds-20261030",
+          "sha": "417b1d419114d88eae7d195d34125da506dc7b83",
+          "target": "preview",
+          "readOnly": true,
+          "realModelCalls": false
+        },
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "robots": "noindex"
+      },
+      {
+        "path": "/preview-readonly-sw.js",
+        "status": 200,
+        "readOnlyWorker": true,
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "robots": "noindex"
+      },
+      {
+        "path": "/post/matrix-506",
+        "status": 200,
+        "readOnlyBootstrap": true,
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "robots": "noindex"
+      },
+      {
+        "path": "/legacy-dark-bg-post-720-8f3a91ae32df.webp",
+        "status": 200,
+        "cacheControl": "public, max-age=31536000, immutable",
+        "robots": "noindex"
+      }
+    ],
+    "production_unchanged": true,
+    "production_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "hosted_visual_browser": "Not asserted; authenticated hosted HTTP and local actual public-data browser were verified",
+    "access": "Existing Vercel authentication retained"
+  },
+  "help_learning_followup": {
+    "base": "deda0d1abfc613a5f21c7981976f93f99de56044",
+    "scope": "Existing shared LearnMark, its CSS and existing entry-learning manifest only; SystemFrame/Provider/global reset/school implementations unchanged",
+    "ownership": "Fresh bounded live reads found no matching Learn/entry owner, but unresolved Frame claims exist; Frame remained byte-identical. Read-only connector cannot journal claim/release.",
+    "typography": {
+      "token": "--s29-type-ui",
+      "font_size_px": 16,
+      "weight": 500,
+      "line_height_px": 22.4,
+      "minimum_target_px": 44,
+      "measured_control_width_px": 135.34375
+    },
+    "learning_href": "/beit-midrash?section=methods",
+    "behavior": [
+      "Screen-level help includes the existing methods-learning route; concept help retains its own existing actions",
+      "Text stays owned by each surface manifest; Post guidance is shorter and practical",
+      "Normal navigation preserves an origin snapshot through existing Research Context, including a matching existing Post locator",
+      "Modified clicks keep native behavior; opening help starts no engine/model work"
+    ],
+    "verification": {
+      "tests": 144,
+      "pass": 144,
+      "fail": 0,
+      "skipped": 0,
+      "node": 128,
+      "existing_learning_route_checks": 15,
+      "built_browser": 1,
+      "actual_app": {
+        "scope": "Actual local read-only App2029 with anonymous sources and real existing method registry; existing Frame exact-return action invoked through DOM, no Frame source edit",
+        "results": [
+          {
+            "path": "/post/koach-hashtika-dim5",
+            "width": 320,
+            "control": {
+              "font": "16px",
+              "family": "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+              "weight": "500",
+              "line": "22.4px",
+              "width": 135.34375,
+              "height": 44
+            },
+            "learningHref": "/beit-midrash?section=methods",
+            "methodLinks": 32,
+            "browserBackPath": "/post/koach-hashtika-dim5",
+            "returnEnabled": true,
+            "returnPath": "/post/koach-hashtika-dim5#source-region-post-story",
+            "overflow": false,
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "path": "/post/koach-hashtika-dim5",
+            "width": 390,
+            "control": {
+              "font": "16px",
+              "family": "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+              "weight": "500",
+              "line": "22.4px",
+              "width": 135.34375,
+              "height": 44
+            },
+            "learningHref": "/beit-midrash?section=methods",
+            "methodLinks": 32,
+            "browserBackPath": "/post/koach-hashtika-dim5",
+            "returnEnabled": true,
+            "returnPath": "/post/koach-hashtika-dim5#source-region-post-story",
+            "overflow": false,
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "path": "/post/koach-hashtika-dim5",
+            "width": 1440,
+            "control": {
+              "font": "16px",
+              "family": "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+              "weight": "500",
+              "line": "22.4px",
+              "width": 135.34375,
+              "height": 44
+            },
+            "learningHref": "/beit-midrash?section=methods",
+            "methodLinks": 32,
+            "browserBackPath": "/post/koach-hashtika-dim5",
+            "returnEnabled": true,
+            "returnPath": "/post/koach-hashtika-dim5#source-region-post-story",
+            "overflow": false,
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "path": "/2029/number/506",
+            "width": 390,
+            "control": {
+              "font": "16px",
+              "family": "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+              "weight": "500",
+              "line": "22.4px",
+              "width": 135.34375,
+              "height": 44
+            },
+            "learningHref": "/beit-midrash?section=methods",
+            "methodLinks": 32,
+            "browserBackPath": "/2029/number/506",
+            "returnEnabled": true,
+            "returnPath": "/2029/number/506",
+            "overflow": false,
+            "errors": [],
+            "blocked": []
+          }
+        ]
+      },
+      "artifacts": "/workspace/shared/downloads/posts-help-learning",
+      "limits": [
+        "Hosted visual browser not asserted; authenticated hosted identity/HTTP verified separately",
+        "Other surfaces without this existing help component are not newly activated",
+        "Nine Matrix source contexts remain incomplete; no new source claim was invented"
+      ]
+    }
+  },
+  "previous_hosted_preview_before_learning": {
+    "deployment_id": "dpl_HchEzedm58HG7J7TrJoYYgbYHCfn",
+    "url": "https://sod1820-7ha0rk8ut-sod1820-s-projects.vercel.app",
+    "status": "READY",
+    "target": "preview",
+    "runtime_sha": "12684fa592f3de36c50bddd4fdfae18a58bc5edd",
+    "build_duration_ms": 25346,
+    "checks": [
+      {
+        "path": "/posts-preview-identity.json",
+        "status": 200,
+        "identity": {
+          "branch": "gpt/posts-integrated-backgrounds-20261030",
+          "sha": "12684fa592f3de36c50bddd4fdfae18a58bc5edd",
+          "target": "preview",
+          "readOnly": true,
+          "realModelCalls": false
+        },
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "robots": "noindex"
+      },
+      {
+        "path": "/preview-readonly-sw.js",
+        "status": 200,
+        "readOnlyWorker": true,
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "robots": "noindex"
+      },
+      {
+        "path": "/post/koach-hashtika-dim5",
+        "status": 200,
+        "readOnlyBootstrap": true,
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "robots": "noindex"
+      },
+      {
+        "path": "/post/matrix-506",
+        "status": 200,
+        "readOnlyBootstrap": true,
+        "cacheControl": "public, max-age=0, must-revalidate",
+        "robots": "noindex"
+      },
+      {
+        "path": "/dimension-five-night-720-a608fa1bd777.webp",
+        "status": 200,
+        "cacheControl": "public, max-age=31536000, immutable",
+        "robots": "noindex"
+      }
+    ],
+    "production_unchanged": true,
+    "production_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "hosted_visual_browser": "Not asserted; actual local App2029 and authenticated hosted HTTP verified",
+    "access": "Existing Vercel authentication retained"
+  },
+  "hosted_preview": {
+    "deployment_id": "dpl_9sq3cfS1TTMs9BotK5dBV9Cqv4mC",
+    "url": "https://sod1820-8pg3fejh0-sod1820-s-projects.vercel.app",
+    "status": "READY",
+    "target": "preview",
+    "runtime_sha": "a98bb623ca8b792d20b410f4173ef32ff20b5ec3",
+    "checks": [
+      {
+        "path": "/posts-preview-identity.json",
+        "status": 200,
+        "robots": "noindex",
+        "identity": {
+          "branch": "gpt/posts-integrated-backgrounds-20261030",
+          "sha": "a98bb623ca8b792d20b410f4173ef32ff20b5ec3",
+          "target": "preview",
+          "readOnly": true,
+          "realModelCalls": false
+        }
+      },
+      {
+        "path": "/preview-readonly-sw.js",
+        "status": 200,
+        "robots": "noindex",
+        "readOnlyBootstrap": true
+      },
+      {
+        "path": "/post/koach-hashtika-dim5",
+        "status": 200,
+        "robots": "noindex",
+        "readOnlyBootstrap": true
+      },
+      {
+        "path": "/post/old-timeline-complete-new-self-dim5",
+        "status": 200,
+        "robots": "noindex",
+        "readOnlyBootstrap": true
+      },
+      {
+        "path": "/2029/number/216",
+        "status": 200,
+        "robots": "noindex",
+        "readOnlyBootstrap": true
+      }
+    ],
+    "production_deployment_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_deployment_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_deployment_unchanged": true,
+    "product_data_exception": "Only explicitly approved Post5129 author+modified, recorded/released separately",
+    "hosted_visual_browser": "Not asserted; authenticated hosted HTTP and actual local UI verified",
+    "access": "Existing Vercel Authentication retained"
+  },
+  "gematria_box_followup": {
+    "status": "IMPLEMENTED_TESTED_PR_READY_HOSTED_READONLY_PREVIEW_READY",
+    "base": "8016fbcaa23e2fc212e28b8f8324f9ccd500a40e",
+    "scope": [
+      "src/pages/post2029-legacy-grade.css",
+      "test/post-one-tree-measures-2029.browser.test.mjs",
+      "existing review receipt"
+    ],
+    "ownership": "Fresh exact-path lookup returned no overlap; bounded semantic lookup retained World/Gallery exclusions; no live ledger write claimed.",
+    "canonical_law": {
+      "id": 18,
+      "body_md5": "05b73b416ab47804c9a0c807250b16f7",
+      "changed": false
+    },
+    "authored_source": {
+      "post_id": 5105,
+      "slug": "koach-hashtika-dim5",
+      "modified": "2026-09-09T18:49:39.034612+00:00",
+      "content_md5": "67b9837ddf8efc1376e6df0c73262e25",
+      "icon": "U+1F522 🔢 is stored directly in posts.content .gb-title; same convention exists in PostEditorPage GEM_BOX. Device emoji rendering, not a canonical2029 icon or imported Legacy UI runtime."
+    },
+    "changes": [
+      "Center short gb-title and equation group/chip content; keep explanatory prose aligned to start.",
+      "Consume existing UI16 and micro14 tokens; supporting explanation15 minimum. Narrow equation chips may wrap within source width.",
+      "Keep authored wording/icon and existing source-claim label. No verification inferred from source caption."
+    ],
+    "contract_assessment": "Existing DesignV2 §8.2 already allows centered short headings/equations; no new contract or global token change. Screenshot exposed alignment and11/13/13.5px local presentation gaps now corrected. This bounded check does not certify every Post, source claim or calculation.",
+    "excluded": [
+      "Frame/bars/World/Topics/Galleries/personal area",
+      "global typography/palette/icons",
+      "engines/DB/RLS",
+      "authored source edits and corpus-wide calculation acceptance",
+      "main/Production"
+    ],
+    "acceptance": {
+      "browser_suite": {
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "duration_ms": 83610
+      },
+      "typography_contract_tests": 3,
+      "builds": [
+        "npm run build: Legacy +2029",
+        "static integrated read-only Preview"
+      ],
+      "gates": [
+        "2029 isolation",
+        "built dependency graph",
+        "cheap hardening",
+        "Legacy Production lock"
+      ],
+      "actual_app": {
+        "scope": "Actual local read-only App2029 with anonymous live post5105; unchanged authored text/icon; no all-post contract certification",
+        "results": [
+          {
+            "width": 320,
+            "theme": "parchment",
+            "metrics": {
+              "actualTheme": "parchment",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 320,
+            "theme": "dark",
+            "metrics": {
+              "actualTheme": "dark",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 320,
+            "theme": "light",
+            "metrics": {
+              "actualTheme": "light",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 390,
+            "theme": "parchment",
+            "metrics": {
+              "actualTheme": "parchment",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 390,
+            "theme": "dark",
+            "metrics": {
+              "actualTheme": "dark",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 390,
+            "theme": "light",
+            "metrics": {
+              "actualTheme": "light",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 1440,
+            "theme": "parchment",
+            "metrics": {
+              "actualTheme": "parchment",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0.0078125,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 1440,
+            "theme": "dark",
+            "metrics": {
+              "actualTheme": "dark",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0.0078125,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          },
+          {
+            "width": 1440,
+            "theme": "light",
+            "metrics": {
+              "actualTheme": "light",
+              "title": "🔢 גימטריה — עובדה מאומתת במנוע",
+              "titleAlign": "center",
+              "titleSize": "16px",
+              "noteAlign": "start",
+              "noteSize": "15px",
+              "labelSize": "14px",
+              "rowsOffset": 0.0078125,
+              "overflow": false
+            },
+            "errors": [],
+            "blocked": []
+          }
+        ]
+      },
+      "hosted_visual_browser": "Not asserted; actual UI tested locally with live anonymous public post"
+    }
+  },
+  "previous_hosted_preview_before_gematria_box": {
+    "deployment_id": "dpl_9YiPbXHorNmCmCKEHyg7Aib6DGZc",
+    "url": "https://sod1820-je4sswxue-sod1820-s-projects.vercel.app",
+    "status": "READY",
+    "target": "preview",
+    "runtime_sha": "dcbfd1a94dd9af48616ce07b3f91992eff218f6f",
+    "build_duration_ms": 25533,
+    "checks": [
+      {
+        "path": "/posts-preview-identity.json",
+        "status": 200,
+        "identity": {
+          "branch": "gpt/posts-integrated-backgrounds-20261030",
+          "sha": "dcbfd1a94dd9af48616ce07b3f91992eff218f6f",
+          "target": "preview",
+          "readOnly": true,
+          "realModelCalls": false
+        },
+        "robots": "noindex"
+      },
+      {
+        "path": "/preview-readonly-sw.js",
+        "status": 200,
+        "readOnlyWorker": true,
+        "robots": "noindex"
+      },
+      {
+        "path": "/post/koach-hashtika-dim5",
+        "status": 200,
+        "readOnlyBootstrap": true,
+        "robots": "noindex"
+      },
+      {
+        "path": "/2029/number/506",
+        "status": 200,
+        "readOnlyBootstrap": true,
+        "robots": "noindex"
+      },
+      {
+        "path": "/beit-midrash?section=methods",
+        "status": 200,
+        "readOnlyBootstrap": true,
+        "robots": "noindex"
+      }
+    ],
+    "production_unchanged": true,
+    "production_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "hosted_visual_browser": "Not asserted; authenticated HTTP verified, actual UI tested locally with live public data",
+    "access": "Existing Vercel authentication retained"
+  },
+  "corpus_mapping_followup": {
+    "status": "PUBLIC_CORPUS_STRUCTURAL_MAPPING_COMPLETE_RESEARCH_ACCEPTANCE_OPEN",
+    "receipt": "posts-corpus-map-20261031.json",
+    "public_posts": 1282,
+    "claims": 272,
+    "matched_profile_results": 29,
+    "unresolved_method_candidates": 4,
+    "incomplete_occurrences": 239,
+    "runtime_changed": false,
+    "production_changed": false
+  },
+  "repair_chain_followup": {
+    "status": "IMPLEMENTED_TESTED_PROTECTED_PREVIEW_READY_SCOPE_RELEASED",
+    "receipt": "posts-repair-chain-20261031.json",
+    "public_posts": 1282,
+    "located_expressions": 1653,
+    "matched_profile_results": 71,
+    "source_method_not_invented": true,
+    "post5129_correction_applied": true,
+    "ownership_parent": "86192c3f-d98b-41d5-86d1-c7ab73e2b0b7",
+    "hosted_preview_pending": false,
+    "runtime_sha": "a98bb623ca8b792d20b410f4173ef32ff20b5ec3",
+    "after_release": {
+      "code_after_id": "4703d187-95e7-4886-a651-17a9a9010d63",
+      "page_after_id": "49e6595d-c9c3-405c-b781-d4f0264d945d",
+      "both_claims_released": 1
+    }
+  },
+  "previous_hosted_preview_before_repair_chain": {
+    "deployment_id": "dpl_2ZtVxYpEtEUex4n3CTvW5DSN4FRZ",
+    "url": "https://sod1820-jiosme522-sod1820-s-projects.vercel.app",
+    "status": "READY",
+    "target": "preview",
+    "runtime_sha": "dbb4e03acc522b1af9c2dc9505f14881b159fe97",
+    "checks": [
+      {
+        "path": "/posts-preview-identity.json",
+        "status": 200,
+        "robots": "noindex",
+        "identity": {
+          "branch": "gpt/posts-integrated-backgrounds-20261030",
+          "sha": "dbb4e03acc522b1af9c2dc9505f14881b159fe97",
+          "target": "preview",
+          "readOnly": true,
+          "realModelCalls": false
+        }
+      },
+      {
+        "path": "/preview-readonly-sw.js",
+        "status": 200,
+        "robots": "noindex",
+        "readOnlyBootstrap": true
+      },
+      {
+        "path": "/post/koach-hashtika-dim5",
+        "status": 200,
+        "robots": "noindex",
+        "readOnlyBootstrap": true
+      }
+    ],
+    "production_before": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_after": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "production_unchanged": true,
+    "hosted_visual_browser": "Not asserted; authenticated HTTP verified and actual UI tested locally with live public data",
+    "access": "Existing Vercel Authentication retained"
+  }
+}

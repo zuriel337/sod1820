@@ -1,0 +1,347 @@
+{
+  "sourceSha": "7fe889e16e62945f1b5b546d9640b0b6ae782225",
+  "branch": "gpt/2029-public-cutover-final-preparation-20261103",
+  "deploymentId": "dpl_5hKnPxXX7caHAzWu23132GMdM5ry",
+  "realPublicData": true,
+  "actualSW": true,
+  "modelCalls": 0,
+  "liveWrites": 0,
+  "testMail": 0,
+  "accountAcceptance": "existing user-reported two-account receipt retained separately; no new account test",
+  "cases": [
+    {
+      "name": "exact protected artifact and real Home/SW",
+      "width": 390,
+      "passed": true,
+      "worker": "/sw.js",
+      "series": 4
+    },
+    {
+      "name": "Legacy invitation template, actual2029 fonts/images and old contract denied before email",
+      "width": 390,
+      "passed": true,
+      "visual": {
+        "bodyFont": "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        "titleFont": "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        "logo": 128,
+        "atmosphere": 720,
+        "fonts": [
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "Noto Sans Hebrew",
+            "status": "loaded"
+          },
+          {
+            "family": "Noto Sans Hebrew",
+            "status": "loaded"
+          },
+          {
+            "family": "Rubik",
+            "status": "loaded"
+          },
+          {
+            "family": "Rubik",
+            "status": "loaded"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Now, shared context/dock and compact desktop bar retained",
+      "width": 390,
+      "passed": true,
+      "dock": {
+        "x": 22.5,
+        "y": 830,
+        "width": 330,
+        "height": 60
+      },
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 375,
+        "height": 6525.4375
+      },
+      "viewport": {
+        "innerWidth": 390,
+        "clientWidth": 390,
+        "bodyWidth": 375
+      }
+    },
+    {
+      "name": "real old Post, full Number/Phrase and exact browser return",
+      "width": 390,
+      "passed": true,
+      "postId": "1259",
+      "returnTo": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?part=2&part=7#post-content",
+      "scope": "real direct entries plus browser history, not a new method-click acceptance"
+    },
+    {
+      "name": "World, calculator and guest personal/admin gates remain truthful",
+      "width": 390,
+      "passed": true,
+      "privilegedReads": "no genuine admin session used; named private state retained without revealing CP1"
+    },
+    {
+      "name": "exact protected artifact and real Home/SW",
+      "width": 1440,
+      "passed": true,
+      "worker": "/sw.js",
+      "series": 4
+    },
+    {
+      "name": "Legacy invitation template, actual2029 fonts/images and old contract denied before email",
+      "width": 1440,
+      "passed": true,
+      "visual": {
+        "bodyFont": "\"Noto Sans Hebrew\", Rubik, Arial, sans-serif",
+        "titleFont": "Rubik, \"Noto Sans Hebrew\", Arial, sans-serif",
+        "logo": 128,
+        "atmosphere": 720,
+        "fonts": [
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "unloaded"
+          },
+          {
+            "family": "IBM Plex Mono",
+            "status": "loaded"
+          },
+          {
+            "family": "Noto Sans Hebrew",
+            "status": "loaded"
+          },
+          {
+            "family": "Noto Sans Hebrew",
+            "status": "loaded"
+          },
+          {
+            "family": "Rubik",
+            "status": "loaded"
+          },
+          {
+            "family": "Rubik",
+            "status": "loaded"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Now, shared context/dock and compact desktop bar retained",
+      "width": 1440,
+      "passed": true,
+      "dock": {
+        "x": 547.5,
+        "y": 828,
+        "width": 330,
+        "height": 62
+      },
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "width": 1425,
+        "height": 4626.859375
+      },
+      "viewport": {
+        "innerWidth": 1440,
+        "clientWidth": 1440,
+        "bodyWidth": 1425
+      }
+    },
+    {
+      "name": "real old Post, full Number/Phrase and exact browser return",
+      "width": 1440,
+      "passed": true,
+      "postId": "1259",
+      "returnTo": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?part=2&part=7#post-content",
+      "scope": "real direct entries plus browser history, not a new method-click acceptance"
+    },
+    {
+      "name": "World, calculator and guest personal/admin gates remain truthful",
+      "width": 1440,
+      "passed": true,
+      "privilegedReads": "no genuine admin session used; named private state retained without revealing CP1"
+    }
+  ],
+  "errors": [],
+  "denied": [
+    {
+      "width": 390,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/world_group_source_arrivals_v2"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "requests": [
+        {
+          "method": "POST",
+          "path": "/rest/v1/rpc/world_group_source_arrivals_v2"
+        }
+      ]
+    }
+  ],
+  "finishedAt": "2026-11-03T17:28:58.878Z",
+  "passed": 10,
+  "failed": 0,
+  "kind": "exact-hosted-same-runtime-selected-valid-receipts",
+  "reusedPasses": 4,
+  "targetedRetryPasses": 6,
+  "testRerunReason": "correct fixture assumptions only: raw Vercel config materialization versus application dirt, lazy/deferred DOM readiness, canonical expression/calculator route and named private state; frame width excludes reserved scrollbar area",
+  "initialAttemptCompleted": false,
+  "performanceClaim": false
+}

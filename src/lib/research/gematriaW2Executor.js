@@ -1,4 +1,4 @@
-import { gematriaApiResultToFindings } from './canonicalGematria.js';
+import { gematriaApiResultToFindings } from './canonicalGematriaProjection.js';
 import { ACCESS_CLASS, CAPABILITY_STATUS, SEMANTIC_CLASS } from './researchResultBundle.js';
 import {
   expandResearchTextRepresentations,
@@ -112,6 +112,7 @@ export function createGematriaW2Executor({
         accessClass: ACCESS_CLASS.SOURCE_ACCESS_CONTROLLED,
         semanticClass: SEMANTIC_CLASS.EVIDENCE,
         versionRefs: ['gematria-api-v1', 'researchRepresentations:v1'],
+        cost: { certainty: 'not_billable', ai_calls: 0, rpc_calls: 0, retry_count: 0 },
         trace: { representation_count: 0 },
       };
     }
@@ -169,6 +170,12 @@ export function createGematriaW2Executor({
       semanticClass: SEMANTIC_CLASS.EVIDENCE,
       sourceRefs: representations.map(x => x.ref),
       versionRefs: ['gematria_api:canonical', 'gematria-api-v1', 'researchRepresentations:v1', ...(controlEvaluation ? ['gematria-pair-invariance-control:v1'] : [])],
+      cost: {
+        certainty: 'not_billable',
+        ai_calls: 0,
+        rpc_calls: representations.length + (controlEvaluation ? 1 : 0),
+        retry_count: 0,
+      },
       bounded: {
         // total_count is what was actually expanded. Reporting truncated purely because the set
         // happens to fill the budget would claim a hidden remainder that may not exist, and it

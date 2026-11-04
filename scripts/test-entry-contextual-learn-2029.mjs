@@ -102,7 +102,8 @@ const gateway = fs.readFileSync("src/components/ContactGateway.jsx", "utf8");
 assert.match(systemFrame, /resolveEntryOrientation/);
 assert.match(systemFrame, /sodEntryArrival: "exact_return"/);
 assert.match(systemFrame, /<LearnMark2029/);
-assert.match(systemFrame, /import ContactGateway from "\.\.\/ContactGateway\.jsx"/);
+assert.match(systemFrame, /import ContactGateway from "\.\/ContactGatewayOnDemand2029\.jsx"/);
+assert.match(fs.readFileSync("src/components/experience2029/ContactGatewayOnDemand2029.jsx", "utf8"), /import\("\.\.\/ContactGateway\.jsx"\)/);
 assert.match(systemFrame, /onNeedHelp=\{openIssueReport\}/);
 assert.match(learnMark, /עדיין לא ברור\?/);
 assert.match(gateway, /buildContactGatewayContext/);
@@ -117,15 +118,22 @@ assert.doesNotMatch(rail, /GematriaReveal2029/);
 assert.match(rail, /interactive/);
 assert.match(postPage, /surfaceSections: regions\.map/);
 assert.match(postPage, /surfaceMapLabel: "בתוך הפוסט"/);
-// 4b148849 / original Claude36d7c6ea: explicit expression intent opens the
-// existing Number window directly; passive reading still does not fetch traces.
+// Explicit expression intent now goes through the source/version checker before
+// opening the same Number window. Passive reading still does not fetch traces.
 const postFocus = postPage.slice(postPage.indexOf('const openContextualNumberFocus'), postPage.indexOf('const handleSourceContextualFocus'));
-assert.match(postFocus, /shell\.openNumber\?\./);
-assert.match(postFocus, /source: "post-contextual-focus"/);
-assert.match(postFocus, /expression: cleanExpression/);
-assert.match(postFocus, /method: cleanMethodKey/);
-assert.match(postFocus, /resultValue: numericResult/);
-assert.match(postFocus, /returnTo: exactReturnForRegion\(targetRegion\)/);
+assert.match(postFocus, /openPostSourceClaim\(/);
+assert.match(postFocus, /expression, method: methodKey, methodVersion: null, value: numericResult/);
+assert.match(postFocus, /binding: "existing_reviewed_post_projection"/);
+const checkedFocus = postPage.slice(postPage.indexOf('const openCheckedPostCalculation'), postPage.indexOf('const openMeasureConnection'));
+assert.match(checkedFocus, /checkPostCalculation2029/);
+assert.match(checkedFocus, /result\.status !== "ready"/);
+assert.match(checkedFocus, /shell\.openNumber\?\./);
+assert.match(checkedFocus, /method: focus\.method, resultValue: focus\.resultValue/);
+// The accepted Post address policy preserves old URLs, queries and this exact
+// source occurrence. A blanket /post/slug return would break that contract.
+assert.match(checkedFocus, /href: exactPostReadingHref\(post, location, `\$\{claim\.locator\}`\)/);
+assert.doesNotMatch(checkedFocus, /href: `\/post\/\$\{post\.slug\}/);
+assert.match(checkedFocus, /exactReturnForRegion\(activeFocus\)/);
 assert.doesNotMatch(postFocus, /shell\.openInspect|shell\.openRaziel/);
 assert.doesNotMatch(postPage, /fetchGematriaMethodTrace/);
 assert.match(topicPage, /surface="topic"/);

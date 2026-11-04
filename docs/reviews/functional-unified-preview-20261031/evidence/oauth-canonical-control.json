@@ -1,0 +1,30 @@
+[
+  {
+    "provider": "google",
+    "callback": "https://sod1820.co.il/auth/callback",
+    "status": "302",
+    "providerHost": "accounts.google.com",
+    "scope": "email profile",
+    "cancelReturn": "https://sod1820.co.il/auth/callback",
+    "callbackExact": true,
+    "cancelled": true,
+    "stateShape": {
+      "length": 36,
+      "parts": 1
+    }
+  },
+  {
+    "provider": "facebook",
+    "callback": "https://sod1820.co.il/auth/callback",
+    "status": "302",
+    "providerHost": "www.facebook.com",
+    "scope": "email",
+    "cancelReturn": "https://sod1820.co.il/auth/callback",
+    "callbackExact": true,
+    "cancelled": true,
+    "stateShape": {
+      "length": 36,
+      "parts": 1
+    }
+  }
+]

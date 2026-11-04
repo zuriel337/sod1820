@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const index = readFileSync(resolve(root, 'SOD1820_MASTER_OWNER_INDEX.md'), 'utf8');
@@ -46,9 +47,14 @@ test('gematria_research: exact engine / method registry, not model arithmetic', 
 test('release_gate: Foundation + canonical release owner + coordination', () => {
   pointsTo('Foundation gate sequence / bottom-up closure / maintenance acceptance / compaction', 'foundation_closure_protocol_law');
   pointsTo('Release authorization', 'deploy_on_request');
-  pointsTo('task routing / owner creation / one-writer / handoff / fresh-agent entry / future event-driven dispatch', 'inter_agent_coordination_law');
+  const coordinationRows = index.split('\n').filter(line => line.startsWith('| task routing / owner creation / one-writer / handoff / fresh-agent entry /'));
+  assert.equal(coordinationRows.length, 1, 'one current coordination owner row');
+  assert.match(coordinationRows[0], /`inter_agent_coordination_law` \*\*v17 ACTIVE/);
   assert.match(adapter, /ONE SCOPE — ONE ACTIVE WRITER/);
   assert.match(adapter, /Do not merge\/deploy\/push/);
+  assert.match(adapter, /passive work_log records with to_actor=ZURIEL/);
+  assert.match(adapter, /אין לשלוח הודעות ל-GPT/);
+  assert.match(adapter, /אין להמתין ל-ACK מ-GPT/);
 });
 
 test('fresh adapter: L1 default, minimal owner reads, history is fail-closed', () => {
@@ -70,11 +76,21 @@ test('fresh adapter: L1 default, minimal owner reads, history is fail-closed', (
 
 import { createHash } from 'node:crypto';
 
-test('synchronization preserves current main Codex/Claude adapters and active Design V2', () => {
+test('captured main Codex/Claude/Design blobs remain exact historical evidence; current adapters retain safety gates', () => {
+  // Oct9 hashes seal the Oct9 source, not every later authorized adapter update.
+  // Replay their exact captured commit; never rewrite the historical fixture.
+  assert.match(baseline.main_sha, /^[0-9a-f]{40}$/);
   for (const [path, blob] of Object.entries(baseline.main_immutable_blobs)) {
-    const bytes = readFileSync(resolve(root, path));
+    const bytes = execFileSync('git', ['show', `${baseline.main_sha}:${path}`], { cwd: root });
     const actual = createHash('sha1').update(Buffer.from('blob ' + bytes.length + '\0')).update(bytes).digest('hex');
-    assert.equal(actual, blob, 'immutable main artifact: ' + path);
+    assert.equal(actual, blob, 'immutable captured main artifact: ' + path);
+  }
+  const codex = readFileSync(resolve(root, 'AGENTS.md'), 'utf8');
+  for (const current of [codex, adapter]) {
+    assert.match(current, /dpl_46k9WvaD5QBUo969obYzJ7pKkNyq/);
+    assert.match(current, /2029 Production cutover/);
+    assert.match(current, /ONE (?:FILE \/ SCOPE|SCOPE) — ONE ACTIVE WRITER/);
+    assert.match(current, /אין להמתין ל-ACK מ-GPT/);
   }
 });
 
@@ -258,7 +274,9 @@ test('applied evidence matches approved successor bodies, lineage and explicit a
     assert.equal(g1_routing_amendment.human_gate_approval, applied.approval_work_log_id);
     assert.equal(g1_routing_amendment.approved_sha, applied.approved_packet_sha);
   }
-  assert.match(ownerRow('Experience lifecycle / projection / zero legacy-UI inheritance'), /v9 ACTIVE/);
+  const currentVersion = Number(ownerRow('Experience lifecycle / projection / zero legacy-UI inheritance').match(/\*\*v(\d+) ACTIVE/)?.[1]);
+  assert.ok(Number.isInteger(currentVersion) && currentVersion >= applied.active_versions.experience_governance_foundation_v1_law,
+    'current owner cannot regress below the accepted historical successor');
 });
 
 test('post-apply case expectations resolve actual successors without granting writes or closure', () => {

@@ -1,0 +1,27 @@
+
+> sod1820@1.0.0 package:research-run
+> node scripts/package-research-run.mjs
+
+Error: Command failed: npx --yes esbuild@0.28.2 supabase/functions/research-run/index.ts --bundle --platform=neutral --format=esm --target=es2022 --define:window=undefined --define:__SOD_2029_BUILD__=false --define:__SOD_RESEARCH_EDGE__=true --minify-syntax --outfile=supabase/functions/research-run/.build/_raw.js --metafile=supabase/functions/research-run/.build/_meta.json
+sh: 1: esbuild: not found
+
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:942:11)
+    at execFileSync (node:child_process:978:15)
+    at main (file:///workspace/sod1820-community1187-unified/scripts/package-research-run.mjs:121:3)
+    at file:///workspace/sod1820-community1187-unified/scripts/package-research-run.mjs:213:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  status: 127,
+  signal: null,
+  output: [
+    null,
+    <Buffer >,
+    <Buffer 73 68 3a 20 31 3a 20 65 73 62 75 69 6c 64 3a 20 6e 6f 74 20 66 6f 75 6e 64 0a>
+  ],
+  pid: 137870,
+  stdout: <Buffer >,
+  stderr: <Buffer 73 68 3a 20 31 3a 20 65 73 62 75 69 6c 64 3a 20 6e 6f 74 20 66 6f 75 6e 64 0a>
+}

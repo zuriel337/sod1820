@@ -1,0 +1,60 @@
+{
+  "base": "6df07087eabd78f7d1b56438b147e2d957ff0ac8",
+  "source": "70c30e96bbbd5da8bad0a9e2acfa5c33efc58f3a",
+  "commonAncestor": "d2dd882f960a329394f4a23d7b6e4a7d4c4c6fd5",
+  "sourceCommits": [
+    "90699f284fe696deb81813dc5632eb9feb870457",
+    "70c30e96bbbd5da8bad0a9e2acfa5c33efc58f3a"
+  ],
+  "preserved": [
+    {
+      "path": "src/App2029.jsx",
+      "sha256": "a73cdce939be8a306fae67c990f8b932705b4e0a8f889edc3cc878d80c8b6b4b",
+      "byteIdentical": true
+    },
+    {
+      "path": "src/pages/Home2029Page.jsx",
+      "sha256": "fa66ae16e15fc3827cab4736b99411716ef3e692ffaaae232ee24339cdd32517",
+      "byteIdentical": true
+    },
+    {
+      "path": "src/pages/World2029Page.jsx",
+      "sha256": "d128e4d632e9edc9a43517512d5a0b6bc084b4968d4b49761bb88b21b65b88c7",
+      "byteIdentical": true
+    },
+    {
+      "path": "src/pages/Post2029Page.jsx",
+      "sha256": "e4bfff2dda01210c187e09518fc9999629581697c869632a78ee943cc9e96504",
+      "byteIdentical": true
+    },
+    {
+      "path": "src/pages/Number2029Page.jsx",
+      "sha256": "5fbfbf4461659e2e7fc04e2f5abec530000a7d9de3620c4e6d160ffcaf82bd1e",
+      "byteIdentical": true
+    },
+    {
+      "path": "src/components/experience2029/SystemFrame2029.jsx",
+      "sha256": "7b56580119709d7581f7ca3faa7c30aa38f972a2814fcbe86ecde215c5fe422e",
+      "byteIdentical": true
+    },
+    {
+      "path": "src/components/community2029/LegacyAccountClaim.jsx",
+      "sha256": "8493c1686ed6bee5eac5d87b3a7b43ae65c563149b06cf960e31a840f39788f0",
+      "byteIdentical": true
+    },
+    {
+      "path": "src/lib/research/ResearchProvider.jsx",
+      "sha256": "d93e03dac607c8d912c5589659e0c0da104a6a89b1f86ad823e981bc464ebf6a",
+      "byteIdentical": true
+    },
+    {
+      "path": "vercel.json",
+      "sha256": "0d3108aa7ad7626558b7aa58a94b1c00e7218cb862c532ddd696cc559facd532",
+      "byteIdentical": true
+    }
+  ],
+  "supabaseAndWorkflowsUnchanged": true,
+  "workerSha256": "989e1cc315d8b42ae1cc01c57f44bbe6cd2ff4b90b6eb4e9453090008d57f2fb",
+  "mainObserved": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "before": "4548ed40-e056-4f1b-983b-f9fcf9ac9d21"
+}

@@ -1,0 +1,162 @@
+// Real card + real global session + real request builder. Transport responses are explicitly marked fixtures.
+// No live model, Supabase request or paid operation is permitted by this test.
+import assert from "node:assert/strict";
+import test from "node:test";
+import { existsSync, readFileSync, mkdirSync } from "node:fs";
+import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
+import { join } from "node:path";
+const require = createRequire(import.meta.url);
+const root = fileURLToPath(new URL("..", import.meta.url));
+const { chromium } = require("playwright");
+const { createServer } = await import("vite");
+const react = (await import("@vitejs/plugin-react")).default;
+const executablePath = process.env.CHROMIUM_EXECUTABLE_PATH || (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : chromium.executablePath());
+const samples = Object.fromEntries(["complete", "preview", "incomplete-max-tokens", "refused-admin-only", "running-start"].map(name =>
+  [name, JSON.parse(readFileSync(join(root, `test/fixtures/els-matrix-reading/card-examples/${name}.json`), "utf8")).response]));
+
+const entry = `import React,{useState} from 'react';import {createRoot} from 'react-dom/client';
+import Card from '/src/components/experience2029/ElsMatrixReadingCard2029.jsx';
+import {RazielSessionProvider2029,useRazielSession2029} from '/src/lib/research/RazielSessionProvider2029.jsx';
+import {buildElsRazielMatrixContext} from '/src/lib/research/elsRazielMatrixContext.js';
+import {resolve2029Palette} from '/src/lib/palette.js';
+import '/src/components/experience2029/elsNativeClassic2029.css';
+const context=buildElsRazielMatrixContext({status:'ok',scope:'torah',termRaw:'קולומביה',verification:{state:'MATCH',corpus_id:'0b022e8eef6f9c16'},axis:{hitId:'4545_1_248765',skip:4545,direction:'fwd',start:248765,length:8},geometry:{S:4545},matrix:{S:4545,r0:40,c0:3300,cw:60,rows:Array(30).fill('א'.repeat(60))}});
+window.__requests=[];window.__cancels=0;window.__context=context;
+const transport=request=>{window.__requests.push(request);request.__razielProgress({kind:'els_matrix_reading',phase:'running',elapsedMs:60000,polls:1});
+ return new Promise(resolve=>{window.__finish=result=>resolve({v:1,answer:'תוצאת בדיקה',els_matrix_reading:result});
+ request.__razielCancelSignal.addEventListener('abort',()=>{window.__cancels++;request.__razielProgress({kind:'els_matrix_reading',phase:'cancelling',elapsedMs:60000,polls:1,cancelling:true});});});};
+function Fixture(){const session=useRazielSession2029();window.__session=session;
+ const [ctx,setCtx]=useState(context),[mode,setMode]=useState('on'),[admin,setAdmin]=useState(true),[visible,setVisible]=useState(true),[theme,setTheme]=useState('light');
+ window.__selectOther=()=>setCtx({...context,axis:{...context.axis,start:248766,hitId:'4545_1_248766'}});window.__selectOriginal=()=>setCtx(context);
+ window.__setMode=setMode;window.__setAdmin=setAdmin;window.__setVisible=setVisible;window.__setTheme=setTheme;
+ const p=resolve2029Palette(theme,'research_lab'); const style={'--s29-panel':p.card,'--s29-panel-soft':p.cardSoft,'--s29-line':p.border,'--s29-ink':p.ink,'--s29-accent':p.accent,'--s29-type-small':'15px',background:p.pageBg,color:p.ink,minHeight:'100vh',padding:12,fontFamily:'Arial',fontSize:18};
+ return React.createElement('main',{style,'data-theme':theme},visible?React.createElement(Card,{context:ctx,reading:{mode,isAdmin:admin,session,onCancel:session.cancelActiveTurn},onSubmit:(context,options)=>session.submitElsMatrixReading({...options,context})}):React.createElement('p',null,'דף אחר באותו אתר'));}
+createRoot(document.getElementById('root')).render(React.createElement(RazielSessionProvider2029,{transport},React.createElement(Fixture)));`;
+
+function plugin() {
+  return { name: "matrix-reading-card-fixture", enforce: "pre",
+    resolveId(id) {
+      if (id === "/reading-fixture.jsx") return "\0reading-fixture.jsx";
+      if (id.endsWith("/ResearchProvider.jsx") || id === "./ResearchProvider.jsx") return "\0reading-research";
+      if (id.endsWith("/supabase.js")) return "\0reading-supabase";
+    },
+    load(id) {
+      if (id === "\0reading-fixture.jsx") return entry;
+      // Test-only library persistence. Real session save/restore and serialization run unchanged;
+      // no production store, auth, network or model is used.
+      if (id === "\0reading-research") return `import {useSyncExternalStore} from 'react';
+        const listeners=new Set();let research={context:null,saved:JSON.parse(sessionStorage.getItem('test-reading-library')||'[]'),syncStatus:'local_only'};
+        const saveItem=entity=>{const saved=[...research.saved.filter(item=>item.id!==entity.id),JSON.parse(JSON.stringify(entity))];
+          sessionStorage.setItem('test-reading-library',JSON.stringify(saved));research={...research,saved};listeners.forEach(fn=>fn());return true;};
+        export const useResearch=()=>({...useSyncExternalStore(fn=>{listeners.add(fn);return()=>listeners.delete(fn)},()=>research),saveItem});`;
+      if (id === "\0reading-supabase") return "export const askRaziel=()=>{throw new Error('Live transport forbidden');};";
+    },
+    configureServer(server) { server.middlewares.use(async (req,res,next) => {
+      if (req.url !== "/fixture") return next();
+      res.setHeader("content-type", "text/html");
+      res.end(await server.transformIndexHtml("/fixture", '<!doctype html><html lang="he" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0}button{font:inherit}</style><div id="root"></div><script type="module" src="/reading-fixture.jsx"></script></html>'));
+    }); },
+  };
+}
+
+test("matrix reading card: one explicit session turn, cancellation, occurrence isolation, fixtures and 320/390/1440px", { timeout: 120000 }, async () => {
+  const server=await createServer({root,configFile:false,plugins:[plugin(),react()],server:{host:"127.0.0.1",port:0}});
+  await server.listen();
+  const browser=await chromium.launch({headless:true,executablePath,args:["--no-sandbox"]});
+  const page=await browser.newPage(); const errors=[]; page.on("pageerror",error=>errors.push(error.message));
+  const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
+  const external=[]; await page.route("**/*",route=> { if(!route.request().url().startsWith(origin)) { external.push(route.request().url());return route.abort(); }return route.continue(); });
+  try {
+    await page.goto(`${origin}/fixture`);const start=page.getByRole("button",{name:"סרוק את המטריצה עם Fable"});await start.waitFor();
+    assert.equal(await page.evaluate(()=>window.__requests.length),0);
+    const invalidResume=await page.evaluate(()=>window.__session.submitElsMatrixReading({context:window.__context,op:'status'}));
+    assert.equal(invalidResume.ok,false);assert.equal(await page.evaluate(()=>window.__requests.length),0,"missing-token resume never starts a model");
+    await page.evaluate(()=>window.__setMode("off"));assert.equal(await start.isDisabled(),true);
+    await page.evaluate(()=>{window.__setMode("on");window.__setAdmin(false);});assert.equal(await start.isDisabled(),true);
+    await page.evaluate(()=>window.__setAdmin(true));await start.click();
+    await page.waitForFunction(()=>window.__requests.length===1);
+    const action=await page.evaluate(()=>window.__requests[0].elsMatrixReadingAction);
+    assert.deepEqual(action.window,{rows:33,cols:41});assert.equal(action.cap,25);assert.equal(action.op,"start");
+    await page.getByText("קריאת המטריצה מתבצעת…",{exact:false}).waitFor();
+    assert.equal(await start.isDisabled(),true);
+    await page.evaluate(()=>window.__selectOther());await page.getByText("רזיאל קורא כעת מופע אחר.",{exact:false}).waitFor();
+    await page.evaluate(()=>window.__setVisible(false));await page.getByText("דף אחר באותו אתר").waitFor();
+    await page.evaluate(()=>window.__setVisible(true));assert.equal(await page.evaluate(()=>window.__requests.length),1,"navigation does not start a second reading");
+    await page.evaluate(result=>window.__finish(result),samples.complete);
+    await page.waitForFunction(()=>!window.__session.busy);
+    assert.equal(await page.getByLabel("תוצאת סריקת המטריצה").count(),0,"old result never attaches to new occurrence");
+    await page.evaluate(()=>window.__selectOriginal());await page.getByText("דוגמת בדיקה — לא קריאת AI חיה").waitFor();
+    assert.equal(await page.evaluate(()=>window.__session.thread.filter(m=>m.role==='raziel').length),1);
+    const backgrounds=new Set();
+    for(const width of [320,390,1440]) for(const theme of ["light","parchment","dark"]){
+      await page.setViewportSize({width,height:900});await page.evaluate(theme=>window.__setTheme(theme),theme);
+      await page.waitForFunction(theme=>document.querySelector('main')?.dataset.theme===theme,theme);
+      backgrounds.add(await page.locator('main').evaluate(el=>getComputedStyle(el).backgroundColor));
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${width} ${theme}`);
+      if(process.env.ELS_SCREENSHOT_DIR){mkdirSync(process.env.ELS_SCREENSHOT_DIR,{recursive:true});await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`fable-card-${width}-${theme}.png`)});}
+    }
+    assert.equal(backgrounds.size,3,'the three actual theme palettes must be distinct');
+    await start.click();await page.waitForFunction(()=>window.__requests.length===2);
+    await page.getByRole("button",{name:"בקש ביטול סריקה"}).click();
+    assert.equal(await page.evaluate(()=>window.__cancels),1);
+    await page.evaluate(result=>window.__finish({...result,findings:[{text:'אסורלהציג',verification:{state:'ENGINE_VERIFIED'}}]}),samples["incomplete-max-tokens"]);
+    await page.getByText("הסריקה לא הושלמה",{exact:true}).waitFor();
+    assert.equal(await page.getByText("אסורלהציג").count(),0,"incomplete output never displays findings");
+    await page.evaluate(()=>window.__setMode("preview"));await page.getByRole("button",{name:"בדוק כיסוי ועלות"}).click();
+    await page.waitForFunction(()=>window.__requests.length===3);assert.equal(await page.evaluate(()=>window.__requests[2].elsMatrixReadingAction.op),"preview");
+    await page.evaluate(result=>window.__finish(result),samples.preview);await page.getByText("כיסוי ועלות לפני סריקה",{exact:true}).waitFor();
+    await page.evaluate(()=>window.__setMode('on'));await start.click();await page.waitForFunction(()=>window.__requests.length===4);
+    await page.evaluate(result=>window.__finish(result),samples.complete);
+    await page.getByRole('button',{name:'שמור את השיחה והתוצאה',exact:true}).click();
+    await page.getByText('השיחה והתוצאה נשמרו בספרייה הפרטית.',{exact:false}).waitFor();
+    assert.equal(await page.evaluate(()=>window.__requests.length),4,'save is not a model request');
+    const savedId=await page.evaluate(()=>window.__session.savedSessions[0].id);
+    await page.reload();await start.waitFor();
+    assert.equal(await page.evaluate(()=>window.__requests.length),0,'reload never resumes or starts a model');
+    const restored=await page.evaluate(id=>window.__session.restoreSavedSession(id),savedId);assert.equal(restored.ok,true);
+    await page.getByText('תוצאה שמורה — לפי האימות בסריקה המקורית.',{exact:false}).waitFor();
+    await page.getByRole('heading',{name:/ממצאים שאומתו בסריקה המקורית/}).waitFor();
+    assert.equal(await page.evaluate(()=>window.__requests.length),0,'restore is not a model request');
+    for(const width of [320,390,1440]){
+      await page.setViewportSize({width,height:900});
+      assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`saved result ${width}`);
+      if(process.env.ELS_SCREENSHOT_DIR) await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,`saved-result-${width}.png`)});
+    }
+    await page.evaluate(()=>window.__selectOther());assert.equal(await page.getByLabel('תוצאת סריקת המטריצה').count(),0);
+    await page.evaluate(()=>window.__selectOriginal());await page.getByRole('heading',{name:/ממצאים שאומתו בסריקה המקורית/}).waitFor();
+    assert.equal(await page.evaluate(()=>window.__requests.length),0,'occurrence changes do not run AI');
+    await start.click();await page.waitForFunction(()=>window.__requests.length===1);
+    await page.evaluate(result=>window.__finish({...result,poll_interrupted:{can_resume:true,why:'test network interruption'}}),samples['running-start']);
+    await page.getByRole('button',{name:'המשך מעקב אחר הסריקה',exact:true}).waitFor();
+    assert.equal(await start.isDisabled(),true,'interrupted in-memory job cannot start a duplicate');
+    const savedInterrupted=await page.evaluate(()=>window.__session.saveCurrentSession());assert.equal(savedInterrupted.ok,true);
+    assert.equal(savedInterrupted.session.thread.at(-1).elsMatrixReading.job.id,samples['running-start'].job.id);
+    await page.reload();await start.waitFor();
+    await page.evaluate(id=>window.__session.restoreSavedSession(id),savedInterrupted.session.id);
+    assert.equal(await page.evaluate(()=>window.__requests.length),0,'restore is passive, even when a durable job exists');
+    await page.getByRole('button',{name:'המשך מעקב אחר הסריקה',exact:true}).click();
+    await page.waitForFunction(()=>window.__requests.length===1);
+    assert.deepEqual(await page.evaluate(()=>window.__requests[0].elsMatrixReadingAction),{id:'els_matrix_reading_v1',op:'status',job_id:samples['running-start'].job.id});
+    await page.evaluate(result=>window.__finish(result),samples.complete);await page.waitForFunction(()=>!window.__session.busy);
+    // Lost all in-memory/saved context: explicit lookup needs only the selected exact occurrence.
+    await page.reload();await start.waitFor();assert.equal(await page.evaluate(()=>window.__requests.length),0);
+    await page.getByRole('button',{name:'חזור לסריקה האחרונה של המופע',exact:true}).click();
+    await page.waitForFunction(()=>window.__requests.length===1);
+    assert.deepEqual(await page.evaluate(()=>window.__requests[0].elsMatrixReadingAction),{id:'els_matrix_reading_v1',op:'recover'});
+    await page.evaluate(result=>window.__finish({...result,recovered:true}),samples.complete);
+    await page.getByText('חזרנו לסריקה הקיימת. לא הופעלה קריאת מודל חדשה.',{exact:true}).waitFor();
+    // Legacy unregistered token snapshots remain unrecoverable and never allow duplicate start.
+    await start.click();await page.waitForFunction(()=>window.__requests.length===2);
+    await page.evaluate(result=>window.__finish({...result,job:{token:'T'.repeat(886)},poll_interrupted:{can_resume:true,why:'legacy'}}),samples['running-start']);
+    await page.waitForFunction(()=>!window.__session.busy);
+    const legacy=await page.evaluate(()=>window.__session.saveCurrentSession());assert.equal(legacy.ok,true);
+    assert.equal(JSON.stringify(legacy.session).includes('T'.repeat(886)),false);
+    await page.reload();await start.waitFor();await page.evaluate(id=>window.__session.restoreSavedSession(id),legacy.session.id);
+    await page.getByRole('alert').filter({hasText:'לא ניתן לחדש את המעקב מהתיעוד הזה'}).waitFor();
+    assert.equal(await start.isDisabled(),true,'saved uncollected job is not an invitation to pay again');
+    assert.equal(await page.getByRole('button',{name:'המשך מעקב אחר הסריקה',exact:true}).count(),0);
+    assert.equal(await page.evaluate(()=>window.__requests.length),0);
+    assert.deepEqual(errors,[]);assert.deepEqual(external,[]);
+  } finally {await browser.close();await server.close();}
+});

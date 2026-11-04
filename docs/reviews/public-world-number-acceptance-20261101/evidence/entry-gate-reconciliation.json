@@ -1,0 +1,19 @@
+{
+  "baselineSha": "7649e46c199ade990fd75ea8400f60f93522ef82",
+  "sourceCandidateSha": "06751b7277232c11400988192d4a3738432675ad",
+  "postRuntimeBlobBefore": "963607e3a832da5d728667e02fb34d58e69f61c4",
+  "postRuntimeBlobAfter": "963607e3a832da5d728667e02fb34d58e69f61c4",
+  "runtimeUnchanged": true,
+  "oldGateAlsoFailedOnBaseline": true,
+  "oldExpectation": "blanket /post/${post.slug}${claim.locator}",
+  "correctedExpectation": "existing exactPostReadingHref(post, location, claim.locator), plus explicit prohibition of blanket /post/ return",
+  "retainedChecks": [
+    "canonical calculation checker",
+    "ready-only activation",
+    "exact method and result",
+    "source/version context",
+    "precise region return",
+    "no automatic trace/Inspect/Raziel activation"
+  ],
+  "runtimeProof": "actual legacy and native Posts, repeated source parameters, source-region return, direct expression and reload in shared public browser scenarios"
+}

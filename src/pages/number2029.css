@@ -1320,3 +1320,58 @@
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button strong{font-size:12px}
 }
+
+/* The full-page identity follows its available width, including a narrow pane
+   on a wide display. A phrase owns a full row; number/seal wrap when necessary.
+   Compact Number drawers and the global frame retain their existing layout. */
+.sod29-number-page .sod29-number-core2029.is-page{container:number-page-core / inline-size}
+@container number-page-core (max-width:620px){
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-identity{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:12px;padding:14px 10px;
+  }
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression{
+    flex:1 0 100%;width:100%;min-width:0;
+  }
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line{min-width:0;align-items:flex-start}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line>strong{
+    min-width:0;font-size:clamp(22px,5cqi,30px);line-height:1.35;overflow-wrap:anywhere;
+  }
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-root{
+    flex:1 1 160px;min-width:min-content;max-width:100%;
+  }
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-root-line{flex-wrap:wrap;max-width:100%}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-value{
+    font-size:clamp(16px,calc((100cqi - 140px) / var(--sod29-number-digits,4) * 1.45),76px);
+    white-space:nowrap;line-height:1.1;
+  }
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{flex:none;width:64px;height:64px}
+
+}
+/* Viewport fallback for browsers without container-query support. */
+@supports not (container-type:inline-size){
+  @media(max-width:720px){
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-identity{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:12px;padding:14px 10px;
+  }
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression{
+    flex:1 0 100%;width:100%;min-width:0;
+  }
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line{min-width:0;align-items:flex-start}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line>strong{
+    min-width:0;font-size:clamp(22px,5vw,30px);line-height:1.35;overflow-wrap:anywhere;
+  }
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-root{
+    flex:1 1 160px;min-width:min-content;max-width:100%;
+  }
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-root-line{flex-wrap:wrap;max-width:100%}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-value{
+    font-size:clamp(16px,calc((90vw - 140px) / var(--sod29-number-digits,4) * 1.45),76px);
+    white-space:nowrap;line-height:1.1;
+  }
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{flex:none;width:64px;height:64px}
+
+  }
+}
+
+/* Reserve the material section while canonical primary calculation is usable. */
+.sod29-number-material-pending { min-height: 28rem; }

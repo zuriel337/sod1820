@@ -1,0 +1,285 @@
+{
+  "task": "AHAVAT_PARASHA_SOURCE_COMPARISON_20261029",
+  "actor": "GPT",
+  "recipient": "ZURIEL",
+  "branch": "codex/ahavat-parasha-source-comparison-20261029",
+  "base": "faf91d0b867bc4ea6e9e2b7d468378071569cb77",
+  "runtimeHead": "86a931d0e56bf6e3da249c2c82ebbfb9d6f979d2",
+  "deliveryHead": "The commit containing this immutable receipt; exact pushed/deployed SHA is in the external handoff.json",
+  "status": "IMPLEMENTED / FINAL PER-CASE LOCAL ACCEPTANCE PASSED / BRANCH ONLY",
+  "integration": false,
+  "production": false,
+  "sourceDataChanged": false,
+  "canonicalEngineRun": false,
+  "humanVisualAdoptionConfirmed": false,
+  "files": [
+    "src/pages/AhavatTorahSystem2029Page.jsx",
+    "src/components/books2029/AhavatLetterParasha2029.jsx",
+    "src/components/books2029/AhavatLetterComparison2029.jsx",
+    "src/components/books2029/ahavatLetterJourney2029.js",
+    "src/components/books2029/ahavatLetterStudy2029.css",
+    "test/ahavat-letter-source-comparison-2029.test.mjs",
+    "test/ahavat-letter-source-comparison-2029.browser.test.mjs",
+    "docs/research-notes/AHAVAT_PARASHA_SOURCE_COMPARISON_20261029.md",
+    "docs/research-notes/ahavat-parasha-comparison-20261029/acceptance.json",
+    "docs/research-notes/ahavat-parasha-comparison-20261029/comparison-390-parchment.png",
+    "docs/research-notes/ahavat-parasha-comparison-20261029/comparison-1440-parchment.png"
+  ],
+  "source": {
+    "identity": "book:hebrewbooks:5635",
+    "pdfPages": 99,
+    "pdfSha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "forms": 28,
+    "parashot": 54,
+    "sourceRowsUnchanged": 1512,
+    "missingNumericRowsUnchanged": 24,
+    "missingCumulativeCheckpointsUnchanged": 2
+  },
+  "coverage": {
+    "orderedDistinctPairChoicesTested": 80136,
+    "pairTestMeaning": "Identity/reference/page/null preservation only; not numeric engine verification or 80136 browser scenarios",
+    "browserForm": "ד",
+    "browserPair": [
+      "צו",
+      "בראשית"
+    ],
+    "additionalMissingReading": "ז / האזינו at 390/dark, including disabled WebGL",
+    "newReaderSurface": false,
+    "newRenderer": false,
+    "newTruthStore": false
+  },
+  "capabilities": [
+    "Two pinned same-letter source readings across books",
+    "Source-order 54-parasha choices and explicit swap",
+    "Two-row original-reading CSV, null numeric field blank",
+    "Validated same-unit comparison source return and direct reload, preserving whole card and source-control focus",
+    "Canonical return for closed, invalid, forged or out-of-pair context",
+    "Same explicit GPU renderer; actionable DOM/source fallback"
+  ],
+  "acceptance": {
+    "nonBrowser": 423,
+    "browserFinalPerCase": 20,
+    "partitions": [
+      1,
+      17,
+      1,
+      1
+    ],
+    "oneCleanMonolithicRun": false,
+    "skipped": 0,
+    "cancelled": 0,
+    "newMatrixContexts": 9,
+    "widths": [
+      320,
+      390,
+      1440
+    ],
+    "themes": [
+      "light",
+      "parchment",
+      "dark"
+    ],
+    "acceptedCases": [
+      {
+        "file": "test/ahavat-letter-source-comparison-2029.browser.test.mjs",
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-browser-source-page.log"
+      },
+      {
+        "file": "test/ahavat-parasha-letter-atlas-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/acceptance/ahavat-parasha-letter-atlas-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-count-spatial-source-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 5,
+        "passed": 5,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/acceptance/ahavat-count-spatial-source-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-letter-continuous-study-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/acceptance/ahavat-letter-continuous-study-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-letter-guided-exploration-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/acceptance/ahavat-letter-guided-exploration-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-letter-spatial-acceptance-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/acceptance/ahavat-letter-spatial-acceptance-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-letter-visual-workspace-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/acceptance/ahavat-letter-visual-workspace-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-torah-reader-units-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/acceptance/ahavat-torah-reader-units-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-torah-source-tables-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/acceptance/ahavat-torah-source-tables-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/ahavat-torah-spatial-tables-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/acceptance/ahavat-torah-spatial-tables-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/books-unified-reader-2029.browser.test.mjs",
+        "exit": 0,
+        "signal": null,
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/acceptance/books-unified-reader-2029.browser.test.mjs.log"
+      },
+      {
+        "file": "test/books-wide-dual-experience-2029.browser.test.mjs",
+        "name": "both book experiences preserve the source while widening desktop reading",
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/acceptance/books-wide-dual-experience-2029.browser.test.mjs.log",
+        "note": "First case passed in an otherwise failed file; native transport failure retained, not counted as passing"
+      },
+      {
+        "file": "test/books-wide-dual-experience-2029.browser.test.mjs",
+        "name": "native PDFs remain readable in the wider desktop layout",
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "skipped": 0,
+        "cancelled": 0,
+        "log": "/workspace/artifacts/ahavat-parasha-comparison-20261029/native-isolated.log",
+        "note": "Same unchanged full case isolated after local HTML request ECONNRESET"
+      }
+    ],
+    "language": 3,
+    "authGuard": 4,
+    "builds": [
+      "normal 2029 PASS",
+      "two Preview flags PASS",
+      "actual integrated Preview PASS"
+    ],
+    "graphEagerGzipBytes": {
+      "normal": 379579,
+      "twoFlags": 376873,
+      "integrated": 377242
+    },
+    "budgetRaised": false,
+    "legacyLock": "PASS",
+    "isolation": "PASS",
+    "hardening": "PASS",
+    "localServices": "Application services stubbed; exact hash-checked original PDF rendered natively. Chromium/SwiftShader, not physical-device acceptance.",
+    "hosted": "Not pre-claimed; exact pushed-HEAD protected Preview, real remote PDF/TLS/no-mock matrix recorded in external handoff.json"
+  },
+  "retainedFailures": {
+    "initialCancelled": "Deliberately cancelled after identifying a guessed test expectation of PDF 38 for zayin/Haazinu. Source row is physical page 36. Corrected test uses the canonical row page; no source/product change; cancelled run not accepted.",
+    "wideNativeTransport": "Wide file first case passed all 18 viewport/theme combinations. Its real-PDF case received ECONNRESET from local Vite 2029.html before rendering. That failed file remains failed in raw status/log. The same unmodified native case passed in isolation, with no timeout/assertion/server change. Cause of the local transport reset remains unresolved."
+  },
+  "verificationFlow": [
+    {
+      "boundary": "UI trigger",
+      "result": "PASS",
+      "evidence": "Explicit disclosure, two choices, both original source readings in all nine contexts"
+    },
+    {
+      "boundary": "Client/API",
+      "result": "N/A",
+      "evidence": "No new API/RPC/write path; URL state and existing canonical source selection only"
+    },
+    {
+      "boundary": "Data projection",
+      "result": "PASS",
+      "evidence": "423 Books cases including all 80136 distinct pair mappings and original references/nulls"
+    },
+    {
+      "boundary": "Source response",
+      "result": "PASS LOCAL",
+      "evidence": "Hash-checked native original PDF, both source pages, page navigation/fullscreen; hosted verification separate"
+    },
+    {
+      "boundary": "Return/render",
+      "result": "PASS",
+      "evidence": "Cross-book pinning/reload, exact card/control focus, CSV, GPU fallback and disposal"
+    }
+  ],
+  "remaining": [
+    "Human visual adoption",
+    "24 unread numeric source rows and two unresolved cumulative checkpoints unchanged",
+    "Broader commentary/other structures not claimed complete",
+    "No canonical engine run or universal spatial-contract acceptance",
+    "Physical-device/Safari acceptance not performed",
+    "Local Vite ECONNRESET cause not established; accepted isolation does not prove elimination",
+    "Central/main integration, publication and Production not performed"
+  ],
+  "ownership": "Local scope release at final delivery to ZURIEL only. Live journal readonly; no live BEFORE/AFTER/release/dispatch/ACK fabricated"
+}

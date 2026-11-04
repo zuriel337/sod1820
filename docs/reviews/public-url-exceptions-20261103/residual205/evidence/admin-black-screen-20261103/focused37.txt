@@ -1,0 +1,53 @@
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ each successful CP1 section appears independently of failed/slow secondary readers (94.051694ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ measured empty and measured zero remain different from malformed/unknown snapshots (47.558601ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ same selected trace is refreshed and a delayed old detail cannot restore stale content (56.655121ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ identity change clears all prior view state before pending A replies settle (18.724351ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ guest and loading identity perform no privileged reads (1.788301ms)
+✔ pending admin verification has a visible status, without any privileged reads (1.003776ms)
+✔ old observed egress is labelled last observation, never current24h zero (20.117526ms)
+✔ server verifies JWT and same principal; local metadata never admits a mismatched account (1.488919ms)
+✔ reading account storage stays separate and tab scoped; only the exact callback can complete PKCE (0.209155ms)
+✔ verified admin can enter existing private surfaces while public and unknown services remain closed (1.959229ms)
+✔ real AuthProvider reading mode verifies admin role without credits, marketing, visitor, avatar or referral side effects (16.363225ms)
+✔ account switch revokes old admin immediately; stale profile cannot grant role to replacement (4.901193ms)
+✔ token verification failure clears prior admin and prevents profile fetch (3.361126ms)
+✔ same-principal token refresh preserves local navigation identity but revokes admin until server revalidation (3.272252ms)
+✔ canonical feature state opens verified admin, denies public, missing flags and pending verification (31.02174ms)
+✔ Heichal public view rejects direct action handlers before model, telemetry or write (14.888768ms)
+✔ Book save stays disabled for public/member, including direct handler invocation (9.327418ms)
+✔ ELS public view never mounts operational readers, replay or engine (7.612077ms)
+✔ admin Book save uses the existing explicit operation and ELS operational surface (14.885938ms)
+✔ role revoke/regrant cannot reuse cached flags before the fresh policy read (3.940227ms)
+✔ worker policy changed and exact callback alone consumes tab-bound PKCE (1.47603ms)
+✔ Google and Facebook share verified exact callback and reject unapproved Preview origins (1.094243ms)
+✔ emitted account transport admits existing login, new signup, verification and exact PKCE exchange (43.521523ms)
+✔ new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants (10.22296ms)
+✔ historical Preview Auth remains password-only unless explicitly opted in by this worker (0.989694ms)
+✔ explicit admin actions verify canonical JWT and exact own role before forwarding original request (9.001386ms)
+✔ anonymous/member/spoofed identity, stale role, JWT failure and transport failure cannot invoke action (16.372143ms)
+✔ no private role cache survives revocation or replacement; denied action never reaches endpoint (0.757424ms)
+✔ financial, shared flag, mail delivery and foreign writes remain unavailable even to admin (9.873703ms)
+✔ signed private media TUS requires verified admin JWT on every chunk; signature alone grants nothing (8.949343ms)
+✔ same-origin private adapter preserves only same-origin protection cookies; it independently verifies the current server principal (5.749885ms)
+✔ server private wrapper checks deployment, host, method and verified admin independently of worker (2.328947ms)
+✔ prepared full-account helper retains actual SDK PKCE shapes and exact callbacks, separately from current emitted restriction (24.771996ms)
+✔ existing publishable fallback is used only for verification; original target bearer is never replaced (4.492836ms)
+✔ public-reading reuses existing Auth without acquisition, while untrusted callback and metadata still fail closed (3.990607ms)
+✔ emitted OAuth navigation requires exact callback, genuine PKCE shape and bounded provider scopes before browser navigation (2.985338ms)
+✔ actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT (23.029664ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 363.558447

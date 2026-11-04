@@ -16,14 +16,24 @@ const OPEN_FLAGS = CLOSED_FLAGS.map((flag) => ['lock_world', 'lock_number'].incl
 
 test.setTimeout(45_000);
 
+// The historical 888-yeshua row is no longer in the public projection. Keep the
+// UI acceptance deterministic without publishing/restoring an absent live row.
+const { installPublicTopicFixture } = require('./fixtures/public-topic-888.cjs');
+
 test.beforeEach(async ({ context }) => {
   // The preview reads public production data. Never send analytics or other
   // product mutations from this acceptance runner to the canonical project.
   await context.route('https://linswmnnkjxvweumprav.supabase.co/**', async (route) => {
     const request = route.request();
     const url = new URL(request.url());
-    const readRpc = url.pathname.startsWith('/rest/v1/rpc/') && /^(fn_|gematria_|posts_by_number_strict|number_neighbors|lang_links_list)/.test(url.pathname.split('/').pop());
-    if (request.method() === 'GET' || (request.method() === 'POST' && readRpc)) {
+    const readRpc = url.pathname.startsWith('/rest/v1/rpc/') && new Set([
+      'gematria_api', 'fn_method_value', 'fn_method_profile', 'gematria_method_trace',
+      'fn_zero_scale', 'posts_by_number_strict', 'fn_number_lookup', 'fn_number_dossier',
+      'fn_number_journey', 'fn_verses_by_gematria', 'lang_links_list', 'number_neighbors',
+      'fn_all_methods', 'world_group_source_arrivals_v2', 'rd_is_admin', 'fn_list_family',
+      'fn_name_protocol', 'fn_cross_research', 'community_feed_page', 'community_message_context',
+    ]).has(url.pathname.split('/').pop());
+    if (['GET', 'HEAD'].includes(request.method()) || (request.method() === 'POST' && readRpc)) {
       await route.continue();
     } else {
       await route.abort();
@@ -47,7 +57,11 @@ test('2029 Preview Home keeps the adopted page without claiming a public opening
   await expect(page.locator('[data-experience-capability="home-composition"] a[href="/world"]').first()).toBeVisible();
   await expect(page.locator('[data-experience-capability="home-composition"] a[href="/community/chat"]')).toHaveCount(0);
   await expect(page.locator('[data-experience-capability="home-composition"] a[href="/archive"]').first()).toBeVisible();
-  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/els"]').first()).toBeVisible();
+  // Doc37 availability map uses the canonical address, while /els stays an alias.
+  // This test's explicit OPEN_FLAGS fixture admits the existing screen link.
+  const cipherAvailability = page.locator('[data-home-availability-map="true"] li').filter({ has: page.locator('a[href="/code"]') });
+  await expect(cipherAvailability).toBeVisible();
+  await expect(cipherAvailability).toContainText('פתוח לציבור');
   await page.locator('[data-home-user-area="open"]').click();
   await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
   await expect(page.locator('[data-workspace-card="life-journey"]')).toHaveAttribute('aria-disabled', 'true');
@@ -57,7 +71,8 @@ test('public navigation opens the same user area', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
   await page.getByRole('button', { name: 'פתח ניווט' }).click();
-  await page.getByRole('button', { name: 'אזור משתמשים', exact: true }).click();
+  await page.getByRole('dialog', { name: 'ניווט SOD1820 2029', exact: true })
+    .getByRole('button', { name: 'האזור האישי שלי', exact: true }).click();
   await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
 });
 
@@ -73,7 +88,7 @@ test('launch Number lock blocks direct entry before the Number engine mounts', a
   expect(numberReads).toBe(0);
 });
 
-test('chat transition has one frame with the existing chat above the connected new chat', async ({ page }) => {
+test('chat transition has one frame with the connected new chat above the retained old conversation', async ({ page }) => {
   await page.addInitScript(() => sessionStorage.setItem('sod_research_context_v2:guest', JSON.stringify({
     subject: { id: 'previous-post', type: 'post', label: 'Previous post context', href: '/post/previous-post' },
     selection: { entityId: 'previous-post', entityType: 'post' },
@@ -87,28 +102,39 @@ test('chat transition has one frame with the existing chat above the connected n
     await page.goto(`${BASE}/community/chat`, { waitUntil: 'domcontentloaded' });
     const oldChat = page.locator('[data-community-chat="legacy"]');
     const newChat = page.locator('#community-new-chat');
-    await expect(oldChat).toBeVisible();
-    await expect(newChat).toBeAttached();
+    await expect(newChat).toBeVisible();
+    await expect(oldChat).toBeAttached();
     await expect(page.locator('.sod29-root')).toHaveCount(1);
     await expect(page.locator('.sod29-surface-context-rail')).toHaveCount(0);
+    expect(await newChat.evaluate((element) => Boolean(element.compareDocumentPosition(document.querySelector('[data-community-chat="legacy"]')) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+    await oldChat.scrollIntoViewIfNeeded();
     await expect(oldChat.locator('[data-spotim-module="conversation"]')).toHaveAttribute('data-post-id', 'POST_ID_GOES_HERE');
     await expect(oldChat.locator('[data-spotim-module="conversation"]')).toHaveAttribute('data-post-url', 'https://sod1820.co.il/community/chat');
     await expect(page.locator('#spotim-script')).toHaveCount(1);
-    expect(await newChat.evaluate((element) => Boolean(document.querySelector('[data-community-chat="legacy"]').compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
     await expect(page.locator('.sod29-community-preview-notice, .sod29-community-feed-label')).toHaveCount(0);
-    await oldChat.getByRole('link', { name: 'לצ׳אט החדש ↓' }).click();
+    await oldChat.getByRole('heading', { name: 'ממשיכים לשוחח', exact: true }).waitFor();
+    await oldChat.getByRole('link', { name: 'בחזרה לשיחה ↑', exact: true }).click();
     await expect(newChat.getByRole('textbox', { name: 'מה תרצו לשתף?' })).toBeVisible();
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://sod1820.co.il/community/chat');
     expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(1);
   }
 });
 
-test('Number navigation opens the full page on mobile and desktop', async ({ page }) => {
+test('Number navigation requires an explicit value and opens its same full page on mobile and desktop', async ({ page }) => {
   for (const width of [390, 1440]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
     if (width < 720) await page.getByRole('button', { name: 'פתח ניווט' }).click();
-    await page.getByRole('link', { name: 'דף המספר', exact: true }).click();
+    await page.getByRole('button', { name: 'דף המספר', exact: true }).click();
+    const search = page.getByRole('dialog', { name: 'חיפוש', exact: true });
+    await expect(search).toBeVisible();
+    await expect(search.getByRole('textbox', { name: 'חיפוש' })).toHaveValue('');
+    await expect(page.locator('[data-number-core-root]')).toHaveCount(0);
+    await search.getByRole('textbox', { name: 'חיפוש' }).fill('1820');
+    await search.getByRole('button', { name: 'בדוק', exact: true }).click();
+    const drawer = page.locator('.sod29-number-drawer2029');
+    await expect(drawer.locator('[data-number-core-root="1820"]')).toBeVisible({ timeout: 30_000 });
+    await drawer.getByRole('button', { name: 'פתח דף מלא ↗', exact: true }).click();
     await expect(page).toHaveURL(/\/2029\/number\/1820$/);
     await expect(page.locator('[data-number-core-root="1820"]')).toBeVisible({ timeout: 30_000 });
   }
@@ -125,10 +151,16 @@ test('a phrase in the Number drawer opens its calculated full page, never a miss
     const drawer = page.locator('.sod29-number-drawer2029');
     await expect(drawer.locator('.sod29-number-core2029-root b')).toHaveText('376', { timeout: 30_000 });
     await drawer.getByRole('button', { name: 'פתח דף מלא ↗' }).click();
-    await expect(page).toHaveURL(`${BASE}/2029/number/376`);
+    const focusedNumber = `${BASE}/2029/number/376?focus=${encodeURIComponent('שלום')}&method=${encodeURIComponent('רגיל')}`;
+    await expect(page).toHaveURL(focusedNumber);
     await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 30_000 });
     await page.reload({ waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(focusedNumber);
     await expect(page.locator('[data-number-core-root="376"]')).toBeVisible({ timeout: 30_000 });
+    // The canonical core now paints before the independent regular-order read.
+    // Typography still must pass on real loaded content at all original widths.
+    await expect(page.locator('.sod29-number-v11-regular-track button strong').first()).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.sod29-number-v10-method-head span').first()).toBeVisible({ timeout: 30_000 });
     const type = await page.locator('.sod29-number-core2029.is-page').evaluate((core) => ({
       regular: parseFloat(getComputedStyle(core.querySelector('.sod29-number-v11-regular-track button strong')).fontSize),
       method: parseFloat(getComputedStyle(core.querySelector('.sod29-number-v10-method-head span')).fontSize),
@@ -151,12 +183,19 @@ test('a large signed-in profile image cannot squeeze the account text', async ({
       card.innerHTML = `<span class="sod29-user-avatar is-normal"><img alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='1200'%3E%3Crect width='1200' height='1200' fill='gold'/%3E%3C/svg%3E"></span><div><strong>משתמש לדוגמה</strong><small>member@example.com</small><p>זה החשבון שמחובר במכשיר הזה.</p></div><button class="sod29-action">התנתקות</button>`;
       account.append(card);
       const avatar = card.querySelector('.sod29-user-avatar').getBoundingClientRect();
-      const copy = card.querySelector('div').getBoundingClientRect();
-      return { avatar: avatar.width, copy: copy.width, card: card.getBoundingClientRect().width };
+      const text = card.querySelector('div'), copy = text.getBoundingClientRect();
+      const bounds = card.getBoundingClientRect(), container = account.getBoundingClientRect();
+      return { avatar: avatar.width, copy: copy.width, card: bounds.width,
+        container: container.width, withinAccount: bounds.left >= container.left && bounds.right <= container.right,
+        withinViewport: bounds.left >= 0 && bounds.right <= innerWidth,
+        textFits: text.scrollWidth <= text.clientWidth + 1 };
     });
     expect(sizes.avatar).toBeLessThanOrEqual(46);
     expect(sizes.copy).toBeGreaterThanOrEqual(160);
-    expect(sizes.card).toBeLessThanOrEqual(520);
+    expect(sizes.card).toBeLessThanOrEqual(sizes.container);
+    expect(sizes.withinAccount).toBe(true);
+    expect(sizes.withinViewport).toBe(true);
+    expect(sizes.textFits).toBe(true);
   }
 });
 
@@ -165,6 +204,13 @@ test('posts, ELS, calculator and Number are reachable on mobile', async ({ page 
   await page.goto(`${BASE}/2029/posts`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-experience-surface="posts-index"]')).toBeVisible();
   await page.goto(`${BASE}/els`, { waitUntil: 'domcontentloaded' });
+  // Guided opens with its actual story entry; no result/matrix is invented
+  // before explicit intent. Classic still exposes the existing local query.
+  await expect(page.getByRole('textbox', { name: 'הסיפור לגילוי מודרך', exact: true })).toBeVisible();
+  await expect(page.locator('[data-els-2029-surface="v1"]')).toBeHidden();
+  await page.getByRole('button', { name: 'קלאסי', exact: true }).click();
+  await expect(page.locator('[data-els-native-classic="v4"]')).toBeVisible();
+  await expect(page.locator('#els29-query input').first()).toBeVisible();
   await expect(page.locator('[data-els-2029-surface="v1"]')).toBeVisible();
   await page.goto(`${BASE}/2029/gematria`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-experience-surface="calculator-pro-2029"]')).toBeVisible();
@@ -186,24 +232,36 @@ test('existing gematria share links still open the shared result', async ({ page
 });
 
 test('World opens from Home and requests its grouped source reader', async ({ page }) => {
+  await installPublicTopicFixture(page);
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.route('**/rest/v1/rpc/world_group_source_arrivals_v3', async (route) => route.fulfill({
+  await page.route('**/rest/v1/rpc/world_group_source_arrivals_v2', async (route) => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify([{
       id: '00000000-0000-4000-8000-000000000001', body: 'הודעת מקור לבדיקה',
-      created_at: '2026-10-12T12:00:00Z', contributor_slug: 'tzvi-opoc', contributor_name: 'צבי',
+      created_at: new Date().toISOString(), contributor_slug: 'tzvi-opoc', contributor_name: 'צבי',
       group_proof: true, proof_basis: 'verified_phone_unique',
-      occurrences: [{ id: '00000000-0000-4000-8000-000000000001', created_at: '2026-10-12T12:00:00Z' }],
     }]),
   }));
   await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
-  const groupedRead = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v3'));
+  const groupedRead = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'));
   await page.locator('[data-experience-capability="home-composition"] a[href="/world"]').first().click();
   await expect(page).toHaveURL(`${BASE}/world`);
-  await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByText('הודעת מקור לבדיקה').first()).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
   expect((await groupedRead).ok()).toBe(true);
-  await page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' }).fill('888');
+  const worldEntries = page.getByRole('navigation', { name: 'דרכים לגלות את העולם' });
+  await worldEntries.getByRole('button', { name: /^מה חדש/ }).click();
+  await expect(page).toHaveURL(`${BASE}/world?view=live`);
+  // World now uses the approved public-activity projection. A fixed old date
+  // ages out of its bounded recent window; use a current synthetic arrival and
+  // its real source filter, without changing runtime ranking or server data.
+  const arrivals = page.getByRole('region', { name: 'עדכונים ציבוריים אחרונים', exact: true });
+  await arrivals.getByRole('button', { name: 'מקורות', exact: true }).click();
+  const source = arrivals.locator('article').filter({ has: page.getByRole('heading', { name: 'הודעת מקור לבדיקה', exact: true }) });
+  await expect(source).toBeVisible({ timeout: 30_000 });
+  await expect(source.locator('.sod29-world-update-creator')).toHaveText('צבי');
+  await worldEntries.getByRole('button', { name: /^נושאים וחיבורים/ }).click();
+  await expect(page).toHaveURL(`${BASE}/world?view=connections`);
+  await page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' }).fill('888');
   await page.locator('a[href="/topic/888-yeshua"]').first().click();
   await expect(page.locator('article[data-entity-type="convergence"]')).toBeVisible({ timeout: 30_000 });
   const numberReadFailures = [];
@@ -229,9 +287,9 @@ test('World opens from Home and requests its grouped source reader', async ({ pa
   await expect(page).toHaveURL(`${BASE}/topic/888-yeshua`);
   await expect(page.locator('article[data-entity-type="convergence"]')).toBeVisible({ timeout: 30_000 });
   await page.goBack();
-  await expect(page).toHaveURL(`${BASE}/world`);
-  await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible({ timeout: 30_000 });
-  await expect(page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בכל ההתכנסויות' })).toBeVisible();
+  await expect(page).toHaveURL(`${BASE}/world?view=connections`);
+  await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.locator('#world-all-convergences').getByRole('textbox', { name: 'חיפוש בנושאים ובחיבורים' })).toBeVisible();
   await expect(page.getByText('אין חומר זמין לנקודה הזאת')).toHaveCount(0);
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
@@ -241,6 +299,7 @@ test('World opens from Home and requests its grouped source reader', async ({ pa
 });
 
 test('Topic number remains tappable when external fonts are unavailable', async ({ page }) => {
+  await installPublicTopicFixture(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.route('https://fonts.googleapis.com/**', (route) => route.abort());
   await page.route('https://fonts.gstatic.com/**', (route) => route.abort());
@@ -254,6 +313,14 @@ test('Topic number remains tappable when external fonts are unavailable', async 
   await expect(page).toHaveURL(`${BASE}/2029/number/888`);
 });
 
+test('an absent public Topic never fabricates an 888 Number entry', async ({ page }) => {
+  await installPublicTopicFixture(page, { available: false });
+  await page.goto(`${BASE}/topic/888-yeshua`, { waitUntil: 'domcontentloaded' });
+  await expect(page.getByText('הציר לא נמצא', { exact: true })).toBeVisible();
+  await expect(page.locator('article[data-entity-type="convergence"]')).toHaveCount(0);
+  await expect(page.locator('a[href="/2029/number/888"]')).toHaveCount(0);
+});
+
 test('Heichal and the other unopened areas stay closed', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   // Vercel rewrites /heichal to the 2029 shell. Vite preview instead serves
@@ -262,10 +329,16 @@ test('Heichal and the other unopened areas stay closed', async ({ page }) => {
   await page.route(`${BASE}/heichal`, async (route) => route.fulfill({
     status: 200, contentType: 'text/html', body: await shell.text(),
   }));
+  const privateReads = [];
+  page.on('request', request => { if (/\/rpc\/(?:fn_get_or_create_my_person|fn_list_family|private_research_item)/.test(request.url())) privateReads.push(new URL(request.url()).pathname); });
   for (const route of ['/books', '/book/daat-tevunot', '/heichal', '/2029/journey']) {
     await page.goto(`${BASE}${route}`, { waitUntil: 'domcontentloaded' });
-    await expect(page.locator('.mlock'), route).toBeVisible();
+    if (route === '/2029/journey') {
+      await expect(page.getByRole('status').filter({ hasText: /סגור · בבנייה/ })).toBeVisible();
+      await expect(page.locator('.sod29-command-island')).toBeVisible();
+    } else await expect(page.locator('.mlock'), route).toBeVisible();
   }
+  expect(privateReads).toEqual([]);
 });
 
 test('the existing public World stays open when no lock flag has been installed', async ({ page }) => {
@@ -275,5 +348,5 @@ test('the existing public World stays open when no lock flag has been installed'
   }));
   await page.goto(`${BASE}/world`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('.mlock')).toHaveCount(0);
-  await expect(page.getByRole('region', { name: 'כיווני הגילוי בעולם' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible();
 });

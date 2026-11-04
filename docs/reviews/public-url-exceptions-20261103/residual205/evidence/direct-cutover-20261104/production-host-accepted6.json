@@ -1,0 +1,337 @@
+{
+  "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "branch": "gpt/2029-public-cutover-final-preparation-20261103",
+  "deploymentId": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+  "origin": "https://sod1820-2z0mg4j21-sod1820-s-projects.vercel.app",
+  "realPublicData": true,
+  "actualSW": true,
+  "performanceMeasurement": false,
+  "modelCalls": 0,
+  "liveWrites": 0,
+  "testMail": 0,
+  "genuineTwoAccountAcceptance": "RETAINED_NOT_REPEATED",
+  "productionPublicMode": "public-production-candidate",
+  "cases": [
+    {
+      "name": "exact Preview artifact, real Home/SW and retained public series",
+      "width": 390,
+      "series": 4,
+      "worker": "/sw.js",
+      "passed": true,
+      "path": "/",
+      "noOverflow": true
+    },
+    {
+      "name": "real old Post, full Number/Phrase and exact history return",
+      "width": 390,
+      "canonicalBaselineSha": "01662ab57e92ea71332c05ca971a2280ddb988ea",
+      "postId": "1259",
+      "canonical": "https://sod1820.co.il/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/",
+      "exactReturn": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?part=2&part=7#post-content",
+      "passed": true,
+      "path": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0",
+      "noOverflow": true
+    },
+    {
+      "name": "World/calculator, login copy and anonymous administrator denial",
+      "width": 390,
+      "actualAdministrator": "NOT_TESTED",
+      "socialLogin": "OWNER_CALLBACK_STEP_DEFERRED",
+      "passed": true,
+      "path": "/2029/control",
+      "noOverflow": true
+    },
+    {
+      "name": "exact Preview artifact, real Home/SW and retained public series",
+      "width": 1440,
+      "series": 4,
+      "worker": "/sw.js",
+      "passed": true,
+      "path": "/",
+      "noOverflow": true
+    },
+    {
+      "name": "real old Post, full Number/Phrase and exact history return",
+      "width": 1440,
+      "canonicalBaselineSha": "01662ab57e92ea71332c05ca971a2280ddb988ea",
+      "postId": "1259",
+      "canonical": "https://sod1820.co.il/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/",
+      "exactReturn": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0?part=2&part=7#post-content",
+      "passed": true,
+      "path": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0",
+      "noOverflow": true
+    },
+    {
+      "name": "World/calculator, login copy and anonymous administrator denial",
+      "width": 1440,
+      "actualAdministrator": "NOT_TESTED",
+      "socialLogin": "OWNER_CALLBACK_STEP_DEFERRED",
+      "passed": true,
+      "path": "/2029/control",
+      "noOverflow": true
+    }
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET"
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST"
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST"
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST"
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/comments",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/comments",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    }
+  ],
+  "denied": [],
+  "finishedAt": "2026-11-04T11:35:26.150Z",
+  "passed": 6,
+  "failed": 0,
+  "expectedCases": 6,
+  "ok": true
+}

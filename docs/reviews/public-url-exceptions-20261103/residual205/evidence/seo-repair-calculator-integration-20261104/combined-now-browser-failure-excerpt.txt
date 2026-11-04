@@ -1,0 +1,31 @@
+locator.waitFor: Timeout 20000ms exceeded.
+Call log:
+[2m  - waiting for locator('.sod29-command-island') to be visible[22m
+[2m    2 × waiting for navigation to finish...[22m
+[2m      - navigated to "http://127.0.0.1:44089/?controlled=home-now"[22m
+[2m      - waiting for" http://127.0.0.1:44089/?controlled=home-now" navigation to finish...[22m
+[2m      - navigated to "http://127.0.0.1:44089/?controlled=home-now"[22m
+[2m    3 × waiting for" http://127.0.0.1:44089/?controlled=home-now" navigation to finish...[22m
+[2m      - navigated to "http://127.0.0.1:44089/?controlled=home-now"[22m
+[2m      - waiting for navigation to finish...[22m
+[2m      - navigated to "http://127.0.0.1:44089/?controlled=home-now"[22m
+[2m    2 × waiting for" http://127.0.0.1:44089/?controlled=home-now" navigation to finish...[22m
+[2m      - navigated to "http://127.0.0.1:44089/?controlled=home-no
+[excerpt; original retained in execution workspace]
+locator.waitFor: Timeout 20000ms exceeded.
+Call log:
+[2m  - waiting for locator('.sod29-command-island') to be visible[22m
+[2m    2 × waiting for navigation to finish...[22m
+[2m      - navigated to "http://127.0.0.1:44089/?controlled=home-now"[22m
+[2m      - waiting for" http://127.0.0.1:44089/?controlled=home-now" navigation to finish...[22m
+[2m      - navigated to "http://127.0.0.1:44089/?controlled=home-now"[22m
+[2m    3 × waiting for" http://127.0.0.1:44089/?controlled=home-now" navigation to finish...[22m
+[2m      - navigated to "http://127.0.0.1:44089/?controlled=home-now"[22m
+[2m      - waiting for navigation to finish...[22m
+[2m      - navigated to "http://127.0.0.1:44089/?controlled=home-now"[22m
+[2m    2 × waiting for" http://127.0.0.1:44089/?controlled=home-now" navigation to finish...[22m
+[2m      - navigated to "http://127.0.0.1:44089/?controlled=home-now"[22m
+
+    at /workspace/sod1820-bd-approved/test/now-publications-2029.browser.cjs:76:20 {
+  name: 'TimeoutError'
+}

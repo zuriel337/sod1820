@@ -20,6 +20,12 @@ test("structured lane preserves the legacy analysis response for every other ope
   assert.match(client, /return structuredReflection \|\| analysisText/);
 });
 
+test("private normalized reflection can suppress the style-learning copy", () => {
+  assert.match(client, /persistAnalysis\s*=\s*true/);
+  assert.match(client, /analysisText && persistAnalysis !== false/);
+  assert.match(client, /logAiAnalysis\(\{ kind, subject/);
+});
+
 test("reflection prompt keeps Tarot outside AI synthesis and requires bundle Finding IDs", () => {
   assert.match(edge, /כל motif חייב להישען על finding_ids שסופקו/);
   assert.match(edge, /קלף\/טארוט אינו חלק מהשלב הזה/);

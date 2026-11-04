@@ -30,7 +30,7 @@ test("Home retains post opening and approved topic slug as distinct destinations
   const topic = projectHomeWorldPreviewItem(topicRowToWorldUpdate({
     id: "topic-1", slug: "gathering", title: "התכנסות", approved_at: "2026-10-09T09:00:00Z",
   }));
-  assert.equal(post.href, "/post/source");
+  assert.equal(post.href, "/source", "unproven publication provenance cannot move a durable root address");
   assert.equal(post.sourceKind, "post");
   assert.equal(topic.slug, "gathering");
   assert.equal(topic.kind, "convergence");

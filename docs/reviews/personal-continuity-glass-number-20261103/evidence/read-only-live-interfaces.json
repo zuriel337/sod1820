@@ -1,0 +1,28 @@
+{
+  "kind": "canonical-live-metadata-readonly",
+  "project": "linswmnnkjxvweumprav",
+  "date": "2026-11-03",
+  "requestedExistingAccounts": {
+    "count": 2,
+    "authRowsPerAccount": 1,
+    "userRowsPerAccount": 1,
+    "profileRowsPerAccount": 1,
+    "roles": [
+      "admin",
+      "user"
+    ],
+    "privatePayloadCopied": false,
+    "realLoginAccepted": false
+  },
+  "canonicalFunctions": {
+    "research_state_snapshot_v1": "1200ad352c3b8da762659e090cff059a",
+    "research_state_apply_ops_v1": "e4081c265354516969b9a22f2b94583f",
+    "update_my_page_config": "597127f1c0d2ad06d84c70f285b51589",
+    "dm_inbox": "f6ba91483d0f0340658064d80e37a84e",
+    "dm_thread": "fdc19458d0176ca1229046d120839b79",
+    "dm_send": "6efc6acfd27d53f391a47692dd030f74"
+  },
+  "notificationOwnership": "Existing RLS admits verified own user_id or JWT email. Candidate explicitly filters user_id; bounded census found zero legacy email-only notification rows on date, globally and in requested accounts. No rewrite/backfill of historical data. Future email-only producer needs acceptance before admission.",
+  "liveWrites": 0,
+  "sharedChanges": false
+}

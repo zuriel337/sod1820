@@ -1,0 +1,1371 @@
+{
+  "before": {
+    "sha": "0d4ad83644a74abe5d990f7a628dd955fd0c638a",
+    "chunks": [
+      {
+        "file": "assets/2029-S1Hoh_Ex.js",
+        "gzipBytes": 84792,
+        "rawBytes": 270331,
+        "sha256": "f11944208fa4f409df76e57fda6be625970da135823611a89df09800f2e38d9f",
+        "modules": [
+          "\u0000vite/modulepreload-polyfill.js",
+          "../sod1820/node_modules/scheduler/cjs/scheduler.production.js",
+          "../sod1820/node_modules/scheduler/index.js",
+          "../sod1820/node_modules/react-dom/cjs/react-dom.production.js",
+          "../sod1820/node_modules/react-dom/index.js",
+          "../sod1820/node_modules/react-dom/cjs/react-dom-client.production.js",
+          "../sod1820/node_modules/react-dom/client.js",
+          "src/components/MaintenanceLock.jsx",
+          "src/lib/research/razielSessionRequestLoader2029.js",
+          "supabase/functions/_shared/elsMatrixReadingAction.js",
+          "src/lib/research/elsMatrixReadingSession.js",
+          "src/lib/research/razielSession2029.js",
+          "src/lib/research/RazielSessionProvider2029.jsx",
+          "src/components/experience2029/razielSessionSeam2029.js",
+          "src/components/experience2029/RazielSessionMount2029.jsx",
+          "src/lib/analytics.js",
+          "src/lib/visits.js",
+          "src/lib/engagement.js",
+          "src/lib/webVitalsCore.js",
+          "src/lib/webVitals2029.js",
+          "src/components/experience2029/Opening2029.jsx",
+          "src/lib/research/calculator2029Viral.js",
+          "src/components/FeatureClosedNotice.jsx",
+          "src/App2029.jsx",
+          "src/main2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/AuthContext-coF3Z1d5.js",
+        "gzipBytes": 862,
+        "rawBytes": 1636,
+        "sha256": "c7c0c9540be0f813b4b9e8505f709eb1b57f09b0299eaf3403a7f9b645c7baa4",
+        "modules": [
+          "src/lib/AuthContext.jsx"
+        ]
+      },
+      {
+        "file": "assets/CanonicalMediaFigure2029-C7Nr0G8E.js",
+        "gzipBytes": 11844,
+        "rawBytes": 31384,
+        "sha256": "d27d48eb53c9665a011572622280d2eefc77591586950d28b47ab4ffe1720e11",
+        "modules": [
+          "src/components/experience2029/contentActions2029.css",
+          "src/lib/share.js",
+          "src/lib/share/shareObject.js",
+          "src/lib/propagation.js",
+          "src/lib/share/shareTelemetry.js",
+          "src/components/ShareActions.jsx",
+          "src/lib/galleryName.js",
+          "src/lib/reality.js",
+          "src/components/Lightbox.jsx",
+          "src/components/experience2029/CanonicalMediaImage2029.jsx",
+          "src/lib/research/worldFindingShare.js",
+          "src/components/experience2029/CanonicalMediaFigure2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/ConvergenceRatings2029-C2xOb8GH.js",
+        "gzipBytes": 2026,
+        "rawBytes": 5425,
+        "sha256": "9db968f37b71d76731f32dc3c4f7ce3917889a1d1a5905f5b71018db29412964",
+        "modules": [
+          "src/components/experience2029/convergenceRatings2029.css",
+          "src/components/experience2029/ConvergenceRatings2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/CurationMark2029-BvM8OzCL.js",
+        "gzipBytes": 1921,
+        "rawBytes": 5359,
+        "sha256": "fbed7d5a5d5ab80944a9109264d6cd7228d8b9f8ce9b440d9c1e875959398c17",
+        "modules": [
+          "src/components/experience2029/curationMark2029.css",
+          "src/components/experience2029/CurationMark2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/EmailVerify-DRYgQmw7.js",
+        "gzipBytes": 2229,
+        "rawBytes": 5201,
+        "sha256": "956b1d6dd821b6c11cf70c5e2ed0d56b24d7c473d46061911f54afdb110ff292",
+        "modules": [
+          "src/lib/joinEvents.js",
+          "src/lib/emailVerificationIntent.js",
+          "src/components/EmailVerify.jsx"
+        ]
+      },
+      {
+        "file": "assets/Home2029Page-BAuedFtC.js",
+        "gzipBytes": 17986,
+        "rawBytes": 56627,
+        "sha256": "1e0e4e27ea70a7683ea55ba6804a7c4db6aa4fd32fca86388e2752b8c5c34751",
+        "modules": [
+          "src/lib/research/researchProfiles.js",
+          "src/lib/research/unifiedResearchEntry.js",
+          "src/components/research/SourceArrivalList2029.jsx",
+          "src/lib/heroUpdate2029.js",
+          "src/components/experience2029/HomeHeroMotion2029.jsx",
+          "src/components/experience2029/useReveal2029.js",
+          "src/components/experience2029/useApproach2029.js",
+          "src/components/experience2029/HomeComposition2029.jsx",
+          "src/components/experience2029/ElsRotatingMatrixCard2029.jsx",
+          "src/pages/Home2029Page.jsx"
+        ]
+      },
+      {
+        "file": "assets/IconTile2029-Ka8rXZvm.js",
+        "gzipBytes": 349,
+        "rawBytes": 503,
+        "sha256": "4855d292d352ac6b64709c4b9ffd9407321f1ee6119f8f47fd9224cf5f5a7285",
+        "modules": [
+          "src/components/experience2029/iconTile2029.css",
+          "src/components/experience2029/IconTile2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/PostCategories2029-HK4XFi1L.js",
+        "gzipBytes": 5051,
+        "rawBytes": 12431,
+        "sha256": "761c40e4cabc975729dc93f35ea34b63f236a4b8504a978028655e21b05bd978",
+        "modules": [
+          "src/lib/categoryIcons.js",
+          "src/components/StrongHintBadge.jsx",
+          "src/lib/research/postsCatalog2029Projection.js",
+          "src/components/experience2029/PostCategories2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/RealityRiver2029-DvmR0aXK.js",
+        "gzipBytes": 4143,
+        "rawBytes": 11692,
+        "sha256": "c3613e8d5abafa044dd96e8ab9103b45922d26f95676f45ecbe12546b306237c",
+        "modules": [
+          "src/components/research/realityRiver2029.css",
+          "src/components/research/RealityStreamFollow2029.jsx",
+          "src/components/research/RealityRiver2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/ResearchProvider-ABxpNBeT.js",
+        "gzipBytes": 11283,
+        "rawBytes": 32148,
+        "sha256": "5d395d40c6f4ee341a9707eca731da9e8f42f9d483c6652a26691d278470471f",
+        "modules": [
+          "src/lib/research/useElsResearchOperation.js",
+          "src/lib/research/eventBus.js",
+          "src/lib/research/researchContext.js",
+          "src/lib/research/journeySourceReturn.js",
+          "src/lib/research/journey2029Telemetry.js",
+          "src/lib/research/researchPathRuntime.js",
+          "src/lib/research/researchSyncState.js",
+          "src/lib/research/researchSyncRuntime.js",
+          "src/lib/research/ResearchProvider.jsx"
+        ]
+      },
+      {
+        "file": "assets/Sod2029Shell-BTlJ7AZL.js",
+        "gzipBytes": 56731,
+        "rawBytes": 188210,
+        "sha256": "f566b342dc8d9060cefb5e8dcaf9e55eb5c8b6508da9b64b24ca58043f3b7ce5",
+        "modules": [
+          "src/lib/stream.js",
+          "src/lib/experienceContext.js",
+          "src/lib/research/entity.js",
+          "src/lib/followIdentity.js",
+          "src/lib/notifications.js",
+          "src/lib/commandCenter.js",
+          "src/lib/userCenter/followCenter2029.js",
+          "src/lib/research/razielActionContract.js",
+          "src/lib/research/contextualCapabilities.js",
+          "src/components/experience2029/ContactGatewayOnDemand2029.jsx",
+          "src/components/experience2029/ContextualInspector2029.jsx",
+          "src/components/experience2029/SurfaceProgressSpine2029.jsx",
+          "src/lib/entryLearn2029.js",
+          "src/components/experience2029/LearnMark2029.jsx",
+          "src/lib/research/postLineage2029.js",
+          "src/components/experience2029/EventSequencePanel2029.jsx",
+          "src/components/experience2029/ProjectorMediaCards2029.jsx",
+          "src/lib/projectorPilotGate.js",
+          "src/lib/research/researchFacetProjection.js",
+          "src/lib/research/goldenProjectorModes.js",
+          "src/components/experience2029/GoldenProjectorModeLayer2029.jsx",
+          "src/lib/research/videoSemanticMap.js",
+          "src/components/experience2029/ContextualVideoLayer2029.jsx",
+          "src/components/experience2029/SurfaceContextRail2029.jsx",
+          "src/components/Marquee.jsx",
+          "src/components/experience2029/GlobalLivingRibbon2029.jsx",
+          "src/lib/research/workspaceRazielPresence2029.js",
+          "src/lib/homeMotion2029.js",
+          "src/lib/systemFeed2029.js",
+          "src/components/experience2029/useSystemFeed2029.js",
+          "src/components/experience2029/DiscoveryGateMark2029.jsx",
+          "src/lib/research/elsRazielContext.js",
+          "src/components/experience2029/SystemToolDock2029.jsx",
+          "src/components/experience2029/SystemFrame2029.jsx",
+          "src/components/experience2029/Sod2029Shell.jsx"
+        ]
+      },
+      {
+        "file": "assets/SourceRepeatInfo2029-BbgmFnom.js",
+        "gzipBytes": 1816,
+        "rawBytes": 3914,
+        "sha256": "8e7e445a88eb36411848e912d6bcaaa140159eb02498875a067dafc320da9eac",
+        "modules": [
+          "src/pages/home-world-story2029.css",
+          "src/lib/research/explorerRanking.js",
+          "src/lib/research/explorerFacets.js",
+          "src/components/research/SourceRepeatInfo2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/StayUpdatedCTA-Bj5F5pln.js",
+        "gzipBytes": 2097,
+        "rawBytes": 5111,
+        "sha256": "5878c13f54fd64220c635baaff63f2cfd061de4bbfc15d14dd8af4446120de53",
+        "modules": [
+          "src/lib/newsletterSignup.js",
+          "src/components/StayUpdatedCTA.jsx"
+        ]
+      },
+      {
+        "file": "assets/WatchButton-gyo_YtEQ.js",
+        "gzipBytes": 534,
+        "rawBytes": 764,
+        "sha256": "cfbe722ddcc072f06e4af75e32f077e451e7e8e9f560badce4b59c6b2d4dd527",
+        "modules": [
+          "src/components/followCenter2029/watchControl2029.css",
+          "src/components/followCenter2029/WatchControl2029.jsx",
+          "src/components/WatchButton.jsx"
+        ]
+      },
+      {
+        "file": "assets/auth-F3NKJWc0.js",
+        "gzipBytes": 1957,
+        "rawBytes": 4476,
+        "sha256": "b9520c066c16b923c1e02378fbfea8c489e7bd20b2bab9860f4faae8742cf429",
+        "modules": [
+          "src/lib/oauthReturn.js",
+          "src/lib/auth.js"
+        ]
+      },
+      {
+        "file": "assets/bookResearchProjection-BE-9FnrN.js",
+        "gzipBytes": 3684,
+        "rawBytes": 9243,
+        "sha256": "4f8a90393abf1a34302cdb363868a1fe7f916547f20ce08b6b782fbe1038ccd0",
+        "modules": [
+          "src/lib/research/bookResearchProjection.js"
+        ]
+      },
+      {
+        "file": "assets/brandAssets2029-BhHDt-cI.js",
+        "gzipBytes": 437,
+        "rawBytes": 762,
+        "sha256": "34e26e071ea17dea62d30d2089d06f3639134eb230830db2778abc2e0039d991",
+        "modules": [
+          "src/lib/brandAssets2029.js"
+        ]
+      },
+      {
+        "file": "assets/calculator2029FastPreview-xVVOMJMh.js",
+        "gzipBytes": 603,
+        "rawBytes": 982,
+        "sha256": "90b2a6c26c6e83c17c3d4a33f57718de67702f5b253179b05a74cc6f6347d292",
+        "modules": [
+          "src/lib/research/calculator2029FastPreview.js"
+        ]
+      },
+      {
+        "file": "assets/calculator2029Input-BbfftHdT.js",
+        "gzipBytes": 904,
+        "rawBytes": 1606,
+        "sha256": "d1037805e95450f60c9b0396df6794065a73f02b449a3e74ca1d957030b150ef",
+        "modules": [
+          "src/lib/research/calculator2029Input.js"
+        ]
+      },
+      {
+        "file": "assets/canonicalGematria-Dk3wL7As.js",
+        "gzipBytes": 227,
+        "rawBytes": 275,
+        "sha256": "2234b338ee6c37148e6961727994352cae5ec9a350bc4f128749c8e43d5bb8e6",
+        "modules": [
+          "src/lib/research/canonicalGematria.js"
+        ]
+      },
+      {
+        "file": "assets/canonicalGematriaProjection-CTH5Yi_y.js",
+        "gzipBytes": 661,
+        "rawBytes": 1250,
+        "sha256": "370dcd76ab9056b728fe7fb03bc3cd32c63c57a4f5e72481420b8ed90131f917",
+        "modules": [
+          "src/lib/research/canonicalGematriaProjection.js"
+        ]
+      },
+      {
+        "file": "assets/canonicalPresentation-DgNmWnf_.js",
+        "gzipBytes": 2897,
+        "rawBytes": 7540,
+        "sha256": "70b33e76b7b4629f08881a2ee72278ce43f79b860581ca22d0edf407e4e7c577",
+        "modules": [
+          "src/lib/presentation/tanakhReferenceParts.js",
+          "src/lib/presentation/canonicalPresentation.js"
+        ]
+      },
+      {
+        "file": "assets/chunk-OB3PAWPO-CzoZTws3.js",
+        "gzipBytes": 13857,
+        "rawBytes": 39000,
+        "sha256": "91c2e95128e689d6b3e2b89877ac74578bddf2fcd2bdff836d677c5961baaec0",
+        "modules": [
+          "../sod1820/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs"
+        ]
+      },
+      {
+        "file": "assets/contentSeries2029Identity-DQL7fOua.js",
+        "gzipBytes": 1553,
+        "rawBytes": 3428,
+        "sha256": "a5af13cd0ab46a1e953ba0cc631dfab0d7a98dcda1bd33e0dcbdf655f6c522ab",
+        "modules": [
+          "src/lib/research/researchViewMode.js",
+          "src/lib/research/contentSeries2029Identity.js"
+        ]
+      },
+      {
+        "file": "assets/contentSeries2029Projection-DX10ByQC.js",
+        "gzipBytes": 3282,
+        "rawBytes": 8261,
+        "sha256": "845213f1d2f365866e6c74d86057ff8dce48bcb7e58fef4def1cbcea2d0f400b",
+        "modules": [
+          "src/lib/research/contentSeries2029Projection.js"
+        ]
+      },
+      {
+        "file": "assets/curationProjection2029-QqEURtjW.js",
+        "gzipBytes": 1934,
+        "rawBytes": 4530,
+        "sha256": "4f25ac48b2e42730f0a2f4e54bb7145101b07cfcea24e0a487f622793d3377e3",
+        "modules": [
+          "src/lib/research/curationProjection2029.js"
+        ]
+      },
+      {
+        "file": "assets/dayContext-DQm1CoPT.js",
+        "gzipBytes": 54650,
+        "rawBytes": 158849,
+        "sha256": "98596451f30094f77c14b4fb0e9dd6dcc8d4fbff6d42ffd1759330e18671ad56",
+        "modules": [
+          "../sod1820/node_modules/@hebcal/core/dist/esm/pkgVersion.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/greg.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/gregNamespace.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/hebrewStripNikkud.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/hdateBase.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/anniversary.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/gematriya.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/pad.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/dateFormat.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/ashkenazi.po.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/he.po.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/locale.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/hdate.js",
+          "../sod1820/node_modules/@hebcal/hdate/dist/esm/anniversaryHDate.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/ashkenazi.po.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/he.po.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/he-x-NoNikud.po.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/locale.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/event.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/HebrewDateEvent.js",
+          "../sod1820/node_modules/temporal-utils/dist/errorMessages.js",
+          "../sod1820/node_modules/temporal-utils/dist/utils.js",
+          "../sod1820/node_modules/temporal-polyfill/chunks/options.js",
+          "../sod1820/node_modules/temporal-polyfill/chunks/internal.js",
+          "../sod1820/node_modules/temporal-polyfill/chunks/root.js",
+          "../sod1820/node_modules/temporal-polyfill/chunks/apiHelpers.js",
+          "../sod1820/node_modules/temporal-polyfill/chunks/classApi.js",
+          "../sod1820/node_modules/temporal-polyfill/chunks/classApi-basic.js",
+          "../sod1820/node_modules/temporal-polyfill/shim.js",
+          "../sod1820/node_modules/temporal-polyfill/global.esm.js",
+          "../sod1820/node_modules/@hebcal/noaa/dist/index.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/cities.json.js",
+          "../sod1820/node_modules/quick-lru/index.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/location.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/reformatTimeStr.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/moladBase.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/moladDate.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/string.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/molad.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/zmanim.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/modern.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/sedra.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/staticHolidays.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/HolidayEvent.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/YomKippurKatanEvent.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/holidays.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/isAssurBemlacha.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/isAveilut.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/isFastDay.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/TimedEvent.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/candles.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/sefira.json.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/omer.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/tachanun.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/parshaName.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/ParshaEvent.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/getStartAndEnd.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/DailyLearning.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/MevarchimChodeshEvent.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/calendar.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/hallel.js",
+          "../sod1820/node_modules/@hebcal/core/dist/esm/hebcal.js",
+          "src/lib/dayContext.js"
+        ]
+      },
+      {
+        "file": "assets/elsResearchReturnSnapshot-B03Lyzta.js",
+        "gzipBytes": 1589,
+        "rawBytes": 4135,
+        "sha256": "f179479912d6d831a76d1edb63de7bf4582668bf9f5f5dc99fa5d2d64eb43f0b",
+        "modules": [
+          "src/lib/elsJourney.js",
+          "src/lib/research/elsResearchReturnSnapshot.js"
+        ]
+      },
+      {
+        "file": "assets/emailOtp-5JZExih-.js",
+        "gzipBytes": 139,
+        "rawBytes": 152,
+        "sha256": "4bc6fd5b858c4d54f8077ac68976a45cba1a2a7556a06c1545ffccda3635c15d",
+        "modules": [
+          "src/lib/emailOtp.js"
+        ]
+      },
+      {
+        "file": "assets/entityHubProjection-0mcYMkTn.js",
+        "gzipBytes": 14860,
+        "rawBytes": 48833,
+        "sha256": "04647b529763ad52227393be72d2dfa621b5984fea6dd2000143f2352a19217c",
+        "modules": [
+          "src/lib/research/entityGraphFinding.js",
+          "src/lib/research/numberAnchorFinding.js",
+          "src/lib/research/verseGematriaSources.js",
+          "src/lib/research/scriptureDiscoveryProjection.js",
+          "src/lib/research/tanachLexicalSources.js",
+          "src/lib/research/scriptureTermDiscoveryProjection.js",
+          "src/lib/research/entityHubProjection.js"
+        ]
+      },
+      {
+        "file": "assets/format-DZ_iukPG.js",
+        "gzipBytes": 720,
+        "rawBytes": 1508,
+        "sha256": "d2d27902a102e6bdaae88943308a7b7077cd26a0566eb261707aa3e2af353d93",
+        "modules": [
+          "src/lib/format.js"
+        ]
+      },
+      {
+        "file": "assets/gematria-Ud5dslyW.js",
+        "gzipBytes": 3039,
+        "rawBytes": 7546,
+        "sha256": "58eb698ce796858362045b4a0ff43953a9817b94c50889ea9af2ad497917f3c2",
+        "modules": [
+          "src/lib/gematria.js"
+        ]
+      },
+      {
+        "file": "assets/home2029Projection-Bx7cTjpg.js",
+        "gzipBytes": 3586,
+        "rawBytes": 9018,
+        "sha256": "c0aeabf4a1f7829f2560866b47790a191323e91104314ac1cf93fb5014d696f4",
+        "modules": [
+          "src/lib/research/home2029Projection.js"
+        ]
+      },
+      {
+        "file": "assets/homeLaunchPosts2029-BkYxcDuJ.js",
+        "gzipBytes": 1059,
+        "rawBytes": 1980,
+        "sha256": "d29ad935f181cd072a29eedf15278fcbb5d2322ea675fe2d5ad2db2b3c59dcf5",
+        "modules": [
+          "src/lib/research/homeLaunchPosts2029.js"
+        ]
+      },
+      {
+        "file": "assets/jsx-runtime-D3jfb0Ew.js",
+        "gzipBytes": 3382,
+        "rawBytes": 8901,
+        "sha256": "a2c68294426b0ded53fa2d6c97bb39c4a51f99e5e4b23e7953a2c69298e361f8",
+        "modules": [
+          "\u0000rolldown/runtime.js",
+          "../sod1820/node_modules/react/cjs/react.production.js",
+          "../sod1820/node_modules/react/index.js",
+          "../sod1820/node_modules/react/cjs/react-jsx-runtime.production.js",
+          "../sod1820/node_modules/react/jsx-runtime.js"
+        ]
+      },
+      {
+        "file": "assets/methodIdentity-DM2yAcOz.js",
+        "gzipBytes": 157,
+        "rawBytes": 153,
+        "sha256": "8fc0cec625cec59d7181fb5e584927deeb0c69c8ee559f458ce23285f81ffda3",
+        "modules": [
+          "src/lib/research/methodIdentity.js"
+        ]
+      },
+      {
+        "file": "assets/numberExpressionFocus-BzPcM1_9.js",
+        "gzipBytes": 1384,
+        "rawBytes": 3120,
+        "sha256": "11566f3e1da5d756b913b87d9d8e05634f65b7232e7a3a7fe42202767c12070b",
+        "modules": [
+          "src/lib/research/numberExpressionFocus.js"
+        ]
+      },
+      {
+        "file": "assets/numberTierSignals-DA4uX8CS.js",
+        "gzipBytes": 35373,
+        "rawBytes": 109168,
+        "sha256": "97a6a59e55e29e09e95e0b5242b39e4f00c5a1cfbe4c35fa8d1058951c3e8871",
+        "modules": [
+          "src/lib/research/researchObjectFinding.js",
+          "src/lib/research/worldFindingClusters.js",
+          "src/lib/research/worldPreviewMaterialScope.js",
+          "src/lib/research/worldAllResearchProjection.js",
+          "src/lib/presentation/contentTitle.js",
+          "src/lib/research/contributorAuthorAttribution.js",
+          "src/lib/research/contributorPublicationCatalog.js",
+          "src/components/contributor2029/publicContributor2029Model.js",
+          "src/lib/userCenter/writerPersonal2029.js",
+          "src/lib/canonicalProgressModel.js",
+          "src/components/CanonicalProgress.jsx",
+          "src/lib/research/elsMatrixReadingPresentation.js",
+          "src/lib/research/elsMatrixReadingActivity.js",
+          "src/lib/research/researchRepresentations.js",
+          "src/lib/research/timeline2029.js",
+          "src/lib/relativeTime2029.js",
+          "src/lib/research/razielWorkspaceProjection2029.js",
+          "src/lib/research/razielSavedSync2029.js",
+          "src/lib/research/galleryMediaEnvelope.js",
+          "src/lib/research/topicSourceContext.js",
+          "src/lib/ratings2029.js",
+          "src/lib/research/numberTierSignals.js"
+        ]
+      },
+      {
+        "file": "assets/numericResearch-C070B1lT.js",
+        "gzipBytes": 7748,
+        "rawBytes": 23298,
+        "sha256": "212d9e3dcb9165c317c23b5badfe888fb8732961ff85f09652934a33cd2ffe79",
+        "modules": [
+          "src/lib/research/sequenceLens.js",
+          "src/lib/research/piSequence.js",
+          "src/lib/research/fibonacciSequence.js",
+          "src/lib/research/numericResearchBase.js",
+          "src/lib/research/numericResearch.js"
+        ]
+      },
+      {
+        "file": "assets/palette-BgJz-KAA.js",
+        "gzipBytes": 3585,
+        "rawBytes": 9551,
+        "sha256": "219ab1bbd0cf3e6cc29fcc91dfa2f9e48ff60b2540843d91a7bb04aec6d4ed92",
+        "modules": [
+          "src/lib/themeMode.js",
+          "src/lib/lightRoutes.js",
+          "src/lib/palette.js"
+        ]
+      },
+      {
+        "file": "assets/preload-helper-BZ1Pz5am.js",
+        "gzipBytes": 688,
+        "rawBytes": 1218,
+        "sha256": "8820987e6a8afb54d776f21e305917e1ecf83cef678b4db38c2e5a405d04a8bf",
+        "modules": [
+          "\u0000vite/preload-helper.js"
+        ]
+      },
+      {
+        "file": "assets/publicPostBoundary-DLBRu07Y.js",
+        "gzipBytes": 214,
+        "rawBytes": 243,
+        "sha256": "7f21d1a9bdf8771782c8ae02e62985cc4a8f542266db14b72b99632b75612715",
+        "modules": [
+          "src/lib/research/publicPostBoundary.js"
+        ]
+      },
+      {
+        "file": "assets/publicPostUrls-YFBPKNgf.js",
+        "gzipBytes": 1295,
+        "rawBytes": 2837,
+        "sha256": "6b2b573c8a5c7b33d7307b74861689ae006737f64e409c14aa5c742fc5b8a87c",
+        "modules": [
+          "src/lib/publicPostUrls.js"
+        ]
+      },
+      {
+        "file": "assets/push-0aZACXkv.js",
+        "gzipBytes": 231,
+        "rawBytes": 282,
+        "sha256": "b70b82a28823d8b31226ea3128ee785bafc31c023b48c17ddad78a2ab64ffd8f",
+        "modules": [
+          "src/lib/push.js"
+        ]
+      },
+      {
+        "file": "assets/razielRouteAction-DwHA1EU7.js",
+        "gzipBytes": 1122,
+        "rawBytes": 2418,
+        "sha256": "5c63451a3823c6fcaae06cc839c7ba6b1de61fbf86a71f448228c26569c9b607",
+        "modules": [
+          "src/lib/research/elsRazielMatrixContext.js",
+          "src/lib/research/razielRouteAction.js"
+        ]
+      },
+      {
+        "file": "assets/razielViewMode2029-EPrCdoW9.js",
+        "gzipBytes": 408,
+        "rawBytes": 672,
+        "sha256": "91aa9e7673f6217cbab3fade61f51db408d4984cc306ab922b6199ca4fafb6c8",
+        "modules": [
+          "src/lib/research/razielViewMode2029.js"
+        ]
+      },
+      {
+        "file": "assets/researchPlanV2-Bz_gI_Ah.js",
+        "gzipBytes": 10159,
+        "rawBytes": 33641,
+        "sha256": "8837895afb9e168a130200470e73ea2654ba546474d4a2312f995d9ad388a52c",
+        "modules": [
+          "src/lib/research/researchIdentityResolver.js",
+          "src/lib/research/razielSemanticIntentGate.js",
+          "src/lib/research/razielRouteGrammar.js",
+          "src/lib/research/researchPlanV2.js"
+        ]
+      },
+      {
+        "file": "assets/seo-BuSaJ8E2.js",
+        "gzipBytes": 2780,
+        "rawBytes": 7100,
+        "sha256": "f37ec5eb3aff5c9ea5a72308dda56bc1334b707a1f6035652f8cecbd8d215531",
+        "modules": [
+          "src/lib/thumbResolve.js",
+          "src/lib/seo.js"
+        ]
+      },
+      {
+        "file": "assets/sourceBundleProjection-DCyE_zNg.js",
+        "gzipBytes": 19726,
+        "rawBytes": 56088,
+        "sha256": "f85af642404adf17253c581ff0d29567b839d13e133f1c5fe8f795a189c92371",
+        "modules": [
+          "src/lib/research/worldContextualProminence.js",
+          "src/lib/research/researchObjectPresentation.js",
+          "src/lib/research/universalFinding.js",
+          "src/components/experience2029/iconPress2029.js",
+          "src/components/experience2029/hebrewIconPaths.js",
+          "src/components/experience2029/NavigationIcon2029.jsx",
+          "src/lib/designTokens.js",
+          "src/lib/research/postSourceUpdates2029.js",
+          "src/lib/research/sourceBundleProjection.js"
+        ]
+      },
+      {
+        "file": "assets/supabase-BeOLgybn.js",
+        "gzipBytes": 51044,
+        "rawBytes": 196605,
+        "sha256": "5c897109ae5a8a00758cd12002e482f4055b783b06f23127eeaabd9beba45e76",
+        "modules": [
+          "src/lib/publicReadingRelease2029.js",
+          "src/lib/publicReadingAuthSession.js",
+          "../sod1820/node_modules/@supabase/supabase-js/dist/tracingRegistry.mjs",
+          "../sod1820/node_modules/tslib/tslib.es6.mjs",
+          "../sod1820/node_modules/@supabase/functions-js/dist/module/helper.js",
+          "../sod1820/node_modules/@supabase/functions-js/dist/module/types.js",
+          "../sod1820/node_modules/@supabase/functions-js/dist/module/FunctionsClient.js",
+          "../sod1820/node_modules/@supabase/postgrest-js/dist/index.mjs",
+          "src/lib/realtimeLazy2029.js",
+          "../sod1820/node_modules/iceberg-js/dist/index.mjs",
+          "../sod1820/node_modules/@supabase/storage-js/dist/index.mjs",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/version.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/constants.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/errors.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/base64url.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/helpers.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/fetch.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/types.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/GoTrueAdminApi.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/local-storage.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/locks.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/polyfills.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/web3/ethereum.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/webauthn.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/GoTrueClient.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/AuthClient.js",
+          "../sod1820/node_modules/@supabase/supabase-js/dist/index.mjs",
+          "src/lib/botVerdict.js",
+          "src/lib/visitorId.js",
+          "src/lib/acquisition.js",
+          "src/lib/postCategoryIdentity.js",
+          "src/lib/supabase.js"
+        ]
+      },
+      {
+        "file": "assets/theme-B2UPacu4.js",
+        "gzipBytes": 872,
+        "rawBytes": 1807,
+        "sha256": "99b8929a6088394f50b30ea8114ff4dfeb0b5d321208dfb9354bae3dd82abba0",
+        "modules": [
+          "src/theme.js"
+        ]
+      },
+      {
+        "file": "assets/timeFlow-B3Pve8h-.js",
+        "gzipBytes": 880,
+        "rawBytes": 1718,
+        "sha256": "8be35d03884d7bb0544f5ac44359166c4433640502f55cc2e11bac7447370838",
+        "modules": [
+          "src/lib/timeFlow.js"
+        ]
+      },
+      {
+        "file": "assets/topicConvergence-5aNN9tB6.js",
+        "gzipBytes": 6197,
+        "rawBytes": 20048,
+        "sha256": "7ca36a62bc01aad1734a51e6b08f89654b99089758da079992beb65305e278ab",
+        "modules": [
+          "src/lib/research/topicCanonicalSlugAliases.js",
+          "src/lib/research/topicConvergence.js"
+        ]
+      },
+      {
+        "file": "assets/tracking-DHvmELVJ.js",
+        "gzipBytes": 2281,
+        "rawBytes": 5063,
+        "sha256": "a45d9181d982d5d5fa2e9f3eeeaa2a52921af019f30f7129feb85996f04a8cb2",
+        "modules": [
+          "src/lib/marketing.js",
+          "src/lib/identity.js",
+          "src/lib/events.js",
+          "src/lib/runtimeErrorCapture.js",
+          "src/lib/tracking.js"
+        ]
+      },
+      {
+        "file": "assets/worldContributorLens-BloG9Ynt.js",
+        "gzipBytes": 2447,
+        "rawBytes": 6519,
+        "sha256": "67f3002071634f348cc2c2bc5ff1f19f674c650b2e64897309a06871d3b74cf1",
+        "modules": [
+          "src/lib/research/worldContributorLens.js"
+        ]
+      },
+      {
+        "file": "assets/worldDiscoveryStream-CSr-xPgZ.js",
+        "gzipBytes": 3273,
+        "rawBytes": 8200,
+        "sha256": "680a761063bd0ccf8975e132b0f393cd5e234cfa29653298671ad2655144d93f",
+        "modules": [
+          "src/lib/research/worldDiscoveryStream.js"
+        ]
+      },
+      {
+        "file": "assets/worldGroupSource-CIw_nuuo.js",
+        "gzipBytes": 1499,
+        "rawBytes": 2667,
+        "sha256": "6f5476eb17299dcca1f30698931408279994d9eef824164af56b0b6ee3d2206a",
+        "modules": [
+          "src/lib/research/worldGroupSource.js"
+        ]
+      }
+    ]
+  },
+  "after": {
+    "sha": "d13233577ec647bc77c9230de8a966f267a3ae07",
+    "chunks": [
+      {
+        "file": "assets/2029-BrZKVXcU.js",
+        "gzipBytes": 84676,
+        "rawBytes": 269712,
+        "sha256": "fcf4818a917abce75debb4e6fb1144b6cd50c785028738a808ccf58f1730ee48",
+        "modules": [
+          "\u0000vite/modulepreload-polyfill.js",
+          "../sod1820/node_modules/scheduler/cjs/scheduler.production.js",
+          "../sod1820/node_modules/scheduler/index.js",
+          "../sod1820/node_modules/react-dom/cjs/react-dom.production.js",
+          "../sod1820/node_modules/react-dom/index.js",
+          "../sod1820/node_modules/react-dom/cjs/react-dom-client.production.js",
+          "../sod1820/node_modules/react-dom/client.js",
+          "src/components/MaintenanceLock.jsx",
+          "src/lib/research/razielSessionRequestLoader2029.js",
+          "supabase/functions/_shared/elsMatrixReadingAction.js",
+          "src/lib/research/elsMatrixReadingSession.js",
+          "src/lib/research/razielSession2029.js",
+          "src/lib/research/RazielSessionProvider2029.jsx",
+          "src/components/experience2029/razielSessionSeam2029.js",
+          "src/components/experience2029/RazielSessionMount2029.jsx",
+          "src/lib/analytics.js",
+          "src/lib/engagement.js",
+          "src/lib/webVitalsCore.js",
+          "src/lib/webVitals2029.js",
+          "src/components/experience2029/Opening2029.jsx",
+          "src/lib/research/calculator2029Viral.js",
+          "src/components/FeatureClosedNotice.jsx",
+          "src/App2029.jsx",
+          "src/main2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/AuthContext-C8G_IW6H.js",
+        "gzipBytes": 873,
+        "rawBytes": 1665,
+        "sha256": "641e73a9112953ee907976a5ccaf3267c826ebc7f64976519a089ea58909a244",
+        "modules": [
+          "src/lib/AuthContext.jsx"
+        ]
+      },
+      {
+        "file": "assets/ConvergenceRatings2029-cySN2JMv.js",
+        "gzipBytes": 2029,
+        "rawBytes": 5425,
+        "sha256": "027c0c0a7e3735dd188ba186e94f18bdec6fefa4a5c59b75675b0f7b6fb673d1",
+        "modules": [
+          "src/components/experience2029/convergenceRatings2029.css",
+          "src/components/experience2029/ConvergenceRatings2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/CurationMark2029-CbTqmUlq.js",
+        "gzipBytes": 1924,
+        "rawBytes": 5359,
+        "sha256": "75945b1d4698029d22356835a8b65325207abc2d183a9e573cd32143fe0bfbed",
+        "modules": [
+          "src/components/experience2029/curationMark2029.css",
+          "src/components/experience2029/CurationMark2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/EmailVerify-CWXJuLhv.js",
+        "gzipBytes": 2226,
+        "rawBytes": 5201,
+        "sha256": "bdfb20d4d509ef7d3a08291cebeb918bfd6759776cf68c3fc4aa9ce831a7464a",
+        "modules": [
+          "src/lib/joinEvents.js",
+          "src/lib/emailVerificationIntent.js",
+          "src/components/EmailVerify.jsx"
+        ]
+      },
+      {
+        "file": "assets/Home2029Page-B1W4p_7i.js",
+        "gzipBytes": 18207,
+        "rawBytes": 57389,
+        "sha256": "f66630a403fb55dbed72954dbf0762a236b8e13f891cfb5051edc74c0387bbf6",
+        "modules": [
+          "src/lib/research/researchProfiles.js",
+          "src/lib/research/unifiedResearchEntry.js",
+          "src/components/research/SourceArrivalList2029.jsx",
+          "src/lib/heroUpdate2029.js",
+          "src/components/experience2029/HomeHeroMotion2029.jsx",
+          "src/components/experience2029/useReveal2029.js",
+          "src/components/experience2029/useApproach2029.js",
+          "src/components/experience2029/HomeComposition2029.jsx",
+          "src/components/experience2029/ElsRotatingMatrixCard2029.jsx",
+          "src/pages/Home2029Page.jsx"
+        ]
+      },
+      {
+        "file": "assets/IconTile2029-BiS4067b.js",
+        "gzipBytes": 345,
+        "rawBytes": 493,
+        "sha256": "28a5bc3815c14b113f89c19f3ebf86c4a234ffa429f42b27e609345997b59356",
+        "modules": [
+          "src/components/experience2029/iconTile2029.css",
+          "src/components/experience2029/IconTile2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/PostCategories2029-CP7N7uIa.js",
+        "gzipBytes": 5049,
+        "rawBytes": 12416,
+        "sha256": "dbce2abf2a006a15939c080658e8726355fd7dce2cfe7f829c847160517331b9",
+        "modules": [
+          "src/lib/categoryIcons.js",
+          "src/components/StrongHintBadge.jsx",
+          "src/lib/research/postsCatalog2029Projection.js",
+          "src/components/experience2029/PostCategories2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/RealityRiver2029-B3n4Rcau.js",
+        "gzipBytes": 4868,
+        "rawBytes": 13401,
+        "sha256": "7c05297ecb9aceb99954b816ee2610f89ebaceb9ad91b38a3c91724e1c5aba5a",
+        "modules": [
+          "src/components/research/realityRiver2029.css",
+          "src/components/research/RealityStreamFollow2029.jsx",
+          "src/components/research/RealityRiver2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/ResearchProvider-vdde_9M_.js",
+        "gzipBytes": 11297,
+        "rawBytes": 32177,
+        "sha256": "cbe62f7b45edc280107b96c8c3b038f9750c9010bee3ffa4eeed527c1104b0ea",
+        "modules": [
+          "src/lib/research/useElsResearchOperation.js",
+          "src/lib/research/eventBus.js",
+          "src/lib/research/researchContext.js",
+          "src/lib/research/journeySourceReturn.js",
+          "src/lib/research/journey2029Telemetry.js",
+          "src/lib/research/researchPathRuntime.js",
+          "src/lib/research/researchSyncState.js",
+          "src/lib/research/researchSyncRuntime.js",
+          "src/lib/research/ResearchProvider.jsx"
+        ]
+      },
+      {
+        "file": "assets/Sod2029Shell-BcJf6ioD.js",
+        "gzipBytes": 78156,
+        "rawBytes": 250210,
+        "sha256": "4d0d932348b745b316f51a8d20817919b86cc35c2a5459f008fce6c73c942507",
+        "modules": [
+          "src/lib/research/researchObjectFinding.js",
+          "src/lib/research/worldFindingClusters.js",
+          "src/lib/research/worldPreviewMaterialScope.js",
+          "src/lib/research/worldAllResearchProjection.js",
+          "src/lib/presentation/contentTitle.js",
+          "src/lib/research/contributorAuthorAttribution.js",
+          "src/lib/research/contributorPublicationCatalog.js",
+          "src/components/contributor2029/publicContributor2029Model.js",
+          "src/lib/userCenter/writerPersonal2029.js",
+          "src/lib/canonicalProgressModel.js",
+          "src/components/CanonicalProgress.jsx",
+          "src/lib/research/elsMatrixReadingPresentation.js",
+          "src/lib/research/elsMatrixReadingActivity.js",
+          "src/lib/share.js",
+          "src/lib/share/shareObject.js",
+          "src/lib/propagation.js",
+          "src/lib/share/shareTelemetry.js",
+          "src/components/ShareActions.jsx",
+          "src/lib/research/timeline2029.js",
+          "src/lib/research/researchRepresentations.js",
+          "src/lib/relativeTime2029.js",
+          "src/lib/research/razielWorkspaceProjection2029.js",
+          "src/lib/research/razielSavedSync2029.js",
+          "src/lib/stream.js",
+          "src/lib/experienceContext.js",
+          "src/lib/research/entity.js",
+          "src/lib/followIdentity.js",
+          "src/lib/notifications.js",
+          "src/lib/commandCenter.js",
+          "src/lib/userCenter/followCenter2029.js",
+          "src/lib/research/razielActionContract.js",
+          "src/lib/research/contextualCapabilities.js",
+          "src/components/experience2029/ContactGatewayOnDemand2029.jsx",
+          "src/components/experience2029/ContextualInspector2029.jsx",
+          "src/components/experience2029/SurfaceProgressSpine2029.jsx",
+          "src/lib/entryLearn2029.js",
+          "src/components/experience2029/LearnMark2029.jsx",
+          "src/lib/research/postLineage2029.js",
+          "src/components/experience2029/EventSequencePanel2029.jsx",
+          "src/lib/research/videoSemanticMap.js",
+          "src/components/experience2029/ContextualVideoLayer2029.jsx",
+          "src/components/experience2029/SurfaceContextRail2029.jsx",
+          "src/components/Marquee.jsx",
+          "src/components/experience2029/GlobalLivingRibbon2029.jsx",
+          "src/lib/research/workspaceRazielPresence2029.js",
+          "src/lib/homeMotion2029.js",
+          "src/lib/systemFeed2029.js",
+          "src/lib/ratings2029.js",
+          "src/lib/research/numberTierSignals.js",
+          "src/components/experience2029/useSystemFeed2029.js",
+          "src/components/experience2029/DiscoveryGateMark2029.jsx",
+          "src/lib/research/elsRazielContext.js",
+          "src/components/experience2029/SystemToolDock2029.jsx",
+          "src/components/experience2029/SystemFrame2029.jsx",
+          "src/components/experience2029/Sod2029Shell.jsx"
+        ]
+      },
+      {
+        "file": "assets/SourceRepeatInfo2029-Mq6c0Wrv.js",
+        "gzipBytes": 512,
+        "rawBytes": 748,
+        "sha256": "41641a477fcffacdc7b43da0d70ee22f6cca650e496ab1a5f3bf5d57cebce0c2",
+        "modules": [
+          "src/pages/home-world-story2029.css",
+          "src/components/research/SourceRepeatInfo2029.jsx"
+        ]
+      },
+      {
+        "file": "assets/StayUpdatedCTA-C5a2jdqI.js",
+        "gzipBytes": 2099,
+        "rawBytes": 5111,
+        "sha256": "6ed950db1680b5500cf20a56c863915fc3c3f5690ef14c88fc4ff4f90c016b4d",
+        "modules": [
+          "src/lib/newsletterSignup.js",
+          "src/components/StayUpdatedCTA.jsx"
+        ]
+      },
+      {
+        "file": "assets/WatchButton-KH1FBRrw.js",
+        "gzipBytes": 527,
+        "rawBytes": 754,
+        "sha256": "333dce64a6b805bb9028687416640d7206bea7d14cdd88cc5401857e635105ec",
+        "modules": [
+          "src/components/followCenter2029/watchControl2029.css",
+          "src/components/followCenter2029/WatchControl2029.jsx",
+          "src/components/WatchButton.jsx"
+        ]
+      },
+      {
+        "file": "assets/auth-uA9-yo01.js",
+        "gzipBytes": 1958,
+        "rawBytes": 4476,
+        "sha256": "f1d7cad888b3eb4eb23e02c1d3a70c60a567fecfd18261552a2944911d4e8b73",
+        "modules": [
+          "src/lib/oauthReturn.js",
+          "src/lib/auth.js"
+        ]
+      },
+      {
+        "file": "assets/brandAssets2029-BhHDt-cI.js",
+        "gzipBytes": 437,
+        "rawBytes": 762,
+        "sha256": "34e26e071ea17dea62d30d2089d06f3639134eb230830db2778abc2e0039d991",
+        "modules": [
+          "src/lib/brandAssets2029.js"
+        ]
+      },
+      {
+        "file": "assets/calculator2029FastPreview-xVVOMJMh.js",
+        "gzipBytes": 603,
+        "rawBytes": 982,
+        "sha256": "90b2a6c26c6e83c17c3d4a33f57718de67702f5b253179b05a74cc6f6347d292",
+        "modules": [
+          "src/lib/research/calculator2029FastPreview.js"
+        ]
+      },
+      {
+        "file": "assets/calculator2029Input-BbfftHdT.js",
+        "gzipBytes": 904,
+        "rawBytes": 1606,
+        "sha256": "d1037805e95450f60c9b0396df6794065a73f02b449a3e74ca1d957030b150ef",
+        "modules": [
+          "src/lib/research/calculator2029Input.js"
+        ]
+      },
+      {
+        "file": "assets/canonicalPresentation-DgNmWnf_.js",
+        "gzipBytes": 2897,
+        "rawBytes": 7540,
+        "sha256": "70b33e76b7b4629f08881a2ee72278ce43f79b860581ca22d0edf407e4e7c577",
+        "modules": [
+          "src/lib/presentation/tanakhReferenceParts.js",
+          "src/lib/presentation/canonicalPresentation.js"
+        ]
+      },
+      {
+        "file": "assets/chunk-OB3PAWPO-CzoZTws3.js",
+        "gzipBytes": 13857,
+        "rawBytes": 39000,
+        "sha256": "91c2e95128e689d6b3e2b89877ac74578bddf2fcd2bdff836d677c5961baaec0",
+        "modules": [
+          "../sod1820/node_modules/react-router/dist/development/chunk-OB3PAWPO.mjs"
+        ]
+      },
+      {
+        "file": "assets/contentSeries2029Identity-B1yV7CTN.js",
+        "gzipBytes": 1554,
+        "rawBytes": 3428,
+        "sha256": "b90c5ed2970bc141dbd8125f906e624bfa3c09ea0d9111fd7667bbb83b99fec0",
+        "modules": [
+          "src/lib/research/researchViewMode.js",
+          "src/lib/research/contentSeries2029Identity.js"
+        ]
+      },
+      {
+        "file": "assets/contentSeries2029Projection-B6Zd8Mlh.js",
+        "gzipBytes": 3557,
+        "rawBytes": 8765,
+        "sha256": "de1f19ee4d673bf8bef0cc5a53e3aa7ee1bd977b74e5800651c54b88d17e57fc",
+        "modules": [
+          "src/lib/research/contentSeries2029Projection.js"
+        ]
+      },
+      {
+        "file": "assets/designTokens-CqEvU_WA.js",
+        "gzipBytes": 17348,
+        "rawBytes": 48324,
+        "sha256": "6a640b720e0892d03b642cf8eee3bfb0820fea0c2821cedd268e142d5280e5a4",
+        "modules": [
+          "src/lib/research/worldContextualProminence.js",
+          "src/lib/research/researchObjectPresentation.js",
+          "src/lib/research/universalFinding.js",
+          "src/components/experience2029/iconPress2029.js",
+          "src/components/experience2029/hebrewIconPaths.js",
+          "src/components/experience2029/NavigationIcon2029.jsx",
+          "src/lib/research/postSourceUpdates2029.js",
+          "src/lib/designTokens.js"
+        ]
+      },
+      {
+        "file": "assets/elsResearchReturnSnapshot-B03Lyzta.js",
+        "gzipBytes": 1589,
+        "rawBytes": 4135,
+        "sha256": "f179479912d6d831a76d1edb63de7bf4582668bf9f5f5dc99fa5d2d64eb43f0b",
+        "modules": [
+          "src/lib/elsJourney.js",
+          "src/lib/research/elsResearchReturnSnapshot.js"
+        ]
+      },
+      {
+        "file": "assets/emailOtp-5JZExih-.js",
+        "gzipBytes": 139,
+        "rawBytes": 152,
+        "sha256": "4bc6fd5b858c4d54f8077ac68976a45cba1a2a7556a06c1545ffccda3635c15d",
+        "modules": [
+          "src/lib/emailOtp.js"
+        ]
+      },
+      {
+        "file": "assets/events-EZapT1mV.js",
+        "gzipBytes": 1175,
+        "rawBytes": 2599,
+        "sha256": "fda177a50d820f9fa5428dc21cd2ddb7f81243bf93cea8ba5a3644b6502f4f31",
+        "modules": [
+          "src/lib/identity.js",
+          "src/lib/events.js"
+        ]
+      },
+      {
+        "file": "assets/format-DZ_iukPG.js",
+        "gzipBytes": 720,
+        "rawBytes": 1508,
+        "sha256": "d2d27902a102e6bdaae88943308a7b7077cd26a0566eb261707aa3e2af353d93",
+        "modules": [
+          "src/lib/format.js"
+        ]
+      },
+      {
+        "file": "assets/gematria-Ud5dslyW.js",
+        "gzipBytes": 3039,
+        "rawBytes": 7546,
+        "sha256": "58eb698ce796858362045b4a0ff43953a9817b94c50889ea9af2ad497917f3c2",
+        "modules": [
+          "src/lib/gematria.js"
+        ]
+      },
+      {
+        "file": "assets/homeLaunchPosts2029-Cfi4CJJn.js",
+        "gzipBytes": 1061,
+        "rawBytes": 1980,
+        "sha256": "9d08ecf008bdaecb523ba5333d58f4771c6cdbf93d78d94c071e09a783895b90",
+        "modules": [
+          "src/lib/research/homeLaunchPosts2029.js"
+        ]
+      },
+      {
+        "file": "assets/jsx-runtime-D3jfb0Ew.js",
+        "gzipBytes": 3382,
+        "rawBytes": 8901,
+        "sha256": "a2c68294426b0ded53fa2d6c97bb39c4a51f99e5e4b23e7953a2c69298e361f8",
+        "modules": [
+          "\u0000rolldown/runtime.js",
+          "../sod1820/node_modules/react/cjs/react.production.js",
+          "../sod1820/node_modules/react/index.js",
+          "../sod1820/node_modules/react/cjs/react-jsx-runtime.production.js",
+          "../sod1820/node_modules/react/jsx-runtime.js"
+        ]
+      },
+      {
+        "file": "assets/methodIdentity-DM2yAcOz.js",
+        "gzipBytes": 157,
+        "rawBytes": 153,
+        "sha256": "8fc0cec625cec59d7181fb5e584927deeb0c69c8ee559f458ce23285f81ffda3",
+        "modules": [
+          "src/lib/research/methodIdentity.js"
+        ]
+      },
+      {
+        "file": "assets/numberExpressionFocus-WjZnXnRH.js",
+        "gzipBytes": 1382,
+        "rawBytes": 3120,
+        "sha256": "a3a5317d71bf97811c4ddaed42127d2100ca5ae126083ddc927cd3835abf588b",
+        "modules": [
+          "src/lib/research/numberExpressionFocus.js"
+        ]
+      },
+      {
+        "file": "assets/palette-BgJz-KAA.js",
+        "gzipBytes": 3585,
+        "rawBytes": 9551,
+        "sha256": "219ab1bbd0cf3e6cc29fcc91dfa2f9e48ff60b2540843d91a7bb04aec6d4ed92",
+        "modules": [
+          "src/lib/themeMode.js",
+          "src/lib/lightRoutes.js",
+          "src/lib/palette.js"
+        ]
+      },
+      {
+        "file": "assets/preload-helper-BZ1Pz5am.js",
+        "gzipBytes": 688,
+        "rawBytes": 1218,
+        "sha256": "8820987e6a8afb54d776f21e305917e1ecf83cef678b4db38c2e5a405d04a8bf",
+        "modules": [
+          "\u0000vite/preload-helper.js"
+        ]
+      },
+      {
+        "file": "assets/publicPostBoundary-DLBRu07Y.js",
+        "gzipBytes": 214,
+        "rawBytes": 243,
+        "sha256": "7f21d1a9bdf8771782c8ae02e62985cc4a8f542266db14b72b99632b75612715",
+        "modules": [
+          "src/lib/research/publicPostBoundary.js"
+        ]
+      },
+      {
+        "file": "assets/publicPostUrls-YFBPKNgf.js",
+        "gzipBytes": 1295,
+        "rawBytes": 2837,
+        "sha256": "6b2b573c8a5c7b33d7307b74861689ae006737f64e409c14aa5c742fc5b8a87c",
+        "modules": [
+          "src/lib/publicPostUrls.js"
+        ]
+      },
+      {
+        "file": "assets/push-DwWnwsFa.js",
+        "gzipBytes": 232,
+        "rawBytes": 282,
+        "sha256": "6f385c468a0bac251a0d57594fdc3b8f676827b3dd7f9cf46ba1f6e9eba5dadd",
+        "modules": [
+          "src/lib/push.js"
+        ]
+      },
+      {
+        "file": "assets/razielRouteAction-DwHA1EU7.js",
+        "gzipBytes": 1122,
+        "rawBytes": 2418,
+        "sha256": "5c63451a3823c6fcaae06cc839c7ba6b1de61fbf86a71f448228c26569c9b607",
+        "modules": [
+          "src/lib/research/elsRazielMatrixContext.js",
+          "src/lib/research/razielRouteAction.js"
+        ]
+      },
+      {
+        "file": "assets/razielViewMode2029-EPrCdoW9.js",
+        "gzipBytes": 408,
+        "rawBytes": 672,
+        "sha256": "91aa9e7673f6217cbab3fade61f51db408d4984cc306ab922b6199ca4fafb6c8",
+        "modules": [
+          "src/lib/research/razielViewMode2029.js"
+        ]
+      },
+      {
+        "file": "assets/researchPlanV2-Bz_gI_Ah.js",
+        "gzipBytes": 10159,
+        "rawBytes": 33641,
+        "sha256": "8837895afb9e168a130200470e73ea2654ba546474d4a2312f995d9ad388a52c",
+        "modules": [
+          "src/lib/research/researchIdentityResolver.js",
+          "src/lib/research/razielSemanticIntentGate.js",
+          "src/lib/research/razielRouteGrammar.js",
+          "src/lib/research/researchPlanV2.js"
+        ]
+      },
+      {
+        "file": "assets/seo-BuSaJ8E2.js",
+        "gzipBytes": 2780,
+        "rawBytes": 7100,
+        "sha256": "f37ec5eb3aff5c9ea5a72308dda56bc1334b707a1f6035652f8cecbd8d215531",
+        "modules": [
+          "src/lib/thumbResolve.js",
+          "src/lib/seo.js"
+        ]
+      },
+      {
+        "file": "assets/supabase-ZnEcLO7g.js",
+        "gzipBytes": 51040,
+        "rawBytes": 196601,
+        "sha256": "9ba733c5a8a60fa1502181ae6086f7c7da2bc754ad9cfec9c804112156ed30b7",
+        "modules": [
+          "src/lib/publicReadingRelease2029.js",
+          "src/lib/publicReadingAuthSession.js",
+          "../sod1820/node_modules/@supabase/supabase-js/dist/tracingRegistry.mjs",
+          "../sod1820/node_modules/tslib/tslib.es6.mjs",
+          "../sod1820/node_modules/@supabase/functions-js/dist/module/helper.js",
+          "../sod1820/node_modules/@supabase/functions-js/dist/module/types.js",
+          "../sod1820/node_modules/@supabase/functions-js/dist/module/FunctionsClient.js",
+          "../sod1820/node_modules/@supabase/postgrest-js/dist/index.mjs",
+          "src/lib/realtimeLazy2029.js",
+          "../sod1820/node_modules/iceberg-js/dist/index.mjs",
+          "../sod1820/node_modules/@supabase/storage-js/dist/index.mjs",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/version.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/constants.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/errors.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/base64url.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/helpers.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/fetch.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/types.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/GoTrueAdminApi.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/local-storage.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/locks.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/polyfills.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/web3/ethereum.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/webauthn.errors.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/lib/webauthn.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/GoTrueClient.js",
+          "../sod1820/node_modules/@supabase/auth-js/dist/module/AuthClient.js",
+          "../sod1820/node_modules/@supabase/supabase-js/dist/index.mjs",
+          "src/lib/botVerdict.js",
+          "src/lib/visitorId.js",
+          "src/lib/acquisition.js",
+          "src/lib/postCategoryIdentity.js",
+          "src/lib/supabase.js"
+        ]
+      },
+      {
+        "file": "assets/theme-B2UPacu4.js",
+        "gzipBytes": 872,
+        "rawBytes": 1807,
+        "sha256": "99b8929a6088394f50b30ea8114ff4dfeb0b5d321208dfb9354bae3dd82abba0",
+        "modules": [
+          "src/theme.js"
+        ]
+      },
+      {
+        "file": "assets/topicSourceContext-C-s9noej.js",
+        "gzipBytes": 11324,
+        "rawBytes": 33747,
+        "sha256": "242f2ac62d97f66f329260b2852eae8cd6d5f99d83dec0b5ae988cb0220718b5",
+        "modules": [
+          "src/lib/research/galleryMediaEnvelope.js",
+          "src/lib/research/topicSourceContext.js"
+        ]
+      },
+      {
+        "file": "assets/tracking-CZmNDSVC.js",
+        "gzipBytes": 1275,
+        "rawBytes": 2532,
+        "sha256": "5a67d8fac83fe1f404dabcaf26bcec54e5795ff5f6d5f440e4eefe3805d812aa",
+        "modules": [
+          "src/lib/marketing.js",
+          "src/lib/runtimeErrorCapture.js",
+          "src/lib/tracking.js"
+        ]
+      },
+      {
+        "file": "assets/worldFindingShare-tmi01LKq.js",
+        "gzipBytes": 1561,
+        "rawBytes": 3139,
+        "sha256": "bbcfffbff8c366d45c5e752576bf372638f919571df2dfbc6eb886ae934e2516",
+        "modules": [
+          "src/components/experience2029/canonicalMediaImage2029.css",
+          "src/components/experience2029/CanonicalMediaImage2029.jsx",
+          "src/lib/research/worldFindingShare.js"
+        ]
+      }
+    ]
+  }
+}

@@ -26,6 +26,18 @@ const escapeXml = (c) => c.replace(/[&<>"']/g, (m) => ({ "&": "&amp;", "<": "&lt
 export function writerHue(seed) {
   return hash(String(seed || "?").trim() || "?") % 360;
 }
+
+// A local visual fallback, never an inferred person/photo or a profile write.
+// Light colorful surfaces and dark initials retain contrast for every hue.
+export function writerAvatarStyle(seed) {
+  const h = writerHue(seed), next = (h + 24) % 360;
+  return {
+    "--user-badge-fallback-start": `hsl(${h}, 80%, 91%)`,
+    "--user-badge-fallback-end": `hsl(${next}, 65%, 79%)`,
+    "--user-badge-fallback-ink": `hsl(${h}, 72%, 14%)`,
+    "--user-badge-fallback-ring": `hsl(${h}, 60%, 50%)`,
+  };
+}
 export function writerColor(seed) {
   const h = writerHue(seed);
   return {

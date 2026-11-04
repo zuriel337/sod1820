@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import { publicContextLabel, contextDisplayTitle, entityTypeNounHe } from "./razielSessionSeam2029.js";
+import React, { Suspense, lazy, useEffect, useState } from "react";
+import { useAuth } from "../../lib/AuthContext.jsx";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { researchContextNumber } from "../../lib/research/researchContext.js";
 import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import EventSequencePanel2029 from "./EventSequencePanel2029.jsx";
-import GoldenProjectorModeLayer2029 from "./GoldenProjectorModeLayer2029.jsx";
+const GoldenProjectorModeLayer2029 = lazy(() => import("./GoldenProjectorModeLayer2029.jsx"));
 import ContextualVideoLayer2029 from "./ContextualVideoLayer2029.jsx";
 import {
   buildLearnHelpSeed,
@@ -31,6 +33,7 @@ export default function SurfaceContextRail2029({
   onOpenContext,
   onOpenSheet,
   onNavigate,
+  onFollowConnection,
   sheet = false,
   onNeedHelp,
   compact = false,
@@ -39,8 +42,8 @@ export default function SurfaceContextRail2029({
   const subject = focus || context?.dimensions?.surfaceFocus || context?.selection || context?.subject || null;
   const number = researchContextNumber(subject?.number ?? subject?.resultValue ?? (subject?.type === "number" ? subject?.id : null));
   const hasNumber = Number.isSafeInteger(number);
-  const title = String(subject?.primary || subject?.label || subject?.expression || subject?.id || "הקשר פעיל");
-  const subtitle = String(subject?.type === "verse" ? (subject?.reference || subject?.label || "פסוק") : (subject?.sectionLabel || subject?.subtitle || CONTEXT_TYPE_LABEL[subject?.type] || subject?.type || ""));
+  const title = publicContextLabel(subject?.primary || subject?.label || subject?.expression, 120) || contextDisplayTitle(context, subject) || "ההקשר הנוכחי";
+  const subtitle = String(subject?.type === "verse" ? (subject?.reference || subject?.label || "פסוק") : (subject?.sectionLabel || subject?.subtitle || CONTEXT_TYPE_LABEL[subject?.type] || entityTypeNounHe(subject?.type)));
   const signals = Array.isArray(subject?.signals) ? subject.signals.filter(Boolean).slice(0, 4) : [];
   const sections = Array.isArray(context?.dimensions?.surfaceSections) ? context.dimensions.surfaceSections : [];
   const activeSectionId = context?.dimensions?.activeSectionId || null;
@@ -68,6 +71,7 @@ export default function SurfaceContextRail2029({
   const conceptKey = restMode ? null : hasMethodContext ? "method" : hasNumber ? "anchor" : null;
   const fragment = conceptKey && isEntryLearnSurfaceActive(surface) && !suppressLearn ? getLearnFragment(conceptKey) : null;
   const research = useResearch();
+  const { isAdmin, loading: identityLoading } = useAuth();
   const findings = Array.isArray(context?.dimensions?.surfaceFindings) ? context.dimensions.surfaceFindings : [];
   const focusedFinding = subject?.type === "finding";
   const setSurfaceFocus = (surfaceFocus) => research.updateResearchContext?.({
@@ -243,7 +247,10 @@ export default function SurfaceContextRail2029({
         {hasMethodContext ? <p><strong>{subject.expression}</strong> מוצג כאן בשיטה <strong>{subject.method}</strong> עם תוצאה <strong>{subject.resultValue}</strong>. ההסבר רק מתאר את המוקד הפעיל; הוא אינו מחשב את הערך בעצמו.</p> : null}
       </LearnMark2029> : null}
       {focusedFinding && subject.reason ? <p className="sod29-surface-context-reason" data-sidecar-finding-reason="true">{subject.reason}</p> : null}
-      {focusedFinding && subject.href ? <a className="sod29-surface-context-deeplink" href={subject.href}>פתח את החיבור <span aria-hidden="true">←</span></a> : null}
+      {focusedFinding && subject.href ? <a className="sod29-surface-context-deeplink" href={subject.href} onClick={event => onFollowConnection?.(event, subject)}>פתח את החיבור <span aria-hidden="true">←</span></a> : null}
+      {!findings.length && ["post", "topic"].includes(surface) && context?.dimensions?.surfaceFindingsState === "loading" ? <p role="status">טוען את החיבורים הציבוריים…</p> : null}
+      {!findings.length && ["post", "topic"].includes(surface) && context?.dimensions?.surfaceFindingsState === "unavailable" ? <p role="status">החיבורים הנוספים אינם זמינים כרגע. המקור והמסלול שלך נשמרים.</p> : null}
+      {context?.dimensions?.surfaceFindingsState === "partial" ? <p role="status">חלק מהיעדים עדיין לא אומתו לקריאה ציבורית.</p> : null}
       {findings.length ? <div className="sod29-surface-context-findings" data-sidecar-state={focusedFinding ? "focus" : "rest"}>
         {focusedFinding ? <button type="button" className="sod29-surface-context-findings-back" onClick={restFromFinding}>← כל החיבורים</button> : <>
           <div className="sod29-context-inspector-kicker">חיבורים נוספים</div>
@@ -254,7 +261,7 @@ export default function SurfaceContextRail2029({
       </div> : null}
       {sheet && restMode ? <details className="sod29-event-tree-details"><summary>רצף האירועים</summary><EventSequencePanel2029 context={context} surface={surface} sheet onNavigate={onNavigate} /></details> : null}
       <ContextualVideoLayer2029 subject={subject} context={context} />
-      {surface === "post" ? <GoldenProjectorModeLayer2029 context={context} surface={surface} /> : null}
+      {surface === "post" && !identityLoading && isAdmin ? <Suspense fallback={null}><GoldenProjectorModeLayer2029 context={context} surface={surface} /></Suspense> : null}
       {signals.length ? <div className="sod29-surface-context-signals">{signals.map((signal) => <span key={signal}>{signal}</span>)}</div> : null}
       {subject.sourceLabel ? <small className="sod29-surface-context-source">מקור · {subject.sourceLabel}</small> : null}
     </ContextualInspector2029>

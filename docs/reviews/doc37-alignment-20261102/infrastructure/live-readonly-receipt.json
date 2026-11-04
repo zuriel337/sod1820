@@ -1,0 +1,1122 @@
+{
+  "captured_at": "2026-11-02T12:40:00Z",
+  "base_sha": "979c25aa2a91fa96de3a50db8fc93425a183c694",
+  "project": "linswmnnkjxvweumprav",
+  "connection": [
+    {
+      "current_user": "supabase_read_only_user",
+      "current_database": "postgres",
+      "current_setting": "on"
+    }
+  ],
+  "jobs": [
+    {
+      "jobid": 3,
+      "jobname": "security_spike_hourly",
+      "schedule": "7 * * * *",
+      "active": true,
+      "command_md5": "300e26323f9740f9c98fe49477b55883",
+      "family": "other"
+    },
+    {
+      "jobid": 6,
+      "jobname": "wa-deep-process",
+      "schedule": "* * * * *",
+      "active": false,
+      "command_md5": "cb5fd8a0860251e3139d9ebf6b22af2c",
+      "family": "other"
+    },
+    {
+      "jobid": 7,
+      "jobname": "wa-poll",
+      "schedule": "* * * * *",
+      "active": false,
+      "command_md5": "ce609d6f069aa94cedbd90e6aa0a549a",
+      "family": "other"
+    },
+    {
+      "jobid": 11,
+      "jobname": "sod_jerusalem_reels",
+      "schedule": "0 11 6 7 *",
+      "active": true,
+      "command_md5": "b909e93abc81b77600a7bd4bdcac3fa9",
+      "family": "other"
+    },
+    {
+      "jobid": 22,
+      "jobname": "wa-michael",
+      "schedule": "*/2 * * * *",
+      "active": false,
+      "command_md5": "08bf6342c808e757ddee079c8af61c41",
+      "family": "other"
+    },
+    {
+      "jobid": 24,
+      "jobname": "wa-gabriel",
+      "schedule": "* * * * *",
+      "active": false,
+      "command_md5": "33df2f5511c1aab315e17e77c18e536d",
+      "family": "other"
+    },
+    {
+      "jobid": 26,
+      "jobname": "bot-watchdog",
+      "schedule": "*/10 * * * *",
+      "active": false,
+      "command_md5": "3d0249246cc6a0ee8931a28ce62db453",
+      "family": "other"
+    },
+    {
+      "jobid": 27,
+      "jobname": "metatron-nightly",
+      "schedule": "0 1 * * *",
+      "active": false,
+      "command_md5": "64b1e47614284e38173c2001b78a8668",
+      "family": "other"
+    },
+    {
+      "jobid": 30,
+      "jobname": "rls-grant-audit-weekly",
+      "schedule": "0 3 * * 0",
+      "active": true,
+      "command_md5": "9efa995d8eec67458f9804b6d7ed1191",
+      "family": "other"
+    },
+    {
+      "jobid": 33,
+      "jobname": "wa-green-backfill-daily",
+      "schedule": "0 4 * * *",
+      "active": true,
+      "command_md5": "272736804af05a6e1817108d194e452a",
+      "family": "other"
+    },
+    {
+      "jobid": 34,
+      "jobname": "edge-grant-audit-daily",
+      "schedule": "20 3 * * *",
+      "active": true,
+      "command_md5": "fc31a75d2133919e13017c4644564da9",
+      "family": "other"
+    },
+    {
+      "jobid": 39,
+      "jobname": "check_stuck_messages_raziel",
+      "schedule": "*/15 * * * *",
+      "active": true,
+      "command_md5": "3662ce60438df42365a3a8252da97939",
+      "family": "other"
+    },
+    {
+      "jobid": 45,
+      "jobname": "health-watch",
+      "schedule": "*/15 * * * *",
+      "active": true,
+      "command_md5": "3b183968cfb24baa6e24643f0078de93",
+      "family": "other"
+    },
+    {
+      "jobid": 47,
+      "jobname": "traffic-daily-refresh",
+      "schedule": "25 * * * *",
+      "active": true,
+      "command_md5": "88fe13e8f5d84465b2475694ad95aaaa",
+      "family": "other"
+    },
+    {
+      "jobid": 54,
+      "jobname": "cron-job-run-details-retention-daily",
+      "schedule": "20 2 * * *",
+      "active": true,
+      "command_md5": "f0d27d8d0658b405b43cbeef84bb419e",
+      "family": "other"
+    },
+    {
+      "jobid": 55,
+      "jobname": "ti-post-37034-daily-watch",
+      "schedule": "0 * * * *",
+      "active": true,
+      "command_md5": "ae327e8b102b27547f157e34e38c2ed9",
+      "family": "whatsapp"
+    },
+    {
+      "jobid": 102,
+      "jobname": "wa-channel-ingest",
+      "schedule": "*/5 * * * *",
+      "active": true,
+      "command_md5": "bc1621216c06bcdf0b203bb1bf02d65f",
+      "family": "other"
+    },
+    {
+      "jobid": 106,
+      "jobname": "lab-reflect",
+      "schedule": "*/10 * * * *",
+      "active": false,
+      "command_md5": "f7a7de36c0d6b678778901ae71315267",
+      "family": "other"
+    },
+    {
+      "jobid": 109,
+      "jobname": "gsc-daily-sync",
+      "schedule": "17 5 * * *",
+      "active": true,
+      "command_md5": "02148a274420337d35dfdebd847b9a99",
+      "family": "other"
+    },
+    {
+      "jobid": 110,
+      "jobname": "gallery-thumbs",
+      "schedule": "*/10 * * * *",
+      "active": true,
+      "command_md5": "ad8a76009065b44723d89195177871ae",
+      "family": "other"
+    },
+    {
+      "jobid": 111,
+      "jobname": "post-thumbs",
+      "schedule": "7,37 * * * *",
+      "active": true,
+      "command_md5": "aff830d67b8bf9c8fba14a85ce4cb26e",
+      "family": "other"
+    },
+    {
+      "jobid": 112,
+      "jobname": "channel-thumbs",
+      "schedule": "13,43 * * * *",
+      "active": true,
+      "command_md5": "aa3feb27af6be0f440a47626ffb06842",
+      "family": "other"
+    },
+    {
+      "jobid": 113,
+      "jobname": "system-watchman-weekly",
+      "schedule": "0 8 * * 0",
+      "active": true,
+      "command_md5": "9269d997611cfec80458c85b715b2d32",
+      "family": "other"
+    },
+    {
+      "jobid": 114,
+      "jobname": "wa-raziel",
+      "schedule": "*/2 * * * *",
+      "active": true,
+      "command_md5": "794f41a120206813862f08f19885f342",
+      "family": "other"
+    },
+    {
+      "jobid": 117,
+      "jobname": "wa-mora",
+      "schedule": "*/30 * * * *",
+      "active": false,
+      "command_md5": "482135975d154d1262be01f74e42b902",
+      "family": "other"
+    },
+    {
+      "jobid": 118,
+      "jobname": "welcome-auto-new",
+      "schedule": "15 * * * *",
+      "active": true,
+      "command_md5": "ff9ed0281882fb66753766e5f192e1c1",
+      "family": "other"
+    },
+    {
+      "jobid": 119,
+      "jobname": "page-ready-auto",
+      "schedule": "35 * * * *",
+      "active": true,
+      "command_md5": "3f9badd3c518c9973949413c7191590e",
+      "family": "other"
+    },
+    {
+      "jobid": 120,
+      "jobname": "reply-email-auto",
+      "schedule": "*/30 * * * *",
+      "active": true,
+      "command_md5": "62764d11153dac3322433ef18e0a8595",
+      "family": "mail"
+    },
+    {
+      "jobid": 121,
+      "jobname": "research-nurture-daily",
+      "schedule": "0 8 * * *",
+      "active": true,
+      "command_md5": "59b0c7960e175c06e7e02faf1484e72a",
+      "family": "other"
+    },
+    {
+      "jobid": 122,
+      "jobname": "share-to-facebook",
+      "schedule": "*/30 * * * *",
+      "active": true,
+      "command_md5": "d84370989cd91d6a107381bac88f48f0",
+      "family": "other"
+    },
+    {
+      "jobid": 125,
+      "jobname": "g3-agent-dispatch-recovery",
+      "schedule": "* * * * *",
+      "active": true,
+      "command_md5": "7e9dc0599817c3ff850f38fc07326525",
+      "family": "agent_dispatch"
+    },
+    {
+      "jobid": 126,
+      "jobname": "g3-agent-routine-response-reconcile",
+      "schedule": "* * * * *",
+      "active": true,
+      "command_md5": "3baabcf4d902c47a87abb21a452c0fde",
+      "family": "agent_dispatch"
+    },
+    {
+      "jobid": 127,
+      "jobname": "g3-gpt-result-wake-recovery",
+      "schedule": "* * * * *",
+      "active": true,
+      "command_md5": "f013a462e5b72501690bf6f7b821971f",
+      "family": "agent_dispatch"
+    },
+    {
+      "jobid": 128,
+      "jobname": "wa-channel-research-intake",
+      "schedule": "2,32 * * * *",
+      "active": false,
+      "command_md5": "53ff7a592ec7c3d8fc1addf9311b73d8",
+      "family": "other"
+    },
+    {
+      "jobid": 132,
+      "jobname": "video-map-enrich",
+      "schedule": "*/30 * * * *",
+      "active": true,
+      "command_md5": "15b991e3582dfd32880aed4b321cf321",
+      "family": "other"
+    },
+    {
+      "jobid": 138,
+      "jobname": "g3-work-log-archive-daily",
+      "schedule": "40 2 * * *",
+      "active": true,
+      "command_md5": "30f72f36c555cb2caf0b4d8832405b8e",
+      "family": "other"
+    },
+    {
+      "jobid": 145,
+      "jobname": "g3-telemetry-retention-120d-daily",
+      "schedule": "10 3 * * *",
+      "active": true,
+      "command_md5": "3becf12189cc5fe389794df177cb58f2",
+      "family": "other"
+    },
+    {
+      "jobid": 154,
+      "jobname": "wa-system-outbox",
+      "schedule": "*/2 * * * *",
+      "active": true,
+      "command_md5": "044c9c7a273091985a6c22289ded30e0",
+      "family": "other"
+    },
+    {
+      "jobid": 155,
+      "jobname": "g4-kpi-funnel-hourly",
+      "schedule": "7 * * * *",
+      "active": true,
+      "command_md5": "e9c7c27aa83430cebaa708c89ec3c456",
+      "family": "other"
+    },
+    {
+      "jobid": 156,
+      "jobname": "g4-kpi-funnel-nightly-reconcile",
+      "schedule": "23 1 * * *",
+      "active": true,
+      "command_md5": "1aa3d89bde50fc52efdb367ba56f32bc",
+      "family": "other"
+    }
+  ],
+  "cron_targets": [
+    {
+      "jobid": 3,
+      "jobname": "security_spike_hourly",
+      "edge_target": null,
+      "sql_target": "check_security_spike"
+    },
+    {
+      "jobid": 6,
+      "jobname": "wa-deep-process",
+      "edge_target": "wa-process",
+      "sql_target": null
+    },
+    {
+      "jobid": 7,
+      "jobname": "wa-poll",
+      "edge_target": "wa-poll",
+      "sql_target": null
+    },
+    {
+      "jobid": 11,
+      "jobname": "sod_jerusalem_reels",
+      "edge_target": null,
+      "sql_target": "sod_publish_jerusalem_reels"
+    },
+    {
+      "jobid": 22,
+      "jobname": "wa-michael",
+      "edge_target": "wa-michael",
+      "sql_target": null
+    },
+    {
+      "jobid": 24,
+      "jobname": "wa-gabriel",
+      "edge_target": "wa-gabriel",
+      "sql_target": null
+    },
+    {
+      "jobid": 26,
+      "jobname": "bot-watchdog",
+      "edge_target": null,
+      "sql_target": "fn_bot_watchdog"
+    },
+    {
+      "jobid": 27,
+      "jobname": "metatron-nightly",
+      "edge_target": null,
+      "sql_target": "fn_metatron_scan"
+    },
+    {
+      "jobid": 30,
+      "jobname": "rls-grant-audit-weekly",
+      "edge_target": null,
+      "sql_target": "fn_rls_grant_audit"
+    },
+    {
+      "jobid": 33,
+      "jobname": "wa-green-backfill-daily",
+      "edge_target": "wa-vip-backfill",
+      "sql_target": null
+    },
+    {
+      "jobid": 34,
+      "jobname": "edge-grant-audit-daily",
+      "edge_target": null,
+      "sql_target": "fn_edge_grant_audit"
+    },
+    {
+      "jobid": 39,
+      "jobname": "check_stuck_messages_raziel",
+      "edge_target": null,
+      "sql_target": "check_stuck_messages"
+    },
+    {
+      "jobid": 45,
+      "jobname": "health-watch",
+      "edge_target": null,
+      "sql_target": "fn_health_watch"
+    },
+    {
+      "jobid": 47,
+      "jobname": "traffic-daily-refresh",
+      "edge_target": null,
+      "sql_target": "refresh_traffic_daily"
+    },
+    {
+      "jobid": 54,
+      "jobname": "cron-job-run-details-retention-daily",
+      "edge_target": null,
+      "sql_target": "fn_cron_job_run_details_retention"
+    },
+    {
+      "jobid": 55,
+      "jobname": "ti-post-37034-daily-watch",
+      "edge_target": null,
+      "sql_target": null
+    },
+    {
+      "jobid": 102,
+      "jobname": "wa-channel-ingest",
+      "edge_target": "wa-channel-ingest",
+      "sql_target": null
+    },
+    {
+      "jobid": 106,
+      "jobname": "lab-reflect",
+      "edge_target": "lab-reflect",
+      "sql_target": null
+    },
+    {
+      "jobid": 109,
+      "jobname": "gsc-daily-sync",
+      "edge_target": "gsc-sync",
+      "sql_target": null
+    },
+    {
+      "jobid": 110,
+      "jobname": "gallery-thumbs",
+      "edge_target": "gen-thumb",
+      "sql_target": null
+    },
+    {
+      "jobid": 111,
+      "jobname": "post-thumbs",
+      "edge_target": "gen-thumb",
+      "sql_target": null
+    },
+    {
+      "jobid": 112,
+      "jobname": "channel-thumbs",
+      "edge_target": "gen-thumb",
+      "sql_target": null
+    },
+    {
+      "jobid": 113,
+      "jobname": "system-watchman-weekly",
+      "edge_target": null,
+      "sql_target": "system_watchman_run"
+    },
+    {
+      "jobid": 114,
+      "jobname": "wa-raziel",
+      "edge_target": "wa-raziel",
+      "sql_target": null
+    },
+    {
+      "jobid": 117,
+      "jobname": "wa-mora",
+      "edge_target": "wa-mora",
+      "sql_target": null
+    },
+    {
+      "jobid": 118,
+      "jobname": "welcome-auto-new",
+      "edge_target": "welcome-backfill",
+      "sql_target": null
+    },
+    {
+      "jobid": 119,
+      "jobname": "page-ready-auto",
+      "edge_target": "notify-page-ready",
+      "sql_target": null
+    },
+    {
+      "jobid": 120,
+      "jobname": "reply-email-auto",
+      "edge_target": "notify-reply-email",
+      "sql_target": null
+    },
+    {
+      "jobid": 121,
+      "jobname": "research-nurture-daily",
+      "edge_target": "research-nurture",
+      "sql_target": null
+    },
+    {
+      "jobid": 122,
+      "jobname": "share-to-facebook",
+      "edge_target": "share-to-facebook",
+      "sql_target": null
+    },
+    {
+      "jobid": 125,
+      "jobname": "g3-agent-dispatch-recovery",
+      "edge_target": null,
+      "sql_target": "agent_dispatch_recover"
+    },
+    {
+      "jobid": 126,
+      "jobname": "g3-agent-routine-response-reconcile",
+      "edge_target": null,
+      "sql_target": "agent_dispatch_reconcile_routine_responses"
+    },
+    {
+      "jobid": 127,
+      "jobname": "g3-gpt-result-wake-recovery",
+      "edge_target": null,
+      "sql_target": "agent_dispatch_recover_gpt_wakes"
+    },
+    {
+      "jobid": 128,
+      "jobname": "wa-channel-research-intake",
+      "edge_target": "wa-channel-research-intake",
+      "sql_target": null
+    },
+    {
+      "jobid": 132,
+      "jobname": "video-map-enrich",
+      "edge_target": "wa-video-enrich",
+      "sql_target": null
+    },
+    {
+      "jobid": 138,
+      "jobname": "g3-work-log-archive-daily",
+      "edge_target": null,
+      "sql_target": "fn_work_log_archive_maintenance"
+    },
+    {
+      "jobid": 145,
+      "jobname": "g3-telemetry-retention-120d-daily",
+      "edge_target": null,
+      "sql_target": "fn_telemetry_retention_120d"
+    },
+    {
+      "jobid": 154,
+      "jobname": "wa-system-outbox",
+      "edge_target": "wa-system-outbox",
+      "sql_target": null
+    },
+    {
+      "jobid": 155,
+      "jobname": "g4-kpi-funnel-hourly",
+      "edge_target": null,
+      "sql_target": "refresh_daily_kpi"
+    },
+    {
+      "jobid": 156,
+      "jobname": "g4-kpi-funnel-nightly-reconcile",
+      "edge_target": null,
+      "sql_target": "refresh_daily_kpi"
+    }
+  ],
+  "jobstats": [
+    {
+      "jobid": 3,
+      "jobname": "security_spike_hourly",
+      "runs_24h": 24,
+      "succeeded": 24,
+      "failed": 0,
+      "mean_seconds": "0.0159",
+      "last_end": "2026-11-02 12:07:00.095003+00"
+    },
+    {
+      "jobid": 11,
+      "jobname": "sod_jerusalem_reels",
+      "runs_24h": 0,
+      "succeeded": 0,
+      "failed": 0,
+      "mean_seconds": null,
+      "last_end": null
+    },
+    {
+      "jobid": 30,
+      "jobname": "rls-grant-audit-weekly",
+      "runs_24h": 0,
+      "succeeded": 0,
+      "failed": 0,
+      "mean_seconds": null,
+      "last_end": null
+    },
+    {
+      "jobid": 33,
+      "jobname": "wa-green-backfill-daily",
+      "runs_24h": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "mean_seconds": "0.0451",
+      "last_end": "2026-11-02 04:00:00.205047+00"
+    },
+    {
+      "jobid": 34,
+      "jobname": "edge-grant-audit-daily",
+      "runs_24h": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "mean_seconds": "0.0237",
+      "last_end": "2026-11-02 03:20:00.128233+00"
+    },
+    {
+      "jobid": 39,
+      "jobname": "check_stuck_messages_raziel",
+      "runs_24h": 96,
+      "succeeded": 96,
+      "failed": 0,
+      "mean_seconds": "0.0198",
+      "last_end": "2026-11-02 12:30:00.136016+00"
+    },
+    {
+      "jobid": 45,
+      "jobname": "health-watch",
+      "runs_24h": 96,
+      "succeeded": 96,
+      "failed": 0,
+      "mean_seconds": "0.9360",
+      "last_end": "2026-11-02 12:30:00.356393+00"
+    },
+    {
+      "jobid": 47,
+      "jobname": "traffic-daily-refresh",
+      "runs_24h": 24,
+      "succeeded": 24,
+      "failed": 0,
+      "mean_seconds": "0.7491",
+      "last_end": "2026-11-02 12:25:01.055934+00"
+    },
+    {
+      "jobid": 54,
+      "jobname": "cron-job-run-details-retention-daily",
+      "runs_24h": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "mean_seconds": "0.2049",
+      "last_end": "2026-11-02 02:20:00.273985+00"
+    },
+    {
+      "jobid": 55,
+      "jobname": "ti-post-37034-daily-watch",
+      "runs_24h": 24,
+      "succeeded": 24,
+      "failed": 0,
+      "mean_seconds": "0.0360",
+      "last_end": "2026-11-02 12:00:00.204178+00"
+    },
+    {
+      "jobid": 102,
+      "jobname": "wa-channel-ingest",
+      "runs_24h": 288,
+      "succeeded": 288,
+      "failed": 0,
+      "mean_seconds": "0.0186",
+      "last_end": "2026-11-02 12:35:00.083176+00"
+    },
+    {
+      "jobid": 109,
+      "jobname": "gsc-daily-sync",
+      "runs_24h": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "mean_seconds": "0.0094",
+      "last_end": "2026-11-02 05:17:00.062377+00"
+    },
+    {
+      "jobid": 110,
+      "jobname": "gallery-thumbs",
+      "runs_24h": 144,
+      "succeeded": 144,
+      "failed": 0,
+      "mean_seconds": "0.0173",
+      "last_end": "2026-11-02 12:30:00.111076+00"
+    },
+    {
+      "jobid": 111,
+      "jobname": "post-thumbs",
+      "runs_24h": 48,
+      "succeeded": 48,
+      "failed": 0,
+      "mean_seconds": "0.0131",
+      "last_end": "2026-11-02 12:37:00.052061+00"
+    },
+    {
+      "jobid": 112,
+      "jobname": "channel-thumbs",
+      "runs_24h": 48,
+      "succeeded": 48,
+      "failed": 0,
+      "mean_seconds": "0.0125",
+      "last_end": "2026-11-02 12:13:00.061727+00"
+    },
+    {
+      "jobid": 113,
+      "jobname": "system-watchman-weekly",
+      "runs_24h": 0,
+      "succeeded": 0,
+      "failed": 0,
+      "mean_seconds": null,
+      "last_end": null
+    },
+    {
+      "jobid": 114,
+      "jobname": "wa-raziel",
+      "runs_24h": 720,
+      "succeeded": 720,
+      "failed": 0,
+      "mean_seconds": "0.0165",
+      "last_end": "2026-11-02 12:36:00.071197+00"
+    },
+    {
+      "jobid": 118,
+      "jobname": "welcome-auto-new",
+      "runs_24h": 24,
+      "succeeded": 24,
+      "failed": 0,
+      "mean_seconds": "0.0162",
+      "last_end": "2026-11-02 12:15:00.071964+00"
+    },
+    {
+      "jobid": 119,
+      "jobname": "page-ready-auto",
+      "runs_24h": 24,
+      "succeeded": 24,
+      "failed": 0,
+      "mean_seconds": "0.0179",
+      "last_end": "2026-11-02 12:35:00.079743+00"
+    },
+    {
+      "jobid": 120,
+      "jobname": "reply-email-auto",
+      "runs_24h": 48,
+      "succeeded": 48,
+      "failed": 0,
+      "mean_seconds": "0.0314",
+      "last_end": "2026-11-02 12:30:00.175425+00"
+    },
+    {
+      "jobid": 121,
+      "jobname": "research-nurture-daily",
+      "runs_24h": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "mean_seconds": "0.0722",
+      "last_end": "2026-11-02 08:00:00.23523+00"
+    },
+    {
+      "jobid": 122,
+      "jobname": "share-to-facebook",
+      "runs_24h": 48,
+      "succeeded": 48,
+      "failed": 0,
+      "mean_seconds": "0.0301",
+      "last_end": "2026-11-02 12:30:00.179239+00"
+    },
+    {
+      "jobid": 125,
+      "jobname": "g3-agent-dispatch-recovery",
+      "runs_24h": 1440,
+      "succeeded": 1440,
+      "failed": 0,
+      "mean_seconds": "0.0161",
+      "last_end": "2026-11-02 12:37:00.049849+00"
+    },
+    {
+      "jobid": 126,
+      "jobname": "g3-agent-routine-response-reconcile",
+      "runs_24h": 1440,
+      "succeeded": 1440,
+      "failed": 0,
+      "mean_seconds": "0.0277",
+      "last_end": "2026-11-02 12:37:00.059977+00"
+    },
+    {
+      "jobid": 127,
+      "jobname": "g3-gpt-result-wake-recovery",
+      "runs_24h": 1440,
+      "succeeded": 1440,
+      "failed": 0,
+      "mean_seconds": "0.0288",
+      "last_end": "2026-11-02 12:37:00.068172+00"
+    },
+    {
+      "jobid": 132,
+      "jobname": "video-map-enrich",
+      "runs_24h": 48,
+      "succeeded": 48,
+      "failed": 0,
+      "mean_seconds": "0.0310",
+      "last_end": "2026-11-02 12:30:00.118986+00"
+    },
+    {
+      "jobid": 138,
+      "jobname": "g3-work-log-archive-daily",
+      "runs_24h": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "mean_seconds": "0.2975",
+      "last_end": "2026-11-02 02:40:00.399508+00"
+    },
+    {
+      "jobid": 145,
+      "jobname": "g3-telemetry-retention-120d-daily",
+      "runs_24h": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "mean_seconds": "78.4181",
+      "last_end": "2026-11-02 03:11:18.495886+00"
+    },
+    {
+      "jobid": 154,
+      "jobname": "wa-system-outbox",
+      "runs_24h": 720,
+      "succeeded": 720,
+      "failed": 0,
+      "mean_seconds": "0.0129",
+      "last_end": "2026-11-02 12:36:00.067091+00"
+    },
+    {
+      "jobid": 155,
+      "jobname": "g4-kpi-funnel-hourly",
+      "runs_24h": 24,
+      "succeeded": 24,
+      "failed": 0,
+      "mean_seconds": "1.4859",
+      "last_end": "2026-11-02 12:07:01.634967+00"
+    },
+    {
+      "jobid": 156,
+      "jobname": "g4-kpi-funnel-nightly-reconcile",
+      "runs_24h": 1,
+      "succeeded": 1,
+      "failed": 0,
+      "mean_seconds": "2.0293",
+      "last_end": "2026-11-02 01:23:02.081099+00"
+    }
+  ],
+  "dispatch_counts": [],
+  "egress": [
+    {
+      "observation_rows": 182,
+      "latest_observation": "2026-10-06 06:59:12.477772+00",
+      "observations_24h": 0
+    }
+  ],
+  "view_impact": [
+    {
+      "active_view_rows": 271,
+      "inactive_selected": 184
+    }
+  ],
+  "viewprivs": [
+    {
+      "relname": "rules_active",
+      "reloptions": null,
+      "owner": "postgres",
+      "acl": "{postgres=arwdDxtm/postgres,anon=m/postgres,authenticated=m/postgres,service_role=arwdDxtm/postgres}"
+    },
+    {
+      "relname": "work_log_current",
+      "reloptions": null,
+      "owner": "postgres",
+      "acl": "{postgres=arwdDxtm/postgres,anon=m/postgres,authenticated=m/postgres,service_role=arwdDxtm/postgres}"
+    }
+  ],
+  "closed_parents": [
+    {
+      "explicit_closed_parent_rows": 22
+    }
+  ],
+  "older_active_rows": [
+    {
+      "retained_older_active_rows": 55
+    }
+  ],
+  "queues": [
+    {
+      "queue": "wa_deep_queue",
+      "status": "done",
+      "count": 102,
+      "newest": "2026-07-05 17:44:19.602215+00"
+    },
+    {
+      "queue": "media_migration_queue",
+      "status": "giant",
+      "count": 8,
+      "newest": "2026-06-14 00:24:07.087+00"
+    },
+    {
+      "queue": "media_migration_queue",
+      "status": "missing",
+      "count": 80,
+      "newest": "2026-06-14 00:57:55.648+00"
+    },
+    {
+      "queue": "media_migration_queue",
+      "status": "done",
+      "count": 4357,
+      "newest": "2026-06-14 00:59:21.301+00"
+    }
+  ],
+  "triggers": [
+    {
+      "table_name": "channel_updates",
+      "tgname": "cu_flag_page_only_trg",
+      "tgenabled": "O",
+      "proname": "cu_flag_page_only"
+    },
+    {
+      "table_name": "channel_updates",
+      "tgname": "trg_gilui_shachar_24h",
+      "tgenabled": "O",
+      "proname": "tg_gilui_shachar_24h"
+    },
+    {
+      "table_name": "channel_updates",
+      "tgname": "trg_group_source_status_hold_v1",
+      "tgenabled": "O",
+      "proname": "guard_group_source_status_hold_v1"
+    },
+    {
+      "table_name": "channel_updates",
+      "tgname": "trg_or_geula_notify",
+      "tgenabled": "O",
+      "proname": "notify_on_or_geula_update"
+    },
+    {
+      "table_name": "els_records",
+      "tgname": "trg_els_published_to_ticker",
+      "tgenabled": "O",
+      "proname": "els_published_to_ticker"
+    },
+    {
+      "table_name": "gallery_images",
+      "tgname": "feed_after_ocr",
+      "tgenabled": "O",
+      "proname": "trg_feed_after_ocr"
+    },
+    {
+      "table_name": "gallery_images",
+      "tgname": "trg_gallery_stream_at_guard",
+      "tgenabled": "O",
+      "proname": "gallery_images_stream_at_guard"
+    },
+    {
+      "table_name": "gallery_images",
+      "tgname": "trg_gi_stream_at",
+      "tgenabled": "O",
+      "proname": "gi_stream_at_trg"
+    },
+    {
+      "table_name": "gallery_images",
+      "tgname": "trg_stream_image_notify",
+      "tgenabled": "O",
+      "proname": "notify_on_stream_image"
+    },
+    {
+      "table_name": "gematria_words",
+      "tgname": "trg_bidim_sync",
+      "tgenabled": "O",
+      "proname": "bidim_sync"
+    },
+    {
+      "table_name": "gematria_words",
+      "tgname": "trg_gw_enforce_engine",
+      "tgenabled": "O",
+      "proname": "gw_enforce_engine"
+    },
+    {
+      "table_name": "notification_prefs",
+      "tgname": "trg_np_new_follower",
+      "tgenabled": "O",
+      "proname": "notify_on_new_follower"
+    },
+    {
+      "table_name": "number_anchors",
+      "tgname": "anchors_to_ticker",
+      "tgenabled": "O",
+      "proname": "trg_anchor_to_ticker"
+    },
+    {
+      "table_name": "posts",
+      "tgname": "posts_to_ticker",
+      "tgenabled": "O",
+      "proname": "trg_post_to_ticker"
+    },
+    {
+      "table_name": "posts",
+      "tgname": "trg_convergence_promote",
+      "tgenabled": "D",
+      "proname": "fn_convergence_promote"
+    },
+    {
+      "table_name": "posts",
+      "tgname": "trg_post_image_representations",
+      "tgenabled": "O",
+      "proname": "guard_post_image_representations"
+    },
+    {
+      "table_name": "posts",
+      "tgname": "trg_posts_notify",
+      "tgenabled": "O",
+      "proname": "notify_on_post_publish"
+    },
+    {
+      "table_name": "posts",
+      "tgname": "trg_snapshot_post_revision",
+      "tgenabled": "O",
+      "proname": "fn_snapshot_post_revision"
+    },
+    {
+      "table_name": "relation_evidence",
+      "tgname": "findings_to_ticker",
+      "tgenabled": "O",
+      "proname": "trg_finding_to_ticker"
+    },
+    {
+      "table_name": "research_contributions",
+      "tgname": "trg_00_zvi_standing_approve_research_contribution",
+      "tgenabled": "O",
+      "proname": "fn_zvi_standing_approve_research_contribution"
+    },
+    {
+      "table_name": "research_contributions",
+      "tgname": "trg_rc_normalize_author",
+      "tgenabled": "O",
+      "proname": "rc_normalize_author_name"
+    },
+    {
+      "table_name": "research_contributions",
+      "tgname": "trg_rc_notify",
+      "tgenabled": "O",
+      "proname": "notify_on_contribution"
+    },
+    {
+      "table_name": "research_contributions",
+      "tgname": "trg_research_contribution_hint_media_exclusion",
+      "tgenabled": "O",
+      "proname": "private_research_item_hint_media_cross_source_guard"
+    },
+    {
+      "table_name": "work_log",
+      "tgname": "trg_work_log_dispatch_00_gpt_event",
+      "tgenabled": "O",
+      "proname": "work_log_dispatch_gpt_after_write"
+    },
+    {
+      "table_name": "work_log",
+      "tgname": "trg_work_log_dispatch_event",
+      "tgenabled": "O",
+      "proname": "work_log_dispatch_after_write"
+    },
+    {
+      "table_name": "work_log",
+      "tgname": "trg_work_log_dispatch_prepare",
+      "tgenabled": "O",
+      "proname": "work_log_dispatch_prepare"
+    },
+    {
+      "table_name": "work_log",
+      "tgname": "trg_work_log_zz_gpt_delivery_stop_v17",
+      "tgenabled": "O",
+      "proname": "work_log_gpt_delivery_stop_v17"
+    }
+  ],
+  "active_owners": [
+    {
+      "rule_id": "foundation_closure_protocol_law",
+      "rule_version": 7,
+      "id": "986849b7-3d48-43b5-9a9d-067ed4aab394"
+    },
+    {
+      "rule_id": "inter_agent_coordination_law",
+      "rule_version": 17,
+      "id": "0ad5ae0d-ca7a-49a7-b7c2-130530f51e2f"
+    },
+    {
+      "rule_id": "research_intake_foundation_contract_law",
+      "rule_version": 13,
+      "id": "94e53f6b-6d6b-4f03-b35c-2dae2ac0ae55"
+    },
+    {
+      "rule_id": "subscription_funnel_law",
+      "rule_version": 21,
+      "id": "22d840bd-fcb5-4f2f-a7dc-6bdc7fb71c5c"
+    },
+    {
+      "rule_id": "system_suggestions_law",
+      "rule_version": 5,
+      "id": "d42d4fa7-f7c6-42ac-989e-3831dab6912e"
+    },
+    {
+      "rule_id": "traffic_intelligence_law",
+      "rule_version": 11,
+      "id": "da2f6eb0-e410-48e2-bb0c-6cb6d513e946"
+    },
+    {
+      "rule_id": "work_log_authority_law",
+      "rule_version": 2,
+      "id": "a716dac5-bfb3-4d0f-8c3e-c3aa9c44bc28"
+    }
+  ]
+}

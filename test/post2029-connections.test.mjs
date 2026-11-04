@@ -6,16 +6,16 @@ test('historical connection reopens the actual existing Post identity, preservin
   const connection = { id: 'historical', label: 'הסיפור', href: '/old%20slug/', reason: 'הקשר קיים', truthState: 'interpretation' };
   const calls=[];
   const experience = { media: { original: true }, connections:[connection] };
-  const result = await resolvePostExperienceConnections(experience, { readPost: async slug => { calls.push(slug); return { id:7,slug:'old%20slug' }; } });
+  const result = await resolvePostExperienceConnections(experience, { readPost: async slug => { calls.push(slug); return { id:7,slug:'old%20slug',source:'wordpress',link:'https://sod1820.co.il/old%20slug/' }; } });
   assert.deepEqual(calls,['old%20slug']);
-  assert.deepEqual(result.connections[0], { ...connection, href:'/post/old%2520slug' });
+  assert.deepEqual(result.connections[0], { ...connection, href:'/old%20slug/' });
   assert.equal(result.media,experience.media);
   assert.equal(experience.connections[0].href,'/old%20slug/');
 });
 
 test('current Post and public Topic destinations are resolved by their existing readers; Number remains Number', async () => {
   const connections=[{href:'/post/existing',id:'post'},{href:'/topic/topic-718',id:'topic'},{href:'/2029/number/1073',id:'number'}];
-  const result=await resolvePostExperienceConnections({connections},{readPost:async()=>({id:5113,slug:'existing'}),readTopic:async()=>({slug:'topic-718'})});
+  const result=await resolvePostExperienceConnections({connections},{readPost:async()=>({id:5113,slug:'existing',source:'ai'}),readTopic:async()=>({slug:'topic-718'})});
   assert.deepEqual(result.connections.map(c=>c.href),connections.map(c=>c.href));
 });
 

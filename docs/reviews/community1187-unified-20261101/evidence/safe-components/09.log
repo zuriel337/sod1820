@@ -1,0 +1,38 @@
+ai-analyze early paid paths trace coverage: PASS
+✔ legacy server JWT sends matching apikey and Bearer without losing transport headers (18.626295ms)
+✔ modern server secret and public keys use apikey without a fabricated Bearer (0.992001ms)
+✔ an explicit caller JWT supplied by a server/SDK callback stays authoritative (1.493671ms)
+✔ a server/SDK default Bearer containing the opaque key is removed (0.53977ms)
+✔ lowercase and tuple caller headers preserve the original authenticated context (0.651895ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29.675928
+(node:137762) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ completed tools + quota denial: trace execution success, rejected output, failed root; no model or re-execution (66.78258ms)
+✔ partial tools + quota denial: preserve each tool outcome; failure is not replaced with quota (20.877301ms)
+✔ trace persistence op_trace_begin_v1 throw failure keeps quota response and zero model calls (15.435056ms)
+✔ trace persistence op_trace_begin_v1 http failure keeps quota response and zero model calls (36.37101ms)
+✔ trace persistence op_trace_record_span_v1 throw failure keeps quota response and zero model calls (20.011854ms)
+✔ trace persistence op_trace_record_span_v1 http failure keeps quota response and zero model calls (15.568036ms)
+✔ trace persistence op_trace_finish_v1 throw failure keeps quota response and zero model calls (16.016483ms)
+✔ trace persistence op_trace_finish_v1 http failure keeps quota response and zero model calls (14.324699ms)
+✔ personal deterministic read remains quota-gated (policy unchanged) (23.289626ms)
+✔ authorized personal read keeps verified caller JWT and uid despite forged body identity; no model (17.291472ms)
+✔ advanced gate still blocks allowed requests and quota denial still takes precedence (28.695559ms)
+✔ closed site denies a guest before execution even with forged admin and trusted-channel body (14.034886ms)
+✔ closed site denies a verified ordinary user's advanced request and keeps real caller identity (14.001314ms)
+✔ unavailable site gate fails closed on HTTP and transport failure with zero downstream execution (26.300807ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 462.547588

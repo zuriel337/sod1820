@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
@@ -7,7 +7,7 @@ import { fetchPost2029ReadingProjection } from '../../lib/research/post2029Readi
 import { postRowToWorldUpdate } from '../../lib/research/worldDiscoveryStream.js';
 import '../../pages/home-world-story2029.css';
 import PostCategories2029 from '../experience2029/PostCategories2029.jsx';
-import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
+import { recordTimeLabel } from '../../lib/relativeTime2029.js';
 
 const slug = 'flydubai-fz1073-363-14000-remzei-geula';
 const directions = [
@@ -26,18 +26,56 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   const [state, setState] = useState({ loading: true, projection: null });
   const [attempt, setAttempt] = useState(0);
   const home = surface === 'home';
+  const timeMode = home ? 'relative' : 'bilingual';
   const anchor = home ? 'home-plane' : 'world-plane-story';
+  const researchRef=useRef(research);researchRef.current=research;
   useEffect(() => {
     let live = true;
+    const controller = new AbortController();
     setState({ loading: true, projection: null });
-    fetchPost2029ReadingProjection(slug).then((projection) => {
+    fetchPost2029ReadingProjection(slug, { sourceInvitation: true, signal: controller.signal }).then((projection) => {
       // This consumer never adopts a private stage or preview snapshot as public material.
       const admitted = projection && !projection.draft && !projection.privateStage && !projection.previewSnapshot
         && postRowToWorldUpdate(projection.post);
       if (live) setState({ loading: false, projection: admitted ? projection : null });
     }).catch(() => { if (live) setState({ loading: false, projection: null }); });
-    return () => { live = false; };
+    return () => { live = false; controller.abort(); };
   }, [attempt]);
+  useEffect(()=>{
+    // Home previews are invitations, not a research selection. In particular an
+    // observer must not install a source into an existing path or its return snapshot.
+    if(home)return;
+    const projection=state.projection;
+    if(!projection)return;
+    const element=document.getElementById(anchor);
+    if(!element)return;
+    const hostHref=location.pathname+location.search;
+    const focus={id:anchor,type:'post',label:projection.post.title,href:projection.identity.href,
+      locator:'#'+anchor,sourceLabel:'פוסט המטוס',postId:String(projection.post.id),postSlug:slug};
+    let active=false,previousReading=null,previousHost=null;
+    const show=()=>{
+      if(active)return;active=true;
+      const dimensions=researchRef.current?.context?.dimensions||{};
+      previousReading=dimensions.readingFocus?.id===anchor?null:dimensions.readingFocus||null;
+      previousHost=dimensions.readingFocusSurfaceHref||null;
+      researchRef.current?.updateResearchContext?.({dimensions:{readingFocus:focus,readingFocusSurfaceHref:hostHref}});
+    };
+    const hide=()=>{
+      if(!active)return;active=false;
+      researchRef.current?.updateResearchContext?.(current=>{
+        const d=current?.dimensions||{};
+        if(d.readingFocusSurfaceHref!==hostHref)return {};
+        return {dimensions:{...(d.readingFocus?.id===anchor?{readingFocus:previousReading}:{}),readingFocusSurfaceHref:previousHost}};
+      });
+    };
+    const observer=typeof IntersectionObserver==='undefined'?null:new IntersectionObserver(entries=>{
+      // Once presented, keep its source link usable when scrolling back to the
+      // header. This is page context, not a viewed/read signal. Clear on departure.
+      const entry=entries[0];if(entry.intersectionRatio>=.2)show();
+    },{threshold:[0,.2]});
+    if(observer)observer.observe(element);else show();
+    return()=>{observer?.disconnect();hide();};
+  },[home,state.projection,anchor,location.pathname,location.search]);
   useEffect(() => {
     if (state.loading || location.hash !== `#${anchor}`) return;
     const frame = requestAnimationFrame(() => document.getElementById(anchor)?.scrollIntoView({ block: 'start', behavior: 'instant' }));
@@ -46,16 +84,16 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
   if (state.loading) return <section id={anchor} className={home ? 'sod29-flight-story is-home is-loading' : 'sod29-flight-story is-world is-loading'} aria-label="סיפור המטוס נטען">
     <FrameState kind="loading" title="פותח את סיפור המטוס">המקור והחיבורים נטענים.</FrameState>
   </section>;
-  if (!state.projection) return <FrameState kind="unavailable" title="סיפור המטוס אינו זמין כרגע">
+  if (!state.projection) return <section id={anchor} className={`sod29-flight-story is-${surface} is-unavailable`}><FrameState kind="unavailable" title="סיפור המטוס אינו זמין כרגע">
     <button className="sod29-action" onClick={() => setAttempt(n => n + 1)}>נסה שוב את המקור</button>
-  </FrameState>;
+  </FrameState></section>;
   const { post, identity, experience } = state.projection;
   const media = experience.media?.highlight;
   const image = (home ? post.thumb_url : post.image_url) || post.image_url || media?.poster;
   const openWorld = () => {
     research.updateResearchContext?.({ subject: null, selection: null, lens: 'world',
-      returnTo: { href: '/2029#home-plane', label: 'סיפור המטוס בבית', subject: null,
-        selection: null, lens: 'home', dimensions: {}, journey: research.context?.journey || null } });
+      returnTo: { href: location.pathname + location.search + '#home-plane', label: 'סיפור המטוס בבית', subject: research.context?.subject || null,
+        selection: research.context?.selection || null, lens: research.context?.lens || 'home', dimensions: research.context?.dimensions || {}, journey: research.context?.journey || null } });
     shell.go('/world#world-plane-story', { preserve: false });
   };
   const openPost = () => {
@@ -65,7 +103,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         subject: null, selection: null, lens: 'world', dimensions: {}, journey: research.context?.journey || null } });
     shell.go(identity.href, { preserve: false });
   };
-  const date = post.date ? relativeTimeLabel(post.date) : null;
+  const date = post.date ? recordTimeLabel(post.date, timeMode) : null;
   return <section id={anchor} className={`sod29-flight-story is-${surface}`} data-flight-story={surface} aria-label="סיפור המטוס וכיווני הגילוי">
     {!home ? <div className="sod29-flight-breadcrumb"><button onClick={() => shell.go('/2029#home-plane')}>הבית</button><span aria-hidden="true">/</span><span>סיפור המטוס בעולם</span></div> : null}
     <div className="sod29-flight-feature">
@@ -74,7 +112,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         <h2>{home ? 'טיסה אחת. כמה כיווני גילוי.' : 'לאן סיפור המטוס מוביל?'}</h2>
         <p className="sod29-flight-lead">{home
           ? 'מספר על צילום, שמו של הקפטן, מקום הנחיתה. מתוך סיפור טיסה 1073 נפתחים חיבורים לאנשים, לזמן ולמקורות שכבר פגשנו.'
-          : 'מתחילים בסיפור ובצילום. בוחרים חיבור שמסקרן אותנו, פותחים את המקור, ומעמיקים בקצב שלנו.'}</p>
+          : 'הסיפור והצילום מובילים אל חיבורים מתועדים, אל המקור ואל שכבות המחקר הקשורות אליו.'}</p>
         {!home ? <p className="sod29-flight-lead" data-source-interpretation="zuriel-787">
           <strong>787 · השנה, החג וההודיה.</strong> לפי קריאת המערכת, המפגש בין השנה המסוימת, ״ושמחת בחגך״ ונוסח ההודיה מאיר את סיפור ההצלה בכמה רבדים. זו קריאה פרשנית של החיבור, ולא עדות שהברכה נאמרה בטיסה.
         </p> : null}
@@ -84,7 +122,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
         </button></div>
       </div>
       {image ? <figure className="sod29-flight-media">
-        <img src={image} alt="תמונת המקור מתוך פוסט טיסה 1073" fetchPriority={home ? 'high' : 'auto'} />
+        <img src={image} width={home ? 480 : 1586} height={home ? 300 : 992} alt="תמונת המקור מתוך פוסט טיסה 1073" fetchPriority={home ? 'high' : 'auto'} />
         <figcaption>מתוך פוסט המטוס · תמונת המקור בשלמותה</figcaption>
       </figure> : null}
     </div>
@@ -99,7 +137,7 @@ export default function WorldFlightStory2029({ surface = 'world', research, shel
       </div>
       <details className="sod29-flight-time"><summary>הסיפור לאורך הזמן</summary>
         <PostTimeline2029 items={experience.timeline || []} currentHref={identity.href} />
-        {post.modified && post.modified !== post.date ? <p>עדכון הפוסט: {relativeTimeLabel(post.modified)}. עדכון אינו אירוע חדש.</p> : null}
+        {post.modified && post.modified !== post.date ? <p>עדכון הפוסט: {recordTimeLabel(post.modified, timeMode)}. עדכון אינו אירוע חדש.</p> : null}
         <p>מועד גילוי החיבורים לא תועד במקור הזמין. תאריכי הפרסום, האירוע ושמירת המדיה נשמרים בנפרד.</p>
       </details>
     </> : null}

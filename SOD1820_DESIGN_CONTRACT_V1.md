@@ -55,12 +55,18 @@ These tiers describe **rendering cost and visual depth**, not product truth, acc
 **Default rule:** use the lowest tier that fully delivers the intended experience. Visual ambition is mandatory; expensive rendering is not.
 
 ## RTL alignment / navigation law
+- RTL governs reading and control order; it does **not** mean that the page shell, primary content plane, cards or module navigation should be physically pinned to the right side of the viewport.
 - Hebrew/RTL text groups, navigation lists, menu groups and link stacks align to the logical start (`text-align:start`; in RTL this is the right edge).
-- A grid or group of columns may be centered as a composition, but the text inside each Hebrew column remains start-aligned for scanability.
+- The page composition itself uses a centered, bounded content wrapper with balanced logical gutters (`max-inline-size` + `margin-inline:auto`, or the shared equivalent). A grid or group of columns is centered as a composition, while ordinary Hebrew prose inside each column remains start-aligned for scanability.
+- `text-align:start`, `justify-items:start` or RTL direction on a child is never permission to apply start alignment to the outer page wrapper and leave an unexplained dead field on the opposite side.
 - Hero statements, brand marks, numeric focal points and intentionally symmetric visual moments may be centered.
-- Do not center ordinary Hebrew link lists merely for decoration.
+- Structural headings, module switchers and primary action groups may be centered or symmetrically distributed when they orient the whole surface. Do not center ordinary Hebrew prose or long link lists merely for decoration.
+- Personal-area, profile, messages, research, saved-conversation and settings surfaces follow the same rule. Their shell and cards are centered and width-balanced; message/thread content may retain semantic sender alignment and Hebrew copy remains readable at logical start.
 - On narrow mobile widths, prefer fewer columns or stacked start-aligned groups over squeezed multi-column navigation.
+- At mobile widths the centered composition becomes a near-full-width stack with balanced inline padding; it must not collapse into a narrow right-hand column.
 - Use logical CSS properties (`inset-inline-*`, `margin-inline-*`, `text-align:start/end`) rather than duplicating left/right rules when possible.
+
+This historical/Legacy contract records the compatibility form of the rule. New 2029 work is governed by the current V2 balanced-composition section and its browser acceptance gate.
 
 ## Site chrome / pinned-header origin law
 - The sticky global Navbar is part of the product viewport. It is the visual origin of page content, not an accidental layer floating above unrelated coordinates.

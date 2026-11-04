@@ -1,0 +1,83 @@
+✔ functional OAuth has one exact verified callback for both providers and preserves local research context separately (2.523288ms)
+✔ returns to the initiating local route including its query, without an auth fragment (1.793234ms)
+✔ external, encoded, malformed and control-character targets cannot change origin (0.390176ms)
+✔ unverified previews fail before an OAuth request can be built (1.371996ms)
+✔ worker policy changed and exact callback alone consumes tab-bound PKCE (1.47523ms)
+✔ Google and Facebook share verified exact callback and reject unapproved Preview origins (0.621713ms)
+✔ emitted existing-account transport admits OTP without account creation and verification (29.498454ms)
+✖ new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants (4.241607ms)
+✔ historical Preview Auth remains password-only unless explicitly opted in by this worker (1.155026ms)
+✔ explicit admin actions verify canonical JWT and exact own role before forwarding original request (8.562751ms)
+✔ anonymous/member/spoofed identity, stale role, JWT failure and transport failure cannot invoke action (10.474258ms)
+✔ no private role cache survives revocation or replacement; denied action never reaches endpoint (0.70641ms)
+✔ financial, shared flag, mail delivery and foreign writes remain unavailable even to admin (10.692585ms)
+✔ signed private media TUS requires verified admin JWT on every chunk; signature alone grants nothing (6.969331ms)
+✔ same-origin private adapter preserves only same-origin protection cookies; it independently verifies the current server principal (3.908807ms)
+✔ server private wrapper checks deployment, host, method and verified admin independently of worker (1.562137ms)
+✔ prepared full-account helper retains actual SDK PKCE shapes and exact callbacks, separately from current emitted restriction (19.406512ms)
+✔ existing publishable fallback is used only for verification; original target bearer is never replaced (4.376475ms)
+✖ public-reading client refuses OAuth before SDK and forces existing-account OTP even when caller asks to create (2.047693ms)
+✖ emitted existing-account worker denies OAuth navigation even with a valid exact callback (1.497525ms)
+✔ actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT (23.809211ms)
+✔ exact clean source emits a frozen Preview-only receipt and admits only that runtime (0.960479ms)
+✔ build identity rejects missing or wrong platform fields, targets, source pins and dirty source (0.856046ms)
+✔ runtime receipt cannot be activated by environment alone, Production or copied deployment identity (0.213063ms)
+✔ only Preview's sole unstaged root config may equal the complete committed nested config (0.894941ms)
+✔ compiler rejects an absent, duplicate or malformed review mode/pin before compiling (521.042807ms)
+✔ generated receipt is statically traced into Node and Edge-compatible authorization; missing process fails closed (29.923387ms)
+✔ actual hosted adapters preserve old URLs/canonical metadata while review stays noindex and rejects spoofing (185.617136ms)
+✔ artifact root config cannot shadow the pinned review command; default package build stays dormant (2.601359ms)
+✔ default artifact records raw dirtiness without any platform materialization authority (1.299667ms)
+✔ 2029 page, Community and account panel delegate authentication to the canonical entry (2.357509ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 28
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 882.085586
+
+✖ failing tests:
+
+test at test/public-reading-full-account-transport.test.mjs:56:1
+✖ new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants (4.241607ms)
+  AssertionError [ERR_ASSERTION]: /auth/v1/otp
+
+  200 !== 403
+
+      at TestContext.<anonymous> (file:///tmp/sod1820-continuity-closure/test/public-reading-full-account-transport.test.mjs:67:29)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 403,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/public-reading-full-account-transport.test.mjs:160:1
+✖ public-reading client refuses OAuth before SDK and forces existing-account OTP even when caller asks to create (2.047693ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///tmp/sod1820-continuity-closure/test/public-reading-full-account-transport.test.mjs:169:55)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { code: 'AUTH_SIGNUP_CONSENT_PENDING' },
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at test/public-reading-full-account-transport.test.mjs:180:1
+✖ emitted existing-account worker denies OAuth navigation even with a valid exact callback (1.497525ms)
+  TypeError: Cannot read properties of undefined (reading 'status')
+      at TestContext.<anonymous> (file:///tmp/sod1820-continuity-closure/test/public-reading-full-account-transport.test.mjs:186:29)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)

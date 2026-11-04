@@ -1,0 +1,48 @@
+{
+  "kind": "exact-live-definition-two-failure-branches",
+  "mode": "native PostgreSQL17 synthetic fixture; Unix socket only; no live/private data",
+  "liveWrites": 0,
+  "sharedApplied": false,
+  "serverVersion": "17.11 (Debian 17.11-1.pgdg13+2)",
+  "cases": [
+    {
+      "name": "exact apply and replay preserve owner, ACL, signature, search_path and properties",
+      "passed": true
+    },
+    {
+      "name": "successful current cron/security reads preserve measured rows and counts",
+      "passed": true
+    },
+    {
+      "name": "successful empty cron and zero security are still measured values",
+      "passed": true
+    },
+    {
+      "name": "cron source failure is unknown, while successful security zero stays zero",
+      "passed": true
+    },
+    {
+      "name": "security source failure is unknown, while successful empty cron stays empty",
+      "passed": true
+    },
+    {
+      "name": "anonymous execution and authenticated non-admin remain denied",
+      "passed": true
+    },
+    {
+      "name": "object-only rollback compiles, preserves ACL/data and reapply succeeds",
+      "passed": true
+    },
+    {
+      "name": "unreviewed source drift fails closed",
+      "passed": true
+    },
+    {
+      "name": "privilege or ownership drift fails closed before replacement",
+      "passed": true
+    }
+  ],
+  "passed": 9,
+  "failed": 0,
+  "finishedAt": "2026-11-03T17:15:14.110Z"
+}

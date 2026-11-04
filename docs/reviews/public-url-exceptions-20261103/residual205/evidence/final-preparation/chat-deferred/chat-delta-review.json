@@ -1,0 +1,485 @@
+{
+  "task": "PUBLIC_FINAL_CUTOVER_PREPARATION_20261103_CHAT_DELTA_READ_ONLY",
+  "status": "DEFERRED_USER_DECISION",
+  "base_sha": "957e4a6a7148f20cadd921303d8c9a86a8b6a7b5",
+  "branch": "gpt/2029-public-cutover-final-preparation-20261103",
+  "coordination_before": "6ec8d9bb-a2ea-4efb-995b-fab450de2118",
+  "read_only": true,
+  "db_writes": 0,
+  "source": {
+    "conversation_id": "sp_OVtajBTj_POST$ID$GOES$HERE",
+    "sort_by": "newest",
+    "messages_count": 134877,
+    "replies_count": 104807,
+    "comments_count": 30070,
+    "hidden": false,
+    "read_only": false,
+    "observed_at": "2026-11-03T16:53:21.603860+00:00",
+    "url": "https://sod1820.co.il/community/chat",
+    "sdk": "public ordinary guest, no registered/admin/SSO login",
+    "requests": 25,
+    "api_paths": [
+      "GET /v1.0.0/device-load",
+      "POST /v1.0.0/guests/token",
+      "POST /v1.0.0/conversation/read"
+    ],
+    "header_contract": "x-spot-id=sp_OVtajBTj;x-post-id=POST$ID$GOES$HERE;x-host-auth-version=3;x-access-token=ephemeral guest token held only in process memory",
+    "source_metadata_file": "/tmp/finalprep-chat-current-source-metadata.json",
+    "root_anchor": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3L0cMdyN3StJCU1wOQK4c5d5DMi",
+    "root_count": 32,
+    "rows_reconstructed": 91,
+    "pagination_unresolved": 0,
+    "missing_parent_references": 0
+  },
+  "existing": {
+    "prior_task": "COMMUNITY_RECENT_OPENWEB_IMPORT_20261031",
+    "after": "422c2815-d7df-4618-bca6-3ba9adf12fab",
+    "before": "3868b792-bdab-4f34-abb6-c33e13a27d54",
+    "prior_sha": "2ce4fa74e7a396eae03ae6ecf2a9f77c6272892c",
+    "prior_import": {
+      "total": 45,
+      "roots": 25,
+      "replies": 20,
+      "approved": 41,
+      "pending": 4,
+      "replay_inserted": 0
+    },
+    "canonical_import_count": 41125,
+    "canonical_roots": 8989,
+    "canonical_replies": 32136,
+    "canonical_approved": 25564,
+    "latest_source_timestamp": "2026-10-30T00:28:24Z",
+    "last_import_timestamp": "2026-10-31T07:49:52.449481Z",
+    "staging_rows": 0,
+    "lineage_duplicates": 0,
+    "existing_45_parent_mismatches": 0,
+    "existing_45_moderation_mismatches": 0
+  },
+  "comparison": {
+    "source91": {
+      "already_imported": 45,
+      "absent": 46,
+      "absent_roots": 7,
+      "absent_replies": 39,
+      "absent_approved": 45,
+      "absent_blocked_deleted": 1
+    },
+    "since_last_verified_import": {
+      "cutoff_reason": "Exact prior proven import transaction timestamp, not a rolling date",
+      "source_rows": 22,
+      "public_rows": 21,
+      "public_roots": 7,
+      "public_replies": 14,
+      "deleted_blocked_tombstones": 1
+    },
+    "safe_proposal": {
+      "rows": 24,
+      "roots": 7,
+      "replies": 17,
+      "new_public_since_previous_import": 20,
+      "necessary_older_public_ancestors": 4,
+      "predicted_notifications": 0,
+      "predicted_outbox": 0,
+      "existing_native_author_identities": 5,
+      "claimed_author_rows": 0,
+      "source_email_claims": false,
+      "auth_accounts_created": 0,
+      "research_admission": false,
+      "executed": false,
+      "label": "Bounded proposed selection, not an accepted executable import",
+      "existing_author_rows": 23,
+      "new_native_author_identities": 1
+    },
+    "held": [
+      {
+        "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LaShe8z097aOnbF9tu69wUsKfD_r_3LaiT3QVRseg4hapY7Q1fSA6kX5",
+        "blocking": {
+          "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LaShe8z097aOnbF9tu69wUsKfD_r_3LaaExVVW2ERAldCR5JVplaZGwB",
+          "reason": "nonpublic_ancestor"
+        }
+      }
+    ],
+    "older_absent_outside_recent_closure": 20
+  },
+  "writer": {
+    "entrypoint": "public.g3_openweb_import_batch(jsonb)",
+    "max_rows": 500,
+    "atomic_message": "public.g3_openweb_import_message(25 args)",
+    "stage_rpc": "public.g3_openweb_import_stage_batch(integer), not required for this bounded delta; live stage empty",
+    "security": "SECURITY INVOKER; postgres and service_role execute; anon/authenticated denied; privileges verified from pg_proc and has_function_privilege",
+    "index": "cl_openweb_message_derived_from_uniq(target_type,target_id,relation_type) WHERE openweb_message/derived_from",
+    "source_file": "scripts/g3-community-foundation-runtime/opsAdapter.mjs",
+    "planner": "scripts/g3-community-foundation-runtime/planner.mjs",
+    "retired_edge": "supabase/functions/g3-openweb-import-once/index.ts returns410; do not revive",
+    "rpc_md5": {
+      "batch": "4e546ae199523c65d2bc5e34c0127f96",
+      "message": "65cf8ec1753ecae5c0e49aa4a7afbac5",
+      "stage": "f7382ae252ddc800ff441a1b72c5f563"
+    }
+  },
+  "side_effects": {
+    "triggers": [
+      "rc_normalize_author_name",
+      "fn_zvi_standing_approve_research_contribution",
+      "notify_on_contribution",
+      "private_research_item_hint_media_cross_source_guard"
+    ],
+    "notification_chain": "notify_on_contribution → user_notifications → fn_user_notification_wa_project → bot_outbox if preferences/binding permit",
+    "prior_held_notification_source_ids": [
+      "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LJzugTR9YDmzxlsXInzQFIJ12b_r_3LK2b473Dlo6725GOFnDbFW903o",
+      "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LJzugTR9YDmzxlsXInzQFIJ12b_r_3LKNXnF7GltPosA1UdQNB6zqwKa"
+    ],
+    "current_predicted_for_prior_held": 2,
+    "no_trigger_suppression_proposed": true
+  },
+  "safe_batch": [
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LNGYAF44KPt4EaHMDZOnfrfIHF",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LLsTY4DElNP5Ue3TMQo2hk9bon",
+      "source_created_at": "2026-10-29 15:19:16+00",
+      "status": "approved",
+      "existing_parent_contribution": "f37c175d-136c-4676-8b99-01883a01b25f",
+      "requires_ancestor_import": false,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "necessary_ancestor"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LNyJpzJReMr7hMSJpY5ewNLmUh",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LNGYAF44KPt4EaHMDZOnfrfIHF",
+      "source_created_at": "2026-10-29 21:19:10+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "necessary_ancestor"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LOBWI99Q4sfIpE75ixIgMwSdGQ",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LNyJpzJReMr7hMSJpY5ewNLmUh",
+      "source_created_at": "2026-10-29 23:07:43+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "necessary_ancestor"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LOwpOtmvhQ91LofZyGZvt8g5DQ",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LOBWI99Q4sfIpE75ixIgMwSdGQ",
+      "source_created_at": "2026-10-30 05:36:43+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "necessary_ancestor"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LTIqqB06ciBnOWd0pBtYFojcQn",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LOwpOtmvhQ91LofZyGZvt8g5DQ",
+      "source_created_at": "2026-10-31 18:37:04+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LTQcCquJgXTN7cxMeLvxwOOO7s",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LTIqqB06ciBnOWd0pBtYFojcQn",
+      "source_created_at": "2026-10-31 19:40:54+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LTQwDDoPB55GoDxIlOy0Idb0vP",
+      "parent_source_id": null,
+      "source_created_at": "2026-10-31 19:43:33+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": false,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LHk1L9tTAMOH1df479A6J3ami9_r_3LTR6NzZPGzzSPZgfjXoOWb5pKW",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LHk1L9tTAMOH1df479A6J3ami9_r_3LLtch81VdIuuVN9BPtFwEYDZ2K",
+      "source_created_at": "2026-10-31 19:44:54+00",
+      "status": "approved",
+      "existing_parent_contribution": "6b6d5119-5ee5-47ff-9f45-eb290550e0e2",
+      "requires_ancestor_import": false,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LTQwDDoPB55GoDxIlOy0Idb0vP_r_3LTSy5n7B1ckMQzda0HL9g62b9K",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LTQwDDoPB55GoDxIlOy0Idb0vP",
+      "source_created_at": "2026-10-31 20:00:15+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LTTmUBPAYvVa3eOUnpA1R2jQ8r",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LIN9ye1iXrcMhopd2az959EITb_r_3LTQcCquJgXTN7cxMeLvxwOOO7s",
+      "source_created_at": "2026-10-31 20:06:56+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LTU4sg8V3c9Lk5ZzCcfFp8hGiv",
+      "parent_source_id": null,
+      "source_created_at": "2026-10-31 20:09:22+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": false,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LHk1L9tTAMOH1df479A6J3ami9_r_3LUKz9xUoiwhqjjlkSPnFjfmH1S",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LHk1L9tTAMOH1df479A6J3ami9_r_3LTR6NzZPGzzSPZgfjXoOWb5pKW",
+      "source_created_at": "2026-11-01 03:24:25+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LUgxBAFgNdWAwHAnjD28fexk5q",
+      "parent_source_id": null,
+      "source_created_at": "2026-11-01 06:25:04+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": false,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LUgxBAFgNdWAwHAnjD28fexk5q_r_3LUh2EQFZpGtV1MaUv0KtQhnv0L",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LUgxBAFgNdWAwHAnjD28fexk5q",
+      "source_created_at": "2026-11-01 06:25:44+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LUhCg7ItoJLNXxrrtgoPvKoYnA",
+      "parent_source_id": null,
+      "source_created_at": "2026-11-01 06:27:07+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": false,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LUhCg7ItoJLNXxrrtgoPvKoYnA_r_3LUha5DcYTDlqmWbezWbMph9hYr",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LUhCg7ItoJLNXxrrtgoPvKoYnA",
+      "source_created_at": "2026-11-01 06:30:13+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LUhCg7ItoJLNXxrrtgoPvKoYnA_r_3LUnDQmNZHKcFjwMniOnPc0u7Yi",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LUhCg7ItoJLNXxrrtgoPvKoYnA_r_3LUha5DcYTDlqmWbezWbMph9hYr",
+      "source_created_at": "2026-11-01 07:16:33+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LHk1L9tTAMOH1df479A6J3ami9_r_3LWCNRt2vJdvw3OIBD436hKeIXT",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LHk1L9tTAMOH1df479A6J3ami9_r_3LUKz9xUoiwhqjjlkSPnFjfmH1S",
+      "source_created_at": "2026-11-01 19:13:16+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LUhCg7ItoJLNXxrrtgoPvKoYnA_r_3LWCfzttWVAjEWyw4NJvHWNdEIT",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LUhCg7ItoJLNXxrrtgoPvKoYnA",
+      "source_created_at": "2026-11-01 19:15:43+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LWNQbXZn21ACNSnMFLdIBHGImO",
+      "parent_source_id": null,
+      "source_created_at": "2026-11-01 20:44:08+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": false,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LZAP058i1BB6iYM4Q6lZfyFTRC",
+      "parent_source_id": null,
+      "source_created_at": "2026-11-02 20:26:27+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": false,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LTQwDDoPB55GoDxIlOy0Idb0vP_r_3LZrT9yADIAf83iMsUGmb635QOy",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LTQwDDoPB55GoDxIlOy0Idb0vP",
+      "source_created_at": "2026-11-03 02:20:35+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": false,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LaShe8z097aOnbF9tu69wUsKfD",
+      "parent_source_id": null,
+      "source_created_at": "2026-11-03 07:26:45+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": false,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    },
+    {
+      "source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LaShe8z097aOnbF9tu69wUsKfD_r_3LaUewCGQfbvhqjDXqaa6KoDJ6O",
+      "parent_source_id": "sp_OVtajBTj_POST$ID$GOES$HERE_c_3LaShe8z097aOnbF9tu69wUsKfD",
+      "source_created_at": "2026-11-03 07:42:50+00",
+      "status": "approved",
+      "existing_parent_contribution": null,
+      "requires_ancestor_import": true,
+      "author_mapping_exists": true,
+      "predicted_reply_notifications": 0,
+      "predicted_follower_notifications": 0,
+      "role": "recent"
+    }
+  ],
+  "limitations": [
+    "No import/write/replay call was executed by this reviewer.",
+    "Current source is live and must be revalidated against exact IDs/status/hashes immediately before execution.",
+    "Recent replies under roots older than the exact prior batch anchor were not comprehensively scanned; matching count delta is corroboration, not proof of complete history.",
+    "Twenty older missing replies outside the necessary recent ancestor closure remain outside this proposed bounded transfer.",
+    "Do not import the blocked/deleted node's body or silently reparent its approved descendant.",
+    "Do not call archive discussion migration research source admission.",
+    "Read-only connector cannot execute importer; root must use existing authorized server-side SQL writer without installing/copying credentials.",
+    "Source/public body normalization and SQL guard acceptance remain unaccepted; prepared payload is not permission to execute.",
+    "Top-xid-only proposed guard must not be used as a zero-side-effect proof; no correction made after user deferral."
+  ],
+  "imported_this_task": 0,
+  "ready_for_execution": false,
+  "user_decision": "תוותר על הצ'אט כרגע תמשיך אני רוצה לסיים",
+  "execution_stopped": true,
+  "next_action": "No further collection, import, replay or guard execution. Retain sanitized evidence only; resume solely on a new explicit instruction.",
+  "sql_guard": {
+    "path": "/tmp/finalprep-chat-public24-guarded-import.PROPOSAL.sql",
+    "executed": false,
+    "sql_tests_performed": false,
+    "ready": false,
+    "blocking_review_finding": "Own-row xmin==top-level transaction xid can miss writes made in PL/pgSQL EXCEPTION subtransactions. The current fn_user_notification_wa_project uses an EXCEPTION block. Do not present this guard as proof of zero notification/outbox side effects. User deferred the task; no repair or execution was attempted."
+  },
+  "dry_run": {
+    "kind": "Actual selected public input passed existing pure canonical JS planner and dependency ordering; no SQL writer executed",
+    "planned_insertions": 24,
+    "planned_roots": 7,
+    "planned_replies": 17,
+    "unresolved_parents": 0,
+    "pure_replay_plan": {
+      "inserted": 0,
+      "skipped": 24
+    },
+    "database_replay_executed": false,
+    "media": {
+      "images_head_200": 4,
+      "video_links_preserved": 6,
+      "video_playback_tested": false
+    },
+    "privacy_scan": {
+      "email_fields": 0,
+      "email_values": 0,
+      "phone_values": 0,
+      "tokens": 0,
+      "raw_profile_metadata": 0
+    }
+  },
+  "temporary_public_payload": {
+    "path": "/tmp/finalprep-chat-public24-rpc-payload.json",
+    "mode": "0600",
+    "sha256": "5eb7f50565b70e5a930908f22325c29c29b4150940843865f0dad699152fe2ed",
+    "not_for_repository": true,
+    "contains": "Only24 selected public authored messages and public media/source-native lineage. No deleted ancestor body, email, phone, guest token, private DM or raw profile metadata.",
+    "inactive_after_user_deferral": true,
+    "normalizer_input_sha256": "359f8dd87d4f90eace07864e9693439da9a479e503ae21eda769c53c8cfb3121",
+    "normalized_messages_sha256": "97e66823c7e3067a68402998be3859a34349bd6160a8eaf981f7ff0bccc4e137",
+    "canonical_planner_sha256": "ec0719b453fd36c2773cc57a7ccf7004682d24f290ed21faebd432210de31b9c",
+    "canonical_ordering_sha256": "ba591b20c95971c8ec3daf7c1006485eef22e7b004fc1151f2af6c72718a4000",
+    "source_normalization": "Temporary offline adapter converts public authored HTML to plain text, retaining link hrefs; image IDs become public images.spot.im/v1 URLs, original YouTube URLs retained. Existing canonical planner/orderer then handles moderation/identity/parent/provenance. Persistent SDK adapter and SQL acceptance remain unaccepted."
+  }
+}

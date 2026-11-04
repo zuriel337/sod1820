@@ -1,13 +1,13 @@
 const clean = (value) => value == null ? "" : String(value).trim();
 
-function finite(value, fallback = 0) {
+// Unknown is not zero: a missing or non-numeric value stays null so the profile can say "not measured".
+// A known number is clamped at zero.
+function metric(value) {
+  if (value == null || (typeof value === "string" && value.trim() === "")) return null;
   const n = Number(value);
-  return Number.isFinite(n) ? n : fallback;
+  return Number.isFinite(n) ? Math.max(0, n) : null;
 }
-
-function nonNegative(value) {
-  return Math.max(0, finite(value));
-}
+const positive = (value) => value != null && value > 0;
 
 function bool(value) {
   return value === true;
@@ -89,7 +89,7 @@ const METRIC_KEYS = Object.freeze([
 
 function normalizeMetrics(metrics = {}) {
   const out = {};
-  for (const key of METRIC_KEYS) out[key] = nonNegative(metrics?.[key]);
+  for (const key of METRIC_KEYS) out[key] = metric(metrics?.[key]);
   return Object.freeze(out);
 }
 
@@ -115,8 +115,8 @@ function safeAdminIdentity(identity = {}) {
     siteAccountMatch: identity?.siteAccountMatch === true || identity?.site_account_match === true,
     firstSeen: identity?.firstSeen || identity?.first_seen || null,
     lastSeen: identity?.lastSeen || identity?.last_seen || null,
-    messages: nonNegative(identity?.messages),
-    activeDays: nonNegative(identity?.activeDays ?? identity?.active_days),
+    messages: metric(identity?.messages),
+    activeDays: metric(identity?.activeDays ?? identity?.active_days),
   });
 }
 
@@ -131,11 +131,11 @@ function normalizeCapabilities(capabilities = {}) {
 }
 
 function buildTabs({ metrics, person, capabilities }) {
-  const hasActivity = metrics.activeDays > 0 || Boolean(person?.joinedAt || person?.firstSeen || person?.lastSeen);
+  const hasActivity = positive(metrics.activeDays) || Boolean(person?.joinedAt || person?.firstSeen || person?.lastSeen);
   const counts = {
     overview: null,
     messages: metrics.messages,
-    activity: hasActivity ? metrics.activeDays : 0,
+    activity: hasActivity ? metrics.activeDays : null,
     hints: metrics.hints,
     media: metrics.media,
     findings: metrics.findings,
@@ -147,16 +147,16 @@ function buildTabs({ metrics, person, capabilities }) {
   };
 
   const enabled = new Set(["overview"]);
-  if (counts.messages > 0) enabled.add("messages");
+  if (positive(counts.messages)) enabled.add("messages");
   if (hasActivity) enabled.add("activity");
-  if (counts.hints > 0) enabled.add("hints");
-  if (counts.media > 0) enabled.add("media");
-  if (counts.findings > 0) enabled.add("findings");
-  if (counts.sources > 0) enabled.add("sources");
-  if (counts.methods > 0) enabled.add("methods");
-  if (counts.els > 0) enabled.add("els");
-  if (counts.publications > 0) enabled.add("publications");
-  if (counts.questions > 0) enabled.add("questions");
+  if (positive(counts.hints)) enabled.add("hints");
+  if (positive(counts.media)) enabled.add("media");
+  if (positive(counts.findings)) enabled.add("findings");
+  if (positive(counts.sources)) enabled.add("sources");
+  if (positive(counts.methods)) enabled.add("methods");
+  if (positive(counts.els)) enabled.add("els");
+  if (positive(counts.publications)) enabled.add("publications");
+  if (positive(counts.questions)) enabled.add("questions");
 
   // Capabilities never manufacture empty tabs. They only describe the same Person.
   void capabilities;
@@ -195,10 +195,10 @@ function safeResearchStanding(input, capabilities) {
 
 function safeCommunityImpact(input = {}) {
   return Object.freeze({
-    score: input?.score == null ? null : nonNegative(input.score),
-    reactionsReceived: nonNegative(input?.reactionsReceived ?? input?.reactions_received),
-    uniqueResponders: nonNegative(input?.uniqueResponders ?? input?.unique_responders),
-    repliesReceived: nonNegative(input?.repliesReceived ?? input?.replies_received),
+    score: metric(input?.score),
+    reactionsReceived: metric(input?.reactionsReceived ?? input?.reactions_received),
+    uniqueResponders: metric(input?.uniqueResponders ?? input?.unique_responders),
+    repliesReceived: metric(input?.repliesReceived ?? input?.replies_received),
     explain: Array.isArray(input?.explain)
       ? Object.freeze(input.explain.map(clean).filter(Boolean))
       : Object.freeze([]),
@@ -216,25 +216,25 @@ function safePrivateContext(input = {}) {
           private: item?.private !== false,
         })))
       : Object.freeze([]),
-    savedCount: nonNegative(input?.savedCount),
-    followedCount: nonNegative(input?.followedCount),
-    openQuestionCount: nonNegative(input?.openQuestionCount),
+    savedCount: metric(input?.savedCount),
+    followedCount: metric(input?.followedCount),
+    openQuestionCount: metric(input?.openQuestionCount),
   });
 }
 
 function safeEconomy(input = {}) {
   return Object.freeze({
-    credits: nonNegative(input?.credits),
-    xp: nonNegative(input?.xp),
+    credits: metric(input?.credits),
+    xp: metric(input?.xp),
     participationLevel: clean(input?.participationLevel || input?.participation_level) || null,
   });
 }
 
 function safeReferral(input = {}) {
   return Object.freeze({
-    invitedCount: nonNegative(input?.invitedCount ?? input?.invited_count),
-    activeInvitees: nonNegative(input?.activeInvitees ?? input?.active_invitees),
-    retainedInvitees: nonNegative(input?.retainedInvitees ?? input?.retained_invitees),
+    invitedCount: metric(input?.invitedCount ?? input?.invited_count),
+    activeInvitees: metric(input?.activeInvitees ?? input?.active_invitees),
+    retainedInvitees: metric(input?.retainedInvitees ?? input?.retained_invitees),
   });
 }
 
@@ -273,6 +273,7 @@ export function projectPersonProfile2029(payload = {}, {
     person,
     capabilities,
     metrics,
+    unknownMetrics: Object.freeze(METRIC_KEYS.filter((key) => metrics[key] === null)),
     identitySummary,
     tabs,
     communityImpact: safeCommunityImpact(payload?.communityImpact),

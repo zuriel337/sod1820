@@ -1,0 +1,274 @@
+psql:supabase/migrations/20261026212450_research_item_hint_private_media_v1.sql:41: NOTICE:  constraint "research_items_media_array_ck" of relation "research_items" does not exist, skipping
+psql:supabase/migrations/20261026212450_research_item_hint_private_media_v1.sql:88: NOTICE:  trigger "trg_research_item_hint_media_guard" for relation "public.research_items" does not exist, skipping
+psql:supabase/migrations/20261026212450_research_item_hint_private_media_v1.sql:136: NOTICE:  trigger "trg_research_contribution_hint_media_exclusion" for relation "public.research_contributions" does not exist, skipping
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+              set_config
+--------------------------------------
+ 11111111-1111-4111-8111-111111111111
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+                                                                                                                                                           private_research_item_hint_media_detach
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"ok": true, "mime": "image/png", "path": "sod1820/2029/accounts/11111111-1111-4111-8111-111111111111/2026/10/f1000000-0000-4000-8000-000000000001/image/original.png", "size": 1024, "bucket": "submission-inbox", "hint_id": "a1000000-0000-4000-8000-000000000001", "object_missing": false, "storage_object_id": "d1000000-0000-4000-8000-000000000001"}
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+            private_research_item_hint_media_finalize
+-----------------------------------------------------------------
+ {"ok": true, "hint_missing": false, "already_finalized": false}
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+                                                                              private_research_item_hint_media_bind
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"ok": true, "kind": "image", "role": "evidence_image", "hint_id": "a1000000-0000-4000-8000-000000000001", "already_bound": false, "storage_object_id": "d1000000-0000-4000-8000-000000000002"}
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ fails
+-------
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+ ok
+----
+
+(1 row)
+
+research item hint private media SQL acceptance: PASS

@@ -1,0 +1,45 @@
+{
+  "observedAt": "2026-11-03T17:02:42.716Z",
+  "project": {
+    "id": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+    "name": "sod1820",
+    "accountId": "team_vtfWHZfKvdbob8gvynQb5N89",
+    "framework": null,
+    "nodeVersion": "24.x",
+    "ssoProtection": {
+      "enabled": true,
+      "deploymentType": "all_except_custom_domains"
+    }
+  },
+  "canonicalDeployment": {
+    "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+    "url": "sod1820-3mp87hq22-sod1820-s-projects.vercel.app",
+    "target": "production",
+    "readyState": "READY",
+    "alias": [
+      "sod1820-git-gpt-legacy-ticker-only-li-94c59e-sod1820-s-projects.vercel.app"
+    ],
+    "meta": {
+      "githubCommitSha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "githubCommitRef": "gpt/legacy-ticker-only-livebase-20261031"
+    }
+  },
+  "deploymentAutoAssignment": null,
+  "projectAutoAssignment": null,
+  "createDeploymentToolExposesSkipDomain": false,
+  "createDeploymentToolExposesAutoAssignCustomDomains": false,
+  "documentedCLI": "vercel deploy --prod --skip-domain",
+  "cliInstalled": false,
+  "docs": [
+    "https://vercel.com/docs/cli/deploying-from-cli",
+    "https://vercel.com/docs/cli/promote",
+    "https://vercel.com/docs/rest-api/deployments/create-a-new-deployment"
+  ],
+  "limitations": [
+    "No production deployment or mutation performed.",
+    "Documentation and current CLI source prove option, not locally installed/authenticated invocation.",
+    "REST documentation autoAssignCustomDomains occurrence is response schema, not current connector request parameter.",
+    "Application receipt cannot prove aliases were not assigned; operator must verify actual mechanism and snapshots before any approved staged creation.",
+    "Git/system identity assumptions for CLI upload remain unproven; never spoof VERCEL variables or waive git status/source proof."
+  ]
+}

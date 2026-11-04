@@ -1,0 +1,41 @@
+✔ v9 baseline reproduces false success for an SDK failure; synthetic only (52.357097ms)
+✔ signed GET acknowledges only one confirmed suppression, preserving consent/source fields (10.507812ms)
+✔ signed one-click POST keeps existing machine contract and HTML acknowledgement (5.342096ms)
+✔ sequential replay and concurrent duplicate requests never rewrite suppression timestamp (5.860939ms)
+✔ already-inactive recipients remain unchanged, including historical null timestamp (4.296779ms)
+✔ SDK update errors and exceptions cannot report success or expose their diagnostic (4.253875ms)
+✔ zero matches plus missing subscriber is not successful opt-out (2.204384ms)
+✔ zero-update acknowledgement while row remains active fails closed (1.669177ms)
+✔ malformed/wrong/multiple acknowledgement rows cannot report success (9.096919ms)
+✔ idempotency lookup error or exception is not an empty/success result (3.21965ms)
+✔ missing URL/service/HMAC config fails closed before DB client creation (2.583796ms)
+✔ existing fallback HMAC key remains compatible when separate secret is absent (3.453147ms)
+✔ invalid signature/email/encoding and duplicate identity parameters never touch DB (5.641368ms)
+✔ GET/POST only; unsupported methods fail before mutation and OPTIONS remains inert (4.934532ms)
+✔ HTML reports error status honestly and escapes signed email text (5.297389ms)
+✔ proposal retains single existing handler, no mail/model calls or schema changes (1.91009ms)
+✔ old server cannot silently convert opening-only request into general newsletter (27.329925ms)
+✔ opening consent is explicit, sends no marketing acquisition and requires server purpose receipt (4.511173ms)
+✔ fresh opening-only consent writes exactly one existing subscriber row; no welcome/referral/follow/identity/telemetry (21.216515ms)
+✔ missing consent/unknown purpose/reserved source without purpose produce no DB write (8.46765ms)
+✔ duplicate opening consent is idempotent; general/suppressed/missing evidence never change subscriptions (33.417179ms)
+✔ failed insert/read never returns signup success (7.105571ms)
+✔ mail cohorts remain separate; unsubscribe overrides every purpose (0.797623ms)
+✔ actual admin send handler filters purpose, denies non-admin and fails closed on schema/read error (33.290029ms)
+✔ existing other mail consumers require general purpose and opening-only cannot reactivate through tracking (2.415963ms)
+✔ actual welcome cron reader excludes opening-only and returns read failure honestly (11.27667ms)
+✔ actual tracking resolve cannot reactivate opening-only suppressed address (3.927443ms)
+✔ opening announcement content keeps signed unsubscribe and omits marketing tracking (9.284582ms)
+✔ site-updates signup writes one existing subscriber row under its own purpose and consent timestamp (3.699198ms)
+✔ site-updates requires consent, its own source pairing, and capability is advertised for both contracts (3.950657ms)
+✔ historical opening-only consent is not treated as site-updates consent, and the reverse (18.227333ms)
+✔ client: site-updates probes its own contract, sends exact body, rejects wrong receipt (0.874959ms)
+✔ admin send selects site-updates cohort only; no tracking and an honest footer; other sends never read the new column (14.35044ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 294.47346

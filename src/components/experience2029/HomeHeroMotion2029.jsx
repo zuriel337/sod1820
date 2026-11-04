@@ -29,15 +29,18 @@ const writeSeen = (seen) => { try { storage("localStorage")?.setItem(SEEN_KEY, J
 
 
 function useHeroData(lead, includeWorld) {
-  const [state, setState] = useState({ row: null, cards: [], loaded: false });
+  const [state, setState] = useState(() => ({ row: lead?.sourcePost || null, cards: [], loaded: false }));
   useEffect(() => {
     if (!lead?.slug || !supabase) { setState({ row: null, cards: [], loaded: true }); return undefined; }
     let live = true;
     (async () => {
       let row = null; let cards = [];
       try {
-        const { data } = await supabase.from("posts").select("id,slug,date,modified,tags,categories,source,home_hidden").eq("slug", lead.slug).limit(1);
-        row = data?.[0] || null;
+        row = lead.sourcePost || null;
+        if (!row) {
+          const { data } = await supabase.from("posts").select("id,slug,date,modified,tags,categories,source,home_hidden").eq("slug", lead.slug).limit(1);
+          row = data?.[0] || null;
+        }
         const numbers = postNumbers(row?.tags);
         if (includeWorld && numbers.length) {
           const result = await supabase.from("topic_cards_public").select(TOPIC_FIELDS).overlaps("numbers", numbers)
@@ -50,18 +53,18 @@ function useHeroData(lead, includeWorld) {
       if (live) setState({ row, cards, loaded: true });
     })();
     return () => { live = false; };
-  }, [lead?.slug, includeWorld]);
+  }, [lead?.slug, lead?.sourcePost, includeWorld]);
   return state;
 }
 
 export default function HomeHeroMotion2029({ lead, href, includeWorld = true }) {
-  const data = useHeroData(lead, includeWorld);
+  const [open, setOpen] = useState(false);
+  const data = useHeroData(lead, includeWorld && open);
   const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
   const previewTools = import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
   const demo = previewTools && params.get("pulse") === "demo";
   const replay = previewTools && params.get("replay") === "1";
   const [entering] = useState(() => replay || storage("sessionStorage")?.getItem(PLAYED_KEY) !== "1");
-  const [open, setOpen] = useState(false);
   const [seen, setSeen] = useState(readSeen);
   const heroRef = useRef(null);
 
@@ -87,10 +90,10 @@ export default function HomeHeroMotion2029({ lead, href, includeWorld = true }) 
     : update.kind === "demo" ? "הדגמה, לא עדכון אמיתי: כך תופיע הודעת עדכון קצרה על הפריט הראשי."
     : `עודכן ${relativeTimeLabel(update.at)}`;
 
-  return <section ref={heroRef} className={`h29-hero h29-hero2${entering ? " is-enter" : ""}${unseen ? " is-pulse" : ""}`} aria-label="העדכון האחרון" data-hero-motion={entering ? "enter" : "quiet"}>
+  return <section ref={heroRef} className={`h29-hero h29-hero2${entering ? " is-enter" : ""}${unseen ? " is-pulse" : ""}`} aria-label="תיעוד האירועים" data-home-primary="ready" data-hero-motion={entering ? "enter" : "quiet"}>
     {lead.poster ? <img className="h29-hero-img k29-in" style={{ "--i": 0 }} src={lead.poster} alt="" loading="eager" /> : null}
     <div className="h29-hero-copy">
-      <div className="h29-kicker k29-in" style={{ "--i": 0 }}>העדכון האחרון</div>
+      <div className="h29-kicker k29-in" style={{ "--i": 0 }}>תיעוד האירועים · רמזי המערכת</div>
       <h1 className="k29-in" style={{ "--i": 1 }}>{clean(lead.title)}</h1>
       {data.row?.categories?.length ? <div className="k29-in" style={{ "--i": 1 }}><PostCategories2029 categories={data.row.categories} /></div> : null}
 
@@ -111,7 +114,7 @@ export default function HomeHeroMotion2029({ lead, href, includeWorld = true }) 
         <Link className="h29-btn is-primary" to={href}>לקריאה ←</Link>
         {includeWorld ? <Link className="h29-btn" to="/world">לעולם</Link> : null}
         {includeWorld ? <button type="button" className="h29-btn h29-hero-more" aria-expanded={open} aria-controls="h29-hero-detail" onClick={openDetail}>
-          {open ? "סגירת הפירוט" : "פירוט החיבורים והמקורות"}
+          {open ? "סגירת הפירוט" : "פרטים וחיבורים"}
         </button> : null}
       </div>
 

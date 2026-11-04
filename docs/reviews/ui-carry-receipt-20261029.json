@@ -1,0 +1,198 @@
+{
+  "kind": "dated-ui-carry-evidence",
+  "audit_date_utc": "2026-10-29",
+  "canonical_planning_source": "public.project_codex.id=37, section 12.5; this receipt is dated evidence, not a replacement plan or owner",
+  "base_sha": "b9121d1f191b9510b96a6c0dcfa337058c8c8396",
+  "identity_note": "The Preview builder emits only SHA, branch, date, surface count and a partial-verification marker. Internal handoff details remain in this repository evidence and canonical plan 37.",
+  "evidence_scope": "Bounded route, ancestry, selected patch-equivalence and source-head checks; not a comprehensive runtime, privacy, release or backend acceptance.",
+  "status_definitions": {
+    "included_ancestry": "The cited commit is an ancestor of the base; this proves code history, not deployment, complete behavior or backend state.",
+    "included_patch": "The checked source patch is patch-equivalent to an existing base patch; this does not prove whole-branch or content acceptance.",
+    "unverified": "No conclusion on semantic carry or behavior; a non-ancestor alone does not prove work is absent.",
+    "pending": "Acceptance or reconciliation is outstanding; recorded handoff is not automatic import authorization."
+  },
+  "surfaces": [
+    {
+      "surface": "בית",
+      "route": "/2029",
+      "status": "route_present_acceptance_pending",
+      "detail": "Entry route exists; complete journey and performance acceptance is not established here."
+    },
+    {
+      "surface": "עולם",
+      "route": "/world",
+      "status": "included_code_acceptance_partial",
+      "refs": [
+        "ad9b2921a148383c0e851dd158c5e55935abff83",
+        "989b8edae7af64755adfa9b530206efd3528e937"
+      ],
+      "detail": "ad9b is an ancestor. For eb50c21f..989b8eda, 31 checked source commits have equivalent patches; the five specified Zvi commits are also individually patch-equivalent. This is not whole-history, content or live-DB acceptance."
+    },
+    {
+      "surface": "רשימת פוסטים",
+      "route": "/2029/posts",
+      "status": "route_present_acceptance_pending",
+      "detail": "Route exists; complete Posts Golden, permissions, empty/error and cross-surface acceptance remain unverified."
+    },
+    {
+      "surface": "פוסט",
+      "route": "/post/:slug",
+      "status": "route_present_semantic_reconciliation_pending",
+      "refs": [
+        "10e4a9e2940a5ace81809cde253adeb161df658e"
+      ],
+      "detail": "Metrics A source is not an ancestor; semantic carry is unverified, not proof that all metrics are absent."
+    },
+    {
+      "surface": "נושא",
+      "route": "/topic/:slug",
+      "status": "route_present_acceptance_pending",
+      "detail": "Route exists behind lock_world; exact source, fail-closed and cross-surface return require acceptance."
+    },
+    {
+      "surface": "מספר",
+      "route": "/2029/number/:value",
+      "status": "route_present_acceptance_pending",
+      "detail": "Route exists behind lock_number; canonical-engine behavior and live direct entry are not established here."
+    },
+    {
+      "surface": "גימטריה ומחשבון",
+      "route": "/2029/gematria; /2029/calculator; /2029/gematria/viral",
+      "status": "routes_present_privacy_acceptance_pending",
+      "detail": "Routes exist; connected UX, data privacy and isolated calculator handoff are not reconciled here."
+    },
+    {
+      "surface": "צופן / ELS",
+      "route": "/code; /els alias",
+      "status": "cumulative_base_included_later_handoffs_unverified",
+      "refs": [
+        "11859400c03e9ccd2cd8a43f372df876994a1c03",
+        "b24dc6c23066547417c0695f8d693f6e198702f1"
+      ],
+      "detail": "118594 is an ancestor. b24 is a non-ancestor handoff, not a claim of newest head; newer 29 October branches exist and require current source, ownership and acceptance reconciliation."
+    },
+    {
+      "surface": "ספרים",
+      "route": "/books; /book/:slug; /books/:slug alias",
+      "status": "base_reader_included_later_handoffs_unverified",
+      "refs": [
+        "f06ba29cdea8ca58b9952a9b3bbcc3afc363557b",
+        "40382ae21b9ca2d6ca38f58c387542b993d18f69",
+        "76bf32d7a3da94566f9402bb97415e5fe080f12c",
+        "7882f8a39e1afab09908aa15aa9616626eab1877"
+      ],
+      "detail": "f06 is an ancestor; 403, 76bf and 7882 are not. Later sources require semantic comparison and acceptance; absence of ancestry alone is not proof of missing work."
+    },
+    {
+      "surface": "גלריה",
+      "route": null,
+      "status": "standalone_surface_unverified",
+      "detail": "Plan 37 section 12.5 recorded no mapped standalone surface; existing media or a later implementation is not ruled out."
+    },
+    {
+      "surface": "היכל",
+      "route": "/heichal; /היכל",
+      "status": "route_present_acceptance_pending",
+      "detail": "Route exists behind lock_heichal; full guided-journey acceptance is not established here."
+    },
+    {
+      "surface": "קהילה",
+      "route": "/community/chat",
+      "status": "partial_read_only_preview_restoration",
+      "refs": [
+        "8706616f4c6a02a11ea8a16480d00e3d79f840e3",
+        "aef4ac254927a6d534dbceb84a4e85bf9f90ef5d",
+        "b9121d1f191b9510b96a6c0dcfa337058c8c8396"
+      ],
+      "detail": "Existing community foundations are ancestors. Current source restores a mobile chooser and the community view with bounded public feed/context reads, date ordering and search within loaded items. Advanced filtering, full-archive search and replies/counts are not accepted; the legacy OpenWeb conversation is linked rather than embedded in read-only Preview. No DB/RLS change or full community acceptance is implied."
+    },
+    {
+      "surface": "חוקר / כותב",
+      "route": "/researcher/:slug; /community/researcher/:slug",
+      "status": "routes_present_acceptance_partial",
+      "detail": "Existing routes and writer foundation are present; full attribution, sources and exact return require acceptance."
+    },
+    {
+      "surface": "מסע החיים",
+      "route": "/2029/journey",
+      "status": "base_and_media_server_code_included_image_ui_unverified",
+      "refs": [
+        "6896695debc7c36cc1f2547a6d535adf9fcf5044",
+        "544084d0f27696f6bde26aae70fe8d70cff8fab3",
+        "b863b6fde1304bf9c33b05011764f58a4541efd1",
+        "ecba3e7ae7c9085a9e8b71608f75ceebbe13e3a0"
+      ],
+      "detail": "Journey, private-media server code and hints commits are ancestors. Image UI ecba is not an ancestor; semantic carry and acceptance are unverified. Code inclusion does not establish migration or live Edge state."
+    },
+    {
+      "surface": "מד אחיד",
+      "route": null,
+      "status": "contract_and_product_decision_pending",
+      "detail": "Plan 37 documented local metrics with unified contract/placement open; no newer decision was verified in this inventory."
+    },
+    {
+      "surface": "וידאו",
+      "route": "/video/:assetId",
+      "status": "route_present_acceptance_pending",
+      "detail": "Route exists; source rights, media behavior, performance and SEO acceptance are not established here."
+    },
+    {
+      "surface": "בקרה",
+      "route": "/2029/control",
+      "status": "route_present_authorized_reader_unverified",
+      "detail": "Operational route exists; it is not proof of an authorized source-review reader or permission acceptance."
+    }
+  ],
+  "cross_surface_sources": {
+    "included_ancestry": [
+      "7f0ac2ab6194f92fbeb2ee42c2252dbaeaa920f2",
+      "669c7ae8453c1212afaf988cbd6e3b4adf7d1b1a",
+      "d1131bbd5486d2e55293197e5d740670843f6035",
+      "a0f7b2ba56d22cc82847b177008d61c27952d589",
+      "82d461b8d831626d1a6591f1ef2baf6dccbea247"
+    ],
+    "performance_handoff_nonancestor_semantics_unverified": "f19f7cfcb5530d9632c99d345c22c8b0124b6292"
+  },
+  "backend_boundary": "Ancestry or Preview does not prove migrations, permissions, RLS, Edge source, private data access or production state. No automatic database migration or deployment is authorized by this receipt.",
+  "verification_at_source_review": {
+    "local_gates_passed": [
+      "Build Legacy",
+      "Build 2029",
+      "built graph: 48362 bytes recovered",
+      "Raziel submit adapter and Research Plan lazy",
+      "isolation",
+      "System Frame",
+      "cheap hardening",
+      "Legacy Production Lock",
+      "Preview auth/closed projection guard"
+    ],
+    "node_tests": {
+      "broad_raziel": {
+        "passed": 656,
+        "failed": 0,
+        "skipped": 0
+      },
+      "community_contracts": {
+        "passed": 43,
+        "failed": 0
+      },
+      "preview_mock_and_auth": {
+        "passed": 13,
+        "failed": 0
+      }
+    },
+    "synthetic_browser_regressions": {
+      "personal_replies": 3,
+      "community_person": 19,
+      "message_actions": 26,
+      "restoration_theme_breakpoints": 18,
+      "restoration_community_and_direct_hash": 6
+    },
+    "limitations": [
+      "Synthetic browsers are not live DB/RLS/backend acceptance.",
+      "The personal-replies pending-account-switch case requires a SQL export and was not run; message-action account-switch cases did run.",
+      "Hosted Preview verification is recorded separately against the final source SHA; local restoration cases passed 24/24.",
+      "No all-surface or Production acceptance is claimed."
+    ]
+  }
+}

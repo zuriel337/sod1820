@@ -178,3 +178,62 @@ No future agent may silently change shared extraction semantics. Any change affe
 ## 11. Drift check (this session)
 
 `origin/main` advanced `862aff23 → 623f6117` during this session (merge of `claude/video-transcription-multilingual-neqwjm`, touching only `src/legacy/legacy.jsx` — audio autostart feature, unrelated subsystem). No collision with `analysisFlow.js`/`triage.js`. This branch's base remains 2 commits behind `origin/main` on an unrelated file; no rebase required for this contract-freeze task, no DRIFT affecting this work.
+
+## 12. R26/R35 provenance correction — 26.10.2026 (branch-only, not deployed)
+
+Classification: **FIX** of numeric-operand provenance / Intake §7.1–§7.3 mapping,
+with an additive occurrence representation. No grammar, arithmetic, method identity,
+claim status, publication or source text change. Provenance: ZVI real-source replay
+plus the existing MULTIPLE/CHRISTINA R35/R36 and ZVI 3060 regressions.
+
+Real failing case: `061d0c9c-c0f7-4b37-812e-1d6922e2186e`, exact source
+`channel_updates:b3e4830c-8fb1-4f82-af5c-ba05cd81262e#batch1`,
+`יקיר (320)+אפרים(331)=651`. The pre-fix `numericLiterals` treated the
+equation-side value 651 as an unexplained external quantity. Conversely,
+`393+393=תשפ"ו=786` lost the second 393 in value-level grouping, and the
+Intake mapper dropped all general/vertical numeric provenance.
+
+The existing parsed AST now additionally emits `numericOccurrences`, one entry
+per bare numeric leaf: `syntacticRole` (`arithmetic_input` / `equation_value`),
+`linkIndex`, `astPath`, replayable `expression`, and `verifiedByLink` when another
+non-literal equality side already evaluated to this value. No calculation is
+added by this read-only AST walk. Domain `semanticRole` remains null unless an
+existing owner supplies it. A whole equality side is not necessarily the last
+side, so `equation_value` does not imply a guessed directional derivation.
+
+`numericLiterals` remains unchanged as the historical value-grouped compatibility
+field. New integrity and Intake mapping prefer occurrence-level evidence; older
+envelopes without it keep the conservative legacy provenance fallback.
+`meta.ext.derivation.inputs` retains each arithmetic input (including repeats
+and unresolved context) and its expression/path. `outputs` separately preserves
+equation-side claims with `origin_type=source_equation`, exact expression,
+link/path and `calculation_match`; neither field supplies semantic quantity
+origins, source independence, publication, or governance authority.
+
+Fidelity remains partial for unresolved external inputs, mere
+`source_context_candidate`, mismatches, missing proof of an equation value, and
+unresolved media. In particular a matched result never explains why an input
+quantity was chosen. Complete equation-slice extraction is not full-source,
+image, spatial, or spiritual-interpretation verification.
+
+Before → after, on the same 20 reviewed equation slices: **0 complete / 20 partial
+→ 17 complete / 3 partial**. The three remaining cases are 393+393 and the two
+letter-value decompositions whose prose-to-letter binding is not yet carried by
+this generic AST. Their manually checked arithmetic remains match, but it does
+not invent generic extractor provenance.
+
+Regression evidence: all **45 exact public source texts / 41 compound claims**
+available in the bounded audit replay unchanged byte-for-byte after removal of
+the additive `numericOccurrences` field. All old calculation/operand/method/
+status/raw fields survive. Text-plus-marker source-slice fidelity changes
+**16 complete → 13 complete**: one becomes complete by correctly classifying
+equation values; four now correctly remain partial because context candidates
+are not established origins. This is not a new corpus count or a media audit.
+
+Acceptance gap: §8's historical 378-source Regression Corpus v1 has no frozen
+ID manifest or original session-local runner in this checkout. The 45-source
+replay and committed R35/R36/golden fixtures do **not** substitute for claiming
+that historical full run. Preserve the limitation and obtain owner acceptance
+of the reproducible regression corpus before deployment. No automatic rollout,
+Edge deployment, live metadata backfill, or mass ingestion is authorized here.
+Detailed evidence: `docs/reviews/world-compound-provenance-20261026.md` and `.json`.

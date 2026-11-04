@@ -1,3 +1,5 @@
+import { PUBLIC_READING_RELEASE, PUBLIC_READING_PRODUCTION_ARTIFACT } from "./publicReadingRelease2029.js";
+import { readingSessionOptions } from "./publicReadingAuthSession.js";
 import { createClient } from '@supabase/supabase-js';
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
 import { signupAttribution } from './acquisition.js';
@@ -7,6 +9,7 @@ import { AUTHORS } from './authors.js';
 import { stripHtml } from './format.js';
 import { METHOD_DB_COLS } from './gematria.js';
 import { postCategoryFilterNames } from './postCategoryIdentity.js';
+import { decodePostSlug, publicPostHref } from './publicPostUrls.js';
 
 // 🔑 מיוצאים כדי לאפשר fetch ישיר ל-PostgREST במקומות שדורשים עקיפת-קאש (cache:no-store) —
 // למשל עמוד-הצופן הקנוני, שאחרי עריכה/שמירה-מחדש חייב תמיד את הרשומה הטרייה (התגובה מ-PostgREST
@@ -14,7 +17,12 @@ import { postCategoryFilterNames } from './postCategoryIdentity.js';
 export const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
 export const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+let readingStorage;
+if (PUBLIC_READING_RELEASE) { try { readingStorage = globalThis.sessionStorage; } catch { /* Private mode: memory-only session. */ } }
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON,
+  PUBLIC_READING_RELEASE
+    ? { auth: readingSessionOptions(readingStorage, globalThis.location, { productionArtifact: PUBLIC_READING_PRODUCTION_ARTIFACT }) }
+    : undefined);
 
 export default supabase;
 export { supabase };
@@ -230,20 +238,25 @@ export async function getRealityVideos({ limit = 40 } = {}) {
 }
 
 // 🆕 2 הפוסטים האחרונים (לפי זמן-עדכון) — לרצועת-הגילוי לנוחתים מגוגל. מחזיר slug/כותרת/כרזה/עדכון.
-export async function getLatestPostCards({ limit = 2, excludeSlug = null } = {}) {
+export async function getLatestPostCards({ limit = 2, excludeSlug = null, includeMetadata = false, signal = null, throwOnError = false } = {}) {
   if (!supabase) return [];
   try {
-    const { data, error } = await supabase.from("posts")
-      .select("id, slug, title, image_url, thumb_url, date, modified, tags")
+    let query = supabase.from("posts")
+      .select("id, slug, title, image_url, thumb_url, date, modified, tags, source, link, wp_id" + (includeMetadata ? ", categories, home_hidden" : ""))
       .not("slug", "is", null)
       .order("modified", { ascending: false, nullsFirst: false })
       .limit(limit + 5);
-    if (error || !data) return [];
+    if (signal) query = query.abortSignal(signal);
+    const { data, error } = await query;
+    if (error) { if (throwOnError) throw error; return []; }
+    if (!data) return [];
     return data
-      .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.includes("טיוטה")))
+      .filter(p => p.slug && p.slug !== excludeSlug && !(Array.isArray(p.tags) && p.tags.some(tag => ["טיוטה", "פורום"].includes(tag))))
       .slice(0, limit)
-      .map(p => ({ slug: p.slug, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null }));
-  } catch { return []; }
+      .map(p => ({ id: p.id, slug: p.slug, source: p.source, link: p.link, wp_id: p.wp_id, title: stripHtml(p.title || ""), poster: p.thumb_url || p.image_url || null, modified: p.modified || p.date || null,
+        ...(includeMetadata ? { sourcePost: { id: p.id, slug: p.slug, date: p.date, modified: p.modified, tags: p.tags, categories: p.categories, source: p.source, home_hidden: p.home_hidden } } : {}),
+      }));
+  } catch (error) { if (throwOnError) throw error; return []; }
 }
 
 // 🎬 סטוריז-הסרטונים שלנו — **כל מה שעולה לקטגוריית וידאו** (החומר שלנו: צפנים + מציאות + מספרים,
@@ -298,18 +311,18 @@ export async function getTzofonStories({ limit = 30 } = {}) {
   try {
     const { data, error } = await supabase
       .from("posts")
-      .select("id, slug, title, image_url, thumb_url, date")
+      .select("id, slug, title, image_url, thumb_url, date, source, link, wp_id, tags")
       .overlaps("categories", ["צפונות בתורה", "הצופן בסרטים"])
       .not("image_url", "is", null)
       .order("date", { ascending: false })
       .limit(limit);
     if (error || !data) return [];
-    return data.map(r => ({
+    return data.filter(r => !(r.tags || []).some(tag => ["טיוטה", "פורום"].includes(tag))).map(r => ({
       id: r.id,
       text: stripHtml(r.title || ""),
       image_url: r.thumb_url || r.image_url,   // כרזה (תמונה) — התצוגה מציגה אותה; הניגון בפוסט
       thumb_url: r.thumb_url || r.image_url,
-      link_url: "/" + r.slug,
+      link_url: publicPostHref(r),
       is_video: true,                          // כרטיס-וידאו (מסמן ▶) — הסרטון מתנגן בפוסט
       created_at: r.date,
       priority: 100,
@@ -520,18 +533,58 @@ export async function getGalleryNumberTags() {
   return data ?? [];
 }
 
-export async function getPostBySlug(slug) {
+export async function getPostBySlug(slug, { throwOnError = false, signal = null } = {}) {
   if (!supabase) return null;
-  const decoded = decodeURIComponent(slug);
+  const decoded = decodePostSlug(slug);
   const encoded = encodeURIComponent(decoded).toLowerCase();
   const slugs = [...new Set([slug, decoded, encoded])];
-  const { data, error } = await supabase
+  let query = supabase
     .from('posts')
     .select('*')
     .in('slug', slugs)
     .limit(1);
-  if (error || !data?.length) return null;
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
+  if (error) { if (throwOnError) throw error; return null; }
+  if (!data?.length) return null;
   return data[0];
+}
+
+// Route-owned primary Home cards overlap the component code download. This
+// preserves one existing bounded reader; no global data/promise cache exists.
+export function beginHomeReadingSource({ readCards = getLatestPostCards } = {}) {
+  const controller = new AbortController();
+  const result = Promise.resolve().then(() => readCards({ limit: 4, includeMetadata: true,
+    throwOnError: true, signal: controller.signal }))
+    .then(data => ({ data }), error => ({ error }));
+  return {
+    async read() {
+      const outcome = await result;
+      if (controller.signal.aborted) throw new DOMException("Home read canceled", "AbortError");
+      if (outcome.error) throw outcome.error;
+      return outcome.data;
+    },
+    cancel() { controller.abort(); },
+  };
+}
+
+// One route-owned read, started while the Post component code downloads. No
+// shared data cache: its caller cancels it on route/identity change or unmount.
+export function beginPostReadingSource(slug, { readPost = getPostBySlug } = {}) {
+  const controller = new AbortController();
+  // Observe early rejection even while the lazy component has not mounted.
+  const result = Promise.resolve().then(() => readPost(slug, { throwOnError: true, signal: controller.signal }))
+    .then(data => ({ data }), error => ({ error }));
+  return {
+    async read(requestedSlug) {
+      if (requestedSlug !== slug) throw new Error("post_source_identity_mismatch");
+      const outcome = await result;
+      if (controller.signal.aborted) throw new DOMException("Source read cancelled", "AbortError");
+      if (outcome.error) throw outcome.error;
+      return outcome.data;
+    },
+    cancel() { controller.abort(); },
+  };
 }
 
 export async function getGematriaByPhrases(phrases) {
@@ -1103,30 +1156,38 @@ let _overviewCache = null;            // { ts, gals, imgs }
 const OVERVIEW_TTL = 120000;          // 2 דקות — טרי מספיק, חוסך טעינות חוזרות
 export function invalidateGalleriesOverview() { _overviewCache = null; }
 
-export async function getGalleriesOverview({ force = false } = {}) {
-  if (!supabase) return { gals: [], imgs: [] };
-  if (!force && _overviewCache && Date.now() - _overviewCache.ts < OVERVIEW_TTL) {
+export async function getGalleriesOverview({ force = false, publicSourceOnly = false, client = supabase } = {}) {
+  if (!client) { if (publicSourceOnly) throw new Error('gallery_reader_unavailable'); return { gals: [], imgs: [] }; }
+  const useCache = !publicSourceOnly && client === supabase;
+  if (useCache && !force && _overviewCache && Date.now() - _overviewCache.ts < OVERVIEW_TTL) {
     return { gals: _overviewCache.gals, imgs: _overviewCache.imgs };
   }
-  const { data: gals } = await supabase
+  let galleryQuery = client
     .from('galleries')
-    .select('id,name,anchor_number,img_count,wp_gallery_id');
+    .select(publicSourceOnly ? 'id,name,wp_gallery_id' : 'id,name,anchor_number,img_count,wp_gallery_id', publicSourceOnly ? { count: 'exact' } : undefined);
+  if (publicSourceOnly) galleryQuery = galleryQuery.order('id').range(0, 999);
+  const { data: gals, error: galleryError, count: galleryCount } = await galleryQuery;
+  if (galleryError && publicSourceOnly) throw galleryError;
   let imgs = [], from = 0;
+  let partial = publicSourceOnly && galleryCount > (gals || []).length;
   while (true) {
-    const { data } = await supabase
+    let query = client
       .from('gallery_images')
-      .select('id,gallery_id,image_url,thumb_url,name,description,ordering,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags')
-      .not('image_url', 'is', null)
-      .order('occurred_at', { ascending: false, nullsFirst: false })
-      .order('created_at', { ascending: false })
-      .range(from, from + 999);
+      .select(publicSourceOnly ? 'id,gallery_id,wp_gallery_id,image_url,thumb_url,ordering,published,min_tier,curator_hidden,occurred_at,created_at,date_derived:ocr_meta->>date_derived,name,description,primary_value,all_values,related_values,image_type,source,stream_at'
+        : 'id,gallery_id,image_url,thumb_url,name,description,ordering,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags')
+      .not('image_url', 'is', null);
+    query = publicSourceOnly ? query.eq('published', 1).eq('min_tier', 0).not('curator_hidden', 'is', true).order('id')
+      : query.order('occurred_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false });
+    const { data, error } = await query.range(from, from + 999);
+    if (error && publicSourceOnly) throw error;
     if (!data || !data.length) break;
     imgs = imgs.concat(data);
     if (data.length < 1000) break;
     from += 1000;
+    if (publicSourceOnly && from >= 10000) { partial = true; break; }
   }
-  _overviewCache = { ts: Date.now(), gals: gals || [], imgs };
-  return { gals: gals || [], imgs };
+  if (useCache) _overviewCache = { ts: Date.now(), gals: gals || [], imgs };
+  return { gals: gals || [], imgs, ...(publicSourceOnly ? { coverage: { partial } } : {}) };
 }
 
 // ✦ עוגן-המהות של מספר — «מהות המספר» (עובדה+רמז מאומתים) לדף המספר. null אם אין.
@@ -1306,7 +1367,7 @@ function aiInteractionId() {
     return globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : null;
   } catch { return null; }
 }
-export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron, ref, ref_name, user_ref, operation, interaction_id, surface }) {
+export async function getAiAnalysis({ kind, subject, facts, again, fast, engine, long, metatron, ref, ref_name, user_ref, operation, interaction_id, surface, persistAnalysis = true }) {
   if (!supabase) return null;
   try {
     // 📏 ai_quota_law — visitor_id מאפשר ספירת-מכסה יציבה לאורח (מדויק יותר מ-IP).
@@ -1333,7 +1394,12 @@ export async function getAiAnalysis({ kind, subject, facts, again, fast, engine,
     const analysisText = structuredReflection?.message || data?.analysis || null;
     // 🧪 ai_style_learning_law — כל ניתוח מוצלח נרשם אוטומטית (בכל משטח באתר, כי כולם עוברים כאן).
     // fire-and-forget: הרישום לא מעכב ולא מפיל את הניתוח.
-    if (analysisText) logAiAnalysis({ kind, subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: analysisText });
+    // Private research surfaces may use the existing AI transport without copying their
+    // subject/message into the style-learning log. Operational cost traces remain bounded
+    // server-side and contain no raw non-numeric subject.
+    if (analysisText && persistAnalysis !== false) {
+      logAiAnalysis({ kind, subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: analysisText });
+    }
     return structuredReflection || analysisText;
   } catch (e) { try { console.warn('[ai-analyze] threw:', e?.message || e); } catch { /* noop */ } return null; }
 }
@@ -1351,28 +1417,107 @@ export async function searchPostFacts(query) {
 
 // 🤖 askRaziel — קורא למוח (ai-analyze persona=raziel) ומחזיר את חוזה raziel_response_contract (v1).
 //    תאימות-לאחור: כל עוד המוח מחזיר מחרוזת בלבד (data.analysis) — עוטף כ-{v:1, answer}. quota → null.
+//    viewMode='landscape'|'exploratory' (RAZIEL_VIEW_MODE_V1) is independent from intelligenceLevel;
+//    it is emitted only by the bounded canonical 2029 research contract.
 //    path = מסלול-מחקר שהמשתמש בחר (המוח מחליט אילו מסלולים קיימים; ה-UI רק מציג). context = הקשר-המשתמש.
-export async function askRaziel({ subject, facts, context = null, path = null, again = false, metatron = false, intelligenceLevel = null, surfaceSemantic = null }) {
+// The nested Raziel contract may be model-authored. Operational provenance is authoritative only
+// when it comes from the Edge response envelope, so nested lookalike fields are always removed.
+const RAZIEL_TRANSPORT_METADATA_KEYS = new Set(['trace_id', 'engine', 'model', 'usage', 'evidence_summary']);
+
+function razielContractWithoutTransportMetadata(contract) {
+  if (!contract || typeof contract !== 'object' || Array.isArray(contract)) return {};
+  return Object.fromEntries(Object.entries(contract).filter(([key]) => !RAZIEL_TRANSPORT_METADATA_KEYS.has(key)));
+}
+
+function razielTransportMetadata(data) {
+  const top = data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+  const out = {};
+  const addText = (key, limit) => {
+    if (typeof top[key] !== 'string') return;
+    const value = top[key].trim().slice(0, limit);
+    if (value) out[key] = value;
+  };
+  addText('trace_id', 160);
+  addText('engine', 80);
+  addText('model', 160);
+  if (top.usage && typeof top.usage === 'object' && !Array.isArray(top.usage)) {
+    const inputTokens = top.usage.input_tokens ?? top.usage.inputTokens;
+    const outputTokens = top.usage.output_tokens ?? top.usage.outputTokens;
+    const usage = {};
+    if (Number.isSafeInteger(inputTokens) && inputTokens >= 0) usage.input_tokens = inputTokens;
+    if (Number.isSafeInteger(outputTokens) && outputTokens >= 0) usage.output_tokens = outputTokens;
+    if (Object.keys(usage).length) out.usage = usage;
+  }
+  return out;
+}
+
+export async function askRaziel({ subject, facts, context = null, path = null, again = false, metatron = false, intelligenceLevel = null, surfaceSemantic = null, conversationResolution = null, researchContract = null, viewMode = null }) {
+  // Keep the public transport signature stable for every existing caller. The personal-area adapter
+  // adds only two internal request fields: the closed action envelope and a non-enumerable AbortSignal.
+  const companionAction = arguments[0]?.companionAction ?? null;
+  const elsPlanningAction = arguments[0]?.elsPlanningAction ?? null;
+  const elsMatrixContext = arguments[0]?.elsMatrixContext ?? null;
+  // One explicit matrix reading (admin-only, experimental): the same Raziel turn, plus the closed action; polling, progress and cancel are non-enumerable session hooks like the abort signal.
+  const elsMatrixReadingAction = arguments[0]?.elsMatrixReadingAction ?? null;
+  const cancelSignal = arguments[0]?.__razielCancelSignal ?? null;
+  const onProgress = typeof arguments[0]?.__razielProgress === 'function' ? arguments[0].__razielProgress : undefined;
+  const signal = arguments[0]?.__razielAbortSignal ?? null;
   if (!supabase) return null;
+  if (signal?.aborted) return null;
   try {
     // intelligenceLevel='fast'|'deep' — בחירה מפורשת של הקורא בלבד. נשלח (intelligence_level) רק כשהתבקש;
     // קוראים קיימים לא מציינים → גוף-הבקשה זהה ל-before והשרת מתנהג עמוק כברירת-מחדל.
     const level = intelligenceLevel === 'fast' || intelligenceLevel === 'deep' ? intelligenceLevel : null;
-    const { data, error } = await supabase.functions.invoke('ai-analyze', {
-      // metatron:true → רזיאל נשען על «העץ האחד» (חוקים+גרף) בצד השרת (בטא, opt-in). ברירת-מחדל כבוי.
-      body: { kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}) },
-    });
-    if (error) return null;
+    // This correlation id is non-authoritative. The server remains the owner of trace/root identities.
+    // Legacy callers preserve their previous body shape by not opting into the canonical contract.
+    const interactionId = researchContract === 'public-number-research-run-v1' ? aiInteractionId() : null;
+    const makeBody = (readingAction = null) => ({ kind: 'research', persona: 'raziel', subject, facts, context, path, again, metatron, visitor_id: aiVisitorId(), ...(level ? { intelligence_level: level } : {}), ...(surfaceSemantic && typeof surfaceSemantic === 'object' ? { surface_semantic: surfaceSemantic } : {}), ...(conversationResolution && typeof conversationResolution === 'object' ? { conversation_resolution: conversationResolution } : {}), ...(researchContract === 'public-number-research-run-v1' ? { research_contract: researchContract, ...(interactionId ? { interaction_id: interactionId } : {}) } : {}), ...(researchContract === 'public-number-research-run-v1' && companionAction && typeof companionAction === 'object' ? { companion_action: companionAction } : {}), ...(researchContract === 'public-number-research-run-v1' && elsPlanningAction && typeof elsPlanningAction === 'object' ? { els_planning_action: elsPlanningAction } : {}), ...(researchContract === 'public-number-research-run-v1' && elsMatrixContext && typeof elsMatrixContext === 'object' ? { els_matrix_context: elsMatrixContext } : {}), ...(researchContract === 'public-number-research-run-v1' && (viewMode === 'landscape' || viewMode === 'exploratory') ? { view_mode: viewMode } : {}), ...(researchContract === 'public-number-research-run-v1' && elsMatrixContext && readingAction && typeof readingAction === 'object' ? { els_matrix_reading_action: readingAction } : {}) });
+    // metatron:true → רזיאל נשען על «העץ האחד» (חוקים+גרף) בצד השרת (בטא, opt-in). ברירת-מחדל כבוי.
+    const sendBody = async (readingAction = null) => {
+      if (import.meta.env?.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true') {
+        const { invokePreviewRaziel } = await import('./research/functionalPreviewTransport.js');
+        return invokePreviewRaziel({client:supabase,body:makeBody(readingAction),signal});
+      }
+      return supabase.functions.invoke('ai-analyze', {
+        body: makeBody(readingAction),
+        ...(signal instanceof AbortSignal ? { signal } : {}),
+      });
+    };
+    let data, error;
+    if (elsMatrixReadingAction) {
+      // Never reached without the canonical contract and a matrix context (the server refuses anything else); the long leg lives in a lazy module.
+      if (researchContract !== 'public-number-research-run-v1' || !elsMatrixContext) return null;
+      const { runElsMatrixReadingTurn } = await import('./research/elsMatrixReadingTransport.js');
+      data = await runElsMatrixReadingTurn({ invoke: (action) => sendBody(action), action: elsMatrixReadingAction, signal, cancelSignal, onProgress });
+      error = data ? null : new Error('els_matrix_reading_unavailable');
+    } else {
+      ({ data, error } = await sendBody(null));
+    }
+    // A principal change may race a completed response. Do not emit the old
+    // principal's quota event or fallback telemetry after cancellation.
+    if (signal?.aborted || error) return null;
     if (data?.error === 'quota') {
       try { window.dispatchEvent(new CustomEvent('sod:ai-quota', { detail: { tier: data.tier, used: data.used, limit: data.limit, message: data.message } })); } catch { /* noop */ }
       return null;
     }
+    // Older ai-analyze deployments ignore unknown request fields. Never present
+    // their ordinary answer as an analysis of a matrix they did not process.
+    if ((elsMatrixContext || surfaceSemantic?.els?.grounding === 'canonical_replay_v1') && !elsMatrixReadingAction
+      && data?.els_matrix_status !== 'verified_axis_unverified_presentation_v1') return null;
+    if (surfaceSemantic?.els?.grounding === 'canonical_replay_v1' && !elsMatrixReadingAction) {
+      const focus = surfaceSemantic.els, receipt = data?.els_occurrence_context;
+      if (receipt?.status !== 'verified' || receipt.axis?.corpusId !== focus.corpus
+        || !['term', 'scope', 'start', 'skip', 'dir'].every(key => receipt.axis?.[key] === focus[key])
+        || (receipt.readingJobId ?? null) !== (focus.readingJobId ?? null)) return null;
+    }
+    // Same rule for a reading: an older ai-analyze that ignores the action must never have its ordinary answer shown as a reading.
+    if (elsMatrixReadingAction && data?.els_matrix_reading?.contract !== 'els_matrix_reading_v1') return null;
     const c = data?.raziel || data?.contract;   // המוח מחזיר את החוזה כשמוכן
     // intelligence_level = תווית-מצב כנה מאותו transport (deterministic|fast|deep) — additive, לא API שני.
-    if (c && typeof c === 'object') return { v: 1, ...c, ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}), ...(data?.intelligence_selection && !c.intelligence_selection ? { intelligence_selection: data.intelligence_selection } : {}) };
+    if (c && typeof c === 'object') return { v: 1, ...razielContractWithoutTransportMetadata(c), ...(elsMatrixReadingAction && data?.els_matrix_reading ? { els_matrix_reading: data.els_matrix_reading } : {}), ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...razielTransportMetadata(data), ...(data?.intelligence_level ? { intelligence_level: data.intelligence_level } : {}), ...(data?.plan_meta && !c.plan_meta ? { plan_meta: data.plan_meta } : {}), ...(data?.intelligence_selection && !c.intelligence_selection ? { intelligence_selection: data.intelligence_selection } : {}) };
     if (data?.analysis) {   // fallback — עוטף את המחרוזת הנוכחית כחוזה מינימלי
       try { logAiAnalysis({ kind: 'research', subject, styleKey: data.style_key, engine: data.engine, model: data.model, content: data.analysis }); } catch { /* noop */ }
-      return { v: 1, answer: data.analysis };
+      return { v: 1, answer: data.analysis, ...(data?.evidence_summary ? { evidence_summary: data.evidence_summary } : {}), ...razielTransportMetadata(data) };
     }
     return null;
   } catch { return null; }
@@ -1753,14 +1898,26 @@ export async function getRealityHints(limit = 1000) {
 
 // 🔒 דגלי-אתר (site_flags) — נעילות תחזוקה/שדרוגים וכד'. קריאה ציבורית; כתיבה = service_role בלבד.
 // מחזיר מפה {key: {enabled, message, mode}}. mode: 'all'=כולם חסומים · 'anon'=רשומים עוברים.
-export async function getSiteFlags() {
+// Only callers with an explicit navigation/principal scope share a PENDING read.
+// Nothing survives settlement: refresh/new navigation must see current DB policy.
+// Legacy callers omit the option and retain their independent reads.
+const siteFlagPendingReads = new Map();
+export async function getSiteFlags({ pendingScope = null } = {}) {
   if (!supabase) return {};
-  try {
-    const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
-    const m = {};
-    for (const r of (data || [])) m[r.key] = r;
-    return m;
-  } catch { return {}; }
+  const read = async () => {
+    try {
+      const { data } = await supabase.from('site_flags').select('key,enabled,message,mode');
+      const m = {};
+      for (const r of (data || [])) m[r.key] = r;
+      return m;
+    } catch { return {}; }
+  };
+  if (pendingScope === null) return read();
+  if (siteFlagPendingReads.has(pendingScope)) return siteFlagPendingReads.get(pendingScope);
+  const pending = read();
+  siteFlagPendingReads.set(pendingScope, pending);
+  try { return await pending; }
+  finally { if (siteFlagPendingReads.get(pendingScope) === pending) siteFlagPendingReads.delete(pendingScope); }
 }
 
 // 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log, 7 ימים): אילו מספרים הכי חיפשו.
@@ -1884,9 +2041,9 @@ export async function getImagesByValue(value) {
 // עץ אחד: הפוסט הישן מפסיק להציג HTML קפוא ומצביע ל-gallery_images העריך —
 // כך עריכת תאריך/חשיבות/הסתרה/מספר בגלריה משתקפת מיד בפוסט. ציבורי בלבד.
 // סדר: חשיבות↓ ואז הסדר הידני של הגלריה (ordering) — שומר על הסדר הישן של צוריאל.
-export async function getImagesByGallery(wpGalleryId) {
-  if (!supabase || !wpGalleryId) return [];
-  const { data } = await supabase
+export async function getImagesByGallery(wpGalleryId, { publicSourceOnly = false, throwOnError = false, client = supabase } = {}) {
+  if (!client || !wpGalleryId) return [];
+  let query = client
     .from('gallery_images')
     .select('id,name,description,image_url,thumb_url,ordering,primary_value,all_values,occurred_at,created_at,importance')
     .eq('wp_gallery_id', wpGalleryId)
@@ -1895,6 +2052,10 @@ export async function getImagesByGallery(wpGalleryId) {
     .eq('min_tier', 0)                                               // נראות: פרימיום/מוסתר לא לציבור
     .order('importance', { ascending: false, nullsFirst: false })
     .order('ordering', { ascending: true, nullsFirst: false });
+  // Opt-in for the existing 2029 source reader; Legacy/default callers unchanged.
+  if (publicSourceOnly) query = query.eq('published', 1);
+  const { data, error } = await query;
+  if (error && throwOnError) throw error;
   return data || [];
 }
 
@@ -1955,7 +2116,10 @@ export async function getEntityBundle({ term, value, isNumber }) {
     isNumber ? (async () => {
       try {
         const cols = 'id,name,description,image_url,thumb_url,primary_value,gallery_id,all_values,occurred_at,created_at,importance';
-        const ord = q => q.not('curator_hidden', 'is', true).eq('min_tier', 0)
+        // Restore F10 for 2029: publication belongs BEFORE both windows/counts.
+        // The independently built Legacy path keeps its existing query behavior.
+        const publicRead = q => typeof __SOD_2029_BUILD__ !== 'undefined' && __SOD_2029_BUILD__ ? q.eq('published', 1) : q;
+        const ord = q => publicRead(q).not('curator_hidden', 'is', true).eq('min_tier', 0)
           .order('importance', { ascending: false, nullsFirst: false })
           .order('occurred_at', { ascending: false, nullsFirst: false })
           .order('created_at', { ascending: false });
@@ -2787,7 +2951,18 @@ export async function searchGalleryForCuration(term = '', { limit = 60 } = {}) {
   return data || [];
 }
 // חיפוש OCR בצד-שרת — מחזיר ids תואמים (במקום לטעון את כל ה-ocr_text מראש)
-export async function searchArchiveOcrIds(q, { limit = 800 } = {}) {
+export async function searchArchiveOcrIds(q, { limit = 800, publicSourceOnly = false, client = supabase } = {}) {
+  if(publicSourceOnly){
+    if(!client)throw new Error('gallery_reader_unavailable');
+    const t=String(q||'').trim().slice(0,200), cap=Math.min(800,Math.max(1,Math.floor(limit)||800));
+    if(t.length<2)return {rows:[],partial:false};
+    const escaped=t.replace(/[\\%_]/g,'\\$&');
+    const {data,error}=await client.from('gallery_images').select('id,gallery_id')
+      .eq('published',1).eq('min_tier',0).not('curator_hidden','is',true).not('image_url','is',null)
+      .ilike('ocr_text',`%${escaped}%`).order('id').limit(cap+1);
+    if(error)throw error;
+    return {rows:(data||[]).slice(0,cap),partial:(data||[]).length>cap};
+  }
   if (!supabase || !q || q.trim().length < 2) return [];
   const t = q.trim();
   const { data } = await supabase.from('gallery_images')
@@ -3003,13 +3178,29 @@ export async function addImageToRealityStream(id, occurredAt = null) {
 
 // גלריה ציבורית — כל התמונות עם פילטר סוג + חיפוש + פגינציה
 // hidden: 'no' = רק גלויות (ברירת מחדל) · 'only' = רק מוסתרות (אדמין) · 'all' = הכל (אדמין)
-export async function getGalleryPage({ type = null, page = 0, limit = 60, search = "", hidden = "no" } = {}) {
+export async function getGalleryPage({
+  type = null,
+  page = 0,
+  limit = 60,
+  search = "",
+  hidden = "no",
+  review = null,
+  withCount = true,
+} = {}) {
   if (!supabase) return { data: [], count: 0 };
+  const publicFields = 'id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,image_type,source,importance,curator_hidden';
+  // The review shape is consumed only by the existing authenticated World manager surface.
+  // It deliberately omits OCR text and metadata bodies: the queue needs status, source
+  // identity and completeness signals, not the extracted corpus itself.
+  const reviewFields = `${publicFields},created_at,published,min_tier,tags,ocr_status,ocr_numbers,gallery_id,wp_gallery_id`;
   let q = supabase.from('gallery_images')
-    .select('id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,image_type,source,importance,curator_hidden', { count: 'exact' })
+    .select(review ? reviewFields : publicFields, { count: withCount ? 'exact' : undefined })
     .not('image_url', 'is', null);
   if (hidden === 'only') q = q.eq('curator_hidden', true);
   else if (hidden !== 'all') q = q.not('curator_hidden', 'is', true);
+  if (review === 'ocr') {
+    q = q.or('ocr_status.is.null,ocr_status.neq.done,ocr_text.is.null,ocr_text.eq.');
+  }
   if (type) q = q.eq('image_type', type);
   if (search.trim()) {
     const t = search.trim();
@@ -3019,9 +3210,10 @@ export async function getGalleryPage({ type = null, page = 0, limit = 60, search
   const { data, count, error } = await q
     .order('occurred_at', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
+    .order('id', { ascending: true })
     .range(page * limit, (page + 1) * limit - 1);
   if (error) return { data: [], count: 0 };
-  return { data: data || [], count: count || 0 };
+  return { data: data || [], count: withCount ? count || 0 : null };
 }
 export async function createTopicCardDraft(card) {
   if (!supabase) throw new Error('no supabase');
@@ -3762,6 +3954,23 @@ export async function getNameMulti(name, { surname, birthdate, question } = {}) 
   return data || null;
 }
 
+// Life Journey's bounded non-ELS NameLab reader. This consumes the existing fn_name_multi
+// opt-out seam directly so a one-word name cannot fall through fn_name_research_graded's
+// historical ELS branch. It is a read adapter only: no calculation, persistence or new store.
+export async function getNameMultiWithoutEls(name) {
+  const w = (name || '').trim();
+  if (!supabase || !w) return null;
+  const { data, error } = await supabase.rpc('fn_name_multi', {
+    p_name: w,
+    p_surname: null,
+    p_birthdate: null,
+    p_question: null,
+    p_opts: { skip_els: '1' },
+  });
+  if (error) return null;
+  return data || null;
+}
+
 // 📊 לוח-איכות פנימי — מתעד כל מחקר-שם (fire-and-forget, לצורכי פיתוח). לא חוסם את ה-UI.
 export function logNameResearch(doc, ms) {
   try {
@@ -4278,6 +4487,13 @@ export async function upsertFamilyMember(ownerId, ref, name, meta = {}) {
 export async function upsertFamilyRelation(ownerId, parentRef, childRef, relationType = 'parent_of', meta = {}) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.rpc('fn_upsert_family_relation', { p_owner: ownerId, p_parent_ref: parentRef, p_child_ref: childRef, p_relation_type: relationType, p_meta: meta });
+  if (error) throw error;
+  return data;
+}
+
+export async function removeFamilyMember(ownerId, targetRef) {
+  if (!supabase) throw new Error('no supabase');
+  const { data, error } = await supabase.rpc('fn_remove_family_member', { p_owner: ownerId, p_target_ref: targetRef });
   if (error) throw error;
   return data;
 }

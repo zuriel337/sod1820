@@ -1,8 +1,466 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prepareElsAutomaticResearchPlan, runElsAutomaticResearchSlice, summarizeElsAutomaticPlan } from "./elsAutomaticResearchPlan.js";
+import {
+  diagnoseElsGuidedFailure,
+  prepareElsAutomaticResearchPlan,
+  prepareElsCipherDiscoveryPlan,
+  projectElsGuidedSearchStrategy,
+  projectElsGuidedOccurrenceCoverage,
+  projectElsGuidedSourceContext,
+  runElsAutomaticResearchSlice,
+  summarizeElsAutomaticPlan,
+  summarizeElsGuidedDiscoveryPlan,
+} from "./elsAutomaticResearchPlan.js";
 
 const base = { expressions: "סוד החשמל\nאמת", scope: "torah", skipMin: "2", skipMax: "80", pageSize: "2" };
+
+test("guided story compiles locally into one bounded axis plus context proposals", () => {
+  const story = "מעבורת החלל קולומביה התפרקה בחזרה לכדור הארץ ועלתה באש";
+  const plan = prepareElsCipherDiscoveryPlan({ text: story, scope: "torah" });
+  assert.equal(plan.contract, "els_cipher_discovery_plan_v1");
+  assert.equal(plan.anchorCandidates[0].term, "קולומביה");
+  assert.equal(plan.goal.primaryAxes, 1);
+  assert.equal(plan.goal.connectedSupports, 2);
+  assert.equal(plan.limits.fullAxisOccurrences, 4);
+  assert.equal(plan.limits.maximumOccurrenceBatches, 2);
+  assert.ok(plan.contextCandidates.filter(row => row.selected).length <= 6);
+  assert.equal(plan.aiUsed, false);
+  assert.equal(plan.persisted, false);
+  assert.equal(plan.truthPromotion, false);
+  assert.equal("text" in plan, false);
+  assert.equal(plan.strategy.contract, "els_guided_search_strategy_v1");
+  assert.deepEqual(plan.strategy.lanes.map(lane => lane.id), ["exact-axis", "story-context", "local-language"]);
+  assert.equal(plan.strategy.selectedAxis.term, "קולומביה");
+  assert.equal(plan.strategy.lanes[2].trigger, "VERIFIED_OCCURRENCE");
+  assert.equal(plan.strategy.lanes[2].vocabularyScanned, false);
+  assert.equal(plan.strategy.advanced.broadVocabularyScan, false);
+  assert.equal(plan.strategy.advanced.requiresExplicitAction, true);
+  assert.equal(plan.strategy.modelCallsTriggered, 0);
+
+  const summary = summarizeElsGuidedDiscoveryPlan(plan);
+  assert.equal(summary.status, "PROPOSED_SEARCH_PLAN");
+  assert.equal(summary.modelCallsTriggered, 0);
+  assert.equal(summary.rawStoryIncluded, false);
+  assert.equal(summary.targetTerms.length <= 8, true);
+  assert.deepEqual(summary.strategy.laneOrder, ["exact-axis", "story-context", "local-language"]);
+  assert.equal(JSON.stringify(summary).includes(story), false);
+});
+
+test("a quoted or explicit axis wins without a cipher-specific rule", () => {
+  const quoted = prepareElsCipherDiscoveryPlan({ text: "בדקו את ״ד טראמפ״ ליד באש אטמין" });
+  assert.equal(quoted.anchorCandidates[0].term, "ד טראמפ");
+  const explicit = prepareElsCipherDiscoveryPlan({ text: "הקשר ארוך", anchorTerm: "אורניום", requiredTerms: "איראן; ארהב" });
+  assert.equal(explicit.anchorCandidates[0].term, "אורניום");
+  assert.deepEqual(explicit.contextCandidates.filter(row => row.required).map(row => row.term), ["איראן", "ארהב"]);
+});
+
+test("a short two-token expression stays intact while its words remain general alternatives", () => {
+  const plan = prepareElsCipherDiscoveryPlan({ text: "מגדל גבוה" });
+  assert.equal(plan.anchorCandidates[0].term, "מגדל גבוה");
+  assert.equal(plan.anchorCandidates[0].kind, "compact-expression");
+  assert.ok(plan.anchorCandidates.some(candidate => candidate.term === "מגדל"));
+  assert.ok(plan.anchorCandidates.some(candidate => candidate.term === "גבוה"));
+  const alternate = plan.anchorCandidates.find(candidate => candidate.term === "מגדל");
+  const alternateStrategy = projectElsGuidedSearchStrategy(plan, alternate.id);
+  assert.equal(alternateStrategy.selectedAxis.term, "מגדל");
+  assert.equal(alternateStrategy.stopPolicy.automaticFallbackToAnotherAxis, false);
+  assert.equal(alternateStrategy.rawStoryIncluded, false);
+});
+
+const guidedPlan = () => prepareElsCipherDiscoveryPlan({
+  text: "מעבורת החלל קולומביה התפרקה ועלתה באש",
+  anchorTerm: "קולומביה",
+  requiredTerms: "ספינת\nיכל אש",
+});
+const guidedOccurrences = count => Array.from({ length: count }, (_, index) => ({
+  hitId: `hit-${index + 1}`, index, ordinal: index + 1, skip: index === 1 ? 4545 : 31 + index,
+  dir: index % 2 ? -1 : 1, start: 1000 + index * 100, ref: `מקור ${index + 1}`, setId: "set-current",
+}));
+const guidedInspection = (hitId, {
+  status = "VERIFIED_PAIR",
+  relation = { code: "EXACT_INTERSECTION", label: "חצייה", priority: 600, stage: "A" },
+  terms = ["ממצאא", "ממצאבח"], storyMatches = 0, failureCause = null, setId = "set-current", languageInspection = null,
+  verifiedFindings = [],
+} = {}) => ({
+  lens: "matrix-discovery", ok: true, contract: "els_matrix_discovery_v1", target: { hitId, setId },
+  discoveryBundle: {
+    contract: "els_cipher_discovery_plan_v1", status, failureCause,
+    selected: status === "VERIFIED_PAIR" ? {
+      relation, storyMatches, reasons: ["זוג שעבר אימות קנוני"],
+      supports: terms.map((term, index) => ({
+        term, label: term, status: "VERIFIED", skip: 17 + index, direction: index ? "back" : "fwd",
+        occurrenceCount: 1, matrixStage: relation.stage, ref: `מקור ${index + 1}`, book: "בראשית",
+      })),
+    } : null,
+    verifiedFindings,
+  },
+  ...(languageInspection ? { languageInspection } : {}),
+});
+
+const guidedLanguageInspection = ({ hitId = "hit-1", skip = 31, dir = 1, axisStart = 1000 } = {}) => ({
+  contract: "els_matrix_language_inspection_v1", status: "CANDIDATE_INPUT", source: "canonical_matrix_letters",
+  stage: "S3_OPEN_SEQUENCE_SEGMENTATION", axis: { term: "ציר", scope: "torah", skip, dir, start: axisStart, hitId },
+  authority: { letters: "CANONICAL", segmentation: "DETERMINISTIC_CANDIDATE", lexicalRecognition: "DETERMINISTIC_CANDIDATE", meaning: "UNVERIFIED", canonicalReplayRequired: true },
+  coverage: { rayCap: 24, maxLetters: 24, maxCandidateWindows: 9216, maxLexiconLookups: 196608,
+    perTraversalReadingCap: 16, returnedRays: 1, candidatesExamined: 160, lexiconLookups: 320,
+    returnedReadings: 2, returnedSegmentations: 0, returnedRelations: 1,
+    boundaryCap: 480, boundaryPerTraversalCap: 10, boundaryFocusRadius: 8,
+    boundaryProfileComparisons: 34, returnedBoundaries: 1, truncated: false },
+  boundaryProfile: { contract: "torah_language_boundary_profile_v1", source: "canonical_torah_word_boundaries",
+    vocabularyRetained: false, modelCallsTriggered: 0 },
+  dynamicLexicon: { contract: "els_dynamic_lexicon_profile_v1", sources: ["canonical_tanakh_words", "maftech_core_snapshot"],
+    matchingAlgorithm: "bounded_window_lookup_v1", entryCount: 41835, tanakhEntryCount: 39959, coreEntryCount: 4529,
+    coreFingerprint: "a".repeat(64), lazyLoaded: true, vocabularyScanned: false, modelCallsTriggered: 0,
+    asset: { path: "els-dynamic-lexicon-v1.gz64.txt", encodedBytes: 347000, sha256: "b".repeat(64),
+      loadTrigger: "VERIFIED_MATRIX_DISCOVERY", cachePolicy: "force-cache", requestCount: 1, downloadMs: 8.2, totalLoadMs: 19.4 } },
+  modelCallsTriggered: 0, findingMutation: false, truthPromotion: false,
+  rays: [{ id: "horizontal:500:1:11", orientation: "horizontal", text: "אבמלכימדודא", reverseText: "אדודמיכלמבא", start: 500, step: 1, length: 11, distance: 0, intersectsAxis: true, focusOffset: 7 }],
+  readings: [{
+    contract: "els_torah_language_reading_v1", status: "UNVERIFIED_READING", exactLetters: "במלכים", canonicalLetters: "במלכימ",
+    baseTerm: "מלכ", label: "מלך", relation: "prefixed-suffixed-form", prefix: "ב", suffix: "ים", source: "bounded-dictionary",
+    selectionProtocol: "GOVERNED_CORE", rayId: "horizontal:500:1:11", orientation: "horizontal", readingDirection: "forward",
+    offset: 1, start: 501, step: 1, length: 6, distance: 0, canonicalReplayRequired: true, truthPromotion: false,
+  }, {
+    contract: "els_torah_language_reading_v1", status: "UNVERIFIED_READING", exactLetters: "דוד", canonicalLetters: "דוד",
+    baseTerm: "דוד", label: "דוד", relation: "exact-lexicon-match", prefix: null, suffix: null, source: "story",
+    selectionProtocol: "CONTEXT_PRE_REGISTERED", rayId: "horizontal:500:1:11", orientation: "horizontal", readingDirection: "forward",
+    offset: 7, start: 507, step: 1, length: 3, distance: 0, canonicalReplayRequired: true, truthPromotion: false,
+  }],
+  segmentations: [],
+  boundaries: [{ contract: "els_torah_language_boundary_v1", status: "UNVERIFIED_BOUNDARY",
+    selectionProtocol: "TORAH_BOUNDARY_PROFILE_V1", rayId: "horizontal:500:1:11", orientation: "horizontal",
+    readingDirection: "forward", boundaryOffset: 7, leftContext: "במלכימ", rightContext: "דודא",
+    leftEnd: 506, rightStart: 507, step: 1, focusDistance: 0, profileScore: 120,
+    interpretationRequired: true, truthPromotion: false }],
+  relations: [{
+    contract: "els_torah_language_relation_v1", status: "UNVERIFIED_RELATION", geometry: "AXIS_INTERSECTING_RAY",
+    rayId: "horizontal:500:1:11", orientation: "horizontal", readingDirection: "forward", gap: 0, distance: 0,
+    contextMatches: 1, exactMatches: 1, candidateScore: 164, rank: 1, canonicalReplayRequired: true, truthPromotion: false,
+    tokens: [
+      { exactLetters: "במלכים", canonicalLetters: "במלכימ", baseTerm: "מלכ", label: "מלך", relation: "prefixed-suffixed-form", source: "bounded-dictionary", start: 501, step: 1, length: 6, offset: 1 },
+      { exactLetters: "דוד", canonicalLetters: "דוד", baseTerm: "דוד", label: "דוד", relation: "exact-lexicon-match", source: "story", start: 507, step: 1, length: 3, offset: 7 },
+    ],
+  }],
+});
+
+const guidedVerifiedLanguageInspection = ({ forgedReceipt = false } = {}) => {
+  const inspection = guidedLanguageInspection();
+  const rayId = "vertical:500:31:11";
+  Object.assign(inspection.rays[0], { id: rayId, orientation: "vertical", step: 31, distance: 1, intersectsAxis: false });
+  for (const reading of inspection.readings) Object.assign(reading, {
+    rayId, orientation: "vertical", step: 31, start: 500 + reading.offset * 31, distance: 1,
+  });
+  const relation = inspection.relations[0];
+  Object.assign(relation, {
+    status: "VERIFIED_RELATION", geometry: "PARALLEL_AXIS_RAY", rayId, orientation: "vertical", distance: 1,
+    canonicalReplayRequired: false,
+  });
+  relation.tokens.forEach((token, index) => Object.assign(token, {
+    step: 31, start: inspection.readings[index].start,
+  }));
+  Object.assign(inspection.boundaries[0], { rayId, orientation: "vertical", leftEnd: 686, rightStart: 717, step: 31 });
+  relation.verification = {
+    contract: "els_language_relation_replay_v1", status: "MATCH", callsTriggered: 2, truthPromotion: false,
+    receipts: relation.tokens.map((token, index) => ({
+      status: "MATCH", term: index === 0 && forgedReceipt ? "מזויף" : token.canonicalLetters,
+      start: token.start, step: token.step, skip: 31, dir: 1,
+      corpusId: "wlc-torah-consonantal-v1", traceIds: [`trace-${index + 1}`],
+    })),
+  };
+  Object.assign(inspection.coverage, { relationReplayCap: 2, relationReplayCalls: 2 });
+  inspection.canonicalReplayCalls = 2;
+  return inspection;
+};
+
+test("guided coverage inspects exactly four canonical occurrences before explicit continuation", () => {
+  const occurrences = guidedOccurrences(9);
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences });
+  assert.equal(coverage.contract, "els_guided_occurrence_coverage_v1");
+  assert.equal(coverage.status, "INSPECTING");
+  assert.equal(coverage.coverage.scheduledCount, 4);
+  assert.equal(coverage.coverage.remainingUnscheduledCount, 5);
+  assert.equal(coverage.coverage.uninspectedAreNotNegativeEvidence, true);
+  assert.equal(coverage.selectionLaw.numericSkipPromoted, false);
+  assert.equal(coverage.aiUsed, false);
+  assert.equal(coverage.findingMutation, false);
+});
+
+test("strong verified geometry outranks a memorable numeric skip", () => {
+  const occurrences = guidedOccurrences(4);
+  const numeric = guidedInspection("hit-2", {
+    relation: { code: "SAME_OR_NEAR_SKIP", label: "דילוג סמוך", priority: 380, stage: "B" }, storyMatches: 2,
+  });
+  const geometric = guidedInspection("hit-1");
+  const misses = ["hit-3", "hit-4"].map(hitId => guidedInspection(hitId, { status: "NO_CANDIDATE_PAIR", failureCause: "MATRIX_BOUNDS" }));
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [numeric, geometric, ...misses] });
+  assert.equal(occurrences[1].skip, 4545);
+  assert.equal(coverage.recommendation.hitId, "hit-1");
+  assert.equal(coverage.stopReason, "STRONG_VERIFIED_PAIR");
+  assert.equal(coverage.matrixSnapshot.items[0].occurrence.hitId, "hit-1");
+  assert.equal(coverage.matrixSnapshot.selectionLaw.numericSkipPromoted, false);
+});
+
+test("guided coverage waits after four misses and admits only four more after continuation", () => {
+  const occurrences = guidedOccurrences(10);
+  const misses = occurrences.slice(0, 4).map(row => guidedInspection(row.hitId, { status: "NO_CANDIDATE_PAIR", failureCause: "MATRIX_BOUNDS" }));
+  const first = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: misses });
+  assert.equal(first.status, "AWAITING_CONTINUATION");
+  assert.equal(first.coverage.scheduledCount, 4);
+  assert.ok(first.inspections.every(row => row.failure.category === "matrix_bounds"));
+  const second = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: misses, approvedBatches: 2 });
+  assert.equal(second.status, "INSPECTING");
+  assert.equal(second.coverage.scheduledCount, 8);
+  assert.equal(second.nextOccurrence.hitId, "hit-5");
+});
+
+test("stale and out-of-batch reports never become guided evidence", () => {
+  const occurrences = guidedOccurrences(6);
+  const coverage = projectElsGuidedOccurrenceCoverage({
+    plan: guidedPlan(), occurrences, resultSetId: "set-current",
+    inspections: [
+      { ...guidedInspection("hit-2"), target: { hitId: "hit-2", setId: "set-old" } },
+      guidedInspection("hit-5"), guidedInspection("hit-1"), guidedInspection("hit-1"),
+    ],
+  });
+  assert.equal(coverage.recommendation.hitId, "hit-1");
+  assert.deepEqual(coverage.rejectedInspections.map(row => row.reason), ["STALE_RESULT_SET", "OUTSIDE_APPROVED_BATCH", "DUPLICATE_REPORT"]);
+});
+
+test("guided failure categories stay explicit and unknown causes fail closed", () => {
+  assert.equal(diagnoseElsGuidedFailure("VOCABULARY_MISS").category, "vocabulary");
+  assert.equal(diagnoseElsGuidedFailure("NORMALIZATION").category, "recognition_normalization");
+  assert.equal(diagnoseElsGuidedFailure("NO_STRONG_GEOMETRY").category, "geometry");
+  assert.equal(diagnoseElsGuidedFailure("RANKING").category, "ranking");
+  assert.equal(diagnoseElsGuidedFailure("MATRIX_BOUNDS").category, "matrix_bounds");
+  assert.equal(diagnoseElsGuidedFailure("UI_PROJECTION").category, "ui_projection");
+  assert.equal(diagnoseElsGuidedFailure("unexpected").diagnosisRequired, true);
+});
+
+test("bounded Torah-language readings preserve exact letters and never become findings", () => {
+  const occurrences = guidedOccurrences(1);
+  const inspection = guidedInspection("hit-1", { languageInspection: guidedLanguageInspection() });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  const language = coverage.inspections[0].languageInspection;
+  assert.equal(language.contract, "els_matrix_language_inspection_v1");
+  assert.equal(language.authority.letters, "CANONICAL");
+  assert.equal(language.authority.meaning, "UNVERIFIED");
+  assert.equal(language.readings[0].exactLetters, "במלכימ");
+  assert.equal(language.readings[0].label, "מלך");
+  assert.equal(language.readings[0].relation, "prefixed-suffixed-form");
+  assert.equal(language.readings[0].canonicalReplayRequired, true);
+  assert.equal(language.relations[0].contract, "els_torah_language_relation_v1");
+  assert.equal(language.relations[0].geometry, "AXIS_INTERSECTING_RAY");
+  assert.deepEqual(language.relations[0].tokens.map(token => token.baseTerm), ["מלכ", "דוד"]);
+  assert.equal(language.relations[0].status, "UNVERIFIED_RELATION");
+  assert.equal(language.relations[0].truthPromotion, false);
+  assert.equal(language.boundaries[0].status, "UNVERIFIED_BOUNDARY");
+  assert.equal(language.boundaries[0].leftContext, "במלכימ");
+  assert.equal(language.boundaries[0].rightContext, "דודא");
+  assert.equal(language.boundaries[0].truthPromotion, false);
+  assert.equal(language.boundaryProfile.vocabularyRetained, false);
+  assert.equal(language.truthPromotion, false);
+  assert.equal(language.findingMutation, false);
+  assert.equal(language.modelCallsTriggered, 0);
+  assert.equal(coverage.recommendation.supports.some(support => support.term === "במלכימ"), false);
+});
+
+test("language input with a foreign occurrence identity fails closed", () => {
+  const occurrences = guidedOccurrences(1);
+  const inspection = guidedInspection("hit-1", { languageInspection: guidedLanguageInspection({ hitId: "hit-other" }) });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  assert.equal(coverage.inspections[0].languageInspection, null);
+});
+
+test("dynamic lexical provenance is projected only from the declared lazy profile", () => {
+  const occurrences = guidedOccurrences(1), languageInspection = guidedLanguageInspection();
+  Object.assign(languageInspection.readings[1], {
+    source: "maftech-core", selectionProtocol: "DYNAMIC_LEXICON_LOOKUP_V1",
+    lexiconSources: ["maftech_core_snapshot"], lexiconFrequency: 0, lexicalConfidence: 85, lexicalPriority: 62,
+  });
+  Object.assign(languageInspection.relations[0].tokens[1], languageInspection.readings[1]);
+  const projected = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences,
+    inspections: [guidedInspection("hit-1", { languageInspection })] }).inspections[0].languageInspection;
+  assert.equal(projected.readings[1].source, "maftech-core");
+  assert.deepEqual(projected.readings[1].lexiconSources, ["maftech_core_snapshot"]);
+  assert.equal(projected.readings[1].selectionProtocol, "DYNAMIC_LEXICON_LOOKUP_V1");
+  assert.equal(projected.readings[1].truthPromotion, false);
+  assert.deepEqual(projected.dynamicLexicon.asset, {
+    path: "els-dynamic-lexicon-v1.gz64.txt", encodedBytes: 347000, sha256: "b".repeat(64),
+    loadTrigger: "VERIFIED_MATRIX_DISCOVERY", cachePolicy: "force-cache", requestCount: 1,
+    downloadMs: 8.2, totalLoadMs: 19.4,
+  });
+
+  languageInspection.dynamicLexicon.entryCount = 50001;
+  const rejected = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences,
+    inspections: [guidedInspection("hit-1", { languageInspection })] }).inspections[0].languageInspection;
+  assert.equal(rejected, null, "a forged broad profile fails closed instead of becoming language evidence");
+
+  const forgedAssetInspection = guidedLanguageInspection();
+  forgedAssetInspection.dynamicLexicon.asset.requestCount = 2;
+  const forgedAsset = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences,
+    inspections: [guidedInspection("hit-1", { languageInspection: forgedAssetInspection })] }).inspections[0].languageInspection;
+  assert.equal(forgedAsset, null, "a forged lazy-asset receipt fails closed instead of becoming language evidence");
+});
+
+test("language input cannot substitute different letters at a valid ray locus", () => {
+  const occurrences = guidedOccurrences(1);
+  const languageInspection = guidedLanguageInspection();
+  languageInspection.readings[0].canonicalLetters = "במלחימ";
+  languageInspection.readings[0].exactLetters = "במלחים";
+  const inspection = guidedInspection("hit-1", { languageInspection });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  assert.deepEqual(coverage.inspections[0].languageInspection.readings.map(reading => reading.baseTerm), ["דוד"]);
+  assert.equal(coverage.inspections[0].languageInspection.relations.length, 0);
+});
+
+test("language relation geometry is rechecked instead of trusting its reported gap", () => {
+  const occurrences = guidedOccurrences(1);
+  const languageInspection = guidedLanguageInspection();
+  languageInspection.relations[0].gap = 4;
+  const inspection = guidedInspection("hit-1", { languageInspection });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  assert.equal(coverage.inspections[0].languageInspection.readings.length, 2);
+  assert.equal(coverage.inspections[0].languageInspection.relations.length, 0);
+});
+
+test("language boundary letters are recomputed from the canonical ray", () => {
+  const occurrences = guidedOccurrences(1), languageInspection = guidedLanguageInspection();
+  languageInspection.boundaries[0].rightContext = "מזויף";
+  const inspection = guidedInspection("hit-1", { languageInspection });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  assert.equal(coverage.inspections[0].languageInspection, null);
+});
+
+test("a canonically replayed language relation verifies exact structure but never meaning", () => {
+  const occurrences = guidedOccurrences(1);
+  const inspection = guidedInspection("hit-1", { languageInspection: guidedVerifiedLanguageInspection() });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  const language = coverage.inspections[0].languageInspection;
+  assert.equal(language.relations[0].status, "VERIFIED_RELATION");
+  assert.equal(language.relations[0].canonicalReplayRequired, false);
+  assert.equal(language.relations[0].verification.status, "MATCH");
+  assert.equal(language.relations[0].verification.receipts.length, 2);
+  assert.equal(language.relations[0].truthPromotion, false);
+  assert.equal(language.authority.meaning, "UNVERIFIED");
+  assert.equal(language.coverage.relationReplayCap, 2);
+  assert.equal(language.coverage.relationReplayCalls, 2);
+  assert.equal(language.canonicalReplayCalls, 2);
+  assert.equal(coverage.recommendation.supports.some(support => support.term === "במלכימ"), false);
+  assert.equal(coverage.matrixSnapshot.items.some(item => item.kind === "verified-language-relation"), true);
+  assert.equal(coverage.matrixSnapshot.items.find(item => item.kind === "verified-language-relation").meaningVerified, false);
+});
+
+test("smart matrix snapshot is verified-only, deduplicated and bounded to five visible items", () => {
+  const occurrences = guidedOccurrences(4);
+  const verifiedFinding = (term, occurrenceCount, matrixStage = "A") => ({
+    term, label: term, status: "VERIFIED", skip: 31, direction: "fwd", occurrenceCount,
+    matrixStage, distance: 1, source: "tanakh-core-lexicon", ref: "בראשית א א", book: "בראשית",
+  });
+  const reports = [
+    guidedInspection("hit-1", { status: "VERIFIED_LOCAL", languageInspection: guidedVerifiedLanguageInspection(),
+      verifiedFindings: [verifiedFinding("דוד", 3), verifiedFinding("אמת", 2), verifiedFinding("אור", 1)] }),
+    guidedInspection("hit-2", { status: "VERIFIED_LOCAL", verifiedFindings: [verifiedFinding("שלום", 5), verifiedFinding("ברית", 2)] }),
+    guidedInspection("hit-3", { status: "VERIFIED_LOCAL", verifiedFindings: [verifiedFinding("מלך", 4), verifiedFinding("ציון", 2)] }),
+    guidedInspection("hit-4", { status: "VERIFIED_LOCAL", verifiedFindings: [verifiedFinding("תורה", 3), verifiedFinding("משה", 2)] }),
+  ];
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: reports });
+  const snapshot = coverage.matrixSnapshot;
+  assert.equal(snapshot.contract, "els_guided_matrix_snapshot_v1");
+  assert.equal(snapshot.status, "READY");
+  assert.equal(snapshot.attentionLimit, 5);
+  assert.equal(snapshot.items.length, 5);
+  assert.deepEqual(snapshot.items.map(item => item.rank), [1, 2, 3, 4, 5]);
+  assert.ok(snapshot.items.every(item => item.status.startsWith("VERIFIED")));
+  assert.equal(snapshot.items.filter(item => item.exactTerms.includes("דוד")).length, 1, "a relation token is not repeated as a local card");
+  assert.equal(snapshot.verifiedOnly, true);
+  assert.equal(snapshot.meaningAuthority, "UNVERIFIED");
+  assert.equal(snapshot.modelCallsTriggered, 0);
+  assert.equal(snapshot.findingMutation, false);
+  assert.equal(snapshot.truthPromotion, false);
+});
+
+test("unverified language candidates remain outside the smart matrix snapshot", () => {
+  const occurrences = guidedOccurrences(1);
+  const inspection = guidedInspection("hit-1", { status: "NO_CANDIDATE_PAIR", languageInspection: guidedLanguageInspection() });
+  const snapshot = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] }).matrixSnapshot;
+  assert.equal(snapshot.status, "VERIFIED_EMPTY");
+  assert.equal(snapshot.items.length, 0);
+  assert.equal(snapshot.candidateOnlyCount > 0, true);
+});
+
+test("guided source context accepts only the exact ranked occurrence and limits visible verses", () => {
+  const occurrences = guidedOccurrences(1).map(({ setId: _setId, ...occurrence }) => occurrence);
+  const coverage = projectElsGuidedOccurrenceCoverage({
+    plan: guidedPlan(), occurrences, resultSetId: "set-current",
+    inspections: [guidedInspection("hit-1", { status: "VERIFIED_LOCAL", verifiedFindings: [{
+      term: "אמת", label: "אמת", status: "VERIFIED", skip: 31, direction: "fwd",
+      occurrenceCount: 2, matrixStage: "A", distance: 1, source: "story", ref: "בראשית א א", book: "בראשית",
+    }] })],
+  });
+  const item = coverage.matrixSnapshot.items[0];
+  const target = {
+    guidedSnapshotSource: true, guidedSnapshotItemId: item.id, hitId: item.occurrence.hitId,
+    resultSetId: item.occurrence.resultSetId, index: item.occurrence.index, occurrenceRef: item.occurrence.ref,
+  };
+  const verses = Array.from({ length: 5 }, (_, index) => ({
+    verseIndex: 10 + index, ref: `בראשית א ${index + 1}`, text: `פסוק ${index + 1}`, from: 100 + index * 10, to: 109 + index * 10,
+  }));
+  const source = projectElsGuidedSourceContext({ snapshot: coverage.matrixSnapshot, lensResult: {
+    lens: "verse-context", ok: true, target, hitId: item.occurrence.hitId,
+    span: { from: 10, to: 14, fromRef: "בראשית א א", toRef: "בראשית א ה", count: 5 }, verses, truncated: false,
+  } });
+  assert.equal(source.contract, "els_guided_source_context_v1");
+  assert.equal(source.status, "OK");
+  assert.equal(source.verses.length, 3);
+  assert.equal(source.engineReturnedCount, 5);
+  assert.equal(source.hasMore, true);
+  assert.deepEqual(source.exactReturn, { resultSetId: "set-current", index: 0, hitId: "hit-1", ordinal: 1, ref: "מקור 1" });
+  assert.deepEqual(source.verification, { occurrence: "MATCH", sourceText: "CANONICAL", meaning: "UNVERIFIED" });
+  assert.equal(source.modelCallsTriggered, 0);
+  assert.equal(source.findingMutation, false);
+  assert.equal(source.persisted, false);
+
+  assert.equal(projectElsGuidedSourceContext({ snapshot: coverage.matrixSnapshot, lensResult: {
+    lens: "verse-context", ok: true, target: { ...target, hitId: "hit-2" }, hitId: "hit-2", span: { from: 10, to: 10 }, verses: [verses[0]],
+  } }), null, "a response for another occurrence cannot attach to this item");
+});
+
+test("guided source context keeps an exact unavailable result honest", () => {
+  const occurrences = guidedOccurrences(1);
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [guidedInspection("hit-1")] });
+  const item = coverage.matrixSnapshot.items[0];
+  const source = projectElsGuidedSourceContext({ snapshot: coverage.matrixSnapshot, lensResult: {
+    lens: "verse-context", ok: false, target: {
+      guidedSnapshotSource: true, guidedSnapshotItemId: item.id, hitId: item.occurrence.hitId,
+      resultSetId: item.occurrence.resultSetId, index: item.occurrence.index, occurrenceRef: item.occurrence.ref,
+    },
+  } });
+  assert.equal(source.status, "UNAVAILABLE");
+  assert.equal(source.verses.length, 0);
+  assert.equal(source.verification.sourceText, "UNAVAILABLE");
+  assert.equal(source.truthPromotion, false);
+});
+
+test("a forged canonical replay receipt cannot verify a language relation", () => {
+  const occurrences = guidedOccurrences(1);
+  const inspection = guidedInspection("hit-1", { languageInspection: guidedVerifiedLanguageInspection({ forgedReceipt: true }) });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  assert.equal(coverage.inspections[0].languageInspection.relations.length, 0);
+});
+
+test("source-sequence letters cannot be relabeled as a verified ELS relation", () => {
+  const occurrences = guidedOccurrences(1), languageInspection = guidedLanguageInspection();
+  const relation = languageInspection.relations[0];
+  Object.assign(relation, { status: "VERIFIED_RELATION", canonicalReplayRequired: false,
+    verification: { contract: "els_language_relation_replay_v1", status: "MATCH", callsTriggered: 2, truthPromotion: false,
+      receipts: relation.tokens.map(token => ({ status: "MATCH", term: token.canonicalLetters, start: token.start,
+        step: 1, skip: 1, dir: 1, corpusId: "wlc-torah-consonantal-v1", traceIds: [] })) } });
+  Object.assign(languageInspection.coverage, { relationReplayCap: 2, relationReplayCalls: 2 });
+  languageInspection.canonicalReplayCalls = 2;
+  const inspection = guidedInspection("hit-1", { languageInspection });
+  const coverage = projectElsGuidedOccurrenceCoverage({ plan: guidedPlan(), occurrences, inspections: [inspection] });
+  assert.equal(coverage.inspections[0].languageInspection.relations.length, 0);
+});
 
 test("automatic plan derives each expression once, explains every form and deduplicates canonical terms", () => {
   const plan = prepareElsAutomaticResearchPlan(base);

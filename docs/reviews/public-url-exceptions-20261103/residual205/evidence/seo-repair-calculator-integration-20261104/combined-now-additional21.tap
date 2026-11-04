@@ -1,0 +1,29 @@
+✔ projects a proved four-author group row as unverified source (2.792077ms)
+✔ unknown author / no group proof / empty body excluded (no name inference) (0.565498ms)
+✔ PII redaction: phone, email, url (0.587401ms)
+✔ exact source reuse: one stream item per row, same id/sourceRef for World and bottom (7.085647ms)
+✔ later research enriches one group occurrence without changing its arrival or making a second source (0.87346ms)
+✔ no fake new items when reader returns nothing; reader error propagates (caller shows not_connected) (0.41364ms)
+✔ reader calls the canonical live v2 RPC once with cursor (0.253921ms)
+✔ grouped card retains both exact source occurrences and research links (0.448713ms)
+✔ v2 migration contract: private proof table, service-only writer, hold, no pushname trust, no channel_updates grants (1.341361ms)
+✔ ingest sends proof from senderId, never senderName (0.361602ms)
+✔ reader failure propagates after one v2 call without probing another RPC (0.258307ms)
+✔ group timeline is accessible without mandatory topical classification or research gating (0.736364ms)
+✔ only the exact approved source joins the existing reading identity (22.576179ms)
+✔ public gate rejects hidden, private, expired, wrong channel and malformed occurrence (0.829524ms)
+✔ a route requires exact public asset and occurrence, never a title or channel-only match (1.224646ms)
+✔ reader issues only exact metadata GETs and forwards cancellation to both stages (1.947862ms)
+✔ denied/absent sources never initiate media lookup; failure stays distinct from empty (0.644326ms)
+✔ cancellation before, between and after reads never returns stale or partial sources (0.96676ms)
+✔ mixed series retains both source kinds and keeps Posts when the channel fails (3.739639ms)
+✔ Home and series entrances do not fetch approved media until its series is selected (0.755723ms)
+✔ same source or media occurrence groups once, but distinct authored Posts remain distinct (0.789644ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 205.750079

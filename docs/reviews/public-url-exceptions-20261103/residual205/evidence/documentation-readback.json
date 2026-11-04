@@ -1,0 +1,42 @@
+{
+  "kind": "documentation-and-baseline-readback",
+  "baseSha": "b80ad895a23b51107fd58d533d4dd93f6d4c431f",
+  "runtimeSha": "625adf97d4e42c47c13e9a710c68a49cfa493830",
+  "hosted": {
+    "passed": 18,
+    "failed": 0,
+    "liveWrites": 0
+  },
+  "original205Reviewed": 205,
+  "original2609Preserved": 2609,
+  "currentCounts": {
+    "invalid": 5,
+    "resolved": 2355,
+    "intentionally_closed": 52,
+    "pending_decision": 197
+  },
+  "transitionRepresentationsAgree": true,
+  "existingInventoryAndAttachmentBindingsUnchanged": true,
+  "bookPreparationAssetsUnchanged": true,
+  "legacyRootWorkerGuardsUnchanged": true,
+  "realAccountObservation": "user reports correct UI and real DM on b80; remaining per-action acceptance open",
+  "whatsApp": "stored preference clarified; binding/consent-edit/delivery acceptance open",
+  "g3h1": "valid historical acceptance retained",
+  "g4": "not closed",
+  "contractsChanged": false,
+  "production": false,
+  "conflictsFound": [],
+  "workLogBefore": "1db8d430-9595-4856-b54d-c24ccc8e702d",
+  "updatedExistingDocuments": [
+    "public.project_codex:37§12.34",
+    "SOD1820_MASTER_STATE.md",
+    "SOD1820_MASTER_ROADMAP.md",
+    "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+    "docs/reviews/url-continuity-plan-20261103/transition-matrix.json",
+    "docs/reviews/url-continuity-plan-20261103/transition-matrix.csv",
+    "docs/reviews/url-continuity-plan-20261103/transition-matrix.md",
+    "docs/reviews/url-continuity-plan-20261103/coverage.md",
+    "docs/reviews/personal-continuity-glass-number-20261103/README.md"
+  ],
+  "runtimeUnchangedAfter625": true
+}

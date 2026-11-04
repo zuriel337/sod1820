@@ -1,0 +1,6 @@
+{
+  "query": "select count(*) from public.redirect_map r join public.posts p on r.wp_id=p.wp_id and r.slug=p.slug where p.tags @> ARRAY['טיוטה']::text[]",
+  "draftRedirects": 0,
+  "readOnly": true,
+  "note": "Aggregate only; no draft body exported."
+}

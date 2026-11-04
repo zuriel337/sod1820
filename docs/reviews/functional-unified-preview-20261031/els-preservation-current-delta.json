@@ -1,0 +1,231 @@
+{
+  "baseline": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+  "productCheckpoint": "5dece6da03a39dd791f56265343cf271856d070a",
+  "originalBaselineCounts": {
+    "identical": 165,
+    "adapted": 9,
+    "excluded": 4
+  },
+  "sources": [
+    {
+      "sha": "548ef03f3d207062e9bdfd54a1e51597440e0390",
+      "counts": {
+        "identical": 144,
+        "adapted": 30,
+        "excluded": 4
+      },
+      "adapted": [
+        {
+          "path": "docs/reviews/els-matrix-height-raziel-audit-20261031.md",
+          "sourceBlob": null,
+          "currentBlob": "30bfa18be1cba6579ea0ba78dacb4704462aac3c"
+        },
+        {
+          "path": "docs/reviews/els-raziel-verified-followup-20261031.md",
+          "sourceBlob": null,
+          "currentBlob": "04e4699828ba95a10cb96cfd963be1ba0df909f9"
+        },
+        {
+          "path": "docs/reviews/els-research-area-preview-20261031.md",
+          "sourceBlob": "a1105e0db225106de9f6a3cf72959a173bc55d3a",
+          "currentBlob": "4bdde4c7cfc76efae8c6d5d06ac9b24b27cd2883"
+        },
+        {
+          "path": "docs/reviews/raziel-content-comparison-follow-handoff-20261031.md",
+          "sourceBlob": null,
+          "currentBlob": "f127b8a36bd1e79113dd516d1c281e9f0cab8737"
+        },
+        {
+          "path": "scripts/build-integrated-preview.mjs",
+          "sourceBlob": "2b0e8bdbce526f645750de35da0bf5ad1132c876",
+          "currentBlob": "73d474c487f7d5628cf155a2be2d3a56f9a13fb4"
+        },
+        {
+          "path": "src/components/experience2029/ElsNativeClassic2029.jsx",
+          "sourceBlob": "4eede9bf556e083f61d7d682150b8857a441de90",
+          "currentBlob": "fb0fee525ffa72ad8247ed45c08bbbc7371d2c27"
+        },
+        {
+          "path": "src/components/experience2029/SystemFrame2029.jsx",
+          "sourceBlob": "6812fc7489c51f043337c989e61873b3eefc3db4",
+          "currentBlob": "87ad33595fa55986d4b1b4505f72d85b000c9800"
+        },
+        {
+          "path": "src/components/experience2029/elsNativeClassic2029.css",
+          "sourceBlob": "3cd7e383dd12885db462f5f2e3cc05a9197ade65",
+          "currentBlob": "b9d82ceba69fcdbebc0959a2038710dc35131b4a"
+        },
+        {
+          "path": "src/components/experience2029/razielSessionSeam2029.js",
+          "sourceBlob": "7cc5fc2cab38dbfa46b0cc73d6102e6c9da74e71",
+          "currentBlob": "859d39f4a0a3827f09a7643b3168a6d37c209168"
+        },
+        {
+          "path": "src/lib/research/elsRazielContext.js",
+          "sourceBlob": "60399c041a596695abfcc09f2511e0b3b41584d3",
+          "currentBlob": "74cddcc43b9322cf2381587fdef8ee99bbc6ba1e"
+        },
+        {
+          "path": "src/lib/research/razielConversationResolver.js",
+          "sourceBlob": "c652e0fe03041e949bfe80061ccd2d08c1b8f569",
+          "currentBlob": "57649518f910999542f3a7559f8994bafa019c50"
+        },
+        {
+          "path": "src/lib/research/razielSemanticIntentGate.js",
+          "sourceBlob": "18b0897381e23864cf71f1b51f4b63152604ce2e",
+          "currentBlob": "a00a5f67e40e8aaa669a64a399fc5ad092615199"
+        },
+        {
+          "path": "src/lib/research/razielSessionRequest2029.js",
+          "sourceBlob": "d8eb0954682d2c25cbcbefb80da8fe2d57e37440",
+          "currentBlob": "20c821f9d2246f3679c4ed39dbb38146c08c4426"
+        },
+        {
+          "path": "src/lib/supabase.js",
+          "sourceBlob": "ed93e6c4b110e07e3cb516d40e69031aa99ab7e1",
+          "currentBlob": "a0b707c759b1e1f7231d486e6c74d00dc173725d"
+        },
+        {
+          "path": "src/pages/Els2029Page.jsx",
+          "sourceBlob": "2d6c18a6bbec9c57af9b238fa5af1726a323ab1f",
+          "currentBlob": "2215a42c8ad3518e24dff2a229ff3bab812c8f87"
+        },
+        {
+          "path": "supabase/functions/_shared/elsRazielOccurrenceContext.js",
+          "sourceBlob": null,
+          "currentBlob": "1044cd4867d1fb6f52b765fb9191cbf5ad5024a5"
+        },
+        {
+          "path": "supabase/functions/_shared/elsRazielReadingContext.js",
+          "sourceBlob": null,
+          "currentBlob": "9513338f8c29711d0fc93b8046da01f2e2699684"
+        },
+        {
+          "path": "supabase/functions/ai-analyze/index.ts",
+          "sourceBlob": "59878ee7ab76c62239c19da4e0121e08a094a8bb",
+          "currentBlob": "686f04ca9e443715854b0bf3a555a91b2057f507"
+        },
+        {
+          "path": "test/els-2029-raziel-consumer.test.mjs",
+          "sourceBlob": "a90b400fd76668ad06e1fa46b9d24096cc733538",
+          "currentBlob": "0957b25e5da6a33dd5769f4bb73d4f7074632637"
+        },
+        {
+          "path": "test/els-matrix-reading-activity-browser.test.mjs",
+          "sourceBlob": "bff37c4e9f5c16c2894f6ec5faa99b28819307e0",
+          "currentBlob": "7e89188e40e17826d0a8c8f91cab18678d7354a3"
+        },
+        {
+          "path": "test/els-matrix-reading-client-e2e.test.mjs",
+          "sourceBlob": "930584eda539a1a2a4c11556f875283c8fe2fbc3",
+          "currentBlob": "1862f92167b5a9060d397fddeb6c0cb22fd2bd26"
+        },
+        {
+          "path": "test/els-matrix-reading-raziel-route.test.mjs",
+          "sourceBlob": "e43cf05a7f2f8c1d403a572c719637454c404f08",
+          "currentBlob": "5aa057a5cff303a013590b7a17e79ad5eef79881"
+        },
+        {
+          "path": "test/els-native-ui-browser.test.mjs",
+          "sourceBlob": "824a88463c7dedd697898fbfe7cfc6bca65007a8",
+          "currentBlob": "8c02e8676de5e25098a29e3edb79b6917fa2cba9"
+        },
+        {
+          "path": "test/els-raziel-matrix-context.test.mjs",
+          "sourceBlob": "94acb7969825a38fcffc82bd8ed747bbb121d5e7",
+          "currentBlob": "873a9722ef7299f470b723c7603be9fd28c35786"
+        },
+        {
+          "path": "test/els-raziel-verified-followup.test.mjs",
+          "sourceBlob": null,
+          "currentBlob": "1e6d59e8aaa6b7c9ce05d9c1ea880e0e71998203"
+        },
+        {
+          "path": "test/els-research-language-restore.test.mjs",
+          "sourceBlob": "4a959893c93a98dc7e59312eacaba39c9f0f5e38",
+          "currentBlob": "09097f1a2494ca3fcb790990562303668e90938b"
+        },
+        {
+          "path": "test/helpers/ai-analyze-handler.mjs",
+          "sourceBlob": "f5bc9553067ffeb8f1bc5b8ed9949af806c56c5d",
+          "currentBlob": "c3cd26aadd0f3c918922934bb24c04411eefb3e3"
+        },
+        {
+          "path": "test/helpers/els-matrix-reading-world.mjs",
+          "sourceBlob": "2d57e91304f50787a6fb2e487094b1fe27580598",
+          "currentBlob": "d3d28ddec85db1197029272879747c35a0adb60f"
+        },
+        {
+          "path": "test/raziel-canonical-navigation-actions-2029.browser.test.mjs",
+          "sourceBlob": "43c50dd5acd10fddb3fcafc234663d4d968b68a5",
+          "currentBlob": "5426c53569f370f3f3e3a3125b18e30ed43d0b76"
+        },
+        {
+          "path": "test/raziel-content-comparison.test.mjs",
+          "sourceBlob": null,
+          "currentBlob": "37574b2cb63795ef7742f4ee56b7998dfad85d46"
+        }
+      ]
+    },
+    {
+      "sha": "4ea9ac370bd8a873d96dd8f4cb13c2a5515ad468",
+      "counts": {
+        "identical": 164,
+        "adapted": 10,
+        "excluded": 4
+      },
+      "adapted": [
+        {
+          "path": "scripts/build-integrated-preview.mjs",
+          "sourceBlob": "2b0e8bdbce526f645750de35da0bf5ad1132c876",
+          "currentBlob": "73d474c487f7d5628cf155a2be2d3a56f9a13fb4"
+        },
+        {
+          "path": "src/components/experience2029/SystemFrame2029.jsx",
+          "sourceBlob": "6812fc7489c51f043337c989e61873b3eefc3db4",
+          "currentBlob": "87ad33595fa55986d4b1b4505f72d85b000c9800"
+        },
+        {
+          "path": "src/components/experience2029/razielSessionSeam2029.js",
+          "sourceBlob": "7cc5fc2cab38dbfa46b0cc73d6102e6c9da74e71",
+          "currentBlob": "859d39f4a0a3827f09a7643b3168a6d37c209168"
+        },
+        {
+          "path": "src/lib/supabase.js",
+          "sourceBlob": "02b7a2d946ff68a64280013f85500ce033589738",
+          "currentBlob": "a0b707c759b1e1f7231d486e6c74d00dc173725d"
+        },
+        {
+          "path": "supabase/functions/ai-analyze/index.ts",
+          "sourceBlob": "b46569ae44cc61aa1024cda1f754deefc7542db6",
+          "currentBlob": "686f04ca9e443715854b0bf3a555a91b2057f507"
+        },
+        {
+          "path": "test/els-matrix-reading-raziel-route.test.mjs",
+          "sourceBlob": "e43cf05a7f2f8c1d403a572c719637454c404f08",
+          "currentBlob": "5aa057a5cff303a013590b7a17e79ad5eef79881"
+        },
+        {
+          "path": "test/els-native-ui-browser.test.mjs",
+          "sourceBlob": "5f705f4a5e6c7853f9c423d495b4e7e8b1f11621",
+          "currentBlob": "8c02e8676de5e25098a29e3edb79b6917fa2cba9"
+        },
+        {
+          "path": "test/els-research-language-restore.test.mjs",
+          "sourceBlob": "4a959893c93a98dc7e59312eacaba39c9f0f5e38",
+          "currentBlob": "09097f1a2494ca3fcb790990562303668e90938b"
+        },
+        {
+          "path": "test/helpers/ai-analyze-handler.mjs",
+          "sourceBlob": "ef5dc9cfe72c40a92ff0bdb1824433983943bb23",
+          "currentBlob": "c3cd26aadd0f3c918922934bb24c04411eefb3e3"
+        },
+        {
+          "path": "test/helpers/els-matrix-reading-world.mjs",
+          "sourceBlob": "2d57e91304f50787a6fb2e487094b1fe27580598",
+          "currentBlob": "d3d28ddec85db1197029272879747c35a0adb60f"
+        }
+      ]
+    }
+  ]
+}

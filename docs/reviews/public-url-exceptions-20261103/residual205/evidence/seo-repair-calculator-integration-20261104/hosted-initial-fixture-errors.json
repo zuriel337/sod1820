@@ -1,0 +1,286 @@
+{
+  "actualPublicData": true,
+  "mockResponses": false,
+  "productWrites": 0,
+  "modelCalls": 0,
+  "performanceMeasurement": false,
+  "rows": [
+    {
+      "name": "home-header-scroll",
+      "width": 390,
+      "evidence": {
+        "initial": {
+          "x": 0,
+          "y": 0,
+          "width": 375,
+          "height": 68
+        },
+        "geometry": {
+          "scrollY": 1000,
+          "header": {
+            "x": 0,
+            "y": 0,
+            "width": 375,
+            "height": 68,
+            "top": 0,
+            "right": 375,
+            "bottom": 68,
+            "left": 0
+          },
+          "headerTop": 0,
+          "headerPosition": "sticky",
+          "ribbon": {
+            "x": 0,
+            "y": -932,
+            "width": 375,
+            "height": 117.78125,
+            "top": -932,
+            "right": 375,
+            "bottom": -814.21875,
+            "left": 0
+          },
+          "ribbonPosition": "static",
+          "bar": {
+            "x": 22.5,
+            "y": 830,
+            "width": 330,
+            "height": 60,
+            "top": 830,
+            "right": 352.5,
+            "bottom": 890,
+            "left": 22.5
+          },
+          "overflow": false
+        },
+        "worker": "/sw.js"
+      },
+      "pass": true
+    },
+    {
+      "name": "now-real-public-feed",
+      "width": 390,
+      "evidence": {
+        "initialRows": 12,
+        "seriesRows": 12,
+        "sourceCount": 7,
+        "mediaCount": 2,
+        "sourceMaxHeight": 109.375,
+        "sourceMaxTitleLines": 1.999421296296296,
+        "unverifiedLabels": 7
+      },
+      "pass": true
+    },
+    {
+      "name": "calculator-classic-number-return",
+      "width": 390,
+      "evidence": {
+        "href": "/number/358?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%A8%D7%92%D7%99%D7%9C",
+        "exactReturn": true
+      },
+      "pass": true
+    },
+    {
+      "name": "metadata-alias-parity",
+      "width": 390,
+      "evidence": [
+        {
+          "path": "/2029/calculator?q=%D7%9E%D7%A9%D7%99%D7%97",
+          "status": 200,
+          "server": "https://sod1820.co.il/gematria",
+          "client": "https://sod1820.co.il/gematria",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/2029/gematria?q=%D7%9E%D7%A9%D7%99%D7%97",
+          "status": 200,
+          "server": "https://sod1820.co.il/gematria",
+          "client": "https://sod1820.co.il/gematria",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/2029/gematria/viral?q=%D7%9E%D7%A9%D7%99%D7%97",
+          "status": 200,
+          "server": "https://sod1820.co.il/gematria",
+          "client": "https://sod1820.co.il/gematria",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/2029/number/1820",
+          "status": 200,
+          "server": "https://sod1820.co.il/number/1820",
+          "client": "https://sod1820.co.il/number/1820",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/2029/number/%D7%9E%D7%A9%D7%99%D7%97",
+          "status": 200,
+          "server": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+          "client": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/post",
+          "status": 200,
+          "server": "https://sod1820.co.il/post",
+          "client": "https://sod1820.co.il/post",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/gallery",
+          "status": 200,
+          "server": "https://sod1820.co.il/gallery",
+          "client": "https://sod1820.co.il/gallery",
+          "robots": "noindex, nofollow, noarchive"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "installed-app-manifest",
+      "width": 390,
+      "evidence": {
+        "name": "כי לה' המלוכה — סוד 1820",
+        "id": "/",
+        "startUrl": "/",
+        "icon": {
+          "src": "/brand/2029/app-icon-3f8a2a2fdc0a.png",
+          "sizes": "1254x1254",
+          "type": "image/png",
+          "purpose": "any"
+        },
+        "sha256": "3f8a2a2fdc0a5a141d10b63bc633eefbd9ba2bfe7dbf7521f3984c21830dcd18"
+      },
+      "pass": true
+    },
+    {
+      "name": "page-errors",
+      "width": 390,
+      "pass": true,
+      "errors": []
+    },
+    {
+      "name": "home-header-scroll",
+      "width": 1440,
+      "pass": false,
+      "error": {
+        "name": "AssertionError",
+        "message": "The expression evaluated to a falsy value:\n\n  assert.ok(Math.abs(geometry.bar.x+geometry.bar.width/2-layoutWidth/2)<3)\n"
+      }
+    },
+    {
+      "name": "now-real-public-feed",
+      "width": 1440,
+      "evidence": {
+        "initialRows": 12,
+        "seriesRows": 12,
+        "sourceCount": 7,
+        "mediaCount": 2,
+        "sourceMaxHeight": 64.1875,
+        "sourceMaxTitleLines": 0.999710648148148,
+        "unverifiedLabels": 7
+      },
+      "pass": true
+    },
+    {
+      "name": "calculator-classic-number-return",
+      "width": 1440,
+      "evidence": {
+        "href": "/number/358?focus=%D7%9E%D7%A9%D7%99%D7%97&method=%D7%A8%D7%92%D7%99%D7%9C",
+        "exactReturn": true
+      },
+      "pass": true
+    },
+    {
+      "name": "metadata-alias-parity",
+      "width": 1440,
+      "evidence": [
+        {
+          "path": "/2029/calculator?q=%D7%9E%D7%A9%D7%99%D7%97",
+          "status": 200,
+          "server": "https://sod1820.co.il/gematria",
+          "client": "https://sod1820.co.il/gematria",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/2029/gematria?q=%D7%9E%D7%A9%D7%99%D7%97",
+          "status": 200,
+          "server": "https://sod1820.co.il/gematria",
+          "client": "https://sod1820.co.il/gematria",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/2029/gematria/viral?q=%D7%9E%D7%A9%D7%99%D7%97",
+          "status": 200,
+          "server": "https://sod1820.co.il/gematria",
+          "client": "https://sod1820.co.il/gematria",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/2029/number/1820",
+          "status": 200,
+          "server": "https://sod1820.co.il/number/1820",
+          "client": "https://sod1820.co.il/number/1820",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/2029/number/%D7%9E%D7%A9%D7%99%D7%97",
+          "status": 200,
+          "server": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+          "client": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/post",
+          "status": 200,
+          "server": "https://sod1820.co.il/post",
+          "client": "https://sod1820.co.il/post",
+          "robots": "noindex, nofollow, noarchive"
+        },
+        {
+          "path": "/gallery",
+          "status": 200,
+          "server": "https://sod1820.co.il/gallery",
+          "client": "https://sod1820.co.il/gallery",
+          "robots": "noindex, nofollow, noarchive"
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "installed-app-manifest",
+      "width": 1440,
+      "evidence": {
+        "name": "כי לה' המלוכה — סוד 1820",
+        "id": "/",
+        "startUrl": "/",
+        "icon": {
+          "src": "/brand/2029/app-icon-3f8a2a2fdc0a.png",
+          "sizes": "1254x1254",
+          "type": "image/png",
+          "purpose": "any"
+        },
+        "sha256": "3f8a2a2fdc0a5a141d10b63bc633eefbd9ba2bfe7dbf7521f3984c21830dcd18"
+      },
+      "pass": true
+    },
+    {
+      "name": "page-errors",
+      "width": 1440,
+      "pass": true,
+      "errors": []
+    }
+  ],
+  "guestInvitationDismissals": [
+    {
+      "width": 390,
+      "reason": "existing invitation on scroll or 22-second timer; dismissed using its normal close action"
+    },
+    {
+      "width": 1440,
+      "reason": "existing invitation on scroll or 22-second timer; dismissed using its normal close action"
+    }
+  ],
+  "ok": false,
+  "sourceSha": "082fcb20b4f8834639157842c7e6d57a60e127b8",
+  "origin": "https://sod1820-2545wgi9f-sod1820-s-projects.vercel.app"
+}

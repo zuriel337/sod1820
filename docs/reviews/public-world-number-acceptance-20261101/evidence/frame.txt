@@ -1,0 +1,50 @@
+
+Running 38 tests using 1 worker
+
+(node:160073) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:160073) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/38] test/public-frame-context-2029.browser.cjs:19:39 › compact centered island and no Companion across public/direct/closed pages 320
+[2/38] test/public-frame-context-2029.browser.cjs:19:39 › compact centered island and no Companion across public/direct/closed pages 390
+[3/38] test/public-frame-context-2029.browser.cjs:19:39 › compact centered island and no Companion across public/direct/closed pages 768
+[4/38] test/public-frame-context-2029.browser.cjs:19:39 › compact centered island and no Companion across public/direct/closed pages 1440
+[5/38] test/public-frame-context-2029.browser.cjs:26:35 › personal card follows panel width, including a narrow panel on wide screen 320
+[6/38] test/public-frame-context-2029.browser.cjs:26:35 › personal card follows panel width, including a narrow panel on wide screen 390
+[7/38] test/public-frame-context-2029.browser.cjs:26:35 › personal card follows panel width, including a narrow panel on wide screen 1440
+[8/38] test/public-frame-context-2029.browser.cjs:38:31 › More, Actions, Tools, canonical share and keyboard return 390
+[9/38] test/public-frame-context-2029.browser.cjs:38:31 › More, Actions, Tools, canonical share and keyboard return 1440
+[10/38] test/public-frame-context-2029.browser.cjs:52:64 › passive Home story never becomes chosen research; prior path survives 390/false
+[11/38] test/public-frame-context-2029.browser.cjs:52:64 › passive Home story never becomes chosen research; prior path survives 390/true
+[12/38] test/public-frame-context-2029.browser.cjs:52:64 › passive Home story never becomes chosen research; prior path survives 1440/false
+[13/38] test/public-frame-context-2029.browser.cjs:52:64 › passive Home story never becomes chosen research; prior path survives 1440/true
+[14/38] test/public-frame-context-2029.browser.cjs:66:31 › intentional Home selection keeps path and exact Home query/anchor return 390
+[15/38] test/public-frame-context-2029.browser.cjs:66:31 › intentional Home selection keeps path and exact Home query/anchor return 1440
+[16/38] test/public-frame-context-2029.browser.cjs:85:36 › synthetic user obeys the Preview gate without any live account or model calls
+[17/38] test/public-frame-context-2029.browser.cjs:85:36 › synthetic admin obeys the Preview gate without any live account or model calls
+[18/38] test/public-frame-context-2029.browser.cjs:92:35 › existing administrator tool dock stays centered with every action 320
+[19/38] test/public-frame-context-2029.browser.cjs:92:35 › existing administrator tool dock stays centered with every action 390
+[20/38] test/public-frame-context-2029.browser.cjs:92:35 › existing administrator tool dock stays centered with every action 1440
+[21/38] test/public-frame-context-2029.browser.cjs:100:80 › one shared Now feed, context sheet and compact island 320/light
+[22/38] test/public-frame-context-2029.browser.cjs:100:80 › one shared Now feed, context sheet and compact island 320/parchment
+[23/38] test/public-frame-context-2029.browser.cjs:100:80 › one shared Now feed, context sheet and compact island 320/dark
+[24/38] test/public-frame-context-2029.browser.cjs:100:80 › one shared Now feed, context sheet and compact island 1440/light
+[25/38] test/public-frame-context-2029.browser.cjs:100:80 › one shared Now feed, context sheet and compact island 1440/parchment
+[26/38] test/public-frame-context-2029.browser.cjs:100:80 › one shared Now feed, context sheet and compact island 1440/dark
+[27/38] test/public-frame-context-2029.browser.cjs:112:31 › real public Topic links populate additional connections and return to exact source 390
+[28/38] test/public-frame-context-2029.browser.cjs:112:31 › real public Topic links populate additional connections and return to exact source 1440
+[29/38] test/public-frame-context-2029.browser.cjs:126:31 › all personal action grids have equal columns, clear labels and preserved locks 320
+[30/38] test/public-frame-context-2029.browser.cjs:126:31 › all personal action grids have equal columns, clear labels and preserved locks 1440
+[31/38] test/public-frame-context-2029.browser.cjs:135:31 › ordinary Home link preserves exact return without selecting the displayed Post 390
+[32/38] test/public-frame-context-2029.browser.cjs:135:31 › ordinary Home link preserves exact return without selecting the displayed Post 1440
+[33/38] test/public-frame-context-2029.browser.cjs:141:31 › intentional Number to World uses explicit context and exact return 390
+[34/38] test/public-frame-context-2029.browser.cjs:141:31 › intentional Number to World uses explicit context and exact return 1440
+[35/38] test/public-frame-context-2029.browser.cjs:148:31 › native personal module navigation uses symmetric existing buttons; guest never loads private data 320
+[36/38] test/public-frame-context-2029.browser.cjs:148:31 › native personal module navigation uses symmetric existing buttons; guest never loads private data 1440
+[37/38] test/public-frame-context-2029.browser.cjs:154:31 › neutral World Number prompt accepts a deliberate number and expression without adopting old work 390
+[38/38] test/public-frame-context-2029.browser.cjs:154:31 › neutral World Number prompt accepts a deliberate number and expression without adopting old work 1440
+  38 passed (2.3m)

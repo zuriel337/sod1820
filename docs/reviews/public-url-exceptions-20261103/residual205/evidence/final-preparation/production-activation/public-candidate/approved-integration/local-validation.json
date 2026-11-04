@@ -1,0 +1,22 @@
+{
+  "approvedProposalHead": "8882d7c5c0647a9ddcd2d73ddbafdd4c8636fb04",
+  "approval": "Explicit ZURIEL approval in current conversation: exact proposal, named branch only; no main/Production/domain action",
+  "beforeWorkLog": "45453603-8049-459b-831c-abaeea864445",
+  "branch": "gpt/2029-public-cutover-final-preparation-20261103",
+  "approvedPatchSha256": "a3ef243331857304cfb5c1e8f5d68c7a14dfab2aa7ce748dc285d7e349d5c282",
+  "allNineAppliedFilesMatchApprovedTargets": true,
+  "testsPassed": 49,
+  "testsFailed": 0,
+  "testsSkipped": 0,
+  "realLocalDormantBuild": "PASS",
+  "legacyAndOneTreeGates": "PASS via unchanged mandatory builder",
+  "genuineTwoAccountAcceptance": "RETAINED_USER_REPORTED_NOT_REPEATED",
+  "sharedChanges": false,
+  "productionDeploymentCreated": false,
+  "domainAssignment": false,
+  "fullIsolationOrG4": "NOT_CLAIMED",
+  "additionalAccountPermissionTestsPassed": 33,
+  "totalLocalTestsPassed": 82,
+  "buildLogWhitespaceNormalized": true,
+  "originalBuildLogSha256": "a0c2a0a63a8912b5d00f77fdaf63cdc190e48a43ddca16b9622e5968309cbaed"
+}

@@ -1,0 +1,29 @@
+✔ private reply return round-trips bounded view state without creating private identity authority (2.892062ms)
+✔ self GET verifies account and scopes reads, never creates a contributor or mutates a profile (1.686119ms)
+✔ guests/invalid sessions cannot read private self data or create records (0.32334ms)
+✔ no writer/ambiguous/failed reads stay distinct; GET never invokes a creation RPC (0.642848ms)
+✔ creation requires explicit public consent and validated name/bio, existing/ambiguous bindings are protected (0.985321ms)
+✔ new pages cannot borrow an existing canonical author's name or use wildcard matching (0.420297ms)
+✔ public portrait uses only this verified account's photo and explicit consent, preserving other dossier fields (0.580514ms)
+✔ avatar preference is explicit, revocable and never falls back after opt-out (0.191038ms)
+✔ conversation lookup resolves only existing own-inbox counterpart to anonymous public writer (1.064471ms)
+✔ cross-origin and unsupported self writes cannot run any product RPC (0.261747ms)
+✔ read-only Preview serves the existing verified GET and blocks every profile write before authentication or product RPC (0.3123ms)
+✔ legacy follow label links need exact unambiguous anonymous public identity; no display-name slug fabrication (0.443416ms)
+✔ native personal routes preserve exact allowed return and refuse external/internal redirects (0.167381ms)
+✔ Life Journey native returns preserve every App2029 route family without accepting Legacy or external paths (0.781797ms)
+✔ actual RSA signatures bind authenticated users to this Vercel project and Preview environment (21.12008ms)
+✔ server proof health exposes only signature-verification booleans, never a token or identity claims (2.006242ms)
+✔ Preview proxy verifies the actual caller then forwards one unchanged canonical request and never retries (3.586715ms)
+(node:59921) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ complete Edge handler keeps user budget and cost gates when signed Preview availability is accepted (70.279587ms)
+✔ functional OAuth has one exact verified callback for both providers and preserves local research context separately (2.490708ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 369.689106

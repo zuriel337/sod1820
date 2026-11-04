@@ -1,17 +1,21 @@
+import { publicPostHref } from "../lib/publicPostUrls.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
-import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { relativeTimeLabel } from "../lib/relativeTime2029.js";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import CurationMark2029 from "../components/experience2029/CurationMark2029.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
-import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
-import { applySeo } from "../lib/seo.js";
-import WorldFlightStory2029 from "../components/research/WorldFlightStory2029.jsx";
+import { applySeo, PUBLIC_HOME_SEO } from "../lib/seo.js";
+const WorldFlightStory2029 = lazy(() => import("../components/research/WorldFlightStory2029.jsx"));
+import "./home-world-story2029.css";
 import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
+import HomeRealityRiver2029, { RealityRiver2029 } from "../components/research/RealityRiver2029.jsx";
+import RealityStreamFollow2029 from "../components/research/RealityStreamFollow2029.jsx";
 import HomeComposition2029 from "../components/experience2029/HomeComposition2029.jsx";
+import ElsRotatingMatrixCard2029 from "../components/experience2029/ElsRotatingMatrixCard2029.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
 import { CORE_PUBLIC_LAUNCH_2029 } from "../lib/publicLaunch2029.js";
 
@@ -306,10 +310,11 @@ function HomeWorldPreview({ preview, loading, onOpenItem, onOpenResearcher, onOp
 
 const CONTEXT_TYPE_LABEL = Object.freeze({ post: "פוסט", number: "מספר", topic: "נושא", world: "עולם", phrase: "ביטוי", researcher: "כותב", book: "ספר" });
 // Release the adopted Home independently of preview-only tools and disabled telemetry.
-const HOME_COMPOSED = CORE_PUBLIC_LAUNCH_2029 || import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || import.meta.env.VITE_HOME_2029_ENABLED === "true";
+const HOME_COMPOSED = import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101" || CORE_PUBLIC_LAUNCH_2029 || import.meta.env.DEV || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || import.meta.env.VITE_HOME_2029_ENABLED === "true";
 
-function HomeBody() {
+function HomeBody({ primaryReader = null } = {}) {
   const navigate = useNavigate();
+  const location = useLocation();
   const research = useResearch();
   const shell = use2029Shell();
   const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });
@@ -320,15 +325,34 @@ function HomeBody() {
   const worldOpen = !worldFeature.loading && worldFeature.allowed;
   const [query, setQuery] = useState("");
   const [homeState, setHomeState] = useState({ loading: true, projection: null });
+  const [worldRequested, setWorldRequested] = useState(false);
+  const [summaryRequested, setSummaryRequested] = useState(false);
+  const [homeWorldState, setHomeWorldState] = useState({ loading: true, projection: null });
   const context = research.context || null;
 
   useEffect(() => {
+    if (HOME_COMPOSED && !summaryRequested) return undefined;
     let live = true;
-    fetchHome2029Projection({ includeWorld: !CORE_PUBLIC_LAUNCH_2029, includeTemporal: !CORE_PUBLIC_LAUNCH_2029 })
+    const controller = new AbortController();
+    // These readers are already admitted by their own section. Their calendar
+    // and World dependencies must not gate the primary Home component either.
+    import("../lib/research/home2029Projection.js")
+      .then(({ fetchHome2029Projection }) => live && !controller.signal.aborted
+        ? fetchHome2029Projection({ signal: controller.signal, includePulse: true, includeWorld: !CORE_PUBLIC_LAUNCH_2029 && !HOME_COMPOSED, includeTemporal: !CORE_PUBLIC_LAUNCH_2029 }) : null)
       .then((projection) => { if (live) setHomeState({ loading: false, projection }); })
       .catch(() => { if (live) setHomeState({ loading: false, projection: null }); });
+    return () => { live = false; controller.abort(); };
+  }, [summaryRequested]);
+
+  useEffect(() => {
+    if (!HOME_COMPOSED || CORE_PUBLIC_LAUNCH_2029 || !worldOpen || !worldRequested) return undefined;
+    let live = true;
+    import("../lib/research/home2029Projection.js")
+      .then(({ fetchHomeWorldPreview2029 }) => live ? fetchHomeWorldPreview2029() : null)
+      .then(projection => { if (live) setHomeWorldState({ loading: false, projection }); })
+      .catch(() => { if (live) setHomeWorldState({ loading: false, projection: null }); });
     return () => { live = false; };
-  }, []);
+  }, [worldRequested, worldOpen]);
 
   const start = (e) => {
     e?.preventDefault?.();
@@ -353,7 +377,7 @@ function HomeBody() {
         inputKind: entry.input_kind,
       },
     });
-    navigate("/world");
+    navigate("/world?focus=context");
   };
 
   const openTemporalNow = () => {
@@ -380,11 +404,11 @@ function HomeBody() {
         journey: null,
       },
     });
-    navigate("/world");
+    navigate("/world?focus=context");
   };
 
   const temporalNow = homeState.projection?.temporalNow || null;
-  const worldPreview = homeState.projection?.worldPreview || null;
+  const worldPreview = HOME_COMPOSED ? homeWorldState.projection : homeState.projection?.worldPreview || null;
 
   const openCalculator = (expression) => {
     const phrase = String(expression || "").trim();
@@ -455,25 +479,38 @@ function HomeBody() {
 
   const selectPost = (post) => {
     research.setResearchContext?.({
-      subject: { id: String(post.slug), type: "post", label: post.title, href: `/post/${post.slug}` },
+      subject: { id: String(post.slug), type: "post", label: post.title, href: publicPostHref(post) },
       selection: null,
       lens: "home",
-      returnTo: { href: "/2029", label: "דף הבית", subject: null, selection: null, lens: "home", dimensions: {}, journey: context?.journey || null },
+      journey: context?.journey || null,
+      dimensions: { surfaceContextHref: location.pathname + location.search },
+      returnTo: { href: location.pathname + location.search + location.hash, label: "דף הבית", subject: context?.subject || null, selection: context?.selection || null, lens: context?.lens || "home", dimensions: context?.dimensions || {}, journey: context?.journey || null },
     });
   };
 
   // Approved composition (reference fa0e26f) on the same public readers and the single Frame.
   // Include/Publish is unchanged; production keeps its current body until release.
   if (HOME_COMPOSED) return <HomeComposition2029
-    projection={homeState.projection}
+    primaryReader={primaryReader}
+    projection={{ ...homeState.projection, worldPreview }}
+    onWorldApproach={setWorldRequested}
+    onSummaryApproach={setSummaryRequested}
+    onNavigate={() => research.updateResearchContext?.({ returnTo: {
+      href: location.pathname + location.search + location.hash, label: "דף הבית",
+      subject: context?.subject || null, selection: context?.selection || null,
+      lens: context?.lens || "home", dimensions: context?.dimensions || {}, journey: context?.journey || null,
+    } })}
     loading={homeState.loading}
     corePublic={CORE_PUBLIC_LAUNCH_2029}
     onOpenWorkspace={shell.openWorkspace}
     worldOpen={worldOpen}
     nowHero={!homeState.loading && temporalNow ? <TemporalNowCard item={temporalNow} onOpen={openTemporalNow} /> : null}
-    story={CORE_PUBLIC_LAUNCH_2029 ? null : <WorldFlightStory2029 surface="home" research={research} shell={shell} />}
+    story={CORE_PUBLIC_LAUNCH_2029 ? null : <Suspense fallback={<section id="home-plane" className="sod29-flight-story is-home is-loading" aria-label="סיפור המטוס נטען"><p role="status">פותח את סיפור המטוס…</p></section>}><WorldFlightStory2029 surface="home" research={research} shell={shell} /></Suspense>}
+    elsEntry={<ElsRotatingMatrixCard2029 />}
     arrivals={CORE_PUBLIC_LAUNCH_2029 ? null : <div className="h29-stream">
-      <SourceArrivalList2029 surface="home" loading={homeState.loading} limit={4} showNew
+      {worldRequested ? <HomeRealityRiver2029 />
+        : <RealityRiver2029 loading follow={<RealityStreamFollow2029 source="home_reality_stream_2029" />} />}
+      <SourceArrivalList2029 surface="home" loading={homeWorldState.loading} limit={4} showNew
         items={worldPreview?.arrivals || worldPreview?.items || []}
         availability={worldPreview?.groupArrivals} onOpen={openWorldItem} />
       <Link className="h29-btn h29-stream-more" to="/world#world-sources">כניסה לזרם המלא בעולם ←</Link>
@@ -559,11 +596,11 @@ function HomeBody() {
   </>;
 }
 
-export default function Home2029Page() {
+export default function Home2029Page({ primaryReader = null } = {}) {
   useEffect(() => {
-    applySeo(CORE_PUBLIC_LAUNCH_2029
-      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: "/2029" }
-      : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: "/2029" });
+    applySeo((import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101") ? PUBLIC_HOME_SEO : CORE_PUBLIC_LAUNCH_2029
+      ? { title: "SOD1820 · פוסטים, צפנים, גימטריה וצ׳אט", description: "פוסטים, חיפוש ELS, מחשבון גימטריה ושיחות הקהילה באתר SOD1820.", path: (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101") ? "/" : "/2029" }
+      : { title: "SOD1820 · העולם החדש", description: "מה מתגלה עכשיו ב-SOD1820 — שער לעולם אחד של רמזים, מקורות וחיבורים.", path: (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101") ? "/" : "/2029" });
   }, []);
-  return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title={CORE_PUBLIC_LAUNCH_2029 ? "SOD1820" : "SOD1820 · העולם החדש"} description={CORE_PUBLIC_LAUNCH_2029 ? "פוסטים, ELS, גימטריה ושיחות הקהילה." : "מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."}><HomeBody /></Sod2029Shell>;
+  return <Sod2029Shell surface="home" introVariant={HOME_COMPOSED ? "none" : undefined} symbol={<NavigationIcon2029 name="home" />} eyebrow="גלה · עכשיו · המשך" title={CORE_PUBLIC_LAUNCH_2029 ? "SOD1820" : "SOD1820 · העולם החדש"} description={CORE_PUBLIC_LAUNCH_2029 ? "פוסטים, ELS, גימטריה ושיחות הקהילה." : "מה מתגלה עכשיו, מה נפתח בעולם, ואיך ממשיכים מאותה נקודה."}><HomeBody primaryReader={primaryReader} /></Sod2029Shell>;
 }

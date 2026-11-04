@@ -1,0 +1,10 @@
+CREATE SCHEMA auth;
+CREATE FUNCTION auth.role() RETURNS text LANGUAGE sql STABLE AS $$ SELECT coalesce(nullif(current_setting('cp1.role',true),''),'authenticated') $$;
+CREATE FUNCTION public.rd_is_admin() RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT coalesce(current_setting('cp1.admin',true),'false')='true' $$;
+CREATE SCHEMA cron;
+CREATE TABLE cron.job(jobid bigint,jobname text,active boolean);
+CREATE TABLE cron.job_run_details(jobid bigint,status text,start_time timestamptz);
+CREATE TABLE public.security_alerts(acked boolean,ts timestamptz);
+INSERT INTO cron.job VALUES(1,'synthetic-health-watch',true);
+INSERT INTO cron.job_run_details VALUES(1,'succeeded',now());
+INSERT INTO public.security_alerts VALUES(false,now());

@@ -1,0 +1,172 @@
+diff --git a/.github/workflows/legacy-production-lock.yml b/.github/workflows/legacy-production-lock.yml
+index 708298d0..09591dd7 100644
+--- a/.github/workflows/legacy-production-lock.yml
++++ b/.github/workflows/legacy-production-lock.yml
+@@ -1,4 +1,4 @@
+-name: Legacy Production Lock
++name: Production Release and Legacy Compatibility
+ 
+ on:
+   pull_request:
+@@ -18,5 +18,9 @@ jobs:
+       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+         with:
+           persist-credentials: false
+-      - name: Reject a 2029 canonical-production cutover
++      - name: Preserve the Legacy fallback routes and launch flag
+         run: node scripts/test-legacy-production-lock.mjs
++      - name: Verify explicit 2029 publication and deployment separation
++        run: node scripts/test-public-reading-main-release-contract.mjs
++      - name: Verify negative cases for the release and retired-branch boundary
++        run: node --test test/public-reading-main-release-contract.test.mjs
+diff --git a/public-reading-deploy/review-admission.js b/public-reading-deploy/review-admission.js
+index 2fa26697..f73a63aa 100644
+--- a/public-reading-deploy/review-admission.js
++++ b/public-reading-deploy/review-admission.js
+@@ -5,8 +5,8 @@
+ // compiler records its own platform identity, which runtime must match exactly.
+ // No user request/header/query or shared site flag selects this mode.
+ export const REVIEW_PROJECT_ID = "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq";
+-export const REVIEW_BRANCH = "gpt/2029-public-cutover-final-preparation-20261103";
+-export const PRODUCTION_REVIEW_BRANCH = "gpt/2029-public-cutover-final-preparation-20261103";
++export const REVIEW_BRANCH = "gpt/2029-main-live-state-reconcile-20261104";
++export const PRODUCTION_REVIEW_BRANCH = "main";
+ // Existing Git-branch alias in the same project, verified through Vercel.
+ // A stable callback avoids a different Auth allowlist entry for every commit.
+ export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";
+diff --git a/public-reading-deploy/vercel.json b/public-reading-deploy/vercel.json
+index 9d05ed3f..0c00ca16 100644
+--- a/public-reading-deploy/vercel.json
++++ b/public-reading-deploy/vercel.json
+@@ -1,5 +1,6 @@
+ {
+   "framework": null,
++  "git": { "deploymentEnabled": false },
+   "installCommand": "npm ci --prefix .. --no-audit --no-fund",
+   "outputDirectory": "dist",
+   "redirects": [
+diff --git a/scripts/test-legacy-production-lock.mjs b/scripts/test-legacy-production-lock.mjs
+index 99e7e304..34dd7ec9 100644
+--- a/scripts/test-legacy-production-lock.mjs
++++ b/scripts/test-legacy-production-lock.mjs
+@@ -37,4 +37,4 @@ assert.match(app, /path="\/community\/chat" element=\{CORE_PUBLIC_LAUNCH_2029 \?
+ assert.match(app, /path="\/code" element=\{CORE_PUBLIC_LAUNCH_2029 \? <Product2029DocumentHandoff \/> : <CodePage \/>\}/);
+ assert.match(app, /path="\/:slug" element=\{CORE_PUBLIC_LAUNCH_2029 \? <LegacyPostDocumentHandoff \/> : <PostBySlugRoute \/>\}/);
+ 
+-console.log("Legacy Production lock: PASS");
++console.log("Legacy fallback compatibility: PASS (not live deployment verification)");
+diff --git a/scripts/test-public-reading-main-release-contract.mjs b/scripts/test-public-reading-main-release-contract.mjs
+new file mode 100644
+index 00000000..99c46a3e
+--- /dev/null
++++ b/scripts/test-public-reading-main-release-contract.mjs
+@@ -0,0 +1,41 @@
++import assert from "node:assert/strict";
++import fs from "node:fs";
++import { pathToFileURL } from "node:url";
++import canonicalMiddleware, {config as canonicalConfig} from "../middleware.js";
++import publicMiddleware, {config as publicConfig} from "../public-reading-deploy/middleware.js";
++import {PUBLIC_READING_DEPLOYMENT_AUTHORIZATION} from "../public-reading-deploy/deployment-policy.js";
++import {PRODUCTION_REVIEW_BRANCH,REVIEW_BRANCH} from "../public-reading-deploy/review-admission.js";
++
++// Repository publication contract only. A PASS is neither a live deployment
++// receipt nor permission to merge/deploy a retired branch or move domains.
++export function assertPublicationConfig({fallback,publication,launch,builder}) {
++  assert.equal(fallback.git?.deploymentEnabled,false,"automatic Git deployment must stay off at fallback root");
++  assert.equal(publication.git?.deploymentEnabled,false,"automatic Git deployment must stay off at publication root");
++  assert.equal(publication.framework,null);
++  assert.equal(publication.outputDirectory,"dist");
++  for (const [source,destination] of [["/sitemap.xml","/api/public-sitemap"],["/robots.txt","/api/public-robots"],["/2029.html","/api/public-document?path=/2029"],["/((?!api(?:/|$)).*)","/api/public-document"]])
++    assert.ok(publication.rewrites?.some(r=>r.source===source&&r.destination===destination),source+" must reach the public document owner");
++  assert.equal(publication.functions?.["api/public-document.js"]?.includeFiles,".generated/2029.html");
++  assert.ok(!publication.redirects?.some(r=>r.source==="/"&&/^\/2029(?:\/|$)/.test(r.destination)),"home cannot bounce to a prefixed URL");
++  assert.ok(publication.headers?.some(r=>r.source.includes("sw.js")&&r.headers.some(h=>h.key==="Cache-Control"&&h.value==="no-store")&&r.headers.some(h=>h.key==="Service-Worker-Allowed"&&h.value==="/")),"real worker remains uncached and root scoped");
++  assert.match(launch,/export const CORE_PUBLIC_LAUNCH_2029 = false;/,"fallback selector is not shared Production state");
++  for (const text of ["publicCandidateBuildIdentity","protectedReviewBuildIdentity","public_reading_hosted_activation_requires_separate_guard_approval","public_reading_middleware_must_bind_canonical_policy"])
++    assert.ok(builder.includes(text),text+" remains enforced");
++  return true;
++}
++export function readPublicationConfig() {
++  const read=path=>fs.readFileSync(new URL("../"+path,import.meta.url),"utf8");
++  return {fallback:JSON.parse(read("vercel.json")),publication:JSON.parse(read("public-reading-deploy/vercel.json")),launch:read("src/lib/publicLaunch2029.js"),builder:read("scripts/build-public-reading-production.mjs")};
++}
++export function assertMainReleaseContract() {
++  assertPublicationConfig(readPublicationConfig());
++  assert.equal(PRODUCTION_REVIEW_BRANCH,"main","retired cutover branches cannot create new production candidates");
++  assert.equal(REVIEW_BRANCH,"gpt/2029-main-live-state-reconcile-20261104","only the explicitly current integration branch is admitted for review");
++  assert.deepEqual(PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,{state:"dormant",approvedSourceSha:null,approvedDeploymentId:null,approvedAt:null});
++  assert.equal(publicMiddleware,canonicalMiddleware);assert.deepEqual(publicConfig,canonicalConfig);
++  return true;
++}
++if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
++  assertMainReleaseContract();
++  console.log("Main 2029 publication contract: PASS; automatic Git deployment OFF; explicit source-pinned publication only; live state not inferred");
++}
+diff --git a/test/public-reading-main-release-contract.test.mjs b/test/public-reading-main-release-contract.test.mjs
+new file mode 100644
+index 00000000..bf263e13
+--- /dev/null
++++ b/test/public-reading-main-release-contract.test.mjs
+@@ -0,0 +1,14 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import {assertPublicationConfig,readPublicationConfig,assertMainReleaseContract} from "../scripts/test-public-reading-main-release-contract.mjs";
++import {protectedReviewBuildIdentity,protectedReviewRuntimeAuthorized,publicCandidateBuildIdentity,publicCandidateRuntimeAuthorized,REVIEW_PROJECT_ID,REVIEW_BRANCH,PRODUCTION_REVIEW_BRANCH} from "../public-reading-deploy/review-admission.js";
++const sha="a".repeat(40);
++const fixture=(target,branch)=>({VERCEL:"1",VERCEL_ENV:target,VERCEL_TARGET_ENV:target,VERCEL_PROJECT_ID:REVIEW_PROJECT_ID,VERCEL_GIT_COMMIT_REF:branch,VERCEL_GIT_COMMIT_SHA:sha,VERCEL_DEPLOYMENT_ID:"dpl_SyntheticMainRelease1",VERCEL_URL:"sod1820-syntheticmain1-sod1820-s-projects.vercel.app"});
++const input=env=>({env,sourceSha:sha,sourceDirty:false,requestedSourceSha:sha});
++test("current publication and fallback are different explicit artifacts",()=>assert.equal(assertMainReleaseContract(),true));
++const changes={"fallback Git deployment true":v=>v.fallback.git.deploymentEnabled=true,"fallback Git setting removed":v=>delete v.fallback.git,"publication Git deployment true":v=>v.publication.git.deploymentEnabled=true,"publication Git setting removed":v=>delete v.publication.git,"public document bypass":v=>v.publication.rewrites.at(-1).destination="/index.html","robots missing":v=>v.publication.rewrites=v.publication.rewrites.filter(x=>x.source!=="/robots.txt"),"sitemap missing":v=>v.publication.rewrites=v.publication.rewrites.filter(x=>x.source!=="/sitemap.xml"),"raw document bypass":v=>v.publication.rewrites.find(x=>x.source==="/2029.html").destination="/2029.html","template missing":v=>delete v.publication.functions,"worker cache unsafe":v=>v.publication.headers=v.publication.headers.filter(x=>!x.source.includes("sw.js")),"fallback shared flag enabled":v=>v.launch=v.launch.replace("CORE_PUBLIC_LAUNCH_2029 = false","CORE_PUBLIC_LAUNCH_2029 = true"),"compiler activation check removed":v=>v.builder=v.builder.replace("public_reading_hosted_activation_requires_separate_guard_approval","")};
++for(const [name,change] of Object.entries(changes))test("reject "+name,()=>{const v=structuredClone(readPublicationConfig());change(v);assert.throws(()=>assertPublicationConfig(v))});
++test("main is an exact manual candidate, not deployment authorization",()=>{const env=fixture("production",PRODUCTION_REVIEW_BRANCH),r=publicCandidateBuildIdentity(input(env));assert.equal(r.branch,"main");assert.equal(r.productionAuthorized,false);assert.equal(r.cutoverAuthorized,false);assert.equal(r.domainAssignmentAuthorized,false);assert.equal(publicCandidateRuntimeAuthorized(r,env),true);assert.equal(publicCandidateRuntimeAuthorized(r,{...env,VERCEL_GIT_COMMIT_REF:REVIEW_BRANCH}),false)});
++test("current integration Preview remains protected and cannot impersonate Production",()=>{const env=fixture("preview",REVIEW_BRANCH),r=protectedReviewBuildIdentity(input(env));assert.equal(r.productionAuthorized,false);assert.equal(r.indexingAuthorized,false);assert.equal(protectedReviewRuntimeAuthorized(r,env),true);assert.equal(protectedReviewRuntimeAuthorized(r,fixture("production","main")),false)});
++for(const branch of ["gpt/2029-public-cutover-final-preparation-20261103","ccr-75c9c441-4gdlnu","gpt/2029-membership-credit-meter-ui-20261101","claude/old-session","codex/ahavat-preview-open-20261031","ccr-c26b4a83-a0e6to"])
++ test("retired branch rejected: "+branch,()=>{assert.throws(()=>publicCandidateBuildIdentity(input(fixture("production",branch))),/identity_rejected/);assert.throws(()=>protectedReviewBuildIdentity(input(fixture("preview",branch))),/identity_rejected/)});
+diff --git a/test/public-reading-production-review.test.mjs b/test/public-reading-production-review.test.mjs
+index 4ea4a553..98e68e81 100644
+--- a/test/public-reading-production-review.test.mjs
++++ b/test/public-reading-production-review.test.mjs
+@@ -34,10 +34,10 @@ test("Production target needs explicit staged mode and remains non-cutover", ()
+   assert.throws(() => protectedReviewBuildIdentity(defaultMode), /identity_rejected/);
+ });
+ 
+-test("staged admission rejects wrong SHA, dirty sources, copied deployment, main and missing platform identity", () => {
++test("staged admission rejects wrong SHA, dirty sources, copied deployment, superseded branches and missing platform identity", () => {
+   const badEnvs = [null, {}, ...Object.keys(env).map(key => ({ ...env, [key]: undefined })),
+     { ...env, VERCEL_ENV: "preview" }, { ...env, VERCEL_TARGET_ENV: "preview" },
+-    { ...env, VERCEL_GIT_COMMIT_REF: "main" }, { ...env, VERCEL_GIT_COMMIT_REF: "gpt/2029-residual205-books-personal-20261103" },
++    { ...env, VERCEL_GIT_COMMIT_REF: "gpt/2029-public-cutover-final-preparation-20261103" }, { ...env, VERCEL_GIT_COMMIT_REF: "gpt/2029-residual205-books-personal-20261103" },
+     { ...env, VERCEL_PROJECT_ID: "prj_Other" }, { ...env, VERCEL_GIT_COMMIT_SHA: "b".repeat(40) },
+     ...["sod1820.co.il", "www.sod1820.co.il", "sod1820.vercel.app", "evil.test",
+       "sod1820-git-main-sod1820-s-projects.vercel.app", env.VERCEL_URL + ":443"].map(host => ({ ...env, VERCEL_URL: host }))];
+diff --git a/test/public-reading-public-candidate.test.mjs b/test/public-reading-public-candidate.test.mjs
+index 95405cd0..8dfa7d04 100644
+--- a/test/public-reading-public-candidate.test.mjs
++++ b/test/public-reading-public-candidate.test.mjs
+@@ -43,8 +43,8 @@ test('public-capable candidate needs exact real-shaped Production identity but d
+  for(const key of ['productionAuthorized','cutoverAuthorized','domainAssignmentAuthorized'])assert.equal(receipt[key],false);
+  assert.equal(publicCandidateRuntimeAuthorized(receipt,env),true);assert.equal(protectedReviewRuntimeAuthorized(receipt,env),false);assert.equal(receipt.authHost,undefined);
+ });
+-test('missing, wrong, copied, Preview, main, foreign, dirty and unpinned identities fail closed',()=>{
+- const bad=[null,{},...Object.keys(env).map(k=>({...env,[k]:undefined})),{...env,VERCEL_ENV:'preview'},{...env,VERCEL_TARGET_ENV:'preview'},{...env,VERCEL_PROJECT_ID:'prj_other'},{...env,VERCEL_GIT_COMMIT_REF:'main'},{...env,VERCEL_GIT_COMMIT_SHA:'d'.repeat(40)},...['sod1820.co.il','www.sod1820.co.il','evil.vercel.app',env.VERCEL_URL+'.evil.test',REVIEW_AUTH_HOST].map(host=>({...env,VERCEL_URL:host}))];
++test('missing, wrong, copied, Preview, retired-branch, foreign, dirty and unpinned identities fail closed',()=>{
++ const bad=[null,{},...Object.keys(env).map(k=>({...env,[k]:undefined})),{...env,VERCEL_ENV:'preview'},{...env,VERCEL_TARGET_ENV:'preview'},{...env,VERCEL_PROJECT_ID:'prj_other'},{...env,VERCEL_GIT_COMMIT_REF:'gpt/2029-public-cutover-final-preparation-20261103'},{...env,VERCEL_GIT_COMMIT_SHA:'d'.repeat(40)},...['sod1820.co.il','www.sod1820.co.il','evil.vercel.app',env.VERCEL_URL+'.evil.test',REVIEW_AUTH_HOST].map(host=>({...env,VERCEL_URL:host}))];
+  for(const v of bad){assert.throws(()=>publicCandidateBuildIdentity({...input,env:v}),/identity_rejected/);assert.equal(publicCandidateRuntimeAuthorized(receipt,v),false);}
+  for(const v of [{sourceDirty:true},{requestedSourceSha:null},{requestedSourceSha:'HEAD'},{requestedSourceSha:'d'.repeat(40)}])assert.throws(()=>publicCandidateBuildIdentity({...input,...v}),/identity_rejected/);
+  for(const key of ['sourceSha','projectId','branch','deploymentId','host','mode','target'])assert.equal(publicCandidateRuntimeAuthorized({...receipt,[key]:'wrong'},env),false,key);
+diff --git a/vercel.json b/vercel.json
+index 9cfd3bf5..ec469ed1 100644
+--- a/vercel.json
++++ b/vercel.json
+@@ -1214,10 +1214,6 @@
+     }
+   ],
+   "git": {
+-    "deploymentEnabled": {
+-      "gpt/g3-topic-golden-slug-rank-foundation-v1": true,
+-      "gpt/*": false,
+-      "claude/*": false
+-    }
++    "deploymentEnabled": false
+   }
+ }

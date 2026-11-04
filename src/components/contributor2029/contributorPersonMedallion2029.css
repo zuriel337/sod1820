@@ -1,0 +1,65 @@
+/* Public writer Person medallion. Colors come from the palette tokens set on .pc-person (--pm-*).
+   Gold/sapphire are identity ornament only: they never encode quality, verification or rank. */
+.public-contributor-2029 .pc-person{display:contents}
+.pc-person-seal{position:relative;flex:0 0 auto;width:156px;height:164px;cursor:pointer;touch-action:pan-y;user-select:none}
+.pc-person-scene{position:absolute;inset:0;perspective:720px}
+.pc-person-shadow{position:absolute;left:30px;bottom:6px;width:96px;height:18px;border-radius:50%;background:radial-gradient(ellipse,color-mix(in srgb,var(--pm-gold) 24%,transparent),transparent 70%)}
+.pc-person-stack{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;transform:rotateX(calc(10deg + var(--pm-tilt-x,0deg))) rotateY(calc(-14deg + var(--pm-tilt-y,0deg)));transition:transform 520ms cubic-bezier(.2,.8,.2,1)}
+.pc-person[data-open=true] .pc-person-stack{transform:rotateX(2deg) rotateY(0deg) translateZ(14px) scale(1.04)}
+.pc-person-ring,.pc-person-rim,.pc-person-face{position:absolute;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)}
+.pc-person-ring{left:-72px;top:-62px;width:144px;height:124px;background:var(--pm-violet);transform:translateZ(-14px)}
+.pc-person-rim{left:-64px;top:-55.4px;width:128px;height:110.8px;background:linear-gradient(145deg,var(--pm-gold),color-mix(in srgb,var(--pm-sapphire) 62%,var(--pm-gold)),var(--pm-gold));transform:translateZ(-6px)}
+.pc-person[data-open=true] .pc-person-rim{background:linear-gradient(145deg,var(--pm-accent),color-mix(in srgb,var(--pm-sapphire) 70%,var(--pm-accent)),var(--pm-accent))}
+.pc-person-face{left:-60px;top:-52px;width:120px;height:104px;display:grid;place-items:center;overflow:hidden;transform:translateZ(6px);background:linear-gradient(135deg,color-mix(in srgb,var(--pm-sapphire) 14%,var(--pm-card)),var(--pm-card) 50%,color-mix(in srgb,var(--pm-violet) 10%,var(--pm-card)))}
+.pc-person-facet{position:absolute;inset:0;pointer-events:none;background:color-mix(in srgb,var(--pm-sapphire) 12%,transparent)}
+.pc-person-facet-a{clip-path:polygon(0 0,50% 50%,0 100%)}
+.pc-person-facet-b{clip-path:polygon(100% 0,50% 50%,100% 100%);background:color-mix(in srgb,var(--pm-gold) 12%,transparent)}
+.pc-person-portrait{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pc-person-initial{position:relative;z-index:1;font-family:var(--s29-font-ui,'Rubik','Noto Sans Hebrew',Arial,sans-serif);font-size:56px;font-weight:700;line-height:1;color:var(--pm-ink);letter-spacing:.02em}
+.pc-person-initial[data-length="2"]{font-size:42px}
+.pc-person-level{position:absolute;left:-26px;top:44px;min-width:52px;padding:0 10px;text-align:center;border:1px solid var(--pm-violet);border-radius:999px;background:var(--pm-card);color:var(--pm-ink);font-family:var(--s29-font-numeric,'IBM Plex Mono',monospace);font-size:var(--s29-type-micro,14px);line-height:24px;transform:translateZ(18px)}
+
+.pc-person-copy{display:grid;gap:8px;align-content:center;justify-items:start;flex:0 1 270px;min-width:0;color:var(--pm-ink);font-size:var(--s29-type-ui,16px)}
+.pc-person-labels{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.pc-person-labels li{padding:2px 12px;border:1px solid var(--pm-border);border-radius:999px;background:var(--pm-soft);font-size:var(--s29-type-small,16px);line-height:1.5}
+.public-contributor-2029 .pc-person-standing{font-size:var(--s29-type-small,16px)}
+.pc-person-muted{color:var(--pm-muted)}
+.pc-person-summary{margin:0;display:flex;flex-wrap:wrap;gap:2px 18px}
+.pc-person-summary>div{display:flex;gap:6px;align-items:baseline;font-size:var(--s29-type-small,16px)}
+.pc-person-summary dt{color:var(--pm-muted)}
+.pc-person-summary dd{margin:0;font-weight:600}
+.public-contributor-2029 .pc-person-toggle{display:inline-flex;align-items:center;gap:10px;border:0;background:transparent;padding:0;min-height:44px;color:var(--pm-accent);text-align:start}
+.pc-person-chevron{font-family:var(--s29-font-numeric,'IBM Plex Mono',monospace)}
+
+.pc-person-panel{flex:1 1 100%;max-width:760px;display:grid;gap:16px;padding:16px;border:1px solid var(--pm-border);border-radius:12px;background:var(--pm-soft);color:var(--pm-ink)}
+.pc-person-panel[hidden]{display:none}
+.public-contributor-2029 .pc-person-panel h2{font-size:var(--s29-type-ui,16px);font-weight:600;color:var(--pm-muted);letter-spacing:.02em}
+.public-contributor-2029 .pc-person-panel h3{font-size:var(--s29-type-ui,16px);font-weight:600}
+.pc-person-block{display:grid;gap:8px}
+.pc-person-group{display:grid;gap:4px}
+.pc-person-about{white-space:pre-wrap;line-height:1.8;font-size:var(--s29-type-body,18px);max-width:62ch}
+.pc-person-group dl,.pc-person-group p{margin:0}
+.pc-person-measure{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding-block:6px;border-block-start:1px solid var(--pm-border)}
+.pc-person-measure dt{font-size:var(--s29-type-ui,16px)}
+.pc-person-measure dd{margin:0;font-weight:600;text-align:end}
+.pc-person-measure .pc-person-explain{grid-column:1/-1;font-weight:400;text-align:start;color:var(--pm-muted);font-size:var(--s29-type-small,16px)}
+.pc-person-gaps{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:var(--s29-type-small,16px)}
+.pc-person-gaps span{color:var(--pm-muted)}
+.pc-person-links{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:4px 16px}
+.pc-person-links a{display:inline-flex;align-items:center;min-height:44px;color:var(--pm-accent);text-decoration:underline;text-underline-offset:3px}
+.pc-person-note{color:var(--pm-muted);font-size:var(--s29-type-small,16px)}
+.pc-person :is(button,a):focus-visible{outline:2px solid var(--pm-focus);outline-offset:3px}
+
+/* On wide screens the introduction is already in the hero; the panel keeps it for the compact layout. */
+@media(min-width:641px){.pc-profile .pc-person-about-block{display:none}}
+@media(max-width:640px){
+  .pc-person-seal{width:120px;height:128px}
+  .pc-person-scene{transform:scale(.78);transform-origin:center}
+  .pc-person-copy{flex-basis:100%}
+}
+@media(prefers-reduced-motion:reduce){
+  /* Same meaning without motion: a fixed depth pose, no transition, no tilt, no lift; the open state is an outline. */
+  .pc-person-stack,.pc-person[data-open=true] .pc-person-stack{transform:rotateX(10deg) rotateY(-14deg)!important;transition:none!important}
+  .pc-person[data-open=true] .pc-person-face{outline:3px solid var(--pm-accent);outline-offset:-3px}
+}
+@supports not (transform-style:preserve-3d){.pc-person-stack{transform:none}.pc-person-ring{display:none}}

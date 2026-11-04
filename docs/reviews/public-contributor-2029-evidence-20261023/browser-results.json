@@ -1,0 +1,122 @@
+{
+  "captures": [
+    {
+      "width": 320,
+      "theme": "light",
+      "file": "320-light.png",
+      "overflow": false,
+      "reload": true,
+      "keyboard_focus": true,
+      "aria_tree": true,
+      "supporting_min_px": 16
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "file": "320-parchment.png",
+      "overflow": false,
+      "reload": true,
+      "keyboard_focus": true,
+      "aria_tree": true,
+      "supporting_min_px": 16
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "file": "320-dark.png",
+      "overflow": false,
+      "reload": true,
+      "keyboard_focus": true,
+      "aria_tree": true,
+      "supporting_min_px": 16
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "file": "390-light.png",
+      "overflow": false,
+      "reload": true,
+      "keyboard_focus": true,
+      "aria_tree": true,
+      "supporting_min_px": 16
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "file": "390-parchment.png",
+      "overflow": false,
+      "reload": true,
+      "keyboard_focus": true,
+      "aria_tree": true,
+      "supporting_min_px": 16
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "file": "390-dark.png",
+      "overflow": false,
+      "reload": true,
+      "keyboard_focus": true,
+      "aria_tree": true,
+      "supporting_min_px": 16
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "file": "1440-light.png",
+      "overflow": false,
+      "reload": true,
+      "keyboard_focus": true,
+      "aria_tree": true,
+      "supporting_min_px": 16
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "file": "1440-parchment.png",
+      "overflow": false,
+      "reload": true,
+      "keyboard_focus": true,
+      "aria_tree": true,
+      "supporting_min_px": 16
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "file": "1440-dark.png",
+      "overflow": false,
+      "reload": true,
+      "keyboard_focus": true,
+      "aria_tree": true,
+      "supporting_min_px": 16
+    }
+  ],
+  "states": [
+    {
+      "scenario": "empty",
+      "overflow": false
+    },
+    {
+      "scenario": "error",
+      "overflow": false
+    },
+    {
+      "scenario": "loading",
+      "overflow": false
+    },
+    {
+      "scenario": "unknown",
+      "overflow": false
+    },
+    {
+      "scenario": "unavailable",
+      "overflow": false
+    },
+    {
+      "scenario": "long",
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "external_requests": []
+}

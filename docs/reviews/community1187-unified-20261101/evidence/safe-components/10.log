@@ -1,0 +1,5 @@
+
+> sod1820@1.0.0 test:replayable-golden
+> node scripts/test-replayable-golden-no-black-box.mjs
+
+G3 Replayable Golden / No-Black-Box V1: PASS

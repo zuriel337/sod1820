@@ -1,0 +1,54 @@
+{
+  "task": "PUBLIC_URL_CONTINUITY_PLAN_20261103",
+  "status": "PLAN_RECONCILED_SAVED_SCOPE_RELEASED",
+  "productSha": "9d3a09689a05bd0b72ca484335c1fbce8b538170",
+  "productBranch": "gpt/2029-site-search-gematria-20261103",
+  "planBranch": "gpt/2029-url-continuity-plan-20261103",
+  "planEvidenceSha": "b3009ab75f07c9682537e3f062facae3f66e103b",
+  "note": "This receipt is saved in a documentation-only descendant of planEvidenceSha; no new product deployment.",
+  "currentProtectedPreview": "https://sod1820-issbcgxlc-sod1820-s-projects.vercel.app",
+  "currentProtectedDeployment": "dpl_1Jyk6PdVpSaygjuD5E64CH5FiBez",
+  "before": "271e9f8d-00dc-466f-a1d8-c7d93b736ef3",
+  "after": {
+    "id": "e18c1cb9-0ea0-4e6c-9617-232bb296d31b",
+    "created_at": "2026-11-03 04:55:49.457291+00",
+    "status": "AFTER_CUTOVER_RECONCILIATION_PLAN_SAVED_SCOPE_RELEASED",
+    "dispatch_kind": null,
+    "dispatch_state": null
+  },
+  "verification": {
+    "before_current_count": 0,
+    "after_current_count": 1,
+    "doc37": {
+      "id": 37,
+      "md5": "c2c613750e6a1924c140cc5733d367a9",
+      "body_length": 493445,
+      "section_12_29_count": 1,
+      "preserved_prefix_md5": "1d0aed9a986fbb98936fc10967f19846"
+    }
+  },
+  "applicationDelta": {
+    "file": "src/pages/PrivacyPage.jsx",
+    "change": "Exactly two privacy-contact email substitutions to zyz997@gmail.com",
+    "live": false
+  },
+  "checks": {
+    "evidence": "./validation-summary.json",
+    "sourceReuse": "./reuse-proof.json",
+    "hostedDiagnostic": "./hosted/receipt.json",
+    "fullIsolationOrG4Rerun": false,
+    "newPerformanceCohort": false,
+    "routingOrRedirectChanges": false,
+    "productDataWrites": false,
+    "sharedConfigurationChanges": false,
+    "newDeployment": false,
+    "mainPushOrMerge": false,
+    "secretMaterialCommitted": false
+  },
+  "deferredAuthorization": "Shared identity/mail proposal b21ed1ff remains HELD_BY_USER. No cutover authorization.",
+  "remainingWork": "Existing Roadmap G3->G4/Public Cutover conditions in coverage.md. No new launch program, automated assignment or extra source of truth.",
+  "untrackedPreserved": [
+    "node_modules (existing dependency symlink)"
+  ],
+  "handoffTo": "ZURIEL"
+}

@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { savedMatrixWorkspaceHref } from "../src/lib/elsSavedMatrix.js";
+import { providerOAuthRequest } from "../src/lib/oauthReturn.js";
+import { publicReadingPath, publicReadingFeatureLock } from "../src/lib/publicReadingRelease2029.js";
 
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
@@ -88,8 +91,17 @@ for (const source of ["/", "/post", "/community/chat", "/code"]) {
 
 // Canonical Book routing: /books is the library home; /book/:slug is the individual identity.
 // The plural detail path survives only as a compatibility alias and must never become a second canonical.
-assert.equal(app2029.includes('path="/book/:slug" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>}' ), true, "canonical Book detail must render natively behind the launch gate in App2029");
-assert.equal(app2029.includes('path="/books" element={<Locked flag="lock_books" requireFlag homeHref="/2029"><Books2029Page /></Locked>}' ), true, "Book library must share the launch gate");
+assert.equal(app2029.includes('path="/book/:slug" element={<Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>}' ), true, "canonical Book detail must retain its launch gate with explicit admin screen admission");
+assert.equal(app2029.includes('path="/books" element={<Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>}' ), true, "Book library must share the same gated admin screen admission");
+for (const route of ["/books", "/book/existing", "/books/existing"]) {
+  assert.equal(publicReadingPath(route), "closed", "Book screen remains closed to the public");
+  assert.equal(publicReadingPath(route, { isAdmin: false }), "closed", "ordinary account cannot inspect Book screens");
+  assert.equal(publicReadingPath(route, { isAdmin: true }), "admin-view", "admin screen inspection is not operation admission");
+}
+assert.equal(publicReadingFeatureLock("lock_books").enabled, true, "Book operations remain locked in the reading profile");
+const maintenanceLock = read("src/components/MaintenanceLock.jsx");
+assert.ok(maintenanceLock.includes("adminViewAllowed: PUBLIC_READING_RELEASE && !authLoading && !loading && isAdmin && !!lock"), "admin view requires resolved identity and an existing capability");
+assert.ok(maintenanceLock.includes("state.blocked && !(allowAdminView && state.adminViewAllowed)"), "closed screens require explicit validated admin-view admission");
 assert.equal(app2029.includes('path="/books/:slug" element={<CanonicalBookAlias2029 />}' ), true, "plural Book detail must remain alias-only");
 assert.equal(books2029.includes('to={slug ? `/book/${slug}` : "/books"}' ), true, "Book cards must link to canonical singular detail URL");
 assert.equal(books2029.includes('path: slug ? `/book/${slug}` : "/books"' ), true, "Book detail SEO must use canonical singular path");
@@ -111,7 +123,8 @@ assert.ok(
   legacyApp.includes('path="/community/chat" element={CORE_PUBLIC_LAUNCH_2029 ? <Product2029DocumentHandoff /> : <SpotimChatRoute />}'),
   "canonical Community chat must retain its Legacy renderer while the Production lock is active",
 );
-assert.ok(app2029.includes('path="/code" element={<Els2029Page />}' ), "canonical cipher tool must render natively at /code");
+assert.match(app2029, /path="\/code" element=\{<FramedGate2029 flag="lock_els" surface="els"[^>]*><Els2029Page \/><\/FramedGate2029>\}/, "canonical cipher tool must remain native at /code behind its canonical framed capability gate");
+assert.match(app2029, /function FramedGate2029[\s\S]*?return <Locked flag=\{flag\} requireFlag[\s\S]*?renderBlocked=\{state =>[\s\S]*?<PublicContributorFrame2029[\s\S]*?>\{children\}<\/Locked>/, "closed tools must retain the native frame without mounting their engine");
 assert.ok(app2029.includes('path="/els" element={<ElsAddressAlias2029 />}' ), "old /els address must preserve its alias");
 assert.match(app2029, /\/code\$\{location\.search \|\| ""\}\$\{location\.hash \|\| ""\}/, "ELS alias must preserve query and fragment");
 assert.equal(savedMatrixWorkspaceHref({ slug: "תורה-50" }), `/code?cipher=${encodeURIComponent("תורה-50")}`);
@@ -146,8 +159,25 @@ for (const source of expected) {
 
 // Explicit non-changes: public cutover policy remains legacy until G3 MAIN/Human Gate decides otherwise.
 assert.equal(manifest.start_url, "/", "this pass must not silently cut over the installed PWA root");
-assert.match(auth, /redirectTo:\s*SITE_URL\s*\+\s*['"]\/['"]/, "this pass must not silently change OAuth public return policy");
+// The approved shared entry now delegates trusted origin and exact return to
+// the canonical OAuth policy. Never revive a forced Production return.
+assert.match(auth, /providerOAuthRequest\(\{ provider, origin: SITE_URL, returnTo, integratedPreview:/);
+assert.match(auth, /supabase\.auth\.signInWithOAuth\(request\)/);
+assert.equal(providerOAuthRequest({ origin: "https://sod1820.co.il", functionalPreview: false }).options.redirectTo, "https://sod1820.co.il/");
+assert.throws(() => providerOAuthRequest({ origin: "https://unverified.vercel.app", integratedPreview: true, verifiedPreviewOrigins: [] }), /OAUTH_PREVIEW_UNVERIFIED/);
+assert.equal(providerOAuthRequest({ origin: "https://verified.vercel.app", integratedPreview: true, functionalPreview: true, verifiedPreviewOrigins: ["https://verified.vercel.app"] }).options.redirectTo, "https://verified.vercel.app/auth/callback");
 assert.match(sw, /data\.url\s*\|\|\s*["']\/["']/, "this pass must not silently change push default navigation policy");
 
 // PR #564 final release trigger: semantic assertions above are the gate.
 console.log("2029 hard-isolation source regression: PASS");
+
+// Additive, explicit local runtime acceptance. All original source assertions
+// above still execute. This mode covers SOURCE + A3 only; the remaining original
+// workflow steps (build, graph, browser, contracts) remain independent gates.
+if (process.argv.includes("--with-isolated-a3")) {
+  const receiptIndex = process.argv.indexOf("--receipt");
+  execFileSync(process.execPath, ["scripts/isolation-a3/run.mjs",
+    ...(receiptIndex >= 0 ? ["--receipt", process.argv[receiptIndex + 1]] : []),
+  ], { cwd: root, stdio: "inherit" });
+  console.log("2029 source + isolated A3 acceptance: PASS (not the complete workflow)");
+}

@@ -1,3 +1,4 @@
+import { newsletterPurpose, canReceiveNewsletter } from "../newsletter-signup/purpose.js";
 // ✉️ send-newsletter — שליחת דיוור לרשימת התפוצה (subscribers) דרך Resend.
 // אדמין-בלבד: מאמת את ה-JWT של הקורא ובודק role='admin' ב-users. שולח רק ל-active=true.
 // מצבים:
@@ -56,7 +57,7 @@ function trackedBodyHtml(html: string, token: string, campaign: string) {
   });
 }
 
-function wrap(html: string, unsub: string, openPixel: string) {
+function wrap(html: string, unsub: string, openPixel: string, purpose = "general") {
   return `<div style="margin:0;padding:0;background:#f4f1ea;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1ea;padding:24px 12px;border-collapse:collapse;">
 <tr><td align="center">
@@ -71,29 +72,29 @@ function wrap(html: string, unsub: string, openPixel: string) {
     <div style="border-top:1px solid #ece7dc;margin:18px 0 14px;font-size:0;line-height:0;">&nbsp;</div>
     <div dir="rtl" style="font-family:Georgia,serif;font-size:12.5px;color:#8a8580;text-align:center;line-height:1.9;">
       <a href="https://sod1820.co.il" style="color:#9a7b1e;text-decoration:none;font-weight:bold;">sod1820.co.il</a> · כל הרמזים במקום אחד<br />
-      קיבלת מייל זה כי נרשמת לעדכוני <b style="color:#6b6660;">סוד 1820</b>.<br />
+      ${purpose === "site-updates" ? "קיבלת מייל זה כי נרשמת לעדכוני האתר." : purpose === "site-openings" ? "קיבלת מייל זה כי ביקשת עדכונים על פתיחת חלקים באתר בלבד." : 'קיבלת מייל זה כי נרשמת לעדכוני <b style="color:#6b6660;">סוד 1820</b>.'}<br />
       <a href="${unsub}" style="color:#a8a29a;">להסרה מרשימת התפוצה</a>
     </div>
   </td></tr>
 </table>
 </td></tr>
 </table>
-<img src="${openPixel}" width="1" height="1" alt="" style="display:none!important;width:1px;height:1px;border:0;" />
+${openPixel ? `<img src="${openPixel}" width="1" height="1" alt="" style="display:none!important;width:1px;height:1px;border:0;" />` : ""}
 </div>`;
 }
 
-async function sendOne(to: string, subject: string, html: string, token: string | null, campaign: string | null) {
+async function sendOne(to: string, subject: string, html: string, token: string | null, campaign: string | null, purpose = "general") {
   const unsub = await unsubUrl(to);
   const unsubSite = await siteUnsubUrl(to);
-  const bodyHtml = token && campaign ? trackedBodyHtml(html, token, campaign) : html;
-  const openPixel = token && campaign
+  const bodyHtml = purpose === "general" && token && campaign ? trackedBodyHtml(html, token, campaign) : html;
+  const openPixel = purpose !== "general" ? "" : token && campaign
     ? `${SUPABASE_URL}/functions/v1/nl-track?e=open&t=${encodeURIComponent(token)}&c=${encodeURIComponent(campaign)}`
     : `${SUPABASE_URL}/functions/v1/email-open?c=newsletter&e=${b64url(to)}`;
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: FROM, to, subject, html: wrap(bodyHtml, unsubSite, openPixel),
+      from: FROM, to, subject, html: wrap(bodyHtml, unsubSite, openPixel, purpose),
       headers: { "List-Unsubscribe": `<${unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
     }),
   });
@@ -120,25 +121,28 @@ Deno.serve(async (req) => {
     const source = body.source ? String(body.source).slice(0, 60) : null;
     const testEmail = body.test_email ? String(body.test_email).trim().toLowerCase() : null;
     const dryRun = !!body.dry_run;
+    let purpose: string;
+    try { purpose = newsletterPurpose(body.purpose); } catch { return json({ error: "invalid_purpose" }, 400); }
 
-    let q = admin.from("subscribers").select("email").eq("active", true);
+    let q = admin.from("subscribers").select(purpose === "site-updates" ? "email,active,unsubscribed_at,email_purposes,site_updates_consented_at" : "email,active,unsubscribed_at,email_purposes,opening_updates_consented_at").eq("active", true).contains("email_purposes", [purpose]);
     if (source) q = q.eq("source", source);
-    const { data: subs } = await q;
-    const allEmails = [...new Set((subs || []).map((r: { email: string }) => (r.email || "").trim().toLowerCase()).filter(Boolean))];
+    const { data: subs, error: subscriberError } = await q;
+    if (subscriberError) return json({ error: "subscriber_read_failed" }, 503);
+    const allEmails = [...new Set((subs || []).filter((r: any) => canReceiveNewsletter(r, purpose)).map((r: { email: string }) => (r.email || "").trim().toLowerCase()).filter(Boolean))];
 
     if (dryRun) return json({ count: allEmails.length, max_per_run: MAX_PER_RUN });
     if (!subject || !html) return json({ error: "missing_subject_or_body" }, 400);
     if (!RESEND_KEY) return json({ error: "not_configured" });
 
     if (testEmail) {
-      const result = await sendOne(testEmail, `[בדיקה] ${subject}`, html, null, null);
+      const result = await sendOne(testEmail, `[בדיקה] ${subject}`, html, null, null, purpose);
       return json({ test: true, ok: result.ok, error: result.error });
     }
 
     const emails = allEmails.slice(0, MAX_PER_RUN);
     const remaining = Math.max(0, allEmails.length - emails.length);
     const { data: campaign, error: campaignErr } = await admin.from("newsletter_campaigns").insert({
-      subject, segment_source: source, recipients: emails.length, sent: 0, failed: 0,
+      subject, segment_source: purpose !== "general" ? `purpose:${purpose}` : source, recipients: emails.length, sent: 0, failed: 0,
       status: "sending", sent_by: uid,
     }).select("id").single();
     if (campaignErr || !campaign?.id) return json({ error: "campaign_log_failed" }, 500);
@@ -153,7 +157,7 @@ Deno.serve(async (req) => {
       if (rowErr || !sendRow?.id) { failed++; continue; }
 
       try {
-        const result = await sendOne(e, subject, html, perToken, campaignKey);
+        const result = await sendOne(e, subject, html, perToken, campaignKey, purpose);
         if (result.ok) {
           sent++;
           await admin.from("newsletter_sends").update({ status: "sent", sent_at: new Date().toISOString(), error: null }).eq("id", sendRow.id);

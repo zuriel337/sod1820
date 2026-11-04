@@ -1,0 +1,37 @@
+{
+  "project": "linswmnnkjxvweumprav",
+  "approvedProposalCommit": "609b5c34bb5ae78cdb9a762811bc3d43a40ff7bc",
+  "explicitUserApproval": true,
+  "beforeReceipt": "b5261392-6a6a-4d42-b8a4-b24ae5d70b13",
+  "migration": {
+    "version": "20261031232920",
+    "name": "research_item_hint_private_media_v1",
+    "sha256": "8bd503b6f20626b01971197d82fd5c2520e8d8788de591a9a4f39f650b469aa9"
+  },
+  "edgeFunctions": {
+    "media-upload-intent": {
+      "version": 3,
+      "verifyJwt": true,
+      "exactApprovedSourceVerified": true
+    },
+    "ai-analyze": {
+      "version": 91,
+      "verifyJwt": true,
+      "sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f",
+      "exactApprovedSourceVerified": true
+    }
+  },
+  "privateBucket": true,
+  "helperRpcGrantsVerified": true,
+  "fableTrial": {
+    "approved": true,
+    "newStarts": 0,
+    "state": "pending real verified admin session",
+    "rows": 33,
+    "cols": 41,
+    "cap": 25,
+    "ackUpperBoundUsd": 2
+  },
+  "websiteProductionDeployment": false,
+  "mainChanged": false
+}

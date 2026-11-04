@@ -15,21 +15,22 @@ permissions:
 jobs:
   personal-sync:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        # Docker Official Images mirror avoids anonymous Docker Hub pull limits.
-        image: public.ecr.aws/docker/library/postgres:17
-        env:
-          POSTGRES_PASSWORD: fixture_only
-          POSTGRES_DB: research_sync_fixture
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+      # Match the existing ELS gate's disposable runner-local PostgreSQL setup.
+      # ECR's anonymous data quota failed before checkout; no registry is needed.
+      - name: Start disposable PostgreSQL fixture without a registry pull
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y postgresql postgresql-client
+          sudo service postgresql start
+          sudo -u postgres psql -v ON_ERROR_STOP=1 -c "ALTER ROLE postgres WITH PASSWORD 'fixture_only'"
+          sudo -u postgres createdb research_sync_fixture
+          PGPASSWORD=fixture_only psql -h localhost -U postgres -d research_sync_fixture -v ON_ERROR_STOP=1 -Atqc 'select current_database()'
       - run: node --test src/lib/research/researchSyncRuntime.test.js src/lib/research/researchSyncRecovery.test.js test/research-sync-hardening.test.mjs
       - name: Execute actual migration and adversarial SQL in disposable PostgreSQL
         env:

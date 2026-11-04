@@ -7,8 +7,12 @@
   position:relative;
   min-width:0;
 }
-.sod29-learn-mark-trigger{
+.sod29-learn-mark-trigger,
+.sod29-root .sod29-learn-mark-trigger{
   min-height:44px;
+  min-inline-size:44px;
+  max-inline-size:100%;
+  box-sizing:border-box;
   display:inline-flex;
   align-items:center;
   gap:8px;
@@ -17,23 +21,23 @@
   border-radius:999px;
   background:color-mix(in srgb,var(--s29-panel-soft) 82%,transparent);
   color:var(--learn-ink);
-  font:inherit;
-  font-size:12px;
-  font-weight:850;
+  font-family:var(--s29-font-ui,inherit);
+  font-size:var(--s29-type-ui,16px);
+  line-height:1.4;
+  font-weight:500;
   cursor:pointer;
 }
+.sod29-learn-mark-trigger:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
 .sod29-learn-mark-symbol{
-  width:26px;
-  height:26px;
+  width:18px;
+  height:24px;
   display:inline-grid;
   place-items:center;
-  flex:0 0 26px;
-  border:1px solid var(--learn-strong);
-  border-radius:50%;
+  flex:0 0 18px;
   color:var(--learn-accent);
-  background:color-mix(in srgb,var(--s29-accent) 7%,transparent);
-  font-size:14px;
-  font-weight:950;
+  font-size:18px;
+  font-weight:700;
+  line-height:1;
 }
 .sod29-learn-mark.is-prominent .sod29-learn-mark-trigger{
   border-color:var(--learn-strong);
@@ -44,6 +48,8 @@
   padding:7px;
   justify-content:center;
 }
+.sod29-learn-mark.is-compact.has-visible-label .sod29-learn-mark-trigger{width:auto;padding-inline:10px}
+.sod29-learn-mark.scope-surface .sod29-learn-mark-label{min-inline-size:0;white-space:normal;overflow:visible;text-overflow:clip;text-align:start}
 .sod29-learn-mark-disclosure{
   margin-top:8px;
   padding:12px 14px;
@@ -56,7 +62,7 @@
 .sod29-learn-mark-copy{
   display:grid;
   gap:7px;
-  font-size:12px;
+  font-size:var(--s29-type-ui,16px);
   line-height:1.65;
 }
 .sod29-learn-mark-copy p{margin:0;color:var(--learn-muted)}
@@ -67,7 +73,14 @@
   flex-wrap:wrap;
   margin-top:10px;
 }
-.sod29-learn-mark-actions button{
+.sod29-learn-mark-actions :is(button,a),
+.sod29-root .sod29-learn-mark-actions :is(button,a){
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  max-inline-size:100%;
+  white-space:normal;
+  text-align:center;
   min-height:44px;
   padding:8px 12px;
   border:1px solid var(--learn-line);
@@ -75,18 +88,24 @@
   background:color-mix(in srgb,var(--s29-accent) 8%,transparent);
   color:var(--learn-ink);
   font:inherit;
-  font-size:12px;
-  font-weight:850;
+  font-family:var(--s29-font-ui,inherit);
+  font-size:var(--s29-type-ui,16px);
+  font-weight:500;
+  line-height:1.4;
   cursor:pointer;
 }
-.sod29-learn-mark-dismiss{
+.sod29-learn-mark-dismiss,
+.sod29-root .sod29-learn-mark-dismiss{
   min-height:44px;
   margin-top:8px;
   border:0;
   background:transparent;
   color:var(--learn-muted);
   font:inherit;
-  font-size:11px;
+  font-family:var(--s29-font-ui,inherit);
+  font-size:var(--s29-type-ui,16px);
+  font-weight:500;
+  line-height:1.4;
   cursor:pointer;
 }
 .sod29-entry-orientation-slot{
@@ -103,7 +122,7 @@
 @media(max-width:720px){
   .sod29-entry-orientation-slot{padding:6px 12px 0}
   .sod29-entry-orientation-slot .sod29-learn-mark-trigger{max-width:100%}
-  .sod29-entry-orientation-slot .sod29-learn-mark-label{
+  .sod29-entry-orientation-slot .sod29-learn-mark:not(.scope-surface) .sod29-learn-mark-label{
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
@@ -114,8 +133,9 @@
   .sod29-learn-mark-disclosure{transition:none!important}
 }
 
-.sod29-learn-mark-help{
-  min-height:40px;
+.sod29-learn-mark-help,
+.sod29-root .sod29-learn-mark-help{
+  min-height:44px;
   margin-top:8px;
   padding:6px 8px;
   display:inline-flex;
@@ -125,8 +145,10 @@
   background:transparent;
   color:var(--learn-muted);
   font:inherit;
-  font-size:11px;
-  font-weight:800;
+  font-family:var(--s29-font-ui,inherit);
+  font-size:var(--s29-type-ui,16px);
+  font-weight:500;
+  line-height:1.4;
   cursor:pointer;
 }
 .sod29-learn-mark-help>span:first-child{

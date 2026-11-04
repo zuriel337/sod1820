@@ -1,0 +1,46 @@
+✔ public 80% is an explicitly dated estimate, not fabricated G4 closure (1.324306ms)
+✔ visible Legacy site uses estimate and retains honest opening caveats (4.468725ms)
+✔ approved series use exact source membership and preserve the existing author constraints (3.009616ms)
+✔ unmapped posts, a title, a slug, a tag alone and a different publisher keep the general background (0.348435ms)
+✔ ambiguous series and suppressed content never choose the first matching identity (2.383403ms)
+✔ every shipped background variant matches its reviewed bytes, identity and device budget (3.129157ms)
+✔ mobile portraits preserve native 9:16 framing and the existing thirty-kilobyte budget (1.687233ms)
+✔ versioned public backgrounds override the catch-all cache policy without caching content or private data (2.508331ms)
+✔ one route-owned source read can start before the Post code consumer; no duplicate or different-slug reuse (12.24739ms)
+✔ cancellation discards a late source and independent identity/route requests cannot inherit it (2.719148ms)
+✔ an early permission failure is observed without a consumer and is not an empty success (1.013678ms)
+✔ Post2029Page renders the cover through the shared media kit with sharp image_url as primary (1.752301ms)
+✔ cover item uses image_url for reading and keeps thumb_url as preview only (0.513087ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ public: catalog identity follows the existing release profile (29.283729ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ foundation: catalog identity follows the existing release profile (9.138755ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ golden: catalog identity follows the existing release profile (13.330332ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ public catalog preserves selection privacy (q=synthetic) (11.678108ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ public catalog preserves selection privacy (page=2) (9.211039ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ public catalog preserves selection privacy (series=synthetic-series) (13.631121ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ public verified collection keeps its own canonical identity and server-approved indexability (6.993402ms)
+✔ public tag canonical and admitted taxonomy state are retained (11.153397ms)
+✔ three exact public historical pages retain original body bytes, dates, parent dependencies and source video order (15.837837ms)
+✔ original historical documents have exact self canonicals without querying a guessed Post identity (14.630959ms)
+✔ proven Forum aliases retain query/anchor and only approved UUID arrivals redirect to existing chat (13.431229ms)
+✔ a metadata Location cannot select an external or unrelated destination (1.946173ms)
+✔ public account returns preserve Home, old Posts, calculator, taxonomy, phrase, media and every original query/anchor (3.163439ms)
+✔ canonical dormant artifact reuses SDK-owned local storage without a token-copy bridge; all Preview origins remain isolated (0.544611ms)
+✔ operational numeric projection distinguishes missing/error from measured zero (8.191759ms)
+✔ home-hidden public archive remains readable while existing measure admission stays closed (1.155341ms)
+✔ draft/forum, private-stage, snapshots, web and unpublished sources cannot become public reading or measures (0.497931ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 810.201706

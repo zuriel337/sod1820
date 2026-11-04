@@ -1,0 +1,10 @@
+
+> sod1820@1.0.0 test:research-run
+> node scripts/test-research-run-contract.mjs
+
+PASS: researchRunRequest.js contract validation
+PASS: personal Gematria pair request validation
+PASS: researchComposerW2.js executionObserver seam
+PASS: researchPlanV2.js capabilityAllowlist seam
+PASS: research-run Edge transport static acceptance
+PASS: research-run public Number runtime contract

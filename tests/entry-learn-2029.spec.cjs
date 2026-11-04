@@ -1,13 +1,25 @@
 const { test, expect } = require('@playwright/test');
 const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
+const { installPublicReadOnlyEgress, disposePublicReadOnlyEgress } = require('./fixtures/public-readonly-egress.cjs');
 
 const BASE = 'http://127.0.0.1:4173';
 
-test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
+test.beforeEach(async ({ context }) => {
+  await installPublicReadOnlyEgress(context, { baseUrl: BASE });
+  await installStorageEgressGuard(context);
+});
+test.afterEach(async ({ context }) => disposePublicReadOnlyEgress(context));
 const POST_PATH = '/post/bennett-melach-631-78';
 const FAMILIARITY_KEY = 'sod_entry_learn_2029_v1';
 
 async function routePostTo2029(page) {
+  // Bennett is a private draft in live data. A synthetic public row exercises
+  // its existing contextual renderer without copying or publishing that draft.
+  await page.route('**/rest/v1/posts*',async route=>{
+    const url=new URL(route.request().url());if(!url.search.includes('bennett-melach-631-78'))return route.fallback();
+    const row={id:900000631,slug:'bennett-melach-631-78',title:'בנט — מקור בדיקה סינתטי',source:'SOD1820',tags:[],categories:[],author:'מקור בדיקה',date:'2026-10-12T00:00:00Z',content:'<section><h2 data-source-heading="true">בנט בתוך עץ הבחירות</h2><p>מקור בדיקה סינתטי בלבד.</p><button type="button" data-contextual-number-focus="true" data-focus-part="expression" data-region-id="bennett-631" data-expression="נפתלי בנט" data-method="רגיל" data-result="631">נפתלי בנט</button></section>',excerpt:'מקור בדיקה בלבד',home_hidden:false};
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify([row])});
+  });
   await page.route('**/post/bennett-melach-631-78*', async (route) => {
     const response = await page.request.get(`${BASE}/2029.html`);
     await route.fulfill({
@@ -23,7 +35,10 @@ async function noOverflow(page) {
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,
   }));
-  expect(metrics.scrollWidth).toBe(metrics.clientWidth);
+  // A reserved scrollbar gutter can make scrollWidth smaller than clientWidth.
+  // The contract is zero horizontal overflow, not mandatory gutter filling.
+  expect(metrics.scrollWidth).toBeGreaterThan(0);
+  expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth);
 }
 
 test.setTimeout(60_000);
@@ -35,6 +50,13 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
     try { localStorage.removeItem(key); } catch {}
     try { sessionStorage.removeItem('sod_entry_learn_2029_session_v1'); } catch {}
   }, FAMILIARITY_KEY);
+  // Positive Number/teaching contract in this generic 2029 build. Keep the
+  // launch's real flag unchanged and its negative/no-engine tests intact.
+  await page.route('**/rest/v1/site_flags*', route => route.fulfill({
+    status: 200, contentType: 'application/json',
+    headers: { 'x-sod-acceptance-fixture': 'positive-number-only' },
+    body: JSON.stringify([{ key: 'lock_number', enabled: false, mode: 'all', message: '' }]),
+  }));
   await routePostTo2029(page);
 
   let traceRequests = 0;
@@ -60,9 +82,12 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
   await expect(orientation).toHaveClass(/is-prominent/);
   await expect(orientation.getByRole('button', { name: 'חדש כאן? מה עושים בפוסט הזה?' })).toBeVisible();
 
-  // The live authored Bennett source: an engine-verified saved equality (נפתלי בנט = 631) is the explicit focus control.
+  // The synthetic Bennett fixture uses the unchanged authored contextual renderer: an engine-verified saved equality (נפתלי בנט = 631) is the explicit focus control.
   const focusControl = post.locator('.sod29-reading-source [data-contextual-number-focus="true"][data-expression="נפתלי בנט"]').first();
   await expect(focusControl).toBeVisible({ timeout: 30_000 });
+  const focusAnchor=await focusControl.getAttribute('id');
+  expect(focusAnchor).toMatch(/^post-annotation-[0-9a-f]{64}-[0-9]+$/);
+  const occurrenceKey=JSON.stringify(['posts:900000631','#'+focusAnchor,'נפתלי בנט','רגיל',null,631]);
   expect(traceRequests).toBe(0);
 
   await focusControl.click();
@@ -81,7 +106,7 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
   await expect.poll(() => traceRequests, { timeout: 10_000 }).toBeGreaterThan(0);
   await page.keyboard.press('Escape');
   await expect(directDrawer).toHaveCount(0);
-  await page.locator('.sod29-glass-locator-core').click();
+  await page.getByRole('button', { name: /^כאן · מפת העמוד/ }).click();
   await expect(sidecar).toBeVisible();
   await expect(sidecar.locator('.sod29-number-drawer2029')).toHaveCount(0);
   await expect(page.locator('.sod29-entry-orientation-slot .sod29-learn-mark')).toHaveClass(/is-compact/);
@@ -112,7 +137,7 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
   await expect(page.locator('[data-contact-gateway="true"]')).toHaveCount(0);
 
   // Reopen the context sheet; help preserves the explicit expression focus.
-  await page.locator('.sod29-glass-locator-core').click();
+  await page.getByRole('button', { name: /^כאן · מפת העמוד/ }).click();
   const sidecarAfterAsk = page.locator('[data-experience-capability="contextual-sidecar"]');
   const learnAfterAsk = sidecarAfterAsk.locator('[data-learn-scope="concept"]');
   await learnAfterAsk.getByRole('button', { name: 'איך זה עובד?' }).click();
@@ -134,7 +159,7 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
       selection.method || null,
       Number(selection.resultValue),
     ]);
-  }), { timeout: 5_000 }).toBe(JSON.stringify(['bennett-631', 'נפתלי בנט', 'רגיל', 631]));
+  }), { timeout: 5_000 }).toBe(JSON.stringify([occurrenceKey, 'נפתלי בנט', 'רגיל', 631]));
 
   await expect.poll(() => traceRequests, { timeout: 10_000 }).toBeGreaterThan(0);
 
@@ -172,7 +197,7 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
   const exactReturn = mobileNav.getByRole('button', { name: /חזרה מדויקת/ });
   await expect(exactReturn).toBeEnabled();
   await exactReturn.click();
-  await expect(page).toHaveURL(/\/post\/bennett-melach-631-78#source-region-bennett-631/, { timeout: 20_000 });
+  await expect(page).toHaveURL(BASE+POST_PATH+'#'+focusAnchor, { timeout: 20_000 });
   await expect(page.locator('.sod29-entry-orientation-slot')).toHaveCount(0);
   await noOverflow(page);
 });

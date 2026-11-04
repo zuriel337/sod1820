@@ -1,0 +1,74 @@
+{
+  "status": "IMPLEMENTATION_CANDIDATE_NOT_DEPLOYED",
+  "scope": "Portrait mobile renditions only; adopted desktop and landscape thumbnail artwork unchanged",
+  "artwork": [
+    {
+      "key": "general",
+      "filename": "legacy-dark-bg-post-mobile-v2-720x1280-81d7bbed9769.webp",
+      "width": 720,
+      "height": 1280,
+      "bytes": 21048,
+      "maxBytes": 30000,
+      "encodingQuality": 68,
+      "sha256": "81d7bbed976958f55fc1b2093e457ec359f37155375814864bc591d54f8f20fb",
+      "generatedSource": "/workspace/generated_images/exec-7d786f5d-ee1e-4555-af81-3e9c88cf848d.png",
+      "generatedSourceDimensions": [
+        941,
+        1672
+      ],
+      "generatedSourceSha256": "51dcafd49826ea26fd84929274a8be7550b550426cdcd93d8f88df040080f75f",
+      "origin": "AI-generated portrait adaptation of adopted decorative artwork; not source evidence"
+    },
+    {
+      "key": "dimension-five",
+      "filename": "dimension-five-night-mobile-v2-720x1280-b062e53195ec.webp",
+      "width": 720,
+      "height": 1280,
+      "bytes": 29736,
+      "maxBytes": 30000,
+      "encodingQuality": 33,
+      "sha256": "b062e53195ece61eef9d7725416692e9aa061705223758e06e66051e941f5098",
+      "generatedSource": "/workspace/generated_images/exec-3cd75101-850d-43d0-bc92-e726b72e0120.png",
+      "generatedSourceDimensions": [
+        941,
+        1672
+      ],
+      "generatedSourceSha256": "a06faa2c3454747ffd5a87d27974671a8d334c58dddddb9d24442539a657ef5c",
+      "origin": "AI-generated portrait adaptation of adopted decorative artwork; not source evidence"
+    },
+    {
+      "key": "sod-hashmal",
+      "filename": "sod-hashmal-night-mobile-v2-720x1280-83478f421a58.webp",
+      "width": 720,
+      "height": 1280,
+      "bytes": 29892,
+      "maxBytes": 30000,
+      "encodingQuality": 27,
+      "sha256": "83478f421a5853d8198531535d3503a0ae9e789a4981b9bb23a7f6846de8dac2",
+      "generatedSource": "/workspace/generated_images/exec-629e7cf4-0861-4610-a7bd-9c3ee5e92b43.png",
+      "generatedSourceDimensions": [
+        940,
+        1672
+      ],
+      "generatedSourceSha256": "bd3cd48c51af5f62be8fd5334c28aea5b3471f5f5d28caeb43454ee3592b5524",
+      "origin": "AI-generated portrait adaptation of adopted decorative artwork; not source evidence"
+    },
+    {
+      "key": "mah-kore-habora",
+      "filename": "mah-kore-habora-night-mobile-v2-720x1280-ee55ed6ecb14.webp",
+      "width": 720,
+      "height": 1280,
+      "bytes": 29988,
+      "maxBytes": 30000,
+      "encodingQuality": 26,
+      "sha256": "ee55ed6ecb14640c167f4990cbd30cf8de76d735daef28cf04643aaaac475be8",
+      "generatedSource": "/workspace/generated_images/exec-0cf4ac55-afe1-4de5-9c10-24840fe54ab9.png",
+      "generatedSourceDimensions": [
+        940,
+        1672
+      ],
+      "generatedSourceSha256": "3f2ef1d3553521b64439d06cc57e499c79cb30e722b8f626ef4e00fadc7d92d7",
+      "origin": "AI-generated portrait adaptation of adopted decorative artwork; not source evidence"
+    }
+  ]
+}

@@ -1,116 +1,312 @@
-import React, { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useLocation, useNavigationType, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
-import { getPostsFromSupabase } from "../lib/supabase.js";
+import { fetchPostsCatalog2029, completeMixedSeriesPostsPage2029, postClassification2029, postsCatalogScope2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
+import { track } from "../lib/tracking.js";
 import { applySeo } from "../lib/seo.js";
 import { stripHtml } from "../lib/format.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
+import { CONTENT_SERIES_2029, fetchContentSeriesCatalog2029, mergeContentSeriesItems, projectContentSeriesItems } from "../lib/research/contentSeries2029Projection.js";
+import { POST_BACKGROUND_ASSETS_2029 } from "../lib/research/postBackground2029.js";
+import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
+import PostFollowBox from "../components/PostFollowBox.jsx";
+import { AUTHORS } from "../lib/authors.js";
+import { publicPostHref } from "../lib/publicPostUrls.js";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
+import { capturePostsCatalogDeparture2029, readPostsCatalogViewport2029, rememberPostsCatalogViewport2029, startPostsCatalogViewportRestore2029, trackPostsCatalogViewport2029 } from "../lib/research/postsCatalogViewport2029.js";
+import { postsTaxonomyPage2029 } from "../lib/research/postsTaxonomy2029Route.js";
 import "./posts2029.css";
 
-const numericSignals = (tags = []) => [...new Set(
-  (Array.isArray(tags) ? tags : [])
-    .map((tag) => String(tag || "").trim())
-    .filter((tag) => /^\d{1,6}$/.test(tag))
-)].slice(0, 4);
+// The actual messages participate in intrinsic sizing. Only the active message
+// is exposed/focusable; no fixed height, clipped copy or withheld Post content.
+function SeriesReadingNotice2029({ pending, failed, pendingText, failureText, readyText, retryLabel, onRetry }) {
+  return <div className="sod29-series-reading-notice" role="status" aria-live="polite">
+    <p className={pending && !failed ? "is-current" : undefined} aria-hidden={!pending || failed}>{pendingText}</p>
+    <div className={failed ? "is-current" : undefined} aria-hidden={!failed}>
+      <p>{failureText}</p>
+      <button type="button" disabled={!failed} onClick={onRetry}>{retryLabel}</button>
+    </div>
+    <p className={!pending && !failed ? "is-current" : undefined} aria-hidden={pending || failed}>{readyText}</p>
+  </div>;
+}
 
-const isGoldenPost = (post) => Array.isArray(post?.tags)
-  && post.tags.some((tag) => String(tag).includes("2029-golden"));
+function SeriesEntrances2029({ activeKey, search = "", onRead, refreshKey = 0 }) {
+  const [attempt, setAttempt] = useState(0);
+  const [state, setState] = useState({ loading: true, series: [], error: false });
+  useEffect(() => {
+    let live = true;
+    const controller = new AbortController();
+    setState({ loading: true, series: [], error: false });
+    onRead?.({ activeKey, loading: true, series: [], error: false });
+    // Reuse one anonymous catalog read for entrances and the selected mixed list:
+    // one Post preview per series plus exact approved public source metadata.
+    // No bodies, Home-only exclusion, broad media scan or second source request.
+    fetchContentSeriesCatalog2029({ limitPerSeries: 1, homeOnly: false, signal: controller.signal, sourceSeriesKey: activeKey })
+      .then(({ series }) => { if (live) { const result = { activeKey, loading: false, series, error: false }; setState(result); onRead?.(result); } })
+      .catch(() => { if (live) { const result = { activeKey, loading: false, series: [], error: true }; setState(result); onRead?.(result); } });
+    return () => { live = false; controller.abort(); };
+  }, [attempt, refreshKey, onRead, activeKey]);
 
-function PostIndexCard({ post, index }) {
-  const title = humanContentTitle(post?.title, { max: 92 });
-  const excerpt = stripHtml(post?.excerpt || post?.content || "").slice(0, 180);
-  const numbers = numericSignals(post?.tags);
-  const image = post?.thumb_url || post?.image_url || null;
-  const categories = (Array.isArray(post?.categories) ? post.categories : []).slice(0, 3);
-  const golden = isGoldenPost(post);
+  // These identities/labels/links are already canonical and need no request.
+  // Metadata only fills absolutely positioned covers; it cannot insert an
+  // entire navigation grid above Posts that have already become readable.
+  const series = CONTENT_SERIES_2029.map(spec => ({ ...spec,
+    items: state.activeKey === activeKey ? state.series.find(item => item.key === spec.key)?.items || [] : [],
+  }));
+  const matches = series.filter(series => !search || [series.label, series.publisherLabel, series.writerLabel].some(value => value?.toLocaleLowerCase().includes(search.toLocaleLowerCase())));
+  return <section className="sod29-posts-series" aria-labelledby="posts-series-title" aria-busy={state.loading}>
+    <h2 id="posts-series-title"><NavigationIcon2029 name="layers" size={24} /> לגלות דרך הסדרות</h2>
+    <SeriesReadingNotice2029 pending={state.loading} failed={state.error}
+      pendingText="טוען את תמונות המקורות בסדרות…"
+      failureText="פרטי המקורות לא נטענו."
+      readyText="קישורי הסדרות זמינים לעיון."
+      retryLabel="ניסיון נוסף" onRetry={() => setAttempt(value => value + 1)} />
+    {search && !matches.length ? <p>לא נמצאה סדרה בשם הזה.</p> : null}
+    {matches.length ? <nav className="sod29-posts-series-grid" aria-label="סדרות הפוסטים">
+      {matches.map(series => {
+        const image = series.items[0]?.imageUrl;
+        const publisherAvatar = AUTHORS[series.publisherLabel]?.avatar;
+        return <Link key={series.key} className="sod29-posts-series-card"
+          to={`/2029/posts?series=${encodeURIComponent(series.key)}`} aria-current={activeKey === series.key ? "page" : undefined}>
+          <div className="sod29-posts-series-image" aria-hidden="true" data-series-cover={image ? "post" : "illustration"}>
+            <NavigationIcon2029 name="layers" size={32} />
+            {image || POST_BACKGROUND_ASSETS_2029[series.key] ? <img src={image || POST_BACKGROUND_ASSETS_2029[series.key].preview} alt="" width="360" height="225" loading="eager" decoding="async" onError={event => { event.currentTarget.hidden = true; }} /> : null}
+          </div>
+          <div className="sod29-posts-series-copy">
+            <h3>{series.label}</h3>
+            {series.publisherLabel ? <p className="sod29-series-credit">{publisherAvatar && publisherAvatar !== "/logo.png" ? <img src={publisherAvatar} alt="" width="28" height="28" loading="lazy" decoding="async" onError={event => { event.currentTarget.hidden = true; }} /> : <NavigationIcon2029 name="posts" size={20} />}<span>מפרסם: {series.publisherLabel}</span></p> : series.writerLabel ? <p className="sod29-series-credit"><NavigationIcon2029 name="personal" size={20} /><span>מאת {series.writerLabel}</span></p> : null}
+            <span>לעיון בסדרה <span aria-hidden="true">←</span></span>
+          </div>
+        </Link>;
+      })}
+    </nav> : null}
+  </section>;
+}
+
+function PostIndexCard({ post, index, seriesItem = null, publicationOrder = false }) {
+  const title = humanContentTitle(seriesItem?.title || post?.title, { max: 0 });
+  const excerpt = stripHtml(seriesItem?.excerpt || post?.excerpt || post?.content || "").slice(0, 180);
+  const image = seriesItem?.imageUrl || post?.thumb_url || post?.image_url || null;
+  const { credit } = postClassification2029(post);
+  const sourceItem = seriesItem?.kind === "channel_update";
+  const additionalSources = (seriesItem?.sourceOccurrences || []).filter(source => source.sourceRef !== seriesItem?.sourceRef);
 
   return <article
-    className={"sod29-post-index-card" + (golden ? " is-golden" : "")}
+    className="sod29-library-post-card"
     data-experience-capability="post-index-card"
-    data-post-golden={golden ? "true" : "false"}
+    data-post-source={post?.id ? `posts:${post.id}` : undefined}
+    data-series-source={seriesItem?.sourceRef}
+    data-series-kind={seriesItem?.kind}
     style={{ "--post-order": index }}
   >
-    <Link className="sod29-post-index-card-link" to={"/post/" + encodeURIComponent(post.slug)}>
+    <Link className="sod29-library-post-card-link" to={seriesItem?.href || publicPostHref(post)}>
       <div
-        className={"sod29-post-index-visual" + (image ? " has-image" : "")}
+        className={"sod29-library-post-visual" + (image ? " has-image" : "")}
         aria-hidden="true"
       >
-        {image ? <img className="sod29-post-index-cover" src={image} alt="" loading={index < 2 ? "eager" : "lazy"} decoding="async" width="640" height="360" /> : null}
-        {!image ? <div className="sod29-post-index-number-field">
-          {(numbers.length ? numbers : ["✦"]).map((value) => <span key={value}>{value}</span>)}
-        </div> : null}
-        <div className="sod29-post-index-visual-wash" />
+        <span className="sod29-library-post-cover-fallback"><NavigationIcon2029 name="posts" size={40} /></span>
+        {image ? <img className="sod29-library-post-cover" src={image} alt="" loading="lazy" decoding="async" width="640" height="400" onError={event => { event.currentTarget.hidden = true; }} /> : null}
       </div>
 
-      <div className="sod29-post-index-copy">
-        <div className="sod29-post-index-meta">
-          {post.author ? <span>{post.author}</span> : null}
-          <span>{post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(post?.modified || post?.date, "תאריך לא צוין")}</span>
-          <PostCategories2029 categories={categories} max={3} nested />
-        </div>
+      <div className="sod29-library-post-copy">
         <h2>{title || "פוסט"}</h2>
         {excerpt ? <p>{excerpt}</p> : null}
-        {numbers.length ? <div className="sod29-post-index-signals" aria-label="מספרים מרכזיים">
-          {numbers.map((value) => <b key={value}>{value}</b>)}
-        </div> : null}
-        <span className="sod29-post-index-open">פתח את הפוסט <b aria-hidden="true">←</b></span>
+        <div className="sod29-library-post-meta">
+          {sourceItem ? <><span>מקור: {seriesItem.credit || "המקור הציבורי"}</span>{seriesItem.author ? <span>דובר: {seriesItem.author}</span> : null}</> : credit ? <span>{credit.prefix}: {credit.name}</span> : null}
+          <span>{seriesItem || publicationOrder ? "פורסם " : post?.modified ? "עודכן " : "פורסם "}{bilingualDateLabel(seriesItem?.publishedAt || (publicationOrder ? post?.date : post?.modified || post?.date), "תאריך לא צוין")}</span>
+          {!sourceItem ? <PostCategories2029 post={post} max={2} compact nested /> : null}
+        </div>
+        <span className="sod29-library-post-open">{sourceItem ? "לצפייה במקור" : "פתח את הפוסט"} <b aria-hidden="true">←</b></span>
       </div>
     </Link>
+    {additionalSources.length ? <div className="sod29-library-post-meta" aria-label="הופעות נוספות של אותו מקור">
+      {additionalSources.map(source => <Link key={source.sourceRef} to={source.href}>{source.credit || source.title || "המקור הציבורי"} · למקור</Link>)}
+    </div> : null}
   </article>;
 }
 
-export default function Posts2029Page() {
+export default function Posts2029Page({ taxonomyScope = null, onSearchParams = null, verifiedOnly = false } = {}) {
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  const currentHref = `${location.pathname}${location.search}${location.hash}`;
+  const arrivedAtSavedViewport = useMemo(() =>
+    (readPostsCatalogViewport2029({ entryKey: location.key, href: currentHref, navigationType })?.y || 0) > 0,
+  [location.key, currentHref, navigationType]);
+  const catalogRootRef = useRef(null);
+  const viewportRestoreRef = useRef(null);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [attempt, setAttempt] = useState(0);
+  const baseScope = postsCatalogScope2029(searchParams, taxonomyScope);
+  const scope = verifiedOnly ? baseScope.kind === "all" ? {kind:"verified",key:"verified",label:"פוסטים עם סימון אימות"} : {kind:"invalid",key:"",label:"בחירה לא תקינה"} : baseScope;
+  const isTaxonomy = Boolean(taxonomyScope) || searchParams.has("tag") || searchParams.has("category");
+  const taxonomyLabel = scope.kind === "tag" || location.pathname.startsWith("/tag/") || searchParams.has("tag") ? "תגית" : "קטגוריה";
+  const publicCatalog = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || PUBLIC_READING_RELEASE;
+  const allPostsHref = publicCatalog ? "/post" : "/2029/posts";
+  const updateSearchParams = onSearchParams || setSearchParams;
+  const mixedSeries = scope.kind === "series" && Boolean(scope.spec?.approvedSources?.length);
+  const search = searchParams.get("q") || "";
+  const [draftSearch, setDraftSearch] = useState(search);
+  useEffect(() => { setDraftSearch(search); }, [search]);
+  const title = scope.kind === "all" ? "פוסטים" : isTaxonomy && scope.key ? scope.key : scope.label;
+  const taxonomyPage = isTaxonomy ? postsTaxonomyPage2029(searchParams) : 1;
+  const scopeKey = JSON.stringify([scope.kind, scope.key, search, ...(isTaxonomy ? [taxonomyPage !== null] : [])]);
   const requestedPage = Number(searchParams.get("page") || 1);
   const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 && requestedPage <= 10000 ? requestedPage : 1;
-  const [state, setState] = useState({ page, loading: true, posts: [], total: 0, error: null });
+  const [state, setState] = useState({ page, scopeKey, loading: true, posts: [], total: null, error: null });
+  const [seriesReading, setSeriesReading] = useState({ activeKey: null, loading: true, series: [], error: false });
+  const recordedContentEntry = useRef(null);
+
+  useEffect(() => {
+    const restore = startPostsCatalogViewportRestore2029({ entryKey: location.key, href: currentHref, navigationType });
+    const stopTracking = trackPostsCatalogViewport2029({ entryKey: location.key, href: currentHref, isRestoring: () => restore.isRestoring });
+    viewportRestoreRef.current = restore;
+    return () => { stopTracking(); restore.stop(); if (viewportRestoreRef.current === restore) viewportRestoreRef.current = null; };
+  }, [location.key, currentHref, navigationType]);
+
+  useEffect(() => {
+    // Wait for this exact public result. Stale responses, failures and an empty
+    // result do not manufacture audience evidence. Search terms never travel.
+    if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true" || state.loading || state.error
+      || state.scopeKey !== scopeKey || state.page !== page || !state.posts.length) return;
+    const key = `${scope.kind}:${scope.key}:${page}`;
+    if (recordedContentEntry.current === key) return;
+    recordedContentEntry.current = key;
+    const event = postContentEntry2029({ scope });
+    if (event) track(event.section, event.slug, event.eventType, event.meta);
+  }, [state, scopeKey, page]);
 
   useEffect(() => {
     applySeo({
-      title: "פוסטים · SOD1820 2029",
+      title: `${scope.label} · SOD1820 2029`,
       description: "אינדקס הפוסטים של SOD1820.",
-      path: "/2029/posts",
-      noindex: true,
+      path: verifiedOnly || taxonomyScope ? location.pathname : allPostsHref,
+      noindex: !publicCatalog || !(scope.kind === "all" || PUBLIC_READING_RELEASE && scope.kind === "verified") || Boolean(search) || page > 1,
     });
 
     let live = true;
-    setState({ page, loading: true, posts: [], total: 0, error: null });
-    getPostsFromSupabase({ limit: 24, page, orderBy: "modified", ascending: false, stableOrder: true })
-      .then(({ posts, total }) => {
+    const controller = new AbortController();
+    setState({ page, scopeKey, loading: true, posts: [], total: null, error: null });
+    if (isTaxonomy && scope.kind === "invalid") {
+      setState({ page, scopeKey, loading: false, posts: [], total: 0, error: null, taxonomy: { state: "missing", status: 404 } });
+      return () => { live = false; controller.abort(); };
+    }
+    if (isTaxonomy && taxonomyPage === null) {
+      setState({ page, scopeKey, loading: false, posts: [], total: 0, error: null, taxonomy: { state: "page-missing", status: 404 } });
+      return () => { live = false; controller.abort(); };
+    }
+    fetchPostsCatalog2029({ scope, page, search, signal: controller.signal, allowApprovedSourcePage: mixedSeries })
+      .then(({ posts, total, taxonomy }) => {
         if (!live) return;
-        setState({ page, loading: false, posts: posts || [], total: total || 0, error: null });
+        setState({ page, scopeKey, loading: false, posts, total, postTotal: total, basePosts: posts,
+          sourceItems: [], sourceTotal: null, mixedComplete: !mixedSeries, mixedError: null, error: null, taxonomy });
       })
       .catch((error) => {
         if (!live) return;
-        const message = error?.code === "PGRST103" ? "העמוד הזה נמצא מעבר לפוסטים הזמינים." : error?.message || "טעינת הפוסטים נכשלה";
-        setState({ page, loading: false, posts: [], total: 0, error: message });
+        const message = isTaxonomy ? "רשימת הפוסטים אינה זמינה כרגע." : error?.code === "PGRST103" ? "העמוד הזה נמצא מעבר לפוסטים הזמינים." : error?.message || "טעינת הפוסטים נכשלה";
+        setState({ page, scopeKey, loading: false, posts: [], total: null, error: message });
       });
 
-    return () => { live = false; };
-  }, [page]);
+    return () => { live = false; controller.abort(); };
+  }, [page, scopeKey, attempt]);
+
+  useEffect(() => {
+    if (!isTaxonomy) return;
+    const verified = state.scopeKey === scopeKey && state.page === page && !state.loading && !state.error && state.taxonomy?.status === 200;
+    applySeo({
+      title: `${scope.kind === "invalid" ? title : `${taxonomyLabel}: ${title}`} · SOD1820 2029`,
+      description: `פוסטים ב${taxonomyLabel} ${title} באתר SOD1820.`,
+      path: taxonomyScope ? location.pathname : `${allPostsHref}?${scope.kind}=${encodeURIComponent(scope.key)}`,
+      noindex: !publicCatalog || !verified || Boolean(search) || page > 1,
+    });
+  }, [isTaxonomy, taxonomyScope, location.pathname, scopeKey, page, state]);
+
+  useEffect(() => {
+    if (!mixedSeries || state.loading || state.error || state.mixedComplete && state.mixedCatalog === seriesReading || state.scopeKey !== scopeKey || state.page !== page
+      || seriesReading.activeKey !== scope.key || seriesReading.loading) return;
+    const controller = new AbortController();
+    const selected = seriesReading.series.find(series => series.key === scope.key);
+    const sourceReadFailed = seriesReading.error || !selected || selected.sourceStates.some(source => source.state !== "measured");
+    completeMixedSeriesPostsPage2029({ scope, page, search,
+      postResult: { posts: state.basePosts, total: state.postTotal }, sourceItems: selected?.sourceItems || [], signal: controller.signal,
+    }).then(result => {
+      if (!controller.signal.aborted) setState(current => ({ ...current, ...result, sourceTotal: sourceReadFailed ? null : result.sourceTotal,
+        mixedComplete: true, mixedCatalog: seriesReading, mixedError: null }));
+    }).catch(() => {
+      if (!controller.signal.aborted) setState(current => ({ ...current, posts: current.basePosts, total: current.postTotal, sourceItems: [], sourceTotal: null,
+        mixedComplete: true, mixedCatalog: seriesReading, mixedError: "לא ניתן לאמת כרגע את סדר המקורות בסדרה." }));
+    });
+    return () => controller.abort();
+  }, [state, seriesReading, scopeKey, page]);
 
   const pages = Math.max(1, Math.ceil(state.total / 24));
-  const posts = state.page === page ? state.posts : [];
-  const loading = state.loading || state.page !== page;
-  const error = state.page === page ? state.error : null;
+  const sameScope = state.page === page && state.scopeKey === scopeKey;
+  const posts = sameScope ? state.posts : [];
+  const loading = state.loading || !sameScope;
+  const error = sameScope ? state.error : null;
+  const taxonomyMissing = isTaxonomy && !loading && !error && state.taxonomy?.state === "missing";
+  const taxonomyPageMissing = isTaxonomy && !loading && !error && state.taxonomy?.state === "page-missing";
+  const sameSeries = seriesReading.activeKey === scope.key;
+  const selectedSeries = sameSeries ? seriesReading.series.find(series => series.key === scope.key) : null;
+  const sourceItems = mixedSeries && sameScope && state.mixedComplete && state.mixedCatalog === seriesReading ? state.sourceItems || [] : [];
+  const mixedItems = mixedSeries ? mergeContentSeriesItems(projectContentSeriesItems(posts, scope.spec).items, sourceItems) : [];
+  const sourcePending = mixedSeries && (!sameSeries || seriesReading.loading || !loading && !error && (!state.mixedComplete || state.mixedCatalog !== seriesReading));
+  const sourceFailed = mixedSeries && sameScope && sameSeries && !seriesReading.loading
+    && (seriesReading.error || state.mixedError || selectedSeries?.sourceStates.some(source => source.state !== "measured"));
+  // Beyond page1, a source on an earlier page requires the preceding Post to
+  // become this page's first item. The provisional24 are not its assigned page
+  // members yet. A scrolled POP/reload of page1 also needs its final insertion
+  // order before restoring the visible card. Fresh/top page1 stays incremental;
+  // source/rank failure keeps available Posts with the truthful partial notice.
+  const awaitingPageAssignment = mixedSeries && (page > 1 || arrivedAtSavedViewport) && sourcePending && !sourceFailed && !error;
+  const hasItems = !awaitingPageAssignment && (mixedSeries ? mixedItems.length > 0 : posts.length > 0);
+  useEffect(() => {
+    // Failed reads also settle: retain available Posts and the real document
+    // height rather than waiting indefinitely or inventing a restored item.
+    viewportRestoreRef.current?.setReady(sameScope && !loading && (Boolean(error) || !sourcePending), catalogRootRef.current);
+  }, [location.key, currentHref, navigationType, sameScope, loading, error, sourcePending]);
+  const rememberViewport = () => rememberPostsCatalogViewport2029({ entryKey: location.key, href: currentHref });
   const goToPage = (nextPage) => {
+    rememberViewport();
     const next = new URLSearchParams(searchParams);
     if (nextPage === 1) next.delete("page");
     else next.set("page", String(nextPage));
-    setSearchParams(next);
+    updateSearchParams(next);
     document.getElementById("posts-catalog")?.scrollIntoView({ block: "start", behavior: "instant" });
   };
 
-  return <Sod2029Shell surface="post" title="פוסטים" introVariant="none" symbol="✦" status="פוסטים">
-    <main className="sod29-posts-index" data-experience-surface="posts-index">
-      <header className="sod29-posts-index-hero" data-experience-capability="posts-index-hero">
-        <div className="sod29-posts-index-eyebrow">אירועים · סיפורים · רמזים</div>
-        <div className="sod29-posts-index-hero-grid">
+  const submitSearch = event => {
+    event.preventDefault();
+    rememberViewport();
+    const next = new URLSearchParams(searchParams);
+    if (draftSearch.trim()) next.set("q", draftSearch.trim()); else next.delete("q");
+    next.delete("page");
+    updateSearchParams(next);
+  };
+
+  const clearSearch = () => {
+    rememberViewport();
+    const next = new URLSearchParams(searchParams);
+    next.delete("q"); next.delete("page");
+    updateSearchParams(next);
+  };
+
+  return <Sod2029Shell surface="post" title={title} introVariant="none" symbol={<NavigationIcon2029 name="posts" />} status="פוסטים">
+    <main ref={catalogRootRef} className={`sod29-posts-library${isTaxonomy ? " is-taxonomy" : ""}`} data-experience-surface="posts-index"
+      data-posts-taxonomy={isTaxonomy ? scope.kind : undefined} data-taxonomy-state={isTaxonomy ? loading ? "loading" : error ? "unavailable" : state.taxonomy?.state : undefined}
+      onClickCapture={event => capturePostsCatalogDeparture2029(event, { entryKey: location.key, href: currentHref })}>
+      <header className="sod29-posts-library-hero" data-experience-capability="posts-index-hero">
+        {scope.kind !== "all" ? <Link className="sod29-posts-library-back" to={allPostsHref}>לכל הפוסטים <span aria-hidden="true">←</span></Link> : null}
+        <div className="sod29-posts-library-hero-grid">
           <div>
-            <h1>הפוסטים</h1>
-            <details className="sod29-post-details sod29-post-index-about">
+            {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-taxonomy-label"><NavigationIcon2029 name="layers" size={20} />{taxonomyLabel}</p> : null}
+            <h1>{title}</h1>
+            {scope.kind === "all" ? <p className="sod29-posts-library-intro">סיפורים, רמזים וחיבורים שמעוררים התבוננות</p> : null}
+            {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-library-intro">{scope.kind === "tag" ? "לקרוא ולגלות דרך הפוסטים עם התגית הזו" : "הפוסטים שנאספו תחת הסיווג הזה"}</p> : null}
+            {scope.compatibilityNote ? <p>{scope.compatibilityNote} {scope.seriesLink ? <Link to={scope.seriesLink.href}>{scope.seriesLink.label} ←</Link> : null}</p> : null}
+            {scope.sourceLink ? <p><Link className="sod29-posts-library-back" to={scope.sourceLink.href}>{scope.sourceLink.label} ←</Link></p> : null}
+            <details className="sod29-post-details sod29-library-post-about">
               <summary>על הפוסטים <span aria-hidden="true">⌄</span></summary>
               <p>אירועים · סיפורים · רמזים</p>
               <p>
@@ -123,31 +319,54 @@ export default function Posts2029Page() {
         </div>
       </header>
 
-      {loading ? <FrameState kind="loading" title="פותח את הפוסטים">טוען את המקורות הציבוריים הקיימים.</FrameState> : null}
+      <form className="sod29-posts-search" role="search" aria-label={isTaxonomy ? `חיפוש פוסטים ב${taxonomyLabel}` : "חיפוש פוסטים וסדרות"} onSubmit={submitSearch}>
+        <label htmlFor="posts-search"><NavigationIcon2029 name="search" size={20} /> {isTaxonomy ? `חיפוש לפי כותרת בתוך ה${taxonomyLabel}` : "חיפוש לפי כותרת פוסט או שם סדרה"}</label>
+        <div><input id="posts-search" type="search" value={draftSearch} maxLength={120} onChange={event => setDraftSearch(event.target.value)} placeholder={isTaxonomy ? "איזה פוסט תרצו למצוא?" : "מה תרצו לקרוא?"} dir="auto" /><button type="submit">חיפוש</button></div>
+        {isTaxonomy && scope.key ? <div className="sod29-posts-taxonomy-filter" aria-label="הבחירה הנוכחית"><span>{taxonomyLabel}: <strong>{scope.key}</strong></span>{search ? <span>חיפוש: <bdi>{search}</bdi></span> : null}</div> : null}
+        {search ? <button type="button" onClick={clearSearch}>ניקוי החיפוש</button> : null}
+      </form>
+
+      {scope.kind === "all" || scope.kind === "series" ? <SeriesEntrances2029 activeKey={scope.kind === "series" ? scope.key : null} search={search} onRead={setSeriesReading} refreshKey={attempt} /> : null}
+
+      {loading || awaitingPageAssignment ? <FrameState kind="loading" title={awaitingPageAssignment && !loading ? `פותח את עמוד ${page} בסדרה` : "פותח את הפוסטים"}>
+        {awaitingPageAssignment && !loading ? "משלים את סדר הפוסטים והמקורות בעמוד הזה." : "טוען את המקורות הציבוריים הקיימים."}
+      </FrameState> : null}
       {error ? <FrameState kind="error" title="לא הצלחתי לפתוח את הפוסטים">
         <p>{error}</p>
+        <button type="button" onClick={() => setAttempt(value => value + 1)}>ניסיון טעינה נוסף</button>
         {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : null}
       </FrameState> : null}
-      {!loading && !error && !posts.length
-        ? <FrameState kind="empty" title="אין פוסטים בעמוד הזה">
-          {page > 1 ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button> : "אין כרגע מקורות זמינים להצגה."}
+      {mixedSeries ? <SeriesReadingNotice2029 pending={sourcePending} failed={Boolean(sourceFailed)}
+        pendingText="טוען את המקור הנוסף בסדרה…"
+        failureText="המקור הנוסף בסדרה לא זמין כרגע."
+        readyText="הסדרה מסודרת לפי מועד הפרסום במקור."
+        retryLabel="ניסיון טעינה נוסף" onRetry={() => setAttempt(value => value + 1)} /> : null}
+      {!loading && !error && !hasItems && !sourcePending && !sourceFailed
+        ? <FrameState kind="empty" title={taxonomyMissing ? "הבחירה הזו אינה זמינה" : isTaxonomy && search && !taxonomyPageMissing ? "לא נמצאו פוסטים לחיפוש הזה" : "אין פוסטים בעמוד הזה"}>
+          {taxonomyMissing ? <p>לא נמצאו פוסטים ציבוריים בכתובת הזו. אפשר להמשיך לעיין <Link to={allPostsHref}>בכל הפוסטים</Link>.</p>
+            : page > 1 || taxonomyPageMissing ? <button type="button" onClick={() => goToPage(1)}>חזרה לפוסטים האחרונים</button>
+              : isTaxonomy && search ? <><p>אפשר לנסות כותרת אחרת או לחזור לכל הפוסטים ב{taxonomyLabel}.</p><button type="button" onClick={clearSearch}>לכל הפוסטים ב{taxonomyLabel}</button></>
+                : "אין כרגע מקורות זמינים להצגה."}
         </FrameState>
         : null}
 
-      {posts.length ? <section id="posts-catalog" className="sod29-posts-index-stage" aria-label="פוסטים" data-posts-page={page}>
-        <div className="sod29-posts-index-stage-head">
-          <span>{state.total ? `${state.total} פוסטים במקור` : "הפוסטים האחרונים"}</span>
-          <small>עמוד {page} מתוך {pages} · לפי עדכון הפוסט</small>
+      {hasItems ? <section id="posts-catalog" className="sod29-posts-library-stage" aria-label={mixedSeries ? "פוסטים ומקורות בסדרה" : "פוסטים"} data-posts-page={page}>
+        <div className="sod29-posts-library-stage-head">
+          <h2>{mixedSeries ? "הפוסטים והמקורות בסדרה" : isTaxonomy ? search ? "הפוסטים שנמצאו" : `הפוסטים ב${taxonomyLabel}` : scope.kind === "all" ? "כל הפוסטים" : "הפוסטים בבחירה"}</h2>
+          <span><bdi className="sod29-posts-numeric">{state.total}</bdi> {mixedSeries && state.sourceTotal != null ? "פריטים" : "פוסטים"} · עמוד <bdi className="sod29-posts-numeric">{page}</bdi> מתוך <bdi className="sod29-posts-numeric">{pages}</bdi></span>
+          <small>{scope.kind === "series" ? "לפי מועד הפרסום במקור" : "הפוסטים האחרונים · לפי עדכון הפוסט"}</small>
         </div>
-        <div className="sod29-posts-index-grid">
-          {posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} />)}
+        <div className="sod29-posts-library-grid">
+          {mixedSeries ? mixedItems.map((item, index) => <PostIndexCard key={item.sourceRef} post={posts.find(post => `posts:${post.id}` === item.sourceRef)} seriesItem={item} index={index} />)
+            : posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} publicationOrder={scope.kind === "series"} />)}
         </div>
       </section> : null}
-      {!loading && !error && posts.length ? <nav className="sod29-posts-pagination" aria-label="עמודי הפוסטים">
+      {!loading && !error && hasItems ? <nav className="sod29-posts-pagination" aria-label="עמודי הפוסטים">
         <button type="button" disabled={page <= 1} onClick={() => goToPage(page - 1)}>פוסטים חדשים יותר</button>
         <span aria-live="polite">עמוד {page} מתוך {pages}</span>
         <button type="button" disabled={page >= pages} onClick={() => goToPage(page + 1)}>פוסטים קודמים</button>
       </nav> : null}
+      {!taxonomyScope && !loading && !awaitingPageAssignment && !error && state.total > 0 && ["category", "series"].includes(scope.kind) ? <PostFollowBox variant="2029" scope={scope} source={search ? "posts_search_2029" : scope.kind === "series" ? "posts_series_footer_2029" : "posts_category_footer_2029"} /> : null}
     </main>
   </Sod2029Shell>;
 }

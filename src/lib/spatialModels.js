@@ -167,3 +167,19 @@ export const SPATIAL_MODELS = [
     image: null, postSlug: null, to1820: null,
   },
 ];
+
+const SPATIAL_MODEL_SLUGS_BY_SOURCE_REF = new Map();
+for (const model of SPATIAL_MODELS) {
+  for (const ref of model?.spatial?.provenance?.refs || []) {
+    const sourceRef = String(ref || "").trim();
+    if (!sourceRef) continue;
+    const slugs = SPATIAL_MODEL_SLUGS_BY_SOURCE_REF.get(sourceRef) || [];
+    if (!slugs.includes(model.slug)) slugs.push(model.slug);
+    SPATIAL_MODEL_SLUGS_BY_SOURCE_REF.set(sourceRef, slugs);
+  }
+}
+
+export function spatialModelSlugsForSourceRef(value) {
+  const sourceRef = String(value || "").trim();
+  return Object.freeze([...(SPATIAL_MODEL_SLUGS_BY_SOURCE_REF.get(sourceRef) || [])]);
+}

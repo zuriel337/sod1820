@@ -301,3 +301,99 @@ test("buildIntakeMeta: Golden B pentagon also preserves its media marker unresol
   assert.ok(meta.ext.media_refs.some((r) => r.raw === "[Image 3850.jpg]" && r.resolution_status === "unresolved"));
   assert.equal(meta.ext.extraction_integrity.fidelity_status, "partial");
 });
+
+test("R26 provenance: a whole equation value is not an unexplained external quantity", () => {
+  const kase=buildResearchCase({raw:"חזק+חזק+חזק=345"});
+  const claim=kase.compoundClaims[0].compound;
+  assert.equal(claim.numericLiterals[0].status,"unresolved", "historical evidence is preserved");
+  assert.deepEqual(claim.numericOccurrences[0].astPath,[]);
+  assert.equal(claim.numericOccurrences[0].syntacticRole,"equation_value");
+  assert.equal(claim.numericOccurrences[0].verifiedByLink,0);
+  assert.equal(kase.extractionIntegrity.fidelityStatus,"complete");
+  const meta=buildIntakeMeta(kase);
+  assert.deepEqual(meta.ext.derivation.inputs,[]);
+  assert.equal(meta.ext.derivation.outputs[0].value,345);
+  assert.equal(meta.ext.derivation.outputs[0].calculation_match,true);
+  assert.equal(meta.ext.derivation.outputs[0].origin_statement,"חזק+חזק+חזק=345");
+});
+
+test("R26 provenance: repeated numeric inputs retain distinct AST positions and unresolved origins", () => {
+  const kase=buildResearchCase({raw:'393+393=תשפ"ו=786'});
+  const claim=kase.compoundClaims[0].compound, meta=buildIntakeMeta(kase);
+  assert.equal(claim.numericLiterals.length,2, "old value grouping retained for compatibility only");
+  assert.equal(claim.numericOccurrences.length,3);
+  assert.deepEqual(meta.ext.derivation.inputs.map(p=>p.value),[393,393]);
+  assert.deepEqual(meta.ext.derivation.inputs.map(p=>p.expression_ref.ast_path),[["a"],["b"]]);
+  assert.ok(meta.ext.derivation.inputs.every(p=>p.role===null && p.status==="unresolved"));
+  assert.equal(meta.ext.derivation.outputs[0].calculation_match,true);
+  assert.equal(meta.ext.extraction_integrity.arithmetic_verified,true);
+  assert.equal(meta.ext.extraction_integrity.fidelity_status,"partial");
+});
+
+test("R26 provenance: the same number as input and equation value never shares an origin", () => {
+  const kase=buildResearchCase({raw:"0+1=1"});
+  const meta=buildIntakeMeta(kase);
+  assert.deepEqual(meta.ext.derivation.inputs.map(p=>p.value),[0,1]);
+  assert.equal(meta.ext.derivation.outputs[0].value,1);
+  assert.equal(meta.ext.extraction_integrity.fidelity_status,"partial");
+});
+
+test("R26 provenance: first and intermediate equality-side values keep their exact positions", () => {
+  const c=extractCompoundClaims("345=חזק+חזק+חזק=345")[0];
+  assert.deepEqual(c.numericOccurrences.map(p=>p.linkIndex),[0,2]);
+  assert.deepEqual(c.numericOccurrences.map(p=>p.verifiedByLink),[1,1]);
+  assert.equal(computeExtractionIntegrity([c],[]).fidelityStatus,"complete");
+});
+
+test("R26 provenance: nested operation paths preserve order, not just a set of values", () => {
+  const c=extractCompoundClaims("(1+2)+(1+2)=6")[0];
+  const inputs=c.numericOccurrences.filter(p=>p.syntacticRole==="arithmetic_input");
+  assert.deepEqual(inputs.map(p=>p.value),[1,2,1,2]);
+  assert.deepEqual(inputs.map(p=>p.astPath),[["a","a"],["a","b"],["b","a"],["b","b"]]);
+  assert.equal(computeExtractionIntegrity([c],[]).fidelityStatus,"partial");
+});
+
+test("R35 provenance: vertical arithmetic preserves line evidence and repeated inputs", () => {
+  const kase=buildResearchCase({raw:"72\n72\n=\n144"});
+  const c=kase.compoundClaims.map(c=>c.compound).find(c=>c.kind==="vertical-chain");
+  assert.equal(c.linesUsed.length,4);
+  assert.equal(c.syntheticPlusCount,1);
+  const inputs=buildIntakeMeta(kase).ext.derivation.inputs;
+  assert.equal(inputs.length,2);
+  assert.ok(inputs.every(p=>p.value===72 && p.expression_ref.expression.includes(" | ")));
+  assert.equal(kase.extractionIntegrity.fidelityStatus,"partial");
+});
+
+test("matching another equality link never overrides a mismatch in this claim", () => {
+  const c=extractCompoundClaims("חזק+חזק+חזק=345=346")[0];
+  const ei=computeExtractionIntegrity([c],[]);
+  assert.equal(c.status,"ENGINE_MISMATCH");
+  assert.equal(ei.arithmeticVerified,false);
+  assert.equal(ei.fidelityStatus,"partial");
+});
+
+test("equation value without an independently evaluated side fails closed", () => {
+  const c=extractCompoundClaims("חזק+חזק+חזק=345")[0];
+  for (const value of [null,-1,1,20]) {
+    const copy=structuredClone(c); copy.numericOccurrences[0].verifiedByLink=value;
+    assert.equal(computeExtractionIntegrity([copy],[]).fidelityStatus,"partial");
+  }
+  const historical=structuredClone(c); delete historical.numericOccurrences;
+  assert.equal(computeExtractionIntegrity([historical],[]).fidelityStatus,"partial");
+});
+
+test("source-context candidate or missing origin status cannot claim semantic completeness", () => {
+  const c=extractCompoundClaims("6 × ישר = 3060")[0];
+  for (const status of ["source_context_candidate","unresolved",undefined,"invented"]) {
+    const copy=structuredClone(c); copy.quantityProvenance.status=status;
+    assert.equal(computeExtractionIntegrity([copy],[]).fidelityStatus,"partial");
+  }
+});
+
+test("complete equation slice does not make missing source media complete", () => {
+  const kase=buildResearchCase({raw:"חזק+חזק+חזק=345\n[Image missing.jpg]"});
+  assert.equal(kase.extractionIntegrity.arithmeticVerified,true);
+  assert.equal(kase.extractionIntegrity.semanticOperandCoverage,"complete");
+  assert.equal(kase.extractionIntegrity.mediaReferenceCoverage,"partial");
+  assert.equal(buildIntakeMeta(kase).ext.extraction_integrity.fidelity_status,"partial");
+});

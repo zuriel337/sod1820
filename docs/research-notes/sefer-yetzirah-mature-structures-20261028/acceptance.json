@@ -1,0 +1,2180 @@
+{
+  "task": "SEFER_YETZIRAH_MATURE_STRUCTURES_CONTINUATION",
+  "actor": "GPT",
+  "handoff_to": "ZURIEL",
+  "base": "2890d41d401e49d5a22e31fa2607b49805ebf486",
+  "branch": "codex/sefer-yetzirah-mature-structures-continuation-20261028",
+  "status": "IMPLEMENTED_MODEL_TESTED_BRANCH_ONLY_WITH_PRESERVED_BASELINE_BOOKS_GATE_FAILURE",
+  "models": [
+    {
+      "id": "sy-structure:letter-families",
+      "source_pages": [
+        65
+      ],
+      "implemented": true,
+      "primary_source_callback_bound": true,
+      "field_source_callbacks_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "id": "sy-structure:letter-families:component:mothers",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body",
+            "source_anchor": "#page=65&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:letter-families:component:doubles",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body",
+            "source_anchor": "#page=65&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:letter-families:component:simples",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body",
+            "source_anchor": "#page=65&view=FitH"
+          },
+          "source_reading_id": null
+        }
+      ],
+      "relations": [],
+      "fields": [
+        {
+          "key": "letters",
+          "label": "אותיות המשפחה",
+          "value": [
+            "א",
+            "מ",
+            "ש"
+          ],
+          "id": "sy-structure:letter-families:component:mothers:field:letters",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body",
+            "source_anchor": "#page=65&view=FitH"
+          },
+          "componentId": "sy-structure:letter-families:component:mothers"
+        },
+        {
+          "key": "source_count",
+          "label": "המניין שבמקור",
+          "value": 3,
+          "id": "sy-structure:letter-families:component:mothers:field:source_count",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body",
+            "source_anchor": "#page=65&view=FitH"
+          },
+          "componentId": "sy-structure:letter-families:component:mothers"
+        },
+        {
+          "key": "letters",
+          "label": "אותיות המשפחה",
+          "value": [
+            "ב",
+            "ג",
+            "ד",
+            "כ",
+            "פ",
+            "ר",
+            "ת"
+          ],
+          "id": "sy-structure:letter-families:component:doubles:field:letters",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body",
+            "source_anchor": "#page=65&view=FitH"
+          },
+          "componentId": "sy-structure:letter-families:component:doubles"
+        },
+        {
+          "key": "source_count",
+          "label": "המניין שבמקור",
+          "value": 7,
+          "id": "sy-structure:letter-families:component:doubles:field:source_count",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body",
+            "source_anchor": "#page=65&view=FitH"
+          },
+          "componentId": "sy-structure:letter-families:component:doubles"
+        },
+        {
+          "key": "letters",
+          "label": "אותיות המשפחה",
+          "value": [
+            "ה",
+            "ו",
+            "ז",
+            "ח",
+            "ט",
+            "י",
+            "ל",
+            "נ",
+            "ס",
+            "ע",
+            "צ",
+            "ק"
+          ],
+          "id": "sy-structure:letter-families:component:simples:field:letters",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body",
+            "source_anchor": "#page=65&view=FitH"
+          },
+          "componentId": "sy-structure:letter-families:component:simples"
+        },
+        {
+          "key": "source_count",
+          "label": "המניין שבמקור",
+          "value": 12,
+          "id": "sy-structure:letter-families:component:simples:field:source_count",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch1:letter-partition",
+            "pdf_page": 65,
+            "source_ref": "book:sefer-yetzirah-9perushim#p65:synoptic_body:text:synoptic:ch1:letter-partition",
+            "page_region": "body",
+            "source_anchor": "#page=65&view=FitH"
+          },
+          "componentId": "sy-structure:letter-families:component:simples"
+        }
+      ],
+      "contextUnits": []
+    },
+    {
+      "id": "sy-structure:five-mouth-groups",
+      "source_pages": [
+        80
+      ],
+      "implemented": true,
+      "primary_source_callback_bound": true,
+      "field_source_callbacks_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "id": "sy-structure:five-mouth-groups:component:throat",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body",
+            "source_anchor": "#page=80&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:five-mouth-groups:component:lips",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body",
+            "source_anchor": "#page=80&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:five-mouth-groups:component:palate",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body",
+            "source_anchor": "#page=80&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:five-mouth-groups:component:tongue",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body",
+            "source_anchor": "#page=80&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:five-mouth-groups:component:teeth",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body",
+            "source_anchor": "#page=80&view=FitH"
+          },
+          "source_reading_id": null
+        }
+      ],
+      "relations": [],
+      "fields": [
+        {
+          "key": "letters",
+          "label": "אותיות הקבוצה",
+          "value": [
+            "א",
+            "ח",
+            "ה",
+            "ע"
+          ],
+          "id": "sy-structure:five-mouth-groups:component:throat:field:letters",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body",
+            "source_anchor": "#page=80&view=FitH"
+          },
+          "componentId": "sy-structure:five-mouth-groups:component:throat"
+        },
+        {
+          "key": "letters",
+          "label": "אותיות הקבוצה",
+          "value": [
+            "ב",
+            "ו",
+            "מ",
+            "פ"
+          ],
+          "id": "sy-structure:five-mouth-groups:component:lips:field:letters",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body",
+            "source_anchor": "#page=80&view=FitH"
+          },
+          "componentId": "sy-structure:five-mouth-groups:component:lips"
+        },
+        {
+          "key": "letters",
+          "label": "אותיות הקבוצה",
+          "value": [
+            "ג",
+            "י",
+            "כ",
+            "ק"
+          ],
+          "id": "sy-structure:five-mouth-groups:component:palate:field:letters",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body",
+            "source_anchor": "#page=80&view=FitH"
+          },
+          "componentId": "sy-structure:five-mouth-groups:component:palate"
+        },
+        {
+          "key": "letters",
+          "label": "אותיות הקבוצה",
+          "value": [
+            "ד",
+            "ט",
+            "ל",
+            "נ",
+            "ת"
+          ],
+          "id": "sy-structure:five-mouth-groups:component:tongue:field:letters",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body",
+            "source_anchor": "#page=80&view=FitH"
+          },
+          "componentId": "sy-structure:five-mouth-groups:component:tongue"
+        },
+        {
+          "key": "letters",
+          "label": "אותיות הקבוצה",
+          "value": [
+            "ז",
+            "ס",
+            "ש",
+            "ר",
+            "צ"
+          ],
+          "id": "sy-structure:five-mouth-groups:component:teeth:field:letters",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch2:articulation",
+            "pdf_page": 80,
+            "source_ref": "book:sefer-yetzirah-9perushim#p80:synoptic_body:text:synoptic:ch2:articulation",
+            "page_region": "body",
+            "source_anchor": "#page=80&view=FitH"
+          },
+          "componentId": "sy-structure:five-mouth-groups:component:teeth"
+        }
+      ],
+      "contextUnits": []
+    },
+    {
+      "id": "sy-structure:mothers-world-year-soul",
+      "source_pages": [
+        94,
+        95,
+        97,
+        98,
+        99
+      ],
+      "implemented": true,
+      "primary_source_callback_bound": true,
+      "field_source_callbacks_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "id": "sy-structure:mothers-world-year-soul:component:alef",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:alef",
+            "pdf_page": 97,
+            "source_ref": "book:sefer-yetzirah-9perushim#p97:synoptic_body:text:synoptic:ch3:alef",
+            "page_region": "body",
+            "source_anchor": "#page=97&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:mothers-world-year-soul:component:mem",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:mem",
+            "pdf_page": 98,
+            "source_ref": "book:sefer-yetzirah-9perushim#p98:synoptic_body:text:synoptic:ch3:mem",
+            "page_region": "body",
+            "source_anchor": "#page=98&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:mothers-world-year-soul:component:shin",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:shin",
+            "pdf_page": 99,
+            "source_ref": "book:sefer-yetzirah-9perushim#p99:synoptic_body:text:synoptic:ch3:shin",
+            "page_region": "body",
+            "source_anchor": "#page=99&view=FitH"
+          },
+          "source_reading_id": null
+        }
+      ],
+      "relations": [
+        {
+          "from_id": "alef",
+          "type": "mediates_between_mem_and_shin",
+          "to_id": "mem",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:world",
+            "pdf_page": 94,
+            "source_ref": "book:sefer-yetzirah-9perushim#p94:synoptic_body:text:synoptic:ch3:world",
+            "page_region": "body",
+            "source_anchor": "#page=94&view=FitH"
+          },
+          "id": "sy-structure:mothers-world-year-soul:relation:alef:mediates_between_mem_and_shin:mem",
+          "stable_id": "sy-structure:mothers-world-year-soul:relation:alef:mediates_between_mem_and_shin:mem",
+          "explanation_he": "אל״ף ↔ מ״ם: הכרעה בין מים לאש. היחס שייך לעד המסוים, ולא נוצר מקרבה בתצוגה.",
+          "source_support": "printed_relation_in_named_witness"
+        },
+        {
+          "from_id": "alef",
+          "type": "mediates_between_mem_and_shin",
+          "to_id": "shin",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:world",
+            "pdf_page": 94,
+            "source_ref": "book:sefer-yetzirah-9perushim#p94:synoptic_body:text:synoptic:ch3:world",
+            "page_region": "body",
+            "source_anchor": "#page=94&view=FitH"
+          },
+          "id": "sy-structure:mothers-world-year-soul:relation:alef:mediates_between_mem_and_shin:shin",
+          "stable_id": "sy-structure:mothers-world-year-soul:relation:alef:mediates_between_mem_and_shin:shin",
+          "explanation_he": "אל״ף ↔ שי״ן: הכרעה בין מים לאש. היחס שייך לעד המסוים, ולא נוצר מקרבה בתצוגה.",
+          "source_support": "printed_relation_in_named_witness"
+        }
+      ],
+      "fields": [
+        {
+          "key": "element",
+          "label": "יסוד",
+          "value": "רוח",
+          "id": "sy-structure:mothers-world-year-soul:component:alef:field:element",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:alef",
+            "pdf_page": 97,
+            "source_ref": "book:sefer-yetzirah-9perushim#p97:synoptic_body:text:synoptic:ch3:alef",
+            "page_region": "body",
+            "source_anchor": "#page=97&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:alef"
+        },
+        {
+          "key": "world",
+          "label": "בעולם",
+          "value": "אוויר",
+          "id": "sy-structure:mothers-world-year-soul:component:alef:field:world",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:alef",
+            "pdf_page": 97,
+            "source_ref": "book:sefer-yetzirah-9perushim#p97:synoptic_body:text:synoptic:ch3:alef",
+            "page_region": "body",
+            "source_anchor": "#page=97&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:alef"
+        },
+        {
+          "key": "year",
+          "label": "בשנה",
+          "value": "רוויה",
+          "id": "sy-structure:mothers-world-year-soul:component:alef:field:year",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:alef",
+            "pdf_page": 97,
+            "source_ref": "book:sefer-yetzirah-9perushim#p97:synoptic_body:text:synoptic:ch3:alef",
+            "page_region": "body",
+            "source_anchor": "#page=97&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:alef"
+        },
+        {
+          "key": "soul",
+          "label": "בנפש",
+          "value": "גוויה",
+          "id": "sy-structure:mothers-world-year-soul:component:alef:field:soul",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:alef",
+            "pdf_page": 97,
+            "source_ref": "book:sefer-yetzirah-9perushim#p97:synoptic_body:text:synoptic:ch3:alef",
+            "page_region": "body",
+            "source_anchor": "#page=97&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:alef"
+        },
+        {
+          "key": "element",
+          "label": "יסוד",
+          "value": "מים",
+          "id": "sy-structure:mothers-world-year-soul:component:mem:field:element",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:mem",
+            "pdf_page": 98,
+            "source_ref": "book:sefer-yetzirah-9perushim#p98:synoptic_body:text:synoptic:ch3:mem",
+            "page_region": "body",
+            "source_anchor": "#page=98&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:mem"
+        },
+        {
+          "key": "world",
+          "label": "בעולם",
+          "value": "ארץ",
+          "id": "sy-structure:mothers-world-year-soul:component:mem:field:world",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:mem",
+            "pdf_page": 98,
+            "source_ref": "book:sefer-yetzirah-9perushim#p98:synoptic_body:text:synoptic:ch3:mem",
+            "page_region": "body",
+            "source_anchor": "#page=98&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:mem"
+        },
+        {
+          "key": "year",
+          "label": "בשנה",
+          "value": "קור",
+          "id": "sy-structure:mothers-world-year-soul:component:mem:field:year",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:mem",
+            "pdf_page": 98,
+            "source_ref": "book:sefer-yetzirah-9perushim#p98:synoptic_body:text:synoptic:ch3:mem",
+            "page_region": "body",
+            "source_anchor": "#page=98&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:mem"
+        },
+        {
+          "key": "soul",
+          "label": "בנפש",
+          "value": "בטן",
+          "id": "sy-structure:mothers-world-year-soul:component:mem:field:soul",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:mem",
+            "pdf_page": 98,
+            "source_ref": "book:sefer-yetzirah-9perushim#p98:synoptic_body:text:synoptic:ch3:mem",
+            "page_region": "body",
+            "source_anchor": "#page=98&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:mem"
+        },
+        {
+          "key": "element",
+          "label": "יסוד",
+          "value": "אש",
+          "id": "sy-structure:mothers-world-year-soul:component:shin:field:element",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:shin",
+            "pdf_page": 99,
+            "source_ref": "book:sefer-yetzirah-9perushim#p99:synoptic_body:text:synoptic:ch3:shin",
+            "page_region": "body",
+            "source_anchor": "#page=99&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:shin"
+        },
+        {
+          "key": "world",
+          "label": "בעולם",
+          "value": "שמיים",
+          "id": "sy-structure:mothers-world-year-soul:component:shin:field:world",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:shin",
+            "pdf_page": 99,
+            "source_ref": "book:sefer-yetzirah-9perushim#p99:synoptic_body:text:synoptic:ch3:shin",
+            "page_region": "body",
+            "source_anchor": "#page=99&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:shin"
+        },
+        {
+          "key": "year",
+          "label": "בשנה",
+          "value": "חום",
+          "id": "sy-structure:mothers-world-year-soul:component:shin:field:year",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:shin",
+            "pdf_page": 99,
+            "source_ref": "book:sefer-yetzirah-9perushim#p99:synoptic_body:text:synoptic:ch3:shin",
+            "page_region": "body",
+            "source_anchor": "#page=99&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:shin"
+        },
+        {
+          "key": "soul",
+          "label": "בנפש",
+          "value": "ראש",
+          "id": "sy-structure:mothers-world-year-soul:component:shin:field:soul",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:shin",
+            "pdf_page": 99,
+            "source_ref": "book:sefer-yetzirah-9perushim#p99:synoptic_body:text:synoptic:ch3:shin",
+            "page_region": "body",
+            "source_anchor": "#page=99&view=FitH"
+          },
+          "componentId": "sy-structure:mothers-world-year-soul:component:shin"
+        }
+      ],
+      "contextUnits": [
+        {
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:world",
+            "pdf_page": 94,
+            "source_ref": "book:sefer-yetzirah-9perushim#p94:synoptic_body:text:synoptic:ch3:world",
+            "page_region": "body",
+            "source_anchor": "#page=94&view=FitH"
+          },
+          "workTitle": "ספר יצירה והפירושים המשולבים",
+          "unitId": "sy:synoptic:text:ch3:world"
+        },
+        {
+          "source": {
+            "unit_id": "sy:synoptic:text:ch3:year-soul",
+            "pdf_page": 95,
+            "source_ref": "book:sefer-yetzirah-9perushim#p95:synoptic_body:text:synoptic:ch3:year-soul",
+            "page_region": "body",
+            "source_anchor": "#page=95&view=FitH"
+          },
+          "workTitle": "ספר יצירה והפירושים המשולבים",
+          "unitId": "sy:synoptic:text:ch3:year-soul"
+        }
+      ]
+    },
+    {
+      "id": "sy-structure:doubles-synoptic",
+      "source_pages": [
+        105,
+        106,
+        107,
+        108,
+        109,
+        109,
+        110,
+        110
+      ],
+      "implemented": true,
+      "primary_source_callback_bound": true,
+      "field_source_callbacks_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "id": "sy-structure:doubles-synoptic:component:bet",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:bet",
+            "pdf_page": 106,
+            "source_ref": "book:sefer-yetzirah-9perushim#p106:synoptic_body:text:synoptic:ch4:bet",
+            "page_region": "body",
+            "source_anchor": "#page=106&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:doubles-synoptic:component:gimel",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:gimel",
+            "pdf_page": 107,
+            "source_ref": "book:sefer-yetzirah-9perushim#p107:synoptic_body:text:synoptic:ch4:gimel",
+            "page_region": "body",
+            "source_anchor": "#page=107&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:doubles-synoptic:component:dalet",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:dalet",
+            "pdf_page": 108,
+            "source_ref": "book:sefer-yetzirah-9perushim#p108:synoptic_body:text:synoptic:ch4:dalet",
+            "page_region": "body",
+            "source_anchor": "#page=108&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:doubles-synoptic:component:khaf",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:khaf",
+            "pdf_page": 109,
+            "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:text:synoptic:ch4:khaf",
+            "page_region": "body",
+            "source_anchor": "#page=109&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:doubles-synoptic:component:pe",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:pe",
+            "pdf_page": 109,
+            "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:text:synoptic:ch4:pe",
+            "page_region": "body",
+            "source_anchor": "#page=109&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:doubles-synoptic:component:resh",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:resh",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:resh",
+            "page_region": "body",
+            "source_anchor": "#page=110&view=FitH"
+          },
+          "source_reading_id": "sy-structure:doubles-synoptic:reading:resh"
+        },
+        {
+          "id": "sy-structure:doubles-synoptic:component:tav",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:tav",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:tav",
+            "page_region": "body",
+            "source_anchor": "#page=110&view=FitH"
+          },
+          "source_reading_id": "sy-structure:doubles-synoptic:reading:tav"
+        }
+      ],
+      "relations": [],
+      "fields": [
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "שבתאי",
+          "id": "sy-structure:doubles-synoptic:component:bet:field:world_planet",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:bet",
+            "pdf_page": 106,
+            "source_ref": "book:sefer-yetzirah-9perushim#p106:synoptic_body:text:synoptic:ch4:bet",
+            "page_region": "body",
+            "source_anchor": "#page=106&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:bet"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "ראשון",
+          "id": "sy-structure:doubles-synoptic:component:bet:field:week_day",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:bet",
+            "pdf_page": 106,
+            "source_ref": "book:sefer-yetzirah-9perushim#p106:synoptic_body:text:synoptic:ch4:bet",
+            "page_region": "body",
+            "source_anchor": "#page=106&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:bet"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "עין ימין",
+          "id": "sy-structure:doubles-synoptic:component:bet:field:soul_gate",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:bet",
+            "pdf_page": 106,
+            "source_ref": "book:sefer-yetzirah-9perushim#p106:synoptic_body:text:synoptic:ch4:bet",
+            "page_region": "body",
+            "source_anchor": "#page=106&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:bet"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "צדק",
+          "id": "sy-structure:doubles-synoptic:component:gimel:field:world_planet",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:gimel",
+            "pdf_page": 107,
+            "source_ref": "book:sefer-yetzirah-9perushim#p107:synoptic_body:text:synoptic:ch4:gimel",
+            "page_region": "body",
+            "source_anchor": "#page=107&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:gimel"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "שני",
+          "id": "sy-structure:doubles-synoptic:component:gimel:field:week_day",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:gimel",
+            "pdf_page": 107,
+            "source_ref": "book:sefer-yetzirah-9perushim#p107:synoptic_body:text:synoptic:ch4:gimel",
+            "page_region": "body",
+            "source_anchor": "#page=107&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:gimel"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "עין שמאל",
+          "id": "sy-structure:doubles-synoptic:component:gimel:field:soul_gate",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:gimel",
+            "pdf_page": 107,
+            "source_ref": "book:sefer-yetzirah-9perushim#p107:synoptic_body:text:synoptic:ch4:gimel",
+            "page_region": "body",
+            "source_anchor": "#page=107&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:gimel"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "מאדים",
+          "id": "sy-structure:doubles-synoptic:component:dalet:field:world_planet",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:dalet",
+            "pdf_page": 108,
+            "source_ref": "book:sefer-yetzirah-9perushim#p108:synoptic_body:text:synoptic:ch4:dalet",
+            "page_region": "body",
+            "source_anchor": "#page=108&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:dalet"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "שלישי",
+          "id": "sy-structure:doubles-synoptic:component:dalet:field:week_day",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:dalet",
+            "pdf_page": 108,
+            "source_ref": "book:sefer-yetzirah-9perushim#p108:synoptic_body:text:synoptic:ch4:dalet",
+            "page_region": "body",
+            "source_anchor": "#page=108&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:dalet"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "אוזן ימין",
+          "id": "sy-structure:doubles-synoptic:component:dalet:field:soul_gate",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:dalet",
+            "pdf_page": 108,
+            "source_ref": "book:sefer-yetzirah-9perushim#p108:synoptic_body:text:synoptic:ch4:dalet",
+            "page_region": "body",
+            "source_anchor": "#page=108&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:dalet"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "חמה",
+          "id": "sy-structure:doubles-synoptic:component:khaf:field:world_planet",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:khaf",
+            "pdf_page": 109,
+            "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:text:synoptic:ch4:khaf",
+            "page_region": "body",
+            "source_anchor": "#page=109&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:khaf"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "רביעי",
+          "id": "sy-structure:doubles-synoptic:component:khaf:field:week_day",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:khaf",
+            "pdf_page": 109,
+            "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:text:synoptic:ch4:khaf",
+            "page_region": "body",
+            "source_anchor": "#page=109&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:khaf"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "אוזן שמאל",
+          "id": "sy-structure:doubles-synoptic:component:khaf:field:soul_gate",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:khaf",
+            "pdf_page": 109,
+            "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:text:synoptic:ch4:khaf",
+            "page_region": "body",
+            "source_anchor": "#page=109&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:khaf"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "נוגה",
+          "id": "sy-structure:doubles-synoptic:component:pe:field:world_planet",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:pe",
+            "pdf_page": 109,
+            "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:text:synoptic:ch4:pe",
+            "page_region": "body",
+            "source_anchor": "#page=109&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:pe"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "חמישי",
+          "id": "sy-structure:doubles-synoptic:component:pe:field:week_day",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:pe",
+            "pdf_page": 109,
+            "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:text:synoptic:ch4:pe",
+            "page_region": "body",
+            "source_anchor": "#page=109&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:pe"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "נחיר ימין",
+          "id": "sy-structure:doubles-synoptic:component:pe:field:soul_gate",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:pe",
+            "pdf_page": 109,
+            "source_ref": "book:sefer-yetzirah-9perushim#p109:synoptic_body:text:synoptic:ch4:pe",
+            "page_region": "body",
+            "source_anchor": "#page=109&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:pe"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "כוכב",
+          "id": "sy-structure:doubles-synoptic:component:resh:field:world_planet",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:resh",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:resh",
+            "page_region": "central mishnah box resh",
+            "source_anchor": "#page=110&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:resh"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "שישי",
+          "id": "sy-structure:doubles-synoptic:component:resh:field:week_day",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:resh",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:resh",
+            "page_region": "central mishnah box resh",
+            "source_anchor": "#page=110&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:resh"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "נחיר שמאל",
+          "id": "sy-structure:doubles-synoptic:component:resh:field:soul_gate",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:resh",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:resh",
+            "page_region": "central mishnah box resh",
+            "source_anchor": "#page=110&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:resh"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "לבנה",
+          "id": "sy-structure:doubles-synoptic:component:tav:field:world_planet",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:tav",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:tav",
+            "page_region": "central mishnah box tav",
+            "source_anchor": "#page=110&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:tav"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "שבת",
+          "id": "sy-structure:doubles-synoptic:component:tav:field:week_day",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:tav",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:tav",
+            "page_region": "central mishnah box tav",
+            "source_anchor": "#page=110&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:tav"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "פה",
+          "id": "sy-structure:doubles-synoptic:component:tav:field:soul_gate",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:tav",
+            "pdf_page": 110,
+            "source_ref": "book:sefer-yetzirah-9perushim#p110:synoptic_body:text:synoptic:ch4:tav",
+            "page_region": "central mishnah box tav",
+            "source_anchor": "#page=110&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-synoptic:component:tav"
+        }
+      ],
+      "contextUnits": [
+        {
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:world-year-soul",
+            "pdf_page": 105,
+            "source_ref": "book:sefer-yetzirah-9perushim#p105:synoptic_body:text:synoptic:ch4:world-year-soul",
+            "page_region": "body",
+            "source_anchor": "#page=105&view=FitH"
+          },
+          "workTitle": "ספר יצירה והפירושים המשולבים",
+          "unitId": "sy:synoptic:text:ch4:world-year-soul"
+        }
+      ]
+    },
+    {
+      "id": "sy-structure:doubles-gra-distinction",
+      "source_pages": [
+        184,
+        185
+      ],
+      "implemented": true,
+      "primary_source_callback_bound": true,
+      "field_source_callbacks_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "id": "sy-structure:doubles-gra-distinction:component:bet",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body",
+            "source_anchor": "#page=184&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:doubles-gra-distinction:component:gimel",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body",
+            "source_anchor": "#page=184&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:doubles-gra-distinction:component:dalet",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "body",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "source_reading_id": "sy-structure:doubles-gra-distinction:reading:dalet"
+        },
+        {
+          "id": "sy-structure:doubles-gra-distinction:component:khaf",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "body",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "source_reading_id": "sy-structure:doubles-gra-distinction:reading:khaf"
+        },
+        {
+          "id": "sy-structure:doubles-gra-distinction:component:pe",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "body",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "source_reading_id": "sy-structure:doubles-gra-distinction:reading:pe"
+        },
+        {
+          "id": "sy-structure:doubles-gra-distinction:component:resh",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "body",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "source_reading_id": "sy-structure:doubles-gra-distinction:reading:resh"
+        },
+        {
+          "id": "sy-structure:doubles-gra-distinction:component:tav",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "body",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "source_reading_id": "sy-structure:doubles-gra-distinction:reading:tav"
+        }
+      ],
+      "relations": [],
+      "fields": [
+        {
+          "key": "quality",
+          "label": "המידה בנוסח זה",
+          "value": "חכמה",
+          "id": "sy-structure:doubles-gra-distinction:component:bet:field:quality",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body",
+            "source_anchor": "#page=184&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:bet"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "לבנה",
+          "id": "sy-structure:doubles-gra-distinction:component:bet:field:world_planet",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body",
+            "source_anchor": "#page=184&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:bet"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "ראשון",
+          "id": "sy-structure:doubles-gra-distinction:component:bet:field:week_day",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body",
+            "source_anchor": "#page=184&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:bet"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "עין ימין",
+          "id": "sy-structure:doubles-gra-distinction:component:bet:field:soul_gate",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body",
+            "source_anchor": "#page=184&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:bet"
+        },
+        {
+          "key": "quality",
+          "label": "המידה בנוסח זה",
+          "value": "עושר",
+          "id": "sy-structure:doubles-gra-distinction:component:gimel:field:quality",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body",
+            "source_anchor": "#page=184&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:gimel"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "מאדים",
+          "id": "sy-structure:doubles-gra-distinction:component:gimel:field:world_planet",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body",
+            "source_anchor": "#page=184&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:gimel"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "שני",
+          "id": "sy-structure:doubles-gra-distinction:component:gimel:field:week_day",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body",
+            "source_anchor": "#page=184&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:gimel"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "אוזן ימין",
+          "id": "sy-structure:doubles-gra-distinction:component:gimel:field:soul_gate",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:bet-gimel",
+            "pdf_page": 184,
+            "source_ref": "book:sefer-yetzirah-9perushim#p184:gra_commentary:text:gra-edition:ch4:bet-gimel",
+            "page_region": "body",
+            "source_anchor": "#page=184&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:gimel"
+        },
+        {
+          "key": "quality",
+          "label": "המידה בנוסח זה",
+          "value": "זרע",
+          "id": "sy-structure:doubles-gra-distinction:component:dalet:field:quality",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ד",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:dalet"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "חמה",
+          "id": "sy-structure:doubles-gra-distinction:component:dalet:field:world_planet",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ד",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:dalet"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "שלישי",
+          "id": "sy-structure:doubles-gra-distinction:component:dalet:field:week_day",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ד",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:dalet"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "נחיר ימין",
+          "id": "sy-structure:doubles-gra-distinction:component:dalet:field:soul_gate",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ד",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:dalet"
+        },
+        {
+          "key": "quality",
+          "label": "המידה בנוסח זה",
+          "value": "חיים",
+          "id": "sy-structure:doubles-gra-distinction:component:khaf:field:quality",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box כ",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:khaf"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "נוגה",
+          "id": "sy-structure:doubles-gra-distinction:component:khaf:field:world_planet",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box כ",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:khaf"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "רביעי",
+          "id": "sy-structure:doubles-gra-distinction:component:khaf:field:week_day",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box כ",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:khaf"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "עין שמאל",
+          "id": "sy-structure:doubles-gra-distinction:component:khaf:field:soul_gate",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box כ",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:khaf"
+        },
+        {
+          "key": "quality",
+          "label": "המידה בנוסח זה",
+          "value": "ממשלה",
+          "id": "sy-structure:doubles-gra-distinction:component:pe:field:quality",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box פ",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:pe"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "כוכב",
+          "id": "sy-structure:doubles-gra-distinction:component:pe:field:world_planet",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box פ",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:pe"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "חמישי",
+          "id": "sy-structure:doubles-gra-distinction:component:pe:field:week_day",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box פ",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:pe"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "אוזן שמאל",
+          "id": "sy-structure:doubles-gra-distinction:component:pe:field:soul_gate",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box פ",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:pe"
+        },
+        {
+          "key": "quality",
+          "label": "המידה בנוסח זה",
+          "value": "שלום",
+          "id": "sy-structure:doubles-gra-distinction:component:resh:field:quality",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ר",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:resh"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "שבתאי",
+          "id": "sy-structure:doubles-gra-distinction:component:resh:field:world_planet",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ר",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:resh"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "שישי",
+          "id": "sy-structure:doubles-gra-distinction:component:resh:field:week_day",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ר",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:resh"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "נחיר שמאל",
+          "id": "sy-structure:doubles-gra-distinction:component:resh:field:soul_gate",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ר",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:resh"
+        },
+        {
+          "key": "quality",
+          "label": "המידה בנוסח זה",
+          "value": "חן",
+          "id": "sy-structure:doubles-gra-distinction:component:tav:field:quality",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ת",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:tav"
+        },
+        {
+          "key": "world_planet",
+          "label": "כוכב בעולם",
+          "value": "צדק",
+          "id": "sy-structure:doubles-gra-distinction:component:tav:field:world_planet",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ת",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:tav"
+        },
+        {
+          "key": "week_day",
+          "label": "יום בשבוע",
+          "value": "שבת",
+          "id": "sy-structure:doubles-gra-distinction:component:tav:field:week_day",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ת",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:tav"
+        },
+        {
+          "key": "soul_gate",
+          "label": "שער בנפש",
+          "value": "פה",
+          "id": "sy-structure:doubles-gra-distinction:component:tav:field:soul_gate",
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch4:dalet-khaf-pe-resh-tav",
+            "pdf_page": 185,
+            "source_ref": "book:sefer-yetzirah-9perushim#p185:gra_commentary:text:gra-edition:ch4:dalet-khaf-pe-resh-tav",
+            "page_region": "central crown box ת",
+            "source_anchor": "#page=185&view=FitH"
+          },
+          "componentId": "sy-structure:doubles-gra-distinction:component:tav"
+        }
+      ],
+      "contextUnits": []
+    },
+    {
+      "id": "sy-structure:stones-houses",
+      "source_pages": [
+        111
+      ],
+      "implemented": true,
+      "primary_source_callback_bound": true,
+      "field_source_callbacks_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "id": "sy-structure:stones-houses:component:stones-2",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:stones-houses:component:stones-3",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:stones-houses:component:stones-4",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:stones-houses:component:stones-5",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:stones-houses:component:stones-6",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:stones-houses:component:stones-7",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "source_reading_id": null
+        }
+      ],
+      "relations": [],
+      "fields": [
+        {
+          "key": "source_stones",
+          "label": "אבנים במקור",
+          "value": 2,
+          "id": "sy-structure:stones-houses:component:stones-2:field:source_stones",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-2"
+        },
+        {
+          "key": "source_houses",
+          "label": "בתים במקור",
+          "value": 2,
+          "id": "sy-structure:stones-houses:component:stones-2:field:source_houses",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-2"
+        },
+        {
+          "key": "source_stones",
+          "label": "אבנים במקור",
+          "value": 3,
+          "id": "sy-structure:stones-houses:component:stones-3:field:source_stones",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-3"
+        },
+        {
+          "key": "source_houses",
+          "label": "בתים במקור",
+          "value": 6,
+          "id": "sy-structure:stones-houses:component:stones-3:field:source_houses",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-3"
+        },
+        {
+          "key": "source_stones",
+          "label": "אבנים במקור",
+          "value": 4,
+          "id": "sy-structure:stones-houses:component:stones-4:field:source_stones",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-4"
+        },
+        {
+          "key": "source_houses",
+          "label": "בתים במקור",
+          "value": 24,
+          "id": "sy-structure:stones-houses:component:stones-4:field:source_houses",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-4"
+        },
+        {
+          "key": "source_stones",
+          "label": "אבנים במקור",
+          "value": 5,
+          "id": "sy-structure:stones-houses:component:stones-5:field:source_stones",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-5"
+        },
+        {
+          "key": "source_houses",
+          "label": "בתים במקור",
+          "value": 120,
+          "id": "sy-structure:stones-houses:component:stones-5:field:source_houses",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-5"
+        },
+        {
+          "key": "source_stones",
+          "label": "אבנים במקור",
+          "value": 6,
+          "id": "sy-structure:stones-houses:component:stones-6:field:source_stones",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-6"
+        },
+        {
+          "key": "source_houses",
+          "label": "בתים במקור",
+          "value": 720,
+          "id": "sy-structure:stones-houses:component:stones-6:field:source_houses",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-6"
+        },
+        {
+          "key": "source_stones",
+          "label": "אבנים במקור",
+          "value": 7,
+          "id": "sy-structure:stones-houses:component:stones-7:field:source_stones",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-7"
+        },
+        {
+          "key": "source_houses",
+          "label": "בתים במקור",
+          "value": 5040,
+          "id": "sy-structure:stones-houses:component:stones-7:field:source_houses",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch4:stones-houses",
+            "pdf_page": 111,
+            "source_ref": "book:sefer-yetzirah-9perushim#p111:synoptic_body:text:synoptic:ch4:stones-houses",
+            "page_region": "body",
+            "source_anchor": "#page=111&view=FitH"
+          },
+          "componentId": "sy-structure:stones-houses:component:stones-7"
+        }
+      ],
+      "contextUnits": []
+    },
+    {
+      "id": "sy-structure:three-kings",
+      "source_pages": [
+        122,
+        151,
+        192
+      ],
+      "implemented": true,
+      "primary_source_callback_bound": true,
+      "field_source_callbacks_bound": true,
+      "browser_contexts_passed": 9,
+      "product_reader_integrated": false,
+      "engine_verification": "not_tested",
+      "components": [
+        {
+          "id": "sy-structure:three-kings:component:teli",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch6:kings-good-evil",
+            "pdf_page": 122,
+            "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:text:synoptic:ch6:kings-good-evil",
+            "page_region": "body",
+            "source_anchor": "#page=122&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:three-kings:component:wheel",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch6:kings-good-evil",
+            "pdf_page": 122,
+            "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:text:synoptic:ch6:kings-good-evil",
+            "page_region": "body",
+            "source_anchor": "#page=122&view=FitH"
+          },
+          "source_reading_id": null
+        },
+        {
+          "id": "sy-structure:three-kings:component:heart",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch6:kings-good-evil",
+            "pdf_page": 122,
+            "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:text:synoptic:ch6:kings-good-evil",
+            "page_region": "body",
+            "source_anchor": "#page=122&view=FitH"
+          },
+          "source_reading_id": null
+        }
+      ],
+      "relations": [],
+      "fields": [
+        {
+          "key": "simile",
+          "label": "משל המלכות במקור",
+          "value": "מלך על כסאו",
+          "id": "sy-structure:three-kings:component:teli:field:simile",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch6:kings-good-evil",
+            "pdf_page": 122,
+            "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:text:synoptic:ch6:kings-good-evil",
+            "page_region": "body",
+            "source_anchor": "#page=122&view=FitH"
+          },
+          "componentId": "sy-structure:three-kings:component:teli"
+        },
+        {
+          "key": "simile",
+          "label": "משל המלכות במקור",
+          "value": "מלך במדינה",
+          "id": "sy-structure:three-kings:component:wheel:field:simile",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch6:kings-good-evil",
+            "pdf_page": 122,
+            "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:text:synoptic:ch6:kings-good-evil",
+            "page_region": "body",
+            "source_anchor": "#page=122&view=FitH"
+          },
+          "componentId": "sy-structure:three-kings:component:wheel"
+        },
+        {
+          "key": "simile",
+          "label": "משל המלכות במקור",
+          "value": "מלך במלחמה",
+          "id": "sy-structure:three-kings:component:heart:field:simile",
+          "source": {
+            "unit_id": "sy:synoptic:text:ch6:kings-good-evil",
+            "pdf_page": 122,
+            "source_ref": "book:sefer-yetzirah-9perushim#p122:synoptic_body:text:synoptic:ch6:kings-good-evil",
+            "page_region": "body",
+            "source_anchor": "#page=122&view=FitH"
+          },
+          "componentId": "sy-structure:three-kings:component:heart"
+        }
+      ],
+      "contextUnits": [
+        {
+          "source": {
+            "unit_id": "sy:chachmoni:chachmoni:ch6:teli-wheel-heart",
+            "pdf_page": 151,
+            "source_ref": "book:sefer-yetzirah-9perushim#p151:chachmoni_treatise:chachmoni:chachmoni:ch6:teli-wheel-heart",
+            "page_region": "body",
+            "source_anchor": "#page=151&view=FitH"
+          },
+          "workTitle": "ספר חכמוני",
+          "unitId": "sy:chachmoni:chachmoni:ch6:teli-wheel-heart"
+        },
+        {
+          "source": {
+            "unit_id": "sy:gra-edition:text:ch6:teli-wheel-heart",
+            "pdf_page": 192,
+            "source_ref": "book:sefer-yetzirah-9perushim#p192:gra_commentary:text:gra-edition:ch6:teli-wheel-heart",
+            "page_region": "body",
+            "source_anchor": "#page=192&view=FitH"
+          },
+          "workTitle": "ספר יצירה עם פירוש הגר״א ופרי יצחק",
+          "unitId": "sy:gra-edition:text:ch6:teli-wheel-heart"
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "new_structures": 7,
+    "new_primary_components": 34,
+    "new_fields": 87,
+    "new_source_relations": 2,
+    "new_browser_contexts": 63,
+    "previous_browser_regression_contexts": 45,
+    "implemented_mature_structures_in_continuation": 12,
+    "total_source_specifications": 33,
+    "remaining_specifications": 21
+  },
+  "source_assets": {
+    "public/book-data/sefer-yetzirah.structures.json": {
+      "sha256": "852e9d6a7d4d0810cb999563083fddfcabfb4259bb87cd03a5e0e08a0b7415f1",
+      "byte_identical_to_base": true
+    },
+    "public/book-data/sefer-yetzirah.source-readings.json": {
+      "sha256": "a3bd40326119d9484d6c75f1d170bcf432efcaa5f6146db1c313f626d3e00373",
+      "byte_identical_to_base": true
+    },
+    "public/book-data/sefer-yetzirah.units.json": {
+      "sha256": "8dbe743cebd22e2a25e8c0b05d8b460f7c041e63537b42dc8bc11cb9f422c312",
+      "byte_identical_to_base": true
+    }
+  },
+  "accepted_code_sha256": {
+    "src/components/books2029/yetzirahModels/FiveAgainstFiveModel2029.jsx": "4074d732e68509ccb3be285255b77ea46f4e124fb0ada9293aac7a154e67c9ba",
+    "src/components/books2029/yetzirahModels/GraDoublesModel2029.jsx": "91302a01ce2958e37fe081fbb8bc6b473681b280176dbaf3a6c55ea865fd8f40",
+    "src/components/books2029/yetzirahModels/GraSealsModel2029.jsx": "d678553be2de23e8dc2df42b6c7fd8c408ec1972d49adca21b9dd9581daf8751",
+    "src/components/books2029/yetzirahModels/LetterFamiliesModel2029.jsx": "838b97d6a9cd49ac835950c1606d4ae3039db8e115b7385e1c94a0f7b94f659b",
+    "src/components/books2029/yetzirahModels/MothersCorrespondencesModel2029.jsx": "286f2c8bb82a442f69bdcac7a414080698b4de5710a853597fc85096a0e9fc55",
+    "src/components/books2029/yetzirahModels/PhoneticGroupsModel2029.jsx": "d97515346b9af20999a3415118b667560a373461c7959dbc9aeb0562eb055744",
+    "src/components/books2029/yetzirahModels/README.md": "f9db2d54c7a1565e34fd44b911eecdeb7fe3f35ad2115ea4600cdce75ab5ab14",
+    "src/components/books2029/yetzirahModels/SourceCatalog2029.jsx": "aade9825aea208a88ca1c38f71cbd3c6e153937ab4c7045e3e2de28421d80104",
+    "src/components/books2029/yetzirahModels/StonesHousesModel2029.jsx": "34965d8df138e768646fbbca4712d0b3f18a37447b53817c24268ce325524f53",
+    "src/components/books2029/yetzirahModels/SynopticDoublesModel2029.jsx": "c807f4f7a555730b7282036e4cc3958a74fe5f9b3949928e0836033c7c1ad6d1",
+    "src/components/books2029/yetzirahModels/SynopticSealsModel2029.jsx": "eefefc9783b1c196fbf667a3b40f057f22da5d2e67d2a68345fc6104509ae923",
+    "src/components/books2029/yetzirahModels/TenDepthsModel2029.jsx": "46d3d8cf81fc842c026cd351e75cd84a1745eaa20965281d5ce7c8cfdd86c086",
+    "src/components/books2029/yetzirahModels/ThreeKingsModel2029.jsx": "838c04859670ca5892ebc0c65ea4c5be771841a3611fa0d3f7d1e34003c63260",
+    "src/components/books2029/yetzirahModels/TwelveBoundariesModel2029.jsx": "984187379a98b1810533859bf5c14502b96bd512894cc1d80ff987174e159cf9",
+    "src/components/books2029/yetzirahModels/YetzirahModelCanvas.jsx": "2b84d197c846085ab69046dfaeabba44e3ce115e1d10d5f3de5fb37f4415365f",
+    "src/components/books2029/yetzirahModels/YetzirahModelCard.jsx": "939d3686842c003133fe649fb37235105d09dff87968412b88468bf4cf21c45e",
+    "src/components/books2029/yetzirahModels/catalogModels.js": "77d8081b1d9318147347180484c199ada2f46367f436ff7861555a1330ee3dc8",
+    "src/components/books2029/yetzirahModels/sourceModels.js": "e6a16711c4f2d8b80015b54f56e2f51736cf4946dc587d7187fb3f6a9b9342a1",
+    "src/components/books2029/yetzirahModels/useSourceModel.js": "1b02cfd90c644559fc879cac6f7aafa03856aa0f5070b72cc2e361b69603e2b2",
+    "src/components/books2029/yetzirahModels/yetzirahModels.css": "ab29d5bbc3386daab6fbe8b8650de2867fb2dcf3e3fbc287c023822bf19d5a64",
+    "test/fixtures/yetzirah-models/main.jsx": "bdc5f6cd4a9e4c0c6dc97ea655624f7815def27eedcb1c2713a8bea3ee6e1d9d",
+    "test/sefer-yetzirah-mature-structures-2029.browser.test.mjs": "86c6cad8fe14437e5d390b3016f9daf224e6bdd96b92b49728b27e04b2983ced",
+    "test/sefer-yetzirah-mature-structures-2029.test.mjs": "36721de7fa501e87c6499f85a64af8ada2a52424da69afe090d5a52364e9d631"
+  },
+  "test_results": {
+    "books": {
+      "sha256": "03d1022514fa11ef5107c4242ca6d00eb4f3dcb17b5b4d493761a63021faade0",
+      "summary": [
+        "✔ zodiac labels have their own row/column locators while name inscriptions stay unknown (0.277298ms)",
+        "✔ the printed path definitions supersede unsupported familiar-recension wording explicitly (0.337832ms)",
+        "✔ Sefer Yetzirah world is an unlinked noindex Preview surface (0.996531ms)",
+        "✔ the complete reading architecture stays anchored to the 220-page source (0.317988ms)",
+        "✔ the spatial grammar includes real 3D modes for sefirot, letters, gates, OSN and commentaries (0.796772ms)",
+        "✔ the commentary atlas covers the full volume and all nine printed voices (0.435757ms)",
+        "✔ the letter laboratory exposes all letters, standard values and exactly 231 unordered gates (0.406641ms)",
+        "✔ the new reader is local-only and responsive (0.442935ms)",
+        "ℹ tests 355",
+        "ℹ suites 0",
+        "ℹ pass 354",
+        "ℹ fail 1",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 597388.817165",
+        "",
+        "✖ failing tests:",
+        "",
+        "test at test/ahavat-torah-spatial-tables-2029.browser.test.mjs:23:1",
+        "✖ Ahavat Torah spatial tables keep source, data and 3D usable at 320/390/1440 (120345.534299ms)",
+        "  AssertionError [ERR_ASSERTION]: PDF overlaps the letter reader on desktop",
+        "      at TestContext.<anonymous> (file:///workspace/sefer-yetzirah-models/test/ahavat-torah-spatial-tables-2029.browser.test.mjs:168:16)",
+        "      at async Test.run (node:internal/test_runner/test:1389:7)",
+        "      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {",
+        "    generatedMessage: false,",
+        "    code: 'ERR_ASSERTION',",
+        "    actual: false,",
+        "    expected: true,",
+        "    operator: '==',",
+        "    diff: 'simple'",
+        "  }"
+      ]
+    },
+    "source": {
+      "sha256": "445faf9db1256bf300e694a476a1ab90a7e508dfd7ced9553c18137eb4906a78",
+      "summary": [
+        "✔ families preserve three source groups, 3/7/12 counts, all 22 letters, and no inferred adjacency (4.037878ms)",
+        "✔ articulation keeps five source groups and never introduces anatomical coordinates or variant letters (0.646812ms)",
+        "✔ mothers keep separate component pages, correspondence fields and PDF94 mediation anchors (0.700123ms)",
+        "✔ synoptic doubles retain exact distinct source pages and direct-reading regions for Resh/Tav (7.665675ms)",
+        "✔ Gra doubles retain all seven independent assignments and direct five-crown locators (11.660176ms)",
+        "✔ stones/houses display the six printed counts without generating or verifying permutations (0.415566ms)",
+        "✔ three kings use only the synoptic component claims while other witnesses remain unit-level context (0.362443ms)",
+        "✔ multi-page components reject borrowed same-edition locators even when the borrowed page is allowed (13.428366ms)",
+        "✔ catalogue summaries and companion layers are preserved from the owning original units (0.900528ms)",
+        "✔ synoptic seals preserve source order, letters, stable IDs and PDF 73 (2.774151ms)",
+        "✔ wrong edition, unit or page fails closed before model geometry exists (15.841616ms)",
+        "✔ Gra seals bind PDF 175 independently and preserve each comparison witness sequence (5.180553ms)",
+        "✔ twelve boundaries preserve the printed direction pairs and use cube edges only as an embedding (0.750038ms)",
+        "✔ five against five has ten illustration markers, two source groups and an uncounted covenant ring (0.688564ms)",
+        "✔ ten depths preserve five source pairs while only three pairs have spatial geometry (0.434316ms)",
+        "✔ all source relationships retain qualified identities and exact unit anchors (6.31745ms)",
+        "ℹ tests 16",
+        "ℹ suites 0",
+        "ℹ pass 16",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 140.191377"
+      ]
+    },
+    "language": {
+      "sha256": "7301408067fbbd0386362a861a3be9ba3cc747dfe6288d4d317b300864db5a45",
+      "summary": [
+        "",
+        "> sod1820@1.0.0 test:public-2029-language",
+        "> node --test scripts/test-public-2029-language.mjs",
+        "",
+        "✔ public 2029 copy has no forbidden internal labels (7.631697ms)",
+        "✔ command label is gated: public says חיפוש, Heichal keeps פקודה (1.058145ms)",
+        "✔ Heichal page copy is untouched (0.367956ms)",
+        "ℹ tests 3",
+        "ℹ suites 0",
+        "ℹ pass 3",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 80.133643"
+      ]
+    },
+    "auth": {
+      "sha256": "8a81e4223c88ceb45d1f9111331530898d0341de54f883d8b3fb12247d76f9d0",
+      "summary": [
+        "✔ existing accounts can sign in, refresh, read identity and sign out locally (39.385992ms)",
+        "✔ signup, global logout, account mutation, other grants and origins stay blocked (15.419531ms)",
+        "✔ profile/product/storage/model writes remain blocked; governed readers still work (10.516938ms)",
+        "✔ Books publication review is preview-only and has no write RPC in the guard (0.314438ms)",
+        "ℹ tests 4",
+        "ℹ suites 0",
+        "ℹ pass 4",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 159.615275"
+      ]
+    },
+    "legacy": {
+      "sha256": "f780b8fbf20d94c81a7b95644968363bc87ca5d1314b01d72e9ec058a86a1a7e",
+      "summary": [
+        "Legacy Production lock: PASS"
+      ]
+    },
+    "isolation": {
+      "sha256": "c05dd8e70256a610814537f6d785d54ce79346dddff648389f23bec6ddf0ee39",
+      "summary": [
+        "2029 hard-isolation source regression: PASS"
+      ]
+    },
+    "hardening": {
+      "sha256": "dcea07e9cec77646d08f6b132c155f093476c38a2ccebbf8c4eb2f8630138054",
+      "summary": [
+        "2029 cheap route/test/least-privilege hardening: PASS"
+      ]
+    },
+    "build": {
+      "sha256": "e19caa28abc2f2c5bb7c1db1c693a1083e90732e996bebe136a81e03f72e7378",
+      "summary": [
+        "dist/assets/SpatialMethodStage2029-DXE0KD1p.js               43.62 kB │ gzip:  12.84 kB",
+        "dist/assets/LifeJourney2029Page-D7kjiz3h.js                  44.08 kB │ gzip:  13.32 kB",
+        "dist/assets/SeferYetzirahWorld2029Page-BS8OZCbS.js           45.50 kB │ gzip:  13.14 kB",
+        "dist/assets/WriterPersonal2029Page-BME3UdCo.js               47.81 kB │ gzip:  14.56 kB",
+        "dist/assets/CommunityLive2029-BodrwUMF.js                    51.31 kB │ gzip:  16.55 kB",
+        "dist/assets/WorldSourceStory-U0ODyuy0.js                     52.63 kB │ gzip:  16.39 kB",
+        "dist/assets/Books2029Page-DpcFWvrz.js                        61.57 kB │ gzip:  17.91 kB",
+        "dist/assets/BeitMidrash2029Page-GhCx5rNb.js                  62.57 kB │ gzip:  18.38 kB",
+        "dist/assets/Number2029Page-D6zQfgy8.js                       83.19 kB │ gzip:  25.09 kB",
+        "dist/assets/BentovFindingsProduct2029Page-Csx2XVuN.js        89.46 kB │ gzip:  21.88 kB",
+        "dist/assets/PublicContributor2029Page-kQOtsGbf.js           101.06 kB │ gzip:  30.55 kB",
+        "dist/assets/Els2029Page-DZGoQCQm.js                         142.89 kB │ gzip:  42.50 kB",
+        "dist/assets/World2029Page-Cj9A3Nr3.js                       144.80 kB │ gzip:  38.62 kB",
+        "dist/assets/post2029ReadingProjection-8Vhlt8zF.js           175.45 kB │ gzip:  51.10 kB",
+        "dist/assets/AhavatTorahSystem2029Page-BFZdh_cu.js           183.10 kB │ gzip:  50.87 kB",
+        "dist/assets/supabase-CTavVret.js                            236.89 kB │ gzip:  62.67 kB",
+        "dist/assets/DaatTevunotTree2029Page-BD4JAJBL.js             453.64 kB │ gzip: 112.91 kB",
+        "dist/assets/OrbitControls-C7iAPDoE.js                       927.27 kB │ gzip: 244.39 kB",
+        "dist/assets/2029-C8Ngfgah.js                                971.71 kB │ gzip: 307.75 kB",
+        "",
+        "[plugin builtin:vite-reporter] ",
+        "(!) Some chunks are larger than 500 kB after minification. Consider:",
+        "- Using dynamic import() to code-split the application",
+        "- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting",
+        "- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.",
+        "\u001b[33m[INEFFECTIVE_DYNAMIC_IMPORT] \u001b[0msrc/lib/auth.js is dynamically imported by src/lib/AuthContext.jsx but also statically imported by src/components/EmailVerify.jsx, src/components/ProfileSettings.jsx, src/components/community2029/CommunitySignIn.jsx, src/components/experience2029/SystemFrame2029.jsx, src/lib/AuthContext.jsx, ..., dynamic import will not move module into another chunk.",
+        "",
+        "\u001b[33m[INEFFECTIVE_DYNAMIC_IMPORT] \u001b[0msrc/components/experience2029/Sod2029Shell.jsx is dynamically imported by src/App2029.jsx but also statically imported by src/components/beitMidrash2029/BeitMidrashGuided.jsx, src/components/beitMidrash2029/BeitMidrashMethods.jsx, src/components/beitMidrash2029/BeitMidrashParticipate.jsx, src/components/community2029/CommunityLive2029.jsx, src/components/contributor2029/ContributorActionsController2029.jsx, ..., dynamic import will not move module into another chunk.",
+        "",
+        "\u001b[33m[INEFFECTIVE_DYNAMIC_IMPORT] \u001b[0msrc/lib/research/numberCoreProjection.js is dynamically imported by src/lib/research/numberExpressionFocus.js but also statically imported by src/components/gematria2029/CalculatorCompare2029.jsx, src/components/number2029/NumberDrawer2029.jsx, src/lib/research/gematriaOpeningOperation.js, src/lib/research/useCalculatorRow.js, src/pages/BeitMidrash2029Page.jsx, ..., dynamic import will not move module into another chunk.",
+        "",
+        "✓ built in 1.94s"
+      ]
+    },
+    "graph": {
+      "sha256": "b9f52a8d723141b8cd0571bf59fe06b2325a0898f709e3f9ce0c644d66e0ade8",
+      "summary": [
+        "2029 built dependency graph: PASS",
+        "reachable manifest records: 122",
+        "eager manifest records: 7",
+        "eager JS gzip: 380335 bytes (78407 recovered)",
+        "Raziel submit adapter/resolver: lazy (assets/razielSessionRequest2029-BRWkLRSq.js)",
+        "Raziel Research Plan: lazy (assets/researchPlanV2-dkZzUPLQ.js)"
+      ]
+    },
+    "fixture_build": {
+      "sha256": "e015ed197c0478dec6b4ae42edbd3f24b4edec09f507f48bd6ad7e172f1d52b1",
+      "summary": [
+        "vite v8.3.0 building client environment for production...",
+        "transforming...",
+        "✓ 48 modules transformed.",
+        "rendering chunks...",
+        "computing gzip size...",
+        "../scratch/yetzirah-mature/fixture-build/test/fixtures/yetzirah-models/index.html    0.36 kB │ gzip:   0.28 kB",
+        "../scratch/yetzirah-mature/fixture-build/.vite/manifest.json                         0.69 kB │ gzip:   0.26 kB",
+        "../scratch/yetzirah-mature/fixture-build/assets/index-CV9fAnuQ.css                   7.65 kB │ gzip:   2.00 kB",
+        "../scratch/yetzirah-mature/fixture-build/assets/index-anq5HoSP.js                  257.90 kB │ gzip:  81.42 kB",
+        "../scratch/yetzirah-mature/fixture-build/assets/YetzirahModelCanvas-By_zKfDU.js    571.77 kB │ gzip: 142.89 kB",
+        "",
+        "[plugin builtin:vite-reporter] ",
+        "(!) Some chunks are larger than 500 kB after minification. Consider:",
+        "- Using dynamic import() to code-split the application",
+        "- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting",
+        "- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.",
+        "✓ built in 772ms"
+      ]
+    }
+  },
+  "files": [
+    "docs/research-notes/SEFER_YETZIRAH_MATURE_STRUCTURES_20261028.md",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/acceptance.json",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/browser-matrix.json",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/doubles-gra-distinction-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/doubles-gra-distinction-390-parchment.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/doubles-synoptic-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/doubles-synoptic-390-light.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/five-mouth-groups-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/five-mouth-groups-390-parchment.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/letter-families-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/letter-families-320-light.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/mothers-world-year-soul-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/mothers-world-year-soul-320-light.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/prior-five-regression.json",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/stones-houses-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/stones-houses-320-dark.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/three-kings-1440-dark.png",
+    "docs/research-notes/sefer-yetzirah-mature-structures-20261028/three-kings-390-parchment.png",
+    "src/components/books2029/yetzirahModels/GraDoublesModel2029.jsx",
+    "src/components/books2029/yetzirahModels/LetterFamiliesModel2029.jsx",
+    "src/components/books2029/yetzirahModels/MothersCorrespondencesModel2029.jsx",
+    "src/components/books2029/yetzirahModels/PhoneticGroupsModel2029.jsx",
+    "src/components/books2029/yetzirahModels/README.md",
+    "src/components/books2029/yetzirahModels/SourceCatalog2029.jsx",
+    "src/components/books2029/yetzirahModels/StonesHousesModel2029.jsx",
+    "src/components/books2029/yetzirahModels/SynopticDoublesModel2029.jsx",
+    "src/components/books2029/yetzirahModels/ThreeKingsModel2029.jsx",
+    "src/components/books2029/yetzirahModels/YetzirahModelCanvas.jsx",
+    "src/components/books2029/yetzirahModels/YetzirahModelCard.jsx",
+    "src/components/books2029/yetzirahModels/catalogModels.js",
+    "src/components/books2029/yetzirahModels/sourceModels.js",
+    "src/components/books2029/yetzirahModels/useSourceModel.js",
+    "src/components/books2029/yetzirahModels/yetzirahModels.css",
+    "test/fixtures/yetzirah-models/main.jsx",
+    "test/sefer-yetzirah-mature-structures-2029.browser.test.mjs",
+    "test/sefer-yetzirah-mature-structures-2029.test.mjs"
+  ],
+  "known_gaps": [
+    "All seven components await the existing reader adapter and real native source/return/focus integration acceptance. No product page was edited.",
+    "Full Books gate remains red: unchanged desktop Ahavat Torah assertion at line168, previously reproduced on approved fa66867d and preserved in base2890d41d. No test was weakened.",
+    "Canonical engines were not executed. Printed source counts and graphics are not engine verification.",
+    "Physical devices and hardware GPU diversity were not tested; Chromium/SwiftShader, emulated touch and native keyboard were exercised.",
+    "The remaining 21 P2/P3 specifications retain their original reading gaps and preferred representations."
+  ],
+  "coordination": {
+    "scope_released_locally": true,
+    "live_after_written": false,
+    "live_release_written": false,
+    "reason": "Dedicated authorized connector is read-only; passive repository handoff only."
+  },
+  "acceptance_cut": "Only accepted/ final sequential matrices are included. Earlier exploratory matrices were superseded after a visual caption defect; one brief self-owned test overlap was corrected and those retry captures are excluded."
+}

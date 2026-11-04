@@ -1,10 +1,14 @@
 import React, { useState } from "react";
 import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/messageLinks.js";
+import { parseMessageFormatting } from "../../lib/community/messageFormatting.js";
+import { use2029Palette } from "../../lib/palette.js";
 
 function LinkPreview({ link }) {
   const [playing, setPlaying] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const provider = link.kind === "youtube" ? "YouTube" : "Vimeo";
+  if (link.kind === "video") return <div className="sod29-community-video-card">{videoFailed ? <p>לא ניתן לנגן את הקובץ בדפדפן הזה. אפשר לפתוח את הסרטון בקישור.</p> : <video controls playsInline preload="metadata" src={link.href} aria-label="סרטון שצורף להודעה" onError={() => setVideoFailed(true)} />}<a href={link.href} target="_blank" rel="noopener noreferrer">פתיחת הסרטון המצורף ↗</a></div>;
   if (link.kind === "image") return <a className="sod29-community-attachment-image" href={link.href} target="_blank" rel="noopener noreferrer" aria-label="פתיחת התמונה המצורפת"><img src={link.href} alt="תמונה שצורפה להודעה" loading="lazy" /></a>;
   if (link.kind === "file") return <a className="sod29-community-link-card" href={link.href} target="_blank" rel="noopener noreferrer"><strong>📎 קובץ {link.extension}</strong><small>פתיחת הקובץ המצורף ↗</small></a>;
   if (link.kind === "link") return <a className="sod29-community-link-card" href={link.href} target="_blank" rel="noopener noreferrer"><strong dir="ltr">{link.host}</strong><span dir="ltr">{link.href}</span><small>פתיחת הקישור ↗</small></a>;
@@ -18,11 +22,50 @@ function LinkPreview({ link }) {
   </div>;
 }
 
-export default function CommunityMessageContent({ text, previewsOnly = false }) {
-  const parts = splitMessageLinks(text);
-  const links = messageLinkPreviews(parts);
+export default function CommunityMessageContent({ text, previewsOnly = false, bodyRef }) {
+  const palette = use2029Palette();
+  const nodes = parseMessageFormatting(text);
+  const previewParts = [];
+  // Keep a styled URL inside ONE LTR anchor, including when a selection marks
+  // only part of it. Splitting it into RTL siblings reverses URL fragments.
+  const renderInline = (runs, key) => {
+    const parts = splitMessageLinks(runs.map(run => run.text).join(""));
+    previewParts.push(...parts);
+    let runIndex = 0, runOffset = 0;
+    const take = length => {
+      const pieces = [];
+      while (length > 0 && runIndex < runs.length) {
+        const run = runs[runIndex], size = Math.min(length, run.text.length - runOffset);
+        let piece = run.text.slice(runOffset, runOffset + size);
+        for (const mark of [...run.marks].reverse()) piece = mark === "bold" ? <strong>{piece}</strong> : mark === "underline" ? <u>{piece}</u> : <span className={`sod29-community-text-${mark}`}>{piece}</span>;
+        pieces.push(<React.Fragment key={`${runIndex}:${runOffset}`}>{piece}</React.Fragment>);
+        length -= size; runOffset += size;
+        if (runOffset === run.text.length) { runIndex++; runOffset = 0; }
+      }
+      return pieces;
+    };
+    return parts.map((part, index) => {
+      const content = take(part.text.length);
+      if (!part.link) return <React.Fragment key={`${key}:${index}`}>{content}</React.Fragment>;
+      const label = { image: "פתיחת התמונה המצורפת", video: "פתיחת הסרטון המצורף", file: `פתיחת קובץ ${part.link.extension}` }[part.link.kind];
+      return <a key={`${key}:${index}`} dir={label ? "auto" : "ltr"} href={part.link.href} target="_blank" rel="noopener noreferrer">{label || content}</a>;
+    });
+  };
+  const renderBlocks = (nodes, inherited = [], path = "body") => {
+    const output = []; let runs = [];
+    const flush = () => { if (runs.length) { output.push(...renderInline(runs, `${path}:${output.length}`)); runs = []; } };
+    const visit = (node, marks) => {
+      if (node.type === "text") { if (node.text) runs.push({ text: node.text, marks }); return; }
+      if (node.type === "quote") { flush(); output.push(<blockquote key={`${path}:quote:${output.length}`}>{renderBlocks(node.children, marks, `${path}:quote:${output.length}`)}</blockquote>); return; }
+      for (const child of node.children) visit(child, [...marks, node.type]);
+    };
+    for (const node of nodes) visit(node, inherited);
+    flush(); return output;
+  };
+  const content = renderBlocks(nodes);
+  const links = messageLinkPreviews(previewParts);
   return <>
-    {!previewsOnly ? <p className="sod29-community-body">{parts.map((part, index) => part.link ? <a key={index} dir="auto" href={part.link.href} target="_blank" rel="noopener noreferrer">{part.link.kind === "image" ? "פתיחת התמונה המצורפת" : part.link.kind === "file" ? `פתיחת קובץ ${part.link.extension}` : part.text}</a> : part.text)}</p> : null}
+    {!previewsOnly ? <div ref={bodyRef} className="sod29-community-body" style={{ "--community-text-gold": palette.warmAccent, "--community-text-blue": palette.accentText }}>{content}</div> : null}
     {links.length ? <div className="sod29-community-link-previews" aria-label="תצוגה מקדימה לקישורים">{links.map((link) => <LinkPreview key={link.key} link={link} />)}</div> : null}
   </>;
 }

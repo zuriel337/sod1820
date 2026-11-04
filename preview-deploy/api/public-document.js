@@ -1,0 +1,41 @@
+import { readFile } from "node:fs/promises";
+import ogHandler from "../../api/og.js";
+
+export function mergePublicDocumentMetadata(document, metadata) {
+  let head = metadata.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1];
+  if (!head) throw new Error("metadata unavailable");
+  // The standalone OG document redirects human browsers. The SPA consumes
+  // metadata only and must remain on the exact visited Preview address.
+  head = head.replace(/<meta\b[^>]*http-equiv=["']refresh["'][^>]*>/gi, "");
+  head = head.replace(/<meta\b[^>]*name=["\']robots["\'][^>]*>/gi, '<meta name="robots" content="noindex, nofollow"/>');
+  const clean = document.replace(/<title>[\s\S]*?<\/title>/gi, "")
+    .replace(/<meta\b[^>]*(?:name=["'](?:description|robots|twitter:[^"']+)["']|property=["'](?:og:[^"']+|article:[^"']+)["'])[^>]*>/gi, "")
+    .replace(/<link\b[^>]*rel=["']canonical["'][^>]*>/gi, "");
+  return clean.replace(/<\/head>/i, head + "</head>");
+}
+
+const BRANCHES = ["gpt/2029-public-foundation-continuity-20261101", "gpt/2029-public-frame-context-20261101", "gpt/2029-community1187-unified-20261101", "gpt/2029-number-fullpage-performance-20261101", "gpt/2029-world-one-tree-sources-20261101", "gpt/2029-public-world-number-acceptance-20261101", "gpt/2029-public-launch-candidate-20261101", "gpt/2029-public-reading-release-configuration-20261101", "gpt/2029-public-launch-closure-20261102", "gpt/2029-doc37-unified-alignment-20261102"];
+// Same metadata owner as Legacy, same static 2029 entry, genuine HTTP missing
+// and source-failure status. No separate renderer, post store or indexability rule.
+export function publicDocumentHandler({ env = process.env, readDocument = () => readFile(new URL("../dist/2029.html", import.meta.url), "utf8"), metadataHandler = ogHandler } = {}) {
+  return async (req, res) => {
+    res.setHeader("Cache-Control", "private, no-store");
+    res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+    if (env.VERCEL_ENV !== "preview" || !BRANCHES.includes(env.VERCEL_GIT_COMMIT_REF)) return res.status(404).send("unavailable");
+    if (!["GET", "HEAD"].includes(req.method)) return res.status(405).send("method not allowed");
+    try {
+      const path = String(req.query?.path || "/");
+      if (!path.startsWith("/") || path.startsWith("//")) return res.status(400).send("invalid path");
+      let metadata = "", status = 200;
+      await metadataHandler({ ...req, publicFoundationPreview: true, publicReadingRelease: ["gpt/2029-public-reading-release-configuration-20261101", "gpt/2029-public-launch-closure-20261102", "gpt/2029-doc37-unified-alignment-20261102"].includes(env.VERCEL_GIT_COMMIT_REF) ? "public-reading-20261101" : null, query: { ...req.query, path } }, {
+        setHeader() {}, status(code) { status = code; return this; }, send(body) { metadata = String(body); },
+      });
+      const html = mergePublicDocumentMetadata(await readDocument(), metadata);
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.status(status).send(req.method === "HEAD" ? "" : html);
+    } catch {
+      return res.status(503).send("The page is temporarily unavailable. Please try again.");
+    }
+  };
+}
+export default publicDocumentHandler();

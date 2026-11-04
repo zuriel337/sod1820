@@ -1,11 +1,220 @@
 # SOD1820 — MASTER STATE v3 COMPACT
 
-**Date:** 2026-10-01  
+**עדכון 12.51 · 4.11.2026 — יישור main מוכן בענף, טרם מיזוג:** הפריסה החיה רועננה ב־Vercel ל־`dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX`, מקור `d06cf1ab309c8278d61fc3c3588ea78a994262a1` (עדכון קהילה בנתיב האחר, כולל d81). המועמד המרכזי משמר אותו ואת שמונת קומיטי main שהיו חסרים בו. אין החלפת בסיס או דריסת קהילה. קוד המחשבון/החיפוש d81 כבר נכלל בפריסה המאוחרת; התיעוד 12.50 נשמר כתצלום מועד בדיקתו. נמצא פער בניית CSS אמיתי בפוסטים: קובצי העיצוב הקיימים הושמטו כ־shared pure-CSS chunk. התיקון משמר את העיצוב ומחבר אותו באמצעות כניסת JS משותפת; בדיקת הגרף עוברת 4/4, כולל אפס CSS של הפוסט בכניסת הבית. שישה מסלולי CSS עם נתונים אמיתיים אישרו שחזור התצוגה בנייד/מחשב באבחנה מבוקרת; זו אינה פריסת המועמד. לתפריט נוסף הקישור הציבורי `/gematria`. הוראות AGENTS/CLAUDE ו־Owner Index מבהירות LIVE מול main, Legacy לחזרה בלבד, ואישור מיוחד לענפים/מסירות שהוחלפו. שינוי השער המדויק נבדק ב־49 בדיקות ונשאר בהצעה עד אישור נפרד. main עדיין `2195c978`; אין פעולת Production של root. [מקור, שינויים, ראיות ומגבלות](docs/reviews/main-live-state-reconciliation-20261104/README.md), BEFORE `a89ac5ea-9802-49b2-a101-1786d13acd5f`. אין סגירת G4 או שינוי בקבלת החשבונות/H1/דחיות.
+
+**עדכון 12.50 · 4.11.2026 — קבלה בפריוויו, טרם פרסום התיקון:** המוצר מתחיל מהבסיס הציבורי העדכני `273ceb24`, תוך שמירת כל דלתת הקהילה. מקור התיקון `d81e1b125d8a94fb41572e6a8d1493adb5572ce5` מציג תשעה אריחי אפס מייד בכניסה למחשבון ובניקוי, ומיישם את בחירת צוריאל בעיגול חיפוש מזכוכית עם טבעת זהב דקה. אין שינוי מנוע, כתובות, בחירה בתוצאה ריקה, הרשאות או קוד קהילה. עברו 10 תרחישים סינתטיים, 19 בדיקות ממוקדות, בדיקות המחשבון הקיימות ובנייה מלאה; שלושה מסלולים מתארחים ב־320/390/1440 עברו עם SW אמיתי, ״משיח״=358, מספר מלא וחזרה, כולל שלוש ערכות במחשב. [פריוויו המחשבון](https://sod1820-n0z7ckyxb-sod1820-s-projects.vercel.app/gematria), ‏target=null. בקריאת הסיום החי עדיין `273ceb24` / `dpl_E9unk69i6D7JaHwjCRPcnwzHKmHQ`; root לא שינה Production. [ראיות וגבולות](docs/reviews/calculator-idle-tiles-20261104/README.md), BEFORE `48a0767a-9bc3-4450-ae34-4bd5be5d802a`. השלמות הביצועים, הניטור וקבלת G4 הקודמות אינן נסגרות. העדכונים הקודמים להלן הם צילומי מצב היסטוריים בתחומם.
+
+**עדכון 12.48–12.49 · 4.11.2026:** המועמד המשותף הוא `98d0508fb81de12850d8e97c5bcc13e2206729e4`. הוא כולל את תיקוני SEO, המחשבון, ״עכשיו״, הלוגו והכותרת הנעוצה, ואת תיקון אריזת ה־middleware. [פריוויו מוגן](https://sod1820-cv8jl8oo3-sod1820-s-projects.vercel.app), target=null, עבר16 תרחישים ב־390/1440. מקור זה הגיע ל־Production DNiWmnVW בנתיב הקהילה במהלך העבודה; root לא ביצע את הפרסום. קריאה חוזרת בחי: דפדפן200, בוט403 וזחלן ציבורי200. שלוש נקודות GA/Vercel/Search Console עדיין מחזירות404 וחסומות ב־SW. מדידות הביצועים על073 חלקיות, עם נסיגות ו־CLS מעל0.1; אין קבלת ביצועים מלאה או סגירתG4. קבלת שני החשבונות, H1 ודחיות הבעלים נשמרו. [ראיות האבטחה והחזרה](docs/reviews/public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md), BEFORE68f400e6; [איחוד וביצועים](docs/reviews/public-url-exceptions-20261103/residual205/evidence/seo-repair-calculator-integration-20261104/combined-integration-notes.md).
+
+**מצב 12.47 — ביקורת canonical בחי, ללא שינוי מוצר:** מקור `f4390dd356b374e839024eb235fc4a63344667de`, Production `dpl_48Ha5ZApCdwpK8YDHkboumGVApyS`, אומת לפני ואחרי 19 תצפיות בנייד ושלוש במחשב עם SW אמיתי. פער שרת→לקוח נמצא גם בכינויי המספר/ביטוי, ובכיוון הפוך בקטלוג הפוסטים; `/gallery` מחזיר 404/noindex עקב נפילה לקורא פוסט. הבית, העולם והכתובות הראשיות שנדגמו תואמים. אין תיקון או פריסה מכוח הביקורת, ואין הסרה גורפת של `/2029`. הקבלה הקודמת נשמרת בתחומה; אלו פערי SEO/HTTP מוכחים להמשך ממוקד, לא תוכנית השקה חדשה. [ראיות, היקף וגורמים](docs/reviews/public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md); BEFORE `b9c346a3-320f-4bf9-9216-f439d7507d49`.
+
+**מצב 12.46 — תאימות כתובות המחשבון:** שלושת כינויי `/2029` נבדקו באתר החי: HTTP200 וחישוב 358, ללא הפניה או הסרת עיצוב 2029. נמצא פער בין canonical השרת ללקוח. תיקון מצומצם למטאדאטה הוכן ונבדק בענף בלבד; אינו חי. בדיקת Pro הסטטית נכשלת בציפיית כתובת ישנה; semantic-surface עוברת במקור שלנו. לא שונו קובצי קלוד או בדיקותיו. מצב הפרסום 12.45 נשמר; [ראיות וגבולות](docs/reviews/public-url-exceptions-20261103/residual205/evidence/calculator-canonical-20261104/README.md), BEFORE `268c6a37-7858-497f-8367-9021aacce526`. האחרונה: בעת הבדיקה נמצא עדכון קהילה עצמאי bde0a822 בענף המקורי וב־Production9mWv; לא בוצע בידי משימת המחשבון. התיקון נשמר בנפרד בענף gpt/2029-calculator-canonical-compatibility-20261104, ללא שילוב או פריסה נוספת. גם בגרסה המעודכנת שלושת הכינויים חושבו בהצלחה והפער במטאדאטה שוחזר. אין כאן קבלה כוללת של דלתת הקהילה.
+
+**מצב12.45 — LIVE2029 באישור מפורש:** [האתר החי](https://sod1820.co.il) ושלושת הדומיינים מכוונים ל־Production `dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A`, מקור `1bc8260adaa889d7903aaa33ef43510df09817f2`. משתמש הבעלים אישר פרסוםישיר והחרגתמזהההפריסהמראש; תוצרProductionנבנהמ־Gitאמיתיונקי,6תרחישיםעברועליוולאחריהםבוצעשיוך3aliases במפורש, ללאpromote/שינויproject/DNS.6תרחישידפדפןאנונימייםעלcanonical ו־24 GET/HEAD עברולאחרתיקוןציפיותבדיקהבלבד; כלהכשליםנשמרו. הביתindexable;חיפושמחשבון,חשבון,דיוורוצ׳אטשומריםnoindexלפי המקור. Google/Facebook זמיניםבכפתורים;כניסהחברתיתבפועללאבוצעה. קבלות2חשבונותופתחמנהלנשמרות, ללאהמצאתקבלתProductionפרטיתחדשה. Legacy `dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2` נשמרלשחזורתנועה,לאמסד. B/Dפעיליםולאשונו;לאהיוDB/Edge/Auth/flags/model/mail/כתיבותמוצראוmain. CLIנעצרללאcredential; אינו נדרש לפרסום שבוצע. מצבים12.44ומטההיסטורייםלענייןהמתנהלפרסום. G4מלא אינו מוכרזכסגור. [ראיות/מגבלות/חזרה](docs/reviews/public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md); BEFORE9dc02d7b.
+
+**מצב12.44 — B/D אומתו מחדש; מסלול CLI להכנת תוצר:** signup20/unsubscribe10 עדייןACTIVE עם אותן טביעותbundle, מיגרציה20261103223217 קיימת, ועמודת ההסכמה/אילוץ/RLS וטריגר החשבון תואמים. לא הוחלו מחדש, לא נשלח דיוור ולא שונו העדפות. קבלת המנהל ושני החשבונות נשמרת. נמצא ב־CLI65.11.0 מסלול rawAPI המשלב GitSource1bc8260a ו־autoAssignCustomDomains=false; מחוללCLI אמיתי הורץ ללא רשת והוכיח שימור payload. זה אינו אימות שרת/תוצרProduction. החיבורMCP אינו חושף את השדה, ובדיקת CLIwhoami מחזירהLogged out; לא התחילlogin. [בקשת יצירה מדויקת וחיבורOAuth](docs/reviews/public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/production-creation-request.md) הוכנו אך לא הופעלו. שלושת דומייניLegacy נשארו בפריסהBFpwZGiY; איןProduction/main/דומיינים/G4. הערכת12.41על היעדר מסלולCLI הוחלפה בתחום בדיקת המקור בלבד; חוסר החיבור נותר. BEFORE5d3150d3.
+
+**מצב12.43 — קבלת הבעלים לפתיחת המנהל:** לאחר הפריוויו המתוקן1bc8260a / dpl_ADnf6NL9, צוריאל השיב „עובד”. פתיחת מסך הבקרה וכשל המסך השחור מתקבלים כעת לפי דיווח הבעלים; בקשת הניסיון החוזר ב־12.42 הוחלפה בתחום זה. רענון ופתיחתtrace לא פורטו בנפרד, ולכן אין טענה לקבלתCP1 מלאה אוG4. שני החשבונות האישיים נשאריםמקובלים; Google/Facebook ידניים נשאריםמדולגים. אין שינוי קוד/שרת/פריסה. [קבלה מדויקת](docs/reviews/public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/owner-acceptance.json); BEFOREf7f20b82. יתרת תצורתProduction וההחלטות הקודמות נשמרות.
+
+**מצב12.42 — תיקון המסך השחור בבקרת מנהל:** צוריאל דיווח על כשל אמיתי לאחר סיסמה בנייד; בפריוויו הקודם שוחזרה בנפרד קריסת המעטפת `Unknown SOD1820 experience surface: admin` עם זהות סינתטית. התיקון נשמר במקור `1bc8260adaa889d7903aaa33ef43510df09817f2`: מצב המסך הקיים `control` משתמש בתצוגת הבדיקה המאושרת; אימות ממתין מציג הודעה. עברו37 בדיקות ממוקדות, שערי Experience/Legacy, בניית2029 ותוצר מקומי, ושישה תרחישי דפדפן מבוקרים על [https://sod1820-96jzc6z50-sod1820-s-projects.vercel.app](https://sod1820-96jzc6z50-sod1820-s-projects.vercel.app), פריסה `dpl_ADnf6NL9VznxiiysCQZqoGPguJSE`, READY/targetNULL, עםSWאמיתי. שלוש בדיקות עברו תחילה ושלוש לאחר תיקון ציפיות הסקריפט בלבד; כל הכשלים נשמרו. אין כניסה אמיתית של הסוכן או כתיבת מוצר. קבלתCP1 בחשבון הבעלים עדיין דורשת ניסיון חוזר; קבלת שני החשבונות האישיים נשמרת. בדיקתGoogle/Facebook דולגה במפורש בידי הבעלים — אינהPASS; הגנות callback לא שונו. B/D נשאריםמוחלים. איןProduction/main/דומיינים או סגירתG4. מצב12.41 ומתחת נשמר כהיסטוריה בתחומים שהוחלפו בלבד. BEFOREa87a33d4; [ראיות](docs/reviews/public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/README.md).
+
+**מצב12.41 — B/D אושרו והוחלו:** מיגרציה20261103223217, signup20 ו־unsubscribe10 אומתו מול המקורות המדויקים;1,024 הרשומות הקיימות וטביעתן נשמרו, וטריגר החשבון לא השתנה.33 בדיקות דיוור,6 בדיקות פרופיל שירות ו־10 בדיקות חיות ללא כתיבה עברו. טופסי הבית ו־/updates התקבלו מול החוזה האמיתי בפריוויו מוגן `d8ee2753482ee9c264795b19c52745da494be63a` / `dpl_6DekQkT2ByVnPhtPbrFTYmD7bDgZ`:4 תרחישי390/1440 עםSWאמיתי ושדה ריק, ללאשליחה. [הפריוויו המדויק](https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app). התיקון מסיר רק חסימה ישנה בפרופיל הפרסום הקיים. אין שינוי מנויים/משלוח, A2/C או Auth. קבלת שני החשבונות נשמרת; callback נדחה וקבלת CP1 אמיתית פתוחים. בירור עצמאי אישר שחסרה יכולת מחוברת המשלבת Git אמיתי עם אפס שיוך דומייני Production; בקשת יצירה נשמרת מותנית ואינה ניתנת לביצוע רק מכוח אישור. אין main/אתרProduction/דומיינים או סגירתG4. מצב12.40 שמתחת הוא היסטורי לעניין B/D והדף בלבד. BEFORE8e5e5ffe ותוספת0673ed5e. [ראיות והשלמות](docs/reviews/public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/README.md).
+
+**מצב 12.40 — התאמת השער אושרה ושולבה בענף בלבד:** תשעת הקבצים תואמים בדיוק להצעה שאישר צוריאל ב־8882d7c5. עברו 49 בדיקות שער ותוצר, 33 בדיקות הרשאות ובנייה מקומית במצב dormant; שערי Legacy והעץ היחיד נשמרו. קבלת שני החשבונות נשמרת. קוד המוצר `21f1a8d9e3e3fc6c7c35583ac79aee28f5e92b41` שמור מרחוק, ו[הפריוויו המדויק](https://sod1820-d3ocprlw4-sod1820-s-projects.vercel.app) התקבל בשישה תרחישי דפדפן עם SW אמיתי ב־390/1440 ובשישה מסלולי HTTP ב־GET/HEAD; פריסה `dpl_8VcC1LwM4aBmPEeZNS9DwYUGDSCu`, ‏target=NULL. ראיות מאוחרות הן תיעוד בלבד ואינן קוד מוצר חדש. יצירת Production ושיוך דומיינים אינם מורשים. מסלול יצירה מוגן ללא דומיינים עדיין לא הוכח; B/D, callback שנדחה וקבלת CP1 אמיתית נשארים פתוחים. מצב 12.39 שמתחת הוא צילום ההצעה הקודמת, שהוחלף רק לעניין שילוב הקוד. BEFORE45453603; אין סגירת G4 או cutover. [ראיות והשלמות הבעלים](docs/reviews/public-url-exceptions-20261103/residual205/evidence/final-preparation/production-activation/public-candidate/approved-integration/README.md).
+
+**מצב12.39 — פרסום מתוכנן, לא הוחל:** קוד המועמד והפריוויו נשאר01662ab57e92ea71332c05ca971a2280ddb988ea. הוכנה [הצעת שער ציבורי מדויקת](docs/reviews/public-url-exceptions-20261103/residual205/evidence/final-preparation/production-activation/public-candidate/README.md), הכוללת שמירתPreview/staging, קבלת כתובות ואינדוקס ציבורי לפי הבעלים הקיימים.49 בדיקות ובנייתdormant מקומית מבודדת עברו; הפורום,WP2481,404/503,פרטי ו־API noindex נשמרו. אין שינוי בקובצי המוצר, בפריסה או בדומיינים. חסר עדיין מסלול יצירתProduction מוגן ובלי שיוך דומיינים שהוכח ומורשה; CLIבדקlogged-out ו־autoAssignהנוכחי אינו ידוע. אישור שער נפרד וקבלת תוצר בפלטפורמה אינם אישורcutoverסופי. שאריתB/D, callbackהנדחה ו־CP1 נשמרת; קבלות החשבון/H1/סיכון/שחזוריםדחויים לא נפתחו מחדש. BEFORE59cb9dce; G3סגור ו־G4לאהוכרזכסגור. ההמשך12.38 נשמר כהיסטוריה במקום שהשתנה רק מצב הכנת הפרסום.
+
+**המשך12.38 — קיצור וקבלת המשכיות:** Google/Facebook/OTP חוברו מחדש ל־Auth הקיים, ללאשינוי הטריגר, העדפות או הדיוור הפעיל. כתובתPreviewשלענף נקשרת להוכחתפלטפורמהמדויקת לקבלתcallbackקבוע.32 בדיקותממוקדותעברו; איןבדיקהמחודשתשלכלקבלתחשבונות. פתיחהוביטולשלשניספקיםעדייןחזרהל־Production; דרושהבדיקתRedirectURLsמדויקתוקבלתבעלחשבון. CP1מוכןלקבלתמנהלקריאה. אישורהדיוורצומצםל־B/D, A2נשמרלעתיד ואינוחסםAuthנוסף. הצעתstagingשומרתאתהדלתאהחדשהועברה5מבחניםמבודדים,לאהוחלה; תוצרProductionואישורcutoverנותרונפרדים. [קישורים, צעדים ותוצאותצפויות](docs/reviews/public-url-exceptions-20261103/residual205/four-completions.md). איןשינוינתוני/העדפותמוצר,משלוחגורף,Legacyהחי,mainאודומייניםקנוניים. ההיסטוריה12.37נשמרתבמהשהוחלףכאן.
+
+**מצב12.37 · 3.11.2026:** S2 ושתי זרועות הכשל בקורא הבקרה אושרו והוחלו בשרת המשותף;8 hashes והרשאות/ספירות תואמים, קבלה אנונימית ו־4 בדיקות מסלולים מושפעים עברו. אין מכך חותםS2/CP1/G4מלא. A הישן הוחלף בהחלטת צוריאל: חשבון חדש ומאומת מקבל עדכוני אתר כברירת מחדל, עם הסרה פעילה; כניסה רגילה והסרות קודמות אינן משתנות. הצעתA2/B/D נבדקה22/22 קבוצותPostgreSQL אך טרם הוחלה/אושרה כתשתית מדויקת. נדרש נוסח נכון גם ב־signup הפעיל בלגאסי. בעל־הבית הקנוני עודכן ל־subscription_funnel_law v22 כהחלטה בלבד; ההיסטוריה נשמרה. [ראיות ותלויות](docs/reviews/public-url-exceptions-20261103/residual205/final-preparation.md). BEFORE951a982f. שאר צילום12.36ומטה היסטורי היכן שהוחלף כאן. אין שינוי אתרProduction/main/דומיינים, קמפיין או ייבואצאט.
+
+**המשך12.36 — קבלת מועמד בלבד:** חלונית האורח חוברה לטופס עדכוני האתר הקיים, עם תמונה ורקע חלל מקומיים ופונטים2029, בלי „קוד המציאות”; לא ניתן אישור שרת/משלוח. תוקנו קריאות/רענון/מצבי כשל וזהות בתצוגת הבקרה.109בדיקות ממוקדות ובניותLegacyו־2029עברו; הצעות השרת מבודדות/ממתינות. הצ׳אט נדחה כעת בידי צוריאל —0יובאו. [פירוט ההחלטות והחסמים](docs/reviews/public-url-exceptions-20261103/residual205/final-preparation.md). שני החשבונות התקבלו בדיווח המשתמש; אין צורך לבדוקם מחדש. A/B/DלעומתקמפייןC ו־CP1/S2/הפעלתProductionנפרדים; H1תקף והסיכון הנוכחי אינוPASS. איןcutoverאוG4מלא.
+
+**החלטת סיכון ועדכון הכנה 12.36 · 3.11.2026:**
+הקוד שמור ו־H1 ההיסטורי מאומת. עדכניות גיבוי המסד וכיסוי המדיה לא אומתו; צוריאל קיבל את הסיכון לצורך המשך ההכנה, ולכן אין לעכב אותה בבירור נוסף. זו אינה תוצאת בדיקה או הרשאת מחיקה/מעבר לחי. יתר תנאי S2, בקרה ותצורת פרסום מטופלים בנפרד. [המשך ההכנה והקבלה האישית](docs/reviews/public-url-exceptions-20261103/residual205/final-preparation.md). סטטוסים קודמים לגבי חסם הבירור מוחלפים רק בתחום הזה.
+
+**עדכון נוכחי 12.35 · 3.11.2026 · ענף ופריוויו בלבד:**
+[מסירת ההמשכיות](docs/reviews/public-url-exceptions-20261103/residual205/continuity-closure-20261103.md), BEFORE `07df5ea9` ותוספות `ee6e6b41`/`cddffd60`. המוצר ממשיך את `7360f1d8` ב־`76cf61e6`: עברו 26 בדיקות פריוויו מוגן, 107 בדיקות ממוקדות ובניות Legacy ו־2029. באותו מכנה של 2,609 חריגים: 2,357 טופלו, 52 סגורים במכוון, 5 אינם תקינים ו־195 נדחו לשחזור באישור צוריאל. אין הכרעת זהות פתוחה בתוך הקבוצה; אין בכך קבלת HTTP מלאה לכל מלאי האתר.
+
+הפורום המוכח ממשיך לצ׳אט. שלושה דפי הרצאות היסטוריים שוחזרו בכתובותיהם, עם תאריכי המקור וקישורים מאומתים. המשתמש אישר שכל פעולות הכניסה, השמורים, השמירה, העריכה, הרענון והחלפת החשבון עברו בשני חשבונותיו בפריוויו `7360`. שינויי החזרה, בחירת Session קנוני וקריאת מצב WhatsApp נבדקו בנפרד בסביבה מבודדת; לא הופעלו OTP, משלוח, מודלים או קרדיטים.
+
+S2 נשאר פתוח: [הצעת שרת משותף](docs/reviews/public-url-exceptions-20261103/residual205/shared-security-proposal/README.md) מוכנה ונבדקה ב־PostgreSQL מבודד, אך לא אושרה ולא הוחלה. קבלת CP1 תפעולי, עדכניות גיבוי המסד וכיסוי המדיה, קבלת יחידות המעבר בתצורת הפרסום והפעלת Production/חזרה נשארות נפרדות. H1 ו־G3 תקפים; שינויי Auth ודיוור `b21ed1ff` נשארים בהמתנה. אין חותם Isolation או G4 מלא ואין מעבר לחי.
+
+**החלפת סטטוס מוגבלת:** עדכוני12.34/12.33 וספירת197 להלן הם צילומי זמן היסטוריים. מצב OPEN לפעולות החשבון המפורטות וההמלצה לדחיית195 הוחלפו רק כפי שנקבע לעיל; יתר התנאים נשארו בתוקף.
+
+**עדכון ממוקד12.34 · 3.11 — מועמדb80 ממשיך, ללא מעבר לחי:**
+[ראיות205 ושימור הספרים](docs/reviews/public-url-exceptions-20261103/residual205/README.md), BEFORE1db8d430. אותו מכנה2609:2355 נפתרו לפי זהות/מסלול,52 סגורים,5 לא תקינים,197 ממתינים. 193שמע+2קישורים הם כשלים קיימים שמומלץ לדחות במפורש;ForumPost ואינדקס הרצאות דורשים המשך/הכרעה לפני פטור. אין כיסוי מלא. מסירת הספרים23e03e82 כלולה; תוקן חיבור הכרטיסים/המדים וקריאת אהבת תורה, ללא ייבוא חוזר. משתמש דיווח עלDMאמיתי תקין; יתר קבלת החשבונות ו־WhatsAppעדיין פתוחים לפי הפירוט. גיבויGit3.11 הוא קודmain בלבד;H1ההיסטורי תקף, עדכניות מסד ומדיה נפרדות. S2/CP1,מבקר חוזר והפעלה/חזרה נשמרים; b21ed1ff בהמתנה. אין סגירתG4 או אישורProduction.
+
+**צילום קבלה קודם12.32 — הוחלף בבירור205 העדכני שלהלן/לעיל; Preview בלבד:**
+[קבלה לפי כתובת מקור וסיבת חריגה](docs/reviews/public-url-exceptions-20261103/README.md).
+מכנה469+2140 נשמר במלואו: **2352 נפתרו לפי ראיה מדויקת;48 סגורים במכוון;
+4 לא תקינים;205 חסרי ראיית מקור** (193 שמע,8 זהויות פוסט,3 סרטונים חיצוניים
+והרצאה אחת). נפתרו הפניות תמונה/embed, כינויים וקטגוריה מדויקת; אין מכך קבלת
+כל33,667 הכתובות ב־HTTP או סגירת G4/מעבר. כיסוי מלא של תוכן העבר נשאר פתוח.
+הרשאות, כתובות הפוסטים וגבולות P0 נשמרים. דיווח קודם התקבל בהיקף המאושר;
+בדיקות הדיווח החיות לא חזרו בסבב זה. חשבונות אמיתיים/שמירות/התחברות, מעבר
+מבקר חוזר, S2/CP1, עדכניות גיבוי וכיסוי מדיה ותצורת הפעלה/חזרה עדיין פתוחים.
+H1/G3 נשמרים; b21ed1ff עדיין בהמתנה. BEFORE8c147469-65f8-4ffe-8e03-91baf66ab4ca.
+
+**צילום קבלה קודם (המספרים469/2140 הוכרעו כעת כמפורט לעיל):**
+**עדכון קבלה ממוקד 3.11 — ממשיך את 3f23b26f:**
+[ספירת הכתובות, תיקוני התמונות/הטיקר, הדיווח וחסמי המעבר](docs/reviews/public-acceptance-closure-20261103/README.md).
+33,667 רשומות סווגו אוטומטית: אין זו קבלת HTTP מלאה. 641 הפניות כוללות
+258 יעדים לא מטופלים; 211 רשומות נוספות אינן מטופלות ישירות. שמירת דיווח
+מפורש אושרה בנפרד והופעלה: פנייה אחת נבדקה בממשק ותקלה אחת ב־API;
+דיווח תקלה מאדם אמיתי עדיין טעון קבלה. אין שינוי דיוור או זהות בשרת. חשבון אמיתי, מבקר חוזר,
+S2/CP1, עדכניות גיבוי וכיסוי מדיה ו־Production activation נשארים פתוחים.
+H1/G3 נשמרים; אין מעבר לחי. BEFORE a8d1af3f-c987-40c8-a582-c59dc2c27109.
+
+**Date:** 2026-11-03 (documentation synchronization; historical seals retained)
 **Status:** CURRENT DOCUMENTED STATE · **G2 CLOSED · G3 CLOSED** · HUMAN-GATE CONTROLLED  
 **Canonical Supabase:** `linswmnnkjxvweumprav`  
 **G2 closure base release:** `27900d3f696a26cda598463a58bcff4e74d5832d`
 
 ## 1. Authority
+
+**Owned personal continuity · 3 November 2026 · BRANCH/PREVIEW only:**
+Product73dc continues on `gpt/2029-personal-continuity-glass-number-20261103`,
+runtime7937f084, continued by worker-control fixffdaf3e4 and accepted glass/number runtimec023fd6f. The existing personal area now admits verified ordinary accounts
+and admins to owned saves/edits/notebook/profile APIs, independently of model,
+credit or marketing activation. Controlled two-account browser acceptance passed;
+ZURIEL initially deferred genuine login; he now reports a successful real-account DM and generally correct UI on b80. Historical checkpoint superseded by§12.35: the user accepted both accounts on7360; social/signup, final canonical migration acceptance and S2/CP1/ remain separately open. Prior snapshot:
+backup-media/activation gates. Shared proposal b21ed1ff remains HELD_BY_USER.
+[Exact evidence/status](docs/reviews/personal-continuity-glass-number-20261103/README.md);
+coordination BEFORE1498dc11/addendum8e9d4b7c. Mobile glass/hidden-cross/PWA brand
+changes are candidate-only. G3/H1 receipts remain valid; formal G4/cutover OPEN.
+Doc37 §12.33 records implemented/tested/live separately. Earlier account-blocked snapshots below are historical for the personal APIs
+covered here; they remain valid for systems/actions not admitted by this change.
+
+
+**Prior priority 1 implementation checkpoint · historical, continued by the exception acceptance above:**
+
+- Unified product branch: `gpt/2029-public-url-continuity-20261103`, continued
+  from verified product `9d3a09689a05bd0b72ca484335c1fbce8b538170`, not the
+  documentation branch. Runtime checkpoint `78275d17885a0358214fa35005231296c4964990`.
+- Priority 1 address adapters, styled tag/category pages, public community and
+  library/source readers, community calculator and named service continuations
+  are implemented. Existing private/action gates remain. See the
+  [implementation and exact hosted receipts](docs/reviews/public-url-continuity-20261103/README.md)
+  and the updated [single transition table](docs/reviews/url-continuity-plan-20261103/transition-matrix.md).
+- The requested static renewal notice, existing contact form with safe source
+  URL, and direct global ShareActions button replace the rotating notice and
+  global Tools entry. Now/feed ownership is retained. Preview form delivery is
+  explicitly unavailable; opening a form is not proof of delivery.
+- Public URL/read acceptance is bounded. Ordinary-member/admin real account,
+  social auth, contact delivery, held mail changes, residual attachment/media/
+  historical-entry evidence, S2/CP1, current backup/media coverage, full cutover
+  parity and activation/rollback remain open. No blanket all-URL acceptance.
+- The existing A3 receipt's 29 input hashes still match; no repeat of G3/H1/A3
+  and no new claim that the complete Isolation or formal G4 gate passed.
+- Main, Legacy Production and shared infrastructure were not changed by this
+  implementation. Shared proposal `b21ed1ff` remains **HELD_BY_USER**. Formal G4
+  and Public Cutover remain OPEN. Doc37 §12.30 records implemented/tested/held
+  separately; coordination BEFORE `5fbf9e75-b445-4da4-bf24-dfc485387b8f`.
+
+**Historical planning checkpoint · superseded only by the bounded implementation above · 2026-11-03:**
+
+- Product candidate: `gpt/2029-site-search-gematria-20261103`,
+  `9d3a09689a05bd0b72ca484335c1fbce8b538170`; protected Preview only:
+  `dpl_1Jyk6PdVpSaygjuD5E64CH5FiBez`,
+  https://sod1820-issbcgxlc-sod1820-s-projects.vercel.app.
+- Separately verified `origin/main`: `2195c9784c5c9f0b1ec3cd3c1137fbd76045845b`.
+  Live website remains Legacy `d1837efcf5a978d10a514010f3695680f231e116`,
+  deployment `dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2`. A branch/Preview is not main or Production.
+- Documentation/privacy branch: `gpt/2029-url-continuity-plan-20261103`,
+  saved evidence `4015ed8b82099e3543e472b7310394985cc265a4`, followed by this
+  documentation-only synchronization. Its only application delta is the two
+  requested PrivacyPage contact changes to `zyz997@gmail.com`; not deployed.
+- G3 remains CLOSED. Formal G4 and Public Cutover remain OPEN. Successful
+  Isolation/G4 workflows on `c8e05790` do not close formal G4 or certify a new SHA.
+  A3's accepted isolated evidence is reusable: all 29 input hashes match product
+  `9d3a0968`. The current review did not rerun those gates.
+- H1 real database restore remains accepted (AFTER
+  `629e1ce9-8658-43b7-9b58-54dbee03ffca`; cleanup
+  `a149f1a1-6876-40e5-8616-7addbc67232e`). Current backup freshness, media file
+  coverage and relevant delta acceptance remain open; H1 itself is not missing.
+- Existing community/chat/account/service continuation is required by the later
+  Human Gate. The candidate's earlier restricted public-reading acceptance is
+  narrower than that requirement. Known URL/availability failures and untested
+  identity, source, security, operations and recovery conditions are separated in
+  the [existing-condition reconciliation](docs/reviews/url-continuity-plan-20261103/coverage.md).
+  Shared identity/mail proposal `b21ed1ff` remains **HELD_BY_USER**.
+- Later clarification in this documentation pass: restored tag/content pages
+  must reach the approved Posts-level visual quality at launch, using existing
+  Design V2 and centered responsive composition. This is **PLANNED acceptance**,
+  not a new rendered page or a claim that the current tag 404 was fixed.
+
+Canonical planning details stay in `project_codex.id=37`, §12.29 and its
+documentation-sync addendum. The [existing address map](docs/w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03)
+remains the migration inventory; collected JSON/CSV and the review table are
+supporting evidence, not new owners or runtime registries. Provenance:
+`work_log.id=e18c1cb9-0ea0-4e6c-9617-232bb296d31b`; documentation scope BEFORE
+`2b9004b6-5285-4aee-93e2-4b1174ec06cf`. No cutover, domain, shared configuration,
+product-data or main change is authorized or performed by this synchronization.
+
+**Historical checkpoints below:** their counts, runtime states and Preview IDs
+apply to their recorded dates/SHAs. They are not the current product pointer and
+do not override the later decisions/status above or in Doc37.
+
+**Scoped documented checkpoint · 2026-10-31 · World/Topics/Galleries, BRANCH ONLY:**
+the existing planning map `public.project_codex.id=37`, §12.10
+`STATE-MAP-WORLD-TOPIC-GALLERY-20261031`, now distinguishes approved contract,
+partial runtime, bounded tests and hosted Preview. Read back through the dedicated
+read-only connector: body MD5 `6b16163667a74a88e8d38c5309dc74fe`; previous body
+MD5 `34fda94a4542343d4e864646d4e98ee1` preserved in full and in order. DRAFT remains;
+the old §12.5 Gallery NOT_MAPPED label is superseded only by the 29/81 pilot,
+not by a whole-gallery migration or a new canonical route decision.
+
+Evidence baseline: branch `gpt/elections-world-seed-integration-20261030` at
+`e27447d85579d98d1d08048645a78089cb66fc3d`; handed-off protected Preview
+`dpl_G2J8kwRpL4u9RwhLsZnPeWWk3HuP` at
+`f8b611cfb5d49cd418be553266f75e4f64c7cdcd` (READY, target=null when checked).
+The later small image-share implementation is NOT in that Preview. This branch
+checkpoint is not evidence of a main merge, Production change, G4 closure or final
+site design. The 22.10 Legacy Production lock in AGENTS.md remains controlling.
+
+Existing owners were live-verified: Reality Graph v8, canonical UI v11, Experience
+Governance v10. Runtime coverage/remaining work is kept in plan37 §12.10 rather
+than copied into a new master: generic finding→Topic coverage, novelty/seen,
+graph-backed story navigation, explainable meter, intake-to-destination and final
+cross-surface visual acceptance remain partial or unverified. Source references
+and historical part order are preserved; no source merge or renumbering.
+
+**Bounded runtime follow-up · 2026-10-31:** plan37 §12.11
+`STORY_TREE_SEQUENCE_RUNTIME_20261031` supersedes only the earlier story UI
+not-connected status. Code `241ae98bbdbaa3c50353dc895d2c3b2232f7d95b` connects the
+same bounded graph/public-post sequence to World and both Topic bodies, with
+explicit open/refresh, exact post return/reload and no inferred story-to-story
+edge. Existing plan body prefix MD5 `6b16163667a74a88e8d38c5309dc74fe` is preserved;
+new planning MD5 `9c7a7994390f135f6ec0779acd561c5f`. Bounded unit/browser/live-anon
+local-build tests passed. It is NOT in that Preview; no new hosted deployment,
+whole-corpus, final visual or Production acceptance is claimed. All other
+§12.10 gaps remain open; see the existing gallery receipt for evidence/limits.
+
+**Gallery continuation · 2026-10-31:** existing plan37 §12.12
+`GALLERY_2029_PUBLIC_EXPANSION_20261031`, MD5
+`df72132b708c640239555dd4e4025866`, preserves the previous entire prefix
+`9c7a7994390f135f6ec0779acd561c5f`. Native gallery locators/reader no longer
+require a29/81 allowlist (runtime `1ebd49358fe9dbf3c31dafb25530328581920754`).
+Every occurrence still requires public source admission; positive ID is not
+permission. Historical order/parts preserved, Legacy defaults unchanged.
+Live-anonymous local-build examples69/73/105 and empty102 passed390/1440;
+not proof of all106 galleries. No catalog/SEO route decision, tree promotion,
+source publication, new hosted Preview or Production change. Existing gaps remain.
+
+**Public gallery catalog · 2026-10-31:** existing plan37 §12.13
+`GALLERY_2029_PUBLIC_CATALOG_20261031`, MD5
+`72ac7de9c70334c61512cbbd98b8bd19`, preserves the entire previous prefix
+`df72132b708c640239555dd4e4025866`. Catalog `/world?view=gallery` now lists87
+currently public galleries using original IDs/names, eligible covers/counts,
+search/sort and exact gallery return; no inferred series. Runtime
+`9ded00ae7f9f20471e0d7638f690d50da7ce36e0` is in protected READY Preview
+`dpl_5E97MgTU4T5grf4uyUZ55DRrRfCd` (target=null), live-anonymous verified at
+390/1440 in light/parchment/dark. This supersedes only the catalog/not-hosted
+gap for included bounded slices, not proof of all106 gallery bodies or final
+design. Separate Posts session untouched; cross-gallery series seam and other
+§12.10 gaps remain open. No main/Production/product publication change.
+Evidence and exact coverage: existing gallery receipt, not a new owner.
 
 Live reality is resolved from:
 
@@ -122,7 +331,7 @@ Exact owners are resolved from `SOD1820_MASTER_OWNER_INDEX.md` and reverified li
 - Personal Reality is an authorized contextual projection; personal context may change relevance but never global truth.
 - Capability Fabric/Context Compiler are owner-qualified composition contracts, not a central capability registry or Context store.
 - Missing source evidence remains a Contextual Source Gap/research task until exact evidence is acquired; a recommendation is not evidence.
-- Dimension Five is the future-primary content direction; Or Geula remains preserved but strategically supporting/legacy.
+- Historical strategic direction: Dimension Five is the future-primary content direction; Or Geula remains preserved but strategically supporting/legacy. **Launch presentation superseded by the later Human Gate in Doc37 HOME-01/HOME-03:** event documentation leads Home; Dimension Five and the other approved series remain visible in the second tier. This does not discard the future direction or source content.
 - Home/Global Now, Share, Personal Area, Follow/Attention and future G3 surfaces are projections over existing Foundation owners; their names do not create owners.
 
 ## 7. Exact release language

@@ -1,0 +1,90 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: new Foundation routes require explicit scope review
++ actual - expected
+
+  [
+    '/',
+    '/post',
++   '/verified',
+    '/number',
+    '/number/:value',
+    '/gallery',
+    '/gematria',
++   '/tag/:slug',
++   '/category/:slug',
++   '/community',
++   '/community/calculator',
++   '/community/researchers',
++   '/members',
++   '/community/comments',
++   '/forum',
++   '/forum/:id',
++   '/or-geula',
++   '/or-geula/video/:id',
++   '/contact',
++   '/codes',
++   '/codes/:slug',
+    '/:slug'
+  ]
+
+    at productionApp2029Source (file:///workspace/sod1820-bd-approved/scripts/helpers/public-preview-route-scope.mjs:9:10)
+    at file:///workspace/sod1820-bd-approved/scripts/test-2029-cheap-hardening.mjs:26:23
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal
+[excerpt; original retained in execution workspace]
++   '/or-geula',
++   '/or-geula/video/:id',
++   '/contact',
++   '/codes',
++   '/codes/:slug',
+    '/:slug'
+  ]
+
+    at productionApp2029Source (file:///workspace/sod1820-bd-approved/scripts/helpers/public-preview-route-scope.mjs:9:10)
+    at file:///workspace/sod1820-bd-approved/scripts/test-2029-cheap-hardening.mjs:26:23
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: [
+    '/',
+    '/post',
+    '/verified',
+    '/number',
+    '/number/:value',
+    '/gallery',
+    '/gematria',
+    '/tag/:slug',
+    '/category/:slug',
+    '/community',
+    '/community/calculator',
+    '/community/researchers',
+    '/members',
+    '/community/comments',
+    '/forum',
+    '/forum/:id',
+    '/or-geula',
+    '/or-geula/video/:id',
+    '/contact',
+    '/codes',
+    '/codes/:slug',
+    '/:slug'
+  ],
+  expected: [
+    '/',
+    '/post',
+    '/number',
+    '/number/:value',
+    '/gallery',
+    '/gematria',
+    '/:slug'
+  ],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

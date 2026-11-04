@@ -1,0 +1,43 @@
+{
+  "task": "PUBLIC_DIRECT_2029_CUTOVER_20261104",
+  "userAuthorization": "מאשר פרסום ישיר עכשיו; תחליף את האתר וכל הדפים; קדימה תעשה",
+  "baseHead": "6a5e86df811c0a559171622f708bfdbe00b03b5c",
+  "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "deploymentId": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+  "url": "https://sod1820-2z0mg4j21-sod1820-s-projects.vercel.app",
+  "target": "production",
+  "readyState": "READY",
+  "acceptedPreview": "dpl_ADnf6NL9VznxiiysCQZqoGPguJSE",
+  "previousLegacy": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+  "beforeDomains": [
+    {
+      "host": "sod1820.co.il",
+      "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "state": "READY",
+      "target": "production"
+    },
+    {
+      "host": "www.sod1820.co.il",
+      "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "state": "READY",
+      "target": "production"
+    },
+    {
+      "host": "sod1820.vercel.app",
+      "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "state": "READY",
+      "target": "production"
+    }
+  ],
+  "createdVia": "existing Vercel MCP GitSource",
+  "cliFlow": "canceled, no auth.json created",
+  "mainChanged": false,
+  "runtimeEdited": false,
+  "sharedDbAuthEdgeFlagsChanged": false,
+  "liveProductWrites": 0,
+  "trafficSwitch": "PENDING_CANARY_CHECK_AND_EXPLICIT_ALIAS_ASSIGNMENT",
+  "beforeWorkLog": "9dc02d7b-ab75-43e1-b43e-13a5468d233c"
+}

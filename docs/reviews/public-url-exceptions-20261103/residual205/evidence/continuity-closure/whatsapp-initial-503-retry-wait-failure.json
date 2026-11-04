@@ -1,0 +1,401 @@
+{
+  "kind": "controlled-owned-account-browser",
+  "synthetic": true,
+  "realAccounts": false,
+  "liveWrites": 0,
+  "origin": "http://127.0.0.1:34775",
+  "cases": [
+    {
+      "name": "WhatsApp verified association is separate from stored preference and unknown delivery",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "WhatsApp permission denial is not measured empty; explicit read retry restores binding",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "WhatsApp failed source remains unknown and does not erase existing follow",
+      "width": 390,
+      "passed": false,
+      "error": "expect(locator).toBeVisible() failed\n\nLocator: getByText(/בדיקת חיבור המספר לא הושלמה/)\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByText(/בדיקת חיבור המספר לא הושלמה/)\n",
+      "body": "האזור האישי\n⌕\n☾\nמ\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nמעקב ועדכונים\n\nאותו חשבון, אותם תכנים ואותם כלים אישיים.\n\nהאזור האישי\nהשמורים והמחקר שלי\nהפנקס שלי\nהדף שלי\nעורך הדף\nפרופיל ותמונה\nהודעות\nמעקב ועדכונים\nההתקדמות שלי\n\nהאזור האישי\n\nהעדכונים שלי\n\nמה חדש, אחרי מי ומה אתם עוקבים, ואיך תרצו לקבל עדכונים. עוקבים בבחירה שלכם בלבד.\n\nמעקב\nהושלם\n1 במעקב\nזהות\nהושלם\nמחובר\nערוץ\nהושלם\nנבחר במפורש\nמשלוח\nלא ידוע\nמצב המשלוח לא נבדק\nמה חדש\n\nאין עדכונים עדיין. כשמשהו חדש יופיע אצל מי שאתם עוקבים, הוא יגיע לכאן.\n\nבמעקב שלי\nאני עוקב\nבחירה מפורשת שלך\nרלוונטי אליך\nעוד לא פעיל\nרזיאל מציע\nעוד לא פעיל\nמספרים\n123\n1820\nעוקב\nאיך לעדכן אותי\n\nמעקב לא מ"
+    }
+  ],
+  "errors": [],
+  "authNetwork": [
+    {
+      "event": "request",
+      "path": "/auth/v1/token",
+      "queryKeys": [
+        "grant_type"
+      ],
+      "method": "POST",
+      "bodyKeys": [
+        "email",
+        "password",
+        "gotrue_meta_security"
+      ],
+      "securityKeys": []
+    },
+    {
+      "event": "response",
+      "path": "/auth/v1/token",
+      "status": 200
+    }
+  ],
+  "fixtureCalls": [
+    {
+      "path": "/auth/v1/settings",
+      "method": "GET",
+      "actor": null
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST"
+    },
+    {
+      "path": "/auth/v1/token",
+      "method": "POST"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    }
+  ]
+}

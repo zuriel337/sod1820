@@ -1,11 +1,11 @@
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
-import { buildRazielSurfaceContext } from "../../lib/research/razielSurfaceContext.js";
 import { createPortal } from "react-dom";
 import React, {
   createContext,
   useCallback,
   useContext,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -19,14 +19,16 @@ import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { buildExactReturnPatch, researchContextNumber } from "../../lib/research/researchContext.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
-import { CORE_PUBLIC_LAUNCH_2029 } from "../../lib/publicLaunch2029.js";
-import { requestEmailOtp, verifyEmailOtp, signInWithPassword, signInWithGoogle } from "../../lib/auth.js";
-import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
+import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked, personalActionsLocked } from "../../lib/publicLaunch2029.js";
+const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));
 import { makeEntity } from "../../lib/research/entity.js";
-import { askRaziel, getNotificationPrefs } from "../../lib/supabase.js";
-import { getMyNotifications, getUnreadCount, markNotificationRead, topicLabel } from "../../lib/notifications.js";
-import { getMyProfile, watchToggle } from "../../lib/commandCenter.js";
+import { getNotificationPrefs } from "../../lib/supabase.js";
+import { getUnreadCount } from "../../lib/notifications.js";
+import { getMyProfile } from "../../lib/commandCenter.js";
+import { WRITER_PERSONAL_MODULES, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
+import { followTopics } from "../../lib/userCenter/followCenter2029.js";
 import { getVisitorId } from "../../lib/tracking.js";
 import { isRazielNextAction } from "../../lib/research/razielActionContract.js";
 import {
@@ -36,13 +38,27 @@ import {
 } from "../../lib/research/contextualCapabilities.js";
 import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
-import ContactGateway from "../ContactGateway.jsx";
-import NumberDrawer2029 from "../number2029/NumberDrawer2029.jsx";
+import ContactGateway from "./ContactGatewayOnDemand2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
-import CompanionPanel2029 from "./CompanionPanel2029.jsx";
-import EventSequencePanel2029, { hasEventSequence } from "./EventSequencePanel2029.jsx";
+import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";
+import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
+const RazielCenter2029 = React.lazy(() => import("./RazielCenter2029.jsx"));
+const NowPublications2029 = React.lazy(() => import("./NowPublications2029.jsx"));
+import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";
+import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspaceRazielPresence2029.js";
+const RazielViewModeSelector2029 = React.lazy(() => import("./RazielViewModeSelector2029.jsx"));
+const RazielOneShotActions2029 = React.lazy(() => import("./RazielOneShotActions2029.jsx"));
+const ElsMatrixReadingActivity2029 = React.lazy(() => import("./ElsMatrixReadingActivity2029.jsx"));
+const ElsResearchActivity2029 = React.lazy(() => import("./ElsResearchActivity2029.jsx"));
+import { selectElsMatrixReadingActivity } from "../../lib/research/elsMatrixReadingActivity.js";
+import { publicContextLabel, contextDisplayTitle, contextNavigationItems2029, surfaceContextForRoute2029, entityTypeNounHe, razielContextParts, razielNavigationButton, razielStatusLabel } from "./razielSessionSeam2029.js";
+
+import { createRazielContextSnapshot, selectRazielDeepeningCandidate } from "../../lib/research/razielSession2029.js";
+import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
+import { publicPageShareUrl, postAddressSlug } from "../../lib/publicPostUrls.js";
+import { contactSourceHref } from "./contactSource2029.js";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
-import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
+import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import DiscoveryGateMark2029 from "./DiscoveryGateMark2029.jsx";
 import {
@@ -70,18 +86,26 @@ import "./systemToolDock2029.css";
 import "./systemFrame2029-unified-bar.css";
 import "./googleEntry2029.css";
 
+const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
+const SiteSearch2029 = React.lazy(() => import("./SiteSearch2029.jsx"));
+const GuestNewsletterInvite2029 = React.lazy(() => import("./GuestNewsletterInvite2029.jsx"));
+import { dismissGuestNewsletterInvite2029, guestNewsletterRoute2029, useGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
+
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
+  SEARCH: "site-search",
   ACTION: "action",
   CAPABILITY: "capability",
   INSPECT: "inspect",
   ATTENTION: "attention",
   TOOLS: "tools",
+  MORE: "more",
   RAZIEL: "raziel",
   RAZIEL_LOCKED: "raziel_locked",
   WORKSPACE: "workspace",
   ISSUE: "issue",
   CONTEXT: "context",
+  NEWSLETTER: "newsletter-invite",
 });
 
 const ShellContext = createContext({
@@ -107,34 +131,60 @@ const ShellContext = createContext({
 
 export const use2029Shell = () => useContext(ShellContext);
 
+
+// The current route is authoritative during navigation; a previous page's SEO
+// effect must never make the global share sheet target a stale document.
+export function framePublicShareHref(location, canonicalHref = null) {
+  let path;
+  try { path = decodeURIComponent(location?.pathname || "/"); } catch { return null; }
+  if (/^\/(?:auth|login|join|welcome|unsubscribe|updates|credits|buy|admin|profile|journey|raziel|community\/researcher\/me|2029\/(?:me|control|journey|raziel))(?:\/|$)/.test(path)) return null;
+  const params = new URLSearchParams(location?.search || "");
+  if (params.has("claim") || params.has("dm")) return null;
+  params.delete("returnTo"); params.delete("back");
+  let canonical = null;
+  try {
+    const url = new URL(canonicalHref);
+    const currentSlug = postAddressSlug(location?.pathname);
+    if (url.pathname === location?.pathname || currentSlug && currentSlug === postAddressSlug(url.pathname)) canonical = url.href;
+  } catch { /* A missing or stale canonical falls back to this exact route. */ }
+  return publicPageShareUrl({ pathname: location?.pathname || "/", search: params.toString(), hash: location?.hash || "" }, canonical);
+}
+
+const publicFoundationPreview = (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101");
 const HOME_NAV = [
-  { to: "/2029", label: "בית", icon: "⌂", exact: true },
+  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },
   { to: "/world", label: "העולם", icon: "◌" },
   { to: "/heichal", label: "היכל", icon: "◇" },
-  { to: "/2029/posts", label: "פוסטים", icon: "↟" },
-  { label: "מסעות", icon: "↝", status: "בקרוב" },
-  { label: "אזור משתמשים", icon: "◎", action: "workspace" },
+  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },
+  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },
+  { to: "/community/chat", label: "קהילה", icon: "◉" },
 ];
 
 const DIRECT_NAV = [
-  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
+  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },
+  { action: "number-search", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
+  ...(publicFoundationPreview ? [
+    { to: "/map", label: "מפת האתר", icon: "◌" },
+    { to: "/updates", label: "עדכונים במייל", icon: "✉" },
+    { to: "/privacy", label: "פרטיות", icon: "◇" },
+  ] : []),
 ];
 
 const CORE_HOME_NAV = [
-  { to: "/2029", label: "בית", icon: "⌂", exact: true },
-  { to: "/2029/posts", label: "פוסטים", icon: "↟" },
-  { to: "/community/chat", label: "צ׳אט", icon: "◉" },
+  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },
+  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },
+  { to: "/community/chat", label: "קהילה", icon: "◉" },
   HOME_NAV[1],
   { to: "/heichal", label: "היכל", icon: "◇" },
-  { label: "אזור משתמשים", icon: "◎", action: "workspace" },
+  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },
 ];
 
 const CORE_DIRECT_NAV = [
   { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },
-  { to: "/2029/gematria", label: "מחשבון גימטריה", icon: "123" },
-  { to: "/2029/number/1820", label: "דף המספר", icon: "123" },
+  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },
+  { action: "number-search", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
 ];
 
@@ -200,6 +250,9 @@ function targetFromSelectedText(raw) {
   };
 }
 
+// Native personal routes have one existing source. An unbuilt module never falls back to another product runtime.
+const PERSONAL_2029_MODULES = new Set(WRITER_PERSONAL_MODULES.map(([id]) => id));
+
 export function FrameState({ kind = "empty", title, children, action = null, progress = null }) {
   if (kind === "loading") {
     return <CanonicalProgress
@@ -254,23 +307,47 @@ const THEME_PRESET_OPTIONS = Object.freeze([
   { id: "dark", label: "לילה", icon: "☾" },
 ]);
 
-function ThemePresetControl2029({ compact = false }) {
+function ThemePresetControl2029({ compact = false, header = false }) {
   const preset = useThemePreset();
+  const [chooserOpen, setChooserOpen] = useState(false);
+  const controlRef = useRef(null);
+  const triggerRef = useRef(null);
+  const optionsId = useId();
+  const active = THEME_PRESET_OPTIONS.find((item) => item.id === preset) || THEME_PRESET_OPTIONS[2];
+  useEffect(() => {
+    if (!header || !chooserOpen) return undefined;
+    const closeOutside = (event) => {
+      if (!controlRef.current?.contains(event.target)) setChooserOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    return () => document.removeEventListener("pointerdown", closeOutside);
+  }, [header, chooserOpen]);
   return (
-    <div className={`sod29-theme-presets${compact ? " is-compact" : ""}`} role="group" aria-label="ערכת צבעים">
+    <div ref={controlRef} className={`sod29-theme-presets${compact ? " is-compact" : ""}${header ? " is-header-control" : ""}${chooserOpen ? " is-open" : ""}`} role="group" aria-label="ערכת צבעים" onBlur={(event) => {
+      if (header && !event.currentTarget.contains(event.relatedTarget)) setChooserOpen(false);
+    }} onKeyDown={(event) => {
+      if (header && chooserOpen && event.key === "Escape") {
+        event.preventDefault(); event.stopPropagation(); setChooserOpen(false); triggerRef.current?.focus();
+      }
+    }}>
+      {header ? <button ref={triggerRef} className="sod29-theme-trigger" type="button" onClick={() => setChooserOpen((value) => !value)} aria-expanded={chooserOpen} aria-controls={optionsId} aria-label={`מראה: ${active.label}. בחר יום, קלף או לילה`} title={`מראה: ${active.label}`}>
+        <span aria-hidden="true">{active.icon}</span><b>{active.label}</b>
+      </button> : null}
+      <div id={optionsId} className="sod29-theme-options">
       {THEME_PRESET_OPTIONS.map((item) => (
         <button
           key={item.id}
           type="button"
           aria-pressed={preset === item.id}
           className={preset === item.id ? "is-active" : ""}
-          onClick={() => setThemePreset(item.id)}
+          onClick={() => { setThemePreset(item.id); setChooserOpen(false); if (header && chooserOpen) triggerRef.current?.focus(); }}
           title={item.label}
         >
           <span aria-hidden="true">{item.icon}</span>
           <b>{item.label}</b>
         </button>
       ))}
+      </div>
     </div>
   );
 }
@@ -334,9 +411,10 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
 // Typed "Now": what is happening in the world, for me, and what Raziel can continue.
 // Each tab opens an existing frame surface; no data is invented here.
 function NowTabs2029({ activeKind, onWorld, onMe, onRaziel, razielLocked = false }) {
+  const task = useResearch().elsResearchOperation?.task;
   const tabs = [
     { id: "world", label: "בעולם", hint: "מה חדש בעולם", on: onWorld, pressed: activeKind === TRANSIENT.ATTENTION },
-    { id: "me", label: "בשבילי", hint: "העדכונים והמסלול שלי", on: onMe, pressed: activeKind === TRANSIENT.WORKSPACE },
+    { id: "me", label: task ? task.status === "RUNNING" ? "סורק" : "תוצאות" : "בשבילי", hint: task ? `${task.phase} · ${task.origin.term}` : "העדכונים והמסלול שלי", on: onMe, pressed: activeKind === TRANSIENT.WORKSPACE },
     { id: "rz", label: razielLocked ? "רזיאל · נעול" : "רזיאל מציע", hint: razielLocked ? "רזיאל נעול זמנית" : "המשך עם רזיאל", on: onRaziel, pressed: activeKind === TRANSIENT.RAZIEL, disabled: razielLocked },
   ];
   return <div className="sod29-now" role="group" aria-label="עכשיו">
@@ -347,34 +425,48 @@ function NowTabs2029({ activeKind, onWorld, onMe, onRaziel, razielLocked = false
 }
 
 function RazielOrb({ compact = false, active = false, onClick, title = "פתח את רזיאל", locked = false }) {
+  const session = useOptionalRazielSession2029();
+  const reading = locked ? null : selectElsMatrixReadingActivity(session);
+  const readingTitle = reading ? `${reading.label} · ${reading.axis.term} · פתח את רזיאל` : title;
   return (
     <button
       type="button"
       className={`sod29-raziel-orb${compact ? " compact" : ""}${active ? " active" : ""}${locked ? " is-locked" : ""}`}
       onClick={onClick}
-      aria-label={locked ? "רזיאל · בבנייה" : title}
-      title={locked ? "רזיאל בבנייה" : title}
+      aria-label={locked ? "רזיאל · בבנייה · למנהל בלבד" : readingTitle}
+      title={locked ? "רזיאל בבנייה · למנהל בלבד" : `${readingTitle} · גישת מנהל`}
+      data-matrix-reading-status={reading?.phase}
       aria-pressed={active}
       disabled={locked}
     >
-      <span className="sod29-raziel-orb-core" aria-hidden="true">{locked && compact ? "🚧" : null}</span>
+      <span className="sod29-raziel-orb-core" aria-hidden="true" />
+      {compact ? <span className="sod29-construction-badge" aria-hidden="true">בבנייה</span> : null}
+      {reading ? <span className="sod29-raziel-reading-badge" aria-hidden="true">{reading.active ? "סורק" : "סריקה"}</span> : null}
       {!compact ? <span className="sod29-raziel-orb-label">רזיאל</span> : null}
     </button>
   );
 }
 
-function PanelShell({ panelRef, icon, kicker, title, children, onClose }) {
+function PreviewTransportDisclosure2029() {
+  // The static review builder owns the mock marker. Ordinary app documents do
+  // not contain it and never gain a Preview label from this projection.
+  if (typeof document === "undefined" || !document.querySelector('[data-raziel-preview-transport="mock-only"]')) return null;
+  return <p role="note" data-raziel-preview-disclosure="mock-only">תצוגת בדיקה · תשובות רזיאל הן תשובות דמה בלבד, ללא קריאת מודל או כתיבה חיה.</p>;
+}
+
+function PanelShell({ panelRef, icon, kicker, title, children, onClose, panelKind = null }) {
   return (
     <div className="sod29-frame-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
       <aside
         className="sod29-frame-panel"
         ref={panelRef}
         role="dialog"
-        aria-modal="true"
+        aria-modal={panelKind === "newsletter" ? "true" : "false"}
         aria-label={title}
         data-experience-capability="contextual-sidecar"
         data-desktop-projection="left-context-sidecar"
         data-mobile-projection="bottom-context-sheet"
+        data-panel-kind={panelKind || undefined}
         tabIndex={-1}
       >
         <header className="sod29-frame-panel-head">
@@ -384,7 +476,7 @@ function PanelShell({ panelRef, icon, kicker, title, children, onClose }) {
           </div>
           <button type="button" onClick={onClose} aria-label="סגור">×</button>
         </header>
-        <div className="sod29-frame-panel-body">{children}</div>
+        <div className="sod29-frame-panel-body"><PreviewTransportDisclosure2029 /><React.Suspense fallback={<div role="status">טוען…</div>}>{children}</React.Suspense></div>
       </aside>
     </div>
   );
@@ -408,7 +500,7 @@ function CommandProjection({ query, setQuery, onSubmit, onClose }) {
         />
         <button className="sod29-action primary" type="submit">בדוק</button>
       </form>
-      <div className="sod29-frame-hint"><kbd>⌘K</kbd><span>פתיחה מכל מקום</span><kbd>Esc</kbd><span>חזרה בדיוק למקום</span></div>
+      <div className="sod29-frame-hint"><span>מספרים, ביטויים ושיטות חישוב</span><kbd>Esc</kbd><span>חזרה בדיוק למקום</span></div>
       <button className="sod29-action" type="button" onClick={onClose}>סגור</button>
     </>
   );
@@ -496,8 +588,8 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
     <>
       <section className="sod29-inspect-identity">
         <div className="sod29-kicker">{target.source === "selection" ? "בחירה זמנית" : "מוקד נוכחי"}</div>
-        <strong>{target.label}</strong>
-        <span>{target.type}</span>
+        <strong>{publicContextLabel(target.label) || entityTypeNounHe(target.type)}</strong>
+        <span>{entityTypeNounHe(target.type)}</span>
       </section>
 
       {hasMethodContext ? <div className="sod29-surface-context-expression"><span>{target.expression}</span><small>{target.methodLabel || target.method}</small><b>{Number(target.resultValue)}</b></div> : null}
@@ -534,7 +626,7 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
       <div className="sod29-canonical-share" data-share-owner="ShareActions">
         <ShareActions
           type={target.type || "page"}
-          title={`SOD1820 · ${target.label}`}
+          title={`SOD1820 · ${publicContextLabel(target.label) || entityTypeNounHe(target.type)}`}
           channels={["native", "copy"]}
           compact
           force
@@ -544,13 +636,14 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
 
       <div className="sod29-panel-context-card">
         <b>ההקשר שלך</b>
-        <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
+        <span>{context?.subject ? contextDisplayTitle(context) || "ההקשר הנוכחי" : "אין מוקד פעיל"}</span>
         <small>בחירה זמנית אינה הופכת חיבור לעובדה.</small>
       </div>
     </>
   );
 }
 function ContextualActionButtons({ actions, target, onInspect, onCapability, onRaziel, razielLocked, go }) {
+  const elsState = useFeatureState("lock_els");
   return <div className="sod29-panel-actions-grid">{actions.map((action) => {
     const className = `sod29-action${action.primary ? " primary" : ""}`;
     if (action.kind === CONTEXT_ACTION_KIND.INSPECT) {
@@ -560,10 +653,11 @@ function ContextualActionButtons({ actions, target, onInspect, onCapability, onR
       return <button key={action.id} className={className} type="button" onClick={() => onCapability?.(action.capability, target)}>{action.label}</button>;
     }
     if (action.kind === CONTEXT_ACTION_KIND.RAZIEL) {
-      return <button key={action.id} className={className} type="button" onClick={() => onRaziel?.()} disabled={razielLocked}>{razielLocked ? `${action.label} · נעול` : action.label}</button>;
+      return <button key={action.id} className={className} type="button" onClick={() => onRaziel?.()} disabled={razielLocked} data-capability-state={razielLocked ? "locked" : undefined}>{razielLocked ? `${action.label} · נעול` : action.label}</button>;
     }
     if (action.kind === CONTEXT_ACTION_KIND.ROUTE) {
-      return <button key={action.id} className={className} type="button" onClick={() => go?.(action.href)}>{action.label}</button>;
+      const locked = ["/els", "/code"].includes(action.href) && (elsState.loading || elsState.blocked);
+      return <button key={action.id} className={className} type="button" disabled={locked} data-capability-state={locked ? "locked" : undefined} onClick={() => go?.(target && action.href === "/world" ? "/world?focus=context" : action.href, { state: { sodResearchIntent: target ? "continue" : null } })}>{action.label}{locked ? " · למנהל בלבד" : ""}</button>;
     }
     return null;
   })}</div>;
@@ -592,62 +686,26 @@ function ActionProjection({
       </div>
       {target ? <div className="sod29-selection-summary">
         <span>{target.source === "selection" ? "בחירה" : "פוקוס"}</span>
-        <strong>{target.label}</strong>
-        <small>{target.type}</small>
+        <strong>{publicContextLabel(target.label) || entityTypeNounHe(target.type)}</strong>
+        <small>{entityTypeNounHe(target.type)}</small>
       </div> : null}
       <ContextualActionButtons actions={actions} target={target} onInspect={onInspect} onCapability={onCapability} onRaziel={onRaziel} razielLocked={razielLocked} go={go} />
       <div className="sod29-panel-context-card">
         <b>אותו הקשר</b>
-        <span>{context?.subject ? `Subject · ${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
+        <span>{context?.subject ? contextDisplayTitle(context) || "ההקשר הנוכחי" : "אין מוקד פעיל"}</span>
         <small>מה שבחרת נשאר איתך כשנפתח כלי או עולם.</small>
       </div>
     </>
   );
 }
 
-function AttentionProjection({ context, onWorkspace, onOpen, feed }) {
+function AttentionProjection({ context, onWorkspace, onOpen, feed, timeMode }) {
   // The mobile Now sheet and left Companion show the SAME authorized public rows.
-  // SystemFrame owns one useSystemFeed2029 watcher; this sheet creates no polling,
-  // independent ordering, research read or seen-state cache.
-  const rows = Array.isArray(feed?.rows) ? feed.rows : [];
-  const partial = Array.isArray(feed?.unavailableSources) && feed.unavailableSources.length > 0;
-
+  // SystemFrame owns one useSystemFeed2029 watcher; the publications window creates no polling,
+  // independent ordering, research read or seen-state cache (see NowPublications2029).
   return (
     <>
-      <div className="sod29-panel-lead">
-        <div className="sod29-kicker">העולם חי</div>
-        <h3>מה חדש בעולם</h3>
-        <p>מקורות שהתעדכנו באתר והתכנסויות מאושרות, לפי זמן. חדש אינו בהכרח ממצא מחקר מאומת.</p>
-      </div>
-      <div className="sod29-attention-projection" aria-label="מה חדש בעולם">
-        {feed?.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
-        {feed?.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
-        {!feed?.loading && !feed?.error && !rows.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
-        {feed?.groupArrivals ? <p role="status">{feed?.groupArrivals.message}</p> : null}
-        {partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
-        {rows.slice(0, 8).map((row) => {
-          const item = row.item || {};
-          const href = row.href;
-          return <button
-            type="button"
-            key={row.id}
-            className="sod29-action"
-            disabled={!href}
-            onClick={() => { feed?.see?.(row); if (href) onOpen?.(href); }}
-            style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%", textAlign: "start", minHeight: 44, gap: 4 }}
-          >
-            <small>{row.typeLabel}{row.strong ? " · ◆ חזקה" : ""} · {item.creator || "מקור ציבורי"} · {relativeTimeLabel(row.at, "זמן לא צוין")}</small>
-            <strong>{row.title}</strong>
-            {item.summary ? <small>{item.summary}</small> : null}
-            {item.kind === "source" && item.researchCount > 0 ? <small>מחקר קשור זמין בהעמקה</small> : null}
-          </button>;
-        })}
-        <button className="sod29-action primary" type="button" onClick={() => onOpen?.("/world")}>פתח את כל החידושים בעולם</button>
-        <details><summary>עוד התראות אישיות</summary>
-          <FrameState kind="unavailable" title="אני עוקב">פריטים שבחרת לעקוב אחריהם יופיעו כאן כשהחיבור יושלם.</FrameState>
-          <FrameState kind="unavailable" title="הודעות">הודעות אישיות יופיעו כאן דרך המערכת החדשה.</FrameState>
-        </details>
-      </div>
+      <NowPublications2029 feed={feed} onOpen={onOpen} timeMode={timeMode} />
       {context?.subject ? <button className="sod29-action primary" type="button" onClick={onWorkspace}>◎ פתח את האזור שלי</button> : null}
     </>
   );
@@ -662,7 +720,7 @@ function ToolsProjection({ surface, target, go, onCapability }) {
         <h3>הכלים מגיעים למה שאתה רואה.</h3>
         <p>הכלים משתנים לפי המקום והדבר שבחרת. אין צורך לחפש אותם במסך אחר.</p>
       </div>
-      {target ? <div className="sod29-selection-summary"><span>פוקוס</span><strong>{target.label}</strong><small>{target.type}</small></div> : null}
+      {target ? <div className="sod29-selection-summary"><span>פוקוס</span><strong>{publicContextLabel(target.label) || entityTypeNounHe(target.type)}</strong><small>{entityTypeNounHe(target.type)}</small></div> : null}
       <ContextualActionButtons actions={tools} target={target} onCapability={onCapability} go={go} />
     </>
   );
@@ -670,86 +728,167 @@ function ToolsProjection({ surface, target, go, onCapability }) {
 
 const RAZIEL_LEVEL_LABEL = { deterministic: "דטרמיניסטי", fast: "מהיר", deep: "עמוק" };
 
-// שיחה מקומית קומפקטית עם רזיאל — אותו transport קיים (askRaziel → ai-analyze persona=raziel).
-// אפס קריאה בפתיחה/רינדור; ברירת-מחדל = מהיר; "העמק" = פעולה מפורשת על אותה שאלה+הקשר (אין הסלמה אוטומטית).
-// מצב-השיחה = state מקומי של הקומפוננטה בלבד (אין store גלובלי).
-function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false }) {
+function savedRazielDate(value) {
+  return recordTimeLabel(value, "bilingual", "");
+}
+
+// One temporary Raziel conversation is shared by the desktop Companion and the mobile sheet.
+// Opening, navigating and changing view mode make no AI call; only an explicit submit crosses the transport.
+function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus = null, primary = false, projection = "mobile", onSignup = null }) {
+  const researchSync = useResearch();
+  const session = useOptionalRazielSession2029();
+  const { user } = useAuth();
   const [text, setText] = useState("");
-  const [thread, setThread] = useState([]);
-  const [busy, setBusy] = useState(false);
-  const [note, setNote] = useState("");
-  const subjectRef = context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "";
-  // תמלול מקומי חסום — משקף את חסם RazielChat הישן: 2 תורות אחרונים, ~200 תווים לתור, ≤500 סה"כ.
-  // רק state הקומפוננטה; בלי store חדש. כל ההקשר ≤600 — חוזה rCtxHint הקיים בשרת (לא מורחב).
-  const buildTranscript = (turns) => turns.slice(-2)
-    .map((m) => `${m.role === "user" ? "משתמש" : "רזיאל"}: ${String(m.text || "").replace(/\s+/g, " ").slice(0, 200)}`)
-    .join("\n").slice(0, 500);
-  const buildContext = (transcript) => {
-    const block = transcript ? `שיחה אחרונה:\n${transcript}` : "";
-    const head = [subjectRef && `הקשר פעיל: ${subjectRef}`, label && `מוקד: ${label}`].filter(Boolean).join(" | ");
-    const room = Math.max(0, 600 - block.length - (block && head ? 1 : 0));
-    return [head.slice(0, room), block].filter(Boolean).join("\n").slice(0, 600) || null;
-  };
+  const [deepOpen, setDeepOpen] = useState(false);
+  const [savedOpen, setSavedOpen] = useState(false);
+  const [savedNotice, setSavedNotice] = useState("");
+  const [guestQuotaEnded, setGuestQuotaEnded] = useState(false);
+  const threadLength = session?.thread?.length || 0;
+  const lastTurnRef = useCallback((node) => { node?.scrollIntoView?.({ block: "nearest" }); }, [threadLength]);
+  // Quota belongs to the server and to the current principal. This local bit is only a transient
+  // presentation of a server-emitted denial; it is reset whenever identity changes and is never persisted.
+  useEffect(() => { setGuestQuotaEnded(false); }, [user?.id]);
+  if (!session) return <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="unavailable"><b>רזיאל</b><small role="status">השיחה עם רזיאל אינה זמינה כאן כרגע.</small></section>;
+  const { thread, busy, status, announcement } = session;
+  const subjectLabel = context?.subject?.label || "";
   const buildFacts = () => [
     numberFocus?.root != null ? `שורש עמוד: ${numberFocus.root}` : "",
     numberFocus ? `מוקד מספר: ${numberFocus.expression || numberFocus.root}${numberFocus.method ? ` · ${numberFocus.method}` : ""}${numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}` : "",
     readingFocus ? `קוראים עכשיו: ${readingFocus.label || ""} ${readingFocus.primary || ""}`.trim() : "",
+    label && label !== subjectLabel ? `מוקד נבחר: ${label}` : "",
   ].filter(Boolean).join("\n").slice(0, 1200);
-  // מתאר-משטח סמנטי חסום מתוך הקשר סמנטי קיים בלבד: זהות+מוקד, בלי HTML ובלי טקסט-דף.
-  const buildSurfaceSemantic = () => {
-    const cap = (v, n) => (v == null ? "" : String(v).replace(/\s+/g, " ").trim().slice(0, n));
-    const out = { surface: cap(context?.surface || context?.subject?.type || "frame", 40) };
-    if (context?.subject) out.subject = { type: cap(context.subject.type, 30), id: cap(context.subject.id, 80), label: cap(context.subject.label, 80) };
-    if (numberFocus) out.number = { expression: cap(numberFocus.expression || numberFocus.root, 60), method: cap(numberFocus.method, 40), result: cap(numberFocus.resultValue, 30) };
-    if (readingFocus) out.reading = { label: cap(readingFocus.label, 80), primary: cap(readingFocus.primary, 80) };
-    if (elsFocus?.occurrence) out.els = { occurrence: cap(elsFocus.occurrence.occurrenceRef, 80), term: cap(elsFocus.occurrence.term || elsFocus.term, 60) };
-    const surfaceContext = buildRazielSurfaceContext(context);
-    if (surfaceContext) out.context = surfaceContext;
-    return out;
+  // Listen only while this explicit AI action is in flight. Opening the chat, changing its view,
+  // deterministic UI and public reading never pass through here and therefore cannot trigger the journey.
+  const runSessionAction = async (action) => {
+    let deniedAsGuest = false;
+    const onQuota = (event) => { if (event?.detail?.tier === "anon") deniedAsGuest = true; };
+    try { window.addEventListener("sod:ai-quota", onQuota); } catch { /* non-browser renderer */ }
+    try {
+      const result = await action();
+      if (deniedAsGuest && !user?.id) setGuestQuotaEnded(true);
+      return result;
+    } finally {
+      try { window.removeEventListener("sod:ai-quota", onQuota); } catch { /* non-browser renderer */ }
+    }
   };
-  const send = async (question, level, again = false) => {
+  const send = async (question, level, again = false, continuationTurnId = null) => {
     const q = String(question || "").trim();
-    if (!q || busy) return;
-    setBusy(true); setNote("");
-    // תמלול = התורות שלפני השאלה הנוכחית (שאלת העמקה: בלי התשובה המהירה של אותה שאלה עצמה).
-    const prior = again ? thread.slice(0, Math.max(0, thread.length - 1)) : thread;
-    if (!again) setThread((t) => [...t, { role: "user", text: q }]);
-    const transcript = buildTranscript(prior);
-    const res = await askRaziel({
-      subject: q.slice(0, 300), // השאלה עצמה בלבד — שורש/שיטה רק ב-facts/context (קידומת מזהמת חילוץ נושא דטרמיניסטי)
-      facts: buildFacts(),
-      context: buildContext(transcript),
-      again,
-      intelligenceLevel: level,
-      surfaceSemantic: buildSurfaceSemantic(),
-    });
-    setBusy(false);
-    if (!res) { setNote("רזיאל לא הצליח לענות כרגע (או שהמכסה להיום הסתיימה). אפשר לנסות שוב."); return; }
-    setThread((t) => [...t, { role: "raziel", text: res.answer || "", level: res.deterministic ? "deterministic" : (res.intelligence_level || level), question: q }]);
-    if (!again) setText("");
+    if (!q || busy || guestQuotaEnded) return;
+    setDeepOpen(false);
+    const result = await runSessionAction(() => session.submit({ question: q, intelligenceLevel: level, again, continuationTurnId, facts: buildFacts(), view: { numberFocus, readingFocus, elsFocus }, projection }));
+    if (result?.ok && !again) setText("");
   };
+  const saveConversation = async () => {
+    setSavedNotice("");
+    const result = await session.saveCurrentSession?.();
+    setSavedNotice(result?.ok
+      ? RAZIEL_LOCAL_SAVE_NOTICE
+      : result?.error === "session_too_large" ? "השיחה ארוכה מדי לשמירה אחת. כדאי לפתוח שיחה חדשה ולשמור את החלק הבא בנפרד."
+        : "לא הצלחנו לשמור את השיחה כרגע.");
+  };
+  const openConversation = async (saved) => {
+    setSavedNotice("");
+    const result = await session.restoreSavedSession?.(saved.id);
+    if (result?.ok) {
+      setSavedOpen(false);
+      setSavedNotice("השיחה השמורה נפתחה ואפשר להמשיך ממנה.");
+    } else setSavedNotice("השיחה השמורה אינה זמינה כרגע.");
+  };
+  const removeConversation = (saved) => {
+    if (typeof window !== "undefined" && !window.confirm(`למחוק את השיחה „${saved.title || "שיחה עם רזיאל"}”?`)) return;
+    if (session.removeSavedSession?.(saved.id)) setSavedNotice("השיחה הוסרה מהשמורים.");
+  };
+  const newConversation = () => {
+    if (busy || !thread.length) return;
+    if (typeof window !== "undefined" && !window.confirm("לפתוח שיחה חדשה? השיחה הנוכחית תיעלם אם עדיין לא שמרת אותה.")) return;
+    if (session.resetTemporarySession?.()) {
+      setDeepOpen(false);
+      setSavedNotice("נפתחה שיחה חדשה.");
+    }
+  };
+  const contextParts = razielContextParts(createRazielContextSnapshot(context, { numberFocus, readingFocus, elsFocus }));
   const lastRaziel = [...thread].reverse().find((m) => m.role === "raziel");
+  const deepCandidate = selectRazielDeepeningCandidate(session);
+  const sourceNames = Array.isArray(lastRaziel?.sourceNames) ? lastRaziel.sourceNames.slice(0, 3) : [];
+  const stateLabel = razielStatusLabel({ busy, status });
   return (
-    <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="true">
-      <b>✦ המשך עם רזיאל</b>
-      {thread.map((m, i) => (
-        <div key={i} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
-          <span>{m.text}</span>
-          {m.role === "raziel" ? <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small> : null}
-        </div>
-      ))}
-      {note ? <small role="status">{note}</small> : null}
-      <form onSubmit={(e) => { e.preventDefault(); send(text, "fast"); }}>
-        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="שאל את רזיאל על מה שמולך" maxLength={300} aria-label="שאלה לרזיאל" disabled={busy} />
-        <button className={primary ? "sod29-action primary" : "sod29-action"} type="submit" disabled={busy || !text.trim()}>{busy ? "חושב…" : "שלח"}</button>
-        {lastRaziel && lastRaziel.level === "fast" ? <button className="sod29-action" type="button" disabled={busy} data-raziel-deepen="true" onClick={() => send(lastRaziel.question, "deep", true)}>העמק</button> : null}
+    <section className="sod29-panel-context-card sod29-raziel-chat" data-raziel-native-chat="true" data-raziel-session="shared" data-raziel-projection={projection} aria-label="שיחה עם רזיאל">
+      <b>✦ השיחה עם רזיאל</b><small data-raziel-state={busy ? "thinking" : status}>{stateLabel}</small>
+      {projection === "desktop" ? <PreviewTransportDisclosure2029 /> : null}
+      <div className="sod29-raziel-context" data-raziel-context-strip="true" aria-label="מה רזיאל רואה עכשיו">
+        <p>{contextParts.length ? contextParts.map((part, index) => <React.Fragment key={part.key}>{index ? <span aria-hidden="true"> · </span> : null}{part.prefix ? `${part.prefix}: ` : ""}<bdi>{part.label}</bdi></React.Fragment>) : "שאלה חופשית — או בחר מספר, ביטוי או קטע"}</p>
+      </div>
+      <RazielViewModeSelector2029 />
+      <ElsMatrixReadingActivity2029 />
+      <div className="sod29-raziel-thread" role="log" aria-label="השיחה עם רזיאל">
+        {thread.map((m, i) => (
+          <div key={`${m.turnId || i}:${m.role}`} ref={i === thread.length - 1 ? lastTurnRef : undefined} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
+            <small>{m.role === "user" ? "שאלת" : "רזיאל"}</small>
+            {m.viewMode === "landscape" && m.viewModeApplied ? <details open><summary>התמונה המלאה</summary><span dir="auto">{m.text}</span></details> : <span dir="auto">{m.text}</span>}
+            {razielNavigationButton(m) ? <div className="sod29-raziel-nav-action"><Link className="sod29-action primary" to={razielNavigationButton(m).href} data-raziel-navigation-action={razielNavigationButton(m).intent}>{razielNavigationButton(m).label}</Link></div> : null}
+            {m.role === "raziel" ? <div className="sod29-raziel-answer-meta">
+              <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small>
+              {m.viewMode ? <small data-raziel-view-mode-answer={m.viewModeApplied ? m.viewMode : "not_applied"}>{m.viewModeApplied ? `${razielViewModeLabel(m.viewMode)} · ניסוי` : `${razielViewModeLabel(m.viewMode)} לא הופעל`}</small> : null}
+              {m === lastRaziel && sourceNames.length ? <small className="sod29-raziel-provenance">מקורות: <bdi>{sourceNames.join(" · ")}</bdi></small> : null}
+              {m === lastRaziel && m.grounding === "interpretation" ? <small className="sod29-raziel-grounding" data-raziel-grounding="interpretation">ללא מקור מאומת · פרשנות של רזיאל</small> : null}
+              {m === deepCandidate ? <button className="sod29-action" type="button" disabled={busy || guestQuotaEnded} aria-expanded={deepOpen} data-raziel-deepen-preview="true" onClick={() => setDeepOpen((open) => !open)}>בדוק לעומק</button> : null}
+              {m === lastRaziel && status === "ready" ? <RazielOneShotActions2029 session={session} disabled={guestQuotaEnded} onRun={(kind) => runSessionAction(() => session.submitOneShot(kind, { projection }))} /> : null}
+            </div> : null}
+          </div>
+        ))}
+      </div>
+      {deepCandidate && deepOpen ? <div className="sod29-raziel-deep-offer" data-raziel-deep-offer="true">
+        <b>מה ההעמקה תעשה</b>
+        <ul>
+          <li>אותה שאלה ואותו הקשר, במודל העמוק של רזיאל.</li>
+          <li>{sourceNames.length ? <>תבחן שוב את המקורות שכבר צורפו: <bdi>{sourceNames.join(" · ")}</bdi>.</> : "בתשובה המהירה לא צורפו מקורות מאומתים, וההעמקה לא תמציא מקור."}</li>
+          <li>לא מורצים כלים חדשים ואין חיפוש ברשת.</li>
+          <li>אם אין ראיה לקשר, התשובה תאמר זאת.</li>
+        </ul>
+        <button className="sod29-action primary" type="button" disabled={busy || guestQuotaEnded} data-raziel-deepen="true" onClick={() => send(deepCandidate.question, "deep", true, deepCandidate.turnId)}>בדוק לעומק</button>
+        <button className="sod29-action" type="button" onClick={() => setDeepOpen(false)}>לא עכשיו</button>
+      </div> : null}
+      <div className="sod29-raziel-session-actions" aria-label="שמירה והיסטוריה של שיחות רזיאל">
+        <button className="sod29-action" type="button" disabled={busy || !lastRaziel} data-raziel-save-session="true" onClick={saveConversation}>♡ שמור שיחה</button>
+        <button className="sod29-action" type="button" aria-expanded={savedOpen} data-raziel-saved-sessions="true" onClick={() => setSavedOpen((open) => !open)}>▤ השיחות שלי{session.savedSessions?.length ? ` · ${session.savedSessions.length}` : ""}</button>
+        <button className="sod29-action" type="button" disabled={busy || !thread.length} data-raziel-new-session="true" onClick={newConversation}>＋ שיחה חדשה</button>
+      </div>
+      {savedOpen ? <div className="sod29-raziel-saved-panel" data-raziel-saved-panel="true">
+        <b>השיחות השמורות שלי</b>
+        <small role="status" data-raziel-saved-sync={session.savedSessionsSyncStatus}>{razielSavedSyncCopy(session.savedSessionsSyncStatus)}</small>
+        {canRetryRazielSync(session.savedSessionsSyncStatus) ? <button className="sod29-action" type="button" onClick={() => researchSync.retryResearchSync?.()}>נסה לסנכרן שוב</button> : null}
+        {!session.savedSessions?.length ? <p>כאן יוצגו שיחות שנשמרו במפורש באמצעות „שמור שיחה”. שיחות שלא נשמרו אינן היסטוריה אוטומטית בחשבון.</p> : null}
+        <ul>
+          {session.savedSessions.map((saved) => <li key={saved.id}>
+            <button type="button" className="sod29-raziel-saved-open" onClick={() => openConversation(saved)}>
+              <strong>{saved.title || "שיחה עם רזיאל"}</strong>
+              <small>{saved.turn_count || 0} שאלות{savedRazielDate(saved.saved_at) ? ` · ${savedRazielDate(saved.saved_at)}` : ""}</small>
+            </button>
+            <button type="button" className="sod29-workspace-unfollow" aria-label={`מחק שיחה: ${saved.title || "שיחה עם רזיאל"}`} onClick={() => removeConversation(saved)}>מחק</button>
+          </li>)}
+        </ul>
+      </div> : null}
+      {savedNotice ? <small className="sod29-raziel-save-notice" role="status">{savedNotice}</small> : null}
+      {savedNotice && !savedOpen ? <small role="status" data-raziel-saved-sync={session.savedSessionsSyncStatus}>{razielSavedSyncCopy(session.savedSessionsSyncStatus)}</small> : null}
+      {!user?.id && lastRaziel ? guestQuotaEnded ? <div className="sod29-raziel-deep-offer" data-raziel-quota-ended="guest" role="status">
+        <p>שיחות הניסיון להיום הסתיימו. הרשמה חינמית תאפשר לך להמשיך לדבר עם רזיאל ולשמור את השיחות שלך.</p>
+        {onSignup ? <button className="sod29-action primary" type="button" onClick={onSignup}>הרשמה בחינם</button> : null}
+      </div> : <div className="sod29-raziel-deep-offer" data-raziel-registration-nudge="after-value">
+        <p>נהנית מהשיחה? הירשם בחינם כדי לשמור אותה ולהמשיך בדיוק מאותה נקודה, גם ממכשיר אחר.</p>
+        {onSignup ? <button className="sod29-action" type="button" onClick={onSignup}>הרשמה בחינם</button> : null}
+      </div> : null}
+      <small className="sod29-raziel-status" role="status">{busy || (status === "error" && !guestQuotaEnded) ? announcement : ""}</small>
+      <form className="sod29-raziel-composer" onSubmit={(e) => { e.preventDefault(); send(text, "fast"); }}>
+        <input value={text} onChange={(e) => setText(e.target.value)} placeholder="שאל את רזיאל על מה שמולך" maxLength={300} aria-label="שאלה לרזיאל" dir="auto" disabled={busy || guestQuotaEnded} />
+        <button className={primary ? "sod29-action primary" : "sod29-action"} type="submit" disabled={busy || guestQuotaEnded || !text.trim()}>{busy ? "חושב…" : "שלח"}</button>
       </form>
     </section>
   );
 }
 
-function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null, readingFocus: transientReadingFocus = null, elsSurfaceContext = null, razielRouteAction = null }) {
-  const label = target?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו";
+function RazielProjection({ target, context, numberCoreFocus = null, microIntent: transientMicroIntent = null, readingFocus: transientReadingFocus = null, elsSurfaceContext = null, razielRouteAction = null, onSignup = null }) {
+  const displayLabel = contextDisplayTitle(context, target);
+  const label = displayLabel || "ההקשר הנוכחי";
   const numberFocus = numberCoreFocus || context?.dimensions?.numberCoreFocus || null;
   const readingFocus = transientReadingFocus || context?.dimensions?.readingFocus || null;
   const routeActionValid = isRazielNextAction(razielRouteAction);
@@ -800,7 +939,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
     if (numberFocus.kind === "world") {
       return {
         title: `תגובה מהירה · ${numberFocus.world || "עולם"}`,
-        text: `העולם הזה מחובר כרגע ל־Root ${numberFocus.root} כהקשר עם ${numberFocus.count ?? 0} פריטים. הוא לא תוצאה של שיטת גימטריה. אפשר לפתוח את העולם המלא כדי לראות את הקשרים והמקורות סביב העוגן.`,
+        text: `העולם הזה מחובר כרגע למספר ${numberFocus.root} כהקשר עם ${numberFocus.count ?? 0} פריטים. הוא לא תוצאה של שיטת גימטריה. אפשר לפתוח את העולם המלא כדי לראות את הקשרים והמקורות סביב העוגן.`,
         boundary: "העולם מציג הקשר; הוא לא תוצאת חישוב.",
       };
     }
@@ -815,7 +954,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
     }
     return {
       title: `תגובה מהירה · ${intentLabel || "המספר"}`,
-      text: `רזיאל קיבל את ה־Root ${numberFocus.root}, הביטוי ${numberFocus.expression || numberFocus.root} והשיטה ${numberFocus.method || "הפעילה"}. אפשר להמשיך לחישוב, להשוואה או לעומק בלי לאבד את המקום.`,
+      text: `רזיאל קיבל את המספר ${numberFocus.root}, הביטוי ${numberFocus.expression || numberFocus.root} והשיטה ${numberFocus.method || "הפעילה"}. אפשר להמשיך לחישוב, להשוואה או לעומק בלי לאבד את המקום.`,
       boundary: "אותו הקשר, עומק שונה.",
     };
   })();
@@ -825,7 +964,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <RazielOrb />
         <div>
           <div className="sod29-kicker">רזיאל · איתך כאן</div>
-          <h3>{target || context?.subject ? `איתך על ${label}` : "מחכה למה שמסקרן אותך"}</h3>
+          <h3>{displayLabel ? `איתך בחקירת ${displayLabel}` : "מה תרצה לחקור?"}</h3>
           <p>זה אותו רזיאל בכל האתר. הוא יודע איפה אתה ומה פתחת, והעמקה לא מאבדת את ההקשר.</p>
         </div>
       </section>
@@ -836,11 +975,11 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         {readingFocus.signals?.length ? <small>{readingFocus.signals.slice(0, 3).join(" · ")}</small> : null}
       </section> : null}
       {elsFocus ? <section className="sod29-panel-context-card" data-raziel-els-context="true">
-        <b>{intentLabel || "ELS · occurrence context"}</b>
-        <span>מופע מאומת · {elsFocus.occurrence.corpusId || "corpus"} · skip {elsFocus.occurrence.skip ?? "—"} · dir {elsFocus.occurrence.dir ?? "—"}</span>
-        <small>start {elsFocus.occurrence.start ?? "—"} → end {elsFocus.occurrence.end ?? "—"} · {elsFocus.occurrence.positions?.length ?? 0} positions</small>
-        {elsFocus.occurrence.dependencyRef ? <small>dependency ref · {elsFocus.occurrence.dependencyRef}</small> : null}
-        <small>Context בלבד · הצגה/קרבה חזותית אינה חוזק ראיה.</small>
+        <b>{intentLabel || "המופע הנבחר"}</b>
+        <span><bdi>{elsFocus.text?.term || label}</bdi> · מופע מאומת</span>
+        <span>דילוג <bdi>{elsFocus.occurrence.skip ?? "—"}</bdi> · {elsFocus.occurrence.dir === -1 ? "לאחור" : elsFocus.occurrence.dir === 1 ? "קדימה" : "הכיוון לא צוין"}</span>
+        <small>מיקום התחלה <bdi>{elsFocus.occurrence.start ?? "—"}</bdi> · סיום <bdi>{elsFocus.occurrence.end ?? "—"}</bdi> · <bdi>{elsFocus.occurrence.positions?.length ?? 0}</bdi> אותיות</small>
+        <small>האותיות והמיקומים אומתו במנוע. קרבה חזותית אינה מדד לחוזק הממצא.</small>
       </section> : null}
       {elsGuide ? <section className="sod29-panel-context-card sod29-raziel-els-guide" data-raziel-els-guide={elsGuide.contract}>
         <b>{elsGuide.title}</b>
@@ -850,11 +989,11 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
         <span>{elsGuide.question}</span>
       </section> : null}
       {numberFocus ? <section className="sod29-panel-context-card">
-        <b>{intentLabel || "Number Core focus"}</b>
+        <b>{intentLabel || "המספר הנבחר"}</b>
         <span>{numberFocus.expression || numberFocus.root}{numberFocus.method ? ` · ${numberFocus.method}` : ""}{numberFocus.resultValue != null ? ` → ${numberFocus.resultValue}` : ""}</span>
         {numberFocus.crossingPartner ? <small>הצלבה · {numberFocus.crossingPartner}</small> : null}
-        {numberFocus.zeroScaleNext != null ? <small>Zero Scale · {numberFocus.root} → {numberFocus.zeroScaleNext}</small> : null}
-      </section> : !readingFocus && !elsFocus && !routeActionValid ? <FrameState title="Silence Gate">אין כרגע Focus מובנה שמצדיק synthesis. רזיאל לא ממציא pulse או מסלול.</FrameState> : null}
+        {numberFocus.zeroScaleNext != null ? <small>סולם האפס · <bdi>{numberFocus.root} → {numberFocus.zeroScaleNext}</bdi></small> : null}
+      </section> : !readingFocus && !elsFocus && !routeActionValid ? <FrameState title="אפשר להתחיל בשאלה">אין כרגע מוקד מחקר נבחר. אפשר לבחור מספר, ביטוי או קטע, או לשאול שאלה חופשית.</FrameState> : null}
       {quickInsight ? <section className="sod29-panel-context-card sod29-raziel-quick-insight">
         <b>{quickInsight.title}</b>
         <span>{quickInsight.text}</span>
@@ -862,8 +1001,8 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
       </section> : null}
       <div className="sod29-panel-context-card">
         <b>מה רזיאל רואה עכשיו</b>
-        <span>{context?.subject ? `${context.subject.type}:${context.subject.label || context.subject.id}` : "אין מוקד פעיל"}</span>
-        {target?.source === "selection" ? <small>בחירה זמנית: {target.label}</small> : null}
+        <span>{context?.subject ? contextDisplayTitle(context) || "ההקשר הנוכחי" : "אין מוקד פעיל"}</span>
+        {target?.source === "selection" ? <small>בחירה זמנית: {publicContextLabel(target.label) || entityTypeNounHe(target.type)}</small> : null}
       </div>
       <div className="sod29-panel-actions-grid">
         {routeActionValid ? <button
@@ -875,7 +1014,7 @@ function RazielProjection({ target, context, numberCoreFocus = null, microIntent
           title="הפעולה מוכנה בהקשר הזה, אבל עדיין אינה פעילה"
         >◌ {razielRouteAction.label}{routeHomeLabel ? ` · ${routeHomeLabel}` : ""}</button> : null}
       </div>
-      <RazielNativeChat context={context} label={label} numberFocus={numberFocus} readingFocus={readingFocus} elsFocus={elsFocus} primary={!routeActionValid} />
+      <RazielNativeChat context={context} label={label} numberFocus={numberFocus} readingFocus={readingFocus} elsFocus={elsFocus} primary={!routeActionValid} projection="mobile" onSignup={onSignup} />
     </>
   );
 }
@@ -887,26 +1026,45 @@ const RESEARCH_SECTIONS = [
   { key: "history", title: "אחרונים", limit: 8 },
 ];
 
-function ResearchStateSections({ research, go, onInspect, onOpenNumber }) {
+function SavedItemEditor2029({ item, research }) {
+  const [open,setOpen]=useState(false),[title,setTitle]=useState(item.title||""),[note,setNote]=useState(item.note||""),[status,setStatus]=useState("");
+  const id=useId(),pending=useRef(false);
+  useEffect(()=>{
+    if(!pending.current)return;
+    if(research.syncStatus==="synced"&&research.syncPending===0){pending.current=false;setStatus("העריכה נשמרה בחשבון ✓");}
+    else if(["error","conflict","local_error"].includes(research.syncStatus)){pending.current=false;setStatus("לא התקבל אישור שמירה מהשרת. העריכה המקומית נשמרה לסנכרון חוזר.");}
+  },[research.syncStatus,research.syncPending]);
+  return <div><button className="sod29-workspace-unfollow" type="button" aria-expanded={open} onClick={()=>setOpen(x=>!x)}>עריכת פריט שמור</button>{open?<form className="sod29-workspace-list sod29-workspace-auth-form" onSubmit={event=>{event.preventDefault();if(pending.current)return;pending.current=true;const ok=research.saveItem?.({...item,title:title.trim()||item.title,note});setStatus(ok?"ממתין לאישור שמירה מהשרת…":"לא ניתן לשמור כרגע.");if(!ok)pending.current=false;}}>
+    <label htmlFor={id+"-title"}>כותרת אישית</label><input id={id+"-title"} value={title} maxLength={200} disabled={pending.current} onChange={e=>setTitle(e.target.value)}/>
+    <label htmlFor={id+"-note"}>הערה פרטית</label><textarea id={id+"-note"} value={note} maxLength={4000} rows={3} disabled={pending.current} onChange={e=>setNote(e.target.value)}/>
+    <button type="submit" className="sod29-action" disabled={pending.current}>שמירת העריכה</button><small role="status">{status}</small>
+  </form>:null}</div>;
+}
+
+export function ResearchStateSections({ research, go, onInspect, onOpenNumber, onOpenSavedConversation }) {
   const syncStatus = research?.syncStatus || "local_only";
-  const syncLabel = syncStatus === "synced" ? "מסונכרן לחשבון" : syncStatus === "local_only" ? "מקומי בדפדפן הזה — לא מסונכרן" : syncStatus === "auth_loading" ? "בודק חשבון" : "בסנכרון עם החשבון";
+  const syncLabel = research?.syncAwaitingAction ? "שינויים מקומיים ממתינים לשמירה" : syncStatus === "synced" ? "מסונכרן לחשבון" : syncStatus === "local_only" ? "מקומי בדפדפן הזה — לא מסונכרן" : syncStatus === "auth_loading" ? "בודק חשבון" : "בסנכרון עם החשבון";
   const rowTarget = (e) => ({ id: e.id, type: e.type, label: e.title, href: e.link || null, number: e.type === "number" ? e.ref : null });
   const openRow = (e) => {
-    const m = /^\/number\/(\d+)\/?$/.exec(e.link || "");
-    if (m) return go(`/2029/number/${m[1]}`);
-    if (e.link) return go(e.link);
+    if (e.type === "raziel_session") return onOpenSavedConversation?.(e.id);
+    const href = workspaceResearchHref(e);
+    if (href) return go(href);
     if (e.type === "number" || e.type === "phrase") return onOpenNumber?.(rowTarget(e));
     return onInspect?.(rowTarget(e));
   };
   const collections = Array.isArray(research?.collections) ? research.collections : [];
   const saved = Array.isArray(research?.saved) ? research.saved : [];
+  if (["auth_loading","loading"].includes(syncStatus)) return <FrameState kind="loading" title="קורא את השמורים מהחשבון">תוכן שטרם נקרא אינו רשימה ריקה.</FrameState>;
+  if (["error","conflict","local_error","local_recovery_required"].includes(syncStatus)) return <FrameState kind="error" title="השמורים עדיין לא סונכרנו" action={<button type="button" className="sod29-action" onClick={()=>research.retryResearchSync?.()}>ניסיון סנכרון נוסף</button>}>המידע המקומי נשמר. לא התקבל אישור מהשרת; לא הוחלף מידע בחשבון.</FrameState>;
   return (
     <div className="sod29-workspace-research-state" data-research-state-source="ResearchProvider" data-research-sync={syncStatus}>
+      <ElsResearchActivity2029 />
       <div className="sod29-workspace-pulse-stats" aria-label="המחקר שלי במספרים">
         {RESEARCH_SECTIONS.map((sec) => <span key={sec.key} data-count-for={sec.key}><b>{(research?.[sec.key] || []).length}</b><small>{sec.title}</small></span>)}
         <span data-count-for="collections"><b>{collections.length}</b><small>אוספים</small></span>
       </div>
       <small className="sod29-workspace-sync-note">{syncLabel}</small>
+      {research?.syncAwaitingAction ? <button type="button" className="sod29-action" onClick={() => research.retryResearchSync?.()}>סנכרן את השינויים</button> : null}
       {RESEARCH_SECTIONS.map((sec) => {
         const all = Array.isArray(research?.[sec.key]) ? research[sec.key] : [];
         const rows = sec.limit ? all.slice(0, sec.limit) : all;
@@ -918,8 +1076,9 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber }) {
             {rows.length ? <ul className="sod29-workspace-list">
               {rows.map((e) => (
                 <li key={`${sec.key}:${e.id}`} className="sod29-workspace-follow-row">
-                  <button type="button" className="sod29-workspace-follow-open" onClick={() => openRow(e)}><strong>{e.title || e.id}</strong><small>{e.type}</small></button>
+                  <button type="button" className="sod29-workspace-follow-open" onClick={() => openRow(e)}><strong>{e.title || e.id}</strong><small>{e.type === "raziel_session" ? "שיחה שמורה" : e.type}</small></button>
                   {sec.remove ? <button type="button" className="sod29-workspace-unfollow" aria-label={`הסר: ${e.title || e.id}`} onClick={() => research?.[sec.remove]?.(sec.removeWithEntity ? e : e.id)}>הסר</button> : null}
+                  {sec.key === "saved" && e.type !== "raziel_session" ? <SavedItemEditor2029 key={e.id} item={e} research={research}/> : null}
                 </li>
               ))}
             </ul> : <FrameState kind="empty" title="ריק">{sec.key === "saved" ? "לחץ ＋ שמור בבדיקה מהירה כדי לשמור פריט לספרייה." : "אין כאן עדיין פריטים."}</FrameState>}
@@ -929,300 +1088,71 @@ function ResearchStateSections({ research, go, onInspect, onOpenNumber }) {
       <section className="sod29-workspace-research-bucket" data-research-bucket="collections">
         <div className="sod29-workspace-section-head"><strong>אוספים</strong><small>{collections.length}</small></div>
         {collections.length ? <ul className="sod29-workspace-list">
-          {collections.map((c) => <li key={c.id}><span className="sod29-workspace-collection"><strong>{c.name}</strong><small>{saved.filter((e) => e.coll === c.id).length} שמורים</small></span></li>)}
+          {collections.map((c) => <li key={c.id}><details className="sod29-raziel-center-reading"><summary>{c.name} · {saved.filter(e => e.coll === c.id).length} שמורים</summary>
+            <ul className="sod29-workspace-list">{saved.filter(e => e.coll === c.id).map(e => <li key={e.id}><button type="button" className="sod29-workspace-follow-open" onClick={() => openRow(e)}>{e.title || "פתח פריט שמור"}</button></li>)}</ul>
+          </details></li>)}
         </ul> : <FrameState kind="empty" title="אין אוספים">אוספים מוצגים כאן כשהם קיימים.</FrameState>}
       </section>
     </div>
   );
 }
 
-// The official multi-colour Google "G" with the Hebrew label; one button, shown above the email forms.
-function GoogleEntry2029({ busy, onClick }) {
-  return (
-    <div className="sod29-google-entry">
-      <button className="sod29-action sod29-google-btn" type="button" disabled={busy} onClick={onClick}>
-        <svg viewBox="0 0 48 48" width="20" height="20" aria-hidden="true" focusable="false">
-          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
-          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
-          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
-          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
-        </svg>
-        <span>{busy ? "פותח את Google…" : "המשך עם Google"}</span>
-      </button>
-      <div className="sod29-google-or" aria-hidden="true"><i /><span>או עם מייל</span><i /></div>
-    </div>
-  );
+// All account surfaces share the same server-configured Auth entry.
+function AccountConnection2029() {
+  const location = useLocation();
+  return <section className="sod29-workspace-account" data-workspace-section="account" aria-label="חיבור לחשבון">
+    <AccountEntry2029 inline variant="account" returnHref={location.pathname + location.search + location.hash} />
+  </section>;
 }
 
-function AccountConnection2029({ user, profile, signOut }) {
-  const preview = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
-  const [step, setStep] = useState("password");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [code, setCode] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState(null);
-
-  const displayName = String(profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || user?.email || "").trim();
-
-  useEffect(() => {
-    if (!user?.id) return;
-    setStep("password");
-    setPassword("");
-    setShowPassword(false);
-    setCode("");
-    setMessage(null);
-  }, [user?.id]);
-
-  const changeStep = (next) => {
-    setStep(next);
-    setPassword("");
-    setShowPassword(false);
-    setCode("");
-    setMessage(null);
-  };
-
-  const login = async (event) => {
-    event.preventDefault();
-    if (busy) return;
-    setBusy(true);
-    setMessage(null);
-    try {
-      await signInWithPassword(email.trim().toLowerCase(), password);
-      setPassword("");
-    } catch (error) {
-      const text = error?.code === "invalid_credentials" || error?.status === 400
-        ? "המייל או הסיסמה אינם נכונים. אפשר לנסות שוב או להיכנס עם קוד למייל."
-        : error?.status === 429
-          ? "היו כמה ניסיונות כניסה. נסו שוב בעוד כמה דקות."
-          : "לא הצלחנו להתחבר כרגע. בדקו את החיבור ונסו שוב.";
-      setMessage({ kind: "error", text });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const sendCode = async (event) => {
-    event.preventDefault();
-    const value = email.trim().toLowerCase();
-    setMessage(null);
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value)) {
-      setMessage({ kind: "error", text: "כתובת המייל לא נראית תקינה." });
-      return;
-    }
-    setBusy(true);
-    try {
-      await requestEmailOtp(value, { shouldCreateUser: !preview });
-      setEmail(value);
-      setStep("code");
-      setMessage({ kind: "info", text: preview ? "אם הכתובת משויכת לחשבון קיים, קוד כניסה יישלח למייל." : "שלחנו קוד כניסה למייל. משתמש חדש ייפתח באותו חשבון SOD1820." });
-    } catch (error) {
-      setMessage({ kind: "error", text: error?.message || "לא הצלחנו לשלוח קוד כרגע." });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const verifyCode = async (event) => {
-    event.preventDefault();
-    setMessage(null);
-    if (!isValidEmailOtp(code)) {
-      setMessage({ kind: "error", text: "הזינו את הקוד המלא שקיבלתם במייל." });
-      return;
-    }
-    setBusy(true);
-    try {
-      await verifyEmailOtp(email, code);
-      setMessage({ kind: "success", text: "מחובר. אפשר להמשיך מאותו מקום." });
-    } catch (error) {
-      setMessage({ kind: "error", text: error?.message || "הקוד שגוי או שפג תוקפו." });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  // The auth capability validates this local path and gates unverified preview redirects.
-  const continueWithGoogle = async () => {
-    if (busy) return;
-    setBusy(true);
-    setMessage(null);
-    try {
-      const returnTo = typeof window === "undefined" ? "/" : `${window.location.pathname}${window.location.search}`;
-      const result = await signInWithGoogle({ returnTo });
-      if (result?.error) throw result.error;
-    } catch (error) {
-      setBusy(false);
-      setMessage({ kind: "error", text: error?.code === "OAUTH_PREVIEW_UNVERIFIED"
-        ? "הכניסה עם Google עדיין לא פעילה בפריוויו הזה. אפשר להיכנס עם מייל."
-        : "לא הצלחנו לפתוח את הכניסה עם Google. אפשר לנסות שוב או להיכנס עם מייל." });
-    }
-  };
-
-  const disconnect = async () => {
-    if (!signOut || busy) return;
-    setBusy(true);
-    setMessage(null);
-    try {
-      await signOut({ scope: "local" });
-      setEmail("");
-      setPassword("");
-      setCode("");
-      setStep("password");
-      setMessage({ kind: "info", text: "התנתקת מהחשבון. אפשר להמשיך כאורח." });
-    } catch (error) {
-      setMessage({ kind: "error", text: error?.message || "ההתנתקות לא הושלמה." });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <section className="sod29-workspace-account" data-workspace-section="account" aria-label="חיבור לחשבון">
-      <div className="sod29-workspace-section-head">
-        <strong>החשבון שלי</strong>
-        <small>אותו חשבון SOD1820 · בתוך 2029</small>
-      </div>
-
-      {user?.id ? (
-        <div className="sod29-workspace-account-connected">
-          <UserAvatar2029 user={user} profile={profile} size="normal" />
-          <div>
-            <strong>{displayName || "מחובר"}</strong>
-            <small dir="ltr">{user.email || ""}</small>
-            <p>זה החשבון שמחובר במכשיר הזה. כדי להיכנס לחשבון אחר, התנתקו והתחברו עם המייל שלו.</p>
-          </div>
-          <button className="sod29-action" type="button" onClick={disconnect} disabled={busy}>התנתקות</button>
-        </div>
-      ) : step === "password" ? (
-        <form className="sod29-workspace-auth-form" onSubmit={login}>
-          <GoogleEntry2029 busy={busy} onClick={continueWithGoogle} />
-          <div className="sod29-workspace-auth-copy">
-            <strong>כניסה לחשבון שלכם</strong>
-            <small>עם המייל והסיסמה של חשבון SOD1820 הקיים.</small>
-          </div>
-          <label>כתובת מייל
-            <input data-autofocus type="email" required autoComplete="username" dir="ltr"
-              value={email} disabled={busy} onChange={(event) => { setEmail(event.target.value); setMessage(null); }} />
-          </label>
-          <label>סיסמה
-            <input type={showPassword ? "text" : "password"} required autoComplete="current-password" dir="ltr"
-              value={password} disabled={busy} onChange={(event) => { setPassword(event.target.value); setMessage(null); }} />
-          </label>
-          <button className="sod29-action" type="button" aria-pressed={showPassword} disabled={busy}
-            onClick={() => setShowPassword((value) => !value)}>{showPassword ? "הסתרת סיסמה" : "הצגת סיסמה"}</button>
-          <button className="sod29-action primary" type="submit" disabled={busy}>{busy ? "מתחבר…" : "כניסה לחשבון"}</button>
-          <button className="sod29-action" type="button" disabled={busy} onClick={() => changeStep("email")}>אין לי סיסמה · כניסה בקוד למייל</button>
-        </form>
-      ) : step === "code" ? (
-        <form className="sod29-workspace-auth-form" onSubmit={verifyCode}>
-          <div className="sod29-workspace-auth-copy">
-            <strong>הזינו את הקוד מהמייל</strong>
-            <small>נשלח אל <b dir="ltr">{email}</b>.</small>
-          </div>
-          <input
-            data-autofocus
-            type="text"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={EMAIL_OTP_MAX_LENGTH}
-            value={code}
-            onChange={(event) => { setCode(sanitizeEmailOtp(event.target.value)); setMessage(null); }}
-            placeholder="קוד כניסה"
-            aria-label="קוד כניסה מהמייל"
-            dir="ltr"
-          />
-          <div className="sod29-actions">
-            <button className="sod29-action primary" type="submit" disabled={busy}>{busy ? "מאמת…" : preview ? "כניסה לחשבון" : "כניסה / הרשמה"}</button>
-            <button className="sod29-action" type="button" disabled={busy} onClick={() => changeStep("email")}>שינוי מייל</button>
-          </div>
-        </form>
-      ) : (
-        <form className="sod29-workspace-auth-form" onSubmit={sendCode}>
-          <GoogleEntry2029 busy={busy} onClick={continueWithGoogle} />
-          <div className="sod29-workspace-auth-copy">
-            <strong>התחברו כדי לקחת את המחקר איתכם</strong>
-            <small>אותו חשבון עובד במחשבון, במסעות, בשמירות ובהודעות. אין חשבון 2029 נפרד.</small>
-          </div>
-          <input
-            data-autofocus
-            type="email"
-            value={email}
-            onChange={(event) => { setEmail(event.target.value); setMessage(null); }}
-            placeholder="you@example.com"
-            aria-label="מייל לכניסה או הרשמה"
-            autoComplete="email"
-            dir="ltr"
-          />
-          <button className="sod29-action primary" type="submit" disabled={busy}>{busy ? "שולח…" : "שלחו לי קוד כניסה"}</button>
-          <button className="sod29-action" type="button" disabled={busy} onClick={() => changeStep("password")}>כניסה עם סיסמה</button>
-        </form>
-      )}
-
-      {preview ? <p className="sod29-workspace-account-note">בפריוויו אפשר להתחבר לחשבון קיים. שינויים ושמירות בענן עדיין אינם זמינים כאן.</p> : null}
-      {message ? <div className={`sod29-workspace-auth-message is-${message.kind}`} role={message.kind === "error" ? "alert" : "status"}>{message.text}</div> : null}
-    </section>
-  );
+function WorkspaceProjection(props) {
+  const auth = useAuth();
+  const actionsLocked = personalActionsLocked(auth);
+  if (actionsLocked) return <><AccountConnection2029 /><FrameState kind="empty" title="האזור האישי שלך">התחברות לחשבון קיים תציג את הפרטים והשמורים שלך. שמירה ועריכה נעשות בפעולה מפורשת; התחברות אינה מפעילה רזיאל, חיוב או דיוור.</FrameState></>;
+  return <WorkspaceProjectionOpen key={auth.user?.id || "guest"} {...props} />;
 }
 
-function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocked, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
+function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, journeyLocked, razielLocked, elsLocked, research, onInspect, onOpenNumber, pathResume, onSavePath, onResumePath }) {
   const subject = normalizeTarget(context?.subject, "research-context");
   const savedContext = pathResume?.latest?.representation?.context || null;
   const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
   const [actionState, setActionState] = useState(null);
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, loading: authLoading } = useAuth();
   const userId = user?.id || null;
   const [follows, setFollows] = useState({ status: "loading", topics: [] });
-  const [inbox, setInbox] = useState({ status: "loading", items: [], unread: 0 });
+  const [inbox, setInbox] = useState({ status: "loading", unread: null });
   const [stats, setStats] = useState(null);
+  const razielSession = useOptionalRazielSession2029();
+  const [workspaceSection, setWorkspaceSection] = useState("home");
+  const [summaryAttempt, setSummaryAttempt] = useState(0);
 
   // Follow = canonical notification_prefs seam (user or approved guest getter); no new store.
   useEffect(() => {
     let alive = true;
     setFollows({ status: "loading", topics: [] });
+    if (authLoading) return () => { alive = false; };
     const idObj = userId ? { userId } : { visitorId: getVisitorId() };
     getNotificationPrefs(idObj)
-      .then((row) => { if (alive) setFollows({ status: "ready", topics: Array.isArray(row?.topics) ? row.topics : [] }); })
+      .then((row) => { const topics = followTopics(row); if (alive) setFollows({ status: "ready", topics }); })
       .catch(() => { if (alive) setFollows({ status: "error", topics: [] }); });
     return () => { alive = false; };
-  }, [userId]);
+  }, [userId, authLoading, summaryAttempt]);
 
   // Notifications / profile are RLS-scoped to the signed-in user only.
   useEffect(() => {
     let alive = true;
-    if (!userId) { setInbox({ status: "signed-out", items: [], unread: 0 }); setStats(null); return () => { alive = false; }; }
-    setInbox({ status: "loading", items: [], unread: 0 });
-    Promise.all([getMyNotifications(4), getUnreadCount(), getMyProfile()])
-      .then(([items, unread, prof]) => {
-        if (!alive) return;
-        setInbox({ status: "ready", items: items || [], unread: unread || 0 });
-        setStats(prof || null);
-      })
-      .catch(() => { if (alive) setInbox({ status: "error", items: [], unread: 0 }); });
+    setInbox({ status: authLoading ? "loading" : "signed-out", unread: null });
+    setStats(null);
+    if (authLoading || !userId) return () => { alive = false; };
+    setInbox({ status: "loading", unread: null });
+    getUnreadCount({ strict: true, userId })
+      .then(unread => { if (alive) setInbox({ status: "ready", unread }); })
+      .catch(() => { if (alive) setInbox({ status: "error", unread: null }); });
+    getMyProfile({ strict: true, userId })
+      .then(prof => { if (alive) setStats(prof); })
+      .catch(() => { if (alive) setStats(null); });
     return () => { alive = false; };
-  }, [userId]);
-
-  const workspaceHref = (link) => {
-    if (!link) return null;
-    const m = /^\/number\/(\d+)\/?$/.exec(link);
-    return m ? `/2029/number/${m[1]}` : link;
-  };
-
-  const unfollow = async (topic) => {
-    const before = follows.topics;
-    setFollows((f) => ({ ...f, topics: f.topics.filter((t) => t !== topic) }));
-    const res = await watchToggle(topic, "workspace-2029", false, userId ? null : getVisitorId());
-    if (res == null) setFollows((f) => ({ ...f, topics: before }));
-  };
-
-  const openNotification = async (n) => {
-    if (!n.read_at) {
-      await markNotificationRead(n.id);
-      setInbox((i) => ({ ...i, unread: Math.max(0, i.unread - 1), items: i.items.map((x) => x.id === n.id ? { ...x, read_at: new Date().toISOString() } : x) }));
-    }
-    const href = workspaceHref(n.link);
-    if (href) go(href, { preserve: false });
-  };
+  }, [userId, authLoading, summaryAttempt]);
 
   const displayName = String(profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || user?.email || "").trim();
 
@@ -1256,28 +1186,80 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
   };
 
   const openExistingModule = (module) => {
-    if (!userId) { openAccount(); return; }
+    if (!userId || authLoading) { openAccount(); return; }
+    if (!PERSONAL_2029_MODULES.has(module)) return;
     const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    go(`/profile?module=${encodeURIComponent(module)}&returnTo=${encodeURIComponent(returnTo)}`, { preserve: false });
+    go(writerPersonalHref(module, { returnTo }), { preserve: false });
   };
+
+  const openPrivateHints = () => {
+    if (!userId || authLoading) { openAccount(); return; }
+    onOpenPrivateHints?.();
+  };
+
+  const requestPersonalAreaCompanion = () => {
+    if (razielLocked || razielSession?.busy || typeof razielSession?.submitPersonalAreaCompanion !== "function") return;
+    void razielSession.submitPersonalAreaCompanion({
+      capability: "personal_overview",
+      focus: "current_step",
+      opaqueRefs: [],
+    });
+    onRaziel();
+  };
+
+  const openSavedConversation = async id => {
+    try {
+      const result = await razielSession?.restoreSavedSession?.(id);
+      if (result?.ok) { onRaziel(); return; }
+    } catch { /* existing library or lazy serializer unavailable */ }
+    setActionState({ kind: "conversation_error" });
+  };
+  const openResearchItem = item => {
+    const href = workspaceResearchHref(item);
+    if (href) return go(href);
+    onInspect?.({ id: item.id, type: item.type, label: item.title });
+  };
+
+  if (workspaceSection === "raziel") {
+    return <RazielCenter2029
+      session={razielSession}
+      research={research}
+      credits={stats?.credits}
+      onOpenResearchItem={openResearchItem}
+      onBack={() => setWorkspaceSection("home")}
+      onOpenConversation={onRaziel}
+    />;
+  }
 
   const core = [
     { id: "account", icon: "👤", title: "החשבון שלי", sub: userId ? (displayName || "מחובר") : "כניסה / הרשמה ושמירה בין מכשירים", state: "live", onClick: openAccount },
     { id: "profile", icon: "⚙", title: "הפרופיל וההגדרות", sub: "שם, תמונה ופרטים אישיים", state: "live", onClick: () => openExistingModule("profile") },
     { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "live", onClick: () => openExistingModule("public-page") },
     { id: "research", icon: "🧠", title: "המחקר שלי", sub: "המסלולים, השמורים וההמשך שלי", state: "live", onClick: openResearch },
-    { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: stats ? [stats.level != null && `דרגה ${stats.level}`, stats.xp != null && `${stats.xp} XP`, stats.streak ? `רצף ${stats.streak}` : null, stats.tier].filter(Boolean).join(" · ") || "אין עדיין פעילות" : "דרגה, XP ופעילות", state: stats ? "live" : "building", readOnly: true },
+    { id: "notes", icon: "▤", title: "הפנקס שלי", sub: "ההערות הפרטיות מהחשבון הקיים", state: "live", onClick: () => openExistingModule("notes") },
+    { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: stats ? [stats.level != null && `שלב פעילות ${stats.level}`, stats.xp != null && `${stats.xp} XP`, stats.streak ? `רצף ${stats.streak}` : null].filter(Boolean).join(" · ") || "הנתונים עדיין אינם זמינים" : "שלב פעילות ו־XP אישיים", state: "live", onClick: () => openExistingModule("progress") },
   ];
 
   const personal = [
     { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: journeyLocked ? "נעול עד השלמת ההגדרה" : "שם, תאריך ומשפחה — פרטי", state: journeyLocked ? "building" : "live", locked: journeyLocked, onClick: journeyLocked ? null : () => go("/2029/journey") },
-    { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: "הרמזים ששמרתי ויצרתי", state: "live", onClick: () => openExistingModule("hints") },
-    { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "מה ששלחתי לקהילה ולבדיקה", state: "live", onClick: () => openExistingModule("contrib") },
+    { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: journeyLocked ? "נעול עד השלמת ההגדרה" : "רמזים פרטיים, בדיקה ופענוח במסע החיים", state: journeyLocked ? "building" : "live", locked: journeyLocked, onClick: journeyLocked ? null : openPrivateHints },
+    { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "הכניסה האישית תיפתח בהמשך; הכתבים זמינים בדף שלי", state: "building" },
     { id: "messages", icon: "📨", title: "ההודעות שלי", sub: "הודעות פרטיות ותגובות אליי", state: "live", onClick: () => openExistingModule("messages") },
-    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits} · פירוט` : "יתרה והיסטוריה", state: "live", onClick: () => openExistingModule("credits") },
-    { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: "צפנים ששמרתי ויצרתי", state: "live", onClick: () => go("/els?library=mine") },
-    { id: "raziel", icon: "✦", title: "החיבור לרזיאל", sub: razielLocked ? "נעול עד השלמת האימות" : "המשך עם אותו הקשר אישי", state: razielLocked ? "building" : "live", locked: razielLocked, onClick: razielLocked ? null : onRaziel },
+    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits} · הפירוט יוצג בהמשך` : "היתרה אינה זמינה כרגע", state: "building" },
+    { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: elsLocked ? "הצופן פתוח כרגע למנהל בלבד" : "צפנים ששמרתי ויצרתי", state: elsLocked ? "building" : "live", locked: elsLocked, onClick: elsLocked ? null : () => go("/els?library=mine") },
+    { id: "raziel", icon: "✦", title: "השיחות שלי", sub: razielLocked ? "השיחות השמורות זמינות; המשך עם רזיאל עדיין נעול" : "המשך מאיפה שעצרת", state: "live", onClick: () => setWorkspaceSection("raziel") },
   ];
+
+  const razielPresence = projectWorkspaceRazielPresence2029({
+    subjectLabel: publicContextLabel(subject?.label),
+    savedResearchCount: Array.isArray(research?.saved) ? research.saved.filter((item) => item?.type !== "raziel_session").length : null,
+    activeResearchCount: Array.isArray(research?.cart) ? research.cart.length : null,
+    savedConversationCount: Array.isArray(razielSession?.savedSessions) ? razielSession.savedSessions.length : null,
+    activeQuestionCount: Array.isArray(razielSession?.thread) ? razielSession.thread.filter((message) => message?.role === "user").length : null,
+    followCount: follows.status === "ready" ? follows.topics.length : null,
+    hintsAvailable: !journeyLocked,
+    razielLocked,
+  });
 
   return (
     <>
@@ -1286,6 +1268,42 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
         <h3>המרחב האישי שלי</h3>
         <p>לא עוד לוח־בקרה נפרד: מקום אחד שמחזיר אותך למה ששמרת, למסע שלך, למחקר שלך ולדברים שדורשים את תשומת הלב שלך.</p>
       </div>
+
+      <section
+        className="sod29-workspace-raziel-presence"
+        aria-label="רזיאל באזור האישי"
+        data-workspace-raziel-presence="deterministic"
+        data-raziel-session-source="RazielSessionProvider2029"
+      >
+        <div className="sod29-workspace-raziel-mark" aria-hidden="true">✦</div>
+        <div className="sod29-workspace-raziel-copy">
+          <span>רזיאל איתך באזור האישי</span>
+          <strong>{razielPresence.location}</strong>
+          <p>{razielPresence.existingCopy}</p>
+          <small>{razielPresence.nextStep}</small>
+        </div>
+        <div className="sod29-workspace-raziel-actions">
+          <button
+            className="sod29-action primary"
+            type="button"
+            onClick={requestPersonalAreaCompanion}
+            disabled={!razielPresence.canAsk || razielSession?.busy || typeof razielSession?.submitPersonalAreaCompanion !== "function"}
+            data-raziel-explicit-action="submit-personal-area-companion"
+          >
+            {razielSession?.busy ? "רזיאל בודק…" : "עזור לי בצעד הבא"}
+          </button>
+          <button
+            className="sod29-action"
+            type="button"
+            onClick={onRaziel}
+            disabled={!razielPresence.canAsk}
+            data-raziel-explicit-action="open-existing-conversation"
+          >
+            {razielPresence.canAsk ? "שאל את רזיאל" : "רזיאל נעול זמנית"}
+          </button>
+          <button className="sod29-action" type="button" onClick={() => setWorkspaceSection("raziel")}>השיחות שלי</button>
+        </div>
+      </section>
 
       <section className="sod29-workspace-pulse" aria-label="תמונת מצב אישית" data-workspace-section="pulse">
         <UserAvatar2029 user={user} profile={profile} size="header" />
@@ -1296,12 +1314,16 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
         <div className="sod29-workspace-pulse-stats">
           <span><b>{follows.status === "ready" ? follows.topics.length : "–"}</b><small>עוקב</small></span>
           <span><b>{inbox.status === "ready" ? inbox.unread : "–"}</b><small>חדשות</small></span>
-          {stats?.level != null ? <span><b>{stats.level}</b><small>דרגה</small></span> : null}
+          {stats?.level != null ? <span><b>{stats.level}</b><small>שלב פעילות</small></span> : null}
           {stats?.credits != null ? <span><b>{stats.credits}</b><small>קרדיטים</small></span> : null}
         </div>
       </section>
 
       <AccountConnection2029 user={user} profile={profile} signOut={signOut} />
+
+      <section data-workspace-section="access-membership" aria-label="גישה ומנוי">
+        <FrameState kind="unavailable" title="גישה ומנוי · בהכנה">מידע על גישה ומנוי יוצג כאן בהמשך. ההצטרפות למסלול בתשלום אינה זמינה כאן כרגע.</FrameState>
+      </section>
 
       <section className="sod29-workspace-home" aria-label="הדברים שלי">
         <div className="sod29-workspace-section-head"><strong>הדברים שלי</strong><small>אותם owners · תצוגת 2029 אחת</small></div>
@@ -1325,19 +1347,6 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
             </div>
           ))}
         </div>
-      </section>
-
-      <section className="sod29-workspace-attention" aria-label="הודעות ועדכונים" data-workspace-section="notifications">
-        <div className="sod29-workspace-attention-head"><span aria-hidden="true">🔔</span><strong>הודעות ועדכונים</strong>{inbox.status === "ready" && inbox.unread ? <b className="sod29-workspace-badge">{inbox.unread} חדשות</b> : null}</div>
-        {inbox.status === "loading" ? <small>טוען הודעות…</small> : null}
-        {inbox.status === "signed-out" ? <small>התחברות נדרשת כדי לראות הודעות אישיות.</small> : null}
-        {inbox.status === "error" ? <small>לא הצלחתי לטעון הודעות כרגע.</small> : null}
-        {inbox.status === "ready" && !inbox.items.length ? <small>אין הודעות חדשות.</small> : null}
-        {inbox.items.length ? <ul className="sod29-workspace-list">
-          {inbox.items.map((n) => (
-            <li key={n.id}><button type="button" className={n.read_at ? "" : "is-unread"} onClick={() => openNotification(n)}><strong>{n.title || "הודעה"}</strong>{n.body ? <small>{n.body}</small> : null}</button></li>
-          ))}
-        </ul> : null}
       </section>
 
       <section className="sod29-workspace-home" aria-label="המשכיות אישית">
@@ -1364,7 +1373,7 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
 
         {subject ? (
           <section className="sod29-workspace-resume-native">
-            <span>איפה אני עכשיו</span><strong>{subject.label}</strong><small>{subject.type}{context?.lens ? ` · ${context.lens}` : ""}</small>
+            <span>איפה אני עכשיו</span><strong>{contextDisplayTitle(context, subject) || "ההקשר הנוכחי"}</strong><small>{entityTypeNounHe(subject.type)}</small>
             <div className="sod29-actions">
               {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
               <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
@@ -1391,32 +1400,23 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
         {!subject && !savedSubject && !pathResume?.loading ? (
           <FrameState kind="empty" title="אין כרגע מסלול פעיל">פתח גילוי, מספר, מקור או עולם — ומשם אפשר לשמור ולהמשיך.</FrameState>
         ) : null}
-        <ResearchStateSections research={research} go={go} onInspect={onInspect} onOpenNumber={onOpenNumber} />
+        <ResearchStateSections research={research} go={go} onInspect={onInspect} onOpenNumber={onOpenNumber} onOpenSavedConversation={openSavedConversation} />
         {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן את המסלול">המקום שבו אתה נמצא נשמר בזמן הסנכרון.</FrameState> : null}
         {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">המסלול נשמר פרטי. המקור והפרסום לא משתנים.</FrameState> : null}
         {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
+        {actionState?.kind === "conversation_error" ? <FrameState kind="error" title="השיחה אינה זמינה">לא הצלחנו לפתוח את השיחה כרגע.</FrameState> : null}
       </section>
 
       <section className="sod29-workspace-follow" aria-label="אחרי מה אני עוקב" data-workspace-section="follow">
-        <div className="sod29-workspace-section-head"><strong>🔔 אחרי מה אני עוקב</strong><small>{follows.status === "ready" ? `${follows.topics.length} מעקבים · בחירה מפורשת בלבד` : "בחירה מפורשת בלבד"}</small></div>
+        <div className="sod29-workspace-section-head"><strong>מעקב ועדכונים</strong><small>{follows.status === "ready" ? `${follows.topics.length} מעקבים · בחירה מפורשת בלבד` : "בחירה מפורשת בלבד"}</small></div>
         {follows.status === "loading" ? <FrameState kind="loading" title="טוען מעקבים">קורא את ההעדפות שלך.</FrameState> : null}
-        {follows.status === "error" ? <FrameState kind="error" title="המעקבים לא נטענו">נסה שוב מאוחר יותר.</FrameState> : null}
+        {follows.status === "error" ? <FrameState kind="error" title="המעקבים לא נטענו" action={<button type="button" className="sod29-action" onClick={() => setSummaryAttempt(n => n + 1)}>ניסיון נוסף</button>}>מצב המעקב אינו ידוע כרגע.</FrameState> : null}
         {follows.status === "ready" && !follows.topics.length ? <FrameState kind="empty" title="אין עדיין מעקבים">לחץ 🔔 על מספר, קטגוריה או ערוץ כדי לעקוב.</FrameState> : null}
-        {follows.topics.length ? <ul className="sod29-workspace-list">
-          {follows.topics.map((topic) => {
-            const t = topicLabel(topic);
-            if (!t) return null;
-            const href = workspaceHref(t.link);
-            return (
-              <li key={topic} className="sod29-workspace-follow-row">
-                <button type="button" className="sod29-workspace-follow-open" disabled={!href} onClick={() => href && go(href, { preserve: false })}>
-                  <span aria-hidden="true">{t.icon}</span><strong>{t.label}</strong>{t.kind ? <small>{t.kind}</small> : null}
-                </button>
-                <button type="button" className="sod29-workspace-unfollow" aria-label={`הפסק לעקוב: ${t.label}`} onClick={() => unfollow(topic)}>הפסק</button>
-              </li>
-            );
-          })}
-        </ul> : null}
+        {inbox.status === "loading" ? <small>טוען את מספר העדכונים…</small> : null}
+        {inbox.status === "signed-out" ? <small>התחברות נדרשת כדי לראות עדכונים אישיים.</small> : null}
+        {inbox.status === "error" ? <FrameState kind="unavailable" title="מספר העדכונים אינו זמין" action={<button type="button" className="sod29-action" onClick={() => setSummaryAttempt(n => n + 1)}>ניסיון נוסף</button>}>לא ניתן לקבוע כרגע כמה עדכונים לא נקראו.</FrameState> : null}
+        {inbox.status === "ready" ? <small>{inbox.unread} עדכונים שלא נקראו</small> : null}
+        <button type="button" className="sod29-action" onClick={() => openExistingModule("notifications")}>{userId ? "לכל המעקבים והעדכונים" : "התחברות לניהול המעקבים והעדכונים"}</button>
         <div className="sod29-attention-lanes native">
           <div className="sod29-attention-lane"><strong>רלוונטי אליי</strong><small>Signal אישי, לא Follow — בקרוב.</small></div>
           <div className="sod29-attention-lane"><strong>רזיאל מציע</strong><small>Recommendation, לא אמת — בקרוב.</small></div>
@@ -1429,13 +1429,14 @@ function WorkspaceProjection({ context, go, onRaziel, journeyLocked, razielLocke
 
 // The visual comparison folds context independently from decorative intros.
 // Context data and navigation continue to come from the existing ResearchProvider.
-function IntroResearchContext2029({ context }) {
-  const strip = <div className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
-    {context.subject ? <span>מוקד · {context.subject.label || context.subject.id}</span> : null}
-    {context.lens ? <span>מבט · {context.lens}</span> : null}
-    {context.selection?.locator ? <span>מיקום · {context.selection.locator}</span> : null}
-    {context.journey?.position != null ? <span>מסע · {String(context.journey.position)}</span> : null}
-  </div>;
+function IntroResearchContext2029({ context, currentHref, pageTitle, onReturnExact }) {
+  const items=contextNavigationItems2029(context,{currentHref,pageTitle});
+  const strip = <nav className="sod29-context-strip" aria-label="ההקשר שלך פעיל">
+    {items.map(item=>item.href?(item.key==='return'
+      ?<button key={item.key} type="button" data-context-role={item.key} onClick={onReturnExact}>{item.prefix} · {item.label}</button>
+      :<Link key={item.key} data-context-role={item.key} to={item.href}>{item.prefix} · {item.label}</Link>)
+      :<span key={item.key} data-context-role={item.key}>{item.prefix} · {item.label}</span>)}
+  </nav>;
   const review = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
   if (!review) return strip;
   const arrivingWithContext = Boolean(context.selection?.locator || context.journey || context.returnTo?.href);
@@ -1446,7 +1447,15 @@ function IntroResearchContext2029({ context }) {
   </details>;
 }
 
-export default function SystemFrame2029({
+// App2029 owns the single session above Routes. A frame hosted by another entry point receives
+// the same bounded mount locally instead of falling back to a second chat implementation.
+export default function SystemFrame2029(props) {
+  return useOptionalRazielSession2029()
+    ? <SystemFrame2029Body {...props} />
+    : <RazielSessionMount2029><SystemFrame2029Body {...props} /></RazielSessionMount2029>;
+}
+
+function SystemFrame2029Body({
   title,
   eyebrow,
   description,
@@ -1454,13 +1463,16 @@ export default function SystemFrame2029({
   status = "2029 · BUILD",
   wide = false,
   surface = "home",
+  orientationCopy = null,
+  calmBottomChrome = false,
   symbol = "✦",
   introVariant = "hero",
 }) {
   const location = useLocation();
+  const recordTimeMode = surface === "home" ? "relative" : "bilingual";
   const navigate = useNavigate();
   const research = useResearch();
-  const { user, profile, isAdmin } = useAuth();
+  const { user, profile, isAdmin, loading: authLoading } = useAuth();
   const corePublicViewer = CORE_PUBLIC_LAUNCH_2029 && !isAdmin;
   const worldFeature = useFeatureState("lock_world");
   const heichalFeature = useFeatureState("lock_heichal", { requireFlag: true });
@@ -1468,39 +1480,26 @@ export default function SystemFrame2029({
   const journeyFeature = useFeatureState("lock_life_journey", { requireFlag: true });
   const booksFeature = useFeatureState("lock_books", { requireFlag: true });
   const numberFeature = useFeatureState("lock_number", { requireFlag: true });
+  const elsFeature = useFeatureState("lock_els");
   const heichalLocked = heichalFeature.loading || heichalFeature.blocked;
-  const razielLocked = razielFeature.loading || razielFeature.blocked;
+  const contextLocked = authLoading || isAdmin !== true;
+  const razielLocked = contextLocked || razielFeature.loading || razielFeature.blocked;
   const journeyLocked = journeyFeature.loading || journeyFeature.blocked;
   const booksLocked = booksFeature.loading || booksFeature.blocked;
   const numberLocked = numberFeature.loading || numberFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
-  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
-  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/books" ? { ...item, locked: booksLocked } : item.to.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
+  const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
+  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });
-  // Left companion panel (desktop): what entered the system + context. Slim by default, open and pinned by default only on very wide screens.
-  const feed = useSystemFeed2029({ enabled: surface !== "control" });
-  const [companionWide, setCompanionWide] = useState(() => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 981px)").matches);
-  const [companionPref, setCompanionPref] = useState(() => { try { return window.localStorage.getItem("sod-companion"); } catch (_) { return null; } });
-  const [companionPeek, setCompanionPeek] = useState(false);
-  const [companionTab, setCompanionTab] = useState("feed");
-  const companionTimer = useRef(null);
-  useEffect(() => {
-    if (typeof window.matchMedia !== "function") return undefined;
-    const query = window.matchMedia("(min-width: 981px)");
-    const onChange = () => setCompanionWide(query.matches);
-    query.addEventListener?.("change", onChange);
-    return () => query.removeEventListener?.("change", onChange);
-  }, []);
-  const toggleCompanionPin = useCallback((pinned) => {
-    const next = pinned ? "slim" : "pinned";
-    setCompanionPref(next); setCompanionPeek(false);
-    try { window.localStorage.setItem("sod-companion", next); } catch (_) { /* optional */ }
-  }, []);
-  // The logo opens and closes the navigation rail (click, Enter or Space). Hover only highlights; nothing moves.
+  // ZURIEL 1.11: Companion is temporarily unmounted on every 2029 surface.
+  // Keep its component/preferences intact; no source-shortcut reader is imported.
+  // This single feed still serves the Now sheet; the static header notice does not own it.
   const [transient, setTransient] = useState(null);
+  const feed = useSystemFeed2029({ enabled: surface !== "control", nowOpen: transient?.kind === TRANSIENT.ATTENTION });
+  // The logo opens and closes the navigation rail (click, Enter or Space). Hover only highlights; nothing moves.
   const [toolDock, setToolDock] = useState(null);
   const [systemDockMode, setSystemDockMode] = useState(false);
   const registerToolDock = useCallback((projection) => {
@@ -1513,6 +1512,7 @@ export default function SystemFrame2029({
   useEffect(() => { if (!activeToolDock) setSystemDockMode(false); }, [activeToolDock]);
   const [ephemeralSelection, setEphemeralSelection] = useState(null);
   const [commandQuery, setCommandQuery] = useState("");
+  const [siteSearchQuery, setSiteSearchQuery] = useState("");
   const [reducedMotion, setReducedMotion] = useState(false);
   const [surfaceFamiliarity, setSurfaceFamiliarity] = useState(() => getSurfaceFamiliarity(surface));
   const panelRef = useRef(null);
@@ -1521,11 +1521,14 @@ export default function SystemFrame2029({
   const returnFocusRef = useRef(null);
   const context = research.context || null;
   const currentHref = `${location.pathname}${location.search || ""}${location.hash || ""}`;
+  const pageContext = useMemo(() => surfaceContextForRoute2029(context, { surface, pathname: location.pathname, search: location.search, intent: location.state?.sodResearchIntent }), [context, surface, location.pathname, location.search, location.state?.sodResearchIntent]);
   const currentLabel = title || context?.subject?.label || "SOD1820";
   const locale = context?.locale || "he";
   const direction = directionForLocale(locale);
   const experience = useMemo(() => resolveExperienceContext({
-    surface,
+    // The existing operational frame reuses the approved inspection projection.
+    // Keep its raw "control" mode for the feed/context guards below.
+    surface: surface === "control" ? "heichal" : surface,
     locale,
     lens: context?.lens || "kingdom",
     reducedMotion,
@@ -1572,7 +1575,7 @@ export default function SystemFrame2029({
 
   const palette = use2029Palette(experience?.experience?.environmentRole || null);
 
-  const contextTarget = useMemo(() => targetFromContext(context), [context]);
+  const contextTarget = useMemo(() => targetFromContext(pageContext), [pageContext]);
   const activeTarget = ephemeralSelection || contextTarget;
 
   useEffect(() => {
@@ -1640,13 +1643,38 @@ export default function SystemFrame2029({
     });
   }, [surface, arrival, orientation]);
 
-  const go = useCallback((to, { preserve = true } = {}) => {
+  const go = useCallback((to, { preserve = true, state = null } = {}) => {
     if (!to) return;
     if (preserve) preserveReturnFor(to);
     completeSurfaceEntry("route");
     setTransient(null);
-    navigate(to, { state: { sodEntryArrival: "internal" } });
+    navigate(to, { state: { sodEntryArrival: "internal", ...(state || {}) } });
   }, [navigate, preserveReturnFor, completeSurfaceEntry]);
+
+  useEffect(() => {
+    // The Companion's existing public source shortcuts can arrive before the
+    // lazy World source section mounts. Finish that same anchor navigation once.
+    if (surface !== "world" || location.hash !== "#world-public-content-map") return undefined;
+    let frame;
+    let observer;
+    const revealSourceSection = () => {
+      const section = document.getElementById("world-public-content-map");
+      if (!section || !section.getClientRects().length) return false;
+      observer?.disconnect();
+      frame = window.requestAnimationFrame(() => section.scrollIntoView({ block: "start", behavior: "instant" }));
+      return true;
+    };
+    if (!revealSourceSection()) {
+      observer = new MutationObserver(revealSourceSection);
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+    const timeout = window.setTimeout(() => observer?.disconnect(), 5000);
+    return () => {
+      observer?.disconnect();
+      window.clearTimeout(timeout);
+      if (frame != null) window.cancelAnimationFrame(frame);
+    };
+  }, [surface, location.hash, location.key]);
 
   const returnExact = useCallback(() => {
     setTransient(null);
@@ -1665,9 +1693,10 @@ export default function SystemFrame2029({
   }, [context?.returnTo, navigate, research, surface]);
 
   const closeTransient = useCallback(() => {
+    if (transient?.kind === TRANSIENT.NEWSLETTER) dismissGuestNewsletterInvite2029();
     setTransient(null);
     requestAnimationFrame(() => returnFocusRef.current?.focus?.());
-  }, []);
+  }, [transient?.kind]);
 
   const closeMobileNav = useCallback((restoreFocus = true) => {
     setNavOpen(false);
@@ -1675,18 +1704,37 @@ export default function SystemFrame2029({
   }, []);
 
   const openTransient = useCallback((kind, payload = null) => {
-    returnFocusRef.current = navOpen ? (mobileMenuRef.current || document.activeElement) : document.activeElement;
-    if ([TRANSIENT.COMMAND, TRANSIENT.ACTION, TRANSIENT.CAPABILITY, TRANSIENT.INSPECT, TRANSIENT.CONTEXT, TRANSIENT.TOOLS, TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(kind)) {
+    if (kind === TRANSIENT.CONTEXT && contextLocked) return;
+    // Switching an existing sheet must keep its persistent entry as the return
+    // target; an inner tab/search button disappears when that sheet changes.
+    if (!document.activeElement?.closest?.(".sod29-frame-panel")) {
+      returnFocusRef.current = navOpen ? (mobileMenuRef.current || document.activeElement) : document.activeElement;
+    }
+    if ([TRANSIENT.COMMAND, TRANSIENT.SEARCH, TRANSIENT.ACTION, TRANSIENT.CAPABILITY, TRANSIENT.INSPECT, TRANSIENT.CONTEXT, TRANSIENT.MORE, TRANSIENT.TOOLS, TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(kind)) {
       completeSurfaceEntry(kind === TRANSIENT.CAPABILITY ? (payload?.capability || "capability") : kind);
     }
     setTransient({ kind, payload });
     setNavOpen(false);
-  }, [navOpen, completeSurfaceEntry]);
+  }, [navOpen, completeSurfaceEntry, contextLocked]);
+
+  useGuestNewsletterInvite2029({
+    eligible: !authLoading && !user && (surface === "post" || guestNewsletterRoute2029(location.pathname)),
+    blocked: navOpen || Boolean(transient),
+    routeKey: location.pathname + location.search,
+    onOpen: () => openTransient(TRANSIENT.NEWSLETTER),
+  });
+  useEffect(() => {
+    if (authLoading || user) setTransient(current => current?.kind === TRANSIENT.NEWSLETTER ? null : current);
+  }, [authLoading, user?.id]);
 
   const openCommand = useCallback(() => openTransient(TRANSIENT.COMMAND), [openTransient]);
+  // Keep the existing numeric entry used by World/menu callers; only global
+  // site search and its keyboard shortcut use the new content projection.
+  const openSiteSearch = useCallback(() => openTransient(TRANSIENT.SEARCH), [openTransient]);
   const handleGlobalNavAction = useCallback((action) => {
     if (action === "workspace") openTransient(TRANSIENT.WORKSPACE);
-  }, [openTransient]);
+    if (action === "number-search") openCommand();
+  }, [openTransient, openCommand]);
 
   const openAction = useCallback((subject = null) => openTransient(TRANSIENT.ACTION, { subject: normalizeTarget(subject) }), [openTransient]);
   const openCapability = useCallback((capability, subject = null, payload = {}) => {
@@ -1732,7 +1780,9 @@ export default function SystemFrame2029({
     openCapability("number", normalized || subject);
   }, [openCapability, research, context?.selection]);
   const openAttention = useCallback(() => openTransient(TRANSIENT.ATTENTION), [openTransient]);
-  const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS), [openTransient]);
+  const openTools = useCallback(() => openTransient(TRANSIENT.TOOLS, { subject: normalizeTarget(activeTarget) }), [openTransient, activeTarget]);
+  const openMore = useCallback(() => openTransient(TRANSIENT.MORE, { subject: normalizeTarget(activeTarget) }), [openTransient, activeTarget]);
+  const openShare = useCallback(() => openTransient(TRANSIENT.MORE, { shareOnly: true }), [openTransient]);
   const openRaziel = useCallback((payload = null) => {
     if (razielLocked) {
       openTransient(TRANSIENT.RAZIEL_LOCKED);
@@ -1744,7 +1794,21 @@ export default function SystemFrame2029({
     openTransient(TRANSIENT.RAZIEL, boundedPayload);
   }, [openTransient, razielLocked]);
   const openWorkspace = useCallback(() => openTransient(TRANSIENT.WORKSPACE), [openTransient]);
-  const openIssueReport = useCallback((payload = null) => openTransient(TRANSIENT.ISSUE, payload), [openTransient]);
+  const openPrivateHints = useCallback(() => {
+    if (!user) { openWorkspace(); return; }
+    if (journeyLocked) return;
+    const params = new URLSearchParams({ focus: "hints" });
+    go(`/2029/journey?${params.toString()}`, {
+      preserve: false,
+      state: { sodReturnTo2029: currentHref },
+    });
+  }, [currentHref, go, journeyLocked, openWorkspace, user]);
+  const openIssueReport = useCallback((payload = null) => openTransient(TRANSIENT.ISSUE, {
+    capability: payload?.capability || null, concept: payload?.concept || null,
+    learnStage: payload?.learnStage || null, actionTried: payload?.actionTried || null,
+    initialText: typeof payload?.initialText === "string" ? payload.initialText : "",
+    sourceHref: contactSourceHref(location),
+  }), [openTransient, location.pathname, location.search]);
   const closeRaziel = useCallback(() => { if ([TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(transient?.kind)) closeTransient(); }, [transient?.kind, closeTransient]);
   const closeWorkspace = useCallback(() => { if (transient?.kind === TRANSIENT.WORKSPACE) closeTransient(); }, [transient?.kind, closeTransient]);
 
@@ -1752,7 +1816,7 @@ export default function SystemFrame2029({
     const onKeyDown = (event) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        openCommand();
+        openSiteSearch();
       }
       if (event.key === "Escape") {
         if (transient) { event.preventDefault(); closeTransient(); }
@@ -1761,25 +1825,29 @@ export default function SystemFrame2029({
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [openCommand, closeTransient, closeMobileNav, transient, navOpen]);
+  }, [openSiteSearch, closeTransient, closeMobileNav, transient, navOpen]);
 
   useEffect(() => {
     if (!transient || !panelRef.current) return undefined;
     const panel = panelRef.current;
-    const focusables = [...panel.querySelectorAll(FOCUSABLE)];
+    // A contextual sidecar and its canonical dock form one keyboard scope.
+    // Background page controls stay outside; global actions remain usable.
+    const dock = transient?.kind === TRANSIENT.NEWSLETTER ? null : panel.closest(".sod29-root")?.querySelector(".sod29-command-island") || document.querySelector(".sod29-command-island");
+    const panelControls = () => [...panel.querySelectorAll(`${FOCUSABLE},summary`)].filter(node => node.getClientRects().length && !node.matches('[role="option"][tabindex="-1"]'));
+    const focusables = panelControls();
     const initial = panel.querySelector("[data-autofocus]") || focusables[0] || panel;
     requestAnimationFrame(() => initial.focus?.());
     const trap = (event) => {
       if (event.key !== "Tab") return;
-      const current = [...panel.querySelectorAll(FOCUSABLE)];
+      const current = [...panelControls(), ...(dock ? [...dock.querySelectorAll(FOCUSABLE)].filter(node => node.getClientRects().length) : [])];
       if (!current.length) { event.preventDefault(); panel.focus(); return; }
-      const first = current[0];
-      const last = current[current.length - 1];
-      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      event.preventDefault();
+      const index = current.indexOf(document.activeElement);
+      current[(index + (event.shiftKey ? -1 : 1) + current.length) % current.length].focus();
     };
     panel.addEventListener("keydown", trap);
-    return () => panel.removeEventListener("keydown", trap);
+    if (dock && !panel.contains(dock)) dock.addEventListener("keydown", trap);
+    return () => { panel.removeEventListener("keydown", trap);dock?.removeEventListener("keydown", trap); };
   }, [transient?.kind]);
 
   useEffect(() => {
@@ -1951,85 +2019,78 @@ export default function SystemFrame2029({
   }), [palette, experience.motion.timing.duration]);
 
   const transientKind = transient?.kind || null;
-  const nowTabs = <NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />;
   useEffect(() => {
-    if (razielLocked && transientKind === TRANSIENT.RAZIEL) setTransient(null);
-  }, [razielLocked, transientKind]);
+    if ((razielLocked && transientKind === TRANSIENT.RAZIEL) || (contextLocked && transientKind === TRANSIENT.CONTEXT)) setTransient(null);
+  }, [razielLocked, contextLocked, transientKind]);
   const numberPageRoute = surface === "number" && /^\/2029\/number\/[^/]+\/?$/.test(location.pathname);
-  const subjectHref = context?.subject?.href || "";
+  const subjectHref = pageContext?.subject?.href || "";
   const postTrail = surface === "post"
-    && context?.subject?.type === "post"
+    && pageContext?.subject?.type === "post"
     && subjectHref
-    && subjectHref.split("#")[0] === location.pathname
-    && Array.isArray(context?.dimensions?.bottomTrail)
-      ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
+    && (subjectHref.split("#")[0] === location.pathname || pageContext?.dimensions?.surfaceContextHref === location.pathname + location.search)
+    && Array.isArray(pageContext?.dimensions?.bottomTrail)
+      ? pageContext.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
       : [];
-  const configuredTrail = Array.isArray(context?.dimensions?.bottomTrail)
-    ? context.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
+  const configuredTrail = Array.isArray(pageContext?.dimensions?.bottomTrail)
+    ? pageContext.dimensions.bottomTrail.filter((item) => item?.label).slice(-6)
     : [];
-  const surfaceFocus = context?.dimensions?.surfaceFocus || null;
+  const surfaceFocus = pageContext?.dimensions?.surfaceFocus || null;
   const fallbackTrail = [
-    context?.subject ? { id: "subject", label: context.subject.label || context.subject.id } : null,
+    pageContext?.subject ? { id: "subject", label: pageContext.subject.label || pageContext.subject.id } : null,
     surfaceFocus?.sectionLabel ? { id: "section", label: surfaceFocus.sectionLabel } : null,
     surfaceFocus?.number != null ? { id: "number", label: String(surfaceFocus.number), active: true } : null,
   ].filter(Boolean);
-  // Preserve the closed Number 2029 command-island behavior. Post keeps its stale-context
+  // Preserve the closed Number 2029 command-island behavior. Post keeps its stale-pageContext
   // guard; World/Topic may project the active Research Path when the surface supplies one.
   const bottomTrail = surface === "post"
     ? postTrail
     : (surface === "world" || surface === "topic")
       ? (configuredTrail.length ? configuredTrail : fallbackTrail)
       : [];
+  const unifiedGlobalDock = !toolMode;
   const showBottomTrail = !toolMode && !activeToolDock && bottomTrail.length > 0;
   // Thin reading progress: only from real surfaceSections + activeSectionId on Post/Topic (no percent, no invented marks).
-  const progressSections = (surface === "post" || surface === "topic") && Array.isArray(context?.dimensions?.surfaceSections)
-    ? context.dimensions.surfaceSections.filter((item) => item?.id && item?.label) : [];
-  const progressIndex = progressSections.findIndex((item) => item.id === context?.dimensions?.activeSectionId);
+  const progressSections = (surface === "post" || surface === "topic") && Array.isArray(pageContext?.dimensions?.surfaceSections)
+    ? pageContext.dimensions.surfaceSections.filter((item) => item?.id && item?.label) : [];
+  const progressIndex = progressSections.findIndex((item) => item.id === pageContext?.dimensions?.activeSectionId);
   const readingProgress = showBottomTrail && progressSections.length >= 2 && progressIndex >= 0
     ? { ids: progressSections.map((item) => item.id), index: progressIndex + 1, total: progressSections.length, label: progressSections[progressIndex].label }
     : null;
-  // ELS owns its on-demand matrix inspector; avoid a second permanent context column.
-  const showContextRail = surface !== "control" && surface !== "els" && surface !== "community"
-    && Boolean(activeTarget || context?.subject);
-  // Core-public launch permits this source-only Companion, not the admin Context/
-  // Golden Projector or Event Sequence. The existing public World/RLS readers remain
-  // the only source of truth; gated research and private controls stay inaccessible.
-  const companionActive = companionWide && surface !== "control";
-  const companionHasContext = showContextRail && !numberPageRoute;
-  const companionHasSequence = !corePublicViewer && hasEventSequence(context, surface);
-  const companionPinned = companionPref === "pinned" || (!corePublicViewer && companionPref === null && typeof window !== "undefined" && window.innerWidth >= 1560 && feed.rows.length > 0);
-  const companionMode = !companionActive ? null : companionPinned ? "pinned" : companionPeek ? "peek" : "slim";
-  const contextSubjectKey = context?.subject ? `${context.subject.type}:${context.subject.id}` : "";
-  useEffect(() => {
-    if (!companionHasContext) { setCompanionTab("feed"); return; }
-    setCompanionTab("ctx");
-    if (contextSubjectKey) setCompanionPeek(true);
-  }, [contextSubjectKey, companionHasContext]);
-  const focusCompanionRaziel = () => {
-    if (razielLocked) return;
-    setCompanionPeek(true);
-    setTimeout(() => { document.querySelector(".sod29-companion-raziel input")?.focus(); }, 80);
-  };
-  const peekCompanion = (open) => {
-    if (typeof window === "undefined" || !window.matchMedia?.("(hover: hover)").matches) return;
-    clearTimeout(companionTimer.current);
-    if (open) setCompanionPeek(true); else companionTimer.current = setTimeout(() => setCompanionPeek(false), 200);
+  // ELS owns its on-demand matrix inspector; avoid a second permanent pageContext column.
+  const showContextRail = surface !== "home" && surface !== "control" && surface !== "els" && surface !== "community"
+    && Boolean(activeTarget || pageContext?.subject);
+  // The context rail is independent of the temporarily hidden Companion.
+  const shareHref = framePublicShareHref(location, typeof document === "undefined" ? null : document.querySelector('link[rel="canonical"]')?.href);
+  const followContextConnection = (event, finding) => {
+    if (!finding?.href?.startsWith("/") || finding.href.startsWith("//") || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    const locator = pageContext?.selection?.locator || pageContext?.dimensions?.surfaceFocus?.locator || pageContext?.dimensions?.readingFocus?.locator;
+    const href = location.pathname + location.search + (locator?.startsWith("#") ? locator : location.hash);
+    research.updateResearchContext?.(current => ({
+      returnTo: { href, label: currentLabel, subject: current?.subject || null, selection: current?.selection || null, lens: current?.lens || null, dimensions: current?.dimensions || {}, journey: current?.journey || null },
+      dimensions: { surfaceContextHref: null, surfaceFocus: null, readingFocus: null, surfaceFindings: [], surfaceSections: [], bottomTrail: [], activeSectionId: null },
+    }));
+    go(finding.href === "/world" ? "/world?focus=context" : finding.href, { preserve: false, state: { sodResearchIntent: "continue" } });
   };
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };
-    if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="⌘" kicker="חיפוש" title="חיפוש"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
-    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${inspectTarget?.label || context?.subject?.label || "ההקשר הנוכחי"}`}><ActionProjection surface={surface} target={inspectTarget} context={context} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;
+    if (transientKind === TRANSIENT.NEWSLETTER) return <PanelShell {...common} panelKind="newsletter" icon="✉" kicker="עדכוני האתר" title="עולם חדש של גילוי נבנה עכשיו"><GuestNewsletterInvite2029 onClose={closeTransient} /></PanelShell>;
+    if (transientKind === TRANSIENT.SEARCH) return <PanelShell {...common} icon="⌕" kicker="תוכן האתר" title="חיפוש באתר"><SiteSearch2029 query={siteSearchQuery} setQuery={setSiteSearchQuery} go={go} /></PanelShell>;
+    if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="123" kicker="גימטריה" title="מספר / ביטוי"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
+    if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${contextDisplayTitle(pageContext, inspectTarget) || "ההקשר הנוכחי"}`}><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><ActionProjection surface={surface} target={inspectTarget} context={pageContext} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
-      if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><NumberDrawer2029 target={inspectTarget} context={context} research={research} go={go} openRaziel={openRaziel} /></PanelShell>;
+      if (capability === "number" && numberLocked) return <PanelShell {...common} icon="123" kicker="מספר" title="כלי המספר"><FrameState kind="gated" title="כלי המספר נעול כרגע">המספר והמקור נשארים בעמוד; הכלי ייפתח כשיהיה זמין.</FrameState></PanelShell>;
+      if (capability === "number") return <PanelShell {...common} icon="123" kicker="מספר / גימטריה" title="מספר / ביטוי"><React.Suspense fallback={<div role="status">טוען כלי מספרים…</div>}><NumberDrawer2029 target={inspectTarget} context={pageContext} research={research} go={go} openRaziel={openRaziel} /></React.Suspense></PanelShell>;
       return <PanelShell {...common} icon="◇" kicker="כלי" title={capability || "יכולת"}><FrameState kind="unavailable" title="הכלי עדיין לא מחובר כאן">כשהחיבור יהיה מוכן הוא ייפתח באותה חלונית, בלי להעביר אותך למערכת אחרת.</FrameState></PanelShell>;
     }
-    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={inspectTarget?.label || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={context} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
-    if (transientKind === TRANSIENT.CONTEXT) return <PanelShell {...common} icon="✦" kicker="הקשר" title="ההקשר הפעיל"><SurfaceContextRail2029
+    if (transientKind === TRANSIENT.INSPECT) return <PanelShell {...common} icon={inspectTarget?.type === "number" ? "123" : "◎"} kicker="בדיקה" title={contextDisplayTitle(pageContext, inspectTarget) || "בדיקה מהירה"}><InspectProjection target={inspectTarget} context={pageContext} surface={surface} onSetFocus={setResearchFocus} onSave={saveToLibrary} onAddResearch={addToResearch} isSaved={Boolean(inspectTarget && (research.saved || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} inResearch={Boolean(inspectTarget && (research.cart || []).some((e) => e.id === inspectTarget.id || e.id === `${inspectTarget.type}:${inspectTarget.id}`))} onOpenNumber={openNumber} onNeedHelp={openIssueReport} /></PanelShell>;
+    if (transientKind === TRANSIENT.CONTEXT) return contextLocked ? null : <PanelShell {...common} icon="✦" kicker="הקשר" title="כאן · מפת העמוד וההקשר">{bottomTrail.length ? <nav className="sod29-sheet-trail" aria-label="מסלול המחקר הנוכחי">{bottomTrail.filter(item => publicContextLabel(item.label)).map((item, i) => <span key={item.id || i}>{i ? " ‹ " : ""}{publicContextLabel(item.label)}</span>)}</nav> : null}<SurfaceContextRail2029
       sheet
       surface={surface}
-      context={context}
+      context={pageContext}
+      onFollowConnection={followContextConnection}
       focus={surfaceFocus || activeTarget}
       onOpenNumber={(target) => openNumber(target || activeTarget)}
       onAskRaziel={razielLocked ? null : () => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
@@ -2037,15 +2098,27 @@ export default function SystemFrame2029({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="מה חדש בעולם">{corePublicViewer ? worldLocked
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="פרסומי האתר" title="עכשיו"><NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />{transient?.payload?.ribbonDetail ? <LivingRibbonDetail2029 detail={transient.payload.ribbonDetail} onOpen={go} feed={feed} /> : corePublicViewer ? worldLocked
       ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState>
       : <FrameState title="העולם פתוח"><Link to="/world" onClick={closeTransient}>למקורות ולחיבורים בעולם ←</Link></FrameState>
-      : <AttentionProjection context={context} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} />}</PanelShell>;
-    if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><ToolsProjection surface={surface} target={activeTarget} go={go} onCapability={openCapability} /></PanelShell>;
+      : <AttentionProjection context={pageContext} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} timeMode={recordTimeMode} />}</PanelShell>;
+    if (transientKind === TRANSIENT.MORE) return <PanelShell {...common} icon={transient?.payload?.shareOnly ? "↗" : "◇"} kicker={transient?.payload?.shareOnly ? "שיתוף" : "עוד"} title={transient?.payload?.shareOnly ? "שיתוף" : "עוד"}>
+      {!transient?.payload?.shareOnly ? <>
+        {inspectTarget ? <div className="sod29-selection-summary"><span>ההקשר לפעולות</span><strong>{contextDisplayTitle(pageContext, inspectTarget) || publicContextLabel(inspectTarget.label) || entityTypeNounHe(inspectTarget.type)}</strong></div> : null}
+        <div className="sod29-panel-actions-grid">
+          <button className="sod29-action" type="button" onClick={() => openAction(inspectTarget)}>פעולות</button>
+          <button className="sod29-action" type="button" onClick={openTools}>כלים</button>
+        </div>
+      </> : null}
+      {shareHref ? <section className="sod29-panel-share" aria-label="שיתוף העמוד" data-share-owner="ShareActions"><h3>שיתוף</h3><ShareActions type={surface === "post" ? "post" : "page"} url={shareHref} title={title || "SOD1820"} sourceSurface={surface} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} style={{ flexWrap: "wrap", overflowX: "visible" }} force /></section> : <FrameState title="עמוד אישי">אין קישור ציבורי לשיתוף מתוך העמוד האישי.</FrameState>}
+      {activeToolDock ? <button className="sod29-action" type="button" onClick={() => { setTransient(null); setSystemDockMode(false); }}>חזור לכלי הצופן</button> : null}
+    </PanelShell>;
+    if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><button className="sod29-action" type="button" onClick={openSiteSearch}>חיפוש באתר</button><ToolsProjection surface={surface} target={inspectTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
-    if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={context} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} /></PanelShell>;
+    if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} panelKind="raziel" icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={pageContext} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} onSignup={openWorkspace} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway
       pathname={location.pathname}
+      sourceHref={transient?.payload?.sourceHref || null}
       surface={surface}
       capability={transient?.payload?.capability || null}
       concept={transient?.payload?.concept || null}
@@ -2054,12 +2127,15 @@ export default function SystemFrame2029({
       initialText={transient?.payload?.initialText || ""}
       locale={locale}
       onDone={closeTransient}
+      onOpenPrivateHints={journeyLocked ? null : openPrivateHints}
     /></PanelShell>;
-    return <PanelShell {...common} icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection
+    return <PanelShell {...common} panelKind="workspace" icon="◎" kicker="אישי" title="האזור האישי שלי"><WorkspaceProjection key={authLoading ? "auth-loading" : user?.id || "guest"}
       context={context}
       go={go}
       onRaziel={openRaziel}
+      onOpenPrivateHints={openPrivateHints}
       journeyLocked={journeyLocked}
+      elsLocked={elsFeature.loading || elsFeature.blocked}
       razielLocked={razielLocked}
       research={research}
       onInspect={openInspect}
@@ -2076,7 +2152,8 @@ export default function SystemFrame2029({
     <ShellContext.Provider value={shellApi}>
     <SystemToolDockContext2029.Provider value={registerToolDock}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}${companionMode ? ` has-companion companion-${companionMode}` : ""}`}
+        className={`sod29-root closed-shell native-frame surface-${surface}${calmBottomChrome ? " calm-bottom-chrome" : ""}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
+        data-companion-visibility="temporarily-hidden"
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
@@ -2113,21 +2190,22 @@ export default function SystemFrame2029({
           <button className="sod29-rail-toggle" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? "הרחב את סרגל הניווט" : "צמצם את סרגל הניווט"} title={sidebarCollapsed ? "הרחב את סרגל הניווט" : "צמצם את סרגל הניווט"}>
             <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "הרחב" : "צמצם"}</b>
           </button>
-          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {status}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
+          <div className="sod29-side-foot"><span className="sod29-live-dot" /> {entityTypeNounHe(surface)}<small>{experience.brand.identity} · {experience.experience.question} · הקשר אחד.</small></div>
         </aside>
 
         <div className="sod29-main">
+          <div className="sod29-living-header-stack">
           <header className="sod29-header closed-orientation">
             <div className="sod29-header-leading">
               <button ref={mobileMenuRef} className="sod29-mobile-menu-trigger sod29-gate-trigger" type="button" onClick={() => navOpen ? closeMobileNav(true) : setNavOpen(true)} aria-label={navOpen ? "סגור ניווט" : "פתח ניווט"} aria-expanded={navOpen} aria-controls="sod29-mobile-navigation">
                 <DiscoveryGateMark2029 open={navOpen} />
               </button>
-              <div className="sod29-orientation" aria-label="איפה אני" title={title || "2029"}>
-                <span>SOD1820</span><i>/</i><b>{title || "2029"}</b>
-                {context?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{context.subject.label || context.subject.id}</span></span> : null}
+              <div className="sod29-orientation" aria-label="איפה אני" title={title || BRAND_LOCKUP_2029.alt}>
+                <span>SOD1820</span><i>/</i><b>{title || BRAND_LOCKUP_2029.alt}</b>
+                {pageContext?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{contextDisplayTitle(pageContext) || "ההקשר הנוכחי"}</span></span> : null}
               </div>
             </div>
-            <button className="sod29-header-search" type="button" onClick={openCommand} aria-label="חיפוש">
+            <button className="sod29-header-search" type="button" onClick={openSiteSearch} aria-label="חיפוש באתר" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.SEARCH}>
               <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
               <span className="sod29-search-pill-icon" aria-hidden="true">⌕</span>
               <span className="label">חיפוש</span>
@@ -2136,21 +2214,23 @@ export default function SystemFrame2029({
             <div className="sod29-header-actions">
               <button className="sod29-header-return" type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="return-label"> חזרה מדויקת</span></button>
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="issue-label"> דווח על בעיה</span></button>
-              <ThemePresetControl2029 compact />
+              <ThemePresetControl2029 compact header />
               <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
             </div>
           </header>
+          <GlobalLivingRibbon2029 onContact={() => openIssueReport({ actionTried: "renewal_notice" })} />
+          </div>
 
           {orientation.mode !== "hidden" && orientation.manifest ? (() => {
             const mark = <LearnMark2029
               scope={LEARN_SCOPE.SURFACE}
-              label={orientation.manifest.label}
+              label={orientationCopy?.label || orientation.manifest.label}
               compact={orientation.mode === "compact"}
               prominent={orientation.mode === "prominent"}
               onOpen={expandOrientation}
               onDismiss={orientation.mode === "prominent" ? dismissOrientation : null}
             >
-              <p>{orientation.manifest.body}</p>
+              <p>{orientationCopy?.body || orientation.manifest.body}</p>
               <p><strong>{experience.experience.question}</strong></p>
             </LearnMark2029>;
             return orientationHost && surface === "post"
@@ -2167,15 +2247,16 @@ export default function SystemFrame2029({
                     {eyebrow ? <div className="sod29-eyebrow">{eyebrow}</div> : null}
                     {title ? <h1 style={{ fontFamily: TYPEFACE.display }}>{title}</h1> : null}
                     {description ? <p>{description}</p> : null}
-                    {context && surface !== "number" ? <IntroResearchContext2029 context={context} /> : null}
+                    {context && surface !== "number" ? <IntroResearchContext2029 context={pageContext} currentHref={currentHref} pageTitle={currentLabel} onReturnExact={returnExact} /> : null}
                   </div>
                 </section>
               ) : null}
               {children}
             </main>
-            {showContextRail && !(companionActive && companionHasContext) ? <SurfaceContextRail2029
+            {showContextRail ? <SurfaceContextRail2029
               surface={surface}
-              context={context}
+              context={pageContext}
+              onFollowConnection={followContextConnection}
               focus={surfaceFocus || activeTarget}
               onOpenNumber={(target) => openNumber(target || activeTarget)}
               onAskRaziel={razielLocked ? null : () => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
@@ -2204,6 +2285,7 @@ export default function SystemFrame2029({
                 <span aria-hidden="true">×</span>
               </button>
             </div>
+            <PreviewTransportDisclosure2029 />
             <NavGroup title="בתים מרכזיים" items={homeNav} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <NavGroup title="גילוי וכלים" items={directNav} preserveReturnFor={preserveReturnFor} onNavigate={() => closeMobileNav(false)} onAction={handleGlobalNavAction} />
             <section className="sod29-mobile-theme-section" aria-label="בחירת מראה">
@@ -2218,82 +2300,32 @@ export default function SystemFrame2029({
           </aside>
         </> : null}
 
-        {ephemeralSelection ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
+        {ephemeralSelection && !unifiedGlobalDock ? <button className="sod29-selection-cue" type="button" onClick={() => openAction(ephemeralSelection)}><small>בחרת</small><strong>{ephemeralSelection.label}</strong><span>פעולה</span></button> : null}
 
-        {companionActive ? <CompanionPanel2029
-          feed={feed} mode={companionMode} tab={companionTab === "seq" && companionHasSequence ? "seq" : companionHasContext && companionTab !== "seq" ? companionTab : "feed"} onTab={setCompanionTab}
-          onOpenPanel={(tab) => { setCompanionTab(tab); setCompanionPeek(true); }}
-          pinned={companionPinned} onTogglePin={() => toggleCompanionPin(companionPinned)}
-          hasContext={companionHasContext}
-          hasSequence={companionHasSequence}
-          sequenceNode={companionHasSequence ? <EventSequencePanel2029 context={context} surface={surface} /> : null}
-          contextNode={companionHasContext ? <SurfaceContextRail2029
-            surface={surface} context={context} focus={surfaceFocus || activeTarget}
-            onOpenNumber={(target) => openNumber(target || activeTarget)}
-            onAskRaziel={razielLocked ? null : () => openRaziel(surfaceFocus?.readingFocus ? { readingFocus: surfaceFocus.readingFocus } : null)}
-            onOpenContext={() => openInspect(surfaceFocus || activeTarget)}
-            onOpenSheet={() => openTransient(TRANSIENT.CONTEXT)}
-            onNeedHelp={openIssueReport}
-            suppressLearn
-          /> : null}
-          onOpenHref={(href) => go(href)}
-          razielNode={razielLocked || surface === "post" ? null : <RazielNativeChat context={context} label={activeTarget?.label || context?.subject?.label || context?.subject?.id || "מה שאתה רואה עכשיו"} numberFocus={context?.dimensions?.numberCoreFocus || null} readingFocus={context?.dimensions?.readingFocus || null} primary />}
-          hoverProps={{ onMouseEnter: () => peekCompanion(true), onMouseLeave: () => peekCompanion(false), onFocus: () => peekCompanion(true), onBlur: (event) => { if (!event.currentTarget.contains(event.relatedTarget)) peekCompanion(false); } }}
-        /> : null}
-        {!companionWide && feed.newCount > 0 && !transientKind ? <button type="button" className="sod29-feed-chip" onClick={openAttention} aria-label={`עדכונים: ${feed.newCount} חדשים`}><i aria-hidden="true" /><span>{feed.newCount} חדשים · {relativeTimeLabel(feed.newest, "עכשיו")}</span></button> : null}
 
-        <div className={`sod29-command-island is-unified-bar${!activeToolDock && bottomTrail.length ? " has-context-trail" : ""}${numberPageRoute && bottomTrail.length ? " number-context-trail" : ""}`} role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode={toolMode ? "tool" : "global"} data-tool-owner={activeToolDock?.surface}>
-          <div className="sod29-bar-zone is-context">
-            {toolMode ? <SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /> : <>
-              {showBottomTrail ? <nav className="sod29-command-trail" aria-label="מסלול המחקר הנוכחי">
-            {bottomTrail.map((item, index) => <React.Fragment key={item.id || `trail-${index}`}>
-              {index ? <span className="sod29-command-trail-separator" aria-hidden="true">‹</span> : null}
-              {numberPageRoute ? <button
-                type="button"
-                className="sod29-command-trail-item"
-                aria-current={item.active ? "page" : undefined}
-                onClick={() => {
-                  if (item.number != null) {
-                    openNumber({ id: String(item.number), type: "number", label: String(item.number), href: `/2029/number/${item.number}` });
-                    return;
-                  }
-                  if (item.targetId) {
-                    document.getElementById(item.targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
-                    return;
-                  }
-                  if (item.href) go(item.href);
-                }}
-                disabled={!item.number && !item.targetId && !item.href}
-              >{item.label}</button> : <span className="sod29-command-trail-item" aria-current={item.active ? "page" : undefined}>{item.label}</span>}
-            </React.Fragment>)}
-          </nav> : null}
-              {readingProgress ? <button type="button" className="sod29-reading-progress" onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-label={`מפת העמוד: חלק ${readingProgress.index} מתוך ${readingProgress.total}${readingProgress.label ? `, ${readingProgress.label}` : ""}`} aria-haspopup="dialog" data-reading-progress={`${readingProgress.index}/${readingProgress.total}`}>
-                <span className="sod29-reading-progress-track" aria-hidden="true">{readingProgress.ids.map((id, i) => <i key={id} className={i < readingProgress.index - 1 ? "is-done" : i === readingProgress.index - 1 ? "is-now" : ""} />)}</span>
-              </button> : null}
-              <div className="sod29-command-actions">
-                {showBottomTrail && surface === "number" ? <button
-                  className="sod29-number-island-action"
-                  type="button"
-                  onClick={() => openAction(activeTarget)}
-                  aria-pressed={transientKind === TRANSIENT.ACTION}
-                ><span><NavigationIcon2029 name="action" /></span><small>פעולה</small></button> : null}
-                <button type="button" title={surface === "heichal" ? "פקודה" : "חיפוש"} onClick={openCommand} aria-pressed={transientKind === TRANSIENT.COMMAND}><span><NavigationIcon2029 name="search" /></span><small>{surface === "heichal" ? "פקודה" : "חיפוש"}</small></button>
-                {!(showBottomTrail && numberPageRoute) ? <button type="button" title="פעולה" onClick={() => openAction(activeTarget)} aria-pressed={transientKind === TRANSIENT.ACTION}><span><NavigationIcon2029 name="action" /></span><small>פעולה</small></button> : null}
-                <button type="button" title="כלים" onClick={openTools} aria-pressed={transientKind === TRANSIENT.TOOLS}><span><NavigationIcon2029 name="tools" /></span><small>כלים</small></button>
-              </div>
-            </>}
+        {unifiedGlobalDock ? <div className="sod29-command-island is-unified-bar is-single-command-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="global">
+          <button type="button" className="sod29-dock-here" disabled={contextLocked} title={contextLocked ? "כאן בבנייה · למנהל בלבד" : "כאן בבנייה · גישת מנהל"} onClick={() => openTransient(TRANSIENT.CONTEXT)} aria-label={contextLocked ? "כאן · בבנייה · למנהל בלבד" : readingProgress ? `כאן · מפת העמוד: חלק ${readingProgress.index} מתוך ${readingProgress.total}` : "כאן · מפת העמוד וההקשר"} aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.CONTEXT} data-reading-progress={readingProgress ? `${readingProgress.index}/${readingProgress.total}` : undefined}>
+            <NavigationIcon2029 name="layers" /><small>כאן</small><span className="sod29-construction-badge" aria-hidden="true">בבנייה</span>
+            {!contextLocked && readingProgress ? <span className="sod29-dock-progress" aria-hidden="true">{readingProgress.ids.map((id,i) => <i key={id} className={i < readingProgress.index ? "is-read" : ""} />)}</span> : null}
+          </button>
+          <button type="button" onClick={() => {
+            if (activeTarget?.expression && activeTarget?.method && Number.isSafeInteger(activeTarget?.resultValue)) {
+              openNumber(activeTarget); return;
+            }
+            const value = researchContextNumber(surfaceFocus?.number ?? (activeTarget?.type === "number" ? activeTarget.id : null));
+            openNumber(value != null ? { id: String(value), type: "number", label: String(value) } : activeTarget);
+          }} disabled={numberLocked} aria-label={numberLocked ? "גימטריה · נעולה כרגע" : "גימטריה · מספר, ביטוי ושיטות חישוב"} aria-haspopup="dialog"><NavigationIcon2029 name="number" /><small>גימטריה</small></button>
+          <RazielOrb compact active={!razielLocked && transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} locked={razielLocked} />
+          <button type="button" onClick={research.elsResearchOperation?.task ? openWorkspace : openAttention} aria-label={research.elsResearchOperation?.task ? `עכשיו · ${research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות"}` : feed.newCount > 0 ? `עכשיו · ${feed.newCount} חדשים` : "עכשיו"} aria-haspopup="dialog" aria-expanded={transientKind === (research.elsResearchOperation?.task ? TRANSIENT.WORKSPACE : TRANSIENT.ATTENTION)}><NavigationIcon2029 name="now" /><small>{research.elsResearchOperation?.task ? research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות" : "עכשיו"}</small>{feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
+          <button type="button" onClick={openShare} disabled={!shareHref} title={shareHref ? "שיתוף העמוד" : "אין קישור ציבורי לשיתוף מתוך העמוד האישי"} aria-label="שיתוף" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.MORE && transient?.payload?.shareOnly === true}><NavigationIcon2029 name="share" /><small>שיתוף</small></button>
+        </div> : <div className="sod29-command-island is-unified-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="tool" data-tool-owner={activeToolDock?.surface}>
+          <div className="sod29-bar-zone is-context"><SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /></div>
+          <RazielOrb compact active={!razielLocked && transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} locked={razielLocked} />
+          <div className="sod29-bar-zone is-actions"><SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />
+            <button type="button" onClick={() => { if (research.elsResearchOperation?.task) openTransient(TRANSIENT.WORKSPACE); else { setTransient(null); setSystemDockMode(true); } }} aria-label={research.elsResearchOperation?.task ? "פתח מעקב מחקר" : "פעולות המערכת"}><NavigationIcon2029 name="tools" /><small>{research.elsResearchOperation?.task ? research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות" : "מערכת"}</small>{feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
           </div>
-          <RazielOrb compact active={!razielLocked && (transientKind === TRANSIENT.RAZIEL || (companionActive && surface !== "post" && companionMode !== "slim"))} onClick={companionActive && surface !== "post" ? focusCompanionRaziel : openRaziel} locked={razielLocked} />
-          <div className="sod29-bar-zone is-actions">
-            {toolMode ? <>
-              <SystemToolDockActions2029 actions={activeToolDock.actions.slice(2, 4)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} />
-              <button type="button" onClick={() => { setTransient(null); setSystemDockMode(true); }} aria-label="פעולות המערכת"><NavigationIcon2029 name="tools" /><small>מערכת</small></button>
-            </> : <>
-              {nowTabs}
-              {activeToolDock ? <button type="button" onClick={() => { setTransient(null); setSystemDockMode(false); }} aria-label="חזור לכלי הצופן"><NavigationIcon2029 name="els" /><small>צופן</small></button> : null}
-            </>}
-          </div>
-        </div>
+        </div>}
+
 
         {renderTransient()}
       </div>

@@ -1,0 +1,180 @@
+[
+  {
+    "width": 1440,
+    "initial": null,
+    "passive": {
+      "version": 1,
+      "subject": null,
+      "selection": null,
+      "lens": null,
+      "dimensions": {
+        "readingFocus": {
+          "id": "home-plane",
+          "type": "post",
+          "label": "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים",
+          "sourceLabel": "פוסט המטוס",
+          "locator": "#home-plane",
+          "href": "/post/flydubai-fz1073-363-14000-remzei-geula",
+          "postId": "5112",
+          "postSlug": "flydubai-fz1073-363-14000-remzei-geula"
+        },
+        "readingFocusSurfaceHref": "/"
+      },
+      "journey": null,
+      "locale": null,
+      "access": null,
+      "returnTo": null,
+      "updatedAt": "2026-11-01T02:15:53.390Z"
+    },
+    "world": {
+      "version": 1,
+      "subject": null,
+      "selection": null,
+      "lens": "world",
+      "dimensions": {
+        "readingFocusSurfaceHref": "/world",
+        "readingFocus": {
+          "id": "world-plane-story",
+          "type": "post",
+          "label": "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים",
+          "sourceLabel": "פוסט המטוס",
+          "locator": "#world-plane-story",
+          "href": "/post/flydubai-fz1073-363-14000-remzei-geula",
+          "postId": "5112",
+          "postSlug": "flydubai-fz1073-363-14000-remzei-geula"
+        }
+      },
+      "journey": null,
+      "locale": null,
+      "access": null,
+      "returnTo": null,
+      "updatedAt": "2026-11-01T02:15:54.802Z"
+    },
+    "frame": {
+      "viewport": 1440,
+      "dock": {
+        "x": 0,
+        "width": 1440,
+        "height": 72
+      },
+      "companion": true,
+      "contextRail": false
+    },
+    "personal": {
+      "cardWidth": 422,
+      "copyWidth": 0,
+      "actionsWidth": 320
+    }
+  },
+  {
+    "width": 390,
+    "initial": null,
+    "passive": {
+      "version": 1,
+      "subject": null,
+      "selection": null,
+      "lens": null,
+      "dimensions": {
+        "readingFocus": {
+          "id": "home-plane",
+          "type": "post",
+          "label": "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים",
+          "sourceLabel": "פוסט המטוס",
+          "locator": "#home-plane",
+          "href": "/post/flydubai-fz1073-363-14000-remzei-geula",
+          "postId": "5112",
+          "postSlug": "flydubai-fz1073-363-14000-remzei-geula"
+        },
+        "readingFocusSurfaceHref": "/"
+      },
+      "journey": null,
+      "locale": null,
+      "access": null,
+      "returnTo": null,
+      "updatedAt": "2026-11-01T02:15:47.934Z"
+    },
+    "world": {
+      "version": 1,
+      "subject": null,
+      "selection": null,
+      "lens": "world",
+      "dimensions": {
+        "readingFocusSurfaceHref": "/world",
+        "readingFocus": {
+          "id": "world-plane-story",
+          "type": "post",
+          "label": "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים",
+          "sourceLabel": "פוסט המטוס",
+          "locator": "#world-plane-story",
+          "href": "/post/flydubai-fz1073-363-14000-remzei-geula",
+          "postId": "5112",
+          "postSlug": "flydubai-fz1073-363-14000-remzei-geula"
+        }
+      },
+      "journey": null,
+      "locale": null,
+      "access": null,
+      "returnTo": null,
+      "updatedAt": "2026-11-01T02:15:49.842Z"
+    },
+    "frame": {
+      "viewport": 390,
+      "dock": {
+        "x": 0,
+        "width": 390,
+        "height": 72
+      },
+      "companion": false,
+      "contextRail": false
+    },
+    "personal": {
+      "cardWidth": 344,
+      "copyWidth": 258,
+      "actionsWidth": 314
+    }
+  },
+  {
+    "width": 320,
+    "initial": null,
+    "passive": null,
+    "world": {
+      "version": 1,
+      "subject": null,
+      "selection": null,
+      "lens": "world",
+      "dimensions": {
+        "readingFocus": {
+          "id": "world-plane-story",
+          "type": "post",
+          "label": "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים",
+          "sourceLabel": "פוסט המטוס",
+          "locator": "#world-plane-story",
+          "href": "/post/flydubai-fz1073-363-14000-remzei-geula",
+          "postId": "5112",
+          "postSlug": "flydubai-fz1073-363-14000-remzei-geula"
+        },
+        "readingFocusSurfaceHref": "/world"
+      },
+      "journey": null,
+      "locale": null,
+      "access": null,
+      "returnTo": null,
+      "updatedAt": "2026-11-01T02:15:45.203Z"
+    },
+    "frame": {
+      "viewport": 320,
+      "dock": {
+        "x": 0,
+        "width": 320,
+        "height": 72
+      },
+      "companion": false,
+      "contextRail": false
+    },
+    "personal": {
+      "cardWidth": 278,
+      "copyWidth": 192,
+      "actionsWidth": 248
+    }
+  }
+]

@@ -1,0 +1,40 @@
+✔ existing accounts can sign in, refresh, read identity and sign out locally (39.508123ms)
+✔ functional Preview admits verified own Person, state and item writes without widening old previews (26.487298ms)
+✔ functional Preview permits deliberate signup, never phone signup or arbitrary media operations (7.69617ms)
+✔ functional Preview public meter stays a bounded canonical read; private hints retain their actual typed payload (9.019031ms)
+✔ functional owned profile, page, save and inbox actions require verified identity and preserve forbidden fields (19.526287ms)
+✔ functional private resumable uploads require the signed canonical image capability (8.436541ms)
+✔ functional Heichal reaches only its existing bounded public numeric Result Bundle contract (6.336412ms)
+✔ signup, global logout, account mutation, other grants and origins stay blocked (10.292604ms)
+✔ profile/product/storage/model writes remain blocked; governed readers still work (13.859672ms)
+✔ unified working preview blocks Person creation and trace-producing ELS bridge (93.638187ms)
+✔ Books publication review is preview-only and has no write RPC in the guard (0.371302ms)
+✔ Posts Preview blocks Person creation, product writes and model calls while admitting calculation reads (4.815008ms)
+✔ the Posts Preview build cannot target Production (1.250561ms)
+✔ Community Preview reads use the existing closed public projection for GET and POST (27.428845ms)
+✔ Life Journey Preview overrides the public catch-all with private no-store headers (0.194773ms)
+✔ only the explicitly authorized protected branch forwards exact Community management RPCs (18.557227ms)
+✔ Community management cannot widen arguments, methods, caller headers or transport paths (41.019887ms)
+✔ Community management keeps unrelated writes, models and Person creation blocked (8.721251ms)
+✔ the exact publishing Preview admits only canonical Community posts and reactions (27.222076ms)
+✔ account-scoped media uploads validate the file and server-authenticated owner without allowing overwrite (53.66932ms)
+✔ legacy claim transport requires exact branch, confirmed server identity and only a source ID (32.720207ms)
+✔ exact own-avatar Preview upload and self action keep all other writes closed (53.020471ms)
+✔ unified real Raziel Preview forwards only explicit canonical chat to the existing server (42.295177ms)
+✔ reviewed public reply reads require exact projection and a server-confirmed visible parent chain (19.089866ms)
+✔ exact unified branch gpt/2029-unified-community-latest-integration-20261031 composes reviewed actions with central Raziel without widening other previews (45.086436ms)
+✔ exact unified branch gpt/2029-unified-performance-consolidation-20261031 composes reviewed actions with central Raziel without widening other previews (93.206041ms)
+✔ exact unified branch gpt/2029-home-loading-acceptance-20261031 composes reviewed actions with central Raziel without widening other previews (47.064265ms)
+✔ accepted Home patch changes only the reviewed exact branch bindings at its immutable receipt SHA (10.510863ms)
+✔ accepted Home worker is byte-identical; current old branches differ only by an inactive functional Preview extension (4.692989ms)
+✔ applied binding denies Production and leaves other branches and missing environment closed (9.37782ms)
+✔ applied own-avatar wrapper keeps canonical read-only/ownership behavior and exact Preview scope (3.401695ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 862.973805
+Legacy Production lock: PASS

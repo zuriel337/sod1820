@@ -16,7 +16,7 @@
 .sod29-glyph-stage-caption { position:absolute; inset-inline:28px; bottom:12px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; font-size:14px; color:var(--s29-muted); pointer-events:none; }
 .sod29-glyph-picker { display:flex; gap:8px; padding:16px 24px; overflow-x:auto; border-top:1px solid var(--s29-line); }
 .sod29-glyph-scene .sod29-glyph-picker button { width:52px; height:60px; min-width:52px; flex:0 0 52px; padding:12px; border:1px solid var(--s29-line); border-radius:12px; background:var(--s29-panel-soft); color:var(--s29-muted); cursor:pointer; }
-.sod29-glyph-scene .sod29-glyph-picker button[aria-pressed="true"] { border-color:var(--s29-accent); background:color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel)); color:var(--s29-accent); }
+.sod29-glyph-scene .sod29-glyph-picker button[aria-pressed="true"] { border-color:var(--s29-accent); background:color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel)); color:var(--s29-accent-text); }
 .sod29-glyph-controls { display:flex; flex-wrap:wrap; gap:8px; padding:0 24px 20px; }
 .sod29-glyph-scene .sod29-glyph-controls button { font:500 16px/1.4 var(--s29-font-ui); min-height:44px; min-width:44px; padding:10px 16px; border:1px solid var(--s29-line-strong); border-radius:12px; color:var(--s29-ink); background:var(--s29-panel-soft); cursor:pointer; }
 .sod29-glyph-scene button:focus-visible { outline:3px solid var(--s29-focus-ring); outline-offset:3px; }

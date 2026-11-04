@@ -1,0 +1,423 @@
+{
+  "synthetic": true,
+  "liveWrites": false,
+  "liveLogin": false,
+  "sw": "blocked in controlled fixture; hosted checked separately",
+  "cases": [
+    {
+      "width": 320,
+      "ok": true,
+      "partialKeyboardIdentity": true,
+      "staleDiscard": true,
+      "failureNotEmpty": true,
+      "exactReturn": "/?keep=one&keep=two#search-return",
+      "topBottomDistinct": true,
+      "noInitialReads": true,
+      "requests": [
+        {
+          "kind": "posts",
+          "term": "סוד",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "סוד",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "סוד",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "צב",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "צב",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "צב",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "חדש",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "חדש",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "חדש",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "כשל",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "כשל",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "כשל",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "אין",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "אין",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "אין",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "ok": true,
+      "partialKeyboardIdentity": true,
+      "staleDiscard": true,
+      "failureNotEmpty": true,
+      "exactReturn": "/?keep=one&keep=two#search-return",
+      "topBottomDistinct": true,
+      "noInitialReads": true,
+      "requests": [
+        {
+          "kind": "posts",
+          "term": "סוד",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "סוד",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "סוד",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "צב",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "צב",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "צב",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "חדש",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "חדש",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "חדש",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "כשל",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "כשל",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "כשל",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "אין",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "אין",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "אין",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "ok": true,
+      "partialKeyboardIdentity": true,
+      "staleDiscard": true,
+      "failureNotEmpty": true,
+      "exactReturn": "/?keep=one&keep=two#search-return",
+      "topBottomDistinct": true,
+      "noInitialReads": true,
+      "requests": [
+        {
+          "kind": "posts",
+          "term": "סוד",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "סוד",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "סוד",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "צב",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "צב",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "צב",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "חדש",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "חדש",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "חדש",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "כשל",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "כשל",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "כשל",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "אין",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "אין",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "אין",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "posts",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "topics",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        },
+        {
+          "kind": "sources",
+          "term": "ישן",
+          "limit": 4,
+          "aborted": true
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,21 @@
+{
+  "sourceSha": "d8ee2753482ee9c264795b19c52745da494be63a",
+  "deploymentId": "dpl_6DekQkT2ByVnPhtPbrFTYmD7bDgZ",
+  "immutableUrl": "https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app",
+  "stableBranchUrl": "https://sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app",
+  "state": "READY",
+  "target": null,
+  "unauthenticatedStatus": 302,
+  "publicFormReadinessCases": 4,
+  "realSW": true,
+  "actualSharedContracts": [
+    "opening-parts-v1",
+    "site-updates-v1"
+  ],
+  "signupSubmitted": false,
+  "unsubscribeSubmitted": false,
+  "mailSent": false,
+  "oldTwoAccountAcceptance": "RETAINED",
+  "fullG4OrIsolation": "NOT_CLAIMED",
+  "ProductionArtifactCreation": "BLOCKED_BY_CONNECTION_CAPABILITY_NOT_APPROVAL_ALONE"
+}

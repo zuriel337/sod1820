@@ -1,0 +1,217 @@
+{
+  "status": "PUBLIC_CORPUS_STRUCTURAL_MAPPING_COMPLETE_RESEARCH_ACCEPTANCE_OPEN",
+  "actor": "GPT",
+  "handoff_to": "ZURIEL",
+  "summary": {
+    "posts": 1282,
+    "sourceBytes": 27265822,
+    "approvedPublicCardsRead": 204,
+    "series": {
+      "general": 1119,
+      "sod-hashmal": 133,
+      "dimension-five": 23,
+      "mah-kore-habora": 7
+    },
+    "backgrounds": {
+      "general": 1119,
+      "sod-hashmal": 133,
+      "dimension-five": 23,
+      "mah-kore-habora": 7
+    },
+    "characters": {
+      "plain": 1269,
+      "quiet": 10,
+      "lexicon": 2,
+      "matrix": 1
+    },
+    "authors": {
+      "ללא מחבר מתועד": 888,
+      "מזכה הרבים": 303,
+      "בדרך לנצח": 23,
+      "ציון סיבוני": 20,
+      "אלון לוי": 12,
+      "הרב ווינטרוב זצ\"ל": 7,
+      "סוד החשמל": 7,
+      "יניב לוי": 6,
+      "מערכת כי לה׳ המלוכה": 3,
+      "מדריך לריפוי 10 הספירות": 3,
+      "המערכת": 1,
+      "שמעון חיימוב": 1,
+      "הרב יקותיאל דטבריה": 1,
+      "צבי": 1,
+      "SOD1820": 1,
+      "יעקב קירש": 1,
+      "הרב לוי סודרי": 1,
+      "רות קדם": 1,
+      "והאמת נהדרת": 1,
+      "manifestaffirms": 1
+    },
+    "categories": {
+      "תיעוד אירועים": 469,
+      "התחזקות": 317,
+      "מסרים": 298,
+      "וידאו": 225,
+      "רמזים חזקים": 159,
+      "סוד האותיות והמספרים": 127,
+      "סוד החשמל": 124,
+      "עלוני גאולה": 120,
+      "צפונות בתורה": 108,
+      "ארה\"ב": 97,
+      "רמזים מצדיקים": 80,
+      "אסונות/תופעות טבע": 78,
+      "משיח בתשע\"ו": 63,
+      "גלריות גימטריה": 46,
+      "גימטריות": 44,
+      "כללי": 43,
+      "הרצאות": 42,
+      "בית המקדש השלישי": 36,
+      "מימד חמש": 33,
+      "שבעים שנה": 26,
+      "סוד 1820": 25,
+      "עשרה בטבת": 19,
+      "בחירות": 18,
+      "חכמת החיבור": 17,
+      "מצגות": 12,
+      "לאטאיסט": 12,
+      "אואזיס": 8,
+      "חידושי הצלבות": 2,
+      "הצופן בסרטים": 2,
+      "גימטריה מרחבית": 2,
+      "רמזי הגאולה": 2,
+      "משיח בתשע״ו": 1,
+      "בדיקה": 1,
+      "קולות שופר מהעולם": 1,
+      "שבילי שפה": 1,
+      "קולות מאומות העולם": 1,
+      "מאמרי דעה": 1
+    },
+    "reviewFlags": {
+      "image_research_not_decoded": 638,
+      "image_alt_review": 430,
+      "authored_centered_subheading_review": 417,
+      "equality_text_without_saved_claims": 408,
+      "cover_repeated_in_body": 324,
+      "authored_long_centered_prose": 129,
+      "authored_small_text_review": 68,
+      "plain_character_gematria_box_style_review": 30,
+      "duplicate_native_ids": 29,
+      "incomplete_calculation_context": 20,
+      "series_author_review": 10,
+      "calculation_method_or_value_mismatch": 1
+    },
+    "claims": 272,
+    "claimsWithDocumentedTuple": 33,
+    "engineResults": {
+      "not_tested": 239,
+      "matched": 29,
+      "mismatch": 4
+    },
+    "distinctProfileReads": 21,
+    "postsWithClaims": 20,
+    "postsWithEqualityTextCandidates": 428,
+    "postsWithConvergenceCards": 68,
+    "distinctRepeatedArtifactRefs": 495
+  },
+  "integrity": {
+    "observed_at": "2026-10-31T03:04:00.187Z",
+    "canonical_project": "linswmnnkjxvweumprav",
+    "public_before": {
+      "public_count": 1282,
+      "public_snapshot_digest": "e13c3d1c66c9d8eb5833a460e39b8c49"
+    },
+    "public_after": {
+      "public_count": 1282,
+      "public_snapshot_digest": "e13c3d1c66c9d8eb5833a460e39b8c49"
+    },
+    "content_manifest": {
+      "public_count": 1282,
+      "content_manifest_md5": "30e76cf6fe7edd03d947b2e3a65eb8d0"
+    },
+    "canonical_law": {
+      "id": 18,
+      "body_md5": "05b73b416ab47804c9a0c807250b16f7"
+    },
+    "plan37_observed_md5": "72ac7de9c70334c61512cbbd98b8bd19",
+    "exact_path_overlap": [],
+    "coordination": "Dedicated authorized read-only tool; no live work_log claim/release or product writes asserted",
+    "design_approval": "ZURIEL: אוקיי קדימה תאשר את זה ובוא נעבור לשאר הפוסטים למיפוי המלא",
+    "scope": "Public Post audit and existing DesignV2 alignment clarification; no source/reader/runtime/shell/global palette change",
+    "source_check": "Before/after public snapshot digest identical; anonymous Post IDs/content MD5 manifest exactly matches canonical read-only aggregate",
+    "tests": {
+      "audit_browser": {
+        "pass": 1,
+        "fail": 0,
+        "skip": 0
+      },
+      "post_measure_series_typography_node": {
+        "pass": 28,
+        "fail": 0,
+        "skip": 0
+      }
+    },
+    "runtime_changes": false,
+    "production_changes": false,
+    "remaining": [
+      "Full graph adjacency across every Post is not mapped by this audit",
+      "Image/video/OCR semantic extraction and trace-step validation not performed",
+      "Post curation Gold/Diamond and cross-identity source independence remain open",
+      "No source data or calculation claims were repaired in this mapping task"
+    ]
+  },
+  "base": "ae4b50d065855a8ae087aecbdea79c038fb76a13",
+  "branch": "gpt/posts-integrated-backgrounds-20261030",
+  "started_at": "2026-10-31T03:00:06.025Z",
+  "completed_at": "2026-10-31T03:00:38.517Z",
+  "readings": {
+    "convergence": "Belongs to the matched card; source topic_cards_public; shared numeric tag path is indirect; no maximum selection.",
+    "quality": "Quality remains on each returned card; missing stays null; no Post rating or gold/diamond is inferred.",
+    "coverage": "Six separate check states with scope/missing per Post; row presence never means full coverage.",
+    "calculation": "Explicit saved annotation/legacy marking only; original expression/method/value/version/locator retained. Profile result parity is separate from untested trace steps and interpretation; missing source method versions stay missing."
+  },
+  "limits": [
+    "Private/draft/forum/admin corpus is excluded, not counted.",
+    "Every admitted public body was parsed structurally; this is not a visual, semantic, image/video/OCR or engine acceptance of every Post.",
+    "Canonical profile checks only cover complete explicit saved tuples; source revalidation inside the audit consumer uses the fetched snapshot. A separate live digest before/after is required in the final receipt.",
+    "Links are source hyperlinks and indirect card matches, not newly admitted graph edges.",
+    "Exact repeated artifact references are grouped; copies with different URLs/IDs and all external-source independence remain open.",
+    "No native source ID is invented; snapshot-bound anchors are explicitly labelled.",
+    "Full canonical graph adjacency and curated Post Gold/Diamond were not read.",
+    "Publication, ingestion and modification dates are distinct; no event time is assigned to gematria."
+  ],
+  "artifacts": {
+    "REPORT.he.md": {
+      "bytes": 6360,
+      "sha256": "dbf5008c9894d38bab741ef3b3b478146c52e0e0b6f37d8f0d3f10fb56f74200"
+    },
+    "calculation-occurrences.csv": {
+      "bytes": 114880,
+      "sha256": "7ec09346b8d8df435a6228857d392550164214012e0d4babc88c842513d4f5fa"
+    },
+    "coverage-checks.csv": {
+      "bytes": 3406724,
+      "sha256": "aac59b3fb6af7d085214d56ad94caeb514ebab9c93f78135478d0a58a0f3a8a8"
+    },
+    "integrity-receipt.json": {
+      "bytes": 1768,
+      "sha256": "a43528413703fcfa40803cbf5d5d7de11d1823f7f4e5136674fcd13a2f6b7e97"
+    },
+    "posts-map.csv": {
+      "bytes": 790434,
+      "sha256": "63eae7bbe1fd6de294aec7a87dbce056202f28a7ec842b7bf82ecf158fb82516"
+    },
+    "posts-map.html": {
+      "bytes": 582149,
+      "sha256": "1b214f9cf63a3702027a35f0f94ef5a1bb624a44e10691327bd5684190787dca"
+    },
+    "posts-map.json": {
+      "bytes": 14011108,
+      "sha256": "4d83cdf02cf7900114ffbbf1c962f53f9c3a5641f6c959696f209bccb777779e"
+    },
+    "summary.json": {
+      "bytes": 6474,
+      "sha256": "936644e672cf81d9aaa7ca761ca1d117ccb7baf372ab2b2919fd9da5c17c0ed1"
+    }
+  },
+  "artifact_bundle": "/workspace/shared/downloads/posts-full-map-20261031.zip",
+  "reproduce": "NODE_USE_ENV_PROXY=1 POST_AUDIT_PLAYWRIGHT_PACKAGE=/workspace/scratch/posts-browser-tools/package.json node scripts/audit-posts-one-tree-2029.mjs /workspace/shared/downloads/posts-full-map-20261031"
+}

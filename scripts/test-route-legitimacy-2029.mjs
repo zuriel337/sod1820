@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { productionApp2029Source } from "./helpers/public-preview-route-scope.mjs";
 import {
   isKnownSingleSegmentRoute,
   isSingleSegmentRoute,
@@ -27,7 +28,7 @@ for (const route of singleStatic) {
 }
 
 // Native 2029 exact single-segment routes share the same Edge legitimacy owner.
-const app2029Routes = [...app2029.matchAll(/<Route\s+path="([^"]+)"/g)].map(m => m[1]);
+const app2029Routes = [...productionApp2029Source(app2029).matchAll(/<Route\s+path="([^"]+)"/g)].map(m => m[1]);
 const singleStatic2029 = app2029Routes.filter(p => {
   if (!p.startsWith("/")) return false;
   const rest = p.slice(1);

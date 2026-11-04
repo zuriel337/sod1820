@@ -1,0 +1,19 @@
+{
+  "baseSha": "2fb0912188c201a9ab9d1a7e16298f7fb0085d3d",
+  "authTestsPassed": 32,
+  "authTestsFailed": 0,
+  "rebasedStageProposalTestsPassed": 5,
+  "stageProposalApplied": false,
+  "fullLegacyAnd2029Build": "PASS",
+  "legacyProductionLock": "PASS",
+  "originalUrlStringsPreserved": true,
+  "legacyRootAndWorkerUnchanged": true,
+  "dbEdgeAuthConfigChanged": false,
+  "oldAuthTriggerUnchanged": true,
+  "existingSubscriberRowsWritten": false,
+  "newModelOrBulkMail": false,
+  "callbackProbe": "both providers cancelled before authorization; returned canonical rather than branch callback; not a successful login",
+  "A2SharedApplied": false,
+  "minimumMailApproval": "B/D only; supersedes prior A2/B/D request; all old proposal source and tests retained",
+  "noFullIsolationOrG4Claim": true
+}

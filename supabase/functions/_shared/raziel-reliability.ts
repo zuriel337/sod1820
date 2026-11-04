@@ -110,7 +110,11 @@ export async function callClaudeReliable(args: CallClaudeArgs): Promise<CallClau
       const data = await resp.json();
       addUsage(data?.usage); // כל תשובת HTTP-200 מחויבת — גם refusal/ריקה שמנוסה שוב
       if (data?.stop_reason === "refusal") { lastReason = "refusal"; args.onAttempt?.({ attempt: attempts, status: 200, error: "refusal" }); break; }
-      const text = (data?.content?.[0]?.text || "").trim();
+      // The answer is the reply's text blocks — not necessarily the first block (a model may lead with a non-text
+      // block such as thinking). Same reading as runClaude / research-extract. (#1142 deep P0, 21.10.2026)
+      const text = (Array.isArray(data?.content) ? data.content : [])
+        .filter((block: { type?: string; text?: string }) => block?.type === "text" && typeof block.text === "string")
+        .map((block: { text?: string }) => block.text).join("\n").trim();
       if (!text) { lastReason = "empty"; args.onAttempt?.({ attempt: attempts, status: 200, error: "empty" }); continue; }
 
       args.onAttempt?.({ attempt: attempts, status: 200, error: null });

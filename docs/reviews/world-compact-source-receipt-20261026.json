@@ -1,0 +1,2921 @@
+{
+  "checked_at": "2026-10-26 20:55:13.40662+00",
+  "claims": [
+    {
+      "id": "010d01b5-5a88-418a-907e-50297f8a8388",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשישמשמעותרוחנית/קבליתלכךשמספריהרכבמסתכמיםבערךהגימטרישלעתיקיומין",
+      "source_md5": "4567d30a8e9fa3343686c454d1c4a834",
+      "source_ref": "channel_updates:d2e2a756-9d01-462d-adb8-09d177f5273b",
+      "source_uid": "channel_updates:d2e2a756-9d01-462d-adb8-09d177f5273b",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "c1b22fd9e15216995649173525204efa",
+      "identity_overlaps": []
+    },
+    {
+      "id": "042d9ed7-2092-4f47-ab63-3db6f0d599f0",
+      "targets": [
+        {
+          "id": "76dae5b3-6c87-4ce0-8a6e-8b52fb98aa94",
+          "label": "596"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "ארבעהגורמיםשונים-סכוםמספריםושלושהביטויים-מתכנסיםכולםלערך596",
+      "source_md5": "3536c8bc9b2a36e59ec26308c3a9f1cc",
+      "source_ref": "channel_updates:ffe33aa6-8db8-4a29-97e9-4b7955aaa93c",
+      "source_uid": "channel_updates:ffe33aa6-8db8-4a29-97e9-4b7955aaa93c",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "ec1ac1a41db87cd78808cdd9419d098a",
+      "identity_overlaps": []
+    },
+    {
+      "id": "073e1f1d-b234-4e04-8c8c-476665675919",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשאלבשםמסמלאתמידתהרחמים",
+      "source_md5": "10928cb2af95d6397c63bc6c16e3e396",
+      "source_ref": "channel_updates:17715ad1-bdeb-41ee-867b-44901f6ae19d",
+      "source_uid": "channel_updates:17715ad1-bdeb-41ee-867b-44901f6ae19d",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "1bfb0d51c7ea9366cc4334e7e2ef5106",
+      "identity_overlaps": []
+    },
+    {
+      "id": "07ae69d6-9cef-469a-8628-0ef02c20c84d",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "קשרביןהביטויהתלמודי«בינהיתרהניתנהבאשה»לביןהחישובהמשלבאתהמילים«אשה»ו«בינה»",
+      "source_md5": "9cf653bc11337293c10035cf6bf0c88a",
+      "source_ref": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "source_uid": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "1b23fa46aef56b3555b3cbbeeefa16c6",
+      "identity_overlaps": []
+    },
+    {
+      "id": "0b0fad83-6a1d-4b0d-b3ae-32f4c796c593",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשההתאמהביןצדיקלביןכפלאמונהמרמזתעלקשרמושגיביןהאמונהלביןהיותושלאדםצדיק",
+      "source_md5": "4d0b432200fd68002db93a09f4b40fb2",
+      "source_ref": "channel_updates:05e04b19-59c3-4733-a807-87e7c0acb247",
+      "source_uid": "channel_updates:05e04b19-59c3-4733-a807-87e7c0acb247",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "cb884b1857ba18d1f8b140c6e7f361dd",
+      "identity_overlaps": []
+    },
+    {
+      "id": "0db59b5f-f358-4c6d-9dbd-5f1b1d5c11ca",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "50בגימטריאים.יםכנוילספירתהמלכות.מיכנוילספירתהבינה...יוםהחמישיםהואחגהשבועותיוםמתןתורה",
+      "source_md5": "acc8d26efd5ceab465c1543b35d1b00f",
+      "source_ref": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "source_uid": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "acc8d26efd5ceab465c1543b35d1b00f",
+      "identity_overlaps": []
+    },
+    {
+      "id": "16cd1e37-876f-41f9-bb63-839a18e17ae1",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "חיבור«תשליך»ו-«י-הוה»נותן786",
+      "source_md5": "41b2c76c31ed784eb6680bdad15330f4",
+      "source_ref": "channel_updates:14014340-5eb0-4c02-bffc-3f7a4159686e",
+      "source_uid": "channel_updates:14014340-5eb0-4c02-bffc-3f7a4159686e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "5bfc4fb3c898442da4ad3a91a9f2eea5",
+      "identity_overlaps": []
+    },
+    {
+      "id": "1868a3cb-a60f-48b4-ad1f-29d4fe901913",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהזהותהגימטריתביןכתר+הואאל-הי-םחייםלביןתשפומרמזתעלמשמעותשלכתרעליוןלשנהזו",
+      "source_md5": "3d2ab6656581463a00ebb49735e20e6a",
+      "source_ref": "channel_updates:c74f7949-fda7-4c85-8142-eb0fb9b3dc44",
+      "source_uid": "channel_updates:c74f7949-fda7-4c85-8142-eb0fb9b3dc44",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "2d716a160e136a9ee97b2ba946fb09bf",
+      "identity_overlaps": []
+    },
+    {
+      "id": "18afd29d-4d0d-4a8a-8a4d-f6fa0f1bf1a3",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהחיבורביןערךהגאולההאחרונה(צסופית)ל-696ברמזלכתרעליוןמצביעעלמשמעותמיוחדתלשנתתשפו",
+      "source_md5": "9f7e339b7488a9ec141ddd574fb13a5e",
+      "source_ref": "channel_updates:94cc1578-6aa6-4df5-8a76-0378f3bbedf8",
+      "source_uid": "channel_updates:94cc1578-6aa6-4df5-8a76-0378f3bbedf8",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "488edfcf84703cfef2109f49c2e02e48",
+      "identity_overlaps": []
+    },
+    {
+      "id": "1becf8b4-e456-46f3-9d00-532ff27225aa",
+      "targets": [
+        {
+          "id": "3f0363d9-0767-4244-9ff6-6705f7268105",
+          "label": "696"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "סכוםשלושתהמספריםשלהרכב=696",
+      "source_md5": "4567d30a8e9fa3343686c454d1c4a834",
+      "source_ref": "channel_updates:d2e2a756-9d01-462d-adb8-09d177f5273b",
+      "source_uid": "channel_updates:d2e2a756-9d01-462d-adb8-09d177f5273b",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "3eb237d31356b3c5c3f5418c5c91596f",
+      "identity_overlaps": []
+    },
+    {
+      "id": "1e454ec4-4cd4-484b-a1ce-121ef010d174",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "שלושתהמופעיםשלהביטוי«וטובלך»מתפזריםעלשלושתחלקיהתנך-תורה,נביאיםוכתובים",
+      "source_md5": "3d5565a30120f4042f062bedcab8271b",
+      "source_ref": "channel_updates:708c6275-9521-4f57-9b67-99bc6669dc12",
+      "source_uid": "channel_updates:708c6275-9521-4f57-9b67-99bc6669dc12",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "f2b229b98a8ad7028b66b91ef66e9b52",
+      "identity_overlaps": []
+    },
+    {
+      "id": "1ebe1970-8930-4b82-b44e-7e67df25c490",
+      "targets": [
+        {
+          "id": "211ddddb-799b-4881-b8bb-115fc98eb8af",
+          "label": "3060"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "30פעמיםאמונה=3060",
+      "source_md5": "021939e65b78e18617d113c3d3823635",
+      "source_ref": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5#batch0",
+      "source_uid": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "26f7a605089ef8eb8f62d0eb866cc865",
+      "identity_overlaps": [
+        {
+          "id": "80c9599e-419c-4e7a-bf5f-60f8ba30c174",
+          "kind": "fact",
+          "terms": [
+            "אמונה"
+          ],
+          "value": 3060,
+          "claim_uid": "30פעמיםאמונה=3060",
+          "statement": "30 פעמים \"אמונה\" = 3060",
+          "source_ref": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+          "source_uid": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5"
+        }
+      ]
+    },
+    {
+      "id": "21088e14-977a-429e-b8cf-87def3d2da91",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהדמיוןביןקודהחירום7700לגימטריהשלפרצתמרמזעלנסשלפריצהלתאהטייס",
+      "source_md5": "944f5ae71b881c34e69e92c3e49981ad",
+      "source_ref": "channel_updates:c3e44d3b-9a7e-428d-a105-b185b3045f73",
+      "source_uid": "channel_updates:c3e44d3b-9a7e-428d-a105-b185b3045f73",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "b781d22f3e166fb013c644e3dd62f623",
+      "identity_overlaps": []
+    },
+    {
+      "id": "24013608-9730-40cb-94d2-8122bf1da067",
+      "targets": [
+        {
+          "id": "b44b3787-6a16-49ea-82bd-a99e7f41e262",
+          "label": "888"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "המילה«מתחתם»היאפלינדרום(נקראתאותודברמכלכיוון),וגםהערךהגימטרישלה(888)הואפלינדרוםמספרי",
+      "source_md5": "92228026bd816e1fb0f3044cba5759fd",
+      "source_ref": "channel_updates:2d774d55-bd3a-46fc-8e0d-5058470c1358",
+      "source_uid": "channel_updates:2d774d55-bd3a-46fc-8e0d-5058470c1358",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "832ab8f6a9bbcef901f87f59a816db1b",
+      "identity_overlaps": []
+    },
+    {
+      "id": "266d95e7-88af-4d26-95f0-6ece68384b08",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהבחירהבמספר3060כמבנהכוללנועדהלבטאקשרלמושגהאמונה",
+      "source_md5": "021939e65b78e18617d113c3d3823635",
+      "source_ref": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "source_uid": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "c8bf31c8a581934faceba97bd04a77a0",
+      "identity_overlaps": []
+    },
+    {
+      "id": "26acbdf3-950e-47a3-ace5-5cce0e8ee71c",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "מההקשרביןהתבניתהזו(מתחתם/888)לביןהשנההעבריתתשפו?",
+      "source_md5": "92228026bd816e1fb0f3044cba5759fd",
+      "source_ref": "channel_updates:2d774d55-bd3a-46fc-8e0d-5058470c1358",
+      "source_uid": "channel_updates:2d774d55-bd3a-46fc-8e0d-5058470c1358",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "2784f24360779f78ff9901430833682b",
+      "identity_overlaps": []
+    },
+    {
+      "id": "2b24f4be-de7b-4b0c-a051-424230c875fb",
+      "targets": [
+        {
+          "id": "3f0363d9-0767-4244-9ff6-6705f7268105",
+          "label": "696"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הסכום50+26+620שווהל-696",
+      "source_md5": "16f18ffe78bd90df4feb2e2fd013f89a",
+      "source_ref": "channel_updates:4b24de5e-dc9b-473c-b5d4-c006cd8bd21a",
+      "source_uid": "channel_updates:4b24de5e-dc9b-473c-b5d4-c006cd8bd21a",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "bb0383f2db436dbfcb58fc647bd09b91",
+      "identity_overlaps": []
+    },
+    {
+      "id": "2dfdd392-7b63-45ce-9dc8-ddb0f04b971b",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "צירוףהביטויים«כתר»ו-«הואאל-הי-םחיים»=786",
+      "source_md5": "3d2ab6656581463a00ebb49735e20e6a",
+      "source_ref": "channel_updates:c74f7949-fda7-4c85-8142-eb0fb9b3dc44",
+      "source_uid": "channel_updates:c74f7949-fda7-4c85-8142-eb0fb9b3dc44",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "f078140d82a4e8da911100a1ebbc6ed9",
+      "identity_overlaps": []
+    },
+    {
+      "id": "30a66cec-c496-4b7c-a48f-81c3df8fc868",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "הפסוקמופיעפעמייםבספרתהילים-במזמורסובמזמורקח",
+      "source_md5": "5595ebe3fd8488f25c82268016a65819",
+      "source_ref": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "source_uid": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "32c5a24a3326368355bc12f673ab50c3",
+      "identity_overlaps": []
+    },
+    {
+      "id": "32fb8a1d-f6f9-4edc-988d-5646f7bcd2e1",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "«רזא+שבת»=10×«מלאך»(שוויוןגימטרינטען)",
+      "source_md5": "206998bd872833f682bf453aa844477a",
+      "source_ref": "channel_updates:66910d3b-28d2-4188-8089-64ec5c12475e",
+      "source_uid": "channel_updates:66910d3b-28d2-4188-8089-64ec5c12475e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "fe5033c40eeaf7f7efa92a8b1cb0171a",
+      "identity_overlaps": []
+    },
+    {
+      "id": "34d11a32-33c3-4974-98b4-af2586b4a477",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "שנתתשפז(787)רמוזהגםבירמיהווגםבתהילים.בשניהםכתובבפסוק:זיתרענןגימטריא(787).עםישראלנקראזיתוגםאברהםאבינו.אגבזית(417)בגימטריא:אדם+דוד+משיח.(417)",
+      "source_md5": "a2aab97603fe0e0db72ca36af48d56e3",
+      "source_ref": "channel_updates:f45d749f-9153-4bfb-afb6-2b83eedf0ea0",
+      "source_uid": "channel_updates:f45d749f-9153-4bfb-afb6-2b83eedf0ea0",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "a2aab97603fe0e0db72ca36af48d56e3",
+      "identity_overlaps": []
+    },
+    {
+      "id": "37c19410-0304-4e8c-920b-8f8141bb01c1",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהמשמעותשלהערך68קשורהלשלושהספירותהעליונות",
+      "source_md5": "08f0ae3b52b3e7cf33404c80c6eb0d03",
+      "source_ref": "channel_updates:c9df0633-f04c-4a07-939d-d4d74ff8f0c6",
+      "source_uid": "channel_updates:c9df0633-f04c-4a07-939d-d4d74ff8f0c6",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "cc6cc256373f5f240e807f62e5923222",
+      "identity_overlaps": []
+    },
+    {
+      "id": "39a7394a-e8e8-4acd-8a7b-24597bb44bda",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהופעתהמילה«השבעתי»בשירהשיריםרומזתלשנתתשפזולסודהגאולה",
+      "source_md5": "209be1f8d29d0a86fe756ebb79964db2",
+      "source_ref": "channel_updates:408d2748-bd1a-4c6d-888c-4ead476d12fb",
+      "source_uid": "channel_updates:408d2748-bd1a-4c6d-888c-4ead476d12fb",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "b58ed6a75642fc45aaae2ec4f654763e",
+      "identity_overlaps": []
+    },
+    {
+      "id": "3bc6febf-675d-4328-b7f8-0bf33c045ca3",
+      "targets": [
+        {
+          "id": "07a4c426-34cd-4b4b-ad4d-1c1e5013887e",
+          "label": "417"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הצירוף«אדם»+«דוד»+«משיח»בגימטריה=417",
+      "source_md5": "a2aab97603fe0e0db72ca36af48d56e3",
+      "source_ref": "channel_updates:f45d749f-9153-4bfb-afb6-2b83eedf0ea0",
+      "source_uid": "channel_updates:f45d749f-9153-4bfb-afb6-2b83eedf0ea0",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "a1b99dcfa6f8c0056ed829132e6e6610",
+      "identity_overlaps": []
+    },
+    {
+      "id": "3ffa0114-29c7-4777-a0d9-4ee4528e2c31",
+      "targets": [
+        {
+          "id": "1c175ba7-6857-4925-ab4c-25b5e38e6b48",
+          "label": "27"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "גימטריית«שבת»קשורהלמספר27(המכונה27הוויות)",
+      "source_md5": "4012326b105c347c57ebbbce2ed3c054",
+      "source_ref": "channel_updates:76176bf3-e94a-44bb-a7e0-73b736d1a2e6",
+      "source_uid": "channel_updates:76176bf3-e94a-44bb-a7e0-73b736d1a2e6",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "4b10384997097c6a58b3c9820e135f85",
+      "identity_overlaps": []
+    },
+    {
+      "id": "45c60cc9-da04-400c-8167-a500b5d27b66",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "696+90=786",
+      "source_md5": "9f7e339b7488a9ec141ddd574fb13a5e",
+      "source_ref": "channel_updates:94cc1578-6aa6-4df5-8a76-0378f3bbedf8",
+      "source_uid": "channel_updates:94cc1578-6aa6-4df5-8a76-0378f3bbedf8",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "67248147932878ce48885c54408b060a",
+      "identity_overlaps": []
+    },
+    {
+      "id": "472dbf42-9b74-488f-bcac-476e77b9c1ec",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "בפסוקברוךשםכבודמלכותולעולםועדמפרקשירה(הצפרדע)מופיעההמילהועדכמכפלהשלחלקיה",
+      "source_md5": "3a2270177bc1da5af725eb0ead4fd98e",
+      "source_ref": "channel_updates:f02de15e-a31d-4fef-b757-af46fa6a220e",
+      "source_uid": "channel_updates:f02de15e-a31d-4fef-b757-af46fa6a220e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "5495151a83341f05ccfc635b38aee7d5",
+      "identity_overlaps": []
+    },
+    {
+      "id": "47684983-c4e3-49b7-8002-8addd3098218",
+      "targets": [
+        {
+          "id": "3f0363d9-0767-4244-9ff6-6705f7268105",
+          "label": "696"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "סכוםמספריהרכב(696)מתלכדעםהגימטריהשלמושגקבליעליון",
+      "source_md5": "4567d30a8e9fa3343686c454d1c4a834",
+      "source_ref": "channel_updates:d2e2a756-9d01-462d-adb8-09d177f5273b",
+      "source_uid": "channel_updates:d2e2a756-9d01-462d-adb8-09d177f5273b",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "f6680fef18655fb7473d255365416bd3",
+      "identity_overlaps": []
+    },
+    {
+      "id": "4a892aca-2dfc-4be7-8b89-0d264f0f1574",
+      "targets": [
+        {
+          "id": "47c8938c-8f71-461d-b6fe-684af949346e",
+          "label": "13"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הביטוי«שמעונא»מופיע13פעמיםבתנך",
+      "source_md5": "b618ffc34bf0f995ebc5210410c630f8",
+      "source_ref": "channel_updates:bfe68d3c-0732-4fc3-9b1d-b753cf3f28d8",
+      "source_uid": "channel_updates:bfe68d3c-0732-4fc3-9b1d-b753cf3f28d8",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "a7ae850ec61c66bf327e83f1633a10cf",
+      "identity_overlaps": []
+    },
+    {
+      "id": "50a5d8d4-1633-4abc-bda0-57e3e2c43cf7",
+      "targets": [
+        {
+          "id": "76dae5b3-6c87-4ce0-8a6e-8b52fb98aa94",
+          "label": "596"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "סכוםהמספרים28+495+73=596",
+      "source_md5": "3536c8bc9b2a36e59ec26308c3a9f1cc",
+      "source_ref": "channel_updates:ffe33aa6-8db8-4a29-97e9-4b7955aaa93c",
+      "source_uid": "channel_updates:ffe33aa6-8db8-4a29-97e9-4b7955aaa93c",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "5f445d6ecac461676265f099e52bdeb0",
+      "identity_overlaps": []
+    },
+    {
+      "id": "532688a3-6a1a-4e68-8277-438d03964217",
+      "targets": [
+        {
+          "id": "3f0363d9-0767-4244-9ff6-6705f7268105",
+          "label": "696"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הערך696מתקבלהןמחיבורשלושתהמספריםוהןמהגימטריהשלהביטוי",
+      "source_md5": "16f18ffe78bd90df4feb2e2fd013f89a",
+      "source_ref": "channel_updates:4b24de5e-dc9b-473c-b5d4-c006cd8bd21a",
+      "source_uid": "channel_updates:4b24de5e-dc9b-473c-b5d4-c006cd8bd21a",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "d3839d8bb985d3156e4db2158fa82c5a",
+      "identity_overlaps": []
+    },
+    {
+      "id": "572728a7-3425-43ea-86ac-1bf37af2221f",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "האםקייםקשרנוסףביןשארהמופעיםשל«השבעתי»בשירהשיריםלביןמועדיגאולה?",
+      "source_md5": "209be1f8d29d0a86fe756ebb79964db2",
+      "source_ref": "channel_updates:408d2748-bd1a-4c6d-888c-4ead476d12fb",
+      "source_uid": "channel_updates:408d2748-bd1a-4c6d-888c-4ead476d12fb",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "d76d7ec7ed1f8ecdb4b1733889fec1a4",
+      "identity_overlaps": []
+    },
+    {
+      "id": "576bf6f2-58b6-4b94-8c03-d702779c4858",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "האםקיימיםמבניםנוספיםבהםמופיעהכפולהשלאמונהבערכיםגימטרייםמשמעותיים?",
+      "source_md5": "021939e65b78e18617d113c3d3823635",
+      "source_ref": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "source_uid": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "2ef70b0d555eda51e81d5c4ce456d9e7",
+      "identity_overlaps": []
+    },
+    {
+      "id": "58fba85b-9447-4442-92e9-b6ff1fdd9580",
+      "targets": [
+        {
+          "id": "17b505eb-f938-44ff-8941-7de97fbd5a57",
+          "label": "10"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הפערביןנחלאדםהראשוןנמשךכ-10דורות,ולכןהטעותהמקוריתמתוארתכטעותשל10דורות",
+      "source_md5": "6816ee9b88502393ef859ad324e522db",
+      "source_ref": "channel_updates:72eeebc1-c986-4881-a9d9-f8208dc9bbe0",
+      "source_uid": "channel_updates:72eeebc1-c986-4881-a9d9-f8208dc9bbe0",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "d7f6f96027431818422d5d25a3af970a",
+      "identity_overlaps": []
+    },
+    {
+      "id": "5a9d3224-ecd0-4bac-a024-1c8fe95d6c51",
+      "targets": [
+        {
+          "id": "c9dd9368-c865-4721-af05-192b35f23999",
+          "label": "850"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "סכוםגימטריית«אשה»וגימטרייתהמילוישל«בינה»שווה850",
+      "source_md5": "9cf653bc11337293c10035cf6bf0c88a",
+      "source_ref": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "source_uid": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "4d0c8f4c1cee59cd7b9cfc0f36600c4d",
+      "identity_overlaps": []
+    },
+    {
+      "id": "5ad4e553-c09a-4755-8088-a4cb32fb17dd",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהזהותהגימטריתביןכפלאורפניךלביןהארתפניםמרמזתעלקשרמשמעותיביןהמושגים",
+      "source_md5": "2b4728eb882f71f9b4eb5be2d9a41c17",
+      "source_ref": "channel_updates:9031751a-8602-40eb-8318-1500a2255052",
+      "source_uid": "channel_updates:9031751a-8602-40eb-8318-1500a2255052",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "2e11aea9c6065ed17a8f724e93960ff4",
+      "identity_overlaps": []
+    },
+    {
+      "id": "5b43f839-99cd-481c-8498-7d82073c09ef",
+      "targets": [
+        {
+          "id": "9cd22c3e-be5c-4283-ba6d-f974530d4dbc",
+          "label": "1820"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "911+909=1820=1820",
+      "source_md5": "0b5705aefabf89e0caa00a3b96bd78bc",
+      "source_ref": "channel_updates:6c3e5e16-de8c-4708-9700-78f91f558297#batch0",
+      "source_uid": "channel_updates:6c3e5e16-de8c-4708-9700-78f91f558297",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "5fc6a26ca066e0d354f718469354445a",
+      "identity_overlaps": []
+    },
+    {
+      "id": "5e811b60-66ea-4dca-94c7-e7f125e81e4f",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "האםקיימיםביטוייםנוספיםבשירהשיריםהמתכתביםגימטריתעםמושגיגאולהבדומהלעפרהאילים?",
+      "source_md5": "4841e5bf1fff1998cf7887c945c6ea80",
+      "source_ref": "channel_updates:aed5e276-d573-4c64-99a8-ec90ac9f3626",
+      "source_uid": "channel_updates:aed5e276-d573-4c64-99a8-ec90ac9f3626",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "ffeb29acf3cdc758b794aa70478bb4b7",
+      "identity_overlaps": []
+    },
+    {
+      "id": "60cec867-0a57-4a8c-82f1-a7edfaca78fd",
+      "targets": [
+        {
+          "id": "c9dd9368-c865-4721-af05-192b35f23999",
+          "label": "850"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "850מתחלקל-50כפול17,כאשר17הואערךהמילה«טוב»",
+      "source_md5": "9cf653bc11337293c10035cf6bf0c88a",
+      "source_ref": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "source_uid": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "f328d05024321ed76e350d71c77bbc42",
+      "identity_overlaps": []
+    },
+    {
+      "id": "6133bc93-71d3-4a4c-ae69-61c3954f23cc",
+      "targets": [
+        {
+          "id": "07a4c426-34cd-4b4b-ad4d-1c1e5013887e",
+          "label": "417"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "צירוף«אדם+דוד+משיח»=417",
+      "source_md5": "e0dca1c58f4fabe8b81ac4033453c8db",
+      "source_ref": "channel_updates:31e50e11-a9d1-49ac-a357-a7b245ec5613",
+      "source_uid": "channel_updates:31e50e11-a9d1-49ac-a357-a7b245ec5613",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "4d714b594c9f8dbee229d865d43fe948",
+      "identity_overlaps": []
+    },
+    {
+      "id": "617b120f-3d92-4bbc-9f6d-da633b55ea59",
+      "targets": [
+        {
+          "id": "4cc5d56b-628f-4773-9e64-89e3b38ec686",
+          "label": "50"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "קייםחפיפהביןהערך50(גימטרייתים)לביןהיוםהחמישיםשהואחגהשבועות",
+      "source_md5": "acc8d26efd5ceab465c1543b35d1b00f",
+      "source_ref": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "source_uid": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "e3e6a51ec855dcc58130da10d74f1cce",
+      "identity_overlaps": []
+    },
+    {
+      "id": "61e24013-4f94-4e5c-b04f-43c4a9e78ef4",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "קודהחירום7700↔פרצתכפול10(באותוערךגימטרי)",
+      "source_md5": "944f5ae71b881c34e69e92c3e49981ad",
+      "source_ref": "channel_updates:c3e44d3b-9a7e-428d-a105-b185b3045f73",
+      "source_uid": "channel_updates:c3e44d3b-9a7e-428d-a105-b185b3045f73",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "413064697dc9b552b16328f113fe9d14",
+      "identity_overlaps": []
+    },
+    {
+      "id": "6305a1a9-4f4e-43ea-9fa7-02cb520e88e1",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהכינוי«זית»לעםישראלולאברהםאבינו,יחדעםהזיקההגימטריתלאדם-דוד-משיח,מרמזלרצףהיסטורי-משיחי",
+      "source_md5": "a2aab97603fe0e0db72ca36af48d56e3",
+      "source_ref": "channel_updates:f45d749f-9153-4bfb-afb6-2b83eedf0ea0",
+      "source_uid": "channel_updates:f45d749f-9153-4bfb-afb6-2b83eedf0ea0",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "2ada69fb56759d4c3b8386bcda1759c4",
+      "identity_overlaps": []
+    },
+    {
+      "id": "641d6fa7-bc7d-46a7-aa9d-2b0075614fd3",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "השבתהיאהמצווההיחידההמכונה«מתנהטובה»",
+      "source_md5": "4012326b105c347c57ebbbce2ed3c054",
+      "source_ref": "channel_updates:76176bf3-e94a-44bb-a7e0-73b736d1a2e6",
+      "source_uid": "channel_updates:76176bf3-e94a-44bb-a7e0-73b736d1a2e6",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "645b9d4f692c11b16496e9845682ad37",
+      "identity_overlaps": []
+    },
+    {
+      "id": "64a1e007-3be2-430e-950c-e48325b83522",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשקיוםהמצווההנדונהגורםלברכה,שמירהוהצלחההנובעותמהארתפניםשלהכתר",
+      "source_md5": "e3e3421c39675a0fe4bff536e085b8b8",
+      "source_ref": "channel_updates:38abbe03-a692-49a4-a0d4-254083083392",
+      "source_uid": "channel_updates:38abbe03-a692-49a4-a0d4-254083083392",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "2a0d1e2381e74d1f57e8fe01ad751b4d",
+      "identity_overlaps": []
+    },
+    {
+      "id": "66e5cc98-4d8d-4a96-ab95-d0cd0d3cb7d0",
+      "targets": [
+        {
+          "id": "09a4e4e8-bb82-4ba9-b840-766fb0e0bbdb",
+          "label": "444"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "המילה«ועד»↔מכפלת«ו»ו-«עד»(6×74)",
+      "source_md5": "3a2270177bc1da5af725eb0ead4fd98e",
+      "source_ref": "channel_updates:f02de15e-a31d-4fef-b757-af46fa6a220e",
+      "source_uid": "channel_updates:f02de15e-a31d-4fef-b757-af46fa6a220e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "2b22f91f527891d6ba2ec74d27d166c6",
+      "identity_overlaps": []
+    },
+    {
+      "id": "6778b73b-69ec-41d9-aa04-b8f6bbae3397",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "חיבורבין«מלכותשבכתר»ל«מלכותשבמלכות»,הקשורלאדםהזקוקלצדקה",
+      "source_md5": "e3e3421c39675a0fe4bff536e085b8b8",
+      "source_ref": "channel_updates:38abbe03-a692-49a4-a0d4-254083083392",
+      "source_uid": "channel_updates:38abbe03-a692-49a4-a0d4-254083083392",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "f95858a4cb50e527358932666d19f411",
+      "identity_overlaps": []
+    },
+    {
+      "id": "678b098d-f8d7-49a9-9331-12c74d5a2f18",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הביטוי«אורפניךי-ה-ו-ה»בכפלשווהבגימטריהתשפו(786)",
+      "source_md5": "2b4728eb882f71f9b4eb5be2d9a41c17",
+      "source_ref": "channel_updates:9031751a-8602-40eb-8318-1500a2255052",
+      "source_uid": "channel_updates:9031751a-8602-40eb-8318-1500a2255052",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "68d0097541c994d48102dfa34cae5ae3",
+      "identity_overlaps": []
+    },
+    {
+      "id": "6a2e4e84-e856-44ab-b61d-65e9c68add09",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהמספרהמתקבלמהשוויוןמייצגאתמנייןהמלאכיםהשומריםעלעםישראל",
+      "source_md5": "206998bd872833f682bf453aa844477a",
+      "source_ref": "channel_updates:66910d3b-28d2-4188-8089-64ec5c12475e",
+      "source_uid": "channel_updates:66910d3b-28d2-4188-8089-64ec5c12475e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "afb0150c0769aa06858d5e42312b5ce9",
+      "identity_overlaps": []
+    },
+    {
+      "id": "6bc60dc4-79dc-4603-88dc-71e917e1e340",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הביטוי«ברחמיםגדולים»=786",
+      "source_md5": "c68e89363e5982f94164eff3f03e059e",
+      "source_ref": "channel_updates:0deb25aa-99b4-4297-9999-f6184f13b40f",
+      "source_uid": "channel_updates:0deb25aa-99b4-4297-9999-f6184f13b40f",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "16c5458fd5774daaad6417bbe068fd89",
+      "identity_overlaps": []
+    },
+    {
+      "id": "71050633-b562-4297-9140-5c8f6a046623",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "«עםישראל»↔«אברהםאבינו»(שניהםמכוניםזיתרענן)",
+      "source_md5": "e0dca1c58f4fabe8b81ac4033453c8db",
+      "source_ref": "channel_updates:31e50e11-a9d1-49ac-a357-a7b245ec5613",
+      "source_uid": "channel_updates:31e50e11-a9d1-49ac-a357-a7b245ec5613",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "8d791db867d72a872daed20ddacb8d8d",
+      "identity_overlaps": []
+    },
+    {
+      "id": "71e779c4-a3f0-464e-87de-e0edc918803b",
+      "targets": [
+        {
+          "id": "694a2591-033d-486a-acbf-63d0a40d1d38",
+          "label": "1118"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "מכפלתאלהיםואחד=1118",
+      "source_md5": "43c7c1a7a4db83cced3cd13bd4ef1c42",
+      "source_ref": "channel_updates:0bed1e6f-5501-4213-9907-e736b3bf8baf",
+      "source_uid": "channel_updates:0bed1e6f-5501-4213-9907-e736b3bf8baf",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "8f186d5677571630ccb8be9c52630a0f",
+      "identity_overlaps": []
+    },
+    {
+      "id": "7302d5a7-de53-4d10-9c2c-92869f7b4d86",
+      "targets": [
+        {
+          "id": "4740e8d5-f612-4b6c-ab6a-7db1d7b4aa4a",
+          "label": "910"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "רזא+שבת=10×מלאך",
+      "source_md5": "206998bd872833f682bf453aa844477a",
+      "source_ref": "channel_updates:66910d3b-28d2-4188-8089-64ec5c12475e#batch8",
+      "source_uid": "channel_updates:66910d3b-28d2-4188-8089-64ec5c12475e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "0a0f5c14aa8e816e76442ee53ddd52ac",
+      "identity_overlaps": []
+    },
+    {
+      "id": "75ae9a85-f421-4acf-bd27-917021f8502b",
+      "targets": [
+        {
+          "id": "88083631-2f7f-4d93-ae46-63c5619a121a",
+          "label": "787"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הביטויזיתרענןמופיעהןבירמיהווהןבתהיליםומקושרלשנתתשפזדרךהגימטריה787",
+      "source_md5": "e0dca1c58f4fabe8b81ac4033453c8db",
+      "source_ref": "channel_updates:31e50e11-a9d1-49ac-a357-a7b245ec5613",
+      "source_uid": "channel_updates:31e50e11-a9d1-49ac-a357-a7b245ec5613",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "4bc144bdfbf0a8f18007ebe2a8ca9b1c",
+      "identity_overlaps": []
+    },
+    {
+      "id": "774d2f5c-fd19-459e-af80-cdc0005af9a3",
+      "targets": [
+        {
+          "id": "4c6bbf1f-3e0c-49df-8798-b9c41caef85c",
+          "label": "204"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "צירוףאמונה+אמונה=204",
+      "source_md5": "4d0b432200fd68002db93a09f4b40fb2",
+      "source_ref": "channel_updates:05e04b19-59c3-4733-a807-87e7c0acb247",
+      "source_uid": "channel_updates:05e04b19-59c3-4733-a807-87e7c0acb247",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "1eb45c61593fc12c5e11af3999e81be7",
+      "identity_overlaps": []
+    },
+    {
+      "id": "792a2164-4720-4c5b-8db7-e82ecaa14040",
+      "targets": [
+        {
+          "id": "78fe15e1-6fc5-4641-b1cd-831a75c5bab7",
+          "label": "1073"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הפסוק«גדולי-ה-ו-הומהללמאדולגדולתואיןחקר»=1073",
+      "source_md5": "20e52430e834140f284d7aeb902cd6fd",
+      "source_ref": "channel_updates:cb616dd9-1b3d-4761-8089-491f0ce42ac1",
+      "source_uid": "channel_updates:cb616dd9-1b3d-4761-8089-491f0ce42ac1",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "2f575cc538b8f384b2ee72b8906bc7d2",
+      "identity_overlaps": []
+    },
+    {
+      "id": "7e4a7723-61fe-489e-89df-ff9e55a7e74d",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהקשרהגימטריבין«מתנה»ל«כיברךאברכך»מרמזשהברכההאלוהיתנתפסתכמתנה",
+      "source_md5": "155c7fa62ef9990b0183c3b95bb751bc",
+      "source_ref": "channel_updates:00661c86-6beb-4c53-b864-f4c76fefde5b",
+      "source_uid": "channel_updates:00661c86-6beb-4c53-b864-f4c76fefde5b",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "9679af0b468231a7e2467f570eb374e2",
+      "identity_overlaps": []
+    },
+    {
+      "id": "80c9599e-419c-4e7a-bf5f-60f8ba30c174",
+      "targets": [
+        {
+          "id": "211ddddb-799b-4881-b8bb-115fc98eb8af",
+          "label": "3060"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "30פעמיםאמונה=3060",
+      "source_md5": "021939e65b78e18617d113c3d3823635",
+      "source_ref": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "source_uid": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "e2a62b214616df1159636e6ed1f29545",
+      "identity_overlaps": [
+        {
+          "id": "1ebe1970-8930-4b82-b44e-7e67df25c490",
+          "kind": "observation",
+          "terms": [
+            "30 פעמים \"אמונה\"=3060"
+          ],
+          "value": 3060,
+          "claim_uid": "30פעמיםאמונה=3060",
+          "statement": "30 פעמים \"אמונה\"=3060",
+          "source_ref": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5#batch0",
+          "source_uid": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5"
+        }
+      ]
+    },
+    {
+      "id": "83f50d74-a690-4b66-b6c9-6b96971b2bba",
+      "targets": [
+        {
+          "id": "4e4dd591-b5a3-41fd-9be2-a4c8469fbfdd",
+          "label": "3"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הביטוי«וטובלך»מופיערק3פעמיםבתנך",
+      "source_md5": "3d5565a30120f4042f062bedcab8271b",
+      "source_ref": "channel_updates:708c6275-9521-4f57-9b67-99bc6669dc12",
+      "source_uid": "channel_updates:708c6275-9521-4f57-9b67-99bc6669dc12",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "fcec3903af37940de6b43119471d2dd2",
+      "identity_overlaps": []
+    },
+    {
+      "id": "85b21a53-8399-42a5-a32e-c660de8245a8",
+      "targets": [
+        {
+          "id": "09a4e4e8-bb82-4ba9-b840-766fb0e0bbdb",
+          "label": "444"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "נצח+נצח+נצח=444",
+      "source_md5": "e02f3cfdc94c755b39abdb1e65912292",
+      "source_ref": "channel_updates:163ce472-6628-48a1-a0f0-438808fb5934#batch4",
+      "source_uid": "channel_updates:163ce472-6628-48a1-a0f0-438808fb5934",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "78c1c954fb3165f656008b6c2fd09f85",
+      "identity_overlaps": []
+    },
+    {
+      "id": "8c0d66b8-982e-44d7-ac68-68804698514c",
+      "targets": [
+        {
+          "id": "503194a4-3279-4e34-a861-c74cf9476183",
+          "label": "1154"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "חיבורהספרות984+85+85שווה1154",
+      "source_md5": "5595ebe3fd8488f25c82268016a65819",
+      "source_ref": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "source_uid": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "04ac7072c6f419739d88decfddc0706a",
+      "identity_overlaps": []
+    },
+    {
+      "id": "8e6fd12e-2603-49b5-b62e-09a74cea0e8d",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הסכוםהגימטרישל«חסד»+«רחל»+«רחל»+«רחל»=786",
+      "source_md5": "062742f6ec4551fe413bc203f7cf8d67",
+      "source_ref": "channel_updates:f2ef23c3-fc4d-4ca1-be5b-a47bb99d0e4e",
+      "source_uid": "channel_updates:f2ef23c3-fc4d-4ca1-be5b-a47bb99d0e4e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "eef7abaed2abbfe1df9dbee7624a7cdd",
+      "identity_overlaps": []
+    },
+    {
+      "id": "9078bd92-0479-4f71-8c1e-f5f848e56ebe",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "יםהואכינוימקובללספירתהמלכות",
+      "source_md5": "acc8d26efd5ceab465c1543b35d1b00f",
+      "source_ref": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "source_uid": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "5fb1354203e0bfe258abf4321fa32b64",
+      "identity_overlaps": []
+    },
+    {
+      "id": "936a39c6-11ae-40c9-a11b-d9303d648f5b",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "עפרהאילים🦌🦌🦌🦌🦌🦌🦌עפרהאיליםמופיע3פעמיםבשירהשירים.{שירהשירים:ב,ט.ב,יז.ח,יד}.עפרהאיליםבגימטריא:446.משיחהגיעבגימטריא:446.מושיעךבגימטריא:446.",
+      "source_md5": "4841e5bf1fff1998cf7887c945c6ea80",
+      "source_ref": "channel_updates:aed5e276-d573-4c64-99a8-ec90ac9f3626",
+      "source_uid": "channel_updates:aed5e276-d573-4c64-99a8-ec90ac9f3626",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "4841e5bf1fff1998cf7887c945c6ea80",
+      "identity_overlaps": []
+    },
+    {
+      "id": "962d509f-7052-4c9f-be25-be8895e9460a",
+      "targets": [
+        {
+          "id": "d3a5a1ee-0e62-4f1f-b507-f6ab517929dc",
+          "label": "68"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הביטוי«א-היה+י-הוה+א-היה»שווה68בגימטריה",
+      "source_md5": "08f0ae3b52b3e7cf33404c80c6eb0d03",
+      "source_ref": "channel_updates:c9df0633-f04c-4a07-939d-d4d74ff8f0c6",
+      "source_uid": "channel_updates:c9df0633-f04c-4a07-939d-d4d74ff8f0c6",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "f71a5f48e9c01eed4f3050c113837d47",
+      "identity_overlaps": []
+    },
+    {
+      "id": "98fd241a-4ee8-45c1-84f4-2c5b0359c3dc",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשישמשמעותרעיוניתלכךשהמילהועדבפסוקזהמתקבלתדווקאממכפלהולאמחיבור",
+      "source_md5": "3a2270177bc1da5af725eb0ead4fd98e",
+      "source_ref": "channel_updates:f02de15e-a31d-4fef-b757-af46fa6a220e",
+      "source_uid": "channel_updates:f02de15e-a31d-4fef-b757-af46fa6a220e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "ac830af63a23eaaa4e4315da56fa608d",
+      "identity_overlaps": []
+    },
+    {
+      "id": "9a06aabc-2244-44de-8495-85f6715e2254",
+      "targets": [
+        {
+          "id": "503194a4-3279-4e34-a861-c74cf9476183",
+          "label": "1154"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "גימטריהשלהפסוק«למעןיחלצוןידידיךהודיעהימינךוענני»=1154",
+      "source_md5": "5595ebe3fd8488f25c82268016a65819",
+      "source_ref": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "source_uid": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "5284d19815d5a4770d0726ce9dc02921",
+      "identity_overlaps": []
+    },
+    {
+      "id": "9c10ab5f-4e16-46a3-ba47-0a43c034a79d",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "אל-ה-ים×אחד==86×13=1118.1118=שמעישראלי-הוהאלהינוי-הוהאחדהמכפלהשווהבדיוקלסכום!!!",
+      "source_md5": "43c7c1a7a4db83cced3cd13bd4ef1c42",
+      "source_ref": "channel_updates:0bed1e6f-5501-4213-9907-e736b3bf8baf",
+      "source_uid": "channel_updates:0bed1e6f-5501-4213-9907-e736b3bf8baf",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "43c7c1a7a4db83cced3cd13bd4ef1c42",
+      "identity_overlaps": []
+    },
+    {
+      "id": "9c44adb0-afcf-4392-b90c-4843e6a263a8",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהחזרההכפולהשלהפסוקבתהיליםקשורהלמשמעותהסכוםהמספרישהתקבל",
+      "source_md5": "5595ebe3fd8488f25c82268016a65819",
+      "source_ref": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "source_uid": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "7f290ec683b07b73e6cd87d8e8a7f4d2",
+      "identity_overlaps": []
+    },
+    {
+      "id": "9eeca2bc-b7be-41ed-b987-43c6731a329f",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "השילובשלחסדושלושפעמיםרחלנותןערךהזההלגימטריהשלתשפו",
+      "source_md5": "062742f6ec4551fe413bc203f7cf8d67",
+      "source_ref": "channel_updates:f2ef23c3-fc4d-4ca1-be5b-a47bb99d0e4e",
+      "source_uid": "channel_updates:f2ef23c3-fc4d-4ca1-be5b-a47bb99d0e4e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "670229e4630af5647c993cbf1565b0ae",
+      "identity_overlaps": []
+    },
+    {
+      "id": "a5138fa4-01aa-4695-aa1d-322b8d7dacb1",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "השם«נתנאלרפאל»כוללפעמייםאתהצירוף«אל»",
+      "source_md5": "10928cb2af95d6397c63bc6c16e3e396",
+      "source_ref": "channel_updates:17715ad1-bdeb-41ee-867b-44901f6ae19d",
+      "source_uid": "channel_updates:17715ad1-bdeb-41ee-867b-44901f6ae19d",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "e123f54c63b2d8928c8e9c78f1fa3860",
+      "identity_overlaps": []
+    },
+    {
+      "id": "a593f500-a9d1-4666-b07b-e1b14a31714f",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשישקשרמושגיביןהפעולהשלתשליך(הטלה/כפרה)לביןהרעיוןשלהארתפנים,לאורהשוואתהערכיםהמספריים",
+      "source_md5": "41b2c76c31ed784eb6680bdad15330f4",
+      "source_ref": "channel_updates:14014340-5eb0-4c02-bffc-3f7a4159686e",
+      "source_uid": "channel_updates:14014340-5eb0-4c02-bffc-3f7a4159686e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "d3edbd3ff1078086a04317665b74408b",
+      "identity_overlaps": []
+    },
+    {
+      "id": "a6e80bc9-035e-4831-8d73-05869bd182a5",
+      "targets": [
+        {
+          "id": "09a4e4e8-bb82-4ba9-b840-766fb0e0bbdb",
+          "label": "444"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "ערךגימטרי«ועד»=444",
+      "source_md5": "3a2270177bc1da5af725eb0ead4fd98e",
+      "source_ref": "channel_updates:f02de15e-a31d-4fef-b757-af46fa6a220e",
+      "source_uid": "channel_updates:f02de15e-a31d-4fef-b757-af46fa6a220e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "4115c3a1373ea3f9b4e36ab774bce901",
+      "identity_overlaps": []
+    },
+    {
+      "id": "a77cd33c-012c-4ca3-a9e1-126e50391696",
+      "targets": [
+        {
+          "id": "74340047-1429-48a5-8262-6293949b4753",
+          "label": "859"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "אשה=306.מקורצביטועןשמילויבינה=32×17=544ולכןאשה+מילויבינה=850;המנועהקנונימחזירמילויבינה=553,ולכןהסכוםהוא859.הטענה850אינהעוברת.",
+      "source_md5": "9cf653bc11337293c10035cf6bf0c88a",
+      "source_ref": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532#zvi-fullscan:bina-miluy-mismatch",
+      "source_uid": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532#zvi-fullscan:bina-miluy-mismatch",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "fb4660131ded3927733677af80c7ba1e",
+      "identity_overlaps": []
+    },
+    {
+      "id": "a9e30fd0-14d1-4254-afb9-00b87c34b958",
+      "targets": [
+        {
+          "id": "4e4dd591-b5a3-41fd-9be2-a4c8469fbfdd",
+          "label": "3"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הביטוי«עפרהאילים»מופיע3פעמיםבשירהשירים(ב,ט;ב,יז;ח,יד)",
+      "source_md5": "4841e5bf1fff1998cf7887c945c6ea80",
+      "source_ref": "channel_updates:aed5e276-d573-4c64-99a8-ec90ac9f3626",
+      "source_uid": "channel_updates:aed5e276-d573-4c64-99a8-ec90ac9f3626",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "a4c3faff4f876ca8f1787f5e4a94e288",
+      "identity_overlaps": []
+    },
+    {
+      "id": "b0849443-acb8-4500-b72d-b056b27f2d09",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "הברכההמדוברתנאמרהלנחולאלאדםהראשון",
+      "source_md5": "6816ee9b88502393ef859ad324e522db",
+      "source_ref": "channel_updates:72eeebc1-c986-4881-a9d9-f8208dc9bbe0",
+      "source_uid": "channel_updates:72eeebc1-c986-4881-a9d9-f8208dc9bbe0",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "4ddad43eb243f1783e8d0c90096c1f38",
+      "identity_overlaps": []
+    },
+    {
+      "id": "b1875310-9eb4-42d3-8263-356db7aa29c2",
+      "targets": [
+        {
+          "id": "839c8ab8-9461-4984-8bd3-3e62d4994b66",
+          "label": "1365"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "שניביטוייםשוניםלחלוטיןבתוכןמניביםלכאורהאותוערךגימטרי1365",
+      "source_md5": "09bd99189cc72c461bd7e5f1eaf28565",
+      "source_ref": "channel_updates:fd29359d-27da-4d0b-a743-6a7529e1e09a",
+      "source_uid": "channel_updates:fd29359d-27da-4d0b-a743-6a7529e1e09a",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "075e81cda90af9bea8c4a36233b6a315",
+      "identity_overlaps": []
+    },
+    {
+      "id": "b580879e-bbae-4524-9617-3b0c5885cde7",
+      "targets": [
+        {
+          "id": "08d7f65b-df98-40a0-96d5-2dada0ca5165",
+          "label": "404"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "4פעמיםגימטריית«מיכאל»שווה404",
+      "source_md5": "1d0d79bb962c73c903a4447e33f67f56",
+      "source_ref": "channel_updates:f1873268-0931-4cad-9dcf-aca2e8823ef2",
+      "source_uid": "channel_updates:f1873268-0931-4cad-9dcf-aca2e8823ef2",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "edcd5b6430eac9d143f93998721c29db",
+      "identity_overlaps": []
+    },
+    {
+      "id": "b8a7fdbf-06ca-44b8-ae1f-88584a002f83",
+      "targets": [
+        {
+          "id": "8d30c0ce-e8aa-4de0-8533-558e2618862c",
+          "label": "494"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "«מתנה»↔«כיברךאברכך»(אותוערךגימטרי494)",
+      "source_md5": "155c7fa62ef9990b0183c3b95bb751bc",
+      "source_ref": "channel_updates:00661c86-6beb-4c53-b864-f4c76fefde5b",
+      "source_uid": "channel_updates:00661c86-6beb-4c53-b864-f4c76fefde5b",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "d4a431e2e11c66ff47fbd6a27fb9407b",
+      "identity_overlaps": []
+    },
+    {
+      "id": "b9b89708-7fbd-4073-b209-1388fe1a9900",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "שילובביןהערךהגימטרי408לביןחזרתהפסוק4פעמיםעשוילהיותמשמעותי",
+      "source_md5": "167e206c5407015b828d656cb91b94cd",
+      "source_ref": "channel_updates:78319af9-937f-45c0-94d3-2283e9af3088",
+      "source_uid": "channel_updates:78319af9-937f-45c0-94d3-2283e9af3088",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "16889747efe6728a02a823b785479784",
+      "identity_overlaps": []
+    },
+    {
+      "id": "bb2a1171-28f3-44e0-8819-2fbe9b4a41eb",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "393כפול2=786",
+      "source_md5": "6628279d8c1b45d1010c475cd924a607",
+      "source_ref": "channel_updates:e4d38096-fc9a-4bf8-a785-3672a3849ced",
+      "source_uid": "channel_updates:e4d38096-fc9a-4bf8-a785-3672a3849ced",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "cf1f590654974a35710dd3addb965cf8",
+      "identity_overlaps": []
+    },
+    {
+      "id": "bbdbe7d7-778e-482f-a9b5-97edee71b6f3",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהזיקהביןים(ספירתהמלכות)לביןהיוםהחמישיםמרמזתעלמשמעותקבליתלחגהשבועותכנקודתחיבורביןהמלכותלבינה",
+      "source_md5": "acc8d26efd5ceab465c1543b35d1b00f",
+      "source_ref": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "source_uid": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "824fb47bf5967c049f4de4a961df7224",
+      "identity_overlaps": []
+    },
+    {
+      "id": "bc0f6a80-fb30-4043-a6fc-66d4d1bd905a",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהחפיפהביןגימטרייתהפסוקלביןסכוםכתר-חכמה-בינהמרמזתעלקשרתוכניביןתיאורגדולתהלביןשלושהספירותהעליונות",
+      "source_md5": "63af6c76d858cf8541e4a76fc9e9cf91",
+      "source_ref": "channel_updates:4cfbc8c9-4afc-499d-b7c7-7937d223fea3",
+      "source_uid": "channel_updates:4cfbc8c9-4afc-499d-b7c7-7937d223fea3",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "727294ec12d6a4368a467e6e9a85296e",
+      "identity_overlaps": []
+    },
+    {
+      "id": "bcad92fd-b564-4458-aa0e-0f839e06fb5c",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשישקשרביןכפילותאלבשםלביןגימטרייתברחמיםגדוליםפעמייםהשווהלתשפו",
+      "source_md5": "10928cb2af95d6397c63bc6c16e3e396",
+      "source_ref": "channel_updates:17715ad1-bdeb-41ee-867b-44901f6ae19d",
+      "source_uid": "channel_updates:17715ad1-bdeb-41ee-867b-44901f6ae19d",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "666fab5b06f7c9870b1fccd8bc56a0e7",
+      "identity_overlaps": []
+    },
+    {
+      "id": "beeb43e2-47c6-4068-8f71-3d290801b7b7",
+      "targets": [
+        {
+          "id": "4cc5d56b-628f-4773-9e64-89e3b38ec686",
+          "label": "50"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "היוםהחמישיםבספירתהעומרהואחגהשבועות,יוםמתןתורה",
+      "source_md5": "acc8d26efd5ceab465c1543b35d1b00f",
+      "source_ref": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "source_uid": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "cc744615a400c2e029ae1f2f14a0a3b6",
+      "identity_overlaps": []
+    },
+    {
+      "id": "c06b3675-35f2-4639-a75a-86053160352c",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "קוד7700מצייןמצבחירוםכלליבתעופה",
+      "source_md5": "944f5ae71b881c34e69e92c3e49981ad",
+      "source_ref": "channel_updates:c3e44d3b-9a7e-428d-a105-b185b3045f73",
+      "source_uid": "channel_updates:c3e44d3b-9a7e-428d-a105-b185b3045f73",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "f991632b657610ea289ceb8ac70e22fc",
+      "identity_overlaps": []
+    },
+    {
+      "id": "c333212d-2af7-4d11-8290-92ac89143582",
+      "targets": [
+        {
+          "id": "0c1ec9c3-571c-467e-967d-d92f5a70747b",
+          "label": "760"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "אותוערך760מופיעהןבפסוקמתהיליםוהןבסכוםשלושהספירותכתר-חכמה-בינה",
+      "source_md5": "63af6c76d858cf8541e4a76fc9e9cf91",
+      "source_ref": "channel_updates:4cfbc8c9-4afc-499d-b7c7-7937d223fea3",
+      "source_uid": "channel_updates:4cfbc8c9-4afc-499d-b7c7-7937d223fea3",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "fc0a2c504ac3940917cc67075a0200bd",
+      "identity_overlaps": []
+    },
+    {
+      "id": "c3a84c2a-d20c-47ce-ad98-fb8950d6af5b",
+      "targets": [
+        {
+          "id": "8d30c0ce-e8aa-4de0-8533-558e2618862c",
+          "label": "494"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הביטוי«מתנה»בגימטריה=494",
+      "source_md5": "155c7fa62ef9990b0183c3b95bb751bc",
+      "source_ref": "channel_updates:00661c86-6beb-4c53-b864-f4c76fefde5b",
+      "source_uid": "channel_updates:00661c86-6beb-4c53-b864-f4c76fefde5b",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "0eeb285d1dbcd99d2d1f762bf9b96803",
+      "identity_overlaps": []
+    },
+    {
+      "id": "c687a378-ba55-4235-a50e-3d22c4a7b457",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "קוד7700שודרפעמייםמהמטוסמדובאי",
+      "source_md5": "944f5ae71b881c34e69e92c3e49981ad",
+      "source_ref": "channel_updates:c3e44d3b-9a7e-428d-a105-b185b3045f73",
+      "source_uid": "channel_updates:c3e44d3b-9a7e-428d-a105-b185b3045f73",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "b87aa9f0468c5a8df54c0b4bc590454b",
+      "identity_overlaps": []
+    },
+    {
+      "id": "c933bdea-4464-4703-9ec7-cd3c066e1efa",
+      "targets": [
+        {
+          "id": "0820f5d7-d0ba-4a81-8289-093eb9563ca7",
+          "label": "2"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "פעמייםהתשובההחיוביתלדודניתנהבהקשרשלמלחמהמולפלשתים",
+      "source_md5": "991188c68c96e433e42328011857fe89",
+      "source_ref": "channel_updates:21f9b35a-c583-4235-b137-a3b587ac89c8",
+      "source_uid": "channel_updates:21f9b35a-c583-4235-b137-a3b587ac89c8",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "6f1caf270c0414f26a1f51afc8c29959",
+      "identity_overlaps": []
+    },
+    {
+      "id": "ca8e0dbc-05af-427c-8af7-b96991c3eb19",
+      "targets": [
+        {
+          "id": "503194a4-3279-4e34-a861-c74cf9476183",
+          "label": "1154"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "984+85+85=1154",
+      "source_md5": "5595ebe3fd8488f25c82268016a65819",
+      "source_ref": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c#batch14",
+      "source_uid": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "5f858f212ebdcd54a7afbff9c8fbc334",
+      "identity_overlaps": []
+    },
+    {
+      "id": "cbad2421-0313-407b-a6ce-bf20d73a3e20",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "הביטוי«זיתרענן»מופיעהןבספרירמיהווהןבספרתהילים",
+      "source_md5": "a2aab97603fe0e0db72ca36af48d56e3",
+      "source_ref": "channel_updates:f45d749f-9153-4bfb-afb6-2b83eedf0ea0",
+      "source_uid": "channel_updates:f45d749f-9153-4bfb-afb6-2b83eedf0ea0",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "d3eb67cd041f5e738c32d984962c3fc9",
+      "identity_overlaps": []
+    },
+    {
+      "id": "cc96c607-3c70-4527-9fc5-3cb9ca7647fc",
+      "targets": [
+        {
+          "id": "8d30c0ce-e8aa-4de0-8533-558e2618862c",
+          "label": "494"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הביטוי«כיברךאברכך»בגימטריה=494",
+      "source_md5": "155c7fa62ef9990b0183c3b95bb751bc",
+      "source_ref": "channel_updates:00661c86-6beb-4c53-b864-f4c76fefde5b",
+      "source_uid": "channel_updates:00661c86-6beb-4c53-b864-f4c76fefde5b",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "056540ffd09d80f708e8bcb21e80b9b2",
+      "identity_overlaps": []
+    },
+    {
+      "id": "d0c4514c-ab69-4d1f-a250-a08bf3a3b556",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "גימטריהכפולהשל«ברחמיםגדולים»=תשפו",
+      "source_md5": "10928cb2af95d6397c63bc6c16e3e396",
+      "source_ref": "channel_updates:17715ad1-bdeb-41ee-867b-44901f6ae19d",
+      "source_uid": "channel_updates:17715ad1-bdeb-41ee-867b-44901f6ae19d",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "06498a5b33f426daf7afba3f9e562e1f",
+      "identity_overlaps": []
+    },
+    {
+      "id": "d0e093ef-c1dc-4783-916b-4e35c257931e",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשההתכנסותהמשותפתלערך596ביןהסכוםהחשבונילביןשלושתהביטוייםמרמזתעלקשרתוכניביניהם",
+      "source_md5": "3536c8bc9b2a36e59ec26308c3a9f1cc",
+      "source_ref": "channel_updates:ffe33aa6-8db8-4a29-97e9-4b7955aaa93c",
+      "source_uid": "channel_updates:ffe33aa6-8db8-4a29-97e9-4b7955aaa93c",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "0aa14b008b5bca972b6843f42a005f8a",
+      "identity_overlaps": []
+    },
+    {
+      "id": "d1c2db61-8a71-4d53-aa18-00ccc87c8751",
+      "targets": [
+        {
+          "id": "09a4e4e8-bb82-4ba9-b840-766fb0e0bbdb",
+          "label": "444"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "ו×עד=6×74=444",
+      "source_md5": "3a2270177bc1da5af725eb0ead4fd98e",
+      "source_ref": "channel_updates:f02de15e-a31d-4fef-b757-af46fa6a220e#batch3",
+      "source_uid": "channel_updates:f02de15e-a31d-4fef-b757-af46fa6a220e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "70a2124d3672bdb04aee4db375884c54",
+      "identity_overlaps": []
+    },
+    {
+      "id": "d211b24d-da71-42f1-9ca5-dbd828c430d9",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהצירוףהמספריבין«אשה»ו«בינה»(היוצא850=50×17)מרמזעלריבוישל«טוב»הקשורלבינההיתרהשניתנהלאישה",
+      "source_md5": "9cf653bc11337293c10035cf6bf0c88a",
+      "source_ref": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "source_uid": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "f04edf3ad9d7c08f9d0e5adb081e6e0f",
+      "identity_overlaps": []
+    },
+    {
+      "id": "d31ce4e4-15a2-466e-b621-f569f916ad9b",
+      "targets": [
+        {
+          "id": "211ddddb-799b-4881-b8bb-115fc98eb8af",
+          "label": "3060"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "המבנההכולל=3060",
+      "source_md5": "021939e65b78e18617d113c3d3823635",
+      "source_ref": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "source_uid": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "485f3b75faaaf8d13b09bd4cec5c4c1e",
+      "identity_overlaps": []
+    },
+    {
+      "id": "d9907546-8c2e-443c-a92e-1f323ccb4545",
+      "targets": [
+        {
+          "id": "a3817b20-a788-42d9-ba4c-833a8d169e2d",
+          "label": "544"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "גימטרייתהמילוישלהמילה«בינה»שווה544(32×17)",
+      "source_md5": "9cf653bc11337293c10035cf6bf0c88a",
+      "source_ref": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "source_uid": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "59e37600a110645b0980587d500e8d51",
+      "identity_overlaps": []
+    },
+    {
+      "id": "d9e77d43-d38b-414c-962b-537b838c1a25",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "«עתיקיומין»מתוארכחלקהפנימיהעליוןבספירתהכתר",
+      "source_md5": "4567d30a8e9fa3343686c454d1c4a834",
+      "source_ref": "channel_updates:d2e2a756-9d01-462d-adb8-09d177f5273b",
+      "source_uid": "channel_updates:d2e2a756-9d01-462d-adb8-09d177f5273b",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "841bec9b0f783a94cfcba53d87fb090b",
+      "identity_overlaps": []
+    },
+    {
+      "id": "daeaa82e-334b-41ec-bb45-6dd9ac7c9f68",
+      "targets": [
+        {
+          "id": "09a4e4e8-bb82-4ba9-b840-766fb0e0bbdb",
+          "label": "444"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הביטוי«נצח+נצח+נצח»=444",
+      "source_md5": "e02f3cfdc94c755b39abdb1e65912292",
+      "source_ref": "channel_updates:163ce472-6628-48a1-a0f0-438808fb5934",
+      "source_uid": "channel_updates:163ce472-6628-48a1-a0f0-438808fb5934",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "92eed12fa167ec632fd13d62ad728b5b",
+      "identity_overlaps": []
+    },
+    {
+      "id": "dc8accba-491e-4cd2-9519-176804cb6b85",
+      "targets": [
+        {
+          "id": "4c6bbf1f-3e0c-49df-8798-b9c41caef85c",
+          "label": "204"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הערך204מתקבלהןמהמילהצדיקוהןמכפלהערךשלאמונה",
+      "source_md5": "4d0b432200fd68002db93a09f4b40fb2",
+      "source_ref": "channel_updates:05e04b19-59c3-4733-a807-87e7c0acb247",
+      "source_uid": "channel_updates:05e04b19-59c3-4733-a807-87e7c0acb247",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "627c54d9bb94d8479c0e505310eb271b",
+      "identity_overlaps": []
+    },
+    {
+      "id": "dd471b82-5163-48b6-864b-cb048e0c4b54",
+      "targets": [
+        {
+          "id": "37d1c890-39f7-4419-bb17-b61581c61309",
+          "label": "6"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "נטעןכיהאות«ך»סופיתעםניקודקמץמופיעהששפעמים(בהקשרהנדון)",
+      "source_md5": "e3e3421c39675a0fe4bff536e085b8b8",
+      "source_ref": "channel_updates:38abbe03-a692-49a4-a0d4-254083083392",
+      "source_uid": "channel_updates:38abbe03-a692-49a4-a0d4-254083083392",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "f6362cb158e6ffc95bec93f5424ef75e",
+      "identity_overlaps": []
+    },
+    {
+      "id": "e0dfcdf2-7b47-4ecc-a2bc-abc5368e1a32",
+      "targets": [
+        {
+          "id": "503194a4-3279-4e34-a861-c74cf9476183",
+          "label": "1154"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הסכוםהמתקבלמחיבורהספרותתואםלערךהגימטרישלפסוקשחוזרפעמייםבתהילים",
+      "source_md5": "5595ebe3fd8488f25c82268016a65819",
+      "source_ref": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "source_uid": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "1869aabd6d229eb69a18a0af288ec386",
+      "identity_overlaps": []
+    },
+    {
+      "id": "e4c73dfa-131b-4277-aff9-7c7ee9e3c55f",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "קוד7700שודרפעמייםמהמטוסמדובאי.770בגימטריא-פרצת.7700זהמצבחרוםכללי.הפתרון:פרצתבפקטור10.בגימטריא7700.זההנסשלהפריצהלתאהטייס...",
+      "source_md5": "944f5ae71b881c34e69e92c3e49981ad",
+      "source_ref": "channel_updates:c3e44d3b-9a7e-428d-a105-b185b3045f73",
+      "source_uid": "channel_updates:c3e44d3b-9a7e-428d-a105-b185b3045f73",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "944f5ae71b881c34e69e92c3e49981ad",
+      "identity_overlaps": []
+    },
+    {
+      "id": "e5a159eb-3e11-479c-b140-6e540e0015b9",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "מיהואכינוימקובללספירתהבינה",
+      "source_md5": "acc8d26efd5ceab465c1543b35d1b00f",
+      "source_ref": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "source_uid": "channel_updates:a26cf646-a042-4b21-83cd-2bb267c2a1d2",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "a497a887b0b7c5b57fc7189e14c5ea3c",
+      "identity_overlaps": []
+    },
+    {
+      "id": "ea7850a4-a8dc-4af3-9728-4a09be5cf202",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשההתאמהביןמכפלתאלהיםואחדלערךהפסוקכולומעידהעלמבנהמכווןבפסוק",
+      "source_md5": "43c7c1a7a4db83cced3cd13bd4ef1c42",
+      "source_ref": "channel_updates:0bed1e6f-5501-4213-9907-e736b3bf8baf",
+      "source_uid": "channel_updates:0bed1e6f-5501-4213-9907-e736b3bf8baf",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "adf27f675cf8bfdc2ad46ff97b554930",
+      "identity_overlaps": []
+    },
+    {
+      "id": "ef8d9c66-1101-4f3f-981f-9756b45824df",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהחזרההכפולהעלהביטוי«ברחמיםגדולים»מרמזתעלקשרלמאפייניהשנהתשפו",
+      "source_md5": "6628279d8c1b45d1010c475cd924a607",
+      "source_ref": "channel_updates:e4d38096-fc9a-4bf8-a785-3672a3849ced",
+      "source_uid": "channel_updates:e4d38096-fc9a-4bf8-a785-3672a3849ced",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "340bb674ca8ee7959e0ad66183f5a08c",
+      "identity_overlaps": []
+    },
+    {
+      "id": "f0baa435-80ab-40b5-9e95-db0307a62c75",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "אותוערך786מתקבלהןמחיבורתשליךו-י-הוהוהןמהביטויהארתפנים",
+      "source_md5": "41b2c76c31ed784eb6680bdad15330f4",
+      "source_ref": "channel_updates:14014340-5eb0-4c02-bffc-3f7a4159686e",
+      "source_uid": "channel_updates:14014340-5eb0-4c02-bffc-3f7a4159686e",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "c84a39224ec1c22a419df948cd21dfe8",
+      "identity_overlaps": []
+    },
+    {
+      "id": "f1d110c4-4425-4b60-965f-ce50a99e3e3a",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "נתןבאשהבינהיתרה.אםמצרףאשהלגימטריתהמילוישלהמילהבינה(32x17).נקבלסהכ850שזה50*17כלומר50פעםטוב.",
+      "source_md5": "9cf653bc11337293c10035cf6bf0c88a",
+      "source_ref": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "source_uid": "channel_updates:4c6f8d29-ae50-4130-8b28-cd73ff57b532",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "9cf653bc11337293c10035cf6bf0c88a",
+      "identity_overlaps": []
+    },
+    {
+      "id": "f31dd8ea-e5d0-495f-a79c-8d35db09d65d",
+      "targets": [
+        {
+          "id": "694a2591-033d-486a-acbf-63d0a40d1d38",
+          "label": "1118"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "המכפלהשלשנימושגיםמרכזיים(אלהים,אחד)שווהלערךהכוללשלהפסוקשמהםהםלקוחים",
+      "source_md5": "43c7c1a7a4db83cced3cd13bd4ef1c42",
+      "source_ref": "channel_updates:0bed1e6f-5501-4213-9907-e736b3bf8baf",
+      "source_uid": "channel_updates:0bed1e6f-5501-4213-9907-e736b3bf8baf",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "563a2503ec44a1c368f9e53c1bda34b1",
+      "identity_overlaps": []
+    },
+    {
+      "id": "f638a356-1b81-425f-a7f7-675453018dc8",
+      "targets": [
+        {
+          "id": "be4e7160-6522-4b65-9697-cca3af938144",
+          "label": "4"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הפסוק«הודולי-הוהכיטובכילעולםחסדו»חוזר4פעמיםבכתובים",
+      "source_md5": "167e206c5407015b828d656cb91b94cd",
+      "source_ref": "channel_updates:78319af9-937f-45c0-94d3-2283e9af3088",
+      "source_uid": "channel_updates:78319af9-937f-45c0-94d3-2283e9af3088",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "7623403a8ec7cca3b2305c1553987b67",
+      "identity_overlaps": []
+    },
+    {
+      "id": "f682b679-dd0e-4690-b446-a202ef8fc468",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהחזרההמשולשתשל«עפרהאילים»בשירהשיריםוהתאמתוהגימטריתלמשיחולמושיעמרמזתעלמשמעותגאולתיתסמויהבטקסט",
+      "source_md5": "4841e5bf1fff1998cf7887c945c6ea80",
+      "source_ref": "channel_updates:aed5e276-d573-4c64-99a8-ec90ac9f3626",
+      "source_uid": "channel_updates:aed5e276-d573-4c64-99a8-ec90ac9f3626",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "c4201779e937ae6cd2f85cc64f00f2f3",
+      "identity_overlaps": []
+    },
+    {
+      "id": "f853acfb-191e-4832-92cb-316f83a98850",
+      "targets": [
+        {
+          "id": "4e4dd591-b5a3-41fd-9be2-a4c8469fbfdd",
+          "label": "3"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "דודקיבלתשובהחיוביתמהשם3פעמיםבהתייעצותלגביניצחוןבמלחמה",
+      "source_md5": "991188c68c96e433e42328011857fe89",
+      "source_ref": "channel_updates:21f9b35a-c583-4235-b137-a3b587ac89c8",
+      "source_uid": "channel_updates:21f9b35a-c583-4235-b137-a3b587ac89c8",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "c9a04973b9b84adfe41354b5de087235",
+      "identity_overlaps": []
+    },
+    {
+      "id": "f92ed028-8f56-418e-991a-b3c850bcb3fa",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "האםישזיקהנוספתביןהשנהתשפזלביןהמשמעותהסמליתשל«זית»ו«אדם-דוד-משיח»?",
+      "source_md5": "a2aab97603fe0e0db72ca36af48d56e3",
+      "source_ref": "channel_updates:f45d749f-9153-4bfb-afb6-2b83eedf0ea0",
+      "source_uid": "channel_updates:f45d749f-9153-4bfb-afb6-2b83eedf0ea0",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "d2d27c3f9cf752a9e5ee9a79d5ae479d",
+      "identity_overlaps": []
+    },
+    {
+      "id": "fcb43b07-3548-4966-9fd8-292375e77fa4",
+      "targets": [],
+      "admitted": true,
+      "claim_uid": "ייתכןשהצירוףשלהערכיםהגימטרייםהללומרמזשהמשיחמגיעבעזרתהיתברך",
+      "source_md5": "1d0d79bb962c73c903a4447e33f67f56",
+      "source_ref": "channel_updates:f1873268-0931-4cad-9dcf-aca2e8823ef2",
+      "source_uid": "channel_updates:f1873268-0931-4cad-9dcf-aca2e8823ef2",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "4f1f8fe3f04db99ebde08331a75620e9",
+      "identity_overlaps": []
+    },
+    {
+      "id": "fd775fc7-af1f-49b5-af2c-80c6e2a3e8f8",
+      "targets": [
+        {
+          "id": "8d30c0ce-e8aa-4de0-8533-558e2618862c",
+          "label": "494"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "הביטוי«כיברךאברכך»מתייחסלהבטחתברכה,והערךהמשותףעם«מתנה»עשוילרמזלקשרמושגי",
+      "source_md5": "155c7fa62ef9990b0183c3b95bb751bc",
+      "source_ref": "channel_updates:00661c86-6beb-4c53-b864-f4c76fefde5b",
+      "source_uid": "channel_updates:00661c86-6beb-4c53-b864-f4c76fefde5b",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "a9005ab4507f9938fbfe1333e8f0daa6",
+      "identity_overlaps": []
+    },
+    {
+      "id": "fe200a53-ba45-4ffe-92b2-ca7132a001b5",
+      "targets": [
+        {
+          "id": "be4e7160-6522-4b65-9697-cca3af938144",
+          "label": "4"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "המילה«השבעתי»מופיעה4פעמיםבשירהשירים",
+      "source_md5": "209be1f8d29d0a86fe756ebb79964db2",
+      "source_ref": "channel_updates:408d2748-bd1a-4c6d-888c-4ead476d12fb",
+      "source_uid": "channel_updates:408d2748-bd1a-4c6d-888c-4ead476d12fb",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "996769583bf94eec7f32c213f8fd2602",
+      "identity_overlaps": []
+    },
+    {
+      "id": "ff472eba-d120-4984-baf4-482d9454a061",
+      "targets": [
+        {
+          "id": "839c8ab8-9461-4984-8bd3-3e62d4994b66",
+          "label": "1365"
+        }
+      ],
+      "admitted": true,
+      "claim_uid": "461+904=1365",
+      "source_md5": "09bd99189cc72c461bd7e5f1eaf28565",
+      "source_ref": "channel_updates:fd29359d-27da-4d0b-a743-6a7529e1e09a",
+      "source_uid": "channel_updates:fd29359d-27da-4d0b-a743-6a7529e1e09a",
+      "exact_claim": true,
+      "exact_source": true,
+      "general_scope": true,
+      "statement_md5": "4765e6ccbed5bcde403e1dfe6695ec54",
+      "identity_overlaps": []
+    }
+  ],
+  "engine_replays": [
+    {
+      "id": "042d9ed7-2092-4f47-ab63-3db6f0d599f0",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "אני קהלת",
+      "computed": 596,
+      "expected": 596,
+      "method_in_engine": true
+    },
+    {
+      "id": "042d9ed7-2092-4f47-ab63-3db6f0d599f0",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "הביאני אל בית היין",
+      "computed": 596,
+      "expected": 596,
+      "method_in_engine": true
+    },
+    {
+      "id": "042d9ed7-2092-4f47-ab63-3db6f0d599f0",
+      "role": "atomic_2",
+      "method": "רגיל",
+      "phrase": "ויאמר צדקה ממני",
+      "computed": 596,
+      "expected": 596,
+      "method_in_engine": true
+    },
+    {
+      "id": "16cd1e37-876f-41f9-bb63-839a18e17ae1",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "תשליך",
+      "computed": 760,
+      "expected": 760,
+      "method_in_engine": true
+    },
+    {
+      "id": "16cd1e37-876f-41f9-bb63-839a18e17ae1",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "י-הוה",
+      "computed": 26,
+      "expected": 26,
+      "method_in_engine": true
+    },
+    {
+      "id": "1ebe1970-8930-4b82-b44e-7e67df25c490",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "אמונה",
+      "computed": 102,
+      "expected": 102,
+      "method_in_engine": true
+    },
+    {
+      "id": "24013608-9730-40cb-94d2-8122bf1da067",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "מתחתם",
+      "computed": 888,
+      "expected": 888,
+      "method_in_engine": true
+    },
+    {
+      "id": "2dfdd392-7b63-45ce-9dc8-ddb0f04b971b",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "כתר",
+      "computed": 620,
+      "expected": 620,
+      "method_in_engine": true
+    },
+    {
+      "id": "2dfdd392-7b63-45ce-9dc8-ddb0f04b971b",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "הוא אל-הי-ם חיים",
+      "computed": 166,
+      "expected": 166,
+      "method_in_engine": true
+    },
+    {
+      "id": "2dfdd392-7b63-45ce-9dc8-ddb0f04b971b",
+      "role": "atomic_2",
+      "method": "רגיל",
+      "phrase": "תשפ\"ו",
+      "computed": 786,
+      "expected": 786,
+      "method_in_engine": true
+    },
+    {
+      "id": "2dfdd392-7b63-45ce-9dc8-ddb0f04b971b",
+      "role": "atomic_3",
+      "method": "רגיל",
+      "phrase": "כתר עליון",
+      "computed": 786,
+      "expected": 786,
+      "method_in_engine": true
+    },
+    {
+      "id": "32fb8a1d-f6f9-4edc-988d-5646f7bcd2e1",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "רזא",
+      "computed": 208,
+      "expected": 208,
+      "method_in_engine": true
+    },
+    {
+      "id": "32fb8a1d-f6f9-4edc-988d-5646f7bcd2e1",
+      "role": "compound_0_operand_1",
+      "method": "רגיל",
+      "phrase": "שבת",
+      "computed": 702,
+      "expected": 702,
+      "method_in_engine": true
+    },
+    {
+      "id": "32fb8a1d-f6f9-4edc-988d-5646f7bcd2e1",
+      "role": "compound_0_operand_2",
+      "method": "רגיל",
+      "phrase": "מלאך",
+      "computed": 91,
+      "expected": 91,
+      "method_in_engine": true
+    },
+    {
+      "id": "3bc6febf-675d-4328-b7f8-0bf33c045ca3",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "אדם",
+      "computed": 45,
+      "expected": 45,
+      "method_in_engine": true
+    },
+    {
+      "id": "3bc6febf-675d-4328-b7f8-0bf33c045ca3",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "דוד",
+      "computed": 14,
+      "expected": 14,
+      "method_in_engine": true
+    },
+    {
+      "id": "3bc6febf-675d-4328-b7f8-0bf33c045ca3",
+      "role": "atomic_2",
+      "method": "רגיל",
+      "phrase": "משיח",
+      "computed": 358,
+      "expected": 358,
+      "method_in_engine": true
+    },
+    {
+      "id": "3ffa0114-29c7-4777-a0d9-4ee4528e2c31",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "שבת",
+      "computed": 702,
+      "expected": 702,
+      "method_in_engine": true
+    },
+    {
+      "id": "45c60cc9-da04-400c-8167-a500b5d27b66",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "צ",
+      "computed": 90,
+      "expected": 90,
+      "method_in_engine": true
+    },
+    {
+      "id": "45c60cc9-da04-400c-8167-a500b5d27b66",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "כתר עליון",
+      "computed": 786,
+      "expected": 786,
+      "method_in_engine": true
+    },
+    {
+      "id": "532688a3-6a1a-4e68-8277-438d03964217",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "עתיק יומין",
+      "computed": 696,
+      "expected": 696,
+      "method_in_engine": true
+    },
+    {
+      "id": "5a9d3224-ecd0-4bac-a024-1c8fe95d6c51",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "אשה",
+      "computed": 306,
+      "expected": 306,
+      "method_in_engine": true
+    },
+    {
+      "id": "5a9d3224-ecd0-4bac-a024-1c8fe95d6c51",
+      "role": "atomic_1",
+      "method": "מילוי",
+      "phrase": "בינה",
+      "computed": 553,
+      "expected": 553,
+      "method_in_engine": true
+    },
+    {
+      "id": "5b43f839-99cd-481c-8498-7d82073c09ef",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "מדוע באתי ואין איש קראתי ואין עונה",
+      "computed": 1820,
+      "expected": 1820,
+      "method_in_engine": true
+    },
+    {
+      "id": "60cec867-0a57-4a8c-82f1-a7edfaca78fd",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "טוב",
+      "computed": 17,
+      "expected": 17,
+      "method_in_engine": true
+    },
+    {
+      "id": "6133bc93-71d3-4a4c-ae69-61c3954f23cc",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "אדם",
+      "computed": 45,
+      "expected": 45,
+      "method_in_engine": true
+    },
+    {
+      "id": "6133bc93-71d3-4a4c-ae69-61c3954f23cc",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "דוד",
+      "computed": 14,
+      "expected": 14,
+      "method_in_engine": true
+    },
+    {
+      "id": "6133bc93-71d3-4a4c-ae69-61c3954f23cc",
+      "role": "atomic_2",
+      "method": "רגיל",
+      "phrase": "משיח",
+      "computed": 358,
+      "expected": 358,
+      "method_in_engine": true
+    },
+    {
+      "id": "61e24013-4f94-4e5c-b04f-43c4a9e78ef4",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "פרצת",
+      "computed": 770,
+      "expected": 770,
+      "method_in_engine": true
+    },
+    {
+      "id": "66e5cc98-4d8d-4a96-ab95-d0cd0d3cb7d0",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "ו",
+      "computed": 6,
+      "expected": 6,
+      "method_in_engine": true
+    },
+    {
+      "id": "66e5cc98-4d8d-4a96-ab95-d0cd0d3cb7d0",
+      "role": "compound_0_operand_1",
+      "method": "רגיל",
+      "phrase": "עד",
+      "computed": 74,
+      "expected": 74,
+      "method_in_engine": true
+    },
+    {
+      "id": "678b098d-f8d7-49a9-9331-12c74d5a2f18",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "אור פניך י-ה-ו-ה",
+      "computed": 393,
+      "expected": 393,
+      "method_in_engine": true
+    },
+    {
+      "id": "678b098d-f8d7-49a9-9331-12c74d5a2f18",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "הארת פנים",
+      "computed": 786,
+      "expected": 786,
+      "method_in_engine": true
+    },
+    {
+      "id": "6bc60dc4-79dc-4603-88dc-71e917e1e340",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "ברחמים גדולים",
+      "computed": 393,
+      "expected": 393,
+      "method_in_engine": true
+    },
+    {
+      "id": "6bc60dc4-79dc-4603-88dc-71e917e1e340",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "כתר עליון",
+      "computed": 786,
+      "expected": 786,
+      "method_in_engine": true
+    },
+    {
+      "id": "71e779c4-a3f0-464e-87de-e0edc918803b",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "אל-ה-ים",
+      "computed": 86,
+      "expected": 86,
+      "method_in_engine": true
+    },
+    {
+      "id": "71e779c4-a3f0-464e-87de-e0edc918803b",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "אחד",
+      "computed": 13,
+      "expected": 13,
+      "method_in_engine": true
+    },
+    {
+      "id": "7302d5a7-de53-4d10-9c2c-92869f7b4d86",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "רזא",
+      "computed": 208,
+      "expected": 208,
+      "method_in_engine": true
+    },
+    {
+      "id": "7302d5a7-de53-4d10-9c2c-92869f7b4d86",
+      "role": "compound_0_operand_1",
+      "method": "רגיל",
+      "phrase": "שבת",
+      "computed": 702,
+      "expected": 702,
+      "method_in_engine": true
+    },
+    {
+      "id": "7302d5a7-de53-4d10-9c2c-92869f7b4d86",
+      "role": "compound_0_operand_2",
+      "method": "רגיל",
+      "phrase": "מלאך",
+      "computed": 91,
+      "expected": 91,
+      "method_in_engine": true
+    },
+    {
+      "id": "774d2f5c-fd19-459e-af80-cdc0005af9a3",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "אמונה",
+      "computed": 102,
+      "expected": 102,
+      "method_in_engine": true
+    },
+    {
+      "id": "774d2f5c-fd19-459e-af80-cdc0005af9a3",
+      "role": "compound_0_operand_1",
+      "method": "רגיל",
+      "phrase": "אמונה",
+      "computed": 102,
+      "expected": 102,
+      "method_in_engine": true
+    },
+    {
+      "id": "792a2164-4720-4c5b-8db7-e82ecaa14040",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "גדול י-ה-ו-ה ומהלל מאד ולגדולתו אין חקר",
+      "computed": 1079,
+      "expected": 1079,
+      "method_in_engine": true
+    },
+    {
+      "id": "80c9599e-419c-4e7a-bf5f-60f8ba30c174",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "אמונה",
+      "computed": 102,
+      "expected": 102,
+      "method_in_engine": true
+    },
+    {
+      "id": "85b21a53-8399-42a5-a32e-c660de8245a8",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "נצח",
+      "computed": 148,
+      "expected": 148,
+      "method_in_engine": true
+    },
+    {
+      "id": "85b21a53-8399-42a5-a32e-c660de8245a8",
+      "role": "compound_0_operand_1",
+      "method": "רגיל",
+      "phrase": "נצח",
+      "computed": 148,
+      "expected": 148,
+      "method_in_engine": true
+    },
+    {
+      "id": "85b21a53-8399-42a5-a32e-c660de8245a8",
+      "role": "compound_0_operand_2",
+      "method": "רגיל",
+      "phrase": "נצח",
+      "computed": 148,
+      "expected": 148,
+      "method_in_engine": true
+    },
+    {
+      "id": "8e6fd12e-2603-49b5-b62e-09a74cea0e8d",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "חסד",
+      "computed": 72,
+      "expected": 72,
+      "method_in_engine": true
+    },
+    {
+      "id": "8e6fd12e-2603-49b5-b62e-09a74cea0e8d",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "רחל",
+      "computed": 238,
+      "expected": 238,
+      "method_in_engine": true
+    },
+    {
+      "id": "8e6fd12e-2603-49b5-b62e-09a74cea0e8d",
+      "role": "atomic_2",
+      "method": "רגיל",
+      "phrase": "תשפו",
+      "computed": 786,
+      "expected": 786,
+      "method_in_engine": true
+    },
+    {
+      "id": "962d509f-7052-4c9f-be25-be8895e9460a",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "א-היה",
+      "computed": 21,
+      "expected": 21,
+      "method_in_engine": true
+    },
+    {
+      "id": "962d509f-7052-4c9f-be25-be8895e9460a",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "י-הוה",
+      "computed": 26,
+      "expected": 26,
+      "method_in_engine": true
+    },
+    {
+      "id": "9a06aabc-2244-44de-8495-85f6715e2254",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "למען יחלצון ידידיך הודיעה ימינך וענני",
+      "computed": 858,
+      "expected": 858,
+      "method_in_engine": true
+    },
+    {
+      "id": "9eeca2bc-b7be-41ed-b987-43c6731a329f",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "חסד",
+      "computed": 72,
+      "expected": 72,
+      "method_in_engine": true
+    },
+    {
+      "id": "9eeca2bc-b7be-41ed-b987-43c6731a329f",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "רחל",
+      "computed": 238,
+      "expected": 238,
+      "method_in_engine": true
+    },
+    {
+      "id": "9eeca2bc-b7be-41ed-b987-43c6731a329f",
+      "role": "atomic_2",
+      "method": "רגיל",
+      "phrase": "תשפו",
+      "computed": 786,
+      "expected": 786,
+      "method_in_engine": true
+    },
+    {
+      "id": "a6e80bc9-035e-4831-8d73-05869bd182a5",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "ועד",
+      "computed": 80,
+      "expected": 80,
+      "method_in_engine": true
+    },
+    {
+      "id": "a77cd33c-012c-4ca3-a9e1-126e50391696",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "אשה",
+      "computed": 306,
+      "expected": 306,
+      "method_in_engine": true
+    },
+    {
+      "id": "a77cd33c-012c-4ca3-a9e1-126e50391696",
+      "role": "atomic_1",
+      "method": "מילוי",
+      "phrase": "בינה",
+      "computed": 553,
+      "expected": 553,
+      "method_in_engine": true
+    },
+    {
+      "id": "b1875310-9eb4-42d3-8263-356db7aa29c2",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "רכב ישראל ופרשיו",
+      "computed": 1365,
+      "expected": 1365,
+      "method_in_engine": true
+    },
+    {
+      "id": "b1875310-9eb4-42d3-8263-356db7aa29c2",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "עת לאהב ועת לשנא",
+      "computed": 1365,
+      "expected": 1365,
+      "method_in_engine": true
+    },
+    {
+      "id": "b580879e-bbae-4524-9617-3b0c5885cde7",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "מיכאל",
+      "computed": 101,
+      "expected": 101,
+      "method_in_engine": true
+    },
+    {
+      "id": "b8a7fdbf-06ca-44b8-ae1f-88584a002f83",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "מתנה",
+      "computed": 495,
+      "expected": 495,
+      "method_in_engine": true
+    },
+    {
+      "id": "b8a7fdbf-06ca-44b8-ae1f-88584a002f83",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "כי ברך אברכך",
+      "computed": 495,
+      "expected": 495,
+      "method_in_engine": true
+    },
+    {
+      "id": "bb2a1171-28f3-44e0-8819-2fbe9b4a41eb",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "ברחמים גדולים",
+      "computed": 393,
+      "expected": 393,
+      "method_in_engine": true
+    },
+    {
+      "id": "bb2a1171-28f3-44e0-8819-2fbe9b4a41eb",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "תשפ\"ו",
+      "computed": 786,
+      "expected": 786,
+      "method_in_engine": true
+    },
+    {
+      "id": "c333212d-2af7-4d11-8290-92ac89143582",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "כי גדול י-ה-ו-ה ומהלל מאד נורא הוא על כל אלהים",
+      "computed": 760,
+      "expected": 760,
+      "method_in_engine": true
+    },
+    {
+      "id": "c333212d-2af7-4d11-8290-92ac89143582",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "כתר",
+      "computed": 620,
+      "expected": 620,
+      "method_in_engine": true
+    },
+    {
+      "id": "c333212d-2af7-4d11-8290-92ac89143582",
+      "role": "compound_0_operand_1",
+      "method": "רגיל",
+      "phrase": "חכמה",
+      "computed": 73,
+      "expected": 73,
+      "method_in_engine": true
+    },
+    {
+      "id": "c333212d-2af7-4d11-8290-92ac89143582",
+      "role": "compound_0_operand_2",
+      "method": "רגיל",
+      "phrase": "בינה",
+      "computed": 67,
+      "expected": 67,
+      "method_in_engine": true
+    },
+    {
+      "id": "c3a84c2a-d20c-47ce-ad98-fb8950d6af5b",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "מתנה",
+      "computed": 495,
+      "expected": 495,
+      "method_in_engine": true
+    },
+    {
+      "id": "cc96c607-3c70-4527-9fc5-3cb9ca7647fc",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "כי ברך אברכך",
+      "computed": 495,
+      "expected": 495,
+      "method_in_engine": true
+    },
+    {
+      "id": "d0c4514c-ab69-4d1f-a250-a08bf3a3b556",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "ברחמים  גדולים",
+      "computed": 393,
+      "expected": 393,
+      "method_in_engine": true
+    },
+    {
+      "id": "d0c4514c-ab69-4d1f-a250-a08bf3a3b556",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "תשפ\"ו",
+      "computed": 786,
+      "expected": 786,
+      "method_in_engine": true
+    },
+    {
+      "id": "d1c2db61-8a71-4d53-aa18-00ccc87c8751",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "ו",
+      "computed": 6,
+      "expected": 6,
+      "method_in_engine": true
+    },
+    {
+      "id": "d1c2db61-8a71-4d53-aa18-00ccc87c8751",
+      "role": "compound_0_operand_1",
+      "method": "רגיל",
+      "phrase": "עד",
+      "computed": 74,
+      "expected": 74,
+      "method_in_engine": true
+    },
+    {
+      "id": "d9907546-8c2e-443c-a92e-1f323ccb4545",
+      "role": "atomic_0",
+      "method": "מילוי",
+      "phrase": "בינה",
+      "computed": 553,
+      "expected": 553,
+      "method_in_engine": true
+    },
+    {
+      "id": "daeaa82e-334b-41ec-bb45-6dd9ac7c9f68",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "נצח",
+      "computed": 148,
+      "expected": 148,
+      "method_in_engine": true
+    },
+    {
+      "id": "daeaa82e-334b-41ec-bb45-6dd9ac7c9f68",
+      "role": "compound_0_operand_1",
+      "method": "רגיל",
+      "phrase": "נצח",
+      "computed": 148,
+      "expected": 148,
+      "method_in_engine": true
+    },
+    {
+      "id": "daeaa82e-334b-41ec-bb45-6dd9ac7c9f68",
+      "role": "compound_0_operand_2",
+      "method": "רגיל",
+      "phrase": "נצח",
+      "computed": 148,
+      "expected": 148,
+      "method_in_engine": true
+    },
+    {
+      "id": "dc8accba-491e-4cd2-9519-176804cb6b85",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "צדיק",
+      "computed": 204,
+      "expected": 204,
+      "method_in_engine": true
+    },
+    {
+      "id": "dc8accba-491e-4cd2-9519-176804cb6b85",
+      "role": "compound_0_operand_0",
+      "method": "רגיל",
+      "phrase": "אמונה",
+      "computed": 102,
+      "expected": 102,
+      "method_in_engine": true
+    },
+    {
+      "id": "dc8accba-491e-4cd2-9519-176804cb6b85",
+      "role": "compound_0_operand_1",
+      "method": "רגיל",
+      "phrase": "אמונה",
+      "computed": 102,
+      "expected": 102,
+      "method_in_engine": true
+    },
+    {
+      "id": "e0dfcdf2-7b47-4ecc-a2bc-abc5368e1a32",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "למען יחלצון ידידיך הודיעה ימינך וענני",
+      "computed": 858,
+      "expected": 858,
+      "method_in_engine": true
+    },
+    {
+      "id": "f0baa435-80ab-40b5-9e95-db0307a62c75",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "תשליך",
+      "computed": 760,
+      "expected": 760,
+      "method_in_engine": true
+    },
+    {
+      "id": "f0baa435-80ab-40b5-9e95-db0307a62c75",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "י-הוה",
+      "computed": 26,
+      "expected": 26,
+      "method_in_engine": true
+    },
+    {
+      "id": "f0baa435-80ab-40b5-9e95-db0307a62c75",
+      "role": "atomic_2",
+      "method": "רגיל",
+      "phrase": "הארת פנים",
+      "computed": 786,
+      "expected": 786,
+      "method_in_engine": true
+    },
+    {
+      "id": "f31dd8ea-e5d0-495f-a79c-8d35db09d65d",
+      "role": "atomic_0",
+      "method": "רגיל",
+      "phrase": "אל-ה-ים",
+      "computed": 86,
+      "expected": 86,
+      "method_in_engine": true
+    },
+    {
+      "id": "f31dd8ea-e5d0-495f-a79c-8d35db09d65d",
+      "role": "atomic_1",
+      "method": "רגיל",
+      "phrase": "אחד",
+      "computed": 13,
+      "expected": 13,
+      "method_in_engine": true
+    },
+    {
+      "id": "f31dd8ea-e5d0-495f-a79c-8d35db09d65d",
+      "role": "atomic_2",
+      "method": "רגיל",
+      "phrase": "שמע ישראל י-הוה  אלהינו י-הוה אחד",
+      "computed": 1118,
+      "expected": 1118,
+      "method_in_engine": true
+    }
+  ],
+  "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+  "methods": [
+    {
+      "id": "e92f6207-7e86-4345-b13e-1a8c1abc0608",
+      "sub": "ערך שֵם האות המלא",
+      "soul": "הפנימיות — מה שמתמלא בפנים",
+      "active": true,
+      "version": 1,
+      "category": "base",
+      "function": "fn_miluy",
+      "operator": null,
+      "db_column": "miluy",
+      "in_engine": true,
+      "scannable": true,
+      "created_at": "2026-07-23T21:12:28.942378+00:00",
+      "method_key": "מילוי",
+      "sort_order": 2,
+      "token_cost": 0,
+      "derived_from": null,
+      "input_schema": {
+        "subject": "text"
+      },
+      "deterministic": true,
+      "display_label": "מילוי",
+      "output_schema": {
+        "value": "int"
+      },
+      "execution_kind": "sql_function",
+      "per_word_reset": null,
+      "order_sensitive": false,
+      "source_of_truth": "gematria engine (fn_miluy)",
+      "dependency_rules": [],
+      "dependency_version": 1,
+      "dependency_versions": {},
+      "mathematical_family": "base_additive",
+      "required_entitlement": "public",
+      "dependency_verified_at": "2026-08-24T13:01:14.061899+00:00",
+      "final_letter_sensitive": false,
+      "word_boundary_sensitive": false,
+      "full_phrase_continuation": null,
+      "whitespace_normalization": "irrelevant_pure_sum",
+      "punctuation_normalization": "irrelevant_pure_sum"
+    },
+    {
+      "id": "e08ab83f-c50a-42e2-8661-1e65ff6d6426",
+      "sub": "חיבור ערכי האותיות",
+      "soul": "המהות הגלויה",
+      "active": true,
+      "version": 1,
+      "category": "base",
+      "function": "fn_ragil",
+      "operator": null,
+      "db_column": "ragil",
+      "in_engine": true,
+      "scannable": true,
+      "created_at": "2026-07-23T21:12:28.942378+00:00",
+      "method_key": "רגיל",
+      "sort_order": 1,
+      "token_cost": 0,
+      "derived_from": null,
+      "input_schema": {
+        "subject": "text"
+      },
+      "deterministic": true,
+      "display_label": "רגיל",
+      "output_schema": {
+        "value": "int"
+      },
+      "execution_kind": "sql_function",
+      "per_word_reset": null,
+      "order_sensitive": false,
+      "source_of_truth": "gematria engine (fn_ragil)",
+      "dependency_rules": [
+        {
+          "to": "גדול",
+          "type": "conditional_equivalence",
+          "condition": "no_final_letters"
+        }
+      ],
+      "dependency_version": 1,
+      "dependency_versions": {},
+      "mathematical_family": "base_additive",
+      "required_entitlement": "public",
+      "dependency_verified_at": "2026-08-24T13:01:14.061899+00:00",
+      "final_letter_sensitive": false,
+      "word_boundary_sensitive": false,
+      "full_phrase_continuation": null,
+      "whitespace_normalization": "irrelevant_pure_sum",
+      "punctuation_normalization": "irrelevant_pure_sum"
+    }
+  ],
+  "evidenceFingerprint": "3559e2884ac8e68ac24475885f27e42fa0e08f351e229cae70de1d1ed37b8e41"
+}

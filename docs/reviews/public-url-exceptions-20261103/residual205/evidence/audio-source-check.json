@@ -1,0 +1,16 @@
+{
+  "kind": "bounded-canonical-read-only-source-check",
+  "checkedAt": "2026-11-03",
+  "baseSha": "b80ad895a23b51107fd58d533d4dd93f6d4c431f",
+  "privateBodiesExported": false,
+  "query": "select (select count(*) from public.media_map) as media_map_rows, (select count(*) from public.media_migration_queue) as media_queue_rows, (select count(*) from public.media_migration_queue where path like '%audio/%') as audio_path_queue_rows, (select count(*) from storage.objects where bucket_id='media' and name ~* '\\.(wav|mp3)$') as media_audio_extension_rows, (select count(*) from storage.objects where bucket_id='media' and (name like 'audio/%' or name like '%/audio/%')) as exact_audio_prefix_objects",
+  "rows": [
+    {
+      "media_map_rows": 0,
+      "media_queue_rows": 4445,
+      "audio_path_queue_rows": 0,
+      "media_audio_extension_rows": 345,
+      "exact_audio_prefix_objects": 0
+    }
+  ]
+}

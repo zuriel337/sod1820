@@ -71,3 +71,10 @@ test("representation keeps raw input separate from canonical normalization", () 
   assert.equal(envelope.input.normalized, "התגלות");
   assert.notEqual(envelope.input.raw, envelope.input.normalized);
 });
+
+test("canonical engine confirms the three 776 expressions that sound interpretive", () => {
+  for (const phrase of ["נקודה אמצעית", "שלמות", "פריעת חוב"]) {
+    const regular = calculateGematriaEnvelope(phrase).results.find(row => row.methodKey === "רגיל");
+    assert.equal(regular?.value, 776, `${phrase} must remain a verified 776 calculation`);
+  }
+});

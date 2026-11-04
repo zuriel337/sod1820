@@ -1,0 +1,19 @@
+✔ lock_els: Preview ceiling denies guests and registered users, including broad bypass (5.651576ms)
+✔ lock_life_journey: Preview ceiling denies guests and registered users, including broad bypass (4.6397ms)
+✔ lock_raziel_site: Preview ceiling denies guests and registered users, including broad bypass (3.609167ms)
+✔ public Number/World/Books retain the existing Preview projection and default resolver never gains bypass (2.581694ms)
+✔ actual Preview proxy denies non-admin/forged metadata before model forwarding and fails closed on unavailable roles (6.594292ms)
+✔ verified admin keeps one caller JWT, one signed server identity and no paid retry (1.426398ms)
+✔ Production, unknown branch, missing JWT, cross-origin and non-POST requests cannot reach an identity/role/model lookup (292.288102ms)
+✔ More shares existing canonical addresses and repeated reading context without private grants (1.858826ms)
+✔ exact new branch keeps the complete accepted read/write worker byte-identical; default and historical branches unchanged (23.480214ms)
+✔ ordinary destination masks a previous document without mutating selected work or pending Path; explicit World/ELS continuation remains (2.216381ms)
+✔ existing outward-link projection is bounded/deduplicated and real destination readers deny private or removed sources (1.408371ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 603.525799

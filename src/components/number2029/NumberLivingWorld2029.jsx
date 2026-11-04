@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import Timeline2029 from "../experience2029/Timeline2029.jsx";
 import { numberTimelineToRows, timelineVisibleCount, TIMELINE_PAGE_SIZE } from "../../lib/research/timeline2029.js";
 import {
@@ -14,6 +15,13 @@ import { fibonacciRailModel } from "../../lib/research/fibonacciSequence.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
 import SurfaceMapBar2029 from "../experience2029/SurfaceMapBar2029.jsx";
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
+import CanonicalVerseCards2029 from "../experience2029/CanonicalVerseCards2029.jsx";
+import NumberZviPublicResearch2029 from "./NumberZviPublicResearch2029.jsx";
+import { fetchWorldPublicFindingsPage } from "../../lib/research/worldPublicFindingReader.js";
+import { publicNumberSourceCards } from "../../lib/research/numberSourceCards.js";
+import { numberReadingReturnHref } from "../../lib/research/numberExpressionFocus.js";
+import ZviFindingCards2029 from "../research/ZviFindingCards2029.jsx";
+import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import "./numberLivingWorld2029.css";
 
 const clean = (value) => value == null ? "" : String(value).trim();
@@ -217,6 +225,7 @@ export default function NumberLivingWorld2029({
   onOpenHeichal,
   onRazielAction,
   onOpenNumber,
+  onOpenPublicSource,
   onFocusContext,
   onJourney,
   onPersonalJourney,
@@ -232,6 +241,39 @@ export default function NumberLivingWorld2029({
   const [timelineSteps, setTimelineSteps] = useState(0);
   const [showAllVerses, setShowAllVerses] = useState(false);
   const [currentSection, setCurrentSection] = useState("עיקר");
+  const sourceSectionRef = useRef(null);
+  const sourceRequest = useRef(0);
+  const [publicSources, setPublicSources] = useState({ root, status: "idle", rows: [], nextCursor: null, hasMore: false });
+  const sourceStatus = publicSources.root === root ? publicSources.status : "idle";
+  const readPublicSources = async (append = false) => {
+    const request = ++sourceRequest.current;
+    setPublicSources(current => ({ ...current, root, status: "loading" }));
+    try {
+      const page = await fetchWorldPublicFindingsPage({ value: root, pageSize: 25,
+        cursor: append && publicSources.root === root ? publicSources.nextCursor : null });
+      if (request !== sourceRequest.current) return;
+      setPublicSources(current => ({ root, status: "ready",
+        rows: append && current.root === root ? [...current.rows, ...page.rows] : page.rows,
+        nextCursor: page.nextCursor, hasMore: page.hasMore, partial: page.coverage.partial }));
+    } catch {
+      if (request === sourceRequest.current) setPublicSources(current => ({ ...current, root, status: "error" }));
+    }
+  };
+  useEffect(() => {
+    sourceRequest.current += 1;
+    setPublicSources({ root, status: "idle", rows: [], nextCursor: null, hasMore: false });
+    let started = false;
+    const read = () => { if (!started) { started = true; void readPublicSources(); } };
+    const observer = typeof IntersectionObserver === "undefined" ? null
+      : new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting)) { observer.disconnect(); read(); } }, { rootMargin: "250px" });
+    if (observer && sourceSectionRef.current) observer.observe(sourceSectionRef.current);
+    else read();
+    return () => { sourceRequest.current += 1; observer?.disconnect(); };
+  }, [root]); // The source reader is the existing anonymous public-admission owner.
+  // Scripture keeps its complete existing CanonicalVerseCards section above.
+  // This list is the anonymously re-admitted human/public source material.
+  const sourceCards = useMemo(() => publicNumberSourceCards(publicSources.root === root ? publicSources.rows : []),
+    [publicSources.root, publicSources.rows, root]);
 
   const worldCards = useMemo(() => buildWorldCards(worlds, topics), [worlds, topics]);
   const relatedNumbers = useMemo(
@@ -342,7 +384,7 @@ export default function NumberLivingWorld2029({
 
   const jump = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   const expressionsShown = showAllExpressions ? expressionRows.slice(0, expressionLimit) : expressionRows.slice(0, 5);
-  const sourcesShown = showAllSources ? sources.slice(0, sourceLimit) : sources.slice(0, 5);
+  const sourcesShown = showAllSources ? sourceCards.slice(0, sourceLimit) : sourceCards.slice(0, 5);
   const timelineRows = numberTimelineToRows(timeline.filter(publicDiscovery), (item) => {
     if (item?.relation) return canonicalGraphRelationTitle(item.relation, { anchorId: data?.identity?.nodeId });
     if (["image", "media"].includes(clean(item?.type))) return canonicalMediaPublicLabel(item?.label, { fallback: "תמונה" });
@@ -374,16 +416,11 @@ export default function NumberLivingWorld2029({
         text="פסוק שלם שנמצא דרך מנוע פסוקי-הערך הקנוני. מראה המקום מוצג באותיות עבריות; הערך מופיע רק אחרי הפסוק."
         aside={<span className="sod29-lw-count">{verseRows.length} מתוך {Math.max(verseCount, verseRows.length)}</span>}
       />
-      {versesLoading ? <div className="sod29-lw-empty">טוען פסוקי־ערך…</div> : <div className="sod29-lw-verse-grid">
-        {(showAllVerses ? verseRows : verseRows.slice(0, 3)).map((row, index) => <article key={row.ref || index}>
-          <span>{formatTanakhRef(row.ref)}</span>
-          <p className="sod29-lw-verse-equality">
-            <span>{row.text}</span>
-            <strong>{formatVerseGematriaSuffix(row.value ?? root)}</strong>
-          </p>
-          <small>פסוק שלם · גימטריה רגילה</small>
-        </article>)}
-      </div>}
+      {versesLoading ? <div className="sod29-lw-empty">טוען פסוקי־ערך…</div> : <CanonicalVerseCards2029
+        rows={showAllVerses ? verseRows : verseRows.slice(0, 3)}
+        variant="gematria"
+        fallbackValue={root}
+      />}
       {!versesLoading && !showAllVerses && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses(true)}>{`פתח עוד ${verseRows.length - 3} פסוקים`}</DepthButton> : null}
       {showAllVerses && verseCount > verseRows.length ? <DepthButton onClick={onLoadMoreVerses}>{`טען עוד פסוקים · ${verseRows.length} מתוך ${verseCount}`}</DepthButton> : null}
       {showAllVerses && verseRows.length > 3 ? <DepthButton onClick={() => setShowAllVerses(false)}>צמצם פסוקים</DepthButton> : null}
@@ -489,6 +526,9 @@ export default function NumberLivingWorld2029({
         text="הפרופיל המתמטי, הרצפים והמעברים חיים באותו מרחב. החישוב דטרמיניסטי; המשמעות המחקרית נשארת שכבה נפרדת."
         aside={<span className="sod29-lw-count">{math?.families?.length || 0}</span>}
       />
+      <div className="sod29-lw-actions">
+        <Link className="sod29-action" to="/beit-midrash?section=numbers">איך קוראים את הנתונים האלה?</Link>
+      </div>
       <div className="sod29-lw-math-hero">
         <div>
           <span>מספר במתמטיקה</span>
@@ -511,7 +551,7 @@ export default function NumberLivingWorld2029({
           <button type="button" className={scrubMode === "findings" ? "is-active" : ""} onClick={() => setScrubMode("findings")}>ממצאים</button>
           <button type="button" className={scrubMode === "sequences" ? "is-active" : ""} onClick={() => setScrubMode("sequences")}>רצפים</button>
         </div>
-        {fibRail ? <div className="sod29-lw-fib" data-experience-capability="fibonacci-glass-rail">
+        {fibRail ? <div className="sod29-lw-fib" id="number-fibonacci" data-experience-capability="fibonacci-glass-rail">
           <div className="sod29-lw-fib-state" data-fib-state={fibRail.state}>
             <span>Fibonacci</span>
             <strong>{fibRail.state === "exact"
@@ -531,7 +571,10 @@ export default function NumberLivingWorld2029({
               </button>;
             })}
           </div>
-          {onOpenHeichal ? <div className="sod29-lw-actions"><DepthButton primary onClick={() => onOpenHeichal({ kind: "sequence_fibonacci", root })}>חקור Fibonacci בהיכל</DepthButton></div> : null}
+          <div className="sod29-lw-actions">
+            <Link className="sod29-action" to="/beit-midrash?section=numbers&concept=fibonacci#number-concept-fibonacci">מהו פיבונאצ׳י ופירוק זקנדורף?</Link>
+            {onOpenHeichal ? <DepthButton primary onClick={() => onOpenHeichal({ kind: "sequence_fibonacci", root })}>חקור Fibonacci בהיכל</DepthButton> : null}
+          </div>
         </div> : null}
         {scrubRows.length ? <>
           {scrubRows.length > 1 ? <input type="range" min="0" max={Math.max(0, scrubRows.length - 1)} value={Math.min(scrubIndex, Math.max(0, scrubRows.length - 1))} onChange={(event) => setScrubIndex(Number(event.target.value))} aria-label="מד ניווט חי" /> : null}
@@ -568,12 +611,12 @@ export default function NumberLivingWorld2029({
       {showAllExpressions ? <DepthButton onClick={() => setShowAllExpressions(false)}>צמצם ביטויים</DepthButton> : null}
     </section>
 
-    <section className="sod29-lw-section" id="number-content-live" data-experience-capability="number-sources-content">
+    <section ref={sourceSectionRef} className="sod29-lw-section" id="number-content-live" data-experience-capability="number-sources-content">
       <SectionHead
         kicker="מקורות ותוכן"
         title="מקורות ותוכן"
         text="המקור קודם לפרשנות. מדיה, ELS ו־3D נפתחים רק כשיש להם ערך מחקרי — לא כדי להכביד על הדף."
-        aside={<span className="sod29-lw-count">{sources.length + mediaItems.length}</span>}
+        aside={<span className="sod29-lw-count">{sourceCards.length + mediaItems.length || (sourceStatus === "ready" ? 0 : "…")}</span>}
       />
       {mediaItems.length ? <div className="sod29-lw-feature-media">
         {(() => {
@@ -607,9 +650,27 @@ export default function NumberLivingWorld2029({
         {mediaLimit < mediaItems.length ? <DepthButton onClick={() => setMediaLimit((n) => n + 8)}>{`הצג עוד מדיה · ${Math.min(mediaLimit, mediaItems.length)} מתוך ${mediaItems.length}`}</DepthButton> : null}
       </div> : null}
       <div className="sod29-lw-source-list">
-        {sourcesShown.map((row, index) => <button type="button" key={row?.id || row?.ref || index} onClick={() => onFocusContext?.({ id: row?.id || row?.ref || `source-${index}`, type: "source", label: sourceLabel(row), primary: sourceLabel(row), sectionLabel: "מקורות", sourceLabel: sourceDetail(row) || "מקור", sourceRef: row?.sourceRef || row?.ref || null, locator: "#number-content-live", href: row?.href || row?.url || null })}><strong>{sourceLabel(row)}</strong>{sourceDetail(row) ? <small>{sourceDetail(row)}</small> : null}<span>פתח הקשר מקור</span></button>)}
-        {!sources.length ? <div className="sod29-lw-empty">אין כרגע מקור אנושי מספיק ברור להצגה.</div> : null}
+        {sourcesShown.map(row => <article key={row.sourceRef} id={`number-source-${row.id}`} data-public-source-card="true" data-source-ref={row.sourceRef}>
+          <div><small>מקור אחד · {row.findings.length} ממצאים ציבוריים בחלון שנקרא</small>
+            <strong>{row.title}</strong>{row.detail ? <small>תקציר ממצא · {row.detail}</small> : null}
+            {row.contributor || row.createdAt ? <small>{[row.contributor, row.createdAt ? bilingualDateLabel(row.createdAt) : null].filter(Boolean).join(" · ")}</small> : null}</div>
+          {row.href ? <a href={row.href} onClick={event => {
+            if (!onOpenPublicSource || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || !row.href.startsWith("/")) return;
+            event.preventDefault();onOpenPublicSource(row);
+          }}>פתח מקור</a> : <span className="sod29-lw-source-unlinked">ללא קישור ציבורי למקור</span>}
+          {row.findings.length > 1 ? <details className="sod29-lw-source-findings">
+            <summary>כל הממצאים באותו מקור ({row.findings.length})</summary>
+            <ZviFindingCards2029 rows={row.findings} singleColumn
+              returnTo={typeof window === "undefined" ? null : numberReadingReturnHref(window.location)} />
+          </details> : null}
+        </article>)}
+        {sourceStatus === "idle" || sourceStatus === "loading" ? <p role="status">טוען פרטי מקורות ציבוריים…</p> : null}
+        {sourceStatus === "error" ? <p role="alert">לא הצלחנו לבדוק את המקורות הציבוריים. <button type="button" onClick={() => readPublicSources()}>ניסיון נוסף</button></p> : null}
+        {sourceStatus === "ready" && !sourceCards.length ? <div className="sod29-lw-empty">אין כרגע פרטי מקור ציבוריים מספיקים להצגה.</div> : null}
       </div>
+      {/* This entry is inert until its explicit button is pressed; keep it
+          available even before the separate approach-admitted source read. */}
+      <NumberZviPublicResearch2029 value={root} />
       <div className="sod29-lw-depth-gates">
         {onOpenHeichal ? <>
           <button type="button" onClick={() => onOpenHeichal({ kind: "els_saved_from_number", root })}><span>ELS / צפנים</span><strong>פתח ספריית צפנים שמורים</strong><small>פריטים מורשים בלבד</small></button>
@@ -617,8 +678,9 @@ export default function NumberLivingWorld2029({
           <button type="button" onClick={() => onOpenHeichal({ kind: "spatial_from_number", root })}><span>3D / מרחב</span><strong>פתח רק אם המבנה מוסיף הבנה</strong><small>נטען רק כשפותחים</small></button>
         </> : null}
       </div>
-      {sources.length > 5 && !showAllSources ? <DepthButton onClick={() => setShowAllSources(true)}>ראה מקורות נוספים</DepthButton> : null}
-      {showAllSources && sourceLimit < sources.length ? <DepthButton onClick={() => setSourceLimit((n) => n + 24)}>{`הצג עוד מקורות · ${sourcesShown.length} מתוך ${sources.length}`}</DepthButton> : null}
+      {sourceCards.length > 5 && !showAllSources ? <DepthButton onClick={() => setShowAllSources(true)}>ראה מקורות נוספים</DepthButton> : null}
+      {showAllSources && sourceLimit < sourceCards.length ? <DepthButton onClick={() => setSourceLimit((n) => n + 24)}>{`הצג עוד מקורות · ${sourcesShown.length} מתוך ${sourceCards.length}`}</DepthButton> : null}
+      {publicSources.root === root && publicSources.hasMore && sourceStatus !== "loading" ? <DepthButton onClick={() => { setShowAllSources(true); setSourceLimit(n => n + 25); void readPublicSources(true); }}>טען מקורות ציבוריים נוספים</DepthButton> : null}
       {showAllSources ? <DepthButton onClick={() => setShowAllSources(false)}>צמצם מקורות</DepthButton> : null}
     </section>
 

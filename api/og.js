@@ -1,4 +1,20 @@
+import { PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability } from "../src/lib/publicReadingRelease2029.js";
+import { postsTaxonomyRoute2029, postsTaxonomyScope2029, postsTaxonomyPage2029, postsTaxonomySelection2029, postsTaxonomyEvidence2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
+import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
+  loadPublicForumContinuation2029, loadPublicCommentPostContinuation2029,
+  loadPublicPeopleContinuation2029, publicContinuityPage2029, publicContinuityHttpStatus2029,
+  publicForumChatHref2029, publicHistoricalLecturePage2029 } from "../src/lib/publicContinuityReaders2029.js";
+import { fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
+import { normalizeCommunityThreadFocus } from "../src/lib/community/communityThreadFocus.js";
+import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
+import { publicPostLinkedMedia } from "../src/lib/research/publicPostSourceLinks2029.js";
+import { publicPostUrl } from "../src/lib/publicPostUrls.js";
+import { hasSuppressedPublicPostTag } from "../src/lib/research/publicPostBoundary.js";
+import { fetchPublicVideo2029 } from "../src/lib/research/publicVideo2029Reading.js";
 // Vercel Serverless Function — הזרקת תגיות Open Graph לכל עמוד עבור רובוטי הרשתות.
+import { resolveResearchObjectPresentation } from '../src/lib/research/researchObjectPresentation.js';
+import { worldFindingShareCard } from '../src/lib/research/worldFindingShare.js';
+import { worldPreviewMaterialExclusion } from '../src/lib/research/worldPreviewMaterialScope.js';
 // רובוטים של פייסבוק/וואטסאפ/טלגרם לא מריצים JS, ולכן הם מנותבים לכאן (לפי User-Agent
 // ב-vercel.json) ומקבלים HTML עם הכותרת/התיאור/התמונה הנכונים של אותו פוסט. משתמשים
 // רגילים (וגוגל, שמריץ JS) ממשיכים לקבל את ה-SPA כרגיל.
@@ -28,11 +44,17 @@ const ragil = (s) => Array.from(String(s || '')).reduce((a, c) => a + (RAGIL[c] 
 
 // עמודים סטטיים — כותרת/תיאור + כרטיס שיתוף ייעודי (card) כדי שכל לינק יביא תמונה יפה ומסבירה
 const STATIC = {
+  '/login': { title: 'כניסה לחשבון · סוד 1820', desc: 'כניסה לחשבון הקיים וחזרה לגלישה.' },
+  '/auth/callback': { title: 'משלימים כניסה · סוד 1820', desc: 'השלמת הכניסה לחשבון.' },
+  '/posts': { title: 'פוסטים · סוד 1820', desc: 'הפוסטים, המקורות והסיפורים של סוד 1820.' },
+  '/privacy': { title: 'מדיניות פרטיות · סוד 1820', desc: 'מדיניות הפרטיות ומחיקת נתונים באתר סוד 1820.' },
+  '/unsubscribe': { title: 'הסרה מהדיוור · סוד 1820', desc: 'הסרה מרשימת העדכונים של סוד 1820.' },
+  '/updates': { title: 'עדכונים במייל · סוד 1820', desc: 'הרשמה מפורשת לעדכוני סוד 1820 בדואר אלקטרוני.' },
   // ⛔ SEO_BRAND_HOMEPAGE_IDENTITY_ADDENDUM (Human Gate ZURIEL, 2026-09-07). זה מה שרובוטי-
   // תצוגה שלא מריצים JS (וואטסאפ/פייסבוק/טלגרם, דרך ה-UA-rewrite ב-vercel.json) רואים בפועל —
   // חייב לשאת את אותה זהות-מותג עברית מאושרת כמו index.html/routes.jsx ROUTE_META["/"].
-  '/': { title: "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
-    desc: "מחקר חי של מספרים, גימטריה, צפנים בתורה, קוד המציאות, מקורות ומסעות גילוי — מערכת SOD1820 מחברת בין מספרים, מילים, פסוקים, אנשים ואירועים.",
+  '/': { title: PUBLIC_HOME_SEO.fullTitle,
+    desc: PUBLIC_HOME_SEO.description,
     card: { w: 'סוד 1820', sub: "כי לה' המלוכה · לגלות את המציאות בשפת המספרים", cap: 'מה המספרים יודעים עליך?' } },
   '/2029': { title: "SOD1820 2029 — מערכת המחקר החדשה",
     desc: "שער הכניסה למערכת SOD1820 החדשה — עולם, מספרים, מקורות, ELS, היכל ורזיאל על עץ ידע אחד.",
@@ -194,6 +216,7 @@ const ogVideoType = (u = '') => /\.webm/i.test(u) ? 'video/webm' : /\.mov/i.test
 const vidUploadIso = (s) => { s = String(s || ''); return /^\d{4}-\d{2}-\d{2}T/.test(s) ? s : (/^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) + 'T00:00:00+00:00' : undefined); };
 
 export default async function handler(req, res) {
+  const productionReading = req.publicReadingProductionArtifact === true && req.publicReadingRelease === PUBLIC_READING_PROFILE_ID;
   const crawlerMode = String((req.query && req.query.crawler) || '');
   const searchCrawlerDocument = crawlerMode === 'search';
   const directVideoMetadataAllowed = searchCrawlerDocument;
@@ -208,12 +231,23 @@ export default async function handler(req, res) {
   let type = 'website';
   let robots = 'index, follow';
   let convergenceLd = null;
+  let documentStatus = 200;
+  let postLookupFailed = false;
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
   let orgeulaVid = null;   // 🎬 payload משותף ל-VideoObject server-side
   let videoCanonical = null;
   let canonical = SITE + (path === '/' ? '' : path);
 
   const key = path.replace(/\/$/, '') || '/';
+  const wpValue = String(req.query?.p || new URLSearchParams(String(req.query?.path || '').split('?').slice(1).join('?')).get('p') || '');
+  const wpId = key === '/' && /^[1-9][0-9]*$/.test(wpValue) ? wpValue : null;
+  // Vercel rewrites preserve unmatched request query params. Also accept the
+  // path query in direct /api/og calls; fragments never arrive over HTTP.
+  const queryInPath = String(req.query?.path || '').split('?').slice(1).join('?');
+  const requestedFindingId = key === '/world'
+    ? String(req.query?.finding || new URLSearchParams(queryInPath).get('finding') || '').trim()
+    : '';
+  const exactWorldFindingRequest = key === '/world' && Boolean(requestedFindingId);
   // This public collection shares the /codes prefix with cipher slugs. Resolve
   // its encoded Hebrew address before the individual-record metadata branch.
   let researchFolderPath = false;
@@ -232,13 +266,17 @@ export default async function handler(req, res) {
   const flagKeys = launchGate ? [launchGate.key] : key === '/code' || key === '/els' ? ['lock_els'] : [];
   const legacyNumbersAlias = /^\/numbers(?:\/|$)/.test(decodedKey);
   if (legacyNumbersAlias) flagKeys.push('lock_convergence_tree');
-  const flagState = flagKeys.length ? await publicSiteFlags(flagKeys, ogHeaders) : null;
+  const flagState = req.publicReadingRelease === PUBLIC_READING_PROFILE_ID
+    ? { failed: false, flags: new Map(flagKeys.map(key => [key, { ...publicReadingFeatureLock(key), found: true }])) }
+    : flagKeys.length ? await publicSiteFlags(flagKeys, ogHeaders) : null;
   const routeFlag = flagKeys.length ? flagState.flags.get(flagKeys[0]) : null;
   const convergenceFlag = legacyNumbersAlias ? flagState.flags.get('lock_convergence_tree') : null;
   const convergenceClosed = legacyNumbersAlias && (flagState.failed || flagState.flags.has('lock_convergence_tree') && convergenceFlag?.enabled !== false);
-  const launchClosed = launchGate && (launchGate.key === 'lock_world'
+  const launchClosed = !(productionReading && /^\/books?(?:\/|$)/.test(key)) && launchGate && (launchGate.key === 'lock_world'
     ? routeFlag?.enabled === true
     : !routeFlag?.found || routeFlag.enabled || convergenceClosed);
+  if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID && decodedKey === "/gematria"
+    && ["q", "w", "calc", "m", "v", "n", "s"].some(key => req.query?.[key] != null)) robots = "noindex, follow";
   // deep-link לסרטון ספציפי (?v=<id>) — נשלף מ-req.query.v וגם מתוך path כגיבוי
   let vParam = (req.query && req.query.v) ? String(req.query.v) : '';
   if (!vParam) {
@@ -246,7 +284,252 @@ export default async function handler(req, res) {
     const qi = rp.indexOf('?');
     if (qi >= 0) { try { vParam = new URLSearchParams(rp.slice(qi + 1)).get('v') || ''; } catch { /* ignore */ } }
   }
-  if (/^\/forum(?:\/|$)/.test(decodedKey)) {
+  async function resolvePostMetadata() {
+    // לטפל כ-slug של פוסט.
+    // חלק מהפוסטים שמורים עם slug בעברית (תפילה-לרפואה…) וחלק עם slug מקודד-אחוזים
+    // בסגנון וורדפרס (%d7%aa…). הרובוט מגיע עם הנתיב המפוענח, לכן מנסים את שתי הצורות:
+    // (1) ה-slug המפוענח, (2) קידוד-אחוזים באותיות קטנות (כמו שוורדפרס שמר).
+    let slug = key.startsWith('/post/') ? key.slice('/post/'.length) : key.replace(/^\//, '');
+    try { slug = decodeURIComponent(slug); } catch { /* keep */ }
+    const variants = [slug];
+    const encLower = encodeURIComponent(slug).replace(/%[0-9A-Fa-f]{2}/g, m => m.toLowerCase());
+    if (encLower !== slug) variants.push(encLower);
+    const SEL = 'select=id,slug,source,link,wp_id,title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1';
+    for (const v of variants) {
+      try {
+        const identityFilter = wpId ? `wp_id=eq.${wpId}` : `slug=eq.${encodeURIComponent(v)}`;
+        const url = `${SUPABASE_URL}/rest/v1/posts?${identityFilter}&${SEL}`;
+        const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
+        if (!r.ok) throw new Error('post-source-unavailable');
+        const rows = await r.json();
+        if (productionReading && !Array.isArray(rows)) throw new Error('post-source-invalid');
+        if (Array.isArray(rows) && rows[0]) {
+          if (hasSuppressedPublicPostTag(rows[0]) || !publicPostUrl(rows[0])) break;
+          post = rows[0];
+          canonical = publicPostUrl(post);
+          title = stripHtml(post.title) + ' · ' + SITE_NAME;
+          desc = cleanDesc(post.excerpt || post.content) || DEFAULT_DESC;
+          // 🛡 post_og_image_law: og:image חייב רסטר (זחלנים לא מציגים SVG, ולא raw.githubusercontent).
+          //    image_url לא-תקין → נפילה אוטומטית לכרטיס /api/card ממותג (self-healing).
+          const okOg = post.image_url
+            && !/\.svg(\?|#|$)/i.test(post.image_url)
+            && !/raw\.githubusercontent\.com/i.test(post.image_url);
+          if (okOg) {
+            image = post.image_url;
+          } else {
+            const ttl = stripHtml(post.title);
+            const heroTitle = ttl.length > 46 ? ttl.slice(0, 46).replace(/\s+\S*$/, '') + '…' : ttl;
+            const cat = Array.isArray(post.categories) && post.categories[0] ? stripHtml(post.categories[0]) : '';
+            image = cardUrl({ w: heroTitle, sub: cat || "כי לה' המלוכה", cap: 'לקריאת הרמז המלא ←' });
+          }
+          type = 'article';
+          break;
+        }
+      } catch { postLookupFailed = true; /* try next variant */ }
+    }
+    if (post && productionReading && continuityParams.has("sourceAttachment")) {
+      const selected=continuityParams.getAll("sourceAttachment");
+      const binding=selected.length===1?publicPostLinkedMedia(post.content,selected[0]):null;
+      robots='noindex, follow';
+      if(!binding){documentStatus=404;title='המדיה לא נמצאה · '+SITE_NAME;}
+      else image=binding.href;
+    }
+    if (!post) {
+      documentStatus = postLookupFailed ? 503 : 404;
+      robots = 'noindex, follow';
+      title = 'הפוסט לא נמצא · ' + SITE_NAME;
+      desc = 'המקור המבוקש אינו זמין ב-SOD1820 2029.';
+    }
+  }
+  const continuitySearch = req.publicReadingSearch ?? queryInPath;
+  const continuityParams = new URLSearchParams(continuitySearch);
+  const readContinuityRows = async (table, params, { signal } = {}) => {
+    const result = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${new URLSearchParams(params)}`, { headers: ogHeaders, signal });
+    if (!result.ok) throw new Error('continuity-source-unavailable');
+    const rows = await result.json();
+    if (!Array.isArray(rows)) throw new Error('continuity-source-invalid');
+    return rows;
+  };
+  const productionRouteState = productionReading ? decodedKey === "/unsubscribe" ? "public" : publicReadingPath(key, { search: continuitySearch }) : null;
+  let taxonomy = productionReading ? postsTaxonomyRoute2029(key, continuitySearch) : null;
+  const catalogTaxonomy = productionReading && ['/post', '/2029/posts'].includes(key)
+    && (continuityParams.has('tag') || continuityParams.has('category'));
+  if (catalogTaxonomy) {
+    const selectors = ['tag', 'category', 'series'].flatMap(field => continuityParams.getAll(field).map(value => [field, value]));
+    taxonomy = selectors.length === 1 ? postsTaxonomyScope2029(...selectors[0]) : { kind: 'invalid', key: '', label: 'בחירה לא תקינה' };
+  }
+  if (productionReading && ["closed", "missing", "service-closed"].includes(productionRouteState)) {
+    robots = 'noindex, nofollow';
+    documentStatus = productionRouteState === "missing" ? 404 : 200;
+    title = `${documentStatus === 404 ? 'העמוד לא נמצא' : 'האזור ייפתח בהמשך'} · ${SITE_NAME}`;
+    desc = documentStatus === 404 ? 'המקור המבוקש אינו זמין.' : 'האזור אינו פתוח בגרסת הקריאה הציבורית.';
+    const capability = publicReadingCapability(key);
+    if (capability) { title = `${capability.title} · ${SITE_NAME}`; desc = capability.description; image = cardUrl({ w: capability.title, sub: 'בבנייה' }); }
+  } else if (productionReading && decodedKey === '/gallery') {
+    // This admitted collection is not a Post slug. Selected images still pass
+    // through the existing public gallery reader; no query becomes metadata.
+    title = 'גלריות ומקורות · ' + SITE_NAME;
+    desc = 'תמונות, מקורות וממצאים שפורסמו בגלריות סוד 1820.';
+    canonical = SITE + '/gallery'; type = 'website';
+    image = cardUrl({ w: 'גלריות ומקורות', sub: 'תמונות · מקורות · ממצאים' });
+    if (['gallery', 'image', 'q', 'source'].some(key => continuityParams.has(key))) robots = 'noindex, follow';
+  } else if (productionReading && decodedKey === '/verified') {
+    title='פוסטים עם סימון אימות · '+SITE_NAME;desc='הפרסומים הציבוריים עם סימון האימות השמור במקור.';
+    canonical=SITE+'/verified';
+    const page=publicContinuityPage2029(continuityParams.has('page')?continuityParams.getAll('page'):undefined);
+    if(page===null||['category','tag','series'].some(key=>continuityParams.has(key))){documentStatus=404;robots='noindex, follow';}
+    else try{
+      const q=String(continuityParams.get('q')||'').trim();
+      if(q.length>120){documentStatus=400;robots='noindex, follow';}
+      else {
+      const params=new URLSearchParams({select:'id',verified:'eq.true',or:'(tags.is.null,tags.not.ov.{טיוטה,פורום})',order:'modified.desc.nullslast,id.asc',limit:'24',offset:String((page-1)*24)});
+      if(q)params.set('title','ilike.%'+q.replace(/[\\%_*]/g,'\\$&')+'%');
+      const response=await fetch(SUPABASE_URL+'/rest/v1/posts?'+params,{headers:ogHeaders});
+      if(!response.ok)throw Error('source_failed');const rows=await response.json();
+      if(!Array.isArray(rows))throw Error('invalid_source');
+      if(page>1&&!rows.length)documentStatus=404;
+      if(q||page>1)robots='noindex, follow';
+      }
+    }catch{documentStatus=503;robots='noindex, follow';}
+  } else if (taxonomy) {
+    const selection = postsTaxonomySelection2029(taxonomy);
+    const page = postsTaxonomyPage2029(continuitySearch);
+    const params = new URLSearchParams(continuitySearch);
+    const term = String(params.get('q') || '').replace(/\s+/g, ' ').trim();
+    title = `${taxonomy.kind === 'tag' ? 'תגית' : 'סיווג'}: ${taxonomy.label} · ${SITE_NAME}`;
+    desc = `הפרסומים הציבוריים המשויכים ל${taxonomy.label}, עם התוכן, המדיה והמקורות שלהם.`;
+    const canonicalParams = new URLSearchParams();
+    if (catalogTaxonomy && selection) canonicalParams.set(selection.kind, selection.key);
+    canonical = SITE + key + (canonicalParams.size ? `?${canonicalParams}` : '');
+    if (!selection || page === null) { documentStatus = 404; robots = 'noindex, follow'; }
+    else if (term.length > 120 || /[\u0000-\u001f\u007f]/.test(term)) { documentStatus = 400; robots = 'noindex, follow'; }
+    else try {
+      const query = new URLSearchParams({ select: 'id,title,tags,categories,image_url,thumb_url',
+        or: `(${selection.publicFilter})`, [selection.field]: `${selection.operator === 'contains' ? 'cs' : 'ov'}.${selection.arrayLiteral}`,
+        order: 'modified.desc.nullslast,id.asc', limit: '24', offset: String((page - 1) * 24) });
+      if (term) query.set('title', `ilike.%${term.replace(/[\\%_*]/g, '\\$&')}%`);
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/posts?${query}`, { headers: { ...ogHeaders, Prefer: 'count=exact' } });
+      const totalText = r.headers.get('content-range')?.split('/').at(-1);
+      const total = /^\d+$/.test(totalText || '') ? Number(totalText) : null;
+      if (r.status === 416 && total !== null && (page - 1) * 24 >= total) {
+        documentStatus = 404; robots = 'noindex, follow';
+      } else {
+        if (!r.ok) throw new Error('taxonomy-unavailable');
+        const rows = await r.json();
+        let exists = null;
+        if (total === 0 && term) {
+          query.delete('title'); query.set('offset', '0'); query.set('limit', '1');
+          const witness = await fetch(`${SUPABASE_URL}/rest/v1/posts?${query}`, { headers: ogHeaders });
+          if (!witness.ok) throw new Error('taxonomy-witness-unavailable');
+          const admitted = await witness.json();
+          const proof = postsTaxonomyEvidence2029({ scope: taxonomy, posts: admitted, total: Array.isArray(admitted) ? admitted.length : null });
+          if (proof.status >= 500) throw new Error('taxonomy-witness-invalid');
+          exists = proof.state === 'ready';
+        }
+        const evidence = postsTaxonomyEvidence2029({ scope: taxonomy, posts: rows, total, page, search: term, exists });
+        documentStatus = evidence.status;
+        if (documentStatus !== 200 || term || page > 1) robots = 'noindex, follow';
+        image = documentStatus === 200 && (rows[0]?.thumb_url || rows[0]?.image_url)
+          ? waSafeImage(rows[0].thumb_url || rows[0].image_url) : cardUrl({ w: taxonomy.label, sub: 'פרסומים ומקורות' });
+      }
+    } catch { documentStatus = 503; robots = 'noindex, follow'; }
+    if (documentStatus === 404) { title = 'האוסף לא נמצא · ' + SITE_NAME; desc = 'אין אוסף ציבורי זמין בכתובת הזו.'; }
+  } else if (productionReading && publicHistoricalLecturePage2029(decodedKey)) {
+    const page = publicHistoricalLecturePage2029(decodedKey);
+    title = page.title + ' · ' + SITE_NAME;
+    desc = 'הרצאות המקור ההיסטוריות, בסדרן ובכתובתן המקורית. תאריכי המקור והגרסה המתועדת מוצגים בנפרד.';
+    canonical = SITE + page.canonicalPath; type = 'article'; documentStatus = 200;
+    image = cardUrl({w:page.title,sub:'הרצאות המקור · תיעוד היסטורי'});
+  } else if (productionReading && decodedKey === '/community/calculator') {
+    title = 'מחשבון הקהילה — גימטריה, שמות ותאריך עברי · ' + SITE_NAME;
+    desc = 'המחשבון הקיים: שיטות גימטריה, השוואת ביטויים, שמות ותאריך עברי.';
+    robots = 'noindex, follow'; // never include names, dates or private query inputs in server metadata
+    image = cardUrl({ w: 'מחשבון הקהילה', sub: 'גימטריה · שמות · תאריך' });
+  } else if (productionReading && (decodedKey === '/or-geula' || /^\/or-geula\/video\/[^/]+$/.test(decodedKey))) {
+    const id = decodedKey.startsWith('/or-geula/video/') ? decodedKey.slice('/or-geula/video/'.length) : continuityParams.get('v');
+    title = STATIC['/or-geula'].title; desc = STATIC['/or-geula'].desc;
+    image = cardUrl(STATIC['/or-geula'].card);
+    try {
+      const result = id !== null ? await loadPublicOrGeulaOccurrence2029(id, { readRows: readContinuityRows })
+        : await loadPublicOrGeulaCollection2029({ page: continuityParams.has('page') ? continuityParams.getAll('page') : undefined, readRows: readContinuityRows });
+      documentStatus = publicContinuityHttpStatus2029(result);
+      if (result.item) {
+        title = `${result.item.title} — אור הגאולה · ${SITE_NAME}`;
+        desc = cleanDesc(result.item.text || result.item.title, 180);
+        canonical = SITE + result.item.href;
+        image = result.item.posterHref || image;
+      }
+      if (documentStatus === 404) { title = 'הפריט לא נמצא · ' + SITE_NAME; desc = 'הפריט אינו זמין לציבור.'; robots = 'noindex, follow'; }
+    } catch { documentStatus = 503; robots = 'noindex, follow'; }
+  } else if (productionReading && /^\/forum(?:\/[^/]+)?$/.test(decodedKey)) {
+    title = 'פורום המחקר · ' + SITE_NAME; desc = 'הפורום הקיים בתהליך התאמה. הקריאה והשיחה הציבורית בקהילה זמינות בנפרד.';
+    robots = 'noindex, follow';
+    try {
+      const forum = await loadPublicForumContinuation2029(decodedKey === '/forum' ? null : decodedKey.slice(7), { readRows: readContinuityRows });
+      documentStatus = publicContinuityHttpStatus2029(forum);
+      if (forum.exists === true) {
+        res.setHeader('Location', publicForumChatHref2029(continuitySearch));
+        return res.status(308).send('');
+      }
+      if (documentStatus === 404) { title = 'הדיון לא נמצא · ' + SITE_NAME; desc = 'הדיון אינו זמין לציבור.'; }
+    } catch { documentStatus = 503; }
+  } else if (productionReading && decodedKey === '/community/comments') {
+    title = 'תגובות לפוסטים · ' + SITE_NAME; desc = 'התגובות שייכות לפוסט שבו נכתבו. אפשר להמשיך לפוסט המקורי או לצ׳אט הקהילתי.';
+    robots = 'noindex, follow';
+    try {
+      const result = await loadPublicCommentPostContinuation2029(continuityParams.get('p'), { readRows: readContinuityRows });
+      documentStatus = publicContinuityHttpStatus2029(result);
+      if (result.post) { title = `${result.post.title} — תגובות · ${SITE_NAME}`; canonical = SITE + result.post.href.split('#')[0]; }
+    } catch { documentStatus = 503; }
+  } else if (productionReading && ['/community', '/community/researchers', '/members', '/contact', '/early-access', '/melech-hamisparim/718'].includes(decodedKey)) {
+    const info = {
+      '/community': ['הקהילה', 'שיחות ציבוריות, אנשים ומחשבון הקהילה.'],
+      '/community/researchers': ['אנשים בקהילה', 'דפי האנשים הציבוריים וכתביהם.'],
+      '/members': ['אנשים בקהילה', 'דפי האנשים הציבוריים וכתביהם.'],
+      '/contact': ['דיווח או הצעה', 'טופס הקשר הקיים: דיווח על תקלה, רעיון או פנייה לצוות.'],
+      '/early-access': ['גישה מוקדמת', 'עמוד הגישה המוקדמת של סוד 1820. ההרשמה אינה מופעלת בכניסה לדף.'],
+      '/melech-hamisparim/718': ['מלך המספרים · 718', 'העמוד והפרסומים של מלך המספרים בסוד 1820.'],
+    }[decodedKey];
+    title = `${info[0]} · ${SITE_NAME}`; desc = info[1]; image = cardUrl({ w: info[0], sub: 'SOD1820' });
+    if (!['/community', '/community/researchers', '/members'].includes(decodedKey)) robots = 'noindex, follow';
+    if (['/community/researchers', '/members'].includes(decodedKey)) {
+      const page = publicContinuityPage2029(continuityParams.has('page') ? continuityParams.getAll('page') : null);
+      if (page === null) { documentStatus = 404; robots = 'noindex, follow'; }
+      else if (page > 1) try {
+        // Reuse the canonical anonymous public-people reader, including its
+        // exact visibility filter and deduplication, for overflow evidence.
+        const result = await loadPublicPeopleContinuation2029();
+        const term = (continuityParams.get('q') || '').trim().toLocaleLowerCase('he');
+        const total = result.people.filter(person => !term || `${person.displayName} ${person.role}`.toLocaleLowerCase('he').includes(term)).length;
+        if (total <= (page - 1) * 20) documentStatus = 404;
+        robots = 'noindex, follow';
+      } catch { documentStatus = 503; robots = 'noindex, follow'; }
+    }
+  } else if (productionReading && (/^\/book\/[^/]+$/.test(decodedKey) || /^\/codes\/[^/]+$/.test(decodedKey) && decodedKey !== '/codes/מחקר')) {
+    const kind = decodedKey.startsWith('/book/') ? 'books' : 'codes';
+    const slug = decodedKey.slice(decodedKey.indexOf('/', 1) + 1);
+    try {
+      const item = await fetchPublicLibraryItem2029(kind, slug, { readRows: async (spec, { signal } = {}) => {
+        const params = new URLSearchParams({ select: spec.select, limit: String(spec.limit), offset: String(spec.offset) });
+        for (const [field, value] of Object.entries(spec.eq || {})) params.set(field, `eq.${value}`);
+        for (const [field, value] of Object.entries(spec.ilike || {})) params.set(field, `ilike.${value}`);
+        if (spec.or?.length) params.set('and', `(${spec.or.map(value => `or(${value})`).join(',')})`);
+        return readContinuityRows(spec.table, Object.fromEntries(params), { signal });
+      } });
+      const meta = publicLibraryMetadata2029({ kind, item, detail: true });
+      documentStatus = item ? 200 : 404;
+      title = `${meta.title} · ${SITE_NAME}`; desc = cleanDesc(meta.description, 180);
+      robots = meta.noindex ? 'noindex, follow' : 'index, follow';
+      image = meta.image || cardUrl({ w: meta.title, sub: kind === 'books' ? 'ספר ומקור' : 'פרסום צופן שמור' });
+    } catch { documentStatus = 503; robots = 'noindex, follow'; title = 'המקור לא נטען · ' + SITE_NAME; desc = 'לא הצלחנו לקרוא את המקור כרגע. אפשר לנסות שוב.'; }
+  } else if (productionReading && ['/books', '/codes', '/codes/מחקר'].includes(decodedKey)) {
+    const meta = publicLibraryMetadata2029({ kind: decodedKey === '/books' ? 'books' : 'codes', collection: decodedKey === '/codes/מחקר' ? 'research' : 'published' });
+    title = `${meta.title} · ${SITE_NAME}`; desc = meta.description;
+    image = cardUrl({ w: meta.title, sub: 'מקורות ציבוריים' });
+    robots = meta.noindex ? 'noindex, follow' : 'index, follow';
+  } else if (productionReading && productionRouteState === "post-lookup") {
+    await resolvePostMetadata();
+  } else if (/^\/forum(?:\/|$)/.test(decodedKey)) {
     robots = 'noindex, follow';
     title = `הצ'אט הקהילתי · ${SITE_NAME}`;
     desc = 'הפורום הישן נסגר. השיחות ממשיכות בצ׳אט הקהילתי.';
@@ -262,6 +545,34 @@ export default async function handler(req, res) {
     title = STATIC['/community/chat'].title;
     desc = STATIC['/community/chat'].desc;
     image = cardUrl(STATIC['/community/chat'].card);
+    if (productionReading && ['thread', 'reply', 'path'].some(field => continuityParams.has(field))) {
+      const focus = ['thread','reply','path'].some(field => continuityParams.getAll(field).length > 1) ? null : normalizeCommunityThreadFocus({
+        threadId: continuityParams.get('thread') || '', replyId: continuityParams.get('reply') || '', path: continuityParams.get('path') || '',
+      });
+      if (!focus) { documentStatus = 404; title = 'השיחה לא נמצאה · ' + SITE_NAME; }
+      else try {
+        // This existing stable read-only RPC admits the whole visible ancestor
+        // chain. Request identity fields only: no account or message body in OG.
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/community_message_context?select=id,parent_id,origin,is_deleted`, {
+          method: 'POST', headers: { ...ogHeaders, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ p_id: focus.replyId || focus.threadId }), signal: AbortSignal.timeout(5000),
+        });
+        if (!r.ok) throw new Error('community-source-unavailable');
+        const rows = await r.json();
+        if (!Array.isArray(rows)) throw new Error('community-source-invalid');
+        const verified = focus.path.every((id, index) => rows.some(row => row.id === id
+          && (index === 0 ? row.parent_id == null : row.parent_id === focus.path[index - 1])
+          && ['openweb','community_2029'].includes(row.origin)));
+        if (!verified) { documentStatus = 404; title = 'השיחה לא נמצאה · ' + SITE_NAME; }
+        else {
+          const share = new URLSearchParams({ thread: focus.threadId });
+          if (focus.replyId) share.set('reply', focus.replyId);
+          if (continuityParams.has('path')) share.set('path', focus.path.join(','));
+          canonical = `${SITE}/community/chat?${share}`;
+          title = `${focus.replyId ? 'תגובה בשיחה הקהילתית' : 'שיחה בקהילה'} · ${SITE_NAME}`;
+        }
+      } catch { documentStatus = 503; }
+    }
   } else if (key === '/2029/gematria') {
     // 2029 viral Gematria result — projection only. Never recalculate in OG.
     // The live page re-verifies q+m+v through fn_method_profile before presenting it as canonical.
@@ -307,7 +618,7 @@ export default async function handler(req, res) {
     // מחשבון הגימטריה — אם שותפו מילה+ערך (?w=&n=) → תמונת כרטיס ויראלית עם המילה.
     const w = String((req.query && req.query.w) || '').trim();
     const nq = parseInt(String((req.query && req.query.n) || ''), 10);
-    if (w && Number.isFinite(nq)) {
+    if (w && Number.isFinite(nq) && !productionReading) {
       title = `${w} = ${nq} · ${SITE_NAME}`;
       desc = `"${w}" שווה ${nq} בגימטריה. מה המספר אומר עליכם? בדקו גם את השם שלכם במחשבון הגימטריה של סוד 1820.`;
       image = `${SITE}/api/card?w=${encodeURIComponent(w)}&n=${nq}`;
@@ -354,7 +665,7 @@ export default async function handler(req, res) {
     // 🔬 מעבדת-השם — עמוד-התוצאה שאותו משתפים (?w=<שם>). זו הלולאה הוויראלית:
     //    מישהו מחפש את שמו ומשתף → הצופה רואה «<שם> = <ערך>» + «מה מסתתר בשם שלך?» → מחפש את שלו.
     const w = String((req.query && req.query.w) || '').trim();
-    if (w) {
+    if (w && req.publicReadingRelease !== PUBLIC_READING_PROFILE_ID) {
       const val = ragil(w);
       title = `${w} = ${val} · ${SITE_NAME}`;
       desc = `הסוד שמאחורי השם "${w}" — ${w} = ${val} בגימטריה. מה מסתתר בשם שלך? גלו במעבדת-השם של סוד 1820.`;
@@ -395,9 +706,21 @@ export default async function handler(req, res) {
     const assetId = key.slice('/video/'.length).trim();
     if (/^[0-9a-f]{32}$/i.test(assetId)) {
       try {
-        const r = await fetch(`${SUPABASE_URL}/rest/v1/video_media_assets_v1?public_id=eq.${encodeURIComponent(assetId)}&select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,topics,google_indexable,first_seen_at,last_seen_at&limit=1`, { headers: ogHeaders });
-        const rows = await r.json();
-        const v = Array.isArray(rows) && rows[0];
+        let v;
+        if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID) {
+          v = await fetchPublicVideo2029(assetId, { readRows: async (table, params) => {
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${new URLSearchParams(params)}`, { headers: ogHeaders });
+            if (!response.ok) throw new Error('video-source-unavailable');
+            const rows = await response.json();
+            if (!Array.isArray(rows)) throw new Error('video-source-invalid');
+            return rows;
+          } });
+        } else {
+          // Legacy metadata retains its existing reader and behavior.
+          const r = await fetch(`${SUPABASE_URL}/rest/v1/video_media_assets_v1?public_id=eq.${encodeURIComponent(assetId)}&select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,topics,google_indexable,first_seen_at,last_seen_at&limit=1`, { headers: ogHeaders });
+          const rows = await r.json();
+          v = Array.isArray(rows) && rows[0];
+        }
         if (v) {
           const nm = stripHtml(v.title || 'וידאו').trim();
           title = `${nm || 'וידאו'} · ${SITE_NAME}`;
@@ -406,25 +729,79 @@ export default async function handler(req, res) {
           image = waSafeImage(safeVideoThumb(v.thumb_url, safeVideoThumb(v.poster_url, DEFAULT_IMAGE)));
           type = 'video.other';
           robots = v.google_indexable === true ? 'index, follow' : 'noindex, follow';
-          canonical = `${SITE}/video/${assetId}`;
+          canonical = v.redirectHref ? `${SITE}${v.redirectHref}` : `${SITE}/video/${assetId}`;
           videoCanonical = canonical;
-          orgeulaVid = {
+          orgeulaVid = v.media_url ? {
             contentUrl: v.media_url,
             thumb: image,
             name: nm || 'וידאו',
             desc,
             uploadDate: v.first_seen_at || v.last_seen_at,
-          };
+          } : null;
         } else {
+          if (productionReading) documentStatus = 404;
           robots = 'noindex, follow';
         }
       } catch {
+        if (productionReading) documentStatus = 503;
         robots = 'noindex, follow';
       }
     } else {
+      if (productionReading) documentStatus = 404;
       robots = 'noindex, follow';
     }
-  } else if (STATIC[staticKey]) {
+  } else if (exactWorldFindingRequest) {
+    // Exact public World reader boundary: never use an admin id or look up a
+    // private/unpublished finding. Invalid, missing, excluded and failed reads
+    // produce the SAME neutral noindex card, without reflecting an identifier.
+    robots = 'noindex, nofollow';
+    title = 'הממצא המבוקש אינו זמין לציבור · ' + SITE_NAME;
+    desc = 'הממצא אינו קיים, אינו פומבי או אינו זמין כרגע. לא יוצג ממצא חלופי.';
+    image = cardUrl({ w: 'הממצא אינו זמין', sub: 'העולם · SOD1820', cap: 'אפשר לחזור לעולם ולגלות תוכן ציבורי' });
+    canonical = SITE + '/world';
+    if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestedFindingId)) {
+      try {
+        const apiUrl = `${SUPABASE_URL}/rest/v1/research_objects?id=eq.${encodeURIComponent(requestedFindingId)}&privacy_scope=eq.public&status=in.(approved,canonical)&select=id,created_at,statement,kind,source,source_ref,contributor,meta,status,privacy_scope&limit=1`;
+        const response = await fetch(apiUrl, { headers: ogHeaders, signal: AbortSignal.timeout(5000) });
+        if (!response.ok) throw new Error('public_finding_lookup_failed');
+        const rows = await response.json();
+        const row = Array.isArray(rows) ? rows[0] : null;
+        const excluded = row && (worldPreviewMaterialExclusion(row, 'research_object')
+          || row.meta?.ext?.personal_scope?.scope === 'person_only');
+        let exactSourceAllowed = true;
+        const channelRef = /^channel_updates:([^#]+)(?:#.*)?$/i.exec(String(row?.source_ref || ''));
+        if (row && !excluded && channelRef) {
+          const sourceUrl = `${SUPABASE_URL}/rest/v1/channel_updates?id=eq.${encodeURIComponent(channelRef[1])}&status=eq.live&select=id,channel,status&limit=1`;
+          const sourceResponse = await fetch(sourceUrl, { headers: ogHeaders, signal: AbortSignal.timeout(5000) });
+          if (!sourceResponse.ok) throw new Error('public_finding_source_lookup_failed');
+          const sourceRows = await sourceResponse.json();
+          exactSourceAllowed = Array.isArray(sourceRows) && sourceRows[0]?.id === channelRef[1]
+            && String(sourceRows[0]?.channel || '').toLowerCase() !== 'or-geula';
+        }
+        if (row?.id === requestedFindingId && row.privacy_scope === 'public'
+            && ['approved', 'canonical'].includes(row.status) && !excluded && exactSourceAllowed) {
+          const presented = resolveResearchObjectPresentation(row, { locale: 'he' });
+          const preview = worldFindingShareCard({ title: presented.title,
+            typeLabel: presented.typeLabel, sourceLabel: presented.sourceLabel,
+            attributionLabel: presented.attributionLabel, summary: presented.summary });
+          if (preview) {
+            title = preview.title + ' · ' + SITE_NAME;
+            desc = preview.description;
+            image = preview.image; // existing 1200x630 branded /api/card; no unreviewed source image
+            canonical = `${SITE}/world?finding=${encodeURIComponent(row.id)}#finding-${encodeURIComponent(row.id)}`;
+            robots = 'index, follow';
+          }
+        }
+      } catch { /* Fail closed; never substitute admin data or expose the requested id. */ }
+    }
+  } else if (STATIC[staticKey] && !wpId) {
+    if (["/unsubscribe", "/updates", "/login", "/auth/callback"].includes(key)) robots = "noindex, nofollow";
+    if (key === "/posts") canonical = SITE + "/post";
+    if (productionReading && key === '/post') {
+      const page = Number(continuityParams.get('page') || 1);
+      if (continuityParams.get('q') || continuityParams.get('series')
+        || Number.isSafeInteger(page) && page > 1 && page <= 10000) robots = 'noindex, follow';
+    }
     title = STATIC[staticKey].title;
     desc = STATIC[staticKey].desc;
     if (STATIC[staticKey].card) image = cardUrl(STATIC[staticKey].card);
@@ -442,8 +819,11 @@ export default async function handler(req, res) {
     try {
       // מודל-הקריאה הציבורי (approved בלבד, בלי מפתחות-פנימיים) — work_log bf236317
       const r = await fetch(`${SUPABASE_URL}/rest/v1/topic_cards_public?slug=eq.${encodeURIComponent(slug)}&select=title,subtitle,image_ids,highlight_numbers&limit=1`, { headers: ogHeaders });
+      if (productionReading && !r.ok) throw new Error('topic-source-unavailable');
       const rows = await r.json();
+      if (productionReading && !Array.isArray(rows)) throw new Error('topic-source-invalid');
       const c = Array.isArray(rows) && rows[0];
+      if (productionReading && !c) { documentStatus = 404; robots = 'noindex, follow'; }
       if (c) {
         title = stripHtml(c.title) + ' · ' + SITE_NAME;
         desc = cleanDesc(c.subtitle || `מרכז ההתכנסות של ${stripHtml(c.title)}${(c.highlight_numbers || []).length ? ' — ' + c.highlight_numbers.join(' · ') : ''}`) || DEFAULT_DESC;
@@ -454,13 +834,13 @@ export default async function handler(req, res) {
         image = `${SITE}/api/card?w=${encodeURIComponent(ct)}&sub=${encodeURIComponent(nums.length ? nums.join('  ·  ') : 'מרכז ההתכנסות')}`;
         convergenceLd = { name: ct, description: desc, numbers: nums };
       }
-    } catch { /* fallback to defaults */ }
+    } catch { if (productionReading) { documentStatus = 503; robots = 'noindex, follow'; } }
   } else if (key.startsWith('/2029/number/')) {
     // Native Number 2029 is still a Golden preview and is intentionally noindex.
     // Match the client applySeo contract; do not project legacy Number semantics here.
     let raw = key.slice('/2029/number/'.length);
     try { raw = decodeURIComponent(raw); } catch { /* keep */ }
-    const n = parseInt(raw, 10);
+    const n = productionReading ? (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw)) ? Number(raw) : NaN) : parseInt(raw, 10);
     if (Number.isFinite(n)) {
       title = `${n} · דף המספר 2029 · ${SITE_NAME}`;
       desc = 'דף המספר 2029 — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.';
@@ -476,7 +856,7 @@ export default async function handler(req, res) {
     // עמוד מספר — תמונה מייצגת (primary_value)
     let raw = key.slice('/number/'.length);
     try { raw = decodeURIComponent(raw); } catch { /* keep */ }
-    const n = parseInt(raw, 10);
+    const n = productionReading ? (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw)) ? Number(raw) : NaN) : parseInt(raw, 10);
     if (Number.isFinite(n)) {
       title = `${n} — מרכז ההתכנסות · ${SITE_NAME}`;
       desc = `כל מה שמתכנס למספר ${n} בסוד 1820 — גימטריה, גלריות, פוסטים וצירי התכנסות במקום אחד.`;
@@ -493,6 +873,11 @@ export default async function handler(req, res) {
       } catch { /* fallback to generic */ }
       // תמונת שיתוף דינמית: המספר ענק + הביטויים השווים לו + כיתוב ויראלי.
       image = `${SITE}/api/card?n=${n}`;
+    } else if (productionReading) {
+      title = `${stripHtml(raw).slice(0, 120)} — דף הביטוי · ${SITE_NAME}`;
+      desc = 'הביטוי ושיטת החישוב נשמרים בכתובת. החישוב מאומת במנוע הקיים בעת פתיחת הדף.';
+      type = 'website'; robots = 'noindex, follow';
+      image = cardUrl({ w: stripHtml(raw).slice(0, 120), sub: 'ביטוי · גימטריה' });
     }
   } else if (key.startsWith('/codes/')) {
     // 🔠 עמוד-צופן קנוני (els_records) — כרטיס-שיתוף ממותג עם המונח והדילוג.
@@ -503,8 +888,10 @@ export default async function handler(req, res) {
     canonical = SITE + '/codes/' + encodeURIComponent(slug);
     let publishedCipherFound = false;
     try {
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=title,search_term,skip_distance,scope,image_url,positions&limit=1`, { headers: ogHeaders });
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&status=eq.published${productionReading ? '&visibility=eq.public' : ''}&select=title,search_term,skip_distance,scope,image_url,positions&limit=1`, { headers: ogHeaders });
+      if (productionReading && !r.ok) throw new Error('cipher-source-unavailable');
       const rows = await r.json();
+      if (productionReading && !Array.isArray(rows)) throw new Error('cipher-source-invalid');
       const c = Array.isArray(rows) && rows[0];
       if (c) {
         publishedCipherFound = true;
@@ -522,8 +909,9 @@ export default async function handler(req, res) {
           : shapeUrl ? waSafeImage(shapeUrl)
           : `${SITE}/api/card?w=${encodeURIComponent(c.search_term)}&sub=${encodeURIComponent('צופן דילוג · דילוג ' + c.skip_distance)}&cap=${encodeURIComponent(findings.length ? findings.slice(0, 3).join(' · ') : 'דילוגי אותיות · סוד 1820')}&sig=els`;
       }
-    } catch { /* unavailable records do not become indexable home metadata */ }
+    } catch { if (productionReading) documentStatus = 503; }
     if (!publishedCipherFound) {
+      if (productionReading && documentStatus !== 503) documentStatus = 404;
       robots = 'noindex, follow';
       title = 'הצופן לא נמצא · ' + SITE_NAME;
       desc = 'הצופן המבוקש אינו זמין לציבור.';
@@ -538,16 +926,19 @@ export default async function handler(req, res) {
     if (slug) {
       try {
         const r = await fetch(`${SUPABASE_URL}/rest/v1/nodes?type=eq.book&is_active=eq.true&metadata-%3E%3Eslug=eq.${encodeURIComponent(slug)}&select=label,description,metadata&limit=1`, { headers: ogHeaders });
+        if (productionReading && !r.ok) throw new Error('book-source-unavailable');
         const rows = await r.json();
+        if (productionReading && !Array.isArray(rows)) throw new Error('book-source-invalid');
         const c = Array.isArray(rows) && rows[0];
+        if (productionReading && !c?.label) { documentStatus = 404; robots = 'noindex, follow'; title = 'הספר לא נמצא · ' + SITE_NAME; desc = 'הספר אינו זמין לציבור.'; }
         if (c && c.label) {
           const nm = stripHtml(c.label);
-          title = `${nm} — ספר ומחקר · ${SITE_NAME}`;
-          desc = cleanDesc(c.description || `מקור → עמוד/בלוק → מחקר → קשרים. ${nm} בתוך עץ המקורות של סוד 1820.`, 180) || DEFAULT_DESC;
+          title = `${nm} — ספר ומקור · ${SITE_NAME}`;
+          desc = cleanDesc(c.description || `קריאת ${nm} במקורות הציבוריים של סוד 1820.`, 180) || DEFAULT_DESC;
           type = 'website';
           image = cardUrl({ w: nm, sub: 'ספר ומקור · סוד 1820', cap: 'להיכנס לתוך הספר' });
         }
-      } catch { /* fallback to defaults */ }
+      } catch { if (productionReading) { documentStatus = 503; robots = 'noindex, follow'; } }
     }
   } else if (key.startsWith('/researcher/')) {
     // Native /researcher/:slug is an admin corpus projection. Never query or
@@ -564,9 +955,14 @@ export default async function handler(req, res) {
     try { slug = decodeURIComponent(slug); } catch { /* keep */ }
     if (slug && slug !== 'me') {
       try {
-        const r = await fetch(`${SUPABASE_URL}/rest/v1/contributors?or=(code.eq.${encodeURIComponent(slug)},slug.eq.${encodeURIComponent(slug)})&select=display_name,role,avatar_url,media,code,slug&limit=1`, { headers: ogHeaders });
+        const publicIdentity = productionReading ? '&active=eq.true&locked=not.is.true&building=not.is.true&or=(dossier_settings->>visibility.is.null,dossier_settings->>visibility.eq.public)' : '';
+        const identityFilter = productionReading ? `${/^\d+$/.test(slug) ? 'code' : 'slug'}=eq.${encodeURIComponent(slug)}` : `or=(code.eq.${encodeURIComponent(slug)},slug.eq.${encodeURIComponent(slug)})`;
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/contributors?${identityFilter}${publicIdentity}&select=display_name,role,avatar_url,media,code,slug&limit=1`, { headers: ogHeaders });
+        if (productionReading && !r.ok) throw new Error('writer-source-unavailable');
         const rows = await r.json();
+        if (productionReading && !Array.isArray(rows)) throw new Error('writer-source-invalid');
         const c = Array.isArray(rows) && rows[0];
+        if (productionReading && !c?.display_name) { documentStatus = 404; robots = 'noindex, follow'; }
         if (c && c.display_name) {
           const nm = stripHtml(c.display_name);
           const roleTxt = stripHtml(c.role || 'חוקר');
@@ -577,51 +973,27 @@ export default async function handler(req, res) {
           image = firstImg ? waSafeImage(firstImg)
             : `${SITE}/api/card?w=${encodeURIComponent(nm)}&sub=${encodeURIComponent('דף חוקר · סוד 1820')}`;
         }
-      } catch { /* fallback to defaults */ }
+      } catch { if (productionReading) { documentStatus = 503; robots = 'noindex, follow'; } }
     }
-  } else {
-    // לטפל כ-slug של פוסט.
-    // חלק מהפוסטים שמורים עם slug בעברית (תפילה-לרפואה…) וחלק עם slug מקודד-אחוזים
-    // בסגנון וורדפרס (%d7%aa…). הרובוט מגיע עם הנתיב המפוענח, לכן מנסים את שתי הצורות:
-    // (1) ה-slug המפוענח, (2) קידוד-אחוזים באותיות קטנות (כמו שוורדפרס שמר).
-    let slug = key.startsWith('/post/') ? key.slice('/post/'.length) : key.replace(/^\//, '');
-    try { slug = decodeURIComponent(slug); } catch { /* keep */ }
-    const variants = [slug];
-    const encLower = encodeURIComponent(slug).replace(/%[0-9A-Fa-f]{2}/g, m => m.toLowerCase());
-    if (encLower !== slug) variants.push(encLower);
-    const SEL = 'select=title,excerpt,content,image_url,date,modified,tags,categories,author&limit=1';
-    for (const v of variants) {
-      try {
-        const url = `${SUPABASE_URL}/rest/v1/posts?slug=eq.${encodeURIComponent(v)}&${SEL}`;
-        const r = await fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } });
-        const rows = await r.json();
-        if (Array.isArray(rows) && rows[0]) {
-          post = rows[0];
-          title = stripHtml(post.title) + ' · ' + SITE_NAME;
-          desc = cleanDesc(post.excerpt || post.content) || DEFAULT_DESC;
-          // 🛡 post_og_image_law: og:image חייב רסטר (זחלנים לא מציגים SVG, ולא raw.githubusercontent).
-          //    image_url לא-תקין → נפילה אוטומטית לכרטיס /api/card ממותג (self-healing).
-          const okOg = post.image_url
-            && !/\.svg(\?|#|$)/i.test(post.image_url)
-            && !/raw\.githubusercontent\.com/i.test(post.image_url);
-          if (okOg) {
-            image = post.image_url;
-          } else {
-            const ttl = stripHtml(post.title);
-            const heroTitle = ttl.length > 46 ? ttl.slice(0, 46).replace(/\s+\S*$/, '') + '…' : ttl;
-            const cat = Array.isArray(post.categories) && post.categories[0] ? stripHtml(post.categories[0]) : '';
-            image = cardUrl({ w: heroTitle, sub: cat || "כי לה' המלוכה", cap: 'לקריאת הרמז המלא ←' });
-          }
-          type = 'article';
-          break;
-        }
-      } catch { /* try next variant */ }
-    }
-    if (key.startsWith('/post/') && !post) {
-      robots = 'noindex, follow';
-      title = 'הפוסט לא נמצא · ' + SITE_NAME;
-      desc = 'המקור המבוקש אינו זמין ב-SOD1820 2029.';
-    }
+  } else { await resolvePostMetadata(); }
+
+  // Reuse the exact indexability readers used by Number2029 and the XML owner.
+  // No arithmetic or publication decision is recreated by this adapter.
+  if (productionReading && /^\/number\/[^/]+$/.test(key)) {
+    const address = decodeURIComponent(key.slice('/number/'.length));
+    const numeric = /^\d+$/.test(address);
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${numeric ? 'is_number_indexable' : 'is_phrase_indexable'}`, {
+        method: 'POST', headers: { ...ogHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify(numeric ? { p_value: Number(address) } : { p_phrase: address }),
+        signal: AbortSignal.timeout(5000),
+      });
+      if (!r.ok) throw new Error('indexability-source-unavailable');
+      const indexable = await r.json();
+      if (typeof indexable !== 'boolean') throw new Error('indexability-source-invalid');
+      robots = indexable ? 'index, follow' : 'noindex, follow';
+      if (!numeric) { title = `${address} · ${SITE_NAME}`; desc = `הביטוי ${address} במקורות הציבוריים של סוד 1820.`; }
+    } catch { documentStatus = 503; robots = 'noindex, follow'; }
   }
 
   // וידוא תמונת שיתוף ידידותית לוואטסאפ (WebP → JPEG דרך render) — לפני בניית המטא וה-JSON-LD.
@@ -734,10 +1106,10 @@ ${searchCrawlerDocument ? '' : `<meta http-equiv="refresh" content="0; url=${esc
 </body></html>`;
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', flagState?.failed ? 'no-store' : launchGate ? 'public, max-age=300, s-maxage=300' : 'public, max-age=300, s-maxage=600');
+  res.setHeader('Cache-Control', exactWorldFindingRequest || flagState?.failed ? 'no-store' : launchGate ? 'public, max-age=300, s-maxage=300' : 'public, max-age=300, s-maxage=600');
   if (searchCrawlerDocument) {
     res.setHeader('X-Robots-Tag', robots);
     res.setHeader('Vary', 'User-Agent');
   }
-  res.status(200).send(html);
+  res.status(req.publicFoundationPreview === true ? documentStatus : 200).send(html);
 }

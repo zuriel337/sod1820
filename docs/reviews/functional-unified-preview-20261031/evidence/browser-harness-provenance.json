@@ -1,0 +1,19 @@
+{
+  "compiledProductSHA": "88595d35344bbb78ff21b76f3c2e78a458e81673",
+  "sourceBase": "c2f2e9948dd119c96b69e377b33be2eb2a886efb",
+  "server": "Vite preview loopback port4182, exact integrated Preview output",
+  "harness": "deny by default; canonical public RPCs translated to reviewed read-only PostgREST GET transactions; websocket/model/auth/product writes blocked",
+  "syntheticFixtures": [
+    "Bennett public source for entry test",
+    "888 sparse public Topic",
+    "45 public catalog rows for pagination"
+  ],
+  "storage": "public image placeholders for general browser coverage; actual flight image used in separately recorded CLS measurements",
+  "sourceSHA256": {
+    "/tmp/functional-unified-preview/browser-final/tests/playwright-storage-egress-guard.cjs": "0aab3aaf5663a9402af985cf736e4c59d08cdadd6d288484ad09b2a7f5091eeb",
+    "/tmp/functional-unified-preview/browser-final/tests/safe-local-fixture.cjs": "d5a3f389a3601a028e5e0298ee8c2fb9056547c5c7bcffd315cba13d471ea22c",
+    "/tmp/functional-unified-preview/browser-final/tests/entry-learn-2029.spec.cjs": "0e6cc4b3b510a85d8f22d7d534fe130bc713ad46620662861bf1b4ede3f4157e",
+    "/tmp/functional-unified-preview/browser-final/tests/world2029-release.spec.cjs": "eaa8e68f5082fe6a015d6fb84c1cc28efdb51b3e28ab66a761b0392b73f87342",
+    "/tmp/functional-unified-preview/browser-final/tests/fixtures/public-topic-888.cjs": "e2148b6d9e909e7ca68d5cc5181eaa62932d90fe9149421acaf100a07d64beee"
+  }
+}

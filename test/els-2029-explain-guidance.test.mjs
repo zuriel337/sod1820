@@ -66,6 +66,13 @@ test("guided/spoken representation does not leak raw ELS text when includeText i
   assert.equal("dependencyGroup" in context.occurrence, false);
 });
 
+test("an explicit matrix request does not claim the separate analysis is inactive", () => {
+  const guide = buildElsRazielGuidance({ ...exactContext(), matrixAnalysisRequested: true });
+  assert.match(guide.inactive, /בקשת המפה נבדקת בנפרד/);
+  assert.match(guide.inactive, /הצעות עד לאימות/);
+  assert.doesNotMatch(guide.inactive, /עדיין אינן פעילות/);
+});
+
 test("guide refuses non-exact or non-OK projection context", () => {
   const exact = exactContext();
   assert.equal(buildElsRazielGuidance({

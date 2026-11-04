@@ -1,5 +1,21 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v2 COMPACT
 
+## מצב חי וכללי שחרור — 2029 (יישור ZURIEL, ‏4.11.2026)
+
+**2029 הוא האתר החי. Legacy הוא יעד חזרה בלבד.** מצב חי נקבע מקריאה עדכנית של שיוך הדומיינים ב־Vercel, מקור הפריסה וה־artifact שמוגש בפועל; `main`, הודעה ישנה או work_log לבדם אינם הוכחת פריסה.
+
+תצלום אימות למשימה זו: שלושת הדומיינים `sod1820.co.il`, `www.sod1820.co.il`, `sod1820.vercel.app` משרתים את `dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX`, מקור `d06cf1ab309c8278d61fc3c3588ea78a994262a1`. אין להפוך תצלום זה לפין נצחי: מאמתים שוב בכל פעולת מיזוג או פרסום. המעבר המקורי שאושר היה `1bc8260a` / `dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A`; הוא היסטוריית קבלה, לא בהכרח הפריסה העדכנית.
+
+- ZURIEL אישר במפורש הכנה ומיזוג של המוצר המאוחד העדכני ל־`main` במשימה `MAIN_2029_LIVE_STATE_RECONCILIATION_20261104`. זהו אישור המיזוג הנוכחי; אין צורך באישור נוסף לעצם המיזוג אם התנאים שהגדיר מתקיימים. בודקים תחילה שפריסת Git אוטומטית לא תחליף את החי בתוצר או בתצורה שלא אושרו.
+- מיזוג קוד אינו פריסה. main יכול לכלול תיקונים מאושרים שטרם נפרסו; מדווחים במפורש את ההבדל ממקור הפריסה החיה. Production, דומיינים, שרת/מסד משותפים ודגלים כפופים להרשאות המדויקות שכבר ניתנו, ללא הרחבה מכוח מיזוג.
+- **ענפים ומסירות שהוחלפו הם היסטוריה, לא מסלול שחרור.** אין למזג או לפרסם ענף ישן או עבודה מסשן ישן בלי אישור מיוחד מפורש של ZURIEL לאותה מסירה/דלתה. בודקים תוכן ותלות מול main העדכני; תאריך, שם סשן או אישור ישן אינם אישור חדש. אין למחוק את הענפים או את הראיות כדי לאכוף זאת.
+- הסשן המרכזי הוא המשלב היחיד של המשימה הנוכחית. סוכן שמגיע מענף היסטורי קורא את main והיומן העדכניים ונשאר בקריאה בלבד בתחום שכבר מוחזק. התיעוד והיומן הם התיאום הקיים; אין dispatch או המתנה ל־GPT.
+- Legacy `dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2` נשמר לחזרה מאושרת, ואינו Production הנוכחי. שחזור תנועה לפריסה אינו שחזור מסד או מדיה, ואין חזרה אוטומטית בגלל פין היסטורי.
+- שער Legacy שומר תאימות ליעד החזרה. מעבר שלו אינו הוכחה שהאתר החי הוא Legacy או שתוצר 2029 התקבל. אישור נפרד לשינוי השער נשאר בתוקף; אין להסיר או להחליש בדיקות. הצלחת workflow בשם G4 אינה סגירת G4 בתוכנית.
+- חיבורי החשבונות שכבר התקבלו, H1, החלטות הסיכון והדחיות המאוחרות נשמרים. אין דרישה חדשה לבדיקות שכבר תקפות ללא שינוי רלוונטי.
+
+מצב המועמד, אישור השער וראיות המיזוג/הפריסה: [המסירה הקיימת למשימה](docs/reviews/main-live-state-reconciliation-20261104/README.md), BEFORE `a89ac5ea-9802-49b2-a101-1786d13acd5f`. זהו קישור לראיות; הוא אינו מקור אמת חלופי או הרשאת פרסום.
+
 ## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
 
 **אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
@@ -8,7 +24,7 @@ All agents report to ZURIEL in their active user conversation and write passive 
 **ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
 Historical records are retained. No product semantics, visual ownership or release permission is changed. The live database guard blocks GPT delivery; repository changes do not authorize a site deployment.
 
-**Emergency Production authority (ZURIEL, 22.10.2026):** canonical Production is pinned to Legacy deployment `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq` / commit `99249526e91f1d720fae1aa43e82bbbe51ee5c45`; all 2029 work is Preview-only. No automatic custom-domain assignment or 2029 promote/rollback/alias/deploy is authorized. A future cutover requires a new explicit ZURIEL approval naming “2029 Production cutover”, exact SHA and deployment ID. The repository `legacy-production-lock` gate is mandatory and cannot be bypassed by historical authorization.
+**Historical Emergency Production authority (22.10.2026; superseded for the approved 4.11.2026 cutover):** canonical Production is pinned to Legacy deployment `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq` / commit `99249526e91f1d720fae1aa43e82bbbe51ee5c45`; all 2029 work is Preview-only. No automatic custom-domain assignment or 2029 promote/rollback/alias/deploy is authorized. A future cutover requires a new explicit ZURIEL approval naming “2029 Production cutover”, exact SHA and deployment ID. The repository `legacy-production-lock` gate is mandatory and cannot be bypassed by historical authorization.
 
 
 **Date:** 2026-10-01  
@@ -17,6 +33,15 @@ Historical records are retained. No product semantics, visual ownership or relea
 Purpose: resolve `domain → owner family → canonical owner → direct dependencies → live verification` with the smallest read set.
 
 This file is an index only. It does not become a registry, rulebook, graph, store or semantic super-owner.
+
+**Scoped pointer reconciliation · 2026-10-31:** live active-node verification corrected
+Experience Governance to v10 and canonical UI components to v11 below. This is a
+version-pointer correction, not a new owner, rule change or fresh global freeze.
+Other pinned versions remain subject to the live active-rule selection below.
+
+**Account entry · 2026-10-31:** canonical UI components v12 adds the shared
+Auth entry and server-configured methods under the existing Auth/Person owners.
+This is an additive contract update approved by ZURIEL; no new identity owner.
 
 ## 1. Agent entry
 
@@ -103,7 +128,7 @@ Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws ar
 | Human curation Gold/Signature/Anchor family | `golden_entity_law` under Truth Axes |
 | signal vs curation boundary | `signal_vs_curation` under Truth Axes |
 | manual verification seal | `verify_seal_manual_only` under Truth Axes |
-| display of record times: relative "לפני X" only on Home and World; everywhere else Hebrew + Gregorian date together (enforced by `test/date-display-rule-2029.test.mjs`) | `relative_time_display_law` v2 (child of Truth Axes time context); canonical zone stays `israel_time_law` |
+| display of record times: relative "לפני X" only on the main Home; World and every other surface show Hebrew + Gregorian together (ZURIEL 22.10.2026; enforced by `test/date-display-rule-2029.test.mjs`) | `relative_time_display_law` (child of Truth Axes time context); canonical zone stays `israel_time_law` |
 
 Interpretive research theses are Research OS/provenance, not global governance laws.
 
@@ -162,7 +187,7 @@ Historical `unified_ai_brain_law` and `metatron_single_mind_law` carry explicit 
 | Responsibility | Canonical owner |
 |---|---|
 | Person / group / personal-data processing / Personal Reality projection | `person_foundation_contract_law` **v6 ACTIVE** |
-| Follow / notification / subscription funnel | `subscription_funnel_law` v19 |
+| Follow / notification / subscription funnel | `subscription_funnel_law` v22 (3.11.2026; new verified-account default site-updates decision, runtime proposal pending; v21 preserved inactive) |
 | entitlement/access product seam | `platform_tiers_law` **v5 ACTIVE** |
 | one credit currency | `unified_credit_system` under Access |
 
@@ -188,11 +213,11 @@ Historical Dimension Five / Or-Geula upload recipes and legacy post CSS/layout r
 
 | Responsibility | Canonical owner |
 |---|---|
-| Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v9 ACTIVE** |
+| Experience lifecycle / projection / zero legacy-UI inheritance | `experience_governance_foundation_v1_law` **v10 ACTIVE** |
 | global frame/navigation/orientation | `docs/sod1820-system-frame-contract-v1.md` + current addendum lineage |
 | desktop left Companion Updates/Context + nested contextual Golden Projector + mobile Now + bottom Command Island/page-progress | existing System Frame V2 Contextual Inspector (addendum §3.5.3) + `SOD1820_DESIGN_CONTRACT_V2.md` §§8.1 / 11.8; no extra owner, feed, RLS boundary or fixed bar |
 | visual language / typography / public naming | `SOD1820_DESIGN_CONTRACT_V2.md` — **2029 ACTIVE**; V1 = preserved Legacy provenance |
-| canonical reusable UI primitives | `canonical_ui_components_law` **v7 ACTIVE** |
+| canonical reusable UI primitives | `canonical_ui_components_law` **v12 ACTIVE** |
 | mobile acceptance | `mobile_acceptance_law` |
 | semantic colors | `canonical_colors_law` under Design |
 

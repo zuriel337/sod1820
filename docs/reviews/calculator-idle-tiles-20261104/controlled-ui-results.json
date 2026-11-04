@@ -1,0 +1,121 @@
+{
+  "baseline": false,
+  "syntheticResponses": true,
+  "productWrites": 0,
+  "modelCalls": 0,
+  "rows": [
+    {
+      "name": "idle-and-search-320",
+      "evidence": {
+        "width": 320,
+        "idleTiles": 9,
+        "calculationRequests": 0,
+        "search": {
+          "width": 44,
+          "height": 44,
+          "radius": "50%",
+          "border": "1px",
+          "background": "color(srgb 0.0901961 0.0705882 0.054902 / 0.22)",
+          "blur": "blur(14px) saturate(1.25)",
+          "animation": "none",
+          "overflow": false
+        }
+      },
+      "pass": true
+    },
+    {
+      "name": "typing-and-clear-320",
+      "evidence": {
+        "lateResponseIgnored": true,
+        "zeroNeverBecameSelection": true
+      },
+      "pass": true
+    },
+    {
+      "name": "failure-and-nonhebrew-320",
+      "evidence": {
+        "failureNotReportedAsZero": true,
+        "nonHebrewNotReportedAsHebrewZero": true
+      },
+      "pass": true
+    },
+    {
+      "name": "idle-and-search-390",
+      "evidence": {
+        "width": 390,
+        "idleTiles": 9,
+        "calculationRequests": 0,
+        "search": {
+          "width": 44,
+          "height": 44,
+          "radius": "50%",
+          "border": "1px",
+          "background": "color(srgb 0.0901961 0.0705882 0.054902 / 0.22)",
+          "blur": "blur(14px) saturate(1.25)",
+          "animation": "none",
+          "overflow": false
+        }
+      },
+      "pass": true
+    },
+    {
+      "name": "typing-and-clear-390",
+      "evidence": {
+        "lateResponseIgnored": true,
+        "zeroNeverBecameSelection": true
+      },
+      "pass": true
+    },
+    {
+      "name": "failure-and-nonhebrew-390",
+      "evidence": {
+        "failureNotReportedAsZero": true,
+        "nonHebrewNotReportedAsHebrewZero": true
+      },
+      "pass": true
+    },
+    {
+      "name": "idle-and-search-1440",
+      "evidence": {
+        "width": 1440,
+        "idleTiles": 9,
+        "calculationRequests": 0,
+        "search": {
+          "width": 44,
+          "height": 44,
+          "radius": "50%",
+          "border": "1px",
+          "background": "color(srgb 0.0901961 0.0705882 0.054902 / 0.22)",
+          "blur": "blur(14px) saturate(1.25)",
+          "animation": "none",
+          "overflow": false
+        }
+      },
+      "pass": true
+    },
+    {
+      "name": "typing-and-clear-1440",
+      "evidence": {
+        "lateResponseIgnored": true,
+        "zeroNeverBecameSelection": true
+      },
+      "pass": true
+    },
+    {
+      "name": "failure-and-nonhebrew-1440",
+      "evidence": {
+        "failureNotReportedAsZero": true,
+        "nonHebrewNotReportedAsHebrewZero": true
+      },
+      "pass": true
+    },
+    {
+      "name": "empty-deep-link-views",
+      "evidence": {
+        "views": 3
+      },
+      "pass": true
+    }
+  ],
+  "ok": true
+}

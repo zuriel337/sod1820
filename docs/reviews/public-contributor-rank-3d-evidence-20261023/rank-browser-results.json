@@ -1,0 +1,114 @@
+{
+  "captures": [
+    {
+      "width": 320,
+      "theme": "light",
+      "overflow": false,
+      "keyboard_rotation": true,
+      "true_css_3d": true,
+      "reduced_motion": true,
+      "webgl_contexts": 0
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "overflow": false,
+      "keyboard_rotation": true,
+      "true_css_3d": true,
+      "reduced_motion": true,
+      "webgl_contexts": 0
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "overflow": false,
+      "keyboard_rotation": true,
+      "true_css_3d": true,
+      "reduced_motion": true,
+      "webgl_contexts": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "overflow": false,
+      "keyboard_rotation": true,
+      "true_css_3d": true,
+      "reduced_motion": true,
+      "webgl_contexts": 0
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "overflow": false,
+      "keyboard_rotation": true,
+      "true_css_3d": true,
+      "reduced_motion": true,
+      "webgl_contexts": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "overflow": false,
+      "keyboard_rotation": true,
+      "true_css_3d": true,
+      "reduced_motion": true,
+      "webgl_contexts": 0
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "overflow": false,
+      "keyboard_rotation": true,
+      "true_css_3d": true,
+      "reduced_motion": true,
+      "webgl_contexts": 0
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "overflow": false,
+      "keyboard_rotation": true,
+      "true_css_3d": true,
+      "reduced_motion": true,
+      "webgl_contexts": 0
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "overflow": false,
+      "keyboard_rotation": true,
+      "true_css_3d": true,
+      "reduced_motion": true,
+      "webgl_contexts": 0
+    }
+  ],
+  "states": [
+    {
+      "state": "loading",
+      "no_default_rank": true,
+      "overflow": false
+    },
+    {
+      "state": "unlinked",
+      "no_default_rank": true,
+      "overflow": false
+    },
+    {
+      "state": "not_found",
+      "no_default_rank": true,
+      "overflow": false
+    },
+    {
+      "state": "unavailable",
+      "no_default_rank": true,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "external_requests": [],
+  "live_rank": {
+    "state": "ready",
+    "level": 5,
+    "label": "חוקר היכל"
+  }
+}

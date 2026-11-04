@@ -1,6 +1,7 @@
 import { supabase } from './supabase.js';
+import { PUBLIC_READING_RELEASE } from './publicReadingRelease2029.js';
 import { signupAttribution, visitorId } from './acquisition.js';
-import { googleOAuthRequest } from './oauthReturn.js';
+import { providerOAuthRequest, rememberPreviewOAuthReturn } from './oauthReturn.js';
 
 const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 // 🌱 עץ אחד: כלכלה (credits/xp/level) נקראת מ-profiles הקנונית (getMyProfile), לא מ-users.
@@ -9,19 +10,19 @@ const PROFILE_COLS = 'id, username, display_name, avatar_url, tier, role, create
 
 // ── מערכת המשתמשים (Google + Magic Link + פרופילים) ──
 export function signInWithGoogle({ returnTo = '/' } = {}) {
-  const request = googleOAuthRequest({
-    origin: SITE_URL,
-    returnTo,
-    integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true',
-  });
-  return supabase.auth.signInWithOAuth(request);
+  return signInWithConfiguredProvider('google', {returnTo});
 }
 
-export function signInWithFacebook() {
-  return supabase.auth.signInWithOAuth({
-    provider: 'facebook',
-    options: { redirectTo: SITE_URL + '/', scopes: 'email public_profile' },
-  });
+export function signInWithFacebook({returnTo='/'}={}) {
+  return signInWithConfiguredProvider('facebook', {returnTo});
+}
+
+// Shared 2029 entry: provider availability comes from the existing Auth server.
+// All federated methods consume the same trusted-origin and exact-return policy.
+export function signInWithConfiguredProvider(provider, { returnTo = '/' } = {}) {
+  const request=providerOAuthRequest({ provider, origin: SITE_URL, returnTo, integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' });
+  if(PUBLIC_READING_RELEASE || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true')rememberPreviewOAuthReturn(returnTo);
+  return supabase.auth.signInWithOAuth(request);
 }
 
 // כניסה ישירה עם סיסמה (אדמין) — ללא מייל/הפניה, עובד בכל דומיין
@@ -49,6 +50,7 @@ export async function updateProfile(userId, fields) {
   const { data, error } = await supabase
     .from('users').update(allowed).eq('id', userId).select(PROFILE_COLS).maybeSingle();
   if (error) throw error;
+  if (data?.id !== userId) throw new Error('PROFILE_UPDATE_NOT_CONFIRMED');
   return data;
 }
 
@@ -58,12 +60,15 @@ export async function requestEmailOtp(email, { shouldCreateUser = true } = {}) {
   // יוכל לשמור אותו ב-subscribers.acquisition — זה המסלול הדומיננטי (שער-האימות), שאין לו
   // גישה ל-localStorage בצד-השרת. אם הלכידה נכשלת — ההרשמה ממשיכה כרגיל (data ריק).
   let data = {};
-  if (shouldCreateUser) {
+  // Reuse canonical Auth and its existing default signup policy. Public2029
+  // never supplies visitor/acquisition metadata, even for a newly created account.
+  const createUser = shouldCreateUser;
+  if (createUser && !PUBLIC_READING_RELEASE) {
     try { data = { acquisition: signupAttribution(), visitor_id: visitorId() }; } catch { data = {}; }
   }
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim(),
-    options: { shouldCreateUser, data },
+    options: { shouldCreateUser: createUser, data },
   });
   if (error) throw error;
   return { ok: true };
@@ -93,17 +98,29 @@ export async function claimResearchLead(visitorId) {
 }
 
 // ── פנקס-מחקר בענן (user_notes) — סנכרון בין מכשירים למשתמש מחובר ──
-export async function getCloudNotes(userId) {
+export async function getCloudNotes(userId, { strict = false, signal } = {}) {
   if (!userId) return null;
-  const { data } = await supabase.from('user_notes').select('content').eq('user_id', userId).maybeSingle();
+  if (strict) await assertResearchPrincipal(userId);
+  const query = supabase.from('user_notes').select('content').eq('user_id', userId);
+  if (signal) query.abortSignal(signal);
+  const { data, error } = await query.maybeSingle();
+  if (strict) { if (error) throw error; if (signal?.aborted) throw new Error('NOTES_CANCELLED'); await assertResearchPrincipal(userId); }
   return data?.content ?? null;
 }
-export async function saveCloudNotes(userId, content) {
+export async function saveCloudNotes(userId, content, { strict = false, signal } = {}) {
   if (!userId) return;
-  await supabase.from('user_notes').upsert(
+  if (strict) await assertResearchPrincipal(userId);
+  const query = supabase.from('user_notes').upsert(
     { user_id: userId, content: content || '', updated_at: new Date().toISOString() },
     { onConflict: 'user_id' }
   );
+  if (signal) query.abortSignal(signal);
+  if (!strict) { await query; return; }
+  const { data, error } = await query.select('user_id,content,updated_at').single();
+  if (error) throw error;
+  await assertResearchPrincipal(userId);
+  if (signal?.aborted || data?.user_id !== userId || data.content !== content) throw new Error('NOTES_SAVE_NOT_CONFIRMED');
+  return data;
 }
 
 // ── עולם-המשתמש בענן (עץ אחד) ──

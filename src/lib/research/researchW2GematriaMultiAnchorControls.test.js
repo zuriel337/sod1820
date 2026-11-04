@@ -155,6 +155,7 @@ test('personal name representations remain access-controlled in Gematria finding
 test('canonical executor factory exposes Gematria without replacing prior executor tree', () => {
   const executors = createCanonicalW2Executors({ supabase: fakeSupabase() });
   assert.equal(typeof executors.gematria, 'function');
+  assert.equal(typeof executors.gematria_relations, 'function');
   assert.equal(typeof executors.numeric, 'function');
   assert.equal(typeof executors.els, 'function');
 });

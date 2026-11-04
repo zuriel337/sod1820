@@ -1,3 +1,4 @@
+import { useAuth } from "../lib/AuthContext.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -6,6 +7,7 @@ import ShareActions from "../components/ShareActions.jsx";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
 import CalculatorCompare2029 from "../components/gematria2029/CalculatorCompare2029.jsx";
 import CalculatorOpening2029 from "../components/gematria2029/CalculatorOpening2029.jsx";
+import EnglishGematriaLane2029 from "../components/gematria2029/EnglishGematriaLane2029.jsx";
 import { emit } from "../lib/events.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { fetchNumberMethodProfile } from "../lib/research/numberCoreProjection.js";
@@ -15,6 +17,7 @@ import { numberExpressionFocusHref } from "../lib/research/numberExpressionFocus
 import {
   buildCalculationSelection,
   buildCalculatorResearchContext,
+  buildCalculatorNumberNavigation,
   calculationAvailabilityLabel,
   splitCalculatorMethods,
 } from "../lib/research/calculator2029Model.js";
@@ -30,6 +33,8 @@ import {
   parseCalculatorShareState,
   pickVerifiedShareDiscovery,
 } from "../lib/research/calculator2029Viral.js";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
+import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./calculator2029.css";
 
@@ -86,16 +91,14 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
     [draft]
   );
   const info = useMemo(() => classifyCalculatorInput(draft), [draft]);
-  const canonicalSettled = info.hebrewApplicable
+  const canonicalSettled = (info.hebrewApplicable || info.englishApplicable)
     && clean(profile.expression) === clean(draft)
     && Array.isArray(profile.rows)
     && profile.rows.length > 0
     && !profile.loading;
   const displayRows = info.kind === CALCULATOR_INPUT_KIND.EMPTY
     ? (fastPreview?.methods || [])
-    : !info.hebrewApplicable
-      ? []
-      : canonicalSettled ? profile.rows : (fastPreview?.methods || []);
+    : canonicalSettled ? profile.rows : info.hebrewApplicable ? (fastPreview?.methods || []) : [];
   const methods = useMemo(() => splitCalculatorMethods(displayRows), [displayRows]);
 
   const handleDraftChange = (value) => {
@@ -132,7 +135,7 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
             value={draft}
             onChange={(event) => handleDraftChange(event.target.value)}
             placeholder="שם, מילה או ביטוי"
-            dir="rtl"
+            dir="auto"
             autoComplete="off"
             spellCheck="false"
             aria-describedby="calculator-2029-help"
@@ -149,13 +152,13 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
         className={`sod29-calc2029-engine-status${profile.error ? " is-error" : ""}`}
         aria-live="polite"
         role={profile.error ? "alert" : undefined}
-        data-engine-status={profile.error ? "error" : !info.hebrewApplicable ? "idle" : profile.loading ? "verifying" : canonicalSettled ? "verified" : "instant"}
+        data-engine-status={profile.error ? "error" : !(info.hebrewApplicable || info.englishApplicable) ? "idle" : profile.loading ? "verifying" : canonicalSettled ? "verified" : "instant"}
       >
         {profile.error
           ? String(profile.error?.message || "").includes("SHARED_RESULT_CANONICAL_MISMATCH")
             ? "הקישור המשותף לא תאם לתוצאה הקנונית הנוכחית ולכן לא הוצג כעובדה."
             : "לא ניתן לקבל כרגע את פרופיל השיטות."
-          : !info.hebrewApplicable
+          : !(info.hebrewApplicable || info.englishApplicable)
             ? ""
             : profile.loading
               ? "מאמת מול המנוע הקנוני…"
@@ -164,16 +167,13 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
                 : "מיידי"}
       </div>
 
-      {clean(draft) && !info.hebrewApplicable ? (
+      {clean(draft) && !info.hebrewApplicable && !info.englishApplicable ? (
         <div className="sod29-calc2029-handoff" role="status">
-          <p>{info.kind === CALCULATOR_INPUT_KIND.LATIN
-            ? "כאן מגלים מה מסתתר בשם בעברית. הקלידו את השם באותיות עבריות."
-            : info.notice}</p>
-          {info.kind === CALCULATOR_INPUT_KIND.LATIN ? (
-            <Link to={"/2029/calculator?q=" + encodeURIComponent(info.expression)}>רוצים אנגלית? המחשבון המקצועי מחשב גם אנגלית ←</Link>
-          ) : null}
+          <p>{info.notice}</p>
         </div>
       ) : info.notice ? <p className="sod29-calc2029-notice">{info.notice}</p> : null}
+
+      <EnglishGematriaLane2029 expression={draft} canonicalRows={canonicalSettled ? profile.rows : []} />
 
       {methods.all.length ? (
         <section className="sod29-calc2029-results" aria-label="תוצאות גימטריה">
@@ -246,6 +246,7 @@ const CalculatorFastCore2029 = React.memo(function CalculatorFastCore2029({
 });
 
 function CalculatorExperience() {
+  const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
   const location = useLocation();
   const navigate = useNavigate();
   const research = useResearch();
@@ -304,8 +305,8 @@ function CalculatorExperience() {
     if (!phrase) return;
     const inputInfo = classifyCalculatorInput(phrase);
     const requestId = ++computeRequestRef.current;
-    if (!inputInfo.hebrewApplicable) {
-      // Hebrew methods do not apply (Latin, digits, other scripts): never present zeros as a verified result.
+    if (!inputInfo.hebrewApplicable && !inputInfo.englishApplicable) {
+      // Neither supported alphabet applies: never present zeros as a verified result.
       setProfile({
         loading: false,
         rows: [],
@@ -402,7 +403,7 @@ function CalculatorExperience() {
     setShowOpening(false);
     setShareDiscovery(null);
     setSharedRestored(false);
-    if (location.search) navigate("/2029/gematria/viral", { replace: true });
+    if (location.search) navigate({ pathname: location.pathname, search: "", hash: location.hash }, { replace: true });
   }, [location.search, navigate]);
 
   const settleFastExpression = useCallback((raw) => {
@@ -433,13 +434,11 @@ function CalculatorExperience() {
     }
   };
 
-  const openNumber = () => {
-    if (!selection || selection.resultValue == null) return;
-    const href = numberExpressionFocusHref(selection.resultValue, {
-      expression: selection.expression,
-      method: selection.methodKey,
-    });
-    if (href) navigate(href);
+  const openNumber = (expression = selection?.expression) => {
+    const destination = buildCalculatorNumberNavigation({ ...selection, expression }, location, research.context);
+    if (!destination) return;
+    research.setResearchContext?.(destination.context);
+    navigate(destination.href, { state: { sodResearchIntent: "continue" } });
   };
 
   const openHeichal = () => {
@@ -472,7 +471,7 @@ function CalculatorExperience() {
     return buildCalculatorShareUrl(selection, {
       discovery: shareDiscovery,
       shareId,
-      baseUrl: origin + "/2029/gematria/viral",
+      baseUrl: origin + (import.meta.env?.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101" ? "/gematria" : "/2029/gematria/viral"),
     });
   }, [selection, shareDiscovery, shareId]);
 
@@ -502,7 +501,7 @@ function CalculatorExperience() {
     setShowCompare(false);
     setShowOpening(false);
     setSharedRestored(false);
-    if (location.search) navigate("/2029/gematria/viral", { replace: true });
+    if (location.search) navigate({ pathname: location.pathname, search: "", hash: location.hash }, { replace: true });
     requestAnimationFrame(() => inputRef.current?.focus?.());
   };
 
@@ -546,8 +545,8 @@ function CalculatorExperience() {
             <button type="button" onClick={loadTrace} disabled={selection.resultValue == null}>
               {trace.finding ? "סגור חישוב" : trace.loading ? "טוען…" : "איך מחשבים?"}
             </button>
-            <button type="button" onClick={openNumber} disabled={selection.resultValue == null}>פתח דף מספר</button>
-            <button type="button" className="is-raziel" onClick={openRaziel} disabled={selection.resultValue == null}>
+            <button type="button" onClick={() => openNumber()} disabled={selection.resultValue == null}>פתח דף מספר</button>
+            <button type="button" className="is-raziel" disabled={actionsLocked || selection.resultValue == null} onClick={openRaziel}>
               ✦ רזיאל · תסביר לי
             </button>
             <Link
@@ -564,7 +563,7 @@ function CalculatorExperience() {
           {showMore ? (
             <div className="sod29-calc2029-actions is-more">
               <Link to={"/beit-midrash/" + encodeURIComponent(selection.methodKey)}>למד את השיטה</Link>
-              <button type="button" onClick={openHeichal}>חקור בהיכל</button>
+              <button type="button" disabled={actionsLocked} onClick={openHeichal}>חקור בהיכל</button>
               <button type="button" onClick={() => setShowCompare((value) => !value)} aria-expanded={showCompare}>
                 {showCompare ? "סגור השוואה" : "השווה"}
               </button>
@@ -602,14 +601,7 @@ function CalculatorExperience() {
             autoOpen={sharedState.isShared}
             onOpened={() => emit("calculator_2029", "method_opened", { props: eventProps(selection) })}
             onProjection={handleLensProjection}
-            onOpenExpression={(item) => {
-              if (!item?.phrase || selection.resultValue == null) return;
-              const href = numberExpressionFocusHref(selection.resultValue, {
-                expression: item.phrase,
-                method: selection.methodKey,
-              });
-              if (href) navigate(href);
-            }}
+            onOpenExpression={(item) => { if (item?.phrase) openNumber(item.phrase); }}
           />
 
           {shareUrl ? (
@@ -642,6 +634,8 @@ function CalculatorBody() {
     <Sod2029Shell
       wide
       surface="number"
+      calmBottomChrome
+      orientationCopy={{ label: "מה אני רואה במחשבון?", body: "הקלידו שם, מילה או ביטוי ובדקו את ערכו בגימטריה. בחרו שיטה כדי לראות את הצעדים שלה, ובלשונית למד תמצאו הדרכה עם הביטוי שהקלדתם." }}
       symbol={<NavigationIcon2029 name="number" />}
       eyebrow="גימטריה · חישוב מיידי"
       title="מה מסתתר בשם שלך?"
@@ -657,7 +651,7 @@ export default function Calculator2029Page() {
     applySeo({
       title: "מחשבון גימטריה 2029 · SOD1820",
       description: "חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי.",
-      path: "/2029/gematria/viral",
+      path: PUBLIC_READING_RELEASE ? "/gematria" : "/2029/gematria/viral",
       noindex: true,
     });
   }, []);

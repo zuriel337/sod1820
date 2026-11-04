@@ -80,7 +80,7 @@ export default function PrivacyPage() {
           Google או Facebook. לביצוע הבקשה:
         </p>
         <ul>
-          <li style={li}>שלחו דוא״ל אל <b style={strong} dir="ltr">yosiviner7@gmail.com</b> מהכתובת הרשומה בחשבונכם, עם הנושא «מחיקת נתונים».</li>
+          <li style={li}>שלחו דוא״ל אל <b style={strong} dir="ltr">zyz997@gmail.com</b> מהכתובת הרשומה בחשבונכם, עם הנושא «מחיקת נתונים».</li>
           <li style={li}>נאמת את הבקשה ונמחק את החשבון וכל הנתונים המשויכים אליו תוך <b style={strong}>30 יום</b>, ונשלח אישור.</li>
         </ul>
         <p style={p}>מחיקה היא סופית ואינה ניתנת לשחזור.</p>
@@ -93,7 +93,7 @@ export default function PrivacyPage() {
 
         <h2 style={h2}>7. יצירת קשר</h2>
         <p style={p}>
-          לשאלות בנושא פרטיות: <b style={strong} dir="ltr">yosiviner7@gmail.com</b>.
+          לשאלות בנושא פרטיות: <b style={strong} dir="ltr">zyz997@gmail.com</b>.
         </p>
 
         <div style={{ textAlign: "center", marginTop: 34 }}>

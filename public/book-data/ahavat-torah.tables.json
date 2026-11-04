@@ -4537,6 +4537,125 @@
   {
    "table_id": "DS-06",
    "title": "מופעי השם \"משה\" בתורה, לפי פרשה",
+   "current_reading": {
+    "source_identity": "book:hebrewbooks:5635",
+    "source_pdf_sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+    "pdf_page": 70,
+    "source_anchor": "#page=70&view=FitH",
+    "status": "partial_visual_reading",
+    "title_he": "מופעי משה · ספר שמות",
+    "summary_he": "עשר פרשות מנויות בדפוס בספר שמות: 290 מופעים. בסיום הטבלה המחבר מונה 647 מופעים בתורה. הפרשות שלא נזכרו אינן מקבלות ערך אפס מומצא.",
+    "source_note_he": "קריאה מחודשת בעמוד 70: כי תשא מ״ט = 49 וויקהל ט׳ = 9. סיכומי החומשים המודפסים הם 290, 86, 233, 38; סכומם 647. קריאת יתר שורות הפרשות וצורות השם עדיין דורשת הכרעה. 37 שורות התעתיק הקודם נשמרו בנפרד ואינן משמשות לקריאה החדשה.",
+    "historical_rows_sha256": "109be382b325042dacebc4fbad49e89ca7f1a45799a2fa6478e6e31627eda602",
+    "book_totals": [
+     {
+      "sefer": "שמות",
+      "printed": "ר״ץ",
+      "decimal": 290,
+      "pdf_page": 70
+     },
+     {
+      "sefer": "ויקרא",
+      "printed": "פ״ו",
+      "decimal": 86,
+      "pdf_page": 70
+     },
+     {
+      "sefer": "במדבר",
+      "printed": "רל״ג",
+      "decimal": 233,
+      "pdf_page": 70
+     },
+     {
+      "sefer": "דברים",
+      "printed": "ל״ח",
+      "decimal": 38,
+      "pdf_page": 70
+     }
+    ],
+    "rows": [
+     {
+      "sefer": "שמות",
+      "parasha": "שמות",
+      "printed": "ל״ז",
+      "decimal": 37,
+      "pdf_page": 70,
+      "confidence": "SOURCE_VERIFIED"
+     },
+     {
+      "sefer": "שמות",
+      "parasha": "וארא",
+      "printed": "מ״ז",
+      "decimal": 47,
+      "pdf_page": 70,
+      "confidence": "SOURCE_VERIFIED"
+     },
+     {
+      "sefer": "שמות",
+      "parasha": "בא",
+      "printed": "כ״ו",
+      "decimal": 26,
+      "pdf_page": 70,
+      "confidence": "SOURCE_VERIFIED"
+     },
+     {
+      "sefer": "שמות",
+      "parasha": "בשלח",
+      "printed": "מ״ב",
+      "decimal": 42,
+      "pdf_page": 70,
+      "confidence": "SOURCE_VERIFIED"
+     },
+     {
+      "sefer": "שמות",
+      "parasha": "יתרו",
+      "printed": "ל״ח",
+      "decimal": 38,
+      "pdf_page": 70,
+      "confidence": "SOURCE_VERIFIED"
+     },
+     {
+      "sefer": "שמות",
+      "parasha": "משפטים",
+      "printed": "י״ד",
+      "decimal": 14,
+      "pdf_page": 70,
+      "confidence": "SOURCE_VERIFIED"
+     },
+     {
+      "sefer": "שמות",
+      "parasha": "תרומה",
+      "printed": "פעם אחת",
+      "decimal": 1,
+      "pdf_page": 70,
+      "confidence": "SOURCE_VERIFIED"
+     },
+     {
+      "sefer": "שמות",
+      "parasha": "כי תשא",
+      "printed": "מ״ט",
+      "decimal": 49,
+      "pdf_page": 70,
+      "confidence": "SOURCE_VERIFIED"
+     },
+     {
+      "sefer": "שמות",
+      "parasha": "ויקהל",
+      "printed": "ט׳",
+      "decimal": 9,
+      "pdf_page": 70,
+      "confidence": "SOURCE_VERIFIED"
+     },
+     {
+      "sefer": "שמות",
+      "parasha": "פקודי",
+      "printed": "כ״ז",
+      "decimal": 27,
+      "pdf_page": 70,
+      "confidence": "SOURCE_VERIFIED"
+     }
+    ]
+   },
    "pdf_pages": [
     70
    ],
@@ -4930,6 +5049,73 @@
      "handoff": "GPT"
     }
    ],
+   "status": "PARTIAL"
+  },
+  {
+   "table_id": "DS-13",
+   "title": "מופעי ״עשה״ · תרומה עד פקודי",
+   "source_identity": "book:hebrewbooks:5635",
+   "source_pdf_sha256": "895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b",
+   "pdf_pages": [
+    70
+   ],
+   "source_anchor": "#page=70&view=FitH",
+   "columns": [
+    "sefer",
+    "parasha",
+    "printed",
+    "decimal",
+    "confidence"
+   ],
+   "rows": [
+    {
+     "sefer": "שמות",
+     "parasha": "תרומה",
+     "printed": "ס״ב",
+     "decimal": 62,
+     "pdf_page": 70,
+     "confidence": "SOURCE_VERIFIED"
+    },
+    {
+     "sefer": "שמות",
+     "parasha": "תצוה",
+     "printed": "מ״ח",
+     "decimal": 48,
+     "pdf_page": 70,
+     "confidence": "SOURCE_VERIFIED"
+    },
+    {
+     "sefer": "שמות",
+     "parasha": "כי תשא",
+     "printed": "כ״ד",
+     "decimal": 24,
+     "pdf_page": 70,
+     "confidence": "SOURCE_VERIFIED"
+    },
+    {
+     "sefer": "שמות",
+     "parasha": "ויקהל",
+     "printed": "פ״ד",
+     "decimal": 84,
+     "pdf_page": 70,
+     "confidence": "SOURCE_VERIFIED"
+    },
+    {
+     "sefer": "שמות",
+     "parasha": "פקודי",
+     "printed": "ל״ו",
+     "decimal": 36,
+     "pdf_page": 70,
+     "confidence": "SOURCE_VERIFIED"
+    }
+   ],
+   "grand_total": {
+    "printed": "רמ״ח",
+    "decimal": 248
+   },
+   "summary_he": "הספר מונה מופעי ״עשה״ בחמש פרשות המשכן, ולאחריהם מפרט צורות פועל וכללי השמטה ומסיים ברמ״ח — 248.",
+   "source_note_he": "חמשת מנייני הפרשות נקראים 62, 48, 24, 84, 36 ומסתכמים ב־254. סיום המחבר הוא 248, אחרי דיון במופעים שאין למנות — מעשי ה׳ והעגל. שני שלבי הספירה נשמרים בנפרד; חלוקת צורות הפועל וההשמטות טרם תועתקה במלואה.",
+   "parasha_row_sum": 254,
    "status": "PARTIAL"
   }
  ],

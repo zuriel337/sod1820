@@ -4,9 +4,9 @@ export const GOLDEN_WORLD_JOURNEY_878 = Object.freeze({
   kind: "golden",
   rootValue: 878,
   label: "מסע 878",
-  // Owner hold: start/resume/rail stay closed on every surface. Number 878, its sources,
-  // verses and gallery stay public; previously saved journeys are kept, not deleted.
-  locked: true,
+  // ZURIEL reopened existing capabilities for this functional Preview. Other
+  // builds retain the historical hold; public-source/ownership gates are unchanged.
+  locked: import.meta.env?.VITE_FUNCTIONAL_UNIFIED_PREVIEW !== "true",
 });
 
 const clean = (value) => value == null ? "" : String(value).trim();

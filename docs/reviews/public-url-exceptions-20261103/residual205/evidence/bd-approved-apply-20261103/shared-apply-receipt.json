@@ -1,0 +1,80 @@
+{
+  "approvedBaseSha": "fd5ba1574959ecedeae26ffbf75cbe275b7cb820",
+  "beforeWorkLog": "8e5e5ffe-dd3f-413e-8bc4-de4224137715",
+  "routeAddendum": "0673ed5e-b8cb-44f2-b6af-2235a3a5edde",
+  "migration": {
+    "version": "20261103223217",
+    "name": "public_site_updates_purpose_bd"
+  },
+  "before": {
+    "subscriber_count": 1024,
+    "existing_rows_fingerprint": "73c10fe71d07439481dc0840c5982807",
+    "active_count": 344,
+    "suppressed_count": 5,
+    "opening_purpose_count": 0,
+    "signup_trigger_definition_md5": "3d0ba2e342419e6e9d7054805325d33d"
+  },
+  "after": {
+    "subscriber_count": 1024,
+    "existing_rows_fingerprint": "73c10fe71d07439481dc0840c5982807",
+    "active_count": 344,
+    "suppressed_count": 5,
+    "site_consented_count": 0,
+    "signup_trigger_body_md5": "8cbc40e56e8d8ce9869f70e09535a7e5"
+  },
+  "existingSubscriberRowsUnchanged": true,
+  "newSiteConsentRowsCreatedByTest": 0,
+  "signupTriggerBodyUnchanged": true,
+  "schema": {
+    "rls_enabled": true,
+    "new_column_default": null,
+    "new_column_nullable": "YES",
+    "constraint_definition": "CHECK (((cardinality(email_purposes) > 0) AND (email_purposes <@ ARRAY['general'::text, 'site-openings'::text, 'site-updates'::text]) AND ((NOT (email_purposes @> ARRAY['site-openings'::text])) OR (opening_updates_consented_at IS NOT NULL)) AND ((NOT (email_purposes @> ARRAY['site-updates'::text])) OR (site_updates_consented_at IS NOT NULL))))",
+    "constraint_validated": true,
+    "public_insert_check": "((email_purposes = ARRAY['general'::text]) AND (opening_updates_consented_at IS NULL) AND (site_updates_consented_at IS NULL))"
+  },
+  "deployed": [
+    {
+      "name": "newsletter-unsubscribe",
+      "version": 10,
+      "verify_jwt": false,
+      "bundleSha256": "3e8997ec176c32338d57f2b3cb7aea97230950b85dce2f9265132b209dfe7604",
+      "files": [
+        {
+          "name": "index.ts",
+          "exactApprovedSource": true
+        }
+      ]
+    },
+    {
+      "name": "newsletter-signup",
+      "version": 20,
+      "verify_jwt": false,
+      "bundleSha256": "93144711620c2154cce7675c34e6367a75a8c2184d05ed3565510678406f30ac",
+      "files": [
+        {
+          "name": "newsletter-signup/index.ts",
+          "exactApprovedSource": true
+        },
+        {
+          "name": "newsletter-signup/purpose.js",
+          "exactApprovedSource": true
+        }
+      ]
+    }
+  ],
+  "subscriberSecurityAdvisories": {
+    "before": [],
+    "after": []
+  },
+  "routeProfileTests": 6,
+  "liveNonwritingProbes": 10,
+  "validLiveSignupTested": false,
+  "validLiveUnsubscribeTested": false,
+  "mailSent": false,
+  "personalAccountAcceptance": "RETAINED_NOT_REPEATED",
+  "A2Applied": false,
+  "campaignCSendApplied": false,
+  "websiteProductionCutover": false,
+  "focusedMailTests": 33
+}

@@ -102,7 +102,7 @@ function ResearcherCorpusView({ slug }) {
       lens: "world",
       returnTo: { href: `/researcher/${encodeURIComponent(slug)}`, label: state.contributor?.display_name || "קורפוס חוקר" },
     });
-    shell.go("/world", { preserve: false });
+    shell.go("/world?focus=context", { preserve: false });
   };
 
   if (authLoading) return <FrameState kind="loading" title="בודק הרשאת מנהל">טוען זהות והרשאה.</FrameState>;

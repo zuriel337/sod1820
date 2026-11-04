@@ -1,0 +1,31 @@
+{
+  "status": "PREPARED_NOT_CREATED_NOT_AUTHORIZED",
+  "productSourceSha": "21f1a8d9e3e3fc6c7c35583ac79aee28f5e92b41",
+  "branch": "gpt/2029-public-cutover-final-preparation-20261103",
+  "projectId": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+  "futureTarget": "production",
+  "futureBuildCommand": "cd .. && VITE_AUTH_VERIFIED_PREVIEW_ORIGINS='[]' node scripts/build-public-reading-production.mjs --public-production-candidate --review-source=21f1a8d9e3e3fc6c7c35583ac79aee28f5e92b41",
+  "rootDirectory": "public-reading-deploy",
+  "outputDirectory": "dist",
+  "realPlatformMetadataRequired": true,
+  "doNotForgeGitOrPlatformIdentity": true,
+  "mustRemainUnassigned": [
+    "sod1820.co.il",
+    "www.sod1820.co.il",
+    "sod1820.vercel.app"
+  ],
+  "existingLegacyDeployment": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+  "existingLegacySource": "d1837efcf5a978d10a514010f3695680f231e116",
+  "protectionBeforeCreation": "requires proven protected immutable URL with zero canonical auto-assignment",
+  "creationConnection": "BLOCKED: typed connected create tool lacks per-deployment skip-domain; CLI not authenticated; shared setting not accepted as proven substitute",
+  "currentApproval": "exact source integration on named branch only; no Production creation, domains or cutover",
+  "futureAcceptance": [
+    "real HEAD/GET old and new Posts and native public routes",
+    "genuine404/private503 states and source identities",
+    "canonical robots/XML/OG and noindex immutable/API/private scopes",
+    "real SW, returning visitor and independent denial guard",
+    "current canary/live metadata preflight under deploy_on_request v3"
+  ],
+  "currentWorkIsNotProductionAcceptance": true,
+  "returnPlan": "existing cutover-and-return.md; website/SW rollback separate from DB/media recovery; preserve migrations, preferences, users and old evidence"
+}

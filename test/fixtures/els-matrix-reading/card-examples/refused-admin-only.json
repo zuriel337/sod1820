@@ -1,0 +1,50 @@
+{
+  "_fixture": {
+    "name": "refused-admin-only",
+    "is_test_fixture": true,
+    "source": "recorded EXP-18 run C3 (window, model answer, engine replays) served through fakes; the provider is a test double, not Fable",
+    "note": "a real reading has is_test_fixture:false and provider.live_model_call:true"
+  },
+  "response": {
+    "contract": "els_matrix_reading_v1",
+    "ok": false,
+    "state": "REFUSED",
+    "error": "admin_only",
+    "experimental": {
+      "admin_only": true,
+      "credits_charged": false,
+      "note": "experimental starting values (33x41, cap 60) are not fixed rules"
+    },
+    "provider": {
+      "name": "anthropic",
+      "route": "ai-analyze (the existing Raziel route)",
+      "kind": "test_double",
+      "live_model_call": false
+    },
+    "is_test_fixture": true
+  },
+  "raziel_answer": "קריאת המטריצה היא יכולת ניסיונית שפתוחה כרגע למנהלים בלבד. לא הופעל מודל ולא חויב כלום.",
+  "thread_message": {
+    "role": "raziel",
+    "text": "קריאת המטריצה היא יכולת ניסיונית שפתוחה כרגע למנהלים בלבד. לא הופעל מודל ולא חויב כלום.",
+    "level": "deep",
+    "question": "קרא את המטריצה סביב המופע שבחרתי",
+    "turnId": "example-turn",
+    "continuation": null,
+    "sourceNames": [],
+    "grounding": "interpretation",
+    "elsMatrixReading": "(the bounded copy of `response` that the session keeps on the message: same keys, strings cut at 700 characters, at most 120 findings)"
+  },
+  "thread_message_keys": [
+    "role",
+    "text",
+    "level",
+    "question",
+    "turnId",
+    "continuation",
+    "sourceNames",
+    "grounding",
+    "elsMatrixReading"
+  ],
+  "thread_message_reading_state": "REFUSED"
+}

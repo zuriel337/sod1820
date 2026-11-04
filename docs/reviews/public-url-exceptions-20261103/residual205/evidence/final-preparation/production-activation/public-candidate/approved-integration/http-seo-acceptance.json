@@ -1,0 +1,66 @@
+{
+  "sourceSha": "21f1a8d9e3e3fc6c7c35583ac79aee28f5e92b41",
+  "deploymentId": "dpl_8VcC1LwM4aBmPEeZNS9DwYUGDSCu",
+  "protectedPreviewOnly": true,
+  "productionPublicConfigurationAccepted": false,
+  "liveWrites": 0,
+  "cases": [
+    {
+      "url": "/robots.txt",
+      "expected": 200,
+      "status": 200,
+      "noStore": true,
+      "noindex": true,
+      "crawling": "disallowed",
+      "headStatus": 200,
+      "passed": true
+    },
+    {
+      "url": "/sitemap.xml",
+      "expected": 200,
+      "status": 200,
+      "noStore": true,
+      "noindex": true,
+      "locations": 16761,
+      "headStatus": 200,
+      "passed": true
+    },
+    {
+      "url": "/api/public-document?path=%2Fnumber%2F1820",
+      "expected": 200,
+      "status": 200,
+      "noStore": true,
+      "noindex": true,
+      "headStatus": 200,
+      "passed": true
+    },
+    {
+      "url": "/no-such-public-guard-acceptance-20261103",
+      "expected": 404,
+      "status": 404,
+      "noStore": true,
+      "noindex": true,
+      "headStatus": 404,
+      "passed": true
+    },
+    {
+      "url": "/unsubscribe",
+      "expected": 200,
+      "status": 200,
+      "noStore": true,
+      "noindex": true,
+      "referrerPolicy": "no-referrer",
+      "headStatus": 200,
+      "passed": true
+    },
+    {
+      "url": "/sw.js",
+      "expected": 200,
+      "status": 200,
+      "noStore": true,
+      "headStatus": 200,
+      "passed": true
+    }
+  ],
+  "ok": true
+}

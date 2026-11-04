@@ -254,7 +254,7 @@
   flex: 0 0 auto;
   font-size: clamp(28px, 7vw, 48px);
   font-weight: 900;
-  color: var(--s29-accent);
+  color: var(--s29-accent-text);
 }
 
 .sod29-calc2029-actions {
@@ -445,7 +445,7 @@
 }
 
 .sod29-calc-compare-b-result {
-  color: var(--s29-accent);
+  color: var(--s29-accent-text);
   font-size: 18px;
 }
 
@@ -618,7 +618,7 @@
 }
 
 .sod29-calc2029-handoff a {
-  color: var(--s29-accent);
+  color: var(--s29-accent-text);
   font-weight: 700;
   text-decoration: none;
 }

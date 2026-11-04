@@ -1,0 +1,159 @@
+{
+  "task": "CENTRAL_HOME_ELS_RAZIEL_REGRESSION_ACCEPTANCE_20261031",
+  "branch": "gpt/2029-central-home-els-acceptance-20261031",
+  "base": "da6abd85960a6baf00e6d7577a1b18cd006f641a",
+  "source_branch": "gpt/els-raziel-regression-repair-20261031",
+  "source_head": "02c741053e243fd9431110f92adb7073c5797809",
+  "source_base": "f4aedfe3ed2dc34dde184e978c396b10f8186f9a",
+  "applied_commit": "dbd942edb0ce252ae4ceac0b083d955f01789c17",
+  "method": "One clean cherry-pick -x of exact test-only source; git cherry now reports patch equivalence. No old ELS chain replay.",
+  "before_id": "5167f009-5747-4c7c-99f4-1e2679e8459c",
+  "source_files": [
+    {
+      "path": "docs/reviews/els-raziel-17-regression-repair-20261031.md",
+      "source_blob": "eedda944c2c32ddfa8549e386e1b695c0dbc808a",
+      "integrated_blob": "eedda944c2c32ddfa8549e386e1b695c0dbc808a"
+    },
+    {
+      "path": "src/lib/research/razielPhaseBPlanWiring.test.js",
+      "source_blob": "e8d7757764e9bc64d0686fac639ab4daaecc4465",
+      "integrated_blob": "e8d7757764e9bc64d0686fac639ab4daaecc4465"
+    },
+    {
+      "path": "src/lib/research/razielPhaseCOperatorRead.test.js",
+      "source_blob": "bc787ff578cb8dec35ab79e1682f6905da5d8d16",
+      "integrated_blob": "bc787ff578cb8dec35ab79e1682f6905da5d8d16"
+    },
+    {
+      "path": "src/lib/research/razielPhaseDMinimumIntelligenceGolden.test.js",
+      "source_blob": "63b1b65a5383ee7b865fcde912965ab223c29e98",
+      "integrated_blob": "63b1b65a5383ee7b865fcde912965ab223c29e98"
+    },
+    {
+      "path": "src/lib/research/razielPhaseICrossSurfaceContext.test.js",
+      "source_blob": "4417c687b5db8e808212d7de3c9583e03589a0f2",
+      "integrated_blob": "4417c687b5db8e808212d7de3c9583e03589a0f2"
+    },
+    {
+      "path": "src/lib/research/razielPhaseKOperatorCoordination.test.js",
+      "source_blob": "fc3c505c7a9e496bcb295b2b2ad3d1d373dd6176",
+      "integrated_blob": "fc3c505c7a9e496bcb295b2b2ad3d1d373dd6176"
+    },
+    {
+      "path": "src/lib/research/razielPhaseLPersonalResearchContinuity.test.js",
+      "source_blob": "3261fba13d2bae6b13a7c49eef46c8490b4c0263",
+      "integrated_blob": "3261fba13d2bae6b13a7c49eef46c8490b4c0263"
+    },
+    {
+      "path": "test/els-2029-classic-faithful-port.test.mjs",
+      "source_blob": "151a3fad13ae05c1e55da6bcbe4f73bce0772af7",
+      "integrated_blob": "151a3fad13ae05c1e55da6bcbe4f73bce0772af7"
+    },
+    {
+      "path": "test/els-2029-research-bar.test.mjs",
+      "source_blob": "db465dcd61fef4cb26ce818bf988380d72429512",
+      "integrated_blob": "db465dcd61fef4cb26ce818bf988380d72429512"
+    },
+    {
+      "path": "test/els-2029-semantic-surface.test.mjs",
+      "source_blob": "47f3724479ada6df8f47f32a445daf239ac0a65c",
+      "integrated_blob": "47f3724479ada6df8f47f32a445daf239ac0a65c"
+    },
+    {
+      "path": "test/els-2029-visual-representation.test.mjs",
+      "source_blob": "cd36431f9a322ed9236225ca2e888dc0d91e1523",
+      "integrated_blob": "cd36431f9a322ed9236225ca2e888dc0d91e1523"
+    },
+    {
+      "path": "test/helpers/raziel-ordinary-stages.mjs",
+      "source_blob": "7e5a6ffae2bfd968ae00ca40632c42f22c39d681",
+      "integrated_blob": "7e5a6ffae2bfd968ae00ca40632c42f22c39d681"
+    },
+    {
+      "path": "test/raziel-ordinary-route-contract.test.mjs",
+      "source_blob": "e1e72104ed7e159726ca93a04da6919e4e8cfbd1",
+      "integrated_blob": "e1e72104ed7e159726ca93a04da6919e4e8cfbd1"
+    }
+  ],
+  "tests": {
+    "focused": {
+      "tests": 125,
+      "pass": 125,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "raziel": {
+      "tests": 668,
+      "pass": 668,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "els": {
+      "tests": 440,
+      "pass": 435,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 5
+    },
+    "native-browser": {
+      "tests": 3,
+      "pass": 3,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "global-browser": {
+      "tests": 4,
+      "pass": 3,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 1
+    },
+    "navigation-browser": {
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "auth-guard": {
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    }
+  },
+  "browser_evidence_boundary": "New independent acceptance: 3 native + 3 global + 1 canonical navigation cases, all pass. Global initial group skipped navigation due unset executable variable; standalone rerun with CHROMIUM_EXECUTABLE_PATH passed. Source reports full82/82; not relabeled as a new full central rerun. Home card separately passed12 viewport/theme combinations and interactions.",
+  "runtime": "All non-test product source unchanged from accepted Home da6; four Home runtime files still byte-identical to approved Claude1027. Frame, Providers, ELS template/artifact and server hashes unchanged.",
+  "gates": {
+    "legacy_build": "PASS",
+    "2029_build": "PASS",
+    "graph_lazy": "PASS",
+    "eager_gzip_bytes": 437845,
+    "recovered_bytes": 20897,
+    "isolation": "PASS",
+    "cheap_hardening": "PASS",
+    "legacy_production_lock": "PASS",
+    "auth_guard_existing_policy": "9/9",
+    "diff_check_cut": "PASS"
+  },
+  "closed": "All17 previous ELS/Raziel stale-source assertions now pass on combined base; no expected value, privacy assertion or budget weakened.",
+  "open_gaps": [
+    "5 local PostgreSQL cases skipped, not mocked or claimed passed.",
+    "Old Home-branding and connected-Golden checks from earlier receipt remain separate; no whole-site all-green claim.",
+    "Old historical Posts audit CSV CRLF finding remains outside this test-repair delta.",
+    "World/later river/Ticker acceptance and authorized personal-content-activity reader remain separate.",
+    "New candidate hosted review requires existing shared Preview builder owner reconciliation and restrictive readonly branch registration; builder untouched.",
+    "Live model/backend parity, real accounts, hosted LCP/CLS/GPU and Production release are not established by offline tests."
+  ],
+  "release": {
+    "main": false,
+    "hosted_preview": false,
+    "edge_deploy": false,
+    "production": false,
+    "product_db_rls": false
+  }
+}

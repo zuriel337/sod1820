@@ -1,0 +1,46 @@
+/* Life Journey research tree — Design V2 display layer: depth, layers, connectors. Vertical on mobile, perspective on desktop. */
+.person-journey.is-2029:not(#pj-v2) .life-tree{display:grid;gap:12px;min-width:0}
+.person-journey.is-2029:not(#pj-v2) .life-tree>header{display:grid;gap:2px}
+.person-journey.is-2029:not(#pj-v2) .life-tree>header small{color:var(--pj-gold);font:650 var(--s29-type-small,15px)/1.4 var(--s29-font-ui,Rubik,sans-serif)}
+.person-journey.is-2029:not(#pj-v2) .life-tree>header h4{margin:0;font:650 var(--s29-type-title,28px)/1.2 var(--s29-font-display,Rubik,sans-serif)}
+.person-journey.is-2029:not(#pj-v2) .life-tree>p{margin:0;color:var(--pj-soft);font-size:var(--s29-type-small,15px);line-height:1.65}
+.person-journey.is-2029:not(#pj-v2) .life-tree__stage{position:relative;border:1px solid var(--pj-line);border-radius:26px;padding:18px 14px;overflow:hidden;background:radial-gradient(90% 70% at 50% 0%,color-mix(in srgb,var(--s29-discovery,var(--pj-accent)) 14%,transparent),transparent 70%),radial-gradient(70% 60% at 85% 100%,color-mix(in srgb,var(--pj-accent) 10%,transparent),transparent 70%),var(--pj-panel-soft)}
+.person-journey.is-2029:not(#pj-v2) .life-tree__stage::before,.person-journey.is-2029:not(#pj-v2) .life-tree__stage::after{content:"";position:absolute;border-radius:50%;border:1px solid color-mix(in srgb,var(--pj-accent) 16%,transparent);pointer-events:none}
+.person-journey.is-2029:not(#pj-v2) .life-tree__stage::before{inset-block-start:-120px;inset-inline-end:-80px;inline-size:300px;block-size:300px}
+.person-journey.is-2029:not(#pj-v2) .life-tree__stage::after{inset-block-end:-140px;inset-inline-start:-60px;inline-size:260px;block-size:260px}
+.person-journey.is-2029:not(#pj-v2) .life-tree__plane{position:relative}
+.person-journey.is-2029:not(#pj-v2) .life-tree__list{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.person-journey.is-2029:not(#pj-v2) .life-tree__list .life-tree__list{position:relative;margin-block-start:12px;margin-inline-start:22px;padding-inline-start:20px;border-inline-start:2px solid color-mix(in srgb,var(--pj-accent) 38%,var(--pj-line))}
+.person-journey.is-2029:not(#pj-v2) .life-tree__list .life-tree__list>.life-tree__item{position:relative}
+.person-journey.is-2029:not(#pj-v2) .life-tree__list .life-tree__list>.life-tree__item::before{content:"";position:absolute;inset-inline-start:-20px;inset-block-start:34px;inline-size:20px;border-block-start:2px solid color-mix(in srgb,var(--pj-accent) 38%,var(--pj-line))}
+.person-journey.is-2029:not(#pj-v2) button.life-tree__node{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:4px 12px;inline-size:100%;min-height:68px;padding:12px 16px;border:1px solid var(--pj-line);border-radius:20px;background:linear-gradient(150deg,color-mix(in srgb,#fff 38%,var(--pj-panel)),var(--pj-panel));color:var(--pj-ink);text-align:start;cursor:pointer;box-shadow:0 1px 0 color-mix(in srgb,#fff 50%,transparent) inset,0 12px 24px -16px color-mix(in srgb,var(--pj-ink) 55%,transparent);transition:transform 220ms ease,box-shadow 220ms ease,border-color 220ms ease}
+.person-journey.is-2029:not(#pj-v2) button.life-tree__node:hover{transform:translateY(-3px);box-shadow:0 1px 0 color-mix(in srgb,#fff 50%,transparent) inset,0 22px 34px -16px color-mix(in srgb,var(--pj-ink) 60%,transparent)}
+.person-journey.is-2029:not(#pj-v2) button.life-tree__node[aria-pressed="true"]{border-color:var(--pj-accent-btn);box-shadow:0 0 0 2px color-mix(in srgb,var(--pj-accent-btn) 38%,transparent),0 18px 30px -16px color-mix(in srgb,var(--pj-accent-btn) 55%,transparent)}
+.person-journey.is-2029:not(#pj-v2) .life-tree__medallion{grid-row:span 2;inline-size:44px;block-size:44px;color:var(--pj-accent-text)}
+.person-journey.is-2029:not(#pj-v2) .life-tree__name{font:650 var(--s29-type-lead,21px)/1.25 var(--s29-font-display,Rubik,sans-serif);overflow-wrap:anywhere}
+.person-journey.is-2029:not(#pj-v2) .life-tree__chips{display:flex;flex-wrap:wrap;gap:6px}
+.person-journey.is-2029:not(#pj-v2) .life-tree__chip{display:inline-flex;align-items:center;min-height:28px;padding:1px 10px;border:1px solid var(--pj-line);border-radius:999px;font:650 var(--s29-type-small,15px)/1 var(--s29-font-ui,Rubik,sans-serif);color:var(--pj-soft)}
+.person-journey.is-2029:not(#pj-v2) .life-tree__chip[data-state="checked"]{color:var(--pj-gold);border-color:var(--pj-gold);background:color-mix(in srgb,var(--pj-gold) 12%,transparent)}
+.person-journey.is-2029:not(#pj-v2) .life-tree__chip[data-state="available"]{color:var(--pj-ink)}
+.person-journey.is-2029:not(#pj-v2) .life-tree__chip[data-state="waiting"]{border-style:dashed}
+.person-journey.is-2029:not(#pj-v2) .life-tree__item--hints{display:grid;gap:6px}
+.person-journey.is-2029:not(#pj-v2) .life-tree__scope{padding-inline:16px;color:var(--pj-soft);font-size:var(--s29-type-small,15px);line-height:1.55}
+.person-journey.is-2029:not(#pj-v2) button.life-tree__node--hints{background:linear-gradient(150deg,color-mix(in srgb,var(--s29-discovery,var(--pj-accent)) 12%,var(--pj-panel)),var(--pj-panel))}
+.person-journey.is-2029:not(#pj-v2) button.life-tree__node:focus-visible{outline:3px solid var(--s29-focus-ring,var(--pj-accent-btn));outline-offset:3px}
+/* Desktop: a layered stage with perspective; children fan out below the parent. */
+@media (min-width:900px) and (prefers-reduced-motion:no-preference){
+  .person-journey.is-2029:not(#pj-v2) .life-tree__stage{perspective:1200px;padding:28px 24px 36px}
+  .person-journey.is-2029:not(#pj-v2) .life-tree__plane{transform:rotateX(9deg);transform-origin:50% 0;transform-style:preserve-3d}
+  .person-journey.is-2029:not(#pj-v2) button.life-tree__node{transform:translateZ(28px)}
+  .person-journey.is-2029:not(#pj-v2) button.life-tree__node:hover{transform:translateZ(46px) translateY(-2px)}
+}
+@media (min-width:900px){
+  .person-journey.is-2029:not(#pj-v2) .life-tree__list--root{justify-items:center}
+  .person-journey.is-2029:not(#pj-v2) .life-tree__list--root>.life-tree__item{inline-size:min(100%,520px)}
+  .person-journey.is-2029:not(#pj-v2) .life-tree__list--root>.life-tree__item>.life-tree__list{grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);margin-inline:0;padding-inline-start:0;padding-block-start:22px;border-inline-start:0;border-block-start:2px solid color-mix(in srgb,var(--pj-accent) 38%,var(--pj-line))}
+  .person-journey.is-2029:not(#pj-v2) .life-tree__list--root>.life-tree__item>.life-tree__list>.life-tree__item::before{inset-inline-start:50%;inset-block-start:-22px;inline-size:0;block-size:22px;border-block-start:0;border-inline-start:2px solid color-mix(in srgb,var(--pj-accent) 38%,var(--pj-line))}
+  .person-journey.is-2029:not(#pj-v2) .life-tree__list--root>.life-tree__item{position:relative}
+  .person-journey.is-2029:not(#pj-v2) .life-tree__list--root>.life-tree__item>.life-tree__list:has(>.life-tree__item:only-child){border-block-start-color:transparent}
+  .person-journey.is-2029:not(#pj-v2) .life-tree__list--root>.life-tree__item>.life-tree__list::before{content:"";position:absolute;inset-inline-start:50%;inset-block-start:-24px;block-size:22px;border-inline-start:2px solid color-mix(in srgb,var(--pj-accent) 38%,var(--pj-line))}
+}
+@media (prefers-reduced-motion:reduce){.person-journey.is-2029:not(#pj-v2) button.life-tree__node{transition:none}.person-journey.is-2029:not(#pj-v2) button.life-tree__node:hover{transform:none}}

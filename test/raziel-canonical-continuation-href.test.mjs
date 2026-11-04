@@ -4,6 +4,15 @@ import fs from "node:fs";
 import { spawnSync } from "node:child_process";
 import { buildRazielSurfaceContext } from "../src/lib/research/razielSurfaceContext.js";
 import { normalizeResearchContext } from "../src/lib/research/researchContext.js";
+import { withRazielSurfaceContext } from "../src/components/experience2029/razielSessionSeam2029.js";
+import {
+  buildRazielSessionRequest,
+  createRazielContinuationSnapshot,
+  createRazielRequestContextSnapshot as createRazielContextSnapshot,
+} from "../src/lib/research/razielSessionRequest2029.js";
+import {
+  createInitialRazielSessionState,
+} from "../src/lib/research/razielSession2029.js";
 import { safeCanonicalHref, continuationHrefFromSurface, whatsappContinuationLink, renderWhatsappReply } from "../supabase/functions/_shared/waRazielRender.ts";
 
 for (const f of ["supabase/functions/ai-analyze/index.ts", "supabase/functions/wa-raziel/index.ts", "supabase/functions/_shared/waRazielRender.ts"]) {
@@ -54,6 +63,46 @@ const e2e = (href) => continuationHrefFromSurface({ context: buildRazielSurfaceC
 assert.equal(e2e("/a/1"), "/a/1");
 assert.equal(e2e("/b/2"), "/b/2");
 
+// The lazy submit adapter builds the canonical surface descriptor from the captured Research Context
+// before askRaziel serializes it. The transport seam is now intentionally an identity adapter.
+const sessionRequest = buildRazielSessionRequest({
+  question: "מה נמצא כאן?",
+  state: createInitialRazielSessionState(),
+  contextSnapshot: createRazielContextSnapshot(ctx),
+});
+assert.equal(sessionRequest.surfaceSemantic.context.subjectHref, "/x/subject-26");
+assert.equal(sessionRequest.surfaceSemantic.context.navigation.returnTo.href, "/x/return-here");
+assert.equal(continuationHrefFromSurface(sessionRequest.surfaceSemantic), "/x/subject-26");
+
+// A deep continuation must never acquire the href of a different surface opened after its fast answer.
+const deepSessionRequest = withRazielSurfaceContext({
+  subject: "אותה שאלה",
+  again: true,
+  surfaceSemantic: { surface: "number", context: { lens: "number", subjectHref: "/x/original-26" } },
+}, normalizeResearchContext({ subject: { type: "number", id: "99", href: "/x/new-99" } }));
+assert.equal(deepSessionRequest.surfaceSemantic.context.subjectHref, "/x/original-26");
+assert.equal(continuationHrefFromSurface(deepSessionRequest.surfaceSemantic), "/x/original-26");
+assert.doesNotMatch(JSON.stringify(deepSessionRequest), /new-99/);
+
+// Real shared-session chain: the bounded continuation snapshot retains A's canonical href, while
+// the submit adapter refuses to replace it with B after navigation.
+const originalSnapshot = createRazielContextSnapshot(ctx);
+const continuation = createRazielContinuationSnapshot({ contextSnapshot: originalSnapshot });
+const rebuiltDeepRequest = buildRazielSessionRequest({
+  question: "אותה שאלה",
+  state: createInitialRazielSessionState(),
+  contextSnapshot: continuation.contextSnapshot,
+  intelligenceLevel: "deep",
+  again: true,
+});
+const boundedDeepRequest = withRazielSurfaceContext(
+  rebuiltDeepRequest,
+  normalizeResearchContext({ subject: { type: "number", id: "99", href: "/x/new-99" } }),
+);
+assert.equal(boundedDeepRequest.surfaceSemantic.context.subjectHref, "/x/subject-26");
+assert.equal(continuationHrefFromSurface(boundedDeepRequest.surfaceSemantic), "/x/subject-26");
+assert.doesNotMatch(JSON.stringify(boundedDeepRequest), /new-99/);
+
 // wiring + no route literals in adapter code
 const ai = fs.readFileSync("supabase/functions/ai-analyze/index.ts", "utf8");
 const wa = fs.readFileSync("supabase/functions/wa-raziel/index.ts", "utf8");
@@ -66,5 +115,17 @@ const helperSrc = shared.slice(shared.indexOf("Canonical continuation href"));
 assert.doesNotMatch(helperSrc, /["'`]\/(?:number|topic|post|journey|els|research|heichal|world)\b/);   // no legacy route fallbacks
 assert.doesNotMatch(helperSrc, /https?:\/\/(?!canonical\.invalid)/);
 const sysFrame = fs.readFileSync("src/components/experience2029/SystemFrame2029.jsx", "utf8");
-assert.match(sysFrame, /buildRazielSurfaceContext\(context\)/);   // hrefs come from current Research Context only
+const mount = fs.readFileSync("src/components/experience2029/RazielSessionMount2029.jsx", "utf8");
+const seam = fs.readFileSync("src/components/experience2029/razielSessionSeam2029.js", "utf8");
+const provider = fs.readFileSync("src/lib/research/RazielSessionProvider2029.jsx", "utf8");
+const requestAdapter = fs.readFileSync("src/lib/research/razielSessionRequest2029.js", "utf8");
+const supabaseClient = fs.readFileSync("src/lib/supabase.js", "utf8");
+assert.match(sysFrame, /session\.submit\(\{/);   // frame submits; it does not mint or substitute hrefs
+assert.match(provider, /await transport\(request\)/);
+assert.match(mount, /contextRef\.current = research\.context/);
+assert.match(mount, /askRaziel\(withRazielSurfaceContext\(request, contextRef\.current\)\)/);
+assert.match(seam, /export function withRazielSurfaceContext\(request\) \{\s*return request;/);
+assert.match(requestAdapter, /const surfaceContext = buildRazielSurfaceContext\(current\)/);
+assert.match(requestAdapter, /surfaceContext \? \{ surfaceContext \}/);
+assert.match(supabaseClient, /surface_semantic: surfaceSemantic/);
 console.log("raziel-canonical-continuation-href: OK");

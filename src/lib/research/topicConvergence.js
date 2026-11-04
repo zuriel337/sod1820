@@ -679,18 +679,32 @@ export function buildTopicListQuery({
  */
 export async function fetchTopicCardList(params = {}) {
   const q = buildTopicListQuery(params);
+  const client = params.client || supabase;
+  const signal = params.signal;
+  if (signal?.aborted) throw new DOMException("Topic reading canceled", "AbortError");
   const includeTotal = Boolean(params?.includeTotal);
+  // Search terms are only requested by the bounded public World index.  The
+  // default list and its server-side search contract remain unchanged.
+  const fields = params?.includeSearchTerms === true
+    ? `${TOPIC_LIST_FIELDS},search_terms`
+    : TOPIC_LIST_FIELDS;
   if (q.invalid) return includeTotal ? { rows: [], hasMore: false, total: 0 } : { rows: [], hasMore: false };
   let query = includeTotal
-    ? supabase.from("topic_cards_public").select(TOPIC_LIST_FIELDS, { count: "exact" })
-    : supabase.from("topic_cards_public").select(TOPIC_LIST_FIELDS);
-  if (q.search) query = query.or(`title.ilike.%${q.search}%,subtitle.ilike.%${q.search}%`);
+    ? client.from("topic_cards_public").select(fields, { count: "exact" })
+    : client.from("topic_cards_public").select(fields);
+  if (params.literalTitleSearch === true) {
+    const literal = nonEmpty(params.q).replace(/[\\%_*]/g, "\\$&");
+    if (literal) query = query.ilike("title", `%${literal}%`);
+  } else if (q.search) query = query.or(`title.ilike.%${q.search}%,subtitle.ilike.%${q.search}%`);
   if (q.creator) query = query.eq("created_by", q.creator);
   if (q.number != null) query = query.contains("numbers", [q.number]);
   if (q.dateFrom) query = query.gte("occurred_at", q.dateFrom);
   if (q.dateTo) query = query.lte("occurred_at", q.dateTo);
   for (const [col, ascending] of q.order) query = query.order(col, { ascending, nullsFirst: false });
-  const { data, error, count } = await query.range(q.rangeStart, q.rangeEnd);
+  query = query.range(q.rangeStart, q.rangeEnd);
+  if (signal) query = query.abortSignal(signal);
+  const { data, error, count } = await query;
+  if (signal?.aborted) throw new DOMException("Topic reading canceled", "AbortError");
   if (error) throw error;
   const rows = Array.isArray(data) ? data : [];
   const result = { rows: rows.slice(0, q.limit), hasMore: rows.length > q.limit };

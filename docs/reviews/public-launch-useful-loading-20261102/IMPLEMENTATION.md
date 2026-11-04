@@ -1,0 +1,23 @@
+# Public launch useful loading — 2026-11-02
+
+Task PUBLIC_LAUNCH_USEFUL_LOADING_20261102. Product base/origin verified at 1bd9fe91c874f6ce578934afb45f9c9257891040; continuing the existing isolated public-reading release branch. Passive BEFORE c09d8bea-565c-4775-a510-cacb69107462. Runtime acceptance is pending; this is a remotely saved implementation checkpoint.
+
+Measured baseline diagnostic (one run, not a before/after claim): mobile primary Home DOM 6.207s, driver 6.946s. Home code admission starts after the PublicPostAddress/Post dependency chain (Home fetch ~4.293s, primary API ~5.502s). World→Number: drawer ~1.902s; Number body/canonical methods ~7.399s; driver 8.319s. Complete entity projection hides canonical methods already read independently. Phrase Back re-reads the same method profile: mobile ~1s, desktop ~0.7s, before driver polling completes.
+
+Changes under acceptance:
+- Overlap existing public-profile Post code admission with Home code; retain WordPress ?p= document adaptation and first-Post preparation; no speculative Post data read.
+- Present canonical Number identity/calculation independently of material projection. Material pending/failure stays explicit, with retry and reserved geometry. Context/root/reader guards prevent old focus/data from appearing after navigation or identity change.
+- Reuse already completed canonical method rows for at most 30 seconds, expression/reader scoped, bounded in memory; reader changes/logout invalidate old handles. Retry bypasses reuse, canceled readers cannot save responses, reads do not extend freshness. No personal information or pending promise is cached.
+- Restore the inert public-findings button inside the Number source section before approach admission. Its own read is explicit-click-only. This fixes the existing SSR placement test without changing or weakening it; generic source reads remain approach-admitted.
+
+No change to product data, shared server/DB/Auth/RLS/flags, Legacy, root default, production guards, credits, public locks, URLs or model access. Production artifact, full Isolation/A3 and real database/media recovery remain separately tracked launch work, not presumed passed by this checkpoint.
+
+Functional acceptance checkpoint:
+- Original Number public-findings suite passes 5/5 unchanged, including exact source/finding URL and private-target rejection.
+- Controlled compiled-client material admission/failure/retry and exact Back pass at390/1440; every external response synthetic, zero forwarded remote requests. This is functional fault evidence, not live operation or performance proof.
+- Existing real-canonical profile/Back race tests pass3/3 (delayed390/1440, failed390), with the30s reuse explicitly expired and the side-effecting lang_links_list blocked. No root/query/anchor loss or premature root action is accepted; retry remains required after failure.
+- G4 checkpoint run41370723189 had13/14 browser passes: typography inspection ran immediately after the newly progressive core appeared, before the separate regular-expression rail arrived. The test now explicitly waits for the same rail/method elements before applying all original font>=12px and overflow<=1px assertions at320/390/1440. No expectation, permission or workflow step is removed. Re-run required on final SHA.
+
+Final repeated native comparison and launch-blocker register are kept in the evidence handoff on the separate acceptance branch under the same review-directory name. Product source must be identified by exact deployment identity; the evidence branch must never be deployed as product.
+
+Home follow-up from the measured checkpoint: code overlap alone did not materially improve useful Home DOM (first two native samples ~5.83–5.84s versus baseline ~5.83–6.00s; the long checkpoint run ended without a final acceptance receipt and is retained as partial diagnostic evidence). The remaining primary-card request still started after Shell code. The release Home route now owns exactly one bounded public card read while code downloads, passes its observed promise to the existing composition and aborts on route/identity change. No data cache or extra reader was added. getLatestPostCards retains Legacy's existing fallback/projection unless the caller explicitly requests cancellation/error propagation. Four source lifecycle/Legacy compatibility tests and three compiled-client synthetic code-delay/failure/cancellation cases pass; all external responses in those fault cases are mocked, with no live write/model calls. Final native acceptance must use the new source SHA and bounded counterbalanced batches, keeping all samples and identical Home cards.

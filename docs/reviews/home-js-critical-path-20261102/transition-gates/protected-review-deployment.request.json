@@ -1,0 +1,27 @@
+{
+  "teamId": "team_vtfWHZfKvdbob8gvynQb5N89",
+  "requestBody": {
+    "name": "sod1820",
+    "project": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+    "gitSource": {
+      "type": "github",
+      "org": "zuriel337",
+      "repo": "sod1820",
+      "ref": "gpt/2029-doc37-unified-alignment-20261102",
+      "sha": "FROZEN_REVIEW_SHA"
+    },
+    "withLatestCommit": false,
+    "projectSettings": {
+      "framework": null,
+      "rootDirectory": "public-reading-deploy",
+      "sourceFilesOutsideRootDirectory": true,
+      "installCommand": "npm ci --prefix .. --no-audit --no-fund",
+      "buildCommand": "node ../scripts/build-public-reading-production.mjs --protected-review --review-source=FROZEN_REVIEW_SHA",
+      "outputDirectory": "dist"
+    },
+    "meta": {
+      "purpose": "protected-public-reading-artifact-acceptance",
+      "productionAuthorized": "false"
+    }
+  }
+}

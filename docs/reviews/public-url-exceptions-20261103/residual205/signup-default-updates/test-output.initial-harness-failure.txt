@@ -1,0 +1,31 @@
+PASS missing purpose schema B fails closed and leaves old trigger/source
+PASS migration changes no historical data and repeated apply preserves immutable cutoff
+PASS verified Google and Facebook new signup enroll only site-updates with factual audit
+PASS password and OTP pending verification create users/profiles but no newsletter; first confirmation enrolls once
+PASS active existing general/opening subscribers add only new authorized purpose and retain every old field
+PASS inactive, previously unsubscribed and already-updates rows are byte-for-byte preserved with no fake enrollment event
+PASS ordinary historical login and first confirmation do not backfill
+PASS cutoff boundary accepts exactly cutoff; older creation and anonymous identities are excluded
+PASS email change, anonymous conversion and created_at rewriting cannot enroll through confirmation update
+PASS case-normalized same email works; malformed/no email remains identity-only
+PASS shared Legacy-shaped new signup follows same new policy without acquisition, visitor or general enrollment
+PASS admin role and 35 existing credits remain; malicious metadata cannot elevate new users or credit profiles
+PASS B public insert policy cannot forge new typed default signup consent
+PASS concurrent opt-out wins before new signup: no reactivation or enrollment event
+PASS new signup locks first; concurrent opt-out still wins final state and preserves the one historical enrollment event
+PASS audit failure atomically rolls back signup/provisioning/enrollment instead of reporting a partial success
+PASS reapply after traffic preserves cutoff, rows and audit history exactly
+PASS no Follow, notification, ledger, campaign, delivery, general analytics or visitor writes
+file:///tmp/finalprep-default-signup-proposal/run-isolated-tests.mjs:22
+ if(r.status!==0)throw new Error(`Synthetic SQL failure: ${r.stderr}`);
+                       ^
+
+Error: Synthetic SQL failure: ERROR:  trigger "on_auth_user_created" for relation "users" already exists
+
+    at sql (file:///tmp/finalprep-default-signup-proposal/run-isolated-tests.mjs:22:24)
+    at file:///tmp/finalprep-default-signup-proposal/run-isolated-tests.mjs:189:205
+    at check (file:///tmp/finalprep-default-signup-proposal/run-isolated-tests.mjs:35:41)
+    at file:///tmp/finalprep-default-signup-proposal/run-isolated-tests.mjs:184:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.19.0

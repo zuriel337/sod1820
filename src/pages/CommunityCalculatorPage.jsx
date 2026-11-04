@@ -67,14 +67,19 @@ function rankBySurprise(phrases, name) {
 // 👶 כלי-מחקר לשם תינוק — לא "ציון" ולא "שם מומלץ" (אין דרך אובייקטיבית), אלא כלי-גילוי:
 // מדדים תיאוריים (עושר קשרים/מקורות · התאמות) + ניתוח עובדתי + העמקה. המשתמש מחליט.
 // זרימה: שלב 1 = 1-3 שמות · שלב 2 (אופציונלי) = שם משפחה + תאריך לידה → התאמות וקשרים.
-function BabyNameTool({ P, methodStates }) {
-  const [names, setNames] = useState([""]);         // 1-3 שמות
-  const [family, setFamily] = useState("");
-  const [bDate, setBDate] = useState("");
+function BabyNameTool({ P, methodStates, initialState, onStateChange, renderTool, actionsLocked = false }) {
+  const [names, setNames] = useState(() => initialState?.names || [""]); // 1-3 שמות
+  const [family, setFamily] = useState(() => initialState?.family || "");
+  const [bDate, setBDate] = useState(() => initialState?.bDate || "");
+  const [afterSunset, setAfterSunset] = useState(() => initialState?.afterSunset === true);
   const [heb, setHeb] = useState(null);             // {pretty, value} — תאריך עברי
   const [phraseMap, setPhraseMap] = useState({});   // value → [{phrase,is_verified}]
   const [ai, setAi] = useState({});                 // idx → {busy,text}
-  const [showCtx, setShowCtx] = useState(false);    // שלב 2 פתוח?
+  const [showCtx, setShowCtx] = useState(() => initialState?.showCtx === true); // שלב 2 פתוח?
+
+  useEffect(() => {
+    onStateChange?.({ names, family, bDate, afterSunset, showCtx });
+  }, [names, family, bDate, afterSunset, showCtx, onStateChange]);
 
   const chip = { display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 999, fontFamily: F.body, fontSize: 13, fontWeight: 700, textDecoration: "none" };
   const fld = { width: "100%", boxSizing: "border-box", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 12, color: P.ink, fontFamily: F.heading, fontSize: 18, fontWeight: 700, padding: "13px 15px", textAlign: "center", outline: "none" };
@@ -119,16 +124,17 @@ function BabyNameTool({ P, methodStates }) {
         const [y, m, d] = bDate.split("-").map(Number);
         if (!y || !m || !d) { if (alive) setHeb(null); return; }
         const { HDate } = await import("@hebcal/core");
-        const hd = new HDate(new Date(y, m - 1, d));
+        let hd = new HDate(new Date(y, m - 1, d));
+        if (afterSunset) hd = hd.next();
         const rendered = hd.renderGematriya();
         if (alive) setHeb({ pretty: rendered.replace(/[֑-ׇ]/g, ""), value: regularOf(rendered.replace(/[^א-ת]/g, "")) });
       } catch { if (alive) setHeb(null); }
     })();
     return () => { alive = false; };
-  }, [bDate]);
+  }, [bDate, afterSunset]);
 
   async function runAi(idx, angle) {
-    const a = analyzed[idx]; if (!a || ai[idx]?.busy) return;
+    const a = analyzed[idx]; if (actionsLocked || !a || ai[idx]?.busy) return;
     setAi(s => ({ ...s, [idx]: { busy: true, text: "", angle: angle.key } }));
     const methodStr = a.core.map(c => `${c.key} ${c.value}`).join(", ");
     const ph = (phraseMap[a.value] || []).slice(0, 8).map(p => p.phrase).filter(x => x !== a.name);
@@ -145,6 +151,14 @@ function BabyNameTool({ P, methodStates }) {
 
   const setName = (i, v) => setNames(a => a.map((x, k) => (k === i ? v : x)));
   const validCount = analyzed.filter(Boolean).length;
+
+  // The 2029 composition consumes this existing calculator state and engine.
+  // Default rendering below remains the Legacy presentation.
+  if (renderTool) return renderTool({
+    names, setName, addName: () => setNames(a => a.length < 3 ? [...a, ""] : a),
+    family, setFamily, bDate, setBDate, afterSunset, setAfterSunset,
+    showCtx, setShowCtx, analyzed, fam, heb, phraseMap, ai, runAi, actionsLocked,
+  });
 
   return (
     <div style={{ display: "grid", gap: 16 }}>
@@ -268,15 +282,20 @@ function BabyNameTool({ P, methodStates }) {
   );
 }
 
-export default function CommunityCalculatorPage() {
+export default function CommunityCalculatorPage({
+  initialState, renderCalculator, renderBabyTool, actionsLocked = false,
+  passive = false,
+} = {}) {
   const P = usePalette();
   const loc = useLocation();
   const sharedSeed = useMemo(() => (new URLSearchParams(loc.search).get("w") || "").trim(), [loc.search]);
   const [methodStates, setMethodStates] = useState(null);
-  const [name1, setName1] = useState("");
-  const [name2, setName2] = useState("");
-  const [compare, setCompare] = useState(false);
-  const [babyMode, setBabyMode] = useState(false);
+  const [name1, setName1] = useState(() => initialState?.name1 || "");
+  const [name2, setName2] = useState(() => initialState?.name2 || "");
+  const [compare, setCompare] = useState(() => initialState?.compare === true);
+  const [babyMode, setBabyMode] = useState(() => initialState?.babyMode === true);
+  const [babyState, setBabyState] = useState(() => initialState?.baby || null);
+  const [selectedMethod, setSelectedMethod] = useState(() => initialState?.method || "רגיל");
   const [copied, setCopied] = useState(false);
   const [phrases1, setPhrases1] = useState([]);
   const [showAll, setShowAll] = useState(false);
@@ -286,15 +305,15 @@ export default function CommunityCalculatorPage() {
   const [aiBusy, setAiBusy] = useState(false);
   const [aiEngine, setAiEngine] = useState("claude"); // claude | gemini — מנוע פרשנות נבחר (A/B)
   // 🗓️ מצב תאריך עברי — ממיר תאריך לועזי לתאריך עברי (יום הולדת) ומחשב את הגימטריה שלו.
-  const [dateMode, setDateMode] = useState(false);
-  const [gDate, setGDate] = useState("");         // תאריך לועזי (yyyy-mm-dd)
-  const [afterSunset, setAfterSunset] = useState(false); // אחרי השקיעה = היום העברי הבא
+  const [dateMode, setDateMode] = useState(() => initialState?.dateMode === true);
+  const [gDate, setGDate] = useState(() => initialState?.gDate || ""); // yyyy-mm-dd
+  const [afterSunset, setAfterSunset] = useState(() => initialState?.afterSunset === true);
   const [heb, setHeb] = useState(null);           // { pretty, clean, value } או null
   const [hebBusy, setHebBusy] = useState(false);
   // 🔬 שם למחקר-מעמיק (NameMultiSearch) — עם השהיה כדי לא להריץ RPC כבד על כל הקשה
   const [deepName, setDeepName] = useState("");
   const gemTracked = useRef(sharedSeed);
-  useEffect(() => { const t = setTimeout(() => setDeepName(name1.trim()), 900); return () => clearTimeout(t); }, [name1]);
+  useEffect(() => { if (passive) return undefined; const t = setTimeout(() => setDeepName(name1.trim()), 900); return () => clearTimeout(t); }, [name1, passive]);
   useEffect(() => {
     let live = true;
     fetchGematriaMethodStates().then(rows => { if (live) setMethodStates(rows); }).catch(() => { if (live) setMethodStates(null); });
@@ -304,7 +323,7 @@ export default function CommunityCalculatorPage() {
   // 🤖 ניתוח AI אמיתי — Edge Function ai-analyze (Claude). מקבל עובדות-מנוע בלבד, מפרש.
   // שם יחיד → kind=number; שני שמות (השוואה) → kind=compare. מודל מהיר (fast) לכלי אינטראקטיבי.
   async function runAi(engine = "claude") {
-    if (!r1 || aiBusy) return;
+    if (actionsLocked || !r1 || aiBusy) return;
     setAiEngine(engine);
     setAiBusy(true); setAiText("");
     let kind, subject, facts;
@@ -329,6 +348,7 @@ export default function CommunityCalculatorPage() {
   useEffect(() => { setAiText(""); }, [name1, name2, compare]);
 
   useEffect(() => {
+    if (renderCalculator) return;
     applySeo({
       title: "מחשבון גימטריה חינם — גלו את הסוד שבשם שלכם",
       description: "מה השם שלך מסתיר? מחשבון הגימטריה החינמי של SOD1820 — חשבו כל שם או מילה, גלו לאילו ביטויים מהתורה הוא שווה, השוו בין שני שמות ושתפו בוואטסאפ. ✨",
@@ -339,6 +359,7 @@ export default function CommunityCalculatorPage() {
   // ☀️ גולש ראשון (בעיקר מגוגל) — בלי העדפת-תמה שמורה → כופה מצב בהיר למחשבון (light_calculator_dark_temple).
   // מי שכבר בחר תמה (יש sod-theme) מקבל את בחירתו. משוחרר ביציאה מהדף (לא נשמר → לא משנה את שאר האתר).
   useEffect(() => {
+    if (renderCalculator) return undefined;
     let hasPref = true;
     try { hasPref = localStorage.getItem("sod-theme") != null; } catch { /* ignore */ }
     if (hasPref) return undefined;
@@ -348,6 +369,7 @@ export default function CommunityCalculatorPage() {
 
   // הגעה משיתוף (?w=) → ממלא את השם, לא נספרת כחישוב חדש, ומשתמרת במעבר למקצועי.
   useEffect(() => {
+    if (renderCalculator) return;
     if (sharedSeed) { gemTracked.current = sharedSeed; setName1(sharedSeed); setFromShare(true); }
   }, [sharedSeed]);
 
@@ -357,6 +379,7 @@ export default function CommunityCalculatorPage() {
 
   // 📊 Telemetry parity with the professional calculator: settled word only, deduped, seed-load excluded.
   useEffect(() => {
+    if (passive || actionsLocked) return undefined;
     const word = name1.trim();
     if (!r1 || onlyHeb(word).length < 2) return;
     const t = setTimeout(() => {
@@ -365,7 +388,7 @@ export default function CommunityCalculatorPage() {
       try { track("gematria", word.slice(0, 60), "compute", { value: r1.value, projection: "community" }); } catch { /* telemetry never breaks UX */ }
     }, 900);
     return () => clearTimeout(t);
-  }, [name1, r1?.value]); // eslint-disable-line
+  }, [name1, r1?.value, passive, actionsLocked]); // eslint-disable-line
 
   // ✦ חיבור לסוד 1820 — האם השם פוגע במספר-גאולה באחת מהשיטות הזמינות
   const geula = useMemo(() => {
@@ -405,11 +428,11 @@ export default function CommunityCalculatorPage() {
     const t = setTimeout(async () => {
       try { const p = await getAllValuePhrases(r1.value, 24); if (alive) setPhrases1((p || []).filter(x => x?.phrase && x.phrase !== name1.trim())); }
       catch { if (alive) setPhrases1([]); }
-      addWallWord(name1.trim(), r1.value);          // לקיר החי
+      if (!passive && !actionsLocked) addWallWord(name1.trim(), r1.value); // Legacy wall only
     }, 650);
     return () => { alive = false; clearTimeout(t); };
-  }, [name1, r1?.value]); // eslint-disable-line
-  useEffect(() => { if (r2) { const t = setTimeout(() => addWallWord(name2.trim(), r2.value), 650); return () => clearTimeout(t); } }, [name2, r2?.value]); // eslint-disable-line
+  }, [name1, r1?.value, passive, actionsLocked]); // eslint-disable-line
+  useEffect(() => { if (!passive && !actionsLocked && r2) { const t = setTimeout(() => addWallWord(name2.trim(), r2.value), 650); return () => clearTimeout(t); } }, [name2, r2?.value, passive, actionsLocked]); // eslint-disable-line
 
   // 🔮 ניתוח-חכם מהגרף (מנוע buildMessages — עובדה מול רמז)
   const analysis = useMemo(
@@ -439,6 +462,15 @@ export default function CommunityCalculatorPage() {
       ? `✨ "${name1.trim()}" (${r1.value}) ו-"${name2.trim()}" (${r2.value}) נפגשים ב-${matches.length} מתוך ${r1.all.length} שיטות גימטריה${matches.length ? `: ${matches.map(m => m.key).join(", ")}` : ""}\nבדקו את ההתאמה שלכם:\n${shareUrl(name1.trim())}`
       : `הגימטריה של "${name1.trim()}" = ${r1.value} ✨${discoveries[0] ? ` (שווה ל«${discoveries[0].phrase}»!)` : (phrases1[0] ? ` (שווה ל«${phrases1[0].phrase}»!)` : "")}\nגלו מה השם שלכם מסתיר:\n${shareUrl(name1.trim())}`
   );
+
+  if (renderCalculator) return renderCalculator({
+    state: { name1, name2, compare, babyMode, dateMode, gDate, afterSunset, baby: babyState, method: selectedMethod },
+    setName1, setName2, setCompare, setBabyMode, setDateMode, setGDate, setAfterSunset, setSelectedMethod,
+    r1, r2, matches, compat, heb, hebBusy, phrases1, discoveries, geula, analysis, daily,
+    showAll, setShowAll, aiText, aiBusy, runAi, actionsLocked,
+    babyTool: babyMode ? <BabyNameTool P={P} methodStates={methodStates}
+      initialState={babyState} onStateChange={setBabyState} renderTool={renderBabyTool} actionsLocked={actionsLocked} /> : null,
+  });
 
   // ── סגנונות theme-aware ──
   const lightMode = P.mode === "light";

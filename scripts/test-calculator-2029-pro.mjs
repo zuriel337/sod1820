@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import vm from "node:vm";
 import { englishAll } from "../src/lib/englishGematria.js";
 import {
   CALCULATOR_INPUT_KIND as KIND,
@@ -112,8 +113,18 @@ assert.equal(ledgerFromFinding({ projection: { dimensions: { trace: { steps: ["×
 const pro = fs.readFileSync("src/pages/CalculatorPro2029Page.jsx", "utf8");
 assert.match(pro, /data-experience-surface="calculator-pro-2029"/);
 assert.match(pro, /<Sod2029Shell[\s\S]*?surface="number"/);
-assert.match(pro, /path:\s*"\/2029\/calculator"/);
-assert.match(pro, /noindex:\s*true/);
+// Execute the actual SEO object under both existing compiler profiles. A fixed
+// old pathname is not the public cutover contract; ordinary search stays noindex.
+const seoObject = pro.match(/applySeo\(\{([\s\S]*?)\}\);/)?.[1];
+assert.ok(seoObject, "the professional page retains an explicit SEO declaration");
+for (const publicRelease of [false, true]) for (const search of ["", "?q=fixture"]) {
+  const seo = vm.runInNewContext(`({${seoObject.replaceAll("import.meta.env", "buildEnv")}})`, {
+    buildEnv: { VITE_PUBLIC_READING_RELEASE: publicRelease ? "public-reading-20261101" : "false" },
+    location: { pathname: "/2029/calculator", search },
+  }, { timeout: 100 });
+  assert.equal(seo.path, publicRelease ? "/gematria" : "/2029/calculator");
+  assert.equal(seo.noindex, !publicRelease || Boolean(search));
+}
 assert.match(pro, /useCalculatorRow/);
 assert.match(pro, /useMethodLedger/);
 assert.match(pro, /buildGematriaPresentationModel/);

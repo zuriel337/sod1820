@@ -5,6 +5,6 @@ import LegacyOpenWebChat2029 from "../components/community2029/LegacyOpenWebChat
 export default function CommunityChatTransition2029Page() {
   return <CommunityLive2029
     canonicalPath="/community/chat"
-    leadingContent={<LegacyOpenWebChat2029 />}
+    trailingContent={<LegacyOpenWebChat2029 />}
   />;
 }

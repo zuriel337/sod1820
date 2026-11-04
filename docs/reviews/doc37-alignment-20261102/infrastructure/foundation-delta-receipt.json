@@ -1,0 +1,34 @@
+{
+  "foundation_constraints": [
+    {
+      "relname": "relation_evidence",
+      "conname": "relation_evidence_status_check",
+      "contype": "c",
+      "definition": "CHECK ((status = ANY (ARRAY['candidate'::text, 'confirmed'::text, 'rejected'::text])))"
+    }
+  ],
+  "standing_binding": [
+    {
+      "proname": "fn_zvi_standing_approve_research_contribution",
+      "md5": "9c132f9f1f57240658ccb6ef0f64c3d8",
+      "contains_credit_label": false,
+      "mentions_stable_identity": true
+    }
+  ],
+  "explicit_parent_release_count": [
+    {
+      "selected_before_explicitly_released": 23
+    }
+  ],
+  "view_function_consumers": [
+    {
+      "proname": "admin_manage_alias"
+    },
+    {
+      "proname": "fn_work_log_archive_maintenance"
+    },
+    {
+      "proname": "get_work_log_current"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+.sod29-post-follow{width:100%;min-width:0;margin-block:28px;padding-block:24px;border-block-start:1px solid var(--s29-line-strong);display:grid;gap:16px;color:var(--s29-ink);font-family:var(--s29-font-ui)}
+.sod29-post-follow h2,.sod29-post-follow h3{display:flex;align-items:center;gap:10px;margin:0;line-height:1.5;text-align:start;overflow-wrap:anywhere}
+.sod29-post-follow h2{font-size:var(--s29-type-lead,21px)}
+.sod29-post-follow h3{font-size:var(--s29-type-ui,16px)}
+.sod29-post-follow .sod29-ui-icon{flex-shrink:0}
+.sod29-post-follow p{margin:0;color:var(--s29-muted);font-size:var(--s29-type-ui,16px);line-height:1.6;text-align:start;overflow-wrap:anywhere}
+.sod29-post-follow-target{min-width:0;display:grid;gap:12px;padding:16px;border:1px solid var(--s29-line);border-radius:16px;background:var(--s29-panel)}
+.sod29-post-follow .sod29-watch-btn{max-width:100%;white-space:normal;overflow-wrap:anywhere}

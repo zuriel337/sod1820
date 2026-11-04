@@ -1,0 +1,28 @@
+{
+  "project": "linswmnnkjxvweumprav",
+  "observed": "2026-11-03",
+  "functions": [
+    {
+      "slug": "newsletter-signup",
+      "version": 19,
+      "verify_jwt": false,
+      "ezbr_sha256": "83a39cd603ee18efed3191450c1a1e19ca535762726f167a670f9ae55dd89f31",
+      "files": [
+        "newsletter-signup/index.ts",
+        "newsletter-signup/purpose.js"
+      ],
+      "changed": false
+    },
+    {
+      "slug": "send-newsletter",
+      "version": 16,
+      "verify_jwt": true,
+      "ezbr_sha256": "a6eead21a3dfda849d30575339965aa54c605fe590de64e43d086a363f2a00c4",
+      "files": [
+        "send-newsletter/index.ts",
+        "newsletter-signup/purpose.js"
+      ],
+      "changed": false
+    }
+  ]
+}

@@ -119,14 +119,24 @@ async function main() {
   // readable for review. Correctness never depends on this; it is a size/cleanliness improvement over
   // the raw bundle, not part of the provenance proof.
   execFileSync(
-    "npx",
+    process.env.SOD_CI_ISOLATION === "1" ? (() => {
+      if (!process.env.SOD_CI_ESBUILD) throw new Error("Isolated packaging requires a preinstalled pinned esbuild; no npx download");
+      const version = execFileSync(process.env.SOD_CI_ESBUILD, ["--version"], { encoding: "utf8" }).trim();
+      if (version !== ESBUILD_VERSION) throw new Error("Pinned isolated esbuild version mismatch");
+      return process.env.SOD_CI_ESBUILD;
+    })() : "npx",
     [
-      "--yes", `esbuild@${ESBUILD_VERSION}`,
+      ...(process.env.SOD_CI_ISOLATION === "1" ? [] : ["--yes", `esbuild@${ESBUILD_VERSION}`]),
       ENTRY,
       "--bundle",
       "--platform=neutral",
       "--format=esm",
       "--target=es2022",
+      // This entrypoint executes on Edge, where the browser window is absent. Resolve
+      // browser-only branches before dependency discovery; never externalize browser SDKs.
+      "--define:window=undefined",
+      "--define:__SOD_2029_BUILD__=false",
+      "--define:__SOD_RESEARCH_EDGE__=true",
       "--minify-syntax",
       `--outfile=${RAW_FILE}`,
       `--metafile=${META_FILE}`,
@@ -150,6 +160,12 @@ async function main() {
   }
 
   const bundledSources = discoverBundledLocalSources(metafile);
+  const browserSources = bundledSources.filter((p) =>
+    p === "src/lib/runtimeSwitches2029.js" || p === "src/lib/supabase.js"
+    || /^node_modules\/(?:react(?:-dom)?|@supabase)\//.test(p));
+  if (browserSources.length) {
+    throw new Error(`Edge packaging pulled browser dependencies: ${browserSources.join(", ")}`);
+  }
   if (!bundledSources.includes(ENTRY.split("\\").join("/"))) {
     console.error("PACKAGING FAILED: esbuild's own metafile does not list the entrypoint as bundled -- refusing to trust the dependency graph.");
     process.exit(1);
@@ -170,7 +186,14 @@ async function main() {
     verify_jwt: true,
     generated_from: {
       entry: ENTRY,
+      // Preserve the original primary field for release tooling compatibility; the explicit list is
+      // the complete additive transport surface bundled at this SHA.
       contract: "public-number-research-run-v1",
+      contracts: [
+        "public-number-research-run-v1",
+        "public-expression-crossing-run-v1",
+        "personal-gematria-pair-run-v1",
+      ],
       canonical_sources: bundledSources.filter((p) => p !== ENTRY.split("\\").join("/")),
       bundler: `esbuild@${ESBUILD_VERSION}`,
       git_head,

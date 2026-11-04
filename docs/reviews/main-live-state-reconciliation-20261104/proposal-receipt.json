@@ -1,0 +1,10 @@
+{
+  "patchSha256": "7c250d29635f5225090f89374d3d101d1bfd835769a8ce78977ccfbb557baa4a",
+  "base": "783ded9c8362239b635e316beb366bf0adce01cb",
+  "activeGuardChanged": false,
+  "tests": 49,
+  "pass": 49,
+  "fail": 0,
+  "build": "local dormant only",
+  "productionAction": false
+}

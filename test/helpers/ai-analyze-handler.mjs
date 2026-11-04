@@ -6,6 +6,29 @@ import { runInNewContext } from "node:vm";
 import { selectRazielIntelligence, RAZIEL_LEVELS } from "../../supabase/functions/_shared/razielIntelligence.js";
 import { whatsappSurfaceProfileText, continuationHrefFromSurface } from "../../supabase/functions/_shared/waRazielRender.ts";
 import { supabaseServiceHeaders } from "../../supabase/functions/_shared/supabaseServiceHeaders.js";
+import { buildRazielResultBundleConsumer } from "../../src/lib/research/razielResultBundleConsumer.js";
+import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers } from "../../src/lib/research/razielGroundedSourceComposer.js";
+import {
+  RAZIEL_SEMANTIC_INTENT_VERSION,
+  isRazielCurrentSurfaceQuestion,
+  resolveRazielCanonicalRequest,
+  resolveRazielConversationalAct,
+  resolveRazielDeterministicGuidance,
+  validateRazielSemanticIntent,
+} from "../../src/lib/research/razielSemanticIntentGate.js";
+import {
+  ELS_RAZIEL_PLANNING_ACTION,
+  ELS_RAZIEL_PLANNING_SUBJECT,
+  deriveLockedElsSearchPlan,
+  elsPlanningPrompt,
+  normalizeElsRazielPlanningAction,
+  normalizeElsRazielSearchPlan,
+} from "../../src/lib/research/elsRazielPlanning.js";
+import { runElsMatrixReadingOperation, razielReadingAnswer, READING_CAPABILITY, READING_OWNER_REF, PROVIDER_LIVE } from "../../supabase/functions/_shared/elsMatrixReading.js";
+import { normalizeElsMatrixReadingAction } from "../../supabase/functions/_shared/elsMatrixReadingAction.js";
+import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence } from "../../supabase/functions/_shared/elsRazielOccurrenceContext.js";
+import { readElsRazielReadingContext, elsRazielReadingText } from "../../supabase/functions/_shared/elsRazielReadingContext.js";
+import { verifyFunctionalPreviewIdentity } from "../../supabase/functions/_shared/functionalPreviewIdentity.js";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
@@ -43,6 +66,11 @@ export const personalSnapshot = () => ({
 export async function runAiAnalyze({
   answer = toolAnswer(), allowed = false, siteAllowed = true, bearer = "", verifiedUid = null,
   trustedUid = null, snapshot = personalSnapshot(), body = {}, traceFailure = null,
+  modelResult = null, modelResults = null, numberContextByNumber = {}, researchBundleByNumber = {},
+  researchBundleByExpression = {},
+  elsVerifyStatus = null,
+  researchRunFailure = null, legacyContext = null, genericProviderText = null,
+  role = "user", extraRoute = null, envOverrides = {}, previewIdentity = null, previewVerifier = verifyFunctionalPreviewIdentity,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
 } = {}) {
   const calls = [], models = [], unexpected = [];
@@ -53,9 +81,30 @@ export async function runAiAnalyze({
     const payload = init.body ? JSON.parse(init.body) : null;
     const call = { name, url: url.href, method: init.method || "GET", headers: Object.fromEntries(new Headers(init.headers)), payload };
     calls.push(call);
+    if (extraRoute) { const extra = await extraRoute({ url, init, payload }); if (extra) return extra; }
+    if (url.origin === "https://api.anthropic.com" && genericProviderText != null) {
+      return response({
+        content: [{ type: "text", text: String(genericProviderText) }],
+        usage: { input_tokens: 9, output_tokens: 3 },
+      });
+    }
     if (url.origin === "https://fixture.invalid") {
+      if (url.pathname === "/functions/v1/els-search-bridge" && elsVerifyStatus) {
+        return response({ result: { status: "OK", corpus_id: payload.corpus_id,
+          verified: elsVerifyStatus === "match" ? payload.candidates : [] } });
+      }
+      if (url.pathname === "/functions/v1/research-run") {
+        if (researchRunFailure) return response({ status: "error", error: researchRunFailure }, 200);
+        const expressionContract = payload?.contract === "public-expression-crossing-run-v1";
+        const bundle = expressionContract
+          ? researchBundleByExpression[payload?.expression]
+          : researchBundleByNumber[payload?.number];
+        return bundle
+          ? response({ status: "ok", contract: payload?.contract, trace_id: randomUUID(), bundle })
+          : response({ status: "error", error: "research_fixture_missing" }, 200);
+      }
       if (url.pathname === "/auth/v1/user") return response(verifiedUid ? { id: verifiedUid } : {}, verifiedUid ? 200 : 401);
-      if (url.pathname === "/rest/v1/users") return response([{ role: "user" }]);
+      if (url.pathname === "/rest/v1/users") return response([{ role }]);
       if (url.pathname === "/rest/v1/ai_token_log") return response([{ id: 1 }]);
       if (url.pathname.startsWith("/rest/v1/rpc/")) {
         if (traceFailure?.rpc === name) {
@@ -64,16 +113,30 @@ export async function runAiAnalyze({
         }
         switch (name) {
           case "fn_capability_execution_gate_v1":
-            assert.equal(payload.p_capability, "ai-analyze:raziel:site");
-            assert.equal(payload.p_flag_key, "lock_raziel_site");
+            if (payload.p_capability === "ai-analyze:raziel:site") {
+              assert.equal(payload.p_flag_key, previewIdentity?.verified ? null : "lock_raziel_site");
+              assert.equal(payload.p_required_entitlement, "public");
+              assert.equal(payload.p_budget_kind, "none");
+              return response({ allowed: siteAllowed, availability: {
+                state: siteAllowed ? "open" : "closed", allowed: siteAllowed,
+                message: siteAllowed ? "" : "Synthetic site availability closure",
+              } });
+            }
+            assert.equal(payload.p_flag_key, null);
             assert.equal(payload.p_required_entitlement, "public");
-            assert.equal(payload.p_budget_kind, "none");
-            return response({ allowed: siteAllowed, availability: {
-              state: siteAllowed ? "open" : "closed", allowed: siteAllowed,
-              message: siteAllowed ? "" : "Synthetic site availability closure",
-            } });
+            assert.equal(payload.p_budget_kind, "ai_quota");
+            return response({
+              allowed,
+              availability: { allowed: true },
+              entitlement: { allowed: true },
+              budget: { allowed, used: allowed ? 0 : 15, limit: 30, tier: payload.p_budget_tier },
+            });
           case "fn_raziel_answer": return response(answer);
           case "fn_raziel_plan": return response(null);
+          case "number_map": return response(numberContextByNumber[payload?.n]?.map ?? null,
+            numberContextByNumber[payload?.n]?.map ? 200 : 404);
+          case "number_dossier_json": return response(numberContextByNumber[payload?.n]?.dossier ?? null,
+            numberContextByNumber[payload?.n]?.dossier ? 200 : 404);
           case "ai_quota_check": return response({ allowed, used: 15, limit: 15, tier: payload.p_tier });
           case "research_state_snapshot_v1": return response(snapshot);
           case "fn_raziel_identity": return response({ linked: !!trustedUid, user_id: trustedUid });
@@ -82,9 +145,9 @@ export async function runAiAnalyze({
           case "op_trace_finish_v1":
           case "op_trace_link_ai_cost_v1": return response({ ok: true });
           case "fn_raziel_persona":
-          case "fn_raziel_context":
           case "fn_raziel_remember":
           case "metatron_context": return response(null);
+          case "fn_raziel_context": return response(legacyContext);
         }
       }
     }
@@ -94,13 +157,29 @@ export async function runAiAnalyze({
   const env = {
     SUPABASE_URL: "https://fixture.invalid", SUPABASE_SERVICE_ROLE_KEY: SERVICE_KEY,
     SUPABASE_ANON_KEY: "synthetic-anon-key", ANTHROPIC_API_KEY: "synthetic-model-key",
+    ...envOverrides,
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 4, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 13, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
   assert.ok(imports[3].includes('import { supabaseServiceHeaders }'));
+  assert.ok(imports[4].includes('import { buildRazielResultBundleConsumer }'));
+  assert.ok(imports[5].includes('import { buildRazielGroundedSourceComposer, razielMethodLayerNumbers }'));
+  assert.ok(imports[6].includes('RAZIEL_SEMANTIC_INTENT_VERSION'));
+  assert.ok(imports[6].includes('isRazielCurrentSurfaceQuestion'));
+  assert.ok(imports[6].includes('resolveRazielCanonicalRequest'));
+  assert.ok(imports[6].includes('resolveRazielConversationalAct'));
+  assert.ok(imports[6].includes('resolveRazielDeterministicGuidance'));
+  assert.ok(imports[6].includes('validateRazielSemanticIntent'));
+  assert.ok(imports[7].includes('ELS_RAZIEL_PLANNING_ACTION'));
+  assert.ok(imports[7].includes('normalizeElsRazielSearchPlan'));
+  assert.ok(imports[8].includes('runElsMatrixReadingOperation') && imports[8].includes('PROVIDER_LIVE'));
+  assert.ok(imports[9].includes('normalizeElsMatrixReadingAction'));
+  assert.ok(imports[10].includes('normalizeElsRazielOccurrence'));
+  assert.ok(imports[11].includes('readElsRazielReadingContext'));
+  assert.equal(imports[12], 'import { verifyFunctionalPreviewIdentity } from "../_shared/functionalPreviewIdentity.js";');
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -108,15 +187,36 @@ export async function runAiAnalyze({
     crypto: { randomUUID }, selectRazielIntelligence, RAZIEL_LEVELS,
     whatsappSurfaceProfileText, continuationHrefFromSurface,
     supabaseServiceHeaders,
+    verifyFunctionalPreviewIdentity: previewVerifier,
+    buildRazielResultBundleConsumer,
+    buildRazielGroundedSourceComposer,
+    razielMethodLayerNumbers,
+    RAZIEL_SEMANTIC_INTENT_VERSION,
+    isRazielCurrentSurfaceQuestion,
+    resolveRazielCanonicalRequest,
+    resolveRazielConversationalAct,
+    resolveRazielDeterministicGuidance,
+    validateRazielSemanticIntent,
+    ELS_RAZIEL_PLANNING_ACTION,
+    ELS_RAZIEL_PLANNING_SUBJECT,
+    deriveLockedElsSearchPlan,
+    elsPlanningPrompt,
+    normalizeElsRazielPlanningAction,
+    normalizeElsRazielSearchPlan,
+    runElsMatrixReadingOperation, razielReadingAnswer, READING_CAPABILITY, READING_OWNER_REF, PROVIDER_LIVE, normalizeElsMatrixReadingAction,
+    ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence, readElsRazielReadingContext, elsRazielReadingText,
     callClaudeReliable: async (options) => {
       models.push(options);
+      const sequence = Array.isArray(modelResults) ? modelResults : null;
+      if (sequence?.length) return sequence[Math.min(models.length - 1, sequence.length - 1)];
+      if (modelResult) return modelResult;
       return { text: JSON.stringify({ v: 1, agent: "raziel", answer: "Mock synthesis", facts: [], suggested_paths: [] }),
-        usage: { input_tokens: 11, output_tokens: 7 }, degraded: false };
+        usage: { input_tokens: 11, output_tokens: 7 }, attempts: 1, degraded: false };
     },
   }, { filename: "ai-analyze/index.ts", timeout: 5000 });
   assert.equal(typeof handler, "function");
   const res = await handler(new Request("https://fixture.invalid/functions/v1/ai-analyze", {
-    method: "POST", headers: { "Content-Type": "application/json", ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}) },
+    method: "POST", headers: { "Content-Type": "application/json", ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}), ...(previewIdentity?.token ? {'x-sod-preview-identity':previewIdentity.token} : {}) },
     body: JSON.stringify({ persona: "raziel", subject: PRIVATE, visitor_id: "fixture-visitor", ...body }),
   }));
   const result = await res.json();

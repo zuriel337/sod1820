@@ -4,16 +4,17 @@ import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import SourceRepeatInfo2029 from './SourceRepeatInfo2029.jsx';
 import '../../pages/home-world-story2029.css';
 import { recentSource, readSeen, markSeen } from '../../lib/homeMotion2029.js';
-import { relativeTimeLabel } from '../../lib/relativeTime2029.js';
+import { recordTimeLabel } from '../../lib/relativeTime2029.js';
 
-function date(value) {
-  return relativeTimeLabel(value, 'לא צוין');
+function date(value, mode) {
+  return recordTimeLabel(value, mode, 'לא צוין');
 }
 
 /** One consumer of the existing public arrivals, shared by Home and World. */
 export default function SourceArrivalList2029({ items = [], loading, availability, onOpen, surface = 'world', limit = 6, showNew = false }) {
   const [filter, setFilter] = useState('all');
   const [seen, setSeen] = useState(readSeen);
+  const timeMode = surface === 'home' ? 'relative' : 'bilingual';
   const see = (key) => setSeen((current) => (current[key] ? current : markSeen(key, current)));
   const sources = items.filter(item => item.kind === 'source' && (filter === 'all' || item.sourceKind === filter)).slice(0, limit);
   return <section className="sod29-source-arrivals" id={`${surface}-sources`} aria-label="מה מגיע מן המקורות">
@@ -33,18 +34,18 @@ export default function SourceArrivalList2029({ items = [], loading, availabilit
       const copy = <><span className="sod29-source-arrival-icon"><NavigationIcon2029 name="source" /></span><span className="sod29-source-arrival-copy">
         <span className="sod29-source-arrival-label">{isNew ? <><i className="sod29-source-arrival-dot" aria-hidden="true" /><span className="sod29-sr-only">חדש · </span></> : null}{group ? 'מהמקור · טרם נבדק' : 'פוסט מקור'}</span>
         <strong>{item.label}</strong><span>{item.creator || 'שם הכותב לא צוין'}</span>
-        <small>{group ? 'נשמר במערכת' : updatedPost ? 'הפוסט עודכן' : 'פרסום המקור'} · {date(latestSourceAt)}</small>
+        <small>{group ? 'נשמר במערכת' : updatedPost ? 'הפוסט עודכן' : 'פרסום המקור'} · {date(latestSourceAt, timeMode)}</small>
       </span><span className="sod29-source-arrival-open" aria-hidden="true">{group ? '↓' : '←'}</span></>;
       return group ? <details key={item.id} id={surface === 'world' ? `group-source-${item.id.slice(6)}` : undefined}
         className="sod29-world-group-source sod29-source-arrival" data-source-arrival={item.sourceRef}>
         <summary onClick={() => { if (isNew) see(newKey); }}>{copy}</summary><div className="sod29-source-arrival-body"><p>{item.fullText}</p>
           <p className="sod29-source-arrival-label">מאת: {item.creator || 'שם הכותב לא צוין'}</p>
           <p className="sod29-source-arrival-label">מועד גילוי חיבור: לא תועד בנתונים הזמינים.</p>
-          <SourceRepeatInfo2029 item={item} anchorIds={surface === 'world'} onSelect={(event) => onOpen({ ...item, sourceRef: event.sourceRef, href: `/world#group-source-${event.id}` })} />
+          <SourceRepeatInfo2029 item={item} anchorIds={surface === 'world'} timeMode={timeMode} onSelect={(event) => onOpen({ ...item, sourceRef: event.sourceRef, href: `/world#group-source-${event.id}` })} />
           <button className="sod29-action" onClick={() => onOpen(item)}>{surface === 'home' ? 'פתיחה בעולם' : 'שמירת ההקשר לקריאה'}</button>
         </div></details> : <article className="sod29-source-arrival" key={item.id} data-source-arrival={item.sourceRef}>
         <button className="sod29-source-arrival-link" onClick={() => { if (isNew) see(newKey); onOpen(item); }}>{copy}</button>
-        {item.researchUpdatedAt ? <small className="sod29-source-arrival-update">המחקר התעדכן · {date(item.researchUpdatedAt)}</small> : null}
+        {item.researchUpdatedAt ? <small className="sod29-source-arrival-update">המחקר התעדכן · {date(item.researchUpdatedAt, timeMode)}</small> : null}
       </article>;
     })}
     {availability?.state !== 'connected' && availability?.message ? <p className="sod29-source-arrival-label" role="status">{availability.message}</p> : null}

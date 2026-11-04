@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: every executable canonical trace has a complete readable projection; contextual method has no result
+ok 1 - every executable canonical trace has a complete readable projection; contextual method has no result
+  ---
+  duration_ms: 5.865339
+  type: 'test'
+  ...
+# Subtest: word boundaries, reverse order, per-word reset, substitutions and positions remain distinct
+ok 2 - word boundaries, reverse order, per-word reset, substitutions and positions remain distinct
+  ---
+  duration_ms: 0.842305
+  type: 'test'
+  ...
+# Subtest: composite keeps component order and fails closed on component mismatch
+ok 3 - composite keeps component order and fails closed on component mismatch
+  ---
+  duration_ms: 0.455409
+  type: 'test'
+  ...
+# Subtest: missing numbers never become zero; actual zero remains available
+ok 4 - missing numbers never become zero; actual zero remains available
+  ---
+  duration_ms: 1.114878
+  type: 'test'
+  ...
+# Subtest: stale identities, bad parity, missing steps and malformed boundaries are not displayed
+ok 5 - stale identities, bad parity, missing steps and malformed boundaries are not displayed
+  ---
+  duration_ms: 0.533007
+  type: 'test'
+  ...
+# Subtest: animation accepts engine word boundaries without animating a phantom letter
+ok 6 - animation accepts engine word boundaries without animating a phantom letter
+  ---
+  duration_ms: 1.64865
+  type: 'test'
+  ...
+# Subtest: Finding adapter refuses contextual or stale trace results
+ok 7 - Finding adapter refuses contextual or stale trace results
+  ---
+  duration_ms: 6.31532
+  type: 'test'
+  ...
+# Subtest: Back reuses the exact canonical rows only inside the fixed freshness window; reads do not extend it
+ok 8 - Back reuses the exact canonical rows only inside the fixed freshness window; reads do not extend it
+  ---
+  duration_ms: 1.331135
+  type: 'test'
+  ...
+# Subtest: switching accounts, logout, and returning to the same uid invalidate both rows and late response handles
+ok 9 - switching accounts, logout, and returning to the same uid invalidate both rows and late response handles
+  ---
+  duration_ms: 0.272252
+  type: 'test'
+  ...
+# Subtest: retry invalidates a previous success; failed/non-array reads cannot become measured empty or cached success
+ok 10 - retry invalidates a previous success; failed/non-array reads cannot become measured empty or cached success
+  ---
+  duration_ms: 0.814122
+  type: 'test'
+  ...
+# Subtest: reuse is expression-exact, bounded and fails closed after a backwards clock jump
+ok 11 - reuse is expression-exact, bounded and fails closed after a backwards clock jump
+  ---
+  duration_ms: 1.385417
+  type: 'test'
+  ...
+# Subtest: Number projection issues each existing bounded research filter once and preserves distinct aliases; absent-node support is explicit
+ok 12 - Number projection issues each existing bounded research filter once and preserves distinct aliases; absent-node support is explicit
+  ---
+  duration_ms: 2.527886
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 218.033685

@@ -31,7 +31,7 @@
 .sod29-source-arrival summary::-webkit-details-marker{display:none}.sod29-source-arrival-icon{display:grid;place-items:center;flex:0 0 42px;height:44px;color:var(--s29-accent-text,var(--s29-accent));background:var(--s29-panel-soft);border-radius:12px}
 .sod29-source-arrival-copy{display:grid;gap:6px;flex:1;font-size:16px;line-height:1.65}.sod29-source-arrival-copy strong{font-size:18px;font-weight:500}.sod29-source-arrival-copy>span:not(.sod29-source-arrival-label),.sod29-source-arrival-copy small{font-size:14px;color:var(--s29-muted)}
 .sod29-source-arrival-label{font-size:14px!important;line-height:1.7;color:var(--s29-muted)}
-.sod29-source-arrival-open{align-self:center;font-size:22px;color:var(--s29-accent)}
+.sod29-source-arrival-open{align-self:center;font-size:22px;color:var(--s29-accent-text)}
 .sod29-source-arrival-body{padding:0 24px 24px;line-height:1.9;font-size:18px;white-space:pre-line;overflow-wrap:anywhere}
 .sod29-world-group-source-repeats{padding:12px 18px;margin:12px 0;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft);font-size:14px;line-height:1.7;white-space:normal}
 .sod29-world-group-source-repeats small{display:block;font-size:14px;color:var(--s29-muted)}
@@ -50,5 +50,12 @@
 /* Public World: reserve the above-the-fold flight slot while its authorized
    post/source reader settles. Prevent the arrival rail jumping into the viewport
    and then offscreen during async hydration (CLS /world <= 0.1). */
-.sod29-flight-story.is-world.is-loading{min-height:380px;display:flex;align-items:flex-start}
-@media(max-width:760px){.sod29-flight-story.is-world.is-loading{min-height:560px}}
+/* Measured real public story: 573px at 1440/1920, 624px at 981,
+   806px at 760, 920px at 390, 1002px at 320. Reserve the same floor
+   through loading/success/failure; larger text can still grow without clipping. */
+.sod29-flight-story.is-world{min-height:580px}
+.sod29-flight-story.is-world.is-loading{display:flex;align-items:flex-start}
+@media(max-width:1100px){.sod29-flight-story.is-world{min-height:640px}}
+@media(max-width:760px){.sod29-flight-story.is-world{min-height:820px}}
+@media(max-width:480px){.sod29-flight-story.is-world{min-height:930px}}
+@media(max-width:350px){.sod29-flight-story.is-world{min-height:1010px}}

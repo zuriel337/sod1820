@@ -9,7 +9,14 @@ export const RESEARCH_PROFILE = Object.freeze({
   CUSTOM: "custom",
 });
 
-const ALL = Object.freeze(Object.values(RESEARCH_CAPABILITY));
+// Contract-only capabilities must not silently become available to every Deep/Research/custom run
+// merely because their key is registered in Research Plan. They are admitted only by their own
+// validated transport until the canonical owner explicitly widens the general profiles.
+const CONTRACT_ONLY = new Set([
+  RESEARCH_CAPABILITY.CROSSINGS,
+  RESEARCH_CAPABILITY.GEMATRIA_RELATIONS,
+]);
+const ALL = Object.freeze(Object.values(RESEARCH_CAPABILITY).filter(capability => !CONTRACT_ONLY.has(capability)));
 
 const BASE = Object.freeze({
   [RESEARCH_PROFILE.QUICK]: Object.freeze({

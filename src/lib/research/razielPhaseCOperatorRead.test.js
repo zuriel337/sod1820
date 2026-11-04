@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { ordinaryRazielStages } from "../../../test/helpers/raziel-ordinary-stages.mjs";
 import { stripTypeScriptTypes } from "node:module";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
@@ -27,7 +28,8 @@ test("Phase C: context_type is derived from the server-validated tier only", () 
 test("Phase C: identity resolved once, BEFORE plan call, and reused by the quota check", () => {
   assert.equal((razielBlock.match(/resolveIdentity\(/g) || []).length, 1);
   assert.ok(razielBlock.indexOf("resolveIdentity(") < razielBlock.indexOf("rpc/fn_raziel_answer"));
-  assert.ok(razielBlock.indexOf("det.needs_synthesis === false") < razielBlock.indexOf("checkQuota("));
+  const stages = ordinaryRazielStages(razielBlock);
+  assert.ok(stages.deterministic < stages.quota && stages.quota < stages.model);
   assert.match(razielBlock, /p_context_type: rCtxType, p_user_ref: rVerifiedRef/);
   assert.doesNotMatch(razielBlock, /p_context_type: "public_user"/);
 });
@@ -136,9 +138,10 @@ test("Phase C: system pack is bounded aggregates (no job commands, no chat ids, 
 test("Phase C: failure path = no admin data; operator span, then ordinary synthesis; L0 answers skip the model", () => {
   assert.match(razielBlock, /if \(op\.ok && op\.answer\)/);
   assert.match(razielBlock, /model: "none", intelligence_level: "deterministic"/);
-  assert.ok(razielBlock.indexOf("runRazielOperator(") > razielBlock.indexOf("beginOperationalTrace("));
-  assert.ok(razielBlock.indexOf("runRazielOperator(") > razielBlock.indexOf("checkQuota("));
-  assert.ok(razielBlock.indexOf("runRazielOperator(") < razielBlock.indexOf("callClaudeReliable("));
+  const stages = ordinaryRazielStages(razielBlock);
+  const operator = razielBlock.indexOf("runRazielOperator(");
+  assert.ok(operator > stages.trace && stages.trace > stages.quota);
+  assert.ok(operator < stages.model);
   assert.match(edge, /אין נתוני-מפעיל; אל תמציא נתונים/);
 });
 

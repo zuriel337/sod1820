@@ -1,0 +1,5 @@
+
+> sod1820@1.0.0 test:legacy-research-containment
+> node scripts/test-legacy-research-containment.mjs
+
+Legacy research containment + Heichal 2029 entrypoint cleanup: PASS

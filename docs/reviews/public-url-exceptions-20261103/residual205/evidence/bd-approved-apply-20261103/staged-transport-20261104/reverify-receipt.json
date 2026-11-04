@@ -1,0 +1,108 @@
+{
+  "task": "PUBLIC_BD_REVERIFY_STAGED_REQUEST_20261104",
+  "baseHead": "4800cfde9b2e2da2bc51f4697c05e862f2a4b642",
+  "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "alreadyApplied": true,
+  "reapplied": false,
+  "functions": [
+    {
+      "slug": "newsletter-signup",
+      "version": 20,
+      "status": "ACTIVE",
+      "verify_jwt": false,
+      "bundleSha256": "93144711620c2154cce7675c34e6367a75a8c2184d05ed3565510678406f30ac"
+    },
+    {
+      "slug": "newsletter-unsubscribe",
+      "version": 10,
+      "status": "ACTIVE",
+      "verify_jwt": false,
+      "bundleSha256": "3e8997ec176c32338d57f2b3cb7aea97230950b85dce2f9265132b209dfe7604"
+    }
+  ],
+  "sourceMatchesOriginalApplyReceipt": true,
+  "schema": [
+    {
+      "db": "postgres",
+      "reader": "supabase_read_only_user",
+      "subscribers": {
+        "count": 1024,
+        "active": 344,
+        "suppressed": 5,
+        "site_consented": 0,
+        "legacy_rows_digest": "ad829a9d9e3de1a208c529eb50f5d071",
+        "legacy_rows_array_digest": "5b9b55ad3ef222a6402ce177ffb17268"
+      },
+      "auth_trigger_body_md5": "8cbc40e56e8d8ce9869f70e09535a7e5",
+      "purpose_constraints": [
+        {
+          "name": "subscribers_email_purposes_valid",
+          "validated": true,
+          "definition": "CHECK (((cardinality(email_purposes) > 0) AND (email_purposes <@ ARRAY['general'::text, 'site-openings'::text, 'site-updates'::text]) AND ((NOT (email_purposes @> ARRAY['site-openings'::text])) OR (opening_updates_consented_at IS NOT NULL)) AND ((NOT (email_purposes @> ARRAY['site-updates'::text])) OR (site_updates_consented_at IS NOT NULL))))"
+        }
+      ],
+      "site_column": [
+        {
+          "name": "site_updates_consented_at",
+          "default": null,
+          "nullable": "YES"
+        }
+      ],
+      "rls_enabled": true,
+      "doc37_md5": "92f3dbad2c1dc77326b43e9e5111691f"
+    }
+  ],
+  "migration": [
+    {
+      "version": "20261103223217",
+      "name": "public_site_updates_purpose_bd"
+    }
+  ],
+  "productionHosts": [
+    {
+      "host": "sod1820.co.il",
+      "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "target": "production",
+      "state": "READY"
+    },
+    {
+      "host": "www.sod1820.co.il",
+      "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "target": "production",
+      "state": "READY"
+    },
+    {
+      "host": "sod1820.vercel.app",
+      "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "target": "production",
+      "state": "READY"
+    }
+  ],
+  "cli": {
+    "version": "65.11.0",
+    "packageSha1": "8ecaffaef3eb1e3483cedad5a4860fea22c60c86",
+    "apiHelp": "PASS",
+    "whoami": "LOGGED_OUT",
+    "loginStarted": false,
+    "offlineActualGenerator": "PASS_EXACT_BODY_ROUNDTRIP",
+    "serverCreateUntested": true,
+    "networkMutation": false
+  },
+  "acceptedEvidenceRetained": {
+    "mailFocused": 33,
+    "liveNonwritingProbes": 10,
+    "hostedForms": 4,
+    "existingAccounts": 2,
+    "adminOpening": "OWNER_ACCEPTED",
+    "socialManual": "SKIPPED_BY_OWNER"
+  },
+  "newProductTests": 0,
+  "newDBProductWrites": 0,
+  "newEdgeDeploys": 0,
+  "newProductionDeploys": 0,
+  "cutover": false,
+  "authorization": "EXACT_CLI_OAUTH_AND_PROTECTED_STAGED_CREATION_REQUEST_PENDING"
+}

@@ -1,0 +1,4023 @@
+{
+  "base": "0a79d57ebb8f1bd736f71de00852680981879163",
+  "capturedAt": "2026-10-26",
+  "scope": "40 unreviewed numeric-lane IDs, stable UUID order; not Preview rank, no runtime/publication use",
+  "priorEligibleCount": 664,
+  "rows": [
+    {
+      "id": "00cb446b-6071-4d32-ac84-f9beecf46ed5",
+      "admitted": true,
+      "statement": "סוד × י-ה-ו-ה=1820 בגימטריא",
+      "kind": "observation",
+      "terms": [
+        "סוד × י-ה-ו-ה=1820 בגימטריא"
+      ],
+      "value": 1820,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": true,
+      "engine_detail": {
+        "source": "zvi_unresolved_cleanup_pass",
+        "compound": {
+          "raw": "סוד × י-ה-ו-ה=1820 בגימטריא",
+          "kind": "general-chain",
+          "text": "סוד × י-ה-ו-ה=1820 בגימטריא",
+          "result": 1820,
+          "status": "ENGINE_VERIFIED_COMPOSITE",
+          "origRaw": "סוד × י-ה-ו-ה=1820 בגימטריא",
+          "operands": [
+            {
+              "ok": true,
+              "value": 70,
+              "method": "רגיל",
+              "phrase": "סוד",
+              "status": "verified"
+            },
+            {
+              "ok": true,
+              "value": 26,
+              "method": "רגיל",
+              "phrase": "י-ה-ו-ה",
+              "status": "verified"
+            }
+          ],
+          "skipUsed": 0,
+          "linkCount": 2,
+          "linkValues": [
+            1820,
+            1820
+          ],
+          "computedTotal": 1820
+        },
+        "occurrences": [
+          "channel_updates:8352ac10-83cd-4864-b620-b538c2b55dda"
+        ]
+      },
+      "source": "zvi_unresolved_cleanup_pass",
+      "source_ref": "channel_updates:8352ac10-83cd-4864-b620-b538c2b55dda#batch6",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:8352ac10-83cd-4864-b620-b538c2b55dda",
+      "claim_uid": "סוד×י-ה-ו-ה=1820בגימטריא",
+      "source_id": "8352ac10-83cd-4864-b620-b538c2b55dda",
+      "targets": [
+        {
+          "id": "9cd22c3e-be5c-4283-ba6d-f974530d4dbc",
+          "label": "1820"
+        }
+      ],
+      "media": {
+        "ocr_used": null,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": null,
+        "transcription_pending": null
+      }
+    },
+    {
+      "id": "00ed218e-7eb4-4daf-ba99-ddd3607a2903",
+      "admitted": true,
+      "statement": "כמה ביטויים שונים (אחישנה, יברכנו אלהים, ובוטח בי-ה-ו-ה ישגב, וחסדיך כי מעולם המה) נטענים כשווים לאותו ערך 374",
+      "kind": "observation",
+      "terms": [
+        "אחישנה",
+        "374"
+      ],
+      "value": 374,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:62c53da8-ba40-4b06-852d-0223c6e2065e",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:62c53da8-ba40-4b06-852d-0223c6e2065e",
+      "claim_uid": "כמהביטוייםשונים(אחישנה,יברכנואלהים,ובוטחבי-ה-ו-הישגב,וחסדיךכימעולםהמה)נטעניםכשוויםלאותוערך374",
+      "source_id": "62c53da8-ba40-4b06-852d-0223c6e2065e",
+      "targets": [
+        {
+          "id": "b84f4fbe-86aa-4c32-adbd-5a7dcf17450c",
+          "label": "374"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "014d0df4-2e60-46c9-8427-ee0eb18693d9",
+      "admitted": true,
+      "statement": "22 כפול 17 (טו\"ב) = 374",
+      "kind": "fact",
+      "terms": [
+        "22",
+        "17",
+        "374"
+      ],
+      "value": 374,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:1731dd38-ca29-4cda-ae5d-0c28c9bf6c65",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:1731dd38-ca29-4cda-ae5d-0c28c9bf6c65",
+      "claim_uid": "22כפול17(טוב)=374",
+      "source_id": "1731dd38-ca29-4cda-ae5d-0c28c9bf6c65",
+      "targets": [
+        {
+          "id": "b84f4fbe-86aa-4c32-adbd-5a7dcf17450c",
+          "label": "374"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "015aaa5a-f40a-4a5a-9236-01576cbd283b",
+      "admitted": true,
+      "statement": "דמעה×6+חסד = 72+714 = 786",
+      "kind": "fact",
+      "terms": [
+        "דמעה",
+        "חסד"
+      ],
+      "value": 786,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "חסד": {
+          "אלבם": 164,
+          "אתבש": 168,
+          "גדול": 72,
+          "קדמי": 301,
+          "רגיל": 72,
+          "הכפלה": 3680,
+          "מילוי": 972,
+          "מסתתר": 108,
+          "ריבוע": 148,
+          "מהמאגר": true,
+          "סידורי": 27,
+          "כל_הערכים": [
+            27,
+            72,
+            108,
+            148,
+            164,
+            168,
+            301,
+            972,
+            2078,
+            3680
+          ],
+          "קדמי_גדול": 301,
+          "הכפלה_גדול": 3680,
+          "ריבוע_גדול": 148,
+          "אותיות_אחרי": 84,
+          "אותיות_לפני": 60,
+          "מילוי_דמילוי": 2078
+        },
+        "דמעה": {
+          "אלבם": 137,
+          "אתבש": 207,
+          "גדול": 119,
+          "קדמי": 495,
+          "רגיל": 119,
+          "הכפלה": 6541,
+          "מילוי": 659,
+          "מסתתר": 131,
+          "ריבוע": 281,
+          "מהמאגר": true,
+          "סידורי": 38,
+          "כל_הערכים": [
+            38,
+            119,
+            131,
+            137,
+            207,
+            281,
+            495,
+            659,
+            1375,
+            6541
+          ],
+          "קדמי_גדול": 495,
+          "הכפלה_גדול": 6541,
+          "ריבוע_גדול": 281,
+          "אותיות_אחרי": 141,
+          "אותיות_לפני": 97,
+          "מילוי_דמילוי": 1375
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:77dc0e80-0e07-4323-8ce0-29275a2e7fac",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:77dc0e80-0e07-4323-8ce0-29275a2e7fac",
+      "claim_uid": "דמעה×6+חסד=72+714=786",
+      "source_id": "77dc0e80-0e07-4323-8ce0-29275a2e7fac",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "01e5230c-8eba-410a-ba96-bc83dc240e35",
+      "admitted": true,
+      "statement": "\"רזא\"+\"שבת\"=\"סוד\"×\"אחד\"=910 בגימטריא",
+      "kind": "observation",
+      "terms": [
+        "\"רזא\"+\"שבת\"=\"סוד\"×\"אחד\"=910 בגימטריא"
+      ],
+      "value": 910,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": true,
+      "engine_detail": {
+        "source": "zvi_unresolved_cleanup_pass",
+        "compound": {
+          "raw": "\"רזא\"+\"שבת\"=\"סוד\"×\"אחד\"=910 בגימטריא",
+          "kind": "general-chain",
+          "text": "\"רזא\"+\"שבת\"=\"סוד\"×\"אחד\"=910 בגימטריא",
+          "result": 910,
+          "status": "ENGINE_VERIFIED_COMPOSITE",
+          "origRaw": "\"רזא\"+\"שבת\"=\"סוד\"×\"אחד\"=910 בגימטריא",
+          "operands": [
+            {
+              "ok": true,
+              "value": 208,
+              "method": "רגיל",
+              "phrase": "רזא",
+              "status": "verified"
+            },
+            {
+              "ok": true,
+              "value": 702,
+              "method": "רגיל",
+              "phrase": "שבת",
+              "status": "verified"
+            },
+            {
+              "ok": true,
+              "value": 70,
+              "method": "רגיל",
+              "phrase": "סוד",
+              "status": "verified"
+            },
+            {
+              "ok": true,
+              "value": 13,
+              "method": "רגיל",
+              "phrase": "אחד",
+              "status": "verified"
+            }
+          ],
+          "skipUsed": 0,
+          "linkCount": 3,
+          "linkValues": [
+            910,
+            910,
+            910
+          ],
+          "computedTotal": 910
+        },
+        "occurrences": [
+          "channel_updates:a6805e30-21e0-4315-8f35-70b1bfdb0d14"
+        ]
+      },
+      "source": "zvi_unresolved_cleanup_pass",
+      "source_ref": "channel_updates:a6805e30-21e0-4315-8f35-70b1bfdb0d14#batch7",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:a6805e30-21e0-4315-8f35-70b1bfdb0d14",
+      "claim_uid": "רזא+שבת=סוד×אחד=910בגימטריא",
+      "source_id": "a6805e30-21e0-4315-8f35-70b1bfdb0d14",
+      "targets": [
+        {
+          "id": "4740e8d5-f612-4b6c-ab6a-7db1d7b4aa4a",
+          "label": "910"
+        }
+      ],
+      "media": {
+        "ocr_used": null,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": null,
+        "transcription_pending": null
+      }
+    },
+    {
+      "id": "02907a6e-b47e-4fc0-b6b5-cfc4eccf0f15",
+      "admitted": true,
+      "statement": "שם «אלוהים» מופיע בכל התנ\"ך 1179 פעמים",
+      "kind": "fact",
+      "terms": [
+        "אלוהים"
+      ],
+      "value": 1179,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "אלוהים": {
+          "אלבם": 483,
+          "אתבש": 640,
+          "גדול": 652,
+          "קדמי": 342,
+          "רגיל": 92,
+          "הכפלה": 2662,
+          "מילוי": 322,
+          "מסתתר": 89,
+          "ריבוע": 255,
+          "מהמאגר": false,
+          "סידורי": 47,
+          "קדמי_גדול": 2792,
+          "הכפלה_גדול": 361062,
+          "ריבוע_גדול": 815,
+          "אותיות_אחרי": 125,
+          "אותיות_לפני": 468,
+          "מילוי_דמילוי": 1589
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:f068e1f3-88ff-4a44-b774-1b229e3d55e8",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:f068e1f3-88ff-4a44-b774-1b229e3d55e8",
+      "claim_uid": "שם«אלוהים»מופיעבכלהתנך1179פעמים",
+      "source_id": "f068e1f3-88ff-4a44-b774-1b229e3d55e8",
+      "targets": [
+        {
+          "id": "9f42e1bf-0ebf-406e-a061-a7a4d28084bd",
+          "label": "1179"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0352d6ac-84c3-4f70-9dee-358a76aff3cf",
+      "admitted": true,
+      "statement": "הפסוק 'החותך חיים לכל חי' מהתפילות בראש השנה מתקשר דרך גימטריה למילה 'אלהים'",
+      "kind": "observation",
+      "terms": [
+        "חיים",
+        "חי",
+        "אלהים"
+      ],
+      "value": 86,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:a5eb3b6c-2a03-4970-8a6d-333eee7446fd",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:a5eb3b6c-2a03-4970-8a6d-333eee7446fd",
+      "claim_uid": "הפסוקהחותךחייםלכלחימהתפילותבראשהשנהמתקשרדרךגימטריהלמילהאלהים",
+      "source_id": "a5eb3b6c-2a03-4970-8a6d-333eee7446fd",
+      "targets": [
+        {
+          "id": "aff4783f-c430-4710-83e4-2f588c6fe62f",
+          "label": "86"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "04af61f4-4cbc-437e-ae45-ed8a72849946",
+      "admitted": true,
+      "statement": "שלושה ביטויים שונים — «אהרן», «ענן+אלהים» ו-«נגף+נגע» — נטענים כשווים לאותו ערך 256",
+      "kind": "observation",
+      "terms": [
+        "אהרן",
+        "ענן",
+        "אל-הים",
+        "נגף",
+        "נגע"
+      ],
+      "value": 256,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:7fad92e2-d6dd-46ea-a809-8db4fe4287d0",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:7fad92e2-d6dd-46ea-a809-8db4fe4287d0",
+      "claim_uid": "שלושהביטוייםשונים-«אהרן»,«ענן+אלהים»ו-«נגף+נגע»-נטעניםכשוויםלאותוערך256",
+      "source_id": "7fad92e2-d6dd-46ea-a809-8db4fe4287d0",
+      "targets": [
+        {
+          "id": "e80e17c3-5d72-47af-a4c5-a448753835a1",
+          "label": "256"
+        }
+      ],
+      "media": {
+        "ocr_used": null,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": null,
+        "transcription_pending": null
+      }
+    },
+    {
+      "id": "04c183a1-ea03-4c12-85da-7e08ee59b51b",
+      "admitted": true,
+      "statement": "גימטריית «שלח אורך ואמיתך» = 1032",
+      "kind": "fact",
+      "terms": [
+        "שלח אורך ואמיתך"
+      ],
+      "value": 1032,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "שלח אורך ואמיתך": {
+          "אלבם": 1462,
+          "אתבש": 1156,
+          "גדול": 2002,
+          "קדמי": 3920,
+          "רגיל": 1042,
+          "הכפלה": 293538,
+          "מילוי": 2344,
+          "מסתתר": 1515,
+          "ריבוע": 2461,
+          "מהמאגר": true,
+          "סידורי": 142,
+          "כל_הערכים": [
+            142,
+            1042,
+            1156,
+            1462,
+            1515,
+            2002,
+            2344,
+            2461,
+            3421,
+            3920,
+            4934,
+            7760,
+            293538,
+            792738
+          ],
+          "קדמי_גדול": 7760,
+          "הכפלה_גדול": 792738,
+          "ריבוע_גדול": 3421,
+          "אותיות_אחרי": 898,
+          "אותיות_לפני": 1496,
+          "מילוי_דמילוי": 4934
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:a1d5f486-cd2e-4842-a42f-8536f997bf50",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:a1d5f486-cd2e-4842-a42f-8536f997bf50",
+      "claim_uid": "גימטריית«שלחאורךואמיתך»=1032",
+      "source_id": "a1d5f486-cd2e-4842-a42f-8536f997bf50",
+      "targets": [
+        {
+          "id": "a11c0619-384d-4e4a-9af0-8ed531695fcf",
+          "label": "1032"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "04d0b794-5776-452d-b1ea-84e5920597a5",
+      "admitted": true,
+      "statement": "הביטוי «דייך שאני ובוראך מכירין כוחך» = 1030 בגימטריה",
+      "kind": "fact",
+      "terms": [
+        "דייך שאני ובוראך מכירין כוחך"
+      ],
+      "value": 1030,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "דייך שאני ובוראך מכירין כוחך": {
+          "אלבם": 4036,
+          "אתבש": 1886,
+          "גדול": 3114,
+          "קדמי": 3984,
+          "רגיל": 1024,
+          "הכפלה": 179294,
+          "מילוי": 3824,
+          "מסתתר": 1302,
+          "ריבוע": 3275,
+          "מהמאגר": false,
+          "סידורי": 241,
+          "קדמי_גדול": 12844,
+          "הכפלה_גדול": 1415594,
+          "ריבוע_גדול": 5365,
+          "אותיות_אחרי": 1462,
+          "אותיות_לפני": 1431,
+          "מילוי_דמילוי": 9529
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:24b48387-e5d1-4893-9f77-f1378709b261",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:24b48387-e5d1-4893-9f77-f1378709b261",
+      "claim_uid": "הביטוי«דייךשאניובוראךמכיריןכוחך»=1030בגימטריה",
+      "source_id": "24b48387-e5d1-4893-9f77-f1378709b261",
+      "targets": [
+        {
+          "id": "695e49c3-afea-407a-8c68-3cf6187fafe9",
+          "label": "1030"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "052cf69c-f400-4217-b27a-9e9395725515",
+      "admitted": true,
+      "statement": "מספר ביטויים שונים (סגלה, עקוב, חסד יהוה, כוכבים, לכולם) מוצגים כבעלי אותו ערך גימטרי 98",
+      "kind": "observation",
+      "terms": [
+        "סגלה",
+        "עקוב",
+        "חסד יהוה",
+        "כוכבים",
+        "לכולם"
+      ],
+      "value": 98,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:90e49faf-70a1-4e98-9edd-ab8a9f571e4f",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:90e49faf-70a1-4e98-9edd-ab8a9f571e4f",
+      "claim_uid": "מספרביטוייםשונים(סגלה,עקוב,חסדיהוה,כוכבים,לכולם)מוצגיםכבעליאותוערךגימטרי98",
+      "source_id": "90e49faf-70a1-4e98-9edd-ab8a9f571e4f",
+      "targets": [
+        {
+          "id": "9d426b9e-3b4e-400c-9fef-eb187cc9edf4",
+          "label": "98"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACEF2E9D139B098D0AC853E041558EC2.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "056d2e95-99ed-4aa7-8a33-0349f17967f6",
+      "admitted": true,
+      "statement": "הערך 310 חוזר פעמיים ומרכיב יחד את הערך 620",
+      "kind": "observation",
+      "terms": [
+        "310",
+        "620"
+      ],
+      "value": 310,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:5e743265-4991-4ce3-8cc0-99889994ca06",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:5e743265-4991-4ce3-8cc0-99889994ca06",
+      "claim_uid": "הערך310חוזרפעמייםומרכיביחדאתהערך620",
+      "source_id": "5e743265-4991-4ce3-8cc0-99889994ca06",
+      "targets": [
+        {
+          "id": "a0d329fb-e527-4b16-a361-a2c476a8b840",
+          "label": "310"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "05cef6c5-3aab-4d6d-8b0d-538b7a1da132",
+      "admitted": true,
+      "statement": "סכום המספרים 984+85+85 ↔ הערך הגימטרי של הפסוק (שניהם 1154)",
+      "kind": "relation",
+      "terms": [
+        "984",
+        "85",
+        "85",
+        "למען יחלצון ידידיך הודיעה ימינך וענני"
+      ],
+      "value": 1154,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "הפסוק": {
+          "אלבם": 168,
+          "אתבש": 188,
+          "גדול": 251,
+          "קדמי": 1291,
+          "רגיל": 251,
+          "הכפלה": 20061,
+          "מילוי": 424,
+          "מסתתר": 243,
+          "ריבוע": 637,
+          "מהמאגר": false,
+          "סידורי": 62,
+          "קדמי_גדול": 1291,
+          "הכפלה_גדול": 20061,
+          "ריבוע_גדול": 637,
+          "אותיות_אחרי": 373,
+          "אותיות_לפני": 219,
+          "מילוי_דמילוי": 880
+        },
+        "סכום הספרות": {
+          "אלבם": 675,
+          "אתבש": 316,
+          "גדול": 1437,
+          "קדמי": 3482,
+          "רגיל": 877,
+          "הכפלה": 215697,
+          "מילוי": 1486,
+          "מסתתר": 871,
+          "ריבוע": 2014,
+          "מהמאגר": false,
+          "סידורי": 130,
+          "קדמי_גדול": 5932,
+          "הכפלה_גדול": 574097,
+          "ריבוע_גדול": 2574,
+          "אותיות_אחרי": 631,
+          "אותיות_לפני": 624,
+          "מילוי_דמילוי": 2644
+        },
+        "למען יחלצון ידידיך הודיעה ימינך וענני": {
+          "אלבם": 3903,
+          "אתבש": 1291,
+          "גדול": 3118,
+          "קדמי": 3694,
+          "רגיל": 858,
+          "הכפלה": 42170,
+          "מילוי": 3508,
+          "מסתתר": 694,
+          "ריבוע": 2335,
+          "מהמאגר": false,
+          "סידורי": 336,
+          "קדמי_גדול": 13734,
+          "הכפלה_גדול": 1516370,
+          "ריבוע_גדול": 4595,
+          "אותיות_אחרי": 1097,
+          "אותיות_לפני": 691,
+          "מילוי_דמילוי": 12050
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "claim_uid": "סכוםהמספרים984+85+85↔הערךהגימטרישלהפסוק(שניהם1154)",
+      "source_id": "55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "targets": [
+        {
+          "id": "503194a4-3279-4e34-a861-c74cf9476183",
+          "label": "1154"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "06014d32-0aac-4844-b4e6-4d62c15f8a0d",
+      "admitted": true,
+      "statement": "ערך גימטרי של הפסוק «גדולים מעשי י-הוה, דרושים לכל חפציהם» (תהילים קיא ב) = 1406",
+      "kind": "fact",
+      "terms": [
+        "גדולים מעשי י-הוה",
+        "דרושים לכל חפציהם",
+        "תהילים קיא ב"
+      ],
+      "value": 1406,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "תהילים קיא ב": {
+          "אלבם": 1071,
+          "אתבש": 945,
+          "גדול": 1168,
+          "קדמי": 2524,
+          "רגיל": 608,
+          "הכפלה": 172830,
+          "מילוי": 1354,
+          "מסתתר": 569,
+          "ריבוע": 2938,
+          "מהמאגר": false,
+          "סידורי": 104,
+          "קדמי_גדול": 4974,
+          "הכפלה_גדול": 531230,
+          "ריבוע_גדול": 3498,
+          "אותיות_אחרי": 362,
+          "אותיות_לפני": 872,
+          "מילוי_דמילוי": 4072
+        },
+        "גדולים מעשי י-הוה": {
+          "אלבם": 1330,
+          "אתבש": 809,
+          "גדול": 1099,
+          "קדמי": 2068,
+          "רגיל": 539,
+          "הכפלה": 99447,
+          "מילוי": 1375,
+          "מסתתר": 634,
+          "ריבוע": 1264,
+          "מהמאגר": false,
+          "סידורי": 134,
+          "קדמי_גדול": 4518,
+          "הכפלה_גדול": 457847,
+          "ריבוע_גדול": 1824,
+          "אותיות_אחרי": 715,
+          "אותיות_לפני": 390,
+          "מילוי_דמילוי": 4457
+        },
+        "דרושים לכל חפציהם": {
+          "אלבם": 1348,
+          "אתבש": 516,
+          "גדול": 1993,
+          "קדמי": 3557,
+          "רגיל": 873,
+          "הכפלה": 150241,
+          "מילוי": 2392,
+          "מסתתר": 1226,
+          "ריבוע": 3056,
+          "מהמאגר": false,
+          "סידורי": 180,
+          "קדמי_גדול": 8457,
+          "הכפלה_גדול": 867041,
+          "ריבוע_גדול": 4176,
+          "אותיות_אחרי": 1167,
+          "אותיות_לפני": 597,
+          "מילוי_דמילוי": 6632
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:2d218895-96ea-4dc2-aac6-907dc00c4bf7",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:2d218895-96ea-4dc2-aac6-907dc00c4bf7",
+      "claim_uid": "ערךגימטרישלהפסוק«גדוליםמעשיי-הוה,דרושיםלכלחפציהם»(תהיליםקיאב)=1406",
+      "source_id": "2d218895-96ea-4dc2-aac6-907dc00c4bf7",
+      "targets": [
+        {
+          "id": "ec5424a3-2fed-42d3-9d1d-e66a5f3915a2",
+          "label": "1406"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0602862a-ba85-4efb-96ad-3e18f543a835",
+      "admitted": true,
+      "statement": "'אדם+דוד+משיח' בגימטריא = 417",
+      "kind": "fact",
+      "terms": [
+        "אדם",
+        "דוד",
+        "משיח"
+      ],
+      "value": 417,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "אדם": {
+          "אלבם": 92,
+          "אתבש": 510,
+          "גדול": 605,
+          "קדמי": 156,
+          "רגיל": 45,
+          "הכפלה": 1617,
+          "מילוי": 625,
+          "מסתתר": 39,
+          "ריבוע": 51,
+          "מהמאגר": true,
+          "סידורי": 18,
+          "כל_הערכים": [
+            18,
+            39,
+            45,
+            51,
+            92,
+            156,
+            510,
+            605,
+            611,
+            625,
+            1350,
+            1617,
+            2606,
+            360017
+          ],
+          "קדמי_גדול": 2606,
+          "הכפלה_גדול": 360017,
+          "ריבוע_גדול": 611,
+          "אותיות_אחרי": 57,
+          "אותיות_לפני": 433,
+          "מילוי_דמילוי": 1350
+        },
+        "דוד": {
+          "אלבם": 200,
+          "אתבש": 280,
+          "גדול": 14,
+          "קדמי": 41,
+          "רגיל": 14,
+          "הכפלה": 68,
+          "מילוי": 890,
+          "מסתתר": 4,
+          "ריבוע": 28,
+          "מהמאגר": true,
+          "סידורי": 14,
+          "כל_הערכים": [
+            4,
+            14,
+            28,
+            41,
+            68,
+            200,
+            280,
+            890,
+            1912
+          ],
+          "קדמי_גדול": 41,
+          "הכפלה_גדול": 68,
+          "ריבוע_גדול": 28,
+          "אותיות_אחרי": 17,
+          "אותיות_לפני": 11,
+          "מילוי_דמילוי": 1912
+        },
+        "משיח": {
+          "אלבם": 412,
+          "אתבש": 112,
+          "גדול": 358,
+          "קדמי": 1331,
+          "רגיל": 358,
+          "הכפלה": 91764,
+          "מילוי": 878,
+          "מסתתר": 552,
+          "ריבוע": 1088,
+          "מהמאגר": true,
+          "סידורי": 52,
+          "כל_הערכים": [
+            52,
+            112,
+            358,
+            412,
+            552,
+            878,
+            1088,
+            1331,
+            1976,
+            91764
+          ],
+          "קדמי_גדול": 1331,
+          "הכפלה_גדול": 91764,
+          "ריבוע_גדול": 1088,
+          "אותיות_אחרי": 479,
+          "אותיות_לפני": 246,
+          "מילוי_דמילוי": 1976
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:af69ea51-1558-4fbe-89cd-7156e6382faa",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:af69ea51-1558-4fbe-89cd-7156e6382faa",
+      "claim_uid": "אדם+דוד+משיחבגימטריא=417",
+      "source_id": "af69ea51-1558-4fbe-89cd-7156e6382faa",
+      "targets": [
+        {
+          "id": "07a4c426-34cd-4b4b-ad4d-1c1e5013887e",
+          "label": "417"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "069beac4-083a-4155-8c42-fd8da6398d87",
+      "admitted": true,
+      "statement": "הפסוק «ויען איוב ויאמר» חוזר 9 פעמים בספר איוב",
+      "kind": "fact",
+      "terms": [
+        "ויען איוב ויאמר",
+        "איוב"
+      ],
+      "value": 9,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "איוב": {
+          "אלבם": 450,
+          "אתבש": 820,
+          "גדול": 19,
+          "קדמי": 80,
+          "רגיל": 19,
+          "הכפלה": 141,
+          "מילוי": 565,
+          "מסתתר": 17,
+          "ריבוע": 48,
+          "מהמאגר": true,
+          "סידורי": 19,
+          "כל_הערכים": [
+            17,
+            19,
+            48,
+            80,
+            141,
+            450,
+            565,
+            820,
+            1654
+          ],
+          "קדמי_גדול": 80,
+          "הכפלה_גדול": 141,
+          "ריבוע_גדול": 48,
+          "אותיות_אחרי": 32,
+          "אותיות_לפני": 415,
+          "מילוי_דמילוי": 1654
+        },
+        "ויען איוב ויאמר": {
+          "אלבם": 1259,
+          "אתבש": 1489,
+          "גדול": 1062,
+          "קדמי": 1693,
+          "רגיל": 412,
+          "הכפלה": 49414,
+          "מילוי": 1586,
+          "מסתתר": 313,
+          "ריבוע": 645,
+          "מהמאגר": false,
+          "סידורי": 115,
+          "קדמי_גדול": 4793,
+          "הכפלה_גדול": 536914,
+          "ריבוע_גדול": 1295,
+          "אותיות_אחרי": 578,
+          "אותיות_לפני": 1073,
+          "מילוי_דמילוי": 4540
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:ce055d83-17ca-48b6-9f63-f54cedd05e59",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:ce055d83-17ca-48b6-9f63-f54cedd05e59",
+      "claim_uid": "הפסוק«ויעןאיובויאמר»חוזר9פעמיםבספראיוב",
+      "source_id": "ce055d83-17ca-48b6-9f63-f54cedd05e59",
+      "targets": [
+        {
+          "id": "8d39df6f-444b-448f-bf76-3140b7870e09",
+          "label": "9"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "06abe4fb-9be6-4d32-b3b7-da32ced8b614",
+      "admitted": true,
+      "statement": "שם י-ה-ו-ה מופיע 1820 פעמים בכל התורה",
+      "kind": "fact",
+      "terms": [
+        "י-ה-ו-ה",
+        "התורה"
+      ],
+      "value": 1820,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "התורה": {
+          "אלבם": 249,
+          "אתבש": 264,
+          "גדול": 616,
+          "קדמי": 2341,
+          "רגיל": 616,
+          "הכפלה": 200086,
+          "מילוי": 978,
+          "מסתתר": 1178,
+          "ריבוע": 2048,
+          "מהמאגר": false,
+          "סידורי": 58,
+          "קדמי_גדול": 2341,
+          "הכפלה_גדול": 200086,
+          "ריבוע_גדול": 2048,
+          "אותיות_אחרי": 320,
+          "אותיות_לפני": 413,
+          "מילוי_דמילוי": 1482
+        },
+        "י-ה-ו-ה": {
+          "אלבם": 520,
+          "אתבש": 300,
+          "גדול": 26,
+          "קדמי": 106,
+          "רגיל": 26,
+          "הכפלה": 186,
+          "מילוי": 72,
+          "מסתתר": 7,
+          "ריבוע": 72,
+          "מהמאגר": false,
+          "סידורי": 26,
+          "קדמי_גדול": 106,
+          "הכפלה_גדול": 186,
+          "ריבוע_גדול": 72,
+          "אותיות_אחרי": 39,
+          "אותיות_לפני": 22,
+          "מילוי_דמילוי": 610
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:8352ac10-83cd-4864-b620-b538c2b55dda",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:8352ac10-83cd-4864-b620-b538c2b55dda",
+      "claim_uid": "שםי-ה-ו-המופיע1820פעמיםבכלהתורה",
+      "source_id": "8352ac10-83cd-4864-b620-b538c2b55dda",
+      "targets": [
+        {
+          "id": "9cd22c3e-be5c-4283-ba6d-f974530d4dbc",
+          "label": "1820"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "08f0f4b9-23c4-4966-8dda-3828590f6bd7",
+      "admitted": true,
+      "statement": "הערך 3060 מתפרש כמכפלה של 30 במילה 'אמונה'",
+      "kind": "observation",
+      "terms": [
+        "אמונה",
+        "3060"
+      ],
+      "value": 3060,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "claim_uid": "הערך3060מתפרשכמכפלהשל30במילהאמונה",
+      "source_id": "1f218e4a-3572-4425-af31-4637544930c5",
+      "targets": [
+        {
+          "id": "211ddddb-799b-4881-b8bb-115fc98eb8af",
+          "label": "3060"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "091fa98a-f72a-468f-993c-836154b73f43",
+      "admitted": true,
+      "statement": "שם \"כרמים\" (פעמיים) בגימטריה = 620",
+      "kind": "fact",
+      "terms": [
+        "כרמים"
+      ],
+      "value": 620,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "כרמים": {
+          "אלבם": 713,
+          "אתבש": 93,
+          "גדול": 870,
+          "קדמי": 1215,
+          "רגיל": 310,
+          "הכפלה": 43700,
+          "מילוי": 790,
+          "מסתתר": 400,
+          "ריבוע": 1080,
+          "מהמאגר": true,
+          "סידורי": 67,
+          "כל_הערכים": [
+            67,
+            93,
+            310,
+            400,
+            713,
+            790,
+            870,
+            1080,
+            1215,
+            1640,
+            1867,
+            3665,
+            43700,
+            402100
+          ],
+          "קדמי_גדול": 3665,
+          "הכפלה_גדול": 402100,
+          "ריבוע_גדול": 1640,
+          "אותיות_אחרי": 450,
+          "אותיות_לפני": 179,
+          "מילוי_דמילוי": 1867
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:194fba10-14cd-4816-b3e9-3ebda0e8b644",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:194fba10-14cd-4816-b3e9-3ebda0e8b644",
+      "claim_uid": "שםכרמים(פעמיים)בגימטריה=620",
+      "source_id": "194fba10-14cd-4816-b3e9-3ebda0e8b644",
+      "targets": [
+        {
+          "id": "acf58e09-87a5-47f7-896e-f24e66f0c9c7",
+          "label": "620"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "09235881-0a1c-437a-9e37-1d76ddd5b46f",
+      "admitted": true,
+      "statement": "המספר 6 מתפרש ככיוונים רוחניים של יושר במשפט",
+      "kind": "observation",
+      "terms": [
+        "6",
+        "כיוונים רוחניים",
+        "יושר"
+      ],
+      "value": 6,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:33fe2919-1005-4d43-808c-06c4aa775c1f",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:33fe2919-1005-4d43-808c-06c4aa775c1f",
+      "claim_uid": "המספר6מתפרשככיווניםרוחנייםשליושרבמשפט",
+      "source_id": "33fe2919-1005-4d43-808c-06c4aa775c1f",
+      "targets": [
+        {
+          "id": "37d1c890-39f7-4419-bb17-b61581c61309",
+          "label": "6"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC1A0C392AE3B2C07F8E71A16F83DB9A.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "09dbf0f1-b447-401e-9282-ad26b3ab7e4a",
+      "admitted": true,
+      "statement": "6 אלפין במילוי = 666",
+      "kind": "fact",
+      "terms": [
+        "6 אלפין",
+        "666"
+      ],
+      "value": 666,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "6 אלפין": {
+          "אלבם": 340,
+          "אתבש": 475,
+          "גדול": 821,
+          "קדמי": 761,
+          "רגיל": 171,
+          "הכפלה": 9901,
+          "מילוי": 392,
+          "מסתתר": 189,
+          "ריבוע": 435,
+          "מהמאגר": false,
+          "סידורי": 54,
+          "קדמי_גדול": 3861,
+          "הכפלה_גדול": 497401,
+          "ריבוע_גדול": 1085,
+          "אותיות_אחרי": 212,
+          "אותיות_לפני": 539,
+          "מילוי_דמילוי": 1756
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:7b79d76e-edea-419c-a354-1e345eb7822b",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:7b79d76e-edea-419c-a354-1e345eb7822b",
+      "claim_uid": "6אלפיןבמילוי=666",
+      "source_id": "7b79d76e-edea-419c-a354-1e345eb7822b",
+      "targets": [
+        {
+          "id": "79d7029d-8c3c-4c1a-802e-b2a4fdf95e70",
+          "label": "666"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0a202f1c-3da3-4d43-8a81-f651128fcf55",
+      "admitted": true,
+      "statement": "בכל התנ\"ך מופיע הצירוף «למען ידעו» עוד 4 פעמים נוספות",
+      "kind": "fact",
+      "terms": [
+        "למען ידעו"
+      ],
+      "value": 4,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "למען ידעו": {
+          "אלבם": 456,
+          "אתבש": 273,
+          "גדול": 930,
+          "קדמי": 1181,
+          "רגיל": 280,
+          "הכפלה": 14952,
+          "מילוי": 996,
+          "מסתתר": 196,
+          "ריבוע": 628,
+          "מהמאגר": false,
+          "סידורי": 91,
+          "קדמי_גדול": 4281,
+          "הכפלה_גדול": 502452,
+          "ריבוע_גדול": 1278,
+          "אותיות_אחרי": 342,
+          "אותיות_לפני": 227,
+          "מילוי_דמילוי": 2958
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:d48d00ec-ef0e-4422-bf3b-ccab718a3fe8",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:d48d00ec-ef0e-4422-bf3b-ccab718a3fe8",
+      "claim_uid": "בכלהתנךמופיעהצירוף«למעןידעו»עוד4פעמיםנוספות",
+      "source_id": "d48d00ec-ef0e-4422-bf3b-ccab718a3fe8",
+      "targets": [
+        {
+          "id": "be4e7160-6522-4b65-9697-cca3af938144",
+          "label": "4"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0acf4a26-85a7-46b9-9311-1a156f6a73a6",
+      "admitted": true,
+      "statement": "6 ×טוב(17) =102",
+      "kind": "observation",
+      "terms": [
+        "6 ×טוב(17) =102"
+      ],
+      "value": 102,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": true,
+      "engine_detail": {
+        "source": "zvi_full_corpus_pass",
+        "compound": {
+          "raw": "6 ×טוב(17) =102",
+          "kind": "quantity-product",
+          "text": "6 ×טוב(17) =102",
+          "result": 102,
+          "status": "ENGINE_VERIFIED_COMPOSITE",
+          "operand": {
+            "ok": true,
+            "value": 17,
+            "method": "רגיל",
+            "phrase": "טוב",
+            "status": "verified"
+          },
+          "quantity": 6,
+          "computedTotal": 102
+        },
+        "occurrences": [
+          "channel_updates:de4ce23d-f64e-4662-b2de-2d9c70fd077e"
+        ]
+      },
+      "source": "zvi_full_corpus_pass",
+      "source_ref": "channel_updates:de4ce23d-f64e-4662-b2de-2d9c70fd077e#batch1",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:de4ce23d-f64e-4662-b2de-2d9c70fd077e",
+      "claim_uid": "6×טוב(17)=102",
+      "source_id": "de4ce23d-f64e-4662-b2de-2d9c70fd077e",
+      "targets": [
+        {
+          "id": "ee87dd51-c017-4a62-9562-69957b9430af",
+          "label": "102"
+        }
+      ],
+      "media": {
+        "ocr_used": null,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": null,
+        "transcription_pending": null
+      }
+    },
+    {
+      "id": "0aef92d4-038f-4af2-8483-44d019e3f095",
+      "admitted": true,
+      "statement": "המבנה הכולל ↔ כפולה של אמונה (אותו ערך 3060)",
+      "kind": "relation",
+      "terms": [
+        "המבנה הכולל",
+        "אמונה"
+      ],
+      "value": 3060,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "אמונה": {
+          "אלבם": 185,
+          "אתבש": 589,
+          "גדול": 102,
+          "קדמי": 377,
+          "רגיל": 102,
+          "הכפלה": 4162,
+          "מילוי": 334,
+          "מסתתר": 162,
+          "ריבוע": 288,
+          "מהמאגר": true,
+          "סידורי": 39,
+          "כל_הערכים": [
+            39,
+            102,
+            162,
+            185,
+            288,
+            334,
+            377,
+            589,
+            759,
+            4162
+          ],
+          "קדמי_גדול": 377,
+          "הכפלה_גדול": 4162,
+          "ריבוע_גדול": 288,
+          "אותיות_אחרי": 125,
+          "אותיות_לפני": 479,
+          "מילוי_דמילוי": 759
+        },
+        "המבנה הכולל": {
+          "אלבם": 737,
+          "אתבש": 739,
+          "גדול": 193,
+          "קדמי": 694,
+          "רגיל": 193,
+          "הכפלה": 6415,
+          "מילוי": 913,
+          "מסתתר": 219,
+          "ריבוע": 509,
+          "מהמאגר": false,
+          "סידורי": 85,
+          "קדמי_גדול": 694,
+          "הכפלה_גדול": 6415,
+          "ריבוע_גדול": 509,
+          "אותיות_אחרי": 248,
+          "אותיות_לפני": 138,
+          "מילוי_דמילוי": 2768
+        },
+        "30 פעמים אמונה": {
+          "אלבם": 500,
+          "אתבש": 662,
+          "גדול": 902,
+          "קדמי": 1452,
+          "רגיל": 342,
+          "הכפלה": 18762,
+          "מילוי": 725,
+          "מסתתר": 262,
+          "ריבוע": 1148,
+          "מהמאגר": false,
+          "סידורי": 108,
+          "קדמי_גדול": 3902,
+          "הכפלה_גדול": 377162,
+          "ריבוע_גדול": 1708,
+          "אותיות_אחרי": 415,
+          "אותיות_לפני": 678,
+          "מילוי_דמילוי": 2003
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:1f218e4a-3572-4425-af31-4637544930c5",
+      "claim_uid": "המבנההכולל↔כפולהשלאמונה(אותוערך3060)",
+      "source_id": "1f218e4a-3572-4425-af31-4637544930c5",
+      "targets": [
+        {
+          "id": "211ddddb-799b-4881-b8bb-115fc98eb8af",
+          "label": "3060"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0aff4596-59e0-4d01-920d-ee0871eaf8e4",
+      "admitted": true,
+      "statement": "'אלף' × 8 = 888 בגימטריא",
+      "kind": "fact",
+      "terms": [
+        "אלף"
+      ],
+      "value": 888,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "אלף": {
+          "אלבם": 37,
+          "אתבש": 426,
+          "גדול": 831,
+          "קדמי": 511,
+          "רגיל": 111,
+          "הכפלה": 7301,
+          "מילוי": 266,
+          "מסתתר": 79,
+          "ריבוע": 143,
+          "מהמאגר": true,
+          "סידורי": 30,
+          "כל_הערכים": [
+            30,
+            37,
+            79,
+            111,
+            143,
+            266,
+            426,
+            511,
+            831,
+            863,
+            1046,
+            4201,
+            7301,
+            640901
+          ],
+          "קדמי_גדול": 4201,
+          "הכפלה_גדול": 640901,
+          "ריבוע_גדול": 863,
+          "אותיות_אחרי": 132,
+          "אותיות_לפני": 490,
+          "מילוי_דמילוי": 1046
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:75116953-d22b-4ba2-8aa8-5c5633b49a21",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:75116953-d22b-4ba2-8aa8-5c5633b49a21",
+      "claim_uid": "אלף×8=888בגימטריא",
+      "source_id": "75116953-d22b-4ba2-8aa8-5c5633b49a21",
+      "targets": [
+        {
+          "id": "b44b3787-6a16-49ea-82bd-a99e7f41e262",
+          "label": "888"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0b2892d2-a429-4518-892e-a264022725d7",
+      "admitted": true,
+      "statement": "הביטוי «בע\"ה» שווה בגימטריה 146",
+      "kind": "fact",
+      "terms": [
+        "בע\"ה"
+      ],
+      "value": 146,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "בע\"ה": {
+          "אלבם": 115,
+          "אתבש": 397,
+          "גדול": 77,
+          "קדמי": 343,
+          "רגיל": 77,
+          "הכפלה": 4929,
+          "מילוי": 557,
+          "מסתתר": 133,
+          "ריבוע": 151,
+          "מהמאגר": false,
+          "סידורי": 23,
+          "קדמי_גדול": 343,
+          "הכפלה_גדול": 4929,
+          "ריבוע_גדול": 151,
+          "אותיות_אחרי": 89,
+          "אותיות_לפני": 65,
+          "מילוי_דמילוי": 1139
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:ec57cdd0-07b5-4192-b0e3-1bd83df2f530",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:ec57cdd0-07b5-4192-b0e3-1bd83df2f530",
+      "claim_uid": "הביטוי«בעה»שווהבגימטריה146",
+      "source_id": "ec57cdd0-07b5-4192-b0e3-1bd83df2f530",
+      "targets": [
+        {
+          "id": "f11709a1-3565-46d9-9417-7cfc86eeadc2",
+          "label": "146"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "storage-object:78e4d9aa-38a5-4f6d-a511-2988bd97a64c",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0b301543-2bfe-4e35-b353-f5c1192973be",
+      "admitted": true,
+      "statement": "החישוב מבוסס על מכפלת כל אות בשם הוי\"ה בסכום שאר האותיות: 160+105+120+105=490",
+      "kind": "fact",
+      "terms": [
+        "י-ה-ו-ה"
+      ],
+      "value": 490,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "י-ה-ו-ה": {
+          "אלבם": 520,
+          "אתבש": 300,
+          "גדול": 26,
+          "קדמי": 106,
+          "רגיל": 26,
+          "הכפלה": 186,
+          "מילוי": 72,
+          "מסתתר": 7,
+          "ריבוע": 72,
+          "מהמאגר": false,
+          "סידורי": 26,
+          "קדמי_גדול": 106,
+          "הכפלה_גדול": 186,
+          "ריבוע_גדול": 72,
+          "אותיות_אחרי": 39,
+          "אותיות_לפני": 22,
+          "מילוי_דמילוי": 610
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:1d0f8037-c1a6-4dd0-b75f-d42ae1ebb984",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:1d0f8037-c1a6-4dd0-b75f-d42ae1ebb984",
+      "claim_uid": "החישובמבוססעלמכפלתכלאותבשםהויהבסכוםשארהאותיות:160+105+120+105=490",
+      "source_id": "1d0f8037-c1a6-4dd0-b75f-d42ae1ebb984",
+      "targets": [
+        {
+          "id": "30e76d57-4299-47fc-9f8b-0b9212004da4",
+          "label": "490"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0b5e8fa3-6180-4f7d-bbeb-eafc054061e6",
+      "admitted": true,
+      "statement": "נטען כי «ברית טוב»×36 גימטריא = 3060",
+      "kind": "fact",
+      "terms": [
+        "ברית טוב"
+      ],
+      "value": 3060,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "ברית טוב": {
+          "אלבם": 689,
+          "אתבש": 774,
+          "גדול": 629,
+          "קדמי": 2417,
+          "רגיל": 629,
+          "הכפלה": 200225,
+          "מילוי": 2211,
+          "מסתתר": 785,
+          "ריבוע": 1069,
+          "מהמאגר": false,
+          "סידורי": 71,
+          "קדמי_גדול": 2417,
+          "הכפלה_גדול": 200225,
+          "ריבוע_גדול": 1069,
+          "אותיות_אחרי": 344,
+          "אותיות_לפני": 424,
+          "מילוי_דמילוי": 4439
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:305b8335-72bf-43e5-9edd-0d1b4340f97f",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:305b8335-72bf-43e5-9edd-0d1b4340f97f",
+      "claim_uid": "נטעןכי«בריתטוב»×36גימטריא=3060",
+      "source_id": "305b8335-72bf-43e5-9edd-0d1b4340f97f",
+      "targets": [
+        {
+          "id": "211ddddb-799b-4881-b8bb-115fc98eb8af",
+          "label": "3060"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACA7523DCE7E63590200605D7E6B1CFC.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0bc3869b-631e-4219-8026-0a91a34e0583",
+      "admitted": true,
+      "statement": "הופעה חוזרת של הערך 1254 בשני ביטויים שונים הקשורים לעץ הדעת ולמטעמים",
+      "kind": "observation",
+      "terms": [
+        "עץ הדעת",
+        "מטעמים"
+      ],
+      "value": 1254,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:b104914a-dd48-4b49-9f74-2e9c3c80e718",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:b104914a-dd48-4b49-9f74-2e9c3c80e718",
+      "claim_uid": "הופעהחוזרתשלהערך1254בשניביטוייםשוניםהקשוריםלעץהדעתולמטעמים",
+      "source_id": "b104914a-dd48-4b49-9f74-2e9c3c80e718",
+      "targets": [
+        {
+          "id": "416d148f-1903-4c5a-b304-94b01741dcae",
+          "label": "1254"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC9508E173F97F831FB128CC6E4D6054.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0bea475a-a124-4391-b909-1b536693cb3a",
+      "admitted": true,
+      "statement": "ייתכן שהערך המשותף 417 בכל הביטויים מרמז על קשר מהותי בין שלבי ביאת מלך המשיח, הארת הפנים וגאולת העם",
+      "kind": "hypothesis",
+      "terms": [
+        "417",
+        "משיח",
+        "גאולה"
+      ],
+      "value": 417,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:90800d94-abb4-4194-8360-87e4cd683e46",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:90800d94-abb4-4194-8360-87e4cd683e46",
+      "claim_uid": "ייתכןשהערךהמשותף417בכלהביטוייםמרמזעלקשרמהותיביןשלביביאתמלךהמשיח,הארתהפניםוגאולתהעם",
+      "source_id": "90800d94-abb4-4194-8360-87e4cd683e46",
+      "targets": [
+        {
+          "id": "07a4c426-34cd-4b4b-ad4d-1c1e5013887e",
+          "label": "417"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0c1d388d-5458-441a-8115-dafd430d8277",
+      "admitted": true,
+      "statement": "כיבוש ארץ ישראל בידי יהושע כלל כיבוש של 31 מלכים",
+      "kind": "fact",
+      "terms": [
+        "יהושע",
+        "כיבוש",
+        "31 מלכים"
+      ],
+      "value": 31,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "יהושע": {
+          "אלבם": 465,
+          "אתבש": 219,
+          "גדול": 391,
+          "קדמי": 1511,
+          "רגיל": 391,
+          "הכפלה": 95061,
+          "מילוי": 547,
+          "מסתתר": 530,
+          "ריבוע": 758,
+          "מהמאגר": true,
+          "סידורי": 58,
+          "כל_הערכים": [
+            58,
+            219,
+            391,
+            465,
+            530,
+            547,
+            758,
+            1317,
+            1511,
+            95061
+          ],
+          "קדמי_גדול": 1511,
+          "הכפלה_גדול": 95061,
+          "ריבוע_גדול": 758,
+          "אותיות_אחרי": 513,
+          "אותיות_לפני": 278,
+          "מילוי_דמילוי": 1317
+        },
+        "כיבוש": {
+          "אלבם": 830,
+          "אתבש": 452,
+          "גדול": 338,
+          "קדמי": 1249,
+          "רגיל": 338,
+          "הכפלה": 90540,
+          "מילוי": 914,
+          "מסתתר": 316,
+          "ריבוע": 458,
+          "מהמאגר": false,
+          "סידורי": 50,
+          "קדמי_גדול": 1249,
+          "הכפלה_גדול": 90540,
+          "ריבוע_גדול": 458,
+          "אותיות_אחרי": 460,
+          "אותיות_לפני": 225,
+          "מילוי_דמילוי": 2055
+        },
+        "31 מלכים": {
+          "אלבם": 705,
+          "אתבש": 110,
+          "גדול": 700,
+          "קדמי": 525,
+          "רגיל": 140,
+          "הכפלה": 4600,
+          "מילוי": 354,
+          "מסתתר": 60,
+          "ריבוע": 440,
+          "מהמאגר": false,
+          "סידורי": 59,
+          "קדמי_גדול": 2975,
+          "הכפלה_גדול": 363000,
+          "ריבוע_גדול": 1000,
+          "אותיות_אחרי": 190,
+          "אותיות_לפני": 99,
+          "מילוי_דמילוי": 1565
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:8affac67-08ab-45c7-858d-def4ea34f57a",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:8affac67-08ab-45c7-858d-def4ea34f57a",
+      "claim_uid": "כיבושארץישראלבידייהושעכללכיבוששל31מלכים",
+      "source_id": "8affac67-08ab-45c7-858d-def4ea34f57a",
+      "targets": [
+        {
+          "id": "73ec943e-3c59-437f-9b97-2bafb39572f1",
+          "label": "31"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0c8e771e-5809-460d-923c-6d6ccab04d2f",
+      "admitted": true,
+      "statement": "משפחת 417 במקור היא מעורבת. מאומתים: זית=417; אדם(45)+דוד(14)+משיח(358)=417; הבן יקיר לי=417; ונשמחה בו=417; לך עמי בא בחדריך=417; פני הכרבים=417; הדר(209)+יצחק(208)=417; 16×יהוה(26)+כולל=417. שתי שורות אינן נכונות ברגיל: האר פניך ונושעה=803 (לא 417), ולא בחיל ולא בכח כי אם ברוחי=445 (לא 417).",
+      "kind": "relation",
+      "terms": [
+        "זית",
+        "אדם",
+        "דוד",
+        "משיח",
+        "הבן יקיר לי",
+        "ונשמחה בו",
+        "לך עמי בא בחדריך",
+        "פני הכרבים",
+        "הדר",
+        "יצחק",
+        "האר פניך ונושעה",
+        "לא בחיל ולא בכח כי אם ברוחי"
+      ],
+      "value": 417,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "matched": {
+          "זית": 417,
+          "16x26+1": 417,
+          "הדר+יצחק": 417,
+          "ונשמחה בו": 417,
+          "פני הכרבים": 417,
+          "הבן יקיר לי": 417,
+          "אדם+דוד+משיח": 417,
+          "לך עמי בא בחדריך": 417
+        },
+        "mismatches": {
+          "האר פניך ונושעה": 803,
+          "לא בחיל ולא בכח כי אם ברוחי": 445
+        },
+        "verified_via": "gematria_api+arithmetic",
+        "verification_state": "partial_match_with_mismatches"
+      },
+      "source": "research_triage",
+      "source_ref": "channel_updates:90800d94-abb4-4194-8360-87e4cd683e46#batch002:417-family",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:90800d94-abb4-4194-8360-87e4cd683e46#batch002:417-family",
+      "claim_uid": "משפחת417במקורהיאמעורבת.מאומתים:זית=417;אדם(45)+דוד(14)+משיח(358)=417;הבןיקירלי=417;ונשמחהבו=417;לךעמיבאבחדריך=417;פניהכרבים=417;הדר(209)+יצחק(208)=417;16×יהוה(26)+כולל=417.שתישורותאינןנכונותברגיל:הארפניךונושעה=803(לא417),ולאבחילולאבכחכיאםברוחי=445(לא417).",
+      "source_id": "90800d94-abb4-4194-8360-87e4cd683e46",
+      "targets": [
+        {
+          "id": "07a4c426-34cd-4b4b-ad4d-1c1e5013887e",
+          "label": "417"
+        }
+      ],
+      "media": {
+        "ocr_used": null,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": null,
+        "transcription_pending": null
+      }
+    },
+    {
+      "id": "0ca90e84-02f1-403f-bd13-df7c3c5403d3",
+      "admitted": true,
+      "statement": "סכום הגימטריות של «כתר», «חכמה» ו«בינה» = 760",
+      "kind": "fact",
+      "terms": [
+        "כתר",
+        "חכמה",
+        "בינה"
+      ],
+      "value": 760,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "כתר": {
+          "אלבם": 429,
+          "אתבש": 34,
+          "גדול": 620,
+          "קדמי": 2365,
+          "רגיל": 620,
+          "הכפלה": 200400,
+          "מילוי": 1026,
+          "מסתתר": 580,
+          "ריבוע": 1060,
+          "מהמאגר": true,
+          "סידורי": 53,
+          "כל_הערכים": [
+            34,
+            53,
+            429,
+            580,
+            620,
+            1026,
+            1060,
+            1529,
+            2365,
+            200400
+          ],
+          "קדמי_גדול": 2365,
+          "הכפלה_גדול": 200400,
+          "ריבוע_גדול": 1060,
+          "אותיות_אחרי": 331,
+          "אותיות_לפני": 410,
+          "מילוי_דמילוי": 1529
+        },
+        "בינה": {
+          "אלבם": 413,
+          "אתבש": 439,
+          "גדול": 67,
+          "קדמי": 268,
+          "רגיל": 67,
+          "הכפלה": 2629,
+          "מילוי": 553,
+          "מסתתר": 93,
+          "ריבוע": 143,
+          "מהמאגר": true,
+          "סידורי": 31,
+          "כל_הערכים": [
+            31,
+            67,
+            93,
+            143,
+            268,
+            413,
+            439,
+            553,
+            1593,
+            2629
+          ],
+          "קדמי_גדול": 268,
+          "הכפלה_גדול": 2629,
+          "ריבוע_גדול": 143,
+          "אותיות_אחרי": 89,
+          "אותיות_לפני": 54,
+          "מילוי_דמילוי": 1593
+        },
+        "חכמה": {
+          "אלבם": 572,
+          "אתבש": 190,
+          "גדול": 73,
+          "קדמי": 271,
+          "רגיל": 73,
+          "הכפלה": 2089,
+          "מילוי": 613,
+          "מסתתר": 67,
+          "ריבוע": 177,
+          "מהמאגר": true,
+          "סידורי": 37,
+          "כל_הערכים": [
+            37,
+            67,
+            73,
+            177,
+            190,
+            271,
+            572,
+            613,
+            1230,
+            2089
+          ],
+          "קדמי_גדול": 271,
+          "הכפלה_גדול": 2089,
+          "ריבוע_גדול": 177,
+          "אותיות_אחרי": 95,
+          "אותיות_לפני": 51,
+          "מילוי_דמילוי": 1230
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:4cfbc8c9-4afc-499d-b7c7-7937d223fea3",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:4cfbc8c9-4afc-499d-b7c7-7937d223fea3",
+      "claim_uid": "סכוםהגימטריותשל«כתר»,«חכמה»ו«בינה»=760",
+      "source_id": "4cfbc8c9-4afc-499d-b7c7-7937d223fea3",
+      "targets": [
+        {
+          "id": "0c1ec9c3-571c-467e-967d-d92f5a70747b",
+          "label": "760"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0ce26819-5a92-4e4e-8c2d-d151a632eba7",
+      "admitted": true,
+      "statement": "צירוף מספר הטיסה (1073) עם האות א (=1) נותן 1074",
+      "kind": "fact",
+      "terms": [
+        "טיסה 1073",
+        "א",
+        "1074"
+      ],
+      "value": 1074,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "א": {
+          "אלבם": 30,
+          "אתבש": 400,
+          "גדול": 1,
+          "קדמי": 1,
+          "רגיל": 1,
+          "הכפלה": 1,
+          "מילוי": 111,
+          "מסתתר": 0,
+          "ריבוע": 1,
+          "מהמאגר": true,
+          "סידורי": 1,
+          "כל_הערכים": [
+            0,
+            1,
+            30,
+            111,
+            266,
+            400
+          ],
+          "קדמי_גדול": 1,
+          "הכפלה_גדול": 1,
+          "ריבוע_גדול": 1,
+          "אותיות_אחרי": 2,
+          "אותיות_לפני": 400,
+          "מילוי_דמילוי": 266
+        },
+        "טיסה 1073": {
+          "אלבם": 574,
+          "אתבש": 188,
+          "גדול": 84,
+          "קדמי": 370,
+          "רגיל": 84,
+          "הכפלה": 3806,
+          "מילוי": 574,
+          "מסתתר": 106,
+          "ריבוע": 191,
+          "מהמאגר": false,
+          "סידורי": 39,
+          "קדמי_גדול": 370,
+          "הכפלה_גדול": 3806,
+          "ריבוע_גדול": 191,
+          "אותיות_אחרי": 106,
+          "אותיות_לפני": 71,
+          "מילוי_דמילוי": 1666
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:bf2a3158-b8c6-4901-99e6-276b1d936f23",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:bf2a3158-b8c6-4901-99e6-276b1d936f23",
+      "claim_uid": "צירוףמספרהטיסה(1073)עםהאותא(=1)נותן1074",
+      "source_id": "bf2a3158-b8c6-4901-99e6-276b1d936f23",
+      "targets": [
+        {
+          "id": "8359f706-f31d-4f77-a224-3140d99ac5ad",
+          "label": "1074"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0d9498a6-9f44-4edf-bdbf-9d2e20906376",
+      "admitted": true,
+      "statement": "פסוק העוסק בהעלאת ארון הברית חולק ערך גימטרי זהה עם הביטוי המתאר טקס הכנסת ספר תורה",
+      "kind": "observation",
+      "terms": [
+        "ארון ברית",
+        "ספר תורה"
+      ],
+      "value": 1486,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:388e49e7-d2dd-4973-abbe-4a4704d73118",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:388e49e7-d2dd-4973-abbe-4a4704d73118",
+      "claim_uid": "פסוקהעוסקבהעלאתארוןהבריתחולקערךגימטריזההעםהביטויהמתארטקסהכנסתספרתורה",
+      "source_id": "388e49e7-d2dd-4973-abbe-4a4704d73118",
+      "targets": [
+        {
+          "id": "55be2699-22fe-487e-8e02-21474ce9815e",
+          "label": "1486"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC666A0B4C65E8BA1F4C2B8526B36829.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0da60079-8116-433a-b8f4-3e80de793e9e",
+      "admitted": true,
+      "statement": "סכימת טוב ארבע פעמים (טוב+טוב+טוב+טוב) שווה לערך חיים",
+      "kind": "observation",
+      "terms": [
+        "טוב",
+        "חיים"
+      ],
+      "value": 68,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:e40244a0-ed02-43d5-8a1a-a1acc839ed1f",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:e40244a0-ed02-43d5-8a1a-a1acc839ed1f",
+      "claim_uid": "סכימתטובארבעפעמים(טוב+טוב+טוב+טוב)שווהלערךחיים",
+      "source_id": "e40244a0-ed02-43d5-8a1a-a1acc839ed1f",
+      "targets": [
+        {
+          "id": "d3a5a1ee-0e62-4f1f-b507-f6ab517929dc",
+          "label": "68"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0dc4c513-e83e-4bc3-8eea-db6f78172a68",
+      "admitted": true,
+      "statement": "המילה \"השבעתי\" מופיעה 4 פעמים בשיר השירים",
+      "kind": "fact",
+      "terms": [
+        "השבעתי",
+        "שיר השירים"
+      ],
+      "value": 4,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "השבעתי": {
+          "אלבם": 445,
+          "אתבש": 440,
+          "גדול": 787,
+          "קדמי": 2988,
+          "רגיל": 787,
+          "הכפלה": 255029,
+          "מילוי": 1353,
+          "מסתתר": 1381,
+          "ריבוע": 2558,
+          "מהמאגר": false,
+          "סידורי": 76,
+          "קדמי_גדול": 2988,
+          "הכפלה_גדול": 255029,
+          "ריבוע_גדול": 2558,
+          "אותיות_אחרי": 510,
+          "אותיות_לפני": 574,
+          "מילוי_דמילוי": 2559
+        },
+        "שיר השירים": {
+          "אלבם": 1010,
+          "אתבש": 230,
+          "גדול": 1635,
+          "קדמי": 4105,
+          "רגיל": 1075,
+          "הכפלה": 261925,
+          "מילוי": 1895,
+          "מסתתר": 1475,
+          "ריבוע": 3350,
+          "מהמאגר": true,
+          "סידורי": 130,
+          "כל_הערכים": [
+            130,
+            230,
+            1010,
+            1075,
+            1475,
+            1635,
+            1895,
+            3350,
+            3910,
+            4105,
+            4375,
+            6555,
+            261925,
+            620325
+          ],
+          "קדמי_גדול": 6555,
+          "הכפלה_גדול": 620325,
+          "ריבוע_גדול": 3910,
+          "אותיות_אחרי": 1516,
+          "אותיות_לפני": 661,
+          "מילוי_דמילוי": 4375
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:b114e12d-79bb-42c6-b530-585eb575ed5d",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:b114e12d-79bb-42c6-b530-585eb575ed5d",
+      "claim_uid": "המילההשבעתימופיעה4פעמיםבשירהשירים",
+      "source_id": "b114e12d-79bb-42c6-b530-585eb575ed5d",
+      "targets": [
+        {
+          "id": "be4e7160-6522-4b65-9697-cca3af938144",
+          "label": "4"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0e0ca560-c876-48e4-884c-7c93f1d9754d",
+      "admitted": true,
+      "statement": "ייתכן שיש משמעות לכך ש«ישועת» שווה לשנה תשפ\"ו, בהקשר לביטוי «ישועת השם» שנאמר לפי המסורת לפני קריעת ים סוף",
+      "kind": "hypothesis",
+      "terms": [
+        "ישועת",
+        "תשפ\"ו",
+        "ישועת השם"
+      ],
+      "value": 786,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": null,
+      "engine_detail": null,
+      "source": "channel_updates",
+      "source_ref": "channel_updates:648c2b0b-087e-49dd-85b7-2773963b9f73",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:648c2b0b-087e-49dd-85b7-2773963b9f73",
+      "claim_uid": "ייתכןשישמשמעותלכךש«ישועת»שווהלשנהתשפו,בהקשרלביטוי«ישועתהשם»שנאמרלפיהמסורתלפניקריעתיםסוף",
+      "source_id": "648c2b0b-087e-49dd-85b7-2773963b9f73",
+      "targets": [
+        {
+          "id": "20addd29-41db-4cc2-9a70-5c41d65bfb65",
+          "label": "786"
+        }
+      ],
+      "media": {
+        "ocr_used": false,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0e479992-c6fd-4feb-b87d-78c8dad64ade",
+      "admitted": true,
+      "statement": "סכום הגימטריא של 4 הפסוקים במשולשים הפנימיים = 3060",
+      "kind": "fact",
+      "terms": [
+        "4 הפסוקים",
+        "משולשים פנימיים"
+      ],
+      "value": 3060,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": false,
+      "engine_detail": {
+        "4 הפסוקים": {
+          "אלבם": 470,
+          "אתבש": 238,
+          "גדול": 861,
+          "קדמי": 1491,
+          "רגיל": 301,
+          "הכפלה": 21761,
+          "מילוי": 524,
+          "מסתתר": 363,
+          "ריבוע": 1199,
+          "מהמאגר": false,
+          "סידורי": 85,
+          "קדמי_גדול": 3941,
+          "הכפלה_גדול": 380161,
+          "ריבוע_גדול": 1759,
+          "אותיות_אחרי": 443,
+          "אותיות_לפני": 258,
+          "מילוי_דמילוי": 1516
+        },
+        "משולשים פנימיים": {
+          "אלבם": 1318,
+          "אתבש": 319,
+          "גדול": 2086,
+          "קדמי": 3716,
+          "רגיל": 966,
+          "הכפלה": 196636,
+          "מילוי": 1403,
+          "מסתתר": 1328,
+          "ריבוע": 4350,
+          "מהמאגר": false,
+          "סידורי": 183,
+          "קדמי_גדול": 8616,
+          "הכפלה_גדול": 913436,
+          "ריבוע_גדול": 5470,
+          "אותיות_אחרי": 1277,
+          "אותיות_לפני": 691,
+          "מילוי_דמילוי": 4594
+        }
+      },
+      "source": "channel_updates",
+      "source_ref": "channel_updates:3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+      "claim_uid": "סכוםהגימטריאשל4הפסוקיםבמשולשיםהפנימיים=3060",
+      "source_id": "3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+      "targets": [
+        {
+          "id": "211ddddb-799b-4881-b8bb-115fc98eb8af",
+          "label": "3060"
+        }
+      ],
+      "media": {
+        "ocr_used": true,
+        "media_ref": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACE0C9614EC4DFC0DEFF6A8BBCB7210D.jpg",
+        "media_kind": "image",
+        "ocr_pending": false,
+        "transcription_pending": false
+      }
+    },
+    {
+      "id": "0ec54564-abf2-4a29-94c0-76d6f2de12d4",
+      "admitted": true,
+      "statement": "119 + 119 = 238 = 238",
+      "kind": "observation",
+      "terms": [
+        "119 + 119 = 238"
+      ],
+      "value": 238,
+      "status": "approved",
+      "privacy_scope": "public",
+      "engine_verified": true,
+      "engine_detail": {
+        "source": "zvi_full_corpus_pass",
+        "occurrences": [
+          "channel_updates:b4b40a70-d21c-4601-9d09-34191b601347"
+        ],
+        "verification": {
+          "ok": true,
+          "kind": "arithmetic",
+          "text": "119 + 119 = 238"
+        }
+      },
+      "source": "zvi_full_corpus_pass",
+      "source_ref": "channel_updates:b4b40a70-d21c-4601-9d09-34191b601347#batch0",
+      "promoted_node_id": null,
+      "revision": null,
+      "extraction_integrity": null,
+      "gematria": null,
+      "source_uid": "channel_updates:b4b40a70-d21c-4601-9d09-34191b601347",
+      "claim_uid": "119+119=238=238",
+      "source_id": "b4b40a70-d21c-4601-9d09-34191b601347",
+      "targets": [
+        {
+          "id": "8935de02-56d5-4f56-a0d7-bc6694b22582",
+          "label": "238"
+        }
+      ],
+      "media": {
+        "ocr_used": null,
+        "media_ref": null,
+        "media_kind": null,
+        "ocr_pending": null,
+        "transcription_pending": null
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "8352ac10-83cd-4864-b620-b538c2b55dda",
+      "text": "סוד × י-ה-ו-ה=1820 בגימטריא\n\"את הכבש אחד תעשה בבקר\"\nגימטריא של הפסוק:1820.\nעבודת הקורבנות היא סוד השם ליריאיו.והגימטריא של הפסוק הזה מלמדת על מספר ההופעות  של שם\nי-ה-ו-ה בכל התורה.1820 פעמים בדיוק.",
+      "md5": "7a2b721f3f31d580acf0a6caa6164d37",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "62c53da8-ba40-4b06-852d-0223c6e2065e",
+      "text": "אחישנה גימטריא: 374\nהמאמר הידוע של חז\"ל במסכת סנהדרין (דף צח עמוד א) עוסק בסתירה כביכול בין שני פסוקים המתארים את הגאולה, ומיישב אותה בחדות:\n\"כתיב: 'אֲנִי ה' בְּעִתָּהּ אֲחִישֶׁנָּה' (ישעיהו ס, כב). זָכוּ – 'אֲחִישֶׁנָּה', לֹא זָכוּ – 'בְּעִתָּהּ'.\"\nהמנגנון הכפול של הגאולה\nחכמים מלמדים כי קיימים שני מסלולים מרכזיים להגעת הגאולה:\nזכו – \"אחישנה\": אם עם ישראל זוכים (על ידי תשובה, מעשים טובים, ואחדות), הגאולה מגיעה בדרך מואצת, למעלה מגדר הטבע, מוקדם מזמנה הקצוב והמיועד.\nלא זכו – \"בעתה\": אם אין זכות מספקת, הגאולה אינה מתבטלת חלילה, אלא מגיעה בזמנה הקבוע מראש (\"בעתה\") – דרך תהליכים טבעיים, ולעיתים דרך קשיים ומצוקות המעוררים את ההתעוררות הנדרשת.\nשני דיוקנים של המשיח\nבהמשך הגמרא שם, מובאת סתירה נוספת המקבילה ליסוד זה לגבי אופן הופעת המשיח:\n\"כתיב: 'וַאֲרוּ עִם עֲנָנֵי שְׁמַיָּא כְּבַר אֱנָשׁ אָתֵה' (דניאל ז, יג), וּכְתִיב: 'עָנִי וְרֹכֵב עַל חֲמוֹר' (זכריה ט, ט)! זָכוּ – 'עִם עֲנָנֵי שְׁמַיָּא', לֹא זָכוּ – 'עָנִי וְרֹכֵב עַל חֲמוֹר'.\"\nמכאן שהבחירה והמעשים של הכלל והפרט הם המכרעת את איכות התהליך ואת המהירות שבה האור נחשף.\n🌹🌹🦌🦌🌹🌹🦌🦌🌹🌹🦌\n\"אחישנה\"=22 כפול טו\"ב(17)=374.\n\"יברכנו אלהים\" בגימטריא\"אחישנה\".\nמופיע 3 פעמים בתהילים -יברכנו.\n🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈\nגם בטחון בהשם מזרז את הגאולה.\nזה מופיע 3 פעמים במשלי:\n\"ובוטח בי-ה+ו-ה ישגב\" בגימטריא\n374 וגם \"אחישנה\"=374✓\n⁦(⁠◍⁠•⁠ᴗ⁠•⁠◍⁠)⁠❤⁩⁦(⁠◍⁠•⁠ᴗ⁠•⁠◍⁠)⁠❤⁩⁦(⁠◍⁠•⁠ᴗ⁠•⁠◍⁠)⁠❤⁩אחישנה בגאולה: זה חסד הקב\"ה עם עם ישראל שנאמר:\n'וחסדיך כי מעולם המה\"=\"אחישנה\"\nבגימטריא:374",
+      "md5": "beb893da3b3bb606324b3c7c9e4c04ee",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "1731dd38-ca29-4cda-ae5d-0c28c9bf6c65",
+      "text": "אחישנה גימטריא: 374\nהמאמר הידוע של חז\"ל במסכת סנהדרין (דף צח עמוד א) עוסק בסתירה כביכול בין שני פסוקים המתארים את הגאולה, ומיישב אותה בחדות:\n\"כתיב: 'אֲנִי ה' בְּעִתָּהּ אֲחִישֶׁנָּה' (ישעיהו ס, כב). זָכוּ – 'אֲחִישֶׁנָּה', לֹא זָכוּ – 'בְּעִתָּהּ'.\"\nהמנגנון הכפול של הגאולה\nחכמים מלמדים כי קיימים שני מסלולים מרכזיים להגעת הגאולה:\nזכו – \"אחישנה\": אם עם ישראל זוכים (על ידי תשובה, מעשים טובים, ואחדות), הגאולה מגיעה בדרך מואצת, למעלה מגדר הטבע, מוקדם מזמנה הקצוב והמיועד.\nלא זכו – \"בעתה\": אם אין זכות מספקת, הגאולה אינה מתבטלת חלילה, אלא מגיעה בזמנה הקבוע מראש (\"בעתה\") – דרך תהליכים טבעיים, ולעיתים דרך קשיים ומצוקות המעוררים את ההתעוררות הנדרשת.\nשני דיוקנים של המשיח\nבהמשך הגמרא שם, מובאת סתירה נוספת המקבילה ליסוד זה לגבי אופן הופעת המשיח:\n\"כתיב: 'וַאֲרוּ עִם עֲנָנֵי שְׁמַיָּא כְּבַר אֱנָשׁ אָתֵה' (דניאל ז, יג), וּכְתִיב: 'עָנִי וְרֹכֵב עַל חֲמוֹר' (זכריה ט, ט)! זָכוּ – 'עִם עֲנָנֵי שְׁמַיָּא', לֹא זָכוּ – 'עָנִי וְרֹכֵב עַל חֲמוֹר'.\"\nמכאן שהבחירה והמעשים של הכלל והפרט הם המכרעת את איכות התהליך ואת המהירות שבה האור נחשף.\n🌹🌹🦌🦌🌹🌹🦌🦌🌹🌹🦌\n\"אחישנה\"=22 כפול טו\"ב(17)=374.\n\"יברכנו אלהים\" בגימטריא\"אחישנה\".\nמופיע 3 פעמים בתהילים -יברכנו.\n🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈\nגם בטחון בהשם מזרז את הגאולה.\nזה מופיע 3 פעמים במשלי:\n\"ובוטח בי-ה+ו-ה ישגב\" בגימטריא\n374 וגם \"אחישנה\"=374✓\n⁦(⁠◍⁠•⁠ᴗ⁠•⁠◍⁠)⁠❤⁩⁦(⁠◍⁠•⁠ᴗ⁠•⁠◍⁠)⁠❤⁩⁦(⁠◍⁠•⁠ᴗ⁠•⁠◍⁠)⁠❤⁩אחישנה בגאולה: זה חסד הקב\"ה עם עם ישראל שנאמר:\n'וחסדיך כי מעולם המה\"=\"אחישנה\"\nבגימטריא:374",
+      "md5": "beb893da3b3bb606324b3c7c9e4c04ee",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "77dc0e80-0e07-4323-8ce0-29275a2e7fac",
+      "text": "ברזל חלק ב\nבית המקדש השלישי יהיה מיוסד על 3 מרכיבים עיקריים:\nברזל,דמעות,אמונה.\nאם נחבר את כל שלושת המרכיבים האלה נקבל בגימטריא.\nברזל+דמעות+אמונה=861=בית המקדש.\n❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️\nאם נפעיל את שם הרחמים י-ה-ו-ה על המרכיבים הנ\"ל נקבל בגימטריא:\nברזל+דמעות+י-ה-ו-ה+א=786=\n=תשפ\"ו.\n🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻\nנפרק את הדמעות לגורמים (שפע של דמעות) ונקבל שוב רמז מפליא בגימטריא:\nדמעה ×6 + חסד=72+714=תשפ\"ו=786.",
+      "md5": "178f6999f48458113e8565c77a26dfa1",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "a6805e30-21e0-4315-8f35-70b1bfdb0d14",
+      "text": "רזא דשבת אחד-בציור מימדי\n\nהשבת היא מעטפת שמירה רוחנית חזקה מאד (מתנה טובה)השומרת על עם ישראל מכל ה-6 כיוונים.\n\"אתה אחד ושמך אחד ומי כעמך גוי אחד\" (27 הוויות גימטריא שבת).\nהתצורה הרוחנית היא \"קוביית אחד\"\nלשמירה ברכה והצלחה על עם ישראל בכל ימות השבוע.\n👑👑👑👑👑👑👑👑👑👑👑\nאם נוסיף לשבת רזא מקבלים:\n\"רזא\"+\"שבת\"=\"סוד\"×\"אחד\"=910 בגימטריא.\nכאן יש שני פלאים;\nהסכום (רזא+שבת)שווה למכפלה (סוד×אחד) וגם התוצאה:910 בגימטריא \"שרית\" שזה מקור השם 'ישראל' בברכה שנתנה ליעקב במעבר יבק.  ✓\nויש גם פלא שלישי:\"שרית\"+ \"שרית\" נותן 1820 (\"סוד'×\"י-הוה\")✓✓",
+      "md5": "88fae700e634c48336797f7a01155a00",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACE7AE2AE60372EB8A87C3EDC4B1378E.jpg"
+    },
+    {
+      "id": "f068e1f3-88ff-4a44-b774-1b229e3d55e8",
+      "text": "הופעת \"אלוה-ים\" בכל התנ\"ך!\nשם אלוהים מופיע בכל התנ\"ך :1179 פעמים.\nיש  גם 3 פסוקים שבהם מופיע עשיית דין קשה עם גימטריא:1179.\nבראשית יט יד:\n\"וישלחנו יהוה לשחתה\"=1179 בגימטריא.\nהמלאכים אמרו זאת ללוט על מה שיקרה לאנשי סדום.דין קשה.\nשמות ג כ:\n\"ושלחתי את ידי\"=1179 בגימטריא.\nהקב\"ה אמר למשה על דין קשה שיעשה במצרים.\nדברים ד,כו':\n\"כי השמד תשמדון\" =1179 בגימטריא.\nעונש של דין קשה שיבוא, לא עלינו ,על עם ישראל אם יעבדו עבודה זרה ויעשו הרע בעיני השם.",
+      "md5": "58228125d6a3b0e1b9496e28d500e49a",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "a5eb3b6c-2a03-4970-8a6d-333eee7446fd",
+      "text": "החותך חיים לכל חי\nנבדוק את הגימטריא שמתאימה לפסוק \"החותך חיים לכל חי\". מהתפילות בראש השנה שהוא יום הדין.\n❤️‍🩹❤️‍🩹⭐⭐❤️‍🩹❤️‍🩹⭐⭐❤️‍🩹❤️‍🩹⭐\n\"חיים\"(68)+\"חי\"(18)=\"אל-הים\"(86).\n🧡🩷🩵🧡🩷🩵🧡🩷🩵🧡🩷",
+      "md5": "0d4306a7e72b9ead9795a21172cbbb19",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "7fad92e2-d6dd-46ea-a809-8db4fe4287d0",
+      "text": "ענן חלק ה\nענני הכבוד היו לעם ישראל במדבר בזכות אהרן הכהן.\nהשם \"אהרן\" 256 בגימטריא בדיוק.\n\"ענן+אל-הים\"=170+86=256=\"אהרן\" .\nהעננים היו מסלקים מכשולים פיזיים וקליפות רוחניות חיצוניים לעם ישראל במדבר.\nאהרן היה מסלק מכשולים וקליפות בין אדם לחברו ובין עם ישראל לקב\"ה.\nאהרן טיפל גם בנגעים כמו  צרעת, בין אדם לחברו וגם במגיפות ציבוריות ,נגף שפרץ בעם ישראל.\n\"אהרן\" בגימטריא: נגף+נגע=256 .",
+      "md5": "8c1049b3aed5331684a532794c37fd69",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "a1d5f486-cd2e-4842-a42f-8536f997bf50",
+      "text": "רחום וחנון-מדות הקב\"ה בעולם\nדוד  בתהילים ק''ג פסוק ח:\n\"רחום וחנון י-ה-וה ארך אפים ורב חסד\" גימטריא של כל הפסוק:1032.\nפסוק יחודי שלם עם 1032.\nרמזים חשובים:\n\"נתתי בענן\"=1032.(הברית)\n\"קפאו תהמת\"=1032.(יציאת מצרים)\n\"מאשר המית בחייו\"=1032 (שמשון)\n\"והנה רכב וסוסי אש\"=1032.(אליהו)\n\"בית ישראל חי אני\"=1032.(עם ישראל)\n\"נאום י-הו-ה צבאות ואשוב אליכם\"\n=1032 בגימטריא.(תשובה)\n\"שלח אורך ואמיתך\"=1032 בגימטריא.(משיח).\nבקיצור שבעת המופלאים בהיסטוריה של היקום מול בורא עולם.",
+      "md5": "5126d22181b6fecb0de168a102fb0801",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "24b48387-e5d1-4893-9f77-f1378709b261",
+      "text": "כח רבי שמעון בן יוחאי\n[Image 3472.jpg]\n\"דייך שאני ובוראך מכירין כוחך\"\n              (גימטריא 1030)\nדברי רבי עקיבא לרשב\"י.\nשלוש פעמים כף סופית עם ניקוד קמץ.\nחיבור חזק של הרשב\"י ממלכות שבמלכות אל מלכות שבכתר.\nלשמירה ברכה והצלחה.\n\"כלך יפה רעיתי ומום אין בך\" \n               (גימטריא:1030)\nרבי עקיבא היחיד \nשנכנס ויצא מהפרדס בשלום\nמבין שאין משמעות לכבוד בעולם הזה.\nוכך הוא מעודד את רשב\"י שנתכרכמו פניו בעולם הזה. כי העיקר הוא החיבור לכתר.\nכוחו של הרשב\"י בקשת.\n\"קשתו דרך\" =1030 בגימטריא.\n\"הקשת\" (805)\nבגימטריא: \"רבן שמעון בן יוחאי\".(805)",
+      "md5": "23f06df9e1b2663af9ff04676ab74e46",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "90e49faf-70a1-4e98-9edd-ab8a9f571e4f",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACEF2E9D139B098D0AC853E041558EC2.jpg"
+    },
+    {
+      "id": "5e743265-4991-4ce3-8cc0-99889994ca06",
+      "text": "כרמים וכתר חלק ג\n\"כתר\" בגימטריא:\"כרמים+כרמים\".\n620=310+310.\n👑👑👑👑👑👑👑👑👑👑👑👑👑\nמה המשמעות ?\nיש בכתר שני מרכיבים:עונג ורצון.\nלכל אחד מהם ש\"י (310) עולמות שהם  סוגי אורות שונים.\nשני המרכיבים האלה של עונג ושל רצון יוצרים את הכתר השלם.\n💌💌💌🌈🌈🌈💌💌💌🍒🍒🍒",
+      "md5": "3b0d4b509f8b5202e75338b5719fe4e5",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "55f3c637-39fd-495e-bf11-74fcc3e64e9c",
+      "text": "אם נחבר את הספרות מימין לשמאל:\n984+85+85=1154\nבגימטריא:\n\"למען יחלצון ידידיך הודיעה ימינך וענני\"\nגימטריא של הפסוק 1154.\nמופיע פעמיים בספר תהילים(מזמור ס וגם מזמור ק\"ח)",
+      "md5": "5595ebe3fd8488f25c82268016a65819",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "2d218895-96ea-4dc2-aac6-907dc00c4bf7",
+      "text": "יצחק- נוטריקונים\nישרים צדיקים חסידים קדושים ראשי התיבות:יצחק.\n🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷🩷\nי-שועת צ-דיק ח-סד ק-ב\"ה.\nראשי תיבות: יצחק.\n🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈\nגימטריא:ישרים+צדיקים+חסידים+\n+קדושים=1406 בגימטריא.\n כמו הגימטריא של תהילים קיא ב:\n\"גדולים מעשי י-הוה, דרושים לכל חפציהם\"גימטריא:1406.\n--❤️‍🩹❤️‍🩹🌈🌈❤️‍🩹❤️‍🩹🌈🌈❤️‍🩹❤️‍🩹-\nגימטריא:\"שרשרות\"=1406.\nמילה שמופיעה במלכים ובדברי הימים.\n\"שרשרות\" אותיות \"שרש רות\". השרשרות היו מחוברות לעמודים יכין ובעז בבית המקדש.יש כאן רמז לחיבור בין בועז לרות.שמהם יוצא דוד ומשיח.",
+      "md5": "9abd3503db7fe13c67b96a83fa3438e7",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "af69ea51-1558-4fbe-89cd-7156e6382faa",
+      "text": "זית חלק יא\nחלקי פסוקים שרומזים על כוחו של מלך המשיח שעובר שלושה שלבים:\n'אדם+דוד+משיח' בגימטריא 'זית' (417).\n\"האר פניך ונושעה\" הארת פנים וחיבור לכתר יהיו בביאת המשיח.גימטריא: 417.\n\"הבן יקיר לי\" גימטריא 417.(מלך המשיח)\n\"ונשמחה בו\" גימטריא 417.(יום הגאולה)\n\"לא בחיל ולא בכח,כי אם ברוחי\" גימטריא 417.(זה כח הרוח של מלך המשיח).\n\"לך עמי בא בחדריך\" גימטריא 417.\n(המצב בעם לפני ביאת המשיח)\n\"פני הכרבים\" גימטריא 417.(הארת פנים, בבנין בית מקדש השלישי)\n16 פעמים י-ה-ו-ה עם הכולל:417.\nהדר+יצחק בגימטריא: 417",
+      "md5": "71cb46294f6e9d81cd04b2e1a2600f6c",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "ce055d83-17ca-48b6-9f63-f54cedd05e59",
+      "text": "יום כפורים גימטריא:412\nיש פסוק יחיד שחוזר 9 פעמים בספר איוב:\"ויען איוב ויאמר\" והגימטריא שלו :412=\"יום כפורים\".🍒.\n°°אין בתורה \"כפורים\" בכתיב מלא.\n8 פעמים כתוב בתורה:\"כפרים\" בכתיב חסר.🍒\n🩵🩵💜💜🩵🩵💜💜🩵🩵💜\nגימטריא של \"תאוה\" (בראשית ג,ו)\nנותנת בדיוק:\"יום כפורים\"(412).יום של תיקון חטא עץ הדעת (תאוה לעיניים).\n❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹❤️‍🩹\n\"בתי\" בגימטריא 412 וגם גימטריא\"יום כפורים\".(412).\nכנוי של רות וכן כנוי למצב השכינה וספירת המלכות בעם ישראל.\n15 פעם בתורה \"בתי\"(\"ב\" עם חיריק).8 מתוכם במגילת רות!!!",
+      "md5": "b3917e2211dd84cbd283d24fecce124d",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "1f218e4a-3572-4425-af31-4637544930c5",
+      "text": "המבנה הכולל של 3060 הוא בגימטריא:\n30 פעמים \"אמונה\"=3060",
+      "md5": "021939e65b78e18617d113c3d3823635",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "194fba10-14cd-4816-b3e9-3ebda0e8b644",
+      "text": "כרמי עין גדי...(שה\"ש,א)\nאשכול הכופר |  דודי לי בכרמי עין גדי!!!\n[Image 2943.jpg]\nכפרת עם ישראל על האשכול שהביאו המרגלים והוציאו דיבה ,היא על ידי אשכול הכופר,צמח הכופר  בתצורת אשכול ריחני שמגיע מהצורך לכפר על הדין (דודי לי=דין בגימטריא),ופורח ב\"כרמי עין גדי\" של עם ישראל. פעמיים \"כרמים\" זהו גימטריא 620 או \"כתר\".✓\nעין גדי ,עין טובה \"גדי\" גימטריא \"טוב\"✓.\nמכרמי עין גדי שהם למעשה מוקפים במדבר-קוצים-שעבוד מלכויות (מדבר עין גדי) יוצא דוד שנמלט משאול ומקבל מלכות.וזה סימן למלך המשיח לעתיד לבוא.משיח בן דוד.\nאחרי \"אשכול הכופר\" יש | סימן של מפסיק בפסוק. לפני  הקו המפריד נמצאת תוכנית הגאולה רצון אלוהי לכפר על עם ישראל.\nאחרי הקו  המפריד  |  בא הביצוע בפועל,של   חיבור לכתר העליון לגאולה שלימה של עם ישראל וביאת משיח.\n👑👑👑👑👑👑👑👑👑👑👑👑👑\nמלחמת האומות  הראשונה ארבעה וחמישה היתה בעין גדי היא חצצון תמר.\nאברהם התערב ושחרר את החטופים!\nגם יהושפט זכה לנס נצחון על אומות העולם שהתחיל בחצצון תמר היא עין גדי והסתיים בעמק המלך,עמק ברכה ליד ירושלים כמו שמספר בספר דברי הימים.\nוזאת המלחמה האחרונה בתנ\"ך שהתחילה בעין גדי. והנביא יואל מנבא עליה לאחרית הימים.\n💙🧡🤎🩵💜🏺🏺🏺🏺🏺🏺🏺🏺\nגם אנחנו שחררנו חטופים כמו מעשה האבות שהם סימן לבנים ואנחנו מחכים למשפט עמק המלך עם אומות העולם (על פי נבואת יואל הנביא). וזאת המלחמה האחרונה עם האומות כלומר גאולה שלימה במהרה אמן.",
+      "md5": "b115a49bc46e25e4b235d93158a3a874",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "33fe2919-1005-4d43-808c-06c4aa775c1f",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC1A0C392AE3B2C07F8E71A16F83DB9A.jpg"
+    },
+    {
+      "id": "7b79d76e-edea-419c-a354-1e345eb7822b",
+      "text": "6 אלפין במילוי=666.\n🌹🌹🦌🦌🌹🌹\n\"אלף\" בגימטריא:111 .\n { זה אלף במילוי}\n6 אלפין במילוי(111) נקבל:666.\nנחפש נוטריקון של ראשי תיבות ברציפות בפסוק יחיד עם 6 אלפין?\nיש סה\"כ שני פסוקים כאלה.שניהם עם תוכן יחודי מדהים:\n\"וַיֹּֽאמְר֞וּ אִ֣ישׁ אֶל־אָחִ֗יו אֲבָל֮ אֲשֵׁמִ֣ים ׀ אֲנַ֮חְנוּ֮ עַל־אָחִ֒ינוּ֒ אֲשֶׁ֨ר רָאִ֜ינוּ צָרַ֥ת נַפְשׁ֛וֹ בְּהִתְחַֽנְנ֥וֹ אֵלֵ֖ינוּ וְלֹ֣א שָׁמָ֑עְנוּ עַל־כֵּן֙ בָּ֣אָה אֵלֵ֔ינוּ הַצָּרָ֖ה הַזֹּֽאת׃\" (בראשית מ\"ב, כ\"א)\nאיש אל אחיו אבל אשמים אנחנו-6 אלפין ברציפות בראשי תיבות!\n\"וַיֹּ֗אמֶר אָֽנֹכִי֙ אֱלֹהֵ֣י אָבִ֔יךָ אֱלֹהֵ֧י אַבְרָהָ֛ם אֱלֹהֵ֥י יִצְחָ֖ק וֵֽאלֹהֵ֣י יַֽעֲקֹ֑ב וַיַּסְתֵּ֤ר מֹשֶׁה֙ פָּנָ֔יו כִּ֣י יָרֵ֔א מֵֽהַבִּ֖יט אֶל־הָֽאֱלֹהִֽים׃\" (שמות ג', ו')\nאנכי אלהי אביך אלהי אברהם אלהי,\n6 אלפין רצופים בראשי תיבות!\n&&[null]@@\nרק בספר דניאל יש סה\"כ 5 פסוקים בסופי תיבות עם 6 אלפין ברציפות.\nנביא רק אחד מהם:(דניאל ה,ד);\n\"אִשְׁתִּ֖יו חַמְרָ֑א וְ֠שַׁבַּ֠חוּ לֵֽאלָהֵ֞י דַּֽהֲבָ֧-א וְכַסְפָּ֛-א נְחָשָׁ֥-א פַרְזְלָ֖-א אָעָ֥-א וְאַבְנָֽ-א׃\" \n6 אלפין רצופים בסופי תיבות! באותו פסוק.",
+      "md5": "4e3b92c6c84cedc8fd850823bb44022e",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "d48d00ec-ef0e-4422-bf3b-ccab718a3fe8",
+      "text": "למען ידעו\nצרוף המילים \"למען ידעו\" מופיע רק פעם אחת בתורה על חג סוכות.\nבכל התנ\"ך יש עוד מספר קטן של \"למען ידעו\".(סה\"כ עוד  4 פעמים) \n\"למען ידעו\" בגימטריא \"ורב חסד\"(280)\nכלומר יש כאן חיבור לספירת הכתר  כי 'רב חסד'  הוא אחד מהשמות של ספירת  הכתר.\n🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻🙏🏻\nכאשר עם ישראל יושבים במצוות  סוכה הם זוכים לשמירה ברכה והצלחה כי הם מחוברים רוחנית לספירת הכתר.(ענני הכבוד).\n❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️\n\"בעצם היום הזה\" גימטריא \"למען ידעו\"\nזה  גם קוד אותיות \"מנצפך\" אותיות הגאולה.\nגימטריא 280.\n🐋🐋🐋🐋🐋🐋🐋🐋🍒🍒🍒🍒",
+      "md5": "92734c49c23fec544798ccdaa342e342",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "de4ce23d-f64e-4662-b2de-2d9c70fd077e",
+      "text": "צבי גימטריא אמונה:102\n6 ×טוב(17) =102=צבי.\nצבי+צבי=צדיק=204.\n\nעבד י-הוה=102=צבי בגימטריא.\nללא גבול=צבי=102 בגימטריא.\n🦌🦌🦌🦌🦌🦌🦌🦌🦌🦌🦌\nצ+צב+צבי=עטרה=284 בגימטריא.\n\"אלהינו\" בגימטריא \"צבי\"\n@@@@@@@@@@@@@@@@",
+      "md5": "7bf05d0711bb8b413dcebd3e034d8fbc",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC9FF866ADC1576F6EB0730AD0E29234.jpg"
+    },
+    {
+      "id": "75116953-d22b-4ba2-8aa8-5c5633b49a21",
+      "text": "גימטריא של 888 חלק א\nאמונה +תשפ\"ו=888 בגימטריא.\n'אלף' בגימטריא ×8=888\n(אלוקות מעל הטבע).\n'בן פרת יוסף'=888 בגימטריא.\n(נגד עין הרע).\n'וכפר בעדו ובעד ביתו'=888 בגימטריא.\n(יום כפור).\n'ישועות מלכו'=888 בגימטריא .\n'ישועת אלהינו'=888 בגימטריא .\n(הצלה וישועה מהקב\"ה לישראל)\n'מי שמע כזאת'=888 בגימטריא.\n(נבואת ישעיהו ס\"ו).\n'להיות לאות'=888 בגימטריא \n'והיה לך למשיב נפש'=888 בגימטריא.\n(בנה של רות ,ממנו יוצא המשיח).\n'ויהרגו בשושן' =888 בגימטריא .\n(נס פורים לעם ישראל)..\n\"קוה\" × 8= 888 בגימטריא.\n(בטחון בקב\"ה,מעל הטבע).\n✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓\n\"מתחתם\" פלינדרום שגם הגימטריא שלו פלינדרום=888 בגימטריא.",
+      "md5": "950496be2f76eb5229c6b1c1b916e2bd",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "ec57cdd0-07b5-4192-b0e3-1bd83df2f530",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "storage-object:78e4d9aa-38a5-4f6d-a511-2988bd97a64c"
+    },
+    {
+      "id": "1d0f8037-c1a6-4dd0-b75f-d42ae1ebb984",
+      "text": "תמים\n🍒🍒🍒\nגימטריא יחודית למילה \"תמים\"\n✓✓✓✓✓✓✓✓✓✓✓✓✓✓✓\nזוהי מכפלת כל אות משם י-ה-ו-ה בסכום האותיות הנותרות  בשם י-ה-ו-ה.\n+++++++++++++++++\nי ×{ה+ו+ה}=10×16=160.\nה×{י+ו+ה}= 5×21  =105.\nו ×{י+ה+ה}=6×20  =120.\nה×{י+ה+ו} =5×21  =105\n\n+++++++++++++++++\nסה\"כ :   תמים    :      490\n\nלמדנו  בתניא ב\"אגרת התשובה\"\nעמוד 182:\"תמים יהיה לרצון\". לתוספת תענית לתשובה כנגד קורבן עולה שאין לנו.\n👑👑👑👑🍒👑👑👑👑\nשבע שבתות תמימות-מסתיימות  \nבערב חג שבועות . סה\"כ 49 יום בפקטור 10 נותן=490=תמים.",
+      "md5": "cc6a0a323a1c66193fc9deaff0b9c67c",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "305b8335-72bf-43e5-9edd-0d1b4340f97f",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACA7523DCE7E63590200605D7E6B1CFC.jpg"
+    },
+    {
+      "id": "b104914a-dd48-4b49-9f74-2e9c3c80e718",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC9508E173F97F831FB128CC6E4D6054.jpg"
+    },
+    {
+      "id": "90800d94-abb4-4194-8360-87e4cd683e46",
+      "text": "זית חלק יא\nחלקי פסוקים שרומזים על כוחו של מלך המשיח שעובר שלושה שלבים:\n'אדם+דוד+משיח' בגימטריא 'זית' (417).\n\"האר פניך ונושעה\" הארת פנים וחיבור לכתר יהיו בביאת המשיח.גימטריא: 417.\n\"הבן יקיר לי\" גימטריא 417.(מלך המשיח)\n\"ונשמחה בו\" גימטריא 417.(יום הגאולה)\n\"לא בחיל ולא בכח,כי אם ברוחי\" גימטריא 417.(זה כח הרוח של מלך המשיח).\n\"לך עמי בא בחדריך\" גימטריא 417.\n(המצב בעם לפני ביאת המשיח)\n\"פני הכרבים\" גימטריא 417.(הארת פנים, בבנין בית מקדש השלישי)\n16 פעמים י-ה-ו-ה עם הכולל:417.\nהדר+יצחק בגימטריא: 417",
+      "md5": "71cb46294f6e9d81cd04b2e1a2600f6c",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "8affac67-08ab-45c7-858d-def4ea34f57a",
+      "text": "בזאת תדעון-חלק א\n\"בזאת תדעון\" חיבור  של מלכות ודעת-חלק א\nגם משה וגם יהושע אומרים לעם ישראל: \"בזאת תדעון\".זאת למעשה מודעה על נס שהולך להתקיים מראש.נון סופית במילה \"תדעו-ן\" מורה על ידיעה תמידית-נצחית.\n\nמשה מודיע על סופם של קורח ועדתו.עונש לרשעים.\nיהושע מודיע על סופם של שבעת עמי כנען שיפלו בכיבוש ארץ ישראל.\nזאת-ספירת המלכות.\nתדעון-ספירת הדעת.\nברגע שיש חיבור מלא בין הדעת למלכות\nיש מצב של הארת פנים ושמירה לעם ישראל האדמה נבקעת והרשעים נעלמים!\nמשה במדבר:\nהרשעות נעלמת בנס על טבעי במהירות מדהימה.\nיהושע לפני הכניסה לארץ ישראל:\nשבעת העמים נעלמים אבל בדרך \"טבעית\" שבע שנות כיבוש. גם כאן יש נס. הירדן נבקע  ותהליך הכיבוש של ארץ ישראל מתחיל לאט אבל בטוח .כיבוש של 31 מלכים.\n⭐⭐🥀🥀⭐⭐🥀🥀⭐⭐🥀🥀\nיהושע משתמש במטבע הלשון של משה רבנו שקדם לו:\"בזאת תדעון\" לחיזוק אמונת עם ישראל.\nשתי פעמים יחודיות בכל התנ\"ך! אין יותר!!",
+      "md5": "8a21c26dc74e3af7d57715fc1e457341",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "4cfbc8c9-4afc-499d-b7c7-7937d223fea3",
+      "text": "יש גם פסוק שלם {תהילים צ\"ו ,ד}\nשהגימטריא שלו בדיוק:760.\n\"כי גדול י-ה-ו-ה ומהלל מאד נורא הוא על כל אלהים\".\nוזה בדיוק:\nכתר+חכמה+בינה=760.",
+      "md5": "63af6c76d858cf8541e4a76fc9e9cf91",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "bf2a3158-b8c6-4901-99e6-276b1d936f23",
+      "text": "טיסה 1073 + א\nברור לכולם שהנסים שקרו בטיסה הם תוצאה של השגחה אלו-ה-ית על עם ישראל.\nאם נצרף א=1 (אלוקות) למספר הטיסה(1073) נקבל=1074.\nאבל 1074 זאת הגימטריא של הפסוק:\n\"מה אשיב לי-הוה כל תגמולוהי עלי\"\nבדיוק 1074.",
+      "md5": "3684e6da6b9c84a083ac57ae95937cc8",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "388e49e7-d2dd-4973-abbe-4a4704d73118",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/AC666A0B4C65E8BA1F4C2B8526B36829.jpg"
+    },
+    {
+      "id": "e40244a0-ed02-43d5-8a1a-a1acc839ed1f",
+      "text": "חיים חלק ו: שווה 4 פעמים טוב. 68=4 ×17 !\n[Image 627.jpg]\nכדאי תמיד לדעת:-\n\nהעבר - זכרונות.\nהעתיד-דמיונות.\nההווה- נסיונות.\n\nיום טוב לכולם.\n✓✓✓✓✓✓✓\n\nטו\"ב+טו\"ב+טו\"ב+טו\"ב=חיים.\nכי :17(טוב) כפול 4 נותן :68 =חיים בגימטריא .\n\nברכתי לכם ולכל עם ישראל:\n🌐🌐☑️☑️🏁🏁🗝️🏺🏺🏺\nתחשבו טוב,תדברו טוב,תעשו טוב,תעמדו טוב בנסיון ,\nויהיו לכם חיים שלמים.",
+      "md5": "418bc05cb38a7e7e26ac67beb4dd9ce8",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "b114e12d-79bb-42c6-b530-585eb575ed5d",
+      "text": "תשפ\"ז רמוזה בשיר השירים\n4 פעמים מופיעה בשיר השירים המילה: \"השבעתי\".\nסוד הגאולה נמצא גם בשיר השירים.\n\"השבעתי\" גימטריא תשפ\"ז.(787)",
+      "md5": "209be1f8d29d0a86fe756ebb79964db2",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "648c2b0b-087e-49dd-85b7-2773963b9f73",
+      "text": "תחנונים בגימטריא:564.\n\"ורחם כרב חסדיו\" גימטריא: 564 \nרב חסד זה כנוי לכתר.\"רחם\"\n שבא מהכתר זאת  הגאולה האחרונה שמבטלת את כל הדינים.\nוכן כתוב:\"זכר רב טובך יביעו\"\nבגימטריא:564.\nכאן יש כף סופית מנוקדת בקמץ.(טובך).חיבור בין מלכות שבכתר למלכות שבמלכות.כלומר גאולה.\nויש גם רמז נוסף:\n\"עם נושע בי-הוה\" גימטריא \"תחנונים\"(564).\n\"ישועת השם\" זה בטוי שאמר משה לפני שנבקע הים! \n\"ישועת\" בגימטריא: תשפ\"ו!!!(786)",
+      "md5": "ea62dc62aff9749e562e83cac5301563",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    },
+    {
+      "id": "3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+      "text": "📷 עדכון",
+      "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": true,
+      "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACE0C9614EC4DFC0DEFF6A8BBCB7210D.jpg"
+    },
+    {
+      "id": "b4b40a70-d21c-4601-9d09-34191b601347",
+      "text": "רחל ובכייה\n\"מנעי קולך מבכי ועיניך מדמעה\"\nברחל נאמר גם בכי וגם דמעה.\nדמעה+דמעה בגימטריא:\n119+119=238=רחל בגימטריא .\n\nבכי בגימטריא 32. שעל ידי בכי נפתחים לאדם ל\"ב נתיבות חוכמה.\n\nרחל \"מבכה\" =67 בגימטריא \"אלול\".חודש אלול זמן טוב לתשובה ולבכי.\n\n\"ואני מבכה ואהמיה\" כל אחת משלושת המילים האלה גימטריא 67 אלול.\n\nרחל קראה לבנה \"בן אוני\" . \"אוני\"(67) גימטריא \"מבכה\"(67).\nכלומר בנימין הוא הבן של מי שמבכה תמיד על בניה (עם ישראל).\n\"בן אוני\" בגימטריא \"דמעה\" !!!(119).\n🏺🏺🌈🌈🍒🍒🙏🙏👑👑❤️❤️\n\"רחל\" בגימטריא \"חסד עליון\" !!!\n\"רחל\" בגימטריא י\"ד כפול טו\"ב!!!\n\"רחל\" בגימטריא 'ויהי אור\" !!!",
+      "md5": "fb32f31e865f847d804e0c793eca1820",
+      "status": "live",
+      "page_only": false,
+      "channel": "torat-haremez",
+      "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8",
+      "has_image": false,
+      "image_url": null
+    }
+  ],
+  "reviewPlan": [
+    {
+      "id": "00cb446b-6071-4d32-ac84-f9beecf46ed5",
+      "kind": "derivation",
+      "recommendation": "מתאים לעץ",
+      "reason": "מכפלת סוד בשם מפורשת במקור; מתאים כחישוב נגזר בלבד, לא כהוכחת ספירת הופעות.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "סוד × י-ה-ו-ה=1820 בגימטריא",
+          "claimed": 1820,
+          "method": null,
+          "sourceSpan": {
+            "start": 0,
+            "end": 27,
+            "excerpt": "סוד × י-ה-ו-ה=1820 בגימטריא"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "00ed218e-7eb4-4daf-ba99-ddd3607a2903",
+      "kind": "mixed",
+      "recommendation": "דורש בדיקה",
+      "reason": "המשפחה אינה מאושרת כמקשה אחת: בביטוי ובוטח מופיע + בתוך השם במקור. אין להשמיט אופרטור כדי להשיג התאמה.",
+      "calculations": [
+        {
+          "type": "atomic",
+          "expression": "אחישנה",
+          "claimed": 374,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 0,
+            "end": 19,
+            "excerpt": "אחישנה גימטריא: 374"
+          }
+        },
+        {
+          "type": "atomic",
+          "expression": "יברכנו אלהים",
+          "claimed": 374,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 1083,
+            "end": 1115,
+            "excerpt": "\"יברכנו אלהים\" בגימטריא\"אחישנה\"."
+          }
+        },
+        {
+          "type": "atomic",
+          "expression": "וחסדיך כי מעולם המה",
+          "claimed": 374,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 1375,
+            "end": 1418,
+            "excerpt": "'וחסדיך כי מעולם המה\"=\"אחישנה\"\nבגימטריא:374"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "014d0df4-2e60-46c9-8427-ee0eb18693d9",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "22×17=374 משוחזר; המקור אינו מסביר מה מייצגת הכמות 22.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "\"אחישנה\"=22 כפול טו\"ב(17)=374",
+          "claimed": 374,
+          "method": null,
+          "sourceSpan": {
+            "start": 1052,
+            "end": 1081,
+            "excerpt": "\"אחישנה\"=22 כפול טו\"ב(17)=374"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "015aaa5a-f40a-4a5a-9236-01576cbd283b",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "החישוב המורכב משוחזר; מקור המכפיל 6 והקישור לכל קלט מספרי דורשים ייצוג מפורש.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "דמעה ×6 + חסד=72+714=תשפ\"ו=786",
+          "claimed": 786,
+          "method": null,
+          "sourceSpan": {
+            "start": 404,
+            "end": 434,
+            "excerpt": "דמעה ×6 + חסד=72+714=תשפ\"ו=786"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "01e5230c-8eba-410a-ba96-bc83dc240e35",
+      "kind": "derivation",
+      "recommendation": "מתאים לעץ",
+      "reason": "השוויון בין סכום רזא ושבת למכפלת סוד ואחד משוחזר. אינו אישור לתיאור הקובייה או לתמונה.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "\"רזא\"+\"שבת\"=\"סוד\"×\"אחד\"=910 בגימטריא",
+          "claimed": 910,
+          "method": null,
+          "sourceSpan": {
+            "start": 299,
+            "end": 335,
+            "excerpt": "\"רזא\"+\"שבת\"=\"סוד\"×\"אחד\"=910 בגימטריא"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "02907a6e-b47e-4fc0-b6b5-cfc4eccf0f15",
+      "kind": "corpus_count",
+      "recommendation": "דורש בדיקה",
+      "reason": "זו טענת תדירות בתנ״ך, לא גימטריה. נדרשים קורפוס וגרסה, כללי איות וספירה חוזרת.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0352d6ac-84c3-4f70-9dee-358a76aff3cf",
+      "kind": "derivation",
+      "recommendation": "מתאים לעץ",
+      "reason": "מאומת רק חיים+חי=אלהים; אין לומר שכל הביטוי החותך חיים לכל חי שווה 86.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "\"חיים\"(68)+\"חי\"(18)=\"אל-הים\"(86)",
+          "claimed": 86,
+          "method": null,
+          "sourceSpan": {
+            "start": 141,
+            "end": 173,
+            "excerpt": "\"חיים\"(68)+\"חי\"(18)=\"אל-הים\"(86)"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "04af61f4-4cbc-437e-ae45-ed8a72849946",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "שני סכומים משוחזרים; במחלץ עוד חסר מיפוי 170 ו־86 לאיברים. אין אישור לטענות ההיסטוריות.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "\"ענן+אל-הים\"=170+86=256=\"אהרן\"",
+          "claimed": 256,
+          "method": null,
+          "sourceSpan": {
+            "start": 89,
+            "end": 119,
+            "excerpt": "\"ענן+אל-הים\"=170+86=256=\"אהרן\""
+          }
+        },
+        {
+          "type": "compound",
+          "expression": "נגף+נגע=256",
+          "claimed": 256,
+          "method": null,
+          "sourceSpan": {
+            "start": 366,
+            "end": 377,
+            "excerpt": "נגף+נגע=256"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "04c183a1-ea03-4c12-85da-7e08ee59b51b",
+      "kind": "atomic",
+      "recommendation": "דורש בדיקה",
+      "reason": "האיות המדויק במקור אינו נותן 1032 ברגיל. אין להחליף ואמיתך בכתיב אחר בשקט.",
+      "calculations": [
+        {
+          "type": "atomic",
+          "expression": "שלח אורך ואמיתך",
+          "claimed": 1032,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 365,
+            "end": 404,
+            "excerpt": "\"שלח אורך ואמיתך\"=1032 בגימטריא.(משיח)."
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "04d0b794-5776-452d-b1ea-84e5920597a5",
+      "kind": "atomic",
+      "recommendation": "דורש בדיקה",
+      "reason": "האיות המדויק אינו נותן 1030; יש גם סמן תמונה שלא נבדקה. אין לשנות את האיות כדי להתאים לערך.",
+      "calculations": [
+        {
+          "type": "atomic",
+          "expression": "דייך שאני ובוראך מכירין כוחך",
+          "claimed": 1030,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 39,
+            "end": 98,
+            "excerpt": "\"דייך שאני ובוראך מכירין כוחך\"\n              (גימטריא 1030)"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "052cf69c-f400-4217-b27a-9e9395725515",
+      "kind": "media",
+      "recommendation": "דורש OCR או תמלול",
+      "reason": "המקור הטקסטואלי הוא מציין תמונה בלבד; תמצית החילוץ אינה תחליף לתמונה/תמלול מדויק.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "056d2e95-99ed-4aa7-8a33-0349f17967f6",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "620=310+310 משוחזר, אבל value של הרשומה הוא 310. יש להפריד ערך קלט מיעד התוצאה.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "620=310+310",
+          "claimed": 620,
+          "method": null,
+          "sourceSpan": {
+            "start": 47,
+            "end": 58,
+            "excerpt": "620=310+310"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "05cef6c5-3aab-4d6d-8b0d-538b7a1da132",
+      "kind": "mixed",
+      "recommendation": "דורש בדיקה",
+      "reason": "הסכום המספרי 1154 תקין, אך נוסח הפסוק המצוטט אינו נותן 1154. מקור הספרות אינו מזוהה כאן.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "984+85+85=1154",
+          "claimed": 1154,
+          "method": null,
+          "sourceSpan": {
+            "start": 31,
+            "end": 45,
+            "excerpt": "984+85+85=1154"
+          }
+        },
+        {
+          "type": "atomic",
+          "expression": "למען יחלצון ידידיך הודיעה ימינך וענני",
+          "claimed": 1154,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 56,
+            "end": 118,
+            "excerpt": "\"למען יחלצון ידידיך הודיעה ימינך וענני\"\nגימטריא של הפסוק 1154."
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "06014d32-0aac-4844-b4e6-4d62c15f8a0d",
+      "kind": "atomic",
+      "recommendation": "דורש בדיקה",
+      "reason": "האיות גדולים שבמקור אינו נותן 1406. אין למחוק ו בלי אימות נוסח הפסוק.",
+      "calculations": [
+        {
+          "type": "atomic",
+          "expression": "גדולים מעשי י-הוה, דרושים לכל חפציהם",
+          "claimed": 1406,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 234,
+            "end": 285,
+            "excerpt": "\"גדולים מעשי י-הוה, דרושים לכל חפציהם\"גימטריא:1406."
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0602862a-ba85-4efb-96ad-3e18f543a835",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "המקור כותב סכום במילים ולא בשרשרת שהמחלץ פענח. נדרש ייצוג נגזרת; שאר משפחת 417 מכילה סתירות.",
+      "calculations": [
+        {
+          "type": "atomic",
+          "expression": "זית",
+          "claimed": 417,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 71,
+            "end": 107,
+            "excerpt": "'אדם+דוד+משיח' בגימטריא 'זית' (417)."
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "069beac4-083a-4155-8c42-fd8da6398d87",
+      "kind": "corpus_count",
+      "recommendation": "דורש בדיקה",
+      "reason": "זו ספירת פסוק בספר איוב; גימטריה של הפסוק אינה מאמתת תשע הופעות.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "06abe4fb-9be6-4d32-b3b7-da32ced8b614",
+      "kind": "corpus_count",
+      "recommendation": "דורש בדיקה",
+      "reason": "1820 כמספר הופעות דורש ספירה בקורפוס הקנוני; התאמת מכפלה אחרת באותו מקור אינה הוכחה לספירה.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "08f0f4b9-23c4-4966-8dda-3828590f6bd7",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "30×אמונה=3060 משוחזר; חסר המבנה שממנו נגזרה הכמות 30. אין לשייך צורה לפי מספר.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "30 פעמים \"אמונה\"=3060",
+          "claimed": 3060,
+          "method": null,
+          "sourceSpan": {
+            "start": 34,
+            "end": 55,
+            "excerpt": "30 פעמים \"אמונה\"=3060"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "091fa98a-f72a-468f-993c-836154b73f43",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "פעמיים כרמים מתואר במקור; המחלץ לא פענח את הפעולה בטקסט זה, וסמן Image 2943.jpg נשמר כלא נבדק.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "09235881-0a1c-437a-9e37-1d76ddd5b46f",
+      "kind": "media",
+      "recommendation": "דורש OCR או תמלול",
+      "reason": "פרשנות לכיוונים נשענת על תמונה שלא תומללה מחדש. אין להסיק שזו קובייה ממספר הכיוונים.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "09dbf0f1-b447-401e-9282-ad26b3ab7e4a",
+      "kind": "method_representation",
+      "recommendation": "דורש בדיקה",
+      "reason": "אלף=111 מפורש ומתאים; נדרש תיעוד א במילוי, הכפלה בשש והבחנה מטענות ראשי/סופי תיבות.",
+      "calculations": [
+        {
+          "type": "atomic",
+          "expression": "אלף",
+          "claimed": 111,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 33,
+            "end": 51,
+            "excerpt": "\"אלף\" בגימטריא:111"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0a202f1c-3da3-4d43-8a81-f651128fcf55",
+      "kind": "corpus_count",
+      "recommendation": "דורש בדיקה",
+      "reason": "הטענה ארבע פעמים נוספות היא ספירה נפרדת; יש להגדיר האם התורה כלולה ומהו סך ההופעות.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0acf4a26-85a7-46b9-9311-1a156f6a73a6",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "6×טוב=102 משוחזר; אין מקור סמנטי למכפיל שש. המילה צבי אינה משמשת כאן להסקת זהות אדם.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "6 ×טוב(17) =102",
+          "claimed": 102,
+          "method": null,
+          "sourceSpan": {
+            "start": 22,
+            "end": 37,
+            "excerpt": "6 ×טוב(17) =102"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0aef92d4-038f-4af2-8483-44d019e3f095",
+      "kind": "spatial_context",
+      "recommendation": "דורש בדיקה",
+      "reason": "אותו מקור כמו טענת 30×אמונה, אך טענת המבנה אינה אותה טענה. אין למחוק כאילו זו כפילות מוכחת.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "30 פעמים \"אמונה\"=3060",
+          "claimed": 3060,
+          "method": null,
+          "sourceSpan": {
+            "start": 34,
+            "end": 55,
+            "excerpt": "30 פעמים \"אמונה\"=3060"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0aff4596-59e0-4d01-920d-ee0871eaf8e4",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "אלף×8=888 משוחזר; הקישור למעל הטבע הוא פרשנות המקור, לא תוצאת מנוע.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "'אלף' בגימטריא ×8=888",
+          "claimed": 888,
+          "method": null,
+          "sourceSpan": {
+            "start": 48,
+            "end": 69,
+            "excerpt": "'אלף' בגימטריא ×8=888"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0b2892d2-a429-4518-892e-a264022725d7",
+      "kind": "media",
+      "recommendation": "דורש OCR או תמלול",
+      "reason": "אין נוסח מקור קריא לבדוק את בע״ה מול 146; אין לאמת על סמך תקציר הייבוא.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0b301543-2bfe-4e35-b353-f5c1192973be",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "ארבעת שלבי הכפל משוחזרים; נחוץ לשמר גם שרשרת חיבור התוצרים, ולא להציג 490 כגימטריה רגילה של יהוה.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "י ×{ה+ו+ה}=10×16=160",
+          "claimed": 160,
+          "method": null,
+          "sourceSpan": {
+            "start": 140,
+            "end": 160,
+            "excerpt": "י ×{ה+ו+ה}=10×16=160"
+          }
+        },
+        {
+          "type": "compound",
+          "expression": "ה×{י+ו+ה}= 5×21  =105",
+          "claimed": 105,
+          "method": null,
+          "sourceSpan": {
+            "start": 162,
+            "end": 183,
+            "excerpt": "ה×{י+ו+ה}= 5×21  =105"
+          }
+        },
+        {
+          "type": "compound",
+          "expression": "ו ×{י+ה+ה}=6×20  =120",
+          "claimed": 120,
+          "method": null,
+          "sourceSpan": {
+            "start": 185,
+            "end": 206,
+            "excerpt": "ו ×{י+ה+ה}=6×20  =120"
+          }
+        },
+        {
+          "type": "compound",
+          "expression": "ה×{י+ה+ו} =5×21  =105",
+          "claimed": 105,
+          "method": null,
+          "sourceSpan": {
+            "start": 208,
+            "end": 229,
+            "excerpt": "ה×{י+ה+ו} =5×21  =105"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0b5e8fa3-6180-4f7d-bbeb-eafc054061e6",
+      "kind": "media",
+      "recommendation": "דורש OCR או תמלול",
+      "reason": "הטענה ברית טוב×36=3060 נשענת על תמונה. אין החלפת הביטוי בברית או בטוב בלי קריאת התמונה.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0bc3869b-631e-4219-8026-0a91a34e0583",
+      "kind": "media",
+      "recommendation": "דורש OCR או תמלול",
+      "reason": "אין שני ביטויים מלאים במקור הטקסטואלי; נדרש תמלול התמונה לפני חישוב או איחוד.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0bea475a-a124-4391-b909-1b536693cb3a",
+      "kind": "interpretation",
+      "recommendation": "דורש בדיקה",
+      "reason": "הטענה פרשנית, ומשפחת 417 המצוטטת כוללת גם שתי אי־התאמות. אין ירושת אמת ממספר משותף.",
+      "calculations": [
+        {
+          "type": "atomic",
+          "expression": "האר פניך ונושעה",
+          "claimed": 417,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 108,
+            "end": 178,
+            "excerpt": "\"האר פניך ונושעה\" הארת פנים וחיבור לכתר יהיו בביאת המשיח.גימטריא: 417."
+          }
+        },
+        {
+          "type": "atomic",
+          "expression": "לא בחיל ולא בכח,כי אם ברוחי",
+          "claimed": 417,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 254,
+            "end": 322,
+            "excerpt": "\"לא בחיל ולא בכח,כי אם ברוחי\" גימטריא 417.(זה כח הרוח של מלך המשיח)."
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0c1d388d-5458-441a-8115-dafd430d8277",
+      "kind": "historical_count",
+      "recommendation": "דורש מקור",
+      "reason": "ספירת 31 מלכים אינה גימטריה. דרוש מראה מקום מדויק במקור המקראי לפני אישור היסטורי.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0c8e771e-5809-460d-923c-6d6ccab04d2f",
+      "kind": "mixed",
+      "recommendation": "דורש בדיקה",
+      "reason": "הרשומה כבר מפרידה התאמות מסתירות; נשמרת כמשפחה מעורבת, לא כשוויון כולל מאומת.",
+      "calculations": [
+        {
+          "type": "atomic",
+          "expression": "זית",
+          "claimed": 417,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 71,
+            "end": 107,
+            "excerpt": "'אדם+דוד+משיח' בגימטריא 'זית' (417)."
+          }
+        },
+        {
+          "type": "atomic",
+          "expression": "הבן יקיר לי",
+          "claimed": 417,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 179,
+            "end": 205,
+            "excerpt": "\"הבן יקיר לי\" גימטריא 417."
+          }
+        },
+        {
+          "type": "atomic",
+          "expression": "ונשמחה בו",
+          "claimed": 417,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 217,
+            "end": 241,
+            "excerpt": "\"ונשמחה בו\" גימטריא 417."
+          }
+        },
+        {
+          "type": "atomic",
+          "expression": "לך עמי בא בחדריך",
+          "claimed": 417,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 323,
+            "end": 354,
+            "excerpt": "\"לך עמי בא בחדריך\" גימטריא 417."
+          }
+        },
+        {
+          "type": "atomic",
+          "expression": "פני הכרבים",
+          "claimed": 417,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 382,
+            "end": 407,
+            "excerpt": "\"פני הכרבים\" גימטריא 417."
+          }
+        },
+        {
+          "type": "atomic",
+          "expression": "האר פניך ונושעה",
+          "claimed": 417,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 108,
+            "end": 178,
+            "excerpt": "\"האר פניך ונושעה\" הארת פנים וחיבור לכתר יהיו בביאת המשיח.גימטריא: 417."
+          }
+        },
+        {
+          "type": "atomic",
+          "expression": "לא בחיל ולא בכח,כי אם ברוחי",
+          "claimed": 417,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 254,
+            "end": 322,
+            "excerpt": "\"לא בחיל ולא בכח,כי אם ברוחי\" גימטריא 417.(זה כח הרוח של מלך המשיח)."
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0ca90e84-02f1-403f-bd13-df7c3c5403d3",
+      "kind": "derivation",
+      "recommendation": "מתאים לעץ",
+      "reason": "כתר+חכמה+בינה=760 מפורש ומשוחזר; המלצה לחיבור המספרי בלבד.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "כתר+חכמה+בינה=760",
+          "claimed": 760,
+          "method": null,
+          "sourceSpan": {
+            "start": 117,
+            "end": 134,
+            "excerpt": "כתר+חכמה+בינה=760"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0ce26819-5a92-4e4e-8c2d-d151a632eba7",
+      "kind": "event_derivation",
+      "recommendation": "דורש מקור",
+      "reason": "א=1 מפורש, אך זיהוי הטיסה והאירוע אינם מאומתים. חיבור מספרי אינו הוכחת האירוע או הפרשנות.",
+      "calculations": [
+        {
+          "type": "atomic",
+          "expression": "א",
+          "claimed": 1,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 91,
+            "end": 103,
+            "excerpt": "א=1 (אלוקות)"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0d9498a6-9f44-4edf-bdbf-9d2e20906376",
+      "kind": "media",
+      "recommendation": "דורש OCR או תמלול",
+      "reason": "חסרים נוסחי שני הביטויים המדויקים מתוך התמונה; ארון ברית וספר תורה הם נושאים ולא בהכרח operands.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0da60079-8116-433a-b8f4-3e80de793e9e",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "הכפלה 4×17=68 משוחזרת; יש לשמר קישור ארבע הופעות טוב לחיים וסמן התמונה, בלי לאשר פירוש רוחני.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "68=4 ×17",
+          "claimed": 68,
+          "method": null,
+          "sourceSpan": {
+            "start": 30,
+            "end": 38,
+            "excerpt": "68=4 ×17"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0dc4c513-e83e-4bc3-8eea-db6f78172a68",
+      "kind": "corpus_count",
+      "recommendation": "דורש בדיקה",
+      "reason": "ארבע הופעות השבעתי מחייבות ספירת קורפוס; ערך 787 של המילה אינו אימות לספירה.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0e0ca560-c876-48e4-884c-7c93f1d9754d",
+      "kind": "interpretation",
+      "recommendation": "דורש בדיקה",
+      "reason": "ישועת=786 משוחזר, אבל משמעות הקישור לשנה ולקריעת הים נשארת פרשנות.",
+      "calculations": [
+        {
+          "type": "atomic",
+          "expression": "ישועת",
+          "claimed": 786,
+          "method": "רגיל",
+          "sourceSpan": {
+            "start": 363,
+            "end": 394,
+            "excerpt": "\"ישועת\" בגימטריא: תשפ\"ו!!!(786)"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0e479992-c6fd-4feb-b87d-78c8dad64ade",
+      "kind": "media",
+      "recommendation": "דורש OCR או תמלול",
+      "reason": "נדרשים ארבעת הפסוקים, מיקומם בתמונה ושיוך המשולשים. הגימטריה של המילים משולשים פנימיים אינה בדיקת המבנה.",
+      "calculations": [],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    },
+    {
+      "id": "0ec54564-abf2-4a29-94c0-76d6f2de12d4",
+      "kind": "derivation",
+      "recommendation": "דורש בדיקה",
+      "reason": "119+119=238=רחל משוחזר; יש לקשור בנפרד את שתי הופעות דמעה בשורה הקודמת לקלטים.",
+      "calculations": [
+        {
+          "type": "compound",
+          "expression": "119+119=238=רחל בגימטריא",
+          "claimed": 238,
+          "method": null,
+          "sourceSpan": {
+            "start": 88,
+            "end": 112,
+            "excerpt": "119+119=238=רחל בגימטריא"
+          }
+        }
+      ],
+      "strength": null,
+      "score": null,
+      "scoreTargetId": null,
+      "sourceCount": null,
+      "independentSourcesAdded": 0,
+      "automaticPromotion": false
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "base_sha": "957e4a6a7148f20cadd921303d8c9a86a8b6a7b5",
+  "function": "newsletter-unsubscribe",
+  "observed_version": 9,
+  "verify_jwt": false,
+  "before_source_sha256": "13101bb6374057625d05414d216af2eab173c7fb4ad45d39f6f075578bc1d2c4",
+  "proposed_source_sha256": "7da57eaad6c43ce14f2f26ad7ded1a01f7977dc3bd7829e32cbac2b64aa792b9",
+  "deployed": false,
+  "repo_edited": false
+}

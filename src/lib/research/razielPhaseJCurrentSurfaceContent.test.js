@@ -2,16 +2,20 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
+import { supabaseServiceHeaders } from "../../../supabase/functions/_shared/supabaseServiceHeaders.js";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 
 // Load the REAL Phase J adapter block (types stripped by Node itself) with stubbed I/O.
 const block = edge.slice(edge.indexOf("// ── Raziel Intelligence Core v1 Phase J"), edge.indexOf("Deno.serve(async"));
-function load(fetchImpl, spans = []) {
-  const code = stripTypeScriptTypes(`type OperationalTraceHandle = any;\nconst SB_URL = "https://x.supabase.co";\nconst SB_ANON = "anon-key";\n${block}\n`) +
+function load(fetchImpl, spans = [], anonKey = "anon-key") {
+  const code = stripTypeScriptTypes(`type OperationalTraceHandle = any;\nconst SB_URL = "https://x.supabase.co";\nconst SB_ANON = ${JSON.stringify(anonKey)};\n${block}\n`) +
     "\nreturn { razielCurrentContentDescriptor, razielCurrentPostProject, razielCurrentTopicProject, runRazielCurrentContent };";
-  return new Function("fetch", "recordOperationalSpan", "crypto", code)(fetchImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" });
+  // Preserve the real adapter's imported auth dependency; omitting it throws
+  // before fetch and can make negative I/O tests pass for the wrong reason.
+  return new Function("fetch", "recordOperationalSpan", "crypto", "AbortSignal", "supabaseServiceHeaders", code)(
+    fetchImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" }, AbortSignal, supabaseServiceHeaders);
 }
 const ok = (rows) => async () => ({ ok: true, status: 200, json: async () => rows });
 const sem = (type, extra = {}) => ({ surface: type, subject: { type, id: "x" }, ...extra });
@@ -56,7 +60,9 @@ test("J: post read via anon path, exact slug, selected columns only, one row; sa
   assert.equal(r.ok, true);
   assert.equal(calls.length, 1);
   assert.match(calls[0].url, /\/rest\/v1\/posts\?slug=eq\.my-post&select=id,slug,title,excerpt,categories,tags,date,modified,source,content&limit=1$/);
-  assert.equal(calls[0].init.headers.Authorization, "Bearer anon-key");
+  const headers = new Headers(calls[0].init.headers);
+  assert.equal(headers.get("authorization"), "Bearer anon-key");
+  assert.equal(headers.get("apikey"), "anon-key");
   assert.ok(!/service/i.test(JSON.stringify(calls[0].init.headers)));
   assert.ok(!/SECRET_JS|LEAK|<|hid/.test(r.pack));
   assert.ok(!r.pack.includes("\u0000"));
@@ -90,18 +96,51 @@ test("J: topic read via topic_cards_public anon; projection allowlists findings 
 });
 
 test("J: draft/public boundary not widened — unknown slug / non-public row / http error fail closed; no service role in the adapter", async () => {
-  for (const impl of [ok([]), ok([{ slug: "other", title: "x" }]), async () => ({ ok: false, status: 401, json: async () => [] }), async () => { throw new Error("boom"); }]) {
-    const spans = [];
-    const r = await load(impl, spans).runRazielCurrentContent({ kind: "topic", slug: "s" }, { traceId: "t" });
+  for (const [impl, outcome, reason] of [
+    [ok([]), "failed_with_reason", "not_found"],
+    [ok([{ slug: "other", title: "x" }]), "failed_with_reason", "not_found"],
+    [async () => ({ ok: false, status: 401 }), "access_filtered", "http_401"],
+    [async () => ({ ok: false, status: 403 }), "access_filtered", "http_403"],
+    [async () => ({ ok: false, status: 503 }), "tool_error", "http_503"],
+    [async () => { throw new Error("boom"); }, "tool_error", "fetch_failed"],
+    [ok({ slug: "s", title: "not an array" }), "failed_with_reason", "not_found"],
+    [ok([{ slug: "s", title: "" }]), "failed_with_reason", "unusable_payload"],
+  ]) {
+    const spans = [], calls = [];
+    const r = await load(async (...args) => { calls.push(args); return impl(...args); }, spans)
+      .runRazielCurrentContent({ kind: "topic", slug: "s" }, { traceId: "t" });
     assert.equal(r.ok, false);
     assert.equal(r.pack, undefined);
+    assert.equal(r.outcome, outcome);
+    assert.equal(calls.length, 1, "the injected real adapter must reach the synthetic public read, not fail on a missing dependency");
+    assert.equal(new Headers(calls[0][1].headers).get("apikey"), "anon-key");
+    assert.equal(spans.length, 1);
     assert.equal(spans[0].detail.output_use, "not_applicable");
+    assert.equal(spans[0].detail.stop_reason, reason);
   }
   assert.ok(!/SB_SVC|svcHeaders|SERVICE_ROLE/.test(block));
   // no table other than the two existing public ones, no listing / search / ilike
   assert.deepEqual([...new Set([...block.matchAll(/rest\/v1\/\$\{?(\w+)/g)].map((x) => x[1]))], ["table"]);
   assert.ok(!/ilike|\bor=|like\.|\/rpc\/|search/i.test(block.replace(/ai-analyze:raziel:current_surface_content/g, "").replace(/\/\/[^\n]*/g, "")));
   assert.match(block, /const table = desc\.kind === "post" \? "posts" : "topic_cards_public"/);
+});
+
+test("J: both public readers use the real auth helper for legacy and publishable keys without inventing a Bearer token", async () => {
+  for (const kind of ["post", "topic"]) for (const anonKey of ["anon-key", "sb_publishable_synthetic_reader_key"]) {
+    const calls = [];
+    const r = await load(async (url, init) => {
+      calls.push({ url, init });
+      return { ok: true, json: async () => [{ slug: "public-source", title: "מקור ציבורי", content: "דברי המקור" }] };
+    }, [], anonKey).runRazielCurrentContent({ kind, slug: "public-source" }, null);
+    assert.equal(r.ok, true, `${kind}/${anonKey}`);
+    assert.equal(calls.length, 1);
+    const url = new URL(calls[0].url), headers = new Headers(calls[0].init.headers);
+    assert.equal(url.pathname, `/rest/v1/${kind === "post" ? "posts" : "topic_cards_public"}`);
+    assert.equal(url.searchParams.get("slug"), "eq.public-source");
+    assert.equal(url.searchParams.get("limit"), "1");
+    assert.equal(headers.get("apikey"), anonKey);
+    assert.equal(headers.get("authorization"), anonKey.startsWith("sb_publishable_") ? null : `Bearer ${anonKey}`);
+  }
 });
 
 test("J: wired — fires only when triggered, identity from body.surface_semantic, fail-closed note, Phase A-I intact", () => {

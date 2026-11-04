@@ -1,0 +1,83 @@
+{
+  "baseSha": "01662ab57e92ea71332c05ca971a2280ddb988ea",
+  "activeRuntimeChanged": false,
+  "proposalApplied": false,
+  "productionDeploymentCreated": false,
+  "canonicalTrafficChanged": false,
+  "sourcePaths": [
+    "public-reading-deploy/review-admission.js",
+    "public-reading-deploy/authorization.js",
+    "scripts/build-public-reading-production.mjs",
+    "public-reading-deploy/api/public-document.js",
+    "public-reading-deploy/api/public-robots.js",
+    "public-reading-deploy/api/public-sitemap.js"
+  ],
+  "files": [
+    {
+      "path": "public-reading-deploy/review-admission.js",
+      "existing": true,
+      "beforeSha256": "66e41a107fb85cc13aac6ee4c96d44ad504da1ae87657fc6cd2a0c3cd1bf1ccf",
+      "proposedSha256": "3b950b9c8e352ecb5a8b2ef5c826cd8b78e9db0d64922d473b5f4d60968ca758"
+    },
+    {
+      "path": "public-reading-deploy/authorization.js",
+      "existing": true,
+      "beforeSha256": "9851bd6768869f6f177b0f5f47adfb3c588f872546aa4bdefeaf36c5dec6f3ed",
+      "proposedSha256": "a13e35fffbd520bf8d66ce8e380c2a1c0c1f363b4d1d442ab6d15e9ac6dd01e6"
+    },
+    {
+      "path": "scripts/build-public-reading-production.mjs",
+      "existing": true,
+      "beforeSha256": "0d078f9fa86d10932bc6407ec75ea4752329ae2b136af5d13c1343c0266ec5cf",
+      "proposedSha256": "df9eee37cfbb0127bf1ef38e25be90fd39753ee86c56b2815c3ed4a85776ed28"
+    },
+    {
+      "path": "public-reading-deploy/api/public-document.js",
+      "existing": true,
+      "beforeSha256": "6b3abbfcb2e726317e3e10eb5aabc6514c0c98a245421d38c4f26461e3ba9884",
+      "proposedSha256": "13375c367bcaee4e5c771845a7f2b962f3b25c9993e87d1a4bebcccfb9ebaae7"
+    },
+    {
+      "path": "public-reading-deploy/api/public-robots.js",
+      "existing": true,
+      "beforeSha256": "11cf9f105b9b53fb6a713f303495663a9ee749df17e75c526bd32b6003a3682a",
+      "proposedSha256": "3659d6511116b295f0327b8907f6e4cdf8a9e691c242f401b35312a1e7d0ba2b"
+    },
+    {
+      "path": "public-reading-deploy/api/public-sitemap.js",
+      "existing": true,
+      "beforeSha256": "b47ef061c87250c37ccb11a17c784717ce5dc89ee4b545d763e95860c57d1fda",
+      "proposedSha256": "9ecd03778668ecb87b7314f8cd1f5fc0571266b2df5fbfd2d4a84e50aed2c403"
+    },
+    {
+      "path": "test/public-reading-production-artifact.test.mjs",
+      "existing": true,
+      "beforeSha256": "de2bf33cce7835ee921d9b886ec53f4e0eda1d97399b83b98f23f2e5bd377c69",
+      "proposedSha256": "2647ac645c87649401021d3b26ea435bd530a9f7a23a2b1c5ab7914af421b5c8"
+    },
+    {
+      "path": "test/public-reading-public-candidate.test.mjs",
+      "existing": false,
+      "beforeSha256": null,
+      "proposedSha256": "6955dfdc9974e634fa8c9f06241d7d5af6ddd6ca435809c792192f285fca3239"
+    },
+    {
+      "path": "test/public-reading-production-review.test.mjs",
+      "existing": false,
+      "beforeSha256": null,
+      "proposedSha256": "87ff96f32d66ae6f32ba601b5d3761554130e5f16563fe3022fb2c63647b5716"
+    }
+  ],
+  "patchSha256": "a3ef243331857304cfb5c1e8f5d68c7a14dfab2aa7ce748dc285d7e349d5c282",
+  "rollbackPatchSha256": "828d3415c7b491aae7ba166104c4ad02ec2e61431bb110a8487dfd3c95a7759f",
+  "tests": {
+    "publicCandidateAndGuards": 13,
+    "retainedStageMode": 5,
+    "retainedProtectedReview": 10,
+    "existingArtifactContracts": 21,
+    "totalPassed": 49,
+    "failed": 0,
+    "skipped": 0,
+    "actualDormantBuild": "PASS"
+  }
+}

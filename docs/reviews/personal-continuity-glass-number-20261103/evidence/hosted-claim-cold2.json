@@ -1,0 +1,32 @@
+{
+  "kind": "hosted-public-readonly",
+  "origin": "https://sod1820-rihnl68bh-sod1820-s-projects.vercel.app",
+  "sourceSha": "ffdaf3e4417af2c333ab3a259940bd79956be9c6",
+  "cases": [
+    {
+      "name": "existing-account entry, exact personal return, actual worker",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "network": [
+    {
+      "path": "/assets/2029-Cg_hCxRK.js",
+      "host": "sod1820-rihnl68bh-sod1820-s-projects.vercel.app",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "path": "/css2",
+      "host": "fonts.googleapis.com",
+      "error": "net::ERR_ABORTED"
+    }
+  ],
+  "liveWrites": 0,
+  "realAccountAcceptance": "OPEN_USER_DEFERRED",
+  "artifact": {
+    "sourceSha": "ffdaf3e4417af2c333ab3a259940bd79956be9c6",
+    "policy": "public-reading-owned-account-continuity-20261103"
+  },
+  "passed": 1,
+  "finishedAt": "2026-11-03T13:29:57.478Z"
+}

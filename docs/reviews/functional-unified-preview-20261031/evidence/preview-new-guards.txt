@@ -1,0 +1,34 @@
+✔ existing accounts can sign in, refresh, read identity and sign out locally (41.639848ms)
+✔ functional Preview admits verified own Person, state and item writes without widening old previews (25.543803ms)
+✔ functional Preview permits deliberate signup, never phone signup or arbitrary media operations (8.536724ms)
+✔ functional Preview public meter stays a bounded canonical read; private hints retain their actual typed payload (11.838561ms)
+✔ functional owned profile, page, save and inbox actions require verified identity and preserve forbidden fields (24.599928ms)
+✔ functional private resumable uploads require the signed canonical image capability (10.567102ms)
+✔ signup, global logout, account mutation, other grants and origins stay blocked (12.667904ms)
+✔ profile/product/storage/model writes remain blocked; governed readers still work (18.342979ms)
+✔ unified working preview blocks Person creation and trace-producing ELS bridge (104.903271ms)
+✔ Books publication review is preview-only and has no write RPC in the guard (0.459294ms)
+✔ Posts Preview blocks Person creation, product writes and model calls while admitting calculation reads (3.875208ms)
+✔ the Posts Preview build cannot target Production (1.031878ms)
+✔ Community Preview reads use the existing closed public projection for GET and POST (30.260905ms)
+✔ Life Journey Preview overrides the public catch-all with private no-store headers (0.189361ms)
+✔ only the explicitly authorized protected branch forwards exact Community management RPCs (16.366963ms)
+✔ Community management cannot widen arguments, methods, caller headers or transport paths (41.179169ms)
+✔ Community management keeps unrelated writes, models and Person creation blocked (6.979891ms)
+✔ the exact publishing Preview admits only canonical Community posts and reactions (28.781318ms)
+✔ account-scoped media uploads validate the file and server-authenticated owner without allowing overwrite (22.246262ms)
+✔ legacy claim transport requires exact branch, confirmed server identity and only a source ID (11.795647ms)
+✔ exact own-avatar Preview upload and self action keep all other writes closed (13.711405ms)
+✔ unified real Raziel Preview forwards only explicit canonical chat to the existing server (23.942999ms)
+✔ reviewed public reply reads require exact projection and a server-confirmed visible parent chain (10.268555ms)
+✔ exact unified branch gpt/2029-unified-community-latest-integration-20261031 composes reviewed actions with central Raziel without widening other previews (30.295178ms)
+✔ exact unified branch gpt/2029-unified-performance-consolidation-20261031 composes reviewed actions with central Raziel without widening other previews (30.644507ms)
+✔ exact unified branch gpt/2029-home-loading-acceptance-20261031 composes reviewed actions with central Raziel without widening other previews (35.139256ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 599.832483

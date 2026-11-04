@@ -1,0 +1,984 @@
+[
+  {
+    "id": "F00",
+    "old_address": "/; /2029; /world; /map",
+    "evidence": "App2029; prior public-foundation +9d hosted acceptance;12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW;12.51 live d06/7Kcv + main-alignment evidence",
+    "meaning": "כניסה, עולם ומפת שירותים",
+    "target_2029": "היעדים הקיימים",
+    "verified_status": "12.48/49:בית/כותרתstickyוטיקרלאנעוץב390/1440;פריוויו98d16תרחישים. מקור98dחי דרךנתיבקהילהאחר. ביצועים073חלקייםולאקבלתכלהמלאי. 12.50: עיגול חיפוש זכוכית וטבעת זהב,44×44, נבדק בפריוויו d81; אין שינוי handler, נעיצת כותרת או נתיבים. החי נשאר273ceb24 בקריאת הסיום. 12.51: החי כבר d06. קישורמחשבון/gematria נוסף לתפריט המועמד; מקור החי אינו מוסק מmain. יישורmain ואישורשער נפרד עדיין בהכנה.",
+    "permissions": "ציבור; מצבי מנהל לפי הרשאה",
+    "parameters_anchors": "query, hash, returnTo, scroll",
+    "acceptance": "פתיחה/רענון/חזרה; המפה משקפת זמינות אמיתית",
+    "open_task": "ביצועיםחלקיים/CLSוהשלמותהתפעולהקיימות;איןסגירתG4.",
+    "treatment": "LIVE_PUBLIC_PRODUCT_BOUNDED_PREVIEW_ACCEPTED",
+    "exception_previous_checkpoint": {
+      "verified_status": "קיים; קבלה קודמת נשמרת"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md",
+    "direct_cutover_previous_checkpoint": {
+      "verified_status": "הקבלה הקודמת נשמרת; כינויי הבית הישנים ו־WORLD מדויקים נוספו, ללא fallback גורף",
+      "open_task": "C0",
+      "treatment": "PRESERVE_EXISTING"
+    },
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "LIVE2029: source1bc8260a,ProductionCkoiEsaT1,שלושתדומיינים.6בדיקותProductionHost+6canonical ו־24GET/HEADעברו;לאקבלתHTTPלכלמלאיהכתובות. בית/עולם/פוסט/מספר/ביטוי/מחשבון/SWוחזרהנבדקוב־390/1440. הכתובותהקיימותומדיניותפוסטיםנשמרו.",
+      "open_task": "המשךלפי הפעריםהמתועדים בלבד;איןהמתנהלcutoverהנוכחי ואיןהכרזתכיסוימלא/G4.",
+      "treatment": "LIVE_2029_BOUNDED_ACCEPTED",
+      "evidence": "App2029; prior public-foundation +9d hosted acceptance"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md",
+    "idle_tiles_previous_checkpoint": {
+      "verified_status": "12.48/49:בית/כותרתstickyוטיקרלאנעוץב390/1440;פריוויו98d16תרחישים. מקור98dחי דרךנתיבקהילהאחר. ביצועים073חלקייםולאקבלתכלהמלאי.",
+      "evidence": "App2029; prior public-foundation +9d hosted acceptance;12.48/49 source073/3c/98d + hosted16"
+    },
+    "idle_tiles_evidence": "../calculator-idle-tiles-20261104/README.md",
+    "main_alignment_previous_checkpoint": {
+      "evidence": "App2029; prior public-foundation +9d hosted acceptance;12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW",
+      "verified_status": "12.48/49:בית/כותרתstickyוטיקרלאנעוץב390/1440;פריוויו98d16תרחישים. מקור98dחי דרךנתיבקהילהאחר. ביצועים073חלקייםולאקבלתכלהמלאי. 12.50: עיגול חיפוש זכוכית וטבעת זהב,44×44, נבדק בפריוויו d81; אין שינוי handler, נעיצת כותרת או נתיבים. החי נשאר273ceb24 בקריאת הסיום."
+    },
+    "main_alignment_evidence": "../main-live-state-reconciliation-20261104/README.md"
+  },
+  {
+    "id": "F01",
+    "old_address": "/:slug; /post/:slug; /?p=<wp_id>",
+    "evidence": "publicPostUrls.js:5–49; db-census posts1307;12.51 live d06/7Kcv + main-alignment evidence",
+    "meaning": "פוסט מסוים",
+    "target_2029": "אותה כתובת לפי publicPostHref",
+    "verified_status": "זהויות וכתובות הפוסטים נשמרו. שתי כתובות404 קיימות נדחו לשחזור לאחר ההשקה באישור צוריאל;4 טיוטות נשארות מוגבלות;ForumPost המוכח ממשיך לצאט לפי החלטתו, בלי פרסום מחדש כפוסט. אין ניחוש לפי כותרת או החלפת מדיניות הכתובות 12.51: כתובות/תוכן לא השתנו. היעדרCSS ורקע שוחזר בחי בשלושה פוסטים ציבוריים; תיקון קישורCSS ובדיקתגרף4/4 מוכנים בענף בלבד. אבחנה עםCSSמוזרק אינה קבלתתוצרמתארח.",
+    "permissions": "ציבור רק לאחר publicPostBoundary",
+    "parameters_anchors": "מזהה WP, קידוד, כל query חוזר, hash, scroll",
+    "acceptance": "כל 1307 זהויות דרך המתאם; דוגמת ישן/חדש/WP/טיוטה; לא שינוי גורף",
+    "open_task": "C0",
+    "treatment": "PRESERVE_EXISTING",
+    "exception_previous_checkpoint": {
+      "verified_status": "מנגנון התקבל; 1177 Legacy/130 חדשים לפי נתוני המקור"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "במכנה בירור2140: 2095 כתובות מזהות1306 פוסטים לפי slug/ID/כתובת מקור; 8 כתובות ללא התאמה ציבורית נשארות פתוחות. 37 האחרות הן נתיבים/תבניות, לא פוסטים. אין טענת HTTP לכל פוסט"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md",
+    "continuity_closure_previous_checkpoint": {
+      "verified_status": "2095 זהויות המקור הקודמות נשמרו. מתוך8 החריגים:4 טיוטות מוגבלות,2 כתובות404 קיימות ללא זהות,1 רשומתForumPost ציבורית הדורשת המשך ו־1 לשוניתimage לא פעילה. אין פרסום או ניחוש לפי כותרת; מדיניות הכתובות נשמרת"
+    },
+    "continuity_closure_evidence": "../public-url-exceptions-20261103/residual205/continuity-closure-20261103.md",
+    "main_alignment_previous_checkpoint": {
+      "evidence": "publicPostUrls.js:5–49; db-census posts1307",
+      "verified_status": "זהויות וכתובות הפוסטים נשמרו. שתי כתובות404 קיימות נדחו לשחזור לאחר ההשקה באישור צוריאל;4 טיוטות נשארות מוגבלות;ForumPost המוכח ממשיך לצאט לפי החלטתו, בלי פרסום מחדש כפוסט. אין ניחוש לפי כותרת או החלפת מדיניות הכתובות"
+    },
+    "main_alignment_evidence": "../main-live-state-reconciliation-20261104/README.md"
+  },
+  {
+    "id": "F02",
+    "old_address": "/post; /posts; /פוסטים-אחרונים[-2]; /verified",
+    "evidence": "App.jsx; redirect config; Posts2029; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16",
+    "meaning": "קטלוג פוסטים",
+    "target_2029": "/post; aliases → canonical existing catalog",
+    "verified_status": "12.48/49:הקטלוגמשמר/postקנוני;סינוןnoindexלפיowner;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה.",
+    "permissions": "ציבור מסונן",
+    "parameters_anchors": "page,q,category,series,sort,hash",
+    "acceptance": "זהות תוצאות/עמוד ושמירת חזרה",
+    "open_task": "השלמותהמלאיוהמדיההקיימותנשמרות;לאמיפוימחדש/כיסוימלא.",
+    "treatment": "INTEGRATED_PUBLIC_REPAIR_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "/post או /2029/posts הקיימים",
+      "verified_status": "קיים; הכינויים טעונים קבלת HTTP",
+      "treatment": "PRESERVE_EXISTING"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "exception_previous_checkpoint": {
+      "old_address": "/post; /posts; /פוסטים-אחרונים[-2]",
+      "verified_status": "מומש; כינויים ופרמטרים בבדיקות מתאם ו־HTTP; לא קבלה ממצה של כל פריט"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md",
+    "canonical_parity_previous_checkpoint": {
+      "verified_status": "מומש; verified משתמש בשדה האימות השמור ובאותו קטלוג ציבורי, לא בציון אמת חדש. קבלה משפחתית מוגבלת",
+      "open_task": "C0",
+      "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+      "evidence": "App.jsx; redirect config; Posts2029"
+    },
+    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "הקטלוג הקיים נשמר; קבלת התוכן הקודמת נשארת בתחומה. 12.47: ב-f4390dd3 שרת /post וגם /2029/posts שולח canonical /post ו-index, אך הלקוח מחליף ל-/2029/posts ו-noindex; שוחזר בנייד ובמחשב. לא תוקן בחי.",
+      "open_task": "C0: לתקן את תנאי פרופיל הפרסום בקנוניקל וב-robots של Posts2029; לבדוק קטלוג רגיל ומסונן, בלי שינוי כתובות פוסטים.",
+      "treatment": "EXISTING_CATALOG_CLIENT_SEO_FIX_REQUIRED",
+      "evidence": "App.jsx; redirect config; Posts2029; canonical/HTTP audit f4390dd3 (12.47)"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
+  },
+  {
+    "id": "F03",
+    "old_address": "/category/:slug",
+    "evidence": "TaxonomyPage:56–116;37labels DB",
+    "meaning": "סיווג תוכן מסוים",
+    "target_2029": "/category/:slug — אותו קטלוג Posts, סינון מדויק",
+    "verified_status": "מומש בעיצוב Posts ובסינון חברות מדויק; גם הקטגוריה ההיסטורית המקוננת גלריות-גימטריה מגיעה לאוסף המדויק, בלי הפניית עולם כללית",
+    "permissions": "תוכן שפורסם בלבד",
+    "parameters_anchors": "slug עברי/קידוד, עמוד ומיון",
+    "acceptance": "השוואת מזהי תוצאות לקטגוריה; בלי התאמת substring עיוורת",
+    "open_task": "C2",
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: /2029/posts?category=<שם קנוני>",
+      "verified_status": "קורא קיים; החיבור הישן חסר",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "exception_previous_checkpoint": {
+      "verified_status": "מומש בעיצוב Posts; קבלה מתארחת לקטגוריה רגילה ולסלאש מקודד; כשל/ריק/פרטיות נבדקו"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
+  },
+  {
+    "id": "F04",
+    "old_address": "/tag/:slug כולל כינויי צאט",
+    "evidence": "TaxonomyPage:63–93;1945labels DB",
+    "meaning": "תגית מדויקת; כינויי צאט חריג מפורש",
+    "target_2029": "/tag/:slug; כינויי צאט מדויקים → /community/chat",
+    "verified_status": "מומש; תגית ציבורית, ישיר/רענון/חזרה, מובייל/מחשב; תגית לא קיימת 404",
+    "permissions": "תוכן ציבורי; לא tag=טיוטה כעקיפה",
+    "parameters_anchors": "שם תגית מדויק,קידוד,page,hash",
+    "acceptance": "תגית≠קטגוריה≠q; ריק/כשל; חריגי צאט מוכרים בלבד",
+    "open_task": "C2",
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: מסנן תגית בקטלוג הקיים; כינויי צאט→/community/chat",
+      "verified_status": "מסנן tag חסר; כינוי לא מחובר",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F05",
+    "old_address": "/category/וידאו",
+    "evidence": "TaxonomyPage:65–67; public video readers",
+    "meaning": "פוסטי וידאו וגם שכבת אור הגאולה",
+    "target_2029": "/category/וידאו — סיווג הפוסטים הקיים + קישור נפרד ל־/or-geula",
+    "verified_status": "מומש; אין איחוד מדומה בין סיווג הפוסט לבין כל סרטוני המקור",
+    "permissions": "פרסום/מקור/תוקף מדיה",
+    "parameters_anchors": "סינון,פריט,מיקום,מקור",
+    "acceptance": "אותה חברות באוסף; dedup לפי זהות; סרטון וצפייה",
+    "open_task": "C2",
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: תצוגת וידאו קיימת עם אותו אוסף",
+      "verified_status": "אין יעד יחיד מאומת; לא מפנים לעולם הכללי",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F06",
+    "old_address": "/community",
+    "evidence": "App.jsx:390; placeholders:85–144",
+    "meaning": "מרכז שירותי הקהילה",
+    "target_2029": "/community",
+    "verified_status": "עמוד ההמשך קיים בפריוויו; אינו אישור לכתיבה או לחשבון אמיתי",
+    "permissions": "קריאה ציבורית; פעולות בעל חשבון",
+    "parameters_anchors": "tab,member,returnTo,hash",
+    "acceptance": "מרכז שימושי ולא דף בית חלופי",
+    "open_task": "C1",
+    "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "מוצע: מעטפת הקהילה הקיימת עם קישורי השירות",
+      "verified_status": "לא מחובר;404 במועמד",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F07",
+    "old_address": "/community/chat; /chat; /דף-צאט-ראשי",
+    "evidence": "App.jsx:391,457–458; CommunityChatTransition",
+    "meaning": "השיחה הקיימת",
+    "target_2029": "/community/chat",
+    "verified_status": "מומש ונבדק עם נתונים ציבוריים אמיתיים; כינויים ישנים, שיתוף יעד, שרשור ורענון; כתיבה נשארה סגורה",
+    "permissions": "קריאה ציבורית; כתיבה לפי JWT/RLS קיימים",
+    "parameters_anchors": "שרשור,תגובה,Spot.IM/OpenWeb,hash",
+    "acceptance": "אורח/חבר/מנהל; קריאה,כניסה,תגובה,תמונה,התראה,החלפת חשבון",
+    "open_task": "C1",
+    "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "/community/chat קיים",
+      "verified_status": "הרכיבים קיימים; נעילה ותעבורה חוסמות",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F08",
+    "old_address": "/community/chat#legacy-chat +כינויי OpenWeb",
+    "evidence": "legacy.jsx:4488; LegacyOpenWebChat2029:10",
+    "meaning": "היסטוריה חיה של הצאט הוותיק",
+    "target_2029": "/community/chat#legacy-chat",
+    "verified_status": "הקורא הקיים נשמר. נמצא batch מוצע של24 הודעות ציבוריות (20חדשות+4אבות); לא יובאה אף הודעה. צוריאל דחה כעת את ההעברה כדי לסיים את המועמד. המזהים, גבולות המקור והחריג של אב מחוק נשמרו בראיות.",
+    "permissions": "הרשאות OpenWeb/החשבון הקיימות",
+    "parameters_anchors": "POST_ID_GOES_HERE,SPOT_ID,deep-link params,hash",
+    "acceptance": "אותה שיחה והודעה; אימות היסטוריה; בלי להפנות באותו דומיין בלולאה",
+    "open_task": "C1 — recent chat import DEFERRED_USER_DECISION;0 imported",
+    "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "אותו גשר OpenWeb הקיים",
+      "verified_status": "זהות השיחה נשמרה במקור; הכיסוי החי טרם התקבל",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "final_preparation_previous_checkpoint": {
+      "verified_status": "תוכן הארכיון הציבורי מהקורא הקיים; אין פתיחת iframe/SSO או עקיפת אימות בעלות",
+      "open_task": "C1"
+    },
+    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
+  },
+  {
+    "id": "F09",
+    "old_address": "/2029?preview=community&data=live…",
+    "evidence": "CommunityLive2029:249; App2029:81–86",
+    "meaning": "קישור שיתוף לשרשור/תגובה",
+    "target_2029": "/community/chat + query/hash המקוריים",
+    "verified_status": "מומש; מעבר לפני טעינת הבית; יעד thread/reply/path נשמר ומאומת",
+    "permissions": "אין חשיפת הודעה פרטית דרך שיתוף",
+    "parameters_anchors": "thread,reply,path,sort,sourceSort,member,memberCard,claim,returnTo,#message",
+    "acceptance": "בחירת ההודעה ותגובה המדויקת,רענון/אחורה/קדימה",
+    "open_task": "C1",
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: /community/chat עם אותו מצב",
+      "verified_status": "כיום הבית מוצג; אובדן הקשר אומת גם בשאילתה מבוקרת",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F10",
+    "old_address": "/forum; /forum/:id; /community/comments",
+    "evidence": "App.jsx:393,424,429; sitemap forum rows",
+    "meaning": "פורום/שרשור/תגובת פוסט; לא כולם אותו מאגר",
+    "target_2029": "/forum והזהות הישנה המוכחת→/community/chat; /forum/:id רק לאחר approved אנונימי; /community/comments נשאר שירות נפרד",
+    "verified_status": "מומש ונבדק ב־76cf61e6: אינדקס,3 כינוייForumPost ו־UUID approved אמיתי→צאט, עםquery/hash; לא שוחזר שרשור ולא הומצאה זהות. בדיקות שלילה: unknown/draft404 וכשל מקור503",
+    "permissions": "הרשאת שרת; סיסמת JS אינה הרשאה",
+    "parameters_anchors": "id,parent,reply,comment anchor,page",
+    "acceptance": "תוכן וזהות שרשור; תגובה על פוסט חוזרת לפוסט; פרטיות",
+    "open_task": "C1",
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: אותו שרשור/פוסט בקורא הציבורי הקיים",
+      "verified_status": "אין יעד 2029 שלם; תגובות WP אינן ציבוריות אוטומטית",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "הפורום אינו פורסם מחדש: רק קיום פריט מאושר; פרטי/לא קיים404. תגובות מפנות לפוסט ציבורי. פעולות הפורום עדיין פתוחות לקבלה"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md",
+    "continuity_closure_previous_checkpoint": {
+      "target_2029": "/forum[/id] מצב ייעודי; /community/comments?p=wp_id → קישור לפוסט המדויק",
+      "verified_status": "המשךUUIDהקיים נשמר; פרטי/לא קיים404. בבירור205 נמצאה כתובתForumPost ציבורית אחת ממאגרPosts, שאינה אותו research_contribution; המשך הקריאה באותה זהות עדיין חסם בירור, בלי החלשתP0-A",
+      "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN"
+    },
+    "continuity_closure_evidence": "../public-url-exceptions-20261103/residual205/continuity-closure-20261103.md"
+  },
+  {
+    "id": "F11",
+    "old_address": "/community/whatsapp",
+    "evidence": "App.jsx:396",
+    "meaning": "תיבת מקור/אינטגרציה, לא הצטרפות לקבוצה",
+    "target_2029": "/community/whatsapp — מצב ייעודי קיים",
+    "verified_status": "אין הצטרפות/שליחה אוטומטית; שירות פעיל מלא טרם התקבל",
+    "permissions": "הרשאות המקור; תוכן פרטי נשאר פרטי",
+    "parameters_anchors": "מזהי מקור מותרים בלבד",
+    "acceptance": "אין חשיפת תיבה; קישור קבוצת WhatsApp אינו תחליף",
+    "open_task": "C6",
+    "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "מוצע: מצב ייעודי לפי יכולת קיימת",
+      "verified_status": "לא התקבל יעד; לא לפתוח תיבה",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F12",
+    "old_address": "/community/researchers; /members",
+    "evidence": "App.jsx:395,399; publicPeopleIndex",
+    "meaning": "אינדקס אנשים ציבוריים",
+    "target_2029": "/community/researchers; /members — אינדקס אנשים ציבורי קנוני",
+    "verified_status": "מומש; לא רשימת כל המשתמשים; קבלת חשבון/מנוי אינה נובעת מהרשימה",
+    "permissions": "active/unlocked/public; לא כל חשבונות האתר",
+    "parameters_anchors": "סינון,אדם,מיון,return",
+    "acceptance": "אותה קבוצת אנשים; ללא טלפונים/מיילים/פרטיים",
+    "open_task": "C2",
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: תצוגת אנשים קיימת בעולם/קהילה לאחר שקילות",
+      "verified_status": "הקורא קיים; כניסות ישנות חסרות",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F13",
+    "old_address": "/community/researcher/:slug; /researcher/:slug; /888",
+    "evidence": "App2029:322–325; DB27eligible slugs",
+    "meaning": "אדם, כותב או עמוד מחקר נבדלים",
+    "target_2029": "/community/researcher/:slug; /888 → /community/researcher/888",
+    "verified_status": "היעד הציבורי הקיים; שיתוף קנוני ושלילת קישור אישי; כל הפרופילים לא נבדקו פרטנית",
+    "permissions": "publicEligibility; me בנפרד",
+    "parameters_anchors": "slug/code,tabs,hash,query",
+    "acceptance": "אין המרת אדם לאוסף אוטומטית; לא זליגת /me",
+    "open_task": "C2",
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "קיימים שני סוגי יעד; /888→/community/researcher/888",
+      "verified_status": "דפים קיימים; כינוי 888 חסר",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F14",
+    "old_address": "/gematria; /גימטריה; /research?tool=gematria",
+    "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW;12.51 live d06/7Kcv + main-alignment evidence",
+    "meaning": "מחשבון רגיל והפרמטרים הישנים",
+    "target_2029": "/gematria דרך המתאם הקיים",
+    "verified_status": "12.48/49:b06שולב;aliasesהמחשבוןקנוניים/gematria;קלאסיושיטותלמספרמלאוחזרה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה. 12.50: תשעה מצייני אפס ממורכזים3×3 בכניסה ובניקוי, ללא חישוב/קישור ריק;358 אמיתי→מספר→חזרה עברו בפריוויו d81. החי נשאר273ceb24 בקריאת הסיום; מנוע וכתובות לא שונו. 12.51: d81 כבר נכלל במקורd06החי דרךנתיבהקהילה; מנוע וקבלותיו ללא שינוי. תפריט/gematria נוסף בענףהאיחוד בלבד.",
+    "permissions": "חישוב מקומי ציבורי;AI בנפרד",
+    "parameters_anchors": "w,calc,q,method,result,share,hash",
+    "acceptance": "חישוב ושיתוף,מספר וחזרה; אין ברירת מחדל שמוחקת שיטה",
+    "open_task": "השלמותהמלאיוהמדיההקיימותנשמרות;לאמיפוימחדש/כיסוימלא.",
+    "treatment": "INTEGRATED_PUBLIC_REPAIR_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "/gematria והכלים הקיימים",
+      "verified_status": "חישוב רגיל התקבל; כינויים דורשים חיבור",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "canonical_parity_previous_checkpoint": {
+      "verified_status": "כינויים מדויקים מומשו; קבלה קודמת נשמרת; אין החלפה של המנוע",
+      "open_task": "C3",
+      "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+      "evidence": "App.jsx:339,431–432; Calculator2029Viral:44"
+    },
+    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "הכלי הקיים ופרמטריו נשמרים. 12.47: שלושת כינויי /2029 של המחשבון עובדים עם358, אך השרת שולח /2029/gematria והלקוח /gematria. תיקון מצומצם נבדק בענף נפרד בלבד; אינו חי. /gematria והמשך research?tool=gematria תואמים.",
+      "open_task": "C3: לשלב ממוקד את תיקון המטאדאטה שנבדק על בסיס המוצר העדכני; קבלת הכינויים בפרסום בנפרד וללא החלשת בדיקות.",
+      "treatment": "EXISTING_CALCULATOR_ALIAS_SERVER_SEO_FIX_REQUIRED",
+      "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47)"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md",
+    "idle_tiles_previous_checkpoint": {
+      "verified_status": "12.48/49:b06שולב;aliasesהמחשבוןקנוניים/gematria;קלאסיושיטותלמספרמלאוחזרה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה.",
+      "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16"
+    },
+    "idle_tiles_evidence": "../calculator-idle-tiles-20261104/README.md",
+    "main_alignment_previous_checkpoint": {
+      "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW",
+      "verified_status": "12.48/49:b06שולב;aliasesהמחשבוןקנוניים/gematria;קלאסיושיטותלמספרמלאוחזרה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה. 12.50: תשעה מצייני אפס ממורכזים3×3 בכניסה ובניקוי, ללא חישוב/קישור ריק;358 אמיתי→מספר→חזרה עברו בפריוויו d81. החי נשאר273ceb24 בקריאת הסיום; מנוע וכתובות לא שונו."
+    },
+    "main_alignment_evidence": "../main-live-state-reconciliation-20261104/README.md"
+  },
+  {
+    "id": "F15",
+    "old_address": "/community/calculator?w=…",
+    "evidence": "CommunityCalculatorPage; traffic1155visits",
+    "meaning": "מחשבון קהילתי עם מצבים ייעודיים",
+    "target_2029": "/community/calculator עם w/method/result ומצבי הכלי המקוריים",
+    "verified_status": "מומש דרך המחשבון הקיים; חישוב ומעבר/חזרה. תוקן null בהקשר מבקר ראשון; קבלת המקור המתוקן בנספח",
+    "permissions": "חישוב ציבורי; שמירה/קיר/AI בהיתרים נפרדים",
+    "parameters_anchors": "w,שיטות, שמות,תאריך,afterSunset,שיתוף",
+    "acceptance": "13 שיטות/השוואה/שם תינוק/משפחה/תאריך וחזרה; אין כלי מקביל",
+    "open_task": "C3",
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: אחד הכלים הקיימים רק לאחר parity; אחרת התאמת הקיים",
+      "verified_status": "כיום 404; כלי חדש כולל השוואה אך אין שקילות מלאה",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F16",
+    "old_address": "/number/:phrase; /2029/number/:value; /topic/:slug",
+    "evidence": "NumberAddress; prior number/world acceptance; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16",
+    "meaning": "מספר,ביטוי,נושא ושיטה",
+    "target_2029": "המסלולים הקיימים",
+    "verified_status": "12.48/49:aliasesציבורייםלמספר/ביטוילמטאדאטההקנונית,עםשיטה/ביטוי/חזרהוללאשינוימנוע;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה.",
+    "permissions": "ציבור לפי קורא המקור",
+    "parameters_anchors": "ביטוי,שיטה,תוצאה,מקור,return,hash",
+    "acceptance": "כיוונים הדדיים/refresh; נושא אינו מתמזג בגלל מספר",
+    "open_task": "השלמותהמלאיוהמדיההקיימותנשמרות;לאמיפוימחדש/כיסוימלא.",
+    "treatment": "INTEGRATED_PUBLIC_REPAIR_BOUNDED_TESTED",
+    "canonical_parity_previous_checkpoint": {
+      "verified_status": "קיים ונבדק בעבר; זהויות ממלאי XML",
+      "open_task": "C0",
+      "treatment": "PRESERVE_EXISTING",
+      "evidence": "NumberAddress; prior number/world acceptance"
+    },
+    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "הקורא הציבורי הקיים נשמר. 12.47: /number/1820 וביטוי משיח תואמים בשרת ובלקוח; כינויי /2029/number באותן דוגמאות וב-358 עם שיטה/חזרה שולחים canonical ישן ו-noindex/nofollow, והלקוח מחליף לכתובת הציבורית ו-index/follow. לא תוקן.",
+      "open_task": "C0: להעביר רק את כינויי המספר הציבוריים לקורא המטאדאטה /number הקיים, עם בקרת אינדוקס ושימור פרמטרים; לשמור Preview/פרטי ללא שינוי.",
+      "treatment": "EXISTING_NUMBER_ALIAS_SERVER_SEO_FIX_REQUIRED",
+      "evidence": "NumberAddress; prior number/world acceptance; canonical/HTTP audit f4390dd3 (12.47)"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
+  },
+  {
+    "id": "F17",
+    "old_address": "/gallery?gallery=…; /archive; /gallery-updates",
+    "evidence": "Gallery2029:236–268; DB106identities; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16",
+    "meaning": "גלריה/תמונה ומיקום קריאה",
+    "target_2029": "/gallery הזהה; /archive מצב ייעודי; /gallery-updates → /archive",
+    "verified_status": "12.48/49:מטאדאטת/galleryהקיימת200במקוםנפילהל404פוסט;איןהרחבתהרשאותמדיה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה.",
+    "permissions": "מדיה ציבורית/לא מוסתרת;87 גלריות עם מועמדזמין",
+    "parameters_anchors": "gallery,image,offset,flow,take,source,hash",
+    "acceptance": "תמונה נכונה ומיקום; חתום/פרטי/מחוק לא ציבורי",
+    "open_task": "השלמותהמלאיוהמדיההקיימותנשמרות;לאמיפוימחדש/כיסוימלא.",
+    "treatment": "INTEGRATED_PUBLIC_REPAIR_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "/gallery הקיים; כינויים לפי משמעות",
+      "verified_status": "קורא קיים; זהות DB אינה בדיקתנגישות",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "canonical_parity_previous_checkpoint": {
+      "verified_status": "זהות הגלריה נשמרה; אין הוכחת כל קובצי המדיה או קבלת זרם ארכיון מלא",
+      "open_task": "C4",
+      "treatment": "PARTIAL_EXISTING_MEDIA_ACCEPTANCE_OPEN",
+      "evidence": "Gallery2029:236–268; DB106identities"
+    },
+    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "זהויות הגלריות והקבלות הקודמות נשמרות בתחומן. 12.47: המסמך /gallery ב-f4390dd3 מחזיר404/noindex וכותרת פוסט לא נמצא; שוחזר בנייד, במחשב וב-GET/HEAD. SPA/SW פעילים אינם הוכחת תקינות HTTP. אין קבלת כל מדיה.",
+      "open_task": "C4: לתקן מטאדאטת אוסף עבור /gallery בקורא הקיים כדי שלא ייפול לבדיקת פוסט; לא לשנות הרשאות מדיה או להפוך slug לא קיים ל-200.",
+      "treatment": "PARTIAL_GALLERY_HTTP_METADATA_REPAIR_REQUIRED",
+      "evidence": "Gallery2029:236–268; DB106identities; canonical/HTTP audit f4390dd3 (12.47)"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
+  },
+  {
+    "id": "F18",
+    "old_address": "/or-geula; /אור-הגאולה; /or-geula/video/:id",
+    "evidence": "App.jsx:425–428; source locator; channel_updates",
+    "meaning": "ספריית מקור או מופע סרטון מסוים",
+    "target_2029": "/or-geula?v=id; /or-geula/video/:id; כינוי עברי",
+    "verified_status": "מומש; מקור ציבורי אמיתי, זמן/קרדיט/מדיה, exact item; אין שיוך תוכן מומצא",
+    "permissions": "מקור ציבורי/בתוקף וקרדיט",
+    "parameters_anchors": "sourceRef,section,occurrence,asset,time,return",
+    "acceptance": "המופע המבוקש; מקור מלא מול ניתוח; אין המצאת anchor",
+    "open_task": "C4",
+    "treatment": "IMPLEMENTED_BOUNDED_TESTED",
+    "planning_snapshot": {
+      "target_2029": "מוצע: המקור המדויק בעולם או /video/:assetId לאחר קשר מאומת",
+      "verified_status": "קוראים קיימים; הפניות הישנות אינן מחוברות",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F19",
+    "old_address": "/video/:assetId",
+    "evidence": "Video2029Page; sitemap",
+    "meaning": "נכס וידאו קנוני",
+    "target_2029": "היעד הקיים",
+    "verified_status": "קיים; בדיקות פרסום/תוקף קודמות נשמרות",
+    "permissions": "public source readmission לפני מדיה",
+    "parameters_anchors": "assetId,time,context,return",
+    "acceptance": "חידוש/מדיה שלא פורסמה/תוקף; לא כל 2305assets ציבוריים",
+    "open_task": "C4",
+    "treatment": "PRESERVE_EXISTING"
+  },
+  {
+    "id": "F20",
+    "old_address": "/codes; /codes/מחקר; /codes/:slug",
+    "evidence": "CiphersLibrary:16–18; els_records; sitemap",
+    "meaning": "ספריית צפנים ופריטים שפורסמו",
+    "target_2029": "/codes; /codes/מחקר; /codes/:slug",
+    "verified_status": "ספרייה ציבורית מקורית; published+public בלבד; מנוע חיפוש חדש נשאר סגור; קבלת פריט בנספח",
+    "permissions": "רק רשומות מפורסמות; לא טיוטה/מחקר פרטי",
+    "parameters_anchors": "slug,record,anchor,חזרה",
+    "acceptance": "ספרייה ופריט אמיתי; מנוע חיפוש חדש נשאר נעול",
+    "open_task": "C2",
+    "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "מוצע: שמירת כתובות וקוראי הפרסום הקיימים במעטפת",
+      "verified_status": "חסר חיבור; מובחן ממנוע /code",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F21",
+    "old_address": "/code; /els; /lab/els; /tzofen.html",
+    "evidence": "App.jsx; App2029:318–319; publicHTML",
+    "meaning": "מנוע הצופן החדש/כניסה ישנה לכלי",
+    "target_2029": "/code; /els; הכינויים המדויקים",
+    "verified_status": "דף מצב ייעודי לציבור; הרשאת מנהל נשמרת בנפרד. אין הפעלת מנוע או מודל",
+    "permissions": "מנהל מאומת; אין הפעלתמודל/חיוב בכניסה",
+    "parameters_anchors": "חיפוש/מטריצה/בחירה מותרים ללא חשיפה",
+    "acceptance": "עמוד מצב בשםהיכולת וחלופות; אין iframe bypass",
+    "open_task": "C6",
+    "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "שער היכולת הקיים; התאמת aliases אם משמעותזהה",
+      "verified_status": "יכולת חדשה נעולה לציבור",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F22",
+    "old_address": "/books; /book/:slug; /books/:slug; /book.html",
+    "evidence": "App2029:315–317; existingBooks; XML",
+    "meaning": "קריאת ספר ציבורי לעומת מערכת מחקר",
+    "target_2029": "/books; /book/:slug; /books/:slug → /book/:slug",
+    "verified_status": "מסירת23e03e82 כבר כלולה בבסיסb80. הוחזרו כרטיסים ומדי הכנה לצרכן הציבורי הקיים;7 זהויות פעילות, אהבת תורה פתוח ב־59% ושאר6 סגורים לציבור ללא טעינתPDF.8 מדדים מתועדים נשמרים;מאמר אסתר אינו זהות ציבורית פעילה. מקור99עמודים וחזרה התקבלו בפריוויוb80cc, 18/18 מקרי קבלת625adf97 עברו, עםSWאמיתי ואפס כתיבות בדיקה",
+    "permissions": "ספר מפורסם בנפרד מכלים החדשים",
+    "parameters_anchors": "slug,chapter,page,q,hash",
+    "acceptance": "אותו ספר/פרק; לא הפניה לספרייה נעולה; תוקףקובץ",
+    "open_task": "C2",
+    "treatment": "IMPLEMENTED_ADOPTED_LIBRARY_SOURCE_ACCEPTED_FINAL_REVIEW",
+    "planning_snapshot": {
+      "target_2029": "קורא הספרים הקיים; חיבור פרסומים מוכנים",
+      "verified_status": "קיים אך נעול; aliasReact מאבד query/hash",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "קריאת מקור מאומתת; שבע זהויות ספר ציבוריות, שישה קבצים זמינים. מקור חיצוני ללאCORS מופנה אליו ביושר; פריט לא פורסם404",
+      "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md"
+  },
+  {
+    "id": "F23",
+    "old_address": "/heichal; /היכל; /journey; /raziel; /research; /beit-midrash",
+    "evidence": "App2029; FramedGate; publicpath",
+    "meaning": "יכולות חדשות ומסלולים קיימים שונים",
+    "target_2029": "היכולות הקיימות ומצבי הבנייה הייעודיים",
+    "verified_status": "שם היכולת/חלופות/כניסה מדויקת; בלי פתיחת מערכות שנדחו",
+    "permissions": "ציבורסגור לחדש; מנהל לפי זהות;פעולות נפרדות",
+    "parameters_anchors": "הקשר פרטי אינו מופיע ב metadata",
+    "acceptance": "שם/מצב אמיתי/חלופות; אין דףבנייה לכלכתובתלאידועה",
+    "open_task": "C6",
+    "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "שערים קיימים/דףמצב ייעודי רק ליכולת לא מוכנה",
+      "verified_status": "חלק מהשערים קיימים; לפצל כלי קיים כגון מחשבון",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F24",
+    "old_address": "/contact; /צור-קשר; /about",
+    "evidence": "legacy.jsx:3994–4025; App.jsx",
+    "meaning": "שירות קשר ומידע",
+    "target_2029": "/contact; /צור-קשר; /about → /contact",
+    "verified_status": "הטופס הקיים נפתח עם כתובת מקור מסוננת; שליחה חסומה בפריוויו, מצב כן והעתקת טיוטה. אין הצלחה מדומה",
+    "permissions": "היתר שירות מצומצם/מניעת spam; ללאשליחתבדיקה",
+    "parameters_anchors": "נושא,חזרה; לאפרסום תוכן ההודעה",
+    "acceptance": "פתיחה/שליחהבאישורבעלים/כשל; טופס לאמדווחהצלחהמדומה",
+    "open_task": "C5",
+    "treatment": "IMPLEMENTED_FORM_DELIVERY_HELD",
+    "planning_snapshot": {
+      "target_2029": "מוצע: רכיב Contact קיים במעטפת 2029",
+      "verified_status": "כיום 404; /privacy אינו תחליף לטופס",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F25",
+    "old_address": "/profile; /me[?tab=<known>]; /2029/me; /community/researcher/me; /2029/me/:module",
+    "evidence": "writerPersonal2029; App2029",
+    "meaning": "חשבון אישי קיים",
+    "target_2029": "/profile → /2029/me/profile; /me/<מודול ידוע> → /2029/me/<מודול>; שמורים,פנקס,פרופיל ותיבות קיימות",
+    "verified_status": "ACCEPTED_USER_REPORTED על Preview7360: צוריאל אישר שכל פעולות הכניסה לחשבון קיים, השמורים הקודמים, שמירה, עריכה, רענון, יציאה/כניסה והחלפת חשבון ללא ערבוב עברו בשני חשבונותיו. דלתת החזרה וקריאת WhatsApp ב־76cf61e6 נבדקו בנפרד בסינתטי. חיבור מאומת, העדפה ומשלוח נפרדים; אין OTP או קרדיטים.",
+    "permissions": "JWT/RLS שלבעל החשבון; לא admin-only לכלקהילה",
+    "parameters_anchors": "module,returnTo,hash",
+    "acceptance": "כניסה/יציאה/החלפה/בידוד; פרופילציבורי נפרד",
+    "open_task": "C4: הפעולות האישיות התקבלו; social/signup ו־WhatsApp/CP1 נפרדים. תיקוןS2 הוחל ונבדק ממוקד; אינו חותם שער מלא. אין צורך לחזור על פעולות שני החשבונות.",
+    "treatment": "ACCEPTED_USER_REPORTED_BOUNDED_DELTA_TESTED",
+    "planning_snapshot": {
+      "target_2029": "/2029/me/profile ומודולים קיימים",
+      "verified_status": "קיים אך חסימת publicprofile כוללת גם חבר רגיל",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "personal_previous_checkpoint": {
+      "verified_status": "יעד חשבון ברור; עדיין לא קבלת חבר רגיל/חשבון אמיתי; אין חשיפת מידע אישי",
+      "target_2029": "/profile → /2029/me/profile; מודולים ידועים במצב ייעודי",
+      "treatment": "PARTIAL_ACCOUNT_ACCEPTANCE_OPEN",
+      "old_address": "/profile; /community/researcher/me; /2029/me/:module"
+    },
+    "personal_evidence": "../personal-continuity-glass-number-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "7937f084: תוקנה חסימת חבר רגיל ושמירה/עריכה בבעלות; 18 מקרי דפדפן מלאכותיים עברו ב־390/1440. קבלת שני החשבונות האמיתיים נדחתה בידי המשתמש ופתוחה; אין קבלת Auth/RLS חי בכתיבה; קבלת ציבור/SW/זכוכיתc023:14 מקרים; הכניסה האמיתית עדיין פתוחה",
+      "treatment": "IMPLEMENTED_CONTROLLED_TESTED_REAL_ACCOUNT_OPEN"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md",
+    "continuity_closure_previous_checkpoint": {
+      "verified_status": "המשכיות החשבון7937/18בדיקות מבוקרות נשמרת. המשתמש דיווח על תצוגה תקינה ושליחתDM אמיתית בפריוויוb80ad895. שמירה/עריכה/רענון/יציאה/כניסה והחלפת שני החשבונות שלא פורטו נשארות לקבלה. תוקן ניסוחWhatsApp: בחירה שמורה אינה חיבור; קישור מספר ועריכת הערוץ אינם מחוברים לאזור2029. social/signup/b21עדיין בהמתנה",
+      "treatment": "IMPLEMENTED_REAL_DM_REPORTED_FULL_ACCOUNT_ACCEPTANCE_OPEN",
+      "open_task": "C5"
+    },
+    "continuity_closure_evidence": "../public-url-exceptions-20261103/residual205/continuity-closure-20261103.md",
+    "final_preparation_previous_checkpoint": {
+      "open_task": "C4 (רק social/signup/recovery בהמתנה, WhatsApp linking/delivery ו־CP1/S2 נפרדים)"
+    },
+    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "s2_signup_default_previous_checkpoint": {
+      "open_task": "C4: הפעולות האישיות התקבלו; social/signup והפעלת WhatsApp/CP1/S2 נפרדים. אין תלות של כניסה קיימת בכל חבילתb21."
+    },
+    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
+  },
+  {
+    "id": "F26",
+    "old_address": "/login; /auth/callback; /join; /welcome",
+    "evidence": "AccountEntry; oauthReturn; JoinPage",
+    "meaning": "כניסה/הרשמה/הכוונה/קמפיין אינם אותה פעולה",
+    "target_2029": "מסכי Auth קיימים; adapters למשמעותשנשמרת",
+    "verified_status": "LIVE1bc8260a:ב־canonicalGoogle/FacebookזמיניםבכפתוריםמולAuthהקיים,החזרההמקומיתנבדקהוהזרקות/ההרשאותמהבדיקותהקודמותנשמרו. כניסהחברתיתבפועלדולגהבהחלטתהבעליםואינהPASS. שתי הזהויותהאישיותהתקבלובפריוויובאותוקוד;לאנטעןשבוצעההתחברותפרטיתחדשהעלProduction. איןשינויAuth/העדפות.",
+    "permissions": "זהותשרת; אין שיווק/חיובבכניסה",
+    "parameters_anchors": "returnTo,OAuthstate/PKCE/hash; לא לתעד טוקנים",
+    "acceptance": "Google/Facebook/password/יציאה; החזרה המדויקת;חדשלעומתקיים",
+    "open_task": "איןבקשתבדיקהחוזרתאוטומטית. socialאמיתילאבוצע;קבלות2חשבונותקודמותנשמרות. callbackפריוויוהיסטוריאינופעולתתשתיתנדרשתלפרסוםשבוצע.",
+    "treatment": "LIVE_CANONICAL_AUTH_AVAILABLE_SOCIAL_EXECUTION_SKIPPED",
+    "continuity_closure_previous_checkpoint": {
+      "verified_status": "חשבוןקייםעובדבתנאיםמבוקרים;Social/signup ממתינים"
+    },
+    "continuity_closure_evidence": "../public-url-exceptions-20261103/residual205/continuity-closure-20261103.md",
+    "final_preparation_previous_checkpoint": {
+      "verified_status": "כניסה/יציאה/כניסה מחדש בחשבונות קיימים התקבלו בדיווח המשתמש על7360. Google/Facebook,הרשמה חדשה ושחזור לא התקבלו; שינוייb21ed1ff עדיין HELD_BY_USER. SDK Legacy קנוני נבדק בסביבה מבודדת; Preview מבודד, www/Vercel דורשים כניסה רגילה מחדש",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "s2_signup_default_previous_checkpoint": {
+      "verified_status": "כניסה,יציאה,כניסה מחדש,שמירות ועריכה והחלפת חשבון התקבלו בדיווח המשתמש בשני החשבונות על7360. Google/Facebook והרשמה חדשה טרם התקבלו; תלותA היא הפסקת צירוף אוטומטי לדיוור בטריגר, לא כל חבילתb21. שחזור סיסמה חדש אינו קיים גם בLegacy ואינו חלקb21; OTPקיים לחשבון קיים נשמר.",
+      "open_task": "C5"
+    },
+    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "four_completions_previous_checkpoint": {
+      "verified_status": "כניסה קיימת וכל פעולות שני החשבונות התקבלו בדיווח המשתמש על7360. החלטת צוריאל החדשה: חשבון חדש ומאומת כולל עדכוני אתר כברירת מחדל עם הסרה; A הישן הוחלף ואינו מיועד להחלה. A2/B/D נבדקו בהצעה בלבד; Google/Facebook והרשמה חדשה עדיין ממתינים לשרת, לנוסח נכון גם בלגאסי, ל־callback מדויק ולקבלה אמיתית. כניסה רגילה אינה משנה דיוור; הסרות קודמות נשמרות. OTP לחשבון קיים נשמר; אין מערכת שחזור חדשה."
+    },
+    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md",
+    "guard_integration_previous_checkpoint": {
+      "open_task": "C5: exact revised A2/B/D shared approval + truthful enabled signup notices + OAuth/new-signup owner acceptance"
+    },
+    "bd_applied_previous_checkpoint": {
+      "verified_status": "המשכיות החשבון הקיים התקבלה בשני החשבונות. חוברו שוב Google/Facebook/OTP למימושAuth הקיים, ללאשינוי טריגר/העדפות. callback ענףPreviewקבוע נקשרל־Vercel; בדיקתפתיחהוביטולעדכניתשניהםחזרהProduction,ונדרשתבדיקתרשומתRedirectURLsואזשניספקיםאנושיים. A2מוצעבלבדולאנדרשלהמשכיות. איןמודל/חיוב/דיוורגורףבכניסה.",
+      "open_task": "C5: exact Preview callback allowlist verification and genuine Google/Facebook owner acceptance; no A2 prerequisite. B/D remain separate mail approval.",
+      "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_SIGNUP_PENDING"
+    },
+    "bd_applied_evidence": "../public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/README.md",
+    "admin_black_screen_previous_checkpoint": {
+      "verified_status": "המשכיות החשבון הקיים התקבלה בשני החשבונות. חוברו שוב Google/Facebook/OTP למימושAuth הקיים, ללאשינוי טריגר/העדפות. callback ענףPreviewקבוע נקשרל־Vercel; בדיקתפתיחהוביטולעדכניתשניהםחזרהProduction,ונדרשתבדיקתרשומתRedirectURLsואזשניספקיםאנושיים. A2מוצעבלבדולאנדרשלהמשכיות. איןמודל/חיוב/דיוורגורףבכניסה.",
+      "open_task": "C5: exact Preview callback allowlist verification and genuine Google/Facebook owner acceptance; no A2 prerequisite. B/D applied independently without changing account trigger or existing subscribers.",
+      "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_SIGNUP_PENDING"
+    },
+    "admin_black_screen_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/README.md",
+    "direct_cutover_previous_checkpoint": {
+      "verified_status": "המשכיות החשבונות האישיים התקבלה בשני חשבונות הבעלים ונשמרת. בדיקת Google/Facebook הידנית דולגה בהוראתו: SKIPPED_BY_OWNER_NOT_TESTED, לא PASS. בדיקת callback הקודמת אינה הוכחת כניסה חברתית; המקור המאושר בפריוויו נשאר[] ולא שונו Auth, הגנות או הספקים שעובדים בלגאסי. תיקון1bc8260a לבקרת המנהל אינו שינוי Auth. B/D מוחלים בנפרד.",
+      "open_task": "אין בקשה חוזרת לבדיקה החברתית שדולגה. Preview callback עדיין לא אומת; הפעלה עתידית דורשת אימות קיים בלי החלשת מקור. קבלתCP1 אמיתית נפרדת פתוחה; A2/C אינם כלולים.",
+      "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_TEST_SKIPPED_BY_OWNER"
+    },
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md"
+  },
+  {
+    "id": "F27",
+    "old_address": "/privacy; /updates; /unsubscribe?e=…&t=…",
+    "evidence": "PublicServices; signedunsubscribe; proposalHELD",
+    "meaning": "פרטיות/הסכמה/ביטול הסכמה",
+    "target_2029": "/privacy; /updates; /unsubscribe; חלונית אורח במעטפת הקיימת — אותו מוצר עדכוני האתר",
+    "verified_status": "B/Dפעיליםבשרת20/10ומיגרציה20261103223217. /updatesLIVEב־1bc8260aמחזיר200ו־noindexכפי שמוגדרבמקור;טופסהביתוהדףהתקבלוקודםמולחוזהאמיתיוהקודלאשונה. לאבוצעההרשמה/הסרהבכתובתאמיתיתלאחרcutoverואיןמשלוחגורףאושינויהעדפות. שירותהסרהחתוםנשמר.",
+    "permissions": "בעלותכתובת/חתימה; no-referrer/noindex",
+    "parameters_anchors": "e,t בתיםמדויקים; לא analytics או querylogs",
+    "acceptance": "חתימהשגויה/אפסהתאמות/כשל; הסרה אמיתית אינה תרגיל; email עודכןבמקור",
+    "open_task": "קבלתפעולותחיוביותבכתובת/קישורבבעלותהמשתמשנותרתלאמאומתת,בלימיילבדיקהאוטומטי;A2/Cלאהופעלו.",
+    "treatment": "LIVE_EXISTING_MAIL_PURPOSE_AND_PERSISTED_UNSUBSCRIBE",
+    "planning_snapshot": {
+      "target_2029": "המסלולים הקיימים",
+      "verified_status": "פרטיותקיים; דיוור/הסרהטעוניםתיקון וקבלה;שרת HELD",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "final_preparation_previous_checkpoint": {
+      "target_2029": "/privacy; /updates; /unsubscribe",
+      "verified_status": "פרטיות: המייל עודכן במועמד ל־zyz997@gmail.com. שירותי דיוור/הסרה נשמרו; שינויי שרת HELD, ללא משלוח/ביטול אמיתי",
+      "treatment": "PARTIAL_MAIL_HELD"
+    },
+    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "s2_signup_default_previous_checkpoint": {
+      "verified_status": "פרטיות עםzyz997@gmail.com נשמרת. חלוניתLegacy חוברה לטופס2029 ולמטרהsite-updates,22שניות/גלילה,תמונה מקומית ופונטים2029,ללא קוד המציאות.11בדיקות דפדפן מבוקרות עברו; אין קריאה בפתיחה ואין הרשמה כללית כחלופה. B(מטרה+signup) ו־D(הסרה עםאישור אמיתי) מוכנים/מבודדים אך לא הוחלו. כתובות קיימות במטרה אחרת או שהוסרו אינן מופעלות מחדש; אימות בעלות לא הושלם.",
+      "open_task": "C5"
+    },
+    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "four_completions_previous_checkpoint": {
+      "open_task": "C5: revised exact shared A2/B/D approval and real owner signup/unsubscribe acceptance"
+    },
+    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md",
+    "guard_integration_previous_checkpoint": {
+      "verified_status": "פרטיותzyz997@gmail.com וחלונית ההרשמה2029 נשמרות. הרשמה ידנית היא opt-inל־site-updates; חשבון חדש כולל אותה כברירת מחדל רק אחרי אימות לפי החלטת צוריאל החדשה. A2/B/Dטרם הוחלו; השרת עדיין מפרסםopening-parts-v1 והטופס מבהיר אי־זמינות לפני מילוי.22קבוצותDBמבודדות ל־A2ו־16בדיקות handlerל־Dעברו. אין חידוש הסרה קודמת, ואין הצגת הרשמה/הסרה חיה כמתקבלת. קמפייןCנפרד."
+    },
+    "bd_applied_previous_checkpoint": {
+      "verified_status": "פרטיות וכתובת המייל נשמרות. טופס עדכוני האתר הוא opt-in למטרה site-updates וממתין ל־B; אישור הסרה שגוי ממתין ל־D. הטריגר הפעיל כבר מצרף חשבון חדש כברירת מחדל ואינו משנה מנוי קיים או פועל בכניסה רגילה. A2 לא הוחל ואין לייחס לשרת את ההמתנה לאימות המוצעת בו. הרשמות opening-only והסרות ישנות נשמרות; קמפיין C נפרד. אין קבלת הרשמה/הסרה חיה.",
+      "open_task": "C5: exact B/D shared approval only; A2 future proposal not current Auth prerequisite; C before first site-updates campaign; actual owner signup/unsubscribe acceptance",
+      "treatment": "UI_IMPLEMENTED_TESTED_SERVER_APPROVAL_AND_REAL_MAIL_ACCEPTANCE_OPEN"
+    },
+    "bd_applied_evidence": "../public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/README.md",
+    "direct_cutover_previous_checkpoint": {
+      "verified_status": "B/D אושרו והוחלו: מיגרציה20261103223217, signup20 ו־unsubscribe10 עם המקורות המדויקים ו־verify_jwt=false כפי שהיה. כל1,024 הרשומות הקיימות והטריגר נשמרו.33 בדיקות דיוור ו־10 בדיקות חיות ללא כתיבה עברו. טופסי הבית ו־/updates התקבלו מול site-updates-v1 בפריוויו מוגן d8ee2753 בארבעה תרחישי390/1440 עםSWאמיתי; אין שליחה.6 בדיקות פרופיל השירות עברו. אין הרשמה/הסרה חיה אמיתית או משלוח שנבדקו אוטומטית; A2/C לא הוחלו.",
+      "open_task": "C5: B/D backend and protected /updates/Home availability accepted; owner-positive signup/signed removal not performed automatically. Social callback and real CP1 remain separate. A2 not an Auth prerequisite; C before first site-updates campaign.",
+      "treatment": "BD_BACKEND_AND_PROTECTED_FORMS_ACCEPTED_NONWRITING_REAL_EMAIL_OWNER_PENDING"
+    },
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md"
+  },
+  {
+    "id": "F28",
+    "old_address": "/early-access; /melech-hamisparim/718; /tiktok/melech; /whatsapp/kod-hametsiut",
+    "evidence": "App2029:290–291; publicationredirects",
+    "meaning": "דפי קמפיין קיימים",
+    "target_2029": "דפי הקמפיין הקיימים, לפי ההפניות המקוריות",
+    "verified_status": "תוכן היעד ו־HTTP נבדקו; טופסי הצטרפות/אירועי רכישה לא מופעלים בפרופיל הקריאה",
+    "permissions": "אין הצטרפות/מסר אוטומטיים",
+    "parameters_anchors": "utm,src,ref,back,hash",
+    "acceptance": "הפניהמגיעהלתוכןהנכון וגם HTTP תקין; קמפייןשפגמצוין",
+    "open_task": "C5",
+    "treatment": "IMPLEMENTED_CONTENT_SIGNUP_HELD",
+    "planning_snapshot": {
+      "target_2029": "היעדים הקיימים לפי הקמפיין",
+      "verified_status": "React קיים; resolverHTTP חוסם; אומת 404 בפריוויו",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F29",
+    "old_address": "/credits; /buy; payment=success/failed&ref=…",
+    "evidence": "CreditsBuyPage:48–73",
+    "meaning": "גם חזרה מתשלום קיים",
+    "target_2029": "/credits; /buy — מצב שירות ייעודי",
+    "verified_status": "אין תשלום חדש או פרשנות payment=success כהוכחת תשלום; חזרה לעסקה אמיתית טרם התקבלה",
+    "permissions": "זהותובדיקתשרת; query אינוהוכחתתשלום",
+    "parameters_anchors": "operation/payment ref,return,status",
+    "acceptance": "חזרהלעסקהקיימת; replay/spoof; אין Cardcom/מנוי חדש",
+    "open_task": "C5",
+    "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "מוצע: מסלולשירותקיים ומאומת, ללאחיובחדש",
+      "verified_status": "חסר continuation; מחוץלהפעלתמנוע חדש",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F30",
+    "old_address": "/admin; /edit…; /traffic; /reports; /2029/control",
+    "evidence": "App.jsx; Admin admission;12.48/49 source073/3c/98d + hosted16",
+    "meaning": "מסכים פרטיים/מנהל",
+    "target_2029": "כניסה ויעדמקביל רק לפי הרשאה",
+    "verified_status": "קבלתהמנהלוהחשבונותהקודמתנשמרת.12.49:GA/Vercel/SearchConsoleAPI404וגםמחוץלSW;middlewareתוקןב3cוהגיעלחי98dדרךנתיבאחר. איןקבלתבקרהמלאה.",
+    "permissions": "מנהל/בעלים בשרת, failclosed",
+    "parameters_anchors": "returnTo בטוח; בלי דליפת metadata",
+    "acceptance": "אנונימי/חבר/admin;401/403/404 לפי חוזה",
+    "open_task": "לחבר3קוריאדמיןלendpointsולSWעםJWTותפקידשרתמאומת,ללאpublicproxy;CP1מלאלאסומןעבר.",
+    "treatment": "ADMIN_CONTINUITY_RETAINED_MONITORING_APIS_OPEN",
+    "exception_previous_checkpoint": {
+      "verified_status": "אין להפוךכתובתאמיתיתלציבורית",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md",
+    "continuity_closure_previous_checkpoint": {
+      "verified_status": "המסכים הפרטיים הידועים שנמצאו בחריגים מקבלים דף מצב פרטי/כניסה ללא חשיפת מידע; אין בכך קבלת חשבון מנהל או חבר אמיתי"
+    },
+    "continuity_closure_evidence": "../public-url-exceptions-20261103/residual205/continuity-closure-20261103.md",
+    "final_preparation_previous_checkpoint": {
+      "verified_status": "נעילות/הרשאות קיימות נשמרות. תוקן ControlPlane: נתון חסר/כשל אינו0. קבלת מנהל לתצוגות תפעול קריטיות עדיין פתוחה; S2 פתוח ונשמרה הצעת שרת מדויקת עם6 קבוצותPostgreSQLמבודדות, ללא החלה",
+      "treatment": "IMPLEMENTED_NAMED_PRIVATE_STATE_REAL_ACCOUNT_OPEN"
+    },
+    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "s2_signup_default_previous_checkpoint": {
+      "verified_status": "תצוגתCP1 מבודדת קריאות בריאות/וידאו/trace; כשל,ריק,מידע ישן ואפס נפרדים. החלפת זהות ובקשות מאוחרות נבדקו בבקר האמיתי. הצעתadmin_system_health משנה2זרועותכשל בלבד ונבדקה ב9קבוצותPostgreSQL עםACL/owner/drift. לא הוחלה. S2 המפורט עדיין ממתין לאישור; קבלת מנהל אמיתית לCP1 נותרה פתוחה.",
+      "open_task": "C6"
+    },
+    "s2_signup_default_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "four_completions_previous_checkpoint": {
+      "open_task": "CP1 genuine operator acceptance; remaining pre-cutover security classification/negative scope; not a full G4 seal"
+    },
+    "four_completions_evidence": "../public-url-exceptions-20261103/residual205/four-completions.md",
+    "admin_black_screen_previous_checkpoint": {
+      "verified_status": "S2ושתי זרועותexceptionב־admin_system_healthהוחלו באישור במיגרציות20261103175116/175126.8hashes,owner/ACLומדיניותהמנהלנשמרו;0טיוטותאנונימיות/3Forum/13approvedשפות.4מסלוליפרווימושפעיםעברו. תצוגתהבקרהמבחינהfailed/empty/staleומבודדתזהות; CP1מנהל אמיתי וחותם S2רחבעדייןפתוחים. egress6.10STALE; איןcollectorחדש/אפסמדומה.",
+      "open_task": "CP1: short genuine admin read/refresh/existing-trace acceptance; valid S2 and health fix evidence retained; no fullG4 claim",
+      "treatment": "IMPLEMENTED_CONTROLLED_TESTED_ADMIN_ACCEPTANCE_OPEN"
+    },
+    "admin_black_screen_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/README.md",
+    "owner_opening_previous_checkpoint": {
+      "verified_status": "S2 וקורא הבקרה שהוחלו נשמרים. כשל מנהל אמיתי דווח בנייד; שחזור סינתטי בפריוויוd8ee2753 הוכיח קריסת admin לא מוכר במעטפת. מקור1bc8260a תוקן ל־control עם תצוגת בדיקה קיימת ומצב אימות גלוי.37בדיקות ושישה תרחישי דפדפןסינתטיים עםSW בפריסהdpl_ADnf6NL9VznxiiysCQZqoGPguJSEעברו, כולל320/390/1440,רענון,כשלי קוראים וחסימתחבר/אורח. איןJWTמנהל אמיתי/קריאתבקרה חיה; קבלתCP1אמיתית ממתינה לניסיוןחוזר. egressישןאינומדידהעדכנית.",
+      "open_task": "CP1: ניסיון חוזר של הבעלים בכניסה למנהל, רענון ו־trace קיים אם יש, לקריאה בלבד. תיקון הקריסה אינו קבלת חשבון אמיתי/סגירתG4; ראיותS2/שני החשבונות נשמרות.",
+      "treatment": "BLACK_SCREEN_FIXED_HOSTED_SYNTHETIC_ACCEPTED_REAL_ADMIN_RETRY_OPEN"
+    },
+    "owner_opening_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/owner-acceptance.json",
+    "direct_cutover_previous_checkpoint": {
+      "verified_status": "S2 וקורא הבקרה שהוחלו נשמרים. כשל המסך השחור בנייד תוקן ב־1bc8260a ונתמך ב־37 בדיקות ושישה מקרי דפדפן סינתטיים. לאחר מסירת הפריוויוdpl_ADnf6NL9 צוריאל השיב עובד: פתיחת המנהל התקבלה לפי דיווח הבעלים. רענון ו־trace לא פורטו בנפרד; אין מכאן קבלתCP1 מלאה אוG4. הרשאות/נתונים/שרת/פריסה לא שונו בעקבות הקבלה. מדידתegress הישנה אינה עדכנית.",
+      "open_task": "כשל הפתיחה נסגר בדיווח הבעלים; אין לבקש שוב אותה בדיקה. רענון ופתיחתtrace טרם נמסרו פרטנית, ללא הכרזה על שערCP1מלא. יתרת תנאי המעבר לפי הרשימה הקיימת בלבד; איןProduction.",
+      "treatment": "ADMIN_OPENING_ACCEPTED_USER_REPORTED_FULL_CP1_NOT_CLAIMED"
+    },
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "תיקוןפתיחתהמנהל1bc8260aנשמרוהבעליםאישרעובדבפריוויו. אותוSHAחי ב־ProductionCkoiEsaT1;חסימתאורחנבדקהב־canonical390/1440. לאבוצעהכניסתמנהלפרטיתחדשהבידיהסוכןאודרילtraceחי. S2/קוראהבקרהשכברהוחלונשמרו.",
+      "open_task": "רענון/traceלאפורטובנפרד;איןהסקתCP1/G4מלאואיןבקשתפתיחהחוזרתשכברהתקבלה.",
+      "treatment": "LIVE_ADMIN_GUARDS_OWNER_OPENING_ACCEPTANCE_RETAINED",
+      "evidence": "App.jsx; Admin admission"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
+  },
+  {
+    "id": "F31",
+    "old_address": "/name; /שם; /name-lab; spatial/verse/language/cross aliases",
+    "evidence": "App.jsx; internalcontent DB",
+    "meaning": "כלי שם/מרחב/פסוקים/שפה שונים",
+    "target_2029": "הכלים והכינויים הידועים — דפי מצב מדויקים",
+    "verified_status": "נשמרת משמעות הכלי ופרמטריו; אין החלפה גורפת במחשבון הרגיל או פתיחת מודל",
+    "permissions": "קריאה/חישוב נפרדיםמפעולות AI פרטיות",
+    "parameters_anchors": "שם,שיטה,תאריך,פסוק,טקסט",
+    "acceptance": "לבדוק יכולות קיימות לפני סיווג כבנייה; לא להרחיב מנוע",
+    "open_task": "C3",
+    "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN",
+    "planning_snapshot": {
+      "target_2029": "מוצע: התאמת יכולת קיימת או מצב ייעודי לא מוכנה",
+      "verified_status": "אין שקילות 2029 מאומתת; לאלהחליףבמחשבוןכללי",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+  },
+  {
+    "id": "F32",
+    "old_address": "/audio/*; /wp-content/*; uploads; /api/card; OG; XML; robots; RSS",
+    "evidence": "DB href/src; api/sitemap; publicfiles; hosting; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16",
+    "meaning": "משאב אמיתי/SEO/API; גם probe אפשרי",
+    "target_2029": "המשאב/הנכס המדויק אם זמין",
+    "verified_status": "פעריSEO/HTTPתוקנוב073ושולבוב98dהחי;פריוויו98d16תרחישיםמוגבלים.12.49:entrymiddlewareהוחזרלאותומקורקנוניובוט403בחי,ללאשינוימדינה.3APIsלניטורעדיין404/חסומיSW.193השמעוהדחיותנשמרו.",
+    "permissions": "publicasset לעומתחתום/פרטי; API לפי owner",
+    "parameters_anchors": "שם קובץ,טווח זמן,range,queryAPI מותרים",
+    "acceptance": "HEAD/GET/MIME/CSP; אין HTML200 במקום תמונה/שמע;probe נשאר 404",
+    "open_task": "שלושנקודותניטור/הרשאותadminמקצהלקצה;ביצועים/CLSמלאלאהתקבלו. איןסגירתG4אוהכרזתגיבוימסד/מדיהעדכני.",
+    "treatment": "LIVE_EDGE_RESTORED_ADMIN_MONITORING_OPEN_AUDIO_DEFERRED",
+    "exception_previous_checkpoint": {
+      "verified_status": "193audio hrefs; לא כל בקשת WP היאתוכן אמיתי",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "193 קישורי שמע היסטוריים עדיין ללא מיפוי מוכח לקובצי מקור. משאב חסר/מטמון מכשיר/API WordPress ותוסף ישן מחזירים404 עם MIME תקין, לא HTML200 מתחזה"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md",
+    "continuity_closure_previous_checkpoint": {
+      "verified_status": "193/193 קישורי שמע מחזיריםHTML כבר בלגאסי, גםGETרגיל בדגימה מכל משפחה. מיפויmedia_map/תור/Storageלא סיפקoriginal-path→bytes. אין ניחוש קובץ/יעד כללי. מומלץ לדחות שחזור במפורש; טרם התקבל פטור.404עםMIMEנכון נשמר במועמד"
+    },
+    "continuity_closure_evidence": "../public-url-exceptions-20261103/residual205/continuity-closure-20261103.md",
+    "public_candidate_proposal_previous_checkpoint": {
+      "verified_status": "193 נתיבי השמע נשמרו עם ראיות HTML במקום audio ומשימת שחזור; נדחו לאחר ההשקה באישור צוריאל. אין שחזור בתים או הפניה כללית. XML כולל את הכתובות הקנוניות של שלושת דפי WP ההיסטוריים; גבולות משאבים ו־404 נשמרו.",
+      "open_task": "C4"
+    },
+    "public_candidate_proposal_evidence": "../public-url-exceptions-20261103/residual205/evidence/final-preparation/production-activation/public-candidate/README.md",
+    "guard_integration_previous_checkpoint": {
+      "verified_status": "193 נתיבי השמע נשמרו עם ראיות HTML במקום audio ומשימת שחזור; נדחו לאחר ההשקה באישור צוריאל. אין שחזור בתים או הפניה כללית. XML כולל את הכתובות הקנוניות של שלושת דפי WP ההיסטוריים; גבולות משאבים ו־404 נשמרו. המשך12.39: תצורתאינדוקסציבורימוכנהכהצעהבלבד,49בדיקותמבודדותובנייתdormantעברו;הפריוויונשארמוגן/noindex.איןקבלתProductionמתארחאו מעברלחי. direct documentAPI נשארnoindexגםבהצעה.",
+      "open_task": "C4: retain193audio user deferral; exact publication guard approval, proven no-domain Git-source creation and real hosted public-config acceptance; final cutover separate",
+      "treatment": "PARTIAL_EXACT_RESOURCE_ACCEPTANCE_AUDIO_SOURCE_OPEN"
+    },
+    "staged_cli_previous_checkpoint": {
+      "verified_status": "193 נתיבי שמע נשמרו עם ראיות ומשימת שחזור, ונדחו לאחר ההשקה באישור צוריאל; אין שחזור בתים או הפניה כללית. XML שומר את הכתובות הקנוניות של שלושת דפי WP, ו־404 נשמר. התאמת שער הפרסום אושרה ושולבה לפי טביעות9קבצים;49 בדיקות שער/תוצר ו־33 בדיקות הרשאות ובנייה מקומית עברו. Preview מוגן21f1a8d9 התקבל בשישה תרחישי דפדפן390/1440 ושישה מסלולי GET/HEAD, עם noindex ב־API ובמקור הלא־קנוני. תוצר Production ציבורי לא נוצר; אין שיוך דומייני Production או קבלת מלאיHTTP כולו.",
+      "open_task": "C4: retain193audio owner deferral; exact guard integrated and protected21f1a8d9 Preview accepted; proven no-domain Git-source Production creation route and separate authorization/hosted acceptance; final cutover separate",
+      "treatment": "PROTECTED_PREVIEW_ACCEPTED_PUBLIC_PRODUCTION_NOT_CREATED_AUDIO_DEFERRED"
+    },
+    "staged_cli_evidence": "../public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/staged-transport-20261104/README.md",
+    "direct_cutover_previous_checkpoint": {
+      "verified_status": "התאמת שער הפרסום המאושרת נשמרת, והפריוויו1bc8260a התקבל בתחום הקוד והבעלים. CLI65.11.0 תומך בסריאליזציה של raw create עם GitSource מדויק ו־autoAssignCustomDomains=false; מחוללCLIאמיתי נבדק ללא רשת. הבקשה המשולבת לא נשלחה לשרת. MCPאינו חושף את השדה ו־CLIמנותק; loginלאהתחיל. שלושת דומייניLegacy נשמרו. B/D כברהוחלו ואומתו מחדש; אין תוצרProductionחדש אוcutover.",
+      "open_task": "אישור חיבורOAuthלכליCLI ויצירת תוצר מוגן אחד מה־JSONהמדויק; אחריהם אימות server/source/protection/אפסשיוך וקבלת התוצר, ורק אז אישורcutoverעםSHA+deployment. אין שוב סריקתכתובות או בדיקותמוצר לאמושפעות.",
+      "treatment": "STAGED_RAW_GIT_REQUEST_PREPARED_CLI_AUTH_REQUIRED_NO_PRODUCTION"
+    },
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md",
+    "canonical_parity_previous_checkpoint": {
+      "verified_status": "בוצע2029Productioncutoverבאישורמפורש:source1bc8260adaa889d7903aaa33ef43510df09817f2,deploymentdpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A,3aliasesמופניםאליו. Productionנבנהונבדק6מקריםלפניהשיוך;canonical6/HTTP24כוללXML/robots/404עברו. כשליציפיותharnessנשמרוורקתרחישיםמושפעיםנבדקומחדש. rootindex,שירותים/חיפושנשאריםnoindex. איןmain/DB/flags/DNSאוcredentialCLI. LegacyBFpwשמורלחזרה.",
+      "open_task": "איןחסםחיבור/אישורלפריסהשבוצעה. פריסה/חזרהעתידיתלפיקבלתownerמדויקת;תוכניתחזרהבאותן3aliasesל־LegacyBFpw,ללאמחיקתאחסוןאונתונים. פורמליתG4לאנסגרמכוחREADY/HTTP.",
+      "treatment": "LIVE_2029_EXPLICIT_OWNER_CUTOVER_BOUNDED_ACCEPTED",
+      "evidence": "DB href/src; api/sitemap; publicfiles; hosting"
+    },
+    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "פרסום12.45 והקבלה בו נשמרים כהיסטוריה של1bc/Ckoi. 12.47: האתר נצפה ב-Production48Ha5ZAp/sourcef4390dd3, שינוי שלא בוצע במשימת הביקורת. 19 תצפיות390 ושלוש1440 מאשרות פערי canonical/robots במחשבון/מספר/ביטוי/קטלוג ו-404 בגלריה. מקור הראיות יציב לפני ואחרי; אין פריסה או שינוי שרת בביקורת. 193 השמע והדחיות הקודמות נשמרים.",
+      "open_task": "תיקון SEO/HTTP ממוקד ל-F02/F14/F16/F17 וקבלת הכתובות המושפעות בלבד; אין סגירתG4. כללי חזרה/אישור מדויק לפריסה עתידית נשמרים, ללא מחיקה או שינוי H1/דחיות.",
+      "treatment": "PUBLIC_DEPLOYED_METADATA_PARITY_GAPS_OPEN_AUDIO_DEFERRED",
+      "evidence": "DB href/src; api/sitemap; publicfiles; hosting; canonical/HTTP audit f4390dd3 (12.47)"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
+  },
+  {
+    "id": "F33",
+    "old_address": "/<post>/embed/; /<post>/<attachment>; *.html; iframe",
+    "evidence": "DB contenthref/src; public standaloneHTML",
+    "meaning": "הטמעת פוסט/קובץ מצורף/כניסה עצמאית",
+    "target_2029": "242 קישורי תמונה → אותו Post ציבורי ומדיה מדויקת; 6 embeds → אותו Post",
+    "verified_status": "מומש מתוך href ותמונת מקור ממשיים, עם selector מאומת ו־Lightbox קיים; canonical הפוסט נשמר; שאר החריגים מפורטים בקבלת החריגים",
+    "permissions": "פרסוםהמקור/מדיה; אין עקיפת נעילה",
+    "parameters_anchors": "parent,attachment,embed,hash,playbacktime",
+    "acceptance": "זהות מדיה/פוסט; CSP; אין לנחש כותרת מה-slug",
+    "open_task": "C4",
+    "treatment": "IMPLEMENTED_EXACT_ATTACHMENT_AND_EMBED_REMAINDER_OPEN",
+    "exception_previous_checkpoint": {
+      "target_2029": "מוצע: אותו פריט/נכס או מצב יכולת מאומת",
+      "verified_status": "קשר attachment-parent נדרש; לא לשטח לפוסט בלי בדיקה",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
+  },
+  {
+    "id": "F34",
+    "old_address": "/reality; /start; /whats-new; /broadcasts; /timeline; /numbers; /theme; /stream; /rooms…",
+    "evidence": "App.jsx; DB/reality36links28posts",
+    "meaning": "כניסות אינדקס/זרם/הקשר/חדרים היסטוריות",
+    "target_2029": "מוצע: רכיב קיים מדויק, רק לאחר בדיקת משמעות",
+    "verified_status": "כינויי בית/WORLD מוכחים מגיעים ליעדם; מסכי ניסוי וזרם פרטי מוכרים נשמרים בדף מצב מדויק; אין איחוד גורף של אוספים",
+    "permissions": "פרסום קיים; מצב מחקר פרטי נשמר",
+    "parameters_anchors": "מיון,תאריך,room,theme,מספר,חזרה",
+    "acceptance": "אותו אוסף/זמן; לא הפניה גורפת לבית/עולם",
+    "open_task": "C6",
+    "treatment": "PARTIAL_EXACT_ALIAS_AND_NAMED_STATE",
+    "exception_previous_checkpoint": {
+      "verified_status": "חלקאולי Now/World; לא הוכח יעד גורף",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md"
+  },
+  {
+    "id": "UNRESOLVED",
+    "old_address": "כתובותמהמלאישטרםנמצאהזהותחדמשמעית",
+    "evidence": "url-inventory evidence לכלשורה",
+    "meaning": "קישורמתוכן/מפה אינו הוכחהשעדייןקיים",
+    "target_2029": "ללא יעד מומצא; תור בירור פרטני",
+    "verified_status": "באותו מכנה 469+2140: 2357 טופלו, 52 סגורים, 5 אינם תקינים ו־195 נדחו לשחזור באישור. אין הכרעת זהות פתוחה בקבוצה. שלושת דפי WP2481/3798/3288 שוחזרו ממקור ציבורי מתוארך, עם 30 הופעות וידאו בסדר המקור; ניגון אצל הספק לא התקבל. אין בכך קבלת HTTP לכל 33,667 רשומות המלאי.",
+    "permissions": "unknown/private/draft אינם public",
+    "parameters_anchors": "שומריםמקורראיה וקידוד; לא מעתיקים סודות",
+    "acceptance": "DB+מקור+HTTP: תוכן מאומת/הוסר/שגוי/לא ברור;404 אמיתי נשמר",
+    "open_task": "PUBLIC_LEGACY_BROKEN_AUDIO_POST_RECOVERY_AFTER_LAUNCH + existing cutover gates",
+    "treatment": "RECONCILED_WITH_EXPLICIT195_DEFERRAL",
+    "exception_previous_checkpoint": {
+      "verified_status": "אין קבלת כיסוי מלא",
+      "treatment": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "exception_evidence": "../public-url-exceptions-20261103/README.md",
+    "residual205_previous_checkpoint": {
+      "verified_status": "מכל469+2140 נשמרו2609 מקורות:2352 נפתרו לפי זהות,48 סגורים במכוון,4 לא תקינים,205 חסרי ראיית מקור. קבלת זהות אוטומטית אינה HTTP מלא לכל המלאי",
+      "treatment": "BOUNDED_RECONCILED_205_SOURCE_EVIDENCE_OPEN"
+    },
+    "residual205_evidence": "../public-url-exceptions-20261103/residual205/README.md",
+    "continuity_closure_previous_checkpoint": {
+      "verified_status": "כל205 היתרות נבדקו ב־HTTPחי ובמקורות קיימים; באותו מכנה2609:2355 נפתרו לפי זהות/מסלול,52 סגורים במכוון,5 לא תקינים,197 ממתינים:193 שמע,2 פוסטים404,ForumPost ואינדקס הרצאות.403בדפדפן לא הוצג כמחיקה. אין כיסוי מלא או דחייה מאושרת",
+      "open_task": "C7",
+      "treatment": "BOUNDED_RESIDUAL205_REVIEWED_197_OPEN"
+    },
+    "continuity_closure_evidence": "../public-url-exceptions-20261103/residual205/continuity-closure-20261103.md"
+  }
+]

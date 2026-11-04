@@ -1,0 +1,25 @@
+{
+  "deploymentId": "dpl_8VcC1LwM4aBmPEeZNS9DwYUGDSCu",
+  "sourceSha": "21f1a8d9e3e3fc6c7c35583ac79aee28f5e92b41",
+  "branch": "gpt/2029-public-cutover-final-preparation-20261103",
+  "immutableUrl": "https://sod1820-d3ocprlw4-sod1820-s-projects.vercel.app",
+  "stableUrl": "https://sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app",
+  "state": "READY",
+  "target": null,
+  "bareRequestStatus": 302,
+  "protection": "Vercel Authentication retained; temporary access only in private0600 config, never committed",
+  "localTestsPassed": 82,
+  "browserCasesAccepted": 6,
+  "httpCases": 6,
+  "httpMethods": [
+    "GET",
+    "HEAD"
+  ],
+  "fullInventoryHTTPAcceptance": false,
+  "productionPublicModeDeployed": false,
+  "genuineAccountAcceptance": "RETAINED_USER_REPORTED",
+  "genuineAdministratorCP1": "PENDING",
+  "googleFacebook": "CALLBACK_OWNER_DEFERRED_BEFORE_SDK",
+  "mailBD": "PENDING_EXPLICIT_SHARED_APPROVAL",
+  "mainUnchanged": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b"
+}

@@ -1,0 +1,43 @@
+// Actual compiled public client. Every external response is synthetic; no live
+// calls are forwarded. Native SW/data/performance acceptance is separate.
+const {chromium,expect}=require('@playwright/test'),fs=require('fs'),path=require('path'),http=require('http'),assert=require('assert/strict');
+const root=path.resolve('preview-deploy/dist'),out=process.env.SOD_HOME_NOW_OUT||'/tmp/home-light-reading-now-20261102/controlled';fs.mkdirSync(out,{recursive:true});
+const html=fs.readFileSync(root+'/2029.html','utf8'),entry=html.match(/await import\('([^']+)'\)/)[1];
+const server=http.createServer((req,res)=>{const u=new URL(req.url,'http://test');let f=path.resolve(root,'.'+u.pathname);if(f!==root&&!f.startsWith(root+'/'))return res.writeHead(403).end();if(!fs.existsSync(f)||fs.statSync(f).isDirectory()){res.setHeader('Content-Type','text/html');return res.end(html.replace(/<script type="module">if\(!\('serviceWorker'[\s\S]*?<\/script>/,`<script type="module" src="${entry}"></script>`));}res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.html':'text/html','.json':'application/json','.woff2':'font/woff2','.ttf':'font/ttf','.svg':'image/svg+xml','.webp':'image/webp'})[path.extname(f)]||'application/octet-stream');res.end(fs.readFileSync(f));});
+(async()=>{let browser,page;const results=[];try{await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
+ for(const [mode,width]of[['success',390],['success',1440],['failed',390],['cancel',390],['primary-failed',390]]){
+  const c=await browser.newContext({viewport:{width,height:900},serviceWorkers:'block'});page=await c.newPage();let releaseCode,releaseReads;const codeGate=new Promise(r=>releaseCode=r),readGate=new Promise(r=>releaseReads=r);let extraReads=0,deny=mode==='failed';const errors=[],forbidden=[];let releaseWorld;const worldGate=new Promise(r=>releaseWorld=r);
+  page.on('pageerror',e=>errors.push(e.message));await c.addInitScript(()=>localStorage.setItem('sod-theme','dark'));
+  await c.route('**/*',async route=>{const req=route.request(),u=new URL(req.url());if(u.origin===origin){if(/\/assets\/Sod2029Shell-[^/]+\.js$/.test(u.pathname))await codeGate;return route.continue();}
+   if(u.hostname!=='linswmnnkjxvweumprav.supabase.co'||!u.pathname.startsWith('/rest/v1/')){if(u.pathname.startsWith('/functions/'))forbidden.push(u.pathname);return route.abort();}
+   let body=[];const name=u.pathname.split('/').pop();if(mode==='success'&&name==='world_group_source_arrivals_v2')await worldGate;
+   if(name==='posts'){if(mode==='primary-failed')return route.fulfill({status:403,contentType:'application/json',body:JSON.stringify({message:'controlled public reader failure',code:'42501'})});body=[{id:1,slug:'controlled-public-home',title:'פוסט ציבורי לבדיקה',source:'site',date:'2026-11-01',modified:'2026-11-01',tags:[],categories:[],home_hidden:false}];}
+   if(name==='channel_updates'){
+    extraReads++;if(mode==='cancel')await readGate;
+    if(deny)return route.fulfill({status:403,contentType:'application/json',body:JSON.stringify({message:'controlled denial',code:'42501'})}).catch(()=>{});
+    const channel=u.searchParams.get('channel').replace(/^eq\./,'');body=Array.from({length:12},(_,i)=>({id:'10000000-0000-4000-8000-'+String(extraReads*100+i+1).padStart(12,'0'),channel,status:'live',page_only:false,expires_at:null,created_at:new Date(Date.UTC(2026,10,1,10,0,i)).toISOString(),text:'עדכון ציבורי '+channel+' '+i,link_url:null}));
+   }
+   await route.fulfill({status:200,contentType:'application/json',headers:{'content-range':'0-0/0'},body:JSON.stringify(body)}).catch(()=>{});
+  });
+  await page.goto(origin+'/?controlled=home-now',{waitUntil:'domcontentloaded'});
+  await expect(page.getByRole('navigation',{name:'ניווט בזמן פתיחת העמוד'})).toBeVisible();await expect(page.getByText('טוען את התוכן…',{exact:true})).toHaveCount(0);assert.equal(extraReads,0);releaseCode();
+  if(mode==='primary-failed'){await expect(page.getByRole('alert')).toContainText('קריאת הפוסטים נכשלה.');await expect(page.getByText('אין כרגע פוסטים להצגה.',{exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'רענן ונסה שוב',exact:true})).toBeVisible();assert.equal(extraReads,0);assert.deepEqual(forbidden,[]);results.push({mode,width,publicReadFailure:true,extraReads});await c.close();continue;}
+  await expect(page.locator('.h29-hero h1')).toHaveText('פוסט ציבורי לבדיקה');await expect(page.locator('.sod29-command-island')).toBeVisible();await page.waitForTimeout(200);assert.equal(extraReads,0,'Now extra readers stay closed before intent');
+  const initial=await page.evaluate(()=>{const d=document.querySelector('.sod29-command-island').getBoundingClientRect(),h=document.querySelector('.h29-home-cosmos'),p=getComputedStyle(h,'::before');return{dock:d.toJSON(),viewport:innerWidth,overflow:document.documentElement.scrollWidth-innerWidth,background:p.backgroundImage,backgroundHeight:p.height,homeHeight:h.getBoundingClientRect().height};});assert.ok(initial.dock.width<=340);assert.ok(Math.abs(initial.dock.x+initial.dock.width/2-width/2)<1);assert.equal(initial.overflow,0);
+  await page.locator('.sod29-command-island').getByRole('button',{name:/^עכשיו/}).click();const panel=page.getByRole('dialog',{name:'עכשיו',exact:true});await expect(panel).toBeVisible();
+  if(mode==='cancel'){await expect.poll(()=>extraReads).toBe(5);await page.evaluate(()=>{history.pushState({},'', '/world');dispatchEvent(new PopStateEvent('popstate'));});releaseReads();releaseWorld();await page.waitForTimeout(300);await expect(page.getByRole('dialog',{name:'עכשיו',exact:true})).toHaveCount(0);await expect(page).toHaveURL(origin+'/world');}
+  else{
+   if(mode==='failed'){await expect(panel.getByText('חלק ממקורות העדכון לא נקראו.',{exact:false})).toBeVisible();await expect(panel.getByText('אין כרגע חידושים להצגה',{exact:true})).toHaveCount(0);deny=false;await panel.getByRole('button',{name:'ניסיון נוסף',exact:true}).click();}
+   await expect(panel.getByText('קורא עדכונים ציבוריים נוספים…',{exact:true})).toHaveCount(0);await expect(panel.locator('.sod29-now-source-row').first()).toBeVisible();
+   if(mode!=='failed'){releaseWorld();await page.waitForTimeout(250);assert.equal(extraReads,5,'one bounded batch, no duplicate initial watch result');}
+   await expect(panel.getByRole('button',{name:/עוד עדכונים/})).toBeVisible();await panel.getByRole('button',{name:'אור הגאולה',exact:true}).click();await expect(panel.locator('.sod29-now-source-row')).toHaveCount(12);await panel.locator('.sod29-now-source-row summary').first().click();await expect(panel.getByText('העדכון הציבורי מוצג כאן. לא צורף קישור מדויק למקור.',{exact:true}).first()).toBeVisible();await expect(panel.getByRole('button',{name:'פתח את המקור',exact:true})).toHaveCount(0);
+   await page.screenshot({path:out+'/'+mode+'-'+width+'.png'});
+   const dockLive=await page.locator('.sod29-command-island').evaluate(d=>{const r=d.getBoundingClientRect(),hit=document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);return{interactive:!!hit?.closest('.sod29-command-island'),dock:r.toJSON(),panel:document.querySelector('.sod29-frame-panel')?.getBoundingClientRect().toJSON()};});assert.equal(dockLive.interactive,true);assert.ok(dockLive.panel.bottom<=dockLive.dock.top);
+   await panel.evaluate(p=>{const nodes=[...p.querySelectorAll('button:not([disabled]),a[href],input,summary,[tabindex="0"]')].filter(n=>n.getClientRects().length);nodes[nodes.length-1].focus();});await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>!!document.activeElement.closest('.sod29-command-island')),true);await expect(panel).toHaveAttribute('aria-modal','false');
+   await page.locator('.sod29-command-island').getByRole('button',{name:/^עוד/}).click();await expect(page.getByRole('dialog',{name:'עוד',exact:true})).toBeVisible();await expect(page.getByRole('dialog',{name:'עכשיו',exact:true})).toHaveCount(0);
+
+  }
+  assert.deepEqual(forbidden,[]);assert.deepEqual(errors,[]);results.push({mode,width,extraReads,initial,openingNavigation:true,noFullscreenLoadingText:true,zeroRemoteForwarded:true,errors});await c.close();
+ }
+ fs.writeFileSync(out+'/results.json',JSON.stringify({ok:true,syntheticOnly:true,results},null,2)+'\n');console.log(JSON.stringify({ok:true,cases:results.length}));
+}catch(e){console.error(e);if(page)await page.screenshot({path:out+'/failure.png'}).catch(()=>{});process.exitCode=1;}finally{await browser?.close();server.close();}})();

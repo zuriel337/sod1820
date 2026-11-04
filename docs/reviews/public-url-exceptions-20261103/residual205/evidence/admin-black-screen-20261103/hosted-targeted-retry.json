@@ -1,0 +1,163 @@
+{
+  "sha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "deployment": "dpl_ADnf6NL9VznxiiysCQZqoGPguJSE",
+  "syntheticIdentity": true,
+  "liveAccountAcceptance": false,
+  "liveProductWrites": 0,
+  "liveModelCalls": 0,
+  "cases": [
+    {
+      "name": "read-failures-390",
+      "width": 390,
+      "failedReaders": true,
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/auth/v1/user",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/users",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/research_state_snapshot_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_system_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_video_map_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_op_trace_list_v1",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 390,
+        "documentWidth": 390,
+        "hasMain": true
+      },
+      "passed": true
+    },
+    {
+      "name": "member-denied-390",
+      "width": 390,
+      "role": "member",
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/auth/v1/settings",
+            "method": "GET"
+          },
+          {
+            "path": "/auth/v1/token",
+            "method": "POST"
+          },
+          {
+            "path": "/auth/v1/user",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/users",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/research_state_snapshot_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 390,
+        "documentWidth": 390,
+        "hasMain": true
+      },
+      "passed": true
+    },
+    {
+      "name": "guest-denied-390",
+      "width": 390,
+      "guest": true,
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/rest/v1/topic_cards_public",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/posts",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 390,
+        "documentWidth": 390,
+        "hasMain": true
+      },
+      "passed": true
+    }
+  ],
+  "selectedCases": [
+    "read-failures-390",
+    "member-denied-390",
+    "guest-denied-390"
+  ],
+  "passed": 3,
+  "ok": true
+}

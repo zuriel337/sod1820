@@ -1,0 +1,33 @@
+{
+  "proposalBaseline": "7fe889e16e62945f1b5b546d9640b0b6ae782225",
+  "appliedToProduct": false,
+  "sharedChanges": false,
+  "productionDeploymentCreated": false,
+  "isolatedTests": {
+    "passed": 5,
+    "failed": 0
+  },
+  "files": [
+    {
+      "path": "public-reading-deploy/review-admission.js",
+      "proposedSha256": "ddd5bb9d5efd07e9944cd4c598c73d776e46de5a2b0998d89be00a3db1116f3e",
+      "preimageSha256": "66e41a107fb85cc13aac6ee4c96d44ad504da1ae87657fc6cd2a0c3cd1bf1ccf"
+    },
+    {
+      "path": "public-reading-deploy/authorization.js",
+      "proposedSha256": "cab0b5ca109cc57534f7ec05c1e75e8f508aa0e083c626b5d44ccfb95f097593",
+      "preimageSha256": "9851bd6768869f6f177b0f5f47adfb3c588f872546aa4bdefeaf36c5dec6f3ed"
+    },
+    {
+      "path": "scripts/build-public-reading-production.mjs",
+      "proposedSha256": "da4b7ed506b07bba5a89abdf75b2a0dddb9a1d2be24fddf888afcdbc94508cd0",
+      "preimageSha256": "0d078f9fa86d10932bc6407ec75ea4752329ae2b136af5d13c1343c0266ec5cf"
+    },
+    {
+      "path": "test/public-reading-production-review.test.mjs",
+      "proposedSha256": "87ff96f32d66ae6f32ba601b5d3761554130e5f16563fe3022fb2c63647b5716"
+    }
+  ],
+  "preAuthProposalHistory": "activation.before-auth-continuity.proposal.patch",
+  "rebaseReason": "Preserve bounded stable Preview callback, restored existing Auth and truthfully labeled existing-server enrollment. Still no Production/cutover activation."
+}

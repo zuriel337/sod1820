@@ -1,0 +1,11 @@
+✔ proposal awaits canonical commit acknowledgement and never invokes identity or marketing (1.024442ms)
+✔ proposal rejects failure and does not retry or report saved (1.224687ms)
+✔ proposal permits only bounded explicit canonical issue and existing contact insert, including Supabase array body (35.708313ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 105.643949

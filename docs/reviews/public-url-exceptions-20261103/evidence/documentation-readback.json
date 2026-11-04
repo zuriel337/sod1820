@@ -1,0 +1,32 @@
+{
+  "doc37": {
+    "id": 37,
+    "beforeMd5": "474511bad06fa7662bf7a84216affa81",
+    "afterMd5": "82985101225e39e93507d60ea90bcf42",
+    "beforeLength": 509371,
+    "afterLength": 512215,
+    "appendix": "12.32",
+    "beforeLog": "8c147469-65f8-4ffe-8e03-91baf66ab4ca"
+  },
+  "updatedExistingDocuments": [
+    "SOD1820_MASTER_STATE.md",
+    "SOD1820_MASTER_ROADMAP.md",
+    "docs/w0-2027-route-seo-addressability-matrix-v1.md",
+    "docs/reviews/url-continuity-plan-20261103/transition-matrix.md",
+    "docs/reviews/url-continuity-plan-20261103/transition-matrix.json",
+    "docs/reviews/url-continuity-plan-20261103/transition-matrix.csv"
+  ],
+  "contractsChanged": false,
+  "historicalInventoryPreserved": true,
+  "conflictsFound": [],
+  "formalG4Closed": false,
+  "production": false,
+  "unchangedLegacyAndGuardFiles": [
+    "src/App.jsx",
+    "src/main.jsx",
+    "public/sw.js",
+    "vercel.json",
+    "AGENTS.md",
+    "CLAUDE.md"
+  ]
+}

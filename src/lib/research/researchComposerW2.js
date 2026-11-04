@@ -110,6 +110,11 @@ export async function composeResearchW2({
   requestedDepth = null,
   executors = {},
   ranking = [],
+  // OPTIONAL presentation-only resolver. It runs after every capability has returned, so an
+  // existing authority (for example gematria_words.lead_rank) can rank admitted Finding IDs
+  // without changing engine truth or requiring a second Result Bundle. Failure falls back to the
+  // explicit ranking input and may never suppress otherwise valid research evidence.
+  rankingResolver = null,
   resolvedRunSnapshot = null,
   nextActions = [],
   synthesizer = null,
@@ -263,6 +268,18 @@ export async function composeResearchW2({
     intake_lineage: safeIntakeLineage,
   };
 
+  let resolvedRanking = Array.isArray(ranking) ? ranking : [];
+  if (typeof rankingResolver === "function") {
+    try {
+      const projected = await rankingResolver({
+        capabilityResults,
+        identityResolution,
+        plan: outputPlan,
+      });
+      if (Array.isArray(projected)) resolvedRanking = projected;
+    } catch { /* presentation ranking may never alter research execution or evidence admission */ }
+  }
+
   const baseBundle = composeResearchResultBundle({
     query: {
       raw_input: safeRawInput,
@@ -274,7 +291,7 @@ export async function composeResearchW2({
     },
     plan: outputPlan,
     capabilities: capabilityResults,
-    ranking,
+    ranking: resolvedRanking,
     resolvedRunSnapshot: snapshot,
     nextActions: mergeRazielNextAction(
       [...(Array.isArray(nextActions) ? nextActions : []), ...executorNextActions],

@@ -1,11 +1,18 @@
 import { supabase } from "../supabase.js";
-import { normalizeWorldNumber, resolveExplicitVerificationState } from "./worldContextualProminence.js";
+import {
+  classifyWorldVerificationStrength,
+  normalizeWorldNumber,
+  resolveExplicitVerificationState,
+} from "./worldContextualProminence.js";
 import { resolveResearchObjectPresentation, humanizeResearchSource } from "./researchObjectPresentation.js";
 import { isGeneralResearchProjectionEligible } from "./researchObjectFinding.js";
+import { clusterWorldResearchRows } from "./worldFindingClusters.js";
+import { scopeWorldPreviewMaterial } from "./worldPreviewMaterialScope.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
-const MAX_ROWS_PER_SOURCE = 10000;
+const MAX_ROWS_PER_SOURCE = 20000;
+const PUBLIC_RESEARCH_STATUSES = Object.freeze(["approved", "canonical"]);
 
 const finite = normalizeWorldNumber;
 
@@ -15,6 +22,22 @@ function hasHebrew(value) {
 
 function isUrl(value) {
   return /^https?:\/\//i.test(clean(value));
+}
+
+function verifiedWebUrl(value) {
+  const text = clean(value);
+  if (!isUrl(text)) return null;
+  try {
+    const url = new URL(text);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : null;
+  } catch {
+    return null;
+  }
+}
+
+function publicFindingHref(sourceId) {
+  const id = encodeURIComponent(clean(sourceId));
+  return id ? `/world?finding=${id}#finding-${id}` : "/world";
 }
 
 function humanContributor(value) {
@@ -99,25 +122,225 @@ function countBy(rows, key) {
   return out;
 }
 
-async function fetchConvergenceCandidates() {
-  try {
-    const { data, error } = await supabase.rpc("admin_convergence_candidates", { p_limit: 50 });
-    if (error) return { rows: [], error: clean(error.message) || "candidate_rpc_failed", meta: {} };
-    const rows = Array.isArray(data?.candidates) ? data.candidates : [];
-    return {
-      rows,
-      error: null,
-      meta: {
-        activePreferences: Array.isArray(data?.active_preferences) ? data.active_preferences : [],
-        openContradictions: finite(data?.open_contradictions) ?? 0,
-      },
-    };
-  } catch (error) {
-    return { rows: [], error: clean(error?.message) || "candidate_rpc_failed", meta: {} };
+function countByMany(rows, key, fallbackKey) {
+  const out = {};
+  for (const row of rows) {
+    const values = Array.isArray(row?.[key]) && row[key].length
+      ? row[key]
+      : [row?.[fallbackKey]];
+    for (const value of new Set(values.map((item) => clean(item) || "לא צוין"))) {
+      out[value] = (out[value] || 0) + 1;
+    }
   }
+  return out;
 }
 
-async function fetchAllRows(table, fields) {
+// A raw tree_match is a search hint, not graph evidence. Only the existing
+// governance attachment contract can prove a number target in this projection;
+// a bare promoted id or an author-supplied match label cannot.
+function documentedTreeAttachment(row) {
+  const attachment = row?.meta?.governance?.tree_attachment;
+  const promotedNodeId = clean(row?.promoted_node_id);
+  const targetNodeId = clean(attachment?.target_node_id);
+  if (clean(row?.status).toLowerCase() !== "canonical"
+    || attachment?.mode !== "existing_graph_identity_pointer"
+    || clean(attachment?.target_node_type).toLowerCase() !== "number"
+    || !promotedNodeId || targetNodeId !== promotedNodeId || finite(row?.value) == null) return null;
+  return { targetNodeId, targetType: "number" };
+}
+
+function normalizeTreeMatches(row) {
+  const matches = Array.isArray(row?.meta?.ext?.wa_channel_intake?.tree_matches)
+    ? row.meta.ext.wa_channel_intake.tree_matches
+    : [];
+  const seen = new Map();
+  const out = [];
+  const add = (match, documented = false) => {
+    if (!match || typeof match !== "object" || Array.isArray(match)) return;
+    const type = clean(match.type).toLowerCase();
+    const key = clean(match.key);
+    if (!type || !key) return;
+    const identity = `${type}:${key}`;
+    if (seen.has(identity)) {
+      if (documented) {
+        const existing = out[seen.get(identity)];
+        existing.match = "governed_attachment";
+        // The historical attachment contract proves the node identity, but
+        // does not prove that its label equals this finding's claimed value.
+        existing.label = "צומת מספר מתועד";
+      }
+      return;
+    }
+    seen.set(identity, out.length);
+    out.push({
+      type,
+      key,
+      label: documented ? "צומת מספר מתועד" : clean(match.label) || null,
+      // Do not let a raw input forge our presentation-only provenance label.
+      match: documented ? "governed_attachment" : clean(match.match) === "governed_attachment" ? "candidate" : clean(match.match) || null,
+    });
+  };
+  for (const match of matches) {
+    add(match);
+  }
+
+  const attachment = documentedTreeAttachment(row);
+  if (attachment) {
+    add({
+      type: "number",
+      key: attachment.targetNodeId,
+      label: "צומת מספר מתועד",
+      match: "governed_attachment",
+    }, true);
+  }
+  return out;
+}
+
+function topicRating(row) {
+  if (!row?.id) return null;
+  const slug = clean(row.slug);
+  const numbers = (Array.isArray(row.numbers) ? row.numbers : [])
+    .map(Number).filter(Number.isFinite);
+  const highlightNumbers = (Array.isArray(row.highlight_numbers) ? row.highlight_numbers : [])
+    .map(Number).filter(Number.isFinite);
+  return {
+    topicId: String(row.id),
+    nodeId: clean(row.node_id) || null,
+    slug: slug || null,
+    title: clean(row.title) || slug || "נושא",
+    status: clean(row.status) || "לא צוין",
+    quality: finite(row.quality),
+    meterScore: finite(row.meter_score),
+    numbers,
+    highlightNumbers,
+    href: slug ? `/topic/${encodeURIComponent(slug)}` : null,
+  };
+}
+
+function topicRatingIndex(topicRows = []) {
+  const byKey = new Map();
+  for (const row of Array.isArray(topicRows) ? topicRows : []) {
+    const rating = topicRating(row);
+    if (!rating) continue;
+    for (const key of [
+      rating.slug ? `topic:${rating.slug}` : null,
+      `topic_id:${rating.topicId}`,
+      rating.nodeId ? `node:${rating.nodeId}` : null,
+    ].filter(Boolean)) {
+      if (!byKey.has(key)) byKey.set(key, rating);
+    }
+  }
+  return byKey;
+}
+
+function compareNullableDesc(left, right) {
+  const a = finite(left);
+  const b = finite(right);
+  if (a == null && b == null) return 0;
+  if (a == null) return 1;
+  if (b == null) return -1;
+  return b - a;
+}
+
+function compareTopicRatings(left, right) {
+  return compareNullableDesc(left?.meterScore, right?.meterScore)
+    || compareNullableDesc(left?.quality, right?.quality)
+    || clean(left?.slug || left?.topicId).localeCompare(clean(right?.slug || right?.topicId));
+}
+
+function attachLinkedTopicRatings(rows, topicRows) {
+  const index = topicRatingIndex(topicRows);
+  return rows.map((row) => {
+    if (row.family !== "research_object") return row;
+    const ratings = [];
+    const seen = new Set();
+    const add = (rating) => {
+      if (!rating || seen.has(rating.topicId)) return;
+      seen.add(rating.topicId);
+      ratings.push({
+        ...rating,
+        connectionState: row.documentedTreeAttachment?.targetNodeId === rating.nodeId
+          ? "documented_attachment" : "candidate",
+      });
+    };
+    for (const match of row.treeMatches || []) {
+      if (match.type === "topic") add(index.get(`topic:${match.key}`) || index.get(`topic_id:${match.key}`));
+      if (match.type === "entity" || match.type === "number") add(index.get(`node:${match.key}`));
+    }
+    if (row.promotedNodeId) add(index.get(`node:${row.promotedNodeId}`));
+    ratings.sort(compareTopicRatings);
+    return {
+      ...row,
+      linkedTopicRatings: ratings,
+      linkedTopicRating: ratings[0] || null,
+    };
+  });
+}
+
+function researchStrengthPresentation(row) {
+  const verification = clean(row?.verification).toLowerCase() || "not_tested";
+  const explicitMatch = verification === "match";
+  const treeMatched = Boolean(row?.documentedTreeAttachment);
+  const candidateCount = (row?.treeMatches || []).filter((item) => item.match !== "governed_attachment").length;
+  const rating = row?.linkedTopicRating || null;
+  const reasons = [];
+  if (explicitMatch) reasons.push("אימות מנוע מפורש תואם");
+  else reasons.push("אין עדיין אימות מנוע מפורש תואם");
+  if (treeMatched) reasons.push("הצמדה לצומת מספר נרשמה");
+  else if (candidateCount) reasons.push(`${candidateCount} יעדים לבחינה; לא אומת קשר לעץ`);
+  else reasons.push("לא נטענה הצמדה מתועדת לצומת בעץ");
+  if (rating?.meterScore != null) reasons.push(`מד ההתכנסות של היעד: ${rating.meterScore}`);
+  else reasons.push("ליעד אין עדיין מד התכנסות זמין");
+  return {
+    explicitMatch,
+    treeMatched,
+    hasLinkedMeter: rating?.meterScore != null,
+    label: explicitMatch && treeMatched
+      ? "מאומת · הצמדה לצומת נרשמה"
+      : explicitMatch
+        ? "מאומת · קשר לעץ לא אומת"
+        : treeMatched
+          ? "הצמדה לצומת נרשמה · דורש אימות"
+          : "דורש סקירה",
+    reasons,
+  };
+}
+
+/**
+ * Review ordering only. It keeps the existing truth axes separate: explicit verification
+ * first, then an exact stored tree match, then the linked Topic's existing meter/quality.
+ * It never writes a score, changes access/status, or treats the Topic meter as proof.
+ */
+export function compareWorldResearchStrength(left, right) {
+  const verification = classifyWorldVerificationStrength(left?.verification)
+    - classifyWorldVerificationStrength(right?.verification);
+  if (verification) return verification;
+  const tree = (left?.documentedTreeAttachment ? 0 : 1) - (right?.documentedTreeAttachment ? 0 : 1);
+  if (tree) return tree;
+  const meter = compareNullableDesc(left?.linkedTopicRating?.meterScore, right?.linkedTopicRating?.meterScore);
+  if (meter) return meter;
+  const quality = compareNullableDesc(left?.linkedTopicRating?.quality, right?.linkedTopicRating?.quality);
+  if (quality) return quality;
+  return clean(left?.id).localeCompare(clean(right?.id));
+}
+
+export function orderWorldAllResearchRows(rows = []) {
+  const familyRank = { research_object: 0, topic: 1, contribution: 2, source_message: 3 };
+  return [...(Array.isArray(rows) ? rows : [])].sort((left, right) => {
+    const family = (familyRank[left?.family] ?? 9) - (familyRank[right?.family] ?? 9);
+    if (family) return family;
+    if (left?.family === "research_object") return compareWorldResearchStrength(left, right);
+    if (left?.family === "topic") {
+      return compareNullableDesc(left?.meterScore, right?.meterScore)
+        || compareNullableDesc(left?.quality, right?.quality)
+        || clean(left?.id).localeCompare(clean(right?.id));
+    }
+    return clean(right?.createdAt).localeCompare(clean(left?.createdAt))
+      || clean(left?.id).localeCompare(clean(right?.id));
+  });
+}
+
+async function fetchAllRows(table, fields, refine = (query) => query) {
   const rows = [];
   let total = null;
   let offset = 0;
@@ -129,6 +352,7 @@ async function fetchAllRows(table, fields) {
       .select(fields, offset === 0 ? { count: "exact" } : undefined)
       .order("created_at", { ascending: false })
       .range(offset, end);
+    query = refine(query);
     const { data, error, count } = await query;
     if (error) throw error;
     if (offset === 0 && count != null) total = Number(count);
@@ -176,7 +400,8 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
       mediaUrl: clean(row.image_url) || null,
       mediaClass: row.image_url ? "image" : null,
       spatialCluster: null,
-      href: clean(row.link_url) || (isUrl(rawText) ? rawText : null),
+      sourceHref: verifiedWebUrl(row.link_url) || verifiedWebUrl(rawText),
+      href: verifiedWebUrl(row.link_url) || verifiedWebUrl(rawText),
       presentation: {
         typeLabel: "הודעת מקור",
         sourceLabel: "הודעות מקור",
@@ -267,6 +492,8 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     || row?.engine_detail?.result_state
     || row?.engine_detail?.outcome
   ) || null;
+  const treeMatches = normalizeTreeMatches(row);
+  const treeAttachment = documentedTreeAttachment(row);
   return {
     id: "research:" + row.id,
     sourceId: String(row.id),
@@ -289,9 +516,13 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     sourceRef,
     sourceRefs: [...new Set([sourceRef, ...metaSourceRefs].filter(Boolean))],
     contributor: clean(row.contributor) || null,
+    sourceContributorId: clean(row.source_contributor_id) || null,
     confidence: Number.isFinite(Number(row.confidence)) ? Number(row.confidence) : null,
     status: clean(row.status) || "לא צוין",
     access: clean(row.privacy_scope) || "לא צוין",
+    promotedNodeId: clean(row.promoted_node_id) || null,
+    documentedTreeAttachment: treeAttachment,
+    documentedTreeConnected: Boolean(treeAttachment),
     parentId: clean(row.parent_id) || null,
     batchKey: clean(row?.meta?.batch_key) || null,
     operationalState,
@@ -304,45 +535,87 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     mediaUrl: clean(row?.meta?.ext?.wa_channel_intake?.media_ref) || null,
     mediaClass: clean(row?.meta?.ext?.source_media_profile?.class) || null,
     spatialCluster: clean(row?.meta?.ext?.spatial_research?.cluster) || null,
+    treeMatches,
+    treeMatchState: clean(row?.meta?.ext?.wa_channel_intake?.tree_match_state) || null,
+    sourceHref: [sourceRef, ...metaSourceRefs, row.source].map(verifiedWebUrl).find(Boolean) || null,
+    canonicalFindingHref: publicFindingHref(row.id),
     href: value != null ? "/2029/number/" + value : null,
   };
 }
 
 export function buildWorldAllResearchProjection(familyRows = {}, totals = {}) {
-  const researchRows = Array.isArray(familyRows.researchObjects) ? familyRows.researchObjects : [];
+  const scoped = scopeWorldPreviewMaterial(familyRows);
+  const researchRows = scoped.researchObjects;
   const generalResearchRows = researchRows.filter(isGeneralResearchProjectionEligible);
   const excludedPersonOnlyResearch = researchRows.length - generalResearchRows.length;
+  const normalizedResearchRows = generalResearchRows
+    .map((row) => normalizeWorldAllResearchRow(row, "research_object"))
+    .filter(Boolean);
+  const documentedBySourceId = new Map(normalizedResearchRows.map((row) => [row.sourceId, row.documentedTreeConnected]));
+  const ratedResearchOccurrences = attachLinkedTopicRatings(normalizedResearchRows, scoped.topics);
+  const duplicateProjection = clusterWorldResearchRows(normalizedResearchRows);
+  const ratedResearchRows = attachLinkedTopicRatings(duplicateProjection.rows, scoped.topics)
+    .map((row) => ({
+      ...row,
+      // An exact duplicate may have a different provenance. Count only the
+      // original occurrences that actually carry a documented attachment.
+      documentedTreeOccurrenceCount: Array.isArray(row.occurrences)
+        ? row.occurrences.filter((occurrence) => documentedBySourceId.get(occurrence.sourceId) === true).length
+        : row.documentedTreeConnected ? 1 : 0,
+      researchStrength: researchStrengthPresentation(row),
+    }));
   const rows = [
-    ...generalResearchRows.map((row) => normalizeWorldAllResearchRow(row, "research_object")),
-    ...(familyRows.contributions || []).map((row) => normalizeWorldAllResearchRow(row, "contribution")),
-    ...(familyRows.sourceMessages || []).map((row) => normalizeWorldAllResearchRow(row, "source_message")),
-    ...(familyRows.topics || []).map((row) => normalizeWorldAllResearchRow(row, "topic")),
-  ].filter(Boolean).sort((a, b) => clean(b.createdAt).localeCompare(clean(a.createdAt)));
+    ...ratedResearchRows,
+    ...scoped.contributions.map((row) => normalizeWorldAllResearchRow(row, "contribution")),
+    ...scoped.sourceMessages.map((row) => normalizeWorldAllResearchRow(row, "source_message")),
+    ...scoped.topics.map((row) => normalizeWorldAllResearchRow(row, "topic")),
+  ].filter(Boolean);
+  const orderedRows = orderWorldAllResearchRows(rows);
+
+  const rawLoaded = normalizedResearchRows.length
+    + scoped.contributions.length
+    + scoped.sourceMessages.length
+    + scoped.topics.length;
 
   const sourceTotals = {
-    research_object: Number(totals.researchObjects ?? familyRows.researchObjects?.length ?? 0),
-    contribution: Number(totals.contributions ?? familyRows.contributions?.length ?? 0),
-    source_message: Number(totals.sourceMessages ?? familyRows.sourceMessages?.length ?? 0),
-    topic: Number(totals.topics ?? familyRows.topics?.length ?? 0),
+    research_object: Number(totals.researchObjects ?? scoped.researchObjects.length),
+    contribution: Number(totals.contributions ?? scoped.contributions.length),
+    source_message: Number(totals.sourceMessages ?? scoped.sourceMessages.length),
+    topic: Number(totals.topics ?? scoped.topics.length),
   };
 
   return {
-    rows,
+    rows: orderedRows,
     total: Object.values(sourceTotals).reduce((sum, value) => sum + value, 0),
-    convergenceCandidates: Array.isArray(familyRows.convergenceCandidates) ? familyRows.convergenceCandidates : [],
+    convergenceCandidates: scoped.convergenceCandidates,
     convergenceCandidateError: clean(totals.convergenceCandidateError) || null,
     convergenceCandidateMeta: totals.convergenceCandidateMeta || {},
-    loaded: rows.length,
+    loaded: orderedRows.length,
+    rawLoaded,
     truncated: Boolean(totals.truncated),
     sourceTotals,
-    byFamily: countBy(rows, "family"),
-    byKind: countBy(rows, "kind"),
-    byAccess: countBy(rows.filter((row) => row.family === "research_object"), "access"),
-    byStatus: countBy(rows, "status"),
-    byVerification: countBy(rows, "verification"),
-    byContributor: countBy(rows, "contributor"),
+    duplicateProjection: {
+      mode: duplicateProjection.mode,
+      nonDestructive: duplicateProjection.nonDestructive,
+      groups: duplicateProjection.duplicateGroups,
+      occurrencesCombined: duplicateProjection.duplicateOccurrences,
+      rawResearchRows: duplicateProjection.rawCount,
+      clusteredResearchRows: duplicateProjection.clusteredCount,
+      canonicalSelection: "longest_original_statement",
+    },
+    byFamily: countBy(orderedRows, "family"),
+    byKind: countBy(orderedRows, "kind"),
+    byAccess: countBy(orderedRows.filter((row) => row.family === "research_object"), "access"),
+    byStatus: countBy(orderedRows, "status"),
+    byVerification: countBy(orderedRows, "verification"),
+    byContributor: countByMany(orderedRows, "contributors", "contributor"),
+    treeMatchedResearch: ratedResearchRows.filter((row) => row.documentedTreeConnected).length,
+    meteredResearch: ratedResearchRows.filter((row) => row.linkedTopicRating?.meterScore != null).length,
+    treeMatchedResearchOccurrences: ratedResearchOccurrences.filter((row) => row.documentedTreeConnected).length,
+    meteredResearchOccurrences: ratedResearchOccurrences.filter((row) => row.linkedTopicRating?.meterScore != null).length,
+    excludedMaterial: scoped.excluded,
     excludedPersonOnlyResearch,
-    truthBoundary: "הצגה למנהל אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. מקור גולמי, תרומת מחקר, ממצא מחקר ונושא נשארים שכבות נפרדות. מחקר שסומן במפורש person_only נשאר בעדשת האדם ואינו נכנס לעץ הכללי.",
+    truthBoundary: "ההקרנה אינה משנה גישה, ממשל, אימות, קנוניות או פרסום. הקורא הציבורי מעביר רק חומר ציבורי במצב מאושר או קנוני; קורא הביקורת המנהלי נשאר מאחורי אימות והרשאות קיימים. כפילויות ודאיות מאוגדות בתצוגה בלבד; כל רשומת מקור נשמרת וניתנת למעקב. מחקר שסומן במפורש person_only נשאר בעדשת האדם ואינו נכנס לעץ הכללי.",
   };
 }
 
@@ -354,6 +627,11 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
   const status = clean(filters.status) || "all";
   const verification = clean(filters.verification) || "all";
   const contributor = clean(filters.contributor) || "all";
+  const contributorId = clean(filters.contributorId) || "all";
+  const contributorAliases = new Set((Array.isArray(filters.contributorAliases) ? filters.contributorAliases : [])
+    .map(clean).filter(Boolean));
+  const tree = clean(filters.tree) || "all";
+  const meter = clean(filters.meter) || "all";
 
   return (Array.isArray(rows) ? rows : []).filter((row) => {
     if (family !== "all" && row.family !== family) return false;
@@ -361,7 +639,22 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
     if (access !== "all" && row.access !== access) return false;
     if (status !== "all" && row.status !== status) return false;
     if (verification !== "all" && row.verification !== verification) return false;
-    if (contributor !== "all" && (row.contributor || "לא צוין") !== contributor) return false;
+    if (tree === "matched" && !(row.family === "research_object" && row.documentedTreeConnected)) return false;
+    if (tree === "unmatched" && !(row.family === "research_object" && !row.documentedTreeConnected)) return false;
+    if (meter === "metered" && !(row.family === "research_object" && row.linkedTopicRating?.meterScore != null)) return false;
+    if (meter === "unmetered" && !(row.family === "research_object" && row.linkedTopicRating?.meterScore == null)) return false;
+    const contributors = Array.isArray(row.contributors) && row.contributors.length
+      ? row.contributors
+      : [row.contributor || "לא צוין"];
+    if (contributor !== "all" && !contributors.includes(contributor)) return false;
+    if (contributorId !== "all") {
+      const contributorIds = Array.isArray(row.sourceContributorIds) && row.sourceContributorIds.length
+        ? row.sourceContributorIds
+        : [row.sourceContributorId].filter(Boolean);
+      const exactIdentity = contributorIds.includes(contributorId);
+      const registeredAlias = contributors.some((value) => contributorAliases.has(clean(value)));
+      if (!exactIdentity && !registeredAlias) return false;
+    }
     if (!query) return true;
     const haystack = [
       row.family,
@@ -374,6 +667,10 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
       row.contributor,
       row.source,
       row.sourceRef,
+      ...(row.sourceRefs || []),
+      ...(row.sourceLabels || []),
+      ...(row.sources || []),
+      ...(row.contributors || []),
       row.value,
       ...(row.values || []),
       row.kind,
@@ -381,6 +678,10 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
       row.access,
       row.mediaClass,
       row.spatialCluster,
+      row.linkedTopicRating?.title,
+      row.linkedTopicRating?.slug,
+      row.linkedTopicRating?.meterScore,
+      ...(row.treeMatches || []).flatMap((match) => [match.type, match.key, match.label]),
       ...(row.terms || []),
       ...(row.relates || []),
     ].filter((value) => value != null).join(" ").toLowerCase();
@@ -388,43 +689,255 @@ export function filterWorldAllResearchRows(rows = [], filters = {}) {
   });
 }
 
+function publicOccurrenceDto(occurrence = {}) {
+  const {
+    sourceContributorId: _sourceContributorId,
+    ...publicOccurrence
+  } = occurrence;
+  return publicOccurrence;
+}
+
+function isWorldPublicProjectionRow(row) {
+  const status = clean(row?.status).toLowerCase();
+  if (row?.family === "research_object") {
+    return clean(row?.access).toLowerCase() === "public"
+      && PUBLIC_RESEARCH_STATUSES.includes(status);
+  }
+  if (row?.family === "contribution" || row?.family === "topic") return status === "approved";
+  if (row?.family === "source_message") return status === "live";
+  return false;
+}
+
+/**
+ * Public DTO boundary for the existing World projection. The database query is
+ * already narrowed before transport; this final serializer prevents internal
+ * ranking, review and search carriers from becoming part of the public contract.
+ */
+export function worldPublicResearchDto(projection = {}) {
+  const {
+    convergenceCandidates: _convergenceCandidates,
+    convergenceCandidateError: _convergenceCandidateError,
+    convergenceCandidateMeta: _convergenceCandidateMeta,
+    excludedMaterial: _excludedMaterial,
+    excludedPersonOnlyResearch: _excludedPersonOnlyResearch,
+    ...publicProjection
+  } = projection || {};
+
+  const rows = (Array.isArray(projection?.rows) ? projection.rows : [])
+    .filter(isWorldPublicProjectionRow)
+    .map((row) => {
+      // A shared projection may also have been assembled for an admin. Topic
+      // links in a public finding must never carry an unpublished topic along.
+      const publicTopics = (Array.isArray(row.linkedTopicRatings)
+        ? row.linkedTopicRatings : row.linkedTopicRating ? [row.linkedTopicRating] : [])
+        .filter((topic) => clean(topic?.status).toLowerCase() === "approved");
+      const {
+        terms: _terms,
+        triage: _triage,
+        rank: _rank,
+        strength: _strength,
+        recommendation: _recommendation,
+        evidenceReason: _evidenceReason,
+        proposedTreeTarget: _proposedTreeTarget,
+        recommendedKeepId: _recommendedKeepId,
+        duplicateIds: _duplicateIds,
+        researchStrength: _researchStrength,
+        engineVerificationStateRaw: _engineVerificationStateRaw,
+        scopeVerificationStates: _scopeVerificationStates,
+        sourceContributorId: _sourceContributorId,
+        sourceContributorIds: _sourceContributorIds,
+        promotedNodeId: _promotedNodeId,
+        documentedTreeAttachment: _documentedTreeAttachment,
+        linkedTopicRatings: _linkedTopicRatings,
+        linkedTopicRating: _linkedTopicRating,
+        parentId: _parentId,
+        treeMatchState: _treeMatchState,
+        batchKey: _batchKey,
+        operationalState: _operationalState,
+        duplicateClusterKey: _duplicateClusterKey,
+        ...publicRow
+      } = row || {};
+      return {
+        ...publicRow,
+        ...(row.family === "research_object" ? {
+          linkedTopicRatings: publicTopics,
+          linkedTopicRating: publicTopics[0] || null,
+        } : {}),
+        sourceHref: verifiedWebUrl(publicRow.sourceHref),
+        ...(publicRow.family === "research_object"
+          ? { canonicalFindingHref: publicFindingHref(publicRow.sourceId) }
+          : {}),
+        ...(Array.isArray(publicRow.occurrences)
+          ? { occurrences: publicRow.occurrences.map(publicOccurrenceDto) }
+          : {}),
+      };
+    });
+  const sourceTotals = {
+    research_object: rows.filter((row) => row.family === "research_object")
+      .reduce((sum, row) => sum + Math.max(1, finite(row.occurrenceCount) || 1), 0),
+    contribution: rows.filter((row) => row.family === "contribution").length,
+    source_message: rows.filter((row) => row.family === "source_message").length,
+    topic: rows.filter((row) => row.family === "topic").length,
+  };
+  const researchRows = rows.filter((row) => row.family === "research_object");
+  const duplicateGroups = researchRows.filter((row) => (finite(row.occurrenceCount) || 1) > 1).length;
+  const duplicateOccurrences = researchRows.reduce(
+    (sum, row) => sum + Math.max(0, (finite(row.occurrenceCount) || 1) - 1),
+    0,
+  );
+
+  return {
+    ...publicProjection,
+    rows,
+    total: Object.values(sourceTotals).reduce((sum, value) => sum + value, 0),
+    loaded: rows.length,
+    rawLoaded: Object.values(sourceTotals).reduce((sum, value) => sum + value, 0),
+    sourceTotals,
+    duplicateProjection: {
+      mode: "exact-safe-projection",
+      nonDestructive: true,
+      groups: duplicateGroups,
+      occurrencesCombined: duplicateOccurrences,
+      rawResearchRows: sourceTotals.research_object,
+      clusteredResearchRows: researchRows.length,
+      canonicalSelection: "longest_original_statement",
+    },
+    byFamily: countBy(rows, "family"),
+    byKind: countBy(rows, "kind"),
+    byAccess: countBy(researchRows, "access"),
+    byStatus: countBy(rows, "status"),
+    byVerification: countBy(rows, "verification"),
+    byContributor: countByMany(rows, "contributors", "contributor"),
+    treeMatchedResearch: researchRows.filter((row) => row.documentedTreeConnected).length,
+    meteredResearch: researchRows.filter((row) => row.linkedTopicRating?.meterScore != null).length,
+    treeMatchedResearchOccurrences: researchRows.reduce(
+      (sum, row) => sum + (finite(row.documentedTreeOccurrenceCount) || 0),
+      0,
+    ),
+    meteredResearchOccurrences: researchRows.reduce(
+      (sum, row) => sum + (row.linkedTopicRating?.meterScore != null ? Math.max(1, finite(row.occurrenceCount) || 1) : 0),
+      0,
+    ),
+  };
+}
+
+/**
+ * Resolve one exact public finding from an already-authorized World DTO.
+ * This never falls back by text, source, contributor or duplicate similarity.
+ */
+export function findWorldPublicResearchFinding(projection = {}, sourceId = "") {
+  const wanted = clean(sourceId);
+  if (!wanted) return null;
+  const publicProjection = worldPublicResearchDto(projection);
+  return publicProjection.rows.find((row) => (
+    row?.family === "research_object"
+      && clean(row?.sourceId) === wanted
+      && isWorldPublicProjectionRow(row)
+  )) || null;
+}
+
 export async function fetchWorldAllResearchProjection() {
-  const [research, contributions, sources, topics, candidates] = await Promise.all([
+  const excludedChannelRows = await fetchAllRows(
+    "channel_updates",
+    "id,created_at",
+    (query) => query.eq("channel", "or-geula").eq("status", "live"),
+  );
+  const excludedChannelSourceRefs = excludedChannelRows.rows.map((row) => `channel_updates:${row.id}`);
+
+  const [research, contributions, sources, topics] = await Promise.all([
     fetchAllRows(
       "research_objects",
-      "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,parent_id,meta"
+      "id,created_at,kind,statement,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,meta",
+      (query) => query.eq("privacy_scope", "public").in("status", PUBLIC_RESEARCH_STATUSES),
     ),
     fetchAllRows(
       "research_contributions",
-      "id,created_at,author_name,intent,origin,research_state,status,target_type,target_id,title,body,gematria_claim,image_url,media,convergence_slug"
+      "id,created_at,author_name,intent,origin,research_state,status,target_type,target_id,title,body,gematria_claim,image_url,media,convergence_slug",
+      (query) => query.eq("status", "approved").or("origin.is.null,origin.neq.openweb"),
     ),
     fetchAllRows(
       "channel_updates",
-      "id,created_at,text,image_url,source,status,credit,channel,link_url,speaker"
+      "id,created_at,text,image_url,source,status,credit,channel,link_url,speaker",
+      (query) => query.eq("status", "live").or("channel.is.null,channel.neq.or-geula"),
     ),
     fetchAllRows(
       "topic_cards",
-      "id,created_at,approved_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by"
+      "id,created_at,approved_at,slug,title,subtitle,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by,node_id",
+      (query) => query.eq("status", "approved"),
     ),
-    fetchConvergenceCandidates(),
   ]);
+  const scopedResearch = scopeWorldPreviewMaterial({
+    researchObjects: research.rows,
+    excludedChannelSourceRefs,
+  });
 
-  return buildWorldAllResearchProjection(
+  return worldPublicResearchDto(buildWorldAllResearchProjection(
     {
       researchObjects: research.rows,
       contributions: contributions.rows,
       sourceMessages: sources.rows,
       topics: topics.rows,
-      convergenceCandidates: candidates.rows,
+      excludedChannelSourceRefs,
     },
     {
-      researchObjects: research.total,
+      researchObjects: Math.max(
+        0,
+        research.total - scopedResearch.excluded.old_chat - scopedResearch.excluded.or_geula,
+      ),
       contributions: contributions.total,
       sourceMessages: sources.total,
       topics: topics.total,
-      convergenceCandidateError: candidates.error,
-      convergenceCandidateMeta: candidates.meta,
       truncated: research.truncated || contributions.truncated || sources.truncated || topics.truncated,
     }
+  ));
+}
+
+/**
+ * Bounded owner review reader for the World findings queue. Unlike the broader archive view,
+ * it fetches only research findings and their exact Topic targets, so opening the review queue
+ * does not also transfer every source message and contribution to the browser. Current-session
+ * RLS remains the access authority; this helper does not widen visibility.
+ */
+export async function fetchWorldFindingReviewProjection() {
+  const [excludedChannelRows, research, topics] = await Promise.all([
+    fetchAllRows(
+      "channel_updates",
+      "id,created_at",
+      (query) => query.eq("channel", "or-geula"),
+    ),
+    fetchAllRows(
+      "research_objects",
+      "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,evidence,status,privacy_scope,promoted_node_id,parent_id,meta",
+    ),
+    fetchAllRows(
+      "topic_cards",
+      "id,created_at,approved_at,slug,title,subtitle,search_terms,image_ids,numbers,highlight_numbers,status,quality,meter_score,created_by,node_id",
+    ),
+  ]);
+  const excludedChannelSourceRefs = excludedChannelRows.rows.map((row) => `channel_updates:${row.id}`);
+  const scopedResearch = scopeWorldPreviewMaterial({
+    researchObjects: research.rows,
+    excludedChannelSourceRefs,
+  });
+
+  return buildWorldAllResearchProjection(
+    {
+      researchObjects: research.rows,
+      contributions: [],
+      sourceMessages: [],
+      topics: topics.rows,
+      convergenceCandidates: [],
+      excludedChannelSourceRefs,
+    },
+    {
+      researchObjects: Math.max(
+        0,
+        research.total - scopedResearch.excluded.old_chat - scopedResearch.excluded.or_geula,
+      ),
+      contributions: 0,
+      sourceMessages: 0,
+      topics: topics.total,
+      truncated: research.truncated || topics.truncated,
+    },
   );
 }

@@ -1,0 +1,41 @@
+{
+  "baseSha": "0d4ad83644a74abe5d990f7a628dd955fd0c638a",
+  "candidateSha": "d13233577ec647bc77c9230de8a966f267a3ae07",
+  "configuration": "existing protected public-reading Preview compile profile",
+  "exactSameDefines": true,
+  "source": "local final emitted output; not hosted transfer size or performance",
+  "compression": "gzip default Node zlib per emitted JS file",
+  "graphs": {
+    "entry": {
+      "beforeGzipBytes": 238749,
+      "afterGzipBytes": 184172,
+      "deltaBytes": -54577,
+      "beforeFiles": 20,
+      "afterFiles": 20
+    },
+    "homeStatic": {
+      "beforeGzipBytes": 472047,
+      "afterGzipBytes": 355102,
+      "deltaBytes": -116945,
+      "beforeFiles": 58,
+      "afterFiles": 46
+    },
+    "homeWithPostPreparation": {
+      "beforeGzipBytes": 544626,
+      "afterGzipBytes": 456507,
+      "deltaBytes": -88119,
+      "beforeFiles": 71,
+      "afterFiles": 65
+    }
+  },
+  "excludedFromHomeStatic": [
+    "dayContext.js",
+    "entityHubProjection.js",
+    "GoldenProjectorModeLayer2029.jsx",
+    "explorerFacets.js",
+    "home2029Projection.js"
+  ],
+  "remainingFirstPostPreparation": true,
+  "dynamicSourceCachesIntroduced": false,
+  "finalWrittenFileHashesVerified": true
+}

@@ -1,0 +1,67 @@
+{
+  "loaded": [
+    {
+      "id": "/workspace/sod1820-bd-approved/src/pages/post2029-legacy-grade.css",
+      "bytes": 25723,
+      "hasBackground": true
+    },
+    {
+      "id": "/workspace/sod1820-bd-approved/src/pages/post2029-reading.css",
+      "bytes": 60441,
+      "hasBackground": false
+    }
+  ],
+  "transformed": [
+    {
+      "id": "/workspace/sod1820-bd-approved/src/pages/post2029-legacy-grade.css",
+      "bytes": 25723,
+      "hasBackground": true
+    },
+    {
+      "id": "/workspace/sod1820-bd-approved/src/pages/post2029-reading.css",
+      "bytes": 60441,
+      "hasBackground": false
+    }
+  ],
+  "modules": [
+    {
+      "id": "/workspace/sod1820-bd-approved/src/pages/post2029-legacy-grade.css",
+      "importers": [
+        "/workspace/sod1820-bd-approved/src/pages/postReadingStyles2029.js"
+      ],
+      "dynamicImporters": [],
+      "moduleSideEffects": "no-treeshake"
+    },
+    {
+      "id": "/workspace/sod1820-bd-approved/src/pages/post2029-reading.css",
+      "importers": [
+        "/workspace/sod1820-bd-approved/src/pages/postReadingStyles2029.js"
+      ],
+      "dynamicImporters": [],
+      "moduleSideEffects": "no-treeshake"
+    }
+  ],
+  "chunks": [
+    {
+      "name": "assets/postReadingStyles2029-PtccioFT.js",
+      "styles": [
+        "/workspace/sod1820-bd-approved/src/pages/post2029-reading.css",
+        "/workspace/sod1820-bd-approved/src/pages/post2029-legacy-grade.css"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "name": "assets/Sod2029Shell-mCHp5d7K.css",
+      "bytes": 206775,
+      "hasBackground": false,
+      "hasFinish": false
+    },
+    {
+      "name": "assets/postReadingStyles2029-CL4u0M6M.css",
+      "bytes": 74868,
+      "hasBackground": true,
+      "hasFinish": true
+    }
+  ]
+}

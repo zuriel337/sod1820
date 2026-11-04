@@ -1,0 +1,10028 @@
+{
+  "capturedAt": "2026-11-03T04:22:31.456Z",
+  "meaning": "Labels on public-boundary posts, not proof of a category/tag/author URL or equivalence to Topic/Person/Series. Existing slug adapters must resolve labels.",
+  "query": "with p as (select id,categories,tags,author from public.posts where not exists(select 1 from unnest(tags) tag where trim(tag) in ('טיוטה','פורום'))) select 'category' as kind,value,count(*) as posts from p cross join lateral unnest(categories) value group by value union all select 'tag',value,count(*) from p cross join lateral unnest(tags) value group by value union all select 'author',author,count(*) from p group by author order by kind,posts desc;",
+  "rows": [
+    {
+      "kind": "author",
+      "value": "",
+      "posts": 854
+    },
+    {
+      "kind": "author",
+      "value": "מזכה הרבים",
+      "posts": 303
+    },
+    {
+      "kind": "author",
+      "value": null,
+      "posts": 39
+    },
+    {
+      "kind": "author",
+      "value": "בדרך לנצח",
+      "posts": 34
+    },
+    {
+      "kind": "author",
+      "value": "ציון סיבוני",
+      "posts": 20
+    },
+    {
+      "kind": "author",
+      "value": "אלון לוי",
+      "posts": 13
+    },
+    {
+      "kind": "author",
+      "value": "הרב ווינטרוב זצ\"ל",
+      "posts": 7
+    },
+    {
+      "kind": "author",
+      "value": "סוד החשמל",
+      "posts": 7
+    },
+    {
+      "kind": "author",
+      "value": "יניב לוי",
+      "posts": 6
+    },
+    {
+      "kind": "author",
+      "value": "SOD1820",
+      "posts": 6
+    },
+    {
+      "kind": "author",
+      "value": "מדריך לריפוי 10 הספירות",
+      "posts": 3
+    },
+    {
+      "kind": "author",
+      "value": "מערכת כי לה׳ המלוכה",
+      "posts": 3
+    },
+    {
+      "kind": "author",
+      "value": "צבי",
+      "posts": 3
+    },
+    {
+      "kind": "author",
+      "value": "הרב לוי סודרי",
+      "posts": 1
+    },
+    {
+      "kind": "author",
+      "value": "המערכת",
+      "posts": 1
+    },
+    {
+      "kind": "author",
+      "value": "רות קדם",
+      "posts": 1
+    },
+    {
+      "kind": "author",
+      "value": "יעקב קירש",
+      "posts": 1
+    },
+    {
+      "kind": "author",
+      "value": "שמעון חיימוב",
+      "posts": 1
+    },
+    {
+      "kind": "author",
+      "value": "נריה דויטש",
+      "posts": 1
+    },
+    {
+      "kind": "author",
+      "value": "והאמת נהדרת",
+      "posts": 1
+    },
+    {
+      "kind": "author",
+      "value": "הרב יקותיאל דטבריה",
+      "posts": 1
+    },
+    {
+      "kind": "author",
+      "value": "סלי מור",
+      "posts": 1
+    },
+    {
+      "kind": "category",
+      "value": "תיעוד אירועים",
+      "posts": 474
+    },
+    {
+      "kind": "category",
+      "value": "התחזקות",
+      "posts": 317
+    },
+    {
+      "kind": "category",
+      "value": "מסרים",
+      "posts": 298
+    },
+    {
+      "kind": "category",
+      "value": "וידאו",
+      "posts": 238
+    },
+    {
+      "kind": "category",
+      "value": "רמזים חזקים",
+      "posts": 159
+    },
+    {
+      "kind": "category",
+      "value": "סוד האותיות והמספרים",
+      "posts": 130
+    },
+    {
+      "kind": "category",
+      "value": "סוד החשמל",
+      "posts": 124
+    },
+    {
+      "kind": "category",
+      "value": "עלוני גאולה",
+      "posts": 120
+    },
+    {
+      "kind": "category",
+      "value": "צפונות בתורה",
+      "posts": 110
+    },
+    {
+      "kind": "category",
+      "value": "ארה\"ב",
+      "posts": 97
+    },
+    {
+      "kind": "category",
+      "value": "רמזים מצדיקים",
+      "posts": 80
+    },
+    {
+      "kind": "category",
+      "value": "אסונות/תופעות טבע",
+      "posts": 78
+    },
+    {
+      "kind": "category",
+      "value": "משיח בתשע\"ו",
+      "posts": 63
+    },
+    {
+      "kind": "category",
+      "value": "גלריות גימטריה",
+      "posts": 46
+    },
+    {
+      "kind": "category",
+      "value": "מימד חמש",
+      "posts": 45
+    },
+    {
+      "kind": "category",
+      "value": "גימטריות",
+      "posts": 44
+    },
+    {
+      "kind": "category",
+      "value": "כללי",
+      "posts": 43
+    },
+    {
+      "kind": "category",
+      "value": "הרצאות",
+      "posts": 42
+    },
+    {
+      "kind": "category",
+      "value": "בית המקדש השלישי",
+      "posts": 36
+    },
+    {
+      "kind": "category",
+      "value": "שבעים שנה",
+      "posts": 27
+    },
+    {
+      "kind": "category",
+      "value": "סוד 1820",
+      "posts": 25
+    },
+    {
+      "kind": "category",
+      "value": "עשרה בטבת",
+      "posts": 19
+    },
+    {
+      "kind": "category",
+      "value": "בחירות",
+      "posts": 18
+    },
+    {
+      "kind": "category",
+      "value": "חכמת החיבור",
+      "posts": 17
+    },
+    {
+      "kind": "category",
+      "value": "מצגות",
+      "posts": 12
+    },
+    {
+      "kind": "category",
+      "value": "לאטאיסט",
+      "posts": 12
+    },
+    {
+      "kind": "category",
+      "value": "אואזיס",
+      "posts": 8
+    },
+    {
+      "kind": "category",
+      "value": "גימטריה מרחבית",
+      "posts": 4
+    },
+    {
+      "kind": "category",
+      "value": "רמזי הגאולה",
+      "posts": 2
+    },
+    {
+      "kind": "category",
+      "value": "הצופן בסרטים",
+      "posts": 2
+    },
+    {
+      "kind": "category",
+      "value": "קולות מאומות העולם",
+      "posts": 2
+    },
+    {
+      "kind": "category",
+      "value": "חידושי הצלבות",
+      "posts": 2
+    },
+    {
+      "kind": "category",
+      "value": "בדיקה",
+      "posts": 1
+    },
+    {
+      "kind": "category",
+      "value": "מאמרי דעה",
+      "posts": 1
+    },
+    {
+      "kind": "category",
+      "value": "שבילי שפה",
+      "posts": 1
+    },
+    {
+      "kind": "category",
+      "value": "משיח בתשע״ו",
+      "posts": 1
+    },
+    {
+      "kind": "category",
+      "value": "קולות שופר מהעולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רמזים",
+      "posts": 84
+    },
+    {
+      "kind": "tag",
+      "value": "משיח",
+      "posts": 74
+    },
+    {
+      "kind": "tag",
+      "value": "גאולה",
+      "posts": 71
+    },
+    {
+      "kind": "tag",
+      "value": "עמיחי רז",
+      "posts": 69
+    },
+    {
+      "kind": "tag",
+      "value": "טראמפ",
+      "posts": 59
+    },
+    {
+      "kind": "tag",
+      "value": "ציון סיבוני",
+      "posts": 59
+    },
+    {
+      "kind": "tag",
+      "value": "פאה נכרית",
+      "posts": 58
+    },
+    {
+      "kind": "tag",
+      "value": "ארה\"ב",
+      "posts": 49
+    },
+    {
+      "kind": "tag",
+      "value": "קורונה",
+      "posts": 48
+    },
+    {
+      "kind": "tag",
+      "value": "נתניהו",
+      "posts": 47
+    },
+    {
+      "kind": "tag",
+      "value": "צניעות",
+      "posts": 46
+    },
+    {
+      "kind": "tag",
+      "value": "מימד חמש",
+      "posts": 43
+    },
+    {
+      "kind": "tag",
+      "value": "הצופן התנכי",
+      "posts": 43
+    },
+    {
+      "kind": "tag",
+      "value": "אוטיסטים",
+      "posts": 42
+    },
+    {
+      "kind": "tag",
+      "value": "יניב לוי",
+      "posts": 40
+    },
+    {
+      "kind": "tag",
+      "value": "67 = בינה",
+      "posts": 37
+    },
+    {
+      "kind": "tag",
+      "value": "14 = דוד",
+      "posts": 35
+    },
+    {
+      "kind": "tag",
+      "value": "גימטריה",
+      "posts": 33
+    },
+    {
+      "kind": "tag",
+      "value": "אמונה",
+      "posts": 32
+    },
+    {
+      "kind": "tag",
+      "value": "45 = גאולה",
+      "posts": 32
+    },
+    {
+      "kind": "tag",
+      "value": "מוות קליני",
+      "posts": 30
+    },
+    {
+      "kind": "tag",
+      "value": "סוד החשמל",
+      "posts": 30
+    },
+    {
+      "kind": "tag",
+      "value": "אירן",
+      "posts": 30
+    },
+    {
+      "kind": "tag",
+      "value": "שער החמישים 5/50",
+      "posts": 25
+    },
+    {
+      "kind": "tag",
+      "value": "גאולה בעתה",
+      "posts": 25
+    },
+    {
+      "kind": "tag",
+      "value": "רוסיה",
+      "posts": 24
+    },
+    {
+      "kind": "tag",
+      "value": "אדמור מהאלמין",
+      "posts": 23
+    },
+    {
+      "kind": "tag",
+      "value": "כוכב",
+      "posts": 22
+    },
+    {
+      "kind": "tag",
+      "value": "עבודה זרה",
+      "posts": 21
+    },
+    {
+      "kind": "tag",
+      "value": "לא-בבית",
+      "posts": 21
+    },
+    {
+      "kind": "tag",
+      "value": "ליאור שטרית",
+      "posts": 21
+    },
+    {
+      "kind": "tag",
+      "value": "סוד 1237",
+      "posts": 21
+    },
+    {
+      "kind": "tag",
+      "value": "הינוקא",
+      "posts": 20
+    },
+    {
+      "kind": "tag",
+      "value": "מסרים",
+      "posts": 20
+    },
+    {
+      "kind": "tag",
+      "value": "סוד 333 / 33",
+      "posts": 19
+    },
+    {
+      "kind": "tag",
+      "value": "כי לה' המלוכה",
+      "posts": 19
+    },
+    {
+      "kind": "tag",
+      "value": "אורן עברון",
+      "posts": 19
+    },
+    {
+      "kind": "tag",
+      "value": "פורים",
+      "posts": 18
+    },
+    {
+      "kind": "tag",
+      "value": "אסונות טבע אצל הגויים",
+      "posts": 18
+    },
+    {
+      "kind": "tag",
+      "value": "עזה",
+      "posts": 18
+    },
+    {
+      "kind": "tag",
+      "value": "אובאמה נחש",
+      "posts": 17
+    },
+    {
+      "kind": "tag",
+      "value": "גילוי אליהו",
+      "posts": 17
+    },
+    {
+      "kind": "tag",
+      "value": "בחגוי הסלע",
+      "posts": 16
+    },
+    {
+      "kind": "tag",
+      "value": "בחירות",
+      "posts": 16
+    },
+    {
+      "kind": "tag",
+      "value": "משיח בן יוסף",
+      "posts": 16
+    },
+    {
+      "kind": "tag",
+      "value": "הרב קנייבסקי",
+      "posts": 16
+    },
+    {
+      "kind": "tag",
+      "value": "חיסון קורונה",
+      "posts": 16
+    },
+    {
+      "kind": "tag",
+      "value": "בית המקדש",
+      "posts": 16
+    },
+    {
+      "kind": "tag",
+      "value": "חישוב הקץ",
+      "posts": 15
+    },
+    {
+      "kind": "tag",
+      "value": "עולם הבא",
+      "posts": 15
+    },
+    {
+      "kind": "tag",
+      "value": "תודעה",
+      "posts": 15
+    },
+    {
+      "kind": "tag",
+      "value": "פיגוע",
+      "posts": 15
+    },
+    {
+      "kind": "tag",
+      "value": "רוחניות",
+      "posts": 15
+    },
+    {
+      "kind": "tag",
+      "value": "שבת",
+      "posts": 14
+    },
+    {
+      "kind": "tag",
+      "value": "שחר יצחק קנדרו",
+      "posts": 14
+    },
+    {
+      "kind": "tag",
+      "value": "רעידת אדמה",
+      "posts": 14
+    },
+    {
+      "kind": "tag",
+      "value": "פריצות",
+      "posts": 14
+    },
+    {
+      "kind": "tag",
+      "value": "בראשית",
+      "posts": 14
+    },
+    {
+      "kind": "tag",
+      "value": "מ = 40 ת = 400",
+      "posts": 13
+    },
+    {
+      "kind": "tag",
+      "value": "תשובה",
+      "posts": 13
+    },
+    {
+      "kind": "tag",
+      "value": "מספר יפה 1234\\1111",
+      "posts": 13
+    },
+    {
+      "kind": "tag",
+      "value": "איראן",
+      "posts": 13
+    },
+    {
+      "kind": "tag",
+      "value": "צרפת",
+      "posts": 12
+    },
+    {
+      "kind": "tag",
+      "value": "דני 18",
+      "posts": 12
+    },
+    {
+      "kind": "tag",
+      "value": "נשמה",
+      "posts": 12
+    },
+    {
+      "kind": "tag",
+      "value": "ירושלים",
+      "posts": 12
+    },
+    {
+      "kind": "tag",
+      "value": "חרבות ברזל",
+      "posts": 12
+    },
+    {
+      "kind": "tag",
+      "value": "קבלה",
+      "posts": 11
+    },
+    {
+      "kind": "tag",
+      "value": "מטאפיזיקה",
+      "posts": 11
+    },
+    {
+      "kind": "tag",
+      "value": "חטופים",
+      "posts": 11
+    },
+    {
+      "kind": "tag",
+      "value": "תוכנת גימטריות",
+      "posts": 11
+    },
+    {
+      "kind": "tag",
+      "value": "השגחה פרטית",
+      "posts": 11
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר",
+      "posts": 11
+    },
+    {
+      "kind": "tag",
+      "value": "כותל",
+      "posts": 11
+    },
+    {
+      "kind": "tag",
+      "value": "אלון לוי",
+      "posts": 11
+    },
+    {
+      "kind": "tag",
+      "value": "אחדות",
+      "posts": 11
+    },
+    {
+      "kind": "tag",
+      "value": "הר הבית",
+      "posts": 11
+    },
+    {
+      "kind": "tag",
+      "value": "16",
+      "posts": 11
+    },
+    {
+      "kind": "tag",
+      "value": "פסח",
+      "posts": 10
+    },
+    {
+      "kind": "tag",
+      "value": "עמירם טובי",
+      "posts": 10
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר הקדוש",
+      "posts": 10
+    },
+    {
+      "kind": "tag",
+      "value": "חמאס",
+      "posts": 10
+    },
+    {
+      "kind": "tag",
+      "value": "כיסוי ראש",
+      "posts": 10
+    },
+    {
+      "kind": "tag",
+      "value": "עונש ארה\"ב",
+      "posts": 10
+    },
+    {
+      "kind": "tag",
+      "value": "מרלון",
+      "posts": 10
+    },
+    {
+      "kind": "tag",
+      "value": "כשרות",
+      "posts": 10
+    },
+    {
+      "kind": "tag",
+      "value": "אליהו הנביא",
+      "posts": 10
+    },
+    {
+      "kind": "tag",
+      "value": "פוטין",
+      "posts": 10
+    },
+    {
+      "kind": "tag",
+      "value": "תשפא",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "רות קדם",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "חנוכה",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "הרבי מלובביץ",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "ינון",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "וידאו",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "אחרית הימים",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "222 = דיבור",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "סוריה",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "ממשלה",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "מתמטיקה אלוקית",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "424 = משיח בן דוד",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "גוג ומגוג",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "טורקיה",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "דאע\"ש",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "מלחמת גוג ומגוג",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "קוד המציאות",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "אלול",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "ערב רב",
+      "posts": 9
+    },
+    {
+      "kind": "tag",
+      "value": "אובמה",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "חותים",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "אילומינטי",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "77 = מזל",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "התעוררות",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "216",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "776",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "עולם האמת",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "לבנון",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "סין",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "עונש לגוים",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "רשב\"י",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "מה קורה הבורא",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "תפילה",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "דיבור בבית כנסת",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "סוד 1820",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "ביאת המשיח",
+      "posts": 8
+    },
+    {
+      "kind": "tag",
+      "value": "תשע\"ח",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "סוד החכמה 73",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "תשפו",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "רמז",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "הרב ווינטרוב",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "סרטי סוד תורה",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "1820",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יובל עובדיה",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "רמז מהאלוקים בפה האויב",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "שמואל רבר",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "עם ישראל",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "גוג",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "קולות שופר בעולם",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "תימן",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "אואזיס צ",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "הרב מאיר אליהו",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "כדור רגל",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "ליקוי חמה",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "ג'ו ביידן",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "הצלת עם ישראל",
+      "posts": 7
+    },
+    {
+      "kind": "tag",
+      "value": "עמלק",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "861 = ראש השנה",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "תשפד",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "אמת",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "חיסונים",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "סעודיה",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "בית דין של מעלה",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "מלחמה",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "שחיטה",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "הסולם",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "פיקוח נפש",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "רמזים לביאת משיח",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "ניו אייג'",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "מקדש",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "חיזבאללה",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "התשפב",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "תדר",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "אדום",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "תשע\"ז",
+      "posts": 6
+    },
+    {
+      "kind": "tag",
+      "value": "איחוד המשיחים",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "בנט",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "גאולה ברחמים",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "אהבת ישראל",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "שמש חושך ירח דם",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "ערבים",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "שמע ישראל",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "חלום",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "מטפחת",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "פלסטינים",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "מידה כנגד מידה",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יגאל כהן",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "36 = עזר כנגדו",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "נרקיס שוורץ",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "הרב עובדיה יוסף",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "תשפ״ז",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "לוטו",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "בן איש חי",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "תורה",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "ארץ ישראל",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "חיסון",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "הרב דינוביץ",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "ארגנטינה",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "5778",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "מגפה",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "בעל הסולם",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "ניסן",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "gematria",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "אסון מירון",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "ישועות",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "קוריאה",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "קץ הימים",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "2212 = זמן גאולתנו",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "חבלי משיח",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "רפואה",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "נסראללה",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "מצרים",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "צפונות בתורה",
+      "posts": 5
+    },
+    {
+      "kind": "tag",
+      "value": "הגר\"א",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "שופר",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "עליה לארץ ישראל",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "75",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "קדושת בית הכנסת",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "תנך",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "ממקדשי תיראו",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "ניסים",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "מלחמת עולם שלישית",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "פצצת אטום",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "עשרה בטבת",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "הרב זמיר כהן",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "נס",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "2701",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "או\"מ",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "הגאון מוילנא",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "הידברות",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "הבן איש חי",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "סיום זוהר",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לרפואה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "מחילה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "אהבת חינם",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "שחרור פולארד",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "ברסלב",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "אסונות",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "מחשבון רמז",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "112",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "איטליה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "1202 - 1789 = התגלות משיח",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "פרה אדומה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "התשפ",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "אנגליה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "חילול ה'",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "מפעל הזוהר העולמי",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "מספר מסתתר",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "מגיפה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "ישועה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "נבואת עובדיה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "שואה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "צמח",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "לשון הרע",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "400",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "מאכלות אסורות",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "שעון הגאולה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "תדמור",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "271",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "זהות",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "יאיר לפיד",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "הרב פינטו",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "רמחל",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "חילול שבת",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "שמירת לשון",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "אריק נווה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "רבי דוד אבוחצירה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "בחירה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "תשובה שלמה",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "אברהם",
+      "posts": 4
+    },
+    {
+      "kind": "tag",
+      "value": "משולש",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "604 = משיח בן דוד",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "רבי נחמן מברלסב",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לישועה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "בנין בית המקדש",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "אטום",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "אברהם יצחק ויעקב",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "ים המלח",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "גלגול נשמות",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "רעש שופר",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "תהילים",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "גילוי משיח",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "ספורט",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "396",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "תדרים",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "ספרד",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "קול הגאולה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "תכשיטים",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "דעא\"ש",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "גלות",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "סגולות",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "חיזוק באמונה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "מעלת הזוהר",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "ELS",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "נבואת דניאל",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "דמיון",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "הרב קוק",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "איוונקה טראמפ",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "אדרא זוטא",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "הרב גינזבורג",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "ל\"ג בעומר",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "לוויתן",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "עולם הפוך ראיתי",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "ליקוי ירח",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "צפנים",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "מאה ברכות",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "גן עדן",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "אברהם אבינו",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "משיח בן דוד",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "עשר הספירות",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "עמוס גואטה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "איסור פאה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "לוי סודרי",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "הארי הקדוש",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יוסף מזרחי",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "ואהבת לרעך כמוך",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "משה רבינו",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "שמע ישראל ה' אלוקינו ה' אחד",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "אורות בשמים",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "זיכוי הרבים",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "חפץ חיים",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "קריאת שמע",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "אנרגיה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "מקוה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "כי תצא",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "פרעות אמריקה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אברהם ברוך",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "מחלוקת",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "בת מלך",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "עוטף עזה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "רפואה שלמה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "נבואות אחרית הימים",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "טורנדו ארה\"ב",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "הרב שלמה יהודה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "שמשון",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "1258",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "שלום",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "אור",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "2504",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "בלעם",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "פחדים",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "עבודה פנימית",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "נחש",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "הרב בן ציון מוצפי",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "ספר תורה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "תחיית המתים",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "גימטריה תלת-ממדית",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "631",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "אור הזוהר",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "גימטריה מרחבית",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "דילוגי אותיות",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "צוק איתן",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "צופן",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "שבעים שנה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "השביעי באוקטובר",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "נבלות וטרפות",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "היכל המלך",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "מסר משמים",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "הרב זיסהולץ",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "ירח אדום",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "5330",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "תאונה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "363",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "יין נסך",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "תשעה באב",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "בשביעית מלחמות",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "אינטרנט קריסה",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "מי לה'- אלי",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "האדמו\"ר מהאלמין",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "מפת ישראל",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "ערוץ 10",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "הרב שטיינמן",
+      "posts": 3
+    },
+    {
+      "kind": "tag",
+      "value": "מעוכבת שידוך",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "רבי מנחם מנדל מרימנוב",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תפילה להמתקת הדינים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "נפטר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "השבעה באוקטובר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "27.10",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב דב קוק שליט\"א",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "עלוני",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "כפרת עוונות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אליהו",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ראש השנה יום גיפור סוכות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "רעידות אדמה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "עננים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שתיקה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "1202",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ספרא דצניעותא",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ראשית חכמה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אשליה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תרבות המאיה עשרה בטבת",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "59",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ליברפול",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שירים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חיבוט הקבר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "סוד הגאולה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מגדל בבל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שלמה המלך",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אין עוד מלבדו",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יצחק בצרי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "זיכוי רבים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "העיר סדום",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מקווה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שטפונות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "פסח שבועות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "גדולי ישראל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב קניבסקי שליט\"א",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "52",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הבבא סאלי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תרנגול",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אמנון יצחק",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מטוס",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מי להשם אלי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "קול שופר בישראל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חשמל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ספירות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "1430",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שמירת עיניים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יצחק יוסף",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "26",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שרפה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "התעלות רוחנית",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "קדושת בית כנסת",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "גלזרסון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "סלי מור",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בעל שם טוב",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בנימין גולדן",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בינה מלאכותית",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "גיהנום",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "קבר רחל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "קדושת המחשבה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "סרטן",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תכלית החיים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "1948",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מסרים חזקים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מסכת ציצית",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "סטרא אחרא",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תפילה המהפכת דין לרחמים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חודש אלול",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מספר 66",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תפילה לצניעות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "יהדות ארה\"ב",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בחגויי הסלע",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב כדורי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "כעס",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חדשות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "דיבור בתפילה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תודעה גבוהה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שחיטה כשרה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חלל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בת קול ישראל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יעקב זיסהולץ",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "כח השתיקה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "גשר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ריפוי רגשי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "נבלות וטריפות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "1234",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הושענא רבא",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "יוסף בלו",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אופניים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מנגלה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אירוויזיון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בשר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "Hebrew",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "יון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "רני גואלי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יוסף מוגרבי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אמיתות התורה שבע\"פ",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בלגיה. הודו",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אורי סופר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "644",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ברית",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "604",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שדי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חיים ולדר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בעש\"ט",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "רחל אימנו",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הוריקן",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ה' באב",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שיעורי זוהר הקדוש בכל הארץ",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ביטקוין",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "איסור פאה נכרית",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ברכות לבטלה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "טבריה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב ועקנין",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "עוף",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מחאה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אומנות יהודית",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "2026",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יהודה פתיה זצ\"ל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "כח התהילים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "זיווג",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בשורת הגאולה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הסרת פחדים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אייפון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "סליחה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "נפתלי בנט",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יצחק כהן",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שטן",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "עולם הזה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "עקבתא דמשיחא",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בשאר אסד",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חרדה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "צניעות האישה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חת\"ם סופר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מלחמת לבנון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "דגים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שידוך",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חיים לאחר המוות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חתן",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אדם הראשון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אוטובוס",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בימינו",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "גנץ",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מסר מהשמים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חיילים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "צה\"ל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חירום ליהודים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חמינאי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "גלול בכבש",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ענווה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "גילוי הייחוד",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "23.9",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מכתב מאליהו",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מספרי מכוניות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תקרובת עבודה זרה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מסר הרב עובדיה יוסף",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בוריס גונסון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שירת קודש",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "רצח",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "יום הדין הגדול- עשרה בטבת",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "קרבנות הנשיאים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "כו אייר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "פסוקי רפואה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אדרא רבא",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב בנייהו שמואלי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מספר 8",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "עפיפונים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "צער בעלי חיים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בטחון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "לויתן",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "Strange sound",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מלחמה עם הערבים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תוכחה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "כח הבחירה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "120 יום",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ישראל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ציצית",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חברת פייזר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בין המצרים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "רבנים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "התשעט",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "דוד",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "רבי שמעון בר יוחאי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מחשבה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "עליית נשמה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "2016",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "רבי מלובביץ",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שאול",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ברקים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בעל תשובה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חיפה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ראש השנה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "כשרות המזון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אב תשע\"ו",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ייסורים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אלף סיומי זוהר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "English",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "עולם המחשבה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "עופר וינטר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "303",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מסרים משמים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תורת הרמז",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ניבירו",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אור חיים הקדוש זי\"ע אוקראינה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "2025",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אסון שמחת תורה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "התעוררות רוחנית",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "דמשק",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תשפג",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חמנאי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תפלה להחיש את הגאולה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בנימין גולדין",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "255",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "כנישתא חדא",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "יהודי ארה\"ב",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "שידוכים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הילרי קלינטון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "רוחות מספרות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חיילי צה\"ל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מלי וליאל יהלומי",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "כשרות הבשר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ציון ביקור האפיפיור",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "סדר עולמי חדש",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אי-נוחות",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ברית מילה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "י' טבת",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "כאן 11",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "English gematria",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מוסר",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מקסיקו",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "סיאנס",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "יעקב קירש",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "2022",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אתאיסט",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מירון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרב ברלנד",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מלכות אדום",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "עץ חיים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "פרופסור ריפס",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הרמטכל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הגה\"צ הרב יורם מיכאל אברג'ל זצוק\"ל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "יסוד שביסוד",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "בג\"ץ",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "טינה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "הפוך",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "זמן",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ברכת כהנים",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "חכמה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "לימוד זוהר הקדוש",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "numbers",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תיקון",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "5780",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "קידוש ה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "טהרת המשפחה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "ויתור",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מפתח לגן",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "פיטום הקטורת",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "אינטואיציה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "יובל עובדיה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "קבלת היסורים באהבה...",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "יראה",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מודעות עצמית",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "תפילה לחייל צה\"ל",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מייקל פנס",
+      "posts": 2
+    },
+    {
+      "kind": "tag",
+      "value": "מסע הנשמה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שעשוע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שולחן ערוך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר יסוד יוסף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרבנית ורד סיאני",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פרשת הגעלת כלים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נשים בהיריון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תצפיתניות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משיחי שקר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שילה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קיבוץ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הכוכב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אברה מנגיסטו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לחשוכי בנים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עדותן של רבנים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יקום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "10",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עוון גויה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צבע גרב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חתונה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אברם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מעיין החיים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אדמור מאלמין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שבת השחורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תפילה לזכות לתשובה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ארגון פשע עולמי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אטב\"ח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נדה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "התקשטות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כשרות תבלינים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אייל ציונוב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רוח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אהבה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר דברי צדיקים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ישי ריבו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חיסול",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זימה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "היכלא דרשב\"י",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הבחירות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קולנוע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מעלת השבת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר ארגוב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "3148",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דניאל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "3060",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יאשיהו פינטו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פנימיות הזמנים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חצי האי קרים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קשת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אהרון ברוך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סוד בת מלך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נבילות וטריפות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלחמת חרבות ברזל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסר לעם ישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "איש ואישה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אדלשטיין זצל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "86",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בושה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חייל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בלק",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גלגול באבן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אלון ענווה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סינואר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי מליובאוויטש בחלום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אפרים כחלון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלאך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קי\"ז שעות ימי חול",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עונשי שמ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הסתרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1020",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נבילות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "האם יש בורא לעולם?",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שילוח הקן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קריית גת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קריסה כלכלית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבנית לאה קוק",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זרע לבטלה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תורה שבכתב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תוכחות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פאה נכרית- עבודה זרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפור מופלא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לימוד הזוהר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קבר של צדיק",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תשפה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עשב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יצחק פנגר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שפת העופות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מטרת הבריאה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "401",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יוסף זוהר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "להעיר את יוסף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הצעת שידוך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ארבה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אורי מגידיש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קולומביה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שיבוד עם ישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מערת המכפלה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "624",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב חיים שטרן שליט\"א",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קול שופר בארץ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "789",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חרדות ונטילת ידים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ה באייר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אובך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משמעת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מדיטציה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בתי כנסת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלכות שבמלכות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרגל עצמך בטוב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר הקדוש- הרב יגאל כהן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רפח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קדושת האכילה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מעשה בראשית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שבת צועקת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כתר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ריח האדם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסר מאליהו הנביא- חודש טבת תשע\"ח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שירת אישה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חסידי חב\"ד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסר נוקב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יאיר וילנסקי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בתי חולים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עלוני גאולה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תקרובת עבודה זרה בפאות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספירת תפארת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "150",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עין הרע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שריפות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תשע\"ה משיח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תעשית הבשר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עקרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לבנה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "איברי האדם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי אלעזר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בדידות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נשות רבנים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חלום עם רבי מליובאוויטש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אברהם עבאדי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בדיקת סכין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מוות על קידוש ה'- מוות קליני",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הכנסת כלה- סגולה לרפואה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "האמת בפרצוף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "התנתקות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלכת בית דוד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אכזבה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "המרגל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "2024",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טריפה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יתומים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב סטבסקי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי מלובביץ עם שק ואפר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חולי מסוכן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עשרים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מגן דוד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרי נפתלי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "162 = אקטואליה = בנימין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הלשנה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אשמה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסר מצדיק נסתר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חייל שחווה מוות קליני",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אחריות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שחיטת בהמות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "וידוי של דוגמנית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "141",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שקט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הידברות- פרשת משפטים תשעט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כיסוי ראש לאחר החתונה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שלהבת הנר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קרקא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שנאת חינם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "Aramaic",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב קנייבסקי זצ\"ל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גדעון סער",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה למגפה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אובמה נחש 3",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סוכות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רטט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "התבודדות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יקותיאל פיש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נוה התלאות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסר ליהודי חו\"ל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אורך החצאית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קלף כשר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפורי זוהר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמע ישראל חלוקת חינם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "Messiah Codes",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הצלת חיים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גיל שידוכים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמחה רז",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מונדיאל 2026",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "איכות 5",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי נפתלי כץ זצוקל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מקצוע שחיטה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "למה זה קורה לי?",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טבוק",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ישועות בקבלת מצוות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיומי זוהר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספרא דמשכנא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יהודי העולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עדכונים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יש דין ויש דיין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תיקון האדם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1459",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמחה של מצווה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יהודה פתיה זי\"ע. שער הגלגולים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מזוזה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אסאד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר שמות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יהדות העולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "261 = אירן = ארס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי אהרון ראטה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ישועה וברכה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משחקי הדיונון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גוליית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ולדימיר פוטין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צ'אקרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "למה ירדה המחלה לעולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שומר אמונים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הכנה לראש השנה- לוח שיפוט עצמי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "למה זוכה האישה צנועה?",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סליחות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הוכח תוכיח את עמיתך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סבל בפטירה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חוק החוב הרוחני",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מי הוא יהודי? דין תורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סמלים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אתיופים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קידוש השם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סרטון מעלת הזוהר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משרד הבריאות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מרירות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בנימין נתניהו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יהודה אשלג",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "459",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לידת משיח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מטבעות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צר עין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הוכחות לאמיתות התורה משמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שיבת ציון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שבת מקור הברכה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרצי הלוי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הגה\"צ הרב דב הכהן קוק שליט\"א",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב מורגנשטין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שלמה יהודה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דעת תורה בענין צניעות- הרב קנייבסקי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה להמתקת הדינים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גלוטן שעבר עליו הפסח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלאך יהוה צבאות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שאלה אם להתחסן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קברות צדיקים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "15",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "73",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יוסף שבתאי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נתיב העשרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יום העצמאות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בחירות 2019",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קוסמוס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נובה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מאיץ חלקיקים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה משונאי חינם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ערכת הצלה לחיילי ישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "14000",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמיר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חושך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משפט אישה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כהן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שיחה עם בורא עולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טוב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בני יששכר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "האם יש חיים אחרי המוות? האם יש אלקים?",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כח תהילים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ערבות עם ישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חוק הגישה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ה' הוא האלקים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בעלי תשובה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "5779",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דין התקשטות ותכשיטים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "2718",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חק לישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חמץ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אייפונים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יעקב גלינסקי זצ\"ל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כשרות העוף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עלוני צניעות בחינם לזיכוי הרבים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפורי רשב\"י ילדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "898",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קול דממה דקה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נתיבות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב מיכאל יצחק הראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אמון עצמי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גיהנם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משכב זכר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אלופו של עולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לחזרה בתשובה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עקידת יצחק- סגולת אמירה 7 פעמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פסק דין לאישה חרדית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מטריקס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הגנה מזרים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תורה ומדע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כאב בהפטירה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב שיינברגר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בטיחות ילדים ילדות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מרכב לקודש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב חיים זאיד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פרשת משפטים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דויד בן ישי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בן גביר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קומי רוני",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ערבות הדדית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "י\"ג מידות רחמים והזוהר הקדוש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "2029-golden",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ישעיהו מט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טריפות ונבלות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "החטאת הרבים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כשדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תשובה לנשים ונערות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אלון שדה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חלב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ברכות שמואל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לכל הישועות מרבי שמעון בר יוחאי זיע\"א",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סוםר סת\"ם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "455",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב ציון ברכה זצ\"ל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "באר שבע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "העץ האחד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אהיה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מאה שערים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "Jerusalema",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לשוב לה'",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צדיק בעל גילוי אליהו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יאשהיו פינטו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלאכי חבלה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב שלמה לוישנטיין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כח המזוזה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ברכה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "988",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בידוד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "2015",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קוים חדשים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יראת שמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תפילה במנין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יחיא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי אלעזר הקליר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שפת הציפורים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כור ההיתוך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תענית ככפרה על עבירה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר ברכת כהנים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמחת תורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בוגרת סמינר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ליברמן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שר התורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קבלה על עצמה שבת ונרפאה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "828",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1111",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מצוה קלה כבחמורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חב\"ד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לך לך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הלכה יומית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גבאים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "231",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ביאליק",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פיגוע בית ליד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סדר ט\"ו בשבט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עתידות לפי תזוזת עלים ברוח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "424",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עולם אמת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כיפת הסלע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פאה זה עבודה זרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "131",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דוד המלך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1415",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כח הצעקה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סדר פסח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רגשות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ימים טובים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מקוה טהרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מידה במידה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גיאומטריה קדושה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב דב הכהן קוק שליט\"א",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "65",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אלעד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ג' בירות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לעילוי נשמת 45 קדושי מירון זצ\"ל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "405",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אם עד תכלית שדי תמצא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ערוץ 2000",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קשה רוח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי סלנטר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יורם כהן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סת\"ם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לזרע של קיימא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דונלד טראמפ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גוף ותודעה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אביב אלוש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "588",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מאכילי טרפות ונבלות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "איסור דיבור בתפילה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גלוטן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בלוטת האצטרובל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1588",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חרמון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תענוגי העולם הזה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נפילה היא סולם להצלחה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נחל עוז",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מעל הטבע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בין אדם לחבירו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מיתה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בגדד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפורי ישועות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גולני",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רשב\"י רבי שמעון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פשע עולמי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צמצום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אריה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מעביר על מידותיו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סרטון הסיאנס הגדול",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תקופה קשה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמירת הברית והעיניים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יובל הכהן אשרוב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פתח אליהו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שליחות מיוחדת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בחגוי סלע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלחמה איראן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בחורת סמינר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1073",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כל עם ישראל- נפש אחת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רב שפשע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שנאת הבריות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ביתר עלית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קבר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חוק הגומלין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חזקיהו המלך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר לילדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי חיים זוננפלד זצל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גלגול בחמור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בדיקה לפני שימוש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבנית גדולה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שאול המלך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סכינים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "התשפא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "506 = עולם המחשבה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פצצה גרעינית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דניאל האוטיסט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "336",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אישה יהודיה וצניעות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לא תשנא את אחיך בלבבך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לביטול מגיפה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "למה בצניעות תלויה הגאולה?",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מזיקים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "היהלום שבכתר-",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מתמטיקה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "51",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גהנם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חוק התהודה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כנרת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמירת שבת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסעוד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שיטפון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רזי תורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בארי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חוות דעת מדעית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הגוב\"י על עץ חיים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "language",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מילה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שבועות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יצר הרע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פורים קטן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מצוה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תפילת תהילים לחולה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סעדה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "השבעת מלאכים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נבואה וגאולה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": ".בית המדרש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הכרעת גדולי הרבנים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נדנדה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בדיקת סכינים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ירידה באמונה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ישר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מקום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צרות עין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלך ישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קוביה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כבוד לה'",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נאוה קליין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "התחזקות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מקדש מעט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קדיש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נבואת נחום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פרשת מטות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מותר ואסור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ערכה של צניעות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קבלתי על עצמי ונושעתי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סדר פסח בלי פאה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חוק הסמכות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דיבורים בבית כנסת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסע לתיקון האדם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תרגום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טירפות ונבלות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "2756",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תעשיית חיסונים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חיסון לנשים בהיריון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "למה זה מגיע לי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בטחון בה'",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אור אין סוף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמירת נדה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גזל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לא תשא עליו חטא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כבוד עצמי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שפע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חינוך למיניות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בעל הטורים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב ציון בוגנים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רקטה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קונספירציות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שולחן שבת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קריאת חירום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סרטון כשרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פורענות אומות העולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נר חנוכה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רמב\"ם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אמונה ובטחון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפורי רשב\"י לילדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גיל יוסף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תפילה על האתרוג- הבן איש חי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שונאי חינם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שער יוסף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אשלג",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קארמה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בנימין זאב יטרף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "האמת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חיצוניות התורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ייסורי גיהנום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אמנון מאיר לבב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלאך המוות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אומן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ומפליא לעשות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גדי יברקן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שליטה עצמית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניצנוצי השפעה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פשע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ברק",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תענוג",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דוד מאיר שמואלי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גדלות ה'",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פסטיבל ונציה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "41",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אנגלית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב שייטנמן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גלגול בכלב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מאכלים אסורים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי מאיר אבוחצירא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יוסף י. אפרתי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניאוף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "506",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חזרה לשגרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניקור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פאה אירפאית שבאה מהודו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תאריך לועזי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דאחיה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תיקון נפטרים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמעון חיימוב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כלה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אסתר ליכטנשטין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נפטרים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי אלעזר אבוחצירא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לימוד זוהר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מחלת סרטן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קו סוד החשמל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מעשה רוקח- משניות שבת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בשר טרף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיום מסכת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי אהרון ראטה זצל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סלרי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ושמחת בחגך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כץ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בית מקדש מעט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בית משפט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קעקועים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ערבות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שרשר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר צמרת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סתירה פנימית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שער הרחמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אהרון הכהן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כח המקוה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב עדס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תיקון ההוד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גלית דורית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב רפאל אליהו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נוטריקון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עשרימון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אדם לחברו זה אש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כוח הדיבור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שליחים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תפילה למגפה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חילול שבת בפרהסיה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אאורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מרור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יובל קוגן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כלכליסט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עבודה בשבת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נאמנות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יהודה אשלג זצוק\"ל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יואב גלנט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "2368",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניו יורק",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "599",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ישראל שולטת בעולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספירת העומר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סוד המקוה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רוסית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1335",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אין שמחה כהתרת הספקות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עליה לארץ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זיל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בעיות הכשרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עלוני גדולת השלום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לפרנסה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קדושת הברית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסעוד אשר ביטון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "48",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "התגלות משיח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אמורא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כשפים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גבול",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אטלס3",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שלמות הארץ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "2029-migration-anchor",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסתורי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי נפתלי כץ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חזרה מעולם האמת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אלטלנה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זיוה חיה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עצב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "30.6",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "Selection Rule",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מטאורים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "121",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דקה של לימוד זוהר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אפיפיור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מחשבות בני אדם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נטילת ידיים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אור הגאולה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סימולציה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אדמו\"ר רבי שלום מבעלזא זי\"ע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יוסף זוהר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ויחי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "996 = אורו של מלך המשיח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "718",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "13 הרוגים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חלום מרחל אימנו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסרים מהשמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דרכי הצניעות ומנהגי ישראל ע\"פ חז\"ל והפוסקים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הלכות נטילת ידים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חיים שדה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ריבוע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עוד יוסף חי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1000 = משיח בן יוסף משיח בן דוד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פק\"ל לחייל ולחיילת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "2212",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קרן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הגנה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמירת ברית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ברכת הגומל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כבש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "היהלום שבסתר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מגן וצינה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דייויד בלאט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מרן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סמיט מאצ'הר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ריפוי מחלות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ערוץ n12",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רעב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נירון מזרחי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בית לחם יהודה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סימטריה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כוונות חנוכה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דברי חז\"ל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נחלת בנימין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "404",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תוכניות השמדה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תלמיד חכם שהתגלגל בכבש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "Russian",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ידיעת האר\"י הקדוש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר קדוש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מניעת אלימות מינית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טכנ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לאה קוק",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "424 = האחדות = משיח בן דוד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תפילה לכל צער וייסורים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "117 שעות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גן עדן עליון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פרשת בהעלותך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ירידה לתרבות רעה. האריזל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רוצה חיים- תן חיים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מונדיאל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רב שעבר על גילוי עריות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דבור בתפילה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמעתי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלחמה גרעינית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אסף טפירו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כבוד המת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נזר יוסף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עב\"ם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מאכל נגוע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צליל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניסויים בבני אדם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר חזון יאשיהו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניסוי על בני אדם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר מציל חיים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הילולת האר\"י הקדוש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בולם פיו בשעת מריבה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר בעל הסולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חרדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דויד המלך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אין ברכה בכסף שמרויחים בשבת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קדמי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פרדוקס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "להכות בסנוורים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תיקון עגונות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "104",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "sprites",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נטילת ידים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רוטר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר צניעות- בגדי תפארתך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אכילה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עמוד אש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר ילדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מנהיגות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אני לדודי ודודי לי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מנהרות הבשר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רשב\"י זיע\"א",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קץ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הלכה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מקוואות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ימות המשיח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה למשוגעים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שעטנ\"ז",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עתידות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יעקב בן חנן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "למה ירדה מחלת סרטן עלולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רמ\"ח איברים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגירת עסק בשבת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר מלאכי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "העולם הזה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניקור החלב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אבל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי שמעון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "י\"ג אני מאמין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תפילה לעולם מלכות שמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תת-המודע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב מנשה אמון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בינימין כהנוב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בלגיה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולת ברכת כהנים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מגלה עמוקות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תיקון המידות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב פינטו שליט\"א",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עולם חדש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פסק דין בנות ישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חוק ההנחה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חוק הלאום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ברזיל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפורי הזוהר לילדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מעלת הצניעות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גלגול בעטלף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רכס רמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גלגול בבע\"ח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ערוץ 14",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סמינר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כל כבודה בת מלך פנימה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "dna",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ערב שבת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "Flydubai",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסר מהעולם הבא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חצאיות קצרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הוידוי הגדול",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שלוות נפש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חתונה בזמן סגר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמירת הברית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עלוני צניעות בחינם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "י\"ג תיקוני דיקנא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי יצחק לוריא אשכנזי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רחפנים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תיעוד אירועים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הבטחת הבעש\"ט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מהרח\"ו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "DNA",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב בבנימין הכהן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב עמאר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מקדש המורא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תודעת מלכות דוד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שריפת גופות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "המורדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בשר לא כשר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תקשור עם דניאל- חשוון תשע\"ח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פלא יועץ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נהר הירדן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רונה רמון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פשע אנושות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צדקה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כבידה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שיחת אילנות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רפיח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מקדש מלך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צפנת פענח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מאור עינים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אלי כהן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נהריה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בגידה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הצפות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תזמון אלוהי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הפרשת חלה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מהירות האור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בריאה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פורענות באומות העולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תרי\"ג מצוות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ילדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי פנחס מקוריץ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ציפית לישועה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "66",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "45",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משנה יומית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לעולם יי דברך ניצב בשמיים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הריון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניסיון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חלום נבואי ילד בן 9",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קליפורניה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לעת צרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה למר נפש וקשי רוח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גמרא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קובי מרימי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הסכם איראן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פסוק",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ישרים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יוסף ביטון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בים דרכך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ארגון הבריאות העולמי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יום הכיפורים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הירהורים רעים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלאכי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חיסון מודרנה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הלכות כשרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אמיתות התורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב רוזנבלום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפורי צדיקים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "578 = מחלקת = שלום רב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זכרון יעקב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תעשיית הפאות בהודו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פרס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גילוי עריות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "750",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עמנואל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מעשה מרכבה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "800",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נגיעות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תכלית בריאת האדם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מוות על קידוש ה'",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זבל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרצחת וגם ירשת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "השבת השחורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אהרן הכהן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קריאת תהילים ילדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ליטאים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הםן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שידוכין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "101",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1000",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ארמית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי מרדכי שרעבי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עירוב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רוח משיח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "התבוללות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ירדן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צניעות ומשיח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שער נפתלי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אסתר ליכטנשטיין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סעודת יורצאיט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חילופי אותיות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ייחודים של חנוכה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבנית קנייבסקי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ועדת הלסינקי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נז״א",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "616",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חזי לוי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עמך ישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ארז דרעי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "Lubavitcher Rebbe",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב שניר גואטה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צבע אדום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תא הטייס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1359",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שס\"ב גידים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טרקלין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפור מוות קליני של ספר צמרת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמע ישראל בפורמט כיס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צניעות ומצב הבטחוני",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סכין פגום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תשפ\"ז",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כבש- עזיז",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אגו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסר מהרשב\"י",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אסף רגואן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תיקון גלגולים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סרטן בגלל פאה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אמנות הנחש- פאה נכרית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שיח ציבורי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חילזון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אדלשטיין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הורדת קעקועים מכספי מעשר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ימי בין המצרים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "2023",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ברית בין הבתרים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קדושה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מעניין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עזיז הכבש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יואב אלון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רעננה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חכמת הפרצוף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "באטון כשרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מעלת הסליחה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "האח הגדול",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ישמעאל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עוון נדה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אליישיב זצ\"ל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נפש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עמי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב שטרנבוך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עזרא הסופר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "456 = פרצוף",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יהוה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יעקב עדס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "683",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הבעש\"ט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לחולי מוסכן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משאלה אחרונה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי נחמן מברסלב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כבוד הזולת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "671",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נוח’בה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דין ראש השנה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כח הדיבור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב ארוש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ג' אגרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תנור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חולי נפש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טנקים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "450",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "Elohim",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פלנט X",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מ\"ב מסעות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חידוש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "God",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שנאת אחים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מספר תעניות לכל עבירה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "התבוננות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תבלינים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מי שברך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עצמי עליון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלך המשיח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אגרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צניעות וגאולה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לבוא על נדה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יולדת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לוחות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צמיחה רוחנית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משה רבינו אהרון הכהם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אור הרשב\"י",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חזרה בתשובה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כולך יפה רעייתי- הרב יורם אברג'יל זצ\"ל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כלא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עבודה זרה בפאות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פשעים נגד האנושות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לשון הקודש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי אלעזר בן דורדיה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חרמות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מעלת תהילים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גרביים שקופות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלאכי רוזנפלד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נרצחים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חיילי גולני",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דני אבדיה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמע ישראל- חלוקה חינם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "3039",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפורי הרשב\"י",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפורי הזוהר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בית המדרש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "האם יש חיים לאחר המוות?",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חומות ירושלים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בבא סאלי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שערורייה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "631 = מלך ישראל = נס נתניהו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "346",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ADE",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סרטון שמירת עיניים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סדום ועמורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רחל נועם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יובל עזרא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הנהגות צניעות בשמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "העולם הבא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תורה שבעל פה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סרט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אסף טפירו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גזירה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפורי צדיקים לילדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חלום מעולם האמת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הלכות ט\"ו בשבט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עצימת עיניים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "878",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי גמליאל רבינוביץ",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מנהרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דילוגים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "832",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פומפאו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מוזיקה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הצלבה גימטרית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בנות ישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כוכבי לכת- התאמה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קבלה ומדע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שבעה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ודאות פנימית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רחל אמנו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ביתר ירושלים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "89",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "117 פסוקים שיר השירים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שדוני ברקים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "197",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עימאד מורניה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אפילו חרב חדה מונחת על צווארו של אדם אל יתייאש מהרחמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ברכות לבטלה כנגד פאה נכרית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שליחות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לימוד הזוהר מבטל גזרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אונאת דברים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פנחס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בין אדם לחברו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1472",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זרעי כוכבים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קבלת התפילה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "איסור לצער אדם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תיקון מ\"ח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ביטול איסור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניתוק מהמכשירים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דיבור עם רוחות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שומר פיו ולשונו- שומר מצרות נפשו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "620",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבנית הלפרין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חוק העיתוי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ים החכמה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אלדד שמואלי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב מיכאל יצחק שמריהו הראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "Garden",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זכות אבות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבקה הצדיקה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הורמונים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפורים מהחיים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "266",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עיבור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סולם ההצלה לדור אחרון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר בחינם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "76",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר כשרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יהודה גראס שליט\"א",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מפץ הגדול",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תולעת שמיר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אל אקצה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "העולם השביעי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בית מקדש ופאה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אגרות הסולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רפטינג",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הגעלת כלים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לעקרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "וידוי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פיגועים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דורית ניצן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חשיפה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סטייפלר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לוד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1718",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ונשמרתם מאד לנפשותיכם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עשרת השבטים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ברכת המזון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר זוהר בחינם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מספרי מלאך",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הצלה מכשפים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב ברגר סימן גאולה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "7500",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שומרים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שלח לחמך על פני המים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תנא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כל מעשי בני אדם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב שמחה אשלג",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר לסעודות שבת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "החיים לאחר המוות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תרבות המאיה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב גרינוולד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טבע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יעל זיידנר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קו עיוני לגברים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מחשבות רעות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גימטריות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סוד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פרופ זוכריט בהאקדי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "386",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משה חיים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משיח טבת עשירי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חיזוק",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "3 שעות אחרונות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גלגל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי יוסף דוסקא בן יהודה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ראש חודש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תשב\"ר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חטיפה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בראשית ברא אלהים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חותם הקודש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אור הגנוז",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סינכרוניות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שבט דן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סעודות רשות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בטיחות ילדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר לב בשר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מוקצה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "Mistreatment of Israel",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ספר ירמיהו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רב שסרח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פצצת מצרר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קיבוצניקית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1237",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ערוץ 13",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "לונדון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שיר השירים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עילוי נשמה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יום הדין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מוות קליני מקורונה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולת עלינו לשבח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב שלמה יהודה שליט\"א",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חרם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בצלם אלוקים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שגרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפורי זוהר לילדים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שומר הצעיר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "המגלה עמוקות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אלמנות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דבור בבית כנסת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מסירה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לעצירת הדינים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמואל א יז",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב גרוסמן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גריסת זוהר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מפלת אסד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עדות שמימית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שפיכות דמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סכנה לעם ישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שריפת בית כנסת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תאים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עגונות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עלינו לשבח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גיוס כספים לצורך ניתוח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פאה מוקצה בשבת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רופא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קונספירציה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מוכרת פאות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אכילה לשם שמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עיר מקלט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרבנית בת שבע קנייבסקי זצל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבי מלויבאוויטש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הוכחות לבורא עולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כיפת ברזל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יידיש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ילדים- הגנה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הצרעה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אהרן מזוז שליט\"א",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הסחת דעת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב חיים זוננפלד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אבולוציה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דוגמנית שחבשה פאה נכרית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חוקים רוחניים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הוכחות מדעיות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הבאת נשמה בעולם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "111",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יעקב עדיה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קוד חטיפה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ביתר עילית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עול מלכות שמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מפלגה חרדית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב יצחק קשאני",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פרופ. חזי לוי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יום זיכרון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סעודות חול",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "משפט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ישועות מעל הטבע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אליהו גודלבסקי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרה\"ג יעקב שכנזי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "2936",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב וואזנר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "גאוה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חסד של אמת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "787",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "119",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יצאה קודם גמר תפילה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נער בן 17 עם מוות קליני",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עברית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תורכיה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרבי\"ז הקדוש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יבום",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "איחור לתפילה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מצות שילוח הקן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נוזל השדרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מחאה נגד פאה נכרית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תאונה סירה בכנרת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "התיקון השלם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ערן גיגי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עין שלישית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פאה ותקרובת עבודה זרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הלבנת הון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ארון הברית",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יורצאיט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שוק באישה ערווה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ט״ו באב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב בצרי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "611",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מלנין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב חן שאולוב",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סיפור במוצ\"ש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הילולת האר\"י",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טוב עין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כשרות דגים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טריפות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זיכרון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "318",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שבילי שפה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כשרות קלפים של תורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חשוכי בנים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חכמת הגלגול",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חובת הלבבות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פילפינים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אסון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פלנט איקס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "Yiddish",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רש\"ש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "250",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "223 = אין עוד מלבדו",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אטלס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שבועת ה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "האדמור הזקן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הלכות שבת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "הרב אליהו אלמליח",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ט\"ו בשבט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אכילה בכשרות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חרדות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אפיקורס",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חיסון פייזר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קורונה ועם ישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1692",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חלבן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "המחלה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "דיבור בקדושה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קופות חולים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זוהר ט\"ו בשבט",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "זלזול בתי כנסיות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניתוק מכשירי החייאה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "כוונת הברכות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פאה- עבודה זרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פרוזדור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עבודה זורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עבודת צל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שנת יובל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מכתבים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פקוח נפש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מגנטיות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מתקפת פתע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רבניות צדקניות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פיוט נבואי",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שבויים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חוה פישר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אסתר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולה לרעש אדמה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פגיעה בזולת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אוסטרליה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שמיני עצרת",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תמימה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סגולת המנורה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניסוי רפואי בבני אדם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תענוגים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "1789",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "רפטינג נהר הירדן",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "17 באוקטובר",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "תשובה ללשון הרע",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "סוד הפרנסה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קיבוץ רוחמה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נפאל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "צורר היהודים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "יוחאנן באנון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "קורונה 2- שלמה גולדין",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שלטון",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מוקש",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ירידה ביראת שמים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "מדגם",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "עולם בא",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "טבח רעים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ה' אחד ושמו אחד",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "נדחי ישראל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "פאות ועבודה זרה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "ניצנוצי אור",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "בשר בהמה",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חיים אחר המוות",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "שיחת דקלים",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "אורי אריאל",
+      "posts": 1
+    },
+    {
+      "kind": "tag",
+      "value": "חיסון גנטי",
+      "posts": 1
+    }
+  ],
+  "redactedCount": 0
+}

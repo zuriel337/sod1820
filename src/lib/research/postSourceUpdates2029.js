@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 // Proven source-level updates, keyed by post id. An entry exists only when the
 // live post_revisions pair and the authored fragment were verified; cover-only
 // or other snapshots are never listed. Posts without an entry show no strip.
@@ -132,7 +133,7 @@ export function publicProvenPostSourceUpdates(row) {
       label: entry.label,
       at: new Date(Date.parse(entry.updatedAt)).toISOString(),
       targetId: entry.targetId,
-      targetHref: `/post/${encodeURIComponent(slug)}#${encodeURIComponent(entry.targetId)}`,
+      targetHref: publicPostHref(row, { hash: encodeURIComponent(entry.targetId) }),
       attribution: entry.attribution,
     });
   }

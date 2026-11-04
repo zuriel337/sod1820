@@ -17,12 +17,15 @@ test('Topic navigation adds provenance without changing authored facts, scores o
  const connected=buildTopic2029Projection(finding,{sourceContext:context});
  assert.equal(connected.relatedPosts.length,base.relatedPosts.length+1);
  assert.deepEqual(connected.relatedConvergences.map(t=>t.slug).sort(),['1237','hodu']);
+ assert.deepEqual(connected.publicConnections.map(item=>item.href).sort(),[...context.links.topics,...context.links.posts].map(item=>item.href).sort());
+ assert.equal(base.publicConnections.length,0,'unadmitted authored references do not become public sidecar links');
  assert.equal(connected.authoredFactsCount,base.authoredFactsCount);
  assert.equal(connected.quality,base.quality);
  assert.deepEqual(connected.sections,base.sections);
  assert.equal(JSON.stringify(finding),original);
  for(const sourceContext of [{...context,topicSlug:'unrelated'},{...context,access:{scope:'private'}},{...context,access:{scope:'public',available:false}}]){
   assert.deepEqual(buildTopic2029Projection(finding,{sourceContext}).relatedConvergences,base.relatedConvergences);
+  assert.deepEqual(buildTopic2029Projection(finding,{sourceContext}).publicConnections,[]);
  }
 });
 test('Post source link survives the real experience normalizer and live-public resolver',async()=>{
@@ -35,4 +38,12 @@ test('Post source link survives the real experience normalizer and live-public r
  for(const post of [{...fixture.post,tags:['טיוטה']},{...fixture.post,content:fixture.post.content.replace('אזרח הודי','אזרח')}]){
   assert.equal(post2029ReadingInternals.buildFz1073Experience(post).connections.some(c=>c.id==='topic-india-source'),false);
  }
+});
+test('Topic source reader retains provenance for the approved native and WordPress address division',()=>{
+ const native=buildTopicSourceContext({...fixture,topic,post:{...fixture.post,source:'ai',wp_id:36999},occurrences:fixture.images,relatedTopics:fixture.topics});
+ assert.ok(native.links.posts.some(row=>row.href===`/post/${fixture.post.slug}#${INDIA_CAPTAIN_SOURCE.regionId}`));
+ const legacy=buildTopicSourceContext({...fixture,topic,post:{...fixture.post,source:'wordpress',wp_id:36935,link:`https://sod1820.co.il/${fixture.post.slug}/`},occurrences:fixture.images,relatedTopics:fixture.topics});
+ assert.ok(legacy.links.posts.some(row=>row.href===`/${fixture.post.slug}/#${INDIA_CAPTAIN_SOURCE.regionId}`));
+ const reader=fs.readFileSync(new URL('../src/lib/research/entityHubProjection.js',import.meta.url),'utf8');
+ assert.match(reader,/id,slug,title,content,tags,author,authors,date,modified,source,link,wp_id/);
 });

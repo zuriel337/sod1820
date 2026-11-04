@@ -1,4 +1,6 @@
+import { useAuth } from "../lib/AuthContext.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
+import BookSourceReader2029 from "../components/books2029/BookSourceReader2029.jsx";
 import { use2029Palette } from "../lib/palette.js";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -14,7 +16,12 @@ import {
   parseSourceRefLocator,
   buildBookResearchPresentation,
 } from "../lib/research/bookResearchProjection.js";
+import { PUBLIC_READING_RELEASE, publicReadingActionsLocked } from "../lib/publicReadingRelease2029.js";
 import { applySeo } from "../lib/seo.js";
+import { getBookReaderManifest } from "../data/bookReader2029.js";
+import { BookCard } from "../components/books2029/BooksLibraryCards2029.jsx";
+import { AHAVAT_BOOK_SLUG } from "../data/ahavatBookNavigation2029.js";
+import "../components/books2029/booksLibraryCard2029.css";
 
 const COVERAGE_LABELS = {
   structural: "מיפוי מבני",
@@ -70,15 +77,37 @@ function primaryCoverage(coverage) {
   return null;
 }
 
+function previewBookForManifest(manifest) {
+  if (!manifest) return null;
+  return {
+    id: `preview-book-${manifest.slug}`,
+    type: "book",
+    label: manifest.title,
+    description: manifest.introduction,
+    identity_key: `book:${manifest.slug}`,
+    metadata: {
+      slug: manifest.slug,
+      coverage_2029: { structural: `${manifest.pdfPages}/${manifest.pdfPages} COMPLETE`, research_map: "PREVIEW READER" },
+      identity_tiers: {
+        witness: { provider: "מקור PDF קנוני", identity: `witness:${manifest.slug}` },
+        edition: { status: "מיפוי מהדורה בפריוויו" },
+        locator: { kind: "pdf_page" },
+      },
+    },
+    is_active: true,
+  };
+}
+
 function SaveBookItemAction({ item, research }) {
+  const actionsLocked = publicReadingActionsLocked(useAuth().isAdmin);
   const palette = use2029Palette();
   const [failed, setFailed] = useState(false);
   const saved = Boolean(item?.id && research.saved?.some(entry => entry.id === item.id));
   return <>
     <button type="button" className="sod29-action" data-action="save"
       style={{ "--action-success": palette.successText, "--action-danger": palette.dangerText }}
-      data-state={failed ? "error" : saved ? "success" : "idle"} aria-pressed={saved && !failed} disabled={!item}
-      onClick={() => { try { setFailed(!research.saveItem?.(item)); } catch { setFailed(true); } }}>
+      data-state={failed ? "error" : saved ? "success" : "idle"} aria-pressed={saved && !failed} disabled={actionsLocked || !item}
+      onClick={() => { if (actionsLocked) return; try { setFailed(!research.saveItem?.(item)); } catch { setFailed(true); } }}>
       <NavigationIcon2029 name={failed ? "issue" : saved ? "check" : "save"} />{failed ? "נסה לשמור שוב" : saved ? "נשמר" : "שמור"}
     </button>
     <span className="sod-action-announcement" role="status">{failed ? "השמירה לא הושלמה. נסה שוב." : saved ? "הפריט שמור בספרייה" : ""}</span>
@@ -117,28 +146,12 @@ function ResearchFamily({ group, book, research, defaultOpen = false }) {
   </details>;
 }
 
-function BookCard({ book }) {
-  const slug = book?.metadata?.slug;
-  const coverage = { ...(book?.metadata?.coverage || {}), ...(book?.metadata?.coverage_2029 || {}) };
-  const primary = primaryCoverage(coverage);
-  return <Link className="sod29-book-tile" to={slug ? `/book/${slug}` : "/books"}>
-    <div className="sod29-book-cover" aria-hidden="true">▤</div>
-    <div className="sod29-kicker">ספר ומקור</div>
-    <h3>{book.label}</h3>
-    <p className="sod29-muted">{primary ? `${coverageLabel(primary.key)} · ${String(primary.value)}` : "ספר חי במערכת המחקר"}</p>
-    <div className="sod29-actions">
-      <span className="sod29-chip">{book.is_active ? "פעיל" : "לא פעיל"}</span>
-      {coverage.unresolved_total != null ? <span className="sod29-chip">{coverage.unresolved_total} נקודות פתוחות</span> : null}
-    </div>
-  </Link>;
-}
-
 function LibraryView() {
-  const [state, setState] = useState({ loading: true, books: [], error: null });
+  const [state, setState] = useState({ loading: true, books: [], preparation: {}, error: null });
   useEffect(() => {
     let alive = true;
-    fetchBookEntities({ limit: 60 })
-      .then(books => alive && setState({ loading: false, books, error: null }))
+    Promise.all([fetchBookEntities({ limit: 60 }), fetch("/book-data/books.preparation.json").then(response => response.ok ? response.json() : null).catch(() => null)])
+      .then(([books, preparation]) => alive && setState({ loading: false, books, preparation: preparation?.schema === "books-preparation-projection.v1" ? preparation.books : {}, error: null }))
       .catch(error => alive && setState({ loading: false, books: [], error }));
     return () => { alive = false; };
   }, []);
@@ -147,44 +160,23 @@ function LibraryView() {
   if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לטעון את הספרייה: {String(state.error?.message || state.error)}</div></section>;
 
   return <>
-    <section className="sod29-focus-stage">
-      <div className="sod29-command-shell">
-        <div className="sod29-command-copy">
-          <div className="sod29-kicker">ספרים ומקורות</div>
-          <h2>הספרייה אינה רק מדף.<br />כל ספר הוא שער למחקר.</h2>
-          <div className="sod29-muted">כל ספר מחובר למקור, למהדורה, למראה־מקום ולמחקר שנצבר סביבו. אפשר להתחיל בקריאה פשוטה ולהעמיק רק כשצריך.</div>
-          <div className="sod29-actions"><span className="sod29-chip">{state.books.length} ספרים פעילים</span><span className="sod29-chip">מקור · מחקר · מראה־מקום</span></div>
-        </div>
-        <div className="sod29-orbit-map" aria-hidden="true">
-          <div className="sod29-orbit-center">מקור<br />אחד</div>
-          <span className="sod29-orbit-node n1">ספר</span>
-          <span className="sod29-orbit-node n2">עדות</span>
-          <span className="sod29-orbit-node n3">מראה־מקום</span>
-          <span className="sod29-orbit-node n4">מחקר</span>
-        </div>
-      </div>
-    </section>
-
     <section className="sod29-section">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">הספרייה</div><h2>הספרייה הפעילה</h2><div className="sod29-muted">פתחו ספר כדי לראות מה כבר מופה, אילו ממצאים קיימים, מאיזה מקור הם מגיעים ומה עדיין פתוח לבדיקה.</div></div></div>
-      {state.books.length ? <div className="sod29-book-grid">{state.books.map(book => <BookCard key={book.id} book={book} />)}</div> : <div className="sod29-state">אין כרגע ספרים פעילים לקריאה ציבורית.</div>}
+      <div className="sod29-section-head"><div><div className="sod29-kicker">הספרייה</div><h2>ספרים לקריאה וללימוד</h2><div className="sod29-muted">בחרו ספר, קראו לצד המקור וגלו את הרעיונות, הטבלאות והמבנים שבו. מצב הזמינות מוצג בכל כרטיס.</div></div></div>
+      {state.books.length ? <div className="sod29-book-grid">{state.books.map(book => <BookCard key={book.id} book={book} preparation={state.preparation?.[book.metadata?.slug]} readingHref={PUBLIC_READING_RELEASE && book.metadata?.slug === AHAVAT_BOOK_SLUG ? `/book/${AHAVAT_BOOK_SLUG}` : undefined} />)}</div> : <div className="sod29-state">אין כרגע ספרים זמינים להצגה.</div>}
     </section>
 
-    <section className="sod29-section sod29-placeholder">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">CORPUS PROJECTION</div><h2>תנ״ך · Library Group</h2></div></div>
-      <p className="sod29-muted">ה־Foundation כבר קבע Tanakh כ־corpus projection מעל 24 Book identities, לא כ“ספר 25”. הם נשארים inactive-first עד שה־runtime/projection וה־Human Gate יאשרו הפעלה. לכן הם לא מוצגים כאן כאילו הם כבר ספרייה ציבורית חיה.</p>
-    </section>
-
-    <section className="sod29-section sod29-placeholder">
-      <div className="sod29-section-head"><div><div className="sod29-kicker">PERSONAL SOURCE INTAKE</div><h2>חקור ספר משלך</h2><div className="sod29-muted">הכיוון נעול: Private Source → Light Intake → בחירת מטרת מחקר → Book Research Lab. ה־private storage/RLS runtime עדיין לא מחובר, ולכן הכפתור לא מזייף העלאה.</div></div></div>
-      <button className="sod29-action" disabled>העלאת ספר פרטי · runtime pending</button>
+    <section className="sod29-section" aria-labelledby="books29-tanakh-title">
+      <div className="sod29-section-head"><div><div className="sod29-kicker">תורה · נביאים · כתובים</div><h2 id="books29-tanakh-title">ספרי התנ״ך</h2></div><span className="sod29-chip">בהכנה</span></div>
+      <p className="sod29-muted">כ״ד ספרי התנ״ך יקבלו כאן מקום לקריאה לפי ספר, פרק ופסוק. הקריאה בהם מתוך הספרייה עדיין אינה זמינה.</p>
     </section>
   </>;
 }
 
-function BookDetail({ slug }) {
+function BookDetail({ slug, previewOnly = false }) {
+  const actionsLocked = publicReadingActionsLocked(useAuth().isAdmin);
   const research = useResearch();
   const shell = use2029Shell();
+  const readerManifest = useMemo(() => getBookReaderManifest(slug), [slug]);
   const [state, setState] = useState({ loading: true, book: null, research: null, error: null });
   const currentContext = research.context || null;
 
@@ -193,6 +185,9 @@ function BookDetail({ slug }) {
     setState({ loading: true, book: null, research: null, error: null });
     fetchBookEntityBySlug(slug)
       .then(async book => {
+        if (!book && previewOnly && readerManifest) {
+          return { book: previewBookForManifest(readerManifest), pack: { rows: [], restricted: false, truncated: false } };
+        }
         if (!book) return { book: null, pack: null };
         const pack = await fetchBookResearch(book, { limit: 80 });
         return { book, pack };
@@ -207,7 +202,7 @@ function BookDetail({ slug }) {
       })
       .catch(error => alive && setState({ loading: false, book: null, research: null, error }));
     return () => { alive = false; };
-  }, [slug]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [slug, previewOnly, readerManifest]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const book = state.book;
   const pack = state.research;
@@ -229,7 +224,7 @@ function BookDetail({ slug }) {
   if (state.error) return <section className="sod29-section"><div className="sod29-state error">לא ניתן לפתוח את הספר: {String(state.error?.message || state.error)}</div></section>;
   if (!book) return <section className="sod29-section"><div className="sod29-state warn">הספר אינו פעיל/נגיש כרגע. לא מציגים snapshot קשיח במקום זהות חיה.</div><div className="sod29-actions"><Link className="sod29-action" to="/books">חזרה לספרייה</Link></div></section>;
 
-  const addBook = () => { const item = bookToWorkspaceItem(book); if (item) research.addToResearch?.(item); };
+  const addBook = () => { if (actionsLocked) return; const item = bookToWorkspaceItem(book); if (item) research.addToResearch?.(item); };
 
   return <>
     <section className="sod29-focus-stage">
@@ -239,10 +234,12 @@ function BookDetail({ slug }) {
           <div className="sod29-kicker">ספר · מקור · מחקר</div>
           <h2>{book.label}</h2>
           <p className="sod29-muted">מתחילים מהעיקר: מה כבר מופה, מה נמצא במחקר, מאיזה מקור זה מגיע ומה עדיין דורש המשך בדיקה. שכבות העדות נשמרות בנפרד מאחורי התצוגה האנושית.</p>
-          <div className="sod29-actions"><SaveBookItemAction key={book.id} item={bookToWorkspaceItem(book)} research={research} /><button type="button" className="sod29-action" data-action="research" onClick={addBook}><NavigationIcon2029 name="add" /> הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()} disabled={shell.razielLocked}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ שאל את רזיאל"}</button></div>
+          <div className="sod29-actions">{readerManifest ? <a className="sod29-action" href="#book-reader29-source"><span aria-hidden="true">▤</span> קרא את ה־PDF</a> : null}<SaveBookItemAction key={book.id} item={bookToWorkspaceItem(book)} research={research} /><button type="button" className="sod29-action" data-action="research" disabled={actionsLocked} onClick={addBook}><NavigationIcon2029 name="add" /> הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()} disabled={shell.razielLocked}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ שאל את רזיאל"}</button></div>
         </div>
       </div>
     </section>
+
+    {readerManifest ? <BookSourceReader2029 manifest={readerManifest} researchRows={rows} /> : null}
 
     <section className="sod29-section sod29-book-overview">
       <div className="sod29-section-head"><div><div className="sod29-kicker">העיקר</div><h2>מצב הספר עכשיו</h2><div className="sod29-muted">תמונת פתיחה אחת לפני שנכנסים לפרטים, למטריצות או לכלי עומק.</div></div></div>
@@ -286,8 +283,9 @@ function BookDetail({ slug }) {
   </>;
 }
 
-export default function Books2029Page() {
-  const { slug } = useParams();
+export default function Books2029Page({ previewSlug = "" }) {
+  const { slug: routeSlug } = useParams();
+  const slug = routeSlug || previewSlug;
   useEffect(() => { applySeo({ title: slug ? "ספר · SOD1820" : "ספרים ומקורות · SOD1820", description: "ספרים, מקורות, עדים ומחקר ב־SOD1820", path: slug ? `/book/${slug}` : "/books" }); }, [slug]);
-  return <Sod2029Shell surface="books" symbol="▤" eyebrow="BOOKS · SOURCES · WITNESSES" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="ספרייה אחת מעל זהויות ומקורות חיים. המקור אינו רק קובץ — הוא שער למחקר, לעדות ולמראה־מקום.">{slug ? <BookDetail slug={slug} /> : <LibraryView />}</Sod2029Shell>;
+  return <Sod2029Shell surface="books" symbol="▤" eyebrow="ספרים ומקורות" title={slug ? "ספר ומקור" : "ספרים ומקורות"} description="קוראים בספרים, מבינים את הרעיונות וחוזרים תמיד לעמוד המקור.">{slug ? <BookDetail slug={slug} previewOnly={Boolean(previewSlug)} /> : <LibraryView />}</Sod2029Shell>;
 }

@@ -1,0 +1,2575 @@
+{
+  "candidateBase": "3f23b26f1bf877484244eada5c1f7622eff967cb",
+  "records": 33667,
+  "unit": "collected URL strings/templates, not deduplicated existing public documents",
+  "automaticClassificationComplete": true,
+  "liveHttpAcceptanceComplete": false,
+  "networkRequests": 0,
+  "counts": {
+    "direct_route_candidate": 30574,
+    "template_or_unresolved": 23,
+    "redirected": 641,
+    "post_lookup_required": 2140,
+    "building_or_held": 75,
+    "unhandled_by_adapter": 211,
+    "account": 3
+  },
+  "families": {
+    "F00": {
+      "direct_route_candidate": 19
+    },
+    "UNRESOLVED": {
+      "template_or_unresolved": 3,
+      "redirected": 321,
+      "post_lookup_required": 38,
+      "unhandled_by_adapter": 7,
+      "building_or_held": 4,
+      "direct_route_candidate": 3
+    },
+    "F01": {
+      "post_lookup_required": 2095,
+      "redirected": 193,
+      "template_or_unresolved": 1,
+      "direct_route_candidate": 523
+    },
+    "F18": {
+      "redirected": 1,
+      "direct_route_candidate": 1,
+      "template_or_unresolved": 1
+    },
+    "F14": {
+      "redirected": 2,
+      "direct_route_candidate": 5
+    },
+    "F07": {
+      "redirected": 4,
+      "direct_route_candidate": 1
+    },
+    "F23": {
+      "building_or_held": 35,
+      "redirected": 2,
+      "template_or_unresolved": 1
+    },
+    "F33": {
+      "redirected": 6
+    },
+    "F31": {
+      "redirected": 2,
+      "building_or_held": 5
+    },
+    "F24": {
+      "redirected": 4,
+      "direct_route_candidate": 1
+    },
+    "F30": {
+      "unhandled_by_adapter": 7,
+      "building_or_held": 1,
+      "post_lookup_required": 2,
+      "template_or_unresolved": 1
+    },
+    "F25": {
+      "template_or_unresolved": 1,
+      "building_or_held": 1,
+      "redirected": 2
+    },
+    "F16": {
+      "template_or_unresolved": 4,
+      "direct_route_candidate": 22968,
+      "redirected": 80
+    },
+    "F02": {
+      "direct_route_candidate": 6,
+      "redirected": 2
+    },
+    "F13": {
+      "redirected": 1,
+      "template_or_unresolved": 2,
+      "direct_route_candidate": 29
+    },
+    "F32": {
+      "building_or_held": 1,
+      "unhandled_by_adapter": 197,
+      "direct_route_candidate": 13
+    },
+    "F17": {
+      "building_or_held": 5,
+      "direct_route_candidate": 107,
+      "redirected": 1
+    },
+    "F26": {
+      "account": 3,
+      "building_or_held": 4
+    },
+    "F22": {
+      "redirected": 2,
+      "template_or_unresolved": 2,
+      "direct_route_candidate": 9
+    },
+    "F34": {
+      "building_or_held": 9,
+      "post_lookup_required": 5,
+      "template_or_unresolved": 2,
+      "redirected": 1
+    },
+    "F29": {
+      "building_or_held": 2
+    },
+    "F03": {
+      "template_or_unresolved": 1,
+      "redirected": 6,
+      "direct_route_candidate": 3
+    },
+    "F05": {
+      "direct_route_candidate": 1
+    },
+    "F21": {
+      "building_or_held": 5,
+      "redirected": 1
+    },
+    "F20": {
+      "direct_route_candidate": 114,
+      "redirected": 1,
+      "template_or_unresolved": 1
+    },
+    "F06": {
+      "direct_route_candidate": 1
+    },
+    "F15": {
+      "direct_route_candidate": 2
+    },
+    "F10": {
+      "direct_route_candidate": 6632,
+      "template_or_unresolved": 1
+    },
+    "F12": {
+      "direct_route_candidate": 2
+    },
+    "F11": {
+      "building_or_held": 1
+    },
+    "F28": {
+      "direct_route_candidate": 3,
+      "redirected": 2
+    },
+    "F27": {
+      "direct_route_candidate": 1,
+      "building_or_held": 2
+    },
+    "F04": {
+      "template_or_unresolved": 1,
+      "redirected": 7,
+      "direct_route_candidate": 2
+    },
+    "F19": {
+      "template_or_unresolved": 1,
+      "direct_route_candidate": 128
+    }
+  },
+  "redirectTargetStates": {
+    "post-lookup": 247,
+    "missing": 258,
+    "public": 118,
+    "closed": 18
+  },
+  "notes": [
+    "Redirected includes literal hosting redirects and both existing regex redirects plus canonical application aliases.",
+    "Direct route candidates still need item/publication/source acceptance.",
+    "Post lookup is unverified identity, not accepted coverage.",
+    "Building includes deliberately private/closed/held routes; not all are public launch deferrals.",
+    "Unhandled may be a real asset, private/missing URL or a broken continuation; no blanket 404 waiver."
+  ],
+  "unhandled": [
+    {
+      "url": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%a4%d7%99%d7%a1%d7%91%d7%95%d7%a7/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%a4%d7%99%d7%a1%d7%91%d7%95%d7%a7",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/%d7%a4%d7%99%d7%a1%d7%91%d7%95%d7%a7-%d7%90%d7%95%d7%91%d7%9e%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/%d7%a4%d7%99%d7%a1%d7%91%d7%95%d7%a7-%d7%90%d7%95%d7%91%d7%9e%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/showimage/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/showimage",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a0%d7%97%d7%a9/%d7%9c%d7%9b%d7%99%d7%93%d7%94-15/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a0%d7%97%d7%a9/%d7%9c%d7%9b%d7%99%d7%93%d7%94-15",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%90%d7%95%d7%a1%d7%a3-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%9e%d7%9c%d7%97%d7%9e%d7%95%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%aa%d7%9e%d7%95%d7%96/%d7%9b%d7%93-%d7%aa%d7%9e%d7%95%d7%96/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%90%d7%95%d7%a1%d7%a3-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%9e%d7%9c%d7%97%d7%9e%d7%95%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%aa%d7%9e%d7%95%d7%96/%d7%9b%d7%93-%d7%aa%d7%9e%d7%95%d7%96",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%92%d7%99%d7%9c-%d7%a9%d7%9c-%d7%97%d7%9e%d7%99%d7%a0%d7%90%d7%99-%d7%95%d7%91%d7%9e%d7%97%d7%9c%d7%aa%d7%95-%d7%99%d7%a9-%d7%a8%d7%9e%d7%96-%d7%91%d7%a8%d7%95%d7%a8-%d7%9c%d7%92%d7%90%d7%95/attachment/76/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%92%d7%99%d7%9c-%d7%a9%d7%9c-%d7%97%d7%9e%d7%99%d7%a0%d7%90%d7%99-%d7%95%d7%91%d7%9e%d7%97%d7%9c%d7%aa%d7%95-%d7%99%d7%a9-%d7%a8%d7%9e%d7%96-%d7%91%d7%a8%d7%95%d7%a8-%d7%9c%d7%92%d7%90%d7%95/attachment/76",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%96%d7%9b%d7%95%d7%aa-%d7%9c%d7%99%d7%9e%d7%95%d7%93-%d7%a4%d7%a0%d7%99%d7%9e%d7%99%d7%95%d7%aa-%d7%94%d7%aa%d7%95%d7%a8%d7%94-%d7%a0%d7%96%d7%9b%d7%94-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%99%d7%a4%d7%a7%d7%95%d7%9f-%d7%9e%d7%9f-%d7%92%d7%9c%d7%95%d7%aa%d7%90-%d7%91%d7%a8%d7%97%d7%9e%d7%99/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%96%d7%9b%d7%95%d7%aa-%d7%9c%d7%99%d7%9e%d7%95%d7%93-%d7%a4%d7%a0%d7%99%d7%9e%d7%99%d7%95%d7%aa-%d7%94%d7%aa%d7%95%d7%a8%d7%94-%d7%a0%d7%96%d7%9b%d7%94-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%99%d7%a4%d7%a7%d7%95%d7%9f-%d7%9e%d7%9f-%d7%92%d7%9c%d7%95%d7%aa%d7%90-%d7%91%d7%a8%d7%97%d7%9e%d7%99",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%95%d7%a8-%d7%a0%d7%91%d7%95%d7%90%d7%aa-%d7%93%d7%a0%d7%99%d7%90%d7%9c-%d7%99%d6%b4%d7%aa%d6%b0%d7%91%d6%b8%d6%bc%d7%a8%d6%b2%d7%a8%d7%95%d6%bc-%d7%95%d6%b0%d7%99%d6%b4%d7%aa/%d7%93%d7%a0%d7%99%d7%90%d7%9c-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%95%d7%a8-%d7%a0%d7%91%d7%95%d7%90%d7%aa-%d7%93%d7%a0%d7%99%d7%90%d7%9c-%d7%99%d6%b4%d7%aa%d6%b0%d7%91%d6%b8%d6%bc%d7%a8%d6%b2%d7%a8%d7%95%d6%bc-%d7%95%d6%b0%d7%99%d6%b4%d7%aa/%d7%93%d7%a0%d7%99%d7%90%d7%9c-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa1-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa1-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa10-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa10-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa2-3/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa2-3",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa2-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa2-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa3-3/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa3-3",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa3-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa3-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa4-3/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa4-3",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa4-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa4-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa7-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa7-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa8-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa8-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa9-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa9-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%a0%d7%99%d7%99%d7%aa-%d7%94%d7%a7%d7%a4%d7%99%d7%98%d7%95%d7%9c-%d7%91%d7%95%d7%95%d7%a9%d7%99%d7%a0%d7%92%d7%98%d7%95%d7%9f-%d7%a0%d7%a2%d7%a9%d7%94-%d7%a2%d7%9c-%d7%94%d7%9e%d7%95%d7%93/_82373332_82373327/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%a0%d7%99%d7%99%d7%aa-%d7%94%d7%a7%d7%a4%d7%99%d7%98%d7%95%d7%9c-%d7%91%d7%95%d7%95%d7%a9%d7%99%d7%a0%d7%92%d7%98%d7%95%d7%9f-%d7%a0%d7%a2%d7%a9%d7%94-%d7%a2%d7%9c-%d7%94%d7%9e%d7%95%d7%93/_82373332_82373327",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%a0%d7%99%d7%99%d7%aa-%d7%94%d7%a7%d7%a4%d7%99%d7%98%d7%95%d7%9c-%d7%91%d7%95%d7%95%d7%a9%d7%99%d7%a0%d7%92%d7%98%d7%95%d7%9f-%d7%a0%d7%a2%d7%a9%d7%94-%d7%a2%d7%9c-%d7%94%d7%9e%d7%95%d7%93/_84478046_compeagle/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%a0%d7%99%d7%99%d7%aa-%d7%94%d7%a7%d7%a4%d7%99%d7%98%d7%95%d7%9c-%d7%91%d7%95%d7%95%d7%a9%d7%99%d7%a0%d7%92%d7%98%d7%95%d7%9f-%d7%a0%d7%a2%d7%a9%d7%94-%d7%a2%d7%9c-%d7%94%d7%9e%d7%95%d7%93/_84478046_compeagle",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-3/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-3",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-5/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-5",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%91%d7%a8%d7%90%d7%a7-%d7%97%d7%95%d7%a1%d7%99%d7%99%d7%9f-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%9c%d7%94%d7%9e%d7%9f-%d7%94/%d7%91%d7%a8%d7%90%d7%a7-%d7%97%d7%95%d7%a1%d7%99%d7%9f-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%91%d7%a8%d7%90%d7%a7-%d7%97%d7%95%d7%a1%d7%99%d7%99%d7%9f-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%9c%d7%94%d7%9e%d7%9f-%d7%94/%d7%91%d7%a8%d7%90%d7%a7-%d7%97%d7%95%d7%a1%d7%99%d7%9f-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%91%d7%99%d7%91%d7%99-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%91%d7%99%d7%91%d7%99-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%99%d7%97%d7%9c%d7%99%d7%a3-%d7%90%d7%aa/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%99%d7%97%d7%9c%d7%99%d7%a3-%d7%90%d7%aa",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%9e%d7%9c%d7%9a-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%aa%d7%92%d7%9c%d7%94-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%9e%d7%9c%d7%9a-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%aa%d7%92%d7%9c%d7%94-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-05-30-at-16-59-38-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-05-30-at-16-59-38-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-05-30-at-16-59-38/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-05-30-at-16-59-38",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-02-at-17-09-15-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-02-at-17-09-15-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-02-at-17-09-15-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-02-at-17-09-15-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-05-at-13-40-51/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-05-at-13-40-51",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%93%d7%a3-%d7%94%d7%91%d7%99%d7%aa/%d7%94%d7%92%d7%99%d7%a2-%d7%94%d7%96%d7%9e%d7%9f-%d7%9c%d7%a2%d7%a9%d7%95%d7%aa-%d7%aa%d7%a9%d7%95%d7%91%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%93%d7%a3-%d7%94%d7%91%d7%99%d7%aa/%d7%94%d7%92%d7%99%d7%a2-%d7%94%d7%96%d7%9e%d7%9f-%d7%9c%d7%a2%d7%a9%d7%95%d7%aa-%d7%aa%d7%a9%d7%95%d7%91%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%93%d7%a3-%d7%94%d7%91%d7%99%d7%aa/%d7%a1%d7%a4%d7%a8/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%93%d7%a3-%d7%94%d7%91%d7%99%d7%aa/%d7%a1%d7%a4%d7%a8",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%91%d7%91%d7%90-%d7%a1%d7%90%d7%9c%d7%99-%d7%91%d7%97%d7%9c%d7%95%d7%9d-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a4%d7%aa%d7%97-%d7%99%d7%95%d7%aa%d7%a8-%d7%9e%d7%aa%d7%9e%d7%99%d7%93/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d-3/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%91%d7%91%d7%90-%d7%a1%d7%90%d7%9c%d7%99-%d7%91%d7%97%d7%9c%d7%95%d7%9d-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a4%d7%aa%d7%97-%d7%99%d7%95%d7%aa%d7%a8-%d7%9e%d7%aa%d7%9e%d7%99%d7%93/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d-3",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%91%d7%91%d7%90-%d7%a1%d7%90%d7%9c%d7%99-%d7%91%d7%97%d7%9c%d7%95%d7%9d-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a4%d7%aa%d7%97-%d7%99%d7%95%d7%aa%d7%a8-%d7%9e%d7%aa%d7%9e%d7%99%d7%93/%d7%9e%d7%a9%d7%99%d7%97-%d7%98%d7%91%d7%aa-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%91%d7%91%d7%90-%d7%a1%d7%90%d7%9c%d7%99-%d7%91%d7%97%d7%9c%d7%95%d7%9d-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a4%d7%aa%d7%97-%d7%99%d7%95%d7%aa%d7%a8-%d7%9e%d7%aa%d7%9e%d7%99%d7%93/%d7%9e%d7%a9%d7%99%d7%97-%d7%98%d7%91%d7%aa-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%96%d7%95%d7%92-%d7%91%d7%a0%d7%99-67/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%96%d7%95%d7%92-%d7%91%d7%a0%d7%99-67",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%9c%d7%9b%d7%99%d7%93%d7%94-16/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%9c%d7%9b%d7%99%d7%93%d7%94-16",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11027459_1102614776431436_889746206596284092_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11027459_1102614776431436_889746206596284092_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11266242_1127160193976894_3479014414611178489_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11266242_1127160193976894_3479014414611178489_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11393000_1435172586790415_3351433622621510855_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11393000_1435172586790415_3351433622621510855_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/5776-1335-7/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/5776-1335-7",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/5776-1335-8/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/5776-1335-8",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/76-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/76-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/attachment/7676/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/attachment/7676",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%94%d7%a0%d7%99%d7%a6%d7%97%d7%95%d7%9f-%d7%94%d7%9e%d7%95%d7%97%d7%9c%d7%98/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%94%d7%a0%d7%99%d7%a6%d7%97%d7%95%d7%9f-%d7%94%d7%9e%d7%95%d7%97%d7%9c%d7%98",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%9b%d7%91%d7%99%d7%a9-65/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%9b%d7%91%d7%99%d7%a9-65",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a4%d7%99%d7%92%d7%95%d7%a2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a4%d7%99%d7%92%d7%95%d7%a2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%a7%d7%a8%d7%99%d7%aa-%d7%9e%d7%9c%d7%90%d7%9b%d7%99/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%a7%d7%a8%d7%99%d7%aa-%d7%9e%d7%9c%d7%90%d7%9b%d7%99",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%91%d7%a8%d7%90%d7%a7-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%91%d7%a8%d7%90%d7%a7-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%a8%d7%97%d7%9e%d7%99%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%a8%d7%97%d7%9e%d7%99%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%a9%d7%9b%d7%99%d7%a0%d7%94-%d7%aa%d7%a9%d7%9b%d7%9f/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%a9%d7%9b%d7%99%d7%a0%d7%94-%d7%aa%d7%a9%d7%9b%d7%9f",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%99%d7%94%d7%95%d7%94-%d7%99%d7%a9%d7%95%d7%91-%d7%9c%d7%a6%d7%99%d7%95%d7%9f/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%99%d7%94%d7%95%d7%94-%d7%99%d7%a9%d7%95%d7%91-%d7%9c%d7%a6%d7%99%d7%95%d7%9f",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%a1%d7%91%d7%a8-%d7%a2%d7%9c-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%91%d7%aa%d7%a9%d7%a2%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c/%d7%90%d7%9c%d7%99%d7%94-%d7%9e%d7%a9%d7%99%d7%97/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%a1%d7%91%d7%a8-%d7%a2%d7%9c-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%91%d7%aa%d7%a9%d7%a2%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c/%d7%90%d7%9c%d7%99%d7%94-%d7%9e%d7%a9%d7%99%d7%97",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%a1%d7%91%d7%a8-%d7%a2%d7%9c-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%91%d7%aa%d7%a9%d7%a2%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c/%d7%94%d7%aa%d7%90%d7%a8%d7%99%d7%9a-%d7%a0%d7%a4%d7%9c/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%a1%d7%91%d7%a8-%d7%a2%d7%9c-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%91%d7%aa%d7%a9%d7%a2%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c/%d7%94%d7%aa%d7%90%d7%a8%d7%99%d7%9a-%d7%a0%d7%a4%d7%9c",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%92%d7%95%d7%a0%d7%a1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%92%d7%95%d7%a0%d7%a1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%93%d7%99%d7%95%d7%99%d7%93/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%93%d7%99%d7%95%d7%99%d7%93",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%a6%d7%9e%d7%97-%d7%93%d7%95%d7%93/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%a6%d7%9e%d7%97-%d7%93%d7%95%d7%93",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-3/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-3",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-3/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-3",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-40-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-40-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-40/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-40",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-41-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-41-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-41/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-41",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-44/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-44",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%95%d6%b0%d7%90%d6%b8%d7%91%d6%b7%d7%93-%d7%9e%d6%b6%d7%9c%d6%b6%d7%9a%d6%b0-%d7%9e%d6%b5%d7%a2%d6%b7%d7%96%d6%b8%d6%bc%d7%94-%d7%a0%d7%91%d7%95%d7%90%d7%aa-%d7%96%d7%9b%d7%a8%d7%99%d7%94-%d7%a2/45-%d7%a0%d7%94%d7%a8%d7%a1%d7%95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%95%d6%b0%d7%90%d6%b8%d7%91%d6%b7%d7%93-%d7%9e%d6%b6%d7%9c%d6%b6%d7%9a%d6%b0-%d7%9e%d6%b5%d7%a2%d6%b7%d7%96%d6%b8%d6%bc%d7%94-%d7%a0%d7%91%d7%95%d7%90%d7%aa-%d7%96%d7%9b%d7%a8%d7%99%d7%94-%d7%a2/45-%d7%a0%d7%94%d7%a8%d7%a1%d7%95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%91%d7%99%d7%90%d7%aa-%d7%a2%d7%9c-%d7%97%d7%9e%d7%95%d7%a8/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%91%d7%99%d7%90%d7%aa-%d7%a2%d7%9c-%d7%97%d7%9e%d7%95%d7%a8",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%a1%d7%95%d7%93-%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%94%d7%95%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%a1%d7%95%d7%93-%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%94%d7%95%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/7760-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/7760-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/attachment/2660/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/attachment/2660",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/attachment/533/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/attachment/533",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%95%d7%96%d7%9b%d7%a8%d7%aa%d7%99-%d7%90%d7%aa-%d7%91%d7%a8%d7%99%d7%aa%d7%99-%d7%99%d7%a2%d7%a7%d7%91-%d7%a8%d7%9e%d7%96-%d7%9e%d7%99%d7%95%d7%97%d7%93-%d7%9e%d7%94%d7%a7%d7%91%d7%94-%d7%9c/embed/",
+      "family": "F33",
+      "redirectTarget": "/%d7%95%d7%96%d7%9b%d7%a8%d7%aa%d7%99-%d7%90%d7%aa-%d7%91%d7%a8%d7%99%d7%aa%d7%99-%d7%99%d7%a2%d7%a7%d7%91-%d7%a8%d7%9e%d7%96-%d7%9e%d7%99%d7%95%d7%97%d7%93-%d7%9e%d7%94%d7%a7%d7%91%d7%94-%d7%9c/embed",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%96%d7%9e%d7%9f-%d7%94%d7%a7%d7%a5-%d7%94%d7%aa%d7%a9%d7%a2%d7%95-%d7%a8%d7%9e%d7%95%d7%96-%d7%91%d7%9e%d7%93%d7%95%d7%99%d7%a7-%d7%91%d7%9e%d7%99%d7%9c%d7%99%d7%9d-%d7%aa%d7%99%d7%a4%d7%97/%d7%aa%d7%99%d7%a4%d7%97-%d7%a8%d7%95%d7%97%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%96%d7%9e%d7%9f-%d7%94%d7%a7%d7%a5-%d7%94%d7%aa%d7%a9%d7%a2%d7%95-%d7%a8%d7%9e%d7%95%d7%96-%d7%91%d7%9e%d7%93%d7%95%d7%99%d7%a7-%d7%91%d7%9e%d7%99%d7%9c%d7%99%d7%9d-%d7%aa%d7%99%d7%a4%d7%97/%d7%aa%d7%99%d7%a4%d7%97-%d7%a8%d7%95%d7%97%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%9c%d7%9b%d7%99%d7%93%d7%94-11/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%9c%d7%9b%d7%99%d7%93%d7%94-11",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a2%d7%93%d7%95%d7%aa-%d7%a9%d7%95%d7%a4%d7%a8/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a2%d7%93%d7%95%d7%aa-%d7%a9%d7%95%d7%a4%d7%a8",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a7%d7%95%d7%9c-%d7%a9%d7%95%d7%a4%d7%a8-%d7%9c%d7%95%d7%93-5-7-2015/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a7%d7%95%d7%9c-%d7%a9%d7%95%d7%a4%d7%a8-%d7%9c%d7%95%d7%93-5-7-2015",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a7%d7%95%d7%9c-%d7%a9%d7%95%d7%a4%d7%a8-%d7%a0%d7%a9%d7%a8-5-7-2015/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a7%d7%95%d7%9c-%d7%a9%d7%95%d7%a4%d7%a8-%d7%a0%d7%a9%d7%a8-5-7-2015",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/%d7%97%d7%95%d7%aa%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/%d7%97%d7%95%d7%aa%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/img-20160307-wa0064/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/img-20160307-wa0064",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/img-20160307-wa0065/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/img-20160307-wa0065",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9b%d7%9e%d7%95-%d7%a9%d7%a4%d7%aa%d7%90%d7%95%d7%9d-%d7%91%d7%94%d7%99%d7%a1%d7%97-%d7%94%d7%93%d7%a2%d7%aa-%d7%90%d7%96%d7%a8%d7%97%d7%99-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%94%d7%91%d7%99%d7%a0/unnamed-1-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9b%d7%9e%d7%95-%d7%a9%d7%a4%d7%aa%d7%90%d7%95%d7%9d-%d7%91%d7%94%d7%99%d7%a1%d7%97-%d7%94%d7%93%d7%a2%d7%aa-%d7%90%d7%96%d7%a8%d7%97%d7%99-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%94%d7%91%d7%99%d7%a0/unnamed-1-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%93%d7%91%d7%a8%d7%99-%d7%94%d7%a8%d7%9e%d7%97%d7%9c-%d7%94%d7%a9%d7%9c%d7%9e%d7%aa-%d7%94%d7%90%d7%93%d7%9d-%d7%91%d7%a9%d7%a0%d7%aa-%d7%aa%d7%a9%d7%a4-%d7%9e%d7%94%d7%99%d7%a8%d7%95/%d7%a8%d7%9e%d7%97%d7%9c-%d7%aa%d7%a9%d7%a4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%93%d7%91%d7%a8%d7%99-%d7%94%d7%a8%d7%9e%d7%97%d7%9c-%d7%94%d7%a9%d7%9c%d7%9e%d7%aa-%d7%94%d7%90%d7%93%d7%9d-%d7%91%d7%a9%d7%a0%d7%aa-%d7%aa%d7%a9%d7%a4-%d7%9e%d7%94%d7%99%d7%a8%d7%95/%d7%a8%d7%9e%d7%97%d7%9c-%d7%aa%d7%a9%d7%a4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%94%d7%95%d7%aa-%d7%95%d7%90%d7%95%d7%a4%d7%99%d7%95-%d7%a9%d7%9c-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a1%d7%93%d7%a8%d7%aa-%d7%94%d7%a8%d7%a6%d7%90%d7%95%d7%aa-%d7%97%d7%93%d7%a9%d7%94/embed/",
+      "family": "F33",
+      "redirectTarget": "/%d7%9e%d7%94%d7%95%d7%aa-%d7%95%d7%90%d7%95%d7%a4%d7%99%d7%95-%d7%a9%d7%9c-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a1%d7%93%d7%a8%d7%aa-%d7%94%d7%a8%d7%a6%d7%90%d7%95%d7%aa-%d7%97%d7%93%d7%a9%d7%94/embed",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%90%d7%99%d7%9c%d7%aa-%d7%a9%d7%a7%d7%93-67/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%90%d7%99%d7%9c%d7%aa-%d7%a9%d7%a7%d7%93-67",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%a1%d7%95%d7%a4%d7%a8-%d7%94%d7%a9%d7%95%d7%93%d7%99/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%a1%d7%95%d7%a4%d7%a8-%d7%94%d7%a9%d7%95%d7%93%d7%99",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%98%d7%a0%d7%a7-67/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%98%d7%a0%d7%a7-67",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/167-%d7%97%d7%93%d7%a9/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/167-%d7%97%d7%93%d7%a9",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/67-%d7%9e%d7%90%d7%a1%d7%a8%d7%99-%d7%a2%d7%95%d7%9c%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/67-%d7%9e%d7%90%d7%a1%d7%a8%d7%99-%d7%a2%d7%95%d7%9c%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/67-%d7%a8%d7%a2%d7%99%d7%93%d7%94-%d7%91%d7%a6%d7%99%d7%9c%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/67-%d7%a8%d7%a2%d7%99%d7%93%d7%94-%d7%91%d7%a6%d7%99%d7%9c%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/baregalim95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/baregalim95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/haam_shivtei_israel77/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/haam_shivtei_israel77",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/yeasfu_aseifah204/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/yeasfu_aseifah204",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/yeasfu51/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/yeasfu51",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%91%d7%93%d7%a8%d7%9a-%d7%9c%d7%9e%d7%9c%d7%97%d7%9e%d7%94/%d7%9e%d7%9c%d7%97%d7%9e%d7%aa-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%94%d7%a9%d7%9c%d7%99%d7%a9%d7%99%d7%aa/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%91%d7%93%d7%a8%d7%9a-%d7%9c%d7%9e%d7%9c%d7%97%d7%9e%d7%94/%d7%9e%d7%9c%d7%97%d7%9e%d7%aa-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%94%d7%a9%d7%9c%d7%99%d7%a9%d7%99%d7%aa",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%91%d7%93%d7%a8%d7%9a-%d7%9c%d7%9e%d7%9c%d7%97%d7%9e%d7%94/5776-1335-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%91%d7%93%d7%a8%d7%9a-%d7%9c%d7%9e%d7%9c%d7%97%d7%9e%d7%94/5776-1335-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%95%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%a9%d7%91%d7%99%d7%a7%d7%a9-%d7%9c%d7%94%d7%a4%d7%99%d7%a5-%d7%94%d7%92%d7%a8%d7%97-%d7%a7%d7%a0%d7%99%d7%99%d7%91%d7%a1/11025115_614479468686688_3298901099533139475_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%95%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%a9%d7%91%d7%99%d7%a7%d7%a9-%d7%9c%d7%94%d7%a4%d7%99%d7%a5-%d7%94%d7%92%d7%a8%d7%97-%d7%a7%d7%a0%d7%99%d7%99%d7%91%d7%a1/11025115_614479468686688_3298901099533139475_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%99%d7%95%d7%aa%d7%a8-%d7%98%d7%95%d7%91-%d7%9e%d7%92%d7%9f-%d7%a2%d7%93%d7%9f/attachment/777/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%99%d7%95%d7%aa%d7%a8-%d7%98%d7%95%d7%91-%d7%9e%d7%92%d7%9f-%d7%a2%d7%93%d7%9f/attachment/777",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a9%d7%a0%d7%aa-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/%d7%9e%d7%aa%d7%99-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a9%d7%a0%d7%aa-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/%d7%9e%d7%aa%d7%99-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/%d7%9c%d7%9b%d7%99%d7%93%d7%94-12/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/%d7%9c%d7%9b%d7%99%d7%93%d7%94-12",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/%d7%9e%d7%91%d7%99%d7%a9/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/%d7%9e%d7%91%d7%99%d7%a9",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/11005543_1092073034151487_99141475_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/11005543_1092073034151487_99141475_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%94%d7%aa%d7%a9%d7%a2%d7%95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%94%d7%aa%d7%a9%d7%a2%d7%95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%9c%d7%9a-%d7%94%d7%9e%d7%a9%d7%99%d7%97/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%9c%d7%9a-%d7%94%d7%9e%d7%a9%d7%99%d7%97",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a8%d7%99%d7%91%d7%95%d7%a2-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a8%d7%99%d7%91%d7%95%d7%a2-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%a6%d7%9e%d7%97-%d7%93%d7%95%d7%99%d7%93-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%a6%d7%9e%d7%97-%d7%93%d7%95%d7%99%d7%93-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%99%d7%91%d7%95%d7%90-%d7%91%d7%90%d7%97%d7%93%d7%95%d7%aa-%d7%a8%d7%97%d7%9e%d7%99-%d7%94-%d7%a8/%d7%94%d7%a7%d7%91%d7%94-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%90%d7%97%d7%93/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%99%d7%91%d7%95%d7%90-%d7%91%d7%90%d7%97%d7%93%d7%95%d7%aa-%d7%a8%d7%97%d7%9e%d7%99-%d7%94-%d7%a8/%d7%94%d7%a7%d7%91%d7%94-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%90%d7%97%d7%93",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%99%d7%91%d7%95%d7%90-%d7%91%d7%90%d7%97%d7%93%d7%95%d7%aa-%d7%a8%d7%97%d7%9e%d7%99-%d7%94-%d7%a8/%d7%a8%d7%97%d7%9e%d7%99%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%99%d7%91%d7%95%d7%90-%d7%91%d7%90%d7%97%d7%93%d7%95%d7%aa-%d7%a8%d7%97%d7%9e%d7%99-%d7%94-%d7%a8/%d7%a8%d7%97%d7%9e%d7%99%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%9e-%d7%95%d7%94%d7%a8%d7%9e%d7%96/embed/",
+      "family": "F33",
+      "redirectTarget": "/%d7%a1%d7%95%d7%93-%d7%94%d7%9e-%d7%95%d7%94%d7%a8%d7%9e%d7%96/embed",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%9e%d7%aa%d7%9e%d7%98%d7%99%d7%a7%d7%94-%d7%95%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%aa%d7%9e%d7%98%d7%99%d7%a7%d7%94-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%95%d7%93-%d7%94%d7%9e%d7%aa%d7%9e%d7%98%d7%99%d7%a7%d7%94-%d7%95%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%aa%d7%9e%d7%98%d7%99%d7%a7%d7%94-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%99%d7%95%d7%a1%d7%a3-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95-%d7%a1%d7%95%d7%93-%d7%94%d7%97%d7%a9%d7%9e%d7%9c-%d7%90%d7%95%d7%93%d7%99/%d7%90%d7%99%d7%aa%d7%95-%d7%91%d7%90-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%95%d7%93-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%99%d7%95%d7%a1%d7%a3-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95-%d7%a1%d7%95%d7%93-%d7%94%d7%97%d7%a9%d7%9e%d7%9c-%d7%90%d7%95%d7%93%d7%99/%d7%90%d7%99%d7%aa%d7%95-%d7%91%d7%90-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%99%d7%95%d7%a1%d7%a3-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95-%d7%a1%d7%95%d7%93-%d7%94%d7%97%d7%a9%d7%9e%d7%9c-%d7%90%d7%95%d7%93%d7%99/embed/",
+      "family": "F33",
+      "redirectTarget": "/%d7%a1%d7%95%d7%93-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%99%d7%95%d7%a1%d7%a3-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95-%d7%a1%d7%95%d7%93-%d7%94%d7%97%d7%a9%d7%9e%d7%9c-%d7%90%d7%95%d7%93%d7%99/embed",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%a3-%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/%d7%a1%d7%99%d7%9f-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%95%d7%a3-%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/%d7%a1%d7%99%d7%9f-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%a3-%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/%d7%aa%d7%9e%d7%95%d7%a0%d7%95%d7%aa-%d7%9b%d7%a8%d7%9e%d7%99%d7%90%d7%9c/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%95%d7%a3-%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/%d7%aa%d7%9e%d7%95%d7%a0%d7%95%d7%aa-%d7%9b%d7%a8%d7%9e%d7%99%d7%90%d7%9c",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%a2%d7%a8%d7%aa-%d7%94%d7%95%d7%a8%d7%99%d7%a7%d7%9f-%d7%91%d7%aa%d7%99%d7%9e%d7%9f-%d7%9e%d7%a8%d7%9e%d7%96%d7%aa-%d7%a2%d7%9c-%d7%91%d7%95%d7%90-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%9c%d7%a4/%d7%9e%d7%a9%d7%95%d7%92%d7%a2%d7%99%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%a2%d7%a8%d7%aa-%d7%94%d7%95%d7%a8%d7%99%d7%a7%d7%9f-%d7%91%d7%aa%d7%99%d7%9e%d7%9f-%d7%9e%d7%a8%d7%9e%d7%96%d7%aa-%d7%a2%d7%9c-%d7%91%d7%95%d7%90-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%9c%d7%a4/%d7%9e%d7%a9%d7%95%d7%92%d7%a2%d7%99%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a1%d7%a2%d7%a8%d7%aa-%d7%94%d7%95%d7%a8%d7%99%d7%a7%d7%9f-%d7%91%d7%aa%d7%99%d7%9e%d7%9f-%d7%9e%d7%a8%d7%9e%d7%96%d7%aa-%d7%a2%d7%9c-%d7%91%d7%95%d7%90-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%9c%d7%a4/%d7%9e%d7%aa%d7%95%d7%9a-%d7%94%d7%a1%d7%a8%d7%98/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a1%d7%a2%d7%a8%d7%aa-%d7%94%d7%95%d7%a8%d7%99%d7%a7%d7%9f-%d7%91%d7%aa%d7%99%d7%9e%d7%9f-%d7%9e%d7%a8%d7%9e%d7%96%d7%aa-%d7%a2%d7%9c-%d7%91%d7%95%d7%90-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%9c%d7%a4/%d7%9e%d7%aa%d7%95%d7%9a-%d7%94%d7%a1%d7%a8%d7%98",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/%d7%94%d7%9e%d7%a1%d7%a4%d7%a8%d7%99%d7%9d-67/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/%d7%94%d7%9e%d7%a1%d7%a4%d7%a8%d7%99%d7%9d-67",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/10950715_849193685139831_9120334813592457000_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/10950715_849193685139831_9120334813592457000_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11050223_1029693773724797_8202568535958198743_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11050223_1029693773724797_8202568535958198743_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11076270_821959114541179_1007068228820036296_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11076270_821959114541179_1007068228820036296_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11088216_10206082827368946_1336004358_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11088216_10206082827368946_1336004358_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11106512_1579897672285306_308671975_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11106512_1579897672285306_308671975_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/67-%d7%94%d7%a8%d7%95%d7%92%d7%99%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/67-%d7%94%d7%a8%d7%95%d7%92%d7%99%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/67-%d7%aa%d7%95%d7%9e%d7%9b%d7%99%d7%9d-%d7%91%d7%a1%d7%a0%d7%90%d7%98/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/67-%d7%aa%d7%95%d7%9e%d7%9b%d7%99%d7%9d-%d7%91%d7%a1%d7%a0%d7%90%d7%98",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%97%d7%96%d7%a7-%d7%a2%d7%9c-%d7%97%d7%95%d7%93%d7%a9-%d7%90%d7%99%d7%99%d7%a8-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-2021-%d7%a8%d7%9e%d7%96%d7%99-%d7%94%d7%a2%d7%a6%d7%9e/%d7%90%d7%99%d7%99%d7%a8-%d7%aa%d7%a9%d7%a4%d7%90/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%97%d7%96%d7%a7-%d7%a2%d7%9c-%d7%97%d7%95%d7%93%d7%a9-%d7%90%d7%99%d7%99%d7%a8-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-2021-%d7%a8%d7%9e%d7%96%d7%99-%d7%94%d7%a2%d7%a6%d7%9e/%d7%90%d7%99%d7%99%d7%a8-%d7%aa%d7%a9%d7%a4%d7%90",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%99%d7%95%d7%9d-%d7%9e%d7%a9%d7%99%d7%97/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%99%d7%95%d7%9d-%d7%9e%d7%a9%d7%99%d7%97",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%9b%d7%91%d7%90%d7%93%d7%a8-%d7%94%d7%aa%d7%a9%d7%a4%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%9b%d7%91%d7%90%d7%93%d7%a8-%d7%94%d7%aa%d7%a9%d7%a4%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a2%d7%95%d7%96%d7%95%d7%97%d7%a8%d7%91/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a2%d7%95%d7%96%d7%95%d7%97%d7%a8%d7%91",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a4%d7%a8%d7%99%d7%9d-5785-%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%94%d7%97%d7%95%d7%aa%d7%99/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a4%d7%a8%d7%99%d7%9d-5785-%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%94%d7%97%d7%95%d7%aa%d7%99",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a7%d7%a5-%d7%9e%d7%a9%d7%99%d7%97-%d7%90%d7%93%d7%a8-%d7%94%d7%aa%d7%a9%d7%a4%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a7%d7%a5-%d7%9e%d7%a9%d7%99%d7%97-%d7%90%d7%93%d7%a8-%d7%94%d7%aa%d7%a9%d7%a4%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a8-%d7%a7%d7%a9%d7%a8/%d7%98%d7%95%d7%a4%d7%a1-%d7%94%d7%96%d7%9e%d7%a0%d7%aa-%d7%a2%d7%9c%d7%95%d7%a0%d7%99%d7%9d-%d7%95%d7%93%d7%99%d7%a1%d7%a7%d7%99%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%95%d7%a8-%d7%a7%d7%a9%d7%a8/%d7%98%d7%95%d7%a4%d7%a1-%d7%94%d7%96%d7%9e%d7%a0%d7%aa-%d7%a2%d7%9c%d7%95%d7%a0%d7%99%d7%9d-%d7%95%d7%93%d7%99%d7%a1%d7%a7%d7%99%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a8-%d7%a7%d7%a9%d7%a8/%d7%aa%d7%a8%d7%95%d7%9e%d7%95%d7%aa-donate/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%95%d7%a8-%d7%a7%d7%a9%d7%a8/%d7%aa%d7%a8%d7%95%d7%9e%d7%95%d7%aa-donate",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%95%d7%a8-%d7%94%d7%aa%d7%a9%d7%a2%d7%95-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%95%d7%a8-%d7%94%d7%aa%d7%a9%d7%a2%d7%95-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%99%d7%9e%d7%aa%d7%99/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%99%d7%9e%d7%aa%d7%99",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%94%d7%a0%d7%91%d7%99%d7%90-%d7%99%d7%91%d7%a9%d7%a8/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%94%d7%a0%d7%91%d7%99%d7%90-%d7%99%d7%91%d7%a9%d7%a8",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%96%d7%95-%d7%a9%d7%a0%d7%aa-2015/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%96%d7%95-%d7%a9%d7%a0%d7%aa-2015",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%99%d7%95%d7%9d-%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa-%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%99%d7%95%d7%9d-%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa-%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93-%d7%93%d7%95%d7%99%d7%93-%d7%a2%d7%91%d7%93%d7%9a-%d7%99%d7%aa%d7%92%d7%9c%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93-%d7%93%d7%95%d7%99%d7%93-%d7%a2%d7%91%d7%93%d7%9a-%d7%99%d7%aa%d7%92%d7%9c%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93-%d7%94-%d7%99%d7%aa%d7%92%d7%9c%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93-%d7%94-%d7%99%d7%aa%d7%92%d7%9c%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93%d7%9a-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93%d7%9a-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%a6%d7%a4%d7%94-%d7%9c%d7%9e%d7%a9%d7%99%d7%97/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%a6%d7%a4%d7%94-%d7%9c%d7%9e%d7%a9%d7%99%d7%97",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a2%d7%aa-%d7%a1%d7%95%d7%93/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a2%d7%aa-%d7%a1%d7%95%d7%93",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a4%d7%9c%d7%90-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a4%d7%9c%d7%90-%d7%94%d7%aa%d7%a9%d7%a2%d7%95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a4%d7%aa%d7%90%d7%95%d7%9d-%d7%99%d7%91%d7%95%d7%90/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a4%d7%aa%d7%90%d7%95%d7%9d-%d7%99%d7%91%d7%95%d7%90",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%aa%d7%9e%d7%95-%d7%9b%d7%9c-%d7%94%d7%a7%d7%99%d7%a6%d7%99%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%aa%d7%9e%d7%95-%d7%9b%d7%9c-%d7%94%d7%a7%d7%99%d7%a6%d7%99%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/attachment/7760/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/attachment/7760",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%91%d7%97%d7%99%d7%a8%d7%aa-%d7%a7%d7%95%d7%91%d7%99-%d7%9e%d7%a8%d7%99%d7%9e%d7%99-%d7%9c%d7%99%d7%99%d7%a6%d7%92-%d7%90%d7%aa-%d7%99/%d7%aa%d7%97%d7%a8%d7%95%d7%aa-%d7%94%d7%a9%d7%99%d7%a8-%d7%94%d7%99%d7%a9%d7%a8%d7%90%d7%9c%d7%99/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%91%d7%97%d7%99%d7%a8%d7%aa-%d7%a7%d7%95%d7%91%d7%99-%d7%9e%d7%a8%d7%99%d7%9e%d7%99-%d7%9c%d7%99%d7%99%d7%a6%d7%92-%d7%90%d7%aa-%d7%99/%d7%aa%d7%97%d7%a8%d7%95%d7%aa-%d7%94%d7%a9%d7%99%d7%a8-%d7%94%d7%99%d7%a9%d7%a8%d7%90%d7%9c%d7%99",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99-%d7%9c%d7%91%d7%a0%d7%95%d7%9f-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%92%d7%95%d7%93%d7%9c-%d7%a2%d7%96%d7%94-45-%d7%95%d7%9c%d7%91%d7%a0%d7%95%d7%9f/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99-%d7%9c%d7%91%d7%a0%d7%95%d7%9f-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%92%d7%95%d7%93%d7%9c-%d7%a2%d7%96%d7%94-45-%d7%95%d7%9c%d7%91%d7%a0%d7%95%d7%9f",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%97%d7%96%d7%a7%d7%99%d7%9d-%d7%9e%d7%94%d7%a2%d7%91%d7%a8%d7%aa-%d7%94%d7%a9%d7%92%d7%a8%d7%99%d7%a8%d7%95%d7%aa-%d7%9c%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d/embed/",
+      "family": "F33",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%97%d7%96%d7%a7%d7%99%d7%9d-%d7%9e%d7%94%d7%a2%d7%91%d7%a8%d7%aa-%d7%94%d7%a9%d7%92%d7%a8%d7%99%d7%a8%d7%95%d7%aa-%d7%9c%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d/embed",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%93%d7%95%d7%93-%d7%9e%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%a1%d7%91%d7%99%d7%91/%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-33/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%93%d7%95%d7%93-%d7%9e%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%a1%d7%91%d7%99%d7%91/%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-33",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%90%d7%95%d7%aa-%d7%97%d7%99%d7%99%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%90%d7%95%d7%aa-%d7%97%d7%99%d7%99%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%a8%d7%95%d7%96%d7%98%d7%90-%d7%a4%d7%9c%d7%90%d7%99/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%a8%d7%95%d7%96%d7%98%d7%90-%d7%a4%d7%9c%d7%90%d7%99",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%a9%d7%91%d7%99%d7%98/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%a9%d7%91%d7%99%d7%98",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%9e%d7%a4%d7%99%d7%96%d7%95%d7%a8-%d7%94%d7%9b%d7%a0%d7%a1%d7%aa-%d7%9421-%d7%95%d7%94/embed/",
+      "family": "F33",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%9e%d7%a4%d7%99%d7%96%d7%95%d7%a8-%d7%94%d7%9b%d7%a0%d7%a1%d7%aa-%d7%9421-%d7%95%d7%94/embed",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a9%d7%a8%d7%99%d7%a4%d7%95%d7%aa-%d7%a2%d7%a8%d7%91-%d7%99%d7%95%d7%9d-%d7%94%d7%a2%d7%a6%d7%9e%d7%90%d7%95%d7%aa-%d7%9477-%d7%9c%d7%9e%d7%93%d7%99%d7%a0/%d7%9e%d7%a9%d7%95%d7%90%d7%95%d7%aa/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a9%d7%a8%d7%99%d7%a4%d7%95%d7%aa-%d7%a2%d7%a8%d7%91-%d7%99%d7%95%d7%9d-%d7%94%d7%a2%d7%a6%d7%9e%d7%90%d7%95%d7%aa-%d7%9477-%d7%9c%d7%9e%d7%93%d7%99%d7%a0/%d7%9e%d7%a9%d7%95%d7%90%d7%95%d7%aa",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a9%d7%a8%d7%99%d7%a4%d7%95%d7%aa-%d7%a2%d7%a8%d7%91-%d7%99%d7%95%d7%9d-%d7%94%d7%a2%d7%a6%d7%9e%d7%90%d7%95%d7%aa-%d7%9477-%d7%9c%d7%9e%d7%93%d7%99%d7%a0/%d7%a9%d7%a8%d7%a4%d7%95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a9%d7%a8%d7%99%d7%a4%d7%95%d7%aa-%d7%a2%d7%a8%d7%91-%d7%99%d7%95%d7%9d-%d7%94%d7%a2%d7%a6%d7%9e%d7%90%d7%95%d7%aa-%d7%9477-%d7%9c%d7%9e%d7%93%d7%99%d7%a0/%d7%a9%d7%a8%d7%a4%d7%95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a9%d7%a8%d7%a9-%d7%a0%d7%97%d7%a9/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a9%d7%a8%d7%a9-%d7%a0%d7%97%d7%a9",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%9b%d7%95%d7%9b%d7%91-%d7%a4%d7%9c%d7%95%d7%98%d7%95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%9b%d7%95%d7%9b%d7%91-%d7%a4%d7%9c%d7%95%d7%98%d7%95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%9e%d7%92%d7%94-%d7%a8%d7%a2%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%9e%d7%92%d7%94-%d7%a8%d7%a2%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a4%d7%a7%d7%a1-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a4%d7%a7%d7%a1-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a4%d7%a7%d7%a1-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a4%d7%a7%d7%a1-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a7%d7%a8%d7%99%d7%a1%d7%aa-%d7%9e%d7%92%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a7%d7%a8%d7%99%d7%a1%d7%aa-%d7%9e%d7%92%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/%d7%a7%d7%95%d7%aa/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/%d7%a7%d7%95%d7%aa",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/3%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/3%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%90%d7%95%d7%a8-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%90%d7%95%d7%a8-%d7%94%d7%aa%d7%a9%d7%a2%d7%95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%95%d7%9e%d7%a4%d7%9c%d7%99%d7%90-1111/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%95%d7%9e%d7%a4%d7%9c%d7%99%d7%90-1111",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%95%d7%9e%d7%a4%d7%9c%d7%99%d7%90/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%95%d7%9e%d7%a4%d7%9c%d7%99%d7%90",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%94%d7%95%d7%94-%d7%9e%d7%a4%d7%9c%d7%99%d7%90-%d7%9c%d7%a2%d7%a9%d7%95%d7%aa-776/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%94%d7%95%d7%94-%d7%9e%d7%a4%d7%9c%d7%99%d7%90-%d7%9c%d7%a2%d7%a9%d7%95%d7%aa-776",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%94%d7%95%d7%94-%d7%9e%d7%a4%d7%9c%d7%99%d7%90-776/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%94%d7%95%d7%94-%d7%9e%d7%a4%d7%9c%d7%99%d7%90-776",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%a4%d7%a7%d7%95%d7%9f-%d7%9e%d7%9f-%d7%92%d7%9c%d7%95%d7%aa%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%a4%d7%a7%d7%95%d7%9f-%d7%9e%d7%9f-%d7%92%d7%9c%d7%95%d7%aa%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a1%d7%a4%d7%a8-%d7%9e%d7%a1%d7%aa%d7%aa%d7%a8/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a1%d7%a4%d7%a8-%d7%9e%d7%a1%d7%aa%d7%aa%d7%a8",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a6%d7%a4%d7%95%d7%9f-%d7%aa%d7%a4%d7%aa%d7%97-%d7%94%d7%a8%d7%a2%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a6%d7%a4%d7%95%d7%9f-%d7%aa%d7%a4%d7%aa%d7%97-%d7%94%d7%a8%d7%a2%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a7%d7%93%d7%a9-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a7%d7%93%d7%a9-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%a1%d7%95%d7%93-%d7%9e%d7%a1%d7%a4%d7%a8-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%a1%d7%95%d7%93-%d7%9e%d7%a1%d7%a4%d7%a8-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%a9%d7%9e%d7%a2-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9b%d7%99-%d7%9c%d7%94-%d7%94%d7%9e%d7%9c%d7%95%d7%9b%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%a9%d7%9e%d7%a2-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9b%d7%99-%d7%9c%d7%94-%d7%94%d7%9e%d7%9c%d7%95%d7%9b%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/unnamed-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/unnamed-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94-%d7%90%d7%99%d7%a9-%d7%a9%d7%97%d7%95%d7%a8/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94-%d7%90%d7%99%d7%a9-%d7%a9%d7%97%d7%95%d7%a8",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%94%d7%a2%d7%91%d7%a8%d7%99%d7%aa/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%94%d7%a2%d7%91%d7%a8%d7%99%d7%aa",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%99%d7%9f-%d7%9c%d7%9a-%d7%90%d7%93%d7%9d-%d7%a9%d7%90%d7%99%d7%9f-%d7%9c%d7%95-%d7%a9%d7%a2%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%99%d7%9f-%d7%9c%d7%9a-%d7%90%d7%93%d7%9d-%d7%a9%d7%90%d7%99%d7%9f-%d7%9c%d7%95-%d7%a9%d7%a2%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%99%d7%a8%d7%9f/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%99%d7%a8%d7%9f",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%91%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%91%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%91%d7%9e%d7%94%d7%a8%d7%94-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%91%d7%9e%d7%94%d7%a8%d7%94-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%94%d7%99%d7%95%d7%9d-%d7%90%d7%9d-%d7%91%d7%a7%d7%95%d7%9c%d7%95/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%94%d7%99%d7%95%d7%9d-%d7%90%d7%9d-%d7%91%d7%a7%d7%95%d7%9c%d7%95",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%97%d7%9e%d7%a9-%d7%a9%d7%91%d7%a2-%d7%a9%d7%91%d7%a2-%d7%a9%d7%a9-%d7%91%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%97%d7%9e%d7%a9-%d7%a9%d7%91%d7%a2-%d7%a9%d7%91%d7%a2-%d7%a9%d7%a9-%d7%91%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%a1%d7%95%d7%9b%d7%95%d7%aa/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%a1%d7%95%d7%9b%d7%95%d7%aa",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%a7%d7%a8%d7%99-%d7%a2%d7%9c-%d7%a7%d7%91%d7%99%d7%99%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%a7%d7%a8%d7%99-%d7%a2%d7%9c-%d7%a7%d7%91%d7%99%d7%99%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-3/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-3",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/776-1/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/776-1",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/776-2-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/776-2-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/%d7%94%d7%aa%d7%97%d7%9c%d7%aa-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/%d7%94%d7%aa%d7%97%d7%9c%d7%aa-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/%d7%9c%d7%9b%d7%99%d7%93%d7%94-18/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/%d7%9c%d7%9b%d7%99%d7%93%d7%94-18",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/11650674_1416273165368413_1545951058_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/11650674_1416273165368413_1545951058_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/2212-%d7%94%d7%aa%d7%97%d7%9c%d7%aa-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/2212-%d7%94%d7%aa%d7%97%d7%9c%d7%aa-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/unnamed-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/unnamed-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-2015/%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94-%d7%a2%d7%99%d7%a6%d7%95%d7%91-1-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-2015/%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94-%d7%a2%d7%99%d7%a6%d7%95%d7%91-1-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-2015/%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94-%d7%a2%d7%99%d7%a6%d7%95%d7%91-2-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-2015/%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94-%d7%a2%d7%99%d7%a6%d7%95%d7%91-2-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a9%d7%97%d7%a8%d7%95%d7%a8-%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%91-2015/%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%99%d7%a9%d7%95%d7%97%d7%a8%d7%a8/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a9%d7%97%d7%a8%d7%95%d7%a8-%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%91-2015/%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%99%d7%a9%d7%95%d7%97%d7%a8%d7%a8",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a9%d7%a0%d7%99-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%94%d7%90%d7%95%d7%9d-%d7%a2%d7%9e%d7%9c%d7%a7-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a4%d7%95%d7%97%d7%93%d7%99%d7%9d-%d7%9e%d7%94/%d7%90%d7%95%d7%9e-%d7%a2%d7%9e%d7%9c%d7%a7/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a9%d7%a0%d7%99-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%94%d7%90%d7%95%d7%9d-%d7%a2%d7%9e%d7%9c%d7%a7-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a4%d7%95%d7%97%d7%93%d7%99%d7%9d-%d7%9e%d7%94/%d7%90%d7%95%d7%9e-%d7%a2%d7%9e%d7%9c%d7%a7",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%a9%d7%a0%d7%99-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%94%d7%90%d7%95%d7%9d-%d7%a2%d7%9e%d7%9c%d7%a7-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a4%d7%95%d7%97%d7%93%d7%99%d7%9d-%d7%9e%d7%94/%d7%9e%d7%95%d7%9b%d7%9f/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%a9%d7%a0%d7%99-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%94%d7%90%d7%95%d7%9d-%d7%a2%d7%9e%d7%9c%d7%a7-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a4%d7%95%d7%97%d7%93%d7%99%d7%9d-%d7%9e%d7%94/%d7%9e%d7%95%d7%9b%d7%9f",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%97%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9b%d7%aa%d7%91%d7%94-%d7%91%d7%a8%d7%95%d7%a1%d7%99%d7%aa-67-%d7%91%d7%94%d7%a4%d7%92%d7%a0%d7%aa-%d7%94%d7%90%d7%aa%d7%99%d7%95%d7%a4%d7%99%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%97%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9b%d7%aa%d7%91%d7%94-%d7%91%d7%a8%d7%95%d7%a1%d7%99%d7%aa-67-%d7%91%d7%94%d7%a4%d7%92%d7%a0%d7%aa-%d7%94%d7%90%d7%aa%d7%99%d7%95%d7%a4%d7%99%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%9c%d7%93%d7%93-%d7%95%d7%9e%d7%99%d7%93%d7%93/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%9c%d7%93%d7%93-%d7%95%d7%9e%d7%99%d7%93%d7%93",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%a8%d7%92%d7%95%d7%9f-%d7%93%d7%a2%d7%90%d7%a9/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%a8%d7%92%d7%95%d7%9f-%d7%93%d7%a2%d7%90%d7%a9",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%aa%d7%a8-%d7%90%d7%9e%d7%a8%d7%99%d7%a7%d7%90%d7%99-%d7%94%d7%a2%d7%95%d7%a7%d7%91-%d7%90%d7%97%d7%a8%d7%99-%d7%a8%d7%a2%d7%99%d7%93%d7%95%d7%aa-%d7%90%d7%93%d7%9e%d7%94-%d7%98%d7%95%d7%a2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%aa%d7%a8-%d7%90%d7%9e%d7%a8%d7%99%d7%a7%d7%90%d7%99-%d7%94%d7%a2%d7%95%d7%a7%d7%91-%d7%90%d7%97%d7%a8%d7%99-%d7%a8%d7%a2%d7%99%d7%93%d7%95%d7%aa-%d7%90%d7%93%d7%9e%d7%94-%d7%98%d7%95%d7%a2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%94%d7%a1%d7%a2%d7%a8%d7%94-%d7%94%d7%91%d7%90%d7%94/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%94%d7%a1%d7%a2%d7%a8%d7%94-%d7%94%d7%91%d7%90%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%94%d7%a8%d7%a2%d7%99%d7%93%d7%94-%d7%94%d7%99%d7%aa%d7%94-%d7%91%d7%a1%d7%99%d7%a0%d7%99-%d7%9e%d7%a8%d7%97%d7%a7-67-%d7%a7%d7%9e-%d7%9e%d7%91%d7%99%d7%a8%d7%aa-%d7%90%d7%97%d7%aa-%d7%94%d7%9e/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%94%d7%a8%d7%a2%d7%99%d7%93%d7%94-%d7%94%d7%99%d7%aa%d7%94-%d7%91%d7%a1%d7%99%d7%a0%d7%99-%d7%9e%d7%a8%d7%97%d7%a7-67-%d7%a7%d7%9e-%d7%9e%d7%91%d7%99%d7%a8%d7%aa-%d7%90%d7%97%d7%aa-%d7%94%d7%9e",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%9c%d7%98%d7%91%d7%99%d7%94-67/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%9c%d7%98%d7%91%d7%99%d7%94-67",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%aa%d7%93%d7%9e%d7%95%d7%a8-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%aa%d7%93%d7%9e%d7%95%d7%a8-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11227764_1605515579737821_4938321619123122234_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11227764_1605515579737821_4938321619123122234_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11693975_1002192813132990_7920557341476677114_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11693975_1002192813132990_7920557341476677114_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11745891_1605515559737823_842211307216230030_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11745891_1605515559737823_842211307216230030_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/2-%d7%aa%d7%93%d7%9e%d7%95%d7%a8/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/2-%d7%aa%d7%93%d7%9e%d7%95%d7%a8",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/5776-1335-11/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/5776-1335-11",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/67-3/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/67-3",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%98%d7%a7%d7%a1-67/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%98%d7%a7%d7%a1-67",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%9b%d7%95%d7%9b%d7%91/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%9b%d7%95%d7%9b%d7%91",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%9c%d7%9b%d7%99%d7%93%d7%94-17/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%9c%d7%9b%d7%99%d7%93%d7%94-17",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%a9%d7%a2%d7%a8-%d7%93%d7%95%d7%9c%d7%a8/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%a9%d7%a2%d7%a8-%d7%93%d7%95%d7%9c%d7%a8",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/11351132_887065378019328_7872186057453411798_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/11351132_887065378019328_7872186057453411798_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/11354980_841423615945393_754417561_n/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/11354980_841423615945393_754417561_n",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%90%d7%99%d7%a8%d7%9f/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%90%d7%99%d7%a8%d7%9f",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%9e%d7%98%d7%a8/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%9e%d7%98%d7%a8",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%a2%d7%95%d7%9c%d7%99%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%a2%d7%95%d7%9c%d7%99%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-2",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-4/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-4",
+      "redirected": true
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-776/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-776",
+      "redirected": true
+    },
+    {
+      "url": "/2029/control",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=ahavat-torah-system",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=bentov-findings-product",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=daat-tevunot-tree",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=sefer-yetzirah-world",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=sefer-yetzirah-world&experience=depths&page=53",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/control?surface=sefer-yetzirah-world&structure=sy-structure%3Aten-depths&page=53",
+      "family": "F30"
+    },
+    {
+      "url": "/2029/home-preview",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/2029/kingdom",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/2029/number/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/2029/number",
+      "redirected": true
+    },
+    {
+      "url": "/2029/preview",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/2029/preview/follow-center",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/464378687028017/videos/vb.464378687028017/727568620709021/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/464378687028017/videos/vb.464378687028017/727568620709021",
+      "redirected": true
+    },
+    {
+      "url": "/86AND26/videos/vb.103870716369907/801439149946390/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/86AND26/videos/vb.103870716369907/801439149946390",
+      "redirected": true
+    },
+    {
+      "url": "/audio/246.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160327_hebreugoel.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160519_hebreubehar.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160523_hebreuhod1.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160524_hebreu2.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160602_hebreudontorah3.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/dynovisz/20160621_hebreuerevrav2_.mp3",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/000.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/001.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/002.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/006.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/007.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/008.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/009.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/010.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/012.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/014.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/015.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/016.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/017.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/018.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/019.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/020.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/021.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/022.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/023.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/024.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/025.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/026.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/027.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/028.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/029.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/030.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/031.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/032.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/033.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/034.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/036.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/038.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/039.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/040.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/041.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/042.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/043.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/044.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/045.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/047.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/048.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/049.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/050.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/051.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/052.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/053.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/054.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/055.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/056.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/057.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/059.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/060.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/061.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/062.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/063.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/064.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/066.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/067.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/068.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/069.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/070.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/072.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/074.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/075.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/076.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/077.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/078.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/079.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/080.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/081.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/082.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/083.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/084.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/085.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/086.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/087.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/088.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/089.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/090.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/091.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/092.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/093.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/094.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/095.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/096.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/097.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/098.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/099.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/100.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/101.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/102.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/103.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/104.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/105.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/106.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/107.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/108.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/109.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/110.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/111.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/112.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/113.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/114.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/115.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/116.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/117.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/118.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/119.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/120.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/121.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/122.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/123.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/124.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/125.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/126.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/127.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/128.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/129.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/130.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/131.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/132.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/133.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/134.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/135.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/136.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/137.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/138.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/139.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/140.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/141.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/142.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/143.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/144.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/145.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/146.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/147.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/148.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/149.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/150.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/151.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/152.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/153.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/154.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/155.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/156.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/157.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/158.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/159.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/160.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/161.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/162.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/163.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/164.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/165.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/166.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/167.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/168.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/169.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/170.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/171.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/173.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/174.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/175.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/176.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/177.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/178.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/179.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/180.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/181.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/182.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/183.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/184.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/185.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/186.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/187.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/188.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/189.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/190.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/191.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/192.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/193.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/194.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/195.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/196.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/197.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/audio/m/198.wav",
+      "family": "F32"
+    },
+    {
+      "url": "/category/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa/%d7%92%d7%9c%d7%a8%d7%99%d7%95%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%94/",
+      "family": "F03",
+      "redirectTarget": "/category/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa/%d7%92%d7%9c%d7%a8%d7%99%d7%95%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%94",
+      "redirected": true
+    },
+    {
+      "url": "/cheder/400",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%99%d7%91%d7%a0%d7%95-%d7%91%d7%99%d7%aa-%d7%9e%d7%a7%d7%93%d7%a9/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%99%d7%91%d7%a0%d7%95-%d7%91%d7%99%d7%aa-%d7%9e%d7%a7%d7%93%d7%a9",
+      "redirected": true
+    },
+    {
+      "url": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%9e%d7%a7%d7%93%d7%a9-%d7%90%d7%97%d7%a8%d7%95%d7%9f/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%9e%d7%a7%d7%93%d7%a9-%d7%90%d7%97%d7%a8%d7%95%d7%9f",
+      "redirected": true
+    },
+    {
+      "url": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%aa%d7%91%d7%a0%d7%94-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%9d/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%aa%d7%91%d7%a0%d7%94-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%9d",
+      "redirected": true
+    },
+    {
+      "url": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/cnn-%d7%9e%d7%a6%d7%99%d7%a2-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/cnn-%d7%9e%d7%a6%d7%99%d7%a2-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2",
+      "redirected": true
+    },
+    {
+      "url": "/data/user/0/org.wordpress.android/cache/screenshot_2024-10-06-15-21-55-77_7352322957d4404136654ef4adb645045154140782925846382.jpg",
+      "family": "F32"
+    },
+    {
+      "url": "/dev/torah-occurrence-scene",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/entity-hub-preview/number/1237",
+      "family": "UNRESOLVED"
+    },
+    {
+      "url": "/k1820/videos/839307259461807/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/k1820/videos/839307259461807",
+      "redirected": true
+    },
+    {
+      "url": "/k1820/videos/vb.617996338259568/839307259461807/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/k1820/videos/vb.617996338259568/839307259461807",
+      "redirected": true
+    },
+    {
+      "url": "/sod1820/videos/vb.617996338259568/1042960175763180/",
+      "family": "UNRESOLVED",
+      "redirectTarget": "/sod1820/videos/vb.617996338259568/1042960175763180",
+      "redirected": true
+    },
+    {
+      "url": "/wp-content/plugins/gallery-images/style/colorbox-3.css",
+      "family": "F32"
+    },
+    {
+      "url": "/wp-content/plugins/gallery-images/style/style2-os.css",
+      "family": "F32"
+    },
+    {
+      "url": "/wp-json/wp/v2/posts",
+      "family": "F32"
+    }
+  ]
+}

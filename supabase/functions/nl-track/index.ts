@@ -52,10 +52,10 @@ Deno.serve(async (req) => {
     let sendCampaign = send?.campaign || campaign || null;
 
     // Legacy fallback: old nl-track links used the stable subscribers.token.
-    let subscriber: { email: string; source: string | null; active: boolean; name: string | null } | null = null;
+    let subscriber: { email: string; source: string | null; active: boolean; name: string | null; email_purposes: string[] | null } | null = null;
     if (!email) {
       const { data: sub } = await admin.from("subscribers")
-        .select("email,source,active,name")
+        .select("email,source,active,name,email_purposes")
         .eq("token", token)
         .maybeSingle();
       subscriber = sub || null;
@@ -84,13 +84,13 @@ Deno.serve(async (req) => {
 
     if (!email) return json({ ok: false }, 404);
     if (!subscriber) {
-      const { data: sub } = await admin.from("subscribers").select("email,source,active,name").eq("email", email).maybeSingle();
+      const { data: sub } = await admin.from("subscribers").select("email,source,active,name,email_purposes").eq("email", email).maybeSingle();
       subscriber = sub || null;
     }
     if (!subscriber) return json({ ok: false }, 404);
 
     // Legacy soft-identity behavior retained for explicit resolve flows only.
-    const reactivated = !subscriber.active;
+    const reactivated = !subscriber.active && Array.isArray(subscriber.email_purposes) && subscriber.email_purposes.includes("general");
     if (reactivated) await admin.from("subscribers").update({ active: true, unsubscribed_at: null }).eq("email", email);
     if (sendId) await admin.from("newsletter_sends").update({ status: "clicked", clicked_at: new Date().toISOString() }).eq("id", sendId).is("clicked_at", null);
 

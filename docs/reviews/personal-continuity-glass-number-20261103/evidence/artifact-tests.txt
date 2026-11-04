@@ -1,0 +1,41 @@
+✔ existing owned snapshot/apply use server-verified caller JWT; operation ID/revision and original token are preserved (36.344586ms)
+✔ wrong account, JWT identity mismatch, revoked token and source failure never reach owned storage (3.450564ms)
+✔ profile updates cannot create users or alter authority; exact own fields and row filter only (4.863577ms)
+✔ private read requires exact own filter; old anonymous cache or another principal cannot supply notebook content (2.812116ms)
+✔ notebook upsert stays in its existing unique user row, and cannot reassign ownership (4.310798ms)
+✔ unknown research operation, other bucket and malformed batch are rejected; unrelated systems receive no member exception (3.303265ms)
+✔ canonical hidden crossings are deterministic under candidate order; count independent methods then use Legacy short-expression preference (2.477983ms)
+✔ mobile glass reuses the adopted token treatment; private drafts never import the unscoped Legacy notebook (0.525343ms)
+✔ existing DM contracts derive the sender from JWT and cannot accept a spoofed sender or self-message (3.583491ms)
+✔ owned inbox read acknowledgements and explicit Unfollow cannot change another user or enable delivery (4.319723ms)
+✔ actual Storage SDK avatar request fits only the owned existing avatar path; no live network (13.873339ms)
+✔ candidate installed-app metadata preserves Legacy identity and uses the complete existing 2029 mark (0.458007ms)
+✔ actual built 2029 source admits only its worker; synthetic signed service and same-scope Legacy rollback work (5003.190642ms)
+✔ dormant default cannot be activated by environment, forged request or production branch name (347.638878ms)
+✔ only dedicated 2029 compiler target can enable the signed service; default, Preview and stray Legacy flags cannot (5.403458ms)
+✔ Production document uses canonical owner, preserves old/native/encoded/wp addresses and genuine missing/failure status (43.246685ms)
+✔ closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe (6.960054ms)
+✔ public aliases and named existing capabilities retain truthful continuations without publicizing unknown slugs (7.148771ms)
+✔ HTTP origin, path and method boundaries cannot select metadata profile or enter private readers (1.962782ms)
+✔ Numbers/phrases use the same canonical indexability readers; source failure is 503, false is noindex (9.649643ms)
+✔ public topic/writer/video missing and failed source responses keep 404 and 503 distinct (5.8306ms)
+✔ sitemap reuses eligible publication owner for both Post families, Numbers, phrases, topic, public writer and verified video (7.259938ms)
+✔ robots follows Production canonical sitemap while dormant mode fails closed; public GET APIs strip Legacy authority and reject POST (0.819758ms)
+✔ exact emitted worker denies A3/models/Auth/credits/writes through GET/POST/PATCH/DELETE and proxy paths before network (18.009224ms)
+✔ emitted worker retains public calculator/STABLE GET/community projection reads and context checks, never raw replies (6.850107ms)
+✔ language-link reader admits approved-only scope and denies visitor drafts before any network call (4.013877ms)
+✔ signed Legacy unsubscribe alone can reach its unchanged HMAC server from exact controlled service document (2.112355ms)
+✔ bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout (54.10621ms)
+✔ actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and byte-exact Legacy rollback worker (81.620911ms)
+✔ native public image loading retains opaque response compatibility without bypassing private reads or writes (1.574669ms)
+✔ approved explicit report receipt path permits no identity-bearing, generic telemetry or unrelated writes (3.144569ms)
+✔ actual Supabase insert array columns are admitted exactly; extra columns and selectors remain denied (68.518719ms)
+✔ explicit report retains canonical anonymous session correlation without accepting visitor identity (5.76565ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5451.914346

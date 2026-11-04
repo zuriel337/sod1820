@@ -8,7 +8,8 @@ import { use2029Palette } from "../lib/palette.js";
 import ReactionBar from "../components/ReactionBar.jsx";
 import UserBadge from "../components/UserBadge.jsx";
 import CommunityMessageContent from "../components/community2029/CommunityMessageContent.jsx";
-import CommunityLive2029 from "../components/community2029/CommunityLive2029.jsx";
+import CommunityChatTransition2029Page from "./CommunityChatTransition2029Page.jsx";
+import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../lib/publicLaunch2029.js";
 import "./community2029.css";
 
 const personById = new Map(PREVIEW_PEOPLE.map((person) => [person.id, person]));
@@ -189,5 +190,5 @@ function CommunityDesignPreview() {
 
 export default function Community2029Page() {
   const [params] = useSearchParams();
-  return params.get("data") === "live" ? <CommunityLive2029 /> : <CommunityDesignPreview />;
+  return PUBLIC_LAUNCH_READ_ONLY_PREVIEW || params.get("data") === "live" ? <CommunityChatTransition2029Page /> : <CommunityDesignPreview />;
 }

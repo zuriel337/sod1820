@@ -1,0 +1,13 @@
+✔ Production target needs explicit staged mode and remains non-cutover (1.032105ms)
+✔ staged admission rejects wrong SHA, dirty sources, copied deployment, main and missing platform identity (0.451834ms)
+✔ staged nested-config materialization permits no additional change (0.454091ms)
+✔ compiler rejects combined/duplicate/missing-pin staged commands before build (388.418139ms)
+✔ staged adapters accept only their immutable host and stay noindex before public source reads (168.725877ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 624.649845

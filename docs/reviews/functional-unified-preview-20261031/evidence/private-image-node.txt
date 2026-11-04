@@ -1,0 +1,13 @@
+✔ private hint image follows issue → TUS → verify → bind and returns opaque data only (6.066078ms)
+✔ principal change stops the flow before TUS or binding and exposes no receipt (0.925611ms)
+✔ read, detach and cleanup retry remain owner-bound and transient (1.489649ms)
+✔ client preflight is bounded and server remains authoritative (0.612314ms)
+✔ Life Journey private hint media reuses the existing owner, transport and row (7.148731ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 145.534157

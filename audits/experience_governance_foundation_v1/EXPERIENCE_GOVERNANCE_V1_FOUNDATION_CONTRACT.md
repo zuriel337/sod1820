@@ -309,3 +309,76 @@ This document supersedes nothing — it is the first Experience Governance Found
 ---
 
 *Foundation → Projection → Experience. Preserve capability, truth and provenance — not necessarily the legacy interface. Rank, Don't Duplicate. Automation where deterministic. Human Gate where judgment is required.*
+
+## 20. Books 2029 — source-bound spatial learning experience · addendum 1.1 · 27.10.2026
+
+**Authority:** explicit ZURIEL instruction `BOOKS_2029_SPATIAL_EXPERIENCE_BINDING_CONTRACT`, 27.10.2026. **OWNER CHECK: EXTEND_EXISTING** Experience Governance, active `experience_governance_foundation_v1_law v10`, with Source/Intake, Truth, Translation and active Design V2. This section carries the book-specific requirements inside the existing Experience owner; it creates no Books/3D law, registry, source store, renderer or authority.
+
+**Requirement status:** binding user requirements for new work and retrospective acceptance of existing books/models. **Artifact status:** branch-only owner-body extension, pending canonical integration/registration. The existing active rule remains v10; no DB rule was inserted/activated and no `project_codex` row was changed. Neither this branch nor passing tests makes a nonconforming implementation accepted. The live `project_codex.experience_governance_foundation_v1` body and its existing updates remain preserved; this addendum must be integrated additively, never replace that body from this older repository snapshot.
+
+### 20.1 Scope and ownership
+
+The goal is a complete, beautiful, understandable Hebrew learning experience: read the book, understand it and investigate structures it actually describes. Existing and future books inherit this contract through **Books2029Page → BookSourceReader2029** and the existing depth experiences. Preserve `BookFullscreenButton2029`. Do not revive BookHub or create another reader/surface, private graph, calculator, provider or memory store.
+
+Experience owns presentation and acceptance. Intake/source identity owns work, edition/witness, physical PDF page and source locus. Truth owns source claims, engine verification, interpretation, publication and access as separate axes. Translation owns source-language integrity. Design V2, `palette.js`/`designTokens.js`, canonical UI and mobile acceptance own visual values and interaction. Claude remains the visual writer under coordination v17; this addendum does not transfer that lane.
+
+The historical `spatial_gematria_law` is inactive and is not reactivated. `docs/spatial-gematria-v2-contract.md` is a numeric-research implementation-contract candidate, not a universal book-reading gate. Its canonical-engine rule applies when presenting a result as an engine-verified calculation. Approved book text, a printed count or a representation of its structure may be displayed without running that engine, with its actual source status intact.
+
+### 20.2 Source and stable reading identity
+
+1. Every book retains a readable PDF throughout reading and exploration, with previous/next page, explicit page entry, full-screen and return to the reading place. Source access must work before a model starts and when its code, WebGL or engine is unavailable. A broken/absent source is reported honestly with a retry or existing authorized source link; the model is never substituted for the source.
+2. Reuse stable identities for book/work, edition/witness, reading unit, explanation/translation and model. A unit's identity does not change when pagination, reading position or renderer changes. Reuse current source/unit contracts rather than introducing another identity scheme.
+3. Each unit and model has an exact physical PDF page/locus in the identified source; distinguish the printed page label from the one-based PDF index. Multi-page models carry locators **per relevant component and relation**, not merely a book-level URL or the same first page for everything. Unknown mappings stay unknown.
+4. Selecting a component, through pointer or its keyboard-accessible equivalent, identifies it in Hebrew and opens or offers its exact authorized source page. The user can return to the same unit, selected component, reading position and retained model state. Switching source/PDF/full-screen must not silently reset selection, query or navigation history.
+5. OCR is a navigation/search aid. Machine extraction is not an exact quotation until compared with the witness. An unreadable glyph, empty/image page or incomplete transcription is preserved honestly; source access and approved written material remain available.
+
+### 20.3 Reading and explanation
+
+1. Offer useful divisions, navigation and search, a clear Hebrew explanation, and tables/maps when they help understanding. Lead with the material and a concise useful explanation. Technical identifiers, extraction details and qualifications belong in **„פרטי המקור”**; permission decisions and decision-changing uncertainty remain visible where needed.
+2. Distinguish **„דברי הספר”**, **„תרגום עברי”**, **„פירוש מודפס”** and **„הסבר נלווה”**. A bounded source summary is labelled as a summary, not a transcription or quotation. Preserve the original beside a translation; do not inherit a numerical value from an expression translated into another wording.
+3. Approved written source material may appear in authorized Preview without an engine check. A source count remains a source claim. Only a result actually checked against the canonical engine/method/profile, with matching input and available provenance/trace, may say **„מאומת במנוע”**. A source hash, opaque ID, illustration, successful rendering or agreement between displayed numbers proves neither engine verification nor ownership.
+4. Preserve different witnesses and commentators. Do not merge their components, wordings, ordering or disagreements into an unqualified single model. Comparison identifies each voice and source; interpretation stays separate from printed commentary.
+
+### 20.4 Source-bound spatial representation
+
+1. Use 3D where geometry materially explains a book's structure, directions, relations, table or process. A decorative 3D form is not evidence. Label the experience **„ייצוג של מבנה הספר”** and explain what selecting its parts does.
+2. For each model, declare its source and component meanings, any source-declared relations, and the meanings of color, height, size, placement and direction. Separate source semantics from editorial illustration choices such as camera, layout, scale, light or movement. Editorial geometry may aid reading but cannot create a source component, relation, shape, quantity or symbolic meaning.
+3. Preserve source order and differences in text/commentary. Do not infer an edge from proximity, an extra entity from a visual center, a rank from height or independent evidence from repeated appearances of the same source.
+4. Missing data remains missing/null. Do not render unknown as zero, fill an illegible cell by balancing a total, infer a missing number from other values or show a numeric bar that suggests an unavailable measurement. Explain omitted/unknown entries in the useful non-3D view. A separately requested derived calculation never overwrites an unknown printed value.
+5. A printed numeric structure can be illustrated before engine verification. Its label remains source/illustration, not engine-verified. If a numeric calculation is offered, it uses the existing canonical engine/method contract and its own explicit result/trace; no local renderer becomes a calculator or verification authority.
+
+### 20.5 Interaction, fallback, loading and design
+
+1. Models are an enhancement to the source, table and explanation. Provide a useful DOM/2D/table alternative with equivalent component meaning, source access and selection actions, including when WebGL is disabled or loses context. A generic error alone is not an adequate alternative.
+2. Heavy modules and GPU work load only after an explicit model action. Opening a book/PDF, scrolling past a model or restoring a reading URL does not silently start WebGL. Only the active model runs; closing/switching releases its renderer/listeners/animation and returns focus to the invoking control without losing source position.
+3. Support keyboard and visible focus for every meaningful selection/action; do not require dragging, wheel, hover, color or pointer-only raycasting. Provide clear names, pressed/expanded state, a discoverable close action, mobile touch targets and no horizontal page overflow at 320/390/1440.
+4. Respect OS and frame reduced-motion preferences, both on entry and when they change. Disable nonessential automatic rotation/travel; user-directed inspection remains available. Unsupported/low-power devices retain reading and explanation.
+5. Consume active Design V2 typography, palette and semantic roles in **יום / קלף / לילה**. Use readable Hebrew/RTL and bidi isolation for source text where needed. Colors and material effects never imply verification. Do not introduce per-book theme tokens or a competing fixed toolbar.
+
+### 20.6 Measurable acceptance
+
+These are acceptance obligations, not a claim that existing models pass. Every report records exact SHA/source revision, viewport, theme, browser, real versus mocked services, actual PDF bytes versus aborted frames, and PASS/GAP/NOT_TESTED. A model is fully compliant only when all applicable obligations pass; one green suite or a content specification cannot supply missing browser evidence.
+
+| ID | Required observation |
+|---|---|
+| BK-SRC-01 | Authorized source bytes load as PDF, match the declared witness/hash where supplied, and can be read without an engine/model. A valid iframe URL alone is insufficient. |
+| BK-SRC-02 | Previous/next/direct-page/full-screen and return preserve the same book/unit/page; tested in all nine viewport/preset combinations. |
+| BK-SRC-03 | Every model/component/relation locator resolves to the declared source unit/page; a wrong unit, wrong edition or unavailable locator fails closed. |
+| BK-SRC-04 | Pointer and keyboard selection can reach the exact component page and return with selected component/query/reading position intact. |
+| BK-TEXT-01 | Source, translation, printed commentary, companion explanation and OCR/summary are visibly distinguished. |
+| BK-TRUTH-01 | Blocking engine/Edge transport leaves approved source material readable; source-only/unknown/mismatched evidence never renders an engine-verified badge. |
+| BK-MODEL-01 | A source/visual encoding legend identifies component, color/height/size/direction meanings and editorial choices; witness/commentator differences remain explicit. |
+| BK-MODEL-02 | Unknown entries remain unknown in text/table/CSV/model. No invented numeric bar, zero replacement or inferred balancing value. |
+| BK-LOAD-01 | No GPU context/model chunk before explicit start; start/close/reopen and model switch have bounded resource use with the PDF still usable. |
+| BK-A11Y-01 | Keyboard-equivalent selection, visible focus and focus restoration; no pointer-only source action; controls meet active Design targets. |
+| BK-A11Y-02 | WebGL unavailable/context failure preserves an actionable source/table/explanation with the same selected identity. |
+| BK-A11Y-03 | 320/390/1440 × יום/קלף/לילה, RTL, source jump, model open/close, reduced motion and no horizontal page overflow pass. |
+| BK-REG-01 | Complete Books tests, Language Gate, Build2029, built graph/weight, Auth Guard and Legacy Production Lock pass at the delivered SHA; no raised budget/weakened assertion. |
+
+### 20.7 Existing work, specifications and repair sequencing
+
+Apply the same requirements retrospectively to Ahavat Torah, Sefer Yetzirah and every later received source. Preserve existing depth experiences and source sessions; inspect exact heads without importing them. The 33 Sefer Yetzirah structure specifications are **content specifications**, not 33 implemented or browser-tested models. An `existing_scene` or `suggested_mode` reference does not prove that the specific structure is bound to that renderer. Record separately: source specification, renderer binding, component-source interaction and browser acceptance.
+
+The versioned compliance map and measured observations belong in `docs/reviews/books-spatial-experience-binding-contract-20261027.md` and its JSON evidence, not as duplicated normative text. For each model: current source/branch/SHA; compliant parts; gaps; specification-only/unimplemented parts; tested versus untested requirements; owner and smallest repair slice.
+
+Repair in stages: **(1)** source identity, exact unit/component locators and honest text/verification; **(2)** explicit/lazy start/close and useful non-WebGL/keyboard paths; **(3)** visual legend/readability/return in the existing Design lane; **(4)** independent per-model browser/full-suite acceptance and controlled integration. A gap is not hidden by an attractive screenshot. This task does not authorize any source merge, main/Production/Preview deployment, source publication, DB/RLS/permission or entitlement change.

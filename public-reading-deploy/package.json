@@ -1,0 +1,6 @@
+{
+  "name": "sod1820-public-reading-production-artifact",
+  "private": true,
+  "type": "module",
+  "scripts": { "build": "node ../scripts/build-public-reading-production.mjs" }
+}

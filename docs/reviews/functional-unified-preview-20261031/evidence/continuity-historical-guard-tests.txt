@@ -1,0 +1,12 @@
+✔ accepted Home patch changes only the reviewed exact branch bindings at its immutable receipt SHA (6.292198ms)
+✔ accepted Home worker is byte-identical; current old branches differ only by an inactive functional Preview extension (3.479961ms)
+✔ applied binding denies Production and leaves other branches and missing environment closed (7.200924ms)
+✔ applied own-avatar wrapper keeps canonical read-only/ownership behavior and exact Preview scope (2.789104ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 97.537527

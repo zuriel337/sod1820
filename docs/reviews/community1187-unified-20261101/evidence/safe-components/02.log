@@ -1,0 +1,5 @@
+
+> sod1820@1.0.0 test:experience-context
+> node scripts/test-experience-context-2029.mjs
+
+Experience Context 2029 smoke gate: PASS

@@ -78,10 +78,11 @@ Deno.serve(async (req) => {
     });
     if (er.ok) for (const row of await er.json()) already.add(String(row.email).toLowerCase());
 
-    const sr = await fetch(`${url}/rest/v1/subscribers?active=eq.true&source=not.ilike.mailpoet*&select=email&limit=1000`, {
+    const sr = await fetch(`${url}/rest/v1/subscribers?active=eq.true&email_purposes=cs.%7Bgeneral%7D&source=not.ilike.mailpoet*&select=email&limit=1000`, {
       headers: { apikey: key, authorization: `Bearer ${key}` },
     });
-    const rows = sr.ok ? await sr.json() : [];
+    if (!sr.ok) return json({ error: "subscriber_read_failed" }, 503);
+    const rows = await sr.json();
     const targets = [...new Set(rows.map((r: { email: string }) => String(r.email).toLowerCase()))]
       .filter(e => /^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(e) && !already.has(e));
 

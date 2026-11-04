@@ -1,6 +1,7 @@
 import { topicConvergenceContentSections } from "./topicConvergence.js";
 import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
 import { normalizeWorldNumber } from "./worldContextualProminence.js";
+import { publicSurfaceFindingsFromConnections } from "./post2029ExperienceProjection.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const CONVERGENCE = canonicalResearchPublicLabel("convergence");
@@ -56,7 +57,8 @@ export function buildTopic2029Projection(finding, { sourceContext = null } = {})
 
   const title = clean(finding?.subject?.label) || CONVERGENCE;
   const slug = clean(source?.slug || finding?.subject?.key);
-  const links = sourceContext?.topicSlug === slug && sourceContext?.access?.scope === "public" && sourceContext?.access?.available !== false
+  const withheld = Boolean(content?.flags?.doNotPublish || finding?.access?.reason === "source-flag:_do_not_publish");
+  const links = !withheld && sourceContext?.topicSlug === slug && sourceContext?.access?.scope === "public" && sourceContext?.access?.available !== false
     ? sourceContext?.links : null;
   const mergeLinks = (stored, added) => [...(stored || []), ...(added || []).filter((row) =>
     !(stored || []).some((existing) => existing.slug === row.slug))];
@@ -91,11 +93,17 @@ export function buildTopic2029Projection(finding, { sourceContext = null } = {})
     meterScore: normalizeWorldNumber(source?.meter_score),
     imageIds: Array.isArray(source?.image_ids) ? source.image_ids.map(String) : [],
     searchTerms: Array.isArray(source?.search_terms) ? source.search_terms.map(String) : [],
-    withheld: Boolean(content?.flags?.doNotPublish || finding?.access?.reason === "source-flag:_do_not_publish"),
+    withheld,
     content,
     sections,
     relatedConvergences: mergeLinks(sections.convergenceRefs, links?.topics),
     relatedPosts: mergeLinks(sections.posts, links?.posts),
+    // Only links re-admitted by the existing public source reader enter the
+    // sidecar. Authored references in sections are not assumed to be readable.
+    publicConnections: publicSurfaceFindingsFromConnections([
+      ...(links?.topics || []).map(row => ({...row,id:`topic:${row.id || row.slug}`,label:row.title || "נושא מקושר",kind:"topic"})),
+      ...(links?.posts || []).map(row => ({...row,id:`post:${row.id || row.slug}`,label:row.title || "פוסט המקור",kind:"post"})),
+    ]),
     phrases: Array.isArray(sections.phrases) ? sections.phrases : [],
     numericClaims: Array.isArray(sections.numericClaims) ? sections.numericClaims : [],
     authoredRows: Array.isArray(sections.rows) ? sections.rows : [],

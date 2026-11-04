@@ -1,0 +1,156 @@
+{
+  "task": "FINAL_PUBLIC_CUTOVER_PREPARATION_AUTH_MAIL_READ_ONLY",
+  "base_sha": "957e4a6a7148f20cadd921303d8c9a86a8b6a7b5",
+  "worktree": "/tmp/sod1820-continuity-closure",
+  "reviewed_at_utc": "2026-11-03T16:40:28.600820+00:00",
+  "repository_written": false,
+  "live_mutations": false,
+  "mail_or_otp_sent": false,
+  "oauth_started": false,
+  "private_data_read": false,
+  "accepted_preserved": {
+    "status": "ACCEPTED_USER_REPORTED",
+    "sha": "7360f1d8337e468a69cc061686674d2225d731c4",
+    "scope": [
+      "existing-account login",
+      "existing saved items",
+      "explicit save",
+      "private-note edit",
+      "refresh",
+      "logout/login",
+      "two-account isolation"
+    ],
+    "evidence": "docs/reviews/public-url-exceptions-20261103/residual205/continuity-closure-20261103.md"
+  },
+  "fresh_read_only_evidence": {
+    "database_identity": "supabase_read_only_user; transaction_read_only=on",
+    "auth_settings": {
+      "http": 200,
+      "email": true,
+      "google": true,
+      "facebook": true,
+      "disable_signup": false,
+      "mailer_autoconfirm": false
+    },
+    "auth_redirect_allowlist": "not exposed by current connected tools/public settings; not reverified",
+    "newsletter_options": {
+      "http": 200,
+      "purpose_contract": "opening-parts-v1"
+    },
+    "handle_new_user": {
+      "prosrc_md5": "8cbc40e56e8d8ce9869f70e09535a7e5",
+      "matches_b21_expected_source": true,
+      "creates_user_profile": true,
+      "implicitly_inserts_subscriber": true,
+      "records_newsletter_event": true
+    },
+    "subscribers": {
+      "site_updates_consented_at_exists": false,
+      "allowed_purposes": [
+        "general",
+        "site-openings"
+      ],
+      "public_insert_policy": "general only and opening_updates_consented_at is null"
+    },
+    "edge_versions": {
+      "newsletter-signup": 19,
+      "send-newsletter": 16,
+      "newsletter-unsubscribe": 9,
+      "welcome-backfill": 8,
+      "send-reengage": 3,
+      "nl-track": 3
+    },
+    "edge_hashes_match_saved_approved_and_rollback_receipts": true,
+    "b21_proposal_sources_changed_since_b21": false,
+    "unsubscribe_source_sha256": "13101bb6374057625d05414d216af2eab173c7fb4ad45d39f6f075578bc1d2c4"
+  },
+  "split": [
+    {
+      "id": "EXISTING_LOGIN",
+      "state": "ACCEPTED_NO_SHARED_CHANGE_NEEDED",
+      "next": "Preserve existing password/OTP and two-account acceptance. Existing OTP uses create_user=false and verifies email code; it is an access alternative when a password is forgotten, not a password change."
+    },
+    {
+      "id": "A_AUTH_CONSENT",
+      "needed_for": [
+        "Google/Facebook login that may create a new account",
+        "new email registration"
+      ],
+      "shared_change": "Apply only docs/reviews/admin-full-access-auth-20261103/auth/handle-new-user-consent.proposal.sql as a reviewed migration. Preserves users/profiles; removes implicit mailing and the fabricated newsletter signup event for future accounts, including Legacy. No existing subscribers/roles/credits change.",
+      "approval": "Exact shared trigger change affecting future Legacy signup; not a website cutover. Previous held label is not itself a technical blocker, but current live trigger is.",
+      "local_work_now": [
+        "Prepare narrow removal of public-reading social/signup UI/library denial after verified server application",
+        "Keep public-reading acquisition/visitor metadata empty",
+        "Select already-tested full-account transport only in public-reading worker and bump policy ID",
+        "Preserve default old-preview restriction, exact PKCE callback and verified-origin rules",
+        "Isolated SDK/worker/cancel/switch tests; no real login or email"
+      ],
+      "depends_on": [
+        "trigger change approved/applied",
+        "exact Preview callback allowlist and verified-origin build input",
+        "real owner Google/Facebook/new-registration acceptance"
+      ],
+      "independent_of": [
+        "B_HOME_SIGNUP",
+        "C_CAMPAIGN_SEND",
+        "password recovery"
+      ]
+    },
+    {
+      "id": "B_HOME_SIGNUP",
+      "needed_for": [
+        "Home site-updates form"
+      ],
+      "shared_change": [
+        "docs/reviews/admin-full-access-auth-20261103/shared-change-proposal/site-updates-purpose.sql",
+        "deploy supabase/functions/newsletter-signup/index.ts and purpose.js; verify_jwt=false unchanged"
+      ],
+      "approval": "Add site-updates typed consent to existing subscribers and deploy existing signup handler; no mail send, no historic-purpose widening.",
+      "depends_on": [
+        "purpose SQL applied before signup Edge",
+        "retain already-live general-purpose exclusions in welcome-backfill/send-reengage/nl-track/send-newsletter",
+        "OPTIONS advertises site-updates-v1",
+        "owner-address consent acceptance"
+      ],
+      "independent_of": [
+        "A_AUTH_CONSENT for brand-new newsletter-only address",
+        "C_CAMPAIGN_SEND"
+      ],
+      "limit": "Existing general/opening-only or opted-out addresses return verification-required; current UI has no ownership-verification completion path. New address and same-purpose active replay are supported by proposal. Do not mark all owner addresses supported."
+    },
+    {
+      "id": "C_CAMPAIGN_SEND",
+      "state": "NOT_REQUIRED_TO_ENABLE_HOME_SIGNUP",
+      "shared_change": "Deploy proposed send-newsletter/index.ts with shared purpose helper, verify_jwt=true unchanged, only before a site-updates campaign is intentionally sent.",
+      "reason": "Current v16 accepts only existing general/opening purposes and excludes new site-updates-only rows; live automatic consumers already have general-only guards. No campaign or test send is part of this review."
+    },
+    {
+      "id": "D_UNSUBSCRIBE",
+      "state": "CONFIRMED_SEPARATE_SERVICE_DEFECT",
+      "shared_change": "Prepare bounded newsletter-unsubscribe v9 fix: inspect SDK error, confirm matched/persisted active=false row before success, return failure for SDK exception/error/zero match; preserve existing signed e/t and GET/POST compatibility.",
+      "approval": "Separate shared Edge deployment approval; not included in b21. No schema required.",
+      "evidence": "git show 7c0badfc:docs/reviews/hosted-publication-acceptance-20261103/unsubscribe-offline-proof.json reproduces false success on SDK error/exception/zero rows with zero live network writes. Current source hash and Edge v9 match.",
+      "required_for": "Truthful signed-unsubscribe service continuity; Home remains signup-only. Real owned-address opt-out acceptance is separate."
+    },
+    {
+      "id": "RECOVERY",
+      "state": "NOT_IMPLEMENTED_NOT_A_B21_DEPENDENCY",
+      "recommendation": "Do not add a new password-reset capability in this no-expansion round. Both Legacy AuthPage and 2029 AccountEntry support existing OTP as the password-free access alternative. No application resetPasswordForEmail/updateUser password/PASSWORD_RECOVERY path found. No independent explicit launch binding found beyond historical grouped OPEN labels.",
+      "sdk_if_future": "Existing SDK supports resetPasswordForEmail -> POST /auth/v1/recover with exact redirect and PKCE; PASSWORD_RECOVERY event; updateUser({password}) -> authenticated PUT /auth/v1/user. Current callback auto-returns and worker denies recover/PUT user; this would require client/callback/worker work, not b21 SQL or provider configuration."
+    }
+  ],
+  "callback_requirements": {
+    "supabase_dashboard": "https://supabase.com/dashboard/project/linswmnnkjxvweumprav/auth/url-configuration",
+    "preview": "Only the exact final chosen protected origin + /auth/callback; preserve Site URL and all old entries; no wildcard. Final exact origin is root deployment ownership.",
+    "production": "Verify https://sod1820.co.il/auth/callback is allowed before activating social auth; do not infer this from Legacy success at older return paths.",
+    "provider_console": "Google/Facebook continue returning first to https://linswmnnkjxvweumprav.supabase.co/auth/v1/callback. No evidence requiring provider-key/scopes changes. Public enabled settings do not prove every provider console return is accepted.",
+    "sdk": "PKCE and appendPkceFlowIdToRedirects=false already exist; return path is local/tab-scoped, bounded and strips credentials; exact callback never falls back deliberately to Production."
+  },
+  "reusable_tests": {
+    "trigger": "7 isolated PGlite cases in auth/handle-new-user-consent.test.json",
+    "purpose_sql": "12 isolated clean/existing-shape checks in shared-change-proposal/site-updates-sql-receipt.json",
+    "auth": "test/public-reading-full-account-transport.test.mjs and existing auth/PKCE tests",
+    "unsubscribe": "Existing offline proof, rerun targeted correction with controlled success/error/exception/zero-match/idempotency/bad signature; no signed live link"
+  },
+  "next_approval_packet": "A trigger + B Home-purpose SQL/signup Edge + exact D unsubscribe correction. C optional, separately labelled before sending; password reset excluded. Existing login/basic account acceptance retained. Include genuine owner/provider/newsletter acceptance after applied changes, not simulated-success claims."
+}

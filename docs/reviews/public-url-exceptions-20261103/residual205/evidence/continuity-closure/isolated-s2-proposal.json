@@ -1,0 +1,41 @@
+{
+  "kind": "isolated-native-postgresql-s2-proposal",
+  "liveConnection": false,
+  "liveWrites": 0,
+  "sharedApplied": false,
+  "serverVersion": "17.11 (Debian 17.11-1.pgdg13+2)",
+  "fixture": "synthetic posts/language_links and minimal dependencies; not full Supabase or formal S2",
+  "cases": [
+    {
+      "name": "apply twice is idempotent; owner/admin/public/Forum/privacy/numeric source assertions pass",
+      "passed": true
+    },
+    {
+      "name": "object-only rollback compiles and restores historical behavior; rows are preserved",
+      "passed": true
+    },
+    {
+      "name": "same-name admin policy widened to true cannot bypass drift guard",
+      "passed": true
+    },
+    {
+      "name": "unreviewed extra permissive read policy fails closed",
+      "passed": true
+    },
+    {
+      "name": "function source drift stops before replacing a concurrent server change",
+      "passed": true
+    },
+    {
+      "name": "all private fixture rows, review states, admin role and canonical Post identities survive",
+      "passed": true
+    }
+  ],
+  "infrastructureFailures": [
+    "Docker initialization failed: workspace/root overlay full; isolated PostgreSQL binaries/share copied into /tmp; Unix socket only, no TCP listener"
+  ],
+  "assertionsPerPass": 22,
+  "finishedAt": "2026-11-03T16:03:46.046Z",
+  "passed": 6,
+  "failed": 0
+}

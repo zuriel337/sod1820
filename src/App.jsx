@@ -221,9 +221,9 @@ function Product2029DocumentHandoff({ to = null }) {
 }
 
 function LegacyPostDocumentHandoff() {
-  const { slug } = useParams();
-  const location = useLocation();
-  return <Product2029DocumentHandoff to={`/post/${encodeURIComponent(slug || "")}${location.search || ""}${location.hash || ""}`} />;
+  // The document changes at cutover; its durable post address does not.
+  // The 2029 reader resolves legacy/native aliases from the publication itself.
+  return <Product2029DocumentHandoff />;
 }
 
 function Posts2029DocumentHandoff() {

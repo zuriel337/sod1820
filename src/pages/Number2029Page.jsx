@@ -4,6 +4,9 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { useAuth } from "../lib/AuthContext.jsx";
+import PersonalSaveButton2029 from "../components/userCenter/PersonalSaveButton2029.jsx";
+import { entityFromNumber, entityFromPhrase } from "../lib/research/entity.js";
 import { fetchEntityHubProjection, fetchTopicSourceContext } from "../lib/research/entityHubProjection.js";
 import { fetchWorldProminenceInputs } from "../lib/research/worldProminenceInputs.js";
 import { buildWorldContextualProminence } from "../lib/research/worldContextualProminence.js";
@@ -23,9 +26,11 @@ import NumberLivingWorld2029 from "../components/number2029/NumberLivingWorld202
 import NumberPathContinuation2029 from "../components/number2029/NumberPathContinuation2029.jsx";
 import { selectedTopicSourceReturn, resolveJourneySourceReturn } from "../lib/research/journeySourceReturn.js";
 import { applySeo } from "../lib/seo.js";
-import { getValuePhrasesPage, langLinksList } from "../lib/supabase.js";
+import { getValuePhrasesPage, langLinksList, supabase } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
-import { numberExpressionFocusHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { numberExpressionFocusHref, numberReadingReturnHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { createNumberMethodProfileReuse } from "../lib/research/numberMethodProfileReuse.js";
+import { defaultNumberReadingExpression } from "../lib/research/numberReadingOrder.js";
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
 import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
 import { GOLDEN_WORLD_JOURNEY_878 } from "../lib/research/worldJourneyProjection.js";
@@ -36,10 +41,14 @@ const GOLDEN_878_JOURNEY_OPEN = GOLDEN_WORLD_JOURNEY_878.locked !== true;
 const CONVERGENCE_LABEL = canonicalResearchPublicLabel("convergence");
 const CONVERGENCES_LABEL = canonicalResearchPublicLabel("convergence", { plural: true });
 const NUMBER_METHOD_RESULT_CACHE = new Map();
+// Only canonical method rows are reused; no personal data or pending promise.
+const NUMBER_METHOD_PROFILE_REUSE = createNumberMethodProfileReuse();
 const NUMBER_PAGE_PROJECTION_CACHE = new Map();
 const NUMBER_REGULAR_PHRASE_CACHE = new Map();
 const NUMBER_HIDDEN_CROSS_CACHE = new Map();
 const NUMBER_SYSTEM_METHODS_CACHE = new Map();
+const EMPTY_METHOD_PROFILE_ROWS = Object.freeze([]);
+const PENDING_REGULAR_PHRASES = Object.freeze({ loading: true, rows: EMPTY_METHOD_PROFILE_ROWS, count: 0, error: null });
 const clean = (value) => value == null ? "" : String(value).trim();
 
 function rememberBounded(cache, key, value, max = 36) {
@@ -206,23 +215,34 @@ function factorizationText(profile) {
   return factors.map((item) => item.exponent > 1 ? `${item.prime}^${item.exponent}` : String(item.prime)).join(" × ");
 }
 
-function NumberPageBody() {
+function NumberPageBody({ resolvedAddress = null }) {
   const { value } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const shell = use2029Shell();
   const research = useResearch();
-  const root = Number(value);
-  const urlFocus = useMemo(() => parseNumberExpressionFocus(location.search), [location.search]);
+  const { user, loading: authLoading } = useAuth();
+  const readerIdentity = user?.id || "guest";
+  const root = resolvedAddress?.root ?? Number(value);
+  const urlFocus = useMemo(() => resolvedAddress?.focus || parseNumberExpressionFocus(location.search), [location.search, resolvedAddress]);
 
-  const [state, setState] = useState({ loading: true, data: null, error: null });
+  const focusScope = `${readerIdentity}:${root}:${urlFocus.expression}:${urlFocus.method}:${urlFocus.crossingPartner}:${urlFocus.explicit}`;
+  const [appliedFocusScope, setAppliedFocusScope] = useState(null);
+  const [projectionAttempt, setProjectionAttempt] = useState(0);
+  const [state, setState] = useState({ root, readerIdentity, loading: true, data: null, error: null });
   const [selectedMethodKey, setSelectedMethodKey] = useState("");
   const [activeExpression, setActiveExpression] = useState("");
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
-  const [methodProfileState, setMethodProfileState] = useState({ loading: false, rows: [], error: null });
+  const [storedMethodProfileState, setMethodProfileState] = useState({ readerIdentity, loading: false, rows: [], error: null });
+  const [methodReadAttempt, setMethodReadAttempt] = useState(0);
+  const methodProfileState = storedMethodProfileState.readerIdentity === readerIdentity
+    ? storedMethodProfileState : { loading: true, rows: EMPTY_METHOD_PROFILE_ROWS, error: null };
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
-  const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [], count: 0, error: null });
+  const [storedRegularPhraseState, setRegularPhraseState] = useState({ root, readerIdentity, ...PENDING_REGULAR_PHRASES });
+  const [regularReadAttempt, setRegularReadAttempt] = useState(0);
+  const regularPhraseState = storedRegularPhraseState.root === root && storedRegularPhraseState.readerIdentity === readerIdentity
+    ? storedRegularPhraseState : PENDING_REGULAR_PHRASES;
   const [traceOpen, setTraceOpen] = useState(false);
   const [deepViewInputState, setDeepViewInputState] = useState({ loading: false, data: null, error: null });
   const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [], error: null });
@@ -230,6 +250,7 @@ function NumberPageBody() {
   const [curationState, setCurationState] = useState({ loading: false, catalog: null, error: null });
   const [deepRequested, setDeepRequested] = useState(false);
   const [focusExplicit, setFocusExplicit] = useState(false);
+  const [navigationError, setNavigationError] = useState(null);
   const [focusedCrossingPartner, setFocusedCrossingPartner] = useState("");
   const [expandedVerseState, setExpandedVerseState] = useState({
     loading: false,
@@ -239,19 +260,27 @@ function NumberPageBody() {
     error: null,
   });
   const deepSentinelRef = useRef(null);
+  const navigationRequest = useRef(0);
+  useEffect(() => () => { navigationRequest.current += 1; }, [location.key, readerIdentity]);
 
   useEffect(() => {
+    if (authLoading) return undefined;
     if (!Number.isInteger(root) || root < 0) {
-      setState({ loading: false, data: null, error: new Error("invalid-number") });
+      setState({ root, readerIdentity, loading: false, data: null, error: new Error("invalid-number") });
       return undefined;
     }
     let alive = true;
     const sameContextRoot = research.context?.subject?.type === "number" && String(research.context.subject.id) === String(root);
-    const contextExplicit = sameContextRoot && research.context?.dimensions?.expressionFocusExplicit === true;
+    // Public addresses are replayable: Back to a plain numeric URL must not
+    // inherit the phrase from a later visit to the same number. Old internal
+    // teaching routes keep their established context-only continuation.
+    const contextExplicit = !resolvedAddress?.publicAddress && sameContextRoot
+      && research.context?.dimensions?.expressionFocusExplicit === true;
     const contextExpression = contextExplicit ? clean(research.context?.selection?.expression) : "";
     const contextMethod = contextExplicit ? clean(research.context?.selection?.method) : "";
     const contextCrossing = contextExplicit ? clean(research.context?.selection?.crossingPartner) : "";
     const explicit = Boolean(urlFocus.explicit || contextExplicit);
+    setAppliedFocusScope(focusScope);
     setFocusExplicit(explicit);
     setSelectedMethodKey(clean(urlFocus.method) || contextMethod);
     setActiveExpression(clean(urlFocus.expression) || contextExpression);
@@ -266,20 +295,22 @@ function NumberPageBody() {
       error: null,
     });
 
-    const cacheKey = String(root);
+    const cacheKey = `${readerIdentity}:${root}`;
     const cached = NUMBER_PAGE_PROJECTION_CACHE.get(cacheKey);
     if (cached?.data) {
-      setState({ loading: false, data: cached.data, error: null });
+      setState({ root, readerIdentity, loading: false, data: cached.data, error: null });
       return () => { alive = false; };
     }
-    setState({ loading: true, data: null, error: null });
+    setState({ root, readerIdentity, loading: true, data: null, error: null });
 
     const pending = cached?.promise || fetchEntityHubProjection({
       type: "number",
-      key: cacheKey,
+      key: String(root),
       relationLimit: 140,
       researchLimit: 80,
       topicLimit: 24,
+      allowUnstoredNumber: true,
+      parallelNumberReads: true,
     });
     if (!cached?.promise) rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, { promise: pending }, 20);
 
@@ -287,16 +318,20 @@ function NumberPageBody() {
       .then((data) => {
         if (data) rememberBounded(NUMBER_PAGE_PROJECTION_CACHE, cacheKey, { data }, 20);
         else NUMBER_PAGE_PROJECTION_CACHE.delete(cacheKey);
-        if (alive) setState({ loading: false, data, error: null });
+        if (alive) setState({ root, readerIdentity, loading: false, data, error: null });
       })
       .catch((error) => {
         NUMBER_PAGE_PROJECTION_CACHE.delete(cacheKey);
-        if (alive) setState({ loading: false, data: null, error });
+        if (alive) setState({ root, readerIdentity, loading: false, data: null, error });
       });
     return () => { alive = false; };
-  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit]);
+  }, [root, urlFocus.expression, urlFocus.method, urlFocus.crossingPartner, urlFocus.explicit, resolvedAddress?.publicAddress, readerIdentity, authLoading, projectionAttempt]);
 
-  const data = state.data;
+  const data = state.root === root && state.readerIdentity === readerIdentity ? state.data : null;
+  const currentMethodRows = methodProfileState.expression === clean(activeExpression)
+    && (!urlFocus.expression || clean(urlFocus.expression) === clean(activeExpression))
+      ? methodProfileState.rows : EMPTY_METHOD_PROFILE_ROWS;
+  const hiddenCrossSourceKey = `${readerIdentity}:${clean(activeExpression)}::${currentMethodRows.map(row=>`${row.methodKey}:${row.computedValue}:${row.dbColumn}:${row.dependencyVersion ?? ""}`).join("|")}`;
 
   useEffect(() => {
     if (!data || !Number.isSafeInteger(root)) return undefined;
@@ -395,6 +430,7 @@ function NumberPageBody() {
 
   const loadMoreVerseGematria = async () => {
     if (!Number.isSafeInteger(root) || root < 0 || expandedVerseState.loading) return;
+    const request = navigationRequest.current;
     const loaded = verseGematriaRows.length;
     const total = Math.max(verseGematriaCount, loaded);
     const nextLimit = Math.min(total || loaded + 18, Math.max(expandedVerseState.limit + 18, loaded + 1));
@@ -402,6 +438,7 @@ function NumberPageBody() {
     setExpandedVerseState((current) => ({ ...current, loading: true, error: null }));
     try {
       const result = await fetchVersesByGematria(root, { limit: nextLimit });
+      if (request !== navigationRequest.current) return;
       setExpandedVerseState({
         loading: false,
         rows: result.verses,
@@ -410,6 +447,7 @@ function NumberPageBody() {
         error: null,
       });
     } catch (error) {
+      if (request !== navigationRequest.current) return;
       setExpandedVerseState((current) => ({ ...current, loading: false, error }));
     }
   };
@@ -428,128 +466,143 @@ function NumberPageBody() {
   const expressions = useMemo(() => expressionItems(families), [families]);
 
   useEffect(() => {
+    if (authLoading) return undefined;
     if (!Number.isSafeInteger(root) || root < 1) {
-      setRegularPhraseState({ loading: false, rows: [], count: 0, error: null });
+      setRegularPhraseState({ root, readerIdentity, loading: false, rows: [], count: 0, error: null });
       return undefined;
     }
     let alive = true;
-    const cacheKey = String(root);
+    const cacheKey = `${readerIdentity}:${root}`;
     const cached = NUMBER_REGULAR_PHRASE_CACHE.get(cacheKey);
     if (cached) {
-      setRegularPhraseState({ loading: false, ...cached, error: null });
+      setRegularPhraseState({ root, readerIdentity, loading: false, ...cached, error: null });
       return () => { alive = false; };
     }
-    setRegularPhraseState({ loading: true, rows: [], count: 0, error: null });
+    setRegularPhraseState({ root, readerIdentity, loading: true, rows: [], count: 0, error: null });
     getValuePhrasesPage(root, { limit: 30 })
       .then((page) => {
         rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, cacheKey, page, 40);
-        if (alive) setRegularPhraseState({ loading: false, ...page, error: null });
+        if (alive) setRegularPhraseState({ root, readerIdentity, loading: false, ...page, error: null });
       })
-      .catch((error) => { if (alive) setRegularPhraseState({ loading: false, rows: [], count: 0, error }); });
+      .catch((error) => { if (alive) setRegularPhraseState({ root, readerIdentity, loading: false, rows: [], count: 0, error }); });
     return () => { alive = false; };
-  }, [root]);
+  }, [root, readerIdentity, authLoading, regularReadAttempt]);
 
   const loadMoreRegularPhrases = async () => {
     if (regularPhraseState.loading || regularPhraseState.rows.length >= regularPhraseState.count) return;
+    const request = navigationRequest.current;
     setRegularPhraseState((current) => ({ ...current, loading: true, error: null }));
     try {
       const page = await getValuePhrasesPage(root, { offset: regularPhraseState.rows.length, limit: 30 });
+      if (request !== navigationRequest.current) return;
       setRegularPhraseState((current) => {
-        const next = { loading: false, rows: [...current.rows, ...page.rows], count: page.count, error: null };
-        rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, String(root), next, 40);
+        const next = { root, readerIdentity, loading: false, rows: [...current.rows, ...page.rows], count: page.count, error: null };
+        rememberBounded(NUMBER_REGULAR_PHRASE_CACHE, `${readerIdentity}:${root}`, next, 40);
         return next;
       });
     } catch (error) {
+      if (request !== navigationRequest.current) return;
       setRegularPhraseState((current) => ({ ...current, loading: false, error }));
     }
   };
 
   useEffect(() => {
-    if (!families.length) return;
+    if (authLoading || urlFocus.explicit || focusExplicit) return;
     if (activeExpression && (selectedMethodKey || focusExplicit)) return;
 
     const anchorFamily = anchorPhrase
       ? families.find((group) => (group?.phrases || []).some((item) => phraseOf(item) === anchorPhrase))
       : null;
     const first = anchorFamily || families[0];
-    const phrase = activeExpression || anchorPhrase || phraseOf(first?.phrases?.[0]) || String(root);
-    if (!selectedMethodKey) setSelectedMethodKey(methodKey(first));
+    const ordered = regularPhraseState.rows.length ? regularPhraseState.rows : data?.surface?.phrases || [];
+    const phrase = activeExpression || defaultNumberReadingExpression({ rows: ordered,
+      loading: regularPhraseState.loading, error: regularPhraseState.error,
+      fallback: anchorPhrase || phraseOf(first?.phrases?.[0]),
+    });
+    if (!phrase) return;
+    const regular = families.find(group => isRegularMethodIdentity(methodKey(group)) || isRegularMethodIdentity(methodLabel(group)));
+    if (!selectedMethodKey) setSelectedMethodKey(ordered.length ? methodKey(regular) || "רגיל" : methodKey(first));
     if (!activeExpression) setActiveExpression(phrase);
-  }, [families, root, selectedMethodKey, activeExpression, anchorPhrase, focusExplicit]);
+  }, [families, root, selectedMethodKey, activeExpression, anchorPhrase, focusExplicit, urlFocus.explicit, authLoading, regularPhraseState, data?.surface?.phrases]);
 
   useEffect(() => {
+    const profileReuse = NUMBER_METHOD_PROFILE_REUSE.forReader(authLoading ? null : readerIdentity);
+    if (authLoading) return undefined;
     const expr = clean(activeExpression);
     if (!expr || /^\d+$/.test(expr)) {
-      setMethodProfileState({ loading: false, rows: [], error: null });
+      setMethodProfileState({ readerIdentity, loading: false, rows: [], error: null });
       return undefined;
     }
     let alive = true;
-    setMethodProfileState({ loading: true, rows: [], error: null });
-    fetchNumberMethodProfile(expr)
+    const reusableProfile = profileReuse.get(expr);
+    const admitted = resolvedAddress?.methodProfile;
+    const profile = admitted?.readerIdentity === readerIdentity && admitted?.expression === expr && Array.isArray(admitted.rows)
+      ? Promise.resolve(admitted.rows) : reusableProfile ? Promise.resolve(reusableProfile) : methodProfileState.expression === expr && methodProfileState.rows.length
+        ? Promise.resolve(methodProfileState.rows) : fetchNumberMethodProfile(expr);
+    if (methodProfileState.expression !== expr) setMethodProfileState({ readerIdentity, loading: true, rows: [], error: null });
+    profile
       .then((rows) => {
         if (!alive) return;
-        setMethodProfileState({ loading: false, rows, expression: expr, error: null });
+        if (!reusableProfile) profileReuse.remember(expr, rows);
+        setMethodProfileState({ readerIdentity, loading: false, rows, expression: expr, error: null });
         const selected = rows.find((row) => row.methodKey === selectedMethodKey)
           || (!focusExplicit ? rows.find((row) => isRegularMethodIdentity(row.methodKey)) || rows[0] : null);
         if (selected && selected.methodKey !== selectedMethodKey) setSelectedMethodKey(selected.methodKey);
       })
       .catch((error) => {
-        if (alive) setMethodProfileState({ loading: false, rows: [], error });
+        if (alive) setMethodProfileState({ readerIdentity, loading: false, rows: [], error });
       });
     return () => { alive = false; };
-  }, [activeExpression]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeExpression, readerIdentity, authLoading, methodReadAttempt]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selectedMethodProfile = useMemo(
-    () => methodProfileEntry(methodProfileState.rows, selectedMethodKey),
-    [methodProfileState.rows, selectedMethodKey],
+    () => methodProfileEntry(currentMethodRows, selectedMethodKey),
+    [currentMethodRows, selectedMethodKey],
   );
 
 
   useEffect(() => {
     const expr = clean(activeExpression);
-    if (!expr || /^\d+$/.test(expr) || !methodProfileState.rows.length) {
-      setHiddenCrossState({ loading: false, rows: [], error: null });
+    if (!data || !expr || /^\d+$/.test(expr) || !currentMethodRows.length) {
+      setHiddenCrossState({ key:hiddenCrossSourceKey, loading: false, rows: [], error: null });
       return undefined;
     }
 
-    const profileKey = methodProfileState.rows
-      .map((row) => `${row?.methodKey || ""}:${row?.computedValue ?? ""}`)
-      .join("|");
-    const cacheKey = `${expr}::${profileKey}`;
+    const cacheKey = hiddenCrossSourceKey;
     const cached = NUMBER_HIDDEN_CROSS_CACHE.get(cacheKey);
     if (cached) {
-      setHiddenCrossState({ loading: false, rows: cached, error: null });
+      setHiddenCrossState({ key:cacheKey, loading: false, rows: cached, error: null });
       return undefined;
     }
 
     let alive = true;
+    const abort = new AbortController();
     let cancelDeferred = null;
-    setHiddenCrossState({ loading: false, rows: [], error: null });
+    setHiddenCrossState({ key:cacheKey, loading: true, rows: [], error: null });
     cancelDeferred = deferClientWork(() => {
       if (!alive) return;
-      setHiddenCrossState({ loading: true, rows: [], error: null });
-      fetchNumberHiddenCrossings(expr, methodProfileState.rows, { limit: 13 })
+      fetchNumberHiddenCrossings(expr, currentMethodRows, { limit: 13, signal:abort.signal })
         .then((rows) => {
           const next = Array.isArray(rows) ? rows : [];
-          rememberBounded(NUMBER_HIDDEN_CROSS_CACHE, cacheKey, next, 48);
-          if (alive) setHiddenCrossState({ loading: false, rows: next, error: null });
+          if (alive) { rememberBounded(NUMBER_HIDDEN_CROSS_CACHE, cacheKey, next, 48);setHiddenCrossState({ key:cacheKey, loading: false, rows: next, error: null }); }
         })
         .catch((error) => {
-          if (alive) setHiddenCrossState({ loading: false, rows: [], error });
+          if (alive) setHiddenCrossState({ key:cacheKey, loading: false, rows: [], error });
         });
     }, { delay: 220, timeout: 900 });
     return () => {
       alive = false;
+      abort.abort();
       cancelDeferred?.();
     };
-  }, [activeExpression, methodProfileState.rows]);
+  }, [activeExpression, currentMethodRows, readerIdentity, data, hiddenCrossSourceKey]);
 
 
   const regularMethodProfile = useMemo(
-    () => methodProfileState.rows.find((row) => (
+    () => currentMethodRows.find((row) => (
       isRegularMethodIdentity(row?.methodKey) || isRegularMethodIdentity(row?.displayLabel)
     )) || null,
-    [methodProfileState.rows],
+    [currentMethodRows],
   );
   const regularGroup = useMemo(
     () => families.find((group) => (
@@ -575,11 +628,6 @@ function NumberPageBody() {
       });
     }
 
-    // During the bounded read only, keep the old projection as an honest fallback.
-    if (!rows.length && regularPhraseState.loading) {
-      for (const raw of Array.isArray(regularGroup?.phrases) ? regularGroup.phrases : []) add(phraseOf(raw), "family");
-    }
-
     // A searched expression may be valid by the canonical Regular engine before it is stored/published.
     // Preserve it without reordering an already-curated public row.
     if (
@@ -587,7 +635,7 @@ function NumberPageBody() {
       && regularMethodProfile
       && Number(regularMethodProfile.computedValue) === root
       && !seen.has(clean(activeExpression))
-    ) rows.unshift({ phrase: clean(activeExpression), value: root, source: "active_unstored", leadRank: null, verified: null });
+    ) rows.push({ phrase: clean(activeExpression), value: root, source: "active_unstored", leadRank: null, verified: null });
 
     return rows;
   }, [activeExpression, regularMethodProfile, regularGroup, regularPhraseState, root]);
@@ -598,7 +646,7 @@ function NumberPageBody() {
   );
   useEffect(() => {
     const key = selectedMethodProfile?.methodKey || selectedMethodKey;
-    if (!key || !activeExpression) {
+    if (!data || !currentMethodRows.length || !key || !activeExpression) {
       setTraceState({ loading: false, finding: null, error: null });
       return undefined;
     }
@@ -612,21 +660,22 @@ function NumberPageBody() {
         if (alive) setTraceState({ loading: false, finding: null, error });
       });
     return () => { alive = false; };
-  }, [selectedMethodProfile?.methodKey, selectedMethodKey, activeExpression]);
+  }, [selectedMethodProfile?.methodKey, selectedMethodKey, activeExpression, currentMethodRows, data]);
 
   const rawTrace = traceState.finding?.projection?.dimensions?.trace || null;
-  const trace = isVerifiedMethodTrace(rawTrace, { expression: activeExpression, methodKey: selectedMethodProfile?.methodKey || selectedMethodKey }) ? rawTrace : null;
+  const trace = currentMethodRows.length && isVerifiedMethodTrace(rawTrace, { expression: activeExpression, methodKey: selectedMethodProfile?.methodKey || selectedMethodKey }) ? rawTrace : null;
   const activeResult = traceNumber(trace?.result ?? selectedMethodProfile?.computedValue);
   const traceSteps = gematriaTraceLines(trace, { expression: activeExpression, methodKey: selectedMethodKey });
 
   useEffect(() => {
     const next = traceNumber(activeResult);
-    if (!Number.isSafeInteger(next) || next < 0) {
+    if (!data || !Number.isSafeInteger(next) || next < 0) {
       setSystemMethodsState({ loading: false, cards: [], error: null, key: null });
       return undefined;
     }
 
-    const cached = NUMBER_SYSTEM_METHODS_CACHE.get(next);
+    const cacheKey = `${readerIdentity}:${next}`;
+    const cached = NUMBER_SYSTEM_METHODS_CACHE.get(cacheKey);
     if (cached) {
       setSystemMethodsState({ loading: false, cards: cached, error: null, key: next });
       return undefined;
@@ -642,7 +691,7 @@ function NumberPageBody() {
         .then((result) => {
           if (!alive) return;
           const cards = Array.isArray(result?.cards) ? result.cards : [];
-          rememberBounded(NUMBER_SYSTEM_METHODS_CACHE, next, cards, 48);
+          rememberBounded(NUMBER_SYSTEM_METHODS_CACHE, cacheKey, cards, 48);
           setSystemMethodsState({ loading: false, cards, error: null, key: next });
         })
         .catch((error) => {
@@ -653,18 +702,19 @@ function NumberPageBody() {
       alive = false;
       cancelDeferred?.();
     };
-  }, [activeResult]);
+  }, [activeResult, readerIdentity, data]);
 
   useEffect(() => {
     const next = traceNumber(activeResult);
-    if (!Number.isSafeInteger(next) || next === root) {
+    if (!data || !Number.isSafeInteger(next) || next === root) {
       setMethodResultState({ loading: false, data: null, error: null, key: null });
       return undefined;
     }
 
-    const cached = NUMBER_METHOD_RESULT_CACHE.get(next);
+    const cacheKey = `${readerIdentity}:${next}`;
+    const cached = NUMBER_METHOD_RESULT_CACHE.get(cacheKey);
     if (cached?.data) {
-      setMethodResultState({ loading: false, data: cached.data, error: null, cached: true, key: next });
+      setMethodResultState({ loading: false, data: cached.data, error: null, cached: true, key: next, readerIdentity });
       return undefined;
     }
 
@@ -680,19 +730,19 @@ function NumberPageBody() {
       numberLookupLimit: 80,
       includeMedia: false,
     });
-    if (!cached?.promise) NUMBER_METHOD_RESULT_CACHE.set(next, { promise: pending });
+    if (!cached?.promise) rememberBounded(NUMBER_METHOD_RESULT_CACHE, cacheKey, { promise: pending }, 20);
 
     pending.then((nextData) => {
       const dataValue = nextData || null;
-      if (dataValue) NUMBER_METHOD_RESULT_CACHE.set(next, { data: dataValue });
-      else NUMBER_METHOD_RESULT_CACHE.delete(next);
-      if (alive) setMethodResultState({ loading: false, data: dataValue, error: null, cached: false, key: next });
+      if (dataValue) rememberBounded(NUMBER_METHOD_RESULT_CACHE, cacheKey, { data: dataValue }, 20);
+      else NUMBER_METHOD_RESULT_CACHE.delete(cacheKey);
+      if (alive) setMethodResultState({ loading: false, data: dataValue, error: null, cached: false, key: next, readerIdentity });
     }).catch((error) => {
-      NUMBER_METHOD_RESULT_CACHE.delete(next);
+      NUMBER_METHOD_RESULT_CACHE.delete(cacheKey);
       if (alive) setMethodResultState({ loading: false, data: null, error, cached: false, key: next });
     });
     return () => { alive = false; };
-  }, [activeResult, root]);
+  }, [activeResult, root, readerIdentity, data]);
 
   useEffect(() => {
     const expr = clean(activeExpression);
@@ -714,7 +764,7 @@ function NumberPageBody() {
       })
       .catch(() => { if (alive) setLanguageBridgeState({ loading: false, rows: [] }); });
     return () => { alive = false; };
-  }, [activeExpression]);
+  }, [activeExpression, readerIdentity]);
 
   const leadMeeting = topics[0] || null;
   const leadExpression = expressions.find((item) => item.phrase !== activeExpression) || expressions[0] || null;
@@ -734,7 +784,7 @@ function NumberPageBody() {
     root,
     expression: activeExpression,
     selectedMethodKey,
-    methodProfile: methodProfileState.rows,
+    methodProfile: currentMethodRows,
     families,
     topics,
     relations,
@@ -748,13 +798,13 @@ function NumberPageBody() {
     activityCount,
     journeyAvailable: true,
     heroMedia: leadMedia,
-  }), [root, activeExpression, selectedMethodKey, methodProfileState.rows, families, topics, relations, sources, worlds, researchFindings, timeline, mediaItems, surface, zeroScaleData, activityCount, leadMedia]);
+  }), [root, activeExpression, selectedMethodKey, currentMethodRows, families, topics, relations, sources, worlds, researchFindings, timeline, mediaItems, surface, zeroScaleData, activityCount, leadMedia]);
 
   const explicitStageResult = focusExplicit && (traceNumber(activeResult) != null)
     ? Number(activeResult)
     : root;
   const stageData = explicitStageResult !== root
-    ? (methodResultState.key === explicitStageResult ? methodResultState.data : null)
+    ? (methodResultState.key === explicitStageResult && methodResultState.readerIdentity === readerIdentity ? methodResultState.data : null)
     : data;
   const stageRoot = explicitStageResult;
   const stageFamilies = Array.isArray(stageData?.gematria?.families) ? stageData.gematria.families : [];
@@ -779,7 +829,7 @@ function NumberPageBody() {
     root: stageRoot,
     expression: activeExpression,
     selectedMethodKey,
-    methodProfile: methodProfileState.rows,
+    methodProfile: currentMethodRows,
     families: stageFamilies,
     topics: stageTopics,
     relations: stageRelations,
@@ -793,7 +843,7 @@ function NumberPageBody() {
     activityCount: stageActivityCount,
     journeyAvailable: true,
     heroMedia: stageMedia[0] || null,
-  }), [stageRoot, activeExpression, selectedMethodKey, methodProfileState.rows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
+  }), [stageRoot, activeExpression, selectedMethodKey, currentMethodRows, stageFamilies, stageTopics, stageRelations, stageSources, stageWorlds, stageFindings, stageTimeline, stageMedia, stageSurface, stageZeroScale, stageActivityCount]);
 
   const deepViewModel = useMemo(() => buildNumberDeepViewProjection({
     root,
@@ -837,7 +887,7 @@ function NumberPageBody() {
   const focusProfile = methodProfileState.expression === focusExpression ? selectedMethodProfile : null;
   const focusResult = focusTrace?.result ?? focusProfile?.computedValue ?? null;
   const originTopicSlug = clean(research.context?.dimensions?.topicSlug);
-  const currentNumberHref = numberExpressionFocusHref(root, {
+  const currentNumberHref = numberReadingReturnHref(location) || numberExpressionFocusHref(root, {
     expression: focusExpression || null,
     method: focusExplicit ? focusMethodKey : null,
     crossingPartner: focusExplicit ? focusedCrossingPartner : null,
@@ -889,34 +939,58 @@ function NumberPageBody() {
     navigate(href);
   };
 
-  const activateExpressionFocus = (expression, preferredMethod = null) => {
+  const navigateExpression = async (expression, preferredMethod = null, { returnLocator = null } = {}) => {
     const expr = clean(expression);
     if (!expr) return;
-    const key = clean(preferredMethod) || clean(regularMethodProfile?.methodKey)
-      || methodKey(families.find((group) => isRegularMethodIdentity(methodKey(group))));
-    setFocusExplicit(true);
-    setFocusedCrossingPartner("");
-    setActiveExpression(expr);
-    setSelectedMethodKey(key);
-    setTraceOpen(false);
-    const href = numberExpressionFocusHref(root, { expression: expr, method: key || null });
-    if (href) navigate(href, { replace: true });
+    const request = ++navigationRequest.current;
+    setNavigationError(null);
+    try {
+      const focus = await resolveExpressionFocus(expr, {
+        preferredMethod,
+        profileReader: phrase => methodProfileState.expression === phrase && methodProfileState.rows.length
+          ? Promise.resolve(methodProfileState.rows) : fetchNumberMethodProfile(phrase),
+      });
+      if (request !== navigationRequest.current) return;
+      if (!focus?.href) { setNavigationError("לא התקבלה תוצאה בשיטה שנבחרה. הדף והבחירה הקודמים נשמרו."); return; }
+      if (focus.href === currentNumberHref) return;
+      const returnHref = /^#number-connection-[a-f0-9-]+$/.test(returnLocator || "")
+        ? numberReadingReturnHref({ ...location, hash: returnLocator }) || currentNumberHref : currentNumberHref;
+      if (returnHref !== currentNumberHref) {
+        try { window.history.replaceState(window.history.state, "", returnHref); } catch { /* Typed return retains the locator. */ }
+      }
+      setMethodProfileState({ readerIdentity, loading: false, expression: focus.expression, rows: focus.rows, error: null });
+      const current = research.context || {};
+      research.setResearchContext?.({
+        subject: { id: String(focus.root), type: "number", label: String(focus.root), href: focus.href },
+        selection: { entityId: String(focus.root), entityType: "number", expression: focus.expression,
+          method: focus.method, methodVersion: focus.rows.find(row => row.methodKey === focus.method)?.definitionVersion ?? null,
+          resultValue: focus.resultValue, focusKind: "expression" },
+        lens: "number", journey: current.journey || null, locale: current.locale || "he",
+        dimensions: { ...(current.dimensions || {}), expressionFocusExplicit: true, focusOrigin: "number-page-selection" },
+        returnTo: { href: returnHref, label: focusExpression ? `${focusExpression} · ${root}` : `דף ${root}`,
+          subject: { id: String(root), type: "number", label: String(root), href: returnHref },
+          selection: focusSelection(root), lens: "number", dimensions: current.dimensions || {}, journey: current.journey || null },
+      });
+      setNavigationError(null);
+      // Push a real full-page destination. Opening a method never opens Search
+      // or the Number drawer and never overwrites the previous reading address.
+      navigate(focus.href, { state: { sodResearchIntent: "continue" } });
+    } catch {
+      if (request === navigationRequest.current) setNavigationError("לא הצלחנו לפתוח את הביטוי. הדף והבחירה הקודמים נשמרו; אפשר לנסות שוב.");
+    }
   };
+
+  const activateExpressionFocus = (expression, preferredMethod = null, options = {}) => navigateExpression(expression, preferredMethod, options);
 
   const activateMethodFocus = (methodKey) => {
     const key = clean(methodKey);
     if (!key) return;
-    setSelectedMethodKey(key);
-    setTraceOpen(false);
     if (!clean(activeExpression) || /^\d+$/.test(clean(activeExpression))) return;
-    setFocusExplicit(true);
-    setFocusedCrossingPartner("");
-    const href = numberExpressionFocusHref(root, { expression: activeExpression, method: key });
-    if (href) navigate(href, { replace: true });
+    return navigateExpression(activeExpression, key);
   };
 
   useEffect(() => {
-    if (!Number.isInteger(root)) return;
+    if (!Number.isInteger(root) || authLoading || state.root !== root || state.readerIdentity !== readerIdentity) return;
     const subject = {
       id: String(root),
       type: "number",
@@ -928,7 +1002,7 @@ function NumberPageBody() {
     // captured the selected Topic source after this render was scheduled.
     research.updateResearchContext?.({ subject, selection, lens: "number",
       dimensions: { expressionFocusExplicit: Boolean(focusExplicit) } });
-  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusResult, focusTrace?.method_version, focusProfile?.definitionVersion, focusedCrossingPartner, currentNumberHref]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [root, focusExplicit, activeExpression, focusMethodKey, activeResult, focusResult, focusTrace?.method_version, focusProfile?.definitionVersion, focusedCrossingPartner, currentNumberHref, authLoading, state.root, state.readerIdentity, readerIdentity]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [pathError, setPathError] = useState(null);
   const sourceReturnRequest = useRef(0);
@@ -964,7 +1038,7 @@ function NumberPageBody() {
           journeyVisitedValues: [878], journeyMeetingSlugs: [] },
         returnTo: { ...result.context, href: currentNumberHref, label: `דף ${root}` },
       });
-      navigate("/world");
+      navigate("/world?focus=context");
     }
   };
 
@@ -1000,7 +1074,43 @@ function NumberPageBody() {
         },
         returnTo,
       });
-    navigate("/world");
+    navigate("/world?focus=context");
+  };
+
+  const openMethodLesson = (method) => {
+    const key = clean(method?.methodKey);
+    if (!key) return;
+    const href = `/beit-midrash/${encodeURIComponent(key)}`;
+    const current = research.context || {};
+    const subject = {
+      id: String(root),
+      type: "number",
+      label: String(root),
+      href: currentNumberHref,
+    };
+    const selection = {
+      ...focusSelection(root),
+      method: key,
+      resultValue: method?.computedValue == null ? null : Number(method.computedValue),
+    };
+    research.setResearchContext?.({
+      subject,
+      selection,
+      lens: "beit-midrash",
+      locale: current.locale || "he",
+      dimensions: current.dimensions || {},
+      journey: current.journey || null,
+      returnTo: {
+        href: currentNumberHref,
+        label: `דף המספר · ${root}`,
+        subject,
+        selection,
+        lens: "number",
+        dimensions: current.dimensions || {},
+        journey: current.journey || null,
+      },
+    });
+    shell.go(href, { preserve: false });
   };
 
   const focusSurfaceContext = (focus) => {
@@ -1067,74 +1177,34 @@ function NumberPageBody() {
     const raw = clean(rawValue);
     if (!raw) return;
     if (/^\d+$/.test(raw) && Number.isSafeInteger(Number(raw))) {
-      setFocusExplicit(false);
-      setFocusedCrossingPartner("");
-      navigate(`/2029/number/${Number(raw)}`);
+      openNumberRoot(Number(raw));
       return;
     }
-    try {
-      const focus = await resolveExpressionFocus(raw);
-      if (!focus?.href) {
-        setActiveExpression(raw);
-        return;
-      }
-      const next = Number(focus.root);
-      const current = research.context || {};
-      const currentSelection = focusSelection(root);
-      const returnTo = next === root
-        ? current.returnTo || null
-        : (Number.isSafeInteger(root) ? {
-          href: currentNumberHref,
-          label: focusExpression ? `${focusExpression} · ${root}` : `דף ${root}`,
-          subject: current.subject || { id: String(root), type: "number", label: String(root), href: currentNumberHref },
-          selection: currentSelection,
-          lens: current.lens || "number",
-          dimensions: current.dimensions || {},
-          journey: current.journey || null,
-        } : null);
-
-      setFocusExplicit(true);
-      setFocusedCrossingPartner("");
-      setActiveExpression(focus.expression);
-      if (focus.method) setSelectedMethodKey(focus.method);
-      setTraceOpen(false);
-      research.setResearchContext?.({
-        subject: { id: String(next), type: "number", label: String(next), href: focus.href },
-        selection: {
-          entityId: String(next),
-          entityType: "number",
-          expression: focus.expression,
-          method: focus.method,
-          resultValue: focus.resultValue,
-          focusKind: "expression",
-        },
-        lens: "number",
-        journey: current.journey || null,
-        locale: current.locale || "he",
-        dimensions: {
-          ...(current.dimensions || {}),
-          expressionFocusExplicit: true,
-          focusOrigin: "number-query",
-        },
-        returnTo,
-      });
-      navigate(focus.href, { replace: next === root });
-    } catch {
-      setActiveExpression(raw);
-    }
+    return navigateExpression(raw);
   };
 
   const openNumberRoot = (nextValue, { preserveFocus = false } = {}) => {
     const next = Number(nextValue);
-    if (!Number.isSafeInteger(next)) return;
-    const keepFocus = Boolean(preserveFocus && focusExplicit && focusExpression);
+    if (!Number.isSafeInteger(next) || next < 0) return;
+    // Back can restore the operand before its matching canonical profile.
+    // An unknown result must never silently turn this action into clear-focus.
+    if (preserveFocus && next === root && focusExplicit && focusExpression && focusResult == null) {
+      setNavigationError(methodProfileState.error
+        ? "תוצאת השיטה אינה זמינה כרגע. הביטוי והכתובת נשמרו."
+        : "תוצאת השיטה עדיין נטענת. הביטוי והכתובת נשמרו.");
+      return;
+    }
+    navigationRequest.current += 1;
+    setNavigationError(null);
+    const keepFocus = Boolean(preserveFocus && focusExplicit && focusExpression && focusResult != null && Number(focusResult) === next);
     const selection = focusSelection(root);
     const nextHref = keepFocus
       ? numberExpressionFocusHref(next, { expression: focusExpression, method: focusMethodKey })
-      : `/2029/number/${next}`;
+      : numberExpressionFocusHref(next);
     const nextSelection = keepFocus
       ? { ...focusSelection(next), resultValue: next }
       : { entityId: String(next), entityType: "number" };
+    if (nextHref === currentNumberHref) return;
     research.setResearchContext?.({
       subject: { id: String(next), type: "number", label: String(next), href: nextHref },
       selection: nextSelection,
@@ -1161,13 +1231,14 @@ function NumberPageBody() {
   if (!Number.isInteger(root) || root < 0) {
     return <FrameState kind="error" title="המספר לא תקין">הדוגמה הזאת מקבלת כרגע מספר שלם בלבד.</FrameState>;
   }
-  if (state.loading) {
+  if (authLoading || appliedFocusScope !== focusScope) {
     return <FrameState kind="loading" title={`פותח את ${root}`}>טוען את דף המספר.</FrameState>;
   }
-  if (state.error || !data) {
-    return <FrameState kind="unavailable" title="דף המספר לא זמין כרגע">נסה שוב בעוד רגע.</FrameState>;
-  }
-  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-truth-safe="true">
+  const materialStatus = state.root !== root || state.readerIdentity !== readerIdentity || state.loading
+    ? "loading" : state.error || !data ? "failed" : "ready";
+  return <div className="sod29-number-page" data-experience-surface="number" data-experience-question="מה זה?" data-number-root={root} data-material-state={materialStatus} data-truth-safe="true">
+    {navigationError ? <p role="alert">{navigationError}</p> : null}
+    {regularPhraseState.error ? <p role="alert">סדר הביטויים השמור לא נטען כרגע. <button type="button" className="sod29-action" onClick={() => regularPhraseState.rows.length ? loadMoreRegularPhrases() : setRegularReadAttempt(n => n + 1)}>נסה שוב את הסדר השמור</button></p> : null}
     {focusExplicit && focusExpression ? <section className="sod29-number-focus-ribbon" aria-label="מיקוד ביטוי פעיל" data-expression-focus="true">
       <div>
         <span>מיקוד פעיל</span>
@@ -1184,6 +1255,7 @@ function NumberPageBody() {
       </div>
     </section> : null}
     <section className="sod29-number-hero" id="number-now">
+      <div className="sod29-actions"><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
       <NumberCore2029
         projection={coreProjection}
         mode="page"
@@ -1194,17 +1266,21 @@ function NumberPageBody() {
         traceSteps={traceSteps}
         traceDetail={trace}
         stageProjection={stageProjection}
-        stageLoading={methodResultState.loading}
+        materialStatus={materialStatus}
+        stageLoading={materialStatus === "loading" || methodResultState.loading}
         methodsLoading={methodProfileState.loading}
+        methodsError={Boolean(methodProfileState.error)}
+        onRetryMethods={() => { NUMBER_METHOD_PROFILE_REUSE.forReader(readerIdentity).invalidate(clean(activeExpression)); setMethodReadAttempt(n => n + 1); }}
         languageBridges={languageBridgeState.rows}
         regularExpressions={regularExpressions}
         regularExpressionsLoading={regularPhraseState.loading}
-        onExpressionSelect={(phrase) => activateExpressionFocus(phrase, regularMethodProfile?.methodKey || null)}
+        onExpressionSelect={(phrase, method = null, options = {}) => activateExpressionFocus(phrase, method || regularMethodProfile?.methodKey || null, options)}
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={activateMethodFocus}
         onToggleTrace={() => setTraceOpen((value) => !value)}
-        hiddenCrossings={hiddenCrossState.rows}
-        hiddenCrossingsLoading={hiddenCrossState.loading}
+        hiddenCrossings={hiddenCrossState.key === hiddenCrossSourceKey ? hiddenCrossState.rows : EMPTY_METHOD_PROFILE_ROWS}
+        hiddenCrossingsLoading={hiddenCrossState.key !== hiddenCrossSourceKey || hiddenCrossState.loading}
+        hiddenCrossingsError={hiddenCrossState.key === hiddenCrossSourceKey ? hiddenCrossState.error : null}
         systemMethods={systemMethodsState.key === stageRoot ? systemMethodsState.cards : []}
         systemMethodsLoading={systemMethodsState.key === stageRoot && systemMethodsState.loading}
         onOpenCrossing={(crossing) => {
@@ -1234,8 +1310,11 @@ function NumberPageBody() {
         }}
         onOpenZero={(next) => openNumberRoot(next, { preserveFocus: false })}
         onOpenResult={(next) => openNumberRoot(next, { preserveFocus: true })}
+        rootOpeningState={focusExplicit && focusExpression && focusResult == null
+          ? methodProfileState.error ? "failed" : "pending" : "ready"}
         onOpenWorld={() => openWorld()}
         onOpenHeichal={() => shell.go("/heichal")}
+        onOpenMethodLesson={openMethodLesson}
         onOpenJourney={continueJourney}
         journeyLabel={research.context?.dimensions?.journey2029Active ? "המשך במסע" : GOLDEN_878_JOURNEY_OPEN && root === GOLDEN_WORLD_JOURNEY_878.rootValue ? "צא למסע 878" : "צא למסע"}
         onOpenLife={() => document.getElementById("number-essential")?.scrollIntoView({ behavior: "smooth", block: "start" })}
@@ -1267,7 +1346,12 @@ function NumberPageBody() {
       error={pathError}
     />
 
-    <NumberLivingWorld2029
+    {materialStatus !== "ready" ? <section className="sod29-section sod29-number-material-pending" aria-busy={materialStatus === "loading"}>
+      <FrameState kind={materialStatus === "failed" ? "error" : "loading"} title={materialStatus === "failed" ? "המקורות והחיבורים לא נטענו" : "טוען מקורות וחיבורים"}>
+        החישוב זמין למעלה. המקורות, המדיה והקשרים יופיעו כאן כשקריאתם תושלם.
+        {materialStatus === "failed" ? <button type="button" className="sod29-action" onClick={() => { NUMBER_PAGE_PROJECTION_CACHE.delete(`${readerIdentity}:${root}`); setProjectionAttempt(n => n + 1); }}>ניסיון נוסף</button> : null}
+      </FrameState>
+    </section> : <NumberLivingWorld2029
       root={root}
       data={data}
       activeExpression={activeExpression}
@@ -1300,6 +1384,21 @@ function NumberPageBody() {
       onOpenHeichal={(focus) => shell.go(focus?.kind === "els_saved_from_number" ? "/els?library=public" : focus?.kind === "els_new_from_number" ? "/els" : "/heichal")}
       onRazielAction={askRaziel}
       onOpenNumber={(next) => openNumberRoot(next, { preserveFocus: false })}
+      onOpenPublicSource={(source) => {
+        if (!source.href?.startsWith("/")) return;
+        const current = research.context || {};
+        const returnHref = numberReadingReturnHref({ ...location, hash: "#number-content-live" });
+        // The source section is a stable existing reading locator, including
+        // when the selected item came from a later public-source page.
+        try { window.history.replaceState(window.history.state, "", returnHref); } catch { /* Context still retains the exact reading target. */ }
+        research.updateResearchContext?.({ returnTo: {
+          href: returnHref,
+          label: focusExpression ? `${focusExpression} · ${root}` : `דף ${root}`,
+          subject: { id: String(root), type: "number", label: String(root), href: currentNumberHref },
+          selection: focusSelection(root), lens: "number", dimensions: current.dimensions || {}, journey: current.journey || null,
+        } });
+        navigate(source.href, { state: { sodResearchIntent: "continue" } });
+      }}
       onFocusContext={focusSurfaceContext}
       onJourney={continueJourney}
       onPersonalJourney={() => askRaziel("personal_journey_from_number", {
@@ -1308,7 +1407,7 @@ function NumberPageBody() {
         expression: activeExpression || null,
         method: selectedMethodProfile?.methodKey || selectedMethodKey || null,
       })}
-    />
+    />}
 
     <div ref={deepSentinelRef} aria-hidden="true" style={{ height: 1 }} />
     {deepRequested && deepViewModel ? <NumberDeepView2029
@@ -1321,23 +1420,36 @@ function NumberPageBody() {
   </div>;
 }
 
-export default function Number2029Page() {
+export default function Number2029Page({ resolvedAddress = null } = {}) {
   const { value } = useParams();
+  const [admitted, setAdmitted] = useState(false);
+  const address = resolvedAddress?.address || value || "";
+  useEffect(() => {
+    let live = true;
+    setAdmitted(false);
+    if (resolvedAddress?.publicAddress) {
+      const numeric = /^\d+$/.test(address);
+      const request = numeric ? supabase.rpc("is_number_indexable", { p_value: resolvedAddress.root })
+        : supabase.rpc("is_phrase_indexable", { p_phrase: address });
+      request.then(({ data, error }) => { if (live && !error) setAdmitted(data === true); }).catch(() => {});
+    }
+    return () => { live = false; };
+  }, [address, resolvedAddress?.publicAddress, resolvedAddress?.root]);
 
   useEffect(() => {
     applySeo({
-      title: `${value || "מספר"} · דף המספר`,
+      title: `${address || "מספר"} · דף המספר`,
       description: "דף המספר — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.",
-      path: `/2029/number/${value || ""}`,
-      noindex: true,
+      path: resolvedAddress?.publicAddress ? `/number/${encodeURIComponent(address)}` : `/2029/number/${value || ""}`,
+      noindex: !admitted,
     });
-  }, [value]);
+  }, [value, address, admitted, resolvedAddress?.publicAddress]);
 
   return <Sod2029Shell
     surface="number"
     symbol={<NavigationIcon2029 name="number" />}
-    status="LIVING NUMBER · DESIGN PREVIEW"
+    status="דף המספר והביטוי"
   >
-    <NumberPageBody />
+    <NumberPageBody resolvedAddress={resolvedAddress} />
   </Sod2029Shell>;
 }

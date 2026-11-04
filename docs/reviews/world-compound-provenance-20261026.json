@@ -1,0 +1,4489 @@
+{
+  "base": "fddb6eefd6fd76d91a77c5501df29dc317a6b3c4",
+  "scope": "27 prior cases, 20 compound equations; 45 public source texts. Not a new corpus count.",
+  "baseline": {
+    "base": "fddb6eefd6fd76d91a77c5501df29dc317a6b3c4",
+    "sources": [
+      {
+        "id": "0041cc96-ec4b-4b60-88a9-6cb74fee4bba",
+        "sourceMd5": "f3d6941aee72e4bb2b7e1d38edf98cc5",
+        "claimCount": 1,
+        "claimsSha256": "118fc984cf0c4c0e9b89fe3597247bd0d3e7b3c9679f0aa713cecaa025221f27",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "01e66795-d792-455d-b177-fa2bd045ac13",
+        "sourceMd5": "b68abfece0f0fd0ec1f6f3fd7777b051",
+        "claimCount": 2,
+        "claimsSha256": "f70bf2ba2600107ef4a74f98b27fff912db1e615c62f40e70ab20446d461ebf7",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 2
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "01ebf6a0-9a40-4aba-ac2d-7f6337b57a8d",
+        "sourceMd5": "0086a257c67092db27299bc5e3631d16",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "11deebad-b4ad-4d2b-ab9f-5596908fc3ef",
+        "sourceMd5": "786cd5bd569d7c364cb20dec8b3bbb90",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "161cb49c-5765-4da9-9716-0d85af821f67",
+        "sourceMd5": "60f175f03e0e7b8f0369735f39ae170a",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "1ba2dc9a-0de6-4ad1-a71c-c42db5c211b6",
+        "sourceMd5": "8858faba8c2d265af22dac1d1ae01448",
+        "claimCount": 1,
+        "claimsSha256": "3e11c681727d1f63f52c2fdde3a309c1671dcbd5f45e35eca135b0f4ba400d65",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "1ea8ff89-57af-481c-b51f-0596ae3c2a95",
+        "sourceMd5": "dd24096298a86c6fa2f2cc3dd065a04e",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "25852ac7-9bee-4b84-9ffa-e848e613c48b",
+        "sourceMd5": "4e3f0fc1d9fbc1a3e6094ca23ea2359c",
+        "claimCount": 1,
+        "claimsSha256": "145224415517401cba0272361a8423dacdb5ed6316b3de844ff339140576bb33",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "26a591c9-633c-4de1-b035-d7dac18ea90c",
+        "sourceMd5": "8c50a81e4a461aeac6c6127d0cf4a3d1",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "2bc06043-055a-4898-a075-0b427c02fb2a",
+        "sourceMd5": "85b889731f68859400c7b1cff5dc6ff5",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "2dd41b55-fdcd-452f-9309-78c0f4333885",
+        "sourceMd5": "9e785d807abe0a204b127f5a1db84430",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "2f58d6be-ba37-40ce-8992-a849193251ec",
+        "sourceMd5": "6c80fba91551d5b1ca9c9f9484c2c6b5",
+        "claimCount": 1,
+        "claimsSha256": "6d7fccdc11627723ae7228e055d4e4efdd6f40680cec53428a926676a08874a0",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "3c08df93-6291-4408-9752-80359c85e9b3",
+        "sourceMd5": "10ce4181d95b7f8a7deb85c680e1ae38",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "484c4cc1-9c7d-4dcc-9854-9dae686c4f77",
+        "sourceMd5": "75aa7f733786166ce21fc30533c4cdd1",
+        "claimCount": 2,
+        "claimsSha256": "73a3fa929f3aaf1b629995e83a1bc6db4d27e9f9f2bada9a82e200e037060d7f",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 2
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "4ffb1e5e-a760-47f7-82fc-7281464a6c99",
+        "sourceMd5": "8074538cf68bb43af8bb7ccd6935989e",
+        "claimCount": 2,
+        "claimsSha256": "d8a43837e372f11e5d82ec62f5fbc03eb385eececf556c9cfd3205df59beca8c",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 2
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "52db98fc-2f71-4960-b98c-43bcc51bf68d",
+        "sourceMd5": "e01217d8eed074228ac162f31eedcb7a",
+        "claimCount": 2,
+        "claimsSha256": "125f2218829516b7d05853a8171f36c5d312f74d5ab4089074dc59d4d3548cb8",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 2
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "5778e561-8318-49f1-8460-8a9e0873bbe2",
+        "sourceMd5": "b9e4bd791306ecc8b35ab73b541ec1d6",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "68a3d151-0a74-4ef9-93f3-0b03c9fa2643",
+        "sourceMd5": "e4c9df62138c933b9dc699e7a48b8bf8",
+        "claimCount": 1,
+        "claimsSha256": "f12d8369d8ef5e7d48d3210339c5f9aca2efd2d45e62491abc6e586812a1a7ee",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "7105aa46-79b5-4cab-9904-1cca04ddd9f9",
+        "sourceMd5": "8f1b4b670361fe225e5eeff1bfb36d1f",
+        "claimCount": 1,
+        "claimsSha256": "7043ddd09161f151bc357b97ce0e8f603118e8ca6a61d1a7fbd7fc498458eb09",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "77dc0e80-0e07-4323-8ce0-29275a2e7fac",
+        "sourceMd5": "178f6999f48458113e8565c77a26dfa1",
+        "claimCount": 2,
+        "claimsSha256": "11df473c4416f367de2a9467b37c5c16e9eebd6a2e9baebb170ddcd371acedc4",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 2
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "7cf28748-500f-4b53-8c32-962a27eaaa6e",
+        "sourceMd5": "2706e8f69caded58cf99beded0580876",
+        "claimCount": 1,
+        "claimsSha256": "ecd6047ab3a4ff7f581403ab4274da190e720c29ebb3c0cb82b154494e68671c",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b",
+        "sourceMd5": "5dbdb2c80ab8baccba065c356bfe1188",
+        "claimCount": 1,
+        "claimsSha256": "b1dfe37377b092b8afe16ada0c8a8ce41e019ee3d521c271bb6a3b3687cb423e",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "815a3147-b956-41db-a6e6-930e39909116",
+        "sourceMd5": "30f832c02e9ab6d441f641ac063ee350",
+        "claimCount": 1,
+        "claimsSha256": "cbebb28902f25ee29a5c9279060555f148a3434ec017d966fdd940013c119d5d",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "8be96452-715d-4c6e-bba5-eb08ea24cf6d",
+        "sourceMd5": "1c052ce08cabecb4f5e5dc64b417c8c2",
+        "claimCount": 1,
+        "claimsSha256": "ade2bbf1848afd5e17685f8b713ebf89b54baaa0375677be6d0dfc9852a05603",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "a1d5f486-cd2e-4842-a42f-8536f997bf50",
+        "sourceMd5": "5126d22181b6fecb0de168a102fb0801",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "a2d5b645-39b9-499a-b86e-7e4c693bd40a",
+        "sourceMd5": "e1ec3809ba774d253d44df6573a5080e",
+        "claimCount": 3,
+        "claimsSha256": "7f39be3f85dfcdd6401a7374fb31f2932c0327a30edac0318a501431986de96e",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 3
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "a35c848c-82e9-481a-8168-44dc5aa00088",
+        "sourceMd5": "71053d77b135de7dc1a6f5522a47255e",
+        "claimCount": 1,
+        "claimsSha256": "b00bec51b6ffe52614af098eae8449c6b388d6aaaa315c13c9850dc761c64a86",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "aa5276b4-6246-4334-8d96-5e8111ccff0c",
+        "sourceMd5": "3ef88749770a8b47606513f6865cf216",
+        "claimCount": 1,
+        "claimsSha256": "2f6799272d06fd2a6ec243d0b7412eade4be11f799baa3b1ff5e8cde5eb7f55e",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "partial",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "af69ea51-1558-4fbe-89cd-7156e6382faa",
+        "sourceMd5": "71cb46294f6e9d81cd04b2e1a2600f6c",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "b3e4830c-8fb1-4f82-af5c-ba05cd81262e",
+        "sourceMd5": "3cf40e6b5e77d6cf2ae4cb9dca729379",
+        "claimCount": 3,
+        "claimsSha256": "3a04af22aa41b52ecd9df915827da6337684cdfaacbdde744557346de411aefa",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 3
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "b49acf9f-d19c-4b31-918d-46dd2367c9f5",
+        "sourceMd5": "cd4c0a4fec3623385b6902e91d5d0209",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "b4b40a70-d21c-4601-9d09-34191b601347",
+        "sourceMd5": "fb32f31e865f847d804e0c793eca1820",
+        "claimCount": 1,
+        "claimsSha256": "bca4e929fec44a8ca27e9c1df816910ebdf4bdd3f1caa5f1ba9e7e2fcd9adf88",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "c55b8c25-be73-4718-8781-2e23832bf128",
+        "sourceMd5": "369ab8655d6b1c87b5642acfafb126b8",
+        "claimCount": 4,
+        "claimsSha256": "f246b677e78a8ebf40e85e463c1cf9e80c489bc4a25158bf22f7d969df2f272d",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 4
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "cdd61df7-9493-4490-9a63-72bb184daa67",
+        "sourceMd5": "dec0dbf9b5faa167306929def4174b10",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "d0d58a89-6c6f-4888-aab7-2d92875e0d23",
+        "sourceMd5": "950496be2f76eb5229c6b1c1b916e2bd",
+        "claimCount": 3,
+        "claimsSha256": "68ceff44c4a1a7ef8215ac044f7f0a9dbe07b3f4c32bd1cce9dfee8fe20a34c2",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 3
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "d8b08f8d-5ba1-44cd-b55d-64fbd00fa1a3",
+        "sourceMd5": "833cb73fe66b8f45dc3e43fd7fb3f854",
+        "claimCount": 1,
+        "claimsSha256": "9e4c26f3dc82df5451673365bcf77ee02e02b1b02eac57b2e3f3d565ec879d88",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "dc903c88-7e97-4f56-ba77-7d38c7c1be75",
+        "sourceMd5": "b647c32c10a2b824c56a8dfa2c00ec59",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "de4ce23d-f64e-4662-b2de-2d9c70fd077e",
+        "sourceMd5": "7bf05d0711bb8b413dcebd3e034d8fbc",
+        "claimCount": 3,
+        "claimsSha256": "87293d91f19e099f8b84a7653e4111bef0c61c4d0ab4b301183b25b031680259",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 3
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "ec29de1b-7008-45bc-aae5-6a33cba9c3a1",
+        "sourceMd5": "8aa415427de0dc6e543783491f642576",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "ee1a38a8-6c13-4541-8a78-76f824985ea3",
+        "sourceMd5": "fd76e067c06646b58853a9e6190d320f",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "f0676031-cf8d-4c5c-b0d8-7fb229f8bfc7",
+        "sourceMd5": "c46420bd90a67d1b01e983a85c841191",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "f173d160-5375-4267-a0be-e80c4df9131a",
+        "sourceMd5": "aa78d0c578144c56d31ee5602d5a1c9d",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "f2e1a842-1ab6-45fd-a738-e419ca17340d",
+        "sourceMd5": "32bab6b4950265500e9a7d13f79c175f",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "f7427e14-eac6-4ce6-a70a-1b674d1f9c73",
+        "sourceMd5": "3d9fe346f8bd4ce841cf363add70b099",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "statuses": {},
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "fc4cad9c-645f-48bc-8fab-2ae1eda228df",
+        "sourceMd5": "e38573e45ee3b6b19a9da459522800b4",
+        "claimCount": 1,
+        "claimsSha256": "cb14c00fcb8d96f9551768cda8aae2b4cd69940d247f94169f6435069d024cb2",
+        "statuses": {
+          "ENGINE_VERIFIED_COMPOSITE": 1
+        },
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      }
+    ],
+    "cases": [
+      {
+        "id": "061d0c9c-c0f7-4b37-812e-1d6922e2186e",
+        "sourceRef": "channel_updates:b3e4830c-8fb1-4f82-af5c-ba05cd81262e#batch1",
+        "sourceSpan": {
+          "start": 342,
+          "end": 367,
+          "excerpt": "יקיר (320)+אפרים(331)=651"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "1b683540-beee-4c6d-9e34-64de577de5e9",
+        "sourceRef": "channel_updates:c55b8c25-be73-4718-8781-2e23832bf128#batch0",
+        "sourceSpan": {
+          "start": 85,
+          "end": 125,
+          "excerpt": "פ (80) + ש (300) + ר (200) + ה (5) = 585"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "1ff7c22c-f607-44d5-baeb-c6e5e8a66012",
+        "sourceRef": "channel_updates:52db98fc-2f71-4960-b98c-43bcc51bf68d#batch3",
+        "sourceSpan": {
+          "start": 43,
+          "end": 67,
+          "excerpt": "ענוים+ענוים=ארך אפים=352"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "2d44a01e-0317-4b30-8320-78bf1282b1b4",
+        "sourceRef": "channel_updates:7105aa46-79b5-4cab-9904-1cca04ddd9f9#batch1",
+        "sourceSpan": {
+          "start": 542,
+          "end": 571,
+          "excerpt": "אדם+דוד+משיח+מי=467=קציר חטים"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "4b08c039-b1b3-48d9-b4bd-d96de5e47d69",
+        "sourceRef": "channel_updates:77dc0e80-0e07-4323-8ce0-29275a2e7fac#batch1",
+        "sourceSpan": {
+          "start": 249,
+          "end": 273,
+          "excerpt": "ברזל+דמעות+י-ה-ו-ה+א=786"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "4b6c3af7-8d34-42ff-96d0-d5a4b60b9bb9",
+        "sourceRef": "channel_updates:484c4cc1-9c7d-4dcc-9854-9dae686c4f77#batch0",
+        "sourceSpan": {
+          "start": 33,
+          "end": 48,
+          "excerpt": "חזק+חזק+חזק=345"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "4ec599a6-5237-487b-9ee0-2fe57fba7610",
+        "sourceRef": "channel_updates:fc4cad9c-645f-48bc-8fab-2ae1eda228df#batch0",
+        "sourceSpan": {
+          "start": 323,
+          "end": 340,
+          "excerpt": "393+393=תשפ\"ו=786"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "5d37e906-d39a-4547-b57d-76d7653bfe22",
+        "sourceRef": "channel_updates:0041cc96-ec4b-4b60-88a9-6cb74fee4bba#batch0",
+        "sourceSpan": {
+          "start": 53,
+          "end": 64,
+          "excerpt": "ש+נ+מ+ר=590"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "8369ae07-b8a0-402a-a6b5-52a689976d8a",
+        "sourceRef": "channel_updates:2f58d6be-ba37-40ce-8992-a849193251ec#batch2",
+        "sourceSpan": {
+          "start": 431,
+          "end": 456,
+          "excerpt": "\"אליה+להיות עמה\"=612=ברית"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "84296914-4bbd-4eae-b6bb-2bf4c7cf3512",
+        "sourceRef": "channel_updates:26a591c9-633c-4de1-b035-d7dac18ea90c#batch0",
+        "sourceSpan": {
+          "start": 183,
+          "end": 203,
+          "excerpt": "תהילים+ק\"נ (150)=645"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "8a3e8d9e-1aa2-4726-aac2-3bb02451af9f",
+        "sourceRef": "channel_updates:25852ac7-9bee-4b84-9ffa-e848e613c48b#batch0",
+        "sourceSpan": {
+          "start": 64,
+          "end": 79,
+          "excerpt": "אמונה+ מעשה=517"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "8b5ffc0a-84e5-4bb9-bf3b-ec537b99d266",
+        "sourceRef": "channel_updates:1ba2dc9a-0de6-4ad1-a71c-c42db5c211b6#batch0",
+        "sourceSpan": {
+          "start": 95,
+          "end": 118,
+          "excerpt": "\"אש שחורה+אש לבנה\"=1208"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "a6402320-1a7b-4bd9-804c-f606e03e8dbb",
+        "sourceRef": "channel_updates:8be96452-715d-4c6e-bba5-eb08ea24cf6d#batch0",
+        "sourceSpan": {
+          "start": 319,
+          "end": 338,
+          "excerpt": "תניא+תניא+תניא=1383"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "ce1e0320-4525-42d6-8796-01a51f370d63",
+        "sourceRef": "channel_updates:d0d58a89-6c6f-4888-aab7-2d92875e0d23#batch0",
+        "sourceSpan": {
+          "start": 21,
+          "end": 37,
+          "excerpt": "אמונה +תשפ\"ו=888"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "cf605c84-21e9-4a73-85c5-575e6c5fe8dd",
+        "sourceRef": "channel_updates:01e66795-d792-455d-b177-fa2bd045ac13#batch1",
+        "sourceSpan": {
+          "start": 135,
+          "end": 164,
+          "excerpt": "עִכּוּב: 70 + 20 + 6 + 2 = 98"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "d6cd66d2-442c-44ae-ab3f-b64d0721546d",
+        "sourceRef": "channel_updates:77dc0e80-0e07-4323-8ce0-29275a2e7fac#batch0",
+        "sourceSpan": {
+          "start": 128,
+          "end": 158,
+          "excerpt": "ברזל+דמעות+אמונה=861=בית המקדש"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "da0a6436-9e18-4249-8340-470e7ccef2f2",
+        "sourceRef": "channel_updates:01e66795-d792-455d-b177-fa2bd045ac13#batch0",
+        "sourceSpan": {
+          "start": 92,
+          "end": 134,
+          "excerpt": "כּוֹכָבִים: 20 + 6 + 20 + 2 + 10 + 40 = 98"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "dd42ce83-524f-4cdc-a8a4-02c9358ca277",
+        "sourceRef": "channel_updates:484c4cc1-9c7d-4dcc-9854-9dae686c4f77#batch1",
+        "sourceSpan": {
+          "start": 273,
+          "end": 292,
+          "excerpt": "סנה+סנה+סנה=345=משה"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "e4928236-5f18-4272-9da6-51c2ba4723fa",
+        "sourceRef": "channel_updates:7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b#batch0",
+        "sourceSpan": {
+          "start": 282,
+          "end": 311,
+          "excerpt": "ביצוע(178)+בטל רצונך(407)=585"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "f724c86d-75b1-4213-aa97-1f4903b78046",
+        "sourceRef": "channel_updates:7cf28748-500f-4b53-8c32-962a27eaaa6e#batch0",
+        "sourceSpan": {
+          "start": 238,
+          "end": 249,
+          "excerpt": "רחל+קול=374"
+        },
+        "oldIntegrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      }
+    ]
+  },
+  "current": {
+    "sources": [
+      {
+        "id": "0041cc96-ec4b-4b60-88a9-6cb74fee4bba",
+        "claimCount": 1,
+        "claimsSha256": "118fc984cf0c4c0e9b89fe3597247bd0d3e7b3c9679f0aa713cecaa025221f27",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "01e66795-d792-455d-b177-fa2bd045ac13",
+        "claimCount": 2,
+        "claimsSha256": "f70bf2ba2600107ef4a74f98b27fff912db1e615c62f40e70ab20446d461ebf7",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "01ebf6a0-9a40-4aba-ac2d-7f6337b57a8d",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "11deebad-b4ad-4d2b-ab9f-5596908fc3ef",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "161cb49c-5765-4da9-9716-0d85af821f67",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "1ba2dc9a-0de6-4ad1-a71c-c42db5c211b6",
+        "claimCount": 1,
+        "claimsSha256": "3e11c681727d1f63f52c2fdde3a309c1671dcbd5f45e35eca135b0f4ba400d65",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "1ea8ff89-57af-481c-b51f-0596ae3c2a95",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "25852ac7-9bee-4b84-9ffa-e848e613c48b",
+        "claimCount": 1,
+        "claimsSha256": "145224415517401cba0272361a8423dacdb5ed6316b3de844ff339140576bb33",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "26a591c9-633c-4de1-b035-d7dac18ea90c",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "2bc06043-055a-4898-a075-0b427c02fb2a",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "2dd41b55-fdcd-452f-9309-78c0f4333885",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "2f58d6be-ba37-40ce-8992-a849193251ec",
+        "claimCount": 1,
+        "claimsSha256": "6d7fccdc11627723ae7228e055d4e4efdd6f40680cec53428a926676a08874a0",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "3c08df93-6291-4408-9752-80359c85e9b3",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "484c4cc1-9c7d-4dcc-9854-9dae686c4f77",
+        "claimCount": 2,
+        "claimsSha256": "73a3fa929f3aaf1b629995e83a1bc6db4d27e9f9f2bada9a82e200e037060d7f",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "4ffb1e5e-a760-47f7-82fc-7281464a6c99",
+        "claimCount": 2,
+        "claimsSha256": "d8a43837e372f11e5d82ec62f5fbc03eb385eececf556c9cfd3205df59beca8c",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "52db98fc-2f71-4960-b98c-43bcc51bf68d",
+        "claimCount": 2,
+        "claimsSha256": "125f2218829516b7d05853a8171f36c5d312f74d5ab4089074dc59d4d3548cb8",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "5778e561-8318-49f1-8460-8a9e0873bbe2",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "68a3d151-0a74-4ef9-93f3-0b03c9fa2643",
+        "claimCount": 1,
+        "claimsSha256": "f12d8369d8ef5e7d48d3210339c5f9aca2efd2d45e62491abc6e586812a1a7ee",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "7105aa46-79b5-4cab-9904-1cca04ddd9f9",
+        "claimCount": 1,
+        "claimsSha256": "7043ddd09161f151bc357b97ce0e8f603118e8ca6a61d1a7fbd7fc498458eb09",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "77dc0e80-0e07-4323-8ce0-29275a2e7fac",
+        "claimCount": 2,
+        "claimsSha256": "11df473c4416f367de2a9467b37c5c16e9eebd6a2e9baebb170ddcd371acedc4",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "7cf28748-500f-4b53-8c32-962a27eaaa6e",
+        "claimCount": 1,
+        "claimsSha256": "ecd6047ab3a4ff7f581403ab4274da190e720c29ebb3c0cb82b154494e68671c",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b",
+        "claimCount": 1,
+        "claimsSha256": "b1dfe37377b092b8afe16ada0c8a8ce41e019ee3d521c271bb6a3b3687cb423e",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "815a3147-b956-41db-a6e6-930e39909116",
+        "claimCount": 1,
+        "claimsSha256": "cbebb28902f25ee29a5c9279060555f148a3434ec017d966fdd940013c119d5d",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "8be96452-715d-4c6e-bba5-eb08ea24cf6d",
+        "claimCount": 1,
+        "claimsSha256": "ade2bbf1848afd5e17685f8b713ebf89b54baaa0375677be6d0dfc9852a05603",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "a1d5f486-cd2e-4842-a42f-8536f997bf50",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "a2d5b645-39b9-499a-b86e-7e4c693bd40a",
+        "claimCount": 3,
+        "claimsSha256": "7f39be3f85dfcdd6401a7374fb31f2932c0327a30edac0318a501431986de96e",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "a35c848c-82e9-481a-8168-44dc5aa00088",
+        "claimCount": 1,
+        "claimsSha256": "b00bec51b6ffe52614af098eae8449c6b388d6aaaa315c13c9850dc761c64a86",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        }
+      },
+      {
+        "id": "aa5276b4-6246-4334-8d96-5e8111ccff0c",
+        "claimCount": 1,
+        "claimsSha256": "2f6799272d06fd2a6ec243d0b7412eade4be11f799baa3b1ff5e8cde5eb7f55e",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "partial",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "af69ea51-1558-4fbe-89cd-7156e6382faa",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "b3e4830c-8fb1-4f82-af5c-ba05cd81262e",
+        "claimCount": 3,
+        "claimsSha256": "3a04af22aa41b52ecd9df915827da6337684cdfaacbdde744557346de411aefa",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "b49acf9f-d19c-4b31-918d-46dd2367c9f5",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "b4b40a70-d21c-4601-9d09-34191b601347",
+        "claimCount": 1,
+        "claimsSha256": "bca4e929fec44a8ca27e9c1df816910ebdf4bdd3f1caa5f1ba9e7e2fcd9adf88",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "c55b8c25-be73-4718-8781-2e23832bf128",
+        "claimCount": 4,
+        "claimsSha256": "f246b677e78a8ebf40e85e463c1cf9e80c489bc4a25158bf22f7d969df2f272d",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "cdd61df7-9493-4490-9a63-72bb184daa67",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "d0d58a89-6c6f-4888-aab7-2d92875e0d23",
+        "claimCount": 3,
+        "claimsSha256": "68ceff44c4a1a7ef8215ac044f7f0a9dbe07b3f4c32bd1cce9dfee8fe20a34c2",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "d8b08f8d-5ba1-44cd-b55d-64fbd00fa1a3",
+        "claimCount": 1,
+        "claimsSha256": "9e4c26f3dc82df5451673365bcf77ee02e02b1b02eac57b2e3f3d565ec879d88",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "dc903c88-7e97-4f56-ba77-7d38c7c1be75",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "de4ce23d-f64e-4662-b2de-2d9c70fd077e",
+        "claimCount": 3,
+        "claimsSha256": "87293d91f19e099f8b84a7653e4111bef0c61c4d0ab4b301183b25b031680259",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "ec29de1b-7008-45bc-aae5-6a33cba9c3a1",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "ee1a38a8-6c13-4541-8a78-76f824985ea3",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "f0676031-cf8d-4c5c-b0d8-7fb229f8bfc7",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "f173d160-5375-4267-a0be-e80c4df9131a",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "f2e1a842-1ab6-45fd-a738-e419ca17340d",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "f7427e14-eac6-4ce6-a70a-1b674d1f9c73",
+        "claimCount": 0,
+        "claimsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "integrity": {
+          "arithmeticVerified": false,
+          "semanticOperandCoverage": "not_applicable",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      },
+      {
+        "id": "fc4cad9c-645f-48bc-8fab-2ae1eda228df",
+        "claimCount": 1,
+        "claimsSha256": "cb14c00fcb8d96f9551768cda8aae2b4cd69940d247f94169f6435069d024cb2",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        }
+      }
+    ],
+    "cases": [
+      {
+        "id": "061d0c9c-c0f7-4b37-812e-1d6922e2186e",
+        "sourceRef": "channel_updates:b3e4830c-8fb1-4f82-af5c-ba05cd81262e#batch1",
+        "sourceSpan": {
+          "start": 342,
+          "end": 367,
+          "excerpt": "יקיר (320)+אפרים(331)=651"
+        },
+        "value": 651,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 651,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "יקיר (320)+אפרים(331)=651",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 651,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "יקיר (320)+אפרים(331)=651",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "1b683540-beee-4c6d-9e34-64de577de5e9",
+        "sourceRef": "channel_updates:c55b8c25-be73-4718-8781-2e23832bf128#batch0",
+        "sourceSpan": {
+          "start": 85,
+          "end": 125,
+          "excerpt": "פ (80) + ש (300) + ר (200) + ה (5) = 585"
+        },
+        "value": 585,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 585,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "פ (80) + ש (300) + ר (200) + ה (5) = 585",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 585,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "פ (80) + ש (300) + ר (200) + ה (5) = 585",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "1ff7c22c-f607-44d5-baeb-c6e5e8a66012",
+        "sourceRef": "channel_updates:52db98fc-2f71-4960-b98c-43bcc51bf68d#batch3",
+        "sourceSpan": {
+          "start": 43,
+          "end": 67,
+          "excerpt": "ענוים+ענוים=ארך אפים=352"
+        },
+        "value": 352,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 352,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 2,
+            "astPath": [],
+            "expression": "ענוים+ענוים=ארך אפים=352",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 352,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "ענוים+ענוים=ארך אפים=352",
+                  "origin_ref": {
+                    "link_index": 2,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "2d44a01e-0317-4b30-8320-78bf1282b1b4",
+        "sourceRef": "channel_updates:7105aa46-79b5-4cab-9904-1cca04ddd9f9#batch1",
+        "sourceSpan": {
+          "start": 542,
+          "end": 571,
+          "excerpt": "אדם+דוד+משיח+מי=467=קציר חטים"
+        },
+        "value": 467,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 467,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "אדם+דוד+משיח+מי=467=קציר חטים",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 467,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "אדם+דוד+משיח+מי=467=קציר חטים",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "4b08c039-b1b3-48d9-b4bd-d96de5e47d69",
+        "sourceRef": "channel_updates:77dc0e80-0e07-4323-8ce0-29275a2e7fac#batch1",
+        "sourceSpan": {
+          "start": 249,
+          "end": 273,
+          "excerpt": "ברזל+דמעות+י-ה-ו-ה+א=786"
+        },
+        "value": 786,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 786,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "ברזל+דמעות+י-ה-ו-ה+א=786",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 786,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "ברזל+דמעות+י-ה-ו-ה+א=786",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "4b6c3af7-8d34-42ff-96d0-d5a4b60b9bb9",
+        "sourceRef": "channel_updates:484c4cc1-9c7d-4dcc-9854-9dae686c4f77#batch0",
+        "sourceSpan": {
+          "start": 33,
+          "end": 48,
+          "excerpt": "חזק+חזק+חזק=345"
+        },
+        "value": 345,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 345,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "חזק+חזק+חזק=345",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 345,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "חזק+חזק+חזק=345",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "4ec599a6-5237-487b-9ee0-2fe57fba7610",
+        "sourceRef": "channel_updates:fc4cad9c-645f-48bc-8fab-2ae1eda228df#batch0",
+        "sourceSpan": {
+          "start": 323,
+          "end": 340,
+          "excerpt": "393+393=תשפ\"ו=786"
+        },
+        "value": 786,
+        "route": "derivation_fidelity_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        },
+        "numericOccurrences": [
+          {
+            "value": 393,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "a"
+            ],
+            "expression": "393+393=תשפ\"ו=786",
+            "verifiedByLink": null
+          },
+          {
+            "value": 393,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "b"
+            ],
+            "expression": "393+393=תשפ\"ו=786",
+            "verifiedByLink": null
+          },
+          {
+            "value": 786,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 2,
+            "astPath": [],
+            "expression": "393+393=תשפ\"ו=786",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [
+                {
+                  "value": 393,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "393+393=תשפ\"ו=786",
+                    "link_index": 0,
+                    "ast_path": [
+                      "a"
+                    ]
+                  }
+                },
+                {
+                  "value": 393,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "393+393=תשפ\"ו=786",
+                    "link_index": 0,
+                    "ast_path": [
+                      "b"
+                    ]
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "value": 786,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "393+393=תשפ\"ו=786",
+                  "origin_ref": {
+                    "link_index": 2,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "partial",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "partial",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "5d37e906-d39a-4547-b57d-76d7653bfe22",
+        "sourceRef": "channel_updates:0041cc96-ec4b-4b60-88a9-6cb74fee4bba#batch0",
+        "sourceSpan": {
+          "start": 53,
+          "end": 64,
+          "excerpt": "ש+נ+מ+ר=590"
+        },
+        "value": 590,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 590,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "ש+נ+מ+ר=590",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 590,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "ש+נ+מ+ר=590",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "8369ae07-b8a0-402a-a6b5-52a689976d8a",
+        "sourceRef": "channel_updates:2f58d6be-ba37-40ce-8992-a849193251ec#batch2",
+        "sourceSpan": {
+          "start": 431,
+          "end": 456,
+          "excerpt": "\"אליה+להיות עמה\"=612=ברית"
+        },
+        "value": 612,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 612,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "\"אליה+להיות עמה\"=612=ברית",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 612,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "\"אליה+להיות עמה\"=612=ברית",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "84296914-4bbd-4eae-b6bb-2bf4c7cf3512",
+        "sourceRef": "channel_updates:26a591c9-633c-4de1-b035-d7dac18ea90c#batch0",
+        "sourceSpan": {
+          "start": 183,
+          "end": 203,
+          "excerpt": "תהילים+ק\"נ (150)=645"
+        },
+        "value": 645,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 645,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "תהילים+ק\"נ (150)=645",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 645,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "תהילים+ק\"נ (150)=645",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "8a3e8d9e-1aa2-4726-aac2-3bb02451af9f",
+        "sourceRef": "channel_updates:25852ac7-9bee-4b84-9ffa-e848e613c48b#batch0",
+        "sourceSpan": {
+          "start": 64,
+          "end": 79,
+          "excerpt": "אמונה+ מעשה=517"
+        },
+        "value": 517,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 517,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "אמונה+ מעשה=517",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 517,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "אמונה+ מעשה=517",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "8b5ffc0a-84e5-4bb9-bf3b-ec537b99d266",
+        "sourceRef": "channel_updates:1ba2dc9a-0de6-4ad1-a71c-c42db5c211b6#batch0",
+        "sourceSpan": {
+          "start": 95,
+          "end": 118,
+          "excerpt": "\"אש שחורה+אש לבנה\"=1208"
+        },
+        "value": 1208,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 1208,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "\"אש שחורה+אש לבנה\"=1208",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 1208,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "\"אש שחורה+אש לבנה\"=1208",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "a6402320-1a7b-4bd9-804c-f606e03e8dbb",
+        "sourceRef": "channel_updates:8be96452-715d-4c6e-bba5-eb08ea24cf6d#batch0",
+        "sourceSpan": {
+          "start": 319,
+          "end": 338,
+          "excerpt": "תניא+תניא+תניא=1383"
+        },
+        "value": 1383,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 1383,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "תניא+תניא+תניא=1383",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 1383,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "תניא+תניא+תניא=1383",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "ce1e0320-4525-42d6-8796-01a51f370d63",
+        "sourceRef": "channel_updates:d0d58a89-6c6f-4888-aab7-2d92875e0d23#batch0",
+        "sourceSpan": {
+          "start": 21,
+          "end": 37,
+          "excerpt": "אמונה +תשפ\"ו=888"
+        },
+        "value": 888,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 888,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "אמונה +תשפ\"ו=888",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 888,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "אמונה +תשפ\"ו=888",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "cf605c84-21e9-4a73-85c5-575e6c5fe8dd",
+        "sourceRef": "channel_updates:01e66795-d792-455d-b177-fa2bd045ac13#batch1",
+        "sourceSpan": {
+          "start": 135,
+          "end": 164,
+          "excerpt": "עִכּוּב: 70 + 20 + 6 + 2 = 98"
+        },
+        "value": 98,
+        "route": "derivation_fidelity_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        },
+        "numericOccurrences": [
+          {
+            "value": 70,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "a",
+              "a",
+              "a"
+            ],
+            "expression": "70 + 20 + 6 + 2 = 98",
+            "verifiedByLink": null
+          },
+          {
+            "value": 20,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "a",
+              "a",
+              "b"
+            ],
+            "expression": "70 + 20 + 6 + 2 = 98",
+            "verifiedByLink": null
+          },
+          {
+            "value": 6,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "a",
+              "b"
+            ],
+            "expression": "70 + 20 + 6 + 2 = 98",
+            "verifiedByLink": null
+          },
+          {
+            "value": 2,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "b"
+            ],
+            "expression": "70 + 20 + 6 + 2 = 98",
+            "verifiedByLink": null
+          },
+          {
+            "value": 98,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "70 + 20 + 6 + 2 = 98",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [
+                {
+                  "value": 70,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "70 + 20 + 6 + 2 = 98",
+                    "link_index": 0,
+                    "ast_path": [
+                      "a",
+                      "a",
+                      "a"
+                    ]
+                  }
+                },
+                {
+                  "value": 20,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "70 + 20 + 6 + 2 = 98",
+                    "link_index": 0,
+                    "ast_path": [
+                      "a",
+                      "a",
+                      "b"
+                    ]
+                  }
+                },
+                {
+                  "value": 6,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "70 + 20 + 6 + 2 = 98",
+                    "link_index": 0,
+                    "ast_path": [
+                      "a",
+                      "b"
+                    ]
+                  }
+                },
+                {
+                  "value": 2,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "70 + 20 + 6 + 2 = 98",
+                    "link_index": 0,
+                    "ast_path": [
+                      "b"
+                    ]
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "value": 98,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "70 + 20 + 6 + 2 = 98",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "partial",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "partial",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "d6cd66d2-442c-44ae-ab3f-b64d0721546d",
+        "sourceRef": "channel_updates:77dc0e80-0e07-4323-8ce0-29275a2e7fac#batch0",
+        "sourceSpan": {
+          "start": 128,
+          "end": 158,
+          "excerpt": "ברזל+דמעות+אמונה=861=בית המקדש"
+        },
+        "value": 861,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 861,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "ברזל+דמעות+אמונה=861=בית המקדש",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 861,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "ברזל+דמעות+אמונה=861=בית המקדש",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "da0a6436-9e18-4249-8340-470e7ccef2f2",
+        "sourceRef": "channel_updates:01e66795-d792-455d-b177-fa2bd045ac13#batch0",
+        "sourceSpan": {
+          "start": 92,
+          "end": 134,
+          "excerpt": "כּוֹכָבִים: 20 + 6 + 20 + 2 + 10 + 40 = 98"
+        },
+        "value": 98,
+        "route": "derivation_fidelity_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "partial",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "partial"
+        },
+        "numericOccurrences": [
+          {
+            "value": 20,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "a",
+              "a",
+              "a",
+              "a",
+              "a"
+            ],
+            "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+            "verifiedByLink": null
+          },
+          {
+            "value": 6,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "a",
+              "a",
+              "a",
+              "a",
+              "b"
+            ],
+            "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+            "verifiedByLink": null
+          },
+          {
+            "value": 20,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "a",
+              "a",
+              "a",
+              "b"
+            ],
+            "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+            "verifiedByLink": null
+          },
+          {
+            "value": 2,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "a",
+              "a",
+              "b"
+            ],
+            "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+            "verifiedByLink": null
+          },
+          {
+            "value": 10,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "a",
+              "b"
+            ],
+            "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+            "verifiedByLink": null
+          },
+          {
+            "value": 40,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "arithmetic_input",
+            "linkIndex": 0,
+            "astPath": [
+              "b"
+            ],
+            "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+            "verifiedByLink": null
+          },
+          {
+            "value": 98,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [
+                {
+                  "value": 20,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+                    "link_index": 0,
+                    "ast_path": [
+                      "a",
+                      "a",
+                      "a",
+                      "a",
+                      "a"
+                    ]
+                  }
+                },
+                {
+                  "value": 6,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+                    "link_index": 0,
+                    "ast_path": [
+                      "a",
+                      "a",
+                      "a",
+                      "a",
+                      "b"
+                    ]
+                  }
+                },
+                {
+                  "value": 20,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+                    "link_index": 0,
+                    "ast_path": [
+                      "a",
+                      "a",
+                      "a",
+                      "b"
+                    ]
+                  }
+                },
+                {
+                  "value": 2,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+                    "link_index": 0,
+                    "ast_path": [
+                      "a",
+                      "a",
+                      "b"
+                    ]
+                  }
+                },
+                {
+                  "value": 10,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+                    "link_index": 0,
+                    "ast_path": [
+                      "a",
+                      "b"
+                    ]
+                  }
+                },
+                {
+                  "value": 40,
+                  "role": null,
+                  "origin_type": "unresolved",
+                  "origin_statement": null,
+                  "origin_ref": null,
+                  "status": "unresolved",
+                  "syntactic_role": "arithmetic_input",
+                  "expression_ref": {
+                    "expression": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+                    "link_index": 0,
+                    "ast_path": [
+                      "b"
+                    ]
+                  }
+                }
+              ],
+              "outputs": [
+                {
+                  "value": 98,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "20 + 6 + 20 + 2 + 10 + 40 = 98",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "partial",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "partial",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "dd42ce83-524f-4cdc-a8a4-02c9358ca277",
+        "sourceRef": "channel_updates:484c4cc1-9c7d-4dcc-9854-9dae686c4f77#batch1",
+        "sourceSpan": {
+          "start": 273,
+          "end": 292,
+          "excerpt": "סנה+סנה+סנה=345=משה"
+        },
+        "value": 345,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 345,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "סנה+סנה+סנה=345=משה",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 345,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "סנה+סנה+סנה=345=משה",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "e4928236-5f18-4272-9da6-51c2ba4723fa",
+        "sourceRef": "channel_updates:7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b#batch0",
+        "sourceSpan": {
+          "start": 282,
+          "end": 311,
+          "excerpt": "ביצוע(178)+בטל רצונך(407)=585"
+        },
+        "value": 585,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 585,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "ביצוע(178)+בטל רצונך(407)=585",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 585,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "ביצוע(178)+בטל רצונך(407)=585",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      },
+      {
+        "id": "f724c86d-75b1-4213-aa97-1f4903b78046",
+        "sourceRef": "channel_updates:7cf28748-500f-4b53-8c32-962a27eaaa6e#batch0",
+        "sourceSpan": {
+          "start": 238,
+          "end": 249,
+          "excerpt": "רחל+קול=374"
+        },
+        "value": 374,
+        "route": "derivation_slice_complete_requires_review",
+        "extractionScope": "source_span_only",
+        "integrity": {
+          "arithmeticVerified": true,
+          "semanticOperandCoverage": "complete",
+          "mediaReferenceCoverage": "not_applicable",
+          "fidelityStatus": "complete"
+        },
+        "numericOccurrences": [
+          {
+            "value": 374,
+            "status": "unresolved",
+            "sourceText": null,
+            "sourceLineIndex": null,
+            "semanticRole": null,
+            "syntacticRole": "equation_value",
+            "linkIndex": 1,
+            "astPath": [],
+            "expression": "רחל+קול=374",
+            "verifiedByLink": 0
+          }
+        ],
+        "intakeMeta": {
+          "ext": {
+            "derivation": {
+              "inputs": [],
+              "outputs": [
+                {
+                  "value": 374,
+                  "role": "equation_value",
+                  "origin_type": "source_equation",
+                  "origin_statement": "רחל+קול=374",
+                  "origin_ref": {
+                    "link_index": 1,
+                    "ast_path": []
+                  },
+                  "calculation_match": true,
+                  "verified_by_link": 0
+                }
+              ]
+            },
+            "extraction_integrity": {
+              "arithmetic_verified": true,
+              "semantic_operand_coverage": "complete",
+              "media_reference_coverage": "not_applicable",
+              "fidelity_status": "complete",
+              "contract": "research_intake_foundation_contract §7.1-§7.3"
+            }
+          }
+        },
+        "publicPromotion": false
+      }
+    ]
+  },
+  "liveSourceReceipt": [
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "0041cc96-ec4b-4b60-88a9-6cb74fee4bba",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "01e66795-d792-455d-b177-fa2bd045ac13",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "01ebf6a0-9a40-4aba-ac2d-7f6337b57a8d",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "11deebad-b4ad-4d2b-ab9f-5596908fc3ef",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "161cb49c-5765-4da9-9716-0d85af821f67",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "1ba2dc9a-0de6-4ad1-a71c-c42db5c211b6",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "1ea8ff89-57af-481c-b51f-0596ae3c2a95",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "25852ac7-9bee-4b84-9ffa-e848e613c48b",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "26a591c9-633c-4de1-b035-d7dac18ea90c",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "2bc06043-055a-4898-a075-0b427c02fb2a",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "2dd41b55-fdcd-452f-9309-78c0f4333885",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "2f58d6be-ba37-40ce-8992-a849193251ec",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "3c08df93-6291-4408-9752-80359c85e9b3",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "484c4cc1-9c7d-4dcc-9854-9dae686c4f77",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "4ffb1e5e-a760-47f7-82fc-7281464a6c99",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "52db98fc-2f71-4960-b98c-43bcc51bf68d",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "5778e561-8318-49f1-8460-8a9e0873bbe2",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "68a3d151-0a74-4ef9-93f3-0b03c9fa2643",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "7105aa46-79b5-4cab-9904-1cca04ddd9f9",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "77dc0e80-0e07-4323-8ce0-29275a2e7fac",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "7cf28748-500f-4b53-8c32-962a27eaaa6e",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "815a3147-b956-41db-a6e6-930e39909116",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "8be96452-715d-4c6e-bba5-eb08ea24cf6d",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "a1d5f486-cd2e-4842-a42f-8536f997bf50",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "a2d5b645-39b9-499a-b86e-7e4c693bd40a",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "a35c848c-82e9-481a-8168-44dc5aa00088",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "aa5276b4-6246-4334-8d96-5e8111ccff0c",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "af69ea51-1558-4fbe-89cd-7156e6382faa",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "b3e4830c-8fb1-4f82-af5c-ba05cd81262e",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "b49acf9f-d19c-4b31-918d-46dd2367c9f5",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "b4b40a70-d21c-4601-9d09-34191b601347",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "c55b8c25-be73-4718-8781-2e23832bf128",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "cdd61df7-9493-4490-9a63-72bb184daa67",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "d0d58a89-6c6f-4888-aab7-2d92875e0d23",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "d8b08f8d-5ba1-44cd-b55d-64fbd00fa1a3",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "dc903c88-7e97-4f56-ba77-7d38c7c1be75",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "de4ce23d-f64e-4662-b2de-2d9c70fd077e",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "ec29de1b-7008-45bc-aae5-6a33cba9c3a1",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "ee1a38a8-6c13-4541-8a78-76f824985ea3",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "f0676031-cf8d-4c5c-b0d8-7fb229f8bfc7",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "f173d160-5375-4267-a0be-e80c4df9131a",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "f2e1a842-1ab6-45fd-a738-e419ca17340d",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "f7427e14-eac6-4ce6-a70a-1b674d1f9c73",
+      "unchanged_public_source": true
+    },
+    {
+      "checked_at": "2026-10-26 17:19:40.98237+00",
+      "id": "fc4cad9c-645f-48bc-8fab-2ae1eda228df",
+      "unchanged_public_source": true
+    }
+  ],
+  "liveCalculationReceipt": {
+    "checked_at": "2026-10-26 17:19:43.699163+00",
+    "claims": [
+      {
+        "id": "061d0c9c-c0f7-4b37-812e-1d6922e2186e",
+        "claim_uid": "יקיר+אפרים=651",
+        "source_id": "b3e4830c-8fb1-4f82-af5c-ba05cd81262e",
+        "source_md5": "3cf40e6b5e77d6cf2ae4cb9dca729379",
+        "source_ref": "channel_updates:b3e4830c-8fb1-4f82-af5c-ba05cd81262e#batch1",
+        "source_uid": "channel_updates:b3e4830c-8fb1-4f82-af5c-ba05cd81262e",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "70988fa0bc2c65bccc80d58fca47b755",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "יקיר+אפרים=651",
+        "proposed_statement": "יקיר +אפרים = 651",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "1b683540-beee-4c6d-9e34-64de577de5e9",
+        "claim_uid": "פ+ש+ר+ה=585",
+        "source_id": "c55b8c25-be73-4718-8781-2e23832bf128",
+        "source_md5": "369ab8655d6b1c87b5642acfafb126b8",
+        "source_ref": "channel_updates:c55b8c25-be73-4718-8781-2e23832bf128#batch0",
+        "source_uid": "channel_updates:c55b8c25-be73-4718-8781-2e23832bf128",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "7925ad492a61ef69feebcc2c224eee84",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "פ+ש+ר+ה=585",
+        "proposed_statement": "פ + ש + ר + ה = 585",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "1ff7c22c-f607-44d5-baeb-c6e5e8a66012",
+        "claim_uid": "ענוים+ענוים=352",
+        "source_id": "52db98fc-2f71-4960-b98c-43bcc51bf68d",
+        "source_md5": "e01217d8eed074228ac162f31eedcb7a",
+        "source_ref": "channel_updates:52db98fc-2f71-4960-b98c-43bcc51bf68d#batch3",
+        "source_uid": "channel_updates:52db98fc-2f71-4960-b98c-43bcc51bf68d",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "b63516d3e9797573723158f286cf2b4d",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "ענוים+ענוים=352",
+        "proposed_statement": "ענוים+ענוים = 352",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "2d44a01e-0317-4b30-8320-78bf1282b1b4",
+        "claim_uid": "אדם+דוד+משיח+מי=467",
+        "source_id": "7105aa46-79b5-4cab-9904-1cca04ddd9f9",
+        "source_md5": "8f1b4b670361fe225e5eeff1bfb36d1f",
+        "source_ref": "channel_updates:7105aa46-79b5-4cab-9904-1cca04ddd9f9#batch1",
+        "source_uid": "channel_updates:7105aa46-79b5-4cab-9904-1cca04ddd9f9",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "9546eda31e5dcd9627f0ec30a8386269",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "אדם+דוד+משיח+מי=467",
+        "proposed_statement": "אדם+דוד+משיח+מי = 467",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "4b08c039-b1b3-48d9-b4bd-d96de5e47d69",
+        "claim_uid": "ברזל+דמעות+יהוה+א=786",
+        "source_id": "77dc0e80-0e07-4323-8ce0-29275a2e7fac",
+        "source_md5": "178f6999f48458113e8565c77a26dfa1",
+        "source_ref": "channel_updates:77dc0e80-0e07-4323-8ce0-29275a2e7fac#batch1",
+        "source_uid": "channel_updates:77dc0e80-0e07-4323-8ce0-29275a2e7fac",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "26245d3a411f511043415a4ec96d0bde",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "ברזל+דמעות+יהוה+א=786",
+        "proposed_statement": "ברזל+דמעות+יהוה+א = 786",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "4b6c3af7-8d34-42ff-96d0-d5a4b60b9bb9",
+        "claim_uid": "חזק+חזק+חזק=345",
+        "source_id": "484c4cc1-9c7d-4dcc-9854-9dae686c4f77",
+        "source_md5": "75aa7f733786166ce21fc30533c4cdd1",
+        "source_ref": "channel_updates:484c4cc1-9c7d-4dcc-9854-9dae686c4f77#batch0",
+        "source_uid": "channel_updates:484c4cc1-9c7d-4dcc-9854-9dae686c4f77",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "1075cc7a7db780c353cfa8608a96437a",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "חזק+חזק+חזק=345",
+        "proposed_statement": "חזק+חזק+חזק = 345",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "4ec599a6-5237-487b-9ee0-2fe57fba7610",
+        "claim_uid": "393+393=תשפו=786",
+        "source_id": "fc4cad9c-645f-48bc-8fab-2ae1eda228df",
+        "source_md5": "e38573e45ee3b6b19a9da459522800b4",
+        "source_ref": "channel_updates:fc4cad9c-645f-48bc-8fab-2ae1eda228df#batch0",
+        "source_uid": "channel_updates:fc4cad9c-645f-48bc-8fab-2ae1eda228df",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "185c9b5d355bc5c8453140f7e23400ab",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "393+393=תשפו=786",
+        "proposed_statement": "393+393=תשפו = 786",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "5d37e906-d39a-4547-b57d-76d7653bfe22",
+        "claim_uid": "ש+נ+מ+ר=590",
+        "source_id": "0041cc96-ec4b-4b60-88a9-6cb74fee4bba",
+        "source_md5": "f3d6941aee72e4bb2b7e1d38edf98cc5",
+        "source_ref": "channel_updates:0041cc96-ec4b-4b60-88a9-6cb74fee4bba#batch0",
+        "source_uid": "channel_updates:0041cc96-ec4b-4b60-88a9-6cb74fee4bba",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "66a4ae5152cedbb82f90dc724bb8b631",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "ש+נ+מ+ר=590",
+        "proposed_statement": "ש+נ+מ+ר = 590",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "61d2a6a1-a735-4ed5-9e35-b7ca95dc04ac",
+        "claim_uid": "1משיחבןדודבאעלהחמור=786",
+        "source_id": "dc903c88-7e97-4f56-ba77-7d38c7c1be75",
+        "source_md5": "b647c32c10a2b824c56a8dfa2c00ec59",
+        "source_ref": "channel_updates:dc903c88-7e97-4f56-ba77-7d38c7c1be75#batch0",
+        "source_uid": "channel_updates:dc903c88-7e97-4f56-ba77-7d38c7c1be75",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "11e2122c81a7d8f67c789a7c021d7aa4",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "משיחבןדודבאעלהחמור=786",
+        "proposed_statement": "משיח בן דוד בא על החמור = 786",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "641ab0eb-25ac-4419-884b-0ac570315f22",
+        "claim_uid": "אברהם,רחלמבכה=553",
+        "source_id": "11deebad-b4ad-4d2b-ab9f-5596908fc3ef",
+        "source_md5": "786cd5bd569d7c364cb20dec8b3bbb90",
+        "source_ref": "channel_updates:11deebad-b4ad-4d2b-ab9f-5596908fc3ef#batch0",
+        "source_uid": "channel_updates:11deebad-b4ad-4d2b-ab9f-5596908fc3ef",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "417d3b63b74f605ff6c563953823aca3",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "אברהם,רחלמבכה=553",
+        "proposed_statement": "אברהם, רחל מבכה = 553",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "7bb282e2-40c8-45e8-8a18-84075e7f7353",
+        "claim_uid": "=ויהייהוהמשען=517",
+        "source_id": "5778e561-8318-49f1-8460-8a9e0873bbe2",
+        "source_md5": "b9e4bd791306ecc8b35ab73b541ec1d6",
+        "source_ref": "channel_updates:5778e561-8318-49f1-8460-8a9e0873bbe2#batch0",
+        "source_uid": "channel_updates:5778e561-8318-49f1-8460-8a9e0873bbe2",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "bbc95cd8e179776cff975cd19b5707c4",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "ויהייהוהמשען=517",
+        "proposed_statement": "ויהי יהוה משען = 517",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "818c5f87-0803-49af-9ed5-8e1df587669e",
+        "claim_uid": "=בינוני=128",
+        "source_id": "3c08df93-6291-4408-9752-80359c85e9b3",
+        "source_md5": "10ce4181d95b7f8a7deb85c680e1ae38",
+        "source_ref": "channel_updates:3c08df93-6291-4408-9752-80359c85e9b3#batch0",
+        "source_uid": "channel_updates:3c08df93-6291-4408-9752-80359c85e9b3",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "9d59528be2fc3eda5c713a0b5727846c",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "בינוני=128",
+        "proposed_statement": "בינוני = 128",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "8369ae07-b8a0-402a-a6b5-52a689976d8a",
+        "claim_uid": "אליה+להיותעמה=612",
+        "source_id": "2f58d6be-ba37-40ce-8992-a849193251ec",
+        "source_md5": "6c80fba91551d5b1ca9c9f9484c2c6b5",
+        "source_ref": "channel_updates:2f58d6be-ba37-40ce-8992-a849193251ec#batch2",
+        "source_uid": "channel_updates:2f58d6be-ba37-40ce-8992-a849193251ec",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "92aad067faded15c4ab287a89e32d62f",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "אליה+להיותעמה=612",
+        "proposed_statement": "אליה+להיות עמה = 612",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "84296914-4bbd-4eae-b6bb-2bf4c7cf3512",
+        "claim_uid": "תהילים+קנ=645",
+        "source_id": "26a591c9-633c-4de1-b035-d7dac18ea90c",
+        "source_md5": "8c50a81e4a461aeac6c6127d0cf4a3d1",
+        "source_ref": "channel_updates:26a591c9-633c-4de1-b035-d7dac18ea90c#batch0",
+        "source_uid": "channel_updates:26a591c9-633c-4de1-b035-d7dac18ea90c",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "8d2e983dd07bebabe2d07bfdac6852e5",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "תהילים+קנ=645",
+        "proposed_statement": "תהילים+קנ = 645",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "8a3e8d9e-1aa2-4726-aac2-3bb02451af9f",
+        "claim_uid": "אמונה+מעשה=517",
+        "source_id": "25852ac7-9bee-4b84-9ffa-e848e613c48b",
+        "source_md5": "4e3f0fc1d9fbc1a3e6094ca23ea2359c",
+        "source_ref": "channel_updates:25852ac7-9bee-4b84-9ffa-e848e613c48b#batch0",
+        "source_uid": "channel_updates:25852ac7-9bee-4b84-9ffa-e848e613c48b",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "f32eedb8f161b820beb189337b4c3953",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "אמונה+מעשה=517",
+        "proposed_statement": "אמונה+ מעשה = 517",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "8b5ffc0a-84e5-4bb9-bf3b-ec537b99d266",
+        "claim_uid": "אששחורה+אשלבנה=1208",
+        "source_id": "1ba2dc9a-0de6-4ad1-a71c-c42db5c211b6",
+        "source_md5": "8858faba8c2d265af22dac1d1ae01448",
+        "source_ref": "channel_updates:1ba2dc9a-0de6-4ad1-a71c-c42db5c211b6#batch0",
+        "source_uid": "channel_updates:1ba2dc9a-0de6-4ad1-a71c-c42db5c211b6",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "806db03cda2f60b2b913d8405c059965",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "אששחורה+אשלבנה=1208",
+        "proposed_statement": "אש שחורה+אש לבנה = 1208",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "9e994730-e2c3-488a-a09a-bc57c517ea2f",
+        "claim_uid": "✓✓רחל=238",
+        "source_id": "a2d5b645-39b9-499a-b86e-7e4c693bd40a",
+        "source_md5": "e1ec3809ba774d253d44df6573a5080e",
+        "source_ref": "channel_updates:a2d5b645-39b9-499a-b86e-7e4c693bd40a#batch0",
+        "source_uid": "channel_updates:a2d5b645-39b9-499a-b86e-7e4c693bd40a",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "04949d346955804f2b96017f655b48a7",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "רחל=238",
+        "proposed_statement": "רחל = 238",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "a6402320-1a7b-4bd9-804c-f606e03e8dbb",
+        "claim_uid": "תניא+תניא+תניא=1383",
+        "source_id": "8be96452-715d-4c6e-bba5-eb08ea24cf6d",
+        "source_md5": "1c052ce08cabecb4f5e5dc64b417c8c2",
+        "source_ref": "channel_updates:8be96452-715d-4c6e-bba5-eb08ea24cf6d#batch0",
+        "source_uid": "channel_updates:8be96452-715d-4c6e-bba5-eb08ea24cf6d",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "22f672f4c5447c4eaf26f2bbc9287f33",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "תניא+תניא+תניא=1383",
+        "proposed_statement": "תניא+תניא+תניא = 1383",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 1
+      },
+      {
+        "id": "c33d03f3-6480-4150-97f1-beaf5d96a172",
+        "claim_uid": "3יאיראורמשיח=786",
+        "source_id": "dc903c88-7e97-4f56-ba77-7d38c7c1be75",
+        "source_md5": "b647c32c10a2b824c56a8dfa2c00ec59",
+        "source_ref": "channel_updates:dc903c88-7e97-4f56-ba77-7d38c7c1be75#batch1",
+        "source_uid": "channel_updates:dc903c88-7e97-4f56-ba77-7d38c7c1be75",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "ee76be0dc2cd8a3484930e5bf889c3cf",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "יאיראורמשיח=786",
+        "proposed_statement": "יאיר אור משיח = 786",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "ce1e0320-4525-42d6-8796-01a51f370d63",
+        "claim_uid": "אמונה+תשפו=888",
+        "source_id": "d0d58a89-6c6f-4888-aab7-2d92875e0d23",
+        "source_md5": "950496be2f76eb5229c6b1c1b916e2bd",
+        "source_ref": "channel_updates:d0d58a89-6c6f-4888-aab7-2d92875e0d23#batch0",
+        "source_uid": "channel_updates:d0d58a89-6c6f-4888-aab7-2d92875e0d23",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "4034cfd11888e7f44b64e1f217af7b44",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "אמונה+תשפו=888",
+        "proposed_statement": "אמונה +תשפו = 888",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "cf605c84-21e9-4a73-85c5-575e6c5fe8dd",
+        "claim_uid": "עכוב:70+20+6+2=98",
+        "source_id": "01e66795-d792-455d-b177-fa2bd045ac13",
+        "source_md5": "b68abfece0f0fd0ec1f6f3fd7777b051",
+        "source_ref": "channel_updates:01e66795-d792-455d-b177-fa2bd045ac13#batch1",
+        "source_uid": "channel_updates:01e66795-d792-455d-b177-fa2bd045ac13",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "b813b9e4fd462ef44289d686f5fabbcc",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "עכוב:70+20+6+2=98",
+        "proposed_statement": "עכוב: 70 + 20 + 6 + 2 = 98",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "d6cd66d2-442c-44ae-ab3f-b64d0721546d",
+        "claim_uid": "ברזל+דמעות+אמונה=861",
+        "source_id": "77dc0e80-0e07-4323-8ce0-29275a2e7fac",
+        "source_md5": "178f6999f48458113e8565c77a26dfa1",
+        "source_ref": "channel_updates:77dc0e80-0e07-4323-8ce0-29275a2e7fac#batch0",
+        "source_uid": "channel_updates:77dc0e80-0e07-4323-8ce0-29275a2e7fac",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "09a4db047adc297db3d5c7866d12a70e",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "ברזל+דמעות+אמונה=861",
+        "proposed_statement": "ברזל+דמעות+אמונה = 861",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 1
+      },
+      {
+        "id": "da0a6436-9e18-4249-8340-470e7ccef2f2",
+        "claim_uid": "כוכבים:20+6+20+2+10+40=98",
+        "source_id": "01e66795-d792-455d-b177-fa2bd045ac13",
+        "source_md5": "b68abfece0f0fd0ec1f6f3fd7777b051",
+        "source_ref": "channel_updates:01e66795-d792-455d-b177-fa2bd045ac13#batch0",
+        "source_uid": "channel_updates:01e66795-d792-455d-b177-fa2bd045ac13",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "05ae9e4150c1fcf07a8d7434d50fcc54",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "כוכבים:20+6+20+2+10+40=98",
+        "proposed_statement": "כוכבים: 20 + 6 + 20 + 2 + 10 + 40 = 98",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "dd42ce83-524f-4cdc-a8a4-02c9358ca277",
+        "claim_uid": "סנה+סנה+סנה=345",
+        "source_id": "484c4cc1-9c7d-4dcc-9854-9dae686c4f77",
+        "source_md5": "75aa7f733786166ce21fc30533c4cdd1",
+        "source_ref": "channel_updates:484c4cc1-9c7d-4dcc-9854-9dae686c4f77#batch1",
+        "source_uid": "channel_updates:484c4cc1-9c7d-4dcc-9854-9dae686c4f77",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "3a4a0f0bfee8d32633e9b5c5ab4fbb1f",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "סנה+סנה+סנה=345",
+        "proposed_statement": "סנה+סנה+סנה = 345",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "e4928236-5f18-4272-9da6-51c2ba4723fa",
+        "claim_uid": "ביצוע+בטלרצונך=585",
+        "source_id": "7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b",
+        "source_md5": "5dbdb2c80ab8baccba065c356bfe1188",
+        "source_ref": "channel_updates:7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b#batch0",
+        "source_uid": "channel_updates:7fbf28e5-f557-49f7-a182-c8e6f0e5ae7b",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "0cf3c9b8b1b84f58cdddfb23d3e3aa55",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "ביצוע+בטלרצונך=585",
+        "proposed_statement": "ביצוע +בטל רצונך = 585",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "e5ca514c-710c-4c48-a56b-23de5692227d",
+        "claim_uid": "עכוב✓✓✓=98",
+        "source_id": "f2e1a842-1ab6-45fd-a738-e419ca17340d",
+        "source_md5": "32bab6b4950265500e9a7d13f79c175f",
+        "source_ref": "channel_updates:f2e1a842-1ab6-45fd-a738-e419ca17340d#batch2",
+        "source_uid": "channel_updates:f2e1a842-1ab6-45fd-a738-e419ca17340d",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "a19a619ab659366d027bb39d1003d0cc",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "עכוב=98",
+        "proposed_statement": "עכוב = 98",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      },
+      {
+        "id": "f724c86d-75b1-4213-aa97-1f4903b78046",
+        "claim_uid": "רחל+קול=374",
+        "source_id": "7cf28748-500f-4b53-8c32-962a27eaaa6e",
+        "source_md5": "2706e8f69caded58cf99beded0580876",
+        "source_ref": "channel_updates:7cf28748-500f-4b53-8c32-962a27eaaa6e#batch0",
+        "source_uid": "channel_updates:7cf28748-500f-4b53-8c32-962a27eaaa6e",
+        "exact_claim": true,
+        "exact_target": true,
+        "statement_md5": "b8966994ae7d4f2608bff224046bcd53",
+        "unique_target": true,
+        "stored_fidelity": null,
+        "public_unattached": true,
+        "proposed_claim_uid": "רחל+קול=374",
+        "proposed_statement": "רחל+קול = 374",
+        "exact_public_source": true,
+        "general_world_scope": true,
+        "no_existing_revision": true,
+        "proposed_identity_conflicts": 0
+      }
+    ],
+    "engine_replays": [
+      {
+        "id": "061d0c9c-c0f7-4b37-812e-1d6922e2186e",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "יקיר",
+        "computed": 320,
+        "expected": 320,
+        "method_in_engine": true
+      },
+      {
+        "id": "061d0c9c-c0f7-4b37-812e-1d6922e2186e",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "אפרים",
+        "computed": 331,
+        "expected": 331,
+        "method_in_engine": true
+      },
+      {
+        "id": "1b683540-beee-4c6d-9e34-64de577de5e9",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "פ",
+        "computed": 80,
+        "expected": 80,
+        "method_in_engine": true
+      },
+      {
+        "id": "1b683540-beee-4c6d-9e34-64de577de5e9",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "ש",
+        "computed": 300,
+        "expected": 300,
+        "method_in_engine": true
+      },
+      {
+        "id": "1b683540-beee-4c6d-9e34-64de577de5e9",
+        "role": "operand_2",
+        "method": "רגיל",
+        "phrase": "ר",
+        "computed": 200,
+        "expected": 200,
+        "method_in_engine": true
+      },
+      {
+        "id": "1b683540-beee-4c6d-9e34-64de577de5e9",
+        "role": "operand_3",
+        "method": "רגיל",
+        "phrase": "ה",
+        "computed": 5,
+        "expected": 5,
+        "method_in_engine": true
+      },
+      {
+        "id": "1ff7c22c-f607-44d5-baeb-c6e5e8a66012",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "ענוים",
+        "computed": 176,
+        "expected": 176,
+        "method_in_engine": true
+      },
+      {
+        "id": "1ff7c22c-f607-44d5-baeb-c6e5e8a66012",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "ענוים",
+        "computed": 176,
+        "expected": 176,
+        "method_in_engine": true
+      },
+      {
+        "id": "1ff7c22c-f607-44d5-baeb-c6e5e8a66012",
+        "role": "operand_2",
+        "method": "רגיל",
+        "phrase": "ארך אפים",
+        "computed": 352,
+        "expected": 352,
+        "method_in_engine": true
+      },
+      {
+        "id": "2d44a01e-0317-4b30-8320-78bf1282b1b4",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "אדם",
+        "computed": 45,
+        "expected": 45,
+        "method_in_engine": true
+      },
+      {
+        "id": "2d44a01e-0317-4b30-8320-78bf1282b1b4",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "דוד",
+        "computed": 14,
+        "expected": 14,
+        "method_in_engine": true
+      },
+      {
+        "id": "2d44a01e-0317-4b30-8320-78bf1282b1b4",
+        "role": "operand_2",
+        "method": "רגיל",
+        "phrase": "משיח",
+        "computed": 358,
+        "expected": 358,
+        "method_in_engine": true
+      },
+      {
+        "id": "2d44a01e-0317-4b30-8320-78bf1282b1b4",
+        "role": "operand_3",
+        "method": "רגיל",
+        "phrase": "מי",
+        "computed": 50,
+        "expected": 50,
+        "method_in_engine": true
+      },
+      {
+        "id": "2d44a01e-0317-4b30-8320-78bf1282b1b4",
+        "role": "operand_4",
+        "method": "רגיל",
+        "phrase": "קציר חטים",
+        "computed": 467,
+        "expected": 467,
+        "method_in_engine": true
+      },
+      {
+        "id": "4b08c039-b1b3-48d9-b4bd-d96de5e47d69",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "ברזל",
+        "computed": 239,
+        "expected": 239,
+        "method_in_engine": true
+      },
+      {
+        "id": "4b08c039-b1b3-48d9-b4bd-d96de5e47d69",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "דמעות",
+        "computed": 520,
+        "expected": 520,
+        "method_in_engine": true
+      },
+      {
+        "id": "4b08c039-b1b3-48d9-b4bd-d96de5e47d69",
+        "role": "operand_2",
+        "method": "רגיל",
+        "phrase": "י-ה-ו-ה",
+        "computed": 26,
+        "expected": 26,
+        "method_in_engine": true
+      },
+      {
+        "id": "4b08c039-b1b3-48d9-b4bd-d96de5e47d69",
+        "role": "operand_3",
+        "method": "רגיל",
+        "phrase": "א",
+        "computed": 1,
+        "expected": 1,
+        "method_in_engine": true
+      },
+      {
+        "id": "4b6c3af7-8d34-42ff-96d0-d5a4b60b9bb9",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "חזק",
+        "computed": 115,
+        "expected": 115,
+        "method_in_engine": true
+      },
+      {
+        "id": "4b6c3af7-8d34-42ff-96d0-d5a4b60b9bb9",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "חזק",
+        "computed": 115,
+        "expected": 115,
+        "method_in_engine": true
+      },
+      {
+        "id": "4b6c3af7-8d34-42ff-96d0-d5a4b60b9bb9",
+        "role": "operand_2",
+        "method": "רגיל",
+        "phrase": "חזק",
+        "computed": 115,
+        "expected": 115,
+        "method_in_engine": true
+      },
+      {
+        "id": "4ec599a6-5237-487b-9ee0-2fe57fba7610",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "תשפו",
+        "computed": 786,
+        "expected": 786,
+        "method_in_engine": true
+      },
+      {
+        "id": "5d37e906-d39a-4547-b57d-76d7653bfe22",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "ש",
+        "computed": 300,
+        "expected": 300,
+        "method_in_engine": true
+      },
+      {
+        "id": "5d37e906-d39a-4547-b57d-76d7653bfe22",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "נ",
+        "computed": 50,
+        "expected": 50,
+        "method_in_engine": true
+      },
+      {
+        "id": "5d37e906-d39a-4547-b57d-76d7653bfe22",
+        "role": "operand_2",
+        "method": "רגיל",
+        "phrase": "מ",
+        "computed": 40,
+        "expected": 40,
+        "method_in_engine": true
+      },
+      {
+        "id": "5d37e906-d39a-4547-b57d-76d7653bfe22",
+        "role": "operand_3",
+        "method": "רגיל",
+        "phrase": "ר",
+        "computed": 200,
+        "expected": 200,
+        "method_in_engine": true
+      },
+      {
+        "id": "61d2a6a1-a735-4ed5-9e35-b7ca95dc04ac",
+        "role": "atomic",
+        "method": "רגיל",
+        "phrase": "משיח בן דוד בא על החמור",
+        "computed": 786,
+        "expected": 786,
+        "method_in_engine": true
+      },
+      {
+        "id": "641ab0eb-25ac-4419-884b-0ac570315f22",
+        "role": "atomic",
+        "method": "רגיל",
+        "phrase": "אברהם, רחל  מבכה",
+        "computed": 553,
+        "expected": 553,
+        "method_in_engine": true
+      },
+      {
+        "id": "7bb282e2-40c8-45e8-8a18-84075e7f7353",
+        "role": "atomic",
+        "method": "רגיל",
+        "phrase": "ויהי יהוה משען",
+        "computed": 517,
+        "expected": 517,
+        "method_in_engine": true
+      },
+      {
+        "id": "818c5f87-0803-49af-9ed5-8e1df587669e",
+        "role": "atomic",
+        "method": "רגיל",
+        "phrase": "בינוני",
+        "computed": 128,
+        "expected": 128,
+        "method_in_engine": true
+      },
+      {
+        "id": "8369ae07-b8a0-402a-a6b5-52a689976d8a",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "אליה",
+        "computed": 46,
+        "expected": 46,
+        "method_in_engine": true
+      },
+      {
+        "id": "8369ae07-b8a0-402a-a6b5-52a689976d8a",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "להיות עמה",
+        "computed": 566,
+        "expected": 566,
+        "method_in_engine": true
+      },
+      {
+        "id": "8369ae07-b8a0-402a-a6b5-52a689976d8a",
+        "role": "operand_2",
+        "method": "רגיל",
+        "phrase": "ברית",
+        "computed": 612,
+        "expected": 612,
+        "method_in_engine": true
+      },
+      {
+        "id": "84296914-4bbd-4eae-b6bb-2bf4c7cf3512",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "תהילים",
+        "computed": 495,
+        "expected": 495,
+        "method_in_engine": true
+      },
+      {
+        "id": "84296914-4bbd-4eae-b6bb-2bf4c7cf3512",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "קנ",
+        "computed": 150,
+        "expected": 150,
+        "method_in_engine": true
+      },
+      {
+        "id": "8a3e8d9e-1aa2-4726-aac2-3bb02451af9f",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "אמונה",
+        "computed": 102,
+        "expected": 102,
+        "method_in_engine": true
+      },
+      {
+        "id": "8a3e8d9e-1aa2-4726-aac2-3bb02451af9f",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "מעשה",
+        "computed": 415,
+        "expected": 415,
+        "method_in_engine": true
+      },
+      {
+        "id": "8b5ffc0a-84e5-4bb9-bf3b-ec537b99d266",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "אש שחורה",
+        "computed": 820,
+        "expected": 820,
+        "method_in_engine": true
+      },
+      {
+        "id": "8b5ffc0a-84e5-4bb9-bf3b-ec537b99d266",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "אש לבנה",
+        "computed": 388,
+        "expected": 388,
+        "method_in_engine": true
+      },
+      {
+        "id": "9e994730-e2c3-488a-a09a-bc57c517ea2f",
+        "role": "atomic",
+        "method": "רגיל",
+        "phrase": "רחל",
+        "computed": 238,
+        "expected": 238,
+        "method_in_engine": true
+      },
+      {
+        "id": "a6402320-1a7b-4bd9-804c-f606e03e8dbb",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "תניא",
+        "computed": 461,
+        "expected": 461,
+        "method_in_engine": true
+      },
+      {
+        "id": "a6402320-1a7b-4bd9-804c-f606e03e8dbb",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "תניא",
+        "computed": 461,
+        "expected": 461,
+        "method_in_engine": true
+      },
+      {
+        "id": "a6402320-1a7b-4bd9-804c-f606e03e8dbb",
+        "role": "operand_2",
+        "method": "רגיל",
+        "phrase": "תניא",
+        "computed": 461,
+        "expected": 461,
+        "method_in_engine": true
+      },
+      {
+        "id": "c33d03f3-6480-4150-97f1-beaf5d96a172",
+        "role": "atomic",
+        "method": "רגיל",
+        "phrase": "יאיר אור משיח",
+        "computed": 786,
+        "expected": 786,
+        "method_in_engine": true
+      },
+      {
+        "id": "ce1e0320-4525-42d6-8796-01a51f370d63",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "אמונה",
+        "computed": 102,
+        "expected": 102,
+        "method_in_engine": true
+      },
+      {
+        "id": "ce1e0320-4525-42d6-8796-01a51f370d63",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "תשפו",
+        "computed": 786,
+        "expected": 786,
+        "method_in_engine": true
+      },
+      {
+        "id": "cf605c84-21e9-4a73-85c5-575e6c5fe8dd",
+        "role": "atomic",
+        "method": "רגיל",
+        "phrase": "עִכּוּב",
+        "computed": 98,
+        "expected": 98,
+        "method_in_engine": true
+      },
+      {
+        "id": "cf605c84-21e9-4a73-85c5-575e6c5fe8dd",
+        "role": "letter_0",
+        "method": "רגיל",
+        "phrase": "ע",
+        "computed": 70,
+        "expected": 70,
+        "method_in_engine": true
+      },
+      {
+        "id": "cf605c84-21e9-4a73-85c5-575e6c5fe8dd",
+        "role": "letter_1",
+        "method": "רגיל",
+        "phrase": "כ",
+        "computed": 20,
+        "expected": 20,
+        "method_in_engine": true
+      },
+      {
+        "id": "cf605c84-21e9-4a73-85c5-575e6c5fe8dd",
+        "role": "letter_2",
+        "method": "רגיל",
+        "phrase": "ו",
+        "computed": 6,
+        "expected": 6,
+        "method_in_engine": true
+      },
+      {
+        "id": "cf605c84-21e9-4a73-85c5-575e6c5fe8dd",
+        "role": "letter_3",
+        "method": "רגיל",
+        "phrase": "ב",
+        "computed": 2,
+        "expected": 2,
+        "method_in_engine": true
+      },
+      {
+        "id": "d6cd66d2-442c-44ae-ab3f-b64d0721546d",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "ברזל",
+        "computed": 239,
+        "expected": 239,
+        "method_in_engine": true
+      },
+      {
+        "id": "d6cd66d2-442c-44ae-ab3f-b64d0721546d",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "דמעות",
+        "computed": 520,
+        "expected": 520,
+        "method_in_engine": true
+      },
+      {
+        "id": "d6cd66d2-442c-44ae-ab3f-b64d0721546d",
+        "role": "operand_2",
+        "method": "רגיל",
+        "phrase": "אמונה",
+        "computed": 102,
+        "expected": 102,
+        "method_in_engine": true
+      },
+      {
+        "id": "d6cd66d2-442c-44ae-ab3f-b64d0721546d",
+        "role": "operand_3",
+        "method": "רגיל",
+        "phrase": "בית המקדש",
+        "computed": 861,
+        "expected": 861,
+        "method_in_engine": true
+      },
+      {
+        "id": "da0a6436-9e18-4249-8340-470e7ccef2f2",
+        "role": "atomic",
+        "method": "רגיל",
+        "phrase": "כּוֹכָבִים",
+        "computed": 98,
+        "expected": 98,
+        "method_in_engine": true
+      },
+      {
+        "id": "da0a6436-9e18-4249-8340-470e7ccef2f2",
+        "role": "letter_0",
+        "method": "רגיל",
+        "phrase": "כ",
+        "computed": 20,
+        "expected": 20,
+        "method_in_engine": true
+      },
+      {
+        "id": "da0a6436-9e18-4249-8340-470e7ccef2f2",
+        "role": "letter_1",
+        "method": "רגיל",
+        "phrase": "ו",
+        "computed": 6,
+        "expected": 6,
+        "method_in_engine": true
+      },
+      {
+        "id": "da0a6436-9e18-4249-8340-470e7ccef2f2",
+        "role": "letter_2",
+        "method": "רגיל",
+        "phrase": "כ",
+        "computed": 20,
+        "expected": 20,
+        "method_in_engine": true
+      },
+      {
+        "id": "da0a6436-9e18-4249-8340-470e7ccef2f2",
+        "role": "letter_3",
+        "method": "רגיל",
+        "phrase": "ב",
+        "computed": 2,
+        "expected": 2,
+        "method_in_engine": true
+      },
+      {
+        "id": "da0a6436-9e18-4249-8340-470e7ccef2f2",
+        "role": "letter_4",
+        "method": "רגיל",
+        "phrase": "י",
+        "computed": 10,
+        "expected": 10,
+        "method_in_engine": true
+      },
+      {
+        "id": "da0a6436-9e18-4249-8340-470e7ccef2f2",
+        "role": "letter_5",
+        "method": "רגיל",
+        "phrase": "ם",
+        "computed": 40,
+        "expected": 40,
+        "method_in_engine": true
+      },
+      {
+        "id": "dd42ce83-524f-4cdc-a8a4-02c9358ca277",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "סנה",
+        "computed": 115,
+        "expected": 115,
+        "method_in_engine": true
+      },
+      {
+        "id": "dd42ce83-524f-4cdc-a8a4-02c9358ca277",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "סנה",
+        "computed": 115,
+        "expected": 115,
+        "method_in_engine": true
+      },
+      {
+        "id": "dd42ce83-524f-4cdc-a8a4-02c9358ca277",
+        "role": "operand_2",
+        "method": "רגיל",
+        "phrase": "סנה",
+        "computed": 115,
+        "expected": 115,
+        "method_in_engine": true
+      },
+      {
+        "id": "dd42ce83-524f-4cdc-a8a4-02c9358ca277",
+        "role": "operand_3",
+        "method": "רגיל",
+        "phrase": "משה",
+        "computed": 345,
+        "expected": 345,
+        "method_in_engine": true
+      },
+      {
+        "id": "e4928236-5f18-4272-9da6-51c2ba4723fa",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "ביצוע",
+        "computed": 178,
+        "expected": 178,
+        "method_in_engine": true
+      },
+      {
+        "id": "e4928236-5f18-4272-9da6-51c2ba4723fa",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "בטל רצונך",
+        "computed": 407,
+        "expected": 407,
+        "method_in_engine": true
+      },
+      {
+        "id": "e5ca514c-710c-4c48-a56b-23de5692227d",
+        "role": "atomic",
+        "method": "רגיל",
+        "phrase": "עכוב",
+        "computed": 98,
+        "expected": 98,
+        "method_in_engine": true
+      },
+      {
+        "id": "f724c86d-75b1-4213-aa97-1f4903b78046",
+        "role": "operand_0",
+        "method": "רגיל",
+        "phrase": "רחל",
+        "computed": 238,
+        "expected": 238,
+        "method_in_engine": true
+      },
+      {
+        "id": "f724c86d-75b1-4213-aa97-1f4903b78046",
+        "role": "operand_1",
+        "method": "רגיל",
+        "phrase": "קול",
+        "computed": 136,
+        "expected": 136,
+        "method_in_engine": true
+      }
+    ],
+    "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+    "claim_identity_definition_md5": "6ecbb5058921550fa9b1adcdac1305f7",
+    "correction_definition_md5": "cf7ff46e3d376faa5760ac3680fcb391"
+  },
+  "limits": {
+    "historical378SourceCorpus": "not_reconstructed_no_frozen_id_manifest_or_historical_runner",
+    "publicDeployment": false,
+    "liveProductWrites": false
+  }
+}

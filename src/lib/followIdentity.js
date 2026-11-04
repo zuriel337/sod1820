@@ -1,3 +1,5 @@
+import { canonicalPostCategories, postCategoryFilterNames } from "./postCategoryIdentity.js";
+
 // Follow identity compatibility seam.
 // Server-side resolve_topics/canonical_follow_topic remain authoritative for delivery.
 // This client helper only keeps WatchButton/presentation aligned with stored legacy aliases.
@@ -15,7 +17,7 @@ export function canonicalFollowTopic(topic) {
 
   if (t.startsWith("cat:")) {
     const label = t.slice(4).replace(/["“”]/g, "״");
-    return `cat:${label}`;
+    return `cat:${canonicalPostCategories([label])[0] || label}`;
   }
   return t;
 }
@@ -26,13 +28,10 @@ export function followTopicAliases(topic) {
 
   if (canonical.startsWith("cat:")) {
     const label = canonical.slice(4);
-    const straight = label.replace(/״/g, '"');
-    return [...new Set([
-      canonical,
-      `cat:${straight}`,
-      `category:${label}`,
-      `category:${straight}`,
-    ])];
+    return [...new Set(postCategoryFilterNames(label).flatMap(name => {
+      const straight = name.replace(/״/g, '"');
+      return [`cat:${name}`, `cat:${straight}`, `category:${name}`, `category:${straight}`];
+    }))];
   }
 
   if (canonical.startsWith("number:")) {

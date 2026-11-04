@@ -1,0 +1,565 @@
+{
+  "task": "SEFER_YETZIRAH_SOURCE_STRUCTURE_ACCEPTANCE_CONTINUATION",
+  "sourceBase": "291cbc875f08406c3fac1a7bd3548514f9699eca",
+  "sourceFilesSha256": {
+    "public/book-data/sefer-yetzirah.units.json": "8dbe743cebd22e2a25e8c0b05d8b460f7c041e63537b42dc8bc11cb9f422c312",
+    "public/book-data/sefer-yetzirah.structures.json": "cab027ccc9a6529ba08a089d58fd4417dc6e50521976255c374791c265d40928",
+    "public/book-data/sefer-yetzirah.source-readings.json": "be2e5fa5c8a495b58249bcdd21afc9a08660a887d9c69630ba36b27ad210c717",
+    "src/pages/SeferYetzirahWorld2029Page.jsx": "cd7eaa9cbfad1ea78f2f0eaee7d61c3bb84efeb809bd3d6fe55ecf5a60059c79",
+    "src/components/books2029/SeferYetzirahScene2029.jsx": "4bd5e829dbb936e85fab40c4d2e3a3a8645c1224923f6baaccbe763f15816ec0",
+    "test/sefer-yetzirah-structure-acceptance-2029.browser.test.mjs": "4a60244ae51de2988dc66240c2c8703248510998595841c6904915ce4dbe08a8"
+  },
+  "meaning": "Existing source-reading audit, not acceptance of 33 implemented models. Real PDF bytes fulfilled from the hash-matched witness; backend mocked.",
+  "observations": [
+    {
+      "width": 320,
+      "theme": "light",
+      "browser": "Chromium",
+      "backend": "mocked",
+      "engineTransport": "blocked",
+      "pdfFixtureSha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+      "pdfFramesAborted": false,
+      "specificationModelsMounted": 0,
+      "modelAcceptance": "NOT_TESTED_NO_RENDERER_BINDING",
+      "gaps": [
+        "existing scene has no explicit start/close and no binding of these 33 specifications",
+        "component source/return and visible new legends are not implemented"
+      ],
+      "notTested": [
+        "per-specification component selection/return",
+        "dynamic reduced-motion resource audit",
+        "real mobile browser/device",
+        "server authorization and RLS"
+      ],
+      "fullscreen": true,
+      "nativeViewer": {
+        "documentUrl": "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "inputs": [
+          {
+            "id": "",
+            "value": "36%",
+            "type": "text"
+          },
+          {
+            "id": "pageSelector",
+            "value": "207",
+            "type": "text"
+          }
+        ],
+        "texts": [],
+        "loaded": null,
+        "loadState": "success",
+        "initialLoadComplete": true,
+        "pageCount": 220,
+        "viewportPage": 206
+      },
+      "nativePdfLoadedAtPhysicalPage": 207,
+      "nativeFrameUrls": [
+        "http://127.0.0.1:33913/2029/control?surface=sefer-yetzirah-world&page=207&gate=paths",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH",
+        "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH"
+      ],
+      "paintedPdfPaperFraction": 0.743896484375,
+      "sourceNavigationAndReturn": true,
+      "initialCanvasCount": 1,
+      "keyboardModeControls": true,
+      "noHorizontalOverflow": true,
+      "normalPageErrors": [],
+      "nonWebglSourceReadingRetained": true,
+      "pdfResponses": 6,
+      "engineAttempts": 0
+    },
+    {
+      "width": 320,
+      "theme": "parchment",
+      "browser": "Chromium",
+      "backend": "mocked",
+      "engineTransport": "blocked",
+      "pdfFixtureSha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+      "pdfFramesAborted": false,
+      "specificationModelsMounted": 0,
+      "modelAcceptance": "NOT_TESTED_NO_RENDERER_BINDING",
+      "gaps": [
+        "existing scene has no explicit start/close and no binding of these 33 specifications",
+        "component source/return and visible new legends are not implemented"
+      ],
+      "notTested": [
+        "per-specification component selection/return",
+        "dynamic reduced-motion resource audit",
+        "real mobile browser/device",
+        "server authorization and RLS"
+      ],
+      "fullscreen": true,
+      "nativeViewer": {
+        "documentUrl": "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "inputs": [
+          {
+            "id": "",
+            "value": "36%",
+            "type": "text"
+          },
+          {
+            "id": "pageSelector",
+            "value": "207",
+            "type": "text"
+          }
+        ],
+        "texts": [],
+        "loaded": null,
+        "loadState": "success",
+        "initialLoadComplete": true,
+        "pageCount": 220,
+        "viewportPage": 206
+      },
+      "nativePdfLoadedAtPhysicalPage": 207,
+      "nativeFrameUrls": [
+        "http://127.0.0.1:33913/2029/control?surface=sefer-yetzirah-world&page=207&gate=paths",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH",
+        "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH"
+      ],
+      "paintedPdfPaperFraction": 0.223876953125,
+      "sourceNavigationAndReturn": true,
+      "initialCanvasCount": 1,
+      "keyboardModeControls": true,
+      "noHorizontalOverflow": true,
+      "normalPageErrors": [],
+      "nonWebglSourceReadingRetained": true,
+      "pdfResponses": 6,
+      "engineAttempts": 0
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "browser": "Chromium",
+      "backend": "mocked",
+      "engineTransport": "blocked",
+      "pdfFixtureSha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+      "pdfFramesAborted": false,
+      "specificationModelsMounted": 0,
+      "modelAcceptance": "NOT_TESTED_NO_RENDERER_BINDING",
+      "gaps": [
+        "existing scene has no explicit start/close and no binding of these 33 specifications",
+        "component source/return and visible new legends are not implemented"
+      ],
+      "notTested": [
+        "per-specification component selection/return",
+        "dynamic reduced-motion resource audit",
+        "real mobile browser/device",
+        "server authorization and RLS"
+      ],
+      "fullscreen": true,
+      "nativeViewer": {
+        "documentUrl": "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "inputs": [
+          {
+            "id": "",
+            "value": "36%",
+            "type": "text"
+          },
+          {
+            "id": "pageSelector",
+            "value": "207",
+            "type": "text"
+          }
+        ],
+        "texts": [],
+        "loaded": null,
+        "loadState": "success",
+        "initialLoadComplete": true,
+        "pageCount": 220,
+        "viewportPage": 206
+      },
+      "nativePdfLoadedAtPhysicalPage": 207,
+      "nativeFrameUrls": [
+        "http://127.0.0.1:33913/2029/control?surface=sefer-yetzirah-world&page=207&gate=paths",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH",
+        "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH"
+      ],
+      "paintedPdfPaperFraction": 0.742431640625,
+      "sourceNavigationAndReturn": true,
+      "initialCanvasCount": 1,
+      "keyboardModeControls": true,
+      "noHorizontalOverflow": true,
+      "normalPageErrors": [],
+      "nonWebglSourceReadingRetained": true,
+      "pdfResponses": 6,
+      "engineAttempts": 0
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "browser": "Chromium",
+      "backend": "mocked",
+      "engineTransport": "blocked",
+      "pdfFixtureSha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+      "pdfFramesAborted": false,
+      "specificationModelsMounted": 0,
+      "modelAcceptance": "NOT_TESTED_NO_RENDERER_BINDING",
+      "gaps": [
+        "existing scene has no explicit start/close and no binding of these 33 specifications",
+        "component source/return and visible new legends are not implemented"
+      ],
+      "notTested": [
+        "per-specification component selection/return",
+        "dynamic reduced-motion resource audit",
+        "real mobile browser/device",
+        "server authorization and RLS"
+      ],
+      "fullscreen": true,
+      "nativeViewer": {
+        "documentUrl": "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "inputs": [
+          {
+            "id": "",
+            "value": "45%",
+            "type": "text"
+          },
+          {
+            "id": "pageSelector",
+            "value": "207",
+            "type": "text"
+          }
+        ],
+        "texts": [],
+        "loaded": null,
+        "loadState": "success",
+        "initialLoadComplete": true,
+        "pageCount": 220,
+        "viewportPage": 206
+      },
+      "nativePdfLoadedAtPhysicalPage": 207,
+      "nativeFrameUrls": [
+        "http://127.0.0.1:33913/2029/control?surface=sefer-yetzirah-world&page=207&gate=paths",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH",
+        "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH"
+      ],
+      "paintedPdfPaperFraction": 0.685791015625,
+      "sourceNavigationAndReturn": true,
+      "initialCanvasCount": 1,
+      "keyboardModeControls": true,
+      "noHorizontalOverflow": true,
+      "normalPageErrors": [],
+      "nonWebglSourceReadingRetained": true,
+      "pdfResponses": 6,
+      "engineAttempts": 0
+    },
+    {
+      "width": 390,
+      "theme": "parchment",
+      "browser": "Chromium",
+      "backend": "mocked",
+      "engineTransport": "blocked",
+      "pdfFixtureSha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+      "pdfFramesAborted": false,
+      "specificationModelsMounted": 0,
+      "modelAcceptance": "NOT_TESTED_NO_RENDERER_BINDING",
+      "gaps": [
+        "existing scene has no explicit start/close and no binding of these 33 specifications",
+        "component source/return and visible new legends are not implemented"
+      ],
+      "notTested": [
+        "per-specification component selection/return",
+        "dynamic reduced-motion resource audit",
+        "real mobile browser/device",
+        "server authorization and RLS"
+      ],
+      "fullscreen": true,
+      "nativeViewer": {
+        "documentUrl": "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "inputs": [
+          {
+            "id": "",
+            "value": "43%",
+            "type": "text"
+          },
+          {
+            "id": "pageSelector",
+            "value": "207",
+            "type": "text"
+          }
+        ],
+        "texts": [],
+        "loaded": null,
+        "loadState": "success",
+        "initialLoadComplete": true,
+        "pageCount": 220,
+        "viewportPage": 206
+      },
+      "nativePdfLoadedAtPhysicalPage": 207,
+      "nativeFrameUrls": [
+        "http://127.0.0.1:33913/2029/control?surface=sefer-yetzirah-world&page=207&gate=paths",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH",
+        "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH"
+      ],
+      "paintedPdfPaperFraction": 0.6787109375,
+      "sourceNavigationAndReturn": true,
+      "initialCanvasCount": 1,
+      "keyboardModeControls": true,
+      "noHorizontalOverflow": true,
+      "normalPageErrors": [],
+      "nonWebglSourceReadingRetained": true,
+      "pdfResponses": 6,
+      "engineAttempts": 0
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "browser": "Chromium",
+      "backend": "mocked",
+      "engineTransport": "blocked",
+      "pdfFixtureSha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+      "pdfFramesAborted": false,
+      "specificationModelsMounted": 0,
+      "modelAcceptance": "NOT_TESTED_NO_RENDERER_BINDING",
+      "gaps": [
+        "existing scene has no explicit start/close and no binding of these 33 specifications",
+        "component source/return and visible new legends are not implemented"
+      ],
+      "notTested": [
+        "per-specification component selection/return",
+        "dynamic reduced-motion resource audit",
+        "real mobile browser/device",
+        "server authorization and RLS"
+      ],
+      "fullscreen": true,
+      "nativeViewer": {
+        "documentUrl": "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "inputs": [
+          {
+            "id": "",
+            "value": "45%",
+            "type": "text"
+          },
+          {
+            "id": "pageSelector",
+            "value": "207",
+            "type": "text"
+          }
+        ],
+        "texts": [],
+        "loaded": null,
+        "loadState": "success",
+        "initialLoadComplete": true,
+        "pageCount": 220,
+        "viewportPage": 206
+      },
+      "nativePdfLoadedAtPhysicalPage": 207,
+      "nativeFrameUrls": [
+        "http://127.0.0.1:33913/2029/control?surface=sefer-yetzirah-world&page=207&gate=paths",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH",
+        "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH"
+      ],
+      "paintedPdfPaperFraction": 0.685791015625,
+      "sourceNavigationAndReturn": true,
+      "initialCanvasCount": 1,
+      "keyboardModeControls": true,
+      "noHorizontalOverflow": true,
+      "normalPageErrors": [],
+      "nonWebglSourceReadingRetained": true,
+      "pdfResponses": 6,
+      "engineAttempts": 0
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "browser": "Chromium",
+      "backend": "mocked",
+      "engineTransport": "blocked",
+      "pdfFixtureSha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+      "pdfFramesAborted": false,
+      "specificationModelsMounted": 0,
+      "modelAcceptance": "NOT_TESTED_NO_RENDERER_BINDING",
+      "gaps": [
+        "existing scene has no explicit start/close and no binding of these 33 specifications",
+        "component source/return and visible new legends are not implemented"
+      ],
+      "notTested": [
+        "per-specification component selection/return",
+        "dynamic reduced-motion resource audit",
+        "real mobile browser/device",
+        "server authorization and RLS"
+      ],
+      "fullscreen": true,
+      "nativeViewer": {
+        "documentUrl": "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "inputs": [
+          {
+            "id": "",
+            "value": "138%",
+            "type": "text"
+          },
+          {
+            "id": "pageSelector",
+            "value": "207",
+            "type": "text"
+          }
+        ],
+        "texts": [],
+        "loaded": null,
+        "loadState": "success",
+        "initialLoadComplete": true,
+        "pageCount": 220,
+        "viewportPage": 206
+      },
+      "nativePdfLoadedAtPhysicalPage": 207,
+      "nativeFrameUrls": [
+        "http://127.0.0.1:33913/2029/control?surface=sefer-yetzirah-world&page=207&gate=paths",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH",
+        "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH"
+      ],
+      "paintedPdfPaperFraction": 0.67626953125,
+      "sourceNavigationAndReturn": true,
+      "initialCanvasCount": 1,
+      "keyboardModeControls": true,
+      "noHorizontalOverflow": true,
+      "normalPageErrors": [],
+      "nonWebglSourceReadingRetained": true,
+      "pdfResponses": 6,
+      "engineAttempts": 0
+    },
+    {
+      "width": 1440,
+      "theme": "parchment",
+      "browser": "Chromium",
+      "backend": "mocked",
+      "engineTransport": "blocked",
+      "pdfFixtureSha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+      "pdfFramesAborted": false,
+      "specificationModelsMounted": 0,
+      "modelAcceptance": "NOT_TESTED_NO_RENDERER_BINDING",
+      "gaps": [
+        "existing scene has no explicit start/close and no binding of these 33 specifications",
+        "component source/return and visible new legends are not implemented"
+      ],
+      "notTested": [
+        "per-specification component selection/return",
+        "dynamic reduced-motion resource audit",
+        "real mobile browser/device",
+        "server authorization and RLS"
+      ],
+      "fullscreen": true,
+      "nativeViewer": {
+        "documentUrl": "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "inputs": [
+          {
+            "id": "",
+            "value": "138%",
+            "type": "text"
+          },
+          {
+            "id": "pageSelector",
+            "value": "207",
+            "type": "text"
+          }
+        ],
+        "texts": [],
+        "loaded": null,
+        "loadState": "success",
+        "initialLoadComplete": true,
+        "pageCount": 220,
+        "viewportPage": 206
+      },
+      "nativePdfLoadedAtPhysicalPage": 207,
+      "nativeFrameUrls": [
+        "http://127.0.0.1:33913/2029/control?surface=sefer-yetzirah-world&page=207&gate=paths",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH",
+        "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH"
+      ],
+      "paintedPdfPaperFraction": 0.67626953125,
+      "sourceNavigationAndReturn": true,
+      "initialCanvasCount": 1,
+      "keyboardModeControls": true,
+      "noHorizontalOverflow": true,
+      "normalPageErrors": [],
+      "nonWebglSourceReadingRetained": true,
+      "pdfResponses": 6,
+      "engineAttempts": 0
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "browser": "Chromium",
+      "backend": "mocked",
+      "engineTransport": "blocked",
+      "pdfFixtureSha256": "2cc0710667dde3db94745b4f652d4b2e3eb8ea9c64424ab52f1f2ce44281c13a",
+      "pdfFramesAborted": false,
+      "specificationModelsMounted": 0,
+      "modelAcceptance": "NOT_TESTED_NO_RENDERER_BINDING",
+      "gaps": [
+        "existing scene has no explicit start/close and no binding of these 33 specifications",
+        "component source/return and visible new legends are not implemented"
+      ],
+      "notTested": [
+        "per-specification component selection/return",
+        "dynamic reduced-motion resource audit",
+        "real mobile browser/device",
+        "server authorization and RLS"
+      ],
+      "fullscreen": true,
+      "nativeViewer": {
+        "documentUrl": "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "inputs": [
+          {
+            "id": "",
+            "value": "50%",
+            "type": "text"
+          },
+          {
+            "id": "pageSelector",
+            "value": "207",
+            "type": "text"
+          }
+        ],
+        "texts": [],
+        "loaded": null,
+        "loadState": "success",
+        "initialLoadComplete": true,
+        "pageCount": 220,
+        "viewportPage": 206
+      },
+      "nativePdfLoadedAtPhysicalPage": 207,
+      "nativeFrameUrls": [
+        "http://127.0.0.1:33913/2029/control?surface=sefer-yetzirah-world&page=207&gate=paths",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH",
+        "chrome-extension://mhjfbmdgcfjbbpaeojofohoefgiehjai/index.html",
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/Book/Sefer%20Yetsirah.pdf#page=207&view=FitH"
+      ],
+      "paintedPdfPaperFraction": 0.47314453125,
+      "sourceNavigationAndReturn": true,
+      "initialCanvasCount": 1,
+      "keyboardModeControls": true,
+      "noHorizontalOverflow": true,
+      "normalPageErrors": [],
+      "nonWebglSourceReadingRetained": true,
+      "pdfResponses": 6,
+      "engineAttempts": 0
+    }
+  ],
+  "browser_binary_version": "Chromium 154.0.8037.57 (Debian 13)",
+  "supporting_screenshot": "native-pdf-1440-light.png",
+  "post_browser_source_adjudication": {
+    "scope": "six source-summary corrections and separation of source definition content from companion limitations; no renderer/reader/browser-test/source-PDF change",
+    "component_ids": [
+      "path-1",
+      "path-2",
+      "path-3",
+      "path-4",
+      "path-15",
+      "path-29"
+    ],
+    "final_source_asset_sha256": {
+      "public/book-data/sefer-yetzirah.structures.json": "852e9d6a7d4d0810cb999563083fddfcabfb4259bb87cd03a5e0e08a0b7415f1",
+      "public/book-data/sefer-yetzirah.source-readings.json": "a3bd40326119d9484d6c75f1d170bcf432efcaa5f6146db1c313f626d3e00373"
+    },
+    "browser_matrix_rerun": false,
+    "reason": "Definitions are not imported into the unchanged source experience. Final content/locator acceptance is rerun independently; original measured source revision hashes are preserved."
+  }
+}

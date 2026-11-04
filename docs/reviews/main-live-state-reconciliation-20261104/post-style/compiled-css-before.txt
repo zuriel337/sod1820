@@ -1,0 +1,48 @@
+✖ src/pages/Post2029Page.jsx includes the existing complete reading finish and responsive backdrop (2.750124ms)
+✖ src/pages/PublicContinuity2029Page.jsx includes the existing complete reading finish and responsive backdrop (2.273647ms)
+✔ 2029.html does not eagerly acquire Post-specific styling (0.222294ms)
+✔ src/pages/Home2029Page.jsx does not eagerly acquire Post-specific styling (1.169608ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 2
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 80.124331
+
+✖ failing tests:
+
+test at test/post-reading-style-graph-2029.test.mjs:9:2
+✖ src/pages/Post2029Page.jsx includes the existing complete reading finish and responsive backdrop (2.750124ms)
+  AssertionError [ERR_ASSERTION]: reading finish was lost during CSS chunking
+      at TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/post-reading-style-graph-2029.test.mjs:9:125)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at test/post-reading-style-graph-2029.test.mjs:9:2
+✖ src/pages/PublicContinuity2029Page.jsx includes the existing complete reading finish and responsive backdrop (2.273647ms)
+  AssertionError [ERR_ASSERTION]: reading finish was lost during CSS chunking
+      at TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/post-reading-style-graph-2029.test.mjs:9:125)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

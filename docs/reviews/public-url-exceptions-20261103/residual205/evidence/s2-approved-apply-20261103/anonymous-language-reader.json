@@ -1,0 +1,11 @@
+{
+  "kind": "actual-anonymous-select-only-language-reader",
+  "status": 200,
+  "returnedPublicApproved": 13,
+  "unapprovedReturned": 0,
+  "visitorAndReviewerIdsRedacted": true,
+  "callerSuppliedVisitorGrantsNoOwnership": true,
+  "liveProductWrites": 0,
+  "privateBodiesStored": 0,
+  "serviceRoleUsed": false
+}

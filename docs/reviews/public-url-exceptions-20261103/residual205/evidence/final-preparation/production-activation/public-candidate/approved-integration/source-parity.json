@@ -1,0 +1,15 @@
+{
+  "approvedPatchHash": "a3ef243331857304cfb5c1e8f5d68c7a14dfab2aa7ce748dc285d7e349d5c282",
+  "nineTargetHashesMatch": true,
+  "unchangedLegacyRootWorkerAndGuards": [
+    "AGENTS.md",
+    "public/sw.js",
+    "vercel.json",
+    "src/App.jsx",
+    "src/lib/publicReadingRelease2029.js",
+    "src/components/auth2029/AccountEntry2029.jsx"
+  ],
+  "originalAddressesPreserved": true,
+  "unchangedAccountImplementation": true,
+  "legacyProductionGuardSha256": "edb822d3da9a957997ab85f2e0a8b757cec916bcc8768587fec22b7040dd478e"
+}

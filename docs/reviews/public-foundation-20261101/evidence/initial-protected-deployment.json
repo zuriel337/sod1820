@@ -1,0 +1,103 @@
+{
+  "stage": "initial backup preview before final metadata and inherited-guard corrections",
+  "sha": "42e448fc85ddb45c912616e1602d24fb70c249b1",
+  "deployment": "dpl_7CTp8g6zj7L2J1cnoTpmTD6M5tHX",
+  "url": "https://sod1820-2zsw8tsu7-sod1820-s-projects.vercel.app",
+  "target": "preview",
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "title": "SOD1820 · 2029",
+      "cache": "no-store"
+    },
+    {
+      "path": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "status": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "canonical": "https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula",
+      "title": "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים · SOD1820",
+      "cache": "private, no-store"
+    },
+    {
+      "path": "/number/1820",
+      "status": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "canonical": "https://sod1820.co.il/number/1820",
+      "title": "דף המספר · SOD1820",
+      "cache": "private, no-store"
+    },
+    {
+      "path": "/number/%D7%91%D7%A8%D7%90%D7%A9%D7%99%D7%AA",
+      "status": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "canonical": "https://sod1820.co.il/number/בראשית",
+      "title": "דף המספר · SOD1820",
+      "cache": "private, no-store"
+    },
+    {
+      "path": "/map",
+      "status": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "canonical": "https://sod1820.co.il/map",
+      "title": "מרכז הניווט · SOD1820",
+      "cache": "private, no-store"
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "canonical": "https://sod1820.co.il/privacy",
+      "title": "מדיניות פרטיות · סוד 1820",
+      "cache": "private, no-store"
+    },
+    {
+      "path": "/login",
+      "status": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "canonical": "https://sod1820.co.il/login",
+      "title": "כניסה לחשבון · סוד 1820",
+      "cache": "private, no-store"
+    },
+    {
+      "path": "/api/preview-capabilities",
+      "status": 200,
+      "robots": "noindex, nofollow",
+      "cache": "private, no-store",
+      "capabilities": {
+        "target": "preview",
+        "serverIdentityAvailable": true,
+        "serverIdentityVerified": true,
+        "userAuthenticationRequired": true,
+        "production": false
+      }
+    },
+    {
+      "path": "/api/contributor-self",
+      "status": 401
+    },
+    {
+      "path": "/api/preview-raziel",
+      "status": 405,
+      "robots": "noindex, nofollow, noarchive",
+      "cache": "private, no-store"
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "cache": "no-store",
+      "disallowAll": true
+    },
+    {
+      "path": "/missing-public-foundation-20261101",
+      "status": 404,
+      "robots": "noindex, nofollow, noarchive",
+      "canonical": "https://sod1820.co.il/missing-public-foundation-20261101",
+      "title": "הפוסט לא נמצא · SOD1820",
+      "cache": "private, no-store"
+    }
+  ],
+  "productionDeploymentUnchanged": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+}

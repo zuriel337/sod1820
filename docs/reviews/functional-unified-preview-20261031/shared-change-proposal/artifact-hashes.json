@@ -1,0 +1,22 @@
+[
+  {
+    "path": "supabase/migrations/20261026212450_research_item_hint_private_media_v1.sql",
+    "sha256": "8bd503b6f20626b01971197d82fd5c2520e8d8788de591a9a4f39f650b469aa9",
+    "bytes": 28646
+  },
+  {
+    "path": "supabase/functions/media-upload-intent/index.ts",
+    "sha256": "4de8ad396bcbb2f862db27f636fcd8092ea282fb57e3f1933d858ad1a5343544",
+    "bytes": 17887
+  },
+  {
+    "path": "supabase/functions/media-upload-intent/contract.mjs",
+    "sha256": "d787fc88511aa7f02414f67cfabff7687d0fc96646330c8a101f8535b203151e",
+    "bytes": 11808
+  },
+  {
+    "path": "supabase/functions/ai-analyze/.build/index.ts",
+    "sha256": "2ac19e112e77e71fbab61270338e126edf88128a786f3425b09157291494281f",
+    "bytes": 595627
+  }
+]

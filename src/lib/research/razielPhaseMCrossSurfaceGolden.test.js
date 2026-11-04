@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 import { selectRazielIntelligence } from "../../../supabase/functions/_shared/razielIntelligence.js";
+import { supabaseServiceHeaders } from "../../../supabase/functions/_shared/supabaseServiceHeaders.js";
 
 // RAZIEL_INTELLIGENCE_CORE_V1_PHASE_M — cross-surface Golden (verification only: no production code is added by this phase).
 // Runs the REAL ai-analyze Raziel adapter region (Phase H..L + surface context) against a counting fetch and asserts, per natural-language row:
@@ -12,6 +13,9 @@ const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
 const edge = read("../../../supabase/functions/ai-analyze/index.ts");
 const sqlGolden = read("../../../tests/sql/raziel_phase_m_cross_surface_golden_v1.sql");
 const frame = read("../../components/experience2029/SystemFrame2029.jsx");
+const session = read("./razielSession2029.js");
+const request = read("./razielSessionRequest2029.js");
+const provider = read("./RazielSessionProvider2029.jsx");
 const region = edge.slice(edge.indexOf("const rzClean = "), edge.indexOf("Deno.serve(async"));
 const razielReq = edge.slice(edge.indexOf("Deno.serve(async"));
 
@@ -23,8 +27,9 @@ function load(log, scenario = {}) {
     const host = u.host === "api.github.com" ? "github" : "supabase";
     const rpc = u.pathname.match(/\/rest\/v1\/rpc\/(\w+)$/)?.[1] || null;
     const table = !rpc ? u.pathname.match(/\/rest\/v1\/(\w+)$/)?.[1] || null : null;
-    const auth = init.headers?.Authorization || init.headers?.authorization || null;
-    log.push({ host, rpc, table, path: u.pathname, auth });
+    const headers = new Headers(init.headers);
+    const auth = headers.get("authorization"), apiKey = headers.get("apikey");
+    log.push({ host, rpc, table, path: u.pathname, auth, apiKey });
     if (host === "github") {
       if (u.pathname.endsWith("/commits/main")) return resp(200, { sha: SHA });
       if (u.pathname.endsWith("/deployments")) return resp(200, [{ id: 1, sha: SHA }]);
@@ -48,7 +53,8 @@ function load(log, scenario = {}) {
     `const SB_URL = "https://x.supabase.co"; const SB_ANON = "anon-key";\n${region}\n`) +
     "\nreturn { razielPersonalDescriptor, runRazielPersonal, razielOperatorDescriptor, razielCoordDescriptor, runRazielOperator, runRazielCoordination, razielNumberContextDescriptor, runRazielNumberContext, razielCurrentContentDescriptor, runRazielCurrentContent, razielSemanticSurfaceText };";
   const spans = [];
-  const m = new Function("fetch", "recordOperationalSpan", "crypto", "AbortSignal", code)(fetchImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" }, AbortSignal);
+  const m = new Function("fetch", "recordOperationalSpan", "crypto", "AbortSignal", "supabaseServiceHeaders", code)(
+    fetchImpl, async (_t, s) => { spans.push(s); }, { randomUUID: () => "uuid" }, AbortSignal, supabaseServiceHeaders);
   return { m, spans };
 }
 
@@ -147,6 +153,7 @@ for (const row of MATRIX) {
     if (out.cc) {
       assert.equal(out.cc.ok, true); assert.equal(out.cc.kind, "post");
       assert.equal(log.length, 1); assert.match(log[0].path, /\/rest\/v1\/posts$/); assert.ok(log[0].auth === "Bearer anon-key");
+      assert.equal(log[0].apiKey, "anon-key");
       assert.doesNotMatch(out.cc.pack, /<script|alert\(1\)|<p>/);
     }
     if (row.ctx) assert.match(m.razielSemanticSurfaceText(row.ss), row.ctx);
@@ -200,8 +207,14 @@ test("M: global routing stays OFF; model/provider calls only on explicit send, n
   assert.doesNotMatch(edge, /routing_enabled\s*=\s*true/);
   assert.doesNotMatch(razielReq.slice(razielReq.indexOf('persona || "").toLowerCase() === "raziel"')), /fn_raziel_model|routing_enabled/);
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));
-  assert.doesNotMatch(chat, /useEffect/);                         // no effect ⇒ nothing fires on mount/open
-  assert.match(chat, /surfaceSemantic: buildSurfaceSemantic\(\)/);
+  assert.equal((chat.match(/useEffect\(/g) || []).length, 1);
+  assert.match(chat, /useEffect\(\(\) => \{ setGuestQuotaEnded\(false\); \}, \[user\?\.id\]\)/);
+  assert.doesNotMatch(chat.slice(chat.indexOf("useEffect("), chat.indexOf("if (!session)")), /submit|transport|fetch|askRaziel/);
+  assert.equal((chat.match(/session\.submit\(/g) || []).length, 1);
+  assert.match(chat, /const send = async[\s\S]*session\.submit\(\{ question: q,/);
+  assert.match(provider, /const submit = useCallback[\s\S]*const rawResponse = await transport\(request\)/);
+  assert.equal((provider.match(/transport\(request\)/g) || []).length, 1);
+  assert.match(request, /const surfaceSemantic = snapshotSurfaceSemantic\(contextSnapshot\)/);
   const mig = (f) => read("../../../supabase/migrations/" + f);
   const lineage = ["20261005050000_raziel_route_token_boundary_match_v1.sql", "20261005130000_raziel_intelligence_core_v1_phase_a_plan_first.sql", "20261005140000_raziel_intelligence_core_v1_phase_c_operator_read.sql",
     "20261005150000_raziel_intelligence_core_v1_phase_d2_plan_signals.sql", "20261005160000_raziel_intelligence_core_v1_phase_e_l4_tool_research.sql", "20261005170000_raziel_intelligence_core_v1_phase_f_sandalphon_source.sql",
@@ -271,7 +284,7 @@ test("M personal: provenance stays separate — personal answer carries only PER
   assert.equal(m.razielPersonalDescriptor(admin, "admin", UID), null);          // an operator plan is never a personal descriptor
   assert.equal(m.razielOperatorDescriptor(pdet("personal_saved"), "admin"), null); assert.equal(m.razielCoordDescriptor(pdet("personal_saved"), "admin"), null);
   const adapters = edge.slice(edge.indexOf("// Phase L — personal research continuity READ"), edge.indexOf("// Phase E — one operational db_rpc/tool span"));
-  assert.match(adapters, /if \(!rOpDesc && !rCoordDesc && rPersDesc && rVerifiedRef\)/);   // operator/coordination/external win; personal never co-executes
+  assert.match(adapters, /if \(q\.allowed && !rOpDesc && !rCoordDesc && rPersDesc && rVerifiedRef\)/);   // quota + operator/coordination/external win; personal never co-executes
   const sp = []; const l2 = load([]);   // spans for personal carry no uid/jwt/items
   void sp; void l2;
 });

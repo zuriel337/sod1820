@@ -1,0 +1,20 @@
+{
+  "task": "PUBLIC_ADMIN_OWNER_ACCEPTANCE_20261103",
+  "reportedDateUTC": "2026-11-04",
+  "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "deploymentId": "dpl_ADnf6NL9VznxiiysCQZqoGPguJSE",
+  "ownerQuote": "עובד",
+  "source": "ZURIEL reply to corrected admin Preview link",
+  "status": "ADMIN_OPENING_ACCEPTED_USER_REPORTED",
+  "blackScreenOpeningIssue": "CLOSED_BY_OWNER_REPORT",
+  "refresh": "NOT_SEPARATELY_ATTESTED",
+  "traceDrilldown": "NOT_SEPARATELY_ATTESTED",
+  "fullCP1Gate": "NOT_CLAIMED",
+  "g4Stage": "NOT_CLAIMED",
+  "syntheticTestsChanged": false,
+  "twoAccountPersonalAcceptance": "RETAINED",
+  "socialManualTest": "SKIPPED_BY_OWNER_NOT_TESTED",
+  "runtimeChanged": false,
+  "productionChanged": false,
+  "beforeId": "f7f20b82-53a4-48e0-a400-38927b9b30fe"
+}

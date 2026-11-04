@@ -1,0 +1,53 @@
+{
+  "synthetic": true,
+  "realAccounts": false,
+  "liveNetwork": 0,
+  "liveWrites": 0,
+  "cases": [
+    {
+      "name": "source 2481 exact video order, fallback, playlist, no early embeds",
+      "passed": true
+    },
+    {
+      "name": "source 3798 exact video order, fallback, playlist, no early embeds",
+      "passed": true
+    },
+    {
+      "name": "source 3288 exact video order, fallback, playlist, no early embeds",
+      "passed": true
+    },
+    {
+      "name": "canonical valid Legacy session uses existing project key and leaves local work untouched",
+      "passed": true
+    },
+    {
+      "name": "canonical second tab sees the same existing session; local signout propagates",
+      "passed": true
+    },
+    {
+      "name": "expired Legacy session refreshes through existing Auth then verifies same principal",
+      "passed": true
+    },
+    {
+      "name": "revoked expired session stays signed out and local work survives",
+      "passed": true
+    },
+    {
+      "name": "server UID mismatch cannot verify a stored Legacy principal",
+      "passed": true
+    },
+    {
+      "name": "Preview with Legacy-shaped local storage alone remains signed out",
+      "passed": true
+    },
+    {
+      "name": "Preview account B uses only its tab session and never adopts canonical-shaped A",
+      "passed": true
+    }
+  ],
+  "denied": [],
+  "errors": [],
+  "finishedAt": "2026-11-03T15:59:40.787Z",
+  "passed": 10,
+  "failed": 0
+}

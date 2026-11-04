@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import CanonicalMediaFigure2029 from '../experience2029/CanonicalMediaFigure2029.jsx';
 import SpatialMethodStage2029 from '../gematria2029/SpatialMethodStage2029.jsx';
 import { WORLD_DISCOVERY_READINGS, REVIEWED_SOURCE_WITNESSES, DISCOVERY_TOPIC_SLUGS,
@@ -11,7 +11,7 @@ const kinds = { documented_source_mention: 'מפורש במקור', author_inter
   proposed_method_connection: 'חיבור מוצע בין שיטות', proposed_rule_connection: 'חיבור מוצע לפי חוק' };
 const label = (method) => method === 'קדמי' ? 'משולש (קדמי)' : method;
 
-function SourceHistory({ item, remember }) {
+function SourceHistory({ item, remember, openGallery }) {
   return <details className="sod29-discovery-history">
     <summary>הכיתובים, הקרדיטים והמיקומים המקוריים</summary>
     {item.occurrences.map((occurrence) => {
@@ -33,8 +33,9 @@ function SourceHistory({ item, remember }) {
         <p>{p.originalName}</p>
         <blockquote data-historical-caption>{p.originalCaption || 'לא נשמר כיתוב במקור.'}</blockquote>
         <p>{Object.values(p.originalCredit || {}).filter(Boolean).join(' · ')}</p>
-        <a className="sod29-action" href={route?.href} target="_blank" rel="noreferrer" onClick={remember}>לגלריה המקורית — בסדר השמור</a>
-        <p className="sod29-discovery-note">הארכיון פותח את הגלריה בשלמותה. המיקום המדויק נשמר כאן; תאריכי העלאה ותיקייה אינם תאריכי אירוע ודאיים.</p>
+        {route?.href ? <Link className="sod29-action" to={route.href} onClick={(event) => openGallery(event, route.href, p)}>לתמונה המדויקת בגלריה ב־2029</Link>
+          : <p className="sod29-discovery-note">לא נשמר מיקום גלריה תקין לפתיחה.</p>}
+        <p className="sod29-discovery-note">הסדר, הכיתוב והקרדיט המקוריים נשמרים. תאריכי העלאה ותיקייה אינם תאריכי אירוע ודאיים.</p>
       </section>;
     })}
   </details>;
@@ -154,7 +155,12 @@ export default function WorldSourceStory({ research, shell, topicSlug = null }) 
         <div className="sod29-discovery-media">
           <CanonicalMediaFigure2029 item={witness.source.item} alt={`פתח מקור מלא: ${witness.title}`} primary onOpen={remember} contextNote={witness.reason} />
           <p className="sod29-discovery-source-label">מקור אחד · {groupCount} {witness.source.item.postPlacement ? 'הופעה בפוסט' : 'הופעות בגלריות'} · לחיצה פותחת את התמונה בשלמותה</p>
-          <SourceHistory item={witness.source.item} remember={remember} />
+          <SourceHistory item={witness.source.item} remember={remember} openGallery={(event, target, placement) => {
+            if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
+            remember();
+            leave(target, { id: placement.galleryImageId, type: 'image', label: placement.originalName || witness.title, href: target });
+          }} />
         </div>
         <div className="sod29-discovery-copy">
           <span className="sod29-discovery-eyebrow">{witness.eventLabel || 'מקור היסטורי · רמזי גאולה'}</span>

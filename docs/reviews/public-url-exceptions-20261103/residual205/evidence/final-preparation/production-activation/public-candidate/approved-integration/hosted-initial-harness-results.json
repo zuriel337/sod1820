@@ -1,0 +1,385 @@
+{
+  "sourceSha": "21f1a8d9e3e3fc6c7c35583ac79aee28f5e92b41",
+  "branch": "gpt/2029-public-cutover-final-preparation-20261103",
+  "deploymentId": "dpl_8VcC1LwM4aBmPEeZNS9DwYUGDSCu",
+  "origin": "https://sod1820-d3ocprlw4-sod1820-s-projects.vercel.app",
+  "realPublicData": true,
+  "actualSW": true,
+  "performanceMeasurement": false,
+  "modelCalls": 0,
+  "liveWrites": 0,
+  "testMail": 0,
+  "genuineTwoAccountAcceptance": "RETAINED_NOT_REPEATED",
+  "productionPublicMode": "NOT_DEPLOYED_OR_CLAIMED",
+  "cases": [
+    {
+      "name": "exact Preview artifact, real Home/SW and retained public series",
+      "width": 390,
+      "series": 4,
+      "worker": "/sw.js",
+      "passed": true,
+      "path": "/",
+      "noOverflow": true
+    },
+    {
+      "name": "real old Post, full Number/Phrase and exact history return",
+      "width": 390,
+      "passed": false,
+      "failure": {
+        "name": "AssertionError",
+        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/'\n- '/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0'\n"
+      },
+      "path": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0",
+      "noOverflow": true
+    },
+    {
+      "name": "World/calculator, login copy and anonymous administrator denial",
+      "width": 390,
+      "passed": false,
+      "failure": {
+        "name": "Error",
+        "message": "expect(locator).toBeVisible() failed\n\nLocator: locator('[data-experience-surface=\"calculator-2029\"]')\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 45000ms\n  - waiting for locator('[data-experience-surface=\"calculator-2029\"]')\n"
+      },
+      "path": "/gematria",
+      "noOverflow": true
+    },
+    {
+      "name": "exact Preview artifact, real Home/SW and retained public series",
+      "width": 1440,
+      "series": 4,
+      "worker": "/sw.js",
+      "passed": true,
+      "path": "/",
+      "noOverflow": true
+    },
+    {
+      "name": "real old Post, full Number/Phrase and exact history return",
+      "width": 1440,
+      "passed": false,
+      "failure": {
+        "name": "AssertionError",
+        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/'\n- '/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0'\n"
+      },
+      "path": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0",
+      "noOverflow": true
+    },
+    {
+      "name": "World/calculator, login copy and anonymous administrator denial",
+      "width": 1440,
+      "passed": false,
+      "failure": {
+        "name": "Error",
+        "message": "expect(locator).toBeVisible() failed\n\nLocator: locator('[data-experience-surface=\"calculator-2029\"]')\nExpected: visible\nTimeout: 45000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 45000ms\n  - waiting for locator('[data-experience-surface=\"calculator-2029\"]')\n"
+      },
+      "path": "/gematria",
+      "noOverflow": true
+    }
+  ],
+  "errors": [],
+  "requests": [
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST"
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/comments",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/fn_method_profile",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/gematria_methods",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 206
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/convergence_meter",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/comments",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/fn_method_profile",
+      "method": "POST",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/gematria_methods",
+      "method": "GET",
+      "status": 200
+    },
+    {
+      "origin": "https://linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/gematria_method_trace",
+      "method": "POST",
+      "status": 200
+    }
+  ],
+  "denied": [],
+  "finishedAt": "2026-11-03T21:33:34.533Z",
+  "passed": 2,
+  "failed": 4,
+  "ok": false
+}

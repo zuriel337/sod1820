@@ -1,0 +1,13 @@
+{
+  "baseline": "056c50f9ac1f9cbc7203027d3fe7ce814ac9c36d",
+  "galleryPageUnchanged": true,
+  "oldNoWriteStaticCheckFailedOnBaseline": true,
+  "benignMatches": [
+    "p.delete(key)",
+    "p.delete('image')",
+    "p.delete('offset')",
+    "p.delete('take')",
+    "set.delete(id)"
+  ],
+  "adjustment": "Only known URLSearchParams/Set local operations excluded. Exact four public read imports required; direct from/rpc/fetch forbidden. Seven injected writer call shapes still rejected. Product Gallery page unchanged."
+}

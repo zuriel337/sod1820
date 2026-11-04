@@ -1,0 +1,19 @@
+{
+  "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "deploymentId": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+  "productionHostBrowser": 6,
+  "canonicalBrowser": 6,
+  "canonicalHTTP": 24,
+  "noncanonicalRedirects": 2,
+  "guard": "PASS",
+  "mainChanged": false,
+  "runtimeChanged": false,
+  "DBProductWrites": 0,
+  "modelCalls": 0,
+  "testMail": 0,
+  "rollbackPerformed": false,
+  "twoAccountAcceptance": "RETAINED_USER_REPORTED",
+  "adminOpeningAcceptance": "RETAINED_USER_REPORTED",
+  "actualSocialOAuth": "OWNER_SKIPPED_NOT_CLAIMED",
+  "formalG4": "NOT_CLAIMED"
+}

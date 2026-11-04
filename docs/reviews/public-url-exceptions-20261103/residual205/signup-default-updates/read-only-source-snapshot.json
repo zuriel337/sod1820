@@ -1,0 +1,94 @@
+{
+  "captured_at": "2026-11-03",
+  "canonical_project": "linswmnnkjxvweumprav",
+  "connection_kind": "dedicated sod1820_supabase_readonly",
+  "mutations": 0,
+  "scope": "schema, function, trigger and canonical-owner metadata; no subscriber/account row data",
+  "guard_snapshot": {
+    "function_md5": "8cbc40e56e8d8ce9869f70e09535a7e5",
+    "auth_triggers": [
+      "CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION handle_new_user()"
+    ],
+    "subscriber_columns": [
+      {
+        "name": "active",
+        "type": "boolean",
+        "not_null": true
+      },
+      {
+        "name": "email_purposes",
+        "type": "text[]",
+        "not_null": true
+      },
+      {
+        "name": "id",
+        "type": "bigint",
+        "not_null": true
+      }
+    ],
+    "event_side_effect_triggers": 0,
+    "subscriber_side_effect_triggers": 0
+  },
+  "owners": [
+    {
+      "rule_id": "person_foundation_contract_law",
+      "rule_version": 6,
+      "label": "Personal Foundation v6 — Personal Reality Projection / One Person One Reality"
+    },
+    {
+      "rule_id": "subscription_funnel_law",
+      "rule_version": 21,
+      "label": "🧲 חוק מנוע-המשפך — Follow → הרשמה לאורח / ערוצים לרשום (v19)"
+    }
+  ],
+  "subscribe_events": {
+    "columns": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "default": "gen_random_uuid()",
+        "nullable": "NO"
+      },
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "name": "visitor_id",
+        "type": "text",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "name": "topic",
+        "type": "text",
+        "default": null,
+        "nullable": "NO"
+      },
+      {
+        "name": "source",
+        "type": "text",
+        "default": null,
+        "nullable": "YES"
+      },
+      {
+        "name": "action",
+        "type": "text",
+        "default": "'follow'::text",
+        "nullable": "NO"
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp with time zone",
+        "default": "now()",
+        "nullable": "NO"
+      }
+    ],
+    "triggers": null,
+    "constraints": [
+      "PRIMARY KEY (id)"
+    ]
+  }
+}

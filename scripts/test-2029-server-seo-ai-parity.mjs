@@ -106,6 +106,9 @@ const postSearchCrawler = await renderResponse("/post/demo-2029", async (url) =>
       ok: true,
       async json() {
         return [{
+          id: 900001,
+          slug: "demo-2029",
+          source: "ai",
           title: "פוסט 2029",
           excerpt: "תיאור פוסט",
           content: "<p>מקור</p>",

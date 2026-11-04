@@ -1,0 +1,16 @@
+/* EmailVerify variant="2029" presentation (Design V2 5.1/5.3). Owned once here; consumers (WatchButton 2029 identity slot,
+   standalone 2029 forms) get it from the component. Selectors key on the component's own variant/step/state/field/action markers.
+   The Legacy inline styles stay in the component for the default variant; here they are scoped to the 2029 type tokens, the
+   preset's semantic roles and 44px targets. The native-frame keyboard focus baseline is NOT overridden. */
+.sod29-email-verify[data-variant="2029"]{width:100%;max-width:100%!important;margin:0!important;box-sizing:border-box;font-family:var(--s29-font-ui,'Rubik','Noto Sans Hebrew',Arial,sans-serif)}
+.sod29-email-verify[data-variant="2029"] div{color:var(--s29-muted)!important;font-family:inherit!important;font-size:var(--s29-type-small,16px)!important;line-height:1.6!important}
+.sod29-email-verify[data-variant="2029"] span{color:var(--s29-ink)!important}
+.sod29-email-verify[data-variant="2029"] [data-field]{min-height:44px!important;box-sizing:border-box!important;font-family:inherit!important;font-size:var(--s29-type-ui,16px)!important;color:var(--s29-ink)!important;background:var(--s29-panel)!important;border:1px solid var(--s29-line-strong)!important}
+.sod29-email-verify[data-variant="2029"] [data-field=otp]{font-size:var(--s29-type-lead,21px)!important}
+.sod29-email-verify[data-variant="2029"] [data-action]{min-height:44px!important;min-width:44px!important;font-family:inherit!important;font-size:var(--s29-type-ui,16px)!important;font-weight:700!important;color:var(--s29-accent-text)!important;background:transparent!important;border:1px solid var(--s29-line-strong)!important;border-radius:999px!important;opacity:1!important;cursor:pointer}
+.sod29-email-verify[data-variant="2029"] [data-action=send],.sod29-email-verify[data-variant="2029"] [data-action=verify]{color:var(--s29-on-accent,#fff)!important;background:var(--s29-accent-btn,var(--s29-accent))!important;border-color:transparent!important}
+.sod29-email-verify[data-variant="2029"] [data-action=resend]{border-color:transparent!important;text-decoration:underline;text-underline-offset:4px;padding:4px 12px!important}
+.sod29-email-verify[data-variant="2029"] [data-action]:disabled{cursor:progress;opacity:.75!important}
+.sod29-email-verify[data-variant="2029"] [data-action=resend]:disabled{text-decoration:none;color:var(--s29-muted)!important}
+.sod29-email-verify[data-variant="2029"][data-state=error]>div:last-child{color:var(--s29-ink)!important;font-weight:700;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft);padding:8px 12px}
+@media(prefers-reduced-motion:reduce){.sod29-email-verify[data-variant="2029"] *{transition:none!important;animation:none!important}}

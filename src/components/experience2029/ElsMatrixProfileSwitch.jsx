@@ -6,6 +6,11 @@ import {
 
 const OPTIONS = Object.freeze([
   Object.freeze({
+    key: ELS_MATRIX_PROFILE.GUIDED,
+    label: "גילוי מודרך",
+    title: "כותבים סיפור אחד והמערכת בונה סביבו חיפוש מקומי ומוגבל",
+  }),
+  Object.freeze({
     key: ELS_MATRIX_PROFILE.RESEARCH,
     label: "מחקר",
     title: "אותה מטריצה עם שכבות מחקר מתקדמות לפי הצורך",
@@ -18,7 +23,7 @@ const OPTIONS = Object.freeze([
 ]);
 
 export default function ElsMatrixProfileSwitch({
-  profile = ELS_MATRIX_PROFILE.RESEARCH,
+  profile = ELS_MATRIX_PROFILE.GUIDED,
   onChange,
   disabled = false,
   ariaLabel = "מצב מטריצה",

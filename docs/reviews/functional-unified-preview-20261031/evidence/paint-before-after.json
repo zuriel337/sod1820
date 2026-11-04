@@ -1,0 +1,242 @@
+[
+  {
+    "version": "before",
+    "width": 390,
+    "late": false,
+    "paint": {
+      "first-paint": 272,
+      "first-contentful-paint": 708
+    },
+    "lcp": {
+      "startTime": 3164,
+      "renderTime": 3164,
+      "loadTime": 3063.5,
+      "size": 68905,
+      "tag": "IMG"
+    },
+    "domContentLoadedMs": 345.2999999988824,
+    "cls": {
+      "value": 0.2041689403569059,
+      "sources": [
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-copy",
+          "oldY": 369.28125,
+          "newY": 576.9375
+        },
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-directions",
+          "oldY": 745.1875,
+          "newY": 0
+        },
+        {
+          "tag": "FIGCAPTION",
+          "className": "",
+          "oldY": 334.890625,
+          "newY": 542.546875
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": false
+  },
+  {
+    "version": "after",
+    "width": 390,
+    "late": false,
+    "paint": {
+      "first-paint": 196,
+      "first-contentful-paint": 336
+    },
+    "lcp": {
+      "startTime": 948,
+      "renderTime": 948,
+      "loadTime": 838.5999999996275,
+      "size": 68905,
+      "tag": "IMG"
+    },
+    "domContentLoadedMs": 281.59999999962747,
+    "cls": {
+      "value": 0.007833961980056661,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 827.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  },
+  {
+    "version": "before",
+    "width": 390,
+    "late": false,
+    "paint": {
+      "first-paint": 192,
+      "first-contentful-paint": 308
+    },
+    "lcp": {
+      "startTime": 880,
+      "renderTime": 880,
+      "loadTime": 799.4000000003725,
+      "size": 68905,
+      "tag": "IMG"
+    },
+    "domContentLoadedMs": 251.09999999962747,
+    "cls": {
+      "value": 0.23704243381580514,
+      "sources": [
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-copy",
+          "oldY": 369.28125,
+          "newY": 576.9375
+        },
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-directions",
+          "oldY": 745.1875,
+          "newY": 0
+        },
+        {
+          "tag": "FIGCAPTION",
+          "className": "",
+          "oldY": 334.890625,
+          "newY": 542.546875
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": false
+  },
+  {
+    "version": "after",
+    "width": 390,
+    "late": false,
+    "paint": {
+      "first-paint": 180,
+      "first-contentful-paint": 328
+    },
+    "lcp": {
+      "startTime": 940,
+      "renderTime": 940,
+      "loadTime": 828.1999999992549,
+      "size": 68905,
+      "tag": "IMG"
+    },
+    "domContentLoadedMs": 270.40000000037253,
+    "cls": {
+      "value": 0.03858936843591601,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 827.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  },
+  {
+    "version": "before",
+    "width": 390,
+    "late": false,
+    "paint": {
+      "first-paint": 180,
+      "first-contentful-paint": 332
+    },
+    "lcp": {
+      "startTime": 936,
+      "renderTime": 936,
+      "loadTime": 838.9000000003725,
+      "size": 68905,
+      "tag": "IMG"
+    },
+    "domContentLoadedMs": 267.90000000037253,
+    "cls": {
+      "value": 0.23704441048536085,
+      "sources": [
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-copy",
+          "oldY": 369.28125,
+          "newY": 576.9375
+        },
+        {
+          "tag": "DIV",
+          "className": "sod29-flight-directions",
+          "oldY": 745.1875,
+          "newY": 0
+        },
+        {
+          "tag": "FIGCAPTION",
+          "className": "",
+          "oldY": 334.890625,
+          "newY": 542.546875
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": false
+  },
+  {
+    "version": "after",
+    "width": 390,
+    "late": false,
+    "paint": {
+      "first-paint": 176,
+      "first-contentful-paint": 324
+    },
+    "lcp": {
+      "startTime": 924,
+      "renderTime": 924,
+      "loadTime": 803.5,
+      "size": 68905,
+      "tag": "IMG"
+    },
+    "domContentLoadedMs": 252.5,
+    "cls": {
+      "value": 0.038587825964367724,
+      "sources": [
+        {
+          "tag": "SECTION",
+          "className": "sod29-world-overview sod29-world-entry",
+          "oldY": 827.890625,
+          "newY": 0
+        }
+      ]
+    },
+    "storyReady": true,
+    "imageReady": true,
+    "headerHeight": 120,
+    "overflow": false,
+    "errors": [],
+    "passed": true
+  }
+]

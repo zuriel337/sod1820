@@ -5,6 +5,17 @@
 >
 > **Non-canonical.** Nothing in this dossier is a `research_objects` row, a `nodes`/`edges` row, a Universal Finding, or a canonical claim. Everything here is pre-promotion research/workspace material per §6.3 Representation Collapse (`research_intake_foundation_contract`). Promotion of any specific claim to canonical status requires the existing, unchanged flow: `SOURCE → EXTRACTION → RESEARCH OBJECT/CANDIDATE → VERIFICATION → UNIVERSAL FINDING → HUMAN GATE → ONE TREE → PUBLICATION`.
 
+## Reader/library checkpoint — 31.10.2026 (branch only)
+
+**EXTENDS · actor GPT · `codex/ahavat-preview-open-20261031`**, above
+`1a07b6843e8a539d3a79c2943bb59c3dc992af90` (prior responsive/library checkpoint,
+`codex/ahavat-responsive-library-readiness-20261031`, four commits above
+`c9bc02b8d8307ef2ae96ff58c2d31ef358b3af89`).
+[Additive reader/public-library receipt, contract status, work-history limits and Tanakh check](../../reviews/ahavat-preview-open-and-public-library-20261031.md).
+This is presentation/access-in-Preview provenance only. Preparation percentages
+are not source-exhaustion percentages; earlier research rows, source identity,
+open questions and historical fidelity caveats below remain unchanged.
+
 ## Source facts
 
 - **Title:** ספר אהבת תורה (Ahavat Torah)

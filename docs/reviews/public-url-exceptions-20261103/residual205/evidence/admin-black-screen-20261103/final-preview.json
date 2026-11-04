@@ -1,0 +1,14 @@
+{
+  "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "id": "dpl_ADnf6NL9VznxiiysCQZqoGPguJSE",
+  "url": "https://sod1820-96jzc6z50-sod1820-s-projects.vercel.app",
+  "stableAlias": "https://sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app",
+  "readyState": "READY",
+  "target": null,
+  "socialManualAcceptance": "SKIPPED_BY_OWNER_NOT_TESTED",
+  "realAdminAcceptance": "ADMIN_OPENING_ACCEPTED_USER_REPORTED",
+  "twoAccountPersonalAcceptance": "RETAINED_USER_REPORTED_ACCEPTED",
+  "priorRealAdminAcceptance": "OWNER_REPORTED_BLACK_SCREEN_BEFORE_FIX_RETRY_PENDING",
+  "ownerAcceptanceEvidence": "owner-acceptance.json",
+  "fullCP1Gate": "NOT_CLAIMED"
+}

@@ -1,0 +1,5 @@
+
+> sod1820@1.0.0 test:operational-trace-runtime
+> node scripts/test-operational-trace-runtime.mjs
+
+Operational Trace Runtime v1 static acceptance: PASS

@@ -1,0 +1,66 @@
+{
+  "project": "linswmnnkjxvweumprav",
+  "observed": "2026-11-02",
+  "functions": [
+    {
+      "slug": "newsletter-signup",
+      "version": 18,
+      "verify_jwt": false,
+      "ezbr_sha256": "1fad38e517f21d0079b48e9109947d86be7bec1d890563e8ae541f3d17a97718",
+      "files": [
+        "index.ts"
+      ],
+      "deploymentChanged": false
+    },
+    {
+      "slug": "send-newsletter",
+      "version": 15,
+      "verify_jwt": true,
+      "ezbr_sha256": "a866b5e909a21bfb11f8fa37aa0fed70c58cc81308d48bf30a79625c4f9e6c30",
+      "files": [
+        "index.ts"
+      ],
+      "deploymentChanged": false
+    },
+    {
+      "slug": "send-reengage",
+      "version": 2,
+      "verify_jwt": true,
+      "ezbr_sha256": "7c64847e254c344cbee08386189270bbe01024484cac27558107a723408cb2fc",
+      "files": [
+        "index.ts"
+      ],
+      "deploymentChanged": false
+    },
+    {
+      "slug": "welcome-backfill",
+      "version": 7,
+      "verify_jwt": false,
+      "ezbr_sha256": "68f06ec5834949277a39124300d558c81a61e4e8a29e0cdc553a3012df3fbba3",
+      "files": [
+        "index.ts"
+      ],
+      "deploymentChanged": false
+    },
+    {
+      "slug": "nl-track",
+      "version": 2,
+      "verify_jwt": false,
+      "ezbr_sha256": "3fc175b18205ca05574ed489721785c862d185e9ae0f70dccc89375b38ba6b2a",
+      "files": [
+        "index.ts"
+      ],
+      "deploymentChanged": false
+    },
+    {
+      "slug": "newsletter-unsubscribe",
+      "version": 9,
+      "verify_jwt": false,
+      "ezbr_sha256": "c32fc315e6891cd9fd5b9a1e00fdb0685c515f2b9b87b5d41a6e73c902425975",
+      "files": [
+        "index.ts"
+      ],
+      "deploymentChanged": false
+    }
+  ]
+}

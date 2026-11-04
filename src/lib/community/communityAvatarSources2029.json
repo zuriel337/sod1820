@@ -1,0 +1,88 @@
+{
+  "kind": "public-avatar-presentation-snapshot",
+  "source": "OpenWeb public conversation sp_OVtajBTj_POST$ID$GOES$HERE",
+  "identity_provenance": "exact native message ID -> canonical contribution_links -> original author_contributor_id; unclaimed/no existing avatar only",
+  "rows": [
+    {
+      "contributor_id": "2baff1f8-fb95-482c-953b-c9637a634db8",
+      "source_user_id": "U_1bnF2eC5ROlwFE4h",
+      "source_url": "https://images.spot.im/image/upload/c_thumb,w_30,h_30,q_70,dpr_3,g_faces,f_png,fl_lossy,fl_png8/v200/5686ce6a-d6c8-404d-ab85-80b1ff9c8317",
+      "visibility": "public",
+      "observed_at": "2026-11-04T15:12:56.454923+00:00",
+      "asset": "/community-avatars/3abc129a6744e1170265.jpg",
+      "sha256": "3abc129a6744e11702651bb832ba9ada13d9211f4620ae73867dcfc3404da704"
+    },
+    {
+      "contributor_id": "4b3334fe-c96f-43e6-8cc2-b7b040a6df97",
+      "source_user_id": "u_A08wHpOaGwgU",
+      "source_url": "https://images.spot.im/image/upload/c_thumb,w_30,h_30,q_70,dpr_3,g_faces,f_png,fl_lossy,fl_png8/v200/p/u/sggcwivefo4va0k9pipp",
+      "visibility": "public",
+      "observed_at": "2026-11-04T15:12:56.454944+00:00",
+      "asset": "/community-avatars/8500b9894250ce422cd4.jpg",
+      "sha256": "8500b9894250ce422cd4e1cd02d2444147b3d1eb71808d716233eec9a8993c2c"
+    },
+    {
+      "contributor_id": "99bcfb38-85be-4f38-89f0-7886f2f179e6",
+      "source_user_id": "u_abMzSr4S",
+      "source_url": "https://images.spot.im/image/upload/c_thumb,w_30,h_30,q_70,dpr_3,g_faces,f_png,fl_lossy,fl_png8/v200/c96e85d808404bab325544601f12ba6f",
+      "visibility": "public",
+      "observed_at": "2026-11-04T15:12:56.454946+00:00",
+      "asset": "/community-avatars/090688eb8d8b7febc9c3.jpg",
+      "sha256": "090688eb8d8b7febc9c3294da8377410101c69a5020541d0d9b9f12c2acebeb2"
+    },
+    {
+      "contributor_id": "0aafac40-f0af-4c55-8783-49894d3be1af",
+      "source_user_id": "U_caZn4XSTp7VRsXmy",
+      "source_url": "https://images.spot.im/image/upload/c_thumb,w_30,h_30,q_70,dpr_3,g_faces,f_png,fl_lossy,fl_png8/v200/p/avatars/yqppb0y8rjfrvijxlmta",
+      "visibility": "public",
+      "observed_at": "2026-11-04T15:12:56.454942+00:00",
+      "asset": "/community-avatars/6919ed0a40ac304d02cf.jpg",
+      "sha256": "6919ed0a40ac304d02cfb50307b2a4b04d3fb7ffd1d7d6fd98e6e5de608ca630"
+    },
+    {
+      "contributor_id": "97d30b73-ee8a-4938-88e6-19710f99ca24",
+      "source_user_id": "u_mZF8KmCk6uyP",
+      "source_url": "https://images.spot.im/image/upload/c_thumb,w_30,h_30,q_70,dpr_3,g_faces,f_png,fl_lossy,fl_png8/v200/a8ca20d0-0978-4f23-b83c-4a2ea91dfc39",
+      "visibility": "public",
+      "observed_at": "2026-11-04T15:12:56.454949+00:00",
+      "asset": "/community-avatars/6a3edace38704f8347d1.jpg",
+      "sha256": "6a3edace38704f8347d12073fec8208f6208e87acbc9f578321d6bb9a4b76687"
+    },
+    {
+      "contributor_id": "1f95f46b-b18b-480b-a2d2-8a9ce90eb194",
+      "source_user_id": "U_QAu9LlY39eZZzLYi",
+      "source_url": "https://images.spot.im/image/upload/c_thumb,w_30,h_30,q_70,dpr_3,g_faces,f_png,fl_lossy,fl_png8/v200/azuit2tjvho8gjgaomyf",
+      "visibility": "public",
+      "observed_at": "2026-11-04T15:12:56.454939+00:00",
+      "asset": "/community-avatars/1215acc5cd59c120f52d.jpg",
+      "sha256": "1215acc5cd59c120f52d4fa7068bc25432ed32afa9f2b0f475732091c8295eb1"
+    },
+    {
+      "contributor_id": "e7581ab5-8c15-4832-b602-f361e41ff373",
+      "source_user_id": "u_r6fetXIK",
+      "source_url": "https://images.spot.im/image/upload/c_thumb,w_30,h_30,q_70,dpr_3,g_faces,f_png,fl_lossy,fl_png8/v200/833318ec9eb693ce1a1be72b7065ee1e",
+      "visibility": "public",
+      "observed_at": "2026-11-04T15:12:56.454950+00:00",
+      "asset": "/community-avatars/481fe13708d588c62771.jpg",
+      "sha256": "481fe13708d588c62771df62959f9e7b5be403911bffcd7739a9e885d247417c"
+    },
+    {
+      "contributor_id": "27c10d9a-14a6-4493-980b-2f5eda105ad7",
+      "source_user_id": "u_vtNX8TEGu5VV",
+      "source_url": "https://images.spot.im/image/upload/c_thumb,w_30,h_30,q_70,dpr_3,g_faces,f_png,fl_lossy,fl_png8/v200/d49a9f83f01c11ebe52f7c7dbe971222",
+      "visibility": "public",
+      "observed_at": "2026-11-04T15:12:56.454952+00:00",
+      "asset": "/community-avatars/1d5e532cbed20715210e.jpg",
+      "sha256": "1d5e532cbed20715210e789c2a71aa06f3f41eca347fc1d6b4af5d8819ba098a"
+    },
+    {
+      "contributor_id": "f499536a-e993-4a7d-8706-a2e69337c320",
+      "source_user_id": "u_zawiGiUO",
+      "source_url": "https://images.spot.im/image/upload/c_thumb,w_30,h_30,q_70,dpr_3,g_faces,f_png,fl_lossy,fl_png8/v200/801f3231213032aa2262aafa552c66a1",
+      "visibility": "public",
+      "observed_at": "2026-11-04T15:12:56.454953+00:00",
+      "asset": "/community-avatars/4ea2767f6ced5eef43c3.jpg",
+      "sha256": "4ea2767f6ced5eef43c3ddd02ca41f28fa721551b6f22ea7206516194c4a796f"
+    }
+  ]
+}

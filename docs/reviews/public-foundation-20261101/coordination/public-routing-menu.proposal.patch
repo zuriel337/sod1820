@@ -1,0 +1,74 @@
+--- a/src/App2029.jsx
++++ b/src/App2029.jsx
+@@ -44,6 +44,10 @@
+ const CommunityChatTransition2029Page = lazy(() => import("./pages/CommunityChatTransition2029Page.jsx"));
+ const AuthPage = lazy(() => import("./pages/Auth2029Page.jsx"));
+ const OAuthCallback2029 = lazy(() => import("./pages/OAuthCallback2029.jsx"));
++const publicFoundationPreview = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true";
++const PublicPostAddress2029Page = lazy(() => import("./pages/PublicPostAddress2029Page.jsx"));
++const NumberAddress2029Page = lazy(() => import("./pages/NumberAddress2029Page.jsx"));
++const PublicServices2029Page = lazy(() => import("./pages/PublicServices2029Page.jsx"));
+ 
+ // Gallery pilot reuses the existing World document route and lock. No parallel
+ // document rewrite, global navigation change or Legacy route is introduced.
+@@ -209,6 +213,15 @@
+             <Suspense fallback={<Loading2029 />}>
+               <Routes>
+               <Route path="/2029" element={<HomeEntry2029 />} />
++              {publicFoundationPreview && <>
++                <Route path="/" element={<PublicPostAddress2029Page home={<HomeEntry2029 />} />} />
++                <Route path="/post" element={<Posts2029Page />} />
++                <Route path="/number" element={<PublicServices2029Page kind="number-search" />} />
++                <Route path="/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><NumberAddress2029Page /></Locked>} />
++                <Route path="/gallery" element={<Locked flag="lock_world" homeHref="/2029"><Gallery2029Page /></Locked>} />
++                {["privacy", "unsubscribe", "updates", "map"].map(kind => <Route key={kind} path={`/${kind}`} element={<PublicServices2029Page kind={kind} />} />)}
++                <Route path="/:slug" element={<PublicPostAddress2029Page />} />
++              </>}
+               {integratedPreviewEnabled && <Route path="/2029/preview" element={<IntegratedPreview2029Page />} />}
+               {followCenterPreviewEnabled && <Route path="/2029/preview/follow-center" element={<PublicContributorFrame2029 surface="community" title="מרכז עדכונים" introVariant="none"><FollowCenterPreview2029Page /></PublicContributorFrame2029>} />}
+               <Route path="/2029/home-preview" element={<HomePreview2029Page />} />
+@@ -251,7 +264,7 @@
+               <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029"><Number2029Page /></Locked>} />
+               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
+               <Route path="/2029/control" element={<ControlEntry2029 />} />
+-              <Route path="*" element={<LegacyDocumentHandoff />} />
++              <Route path="*" element={publicFoundationPreview ? <PublicServices2029Page kind="not-found" /> : <LegacyDocumentHandoff />} />
+               </Routes>
+             </Suspense>
+           </RazielSessionMount2029>
+--- a/src/components/experience2029/SystemFrame2029.jsx
++++ b/src/components/experience2029/SystemFrame2029.jsx
+@@ -125,11 +125,12 @@
+ 
+ export const use2029Shell = () => useContext(ShellContext);
+ 
++const publicFoundationPreview = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true";
+ const HOME_NAV = [
+-  { to: "/2029", label: "בית", icon: "⌂", exact: true },
++  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },
+   { to: "/world", label: "העולם", icon: "◌" },
+   { to: "/heichal", label: "היכל", icon: "◇" },
+-  { to: "/2029/posts", label: "פוסטים", icon: "↟" },
++  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },
+   { to: "/2029/journey", label: "מסע החיים", icon: "↝" },
+   { to: "/community/chat", label: "קהילה", icon: "◉" },
+ ];
+@@ -138,11 +139,16 @@
+   { action: "number-search", label: "דף המספר", icon: "123" },
+   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
+   { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
++  ...(publicFoundationPreview ? [
++    { to: "/map", label: "מפת האתר", icon: "◌" },
++    { to: "/updates", label: "עדכונים במייל", icon: "✉" },
++    { to: "/privacy", label: "פרטיות", icon: "◇" },
++  ] : []),
+ ];
+ 
+ const CORE_HOME_NAV = [
+-  { to: "/2029", label: "בית", icon: "⌂", exact: true },
+-  { to: "/2029/posts", label: "פוסטים", icon: "↟" },
++  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },
++  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },
+   { to: "/community/chat", label: "קהילה", icon: "◉" },
+   HOME_NAV[1],
+   { to: "/heichal", label: "היכל", icon: "◇" },

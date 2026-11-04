@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { Link, useSearchParams } from "react-router-dom";
 import { BRAND_LOCKUP_2029 } from "../lib/brandAssets2029.js";
 import { use2029Palette } from "../lib/palette.js";
@@ -52,6 +53,7 @@ export default function Campaign718Page2029() {
 
   useEffect(() => {
     document.title = "מלך המספרים × SOD1820";
+    if (PUBLIC_READING_RELEASE) return;
     try {
       captureArrivalSource();
       captureAcquisition();
@@ -108,6 +110,7 @@ export default function Campaign718Page2029() {
 
   async function submitEmail(event) {
     event.preventDefault();
+    if (PUBLIC_READING_RELEASE) return;
     const value = email.trim().toLowerCase();
     if (!validEmail(value)) {
       setSignupState("invalid");
@@ -274,7 +277,7 @@ export default function Campaign718Page2029() {
             <span>המשך למי שרוצה להבין את התמונה</span>
             <h2 id="campaign718-video-title">קבלו את הסרטון שמסביר מהו סוד 1820</h2>
             <p>השאירו מייל. הסרטון ייפתח כאן באותו דף, ותצטרפו לעדכונים על הרמזים והכלים החדשים.</p>
-            <form onSubmit={submitEmail}>
+            {PUBLIC_READING_RELEASE ? <p role="status">ההרשמה ופתיחת הסרטון באמצעותה אינן פעילות בפריוויו הזה. החישוב והתוכן שמעל זמינים לקריאה.</p> : <form onSubmit={submitEmail}>
               <input
                 type="email"
                 value={email}
@@ -289,7 +292,7 @@ export default function Campaign718Page2029() {
               <button type="submit" disabled={signupState === "sending"}>
                 {signupState === "sending" ? "פותח…" : "פתחו את הסרטון ←"}
               </button>
-            </form>
+            </form>}
             {signupState === "invalid" ? <small className="is-error">כתובת המייל לא נראית תקינה.</small> : null}
             {signupState === "error" ? <small className="is-error">ההרשמה לא הושלמה. נסו שוב.</small> : null}
             <small>חינם · אפשר להסיר בכל רגע · המייל משמש לעדכוני SOD1820.</small>

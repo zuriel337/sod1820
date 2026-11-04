@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { stripHtml } from "../format.js";
 
@@ -7,6 +8,7 @@ import { stripHtml } from "../format.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 export const CORPUS_PAGE_SIZE = 24;
+const CORPUS_SEARCH_PAGE_SIZE = 8;
 const DRAFT_TAGS = ["טיוטה", "פורום"];
 
 export const WORLD_SOURCE_CORPORA = Object.freeze([
@@ -50,11 +52,14 @@ export function classifyCorpusRows(rows = []) {
     items.push({
       id: String(row.id),
       slug: clean(row.slug),
+      source: row.source || null,
+      link: row.link || null,
+      wp_id: row.wp_id || null,
       title,
       excerpt: excerpt || null,
       date: row.date || null,
       homeHidden: row.home_hidden === true,
-      href: `/post/${encodeURIComponent(clean(row.slug))}`,
+      href: publicPostHref(row),
     });
   }
   return { items, excluded };
@@ -66,7 +71,7 @@ export async function fetchCorpusPage(spec, page = 0, { client = getPublicResear
   const from = page * CORPUS_PAGE_SIZE;
   const { data, error, count } = await client
     .from("posts")
-    .select("id,slug,title,excerpt,date,home_hidden,tags", { count: "exact" })
+    .select("id,slug,title,excerpt,date,source,link,wp_id,home_hidden,tags", { count: "exact" })
     .or(filter)
     .or(publicOnlyFilter())
     .order("date", { ascending: false, nullsFirst: false })
@@ -84,12 +89,52 @@ export async function fetchCorpusPage(spec, page = 0, { client = getPublicResear
   };
 }
 
+/** Search the text of one admitted public corpus on explicit request.
+ * The server narrows the page before returning it. Recheck visible text locally
+ * because a match in an HTML attribute is not a match in the article itself.
+ * Raw content is never returned in the search projection.
+ */
+export async function searchCorpusContentPage(spec, query, page = 0, { client = getPublicResearchClient() } = {}) {
+  const filter = corpusOrFilter(spec);
+  const term = clean(query).replace(/\s+/g, " ");
+  if (!client || !filter || term.length < 2 || term.length > 160
+    || /[\u0000-\u001f]/.test(term) || !Number.isSafeInteger(page) || page < 0 || page > 999) {
+    throw new Error("invalid_corpus_content_search");
+  }
+  const from = page * CORPUS_SEARCH_PAGE_SIZE;
+  const literal = term.replace(/[\\%_*]/g, "\\$&");
+  const { data, error } = await client.from("posts")
+    .select("id,slug,title,excerpt,content,date,source,link,wp_id,home_hidden,tags")
+    .or(filter).or(publicOnlyFilter()).ilike("content", `%${literal}%`)
+    .order("date", { ascending: false, nullsFirst: false })
+    .order("id", { ascending: true }).range(from, from + CORPUS_SEARCH_PAGE_SIZE - 1);
+  if (error || !Array.isArray(data)) throw error || new Error("corpus_search_unavailable");
+  const q = term.toLocaleLowerCase("he");
+  const excerpts = new Map();
+  const visibleRows = data.filter((row) => {
+    if (isDraft(row)) return false;
+    const body = stripHtml(String(row.content || ""));
+    const index = body.toLocaleLowerCase("he").indexOf(q);
+    if (index < 0) return false;
+    const start = Math.max(0, index - 70), end = Math.min(body.length, index + term.length + 110);
+    excerpts.set(String(row.id), `${start ? "…" : ""}${body.slice(start, end)}${end < body.length ? "…" : ""}`);
+    return true;
+  });
+  const { items } = classifyCorpusRows(visibleRows);
+  return {
+    items: items.map((item) => ({ ...item, matchedExcerpt: excerpts.get(item.id) || null })),
+    // A full page can have a next page; avoid an expensive exact count of HTML candidates.
+    hasMore: data.length === CORPUS_SEARCH_PAGE_SIZE,
+    page,
+  };
+}
+
 // Read the selected published source independently of its excerpt; same corpus and public boundary.
 export async function fetchCorpusSource(spec, id, { client = getPublicResearchClient() } = {}) {
   const filter = corpusOrFilter(spec);
   if (!filter || !id) throw new Error("source_unavailable");
   const { data, error } = await client.from("posts")
-    .select("id,slug,title,content,tags").eq("id", id)
+    .select("id,slug,title,content,source,link,wp_id,tags").eq("id", id)
     .or(filter).or(publicOnlyFilter()).maybeSingle();
   if (error) throw error;
   if (!data || isDraft(data) || !clean(data.content)) throw new Error("source_unavailable");

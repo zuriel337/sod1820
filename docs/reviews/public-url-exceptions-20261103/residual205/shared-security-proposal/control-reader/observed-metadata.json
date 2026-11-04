@@ -1,0 +1,24 @@
+{
+  "proname": "admin_system_health",
+  "identity_arguments": "",
+  "prosecdef": true,
+  "provolatile": "s",
+  "proconfig": [
+    "search_path=public, pg_temp"
+  ],
+  "prosrc_md5": "335efe0f77d33570d9c0e06fd2a9fd32",
+  "definition_md5": "bdc9892e60a4233cbab08afd48edd6fd",
+  "observed_at": "2026-11-03 16:49:27.897837+00",
+  "reader_role": "supabase_read_only_user",
+  "transaction_read_only": "on",
+  "sql_path": "/tmp/finalprep-admin-system-health-current.sql",
+  "definition_sha256": "4e3593d711d71f88b55b90b7c1244eaa600c11f97c18580c34b88a6cb456eb88",
+  "definition_length": 15669,
+  "credential_pattern_scan": "no credential-shaped literals found",
+  "candidate_prosrc_md5": "ef8336c67f7bae8c1176699805c1c2c6",
+  "applied": false,
+  "changed_branches": [
+    "cron exception fallback only",
+    "security exception fallback only"
+  ]
+}

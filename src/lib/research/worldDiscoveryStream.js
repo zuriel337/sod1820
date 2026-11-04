@@ -1,3 +1,4 @@
+import { publicPostHref } from "../publicPostUrls.js";
 import { fetchTopicCardList } from "./topicConvergence.js";
 import { canonicalResearchPublicLabel } from "../presentation/canonicalPresentation.js";
 import { stripHtml } from "../format.js";
@@ -77,6 +78,11 @@ export function postRowToWorldUpdate(row, { publicPeople = [] } = {}) {
     summary: summary ? summary.slice(0, 240) : null,
     creator: person?.displayName || author || "יצירה באתר",
     creatorSlug: person?.slug || null,
+    // Exact public classification evidence for presentation lenses (Now); never an admission or ranking signal.
+    author,
+    thumbUrl: /^https:\/\//.test(clean(row.thumb_url || row.image_url)) ? clean(row.thumb_url || row.image_url) : null,
+    categories: Array.isArray(row.categories) ? row.categories.map(clean).filter(Boolean) : [],
+    tags: Array.isArray(row.tags) ? row.tags.map(clean).filter(Boolean) : [],
     at: sourceUpdate?.at || arrivalAt,
     arrivalAt,
     sourceUpdate,
@@ -86,7 +92,7 @@ export function postRowToWorldUpdate(row, { publicPeople = [] } = {}) {
     sourceUpdatedAt: safeDate(row.modified),
     researchUpdatedAt: null,
     sourceRef: `posts:${row.id}`,
-    href: sourceUpdate?.targetHref || `/post/${encodeURIComponent(clean(row.slug))}`,
+    href: sourceUpdate?.targetHref || publicPostHref(row),
     value: null,
     numbers: [],
     researchCount: 0,
@@ -248,7 +254,7 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
   const postsPromise = import("../supabase.js").then(async ({ supabase }) => {
     const { data, error } = await supabase
       .from("posts")
-      .select("id,slug,title,excerpt,author,source,tags,home_hidden,date,modified,created_at")
+      .select("id,slug,title,excerpt,author,source,link,wp_id,categories,tags,image_url,thumb_url,home_hidden,date,modified,created_at")
       .eq("home_hidden", false)
       .not("tags", "cs", "{טיוטה}")
       .not("tags", "cs", "{פורום}")

@@ -1,0 +1,11 @@
+✔ public 2029 copy has no forbidden internal labels (11.434623ms)
+✔ public header and command input expose accessible search labels (1.020129ms)
+✔ Heichal page copy is untouched (0.189166ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 121.354911

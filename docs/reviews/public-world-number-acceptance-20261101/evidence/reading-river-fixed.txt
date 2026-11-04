@@ -1,0 +1,14 @@
+
+Running 2 tests using 1 worker
+
+(node:160627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:160627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/2] test/public-reading-routes-2029.browser.cjs:4:30 › actual Home river opens the exact public gallery image and returns 390
+[2/2] test/public-reading-routes-2029.browser.cjs:4:30 › actual Home river opens the exact public gallery image and returns 1440
+  2 passed (19.5s)

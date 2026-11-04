@@ -1,0 +1,5027 @@
+{
+  "scope": "local_lab_synthetic_API_not_field_p75",
+  "base": "d2dd882f960a329394f4a23d7b6e4a7d4c4c6fd5",
+  "artifact_note": "Both exact built Preview entries; SW bootstrap replaced ONLY inside the local synthetic HTTP harness, all API calls intercepted. Hosted SW/permissions verified separately. Not field p75/INP or live model acceptance.",
+  "summary": [
+    {
+      "width": 390,
+      "runs_per_side": 3,
+      "profile": {
+        "width": 390,
+        "cpu": 4,
+        "net": true
+      },
+      "before": {
+        "primary_ms": 5865.1,
+        "lcp": 5668,
+        "cls": 0.053,
+        "longTaskMs": 707,
+        "flagReads": 10,
+        "requestCount": 120,
+        "encoded_static_asset_bytes": 675241
+      },
+      "after": {
+        "primary_ms": 5829.8,
+        "lcp": 5640,
+        "cls": 0.053,
+        "longTaskMs": 777,
+        "flagReads": 1,
+        "requestCount": 114,
+        "encoded_static_asset_bytes": 655415
+      }
+    },
+    {
+      "width": 1440,
+      "runs_per_side": 3,
+      "profile": {
+        "width": 1440,
+        "cpu": 1,
+        "net": false
+      },
+      "before": {
+        "primary_ms": 771.2,
+        "lcp": 920,
+        "cls": 0.083,
+        "longTaskMs": 221,
+        "flagReads": 10,
+        "requestCount": 122,
+        "encoded_static_asset_bytes": 675241
+      },
+      "after": {
+        "primary_ms": 808.6,
+        "lcp": 1056,
+        "cls": 0.053,
+        "longTaskMs": 267,
+        "flagReads": 1,
+        "requestCount": 116,
+        "encoded_static_asset_bytes": 655415
+      }
+    }
+  ],
+  "raw": {
+    "scope": "local_lab_synthetic_API_not_field_p75",
+    "base": "d2dd882f960a329394f4a23d7b6e4a7d4c4c6fd5",
+    "runs": [
+      {
+        "label": "before",
+        "run": 0,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5865.10000000149,
+        "lcp": 5680,
+        "cls": 0.05341234567901234,
+        "longTasks": 4,
+        "longTaskMs": 707,
+        "resources": [
+          {
+            "name": "/assets/2029-CXbZJL2M.js",
+            "encoded": 233188,
+            "decoded": 769678
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-BBUSMPfx.js",
+            "encoded": 64238,
+            "decoded": 243516
+          },
+          {
+            "name": "/assets/tracking-ANqRzDNu.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-C4JEsJGm.js",
+            "encoded": 1051,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-rp85caky.js",
+            "encoded": 15968,
+            "decoded": 48057
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/numberCoreProjection-pRL5yYIQ.js",
+            "encoded": 5374,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/2029-B-C56mQl.css",
+            "encoded": 37980,
+            "decoded": 255354
+          },
+          {
+            "name": "/assets/previewVisualReview2029-DLoLxdvI.js",
+            "encoded": 2019,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-EDn8m3c6.js",
+            "encoded": 16810,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-CZuLZ6lP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BOMBR0OW.js",
+            "encoded": 2025,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-Cv-G7nJs.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CEt8PVN3.js",
+            "encoded": 6164,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-qVkxH2Lc.js",
+            "encoded": 13637,
+            "decoded": 43887
+          },
+          {
+            "name": "/assets/entityGraphFinding-C5ccviFh.js",
+            "encoded": 1850,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/canonicalGematria-DXs8hC8C.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-B0oqeX-g.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-D2Kwu2Y1.js",
+            "encoded": 56720,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-B2_29xmR.js",
+            "encoded": 3435,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-CrBgZBvD.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DOfYzs5H.js",
+            "encoded": 6807,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-071PyQPs.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-DSL0TV6f.js",
+            "encoded": 4086,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-BKXeQl6g.js",
+            "encoded": 3944,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-eSyjB5bb.js",
+            "encoded": 4176,
+            "decoded": 11810
+          },
+          {
+            "name": "/assets/WatchButton-Cvaq5bZ3.js",
+            "encoded": 3987,
+            "decoded": 11376
+          },
+          {
+            "name": "/assets/EmailVerify-DYrPSqs3.js",
+            "encoded": 2240,
+            "decoded": 5211
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-CA6KDJLK.js",
+            "encoded": 510,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-CJiduidk.js",
+            "encoded": 3445,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-B_FMJIQE.js",
+            "encoded": 1917,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-L6nirWcx.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 10,
+        "requestCount": 120,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 0,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5795.5,
+        "lcp": 5588,
+        "cls": 0.05341234567901234,
+        "longTasks": 5,
+        "longTaskMs": 777,
+        "resources": [
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 114,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 1,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5894.10000000149,
+        "lcp": 5692,
+        "cls": 0.05341234567901234,
+        "longTasks": 6,
+        "longTaskMs": 798,
+        "resources": [
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 114,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "before",
+        "run": 1,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5868.89999999851,
+        "lcp": 5668,
+        "cls": 0.05341234567901234,
+        "longTasks": 4,
+        "longTaskMs": 718,
+        "resources": [
+          {
+            "name": "/assets/2029-CXbZJL2M.js",
+            "encoded": 233188,
+            "decoded": 769678
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-BBUSMPfx.js",
+            "encoded": 64238,
+            "decoded": 243516
+          },
+          {
+            "name": "/assets/tracking-ANqRzDNu.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-C4JEsJGm.js",
+            "encoded": 1051,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-rp85caky.js",
+            "encoded": 15968,
+            "decoded": 48057
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-pRL5yYIQ.js",
+            "encoded": 5374,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/2029-B-C56mQl.css",
+            "encoded": 37980,
+            "decoded": 255354
+          },
+          {
+            "name": "/assets/previewVisualReview2029-DLoLxdvI.js",
+            "encoded": 2019,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-EDn8m3c6.js",
+            "encoded": 16810,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-CZuLZ6lP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BOMBR0OW.js",
+            "encoded": 2025,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-Cv-G7nJs.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CEt8PVN3.js",
+            "encoded": 6164,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-qVkxH2Lc.js",
+            "encoded": 13637,
+            "decoded": 43887
+          },
+          {
+            "name": "/assets/entityGraphFinding-C5ccviFh.js",
+            "encoded": 1850,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DXs8hC8C.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-B0oqeX-g.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-D2Kwu2Y1.js",
+            "encoded": 56720,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-B2_29xmR.js",
+            "encoded": 3435,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-CrBgZBvD.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DOfYzs5H.js",
+            "encoded": 6807,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-071PyQPs.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-DSL0TV6f.js",
+            "encoded": 4086,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-BKXeQl6g.js",
+            "encoded": 3944,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-eSyjB5bb.js",
+            "encoded": 4176,
+            "decoded": 11810
+          },
+          {
+            "name": "/assets/WatchButton-Cvaq5bZ3.js",
+            "encoded": 3987,
+            "decoded": 11376
+          },
+          {
+            "name": "/assets/EmailVerify-DYrPSqs3.js",
+            "encoded": 2240,
+            "decoded": 5211
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-CA6KDJLK.js",
+            "encoded": 510,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-CJiduidk.js",
+            "encoded": 3445,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-B_FMJIQE.js",
+            "encoded": 1917,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-L6nirWcx.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 10,
+        "requestCount": 120,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "before",
+        "run": 2,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5845.5,
+        "lcp": 5668,
+        "cls": 0.05341234567901234,
+        "longTasks": 4,
+        "longTaskMs": 673,
+        "resources": [
+          {
+            "name": "/assets/2029-CXbZJL2M.js",
+            "encoded": 233188,
+            "decoded": 769678
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-BBUSMPfx.js",
+            "encoded": 64238,
+            "decoded": 243516
+          },
+          {
+            "name": "/assets/tracking-ANqRzDNu.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-C4JEsJGm.js",
+            "encoded": 1051,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/ResearchProvider-rp85caky.js",
+            "encoded": 15968,
+            "decoded": 48057
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/numberCoreProjection-pRL5yYIQ.js",
+            "encoded": 5374,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/2029-B-C56mQl.css",
+            "encoded": 37980,
+            "decoded": 255354
+          },
+          {
+            "name": "/assets/previewVisualReview2029-DLoLxdvI.js",
+            "encoded": 2019,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-EDn8m3c6.js",
+            "encoded": 16810,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-CZuLZ6lP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BOMBR0OW.js",
+            "encoded": 2025,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-Cv-G7nJs.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CEt8PVN3.js",
+            "encoded": 6164,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-qVkxH2Lc.js",
+            "encoded": 13637,
+            "decoded": 43887
+          },
+          {
+            "name": "/assets/entityGraphFinding-C5ccviFh.js",
+            "encoded": 1850,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DXs8hC8C.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-B0oqeX-g.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-D2Kwu2Y1.js",
+            "encoded": 56720,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-B2_29xmR.js",
+            "encoded": 3435,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-CrBgZBvD.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DOfYzs5H.js",
+            "encoded": 6807,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-071PyQPs.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-DSL0TV6f.js",
+            "encoded": 4086,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-BKXeQl6g.js",
+            "encoded": 3944,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-eSyjB5bb.js",
+            "encoded": 4176,
+            "decoded": 11810
+          },
+          {
+            "name": "/assets/WatchButton-Cvaq5bZ3.js",
+            "encoded": 3987,
+            "decoded": 11376
+          },
+          {
+            "name": "/assets/EmailVerify-DYrPSqs3.js",
+            "encoded": 2240,
+            "decoded": 5211
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-CA6KDJLK.js",
+            "encoded": 510,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-CJiduidk.js",
+            "encoded": 3445,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-B_FMJIQE.js",
+            "encoded": 1917,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-L6nirWcx.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 10,
+        "requestCount": 120,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 2,
+        "profile": {
+          "width": 390,
+          "cpu": 4,
+          "net": true
+        },
+        "primary_ms": 5829.80000000447,
+        "lcp": 5640,
+        "cls": 0.05341234567901234,
+        "longTasks": 4,
+        "longTaskMs": 771,
+        "resources": [
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 114,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "before",
+        "run": 0,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 771.1999999955297,
+        "lcp": 920,
+        "cls": 0.08314830568415638,
+        "longTasks": 3,
+        "longTaskMs": 227,
+        "resources": [
+          {
+            "name": "/assets/2029-CXbZJL2M.js",
+            "encoded": 233188,
+            "decoded": 769678
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-BBUSMPfx.js",
+            "encoded": 64238,
+            "decoded": 243516
+          },
+          {
+            "name": "/assets/tracking-ANqRzDNu.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-C4JEsJGm.js",
+            "encoded": 1051,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/ResearchProvider-rp85caky.js",
+            "encoded": 15968,
+            "decoded": 48057
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-pRL5yYIQ.js",
+            "encoded": 5374,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/2029-B-C56mQl.css",
+            "encoded": 37980,
+            "decoded": 255354
+          },
+          {
+            "name": "/assets/previewVisualReview2029-DLoLxdvI.js",
+            "encoded": 2019,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-EDn8m3c6.js",
+            "encoded": 16810,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-CZuLZ6lP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BOMBR0OW.js",
+            "encoded": 2025,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-Cv-G7nJs.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CEt8PVN3.js",
+            "encoded": 6164,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-qVkxH2Lc.js",
+            "encoded": 13637,
+            "decoded": 43887
+          },
+          {
+            "name": "/assets/entityGraphFinding-C5ccviFh.js",
+            "encoded": 1850,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DXs8hC8C.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-B0oqeX-g.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-D2Kwu2Y1.js",
+            "encoded": 56720,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-B2_29xmR.js",
+            "encoded": 3435,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-CrBgZBvD.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DOfYzs5H.js",
+            "encoded": 6807,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-071PyQPs.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-DSL0TV6f.js",
+            "encoded": 4086,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-BKXeQl6g.js",
+            "encoded": 3944,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-eSyjB5bb.js",
+            "encoded": 4176,
+            "decoded": 11810
+          },
+          {
+            "name": "/assets/WatchButton-Cvaq5bZ3.js",
+            "encoded": 3987,
+            "decoded": 11376
+          },
+          {
+            "name": "/assets/EmailVerify-DYrPSqs3.js",
+            "encoded": 2240,
+            "decoded": 5211
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-CA6KDJLK.js",
+            "encoded": 510,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-CJiduidk.js",
+            "encoded": 3445,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-B_FMJIQE.js",
+            "encoded": 1917,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-L6nirWcx.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 10,
+        "requestCount": 122,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 0,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 823.3999999985099,
+        "lcp": 1056,
+        "cls": 0.05278178369341563,
+        "longTasks": 3,
+        "longTaskMs": 267,
+        "resources": [
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 116,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 1,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 763.3000000044703,
+        "lcp": 872,
+        "cls": 0.08314830568415638,
+        "longTasks": 3,
+        "longTaskMs": 211,
+        "resources": [
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 116,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "before",
+        "run": 1,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 796.4000000059605,
+        "lcp": 936,
+        "cls": 0.08314830568415638,
+        "longTasks": 3,
+        "longTaskMs": 221,
+        "resources": [
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/2029-CXbZJL2M.js",
+            "encoded": 233188,
+            "decoded": 769678
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/tracking-ANqRzDNu.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/supabase-BBUSMPfx.js",
+            "encoded": 64238,
+            "decoded": 243516
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-C4JEsJGm.js",
+            "encoded": 1051,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/ResearchProvider-rp85caky.js",
+            "encoded": 15968,
+            "decoded": 48057
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-pRL5yYIQ.js",
+            "encoded": 5374,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/2029-B-C56mQl.css",
+            "encoded": 37980,
+            "decoded": 255354
+          },
+          {
+            "name": "/assets/previewVisualReview2029-DLoLxdvI.js",
+            "encoded": 2019,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-EDn8m3c6.js",
+            "encoded": 16810,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-CZuLZ6lP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BOMBR0OW.js",
+            "encoded": 2025,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-Cv-G7nJs.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CEt8PVN3.js",
+            "encoded": 6164,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-qVkxH2Lc.js",
+            "encoded": 13637,
+            "decoded": 43887
+          },
+          {
+            "name": "/assets/entityGraphFinding-C5ccviFh.js",
+            "encoded": 1850,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DXs8hC8C.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-B0oqeX-g.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-D2Kwu2Y1.js",
+            "encoded": 56720,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-B2_29xmR.js",
+            "encoded": 3435,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-CrBgZBvD.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DOfYzs5H.js",
+            "encoded": 6807,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-071PyQPs.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-DSL0TV6f.js",
+            "encoded": 4086,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-BKXeQl6g.js",
+            "encoded": 3944,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-eSyjB5bb.js",
+            "encoded": 4176,
+            "decoded": 11810
+          },
+          {
+            "name": "/assets/WatchButton-Cvaq5bZ3.js",
+            "encoded": 3987,
+            "decoded": 11376
+          },
+          {
+            "name": "/assets/EmailVerify-DYrPSqs3.js",
+            "encoded": 2240,
+            "decoded": 5211
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-CA6KDJLK.js",
+            "encoded": 510,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-CJiduidk.js",
+            "encoded": 3445,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-B_FMJIQE.js",
+            "encoded": 1917,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-L6nirWcx.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 10,
+        "requestCount": 122,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "before",
+        "run": 2,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 763.3999999985099,
+        "lcp": 884,
+        "cls": 0.08314830568415638,
+        "longTasks": 3,
+        "longTaskMs": 212,
+        "resources": [
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/2029-CXbZJL2M.js",
+            "encoded": 233188,
+            "decoded": 769678
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-BBUSMPfx.js",
+            "encoded": 64238,
+            "decoded": 243516
+          },
+          {
+            "name": "/assets/tracking-ANqRzDNu.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/numberExpressionFocus-C4JEsJGm.js",
+            "encoded": 1051,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/ResearchProvider-rp85caky.js",
+            "encoded": 15968,
+            "decoded": 48057
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/numberCoreProjection-pRL5yYIQ.js",
+            "encoded": 5374,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/2029-B-C56mQl.css",
+            "encoded": 37980,
+            "decoded": 255354
+          },
+          {
+            "name": "/assets/previewVisualReview2029-DLoLxdvI.js",
+            "encoded": 2019,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-EDn8m3c6.js",
+            "encoded": 16810,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-CZuLZ6lP.js",
+            "encoded": 10155,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-BOMBR0OW.js",
+            "encoded": 2025,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-Cv-G7nJs.js",
+            "encoded": 4599,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CEt8PVN3.js",
+            "encoded": 6164,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-qVkxH2Lc.js",
+            "encoded": 13637,
+            "decoded": 43887
+          },
+          {
+            "name": "/assets/entityGraphFinding-C5ccviFh.js",
+            "encoded": 1850,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DXs8hC8C.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-B0oqeX-g.js",
+            "encoded": 3690,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-D2Kwu2Y1.js",
+            "encoded": 56720,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-B2_29xmR.js",
+            "encoded": 3435,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-CrBgZBvD.js",
+            "encoded": 3070,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DOfYzs5H.js",
+            "encoded": 6807,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-071PyQPs.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-DSL0TV6f.js",
+            "encoded": 4086,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-BKXeQl6g.js",
+            "encoded": 3944,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-eSyjB5bb.js",
+            "encoded": 4176,
+            "decoded": 11810
+          },
+          {
+            "name": "/assets/EmailVerify-DYrPSqs3.js",
+            "encoded": 2240,
+            "decoded": 5211
+          },
+          {
+            "name": "/assets/WatchButton-Cvaq5bZ3.js",
+            "encoded": 3987,
+            "decoded": 11376
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-CA6KDJLK.js",
+            "encoded": 510,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-CJiduidk.js",
+            "encoded": 3445,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-B_FMJIQE.js",
+            "encoded": 1917,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-L6nirWcx.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 10,
+        "requestCount": 122,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      },
+      {
+        "label": "after",
+        "run": 2,
+        "profile": {
+          "width": 1440,
+          "cpu": 1,
+          "net": false
+        },
+        "primary_ms": 808.6000000014901,
+        "lcp": 1064,
+        "cls": 0.05278178369341563,
+        "longTasks": 4,
+        "longTaskMs": 311,
+        "resources": [
+          {
+            "name": "/assets/2029-B0iBjSWm.js",
+            "encoded": 221147,
+            "decoded": 731447
+          },
+          {
+            "name": "/assets/jsx-runtime-D3jfb0Ew.js",
+            "encoded": 3382,
+            "decoded": 8901
+          },
+          {
+            "name": "/assets/scheduler-l4uHkdFa.js",
+            "encoded": 1563,
+            "decoded": 3561
+          },
+          {
+            "name": "/assets/react-dom-DenslgJm.js",
+            "encoded": 1392,
+            "decoded": 3864
+          },
+          {
+            "name": "/assets/preload-helper-BZ1Pz5am.js",
+            "encoded": 688,
+            "decoded": 1218
+          },
+          {
+            "name": "/assets/chunk-OB3PAWPO-CVMmBO49.js",
+            "encoded": 13843,
+            "decoded": 38940
+          },
+          {
+            "name": "/assets/format-DFlJicod.js",
+            "encoded": 748,
+            "decoded": 1659
+          },
+          {
+            "name": "/assets/theme-B2UPacu4.js",
+            "encoded": 872,
+            "decoded": 1807
+          },
+          {
+            "name": "/assets/gematria-Ud5dslyW.js",
+            "encoded": 3039,
+            "decoded": 7546
+          },
+          {
+            "name": "/assets/supabase-DkpS7dgV.js",
+            "encoded": 50048,
+            "decoded": 194093
+          },
+          {
+            "name": "/assets/tracking-a59pzQGS.js",
+            "encoded": 3649,
+            "decoded": 8792
+          },
+          {
+            "name": "/assets/AuthContext-J9o2I7T_.js",
+            "encoded": 2115,
+            "decoded": 4741
+          },
+          {
+            "name": "/assets/methodIdentity-DM2yAcOz.js",
+            "encoded": 157,
+            "decoded": 153
+          },
+          {
+            "name": "/assets/elsResearchReturnSnapshot-B03Lyzta.js",
+            "encoded": 1589,
+            "decoded": 4135
+          },
+          {
+            "name": "/assets/numberExpressionFocus-BA7z8vP8.js",
+            "encoded": 1050,
+            "decoded": 2137
+          },
+          {
+            "name": "/assets/ResearchProvider-B_pVsxwJ.js",
+            "encoded": 13979,
+            "decoded": 42353
+          },
+          {
+            "name": "/assets/razielViewMode2029-EPrCdoW9.js",
+            "encoded": 408,
+            "decoded": 672
+          },
+          {
+            "name": "/assets/dayContext-DQm1CoPT.js",
+            "encoded": 54650,
+            "decoded": 158849
+          },
+          {
+            "name": "/assets/themeMode-jUD92yIC.js",
+            "encoded": 422,
+            "decoded": 758
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CH1qZpiS.js",
+            "encoded": 5369,
+            "decoded": 14796
+          },
+          {
+            "name": "/assets/palette-CNyTr_3N.js",
+            "encoded": 3315,
+            "decoded": 8930
+          },
+          {
+            "name": "/assets/designTokens-B8JmV1rE.js",
+            "encoded": 1056,
+            "decoded": 2425
+          },
+          {
+            "name": "/assets/canonicalPresentation-DgNmWnf_.js",
+            "encoded": 2897,
+            "decoded": 7540
+          },
+          {
+            "name": "/assets/worldContextualProminence-DFYM9dQz.js",
+            "encoded": 5147,
+            "decoded": 14914
+          },
+          {
+            "name": "/assets/researchObjectPresentation-l0ubBFKY.js",
+            "encoded": 3453,
+            "decoded": 7566
+          },
+          {
+            "name": "/assets/universalFinding-DZVlmLqu.js",
+            "encoded": 1870,
+            "decoded": 4914
+          },
+          {
+            "name": "/assets/researchObjectFinding-bo3yYp1j.js",
+            "encoded": 2989,
+            "decoded": 8168
+          },
+          {
+            "name": "/assets/timeline2029-Dc49odMG.js",
+            "encoded": 2138,
+            "decoded": 4100
+          },
+          {
+            "name": "/assets/ShareActions-0g-w402r.js",
+            "encoded": 5808,
+            "decoded": 13147
+          },
+          {
+            "name": "/assets/gematriaTracePresentation-CX847u8G.js",
+            "encoded": 2742,
+            "decoded": 6488
+          },
+          {
+            "name": "/assets/postSourceUpdates2029-05vVMebH.js",
+            "encoded": 1609,
+            "decoded": 3631
+          },
+          {
+            "name": "/assets/calculator2029Input-BbfftHdT.js",
+            "encoded": 904,
+            "decoded": 1606
+          },
+          {
+            "name": "/assets/numberCoreProjection-BsfKEyPA.js",
+            "encoded": 5373,
+            "decoded": 14039
+          },
+          {
+            "name": "/assets/NavigationIcon2029-CDR-JqlQ.css",
+            "encoded": 572,
+            "decoded": 2059
+          },
+          {
+            "name": "/assets/ShareActions-DMXv2tqp.css",
+            "encoded": 1138,
+            "decoded": 4370
+          },
+          {
+            "name": "/assets/2029-CNbuPO77.css",
+            "encoded": 37283,
+            "decoded": 250985
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BLLl4Wof.js",
+            "encoded": 2017,
+            "decoded": 5160
+          },
+          {
+            "name": "/assets/previewVisualReview2029-BvQ2FAL9.css",
+            "encoded": 4452,
+            "decoded": 27851
+          },
+          {
+            "name": "/assets/Home2029Page-DFKP5TTr.js",
+            "encoded": 16812,
+            "decoded": 56043
+          },
+          {
+            "name": "/assets/researchPlanV2-B2lRLxm3.js",
+            "encoded": 10154,
+            "decoded": 33629
+          },
+          {
+            "name": "/assets/CurationMark2029-CRcuZKya.js",
+            "encoded": 1918,
+            "decoded": 5364
+          },
+          {
+            "name": "/assets/CurationMark2029-CqI6kfN0.css",
+            "encoded": 1428,
+            "decoded": 5861
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-8qbRdNel.js",
+            "encoded": 2024,
+            "decoded": 5417
+          },
+          {
+            "name": "/assets/ConvergenceRatings2029-Bf7X875Q.css",
+            "encoded": 917,
+            "decoded": 2819
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-CN54GpUm.js",
+            "encoded": 4595,
+            "decoded": 11705
+          },
+          {
+            "name": "/assets/topicConvergence-CHCPqQkw.js",
+            "encoded": 6162,
+            "decoded": 19991
+          },
+          {
+            "name": "/assets/entityHubProjection-BJ9yho2Q.js",
+            "encoded": 13688,
+            "decoded": 43998
+          },
+          {
+            "name": "/assets/entityGraphFinding-DPAvsxl6.js",
+            "encoded": 1849,
+            "decoded": 4659
+          },
+          {
+            "name": "/assets/numericResearch-DqZcmZHs.js",
+            "encoded": 7745,
+            "decoded": 23292
+          },
+          {
+            "name": "/assets/canonicalGematria-DSIyTFGn.js",
+            "encoded": 227,
+            "decoded": 275
+          },
+          {
+            "name": "/assets/canonicalGematriaProjection-B66_nJSZ.js",
+            "encoded": 660,
+            "decoded": 1244
+          },
+          {
+            "name": "/assets/bookResearchProjection-5tc4wXqQ.js",
+            "encoded": 3689,
+            "decoded": 9260
+          },
+          {
+            "name": "/assets/post2029ReadingProjection-VRTpbRWR.js",
+            "encoded": 56722,
+            "decoded": 190215
+          },
+          {
+            "name": "/assets/researchResultBundle-C_k0U3E0.js",
+            "encoded": 3436,
+            "decoded": 9315
+          },
+          {
+            "name": "/assets/gematriaRelationW2Executor-BfyK05J3.js",
+            "encoded": 3069,
+            "decoded": 8020
+          },
+          {
+            "name": "/assets/momentClockSystemMethod-DfaWpOyy.js",
+            "encoded": 6806,
+            "decoded": 19368
+          },
+          {
+            "name": "/assets/numberSystemMethods-C7ILjE6a.js",
+            "encoded": 5686,
+            "decoded": 17209
+          },
+          {
+            "name": "/assets/publicPostBoundary-DLBRu07Y.js",
+            "encoded": 214,
+            "decoded": 243
+          },
+          {
+            "name": "/assets/worldDiscoveryStream-Dh5Zjl1F.js",
+            "encoded": 4083,
+            "decoded": 10402
+          },
+          {
+            "name": "/assets/PostTimeline2029-HTi-_P5n.js",
+            "encoded": 245,
+            "decoded": 324
+          },
+          {
+            "name": "/assets/Timeline2029-DCEKqbCw.js",
+            "encoded": 828,
+            "decoded": 2138
+          },
+          {
+            "name": "/assets/Timeline2029-a6_QYh8e.css",
+            "encoded": 630,
+            "decoded": 2296
+          },
+          {
+            "name": "/assets/PostCategories2029-DDdr8_wC.js",
+            "encoded": 3941,
+            "decoded": 9246
+          },
+          {
+            "name": "/assets/PostCategories2029-DP5c8Fzv.css",
+            "encoded": 724,
+            "decoded": 2507
+          },
+          {
+            "name": "/assets/SourceRepeatInfo2029-DDIWPxqd.css",
+            "encoded": 1739,
+            "decoded": 7142
+          },
+          {
+            "name": "/assets/RealityRiver2029-UI-ahMZY.js",
+            "encoded": 4191,
+            "decoded": 11849
+          },
+          {
+            "name": "/assets/WatchButton-NOH-DPEz.js",
+            "encoded": 3978,
+            "decoded": 11371
+          },
+          {
+            "name": "/assets/EmailVerify-Cn5q0HQX.js",
+            "encoded": 2233,
+            "decoded": 5206
+          },
+          {
+            "name": "/assets/EmailVerify-DM0qVGWZ.css",
+            "encoded": 617,
+            "decoded": 2261
+          },
+          {
+            "name": "/assets/IconTile2029-JLOMl_ev.js",
+            "encoded": 509,
+            "decoded": 778
+          },
+          {
+            "name": "/assets/IconTile2029-x-yAGhlc.css",
+            "encoded": 227,
+            "decoded": 365
+          },
+          {
+            "name": "/assets/WatchButton-DFPG23U2.css",
+            "encoded": 776,
+            "decoded": 2243
+          },
+          {
+            "name": "/assets/RealityRiver2029-BzMsP3iY.css",
+            "encoded": 3880,
+            "decoded": 15719
+          },
+          {
+            "name": "/assets/home2029Projection-GryV-N5n.js",
+            "encoded": 3444,
+            "decoded": 8641
+          },
+          {
+            "name": "/assets/timeFlow-B3Pve8h-.js",
+            "encoded": 880,
+            "decoded": 1718
+          },
+          {
+            "name": "/assets/curationProjection2029-Cs2obozj.js",
+            "encoded": 1916,
+            "decoded": 4495
+          },
+          {
+            "name": "/assets/worldContributorLens-EjJnWZSP.js",
+            "encoded": 2426,
+            "decoded": 6479
+          },
+          {
+            "name": "/assets/Home2029Page-h2C-6HLd.css",
+            "encoded": 5013,
+            "decoded": 22545
+          },
+          {
+            "name": "/assets/livingRibbonPreview2029-BI1iUMB3.js",
+            "encoded": 461,
+            "decoded": 853
+          }
+        ],
+        "flagReads": 1,
+        "requestCount": 116,
+        "modelCalls": 0,
+        "blockedWriteAttempts": [
+          "/rest/v1/rpc/notification_prefs_guest_get_v1"
+        ]
+      }
+    ],
+    "acceptance": [
+      {
+        "theme": "light",
+        "unpinnedCompanionCanCollapseWhileLoading": true,
+        "canonicalStoryOpenedClosed": true,
+        "canonicalGatewayOpened": true,
+        "zeroPreopenChunks": true,
+        "zeroModelCalls": true
+      },
+      {
+        "theme": "parchment",
+        "unpinnedCompanionCanCollapseWhileLoading": true,
+        "canonicalStoryOpenedClosed": true,
+        "canonicalGatewayOpened": true,
+        "zeroPreopenChunks": true,
+        "zeroModelCalls": true
+      },
+      {
+        "theme": "dark",
+        "unpinnedCompanionCanCollapseWhileLoading": true,
+        "canonicalStoryOpenedClosed": true,
+        "canonicalGatewayOpened": true,
+        "zeroPreopenChunks": true,
+        "zeroModelCalls": true
+      },
+      {
+        "failedChunkVisible": true,
+        "escapeCloses": true,
+        "reloadRecovers": true
+      },
+      {
+        "failedContactChunkVisible": true,
+        "existingPanelEscapeCloses": true,
+        "contactReloadRecovers": true
+      },
+      {
+        "pendingLoadCanBeDismissed": true,
+        "noLateReopen": true,
+        "explicitReopenWorks": true
+      }
+    ]
+  },
+  "baseline_normal_gate_gzip_bytes": 442195,
+  "candidate_normal_gate_gzip_bytes": 421607,
+  "gate_baseline_bytes": 458742,
+  "required_recovery_bytes": 12288,
+  "no_latency_improvement_claim": true
+}

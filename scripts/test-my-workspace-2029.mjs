@@ -10,7 +10,7 @@ for (const label of [
   "הדף שלי",
   "המחקר שלי",
   "ההתקדמות שלי",
-  "הודעות ועדכונים",
+  "מעקב ועדכונים",
   "מסע החיים שלי",
   "הרמזים שלי",
   "התרומות שלי",
@@ -27,15 +27,24 @@ assert.match(frame, /בבנייה/);
 
 /* Native 2029 account connection — reuses canonical AuthProvider/auth helpers, no legacy login handoff. */
 assert.match(frame, /function AccountConnection2029/);
-assert.match(frame, /requestEmailOtp/);
-assert.match(frame, /verifyEmailOtp/);
-assert.match(frame, /isValidEmailOtp/);
-assert.match(frame, /sanitizeEmailOtp/);
+const authEntry = fs.readFileSync("src/components/auth2029/AccountEntry2029.jsx", "utf8");
+assert.match(frame, /<AccountEntry2029 inline variant="account"/);
+for (const helper of ["requestEmailOtp", "verifyEmailOtp", "isValidEmailOtp", "sanitizeEmailOtp"]) assert.match(authEntry, new RegExp(helper));
 assert.match(frame, /data-workspace-section="account"/);
-assert.match(frame, /אותו חשבון SOD1820 · בתוך 2029/);
-assert.match(frame, /התחברו כדי לקחת את המחקר איתכם/);
-assert.match(frame, /שלחו לי קוד כניסה/);
-assert.match(frame, /כניסה \/ הרשמה/);
+// Accepted public and functional preview registration remains available;
+// a read-only preview must still refuse account creation.
+const creationExpression = authEntry.match(/shouldCreateUser: ([^}]+) \}/)?.[1];
+assert.ok(creationExpression, "canonical OTP entry must choose account creation explicitly");
+assert.equal(creationExpression.trim(), 'PUBLIC_READING_RELEASE || !preview || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true"');
+const chooseCreation = new Function("PUBLIC_READING_RELEASE", "preview", "functionalPreview", `return (${creationExpression.replace("import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW", "functionalPreview")})`);
+for (const [name, publicReading, preview, functional, expected] of [
+  ["public registration", true, true, "false", true],
+  ["ordinary account entry", false, false, undefined, true],
+  ["approved functional preview", false, true, "true", true],
+  ["read-only preview", false, true, "false", false],
+  ["missing functional grant", false, true, undefined, false],
+]) assert.equal(chooseCreation(publicReading, preview, functional), expected, name);
+assert.match(authEntry, /signOut\(\{ scope: "local" \}\)/);
 assert.match(frame, /signOut/);
 assert.match(frame, /onClick: openAccount/);
 assert.match(frame, /<AccountConnection2029 user=\{user\} profile=\{profile\} signOut=\{signOut\} \/>/);
@@ -59,24 +68,31 @@ assert.match(css, /@media\(max-width:640px\)/);
 
 
 
-// Follows / attention activation — existing owners only, no new store.
+// Workspace summaries are read-only; the accepted native center owns management.
 assert.match(frame, /getNotificationPrefs/);
-assert.match(frame, /topicLabel\(topic\)/);
-assert.match(frame, /watchToggle\(topic, "workspace-2029", false/);
-assert.match(frame, /getMyNotifications\(4\)/);
-assert.match(frame, /getUnreadCount\(\)/);
-assert.match(frame, /markNotificationRead/);
-assert.match(frame, /getMyProfile/);
+assert.match(frame, /followTopics\(row\)/);
+assert.match(frame, /getUnreadCount\(\{ strict: true, userId \}\)/);
+assert.match(frame, /getMyProfile\(\{ strict: true, userId \}\)/);
+assert.doesNotMatch(frame, /watchToggle|markNotificationRead|getMyNotifications/);
+assert.match(frame, /openExistingModule\("notifications"\)/);
+assert.match(frame, /writerPersonalHref\(module, \{ returnTo \}\)/);
+assert.match(frame, /new Set\(WRITER_PERSONAL_MODULES\.map/);
+assert.doesNotMatch(frame, /\/profile\?|MembersPage|JoinPage|UserCenter/);
+assert.match(frame, /<WorkspaceProjection key=\{authLoading \? "auth-loading" : user\?\.id \|\| "guest"\}/);
 assert.match(frame, /data-workspace-section="follow"/);
-assert.match(frame, /\/2029\/number\/\$\{m\[1\]\}/);
 assert.match(frame, /אחרי מה אני עוקב/);
 assert.doesNotMatch(frame, /supabase\.from\(|\.rpc\(/);
+const membership = frame.slice(frame.indexOf('<section data-workspace-section="access-membership"'), frame.indexOf('<section className="sod29-workspace-home"'));
+assert.match(membership, /גישה ומנוי · בהכנה/);
+assert.doesNotMatch(membership, /₪|checkout|cardcom|entitlement|active|monthly|annually|onClick|href=/i);
 // follow list sits after research section; summary count near top
 assert.ok(frame.indexOf('data-workspace-section="follow"') > frame.indexOf('<section data-workspace-section="research"'));
 assert.ok(frame.indexOf('data-workspace-section="pulse"') < frame.indexOf('<section data-workspace-section="research"'));
 // Personal entry: the single existing command bar reaches WORKSPACE through the typed Now "for me" tab,
 // and the top bar carries a visible sign-in / name control. No separate avatar button in the bar.
-assert.equal((frame.match(/className=\{`sod29-command-island/g) || []).length, 1);
+assert.equal((frame.match(/data-command-mode="global"/g) || []).length, 1);
+assert.equal((frame.match(/data-command-mode="tool"/g) || []).length, 1);
+assert.match(frame, /unifiedGlobalDock \? <div className="sod29-command-island[^]*data-command-mode="global"[^]*<\/div> : <div className="sod29-command-island[^]*data-command-mode="tool"/);
 assert.match(frame, /onMe=\{openWorkspace\}/);
 assert.equal((frame.match(/sod29-island-personal/g) || []).length, 0);
 assert.match(frame, /sod29-header-workspace\$\{user \? "" : " is-signed-out"\}`\} onClick=\{openWorkspace\}/);

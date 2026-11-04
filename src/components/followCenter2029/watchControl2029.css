@@ -1,0 +1,20 @@
+/* WatchButton variant 2029: Design V2 floors (16px UI, 14px support text, 44px targets). Colour = --tr-* from the shared resolver. */
+.sod29-watch{display:grid;gap:8px;justify-items:start;font-family:var(--s29-font-ui,'Rubik','Noto Sans Hebrew',Arial,sans-serif);color:var(--s29-ink);min-width:0;max-width:100%}
+.sod29-watch *{box-sizing:border-box}
+.sod29-watch p{margin:0}
+.sod29-watch-btn{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 20px;border-radius:999px;border:1px solid var(--tr-border);background:var(--s29-accent-btn,var(--s29-accent));color:var(--s29-on-accent,#fff);font:inherit;font-size:var(--s29-type-ui,16px);font-weight:700;cursor:pointer}
+.sod29-watch[data-following=true] .sod29-watch-btn{background:var(--tr-bg);color:var(--tr-fg)}
+.sod29-watch[data-state=loading] .sod29-watch-btn,.sod29-watch[data-state=unknown] .sod29-watch-btn{background:transparent;color:var(--tr-fg);cursor:progress}
+.sod29-watch-btn:disabled{cursor:progress}
+.sod29-watch-btn-secondary{background:transparent;color:var(--s29-accent-text);border-color:var(--s29-line-strong)}
+.sod29-watch-note{color:var(--s29-muted);font-size:var(--s29-type-small,16px);line-height:1.5;max-width:56ch}
+.sod29-watch-alert{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;color:var(--s29-ink);font-size:var(--s29-type-small,16px);line-height:1.5;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft);padding:8px 12px}
+.sod29-watch-retry{min-height:44px;min-width:44px;border:0;background:transparent;color:var(--s29-accent-text);font:inherit;font-size:var(--s29-type-ui,16px);font-weight:700;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.sod29-watch-card{display:grid;gap:8px;justify-items:start;border:1px dashed var(--s29-line-strong);border-radius:16px;background:var(--s29-panel-soft);padding:12px 14px;max-width:100%}
+.sod29-watch-card-head{display:flex;align-items:center;gap:10px}
+.sod29-watch-card-head strong{font-size:var(--s29-type-ui,16px)}
+.sod29-watch-card p{color:var(--s29-muted);font-size:var(--s29-type-small,16px);line-height:1.5}
+.sod29-watch button:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.sod29-watch *{transition:none!important;animation:none!important}}
+/* The identity slot is the shared EmailVerify variant 2029 (experience2029/emailVerify2029.css); only its width is set here. */
+.sod29-watch-card .sod29-email-verify{width:100%}

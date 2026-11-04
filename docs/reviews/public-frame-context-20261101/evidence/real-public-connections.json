@@ -1,0 +1,70 @@
+[
+  {
+    "case": "public-frame-context-2029.-6cab3-return-to-exact-source-1440",
+    "data": {
+      "source": "actual public readers; no synthetic relationships",
+      "width": 1440,
+      "links": [
+        {
+          "id": "topic:96885dc7-b6a4-43b1-8d64-b4ceac4e899b",
+          "label": "1237 — קורונה, תשובה, דוד",
+          "kind": "topic",
+          "reason": "אותה תמונת מקור מופיעה גם ב„1237 — קורונה, תשובה, דוד”. אפשר לקרוא שם את ההקשר הנוסף; זו אינה ראיה נוספת.",
+          "href": "/topic/1237#topic-source-5579cca1-ff12-4a9a-87ee-e32e89ca9af3",
+          "sourceLabel": "topic_cards:95945c0d-7b7b-482f-a2f9-a5a097621452#shared-source/96885dc7-b6a4-43b1-8d64-b4ceac4e899b"
+        },
+        {
+          "id": "topic:162b77d6-e21e-480f-a395-5529fe0df7e6",
+          "label": "הודו — נקודת היראה",
+          "kind": "topic",
+          "reason": "אותה תמונת מקור מופיעה גם ב„הודו — נקודת היראה”. אפשר לקרוא שם את ההקשר הנוסף; זו אינה ראיה נוספת.",
+          "href": "/topic/hodu#topic-source-8940efb2-8423-4a27-a10a-d3fdd07cf595",
+          "sourceLabel": "topic_cards:95945c0d-7b7b-482f-a2f9-a5a097621452#shared-source/162b77d6-e21e-480f-a395-5529fe0df7e6"
+        },
+        {
+          "id": "post:5112",
+          "label": "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים",
+          "kind": "post",
+          "reason": "הפוסט מכנה את הקפטן במפורש „אזרח הודי”. זהו הקשר להודו; תיאור הפציעה וההצלה נשאר טענת המקור המצולם.",
+          "href": "/post/flydubai-fz1073-363-14000-remzei-geula#source-region-smit-machchhar",
+          "sourceLabel": "post:flydubai-fz1073-363-14000-remzei-geula#source-region-smit-machchhar"
+        }
+      ],
+      "returnedTo": "/topic/india-axis?from=sidecar#topic-essential"
+    }
+  },
+  {
+    "case": "public-frame-context-2029.-8553a--return-to-exact-source-390",
+    "data": {
+      "source": "actual public readers; no synthetic relationships",
+      "width": 390,
+      "links": [
+        {
+          "id": "topic:96885dc7-b6a4-43b1-8d64-b4ceac4e899b",
+          "label": "1237 — קורונה, תשובה, דוד",
+          "kind": "topic",
+          "reason": "אותה תמונת מקור מופיעה גם ב„1237 — קורונה, תשובה, דוד”. אפשר לקרוא שם את ההקשר הנוסף; זו אינה ראיה נוספת.",
+          "href": "/topic/1237#topic-source-5579cca1-ff12-4a9a-87ee-e32e89ca9af3",
+          "sourceLabel": "topic_cards:95945c0d-7b7b-482f-a2f9-a5a097621452#shared-source/96885dc7-b6a4-43b1-8d64-b4ceac4e899b"
+        },
+        {
+          "id": "topic:162b77d6-e21e-480f-a395-5529fe0df7e6",
+          "label": "הודו — נקודת היראה",
+          "kind": "topic",
+          "reason": "אותה תמונת מקור מופיעה גם ב„הודו — נקודת היראה”. אפשר לקרוא שם את ההקשר הנוסף; זו אינה ראיה נוספת.",
+          "href": "/topic/hodu#topic-source-8940efb2-8423-4a27-a10a-d3fdd07cf595",
+          "sourceLabel": "topic_cards:95945c0d-7b7b-482f-a2f9-a5a097621452#shared-source/162b77d6-e21e-480f-a395-5529fe0df7e6"
+        },
+        {
+          "id": "post:5112",
+          "label": "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים",
+          "kind": "post",
+          "reason": "הפוסט מכנה את הקפטן במפורש „אזרח הודי”. זהו הקשר להודו; תיאור הפציעה וההצלה נשאר טענת המקור המצולם.",
+          "href": "/post/flydubai-fz1073-363-14000-remzei-geula#source-region-smit-machchhar",
+          "sourceLabel": "post:flydubai-fz1073-363-14000-remzei-geula#source-region-smit-machchhar"
+        }
+      ],
+      "returnedTo": "/topic/india-axis?from=sidecar#topic-essential"
+    }
+  }
+]

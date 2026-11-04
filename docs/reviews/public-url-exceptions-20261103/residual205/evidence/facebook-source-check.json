@@ -1,0 +1,21 @@
+{
+  "kind": "bounded-canonical-read-only-source-check",
+  "checkedAt": "2026-11-03",
+  "baseSha": "b80ad895a23b51107fd58d533d4dd93f6d4c431f",
+  "privateBodiesExported": false,
+  "query": "select id as public_witness_post_id, substring(content from 'data-href=\"[^\"]*(?:801439149946390|839307259461807)[^\"]*\"') as exact_video_ref, substring(content from '<blockquote[^>]+cite=\"[^\"]*(?:801439149946390|839307259461807)[^\"]*\"') as blockquote_ref, substring(content from 'https://www.facebook.com/(?:86AND26|k1820)') as explicit_provider_account from public.posts where id in (1341,1362) and not (coalesce(tags,'{}') && array['טיוטה','פורום']) order by id",
+  "rows": [
+    {
+      "public_witness_post_id": 1341,
+      "exact_video_ref": "data-href=\"/86AND26/videos/vb.103870716369907/801439149946390/?type=1\"",
+      "blockquote_ref": "<blockquote cite=\"/86AND26/videos/801439149946390/\"",
+      "explicit_provider_account": "https://www.facebook.com/86AND26"
+    },
+    {
+      "public_witness_post_id": 1362,
+      "exact_video_ref": "data-href=\"/k1820/videos/vb.617996338259568/839307259461807/?type=1\"",
+      "blockquote_ref": "<blockquote cite=\"/k1820/videos/839307259461807/\"",
+      "explicit_provider_account": "https://www.facebook.com/k1820"
+    }
+  ]
+}

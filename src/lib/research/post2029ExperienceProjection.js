@@ -2,6 +2,23 @@ const clean = (value) => value == null ? "" : String(value).trim();
 
 const asArray = (value) => Array.isArray(value) ? value : [];
 
+// Bounded UI projection of ALREADY admitted public links. It performs no graph
+// inference, reads, publication or verification; callers own source admission.
+export function publicSurfaceFindingsFromConnections(connections = []) {
+  const seen = new Set();
+  return asArray(connections).flatMap((row, index) => {
+    const href = clean(row?.href), label = clean(row?.label || row?.title);
+    if (!label || !href.startsWith("/") || href.startsWith("//") || /[\\\u0000-\u0020\u007f]/.test(href)
+      || /^\/(?:auth|login|2029\/(?:me|journey|control))(?:[/?#]|$)/.test(href)
+      || seen.has(href)) return [];
+    seen.add(href);
+    return [{id: clean(row.id) || `connection-${index+1}`, label, href,
+      value: row.value ?? null, kind: clean(row.kind || row.relationKind) || "connection",
+      reason: clean(row.reason || row.note) || null,
+      sourceLabel: clean(row.provenanceLabel || row.sourceLabel || row.sourcePath) || null}];
+  }).slice(0,8);
+}
+
 function normalizeMedia(raw = {}) {
   const source = raw && typeof raw === "object" ? raw : {};
   const highlight = source.highlight && typeof source.highlight === "object" ? source.highlight : null;

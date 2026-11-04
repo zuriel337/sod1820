@@ -1,0 +1,65 @@
+{
+  "kind": "bounded-canonical-read-only-source-check",
+  "checkedAt": "2026-11-03",
+  "baseSha": "b80ad895a23b51107fd58d533d4dd93f6d4c431f",
+  "privateBodiesExported": false,
+  "query": "with requested(slug) as (values ('סוד-הפיכת-האותיות-למספרים-סוד-החשמל'),('שם-ה-בתורה-1820-פעם'),('image'),('lemi-ata-neeman-ot-umofet'),('mataamim-1254'),('raza-deshabbat-910'),('shimon-haimov-english-gold'),('yuval-kogan-echad-hasichim-hamashiach')) select r.slug as source_slug,count(distinct m.wp_id) as exact_redirect_identities,count(distinct p.id) as matched_post_identities,bool_or(coalesce(p.tags,'{}') && array['טיוטה']) as restricted_draft,bool_or(coalesce(p.tags,'{}') && array['פורום']) as forum_boundary from requested r left join public.redirect_map m on m.slug=r.slug left join public.posts p on p.wp_id=m.wp_id group by r.slug order by r.slug",
+  "rows": [
+    {
+      "source_slug": "image",
+      "exact_redirect_identities": 0,
+      "matched_post_identities": 0,
+      "restricted_draft": false,
+      "forum_boundary": false
+    },
+    {
+      "source_slug": "lemi-ata-neeman-ot-umofet",
+      "exact_redirect_identities": 1,
+      "matched_post_identities": 1,
+      "restricted_draft": true,
+      "forum_boundary": false
+    },
+    {
+      "source_slug": "mataamim-1254",
+      "exact_redirect_identities": 1,
+      "matched_post_identities": 1,
+      "restricted_draft": true,
+      "forum_boundary": false
+    },
+    {
+      "source_slug": "raza-deshabbat-910",
+      "exact_redirect_identities": 1,
+      "matched_post_identities": 1,
+      "restricted_draft": true,
+      "forum_boundary": false
+    },
+    {
+      "source_slug": "shimon-haimov-english-gold",
+      "exact_redirect_identities": 1,
+      "matched_post_identities": 1,
+      "restricted_draft": true,
+      "forum_boundary": false
+    },
+    {
+      "source_slug": "yuval-kogan-echad-hasichim-hamashiach",
+      "exact_redirect_identities": 1,
+      "matched_post_identities": 1,
+      "restricted_draft": false,
+      "forum_boundary": true
+    },
+    {
+      "source_slug": "סוד-הפיכת-האותיות-למספרים-סוד-החשמל",
+      "exact_redirect_identities": 0,
+      "matched_post_identities": 0,
+      "restricted_draft": false,
+      "forum_boundary": false
+    },
+    {
+      "source_slug": "שם-ה-בתורה-1820-פעם",
+      "exact_redirect_identities": 0,
+      "matched_post_identities": 0,
+      "restricted_draft": false,
+      "forum_boundary": false
+    }
+  ]
+}

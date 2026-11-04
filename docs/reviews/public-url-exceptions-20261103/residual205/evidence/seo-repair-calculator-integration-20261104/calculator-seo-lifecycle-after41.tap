@@ -1,0 +1,268 @@
+TAP version 13
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: a newly selected value never commits phrases from the previous value, even before passive cleanup
+ok 1 - a newly selected value never commits phrases from the previous value, even before passive cleanup
+  ---
+  duration_ms: 48.134025
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: caller switch cancels partial data and never reuses another caller's lookup/cache
+ok 2 - caller switch cancels partial data and never reuses another caller's lookup/cache
+  ---
+  duration_ms: 5.263786
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: an empty helper response is not retained indefinitely and a later mount can retry
+ok 3 - an empty helper response is not retained indefinitely and a later mount can retry
+  ---
+  duration_ms: 4.141005
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public: catalog identity follows the existing release profile
+ok 4 - public: catalog identity follows the existing release profile
+  ---
+  duration_ms: 32.888758
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: foundation: catalog identity follows the existing release profile
+ok 5 - foundation: catalog identity follows the existing release profile
+  ---
+  duration_ms: 11.425113
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: golden: catalog identity follows the existing release profile
+ok 6 - golden: catalog identity follows the existing release profile
+  ---
+  duration_ms: 12.814854
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (q=synthetic)
+ok 7 - public catalog preserves selection privacy (q=synthetic)
+  ---
+  duration_ms: 7.65805
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (page=2)
+ok 8 - public catalog preserves selection privacy (page=2)
+  ---
+  duration_ms: 6.267808
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (series=synthetic-series)
+ok 9 - public catalog preserves selection privacy (series=synthetic-series)
+  ---
+  duration_ms: 13.405234
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public verified collection keeps its own canonical identity and server-approved indexability
+ok 10 - public verified collection keeps its own canonical identity and server-approved indexability
+  ---
+  duration_ms: 4.709046
+  type: 'test'
+  ...
+# Subtest: public tag canonical and admitted taxonomy state are retained
+ok 11 - public tag canonical and admitted taxonomy state are retained
+  ---
+  duration_ms: 9.666813
+  type: 'test'
+  ...
+# Subtest: /gematria: initial document and sharing use the public calculator canonical
+ok 12 - /gematria: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 10.059233
+  type: 'test'
+  ...
+# Subtest: /gematria: ordinary calculation stays noindex and never becomes published numeric truth
+ok 13 - /gematria: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 4.483224
+  type: 'test'
+  ...
+# Subtest: /gematria: HEAD keeps calculated-query privacy and has no document body
+ok 14 - /gematria: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 3.181861
+  type: 'test'
+  ...
+# Subtest: /2029/calculator: initial document and sharing use the public calculator canonical
+ok 15 - /2029/calculator: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 1.264216
+  type: 'test'
+  ...
+# Subtest: /2029/calculator: ordinary calculation stays noindex and never becomes published numeric truth
+ok 16 - /2029/calculator: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 2.788496
+  type: 'test'
+  ...
+# Subtest: /2029/calculator: HEAD keeps calculated-query privacy and has no document body
+ok 17 - /2029/calculator: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.820323
+  type: 'test'
+  ...
+# Subtest: /2029/gematria: initial document and sharing use the public calculator canonical
+ok 18 - /2029/gematria: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 0.749616
+  type: 'test'
+  ...
+# Subtest: /2029/gematria: ordinary calculation stays noindex and never becomes published numeric truth
+ok 19 - /2029/gematria: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 0.763557
+  type: 'test'
+  ...
+# Subtest: /2029/gematria: HEAD keeps calculated-query privacy and has no document body
+ok 20 - /2029/gematria: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.879302
+  type: 'test'
+  ...
+# Subtest: /2029/gematria/viral: initial document and sharing use the public calculator canonical
+ok 21 - /2029/gematria/viral: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 1.489317
+  type: 'test'
+  ...
+# Subtest: /2029/gematria/viral: ordinary calculation stays noindex and never becomes published numeric truth
+ok 22 - /2029/gematria/viral: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 0.788735
+  type: 'test'
+  ...
+# Subtest: /2029/gematria/viral: HEAD keeps calculated-query privacy and has no document body
+ok 23 - /2029/gematria/viral: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.67976
+  type: 'test'
+  ...
+# Subtest: Number alias 1820: canonical and admission use the existing public reader (true)
+ok 24 - Number alias 1820: canonical and admission use the existing public reader (true)
+  ---
+  duration_ms: 67.359532
+  type: 'test'
+  ...
+# Subtest: Number alias 1820: canonical and admission use the existing public reader (false)
+ok 25 - Number alias 1820: canonical and admission use the existing public reader (false)
+  ---
+  duration_ms: 1.93999
+  type: 'test'
+  ...
+# Subtest: Number alias 1820: source outage fails closed instead of advertising an indexed result
+ok 26 - Number alias 1820: source outage fails closed instead of advertising an indexed result
+  ---
+  duration_ms: 1.455145
+  type: 'test'
+  ...
+# Subtest: Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (true)
+ok 27 - Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (true)
+  ---
+  duration_ms: 1.721639
+  type: 'test'
+  ...
+# Subtest: Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (false)
+ok 28 - Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (false)
+  ---
+  duration_ms: 1.111584
+  type: 'test'
+  ...
+# Subtest: Number alias %D7%9E%D7%A9%D7%99%D7%97: source outage fails closed instead of advertising an indexed result
+ok 29 - Number alias %D7%9E%D7%A9%D7%99%D7%97: source outage fails closed instead of advertising an indexed result
+  ---
+  duration_ms: 0.834996
+  type: 'test'
+  ...
+# Subtest: Number alias HEAD reuses admission, remains no-store and sends no document body
+ok 30 - Number alias HEAD reuses admission, remains no-store and sends no document body
+  ---
+  duration_ms: 1.028589
+  type: 'test'
+  ...
+# Subtest: Gallery collection metadata is public without querying a Post or exposing a selected image
+ok 31 - Gallery collection metadata is public without querying a Post or exposing a selected image
+  ---
+  duration_ms: 0.861496
+  type: 'test'
+  ...
+# Subtest: Gallery HEAD is a real successful public document response with an empty body
+ok 32 - Gallery HEAD is a real successful public document response with an empty body
+  ---
+  duration_ms: 0.880234
+  type: 'test'
+  ...
+# Subtest: unverified Gallery selectors are not published as image metadata
+ok 33 - unverified Gallery selectors are not published as image metadata
+  ---
+  duration_ms: 0.914947
+  type: 'test'
+  ...
+# Subtest: ordinary Posts selection remains noindex (q=synthetic)
+ok 34 - ordinary Posts selection remains noindex (q=synthetic)
+  ---
+  duration_ms: 0.583484
+  type: 'test'
+  ...
+# Subtest: ordinary Posts selection remains noindex (page=2)
+ok 35 - ordinary Posts selection remains noindex (page=2)
+  ---
+  duration_ms: 0.646169
+  type: 'test'
+  ...
+# Subtest: ordinary Posts selection remains noindex (series=synthetic-series)
+ok 36 - ordinary Posts selection remains noindex (series=synthetic-series)
+  ---
+  duration_ms: 0.708173
+  type: 'test'
+  ...
+# Subtest: unfiltered public Posts retain their canonical identity and indexability
+ok 37 - unfiltered public Posts retain their canonical identity and indexability
+  ---
+  duration_ms: 0.479306
+  type: 'test'
+  ...
+# Subtest: a Gallery collection fix cannot turn an unknown Post/child path into a public success
+ok 38 - a Gallery collection fix cannot turn an unknown Post/child path into a public success
+  ---
+  duration_ms: 4.03177
+  type: 'test'
+  ...
+# Subtest: public normalization cannot strip internal aliases or grant account access
+ok 39 - public normalization cannot strip internal aliases or grant account access
+  ---
+  duration_ms: 1.039786
+  type: 'test'
+  ...
+# Subtest: dormant admission cannot be bypassed by selecting the newly fixed public routes
+ok 40 - dormant admission cannot be bypassed by selecting the newly fixed public routes
+  ---
+  duration_ms: 0.170508
+  type: 'test'
+  ...
+# Subtest: the standalone Golden Number metadata profile is unchanged by public document alias normalization
+ok 41 - the standalone Golden Number metadata profile is unchanged by public document alias normalization
+  ---
+  duration_ms: 0.619499
+  type: 'test'
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 652.055911

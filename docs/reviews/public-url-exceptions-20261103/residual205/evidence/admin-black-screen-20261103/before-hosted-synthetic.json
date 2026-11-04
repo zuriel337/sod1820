@@ -1,0 +1,69 @@
+{
+  "source": "d8ee2753482ee9c264795b19c52745da494be63a",
+  "deployment": "dpl_6DekQkT2ByVnPhtPbrFTYmD7bDgZ",
+  "realAccount": false,
+  "liveWrites": false,
+  "path": "/2029/control",
+  "errors": [
+    "Error: Unknown SOD1820 experience surface: admin\n    at oa (https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app/assets/Sod2029Shell-DZArykcy.js:5:54235)\n    at ma (https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app/assets/Sod2029Shell-DZArykcy.js:5:55071)\n    at https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app/assets/Sod2029Shell-DZArykcy.js:6:37753\n    at Object.useMemo (https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app/assets/2029-B42UvJGv.js:9:61587)\n    at e.useMemo (https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app/assets/jsx-runtime-D3jfb0Ew.js:1:8084)\n    at ul (https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app/assets/Sod2029Shell-DZArykcy.js:6:37748)\n    at is (https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app/assets/2029-B42UvJGv.js:9:49201)\n    at Jc (https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app/assets/2029-B42UvJGv.js:9:71856)\n    at hl (https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app/assets/2029-B42UvJGv.js:9:82749)\n    at Zd (https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app/assets/2029-B42UvJGv.js:9:127909)"
+  ],
+  "text": "",
+  "probe": {
+    "requests": [
+      {
+        "path": "/auth/v1/settings",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/topic_cards_public",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/posts",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+        "method": "POST"
+      },
+      {
+        "path": "/auth/v1/token",
+        "method": "POST"
+      },
+      {
+        "path": "/auth/v1/user",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/users",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/rpc/research_state_snapshot_v1",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/site_flags",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+        "method": "POST"
+      },
+      {
+        "path": "/rest/v1/topic_cards_public",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/posts",
+        "method": "GET"
+      },
+      {
+        "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+        "method": "POST"
+      }
+    ],
+    "errors": []
+  },
+  "sw": true
+}

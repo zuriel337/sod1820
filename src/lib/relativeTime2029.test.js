@@ -16,9 +16,10 @@ test("relative time never falls back to a date", () => {
   assert.equal(relativeTimeLabel("", ""), "");
 });
 
-test("outside Home and World the record time is the Hebrew and the Gregorian date together", () => {
+test("outside the main Home the record time is the Hebrew and the Gregorian date together", () => {
   assert.equal(bilingualDateLabel("2026-06-22"), "ז׳ בתמוז · 22.06.2026");
   assert.equal(recordTimeLabel("2026-06-22", "bilingual"), "ז׳ בתמוז · 22.06.2026");
+  assert.equal(recordTimeLabel("2026-06-22"), "ז׳ בתמוז · 22.06.2026");
   assert.match(recordTimeLabel(ago(3 * 3600000), "relative"), /^לפני 3 שעות$/);
   assert.equal(bilingualDateLabel(null, "תאריך לא צוין"), "תאריך לא צוין");
   assert.equal(bilingualDateLabel("not a date", "x"), "x");

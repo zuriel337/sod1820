@@ -1,0 +1,84 @@
+{
+  "sourceSha": "7937f084a5a3d0f1ca65a95d12d16fe185dcace4",
+  "conditions": "clean Chromium profile, real protected worker, immediate grant-document to login navigation",
+  "runs": [
+    {
+      "kind": "hosted-public-readonly",
+      "origin": "https://sod1820-2mpsv18k8-sod1820-s-projects.vercel.app",
+      "sourceSha": "7937f084a5a3d0f1ca65a95d12d16fe185dcace4",
+      "cases": [
+        {
+          "name": "existing-account entry, exact personal return, actual worker",
+          "passed": true
+        }
+      ],
+      "errors": [],
+      "liveWrites": 0,
+      "realAccountAcceptance": "OPEN_USER_DEFERRED",
+      "artifact": {
+        "sourceSha": "7937f084a5a3d0f1ca65a95d12d16fe185dcace4",
+        "policy": "public-reading-owned-account-continuity-20261103"
+      },
+      "finishedAt": "2026-11-03T13:22:23.763Z",
+      "run": "7937-v1"
+    },
+    {
+      "kind": "hosted-public-readonly",
+      "origin": "https://sod1820-2mpsv18k8-sod1820-s-projects.vercel.app",
+      "sourceSha": "7937f084a5a3d0f1ca65a95d12d16fe185dcace4",
+      "cases": [],
+      "errors": [],
+      "liveWrites": 0,
+      "realAccountAcceptance": "OPEN_USER_DEFERRED",
+      "finishedAt": "2026-11-03T13:22:54.011Z",
+      "run": "7937-v2"
+    },
+    {
+      "kind": "hosted-public-readonly",
+      "origin": "https://sod1820-2mpsv18k8-sod1820-s-projects.vercel.app",
+      "sourceSha": "7937f084a5a3d0f1ca65a95d12d16fe185dcace4",
+      "cases": [],
+      "errors": [],
+      "liveWrites": 0,
+      "realAccountAcceptance": "OPEN_USER_DEFERRED",
+      "failure": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('button', { name: 'כניסה עם סיסמה', exact: true })\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 30000ms\n  - waiting for getByRole('button', { name: 'כניסה עם סיסמה', exact: true })\n",
+      "body": "העמוד לא נפתח. אפשר לרענן ולנסות שוב.",
+      "finishedAt": "2026-11-03T13:23:55.181Z",
+      "run": "7937-v3"
+    },
+    {
+      "kind": "hosted-public-readonly",
+      "origin": "https://sod1820-2mpsv18k8-sod1820-s-projects.vercel.app",
+      "sourceSha": "7937f084a5a3d0f1ca65a95d12d16fe185dcace4",
+      "cases": [],
+      "errors": [],
+      "network": [
+        {
+          "path": "/assets/publicLaunch2029-BO38Uo7M.js",
+          "host": "sod1820-2mpsv18k8-sod1820-s-projects.vercel.app",
+          "error": "net::ERR_ABORTED"
+        },
+        {
+          "path": "/css2",
+          "host": "fonts.googleapis.com",
+          "error": "net::ERR_ABORTED"
+        }
+      ],
+      "liveWrites": 0,
+      "realAccountAcceptance": "OPEN_USER_DEFERRED",
+      "failure": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('button', { name: 'כניסה עם סיסמה', exact: true })\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 30000ms\n  - waiting for getByRole('button', { name: 'כניסה עם סיסמה', exact: true })\n",
+      "body": "העמוד לא נפתח. אפשר לרענן ולנסות שוב.",
+      "worker": {
+        "registrations": [
+          {
+            "scope": "https://sod1820-2mpsv18k8-sod1820-s-projects.vercel.app/",
+            "active": "activated"
+          }
+        ]
+      },
+      "finishedAt": "2026-11-03T13:25:27.851Z",
+      "run": "7937-v4"
+    }
+  ],
+  "interpretation": "First startup passed then brand APIRequest bypassed browser proxy and failed; next three rapid transitions failed bootstrap. Last run shows active worker with no controller. Shared-grant value unchanged on re-request. No claim about original historical stall."
+}

@@ -22,6 +22,7 @@ const CHANNEL_UPDATE_SOURCE_FIELDS = "id,text,created_at,credit,speaker,channel,
 const TOPIC_FIELDS = "id,slug,title,subtitle,status,quality,meter_score,approved_at,created_at,occurred_at,numbers,highlight_numbers,image_ids,created_by";
 const NUMBER_ANCHOR_FIELDS = "value,category,fact,hint,created_at,updated_at";
 const WORLD_MEDIA_FIELDS = "id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,ocr_text,ocr_status,ocr_numbers,ocr_meta,primary_value,all_values,related_values";
+const PUBLIC_WORLD_MEDIA_LIST_FIELDS = "id,gallery_id,wp_gallery_id,ordering,name,description,image_url,thumb_url,published,curator_hidden,occurred_at,created_at,image_type,space,tags,source,primary_value,all_values,related_values,min_tier";
 const TOPIC_MEDIA_FIELDS = `${WORLD_MEDIA_FIELDS},min_tier,wp_image_id`;
 // db_column is the join key between the canonical engine output (gematria_api keys) and the Registry.
 const METHOD_FIELDS = "method_key,db_column,display_label,sub,soul,required_entitlement,version,category,sort_order,active,in_engine,scannable,execution_kind,derived_from,operator";
@@ -53,6 +54,63 @@ function dedupeRows(rows) {
   return [...byId.values()].sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")));
 }
 
+export function buildPublicWorldMediaListQuery({ limit = 12, offset = 0 } = {}) {
+  const cap = normalizeLimit(limit, 12, 24);
+  const start = normalizeNonNegativeInt(offset, 0);
+  return {
+    limit: cap,
+    rangeStart: start,
+    rangeEnd: start + cap,
+    order: [["occurred_at", false], ["created_at", false], ["id", true]],
+  };
+}
+
+// Public World media shelf: a bounded representation of the existing Gallery source.
+// It does not imply a graph relation or promote OCR/source claims to findings.
+export async function fetchPublicWorldMediaPage(params = {}) {
+  const shape = buildPublicWorldMediaListQuery(params);
+  try {
+    let query = supabase
+      .from("gallery_images")
+      .select(PUBLIC_WORLD_MEDIA_LIST_FIELDS)
+      .eq("published", 1)
+      .eq("min_tier", 0)
+      .or("curator_hidden.is.null,curator_hidden.eq.false")
+      .not("image_url", "is", null);
+    for (const [column, ascending] of shape.order) {
+      query = query.order(column, { ascending, nullsFirst: false });
+    }
+    const { data, error } = await query.range(shape.rangeStart, shape.rangeEnd);
+    if (error) throw error;
+    const rows = (Array.isArray(data) ? data : []).filter((row) => (
+      row?.published === 1
+      && row?.min_tier === 0
+      && row?.curator_hidden !== true
+      && Boolean(row?.image_url)
+    ));
+    const items = rows.slice(0, shape.limit).flatMap((row) => {
+      const item = buildMediaEnvelope({
+        row,
+        relationType: "gallery_listing",
+        relationKind: MEDIA_RELATION_KIND.PUBLIC_CATALOG,
+        label: canonicalMediaPublicLabel({ name: row.name, description: row.description }),
+      });
+      return item ? [item] : [];
+    });
+    return {
+      items,
+      hasMore: rows.length > shape.limit,
+      access: { available: true, reason: null },
+      note: "Public Gallery visibility supplies the representation only; no graph relation, OCR verification or research status is inferred.",
+    };
+  } catch (error) {
+    if (isAccessDenied(error)) {
+      return { items: [], hasMore: false, access: { available: false, reason: "gallery_media_not_readable_for_current_session" } };
+    }
+    throw error;
+  }
+}
+
 export async function fetchEntityTypeDefinition(type) {
   const key = clean(type);
   if (!key) return null;
@@ -65,7 +123,7 @@ export async function fetchEntityTypeDefinition(type) {
   return data || null;
 }
 
-export async function resolveEntityHubNode({ nodeId = null, type = null, key = null } = {}) {
+export async function resolveEntityHubNode({ nodeId = null, type = null, key = null, parallelNumeric = false } = {}) {
   const exactNodeId = clean(nodeId);
   if (exactNodeId) {
     const { data, error } = await supabase
@@ -81,6 +139,16 @@ export async function resolveEntityHubNode({ nodeId = null, type = null, key = n
   const entityKey = clean(key);
   if (!entityType || !entityKey) return null;
 
+  // Full Number pages also admit unstored canonical numeric roots. Their
+  // identity and label fallbacks are independent bounded reads; keep exact
+  // identity precedence and the original fail-closed error behavior. Nothing
+  // is cached, widened, inferred or created, and other callers stay serial.
+  const labelRead = () => supabase.from("nodes").select(NODE_FIELDS)
+    .eq("type", entityType).eq("label", entityKey).limit(1);
+  const earlyLabel = parallelNumeric && entityType === "number" && /^\d+$/.test(entityKey)
+    && Number.isSafeInteger(Number(entityKey))
+    ? Promise.resolve(labelRead()).then(value => ({ value }), error => ({ error })) : null;
+
   const { data: identityHit, error: identityError } = await supabase
     .from("nodes")
     .select(NODE_FIELDS)
@@ -90,12 +158,9 @@ export async function resolveEntityHubNode({ nodeId = null, type = null, key = n
   if (identityError) throw identityError;
   if (identityHit?.[0]) return identityHit[0];
 
-  const { data: labelHit, error: labelError } = await supabase
-    .from("nodes")
-    .select(NODE_FIELDS)
-    .eq("type", entityType)
-    .eq("label", entityKey)
-    .limit(1);
+  const labelOutcome = earlyLabel ? await earlyLabel : { value: await labelRead() };
+  if (labelOutcome.error) throw labelOutcome.error;
+  const { data: labelHit, error: labelError } = labelOutcome.value;
   if (labelError) throw labelError;
   return labelHit?.[0] || null;
 }
@@ -137,8 +202,10 @@ async function fetchResearchFacetRegistry(rows = []) {
   }
 }
 
-export async function fetchResearchObjectsForEntity(node, { limit = 40, locale = "he" } = {}) {
-  if (!node?.id) return { rows: [], findings: [], access: { available: true, reason: null } };
+export async function fetchResearchObjectsForEntity(node, { limit = 40, locale = "he", allowUnstoredNumber = false } = {}) {
+  const numericInput = allowUnstoredNumber && node?.type === "number"
+    && /^\d+$/.test(clean(node.label)) && Number.isSafeInteger(Number(node.label));
+  if (!node?.id && !numericInput) return { rows: [], findings: [], access: { available: true, reason: null } };
   const cap = safeLimit(limit, 40, 120);
   const label = clean(node.label);
   const identityKey = clean(node.identity_key);
@@ -153,6 +220,9 @@ export async function fetchResearchObjectsForEntity(node, { limit = 40, locale =
   }
 
   for (const term of terms) {
+    // The numeric branch already requested these exact value terms. Preserve
+    // distinct labels/aliases, without sending the same bounded read twice.
+    if (node.type === "number" && Number.isSafeInteger(Number(label)) && term === String(Number(label))) continue;
     queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("terms", [term]), cap));
     queries.push(runResearchQuery(supabase.from("research_objects").select(RESEARCH_FIELDS).contains("relates", [term]), cap));
   }
@@ -865,7 +935,7 @@ export async function fetchTopicSourceContext({ topicSlug, client = supabase } =
         .order("gallery_id").order("ordering").order("id").limit(TOPIC_OCCURRENCE_LIMIT)
       : Promise.resolve({ data: [], count: 0 }),
     slug === INDIA_CAPTAIN_SOURCE.topicSlug
-      ? client.from("posts").select("id,slug,title,content,tags,author,authors,date,modified")
+      ? client.from("posts").select("id,slug,title,content,tags,author,authors,date,modified,source,link,wp_id")
         .eq("id", INDIA_CAPTAIN_SOURCE.postId).eq("slug", INDIA_CAPTAIN_SOURCE.postSlug).maybeSingle()
       : Promise.resolve({ data: null }),
   ]);
@@ -913,10 +983,18 @@ export async function fetchGallerySourceContext({ imageIds = [], client = supaba
     occurrencesTruncated: appearances.count > TOPIC_OCCURRENCE_LIMIT };
 }
 
-export async function fetchPublicWorldPostSource({ postId, client = supabase } = {}) {
-  if (!Number.isSafeInteger(postId)) return null;
-  const result = await client.from("posts").select("id,slug,title,content,tags,source,home_hidden,author,authors,date,modified")
-    .eq("id", postId).maybeSingle();
+export async function fetchPublicWorldPostSource({ postId, postSlug = null, includeContent = true, client = supabase } = {}) {
+  const byId = Number.isSafeInteger(postId);
+  const slug = postSlug == null ? null : normalizeMediaPostSlug(postSlug);
+  if ((!byId && !slug) || (postId != null && postSlug != null) || (postSlug != null && (!slug || /[/?#\\]/.test(slug)))) return null;
+  const fields = includeContent === false
+    ? "id,slug,title,excerpt,tags,source,link,wp_id,home_hidden,author,authors,date,modified"
+    : "id,slug,title,content,tags,source,link,wp_id,home_hidden,author,authors,date,modified";
+  let query = client.from("posts").select(fields);
+  if (byId) query = query.eq("id", postId);
+  else query = query.in("slug", [...new Set([String(postSlug).trim(), slug, encodeURIComponent(slug), encodeURIComponent(slug).toLowerCase()])]).limit(2);
+  // Ambiguous slug variants fail closed through maybeSingle, never first-row-wins.
+  const result = await query.maybeSingle();
   if (result.error) throw result.error;
   const { postRowToWorldUpdate } = await import("./worldDiscoveryStream.js");
   return postRowToWorldUpdate(result.data) ? result.data : null;
@@ -1058,23 +1136,87 @@ export async function fetchEntityHubProjection({
   includeScriptureDiscovery = true,
   includeScriptureTermDiscovery = true,
   topicSourceSlug = null,
+  allowUnstoredNumber = false,
+  parallelNumberReads = false,
 } = {}) {
-  const node = await resolveEntityHubNode({ nodeId, type, key });
+  let node = await resolveEntityHubNode({ nodeId, type, key, parallelNumeric: parallelNumberReads && allowUnstoredNumber });
+  // A canonical numeric result does not require a persisted graph node to be
+  // read. This explicit Number-page option never creates one, fabricates an id
+  // or changes the default World/other entity callers.
+  if (!node && allowUnstoredNumber && !nodeId && type === "number" && /^\d+$/.test(clean(key))
+    && Number.isSafeInteger(Number(key))) node = { id: null, type: "number", label: String(Number(key)), identity_key: String(Number(key)) };
   if (!node) return null;
+
+  const isNumberNode = node.type === "number" && Number.isSafeInteger(Number(node.label));
+  const parallel = parallelNumberReads && isNumberNode;
+  const researchPromise = fetchResearchObjectsForEntity(node, { limit: researchLimit, locale, allowUnstoredNumber });
+  let earlyFamilyOutcome = null;
+  const readFamilyDetails = async (groups) => {
+    const shownPhrases = groups.flatMap(group => (group.phrases || []).slice(0, SHOWN_PHRASES_PER_FAMILY).map(item => typeof item === "string" ? item : item?.phrase || item?.label));
+    const [registryRows, entityNodes] = await Promise.all([
+      fetchMethodRegistry(groups.map(group => group.method)),
+      fetchNodesByLabels("entity", shownPhrases),
+    ]);
+    return { registryRows, entityNodes };
+  };
+  const readNumberData = () => {
+    const number = Number(node.label);
+    const familiesRead = getValueFamilies(number, 12);
+    if (parallel) earlyFamilyOutcome = familiesRead.then(readFamilyDetails).then(
+      value => ({ ok: true, value }), error => ({ ok: false, error }),
+    );
+    const readResearch = (research) => researchNumber(number, {
+        lenses: Array.isArray(numberResearchLenses) && numberResearchLenses.length
+          ? numberResearchLenses
+          : ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"],
+        budget: { maxLenses: Math.max(1, Math.min(
+          5,
+          Array.isArray(numberResearchLenses) && numberResearchLenses.length ? numberResearchLenses.length : 5,
+        )), depth: 1 },
+        rpc: (name, args) => supabase.rpc(name, args),
+        // These independent canonical lenses need not wait for the research
+        // rows. Only their own research_objects adapter awaits that read.
+        fetchResearchObjects: async () => ({ data: (research || await researchPromise).rows }),
+        researchObjectLimit: researchLimit,
+        lookupWindow: numberLookupLimit === 500
+          ? DEFAULT_NUMBER_RESEARCH_OPTIONS.lookupWindow
+          : { limit: safeLimit(numberLookupLimit, 500, 500) },
+        provenance: { requestSource: "entity-hub-projection-v2", inputRef: node.id ? `node:${node.id}` : `number:${number}` },
+      });
+    return Promise.all([
+      fetchTopicFindingsForNumber(number, { limit: topicLimit }),
+      parallel ? readResearch(null) : researchPromise.then(readResearch),
+      getEntityBundle({ term: String(number), value: number, isNumber: true }),
+      familiesRead,
+      fetchNumberWorlds(number),
+      fetchNumberSignatures(number),
+      fetchZeroScale(number),
+      fetchNumberAnchorProfile(number),
+    ]);
+  };
+  // Full Number-page opt-in: overlap existing independent readers. Results
+  // remain complete, and early rejection is observed even if a sibling fails.
+  const earlyNumberOutcome = parallel ? readNumberData().then(
+    value => ({ ok: true, value }), error => ({ ok: false, error }),
+  ) : null;
 
   const [definition, graphFindings, research, topicSources] = await Promise.all([
     fetchEntityTypeDefinition(node.type),
-    fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }),
-    fetchResearchObjectsForEntity(node, { limit: researchLimit, locale }),
+    node.id ? fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }) : Promise.resolve([]),
+    researchPromise,
     topicSourceSlug ? fetchTopicSourceContext({ topicSlug: topicSourceSlug })
       .catch(() => ({ items: [], access: { available: false, reason: "topic_sources_unavailable" } })) : Promise.resolve(null),
   ]);
 
   const entityFinding = graphFindings.find(finding => finding?.kind === "graph-entity") || null;
   const relationFindings = graphFindings.filter(finding => finding?.kind === "graph-relation");
-  const media = includeMedia
-    ? await fetchWorldMediaProjection(relationFindings, { limit: mediaLimit })
-    : { items: [], access: { available: true, reason: "deferred_by_projection_profile" } };
+  const mediaRead = includeMedia
+    ? fetchWorldMediaProjection(relationFindings, { limit: mediaLimit })
+    : Promise.resolve({ items: [], access: { available: true, reason: "deferred_by_projection_profile" } });
+  const mediaOutcome = parallel ? mediaRead.then(
+    value => ({ ok: true, value }), error => ({ ok: false, error }),
+  ) : null;
+  let media = parallel ? null : await mediaRead;
   let topics = { rows: [], findings: [] };
   let numberResearch = null;
   let numberJourney = null;
@@ -1088,7 +1230,6 @@ export async function fetchEntityHubProjection({
   let phraseEntities = {};
   let methodBridge = { identity: null, results: [], engineFindings: [] };
 
-  const isNumberNode = node.type === "number" && Number.isSafeInteger(Number(node.label));
   if (!isNumberNode) {
     // Entity → Number bridge (generic: any node with a canonical gematria identity).
     [methodBridge, topics] = await Promise.all([
@@ -1099,42 +1240,16 @@ export async function fetchEntityHubProjection({
 
   if (isNumberNode) {
     const number = Number(node.label);
-    [topics, numberResearch, publicSurface, gematriaFamilies, worlds, signatures, zeroScale, anchorProfile] = await Promise.all([
-      fetchTopicFindingsForNumber(number, { limit: topicLimit }),
-      researchNumber(number, {
-        lenses: Array.isArray(numberResearchLenses) && numberResearchLenses.length
-          ? numberResearchLenses
-          : ["number_lookup", "number_dossier", "number_journey", "neighbors", "research_objects"],
-        budget: { maxLenses: Math.max(1, Math.min(
-          5,
-          Array.isArray(numberResearchLenses) && numberResearchLenses.length ? numberResearchLenses.length : 5,
-        )), depth: 1 },
-        rpc: (name, args) => supabase.rpc(name, args),
-        fetchResearchObjects: async () => ({ data: research.rows }),
-        researchObjectLimit: researchLimit,
-        // World deep view must be able to show the complete canonical reverse-lookup source
-        // population. Numeric Research still owns the bounded/source-exhaustive contract and caps
-        // this at 500 rows; World does not implement a parallel lookup or ordering rule.
-        lookupWindow: numberLookupLimit === 500
-          ? DEFAULT_NUMBER_RESEARCH_OPTIONS.lookupWindow
-          : { limit: safeLimit(numberLookupLimit, 500, 500) },
-        provenance: { requestSource: "entity-hub-projection-v2", inputRef: `node:${node.id}` },
-      }),
-      getEntityBundle({ term: String(number), value: number, isNumber: true }),
-      getValueFamilies(number, 12),
-      fetchNumberWorlds(number),
-      fetchNumberSignatures(number),
-      fetchZeroScale(number),
-      fetchNumberAnchorProfile(number),
-    ]);
+    const outcome = earlyNumberOutcome ? await earlyNumberOutcome : { ok: true, value: await readNumberData() };
+    if (!outcome.ok) throw outcome.error;
+    [topics, numberResearch, publicSurface, gematriaFamilies, worlds, signatures, zeroScale, anchorProfile] = outcome.value;
     // Number → Entity bridge: phrases already shown in the families resolve to EXISTING entity nodes
     // (bounded to the shown phrases; nothing is created). This is what makes
     // "<phrase> · <method> = <number>" clickable into the canonical entity hub.
-    const shownPhrases = gematriaFamilies.flatMap(group => (group.phrases || []).slice(0, SHOWN_PHRASES_PER_FAMILY).map(item => typeof item === "string" ? item : item?.phrase || item?.label));
-    const [registryRows, entityNodes] = await Promise.all([
-      fetchMethodRegistry(gematriaFamilies.map(group => group.method)),
-      fetchNodesByLabels("entity", shownPhrases),
-    ]);
+    const familyOutcome = earlyFamilyOutcome ? await earlyFamilyOutcome
+      : { ok: true, value: await readFamilyDetails(gematriaFamilies) };
+    if (!familyOutcome.ok) throw familyOutcome.error;
+    const { registryRows, entityNodes } = familyOutcome.value;
     methodRegistry = registryRows;
     gematriaFamilies = enrichGematriaFamilies(gematriaFamilies, methodRegistry);
     phraseEntities = buildPhraseEntityLinks(entityNodes);
@@ -1155,10 +1270,16 @@ export async function fetchEntityHubProjection({
       ])
     : [null, null];
 
+  if (mediaOutcome) {
+    const outcome = await mediaOutcome;
+    if (!outcome.ok) throw outcome.error;
+    media = outcome.value;
+  }
+
   return {
     v: 3,
     identity: {
-      nodeId: String(node.id),
+      nodeId: node.id == null ? null : String(node.id),
       type: node.type,
       key: node.identity_key || String(node.id),
       label: node.label,

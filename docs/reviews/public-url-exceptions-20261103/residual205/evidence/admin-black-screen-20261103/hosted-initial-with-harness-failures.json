@@ -1,0 +1,195 @@
+{
+  "sha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "deployment": "dpl_ADnf6NL9VznxiiysCQZqoGPguJSE",
+  "syntheticIdentity": true,
+  "liveAccountAcceptance": false,
+  "liveProductWrites": 0,
+  "liveModelCalls": 0,
+  "cases": [
+    {
+      "name": "admin-320",
+      "width": 320,
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/auth/v1/user",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/users",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/research_state_snapshot_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_system_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_video_map_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_op_trace_list_v1",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 320,
+        "documentWidth": 320,
+        "hasMain": true
+      },
+      "passed": true
+    },
+    {
+      "name": "admin-390",
+      "width": 390,
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/auth/v1/user",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/users",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/research_state_snapshot_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_system_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_video_map_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_op_trace_list_v1",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 390,
+        "documentWidth": 390,
+        "hasMain": true
+      },
+      "passed": true
+    },
+    {
+      "name": "admin-1440",
+      "width": 1440,
+      "errors": [],
+      "observed": {
+        "path": "/2029/control",
+        "sw": true,
+        "fixtures": [
+          {
+            "path": "/auth/v1/user",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/users",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/research_state_snapshot_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/site_flags",
+            "method": "GET"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_system_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_video_map_health",
+            "method": "POST"
+          },
+          {
+            "path": "/rest/v1/rpc/admin_op_trace_list_v1",
+            "method": "POST"
+          }
+        ],
+        "denied": [],
+        "rejections": [],
+        "viewport": 1440,
+        "documentWidth": 1425,
+        "hasMain": true
+      },
+      "passed": true
+    },
+    {
+      "name": "read-failures-390",
+      "width": 390,
+      "failedReaders": true,
+      "errors": [],
+      "passed": false,
+      "failure": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'לא ניתן לקרוא את מצב המערכת', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.visible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'לא ניתן לקרוא את מצב המערכת', exact: true })\n\n    at Proxy.<anonymous> (/tmp/sod1820-bd-test-tools/node_modules/playwright/lib/matchers/expect.js:221:24)\n    at /workspace/sod1820-bd-approved/docs/reviews/public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/hosted-admin-render.cjs:85:199"
+    },
+    {
+      "name": "member-denied-390",
+      "width": 390,
+      "role": "member",
+      "errors": [],
+      "passed": false,
+      "failure": "Error: expect(page).toHaveURL(expected) failed\n\nExpected pattern: /\\/2029$/\nReceived string:  \"https://sod1820-96jzc6z50-sod1820-s-projects.vercel.app/2029/control\"\nTimeout: 30000ms\n\nCall log:\n  - Expect \"to.have.url\" with timeout 30000ms\n    2 × unexpected value \"https://sod1820-96jzc6z50-sod1820-s-projects.vercel.app/login?returnTo=%2F2029%2Fcontrol\"\n    32 × unexpected value \"https://sod1820-96jzc6z50-sod1820-s-projects.vercel.app/2029/control\"\n\n    at Proxy.<anonymous> (/tmp/sod1820-bd-test-tools/node_modules/playwright/lib/matchers/expect.js:221:24)\n    at /workspace/sod1820-bd-approved/docs/reviews/public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/hosted-admin-render.cjs:80:32"
+    },
+    {
+      "name": "guest-denied-390",
+      "width": 390,
+      "guest": true,
+      "errors": [],
+      "passed": false,
+      "failure": "Error: expect(page).not.toHaveURL(expected) failed\n\nExpected pattern: not /\\/2029\\/control(?:[?#]|$)/\nReceived string: \"https://sod1820-96jzc6z50-sod1820-s-projects.vercel.app/2029/control\"\nTimeout: 30000ms\n\nCall log:\n  - Expect \"to.have.url\" with timeout 30000ms\n    34 × unexpected value \"https://sod1820-96jzc6z50-sod1820-s-projects.vercel.app/2029/control\"\n\n    at Proxy.<anonymous> (/tmp/sod1820-bd-test-tools/node_modules/playwright/lib/matchers/expect.js:221:24)\n    at /workspace/sod1820-bd-approved/docs/reviews/public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/hosted-admin-render.cjs:72:34"
+    }
+  ],
+  "passed": 3,
+  "ok": false
+}

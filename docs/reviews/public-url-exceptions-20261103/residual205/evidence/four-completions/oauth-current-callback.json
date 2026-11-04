@@ -1,0 +1,33 @@
+{
+  "kind": "bounded-provider-start-cancel-before-provider-consent",
+  "callback": "https://sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app/auth/callback",
+  "accountsCreated": 0,
+  "providerAuthorizationSubmitted": false,
+  "externalProviderRequests": 0,
+  "testMail": 0,
+  "productOrPreferenceWrites": 0,
+  "authEphemeralState": "canonical authorize/cancel endpoints may create and consume short-lived Auth flow state; no manual DB write",
+  "results": [
+    {
+      "provider": "google",
+      "startStatus": 302,
+      "providerHost": "accounts.google.com",
+      "providerOpened": false,
+      "cancelStatus": 302,
+      "cancelReturnOrigin": "https://sod1820.co.il",
+      "cancelReturnPath": "",
+      "callbackExact": false
+    },
+    {
+      "provider": "facebook",
+      "startStatus": 302,
+      "providerHost": "www.facebook.com",
+      "providerOpened": false,
+      "cancelStatus": 302,
+      "cancelReturnOrigin": "https://sod1820.co.il",
+      "cancelReturnPath": "",
+      "callbackExact": false
+    }
+  ],
+  "checkedAt": "2026-11-03T20:06:17.802356+00:00"
+}

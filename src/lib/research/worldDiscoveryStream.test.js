@@ -114,9 +114,18 @@ test("2029 World and bottom share the same source reader; legacy WhatsApp/privat
   assert.match(hook, /limit:\s*40, includeResearch:\s*false/);
   assert.doesNotMatch(frame, /watchWorldDiscoveryStream\(\{/);
   assert.match(frame, /<AttentionProjection[\s\S]{0,240}?feed=\{feed\}/);
-  assert.match(frame, /title="מה חדש בעולם"/);
-  assert.match(frame, /className="sod29-feed-chip" onClick=\{openAttention\}/);
-  assert.match(frame, /feed\.newCount > 0 && !transientKind/);
+  // The approved single command bar moved the same Attention/feed into Now.
+  // Keep its unread signal and shared reader, without reviving a floating chip.
+  assert.match(frame, /onClick=\{research\.elsResearchOperation\?\.task \? openWorkspace : openAttention\}/);
+  assert.match(frame, /aria-expanded=\{transientKind === \(research\.elsResearchOperation\?\.task \? TRANSIENT\.WORKSPACE : TRANSIENT\.ATTENTION\)\}/);
+  assert.match(frame, /feed\.newCount > 0 \? <span className="sod29-dock-unread"/);
+  assert.doesNotMatch(frame, /className="sod29-feed-chip"/);
+  assert.match(frame, /<GlobalLivingRibbon2029 feed=\{feed\}/);
+  // ZURIEL temporarily hid the source Companion site-wide. The same public
+  // reader still serves Now and the ribbon; Context is independently mounted.
+  assert.doesNotMatch(frame, /<CompanionPanel2029/);
+  assert.match(frame, /<SurfaceContextRail2029/);
+  assert.equal((frame.match(/useSystemFeed2029\(/g) || []).length, 1);
   assert.match(frame, /const openAttention = useCallback\(\(\) => openTransient\(TRANSIENT\.ATTENTION\)/);
 });
 
@@ -166,11 +175,16 @@ test("new public World uses the composed story and sources without a feature tog
   const world = readFileSync(new URL("../../pages/World2029Page.jsx", import.meta.url), "utf8");
   const reader = readFileSync(new URL("./worldDiscoveryStream.js", import.meta.url), "utf8");
   const flight = readFileSync(new URL("../../components/research/WorldFlightStory2029.jsx", import.meta.url), "utf8");
-  assert.match(world, /if \(!controlMode\) return <>/);
+  assert.match(world, /activeView === WORLD_LANDING_VIEW\.START/);
+  assert.match(world, /activeView === WORLD_LANDING_VIEW\.CONNECTIONS/);
+  assert.doesNotMatch(world, /if \(!controlMode\)/);
   assert.doesNotMatch(world, /VITE_WORLD_2029_ENABLED/);
   assert.doesNotMatch(world, /import\.meta\.env\.VITE_INTEGRATED_PREVIEW\s*===\s*["']true["']\)\s*&&\s*!controlMode/);
   assert.match(world, /<WorldFlightStory2029 research=\{research\} shell=\{shell\}/);
-  assert.match(world, /<SourceArrivalList2029 loading=\{landing\.loading\}/);
+  assert.match(world, /<WorldPublicUpdates2029 loading=\{landing\.discoveryLoading\}/);
+  assert.doesNotMatch(world, /<SourceArrivalList2029/);
+  assert.match(world, /!\[WORLD_LANDING_VIEW\.START, WORLD_LANDING_VIEW\.LIVE\]\.includes\(activeView\)/,
+    "the discovery stream must load only in the two views that render it");
   assert.match(reader, /\.order\("modified", \{ ascending: false, nullsFirst: false \}\)/);
   assert.match(flight, /data-source-interpretation="zuriel-787"/);
 });

@@ -1,0 +1,664 @@
+{
+  "realData": true,
+  "realSW": true,
+  "productionWrites": 0,
+  "modelCalls": 0,
+  "compiledCssInjectedForDiagnosis": true,
+  "hostedCandidateAcceptance": false,
+  "rows": [
+    {
+      "width": 390,
+      "status": 200,
+      "url": "https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula",
+      "slug": "flydubai-fz1073-363-14000-remzei-geula",
+      "theme": "dark",
+      "backgroundKey": "general",
+      "pseudo": {
+        "content": "none",
+        "background": "none",
+        "zIndex": "auto",
+        "opacity": "1",
+        "position": "static"
+      },
+      "parents": [
+        {
+          "tag": "ARTICLE",
+          "cls": "sod29-reading-post",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "MAIN",
+          "cls": "sod29-content",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main-stage has-context-rail",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main",
+          "position": "relative",
+          "zIndex": "2",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-root closed-shell native-frame surface-post sidebar-collapsed",
+          "position": "relative",
+          "zIndex": "1",
+          "isolation": "isolate",
+          "bg": "rgb(11, 9, 7)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "",
+          "position": "relative",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "BODY",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgb(12, 8, 24)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "HTML",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        }
+      ],
+      "worker": "https://sod1820.co.il/sw.js",
+      "afterCssDiagnostic": {
+        "content": "\"\"",
+        "background": "url(\"https://sod1820.co.il/legacy-dark-bg-post-mobile-v2-720x1280-81d7bbed9769.webp\")",
+        "position": "fixed",
+        "width": 339,
+        "viewport": 390,
+        "overflow": false
+      },
+      "actualLiveScriptUnchanged": true,
+      "failed": [],
+      "errors": []
+    },
+    {
+      "width": 390,
+      "status": 200,
+      "url": "https://sod1820.co.il/post/mahi-eretz-5d-chayim-betadir-gavoha-dim5-20261103",
+      "slug": "mahi-eretz-5d-chayim-betadir-gavoha-dim5-20261103",
+      "theme": "dark",
+      "backgroundKey": "dimension-five",
+      "pseudo": {
+        "content": "none",
+        "background": "none",
+        "zIndex": "auto",
+        "opacity": "1",
+        "position": "static"
+      },
+      "parents": [
+        {
+          "tag": "ARTICLE",
+          "cls": "sod29-reading-post",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "MAIN",
+          "cls": "sod29-content",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main-stage has-context-rail",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main",
+          "position": "relative",
+          "zIndex": "2",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-root closed-shell native-frame surface-post sidebar-collapsed",
+          "position": "relative",
+          "zIndex": "1",
+          "isolation": "isolate",
+          "bg": "rgb(11, 9, 7)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "",
+          "position": "relative",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "BODY",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgb(12, 8, 24)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "HTML",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        }
+      ],
+      "worker": "https://sod1820.co.il/sw.js",
+      "afterCssDiagnostic": {
+        "content": "\"\"",
+        "background": "url(\"https://sod1820.co.il/dimension-five-night-mobile-v2-720x1280-b062e53195ec.webp\")",
+        "position": "fixed",
+        "width": 339,
+        "viewport": 390,
+        "overflow": false
+      },
+      "actualLiveScriptUnchanged": true,
+      "failed": [],
+      "errors": []
+    },
+    {
+      "width": 390,
+      "status": 200,
+      "url": "https://sod1820.co.il/post/mah-kore-elections-mutual-responsibility",
+      "slug": "mah-kore-elections-mutual-responsibility",
+      "theme": "dark",
+      "backgroundKey": "mah-kore-habora",
+      "pseudo": {
+        "content": "none",
+        "background": "none",
+        "zIndex": "auto",
+        "opacity": "1",
+        "position": "static"
+      },
+      "parents": [
+        {
+          "tag": "ARTICLE",
+          "cls": "sod29-reading-post",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "MAIN",
+          "cls": "sod29-content",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main-stage has-context-rail",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main",
+          "position": "relative",
+          "zIndex": "2",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-root closed-shell native-frame surface-post sidebar-collapsed",
+          "position": "relative",
+          "zIndex": "1",
+          "isolation": "isolate",
+          "bg": "rgb(11, 9, 7)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "",
+          "position": "relative",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "BODY",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgb(12, 8, 24)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "HTML",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        }
+      ],
+      "worker": "https://sod1820.co.il/sw.js",
+      "afterCssDiagnostic": {
+        "content": "\"\"",
+        "background": "url(\"https://sod1820.co.il/mah-kore-habora-night-mobile-v2-720x1280-ee55ed6ecb14.webp\")",
+        "position": "fixed",
+        "width": 339,
+        "viewport": 390,
+        "overflow": false
+      },
+      "actualLiveScriptUnchanged": true,
+      "failed": [],
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "status": 200,
+      "url": "https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula",
+      "slug": "flydubai-fz1073-363-14000-remzei-geula",
+      "theme": "dark",
+      "backgroundKey": "general",
+      "pseudo": {
+        "content": "none",
+        "background": "none",
+        "zIndex": "auto",
+        "opacity": "1",
+        "position": "static"
+      },
+      "parents": [
+        {
+          "tag": "ARTICLE",
+          "cls": "sod29-reading-post",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "MAIN",
+          "cls": "sod29-content",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main-stage has-context-rail",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main",
+          "position": "relative",
+          "zIndex": "2",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-root closed-shell native-frame surface-post sidebar-collapsed",
+          "position": "relative",
+          "zIndex": "1",
+          "isolation": "isolate",
+          "bg": "rgb(11, 9, 7)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "",
+          "position": "relative",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "BODY",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgb(12, 8, 24)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "HTML",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        }
+      ],
+      "worker": "https://sod1820.co.il/sw.js",
+      "afterCssDiagnostic": {
+        "content": "\"\"",
+        "background": "url(\"https://sod1820.co.il/legacy-dark-bg-post-1280-6ca0167e2dda.webp\")",
+        "position": "fixed",
+        "width": 929,
+        "viewport": 1440,
+        "overflow": false
+      },
+      "actualLiveScriptUnchanged": true,
+      "failed": [],
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "status": 200,
+      "url": "https://sod1820.co.il/post/mahi-eretz-5d-chayim-betadir-gavoha-dim5-20261103",
+      "slug": "mahi-eretz-5d-chayim-betadir-gavoha-dim5-20261103",
+      "theme": "dark",
+      "backgroundKey": "dimension-five",
+      "pseudo": {
+        "content": "none",
+        "background": "none",
+        "zIndex": "auto",
+        "opacity": "1",
+        "position": "static"
+      },
+      "parents": [
+        {
+          "tag": "ARTICLE",
+          "cls": "sod29-reading-post",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "MAIN",
+          "cls": "sod29-content",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main-stage has-context-rail",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main",
+          "position": "relative",
+          "zIndex": "2",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-root closed-shell native-frame surface-post sidebar-collapsed",
+          "position": "relative",
+          "zIndex": "1",
+          "isolation": "isolate",
+          "bg": "rgb(11, 9, 7)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "",
+          "position": "relative",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "BODY",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgb(12, 8, 24)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "HTML",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        }
+      ],
+      "worker": "https://sod1820.co.il/sw.js",
+      "afterCssDiagnostic": {
+        "content": "\"\"",
+        "background": "url(\"https://sod1820.co.il/dimension-five-night-1280-fed0a0b53207.webp\")",
+        "position": "fixed",
+        "width": 929,
+        "viewport": 1440,
+        "overflow": false
+      },
+      "actualLiveScriptUnchanged": true,
+      "failed": [],
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "status": 200,
+      "url": "https://sod1820.co.il/post/mah-kore-elections-mutual-responsibility",
+      "slug": "mah-kore-elections-mutual-responsibility",
+      "theme": "dark",
+      "backgroundKey": "mah-kore-habora",
+      "pseudo": {
+        "content": "none",
+        "background": "none",
+        "zIndex": "auto",
+        "opacity": "1",
+        "position": "static"
+      },
+      "parents": [
+        {
+          "tag": "ARTICLE",
+          "cls": "sod29-reading-post",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "MAIN",
+          "cls": "sod29-content",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main-stage has-context-rail",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-main",
+          "position": "relative",
+          "zIndex": "2",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "sod29-root closed-shell native-frame surface-post sidebar-collapsed",
+          "position": "relative",
+          "zIndex": "1",
+          "isolation": "isolate",
+          "bg": "rgb(11, 9, 7)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "DIV",
+          "cls": "",
+          "position": "relative",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "BODY",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgb(12, 8, 24)",
+          "transform": "none",
+          "overflow": "clip visible"
+        },
+        {
+          "tag": "HTML",
+          "cls": "",
+          "position": "static",
+          "zIndex": "auto",
+          "isolation": "auto",
+          "bg": "rgba(0, 0, 0, 0)",
+          "transform": "none",
+          "overflow": "clip visible"
+        }
+      ],
+      "worker": "https://sod1820.co.il/sw.js",
+      "afterCssDiagnostic": {
+        "content": "\"\"",
+        "background": "url(\"https://sod1820.co.il/mah-kore-habora-night-1280-8bce64abed3a.webp\")",
+        "position": "fixed",
+        "width": 929,
+        "viewport": 1440,
+        "overflow": false
+      },
+      "actualLiveScriptUnchanged": true,
+      "failed": [],
+      "errors": []
+    }
+  ]
+}

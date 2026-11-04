@@ -1,6 +1,6 @@
 # SOD1820 DESIGN CONTRACT V2
 
-**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026
+**Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026; shared icon color resolution and state precedence approved 25.10.2026; balanced RTL composition approved 26.10.2026
 **Owner:** experience_governance_foundation_v1_law v9 → canonical_colors_law / canonical_ui_components_law / Brand Core
 **Verdict:** SUPERSEDE_EXISTING for the 2029 web product visual foundation. V1 remains historical/Legacy provenance.
 
@@ -103,6 +103,14 @@ Browser acceptance must inspect computed styles, not only source declarations:
 - representative mixed Hebrew/numeric values prove that Hebrew resolves to the UI/body family and only the numeric run resolves to the numeric family;
 - density changes introduce no horizontal page overflow and do not alter truth, publication, privacy, navigation or Legacy behavior.
 
+### 5.4 Hebrew display weight and optical density · Preview proposal 23.10.2026
+
+Large type is not permission to make Hebrew visually heavy. For multi-line Hebrew display and section headings, the default working range is **650–760** in Rubik; **780 is the ordinary ceiling**. Weights of 800–900 are reserved for short numeric values, very short one-line marks or an explicitly reviewed identity moment — not for a multi-line book title or explanatory heading.
+
+Multi-line Hebrew display keeps a line-height of at least **1.04** and letter spacing no tighter than **-0.035em**. At 390px and below, prefer reducing weight and tightening the size range before reducing breathing room or forcing a word into an optically dense block. Body and long-form Hebrew remain in Noto Sans Hebrew at ordinary reading weight; emphasis is created through hierarchy, spacing and semantic color, not blanket boldness.
+
+Acceptance inspects the computed family and weight in the browser. A heading that technically uses the approved Rubik family but resolves to an unreviewed 800–900 weight fails this rule when it dominates reading or closes the counters of Hebrew letters. This proposal is branch/Preview-only until the normal contract review and merge gate accept it; it does not restyle Legacy.
+
 ## 6. Environment is not theme
 Research Lab, Journey, Heichal and future spatial contexts are environment projections over the selected preset.
 
@@ -179,6 +187,21 @@ Global Chrome placement and mobile projection are locked in §11. Desktop Adapti
 - On mobile and desktop use concise semantic headings, thin borders, readable text and controls ≥44×44px. A subtle ≤2s focus outline after an explicit jump may be used; reduced-motion removes nonessential movement. Do not append updated units mechanically to the bottom of the source and do not displace the reader's active position.
 
 **Owner routing:** project_codex.publishing_conventions for authored Post/source, Research Intake + research_object_identity_invariant_law for occurrence/fragment provenance, reality_graph_law for relations, and Experience/System Frame for these **presentation projections**. Tests/rollout under the existing G4 Posts-first + cross-surface Golden, not a new Golden or independent editor.
+
+### 8.2 Balanced RTL composition · Human Gate ZURIEL · 26.10.2026
+
+RTL controls reading direction, logical order and the start edge of Hebrew copy. It does **not** authorize pinning the whole page, its primary content plane, cards or module navigation to the physical right side of the viewport.
+
+- Every ordinary 2029 content surface uses the existing centered, bounded content plane with balanced logical gutters. Implementations consume the shared System Frame/layout owner and logical CSS properties; they do not create a page-local shell merely to obtain centering.
+- Hebrew prose, labels and scan-heavy lists remain `text-align:start` inside that plane. The outer wrapper, card grid and module composition remain visually centered and width-balanced. Applying `text-align:start`, `justify-items:start` or `direction:rtl` to an outer layout in a way that leaves an unexplained dead field on the opposite side is a contract violation.
+- Surface identity headings, module switchers and primary action groups may be centered or symmetrically distributed when they orient the whole view. Long prose and ordinary link lists are not centered for decoration.
+- Personal Area, My Page, profile/settings, Messages, My Research, saved Raziel conversations and progress surfaces are one explicit acceptance family for this rule. Message/thread rows may align by sender semantics, but their containing reading plane remains centered and usable.
+- At 320px and 390px the composition becomes a near-full-width stack with balanced inline padding. It must not collapse into a narrow right-hand column, require horizontal panning or hide controls behind the logical start edge.
+- Intentional asymmetric product chrome is exempt only where this contract defines it explicitly (for example the global navigation rail and contextual Companion). Such chrome must not displace the primary content plane into an accidental right-pinned layout.
+
+This is a composition rule, not a command to center every Hebrew sentence. Page centering and text alignment are separate decisions and must be tested separately.
+
+**Posts alignment · Human Gate ZURIEL · 31.10.2026:** approved for the existing Post surface: the primary Post title is centered; article subsection headings and ordinary explanatory paragraphs align to logical start (right in Hebrew). Short gematria-box headings and separated equations are centered. A short standalone quotation or emphasis may center deliberately; a poem or intentionally short-line composition may retain its authored alignment. The bounded reading plane and its section navigation stay centered with balanced gutters. This presentation rule does not rewrite authored wording, source locators or calculation semantics, and does not authorize changes to shared chrome or other surfaces. Apply it through the existing Post styles after checking explicit semantic exceptions, rather than rewriting stored article HTML.
 
 ## 9. Migration
 - 2029 migrates through shared tokens/components first.
@@ -348,6 +371,8 @@ A 2029 visual-foundation change must prove:
 5. no truth/status meaning encoded only by decoration;
 6. Legacy routes are not mass-restyled accidentally;
 7. no new palette/theme store or page-local color owner.
+8. the primary content plane is centered with balanced inline gutters; RTL text alignment has not pinned the whole composition to the right;
+9. Personal Area, My Page, Messages and My Research are checked as a shared visual family at 320px, 390px, 768px and 1440px, with screenshots or browser geometry proving no unexplained opposite-side dead field or narrow right-hand column.
 
 ## Navigation icon family — approved 8.10.2026
 
@@ -404,3 +429,50 @@ controls do not move. Shared icon feedback must not require a second global
 listener, navigation store, or animation engine. Whole-frame layout, palette
 context propagation and command-island typography remain with the existing
 SystemFrame owner; this refinement does not claim those gaps closed.
+
+## Shared icon and surface color resolution · Human Gate ZURIEL · 25.10.2026
+
+**Status: APPROVED DIRECTION — ZURIEL, 25.10.2026.** ZURIEL explicitly adopted the clarification
+reviewed in PR #1158 in the active user conversation. This governs shared 2029 implementation;
+repository integration, runtime implementation and visual acceptance remain separate. Existing
+role meanings and preset values are preserved; no new universal subject-kind color mapping is
+approved. Owner action: **EXTEND_EXISTING** Design V2, semantic palette and canonical UI components;
+no new palette, icon registry, theme store or domain owner.
+
+1. **Geometry and meaning are separate.** `NavigationIcon2029` owns SVG geometry and
+   `currentColor`. A glyph name such as `personal`, `layers` or `signal` does not determine a
+   subject's color, availability, authority or status. Replacing a glyph for the same semantic
+   role must not silently change its color policy.
+2. **Resolve color through the existing shared owner.** The caller supplies the authorized
+   semantic purpose and state; the existing palette/shared component resolves the preset's
+   foreground, surface, border and focus roles. Reuse or extend the existing tone seams where
+   appropriate. Pages consume that result rather than establishing their own glyph-to-color map.
+3. **Keep the approved role meanings.** Ordinary icons use theme text; primary actions and
+   selection use their accent roles, including the separate accessible action-text role;
+   discovery/share use cyan/teal; secondary/spatial depth uses violet. Existing numeric identity
+   retains its approved treatment. Crown gold/sapphire remain bounded identity ornament and
+   never imply research standing, verification, delivery success or account authority.
+4. **A subject-kind palette requires an explicit shared decision.** Fixed rules such as
+   “every writer is gold” or “every category is violet” are not established by a page stylesheet
+   or by the SVG selected for that subject. If such a mapping is desired, define it once in
+   this existing contract and implement it through the existing shared owner after acceptance.
+   Compatible local tokens alone do not establish a universal subject taxonomy.
+5. **Availability/status have explicit precedence.** An unavailable or disabled channel/control
+   consumes the owned unavailable/disabled treatment, even when its glyph is also used by an
+   active discovery feature. Unknown, loading, unread, confirmed Follow and delivery remain
+   distinct states with visible text. Color alone never establishes availability or success.
+6. **Own reusable treatments once.** Repeated icon/tile/card tints, selected fills and state
+   mixtures belong to the existing palette/shared component owner. Surface CSS supplies layout
+   and requests approved roles; it does not copy a second subject-color table or mixture scale.
+   Apply adopted treatments to bounded 2029 consumers; do not mass-restyle Legacy.
+7. **Preview the actual canonical controls.** Follow uses `WatchButton`; sharing uses
+   `ShareActions`. Representative previews render these existing controls with safe fixtures or
+   authorized read-only data. A static specimen must not be the acceptance oracle for a different
+   component that will replace it during wiring. Previewing a control never grants consent or
+   permission to contact readers.
+8. **Verify semantics as well as contrast.** Tests assert the expected owner-resolved role and
+   state, rather than requiring an arbitrary number of distinct hues. Include the same glyph in
+   active and unavailable contexts, glyph replacement without semantic change, and representative
+   shared consumers across Day/Parchment/Night at 320/390/1440. Preserve text/icon contrast,
+   44px targets, keyboard focus, reduced motion and non-color status labels. Do not introduce a
+   runtime alternate-color system merely to test this policy.

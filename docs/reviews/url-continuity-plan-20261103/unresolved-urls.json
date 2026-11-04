@@ -1,0 +1,4639 @@
+{
+  "NOT_PROVEN_BROKEN_COUNT": true,
+  "scope": "Unresolved by planning classifier only; valid aliases, attachments, stale links and unknowns mixed; source per row",
+  "rows": [
+    {
+      "url": "/:slug",
+      "decodedPath": "/:slug",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:440",
+        "App2029.jsx:285"
+      ]
+    },
+    {
+      "url": "/(.+)/",
+      "decodedPath": "/(.+)/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "redirect-pattern"
+      ],
+      "evidence": [
+        "public-reading-deploy/vercel.json redirect source"
+      ]
+    },
+    {
+      "url": "/*",
+      "decodedPath": "/*",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:441",
+        "App2029.jsx:329"
+      ]
+    },
+    {
+      "url": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%a4%d7%99%d7%a1%d7%91%d7%95%d7%a7/",
+      "decodedPath": "/אובמה-משחק-בפה-רך-עם-ישראל-שנחשוב-שהוא-נ/בנימין-נתניהו-פיסבוק/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1259"
+      ]
+    },
+    {
+      "url": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/%d7%a4%d7%99%d7%a1%d7%91%d7%95%d7%a7-%d7%90%d7%95%d7%91%d7%9e%d7%94/",
+      "decodedPath": "/אובמה-משחק-בפה-רך-עם-ישראל-שנחשוב-שהוא-נ/פיסבוק-אובמה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1259"
+      ]
+    },
+    {
+      "url": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%9e%d7%a9%d7%97%d7%a7-%d7%91%d7%a4%d7%94-%d7%a8%d7%9a-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a9%d7%a0%d7%97%d7%a9%d7%95%d7%91-%d7%a9%d7%94%d7%95%d7%90-%d7%a0/showimage/",
+      "decodedPath": "/אובמה-משחק-בפה-רך-עם-ישראל-שנחשוב-שהוא-נ/showimage/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1259"
+      ]
+    },
+    {
+      "url": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a0%d7%97%d7%a9-2/",
+      "decodedPath": "/אובמה-נחש-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=3; examples=1366,1379,1395"
+      ]
+    },
+    {
+      "url": "/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a0%d7%97%d7%a9/%d7%9c%d7%9b%d7%99%d7%93%d7%94-15/",
+      "decodedPath": "/אובמה-נחש/לכידה-15/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1347,1395"
+      ]
+    },
+    {
+      "url": "/%d7%90%d7%95%d7%a1%d7%a3-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%9e%d7%9c%d7%97%d7%9e%d7%95%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%aa%d7%9e%d7%95%d7%96/%d7%9b%d7%93-%d7%aa%d7%9e%d7%95%d7%96/",
+      "decodedPath": "/אוסף-רמזים-על-מלחמות-גוג-ומגוג-תמוז/כד-תמוז/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1333"
+      ]
+    },
+    {
+      "url": "/%d7%90%d7%97%d7%93%d7%95%d7%aa/",
+      "decodedPath": "/אחדות/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1300,1312"
+      ]
+    },
+    {
+      "url": "/%d7%90%d7%99%d7%a8%d7%9f-844111/",
+      "decodedPath": "/אירן-844111/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=127"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%92%d7%99%d7%9c-%d7%a9%d7%9c-%d7%97%d7%9e%d7%99%d7%a0%d7%90%d7%99-%d7%95%d7%91%d7%9e%d7%97%d7%9c%d7%aa%d7%95-%d7%99%d7%a9-%d7%a8%d7%9e%d7%96-%d7%91%d7%a8%d7%95%d7%a8-%d7%9c%d7%92%d7%90%d7%95/attachment/76/",
+      "decodedPath": "/בגיל-של-חמינאי-ובמחלתו-יש-רמז-ברור-לגאו/attachment/76/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=3; examples=1356,1363,1370"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%96%d7%9b%d7%95%d7%aa-%d7%9c%d7%99%d7%9e%d7%95%d7%93-%d7%a4%d7%a0%d7%99%d7%9e%d7%99%d7%95%d7%aa-%d7%94%d7%aa%d7%95%d7%a8%d7%94-%d7%a0%d7%96%d7%9b%d7%94-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%99%d7%a4%d7%a7%d7%95%d7%9f-%d7%9e%d7%9f-%d7%92%d7%9c%d7%95%d7%aa%d7%90-%d7%91%d7%a8%d7%97%d7%9e%d7%99/",
+      "decodedPath": "/בזכות-לימוד-פנימיות-התורה-נזכה-לגאולה/יפקון-מן-גלותא-ברחמי/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1316"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%95%d7%a8-%d7%a0%d7%91%d7%95%d7%90%d7%aa-%d7%93%d7%a0%d7%99%d7%90%d7%9c-%d7%99%d6%b4%d7%aa%d6%b0%d7%91%d6%b8%d6%bc%d7%a8%d6%b2%d7%a8%d7%95%d6%bc-%d7%95%d6%b0%d7%99%d6%b4%d7%aa/%d7%93%d7%a0%d7%99%d7%90%d7%9c-2/",
+      "decodedPath": "/ביאור-נבואת-דניאל-יִתְבָּרֲרוּ-וְיִת/דניאל-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1338"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97/",
+      "decodedPath": "/ביאת-המשיח/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa1-4/",
+      "decodedPath": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית1-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=138"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa10-4/",
+      "decodedPath": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית10-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=138"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa2-3/",
+      "decodedPath": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית2-3/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=138"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa2-4/",
+      "decodedPath": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית2-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=138"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa3-3/",
+      "decodedPath": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית3-3/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=138"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa3-4/",
+      "decodedPath": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית3-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=138"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa4-3/",
+      "decodedPath": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית4-3/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=138"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa4-4/",
+      "decodedPath": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית4-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=138"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa7-4/",
+      "decodedPath": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית7-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=138"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa8-4/",
+      "decodedPath": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית8-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=138"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%aa%d7%a9%d7%a4%d7%93-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%95%d7%92%d7%99%d7%9e%d7%98/%d7%a9%d7%a7%d7%95%d7%a4%d7%99%d7%aa9-4/",
+      "decodedPath": "/ביאת-משיח-רמזי-פורים-תשפד-צפנים-וגימט/שקופית9-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=138"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%91%d7%99-1/",
+      "decodedPath": "/ביבי-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1017,1129"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%91%d7%99-2/",
+      "decodedPath": "/ביבי-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1017,1129"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%99%d7%91%d7%99-3/",
+      "decodedPath": "/ביבי-3/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1017,1129"
+      ]
+    },
+    {
+      "url": "/%D7%91%D7%99%D7%AA-%D7%97%D7%93%D7%A9",
+      "decodedPath": "/בית-חדש",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "src/pages/HeichalPage.jsx:27",
+        "retained events observed 2026-07-10 03:26:34.857998+00..2026-07-10 03:26:35.182405+00",
+        "retained site_visits observed 2026-07-10 03:26:34.91942+00..2026-07-10 03:26:34.91942+00",
+        "live Legacy App.jsx:414"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%a0%d7%99%d7%99%d7%aa-%d7%94%d7%a7%d7%a4%d7%99%d7%98%d7%95%d7%9c-%d7%91%d7%95%d7%95%d7%a9%d7%99%d7%a0%d7%92%d7%98%d7%95%d7%9f-%d7%a0%d7%a2%d7%a9%d7%94-%d7%a2%d7%9c-%d7%94%d7%9e%d7%95%d7%93/_82373332_82373327/",
+      "decodedPath": "/בניית-הקפיטול-בוושינגטון-נעשה-על-המוד/_82373332_82373327/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1304"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%a0%d7%99%d7%99%d7%aa-%d7%94%d7%a7%d7%a4%d7%99%d7%98%d7%95%d7%9c-%d7%91%d7%95%d7%95%d7%a9%d7%99%d7%a0%d7%92%d7%98%d7%95%d7%9f-%d7%a0%d7%a2%d7%a9%d7%94-%d7%a2%d7%9c-%d7%94%d7%9e%d7%95%d7%93/_84478046_compeagle/",
+      "decodedPath": "/בניית-הקפיטול-בוושינגטון-נעשה-על-המוד/_84478046_compeagle/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1304"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-1/",
+      "decodedPath": "/בקרוב-יהיה-מלך-בירושלים-זה-תלוי-בכל-אחד/הינוקא-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1147"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-2/",
+      "decodedPath": "/בקרוב-יהיה-מלך-בירושלים-זה-תלוי-בכל-אחד/הינוקא-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1147"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-3/",
+      "decodedPath": "/בקרוב-יהיה-מלך-בירושלים-זה-תלוי-בכל-אחד/הינוקא-3/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1147"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%99%d7%94%d7%99%d7%94-%d7%9e%d7%9c%d7%9a-%d7%91%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%96%d7%94-%d7%aa%d7%9c%d7%95%d7%99-%d7%91%d7%9b%d7%9c-%d7%90%d7%97%d7%93/%d7%94%d7%99%d7%a0%d7%95%d7%a7%d7%90-5/",
+      "decodedPath": "/בקרוב-יהיה-מלך-בירושלים-זה-תלוי-בכל-אחד/הינוקא-5/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1147"
+      ]
+    },
+    {
+      "url": "/%d7%91%d7%a8%d7%90%d7%a7-%d7%97%d7%95%d7%a1%d7%99%d7%99%d7%9f-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%9c%d7%94%d7%9e%d7%9f-%d7%94/%d7%91%d7%a8%d7%90%d7%a7-%d7%97%d7%95%d7%a1%d7%99%d7%9f-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94/",
+      "decodedPath": "/בראק-חוסיין-אובאמה-הקשר-לפורים-להמן-ה/בראק-חוסין-אובאמה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1374"
+      ]
+    },
+    {
+      "url": "/%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%a7%d7%a8%d7%95%d7%91-%d7%9e%d7%90%d7%93-%d7%a8%d7%9e%d7%96-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%a8%d7%97%d7%9e%d7%99%d7%9d-%d7%9e%d7%90%d7%9e/",
+      "decodedPath": "/גאולה-בקרוב-מאד-רמז-לגאולה-ברחמים-מאמ/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1328"
+      ]
+    },
+    {
+      "url": "/%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%9E%D7%A8%D7%97%D7%91%D7%99%D7%AA",
+      "decodedPath": "/גימטריה-מרחבית",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:347"
+      ]
+    },
+    {
+      "url": "/%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94-%D7%AA%D7%9C%D7%AA-%D7%9E%D7%9E%D7%93%D7%99%D7%AA",
+      "decodedPath": "/גימטריה-תלת-ממדית",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "retained events observed 2026-08-10 04:52:51.428615+00..2026-08-10 04:57:56.881125+00",
+        "retained site_visits observed 2026-08-10 04:52:51.42831+00..2026-08-10 04:57:56.288364+00",
+        "live Legacy App.jsx:349"
+      ]
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%91%d7%99%d7%91%d7%99-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-2/",
+      "decodedPath": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/ביבי-נתניהו-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99/",
+      "decodedPath": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/האמיתי/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%99%d7%97%d7%9c%d7%99%d7%a3-%d7%90%d7%aa/",
+      "decodedPath": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/יחליף-את/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/%d7%9e%d7%9c%d7%9a-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%aa%d7%92%d7%9c%d7%94-2/",
+      "decodedPath": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/מלך-ישראל-מתגלה-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-05-30-at-16-59-38-1/",
+      "decodedPath": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/whatsapp-image-2019-05-30-at-16-59-38-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-05-30-at-16-59-38/",
+      "decodedPath": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/whatsapp-image-2019-05-30-at-16-59-38/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-02-at-17-09-15-1/",
+      "decodedPath": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/whatsapp-image-2019-06-02-at-17-09-15-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-02-at-17-09-15-2/",
+      "decodedPath": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/whatsapp-image-2019-06-02-at-17-09-15-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%91%d7%a0%d7%99%d7%9e%d7%99%d7%9f-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%99%d7%a2%d7%91%d7%99%d7%a8-%d7%90%d7%aa-%d7%94%d7%a9%d7%a8%d7%91%d7%99/whatsapp-image-2019-06-05-at-13-40-51/",
+      "decodedPath": "/גימטריות-בנימין-נתניהו-יעביר-את-השרבי/whatsapp-image-2019-06-05-at-13-40-51/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%93%d7%a3-%d7%94%d7%91%d7%99%d7%aa/",
+      "decodedPath": "/דף-הבית/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1311"
+      ]
+    },
+    {
+      "url": "/%d7%93%d7%a3-%d7%94%d7%91%d7%99%d7%aa/%d7%94%d7%92%d7%99%d7%a2-%d7%94%d7%96%d7%9e%d7%9f-%d7%9c%d7%a2%d7%a9%d7%95%d7%aa-%d7%aa%d7%a9%d7%95%d7%91%d7%94/",
+      "decodedPath": "/דף-הבית/הגיע-הזמן-לעשות-תשובה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1371"
+      ]
+    },
+    {
+      "url": "/%d7%93%d7%a3-%d7%94%d7%91%d7%99%d7%aa/%d7%a1%d7%a4%d7%a8/",
+      "decodedPath": "/דף-הבית/ספר/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1356"
+      ]
+    },
+    {
+      "url": "/%D7%93%D7%A3-%D7%A8%D7%90%D7%A9%D7%99",
+      "decodedPath": "/דף-ראשי",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "redirect-pattern"
+      ],
+      "evidence": [
+        "public-reading-deploy/vercel.json redirect source"
+      ]
+    },
+    {
+      "url": "/%D7%93%D7%A3-%D7%A8%D7%90%D7%A9%D7%99-2",
+      "decodedPath": "/דף-ראשי-2",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "redirect-pattern"
+      ],
+      "evidence": [
+        "public-reading-deploy/vercel.json redirect source"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%91%d7%91%d7%90-%d7%a1%d7%90%d7%9c%d7%99-%d7%91%d7%97%d7%9c%d7%95%d7%9d-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a4%d7%aa%d7%97-%d7%99%d7%95%d7%aa%d7%a8-%d7%9e%d7%aa%d7%9e%d7%99%d7%93/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d-3/",
+      "decodedPath": "/הבבא-סאלי-בחלום-המשיח-בפתח-יותר-מתמיד/היום-עם-3/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1341"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%91%d7%91%d7%90-%d7%a1%d7%90%d7%9c%d7%99-%d7%91%d7%97%d7%9c%d7%95%d7%9d-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a4%d7%aa%d7%97-%d7%99%d7%95%d7%aa%d7%a8-%d7%9e%d7%aa%d7%9e%d7%99%d7%93/%d7%9e%d7%a9%d7%99%d7%97-%d7%98%d7%91%d7%aa-2/",
+      "decodedPath": "/הבבא-סאלי-בחלום-המשיח-בפתח-יותר-מתמיד/משיח-טבת-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1341"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%91%d7%98%d7%97%d7%94-%d7%9c%d7%90%d7%91%d7%95%d7%aa/",
+      "decodedPath": "/הבטחה-לאבות/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1314,1361"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%95%d7%9b%d7%97%d7%95%d7%aa-%d7%9c%d7%90%d7%9e%d7%99%d7%aa%d7%95%d7%aa-%d7%94%d7%aa%d7%95%d7%a8%d7%94-%d7%9e%d7%a9%d7%9e%d7%99%d7%9d/",
+      "decodedPath": "/הוכחות-לאמיתות-התורה-משמים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1293"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%96%d7%95%d7%92-%d7%91%d7%a0%d7%99-67/",
+      "decodedPath": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/זוג-בני-67/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1358"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%9c%d7%9b%d7%99%d7%93%d7%94-16/",
+      "decodedPath": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/לכידה-16/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1358"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95/",
+      "decodedPath": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/נתניהו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1358"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11027459_1102614776431436_889746206596284092_n/",
+      "decodedPath": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/11027459_1102614776431436_889746206596284092_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1347,1358"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11266242_1127160193976894_3479014414611178489_n/",
+      "decodedPath": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/11266242_1127160193976894_3479014414611178489_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1358"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/11393000_1435172586790415_3351433622621510855_n/",
+      "decodedPath": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/11393000_1435172586790415_3351433622621510855_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1358"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/5776-1335-7/",
+      "decodedPath": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/5776-1335-7/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=3; examples=1338,1347,1395"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/5776-1335-8/",
+      "decodedPath": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/5776-1335-8/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1358"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/76-2/",
+      "decodedPath": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/76-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1347,1356"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%99%d7%9c%d7%a8%d7%99-%d7%a7%d7%9c%d7%99%d7%a0%d7%98%d7%95%d7%9f-%d7%91%d7%9e%d7%95%d7%a2%d7%93-%d7%94%d7%94%d7%9b%d7%a8%d7%96%d7%94-%d7%94%d7%99%d7%90-%d7%91%d7%aa-67-%d7%95%d7%9c%d7%90/attachment/7676/",
+      "decodedPath": "/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/attachment/7676/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=3; examples=1314,1347,1356"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%94%d7%a0%d7%99%d7%a6%d7%97%d7%95%d7%9f-%d7%94%d7%9e%d7%95%d7%97%d7%9c%d7%98/",
+      "decodedPath": "/המלחמה-והכרעת-החמאס-מובילה-לגילוי-מלכ/הניצחון-המוחלט/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=131"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%9b%d7%91%d7%99%d7%a9-65/",
+      "decodedPath": "/המלחמה-והכרעת-החמאס-מובילה-לגילוי-מלכ/כביש-65/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=131"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a4%d7%99%d7%92%d7%95%d7%a2/",
+      "decodedPath": "/המלחמה-והכרעת-החמאס-מובילה-לגילוי-מלכ/מלאכי-פיגוע/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=131"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%95%d7%94%d7%9b%d7%a8%d7%a2%d7%aa-%d7%94%d7%97%d7%9e%d7%90%d7%a1-%d7%9e%d7%95%d7%91%d7%99%d7%9c%d7%94-%d7%9c%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%9e%d7%9c%d7%9b/%d7%a7%d7%a8%d7%99%d7%aa-%d7%9e%d7%9c%d7%90%d7%9b%d7%99/",
+      "decodedPath": "/המלחמה-והכרעת-החמאס-מובילה-לגילוי-מלכ/קרית-מלאכי/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=131"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94/",
+      "decodedPath": "/המלכות-האחרונה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1330,1363"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%91%d7%a8%d7%90%d7%a7-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94/",
+      "decodedPath": "/המעיין-הפלאי-שיצא-מקדש-הקדשים/בראק-אובאמה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1306"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%a8%d7%97%d7%9e%d7%99%d7%9d/",
+      "decodedPath": "/המעיין-הפלאי-שיצא-מקדש-הקדשים/הגאולה-ברחמים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1306"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%a9%d7%9b%d7%99%d7%a0%d7%94-%d7%aa%d7%a9%d7%9b%d7%9f/",
+      "decodedPath": "/המעיין-הפלאי-שיצא-מקדש-הקדשים/השכינה-תשכן/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1306"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%9e%d7%a2%d7%99%d7%99%d7%9f-%d7%94%d7%a4%d7%9c%d7%90%d7%99-%d7%a9%d7%99%d7%a6%d7%90-%d7%9e%d7%a7%d7%93%d7%a9-%d7%94%d7%a7%d7%93%d7%a9%d7%99%d7%9d/%d7%99%d7%94%d7%95%d7%94-%d7%99%d7%a9%d7%95%d7%91-%d7%9c%d7%a6%d7%99%d7%95%d7%9f/",
+      "decodedPath": "/המעיין-הפלאי-שיצא-מקדש-הקדשים/יהוה-ישוב-לציון/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1306"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a0%d7%97%d7%a9-%d7%90%d7%a8%d7%91-%d7%9c%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95/",
+      "decodedPath": "/הנחש-ארב-לנתניהו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1017,1129"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a0%d7%99%d7%a1%d7%99%d7%95%d7%9f-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%9f-%d7%97%d7%95%d7%91%d7%94-%d7%9c%d7%a7%d7%a8%d7%95%d7%90/",
+      "decodedPath": "/הניסיון-האחרון-חובה-לקרוא/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a1%d7%91%d7%a8-%d7%a2%d7%9c-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%91%d7%aa%d7%a9%d7%a2%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c/%d7%90%d7%9c%d7%99%d7%94-%d7%9e%d7%a9%d7%99%d7%97/",
+      "decodedPath": "/הסבר-על-תהליך-גילוי-אליהו-בתשעה-הקשר-ל/אליה-משיח/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1354"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a1%d7%91%d7%a8-%d7%a2%d7%9c-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%92%d7%99%d7%9c%d7%95%d7%99-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%91%d7%aa%d7%a9%d7%a2%d7%94-%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c/%d7%94%d7%aa%d7%90%d7%a8%d7%99%d7%9a-%d7%a0%d7%a4%d7%9c/",
+      "decodedPath": "/הסבר-על-תהליך-גילוי-אליהו-בתשעה-הקשר-ל/התאריך-נפל/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1354"
+      ]
+    },
+    {
+      "url": "/%D7%94%D7%A6%D7%9C%D7%91%D7%94",
+      "decodedPath": "/הצלבה",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "retained events observed 2026-10-13 09:15:14.806292+00..2026-10-13 09:15:15.535817+00",
+        "retained site_visits observed 2026-10-13 09:15:14.987791+00..2026-10-13 09:15:15.108496+00",
+        "live Legacy App.jsx:420"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%92%d7%95%d7%a0%d7%a1/",
+      "decodedPath": "/הרמז-האלוקי-של-דייויד-בלאט-והקשר-לגאול/גונס/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1337"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%93%d7%99%d7%95%d7%99%d7%93/",
+      "decodedPath": "/הרמז-האלוקי-של-דייויד-בלאט-והקשר-לגאול/דיויד/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1337"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a8%d7%9e%d7%96-%d7%94%d7%90%d7%9c%d7%95%d7%a7%d7%99-%d7%a9%d7%9c-%d7%93%d7%99%d7%99%d7%95%d7%99%d7%93-%d7%91%d7%9c%d7%90%d7%98-%d7%95%d7%94%d7%a7%d7%a9%d7%a8-%d7%9c%d7%92%d7%90%d7%95%d7%9c/%d7%a6%d7%9e%d7%97-%d7%93%d7%95%d7%93/",
+      "decodedPath": "/הרמז-האלוקי-של-דייויד-בלאט-והקשר-לגאול/צמח-דוד/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1337"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a8%d7%a6%d7%90%d7%95%d7%aa-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%95%d7%aa/",
+      "decodedPath": "/הרצאות-מדהימות/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1399"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-1/",
+      "decodedPath": "/השיר-שסוחף-את-כל-העולם-jerusalema-ירושלים-הבית-ש/תגובות-ירושלים-חלק-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=176"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-2/",
+      "decodedPath": "/השיר-שסוחף-את-כל-העולם-jerusalema-ירושלים-הבית-ש/תגובות-ירושלים-חלק-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=176"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-3/",
+      "decodedPath": "/השיר-שסוחף-את-כל-העולם-jerusalema-ירושלים-הבית-ש/תגובות-ירושלים-חלק-3/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=176"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%a9%d7%99%d7%a8-%d7%a9%d7%a1%d7%95%d7%97%d7%a3-%d7%90%d7%aa-%d7%9b%d7%9c-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-jerusalema-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%94%d7%91%d7%99%d7%aa-%d7%a9/%d7%aa%d7%92%d7%95%d7%91%d7%95%d7%aa-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%99%d7%9d-%d7%97%d7%9c%d7%a7-4/",
+      "decodedPath": "/השיר-שסוחף-את-כל-העולם-jerusalema-ירושלים-הבית-ש/תגובות-ירושלים-חלק-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=176"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%90%d7%a8%d7%99%d7%9b%d7%99%d7%9d-%d7%95%d7%94%d7%96%d7%9e%d7%a0%d7%99%d7%9d-%d7%9c%d7%97%d7%95%d7%93%d7%a9-%d7%94%d7%a7%d7%a8%d7%95%d7%91-%d7%90%d7%9c%d7%95%d7%9c-%d7%91%d7%a9%d7%9d/",
+      "decodedPath": "/התאריכים-והזמנים-לחודש-הקרוב-אלול-בשם/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1276"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-1/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-39-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-2/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-39-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39-3/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-39-3/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-39/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-39/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-40-1/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-40-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-40/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-40/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-41-1/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-41-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-41/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-41/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42-1/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-42-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42-2/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-42-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-42/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-42/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43-1/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-43-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43-2/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-43-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-43/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-43/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%94%d7%aa%d7%a8%d7%95%d7%a4%d7%94-%d7%94%d7%90%d7%9e%d7%99%d7%aa%d7%99%d7%aa-%d7%9c%d7%a7%d7%95%d7%a8%d7%95%d7%a0%d7%94-%d7%9e%d7%a1%d7%a8-%d7%9b%d7%93%d7%95%d7%a8-%d7%94%d7%90%d7%a8%d7%a5/whatsapp-image-2020-03-25-at-17-51-44/",
+      "decodedPath": "/התרופה-האמיתית-לקורונה-מסר-כדור-הארץ/whatsapp-image-2020-03-25-at-17-51-44/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1057"
+      ]
+    },
+    {
+      "url": "/%d7%95%d6%b0%d7%90%d6%b8%d7%91%d6%b7%d7%93-%d7%9e%d6%b6%d7%9c%d6%b6%d7%9a%d6%b0-%d7%9e%d6%b5%d7%a2%d6%b7%d7%96%d6%b8%d6%bc%d7%94-%d7%a0%d7%91%d7%95%d7%90%d7%aa-%d7%96%d7%9b%d7%a8%d7%99%d7%94-%d7%a2/45-%d7%a0%d7%94%d7%a8%d7%a1%d7%95/",
+      "decodedPath": "/וְאָבַד-מֶלֶךְ-מֵעַזָּה-נבואת-זכריה-ע/45-נהרסו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=165"
+      ]
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%91%d7%99%d7%90%d7%aa-%d7%a2%d7%9c-%d7%97%d7%9e%d7%95%d7%a8/",
+      "decodedPath": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/ביאת-על-חמור/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1272"
+      ]
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94/",
+      "decodedPath": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/הגאולה-האחרונה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1272"
+      ]
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa/",
+      "decodedPath": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/התגלות/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1272"
+      ]
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/%d7%a1%d7%95%d7%93-%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%94%d7%95%d7%94/",
+      "decodedPath": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/סוד-התגלות-יהוה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1272"
+      ]
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/7760-2/",
+      "decodedPath": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/7760-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1272"
+      ]
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/attachment/2660/",
+      "decodedPath": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/attachment/2660/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1272"
+      ]
+    },
+    {
+      "url": "/%d7%95%d7%91%d7%a2%d7%aa-%d7%94%d7%94%d7%99%d7%90-%d7%99%d7%a2%d7%9e%d7%95%d7%93-%d7%94%d7%a9%d7%a8-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%a4%d7%a1%d7%95%d7%a7%d7%99%d7%9d-%d7%9e%d7%a8/attachment/533/",
+      "decodedPath": "/ובעת-ההיא-יעמוד-השר-גימטריות-פסוקים-מר/attachment/533/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1272"
+      ]
+    },
+    {
+      "url": "/%D7%96%D7%95%D7%94%D7%A8/",
+      "decodedPath": "/זוהר/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1371"
+      ]
+    },
+    {
+      "url": "/%d7%96%d7%9e%d7%9f-%d7%94%d7%a7%d7%a5-%d7%94%d7%aa%d7%a9%d7%a2%d7%95-%d7%a8%d7%9e%d7%95%d7%96-%d7%91%d7%9e%d7%93%d7%95%d7%99%d7%a7-%d7%91%d7%9e%d7%99%d7%9c%d7%99%d7%9d-%d7%aa%d7%99%d7%a4%d7%97/%d7%aa%d7%99%d7%a4%d7%97-%d7%a8%d7%95%d7%97%d7%9d/",
+      "decodedPath": "/זמן-הקץ-התשעו-רמוז-במדויק-במילים-תיפח/תיפח-רוחם/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%9c%d7%9b%d7%99%d7%93%d7%94-11/",
+      "decodedPath": "/חדש-עדויות-של-עשרות-אנשים-בארץ-ששמעו-קו/לכידה-11/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1399"
+      ]
+    },
+    {
+      "url": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a2%d7%93%d7%95%d7%aa-%d7%a9%d7%95%d7%a4%d7%a8/",
+      "decodedPath": "/חדש-עדויות-של-עשרות-אנשים-בארץ-ששמעו-קו/עדות-שופר/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1399"
+      ]
+    },
+    {
+      "url": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a7%d7%95%d7%9c-%d7%a9%d7%95%d7%a4%d7%a8-%d7%9c%d7%95%d7%93-5-7-2015/",
+      "decodedPath": "/חדש-עדויות-של-עשרות-אנשים-בארץ-ששמעו-קו/קול-שופר-לוד-5-7-2015/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1399"
+      ]
+    },
+    {
+      "url": "/%d7%97%d7%93%d7%a9-%d7%a2%d7%93%d7%95%d7%99%d7%95%d7%aa-%d7%a9%d7%9c-%d7%a2%d7%a9%d7%a8%d7%95%d7%aa-%d7%90%d7%a0%d7%a9%d7%99%d7%9d-%d7%91%d7%90%d7%a8%d7%a5-%d7%a9%d7%a9%d7%9e%d7%a2%d7%95-%d7%a7%d7%95/%d7%a7%d7%95%d7%9c-%d7%a9%d7%95%d7%a4%d7%a8-%d7%a0%d7%a9%d7%a8-5-7-2015/",
+      "decodedPath": "/חדש-עדויות-של-עשרות-אנשים-בארץ-ששמעו-קו/קול-שופר-נשר-5-7-2015/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1399"
+      ]
+    },
+    {
+      "url": "/%d7%97%d7%95%d7%91%d7%a8%d7%aa-%d7%a1%d7%95%d7%93-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%90/",
+      "decodedPath": "/חוברת-סוד-הגאולה-א/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1314"
+      ]
+    },
+    {
+      "url": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/%d7%97%d7%95%d7%aa%d7%9d/",
+      "decodedPath": "/חותם-שהתגלה-היום-בעיר-דוד-מרמז-על-הגאול/חותם/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1241"
+      ]
+    },
+    {
+      "url": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/img-20160307-wa0064/",
+      "decodedPath": "/חותם-שהתגלה-היום-בעיר-דוד-מרמז-על-הגאול/img-20160307-wa0064/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1241"
+      ]
+    },
+    {
+      "url": "/%d7%97%d7%95%d7%aa%d7%9d-%d7%a9%d7%94%d7%aa%d7%92%d7%9c%d7%94-%d7%94%d7%99%d7%95%d7%9d-%d7%91%d7%a2%d7%99%d7%a8-%d7%93%d7%95%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%94%d7%92%d7%90%d7%95%d7%9c/img-20160307-wa0065/",
+      "decodedPath": "/חותם-שהתגלה-היום-בעיר-דוד-מרמז-על-הגאול/img-20160307-wa0065/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1241"
+      ]
+    },
+    {
+      "url": "/%D7%97%D7%99%D7%A9%D7%95%D7%91",
+      "decodedPath": "/חישוב",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:304"
+      ]
+    },
+    {
+      "url": "/%d7%99%d7%9e%d7%95%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-1-jpeg/",
+      "decodedPath": "/ימות-המשיח-1-jpeg/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%99%d7%aa%d7%99-%d7%95%d7%9c%d7%90-%d7%90%d7%97%d7%9e%d7%99%d7%a0%d7%94/",
+      "decodedPath": "/יתי-ולא-אחמינה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1370,1376"
+      ]
+    },
+    {
+      "url": "/%d7%9b%d7%98-%d7%90%d7%9c%d7%95%d7%9c/",
+      "decodedPath": "/כט-אלול/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1107"
+      ]
+    },
+    {
+      "url": "/%d7%9b%d7%9e%d7%95-%d7%a9%d7%a4%d7%aa%d7%90%d7%95%d7%9d-%d7%91%d7%94%d7%99%d7%a1%d7%97-%d7%94%d7%93%d7%a2%d7%aa-%d7%90%d7%96%d7%a8%d7%97%d7%99-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%94%d7%91%d7%99%d7%a0/unnamed-1-2/",
+      "decodedPath": "/כמו-שפתאום-בהיסח-הדעת-אזרחי-ישראל-הבינ/unnamed-1-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1399"
+      ]
+    },
+    {
+      "url": "/%d7%9c%d7%94%d7%92%d7%99%d7%a2-%d7%9c%d7%a0%d7%a6%d7%97-%d7%9e%d7%a1%d7%a8-%d7%9c%d7%a7%d7%98-%d7%90%d7%a1%d7%95%d7%a0%d7%95%d7%aa-%d7%98%d7%91%d7%a2-%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%99%d7%9d/",
+      "decodedPath": "/להגיע-לנצח-מסר-לקט-אסונות-טבע-אחרונים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1198"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%93%d7%91%d7%a8%d7%99-%d7%94%d7%a8%d7%9e%d7%97%d7%9c-%d7%94%d7%a9%d7%9c%d7%9e%d7%aa-%d7%94%d7%90%d7%93%d7%9d-%d7%91%d7%a9%d7%a0%d7%aa-%d7%aa%d7%a9%d7%a4-%d7%9e%d7%94%d7%99%d7%a8%d7%95/%d7%a8%d7%9e%d7%97%d7%9c-%d7%aa%d7%a9%d7%a4/",
+      "decodedPath": "/מדברי-הרמחל-השלמת-האדם-בשנת-תשפ-מהירו/רמחל-תשפ/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1086"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%97%d7%91%d7%9c%d7%99%d7%9d-%d7%a7%d7%98%d7%a0%d7%99%d7%9d-%d7%95%d7%a7%d7%98%d7%99%d7%a0%d7%99%d7%9d-%d7%90%d7%99%d7%a4%d7%94-%d7%94%d7%99%d7%99%d7%aa%d7%9d-%d7%a2%d7%93-%d7%94%d7%99/",
+      "decodedPath": "/מחבלים-קטנים-וקטינים-איפה-הייתם-עד-הי/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1274"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%90%d7%99%d7%9c%d7%aa-%d7%a9%d7%a7%d7%93-67/",
+      "decodedPath": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/אילת-שקד-67/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1295"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%94%d7%a1%d7%95%d7%a4%d7%a8-%d7%94%d7%a9%d7%95%d7%93%d7%99/",
+      "decodedPath": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/הסופר-השודי/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1295"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/%d7%98%d7%a0%d7%a7-67/",
+      "decodedPath": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/טנק-67/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1295"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/167-%d7%97%d7%93%d7%a9/",
+      "decodedPath": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/167-חדש/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1295"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/67-%d7%9e%d7%90%d7%a1%d7%a8%d7%99-%d7%a2%d7%95%d7%9c%d7%9d/",
+      "decodedPath": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/67-מאסרי-עולם/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1295"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%9c%d7%9b%d7%95%d7%aa-%d7%94-%d7%9e%d7%aa%d7%92%d7%9c%d7%aa-%d7%93%d7%a8%d7%9a-%d7%94%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99%d7%9d-%d7%97%d7%93%d7%a9%d7%99%d7%9d/67-%d7%a8%d7%a2%d7%99%d7%93%d7%94-%d7%91%d7%a6%d7%99%d7%9c%d7%94/",
+      "decodedPath": "/מלכות-ה-מתגלת-דרך-המספר-67-עדכונים-חדשים/67-רעידה-בצילה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1295"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/baregalim95/",
+      "decodedPath": "/ממצאים-מעניינים-בדילוגי-אותיות-עמים-ה/baregalim95/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1221"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/haam_shivtei_israel77/",
+      "decodedPath": "/ממצאים-מעניינים-בדילוגי-אותיות-עמים-ה/haam_shivtei_israel77/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1221"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/yeasfu_aseifah204/",
+      "decodedPath": "/ממצאים-מעניינים-בדילוגי-אותיות-עמים-ה/yeasfu_aseifah204/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1221"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%9e%d7%a6%d7%90%d7%99%d7%9d-%d7%9e%d7%a2%d7%a0%d7%99%d7%99%d7%a0%d7%99%d7%9d-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92%d7%99-%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%a2%d7%9e%d7%99%d7%9d-%d7%94/yeasfu51/",
+      "decodedPath": "/ממצאים-מעניינים-בדילוגי-אותיות-עמים-ה/yeasfu51/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1221"
+      ]
+    },
+    {
+      "url": "/%D7%9E%D7%A1%D7%A2",
+      "decodedPath": "/מסע",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:422"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%91%d7%93%d7%a8%d7%9a-%d7%9c%d7%9e%d7%9c%d7%97%d7%9e%d7%94/%d7%9e%d7%9c%d7%97%d7%9e%d7%aa-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%94%d7%a9%d7%9c%d7%99%d7%a9%d7%99%d7%aa/",
+      "decodedPath": "/מסר-חדש-העולם-בדרך-למלחמה/מלחמת-העולם-השלישית/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1314,1376"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%94%d7%a2%d7%95%d7%9c%d7%9d-%d7%91%d7%93%d7%a8%d7%9a-%d7%9c%d7%9e%d7%9c%d7%97%d7%9e%d7%94/5776-1335-4/",
+      "decodedPath": "/מסר-חדש-העולם-בדרך-למלחמה/5776-1335-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=3; examples=1314,1330,1367"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%95%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%a9%d7%91%d7%99%d7%a7%d7%a9-%d7%9c%d7%94%d7%a4%d7%99%d7%a5-%d7%94%d7%92%d7%a8%d7%97-%d7%a7%d7%a0%d7%99%d7%99%d7%91%d7%a1/11025115_614479468686688_3298901099533139475_n/",
+      "decodedPath": "/מסר-חדש-ומדהים-שביקש-להפיץ-הגרח-קנייבס/11025115_614479468686688_3298901099533139475_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1356"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%a1%d7%a8-%d7%97%d7%93%d7%a9-%d7%99%d7%95%d7%aa%d7%a8-%d7%98%d7%95%d7%91-%d7%9e%d7%92%d7%9f-%d7%a2%d7%93%d7%9f/attachment/777/",
+      "decodedPath": "/מסר-חדש-יותר-טוב-מגן-עדן/attachment/777/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=3; examples=1314,1330,1367"
+      ]
+    },
+    {
+      "url": "/%D7%9E%D7%A2%D7%91%D7%93%D7%AA-%D7%9E%D7%A9%D7%9E%D7%A2%D7%95%D7%AA",
+      "decodedPath": "/מעבדת-משמעות",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:329"
+      ]
+    },
+    {
+      "url": "/%D7%9E%D7%A9%D7%99%D7%97-%D7%91%D7%A9%D7%A0%D7%AA-%D7%94%D7%AA%D7%A9%D7%A2%D7%95",
+      "decodedPath": "/משיח-בשנת-התשעו",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "redirect-pattern"
+      ],
+      "evidence": [
+        "public-reading-deploy/vercel.json redirect source"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a9%d7%a0%d7%aa-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/",
+      "decodedPath": "/משיח-בשנת-התשעו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=17; examples=1277,1292,1298"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a9%d7%a0%d7%aa-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/%d7%9e%d7%aa%d7%99-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/",
+      "decodedPath": "/משיח-בשנת-התשעו/מתי-שנת-הגאולה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=4; examples=1292,1332,1350"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%a9%d7%99%d7%97-%d7%99%d7%91%d7%95%d7%90/",
+      "decodedPath": "/משיח-יבוא/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1300,1312"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%a9%d7%a4%d7%97%d7%95%d7%aa-%d7%9e%d7%a9%d7%a4%d7%97%d7%95%d7%aa-%d7%9c%d7%91%d7%93/",
+      "decodedPath": "/משפחות-משפחות-לבד/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1054"
+      ]
+    },
+    {
+      "url": "/%d7%9e%d7%a9%d7%a4%d7%97%d7%95%d7%aa-%d7%9e%d7%a9%d7%a4%d7%97%d7%95%d7%aa/",
+      "decodedPath": "/משפחות-משפחות/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1054"
+      ]
+    },
+    {
+      "url": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/%d7%9c%d7%9b%d7%99%d7%93%d7%94-12/",
+      "decodedPath": "/נאום-נתניהו-בקונגרס-בערב-פורים-רמזים-מ/לכידה-12/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1372"
+      ]
+    },
+    {
+      "url": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/%d7%9e%d7%91%d7%99%d7%a9/",
+      "decodedPath": "/נאום-נתניהו-בקונגרס-בערב-פורים-רמזים-מ/מביש/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1372"
+      ]
+    },
+    {
+      "url": "/%d7%a0%d7%90%d7%95%d7%9d-%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%91%d7%a7%d7%95%d7%a0%d7%92%d7%a8%d7%a1-%d7%91%d7%a2%d7%a8%d7%91-%d7%a4%d7%95%d7%a8%d7%99%d7%9d-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e/11005543_1092073034151487_99141475_n/",
+      "decodedPath": "/נאום-נתניהו-בקונגרס-בערב-פורים-רמזים-מ/11005543_1092073034151487_99141475_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1372"
+      ]
+    },
+    {
+      "url": "/%D7%A0%D7%99%D7%A1%D7%99%D7%95%D7%9F",
+      "decodedPath": "/ניסיון",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:302"
+      ]
+    },
+    {
+      "url": "/%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-%d7%a6%d7%97/",
+      "decodedPath": "/נתניהו-צח/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1017,1129"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%94%d7%aa%d7%a9%d7%a2%d7%95/",
+      "decodedPath": "/סוד-האותיות-במילה-משיח-מוצפן-עת-הגאולה/התשעו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1307"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%9c%d7%9a-%d7%94%d7%9e%d7%a9%d7%99%d7%97/",
+      "decodedPath": "/סוד-האותיות-במילה-משיח-מוצפן-עת-הגאולה/מלך-המשיח/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1307"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a8%d7%99%d7%91%d7%95%d7%a2-2/",
+      "decodedPath": "/סוד-האותיות-במילה-משיח-מוצפן-עת-הגאולה/משיח-בריבוע-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1307"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%91%d7%9e%d7%99%d7%9c%d7%94-%d7%9e%d7%a9%d7%99%d7%97-%d7%9e%d7%95%d7%a6%d7%a4%d7%9f-%d7%a2%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%a6%d7%9e%d7%97-%d7%93%d7%95%d7%99%d7%93-2/",
+      "decodedPath": "/סוד-האותיות-במילה-משיח-מוצפן-עת-הגאולה/צמח-דויד-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1307"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%99%d7%91%d7%95%d7%90-%d7%91%d7%90%d7%97%d7%93%d7%95%d7%aa-%d7%a8%d7%97%d7%9e%d7%99-%d7%94-%d7%a8/%d7%94%d7%a7%d7%91%d7%94-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%90%d7%97%d7%93/",
+      "decodedPath": "/סוד-האותיות-משיח-יבוא-באחדות-רחמי-ה-ר/הקבה-עם-ישראל-אחד/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1312"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%99%d7%91%d7%95%d7%90-%d7%91%d7%90%d7%97%d7%93%d7%95%d7%aa-%d7%a8%d7%97%d7%9e%d7%99-%d7%94-%d7%a8/%d7%a8%d7%97%d7%9e%d7%99%d7%9d/",
+      "decodedPath": "/סוד-האותיות-משיח-יבוא-באחדות-רחמי-ה-ר/רחמים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1312"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%94%d7%9e%d7%aa%d7%9e%d7%98%d7%99%d7%a7%d7%94-%d7%95%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/%d7%9e%d7%aa%d7%9e%d7%98%d7%99%d7%a7%d7%94-1/",
+      "decodedPath": "/סוד-המתמטיקה-ומשיח-רמזים-על-שנת-הגאולה/מתמטיקה-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1300"
+      ]
+    },
+    {
+      "url": "/%D7%A1%D7%95%D7%93-%D7%94%D7%A4%D7%99%D7%9B%D7%AA-%D7%94%D7%90%D7%95%D7%AA%D7%99%D7%95%D7%AA-%D7%9C%D7%9E%D7%A1%D7%A4%D7%A8%D7%99%D7%9D-%D7%A1%D7%95%D7%93-%D7%94%D7%97%D7%A9%D7%9E%D7%9C",
+      "decodedPath": "/סוד-הפיכת-האותיות-למספרים-סוד-החשמל",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=5089"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%93-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%99%d7%95%d7%a1%d7%a3-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95-%d7%a1%d7%95%d7%93-%d7%94%d7%97%d7%a9%d7%9e%d7%9c-%d7%90%d7%95%d7%93%d7%99/%d7%90%d7%99%d7%aa%d7%95-%d7%91%d7%90-%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94/",
+      "decodedPath": "/סוד-משיח-בן-יוסף-בימינו-סוד-החשמל-אודי/איתו-בא-אובאמה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1323"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%a3-%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/%d7%a1%d7%99%d7%9f-2/",
+      "decodedPath": "/סוף-גלות-ישראל-בימינו/סין-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1332"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%a3-%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/%d7%aa%d7%9e%d7%95%d7%a0%d7%95%d7%aa-%d7%9b%d7%a8%d7%9e%d7%99%d7%90%d7%9c/",
+      "decodedPath": "/סוף-גלות-ישראל-בימינו/תמונות-כרמיאל/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1332"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%95%d7%a3-%d7%92%d7%9c%d7%95%d7%aa-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-2/",
+      "decodedPath": "/סוף-גלות-ישראל-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1312"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%a2%d7%a8%d7%aa-%d7%94%d7%95%d7%a8%d7%99%d7%a7%d7%9f-%d7%91%d7%aa%d7%99%d7%9e%d7%9f-%d7%9e%d7%a8%d7%9e%d7%96%d7%aa-%d7%a2%d7%9c-%d7%91%d7%95%d7%90-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%9c%d7%a4/%d7%9e%d7%a9%d7%95%d7%92%d7%a2%d7%99%d7%9d/",
+      "decodedPath": "/סערת-הוריקן-בתימן-מרמזת-על-בוא-המשיח-לפ/משוגעים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1261"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%a2%d7%a8%d7%aa-%d7%94%d7%95%d7%a8%d7%99%d7%a7%d7%9f-%d7%91%d7%aa%d7%99%d7%9e%d7%9f-%d7%9e%d7%a8%d7%9e%d7%96%d7%aa-%d7%a2%d7%9c-%d7%91%d7%95%d7%90-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%9c%d7%a4/%d7%9e%d7%aa%d7%95%d7%9a-%d7%94%d7%a1%d7%a8%d7%98/",
+      "decodedPath": "/סערת-הוריקן-בתימן-מרמזת-על-בוא-המשיח-לפ/מתוך-הסרט/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1261"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%a8%d7%98-%d7%94%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94-%d7%a9%d7%aa%d7%aa%d7%97%d7%99%d7%9c-%d7%94%d7%9b%d7%99-%d7%9e%d7%90%d7%95%d7%97%d7%a8-%d7%91%d7%97/",
+      "decodedPath": "/סרט-המלחמה-האחרונה-שתתחיל-הכי-מאוחר-בח/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1274"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%a8%d7%98-%d7%97%d7%93%d7%a9-%d7%a9%d7%97%d7%a8%d7%95%d7%a8-%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%9c%d7%a4%d7%99-%d7%a1%d7%95%d7%93-1820/",
+      "decodedPath": "/סרט-חדש-שחרור-פולארד-לפי-סוד-1820/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1308"
+      ]
+    },
+    {
+      "url": "/%d7%a1%d7%a8%d7%98%d7%99%d7%9d/",
+      "decodedPath": "/סרטים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=8; examples=1274,1308,1311"
+      ]
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/%d7%94%d7%9e%d7%a1%d7%a4%d7%a8%d7%99%d7%9d-67/",
+      "decodedPath": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/המספרים-67/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1347,1356"
+      ]
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/10950715_849193685139831_9120334813592457000_n/",
+      "decodedPath": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/10950715_849193685139831_9120334813592457000_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1363"
+      ]
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11050223_1029693773724797_8202568535958198743_n/",
+      "decodedPath": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/11050223_1029693773724797_8202568535958198743_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1363"
+      ]
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11076270_821959114541179_1007068228820036296_n/",
+      "decodedPath": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/11076270_821959114541179_1007068228820036296_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1363"
+      ]
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11088216_10206082827368946_1336004358_n/",
+      "decodedPath": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/11088216_10206082827368946_1336004358_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1347,1363"
+      ]
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/11106512_1579897672285306_308671975_n/",
+      "decodedPath": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/11106512_1579897672285306_308671975_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1347"
+      ]
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/67-%d7%94%d7%a8%d7%95%d7%92%d7%99%d7%9d/",
+      "decodedPath": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/67-הרוגים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1363"
+      ]
+    },
+    {
+      "url": "/%d7%a2%d7%93%d7%9b%d7%95%d7%a0%d7%99-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f-%d7%a8%d7%9e%d7%96-%d7%90%d7%97/67-%d7%aa%d7%95%d7%9e%d7%9b%d7%99%d7%9d-%d7%91%d7%a1%d7%a0%d7%90%d7%98/",
+      "decodedPath": "/עדכוני-רמזים-במספר-67-פוסט-מתעדכן-רמז-אח/67-תומכים-בסנאט/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=3; examples=1347,1358,1363"
+      ]
+    },
+    {
+      "url": "/%d7%a2%d7%9e%d7%95%d7%93-49/",
+      "decodedPath": "/עמוד-49/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1376"
+      ]
+    },
+    {
+      "url": "/%d7%a2%d7%aa-%d7%a0%d7%95%d7%9f/",
+      "decodedPath": "/עת-נון/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1312"
+      ]
+    },
+    {
+      "url": "/%d7%a2%d7%aa-%d7%a8%d7%a6%d7%95%d7%9f-%d7%9c%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa-%d7%9e%d7%a9%d7%99%d7%97/",
+      "decodedPath": "/עת-רצון-להתגלות-משיח/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=8; examples=1271,1308,1322"
+      ]
+    },
+    {
+      "url": "/%D7%A4%D7%95%D7%A1%D7%98%D7%99%D7%9D-%D7%90%D7%97%D7%A8%D7%95%D7%A0%D7%99%D7%9D",
+      "decodedPath": "/פוסטים-אחרונים",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "redirect-pattern",
+        "route-template"
+      ],
+      "evidence": [
+        "public-reading-deploy/vercel.json redirect source",
+        "live Legacy App.jsx:434"
+      ]
+    },
+    {
+      "url": "/%d7%a4%d7%95%d7%a1%d7%98%d7%99%d7%9d-%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%99%d7%9d-2",
+      "decodedPath": "/פוסטים-אחרונים-2",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "recognized-traffic-path"
+      ],
+      "evidence": [
+        "retained site_visits observed 2026-08-20 02:30:12.800175+00..2026-08-26 01:41:26.332734+00"
+      ]
+    },
+    {
+      "url": "/%D7%A4%D7%95%D7%A1%D7%98%D7%99%D7%9D-%D7%90%D7%97%D7%A8%D7%95%D7%A0%D7%99%D7%9D-2",
+      "decodedPath": "/פוסטים-אחרונים-2",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "redirect-pattern",
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "public-reading-deploy/vercel.json redirect source",
+        "retained events observed 2026-07-08 08:56:02.448574+00..2026-09-15 06:45:51.500755+00",
+        "retained site_visits observed 2026-07-06 12:26:08.094114+00..2026-11-02 23:09:52.003657+00",
+        "live Legacy App.jsx:433"
+      ]
+    },
+    {
+      "url": "/%D7%A4%D7%A1%D7%95%D7%A7%D7%99%D7%9D",
+      "decodedPath": "/פסוקים",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:417"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%97%d7%96%d7%a7-%d7%a2%d7%9c-%d7%97%d7%95%d7%93%d7%a9-%d7%90%d7%99%d7%99%d7%a8-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-2021-%d7%a8%d7%9e%d7%96%d7%99-%d7%94%d7%a2%d7%a6%d7%9e/%d7%90%d7%99%d7%99%d7%a8-%d7%aa%d7%a9%d7%a4%d7%90/",
+      "decodedPath": "/צופן-חזק-על-חודש-אייר-בדילוג-2021-רמזי-העצמ/אייר-תשפא/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=904"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%99%d7%95%d7%9d-%d7%9e%d7%a9%d7%99%d7%97/",
+      "decodedPath": "/צופן-מדהים-בתורה-בדילוג-5784-חותים-אירן-גא/יום-משיח/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=140"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%9b%d7%91%d7%90%d7%93%d7%a8-%d7%94%d7%aa%d7%a9%d7%a4%d7%94/",
+      "decodedPath": "/צופן-מדהים-בתורה-בדילוג-5784-חותים-אירן-גא/כבאדר-התשפה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=140"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a2%d7%95%d7%96%d7%95%d7%97%d7%a8%d7%91/",
+      "decodedPath": "/צופן-מדהים-בתורה-בדילוג-5784-חותים-אירן-גא/עוזוחרב/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=140"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a4%d7%a8%d7%99%d7%9d-5785-%d7%9e%d7%9c%d7%97%d7%9e%d7%94-%d7%94%d7%97%d7%95%d7%aa%d7%99/",
+      "decodedPath": "/צופן-מדהים-בתורה-בדילוג-5784-חותים-אירן-גא/פרים-5785-מלחמה-החותי/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=140"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a4%d7%9f-%d7%9e%d7%93%d7%94%d7%99%d7%9d-%d7%91%d7%aa%d7%95%d7%a8%d7%94-%d7%91%d7%93%d7%99%d7%9c%d7%95%d7%92-5784-%d7%97%d7%95%d7%aa%d7%99%d7%9d-%d7%90%d7%99%d7%a8%d7%9f-%d7%92%d7%90/%d7%a7%d7%a5-%d7%9e%d7%a9%d7%99%d7%97-%d7%90%d7%93%d7%a8-%d7%94%d7%aa%d7%a9%d7%a4%d7%94/",
+      "decodedPath": "/צופן-מדהים-בתורה-בדילוג-5784-חותים-אירן-גא/קץ-משיח-אדר-התשפה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=140"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a8-%d7%a7%d7%a9%d7%a8/%d7%98%d7%95%d7%a4%d7%a1-%d7%94%d7%96%d7%9e%d7%a0%d7%aa-%d7%a2%d7%9c%d7%95%d7%a0%d7%99%d7%9d-%d7%95%d7%93%d7%99%d7%a1%d7%a7%d7%99%d7%9d/",
+      "decodedPath": "/צור-קשר/טופס-הזמנת-עלונים-ודיסקים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=5; examples=1292,1340,1345"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%95%d7%a8-%d7%a7%d7%a9%d7%a8/%d7%aa%d7%a8%d7%95%d7%9e%d7%95%d7%aa-donate/",
+      "decodedPath": "/צור-קשר/תרומות-donate/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1346,1378"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%95%d7%a8-%d7%94%d7%aa%d7%a9%d7%a2%d7%95-2/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/אור-התשעו-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%99%d7%9e%d7%aa%d7%99/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/אימתי/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%94%d7%a0%d7%91%d7%99%d7%90-%d7%99%d7%91%d7%a9%d7%a8/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/אליהו-הנביא-יבשר/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%96%d7%95-%d7%a9%d7%a0%d7%aa-2015/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/זו-שנת-2015/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1314,1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%99%d7%95%d7%9d-%d7%94%d7%aa%d7%92%d7%9c%d7%95%d7%aa-%d7%94/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/יום-התגלות-ה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93-%d7%93%d7%95%d7%99%d7%93-%d7%a2%d7%91%d7%93%d7%9a-%d7%99%d7%aa%d7%92%d7%9c%d7%94/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/סוד-דויד-עבדך-יתגלה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93-%d7%94-%d7%99%d7%aa%d7%92%d7%9c%d7%94/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/סוד-ה-יתגלה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1314,1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a1%d7%95%d7%93%d7%9a-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/סודך-משיח-בימינו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9e%d7%a6%d7%a4%d7%94-%d7%9c%d7%9e%d7%a9%d7%99%d7%97/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/עם-ישראל-מצפה-למשיח/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a2%d7%aa-%d7%a1%d7%95%d7%93/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/עת-סוד/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a4%d7%9c%d7%90-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/פלא-התשעו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%a4%d7%aa%d7%90%d7%95%d7%9d-%d7%99%d7%91%d7%95%d7%90/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/פתאום-יבוא/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=3; examples=1314,1330,1345"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/%d7%aa%d7%9e%d7%95-%d7%9b%d7%9c-%d7%94%d7%a7%d7%99%d7%a6%d7%99%d7%9d/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/תמו-כל-הקיצים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%d7%a6%d7%99%d7%a8%d7%95%d7%a4%d7%99-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-%d7%95%d7%a4%d7%9c%d7%90%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%a4%d7%95%d7%a1%d7%98-%d7%9c%d7%9e%d7%aa%d7%a7/attachment/7760/",
+      "decodedPath": "/צירופי-גימטריות-ופלאי-גאולה-פוסט-למתק/attachment/7760/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1330"
+      ]
+    },
+    {
+      "url": "/%D7%A7%D7%A9%D7%A8%D7%99-%D7%A9%D7%A4%D7%95%D7%AA",
+      "decodedPath": "/קשרי-שפות",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:361"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%97%d7%9e%d7%99-%d7%99%d7%94%d7%95%d7%94/",
+      "decodedPath": "/רחמי-יהוה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1312"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%91%d7%97%d7%99%d7%a8%d7%aa-%d7%a7%d7%95%d7%91%d7%99-%d7%9e%d7%a8%d7%99%d7%9e%d7%99-%d7%9c%d7%99%d7%99%d7%a6%d7%92-%d7%90%d7%aa-%d7%99/%d7%aa%d7%97%d7%a8%d7%95%d7%aa-%d7%94%d7%a9%d7%99%d7%a8-%d7%94%d7%99%d7%a9%d7%a8%d7%90%d7%9c%d7%99/",
+      "decodedPath": "/רמזי-גאולה-בבחירת-קובי-מרימי-לייצג-את-י/תחרות-השיר-הישראלי/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1140"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99-%d7%9c%d7%91%d7%a0%d7%95%d7%9f-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%92%d7%95%d7%93%d7%9c-%d7%a2%d7%96%d7%94-45-%d7%95%d7%9c%d7%91%d7%a0%d7%95%d7%9f/",
+      "decodedPath": "/רמזי-לבנון-מתעדכן/גודל-עזה-45-ולבנון/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=165"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%9f-%d7%93%d7%95%d7%93-%d7%9e%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%a1%d7%91%d7%99%d7%91/%d7%a0%d7%aa%d7%a0%d7%99%d7%94%d7%95-33/",
+      "decodedPath": "/רמזים-לביאת-משיח-בן-דוד-מאירועים-סביב/נתניהו-33/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1017,1129"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9c%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-45-%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/",
+      "decodedPath": "/רמזים-לגאולה-במספר-45-גאולה-מתעדכן/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=8; examples=162,191,267"
+      ]
+    },
+    {
+      "url": "/%D7%A8%D7%9E%D7%96%D7%99%D7%9D-%D7%9C%D7%92%D7%90%D7%95%D7%9C%D7%94-%D7%91%D7%9E%D7%A1%D7%A4%D7%A8-45-%D7%92%D7%90%D7%95%D7%9C%D7%94-%D7%9E%D7%AA%D7%A2%D7%93%D7%9B%D7%9F/",
+      "decodedPath": "/רמזים-לגאולה-במספר-45-גאולה-מתעדכן/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1295"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%90%d7%95%d7%aa-%d7%97%d7%99%d7%99%d7%9d/",
+      "decodedPath": "/רמזים-מדהימים-לביאת-המשיח-רמז-בשם-החלל/אות-חיים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1392"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%a8%d7%95%d7%96%d7%98%d7%90-%d7%a4%d7%9c%d7%90%d7%99/",
+      "decodedPath": "/רמזים-מדהימים-לביאת-המשיח-רמז-בשם-החלל/רוזטא-פלאי/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1392"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%93%d7%94%d7%99%d7%9e%d7%99%d7%9d-%d7%9c%d7%91%d7%99%d7%90%d7%aa-%d7%94%d7%9e%d7%a9%d7%99%d7%97-%d7%a8%d7%9e%d7%96-%d7%91%d7%a9%d7%9d-%d7%94%d7%97%d7%9c%d7%9c/%d7%a9%d7%91%d7%99%d7%98/",
+      "decodedPath": "/רמזים-מדהימים-לביאת-המשיח-רמז-בשם-החלל/שביט/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1392"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a9%d7%a8%d7%99%d7%a4%d7%95%d7%aa-%d7%a2%d7%a8%d7%91-%d7%99%d7%95%d7%9d-%d7%94%d7%a2%d7%a6%d7%9e%d7%90%d7%95%d7%aa-%d7%9477-%d7%9c%d7%9e%d7%93%d7%99%d7%a0/%d7%9e%d7%a9%d7%95%d7%90%d7%95%d7%aa/",
+      "decodedPath": "/רמזים-מהשריפות-ערב-יום-העצמאות-ה77-למדינ/משואות/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=48"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%94%d7%a9%d7%a8%d7%99%d7%a4%d7%95%d7%aa-%d7%a2%d7%a8%d7%91-%d7%99%d7%95%d7%9d-%d7%94%d7%a2%d7%a6%d7%9e%d7%90%d7%95%d7%aa-%d7%9477-%d7%9c%d7%9e%d7%93%d7%99%d7%a0/%d7%a9%d7%a8%d7%a4%d7%95/",
+      "decodedPath": "/רמזים-מהשריפות-ערב-יום-העצמאות-ה77-למדינ/שרפו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=48"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%90%d7%95%d7%91%d7%9e%d7%94-%d7%a9%d7%a8%d7%a9-%d7%a0%d7%97%d7%a9/",
+      "decodedPath": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/אובמה-שרש-נחש/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1309"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%9b%d7%95%d7%9b%d7%91-%d7%a4%d7%9c%d7%95%d7%98%d7%95/",
+      "decodedPath": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/כוכב-פלוטו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1309"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%9e%d7%92%d7%94-%d7%a8%d7%a2%d7%94/",
+      "decodedPath": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/מגה-רעה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1309"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a4%d7%a7%d7%a1-1/",
+      "decodedPath": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/פקס-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1309"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a4%d7%a7%d7%a1-2/",
+      "decodedPath": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/פקס-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1309"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%97%d7%aa%d7%99%d7%9e%d7%aa-%d7%94%d7%a1%d7%9b%d7%9d-%d7%94%d7%92%d7%a8%d7%a2%d7%99%d7%9f-%d7%a2%d7%9d-%d7%90%d7%99%d7%a8%d7%9f/%d7%a7%d7%a8%d7%99%d7%a1%d7%aa-%d7%9e%d7%92%d7%94/",
+      "decodedPath": "/רמזים-מחתימת-הסכם-הגרעין-עם-אירן/קריסת-מגה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1309"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98-2/",
+      "decodedPath": "/רמזים-מנפילת-גל-מאיר-איזנקוט/איזנקוט-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=149"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/%d7%a7%d7%95%d7%aa/",
+      "decodedPath": "/רמזים-מנפילת-גל-מאיר-איזנקוט/קות/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=149"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%9e%d7%a0%d7%a4%d7%99%d7%9c%d7%aa-%d7%92%d7%9c-%d7%9e%d7%90%d7%99%d7%a8-%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98/3%d7%90%d7%99%d7%96%d7%a0%d7%a7%d7%95%d7%98-2/",
+      "decodedPath": "/רמזים-מנפילת-גל-מאיר-איזנקוט/3איזנקוט-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=149"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%90%d7%95%d7%a8-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/אור-התשעו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d-2/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/היום-עם-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1341,1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%94%d7%99%d7%95%d7%9d-%d7%a2%d7%9d/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/היום-עם/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%95%d7%9e%d7%a4%d7%9c%d7%99%d7%90-1111/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/ומפליא-1111/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%95%d7%9e%d7%a4%d7%9c%d7%99%d7%90/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/ומפליא/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%94%d7%95%d7%94-%d7%9e%d7%a4%d7%9c%d7%99%d7%90-%d7%9c%d7%a2%d7%a9%d7%95%d7%aa-776/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/יהוה-מפליא-לעשות-776/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%94%d7%95%d7%94-%d7%9e%d7%a4%d7%9c%d7%99%d7%90-776/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/יהוה-מפליא-776/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%99%d7%a4%d7%a7%d7%95%d7%9f-%d7%9e%d7%9f-%d7%92%d7%9c%d7%95%d7%aa%d7%94/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/יפקון-מן-גלותה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1341"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a1%d7%a4%d7%a8-%d7%9e%d7%a1%d7%aa%d7%aa%d7%a8/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/מספר-מסתתר/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a6%d7%a4%d7%95%d7%9f-%d7%aa%d7%a4%d7%aa%d7%97-%d7%94%d7%a8%d7%a2%d7%94/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/מצפון-תפתח-הרעה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9e%d7%a7%d7%93%d7%a9-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/מקדש-בימינו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%a1%d7%95%d7%93-%d7%9e%d7%a1%d7%a4%d7%a8-1/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/סוד-מספר-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%a9%d7%9e%d7%a2-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%9b%d7%99-%d7%9c%d7%94-%d7%94%d7%9e%d7%9c%d7%95%d7%9b%d7%94/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/שמע-ישראל-כי-לה-המלוכה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1368"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/unnamed-2/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-מתעדכן/unnamed-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1361"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%95%d7%91%d7%90%d7%9e%d7%94-%d7%90%d7%99%d7%a9-%d7%a9%d7%97%d7%95%d7%a8/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/אובאמה-איש-שחור/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa-%d7%94%d7%a2%d7%91%d7%a8%d7%99%d7%aa/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/אותיות-העברית/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%99%d7%9f-%d7%9c%d7%9a-%d7%90%d7%93%d7%9d-%d7%a9%d7%90%d7%99%d7%9f-%d7%9c%d7%95-%d7%a9%d7%a2%d7%94/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/אין-לך-אדם-שאין-לו-שעה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1314,1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%90%d7%99%d7%a8%d7%9f/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/אירן/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%91%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/באותיות/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%91%d7%9e%d7%94%d7%a8%d7%94-%d7%91%d7%99%d7%9e%d7%99%d7%a0%d7%95/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/במהרה-בימינו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%94%d7%99%d7%95%d7%9d-%d7%90%d7%9d-%d7%91%d7%a7%d7%95%d7%9c%d7%95/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/היום-אם-בקולו/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%97%d7%9e%d7%a9-%d7%a9%d7%91%d7%a2-%d7%a9%d7%91%d7%a2-%d7%a9%d7%a9-%d7%91%d7%90%d7%95%d7%aa%d7%99%d7%95%d7%aa/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/חמש-שבע-שבע-שש-באותיות/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%a1%d7%95%d7%9b%d7%95%d7%aa/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/סוכות/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/%d7%a7%d7%a8%d7%99-%d7%a2%d7%9c-%d7%a7%d7%91%d7%99%d7%99%d7%9d/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/קרי-על-קביים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-1/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/1948-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-2/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/1948-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/1948-3/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/1948-3/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/776-1/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/776-1/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%a2%d7%9c-%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%aa%d7%a9%d7%a2%d7%95-%d7%a4%d7%95%d7%a1%d7%98-2/776-2-2/",
+      "decodedPath": "/רמזים-על-שנת-הגאולה-תשעו-פוסט-2/776-2-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1331"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/%d7%94%d7%aa%d7%97%d7%9c%d7%aa-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/",
+      "decodedPath": "/רצח-מלאכי-רוזנפלד-היד-מרמז-על-עת-גאולת/התחלת-תהליך-הגאולה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1322"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/%d7%9c%d7%9b%d7%99%d7%93%d7%94-18/",
+      "decodedPath": "/רצח-מלאכי-רוזנפלד-היד-מרמז-על-עת-גאולת/לכידה-18/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1322"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/11650674_1416273165368413_1545951058_n/",
+      "decodedPath": "/רצח-מלאכי-רוזנפלד-היד-מרמז-על-עת-גאולת/11650674_1416273165368413_1545951058_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1322"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/2212-%d7%94%d7%aa%d7%97%d7%9c%d7%aa-%d7%aa%d7%94%d7%9c%d7%99%d7%9a-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/",
+      "decodedPath": "/רצח-מלאכי-רוזנפלד-היד-מרמז-על-עת-גאולת/2212-התחלת-תהליך-הגאולה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1322"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%a6%d7%97-%d7%9e%d7%9c%d7%90%d7%9b%d7%99-%d7%a8%d7%95%d7%96%d7%a0%d7%a4%d7%9c%d7%93-%d7%94%d7%99%d7%93-%d7%9e%d7%a8%d7%9e%d7%96-%d7%a2%d7%9c-%d7%a2%d7%aa-%d7%92%d7%90%d7%95%d7%9c%d7%aa/unnamed-4/",
+      "decodedPath": "/רצח-מלאכי-רוזנפלד-היד-מרמז-על-עת-גאולת/unnamed-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1322"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-2015/%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94-%d7%a2%d7%99%d7%a6%d7%95%d7%91-1-2/",
+      "decodedPath": "/רשימת-גימטריות-2015/שנת-הגאולה-האחרונה-עיצוב-1-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1325"
+      ]
+    },
+    {
+      "url": "/%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-2015/%d7%a9%d7%a0%d7%aa-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94-%d7%94%d7%90%d7%97%d7%a8%d7%95%d7%a0%d7%94-%d7%a2%d7%99%d7%a6%d7%95%d7%91-2-2/",
+      "decodedPath": "/רשימת-גימטריות-2015/שנת-הגאולה-האחרונה-עיצוב-2-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1325"
+      ]
+    },
+    {
+      "url": "/%d7%a9%d7%97%d7%a8%d7%95%d7%a8-%d7%94%d7%90%d7%a1%d7%99%d7%a8%d7%99%d7%9d-%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%95%d7%a2%d7%9e%d7%99%d7%a8/",
+      "decodedPath": "/שחרור-האסירים-פולארד-ועמיר/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1308,1379"
+      ]
+    },
+    {
+      "url": "/%d7%a9%d7%97%d7%a8%d7%95%d7%a8-%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%91-2015/%d7%a4%d7%95%d7%9c%d7%90%d7%a8%d7%93-%d7%99%d7%a9%d7%95%d7%97%d7%a8%d7%a8/",
+      "decodedPath": "/שחרור-פולארד-ב-2015/פולארד-ישוחרר/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1308"
+      ]
+    },
+    {
+      "url": "/%d7%a9%d7%99%d7%a2%d7%95%d7%a8%d7%99-%d7%94%d7%a8%d7%91-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%90%d7%9c%d7%99%d7%94%d7%95-%d7%95%d7%99%d7%a0%d7%98%d7%a8%d7%95%d7%91-%d7%96%d7%a6%d7%9c-%d7%9e%d7%aa/",
+      "decodedPath": "/שיעורי-הרב-ישראל-אליהו-וינטרוב-זצל-מת/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1276"
+      ]
+    },
+    {
+      "url": "/%D7%A9%D7%9D-%D7%94-%D7%91%D7%AA%D7%95%D7%A8%D7%94-1820-%D7%A4%D7%A2%D7%9D",
+      "decodedPath": "/שם-ה-בתורה-1820-פעם",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal"
+      ],
+      "evidence": [
+        "src/pages/BeitMidrashPage.jsx:702"
+      ]
+    },
+    {
+      "url": "/%d7%a9%d7%a0%d7%99-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%94%d7%90%d7%95%d7%9d-%d7%a2%d7%9e%d7%9c%d7%a7-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a4%d7%95%d7%97%d7%93%d7%99%d7%9d-%d7%9e%d7%94/%d7%90%d7%95%d7%9e-%d7%a2%d7%9e%d7%9c%d7%a7/",
+      "decodedPath": "/שני-צפנים-האום-עמלק-עם-ישראל-פוחדים-מה/אומ-עמלק/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1328"
+      ]
+    },
+    {
+      "url": "/%d7%a9%d7%a0%d7%99-%d7%a6%d7%a4%d7%a0%d7%99%d7%9d-%d7%94%d7%90%d7%95%d7%9d-%d7%a2%d7%9e%d7%9c%d7%a7-%d7%a2%d7%9d-%d7%99%d7%a9%d7%a8%d7%90%d7%9c-%d7%a4%d7%95%d7%97%d7%93%d7%99%d7%9d-%d7%9e%d7%94/%d7%9e%d7%95%d7%9b%d7%9f/",
+      "decodedPath": "/שני-צפנים-האום-עמלק-עם-ישראל-פוחדים-מה/מוכן/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1328"
+      ]
+    },
+    {
+      "url": "/%d7%a9%d7%a0%d7%aa-%d7%94%d7%9e%d7%95%d7%a1%d7%9c%d7%9e%d7%99%d7%9d-1445/",
+      "decodedPath": "/שנת-המוסלמים-1445/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=165"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%94%d7%99%d7%94-%d7%94%d7%92%d7%90%d7%95%d7%9c%d7%94/",
+      "decodedPath": "/תהיה-הגאולה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=98"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%97%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%9e%d7%aa%d7%a2%d7%93%d7%9b%d7%9f/%d7%9b%d7%aa%d7%91%d7%94-%d7%91%d7%a8%d7%95%d7%a1%d7%99%d7%aa-67-%d7%91%d7%94%d7%a4%d7%92%d7%a0%d7%aa-%d7%94%d7%90%d7%aa%d7%99%d7%95%d7%a4%d7%99%d7%9d/",
+      "decodedPath": "/תיעוד-אירועים-מלחמת-גוג-ומגוג-מתעדכן/כתבה-ברוסית-67-בהפגנת-האתיופים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1347"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%9c%d7%93%d7%93-%d7%95%d7%9e%d7%99%d7%93%d7%93/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/אלדד-ומידד/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%a8%d7%92%d7%95%d7%9f-%d7%93%d7%a2%d7%90%d7%a9/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/ארגון-דעאש/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%90%d7%aa%d7%a8-%d7%90%d7%9e%d7%a8%d7%99%d7%a7%d7%90%d7%99-%d7%94%d7%a2%d7%95%d7%a7%d7%91-%d7%90%d7%97%d7%a8%d7%99-%d7%a8%d7%a2%d7%99%d7%93%d7%95%d7%aa-%d7%90%d7%93%d7%9e%d7%94-%d7%98%d7%95%d7%a2/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/אתר-אמריקאי-העוקב-אחרי-רעידות-אדמה-טוע/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%94%d7%a1%d7%a2%d7%a8%d7%94-%d7%94%d7%91%d7%90%d7%94/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/הסערה-הבאה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%94%d7%a8%d7%a2%d7%99%d7%93%d7%94-%d7%94%d7%99%d7%aa%d7%94-%d7%91%d7%a1%d7%99%d7%a0%d7%99-%d7%9e%d7%a8%d7%97%d7%a7-67-%d7%a7%d7%9e-%d7%9e%d7%91%d7%99%d7%a8%d7%aa-%d7%90%d7%97%d7%aa-%d7%94%d7%9e/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/הרעידה-היתה-בסיני-מרחק-67-קמ-מבירת-אחת-המ/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%9c%d7%98%d7%91%d7%99%d7%94-67/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/לטביה-67/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/%d7%aa%d7%93%d7%9e%d7%95%d7%a8-2/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/תדמור-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1304"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11227764_1605515579737821_4938321619123122234_n/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/11227764_1605515579737821_4938321619123122234_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11693975_1002192813132990_7920557341476677114_n/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/11693975_1002192813132990_7920557341476677114_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/11745891_1605515559737823_842211307216230030_n/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/11745891_1605515559737823_842211307216230030_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/2-%d7%aa%d7%93%d7%9e%d7%95%d7%a8/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/2-תדמור/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1304"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/5776-1335-11/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/5776-1335-11/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%90%d7%99%d7%a8%d7%95%d7%a2%d7%99%d7%9d-%d7%9e%d7%9c%d7%9e%d7%aa-%d7%92%d7%95%d7%92-%d7%95%d7%9e%d7%92%d7%95%d7%92-%d7%a4%d7%95%d7%a1%d7%98-2-%d7%a0%d7%a4%d7%99/67-3/",
+      "decodedPath": "/תיעוד-אירועים-מלמת-גוג-ומגוג-פוסט-2-נפי/67-3/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1345"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%98%d7%a7%d7%a1-67/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/טקס-67/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%9b%d7%95%d7%9b%d7%91/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/כוכב/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%9c%d7%9b%d7%99%d7%93%d7%94-17/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/לכידה-17/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/%d7%a9%d7%a2%d7%a8-%d7%93%d7%95%d7%9c%d7%a8/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/שער-דולר/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/11351132_887065378019328_7872186057453411798_n/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/11351132_887065378019328_7872186057453411798_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/11354980_841423615945393_754417561_n/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/11354980_841423615945393_754417561_n/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%90%d7%99%d7%a8%d7%9f/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-אירן/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%9e%d7%98%d7%a8/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-מטר/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-%d7%a2%d7%95%d7%9c%d7%99%d7%9d/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-עולים/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-2/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-4/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-4/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/%d7%aa%d7%99%d7%a2%d7%95%d7%93-%d7%a8%d7%9e%d7%96%d7%99%d7%9d-%d7%91%d7%9e%d7%a1%d7%a4%d7%a8-67-%d7%a0%d7%91%d7%a8%d7%a9%d7%aa-%d7%a0%d7%a4%d7%9c%d7%94-%d7%91-%d7%99%d7%91%d7%a0%d7%94-67-%d7%a4/67-776/",
+      "decodedPath": "/תיעוד-רמזים-במספר-67-נברשת-נפלה-ב-יבנה-67-פ/67-776/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1326"
+      ]
+    },
+    {
+      "url": "/$1",
+      "decodedPath": "/$1",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "redirect-target"
+      ],
+      "evidence": [
+        "public-reading-deploy/vercel.json redirect destination"
+      ]
+    },
+    {
+      "url": "/12165530_1509416599369418_1722946031_o/",
+      "decodedPath": "/12165530_1509416599369418_1722946031_o/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1332"
+      ]
+    },
+    {
+      "url": "/12168395_1509416686036076_273889519_o/",
+      "decodedPath": "/12168395_1509416686036076_273889519_o/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1332"
+      ]
+    },
+    {
+      "url": "/12169974_1509416636036081_1320886906_o/",
+      "decodedPath": "/12169974_1509416636036081_1320886906_o/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1332"
+      ]
+    },
+    {
+      "url": "/14-45/",
+      "decodedPath": "/14-45/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=165"
+      ]
+    },
+    {
+      "url": "/1400-%d7%a0%d7%a8%d7%95%d7%aa-%d7%91%d7%95%d7%99%d7%9c%d7%a0%d7%94/",
+      "decodedPath": "/1400-נרות-בוילנה/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=165"
+      ]
+    },
+    {
+      "url": "/1424-2/",
+      "decodedPath": "/1424-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=9; examples=1309,1311,1314"
+      ]
+    },
+    {
+      "url": "/2029/home-preview",
+      "decodedPath": "/2029/home-preview",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "source-literal",
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "src/pages/HomePreview2029Page.jsx:19",
+        "retained events observed 2026-10-11 16:13:12.432787+00..2026-10-25 21:50:53.450574+00",
+        "retained site_visits observed 2026-10-11 16:01:00.903467+00..2026-10-25 21:50:52.969294+00",
+        "App2029.jsx:289"
+      ]
+    },
+    {
+      "url": "/2029/kingdom",
+      "decodedPath": "/2029/kingdom",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "source-literal",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/research/beitMidrashLearningProjection.js:454",
+        "src/pages/IntegratedPreview2029Page.jsx:45",
+        "App2029.jsx:292"
+      ]
+    },
+    {
+      "url": "/2029/number/",
+      "decodedPath": "/2029/number/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "source-literal"
+      ],
+      "evidence": [
+        "src/pages/Post2029Page.jsx:940",
+        "src/pages/Topic2029Page.jsx:120",
+        "src/pages/Topic2029Page.jsx:154",
+        "src/pages/Topic2029Page.jsx:769",
+        "src/pages/Topic2029Page.jsx:785",
+        "src/pages/Topic2029Page.jsx:825"
+      ]
+    },
+    {
+      "url": "/2029/preview",
+      "decodedPath": "/2029/preview",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "App2029.jsx:287"
+      ]
+    },
+    {
+      "url": "/2029/preview/follow-center",
+      "decodedPath": "/2029/preview/follow-center",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "retained events observed 2026-10-25 21:47:49.621762+00..2026-10-25 23:38:24.018936+00",
+        "retained site_visits observed 2026-10-25 21:47:49.587021+00..2026-10-25 23:38:23.64731+00",
+        "App2029.jsx:288"
+      ]
+    },
+    {
+      "url": "/2701-2/",
+      "decodedPath": "/2701-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=233"
+      ]
+    },
+    {
+      "url": "/464378687028017/videos/vb.464378687028017/727568620709021/",
+      "decodedPath": "/464378687028017/videos/vb.464378687028017/727568620709021/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1262"
+      ]
+    },
+    {
+      "url": "/588/",
+      "decodedPath": "/588/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1330,1395"
+      ]
+    },
+    {
+      "url": "/776-2/",
+      "decodedPath": "/776-2/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1361"
+      ]
+    },
+    {
+      "url": "/86AND26/videos/vb.103870716369907/801439149946390/",
+      "decodedPath": "/86AND26/videos/vb.103870716369907/801439149946390/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1341"
+      ]
+    },
+    {
+      "url": "/auth",
+      "decodedPath": "/auth",
+      "family": "UNRESOLVED",
+      "currentPolicy": "closed",
+      "kinds": [
+        "source-literal"
+      ],
+      "evidence": [
+        "src/components/EnglishDiscovery.jsx:147"
+      ]
+    },
+    {
+      "url": "/bennett-melach-631-78",
+      "decodedPath": "/bennett-melach-631-78",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "redirect-pattern"
+      ],
+      "evidence": [
+        "public-reading-deploy/vercel.json redirect source"
+      ]
+    },
+    {
+      "url": "/cheder/:n",
+      "decodedPath": "/cheder/:n",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:312"
+      ]
+    },
+    {
+      "url": "/cheder/400",
+      "decodedPath": "/cheder/400",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "source-literal"
+      ],
+      "evidence": [
+        "src/lib/labItems.js:15"
+      ]
+    },
+    {
+      "url": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%99%d7%91%d7%a0%d7%95-%d7%91%d7%99%d7%aa-%d7%9e%d7%a7%d7%93%d7%a9/",
+      "decodedPath": "/cnn-ממליץ-לקוראיו-לבקר-בכיפת-הסלע-לפני-שי/יבנו-בית-מקדש/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1318"
+      ]
+    },
+    {
+      "url": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%9e%d7%a7%d7%93%d7%a9-%d7%90%d7%97%d7%a8%d7%95%d7%9f/",
+      "decodedPath": "/cnn-ממליץ-לקוראיו-לבקר-בכיפת-הסלע-לפני-שי/מקדש-אחרון/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1314,1318"
+      ]
+    },
+    {
+      "url": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/%d7%aa%d7%91%d7%a0%d7%94-%d7%99%d7%a8%d7%95%d7%a9%d7%9c%d7%9d/",
+      "decodedPath": "/cnn-ממליץ-לקוראיו-לבקר-בכיפת-הסלע-לפני-שי/תבנה-ירושלם/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1314,1318"
+      ]
+    },
+    {
+      "url": "/cnn-%d7%9e%d7%9e%d7%9c%d7%99%d7%a5-%d7%9c%d7%a7%d7%95%d7%a8%d7%90%d7%99%d7%95-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2-%d7%9c%d7%a4%d7%a0%d7%99-%d7%a9%d7%99/cnn-%d7%9e%d7%a6%d7%99%d7%a2-%d7%9c%d7%91%d7%a7%d7%a8-%d7%91%d7%9b%d7%99%d7%a4%d7%aa-%d7%94%d7%a1%d7%9c%d7%a2/",
+      "decodedPath": "/cnn-ממליץ-לקוראיו-לבקר-בכיפת-הסלע-לפני-שי/cnn-מציע-לבקר-בכיפת-הסלע/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1318"
+      ]
+    },
+    {
+      "url": "/community-shadow-preview-2029",
+      "decodedPath": "/community-shadow-preview-2029",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "retained events observed 2026-10-12 18:43:46.272329+00..2026-10-13 01:35:37.77742+00",
+        "retained site_visits observed 2026-10-12 18:43:46.282378+00..2026-10-13 01:35:37.395453+00",
+        "live Legacy App.jsx:328"
+      ]
+    },
+    {
+      "url": "/dev/torah-occurrence-scene",
+      "decodedPath": "/dev/torah-occurrence-scene",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "retained events observed 2026-09-07 19:37:18.041722+00..2026-09-07 19:42:49.253646+00",
+        "retained site_visits observed 2026-09-07 19:37:18.041273+00..2026-09-07 19:41:46.250956+00",
+        "live Legacy App.jsx:386"
+      ]
+    },
+    {
+      "url": "/entity-hub-preview",
+      "decodedPath": "/entity-hub-preview",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:324"
+      ]
+    },
+    {
+      "url": "/entity-hub-preview/:type/:key",
+      "decodedPath": "/entity-hub-preview/:type/:key",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:325",
+        "App2029.jsx:327"
+      ]
+    },
+    {
+      "url": "/entity-hub-preview/number/1237",
+      "decodedPath": "/entity-hub-preview/number/1237",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "source-literal"
+      ],
+      "evidence": [
+        "src/App.jsx:345"
+      ]
+    },
+    {
+      "url": "/explorer-preview",
+      "decodedPath": "/explorer-preview",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:327"
+      ]
+    },
+    {
+      "url": "/gematria-3d",
+      "decodedPath": "/gematria-3d",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted",
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=3; examples=5038,5084",
+        "retained events observed 2026-08-04 23:20:27.18075+00..2026-09-09 21:19:49.714359+00",
+        "retained site_visits observed 2026-08-04 23:20:26.769426+00..2026-09-26 18:00:27.275403+00",
+        "live Legacy App.jsx:348"
+      ]
+    },
+    {
+      "url": "/home-classic",
+      "decodedPath": "/home-classic",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "retained events observed 2026-10-13 09:15:32.868911+00..2026-10-13 09:15:33.511314+00",
+        "retained site_visits observed 2026-10-13 09:15:32.853568+00..2026-10-13 09:15:33.109763+00",
+        "live Legacy App.jsx:333"
+      ]
+    },
+    {
+      "url": "/home-new",
+      "decodedPath": "/home-new",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "retained events observed 2026-07-08 01:19:58.782047+00..2026-10-15 01:22:32.839301+00",
+        "retained site_visits observed 2026-07-06 09:39:40.720009+00..2026-11-03 03:01:42.220166+00",
+        "live Legacy App.jsx:413"
+      ]
+    },
+    {
+      "url": "/image",
+      "decodedPath": "/image",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal"
+      ],
+      "evidence": [
+        "src/components/SearchTabs.jsx:12"
+      ]
+    },
+    {
+      "url": "/img_20231023_154530/",
+      "decodedPath": "/img_20231023_154530/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=165"
+      ]
+    },
+    {
+      "url": "/journey-beta",
+      "decodedPath": "/journey-beta",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "retained events observed 2026-07-10 07:58:03.030581+00..2026-07-10 14:57:51.523155+00",
+        "retained site_visits observed 2026-07-10 07:58:03.03914+00..2026-07-10 14:57:51.074712+00",
+        "live Legacy App.jsx:423"
+      ]
+    },
+    {
+      "url": "/k1820/videos/839307259461807/",
+      "decodedPath": "/k1820/videos/839307259461807/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1362"
+      ]
+    },
+    {
+      "url": "/k1820/videos/vb.617996338259568/839307259461807/",
+      "decodedPath": "/k1820/videos/vb.617996338259568/839307259461807/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1362"
+      ]
+    },
+    {
+      "url": "/lab",
+      "decodedPath": "/lab",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "src/routes.jsx:28",
+        "retained events observed 2026-08-12 23:27:15.810905+00..2026-10-13 09:15:31.541896+00",
+        "retained site_visits observed 2026-08-12 23:27:15.441914+00..2026-10-13 09:15:31.26364+00",
+        "live Legacy App.jsx:424"
+      ]
+    },
+    {
+      "url": "/languages",
+      "decodedPath": "/languages",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "src/components/ResearchHome.jsx:43",
+        "src/lib/knowledgeMap.js:178",
+        "src/lib/knowledgeMap.js:179",
+        "retained events observed 2026-07-08 19:49:17.4928+00..2026-10-17 23:36:29.895369+00",
+        "retained site_visits observed 2026-07-06 06:44:37.857273+00..2026-11-02 06:20:07.639987+00",
+        "live Legacy App.jsx:360"
+      ]
+    },
+    {
+      "url": "/lemi-ata-neeman-ot-umofet",
+      "decodedPath": "/lemi-ata-neeman-ot-umofet",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=5089"
+      ]
+    },
+    {
+      "url": "/mataamim-1254",
+      "decodedPath": "/mataamim-1254",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=5044"
+      ]
+    },
+    {
+      "url": "/meaning-lab",
+      "decodedPath": "/meaning-lab",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "retained events observed 2026-07-20 23:23:29.08015+00..2026-10-13 09:16:52.718806+00",
+        "retained site_visits observed 2026-07-20 23:23:28.696095+00..2026-10-13 09:16:52.377209+00",
+        "live Legacy App.jsx:320"
+      ]
+    },
+    {
+      "url": "/numbers-report",
+      "decodedPath": "/numbers-report",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:391"
+      ]
+    },
+    {
+      "url": "/post/$%7BBENNETT_SALT_SLUG%7D",
+      "decodedPath": "/post/${BENNETT_SALT_SLUG}",
+      "family": "UNRESOLVED",
+      "currentPolicy": "public",
+      "kinds": [
+        "source-literal"
+      ],
+      "evidence": [
+        "src/lib/research/post2029ReadingProjection.js:640"
+      ]
+    },
+    {
+      "url": "/post/bennett-melach-631-78",
+      "decodedPath": "/post/bennett-melach-631-78",
+      "family": "UNRESOLVED",
+      "currentPolicy": "public",
+      "kinds": [
+        "redirect-target"
+      ],
+      "evidence": [
+        "public-reading-deploy/vercel.json redirect destination"
+      ]
+    },
+    {
+      "url": "/post/fixture-b",
+      "decodedPath": "/post/fixture-b",
+      "family": "UNRESOLVED",
+      "currentPolicy": "public",
+      "kinds": [
+        "source-literal"
+      ],
+      "evidence": [
+        "src/lib/research/worldMapFixture2029.js:25"
+      ]
+    },
+    {
+      "url": "/raza-deshabbat-910",
+      "decodedPath": "/raza-deshabbat-910",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=5041"
+      ]
+    },
+    {
+      "url": "/research-viewer",
+      "decodedPath": "/research-viewer",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "src/pages/AdminPage.jsx:247",
+        "retained events observed 2026-08-27 02:58:52.228365+00..2026-10-13 09:16:54.809439+00",
+        "retained site_visits observed 2026-08-27 02:58:51.82619+00..2026-10-13 09:16:54.549847+00",
+        "live Legacy App.jsx:322"
+      ]
+    },
+    {
+      "url": "/reveal",
+      "decodedPath": "/reveal",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:313"
+      ]
+    },
+    {
+      "url": "/shimon-haimov-english-gold",
+      "decodedPath": "/shimon-haimov-english-gold",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "src/pages/LanguagesPage.jsx:135",
+        "DB published content href; occurrences=2; examples=5018,5078"
+      ]
+    },
+    {
+      "url": "/SLUG",
+      "decodedPath": "/SLUG",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal"
+      ],
+      "evidence": [
+        "src/pages/PostEditorPage.jsx:23"
+      ]
+    },
+    {
+      "url": "/sod1820/videos/vb.617996338259568/1042960175763180/",
+      "decodedPath": "/sod1820/videos/vb.617996338259568/1042960175763180/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "missing",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=1244"
+      ]
+    },
+    {
+      "url": "/spatial-gematria",
+      "decodedPath": "/spatial-gematria",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted",
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=4; examples=5041,5044",
+        "retained events observed 2026-08-05 12:37:56.841863+00..2026-10-13 09:15:12.360364+00",
+        "retained site_visits observed 2026-08-05 12:37:56.837395+00..2026-10-13 09:15:11.913682+00",
+        "live Legacy App.jsx:346"
+      ]
+    },
+    {
+      "url": "/sulamot10",
+      "decodedPath": "/sulamot10",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/labItems.js:13",
+        "live Legacy App.jsx:310"
+      ]
+    },
+    {
+      "url": "/sulamot11",
+      "decodedPath": "/sulamot11",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/labItems.js:14",
+        "live Legacy App.jsx:311"
+      ]
+    },
+    {
+      "url": "/sulamot2",
+      "decodedPath": "/sulamot2",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/labItems.js:5",
+        "retained events observed 2026-07-10 18:56:40.293066+00..2026-07-10 18:56:40.57207+00",
+        "retained site_visits observed 2026-07-10 18:56:40.228815+00..2026-10-18 16:57:36.130042+00",
+        "live Legacy App.jsx:428"
+      ]
+    },
+    {
+      "url": "/sulamot3",
+      "decodedPath": "/sulamot3",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/labItems.js:6",
+        "live Legacy App.jsx:429"
+      ]
+    },
+    {
+      "url": "/sulamot4",
+      "decodedPath": "/sulamot4",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/labItems.js:7",
+        "live Legacy App.jsx:430"
+      ]
+    },
+    {
+      "url": "/sulamot5",
+      "decodedPath": "/sulamot5",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/labItems.js:8",
+        "live Legacy App.jsx:305"
+      ]
+    },
+    {
+      "url": "/sulamot6",
+      "decodedPath": "/sulamot6",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/labItems.js:9",
+        "live Legacy App.jsx:306"
+      ]
+    },
+    {
+      "url": "/sulamot7",
+      "decodedPath": "/sulamot7",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/labItems.js:10",
+        "live Legacy App.jsx:307"
+      ]
+    },
+    {
+      "url": "/sulamot8",
+      "decodedPath": "/sulamot8",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/labItems.js:11",
+        "live Legacy App.jsx:308"
+      ]
+    },
+    {
+      "url": "/sulamot9",
+      "decodedPath": "/sulamot9",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/labItems.js:12",
+        "live Legacy App.jsx:309"
+      ]
+    },
+    {
+      "url": "/theme-preview",
+      "decodedPath": "/theme-preview",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "route-template"
+      ],
+      "evidence": [
+        "live Legacy App.jsx:392"
+      ]
+    },
+    {
+      "url": "/unnamed-1-3/",
+      "decodedPath": "/unnamed-1-3/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=2; examples=1370,1376"
+      ]
+    },
+    {
+      "url": "/verified",
+      "decodedPath": "/verified",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "observed-url",
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "live sitemap.xml 2026-11-03",
+        "retained events observed 2026-07-08 08:46:56.021255+00..2026-10-31 06:13:53.727694+00",
+        "retained site_visits observed 2026-07-06 03:10:29.919265+00..2026-11-01 05:14:52.569542+00",
+        "live Legacy App.jsx:368"
+      ]
+    },
+    {
+      "url": "/verse-gematria",
+      "decodedPath": "/verse-gematria",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "source-literal",
+        "recognized-traffic-path",
+        "route-template"
+      ],
+      "evidence": [
+        "src/lib/knowledgeMap.js:156",
+        "src/lib/knowledgeMap.js:193",
+        "src/pages/Heichal2029Page.jsx:107",
+        "src/pages/Heichal2029Page.jsx:394",
+        "retained events observed 2026-09-04 12:41:03.422963+00..2026-10-13 09:15:10.4129+00",
+        "retained site_visits observed 2026-09-04 12:41:03.435867+00..2026-10-17 11:18:27.336615+00",
+        "live Legacy App.jsx:416"
+      ]
+    },
+    {
+      "url": "/WORLD",
+      "decodedPath": "/WORLD",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "recognized-traffic-path"
+      ],
+      "evidence": [
+        "retained events observed 2026-09-18 01:52:17.861469+00..2026-09-29 16:31:37.410098+00",
+        "retained site_visits observed 2026-09-18 01:52:17.430941+00..2026-09-29 16:31:36.608105+00"
+      ]
+    },
+    {
+      "url": "/yom/",
+      "decodedPath": "/yom/",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=7; examples=1056,1107,1110"
+      ]
+    },
+    {
+      "url": "/yuval-kogan-echad-hasichim-hamashiach",
+      "decodedPath": "/yuval-kogan-echad-hasichim-hamashiach",
+      "family": "UNRESOLVED",
+      "currentPolicy": "post-lookup",
+      "kinds": [
+        "content-href-query-fragment-redacted"
+      ],
+      "evidence": [
+        "DB published content href; occurrences=1; examples=5035"
+      ]
+    }
+  ]
+}

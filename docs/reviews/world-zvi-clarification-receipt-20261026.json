@@ -1,0 +1,297 @@
+{
+  "scope": "read_only_clarification_receipt",
+  "evidenceFingerprint": "e9c493fab69c204eab3dbb6372335ed368acc905fcf2b0ccda1063403c9b9f3f",
+  "sourceSql": "WITH selected(id) AS (VALUES ('0e479992-c6fd-4feb-b87d-78c8dad64ade'::uuid),('0b5e8fa3-6180-4f7d-bbeb-eafc054061e6'::uuid),('afb44b37-f715-44ac-99bd-4a78d8bd41da'::uuid),('5c37f55f-03a2-480b-a2b4-2973bb9e7cd1'::uuid)),\n    admitted AS (\n      SELECT ro.id,ro.kind,ro.statement,ro.terms,ro.value,ro.source_ref,ro.status,ro.privacy_scope,\n        ro.promoted_node_id,ro.meta#>'{ext,revision}' revision,\n        public.fn_research_source_uid(ro.source_ref) source_uid,\n        public.fn_research_claim_uid(ro.statement) claim_uid,\n        cu.id source_id,ro.meta#>>'{ext,wa_channel_intake,media_ocr_pending}' ocr_pending,\n        ro.meta#>>'{ext,wa_channel_intake,media_transcription_pending}' transcription_pending,\n        (SELECT coalesce(jsonb_agg(jsonb_build_object('id',n.id,'label',n.label) ORDER BY n.id),'[]'::jsonb)\n          FROM public.nodes n WHERE n.type='number' AND n.label=ro.value::text AND n.is_active IS TRUE\n            AND coalesce(n.metadata->>'space','core')='core') targets\n      FROM selected s JOIN public.research_objects ro ON ro.id=s.id\n      JOIN public.channel_updates cu ON split_part(ro.source_ref,'#',1)='channel_updates:'||cu.id::text\n      WHERE ro.status='approved' AND ro.privacy_scope='public' AND ro.promoted_node_id IS NULL\n        AND ro.meta#>'{ext,revision}' IS NULL\n        AND ro.source_ref ~ '^channel_updates:[0-9a-f-]{36}(#.*)?$'\n        AND coalesce(lower(btrim(ro.meta#>>'{ext,personal_scope,scope}')),'')<>'person_only'\n        AND coalesce(lower(btrim(ro.source)),'') NOT IN ('old_chat','openweb_legacy','or-geula')\n        AND coalesce(btrim(ro.contributor),'')<>'אור הגאולה'\n        AND cu.status='live' AND cu.page_only IS FALSE AND cu.channel='torat-haremez'\n        AND cu.contributor_id='c66f0464-0928-490e-be9b-66d8a87e7fc8'::uuid),\n    sources AS (SELECT cu.id,cu.text,md5(cu.text) md5,cu.image_url,cu.created_at,\n        cu.status,cu.page_only,cu.channel,cu.contributor_id\n      FROM public.channel_updates cu WHERE cu.id IN (SELECT source_id FROM admitted))\n    SELECT now() checked_at,0 page,\n      (SELECT jsonb_agg(jsonb_build_object('id',s.id,'finding',to_jsonb(a)) ORDER BY s.id)\n        FROM selected s LEFT JOIN admitted a ON a.id=s.id) rows,\n      (SELECT coalesce(jsonb_agg(to_jsonb(c) ORDER BY c.id),'[]'::jsonb) FROM sources c) sources",
+  "engineSql": "WITH inputs(phrase,method,expected) AS (VALUES ('וישבתם בה','רגיל',765::bigint),('ויברך אתם אלהים','רגיל',765::bigint),('ויברך אותם אלהים','רגיל',771::bigint),('להתפלל לפניך','רגיל',765::bigint),('ביום השבת','רגיל',765::bigint),('ברית','רגיל',612::bigint),('טוב','רגיל',17::bigint),('השגחה פרטית','רגיל',1020::bigint),('עבד י-הוה','רגיל',102::bigint),('שלל גדול','רגיל',403::bigint),('שמח וטוב לב','רגיל',403::bigint),('השמחים','רגיל',403::bigint),('לבנה','רגיל',87::bigint),('פז','רגיל',87::bigint),('עשרים','רגיל',620::bigint),('כתר','רגיל',620::bigint),('וישבתם בטח','רגיל',777::bigint)) SELECT now() checked_at,current_user,md5(pg_get_functiondef('public.fn_method_value(text,text)'::regprocedure)) engine_definition_md5,(SELECT jsonb_agg(jsonb_build_object('phrase',i.phrase,'method',i.method,'expected',i.expected,'computed',public.fn_method_value(i.method,i.phrase),'in_engine',EXISTS(SELECT 1 FROM public.gematria_methods m WHERE m.method_key=i.method AND m.in_engine IS TRUE)) ORDER BY i.phrase) FROM inputs i) checks,jsonb_build_object('powers_left',power(pi(),4)+power(pi(),5),'powers_right',exp(6::double precision),'crown',exp(pi())-pi()) constants",
+  "source": {
+    "checked_at": "2026-10-26 21:34:18.238948+00",
+    "page": 0,
+    "rows": [
+      {
+        "id": "0b5e8fa3-6180-4f7d-bbeb-eafc054061e6",
+        "finding": {
+          "id": "0b5e8fa3-6180-4f7d-bbeb-eafc054061e6",
+          "kind": "fact",
+          "terms": [
+            "ברית טוב"
+          ],
+          "value": 3060,
+          "status": "approved",
+          "targets": [
+            {
+              "id": "211ddddb-799b-4881-b8bb-115fc98eb8af",
+              "label": "3060"
+            }
+          ],
+          "revision": null,
+          "claim_uid": "נטעןכי«בריתטוב»×36גימטריא=3060",
+          "source_id": "305b8335-72bf-43e5-9edd-0d1b4340f97f",
+          "statement": "נטען כי «ברית טוב»×36 גימטריא = 3060",
+          "source_ref": "channel_updates:305b8335-72bf-43e5-9edd-0d1b4340f97f",
+          "source_uid": "channel_updates:305b8335-72bf-43e5-9edd-0d1b4340f97f",
+          "ocr_pending": "false",
+          "privacy_scope": "public",
+          "promoted_node_id": null,
+          "transcription_pending": "false"
+        }
+      },
+      {
+        "id": "0e479992-c6fd-4feb-b87d-78c8dad64ade",
+        "finding": {
+          "id": "0e479992-c6fd-4feb-b87d-78c8dad64ade",
+          "kind": "fact",
+          "terms": [
+            "4 הפסוקים",
+            "משולשים פנימיים"
+          ],
+          "value": 3060,
+          "status": "approved",
+          "targets": [
+            {
+              "id": "211ddddb-799b-4881-b8bb-115fc98eb8af",
+              "label": "3060"
+            }
+          ],
+          "revision": null,
+          "claim_uid": "סכוםהגימטריאשל4הפסוקיםבמשולשיםהפנימיים=3060",
+          "source_id": "3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+          "statement": "סכום הגימטריא של 4 הפסוקים במשולשים הפנימיים = 3060",
+          "source_ref": "channel_updates:3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+          "source_uid": "channel_updates:3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+          "ocr_pending": "false",
+          "privacy_scope": "public",
+          "promoted_node_id": null,
+          "transcription_pending": "false"
+        }
+      },
+      {
+        "id": "5c37f55f-03a2-480b-a2b4-2973bb9e7cd1",
+        "finding": {
+          "id": "5c37f55f-03a2-480b-a2b4-2973bb9e7cd1",
+          "kind": "observation",
+          "terms": [
+            "e",
+            "π",
+            "עשרים"
+          ],
+          "value": 20,
+          "status": "approved",
+          "targets": [
+            {
+              "id": "1147a329-77b9-485a-82b8-59da9886b6dd",
+              "label": "20"
+            }
+          ],
+          "revision": null,
+          "claim_uid": "בתרשיםמצויןכימשוואהשלשנימספריםאי-רציונליים(eו-π)שואפתלערך20,במקביללערךהגימטרישהוצג",
+          "source_id": "1eb4df29-9b31-4773-8fce-ec84b1cef609",
+          "statement": "בתרשים מצוין כי משוואה של שני מספרים אי-רציונליים (e ו-π) שואפת לערך 20, במקביל לערך הגימטרי שהוצג",
+          "source_ref": "channel_updates:1eb4df29-9b31-4773-8fce-ec84b1cef609",
+          "source_uid": "channel_updates:1eb4df29-9b31-4773-8fce-ec84b1cef609",
+          "ocr_pending": "false",
+          "privacy_scope": "public",
+          "promoted_node_id": null,
+          "transcription_pending": "false"
+        }
+      },
+      {
+        "id": "afb44b37-f715-44ac-99bd-4a78d8bd41da",
+        "finding": {
+          "id": "afb44b37-f715-44ac-99bd-4a78d8bd41da",
+          "kind": "observation",
+          "terms": [],
+          "value": null,
+          "status": "approved",
+          "targets": [],
+          "revision": null,
+          "claim_uid": "משוואהמופלאה;חזקות:4,5,6[image4107.jpg]השוויוןשבלוחמתקייםבדיוקרקעד4ספרותאחריהנקודהוהתוצאה:403.4287*********************************403בגימטריא:שללגדול.(יחזקאל)403בגימטריא:שמחוטובלב(מגלת.אסתר)403בגימטריא:השמחים(עמוס,משליוגםאיוב)********************************42-מסעותעברובניישראלבמדברכנגדשםשל42אותיותבתפילתאנאבכח.********************************87-גימטריאלבנה=פז.עםישראלנמשלללבנההמתחדשתתמיד.🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈",
+          "source_id": "b76c4363-9b82-4672-aad9-eb1d6bdd4c70",
+          "statement": "משוואה מופלאה; חזקות: 4,5,6\n\n[Image 4107.jpg]\nהשוויון שבלוח מתקיים בדיוק רק עד 4 ספרות אחרי הנקודה  והתוצאה:   403.4287\n*********************************\n403 בגימטריא:\"שלל גדול\".(יחזקאל)\n403 בגימטריא:\"שמח וטוב לב\"\n(מגלת. אסתר)\n403 בגימטריא:\"השמחים\"\n(עמוס,משלי וגם איוב)\n********************************\n42-מסעות עברו בני ישראל במדבר כנגד שם של 42 אותיות בתפילת אנא בכח.\n********************************\n87-גימטריא \"לבנה\"=\"פז\".\nעם ישראל נמשל ללבנה המתחדשת תמיד.\n🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈",
+          "source_ref": "channel_updates:b76c4363-9b82-4672-aad9-eb1d6bdd4c70",
+          "source_uid": "channel_updates:b76c4363-9b82-4672-aad9-eb1d6bdd4c70",
+          "ocr_pending": "false",
+          "privacy_scope": "public",
+          "promoted_node_id": null,
+          "transcription_pending": "false"
+        }
+      }
+    ],
+    "sources": [
+      {
+        "id": "1eb4df29-9b31-4773-8fce-ec84b1cef609",
+        "md5": "af5c7e3a5aaed4df98e316e2b398f74f",
+        "text": "משוואת \"הכתר\"\n\"כתר\" בגימטריא \"עשרים\"!!! (620).\n[Image 4121.jpg]\nהמשוואה בציור של שני המספרים האי רציונאלים (אי וגם פי)  שואפת    ל-עשרים!!! הכתר הוא רוחניות מעל השכל מעל הרציונאלי.",
+        "status": "live",
+        "channel": "torat-haremez",
+        "image_url": null,
+        "page_only": false,
+        "created_at": "2026-10-17T18:30:06+00:00",
+        "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+      },
+      {
+        "id": "305b8335-72bf-43e5-9edd-0d1b4340f97f",
+        "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+        "text": "📷 עדכון",
+        "status": "live",
+        "channel": "torat-haremez",
+        "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACA7523DCE7E63590200605D7E6B1CFC.jpg",
+        "page_only": false,
+        "created_at": "2026-08-11T07:10:27+00:00",
+        "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+      },
+      {
+        "id": "3c8ea715-0e4e-4690-9d49-b011b71b61d2",
+        "md5": "b89379aeb92bc45c0cf3cb9fa9278d70",
+        "text": "📷 עדכון",
+        "status": "live",
+        "channel": "torat-haremez",
+        "image_url": "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/gallery/sod1820/broadcasts/ACE0C9614EC4DFC0DEFF6A8BBCB7210D.jpg",
+        "page_only": false,
+        "created_at": "2026-08-11T20:36:00+00:00",
+        "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+      },
+      {
+        "id": "b76c4363-9b82-4672-aad9-eb1d6bdd4c70",
+        "md5": "3d194e6cce843a4a57ff76828c8eb9e6",
+        "text": "משוואה מופלאה; חזקות: 4,5,6\n\n[Image 4107.jpg]\nהשוויון שבלוח מתקיים בדיוק רק עד 4 ספרות אחרי הנקודה  והתוצאה:   403.4287\n*********************************\n403 בגימטריא:\"שלל גדול\".(יחזקאל)\n403 בגימטריא:\"שמח וטוב לב\"\n(מגלת. אסתר)\n403 בגימטריא:\"השמחים\"\n(עמוס,משלי וגם איוב)\n********************************\n42-מסעות עברו בני ישראל במדבר כנגד שם של 42 אותיות בתפילת אנא בכח.\n********************************\n87-גימטריא \"לבנה\"=\"פז\".\nעם ישראל נמשל ללבנה המתחדשת תמיד.\n🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈🌈",
+        "status": "live",
+        "channel": "torat-haremez",
+        "image_url": null,
+        "page_only": false,
+        "created_at": "2026-10-16T02:02:53+00:00",
+        "contributor_id": "c66f0464-0928-490e-be9b-66d8a87e7fc8"
+      }
+    ]
+  },
+  "engine": {
+    "checked_at": "2026-10-26 21:34:21.471212+00",
+    "current_user": "supabase_read_only_user",
+    "engine_definition_md5": "d49ac2c890c4be0454c911d535a6fe5e",
+    "checks": [
+      {
+        "method": "רגיל",
+        "phrase": "ביום השבת",
+        "computed": 765,
+        "expected": 765,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "ברית",
+        "computed": 612,
+        "expected": 612,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "השגחה פרטית",
+        "computed": 1020,
+        "expected": 1020,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "השמחים",
+        "computed": 403,
+        "expected": 403,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "ויברך אותם אלהים",
+        "computed": 771,
+        "expected": 771,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "ויברך אתם אלהים",
+        "computed": 765,
+        "expected": 765,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "וישבתם בה",
+        "computed": 765,
+        "expected": 765,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "וישבתם בטח",
+        "computed": 777,
+        "expected": 777,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "טוב",
+        "computed": 17,
+        "expected": 17,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "כתר",
+        "computed": 620,
+        "expected": 620,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "לבנה",
+        "computed": 87,
+        "expected": 87,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "להתפלל לפניך",
+        "computed": 765,
+        "expected": 765,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "עבד י-הוה",
+        "computed": 102,
+        "expected": 102,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "עשרים",
+        "computed": 620,
+        "expected": 620,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "פז",
+        "computed": 87,
+        "expected": 87,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "שלל גדול",
+        "computed": 403,
+        "expected": 403,
+        "in_engine": true
+      },
+      {
+        "method": "רגיל",
+        "phrase": "שמח וטוב לב",
+        "computed": 403,
+        "expected": 403,
+        "in_engine": true
+      }
+    ],
+    "constants": {
+      "crown": 19.9990999791895,
+      "powers_left": 403.428775819284,
+      "powers_right": 403.428793492735
+    }
+  }
+}

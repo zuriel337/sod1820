@@ -1,0 +1,190 @@
+[
+  {
+    "captureUtc": "20250806142148",
+    "wpPageId": 3798,
+    "sourceTitle": "מתי שנת הגאולה | כי לה' המלוכה",
+    "originalCanonical": "https://sod1820.co.il/משיח-בשנת-התשעו/מתי-שנת-הגאולה/",
+    "originalArticlePublished": true,
+    "htmlPath": "/tmp/lecture-source-closure/20250806142148.html",
+    "entryContentPath": "/tmp/lecture-source-closure/20250806142148.entry-content.html",
+    "originalHtmlSha256": "d47c16bb1167e518339179786abde0ba0220836f2e22294d3b5427da726ae2b3",
+    "cdxDigestExpected": "EYBXM574EDMOTBRIK2DGRMAC4THGMGQG",
+    "sha1Base32": "EYBXM574EDMOTBRIK2DGRMAC4THGMGQG",
+    "entryContentSha256": "c477d39034c4047643448043125c3e059f9c57e3873478eee00a2ad161745dcf",
+    "entryContentBytes": 3885,
+    "entryContentCharacters": 3124,
+    "visibleText": "שלושה הרצאות חדשות עלו לדף שנת הגאולה בפסוק הראשון בתורה מדהים ביותר – פלא פלאים – עודכן ב יח אדר תשע\"ה – 9.3.2015 – שלושה חלקים *** דף הרצאות זה הוא המשך לדף ההרצאות סוד הגאולה – משיח בתשע\"ו כל המידע אודות שנת העת רצון לגאולה התשע\"ו עשרות רמזים וגימטריות המראים שנת התשע\"ו זו שנת הגאולה הסופית (גאולת בעיתה) אמר להם רבי שמעון אין רצונו של הקב\"ה בזה שיתגלה לעולם כל כך, וכשיהיה קרוב לימות המשיח אפילו נערים שבעולם עתידים למצוא נסתרות של החכמה ולדעת על ידו קיצים וחשבונות, ובאותו הזמן יתגלה לכל (זוהר הקדוש פרשת וירא דף קיח ע\"א) חלק 1 חלק 2 חלק 3 שנת הגאולה רמוזה במילה השישית 26.02.2015 הייתם מאמינים שכל שנת הגאולה רמוזה במילה השישית בתורה במילה \"ואת\" אחת ההרצאות הכי חזקות שיש – 15 דק' – קלה להבנה – חידושים שלא נגלו מאז בריאת העולם… https://www.youtube.com/watch?v=3O4CrVYpUT4 שנת הגאולה רמוזה במילה בראשית שנת הגאולה רמוזה בשם ה'",
+    "iframeSources": [
+      "https://www.youtube.com/embed/l3dbA9113s4?feature=oembed",
+      "https://www.youtube.com/embed/H-5H0MpeYLg?feature=oembed",
+      "https://www.youtube.com/embed/tPTWRvE4pMQ?feature=oembed",
+      "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+      "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed"
+    ],
+    "anchorHrefs": [
+      "https://sod1820.co.il/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a9%d7%a0%d7%aa-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/"
+    ],
+    "imgSrcs": [],
+    "scriptCount": 0,
+    "sourceDateMetadata": {
+      "published_time": [],
+      "modified_time": [
+        "2015-03-09T14:38:46+00:00"
+      ],
+      "datePublished": [
+        "2015-03-09T11:50:59+00:00"
+      ],
+      "dateModified": [
+        "2015-03-09T14:38:46+00:00"
+      ]
+    },
+    "bodyBytesAreExactOriginalSubstring": true,
+    "allVideoSourcesInOriginalOrder": [
+      {
+        "offset": 959,
+        "rawOriginalUrl": "https://www.youtube.com/embed/l3dbA9113s4?feature=oembed",
+        "href": "https://www.youtube.com/embed/l3dbA9113s4?feature=oembed",
+        "videoId": "l3dbA9113s4",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 1342,
+        "rawOriginalUrl": "https://www.youtube.com/embed/H-5H0MpeYLg?feature=oembed",
+        "href": "https://www.youtube.com/embed/H-5H0MpeYLg?feature=oembed",
+        "videoId": "H-5H0MpeYLg",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 1725,
+        "rawOriginalUrl": "https://www.youtube.com/embed/tPTWRvE4pMQ?feature=oembed",
+        "href": "https://www.youtube.com/embed/tPTWRvE4pMQ?feature=oembed",
+        "videoId": "tPTWRvE4pMQ",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 2243,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=3O4CrVYpUT4",
+        "href": "https://www.youtube.com/watch?v=3O4CrVYpUT4",
+        "videoId": "3O4CrVYpUT4",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=3O4CrVYpUT4"
+      },
+      {
+        "offset": 2442,
+        "rawOriginalUrl": "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+        "href": "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+        "videoId": "_ZtU6K3tRKU",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 2856,
+        "rawOriginalUrl": "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed",
+        "href": "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed",
+        "videoId": "VmQbvKxoqLc",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      }
+    ],
+    "totalVideoOccurrences": 6,
+    "plainVideoUrlCount": 1,
+    "embedCount": 5
+  },
+  {
+    "captureUtc": "20250115050814",
+    "wpPageId": 3798,
+    "sourceTitle": "מתי שנת הגאולה | כי לה' המלוכה",
+    "originalCanonical": "https://sod1820.co.il/משיח-בשנת-התשעו/מתי-שנת-הגאולה/",
+    "originalArticlePublished": true,
+    "htmlPath": "/tmp/lecture-source-closure/20250115050814.html",
+    "entryContentPath": "/tmp/lecture-source-closure/20250115050814.entry-content.html",
+    "originalHtmlSha256": "74ebbbd989b1bf185852990e8e9a7b468c61acdcaa33eaacbf0f9115234b47b5",
+    "cdxDigestExpected": "I237EIJX5ASHB6OOPVZ5WTUAXB3NQVRT",
+    "sha1Base32": "I237EIJX5ASHB6OOPVZ5WTUAXB3NQVRT",
+    "entryContentSha256": "c477d39034c4047643448043125c3e059f9c57e3873478eee00a2ad161745dcf",
+    "entryContentBytes": 3885,
+    "entryContentCharacters": 3124,
+    "visibleText": "שלושה הרצאות חדשות עלו לדף שנת הגאולה בפסוק הראשון בתורה מדהים ביותר – פלא פלאים – עודכן ב יח אדר תשע\"ה – 9.3.2015 – שלושה חלקים *** דף הרצאות זה הוא המשך לדף ההרצאות סוד הגאולה – משיח בתשע\"ו כל המידע אודות שנת העת רצון לגאולה התשע\"ו עשרות רמזים וגימטריות המראים שנת התשע\"ו זו שנת הגאולה הסופית (גאולת בעיתה) אמר להם רבי שמעון אין רצונו של הקב\"ה בזה שיתגלה לעולם כל כך, וכשיהיה קרוב לימות המשיח אפילו נערים שבעולם עתידים למצוא נסתרות של החכמה ולדעת על ידו קיצים וחשבונות, ובאותו הזמן יתגלה לכל (זוהר הקדוש פרשת וירא דף קיח ע\"א) חלק 1 חלק 2 חלק 3 שנת הגאולה רמוזה במילה השישית 26.02.2015 הייתם מאמינים שכל שנת הגאולה רמוזה במילה השישית בתורה במילה \"ואת\" אחת ההרצאות הכי חזקות שיש – 15 דק' – קלה להבנה – חידושים שלא נגלו מאז בריאת העולם… https://www.youtube.com/watch?v=3O4CrVYpUT4 שנת הגאולה רמוזה במילה בראשית שנת הגאולה רמוזה בשם ה'",
+    "iframeSources": [
+      "https://www.youtube.com/embed/l3dbA9113s4?feature=oembed",
+      "https://www.youtube.com/embed/H-5H0MpeYLg?feature=oembed",
+      "https://www.youtube.com/embed/tPTWRvE4pMQ?feature=oembed",
+      "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+      "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed"
+    ],
+    "anchorHrefs": [
+      "https://sod1820.co.il/%d7%9e%d7%a9%d7%99%d7%97-%d7%91%d7%a9%d7%a0%d7%aa-%d7%94%d7%aa%d7%a9%d7%a2%d7%95/"
+    ],
+    "imgSrcs": [],
+    "scriptCount": 0,
+    "bodyBytesAreExactOriginalSubstring": true,
+    "allVideoSourcesInOriginalOrder": [
+      {
+        "offset": 959,
+        "rawOriginalUrl": "https://www.youtube.com/embed/l3dbA9113s4?feature=oembed",
+        "href": "https://www.youtube.com/embed/l3dbA9113s4?feature=oembed",
+        "videoId": "l3dbA9113s4",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 1342,
+        "rawOriginalUrl": "https://www.youtube.com/embed/H-5H0MpeYLg?feature=oembed",
+        "href": "https://www.youtube.com/embed/H-5H0MpeYLg?feature=oembed",
+        "videoId": "H-5H0MpeYLg",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 1725,
+        "rawOriginalUrl": "https://www.youtube.com/embed/tPTWRvE4pMQ?feature=oembed",
+        "href": "https://www.youtube.com/embed/tPTWRvE4pMQ?feature=oembed",
+        "videoId": "tPTWRvE4pMQ",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 2243,
+        "rawOriginalUrl": "https://www.youtube.com/watch?v=3O4CrVYpUT4",
+        "href": "https://www.youtube.com/watch?v=3O4CrVYpUT4",
+        "videoId": "3O4CrVYpUT4",
+        "kind": "plain-original-url",
+        "originalScheme": "https",
+        "originalQuery": "v=3O4CrVYpUT4"
+      },
+      {
+        "offset": 2442,
+        "rawOriginalUrl": "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+        "href": "https://www.youtube.com/embed/_ZtU6K3tRKU?feature=oembed",
+        "videoId": "_ZtU6K3tRKU",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      },
+      {
+        "offset": 2856,
+        "rawOriginalUrl": "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed",
+        "href": "https://www.youtube.com/embed/VmQbvKxoqLc?feature=oembed",
+        "videoId": "VmQbvKxoqLc",
+        "kind": "embed",
+        "originalScheme": "https",
+        "originalQuery": "feature=oembed"
+      }
+    ],
+    "totalVideoOccurrences": 6,
+    "plainVideoUrlCount": 1,
+    "embedCount": 5
+  }
+]

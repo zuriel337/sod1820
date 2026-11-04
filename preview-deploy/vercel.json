@@ -3,10 +3,67 @@
   "installCommand": "npm ci --prefix .. --no-audit --no-fund",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
-  "headers": [{ "source": "/(.*)", "headers": [
-    { "key": "X-Robots-Tag", "value": "noindex, nofollow, noarchive" },
-    { "key": "Cache-Control", "value": "no-store" },
-    { "key": "Content-Security-Policy", "value": "connect-src 'self' https://linswmnnkjxvweumprav.supabase.co https://sod1820.co.il; form-action 'none'; frame-ancestors 'self'" }
-  ]}]
+  "rewrites": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/public-sitemap"
+    },
+    {
+      "source": "/2029/:path*",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/community/:path*",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/books/:path*",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/book/:path*",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/beit-midrash/:path*",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/((?!api(?:/|$)).*)",
+      "destination": "/api/public-document?path=/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow, noarchive"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "connect-src 'self' https://linswmnnkjxvweumprav.supabase.co https://linswmnnkjxvweumprav.storage.supabase.co wss://linswmnnkjxvweumprav.supabase.co https://sod1820.co.il; form-action 'none'; frame-ancestors 'self'"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "api/public-document.js": {
+      "includeFiles": "dist/2029.html"
+    }
+  }
 }

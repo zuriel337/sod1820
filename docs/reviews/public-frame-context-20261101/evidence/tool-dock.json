@@ -1,0 +1,125 @@
+[
+  {
+    "case": "public-frame-context-2029.-422c7-ered-with-every-action-1440",
+    "data": {
+      "x": 548,
+      "width": 344,
+      "height": 58,
+      "viewport": 1440,
+      "buttons": [
+        {
+          "x": 829,
+          "width": 46,
+          "height": 46
+        },
+        {
+          "x": 779,
+          "width": 46,
+          "height": 46
+        },
+        {
+          "x": 721,
+          "width": 48,
+          "height": 48
+        },
+        {
+          "x": 665,
+          "width": 46,
+          "height": 46
+        },
+        {
+          "x": 615,
+          "width": 46,
+          "height": 46
+        },
+        {
+          "x": 565,
+          "width": 46,
+          "height": 46
+        }
+      ]
+    }
+  },
+  {
+    "case": "public-frame-context-2029.-d4832-tered-with-every-action-390",
+    "data": {
+      "x": 40,
+      "width": 310,
+      "height": 58,
+      "viewport": 390,
+      "buttons": [
+        {
+          "x": 297,
+          "width": 44,
+          "height": 46
+        },
+        {
+          "x": 249,
+          "width": 44,
+          "height": 46
+        },
+        {
+          "x": 195,
+          "width": 48,
+          "height": 48
+        },
+        {
+          "x": 145,
+          "width": 44,
+          "height": 46
+        },
+        {
+          "x": 97,
+          "width": 44,
+          "height": 46
+        },
+        {
+          "x": 49,
+          "width": 44,
+          "height": 46
+        }
+      ]
+    }
+  },
+  {
+    "case": "public-frame-context-2029.-20117-tered-with-every-action-320",
+    "data": {
+      "x": 16,
+      "width": 288,
+      "height": 58,
+      "viewport": 320,
+      "buttons": [
+        {
+          "x": 257,
+          "width": 44,
+          "height": 46
+        },
+        {
+          "x": 211,
+          "width": 44,
+          "height": 46
+        },
+        {
+          "x": 159,
+          "width": 48,
+          "height": 48
+        },
+        {
+          "x": 111,
+          "width": 44,
+          "height": 46
+        },
+        {
+          "x": 65,
+          "width": 44,
+          "height": 46
+        },
+        {
+          "x": 19,
+          "width": 44,
+          "height": 46
+        }
+      ]
+    }
+  }
+]

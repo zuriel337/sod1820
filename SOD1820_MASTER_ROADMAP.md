@@ -1,9 +1,124 @@
 # SOD1820 — MASTER ROADMAP v6.12 COMPACT
 
-**Date:** 2026-10-07  
+**המשך 12.51 · 4.11.2026 — איחוד המאגר אחרי המעבר:** ZURIEL אישר הכנה ומיזוג של המוצר המאוחד ל־main, ובהמשך ביקש לפרסם את התיקונים. נשמר מקור החי העדכני d06cf1ab, עיצוב הקהילה ותיקוני המחשבון; שמונת קומיטי Legacy של main שולבו ללא סתירות. הושלם תיקון קישור CSS הפוסט הקיים ונוסף מחשבון גימטריה לתפריט, ללא שינוי עיצוב או הרחבת מערכת. הסדר שנותר: אישור השער הנפרד שהוצע ונבדק → שילוב מדויק וקבלה מתארחת → PR/main בהיסטוריה לינארית ללא פריסת Git אוטומטית → פעולת פרסום מאושרת מהמקור שנבדק. אין להציג אבחנת CSS מקומית כפריסה. קבלת source/current deployment נבדקת מחדש לפני כל פעולה. [החבילה והראיות](docs/reviews/main-live-state-reconciliation-20261104/README.md). H1, שני החשבונות, דחיות הבעלים וחסמי הניטור/הביצועים נשמרים. אין סגירת G4.
+
+**המשך 12.50 · 4.11.2026 — תיקון ממשק מצומצם התקבל בפריוויו:** על בסיס המוצר `273ceb24`, מקור `d81e1b125d8a94fb41572e6a8d1493adb5572ce5` שומר קהילה ומנוע קיימים ומוסיף אריחי אפס לפתיחת המחשבון ואת עיגול החיפוש שבחר צוריאל. [הפריוויו המדויק](https://sod1820-n0z7ckyxb-sod1820-s-projects.vercel.app/gematria) עבר שלושה מסלולים עם SW ונתונים ציבוריים אמיתיים, מעבר למספר וחזרה, בנייד ובמחשב; גם בדיקות השפה/מחשבון/גבולות ובנייה עברו. [ראיות ומגבלות](docs/reviews/calculator-idle-tiles-20261104/README.md). החי נשאר `273ceb24` בקריאת הסיום; אין פרסום מכוח המשימה. ממשיכים רק בהשלמות המתועדות: ניטור, ביצועים וקבלה לפי השינוי הרלוונטי; אין הרחבת מערכות, סבב מיפוי או סגירת G4 מכוח תיקון זה. H1, קבלת החשבונות והדחיות המאושרות נשמרים. העדכונים הקודמים להלן נשמרים כהיסטוריה.
+
+**עדכון 12.48–12.49 · 4.11.2026:** המועמד המשותף הוא `98d0508fb81de12850d8e97c5bcc13e2206729e4`. הוא כולל את תיקוני SEO, המחשבון, ״עכשיו״, הלוגו והכותרת הנעוצה, ואת תיקון אריזת ה־middleware. [פריוויו מוגן](https://sod1820-cv8jl8oo3-sod1820-s-projects.vercel.app), target=null, עבר16 תרחישים ב־390/1440. מקור זה הגיע ל־Production DNiWmnVW בנתיב הקהילה במהלך העבודה; root לא ביצע את הפרסום. קריאה חוזרת בחי: דפדפן200, בוט403 וזחלן ציבורי200. שלוש נקודות GA/Vercel/Search Console עדיין מחזירות404 וחסומות ב־SW. מדידות הביצועים על073 חלקיות, עם נסיגות ו־CLS מעל0.1; אין קבלת ביצועים מלאה או סגירתG4. קבלת שני החשבונות, H1 ודחיות הבעלים נשמרו. [ראיות האבטחה והחזרה](docs/reviews/public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md), BEFORE68f400e6; [איחוד וביצועים](docs/reviews/public-url-exceptions-20261103/residual205/evidence/seo-repair-calculator-integration-20261104/combined-integration-notes.md).
+
+**12.47 — פערי קבלת SEO/HTTP קיימים:** ביקורת קריאה בלבד ב־Production `f4390dd3` מאשרת canonical סותר בכינויי מחשבון/מספר/ביטוי ובקטלוג פוסטים, ו־404 במסמך הגלריות. נדרש תיקון ממוקד בקוראים/תנאי הפרסום הקיימים וקבלה של המסלולים המושפעים בלבד; אין תוכנית חדשה, פתיחת מערכות, מעבר אוטומטי או סגירת G4. [ראיות וגבולות](docs/reviews/public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md); BEFORE `b9c346a3-320f-4bf9-9216-f439d7507d49`.
+
+**12.46 — המשך נקודתי לאחר הפרסום:** תאימות שלושת כינויי המחשבון `/2029` אומתה בחי; תיקון canonical שרת/לקוח נבדק בענף בלבד. אין שינוי תוכנית, פתיחת מערכת או פריסה נוספת. קבלת G4 הפורמלית אינה נסגרת מכך. [ראיה ומגבלות](docs/reviews/public-url-exceptions-20261103/residual205/evidence/calculator-canonical-20261104/README.md); BEFORE `268c6a37-7858-497f-8367-9021aacce526`. האחרונה: בעת הבדיקה נמצא עדכון קהילה עצמאי bde0a822 בענף המקורי וב־Production9mWv; לא בוצע בידי משימת המחשבון. התיקון נשמר בנפרד בענף gpt/2029-calculator-canonical-compatibility-20261104, ללא שילוב או פריסה נוספת. גם בגרסה המעודכנת שלושת הכינויים חושבו בהצלחה והפער במטאדאטה שוחזר. אין כאן קבלה כוללת של דלתת הקהילה.
+
+**המשך12.45 — המעבר בוצע:** 2029 חי במקור1bc8260a / ProductionCkoiEsaT1; כתובותlegacyנשמרובנתביםהקיימים, WWWו־vercel.app מחזירים308ל־canonicalעםפרמטריםחוזרים. לאממתיניםיותרלחיבורCLI/תוצרProduction/אישורcutoverלפריסהזו. נשמריםלהמשך:195שחזורישמע/פוסטיםשנדחובאישור,יבואצ׳אטשנדחה,פעולותשלאהתקבלונשארותסגורותכמובמועמד,כניסהחברתיתידניתשדולגהוקבלתדיוורחיוביתשלאבוצעהאוטומטית. H1היסטורימאומת;עדכניותגיבוי/מדיהלאאומתהוהסיכוןאושר. איןסבבאופטימיזציה/מיפוי/מערכותחדשותמכוחcutoverואיןסגירתG4פורמלית. MainנשארLegacy;פריסהעתידיתדורשתאישורמדויקושמירתהנעילות. [קבלהותוכניתחזרה](docs/reviews/public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md).
+
+**המשך12.44 — צעד הפרסום הבא:** לא להחיל B/D שוב; השרתים והמסד אומתו כפעילים בגרסאות המאושרות. שומרים את קבלת המנהל ושני החשבונות והדילוג על בדיקה חברתית. [הפעולה המוכנה](docs/reviews/public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/production-creation-request.md): לאחר אישורOAuthלכלי הפרסום והשלמת החיבור, בקשתAPIאחת ליצירתProductionמוגן ממקור1bc8260a עםGitSource ו־autoAssignCustomDomains=false, ללא שיוך דומיינים. קליטת הבקשה בשרת לא נבדקה; כשל עוצר ללא הסרתהדגל. לאחר קבלת התוצר בלבד יוצגSHA+deploymentלבקשתcutoverמדויקת. אין סבב בדיקות מוצר חדש, פריסה או שינוי תשתית; המשימות הקודמות והסיכון המתועד נשמרים. BEFORE5d3150d3.
+
+**המשך12.43 — כשל פתיחת המנהל נסגר:** צוריאל אישר „עובד” על הפריוויו המתוקן1bc8260a/dpl_ADnf6NL9; אין בקשה חוזרת לפתיחת אותו מסך. בדיקות רענון/trace לא דווחו פרטנית, ולא נסגר מכוח הדיווח שערCP1מלא/G4. ממשיכים רק עם ההשלמות הקיימות: תוצרProduction מוגן ממקורGit בלי שיוך דומיינים וקבלת פעולות דיוור חיוביות בבעלות המשתמש; אין יצירה/מעבר לחי באישור זה. קבלת שני החשבונות ודיון סיכון הגיבויים נשמרו, ובדיקה חברתית ידנית דולגה. [קבלת הבעלים](docs/reviews/public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/owner-acceptance.json); BEFOREf7f20b82.
+
+**המשך12.42 — CP1:** נסגר תיקון הקוד לקריסת הכניסה בבקרת המנהל; נותרת קבלת הבעלים האמיתית על [1bc8260a](https://sod1820-96jzc6z50-sod1820-s-projects.vercel.app/login?returnTo=%2F2029%2Fcontrol). שישה תרחישי תצוגה/כשל/הרשאה סינתטיים,37 בדיקות וגבולותLegacy עברו; אינם קבלת חשבון אמיתי או שערG4. Google/Facebook ידניים: `SKIPPED_BY_OWNER_NOT_TESTED`; לא לבקש שוב את אותה בדיקה כעת, ולא לסמן שהספקים התקבלו. ממשיכים מהמועמד השמור; לא נפתח סבב אופטימיזציה או מיפוי. חסם יצירת תוצרProduction מ־Git ללא שיוך דומיינים נשאר נפרד; B/D כברהוחלו, ההמשכיות האישית/H1 תקפים והסיכון לעדכניות גיבוי/מדיה התקבל. אין אישור מעבר לחי. [דלתא וראיות](docs/reviews/public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/README.md); BEFOREa87a33d4. סטטוס12.41ל־CP1/בדיקהחברתית הוא היסטורי.
+
+**מצב12.41 — B/D אושרו והוחלו:** מיגרציה20261103223217, signup20 ו־unsubscribe10 אומתו מול המקורות המדויקים;1,024 הרשומות הקיימות וטביעתן נשמרו, וטריגר החשבון לא השתנה.33 בדיקות דיוור,6 בדיקות פרופיל שירות ו־10 בדיקות חיות ללא כתיבה עברו. טופסי הבית ו־/updates התקבלו מול החוזה האמיתי בפריוויו מוגן `d8ee2753482ee9c264795b19c52745da494be63a` / `dpl_6DekQkT2ByVnPhtPbrFTYmD7bDgZ`:4 תרחישי390/1440 עםSWאמיתי ושדה ריק, ללאשליחה. [הפריוויו המדויק](https://sod1820-lnutdyfin-sod1820-s-projects.vercel.app). התיקון מסיר רק חסימה ישנה בפרופיל הפרסום הקיים. אין שינוי מנויים/משלוח, A2/C או Auth. קבלת שני החשבונות נשמרת; callback נדחה וקבלת CP1 אמיתית פתוחים. בירור עצמאי אישר שחסרה יכולת מחוברת המשלבת Git אמיתי עם אפס שיוך דומייני Production; בקשת יצירה נשמרת מותנית ואינה ניתנת לביצוע רק מכוח אישור. אין main/אתרProduction/דומיינים או סגירתG4. מצב12.40 שמתחת הוא היסטורי לעניין B/D והדף בלבד. BEFORE8e5e5ffe ותוספת0673ed5e. [ראיות והשלמות](docs/reviews/public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/README.md).
+
+**מצב 12.40 — התאמת השער אושרה ושולבה בענף בלבד:** תשעת הקבצים תואמים בדיוק להצעה שאישר צוריאל ב־8882d7c5. עברו 49 בדיקות שער ותוצר, 33 בדיקות הרשאות ובנייה מקומית במצב dormant; שערי Legacy והעץ היחיד נשמרו. קבלת שני החשבונות נשמרת. קוד המוצר `21f1a8d9e3e3fc6c7c35583ac79aee28f5e92b41` שמור מרחוק, ו[הפריוויו המדויק](https://sod1820-d3ocprlw4-sod1820-s-projects.vercel.app) התקבל בשישה תרחישי דפדפן עם SW אמיתי ב־390/1440 ובשישה מסלולי HTTP ב־GET/HEAD; פריסה `dpl_8VcC1LwM4aBmPEeZNS9DwYUGDSCu`, ‏target=NULL. ראיות מאוחרות הן תיעוד בלבד ואינן קוד מוצר חדש. יצירת Production ושיוך דומיינים אינם מורשים. מסלול יצירה מוגן ללא דומיינים עדיין לא הוכח; B/D, callback שנדחה וקבלת CP1 אמיתית נשארים פתוחים. מצב 12.39 שמתחת הוא צילום ההצעה הקודמת, שהוחלף רק לעניין שילוב הקוד. BEFORE45453603; אין סגירת G4 או cutover. [ראיות והשלמות הבעלים](docs/reviews/public-url-exceptions-20261103/residual205/evidence/final-preparation/production-activation/public-candidate/approved-integration/README.md).
+
+**מצב12.39 — פרסום מתוכנן, לא הוחל:** קוד המועמד והפריוויו נשאר01662ab57e92ea71332c05ca971a2280ddb988ea. הוכנה [הצעת שער ציבורי מדויקת](docs/reviews/public-url-exceptions-20261103/residual205/evidence/final-preparation/production-activation/public-candidate/README.md), הכוללת שמירתPreview/staging, קבלת כתובות ואינדוקס ציבורי לפי הבעלים הקיימים.49 בדיקות ובנייתdormant מקומית מבודדת עברו; הפורום,WP2481,404/503,פרטי ו־API noindex נשמרו. אין שינוי בקובצי המוצר, בפריסה או בדומיינים. חסר עדיין מסלול יצירתProduction מוגן ובלי שיוך דומיינים שהוכח ומורשה; CLIבדקlogged-out ו־autoAssignהנוכחי אינו ידוע. אישור שער נפרד וקבלת תוצר בפלטפורמה אינם אישורcutoverסופי. שאריתB/D, callbackהנדחה ו־CP1 נשמרת; קבלות החשבון/H1/סיכון/שחזוריםדחויים לא נפתחו מחדש. BEFORE59cb9dce; G3סגור ו־G4לאהוכרזכסגור. ההמשך12.38 נשמר כהיסטוריה במקום שהשתנה רק מצב הכנת הפרסום.
+
+**המשך12.38 — קיצור וקבלת המשכיות:** Google/Facebook/OTP חוברו מחדש ל־Auth הקיים, ללאשינוי הטריגר, העדפות או הדיוור הפעיל. כתובתPreviewשלענף נקשרת להוכחתפלטפורמהמדויקת לקבלתcallbackקבוע.32 בדיקותממוקדותעברו; איןבדיקהמחודשתשלכלקבלתחשבונות. פתיחהוביטולשלשניספקיםעדייןחזרהל־Production; דרושהבדיקתRedirectURLsמדויקתוקבלתבעלחשבון. CP1מוכןלקבלתמנהלקריאה. אישורהדיוורצומצםל־B/D, A2נשמרלעתיד ואינוחסםAuthנוסף. הצעתstagingשומרתאתהדלתאהחדשהועברה5מבחניםמבודדים,לאהוחלה; תוצרProductionואישורcutoverנותרונפרדים. [קישורים, צעדים ותוצאותצפויות](docs/reviews/public-url-exceptions-20261103/residual205/four-completions.md). איןשינוינתוני/העדפותמוצר,משלוחגורף,Legacyהחי,mainאודומייניםקנוניים. ההיסטוריה12.37נשמרתבמהשהוחלףכאן.
+
+**מצב12.37 · 3.11.2026:** S2 ושתי זרועות הכשל בקורא הבקרה אושרו והוחלו בשרת המשותף;8 hashes והרשאות/ספירות תואמים, קבלה אנונימית ו־4 בדיקות מסלולים מושפעים עברו. אין מכך חותםS2/CP1/G4מלא. A הישן הוחלף בהחלטת צוריאל: חשבון חדש ומאומת מקבל עדכוני אתר כברירת מחדל, עם הסרה פעילה; כניסה רגילה והסרות קודמות אינן משתנות. הצעתA2/B/D נבדקה22/22 קבוצותPostgreSQL אך טרם הוחלה/אושרה כתשתית מדויקת. נדרש נוסח נכון גם ב־signup הפעיל בלגאסי. בעל־הבית הקנוני עודכן ל־subscription_funnel_law v22 כהחלטה בלבד; ההיסטוריה נשמרה. [ראיות ותלויות](docs/reviews/public-url-exceptions-20261103/residual205/final-preparation.md). BEFORE951a982f. שאר צילום12.36ומטה היסטורי היכן שהוחלף כאן. אין שינוי אתרProduction/main/דומיינים, קמפיין או ייבואצאט.
+
+**המשך12.36 — קבלת מועמד בלבד:** חלונית האורח חוברה לטופס עדכוני האתר הקיים, עם תמונה ורקע חלל מקומיים ופונטים2029, בלי „קוד המציאות”; לא ניתן אישור שרת/משלוח. תוקנו קריאות/רענון/מצבי כשל וזהות בתצוגת הבקרה.109בדיקות ממוקדות ובניותLegacyו־2029עברו; הצעות השרת מבודדות/ממתינות. הצ׳אט נדחה כעת בידי צוריאל —0יובאו. [פירוט ההחלטות והחסמים](docs/reviews/public-url-exceptions-20261103/residual205/final-preparation.md). שני החשבונות התקבלו בדיווח המשתמש; אין צורך לבדוקם מחדש. A/B/DלעומתקמפייןC ו־CP1/S2/הפעלתProductionנפרדים; H1תקף והסיכון הנוכחי אינוPASS. איןcutoverאוG4מלא.
+
+**קדימות נוכחית 12.36 · 3.11.2026:**
+אותה חבילת מעבר: S2 ואישורו, ההכרעה הממוקדת בשינוייAuth/דיוור, בקרה ותצורת פרסום/חזרה. בירור נוסף של גיבוי אינו מעכב את ההכנה לפי החלטת הסיכון של צוריאל; המידע לא אומת ואינו מסומןPASS. אין שלב חדש, חזרה עלG3, הרחבת מערכות או אישורcutover. [המשך ההכנה והקבלה האישית](docs/reviews/public-url-exceptions-20261103/residual205/final-preparation.md). סטטוסים קודמים לגבי חסם הבירור מוחלפים רק בתחום הזה.
+
+**קדימות המעבר 12.35 · 3.11 · אותה תוכנית, ללא שלב חדש:**
+[מסירת ההמשכיות](docs/reviews/public-url-exceptions-20261103/residual205/continuity-closure-20261103.md). דחיית 193 קישורי השמע ושני הפוסטים אושרה תוך שימור כתובות, ראיות ומשימת שחזור. המשך הפורום ודפי ההרצאות טופלו; קבלת הפעולות האישיות המפורטות בשני החשבונות התקבלה בדיווח המשתמש על `7360`.
+
+סדר ההמשך לפי התנאים הקיימים: תיקון S2 המוגבל ואישורו; עדכניות גיבוי המסד וכיסוי המדיה על בסיס H1; קבלת CP1 ומעבר מבקר חוזר/יחידות הפרסום; הכרעה בשינויי Auth ודיוור שהושארו בהמתנה; ולבסוף תצורת הפעלה וחזרה ואישור cutover מדויק. אין פתיחה מחדש של G3, הרחבת ספרים, עיצוב או מערכות גדולות. הצלחת workflow אינה סגירת G4.
+
+**סעיפי12.34/12.33 להלן היסטוריים בתחום ספירתהיתרות וקבלתהחשבונות בלבד;12.35 מחליף אותם בתחומים אלה.**
+
+**קדימות המעבר העדכנית12.34 · 3.11 · ללא שלב חדש:**
+[בירור205 והראיות](docs/reviews/public-url-exceptions-20261103/residual205/README.md): 197 נשארו פתוחות —193שמע+2פוסטים שבורים כבר בלגאסי,ForumPost ציבורי ואינדקס הרצאות לא מוכרע. שחזור הכשלים ההיסטוריים ניתן לדחייה מפורשת; אין פטור אוטומטי. להשלים קבלת חשבונות שלא פורטה וחיבורWhatsApp;DMאמיתי דווח בידי המשתמש. שימור הספרים/אהבת תורה מטופל בתוך המועמד, ללא ענף בסיס חדש. S2/CP1,מבקר חוזר,גיבוי/מדיה והפעלה/חזרה נפרדים;G3/H1תקפים ו־G4/cutoverפתוחים. BEFORE1db8d430.
+
+**המשכיות חשבונות · 3.11 — runtime7937f084, Preview בלבד:**
+חסימת חשבון רגיל בפעולות האישיות הקיימות תוקנה ונבדקה במבוקר; קבלת כל פעולות שני
+החשבונות עדיין פתוחה. צוריאל דיווח כעת על תצוגה ו־DMאמיתי תקינים ב־b80; יתר הפעולות טרם פורטו.
+אין פתיחת מערכות גדולות או שלב חדש. [ראיות ומגבלות](docs/reviews/personal-continuity-glass-number-20261103/README.md).
+מסמך37§12.33 ו־F25 עודכנו; קבלת14 מקרים ציבורייםc023 אינה קבלת חשבון. social/signup ושינויי b21ed1ff בהמתנה. תנאי S2/CP1,
+מבקר חוזר, עדכניות גיבוי/מדיה והפעלה/חזרה נשמרים; H1/G3 אינם נפתחים מחדש,
+ומעבר בדיקות אינו סגירת G4 או הרשאת Production.
+
+
+**צילום קבלה קודם12.32 — הוחלף בבירור205 העדכני שלהלן/לעיל; Preview בלבד:**
+[קבלה לפי כתובת מקור וסיבת חריגה](docs/reviews/public-url-exceptions-20261103/README.md).
+מכנה469+2140 נשמר במלואו: **2352 נפתרו לפי ראיה מדויקת;48 סגורים במכוון;
+4 לא תקינים;205 חסרי ראיית מקור** (193 שמע,8 זהויות פוסט,3 סרטונים חיצוניים
+והרצאה אחת). נפתרו הפניות תמונה/embed, כינויים וקטגוריה מדויקת; אין מכך קבלת
+כל33,667 הכתובות ב־HTTP או סגירת G4/מעבר. כיסוי מלא של תוכן העבר נשאר פתוח.
+הרשאות, כתובות הפוסטים וגבולות P0 נשמרים. דיווח קודם התקבל בהיקף המאושר;
+בדיקות הדיווח החיות לא חזרו בסבב זה. חשבונות אמיתיים/שמירות/התחברות, מעבר
+מבקר חוזר, S2/CP1, עדכניות גיבוי וכיסוי מדיה ותצורת הפעלה/חזרה עדיין פתוחים.
+H1/G3 נשמרים; b21ed1ff עדיין בהמתנה. BEFORE8c147469-65f8-4ffe-8e03-91baf66ab4ca.
+
+**צילום קבלה קודם (המספרים469/2140 הוכרעו כעת כמפורט לעיל):**
+**עדכון קבלה ממוקד 3.11 — ממשיך את 3f23b26f:**
+[ספירת הכתובות, תיקוני התמונות/הטיקר, הדיווח וחסמי המעבר](docs/reviews/public-acceptance-closure-20261103/README.md).
+33,667 רשומות סווגו אוטומטית: אין זו קבלת HTTP מלאה. 641 הפניות כוללות
+258 יעדים לא מטופלים; 211 רשומות נוספות אינן מטופלות ישירות. שמירת דיווח
+מפורש אושרה בנפרד והופעלה: פנייה אחת נבדקה בממשק ותקלה אחת ב־API;
+דיווח תקלה מאדם אמיתי עדיין טעון קבלה. אין שינוי דיוור או זהות בשרת. חשבון אמיתי, מבקר חוזר,
+S2/CP1, עדכניות גיבוי וכיסוי מדיה ו־Production activation נשארים פתוחים.
+H1/G3 נשמרים; אין מעבר לחי. BEFORE a8d1af3f-c987-40c8-a582-c59dc2c27109.
+
+**Date:** 2026-11-03 (navigation/status synchronization; existing gate sequence retained)
 **Status:** NAVIGATION / PRIORITY / GATES ONLY · **G2 CLOSED · G3 CLOSED · G3→G4 TRANSITION** · HUMAN-GATE CONTROLLED
 
 This Roadmap is not a rulebook, archive, change log, research store or owner body.
+
+**Prior navigation checkpoint · 2026-11-03 (gate sequence retained; exception status continued above):** continue the existing
+G3→G4 / Public Cutover lane; no new launch stage. Product branch `gpt/2029-public-url-continuity-20261103` (runtime checkpoint `78275d17`, continuing `9d3a0968`) is a protected
+Preview candidate, not Production. The working-site scope now explicitly
+includes preservation of existing community, chat, accounts, public libraries
+and services; only unfinished/new capabilities may use their approved closed
+states. Earlier public-reading-only acceptance is insufficient for that scope.
+Explicitly retired experiments and private access boundaries remain governed by
+their existing decisions; preserving a real public service does not reopen them.
+G3 remains CLOSED; formal G4 and Public Cutover remain OPEN.
+
+Current evidence/status belongs in [Master State](SOD1820_MASTER_STATE.md#1-authority)
+and Doc37 §12.29. The [condition-by-condition reconciliation](docs/reviews/url-continuity-plan-20261103/coverage.md)
+links requirements, evidence SHAs, missing acceptance and explicit deferrals.
+The [existing address map](docs/w0-2027-route-seo-addressability-matrix-v1.md#8-current-2029-reconciliation--2026-11-03)
+owns route-inventory navigation. Provenance: AFTER
+`e18c1cb9-0ea0-4e6c-9617-232bb296d31b`; documentation BEFORE
+`2b9004b6-5285-4aee-93e2-4b1174ec06cf`.
+
+**Next work under the existing gates, in dependency order:** accept remaining
+public URL/service exceptions after the implemented priority 1 adapters and
+readers ([bounded evidence](docs/reviews/public-url-continuity-20261103/README.md)); retain source boundaries and finish the affected
+Posts/Skeleton, identity and exact-return acceptance; close the existing S2
+security/CP1 operational requirements; then accept the exact publication and
+recovery/rollback evidence. Shared identity/mail changes remain HELD_BY_USER.
+Reuse valid G3/H1/A3 and unchanged component evidence. Workflow G4 success is not
+formal G4 closure. World/Home high-fidelity Goldens and other explicitly deferred
+systems stay at their existing later positions; active public content/API paths
+do not receive an exemption because a larger UI is closed.
+
+**Tag/content-page acceptance clarification, 3.11 (implemented in the priority 1 candidate; representative browser acceptance, not all-item cutover parity):** restoring a real tag page
+includes its specific content and a finished, polished 2029 presentation using
+the approved Posts language and Design V2. A bare technical list, right-pinned
+controls or a generic World redirect does not close the family. Reuse existing
+components; inspect Legacy for content/behavior when unclear. This scoped
+quality requirement does not move the deferred whole-World/Home Goldens forward.
+
+One integrated candidate does not waive the existing
+[family cutover/rollback and automated parity requirements](docs/g3-2029-cutover-acceptance-checklist.md#cutover-gate-extensions--2026-10-04).
+Exact activation is still unapproved. AGENTS.md requires an explicit 2029
+Production cutover authorization naming the final SHA and deployment, and
+separate authorization for a release-guard change when applicable.
 
 ## Current position
 
@@ -38,6 +153,11 @@ Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependen
 
 **Human-Gate implementation focus · 2026-09-22 — 2029 FIRST.**
 
+**Later scope clarification, 3.11:** this historical implementation direction
+does not authorize blanket closure of existing community/chat/services. Their
+meaning and capabilities must continue through the new presentation; the
+availability rule for genuinely unfinished systems remains. See Doc37 §12.29.
+
 - product/UX engineering effort goes to the 2029 tree, not to improving the Legacy experience for temporary parity;
 - a Legacy UI/route may be frozen, hidden or explicitly unavailable during transition instead of receiving repair/polish when no current 2029 dependency requires that UI;
 - if a capability has no safe 2029 renderer yet, prefer a truthful `BUILDING / unavailable` state over maintaining two competing product runtimes;
@@ -45,7 +165,7 @@ Detailed bottom-up execution/dependency plan: `docs/2029-implementation-dependen
 - source/writer retirement still requires replacement proof + live-consumer proof under existing owners; destructive/permanent retirement and major route cutover remain Human-Gated;
 - target end-state: one 2029 product tree; Legacy survives only as bounded source/adapter/provenance until safely absorbed or retired.
 
-**Release-semantics pointer:** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. Active `deploy_on_request` **v3** + `inter_agent_coordination_law` **v13** provide standing Human-Gate authorization for routine gate-clean, dependency-clean releases; any older wording in planning/history that requires a fresh `תעלה` for every routine merge/deploy is superseded. Explicit Human Gate remains required for governed-truth canonicalization/publication where required, irreversible/destructive changes, pricing/economics, major Legacy→2029 cutover, privacy/security weakening, and permanent capability/history retirement.
+**Historical release-semantics pointer (superseded for current coordination and this cutover authorization):** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. At that checkpoint, `deploy_on_request` **v3** + `inter_agent_coordination_law` **v13** provided standing Human-Gate authorization for routine gate-clean, dependency-clean releases; older planning wording requiring a fresh `תעלה` for every routine merge/deploy was superseded. Current coordination is v17 via AGENTS/Owner Index; the 22.10 Legacy lock and later explicit task restrictions govern this candidate. No standing routine-release wording grants 2029 cutover, main push or guard modification. Governed publication, irreversible changes, pricing, privacy/security weakening and permanent retirement retain their owner/Human-Gate requirements.
 
 ## 2029 North Star — owner pointers only
 
@@ -96,8 +216,16 @@ Purpose: make 2029 the coherent visible product shell quickly, without pretendin
 - Posts Golden acceptance must prove generic relationships and navigation rather than slug-specific semantics: Post↔Topic/Number/Book/Source connections, list→post→context→return, and shared Research Path behavior. Decision-changing failures descend only to their owning lower seam.
 - G4 begins with the **Posts Index + Post Golden** over this semantic shell. Design readiness must never masquerade as experience acceptance.
 
-- **Accepted 2029 composition · Human Gate ZURIEL · 12.10.2026:** one slim anchored real-update strip over natural living source sections; one desktop LEFT Companion with **עדכונים | הקשר**, contextual Golden Projector nested within it, and one BOTTOM Command Island with optional section-based progress inside its trail. The RIGHT global navigation remains distinct. **Owners:** Design V2 §§8.1/11.8, System Frame V2 addendum §3.5.3, current Publishing/Research Intake/Reality Graph and Owner Index. **G4 remaining sequence:** certified source-native fragment + revision reader → Post/Home/World exact update/return → 320/390/desktop + Night/Day/Parchment/anon/admin visual/privacy acceptance. PR #1039 (Posts) and PR #1044 (Companion) remain independent unmerged implementation candidates; approval of direction is not Golden PASS, major cutover authorization, or an additional Golden.
+- **Historical accepted 2029 composition · Human Gate ZURIEL · 12.10.2026:** one slim anchored real-update strip over natural living source sections; one desktop LEFT Companion with **עדכונים | הקשר**, contextual Golden Projector nested within it, and one BOTTOM Command Island with optional section-based progress inside its trail. The RIGHT global navigation remains distinct. **Owners:** Design V2 §§8.1/11.8, System Frame V2 addendum §3.5.3, current Publishing/Research Intake/Reality Graph and Owner Index. **G4 remaining sequence at that checkpoint:** certified source-native fragment + revision reader → Post/Home/World exact update/return → 320/390/desktop + Night/Day/Parchment/anon/admin visual/privacy acceptance. PR #1039 (Posts) and PR #1044 (Companion) were independent unmerged implementation candidates at that checkpoint; approval of direction was not Golden PASS, major cutover authorization, or an additional Golden.
+- **Later composition decisions supersede only the conflicting presentation:** the old source Companion is hidden; Context, Now and the ticker remain active. Home follows the event-first/visible-series and later construction-panel decisions in Doc37. This does not reopen deferred meter/timeline work, restore an old sidebar or require historical PR reimport.
 ### Source-world completion timing after the 2026-10-07 corpus census
+
+**Current evidence correction, 3.11:** P0-A/B maps were completed in AFTER
+`af62469b-834a-4d61-9bea-b8cecb5333e8`; P0-C has the accepted archive-only research
+admission decision. Their historical maps are not missing. The obligations below
+now apply to the material delta and active public consumers, not a repeated deep
+scan. [Receipt and precise limits](docs/reviews/url-continuity-plan-20261103/source-boundaries-evidence.md).
+An archive admission decision is not permission to close chat or lose history.
 
 - **Now / before the Posts Golden is accepted:** close only the selective identity/linkage repairs and exact source/provenance seams actually used by the Golden fixtures. The completed Zvi + Sod Hashmal maps are sufficient to proceed; do **not** deep-map the whole remaining world first.
 - **During G4, before the Cross-Surface Skeleton Golden and before any 2029 Public Cutover:** complete the three P0 source-boundary maps discovered by the census: **P0-A Legacy Published Posts family**, **P0-B non-Zvi Channel/WhatsApp source-occurrence + identity**, and **P0-C OpenWeb/community admission boundary**. Required closure is boundary/identity/provenance sufficient to prevent duplicate source authority, false evidence independence and wrong attribution on active Post/Topic/Number/World/Book/Source projections; it is **not** a requirement to deep-extract every legacy item.

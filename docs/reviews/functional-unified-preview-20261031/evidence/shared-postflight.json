@@ -1,0 +1,93 @@
+{
+  "checkedAt": "2026-11-01T00:22:07Z",
+  "project": "linswmnnkjxvweumprav",
+  "approvedProposal": "609b5c34bb5ae78cdb9a762811bc3d43a40ff7bc",
+  "checks": [
+    {
+      "private_bucket": true,
+      "approved_media_column": true,
+      "migration_record": true
+    }
+  ],
+  "grants": [
+    {
+      "proname": "private_research_item_hint_media_access",
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true
+    },
+    {
+      "proname": "private_research_item_hint_media_bind",
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true
+    },
+    {
+      "proname": "private_research_item_hint_media_cleanup_access",
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true
+    },
+    {
+      "proname": "private_research_item_hint_media_cross_source_guard",
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false
+    },
+    {
+      "proname": "private_research_item_hint_media_detach",
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true
+    },
+    {
+      "proname": "private_research_item_hint_media_finalize",
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true
+    },
+    {
+      "proname": "private_research_item_hint_media_guard",
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false
+    },
+    {
+      "proname": "private_research_item_hint_media_orphan_preview",
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true
+    },
+    {
+      "proname": "private_research_item_hint_media_owner_check",
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": true
+    },
+    {
+      "proname": "private_research_item_hint_media_reference_count",
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_execute": false
+    },
+    {
+      "proname": "private_research_item_hint_media_valid",
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_execute": true
+    }
+  ],
+  "edgeFunctions": {
+    "ai-analyze": {
+      "version": 91,
+      "verifyJwt": true,
+      "exactApprovedSourceVerified": true
+    },
+    "media-upload-intent": {
+      "version": 3,
+      "verifyJwt": true,
+      "exactApprovedSourceVerified": true
+    }
+  },
+  "noUserRowsRead": true
+}

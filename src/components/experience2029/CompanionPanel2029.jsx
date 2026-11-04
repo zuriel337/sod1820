@@ -1,14 +1,19 @@
 // Left companion panel (desktop): a floating capsule that shows what entered the system everywhere on the site, plus the
 // context of the current selection as a second tab. Slim by default (icon + quiet count), opens on hover/focus or when a
-// selection exists, can be pinned open (the content moves aside). Raziel is NOT in this panel: each row asks Raziel through
-// the bottom orb. Read-only over the existing stream; relative time everywhere (relative_time_display_law).
+// selection exists, can be pinned open (the content moves aside). Raziel reuses the same panel in quiet, contextual-hint and
+// open-chat presentations while the existing bottom orb remains available. Read-only over the existing stream.
 import React from "react";
 import { Link } from "react-router-dom";
-import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
-import OrGeulaStoryColumn from "../OrGeulaStoryColumn.jsx";
+import { recordTimeLabel } from "../../lib/relativeTime2029.js";
+import OrGeulaStoryColumn from "./OrGeulaSourceShortcut2029.jsx";
+import StoryViewerOnDemand2029 from "./StoryViewerOnDemand2029.jsx";
 import "./companionPanel2029.css";
 
-export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, hasSequence = false, sequenceNode = null, onOpenHref, razielNode, hoverProps }) {
+export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel, pinned, onTogglePin, hasContext, contextNode, hasSequence = false, sequenceNode = null, onOpenHref, razielNode, razielView = "quiet", onRazielView, razielHint = "מה שמולך עכשיו", hoverProps, timeMode = "bilingual" }) {
+  // Opening a public story survives slim/full presentation remounts of its
+  // shortcut. This is one UI selection and the same canonical viewer.
+  const [sourceStory, setSourceStory] = React.useState(null);
+  const closeSourceStory = React.useCallback(() => setSourceStory(null), []);
   const open = mode !== "slim";
   const badge = feed.newCount > 9 ? "9+" : String(feed.newCount);
   return <aside className={`sod29-companion is-${mode}`} aria-label="עדכונים, הקשר ורצף האירועים" data-companion-mode={mode} {...hoverProps}>
@@ -19,9 +24,9 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
       {hasContext ? <button type="button" className="sod29-companion-ico is-ctx" onClick={() => onOpenPanel("ctx")} aria-label="הקשר"><span className="sod29-companion-ctx" aria-hidden="true" /></button> : null}
       {hasSequence ? <button type="button" className={`sod29-companion-ico is-seq${tab === "seq" ? " is-on" : ""}`} onClick={() => onOpenPanel("seq")} aria-label="רצף האירועים"><span className="sod29-companion-seq" aria-hidden="true">⋮</span></button> : null}
       <div className="sod29-companion-source-quick is-slim" aria-label="מקורות ציבוריים">
-        <OrGeulaStoryColumn variant="shortcut" limit={12} />
-        <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=zvi#world-all-convergences")} aria-label="מקורות ציבוריים של צבי"><span aria-hidden="true">צ</span></button>
-        <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=hashmal#world-all-convergences")} aria-label="ספריית סוד החשמל"><span aria-hidden="true">⚡</span></button>
+        <OrGeulaStoryColumn variant="shortcut" limit={12} onOpenStory={setSourceStory} />
+        <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=zvi#world-public-content-map")} aria-label="מקורות ציבוריים של צבי"><span aria-hidden="true">צ</span></button>
+        <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=hashmal#world-public-content-map")} aria-label="ספריית סוד החשמל"><span aria-hidden="true">⚡</span></button>
       </div>
     </div> : <div className="sod29-companion-full">
       <div className="sod29-companion-top">
@@ -36,9 +41,9 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
 
       {tab === "seq" && hasSequence ? <div className="sod29-companion-seqbody">{sequenceNode}</div> : tab === "ctx" && hasContext ? <div className="sod29-companion-ctxbody">{contextNode}</div> : <div className="sod29-companion-feed">
         <div className="sod29-companion-source-quick is-expanded" aria-label="ערוצי מקור ציבוריים">
-          <OrGeulaStoryColumn variant="shortcut" limit={12} />
-          <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=zvi#world-all-convergences")} aria-label="לקריאת מקורות צבי"><span className="sod29-companion-source-icon" aria-hidden="true">צ</span><span>צבי · הנושאים</span></button>
-          <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=hashmal#world-all-convergences")} aria-label="לקריאת סוד החשמל"><span className="sod29-companion-source-icon" aria-hidden="true">⚡</span><span>סוד החשמל · הנושאים</span></button>
+          <OrGeulaStoryColumn variant="shortcut" limit={12} onOpenStory={setSourceStory} />
+          <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=zvi#world-public-content-map")} aria-label="לקריאת מקורות צבי"><span className="sod29-companion-source-icon" aria-hidden="true">צ</span><span>צבי · הנושאים</span></button>
+          <button type="button" className="sod29-companion-source-link" onClick={() => onOpenHref("/world?subjectSource=hashmal#world-public-content-map")} aria-label="לקריאת סוד החשמל"><span className="sod29-companion-source-icon" aria-hidden="true">⚡</span><span>סוד החשמל · הנושאים</span></button>
         </div>
         <div className="sod29-companion-note">חזקים קודם, ובתוכם החדשים. חדש אינו ממצא מאומת.</div>
         {feed.loading ? <p className="sod29-companion-empty" role="status">טוען את מה שנכנס…</p> : null}
@@ -49,7 +54,7 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
             <button type="button" className="sod29-companion-open" disabled={!row.href} onClick={() => { feed.see(row); if (row.href) onOpenHref(row.href); }}>
               <span className="sod29-companion-l1">
                 <span className={`sod29-companion-ty is-${row.kind}${row.strong ? " is-strong" : ""}`}>{row.typeLabel}{row.strong ? " · ◆ חזקה" : ""}</span>
-                <span className="sod29-companion-time">{relativeTimeLabel(row.at, "זמן לא צוין")}</span>
+                <span className="sod29-companion-time">{recordTimeLabel(row.at, timeMode, "זמן לא צוין")}</span>
                 {row.isNew ? <i className="sod29-companion-dot" aria-hidden="true" /> : null}
                 {row.isNew ? <span className="sod29-companion-sr">חדש</span> : null}
               </span>
@@ -60,8 +65,21 @@ export default function CompanionPanel2029({ feed, mode, tab, onTab, onOpenPanel
         <Link className="sod29-companion-all" to="/world" onClick={() => feed.rows.forEach((row) => feed.see(row))}>כל החידושים בעולם ←</Link>
       </div>}
     </div>}
-    {razielNode ? <section className="sod29-companion-raziel" aria-label="רזיאל" hidden={!open}>
-      {razielNode}
+    {razielNode && razielView === "quiet" ? <button type="button" className="sod29-companion-raziel-quiet" data-raziel-companion-quiet="true" onClick={() => onRazielView?.("hints")} aria-label="הצג רמז מרזיאל" title="רזיאל">
+      <span aria-hidden="true">✦</span>
+    </button> : null}
+    {razielNode && razielView !== "quiet" ? <section className={`sod29-companion-raziel is-${razielView}`} aria-label="רזיאל" data-raziel-companion-view={razielView} hidden={!open}>
+      <div className="sod29-companion-raziel-view" role="group" aria-label="תצוגת רזיאל">
+        <button type="button" aria-pressed={razielView === "quiet"} onClick={() => onRazielView?.("quiet")}>שקט</button>
+        <button type="button" aria-pressed={razielView === "hints"} onClick={() => onRazielView?.("hints")}>רמזים</button>
+        <button type="button" aria-pressed={razielView === "open"} onClick={() => onRazielView?.("open")}>פתוח</button>
+      </div>
+      {razielView === "hints" ? <div className="sod29-companion-raziel-hint" data-raziel-hint="deterministic">
+        <small>אפשר להמשיך מכאן</small>
+        <p>רזיאל רואה את ההקשר: <bdi>{razielHint}</bdi></p>
+        <button type="button" onClick={() => onRazielView?.("open")}>פתח שיחה</button>
+      </div> : razielNode}
     </section> : null}
+    {sourceStory ? <StoryViewerOnDemand2029 {...sourceStory} onClose={closeSourceStory} /> : null}
   </aside>;
 }

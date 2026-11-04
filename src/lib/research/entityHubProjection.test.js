@@ -13,7 +13,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { buildMethodResultBridge, buildPhraseEntityLinks, buildEntityListQuery, resolveExplorerListParams } from "./entityHubProjection.js";
+import { buildMethodResultBridge, buildPhraseEntityLinks, buildEntityListQuery, buildPublicWorldMediaListQuery, resolveExplorerListParams } from "./entityHubProjection.js";
 import { gematriaApiResultToFindings } from "./canonicalGematria.js";
 import { isUniversalFinding } from "./universalFinding.js";
 
@@ -106,6 +106,22 @@ test("buildEntityListQuery: default limit/offset applied when omitted", () => {
   assert.equal(q.rangeStart, 0);
   assert.equal(q.rangeEnd, 24, "rangeEnd = rangeStart + limit, so range() fetches limit+1 rows for hasMore detection");
   assert.equal(q.activeOnly, true);
+});
+
+test("public World media list is bounded and uses a stable inclusive range", () => {
+  assert.deepEqual(buildPublicWorldMediaListQuery(), {
+    limit: 12,
+    rangeStart: 0,
+    rangeEnd: 12,
+    order: [["occurred_at", false], ["created_at", false], ["id", true]],
+  });
+  const bounded = buildPublicWorldMediaListQuery({ limit: 500, offset: 4.9 });
+  assert.equal(bounded.limit, 24);
+  assert.equal(bounded.rangeStart, 4);
+  assert.equal(bounded.rangeEnd, 28);
+  const nonFinite = buildPublicWorldMediaListQuery({ limit: Infinity, offset: Infinity });
+  assert.equal(nonFinite.limit, 12);
+  assert.equal(nonFinite.rangeStart, 0);
 });
 
 test("buildEntityListQuery: limit is clamped to [1, 100], never trusts caller-supplied extremes", () => {

@@ -1,0 +1,114 @@
+{
+  "status": "WIP_CALCULATOR_AND_SEO_TESTED_BEFORE_NOW_INTEGRATION",
+  "baseSha": "ae8deb7ae1775046dc616a41f66307a7881dfe70",
+  "seoFocusedTests": 38,
+  "pass": 38,
+  "fixtureCorrection": "synthetic standalone Number gate opened; no production setting changed",
+  "receipts": {
+    "seo-before.tap": {
+      "originalSha256": "839721e8edfd06148b7b69f79d92720f019d8d3459d28c1e3992101fe1871e76",
+      "archivedSha256": "715831e1f93b2bd15ce305ea7e1884287fd2a48cc27548c11c160cf03c63eb13",
+      "formatting": "trailing whitespace only"
+    },
+    "seo-first-after.tap": {
+      "originalSha256": "2bff9c17971c1acf3a91172775d3dcd8aa52a198ea10d60b7724d8b729521508",
+      "archivedSha256": "91a157835d764c4d3bd10c87f7ae66155721b776a5241a518e7c5b05d6cfd8e1",
+      "formatting": "trailing whitespace only"
+    },
+    "seo-after38.tap": {
+      "originalSha256": "fdbb1106e454c6017ef420bd34d03fb6b45c983117f43eab6114d209cd8c1011",
+      "archivedSha256": "fdbb1106e454c6017ef420bd34d03fb6b45c983117f43eab6114d209cd8c1011",
+      "formatting": "trailing whitespace only"
+    },
+    "calculator-lifecycle-before.tap": {
+      "originalSha256": "aa1185dadcf97937082f56f9b6ee2df1844106da505f4811f0fe7ff213062e7a",
+      "archivedSha256": "a5ecbd0d7ea5679d335e32d26e0bc609b7a42d1fd6d6b76be334c5bd7283defa",
+      "formatting": "trailing whitespace only"
+    },
+    "calculator-seo-lifecycle-after41.tap": {
+      "originalSha256": "ec7d1e4a26324eb6f46751661cb0e1cda68457e632370f800c44f6de910285ba",
+      "archivedSha256": "ec7d1e4a26324eb6f46751661cb0e1cda68457e632370f800c44f6de910285ba",
+      "formatting": "trailing whitespace only"
+    },
+    "integrated-unit139.tap": {
+      "originalSha256": "a34157e50715e77c13d1a4c6c09c974fad5499f8080efea8f249f575438e9420",
+      "archivedSha256": "a34157e50715e77c13d1a4c6c09c974fad5499f8080efea8f249f575438e9420",
+      "formatting": "trailing whitespace only"
+    },
+    "number-continuity12.tap": {
+      "originalSha256": "94a44ce4049e9a72dc2cc64526412e0aca3d77f9b6355a78d5c277b71dcda1ac",
+      "archivedSha256": "94a44ce4049e9a72dc2cc64526412e0aca3d77f9b6355a78d5c277b71dcda1ac",
+      "formatting": "trailing whitespace only"
+    },
+    "language-after3.tap": {
+      "originalSha256": "33e0b19fa682901c7c4f39bbdbc5006e3702dd35bbd052f0c89eb0844752b2b4",
+      "archivedSha256": "33e0b19fa682901c7c4f39bbdbc5006e3702dd35bbd052f0c89eb0844752b2b4",
+      "formatting": "trailing whitespace only"
+    },
+    "initial-regressions-with-fixture-and-stale-artifact.tap": {
+      "originalSha256": "026d45d62c2c1306c80a6a6ab987dc942e8e4658d2408fa1b628882b4fb14c5c",
+      "archivedSha256": "07227592f24c9b6ffece1c02236c45667255b3798e2ee152a190411d84dbf1bc",
+      "formatting": "trailing whitespace only"
+    }
+  },
+  "production": false,
+  "calculatorNotYetIntegrated": false,
+  "scriptChecks": [
+    {
+      "script": "test-calculator-2029-classic-view.mjs",
+      "exitCode": 0
+    },
+    {
+      "script": "test-calculator-2029-equals-preview.mjs",
+      "exitCode": 0
+    },
+    {
+      "script": "test-calculator-2029-pro.mjs",
+      "exitCode": 0
+    },
+    {
+      "script": "test-calculator-2029-semantic-surface.mjs",
+      "exitCode": 0
+    },
+    {
+      "script": "test-calculator-2029-golden.mjs",
+      "exitCode": 0
+    },
+    {
+      "script": "test-calculator-2029-compare.mjs",
+      "exitCode": 0
+    },
+    {
+      "script": "test-calculator-2029-opening.mjs",
+      "exitCode": 0
+    },
+    {
+      "script": "test-method-lens-2029.mjs",
+      "exitCode": 0,
+      "targetedRetryReason": "old phrase-only assertion omitted the accepted selected-method argument; assertion strengthened, NumberCore unchanged"
+    },
+    {
+      "script": "test-experience-context-2029.mjs",
+      "exitCode": 0
+    },
+    {
+      "script": "test-2029-server-seo-ai-parity.mjs",
+      "exitCode": 0
+    },
+    {
+      "script": "test-legacy-production-lock.mjs",
+      "exitCode": 0
+    }
+  ],
+  "calculatorSource": "b06f0ff879f6d5a463f507c685afacb827ba03ae",
+  "calculatorDeltaApplied": true,
+  "lifecycleBeforeFail": 3,
+  "focusedAfter": 41,
+  "finalUnitPass": 139,
+  "additionalNumberContinuityPass": 12,
+  "languagePass": 3,
+  "legacyAnd2029Build": "PASS",
+  "publicDormantBuild": "PASS",
+  "nowNotYetIntegrated": true,
+  "nextProductBaseIncludes": "cb882fad"
+}

@@ -1,0 +1,34 @@
+/* Ahavat Torah prototype card. Compact image beside the content on phones, spacious card on desktop. */
+.sod29-book-grid .books29-card{display:grid;grid-template-columns:clamp(92px,26vw,150px) minmax(0,1fr);gap:clamp(14px,2.4vw,28px);align-items:start;padding:clamp(14px,2.2vw,26px);grid-column:1/-1;color:var(--s29-ink);text-decoration:none}
+.books29-card-cover{width:100%;height:auto;aspect-ratio:560/704;object-fit:cover;border:1px solid var(--s29-line-strong);border-radius:8px;background:var(--s29-panel);box-shadow:0 12px 28px -18px color-mix(in srgb,var(--s29-ink) 60%,transparent)}
+.books29-card-body{min-width:0;display:grid;gap:8px}
+.books29-card h3{margin:0;font:690 clamp(22px,2.6vw,32px)/1.2 var(--s29-font-display)}
+.books29-card-author{margin:0;color:var(--s29-muted);font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
+.books29-card-summary{margin:0;max-width:64ch;font:400 var(--s29-type-ui)/1.7 var(--s29-font-body)}
+.books29-card-topics{margin:2px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.books29-card-topics li{padding:5px 11px;border:1px solid var(--s29-line);border-radius:999px;font:500 var(--s29-type-small)/1.3 var(--s29-font-ui);color:var(--s29-muted)}
+.books29-card-actions{margin-block-start:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.books29-card-actions a{min-height:44px;padding:9px 20px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font:650 var(--s29-type-ui)/1.3 var(--s29-font-ui)}
+.books29-card .books29-card-actions a.books29-card-primary{background:var(--s29-accent-btn);color:var(--s29-on-accent);border:1px solid transparent}
+.books29-card .books29-card-actions a.books29-card-secondary{border:1px solid var(--s29-line-strong);color:var(--s29-ink)}
+.books29-card-actions a:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+@media(max-width:650px){.books29-card-summary{font-size:var(--s29-type-small)}.books29-card-actions a{flex:1 1 130px}}
+
+.books29-preparation{min-width:0;display:grid;gap:8px;margin-block:10px;color:var(--s29-ink)}
+.books29-preparation-heading{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
+.books29-preparation-heading>span{color:var(--s29-muted)}
+.books29-preparation-heading strong{font-weight:600}
+.books29-preparation-heading strong bdi{font-family:var(--s29-font-numeric)}
+.books29-preparation progress{width:100%;height:10px;accent-color:var(--s29-accent)}
+.books29-preparation summary{min-height:44px;display:flex;align-items:center;cursor:pointer;text-decoration:underline;text-underline-offset:4px;font:500 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
+.books29-preparation summary:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
+.books29-preparation details p{font:400 var(--s29-type-small)/1.7 var(--s29-font-body);color:var(--s29-muted)}
+.books29-preparation ul{list-style:none;padding:0;display:grid;gap:8px}
+.books29-preparation li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font:400 var(--s29-type-ui)/1.5 var(--s29-font-ui)}
+.books29-library-tile{min-width:0;display:flex;flex-direction:column;gap:8px}
+.sod29-book-grid:has(.books29-preparation){grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
+.books29-library-tile .sod29-book-cover{height:110px;min-height:0;width:86px}
+.books29-library-tile>h3{overflow-wrap:anywhere}
+.books29-library-tile .books29-card-actions{margin-block-start:auto}
+.books29-card-actions button{min-height:44px;padding:9px 20px;font:500 var(--s29-type-ui)/1.4 var(--s29-font-ui);border:1px solid var(--s29-line-strong);border-radius:999px;background:var(--s29-panel-soft);color:var(--s29-muted);cursor:not-allowed;opacity:1}
+@media(max-width:650px){.sod29-book-grid .books29-card{grid-template-columns:clamp(64px,18vw,96px) minmax(0,1fr);gap:12px}.books29-card-actions button{flex:1 1 130px}.books29-card .books29-preparation{grid-column:1/-1}}

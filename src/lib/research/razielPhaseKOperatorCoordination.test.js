@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { ordinaryRazielStages } from "../../../test/helpers/raziel-ordinary-stages.mjs";
 import { stripTypeScriptTypes } from "node:module";
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), "utf8");
@@ -116,7 +117,10 @@ test("Phase K: one db_rpc span per owner call with caller JWT, no payload in spa
 test("Phase K: call-site answers L0 (no model); pack feeds synthesis; runs before the model call", () => {
   assert.match(callSite, /model: "none", intelligence_level: "deterministic"/);
   assert.match(callSite, /if \(op\.ok && op\.pack\) rOpPack = op\.pack/);
-  assert.ok(edge.indexOf("runRazielCoordination(") < edge.indexOf("callClaudeReliable("));
+  const requestPath = edge.slice(edge.indexOf('if (String(body?.persona || "").toLowerCase() === "raziel")'), edge.indexOf('const isCollection = kind === "research"'));
+  const coordination = requestPath.indexOf("runRazielCoordination(rCoordDesc");
+  const stages = ordinaryRazielStages(requestPath);
+  assert.ok(coordination > stages.quota && coordination < stages.model);
 });
 
 test("Phase K: migration extends only fn_raziel_plan; grammar admin-gated; routing OFF; no tables/policies/grants/provider names", () => {

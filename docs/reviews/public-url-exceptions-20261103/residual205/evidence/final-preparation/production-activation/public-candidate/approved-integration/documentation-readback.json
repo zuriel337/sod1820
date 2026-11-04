@@ -1,0 +1,18 @@
+{
+  "doc37SectionPrepared": "12.40",
+  "masterStateAndRoadmapCurrentStatus": "APPROVED_INTEGRATED_PROTECTED_PREVIEW_ACCEPTED_ONLY",
+  "routeMatrixActiveRows": [
+    "F26",
+    "F27",
+    "F32"
+  ],
+  "originalAddressesUnchanged": true,
+  "historicalProposalPreserved": true,
+  "twoAccountsRetained": true,
+  "mailBDApprovalStillPending": true,
+  "socialCallbackOwnerDeferred": true,
+  "genuineCP1Pending": true,
+  "noFullG4Claim": true,
+  "currentDatabaseBackupAndMediaRisk": "OWNER_ACCEPTED_UNVERIFIED_NOT_PASS",
+  "runtimeSourceSha": "21f1a8d9e3e3fc6c7c35583ac79aee28f5e92b41"
+}

@@ -1,0 +1,193 @@
+{
+  "cases": [
+    {
+      "surface": "feed",
+      "width": 320,
+      "theme": "light",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "author",
+      "width": 320,
+      "theme": "light",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "feed",
+      "width": 320,
+      "theme": "parchment",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "author",
+      "width": 320,
+      "theme": "parchment",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "feed",
+      "width": 320,
+      "theme": "dark",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "author",
+      "width": 320,
+      "theme": "dark",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "feed",
+      "width": 390,
+      "theme": "light",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "author",
+      "width": 390,
+      "theme": "light",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "feed",
+      "width": 390,
+      "theme": "parchment",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "author",
+      "width": 390,
+      "theme": "parchment",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "feed",
+      "width": 390,
+      "theme": "dark",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "author",
+      "width": 390,
+      "theme": "dark",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "feed",
+      "width": 1440,
+      "theme": "light",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "author",
+      "width": 1440,
+      "theme": "light",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "feed",
+      "width": 1440,
+      "theme": "parchment",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "author",
+      "width": 1440,
+      "theme": "parchment",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "feed",
+      "width": 1440,
+      "theme": "dark",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "author",
+      "width": 1440,
+      "theme": "dark",
+      "edit": true,
+      "reload": true,
+      "no_ai": true
+    },
+    {
+      "surface": "personal-return",
+      "width": 320,
+      "tombstone_reload": true,
+      "child_retained": true,
+      "exact_return": true
+    },
+    {
+      "surface": "personal-return",
+      "width": 390,
+      "tombstone_reload": true,
+      "child_retained": true,
+      "exact_return": true
+    },
+    {
+      "surface": "personal-return",
+      "width": 1440,
+      "tombstone_reload": true,
+      "child_retained": true,
+      "exact_return": true
+    },
+    {
+      "mode": "guest",
+      "no_fake_success": true
+    },
+    {
+      "mode": "unavailable",
+      "no_fake_success": true
+    },
+    {
+      "mode": "failed-edit",
+      "no_fake_success": true
+    },
+    {
+      "mode": "failed-delete",
+      "no_fake_success": true
+    },
+    {
+      "mode": "pending-account-switch",
+      "no_fake_success": true
+    }
+  ],
+  "errors": [],
+  "unexpected_writes": [],
+  "model_attempts": [],
+  "sql_live": false
+}

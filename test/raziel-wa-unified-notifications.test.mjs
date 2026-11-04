@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { mock } from "node:test";
 import { mergeTopicsForSave, mergeChannelsForSave, ADMIN_TOPIC_KEYS, gatesToTopics } from "../src/lib/notifications.js";
+import { saveNotificationPrefs, supabase } from "../src/lib/supabase.js";
 
 const mig = fs.readFileSync("supabase/migrations/20261006210000_raziel_whatsapp_unified_notifications_v1.sql", "utf8");
 const code = mig.replace(/^--.*$/gm, "");
@@ -31,10 +33,52 @@ for (const x of gatesToTopics(["consciousness"])) assert.ok(t.includes(x));
 assert.deepEqual(mergeTopicsForSave([], { gates: [], adminTopics: [] }), []);                    // admin:raziel_activity default off
 assert.ok(!mergeTopicsForSave(["admin:system_high"], { gates: [], adminTopics: [] }).includes("admin:system_high")); // admin can turn off
 assert.deepEqual(mergeTopicsForSave([], { gates: [], adminTopics: ["admin:system_high", "admin:attention", "bogus"] }), ["admin:system_high"]); // attention not savable
-assert.deepEqual(mergeChannelsForSave(null, {}), ["email"]);
+// Follow v19: saving preferences or quiet mode is not consent to a new email channel.
+for (const existing of [undefined, null, []]) {
+  assert.deepEqual(mergeChannelsForSave(existing, {}), [], "missing/empty channels stay opted out");
+}
+assert.deepEqual(mergeChannelsForSave([], { push: true }), ["push"], "explicit push adds no email");
+assert.deepEqual(mergeChannelsForSave(["push"], { push: false }), [], "disabling the last channel does not enable email");
+assert.deepEqual(mergeChannelsForSave(null, { whatsapp: true, whatsappAllowed: false }), []);
+assert.deepEqual(mergeChannelsForSave(null, { whatsapp: true, whatsappAllowed: true }), ["whatsapp"]);
+const savedChannels = ["email", "sms", "push", "email"];
+assert.deepEqual(mergeChannelsForSave(savedChannels, {}), ["email", "sms"], "unrelated existing channels are preserved");
+assert.deepEqual(savedChannels, ["email", "sms", "push", "email"], "building preferences does not mutate the loaded row");
 assert.deepEqual(mergeChannelsForSave(["email", "push", "sms"], { push: true }), ["email", "sms", "push"]);
 assert.ok(!mergeChannelsForSave(["email"], { whatsapp: true, whatsappAllowed: false }).includes("whatsapp"));
 assert.ok(mergeChannelsForSave(["email"], { whatsapp: true, whatsappAllowed: true }).includes("whatsapp"));
+
+// Exercise the real preference-save path: an accidental email channel also inserts a subscriber.
+// Every persistence method and network request is intercepted; only synthetic data is used.
+const writes = [];
+const fromMock = mock.method(supabase, "from", (table) => {
+  if (table === "notification_prefs") return { upsert: async (row) => { writes.push({ table, row }); return { error: null }; } };
+  if (table === "subscribers") return { insert: async (rows) => { writes.push({ table, rows }); return { error: null }; } };
+  throw new Error(`Unexpected persistence target: ${table}`);
+});
+const fetchMock = mock.method(globalThis, "fetch", async () => { throw new Error("Live network forbidden in consent regression"); });
+try {
+  const owner = { userId: "00000000-0000-4000-8000-000000000001", email: "owner@example.invalid", topics: ["number:1820"] };
+  for (const existing of [undefined, null, []]) {
+    for (const mutedUntil of [null, "2030-01-01T00:00:00.000Z"]) {
+      writes.length = 0;
+      assert.deepEqual(await saveNotificationPrefs({ ...owner, channels: mergeChannelsForSave(existing, {}), mutedUntil }), { ok: true });
+      assert.deepEqual(writes.map(write => write.table), ["notification_prefs"], "save/quiet mode never subscribes an opted-out user");
+      assert.deepEqual(writes[0].row.channels, []);
+      assert.deepEqual(writes[0].row.topics, owner.topics);
+      assert.equal(writes[0].row.muted_until, mutedUntil);
+    }
+  }
+  // Positive control proves the spy observes the existing, explicitly selected email path.
+  writes.length = 0;
+  assert.deepEqual(await saveNotificationPrefs({ ...owner, channels: ["email"] }), { ok: true });
+  assert.deepEqual(writes.map(write => write.table), ["notification_prefs", "subscribers"]);
+  assert.equal(writes[1].rows[0].source, "notification-center");
+  assert.equal(fetchMock.mock.callCount(), 0, "no live network or subscriber writes");
+} finally {
+  fromMock.mock.restore();
+  fetchMock.mock.restore();
+}
 const nc = fs.readFileSync("src/components/NotificationCenter.jsx", "utf8");
 assert.match(nc, /useWaLink/); assert.match(nc, /wa\.linked/);
 assert.doesNotMatch(nc, /["']\/(admin|archive|number|or-geula)/);

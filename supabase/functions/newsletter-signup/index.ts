@@ -1,3 +1,4 @@
+import { OPENING_PURPOSE, OPENING_SOURCE, OPENING_CONTRACT, openingSubscriber, openingExistingStatus, SITE_UPDATES_PURPOSE, SITE_UPDATES_SOURCE, SITE_UPDATES_CONTRACT, siteUpdatesSubscriber, siteUpdatesExistingStatus } from "./purpose.js";
 // 🎓 newsletter-signup — קליטת הרשמה לניוזלטר. v6: + מצב-JSON (?format=json) + CORS + קליטת ref + זיכוי-הפניה.
 // v7 (23.7.2026): אוטומציית מייל-פתיחה — נרשם חדש (201) מקבל מיד את מייל-הפתיחה (newsletter_welcome)
 //   כ-RAW (התוכן כבר מייל שלם — בלי wrap כפול), עם החלפת {{UNSUB}} (הסרה) ו-{{OPEN}} (פיקסל-פתיחה) לכל נמען.
@@ -12,6 +13,9 @@ const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "authorization, x-client-info, apikey, content-type",
   "access-control-allow-methods": "POST, OPTIONS",
+  "access-control-expose-headers": "x-newsletter-purpose-contract",
+  "x-newsletter-purpose-contract": `${OPENING_CONTRACT},${SITE_UPDATES_CONTRACT}`,
+  "cache-control": "no-store",
 };
 
 const safeBack = (raw: string) => {
@@ -86,6 +90,7 @@ Deno.serve(async (req) => {
   let back = SITE + DEFAULT_BACK;
   try {
     let email = "", source = "gematria-lesson-1", ref = "";
+    let purpose = "general", consent = false;
     // WIRING: תצלום-ייחוס (acquisition) + visitor_id הקנוני מגיעים מהלקוח (JSON body או שדה-טופס
     // מוסתר). אובייקט או מחרוזת-JSON — שניהם נתמכים. נשמרים ב-subscribers.acquisition ומקשרים
     // את הנרשם למסע שהוביל להרשמה. פרסינג-כשל = null (לא מפיל הרשמה).
@@ -98,13 +103,23 @@ Deno.serve(async (req) => {
     const ct = req.headers.get("content-type") || "";
     if (ct.includes("json")) {
       const j = await req.json();
+      purpose = String(j.purpose || "general"); consent = j.consent === true;
       email = String(j.email || ""); source = String(j.source || source); back = safeBack(String(j.back || "")); ref = String(j.ref || "");
       acquisition = parseAcq(j.acquisition); visitorId = String(j.visitor_id || "");
     } else {
       const fd = await req.formData();
+      purpose = String(fd.get("purpose") || "general"); consent = fd.get("consent") === "true";
       email = String(fd.get("email") || ""); source = String(fd.get("source") || source); back = safeBack(String(fd.get("back") || "")); ref = String(fd.get("ref") || "");
       acquisition = parseAcq(fd.get("acquisition")); visitorId = String(fd.get("visitor_id") || "");
     }
+    if (!["general", OPENING_PURPOSE, SITE_UPDATES_PURPOSE].includes(purpose) || (source === OPENING_SOURCE && purpose !== OPENING_PURPOSE) || (source === SITE_UPDATES_SOURCE && purpose !== SITE_UPDATES_PURPOSE)) return jsonRes("invalid-purpose", false);
+    if (purpose !== "general" && !consent) return jsonRes("consent-required", false);
+    // Purpose-scoped consent envelopes. Never converts one purpose into another or into the general list.
+    const scoped = purpose === OPENING_PURPOSE
+      ? { contract: OPENING_CONTRACT, build: openingSubscriber, status: openingExistingStatus, column: "opening_updates_consented_at" }
+      : purpose === SITE_UPDATES_PURPOSE
+        ? { contract: SITE_UPDATES_CONTRACT, build: siteUpdatesSubscriber, status: siteUpdatesExistingStatus, column: "site_updates_consented_at" }
+        : null;
     email = email.trim().toLowerCase();
     ref = ref.trim();
     if (ref) source = (source + "|ref:" + ref).slice(0, 120);
@@ -117,9 +132,12 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { apikey: key, authorization: `Bearer ${key}`, "content-type": "application/json", prefer: "return=minimal" },
       // acquisition נכתב רק אם התקבל — אחרת השדה נשאר null (Rank, Don't Hide: לא ממציאים ייחוס).
-      body: JSON.stringify(acquisition ? { email, source: source.slice(0, 120), acquisition } : { email, source: source.slice(0, 120) }),
+      body: JSON.stringify(scoped ? scoped.build(email, consent) : (acquisition ? { email, source: source.slice(0, 120), acquisition } : { email, source: source.slice(0, 120) })),
     });
     if (res.status === 201) {
+      // A purpose-scoped consent never starts welcome, marketing attribution,
+      // referral credits, account creation, Follow or another delivery channel.
+      if (scoped) return new Response(JSON.stringify({ ok: true, status: "new", purpose, contract: scoped.contract }), { headers: { "content-type": "application/json", ...CORS } });
       // 🔗 קישור-מבקר בזמן-ההרשמה: אירוע 'signup' עם אותו visitor_id (service-role → עוקף RLS).
       //    כך אפשר לשחזר Visitor→events→signup בלי להעתיק היסטוריה ל-subscriber. לא-קריטי.
       if (visitorId) {
@@ -147,6 +165,14 @@ Deno.serve(async (req) => {
     }
     const txt = await res.text();
     if (res.status === 409 || /duplicate|unique/i.test(txt)) {
+      if (scoped) {
+        // Never overwrite a stranger's existing consent or undo opt-out from an anonymous form.
+        const existing = await fetch(`${url}/rest/v1/subscribers?email=eq.${encodeURIComponent(email)}&select=active,unsubscribed_at,email_purposes,${scoped.column}&limit=1`, { headers: { apikey: key, authorization: `Bearer ${key}` } });
+        if (!existing.ok) return jsonRes("error", false);
+        const rows = await existing.json();
+        const status = scoped.status(rows?.[0]);
+        return new Response(JSON.stringify({ ok: status === "exists", status, purpose, contract: scoped.contract }), { status: status === "exists" ? 200 : 409, headers: { "content-type": "application/json", ...CORS } });
+      }
       return wantJson ? jsonRes("exists", true) : page("אתם כבר איתנו! 🎓", "המייל הזה כבר רשום.", back, "🎓");
     }
     return wantJson ? jsonRes("error", false) : page("משהו השתבש", `נסו שוב בעוד רגע. [${res.status}]`, back, "⚠️");

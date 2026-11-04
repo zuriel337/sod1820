@@ -1,0 +1,165 @@
+{
+  "deployment": {
+    "id": "dpl_HkHEX4wARqRcHQ6JnCmDwhmthTae",
+    "url": "https://sod1820-ayio9gtsh-sod1820-s-projects.vercel.app",
+    "status": "READY",
+    "environment": "preview",
+    "source_sha": "9684032e2926ea2ba693155d5d4acde2b435da07",
+    "build_duration_ms": 24659,
+    "access": "Existing Vercel authentication protection retained"
+  },
+  "http_checks": [
+    {
+      "path": "/legacy-dark-bg-post-720-8f3a91ae32df.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "robots": "noindex",
+      "bytes": 5720,
+      "expectedBytes": 5720,
+      "immutable": true
+    },
+    {
+      "path": "/legacy-dark-bg-post-1280-6ca0167e2dda.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "robots": "noindex",
+      "bytes": 13846,
+      "expectedBytes": 13846,
+      "immutable": true
+    },
+    {
+      "path": "/dimension-five-night-720-a608fa1bd777.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "robots": "noindex",
+      "bytes": 16068,
+      "expectedBytes": 16068,
+      "immutable": true
+    },
+    {
+      "path": "/dimension-five-night-1280-fed0a0b53207.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "robots": "noindex",
+      "bytes": 42388,
+      "expectedBytes": 42388,
+      "immutable": true
+    },
+    {
+      "path": "/sod-hashmal-night-720-90d9a95561e9.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "robots": "noindex",
+      "bytes": 19206,
+      "expectedBytes": 19206,
+      "immutable": true
+    },
+    {
+      "path": "/sod-hashmal-night-1280-42ded30738bd.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "robots": "noindex",
+      "bytes": 59162,
+      "expectedBytes": 59162,
+      "immutable": true
+    },
+    {
+      "path": "/mah-kore-habora-night-720-883ada3afb2f.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "robots": "noindex",
+      "bytes": 22530,
+      "expectedBytes": 22530,
+      "immutable": true
+    },
+    {
+      "path": "/mah-kore-habora-night-1280-8bce64abed3a.webp",
+      "status": 200,
+      "contentType": "image/webp",
+      "cacheControl": "public, max-age=31536000, immutable",
+      "robots": "noindex",
+      "bytes": 58050,
+      "expectedBytes": 58050,
+      "immutable": true
+    },
+    {
+      "path": "/posts-preview-identity.json",
+      "status": 200,
+      "contentType": "application/json; charset=utf-8",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "robots": "noindex",
+      "identity": {
+        "branch": "gpt/posts-integrated-backgrounds-20261030",
+        "sha": "9684032e2926ea2ba693155d5d4acde2b435da07",
+        "target": "preview",
+        "readOnly": true,
+        "realModelCalls": false
+      }
+    },
+    {
+      "path": "/preview-readonly-sw.js",
+      "status": 200,
+      "contentType": "application/javascript; charset=utf-8",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "robots": "noindex",
+      "readOnlyWorker": true
+    },
+    {
+      "path": "/post/koach-hashtika-dim5",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "robots": "noindex",
+      "readOnlyBootstrap": true
+    },
+    {
+      "path": "/post/lehitaneg-al-hashem-birkat-hatorah-esev-sade-behema",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "robots": "noindex",
+      "readOnlyBootstrap": true
+    },
+    {
+      "path": "/post/mah-kore-france-october-obadiah",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "robots": "noindex",
+      "readOnlyBootstrap": true
+    },
+    {
+      "path": "/post/matrix-506",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "robots": "noindex",
+      "readOnlyBootstrap": true
+    }
+  ],
+  "browser": {
+    "hosted": "Not verified: execution network Envoy returned 403 to automated browser; authenticated Vercel fetch returned 200.",
+    "local_full_app": {
+      "cases": 12,
+      "errors": 0,
+      "horizontal_overflow": 0
+    }
+  },
+  "tests": {
+    "total": 125,
+    "pass": 125,
+    "fail": 0,
+    "skipped": 0
+  },
+  "production": {
+    "deployment_id": "dpl_AiKPHaoo5pxo9T5PFTpcBRG7LfMA",
+    "unchanged": true
+  }
+}

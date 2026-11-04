@@ -1,0 +1,27 @@
+# אהבת תורה — המשך הסברים לעמודי החידושים
+
+BEFORE · GPT to ZURIEL · AHAVAT_NOVELLAE_71_92_20261028
+
+Base `d081c14b73f67d4e7ec623c02338c1cf675f4cdf`, isolated continuation. Dedicated read-only coordination checked; earlier Ahavat integration and spatial contract audit claims were followed by releases. No live log write claimed. Current origin/main `2195c9784c5c9f0b1ec3cd3c1137fbd76045845b` is not merged. Reuse Intake v13, Truth v3, Translation v4, Experience v10 and Coordination v17. Scope: source-grounded companion explanations for PDF 71–92, existing reader integration and focused acceptance. Preserve all prior source and companion identities, source links, ambiguous numbers, other books and Production. Original PDF SHA-256 `895e9a720d984adf8ea453b644e3f6d0864e101238f348f418aa5fafa20e9c8b`. Original text and source scans are the authority; explanations remain companion material.
+
+## Checkpoint · PDF 71–80
+
+Thirty selected companion units cover ten page scans and embedded text: Sabbath before Passover, thanksgiving, repeated words, Moses awaiting instruction, the afflicted house, parental reverence, Yom Kippur, the sukkah, the continual lamp, land and jubilee, census and Levites, peace, blessings, second Passover, prophecy, choice, the spies, Korach, the red heifer, study and action, the waters of Meribah, Balak's messengers, the donkey and public responsibility. The existing page-71 boundary for the Moses count and page-78 distinction from unlocated transmission data remain explicit. The 89 page records outside 71–80 are hash-preserved against the base. The existing URL projection and source validation now accept the new 30 units; all 75 earlier IDs remain unchanged. These selected explanations are not complete transcriptions or explanations of every paragraph.
+
+Local checks at checkpoint: focused content/source-gap tests 12/12; selected Books static suite 340/340; language 3/3, auth 4/4, both builds and weight/graph, and Legacy lock pass. The full browser matrix is running; hosted acceptance remains pending. Pages 81–92 remain to be explained, and pages 93–99 remain to be reviewed separately.
+
+## Continuation · PDF 81–92
+
+Thirty-six further selected units, three per page, cover leadership and vows; journeys, sanctuary cities and the high priest; intention and communal leadership; Torah wisdom and the nations; tablets of the covenant; blessing, charity, festivals, judges and kings; birthright, remembrance and tefillin; covenant, rebuke, the song and its proposed connections to Torah portions; and the final blessings. Original page-90 provenance distinguishing the rebuke from an unlocated numeric table is preserved. The source PDF scans and embedded page text were reviewed. The new explanations do not certify quotations, numerical interpretations, or engine results.
+
+The combined reading cut now contains 141 selected units across the complete novellae sequence PDF 46–92; this is page coverage, not exhaustive paragraph-by-paragraph commentary. All 77 other page records are hash-preserved against the continuation base, including the earlier 75 selected units. PDF 93–99, additional paragraphs within 46–92, original roots proofreading and unresolved numeric datasets remain separate future work. No new 3D model, package, engine or database change is introduced.
+
+Validation in progress: focused tests 12/12, selected Books non-browser suite 340/340, public language 3/3, Auth Guard 4/4, both builds and graph/weight, and Legacy lock pass. A 105-unit sequential browser run exceeded its existing 300-second limit after eight cases; the final 141-unit run retains every assertion and the same time limit while running the three isolated color contexts concurrently per width. The final-page deep link is also checked separately. PDF-native and hosted checks are tracked independently from navigation fixtures.
+
+## Accepted locally · AFTER
+
+The final browser run passes 3/3: all 141 units in 320/390/1440 × light/parchment/dark, failure/foreign-source fixtures, and direct PDF 92 deep-link, return and refresh on all three widths. No browser cases were skipped. Each of 1,269 unit visits checks the selected unit, exact PDF fragment, visible source link, type sizes and touch target. The navigation matrix aborts PDF requests; a separate native PDF test passed for the hash-matched Ahavat 99-page and Yetzirah 220-page sources, including desktop fullscreen enter/exit. The matrix retained its 300-second budget and all checks; DOM measurements were batched to reduce round trips.
+
+All 340 selected Books non-browser tests pass. Language 3/3, Auth Guard 4/4, normal and two-flag Preview builds and graph/weight, and Legacy Production Lock pass. Preview eager JS gzip is 376,854 bytes; the on-demand companion asset is 235,750 bytes / 38,898 gzip bytes. Its SHA-256 is `1d677008e461310a59e23072d01c0067a496aed17a55264813847dd2ce93e2c9`. Hosted Preview acceptance must be verified against the final delivery SHA and asset separately; the local browser tests are not a hosted browser run.
+
+GPT to ZURIEL: six delivery paths are this note, the existing commentary asset, two Ahavat reader data helpers, and the two novellae tests. Ownership of this local scope is released at delivery. The live coordination connection is read-only; no live AFTER write is claimed. No new engine result, spatial model, source PDF, numeric dataset, Legacy, Production or database change was made.

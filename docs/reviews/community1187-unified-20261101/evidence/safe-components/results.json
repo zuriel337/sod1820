@@ -1,0 +1,297 @@
+{
+  "sourceBase": "6df07087eabd78f7d1b56438b147e2d957ff0ac8",
+  "fullIsolationRun": false,
+  "liveA3Invoked": false,
+  "canonicalNetworkBlock": "preload fails and audits canonical fetch/http attempts; not a Docker network-none claim",
+  "results": [
+    {
+      "step": 1,
+      "name": "One Tree content contract acceptance",
+      "command": "npm run test:one-tree-content",
+      "exitCode": 0,
+      "seconds": 0.77
+    },
+    {
+      "step": 2,
+      "name": "Experience Context 2029 acceptance",
+      "command": "npm run test:experience-context",
+      "exitCode": 0,
+      "seconds": 0.164
+    },
+    {
+      "step": 3,
+      "name": "Entry Orientation + Contextual Learn 2029 acceptance",
+      "command": "npm run test:entry-learn-2029",
+      "exitCode": 1,
+      "seconds": 0.214
+    },
+    {
+      "step": 4,
+      "name": "Contact Gateway canonical owner acceptance",
+      "command": "npm run test:issue-report",
+      "exitCode": 0,
+      "seconds": 0.716
+    },
+    {
+      "step": 5,
+      "name": "My Workspace 2029 native home acceptance",
+      "command": "npm run test:my-workspace-2029",
+      "exitCode": 0,
+      "seconds": 0.164
+    },
+    {
+      "step": 6,
+      "name": "No Black Box operational trace acceptance",
+      "command": "npm run test:operational-trace",
+      "exitCode": 0,
+      "seconds": 0.168
+    },
+    {
+      "step": 7,
+      "name": "Web Vitals metric core acceptance",
+      "command": "node scripts/test-web-vitals-2029.mjs",
+      "exitCode": 0,
+      "seconds": 0.064
+    },
+    {
+      "step": 8,
+      "name": "Operational Trace Runtime persistence acceptance",
+      "command": "npm run test:operational-trace-runtime",
+      "exitCode": 0,
+      "seconds": 0.164
+    },
+    {
+      "step": 9,
+      "name": "AI-Analyze early paid paths trace coverage acceptance",
+      "command": "node test/ai-analyze-early-trace-coverage.test.mjs\nnode scripts/test-ai-analyze-service-headers.mjs\nnode --test test/raziel-quota-trace.test.mjs\n",
+      "exitCode": 0,
+      "seconds": 0.67
+    },
+    {
+      "step": 10,
+      "name": "Replayable Golden No-Black-Box acceptance",
+      "command": "npm run test:replayable-golden",
+      "exitCode": 0,
+      "seconds": 0.368
+    },
+    {
+      "step": 11,
+      "name": "Server capability execution gate acceptance",
+      "command": "npm run test:server-capability-gate",
+      "exitCode": 0,
+      "seconds": 0.166
+    },
+    {
+      "step": 12,
+      "name": "W2 public Number research runtime acceptance",
+      "command": "npm run test:research-run",
+      "exitCode": 0,
+      "seconds": 0.265
+    },
+    {
+      "step": 13,
+      "name": "Package W2 research-run Edge transport",
+      "command": "npm run package:research-run",
+      "exitCode": 1,
+      "seconds": 0.565
+    },
+    {
+      "step": 14,
+      "name": "2029 server SEO / AI metadata parity",
+      "command": "npm run test:2029-server-seo-ai",
+      "exitCode": 0,
+      "seconds": 0.214
+    },
+    {
+      "step": 15,
+      "name": "Research Path resumability runtime acceptance",
+      "command": "npm run test:research-path-resume",
+      "exitCode": 0,
+      "seconds": 0.265
+    },
+    {
+      "step": 16,
+      "name": "Home 2029 System Pulse acceptance",
+      "command": "npm run test:home-2029-pulse",
+      "exitCode": 0,
+      "seconds": 0.164
+    },
+    {
+      "step": 17,
+      "name": "2029 cheap route/test/least-privilege hardening",
+      "command": "npm run test:2029-cheap-hardening",
+      "exitCode": 1,
+      "seconds": 0.214
+    },
+    {
+      "step": 18,
+      "name": "Legacy Research containment + unopened Heichal entrypoint acceptance",
+      "command": "npm run test:legacy-research-containment",
+      "exitCode": 0,
+      "seconds": 0.164
+    },
+    {
+      "step": 19,
+      "name": "Source isolation regression",
+      "command": "node scripts/test-2029-isolation.mjs",
+      "exitCode": 0,
+      "seconds": 0.064
+    },
+    {
+      "step": 20,
+      "name": "G4 source-section update / World / Companion public-read acceptance",
+      "command": "node --test src/lib/research/postSourceUpdates2029.test.js src/lib/research/worldDiscoveryStream.test.js src/lib/systemFeed2029.test.js src/lib/heroUpdate2029.test.js",
+      "exitCode": 0,
+      "seconds": 0.214
+    },
+    {
+      "step": 21,
+      "name": "Native System Frame acceptance",
+      "command": "node scripts/test-2029-system-frame.mjs",
+      "exitCode": 0,
+      "seconds": 0.064
+    },
+    {
+      "step": 22,
+      "name": "Raziel server-gated Result Bundle consumer acceptance",
+      "command": "node --test src/lib/research/razielServerGatedConsumer.currentMain.test.js",
+      "exitCode": 0,
+      "seconds": 0.114
+    },
+    {
+      "step": 23,
+      "name": "Canonical 2029 contract wiring acceptance",
+      "command": "node scripts/test-2029-canonical-contract-wiring.mjs",
+      "exitCode": 0,
+      "seconds": 0.116
+    },
+    {
+      "step": 24,
+      "name": "Person identity bridge foundation acceptance",
+      "command": "node test/person-identity-bridge-foundation.test.mjs",
+      "exitCode": 0,
+      "seconds": 0.064
+    },
+    {
+      "step": 25,
+      "name": "Account Person completeness foundation acceptance",
+      "command": "node test/account-person-completeness-foundation.test.mjs",
+      "exitCode": 0,
+      "seconds": 0.064
+    },
+    {
+      "step": 26,
+      "name": "Person public resolver foundation acceptance",
+      "command": "node test/person-public-resolver-foundation.test.mjs",
+      "exitCode": 0,
+      "seconds": 0.064
+    },
+    {
+      "step": 27,
+      "name": "People identity projection acceptance",
+      "command": "node test/people-identity-review-2029-contract.test.mjs",
+      "exitCode": 0,
+      "seconds": 0.064
+    },
+    {
+      "step": 28,
+      "name": "Person Profile 2029 projection acceptance",
+      "command": "node test/person-profile-2029-projection.test.mjs",
+      "exitCode": 0,
+      "seconds": 0.064
+    },
+    {
+      "step": 29,
+      "name": "People Directory 2029 projection acceptance",
+      "command": "node test/people-directory-2029-projection.test.mjs",
+      "exitCode": 0,
+      "seconds": 0.064
+    },
+    {
+      "step": 30,
+      "name": "Native World surface acceptance",
+      "command": "node scripts/test-2029-world-surface.mjs",
+      "exitCode": 0,
+      "seconds": 0.214
+    },
+    {
+      "step": 31,
+      "name": "World Convergence PR591 focused acceptance",
+      "command": "npm run test:world-convergence-pr591",
+      "exitCode": 0,
+      "seconds": 0.365
+    },
+    {
+      "step": 32,
+      "name": "Native Topic surface acceptance",
+      "command": "node scripts/test-2029-topic-surface.mjs",
+      "exitCode": 0,
+      "seconds": 0.115
+    },
+    {
+      "step": 33,
+      "name": "Native Researcher corpus acceptance",
+      "command": "node scripts/test-2029-researcher-corpus.mjs",
+      "exitCode": 0,
+      "seconds": 0.064
+    },
+    {
+      "step": 34,
+      "name": "Native Number preview acceptance",
+      "command": "node scripts/test-2029-number-preview.mjs",
+      "exitCode": 0,
+      "seconds": 0.164
+    },
+    {
+      "step": 35,
+      "name": "Native 2029 Control Plane trace drill-down acceptance",
+      "command": "node scripts/test-2029-control-plane.mjs",
+      "exitCode": 0,
+      "seconds": 0.066
+    },
+    {
+      "step": 36,
+      "name": "Production build",
+      "command": "npm run build",
+      "exitCode": 0,
+      "seconds": 3.884
+    },
+    {
+      "step": 37,
+      "name": "Built dependency graph isolation",
+      "command": "node scripts/test-2029-built-graph.mjs",
+      "exitCode": 0,
+      "seconds": 0.166
+    },
+    {
+      "step": 38,
+      "name": "Verify isolated HTML artifact",
+      "command": "test -f dist/2029.html\n! grep -q \"site.webmanifest\" dist/2029.html\n! grep -q \"/logo.png\" dist/2029.html\n",
+      "exitCode": 0,
+      "seconds": 0.008
+    },
+    {
+      "step": 39,
+      "name": "Supplementary A3 existing correlation and actual-handler mocked persistence tests",
+      "command": "node --test test/g3-client-correlation.test.mjs test/research-run-trace-finish.test.mjs",
+      "exitCode": 0,
+      "seconds": 0.47
+    }
+  ],
+  "reruns": [
+    {
+      "step": 13,
+      "command": "PATH=/tmp/ci1185-helpers/node_modules/.bin:$PATH npm run package:research-run",
+      "exitCode": 0,
+      "pinnedEsbuildVersion": "0.28.2",
+      "reason": "unchanged pinned npx command could not find local executable; same exact installed binary added only to PATH"
+    }
+  ],
+  "finalPassed": 37,
+  "finalFailed": 2,
+  "remainingFailuresPreexistOnExactBase": [
+    3,
+    17
+  ],
+  "canonicalRequestsAttempted": 0
+}

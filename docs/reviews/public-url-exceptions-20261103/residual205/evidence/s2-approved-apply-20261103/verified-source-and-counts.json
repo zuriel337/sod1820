@@ -1,0 +1,49 @@
+{
+  "applied": true,
+  "approvedBefore": "951a982f-6d23-4d1f-8a1e-cf4131320545",
+  "functionTargetHashesMatch": 8,
+  "unchangedFunctionOwnerAcl": true,
+  "reviewedLanguageReaderProperties": {
+    "function": "lang_links_list(text)",
+    "volatility": [
+      "v",
+      "s"
+    ],
+    "searchPath": [
+      [
+        "search_path=public"
+      ],
+      [
+        "search_path=pg_catalog, public"
+      ]
+    ],
+    "reason": "exact reviewed SELECT-only reader hardening"
+  },
+  "unchangedOtherFunctionProperties": true,
+  "unchangedAdminPolicy": true,
+  "unchangedRelationAclRlsOptions": true,
+  "unchangedProductRowCounts": {
+    "posts_count": 1320,
+    "language_links_count": 13,
+    "contributors_count": 2331,
+    "research_contributions_count": 41527
+  },
+  "rowCountReaderBypassesRls": true,
+  "migrationCount": [
+    1108,
+    1110
+  ],
+  "appliedMigrations": [
+    {
+      "name": "public_s2_guarded_readers",
+      "version": "20261103175116"
+    },
+    {
+      "name": "control_health_unknown_failures",
+      "version": "20261103175126"
+    }
+  ],
+  "rollbackExecuted": false,
+  "productDmlExecuted": false,
+  "siteProductionDeployment": false
+}

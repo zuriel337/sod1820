@@ -1,0 +1,222 @@
+{
+  "baseline": {
+    "cases": 3,
+    "publicReads": 276,
+    "transportErrors": 0,
+    "blockedRequests": 15,
+    "blockedKinds": [
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "POST",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "count": 6
+      },
+      {
+        "origin": "https://sod1820.co.il",
+        "method": "GET",
+        "path": "/els-icon.png",
+        "count": 1
+      },
+      {
+        "origin": "https://i.ytimg.com",
+        "method": "GET",
+        "path": "/vi/Jp0pxGofPjQ/hqdefault.jpg",
+        "count": 1
+      },
+      {
+        "origin": "https://i.ytimg.com",
+        "method": "GET",
+        "path": "/vi/PAzHf6Flzsk/hqdefault.jpg",
+        "count": 1
+      },
+      {
+        "origin": "https://i.ytimg.com",
+        "method": "GET",
+        "path": "/vi/9L8KHXPdcxI/hqdefault.jpg",
+        "count": 1
+      },
+      {
+        "origin": "https://i.ytimg.com",
+        "method": "GET",
+        "path": "/vi/DClJVGBMCs0/hqdefault.jpg",
+        "count": 1
+      },
+      {
+        "origin": "https://i.ytimg.com",
+        "method": "GET",
+        "path": "/vi/48XUKUXAveY/hqdefault.jpg",
+        "count": 1
+      },
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "GET",
+        "path": "/auth/v1/settings",
+        "count": 3
+      }
+    ],
+    "productWritesForwarded": 0,
+    "modelCallsForwarded": 0
+  },
+  "product-complete": {
+    "cases": 33,
+    "publicReads": 2792,
+    "transportErrors": 0,
+    "blockedRequests": 141,
+    "blockedKinds": [
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "POST",
+        "path": "/rest/v1/rpc/ingest_event",
+        "count": 24
+      },
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "POST",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "count": 34
+      },
+      {
+        "origin": "https://sod1820.co.il",
+        "method": "GET",
+        "path": "/els-icon.png",
+        "count": 8
+      },
+      {
+        "origin": "https://i.ytimg.com",
+        "method": "GET",
+        "path": "/vi/Jp0pxGofPjQ/hqdefault.jpg",
+        "count": 6
+      },
+      {
+        "origin": "https://i.ytimg.com",
+        "method": "GET",
+        "path": "/vi/PAzHf6Flzsk/hqdefault.jpg",
+        "count": 6
+      },
+      {
+        "origin": "https://i.ytimg.com",
+        "method": "GET",
+        "path": "/vi/9L8KHXPdcxI/hqdefault.jpg",
+        "count": 6
+      },
+      {
+        "origin": "https://i.ytimg.com",
+        "method": "GET",
+        "path": "/vi/DClJVGBMCs0/hqdefault.jpg",
+        "count": 5
+      },
+      {
+        "origin": "https://i.ytimg.com",
+        "method": "GET",
+        "path": "/vi/48XUKUXAveY/hqdefault.jpg",
+        "count": 5
+      },
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "GET",
+        "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/captions/he.vtt",
+        "count": 2
+      },
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "GET",
+        "path": "/auth/v1/settings",
+        "count": 5
+      },
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "GET",
+        "path": "/rest/v1/rpc/canonical_follow_subject",
+        "count": 40
+      }
+    ],
+    "productWritesForwarded": 0,
+    "modelCallsForwarded": 0
+  },
+  "tool-dock-classic": {
+    "cases": 3,
+    "publicReads": 7,
+    "transportErrors": 0,
+    "blockedRequests": 0,
+    "blockedKinds": [],
+    "productWritesForwarded": 0,
+    "modelCallsForwarded": 0
+  },
+  "regression": {
+    "cases": 18,
+    "publicReads": 1496,
+    "transportErrors": 0,
+    "blockedRequests": 99,
+    "blockedKinds": [
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "POST",
+        "path": "/rest/v1/rpc/ingest_event",
+        "count": 17
+      },
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "GET",
+        "path": "/rest/v1/rpc/canonical_follow_subject",
+        "count": 74
+      },
+      {
+        "origin": "https://www.youtube.com",
+        "method": "GET",
+        "path": "/embed/PAzHf6Flzsk",
+        "count": 1
+      },
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "POST",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "count": 6
+      },
+      {
+        "origin": "https://sod1820.co.il",
+        "method": "GET",
+        "path": "/els-icon.png",
+        "count": 1
+      }
+    ],
+    "productWritesForwarded": 0,
+    "modelCallsForwarded": 0
+  },
+  "typed-number-final": {
+    "cases": 2,
+    "publicReads": 137,
+    "transportErrors": 0,
+    "blockedRequests": 0,
+    "blockedKinds": [],
+    "productWritesForwarded": 0,
+    "modelCallsForwarded": 0
+  },
+  "transitions-final": {
+    "cases": 1,
+    "publicReads": 6405,
+    "transportErrors": 0,
+    "blockedRequests": 99,
+    "blockedKinds": [
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "POST",
+        "path": "/rest/v1/rpc/notification_prefs_guest_get_v1",
+        "count": 40
+      },
+      {
+        "origin": "https://linswmnnkjxvweumprav.supabase.co",
+        "method": "GET",
+        "path": "/storage/v1/object/public/media/sod1820/2029/video/2026/10/23e813b7-2a15-4429-b035-bf4203028016/captions/he.vtt",
+        "count": 40
+      },
+      {
+        "origin": "https://sod1820.co.il",
+        "method": "GET",
+        "path": "/els-icon.png",
+        "count": 19
+      }
+    ],
+    "productWritesForwarded": 0,
+    "modelCallsForwarded": 0
+  }
+}

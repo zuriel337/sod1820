@@ -1,0 +1,283 @@
+{
+  "worktree": "/workspace/sod1820-functional-preview",
+  "generatedDirectory": "test-results",
+  "bytes": 55922252,
+  "files": [
+    {
+      "path": "test-results/release-visual/entry-learn-post-390.png",
+      "bytes": 144774,
+      "sha256": "0450483fdb9ebaf7dd9c12f34b012ad63bbe322445233bf4aa25673c5dfa00f2",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/expression-focus-chinam-98-390.png",
+      "bytes": 1181259,
+      "sha256": "b6945ea5171a241f78cb616bf7e5f8c0a1e90c23912a25a581bd053166908fd8",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/hashmal-projector-dark-1440.png",
+      "bytes": 4906707,
+      "sha256": "fd50667ad7cc430f1ae0ce9b2ce710c1e1207476ef359ba4e9b482e10d09ba72",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/hashmal-projector-dark-390.png",
+      "bytes": 4954918,
+      "sha256": "bc3193d13c0c5646a6aa222b0ea418d88ff0618fa6499d942026cc168c010399",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/hashmal-projector-light-1440.png",
+      "bytes": 6782909,
+      "sha256": "b499fce10937b65c30f01595c95e7be4d11ba693fae89cc1ddeec27b70fa2da9",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/hashmal-projector-light-390.png",
+      "bytes": 6320715,
+      "sha256": "dab53d7f5b7ca249c906820bcc060a8a409ddae0bc5df921fa029d7991ad3bc8",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/hashmal-projector-parchment-1440.png",
+      "bytes": 6975301,
+      "sha256": "6572d54470de2b62deb0f4fcfeaa942103fe8e9542d6cdafdb9ea8b8c91dea96",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/hashmal-projector-parchment-390.png",
+      "bytes": 6535800,
+      "sha256": "174e26ded8e57d24283c74e620bb08143281bb8ec5effc421d55142b368c3ae0",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/number-2029-1118-canonical-verses-390.png",
+      "bytes": 1435220,
+      "sha256": "d1337ff7d2f04f7c1280dea85e9351787cc928578d759e9dbeb0a016963c78e3",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/number-2029-drawer-1237-390.png",
+      "bytes": 119602,
+      "sha256": "d61c868d3bba921d3a48e384b82112dd89c004539f053921a62bc75e44d37755",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/number-2029-drawer-1326-390.png",
+      "bytes": 85422,
+      "sha256": "55400f540c6ad9a56904c0a4bb211f7ae3d387502fc68ed41a918c238eac033e",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/number-2029-drawer-358-390.png",
+      "bytes": 81443,
+      "sha256": "f7a548baa705e82f56c6f250fa450c374a11623c6faff16d32c367a3e14a5b68",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/number-2029-drawer-878-390.png",
+      "bytes": 79558,
+      "sha256": "ac3dc6f7673a08c03ec0de77cd52d817ce65e475b4e40794b08d4bfbd9903894",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/number-2029-preview-1237-390.png",
+      "bytes": 1503679,
+      "sha256": "a4c994f498de1a5e404c582930dfcca4b80a330dcdd1ab7ef4d85047c26ae240",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/number-2029-preview-1326-390.png",
+      "bytes": 1339271,
+      "sha256": "ebff97aca456e9805e1a5346445fcaabfecc84c0d6be59e3d432f4b760e317c6",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/number-2029-preview-358-390.png",
+      "bytes": 1419977,
+      "sha256": "58d8bd002fdeb1c4ae50f0de5f927bf05216340b81f1bd4dce9011b6d53b899e",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/number-2029-preview-878-390.png",
+      "bytes": 1454659,
+      "sha256": "eea2eb8819c6574682180ae0f7623d7a97d1378d8b7427255c5bf93fe48c369b",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/number-2029-v10-miluy-358-390.png",
+      "bytes": 1452928,
+      "sha256": "67863460fb3180a4328e9bc816a197bda1fe204050b8bd9205cc2f5885502b8e",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/researcher-corpus-gated-390.png",
+      "bytes": 71328,
+      "sha256": "ddd2e0afe23717724f8898256e1b6d6a50c9434ced59c71683e3e24b5e3e95ee",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/topic-2029-888-390.png",
+      "bytes": 277736,
+      "sha256": "48b7431aaecfb5dba42d10b00c47a9340da3d4546fcb5b2a751020292750947c",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-878-public-media-locked-390.png",
+      "bytes": 403352,
+      "sha256": "16f7b70af19d5621f4d0a0be458a6fdbebbbdfdc2d6c50d32f601a91c1f5159e",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-core-320.png",
+      "bytes": 422179,
+      "sha256": "85ddf73602a3322ee1c9d2106df00dbab1f379deaffad8c222b22da4534a4bb3",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-core-360.png",
+      "bytes": 455048,
+      "sha256": "2680aba01be8fa25bae64b7aef8fb06502076d84fb75fd49c0c12242b1413090",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-core-390.png",
+      "bytes": 403063,
+      "sha256": "8e4aff92f2e679019f65df0fb01de2599b48488721abe30536f7bb222ac25120",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-error-390.png",
+      "bytes": 95749,
+      "sha256": "ae29deac478c1a5dc64a1a73cc463eb3a5ac5bc3d270053c249b88abe1ed135e",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-human-projection-1820-390.png",
+      "bytes": 348903,
+      "sha256": "8cd60eba943c5b963d6cb65c9beb5a6f68317675df02f9e94518b5f2744814d9",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-landing-390.png",
+      "bytes": 156974,
+      "sha256": "73eaba5a4874cdae22dac5eb9c04448ab155a1c2fad2aceb0aeea1809c6f0d4d",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-loading-390.png",
+      "bytes": 105111,
+      "sha256": "ca936d72cef8f731d251f80cdf0ffc838bf20d410da797a0c09a5b80a943ae69",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-media-1820-390.png",
+      "bytes": 632396,
+      "sha256": "92b87e690f2dd4487344232569f3c24af1f2bf0c2f8df2184ea777dfceddbc6c",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-medium-314-390.png",
+      "bytes": 287239,
+      "sha256": "d1e4dc9e1b3c11c372aff32a65befab5a5f65d3649976ff02b2c02e9d00c1976",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-partial-access-1820-390.png",
+      "bytes": 370920,
+      "sha256": "a7c61bec5a197eb9ff4fbf0e185e3a6d1846509a662895fb92099e8c7f42e1b4",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-rich-1820-1440.png",
+      "bytes": 650366,
+      "sha256": "b6f06562044e657399326fc2a49df7f776ee764aba074806a4d11def560d479f",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-rich-1820-320-zoom200.png",
+      "bytes": 308221,
+      "sha256": "f23b049163bbdf546951b62ae1dcd82a85b61232d13a6b797f46c26eb92d10a1",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-rich-1820-320.png",
+      "bytes": 353903,
+      "sha256": "96373ffb7cd14287240cb4ee3f3707e93596e9b1ce51500aaca7066f99789ca6",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-rich-1820-360.png",
+      "bytes": 362828,
+      "sha256": "5983ad558af706a63633a6df227ceadec04e02f9edd2617910c48273e766ff12",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-rich-1820-390.png",
+      "bytes": 371829,
+      "sha256": "582bb9f5c9c8beb4f2b9144e6fe03f6f1ec2fd6c3733fbdb93fd5ad4f7d92c08",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-rich-1820-filters-390.png",
+      "bytes": 391852,
+      "sha256": "eb175eeee1721261e1d0c3b09397e5ee595ba8e26d8703f71130933f8b991724",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-rich-1820-reduced-motion-390.png",
+      "bytes": 487099,
+      "sha256": "b1cb0c1b6c8109a5d6a434f8f0279e588923c6c79e59926851931284cd12c68a",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-sparse-122-390.png",
+      "bytes": 169375,
+      "sha256": "d5dc68a8ac8f8b24805f307bd1d0ebb6ed2f485ff8fca70daad41404e321833f",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/world-unavailable-390.png",
+      "bytes": 95658,
+      "sha256": "9adedb42067381627f3b80a9e2e42ed279f4cf7397164fb3a0f4acc32c9dd86e",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/writer-projector-dark-1440.png",
+      "bytes": 366919,
+      "sha256": "ee8ce019d67d780923420c5fedc4750a02cca5591c8f094d9933f8f5fcde029c",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/writer-projector-dark-390.png",
+      "bytes": 180908,
+      "sha256": "57740882b88bbaf317bf1ef56f7b15284cf760e14b1a5c79f2c80ea6f0708397",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/writer-projector-light-1440.png",
+      "bytes": 511058,
+      "sha256": "1ece1749dd8e38e2fc69f5454081d59b92338446ed4aeba2b507e9f0660a4f78",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/writer-projector-light-390.png",
+      "bytes": 91612,
+      "sha256": "5855d4af17dac7f4328caf8278c0c6a8db3923317eb67836c539883f689c731a",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/writer-projector-parchment-1440.png",
+      "bytes": 529039,
+      "sha256": "3467b69c1732668cdf33d558a339448fbede7c8edcdcafee701aaa110c335098",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    },
+    {
+      "path": "test-results/release-visual/writer-projector-parchment-390.png",
+      "bytes": 247445,
+      "sha256": "586283baa8f491b676912d3896dae1a3bf550705d8bd8b11463489f02c86a60d",
+      "state": "generated public/synthetic guest browser artifact retained locally; representative visual files committed separately"
+    }
+  ]
+}

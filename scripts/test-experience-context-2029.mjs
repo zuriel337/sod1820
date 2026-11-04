@@ -17,6 +17,7 @@ for (const [surface, expectedQuestion] of [
   [EXPERIENCE_SURFACE.NUMBER, "מה המספר הזה מראה?"],
   [EXPERIENCE_SURFACE.TOPIC, "מה מחבר את הציר הזה?"],
   [EXPERIENCE_SURFACE.BOOKS, "מה המקור אומר?"],
+  [EXPERIENCE_SURFACE.BEIT_MIDRASH, "איך לומדים ומבינים את השיטה?"],
 ]) {
   const ctx = resolveExperienceContext({ surface, locale: "he-IL" });
   assert.equal(ctx.surface, surface);

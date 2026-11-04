@@ -1,0 +1,147 @@
+{
+  "capturedAt": "2026-11-01T01:40:04.005Z",
+  "transport": "two anonymous public REST GET pages; explicit existing draft/forum exclusion; no product writes",
+  "total": 1304,
+  "counts": {
+    "legacy": 1177,
+    "modern": 127
+  },
+  "bySource": {
+    "wordpress": {
+      "legacy": 1176,
+      "modern": 0
+    },
+    "ai": {
+      "legacy": 1,
+      "modern": 114
+    },
+    "SOD1820": {
+      "legacy": 0,
+      "modern": 5
+    },
+    "source_document": {
+      "legacy": 0,
+      "modern": 5
+    },
+    "uploaded_file": {
+      "legacy": 0,
+      "modern": 3
+    }
+  },
+  "collisions": [],
+  "indexation": "No Google Search Console or URL Inspection access used. This is URL/provenance evidence, not proof of Google indexing.",
+  "reviewedExceptions": [
+    {
+      "id": 92,
+      "slug": "%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99",
+      "source": "wordpress",
+      "link": "https://sod1820.co.il/%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99/",
+      "wp_id": 34200,
+      "date": "2024-09-29T06:29:04+00:00",
+      "created_at": "2026-06-07T07:08:14.092476+00:00",
+      "home_hidden": false,
+      "path": "/%d7%97%d7%99%d7%a1%d7%95%d7%9c-%d7%a0%d7%a1%d7%a8%d7%90%d7%9c%d7%9c%d7%94-%d7%94%d7%aa%d7%a8%d7%97%d7%a9-%d7%91%d7%99%d7%95%d7%9d-%d7%94358-%d7%9c%d7%9c%d7%97%d7%99%d7%9e%d7%94-%d7%9e%d7%a9%d7%99/",
+      "kind": "legacy",
+      "basis": "wordpress_origin"
+    },
+    {
+      "id": 1342,
+      "slug": "%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%9b%d7%9c-%d7%94%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-1820-%d7%a1%d7%95%d7%93-%d7%94",
+      "source": "ai",
+      "link": "https://sod1820.co.il/%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%9b%d7%9c-%d7%94%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-1820-%d7%a1%d7%95%d7%93-%d7%94/",
+      "wp_id": 4756,
+      "date": "2015-05-28T14:17:15+00:00",
+      "created_at": "2026-06-07T07:17:35.586964+00:00",
+      "home_hidden": false,
+      "path": "/%d7%a8%d7%a9%d7%99%d7%9e%d7%aa-%d7%9b%d7%9c-%d7%94%d7%92%d7%99%d7%9e%d7%98%d7%a8%d7%99%d7%95%d7%aa-1820-%d7%a1%d7%95%d7%93-%d7%94/",
+      "kind": "legacy",
+      "basis": "wordpress_origin"
+    },
+    {
+      "id": 2601,
+      "slug": "פרה-אדומה-תמימה-נולדה-בגליל",
+      "source": "ai",
+      "link": "https://sod1820.co.il/פרה-אדומה-תמימה-נולדה-בגליל",
+      "wp_id": 36936,
+      "date": "2026-06-14T18:59:20.785944+00:00",
+      "created_at": "2026-06-14T18:59:20.785944+00:00",
+      "home_hidden": false,
+      "path": "/post/%D7%A4%D7%A8%D7%94-%D7%90%D7%93%D7%95%D7%9E%D7%94-%D7%AA%D7%9E%D7%99%D7%9E%D7%94-%D7%A0%D7%95%D7%9C%D7%93%D7%94-%D7%91%D7%92%D7%9C%D7%99%D7%9C",
+      "kind": "modern",
+      "basis": "native_publication_provenance"
+    },
+    {
+      "id": 5020,
+      "slug": "צופן-חותים-5784",
+      "source": "ai",
+      "link": null,
+      "wp_id": 36962,
+      "date": "2024-08-08T12:00:00+00:00",
+      "created_at": "2026-07-15T06:32:59.618411+00:00",
+      "home_hidden": true,
+      "path": "/post/%D7%A6%D7%95%D7%A4%D7%9F-%D7%97%D7%95%D7%AA%D7%99%D7%9D-5784",
+      "kind": "modern",
+      "basis": "native_publication_provenance"
+    },
+    {
+      "id": 5084,
+      "slug": "birkat-kohanim-spatial-1820-898",
+      "source": "ai",
+      "link": "https://sod1820.co.il/birkat-kohanim-spatial-1820-898",
+      "wp_id": 37021,
+      "date": "2026-08-26T23:35:18.623378+00:00",
+      "created_at": "2026-08-26T23:35:18.623378+00:00",
+      "home_hidden": false,
+      "path": "/post/birkat-kohanim-spatial-1820-898",
+      "kind": "modern",
+      "basis": "native_publication_provenance"
+    },
+    {
+      "id": 5104,
+      "slug": "sod-hashmal-rosh-hashana-5787-keren-shofar-brit-111",
+      "source": "source_document",
+      "link": "/sod-hashmal-rosh-hashana-5787-keren-shofar-brit-111",
+      "wp_id": null,
+      "date": "2026-09-09T09:53:27.456103+00:00",
+      "created_at": "2026-09-09T09:53:27.456103+00:00",
+      "home_hidden": false,
+      "path": "/post/sod-hashmal-rosh-hashana-5787-keren-shofar-brit-111",
+      "kind": "modern",
+      "basis": "native_publication_provenance"
+    },
+    {
+      "id": 5110,
+      "slug": "remzei-geula-ai-sod-hashir",
+      "source": "source_document",
+      "link": "/remzei-geula-ai-sod-hashir",
+      "wp_id": 37043,
+      "date": "2026-09-24T14:20:57.016957+00:00",
+      "created_at": "2026-09-24T14:20:57.016957+00:00",
+      "home_hidden": false,
+      "path": "/post/remzei-geula-ai-sod-hashir",
+      "kind": "modern",
+      "basis": "native_publication_provenance"
+    },
+    {
+      "id": 5112,
+      "slug": "flydubai-fz1073-363-14000-remzei-geula",
+      "source": "ai",
+      "link": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "wp_id": 37044,
+      "date": "2026-09-30T20:15:36.179757+00:00",
+      "created_at": "2026-09-30T17:35:46.188956+00:00",
+      "home_hidden": false,
+      "path": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "kind": "modern",
+      "basis": "native_publication_provenance"
+    }
+  ],
+  "verifiedImportBoundary": {
+    "lastImportedWordPressId": 36935,
+    "firstNativeWordPressSequenceId": 36936,
+    "firstNativeAiCreatedAt": "2026-06-14T18:59:20.785944Z",
+    "basis": "immutable import/publication provenance; not a date window or evidence of Google indexing"
+  },
+  "wordPressOriginalPathMismatches": [],
+  "publicHomeHiddenPostsStillReadable": 21
+}

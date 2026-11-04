@@ -145,4 +145,57 @@ const missingRefs = projectPeopleDirectory2029([
 assert.equal(missingRefs.totalPeople, 2);
 assert.equal(missingRefs.diagnostics.missingPersonRefs, 2);
 
+// Unknown is not zero: missing/non-numeric stay null, known zero stays 0, and both are visible on the card.
+const person = (ref, name, metrics, extra = {}) => ({ person: { personRef: ref, displayName: name, lastSeen: extra.lastSeen ?? null }, metrics, ...extra.rest });
+const unknownNorm = normalizePeopleDirectoryPerson(person("p:u", "לא ידוע", { messages: null, hints: "", findings: "bad", publications: 0 }));
+assert.equal(unknownNorm.metrics.messages, null);
+assert.equal(unknownNorm.metrics.hints, null);
+assert.equal(unknownNorm.metrics.findings, null);
+assert.equal(unknownNorm.metrics.publications, 0, "a measured zero stays zero");
+assert.equal(unknownNorm.metrics.activeDays, null, "an absent metric is unknown");
+assert.equal(unknownNorm.communityImpact.score, null);
+assert.equal(unknownNorm.communityImpact.reactionsReceived, null);
+
+// Sorting: known values (including a known zero) outrank unknown ones; unknown keeps the explicit tie-breakers.
+const unknownSortRows = [
+  person("p:unknown-b", "ב", {}, { lastSeen: "2026-10-22T00:00:00Z" }),
+  person("p:zero", "אפס", { messages: 0 }, { lastSeen: "2026-10-01T00:00:00Z" }),
+  person("p:five", "חמש", { messages: 5 }, { lastSeen: "2026-10-02T00:00:00Z" }),
+  person("p:unknown-a", "א", {}, { lastSeen: "2026-10-23T00:00:00Z" }),
+];
+const unknownByMessages = projectPeopleDirectory2029(unknownSortRows, { sort: "messages" });
+assert.deepEqual(unknownByMessages.rows.map((row) => row.personRef), ["p:five", "p:zero", "p:unknown-a", "p:unknown-b"]);
+assert.deepEqual(unknownByMessages.sortCoverage, { sort: "messages", known: 2, unknown: 2 });
+assert.deepEqual(unknownByMessages.rows[0].unknownMetrics.includes("messages"), false);
+assert.equal(unknownByMessages.rows[2].unknownMetrics.includes("messages"), true);
+assert.equal(unknownByMessages.emptyReason, null);
+
+// recent: a missing lastSeen is unknown and sorts after every known time.
+const byRecent = projectPeopleDirectory2029([
+  { person: { personRef: "p:never", displayName: "ללא זמן" } },
+  { person: { personRef: "p:old", displayName: "ישן", lastSeen: "2020-01-01T00:00:00Z" } },
+], { sort: "recent" });
+assert.deepEqual(byRecent.rows.map((row) => row.personRef), ["p:old", "p:never"]);
+
+// All-unknown sort metric is reported, not shown as a ranking of zeros.
+const allUnknown = projectPeopleDirectory2029([person("p:1", "א", {}), person("p:2", "ב", {})], { sort: "findings" });
+assert.deepEqual(allUnknown.sortCoverage, { sort: "findings", known: 0, unknown: 2 });
+
+// Standing sort: no standing / unparseable level is unknown, below R0 which is known.
+const standing = projectPeopleDirectory2029([
+  { person: { personRef: "p:r0", displayName: "R0" }, capabilities: { researcher: true }, researchStanding: { level: "R0" } },
+  { person: { personRef: "p:nolevel", displayName: "בלי" }, capabilities: { researcher: true }, researchStanding: { label: "תורם קבוע" } },
+  { person: { personRef: "p:community", displayName: "קהילה" } },
+  { person: { personRef: "p:r3", displayName: "R3" }, capabilities: { researcher: true }, researchStanding: { level: "R3" } },
+], { sort: "researchStanding" });
+assert.deepEqual(standing.rows.slice(0, 2).map((row) => row.personRef), ["p:r3", "p:r0"]);
+assert.deepEqual(standing.sortCoverage, { sort: "researchStanding", known: 2, unknown: 2 });
+
+// Filters never treat unknown as a match; empty states say why.
+assert.equal(projectPeopleDirectory2029([person("p:u", "א", {})], { filter: "hints" }).emptyReason, "no_match");
+assert.equal(projectPeopleDirectory2029([person("p:h", "א", { hints: 0 })], { filter: "hints" }).visiblePeople, 0);
+assert.equal(projectPeopleDirectory2029([person("p:h", "א", { hints: 2 })], { filter: "hints" }).visiblePeople, 1);
+assert.equal(projectPeopleDirectory2029([], {}).emptyReason, "no_people");
+assert.equal(projectPeopleDirectory2029([person("p:x", "אבג", {})], { query: "zzz" }).emptyReason, "no_match");
+
 console.log("people directory 2029 projection: PASS");

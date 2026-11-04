@@ -5,6 +5,7 @@ import { signupAttribution, visitorId } from "../lib/acquisition.js";
 import { SUPABASE_ANON, SUPABASE_URL } from "../lib/supabase.js";
 import { captureAcquisition, captureArrivalSource, track } from "../lib/tracking.js";
 import "./early-access-2029.css";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 
 const CAMPAIGN = "early-access-2029";
 const SIGNUP_SOURCE = "whatsapp-early-access-2029";
@@ -24,6 +25,7 @@ export default function EarlyAccess2029Page() {
 
   useEffect(() => {
     document.title = "SOD1820 — המערכת החדשה נבנית";
+    if (PUBLIC_READING_RELEASE) return;
     try {
       captureArrivalSource();
       captureAcquisition();
@@ -39,6 +41,7 @@ export default function EarlyAccess2029Page() {
 
   async function submitEmail(event) {
     event.preventDefault();
+    if (PUBLIC_READING_RELEASE) return;
     const value = email.trim().toLowerCase();
     if (!validEmail(value)) {
       setState("invalid");
@@ -173,7 +176,7 @@ export default function EarlyAccess2029Page() {
         <h2 id="early-access-signup-title">קבלו עדכון כשהשלב הבא של המערכת נפתח.</h2>
         <p>השאירו מייל ונשלח לכם את העדכון הראשון כשהכלים החדשים נפתחים לציבור.</p>
 
-        {state === "new" || state === "exists" ? (
+        {PUBLIC_READING_RELEASE ? <p role="status">עמוד הקמפיין נשמר לקריאה. ההרשמה אינה זמינה בפריוויו הזה.</p> : state === "new" || state === "exists" ? (
           <div className="sod29-early-access-success" role="status">
             {state === "new" ? "נרשמתם ✓ העדכון הראשון בדרך אליכם." : "אתם כבר רשומים ✓ נתראה בעדכון הבא."}
           </div>

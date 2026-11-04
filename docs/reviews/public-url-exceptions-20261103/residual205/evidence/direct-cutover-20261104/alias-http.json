@@ -1,0 +1,12 @@
+[
+  {
+    "origin": "https://www.sod1820.co.il",
+    "status": 308,
+    "location": "https://sod1820.co.il/world?keep=one&keep=two"
+  },
+  {
+    "origin": "https://sod1820.vercel.app",
+    "status": 308,
+    "location": "https://sod1820.co.il/world?keep=one&keep=two"
+  }
+]

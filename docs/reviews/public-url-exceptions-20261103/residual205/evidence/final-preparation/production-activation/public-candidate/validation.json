@@ -1,0 +1,27 @@
+{
+  "baseSha": "01662ab57e92ea71332c05ca971a2280ddb988ea",
+  "testsPassed": 49,
+  "testsFailed": 0,
+  "skipped": 0,
+  "compiledDefaultMode": "real local build, dormant and never hosted",
+  "productionIdentityTests": "synthetic local values only; not injected into a real Vercel deployment",
+  "allLiveFetchesBlockedInNewCandidateTests": true,
+  "existingArtifactAssertionsPreserved": true,
+  "existingTestOnlyAdaptation": "explicit indexable canonical fixture alongside already explicit authorized fixture; all old assertions retained exactly",
+  "acceptedExistingForumAndWPAssertions": "Forum308 and WP2481 original-address tests retained",
+  "apiIndexingFinding": "fixed in proposal: direct document API noindex independent of eligible owner metadata",
+  "unchangedSourceGate": "legacy-production-lock and one-tree tests still mandatory and unchanged",
+  "harnessCorrections": [
+    "VM required standard require and URLSearchParams globals",
+    "raw URL.search includes its leading question mark",
+    "old partial fixture artifact test was rebased to exact accepted01662 before adding index scope",
+    "complete tracked-source fixture built locally so physical artifact assertions were executed"
+  ],
+  "initialBuildInvocation": "accepted-tree ordinary dormant builder ran before isolated proposal build; only ignored local outputs regenerated, no source or hosted change",
+  "partialRunsNotAddedToFinalTestCount": true,
+  "notRun": "No real Production build/deployment, traffic switch, OAuth login, mail, model, account/data write, G4 or full Isolation seal",
+  "retainedProtectedPreviewTests": 10,
+  "allExistingArtifactContractsExecuted": 21,
+  "physicalArtifactChecksExecutedAfterActualIsolatedDormantBuild": true,
+  "earlierPartialRunsNotCountedAgain": true
+}

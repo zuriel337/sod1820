@@ -9,10 +9,25 @@ const css = readFileSync(new URL("../src/components/experience2029/elsNativeClas
 const provider = readFileSync(new URL("../src/lib/research/ResearchProvider.jsx", import.meta.url), "utf8");
 const template = readFileSync(new URL("../tools/els/els-code.template.html", import.meta.url), "utf8");
 
+const functionSource = (source, name) => {
+  let start = source.indexOf(`function ${name}(`);
+  assert.ok(start >= 0, `${name} exists`);
+  if (source.slice(Math.max(0, start - 6), start) === "async ") start -= 6;
+  let depth = 0;
+  for (let index = source.indexOf("{", start); index < source.length; index += 1) {
+    if (source[index] === "{") depth += 1;
+    else if (source[index] === "}" && --depth === 0) return source.slice(start, index + 1);
+  }
+  throw new Error(`${name} has no closing brace`);
+};
+
 test("Classic 2029 mounts a native workspace instead of exposing the old full iframe by default", () => {
   assert.match(page, /import ElsNativeClassic2029 from/);
   assert.match(page, /data-els-classic-2029="native-v1"/);
-  assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\} active=\{!library\}/);
+  assert.match(page, /<ElsNativeWithRaziel[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\}/);
+  assert.equal((page.match(/<ElsNativeClassic2029\b/g) || []).length, 1);
+  assert.match(page, /return <ElsNativeClassic2029 \{\.\.\.props\} onRazielMatrix=\{analyze\} matrixReading=/);
+  assert.match(page, /active=\{!library && \(!guidedProfile \|\| researchLoad\?\.guidedDiscovery === true \|\| directSavedOpen\)\}/);
   assert.doesNotMatch(page, /<TzofenEmbed/);
   assert.doesNotMatch(page, /href="\/lab\/els"/);
 
@@ -50,7 +65,8 @@ test("Native scope and simple cross search delegate to the canonical search path
   assert.match(nativeClassic, /searchRequest=\{searchRequest\}/);
   assert.match(nativeClassic, /requestSearch\("regular", \{ term, scope: activeScope \}\)/);
   assert.match(nativeClassic, /submitCross = \(scope = activeScope\)/);
-  assert.match(nativeClassic, /requestSearch\("cross", \{ axis, term, scope, radius: crossRadius \}\)/);
+  assert.match(nativeClassic, /requestSearch\("cross", \{ axis, term, scope, radius: crossRadius, maxLetterGap: crossLetterGap \}\)/);
+  assert.match(nativeClassic, /const \[crossLetterGap, setCrossLetterGap\] = useState\(0\)/);
   assert.match(nativeClassic, /switchScope\("torah"\)/);
   assert.match(nativeClassic, /switchScope\("tanakh"\)/);
   assert.match(nativeClassic, /data-els-native-cross="simple"/);
@@ -131,7 +147,7 @@ test("Native letter click uses a bounded read-only canonical source lens", () =>
   assert.match(template, /const loc=locateLetter\(i\)/);
   assert.match(template, /lens:"letter-context"/);
   assert.match(template, /d\.type==="request-lens"&&d\.lens==="letter-context"/);
-  assert.doesNotMatch(template.slice(template.indexOf("async function letterContextLens"), template.indexOf("const isAnon")), /findAll|verifyBatch|crossFind|els_search/);
+  assert.doesNotMatch(functionSource(template, "letterContextLens"), /findAll|verifyBatch|crossFind|els_search/);
 });
 
 test("one unified scan action uses the exact selected, visible and verified occurrence", () => {
@@ -208,13 +224,19 @@ test("Classic engine stays mounted across Classic/Research profile switches so w
   assert.match(page, /const \[classicSeed\] = useState\(\(\) => clean\(/);
   assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
   assert.doesNotMatch(page, /aria-hidden=\{researchProfile\}/);
-  assert.ok(page.indexOf("<ElsNativeClassic2029") < page.indexOf("<details className=\"sod29-els-research-details\""));
-  assert.match(page, /<ElsNativeClassic2029[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\} active=\{!library\}/);
+  const mount = page.indexOf("<ElsNativeWithRaziel razielSession=");
+  assert.ok(mount >= 0 && mount < page.indexOf("<details className=\"sod29-els-research-details\""));
+  assert.match(page, /<ElsNativeWithRaziel[^>]*matrix=\{savedRecord\.row \|\| legacyMatrix\}/);
+  assert.match(page, /return <ElsNativeClassic2029 \{\.\.\.props\}/);
   assert.equal((nativeClassic.match(/<TzofenEmbed/g) || []).length, 1);
 });
 
 test("canonical tzofen state still feeds the shared Research Context replay selection", () => {
-  assert.match(provider, /d\.source !== "tzofen" \|\| d\.type !== "state" \|\| d\.status !== "ok"/);
+  // Activity observes pending/error events too, but only OK state may change selection.
+  assert.match(provider, /if \(!currentFrame\) return/);
+  assert.match(provider, /d\.source !== "tzofen" \|\| d\.type !== "state"/);
+  assert.match(provider, /elsResearchOperation\.observeElsState\(d\);\s*if \(d\.status !== "ok"\) return/);
+  assert.ok(provider.indexOf('if (d.status !== "ok") return') < provider.indexOf("const elsSelection ="));
   assert.match(provider, /const elsSelection = \{/);
   assert.match(provider, /entityType: "els", locator, term, corpus: scope/);
   assert.match(provider, /actions\.setResearchContext\(next\)/);

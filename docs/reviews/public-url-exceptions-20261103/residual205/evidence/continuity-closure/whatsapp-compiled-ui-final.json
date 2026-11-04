@@ -1,0 +1,1367 @@
+{
+  "kind": "controlled-owned-account-browser",
+  "synthetic": true,
+  "realAccounts": false,
+  "liveWrites": 0,
+  "origin": "http://127.0.0.1:37147",
+  "cases": [
+    {
+      "name": "WhatsApp verified association is separate from stored preference and unknown delivery",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "WhatsApp permission denial is not measured empty; explicit read retry restores binding",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "WhatsApp failed source remains unknown and does not erase existing follow",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "WhatsApp delayed account A completion cannot display after logout and existing B login",
+      "width": 390,
+      "passed": true
+    },
+    {
+      "name": "WhatsApp verified association is separate from stored preference and unknown delivery",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "WhatsApp permission denial is not measured empty; explicit read retry restores binding",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "WhatsApp failed source remains unknown and does not erase existing follow",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "WhatsApp delayed account A completion cannot display after logout and existing B login",
+      "width": 1440,
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "authNetwork": [
+    {
+      "event": "request",
+      "path": "/auth/v1/token",
+      "queryKeys": [
+        "grant_type"
+      ],
+      "method": "POST",
+      "bodyKeys": [
+        "email",
+        "password",
+        "gotrue_meta_security"
+      ],
+      "securityKeys": []
+    },
+    {
+      "event": "response",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "event": "failed",
+      "path": "/auth/v1/logout",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "event": "request",
+      "path": "/auth/v1/token",
+      "queryKeys": [
+        "grant_type"
+      ],
+      "method": "POST",
+      "bodyKeys": [
+        "email",
+        "password",
+        "gotrue_meta_security"
+      ],
+      "securityKeys": []
+    },
+    {
+      "event": "response",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "event": "request",
+      "path": "/auth/v1/token",
+      "queryKeys": [
+        "grant_type"
+      ],
+      "method": "POST",
+      "bodyKeys": [
+        "email",
+        "password",
+        "gotrue_meta_security"
+      ],
+      "securityKeys": []
+    },
+    {
+      "event": "response",
+      "path": "/auth/v1/token",
+      "status": 200
+    },
+    {
+      "event": "failed",
+      "path": "/auth/v1/logout",
+      "error": "net::ERR_ABORTED"
+    },
+    {
+      "event": "request",
+      "path": "/auth/v1/token",
+      "queryKeys": [
+        "grant_type"
+      ],
+      "method": "POST",
+      "bodyKeys": [
+        "email",
+        "password",
+        "gotrue_meta_security"
+      ],
+      "securityKeys": []
+    },
+    {
+      "event": "response",
+      "path": "/auth/v1/token",
+      "status": 200
+    }
+  ],
+  "passed": 8,
+  "finishedAt": "2026-11-03T16:04:19.748Z",
+  "fixtureCalls": [
+    {
+      "path": "/auth/v1/settings",
+      "method": "GET",
+      "actor": null
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST"
+    },
+    {
+      "path": "/auth/v1/token",
+      "method": "POST"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/api/contributor-self",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/logout",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/settings",
+      "method": "GET",
+      "actor": null
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST"
+    },
+    {
+      "path": "/auth/v1/token",
+      "method": "POST"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/auth/v1/settings",
+      "method": "GET",
+      "actor": null
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST"
+    },
+    {
+      "path": "/auth/v1/token",
+      "method": "POST"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/fn_research_path_resume_v1",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/site_flags",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/api/contributor-self",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/logout",
+      "method": "POST",
+      "actor": "11111111-1111-4111-8111-111111111111"
+    },
+    {
+      "path": "/auth/v1/settings",
+      "method": "GET",
+      "actor": null
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST"
+    },
+    {
+      "path": "/auth/v1/token",
+      "method": "POST"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/users",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/rpc/research_state_snapshot_v1",
+      "method": "POST",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/auth/v1/user",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/user_notifications",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/notification_prefs",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/wa_account_links",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/topic_cards_public",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/posts",
+      "method": "GET",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    },
+    {
+      "path": "/rest/v1/rpc/world_group_source_arrivals_v2",
+      "method": "POST",
+      "actor": "22222222-2222-4222-8222-222222222222"
+    }
+  ],
+  "accountRows": 2
+}

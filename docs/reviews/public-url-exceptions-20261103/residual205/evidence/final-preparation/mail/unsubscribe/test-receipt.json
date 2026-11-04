@@ -1,0 +1,19 @@
+{
+  "suite": "actual newsletter-unsubscribe handler bundled by esbuild with isolated Supabase mock",
+  "passed": 16,
+  "failed": 0,
+  "skipped": 0,
+  "baseline_v9_false_success_reproduced": true,
+  "external_fetch_attempts": 0,
+  "live_database_calls": 0,
+  "emails_sent": 0,
+  "repo_written": false,
+  "git_apply_check": "PASS; dry-run only",
+  "verify_jwt": false,
+  "source_sha256": "7da57eaad6c43ce14f2f26ad7ded1a01f7977dc3bd7829e32cbac2b64aa792b9",
+  "limitations": [
+    "Not a live Edge deployment",
+    "Not a live signed unsubscribe",
+    "Database acknowledgement behavior is a controlled in-memory Supabase mock, not a PostgreSQL restore"
+  ]
+}

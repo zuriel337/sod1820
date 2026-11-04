@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
+import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
+import { copyLink } from "../lib/share.js";
+import { contactSourceHref } from "./experience2029/contactSource2029.js";
 import { sendContactMessage } from "../lib/supabase.js";
 import { getMyCommunityHintStatuses } from "../lib/community.js";
 import IssueReport from "./IssueReport.jsx";
@@ -14,13 +18,15 @@ const boundContextKey = (value) => {
   return text || null;
 };
 
-export function buildContactGatewayContext({ surface = null, capability = null, concept = null, learnStage = null, actionTried = null } = {}) {
+export function buildContactGatewayContext({ surface = null, capability = null, concept = null, learnStage = null, actionTried = null, sourceHref = null } = {}) {
+  const source = contactSourceHref(sourceHref);
   return {
     surface: boundContextKey(surface),
     capability: boundContextKey(capability),
     concept: boundContextKey(concept),
     learn_stage: boundContextKey(learnStage),
     action_tried: boundContextKey(actionTried),
+    ...(source ? { source_href: source } : {}),
   };
 }
 
@@ -91,9 +97,11 @@ function ContactForm({ kind, initialText, pathname, contactContext, user, onDone
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const submit = async (event) => {
     event.preventDefault();
+    /* Explicit contact insertion approved independently of account/newsletter. */
     const body = normalize(message);
     if (!body) { setError("כתבו לנו כמה מילים כדי שנדע במה לעזור."); return; }
     if (!idea && email.trim().length < 3) { setError("כדי שנוכל לחזור אליכם, הוסיפו אימייל."); return; }
@@ -108,6 +116,7 @@ function ContactForm({ kind, initialText, pathname, contactContext, user, onDone
         contactContext?.learn_stage ? `learn_stage=${contactContext.learn_stage}` : null,
         contactContext?.action_tried ? `action_tried=${contactContext.action_tried}` : null,
         safePath ? `path=${safePath}` : null,
+        contactContext?.source_href ? `source=${contactContext.source_href}` : null,
       ].filter(Boolean).join(" · ");
       await sendContactMessage({
         name: name.trim() || "גולש",
@@ -137,15 +146,18 @@ function ContactForm({ kind, initialText, pathname, contactContext, user, onDone
       <h3>{idea ? "מה הייתם רוצים שיהיה כאן?" : "מה תרצו לספר לנו?"}</h3>
       <p>{idea ? "ספרו במילים שלכם. המיקום באתר מצורף אוטומטית כדי שנבין את ההקשר." : "אפשר לכתוב כאן פנייה כללית לצוות."}</p>
     </div>
+
     <label className="sod29-contact-field">
       <span>הודעה</span>
-      <textarea data-autofocus rows={5} maxLength={MAX_INTAKE} value={message} onChange={(e) => setMessage(e.target.value)} />
+      <textarea data-autofocus rows={5} maxLength={MAX_INTAKE} value={message} onChange={(e) => { setMessage(e.target.value); setCopied(false); }} />
       <small>{message.length}/{MAX_INTAKE}</small>
     </label>
     <div className="sod29-contact-row">
       <label className="sod29-contact-field"><span>שם (לא חובה)</span><input value={name} onChange={(e) => setName(e.target.value)} /></label>
       <label className="sod29-contact-field"><span>{idea ? "אימייל (לא חובה)" : "אימייל"}</span><input dir="ltr" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
     </div>
+    {contactContext?.source_href ? <p className="sod29-contact-privacy" style={{ overflowWrap: "anywhere" }}>מקור הפנייה: <bdi dir="ltr">{contactContext.source_href}</bdi></p> : null}
+    {PUBLIC_READING_RELEASE ? <div role="status"><p>אפשר להעתיק את הטיוטה ולשמור אותה אצלכם.</p><button type="button" className="sod29-action" onClick={async () => setCopied(await copyLink(message + (contactContext?.source_href ? `\n\n${contactContext.source_href}` : "")))}>{copied ? "הטיוטה הועתקה" : "העתקת הטיוטה"}</button></div> : null}
     {error ? <div className="sod29-contact-error" role="alert">{error}</div> : null}
     <button className="sod29-action primary" type="submit" disabled={busy}>{busy ? "שולח…" : "שליחה"}</button>
   </form>;
@@ -153,6 +165,7 @@ function ContactForm({ kind, initialText, pathname, contactContext, user, onDone
 
 export default function ContactGateway({
   pathname,
+  sourceHref = null,
   surface = null,
   capability = null,
   concept = null,
@@ -161,8 +174,10 @@ export default function ContactGateway({
   initialText = "",
   locale = null,
   onDone,
+  onOpenPrivateHints = null,
 }) {
-  const { user } = useAuth() || {};
+  const { user, isAdmin } = useAuth() || {};
+  const actionsLocked = publicLaunchActionsLocked(isAdmin);
   const [text, setText] = useState(() => normalize(initialText));
   const [mode, setMode] = useState(null);
   const [hintMounted, setHintMounted] = useState(false);
@@ -173,12 +188,13 @@ export default function ContactGateway({
     concept,
     learnStage,
     actionTried,
-  }), [surface, capability, concept, learnStage, actionTried]);
+    sourceHref,
+  }), [surface, capability, concept, learnStage, actionTried, sourceHref]);
   const suggested = useMemo(() => classifyContactIntent(text), [text]);
 
   const choose = (id) => {
     setMode(id);
-    if (id === "hint") setHintMounted(true);
+    if (id !== "hint") setHintMounted(false);
   };
 
   if (mode === "issue") {
@@ -186,6 +202,7 @@ export default function ContactGateway({
       <button className="sod29-contact-back" type="button" onClick={() => setMode(null)}>← חזרה</button>
       <IssueReport
         pathname={pathname}
+        sourceHref={contactContext.source_href || null}
         surface={surface}
         capability={capability}
         concept={contactContext.concept}
@@ -198,15 +215,26 @@ export default function ContactGateway({
     </div>;
   }
 
+  if (mode === "hint" && actionsLocked) return <div role="status"><p>שליחת רמזים ושמירה באזור הפרטי אינן זמינות בגרסה זו.</p><button type="button" className="sod29-contact-back" onClick={() => setMode(null)}>← חזרה</button></div>;
+
   if (mode === "hint") {
     return <div className="sod29-contact-gateway-detail">
       <button className="sod29-contact-back" type="button" onClick={() => { setMode(null); setHintMounted(false); }}>← חזרה</button>
       <div className="sod29-panel-lead">
         <div className="sod29-kicker">מצאתי רמז</div>
-        <h3>שלחו אותו לבדיקה.</h3>
-        <p>זה נשאר מסלול תרומה נפרד — לא תקלה ולא מחקר אוטומטי.</p>
+        <h3>איפה הרמז צריך להישמר?</h3>
+        <p>רמז פרטי נשמר רק במסע החיים שלך. הגשה לצוות מיועדת לבדיקה ואפשרות לפרסום.</p>
       </div>
-      <ReportHint label="פתחו דיווח רמז" initialDescription={text} autoOpen={hintMounted} />
+      {!hintMounted ? <div className="sod29-contact-choice-grid" aria-label="בחירת מסלול לרמז">
+        {onOpenPrivateHints ? <button type="button" onClick={onOpenPrivateHints}>
+          <span className="sod29-contact-choice-icon" aria-hidden="true">◇</span>
+          <span><strong>{user ? "שמור במסע הפרטי שלי" : "התחבר ושמור במסע הפרטי"}</strong><small>אותו ענף רמזים פרטי באזור האישי ובמסע החיים</small></span>
+        </button> : null}
+        <button type="button" onClick={() => setHintMounted(true)}>
+          <span className="sod29-contact-choice-icon" aria-hidden="true">↗</span>
+          <span><strong>שלח לבדיקה ולפרסום</strong><small>מסלול תרומה ציבורי נפרד, בכפוף לבדיקה</small></span>
+        </button>
+      </div> : <ReportHint label="פתחו דיווח רמז" initialDescription={text} autoOpen />}
     </div>;
   }
 
@@ -224,6 +252,7 @@ export default function ContactGateway({
       <p>תקלה, משהו לא ברור, רעיון או רמז — כתבו במילים שלכם, והמערכת תציע את המסלול המתאים.</p>
     </div>
 
+
     <label className="sod29-contact-field">
       <span>ספרו לנו מה קרה או מה חסר לכם…</span>
       <textarea data-autofocus rows={4} maxLength={MAX_INTAKE} value={text} onChange={(e) => setText(e.target.value)} />
@@ -237,14 +266,15 @@ export default function ContactGateway({
     </button> : null}
 
     <div className="sod29-contact-choice-grid" aria-label="אפשרויות דיווח ופנייה">
-      {CONTACT_GATEWAY_CHOICES.map((choice) => <button key={choice.id} type="button" onClick={() => choose(choice.id)}>
+      {CONTACT_GATEWAY_CHOICES.filter(choice => !actionsLocked || choice.id !== "hint").map((choice) => <button key={choice.id} type="button" onClick={() => choose(choice.id)}>
         <span className="sod29-contact-choice-icon" aria-hidden="true">{choice.icon}</span>
         <span><strong>{choice.label}</strong><small>{choice.hint}</small></span>
       </button>)}
     </div>
 
-    <MyCommunityHintStatusLoop user={user} />
+    {!actionsLocked ? <MyCommunityHintStatusLoop user={user} /> : null}
 
+    {contactContext.source_href ? <p className="sod29-contact-privacy" style={{ overflowWrap: "anywhere" }}>מקור הפנייה: <bdi dir="ltr">{contactContext.source_href}</bdi></p> : null}
     <p className="sod29-contact-privacy">המיקום הנוכחי באתר יכול להצטרף לפנייה כדי שלא תצטרכו להסביר מאיפה הגעתם. הודעה, רמז, תקלה ומחקר נשארים סוגים נפרדים במערכת.</p>
   </section>;
 }

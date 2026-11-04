@@ -1,0 +1,963 @@
+{
+  "baselineSha": "7649e46c199ade990fd75ea8400f60f93522ef82",
+  "source": "actual compiled clients, actual immutable public responses, same explicit operand/method in both versions; editorial-default order checked separately",
+  "profiles": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "cpu": 1,
+      "rtt": 0,
+      "bytesPerSecond": 0
+    },
+    {
+      "name": "mobile-slow",
+      "width": 390,
+      "cpu": 4,
+      "rtt": 150,
+      "bytesPerSecond": 200000
+    }
+  ],
+  "firstVsRepeat": "fresh tab vs return in same SPA after Home",
+  "networkModel": "shared RTT/bandwidth delivery, Brotli-equivalent sizes, 4x mobile CPU; measured snapshot misses audited; not field/server latency",
+  "results": [
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 1,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 1207,
+          "requests": 162,
+          "cls": 0.0020643678599751372
+        },
+        {
+          "name": "method-full-page",
+          "ms": 735,
+          "requests": 32,
+          "cls": 0.0008701112932956104
+        },
+        {
+          "name": "back-method-number",
+          "ms": 649,
+          "requests": 5,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 778,
+          "requests": 49,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 648,
+          "requests": 7,
+          "cls": 0
+        }
+      ],
+      "totalMs": 4017
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 1,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 796,
+          "requests": 33,
+          "cls": 0.010557418961387602
+        },
+        {
+          "name": "method-full-page",
+          "ms": 358,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 97,
+          "requests": 6,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 392,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 473,
+          "requests": 7,
+          "cls": 0
+        }
+      ],
+      "totalMs": 2116
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 1,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 1216,
+          "requests": 162,
+          "cls": 0.007333486825448496
+        },
+        {
+          "name": "method-full-page",
+          "ms": 1095,
+          "requests": 33,
+          "cls": 0.04754513272676612
+        },
+        {
+          "name": "back-method-number",
+          "ms": 452,
+          "requests": 5,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 952,
+          "requests": 52,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 321,
+          "requests": 7,
+          "cls": 0
+        }
+      ],
+      "totalMs": 4036
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 1,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 1059,
+          "requests": 16,
+          "cls": 0.22331095679012344
+        },
+        {
+          "name": "method-full-page",
+          "ms": 414,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 396,
+          "requests": 6,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 284,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 791,
+          "requests": 7,
+          "cls": 0
+        }
+      ],
+      "totalMs": 2944
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 2,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 1205,
+          "requests": 161,
+          "cls": 0.007349581980345508
+        },
+        {
+          "name": "method-full-page",
+          "ms": 895,
+          "requests": 33,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 327,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1065,
+          "requests": 52,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 336,
+          "requests": 8,
+          "cls": 0
+        }
+      ],
+      "totalMs": 3828
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 2,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 811,
+          "requests": 15,
+          "cls": 0.7004243827160493
+        },
+        {
+          "name": "method-full-page",
+          "ms": 451,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 457,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 415,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 372,
+          "requests": 9,
+          "cls": 0
+        }
+      ],
+      "totalMs": 2506
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 2,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 1213,
+          "requests": 161,
+          "cls": 0.007360110042451668
+        },
+        {
+          "name": "method-full-page",
+          "ms": 766,
+          "requests": 31,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 378,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1081,
+          "requests": 55,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 284,
+          "requests": 7,
+          "cls": 0
+        }
+      ],
+      "totalMs": 3722
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 2,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 1004,
+          "requests": 41,
+          "cls": 0.010557418961387602
+        },
+        {
+          "name": "method-full-page",
+          "ms": 384,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 102,
+          "requests": 6,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 327,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 910,
+          "requests": 7,
+          "cls": 0
+        }
+      ],
+      "totalMs": 2727
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 3,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 1214,
+          "requests": 162,
+          "cls": 0.007327970595287852
+        },
+        {
+          "name": "method-full-page",
+          "ms": 1024,
+          "requests": 32,
+          "cls": 0.0008701112932956104
+        },
+        {
+          "name": "back-method-number",
+          "ms": 636,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 907,
+          "requests": 52,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 301,
+          "requests": 7,
+          "cls": 0
+        }
+      ],
+      "totalMs": 4082
+    },
+    {
+      "version": "before",
+      "profile": "desktop",
+      "pair": 3,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 725,
+          "requests": 36,
+          "cls": 0.28700534872256517
+        },
+        {
+          "name": "method-full-page",
+          "ms": 597,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 434,
+          "requests": 6,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 534,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 495,
+          "requests": 8,
+          "cls": 0
+        }
+      ],
+      "totalMs": 2785
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 3,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 1188,
+          "requests": 161,
+          "cls": 0.007341548908165616
+        },
+        {
+          "name": "method-full-page",
+          "ms": 862,
+          "requests": 32,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 609,
+          "requests": 5,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1337,
+          "requests": 54,
+          "cls": 0.0006928018368484224
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 545,
+          "requests": 9,
+          "cls": 0.05565547236689815
+        }
+      ],
+      "totalMs": 4541
+    },
+    {
+      "version": "after",
+      "profile": "desktop",
+      "pair": 3,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 633,
+          "requests": 14,
+          "cls": 0
+        },
+        {
+          "name": "method-full-page",
+          "ms": 465,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 395,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 520,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 493,
+          "requests": 7,
+          "cls": 0
+        }
+      ],
+      "totalMs": 2506
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 1,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 8529,
+          "requests": 163,
+          "cls": 0.0010303651274137385
+        },
+        {
+          "name": "method-full-page",
+          "ms": 2612,
+          "requests": 32,
+          "cls": 0.0004875534188034188
+        },
+        {
+          "name": "back-method-number",
+          "ms": 528,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3360,
+          "requests": 48,
+          "cls": 0.0009494086835232669
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1123,
+          "requests": 7,
+          "cls": 1.1014190064102563
+        }
+      ],
+      "totalMs": 16152
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 1,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 3249,
+          "requests": 16,
+          "cls": 0.004901548749604305
+        },
+        {
+          "name": "method-full-page",
+          "ms": 711,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 507,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1100,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1199,
+          "requests": 8,
+          "cls": 0.03169861190250079
+        }
+      ],
+      "totalMs": 6766
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 1,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 7532,
+          "requests": 162,
+          "cls": 0.0007079482727920228
+        },
+        {
+          "name": "method-full-page",
+          "ms": 2196,
+          "requests": 33,
+          "cls": 0.0004021112792814182
+        },
+        {
+          "name": "back-method-number",
+          "ms": 380,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3145,
+          "requests": 51,
+          "cls": 0.0005187663224121558
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1073,
+          "requests": 7,
+          "cls": 0.7959904647435897
+        }
+      ],
+      "totalMs": 14326
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 1,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 3135,
+          "requests": 16,
+          "cls": 0.020898917329455525
+        },
+        {
+          "name": "method-full-page",
+          "ms": 687,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 424,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1044,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1132,
+          "requests": 9,
+          "cls": 0.03522627690724913
+        }
+      ],
+      "totalMs": 6422
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 2,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 7606,
+          "requests": 162,
+          "cls": 0.0008378479641500475
+        },
+        {
+          "name": "method-full-page",
+          "ms": 2433,
+          "requests": 33,
+          "cls": 0.0004832279795821462
+        },
+        {
+          "name": "back-method-number",
+          "ms": 594,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3291,
+          "requests": 53,
+          "cls": 0.0005081199054289332
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1032,
+          "requests": 7,
+          "cls": 1.0896474299620134
+        }
+      ],
+      "totalMs": 14956
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 2,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 3249,
+          "requests": 30,
+          "cls": 0.020898917329455525
+        },
+        {
+          "name": "method-full-page",
+          "ms": 672,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 350,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1154,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 959,
+          "requests": 7,
+          "cls": 0.03533011356441912
+        }
+      ],
+      "totalMs": 6384
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 2,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 8234,
+          "requests": 160,
+          "cls": 0.001022326586736309
+        },
+        {
+          "name": "method-full-page",
+          "ms": 2498,
+          "requests": 35,
+          "cls": 0.0005054086538461538
+        },
+        {
+          "name": "back-method-number",
+          "ms": 359,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3685,
+          "requests": 50,
+          "cls": 1.000927716445077
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1239,
+          "requests": 7,
+          "cls": 1.1046354166666665
+        }
+      ],
+      "totalMs": 16015
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 2,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 2969,
+          "requests": 16,
+          "cls": 0.022095499366888254
+        },
+        {
+          "name": "method-full-page",
+          "ms": 984,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 560,
+          "requests": 5,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1116,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1199,
+          "requests": 7,
+          "cls": 0.03522905824628046
+        }
+      ],
+      "totalMs": 6828
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 3,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 7983,
+          "requests": 160,
+          "cls": 0.0010199222459639124
+        },
+        {
+          "name": "method-full-page",
+          "ms": 2497,
+          "requests": 35,
+          "cls": 0.00046242630183602416
+        },
+        {
+          "name": "back-method-number",
+          "ms": 338,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 4361,
+          "requests": 53,
+          "cls": 1.0008126379985751
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1124,
+          "requests": 7,
+          "cls": 1.1012012286324786
+        }
+      ],
+      "totalMs": 16303
+    },
+    {
+      "version": "before",
+      "profile": "mobile-slow",
+      "pair": 3,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 3148,
+          "requests": 16,
+          "cls": 0.004901548749604305
+        },
+        {
+          "name": "method-full-page",
+          "ms": 654,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 497,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1270,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1101,
+          "requests": 7,
+          "cls": 0.035125221589110474
+        }
+      ],
+      "totalMs": 6670
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 3,
+      "repeat": "first",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 7540,
+          "requests": 163,
+          "cls": 0.0007330687124089901
+        },
+        {
+          "name": "method-full-page",
+          "ms": 2293,
+          "requests": 32,
+          "cls": 0.0004021431821779045
+        },
+        {
+          "name": "back-method-number",
+          "ms": 369,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 3150,
+          "requests": 51,
+          "cls": 0.0005167648484488762
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 1115,
+          "requests": 7,
+          "cls": 1.0928014684235516
+        }
+      ],
+      "totalMs": 14467
+    },
+    {
+      "version": "after",
+      "profile": "mobile-slow",
+      "pair": 3,
+      "repeat": "repeat",
+      "steps": [
+        {
+          "name": "number-entry",
+          "ms": 3178,
+          "requests": 30,
+          "cls": 0.020898917329455525
+        },
+        {
+          "name": "method-full-page",
+          "ms": 656,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "back-method-number",
+          "ms": 338,
+          "requests": 4,
+          "cls": 0
+        },
+        {
+          "name": "number-phrase-full-page",
+          "ms": 1114,
+          "requests": 7,
+          "cls": 0
+        },
+        {
+          "name": "back-phrase-number",
+          "ms": 992,
+          "requests": 7,
+          "cls": 0.033980237021209246
+        }
+      ],
+      "totalMs": 6278
+    }
+  ],
+  "candidateSha": "3246d92075139eb15c0788c809704ba60761d1c8",
+  "candidateBuildFlags": "accepted Number branch flags, same public Preview features; unified branch binding pending",
+  "clsCaveat": "Per-step cumulative observer resets can include pending entries from the unmeasured Home mount. These large Home/Back shifts are NOT accepted; timestamped source attribution and final public-cycle retest remain required."
+}

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getSiteFlags } from "../lib/supabase.js";
 import { LOGO_URL } from "../theme.js";
+import { PUBLIC_READING_RELEASE, publicReadingFeatureLock } from "../lib/publicReadingRelease2029.js";
 
 // ===== מצב-יכולת קנוני (site_flags_lock_law v3) =====
 // ONE CAPABILITY → ONE STATE → MANY PROJECTIONS.
@@ -10,6 +11,19 @@ import { LOGO_URL } from "../theme.js";
 // mode ב-DB: 'all' = כולם חסומים (חוץ מאדמין) · 'anon' = משתמשים רשומים עוברים.
 
 const DEFAULT_MSG = "🔒 האזור נעול זמנית לצורך שדרוגים · חוזרים בקרוב";
+// Review-only capability switch. It is compiled into an isolated Preview only
+// and never inferred from a URL, browser storage, identity or Production state.
+const unlockedPreview = import.meta.env.VITE_UNLOCKED_2029_PREVIEW === "true";
+// A restrictive ceiling for this isolated review, never a shared site_flags write.
+// The existing resolver still owns roles/loading and every consumer sees one state.
+const publicFramePreview = import.meta.env.VITE_PUBLIC_FRAME_PREVIEW === "true";
+const previewAdminOnly = new Set(["lock_els", "lock_life_journey", "lock_raziel_site"]);
+const LIFE_JOURNEY_PREVIEW_OPEN = import.meta.env?.VITE_LIFE_JOURNEY_PREVIEW_OPEN === "true";
+
+function applyPreviewFeatureState(flag, state) {
+  if (PUBLIC_READING_RELEASE || publicFramePreview || flag !== "lock_life_journey" || !LIFE_JOURNEY_PREVIEW_OPEN) return state;
+  return resolveFeatureState(null);
+}
 
 export function MaintenanceLock({ message, showLogin = false, alternatives = false, homeHref = "/" }) {
   return (
@@ -36,10 +50,6 @@ export function MaintenanceLock({ message, showLogin = false, alternatives = fal
         :root[data-theme="light"] .mlock p{color:#33260a;}
         :root[data-theme="light"] .mlock a{color:#8a5a0a;}
         :root[data-theme="light"] .mlock a.mlock-cta{background:#8a5a0a;color:#fff;}
-        :root[data-theme="dark"] .mlock h1{color:#f0dc9a;}
-        :root[data-theme="dark"] .mlock p{color:#cdbf9f;}
-        :root[data-theme="dark"] .mlock a{color:#e8c84a;}
-        :root[data-theme="dark"] .mlock a.mlock-cta{background:#e8c84a;color:#1a0e00;}
       `}</style>
       <img src={LOGO_URL} alt="סוד 1820" />
       <h1>{message || DEFAULT_MSG}</h1>
@@ -88,21 +98,54 @@ export function LockTeaser({ message, showLogin = false }) {
 }
 
 // hook בסיסי לשליפת דגל בודד. זהו reader בלבד; סמנטיקת-הגישה נפתרת ב-useFeatureState.
-export function useSiteFlag(flag) {
-  const [st, setSt] = useState({ loading: true, lock: null });
+export function useSiteFlag(flag, { pendingScope = null, enabled = true } = {}) {
+  const readKey = pendingScope === null ? null : `${pendingScope}\u0000${flag}`;
+  const [st, setSt] = useState({ loading: true, lock: null, readKey, enabled });
   useEffect(() => {
+    if (!enabled) { setSt({ loading: true, lock: null, readKey, enabled: false }); return; }
     let alive = true;
-    getSiteFlags()
-      .then(f => { if (alive) setSt({ loading: false, lock: f[flag] || null }); })
-      .catch(() => { if (alive) setSt({ loading: false, lock: null }); });
+    setSt({ loading: true, lock: null, readKey, enabled: true });
+    getSiteFlags({ pendingScope })
+      .then(f => { if (alive) setSt({ loading: false, lock: f[flag] || null, readKey, enabled: true }); })
+      .catch(() => { if (alive) setSt({ loading: false, lock: null, readKey, enabled: true }); });
     return () => { alive = false; };
-  }, [flag]);
-  return st;
+  }, [flag, pendingScope, enabled]);
+  return st.enabled !== enabled || (readKey !== null && st.readKey !== readKey) ? { loading: true, lock: null } : st;
 }
 
 // pure resolver — מקור יחיד לכל נוסחת availability/access.
 // שפה/locale אינה פרמטר בכוונה: לפי content_translation_law v2 היא Projection בלבד.
-export function resolveFeatureState(lock, { user = null, isAdmin = false, requireFlag = false } = {}) {
+export function resolveFeatureState(lock, {
+  user = null,
+  isAdmin = false,
+  requireFlag = false,
+  previewBypass = false,
+  adminOnly = false,
+} = {}) {
+  // A Preview restriction can narrow access, including a broad review bypass;
+  // it can never grant access or replace an explicit shared lock.
+  if (adminOnly && !isAdmin) return {
+    enabled: true, mode: "all", blocked: true, allowed: false,
+    adminBypass: false, registeredBypass: false, previewBypass: false,
+    publicState: "closed", viewerState: "closed", message: lock?.message || DEFAULT_MSG,
+    showLogin: false, status: "building",
+  };
+  if (previewBypass) {
+    return {
+      enabled: !!lock?.enabled,
+      mode: lock?.mode || "all",
+      blocked: false,
+      allowed: true,
+      adminBypass: false,
+      registeredBypass: false,
+      previewBypass: true,
+      publicState: "preview_only",
+      viewerState: "preview_bypass",
+      message: lock?.message || DEFAULT_MSG,
+      showLogin: false,
+      status: "active",
+    };
+  }
   // A named launch gate must exist explicitly before it can open, including to
   // admins. The server capability gate also denies unknown flags.
   if (!lock && requireFlag) {
@@ -140,19 +183,39 @@ export function resolveFeatureState(lock, { user = null, isAdmin = false, requir
 // canonical hook for every feature-controlled surface.
 export function useFeatureState(flag, { requireFlag = false } = {}) {
   const { user, isAdmin, loading: authLoading } = useAuth();
-  const { loading, lock } = useSiteFlag(flag);
-  return useMemo(() => ({
-    flag,
-    loading: loading || authLoading,
-    lock,
-    ...resolveFeatureState(lock, { user, isAdmin, requireFlag }),
-  }), [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
+  // Shared public policy only; the canonical resolver below still decides access.
+  // A principal or Router navigation change starts a fresh read, even at one URL.
+  // Compile-time separation keeps the Legacy read behavior unchanged.
+  const pendingScope = typeof __SOD_2029_BUILD__ !== "undefined" && __SOD_2029_BUILD__
+    ? JSON.stringify([user?.id || "anon", typeof window !== "undefined" ? [window.location.pathname, window.location.search, window.location.hash, window.history.state?.key || "initial"] : []])
+    : null;
+  const { loading, lock } = useSiteFlag(flag, { pendingScope, enabled: !PUBLIC_READING_RELEASE || isAdmin });
+  return useMemo(() => {
+    const publicCeiling = PUBLIC_READING_RELEASE && !isAdmin;
+    const pendingAdmission = PUBLIC_READING_RELEASE && (authLoading || (!publicCeiling && loading));
+    const resolved = resolveFeatureState(pendingAdmission ? null : publicCeiling ? publicReadingFeatureLock(flag) : lock, {
+      user: publicCeiling ? null : user,
+      isAdmin: !pendingAdmission && !authLoading && isAdmin,
+      requireFlag: pendingAdmission || requireFlag,
+      previewBypass: !PUBLIC_READING_RELEASE && unlockedPreview && !(publicFramePreview && previewAdminOnly.has(flag)),
+      adminOnly: !PUBLIC_READING_RELEASE && publicFramePreview && previewAdminOnly.has(flag),
+    });
+    return {
+      flag,
+      loading: publicCeiling ? authLoading : loading || authLoading,
+      lock,
+      ...applyPreviewFeatureState(flag, resolved),
+      // Admin uses the same canonical resolver and existing server checks.
+      // Unknown required capabilities stay closed; no screen-only bypass.
+      adminViewAllowed: false,
+    };
+  }, [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
 }
 
 // עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.
-export default function Locked({ flag, children, requireFlag = false, homeHref = "/" }) {
+export default function Locked({ flag, children, requireFlag = false, homeHref = "/", renderBlocked = null, allowAdminView = false }) {
   const state = useFeatureState(flag, { requireFlag });
   if (state.loading) return null;
-  if (state.blocked) return <MaintenanceLock message={state.message} showLogin={state.showLogin} homeHref={homeHref} />;
+  if (state.blocked && !(allowAdminView && state.adminViewAllowed)) return renderBlocked ? renderBlocked(state) : <MaintenanceLock message={state.message} showLogin={state.showLogin} homeHref={homeHref} />;
   return children;
 }

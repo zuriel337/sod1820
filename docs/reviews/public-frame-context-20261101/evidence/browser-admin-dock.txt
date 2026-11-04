@@ -1,0 +1,15 @@
+
+Running 3 tests using 1 worker
+
+(node:104139) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:104139) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/3] test/public-frame-context-2029.browser.cjs:92:35 › existing administrator tool dock stays centered with every action 320
+[2/3] test/public-frame-context-2029.browser.cjs:92:35 › existing administrator tool dock stays centered with every action 390
+[3/3] test/public-frame-context-2029.browser.cjs:92:35 › existing administrator tool dock stays centered with every action 1440
+  3 passed (5.3s)

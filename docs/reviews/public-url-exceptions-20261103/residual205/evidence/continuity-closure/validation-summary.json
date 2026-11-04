@@ -1,0 +1,29 @@
+{
+  "runtimeSha": "76cf61e6689acbfbf8e314417dbd607e7e7cef3e",
+  "focusedNode": 107,
+  "fullLegacyAnd2029Build": "PASS",
+  "dormantCleanArtifact": "PASS",
+  "controlledBrowserCanonicalSources": 10,
+  "controlledWhatsAppActualUI": 8,
+  "hostedRealPublic": 26,
+  "nativePostgresProposalGroups": 6,
+  "nativePostgresAssertionsPerPass": 22,
+  "a3ReusedInputs": 29,
+  "liveTestWrites": 0,
+  "sharedServerChangesApplied": false,
+  "performance": "No new optimization or timing claim; prior acceptance retained",
+  "notClosed": [
+    "full Isolation",
+    "formal G4",
+    "S2",
+    "CP1",
+    "current DB/media recovery",
+    "Production activation/cutover"
+  ],
+  "initialFailures": [
+    "Archived body whitespace failed diff check: source bytes preserved losslessly in base64 JSON envelopes; no whitespace gate exception",
+    "Initial hosted b61:22 pass/2 trailing-slash expectation failures; archival canonical/XML/WP entry targets aligned with existing slash-normalization; final26/26",
+    "Initial WhatsApp503:SDK automatic GET retries exceeded new five-second check; new own-binding read uses retry(false) and explicit UI retry; final8/8",
+    "Full root overlay blocked Docker/Git/npm; private-free fixture moved to /tmp Unixsocket Postgres; new isolated Git checkout preserved all task files bySHA256; npm cache in/tmp"
+  ]
+}

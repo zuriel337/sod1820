@@ -1,6 +1,10 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
+import { persistExplicitIssueReport } from "../lib/events.js";
 import { track } from "../lib/tracking.js";
 import { useAuth } from "../lib/AuthContext.jsx";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
+import { copyLink } from "../lib/share.js";
+import { contactSourceHref } from "./experience2029/contactSource2029.js";
 import { newInteractionId } from "../lib/research/interactionCorrelation.js";
 
 // IssueReport — the single canonical "something is wrong here" primitive (canonical_ui_components_law).
@@ -31,9 +35,11 @@ export function viewportClass(width) {
   return "desktop";
 }
 
-// Pure + bounded: path without query/hash, no URLs/emails/ids beyond an opaque correlation UUID.
+// Legacy context stays path-only. The optional 2029 source URL carries only
+// validated reading locators, never authentication/mail/return/free-text state.
 export function buildIssueReportContext({
   pathname = null,
+  sourceHref = null,
   surface = null,
   capability = null,
   concept = null,
@@ -47,8 +53,10 @@ export function buildIssueReportContext({
   now = new Date(),
 } = {}) {
   const path = String(pathname ?? "").split(/[?#]/)[0].slice(0, 200) || null;
+  const source = contactSourceHref(sourceHref);
   return {
     path,
+    ...(source ? { source_href: source } : {}),
     surface: boundKey(surface),
     capability: boundKey(capability),
     concept: boundKey(concept),
@@ -69,12 +77,14 @@ export function buildIssueReportPayload(context, text) {
 
 export function emitIssueReport(context, text) {
   const payload = buildIssueReportPayload(context, text);
+  if (PUBLIC_READING_RELEASE) return persistExplicitIssueReport(payload);
   track(ISSUE_REPORT_SECTION, context?.surface ?? null, ISSUE_REPORT_EVENT, payload);
   return payload;
 }
 
 export default function IssueReport({
   pathname,
+  sourceHref = null,
   surface = null,
   capability = null,
   concept = null,
@@ -87,10 +97,13 @@ export default function IssueReport({
   const { user, isAdmin } = useAuth() || {};
   const [text, setText] = useState(() => boundIssueText(initialText));
   const [sent, setSent] = useState(false);
+  const [sendError, setSendError] = useState(false);
+  const [copied, setCopied] = useState(false);
   const sentRef = useRef(false);
 
   const context = useMemo(() => buildIssueReportContext({
     pathname,
+    sourceHref,
     surface,
     capability,
     concept,
@@ -101,14 +114,14 @@ export default function IssueReport({
     signedIn: Boolean(user),
     isAdmin: Boolean(isAdmin),
     interactionId: newInteractionId(),
-  }), [pathname, surface, capability, concept, learnStage, actionTried, locale, user, isAdmin]);
+  }), [pathname, sourceHref, surface, capability, concept, learnStage, actionTried, locale, user, isAdmin]);
 
-  const submit = useCallback((event) => {
+  const submit = useCallback(async (event) => {
     event.preventDefault();
     if (sentRef.current) return;
     sentRef.current = true;
-    emitIssueReport(context, text);
-    setSent(true);
+    try { await emitIssueReport(context, text); setSent(true); }
+    catch { setSendError(true); /* outcome may be unknown; never auto-resend */ }
   }, [context, text]);
 
   if (sent) {
@@ -129,8 +142,9 @@ export default function IssueReport({
       <div className="sod29-panel-lead">
         <div className="sod29-kicker">משהו לא עובד?</div>
         <h3>ספר לנו מה קרה.</h3>
-        <p>אפשר לשלוח גם בלי לכתוב כלום. נצרף רק את המקום באתר, סוג המסך והשעה, בלי כתובת מלאה ובלי פרטים אישיים.</p>
+        <p>{context.source_href ? "כתובת המקור ומיקום הקריאה יצורפו לדיווח בלי פרטי התחברות או קישורי חשבון." : "אפשר לשלוח גם בלי לכתוב כלום. נצרף רק את המקום באתר, סוג המסך והשעה, בלי כתובת מלאה ובלי פרטים אישיים."}</p>
       </div>
+      {sendError ? <p role="alert">לא התקבל אישור שמירה. מצב הדיווח אינו ידוע; לא נשלח ניסיון נוסף אוטומטי.</p> : null}
       <label className="sod29-issue-report-field">
         <span>מה ראית? (לא חובה)</span>
         <textarea
@@ -138,12 +152,14 @@ export default function IssueReport({
           value={text}
           maxLength={ISSUE_REPORT_MAX_TEXT}
           rows={4}
-          onChange={(event) => setText(event.target.value)}
+          onChange={(event) => { setText(event.target.value); setCopied(false); }}
           aria-describedby="sod29-issue-report-count"
         />
         <small id="sod29-issue-report-count">{text.length}/{ISSUE_REPORT_MAX_TEXT}</small>
       </label>
-      <button className="sod29-action primary" type="submit">שלח דיווח</button>
+      {context.source_href ? <p className="sod29-contact-privacy" style={{ overflowWrap: "anywhere" }}>מקור הפנייה: <bdi dir="ltr">{context.source_href}</bdi></p> : null}
+      {PUBLIC_READING_RELEASE ? <div role="status"><p>אפשר להעתיק את הטיוטה ולשמור אותה אצלכם.</p><button type="button" className="sod29-action" onClick={async () => setCopied(await copyLink(text + (context.source_href ? `\n\n${context.source_href}` : "")))}>{copied ? "הטיוטה הועתקה" : "העתקת הטיוטה"}</button></div> : null}
+      <button className="sod29-action primary" type="submit" disabled={sentRef.current}>שלח דיווח</button>
     </form>
   );
 }
