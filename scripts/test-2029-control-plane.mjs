@@ -23,9 +23,15 @@ assert.match(app, /pathname\.startsWith\("\/2029\/control"\).*return undefined/s
   "internal Control Plane must not enter public product analytics");
 
 assert.match(page, /useAuth\(\)/);
-assert.match(page, /if \(!isAdmin\) return <Navigate replace to="\/2029" \/>/,
-  "Control Plane must gate before rendering operational data");
-assert.match(page, /getSystemHealth\(\)/);
+assert.match(page, /if \(authLoading\) return <main role="status"/,
+  "Control Plane must wait for account verification before rendering operational data");
+assert.match(page, /if \(!isAdmin \|\| !principal\) return <Navigate replace to="\/2029" \/>/,
+  "Control Plane must require both verified admin and principal");
+assert.match(page, /\["health", getSystemHealth\]/);
+assert.match(page, /Promise\.allSettled\(reads\.map\(async \(\[kind, read\]\)/);
+assert.match(page, /const value = await read\(\)/);
+assert.match(page, /if \(!principal \|\| !isAdmin\) return;/);
+assert.match(page, /scope\.current\.principal === principal && scope\.current\.isAdmin/);
 assert.match(page, /getOperationalTraceList\(7, 100\)/);
 assert.match(page, /getOperationalTrace\(selectedId\)/);
 assert.match(page, /detail\.data\?\.rollup/);
