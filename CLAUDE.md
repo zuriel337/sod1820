@@ -1,5 +1,20 @@
 # SOD1820 — Claude Runtime Adapter
 
+## מצב Production חי — אתר 2029 (אישור ZURIEL, 4.11.2026)
+
+**אתר 2029 חי** ב-`sod1820.co.il`, `www.sod1820.co.il` ו-`sod1820.vercel.app` מאז 4.11.2026.
+ZURIEL אישר במפורש מעבר ישיר ל-2029 Production ("תחליף את האתר וכל הדפים", "קדימה תעשה").
+Cutover ראשון: `dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A`, מקור `1bc8260adaa889d7903aaa33ef43510df09817f2`.
+אחריו שוחררו תוספות מצטברות מאותו ענף, לפי אישור ZURIEL לכל תוספת. הרשומה האחרונה ב-`work_log` (4.11.2026, 13:01 UTC):
+מקור `5f92bfd2ea86982fc0dfbffb82e5907be2102934`, `dpl_88SLqagzSeAeCuxbwWN7XXekU4gj`.
+
+- **הקוד החי נמצא בענף `gpt/2029-public-cutover-final-preparation-20261103`, לא ב-`main`.** `origin/main` הוא `2195c9784` (Legacy, 26.10.2026) ולא זז. זהו DRIFT מוכר: `main` ≠ Production. לעולם לא להסיק מצב חי מ-`main`.
+- **Legacy שהיה חי עד 4.11** נשמר כיעד חזרה בלבד (`dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2`). אין להחזיר אליו אוטומטית.
+- **הפינים והאיסורים מ-22.10 להלן הם היסטוריה** ביחס למעבר שאושר. הם אינם מתארים את המצב החי.
+- **האישור הוא לפריסות שאושרו בלבד.** אין אישור אוטומטי לפריסה עתידית, merge/push ל-`main`, rollback, שינוי דגלים/מסד/שרת משותפים. כל אחד מהם דורש אישור מפורש חדש של ZURIEL עם SHA ו-deployment ID מדויקים.
+- **מצב חי מדויק** (SHA ו-deployment נוכחיים): לבדוק ב-`work_log` העדכני וב-Vercel בכל משימה. אל תסתמך על ה-SHA המצוין כאן, כי הוא נכון לרגע הכתיבה.
+- שער הקוד `node scripts/test-legacy-production-lock.mjs` לא שונה ולא הוחלש. הוא מגן על `main` (`CORE_PUBLIC_LAUNCH_2029=false`). שינוי השער, או מיזוג של 2029 ל-`main`, דורש אישור נפרד של ZURIEL.
+
 ## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
 
 **אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
@@ -8,9 +23,9 @@ All agents report to ZURIEL in their active user conversation and write passive 
 **ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
 Historical records are retained. No product semantics, visual ownership or release permission is changed. The live database guard blocks GPT delivery; repository changes do not authorize a site deployment.
 
-## ZURIEL emergency production lock — 22.10.2026
+## ZURIEL emergency production lock — 22.10.2026 (HISTORICAL — superseded for Production by the approved 2029 cutover of 4.11.2026, see top section)
 
-Canonical Production is pinned to Legacy deployment `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq` at `99249526e91f1d720fae1aa43e82bbbe51ee5c45`. All 2029 work is Preview-only. Do not enable automatic custom-domain assignment or promote, rollback, alias, deploy or merge a 2029 cutover. A future cutover requires a new ZURIEL approval explicitly naming **2029 Production cutover**, the exact SHA and deployment ID. Generic release/rollback approval is insufficient. `node scripts/test-legacy-production-lock.mjs` is mandatory and may not be weakened in the same release change.
+As of 22.10.2026, canonical Production is pinned to Legacy deployment `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq` at `99249526e91f1d720fae1aa43e82bbbe51ee5c45`. All 2029 work is Preview-only. Do not enable automatic custom-domain assignment or promote, rollback, alias, deploy or merge a 2029 cutover. A future cutover requires a new ZURIEL approval explicitly naming **2029 Production cutover**, the exact SHA and deployment ID. Generic release/rollback approval is insufficient. `node scripts/test-legacy-production-lock.mjs` is mandatory and may not be weakened in the same release change.
 
 
 > **STATUS:** runtime adapter / pointer only. This file is **not** project truth, a domain contract, a context database, or a second owner map.
