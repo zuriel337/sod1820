@@ -2,10 +2,10 @@
   {
     "id": "F00",
     "old_address": "/; /2029; /world; /map",
-    "evidence": "App2029; prior public-foundation +9d hosted acceptance;12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW;12.51 live d06/7Kcv + main-alignment evidence",
+    "evidence": "App2029; prior public-foundation +9d hosted acceptance;12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW;12.51 live d06/7Kcv + main-alignment evidence;12.52 main product71bb7646 / PR1191; live d06 unchanged",
     "meaning": "כניסה, עולם ומפת שירותים",
     "target_2029": "היעדים הקיימים",
-    "verified_status": "12.48/49:בית/כותרתstickyוטיקרלאנעוץב390/1440;פריוויו98d16תרחישים. מקור98dחי דרךנתיבקהילהאחר. ביצועים073חלקייםולאקבלתכלהמלאי. 12.50: עיגול חיפוש זכוכית וטבעת זהב,44×44, נבדק בפריוויו d81; אין שינוי handler, נעיצת כותרת או נתיבים. החי נשאר273ceb24 בקריאת הסיום. 12.51: החי כבר d06. קישורמחשבון/gematria נוסף לתפריט המועמד; מקור החי אינו מוסק מmain. יישורmain ואישורשער נפרד עדיין בהכנה.",
+    "verified_status": "12.48/49:בית/כותרתstickyוטיקרלאנעוץב390/1440;פריוויו98d16תרחישים. מקור98dחי דרךנתיבקהילהאחר. ביצועים073חלקייםולאקבלתכלהמלאי. 12.50: עיגול חיפוש זכוכית וטבעת זהב,44×44, נבדק בפריוויו d81; אין שינוי handler, נעיצת כותרת או נתיבים. החי נשאר273ceb24 בקריאת הסיום. 12.51: החי כבר d06. קישורמחשבון/gematria נוסף לתפריט המועמד; מקור החי אינו מוסק מmain. יישורmain ואישורשער נפרד עדיין בהכנה. 12.52: קוד המוצר מוזג לmain71bb7646; קבלתפריוויוd031 נשמרת. תיקוןCSS ותפריט ממתינים לפרסום; שלושתדומיינים עדייןd06. פריסתGitאוטומטית כבויה, קנריתבתור אינהPASS.",
     "permissions": "ציבור; מצבי מנהל לפי הרשאה",
     "parameters_anchors": "query, hash, returnTo, scroll",
     "acceptance": "פתיחה/רענון/חזרה; המפה משקפת זמינות אמיתית",
@@ -37,15 +37,20 @@
       "evidence": "App2029; prior public-foundation +9d hosted acceptance;12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW",
       "verified_status": "12.48/49:בית/כותרתstickyוטיקרלאנעוץב390/1440;פריוויו98d16תרחישים. מקור98dחי דרךנתיבקהילהאחר. ביצועים073חלקייםולאקבלתכלהמלאי. 12.50: עיגול חיפוש זכוכית וטבעת זהב,44×44, נבדק בפריוויו d81; אין שינוי handler, נעיצת כותרת או נתיבים. החי נשאר273ceb24 בקריאת הסיום."
     },
-    "main_alignment_evidence": "../main-live-state-reconciliation-20261104/README.md"
+    "main_alignment_evidence": "../main-live-state-reconciliation-20261104/README.md",
+    "main_merge_previous_checkpoint": {
+      "evidence": "App2029; prior public-foundation +9d hosted acceptance;12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW;12.51 live d06/7Kcv + main-alignment evidence",
+      "verified_status": "12.48/49:בית/כותרתstickyוטיקרלאנעוץב390/1440;פריוויו98d16תרחישים. מקור98dחי דרךנתיבקהילהאחר. ביצועים073חלקייםולאקבלתכלהמלאי. 12.50: עיגול חיפוש זכוכית וטבעת זהב,44×44, נבדק בפריוויו d81; אין שינוי handler, נעיצת כותרת או נתיבים. החי נשאר273ceb24 בקריאת הסיום. 12.51: החי כבר d06. קישורמחשבון/gematria נוסף לתפריט המועמד; מקור החי אינו מוסק מmain. יישורmain ואישורשער נפרד עדיין בהכנה."
+    },
+    "main_merge_evidence": "../main-live-state-reconciliation-20261104/main-merge-readback.json"
   },
   {
     "id": "F01",
     "old_address": "/:slug; /post/:slug; /?p=<wp_id>",
-    "evidence": "publicPostUrls.js:5–49; db-census posts1307;12.51 live d06/7Kcv + main-alignment evidence",
+    "evidence": "publicPostUrls.js:5–49; db-census posts1307;12.51 live d06/7Kcv + main-alignment evidence;12.52 main product71bb7646 / PR1191; live d06 unchanged",
     "meaning": "פוסט מסוים",
     "target_2029": "אותה כתובת לפי publicPostHref",
-    "verified_status": "זהויות וכתובות הפוסטים נשמרו. שתי כתובות404 קיימות נדחו לשחזור לאחר ההשקה באישור צוריאל;4 טיוטות נשארות מוגבלות;ForumPost המוכח ממשיך לצאט לפי החלטתו, בלי פרסום מחדש כפוסט. אין ניחוש לפי כותרת או החלפת מדיניות הכתובות 12.51: כתובות/תוכן לא השתנו. היעדרCSS ורקע שוחזר בחי בשלושה פוסטים ציבוריים; תיקון קישורCSS ובדיקתגרף4/4 מוכנים בענף בלבד. אבחנה עםCSSמוזרק אינה קבלתתוצרמתארח.",
+    "verified_status": "זהויות וכתובות הפוסטים נשמרו. שתי כתובות404 קיימות נדחו לשחזור לאחר ההשקה באישור צוריאל;4 טיוטות נשארות מוגבלות;ForumPost המוכח ממשיך לצאט לפי החלטתו, בלי פרסום מחדש כפוסט. אין ניחוש לפי כותרת או החלפת מדיניות הכתובות 12.51: כתובות/תוכן לא השתנו. היעדרCSS ורקע שוחזר בחי בשלושה פוסטים ציבוריים; תיקון קישורCSS ובדיקתגרף4/4 מוכנים בענף בלבד. אבחנה עםCSSמוזרק אינה קבלתתוצרמתארח. 12.52: קוד המוצר מוזג לmain71bb7646; קבלתפריוויוd031 נשמרת. תיקוןCSS ותפריט ממתינים לפרסום; שלושתדומיינים עדייןd06. פריסתGitאוטומטית כבויה, קנריתבתור אינהPASS.",
     "permissions": "ציבור רק לאחר publicPostBoundary",
     "parameters_anchors": "מזהה WP, קידוד, כל query חוזר, hash, scroll",
     "acceptance": "כל 1307 זהויות דרך המתאם; דוגמת ישן/חדש/WP/טיוטה; לא שינוי גורף",
@@ -67,7 +72,12 @@
       "evidence": "publicPostUrls.js:5–49; db-census posts1307",
       "verified_status": "זהויות וכתובות הפוסטים נשמרו. שתי כתובות404 קיימות נדחו לשחזור לאחר ההשקה באישור צוריאל;4 טיוטות נשארות מוגבלות;ForumPost המוכח ממשיך לצאט לפי החלטתו, בלי פרסום מחדש כפוסט. אין ניחוש לפי כותרת או החלפת מדיניות הכתובות"
     },
-    "main_alignment_evidence": "../main-live-state-reconciliation-20261104/README.md"
+    "main_alignment_evidence": "../main-live-state-reconciliation-20261104/README.md",
+    "main_merge_previous_checkpoint": {
+      "evidence": "publicPostUrls.js:5–49; db-census posts1307;12.51 live d06/7Kcv + main-alignment evidence",
+      "verified_status": "זהויות וכתובות הפוסטים נשמרו. שתי כתובות404 קיימות נדחו לשחזור לאחר ההשקה באישור צוריאל;4 טיוטות נשארות מוגבלות;ForumPost המוכח ממשיך לצאט לפי החלטתו, בלי פרסום מחדש כפוסט. אין ניחוש לפי כותרת או החלפת מדיניות הכתובות 12.51: כתובות/תוכן לא השתנו. היעדרCSS ורקע שוחזר בחי בשלושה פוסטים ציבוריים; תיקון קישורCSS ובדיקתגרף4/4 מוכנים בענף בלבד. אבחנה עםCSSמוזרק אינה קבלתתוצרמתארח."
+    },
+    "main_merge_evidence": "../main-live-state-reconciliation-20261104/main-merge-readback.json"
   },
   {
     "id": "F02",
@@ -338,10 +348,10 @@
   {
     "id": "F14",
     "old_address": "/gematria; /גימטריה; /research?tool=gematria",
-    "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW;12.51 live d06/7Kcv + main-alignment evidence",
+    "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW;12.51 live d06/7Kcv + main-alignment evidence;12.52 main product71bb7646 / PR1191; live d06 unchanged",
     "meaning": "מחשבון רגיל והפרמטרים הישנים",
     "target_2029": "/gematria דרך המתאם הקיים",
-    "verified_status": "12.48/49:b06שולב;aliasesהמחשבוןקנוניים/gematria;קלאסיושיטותלמספרמלאוחזרה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה. 12.50: תשעה מצייני אפס ממורכזים3×3 בכניסה ובניקוי, ללא חישוב/קישור ריק;358 אמיתי→מספר→חזרה עברו בפריוויו d81. החי נשאר273ceb24 בקריאת הסיום; מנוע וכתובות לא שונו. 12.51: d81 כבר נכלל במקורd06החי דרךנתיבהקהילה; מנוע וקבלותיו ללא שינוי. תפריט/gematria נוסף בענףהאיחוד בלבד.",
+    "verified_status": "12.48/49:b06שולב;aliasesהמחשבוןקנוניים/gematria;קלאסיושיטותלמספרמלאוחזרה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה. 12.50: תשעה מצייני אפס ממורכזים3×3 בכניסה ובניקוי, ללא חישוב/קישור ריק;358 אמיתי→מספר→חזרה עברו בפריוויו d81. החי נשאר273ceb24 בקריאת הסיום; מנוע וכתובות לא שונו. 12.51: d81 כבר נכלל במקורd06החי דרךנתיבהקהילה; מנוע וקבלותיו ללא שינוי. תפריט/gematria נוסף בענףהאיחוד בלבד. 12.52: קוד המוצר מוזג לmain71bb7646; קבלתפריוויוd031 נשמרת. תיקוןCSS ותפריט ממתינים לפרסום; שלושתדומיינים עדייןd06. פריסתGitאוטומטית כבויה, קנריתבתור אינהPASS.",
     "permissions": "חישוב מקומי ציבורי;AI בנפרד",
     "parameters_anchors": "w,calc,q,method,result,share,hash",
     "acceptance": "חישוב ושיתוף,מספר וחזרה; אין ברירת מחדל שמוחקת שיטה",
@@ -376,7 +386,12 @@
       "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW",
       "verified_status": "12.48/49:b06שולב;aliasesהמחשבוןקנוניים/gematria;קלאסיושיטותלמספרמלאוחזרה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה. 12.50: תשעה מצייני אפס ממורכזים3×3 בכניסה ובניקוי, ללא חישוב/קישור ריק;358 אמיתי→מספר→חזרה עברו בפריוויו d81. החי נשאר273ceb24 בקריאת הסיום; מנוע וכתובות לא שונו."
     },
-    "main_alignment_evidence": "../main-live-state-reconciliation-20261104/README.md"
+    "main_alignment_evidence": "../main-live-state-reconciliation-20261104/README.md",
+    "main_merge_previous_checkpoint": {
+      "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW;12.51 live d06/7Kcv + main-alignment evidence",
+      "verified_status": "12.48/49:b06שולב;aliasesהמחשבוןקנוניים/gematria;קלאסיושיטותלמספרמלאוחזרה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה. 12.50: תשעה מצייני אפס ממורכזים3×3 בכניסה ובניקוי, ללא חישוב/קישור ריק;358 אמיתי→מספר→חזרה עברו בפריוויו d81. החי נשאר273ceb24 בקריאת הסיום; מנוע וכתובות לא שונו. 12.51: d81 כבר נכלל במקורd06החי דרךנתיבהקהילה; מנוע וקבלותיו ללא שינוי. תפריט/gematria נוסף בענףהאיחוד בלבד."
+    },
+    "main_merge_evidence": "../main-live-state-reconciliation-20261104/main-merge-readback.json"
   },
   {
     "id": "F15",
