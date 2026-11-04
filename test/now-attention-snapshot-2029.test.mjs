@@ -45,6 +45,7 @@ test("no source read must never be reported as complete or as zero site activity
   assert.equal(projectNowAttention([], { detailsRequested: true }).readerCoverage.state, "unknown");
   assert.equal(projectNowAttention([], { detailsRequested: true, loading: true }).readerCoverage.state, "loading");
   assert.equal(projectNowAttention([], { detailsRequested: true, error: true }).readerCoverage.state, "unavailable");
+  assert.equal(projectNowAttention([], { detailsRequested: false, error: true }).readerCoverage.state, "unavailable");
   const measuredEmpty = projectNowAttention([], {
     detailsRequested: true, sourceStates: [{ status: "measured_empty" }],
   });
