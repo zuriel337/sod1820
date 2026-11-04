@@ -1,0 +1,34 @@
+{
+  "baseline": true,
+  "syntheticResponses": false,
+  "productWrites": 0,
+  "modelCalls": 0,
+  "rows": [
+    {
+      "name": "baseline-320",
+      "evidence": {
+        "width": 320,
+        "tiles": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "baseline-390",
+      "evidence": {
+        "width": 390,
+        "tiles": 0
+      },
+      "pass": true
+    },
+    {
+      "name": "baseline-1440",
+      "evidence": {
+        "width": 1440,
+        "tiles": 0
+      },
+      "pass": true
+    }
+  ],
+  "sourceSha": "273ceb2412cac3de04ba784982bb076bbd465a8e",
+  "ok": true
+}

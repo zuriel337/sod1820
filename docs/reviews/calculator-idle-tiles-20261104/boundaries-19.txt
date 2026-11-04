@@ -1,0 +1,31 @@
+✔ public 2029 copy has no forbidden internal labels (9.348907ms)
+✔ public header and command input expose accessible search labels (0.78595ms)
+✔ Heichal page copy is untouched (0.193077ms)
+✔ projection contract preserves every existing client calculation exactly (3.756201ms)
+✔ registry unavailable remains UNKNOWN rather than fabricating false state (0.908568ms)
+✔ registry axes stay separate and method identity/version are preserved (0.250806ms)
+✔ storage capability never fabricates that this particular result is stored (0.177133ms)
+✔ representation keeps raw input separate from canonical normalization (0.483434ms)
+✔ canonical engine confirms the three 776 expressions that sound interpretive (0.456863ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ a newly selected value never commits phrases from the previous value, even before passive cleanup (44.618143ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ caller switch cancels partial data and never reuses another caller's lookup/cache (6.192961ms)
+react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+✔ an empty helper response is not retained indefinitely and a later mount can retry (4.511203ms)
+✔ every executable canonical trace has a complete readable projection; contextual method has no result (5.401863ms)
+✔ word boundaries, reverse order, per-word reset, substitutions and positions remain distinct (1.12411ms)
+✔ composite keeps component order and fails closed on component mismatch (0.843438ms)
+✔ missing numbers never become zero; actual zero remains available (1.934847ms)
+✔ stale identities, bad parity, missing steps and malformed boundaries are not displayed (0.497796ms)
+✔ animation accepts engine word boundaries without animating a phantom letter (1.217964ms)
+✔ Finding adapter refuses contextual or stale trace results (10.897531ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 468.367902

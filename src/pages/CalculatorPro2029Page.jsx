@@ -25,6 +25,7 @@ import {
 import { buildCalculatorShareUrl, makeCalculatorShareId, calculatorEntryParams } from "../lib/research/calculator2029Viral.js";
 import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
 import { GADOL_BASE, hasSofiot } from "../lib/research/gematriaCalculationContract.js";
+import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { applySeo } from "../lib/seo.js";
 import "./calculatorPro2029.css";
 
@@ -32,6 +33,11 @@ const clean = (value) => value == null ? "" : String(value).trim();
 const fmt = (value) => Number.isFinite(Number(value)) ? Number(value).toLocaleString("en-US") : "—";
 const EXAMPLES = Object.freeze(["אהבה", "משיח", "David"]);
 const CORE_FAMILY_KEY = "base";
+// Reuse the existing idle preview. These zeros are display placeholders, never
+// a canonical selection, an empty-expression calculation or a Number0 link.
+const EMPTY_METHOD_ROWS = Object.freeze(buildCalculator2029FastPreview("").methods.map(method => ({
+  ...method, label: method.displayLabel, category: "base",
+})));
 const EXCEPTIONAL_STATE_HE = Object.freeze({
   composite: "מורכב",
   derived: "נגזר",
@@ -50,15 +56,15 @@ const CALCULATOR_ORIENTATION_COPY = Object.freeze({
   body: "הקלידו שם, מילה או ביטוי: כל שיטה מציגה ערך משלה. בחרו שיטה כדי לראות את הצעדים שלה; בלשונית למד תמצאו הדרכה עם הביטוי שהקלדתם.",
 });
 
-const MethodTile = React.memo(function MethodTile({ method, active, sameCount, onChoose, equivalentTo = null, href = null, onOpen = null }) {
+const MethodTile = React.memo(function MethodTile({ method, active, sameCount, onChoose, equivalentTo = null, href = null, onOpen = null, idle = false }) {
   const unavailable = calculationAvailabilityLabel(method);
-  const note = equivalentTo ? `≡ זהה ל${equivalentTo}` : method.previewOnly
+  const note = idle ? null : equivalentTo ? `≡ זהה ל${equivalentTo}` : method.previewOnly
     ? (method.pendingNote || "מיידי")
     : (EXCEPTIONAL_STATE_HE[method.exceptionalState] || unavailable || null);
   // The tile's third line is reserved for material states only (derived / equivalent / composite / contextual /
   // unavailable …) and the locked "≡ identical to base" note. "Same value in other methods" is no longer
   // spelled out per tile (it carried no information a reader could act on).
-  const tileClass = `sod29-calcpro-tile${active ? " is-active" : ""}${sameCount > 0 ? " is-same" : ""}${method.previewOnly ? " is-preview" : ""}${equivalentTo ? " is-equivalent" : ""}`;
+  const tileClass = `sod29-calcpro-tile${active ? " is-active" : ""}${sameCount > 0 ? " is-same" : ""}${method.previewOnly ? " is-preview" : ""}${equivalentTo ? " is-equivalent" : ""}${idle ? " is-idle" : ""}`;
   const inner = (
     <>
       <span>{method.publicLabel || method.label}</span>
@@ -66,7 +72,7 @@ const MethodTile = React.memo(function MethodTile({ method, active, sameCount, o
       <small>{note || " "}</small>
     </>
   );
-  if (href) {
+  if (href && !idle) {
     return (
       <Link to={href} className={tileClass} state={{ sodResearchIntent: "continue" }} aria-current={active ? "true" : undefined} data-method={method.methodKey} data-preview-state="verified" onClick={(event) => onOpen?.(method, event)}>
         {inner}
@@ -79,9 +85,9 @@ const MethodTile = React.memo(function MethodTile({ method, active, sameCount, o
       className={tileClass}
       onClick={() => onChoose(method)}
       aria-pressed={active}
-      disabled={method.previewOnly && method.language !== "en"}
+      disabled={idle || method.previewOnly && method.language !== "en"}
       data-method={method.methodKey}
-      data-preview-state={method.previewOnly ? "preview" : "verified"}
+      data-preview-state={idle ? "empty" : method.previewOnly ? "preview" : "verified"}
     >
       {inner}
     </button>
@@ -202,6 +208,8 @@ function ProExperience() {
   const inputRef = useRef(null);
   const row = useCalculatorRow(seedExpression);
   const { info } = row;
+  const emptyInput = !info.expression;
+  const displayHebrewRows = emptyInput ? EMPTY_METHOD_ROWS : row.hebrewRows;
 
   const [selectedKey, setSelectedKey] = useState(seedMethod || null);
   // Default view is "classic" (Human-Gate decision): every method in one flat grid right after the input.
@@ -214,7 +222,7 @@ function ProExperience() {
   const [advanced, setAdvanced] = useState(params.get("mode") === "adv");
   const desktop = useIsDesktop();
   const [wideRequested, setWide] = useState(params.get("view") === "wide");
-  const wide = wideRequested && desktop;
+  const wide = wideRequested && desktop && !emptyInput;
   const [showOpening, setShowOpening] = useState(false);
   const [shareId, setShareId] = useState(() => makeCalculatorShareId());
   const [shareDiscovery, setShareDiscovery] = useState(null);
@@ -223,7 +231,7 @@ function ProExperience() {
     emit("calculator_2029", "calculator_view", { props: { surface: "professional", entry: seedExpression ? "handoff" : "direct" } });
   }, []);
 
-  const allMethods = useMemo(() => [...row.hebrewRows, ...row.englishRows], [row.hebrewRows, row.englishRows]);
+  const allMethods = useMemo(() => [...displayHebrewRows, ...row.englishRows], [displayHebrewRows, row.englishRows]);
   const methodByKey = useMemo(() => new Map(allMethods.map((method) => [method.methodKey, method])), [allMethods]);
   const reportableRows = useMemo(
     () => allMethods.filter((method) => !method.previewOnly && isReportableValue(method.computedValue)),
@@ -238,7 +246,7 @@ function ProExperience() {
     setSelectedKey(fallback ? fallback.methodKey : null);
   }, [row.canonicalSettled, row.englishRows, methodByKey, reportableRows, selectedKey]);
 
-  const selectedMethod = selectedKey ? methodByKey.get(selectedKey) || null : null;
+  const selectedMethod = !emptyInput && selectedKey ? methodByKey.get(selectedKey) || null : null;
   const canonicalSelection = selectedMethod && !selectedMethod.previewOnly && row.canonicalSettled
     ? buildCalculationSelection(row.profile.expression, selectedMethod)
     : null;
@@ -246,9 +254,9 @@ function ProExperience() {
 
   const presentation = useMemo(() => buildGematriaPresentationModel({
     expression: info.expression,
-    methodProfile: row.hebrewRows,
+    methodProfile: displayHebrewRows,
     activeMethodKey: selectedMethod && !isEnglishMethodKey(selectedMethod.methodKey) ? selectedMethod.methodKey : null,
-  }), [info.expression, row.hebrewRows, selectedMethod]);
+  }), [info.expression, displayHebrewRows, selectedMethod]);
 
   const activeValue = selectedMethod?.computedValue ?? null;
   const activeNumber = Number(activeValue);
@@ -378,7 +386,7 @@ function ProExperience() {
 
   const englishPending = row.englishRows.some((method) => method.previewOnly);
   const englishOnlyPending = englishPending && !info.hebrewApplicable;
-  const status = row.profile.error
+  const status = emptyInput ? "instant" : row.profile.error
     ? "error"
     : row.profile.loading ? "verifying" : row.canonicalSettled && !englishOnlyPending ? "verified" : "instant";
   const statusText = status === "error"
@@ -386,7 +394,7 @@ function ProExperience() {
     : status === "verifying" ? "מאמת מול המנוע הקנוני…"
       : status === "verified" ? "מאומת"
         : englishOnlyPending ? "מיידי · האנגלית ממתינה להפעלה קנונית במנוע"
-          : info.expression ? "מיידי" : "";
+          : info.expression ? "מיידי" : "הקלידו מילה או ביטוי כדי להתחיל";
 
   // With no input yet the chosen view stays highlighted; only a non-Hebrew expression falls back to families.
   const effectiveView = !info.expression || info.hebrewApplicable ? view : "tiles";
@@ -445,12 +453,13 @@ function ProExperience() {
   const classicMethods = useMemo(() => familyGroups.flatMap((group) => group.methods), [familyGroups]);
   const classicView = hasAnyResults ? (
     <section className="sod29-calcpro-classic" aria-label="כל השיטות">
-      <div className="sod29-calcpro-grid is-classic">
+      <div className={`sod29-calcpro-grid is-classic${emptyInput ? " is-idle-grid" : ""}`}>
         {classicMethods.map((method) => (
           <MethodTile
             key={method.methodKey}
             method={method}
-            active={method.methodKey === selectedKey}
+            active={!emptyInput && method.methodKey === selectedKey}
+            idle={emptyInput}
             sameCount={method.previewOnly ? 0 : Math.max(0, (valueCounts.get(Number(method.computedValue)) || 1) - 1)}
             equivalentTo={info.hebrewApplicable && GADOL_BASE[method.methodKey] && !hasSofiot(info.expression) ? GADOL_BASE[method.methodKey] : null}
             href={method.previewOnly || !isReportableValue(method.computedValue)
@@ -533,7 +542,7 @@ function ProExperience() {
   ) : null;
 
   return (
-    <section className={`sod29-calcpro${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView}>
+    <section className={`sod29-calcpro${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView} data-input-state={emptyInput ? "empty" : "active"}>
       <h1 className="sod29-calcpro-sr">מחשבון גימטריה מקצועי</h1>
       <CalculatorWordsBar2029
         currentExpression={info.expression}
@@ -607,7 +616,7 @@ function ProExperience() {
         ) : null}
 
         <div className="sod29-calcpro-main">
-          {!wide && effectiveView === "classic" ? classicView : null}
+          {!wide && (emptyInput || effectiveView === "classic") ? classicView : null}
           {hero}
           {canonicalSelection ? (
             <CalculatorEqualsPreview2029
@@ -623,7 +632,7 @@ function ProExperience() {
               onShown={(total) => emit("calculator_2029", "equals_preview_shown", { props: { surface: "professional", method: canonicalSelection.methodKey, count: total } })}
             />
           ) : null}
-          {wide || effectiveView === "classic" ? null : (effectiveView === "ledger" ? ledgerView : tilesView)}
+          {!emptyInput && (wide || effectiveView === "classic" ? null : (effectiveView === "ledger" ? ledgerView : tilesView))}
           {!wide ? englishBlock : null}
           {showDuo ? (
             <CalculatorDuo2029

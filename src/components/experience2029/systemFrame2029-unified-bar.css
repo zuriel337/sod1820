@@ -451,3 +451,29 @@
 }
 .sod29-root.native-frame .sod29-frame-backdrop{padding-block-end:calc(var(--s29-island-clearance,90px) + env(safe-area-inset-bottom,0px))}
 .sod29-root.native-frame .sod29-frame-panel{max-block-size:calc(100dvh - var(--s29-island-clearance,90px) - env(safe-area-inset-bottom,0px) - 20px)}
+
+/* Selected search control: quiet glass circle with one static gold ring. */
+.sod29-root.closed-shell.native-frame .sod29-header-search{
+  width:44px;min-width:44px;height:44px;min-height:44px;aspect-ratio:1;
+  grid-template-columns:1fr;place-items:center;padding:0;gap:0;border-radius:50%;
+  border:1px solid color-mix(in srgb,var(--s29-brand-gold) 72%,var(--s29-line-strong));
+  background:color-mix(in srgb,var(--s29-panel) 22%,transparent);color:var(--s29-ink);
+  -webkit-backdrop-filter:blur(14px) saturate(1.25);backdrop-filter:blur(14px) saturate(1.25);
+  box-shadow:inset 0 1px 0 var(--s29-glass-shine);transform:none;animation:none;
+  transition:border-color .18s ease,background .18s ease;
+}
+.sod29-root.closed-shell.native-frame .sod29-header-search .sod29-search-mobile-icon{display:block;font-size:26px;line-height:1}
+.sod29-root.closed-shell.native-frame .sod29-header-search :is(.label,kbd,.sod29-search-pill-icon){display:none}
+.sod29-root.closed-shell.native-frame .sod29-header-search:is(:hover,[aria-expanded="true"]){
+  border-color:var(--s29-brand-gold);background:color-mix(in srgb,var(--s29-brand-gold) 10%,transparent);transform:none;
+}
+.sod29-root.closed-shell.native-frame .sod29-header-search:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:3px}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .sod29-root.closed-shell.native-frame .sod29-header-search{background:var(--s29-panel)}
+}
+@media(prefers-reduced-transparency:reduce){
+  .sod29-root.closed-shell.native-frame .sod29-header-search{background:var(--s29-panel);-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .sod29-root.closed-shell.native-frame .sod29-header-search{transition:none}
+}
