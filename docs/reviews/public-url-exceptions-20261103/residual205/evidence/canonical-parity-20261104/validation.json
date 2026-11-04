@@ -1,0 +1,35 @@
+{
+  "sourceSha": "f4390dd356b374e839024eb235fc4a63344667de",
+  "deploymentId": "dpl_48Ha5ZApCdwpK8YDHkboumGVApyS",
+  "mobileObservations": 19,
+  "desktopObservations": 3,
+  "sourceStableBothRuns": true,
+  "mobileCanonicalMismatches": 8,
+  "oldServerPrefixRepairedInClientObservations": 6,
+  "postsReverseMismatches": 2,
+  "galleryGetHead": 404,
+  "pageExceptions": 0,
+  "allPrefixedPublicRouteDeclarationsCovered": 6,
+  "nonPublicPrefixedDeclarationsExcluded": 7,
+  "everyContentItemTested": false,
+  "sourceTestsRerun": false,
+  "runtimeChanged": false,
+  "productionDeployedByAudit": false,
+  "originalSourceAddressesPreserved": true,
+  "matrixRowsUpdated": [
+    "F02",
+    "F14",
+    "F16",
+    "F17",
+    "F32"
+  ],
+  "boundedSecretsScan": "PASS",
+  "diffCheck": "PASS_STAGED_FULL_AUDIT_DELTA",
+  "matrixSharedFieldsConsistent": true,
+  "receiptSha256": {
+    "mobile19.json": "cbdf9ef7dc6c11e6b078a2b179fb2ce5a4a45e8627af53d316816e8a11152e9a",
+    "desktop3.json": "b1357a56367f4286cf0b0325f06f9dc5f44ee5771541b146205b24e31a1881bb",
+    "static-scope.json": "7aa9da6399a6e947195c0add5d3f386d673b6a5705d363f336f62b17181d376b",
+    "browser-audit.cjs": "9f9b1d1fa7d287077cd2cc3cbc743eb6f2e18080256069646419795f332f6e19"
+  }
+}
