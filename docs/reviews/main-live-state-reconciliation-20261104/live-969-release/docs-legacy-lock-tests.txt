@@ -1,0 +1,1 @@
+Legacy fallback compatibility: PASS (not live deployment verification)

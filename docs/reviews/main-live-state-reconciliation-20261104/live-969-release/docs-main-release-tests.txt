@@ -1,0 +1,1 @@
+Main 2029 publication contract: PASS; automatic Git deployment OFF; explicit source-pinned publication only; live state not inferred

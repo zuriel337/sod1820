@@ -1,0 +1,5 @@
+canary	Enforce canary outcome	﻿2026-11-04T20:22:15.4121006Z ##[group]Run exit 1
+canary	Enforce canary outcome	2026-11-04T20:22:15.4121276Z exit 1
+canary	Enforce canary outcome	2026-11-04T20:22:15.4141773Z shell: /usr/bin/bash -e {0}
+canary	Enforce canary outcome	2026-11-04T20:22:15.4142038Z ##[endgroup]
+canary	Enforce canary outcome	2026-11-04T20:22:15.4209491Z ##[error]Process completed with exit code 1.

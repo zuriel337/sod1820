@@ -1,0 +1,406 @@
+{
+  "sourceSha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+  "attempts": [
+    {
+      "deploymentId": "dpl_GZGdkkcfF1cfLHzXCQK5ztssPiiK",
+      "result": "CANCELED",
+      "domainMovement": false,
+      "forceNew": false,
+      "events": [
+        {
+          "created": 1793823421169,
+          "date": 1793823421169,
+          "type": "stdout",
+          "text": "Running build in Washington, D.C., USA (East) – iad1",
+          "info": {
+            "type": "build",
+            "name": "bld_kk866cwqi",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823421170,
+          "date": 1793823421170,
+          "type": "stdout",
+          "text": "Build machine configuration: 4 cores, 8 GB (Standard Build Machine)",
+          "info": {
+            "type": "build",
+            "name": "bld_kk866cwqi",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823421261,
+          "date": 1793823421261,
+          "type": "stdout",
+          "text": "Cloning github.com/zuriel337/sod1820 (Branch: main, Commit: 969b514)",
+          "info": {
+            "type": "build",
+            "name": "bld_kk866cwqi",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823427131,
+          "date": 1793823427131,
+          "type": "stdout",
+          "text": "Cloning completed: 5.870s",
+          "info": {
+            "type": "build",
+            "name": "bld_kk866cwqi",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823427305,
+          "date": 1793823427305,
+          "type": "stdout",
+          "text": "Restored build cache from previous deployment (7KcvdVHsp26uyiLrNHppBtCKeGbX)",
+          "info": {
+            "type": "build",
+            "name": "bld_kk866cwqi",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823427477,
+          "date": 1793823427477,
+          "type": "stdout",
+          "text": "Running \"if [ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ]; then exit 0; else exit 1; fi\"",
+          "info": {
+            "type": "build",
+            "name": "bld_kk866cwqi",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823427510,
+          "date": 1793823427510,
+          "type": "stderr",
+          "text": "The deployment was canceled because the Ignored Build Step command returned exit code 0.",
+          "info": {
+            "type": "build",
+            "name": "bld_kk866cwqi",
+            "entrypoint": "."
+          }
+        }
+      ]
+    },
+    {
+      "deploymentId": "dpl_BK6439BGWMJ7br8FNxXonkkvvadC",
+      "result": "CANCELED",
+      "domainMovement": false,
+      "forceNew": true,
+      "events": [
+        {
+          "created": 1793823604056,
+          "date": 1793823604056,
+          "type": "stderr",
+          "text": "The deployment was canceled because the Ignored Build Step command returned exit code 0.",
+          "info": {
+            "type": "build",
+            "name": "bld_38l5z4f6p",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823603998,
+          "date": 1793823603998,
+          "type": "stdout",
+          "text": "Running \"if [ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ]; then exit 0; else exit 1; fi\"",
+          "info": {
+            "type": "build",
+            "name": "bld_38l5z4f6p",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823603508,
+          "date": 1793823603508,
+          "type": "stdout",
+          "text": "Cloning completed: 8.201s",
+          "info": {
+            "type": "build",
+            "name": "bld_38l5z4f6p",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823595308,
+          "date": 1793823595308,
+          "type": "stdout",
+          "text": "Skipping build cache, deployment was triggered without cache.",
+          "info": {
+            "type": "build",
+            "name": "bld_38l5z4f6p",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823595307,
+          "date": 1793823595307,
+          "type": "stdout",
+          "text": "Cloning github.com/zuriel337/sod1820 (Branch: main, Commit: 969b514)",
+          "info": {
+            "type": "build",
+            "name": "bld_38l5z4f6p",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823595271,
+          "date": 1793823595271,
+          "type": "stdout",
+          "text": "Build machine configuration: 4 cores, 8 GB (Standard Build Machine)",
+          "info": {
+            "type": "build",
+            "name": "bld_38l5z4f6p",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823595270,
+          "date": 1793823595270,
+          "type": "stdout",
+          "text": "Running build in Washington, D.C., USA (East) – iad1",
+          "info": {
+            "type": "build",
+            "name": "bld_38l5z4f6p",
+            "entrypoint": "."
+          }
+        }
+      ]
+    },
+    {
+      "deploymentId": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+      "result": "READY",
+      "reason": "Exact approved Production source admitted by bounded request command; repository git deployment switches remain false",
+      "events": [
+        {
+          "created": 1793823705362,
+          "date": 1793823705362,
+          "type": "stdout",
+          "text": "Build cache uploaded: 2.174s",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823703188,
+          "date": 1793823703188,
+          "type": "stdout",
+          "text": "Uploading build cache [100.52 MB]",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823703188,
+          "date": 1793823703188,
+          "type": "stdout",
+          "text": "Created build cache: 6s",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823697061,
+          "date": 1793823697061,
+          "type": "stdout",
+          "text": "Creating build cache...",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823697027,
+          "date": 1793823697027,
+          "type": "stdout",
+          "text": "Deployment completed",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823688395,
+          "date": 1793823688395,
+          "type": "stdout",
+          "text": "Deploying outputs...",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823688335,
+          "date": 1793823688335,
+          "type": "stderr",
+          "text": "Build Completed in /vercel/output [14s]",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823688293,
+          "date": 1793823688293,
+          "type": "stderr",
+          "text": "\u001b[33m\u001b[1mWARNING! \u001b[22mmiddleware.js uses the deprecated \"edge\" runtime. Migrate to the Node.js runtime for better performance and reliability by exporting `const config = { runtime: 'nodejs' }`. Learn more: https://vercel.com/docs/routing-middleware#runtime-options\u001b[39m",
+          "level": "warning",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823683215,
+          "date": 1793823683215,
+          "type": "stdout",
+          "text": "up to date in 257ms",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823683215,
+          "date": 1793823683215,
+          "type": "stdout",
+          "text": "",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823683188,
+          "date": 1793823683188,
+          "type": "stderr",
+          "text": "npm warn Unknown env config \"cache-dir\". This will stop working in the next major version of npm. See `npm help npmrc` for supported config options.",
+          "level": "warning",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823682899,
+          "date": 1793823682899,
+          "type": "stdout",
+          "text": "Installing dependencies...",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823682822,
+          "date": 1793823682822,
+          "type": "stdout",
+          "text": "Public-capable candidate built for protected unrouted acceptance; no traffic switch is authorized.",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823682514,
+          "date": 1793823682514,
+          "type": "stderr",
+          "text": "- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\u001b[39m",
+          "level": "warning",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823682514,
+          "date": 1793823682514,
+          "type": "stderr",
+          "text": "- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823682514,
+          "date": 1793823682514,
+          "type": "stderr",
+          "text": "- Using dynamic import() to code-split the application",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823682514,
+          "date": 1793823682514,
+          "type": "stderr",
+          "text": "(!) Some chunks are larger than 500 kB after minification. Consider:",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823682514,
+          "date": 1793823682514,
+          "type": "stderr",
+          "text": "\u001b[33m[plugin builtin:vite-reporter] ",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823682513,
+          "date": 1793823682513,
+          "type": "stdout",
+          "text": "\u001b[32m✓ built in 1.41s\u001b[39m",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        },
+        {
+          "created": 1793823682510,
+          "date": 1793823682510,
+          "type": "stdout",
+          "text": "",
+          "info": {
+            "type": "build",
+            "name": "bld_26efri9os",
+            "entrypoint": "."
+          }
+        }
+      ]
+    }
+  ],
+  "note": "No project PATCH was sent. The project read tool redacts build settings, so persisted project ignore-command state was not independently read back; do not infer settings absence from redaction."
+}

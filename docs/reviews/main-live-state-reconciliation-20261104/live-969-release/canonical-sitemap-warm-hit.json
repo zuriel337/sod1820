@@ -1,0 +1,15 @@
+{
+  "source": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+  "status": 200,
+  "headersMs": 462,
+  "totalMs": 543,
+  "decodedBytes": 4210670,
+  "cache": "public, max-age=3600",
+  "cdn": "HIT",
+  "cdnCacheControl": null,
+  "vercelCdnCacheControl": null,
+  "age": "87",
+  "robots": null,
+  "privacy": true,
+  "locs": 16757
+}

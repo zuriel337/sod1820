@@ -1,0 +1,39 @@
+[
+  {
+    "path": "/public-reading-artifact.json",
+    "status": 200,
+    "ms": 508,
+    "robots": null,
+    "cache": "no-store",
+    "sourceSha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+    "productionMode": "public-production-candidate",
+    "middleware": {
+      "path": "public-reading-deploy/middleware.js",
+      "canonicalPath": "middleware.js",
+      "matcher": [
+        "/((?!api/|assets/|.*\\.).*)"
+      ],
+      "sha256": "2215a4a374d6952cd1cac412be79c632e7e659b8f6102d81803d21400feee599",
+      "canonicalSha256": "dd4cb306e889cb71d03f608665c3e6f939d253e9f924819bf71b31c00182ea0d",
+      "coreSha256": "37e1f86a21512ae3e271dbaf5dc4f5089a03ab8ff1d84ae861965b58c83ec93d",
+      "routeLegitimacySha256": "bb26cf599ca85d1dbce7cf5cd5013bb25e4d88b0a1f4337876f40b7ab2bc0d76",
+      "hostedInvocation": "requires-separate-positive-and-negative-acceptance"
+    }
+  },
+  {
+    "path": "/robots.txt",
+    "status": 200,
+    "ms": 400,
+    "robots": null,
+    "cache": "no-store"
+  },
+  {
+    "path": "/",
+    "status": 200,
+    "ms": 1339,
+    "robots": "index, follow",
+    "cache": "no-store",
+    "root": true,
+    "canonical": "https://sod1820.co.il"
+  }
+]

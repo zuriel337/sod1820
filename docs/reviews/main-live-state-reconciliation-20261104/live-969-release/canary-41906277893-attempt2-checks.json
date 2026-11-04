@@ -1,0 +1,48 @@
+{
+  "sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+  "url": "https://sod1820.co.il",
+  "kind": "scheduled",
+  "ok": true,
+  "checks": [
+    {
+      "name": "home_200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "home_has_root",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "home_has_entry_bundle",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "entry_bundle_200",
+      "ok": true,
+      "detail": "status=200 bytes=273271"
+    },
+    {
+      "name": "robots_200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "sitemap_200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "health_watch_heartbeat",
+      "ok": true,
+      "detail": "age_minutes=4.4 max_age_minutes=45"
+    }
+  ],
+  "heartbeat": {
+    "healthy": true,
+    "age_minutes": 4.4,
+    "max_age_minutes": 45
+  }
+}

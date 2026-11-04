@@ -1,0 +1,15 @@
+{
+  "sourceSha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+  "deploymentId": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+  "environment": "production",
+  "lookback": "30m",
+  "providerErrorLevelCount": 4,
+  "classification": "All four returned records contain Node DEP0169 url.parse deprecation warnings on stderr; no uncaught application error in these four records. This is a bounded log query, not proof all logs are error-free.",
+  "warningLines": [
+    "(node:8) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.",
+    "(node:7) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.",
+    "(node:7) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.",
+    "(node:8) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities."
+  ],
+  "rawLogsCommitted": false
+}

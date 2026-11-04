@@ -1,0 +1,13 @@
+{
+  "observedAt": "2026-11-04T20:16:39.919Z",
+  "override": {
+    "reason": "human_gate_override",
+    "allowed": true,
+    "expires_at": "2026-11-04T21:16:17.346189+00:00"
+  },
+  "heartbeat": {
+    "healthy": true,
+    "age_minutes": 1.7,
+    "max_age_minutes": 45
+  }
+}

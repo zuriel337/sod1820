@@ -1,0 +1,101 @@
+{
+  "sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+  "origin": "https://sod1820.co.il",
+  "realSW": true,
+  "responseMocks": false,
+  "intentionalProductWrites": 0,
+  "rows": [
+    {
+      "path": "/",
+      "width": 390,
+      "status": 200,
+      "usefulContentMs": 4380,
+      "numberRoot": null,
+      "canonical": "https://sod1820.co.il",
+      "errors": [],
+      "pass": true
+    },
+    {
+      "path": "/world",
+      "width": 390,
+      "status": 200,
+      "usefulContentMs": 3524,
+      "numberRoot": null,
+      "canonical": "https://sod1820.co.il/world",
+      "errors": [],
+      "pass": true
+    },
+    {
+      "path": "/number/1820",
+      "width": 390,
+      "status": 200,
+      "usefulContentMs": 2455,
+      "numberRoot": "1820",
+      "canonical": "https://sod1820.co.il/number/1820",
+      "errors": [],
+      "pass": true
+    },
+    {
+      "path": "/number/משיח",
+      "width": 390,
+      "status": 200,
+      "usefulContentMs": 2338,
+      "numberRoot": "358",
+      "canonical": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+      "errors": [],
+      "pass": true
+    },
+    {
+      "width": 390,
+      "exactNumberPhraseBackForward": true,
+      "workerVerified": true,
+      "pass": true
+    },
+    {
+      "path": "/",
+      "width": 1440,
+      "status": 200,
+      "usefulContentMs": 2426,
+      "numberRoot": null,
+      "canonical": "https://sod1820.co.il",
+      "errors": [],
+      "pass": true
+    },
+    {
+      "path": "/world",
+      "width": 1440,
+      "status": 200,
+      "usefulContentMs": 1059,
+      "numberRoot": null,
+      "canonical": "https://sod1820.co.il/world",
+      "errors": [],
+      "pass": true
+    },
+    {
+      "path": "/number/1820",
+      "width": 1440,
+      "status": 200,
+      "usefulContentMs": 2402,
+      "numberRoot": "1820",
+      "canonical": "https://sod1820.co.il/number/1820",
+      "errors": [],
+      "pass": true
+    },
+    {
+      "path": "/number/משיח",
+      "width": 1440,
+      "status": 200,
+      "usefulContentMs": 3614,
+      "numberRoot": "358",
+      "canonical": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+      "errors": [],
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "exactNumberPhraseBackForward": true,
+      "workerVerified": true,
+      "pass": true
+    }
+  ]
+}
