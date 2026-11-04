@@ -1,0 +1,101 @@
+{
+  "conclusion": "success",
+  "headSha": "a106a140de4c7b2b118e1d971a7ebac43b3035e9",
+  "jobs": [
+    {
+      "name": "public-core",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Public capability metadata and Community reader acceptance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run node --test src/lib/research/worldGroupSource.test.js",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Group source v3 real HTTP role acceptance on disposable fixtures",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run node scripts/test-2029-system-frame.mjs",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm install --no-save --no-package-lock @playwright/test@1.55.0",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx playwright install --with-deps chromium",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Start isolated 2029 preview",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Public core browser acceptance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Show preview log on failure",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "name": "G4 Public Core Gate",
+  "status": "completed",
+  "url": "https://github.com/zuriel337/sod1820/actions/runs/41887406356"
+}

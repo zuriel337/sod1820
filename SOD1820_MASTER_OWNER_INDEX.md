@@ -1,5 +1,8 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v2 COMPACT
 
+**המשך 12.55 — מוצר מאוחד לשחרור:** [PR1195](https://github.com/zuriel337/sod1820/pull/1195) מוזג ל־`2149cb748176529a7af756cda23b95d646cf639c`, עץ זהה למקור הפריוויו `a106a140` / `dpl_78xR91VjtFhwKivWo4ixYk9BEmQY`. נכללת מסירת הקהילה המדויקת `d96c41ea`; SQL הזהות כבר הוחל בסשן המוסר ולא הורץ שוב. G4 הציבורי עבר על a106; serverSEO ו־A3 עברו, אך Isolation/Visual המלאים אינם PASS. זמני הודעות הקהילה פחות מ־24 שעות הם חריג מאושר ומתועד לבעלים הקיים, בלי שינוי כלל העולם. צוריאל ביקש לפרסם את כל החבילה; החי עדיין d06/7Kcv והקנרית האחרונה חוסמת. אין override או פריסה מכוח המיזוג. סשנים חדשים מתחילים מ־origin/main העדכני ומאמתים פריסה ובעלויות. [ראיות ויתרה](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1255--שילוב-d96c41ea-וקבלה-של-החבילה-המצטברת).
+
+
 ## מצב חי וכללי שחרור — 2029 (יישור ZURIEL, ‏4.11.2026)
 
 **2029 הוא האתר החי. Legacy הוא יעד חזרה בלבד.** מצב חי נקבע מקריאה עדכנית של שיוך הדומיינים ב־Vercel, מקור הפריסה וה־artifact שמוגש בפועל; `main`, הודעה ישנה או work_log לבדם אינם הוכחת פריסה.
@@ -136,7 +139,7 @@ Legacy Insight/Pearl/Dossier/Lab/four-lens/two-pass/research-agent micro-laws ar
 | Human curation Gold/Signature/Anchor family | `golden_entity_law` under Truth Axes |
 | signal vs curation boundary | `signal_vs_curation` under Truth Axes |
 | manual verification seal | `verify_seal_manual_only` under Truth Axes |
-| display of record times: relative "לפני X" only on the main Home; World and every other surface show Hebrew + Gregorian together (ZURIEL 22.10.2026; enforced by `test/date-display-rule-2029.test.mjs`) | `relative_time_display_law` (child of Truth Axes time context); canonical zone stays `israel_time_law` |
+| display of record times: main Home relative; approved Community-only first-24h exception with original/full accessible time (ZURIEL 4.11, d96c41ea); World and other surfaces retain Hebrew + Gregorian dates | `relative_time_display_law` v4 plus preserved Human-Gate addendum (child of Truth Axes time context); canonical zone stays `israel_time_law` |
 
 Interpretive research theses are Research OS/provenance, not global governance laws.
 

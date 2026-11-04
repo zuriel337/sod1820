@@ -1,0 +1,948 @@
+{
+  "config": {
+    "configFile": "/tmp/sod-locked-ci-source-20261104/.release-gate/current-runner.config.cjs",
+    "rootDir": "/tmp/sod-locked-ci-source-20261104/.release-gate",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/tmp/sod-locked-ci-source-20261104/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/tmp/sod-locked-ci-source-20261104/.release-gate",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "release-visual.spec.cjs",
+      "file": "release-visual.spec.cjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "2029 Preview Home keeps four post cards and one dock without claiming a Production opening",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 33381,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[data-experience-capability=\"home-composition\"]').locator('.h29-updates > .h29-card')\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-capability=\"home-composition\"]').locator('.h29-updates > .h29-card')\u001b[22m\n\u001b[2m    33 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[data-experience-capability=\"home-composition\"]').locator('.h29-updates > .h29-card')\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-capability=\"home-composition\"]').locator('.h29-updates > .h29-card')\u001b[22m\n\u001b[2m    33 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:34:60",
+                    "location": {
+                      "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                      "column": 60,
+                      "line": 34
+                    },
+                    "snippet": "  32 |     const home = page.locator('[data-experience-capability=\"home-composition\"]');\n  33 |     await expect(home).toBeVisible({ timeout: 30_000 });\n> 34 |     await expect(home.locator('.h29-updates > .h29-card')).toHaveCount(4, { timeout: 30_000 });\n     |                                                            ^\n  35 |     await expect(home.locator('[data-home-launch-notice=\"gradual-opening\"]')).toHaveCount(0);\n  36 |     await expect(home.locator('[data-home-world=\"open\"]')).toHaveCount(0);\n  37 |     await expect(home.locator('#home-sources')).toHaveCount(1);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                        "column": 60,
+                        "line": 34
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[data-experience-capability=\"home-composition\"]').locator('.h29-updates > .h29-card')\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  30000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-capability=\"home-composition\"]').locator('.h29-updates > .h29-card')\u001b[22m\n\u001b[2m    33 × locator resolved to 0 elements\u001b[22m\n\u001b[2m       - unexpected value \"0\"\u001b[22m\n\n\n  32 |     const home = page.locator('[data-experience-capability=\"home-composition\"]');\n  33 |     await expect(home).toBeVisible({ timeout: 30_000 });\n> 34 |     await expect(home.locator('.h29-updates > .h29-card')).toHaveCount(4, { timeout: 30_000 });\n     |                                                            ^\n  35 |     await expect(home.locator('[data-home-launch-notice=\"gradual-opening\"]')).toHaveCount(0);\n  36 |     await expect(home.locator('[data-home-world=\"open\"]')).toHaveCount(0);\n  37 |     await expect(home.locator('#home-sources')).toHaveCount(1);\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:34:60"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:04:56.697Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/sod-locked-ci-source-20261104/test-results/release-visual-2029-Previe-05d95-aiming-a-Production-opening/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                    "column": 60,
+                    "line": 34
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-634479d7dcf9953be23d",
+          "file": "release-visual.spec.cjs",
+          "line": 22,
+          "column": 1
+        },
+        {
+          "title": "guest signup popup stays absent and the surface remains accessible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3945,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:05:31.206Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-17ef5a8f027ad5aee045",
+          "file": "release-visual.spec.cjs",
+          "line": 44,
+          "column": 1
+        },
+        {
+          "title": "dark 320px has no overflow and remains interactive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3150,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:05:35.453Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-e078fc3e91c951f158e8",
+          "file": "release-visual.spec.cjs",
+          "line": 134,
+          "column": 3
+        },
+        {
+          "title": "dark 360px has no overflow and remains interactive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3913,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:05:38.622Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-866dfd371255837a378d",
+          "file": "release-visual.spec.cjs",
+          "line": 134,
+          "column": 3
+        },
+        {
+          "title": "dark 390px has no overflow and remains interactive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3369,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:05:42.578Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-c48b441b296a085dd8dc",
+          "file": "release-visual.spec.cjs",
+          "line": 134,
+          "column": 3
+        },
+        {
+          "title": "dark 1440px has no overflow and remains interactive",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4507,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:05:45.964Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-5f18643d1e3ade7654e5",
+          "file": "release-visual.spec.cjs",
+          "line": 134,
+          "column": 3
+        },
+        {
+          "title": "light projection is healthy at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3306,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:05:50.495Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-928e6a1cf0d46285a89b",
+          "file": "release-visual.spec.cjs",
+          "line": 140,
+          "column": 3
+        },
+        {
+          "title": "lab projection is healthy at 390px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2933,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:05:53.815Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-df56ae8929b841594a8d",
+          "file": "release-visual.spec.cjs",
+          "line": 140,
+          "column": 3
+        },
+        {
+          "title": "Golden 1237 uses the canonical mobile Bottom Sheet for focus → number preview → exact back at 390px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7056,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\nExpected: \u001b[32m\"focus\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\nExpected: \u001b[32m\"focus\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\u001b[22m\n\n    at assertGolden1237ContextualFlow (/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:174:24)\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:232:3",
+                    "location": {
+                      "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                      "column": 24,
+                      "line": 174
+                    },
+                    "snippet": "  172 |   await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');\n  173 |   await expect(page.getByRole('dialog')).toHaveCount(1);\n> 174 |   await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');\n      |                        ^\n  175 |   await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('התגלות', { timeout: 20_000 });\n  176 |\n  177 |   const method = drawer.locator('[data-experience-capability=\"number-method-glance\"] > button').filter({ hasText: 'מסתתר' }).first();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                        "column": 24,
+                        "line": 174
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\nExpected: \u001b[32m\"focus\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\u001b[22m\n\n\n  172 |   await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');\n  173 |   await expect(page.getByRole('dialog')).toHaveCount(1);\n> 174 |   await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');\n      |                        ^\n  175 |   await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('התגלות', { timeout: 20_000 });\n  176 |\n  177 |   const method = drawer.locator('[data-experience-capability=\"number-method-glance\"] > button').filter({ hasText: 'מסתתר' }).first();\n    at assertGolden1237ContextualFlow (/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:174:24)\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:232:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:05:56.761Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/sod-locked-ci-source-20261104/test-results/release-visual-Golden-1237-8c5f5-eview-→-exact-back-at-390px/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                    "column": 24,
+                    "line": 174
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-3c12726f703da77b6ec3",
+          "file": "release-visual.spec.cjs",
+          "line": 231,
+          "column": 1
+        },
+        {
+          "title": "Golden 1237 uses the canonical desktop left Sidecar for focus → number preview → exact back at 1440px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7358,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\nExpected: \u001b[32m\"focus\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\nExpected: \u001b[32m\"focus\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\u001b[22m\n\n    at assertGolden1237ContextualFlow (/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:174:24)\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:236:3",
+                    "location": {
+                      "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                      "column": 24,
+                      "line": 174
+                    },
+                    "snippet": "  172 |   await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');\n  173 |   await expect(page.getByRole('dialog')).toHaveCount(1);\n> 174 |   await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');\n      |                        ^\n  175 |   await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('התגלות', { timeout: 20_000 });\n  176 |\n  177 |   const method = drawer.locator('[data-experience-capability=\"number-method-glance\"] > button').filter({ hasText: 'מסתתר' }).first();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                        "column": 24,
+                        "line": 174
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveAttribute\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\nExpected: \u001b[32m\"focus\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveAttribute\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-capability=\"contextual-sidecar\"]').locator('.sod29-number-drawer2029')\u001b[22m\n\n\n  172 |   await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');\n  173 |   await expect(page.getByRole('dialog')).toHaveCount(1);\n> 174 |   await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');\n      |                        ^\n  175 |   await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('התגלות', { timeout: 20_000 });\n  176 |\n  177 |   const method = drawer.locator('[data-experience-capability=\"number-method-glance\"] > button').filter({ hasText: 'מסתתר' }).first();\n    at assertGolden1237ContextualFlow (/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:174:24)\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:236:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:06:04.573Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/sod-locked-ci-source-20261104/test-results/release-visual-Golden-1237-9f569-view-→-exact-back-at-1440px/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                    "column": 24,
+                    "line": 174
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-a31760df1a2bd45e5993",
+          "file": "release-visual.spec.cjs",
+          "line": 235,
+          "column": 1
+        },
+        {
+          "title": "Post 2029 Bennett fixture opens the full Number with lazy trace and exact back at 390px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30053,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                        "column": 22,
+                        "line": 258
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-experience-surface=\"post-reading\"]')\nExpected: visible\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-surface=\"post-reading\"]')\u001b[22m\n\n\n  256 |\n  257 |   const post = page.locator('[data-experience-surface=\"post-reading\"]');\n> 258 |   await expect(post).toBeVisible({ timeout: 30_000 });\n      |                      ^\n  259 |\n  260 |   // The public desktop shell keeps the context rail; the richer companion\n  261 |   // remains available when its viewer gate is enabled. Phone uses the context sheet.\n    at assertPost2029ContextualFlow (/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:258:22)\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:375:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:06:12.904Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/sod-locked-ci-source-20261104/test-results/release-visual-Post-2029-B-f46db-ace-and-exact-back-at-390px/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-987ed13d9b759992f37a",
+          "file": "release-visual.spec.cjs",
+          "line": 374,
+          "column": 1
+        },
+        {
+          "title": "Post 2029 Bennett fixture opens the full Number with lazy trace and exact back at 1440px",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30085,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                        "column": 22,
+                        "line": 258
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('[data-experience-surface=\"post-reading\"]')\nExpected: visible\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-experience-surface=\"post-reading\"]')\u001b[22m\n\n\n  256 |\n  257 |   const post = page.locator('[data-experience-surface=\"post-reading\"]');\n> 258 |   await expect(post).toBeVisible({ timeout: 30_000 });\n      |                      ^\n  259 |\n  260 |   // The public desktop shell keeps the context rail; the richer companion\n  261 |   // remains available when its viewer gate is enabled. Phone uses the context sheet.\n    at assertPost2029ContextualFlow (/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:258:22)\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:379:3"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:06:43.979Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/sod-locked-ci-source-20261104/test-results/release-visual-Post-2029-B-a60b0-ce-and-exact-back-at-1440px/error-context.md"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-28bb2519c78beac333d0",
+          "file": "release-visual.spec.cjs",
+          "line": 378,
+          "column": 1
+        },
+        {
+          "title": "reduced motion removes ambient animation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3199,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:07:15.106Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-d48dd2ff8618adf87ff8",
+          "file": "release-visual.spec.cjs",
+          "line": 382,
+          "column": 1
+        },
+        {
+          "title": "gallery FIT_WHOLE_IMAGE preserves all source edges across aspect ratios and release widths",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8962,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:07:18.518Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-591e5e6e450ce49a9e24",
+          "file": "release-visual.spec.cjs",
+          "line": 389,
+          "column": 1
+        },
+        {
+          "title": "shared focus-visible baseline remains visible in dark light and lab",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7046,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:07:27.513Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-348ba08c0c682ae463a3",
+          "file": "release-visual.spec.cjs",
+          "line": 427,
+          "column": 1
+        },
+        {
+          "title": "200 percent text zoom and long Hebrew labels preserve layout at narrow width",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1713,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:07:34.579Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-bfbff827bda88eb974bb",
+          "file": "release-visual.spec.cjs",
+          "line": 457,
+          "column": 1
+        },
+        {
+          "title": "mixed bidi evidence keeps Hebrew context and isolated LTR URL readable without overflow",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2180,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:07:36.305Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-30d7ba8bf04f4257daed",
+          "file": "release-visual.spec.cjs",
+          "line": 477,
+          "column": 1
+        },
+        {
+          "title": "explicit 2029 Post Preview preserves equality interactions",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 30904,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.sod29-number-page').locator('[data-number-core-root=\"261\"]')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('.sod29-number-page').locator('[data-number-core-root=\"261\"]')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.sod29-number-page').locator('[data-number-core-root=\"261\"]')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('.sod29-number-page').locator('[data-number-core-root=\"261\"]')\u001b[22m\n\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:547:71",
+                    "location": {
+                      "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                      "column": 71,
+                      "line": 547
+                    },
+                    "snippet": "  545 |     await expression.press('Enter');\n  546 |     const numberPage = page.locator('.sod29-number-page');\n> 547 |     await expect(numberPage.locator('[data-number-core-root=\"261\"]')).toBeVisible({ timeout: 30_000 });\n      |                                                                       ^\n  548 |     expect(new URL(page.url()).pathname).toBe('/number/261');\n  549 |     expect(new URL(page.url()).searchParams.get('focus')).toBe('אירן');\n  550 |     expect(new URL(page.url()).searchParams.get('method')).toBe('רגיל');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                        "column": 71,
+                        "line": 547
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: locator('.sod29-number-page').locator('[data-number-core-root=\"261\"]')\nExpected: visible\nTimeout: 30000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 30000ms\u001b[22m\n\u001b[2m  - waiting for locator('.sod29-number-page').locator('[data-number-core-root=\"261\"]')\u001b[22m\n\n\n  545 |     await expression.press('Enter');\n  546 |     const numberPage = page.locator('.sod29-number-page');\n> 547 |     await expect(numberPage.locator('[data-number-core-root=\"261\"]')).toBeVisible({ timeout: 30_000 });\n      |                                                                       ^\n  548 |     expect(new URL(page.url()).pathname).toBe('/number/261');\n  549 |     expect(new URL(page.url()).searchParams.get('focus')).toBe('אירן');\n  550 |     expect(new URL(page.url()).searchParams.get('method')).toBe('רגיל');\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:547:71"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:07:38.497Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/sod-locked-ci-source-20261104/test-results/release-visual-explicit-20-ab74f-erves-equality-interactions/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                    "column": 71,
+                    "line": 547
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-55db3e8e3945ae6f178f",
+          "file": "release-visual.spec.cjs",
+          "line": 506,
+          "column": 1
+        },
+        {
+          "title": "Calculator 2029 viral Golden completes compute discovery Raziel share loop",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9536,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog')\nExpected substring: \u001b[32m\"שלו\u001b[7mם\u001b[27m\"\u001b[39m\nReceived string:    \u001b[31m\"\u001b[7m◇רזיאלרזיאל נעול×◇רזיאל נעול זמניתהחיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות \u001b[27mשלו\u001b[7m.\u001b[27m\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog')\u001b[22m\n\u001b[2m    9 × locator resolved to <aside role=\"dialog\" tabindex=\"-1\" aria-modal=\"false\" aria-label=\"רזיאל נעול\" class=\"sod29-frame-panel\" data-mobile-projection=\"bottom-context-sheet\" data-desktop-projection=\"left-context-sidecar\" data-experience-capability=\"contextual-sidecar\">…</aside>\u001b[22m\n\u001b[2m      - unexpected value \"◇רזיאלרזיאל נעול×◇רזיאל נעול זמניתהחיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog')\nExpected substring: \u001b[32m\"שלו\u001b[7mם\u001b[27m\"\u001b[39m\nReceived string:    \u001b[31m\"\u001b[7m◇רזיאלרזיאל נעול×◇רזיאל נעול זמניתהחיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות \u001b[27mשלו\u001b[7m.\u001b[27m\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog')\u001b[22m\n\u001b[2m    9 × locator resolved to <aside role=\"dialog\" tabindex=\"-1\" aria-modal=\"false\" aria-label=\"רזיאל נעול\" class=\"sod29-frame-panel\" data-mobile-projection=\"bottom-context-sheet\" data-desktop-projection=\"left-context-sidecar\" data-experience-capability=\"contextual-sidecar\">…</aside>\u001b[22m\n\u001b[2m      - unexpected value \"◇רזיאלרזיאל נעול×◇רזיאל נעול זמניתהחיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.\"\u001b[22m\n\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:670:26",
+                    "location": {
+                      "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                      "column": 26,
+                      "line": 670
+                    },
+                    "snippet": "  668 |     const dialog = page.getByRole('dialog');\n  669 |     await expect(dialog).toBeVisible();\n> 670 |     await expect(dialog).toContainText(goldens[0]);\n      |                          ^\n  671 |     await expect(dialog).toContainText(selectedValue);\n  672 |     await page.keyboard.press('Escape');\n  673 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                        "column": 26,
+                        "line": 670
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog')\nExpected substring: \u001b[32m\"שלו\u001b[7mם\u001b[27m\"\u001b[39m\nReceived string:    \u001b[31m\"\u001b[7m◇רזיאלרזיאל נעול×◇רזיאל נעול זמניתהחיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות \u001b[27mשלו\u001b[7m.\u001b[27m\"\u001b[39m\nTimeout: 5000ms\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog')\u001b[22m\n\u001b[2m    9 × locator resolved to <aside role=\"dialog\" tabindex=\"-1\" aria-modal=\"false\" aria-label=\"רזיאל נעול\" class=\"sod29-frame-panel\" data-mobile-projection=\"bottom-context-sheet\" data-desktop-projection=\"left-context-sidecar\" data-experience-capability=\"contextual-sidecar\">…</aside>\u001b[22m\n\u001b[2m      - unexpected value \"◇רזיאלרזיאל נעול×◇רזיאל נעול זמניתהחיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.\"\u001b[22m\n\n\n  668 |     const dialog = page.getByRole('dialog');\n  669 |     await expect(dialog).toBeVisible();\n> 670 |     await expect(dialog).toContainText(goldens[0]);\n      |                          ^\n  671 |     await expect(dialog).toContainText(selectedValue);\n  672 |     await page.keyboard.press('Escape');\n  673 |\n    at /tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs:670:26"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:08:10.138Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/tmp/sod-locked-ci-source-20261104/test-results/release-visual-Calculator--3b56f-discovery-Raziel-share-loop/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/tmp/sod-locked-ci-source-20261104/.release-gate/release-visual.spec.cjs",
+                    "column": 26,
+                    "line": 670
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-def5c127893fabef17d3",
+          "file": "release-visual.spec.cjs",
+          "line": 570,
+          "column": 1
+        },
+        {
+          "title": "public page view never requests self-hosted video before explicit intent",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9962,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-04T18:08:20.558Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f567fd9be065bdbea5c8-fc69c07832c21e7370bd",
+          "file": "release-visual.spec.cjs",
+          "line": 717,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-04T18:04:55.862Z",
+    "duration": 214905.218,
+    "expected": 13,
+    "skipped": 0,
+    "unexpected": 7,
+    "flaky": 0
+  }
+}

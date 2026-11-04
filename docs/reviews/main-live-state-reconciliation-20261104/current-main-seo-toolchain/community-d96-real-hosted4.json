@@ -1,0 +1,82 @@
+{
+  "sourceSha": "a106a140de4c7b2b118e1d971a7ebac43b3035e9",
+  "origin": "https://sod1820-16fsk462n-sod1820-s-projects.vercel.app",
+  "realPublicContent": true,
+  "realServiceWorker": true,
+  "responseMocks": false,
+  "productWrites": 0,
+  "modelCalls": 0,
+  "rows": [
+    {
+      "width": 390,
+      "status": 200,
+      "publicMessageId": "72ae1d46-1499-4788-ab72-999687990b86",
+      "originalPublicImage": "https://images.spot.im/v1/lgckojucbf0se4mwhbfk",
+      "image": {
+        "naturalWidth": 829,
+        "naturalHeight": 829,
+        "displayWidth": 287,
+        "referrerPolicy": "no-referrer"
+      },
+      "requests": [
+        {
+          "referer": null
+        }
+      ],
+      "workerVerified": true,
+      "inlineImage": true,
+      "errors": [],
+      "deniedWrites": [],
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "status": 200,
+      "publicMessageId": "72ae1d46-1499-4788-ab72-999687990b86",
+      "originalPublicImage": "https://images.spot.im/v1/lgckojucbf0se4mwhbfk",
+      "image": {
+        "naturalWidth": 829,
+        "naturalHeight": 829,
+        "displayWidth": 518,
+        "referrerPolicy": "no-referrer"
+      },
+      "requests": [
+        {
+          "referer": null
+        }
+      ],
+      "workerVerified": true,
+      "inlineImage": true,
+      "errors": [],
+      "deniedWrites": [],
+      "pass": true
+    }
+  ],
+  "sitemap": [],
+  "recentTimes": [
+    {
+      "readyAfterNavigationMs": 2879,
+      "width": 390,
+      "status": 200,
+      "publicMessageId": "81e82bc4-5c05-408b-92b0-4779732c418f",
+      "createdAt": "2026-11-04T18:01:43.375921+00:00",
+      "label": "לפני 34 דקות",
+      "full": "4 בנוב׳ 2026, 18:01",
+      "accessible": "לפני 34 דקות · 4 בנוב׳ 2026, 18:01",
+      "errors": [],
+      "pass": true
+    },
+    {
+      "readyAfterNavigationMs": 1370,
+      "width": 1440,
+      "status": 200,
+      "publicMessageId": "81e82bc4-5c05-408b-92b0-4779732c418f",
+      "createdAt": "2026-11-04T18:01:43.375921+00:00",
+      "label": "לפני 34 דקות",
+      "full": "4 בנוב׳ 2026, 18:01",
+      "accessible": "לפני 34 דקות · 4 בנוב׳ 2026, 18:01",
+      "errors": [],
+      "pass": true
+    }
+  ]
+}

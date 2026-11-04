@@ -1,0 +1,128 @@
+{
+  "conclusion": "failure",
+  "headSha": "a106a140de4c7b2b118e1d971a7ebac43b3035e9",
+  "jobs": [
+    {
+      "name": "Production Canary Gate",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Setup Node",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Reliability pre-close focused contract",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Gate on latest production canary",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Post Setup Node",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "Mobile + Accessibility Acceptance",
+      "status": "completed",
+      "conclusion": "failure",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Setup Node",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install app dependencies",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build production bundle",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install Playwright runner and Chromium",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Start built app",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run visual release acceptance",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Upload acceptance screenshots",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Show preview server log on failure",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Setup Node",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "name": "Release Visual Gate",
+  "status": "completed",
+  "url": "https://github.com/zuriel337/sod1820/actions/runs/41887406818"
+}

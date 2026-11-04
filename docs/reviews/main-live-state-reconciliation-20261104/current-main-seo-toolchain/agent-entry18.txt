@@ -1,0 +1,26 @@
+✔ WORLD ui_experience_work: current Reality + Experience + V2 visual owner (1.742076ms)
+✔ post_visual: existing publication owner + V2; legacy adapter remains on demand (0.300854ms)
+✔ gematria_research: exact engine / method registry, not model arithmetic (0.198509ms)
+✔ release_gate: Foundation + canonical release owner + coordination (0.693145ms)
+✔ fresh adapter: L1 default, minimal owner reads, history is fail-closed (0.264179ms)
+✔ captured main Codex/Claude/Design blobs remain exact historical evidence; current adapters retain safety gates (1585.226142ms)
+✔ two successor candidates preserve all unrelated rule fields and lineage (3.220466ms)
+✔ Live State amendment touches only final entry clause; schema/live/DRIFT remain intact (0.452722ms)
+✔ Experience amendment changes only 2029 Design dependency, preserves Brand history (0.219911ms)
+✔ world_ux: owner, captured active versions, direct dependencies and permissions (0.384379ms)
+✔ post_visual: owner, captured active versions, direct dependencies and permissions (0.199872ms)
+✔ gematria_research: owner, captured active versions, direct dependencies and permissions (0.25192ms)
+✔ release_gate: owner, captured active versions, direct dependencies and permissions (0.121663ms)
+✔ canonical Gematria route uses registered public method; stale codex v5 cannot override live v6 (0.120983ms)
+✔ adversarial owner snapshots fail closed for inactive, duplicate and stale versions (1.90317ms)
+✔ historical preparation snapshot never claims real GPT/Claude acceptance (0.202105ms)
+✔ applied evidence matches approved successor bodies, lineage and explicit approval (0.773656ms)
+✔ post-apply case expectations resolve actual successors without granting writes or closure (0.247363ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1702.362379

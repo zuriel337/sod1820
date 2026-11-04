@@ -1,0 +1,19 @@
+✔ capture: dedupe, per-minute and per-session caps, never throws (2.763732ms)
+✔ privacy: query/hash, emails, tokens, long numbers never leave the browser (49.72256ms)
+✔ one incident tree: window.error + unhandledrejection + ErrorBoundary share one capture and one surface (0.684734ms)
+✔ wiring: boundary + window handlers go through track(); entries install once (0.748199ms)
+✔ migration: additive one-tree reliability + narrow public readers; no public write (1.784794ms)
+✔ canary: pass / non-200 / network failure (1.71606ms)
+✔ canary: future feature growth keeps the existing default request deadline at 15 seconds (0.937776ms)
+✔ heartbeat reader is public-read transport and fails closed on non-2xx (0.890223ms)
+✔ release gate: exact-SHA GitHub status, bounded bootstrap, override, and fail-closed transport (1.134913ms)
+✔ workflows: exact-SHA commit status, sparse budget, no service-role CI secret (4.069463ms)
+✔ canary truth includes external health-watch heartbeat before GitHub status can pass (0.300684ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 142.152143
