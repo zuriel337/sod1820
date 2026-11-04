@@ -315,11 +315,11 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [focusedThreadState, setFocusedThreadState] = useState("idle");
   const requestedReplyCounts = useRef(new Set());
   const composerRef = useRef(null);
-  const compactComposer = !actionsLocked && Boolean(user);
+  const compactComposer = !actionsLocked;
   const composerOpen = composerExpanded || draft.length > 0 || attachments.length > 0 || Boolean(replyTo);
   const composerProfile = profile?.id === user?.id ? profile : null;
   useLayoutEffect(() => {
-    if (!user || !composerRef.current) return;
+    if (!composerRef.current) return;
     composerRef.current.style.height = "auto";
     composerRef.current.style.height = `${Math.max(48, Math.min(composerRef.current.scrollHeight, 224))}px`;
   }, [draft, user?.id]);
@@ -575,26 +575,25 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           communityOwnProfileHref={!actionsLocked && isOwner ? writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search }) : null}
           onCommunityReply={actionsLocked ? undefined : (item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
-        {!actionsLocked ? <div className="sod29-community-entry-tools"><CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} />{!user ? <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /> : null}</div> : null}
+        {!actionsLocked && user ? <div className="sod29-community-entry-tools"><CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} /></div> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
           <div className={compactComposer ? "sod29-community-compose-row" : undefined}>
-            {compactComposer ? <Link className="sod29-community-compose-avatar" to={writerPersonalHref("profile", { returnTo: communityAccountReturnHref(window.location) })} aria-label="הפרופיל שלי"><UserBadge avatarOnly name={composerProfile?.display_name || composerProfile?.username || "החשבון שלי"} avatarUrl={composerProfile?.avatar_url} /></Link> : null}
+            {compactComposer ? <Link className="sod29-community-compose-avatar" to={user ? writerPersonalHref("profile", { returnTo: communityAccountReturnHref(window.location) }) : `/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`} aria-label={user ? "הפרופיל שלי" : "התחברות"}><UserBadge avatarOnly name={composerProfile?.display_name || composerProfile?.username || (user ? "החשבון שלי" : "אורח")} avatarUrl={composerProfile?.avatar_url} /></Link> : null}
             <div className={compactComposer ? "sod29-community-compose-input" : undefined}>
-              <textarea ref={composerRef} id="community-live-draft" rows={compactComposer ? 1 : 2} maxLength={1500} value={draft} onFocus={() => { if (user) setComposerExpanded(true); }} onKeyDown={event => { if (event.key === "Escape" && !draft && !attachments.length && !replyTo) { setComposerExpanded(false); composerRef.current?.blur(); } }} onChange={(event) => setDraft(event.target.value)} placeholder={compactComposer ? "הוסף תגובה…" : "כתבו משהו לקהילה…"} />
-              {compactComposer ? <button type="button" className="sod29-community-compose-attach" aria-label="צירוף קובץ או סרטון" title="צירוף קובץ או סרטון · עד 3 קבצים, תמונה עד 8MB וסרטון עד 50MB" aria-describedby="community-attachment-limits" disabled={sending || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={() => attachmentRef.current?.click()}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21 11-8.5 8.5a6 6 0 0 1-8.5-8.5L14 1a4 4 0 0 1 5.7 5.7L9.5 16.9a2 2 0 0 1-2.8-2.8L16 4.8" /></svg></button> : null}
+              <textarea ref={composerRef} id="community-live-draft" rows={compactComposer ? 1 : 2} maxLength={1500} value={draft} onFocus={() => setComposerExpanded(true)} onKeyDown={event => { if (event.key === "Escape" && !draft && !attachments.length && !replyTo) { setComposerExpanded(false); composerRef.current?.blur(); } }} onChange={(event) => setDraft(event.target.value)} placeholder={compactComposer ? "הוסף תגובה…" : "כתבו משהו לקהילה…"} />
+              {compactComposer ? <button type="button" className="sod29-community-compose-attach" aria-label="צירוף קובץ או סרטון" title="צירוף קובץ או סרטון" aria-describedby={user ? "community-attachment-limits" : undefined} disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={() => attachmentRef.current?.click()}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21 11-8.5 8.5a6 6 0 0 1-8.5-8.5L14 1a4 4 0 0 1 5.7 5.7L9.5 16.9a2 2 0 0 1-2.8-2.8L16 4.8" /></svg></button> : null}
             </div>
           </div>
           <CommunityMessageContent text={draft} previewsOnly />
-          {compactComposer ? <span id="community-attachment-limits" className="sod29-community-sr-only">עד 3 קבצים · תמונה עד 8MB · סרטון עד 50MB · גלויים לציבור</span> : null}
+          {compactComposer && user ? <span id="community-attachment-limits" className="sod29-community-sr-only">עד 3 קבצים · תמונה עד 8MB · סרטון עד 50MB · גלויים לציבור</span> : null}
           <input ref={attachmentRef} type="file" multiple accept={COMMUNITY_ATTACHMENT_ACCEPT} onChange={pickAttachments} hidden />
           {!compactComposer ? <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} title={!user ? "יש להתחבר כדי לצרף קבצים" : undefined} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ או סרטון</button><small>עד 3 קבצים · סרטון עד 50MB, קובץ אחר עד 8MB · גלויים לציבור</small></div> : null}
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index))} />)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
           {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!draft.trim() && !attachments.length) || sending || (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user} title={(PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
-          {(PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user ? <p className="sod29-community-feed-controls-note">התחברו כדי לפרסם הודעות, לצרף קבצים ולסמן אהבתי.</p> : null}
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
         </section> : null}
         {hasThreadRequest ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">
