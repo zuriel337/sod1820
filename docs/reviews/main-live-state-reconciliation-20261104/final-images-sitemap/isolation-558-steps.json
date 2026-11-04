@@ -1,0 +1,277 @@
+{
+  "runId": 41872335896,
+  "sourceSha": "558700de1370418c72a64f9485cb09ed6af6c800",
+  "fullIsolation": "failure",
+  "steps": [
+    {
+      "name": "Set up job",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/checkout@v4",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run actions/setup-node@v4",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Run npm ci",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "One Tree content contract acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Experience Context 2029 acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Entry Orientation + Contextual Learn 2029 acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Contact Gateway canonical owner acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "My Workspace 2029 native home acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "No Black Box operational trace acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Web Vitals metric core acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Operational Trace Runtime persistence acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "AI-Analyze early paid paths trace coverage acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Replayable Golden No-Black-Box acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Server capability execution gate acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "W2 public Number research runtime acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Package W2 research-run Edge transport",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "2029 server SEO / AI metadata parity",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Research Path resumability runtime acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Home 2029 System Pulse acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "2029 cheap route/test/least-privilege hardening",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Legacy Research containment + unopened Heichal entrypoint acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Source isolation regression",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "G4 source-section update / World / Companion public-read acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native System Frame acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Raziel server-gated Result Bundle consumer acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Canonical 2029 contract wiring acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Person identity bridge foundation acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Account Person completeness foundation acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Person public resolver foundation acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "People identity projection acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Person Profile 2029 projection acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "People Directory 2029 projection acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native World surface acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "World Convergence PR591 focused acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native Topic surface acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native Researcher corpus acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native Number preview acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native 2029 Control Plane trace drill-down acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "A3 real isolated client-to-trace correlation acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Public-reading verified admin screen and closed-action acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Production build",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Built dependency graph isolation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Verify isolated HTML artifact",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Install browser acceptance runner",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Start isolated 2029 preview",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Entry Orientation + Contextual Learn browser acceptance",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "World browser acceptance on pre-cutover preview",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Upload native World screenshots",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Upload sanitized isolated A3 receipt",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Show isolated preview log on failure",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Post Run actions/setup-node@v4",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "name": "Post Run actions/checkout@v4",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Complete job",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}

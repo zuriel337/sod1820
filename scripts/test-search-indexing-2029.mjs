@@ -6,6 +6,7 @@ const read = p => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 const migration = read("supabase/migrations/20260928101719_search_indexing_2029_v1.sql");
 const entity = read("src/pages/EntityPageBase.jsx");
 const sitemap = read("api/sitemap.js");
+const publicationSitemap = read("public-reading-deploy/api/public-sitemap.js");
 const legacy = read("src/legacy/legacy.jsx");
 const seo = read("src/lib/seo.js");
 const robots = read("public/robots.txt");
@@ -21,6 +22,10 @@ assert.match(entity, /rpc\("is_phrase_indexable", \{ p_phrase:/);
 assert.match(entity, /const entityNoindex = searchAdmitted !== true/);
 assert.match(entity, /const showEntityLd = searchAdmitted === true/);
 assert.match(sitemap, /sitemap_phrases_v1\?select=phrase,lastmod/);
+assert.match(sitemap, /\{ loc: '\/privacy',/);
+assert.match(publicationSitemap, /origin === CANONICAL_ORIGIN && !noindex && sourceStatus === 200/);
+assert.match(publicationSitemap, /req\.method === "GET"/);
+assert.match(publicationSitemap, /cacheable \? sourceCacheControl : "no-store"/);
 assert.match(sitemap, /if \(!phrase \|\| \/\^\\d\+\$\/\.test\(phrase\)\) continue/);
 
 // Missing/unverifiable post slugs fail closed at client SEO level.
@@ -35,6 +40,7 @@ assert.match(seo, /uploadDate: videoUploadDate/);
 
 // Public search surfaces are not intentionally disallowed in robots.txt.
 assert.match(robots, /User-agent:\s*\*/i);
+assert.match(robots, /Legacy fallback artifact only/);
 assert.match(robots, /Allow:\s*\//i);
 for (const publicPath of ["/video", "/number", "/codes", "/post", "/world", "/or-geula"]) {
   assert.equal(new RegExp(`Disallow:\\s*${publicPath}(?:\\s|$)`, "i").test(robots), false,

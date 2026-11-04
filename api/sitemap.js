@@ -149,6 +149,7 @@ const STATIC = [
   { loc: '/',             priority: '1.0', changefreq: 'daily'   },
   { loc: '/start',        priority: '0.8', changefreq: 'monthly' },
   { loc: '/map',          priority: '0.6', changefreq: 'monthly' },
+  { loc: '/privacy',      priority: '0.3', changefreq: 'yearly'  },
   { loc: '/broadcasts',   priority: '0.6', changefreq: 'daily'   },
   { loc: '/forum',        priority: '0.7', changefreq: 'daily'   },
   { loc: '/or-geula',     priority: '0.7', changefreq: 'weekly'  },

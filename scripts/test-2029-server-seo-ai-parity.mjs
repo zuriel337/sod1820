@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import handler from "../api/og.js";
 import sitemapHandler from "../api/sitemap.js";
+import { publicReadingSitemapHandler } from "../public-reading-deploy/api/public-sitemap.js";
+import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
 
 function makeRes() {
   return {
@@ -322,4 +325,28 @@ assert.ok(
   "search-crawler document rules must precede the generic social/AI crawler catch-all",
 );
 
+// The actual publication adapter, rather than the dormant Legacy root, owns
+// current sitemap cache/indexability. These are synthetic public-only rows.
+const privacySitemapFetch = globalThis.fetch;
+try {
+  globalThis.fetch = async () => new Response("[]", { headers: { "Content-Type": "application/json" } });
+  const sitemapResponse = makeRes();
+  const publicationRequest = { method: "GET", url: "/sitemap.xml", headers: { host: "sod1820.co.il" }, query: {} };
+  const publication = publicReadingSitemapHandler({ authorized: () => true, indexable: origin => origin === "https://sod1820.co.il" });
+  await publication(publicationRequest, sitemapResponse);
+  assert.equal(sitemapResponse.statusCode, 200);
+  assert.match(sitemapResponse.body, /<loc>https:\/\/sod1820.co.il\/privacy<\/loc>/);
+  assert.match(sitemapResponse.headers.get("cache-control"), /^public,.*s-maxage=21600.*stale-while-revalidate=86400/);
+  const privacy = makeRes();
+  await handler({ publicFoundationPreview: true, publicReadingRelease: PUBLIC_READING_PROFILE_ID,
+    publicReadingProductionArtifact: true, query: { path: "/privacy", crawler: "search" } }, privacy);
+  assert.equal(privacy.statusCode, 200);
+  assert.match(privacy.body, /canonical" href="https:\/\/sod1820.co.il\/privacy"/);
+  assert.equal(privacy.headers.get("x-robots-tag"), "index, follow");
+  globalThis.fetch = async () => { throw new Error("synthetic publication source failure"); };
+  const failed = makeRes(); await publication(publicationRequest, failed);
+  assert.equal(failed.statusCode, 503); assert.equal(failed.headers.get("cache-control"), "no-store");
+  assert.doesNotMatch(failed.body, /<urlset/);
+} finally { globalThis.fetch = privacySitemapFetch; }
+execFileSync(process.execPath, ["--test", "test/public-sitemap-cache-2029.test.mjs"], { cwd: new URL("..", import.meta.url), stdio: "inherit" });
 console.log("2029 server/crawler SEO+AI metadata parity: PASS");

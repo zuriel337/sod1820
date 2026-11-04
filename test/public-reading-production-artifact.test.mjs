@@ -185,9 +185,9 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
   };
   await withFetch(fetcher, async () => {
     const res = response(); await publicReadingSitemapHandler({ authorized: () => true, indexable: origin => origin === SITE })(req("/sitemap.xml"), res);
-    assert.equal(res.code, 200); assert.equal(res.headers.get("cache-control"), "no-store");
+    assert.equal(res.code, 200); assert.equal(res.headers.get("cache-control"), "public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400");
     for (const path of ["/old-post", "/post/new-post", "/number/1820", "/number/" + encodeURIComponent("בראשית"),
-      "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/codes/published-cipher"])
+      "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/codes/published-cipher", "/privacy"])
       assert.ok(res.body.includes(`<loc>${SITE}${path}</loc>`), path);
     for (const path of ["/login", "/journey", "/unsubscribe", "/code", "/codes/מחקר"]) assert.ok(!res.body.includes(`<loc>${SITE}${path}</loc>`), path);
     assert.ok(!calls.some(url => /site_flags|research_contributions/.test(url)));
