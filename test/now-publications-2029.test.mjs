@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
+import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
 import { redactGroupText, groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
@@ -121,4 +121,19 @@ test("series previews (same Home reader) keep every approved series present even
   const dup = mergeSystemFeedItems([postRowToWorldUpdate(post(1, { id: 9001, slug: "old-message", categories: ["רמזים מצדיקים"] }))], extra);
   assert.equal(dup.length, 1);
   assert.equal(nowModels(rows(dup))[0].seriesKey, "messages-from-righteous");
+});
+
+test("the words of the message are shown with its media; unverified source rows stay two lines", () => {
+  const gen = nowExcerpt({ unverified: false, title: "מסר מאור הגאולה", fullText: "מילות המסר עצמן שנמשכות הלאה", summary: "" });
+  assert.equal(gen.excerpt, "מילות המסר עצמן שנמשכות הלאה"); assert.equal(gen.excerptIsLead, false);
+  const lead = nowExcerpt({ unverified: false, title: "פתיחה של המסר…", fullText: "פתיחה של המסר ועוד המשך ארוך", summary: "" });
+  assert.equal(lead.excerptIsLead, true, "text that starts with the title replaces it, no repetition");
+  assert.deepEqual(nowExcerpt({ unverified: true, title: "t", fullText: "ארוך מאוד", summary: "" }), { excerpt: "", excerptIsLead: false });
+  assert.equal(nowExcerpt({ unverified: false, title: "קצר", fullText: "קצר", summary: "" }).excerpt, "");
+  const id = "9d4e6b80-f52b-4461-9231-ca30f37f0db9";
+  const ch = publicChannelToSystemItem({ id, channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "הגאולה קרובה ויש להתחזק בכל יום", image_url: MP4 });
+  const [m] = nowModels(rows([ch])); assert.equal(m.previewKind, "video");
+  const [img] = nowModels(rows([publicChannelToSystemItem({ id, channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "טקסט", image_url: MP4.replace("clip.mp4", "i.jpg") })])); assert.equal(img.previewKind, "image");
+  const zvi = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "פתיחה ".repeat(40), created_at: "2026-11-03T08:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
+  assert.equal(nowModels(rows([zvi]))[0].previewKind, null);
 });

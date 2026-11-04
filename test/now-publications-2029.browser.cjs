@@ -28,7 +28,7 @@ const POSTS = [
 const GROUP = [{ id: "20000000-0000-4000-8000-000000000001", body: "פתיחה של צבי ב-03.11.2026 ראו https://sod1820.co.il/post/p6 וגם https://example.com/private?x=1 טל 050-123-4567 והמשך ארוך מאוד של ההודעה שלא אמור להיכנס לשורה הקצרה כולה אלא רק מילות הפתיחה שלה", created_at: "2026-11-03T08:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" }];
 const chan = (id, channel, o = {}) => ({ id, channel, status: "live", page_only: false, expires_at: null, created_at: "2026-11-03T09:00:00Z", text: "", image_url: null, link_url: null, ...o });
 const CHANNELS = {
-  "or-geula": [chan(APPROVED, "or-geula", { text: "מסר מאור הגאולה", image_url: STORAGE + "or.mp4", seo_title: "מסר מאור הגאולה", thumb_url: STORAGE + "or.png", created_at: "2026-11-03T09:49:00Z" }),
+  "or-geula": [chan(APPROVED, "or-geula", { text: "מילות המסר עצמן: הגאולה קרובה ויש להתחזק בכל יום ובכל שעה, ולהפיץ את האור הלאה אל כל מקום", image_url: STORAGE + "or.mp4", seo_title: "מסר מאור הגאולה", thumb_url: STORAGE + "or.png", created_at: "2026-11-03T09:49:00Z" }),
     chan("30000000-0000-4000-8000-000000000002", "or-geula", { text: "עדכון נוסף שלא אושר לסדרה", created_at: "2026-11-02T09:00:00Z" })],
   "reality-code": [chan("30000000-0000-4000-8000-000000000003", "reality-code", { text: "קוד המציאות היום " + STORAGE + "x.mp4 סיום", created_at: "2026-11-02T10:00:00Z" })],
   "site-news": [chan("30000000-0000-4000-8000-000000000004", "site-news", { text: "עדכון אתר", created_at: "2026-11-01T10:00:00Z", link_url: "/post/p3" })],
@@ -90,7 +90,7 @@ async function open(browser, { width, height = 900, theme = "dark", mode = "succ
       assert.equal(geo.hOverflow, false, `no horizontal page overflow ${width}/${theme}`);
       assert.equal(geo.panelOverflow, false, `no panel overflow ${width}/${theme}`);
       assert.ok(geo.panelBottom <= geo.dockTop + 2 || width >= 1000, `sheet ends at the bar ${width}: ${JSON.stringify(geo)}`);
-      assert.ok(geo.firstRowH <= 96, `compact row ${geo.firstRowH}`);
+      assert.ok(geo.firstRowH <= 360, `row with words + preview stays bounded ${geo.firstRowH}`);
       await page.screenshot({ path: `${out}/now-${width}-${theme}.png` });
       assert.deepEqual(s.forbidden, []); assert.deepEqual(s.errors, []);
       results.push({ width, theme, ...geo }); await s.ctx.close();
@@ -108,6 +108,15 @@ async function open(browser, { width, height = 900, theme = "dark", mode = "succ
       assert.ok(!/050-123|example\.com/.test(text), "phone / foreign link redacted");
       const chips = await panel.locator(".sod29-nowpub-chip").allInnerTexts();
       assert.deepEqual(chips, ["הכול", "סדרות", "מסרים", "רמזי גאולה וקוד המציאות"]);
+      // the words of the message and a visible preview are in the row itself (not just a headline)
+      const msgRow = panel.locator(".sod29-nowpub-row", { hasText: "מילות המסר עצמן" }).first();
+      assert.equal(await msgRow.locator(".sod29-nowpub-preview").count(), 1, "visible media preview in the row");
+      assert.match(await msgRow.locator(".sod29-nowpub-excerpt").innerText(), /הגאולה קרובה/);
+      // unverified source rows stay two lines: no excerpt, no big preview
+      const zviRow = panel.locator(".sod29-nowpub-row.is-source").first();
+      assert.equal(await zviRow.locator(".sod29-nowpub-excerpt, .sod29-nowpub-preview").count(), 0);
+      assert.ok((await zviRow.evaluate(e => e.getBoundingClientRect().height)) <= 100, "unverified source row is compact");
+      assert.ok((await zviRow.locator(".sod29-nowpub-title").evaluate(e => e.getBoundingClientRect().height / parseFloat(getComputedStyle(e).lineHeight))) <= 2.2, "Zvi title is at most two lines");
       assert.ok(!/מסרים מצדיקים/.test(text), "public series name is מסרים");
       // order: newest first in "all"
       const times = await panel.locator(".sod29-nowpub-row time").evaluateAll(els => els.map(e => e.getAttribute("datetime")));
@@ -125,7 +134,7 @@ async function open(browser, { width, height = 900, theme = "dark", mode = "succ
       await page.locator(".sod29-command-island").getByRole("button", { name: /^עכשיו/ }).click();
       const panel2 = page.getByRole("dialog", { name: "עכשיו", exact: true });
       await panel2.locator(".sod29-nowpub-row").first().waitFor({ state: "visible", timeout: 15000 });
-      const msg = panel2.locator("details.sod29-nowpub-row", { hasText: "מסר מאור הגאולה" }).first();
+      const msg = panel2.locator("details.sod29-nowpub-row", { hasText: "מילות המסר עצמן" }).first();
       await msg.locator("summary").click();
       assert.equal(await msg.locator("video").count(), 0, "no video element before a choice");
       assert.equal(await page.evaluate(() => [...document.querySelectorAll("video")].some(v => !v.paused)), false, "nothing autoplays");

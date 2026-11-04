@@ -13,12 +13,25 @@ function Thumb({ model }) {
     : <span className="sod29-nowpub-thumb is-glyph" aria-hidden="true">{model.video ? "▶" : model.unverified ? "✦" : "◈"}</span>;
 }
 
+// Visible preview inside the row: never autoplays. A video without a poster shows its first frame (metadata only).
+function RowPreview({ model }) {
+  const poster = model.thumb;
+  return <span className={`sod29-nowpub-preview is-${model.previewKind}`} aria-hidden="true">
+    {model.previewKind === "video" && !poster && model.mediaHref
+      ? <video src={`${model.mediaHref}#t=0.1`} preload="metadata" muted playsInline tabIndex={-1} />
+      : poster ? <img src={poster} alt="" loading="lazy" decoding="async" /> : null}
+    {model.previewKind === "video" ? <span className="sod29-nowpub-playmark">▶</span> : null}
+  </span>;
+}
+
 function RowHead({ model, timeMode }) {
   const when = recordTimeLabel(model.at, timeMode, "זמן לא צוין");
+  const rich = Boolean(model.previewKind);
   return <>
-    <Thumb model={model} />
+    {rich ? <RowPreview model={model} /> : <Thumb model={model} />}
     <span className="sod29-nowpub-text">
-      <strong className="sod29-nowpub-title">{model.title}</strong>
+      {model.excerptIsLead ? null : <strong className="sod29-nowpub-title">{model.title}</strong>}
+      {model.excerpt ? <span className={`sod29-nowpub-excerpt${model.excerptIsLead ? " is-lead" : ""}`}>{model.excerpt}</span> : null}
       <small className="sod29-nowpub-meta">
         {model.byline.length ? <span>{model.byline.join(" · ")}</span> : null}
         <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
@@ -54,7 +67,7 @@ function RowDetail({ model, onOpen, feed }) {
 }
 
 function Row({ model, onOpen, feed, timeMode }) {
-  const className = `sod29-nowpub-row is-${model.media}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""}`;
+  const className = `sod29-nowpub-row is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""}`;
   if (model.canExpand) return <li><details className={className} onToggle={event => { if (event.currentTarget.open) feed?.see?.(model.row); }}>
     <summary><RowHead model={model} timeMode={timeMode} /></summary>
     <RowDetail model={model} onOpen={onOpen} feed={feed} />

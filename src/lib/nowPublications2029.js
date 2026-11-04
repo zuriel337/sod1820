@@ -54,6 +54,19 @@ export function shortNowTitle(value, max = 84) {
 const list = value => Array.isArray(value) ? value : [];
 const hasAny = (values, wanted) => list(values).some(value => wanted.includes(value));
 
+/**
+ * The words of the message itself (not only a headline). Unverified source rows (Zvi) stay two lines: no excerpt.
+ * When the short title is just the beginning of the text, the text replaces it (`excerptIsLead`) instead of repeating it.
+ */
+export function nowExcerpt({ unverified, title, fullText, summary }) {
+  if (unverified) return { excerpt: "", excerptIsLead: false };
+  const body = (fullText || summary || "").replace(/\s+/g, " ").trim();
+  if (!body || body === title) return { excerpt: "", excerptIsLead: false };
+  const stem = title.replace(/[…\s]+$/g, "");
+  const lead = body.startsWith(stem) && body.length > stem.length;
+  return { excerpt: body.slice(0, 420), excerptIsLead: lead };
+}
+
 /** Compact, filterable model for one feed row (see feedRows). */
 export function nowRowModel(row) {
   const item = row?.item || {};
@@ -91,6 +104,8 @@ export function nowRowModel(row) {
     thumb: [!video && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
     mediaHref: media, lenses,
     fullText, summary: summary && summary !== title ? summary : "",
+    ...nowExcerpt({ unverified, title, fullText, summary }),
+    previewKind: unverified ? null : video ? "video" : (image || media) ? "image" : null,
     canExpand: Boolean(fullText || media),
   };
 }
