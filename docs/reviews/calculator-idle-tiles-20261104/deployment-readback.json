@@ -1,0 +1,11 @@
+{
+  "liveSourceSha": "273ceb2412cac3de04ba784982bb076bbd465a8e",
+  "liveDeploymentId": "dpl_E9unk69i6D7JaHwjCRPcnwzHKmHQ",
+  "liveTarget": "production",
+  "previewSourceSha": "d81e1b125d8a94fb41572e6a8d1493adb5572ce5",
+  "previewDeploymentId": "dpl_Aeq87cJKkePrJ7XSUMM5Y1ur7MdN",
+  "previewTarget": null,
+  "previewState": "READY",
+  "previewUrl": "https://sod1820-n0z7ckyxb-sod1820-s-projects.vercel.app",
+  "evidence": "Read-only alias and immutable deployment metadata through existing Vercel connection; root created only Preview. Source changes not live at readback."
+}

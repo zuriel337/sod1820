@@ -2,10 +2,10 @@
   {
     "id": "F00",
     "old_address": "/; /2029; /world; /map",
-    "evidence": "App2029; prior public-foundation +9d hosted acceptance;12.48/49 source073/3c/98d + hosted16",
+    "evidence": "App2029; prior public-foundation +9d hosted acceptance;12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW",
     "meaning": "כניסה, עולם ומפת שירותים",
     "target_2029": "היעדים הקיימים",
-    "verified_status": "12.48/49:בית/כותרתstickyוטיקרלאנעוץב390/1440;פריוויו98d16תרחישים. מקור98dחי דרךנתיבקהילהאחר. ביצועים073חלקייםולאקבלתכלהמלאי.",
+    "verified_status": "12.48/49:בית/כותרתstickyוטיקרלאנעוץב390/1440;פריוויו98d16תרחישים. מקור98dחי דרךנתיבקהילהאחר. ביצועים073חלקייםולאקבלתכלהמלאי. 12.50: עיגול חיפוש זכוכית וטבעת זהב,44×44, נבדק בפריוויו d81; אין שינוי handler, נעיצת כותרת או נתיבים. החי נשאר273ceb24 בקריאת הסיום.",
     "permissions": "ציבור; מצבי מנהל לפי הרשאה",
     "parameters_anchors": "query, hash, returnTo, scroll",
     "acceptance": "פתיחה/רענון/חזרה; המפה משקפת זמינות אמיתית",
@@ -27,7 +27,12 @@
       "treatment": "LIVE_2029_BOUNDED_ACCEPTED",
       "evidence": "App2029; prior public-foundation +9d hosted acceptance"
     },
-    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md",
+    "idle_tiles_previous_checkpoint": {
+      "verified_status": "12.48/49:בית/כותרתstickyוטיקרלאנעוץב390/1440;פריוויו98d16תרחישים. מקור98dחי דרךנתיבקהילהאחר. ביצועים073חלקייםולאקבלתכלהמלאי.",
+      "evidence": "App2029; prior public-foundation +9d hosted acceptance;12.48/49 source073/3c/98d + hosted16"
+    },
+    "idle_tiles_evidence": "../calculator-idle-tiles-20261104/README.md"
   },
   {
     "id": "F01",
@@ -323,10 +328,10 @@
   {
     "id": "F14",
     "old_address": "/gematria; /גימטריה; /research?tool=gematria",
-    "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16",
+    "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16; 12.50 d81e1b12 hosted 320/390/1440, real SW",
     "meaning": "מחשבון רגיל והפרמטרים הישנים",
     "target_2029": "/gematria דרך המתאם הקיים",
-    "verified_status": "12.48/49:b06שולב;aliasesהמחשבוןקנוניים/gematria;קלאסיושיטותלמספרמלאוחזרה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה.",
+    "verified_status": "12.48/49:b06שולב;aliasesהמחשבוןקנוניים/gematria;קלאסיושיטותלמספרמלאוחזרה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה. 12.50: תשעה מצייני אפס ממורכזים3×3 בכניסה ובניקוי, ללא חישוב/קישור ריק;358 אמיתי→מספר→חזרה עברו בפריוויו d81. החי נשאר273ceb24 בקריאת הסיום; מנוע וכתובות לא שונו.",
     "permissions": "חישוב מקומי ציבורי;AI בנפרד",
     "parameters_anchors": "w,calc,q,method,result,share,hash",
     "acceptance": "חישוב ושיתוף,מספר וחזרה; אין ברירת מחדל שמוחקת שיטה",
@@ -351,7 +356,12 @@
       "treatment": "EXISTING_CALCULATOR_ALIAS_SERVER_SEO_FIX_REQUIRED",
       "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47)"
     },
-    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md",
+    "idle_tiles_previous_checkpoint": {
+      "verified_status": "12.48/49:b06שולב;aliasesהמחשבוןקנוניים/gematria;קלאסיושיטותלמספרמלאוחזרה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה.",
+      "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16"
+    },
+    "idle_tiles_evidence": "../calculator-idle-tiles-20261104/README.md"
   },
   {
     "id": "F15",

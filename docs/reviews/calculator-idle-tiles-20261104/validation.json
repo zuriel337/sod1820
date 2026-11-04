@@ -1,0 +1,37 @@
+{
+  "testedProductSha": "d81e1b125d8a94fb41572e6a8d1493adb5572ce5",
+  "baseSha": "273ceb2412cac3de04ba784982bb076bbd465a8e",
+  "baselineWidths": 3,
+  "controlledCases": 10,
+  "focusedNodeTests": 19,
+  "hostedRealDataWidths": 3,
+  "hostedRealServiceWorker": true,
+  "actualRegularValue": 358,
+  "fullBuild": "PASS",
+  "existingCalculatorScripts": "3 PASS",
+  "legacyLock": "PASS",
+  "urlRows": 36,
+  "allSourceAddressesPreserved": true,
+  "unrelatedMatrixRowsUnchanged": true,
+  "productFilesChanged": [
+    "src/components/experience2029/systemFrame2029-unified-bar.css",
+    "src/pages/CalculatorPro2029Page.jsx",
+    "src/pages/calculatorPro2029.css"
+  ],
+  "docsOnlySinceTestedProduct": true,
+  "restrictedSecretsScan": "PASS",
+  "scannedNewTextFiles": [
+    "deployment-readback.json",
+    "hosted-results.json",
+    "baseline-live.json",
+    "controlled-ui-results.json",
+    "full-build.txt",
+    "boundaries-19.txt",
+    "legacy-lock.txt",
+    "README.md",
+    "hosted.cjs"
+  ],
+  "diffCheck": "PASS scoped to current task base273ceb24; pre-existing old Community fixture whitespace not changed",
+  "fullG4Claimed": false,
+  "productionAction": false
+}
