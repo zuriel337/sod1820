@@ -333,7 +333,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const requestedReplyCounts = useRef(new Set());
   const composerRef = useRef(null);
   const compactComposer = !actionsLocked;
-  const composerOpen = composerExpanded || draft.length > 0 || attachments.length > 0 || Boolean(replyTo);
+  const composerOpen = composerExpanded || draft.length > 0 || attachments.length > 0 || Boolean(replyTo) || draftCache.reattach;
   const composerProfile = profile?.id === user?.id ? profile : null;
   useLayoutEffect(() => {
     if (!composerRef.current) return;
@@ -626,7 +626,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => { draftCache.setHasFiles(attachments.length > 1); setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index)); }} />)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
           {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!plainMessageText(draft).trim() && !attachments.length) || sending || replyTo?.draftRestoring || replyTo?.draftUnavailable || (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user} title={(PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
-          {(draft.length > 0 || replyTo) && draftCache.status !== "idle" ? <div className="sod29-community-draft-state" role="status">
+          {(draft.length > 0 || replyTo || draftCache.reattach) && draftCache.status !== "idle" ? <div className="sod29-community-draft-state" role="status">
             <span>{draftCache.status === "unavailable" ? "לא ניתן לשמור את הטיוטה במכשיר הזה כרגע." : draftCache.reattach ? "טיוטת הטקסט שוחזרה. יש לצרף קבצים מחדש." : draftCache.status === "restored" ? "הטיוטה שוחזרה מהמכשיר הזה" : "טיוטה נשמרה במכשיר הזה"}</span>
             <button type="button" className="sod29-community-text-action" disabled={sending} onClick={() => { draftCache.clear(); setAttachments([]); setComposerExpanded(false); }}>מחיקת טיוטה</button>
           </div> : null}

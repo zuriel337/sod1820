@@ -102,6 +102,9 @@ with sync_playwright() as p:
     state['fail_post']=False;page.get_by_role('button',name='פרסום',exact=True).click();expect(page.get_by_text('ההודעה פורסמה.',exact=True)).to_be_visible(timeout=15000)
     assert state['posts'][-1]['p_parent_id']==OLD;assert page.evaluate('(k)=>localStorage.getItem(k)',key) is None
     page.reload(wait_until='domcontentloaded');expect(editor).to_have_attribute('data-empty','true',timeout=15000)
+    page.locator('input[type=file]').set_input_files({'name':'media-only.png','mimeType':'image/png','buffer':PNG})
+    page.reload(wait_until='domcontentloaded');expect(page.get_by_text('טיוטת הטקסט שוחזרה. יש לצרף קבצים מחדש.',exact=True)).to_be_visible(timeout=15000)
+    page.get_by_role('button',name='מחיקת טיוטה',exact=True).click()
     editor.fill('סוד פרטי בחשבון הראשון')
     state['user']=B;page.evaluate('(s)=>sessionStorage.setItem("sod-public-reading-account",s)',json.dumps(session(B)));page.reload(wait_until='domcontentloaded');expect(editor).to_have_attribute('data-empty','true',timeout=15000)
     editor.fill('טיוטה בחשבון השני');state['user']=A;page.evaluate('(s)=>sessionStorage.setItem("sod-public-reading-account",s)',json.dumps(session(A)));page.reload(wait_until='domcontentloaded');expect(editor).to_have_text('סוד פרטי בחשבון הראשון',timeout=15000)
