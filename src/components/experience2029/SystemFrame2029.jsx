@@ -161,6 +161,7 @@ const HOME_NAV = [
 ];
 
 const DIRECT_NAV = [
+  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },
   { action: "number-search", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
   { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
@@ -182,7 +183,7 @@ const CORE_HOME_NAV = [
 
 const CORE_DIRECT_NAV = [
   { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },
-  { to: "/2029/gematria", label: "מחשבון גימטריה", icon: "123" },
+  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },
   { action: "number-search", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
 ];

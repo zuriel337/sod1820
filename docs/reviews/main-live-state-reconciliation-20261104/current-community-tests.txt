@@ -1,0 +1,25 @@
+✔ public read mounts the feed while its composer/account widgets stay unmounted; admin keeps compact composer (41.180289ms)
+✔ a malformed exact thread request does not read or display the general feed (8.208142ms)
+✔ retrying an unavailable deep reply repeats the exact parent/child lookup (7.904247ms)
+✔ public message actions never request ownership or mutate even for a signed-in account (2.989591ms)
+✔ public old-chat anchor has neither OpenWeb launcher/SSO nor a same-domain escape link (2.081109ms)
+✔ public profile avatar and notifications do not probe private account capability (3.762239ms)
+✔ public contributor capability/subscription/inbox controls stay unmounted while overview reads continue (2.516822ms)
+✔ public contributor reading does not save, mark history or expose personal summaries; admin keeps existing actions (3.541588ms)
+✔ all default community reads use the anonymous client in the read profile and retain ordinary-build behavior (8.942713ms)
+✔ restored production artifact opens the original old-chat box immediately (2.067549ms)
+✔ restored production artifact reuses the existing ordinary-member composer (5.421855ms)
+✔ leaf replies never advertise a speculative expand button and can appear after a later public refresh (5.540794ms)
+✔ partial replies offer exactly remaining messages; a complete branch offers only close and cached reopen (7.842494ms)
+✔ canonical UserBadge keeps opt-in fallbacks colorful while real images and ordinary callers retain priority (4.175418ms)
+✔ only exact unclaimed public historical credit receives its original copied avatar (1.43403ms)
+✔ all restored source images retain the original public bytes and exact provenance without account fields (1.885927ms)
+✔ color fallback is stable per reader key and keeps initials readable throughout each gradient (33.749572ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 348.384701
