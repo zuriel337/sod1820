@@ -1,3 +1,5 @@
+import CommunityHistorySeal2029 from "./CommunityHistorySeal2029.jsx";
+import { canonicalCommunityAuthorKey } from "../../lib/community/communityCanonicalIdentity2029.js";
 import React, { lazy, Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
@@ -70,12 +72,12 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
   const badge = <UserBadge colorfulFallback fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
     <CommunityMessageTime2029 value={row.createdAt} formatDate={formatDate} />
   </UserBadge>;
-  if (!row.authorKey || !linkAuthor) return <span className="sod29-community-author-link">{badge}</span>;
+  if (!row.authorKey || !linkAuthor) return <span className="sod29-community-author-identity"><span className="sod29-community-author-link">{badge}</span><CommunityHistorySeal2029 authorKey={row.authorKey} compact /></span>;
   const target = new URLSearchParams(currentParams);
-  target.set("memberCard", row.authorKey); target.delete("member");
-  return <Link className="sod29-community-author-link" to={communityChatHref(target, location.hash)} aria-label={`פתיחת כרטיס הכותב של ${name}`}>
+  target.set("memberCard", canonicalCommunityAuthorKey(row.authorKey)); target.delete("member");
+  return <span className="sod29-community-author-identity"><Link className="sod29-community-author-link" to={communityChatHref(target, location.hash)} aria-label={`פתיחת כרטיס הכותב של ${name}`}>
     {badge}
-  </Link>;
+  </Link><CommunityHistorySeal2029 authorKey={row.authorKey} compact /></span>;
 }
 
 function LiveLike({ row }) {
@@ -294,9 +296,25 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     navigate(communityChatHref(typeof next === "function" ? next(current.params) : next, current.hash), options);
   }, [navigate]);
   const claimId = params.get("claim") || "";
-  const memberId = claimId ? "" : params.get("member") || "";
-  const cardId = memberId || claimId ? "" : params.get("memberCard") || "";
+  const memberId = claimId ? "" : canonicalCommunityAuthorKey(params.get("member") || "");
+  const cardId = memberId || claimId ? "" : canonicalCommunityAuthorKey(params.get("memberCard") || "");
   const reading = useCommunityReadingPosition2029({ auth: { user, loading: authLoading, verified: authVerified }, active: !memberId && !claimId && !cardId, enabled: PUBLIC_READING_PRODUCTION_ARTIFACT });
+  // Old exact Contributor links share the newer account's single public URL.
+  // Preserve all other reading/query state when replacing a historical link.
+  useEffect(() => {
+    const oldMember = params.get("member");
+    const oldCard = params.get("memberCard");
+    if (claimId || !((oldMember && oldMember !== canonicalCommunityAuthorKey(oldMember))
+      || (oldCard && oldCard !== canonicalCommunityAuthorKey(oldCard)))) return;
+    setParams((current) => {
+      const next = new URLSearchParams(current);
+      for (const key of ["member", "memberCard"]) {
+        const value = next.get(key);
+        if (value) next.set(key, canonicalCommunityAuthorKey(value));
+      }
+      return next;
+    }, { replace: true });
+  }, [claimId, params, setParams]);
   const selectedAuthorId = memberId || cardId;
   const threadIdParam = params.get("thread") || "";
   const replyIdParam = params.get("reply") || "";
@@ -701,7 +719,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
         <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>
           <button ref={cardCloseRef} type="button" className="sod29-community-card-close" onClick={closeCard} aria-label="סגירת כרטיס הכותב">×</button>
-          <header className="sod29-community-card-header"><span className="sod29-community-card-avatar-edit"><UserBadge avatarOnly colorfulFallback fallbackSeed={cardId} name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} fallbackImage={historicalCommunityAvatar(profileRows[0])} avatarClassName="sod29-community-avatar" />{!actionsLocked ? <QuickProfileAvatar2029 view={{ communityAuthorKey: cardId, canonicalHref: canonicalPath }} onSaved={() => { const principal = user?.id; if (principal) fetchLinkedAccountProfiles([principal]).then(accounts => { if (activeComposerPrincipal.current === principal) setAccountProfiles(current => ({ ...current, ...accounts })); }).catch(() => {}); }} /> : null}</span><h2>{memberName}</h2>{writer?.isWriter ? <span className="sod29-community-writer-chip">כותב</span> : null}{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{profileSummary.firstAt ? <p>פעילות ציבורית מאז {sinceFormat.format(new Date(profileSummary.firstAt))}</p> : null}{profileSummary.archiveLikes != null ? <strong>👍 {profileSummary.archiveLikes.toLocaleString("he-IL")} לייקים בהודעות</strong> : baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
+          <header className="sod29-community-card-header"><span className="sod29-community-card-avatar-edit"><UserBadge avatarOnly colorfulFallback fallbackSeed={cardId} name={memberName} avatarUrl={linkedAccount?.avatar_url || profileRows[0]?.avatarUrl} fallbackImage={historicalCommunityAvatar(profileRows[0])} avatarClassName="sod29-community-avatar" />{!actionsLocked ? <QuickProfileAvatar2029 view={{ communityAuthorKey: cardId, canonicalHref: canonicalPath }} onSaved={() => { const principal = user?.id; if (principal) fetchLinkedAccountProfiles([principal]).then(accounts => { if (activeComposerPrincipal.current === principal) setAccountProfiles(current => ({ ...current, ...accounts })); }).catch(() => {}); }} /> : null}</span><h2>{memberName}</h2><CommunityHistorySeal2029 authorKey={selectedAuthorId} />{writer?.isWriter ? <span className="sod29-community-writer-chip">כותב</span> : null}{baseline?.handle ? <p dir="ltr">@{baseline.handle}</p> : null}{profileSummary.firstAt ? <p>פעילות ציבורית מאז {sinceFormat.format(new Date(profileSummary.firstAt))}</p> : null}{profileSummary.archiveLikes != null ? <strong>👍 {profileSummary.archiveLikes.toLocaleString("he-IL")} לייקים בהודעות</strong> : baseline?.likesLabel ? <strong>👍 התקבלו {baseline.likesLabel} לייקים</strong> : null}</header>
           {baseline?.isPrivate ? <p className="sod29-community-card-note">פרטי הפרופיל פרטיים; ההודעות שכבר פורסמו ציבוריות.</p> : null}
           <div className="sod29-community-card-section"><h3>ההודעות של {memberName}</h3>{!profileLoading && !profileError && Number.isSafeInteger(profileCount) ? <span>{profileCount.toLocaleString("he-IL")} הודעות</span> : null}</div>
           {profileLoading ? <p className="sod29-community-card-note" role="status">טוען הודעות…</p> : null}
