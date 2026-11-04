@@ -1,0 +1,20 @@
+{
+  "mainProductCommit": "71bb76467091ecd920eea92cc5b041c24c8145df",
+  "mergedPullRequest": 1191,
+  "mergeMethod": "squash",
+  "mainParent": "2195c9784c5c9f0b1ec3cd3c1137fbd76045845b",
+  "sourceBranchHead": "b602ce1bb477da04f6d8338b5b9b50e2a54abf27",
+  "exactTreeEqual": true,
+  "tree": "b908a493b385c95b8bf35fee9a1519cd0b206506",
+  "liveProductionSource": "d06cf1ab309c8278d61fc3c3588ea78a994262a1",
+  "liveDeployment": "dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX",
+  "allThreeDomainBindingsUnchanged": true,
+  "deploymentsForMergedMainObserved": 0,
+  "automaticGitDeploymentDisabledBothRoots": true,
+  "rootProductionAction": false,
+  "canaryRun": 41859430886,
+  "canaryAttempt": 2,
+  "canaryLatestState": "queued after original15s sitemap timeout",
+  "canaryOverrideApplied": false,
+  "fullG4Claimed": false
+}
