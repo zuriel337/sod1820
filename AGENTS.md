@@ -1,8 +1,24 @@
 # SOD1820 — Codex session bootstrap
 
-## חסימת חירום מחייבת — Legacy Production נעול (ZURIEL, 22.10.2026)
+## מצב Production חי — אתר 2029 (אישור ZURIEL, 4.11.2026)
 
-**Production הקנוני נשאר Legacy. כל 2029 הוא Preview בלבד עד אישור חדש, מפורש ומדויק של ZURIEL למעבר 2029.**
+**אתר 2029 חי** ב-`sod1820.co.il`, `www.sod1820.co.il` ו-`sod1820.vercel.app` מאז 4.11.2026.
+ZURIEL אישר במפורש מעבר ישיר ל-2029 Production ("תחליף את האתר וכל הדפים", "קדימה תעשה").
+Cutover ראשון: `dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A`, מקור `1bc8260adaa889d7903aaa33ef43510df09817f2`.
+אחריו שוחררו תוספות מצטברות מאותו ענף. הרשומה האחרונה ב-`work_log` (4.11.2026, 13:01 UTC):
+מקור `5f92bfd2ea86982fc0dfbffb82e5907be2102934`, `dpl_88SLqagzSeAeCuxbwWN7XXekU4gj`.
+
+- **הקוד החי נמצא בענף `gpt/2029-public-cutover-final-preparation-20261103`, לא ב-`main`.** `origin/main` הוא `2195c9784` (Legacy, 26.10.2026). זהו DRIFT מוכר: `main` ≠ Production. לעולם לא להסיק מצב חי מ-`main`.
+- Legacy `dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2` נשמר כיעד חזרה בלבד. אין להחזיר אליו אוטומטית.
+- **החסימה מ-22.10 להלן היסטורית** ביחס למעבר שאושר. היא אינה מתארת את המצב החי.
+- האישור הוא לפריסות שאושרו בלבד. פריסה עתידית, merge/push ל-`main`, rollback ושינוי דגלים/מסד/שרת משותפים דורשים אישור מפורש חדש של ZURIEL עם SHA ו-deployment ID מדויקים.
+- מצב חי מדויק (SHA ו-deployment נוכחיים): לבדוק ב-`work_log` העדכני וב-Vercel בכל משימה, לא לפי ה-SHA שכאן.
+- **הגבלות נתיב Codex נשארות בתוקף:** BRANCH ONLY — NO MERGE — NO MAIN PUSH — NO PRODUCTION DEPLOY (ראו "Security / release boundary" בהמשך). האישור של ZURIEL לא מרחיב אותן.
+- שער הקוד `node scripts/test-legacy-production-lock.mjs` לא שונה ולא הוחלש. שינויו, או מיזוג 2029 ל-`main`, דורש אישור נפרד של ZURIEL.
+
+## חסימת חירום מחייבת — Legacy Production נעול (ZURIEL, 22.10.2026) — היסטורי, הוחלף ל-Production ב-4.11.2026
+
+**נכון ל-22.10.2026: Production הקנוני נשאר Legacy. כל 2029 הוא Preview בלבד עד אישור חדש, מפורש ומדויק של ZURIEL למעבר 2029. (האישור ניתן ב-4.11.2026, ראו למעלה.)**
 
 - כתובות הייצור `sod1820.co.il`, `www.sod1820.co.il` ו־`sod1820.vercel.app` נעולות לפריסת Legacy `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq`, commit `99249526e91f1d720fae1aa43e82bbbe51ee5c45`.
 - אסור להפעיל `autoAssignCustomDomains`, לקדם, להחזיר, לשייך alias או לפרוס ל־Production כל build אחר. מיזוג ל־`main`, READY של Vercel, הוראת rollback כללית או אישור כללי כגון "תעשה מה שצריך" אינם אישור למעבר 2029.
