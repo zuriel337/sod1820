@@ -1,0 +1,98 @@
+{
+  "41877435652": {
+    "conclusion": "failure",
+    "headSha": "6f74cd040a2d94d9e7de019d7c34960e0437230f",
+    "jobs": [
+      {
+        "name": "hard-isolation",
+        "conclusion": "failure",
+        "url": "https://github.com/zuriel337/sod1820/actions/runs/41877435652/job/126740598460",
+        "steps": [
+          {
+            "name": "2029 server SEO / AI metadata parity",
+            "conclusion": "failure"
+          }
+        ]
+      }
+    ],
+    "name": "2029 Isolation Gate",
+    "status": "completed",
+    "url": "https://github.com/zuriel337/sod1820/actions/runs/41877435652"
+  },
+  "41877435743": {
+    "conclusion": "success",
+    "headSha": "6f74cd040a2d94d9e7de019d7c34960e0437230f",
+    "jobs": [
+      {
+        "name": "legacy-production-lock",
+        "conclusion": "success",
+        "url": "https://github.com/zuriel337/sod1820/actions/runs/41877435743/job/126740598551",
+        "steps": []
+      }
+    ],
+    "name": "Production Release and Legacy Compatibility",
+    "status": "completed",
+    "url": "https://github.com/zuriel337/sod1820/actions/runs/41877435743"
+  },
+  "41877435785": {
+    "conclusion": "failure",
+    "headSha": "6f74cd040a2d94d9e7de019d7c34960e0437230f",
+    "jobs": [
+      {
+        "name": "Mobile + Accessibility Acceptance",
+        "conclusion": "failure",
+        "url": "https://github.com/zuriel337/sod1820/actions/runs/41877435785/job/126740599068",
+        "steps": [
+          {
+            "name": "Run visual release acceptance",
+            "conclusion": "failure"
+          }
+        ]
+      },
+      {
+        "name": "Production Canary Gate",
+        "conclusion": "failure",
+        "url": "https://github.com/zuriel337/sod1820/actions/runs/41877435785/job/126740599473",
+        "steps": [
+          {
+            "name": "Gate on latest production canary",
+            "conclusion": "failure"
+          }
+        ]
+      }
+    ],
+    "name": "Release Visual Gate",
+    "status": "completed",
+    "url": "https://github.com/zuriel337/sod1820/actions/runs/41877435785"
+  },
+  "41877435927": {
+    "conclusion": "success",
+    "headSha": "6f74cd040a2d94d9e7de019d7c34960e0437230f",
+    "jobs": [
+      {
+        "name": "public-core",
+        "conclusion": "success",
+        "url": "https://github.com/zuriel337/sod1820/actions/runs/41877435927/job/126740599132",
+        "steps": []
+      }
+    ],
+    "name": "G4 Public Core Gate",
+    "status": "completed",
+    "url": "https://github.com/zuriel337/sod1820/actions/runs/41877435927"
+  },
+  "41877436042": {
+    "conclusion": "success",
+    "headSha": "6f74cd040a2d94d9e7de019d7c34960e0437230f",
+    "jobs": [
+      {
+        "name": "gate",
+        "conclusion": "success",
+        "url": "https://github.com/zuriel337/sod1820/actions/runs/41877436042/job/126740599796",
+        "steps": []
+      }
+    ],
+    "name": "Observability/SEO Build Gate",
+    "status": "completed",
+    "url": "https://github.com/zuriel337/sod1820/actions/runs/41877436042"
+  }
+}

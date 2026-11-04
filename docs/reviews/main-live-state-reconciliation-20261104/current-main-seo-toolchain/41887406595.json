@@ -1,0 +1,106 @@
+{
+  "conclusion": "success",
+  "headSha": "a106a140de4c7b2b118e1d971a7ebac43b3035e9",
+  "jobs": [
+    {
+      "name": "gate",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install dependencies",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Observability/SEO route coverage check",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Email OTP length compatibility",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "G3 retention enforcement guards",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "W2 Research contract tests",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Canonical presentation regressions",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Calculator 2029 interaction contract",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Unified Video Projection 2029 acceptance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Search Indexing 2029 closure acceptance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Route Legitimacy 2029 acceptance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "G3 2029 video/search cutover acceptance",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "name": "Observability/SEO Build Gate",
+  "status": "completed",
+  "url": "https://github.com/zuriel337/sod1820/actions/runs/41887406595"
+}

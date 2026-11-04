@@ -1,0 +1,56 @@
+{
+  "conclusion": "success",
+  "headSha": "a106a140de4c7b2b118e1d971a7ebac43b3035e9",
+  "jobs": [
+    {
+      "name": "legacy-production-lock",
+      "status": "completed",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Preserve the Legacy fallback routes and launch flag",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install the existing locked middleware dependencies",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify explicit 2029 publication and deployment separation",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify negative cases for the release and retired-branch boundary",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "name": "Production Release and Legacy Compatibility",
+  "status": "completed",
+  "url": "https://github.com/zuriel337/sod1820/actions/runs/41887407028"
+}

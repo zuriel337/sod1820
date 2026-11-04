@@ -1,0 +1,913 @@
+{
+  "sourceSha": "3fc0dc1e6d35cb9eb5334a063b69a205b194fa3b",
+  "origin": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app",
+  "responseMocks": false,
+  "realPublicContent": true,
+  "productionWrites": 0,
+  "modelCalls": 0,
+  "http": [
+    {
+      "path": "/",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il"
+      ],
+      "descriptions": [
+        "מחקר חי של מספרים, גימטריה, צפנים בתורה, קוד המציאות, מקורות ומסעות גילוי — מערכת SOD1820 מחברת בין מספרים, מילים, פסוקים, אנשים ואירועים."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%A1%D7%95%D7%93+1820&amp;sub=%D7%9B%D7%99+%D7%9C%D7%94%27+%D7%94%D7%9E%D7%9C%D7%95%D7%9B%D7%94+%C2%B7+%D7%9C%D7%92%D7%9C%D7%95%D7%AA+%D7%90%D7%AA+%D7%94%D7%9E%D7%A6%D7%99%D7%90%D7%95%D7%AA+%D7%91%D7%A9%D7%A4%D7%AA+%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%D7%99%D7%9D&amp;cap=%D7%9E%D7%94+%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%D7%99%D7%9D+%D7%99%D7%95%D7%93%D7%A2%D7%99%D7%9D+%D7%A2%D7%9C%D7%99%D7%9A%3F"
+      ],
+      "ogTitles": [
+        "כי לה"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/2029",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il"
+      ],
+      "descriptions": [
+        "מחקר חי של מספרים, גימטריה, צפנים בתורה, קוד המציאות, מקורות ומסעות גילוי — מערכת SOD1820 מחברת בין מספרים, מילים, פסוקים, אנשים ואירועים."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%A1%D7%95%D7%93+1820&amp;sub=%D7%9B%D7%99+%D7%9C%D7%94%27+%D7%94%D7%9E%D7%9C%D7%95%D7%9B%D7%94+%C2%B7+%D7%9C%D7%92%D7%9C%D7%95%D7%AA+%D7%90%D7%AA+%D7%94%D7%9E%D7%A6%D7%99%D7%90%D7%95%D7%AA+%D7%91%D7%A9%D7%A4%D7%AA+%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%D7%99%D7%9D&amp;cap=%D7%9E%D7%94+%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%D7%99%D7%9D+%D7%99%D7%95%D7%93%D7%A2%D7%99%D7%9D+%D7%A2%D7%9C%D7%99%D7%9A%3F"
+      ],
+      "ogTitles": [
+        "כי לה"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/post",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "פוסטים אחרונים · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/post"
+      ],
+      "descriptions": [
+        "כל הפוסטים והתיעודים באתר SOD1820 — חיפוש, גימטריה וסינון."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/post"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%A4%D7%95%D7%A1%D7%98%D7%99%D7%9D&amp;sub=%D7%94%D7%97%D7%93%D7%A9%D7%95%D7%AA+%D7%95%D7%94%D7%A8%D7%9E%D7%96%D7%99%D7%9D+%D7%94%D7%90%D7%97%D7%A8%D7%95%D7%A0%D7%99%D7%9D&amp;cap=%D7%9E%D7%94+%D7%9E%D7%AA%D7%92%D7%9C%D7%94+%D7%A2%D7%9B%D7%A9%D7%99%D7%95%3F"
+      ],
+      "ogTitles": [
+        "פוסטים אחרונים · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/2029/posts",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "פוסטים אחרונים · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/post"
+      ],
+      "descriptions": [
+        "כל הפוסטים והתיעודים באתר SOD1820 — חיפוש, גימטריה וסינון."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/post"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%A4%D7%95%D7%A1%D7%98%D7%99%D7%9D&amp;sub=%D7%94%D7%97%D7%93%D7%A9%D7%95%D7%AA+%D7%95%D7%94%D7%A8%D7%9E%D7%96%D7%99%D7%9D+%D7%94%D7%90%D7%97%D7%A8%D7%95%D7%A0%D7%99%D7%9D&amp;cap=%D7%9E%D7%94+%D7%9E%D7%AA%D7%92%D7%9C%D7%94+%D7%A2%D7%9B%D7%A9%D7%99%D7%95%3F"
+      ],
+      "ogTitles": [
+        "פוסטים אחרונים · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/gematria",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/gematria"
+      ],
+      "descriptions": [
+        "מחשבון הגימטריה של סוד 1820 — חשבו כל מילה, שם או ביטוי ב-8 שיטות, גלו מה שווה לו ובנו את קיר הגימטריה החי."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/gematria"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F%20%D7%94%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94&amp;sub=%D7%97%D7%A9%D7%91%D7%95%20%D7%9B%D7%9C%20%D7%9E%D7%99%D7%9C%D7%94%20%C2%B7%20%D7%A9%D7%9D%20%C2%B7%20%D7%91%D7%99%D7%98%D7%95%D7%99&amp;cap=%D7%91%D7%93%D7%A7%D7%95%20%D7%90%D7%AA%20%D7%94%D7%A9%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D%20%C2%B7%20%D7%9E%D7%94%20%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%20%D7%90%D7%95%D7%9E%D7%A8%20%D7%A2%D7%9C%D7%99%D7%9B%D7%9D%3F&amp;sig=gem"
+      ],
+      "ogTitles": [
+        "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/2029/calculator",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/gematria"
+      ],
+      "descriptions": [
+        "מחשבון הגימטריה של סוד 1820 — חשבו כל מילה, שם או ביטוי ב-8 שיטות, גלו מה שווה לו ובנו את קיר הגימטריה החי."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/gematria"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F%20%D7%94%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94&amp;sub=%D7%97%D7%A9%D7%91%D7%95%20%D7%9B%D7%9C%20%D7%9E%D7%99%D7%9C%D7%94%20%C2%B7%20%D7%A9%D7%9D%20%C2%B7%20%D7%91%D7%99%D7%98%D7%95%D7%99&amp;cap=%D7%91%D7%93%D7%A7%D7%95%20%D7%90%D7%AA%20%D7%94%D7%A9%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D%20%C2%B7%20%D7%9E%D7%94%20%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%20%D7%90%D7%95%D7%9E%D7%A8%20%D7%A2%D7%9C%D7%99%D7%9B%D7%9D%3F&amp;sig=gem"
+      ],
+      "ogTitles": [
+        "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/2029/gematria",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/gematria"
+      ],
+      "descriptions": [
+        "מחשבון הגימטריה של סוד 1820 — חשבו כל מילה, שם או ביטוי ב-8 שיטות, גלו מה שווה לו ובנו את קיר הגימטריה החי."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/gematria"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F%20%D7%94%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94&amp;sub=%D7%97%D7%A9%D7%91%D7%95%20%D7%9B%D7%9C%20%D7%9E%D7%99%D7%9C%D7%94%20%C2%B7%20%D7%A9%D7%9D%20%C2%B7%20%D7%91%D7%99%D7%98%D7%95%D7%99&amp;cap=%D7%91%D7%93%D7%A7%D7%95%20%D7%90%D7%AA%20%D7%94%D7%A9%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D%20%C2%B7%20%D7%9E%D7%94%20%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%20%D7%90%D7%95%D7%9E%D7%A8%20%D7%A2%D7%9C%D7%99%D7%9B%D7%9D%3F&amp;sig=gem"
+      ],
+      "ogTitles": [
+        "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/number/1820",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "✦ 1820 = יהוה × עמים (26×70) = מספר שמות יהוה בכל התורה · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/number/1820"
+      ],
+      "descriptions": [
+        "1820 = יהוה × עמים (26×70) = מספר שמות יהוה בכל התורה — לב האתר: שם ה׳ מופיע בתורה 1820 פעם — המספר שסופר את שמות ה׳ הוא גם הגימטריה של «מספר שמות יהוה בכל התורה». הצופן: «משיח…"
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/number/1820"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?n=1820"
+      ],
+      "ogTitles": [
+        "✦ 1820 = יהוה × עמים (26×70) = מספר שמות יהוה בכל התורה · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/2029/number/1820",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "✦ 1820 = יהוה × עמים (26×70) = מספר שמות יהוה בכל התורה · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/number/1820"
+      ],
+      "descriptions": [
+        "1820 = יהוה × עמים (26×70) = מספר שמות יהוה בכל התורה — לב האתר: שם ה׳ מופיע בתורה 1820 פעם — המספר שסופר את שמות ה׳ הוא גם הגימטריה של «מספר שמות יהוה בכל התורה». הצופן: «משיח…"
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/number/1820"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?n=1820"
+      ],
+      "ogTitles": [
+        "✦ 1820 = יהוה × עמים (26×70) = מספר שמות יהוה בכל התורה · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/number/משיח",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "משיח · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97"
+      ],
+      "descriptions": [
+        "הביטוי משיח במקורות הציבוריים של סוד 1820."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%9E%D7%A9%D7%99%D7%97&amp;sub=%D7%91%D7%99%D7%98%D7%95%D7%99+%C2%B7+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94"
+      ],
+      "ogTitles": [
+        "משיח · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/2029/number/משיח",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "משיח · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97"
+      ],
+      "descriptions": [
+        "הביטוי משיח במקורות הציבוריים של סוד 1820."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%9E%D7%A9%D7%99%D7%97&amp;sub=%D7%91%D7%99%D7%98%D7%95%D7%99+%C2%B7+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94"
+      ],
+      "ogTitles": [
+        "משיח · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/world",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "העולם · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/world"
+      ],
+      "descriptions": [
+        "מספרים, ביטויים, מקורות, אירועים וקשרים שנפתחים מתוך נקודה שמסקרנת אותך — העולם של SOD1820."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/world"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%94%D7%A2%D7%95%D7%9C%D7%9D&amp;sub=%D7%9E%D7%94+%D7%9E%D7%AA%D7%97%D7%91%D7%A8%3F&amp;cap=%D7%9E%D7%A1%D7%A4%D7%A8%D7%99%D7%9D+%C2%B7+%D7%9E%D7%A7%D7%95%D7%A8%D7%95%D7%AA+%C2%B7+%D7%90%D7%A0%D7%A9%D7%99%D7%9D+%C2%B7+%D7%90%D7%99%D7%A8%D7%95%D7%A2%D7%99%D7%9D"
+      ],
+      "ogTitles": [
+        "העולם · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/gallery",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "גלריות ומקורות · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/gallery"
+      ],
+      "descriptions": [
+        "תמונות, מקורות וממצאים שפורסמו בגלריות סוד 1820."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/gallery"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%92%D7%9C%D7%A8%D7%99%D7%95%D7%AA+%D7%95%D7%9E%D7%A7%D7%95%D7%A8%D7%95%D7%AA&amp;sub=%D7%AA%D7%9E%D7%95%D7%A0%D7%95%D7%AA+%C2%B7+%D7%9E%D7%A7%D7%95%D7%A8%D7%95%D7%AA+%C2%B7+%D7%9E%D7%9E%D7%A6%D7%90%D7%99%D7%9D"
+      ],
+      "ogTitles": [
+        "גלריות ומקורות · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/privacy",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "מדיניות פרטיות · סוד 1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/privacy"
+      ],
+      "descriptions": [
+        "מדיניות הפרטיות ומחיקת נתונים באתר סוד 1820."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/privacy"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%A1%D7%95%D7%93+1820&amp;sub=%D7%9B%D7%99+%D7%9C%D7%94%27+%D7%94%D7%9E%D7%9C%D7%95%D7%9B%D7%94+%C2%B7+%D7%9C%D7%92%D7%9C%D7%95%D7%AA+%D7%90%D7%AA+%D7%94%D7%9E%D7%A6%D7%99%D7%90%D7%95%D7%AA+%D7%91%D7%A9%D7%A4%D7%AA+%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%D7%99%D7%9D&amp;cap=%D7%9E%D7%94+%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%D7%99%D7%9D+%D7%99%D7%95%D7%93%D7%A2%D7%99%D7%9D+%D7%A2%D7%9C%D7%99%D7%9A%3F"
+      ],
+      "ogTitles": [
+        "מדיניות פרטיות · סוד 1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/tag/סוד-החשמל",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "תגית: סוד החשמל · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/tag/%D7%A1%D7%95%D7%93-%D7%94%D7%97%D7%A9%D7%9E%D7%9C"
+      ],
+      "descriptions": [
+        "הפרסומים הציבוריים המשויכים לסוד החשמל, עם התוכן, המדיה והמקורות שלהם."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/tag/%D7%A1%D7%95%D7%93-%D7%94%D7%97%D7%A9%D7%9E%D7%9C"
+      ],
+      "ogImages": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5114-cover-20261012/thumb-fast-v1.jpg"
+      ],
+      "ogTitles": [
+        "תגית: סוד החשמל · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/category/סוד-החשמל",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "סיווג: סוד החשמל — סיווג במקור · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/category/%D7%A1%D7%95%D7%93-%D7%94%D7%97%D7%A9%D7%9E%D7%9C"
+      ],
+      "descriptions": [
+        "הפרסומים הציבוריים המשויכים לסוד החשמל — סיווג במקור, עם התוכן, המדיה והמקורות שלהם."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/category/%D7%A1%D7%95%D7%93-%D7%94%D7%97%D7%A9%D7%9E%D7%9C"
+      ],
+      "ogImages": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5114-cover-20261012/thumb-fast-v1.jpg"
+      ],
+      "ogTitles": [
+        "סיווג: סוד החשמל — סיווג במקור · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/2016-שֶׁהִיא-הַשָּׁנָה-הַלּוֹעֲזִית-שֶׁל/",
+      "expectedStatus": 200,
+      "redirectChain": [
+        {
+          "status": 308,
+          "path": "/2016-%D7%A9%D7%81%D6%B6%D7%94%D6%B4%D7%99%D7%90-%D7%94%D6%B7%D7%A9%D6%BC%D7%81%D6%B8%D7%A0%D6%B8%D7%94-%D7%94%D6%B7%D7%9C%D6%BC%D7%95%D6%B9%D7%A2%D6%B2%D7%96%D6%B4%D7%99%D7%AA-%D7%A9%D7%81%D6%B6%D7%9C/",
+          "target": "/2016-%D7%A9%D7%81%D6%B6%D7%94%D6%B4%D7%99%D7%90-%D7%94%D6%B7%D7%A9%D6%BC%D7%81%D6%B8%D7%A0%D6%B8%D7%94-%D7%94%D6%B7%D7%9C%D6%BC%D7%95%D6%B9%D7%A2%D6%B2%D7%96%D6%B4%D7%99%D7%AA-%D7%A9%D7%81%D6%B6%D7%9C"
+        }
+      ],
+      "status": 200,
+      "titles": [
+        "2016 שֶׁהִיא הַשָּׁנָה הַלּוֹעֲזִית שֶׁל תשע ו. מְרַמֵּז עַל מִדַּת הַגְּבוּרָה לַגּוֹיִים. | מאמר סוד החשמל · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/2016-%d7%a9%d7%81%d6%b6%d7%94%d6%b4%d7%99%d7%90-%d7%94%d6%b7%d7%a9%d6%bc%d7%81%d6%b8%d7%a0%d6%b8%d7%94-%d7%94%d6%b7%d7%9c%d6%bc%d7%95%d6%b9%d7%a2%d6%b2%d7%96%d6%b4%d7%99%d7%aa-%d7%a9%d7%81%d6%b6%d7%9c/"
+      ],
+      "descriptions": [
+        "מאמר מעלון &quot;סוד החשמל&quot;, פרשת וישלח תשע&quot;ו (2016): השנה הלועזית מרמזת על מידת הגבורה לגויים = 216 . הרה&quot;ג ר"
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/2016-%d7%a9%d7%81%d6%b6%d7%94%d6%b4%d7%99%d7%90-%d7%94%d6%b7%d7%a9%d6%bc%d7%81%d6%b8%d7%a0%d6%b8%d7%94-%d7%94%d6%b7%d7%9c%d6%bc%d7%95%d6%b9%d7%a2%d6%b2%d7%96%d6%b4%d7%99%d7%aa-%d7%a9%d7%81%d6%b6%d7%9c/"
+      ],
+      "ogImages": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/12/28e938c46a576cc2.jpg"
+      ],
+      "ogTitles": [
+        "2016 שֶׁהִיא הַשָּׁנָה הַלּוֹעֲזִית שֶׁל תשע ו. מְרַמֵּז עַל מִדַּת הַגְּבוּרָה לַגּוֹיִים. | מאמר סוד החשמל · SOD1820"
+      ],
+      "articleTags": [
+        "2016",
+        "סוד החשמל",
+        "עונש לגוים"
+      ],
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": "2016 שֶׁהִיא הַשָּׁנָה הַלּוֹעֲזִית שֶׁל תשע ו. מְרַמֵּז עַל מִדַּת הַגְּבוּרָה לַגּוֹיִים. | מאמר סוד החשמל",
+          "description": "מאמר מעלון \"סוד החשמל\", פרשת וישלח תשע\"ו (2016): השנה הלועזית מרמזת על מידת הגבורה לגויים = 216 . הרה\"ג ר' אברהם אגסי: הכתוב שאמר יתרו על קידוש ה' בעיני הגויים…",
+          "image": [
+            "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2024/12/28e938c46a576cc2.jpg"
+          ],
+          "author": {
+            "@type": "Organization",
+            "name": "SOD1820"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "SOD1820",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://sod1820.co.il/logo.png"
+            }
+          },
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://sod1820.co.il/2016-%d7%a9%d7%81%d6%b6%d7%94%d6%b4%d7%99%d7%90-%d7%94%d6%b7%d7%a9%d6%bc%d7%81%d6%b8%d7%a0%d6%b8%d7%94-%d7%94%d6%b7%d7%9c%d6%bc%d7%95%d6%b9%d7%a2%d6%b2%d7%96%d6%b4%d7%99%d7%aa-%d7%a9%d7%81%d6%b6%d7%9c/"
+          },
+          "inLanguage": "he-IL",
+          "datePublished": "2015-11-25T23:20:24+00:00",
+          "dateModified": "2015-11-25T23:20:24+00:00"
+        }
+      ],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/post/flydubai-fz1073-363-14000-remzei-geula",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula"
+      ],
+      "descriptions": [
+        "טיסה FZ1073 — 363, 14,000, ציר 75→750→7500, 776, 787, 599, סעודיה וטבוק, אסף רג׳ואן וקפטן סמיט מאצ׳הר."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula"
+      ],
+      "ogImages": [
+        "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg"
+      ],
+      "ogTitles": [
+        "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים · SOD1820"
+      ],
+      "articleTags": [
+        "104",
+        "1073",
+        "119",
+        "1202",
+        "14000",
+        "1459",
+        "1718",
+        "2029-golden"
+      ],
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          "headline": "טיסה 1073 — 14,000 רגל, 363 והנחיתה בסעודיה | רמזים חזקים",
+          "description": "טיסה FZ1073 — 363, 14,000, ציר 75→750→7500, 776, 787, 599, סעודיה וטבוק, אסף רג׳ואן וקפטן סמיט מאצ׳הר.",
+          "image": [
+            "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/10/post-5112-cover-20261012/reading-v2.jpg"
+          ],
+          "author": {
+            "@type": "Organization",
+            "name": "SOD1820"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "SOD1820",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://sod1820.co.il/logo.png"
+            }
+          },
+          "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://sod1820.co.il/post/flydubai-fz1073-363-14000-remzei-geula"
+          },
+          "inLanguage": "he-IL",
+          "datePublished": "2026-09-30T20:15:36.179757+00:00",
+          "dateModified": "2026-10-13T10:51:01.506903+00:00"
+        }
+      ],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/gematria?q=משיח&m=milui&returnTo=%2Fworld",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/gematria"
+      ],
+      "descriptions": [
+        "מחשבון הגימטריה של סוד 1820 — חשבו כל מילה, שם או ביטוי ב-8 שיטות, גלו מה שווה לו ובנו את קיר הגימטריה החי."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/gematria"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F%20%D7%94%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94&amp;sub=%D7%97%D7%A9%D7%91%D7%95%20%D7%9B%D7%9C%20%D7%9E%D7%99%D7%9C%D7%94%20%C2%B7%20%D7%A9%D7%9D%20%C2%B7%20%D7%91%D7%99%D7%98%D7%95%D7%99&amp;cap=%D7%91%D7%93%D7%A7%D7%95%20%D7%90%D7%AA%20%D7%94%D7%A9%D7%9D%20%D7%A9%D7%9C%D7%9B%D7%9D%20%C2%B7%20%D7%9E%D7%94%20%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%20%D7%90%D7%95%D7%9E%D7%A8%20%D7%A2%D7%9C%D7%99%D7%9B%D7%9D%3F&amp;sig=gem"
+      ],
+      "ogTitles": [
+        "מחשבון גימטריה חינם — חשבו כל מילה, שם או ביטוי · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/code",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "הצופן התנ״כי · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/code"
+      ],
+      "descriptions": [
+        "כלי המחקר החדש נמצא בבנייה. הצפנים שפורסמו נשארים זמינים בספרייה."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/code"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%94%D7%A6%D7%95%D7%A4%D7%9F+%D7%94%D7%AA%D7%A0%D7%B4%D7%9B%D7%99&amp;sub=%D7%91%D7%91%D7%A0%D7%99%D7%99%D7%94"
+      ],
+      "ogTitles": [
+        "הצופן התנ״כי · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/journey",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "מסע החיים · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/journey"
+      ],
+      "descriptions": [
+        "מסע החיים אינו פתוח לציבור עדיין. המידע האישי הקיים נשמר."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/journey"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%9E%D7%A1%D7%A2+%D7%94%D7%97%D7%99%D7%99%D7%9D&amp;sub=%D7%91%D7%91%D7%A0%D7%99%D7%99%D7%94"
+      ],
+      "ogTitles": [
+        "מסע החיים · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/heichal",
+      "expectedStatus": 200,
+      "status": 200,
+      "titles": [
+        "ההיכל · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/heichal"
+      ],
+      "descriptions": [
+        "ההיכל נמצא בבנייה. אפשר להמשיך לקריאת המקורות והפרסומים הזמינים."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/heichal"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%94%D7%94%D7%99%D7%9B%D7%9C&amp;sub=%D7%91%D7%91%D7%A0%D7%99%D7%99%D7%94"
+      ],
+      "ogTitles": [
+        "ההיכל · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/tag/טיוטה",
+      "expectedStatus": 404,
+      "status": 404,
+      "titles": [
+        "האוסף לא נמצא · SOD1820"
+      ],
+      "canonicals": [
+        "https://sod1820.co.il/tag/%D7%98%D7%99%D7%95%D7%98%D7%94"
+      ],
+      "descriptions": [
+        "אין אוסף ציבורי זמין בכתובת הזו."
+      ],
+      "robots": [
+        "noindex, nofollow, noarchive"
+      ],
+      "ogUrls": [
+        "https://sod1820.co.il/tag/%D7%98%D7%99%D7%95%D7%98%D7%94"
+      ],
+      "ogImages": [
+        "https://sod1820.co.il/api/card?w=%D7%A1%D7%95%D7%93+1820&amp;sub=%D7%9B%D7%99+%D7%9C%D7%94%27+%D7%94%D7%9E%D7%9C%D7%95%D7%9B%D7%94+%C2%B7+%D7%9C%D7%92%D7%9C%D7%95%D7%AA+%D7%90%D7%AA+%D7%94%D7%9E%D7%A6%D7%99%D7%90%D7%95%D7%AA+%D7%91%D7%A9%D7%A4%D7%AA+%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%D7%99%D7%9D&amp;cap=%D7%9E%D7%94+%D7%94%D7%9E%D7%A1%D7%A4%D7%A8%D7%99%D7%9D+%D7%99%D7%95%D7%93%D7%A2%D7%99%D7%9D+%D7%A2%D7%9C%D7%99%D7%9A%3F"
+      ],
+      "ogTitles": [
+        "האוסף לא נמצא · SOD1820"
+      ],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, nofollow, noarchive",
+      "pass": true
+    },
+    {
+      "path": "/post/bennett-melach-631-78",
+      "expectedStatus": 404,
+      "redirectChain": [],
+      "status": 404,
+      "titles": [
+        "העמוד לא נמצא · SOD1820"
+      ],
+      "canonicals": [],
+      "descriptions": [],
+      "robots": [
+        "noindex,follow"
+      ],
+      "ogUrls": [],
+      "ogImages": [],
+      "ogTitles": [],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, follow",
+      "pass": true
+    },
+    {
+      "path": "/__not-a-real-public-route-seo-audit-20261104",
+      "expectedStatus": 404,
+      "redirectChain": [],
+      "status": 404,
+      "titles": [
+        "העמוד לא נמצא · SOD1820"
+      ],
+      "canonicals": [],
+      "descriptions": [],
+      "robots": [
+        "noindex,follow"
+      ],
+      "ogUrls": [],
+      "ogImages": [],
+      "ogTitles": [],
+      "articleTags": [],
+      "jsonLd": [],
+      "robotsHeader": "noindex, follow",
+      "pass": true
+    }
+  ],
+  "browser": [
+    {
+      "path": "/tag/סוד-החשמל",
+      "width": 390,
+      "sourceId": "posts:5118",
+      "postHref": "/post/sod-hachashmal-esev-sade-behema-sukkot",
+      "postSlug": "sod-hachashmal-esev-sade-behema-sukkot",
+      "exactReturn": true,
+      "refresh": true,
+      "workerVerified": true,
+      "deniedWrites": [
+        {
+          "path": "/tag/%D7%A1%D7%95%D7%93-%D7%94%D7%97%D7%A9%D7%9E%D7%9C",
+          "method": "HEAD"
+        }
+      ],
+      "pass": true,
+      "errors": [],
+      "modelRequests": []
+    },
+    {
+      "path": "/category/סוד-החשמל",
+      "width": 390,
+      "sourceId": "posts:5118",
+      "postHref": "/post/sod-hachashmal-esev-sade-behema-sukkot",
+      "postSlug": "sod-hachashmal-esev-sade-behema-sukkot",
+      "exactReturn": true,
+      "refresh": true,
+      "workerVerified": true,
+      "deniedWrites": [
+        {
+          "path": "/category/%D7%A1%D7%95%D7%93-%D7%94%D7%97%D7%A9%D7%9E%D7%9C",
+          "method": "HEAD"
+        }
+      ],
+      "pass": true,
+      "errors": [],
+      "modelRequests": []
+    },
+    {
+      "path": "/tag/סוד-החשמל",
+      "width": 1440,
+      "sourceId": "posts:5118",
+      "postHref": "/post/sod-hachashmal-esev-sade-behema-sukkot",
+      "postSlug": "sod-hachashmal-esev-sade-behema-sukkot",
+      "exactReturn": true,
+      "refresh": true,
+      "workerVerified": true,
+      "deniedWrites": [
+        {
+          "path": "/tag/%D7%A1%D7%95%D7%93-%D7%94%D7%97%D7%A9%D7%9E%D7%9C",
+          "method": "HEAD"
+        }
+      ],
+      "pass": true,
+      "errors": [],
+      "modelRequests": []
+    },
+    {
+      "path": "/category/סוד-החשמל",
+      "width": 1440,
+      "sourceId": "posts:5118",
+      "postHref": "/post/sod-hachashmal-esev-sade-behema-sukkot",
+      "postSlug": "sod-hachashmal-esev-sade-behema-sukkot",
+      "exactReturn": true,
+      "refresh": true,
+      "workerVerified": true,
+      "deniedWrites": [
+        {
+          "path": "/category/%D7%A1%D7%95%D7%93-%D7%94%D7%97%D7%A9%D7%9E%D7%9C",
+          "method": "HEAD"
+        }
+      ],
+      "pass": true,
+      "errors": [],
+      "modelRequests": []
+    }
+  ],
+  "failures": [],
+  "initialHarnessAssumptions": {
+    "/2016-שֶׁהִיא-הַשָּׁנָה-הַלּוֹעֲזִית-שֶׁל/": "Expected values to be strictly equal:\n\n308 !== 200\n",
+    "/post/bennett-melach-631-78": "Expected values to be strictly equal:\n\n0 !== 1\n",
+    "/__not-a-real-public-route-seo-audit-20261104": "Expected values to be strictly equal:\n\n0 !== 1\n"
+  },
+  "summary": {
+    "httpPassed": 25,
+    "httpCases": 25,
+    "browserPassed": 4,
+    "browserCases": 4,
+    "initialHarnessAssumptionsPreserved": true,
+    "notAllInventoryUrlsIndividuallyTested": true,
+    "noProductionIndexingClaim": true
+  }
+}

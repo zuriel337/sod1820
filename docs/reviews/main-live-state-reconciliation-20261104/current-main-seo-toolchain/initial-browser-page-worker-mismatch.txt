@@ -1,0 +1,7 @@
+locator.waitFor: Timeout 45000ms exceeded.
+Call log:
+[2m  - waiting for locator('#message-81e82bc4-5c05-408b-92b0-4779732c418f') to be visible[22m
+
+    at /tmp/sod-d96-hosted-acceptance.cjs:11:522 {
+  name: 'TimeoutError'
+}

@@ -1,0 +1,27 @@
+{
+  "name": "sod1820",
+  "project": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+  "target": "production",
+  "gitSource": {
+    "type": "github",
+    "org": "zuriel337",
+    "repo": "sod1820",
+    "ref": "main",
+    "sha": "2149cb748176529a7af756cda23b95d646cf639c"
+  },
+  "projectSettings": {
+    "rootDirectory": "public-reading-deploy",
+    "sourceFilesOutsideRootDirectory": true,
+    "framework": null,
+    "installCommand": "npm ci --prefix .. --no-audit --no-fund",
+    "buildCommand": "cd .. && VITE_AUTH_VERIFIED_PREVIEW_ORIGINS='[]' node scripts/build-public-reading-production.mjs --public-production-candidate --review-source=2149cb748176529a7af756cda23b95d646cf639c",
+    "outputDirectory": "dist"
+  },
+  "meta": {
+    "task": "SITEMAP_CI_LOCKED_TOOLCHAIN_REPAIR_20261104",
+    "sourceSha": "2149cb748176529a7af756cda23b95d646cf639c",
+    "acceptedPreview": "dpl_78xR91VjtFhwKivWo4ixYk9BEmQY",
+    "rollback2029": "dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX",
+    "legacyFallbackRetained": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+  }
+}

@@ -1,0 +1,34 @@
+✔ recognizes supported YouTube forms without passing query input to embeds (2.842308ms)
+✔ rejects unsafe URLs and never embeds lookalike or malformed video URLs (0.486635ms)
+✔ preserves escaped prose and URL punctuation, deduplicates and bounds previews (1.525812ms)
+✔ previews only files uploaded to the Community gallery path (0.544832ms)
+✔ native video and account-scoped attachments stay within the existing public Community origin (0.31131ms)
+✔ original extensionless OpenWeb attachments render as images without rewriting the public source (0.612314ms)
+✔ legacy image support does not turn unrelated, credentialed, signed or executable URLs into image previews (0.363868ms)
+✔ capture: dedupe, per-minute and per-session caps, never throws (2.674535ms)
+✔ privacy: query/hash, emails, tokens, long numbers never leave the browser (30.796429ms)
+✔ one incident tree: window.error + unhandledrejection + ErrorBoundary share one capture and one surface (0.934119ms)
+✔ wiring: boundary + window handlers go through track(); entries install once (0.670832ms)
+✔ migration: additive one-tree reliability + narrow public readers; no public write (1.460253ms)
+✔ canary: pass / non-200 / network failure (1.473473ms)
+✔ canary: future feature growth keeps the existing default request deadline at 15 seconds (0.536339ms)
+✔ heartbeat reader is public-read transport and fails closed on non-2xx (0.613195ms)
+✔ release gate: exact-SHA GitHub status, bounded bootstrap, override, and fail-closed transport (0.891825ms)
+✔ workflows: exact-SHA commit status, sparse budget, no service-role CI secret (0.57034ms)
+✔ canary truth includes external health-watch heartbeat before GitHub status can pass (0.311089ms)
+✔ src/pages/Post2029Page.jsx includes the existing complete reading finish and responsive backdrop (5.462892ms)
+✔ src/pages/PublicContinuity2029Page.jsx includes the existing complete reading finish and responsive backdrop (1.701227ms)
+✔ 2029.html does not eagerly acquire Post-specific styling (0.421796ms)
+✔ src/pages/Home2029Page.jsx does not eagerly acquire Post-specific styling (2.021499ms)
+✔ only canonical indexable GET200 retains the existing XML owner's public CDN and stale policy (1.337788ms)
+✔ unadmitted review origins are rejected; noindex and alias origins cannot receive canonical caching (0.275326ms)
+✔ HEAD, rejected methods, missing activation and invalid origins cannot populate the public cache (0.426133ms)
+✔ non200, thrown sources and private or incomplete source cache policies fail closed without stale errors (0.743422ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 278.021817
