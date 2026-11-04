@@ -7,6 +7,11 @@ export const REVIEWED_TORAH_TAMIMA_LINK = Object.freeze({
   contributorId: "1f95f46b-b18b-480b-a2d2-8a9ce90eb194",
 });
 
+export function hasReviewedCommunityHistory(authorKey) {
+  return authorKey === REVIEWED_TORAH_TAMIMA_LINK.contributorId
+    || authorKey === `user:${REVIEWED_TORAH_TAMIMA_LINK.accountId}`;
+}
+
 export function reviewedCommunityAccountId(contributorId) {
   return contributorId === REVIEWED_TORAH_TAMIMA_LINK.contributorId
     ? REVIEWED_TORAH_TAMIMA_LINK.accountId : null;
