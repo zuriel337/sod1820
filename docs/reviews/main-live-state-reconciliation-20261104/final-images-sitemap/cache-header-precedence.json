@@ -1,0 +1,8 @@
+{
+  "source": "https://vercel.com/docs/caching/cache-control-headers",
+  "section": "Functions have priority over config files",
+  "quote": "Cache-Control headers returned from Vercel Functions take priority over Cache-Control headers from next.config.js or vercel.json files.",
+  "finding": "The deployment-wide no-store default stays unchanged. The canonical successful sitemap Function header is the narrowly scoped override; protected/errors still no-store.",
+  "cdnHitVerified": false,
+  "productionChanged": false
+}

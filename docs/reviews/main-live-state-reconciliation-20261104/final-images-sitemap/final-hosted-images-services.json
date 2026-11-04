@@ -1,0 +1,112 @@
+{
+  "sourceSha": "3fc0dc1e6d35cb9eb5334a063b69a205b194fa3b",
+  "origin": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app",
+  "realPublicContent": true,
+  "realServiceWorker": true,
+  "responseMocks": false,
+  "productWrites": 0,
+  "modelCalls": 0,
+  "rows": [
+    {
+      "width": 390,
+      "status": 200,
+      "publicMessageId": "72ae1d46-1499-4788-ab72-999687990b86",
+      "originalPublicImage": "https://images.spot.im/v1/lgckojucbf0se4mwhbfk",
+      "image": {
+        "naturalWidth": 829,
+        "naturalHeight": 829,
+        "displayWidth": 287,
+        "referrerPolicy": "no-referrer"
+      },
+      "requests": [
+        {
+          "referer": null
+        }
+      ],
+      "workerVerified": true,
+      "inlineImage": true,
+      "errors": [],
+      "deniedWrites": [],
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "status": 200,
+      "publicMessageId": "72ae1d46-1499-4788-ab72-999687990b86",
+      "originalPublicImage": "https://images.spot.im/v1/lgckojucbf0se4mwhbfk",
+      "image": {
+        "naturalWidth": 829,
+        "naturalHeight": 829,
+        "displayWidth": 518,
+        "referrerPolicy": "no-referrer"
+      },
+      "requests": [
+        {
+          "referer": null
+        }
+      ],
+      "workerVerified": true,
+      "inlineImage": true,
+      "errors": [],
+      "deniedWrites": [],
+      "pass": true
+    }
+  ],
+  "sitemap": [],
+  "serviceReads": [
+    {
+      "path": "/privacy",
+      "status": 200,
+      "noindex": "noindex, nofollow, noarchive",
+      "cacheControl": "no-store",
+      "modelRequests": [],
+      "modelAttempts": [],
+      "errors": []
+    },
+    {
+      "path": "/journey",
+      "status": 200,
+      "noindex": "noindex, nofollow, noarchive",
+      "cacheControl": "no-store",
+      "modelRequests": [],
+      "modelAttempts": [],
+      "errors": []
+    },
+    {
+      "path": "/research",
+      "status": 200,
+      "noindex": "noindex, nofollow, noarchive",
+      "cacheControl": "no-store",
+      "modelRequests": [],
+      "modelAttempts": [],
+      "errors": []
+    },
+    {
+      "path": "/reveal",
+      "status": 200,
+      "noindex": "noindex, nofollow, noarchive",
+      "cacheControl": "no-store",
+      "modelRequests": [],
+      "modelAttempts": [],
+      "errors": []
+    },
+    {
+      "path": "/experience",
+      "status": 200,
+      "noindex": "noindex, nofollow, noarchive",
+      "cacheControl": "no-store",
+      "modelRequests": [],
+      "modelAttempts": [],
+      "errors": []
+    }
+  ],
+  "protectedSitemap": {
+    "status": 200,
+    "totalMs": 15122,
+    "bytes": 4210670,
+    "cacheControl": "no-store",
+    "robots": "noindex, nofollow, noarchive",
+    "privacyIncluded": true,
+    "acceptance": "header and XML only; does NOT replace the actual15s canary results"
+  }
+}

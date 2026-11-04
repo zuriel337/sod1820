@@ -1,0 +1,83 @@
+{
+  "sha": "3fc0dc1e6d35cb9eb5334a063b69a205b194fa3b",
+  "rows": [
+    {
+      "path": "/community/chat",
+      "status": 200,
+      "root": true,
+      "errors": [],
+      "failed": [
+        {
+          "path": "/.well-known/vercel/jwe",
+          "reason": "net::ERR_ABORTED"
+        }
+      ],
+      "responses": [],
+      "state": {
+        "title": "הקהילה — סוד 1820 · SOD1820",
+        "text": "סוד 1820\nכי לה׳ המלוכה\n123\n123\n›\nSOD1820\n/\nהקהילה\n⌕\n☀\nיום\n▤\nקלף\n☾\nלילה\nהתחברות\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nשיחה\n(134.9K)\nהרשמה לקהילה\nמה תרצו לשתף?\nא\nחיפוש בשיחות שבדף\nסדר לפי\nהחדש ביותר\nהישן ביותר\nהכי אהוב\nהכול\n\nהחיפוש מציג התאמות מתוך ההודעות שכבר נטענו.\n\nטוען…\n↓\nלצ׳אט הישן ↓\nהצ׳אט הישן\nבחזרה לשיחה ↑\nכאן\nבבנייה\n123\nגימטריה\nבבנייה\nעכשיו\nשיתוף",
+        "controller": {
+          "url": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app/sw.js",
+          "state": "activated"
+        },
+        "registrations": [
+          {
+            "scope": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app/",
+            "active": "activated"
+          }
+        ],
+        "scripts": [
+          {
+            "src": null,
+            "type": "module"
+          },
+          {
+            "src": "/_next-live/feedback/feedback.js",
+            "type": ""
+          },
+          {
+            "src": "/spot/sp_OVtajBTj",
+            "type": ""
+          }
+        ]
+      }
+    },
+    {
+      "path": "/privacy",
+      "status": 200,
+      "root": true,
+      "errors": [],
+      "failed": [
+        {
+          "path": "/.well-known/vercel/jwe",
+          "reason": "net::ERR_ABORTED"
+        }
+      ],
+      "responses": [],
+      "state": {
+        "title": "מדיניות פרטיות · SOD1820",
+        "text": "סוד 1820\nכי לה׳ המלוכה\n123\n123\n›\nSOD1820\n/\nפרטיות\n⌕\n☀\nיום\n▤\nקלף\n☾\nלילה\nהתחברות\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nמדיניות פרטיות\nעודכן לאחרונה: 10 ביולי 2026 · אתר סוד 1820 (sod1820.co.il)\n\nאנו מכבדים את פרטיותכם. מסמך זה מסביר איזה מידע נאסף באתר, כיצד נעשה בו שימוש, עם מי הוא משותף, וכיצד תוכלו לעיין בו או למחוק אותו. השימוש באתר מהווה הסכמה למדיניות זו.\n\n1. איזה מידע נאסף\nבהרשמה / התחברות: כתובת דוא״ל, שם תצוגה, ותמונת פרופיל — אם בחרתם להתחבר דרך Google או Facebook, פרטים אלה מגיעים מאותו חשבון (שם, מייל, תמונה בלבד).\nתוכן שאתם יוצרים: חיפושי גימטריה, פריטי מחקר, מועדפים ורמזים ששמרתם או שלחתם.\nנתוני שימוש אנונימיים: דפים שנצפו, מכשיר/דפדפן ומקור-הגעה — לצורכי שיפור האתר ומדידה. נאסף עם מזהה אנונימי, ללא זיהוי אישי.\nעוגיות (Cookies): לשמירת התחברות והעדפות, ולמדידה.\n2. כיצד נעשה שימוש במידע\nלספק את שירותי האתר — ה",
+        "controller": {
+          "url": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app/sw.js",
+          "state": "activated"
+        },
+        "registrations": [
+          {
+            "scope": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app/",
+            "active": "activated"
+          }
+        ],
+        "scripts": [
+          {
+            "src": null,
+            "type": "module"
+          },
+          {
+            "src": "/_next-live/feedback/feedback.js",
+            "type": ""
+          }
+        ]
+      }
+    }
+  ]
+}

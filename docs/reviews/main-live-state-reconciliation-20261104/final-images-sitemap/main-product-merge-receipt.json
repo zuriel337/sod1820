@@ -1,0 +1,17 @@
+{
+  "pr": 1193,
+  "mainProductSha": "a4910bc27a33e58a94cb66098c2e0f883bcf466b",
+  "reviewedHead": "6f74cd040a2d94d9e7de019d7c34960e0437230f",
+  "sameFullTree": true,
+  "protectedPreviewSource": "3fc0dc1e6d35cb9eb5334a063b69a205b194fa3b",
+  "previewDeployment": "dpl_GhM44MAeTjjxpScUN1CDB93qahCT",
+  "previewUrl": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app",
+  "laterChangesToReviewedHead": "test/evidence only; runtime roots and build scripts are byte-identical",
+  "productionDeployment": "dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX",
+  "productionSource": "d06cf1ab309c8278d61fc3c3588ea78a994262a1",
+  "productionAction": false,
+  "automaticGitDeployment": false,
+  "gateOverride": false,
+  "sourceBranch": "gpt/2029-main-live-state-reconcile-20261104",
+  "sourceBranchRestoredAfterGithubAutoDelete": true
+}

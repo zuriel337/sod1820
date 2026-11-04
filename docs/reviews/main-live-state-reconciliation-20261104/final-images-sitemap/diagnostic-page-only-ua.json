@@ -1,0 +1,82 @@
+{
+  "sha": "3fc0dc1e6d35cb9eb5334a063b69a205b194fa3b",
+  "rows": [
+    {
+      "path": "/community/chat",
+      "status": 200,
+      "root": true,
+      "errors": [],
+      "failed": [
+        {
+          "path": "/.well-known/vercel/jwe",
+          "reason": "net::ERR_ABORTED"
+        },
+        {
+          "path": "/vi/7hCX3VMU_7s/hqdefault.jpg",
+          "reason": "net::ERR_TUNNEL_CONNECTION_FAILED"
+        },
+        {
+          "path": "/vi/Qri9nv_5RBA/hqdefault.jpg",
+          "reason": "net::ERR_TUNNEL_CONNECTION_FAILED"
+        }
+      ],
+      "responses": [],
+      "state": {
+        "title": "הקהילה — סוד 1820 · SOD1820",
+        "text": "סוד 1820\nכי לה׳ המלוכה\n123\n123\n›\nSOD1820\n/\nהקהילה\n⌕\n☀\nיום\n▤\nקלף\n☾\nלילה\nהתחברות\n\nהאתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.\n\nדיווח או הצעה ←\nשיחה\n(134.9K)\nהרשמה לקהילה\nמה תרצו לשתף?\nא\nחיפוש בשיחות שבדף\nסדר לפי\nהחדש ביותר\nהישן ביותר\nהכי אהוב\nהכול\n\nהחיפוש מציג התאמות מתוך ההודעות שכבר נטענו.\n\nטוען…\n↓\nלצ׳אט הישן ↓\nהצ׳אט הישן\nבחזרה לשיחה ↑\nכאן\nבבנייה\n123\nגימטריה\nבבנייה\nעכשיו\nשיתוף",
+        "controller": {
+          "url": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app/sw.js",
+          "state": "activated"
+        },
+        "registrations": [
+          {
+            "scope": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app/",
+            "active": "activated"
+          }
+        ],
+        "scripts": [
+          {
+            "src": null,
+            "type": "module"
+          },
+          {
+            "src": "/_next-live/feedback/feedback.js",
+            "type": ""
+          },
+          {
+            "src": "/spot/sp_OVtajBTj",
+            "type": ""
+          }
+        ]
+      }
+    },
+    {
+      "path": "/privacy",
+      "status": 403,
+      "root": false,
+      "errors": [],
+      "failed": [],
+      "responses": [
+        {
+          "path": "/privacy",
+          "status": 403
+        }
+      ],
+      "state": {
+        "title": "",
+        "text": "Access denied",
+        "controller": {
+          "url": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app/sw.js",
+          "state": "activated"
+        },
+        "registrations": [
+          {
+            "scope": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app/",
+            "active": "activated"
+          }
+        ],
+        "scripts": []
+      }
+    }
+  ]
+}

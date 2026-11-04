@@ -222,7 +222,7 @@
     "evidence": "legacy.jsx:4488; LegacyOpenWebChat2029:10",
     "meaning": "היסטוריה חיה של הצאט הוותיק",
     "target_2029": "/community/chat#legacy-chat",
-    "verified_status": "הקורא הקיים נשמר. נמצא batch מוצע של24 הודעות ציבוריות (20חדשות+4אבות); לא יובאה אף הודעה. צוריאל דחה כעת את ההעברה כדי לסיים את המועמד. המזהים, גבולות המקור והחריג של אב מחוק נשמרו בראיות.",
+    "verified_status": "הקורא הקיים נשמר. נמצא batch מוצע של24 הודעות ציבוריות (20חדשות+4אבות); לא יובאה אף הודעה. צוריאל דחה כעת את ההעברה כדי לסיים את המועמד. המזהים, גבולות המקור והחריג של אב מחוק נשמרו בראיות. 12.53: תוספת28f בלבד מוזגה במוצרmaina491; מקורPreview3fc0. תמונתOpenWebציבוריתאמיתית מוצגתinline במובייל/מחשב, קישורמקורוהטקסטנשמרים;תוספתזו טרםבחיd06. איןייבואהודעות/זהויות מחדש.",
     "permissions": "הרשאות OpenWeb/החשבון הקיימות",
     "parameters_anchors": "POST_ID_GOES_HERE,SPOT_ID,deep-link params,hash",
     "acceptance": "אותה שיחה והודעה; אימות היסטוריה; בלי להפנות באותו דומיין בלולאה",
@@ -238,7 +238,14 @@
       "verified_status": "תוכן הארכיון הציבורי מהקורא הקיים; אין פתיחת iframe/SSO או עקיפת אימות בעלות",
       "open_task": "C1"
     },
-    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md"
+    "final_preparation_evidence": "../public-url-exceptions-20261103/residual205/final-preparation.md",
+    "publication_final_previous_checkpoint": {
+      "verified_status": "הקורא הקיים נשמר. נמצא batch מוצע של24 הודעות ציבוריות (20חדשות+4אבות); לא יובאה אף הודעה. צוריאל דחה כעת את ההעברה כדי לסיים את המועמד. המזהים, גבולות המקור והחריג של אב מחוק נשמרו בראיות.",
+      "permissions": "הרשאות OpenWeb/החשבון הקיימות",
+      "open_task": "C1 — recent chat import DEFERRED_USER_DECISION;0 imported",
+      "treatment": "IMPLEMENTED_READ_ONLY_ACTIONS_OPEN"
+    },
+    "publication_final_evidence": "../main-live-state-reconciliation-20261104/README.md#המשך-1253--תמונות-ומפת-האתר"
   },
   {
     "id": "F09",
@@ -265,7 +272,7 @@
     "evidence": "App.jsx:393,424,429; sitemap forum rows",
     "meaning": "פורום/שרשור/תגובת פוסט; לא כולם אותו מאגר",
     "target_2029": "/forum והזהות הישנה המוכחת→/community/chat; /forum/:id רק לאחר approved אנונימי; /community/comments נשאר שירות נפרד",
-    "verified_status": "מומש ונבדק ב־76cf61e6: אינדקס,3 כינוייForumPost ו־UUID approved אמיתי→צאט, עםquery/hash; לא שוחזר שרשור ולא הומצאה זהות. בדיקות שלילה: unknown/draft404 וכשל מקור503",
+    "verified_status": "מומש ונבדק ב־76cf61e6: אינדקס,3 כינוייForumPost ו־UUID approved אמיתי→צאט, עםquery/hash; לא שוחזר שרשור ולא הומצאה זהות. בדיקות שלילה: unknown/draft404 וכשל מקור503 12.53: GETחי לדוגמהbedd0a52-1ab8-48de-a23e-ece746841b0c מחזיר308ל־/community/chat עםno-store/noindex. הסתירהל־200לאשוחזרה. דוגמהאחת,ללאשינויהפניותאו blanketRedirect.",
     "permissions": "הרשאת שרת; סיסמת JS אינה הרשאה",
     "parameters_anchors": "id,parent,reply,comment anchor,page",
     "acceptance": "תוכן וזהות שרשור; תגובה על פוסט חוזרת לפוסט; פרטיות",
@@ -286,7 +293,14 @@
       "verified_status": "המשךUUIDהקיים נשמר; פרטי/לא קיים404. בבירור205 נמצאה כתובתForumPost ציבורית אחת ממאגרPosts, שאינה אותו research_contribution; המשך הקריאה באותה זהות עדיין חסם בירור, בלי החלשתP0-A",
       "treatment": "IMPLEMENTED_NAMED_STATE_ACTIONS_OPEN"
     },
-    "continuity_closure_evidence": "../public-url-exceptions-20261103/residual205/continuity-closure-20261103.md"
+    "continuity_closure_evidence": "../public-url-exceptions-20261103/residual205/continuity-closure-20261103.md",
+    "publication_final_previous_checkpoint": {
+      "verified_status": "מומש ונבדק ב־76cf61e6: אינדקס,3 כינוייForumPost ו־UUID approved אמיתי→צאט, עםquery/hash; לא שוחזר שרשור ולא הומצאה זהות. בדיקות שלילה: unknown/draft404 וכשל מקור503",
+      "permissions": "הרשאת שרת; סיסמת JS אינה הרשאה",
+      "open_task": "C1",
+      "treatment": "IMPLEMENTED_BOUNDED_TESTED"
+    },
+    "publication_final_evidence": "../main-live-state-reconciliation-20261104/README.md#המשך-1253--תמונות-ומפת-האתר"
   },
   {
     "id": "F11",
@@ -399,7 +413,7 @@
     "evidence": "CommunityCalculatorPage; traffic1155visits",
     "meaning": "מחשבון קהילתי עם מצבים ייעודיים",
     "target_2029": "/community/calculator עם w/method/result ומצבי הכלי המקוריים",
-    "verified_status": "מומש דרך המחשבון הקיים; חישוב ומעבר/חזרה. תוקן null בהקשר מבקר ראשון; קבלת המקור המתוקן בנספח",
+    "verified_status": "מומש דרך המחשבון הקיים; חישוב ומעבר/חזרה. תוקן null בהקשר מבקר ראשון; קבלת המקור המתוקן בנספח 12.53: noindexקייםבשרתובלקוח;כותרתSEOאינהאישוראינדוקס. אי־הכללהבמפתXMLמכוונתלפי המימוש הקיים;לאשונהמחשבון/עיצוב/פרמטרים.",
     "permissions": "חישוב ציבורי; שמירה/קיר/AI בהיתרים נפרדים",
     "parameters_anchors": "w,שיטות, שמות,תאריך,afterSunset,שיתוף",
     "acceptance": "13 שיטות/השוואה/שם תינוק/משפחה/תאריך וחזרה; אין כלי מקביל",
@@ -410,7 +424,14 @@
       "verified_status": "כיום 404; כלי חדש כולל השוואה אך אין שקילות מלאה",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
     },
-    "implementation_evidence": "../public-url-continuity-20261103/README.md"
+    "implementation_evidence": "../public-url-continuity-20261103/README.md",
+    "publication_final_previous_checkpoint": {
+      "verified_status": "מומש דרך המחשבון הקיים; חישוב ומעבר/חזרה. תוקן null בהקשר מבקר ראשון; קבלת המקור המתוקן בנספח",
+      "permissions": "חישוב ציבורי; שמירה/קיר/AI בהיתרים נפרדים",
+      "open_task": "C3",
+      "treatment": "IMPLEMENTED_BOUNDED_TESTED"
+    },
+    "publication_final_evidence": "../main-live-state-reconciliation-20261104/README.md#המשך-1253--תמונות-ומפת-האתר"
   },
   {
     "id": "F16",
@@ -707,8 +728,8 @@
     "evidence": "PublicServices; signedunsubscribe; proposalHELD",
     "meaning": "פרטיות/הסכמה/ביטול הסכמה",
     "target_2029": "/privacy; /updates; /unsubscribe; חלונית אורח במעטפת הקיימת — אותו מוצר עדכוני האתר",
-    "verified_status": "B/Dפעיליםבשרת20/10ומיגרציה20261103223217. /updatesLIVEב־1bc8260aמחזיר200ו־noindexכפי שמוגדרבמקור;טופסהביתוהדףהתקבלוקודםמולחוזהאמיתיוהקודלאשונה. לאבוצעההרשמה/הסרהבכתובתאמיתיתלאחרcutoverואיןמשלוחגורףאושינויהעדפות. שירותהסרהחתוםנשמר.",
-    "permissions": "בעלותכתובת/חתימה; no-referrer/noindex",
+    "verified_status": "B/Dפעיליםבשרת20/10ומיגרציה20261103223217. /updatesLIVEב־1bc8260aמחזיר200ו־noindexכפי שמוגדרבמקור;טופסהביתוהדףהתקבלוקודםמולחוזהאמיתיוהקודלאשונה. לאבוצעההרשמה/הסרהבכתובתאמיתיתלאחרcutoverואיןמשלוחגורףאושינויהעדפות. שירותהסרהחתוםנשמר. 12.53: /privacyכברindexableקנוניבשרת,אךחסרב־STATIC;נוסףל־XMLבמוצרmaina491/Preview3fc0. אתרחי/privacyמחזיר200וקנונימדויק. /updatesו־/unsubscribeנשאריםnoindexוהפעולותהקיימותלאשונו.",
+    "permissions": "/privacy ציבורי וקנוני; /updates ו־/unsubscribe ללא אינדוקס. בעלות כתובת/חתימה ו־no-referrer בהסרה; אין שינוי בהסכמות קיימות.",
     "parameters_anchors": "e,t בתיםמדויקים; לא analytics או querylogs",
     "acceptance": "חתימהשגויה/אפסהתאמות/כשל; הסרה אמיתית אינה תרגיל; email עודכןבמקור",
     "open_task": "קבלתפעולותחיוביותבכתובת/קישורבבעלותהמשתמשנותרתלאמאומתת,בלימיילבדיקהאוטומטי;A2/Cלאהופעלו.",
@@ -748,7 +769,14 @@
       "open_task": "C5: B/D backend and protected /updates/Home availability accepted; owner-positive signup/signed removal not performed automatically. Social callback and real CP1 remain separate. A2 not an Auth prerequisite; C before first site-updates campaign.",
       "treatment": "BD_BACKEND_AND_PROTECTED_FORMS_ACCEPTED_NONWRITING_REAL_EMAIL_OWNER_PENDING"
     },
-    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md"
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md",
+    "publication_final_previous_checkpoint": {
+      "verified_status": "B/Dפעיליםבשרת20/10ומיגרציה20261103223217. /updatesLIVEב־1bc8260aמחזיר200ו־noindexכפי שמוגדרבמקור;טופסהביתוהדףהתקבלוקודםמולחוזהאמיתיוהקודלאשונה. לאבוצעההרשמה/הסרהבכתובתאמיתיתלאחרcutoverואיןמשלוחגורףאושינויהעדפות. שירותהסרהחתוםנשמר.",
+      "permissions": "בעלותכתובת/חתימה; no-referrer/noindex",
+      "open_task": "קבלתפעולותחיוביותבכתובת/קישורבבעלותהמשתמשנותרתלאמאומתת,בלימיילבדיקהאוטומטי;A2/Cלאהופעלו.",
+      "treatment": "LIVE_EXISTING_MAIL_PURPOSE_AND_PERSISTED_UNSUBSCRIBE"
+    },
+    "publication_final_evidence": "../main-live-state-reconciliation-20261104/README.md#המשך-1253--תמונות-ומפת-האתר"
   },
   {
     "id": "F28",
@@ -874,7 +902,7 @@
     "evidence": "DB href/src; api/sitemap; publicfiles; hosting; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16",
     "meaning": "משאב אמיתי/SEO/API; גם probe אפשרי",
     "target_2029": "המשאב/הנכס המדויק אם זמין",
-    "verified_status": "פעריSEO/HTTPתוקנוב073ושולבוב98dהחי;פריוויו98d16תרחישיםמוגבלים.12.49:entrymiddlewareהוחזרלאותומקורקנוניובוט403בחי,ללאשינוימדינה.3APIsלניטורעדיין404/חסומיSW.193השמעוהדחיותנשמרו.",
+    "verified_status": "פעריSEO/HTTPתוקנוב073ושולבוב98dהחי;פריוויו98d16תרחישיםמוגבלים.12.49:entrymiddlewareהוחזרלאותומקורקנוניובוט403בחי,ללאשינוימדינה.3APIsלניטורעדיין404/חסומיSW.193השמעוהדחיותנשמרו. 12.53: APIמפתXMLמשמרpublicCDN6h/SWR24hרקל־GET200קנוניאינדקסבילי;Preview/nonGET/כשליםno-store.95בדיקותו־SEOעוברות;הקנריתהקרהב־3fc0נכשלה2/2בסף15.איןCDNHITקנונימאומתואיןפריסה.robots.txtהסטטינשמרכ־Legacyfallbackבלבדהערה;המדיניותהדינמיתללאשינוי. יתרפעריהכתובותלאנסרקומחדש.",
     "permissions": "publicasset לעומתחתום/פרטי; API לפי owner",
     "parameters_anchors": "שם קובץ,טווח זמן,range,queryAPI מותרים",
     "acceptance": "HEAD/GET/MIME/CSP; אין HTML200 במקום תמונה/שמע;probe נשאר 404",
@@ -928,7 +956,14 @@
       "treatment": "PUBLIC_DEPLOYED_METADATA_PARITY_GAPS_OPEN_AUDIO_DEFERRED",
       "evidence": "DB href/src; api/sitemap; publicfiles; hosting; canonical/HTTP audit f4390dd3 (12.47)"
     },
-    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md",
+    "publication_final_previous_checkpoint": {
+      "verified_status": "פעריSEO/HTTPתוקנוב073ושולבוב98dהחי;פריוויו98d16תרחישיםמוגבלים.12.49:entrymiddlewareהוחזרלאותומקורקנוניובוט403בחי,ללאשינוימדינה.3APIsלניטורעדיין404/חסומיSW.193השמעוהדחיותנשמרו.",
+      "permissions": "publicasset לעומתחתום/פרטי; API לפי owner",
+      "open_task": "שלושנקודותניטור/הרשאותadminמקצהלקצה;ביצועים/CLSמלאלאהתקבלו. איןסגירתG4אוהכרזתגיבוימסד/מדיהעדכני.",
+      "treatment": "LIVE_EDGE_RESTORED_ADMIN_MONITORING_OPEN_AUDIO_DEFERRED"
+    },
+    "publication_final_evidence": "../main-live-state-reconciliation-20261104/README.md#המשך-1253--תמונות-ומפת-האתר"
   },
   {
     "id": "F33",
