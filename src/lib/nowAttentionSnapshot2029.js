@@ -78,9 +78,9 @@ export function projectNowAttention(models, {
   const failedReaderCount = states.filter(state => BAD_READ_STATES.has(state?.status)).length;
   const measuredReaderCount = states.filter(state => GOOD_READ_STATES.has(state?.status)).length;
   let readState = "unknown";
-  if (!detailsRequested) readState = loading ? "loading" : "not_requested";
+  if (error || failedReaderCount || unavailable) readState = items.length ? "partial" : "unavailable";
   else if (loading) readState = "loading";
-  else if (error || failedReaderCount || unavailable) readState = items.length ? "partial" : "unavailable";
+  else if (!detailsRequested) readState = "not_requested";
   else if (states.length > 0 && measuredReaderCount === states.length) readState = "measured_window";
   // "measured_window" means only that these finite readers answered. It never
   // means complete site coverage or that any research claim was verified.
