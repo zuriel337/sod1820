@@ -253,3 +253,35 @@ test("restored production artifact reuses the existing ordinary-member composer"
   assert.ok(tree.some(node => node.props?.id === "community-live-draft"));
   assert.ok(tree.some(node => node.type === "CommunitySignIn"));
 });
+
+test('leaf replies never advertise a speculative expand button and can appear after a later public refresh', async () => {
+  let count=0,reads=0;
+  const h=await harness('./CommunityLive2029.jsx',['LiveThread'],{fetchCommunityReplies:async()=>{reads++;return{rows:count?[{...row,id:'22222222-2222-4222-8222-222222222222'}]:[],count,nextOffset:count}}});
+  const props={row,accountProfiles:{},replyCounts:{},onRepliesLoaded(){},ancestors:['root'],refreshToken:0};
+  let tree=elements(h.render(h.LiveThread,props));assert.equal(tree.filter(n=>n.props?.className==='sod29-community-replies-toggle').length,0);
+  await h.flush();tree=elements(h.render(h.LiveThread,props));assert.equal(tree.filter(n=>n.props?.className==='sod29-community-replies-toggle').length,0);assert.equal(reads,1);
+  count=1;h.render(h.LiveThread,{...props,refreshToken:1});await h.flush();tree=elements(h.render(h.LiveThread,{...props,refreshToken:1}));assert.equal(tree.filter(n=>n.props?.className==='sod29-community-replies-toggle').length,1);assert.equal(reads,2);
+});
+
+test('partial replies offer exactly remaining messages; a complete branch offers only close and cached reopen',async()=>{
+  let reads=0;
+  const children=['22222222-2222-4222-8222-222222222222','33333333-3333-4333-8333-333333333333','44444444-4444-4444-8444-444444444444'].map(id=>({...row,id}));
+  const {mergeCommunityRefreshRows}=await import('../../lib/community/communityRefresh.js');
+  const h=await harness('./CommunityLive2029.jsx',['LiveThread'],{captureCommunityScrollAnchor:()=>null,mergeCommunityRefreshRows,fetchCommunityReplies:async(_id,args)=>{reads++;const items=args.offset?children.slice(2):children.slice(0,2);return{rows:items,count:3,nextOffset:args.offset+items.length}}});
+  const props={row,accountProfiles:{},replyCounts:{},onRepliesLoaded(){},refreshToken:0};
+  h.render(h.LiveThread,props);await h.flush();let tree=elements(h.render(h.LiveThread,props));let more=tree.find(n=>n.props?.className==='sod29-community-more-replies');assert.ok(more);assert.ok(more.props.children.includes('תגובה נוספת אחת'));
+  await more.props.onClick();await h.flush();tree=elements(h.render(h.LiveThread,props));assert.equal(tree.filter(n=>n.props?.className==='sod29-community-more-replies').length,0);
+  const close=tree.find(n=>n.props?.className==='sod29-community-replies-toggle');assert.ok(close.props.children.includes('סגירת תגובות'));close.props.onClick();tree=elements(h.render(h.LiveThread,props));const open=tree.find(n=>n.props?.className==='sod29-community-replies-toggle');assert.equal(open.props['aria-expanded'],'false');open.props.onClick();await h.flush();assert.equal(reads,2,'reopen uses the already completed public page');
+});
+
+test('canonical UserBadge keeps opt-in fallbacks colorful while real images and ordinary callers retain priority',async()=>{
+  const {displayAvatarUrl,writerAvatarStyle}=await import('../../lib/avatar.js');
+  const h=await harness('../UserBadge.jsx',['UserBadge'],{displayAvatarUrl,writerAvatarStyle});
+  const props={name:'כותב',avatarOnly:true,colorfulFallback:true,fallbackSeed:'stable-public-writer',avatarUrl:'https://images.example.invalid/own.jpg'};
+  let tree=h.render(h.UserBadge,props);assert.equal(tree.props['data-avatar-state'],'image');assert.equal(tree.props['data-avatar-treatment'],'color');
+  elements(tree).find(n=>n.type==='img').props.onError();tree=h.render(h.UserBadge,props);assert.equal(tree.props['data-avatar-state'],'fallback');assert.ok(tree.props.style['--user-badge-fallback-ink']);
+  tree=h.render(h.UserBadge,{...props,avatarUrl:'https://images.example.invalid/replacement.jpg'});assert.equal(tree.props['data-avatar-state'],'image');
+  tree=h.render(h.UserBadge,{name:'historical',avatarOnly:true,fallbackImage:'/community-avatars/090688eb8d8b7febc9c3.jpg'});assert.equal(tree.props['data-avatar-state'],'image');
+  tree=h.render(h.UserBadge,{name:'unsafe',avatarOnly:true,fallbackImage:'/community-avatars/../../private.svg'});assert.equal(tree.props['data-avatar-state'],'fallback');
+  tree=h.render(h.UserBadge,{name:'ordinary',avatarOnly:true});assert.equal(tree.props['data-avatar-treatment'],undefined);assert.equal(tree.props.style['--user-badge-fallback-ink'],undefined);
+});

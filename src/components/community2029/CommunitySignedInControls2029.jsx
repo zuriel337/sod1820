@@ -58,7 +58,7 @@ export default function CommunitySignedInControls2029({ children }) {
       <details ref={menu} className="sod29-community-account-menu" onKeyDown={event => { if (event.key === "Escape" && !event.target.closest("dialog[open]")) { event.preventDefault(); event.stopPropagation(); menu.current.open = false; menu.current.querySelector("summary")?.focus(); } }}>
         <summary className="sod29-community-account-icon" aria-label="הגדרות החשבון" title="הגדרות החשבון"><NavigationIcon2029 name="settings" size={20} /></summary>
         <div className="sod29-community-account-options">
-          <Link to={writerPersonalHref("profile", { returnTo })}>הפרופיל שלי</Link>
+          <Link to={writerPersonalHref("profile", { returnTo })}>החלפת תמונת פרופיל</Link>
           <Link to={`/login?returnTo=${encodeURIComponent(returnTo)}`}>כניסה עם חשבון אחר</Link>
           {children}
         </div>
