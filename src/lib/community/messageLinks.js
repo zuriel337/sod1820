@@ -12,6 +12,13 @@ export function describeMessageLink(raw) {
     const file = /^\/storage\/v1\/object\/public\/gallery\/community\/(?:[0-9a-f-]{36}\/)?[0-9a-f-]{36}\.(jpg|jpeg|png|webp|gif|pdf|txt|docx|mp4|webm|mov)$/i.exec(url.pathname);
     if (file) return { ...link, kind: /^(jpg|jpeg|png|webp|gif)$/i.test(file[1]) ? "image" : /^(mp4|webm|mov)$/i.test(file[1]) ? "video" : "file", extension: file[1].toUpperCase() };
   }
+  // Original OpenWeb image attachments use public opaque IDs without a file
+  // extension. Keep their existing URL; do not treat arbitrary external links,
+  // signed/query URLs or executable formats as inline media.
+  if (url.protocol === "https:" && url.hostname === "images.spot.im" && !url.port && !url.search && !url.hash
+    && /^\/v1\/(?:[A-Za-z0-9_-]{1,200}\/){0,5}[A-Za-z0-9_-]{1,200}(?:\.(?:jpe?g|png|webp|gif))?\/?$/i.test(url.pathname)) {
+    return { ...link, kind: "image", source: "openweb" };
+  }
   if (url.port) return link;
   if (YOUTUBE_HOSTS.has(url.hostname)) {
     const candidate = url.hostname.endsWith("youtu.be") ? url.pathname.slice(1)
