@@ -13,6 +13,10 @@ import { commitReactionMutation, isReactionBoostMap } from "../lib/reactionMutat
 // variant: undefined=בר מלא (5 אימוג'ים) · "compact"=סיכום קריא-בלבד · "row"=לייק-יחיד לחיץ לשורת-פיד.
 const EMOJIS = ["👍", "💡", "🔥", "🙏", "✨"];
 
+function ThumbOutline() {
+  return <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 10H3v11h4M7 10l5-7c1.5 0 2 1 1.6 2.6L13 9h6a2 2 0 0 1 2 2.5l-1.7 7.9A2 2 0 0 1 17.3 21H7V10Z" /></svg>;
+}
+
 // Controlled design preview: never mount live auth/visitor/RPC behavior for fixtures.
 export default function ReactionBar(props) {
   if (props.preview) {
@@ -25,7 +29,7 @@ export default function ReactionBar(props) {
   return <LiveReactionBar {...props} />;
 }
 
-function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, variant, allowBoost = true, requireAccount = false, repeatable = false }) {
+function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, variant, allowBoost = true, requireAccount = false, repeatable = false, rowAppearance }) {
   const P = usePalette();
   const { user, isAdmin } = useAuth();
   const myKey = repeatable ? "community-repeatable-like" : user?.id || ("v:" + getVisitorId());
@@ -123,9 +127,9 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
     const e = "👍", c = count(e), on = mine(e);
     return (
       <span style={{ display: "inline-flex", flexWrap: "wrap", maxWidth: "100%", alignItems: "center", gap: 4 }} onClick={(ev) => ev.stopPropagation()}>
-        <button onClick={(ev) => { ev.stopPropagation(); toggle(e); }} disabled={busy || requireAccount && !user} aria-pressed={repeatable ? undefined : on} aria-describedby={error ? errorId : undefined} aria-label={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : repeatable ? "הוסף לייק" : on ? "בטל לייק" : "אהבתי"} title={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : repeatable ? "הוסף לייק" : on ? "בטל לייק" : "אהבתי"}
-          style={{ ...pill(e, on), minWidth: 44, minHeight: 44 }}>
-          <span style={{ fontSize: 14 }}>{e}</span>{c > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c}</span>}
+        <button className={rowAppearance === "thread" ? "sod29-community-like" : undefined} onClick={(ev) => { ev.stopPropagation(); toggle(e); }} disabled={busy || requireAccount && !user} aria-pressed={repeatable ? undefined : on} aria-describedby={error ? errorId : undefined} aria-label={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : repeatable ? "הוסף לייק" : on ? "בטל לייק" : "אהבתי"} title={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : repeatable ? "הוסף לייק" : on ? "בטל לייק" : "אהבתי"}
+          style={{ ...(rowAppearance === "thread" ? {} : pill(e, on)), minWidth: 44, minHeight: 44 }}>
+          {rowAppearance === "thread" ? <ThumbOutline /> : <span style={{ fontSize: 14 }}>{e}</span>}{c > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c}</span>}
         </button>
         {adminBoost(e)}
         {feedback}
