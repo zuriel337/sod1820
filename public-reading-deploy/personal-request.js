@@ -36,7 +36,8 @@ export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetch
           || u.searchParams.get("limit") !== "1") return denied();
         return forward();
       }
-      if (!owned() || !query([owner,"select","limit","offset","order","read_at","id"])) return denied();
+      if (!owned() || !query([owner,"select","limit","offset","order","read_at","id",...(table === "user_notifications" ? ["kind"] : [])])
+        || u.searchParams.has("kind") && u.searchParams.get("kind") !== "eq.reply") return denied();
       return forward();
     }
     const raw = await req.clone().text();

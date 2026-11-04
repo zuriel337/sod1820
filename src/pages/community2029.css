@@ -436,3 +436,12 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
  .sod29-community--full .sod29-community-feed .sod29-community-replies .sod29-community-replies .sod29-community-thread-group>.sod29-community-replies{margin-inline-start:0;padding-inline-start:0;border-inline-start:0}
  .sod29-community--full .sod29-community-feed .sod29-community-replies .sod29-community-replies .sod29-community-replies>.sod29-community-thread-group::before{display:none}
 }
+
+.sod29-community-draft-state{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;color:var(--s29-muted);font:400 12px/1.5 var(--s29-font-ui);margin-block:6px}
+.sod29-community-draft-state button{min-height:44px;color:var(--s29-muted)}
+.sod29-community-reply-bell{width:auto;gap:6px;padding-inline:10px;background:var(--s29-panel-soft);border:1px solid var(--s29-line-strong)}
+.sod29-community-account-name{min-width:0}
+.sod29-community-bell-label{font:600 13px/1.4 var(--s29-font-ui)}
+.sod29-community-bell-error{flex-basis:100%;color:var(--s29-muted);font-size:12px}
+.sod29-community-account-row:has(.sod29-community-bell-error){flex-wrap:wrap}
+@media(max-width:480px){.sod29-community-account-row{gap:6px}.sod29-community-account-name{flex:1;min-width:0;font-size:14px}.sod29-community-account-replies{font-size:13px}.sod29-community-reply-bell{padding-inline:7px;gap:4px}}

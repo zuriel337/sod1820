@@ -100,7 +100,7 @@ export async function getMyNotifications(limit = 30, { strict = false, userId = 
     const { data, error } = await query;
     if (error) throw error;
     if (strict && !Array.isArray(data)) throw new Error("Notification list unavailable");
-    return (data || []).map(item => ({ ...item, body: messageNotificationPreview(item.body) }));
+    return (data || []).map(item => typeof item.body === "string" ? { ...item, body: messageNotificationPreview(item.body) } : item);
   } catch (error) { if (strict) throw error; return []; }
 }
 
@@ -134,7 +134,7 @@ export const FOLLOW_STATES = [
   { key: "raziel",  icon: "✨", label: "רזיאל מציע",   note: "המלצה אישית",            live: false },
 ];
 
-export async function getUnreadCount({ strict = false, userId = null } = {}) {
+export async function getUnreadCount({ strict = false, userId = null, kind = null } = {}) {
   if (!supabase) { if (strict) throw new Error("Notification reader unavailable"); return 0; }
   try {
     let query = supabase
@@ -142,6 +142,7 @@ export async function getUnreadCount({ strict = false, userId = null } = {}) {
       .select("id", { count: "exact", head: true })
       .is("read_at", null);
     if (userId) query=query.eq("user_id",userId);
+    if (kind !== null) { if (kind !== "reply") throw new Error("Unsupported unread kind"); query = query.eq("kind", kind); }
     const { count, error } = await query;
     if (strict) {
       if (error) throw error;

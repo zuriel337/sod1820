@@ -334,3 +334,11 @@ test('replies to me requires canonical account verification and its exact privat
  }
  const guest=worker();assert.equal((await guest.request(path,{jwt:'',body:{p_limit:50,p_before:null}})).status,403);assert.equal(guest.calls.length,0);
 });
+
+test('reply unread count is an exact own-inbox read; arbitrary filters and foreign accounts stay blocked',async()=>{
+ const path='/rest/v1/user_notifications?select=id&user_id=eq.'+a+'&read_at=is.null&kind=eq.reply';
+ const w=worker({role:'member'});assert.equal((await w.request(path,{method:'HEAD'})).status,200);assert.equal(w.calls.length,2);assert.equal(w.calls[1].url,API+path);
+ for(const url of [path.replace('eq.reply','eq.other'),path+'&kind=eq.reply',path.replace('eq.'+a,'eq.'+b),path.replace('user_notifications','user_notes')]){
+  const bad=worker({role:'member'});assert.equal((await bad.request(url,{method:'HEAD'})).status,403);assert.equal(bad.calls.some(c=>c.url===API+url),false);
+ }
+});

@@ -1,0 +1,21 @@
+# Community automatic draft and reply bell — 2026-11-04
+
+ZURIEL explicitly requested the two proposed priorities: automatic draft persistence and a clear notification bell. BEFORE task COMMUNITY_DRAFT_REPLY_BELL_20261104, id5ccfef55-c43c-4bd8-8f61-b9ea3cf0abc0. Isolated branch codex/community-draft-reply-bell-20261104 from live98d0508fb81de12850d8e97c5bcc13e2206729e4. Main2195c978 unchanged. Existing Community scope was released; no active overlapping writer.
+
+## Result
+
+The existing composer saves its bounded text and closed rich formatting synchronously on input to a device-local cache for seven days. Verified accounts and guests have separate keys; authentication transitions cannot expose another principal's draft. There is one bounded draft per principal, no account/identity mapping, cloud store, read receipt, publication or automatic guest-to-account import. Public reply target IDs are stored without source-message text/author/profile. On restoration, the existing canonical public reader verifies the target before reply submission is enabled. Hidden, deleted or unavailable targets keep the draft and block publication until explicit cancel, replacement or successful retry; they never silently become a root post.
+
+Failed publication keeps the draft. Acknowledged successful publication removes it. Explicit delete also removes it. The original in-memory file retry behavior remains; file objects, blob URLs and names are never cached. A restored draft that had files explicitly asks for them to be selected again. Storage failure is shown instead of a false saved acknowledgement. The editor waits for initial account resolution to avoid overwriting text entered during an identity transition. Expired invalid cached structures are rejected and expired keys removed.
+
+The existing Community bell now has a visible Hebrew label and exact unread-reply badge, refreshing every30 seconds and on focus/visibility. It uses getUnreadCount on the same user_notifications inbox, filtered to kind=reply and exact current account. It links to the existing canonical Follow/update center; no parallel inbox, sender, follow engine, notification producer or external channel is added. Existing acknowledged read behavior clears the count after reading. Guest accounts make no private bell read. Failed reads remain unknown with a visible status, never measured zero. Existing rich notification excerpts preserve absent-body shapes for compatibility.
+
+Only the exact kind=eq.reply read filter was admitted in the existing owned personal worker contract; duplicate kind values, foreign account IDs, unsupported kinds and unrelated tables remain blocked. No schema, DB product-data, Auth, shared launch/admission flag, Legacy lock or notification delivery changes.
+
+## Verification
+
+162 targeted tests pass, including exact account/transport negative cases, strict read acknowledgements, draft bounds/expiration/private partitioning, legacy formatting and existing calculator/Now/header/middleware compatibility. Build passes its existing79 assertions; Legacy production lock passes.
+
+Four new synthetic Chromium cases (guest/member at390/1440) verify formatted reload, navigation through the existing update center and acknowledged reply link, reply target restoration and hidden-target blocking/retry, file reattach reminder, failed/successful send, successful clear/reload, explicit delete, accountA/B isolation and honest count outage. Eight additional browser cases preserve rich formatting/quote/media/send/edit and previous reading-position/private-reply round trips. All synthetic cases have zero page errors, overflow or unexpected writes. No live test message, notification acknowledgement, save, Follow or signup is created.
+
+Live publication and final read-only evidence are /workspace/scratch/community-draft-reply-bell-release-20261104.json. Rollback: dpl_DNiWmnVWnLfqkWQYNk94vXWD2qaF. No owned live account is available; member lifecycle is verified using synthetic browser HTTP with the actual application. Live guest verification uses normal Chrome UA, preserving the accepted middleware's existing HeadlessChrome denial. Any external legacy OpenWeb social/advertising telemetry errors are classified separately from native Community behavior.

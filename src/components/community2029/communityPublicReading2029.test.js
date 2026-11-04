@@ -43,6 +43,7 @@ async function harness(file, names, overrides = {}) {
     useEffect: effect, useLayoutEffect: effect, useId: () => "unit-id", lazy: () => "LazyComponent",
     useAuth: () => ({ user: { id: "account" }, isAdmin: false, loading: false }),
     useCommunityReadingPosition2029: () => ({ resume: null, updates: {}, error: false }),
+    useCommunityDraft2029: () => { const [draft, setDraft] = useState(""); const [replyTo, setReplyTo] = useState(null); return { draft, setDraft, replyTo, setReplyTo, status: "idle", clear() { setDraft(""); setReplyTo(null); }, setHasFiles() {} }; },
     publicLaunchActionsLocked: isAdmin => isAdmin !== true,
     communityActionsLocked: isAdmin => isAdmin !== true,
     PUBLIC_READING_PRODUCTION_ARTIFACT: false,

@@ -152,3 +152,11 @@ await test("default mutation signatures keep their void/error-swallowing compati
     });
   }
 });
+
+await test('the Community reply badge counts the existing inbox with exact account and reply filters', async () => {
+ await withTransport({range:'*/7'},async calls=>{
+  assert.equal(await getUnreadCount({strict:true,userId:ID,kind:'reply'}),7);
+  assert.equal(calls.length,1);assert.equal(calls[0].method,'HEAD');assert.equal(calls[0].url.searchParams.get('kind'),'eq.reply');assert.equal(calls[0].url.searchParams.get('user_id'),'eq.'+ID);assert.equal(calls[0].url.searchParams.get('read_at'),'is.null');
+ });
+ await withTransport({range:'*/0'},async calls=>{await assert.rejects(getUnreadCount({strict:true,kind:'unexpected'}));assert.equal(calls.length,0);});
+});

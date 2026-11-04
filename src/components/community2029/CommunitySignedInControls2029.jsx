@@ -27,7 +27,7 @@ export default function CommunitySignedInControls2029({ children }) {
         const identity = await supabase.auth.getUser();
         if (identity.error || identity.data?.user?.id !== principal) throw new Error("Account unavailable");
         if (!alive || active.current !== principal) return;
-        const count = await getUnreadCount({ strict: true });
+        const count = await getUnreadCount({ strict: true, userId: principal, kind: "reply" });
         if (alive && active.current === principal) setSnapshot({ owner: principal, state: "ready", count });
       } catch {
         if (alive && active.current === principal) setSnapshot({ owner: principal, state: "error", count: null });
@@ -36,7 +36,7 @@ export default function CommunitySignedInControls2029({ children }) {
     refresh();
     window.addEventListener("focus", refresh);
     document.addEventListener("visibilitychange", refresh);
-    const interval = setInterval(refresh, 60000);
+    const interval = setInterval(refresh, 30000);
     return () => { alive = false; clearInterval(interval); window.removeEventListener("focus", refresh); document.removeEventListener("visibilitychange", refresh); };
   }, [principal, loading]);
   useEffect(() => {
@@ -50,8 +50,9 @@ export default function CommunitySignedInControls2029({ children }) {
     <Link className="sod29-community-account-name" to={writerPersonalHref("profile", { returnTo })}>{ownProfile?.display_name || ownProfile?.username || "החשבון שלי"}</Link>
     <Link className="sod29-community-account-replies" to={writerPersonalHref("messages", { tab: "replies", returnTo })}>תגובות אליי</Link>
     <div className="sod29-community-account-actions">
-      <Link className="sod29-community-account-icon" to={writerPersonalHref("notifications", { returnTo })} aria-label={count > 0 ? `ההתראות שלי — ${count} חדשות` : "ההתראות שלי"} title="ההתראות שלי">
+      <Link className="sod29-community-account-icon sod29-community-reply-bell" to={writerPersonalHref("notifications", { returnTo })} aria-label={count > 0 ? count === 1 ? "ההתראות שלי — תגובה חדשה אחת" : `ההתראות שלי — ${count} תגובות חדשות` : count === 0 ? "ההתראות שלי — אין תגובות חדשות" : "ההתראות שלי — מספר התגובות אינו זמין"} title="ההתראות שלי">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4M12 2V1" /></svg>
+        <span className="sod29-community-bell-label">התראות</span>
         {count > 0 ? <span className="sod29-community-unread-badge" aria-hidden="true">{count > 99 ? "99+" : count}</span> : null}
       </Link>
       <details ref={menu} className="sod29-community-account-menu" onKeyDown={event => { if (event.key === "Escape" && !event.target.closest("dialog[open]")) { event.preventDefault(); event.stopPropagation(); menu.current.open = false; menu.current.querySelector("summary")?.focus(); } }}>
@@ -63,5 +64,6 @@ export default function CommunitySignedInControls2029({ children }) {
         </div>
       </details>
     </div>
+    {snapshot.owner === principal && snapshot.state === "error" ? <span className="sod29-community-bell-error" role="status">לא ניתן לעדכן התראות כרגע</span> : null}
   </div>;
 }

@@ -13,6 +13,7 @@ import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
 import CommunityRichText2029 from "./CommunityRichText2029.jsx";
 import CommunityPersonalActions2029 from "./CommunityPersonalActions2029.jsx";
+import { useCommunityDraft2029 } from "./useCommunityDraft2029.js";
 import { useCommunityReadingPosition2029 } from "./useCommunityReadingPosition2029.js";
 import { communityReadingHref } from "../../lib/community/communityReadingPosition.js";
 import { appendMessageQuote, appendMessageText, plainMessageText, selectedMessageQuote } from "../../lib/community/messageFormatting.js";
@@ -298,10 +299,10 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   // Keep the loaded date window when switching to likes, including after a
   // reload. The public reader continues to receive only its supported sorts.
   const fetchSort = sort === "oldest" || sort === "liked" && params.get("sourceSort") === "oldest" ? "oldest" : "newest";
-  const [draft, setDraft] = useState("");
+  const draftCache = useCommunityDraft2029({ auth: { user, loading: authLoading, verified: authVerified }, enabled: !actionsLocked });
+  const { draft, setDraft, replyTo, setReplyTo } = draftCache;
   const [attachments, setAttachments] = useState([]);
   const [attachmentError, setAttachmentError] = useState("");
-  const [replyTo, setReplyTo] = useState(null);
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState("");
   const [composerExpanded, setComposerExpanded] = useState(false);
@@ -310,7 +311,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const activeComposerPrincipal = useRef(composerPrincipal);
   activeComposerPrincipal.current = composerPrincipal;
   useLayoutEffect(() => {
-    setDraft(""); setAttachments([]); setReplyTo(null); setNotice(""); setAttachmentError(""); setSending(false);
+    setAttachments([]); setNotice(""); setAttachmentError(""); setSending(false);
     setComposerExpanded(false);
   }, [composerPrincipal]);
   const [profileRows, setProfileRows] = useState([]);
@@ -551,13 +552,14 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     if (selected.length + attachments.length > COMMUNITY_ATTACHMENT_MAX_FILES) { setAttachmentError(`אפשר לצרף עד ${COMMUNITY_ATTACHMENT_MAX_FILES} קבצים להודעה.`); return; }
     try {
       selected.forEach(validateCommunityAttachment);
+      if (selected.length) draftCache.setHasFiles(true);
       setAttachments((current) => [...current, ...selected.map((file) => ({ file, url: null, name: file.name }))]);
     } catch (err) { setAttachmentError(err.message); }
   };
   const submit = async () => {
-    if (actionsLocked) return;
+    if (actionsLocked || authLoading || user && !authVerified) return;
     const body = draft.trim();
-    if ((!plainMessageText(draft).trim() && !attachments.length) || sending) return;
+    if ((!plainMessageText(draft).trim() && !attachments.length) || sending || replyTo?.draftRestoring || replyTo?.draftUnavailable) return;
     if ((PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user) { setNotice("יש להתחבר כדי לפרסם הודעה."); return; }
     setSending(true); setNotice(""); setAttachmentError("");
     const principal = composerPrincipal;
@@ -579,7 +581,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         setReplyCounts((current) => { const next = { ...current }; delete next[replyTo.id]; return next; });
         setThreadRefresh((current) => current + 1);
       }
-      setDraft(""); setAttachments([]); setReplyTo(null); setComposerExpanded(false); setNotice(user ? "ההודעה פורסמה." : "ההודעה נשלחה לבדיקה.");
+      draftCache.clear(); setAttachments([]); setComposerExpanded(false); setNotice(user ? "ההודעה פורסמה." : "ההודעה נשלחה לבדיקה.");
       if (user && !replyTo && !threadFocus) {
         // Show an accepted new root in the newest public window. A retained
         // search (including a different YouTube share token) or old/liked window
@@ -613,7 +615,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <div className={compactComposer ? "sod29-community-compose-row" : undefined}>
             {compactComposer ? <Link className="sod29-community-compose-avatar" to={user ? writerPersonalHref("profile", { returnTo: communityAccountReturnHref(window.location) }) : `/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`} aria-label={user ? "הפרופיל שלי" : "התחברות"}><UserBadge avatarOnly name={composerProfile?.display_name || composerProfile?.username || (user ? "החשבון שלי" : "אורח")} avatarUrl={composerProfile?.avatar_url} /></Link> : null}
             <div className={compactComposer ? "sod29-community-compose-input" : undefined}>
-              <CommunityRichText2029 inputRef={composerRef} id="community-live-draft" value={draft} onChange={setDraft} expanded={composerOpen} disabled={sending} onFocus={() => setComposerExpanded(true)} onKeyDown={event => { if (event.key === "Escape" && !draft && !attachments.length && !replyTo) { setComposerExpanded(false); composerRef.current?.blur(); } }} placeholder={compactComposer ? "הוסף תגובה…" : "כתבו משהו לקהילה…"} />
+              <CommunityRichText2029 inputRef={composerRef} id="community-live-draft" value={draft} onChange={setDraft} expanded={composerOpen} disabled={sending || authLoading || Boolean(user && !authVerified)} onFocus={() => setComposerExpanded(true)} onKeyDown={event => { if (event.key === "Escape" && !draft && !attachments.length && !replyTo) { setComposerExpanded(false); composerRef.current?.blur(); } }} placeholder={compactComposer ? "הוסף תגובה…" : "כתבו משהו לקהילה…"} />
               {compactComposer ? <button type="button" className="sod29-community-compose-attach" aria-label="צירוף קובץ או סרטון" title="צירוף קובץ או סרטון" aria-describedby={user ? "community-attachment-limits" : undefined} disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={() => attachmentRef.current?.click()}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21 11-8.5 8.5a6 6 0 0 1-8.5-8.5L14 1a4 4 0 0 1 5.7 5.7L9.5 16.9a2 2 0 0 1-2.8-2.8L16 4.8" /></svg></button> : null}
             </div>
           </div>
@@ -621,9 +623,15 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {compactComposer && user ? <span id="community-attachment-limits" className="sod29-community-sr-only">עד 3 קבצים · תמונה עד 8MB · סרטון עד 50MB · גלויים לציבור</span> : null}
           <input ref={attachmentRef} type="file" multiple accept={COMMUNITY_ATTACHMENT_ACCEPT} onChange={pickAttachments} hidden />
           {!compactComposer ? <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} title={!user ? "יש להתחבר כדי לצרף קבצים" : undefined} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ או סרטון</button><small>עד 3 קבצים · סרטון עד 50MB, קובץ אחר עד 8MB · גלויים לציבור</small></div> : null}
-          {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index))} />)}</ul> : null}
+          {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => { draftCache.setHasFiles(attachments.length > 1); setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index)); }} />)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
-          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!plainMessageText(draft).trim() && !attachments.length) || sending || (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user} title={(PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
+          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!plainMessageText(draft).trim() && !attachments.length) || sending || replyTo?.draftRestoring || replyTo?.draftUnavailable || (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user} title={(PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
+          {(draft.length > 0 || replyTo) && draftCache.status !== "idle" ? <div className="sod29-community-draft-state" role="status">
+            <span>{draftCache.status === "unavailable" ? "לא ניתן לשמור את הטיוטה במכשיר הזה כרגע." : draftCache.reattach ? "טיוטת הטקסט שוחזרה. יש לצרף קבצים מחדש." : draftCache.status === "restored" ? "הטיוטה שוחזרה מהמכשיר הזה" : "טיוטה נשמרה במכשיר הזה"}</span>
+            <button type="button" className="sod29-community-text-action" disabled={sending} onClick={() => { draftCache.clear(); setAttachments([]); setComposerExpanded(false); }}>מחיקת טיוטה</button>
+          </div> : null}
+          {replyTo?.draftRestoring ? <p className="sod29-community-status" role="status">בודק את ההודעה שאליה עונים…</p> : null}
+          {replyTo?.draftUnavailable ? <p className="sod29-community-status" role="alert">לא ניתן לפתוח את ההודעה שאליה עונים. אפשר לנסות שוב או לבטל את התשובה. <button type="button" className="sod29-community-text-action" onClick={draftCache.retryReply}>ניסיון נוסף</button></p> : null}
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
         </section> : null}
         {hasThreadRequest ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">
