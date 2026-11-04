@@ -141,7 +141,12 @@ export function deriveHiddenCrossings({ expression = "", methodProfile = [], can
   if (!phrase || /^\d+$/.test(phrase) || !regular) return [];
   const data = candidates;
   const selfKey = hiddenCrossAnagramKey(phrase);
-  const representative = buildEquivalenceRepresentative(profile, phrase);
+  const selfFinals = finalsKey(phrase);
+  const representativeDefault = buildEquivalenceRepresentative(profile, phrase);
+  // Same final letters on both sides → "גדול" variants are implied by their base (e.g. ירושלים = שומרים).
+  const representativeSameFinals = selfFinals
+    ? buildEquivalenceRepresentative(profile, phrase, { finalsNeutral: true })
+    : representativeDefault;
   const rows = [];
   const seen = new Set();
 
@@ -149,6 +154,7 @@ export function deriveHiddenCrossings({ expression = "", methodProfile = [], can
     const partner = clean(candidate?.phrase);
     if (!partner || partner === phrase || seen.has(partner)) continue;
     if (hiddenCrossAnagramKey(partner) === selfKey) continue;
+    const representative = finalsKey(partner) === selfFinals ? representativeSameFinals : representativeDefault;
 
     const grouped = new Map();
     for (const method of profile) {
@@ -200,18 +206,27 @@ function hasFinalLetters(expression) {
   return /[ךםןףץ]/.test(clean(expression));
 }
 
+// Ordered final letters of an expression (string comparison only — no gematria calculation).
+// Two expressions with the same finals get the same "final-letter bonus" in every "גדול" variant,
+// so a "גדול" match next to its base match is implied, not independent evidence.
+function finalsKey(expression) {
+  return clean(expression).replace(/[^ךםןףץ]/g, "");
+}
+
 function isSingleWord(expression) {
   return clean(expression).split(/\s+/).filter(Boolean).length === 1;
 }
 
-function dependencyConditionApplies(condition, expression) {
-  if (condition === "no_final_letters") return !hasFinalLetters(expression);
+function dependencyConditionApplies(condition, expression, finalsNeutral) {
+  if (condition === "no_final_letters") return finalsNeutral;
   if (condition === "single_word_input") return isSingleWord(expression);
-  if (condition === "single_word_and_no_final_letters") return isSingleWord(expression) && !hasFinalLetters(expression);
+  if (condition === "single_word_and_no_final_letters") return isSingleWord(expression) && finalsNeutral;
   return false;
 }
 
-function buildEquivalenceRepresentative(methodProfile, expression) {
+// finalsNeutral: the final letters add nothing independent for this comparison — either the expression has none,
+// or (pairwise, hidden crossings) the partner carries exactly the same final letters.
+function buildEquivalenceRepresentative(methodProfile, expression, { finalsNeutral = !hasFinalLetters(expression) } = {}) {
   const parent = new Map((methodProfile || []).map((row) => [row.methodKey, row.methodKey]));
   const find = (key) => {
     if (!parent.has(key)) return key;
@@ -239,7 +254,7 @@ function buildEquivalenceRepresentative(methodProfile, expression) {
   for (const row of methodProfile || []) {
     for (const rule of Array.isArray(row?.dependencyRules) ? row.dependencyRules : []) {
       if (rule?.type !== "conditional_equivalence") continue;
-      if (!dependencyConditionApplies(clean(rule?.condition), expression)) continue;
+      if (!dependencyConditionApplies(clean(rule?.condition), expression, finalsNeutral)) continue;
       union(row.methodKey, clean(rule?.to));
     }
   }
