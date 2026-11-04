@@ -38,5 +38,11 @@
   "protectedPreview": "NOT_CREATED_EXISTING_GUARD_LIMITED_TO_ORIGINAL_BRANCH",
   "forcePush": false,
   "guardChanged": false,
-  "originalBranchChangedByThisTask": false
+  "originalBranchChangedByThisTask": false,
+  "beforeReceiptFormatting": {
+    "change": "Trim Node reporter trailing whitespace only; preserve failure contents and counts",
+    "originalSha256": "1fbb3f08f6bca6c26e9c283403600d4c1b4d00ba6b4116c1a18f9bb65ca579d7",
+    "normalizedSha256": "d5d04137c0456d1a9ae05a0f4d6b43904232089c63440b156f14f622a76076c3"
+  },
+  "diffCheck": "BASE_TO_HEAD_PASS_AFTER_RECEIPT_WHITESPACE_NORMALIZATION"
 }
