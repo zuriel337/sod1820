@@ -476,6 +476,9 @@
 .sod29-surface-context-building{justify-self:start;padding:5px 9px;border:1px solid var(--s29-line);border-radius:999px;color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:900}
 .sod29-surface-context-mobile-cue.is-idle{cursor:default}
 .sod29-surface-context-mobile-cue{display:none}
+/* Surfaces that reuse the "number" entry surface but are not Number pages (the calculators) keep the
+   standard bottom chrome: only the command island + feed chip, no extra floating context cue. */
+.sod29-root.no-mobile-context-cue .sod29-surface-context-mobile-cue{display:none!important}
 
 .sod29-root.number-page-route .sod29-command-trail-item{
   appearance:none;

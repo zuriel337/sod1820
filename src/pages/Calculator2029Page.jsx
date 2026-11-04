@@ -642,6 +642,7 @@ function CalculatorBody() {
     <Sod2029Shell
       wide
       surface="number"
+      hideMobileContextCue
       orientationCopy={{ label: "מה אני רואה במחשבון?", body: "הקלידו שם, מילה או ביטוי ובדקו את ערכו בגימטריה. בחרו שיטה כדי לראות את הצעדים שלה, ובלשונית למד תמצאו הדרכה עם הביטוי שהקלדתם." }}
       symbol={<NavigationIcon2029 name="number" />}
       eyebrow="גימטריה · חישוב מיידי"

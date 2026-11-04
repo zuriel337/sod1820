@@ -15,9 +15,31 @@ assert.match(page, /GADOL_BASE\[method\.methodKey\] && !hasSofiot\(info\.express
 // Tabs: classic + families + ledger; wide/desktop mode and non-Hebrew fallback unchanged.
 assert.match(page, />קלאסי</);
 assert.match(page, />משפחות</);
-assert.match(page, /info\.hebrewApplicable \? view : "tiles"/);
+assert.match(page, /!info\.expression \|\| info\.hebrewApplicable \? view : "tiles"/);
 assert.match(page, /wide \|\| effectiveView === "classic" \? null/);
 // No per-method network fan-out in classic (legacy "נמצאו N" counts are intentionally not reproduced).
 assert.doesNotMatch(page, /getNumberLookup|fetchMethodLensProjection/);
 assert.match(css, /\.sod29-calcpro-grid\.is-classic/);
+
+// Classic tiles are real links to the number page (focus = typed expression, method = tile method);
+// non-reportable / preview tiles stay local buttons; family/ledger views still select locally.
+assert.match(page, /href=\{method\.previewOnly \|\| !isReportableValue\(method\.computedValue\)/);
+assert.match(page, /numberExpressionFocusHref\(method\.computedValue, \{ expression: info\.expression, method: method\.methodKey \}\)/);
+assert.match(page, /<Link to=\{href\} className=\{tileClass\}/);
+// Words above the input: daily word + public wall words behind the wall's readability guard.
+const words = readFileSync(new URL("../src/components/gematria2029/CalculatorWordsBar2029.jsx", import.meta.url), "utf8");
+assert.match(words, /getWallRecent/);
+assert.match(words, /isReadable\(phrase\)/);
+assert.match(words, /calculateGematriaEnvelope/);
+assert.doesNotMatch(words, /★★★/, "masked wall rows are skipped, never rendered");
+assert.ok(page.indexOf("<CalculatorWordsBar2029") < page.indexOf('<form className="sod29-calcpro-command"'), "words bar sits above the input");
+// Calculators keep the standard bottom chrome (no extra floating context cue on phones).
+const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
+const frameCss = readFileSync(new URL("../src/components/experience2029/systemFrame2029.css", import.meta.url), "utf8");
+assert.match(page, /hideMobileContextCue/);
+assert.match(frame, /no-mobile-context-cue/);
+assert.match(frameCss, /\.sod29-root\.no-mobile-context-cue \.sod29-surface-context-mobile-cue\{display:none!important\}/);
+const { dailyWordFor, DAILY_WORDS } = await import("../src/lib/dailyWord.js");
+assert.equal(dailyWordFor(new Date(2026, 10, 5)), DAILY_WORDS[5 % DAILY_WORDS.length]);
+assert.equal(dailyWordFor(new Date(2026, 10, 5)), dailyWordFor(new Date(2027, 2, 5)), "same day-of-month → same word, no randomness");
 console.log("Calculator 2029 classic-default view contract: PASS");

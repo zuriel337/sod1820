@@ -4,6 +4,7 @@ import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029
 import ShareActions from "../components/ShareActions.jsx";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
 import CalculatorEqualsPreview2029 from "../components/gematria2029/CalculatorEqualsPreview2029.jsx";
+import CalculatorWordsBar2029 from "../components/gematria2029/CalculatorWordsBar2029.jsx";
 import CalculatorOpening2029 from "../components/gematria2029/CalculatorOpening2029.jsx";
 import CalculatorDuo2029 from "../components/gematria2029/CalculatorDuo2029.jsx";
 import CalculatorLedgerCard2029 from "../components/gematria2029/CalculatorLedgerCard2029.jsx";
@@ -46,25 +47,38 @@ const CALCULATOR_ORIENTATION_COPY = Object.freeze({
   body: "הקלידו שם, מילה או ביטוי: כל שיטה מציגה ערך משלה. בחרו שיטה כדי לראות את הצעדים שלה; בלשונית למד תמצאו הדרכה עם הביטוי שהקלדתם.",
 });
 
-const MethodTile = React.memo(function MethodTile({ method, active, sameCount, onChoose, equivalentTo = null }) {
+const MethodTile = React.memo(function MethodTile({ method, active, sameCount, onChoose, equivalentTo = null, href = null, onOpen = null }) {
   const unavailable = calculationAvailabilityLabel(method);
   const note = equivalentTo ? `≡ זהה ל${equivalentTo}` : method.previewOnly
     ? (method.pendingNote || "מיידי")
     : (EXCEPTIONAL_STATE_HE[method.exceptionalState] || unavailable
       || (sameCount > 0 ? (sameCount === 1 ? "זהה גם בשיטה נוספת" : `זהה גם ב־${sameCount} שיטות`) : null));
+  const tileClass = `sod29-calcpro-tile${active ? " is-active" : ""}${sameCount > 0 ? " is-same" : ""}${method.previewOnly ? " is-preview" : ""}${equivalentTo ? " is-equivalent" : ""}`;
+  const inner = (
+    <>
+      <span>{method.publicLabel || method.label}</span>
+      <strong>{method.computedValue == null ? "—" : fmt(method.computedValue)}</strong>
+      <small>{note || " "}</small>
+    </>
+  );
+  if (href) {
+    return (
+      <Link to={href} className={tileClass} aria-current={active ? "true" : undefined} data-method={method.methodKey} data-preview-state="verified" onClick={() => onOpen?.(method)}>
+        {inner}
+      </Link>
+    );
+  }
   return (
     <button
       type="button"
-      className={`sod29-calcpro-tile${active ? " is-active" : ""}${sameCount > 0 ? " is-same" : ""}${method.previewOnly ? " is-preview" : ""}${equivalentTo ? " is-equivalent" : ""}`}
+      className={tileClass}
       onClick={() => onChoose(method)}
       aria-pressed={active}
       disabled={method.previewOnly && method.language !== "en"}
       data-method={method.methodKey}
       data-preview-state={method.previewOnly ? "preview" : "verified"}
     >
-      <span>{method.publicLabel || method.label}</span>
-      <strong>{method.computedValue == null ? "—" : fmt(method.computedValue)}</strong>
-      <small>{note || " "}</small>
+      {inner}
     </button>
   );
 });
@@ -370,7 +384,8 @@ function ProExperience() {
         : englishOnlyPending ? "מיידי · האנגלית ממתינה להפעלה קנונית במנוע"
           : info.expression ? "מיידי" : "";
 
-  const effectiveView = info.hebrewApplicable ? view : "tiles";
+  // With no input yet the chosen view stays highlighted; only a non-Hebrew expression falls back to families.
+  const effectiveView = !info.expression || info.hebrewApplicable ? view : "tiles";
   const visibleFamilies = showAllFamilies || advanced || wide
     ? familyGroups
     : familyGroups.filter((group) => group.key === CORE_FAMILY_KEY);
@@ -420,6 +435,8 @@ function ProExperience() {
   ) : null;
 
   // Classic: flat, registry-ordered grid of ALL methods directly under the input (legacy-style).
+  // Clicking a number opens that number's page (focus = the typed expression, method = the tile's method),
+  // exactly like the legacy calculator; tiles without a reportable value stay local buttons.
   // Gadol-family methods with no final letters are shown as "≡ identical to base" (locked law), not as a separate finding.
   const classicMethods = useMemo(() => familyGroups.flatMap((group) => group.methods), [familyGroups]);
   const classicView = hasAnyResults ? (
@@ -432,6 +449,10 @@ function ProExperience() {
             active={method.methodKey === selectedKey}
             sameCount={method.previewOnly ? 0 : Math.max(0, (valueCounts.get(Number(method.computedValue)) || 1) - 1)}
             equivalentTo={info.hebrewApplicable && GADOL_BASE[method.methodKey] && !hasSofiot(info.expression) ? GADOL_BASE[method.methodKey] : null}
+            href={method.previewOnly || !isReportableValue(method.computedValue)
+              ? null
+              : numberExpressionFocusHref(method.computedValue, { expression: info.expression, method: method.methodKey })}
+            onOpen={(opened) => emit("calculator_2029", "classic_tile_opened", { props: { surface: "professional", method: opened.methodKey } })}
             onChoose={chooseMethod}
           />
         ))}
@@ -505,6 +526,13 @@ function ProExperience() {
   return (
     <section className={`sod29-calcpro${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView}>
       <h1 className="sod29-calcpro-sr">מחשבון גימטריה מקצועי</h1>
+      <CalculatorWordsBar2029
+        currentExpression={info.expression}
+        onPick={(word, kind) => {
+          emit("calculator_2029", "words_bar_pick", { props: { surface: "professional", kind } });
+          fillExample(word);
+        }}
+      />
       <form className="sod29-calcpro-command" onSubmit={(event) => event.preventDefault()}>
         <label htmlFor="calculator-pro-input" className="sod29-calcpro-sr">שם, מילה או ביטוי</label>
         <input
@@ -674,6 +702,7 @@ export default function CalculatorPro2029Page() {
       wide
       surface="number"
       orientationCopy={CALCULATOR_ORIENTATION_COPY}
+      hideMobileContextCue
       introVariant="none"
       symbol="∑"
       eyebrow="מחשבון מקצועי"

@@ -173,6 +173,30 @@
   font-weight: 600;
 }
 
+/* words above the input: word of the day + words visitors recently calculated */
+.sod29-calcpro-words { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sod29-calcpro-words button {
+  font: inherit; min-height: 40px; padding: 5px 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--s29-line); background: var(--s29-panel); color: var(--s29-ink);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.sod29-calcpro-words button:hover { border-color: var(--s29-accent); }
+.sod29-calcpro-words em {
+  font-style: normal; font-family: var(--cp-num); font-size: 13px; font-weight: 700; color: var(--s29-accent);
+  padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--s29-accent) 12%, transparent);
+}
+.sod29-calcpro-word-daily { border-style: dashed !important; border-color: var(--s29-line-strong) !important; }
+.sod29-calcpro-word-daily span { color: var(--s29-muted); font-size: 12.5px; }
+.sod29-calcpro-word-daily strong { font-size: 16px; }
+.sod29-calcpro-word-live { display: contents; }
+.sod29-calcpro-word-live-label { color: var(--s29-muted); font-size: 12.5px; }
+.sod29-calcpro-word-live button { font-size: 14px; font-weight: 600; }
+@media (max-width: 640px) {
+  .sod29-calcpro-words { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+  .sod29-calcpro-words button, .sod29-calcpro-word-live-label { flex: 0 0 auto; white-space: nowrap; }
+  .sod29-calcpro-word-live { display: flex; gap: 8px; align-items: center; }
+}
+
 /* classic view — flat grid of all methods right after the input; compact hero below it */
 .sod29-calcpro-grid.is-classic { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
 .sod29-calcpro-grid.is-classic .sod29-calcpro-tile { min-height: 78px; padding: 8px 4px 7px; border-radius: 14px; }
