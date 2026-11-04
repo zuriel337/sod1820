@@ -21,7 +21,7 @@ import {
   calculationAvailabilityLabel,
 } from "../lib/research/calculator2029Model.js";
 import { buildCalculatorShareUrl, makeCalculatorShareId } from "../lib/research/calculator2029Viral.js";
-import { GADOL_BASE, hasSofiot, hebrewNumeral } from "../lib/gematria.js";
+import { GADOL_BASE, hasSofiot } from "../lib/gematria.js";
 import { applySeo } from "../lib/seo.js";
 import "./calculatorPro2029.css";
 
@@ -47,21 +47,11 @@ const CALCULATOR_ORIENTATION_COPY = Object.freeze({
   body: "הקלידו שם, מילה או ביטוי: כל שיטה מציגה ערך משלה. בחרו שיטה כדי לראות את הצעדים שלה; בלשונית למד תמצאו הדרכה עם הביטוי שהקלדתם.",
 });
 
-// Third line of a tile: a one-word role for the three core methods (body / soul / hidden — the locked
-// explanation of the core trio) and the value written in Hebrew letters (the site's numeral convention in
-// lib/gematria.js). Presentation only; material states and the "≡ identical to base" note take precedence.
-const CORE_TAG = Object.freeze({ "רגיל": "הגוף", "מילוי": "הנשמה", "מסתתר": "הנסתר" });
-function tileExtras(method) {
-  if (!method || method.previewOnly || !isReportableValue(method.computedValue)) return { tag: null, numeral: null };
-  const numeral = hebrewNumeral(method.computedValue);
-  return { tag: CORE_TAG[method.methodKey] || null, numeral: numeral && numeral.length <= 10 ? numeral : null };
-}
-
-const MethodTile = React.memo(function MethodTile({ method, active, sameCount, onChoose, equivalentTo = null, href = null, onOpen = null, tag = null, numeral = null }) {
+const MethodTile = React.memo(function MethodTile({ method, active, sameCount, onChoose, equivalentTo = null, href = null, onOpen = null }) {
   const unavailable = calculationAvailabilityLabel(method);
   const note = equivalentTo ? `≡ זהה ל${equivalentTo}` : method.previewOnly
     ? (method.pendingNote || "מיידי")
-    : (EXCEPTIONAL_STATE_HE[method.exceptionalState] || unavailable || [tag, numeral].filter(Boolean).join(" · ") || null);
+    : (EXCEPTIONAL_STATE_HE[method.exceptionalState] || unavailable || null);
   // The tile's third line is reserved for material states only (derived / equivalent / composite / contextual /
   // unavailable …) and the locked "≡ identical to base" note. "Same value in other methods" is no longer
   // spelled out per tile (it carried no information a reader could act on).
@@ -461,7 +451,6 @@ function ProExperience() {
             active={method.methodKey === selectedKey}
             sameCount={method.previewOnly ? 0 : Math.max(0, (valueCounts.get(Number(method.computedValue)) || 1) - 1)}
             equivalentTo={info.hebrewApplicable && GADOL_BASE[method.methodKey] && !hasSofiot(info.expression) ? GADOL_BASE[method.methodKey] : null}
-            {...tileExtras(method)}
             href={method.previewOnly || !isReportableValue(method.computedValue)
               ? null
               : numberExpressionFocusHref(method.computedValue, { expression: info.expression, method: method.methodKey })}
@@ -487,7 +476,6 @@ function ProExperience() {
                   method={method}
                   active={method.methodKey === selectedKey}
                   sameCount={method.previewOnly ? 0 : Math.max(0, (valueCounts.get(Number(method.computedValue)) || 1) - 1)}
-                  {...tileExtras(method)}
                   onChoose={chooseMethod}
                 />
               ))}
