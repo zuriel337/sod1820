@@ -702,7 +702,7 @@ export default function CalculatorPro2029Page() {
       wide
       surface="number"
       orientationCopy={CALCULATOR_ORIENTATION_COPY}
-      hideMobileContextCue
+      calmBottomChrome
       introVariant="none"
       symbol="∑"
       eyebrow="מחשבון מקצועי"

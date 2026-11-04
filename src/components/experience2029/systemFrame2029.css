@@ -476,9 +476,11 @@
 .sod29-surface-context-building{justify-self:start;padding:5px 9px;border:1px solid var(--s29-line);border-radius:999px;color:var(--s29-muted);font-size:var(--s29-type-micro);font-weight:900}
 .sod29-surface-context-mobile-cue.is-idle{cursor:default}
 .sod29-surface-context-mobile-cue{display:none}
-/* Surfaces that reuse the "number" entry surface but are not Number pages (the calculators) keep the
-   standard bottom chrome: only the command island + feed chip, no extra floating context cue. */
-.sod29-root.no-mobile-context-cue .sod29-surface-context-mobile-cue{display:none!important}
+/* Calm bottom chrome (opt-in; the calculators): on phones nothing floats over the working area except the
+   command island itself. The floating context cue and the "N חדשים" feed chip are hidden; both remain reachable
+   from the island (בעולם opens the same world feed, context is the page's own side panel on desktop). */
+.sod29-root.calm-bottom-chrome .sod29-surface-context-mobile-cue,
+.sod29-root.calm-bottom-chrome .sod29-feed-chip{display:none!important}
 
 .sod29-root.number-page-route .sod29-command-trail-item{
   appearance:none;

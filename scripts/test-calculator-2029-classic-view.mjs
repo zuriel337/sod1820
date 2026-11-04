@@ -36,9 +36,10 @@ assert.ok(page.indexOf("<CalculatorWordsBar2029") < page.indexOf('<form classNam
 // Calculators keep the standard bottom chrome (no extra floating context cue on phones).
 const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
 const frameCss = readFileSync(new URL("../src/components/experience2029/systemFrame2029.css", import.meta.url), "utf8");
-assert.match(page, /hideMobileContextCue/);
-assert.match(frame, /no-mobile-context-cue/);
-assert.match(frameCss, /\.sod29-root\.no-mobile-context-cue \.sod29-surface-context-mobile-cue\{display:none!important\}/);
+assert.match(page, /calmBottomChrome/);
+assert.match(frame, /calm-bottom-chrome/);
+assert.match(frameCss, /\.sod29-root\.calm-bottom-chrome \.sod29-surface-context-mobile-cue,\n\.sod29-root\.calm-bottom-chrome \.sod29-feed-chip\{display:none!important\}/);
+assert.match(frame, /onClick=\{openAttention\}/, "the same world feed stays reachable from the island (בעולם)");
 const { dailyWordFor, DAILY_WORDS } = await import("../src/lib/dailyWord.js");
 assert.equal(dailyWordFor(new Date(2026, 10, 5)), DAILY_WORDS[5 % DAILY_WORDS.length]);
 assert.equal(dailyWordFor(new Date(2026, 10, 5)), dailyWordFor(new Date(2027, 2, 5)), "same day-of-month → same word, no randomness");

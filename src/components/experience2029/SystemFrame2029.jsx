@@ -1455,7 +1455,7 @@ export default function SystemFrame2029({
   wide = false,
   surface = "home",
   orientationCopy = null,
-  hideMobileContextCue = false,
+  calmBottomChrome = false,
   symbol = "✦",
   introVariant = "hero",
 }) {
@@ -2078,7 +2078,7 @@ export default function SystemFrame2029({
     <ShellContext.Provider value={shellApi}>
     <SystemToolDockContext2029.Provider value={registerToolDock}>
       <div
-        className={`sod29-root closed-shell native-frame surface-${surface}${hideMobileContextCue ? " no-mobile-context-cue" : ""}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}${companionMode ? ` has-companion companion-${companionMode}` : ""}`}
+        className={`sod29-root closed-shell native-frame surface-${surface}${calmBottomChrome ? " calm-bottom-chrome" : ""}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}${companionMode ? ` has-companion companion-${companionMode}` : ""}`}
         dir={direction}
         style={shellStyle}
         data-experience-context={experience.version}
