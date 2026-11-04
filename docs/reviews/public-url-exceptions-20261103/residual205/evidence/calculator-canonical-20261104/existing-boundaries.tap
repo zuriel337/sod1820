@@ -1,0 +1,304 @@
+TAP version 13
+# Subtest: dormant default cannot be activated by environment, forged request or production branch name
+ok 1 - dormant default cannot be activated by environment, forged request or production branch name
+  ---
+  duration_ms: 351.460626
+  type: 'test'
+  ...
+# Subtest: only dedicated 2029 compiler target can enable the signed service; default, Preview and stray Legacy flags cannot
+ok 2 - only dedicated 2029 compiler target can enable the signed service; default, Preview and stray Legacy flags cannot
+  ---
+  duration_ms: 4.535871
+  type: 'test'
+  ...
+# Subtest: Production document uses canonical owner, preserves old/native/encoded/wp addresses and genuine missing/failure status
+ok 3 - Production document uses canonical owner, preserves old/native/encoded/wp addresses and genuine missing/failure status
+  ---
+  duration_ms: 45.438754
+  type: 'test'
+  ...
+# Subtest: closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe
+ok 4 - closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe
+  ---
+  duration_ms: 8.801124
+  type: 'test'
+  ...
+# Subtest: public aliases and named existing capabilities retain truthful continuations without publicizing unknown slugs
+ok 5 - public aliases and named existing capabilities retain truthful continuations without publicizing unknown slugs
+  ---
+  duration_ms: 7.743461
+  type: 'test'
+  ...
+# Subtest: HTTP origin, path and method boundaries cannot select metadata profile or enter private readers
+ok 6 - HTTP origin, path and method boundaries cannot select metadata profile or enter private readers
+  ---
+  duration_ms: 1.936135
+  type: 'test'
+  ...
+# Subtest: Numbers/phrases use the same canonical indexability readers; source failure is 503, false is noindex
+ok 7 - Numbers/phrases use the same canonical indexability readers; source failure is 503, false is noindex
+  ---
+  duration_ms: 10.180562
+  type: 'test'
+  ...
+# Subtest: public topic/writer/video missing and failed source responses keep 404 and 503 distinct
+ok 8 - public topic/writer/video missing and failed source responses keep 404 and 503 distinct
+  ---
+  duration_ms: 5.104867
+  type: 'test'
+  ...
+# Subtest: sitemap reuses eligible publication owner for both Post families, Numbers, phrases, topic, public writer and verified video
+ok 9 - sitemap reuses eligible publication owner for both Post families, Numbers, phrases, topic, public writer and verified video
+  ---
+  duration_ms: 7.91515
+  type: 'test'
+  ...
+# Subtest: robots follows Production canonical sitemap while dormant mode fails closed; public GET APIs strip Legacy authority and reject POST
+ok 10 - robots follows Production canonical sitemap while dormant mode fails closed; public GET APIs strip Legacy authority and reject POST
+  ---
+  duration_ms: 0.815588
+  type: 'test'
+  ...
+# Subtest: exact emitted worker denies A3/models/Auth/credits/writes through GET/POST/PATCH/DELETE and proxy paths before network
+ok 11 - exact emitted worker denies A3/models/Auth/credits/writes through GET/POST/PATCH/DELETE and proxy paths before network
+  ---
+  duration_ms: 14.454088
+  type: 'test'
+  ...
+# Subtest: active worker claims only a same-origin window requesting its exact source and policy
+ok 12 - active worker claims only a same-origin window requesting its exact source and policy
+  ---
+  duration_ms: 1.369593
+  type: 'test'
+  ...
+# Subtest: emitted worker retains public calculator/STABLE GET/community projection reads and context checks, never raw replies
+ok 13 - emitted worker retains public calculator/STABLE GET/community projection reads and context checks, never raw replies
+  ---
+  duration_ms: 6.667291
+  type: 'test'
+  ...
+# Subtest: language-link reader admits approved-only scope and denies visitor drafts before any network call
+ok 14 - language-link reader admits approved-only scope and denies visitor drafts before any network call
+  ---
+  duration_ms: 5.155684
+  type: 'test'
+  ...
+# Subtest: signed Legacy unsubscribe alone can reach its unchanged HMAC server from exact controlled service document
+ok 15 - signed Legacy unsubscribe alone can reach its unchanged HMAC server from exact controlled service document
+  ---
+  duration_ms: 2.699265
+  type: 'test'
+  ...
+# Subtest: bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout
+ok 16 - bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout
+  ---
+  duration_ms: 54.962881
+  type: 'test'
+  ...
+# Subtest: actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and byte-exact Legacy rollback worker
+ok 17 - actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and byte-exact Legacy rollback worker
+  ---
+  duration_ms: 52.203906
+  type: 'test'
+  ...
+# Subtest: native public image loading retains opaque response compatibility without bypassing private reads or writes
+ok 18 - native public image loading retains opaque response compatibility without bypassing private reads or writes
+  ---
+  duration_ms: 2.485303
+  type: 'test'
+  ...
+# Subtest: approved explicit report receipt path permits no identity-bearing, generic telemetry or unrelated writes
+ok 19 - approved explicit report receipt path permits no identity-bearing, generic telemetry or unrelated writes
+  ---
+  duration_ms: 5.037902
+  type: 'test'
+  ...
+# Subtest: actual Supabase insert array columns are admitted exactly; extra columns and selectors remain denied
+ok 20 - actual Supabase insert array columns are admitted exactly; extra columns and selectors remain denied
+  ---
+  duration_ms: 30.464198
+  type: 'test'
+  ...
+# Subtest: explicit report retains canonical anonymous session correlation without accepting visitor identity
+ok 21 - explicit report retains canonical anonymous session correlation without accepting visitor identity
+  ---
+  duration_ms: 2.213954
+  type: 'test'
+  ...
+# Subtest: Production target needs explicit staged mode and remains non-cutover
+ok 22 - Production target needs explicit staged mode and remains non-cutover
+  ---
+  duration_ms: 1.177103
+  type: 'test'
+  ...
+# Subtest: staged admission rejects wrong SHA, dirty sources, copied deployment, main and missing platform identity
+ok 23 - staged admission rejects wrong SHA, dirty sources, copied deployment, main and missing platform identity
+  ---
+  duration_ms: 0.520814
+  type: 'test'
+  ...
+# Subtest: staged nested-config materialization permits no additional change
+ok 24 - staged nested-config materialization permits no additional change
+  ---
+  duration_ms: 0.613163
+  type: 'test'
+  ...
+# Subtest: compiler rejects combined/duplicate/missing-pin staged commands before build
+ok 25 - compiler rejects combined/duplicate/missing-pin staged commands before build
+  ---
+  duration_ms: 438.360619
+  type: 'test'
+  ...
+# Subtest: staged adapters accept only their immutable host and stay noindex before public source reads
+ok 26 - staged adapters accept only their immutable host and stay noindex before public source reads
+  ---
+  duration_ms: 216.863798
+  type: 'test'
+  ...
+# Subtest: exact clean source emits a frozen Preview-only receipt and admits only that runtime
+ok 27 - exact clean source emits a frozen Preview-only receipt and admits only that runtime
+  ---
+  duration_ms: 1.11525
+  type: 'test'
+  ...
+# Subtest: build identity rejects missing or wrong platform fields, targets, source pins and dirty source
+ok 28 - build identity rejects missing or wrong platform fields, targets, source pins and dirty source
+  ---
+  duration_ms: 0.960907
+  type: 'test'
+  ...
+# Subtest: runtime receipt cannot be activated by environment alone, Production or copied deployment identity
+ok 29 - runtime receipt cannot be activated by environment alone, Production or copied deployment identity
+  ---
+  duration_ms: 0.421725
+  type: 'test'
+  ...
+# Subtest: only Preview's sole unstaged root config may equal the complete committed nested config
+ok 30 - only Preview's sole unstaged root config may equal the complete committed nested config
+  ---
+  duration_ms: 0.891392
+  type: 'test'
+  ...
+# Subtest: compiler rejects an absent, duplicate or malformed review mode/pin before compiling
+ok 31 - compiler rejects an absent, duplicate or malformed review mode/pin before compiling
+  ---
+  duration_ms: 583.116341
+  type: 'test'
+  ...
+# Subtest: generated receipt is statically traced into Node and Edge-compatible authorization; missing process fails closed
+ok 32 - generated receipt is statically traced into Node and Edge-compatible authorization; missing process fails closed
+  ---
+  duration_ms: 33.707671
+  type: 'test'
+  ...
+# Subtest: actual hosted adapters preserve old URLs/canonical metadata while review stays noindex and rejects spoofing
+ok 33 - actual hosted adapters preserve old URLs/canonical metadata while review stays noindex and rejects spoofing
+  ---
+  duration_ms: 237.933234
+  type: 'test'
+  ...
+# Subtest: artifact root config cannot shadow the pinned review command; default package build stays dormant
+ok 34 - artifact root config cannot shadow the pinned review command; default package build stays dormant
+  ---
+  duration_ms: 2.372473
+  type: 'test'
+  ...
+# Subtest: default artifact records raw dirtiness without any platform materialization authority
+ok 35 - default artifact records raw dirtiness without any platform materialization authority
+  ---
+  duration_ms: 0.984072
+  type: 'test'
+  ...
+# Subtest: stable Auth alias needs the exact generated Preview platform proof; canonical and unrelated aliases remain denied
+ok 36 - stable Auth alias needs the exact generated Preview platform proof; canonical and unrelated aliases remain denied
+  ---
+  duration_ms: 5.210852
+  type: 'test'
+  ...
+# Subtest: public-capable candidate needs exact real-shaped Production identity but does not authorize traffic assignment
+ok 37 - public-capable candidate needs exact real-shaped Production identity but does not authorize traffic assignment
+  ---
+  duration_ms: 1.003932
+  type: 'test'
+  ...
+# Subtest: missing, wrong, copied, Preview, main, foreign, dirty and unpinned identities fail closed
+ok 38 - missing, wrong, copied, Preview, main, foreign, dirty and unpinned identities fail closed
+  ---
+  duration_ms: 0.778382
+  type: 'test'
+  ...
+# Subtest: Preview/stage receipts cannot select public serving and default remains dormant
+ok 39 - Preview/stage receipts cannot select public serving and default remains dormant
+  ---
+  duration_ms: 70.511998
+  type: 'test'
+  ...
+# Subtest: public build keeps the one exact nested-config exception; it cannot authorize unrelated dirty edits
+ok 40 - public build keeps the one exact nested-config exception; it cannot authorize unrelated dirty edits
+  ---
+  duration_ms: 0.520384
+  type: 'test'
+  ...
+# Subtest: canonical documents retain owner metadata; immutable staging is always noindex and no-store
+ok 41 - canonical documents retain owner metadata; immutable staging is always noindex and no-store
+  ---
+  duration_ms: 25.890706
+  type: 'test'
+  ...
+# Subtest: WWW redirects preserve raw encoded path and repeated query; old addresses and original path selector remain exact
+ok 42 - WWW redirects preserve raw encoded path and repeated query; old addresses and original path selector remain exact
+  ---
+  duration_ms: 21.018473
+  type: 'test'
+  ...
+# Subtest: genuine missing, closed, private, non-indexable and failed source states never become indexable successes
+ok 43 - genuine missing, closed, private, non-indexable and failed source states never become indexable successes
+  ---
+  duration_ms: 19.846308
+  type: 'test'
+  ...
+# Subtest: robots and XML allow canonical crawling while immutable stage stays private from indexing
+ok 44 - robots and XML allow canonical crawling while immutable stage stays private from indexing
+  ---
+  duration_ms: 17.936441
+  type: 'test'
+  ...
+# Subtest: foreign hosts, path spoofing and unsupported methods reject before public readers
+ok 45 - foreign hosts, path spoofing and unsupported methods reject before public readers
+  ---
+  duration_ms: 38.130167
+  type: 'test'
+  ...
+# Subtest: public deployment proof never replaces caller JWT or private authorization
+ok 46 - public deployment proof never replaces caller JWT or private authorization
+  ---
+  duration_ms: 16.695933
+  type: 'test'
+  ...
+# Subtest: Edge share renderer admits only exact allowed public candidate hosts
+ok 47 - Edge share renderer admits only exact allowed public candidate hosts
+  ---
+  duration_ms: 16.708983
+  type: 'test'
+  ...
+# Subtest: new build mode rejects mixed, duplicate and missing pins before any compiler or platform operation
+ok 48 - new build mode rejects mixed, duplicate and missing pins before any compiler or platform operation
+  ---
+  duration_ms: 493.574854
+  type: 'test'
+  ...
+# Subtest: direct document API remains noindex even for an eligible public post on the canonical host
+ok 49 - direct document API remains noindex even for an eligible public post on the canonical host
+  ---
+  duration_ms: 14.240171
+  type: 'test'
+  ...
+1..49
+# tests 49
+# suites 0
+# pass 49
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1544.897375

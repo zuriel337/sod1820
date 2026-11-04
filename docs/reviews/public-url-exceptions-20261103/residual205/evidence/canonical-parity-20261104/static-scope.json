@@ -1,0 +1,164 @@
+{
+  "task": "PUBLIC_CANONICAL_SERVER_CLIENT_AUDIT_20261104",
+  "sourceSha": "f4390dd356b374e839024eb235fc4a63344667de",
+  "scope": "all currently declared prefixed App2029 routes, classified by existing public release owner; no new URL registry",
+  "publicPrefixDeclarations": [
+    {
+      "route": "/2029",
+      "sample": "/2029",
+      "state": "public",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    },
+    {
+      "route": "/2029/gematria",
+      "sample": "/2029/gematria",
+      "state": "public",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    },
+    {
+      "route": "/2029/gematria/viral",
+      "sample": "/2029/gematria/viral",
+      "state": "public",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    },
+    {
+      "route": "/2029/calculator",
+      "sample": "/2029/calculator",
+      "state": "public",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    },
+    {
+      "route": "/2029/posts",
+      "sample": "/2029/posts",
+      "state": "public",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    },
+    {
+      "route": "/2029/number/:value",
+      "sample": "/2029/number/1820",
+      "state": "public",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    }
+  ],
+  "nonPublicPrefixDeclarations": [
+    {
+      "route": "/2029/preview",
+      "sample": "/2029/preview",
+      "state": "closed",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    },
+    {
+      "route": "/2029/preview/follow-center",
+      "sample": "/2029/preview/follow-center",
+      "state": "closed",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    },
+    {
+      "route": "/2029/home-preview",
+      "sample": "/2029/home-preview",
+      "state": "closed",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    },
+    {
+      "route": "/2029/kingdom",
+      "sample": "/2029/kingdom",
+      "state": "closed",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    },
+    {
+      "route": "/2029/journey",
+      "sample": "/2029/journey",
+      "state": "closed",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    },
+    {
+      "route": "/2029/me/:module",
+      "sample": "/2029/me/research",
+      "state": "account",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    },
+    {
+      "route": "/2029/control",
+      "sample": "/2029/control",
+      "state": "closed",
+      "source": "src/App2029.jsx + publicReadingPath; route declaration alone does not prove flag-enabled access"
+    }
+  ],
+  "literalNumberEntry": {
+    "path": "/2029/number",
+    "state": "continuation",
+    "source": "existing publicReadingContinuation"
+  },
+  "serverCanonicalSource": {
+    "file": "public-reading-deploy/api/public-document.js",
+    "line": 87,
+    "publicAliasesAlreadyMapped": [
+      "/2029 -> /",
+      "/2029/posts -> /post"
+    ],
+    "calculatorAliasesWronglyUse": "/2029/gematria",
+    "numberAlias": "api/og.js:825 uses Golden preview metadata; no production adapter mapping"
+  },
+  "proof": [
+    {
+      "path": "src/App2029.jsx",
+      "liveGitBlob": "0f07babf369516732c85164e616ca75c7309a819",
+      "liveSha256": "0b15f824ed03eb3a508813ad6ee7e267db0d70fa056b1a1a801b6061408cfbe1",
+      "sameAsAuditWorkingFile": true
+    },
+    {
+      "path": "src/lib/publicReadingRelease2029.js",
+      "liveGitBlob": "58da3a8275b0e4773a104d7ed087e2513e303e72",
+      "liveSha256": "e42b4f2d7eb4a40c95ddbeb23dc45af88177cecb66cfa6f76f32199bb5e96746",
+      "sameAsAuditWorkingFile": true
+    },
+    {
+      "path": "api/og.js",
+      "liveGitBlob": "a856897c1b4c2d6388aa29bf252335ff1cad2266",
+      "liveSha256": "bc34da65ca19f6be1d6499fcf1a59bb4fc42804301164394389911a04b38e6a4",
+      "sameAsAuditWorkingFile": true
+    },
+    {
+      "path": "public-reading-deploy/api/public-document.js",
+      "liveGitBlob": "fcc46cd7c9429286007cb00e78372dbc3f7eaf4a",
+      "liveSha256": "13375c367bcaee4e5c771845a7f2b962f3b25c9993e87d1a4bebcccfb9ebaae7",
+      "sameAsAuditWorkingFile": false
+    },
+    {
+      "path": "src/pages/Home2029Page.jsx",
+      "liveGitBlob": "5a87f86f9ed172726958f655423abfccdfb441b0",
+      "liveSha256": "7c7ff235ea3993ef5e5bcd66f336e1bcd9cd2568beabd28c1e0e9212edef0c14",
+      "sameAsAuditWorkingFile": true
+    },
+    {
+      "path": "src/pages/Posts2029Page.jsx",
+      "liveGitBlob": "c89a7a060c45a3ed5a49e0d53306b483fa214c42",
+      "liveSha256": "fba800de417723fea5d1a58a8d1456394b54dbb941a98cbb90750930594c0cdb",
+      "sameAsAuditWorkingFile": true
+    },
+    {
+      "path": "src/pages/NumberAddress2029Page.jsx",
+      "liveGitBlob": "ba02da467393c4aa5a7f40bcf6a2478ee4b530e0",
+      "liveSha256": "44fde618146cf45d1ddfbd9615701547ebc92bde2fb44caddb7f556ac13ae226",
+      "sameAsAuditWorkingFile": true
+    },
+    {
+      "path": "src/pages/Number2029Page.jsx",
+      "liveGitBlob": "f27e21294c5e6a499aef8c41a02a49809a85f511",
+      "liveSha256": "6ba02a8172f4c4efaf5beddb06aa1149971d98965278642d7fda6f377751f886",
+      "sameAsAuditWorkingFile": true
+    },
+    {
+      "path": "src/pages/CalculatorPro2029Page.jsx",
+      "liveGitBlob": "41d81393f491403e4f94ecaf7aba688d6dd3d445",
+      "liveSha256": "68cc8eb395194f22cbae073a23639de5d049a3b448d6afbbbfe6902234e327a5",
+      "sameAsAuditWorkingFile": true
+    },
+    {
+      "path": "src/pages/Calculator2029Page.jsx",
+      "liveGitBlob": "97c8f473852dc10c943cfb565e1bb870c0d3b558",
+      "liveSha256": "8a094bc731d513f6523469f8486fcf7d0942a68c82fd4a033614eddfaf6438a6",
+      "sameAsAuditWorkingFile": true
+    }
+  ]
+}

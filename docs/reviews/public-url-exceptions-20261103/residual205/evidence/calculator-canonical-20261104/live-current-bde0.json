@@ -1,0 +1,37 @@
+{
+  "sourceSha": "bde0a822a1a33fa1d8c2e9a0d679b8359cb117f8",
+  "deployment": "dpl_9mWvyeuELvNzctiVCd5ouEAG3BNU",
+  "rows": [
+    {
+      "requested": "/2029/calculator",
+      "httpStatus": 200,
+      "serverCanonical": "<link rel=\"canonical\" href=\"https://sod1820.co.il/2029/gematria\"/>",
+      "calculation358": true,
+      "finalPath": "/2029/calculator",
+      "hydratedCanonical": "https://sod1820.co.il/gematria",
+      "passed": true
+    },
+    {
+      "requested": "/2029/gematria",
+      "httpStatus": 200,
+      "serverCanonical": "<link rel=\"canonical\" href=\"https://sod1820.co.il/2029/gematria\"/>",
+      "calculation358": true,
+      "finalPath": "/2029/gematria",
+      "hydratedCanonical": "https://sod1820.co.il/gematria",
+      "passed": true
+    },
+    {
+      "requested": "/2029/gematria/viral",
+      "httpStatus": 200,
+      "serverCanonical": "<link rel=\"canonical\" href=\"https://sod1820.co.il/2029/gematria\"/>",
+      "calculation358": true,
+      "finalPath": "/2029/gematria/viral",
+      "hydratedCanonical": "https://sod1820.co.il/gematria",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "liveWrites": 0,
+  "modelCalls": 0,
+  "oauth": 0
+}

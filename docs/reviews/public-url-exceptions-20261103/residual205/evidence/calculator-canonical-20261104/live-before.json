@@ -1,0 +1,37 @@
+{
+  "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "deployment": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+  "rows": [
+    {
+      "requested": "/2029/calculator",
+      "httpStatus": 200,
+      "serverCanonical": "<link rel=\"canonical\" href=\"https://sod1820.co.il/2029/gematria\"/>",
+      "calculation358": true,
+      "finalPath": "/2029/calculator",
+      "hydratedCanonical": "https://sod1820.co.il/gematria",
+      "passed": true
+    },
+    {
+      "requested": "/2029/gematria",
+      "httpStatus": 200,
+      "serverCanonical": "<link rel=\"canonical\" href=\"https://sod1820.co.il/2029/gematria\"/>",
+      "calculation358": true,
+      "finalPath": "/2029/gematria",
+      "hydratedCanonical": "https://sod1820.co.il/gematria",
+      "passed": true
+    },
+    {
+      "requested": "/2029/gematria/viral",
+      "httpStatus": 200,
+      "serverCanonical": "<link rel=\"canonical\" href=\"https://sod1820.co.il/2029/gematria\"/>",
+      "calculation358": true,
+      "finalPath": "/2029/gematria/viral",
+      "hydratedCanonical": "https://sod1820.co.il/gematria",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "liveWrites": 0,
+  "modelCalls": 0,
+  "oauth": 0
+}
