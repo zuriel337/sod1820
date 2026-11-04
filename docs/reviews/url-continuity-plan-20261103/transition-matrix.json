@@ -5,16 +5,22 @@
     "evidence": "App2029; prior public-foundation +9d hosted acceptance",
     "meaning": "כניסה, עולם ומפת שירותים",
     "target_2029": "היעדים הקיימים",
-    "verified_status": "הקבלה הקודמת נשמרת; כינויי הבית הישנים ו־WORLD מדויקים נוספו, ללא fallback גורף",
+    "verified_status": "LIVE2029: source1bc8260a,ProductionCkoiEsaT1,שלושתדומיינים.6בדיקותProductionHost+6canonical ו־24GET/HEADעברו;לאקבלתHTTPלכלמלאיהכתובות. בית/עולם/פוסט/מספר/ביטוי/מחשבון/SWוחזרהנבדקוב־390/1440. הכתובותהקיימותומדיניותפוסטיםנשמרו.",
     "permissions": "ציבור; מצבי מנהל לפי הרשאה",
     "parameters_anchors": "query, hash, returnTo, scroll",
     "acceptance": "פתיחה/רענון/חזרה; המפה משקפת זמינות אמיתית",
-    "open_task": "C0",
-    "treatment": "PRESERVE_EXISTING",
+    "open_task": "המשךלפי הפעריםהמתועדים בלבד;איןהמתנהלcutoverהנוכחי ואיןהכרזתכיסוימלא/G4.",
+    "treatment": "LIVE_2029_BOUNDED_ACCEPTED",
     "exception_previous_checkpoint": {
       "verified_status": "קיים; קבלה קודמת נשמרת"
     },
-    "exception_evidence": "../public-url-exceptions-20261103/README.md"
+    "exception_evidence": "../public-url-exceptions-20261103/README.md",
+    "direct_cutover_previous_checkpoint": {
+      "verified_status": "הקבלה הקודמת נשמרת; כינויי הבית הישנים ו־WORLD מדויקים נוספו, ללא fallback גורף",
+      "open_task": "C0",
+      "treatment": "PRESERVE_EXISTING"
+    },
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md"
   },
   {
     "id": "F01",
@@ -546,12 +552,12 @@
     "evidence": "AccountEntry; oauthReturn; JoinPage",
     "meaning": "כניסה/הרשמה/הכוונה/קמפיין אינם אותה פעולה",
     "target_2029": "מסכי Auth קיימים; adapters למשמעותשנשמרת",
-    "verified_status": "המשכיות החשבונות האישיים התקבלה בשני חשבונות הבעלים ונשמרת. בדיקת Google/Facebook הידנית דולגה בהוראתו: SKIPPED_BY_OWNER_NOT_TESTED, לא PASS. בדיקת callback הקודמת אינה הוכחת כניסה חברתית; המקור המאושר בפריוויו נשאר[] ולא שונו Auth, הגנות או הספקים שעובדים בלגאסי. תיקון1bc8260a לבקרת המנהל אינו שינוי Auth. B/D מוחלים בנפרד.",
+    "verified_status": "LIVE1bc8260a:ב־canonicalGoogle/FacebookזמיניםבכפתוריםמולAuthהקיים,החזרההמקומיתנבדקהוהזרקות/ההרשאותמהבדיקותהקודמותנשמרו. כניסהחברתיתבפועלדולגהבהחלטתהבעליםואינהPASS. שתי הזהויותהאישיותהתקבלובפריוויובאותוקוד;לאנטעןשבוצעההתחברותפרטיתחדשהעלProduction. איןשינויAuth/העדפות.",
     "permissions": "זהותשרת; אין שיווק/חיובבכניסה",
     "parameters_anchors": "returnTo,OAuthstate/PKCE/hash; לא לתעד טוקנים",
     "acceptance": "Google/Facebook/password/יציאה; החזרה המדויקת;חדשלעומתקיים",
-    "open_task": "אין בקשה חוזרת לבדיקה החברתית שדולגה. Preview callback עדיין לא אומת; הפעלה עתידית דורשת אימות קיים בלי החלשת מקור. קבלתCP1 אמיתית נפרדת פתוחה; A2/C אינם כלולים.",
-    "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_TEST_SKIPPED_BY_OWNER",
+    "open_task": "איןבקשתבדיקהחוזרתאוטומטית. socialאמיתילאבוצע;קבלות2חשבונותקודמותנשמרות. callbackפריוויוהיסטוריאינופעולתתשתיתנדרשתלפרסוםשבוצע.",
+    "treatment": "LIVE_CANONICAL_AUTH_AVAILABLE_SOCIAL_EXECUTION_SKIPPED",
     "continuity_closure_previous_checkpoint": {
       "verified_status": "חשבוןקייםעובדבתנאיםמבוקרים;Social/signup ממתינים"
     },
@@ -584,7 +590,13 @@
       "open_task": "C5: exact Preview callback allowlist verification and genuine Google/Facebook owner acceptance; no A2 prerequisite. B/D applied independently without changing account trigger or existing subscribers.",
       "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_SIGNUP_PENDING"
     },
-    "admin_black_screen_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/README.md"
+    "admin_black_screen_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/README.md",
+    "direct_cutover_previous_checkpoint": {
+      "verified_status": "המשכיות החשבונות האישיים התקבלה בשני חשבונות הבעלים ונשמרת. בדיקת Google/Facebook הידנית דולגה בהוראתו: SKIPPED_BY_OWNER_NOT_TESTED, לא PASS. בדיקת callback הקודמת אינה הוכחת כניסה חברתית; המקור המאושר בפריוויו נשאר[] ולא שונו Auth, הגנות או הספקים שעובדים בלגאסי. תיקון1bc8260a לבקרת המנהל אינו שינוי Auth. B/D מוחלים בנפרד.",
+      "open_task": "אין בקשה חוזרת לבדיקה החברתית שדולגה. Preview callback עדיין לא אומת; הפעלה עתידית דורשת אימות קיים בלי החלשת מקור. קבלתCP1 אמיתית נפרדת פתוחה; A2/C אינם כלולים.",
+      "treatment": "EXISTING_ACCOUNTS_ACCEPTED_SOCIAL_TEST_SKIPPED_BY_OWNER"
+    },
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md"
   },
   {
     "id": "F27",
@@ -592,12 +604,12 @@
     "evidence": "PublicServices; signedunsubscribe; proposalHELD",
     "meaning": "פרטיות/הסכמה/ביטול הסכמה",
     "target_2029": "/privacy; /updates; /unsubscribe; חלונית אורח במעטפת הקיימת — אותו מוצר עדכוני האתר",
-    "verified_status": "B/D אושרו והוחלו: מיגרציה20261103223217, signup20 ו־unsubscribe10 עם המקורות המדויקים ו־verify_jwt=false כפי שהיה. כל1,024 הרשומות הקיימות והטריגר נשמרו.33 בדיקות דיוור ו־10 בדיקות חיות ללא כתיבה עברו. טופסי הבית ו־/updates התקבלו מול site-updates-v1 בפריוויו מוגן d8ee2753 בארבעה תרחישי390/1440 עםSWאמיתי; אין שליחה.6 בדיקות פרופיל השירות עברו. אין הרשמה/הסרה חיה אמיתית או משלוח שנבדקו אוטומטית; A2/C לא הוחלו.",
+    "verified_status": "B/Dפעיליםבשרת20/10ומיגרציה20261103223217. /updatesLIVEב־1bc8260aמחזיר200ו־noindexכפי שמוגדרבמקור;טופסהביתוהדףהתקבלוקודםמולחוזהאמיתיוהקודלאשונה. לאבוצעההרשמה/הסרהבכתובתאמיתיתלאחרcutoverואיןמשלוחגורףאושינויהעדפות. שירותהסרהחתוםנשמר.",
     "permissions": "בעלותכתובת/חתימה; no-referrer/noindex",
     "parameters_anchors": "e,t בתיםמדויקים; לא analytics או querylogs",
     "acceptance": "חתימהשגויה/אפסהתאמות/כשל; הסרה אמיתית אינה תרגיל; email עודכןבמקור",
-    "open_task": "C5: B/D backend and protected /updates/Home availability accepted; owner-positive signup/signed removal not performed automatically. Social callback and real CP1 remain separate. A2 not an Auth prerequisite; C before first site-updates campaign.",
-    "treatment": "BD_BACKEND_AND_PROTECTED_FORMS_ACCEPTED_NONWRITING_REAL_EMAIL_OWNER_PENDING",
+    "open_task": "קבלתפעולותחיוביותבכתובת/קישורבבעלותהמשתמשנותרתלאמאומתת,בלימיילבדיקהאוטומטי;A2/Cלאהופעלו.",
+    "treatment": "LIVE_EXISTING_MAIL_PURPOSE_AND_PERSISTED_UNSUBSCRIBE",
     "planning_snapshot": {
       "target_2029": "המסלולים הקיימים",
       "verified_status": "פרטיותקיים; דיוור/הסרהטעוניםתיקון וקבלה;שרת HELD",
@@ -627,7 +639,13 @@
       "open_task": "C5: exact B/D shared approval only; A2 future proposal not current Auth prerequisite; C before first site-updates campaign; actual owner signup/unsubscribe acceptance",
       "treatment": "UI_IMPLEMENTED_TESTED_SERVER_APPROVAL_AND_REAL_MAIL_ACCEPTANCE_OPEN"
     },
-    "bd_applied_evidence": "../public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/README.md"
+    "bd_applied_evidence": "../public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/README.md",
+    "direct_cutover_previous_checkpoint": {
+      "verified_status": "B/D אושרו והוחלו: מיגרציה20261103223217, signup20 ו־unsubscribe10 עם המקורות המדויקים ו־verify_jwt=false כפי שהיה. כל1,024 הרשומות הקיימות והטריגר נשמרו.33 בדיקות דיוור ו־10 בדיקות חיות ללא כתיבה עברו. טופסי הבית ו־/updates התקבלו מול site-updates-v1 בפריוויו מוגן d8ee2753 בארבעה תרחישי390/1440 עםSWאמיתי; אין שליחה.6 בדיקות פרופיל השירות עברו. אין הרשמה/הסרה חיה אמיתית או משלוח שנבדקו אוטומטית; A2/C לא הוחלו.",
+      "open_task": "C5: B/D backend and protected /updates/Home availability accepted; owner-positive signup/signed removal not performed automatically. Social callback and real CP1 remain separate. A2 not an Auth prerequisite; C before first site-updates campaign.",
+      "treatment": "BD_BACKEND_AND_PROTECTED_FORMS_ACCEPTED_NONWRITING_REAL_EMAIL_OWNER_PENDING"
+    },
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md"
   },
   {
     "id": "F28",
@@ -673,12 +691,12 @@
     "evidence": "App.jsx; Admin admission",
     "meaning": "מסכים פרטיים/מנהל",
     "target_2029": "כניסה ויעדמקביל רק לפי הרשאה",
-    "verified_status": "S2 וקורא הבקרה שהוחלו נשמרים. כשל המסך השחור בנייד תוקן ב־1bc8260a ונתמך ב־37 בדיקות ושישה מקרי דפדפן סינתטיים. לאחר מסירת הפריוויוdpl_ADnf6NL9 צוריאל השיב עובד: פתיחת המנהל התקבלה לפי דיווח הבעלים. רענון ו־trace לא פורטו בנפרד; אין מכאן קבלתCP1 מלאה אוG4. הרשאות/נתונים/שרת/פריסה לא שונו בעקבות הקבלה. מדידתegress הישנה אינה עדכנית.",
+    "verified_status": "תיקוןפתיחתהמנהל1bc8260aנשמרוהבעליםאישרעובדבפריוויו. אותוSHAחי ב־ProductionCkoiEsaT1;חסימתאורחנבדקהב־canonical390/1440. לאבוצעהכניסתמנהלפרטיתחדשהבידיהסוכןאודרילtraceחי. S2/קוראהבקרהשכברהוחלונשמרו.",
     "permissions": "מנהל/בעלים בשרת, failclosed",
     "parameters_anchors": "returnTo בטוח; בלי דליפת metadata",
     "acceptance": "אנונימי/חבר/admin;401/403/404 לפי חוזה",
-    "open_task": "כשל הפתיחה נסגר בדיווח הבעלים; אין לבקש שוב אותה בדיקה. רענון ופתיחתtrace טרם נמסרו פרטנית, ללא הכרזה על שערCP1מלא. יתרת תנאי המעבר לפי הרשימה הקיימת בלבד; איןProduction.",
-    "treatment": "ADMIN_OPENING_ACCEPTED_USER_REPORTED_FULL_CP1_NOT_CLAIMED",
+    "open_task": "רענון/traceלאפורטובנפרד;איןהסקתCP1/G4מלאואיןבקשתפתיחהחוזרתשכברהתקבלה.",
+    "treatment": "LIVE_ADMIN_GUARDS_OWNER_OPENING_ACCEPTANCE_RETAINED",
     "exception_previous_checkpoint": {
       "verified_status": "אין להפוךכתובתאמיתיתלציבורית",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
@@ -713,7 +731,13 @@
       "open_task": "CP1: ניסיון חוזר של הבעלים בכניסה למנהל, רענון ו־trace קיים אם יש, לקריאה בלבד. תיקון הקריסה אינו קבלת חשבון אמיתי/סגירתG4; ראיותS2/שני החשבונות נשמרות.",
       "treatment": "BLACK_SCREEN_FIXED_HOSTED_SYNTHETIC_ACCEPTED_REAL_ADMIN_RETRY_OPEN"
     },
-    "owner_opening_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/owner-acceptance.json"
+    "owner_opening_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/owner-acceptance.json",
+    "direct_cutover_previous_checkpoint": {
+      "verified_status": "S2 וקורא הבקרה שהוחלו נשמרים. כשל המסך השחור בנייד תוקן ב־1bc8260a ונתמך ב־37 בדיקות ושישה מקרי דפדפן סינתטיים. לאחר מסירת הפריוויוdpl_ADnf6NL9 צוריאל השיב עובד: פתיחת המנהל התקבלה לפי דיווח הבעלים. רענון ו־trace לא פורטו בנפרד; אין מכאן קבלתCP1 מלאה אוG4. הרשאות/נתונים/שרת/פריסה לא שונו בעקבות הקבלה. מדידתegress הישנה אינה עדכנית.",
+      "open_task": "כשל הפתיחה נסגר בדיווח הבעלים; אין לבקש שוב אותה בדיקה. רענון ופתיחתtrace טרם נמסרו פרטנית, ללא הכרזה על שערCP1מלא. יתרת תנאי המעבר לפי הרשימה הקיימת בלבד; איןProduction.",
+      "treatment": "ADMIN_OPENING_ACCEPTED_USER_REPORTED_FULL_CP1_NOT_CLAIMED"
+    },
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md"
   },
   {
     "id": "F31",
@@ -740,12 +764,12 @@
     "evidence": "DB href/src; api/sitemap; publicfiles; hosting",
     "meaning": "משאב אמיתי/SEO/API; גם probe אפשרי",
     "target_2029": "המשאב/הנכס המדויק אם זמין",
-    "verified_status": "התאמת שער הפרסום המאושרת נשמרת, והפריוויו1bc8260a התקבל בתחום הקוד והבעלים. CLI65.11.0 תומך בסריאליזציה של raw create עם GitSource מדויק ו־autoAssignCustomDomains=false; מחוללCLIאמיתי נבדק ללא רשת. הבקשה המשולבת לא נשלחה לשרת. MCPאינו חושף את השדה ו־CLIמנותק; loginלאהתחיל. שלושת דומייניLegacy נשמרו. B/D כברהוחלו ואומתו מחדש; אין תוצרProductionחדש אוcutover.",
+    "verified_status": "בוצע2029Productioncutoverבאישורמפורש:source1bc8260adaa889d7903aaa33ef43510df09817f2,deploymentdpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A,3aliasesמופניםאליו. Productionנבנהונבדק6מקריםלפניהשיוך;canonical6/HTTP24כוללXML/robots/404עברו. כשליציפיותharnessנשמרוורקתרחישיםמושפעיםנבדקומחדש. rootindex,שירותים/חיפושנשאריםnoindex. איןmain/DB/flags/DNSאוcredentialCLI. LegacyBFpwשמורלחזרה.",
     "permissions": "publicasset לעומתחתום/פרטי; API לפי owner",
     "parameters_anchors": "שם קובץ,טווח זמן,range,queryAPI מותרים",
     "acceptance": "HEAD/GET/MIME/CSP; אין HTML200 במקום תמונה/שמע;probe נשאר 404",
-    "open_task": "אישור חיבורOAuthלכליCLI ויצירת תוצר מוגן אחד מה־JSONהמדויק; אחריהם אימות server/source/protection/אפסשיוך וקבלת התוצר, ורק אז אישורcutoverעםSHA+deployment. אין שוב סריקתכתובות או בדיקותמוצר לאמושפעות.",
-    "treatment": "STAGED_RAW_GIT_REQUEST_PREPARED_CLI_AUTH_REQUIRED_NO_PRODUCTION",
+    "open_task": "איןחסםחיבור/אישורלפריסהשבוצעה. פריסה/חזרהעתידיתלפיקבלתownerמדויקת;תוכניתחזרהבאותן3aliasesל־LegacyBFpw,ללאמחיקתאחסוןאונתונים. פורמליתG4לאנסגרמכוחREADY/HTTP.",
+    "treatment": "LIVE_2029_EXPLICIT_OWNER_CUTOVER_BOUNDED_ACCEPTED",
     "exception_previous_checkpoint": {
       "verified_status": "193audio hrefs; לא כל בקשת WP היאתוכן אמיתי",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
@@ -774,7 +798,13 @@
       "open_task": "C4: retain193audio owner deferral; exact guard integrated and protected21f1a8d9 Preview accepted; proven no-domain Git-source Production creation route and separate authorization/hosted acceptance; final cutover separate",
       "treatment": "PROTECTED_PREVIEW_ACCEPTED_PUBLIC_PRODUCTION_NOT_CREATED_AUDIO_DEFERRED"
     },
-    "staged_cli_evidence": "../public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/staged-transport-20261104/README.md"
+    "staged_cli_evidence": "../public-url-exceptions-20261103/residual205/evidence/bd-approved-apply-20261103/staged-transport-20261104/README.md",
+    "direct_cutover_previous_checkpoint": {
+      "verified_status": "התאמת שער הפרסום המאושרת נשמרת, והפריוויו1bc8260a התקבל בתחום הקוד והבעלים. CLI65.11.0 תומך בסריאליזציה של raw create עם GitSource מדויק ו־autoAssignCustomDomains=false; מחוללCLIאמיתי נבדק ללא רשת. הבקשה המשולבת לא נשלחה לשרת. MCPאינו חושף את השדה ו־CLIמנותק; loginלאהתחיל. שלושת דומייניLegacy נשמרו. B/D כברהוחלו ואומתו מחדש; אין תוצרProductionחדש אוcutover.",
+      "open_task": "אישור חיבורOAuthלכליCLI ויצירת תוצר מוגן אחד מה־JSONהמדויק; אחריהם אימות server/source/protection/אפסשיוך וקבלת התוצר, ורק אז אישורcutoverעםSHA+deployment. אין שוב סריקתכתובות או בדיקותמוצר לאמושפעות.",
+      "treatment": "STAGED_RAW_GIT_REQUEST_PREPARED_CLI_AUTH_REQUIRED_NO_PRODUCTION"
+    },
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md"
   },
   {
     "id": "F33",

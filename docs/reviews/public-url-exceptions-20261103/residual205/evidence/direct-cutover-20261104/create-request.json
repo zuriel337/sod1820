@@ -1,0 +1,27 @@
+{
+  "name": "sod1820",
+  "project": "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+  "target": "production",
+  "gitSource": {
+    "type": "github",
+    "org": "zuriel337",
+    "repo": "sod1820",
+    "ref": "gpt/2029-public-cutover-final-preparation-20261103",
+    "sha": "1bc8260adaa889d7903aaa33ef43510df09817f2"
+  },
+  "projectSettings": {
+    "rootDirectory": "public-reading-deploy",
+    "sourceFilesOutsideRootDirectory": true,
+    "framework": null,
+    "installCommand": "npm ci --prefix .. --no-audit --no-fund",
+    "buildCommand": "cd .. && VITE_AUTH_VERIFIED_PREVIEW_ORIGINS='[]' node scripts/build-public-reading-production.mjs --public-production-candidate --review-source=1bc8260adaa889d7903aaa33ef43510df09817f2",
+    "outputDirectory": "dist"
+  },
+  "meta": {
+    "task": "PUBLIC_DIRECT_2029_CUTOVER_20261104",
+    "scope": "ZURIEL_EXPLICIT_DIRECT_2029_PRODUCTION_CUTOVER",
+    "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+    "acceptedPreview": "dpl_ADnf6NL9VznxiiysCQZqoGPguJSE",
+    "rollbackLegacy": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "task": "PUBLIC_DIRECT_2029_CUTOVER_20261104",
+  "userAuthorization": "מאשר פרסום ישיר עכשיו; תחליף את האתר וכל הדפים; קדימה תעשה",
+  "baseHead": "6a5e86df811c0a559171622f708bfdbe00b03b5c",
+  "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "deploymentId": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+  "url": "https://sod1820-2z0mg4j21-sod1820-s-projects.vercel.app",
+  "target": "production",
+  "readyState": "READY",
+  "acceptedPreview": "dpl_ADnf6NL9VznxiiysCQZqoGPguJSE",
+  "previousLegacy": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+  "beforeDomains": [
+    {
+      "host": "sod1820.co.il",
+      "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "state": "READY",
+      "target": "production"
+    },
+    {
+      "host": "www.sod1820.co.il",
+      "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "state": "READY",
+      "target": "production"
+    },
+    {
+      "host": "sod1820.vercel.app",
+      "id": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+      "sha": "d1837efcf5a978d10a514010f3695680f231e116",
+      "state": "READY",
+      "target": "production"
+    }
+  ],
+  "createdVia": "existing Vercel MCP GitSource",
+  "cliFlow": "canceled, no auth.json created",
+  "mainChanged": false,
+  "runtimeEdited": false,
+  "sharedDbAuthEdgeFlagsChanged": false,
+  "liveProductWrites": 0,
+  "trafficSwitch": "LIVE_THREE_EXPLICIT_ALIAS_REASSIGNMENTS",
+  "beforeWorkLog": "9dc02d7b-ab75-43e1-b43e-13a5468d233c",
+  "aliasesAfter": [
+    {
+      "host": "sod1820.co.il",
+      "id": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+      "sha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+      "state": "READY",
+      "target": "production"
+    },
+    {
+      "host": "www.sod1820.co.il",
+      "id": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+      "sha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+      "state": "READY",
+      "target": "production"
+    },
+    {
+      "host": "sod1820.vercel.app",
+      "id": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+      "sha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+      "state": "READY",
+      "target": "production"
+    }
+  ],
+  "assignments": [
+    {
+      "alias": "sod1820.co.il",
+      "oldDeploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    },
+    {
+      "alias": "www.sod1820.co.il",
+      "oldDeploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    },
+    {
+      "alias": "sod1820.vercel.app",
+      "oldDeploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2"
+    }
+  ],
+  "currentSite": "https://sod1820.co.il",
+  "operationalMethod": "Native create Production from exact GitSource, then explicit alias assignment; no promote, settings PATCH, DNS change or CLI credential",
+  "canonicalHttp": {
+    "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+    "target": "production",
+    "mode": "public-production-candidate",
+    "deploymentId": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+    "applicationSourceDirty": false,
+    "rootStatus": 200,
+    "rootCanonical": "<link rel=\"canonical\" href=\"https://sod1820.co.il\"/>",
+    "rootRobots": "<meta name=\"robots\" content=\"index, follow\"/>",
+    "headers": {
+      "cache-control": "no-store",
+      "content-type": "text/html; charset=utf-8",
+      "x-robots-tag": "index, follow"
+    }
+  },
+  "rollbackPlan": {
+    "deploymentId": "dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2",
+    "sourceSha": "d1837efcf5a978d10a514010f3695680f231e116",
+    "method": "Reassign only the three known aliases to retained Legacy deployment, then verify document/SW; do not delete/reset storage or undo shared DB/RLS/mail changes",
+    "performed": false
+  }
+}

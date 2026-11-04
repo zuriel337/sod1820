@@ -1,0 +1,15 @@
+{
+  "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "target": "production",
+  "mode": "public-production-candidate",
+  "deploymentId": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+  "applicationSourceDirty": false,
+  "rootStatus": 200,
+  "rootCanonical": "<link rel=\"canonical\" href=\"https://sod1820.co.il\"/>",
+  "rootRobots": "<meta name=\"robots\" content=\"index, follow\"/>",
+  "headers": {
+    "cache-control": "no-store",
+    "content-type": "text/html; charset=utf-8",
+    "x-robots-tag": "index, follow"
+  }
+}

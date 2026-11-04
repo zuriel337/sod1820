@@ -1,0 +1,41 @@
+{
+  "origin": "https://sod1820.co.il",
+  "sourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "deploymentId": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+  "anonymous": true,
+  "grantUsed": false,
+  "productWrites": 0,
+  "modelCalls": 0,
+  "rows": [
+    {
+      "path": "/updates",
+      "method": "GET",
+      "status": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "passed": true
+    },
+    {
+      "path": "/updates",
+      "method": "HEAD",
+      "status": 200,
+      "robots": "noindex, nofollow, noarchive",
+      "passed": true
+    },
+    {
+      "path": "/community/chat",
+      "method": "GET",
+      "status": 200,
+      "robots": "noindex, follow",
+      "passed": true
+    },
+    {
+      "path": "/community/chat",
+      "method": "HEAD",
+      "status": 200,
+      "robots": "noindex, follow",
+      "passed": true
+    }
+  ],
+  "passed": 4,
+  "ok": true
+}
