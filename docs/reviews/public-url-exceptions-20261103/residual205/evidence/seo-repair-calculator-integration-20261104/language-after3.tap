@@ -1,0 +1,28 @@
+TAP version 13
+# Subtest: public 2029 copy has no forbidden internal labels
+ok 1 - public 2029 copy has no forbidden internal labels
+  ---
+  duration_ms: 6.052553
+  type: 'test'
+  ...
+# Subtest: public header and command input expose accessible search labels
+ok 2 - public header and command input expose accessible search labels
+  ---
+  duration_ms: 0.872276
+  type: 'test'
+  ...
+# Subtest: Heichal page copy is untouched
+ok 3 - Heichal page copy is untouched
+  ---
+  duration_ms: 0.19171
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 81.202896

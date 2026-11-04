@@ -24,7 +24,8 @@ assert.doesNotMatch(component, /getAiAnalysis|ai-analyze|anthropic|openai/i);
 
 assert.match(calculator, /MethodLens2029/);
 assert.match(numberCore, /MethodLens2029/);
-assert.match(numberCore, /onExpressionSelect\?\.\(item\?\.phrase\)/);
+assert.match(numberCore, /onMethodLensExpression=\{\(item\) => onExpressionSelect\?\.\(item\?\.phrase, inspectorMethod\?\.methodKey\)\}/,
+  "the accepted full Number continuation preserves both expression and selected method");
 assert.doesNotMatch(calculator, /fetchMethodLensProjection/);
 assert.doesNotMatch(calculator, /getAiAnalysis|ai-analyze|anthropic|openai/i);
 
