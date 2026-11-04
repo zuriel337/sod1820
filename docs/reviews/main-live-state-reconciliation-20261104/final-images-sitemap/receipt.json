@@ -1,0 +1,41 @@
+{
+  "task": "PUBLICATION_FINAL_IMAGES_SITEMAP_ACCEPTANCE_20261104",
+  "baseMain": "7b5f980a25b2f58445f515f7be8cd0d2d28bbeb5",
+  "authorizedCommunityCommit": "28f041a22774235b5659811b01f5052eb850841d",
+  "integratedCommunityCommit": "52234313",
+  "measurements": "Local actual canonical handler and real anonymous public sources, NODE_USE_ENV_PROXY=1, sequential runs, no competing builds/browser benchmarks; not hosted-deployment acceptance",
+  "beforeMs": [
+    16292,
+    16918
+  ],
+  "afterMs": [
+    10068,
+    10434
+  ],
+  "beforeDistinctLocations": 16761,
+  "afterDistinctLocations": 16756,
+  "unchangedExistingEntries": 16756,
+  "removedClosedReaderLocations": [
+    "https://sod1820.co.il/book/daat-tevunot",
+    "https://sod1820.co.il/book/sefer-habahir",
+    "https://sod1820.co.il/book/sefer-hapliah",
+    "https://sod1820.co.il/book/sefer-raziel-hamalach",
+    "https://sod1820.co.il/book/sefer-yetzirah"
+  ],
+  "newLocations": [],
+  "changedRetainedXmlEntries": [],
+  "modelCalls": 0,
+  "productWrites": 0,
+  "cacheAdded": false,
+  "maxConcurrentSourceBatches": 3,
+  "sourceIdsPerRequestMaximum": 40,
+  "existingCanaryThresholdMs": 15000,
+  "existingProductionCanary": "failure / d06cf1ab / run41859430886 attempts1and2; not overridden",
+  "probeLimitations": [
+    "Initial local harness refused the static external Bentov HEAD and returned503; this is a harness restriction, not a live503.",
+    "One local Node run without required environment proxy failed its first request; repeated complete runs use the configured proxy.",
+    "Live real GET20019.617s confirms the separate hosted deadline problem; local timings exclude Vercel routing/cold-start overhead."
+  ],
+  "closedBooksStillReachable": true,
+  "legacySourceBehaviorChanged": false
+}

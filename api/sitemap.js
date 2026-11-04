@@ -1,5 +1,5 @@
 import { PUBLIC_READING_PROFILE_ID, publicReadingContinuation, PUBLIC_HISTORICAL_LECTURE_PATHS } from "../src/lib/publicReadingRelease2029.js";
-import { projectPublicBook2029, publicBookSourceAvailable2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
+import { projectPublicBook2029, fetchPublicLibraryItem2029, publicBookSourceAvailable2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
 import { postsTaxonomyRoute2029, postMatchesTaxonomy2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { publicPostHref, publicPostUrl, postAddressSlug } from "../src/lib/publicPostUrls.js";
 import { publicPostOnlyFilter } from "../src/lib/research/publicPostBoundary.js";
@@ -352,7 +352,21 @@ export default async function handler(req, res) {
       : 'metadata,created_at') + '&type=eq.book&is_active=eq.true');
     for (const b of books) {
       const item = productionReading ? projectPublicBook2029(b) : null;
-      if (productionReading && (item?.readerState !== 'source_bound' || !await publicBookSourceAvailable2029(item.manifest))) continue;
+      if (productionReading) {
+        if (!item) continue;
+        // Reuse the reader's existing launch admission before probing a PDF.
+        // Closed preparation cards remain reachable, but are not open readers.
+        let sourceError;
+        const reader = await fetchPublicLibraryItem2029('books', item.slug, {
+          readRows: async () => books.filter(row => row.book_slug === item.slug),
+          checkBookSource: async manifest => {
+            try { return await publicBookSourceAvailable2029(manifest); }
+            catch (error) { sourceError = error; throw error; }
+          },
+        });
+        if (sourceError) throw sourceError;
+        if (reader?.readerState !== 'ready') continue;
+      }
       const slug = productionReading ? item?.slug : b?.metadata?.slug;
       if (!slug) continue;
       const lastmod = (b.created_at || '').slice(0, 10) || undefined;

@@ -91,19 +91,29 @@ for (const source of ["/", "/post", "/community/chat", "/code"]) {
 
 // Canonical Book routing: /books is the library home; /book/:slug is the individual identity.
 // The plural detail path survives only as a compatibility alias and must never become a second canonical.
-assert.equal(app2029.includes('path="/book/:slug" element={<Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>}' ), true, "canonical Book detail must retain its launch gate with explicit admin screen admission");
-assert.equal(app2029.includes('path="/books" element={<Locked flag="lock_books" requireFlag allowAdminView homeHref="/2029"><Books2029Page /></Locked>}' ), true, "Book library must share the same gated admin screen admission");
+assert.equal(app2029.includes('path="/book/:slug" element={<BooksEntry2029 />}' ), true, "canonical Book detail must use the shared current reader admission");
+assert.equal(app2029.includes('path="/books" element={<BooksEntry2029 />}' ), true, "Book library must share the same current reader admission");
+assert.match(app2029, /function BooksEntry2029\(\)[\s\S]*?if \(PUBLIC_READING_RELEASE && \(!isAdmin \|\| loading \|\| slug === "ahavat-torah"\)\) return <PublicLibraryContinuity2029Page kind="books" \/>;/, "unresolved and ordinary identities must only enter the bounded public reader, including the approved Ahavat prototype");
+assert.match(app2029, /function BooksEntry2029\(\)[\s\S]*?return <Locked flag="lock_books" requireFlag allowAdminView homeHref="\/2029"><Books2029Page \/><\/Locked>;/, "full Book screens retain their existing gate and explicit authenticated admin screen admission");
 for (const route of ["/books", "/book/existing", "/books/existing"]) {
-  assert.equal(publicReadingPath(route), "closed", "Book screen remains closed to the public");
-  assert.equal(publicReadingPath(route, { isAdmin: false }), "closed", "ordinary account cannot inspect Book screens");
-  assert.equal(publicReadingPath(route, { isAdmin: true }), "admin-view", "admin screen inspection is not operation admission");
+  const expected = route.startsWith("/books/") ? "continuation" : "public";
+  assert.equal(publicReadingPath(route), expected, "public library metadata and source-gated reader identities remain reachable");
+  assert.equal(publicReadingPath(route, { isAdmin: false }), expected, "ordinary accounts receive the same public reader admission");
+  assert.equal(publicReadingPath(route, { isAdmin: true }), route.startsWith("/books/") ? "continuation" : "admin-view", "aliases preserve their canonical target; admin screen inspection is not operation admission");
 }
-assert.equal(publicReadingFeatureLock("lock_books").enabled, true, "Book operations remain locked in the reading profile");
+assert.equal(publicReadingFeatureLock("lock_books").enabled, false, "approved public library entry remains open; individual readers require their separate source admission");
+const publicLibrary = read("src/lib/research/publicLibraryContinuity2029.js");
+assert.match(publicLibrary, /kind === "books" && item\.slug !== "ahavat-torah"\) return \{ \.\.\.item, readerState:"preparation_closed", manifest:null \}/, "other unfinished books must remain closed before PDF loading");
+assert.match(publicLibrary, /publicBookSourceAvailable2029/, "Ahavat reading still requires the current public source check");
 const maintenanceLock = read("src/components/MaintenanceLock.jsx");
-assert.ok(maintenanceLock.includes("adminViewAllowed: PUBLIC_READING_RELEASE && !authLoading && !loading && isAdmin && !!lock"), "admin view requires resolved identity and an existing capability");
+assert.ok(maintenanceLock.includes("isAdmin: !pendingAdmission && !authLoading && isAdmin"), "admin access requires resolved identity and policy through the canonical resolver");
+assert.ok(maintenanceLock.includes("requireFlag: pendingAdmission || requireFlag"), "pending or unknown required capabilities fail closed for every identity");
+assert.ok(maintenanceLock.includes("adminViewAllowed: false"), "there is no second screen-only bypass around the canonical resolver");
 assert.ok(maintenanceLock.includes("state.blocked && !(allowAdminView && state.adminViewAllowed)"), "closed screens require explicit validated admin-view admission");
 assert.equal(app2029.includes('path="/books/:slug" element={<CanonicalBookAlias2029 />}' ), true, "plural Book detail must remain alias-only");
-assert.equal(books2029.includes('to={slug ? `/book/${slug}` : "/books"}' ), true, "Book cards must link to canonical singular detail URL");
+const bookCards = read("src/components/books2029/BooksLibraryCards2029.jsx");
+assert.match(books2029, /import \{ BookCard \} from "\.\.\/components\/books2029\/BooksLibraryCards2029\.jsx"/);
+assert.equal(bookCards.includes('to={slug ? `/book/${slug}` : "/books"}' ), true, "shared Book cards must link to canonical singular detail URL");
 assert.equal(books2029.includes('path: slug ? `/book/${slug}` : "/books"' ), true, "Book detail SEO must use canonical singular path");
 assert.equal(books2029.includes("path: slug ? `/books/"), false, "Book detail SEO must not mint a plural canonical");
 assert.equal(legacyApp.includes('BookHubPage'), false, "Legacy Book renderer must be retired from active App routes/imports");
