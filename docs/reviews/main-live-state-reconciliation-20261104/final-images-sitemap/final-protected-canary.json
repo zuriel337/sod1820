@@ -1,0 +1,166 @@
+{
+  "sourceSha": "3fc0dc1e6d35cb9eb5334a063b69a205b194fa3b",
+  "origin": "https://sod1820-j3is2ak34-sod1820-s-projects.vercel.app",
+  "target": "protected-preview",
+  "thresholdMs": 15000,
+  "thresholdChanged": false,
+  "overrideUsed": false,
+  "githubStatusUpdated": false,
+  "productWrites": 0,
+  "modelCalls": 0,
+  "runs": [
+    {
+      "run": 1,
+      "ok": false,
+      "checks": [
+        {
+          "name": "home_200",
+          "ok": true,
+          "detail": "status=200"
+        },
+        {
+          "name": "home_has_root",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "home_has_entry_bundle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "entry_bundle_200",
+          "ok": true,
+          "detail": "status=200 bytes=273271"
+        },
+        {
+          "name": "robots_200",
+          "ok": true,
+          "detail": "status=200"
+        },
+        {
+          "name": "request_error",
+          "ok": false,
+          "detail": "The operation was aborted due to timeout"
+        }
+      ],
+      "heartbeat": {
+        "healthy": true,
+        "age_minutes": 11.4,
+        "max_age_minutes": 45
+      },
+      "requests": [
+        {
+          "path": "/",
+          "status": 200,
+          "ttfbMs": 396,
+          "cache": "MISS",
+          "cacheControl": "no-store"
+        },
+        {
+          "path": "/assets/2029-D__gKOFR.js",
+          "status": 200,
+          "ttfbMs": 353,
+          "cache": "MISS",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "path": "/robots.txt",
+          "status": 200,
+          "ttfbMs": 367,
+          "cache": "MISS",
+          "cacheControl": "no-store"
+        },
+        {
+          "path": "/sitemap.xml",
+          "failed": "TimeoutError",
+          "totalMs": 15002
+        },
+        {
+          "path": "/rest/v1/rpc/fn_reliability_heartbeat_status",
+          "status": 200,
+          "ttfbMs": 306,
+          "cache": null,
+          "cacheControl": null
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "ok": false,
+      "checks": [
+        {
+          "name": "home_200",
+          "ok": true,
+          "detail": "status=200"
+        },
+        {
+          "name": "home_has_root",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "home_has_entry_bundle",
+          "ok": true,
+          "detail": ""
+        },
+        {
+          "name": "entry_bundle_200",
+          "ok": true,
+          "detail": "status=200 bytes=273271"
+        },
+        {
+          "name": "robots_200",
+          "ok": true,
+          "detail": "status=200"
+        },
+        {
+          "name": "request_error",
+          "ok": false,
+          "detail": "The operation was aborted due to timeout"
+        }
+      ],
+      "heartbeat": {
+        "healthy": true,
+        "age_minutes": 11.7,
+        "max_age_minutes": 45
+      },
+      "requests": [
+        {
+          "path": "/",
+          "status": 200,
+          "ttfbMs": 422,
+          "cache": "MISS",
+          "cacheControl": "no-store"
+        },
+        {
+          "path": "/assets/2029-D__gKOFR.js",
+          "status": 200,
+          "ttfbMs": 259,
+          "cache": "HIT",
+          "cacheControl": "public, max-age=31536000, immutable"
+        },
+        {
+          "path": "/robots.txt",
+          "status": 200,
+          "ttfbMs": 118,
+          "cache": "MISS",
+          "cacheControl": "no-store"
+        },
+        {
+          "path": "/sitemap.xml",
+          "failed": "TimeoutError",
+          "totalMs": 15000
+        },
+        {
+          "path": "/rest/v1/rpc/fn_reliability_heartbeat_status",
+          "status": 200,
+          "ttfbMs": 309,
+          "cache": null,
+          "cacheControl": null
+        }
+      ]
+    }
+  ],
+  "ok": false
+}
