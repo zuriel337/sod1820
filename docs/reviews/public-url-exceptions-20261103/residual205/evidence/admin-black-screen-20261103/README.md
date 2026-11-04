@@ -53,8 +53,10 @@ Owner's latest decision skips manual Google/Facebook acceptance:
 `SKIPPED_BY_OWNER_NOT_TESTED`. Their unconfirmed Preview callback and strict
 origin protections are unchanged. This does not assert social login passed or
 disable social login on Legacy. Prior owner-reported two-account personal
-acceptance remains valid. A genuine owner CP1 retry remains outstanding after
-the corrected Preview is ready.
+acceptance remains valid. Owner subsequently reports “עובד” on the corrected Preview: opening accepted
+by owner report (see `owner-acceptance.json`). Refresh/trace were not separately
+attested; no full CP1/G4 acceptance is inferred. The synthetic receipts remain
+unchanged and do not stand in for the owner report.
 
 No main/site Production/domain action or fresh backup claim; prior B/D receipt,
 historical H1 restore and owner's current-backup risk decision remain unchanged.
@@ -72,3 +74,12 @@ Only Preview is deployed. No application Auth secret, share grant or browser
 state is in these artifacts. Production remains Legacy. A future Production
 creation/cutover request must be rebased onto this accepted runtime rather than
 the historical B/D source; no new authorization is implied.
+
+## Owner acceptance update (4 November2026)
+
+ZURIEL replied `עובד` to the corrected admin Preview link. The genuine opening
+black-screen issue is closed by this report, with the current alias still verified
+on source1bc8260a/deploymentADnf6NL9. No new runtime/test/deployment action.
+The previous pending-opening state is historical. Refresh and trace drilldown
+were not separately described; do not infer a full admin gate or require another
+opening test. See `owner-acceptance.json`; no private account data is recorded.

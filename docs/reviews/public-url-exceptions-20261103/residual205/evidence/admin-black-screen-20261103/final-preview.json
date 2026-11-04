@@ -6,6 +6,9 @@
   "readyState": "READY",
   "target": null,
   "socialManualAcceptance": "SKIPPED_BY_OWNER_NOT_TESTED",
-  "realAdminAcceptance": "OWNER_REPORTED_BLACK_SCREEN_BEFORE_FIX_RETRY_PENDING",
-  "twoAccountPersonalAcceptance": "RETAINED_USER_REPORTED_ACCEPTED"
+  "realAdminAcceptance": "ADMIN_OPENING_ACCEPTED_USER_REPORTED",
+  "twoAccountPersonalAcceptance": "RETAINED_USER_REPORTED_ACCEPTED",
+  "priorRealAdminAcceptance": "OWNER_REPORTED_BLACK_SCREEN_BEFORE_FIX_RETRY_PENDING",
+  "ownerAcceptanceEvidence": "owner-acceptance.json",
+  "fullCP1Gate": "NOT_CLAIMED"
 }

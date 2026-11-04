@@ -673,12 +673,12 @@
     "evidence": "App.jsx; Admin admission",
     "meaning": "מסכים פרטיים/מנהל",
     "target_2029": "כניסה ויעדמקביל רק לפי הרשאה",
-    "verified_status": "S2 וקורא הבקרה שהוחלו נשמרים. כשל מנהל אמיתי דווח בנייד; שחזור סינתטי בפריוויוd8ee2753 הוכיח קריסת admin לא מוכר במעטפת. מקור1bc8260a תוקן ל־control עם תצוגת בדיקה קיימת ומצב אימות גלוי.37בדיקות ושישה תרחישי דפדפןסינתטיים עםSW בפריסהdpl_ADnf6NL9VznxiiysCQZqoGPguJSEעברו, כולל320/390/1440,רענון,כשלי קוראים וחסימתחבר/אורח. איןJWTמנהל אמיתי/קריאתבקרה חיה; קבלתCP1אמיתית ממתינה לניסיוןחוזר. egressישןאינומדידהעדכנית.",
+    "verified_status": "S2 וקורא הבקרה שהוחלו נשמרים. כשל המסך השחור בנייד תוקן ב־1bc8260a ונתמך ב־37 בדיקות ושישה מקרי דפדפן סינתטיים. לאחר מסירת הפריוויוdpl_ADnf6NL9 צוריאל השיב עובד: פתיחת המנהל התקבלה לפי דיווח הבעלים. רענון ו־trace לא פורטו בנפרד; אין מכאן קבלתCP1 מלאה אוG4. הרשאות/נתונים/שרת/פריסה לא שונו בעקבות הקבלה. מדידתegress הישנה אינה עדכנית.",
     "permissions": "מנהל/בעלים בשרת, failclosed",
     "parameters_anchors": "returnTo בטוח; בלי דליפת metadata",
     "acceptance": "אנונימי/חבר/admin;401/403/404 לפי חוזה",
-    "open_task": "CP1: ניסיון חוזר של הבעלים בכניסה למנהל, רענון ו־trace קיים אם יש, לקריאה בלבד. תיקון הקריסה אינו קבלת חשבון אמיתי/סגירתG4; ראיותS2/שני החשבונות נשמרות.",
-    "treatment": "BLACK_SCREEN_FIXED_HOSTED_SYNTHETIC_ACCEPTED_REAL_ADMIN_RETRY_OPEN",
+    "open_task": "כשל הפתיחה נסגר בדיווח הבעלים; אין לבקש שוב אותה בדיקה. רענון ופתיחתtrace טרם נמסרו פרטנית, ללא הכרזה על שערCP1מלא. יתרת תנאי המעבר לפי הרשימה הקיימת בלבד; איןProduction.",
+    "treatment": "ADMIN_OPENING_ACCEPTED_USER_REPORTED_FULL_CP1_NOT_CLAIMED",
     "exception_previous_checkpoint": {
       "verified_status": "אין להפוךכתובתאמיתיתלציבורית",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
@@ -707,7 +707,13 @@
       "open_task": "CP1: short genuine admin read/refresh/existing-trace acceptance; valid S2 and health fix evidence retained; no fullG4 claim",
       "treatment": "IMPLEMENTED_CONTROLLED_TESTED_ADMIN_ACCEPTANCE_OPEN"
     },
-    "admin_black_screen_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/README.md"
+    "admin_black_screen_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/README.md",
+    "owner_opening_previous_checkpoint": {
+      "verified_status": "S2 וקורא הבקרה שהוחלו נשמרים. כשל מנהל אמיתי דווח בנייד; שחזור סינתטי בפריוויוd8ee2753 הוכיח קריסת admin לא מוכר במעטפת. מקור1bc8260a תוקן ל־control עם תצוגת בדיקה קיימת ומצב אימות גלוי.37בדיקות ושישה תרחישי דפדפןסינתטיים עםSW בפריסהdpl_ADnf6NL9VznxiiysCQZqoGPguJSEעברו, כולל320/390/1440,רענון,כשלי קוראים וחסימתחבר/אורח. איןJWTמנהל אמיתי/קריאתבקרה חיה; קבלתCP1אמיתית ממתינה לניסיוןחוזר. egressישןאינומדידהעדכנית.",
+      "open_task": "CP1: ניסיון חוזר של הבעלים בכניסה למנהל, רענון ו־trace קיים אם יש, לקריאה בלבד. תיקון הקריסה אינו קבלת חשבון אמיתי/סגירתG4; ראיותS2/שני החשבונות נשמרות.",
+      "treatment": "BLACK_SCREEN_FIXED_HOSTED_SYNTHETIC_ACCEPTED_REAL_ADMIN_RETRY_OPEN"
+    },
+    "owner_opening_evidence": "../public-url-exceptions-20261103/residual205/evidence/admin-black-screen-20261103/owner-acceptance.json"
   },
   {
     "id": "F31",
