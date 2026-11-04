@@ -1,0 +1,503 @@
+{
+  "status": "NOT_FULLY_ACCEPTED",
+  "beforeSha": "ae8deb7ae1775046dc616a41f66307a7881dfe70",
+  "afterSha": "07355b0b13e477b292d118c8657fcc13d7dc392d",
+  "width390": {
+    "cpuThrottle": 4,
+    "latencyMs": 150,
+    "downloadBytesPerSecond": 200000,
+    "runsEachVersion": 3,
+    "coldAndSameContextRevisit": true
+  },
+  "networkMocked": false,
+  "realServiceWorker": true,
+  "completeCycles": 13,
+  "desktopComparisonComplete": false,
+  "clsBudget": 0.1,
+  "performanceRunnerFailure": {
+    "name": "Error",
+    "message": "expect(locator).toBeEnabled() failed\n\nLocator: locator('.sod29-number-v10-method-card').filter({ has: getByText('מילוי', { exact: true }) }).first()\nExpected: enabled\nError: element(s) not found\n\nCall log:\n  - Expect \"to.be.enabled\" with timeout 60000ms\n  - waiting for locator('.sod29-number-v10-method-card').filter({ has: getByText('מילוי', { exact: true }) }).first()\n"
+  },
+  "stopReason": "Owner prioritized live middleware incident; preserve the desktop baseline failure as well as the incomplete comparison. No failed sample removed.",
+  "cpuLimitation": "CDP duration differences across distinct documents are not valid execution-time comparisons and are not used for any claim. SPA action timings and resource/long-task records remain raw.",
+  "coldDefinition": "fresh browser context; CDN state not controlled; access grant obtained with API request before browser navigation",
+  "completionDefinition": "initially admitted REST readers settled, 250ms allowance separately recorded; closed/offscreen readers deferred; not generic networkidle",
+  "invitationDismissals": [
+    {
+      "version": "before",
+      "width": 390,
+      "pair": 1,
+      "phase": "number-method-full-page",
+      "time": 26427.39999999851,
+      "reason": "normal close action for the existing guest invitation; any timing cost remains in the stage"
+    },
+    {
+      "version": "after",
+      "width": 390,
+      "pair": 1,
+      "phase": "number-method-full-page",
+      "time": 26169.10000000149,
+      "reason": "normal close action for the existing guest invitation; any timing cost remains in the stage"
+    },
+    {
+      "version": "after",
+      "width": 390,
+      "pair": 2,
+      "phase": "number-method-full-page",
+      "time": 26587.70000000298,
+      "reason": "normal close action for the existing guest invitation; any timing cost remains in the stage"
+    },
+    {
+      "version": "before",
+      "width": 390,
+      "pair": 2,
+      "phase": "number-method-full-page",
+      "time": 25101.89999999851,
+      "reason": "normal close action for the existing guest invitation; any timing cost remains in the stage"
+    },
+    {
+      "version": "before",
+      "width": 390,
+      "pair": 3,
+      "phase": "number-method-full-page",
+      "time": 25440.5,
+      "reason": "normal close action for the existing guest invitation; any timing cost remains in the stage"
+    },
+    {
+      "version": "after",
+      "width": 390,
+      "pair": 3,
+      "phase": "number-method-full-page",
+      "time": 24563.39999999851,
+      "reason": "normal close action for the existing guest invitation; any timing cost remains in the stage"
+    },
+    {
+      "version": "before",
+      "width": 1440,
+      "pair": 1,
+      "phase": "home-post",
+      "time": 3724.39999999851,
+      "reason": "normal close action for the existing guest invitation; any timing cost remains in the stage"
+    }
+  ],
+  "rows": [
+    {
+      "width": 390,
+      "repeat": "first",
+      "stage": "home-entry",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 6152,
+        "completionMedianMs": 6814,
+        "clsMax": 0.00018288718740107628,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 6543,
+        "completionMedianMs": 7160,
+        "clsMax": 6.125830959164292e-05,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "first",
+      "stage": "home-post",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 1316,
+        "completionMedianMs": 1788,
+        "clsMax": 0.11641067960588795,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 1367,
+        "completionMedianMs": 1804,
+        "clsMax": 0.11641067960588795,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "first",
+      "stage": "post-world",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 2826,
+        "completionMedianMs": 2933,
+        "clsMax": 0.00017446432811016142,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 2772,
+        "completionMedianMs": 3039,
+        "clsMax": 0.00015775116729977842,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "first",
+      "stage": "world-number-full-page",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 5095,
+        "completionMedianMs": 10849,
+        "clsMax": 0.024693460648148147,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 5778,
+        "completionMedianMs": 10572,
+        "clsMax": 0.024693460648148147,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "first",
+      "stage": "number-method-full-page",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 850,
+        "completionMedianMs": 3944,
+        "clsMax": 0.002108753561253561,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 799,
+        "completionMedianMs": 3489,
+        "clsMax": 0.002108753561253561,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "first",
+      "stage": "back-method-number",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 735,
+        "completionMedianMs": 769,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 595,
+        "completionMedianMs": 692,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "first",
+      "stage": "number-phrase-full-page",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 1257,
+        "completionMedianMs": 5423,
+        "clsMax": 0.03226167853751187,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 1218,
+        "completionMedianMs": 5276,
+        "clsMax": 0.03226167853751187,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "first",
+      "stage": "back-phrase-number",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 650,
+        "completionMedianMs": 748,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 757,
+        "completionMedianMs": 987,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "first",
+      "stage": "back-number-world",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 714,
+        "completionMedianMs": 1119,
+        "clsMax": 0.00013903851100031652,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 762,
+        "completionMedianMs": 1226,
+        "clsMax": 0.00017297849398543842,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "first",
+      "stage": "back-world-post",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 705,
+        "completionMedianMs": 933,
+        "clsMax": 0.11641067960588795,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 679,
+        "completionMedianMs": 895,
+        "clsMax": 0.11641067960588795,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "first",
+      "stage": "back-post-home",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 820,
+        "completionMedianMs": 1315,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 822,
+        "completionMedianMs": 1496,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "repeat",
+      "stage": "home-entry",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 2823,
+        "completionMedianMs": 3328,
+        "clsMax": 0.00018288718740107628,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 2653,
+        "completionMedianMs": 3003,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "repeat",
+      "stage": "home-post",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 1169,
+        "completionMedianMs": 1626,
+        "clsMax": 0.5238219373219374,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 1020,
+        "completionMedianMs": 1653,
+        "clsMax": 0.5238219373219374,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "repeat",
+      "stage": "post-world",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 1863,
+        "completionMedianMs": 2214,
+        "clsMax": 0.00020414787116176003,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 1888,
+        "completionMedianMs": 2240,
+        "clsMax": 0.0051702486942070275,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "repeat",
+      "stage": "world-number-full-page",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 4394,
+        "completionMedianMs": 9639,
+        "clsMax": 0.06679695572174739,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 4779,
+        "completionMedianMs": 9833,
+        "clsMax": 0.03688204326923077,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "repeat",
+      "stage": "number-method-full-page",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 557,
+        "completionMedianMs": 3283,
+        "clsMax": 0.002108753561253561,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 568,
+        "completionMedianMs": 3282,
+        "clsMax": 0.002108753561253561,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "repeat",
+      "stage": "back-method-number",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 581,
+        "completionMedianMs": 731,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 586,
+        "completionMedianMs": 688,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "repeat",
+      "stage": "number-phrase-full-page",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 1378,
+        "completionMedianMs": 5474,
+        "clsMax": 0.03226167853751187,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 1259,
+        "completionMedianMs": 5086,
+        "clsMax": 0.03226167853751187,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "repeat",
+      "stage": "back-phrase-number",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 659,
+        "completionMedianMs": 736,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 643,
+        "completionMedianMs": 722,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "repeat",
+      "stage": "back-number-world",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 718,
+        "completionMedianMs": 1171,
+        "clsMax": 0.0002078273385565052,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 664,
+        "completionMedianMs": 1195,
+        "clsMax": 0.004827136752136751,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "repeat",
+      "stage": "back-world-post",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 698,
+        "completionMedianMs": 916,
+        "clsMax": 0.1165738641579614,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 652,
+        "completionMedianMs": 874,
+        "clsMax": 0.11641067960588795,
+        "allAdmittedReadsSettled": true
+      }
+    },
+    {
+      "width": 390,
+      "repeat": "repeat",
+      "stage": "back-post-home",
+      "before": {
+        "n": 3,
+        "usefulDriverMedianMs": 1001,
+        "completionMedianMs": 1301,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      },
+      "after": {
+        "n": 3,
+        "usefulDriverMedianMs": 655,
+        "completionMedianMs": 1178,
+        "clsMax": 0,
+        "allAdmittedReadsSettled": true
+      }
+    }
+  ]
+}

@@ -9,6 +9,8 @@ import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.j
 import { PUBLIC_READING_DEPLOYMENT_AUTHORIZATION } from "../public-reading-deploy/deployment-policy.js";
 import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedReviewConfigMaterialization } from "../public-reading-deploy/review-admission.js";
 import { BRAND_APP_ICON_2029, BRAND_LOCKUP_NAV_2029 } from "../src/lib/brandAssets2029.js";
+import canonicalMiddleware, { config as canonicalMiddlewareConfig } from "../middleware.js";
+import publicMiddleware, { config as publicMiddlewareConfig } from "../public-reading-deploy/middleware.js";
 
 // Default artifact stays dormant. A separate explicit deployment-scoped review
 // command may admit only an exact Git source with no application edits on the
@@ -31,6 +33,9 @@ if (args.some(value => !["--protected-review", "--protected-production-review", 
 if ((process.env.VERCEL || process.env.VERCEL_ENV) && !reviewMode)
   throw new Error("public_reading_hosted_activation_requires_separate_guard_approval");
 const root = fileURLToPath(new URL("../", import.meta.url));
+if (publicMiddleware !== canonicalMiddleware
+  || JSON.stringify(publicMiddlewareConfig) !== JSON.stringify(canonicalMiddlewareConfig))
+  throw new Error("public_reading_middleware_must_bind_canonical_policy");
 const output = resolve(root, "public-reading-deploy/dist");
 const templates = resolve(root, "public-reading-deploy/.generated");
 for (const gate of ["test-legacy-production-lock.mjs", "test-one-tree-content-contract.mjs"])
@@ -129,6 +134,17 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
     materializedConfigSha256: hash(platformConfigMaterialization.workingConfig),
   } : null,
   deploymentConfigSha256: hash(await readFile(resolve(root, "public-reading-deploy/vercel.json"))),
+  // Source binding is an expectation, not proof of invocation. Hosted browser
+  // and blocked-bot checks must independently accept the deployed Edge entry.
+  middlewareEntry: {
+    path: "public-reading-deploy/middleware.js", canonicalPath: "middleware.js",
+    matcher: publicMiddlewareConfig.matcher,
+    sha256: hash(await readFile(resolve(root, "public-reading-deploy/middleware.js"))),
+    canonicalSha256: hash(await readFile(resolve(root, "middleware.js"))),
+    coreSha256: hash(await readFile(resolve(root, "middleware-core.js"))),
+    routeLegitimacySha256: hash(await readFile(resolve(root, "route-legitimacy.js"))),
+    hostedInvocation: "requires-separate-positive-and-negative-acceptance",
+  },
   documentTemplateSha256: hash(document), documentTemplatePublic: false,
   deployed: false, productionReady: false, generalProductWrites: false,
   publicCandidatePrepared: publicCandidateMode, publicTrafficTransferred: false,

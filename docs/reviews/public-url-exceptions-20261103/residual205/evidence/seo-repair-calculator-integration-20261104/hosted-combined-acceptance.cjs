@@ -13,7 +13,12 @@ require('readline').createInterface({input:process.stdin}).once('line',async lin
   console.log(JSON.stringify({stage:'browser-launch'}));
   browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage'],...(process.env.HTTPS_PROXY?{proxy:{server:process.env.HTTPS_PROXY,bypass:'127.0.0.1,localhost'}}:{})});
   for(const width of [390,1440]){
-   const context=await browser.newContext({viewport:{width,height:900},locale:'he-IL'});
+   const userAgent=(width===390
+    ? 'Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Mobile Safari/537.36'
+    : 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36')+' SOD1820-CANDIDATE-ACCEPTANCE-20261104';
+   // Exercise the human-browser route separately from the known-bot negative
+   // below. This UA is not an authentication or Human-status assertion.
+   const context=await browser.newContext({viewport:{width,height:900},locale:'he-IL',userAgent});
    console.log(JSON.stringify({stage:'access-cookie',width}));
    if(c.accessUrl)await context.request.get(c.accessUrl,{timeout:30000});
    console.log(JSON.stringify({stage:'artifact-identity',width}));
@@ -79,6 +84,13 @@ require('readline').createInterface({input:process.stdin}).once('line',async lin
     const manifestResponse=await context.request.get(c.origin+'/site.webmanifest');assert.equal(manifestResponse.status(),200);const m=await manifestResponse.json();assert.equal(m.start_url,'/');assert.equal(m.id,'/');assert.equal(m.short_name,'SOD1820');
     assert.equal(m.icons[0].src,'/brand/2029/app-icon-3f8a2a2fdc0a.png');const icon=await context.request.get(c.origin+m.icons[0].src);assert.equal(icon.status(),200);const hash=crypto.createHash('sha256').update(await icon.body()).digest('hex');assert.equal(hash,'3f8a2a2fdc0a5a141d10b63bc633eefbd9ba2bfe7dbf7521f3984c21830dcd18');
     const r=await context.request.get(c.origin+'/');assert.equal(new URL(meta(await r.text(),'canonical')).href,'https://sod1820.co.il/');return {name:m.name,id:m.id,startUrl:m.start_url,icon:m.icons[0],sha256:hash};
+   });
+   await run('middleware-public-policy',async()=>{
+    const artifact=await (await context.request.get(c.origin+'/public-reading-artifact.json')).json();assert.equal(artifact.middlewareEntry.path,'public-reading-deploy/middleware.js');
+    const human=await context.request.head(c.origin+'/');assert.equal(human.status(),200);assert.match(human.headers()['set-cookie']||'',/vb=browser/);assert.match(human.headers()['set-cookie']||'',/vc=/);
+    const bot=await context.request.get(c.origin+'/',{headers:{'user-agent':'curl/8.0 SOD1820-MW-PREVIEW-ACCEPTANCE-20261104'}});assert.equal(bot.status(),403);assert.equal(await bot.text(),'Access denied');
+    const crawler=await context.request.head(c.origin+'/',{headers:{'user-agent':'Googlebot/2.1 SOD1820-MW-PREVIEW-ACCEPTANCE-20261104'}});assert.equal(crawler.status(),200);
+    return {sourceEntry:artifact.middlewareEntry,browserStatus:human.status(),browserClassification:'browser (Unknown, not Human proof)',blockedBotStatus:bot.status(),publicCrawlerStatus:crawler.status(),syntheticGeoHeaders:false,ordinaryTrafficTelemetry:true};
    });
    report.rows.push({name:'page-errors',width,pass:errors.length===0,errors});save();await context.close();
   }
