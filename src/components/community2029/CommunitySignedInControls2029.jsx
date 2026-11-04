@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
+import { communityActionsLocked } from "../../lib/publicLaunch2029.js";
 import { supabase } from "../../lib/supabase.js";
 import { getUnreadCount } from "../../lib/notifications.js";
 import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
@@ -11,7 +11,7 @@ import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 // A presentation of the existing account and notification reader, not another inbox.
 export default function CommunitySignedInControls2029({ children }) {
   const { user, profile, loading, isAdmin } = useAuth();
-  const actionsLocked = publicLaunchActionsLocked(isAdmin);
+  const actionsLocked = communityActionsLocked(isAdmin);
   const location = useLocation(), menu = useRef(null);
   const principal = actionsLocked ? null : user?.id || null, active = useRef(principal); active.current = principal;
   const [snapshot, setSnapshot] = useState({ owner: null, state: "loading", count: null });

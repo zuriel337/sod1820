@@ -1,4 +1,4 @@
-import { PUBLIC_READING_RELEASE } from "./publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, PUBLIC_READING_PRODUCTION_ARTIFACT } from "./publicReadingRelease2029.js";
 // ZURIEL emergency production lock, 2026-10-22:
 // canonical Production remains Legacy. Explicit /2029 preview routes may continue,
 // but canonical Legacy entries must never hand off to 2029 without a new exact
@@ -20,4 +20,10 @@ export function personalActionsLocked(auth = {}) {
   return PUBLIC_READING_RELEASE
     ? auth.loading === true || auth.verified !== true || !auth.user?.id
     : publicLaunchActionsLocked(auth.isAdmin);
+}
+
+// Restore the existing Community capabilities only in the published artifact.
+// Each operation still uses canonical Auth and the server ownership checks.
+export function communityActionsLocked(isAdmin) {
+  return PUBLIC_READING_PRODUCTION_ARTIFACT ? false : publicLaunchActionsLocked(isAdmin);
 }

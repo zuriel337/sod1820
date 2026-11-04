@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { PUBLIC_READING_PRODUCTION_ARTIFACT } from "../../lib/publicReadingRelease2029.js";
 import { publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
 import { useOpenWeb } from "../../lib/openweb.js";
 import "./legacyOpenWebChat2029.css";
@@ -24,10 +25,11 @@ export default function LegacyOpenWebChat2029() {
   const sectionRef = useRef(null);
   const hostRef = useRef(null);
   // An external OpenWeb iframe is outside the preview worker's write boundary.
-  // Never mount its launcher or SSO in a read-only or mock preview.
-  const readOnlyPreview = actionsLocked || import.meta.env.VITE_INTEGRATED_PREVIEW === "true"
+  // Keep historical read-only/mock previews closed. The user explicitly restored
+  // the original working chat in the public artifact, open on initial load.
+  const readOnlyPreview = (actionsLocked && !PUBLIC_READING_PRODUCTION_ARTIFACT) || import.meta.env.VITE_INTEGRATED_PREVIEW === "true"
     || (typeof document !== "undefined" && Boolean(document.querySelector('[data-raziel-preview-transport="mock-only"]')));
-  const [active, setActive] = useState(() => !readOnlyPreview && (typeof IntersectionObserver === "undefined" || wantsHistoryNow()));
+  const [active, setActive] = useState(() => !readOnlyPreview && (PUBLIC_READING_PRODUCTION_ARTIFACT || typeof IntersectionObserver === "undefined" || wantsHistoryNow()));
 
   useEffect(() => {
     let frame;
@@ -56,7 +58,7 @@ export default function LegacyOpenWebChat2029() {
   return <section ref={sectionRef} id="legacy-chat" className="sod29-legacy-chat" aria-labelledby="legacy-chat-title"
     data-community-chat="legacy" data-openweb-loaded={!readOnlyPreview && active ? "true" : "false"}>
     <header className="sod29-legacy-chat-header">
-      <h2 id="legacy-chat-title">{readOnlyPreview ? "היסטוריית הצ׳אט הוותיק" : "ממשיכים לשוחח"}</h2>
+      <h2 id="legacy-chat-title">הצ׳אט הישן</h2>
       <a href="#community-new-chat">בחזרה לשיחה ↑</a>
     </header>
     <div ref={hostRef} className="sod29-legacy-chat-conversation">

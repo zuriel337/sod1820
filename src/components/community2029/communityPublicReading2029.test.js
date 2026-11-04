@@ -43,9 +43,12 @@ async function harness(file, names, overrides = {}) {
     useEffect: effect, useLayoutEffect: effect, useId: () => "unit-id", lazy: () => "LazyComponent",
     useAuth: () => ({ user: { id: "account" }, isAdmin: false, loading: false }),
     publicLaunchActionsLocked: isAdmin => isAdmin !== true,
+    communityActionsLocked: isAdmin => isAdmin !== true,
+    PUBLIC_READING_PRODUCTION_ARTIFACT: false,
     use2029Palette: () => ({}), useLocation: () => location,
     useSearchParams: () => [new URLSearchParams(location.search)], useNavigate: () => () => {},
     publicStats: { messages: 1 }, normalizeCommunityThreadFocus, legacyLikeCount,
+    UUID_PATTERN: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     communityAccountReturnHref, communityChatHref, communityPersonReturnHref, communityReadingReturnHref, personalMessagesReturnHref: () => null,
     writerPersonalHref: module => `/2029/me/${module}`,
     useCommunityMessageActions2029: () => ({ items: {}, patches: {}, register() {} }),
@@ -63,7 +66,7 @@ async function harness(file, names, overrides = {}) {
       if (!(name in context)) context[name] = name;
     }
   }
-  const body = code.replace(/^import[\s\S]*?;\n/gm, "").replace(/\bexport (?:default )?/g, "")
+  const body = code.replace(/^export\s*\{[^}]*\}\s*from[^;]+;\n/gm, "").replace(/^import[\s\S]*?;\n/gm, "").replace(/\bexport (?:default )?/g, "")
     .replace(/import\.meta\.env/g, "({})");
   vm.runInNewContext(`${body}\nthis.result = { ${names.join(",")} };`, context, { filename: file });
   return {
@@ -228,4 +231,23 @@ test("all default community reads use the anonymous client in the read profile a
     assert.ok(calls.length >= 7);
     assert.ok(calls.every(([label]) => label === (readOnly ? "anonymous" : "session")));
   }
+});
+
+
+test("restored production artifact opens the original old-chat box immediately", async () => {
+  const h = await harness("./LegacyOpenWebChat2029.jsx", ["LegacyOpenWebChat2029"], {
+    PUBLIC_READING_PRODUCTION_ARTIFACT: true,
+  });
+  const tree = elements(h.render(h.LegacyOpenWebChat2029, {}));
+  assert.ok(tree.some(node => node.props?.["data-openweb-loaded"] === "true"));
+  assert.ok(tree.some(node => typeof node.type === "function" && node.type.name === "OpenWebConversation"));
+});
+
+test("restored production artifact reuses the existing ordinary-member composer", async () => {
+  const h = await harness("./CommunityLive2029.jsx", ["CommunityLive2029"], {
+    PUBLIC_READING_PRODUCTION_ARTIFACT: true, communityActionsLocked: () => false,
+  });
+  const tree = elements(h.render(h.CommunityLive2029, {}));
+  assert.ok(tree.some(node => node.props?.id === "community-live-draft"));
+  assert.ok(tree.some(node => node.type === "CommunitySignIn"));
 });

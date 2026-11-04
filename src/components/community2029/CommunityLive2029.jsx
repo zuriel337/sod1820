@@ -1,7 +1,8 @@
 import React, { lazy, Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
+import { PUBLIC_READING_PRODUCTION_ARTIFACT } from "../../lib/publicReadingRelease2029.js";
+import { communityActionsLocked } from "../../lib/publicLaunch2029.js";
 import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_ACCEPT, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
 import { applySeo } from "../../lib/seo.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
@@ -71,17 +72,17 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
 }
 
 function LiveLike({ row }) {
-  const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
+  const actionsLocked = communityActionsLocked(useAuth().isAdmin);
   const reactions = row.reactions || {};
   const dislikes = Number(reactions.dislikes) || 0;
   return <div className="sod29-community-reactions">
-    {actionsLocked ? <span className="sod29-community-like" title="סימון אהבתי עדיין אינו זמין בגרסה זו" aria-label={`${legacyLikeCount(reactions)} אהבו · קריאה בלבד`}>👍 {legacyLikeCount(reactions) || ""}</span> : <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" allowBoost={false} requireAccount={import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} />}
+    {actionsLocked ? <span className="sod29-community-like" title="סימון אהבתי עדיין אינו זמין בגרסה זו" aria-label={`${legacyLikeCount(reactions)} אהבו · קריאה בלבד`}>👍 {legacyLikeCount(reactions) || ""}</span> : <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" allowBoost={false} requireAccount={PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} />}
     {dislikes > 0 ? <span className="sod29-community-dislikes" aria-label={`${dislikes} לא אהבו`}><span aria-hidden="true">👎</span> {dislikes}</span> : null}
   </div>;
 }
 
 function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = false, formatDate, linkAuthor = true, showAuthorAvatar = true, focused = false, messageActions, sharePath }) {
-  const actionsLocked = publicLaunchActionsLocked(useAuth().isAdmin);
+  const actionsLocked = communityActionsLocked(useAuth().isAdmin);
   const row = { ...sourceRow, ...messageActions?.patches[sourceRow.id] };
   const permissions = messageActions?.items[row.id];
   const [selection, setSelection] = useState({ principalKey: null, mode: null });
@@ -240,7 +241,7 @@ export function PublicCommunityActivity2029({ rows = [], count = null, loading =
 export default function CommunityLive2029({ leadingContent = null, trailingContent = null, canonicalPath = "/community/chat" }) {
   const palette = use2029Palette();
   const { user, profile, isAdmin } = useAuth();
-  const actionsLocked = publicLaunchActionsLocked(isAdmin);
+  const actionsLocked = communityActionsLocked(isAdmin);
   const location = useLocation(), navigate = useNavigate();
   const [params] = useSearchParams();
   const readingLocation = useRef({ params, hash: location.hash });
@@ -527,7 +528,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     if (actionsLocked) return;
     const body = draft.trim();
     if ((!body && !attachments.length) || sending) return;
-    if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user) { setNotice("יש להתחבר כדי לפרסם הודעה."); return; }
+    if ((PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user) { setNotice("יש להתחבר כדי לפרסם הודעה."); return; }
     setSending(true); setNotice(""); setAttachmentError("");
     const principal = composerPrincipal;
     const isCurrent = () => activeComposerPrincipal.current === principal;
@@ -564,14 +565,14 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": palette.mode === "dark" ? `color-mix(in srgb, ${palette.cardRaised} 82%, ${palette.ink})` : palette.cardRaised }}>
       {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
-      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>שיחה {!hasThreadRequest ? <ConversationCount /> : null}</h1>{!actionsLocked ? <p className="sod29-community-registration-note">כבר הייתם חלק מהשיחה? הירשמו עם המייל שלכם, ונעזור לכם לחבר את הפרופיל מהצ׳אט הישן לחשבון החדש.</p> : null}</header> : null}
+      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>שיחה {!hasThreadRequest ? <ConversationCount /> : null}</h1></header> : null}
       {claimId ? null : memberId ? <Suspense fallback={null}>
         <PublicContributor2029Page communityAuthorKey={memberId}
           entryReturnHref={communityPersonReturnHref(window.location.pathname, params.toString(), window.location.hash)}
           communityOwnProfileHref={!actionsLocked && isOwner ? writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search }) : null}
           onCommunityReply={actionsLocked ? undefined : (item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
-        {actionsLocked ? <p className="sod29-community-registration-note" role="note">השיחות וההיסטוריה הציבורית פתוחות לקריאה. פרסום, תגובות, סימון אהבתי ופעולות חשבון עדיין אינם זמינים בגרסה זו.</p> : <div className="sod29-community-entry-tools"><CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} />{!user ? <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /> : null}</div>}
+        {!actionsLocked ? <div className="sod29-community-entry-tools"><CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} />{!user ? <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /> : null}</div> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
@@ -589,8 +590,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {!compactComposer ? <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} title={!user ? "יש להתחבר כדי לצרף קבצים" : undefined} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ או סרטון</button><small>עד 3 קבצים · סרטון עד 50MB, קובץ אחר עד 8MB · גלויים לציבור</small></div> : null}
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index))} />)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
-          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!draft.trim() && !attachments.length) || sending || import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user} title={import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
-          {import.meta.env.VITE_INTEGRATED_PREVIEW === "true" && !user ? <p className="sod29-community-feed-controls-note">התחברו כדי לפרסם הודעות, לצרף קבצים ולסמן אהבתי.</p> : null}
+          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!draft.trim() && !attachments.length) || sending || (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user} title={(PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
+          {(PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user ? <p className="sod29-community-feed-controls-note">התחברו כדי לפרסם הודעות, לצרף קבצים ולסמן אהבתי.</p> : null}
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
         </section> : null}
         {hasThreadRequest ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">
@@ -629,9 +630,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
         </>}
       </section></div>}
-      {!memberId && !claimId ? <footer className="sod29-community-public-footer" aria-label="השתתפות בקהילה">
-        {trailingContent && !hasThreadRequest ? <a href="#legacy-chat">{actionsLocked ? "היסטוריית הצ׳אט הוותיק ↓" : "ממשיכים לשוחח ↓"}</a> : null}
-        <p>משתפים בכבוד, מצרפים מקורות כשאפשר ושומרים על הפרטיות.</p>
+      {!memberId && !claimId && trailingContent && !hasThreadRequest ? <footer className="sod29-community-public-footer" aria-label="השתתפות בקהילה">
+        <a href="#legacy-chat">לצ׳אט הישן ↓</a>
       </footer> : null}
       {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
         <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>

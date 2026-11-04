@@ -2,6 +2,7 @@ import { verifyReadingAdmin, verifyReadingPrincipal } from "./admin-request.js";
 import { readingPersonalResponse } from "./personal-request.js";
 import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.js";
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
+import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
 // which records are public. Explicit verified-admin actions retain the existing
@@ -38,10 +39,73 @@ function installPublicReadingWorker(policy) {
   }
   const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   const readFetch = req => fetch(new Request(req, { cache: "no-store", credentials: "omit", redirect: "error" }));
+  // Existing Community contracts restored from the accepted working weekly
+  // Preview. This admits only explicit authenticated Community operations;
+  // the canonical RPCs retain authorship, moderation and ownership authority.
+  const communityResponse = async req => {
+    const url = new URL(req.url);
+    const rpc = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(url.pathname)?.[1];
+    const names = new Set(["add_contribution", "toggle_contribution_reaction", "contributors_claim_legacy", "community_message_actions_v1", "community_edit_message", "community_delete_message"]);
+    const upload = url.pathname.startsWith("/storage/v1/object/gallery/community/") && !safeMethods.has(req.method);
+    const sso = url.pathname === "/functions/v1/openweb-sso";
+    if (url.origin !== authOrigin || !names.has(rpc) && !upload && !sso) return null;
+    if (req.method !== "POST" || url.search || req.signal.aborted) return denied();
+    const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+    const uid = await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
+    if (!uid || req.signal.aborted) return denied();
+    if (upload) {
+      const path = /^\/storage\/v1\/object\/gallery\/community\/([0-9a-f-]{36})\/([0-9a-f-]{36})\.([a-z0-9]+)$/i.exec(url.pathname);
+      if (!path || path[1] !== uid || !uuid(path[2]) || req.headers.get("x-upsert") !== "false"
+        || !req.headers.get("Content-Type")?.startsWith("multipart/form-data;")) return denied();
+      const form = await req.clone().formData();
+      if ([...form.keys()].some(key => !["", "cacheControl"].includes(key)) || form.getAll("").length !== 1) return denied();
+      const file = form.get(""), type = policy.communityUpload.types[file?.type?.toLowerCase()];
+      if (!type || !type.extensions.includes(path[3].toLowerCase()) || !(file.size > 0)
+        || file.size > (type.kind === "video" ? policy.communityUpload.videoMaxBytes : policy.communityUpload.fileMaxBytes)) return denied();
+      return readFetch(req);
+    }
+    const body = await jsonBody(req), keys = Object.keys(body).sort().join(",");
+    if (sso) return keys === "code_a" && typeof body.code_a === "string" && body.code_a.trim()
+      && body.code_a.length <= 512 ? readFetch(req) : denied();
+    if (rpc === "contributors_claim_legacy") return keys === "p_contributor_id" && uuid(body.p_contributor_id) ? readFetch(req) : denied();
+    if (rpc === "community_message_actions_v1") return keys === "p_ids" && Array.isArray(body.p_ids)
+      && body.p_ids.length <= 100 && body.p_ids.every(uuid) ? readFetch(req) : denied();
+    if (rpc === "community_delete_message") return keys === "p_id" && uuid(body.p_id) ? readFetch(req) : denied();
+    if (rpc === "community_edit_message") return keys === "p_body,p_id" && uuid(body.p_id)
+      && typeof body.p_body === "string" && body.p_body.trim().length > 0
+      && Array.from(body.p_body.trim()).length <= 6000 ? readFetch(req) : denied();
+    let publicTarget = null;
+    if (rpc === "toggle_contribution_reaction") {
+      if (keys !== "p_emoji,p_id,p_visitor" || !uuid(body.p_id) || body.p_visitor !== null
+        || !["👍", "💡", "🔥", "🙏", "✨"].includes(body.p_emoji)) return denied();
+      publicTarget = body.p_id;
+    } else {
+      if (keys !== "p_author_name,p_body,p_gematria_claim,p_image_url,p_intent,p_origin,p_parent_id,p_target_id,p_target_type,p_title"
+        || body.p_origin !== "community_2029" || body.p_intent !== "תגובה"
+        || body.p_target_type !== "home" || body.p_target_id !== "community"
+        || body.p_title !== null || body.p_gematria_claim !== null || body.p_image_url !== null
+        || !(body.p_parent_id === null || uuid(body.p_parent_id))
+        || typeof body.p_body !== "string" || !body.p_body.trim() || Array.from(body.p_body).length > 6000
+        || !(body.p_author_name === null || typeof body.p_author_name === "string" && body.p_author_name.length <= 200)) return denied();
+      publicTarget = body.p_parent_id;
+    }
+    if (publicTarget) {
+      const context = await fetch(authOrigin + "/rest/v1/rpc/community_message_context?select=" + encodeURIComponent(policy.communityFields), {
+        method: "POST", headers: { apikey: policy.anonKey || req.headers.get("apikey") || "", Authorization: "Bearer " + (policy.anonKey || req.headers.get("apikey") || ""), "Content-Type": "application/json" },
+        body: JSON.stringify({ p_id: publicTarget }), cache: "no-store", credentials: "omit", redirect: "error", signal: req.signal,
+      });
+      if (!context.ok) return new Response(JSON.stringify({ error: "public_reply_context_unavailable" }), { status: 503 });
+      const chain = await context.json();
+      if (!Array.isArray(chain) || !chain.some(row => row.id === publicTarget)) return denied();
+    }
+    return req.signal.aborted ? denied() : readFetch(req);
+  };
   const adminFunctions = new Set(["ai-analyze", "research-run", "els-search-bridge", "media-upload-intent", "journey-message", "number-researcher", "raziel-attention", "lab-teacher", "gallery-ocr", "post-save", "post-ai-edit"]);
   const blockedRpc = /^(?:credit_|membership_|claim_daily_credit$|claim_research_lead$|cardcom_|checkout_|billing_|newsletter_|subscribe_email|send_|wa_system_|meta_capi)/;
   const blockedTables = new Set(["site_flags", "profiles", "credit_ledger", "credit_action_prices", "membership_credit_cycles", "credit_reservations", "credit_reservation_allocations", "subscribers", "events", "visitor_events"]);
   const adminFetch = async req => {
+    const community = await communityResponse(req);
+    if (community) return community;
     const personal = await readingPersonalResponse(req, { apiKey:req.headers.get("apikey")||policy.anonKey, clientOrigin:self.location.origin, verify:verifyReadingPrincipal });
     if (personal) return personal;
     const target = new URL(req.url);
@@ -83,6 +147,10 @@ function installPublicReadingWorker(policy) {
   self.addEventListener("fetch", event => {
     const req = event.request, url = new URL(req.url);
     const rpc = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(url.pathname)?.[1];
+    // The restored original OpenWeb box uses its own guest/login/publication
+    // API. Preserve that working service instead of applying native read-only
+    // restrictions to its bootstrap and explicit chat actions.
+    if (url.origin === "https://api-2-0.spot.im" && ["GET", "HEAD", "POST", "OPTIONS"].includes(req.method)) return;
     if (interceptPublicReadingAdminAuth(event, authOrigin, { accountAccess: true, clientOrigin: self.location.origin }) || interceptOpeningMail(event, authOrigin)) return;
     if (url.origin === "https://linswmnnkjxvweumprav.storage.supabase.co" && url.pathname.startsWith("/storage/v1/upload/")) {
       event.respondWith(adminFetch(req).catch(() => denied())); return;
@@ -222,7 +290,7 @@ function installPublicReadingWorker(policy) {
 export function buildPublicReadingWorker(sourceSha, { anonKey = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
   return `${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
-    sourceSha, anonKey, reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS })});\n`;
+    sourceSha, anonKey, reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 
 // One deadline covers register, install, ready, controller and policy handshake.

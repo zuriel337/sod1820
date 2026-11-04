@@ -218,3 +218,48 @@ test('actual emitted worker admits only read-only verified WhatsApp association 
  const w=worker();assert.equal((await w.request(path,{method:'GET',jwt:''})).status,403);assert.equal(w.calls.length,0);
  for(const rpc of ['request_wa_link_code','verify_wa_link_code','unlink_my_wa']){const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/'+rpc,{body:{p_phone:'synthetic'}})).status,403);assert.equal(w.calls.some(req=>new URL(req.url).pathname.endsWith('/'+rpc)),false);}
 });
+
+
+const communityBody = Object.freeze({p_intent:'תגובה',p_origin:'community_2029',p_body:'A public message',p_target_type:'home',p_target_id:'community',p_parent_id:null,p_title:null,p_gematria_claim:null,p_author_name:null,p_image_url:null});
+test('restored native Community publishes for a verified ordinary member through the existing RPC',async()=>{
+ const w=worker({role:'user'});
+ const r=await w.request('/rest/v1/rpc/add_contribution',{body:communityBody});
+ assert.equal(r.status,200);assert.equal(w.calls.length,2);
+ assert.equal(w.calls[0].url,API+'/auth/v1/user');
+ assert.equal(w.calls[1].url,API+'/rest/v1/rpc/add_contribution');
+ assert.equal(await w.calls[1].clone().text(),JSON.stringify(communityBody));
+ assert.equal(w.calls[1].headers.get('authorization'),'Bearer '+token());
+});
+test('restored Community rejects guests, expired sessions, forged actors and malformed publication',async()=>{
+ for(const options of [{jwt:token(a,'anon')},{jwt:'malformed'}]){
+  const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/add_contribution',{body:communityBody,...options})).status,403);
+  assert.equal(w.calls.length,0);
+ }
+ for(const config of [{authError:true},{uid:b}]){
+  const w=worker({...config,role:'user'});assert.equal((await w.request('/rest/v1/rpc/add_contribution',{body:communityBody})).status,403);
+  assert.ok(!w.calls.some(r=>r.url.endsWith('/add_contribution')));
+ }
+ for(const body of [{...communityBody,p_body:''},{...communityBody,p_origin:'broadcast'},{...communityBody,p_target_id:'private'},{...communityBody,p_body:'x'.repeat(6001)},{...communityBody,author_user_id:b}]){
+  const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/add_contribution',{body})).status,403);
+  assert.ok(!w.calls.some(r=>r.url.endsWith('/add_contribution')));
+ }
+});
+test('reply and reaction targets require the canonical anonymous public context',async()=>{
+ for(const visible of [true,false])for(const kind of ['reply','reaction']){
+  const w=worker({role:'user',anonKey:'public-synthetic',fetchAction:req=>req.url.includes('/community_message_context?')?json(visible?[{id:b}]:[]):json({ok:true})});
+  const path=kind==='reply'?'/rest/v1/rpc/add_contribution':'/rest/v1/rpc/toggle_contribution_reaction';
+  const body=kind==='reply'?{...communityBody,p_parent_id:b}:{p_id:b,p_emoji:'👍',p_visitor:null};
+  assert.equal((await w.request(path,{body})).status,visible?200:403);
+  const context=w.calls.find(r=>r.url.includes('/community_message_context?'));
+  assert.equal(context.headers.get('authorization'),'Bearer public-synthetic');
+  assert.equal(w.calls.filter(r=>r.url===API+path).length,visible?1:0);
+ }
+});
+test('original OpenWeb API and authenticated existing SSO are available without opening foreign writes or model access',async()=>{
+ const w=worker({role:'user'});
+ assert.equal(await w.request('/v1.0.0/conversation/read',{origin:'https://api-2-0.spot.im'}),null);
+ assert.equal((await w.request('/v1.0.0/conversation/read',{origin:'https://foreign.invalid'})).status,403);
+ assert.equal((await w.request('/functions/v1/openweb-sso',{body:{code_a:'synthetic-code'}})).status,200);
+ assert.equal((await w.request('/functions/v1/openweb-sso',{body:{code_a:'synthetic-code',user_id:b}})).status,403);
+ assert.equal((await w.request('/functions/v1/ai-analyze',{body:{persona:'raziel'}})).status,403);
+});

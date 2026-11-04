@@ -226,6 +226,10 @@ export async function fetchCommunityReplies(parentId, { offset = 0, limit = COMM
 }
 
 export async function fetchCommunityReplyCounts(parentIds, { client = communityReadClient() } = {}) {
+  // The public release admits replies only after checking their public context.
+  // Its transport intentionally blocks the separate counts RPC. Keep counts
+  // unknown until the approved replies page loads instead of sending a denied read.
+  if (PUBLIC_LAUNCH_READ_ONLY_PREVIEW) return {};
   const ids = [...new Set(parentIds)].filter((id) => UUID_PATTERN.test(id || ""));
   if (!ids.length) return {};
   const counts = Object.fromEntries(ids.map((id) => [id, 0]));

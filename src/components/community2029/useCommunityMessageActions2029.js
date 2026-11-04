@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
+import { communityActionsLocked } from "../../lib/publicLaunch2029.js";
 import { deleteCommunityMessage, editCommunityMessage, fetchCommunityMessageActions } from "../../lib/community/communityMessageActions.js";
 
 const empty = principalKey => ({ principalKey, items: {}, patches: {}, state: "loading" });
@@ -10,7 +10,7 @@ const validId = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-
 // authority; this hook is shared by the feed and the existing author activity.
 export function useCommunityMessageActions2029(rows, onChanged) {
   const { user, isAdmin } = useAuth();
-  const actionsLocked = publicLaunchActionsLocked(isAdmin);
+  const actionsLocked = communityActionsLocked(isAdmin);
   const principalKey = actionsLocked ? null : user?.id || null;
   const current = useRef(principalKey); current.current = principalKey;
   const mounted = useRef(true);
