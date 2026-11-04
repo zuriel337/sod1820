@@ -1,0 +1,12 @@
+✔ only canonical indexable GET200 retains the existing XML owner's public CDN and stale policy (1.353372ms)
+✔ unadmitted review origins are rejected; noindex and alias origins cannot receive canonical caching (0.290648ms)
+✔ HEAD, rejected methods, missing activation and invalid origins cannot populate the public cache (0.439744ms)
+✔ non200, thrown sources and private or incomplete source cache policies fail closed without stale errors (0.664793ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 205.227098

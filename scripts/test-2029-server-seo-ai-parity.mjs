@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import handler from "../api/og.js";
 import sitemapHandler from "../api/sitemap.js";
-import { publicReadingSitemapHandler } from "../public-reading-deploy/api/public-sitemap.js";
+import { loadPublicSitemapAdapter } from "../test/fixtures/public-sitemap-adapter.mjs";
 import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
 
 function makeRes() {
@@ -329,6 +329,7 @@ assert.ok(
 // current sitemap cache/indexability. These are synthetic public-only rows.
 const privacySitemapFetch = globalThis.fetch;
 try {
+  const publicReadingSitemapHandler = await loadPublicSitemapAdapter();
   globalThis.fetch = async () => new Response("[]", { headers: { "Content-Type": "application/json" } });
   const sitemapResponse = makeRes();
   const publicationRequest = { method: "GET", url: "/sitemap.xml", headers: { host: "sod1820.co.il" }, query: {} };

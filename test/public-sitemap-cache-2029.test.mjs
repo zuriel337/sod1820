@@ -1,6 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { publicReadingSitemapHandler } from "../public-reading-deploy/api/public-sitemap.js";
+import { loadPublicSitemapAdapter } from "./fixtures/public-sitemap-adapter.mjs";
+
+const publicReadingSitemapHandler = await loadPublicSitemapAdapter();
 
 const CANONICAL = "https://sod1820.co.il";
 const PUBLIC_POLICY = "public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400";
