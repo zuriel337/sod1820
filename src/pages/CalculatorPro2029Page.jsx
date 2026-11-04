@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
+import CalculatorEqualsPreview2029 from "../components/gematria2029/CalculatorEqualsPreview2029.jsx";
 import CalculatorOpening2029 from "../components/gematria2029/CalculatorOpening2029.jsx";
 import CalculatorDuo2029 from "../components/gematria2029/CalculatorDuo2029.jsx";
 import CalculatorLedgerCard2029 from "../components/gematria2029/CalculatorLedgerCard2029.jsx";
@@ -333,6 +334,12 @@ function ProExperience() {
     shell.openRaziel?.({ numberCoreFocus, razielMicroIntent: "explain_method" });
   };
 
+  const openExpression = (item) => {
+    if (!item?.phrase || !canonicalSelection || canonicalSelection.resultValue == null) return;
+    const href = numberExpressionFocusHref(canonicalSelection.resultValue, { expression: item.phrase, method: canonicalSelection.methodKey });
+    if (href) navigate(href);
+  };
+
   const handleLensProjection = useCallback((data) => {
     if (!canonicalSelection) return;
     const items = Array.isArray(data?.items) ? data.items : [];
@@ -369,12 +376,28 @@ function ProExperience() {
   const showDuo = Boolean(canonicalSelection) && (advanced || wide);
   const isEnglishSelected = selectedMethod?.language === "en";
 
+  // D3: a count of matching methods is NOT a count of independent evidence axes. This page does not
+  // receive governed equivalence/evidence classification, so "independent" is never claimed here;
+  // only roles the Registry itself marks (derived / composite / equivalent) are called out, and the
+  // sentence always says it is a method count.
+  const sameValueReadout = useMemo(() => {
+    if (!selectedMethod || !sameValueMethods.length) return null;
+    const roleByKey = new Map((presentation.methods || []).map((method) => [method.methodKey, method.primaryRole]));
+    const keys = [selectedMethod.methodKey, ...sameValueMethods.map((method) => method.methodKey)];
+    const flagged = keys.filter((key) => ["derived", "composite", "equivalent"].includes(roleByKey.get(key))).length;
+    const parts = [`אותו ערך מופיע ב־${keys.length} שיטות`];
+    if (flagged > 0) parts.push(flagged === 1 ? "אחת מהן נגזרת, שקולה או מורכבת" : `${flagged} מהן נגזרות, שקולות או מורכבות`);
+    parts.push("ספירת שיטות, לא ראיות עצמאיות");
+    return parts.join(" · ");
+  }, [selectedMethod, sameValueMethods, presentation]);
+
   const hero = selectedMethod && activeValue != null ? (
     <section className="sod29-calcpro-hero" aria-label="התוצאה הפעילה">
       <strong className="sod29-calcpro-hero-value">{fmt(activeValue)}</strong>
       <div>
         <b>{selectedMethod.publicLabel || selectedMethod.label}</b>
         <span>{info.expression}</span>
+        {sameValueReadout ? <small className="sod29-calcpro-readout">{sameValueReadout}</small> : null}
         {sameValueMethods.length ? (
           <p>
             {sameValueMethods.slice(0, 3).map((method) => (
@@ -521,6 +544,20 @@ function ProExperience() {
 
         <div className="sod29-calcpro-main">
           {hero}
+          {canonicalSelection ? (
+            <CalculatorEqualsPreview2029
+              selection={canonicalSelection}
+              onOpenExpression={(item) => {
+                emit("calculator_2029", "equals_preview_phrase_opened", { props: { surface: "professional", method: canonicalSelection.methodKey } });
+                openExpression(item);
+              }}
+              onOpenAll={() => {
+                emit("calculator_2029", "equals_preview_all_opened", { props: { surface: "professional", method: canonicalSelection.methodKey } });
+                openNumber();
+              }}
+              onShown={(total) => emit("calculator_2029", "equals_preview_shown", { props: { surface: "professional", method: canonicalSelection.methodKey, count: total } })}
+            />
+          ) : null}
           {wide ? null : (effectiveView === "ledger" ? ledgerView : tilesView)}
           {!wide ? englishBlock : null}
           {showDuo ? (
@@ -565,11 +602,7 @@ function ProExperience() {
               compact
               onOpened={() => emit("calculator_2029", "method_opened", { props: { surface: "professional", expression: canonicalSelection.expression, method: canonicalSelection.methodKey } })}
               onProjection={handleLensProjection}
-              onOpenExpression={(item) => {
-                if (!item?.phrase || canonicalSelection.resultValue == null) return;
-                const href = numberExpressionFocusHref(canonicalSelection.resultValue, { expression: item.phrase, method: canonicalSelection.methodKey });
-                if (href) navigate(href);
-              }}
+              onOpenExpression={openExpression}
             />
           ) : null}
 

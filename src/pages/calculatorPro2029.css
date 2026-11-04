@@ -171,6 +171,35 @@
   font-weight: 600;
 }
 
+/* equals preview — one verified lookup, same method/value; evidence, not interpretation */
+.sod29-calcpro-equals {
+  display: grid;
+  gap: 10px;
+  padding: 16px 20px;
+  border: 1px solid var(--s29-line);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--s29-accent) 6%, var(--s29-panel));
+}
+.sod29-calcpro-equals h4 { margin: 0; display: grid; gap: 2px; }
+.sod29-calcpro-equals h4 span { color: var(--s29-muted); font-size: 13px; font-weight: 600; }
+.sod29-calcpro-equals h4 strong { color: var(--s29-ink); font-size: 18px; }
+.sod29-calcpro-equals-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.sod29-calcpro-equals-list button {
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  min-height: 40px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--s29-line-strong);
+  background: var(--s29-panel);
+  color: var(--s29-ink);
+  cursor: pointer;
+}
+.sod29-calcpro-equals-list button:hover:not(:disabled) { border-color: var(--s29-accent); color: var(--s29-accent); }
+.sod29-calcpro-equals-list button.is-more { border-style: dashed; color: var(--s29-muted); }
+.sod29-calcpro-equals small { color: var(--s29-muted); font-size: 12.5px; line-height: 1.6; }
+
 /* letter strip (canonical ledger values) */
 .sod29-calcpro-letters {
   display: flex;
