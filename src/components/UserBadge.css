@@ -4,3 +4,4 @@
 .sod-user-badge-copy>time{color:var(--user-badge-muted);font-size:14px;line-height:1.4}
 .sod-user-avatar{display:grid;place-items:center;flex:none;width:36px;height:36px;overflow:hidden;border-radius:50%;border:1px solid var(--user-badge-border);background:var(--user-badge-surface);color:var(--user-badge-accent);font-size:18px;font-weight:600}
 .sod-user-avatar img{display:block;width:100%;height:100%;object-fit:cover}
+.sod-user-avatar[data-avatar-state="fallback"][data-avatar-treatment="color"]{background:linear-gradient(140deg,var(--user-badge-fallback-start),var(--user-badge-fallback-end));color:var(--user-badge-fallback-ink);border-color:var(--user-badge-fallback-ring);font-weight:800;box-shadow:inset 0 1px 0 var(--user-badge-fallback-start)}
