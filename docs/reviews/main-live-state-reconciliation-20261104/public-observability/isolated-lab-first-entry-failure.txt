@@ -1,0 +1,10 @@
+file:///workspace/sod1820-bd-approved/public-reading-deploy/transport.js:429
+  if (!/^\/assets\/[A-Za-z0-9_.-]+\.js$/.test(entry) || !/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("invalid_build_identity");
+                                                                                                 ^
+
+Error: invalid_build_identity
+    at publicReadingBootstrap (file:///workspace/sod1820-bd-approved/public-reading-deploy/transport.js:429:98)
+    at Server.<anonymous> (file:///tmp/sod-observability-real-sw-lab.mjs:33:104)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.22.1

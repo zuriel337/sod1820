@@ -1,0 +1,197 @@
+{
+  "sha": "2c3899a0b7370b6e1dbaad34ccb2e90927aab339",
+  "origin": "https://sod1820-hgneby80w-sod1820-s-projects.vercel.app",
+  "realSW": true,
+  "responseMocks": false,
+  "intentionalProductWrites": 0,
+  "rows": [
+    {
+      "path": "/",
+      "width": 390,
+      "status": 200,
+      "usefulContentMs": 2689,
+      "numberRoot": null,
+      "canonical": "https://sod1820.co.il",
+      "errors": [],
+      "pass": true,
+      "harnessSeedScopes": [
+        {
+          "top": true,
+          "seedDenied": null,
+          "opaqueOrigin": false
+        },
+        {
+          "top": false,
+          "seedDenied": "SecurityError",
+          "opaqueOrigin": false
+        }
+      ]
+    },
+    {
+      "path": "/world",
+      "width": 390,
+      "status": 200,
+      "usefulContentMs": 3089,
+      "numberRoot": null,
+      "canonical": "https://sod1820.co.il/world",
+      "errors": [],
+      "pass": true,
+      "harnessSeedScopes": [
+        {
+          "top": true,
+          "seedDenied": null,
+          "opaqueOrigin": false
+        },
+        {
+          "top": false,
+          "seedDenied": "SecurityError",
+          "opaqueOrigin": false
+        }
+      ]
+    },
+    {
+      "path": "/number/1820",
+      "width": 390,
+      "status": 200,
+      "usefulContentMs": 2591,
+      "numberRoot": "1820",
+      "canonical": "https://sod1820.co.il/number/1820",
+      "errors": [],
+      "pass": true,
+      "harnessSeedScopes": [
+        {
+          "top": true,
+          "seedDenied": null,
+          "opaqueOrigin": false
+        },
+        {
+          "top": false,
+          "seedDenied": "SecurityError",
+          "opaqueOrigin": false
+        }
+      ]
+    },
+    {
+      "path": "/number/משיח",
+      "width": 390,
+      "status": 200,
+      "usefulContentMs": 2097,
+      "numberRoot": "358",
+      "canonical": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+      "errors": [],
+      "pass": true,
+      "harnessSeedScopes": [
+        {
+          "top": true,
+          "seedDenied": null,
+          "opaqueOrigin": false
+        },
+        {
+          "top": false,
+          "seedDenied": "SecurityError",
+          "opaqueOrigin": false
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "exactNumberPhraseBackForward": true,
+      "workerVerified": true,
+      "pass": true
+    },
+    {
+      "path": "/",
+      "width": 1440,
+      "status": 200,
+      "usefulContentMs": 3001,
+      "numberRoot": null,
+      "canonical": "https://sod1820.co.il",
+      "errors": [],
+      "pass": true,
+      "harnessSeedScopes": [
+        {
+          "top": true,
+          "seedDenied": null,
+          "opaqueOrigin": false
+        },
+        {
+          "top": false,
+          "seedDenied": "SecurityError",
+          "opaqueOrigin": false
+        }
+      ]
+    },
+    {
+      "path": "/world",
+      "width": 1440,
+      "status": 200,
+      "usefulContentMs": 1078,
+      "numberRoot": null,
+      "canonical": "https://sod1820.co.il/world",
+      "errors": [],
+      "pass": true,
+      "harnessSeedScopes": [
+        {
+          "top": true,
+          "seedDenied": null,
+          "opaqueOrigin": false
+        },
+        {
+          "top": false,
+          "seedDenied": "SecurityError",
+          "opaqueOrigin": false
+        }
+      ]
+    },
+    {
+      "path": "/number/1820",
+      "width": 1440,
+      "status": 200,
+      "usefulContentMs": 2410,
+      "numberRoot": "1820",
+      "canonical": "https://sod1820.co.il/number/1820",
+      "errors": [],
+      "pass": true,
+      "harnessSeedScopes": [
+        {
+          "top": true,
+          "seedDenied": null,
+          "opaqueOrigin": false
+        },
+        {
+          "top": false,
+          "seedDenied": "SecurityError",
+          "opaqueOrigin": false
+        }
+      ]
+    },
+    {
+      "path": "/number/משיח",
+      "width": 1440,
+      "status": 200,
+      "usefulContentMs": 3262,
+      "numberRoot": "358",
+      "canonical": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+      "errors": [],
+      "pass": true,
+      "harnessSeedScopes": [
+        {
+          "top": true,
+          "seedDenied": null,
+          "opaqueOrigin": false
+        },
+        {
+          "top": false,
+          "seedDenied": "SecurityError",
+          "opaqueOrigin": false
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "exactNumberPhraseBackForward": true,
+      "workerVerified": true,
+      "pass": true
+    }
+  ]
+}

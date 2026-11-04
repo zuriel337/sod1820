@@ -1,0 +1,67 @@
+{
+  "observedAt": "2026-11-04T21:54:19.471Z",
+  "baseMain": "03e74edfbeaeb7f1d191fb87dee9f8a3854c73ed",
+  "productCommit": "78775e8c37fa80fb69083095f526c06af63a1d7b",
+  "previewSource": "2c3899a0b7370b6e1dbaad34ccb2e90927aab339",
+  "preview": {
+    "id": "dpl_3t6Npc3URAMhjtN9RP4hWozeuxVb",
+    "url": "sod1820-hgneby80w-sod1820-s-projects.vercel.app",
+    "readyState": "READY",
+    "target": null,
+    "sourceSha": "2c3899a0b7370b6e1dbaad34ccb2e90927aab339"
+  },
+  "live": {
+    "sourceSha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+    "deploymentId": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+    "changedByThisTask": false
+  },
+  "environment": {
+    "hiddenProductionEnvCount": 0,
+    "variables": [
+      {
+        "key": "GA_PROPERTY_ID",
+        "target": [
+          "preview",
+          "production"
+        ],
+        "type": "sensitive",
+        "branch": null
+      },
+      {
+        "key": "GSC_SERVICE_ACCOUNT",
+        "target": [
+          "preview",
+          "production"
+        ],
+        "type": "sensitive",
+        "branch": null
+      },
+      {
+        "key": "VITE_GA_ID",
+        "target": [
+          "preview",
+          "production"
+        ],
+        "type": "sensitive",
+        "branch": null
+      }
+    ],
+    "providerCredentialsCopied": false
+  },
+  "vercelAnalyticsProbe": {
+    "status": 404,
+    "message": "Web Analytics not found",
+    "serverTokenPresent": false,
+    "activationDecisionPending": true,
+    "paidServiceActivated": false
+  },
+  "status": "STOPPED_BY_ZURIEL_HANDOFF_NOT_MERGED_NOT_LIVE",
+  "realProviderAcceptance": false,
+  "doc37": {
+    "id": 37,
+    "length": 617808,
+    "md5": "705ce60b055f9d54d38e0a1056a4b30e",
+    "priorPrefixLength": 614270,
+    "priorPrefixMd5": "7f7c1ef595509e01348ee08b6d70f743"
+  }
+}

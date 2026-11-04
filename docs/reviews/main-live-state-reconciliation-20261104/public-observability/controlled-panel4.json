@@ -1,0 +1,33 @@
+{
+  "scope": "CONTROLLED actual component/CSS with fixture provider data; no real admin/provider acceptance",
+  "rows": [
+    {
+      "width": 390,
+      "failure": false,
+      "overflow": false,
+      "errors": [],
+      "pass": true
+    },
+    {
+      "width": 390,
+      "failure": true,
+      "overflow": false,
+      "errors": [],
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "failure": false,
+      "overflow": false,
+      "errors": [],
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "failure": true,
+      "overflow": false,
+      "errors": [],
+      "pass": true
+    }
+  ]
+}
