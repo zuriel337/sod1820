@@ -6,7 +6,7 @@ Base: `163fcd6cbbd81786d5725753a24062d9be4e1ecd` (documentation after the live c
 
 ## Verified live behavior, before this fix
 
-The live product remains source `1bc8260adaa889d7903aaa33ef43510df09817f2`,
+At the initial probe the live product was source `1bc8260adaa889d7903aaa33ef43510df09817f2`,
 Production `dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A`.
 Primary public URLs use the approved unprefixed identity. This does not remove
 2029 design or the supported `/2029` compatibility routes.
@@ -49,4 +49,27 @@ The unrelated static Pro expectation remains failing and is reported as such.
 
 Receipts in this directory distinguish live-before observations, local synthetic
 tests, and any later protected Preview. A protected Preview is not a Production
-update. The live deployment above must remain unchanged in this task.
+update. No Production deployment or alias assignment is permitted in this task.
+
+## Concurrent remote advancement — preserved separately
+
+Before saving, the original remote branch independently advanced from163fcd6c
+to `bde0a822a1a33fa1d8c2e9a0d679b8359cb117f8`, an11-file community fix with
+zero overlap in this adapter, calculator sources, metadata handler or calculator
+tests. A normal push of the local fix was rejected; no force/reset, replacement,
+merge or import of those unrelated changes followed.
+
+The fix is instead saved on the separate branch
+`gpt/2029-calculator-canonical-compatibility-20261104`. The bounded metadata
+change can be integrated on the latest product without copying older files.
+The existing protected-review gate admits only the original final-preparation
+branch; no guard change or misleading Preview from an older product was made.
+No hosted verification of the fix is claimed.
+
+Readback then independently found all three live aliases on
+`dpl_9mWvyeuELvNzctiVCd5ouEAG3BNU`, READY/Production, sourcebde0a822.
+This task did not create or assign that deployment. A targeted anonymous mobile
+recheck of the same three aliases on that source still returns200 and358, and
+reproduces the same server/client canonical mismatch (`live-current-bde0.json`).
+The earlier cutover acceptance remains evidence for1bc, not a full acceptance
+claim for the later community version. No broader release tests were repeated.
