@@ -1,0 +1,30 @@
+✔ A. browser sampling — unsampled browser hit calls zero log_edge (30.134066ms)
+✔ A. browser sampling — sampled browser hit calls log_edge once with p_weight=10 (1.114421ms)
+✔ B. non-browser (goodbot/ai/bot) — log_edge always called, no p_weight (default=1), log_crawl unchanged (4.580721ms)
+✔ C. block policy — bad bot on public path still 403, sampling change does not affect blocking (0.679745ms)
+✔ C. block policy — good public crawler (Googlebot) on public path still 200 (not blocked) (0.773026ms)
+✔ C. block policy — CN/SG browser traffic is NOT blocked solely by country (edge_blocked_countries currently empty) (1.367443ms)
+edge-country-adaptive-strict: ok
+✔ test/edge-country-adaptive-strict.test.mjs (42.856787ms)
+edge-country-smart-quarantine: ok
+✔ test/edge-country-smart-quarantine.test.mjs (43.540744ms)
+✔ selected public project root binds the exact existing function and static matcher (2.084205ms)
+✔ known blocked bot stays403 on public documents, with both existing security counters (34.344559ms)
+✔ ordinary browser keeps all accepted public route families, without a parallel route policy (5.493198ms)
+✔ good public crawler is admitted on Home while costly research stays blocked (1.389227ms)
+✔ public artifact or browser-cookie claims cannot turn a blocked bot into an admitted caller (0.550311ms)
+✔ genuine missing post and impossible media identity keep their original404 (0.948982ms)
+✔ SG policy uses the canonical edge anon key without a duplicate JWT literal (2.115302ms)
+✔ SG policy lookup occurs only after browser classification (0.199732ms)
+✔ SG quarantine and approved rate limits remain unchanged (0.234424ms)
+✔ isolated CN/SG chain preserves quarantine, proof, limiter, and 429 order (46.51439ms)
+✔ deployed SG limiter source keeps the production-only OIDC boundary (0.96083ms)
+✔ actual SG limiter handler rejects non-production callers and returns the RPC decision (44.368127ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 267.270986

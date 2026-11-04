@@ -1,0 +1,24 @@
+{
+  "checkedUtc": "2026-11-04T14:38:47.693773+00:00",
+  "sourceSha": "98d0508fb81de12850d8e97c5bcc13e2206729e4",
+  "deployment": "dpl_DNiWmnVWnLfqkWQYNk94vXWD2qaF",
+  "productionChangeByThisTask": false,
+  "results": [
+    {
+      "kind": "browser",
+      "status": 200,
+      "vcPresent": true,
+      "vbPresent": true
+    },
+    {
+      "kind": "blocked_bot",
+      "status": 403
+    },
+    {
+      "kind": "public_crawler",
+      "status": 200,
+      "vcPresent": true,
+      "vbPresent": true
+    }
+  ]
+}

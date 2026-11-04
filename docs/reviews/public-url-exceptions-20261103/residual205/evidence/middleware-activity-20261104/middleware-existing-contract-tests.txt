@@ -1,0 +1,14 @@
+✔ A. browser sampling — unsampled browser hit calls zero log_edge (25.67798ms)
+✔ A. browser sampling — sampled browser hit calls log_edge once with p_weight=10 (1.038401ms)
+✔ B. non-browser (goodbot/ai/bot) — log_edge always called, no p_weight (default=1), log_crawl unchanged (3.200051ms)
+✔ C. block policy — bad bot on public path still 403, sampling change does not affect blocking (0.587478ms)
+✔ C. block policy — good public crawler (Googlebot) on public path still 200 (not blocked) (3.874409ms)
+✔ C. block policy — CN/SG browser traffic is NOT blocked solely by country (edge_blocked_countries currently empty) (0.910831ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 101.417685
