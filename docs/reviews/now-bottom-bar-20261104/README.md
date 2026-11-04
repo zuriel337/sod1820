@@ -52,7 +52,7 @@ Shared-file note (central review): `worldGroupSource.js` redaction and `worldDis
 - `SOD_BUILD_TARGET=2029 npx vite build` and the Public-Reading profile build (`VITE_PUBLIC_READING_RELEASE=public-reading-20261101`) → built.
 - Browser (`test/now-publications-2029.browser.cjs`, compiled Public-Reading profile, synthetic responses only, no live call forwarded): 12 cases — 320/390/1440 × day/parchment/night, guest, reduced motion, keyboard, filters, loading-free error and empty states, video on demand, exact opening, refresh, back. Evidence in `evidence/`.
 - Live read-only check with the anonymous public client: 101 rows, series `dimension-five`, `mah-kore-habora`, `messages-from-righteous`, `sod-hashmal` all present, 37 unverified source rows each with a world anchor, 0 raw MP4 texts.
-- `scripts/test-2029-system-frame.mjs` fails on a pre-existing, unrelated assertion (`מספר · פתח חלונית מספר`) at the base too; my assertions before it pass.
+- Pre-existing failures, identical (same failing assertions) at base `ae8deb7ae` and on this branch, not caused by this change: `scripts/test-2029-system-frame.mjs`, `test-2029-control-plane.mjs`, `test-connected-golden-2029.mjs`, `test-my-workspace-2029.mjs`, `test-public-2029-language.mjs`, `src/lib/publicContinuityReaders2029.test.js`, `razielOneShot2029.test.js`, `worldDiscoveryStream.test.js`, `test/companion-2029-public-source-shortcuts`, `date-display-rule-2029`, `doc37-mixed-page-readiness`, `doc37-runtime-admission`, `doc37-series-layout-stability`, `personal-area-balanced-rtl-2029`, `public-continuity-closure-2029`, `raziel-center-workspace-2029`. Older browser suites were not run (they need the integrated Preview build).
 
 ## Not verified / open
 
