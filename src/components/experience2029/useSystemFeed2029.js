@@ -2,6 +2,7 @@
 // is owned by watchWorldDiscoveryStream. Tiers (Gold/Diamond) are read lazily for the first three convergences.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { feedRows, feedSeenKey, mergeSystemFeedItems } from "../../lib/systemFeed2029.js";
+import { nowBadgeRows } from "../../lib/research/orGeulaNowBadgePolicy2029.js";
 import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
@@ -87,8 +88,10 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false } = {}) {
     caps: { group: 40, post: 40, convergence: 40, finding: 12, gallery: 10,
       ...Object.fromEntries(nowSources.items.filter(item => item.channel).map(item => [`channel:${item.channel}`, 12])) },
   }), [items, seen, strongIds, nowSources.items]);
-  const newCount = rows.filter((row) => row.isNew).length;
-  const newest = rows.filter((row) => row.isNew).map((row) => row.at).filter(Boolean).sort().reverse()[0] || null;
+  // Badge-only signal: Or HaGeula text can still be read, but cannot increase this number.
+  const badgeRows = nowBadgeRows(rows);
+  const newCount = badgeRows.length;
+  const newest = badgeRows.map((row) => row.at).filter(Boolean).sort().reverse()[0] || null;
   const see = useCallback((row) => setSeen((current) => (current[feedSeenKey(row.item)] ? current : markSeen(feedSeenKey(row.item), current))), []);
   return { ...state, items, rows, expandedRows, nowSources, requestNowDetails, refreshNowDetails, newCount, newest, see };
 }
