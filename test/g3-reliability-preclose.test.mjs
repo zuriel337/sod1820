@@ -95,6 +95,21 @@ test("canary: pass / non-200 / network failure", async () => {
   assert.equal((await runCanary("https://e.test", { fetchImpl: bad })).ok, false);
   assert.equal((await runCanary("https://e.test", { fetchImpl: async () => { throw new Error("net"); } })).ok, false);
 });
+test("canary: future feature growth keeps the existing default request deadline at 15 seconds", async t => {
+  const deadlines = [];
+  t.mock.method(AbortSignal, "timeout", milliseconds => {
+    deadlines.push(milliseconds);
+    return new AbortController().signal;
+  });
+  const result = await runCanary("https://e.test", {
+    fetchImpl: async url => ({ status: 200, text: async () => url.endsWith("/")
+      ? '<div id="root"></div><script src="/assets/index.js"></script>'
+      : url.endsWith("sitemap.xml") ? "<urlset></urlset>" : "x".repeat(2000) }),
+  });
+  assert.equal(result.ok, true);
+  assert.ok(deadlines.length >= 4, "exercise the real default through home, code, robots and XML");
+  assert.ok(deadlines.every(milliseconds => milliseconds === 15000), "no timeout override or automatic budget rebasing");
+});
 test("heartbeat reader is public-read transport and fails closed on non-2xx", async () => {
   let seen;
   const out = await readHeartbeat({

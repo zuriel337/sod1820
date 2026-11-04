@@ -11,6 +11,7 @@ import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES
 import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
+import CommunityMessageTime2029 from "./CommunityMessageTime2029.jsx";
 import CommunityRichText2029 from "./CommunityRichText2029.jsx";
 import CommunityPersonalActions2029 from "./CommunityPersonalActions2029.jsx";
 import { useCommunityDraft2029 } from "./useCommunityDraft2029.js";
@@ -34,7 +35,6 @@ import publicStats from "../../lib/community/communityPublicStats2029.json";
 import ShareActions from "../ShareActions.jsx";
 import { communityMessageShareUrl } from "../../lib/community/communityMessageShare.js";
 
-const dateFormat = new Intl.DateTimeFormat("he-IL", { dateStyle: "medium", timeStyle: "short" });
 const sinceFormat = new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "long", year: "numeric" });
 const compactMessages = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 }).format(publicStats.messages);
 function ConversationCount() {
@@ -68,7 +68,7 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
   const account = accountId ? accountProfiles[accountId] : null;
   const name = account?.display_name || account?.username || row.authorName;
   const badge = <UserBadge colorfulFallback fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
-    <time dateTime={row.createdAt}>{formatDate ? formatDate(row.createdAt) : dateFormat.format(new Date(row.createdAt))}</time>
+    <CommunityMessageTime2029 value={row.createdAt} formatDate={formatDate} />
   </UserBadge>;
   if (!row.authorKey || !linkAuthor) return <span className="sod29-community-author-link">{badge}</span>;
   const target = new URLSearchParams(currentParams);
@@ -706,7 +706,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <div className="sod29-community-card-section"><h3>ההודעות של {memberName}</h3>{!profileLoading && !profileError && Number.isSafeInteger(profileCount) ? <span>{profileCount.toLocaleString("he-IL")} הודעות</span> : null}</div>
           {profileLoading ? <p className="sod29-community-card-note" role="status">טוען הודעות…</p> : null}
           {profileError ? <p className="sod29-community-card-note" role="alert">{profileError}</p> : null}
-          <div className="sod29-community-card-messages">{profileRows.slice(0, 4).map((row) => <article key={row.id}><div className="sod29-community-card-meta"><span>{row.origin === "openweb" ? `הצ׳אט הוותיק · ${row.authorName}` : "הקהילה"}</span><time dateTime={row.createdAt}>{dateFormat.format(new Date(row.createdAt))}</time></div><p dir="auto">{plainMessageText(row.body)}</p><div>{legacyLikeCount(row.reactions) > 0 ? <span>👍 {legacyLikeCount(row.reactions)}</span> : null}{row.parentId ? <span>תגובה בצ׳אט</span> : null}</div></article>)}</div>
+          <div className="sod29-community-card-messages">{profileRows.slice(0, 4).map((row) => <article key={row.id}><div className="sod29-community-card-meta"><span>{row.origin === "openweb" ? `הצ׳אט הוותיק · ${row.authorName}` : "הקהילה"}</span><CommunityMessageTime2029 value={row.createdAt} /></div><p dir="auto">{plainMessageText(row.body)}</p><div>{legacyLikeCount(row.reactions) > 0 ? <span>👍 {legacyLikeCount(row.reactions)}</span> : null}{row.parentId ? <span>תגובה בצ׳אט</span> : null}</div></article>)}</div>
           {!profileLoading && !profileRows.length && !profileError ? <p className="sod29-community-card-note">אין הודעות ציבוריות לכותב זה.</p> : null}
           {writer ? <Link className="sod29-community-card-full sod29-community-card-writer" to={writerHref()}>{writer.isWriter ? "לדף הכותב ←" : "לדף הפרופיל ←"}</Link> : null}
           <button type="button" className={writer ? "sod29-community-card-full sod29-community-card-secondary" : "sod29-community-card-full"} onClick={openFullProfile}>{writer ? "כל ההודעות בקהילה ←" : "לעמוד הכותב המלא ←"}</button>
