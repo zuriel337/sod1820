@@ -25,10 +25,10 @@ export default function ReactionBar(props) {
   return <LiveReactionBar {...props} />;
 }
 
-function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, variant, allowBoost = true, requireAccount = false }) {
+function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, variant, allowBoost = true, requireAccount = false, repeatable = false }) {
   const P = usePalette();
   const { user, isAdmin } = useAuth();
-  const myKey = user?.id || ("v:" + getVisitorId());
+  const myKey = repeatable ? "community-repeatable-like" : user?.id || ("v:" + getVisitorId());
   const [rx, setRx] = useState(reactions || {});
   const [bx, setBx] = useState(boosts || {});   // 👑 בוסטים (אדמין)
   const [busy, setBusy] = useState(false);
@@ -45,11 +45,12 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
 
   const boostOf = (e) => Number(bx[e]) || 0;
   // OpenWeb's imported archive stores its historical 👍 count in reactions.likes.
-  // New reactions keep using the canonical per-identity array. Both are displayed,
-  // while the server continues to toggle only the canonical array.
+  // Display imported likes, existing per-identity reactions and the explicit
+  // additive Community counter without rewriting either older baseline.
   const historicalLikes = Number(rx?.likes) > 0 ? Number(rx.likes) : 0;
-  const count = (e) => (Array.isArray(rx[e]) ? rx[e].length : 0) + (e === "👍" ? historicalLikes : 0) + boostOf(e);
-  const mine = (e) => Array.isArray(rx[e]) && rx[e].includes(myKey);
+  const addedLikes = Math.max(0, Number(rx?.community_likes) || 0);
+  const count = (e) => (Array.isArray(rx[e]) ? rx[e].length : 0) + (e === "👍" ? historicalLikes + addedLikes : 0) + boostOf(e);
+  const mine = (e) => !repeatable && Array.isArray(rx[e]) && rx[e].includes(myKey);
 
   const toggle = async (e) => {
     if (busy || !id || requireAccount && !user) return;
@@ -62,8 +63,8 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
     if (i >= 0) arr.splice(i, 1); else arr.push(myKey);
     const saved = await commitReactionMutation({
       previous: rx,
-      optimistic: { ...rx, [e]: arr },
-      request: () => supabase.rpc("toggle_contribution_reaction", { p_id: id, p_emoji: e, p_visitor: user ? null : getVisitorId() }),
+      optimistic: repeatable && e === "👍" ? { ...rx, community_likes: addedLikes + 1 } : { ...rx, [e]: arr },
+      request: () => supabase.rpc("toggle_contribution_reaction", { p_id: id, p_emoji: e, p_visitor: repeatable && e === "👍" ? "community-repeatable-like" : user ? null : getVisitorId() }),
       apply: value => { if (current()) setRx(value); },
     });
     if (current()) { if (!saved) setError("לא נשמרה התגובה. נסו שוב."); setBusy(false); }
@@ -122,7 +123,7 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
     const e = "👍", c = count(e), on = mine(e);
     return (
       <span style={{ display: "inline-flex", flexWrap: "wrap", maxWidth: "100%", alignItems: "center", gap: 4 }} onClick={(ev) => ev.stopPropagation()}>
-        <button onClick={(ev) => { ev.stopPropagation(); toggle(e); }} disabled={busy || requireAccount && !user} aria-pressed={on} aria-describedby={error ? errorId : undefined} aria-label={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : on ? "בטל לייק" : "אהבתי"} title={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : on ? "בטל לייק" : "אהבתי"}
+        <button onClick={(ev) => { ev.stopPropagation(); toggle(e); }} disabled={busy || requireAccount && !user} aria-pressed={repeatable ? undefined : on} aria-describedby={error ? errorId : undefined} aria-label={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : repeatable ? "הוסף לייק" : on ? "בטל לייק" : "אהבתי"} title={requireAccount && !user ? "יש להתחבר כדי לסמן אהבתי" : repeatable ? "הוסף לייק" : on ? "בטל לייק" : "אהבתי"}
           style={{ ...pill(e, on), minWidth: 44, minHeight: 44 }}>
           <span style={{ fontSize: 14 }}>{e}</span>{c > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c}</span>}
         </button>
@@ -138,7 +139,7 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
       {EMOJIS.map(e => {
         const c = count(e), on = mine(e);
         return (
-          <button key={e} onClick={() => toggle(e)} disabled={busy} aria-pressed={on} aria-describedby={error ? errorId : undefined} title={on ? "בטל" : "הגב"} style={pill(e, on)}>
+          <button key={e} onClick={() => toggle(e)} disabled={busy} aria-pressed={repeatable ? undefined : on} aria-describedby={error ? errorId : undefined} title={on ? "בטל" : "הגב"} style={pill(e, on)}>
             <span style={{ fontSize: 14 }}>{e}</span>{c > 0 && <span style={{ fontVariantNumeric: "tabular-nums" }}>{c}</span>}
           </button>
         );

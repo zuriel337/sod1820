@@ -50,9 +50,12 @@ function installPublicReadingWorker(policy) {
     const sso = url.pathname === "/functions/v1/openweb-sso";
     if (url.origin !== authOrigin || !names.has(rpc) && !upload && !sso) return null;
     if (req.method !== "POST" || url.search || req.signal.aborted) return denied();
+    const parsed = names.has(rpc) ? await jsonBody(req) : null;
+    const repeatableLike = rpc === "toggle_contribution_reaction" && Object.keys(parsed).sort().join(",") === "p_emoji,p_id,p_visitor"
+      && parsed.p_visitor === "community-repeatable-like" && parsed.p_emoji === "👍" && uuid(parsed.p_id);
     const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
-    const uid = await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
-    if (!uid || req.signal.aborted) return denied();
+    const uid = repeatableLike ? null : await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
+    if ((!repeatableLike && !uid) || req.signal.aborted) return denied();
     if (upload) {
       const path = /^\/storage\/v1\/object\/gallery\/community\/([0-9a-f-]{36})\/([0-9a-f-]{36})\.([a-z0-9]+)$/i.exec(url.pathname);
       if (!path || path[1] !== uid || !uuid(path[2]) || req.headers.get("x-upsert") !== "false"
@@ -64,7 +67,7 @@ function installPublicReadingWorker(policy) {
         || file.size > (type.kind === "video" ? policy.communityUpload.videoMaxBytes : policy.communityUpload.fileMaxBytes)) return denied();
       return readFetch(req);
     }
-    const body = await jsonBody(req), keys = Object.keys(body).sort().join(",");
+    const body = parsed || await jsonBody(req), keys = Object.keys(body).sort().join(",");
     if (sso) return keys === "code_a" && typeof body.code_a === "string" && body.code_a.trim()
       && body.code_a.length <= 512 ? readFetch(req) : denied();
     if (rpc === "contributors_claim_legacy") return keys === "p_contributor_id" && uuid(body.p_contributor_id) ? readFetch(req) : denied();
@@ -76,7 +79,7 @@ function installPublicReadingWorker(policy) {
       && Array.from(body.p_body.trim()).length <= 6000 ? readFetch(req) : denied();
     let publicTarget = null;
     if (rpc === "toggle_contribution_reaction") {
-      if (keys !== "p_emoji,p_id,p_visitor" || !uuid(body.p_id) || body.p_visitor !== null
+      if (keys !== "p_emoji,p_id,p_visitor" || !uuid(body.p_id) || body.p_visitor !== null && !repeatableLike
         || !["👍", "💡", "🔥", "🙏", "✨"].includes(body.p_emoji)) return denied();
       publicTarget = body.p_id;
     } else {
@@ -98,7 +101,12 @@ function installPublicReadingWorker(policy) {
       const chain = await context.json();
       if (!Array.isArray(chain) || !chain.some(row => row.id === publicTarget)) return denied();
     }
-    return req.signal.aborted ? denied() : readFetch(req);
+    if (req.signal.aborted) return denied();
+    if (repeatableLike) {
+      const key = policy.anonKey || req.headers.get("apikey") || "";
+      return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
+    }
+    return readFetch(req);
   };
   const adminFunctions = new Set(["ai-analyze", "research-run", "els-search-bridge", "media-upload-intent", "journey-message", "number-researcher", "raziel-attention", "lab-teacher", "gallery-ocr", "post-save", "post-ai-edit"]);
   const blockedRpc = /^(?:credit_|membership_|claim_daily_credit$|claim_research_lead$|cardcom_|checkout_|billing_|newsletter_|subscribe_email|send_|wa_system_|meta_capi)/;

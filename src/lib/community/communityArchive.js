@@ -131,7 +131,8 @@ export function normalizeCommunityRow(row) {
 export function legacyLikeCount(reactions) {
   const legacy = Number(reactions?.likes);
   const modern = Array.isArray(reactions?.["👍"]) ? reactions["👍"].length : 0;
-  return (Number.isFinite(legacy) && legacy > 0 ? legacy : 0) + modern;
+  const added = Number(reactions?.community_likes);
+  return (Number.isFinite(legacy) && legacy > 0 ? legacy : 0) + modern + (Number.isFinite(added) && added > 0 ? added : 0);
 }
 
 // View ordering for already-loaded public roots only. Use the same historical

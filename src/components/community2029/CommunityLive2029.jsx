@@ -2,7 +2,7 @@ import React, { lazy, Suspense, useCallback, useEffect, useId, useLayoutEffect, 
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { PUBLIC_READING_PRODUCTION_ARTIFACT } from "../../lib/publicReadingRelease2029.js";
-import { communityActionsLocked } from "../../lib/publicLaunch2029.js";
+import { communityActionsLocked, publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
 import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_ACCEPT, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
 import { applySeo } from "../../lib/seo.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
@@ -72,11 +72,14 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
 }
 
 function LiveLike({ row }) {
-  const actionsLocked = communityActionsLocked(useAuth().isAdmin);
+  const { isAdmin } = useAuth();
+  const chatMessage = row.origin === "openweb" || row.origin === "community_2029";
+  const repeatable = PUBLIC_READING_PRODUCTION_ARTIFACT && chatMessage;
+  const actionsLocked = chatMessage ? communityActionsLocked(isAdmin) : publicLaunchActionsLocked(isAdmin);
   const reactions = row.reactions || {};
   const dislikes = Number(reactions.dislikes) || 0;
   return <div className="sod29-community-reactions">
-    {actionsLocked ? <span className="sod29-community-like" title="סימון אהבתי עדיין אינו זמין בגרסה זו" aria-label={`${legacyLikeCount(reactions)} אהבו · קריאה בלבד`}>👍 {legacyLikeCount(reactions) || ""}</span> : <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" allowBoost={false} requireAccount={PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true"} />}
+    {actionsLocked ? <span className="sod29-community-like" title="סימון אהבתי עדיין אינו זמין בגרסה זו" aria-label={`${legacyLikeCount(reactions)} אהבו · קריאה בלבד`}>👍 {legacyLikeCount(reactions) || ""}</span> : <ReactionBar key={JSON.stringify(reactions)} id={row.id} reactions={reactions} variant="row" allowBoost={false} repeatable={repeatable} requireAccount={!repeatable && (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true")} />}
     {dislikes > 0 ? <span className="sod29-community-dislikes" aria-label={`${dislikes} לא אהבו`}><span aria-hidden="true">👎</span> {dislikes}</span> : null}
   </div>;
 }

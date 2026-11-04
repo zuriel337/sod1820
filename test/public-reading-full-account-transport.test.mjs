@@ -274,3 +274,23 @@ test('published CSP admits the original OpenWeb service while retaining object/f
  assert.match(csp,/form-action[^;]+https:\/\/\*\.spot\.im/);
  assert.match(csp,/object-src 'none'/);assert.match(csp,/frame-ancestors 'self'/);assert.match(csp,/base-uri 'self'/);
 });
+
+
+test('unregistered repeatable likes use public context and the anonymous counter path on every press',async()=>{
+ let count=0;
+ const w=worker({role:'user',authError:true,anonKey:'public-synthetic',fetchAction:req=>req.url.includes('/community_message_context?')?json([{id:b}]):json({likes:7,community_likes:++count})});
+ for(let i=1;i<=3;i++){
+  const r=await w.request('/rest/v1/rpc/toggle_contribution_reaction',{jwt:token(a,'anon'),body:{p_id:b,p_emoji:'👍',p_visitor:'community-repeatable-like'}});
+  assert.equal(r.status,200);assert.equal((await r.json()).community_likes,i);
+ }
+ assert.equal(w.calls.filter(r=>r.url.endsWith('/auth/v1/user')).length,0);
+ const mutations=w.calls.filter(r=>r.url.endsWith('/toggle_contribution_reaction'));
+ assert.equal(mutations.length,3);assert.ok(mutations.every(r=>r.headers.get('authorization')==='Bearer public-synthetic'));
+});
+test('guest repeatable mode cannot broaden emoji, body shape or nonpublic targets',async()=>{
+ const w=worker({authError:true,anonKey:'public-synthetic',fetchAction:req=>json([])});
+ assert.equal((await w.request('/rest/v1/rpc/toggle_contribution_reaction',{jwt:token(a,'anon'),body:{p_id:b,p_emoji:'👍',p_visitor:'community-repeatable-like'}})).status,403);
+ for(const body of [{p_id:b,p_emoji:'🔥',p_visitor:'community-repeatable-like'},{p_id:b,p_emoji:'👍',p_visitor:'other'},{p_id:b,p_emoji:'👍',p_visitor:'community-repeatable-like',user_id:a}])
+  assert.equal((await w.request('/rest/v1/rpc/toggle_contribution_reaction',{jwt:token(a,'anon'),body})).status,403);
+ assert.equal(w.calls.filter(r=>r.url.endsWith('/toggle_contribution_reaction')).length,0);
+});

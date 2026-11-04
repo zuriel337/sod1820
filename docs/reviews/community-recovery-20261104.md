@@ -125,3 +125,29 @@ the provider's SDK service hosts, including its initialization event stream;
 lookalike foreign hosts remain denied. All 22 focused transport tests pass.
 This follows the user's explicit request for the original box without the
 site-added restrictions; provider authentication/moderation remains original.
+
+## Repeatable likes, including guests
+
+ZURIEL explicitly requested unrestricted repeated likes without registration.
+The existing reaction RPC now has an exact opt-in Community-only thumbs-up
+mode. It increments `reactions.community_likes` atomically under the same
+approved-ancestry locks; imported `likes`, existing identity arrays and default
+toggle/admin-boost behavior remain unchanged. Target/root visibility, cycles,
+hidden threads, deleted targets and non-Community sources still fail closed.
+No new grants, Auth identities or role changes were introduced. The worker
+checks anonymous public message context before forwarding the exact guest-like
+contract; other guest writes remain denied. The native Community button uses
+the additive count and permits repeated presses without an account.
+
+The CLI-created migration was applied by the canonical migration tool and
+renamed to its observed database version `20261104123515`. Original function
+hash `6803e0ce21cac8c2c386f8330b74bec1`; deployed function hash
+`ca68c32b18b94480301073fba9869be2`; original grants retained. Its guard rejects
+an unexpectedly changed canonical function. The committed disposable-container
+test reuses the full prior visibility/toggle fixture, checks 100 sequential
+guest likes, exact baseline preservation and negative scope cases, then 20
+concurrent requests: final 120, zero lost increments. Two built-client browser
+cases at 390/1440 confirm guest repeated likes, failed-request rollback,
+reload persistence and preserved historical likes/dislikes. There are zero
+page exceptions and no real test publication. Security advisors were read
+before and after the function change; unrelated findings were not changed.

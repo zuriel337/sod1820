@@ -275,3 +275,9 @@ test("an injected public reader remains the reader for paginated replies and cou
   assert.equal(Object.keys(counts).length, 201);
   assert.deepEqual(calls.filter(call => call.name === "community_reply_counts").map(call => call.args.p_ids.length), [200, 1]);
 });
+
+
+test('repeatable Community likes add to imported and per-identity likes without replacing either baseline',()=>{
+ assert.equal(legacyLikeCount({likes:7,'👍':['one'],community_likes:3}),11);
+ assert.equal(legacyLikeCount({likes:7,'👍':['one'],community_likes:-3}),8);
+});
