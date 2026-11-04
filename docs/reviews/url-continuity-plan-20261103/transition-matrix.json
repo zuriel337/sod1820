@@ -2,15 +2,15 @@
   {
     "id": "F00",
     "old_address": "/; /2029; /world; /map",
-    "evidence": "App2029; prior public-foundation +9d hosted acceptance",
+    "evidence": "App2029; prior public-foundation +9d hosted acceptance;12.48/49 source073/3c/98d + hosted16",
     "meaning": "כניסה, עולם ומפת שירותים",
     "target_2029": "היעדים הקיימים",
-    "verified_status": "LIVE2029: source1bc8260a,ProductionCkoiEsaT1,שלושתדומיינים.6בדיקותProductionHost+6canonical ו־24GET/HEADעברו;לאקבלתHTTPלכלמלאיהכתובות. בית/עולם/פוסט/מספר/ביטוי/מחשבון/SWוחזרהנבדקוב־390/1440. הכתובותהקיימותומדיניותפוסטיםנשמרו.",
+    "verified_status": "12.48/49:בית/כותרתstickyוטיקרלאנעוץב390/1440;פריוויו98d16תרחישים. מקור98dחי דרךנתיבקהילהאחר. ביצועים073חלקייםולאקבלתכלהמלאי.",
     "permissions": "ציבור; מצבי מנהל לפי הרשאה",
     "parameters_anchors": "query, hash, returnTo, scroll",
     "acceptance": "פתיחה/רענון/חזרה; המפה משקפת זמינות אמיתית",
-    "open_task": "המשךלפי הפעריםהמתועדים בלבד;איןהמתנהלcutoverהנוכחי ואיןהכרזתכיסוימלא/G4.",
-    "treatment": "LIVE_2029_BOUNDED_ACCEPTED",
+    "open_task": "ביצועיםחלקיים/CLSוהשלמותהתפעולהקיימות;איןסגירתG4.",
+    "treatment": "LIVE_PUBLIC_PRODUCT_BOUNDED_PREVIEW_ACCEPTED",
     "exception_previous_checkpoint": {
       "verified_status": "קיים; קבלה קודמת נשמרת"
     },
@@ -20,7 +20,14 @@
       "open_task": "C0",
       "treatment": "PRESERVE_EXISTING"
     },
-    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md"
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "LIVE2029: source1bc8260a,ProductionCkoiEsaT1,שלושתדומיינים.6בדיקותProductionHost+6canonical ו־24GET/HEADעברו;לאקבלתHTTPלכלמלאיהכתובות. בית/עולם/פוסט/מספר/ביטוי/מחשבון/SWוחזרהנבדקוב־390/1440. הכתובותהקיימותומדיניותפוסטיםנשמרו.",
+      "open_task": "המשךלפי הפעריםהמתועדים בלבד;איןהמתנהלcutoverהנוכחי ואיןהכרזתכיסוימלא/G4.",
+      "treatment": "LIVE_2029_BOUNDED_ACCEPTED",
+      "evidence": "App2029; prior public-foundation +9d hosted acceptance"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
   },
   {
     "id": "F01",
@@ -50,15 +57,15 @@
   {
     "id": "F02",
     "old_address": "/post; /posts; /פוסטים-אחרונים[-2]; /verified",
-    "evidence": "App.jsx; redirect config; Posts2029; canonical/HTTP audit f4390dd3 (12.47)",
+    "evidence": "App.jsx; redirect config; Posts2029; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16",
     "meaning": "קטלוג פוסטים",
     "target_2029": "/post; aliases → canonical existing catalog",
-    "verified_status": "הקטלוג הקיים נשמר; קבלת התוכן הקודמת נשארת בתחומה. 12.47: ב-f4390dd3 שרת /post וגם /2029/posts שולח canonical /post ו-index, אך הלקוח מחליף ל-/2029/posts ו-noindex; שוחזר בנייד ובמחשב. לא תוקן בחי.",
+    "verified_status": "12.48/49:הקטלוגמשמר/postקנוני;סינוןnoindexלפיowner;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה.",
     "permissions": "ציבור מסונן",
     "parameters_anchors": "page,q,category,series,sort,hash",
     "acceptance": "זהות תוצאות/עמוד ושמירת חזרה",
-    "open_task": "C0: לתקן את תנאי פרופיל הפרסום בקנוניקל וב-robots של Posts2029; לבדוק קטלוג רגיל ומסונן, בלי שינוי כתובות פוסטים.",
-    "treatment": "EXISTING_CATALOG_CLIENT_SEO_FIX_REQUIRED",
+    "open_task": "השלמותהמלאיוהמדיההקיימותנשמרות;לאמיפוימחדש/כיסוימלא.",
+    "treatment": "INTEGRATED_PUBLIC_REPAIR_BOUNDED_TESTED",
     "planning_snapshot": {
       "target_2029": "/post או /2029/posts הקיימים",
       "verified_status": "קיים; הכינויים טעונים קבלת HTTP",
@@ -76,7 +83,14 @@
       "treatment": "IMPLEMENTED_BOUNDED_TESTED",
       "evidence": "App.jsx; redirect config; Posts2029"
     },
-    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md"
+    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "הקטלוג הקיים נשמר; קבלת התוכן הקודמת נשארת בתחומה. 12.47: ב-f4390dd3 שרת /post וגם /2029/posts שולח canonical /post ו-index, אך הלקוח מחליף ל-/2029/posts ו-noindex; שוחזר בנייד ובמחשב. לא תוקן בחי.",
+      "open_task": "C0: לתקן את תנאי פרופיל הפרסום בקנוניקל וב-robots של Posts2029; לבדוק קטלוג רגיל ומסונן, בלי שינוי כתובות פוסטים.",
+      "treatment": "EXISTING_CATALOG_CLIENT_SEO_FIX_REQUIRED",
+      "evidence": "App.jsx; redirect config; Posts2029; canonical/HTTP audit f4390dd3 (12.47)"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
   },
   {
     "id": "F03",
@@ -309,15 +323,15 @@
   {
     "id": "F14",
     "old_address": "/gematria; /גימטריה; /research?tool=gematria",
-    "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47)",
+    "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16",
     "meaning": "מחשבון רגיל והפרמטרים הישנים",
     "target_2029": "/gematria דרך המתאם הקיים",
-    "verified_status": "הכלי הקיים ופרמטריו נשמרים. 12.47: שלושת כינויי /2029 של המחשבון עובדים עם358, אך השרת שולח /2029/gematria והלקוח /gematria. תיקון מצומצם נבדק בענף נפרד בלבד; אינו חי. /gematria והמשך research?tool=gematria תואמים.",
+    "verified_status": "12.48/49:b06שולב;aliasesהמחשבוןקנוניים/gematria;קלאסיושיטותלמספרמלאוחזרה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה.",
     "permissions": "חישוב מקומי ציבורי;AI בנפרד",
     "parameters_anchors": "w,calc,q,method,result,share,hash",
     "acceptance": "חישוב ושיתוף,מספר וחזרה; אין ברירת מחדל שמוחקת שיטה",
-    "open_task": "C3: לשלב ממוקד את תיקון המטאדאטה שנבדק על בסיס המוצר העדכני; קבלת הכינויים בפרסום בנפרד וללא החלשת בדיקות.",
-    "treatment": "EXISTING_CALCULATOR_ALIAS_SERVER_SEO_FIX_REQUIRED",
+    "open_task": "השלמותהמלאיוהמדיההקיימותנשמרות;לאמיפוימחדש/כיסוימלא.",
+    "treatment": "INTEGRATED_PUBLIC_REPAIR_BOUNDED_TESTED",
     "planning_snapshot": {
       "target_2029": "/gematria והכלים הקיימים",
       "verified_status": "חישוב רגיל התקבל; כינויים דורשים חיבור",
@@ -330,7 +344,14 @@
       "treatment": "IMPLEMENTED_BOUNDED_TESTED",
       "evidence": "App.jsx:339,431–432; Calculator2029Viral:44"
     },
-    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md"
+    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "הכלי הקיים ופרמטריו נשמרים. 12.47: שלושת כינויי /2029 של המחשבון עובדים עם358, אך השרת שולח /2029/gematria והלקוח /gematria. תיקון מצומצם נבדק בענף נפרד בלבד; אינו חי. /gematria והמשך research?tool=gematria תואמים.",
+      "open_task": "C3: לשלב ממוקד את תיקון המטאדאטה שנבדק על בסיס המוצר העדכני; קבלת הכינויים בפרסום בנפרד וללא החלשת בדיקות.",
+      "treatment": "EXISTING_CALCULATOR_ALIAS_SERVER_SEO_FIX_REQUIRED",
+      "evidence": "App.jsx:339,431–432; Calculator2029Viral:44; canonical/HTTP audit f4390dd3 (12.47)"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
   },
   {
     "id": "F15",
@@ -354,35 +375,42 @@
   {
     "id": "F16",
     "old_address": "/number/:phrase; /2029/number/:value; /topic/:slug",
-    "evidence": "NumberAddress; prior number/world acceptance; canonical/HTTP audit f4390dd3 (12.47)",
+    "evidence": "NumberAddress; prior number/world acceptance; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16",
     "meaning": "מספר,ביטוי,נושא ושיטה",
     "target_2029": "המסלולים הקיימים",
-    "verified_status": "הקורא הציבורי הקיים נשמר. 12.47: /number/1820 וביטוי משיח תואמים בשרת ובלקוח; כינויי /2029/number באותן דוגמאות וב-358 עם שיטה/חזרה שולחים canonical ישן ו-noindex/nofollow, והלקוח מחליף לכתובת הציבורית ו-index/follow. לא תוקן.",
+    "verified_status": "12.48/49:aliasesציבורייםלמספר/ביטוילמטאדאטההקנונית,עםשיטה/ביטוי/חזרהוללאשינוימנוע;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה.",
     "permissions": "ציבור לפי קורא המקור",
     "parameters_anchors": "ביטוי,שיטה,תוצאה,מקור,return,hash",
     "acceptance": "כיוונים הדדיים/refresh; נושא אינו מתמזג בגלל מספר",
-    "open_task": "C0: להעביר רק את כינויי המספר הציבוריים לקורא המטאדאטה /number הקיים, עם בקרת אינדוקס ושימור פרמטרים; לשמור Preview/פרטי ללא שינוי.",
-    "treatment": "EXISTING_NUMBER_ALIAS_SERVER_SEO_FIX_REQUIRED",
+    "open_task": "השלמותהמלאיוהמדיההקיימותנשמרות;לאמיפוימחדש/כיסוימלא.",
+    "treatment": "INTEGRATED_PUBLIC_REPAIR_BOUNDED_TESTED",
     "canonical_parity_previous_checkpoint": {
       "verified_status": "קיים ונבדק בעבר; זהויות ממלאי XML",
       "open_task": "C0",
       "treatment": "PRESERVE_EXISTING",
       "evidence": "NumberAddress; prior number/world acceptance"
     },
-    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md"
+    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "הקורא הציבורי הקיים נשמר. 12.47: /number/1820 וביטוי משיח תואמים בשרת ובלקוח; כינויי /2029/number באותן דוגמאות וב-358 עם שיטה/חזרה שולחים canonical ישן ו-noindex/nofollow, והלקוח מחליף לכתובת הציבורית ו-index/follow. לא תוקן.",
+      "open_task": "C0: להעביר רק את כינויי המספר הציבוריים לקורא המטאדאטה /number הקיים, עם בקרת אינדוקס ושימור פרמטרים; לשמור Preview/פרטי ללא שינוי.",
+      "treatment": "EXISTING_NUMBER_ALIAS_SERVER_SEO_FIX_REQUIRED",
+      "evidence": "NumberAddress; prior number/world acceptance; canonical/HTTP audit f4390dd3 (12.47)"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
   },
   {
     "id": "F17",
     "old_address": "/gallery?gallery=…; /archive; /gallery-updates",
-    "evidence": "Gallery2029:236–268; DB106identities; canonical/HTTP audit f4390dd3 (12.47)",
+    "evidence": "Gallery2029:236–268; DB106identities; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16",
     "meaning": "גלריה/תמונה ומיקום קריאה",
     "target_2029": "/gallery הזהה; /archive מצב ייעודי; /gallery-updates → /archive",
-    "verified_status": "זהויות הגלריות והקבלות הקודמות נשמרות בתחומן. 12.47: המסמך /gallery ב-f4390dd3 מחזיר404/noindex וכותרת פוסט לא נמצא; שוחזר בנייד, במחשב וב-GET/HEAD. SPA/SW פעילים אינם הוכחת תקינות HTTP. אין קבלת כל מדיה.",
+    "verified_status": "12.48/49:מטאדאטת/galleryהקיימת200במקוםנפילהל404פוסט;איןהרחבתהרשאותמדיה;נבדקב073/3cובפריוויו98d;נכלל במקור98dהחי דרךנתיבהקהילה. איןהוכחתHTTPלכלכתובת/מדיה.",
     "permissions": "מדיה ציבורית/לא מוסתרת;87 גלריות עם מועמדזמין",
     "parameters_anchors": "gallery,image,offset,flow,take,source,hash",
     "acceptance": "תמונה נכונה ומיקום; חתום/פרטי/מחוק לא ציבורי",
-    "open_task": "C4: לתקן מטאדאטת אוסף עבור /gallery בקורא הקיים כדי שלא ייפול לבדיקת פוסט; לא לשנות הרשאות מדיה או להפוך slug לא קיים ל-200.",
-    "treatment": "PARTIAL_GALLERY_HTTP_METADATA_REPAIR_REQUIRED",
+    "open_task": "השלמותהמלאיוהמדיההקיימותנשמרות;לאמיפוימחדש/כיסוימלא.",
+    "treatment": "INTEGRATED_PUBLIC_REPAIR_BOUNDED_TESTED",
     "planning_snapshot": {
       "target_2029": "/gallery הקיים; כינויים לפי משמעות",
       "verified_status": "קורא קיים; זהות DB אינה בדיקתנגישות",
@@ -395,7 +423,14 @@
       "treatment": "PARTIAL_EXISTING_MEDIA_ACCEPTANCE_OPEN",
       "evidence": "Gallery2029:236–268; DB106identities"
     },
-    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md"
+    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "זהויות הגלריות והקבלות הקודמות נשמרות בתחומן. 12.47: המסמך /gallery ב-f4390dd3 מחזיר404/noindex וכותרת פוסט לא נמצא; שוחזר בנייד, במחשב וב-GET/HEAD. SPA/SW פעילים אינם הוכחת תקינות HTTP. אין קבלת כל מדיה.",
+      "open_task": "C4: לתקן מטאדאטת אוסף עבור /gallery בקורא הקיים כדי שלא ייפול לבדיקת פוסט; לא לשנות הרשאות מדיה או להפוך slug לא קיים ל-200.",
+      "treatment": "PARTIAL_GALLERY_HTTP_METADATA_REPAIR_REQUIRED",
+      "evidence": "Gallery2029:236–268; DB106identities; canonical/HTTP audit f4390dd3 (12.47)"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
   },
   {
     "id": "F18",
@@ -716,15 +751,15 @@
   {
     "id": "F30",
     "old_address": "/admin; /edit…; /traffic; /reports; /2029/control",
-    "evidence": "App.jsx; Admin admission",
+    "evidence": "App.jsx; Admin admission;12.48/49 source073/3c/98d + hosted16",
     "meaning": "מסכים פרטיים/מנהל",
     "target_2029": "כניסה ויעדמקביל רק לפי הרשאה",
-    "verified_status": "תיקוןפתיחתהמנהל1bc8260aנשמרוהבעליםאישרעובדבפריוויו. אותוSHAחי ב־ProductionCkoiEsaT1;חסימתאורחנבדקהב־canonical390/1440. לאבוצעהכניסתמנהלפרטיתחדשהבידיהסוכןאודרילtraceחי. S2/קוראהבקרהשכברהוחלונשמרו.",
+    "verified_status": "קבלתהמנהלוהחשבונותהקודמתנשמרת.12.49:GA/Vercel/SearchConsoleAPI404וגםמחוץלSW;middlewareתוקןב3cוהגיעלחי98dדרךנתיבאחר. איןקבלתבקרהמלאה.",
     "permissions": "מנהל/בעלים בשרת, failclosed",
     "parameters_anchors": "returnTo בטוח; בלי דליפת metadata",
     "acceptance": "אנונימי/חבר/admin;401/403/404 לפי חוזה",
-    "open_task": "רענון/traceלאפורטובנפרד;איןהסקתCP1/G4מלאואיןבקשתפתיחהחוזרתשכברהתקבלה.",
-    "treatment": "LIVE_ADMIN_GUARDS_OWNER_OPENING_ACCEPTANCE_RETAINED",
+    "open_task": "לחבר3קוריאדמיןלendpointsולSWעםJWTותפקידשרתמאומת,ללאpublicproxy;CP1מלאלאסומןעבר.",
+    "treatment": "ADMIN_CONTINUITY_RETAINED_MONITORING_APIS_OPEN",
     "exception_previous_checkpoint": {
       "verified_status": "אין להפוךכתובתאמיתיתלציבורית",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
@@ -765,7 +800,14 @@
       "open_task": "כשל הפתיחה נסגר בדיווח הבעלים; אין לבקש שוב אותה בדיקה. רענון ופתיחתtrace טרם נמסרו פרטנית, ללא הכרזה על שערCP1מלא. יתרת תנאי המעבר לפי הרשימה הקיימת בלבד; איןProduction.",
       "treatment": "ADMIN_OPENING_ACCEPTED_USER_REPORTED_FULL_CP1_NOT_CLAIMED"
     },
-    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md"
+    "direct_cutover_evidence": "../public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "תיקוןפתיחתהמנהל1bc8260aנשמרוהבעליםאישרעובדבפריוויו. אותוSHAחי ב־ProductionCkoiEsaT1;חסימתאורחנבדקהב־canonical390/1440. לאבוצעהכניסתמנהלפרטיתחדשהבידיהסוכןאודרילtraceחי. S2/קוראהבקרהשכברהוחלונשמרו.",
+      "open_task": "רענון/traceלאפורטובנפרד;איןהסקתCP1/G4מלאואיןבקשתפתיחהחוזרתשכברהתקבלה.",
+      "treatment": "LIVE_ADMIN_GUARDS_OWNER_OPENING_ACCEPTANCE_RETAINED",
+      "evidence": "App.jsx; Admin admission"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
   },
   {
     "id": "F31",
@@ -789,15 +831,15 @@
   {
     "id": "F32",
     "old_address": "/audio/*; /wp-content/*; uploads; /api/card; OG; XML; robots; RSS",
-    "evidence": "DB href/src; api/sitemap; publicfiles; hosting; canonical/HTTP audit f4390dd3 (12.47)",
+    "evidence": "DB href/src; api/sitemap; publicfiles; hosting; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16",
     "meaning": "משאב אמיתי/SEO/API; גם probe אפשרי",
     "target_2029": "המשאב/הנכס המדויק אם זמין",
-    "verified_status": "פרסום12.45 והקבלה בו נשמרים כהיסטוריה של1bc/Ckoi. 12.47: האתר נצפה ב-Production48Ha5ZAp/sourcef4390dd3, שינוי שלא בוצע במשימת הביקורת. 19 תצפיות390 ושלוש1440 מאשרות פערי canonical/robots במחשבון/מספר/ביטוי/קטלוג ו-404 בגלריה. מקור הראיות יציב לפני ואחרי; אין פריסה או שינוי שרת בביקורת. 193 השמע והדחיות הקודמות נשמרים.",
+    "verified_status": "פעריSEO/HTTPתוקנוב073ושולבוב98dהחי;פריוויו98d16תרחישיםמוגבלים.12.49:entrymiddlewareהוחזרלאותומקורקנוניובוט403בחי,ללאשינוימדינה.3APIsלניטורעדיין404/חסומיSW.193השמעוהדחיותנשמרו.",
     "permissions": "publicasset לעומתחתום/פרטי; API לפי owner",
     "parameters_anchors": "שם קובץ,טווח זמן,range,queryAPI מותרים",
     "acceptance": "HEAD/GET/MIME/CSP; אין HTML200 במקום תמונה/שמע;probe נשאר 404",
-    "open_task": "תיקון SEO/HTTP ממוקד ל-F02/F14/F16/F17 וקבלת הכתובות המושפעות בלבד; אין סגירתG4. כללי חזרה/אישור מדויק לפריסה עתידית נשמרים, ללא מחיקה או שינוי H1/דחיות.",
-    "treatment": "PUBLIC_DEPLOYED_METADATA_PARITY_GAPS_OPEN_AUDIO_DEFERRED",
+    "open_task": "שלושנקודותניטור/הרשאותadminמקצהלקצה;ביצועים/CLSמלאלאהתקבלו. איןסגירתG4אוהכרזתגיבוימסד/מדיהעדכני.",
+    "treatment": "LIVE_EDGE_RESTORED_ADMIN_MONITORING_OPEN_AUDIO_DEFERRED",
     "exception_previous_checkpoint": {
       "verified_status": "193audio hrefs; לא כל בקשת WP היאתוכן אמיתי",
       "treatment": "PROPOSED_NOT_IMPLEMENTED"
@@ -839,7 +881,14 @@
       "treatment": "LIVE_2029_EXPLICIT_OWNER_CUTOVER_BOUNDED_ACCEPTED",
       "evidence": "DB href/src; api/sitemap; publicfiles; hosting"
     },
-    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md"
+    "canonical_parity_evidence": "../public-url-exceptions-20261103/residual205/evidence/canonical-parity-20261104/README.md",
+    "integration1248_previous_checkpoint": {
+      "verified_status": "פרסום12.45 והקבלה בו נשמרים כהיסטוריה של1bc/Ckoi. 12.47: האתר נצפה ב-Production48Ha5ZAp/sourcef4390dd3, שינוי שלא בוצע במשימת הביקורת. 19 תצפיות390 ושלוש1440 מאשרות פערי canonical/robots במחשבון/מספר/ביטוי/קטלוג ו-404 בגלריה. מקור הראיות יציב לפני ואחרי; אין פריסה או שינוי שרת בביקורת. 193 השמע והדחיות הקודמות נשמרים.",
+      "open_task": "תיקון SEO/HTTP ממוקד ל-F02/F14/F16/F17 וקבלת הכתובות המושפעות בלבד; אין סגירתG4. כללי חזרה/אישור מדויק לפריסה עתידית נשמרים, ללא מחיקה או שינוי H1/דחיות.",
+      "treatment": "PUBLIC_DEPLOYED_METADATA_PARITY_GAPS_OPEN_AUDIO_DEFERRED",
+      "evidence": "DB href/src; api/sitemap; publicfiles; hosting; canonical/HTTP audit f4390dd3 (12.47)"
+    },
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
   },
   {
     "id": "F33",
