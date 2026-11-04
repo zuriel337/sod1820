@@ -3,6 +3,8 @@
 import { stripHtml } from "../format.js";
 import { redactGroupText } from "./worldGroupSource.js";
 import { gallerySourceHref2029 } from "./topicSourceContext.js";
+import { CONTENT_SERIES_2029 } from "./contentSeries2029Identity.js";
+import { fetchApprovedContentSeriesSources2029, fetchContentSeriesCatalog2029 } from "./contentSeries2029Projection.js";
 
 export const NOW_PUBLIC_CHANNELS_2029 = Object.freeze({
   "gilui-yomi": "הגילוי היומי", "site-news": "עדכוני האתר", "reality-code": "קוד המציאות",
@@ -39,7 +41,7 @@ export function publicChannelToSystemItem(row, { now = Date.now() } = {}) {
   if (!at || !body && !mediaHref) return null;
   const label = body || `${/\.(?:mp4|webm|mov)$/i.test(mediaHref) ? "סרטון" : "תמונה"} · ${NOW_PUBLIC_CHANNELS_2029[row.channel]}`;
   return { id: `channel:${row.id}`, kind: "source", sourceKind: "channel_update", channel: row.channel,
-    sourceLabel: NOW_PUBLIC_CHANNELS_2029[row.channel], label: label.slice(0, 160), fullText: body, mediaHref,
+    sourceLabel: NOW_PUBLIC_CHANNELS_2029[row.channel], label: label.slice(0, 160), fullText: body, mediaHref, thumbUrl: publicNowMediaHref(row.thumb_url),
     fullTextTruncated: body.length === 1200,
     creator: NOW_PUBLIC_CHANNELS_2029[row.channel], at, arrivalAt: at, recordedAt: at,
     sourceRef: `channel_updates:${row.id}`, publicState: "published_channel_update",
@@ -55,13 +57,43 @@ export function publicGalleryToSystemItem(row) {
     sourceRef: `gallery_images:${row.id}`, publicState: "published_gallery_update",
     href: gallerySourceHref2029(Number(row.wp_gallery_id), row.id), researchCount: 0, numbers: [] };
 }
+// A Human-Gated series occurrence already declared by the series owner (contentSeries2029Identity.approvedSources).
+// Same channel row id => same Now identity: the exact video/public representation enriches, never duplicates.
+export function approvedSeriesToSystemItem(item, spec) {
+  const id = String(item?.sourceRef || "").slice("channel_updates:".length);
+  const at = date(item?.publishedAt);
+  if (!UUID.test(id) || !at || !item.title || !NOW_PUBLIC_CHANNELS_2029[item.channel]) return null;
+  const body = text(item.excerpt);
+  return { id: `channel:${id}`, kind: "source", sourceKind: "channel_update", channel: item.channel,
+    sourceLabel: NOW_PUBLIC_CHANNELS_2029[item.channel], label: text(item.title).slice(0, 160), fullText: body,
+    fullTextTruncated: body.length === 1200, mediaHref: publicNowMediaHref(item.mediaUrl), thumbUrl: publicNowMediaHref(item.imageUrl),
+    creator: NOW_PUBLIC_CHANNELS_2029[item.channel], at, arrivalAt: at, recordedAt: at, sourceRef: item.sourceRef,
+    publicState: "published_channel_update", href: typeof item.href === "string" && /^\/video\/[0-9a-f]{32}$/i.test(item.href) ? item.href : null,
+    seriesKey: spec.key, seriesLabel: spec.label, researchCount: 0, numbers: [] };
+}
+// Latest public Posts of each approved series, read through the SAME series reader as Home/World, so a series
+// is represented in Now even when its newest Post is older than the shared stream's recent window.
+// Membership is the series owner's exact projection (never author/channel inference); posts only.
+export function seriesCatalogToSystemItems(catalog) {
+  return (Array.isArray(catalog?.series) ? catalog.series : []).flatMap(series => (Array.isArray(series.items) ? series.items : [])
+    .filter(item => item?.kind === "post" && item.id != null && item.title && /^\/[^/]/.test(item.href || "") && date(item.publishedAt))
+    .map(item => ({ id: `post:${item.id}`, kind: "source", sourceKind: "post", sourceLabel: "פוסט מקור באתר",
+      label: text(item.title).slice(0, 160), summary: text(item.excerpt).slice(0, 240) || null,
+      creator: item.author || series.writerLabel || series.publisherLabel || "יצירה באתר", author: item.author || "",
+      at: date(item.publishedAt), arrivalAt: date(item.publishedAt), sourceRef: item.sourceRef, href: item.href,
+      thumbUrl: /^https:\/\//.test(item.imageUrl || "") ? item.imageUrl : null,
+      seriesKey: series.key, seriesLabel: series.label, researchCount: 0, numbers: [], publicState: "published_source_representation" })));
+}
 export async function fetchSystemFeedPublicSources2029({ client = null, signal = null } = {}) {
   const api = client || (await import("./researchViewMode.js")).getPublicResearchClient();
   const read = async query => { if (signal) query = query.abortSignal(signal); const { data, error } = await query; if (error) throw error; return Array.isArray(data) ? data : []; };
   const now = Date.now(), keys = Object.keys(NOW_PUBLIC_CHANNELS_2029);
+  const seriesSpecs = CONTENT_SERIES_2029.filter(spec => spec.approvedSources?.length);
+  const seriesRead = Promise.allSettled(seriesSpecs.map(spec => fetchApprovedContentSeriesSources2029(spec.key, { client: api, signal, now })));
+  const catalogRead = fetchContentSeriesCatalog2029({ client: api, limitPerSeries: 4, homeOnly: true, signal }).then(catalog => ({ catalog }), error => ({ error }));
   const results = await Promise.allSettled([
     ...keys.map(channel => read(api.from("channel_updates")
-      .select("id,text,image_url,channel,status,page_only,expires_at,created_at,link_url")
+      .select("id,text,image_url,thumb_url,channel,status,page_only,expires_at,created_at,link_url")
       .eq("status", "live").eq("page_only", false).eq("channel", channel)
       .or(`expires_at.is.null,expires_at.gt.${new Date(now).toISOString()}`)
       .order("created_at", { ascending: false }).limit(12))),
@@ -69,9 +101,20 @@ export async function fetchSystemFeedPublicSources2029({ client = null, signal =
       .eq("source", "update").eq("published", 1).eq("min_tier", 0).not("curator_hidden", "is", true)
       .order("stream_at", { ascending: false, nullsFirst: false }).order("created_at", { ascending: false }).limit(10)),
   ]);
+  const seriesResults = await seriesRead;
+  const catalogResult = await catalogRead;
   if (signal?.aborted) throw new DOMException("Now source read canceled", "AbortError");
+  const seriesItems = seriesResults.flatMap((r, i) => r.status === "fulfilled" ? r.value.items.map(item => approvedSeriesToSystemItem(item, seriesSpecs[i])).filter(Boolean) : []);
   const sourceStates = results.map((r, i) => ({ source: i < keys.length ? keys[i] : "gallery",
     status: r.status === "rejected" ? String(r.reason?.code) === "42501" ? "access_filtered" : "failed"
       : r.value.length ? "read" : "measured_empty" }));
-  return { items: results.flatMap((r, i) => r.status === "fulfilled" ? r.value.map(row => i < keys.length ? publicChannelToSystemItem(row, { now }) : publicGalleryToSystemItem(row)).filter(Boolean) : []), sourceStates };
+  const seriesStates = seriesResults.map((r, i) => ({ source: `series:${seriesSpecs[i].key}`,
+    status: r.status === "rejected" ? "failed" : r.value.sourceStates.some(state => state.state === "access_filtered") ? "access_filtered"
+      : r.value.sourceStates.some(state => state.state !== "measured") ? "failed" : r.value.items.length ? "read" : "measured_empty" }));
+  const channelItems = results.flatMap((r, i) => r.status === "fulfilled" ? r.value.map(row => i < keys.length ? publicChannelToSystemItem(row, { now }) : publicGalleryToSystemItem(row)).filter(Boolean) : []);
+  // Series-approved occurrences go first: the same channel id keeps ONE row, enriched with its exact video/series.
+  const ids = new Set(seriesItems.map(item => item.id));
+  const catalogItems = catalogResult.catalog ? seriesCatalogToSystemItems(catalogResult.catalog) : [];
+  const catalogState = { source: "series-posts", status: catalogResult.error ? "failed" : catalogResult.catalog.series.some(series => series.readState === "failed") ? "failed" : catalogItems.length ? "read" : "measured_empty" };
+  return { items: [...seriesItems, ...channelItems.filter(item => !ids.has(item.id)), ...catalogItems], sourceStates: [...sourceStates, ...seriesStates, catalogState] };
 }

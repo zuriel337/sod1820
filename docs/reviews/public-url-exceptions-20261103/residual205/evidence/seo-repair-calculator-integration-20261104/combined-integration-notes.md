@@ -1,0 +1,13 @@
+# Combined public integration — acceptance in progress
+
+Calculator handoff: `b06f0ff879f6d5a463f507c685afacb827ba03ae`. Now handoff: `e3b08f586f690c3dedcdd98b6427b35eacbf6b63`. Both were adopted as cumulative diffs, preserving the later public product and Community work. No source branch was reset or replaced. This checkpoint is not deployed to Production.
+
+The Now public-link redactor now uses the existing public share/route owners and rejects private routes, embedded contact details, credential fragments and alternate ports. Five focused privacy cases failed before the bounded fix; all six focused cases and the existing source/series contracts pass after it. All47 Now/source cases pass.
+
+The initial Now browser attempt used the default/Golden build at a public URL and looped through its existing Legacy handoff. The retained failed attempt is not an application acceptance. Rebuilding the same client with the actual public-reading profile produced12/12 controlled browser cases. Synthetic fixtures are identified explicitly; they do not establish live content, account or server-write acceptance.
+
+The header wrapper is display:contents so the actual sticky header is no longer constrained by the short ribbon wrapper. The report ticker stays in normal document flow. Startup uses the existing small approved full-lockup WebP; no visible year is added to the opening heading. The installed-app icon is the byte-exact approved full1254px PNG, self-hosted with its hash in the path. Its1.85MB file is an installed-app asset, not the40px Home logo or an eager JavaScript dependency. Manifest name/id/start_url stay unchanged; Legacy files stay unchanged.
+
+141 combined guard/metadata/identity tests,3 language tests, graph gate, full Legacy+2029 build and dormant public artifact pass. The accepted Calculator Pro and semantic-surface scripts also pass. The old Frame source-shape test expected an obsolete dock label; it now asserts the precise existing approved Gematria label with the lock branch intact. The old cheap-hardening helper still expects only7 Foundation routes and then the pre-existing functional-only /research route; it is not marked passed and was left byte-unchanged. Dedicated public admission/transport/negative-route tests remain enforced. A temporary helper-only reconciliation attempt was removed; no runtime guard was changed.
+
+Protected Preview, actual public content/header scroll, installed-phone refresh and matched native-SW speed measurements remain pending at this checkpoint. No new real account acceptance is claimed; the owner's prior two-account acceptance is preserved.

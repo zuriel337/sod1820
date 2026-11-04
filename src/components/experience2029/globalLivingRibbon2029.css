@@ -1,6 +1,5 @@
-.sod29-living-header-stack{position:relative;min-width:0}
-.sod29-living-header-stack:has(.sod29-living-ribbon) .sod29-header{position:relative}
-.sod29-living-header-stack:not(:has(.sod29-living-ribbon)){display:contents}
+.sod29-living-header-stack{display:contents}
+.sod29-living-header-stack .sod29-header{position:sticky}
 .sod29-living-ribbon{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;min-width:0;min-height:52px;padding:8px 16px;border-block-end:1px solid var(--s29-line-strong);background:color-mix(in srgb,var(--s29-panel) 94%,var(--s29-brand-gold) 6%);color:var(--s29-ink)}
 .sod29-root[data-frame-theme-preset="dark"] .sod29-living-ribbon{background:color-mix(in srgb,var(--s29-panel) 92%,var(--s29-brand-gold) 8%);border-color:var(--s29-line-strong);color:var(--s29-ink)}
 .sod29-root[data-frame-theme-preset="light"] .sod29-living-ribbon{background:var(--s29-panel);color:var(--s29-ink)}

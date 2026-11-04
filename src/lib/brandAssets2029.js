@@ -23,5 +23,12 @@ export const BRAND_LOCKUP_NAV_2029 = Object.freeze({
   sourceSha256: BRAND_LOCKUP_2029.sha256,
 });
 
+// Byte-exact local delivery of the approved full square lockup for installed
+// applications. A fingerprinted URL updates the icon without changing PWA id.
+export const BRAND_APP_ICON_2029 = Object.freeze({
+  ...BRAND_LOCKUP_2029,
+  src: "/brand/2029/app-icon-3f8a2a2fdc0a.png",
+});
+
 // User-selected decorative Home atmosphere, 2 Nov 2026; not a content source or Brand mark.
 export const HOME_ATMOSPHERE_2029 = Object.freeze({"desktop": "/backgrounds/2029/home-cosmos-desktop-5113c94ba6e5.webp", "mobile": "/backgrounds/2029/home-cosmos-mobile-8eaaeef46082.webp"});

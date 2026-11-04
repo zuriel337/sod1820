@@ -150,10 +150,12 @@ assert.match(frame, /force/);
 // Main navigation and opened updates remain ordinary World entries. The two
 // approved user-invoked contextual actions explicitly mark their continuation.
 const worldLiteralCount = [...frame.matchAll(/"\/world"/g)].length;
-assert.equal(worldLiteralCount, 5, "World destinations stay limited to navigation, opened updates and explicit contextual actions");
+// 4 here + the Now publications window's own "all updates in the World" link (asserted next to AttentionProjection).
+assert.equal(worldLiteralCount, 4, "World destinations stay limited to navigation, opened updates and explicit contextual actions");
 assert.match(frame, /target && action\.href === "\/world" \? "\/world\?focus=context" : action\.href/);
 assert.match(frame, /go\(finding\.href === "\/world" \? "\/world\?focus=context" : finding\.href, \{ preserve: false, state: \{ sodResearchIntent: "continue" \} \}\)/);
-assert.match(frame, /function AttentionProjection[\s\S]*onOpen\?\.\("\/world"\)/);
+assert.match(frame, /function AttentionProjection[\s\S]*<NowPublications2029 feed=\{feed\} onOpen=\{onOpen\}/);
+assert.match(fs.readFileSync(path.resolve("src/components/experience2029/NowPublications2029.jsx"), "utf8"), /onOpen\?\.\("\/world"\)/);
 
 // Raziel route-action consumer is fail-closed and presentation-only.
 const validRazielRoute = {
@@ -247,7 +249,7 @@ assert.match(frame, /aria-label="מסלול המחקר והפעולות הזמי
 assert.match(frame, /<ActionProjection surface=\{surface\} target=\{inspectTarget\}/);
 assert.match(frame, /<ToolsProjection surface=\{surface\} target=\{inspectTarget\}/);
 // ZURIEL 29.10 approved the five-entry shared launcher; Number still uses the existing capability.
-assert.match(frame, /מספר · פתח חלונית מספר/);
+assert.match(frame, /aria-label=\{numberLocked \? "גימטריה · נעולה כרגע" : "גימטריה · מספר, ביטוי ושיטות חישוב"\}/);
 assert.match(frame, /openNumber\(value != null/);
 assert.equal(frame.includes("<small>בדיקה</small>"), false, "Inspect must route through contextual Action rather than a permanent island slot");
 // Typed Now (approved Home bottom-bar structure): world / for-me / Raziel, each opening an existing frame surface.

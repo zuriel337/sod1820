@@ -1,0 +1,74 @@
+{
+  "status": "PREVIEW_PENDING",
+  "guardsPass": 141,
+  "nowPass": 47,
+  "nowSyntheticBrowserCases": 12,
+  "realAccountReacceptance": false,
+  "allOriginalLogsPreserved": true,
+  "receipts": {
+    "combined-guard141.tap": {
+      "originalSha256": "31d077c987ed5864edb25086628faa7a2eb19cdba30544a974272aa19f325949",
+      "archivedSha256": "31d077c987ed5864edb25086628faa7a2eb19cdba30544a974272aa19f325949"
+    },
+    "combined-now26.tap": {
+      "originalSha256": "b098895534038a4c63fb8d964eee49c5d5fe7b5c33949a98c7d32808095887e8",
+      "archivedSha256": "b098895534038a4c63fb8d964eee49c5d5fe7b5c33949a98c7d32808095887e8"
+    },
+    "combined-now-additional21.tap": {
+      "originalSha256": "e55e88ca33b91ad64a78c7673ade791742783074c2dda78a72e537952aaf8e94",
+      "archivedSha256": "e55e88ca33b91ad64a78c7673ade791742783074c2dda78a72e537952aaf8e94"
+    },
+    "combined-frame-pass.log": {
+      "originalSha256": "e94db4c0698c1d20e5e00830acb60b316e8f8c4a430810cd1a13d6ff16c10243",
+      "archivedSha256": "e94db4c0698c1d20e5e00830acb60b316e8f8c4a430810cd1a13d6ff16c10243"
+    },
+    "combined-language3.tap": {
+      "originalSha256": "13472d4e41e4f2e7ae5ccf5334678e192716660915f3ec26fd243d1fd401d241",
+      "archivedSha256": "13472d4e41e4f2e7ae5ccf5334678e192716660915f3ec26fd243d1fd401d241"
+    },
+    "combined-graph-pass.log": {
+      "originalSha256": "f6af4b10adfdea05193cd693703103dd039032f2f954b296c2ce024e5daf1ae9",
+      "archivedSha256": "f6af4b10adfdea05193cd693703103dd039032f2f954b296c2ce024e5daf1ae9"
+    },
+    "combined-full-build.log": {
+      "originalSha256": "2cb5daf6727b4d8121a8f24b00822d1c039dd41be3ee622ac0b99ad770ee3fe3",
+      "archivedSha256": "14679d16b7ef6896e6fb3d7bd7d06a824cf5c9ced64e30f9343cbe57156f4fb8"
+    },
+    "combined-dormant-public-build.log": {
+      "originalSha256": "de68879bef29f7e6b727d707010de23ddb0ccc0e7f4f2622b08d8d828dc2e052",
+      "archivedSha256": "bdf9c4458e9116ea19d400bb6a172b276feabbf85e441440f850fa6b362b1a02"
+    },
+    "combined-calculator-pro.log": {
+      "originalSha256": "e116e755e884b8581a86e12fe06d3aeb97d5086d0b3c350c74efa5e2bd0f64cd",
+      "archivedSha256": "e116e755e884b8581a86e12fe06d3aeb97d5086d0b3c350c74efa5e2bd0f64cd"
+    },
+    "combined-calculator-semantic.log": {
+      "originalSha256": "72faf6ac4378c8706d218454e7b06a7c59b29b02a2d363fde5530f040796b5c1",
+      "archivedSha256": "72faf6ac4378c8706d218454e7b06a7c59b29b02a2d363fde5530f040796b5c1"
+    },
+    "combined-now-browser.log": {
+      "originalSha256": "4631e033a595aaf3cd0b65fa0bfc0e427cccef0c8d0cb8990ca11d0a183e118b",
+      "archivedSha256": "4631e033a595aaf3cd0b65fa0bfc0e427cccef0c8d0cb8990ca11d0a183e118b"
+    },
+    "combined-frame-tests": {
+      "originalSha256": "eaa843c8ef02de0cfa6664aa587579755c613516da0eda0e9dcfc3d9f1d95f9b",
+      "originalPath": "/tmp/combined-frame-tests.log",
+      "status": "failed attempt, retained"
+    },
+    "combined-hardening-tests": {
+      "originalSha256": "2dbe43e356b1921e75887c6ebb9861f5c755238641b82f2f305e72f3d4c99bd4",
+      "originalPath": "/tmp/combined-hardening-tests.log",
+      "status": "failed attempt, retained"
+    },
+    "combined-hardening-tests-after": {
+      "originalSha256": "4956fe46d1a1466c6122ced13289752872d988a9fe2586985ff239b85cb553f1",
+      "originalPath": "/tmp/combined-hardening-tests-after.log",
+      "status": "failed attempt, retained"
+    },
+    "combined-now-browser": {
+      "originalSha256": "ca08db08f060e9a1c156d75329a86b35c70ebe447482eb53b08aa7f771ae6456",
+      "originalPath": "/tmp/combined-now-browser.log",
+      "status": "failed attempt, retained"
+    }
+  }
+}
