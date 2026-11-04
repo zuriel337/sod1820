@@ -42,6 +42,7 @@ async function harness(file, names, overrides = {}) {
     useRef: value => { const current = slot(); return current.ref ||= { current: value }; },
     useEffect: effect, useLayoutEffect: effect, useId: () => "unit-id", lazy: () => "LazyComponent",
     useAuth: () => ({ user: { id: "account" }, isAdmin: false, loading: false }),
+    useCommunityReadingPosition2029: () => ({ resume: null, updates: {}, error: false }),
     publicLaunchActionsLocked: isAdmin => isAdmin !== true,
     communityActionsLocked: isAdmin => isAdmin !== true,
     PUBLIC_READING_PRODUCTION_ARTIFACT: false,

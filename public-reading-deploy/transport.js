@@ -257,6 +257,16 @@ function installPublicReadingWorker(policy) {
           return Object.keys(body).join(",") === "p_n" && Number.isSafeInteger(body.p_n)
             && body.p_n > 0 && body.p_n <= 2147483647 ? readFetch(req) : denied();
         }
+        if (rpc === "community_thread_updates") {
+          if (url.searchParams.size !== 1 || url.searchParams.get("select") !== "root_id,new_count,first_reply_id,first_path") return denied();
+          const body = await jsonBody(req);
+          if (Object.keys(body).join(",") !== "p_cursors" || !Array.isArray(body.p_cursors) || body.p_cursors.length > 40
+            || body.p_cursors.some(item => !plainObject(item) || Object.keys(item).sort().join(",") !== "created_at,message_id,root_id"
+              || !uuid(item.root_id) || !uuid(item.message_id) || typeof item.created_at !== "string" || item.created_at.length > 64 || !Number.isFinite(Date.parse(item.created_at)))
+            || new Set(body.p_cursors.map(item => item.root_id)).size !== body.p_cursors.length) return denied();
+          const key = policy.anonKey || req.headers.get("apikey") || "";
+          return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
+        }
         if (["community_feed_page", "community_message_context", "community_replies_page"].includes(rpc)
           && url.searchParams.size === 1 && url.searchParams.get("select") === policy.communityFields) {
           const body = await jsonBody(req);

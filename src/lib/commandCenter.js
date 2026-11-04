@@ -3,6 +3,7 @@
 // בלי טבלאות/מערכות מקבילות. הכל beta — הקרדיטים בהרצה.
 import { supabase } from "./supabase.js";
 import { getVisitorId } from "./tracking.js";
+import { plainMessageText } from "./community/messageFormatting.js";
 
 // 💬 הודעות פרטיות (DM) — עדשות-לקוח על direct_messages דרך RPCs (owner-gateway).
 export async function dmInbox({ strict = false } = {}) {
@@ -26,7 +27,7 @@ export async function dmUnreadCount() {
 // Pass 1) — בלי זה, ה-LIMIT הקבוע היה חוסם תגובות ותיקות מהתצוגה בלי דרך לראות אותן.
 export async function repliesToMe(limit = 40, before = null, { strict = false } = {}) {
   if (!supabase) return [];
-  try { const { data, error } = await supabase.rpc("replies_to_me", { p_limit: limit, p_before: before || null }); if (error) throw error; return Array.isArray(data) ? data : []; } catch (error) { if (strict) throw error; return []; }
+  try { const { data, error } = await supabase.rpc("replies_to_me", { p_limit: limit, p_before: before || null }); if (error) throw error; if (!Array.isArray(data)) { if (strict) throw new Error("Replies unavailable"); return []; } return data.map(row => ({ ...row, body: plainMessageText(row.body || "") })); } catch (error) { if (strict) throw error; return []; }
 }
 
 // 🗨️ הפעילות שלי — התרומות והתגובות שאני-עצמי כתבתי (RPC · owner בלבד, כולל הקשר-אב).

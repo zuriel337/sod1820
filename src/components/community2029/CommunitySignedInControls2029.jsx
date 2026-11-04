@@ -48,6 +48,7 @@ export default function CommunitySignedInControls2029({ children }) {
   const count = snapshot.owner === principal && snapshot.state === "ready" ? snapshot.count : null;
   return <div className="sod29-community-account-row" data-notification-state={snapshot.owner === principal ? snapshot.state : "loading"}>
     <Link className="sod29-community-account-name" to={writerPersonalHref("profile", { returnTo })}>{ownProfile?.display_name || ownProfile?.username || "החשבון שלי"}</Link>
+    <Link className="sod29-community-account-replies" to={writerPersonalHref("messages", { tab: "replies", returnTo })}>תגובות אליי</Link>
     <div className="sod29-community-account-actions">
       <Link className="sod29-community-account-icon" to={writerPersonalHref("notifications", { returnTo })} aria-label={count > 0 ? `ההתראות שלי — ${count} חדשות` : "ההתראות שלי"} title="ההתראות שלי">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4M12 2V1" /></svg>

@@ -2,7 +2,7 @@ import { supabase } from "../supabase.js";
 import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../publicLaunch2029.js";
 import { getPublicResearchClient } from "../research/researchViewMode.js";
 import { addContribution } from "../contributions.js";
-import { COMMUNITY_THREAD_UUID as UUID_PATTERN } from "./communityThreadFocus.js";
+import { COMMUNITY_THREAD_UUID as UUID_PATTERN, normalizeCommunityThreadFocus } from "./communityThreadFocus.js";
 import { MESSAGE_FORMAT_PREFIX } from "./messageFormatting.js";
 export { normalizeCommunityThreadFocus } from "./communityThreadFocus.js";
 
@@ -13,6 +13,23 @@ const communityReadClient = () => PUBLIC_LAUNCH_READ_ONLY_PREVIEW ? getPublicRes
 export const COMMUNITY_PAGE_SIZE = 40;
 export const COMMUNITY_REPLY_PAGE_SIZE = 20;
 export const COMMUNITY_ARCHIVE_TOTAL = 41080;
+
+export async function fetchCommunityThreadUpdates(cursors, { client = communityReadClient(), signal } = {}) {
+  const ids = new Set(cursors.map(item => item.root_id));
+  let query = client.rpc("community_thread_updates", { p_cursors: cursors }).select("root_id,new_count,first_reply_id,first_path");
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
+  if (error) throw error;
+  if (!Array.isArray(data) || data.length !== ids.size) throw new Error("Invalid Community update projection");
+  const output = {};
+  for (const row of data) {
+    const count = Number(row.new_count);
+    const focus = count > 0 ? normalizeCommunityThreadFocus({ threadId: row.root_id, replyId: row.first_reply_id, path: Array.isArray(row.first_path) ? row.first_path.join(",") : "" }) : null;
+    if (!ids.has(row.root_id) || output[row.root_id] || row.new_count == null || !Number.isSafeInteger(count) || count < 0 || count > 0 && !focus) throw new Error("Invalid Community update projection");
+    output[row.root_id] = { count, path: focus?.path || null, message_id: focus?.replyId || null, root_id: row.root_id };
+  }
+  return output;
+}
 const COMMUNITY_ORIGINS = ["openweb", "community_2029"];
 // Project at the API boundary. Older Community RPCs also expose joined dossier
 // columns; this consumer requests only public message credit, never private

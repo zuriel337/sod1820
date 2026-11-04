@@ -13,6 +13,8 @@ import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
 import CommunityRichText2029 from "./CommunityRichText2029.jsx";
 import CommunityPersonalActions2029 from "./CommunityPersonalActions2029.jsx";
+import { useCommunityReadingPosition2029 } from "./useCommunityReadingPosition2029.js";
+import { communityReadingHref } from "../../lib/community/communityReadingPosition.js";
 import { appendMessageQuote, appendMessageText, plainMessageText, selectedMessageQuote } from "../../lib/community/messageFormatting.js";
 import CommunitySignIn from "./CommunitySignIn.jsx";
 import LegacyAccountClaim, { LegacyAccountClaimEntry } from "./LegacyAccountClaim.jsx";
@@ -109,7 +111,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
   if (row.isDeleted) return <article id={`message-${row.id}`} className={`sod29-community-thread sod29-community-thread--deleted${focused ? " is-focused" : ""}`} tabIndex={focused ? -1 : undefined}>
     <p className="sod29-community-deleted" role="note">ההודעה נמחקה</p>
   </article>;
-  return <article id={`message-${row.id}`} className={`sod29-community-thread${focused ? " is-focused" : ""}`} tabIndex={focused ? -1 : undefined}>
+  return <article id={`message-${row.id}`} data-community-path={sharePath?.join(",")} data-community-created={row.createdAt} className={`sod29-community-thread${focused ? " is-focused" : ""}`} tabIndex={focused ? -1 : undefined}>
     <div className="sod29-community-author"><LiveAuthor row={row} accountProfiles={accountProfiles} formatDate={formatDate} linkAuthor={linkAuthor} showAvatar={showAuthorAvatar} /></div>
     {row.editedAt ? <p className="sod29-community-edited">נערך · {bilingualDateLabel(row.editedAt) || "תאריך לא זמין"}</p> : null}
     {showSource ? <div className="sod29-community-activity-source">{sourceLabels[row.origin] || "תרומה"}{row.parentId ? " · תגובה" : ""}</div> : null}
@@ -136,7 +138,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
   </article>;
 }
 
-function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoaded, refreshToken, ancestors = [], focusPath = [], messageActions }) {
+function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoaded, refreshToken, ancestors = [], focusPath = [], messageActions, newReplies = null }) {
   const focusIndex = focusPath.indexOf(row.id);
   const focusChildId = focusIndex >= 0 ? focusPath[focusIndex + 1] || null : null;
   const focused = focusPath.length > 0 && focusPath[focusPath.length - 1] === row.id;
@@ -216,6 +218,7 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   useLayoutEffect(() => { restoreCommunityScrollAnchor(replyAnchorRef.current); replyAnchorRef.current = null; }, [replies]);
 
   return <div ref={groupRef} className="sod29-community-thread-group">
+    {newReplies?.count > 0 ? <div className="sod29-community-new-replies"><Link to={communityReadingHref(newReplies)}>{newReplies.count === 1 ? "תגובה חדשה" : `${newReplies.count.toLocaleString("he-IL")} תגובות חדשות`} <span aria-hidden="true">←</span></Link></div> : null}
     <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} focused={focused} messageActions={messageActions} sharePath={[...ancestors, row.id]} />
     {canExpand && (!rootPreview || !expanded) ? <button type="button" className="sod29-community-replies-toggle" aria-expanded={expanded} aria-controls={childrenId} onClick={toggleReplies}>{expanded ? "הסתר תגובות" : "הצג תגובות"}{count != null ? ` (${count.toLocaleString("he-IL")})` : ""}</button> : null}
     <div id={childrenId} className="sod29-community-replies" hidden={!expanded || rootPreview && !replies.length && !replyError}>
@@ -255,7 +258,7 @@ export function PublicCommunityActivity2029({ rows = [], count = null, loading =
 
 export default function CommunityLive2029({ leadingContent = null, trailingContent = null, canonicalPath = "/community/chat" }) {
   const palette = use2029Palette();
-  const { user, profile, isAdmin } = useAuth();
+  const { user, profile, isAdmin, loading: authLoading, verified: authVerified } = useAuth();
   const actionsLocked = communityActionsLocked(isAdmin);
   const location = useLocation(), navigate = useNavigate();
   const [params] = useSearchParams();
@@ -268,6 +271,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const claimId = params.get("claim") || "";
   const memberId = claimId ? "" : params.get("member") || "";
   const cardId = memberId || claimId ? "" : params.get("memberCard") || "";
+  const reading = useCommunityReadingPosition2029({ auth: { user, loading: authLoading, verified: authVerified }, active: !memberId && !claimId && !cardId, enabled: PUBLIC_READING_PRODUCTION_ARTIFACT });
   const selectedAuthorId = memberId || cardId;
   const threadIdParam = params.get("thread") || "";
   const replyIdParam = params.get("reply") || "";
@@ -591,7 +595,10 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": palette.mode === "dark" ? `color-mix(in srgb, ${palette.cardRaised} 82%, ${palette.ink})` : palette.cardRaised }}>
       {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
-      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>שיחה {!hasThreadRequest ? <ConversationCount /> : null}</h1></header> : null}
+      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>שיחה {!hasThreadRequest ? <ConversationCount /> : null}</h1>
+        {!hasThreadRequest && reading.resume ? <div className="sod29-community-reading-tools"><Link className="sod29-community-secondary" to={communityReadingHref(reading.resume)} onClick={reading.requestResume}>להמשיך מאיפה שעצרתי <span aria-hidden="true">←</span></Link></div> : null}
+        {reading.error && reading.resume ? <p className="sod29-community-reading-error" role="status">לא ניתן לעדכן כרגע את מספר התגובות החדשות.</p> : null}
+      </header> : null}
       {claimId ? null : memberId ? <Suspense fallback={null}>
         <PublicContributor2029Page communityAuthorKey={memberId}
           entryReturnHref={communityPersonReturnHref(window.location.pathname, params.toString(), window.location.hash)}
@@ -627,7 +634,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {focusedThreadState === "loading" ? <p role="status">טוען את השיחה…</p> : null}
           {focusedThreadState === "error" ? <FrameState kind="error" title="טעינת השיחה נכשלה"><p>לא הצלחנו לפתוח את השיחה כרגע.</p></FrameState> : null}
           {focusedThreadState === "not_found" ? <FrameState kind="empty" title="השיחה אינה זמינה"><p>ייתכן שהשיחה אינה ציבורית או שהוסרה.</p></FrameState> : null}
-          {focusedThread && threadFocus && focusedThread.id === threadFocus.threadId ? <LiveThread key={`${focusedThread.id}:${threadFocus.path.join(",")}`} row={focusedThread} accountProfiles={accountProfiles} onReply={actionsLocked ? undefined : startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} focusPath={threadFocus.path} messageActions={messageActions} /> : null}
+          {focusedThread && threadFocus && focusedThread.id === threadFocus.threadId ? <LiveThread key={`${focusedThread.id}:${threadFocus.path.join(",")}`} row={focusedThread} accountProfiles={accountProfiles} onReply={actionsLocked ? undefined : startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} focusPath={threadFocus.path} messageActions={messageActions} newReplies={reading.updates[focusedThread.id]} /> : null}
         </section> : <>
           <div className="sod29-community-stream-tools"><label className="sod29-community-search"><span className="sod29-community-sr-only">חיפוש בשיחות שבדף</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש בשיחות שבדף" /></label>
           <section className="sod29-community-feed-controls" aria-label="סידור וסינון השיחות" aria-describedby="community-search-scope">
@@ -651,7 +658,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           </section></div>
           {error ? <FrameState kind="error" title="טעינת השיחות נכשלה"><p>{error}</p><button type="button" className="sod29-community-secondary" onClick={() => loadPage(0, true)}>ניסיון נוסף</button></FrameState> : null}
           {!error && !loading && !filtered.length ? <FrameState kind="empty" title={query.trim() ? "לא נמצאו התאמות לחיפוש" : "אין הודעות להצגה כרגע"}>{query.trim() ? <><p>החיפוש חל רק על ההודעות שכבר נטענו.</p><button type="button" className="sod29-community-secondary" onClick={() => setQuery("")}>ניקוי החיפוש</button></> : <p>אפשר לנסות לרענן את השיחות.</p>}</FrameState> : null}
-          <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={actionsLocked ? undefined : startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} messageActions={messageActions} />)}</div>
+          <div className="sod29-community-feed">{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={actionsLocked ? undefined : startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} messageActions={messageActions} newReplies={reading.updates[row.id]} />)}</div>
           {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
         </>}
       </section></div>}

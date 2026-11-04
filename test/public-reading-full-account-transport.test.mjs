@@ -315,3 +315,22 @@ test('explicit verified-account Community thread follow preserves the existing p
  assert.equal((await old.request('/rest/v1/rpc/watch_toggle',{body:{p_topic:'news',p_source:'center',p_on:false,p_visitor:null}})).status,200);
  assert.equal((await old.request('/functions/v1/send-push',{body:{topic:body.p_topic}})).status,403);
 });
+
+test('reading continuation accepts only bounded public cursors and strips account credentials',async()=>{
+ const path='/rest/v1/rpc/community_thread_updates?select=root_id,new_count,first_reply_id,first_path';
+ const cursor={root_id:a,message_id:b,created_at:'2026-11-04T12:00:00.123456Z'};
+ const w=worker({anonKey:'public-cursor-key'});assert.equal((await w.request(path,{body:{p_cursors:[cursor]}})).status,200);
+ assert.equal(w.calls.length,1);assert.equal(w.calls[0].headers.get('Authorization'),'Bearer public-cursor-key');
+ for(const [url,body] of [[path,{p_cursors:Array(41).fill(cursor)}],[path,{p_cursors:[cursor,cursor]}],[path,{p_cursors:[{...cursor,user_id:a}]}],[path,{p_cursors:[{...cursor,root_id:'bad'}]}],[path,{p_cursors:[cursor],p_user_id:a}],[path+'&user_id='+a,{p_cursors:[cursor]}],[path.replace('first_path','body'),{p_cursors:[cursor]}]]) {
+  const bad=worker();assert.equal((await bad.request(url,{body})).status,403);assert.equal(bad.calls.length,0);
+ }
+});
+test('replies to me requires canonical account verification and its exact private pagination contract',async()=>{
+ const path='/rest/v1/rpc/replies_to_me';
+ const w=worker({role:'member'});assert.equal((await w.request(path,{body:{p_limit:50,p_before:null}})).status,200);
+ assert.equal(w.calls.length,2);assert.equal(w.calls[1].headers.get('Authorization'),'Bearer '+token());
+ for(const body of [{p_limit:101,p_before:null},{p_limit:50,p_before:'bad'},{p_limit:50,p_before:null,user_id:b}]) {
+  const bad=worker();assert.equal((await bad.request(path,{body})).status,403);assert.equal(bad.calls.some(c=>c.url===API+path),false);
+ }
+ const guest=worker();assert.equal((await guest.request(path,{jwt:'',body:{p_limit:50,p_before:null}})).status,403);assert.equal(guest.calls.length,0);
+});

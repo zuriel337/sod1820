@@ -415,6 +415,12 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community-thread-watch{border-top:1px solid var(--s29-line);margin-top:10px;padding-top:10px}
 .sod29-community-thread-watch p{margin:0 0 4px;color:var(--s29-muted);line-height:1.6}
 .sod29-community-watch-control>span{display:block;line-height:1.6}
+.sod29-community-reading-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.sod29-community-reading-error{font-size:14px!important;color:var(--s29-muted);margin-top:8px!important}
+.sod29-community-new-replies{padding:10px 24px 0}
+.sod29-community-new-replies>a{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:var(--s29-accent-text);font-size:14px;text-decoration:none}
+.sod29-community-new-replies>a:hover{text-decoration:underline}
+.sod29-community-account-replies{display:inline-flex;align-items:center;min-height:44px;color:var(--s29-accent-text);font-size:14px;text-underline-offset:4px}
 
 /* One shared reading plane; the existing reply tree supplies the branches. */
 .sod29-community--full .sod29-community-feed .sod29-community-thread-group>.sod29-community-replies{margin-inline:42px 24px;padding-block:0 10px;padding-inline:20px 0;border-inline-start:1px solid var(--community-thread-line);border-end-start-radius:12px}

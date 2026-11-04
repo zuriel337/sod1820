@@ -3,7 +3,7 @@
 export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetchImpl = fetch, verify } = {}) {
   const u = new URL(req.url), db = "https://linswmnnkjxvweumprav.supabase.co";
   const table = u.origin === db ? /^\/rest\/v1\/(users|profiles|user_notes|research_items|user_research|notification_prefs|user_notifications|wa_account_links)$/.exec(u.pathname)?.[1] : null;
-  const rpc = u.origin === db ? /^\/rest\/v1\/rpc\/(research_state_snapshot_v1|research_state_apply_ops_v1|update_my_page_config|dm_inbox|dm_thread|dm_send|watch_toggle)$/.exec(u.pathname)?.[1] : null;
+  const rpc = u.origin === db ? /^\/rest\/v1\/rpc\/(research_state_snapshot_v1|research_state_apply_ops_v1|update_my_page_config|dm_inbox|dm_thread|dm_send|watch_toggle|replies_to_me)$/.exec(u.pathname)?.[1] : null;
   const selfApi = u.origin === clientOrigin && u.pathname === "/api/contributor-self";
   const avatar = u.origin === db && /^\/storage\/v1\/object\/gallery\/avatars\//.test(u.pathname);
   if (!table && !rpc && !selfApi && !avatar || table === "users" && ["GET","HEAD"].includes(req.method)) return null;
@@ -69,6 +69,8 @@ export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetch
         || body.p_source === "community_thread" && typeof body.p_on === "boolean"
           && /^thread:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(body.p_topic)) ? forward() : denied();
     const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+    if (rpc === "replies_to_me") return keys(body,["p_limit","p_before"]) && Number.isInteger(body.p_limit) && body.p_limit >= 1 && body.p_limit <= 100
+      && (body.p_before === null || typeof body.p_before === "string" && body.p_before.length <= 64 && Number.isFinite(Date.parse(body.p_before))) ? forward() : denied();
     if (rpc === "dm_inbox") return keys(body,[]) ? forward() : denied();
     if (rpc === "dm_thread") return keys(body,["p_with","p_limit"]) && uuid(body.p_with) && (body.p_limit == null || Number.isInteger(body.p_limit) && body.p_limit >= 1 && body.p_limit <= 200) ? forward() : denied();
     if (rpc === "dm_send") return keys(body,["p_to","p_body"]) && uuid(body.p_to) && body.p_to !== uid && typeof body.p_body === "string" && body.p_body.trim().length > 0 && body.p_body.length <= 4000 ? forward() : denied();

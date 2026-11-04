@@ -25,7 +25,7 @@ test("Replies to me describes both community and research and builds an exact co
   assert.match(center, /חיבור מאומת של הפרופיל הישן לחשבון/);
   assert.match(center, /thread_root_id/);
   assert.match(center, /thread_path/);
-  assert.match(center, /\/2029\?\$\{query\}/);
+  assert.match(center, /PUBLIC_READING_RELEASE \? "\/community\/chat" : "\/2029"/);
   assert.match(center, /הצ׳אט הוותיק/);
   assert.match(center, /מספר ומחקר/);
 });

@@ -18,6 +18,7 @@ import { getMyProfile, claimFoundingGrants, claimDailyCredit, claimWaActivityCre
 import { useWaLink, WaDot } from "../../lib/userCenter/useWaLink.jsx";
 import { loadOwnWriterIdentity, publicWriterFollowLinks, personalMessagesReturnHref, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
+import { PUBLIC_READING_RELEASE } from "../../lib/publicReadingRelease2029.js";
 
 // 🟢 צ'יפ סטטוס-וואטסאפ בכותרת המגירה — גלוי מיד: מנותק = CTA לחיבור (+100 קרדיט),
 //    מחובר = «מחובר ✓» + ניהול. לחיצה פותחת את מודול «הוואטסאפ שלי» (setActive('whatsapp')).
@@ -1104,7 +1105,8 @@ export function personalReplyContext(row, returnTo = "/2029/me/messages") {
     const query = new URLSearchParams({ preview: "community", data: "live", thread: row.thread_root_id, returnTo: personalMessagesReturnHref(returnTo) || "/2029/me/messages" });
     if (replyId) query.set("reply", replyId);
     if (safePath.length > 1) query.set("path", safePath.join(","));
-    return { kind: "community", label: origin === "openweb" ? "הצ׳אט הוותיק" : "הקהילה", href: `/2029?${query}` };
+    if (PUBLIC_READING_RELEASE) { query.delete("preview"); query.delete("data"); }
+    return { kind: "community", label: origin === "openweb" ? "הצ׳אט הוותיק" : "הקהילה", href: `${PUBLIC_READING_RELEASE ? "/community/chat" : "/2029"}?${query}` };
   }
   if (row?.target_type === "number" && row?.target_id) return { kind: "research", label: "מספר ומחקר", href: `/number/${encodeURIComponent(row.target_id)}` };
   if (row?.convergence_slug) return { kind: "research", label: "נושא ומחקר", href: `/topic/${encodeURIComponent(row.convergence_slug)}` };
