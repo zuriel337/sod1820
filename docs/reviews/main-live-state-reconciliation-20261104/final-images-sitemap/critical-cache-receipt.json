@@ -1,0 +1,30 @@
+{
+  "baseMain": "7b5f980a25b2f58445f515f7be8cd0d2d28bbeb5",
+  "runtimePriorCheckpoint": "71dc054ecb578e183c0a5ef7ebd96fb98a25f72d",
+  "ownerBefore": "50e80d31-3f35-4da4-ba12-651526683d37",
+  "sourceHandoff": "27cada5e-13b7-49fd-9856-c66619f2ca3e",
+  "latestScope": "Important verified fixes only; historical expansion deferred; code merge only, no new Production approval",
+  "cache": "Pass existing canonical XML owner public max-age3600/s-maxage21600/SWR86400 only for canonical/indexable GET200; protected/nonGET/error/dormant/private/incomplete policies retain no-store",
+  "privacy": "Existing public privacy metadata indexable canonical /privacy now present in STATIC/XML; no mail/account behavior changed",
+  "community": "Exact authorized28f5files integrated unchanged; real public source image decoded829x829 at390and1440 on protected71dc. Indexability implementation not changed; decision8876 closes the audit question, not a new global deindex instruction.",
+  "robots": "Two provenance comment lines only in preserved Legacy static file; actual2029dynamic policy unchanged",
+  "tests": {
+    "focusedNode": 95,
+    "cacheAndPublicationSubset": 49,
+    "g4BrowserLocal": 14,
+    "searchIndexingScript": "PASS",
+    "serverSeoParityScript": "PASS including4cache cases",
+    "legacyFallbackAndPublicationGuard": "PASS",
+    "sourceIsolation": "PASS",
+    "actualIsolatedA3On558": "SUCCESS in41872335896",
+    "fullIsolation": "FAILURE on old public Here/map browser expectation; not weakened/skipped",
+    "fullVisual": "not passed; proposal preserved outside implementation"
+  },
+  "notClaimed": [
+    "Vercel CDN HIT on new canonical Production cache; Production was not changed",
+    "Latest exact liveD06 canary success",
+    "FullG4programclosure",
+    "FullIsolation/ELS/Visual success",
+    "Every historical address checked again"
+  ]
+}

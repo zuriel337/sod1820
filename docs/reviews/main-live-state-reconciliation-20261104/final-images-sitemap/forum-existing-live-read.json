@@ -1,0 +1,17 @@
+{
+  "readAt": "2026-11-04T17:20:29.929871+00:00",
+  "method": "GET",
+  "url": "https://sod1820.co.il/forum/bedd0a52-1ab8-48de-a23e-ece746841b0c",
+  "redirectFollowed": false,
+  "status": 308,
+  "headers": [
+    "HTTP/1.1 200 OK",
+    "HTTP/2 308 ",
+    "cache-control: no-store",
+    "location: /community/chat",
+    "x-robots-tag: noindex, nofollow, noarchive",
+    "x-vercel-cache: MISS"
+  ],
+  "writes": 0,
+  "finding": "Existing live source already returns308to/community/chat. No router or forum identity logic changed."
+}

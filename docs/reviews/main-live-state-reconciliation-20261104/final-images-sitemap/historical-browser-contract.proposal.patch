@@ -1,0 +1,209 @@
+diff --git a/.github/workflows/release-visual-gate.yml b/.github/workflows/release-visual-gate.yml
+index e3b47d44..e6d82c77 100644
+--- a/.github/workflows/release-visual-gate.yml
++++ b/.github/workflows/release-visual-gate.yml
+@@ -89,6 +89,7 @@ jobs:
+       - name: Build production bundle
+         env:
+           VITE_HOME_2029_ENABLED: "true"
++          VITE_PUBLIC_FOUNDATION_PREVIEW: "true"
+         run: npm run build
+ 
+       - name: Install Playwright runner and Chromium
+@@ -112,9 +113,14 @@ jobs:
+           cat > .release-gate/release-visual.spec.cjs <<'EOF'
+           const { test, expect } = require('@playwright/test');
+           const { installStorageEgressGuard } = require('../tests/playwright-storage-egress-guard.cjs');
++          const { installPublicReadOnlyEgress, disposePublicReadOnlyEgress } = require('../tests/fixtures/public-readonly-egress.cjs');
+ 
+           const BASE = 'http://127.0.0.1:4173';
+-          test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
++          test.beforeEach(async ({ context }) => {
++            await installPublicReadOnlyEgress(context, { baseUrl: BASE });
++            await installStorageEgressGuard(context);
++          });
++          test.afterEach(async ({ context }) => disposePublicReadOnlyEgress(context));
+           const PATH = '/entity-hub-preview/number/1237';
+           const widths = [320, 360, 390, 1440];
+ 
+@@ -122,6 +128,7 @@ jobs:
+             if (testInfo.title.includes('guest signup popup')) return;
+             await page.addInitScript(() => {
+               try { sessionStorage.setItem('sod_guest_signup_popup_dismissed', '1'); } catch {}
++              try { localStorage.setItem('sod_legacy_newsletter_invite_until', String(Date.now() + 86400000)); } catch {}
+             });
+           });
+ 
+@@ -142,7 +149,7 @@ jobs:
+               await expect(home.locator('[data-home-world="open"]')).toHaveCount(0);
+               await expect(home.locator('#home-sources')).toHaveCount(1);
+               await expect(page.getByRole('toolbar', { name: 'מסלול המחקר והפעולות הזמינות עכשיו', exact: true })).toHaveCount(1);
+-              expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
++              expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+               await page.screenshot({ path: `test-results/release-visual/home-core-opening-${width}.png`, fullPage: false });
+             }
+           });
+@@ -262,7 +269,7 @@ jobs:
+             await page.setViewportSize({ width, height });
+             await page.goto(`${BASE}${PATH}`, { waitUntil: 'networkidle' });
+ 
+-            expect(await page.title()).toBe('SOD1820 · 2029');
++            expect(await page.title()).toBe('סוד 1820');
+             await expect(page.locator('script[src*="/assets/2029-"]')).toHaveCount(1);
+             const golden = page.locator('[data-experience-surface="golden-1237-focus"]');
+             await expect(golden).toBeVisible({ timeout: 20_000 });
+@@ -425,29 +432,18 @@ jobs:
+             expect(traceRequests).toBe(0);
+             await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(0);
+ 
++            const exactPost = page.url();
+             await focusSource.locator('[data-contextual-number-focus="true"][data-expression="נפתלי בנט"]').first().click();
+ 
+-            const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
+-            await expect(sidecar).toBeVisible({ timeout: 30_000 });
+-            await expect(sidecar).toHaveCount(1);
+-            await expect(sidecar).toHaveAttribute('data-desktop-projection', 'left-context-sidecar');
+-            await expect(sidecar).toHaveAttribute('data-mobile-projection', 'bottom-context-sheet');
+-            // Explicit expression intent opens Number directly (4b148849).
+-            // Passive reading above made zero trace requests; no second inspect dialog is introduced.
+-            await expect(page.getByRole('dialog')).toHaveCount(1);
+-
+-            const drawer = page.locator('.sod29-number-drawer2029');
+-            await expect(drawer).toBeVisible({ timeout: 30_000 });
+-            const drawerIdentity = drawer.locator('.sod29-number-drawer-identity');
+-            await expect(drawerIdentity).toBeVisible();
+-            await expect(drawerIdentity).toContainText('נפתלי בנט');
+-            await expect(drawerIdentity).toContainText('רגיל');
+-            await expect(drawerIdentity).toContainText('631');
+-            await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+-            await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('נפתלי בנט', { timeout: 20_000 });
+-
+-            const regular = drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'רגיל' }).first();
+-            await expect(regular).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 });
++            const numberPage = page.locator('.sod29-number-page');
++            const core = numberPage.locator('[data-number-core-root="631"]');
++            await expect(core).toBeVisible({ timeout: 30_000 });
++            expect(new URL(page.url()).pathname).toBe('/number/631');
++            expect(new URL(page.url()).searchParams.get('focus')).toBe('נפתלי בנט');
++            expect(new URL(page.url()).searchParams.get('method')).toBe('רגיל');
++            await expect(numberPage.locator('[data-expression-focus="true"]')).toContainText('נפתלי בנט');
++            await expect(page.getByRole('dialog')).toHaveCount(0);
++            await expect(page.locator('.sod29-number-drawer2029')).toHaveCount(0);
+ 
+             await expect.poll(async () => page.evaluate(() => {
+               const key = Object.keys(sessionStorage).find((name) => name.startsWith('sod_research_context_v2:'));
+@@ -462,21 +458,19 @@ jobs:
+               ]);
+             }), { timeout: 5_000 }).toBe(JSON.stringify(['נפתלי בנט', 'רגיל', 631, '#source-region-bennett-631']));
+ 
+-            const calculation = drawer.locator('.sod29-number-v10-calculation-card');
++            const calculation = core.locator('.sod29-number-v10-calculation-card');
+             await expect(calculation).toBeVisible({ timeout: 20_000 });
+             await calculation.click();
+-            await expect(drawer.locator('[data-experience-capability="spatial-method-stage"][data-method-key="רגיל"]')).toBeVisible({ timeout: 20_000 });
++            await expect(core.locator('[data-experience-capability="spatial-method-stage"][data-method-key="רגיל"]')).toBeVisible({ timeout: 20_000 });
+             await expect(page.locator('[data-experience-capability="spatial-method-stage"]')).toHaveCount(1);
+             expect(traceRequests).toBeGreaterThan(0);
+ 
+-            await drawer.locator('[data-experience-action="number-result-preview"]').click();
+-            await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'number');
+-            await expect(sidecar).toHaveCount(1);
+-
+-            await drawer.locator('[data-experience-action="contextual-number-back"]').click();
+-            await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+-            await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('נפתלי בנט');
+-            await expect(drawer.locator('[data-experience-capability="number-method-glance"] > button').filter({ hasText: 'רגיל' }).first()).toHaveAttribute('aria-pressed', 'true', { timeout: 20_000 });
++            const numberBox = await numberPage.boundingBox();
++            expect(numberBox.x).toBeGreaterThanOrEqual(0);
++            expect(numberBox.x + numberBox.width).toBeLessThanOrEqual(await page.evaluate(() => document.documentElement.clientWidth));
++            await page.goBack();
++            await expect(page).toHaveURL(exactPost);
++            await expect(focusSource.locator('[data-contextual-number-focus="true"][data-expression="נפתלי בנט"]').first()).toBeVisible();
+ 
+             const metrics = await page.evaluate(() => ({
+               clientWidth: document.documentElement.clientWidth,
+@@ -484,27 +478,17 @@ jobs:
+             }));
+             expect(metrics.scrollWidth).toBe(metrics.clientWidth);
+ 
+-            const panelBox = await sidecar.boundingBox();
+-            expect(panelBox).not.toBeNull();
+-            if (width < 600) {
+-              expect(panelBox.width).toBeGreaterThanOrEqual(width - 2);
+-              expect(Math.abs((panelBox.y + panelBox.height) - height)).toBeLessThanOrEqual(2);
+-            } else {
+-              expect(panelBox.x).toBeLessThanOrEqual(12);
+-              expect(panelBox.width).toBeLessThanOrEqual(522);
+-            }
+-
+             await page.screenshot({
+               path: `test-results/release-visual/post-2029-contextual-${width}.png`,
+               fullPage: false,
+             });
+           }
+ 
+-          test('Post 2029 Bennett fixture uses canonical mobile Bottom Sheet with lazy trace and exact back at 390px', async ({ page }) => {
++          test('Post 2029 Bennett fixture opens the full Number with lazy trace and exact back at 390px', async ({ page }) => {
+             await assertPost2029ContextualFlow(page, 390);
+           });
+ 
+-          test('Post 2029 Bennett fixture uses canonical desktop left Sidecar with lazy trace and exact back at 1440px', async ({ page }) => {
++          test('Post 2029 Bennett fixture opens the full Number with lazy trace and exact back at 1440px', async ({ page }) => {
+             await assertPost2029ContextualFlow(page, 1440);
+           });
+ 
+@@ -672,16 +656,19 @@ jobs:
+               await expression.focus();
+               await expect(expression).toBeFocused();
+               await expression.press('Enter');
+-              const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
+-              const drawer = sidecar.locator('.sod29-number-drawer2029');
+-              await expect(drawer).toBeVisible({ timeout: 30_000 });
+-              await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('אירן', { timeout: 20_000 });
+-              await drawer.locator('[data-experience-action="number-result-preview"]').click();
+-              await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'number');
+-              await drawer.locator('[data-experience-action="contextual-number-back"]').click();
+-              await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+-              await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('אירן');
++              const numberPage = page.locator('.sod29-number-page');
++              await expect(numberPage.locator('[data-number-core-root="261"]')).toBeVisible({ timeout: 30_000 });
++              expect(new URL(page.url()).pathname).toBe('/number/261');
++              expect(new URL(page.url()).searchParams.get('focus')).toBe('אירן');
++              expect(new URL(page.url()).searchParams.get('method')).toBe('רגיל');
++              await expect(numberPage.locator('[data-expression-focus="true"]')).toContainText('אירן');
++              await expect(page.getByRole('dialog')).toHaveCount(0);
++              await expect(page.locator('.sod29-number-drawer2029')).toHaveCount(0);
++              await page.goBack();
++              await expect(post).toBeVisible({ timeout: 30_000 });
+               expect(decodeURIComponent(new URL(page.url()).pathname)).toBe(`/post/${slug}`);
++              expect(new URL(page.url()).searchParams.get('gemcard')).toBe('1');
++              await expect(source.locator('[data-gem="אירן"]')).toBeVisible();
+ 
+               const metrics = await page.evaluate(() => ({
+                 clientWidth: document.documentElement.clientWidth,
+@@ -689,8 +676,6 @@ jobs:
+               }));
+               expect(metrics.scrollWidth).toBe(metrics.clientWidth);
+               await page.screenshot({ path: `test-results/release-visual/native-post-equality-${width}.png`, fullPage: false });
+-              await sidecar.getByRole('button', { name: 'סגור', exact: true }).click();
+-              await expect(sidecar).toHaveCount(0);
+             }
+           });
+ 
+diff --git a/tests/entry-learn-2029.spec.cjs b/tests/entry-learn-2029.spec.cjs
+index 06e87a42..f3a192e3 100644
+--- a/tests/entry-learn-2029.spec.cjs
++++ b/tests/entry-learn-2029.spec.cjs
+@@ -136,8 +136,10 @@ test('direct Post opens Number; contextual teaching and help retain the same foc
+   await page.locator('.sod29-frame-panel-head button[aria-label="סגור"]').click();
+   await expect(page.locator('[data-contact-gateway="true"]')).toHaveCount(0);
+ 
+-  // Reopen the context sheet; help preserves the explicit expression focus.
+-  await page.getByRole('button', { name: /^כאן · מפת העמוד/ }).click();
++  // Here/map is explicitly admin-only during construction. Reopen the same
++  // public expression instead; teaching must retain its identity without a bypass.
++  await expect(page.getByRole('button', { name: 'כאן · בבנייה · למנהל בלבד', exact: true })).toBeDisabled();
++  await focusControl.click();
+   const sidecarAfterAsk = page.locator('[data-experience-capability="contextual-sidecar"]');
+   const learnAfterAsk = sidecarAfterAsk.locator('[data-learn-scope="concept"]');
+   await learnAfterAsk.getByRole('button', { name: 'איך זה עובד?' }).click();

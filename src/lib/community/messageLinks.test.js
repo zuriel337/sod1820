@@ -47,3 +47,24 @@ test("native video and account-scoped attachments stay within the existing publi
   assert.equal(describeMessageLink(base.replace('.supabase.co/','.supabase.co:8443/')+'.mp4').kind,'link');
   assert.equal(describeMessageLink(base+'.html').kind,'link');
 });
+
+test("original extensionless OpenWeb attachments render as images without rewriting the public source", () => {
+  const original = "https://images.spot.im/v1/lgckojucbf0se4mwhbfk";
+  const link = describeMessageLink(original);
+  assert.equal(link.kind, "image"); assert.equal(link.source, "openweb"); assert.equal(link.href, original);
+  assert.equal(link.embed, undefined);
+  const parts = splitMessageLinks(`תמונה מהצ׳אט הישן:\n${original}\n${original}`);
+  assert.equal(messageLinkPreviews(parts).length, 1);
+  assert.equal(messageLinkPreviews(parts)[0].kind, "image");
+  assert.equal(describeMessageLink("https://images.spot.im/v1/p/uploads/image_01.jpg").kind, "image");
+  assert.equal(describeMessageLink("https://images.spot.im/v1/abc-def_123.gif").kind, "image");
+});
+
+test("legacy image support does not turn unrelated, credentialed, signed or executable URLs into image previews", () => {
+  for (const url of ["http://images.spot.im/v1/abc", "https://images.spot.im.evil.test/v1/abc",
+    "https://evil.test/v1/abc", "https://images.spot.im:8443/v1/abc", "https://images.spot.im/v1/abc?token=private",
+    "https://images.spot.im/v1/abc#fragment", "https://images.spot.im/v1/abc.svg", "https://images.spot.im/v1/abc.html",
+    "https://images.spot.im/v1/../api/users", "https://images.spot.im/v1/a%2Fb", "https://images.spot.im/v1//abc",
+    "https://images.spot.im/v1/" ]) assert.equal(describeMessageLink(url).kind, "link", url);
+  assert.equal(describeMessageLink("https://name:password@images.spot.im/v1/abc"), null);
+});

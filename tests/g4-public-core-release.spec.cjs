@@ -21,6 +21,9 @@ test.setTimeout(45_000);
 const { installPublicTopicFixture } = require('./fixtures/public-topic-888.cjs');
 
 test.beforeEach(async ({ context }) => {
+  // Route scenarios represent a returning reader who dismissed the invitation.
+  // The invitation itself is covered separately, without obscuring route controls.
+  await context.addInitScript(() => localStorage.setItem('sod_legacy_newsletter_invite_until', String(Date.now() + 86400000)));
   // The preview reads public production data. Never send analytics or other
   // product mutations from this acceptance runner to the canonical project.
   await context.route('https://linswmnnkjxvweumprav.supabase.co/**', async (route) => {
@@ -112,7 +115,7 @@ test('chat transition has one frame with the connected new chat above the retain
     await expect(oldChat.locator('[data-spotim-module="conversation"]')).toHaveAttribute('data-post-url', 'https://sod1820.co.il/community/chat');
     await expect(page.locator('#spotim-script')).toHaveCount(1);
     await expect(page.locator('.sod29-community-preview-notice, .sod29-community-feed-label')).toHaveCount(0);
-    await oldChat.getByRole('heading', { name: 'ממשיכים לשוחח', exact: true }).waitFor();
+    await oldChat.getByRole('heading', { name: 'הצ׳אט הישן', exact: true }).waitFor();
     await oldChat.getByRole('link', { name: 'בחזרה לשיחה ↑', exact: true }).click();
     await expect(newChat.getByRole('textbox', { name: 'מה תרצו לשתף?' })).toBeVisible();
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://sod1820.co.il/community/chat');
@@ -126,7 +129,7 @@ test('Number navigation requires an explicit value and opens its same full page 
     await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
     if (width < 720) await page.getByRole('button', { name: 'פתח ניווט' }).click();
     await page.getByRole('button', { name: 'דף המספר', exact: true }).click();
-    const search = page.getByRole('dialog', { name: 'חיפוש', exact: true });
+    const search = page.getByRole('dialog', { name: 'מספר / ביטוי', exact: true });
     await expect(search).toBeVisible();
     await expect(search.getByRole('textbox', { name: 'חיפוש' })).toHaveValue('');
     await expect(page.locator('[data-number-core-root]')).toHaveCount(0);
@@ -140,12 +143,18 @@ test('Number navigation requires an explicit value and opens its same full page 
   }
 });
 
-test('a phrase in the Number drawer opens its calculated full page, never a missing-value zero', async ({ page }) => {
+test('site search stays separate and a phrase in the Number drawer opens its calculated full page, never a missing-value zero', async ({ page }) => {
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
     await page.locator('.sod29-header-search').click();
-    const search = page.getByRole('dialog', { name: 'חיפוש' });
+    const siteSearch = page.getByRole('dialog', { name: 'חיפוש באתר', exact: true });
+    await expect(siteSearch.getByRole('combobox', { name: 'מה מחפשים?' })).toBeVisible();
+    await expect(siteSearch.locator('.sod29-number-drawer2029')).toHaveCount(0);
+    await page.keyboard.press('Escape');
+    if (width < 720) await page.getByRole('button', { name: 'פתח ניווט' }).click();
+    await page.getByRole('button', { name: 'דף המספר', exact: true }).click();
+    const search = page.getByRole('dialog', { name: 'מספר / ביטוי', exact: true });
     await search.getByRole('textbox', { name: 'חיפוש' }).fill('שלום');
     await search.getByRole('button', { name: 'בדוק' }).click();
     const drawer = page.locator('.sod29-number-drawer2029');
@@ -215,7 +224,7 @@ test('posts, ELS, calculator and Number are reachable on mobile', async ({ page 
   await page.goto(`${BASE}/2029/gematria`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-experience-surface="calculator-pro-2029"]')).toBeVisible();
   await expect(page.getByText('צוריאל')).toHaveCount(0);
-  await page.getByPlaceholder('שם, מילה או ביטוי · עברית או English').fill('שלום');
+  await page.locator('#calculator-pro-input').fill('שלום');
   await expect(page.locator('[data-experience-surface="calculator-pro-2029"] [data-share-url]')).toHaveAttribute('data-share-url', /\/2029\/gematria\/viral\?/);
   await page.getByRole('button', { name: /גלה הכל על 376/ }).click();
   await expect(page).toHaveURL(/\/2029\/number\/376(?:\?|$)/);

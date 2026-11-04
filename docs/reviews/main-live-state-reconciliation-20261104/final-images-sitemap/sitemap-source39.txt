@@ -1,0 +1,47 @@
+✔ dormant default cannot be activated by environment, forged request or production branch name (341.957168ms)
+✔ only dedicated 2029 compiler target can enable the signed service; default, Preview and stray Legacy flags cannot (3.528937ms)
+✔ Production document uses canonical owner, preserves old/native/encoded/wp addresses and genuine missing/failure status (15.959967ms)
+✔ closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe (6.72985ms)
+✔ public aliases and named existing capabilities retain truthful continuations without publicizing unknown slugs (4.538859ms)
+✔ HTTP origin, path and method boundaries cannot select metadata profile or enter private readers (1.111444ms)
+✔ Numbers/phrases use the same canonical indexability readers; source failure is 503, false is noindex (4.915396ms)
+✔ public topic/writer/video missing and failed source responses keep 404 and 503 distinct (4.927684ms)
+✔ sitemap reuses eligible publication owner for both Post families, Numbers, phrases, topic, public writer and verified video (4.183423ms)
+✔ robots follows Production canonical sitemap while dormant mode fails closed; public GET APIs strip Legacy authority and reject POST (0.711352ms)
+✔ exact emitted worker denies A3/models/Auth/credits/writes through GET/POST/PATCH/DELETE and proxy paths before network (11.074025ms)
+✔ active worker claims only a same-origin window requesting its exact source and policy (1.086096ms)
+✔ emitted worker retains public calculator/STABLE GET/community projection reads and context checks, never raw replies (5.533557ms)
+✔ language-link reader admits approved-only scope and denies visitor drafts before any network call (3.56412ms)
+✔ signed Legacy unsubscribe alone can reach its unchanged HMAC server from exact controlled service document (2.566498ms)
+✔ bootstrap bounds every worker phase, rejects redundant/wrong policy and never imports after a late timeout (54.421648ms)
+✔ actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and byte-exact Legacy rollback worker (46.616126ms)
+✔ native public image loading retains opaque response compatibility without bypassing private reads or writes (2.411193ms)
+✔ approved explicit report receipt path permits no identity-bearing, generic telemetry or unrelated writes (2.846548ms)
+✔ actual Supabase insert array columns are admitted exactly; extra columns and selectors remain denied (4.409033ms)
+✔ explicit report retains canonical anonymous session correlation without accepting visitor identity (1.608613ms)
+✔ XML applies the existing reader decision before any PDF probe, retaining only the open Ahavat reader (10.087829ms)
+✔ invalid, unbound, inactive and ambiguous book identities cannot trigger source probes or indexing (4.782706ms)
+✔ failed source reads stay failed and no-store; unavailable files are not advertised as ready (3.13217ms)
+✔ the preserved Legacy sitemap path keeps its previous book identity metadata without new source probes (0.867998ms)
+✔ public video re-admits its exact source before loading playable metadata; no other placements (4.078936ms)
+✔ hidden, page-only, expired and different source cannot trigger playable asset read (0.533023ms)
+✔ missing, denied and failed remain distinct; invalid address never reads (1.040408ms)
+✔ source mismatch, changed primary and private media fail closed (0.624751ms)
+✔ cancellation before, between and after reads discards partial data (1.045345ms)
+✔ authored Post keeps its old public URL and rejects suppressed tags (0.848769ms)
+✔ existing Home video and Story publication gates remain required (0.532913ms)
+✔ 2029 uses the existing world media surface and shared Player, never the Legacy broad reader (0.510609ms)
+✔ public-reading metadata uses the same source gate and preserves 404 versus 503 (11.174186ms)
+✔ Legacy video metadata keeps its existing single asset read (0.943011ms)
+✔ XML shares the exact public source gate, rejects stale aggregate claims and propagates outages (1.369093ms)
+✔ XML source reads batch and deduplicate exact IDs, without per-asset HTTP or persistent cache (8.409401ms)
+✔ XML overlaps at most three authorized batches and preserves identities after out-of-order completion (71.315581ms)
+✔ a failed concurrent source batch rejects the whole XML admission instead of returning partial assets (1.415953ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 730.933209

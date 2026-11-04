@@ -118,7 +118,8 @@ export async function fetchPublicVideo2029(assetId, { readRows = readPublicVideo
 }
 
 // Server-only use by the existing XML owner. Per-request maps are discarded;
-// at most 40 distinct source IDs per GET, never one HTTP request per asset.
+// at most 40 distinct source IDs per GET and three GETs in flight, never one
+// HTTP request per asset. Results retain source and asset order after admission.
 export async function publicVideoSitemapAssets2029(assets, { readRows, now = Date.now() }) {
   const eligible = assets.filter(v => /^[0-9a-f]{32}$/i.test(v.public_id || "") && v.google_indexable === true
     && /^[0-9a-f-]{1,64}$/i.test(String(v.primary_source_id || "")) && publicVideoSourceQuery2029(v.primary_source_type, v.primary_source_id, now));
@@ -126,11 +127,14 @@ export async function publicVideoSitemapAssets2029(assets, { readRows, now = Dat
   for (const kind of new Set(eligible.map(v => v.primary_source_type))) {
     const ids = [...new Set(eligible.filter(v => v.primary_source_type === kind).map(v => String(v.primary_source_id)))];
     const spec = publicVideoSourceQuery2029(kind, ids[0], now), tableRows = new Map();
-    for (let offset = 0; offset < ids.length; offset += 40) {
-      const batch = ids.slice(offset, offset + 40);
-      const rows = await readRows(spec.table, { ...spec.params, id: `in.(${batch.join(",")})`, limit: String(batch.length) });
-      if (!Array.isArray(rows)) throw new Error("invalid_video_source_response");
-      for (const row of rows) if (batch.includes(String(row.id))) tableRows.set(String(row.id), row);
+    for (let offset = 0; offset < ids.length; offset += 120) {
+      const batches = [0, 40, 80].map(start => ids.slice(offset + start, offset + start + 40)).filter(batch => batch.length);
+      const reads = await Promise.all(batches.map(async batch => {
+        const rows = await readRows(spec.table, { ...spec.params, id: `in.(${batch.join(",")})`, limit: String(batch.length) });
+        if (!Array.isArray(rows)) throw new Error("invalid_video_source_response");
+        return rows.filter(row => batch.includes(String(row.id)));
+      }));
+      for (const rows of reads) for (const row of rows) tableRows.set(String(row.id), row);
     }
     sources.set(spec.table, tableRows);
   }

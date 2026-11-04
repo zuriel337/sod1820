@@ -1,0 +1,73 @@
+{
+  "sourceSha": "468e43438dd86937f650654312d65ff4f8a2055f",
+  "origin": "https://sod1820-fbnps4f4a-sod1820-s-projects.vercel.app",
+  "realPublicContent": true,
+  "realServiceWorker": true,
+  "responseMocks": false,
+  "productWrites": 0,
+  "modelCalls": 0,
+  "rows": [
+    {
+      "width": 390,
+      "status": 200,
+      "publicMessageId": "72ae1d46-1499-4788-ab72-999687990b86",
+      "originalPublicImage": "https://images.spot.im/v1/lgckojucbf0se4mwhbfk",
+      "image": {
+        "naturalWidth": 829,
+        "naturalHeight": 829,
+        "displayWidth": 287,
+        "referrerPolicy": "no-referrer"
+      },
+      "requests": [
+        {
+          "referer": null
+        }
+      ],
+      "workerVerified": true,
+      "inlineImage": true,
+      "errors": [],
+      "deniedWrites": [],
+      "pass": true
+    },
+    {
+      "width": 1440,
+      "status": 200,
+      "publicMessageId": "72ae1d46-1499-4788-ab72-999687990b86",
+      "originalPublicImage": "https://images.spot.im/v1/lgckojucbf0se4mwhbfk",
+      "image": {
+        "naturalWidth": 829,
+        "naturalHeight": 829,
+        "displayWidth": 518,
+        "referrerPolicy": "no-referrer"
+      },
+      "requests": [
+        {
+          "referer": null
+        }
+      ],
+      "workerVerified": true,
+      "inlineImage": true,
+      "errors": [],
+      "deniedWrites": [],
+      "pass": true
+    }
+  ],
+  "sitemap": [
+    {
+      "run": 1,
+      "status": 200,
+      "totalMs": 16986,
+      "bytes": 4210543,
+      "noindex": "noindex, nofollow, noarchive",
+      "cacheControl": "no-store"
+    },
+    {
+      "run": 2,
+      "status": 200,
+      "totalMs": 18069,
+      "bytes": 4210543,
+      "noindex": "noindex, nofollow, noarchive",
+      "cacheControl": "no-store"
+    }
+  ]
+}

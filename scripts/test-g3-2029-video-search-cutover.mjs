@@ -16,7 +16,12 @@ const closure = read("docs/2029-search-indexing-closure-map-v1.md");
 assert.match(app2029, /Video2029Page/);
 assert.match(app2029, /path="\/video\/:assetId"/);
 assert.match(video2029, /Sod2029Shell/);
-assert.match(video2029, /surface="video"/);
+assert.match(video2029, /surface="world"/);
+assert.match(video2029, /NavigationIcon2029 name="video"/);
+assert.match(video2029, /data-experience-capability="public-video-source"/);
+assert.match(video2029, /fetchPublicVideo2029\(assetId, \{ signal: controller\.signal \}\)/);
+assert.match(video2029, /return \(\) => controller\.abort\(\)/);
+assert.match(video2029, /const current = state\.key === assetId/);
 
 const rewrites = vercel.rewrites || [];
 assert.ok(rewrites.some(r => r.source === "/video/(.*)" && r.destination === "/2029.html"), "video must enter App2029");

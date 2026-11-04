@@ -1,0 +1,622 @@
+{
+  "rows": [
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "or",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 117,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 516,
+      "doneMs": 784,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "or",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 902,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 743,
+      "doneMs": 746,
+      "count": 308
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/video_media_assets_v1",
+      "queryKeys": [
+        "select",
+        "google_indexable",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 1658,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 1963,
+      "doneMs": 2231,
+      "count": 887
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/channel_updates",
+      "queryKeys": [
+        "select",
+        "id",
+        "status",
+        "page_only",
+        "or",
+        "limit"
+      ],
+      "startMs": 3891,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 262,
+      "doneMs": 264,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/channel_updates",
+      "queryKeys": [
+        "select",
+        "id",
+        "status",
+        "page_only",
+        "or",
+        "limit"
+      ],
+      "startMs": 3891,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 263,
+      "doneMs": 264,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/channel_updates",
+      "queryKeys": [
+        "select",
+        "id",
+        "status",
+        "page_only",
+        "or",
+        "limit"
+      ],
+      "startMs": 3892,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 296,
+      "doneMs": 298,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/channel_updates",
+      "queryKeys": [
+        "select",
+        "id",
+        "status",
+        "page_only",
+        "or",
+        "limit"
+      ],
+      "startMs": 4190,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 201,
+      "doneMs": 202,
+      "count": 5
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 4392,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 219,
+      "doneMs": 220,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 4392,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 237,
+      "doneMs": 237,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 4393,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 233,
+      "doneMs": 234,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 4630,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 219,
+      "doneMs": 219,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 4630,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 229,
+      "doneMs": 229,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 4630,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 215,
+      "doneMs": 216,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 4860,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 207,
+      "doneMs": 208,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 4860,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 217,
+      "doneMs": 226,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 4860,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 241,
+      "doneMs": 242,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 5102,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 216,
+      "doneMs": 219,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 5102,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 220,
+      "doneMs": 221,
+      "count": 40
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/posts",
+      "queryKeys": [
+        "select",
+        "id",
+        "or",
+        "limit"
+      ],
+      "startMs": 5102,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 356,
+      "doneMs": 357,
+      "count": 21
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/rpc/sitemap_numbers",
+      "queryKeys": [],
+      "startMs": 5543,
+      "method": "POST",
+      "status": 200,
+      "headersMs": 254,
+      "doneMs": 255,
+      "count": 445
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 5798,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 219,
+      "doneMs": 220,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 6018,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 261,
+      "doneMs": 262,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 6280,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 249,
+      "doneMs": 250,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 6531,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 236,
+      "doneMs": 237,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 6768,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 233,
+      "doneMs": 234,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 7002,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 241,
+      "doneMs": 242,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 7244,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 230,
+      "doneMs": 231,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 7475,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 225,
+      "doneMs": 227,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 7702,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 242,
+      "doneMs": 243,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 7945,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 229,
+      "doneMs": 230,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 8175,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 229,
+      "doneMs": 230,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 8405,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 223,
+      "doneMs": 224,
+      "count": 1000
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/sitemap_phrases_v1",
+      "queryKeys": [
+        "select",
+        "order",
+        "limit",
+        "offset"
+      ],
+      "startMs": 8629,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 542,
+      "doneMs": 543,
+      "count": 584
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/topic_cards_public",
+      "queryKeys": [
+        "select",
+        "limit",
+        "offset"
+      ],
+      "startMs": 9175,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 190,
+      "doneMs": 191,
+      "count": 204
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/els_records",
+      "queryKeys": [
+        "select",
+        "status",
+        "visibility",
+        "or",
+        "limit",
+        "offset"
+      ],
+      "startMs": 9366,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 195,
+      "doneMs": 196,
+      "count": 104
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/nodes",
+      "queryKeys": [
+        "select",
+        "type",
+        "is_active",
+        "limit",
+        "offset"
+      ],
+      "startMs": 9562,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 512,
+      "doneMs": 513,
+      "count": 7
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/storage/v1/object/public/gallery/Book/Hebrewbooks_org_5635.pdf",
+      "queryKeys": [],
+      "startMs": 10076,
+      "method": "HEAD",
+      "status": 200,
+      "headersMs": 222
+    },
+    {
+      "host": "linswmnnkjxvweumprav.supabase.co",
+      "path": "/rest/v1/contributors",
+      "queryKeys": [
+        "select",
+        "active",
+        "locked",
+        "building",
+        "or",
+        "limit",
+        "offset"
+      ],
+      "startMs": 10298,
+      "method": "GET",
+      "status": 200,
+      "headersMs": 215,
+      "doneMs": 217,
+      "count": 27
+    }
+  ],
+  "livePublicSources": true,
+  "modelCalls": 0,
+  "productWrites": 0,
+  "status": 200,
+  "bytes": 4210543,
+  "totalMs": 10434
+}

@@ -1,5 +1,5 @@
 import { PUBLIC_READING_PROFILE_ID, publicReadingContinuation, PUBLIC_HISTORICAL_LECTURE_PATHS } from "../src/lib/publicReadingRelease2029.js";
-import { projectPublicBook2029, publicBookSourceAvailable2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
+import { projectPublicBook2029, fetchPublicLibraryItem2029, publicBookSourceAvailable2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
 import { postsTaxonomyRoute2029, postMatchesTaxonomy2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { publicPostHref, publicPostUrl, postAddressSlug } from "../src/lib/publicPostUrls.js";
 import { publicPostOnlyFilter } from "../src/lib/research/publicPostBoundary.js";
@@ -149,6 +149,7 @@ const STATIC = [
   { loc: '/',             priority: '1.0', changefreq: 'daily'   },
   { loc: '/start',        priority: '0.8', changefreq: 'monthly' },
   { loc: '/map',          priority: '0.6', changefreq: 'monthly' },
+  { loc: '/privacy',      priority: '0.3', changefreq: 'yearly'  },
   { loc: '/broadcasts',   priority: '0.6', changefreq: 'daily'   },
   { loc: '/forum',        priority: '0.7', changefreq: 'daily'   },
   { loc: '/or-geula',     priority: '0.7', changefreq: 'weekly'  },
@@ -173,19 +174,28 @@ const STATIC = [
 ];
 
 // משיכה בעימוד דרך REST (limit/offset), עד שהדף האחרון קצר מ-PAGE.
-async function fetchAll(path) {
+async function fetchAll(path, { concurrentPages = 1 } = {}) {
   const PAGE = 1000;
   const out = [];
-  for (let from = 0; from < 100000; from += PAGE) {
-    const sep = path.includes('?') ? '&' : '?';
-    const url = `${SUPABASE_URL}/rest/v1/${path}${sep}limit=${PAGE}&offset=${from}`;
-    const r = await fetch(url, { headers: HEADERS });
-    if (!r.ok) throw new Error("sitemap-source-unavailable");
-    const rows = await r.json();
-    if (!Array.isArray(rows)) throw new Error("sitemap-source-invalid");
-    if (rows.length === 0) break;
-    out.push(...rows);
-    if (rows.length < PAGE) break;
+  // Only the existing ordered public phrase projection opts into three-page
+  // waves. Default/Legacy reads retain sequential pagination. Lookahead may
+  // fetch two empty pages, but cannot add rows beyond the first short page.
+  const width = concurrentPages === 3 ? 3 : 1;
+  for (let from = 0; from < 100000; from += PAGE * width) {
+    const offsets = Array.from({ length: width }, (_, i) => from + i * PAGE).filter(offset => offset < 100000);
+    const pages = await Promise.all(offsets.map(async offset => {
+      const sep = path.includes('?') ? '&' : '?';
+      const url = `${SUPABASE_URL}/rest/v1/${path}${sep}limit=${PAGE}&offset=${offset}`;
+      const r = await fetch(url, { headers: HEADERS });
+      if (!r.ok) throw new Error("sitemap-source-unavailable");
+      const rows = await r.json();
+      if (!Array.isArray(rows)) throw new Error("sitemap-source-invalid");
+      return rows;
+    }));
+    for (const rows of pages) {
+      out.push(...rows);
+      if (rows.length < PAGE) return out;
+    }
   }
   return out;
 }
@@ -296,7 +306,7 @@ export default async function handler(req, res) {
   // ── דפי ביטוי מאומתים → /number/:phrase — אותו SSOT של robots בעמוד עצמו.
   // רק verified + published + visible מתוך sitemap_phrases_v1; ביטוי מספרי נשאר בבעל-המספר.
   try {
-    const phrases = await fetchAll('sitemap_phrases_v1?select=phrase,lastmod&order=phrase.asc');
+    const phrases = await fetchAll('sitemap_phrases_v1?select=phrase,lastmod&order=phrase.asc', { concurrentPages: productionReading ? 3 : 1 });
     for (const row of phrases) {
       const phrase = String(row?.phrase || '').trim();
       if (!phrase || /^\d+$/.test(phrase)) continue;
@@ -352,7 +362,21 @@ export default async function handler(req, res) {
       : 'metadata,created_at') + '&type=eq.book&is_active=eq.true');
     for (const b of books) {
       const item = productionReading ? projectPublicBook2029(b) : null;
-      if (productionReading && (item?.readerState !== 'source_bound' || !await publicBookSourceAvailable2029(item.manifest))) continue;
+      if (productionReading) {
+        if (!item) continue;
+        // Reuse the reader's existing launch admission before probing a PDF.
+        // Closed preparation cards remain reachable, but are not open readers.
+        let sourceError;
+        const reader = await fetchPublicLibraryItem2029('books', item.slug, {
+          readRows: async () => books.filter(row => row.book_slug === item.slug),
+          checkBookSource: async manifest => {
+            try { return await publicBookSourceAvailable2029(manifest); }
+            catch (error) { sourceError = error; throw error; }
+          },
+        });
+        if (sourceError) throw sourceError;
+        if (reader?.readerState !== 'ready') continue;
+      }
       const slug = productionReading ? item?.slug : b?.metadata?.slug;
       if (!slug) continue;
       const lastmod = (b.created_at || '').slice(0, 10) || undefined;

@@ -1,0 +1,26 @@
+
+Running 14 tests using 1 worker
+
+(node:35506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:35506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/14] tests/g4-public-core-release.spec.cjs:53:1 › 2029 Preview Home keeps the adopted page without claiming a public opening
+[2/14] tests/g4-public-core-release.spec.cjs:73:1 › public navigation opens the same user area
+[3/14] tests/g4-public-core-release.spec.cjs:82:1 › launch Number lock blocks direct entry before the Number engine mounts
+[4/14] tests/g4-public-core-release.spec.cjs:94:1 › chat transition has one frame with the connected new chat above the retained old conversation
+[5/14] tests/g4-public-core-release.spec.cjs:126:1 › Number navigation requires an explicit value and opens its same full page on mobile and desktop
+[6/14] tests/g4-public-core-release.spec.cjs:146:1 › site search stays separate and a phrase in the Number drawer opens its calculated full page, never a missing-value zero
+[7/14] tests/g4-public-core-release.spec.cjs:184:1 › a large signed-in profile image cannot squeeze the account text
+[8/14] tests/g4-public-core-release.spec.cjs:211:1 › posts, ELS, calculator and Number are reachable on mobile
+[9/14] tests/g4-public-core-release.spec.cjs:236:1 › existing gematria share links still open the shared result
+[10/14] tests/g4-public-core-release.spec.cjs:243:1 › World opens from Home and requests its grouped source reader
+[11/14] tests/g4-public-core-release.spec.cjs:310:1 › Topic number remains tappable when external fonts are unavailable
+[12/14] tests/g4-public-core-release.spec.cjs:325:1 › an absent public Topic never fabricates an 888 Number entry
+[13/14] tests/g4-public-core-release.spec.cjs:333:1 › Heichal and the other unopened areas stay closed
+[14/14] tests/g4-public-core-release.spec.cjs:353:1 › the existing public World stays open when no lock flag has been installed
+  14 passed (48.3s)

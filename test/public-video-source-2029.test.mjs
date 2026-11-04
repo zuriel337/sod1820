@@ -161,3 +161,37 @@ test("XML source reads batch and deduplicate exact IDs, without per-asset HTTP o
   const deniedOnNextRead = await publicVideoSitemapAssets2029(assets, { now: NOW, readRows: async () => [] });
   assert.deepEqual(deniedOnNextRead, []);
 });
+
+test("XML overlaps at most three authorized batches and preserves identities after out-of-order completion", async () => {
+  const assets = Array.from({ length: 241 }, (_, i) => asset({ public_id: (i + 1).toString(16).padStart(32, "0"),
+    primary_source_id: `00000000-0000-4000-8000-${(i + 1).toString().padStart(12, "0")}` }));
+  let active = 0, maximum = 0;
+  const completions = [], batches = [];
+  const result = await publicVideoSitemapAssets2029(assets, { now: NOW, readRows: async (table, params) => {
+    const ids = params.id.slice(4, -1).split(","), index = batches.length;
+    batches.push(ids); active += 1; maximum = Math.max(maximum, active);
+    assert.equal(table, "channel_updates"); assert.equal(params.status, "eq.live");
+    assert.equal(params.page_only, "eq.false"); assert.match(params.or, /expires_at.gt/);
+    assert.ok(ids.length <= 40); assert.equal(params.limit, String(ids.length));
+    await new Promise(resolve => setTimeout(resolve, [20, 10, 0][index % 3]));
+    active -= 1; completions.push(index);
+    // An unrelated response row cannot introduce a new public source.
+    return [...ids.map(id => channel({ id })), channel({ id: "unrequested", text: "must not appear" })];
+  } });
+  assert.equal(maximum, 3); assert.equal(active, 0); assert.equal(batches.length, 7);
+  assert.notDeepEqual(completions, batches.map((_, index) => index));
+  assert.deepEqual(result.map(row => row.public_id), assets.map(row => row.public_id));
+  assert.ok(result.every(row => row.title === "מסר ציבורי"));
+});
+
+test("a failed concurrent source batch rejects the whole XML admission instead of returning partial assets", async () => {
+  const assets = Array.from({ length: 121 }, (_, i) => asset({ public_id: (i + 1).toString(16).padStart(32, "0"),
+    primary_source_id: `00000000-0000-4000-8000-${(i + 1).toString().padStart(12, "0")}` }));
+  const batches = [];
+  await assert.rejects(publicVideoSitemapAssets2029(assets, { now: NOW, readRows: async (_table, params) => {
+    const ids = params.id.slice(4, -1).split(","); batches.push(ids);
+    if (batches.length === 2) throw new Error("source_denied");
+    return ids.map(id => channel({ id }));
+  } }), /source_denied/);
+  assert.equal(batches.length, 3, "no later wave is started after a source failure");
+});

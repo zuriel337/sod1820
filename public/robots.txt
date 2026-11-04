@@ -1,3 +1,5 @@
+# Legacy fallback artifact only. The live 2029 publication serves robots.txt
+# through public-reading-deploy/api/public-robots.js; this file is not live policy.
 # SOD1820 — מדיניות סריקה לפי סוג-תוכן (לא רק לפי בוט)
 # ציבורי (דפי-מספר · פוסטים · אוצרות · שפות · מעבדת-השם) = פתוח לסריקה ואינדוקס.
 # יקר/פרטי (מסע · AI · מחקר · אזור-אישי · ניהול) = חסום לכל הבוטים (מגן על עלויות-טוקנים).
