@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import {
   WEB_VITALS_VERSION,
+  WEB_VITAL_THRESHOLDS,
   buildWebVitalsSnapshot,
   createClsState,
   createInpState,
@@ -50,6 +51,21 @@ assert.equal(WEB_VITALS_VERSION, 1);
 
 // Thresholds + aggregate snapshot remain explicit and null-safe.
 {
+  // ZURIEL 4 Nov: adding features must not automatically move the existing
+  // quality boundaries. Keep the single runtime owner; this is acceptance.
+  for (const [metric, expected] of Object.entries({
+    cls: { good: 0.1, poor: 0.25 },
+    lcp_ms: { good: 2500, poor: 4000 },
+    inp_ms: { good: 200, poor: 500 },
+    fcp_ms: { good: 1800, poor: 3000 },
+    ttfb_ms: { good: 800, poor: 1800 },
+  })) {
+    assert.deepEqual(WEB_VITAL_THRESHOLDS[metric], expected, `${metric}: feature growth cannot rebase the threshold`);
+    assert.ok(Object.isFrozen(WEB_VITAL_THRESHOLDS[metric]));
+    assert.equal(rateWebVital(metric, expected.good), "good");
+    assert.equal(rateWebVital(metric, expected.good + 0.0001), "needs_improvement");
+    assert.equal(rateWebVital(metric, expected.poor + 0.0001), "poor");
+  }
   assert.equal(rateWebVital("cls", 0.1), "good");
   assert.equal(rateWebVital("cls", 0.1001), "needs_improvement");
   assert.equal(rateWebVital("lcp_ms", 4001), "poor");
