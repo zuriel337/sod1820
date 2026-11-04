@@ -36,10 +36,12 @@ export const entityFromInsight = (item) =>
   });
 
 export const ENTITY_ICON = {
+  contribution: "💬",
   number: "🔢", phrase: "✦", post: "📖", verse: "📜", image: "🖼",
   video: "🎬", convergence: "🧩", cross: "⟡", event: "🗓", prayer: "🙏",
 };
 export const ENTITY_LABEL = {
+  contribution: "הודעה",
   number: "מספר", phrase: "ביטוי", post: "פוסט", verse: "פסוק", image: "תמונה",
   video: "סרטון", convergence: "התכנסות", cross: "הצלבה", event: "אירוע", prayer: "תפילה",
 };

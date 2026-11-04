@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/messageLinks.js";
-import { messageFormattingText, parseMessageFormatting } from "../../lib/community/messageFormatting.js";
+import { parseMessageFormatting } from "../../lib/community/messageFormatting.js";
 import { use2029Palette } from "../../lib/palette.js";
 
 function LinkPreview({ link }) {
@@ -25,36 +25,45 @@ function LinkPreview({ link }) {
 export default function CommunityMessageContent({ text, previewsOnly = false, bodyRef }) {
   const palette = use2029Palette();
   const nodes = parseMessageFormatting(text);
-  const parts = splitMessageLinks(messageFormattingText(nodes));
-  let partIndex = 0, partOffset = 0;
-  const renderText = value => {
-    const fragments = [];
-    let offset = 0;
-    while (offset < value.length && partIndex < parts.length) {
-      const part = parts[partIndex], length = Math.min(value.length - offset, part.text.length - partOffset);
-      const segment = value.slice(offset, offset + length);
-      if (part.link) {
-        const attachment = { image: "פתיחת התמונה המצורפת", video: "פתיחת הסרטון המצורף", file: `פתיחת קובץ ${part.link.extension}` }[part.link.kind];
-        if (!attachment || partOffset === 0) fragments.push(<a key={`${partIndex}:${partOffset}`} dir="auto" href={part.link.href} target="_blank" rel="noopener noreferrer">{attachment || segment}</a>);
-      } else fragments.push(segment);
-      offset += length; partOffset += length;
-      if (partOffset === part.text.length) { partIndex++; partOffset = 0; }
-    }
-    return fragments;
+  const previewParts = [];
+  // Keep a styled URL inside ONE LTR anchor, including when a selection marks
+  // only part of it. Splitting it into RTL siblings reverses URL fragments.
+  const renderInline = (runs, key) => {
+    const parts = splitMessageLinks(runs.map(run => run.text).join(""));
+    previewParts.push(...parts);
+    let runIndex = 0, runOffset = 0;
+    const take = length => {
+      const pieces = [];
+      while (length > 0 && runIndex < runs.length) {
+        const run = runs[runIndex], size = Math.min(length, run.text.length - runOffset);
+        let piece = run.text.slice(runOffset, runOffset + size);
+        for (const mark of [...run.marks].reverse()) piece = mark === "bold" ? <strong>{piece}</strong> : mark === "underline" ? <u>{piece}</u> : <span className={`sod29-community-text-${mark}`}>{piece}</span>;
+        pieces.push(<React.Fragment key={`${runIndex}:${runOffset}`}>{piece}</React.Fragment>);
+        length -= size; runOffset += size;
+        if (runOffset === run.text.length) { runIndex++; runOffset = 0; }
+      }
+      return pieces;
+    };
+    return parts.map((part, index) => {
+      const content = take(part.text.length);
+      if (!part.link) return <React.Fragment key={`${key}:${index}`}>{content}</React.Fragment>;
+      const label = { image: "פתיחת התמונה המצורפת", video: "פתיחת הסרטון המצורף", file: `פתיחת קובץ ${part.link.extension}` }[part.link.kind];
+      return <a key={`${key}:${index}`} dir={label ? "auto" : "ltr"} href={part.link.href} target="_blank" rel="noopener noreferrer">{label || content}</a>;
+    });
   };
-  const render = (nodes, path = "body") => nodes.map((node, index) => {
-    const key = `${path}:${index}`;
-    if (node.type === "text") {
-      return <React.Fragment key={key}>{renderText(node.text)}</React.Fragment>;
-    }
-    const children = render(node.children, key);
-    if (node.type === "bold") return <strong key={key}>{children}</strong>;
-    if (node.type === "underline") return <u key={key}>{children}</u>;
-    if (node.type === "quote") return <blockquote key={key}>{children}</blockquote>;
-    return <span key={key} className={`sod29-community-text-${node.type}`}>{children}</span>;
-  });
-  const content = render(nodes);
-  const links = messageLinkPreviews(parts);
+  const renderBlocks = (nodes, inherited = [], path = "body") => {
+    const output = []; let runs = [];
+    const flush = () => { if (runs.length) { output.push(...renderInline(runs, `${path}:${output.length}`)); runs = []; } };
+    const visit = (node, marks) => {
+      if (node.type === "text") { if (node.text) runs.push({ text: node.text, marks }); return; }
+      if (node.type === "quote") { flush(); output.push(<blockquote key={`${path}:quote:${output.length}`}>{renderBlocks(node.children, marks, `${path}:quote:${output.length}`)}</blockquote>); return; }
+      for (const child of node.children) visit(child, [...marks, node.type]);
+    };
+    for (const node of nodes) visit(node, inherited);
+    flush(); return output;
+  };
+  const content = renderBlocks(nodes);
+  const links = messageLinkPreviews(previewParts);
   return <>
     {!previewsOnly ? <div ref={bodyRef} className="sod29-community-body" style={{ "--community-text-gold": palette.warmAccent, "--community-text-blue": palette.accentText }}>{content}</div> : null}
     {links.length ? <div className="sod29-community-link-previews" aria-label="תצוגה מקדימה לקישורים">{links.map((link) => <LinkPreview key={link.key} link={link} />)}</div> : null}

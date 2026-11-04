@@ -294,3 +294,24 @@ test('guest repeatable mode cannot broaden emoji, body shape or nonpublic target
   assert.equal((await w.request('/rest/v1/rpc/toggle_contribution_reaction',{jwt:token(a,'anon'),body})).status,403);
  assert.equal(w.calls.filter(r=>r.url.endsWith('/toggle_contribution_reaction')).length,0);
 });
+
+test('explicit verified-account Community thread follow preserves the existing private and channel ceiling',async()=>{
+ const body={p_topic:'thread:'+b,p_source:'community_thread',p_on:true,p_visitor:null};
+ for(const on of [true,false]){
+  const w=worker({role:'user'});
+  assert.equal((await w.request('/rest/v1/rpc/watch_toggle',{body:{...body,p_on:on}})).status,200);
+  assert.equal(w.calls.filter(r=>r.url===API+'/rest/v1/rpc/watch_toggle').length,1);
+ }
+ for(const bad of [{...body,p_topic:'news'},{...body,p_source:'center'},{...body,p_visitor:'visitor'},{...body,p_on:'true'},{...body,user_id:b},{...body,p_topic:'thread:invalid'}]){
+  const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/watch_toggle',{body:bad})).status,403);
+  assert.ok(!w.calls.some(r=>r.url===API+'/rest/v1/rpc/watch_toggle'));
+ }
+ for(const denied of [{jwt:token(a,'anon')},{jwt:token(b)},{authError:true}]){
+  const w=worker({role:'user',authError:denied.authError});
+  assert.equal((await w.request('/rest/v1/rpc/watch_toggle',{body,jwt:denied.jwt})).status,403);
+  assert.ok(!w.calls.some(r=>r.url===API+'/rest/v1/rpc/watch_toggle'));
+ }
+ const old=worker({role:'user'});
+ assert.equal((await old.request('/rest/v1/rpc/watch_toggle',{body:{p_topic:'news',p_source:'center',p_on:false,p_visitor:null}})).status,200);
+ assert.equal((await old.request('/functions/v1/send-push',{body:{topic:body.p_topic}})).status,403);
+});

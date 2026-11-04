@@ -110,6 +110,7 @@ export async function getMyNotifications(limit = 30, { strict = false, userId = 
 export function topicLabel(topic, { experience = null } = {}) {
   if (!topic) return null;
   const t = canonicalFollowTopic(topic);
+  if (/^thread:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(t)) return { icon: "💬", label: "שרשור בקהילה", link: `/community/chat?thread=${t.slice(7)}`, kind: "שרשור" };
   if (t.startsWith("cat:"))    { const v = t.slice(4);  return { icon: "📁", label: v, link: experience === "2029" ? `/2029/posts?category=${encodeURIComponent(v)}` : `/category/${encodeURIComponent(v)}`, kind: "קטגוריה" }; }
   if (experience === "2029" && t.startsWith("series:")) {
     const spec = contentSeriesByKey(t.slice(7));

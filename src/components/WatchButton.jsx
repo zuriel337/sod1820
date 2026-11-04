@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { publicReadingActionsLocked } from "../lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_PRODUCTION_ARTIFACT, publicReadingActionsLocked } from "../lib/publicReadingRelease2029.js";
 import { F } from "../theme.js";
 import { usePalette, PALETTES } from "../lib/palette.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -28,7 +28,11 @@ const DEFAULT_FOLLOW_IO = Object.freeze({
 });
 
 export default function WatchButton(props) {
-  const actionsLocked = publicReadingActionsLocked(useAuth().isAdmin);
+  const auth = useAuth();
+  const communityThread = PUBLIC_READING_PRODUCTION_ARTIFACT && props.communityThread === true
+    && auth.verified === true && !auth.loading && Boolean(auth.user?.id)
+    && props.source === "community_thread" && /^thread:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(props.topic || "");
+  const actionsLocked = publicReadingActionsLocked(auth.isAdmin) && !communityThread;
   // A closed capability must not mount the controller or create a visitor identity.
   // Keep a truthful, inert affordance; existing Follow data is neither read nor changed.
   if (actionsLocked) return props.topic ? <button type="button" className="sod29-action"
@@ -123,6 +127,11 @@ function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "�
     ? <button type="button" onClick={load} style={{ marginInlineStart: 8, minHeight: 44, minWidth: 44, cursor: "pointer", background: "transparent", border: "none", color, fontFamily: F.heading, fontSize: size, fontWeight: 800, textDecoration: "underline" }}>נסו שוב</button>
     : null;
   const locked = busy || !known;
+
+  if (variant === "thread") return <div className="sod29-community-watch-control">
+    <button type="button" disabled={locked} aria-pressed={following} aria-busy={busy || !known || undefined} onClick={toggle}>{following ? (followLabel || "עוקב") : (label || "מעקב")}</button>
+    {unknownMsg ? <span role="alert">{unknownMsg}{retry(P.accentText, 14)}</span> : null}
+  </div>;
 
   // Design V2 presentation through the existing variant seam. The shared controller owns I/O and scope guards;
   // the view receives authoritative completion facts separately from the saved follow value.

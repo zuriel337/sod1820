@@ -385,6 +385,7 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community-rich-wrap{min-width:0;flex:1;max-width:100%;color:var(--s29-ink)}
 .sod29-community-rich-input{display:block;width:100%;min-width:0;min-height:48px;max-height:224px;overflow-y:auto;padding:11px 12px;white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:16px;line-height:24px;outline:0;cursor:text}
 .sod29-community-rich-input[data-empty="true"]::before{content:attr(data-placeholder);color:var(--s29-muted);pointer-events:none;float:inline-start;height:0}
+.sod29-community-rich-input[data-empty="true"]{direction:rtl;text-align:start}
 .sod29-community-rich-input[aria-disabled="true"]{opacity:.65;cursor:default}
 .sod29-community-format-tools{display:flex;flex-wrap:wrap;align-items:center;gap:0;border-top:1px solid var(--s29-line);padding:3px 0}
 .sod29-community-format-tools[hidden]{display:none}
@@ -400,8 +401,20 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community-editor>.sod29-community-rich-wrap{border:1px solid var(--s29-line-strong);border-radius:6px;background:var(--community-input,var(--s29-panel))}
 .sod29-community-editor .sod29-community-rich-input{min-height:96px}
 .sod29-community-composer[data-compact="true"] .sod29-community-compose-input{position:relative}
-.sod29-community-composer[data-compact="true"] .sod29-community-rich-input{padding-inline-end:48px}
+.sod29-community-composer[data-compact="true"] .sod29-community-rich-input{padding-left:48px;padding-right:12px}
 .sod29-community-composer[data-compact="true"] .sod29-community-compose-attach{position:absolute;inset-block-start:0;inset-inline-end:0}
+.sod29-community-personal-menu{position:relative;margin-inline-start:auto}
+.sod29-community-personal-menu>summary{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;cursor:pointer;list-style:none;color:var(--s29-muted);border-radius:6px;font-size:22px}
+.sod29-community-personal-menu>summary::-webkit-details-marker{display:none}
+.sod29-community-personal-menu[open]>summary{background:var(--s29-panel-soft)}
+.sod29-community-thread:has(.sod29-community-personal-menu[open]){position:relative;z-index:20}
+.sod29-community-personal-menu>summary:focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:2px}
+.sod29-community-personal-options{position:absolute;inset-inline-end:0;inset-block-end:calc(100% + 6px);z-index:12;width:min(310px,76vw);padding:12px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);box-shadow:0 12px 30px color-mix(in srgb,var(--s29-page) 50%,transparent);font-size:14px}
+.sod29-community-personal-options .sod29-actions{display:grid;margin:0;gap:6px}
+.sod29-community-personal-options small{display:block;white-space:normal;line-height:1.6}
+.sod29-community-thread-watch{border-top:1px solid var(--s29-line);margin-top:10px;padding-top:10px}
+.sod29-community-thread-watch p{margin:0 0 4px;color:var(--s29-muted);line-height:1.6}
+.sod29-community-watch-control>span{display:block;line-height:1.6}
 
 /* One shared reading plane; the existing reply tree supplies the branches. */
 .sod29-community--full .sod29-community-feed .sod29-community-thread-group>.sod29-community-replies{margin-inline:42px 24px;padding-block:0 10px;padding-inline:20px 0;border-inline-start:1px solid var(--community-thread-line);border-end-start-radius:12px}

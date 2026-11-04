@@ -12,6 +12,7 @@ import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommuni
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
 import CommunityRichText2029 from "./CommunityRichText2029.jsx";
+import CommunityPersonalActions2029 from "./CommunityPersonalActions2029.jsx";
 import { appendMessageQuote, appendMessageText, plainMessageText, selectedMessageQuote } from "../../lib/community/messageFormatting.js";
 import CommunitySignIn from "./CommunitySignIn.jsx";
 import LegacyAccountClaim, { LegacyAccountClaimEntry } from "./LegacyAccountClaim.jsx";
@@ -125,6 +126,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
       <LiveLike row={row} />
       {shareUrl ? <ShareActions type="community_message" entityId={row.id} url={shareUrl} title="הודעה בקהילת סוד 1820" sourceSurface="community_thread_2029" variant="icon" iconLabel="שיתוף הודעה" iconCopiedLabel="הקישור להודעה הועתק" force /> : null}
       {showSource && target ? <Link to={target}>לתרומה המלאה ←</Link> : null}
+      {canReply && shareUrl && mode !== "edit" ? <CommunityPersonalActions2029 key={`${row.id}:${messageActions?.principalKey || "guest"}`} row={row} rootId={sharePath[0]} href={new URL(shareUrl).pathname + new URL(shareUrl).search} /> : null}
       {permissions?.state === "ready" && permissions.canEdit && mode !== "edit" ? <button type="button" ref={editButton} className="sod29-community-manage-action" onClick={() => open("edit")}>עריכה</button> : null}
       {permissions?.state === "ready" && permissions.canDelete && !mode ? <button type="button" className="sod29-community-manage-action" onClick={() => open("delete")}>מחיקה</button> : null}
     </div>

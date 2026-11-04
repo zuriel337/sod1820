@@ -61,11 +61,13 @@ export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetch
       && query(["user_id","id","read_at","select"]) && u.searchParams.get("read_at") === "is.null"
       && keys(body,["read_at"]) && typeof body.read_at === "string" && Number.isFinite(Date.parse(body.read_at)) ? forward() : denied();
     if (req.method !== "POST" || !rpc || u.search) return denied();
-    // Existing Follow removal only, with Auth-derived identity; never enable
-    // a channel, assign a visitor or add a Follow while entering the account.
+    // Existing Follow removal, plus the explicit verified-account Community
+    // thread contract. Entering an account still starts no Follow or channel.
     if (rpc === "watch_toggle") return keys(body,["p_topic","p_source","p_on","p_visitor"])
       && typeof body.p_topic === "string" && body.p_topic.trim().length > 0 && body.p_topic.length <= 500
-      && body.p_source === "center" && body.p_on === false && body.p_visitor === null ? forward() : denied();
+      && body.p_visitor === null && (body.p_source === "center" && body.p_on === false
+        || body.p_source === "community_thread" && typeof body.p_on === "boolean"
+          && /^thread:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(body.p_topic)) ? forward() : denied();
     const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
     if (rpc === "dm_inbox") return keys(body,[]) ? forward() : denied();
     if (rpc === "dm_thread") return keys(body,["p_with","p_limit"]) && uuid(body.p_with) && (body.p_limit == null || Number.isInteger(body.p_limit) && body.p_limit >= 1 && body.p_limit <= 200) ? forward() : denied();
