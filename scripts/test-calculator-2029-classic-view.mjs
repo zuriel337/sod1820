@@ -43,4 +43,8 @@ assert.match(frame, /onClick=\{openAttention\}/, "the same world feed stays reac
 const { dailyWordFor, DAILY_WORDS } = await import("../src/lib/dailyWord.js");
 assert.equal(dailyWordFor(new Date(2026, 10, 5)), DAILY_WORDS[5 % DAILY_WORDS.length]);
 assert.equal(dailyWordFor(new Date(2026, 10, 5)), dailyWordFor(new Date(2027, 2, 5)), "same day-of-month → same word, no randomness");
+// The command row must stay scoped: ".sod29-calcpro-bar" is also the (grid) method-bar row, and the
+// unscoped rule used to turn the controls row into a 124px/1fr/74px grid (tabs, status and "מתקדם" on 3 rows).
+assert.match(css, /\.sod29-calcpro-command \.sod29-calcpro-bar \{\s*display: flex;\s*grid-template-columns: none;/);
+assert.doesNotMatch(css, /^\.sod29-calcpro-bar \{\s*display: flex;/m, "no unscoped flex rule that the grid method-bar rule can override");
 console.log("Calculator 2029 classic-default view contract: PASS");

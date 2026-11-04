@@ -54,12 +54,17 @@
   box-shadow: var(--cp-shadow), 0 0 0 4px color-mix(in srgb, var(--s29-accent) 22%, transparent);
 }
 
-.sod29-calcpro-bar {
+/* The command row. NOTE: ".sod29-calcpro-bar" is also the method-bar row further down (display:grid with
+   fixed columns) — scope this one to the form so the later rule can no longer break it. */
+.sod29-calcpro-command .sod29-calcpro-bar {
   display: flex;
+  grid-template-columns: none;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
+  min-height: 0;
+  padding: 0;
 }
 
 .sod29-calcpro-status {
@@ -111,12 +116,21 @@
 }
 
 .sod29-calcpro-tabs button { border: 0; background: transparent; white-space: nowrap; }
-@media (max-width: 480px) { .sod29-calcpro-tabs button { padding-inline: 12px; } }
 .sod29-calcpro-tabs button[aria-selected="true"] {
   background: var(--s29-accent);
   color: var(--s29-on-accent, #fff);
 }
 .sod29-calcpro-tabs button:disabled { opacity: .5; cursor: default; }
+
+/* Phones: the view tabs and the "מתקדם" toggle share ONE row; the small status caption sits under them.
+   (Declared after the shared button rules so these sizes win.) */
+@media (max-width: 640px) {
+  .sod29-calcpro-command .sod29-calcpro-bar { justify-content: center; gap: 6px; }
+  .sod29-calcpro-modes { order: 1; flex-wrap: nowrap; justify-content: center; gap: 6px; max-width: 100%; }
+  .sod29-calcpro .sod29-calcpro-modes > button,
+  .sod29-calcpro .sod29-calcpro-tabs button { font-size: 14px; min-height: 40px; padding: 6px 11px; white-space: nowrap; }
+  .sod29-calcpro-status { order: 2; flex: 1 1 100%; min-height: 0; text-align: center; font-size: 12.5px; }
+}
 
 .sod29-calcpro-notice {
   margin: 0;
