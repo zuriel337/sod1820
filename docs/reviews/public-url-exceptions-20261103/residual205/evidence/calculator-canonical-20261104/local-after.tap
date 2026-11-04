@@ -1,0 +1,82 @@
+TAP version 13
+# Subtest: /gematria: initial document and sharing use the public calculator canonical
+ok 1 - /gematria: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 7.777763
+  type: 'test'
+  ...
+# Subtest: /gematria: ordinary calculation stays noindex and never becomes published numeric truth
+ok 2 - /gematria: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 2.117477
+  type: 'test'
+  ...
+# Subtest: /gematria: HEAD keeps calculated-query privacy and has no document body
+ok 3 - /gematria: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 1.928671
+  type: 'test'
+  ...
+# Subtest: /2029/calculator: initial document and sharing use the public calculator canonical
+ok 4 - /2029/calculator: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 0.634658
+  type: 'test'
+  ...
+# Subtest: /2029/calculator: ordinary calculation stays noindex and never becomes published numeric truth
+ok 5 - /2029/calculator: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 0.938196
+  type: 'test'
+  ...
+# Subtest: /2029/calculator: HEAD keeps calculated-query privacy and has no document body
+ok 6 - /2029/calculator: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.506695
+  type: 'test'
+  ...
+# Subtest: /2029/gematria: initial document and sharing use the public calculator canonical
+ok 7 - /2029/gematria: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 3.9544
+  type: 'test'
+  ...
+# Subtest: /2029/gematria: ordinary calculation stays noindex and never becomes published numeric truth
+ok 8 - /2029/gematria: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 0.505383
+  type: 'test'
+  ...
+# Subtest: /2029/gematria: HEAD keeps calculated-query privacy and has no document body
+ok 9 - /2029/gematria: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.60265
+  type: 'test'
+  ...
+# Subtest: /2029/gematria/viral: initial document and sharing use the public calculator canonical
+ok 10 - /2029/gematria/viral: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 0.802511
+  type: 'test'
+  ...
+# Subtest: /2029/gematria/viral: ordinary calculation stays noindex and never becomes published numeric truth
+ok 11 - /2029/gematria/viral: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 0.503881
+  type: 'test'
+  ...
+# Subtest: /2029/gematria/viral: HEAD keeps calculated-query privacy and has no document body
+ok 12 - /2029/gematria/viral: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.388066
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 129.21314

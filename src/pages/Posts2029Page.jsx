@@ -14,6 +14,7 @@ import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.
 import PostFollowBox from "../components/PostFollowBox.jsx";
 import { AUTHORS } from "../lib/authors.js";
 import { publicPostHref } from "../lib/publicPostUrls.js";
+import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { capturePostsCatalogDeparture2029, readPostsCatalogViewport2029, rememberPostsCatalogViewport2029, startPostsCatalogViewportRestore2029, trackPostsCatalogViewport2029 } from "../lib/research/postsCatalogViewport2029.js";
 import { postsTaxonomyPage2029 } from "../lib/research/postsTaxonomy2029Route.js";
 import "./posts2029.css";
@@ -141,7 +142,8 @@ export default function Posts2029Page({ taxonomyScope = null, onSearchParams = n
   const scope = verifiedOnly ? baseScope.kind === "all" ? {kind:"verified",key:"verified",label:"פוסטים עם סימון אימות"} : {kind:"invalid",key:"",label:"בחירה לא תקינה"} : baseScope;
   const isTaxonomy = Boolean(taxonomyScope) || searchParams.has("tag") || searchParams.has("category");
   const taxonomyLabel = scope.kind === "tag" || location.pathname.startsWith("/tag/") || searchParams.has("tag") ? "תגית" : "קטגוריה";
-  const allPostsHref = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" ? "/post" : "/2029/posts";
+  const publicCatalog = import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || PUBLIC_READING_RELEASE;
+  const allPostsHref = publicCatalog ? "/post" : "/2029/posts";
   const updateSearchParams = onSearchParams || setSearchParams;
   const mixedSeries = scope.kind === "series" && Boolean(scope.spec?.approvedSources?.length);
   const search = searchParams.get("q") || "";
@@ -180,7 +182,7 @@ export default function Posts2029Page({ taxonomyScope = null, onSearchParams = n
       title: `${scope.label} · SOD1820 2029`,
       description: "אינדקס הפוסטים של SOD1820.",
       path: verifiedOnly || taxonomyScope ? location.pathname : allPostsHref,
-      noindex: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW !== "true" || scope.kind !== "all" || Boolean(search) || page > 1,
+      noindex: !publicCatalog || !(scope.kind === "all" || PUBLIC_READING_RELEASE && scope.kind === "verified") || Boolean(search) || page > 1,
     });
 
     let live = true;
@@ -216,7 +218,7 @@ export default function Posts2029Page({ taxonomyScope = null, onSearchParams = n
       title: `${scope.kind === "invalid" ? title : `${taxonomyLabel}: ${title}`} · SOD1820 2029`,
       description: `פוסטים ב${taxonomyLabel} ${title} באתר SOD1820.`,
       path: taxonomyScope ? location.pathname : `${allPostsHref}?${scope.kind}=${encodeURIComponent(scope.key)}`,
-      noindex: import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW !== "true" || !verified || Boolean(search) || page > 1,
+      noindex: !publicCatalog || !verified || Boolean(search) || page > 1,
     });
   }, [isTaxonomy, taxonomyScope, location.pathname, scopeKey, page, state]);
 
@@ -295,7 +297,7 @@ export default function Posts2029Page({ taxonomyScope = null, onSearchParams = n
       data-posts-taxonomy={isTaxonomy ? scope.kind : undefined} data-taxonomy-state={isTaxonomy ? loading ? "loading" : error ? "unavailable" : state.taxonomy?.state : undefined}
       onClickCapture={event => capturePostsCatalogDeparture2029(event, { entryKey: location.key, href: currentHref })}>
       <header className="sod29-posts-library-hero" data-experience-capability="posts-index-hero">
-        {scope.kind !== "all" ? <Link className="sod29-posts-library-back" to={isTaxonomy ? allPostsHref : "/2029/posts"}>לכל הפוסטים <span aria-hidden="true">←</span></Link> : null}
+        {scope.kind !== "all" ? <Link className="sod29-posts-library-back" to={allPostsHref}>לכל הפוסטים <span aria-hidden="true">←</span></Link> : null}
         <div className="sod29-posts-library-hero-grid">
           <div>
             {isTaxonomy && scope.kind !== "invalid" ? <p className="sod29-posts-taxonomy-label"><NavigationIcon2029 name="layers" size={20} />{taxonomyLabel}</p> : null}

@@ -1,0 +1,26 @@
+{
+  "status": "WIP_SEO_TESTED_BEFORE_CALCULATOR_INTEGRATION",
+  "baseSha": "ae8deb7ae1775046dc616a41f66307a7881dfe70",
+  "seoFocusedTests": 38,
+  "pass": 38,
+  "fixtureCorrection": "synthetic standalone Number gate opened; no production setting changed",
+  "receipts": {
+    "seo-before.tap": {
+      "originalSha256": "839721e8edfd06148b7b69f79d92720f019d8d3459d28c1e3992101fe1871e76",
+      "archivedSha256": "715831e1f93b2bd15ce305ea7e1884287fd2a48cc27548c11c160cf03c63eb13",
+      "formatting": "trailing whitespace only"
+    },
+    "seo-first-after.tap": {
+      "originalSha256": "2bff9c17971c1acf3a91172775d3dcd8aa52a198ea10d60b7724d8b729521508",
+      "archivedSha256": "91a157835d764c4d3bd10c87f7ae66155721b776a5241a518e7c5b05d6cfd8e1",
+      "formatting": "trailing whitespace only"
+    },
+    "seo-after38.tap": {
+      "originalSha256": "fdbb1106e454c6017ef420bd34d03fb6b45c983117f43eab6114d209cd8c1011",
+      "archivedSha256": "fdbb1106e454c6017ef420bd34d03fb6b45c983117f43eab6114d209cd8c1011",
+      "formatting": "trailing whitespace only"
+    }
+  },
+  "production": false,
+  "calculatorNotYetIntegrated": true
+}

@@ -1,0 +1,48 @@
+{
+  "liveSourceSha": "1bc8260adaa889d7903aaa33ef43510df09817f2",
+  "liveDeployment": "dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A",
+  "baseSha": "163fcd6cbbd81786d5725753a24062d9be4e1ecd",
+  "regressionBefore": {
+    "pass": 6,
+    "fail": 6
+  },
+  "regressionAfter": {
+    "pass": 12,
+    "fail": 0
+  },
+  "existingBoundaries": {
+    "pass": 49,
+    "fail": 0
+  },
+  "calculatorPro": {
+    "status": "FAIL_UNCHANGED_LITERAL_SOURCE_EXPECTATION",
+    "assertion": "/path:\\s*\"\\/2029\\/calculator\"/",
+    "file": "scripts/test-calculator-2029-pro.mjs:115",
+    "existingTestEdited": false
+  },
+  "semanticSurface": "PASS",
+  "legacyLock": "PASS",
+  "productionChanged": false,
+  "claudeFilesChanged": false,
+  "initialArtifactFailure": "ENOENT sparse tracked docs/reviews/public-url-exceptions-20261103/evidence/attachment-bindings.json; materialized without edits; full targeted rerun passes",
+  "branch": "gpt/2029-calculator-canonical-compatibility-20261104",
+  "originalRemoteAdvancedTo": "bde0a822a1a33fa1d8c2e9a0d679b8359cb117f8",
+  "originalPush": "REJECTED_NON_FAST_FORWARD_NO_OVERWRITE",
+  "latestLiveObserved": {
+    "sourceSha": "bde0a822a1a33fa1d8c2e9a0d679b8359cb117f8",
+    "deploymentId": "dpl_9mWvyeuELvNzctiVCd5ouEAG3BNU",
+    "createdByThisTask": false,
+    "allThreeAliasesReadBack": true,
+    "calculatorAliasesRechecked": 3
+  },
+  "protectedPreview": "NOT_CREATED_EXISTING_GUARD_LIMITED_TO_ORIGINAL_BRANCH",
+  "forcePush": false,
+  "guardChanged": false,
+  "originalBranchChangedByThisTask": false,
+  "beforeReceiptFormatting": {
+    "change": "Trim Node reporter trailing whitespace only; preserve failure contents and counts",
+    "originalSha256": "1fbb3f08f6bca6c26e9c283403600d4c1b4d00ba6b4116c1a18f9bb65ca579d7",
+    "normalizedSha256": "d5d04137c0456d1a9ae05a0f4d6b43904232089c63440b156f14f622a76076c3"
+  },
+  "diffCheck": "BASE_TO_HEAD_PASS_AFTER_RECEIPT_WHITESPACE_NORMALIZATION"
+}

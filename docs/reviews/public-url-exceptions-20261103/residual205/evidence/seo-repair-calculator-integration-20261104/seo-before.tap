@@ -1,0 +1,948 @@
+TAP version 13
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public: catalog identity follows the existing release profile
+not ok 1 - public: catalog identity follows the existing release profile
+  ---
+  duration_ms: 24.658689
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:71:59'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + '/2029/posts'
+    - '/post'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '/post'
+  actual: '/2029/posts'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:73:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: foundation: catalog identity follows the existing release profile
+ok 2 - foundation: catalog identity follows the existing release profile
+  ---
+  duration_ms: 9.601921
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: golden: catalog identity follows the existing release profile
+ok 3 - golden: catalog identity follows the existing release profile
+  ---
+  duration_ms: 8.485698
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (q=synthetic)
+not ok 4 - public catalog preserves selection privacy (q=synthetic)
+  ---
+  duration_ms: 5.969273
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:79:75'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + '/2029/posts'
+    - '/post'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '/post'
+  actual: '/2029/posts'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:81:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (page=2)
+not ok 5 - public catalog preserves selection privacy (page=2)
+  ---
+  duration_ms: 6.536848
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:79:75'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + '/2029/posts'
+    - '/post'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '/post'
+  actual: '/2029/posts'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:81:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (series=synthetic-series)
+not ok 6 - public catalog preserves selection privacy (series=synthetic-series)
+  ---
+  duration_ms: 8.188039
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:79:75'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+    + actual - expected
+
+    + '/2029/posts'
+    - '/post'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: '/post'
+  actual: '/2029/posts'
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:81:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public verified collection keeps its own canonical identity and server-approved indexability
+not ok 7 - public verified collection keeps its own canonical identity and server-approved indexability
+  ---
+  duration_ms: 5.369277
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:89:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+
+    true !== false
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:92:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: public tag canonical and admitted taxonomy state are retained
+not ok 8 - public tag canonical and admitted taxonomy state are retained
+  ---
+  duration_ms: 6.042934
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:97:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+
+    true !== false
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: false
+  actual: true
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/posts-public-reading-seo.test.mjs:101:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: /gematria: initial document and sharing use the public calculator canonical
+ok 9 - /gematria: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 9.368748
+  type: 'test'
+  ...
+# Subtest: /gematria: ordinary calculation stays noindex and never becomes published numeric truth
+ok 10 - /gematria: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 2.204019
+  type: 'test'
+  ...
+# Subtest: /gematria: HEAD keeps calculated-query privacy and has no document body
+ok 11 - /gematria: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 5.182754
+  type: 'test'
+  ...
+# Subtest: /2029/calculator: initial document and sharing use the public calculator canonical
+not ok 12 - /2029/calculator: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 2.063227
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:45:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+    '<html><head>\n' +
+      '<meta charset="utf-8"/>\n' +
+      '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+      '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="robots" content="noindex, nofollow"/>\n' +
+      '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:site_name" content="SOD1820"/>\n' +
+      '<meta property="og:locale" content="he_IL"/>\n' +
+      '<meta property="og:type" content="website"/>\n' +
+      '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:type" content="image/png"/>\n' +
+      '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+      '\n' +
+      '\n' +
+      '<meta name="twitter:card" content="summary_large_image"/>\n' +
+      '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '\n' +
+      '\n' +
+      '</head><body><div id="root">calculator shell</div></body></html>'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <html><head>
+    <meta charset="utf-8"/>
+    <title>מה מסתתר בשם שלך? · SOD1820</title>
+    <meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:site_name" content="SOD1820"/>
+    <meta property="og:locale" content="he_IL"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:type" content="image/png"/>
+    <meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>
+
+
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+
+
+    </head><body><div id="root">calculator shell</div></body></html>
+  operator: 'match'
+  stack: |-
+    canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:47:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: /2029/calculator: ordinary calculation stays noindex and never becomes published numeric truth
+not ok 13 - /2029/calculator: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 1.268801
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:50:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+    '<html><head>\n' +
+      '<meta charset="utf-8"/>\n' +
+      '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+      '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="robots" content="noindex, nofollow"/>\n' +
+      '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:site_name" content="SOD1820"/>\n' +
+      '<meta property="og:locale" content="he_IL"/>\n' +
+      '<meta property="og:type" content="website"/>\n' +
+      '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:type" content="image/png"/>\n' +
+      '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+      '\n' +
+      '\n' +
+      '<meta name="twitter:card" content="summary_large_image"/>\n' +
+      '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '\n' +
+      '\n' +
+      '</head><body><div id="root">calculator shell</div></body></html>'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <html><head>
+    <meta charset="utf-8"/>
+    <title>מה מסתתר בשם שלך? · SOD1820</title>
+    <meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:site_name" content="SOD1820"/>
+    <meta property="og:locale" content="he_IL"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:type" content="image/png"/>
+    <meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>
+
+
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+
+
+    </head><body><div id="root">calculator shell</div></body></html>
+  operator: 'match'
+  stack: |-
+    canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:53:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: /2029/calculator: HEAD keeps calculated-query privacy and has no document body
+ok 14 - /2029/calculator: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.874207
+  type: 'test'
+  ...
+# Subtest: /2029/gematria: initial document and sharing use the public calculator canonical
+not ok 15 - /2029/gematria: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 1.047197
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:45:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+    '<html><head>\n' +
+      '<meta charset="utf-8"/>\n' +
+      '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+      '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="robots" content="noindex, nofollow"/>\n' +
+      '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:site_name" content="SOD1820"/>\n' +
+      '<meta property="og:locale" content="he_IL"/>\n' +
+      '<meta property="og:type" content="website"/>\n' +
+      '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:type" content="image/png"/>\n' +
+      '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+      '\n' +
+      '\n' +
+      '<meta name="twitter:card" content="summary_large_image"/>\n' +
+      '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '\n' +
+      '\n' +
+      '</head><body><div id="root">calculator shell</div></body></html>'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <html><head>
+    <meta charset="utf-8"/>
+    <title>מה מסתתר בשם שלך? · SOD1820</title>
+    <meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:site_name" content="SOD1820"/>
+    <meta property="og:locale" content="he_IL"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:type" content="image/png"/>
+    <meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>
+
+
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+
+
+    </head><body><div id="root">calculator shell</div></body></html>
+  operator: 'match'
+  stack: |-
+    canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:47:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: /2029/gematria: ordinary calculation stays noindex and never becomes published numeric truth
+not ok 16 - /2029/gematria: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 0.897422
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:50:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+    '<html><head>\n' +
+      '<meta charset="utf-8"/>\n' +
+      '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+      '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="robots" content="noindex, nofollow"/>\n' +
+      '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:site_name" content="SOD1820"/>\n' +
+      '<meta property="og:locale" content="he_IL"/>\n' +
+      '<meta property="og:type" content="website"/>\n' +
+      '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:type" content="image/png"/>\n' +
+      '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+      '\n' +
+      '\n' +
+      '<meta name="twitter:card" content="summary_large_image"/>\n' +
+      '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '\n' +
+      '\n' +
+      '</head><body><div id="root">calculator shell</div></body></html>'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <html><head>
+    <meta charset="utf-8"/>
+    <title>מה מסתתר בשם שלך? · SOD1820</title>
+    <meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:site_name" content="SOD1820"/>
+    <meta property="og:locale" content="he_IL"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:type" content="image/png"/>
+    <meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>
+
+
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+
+
+    </head><body><div id="root">calculator shell</div></body></html>
+  operator: 'match'
+  stack: |-
+    canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:53:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: /2029/gematria: HEAD keeps calculated-query privacy and has no document body
+ok 17 - /2029/gematria: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.707906
+  type: 'test'
+  ...
+# Subtest: /2029/gematria/viral: initial document and sharing use the public calculator canonical
+not ok 18 - /2029/gematria/viral: initial document and sharing use the public calculator canonical
+  ---
+  duration_ms: 1.032495
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:45:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+    '<html><head>\n' +
+      '<meta charset="utf-8"/>\n' +
+      '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+      '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="robots" content="noindex, nofollow"/>\n' +
+      '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:site_name" content="SOD1820"/>\n' +
+      '<meta property="og:locale" content="he_IL"/>\n' +
+      '<meta property="og:type" content="website"/>\n' +
+      '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:type" content="image/png"/>\n' +
+      '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+      '\n' +
+      '\n' +
+      '<meta name="twitter:card" content="summary_large_image"/>\n' +
+      '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '\n' +
+      '\n' +
+      '</head><body><div id="root">calculator shell</div></body></html>'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <html><head>
+    <meta charset="utf-8"/>
+    <title>מה מסתתר בשם שלך? · SOD1820</title>
+    <meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:site_name" content="SOD1820"/>
+    <meta property="og:locale" content="he_IL"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:type" content="image/png"/>
+    <meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>
+
+
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+
+
+    </head><body><div id="root">calculator shell</div></body></html>
+  operator: 'match'
+  stack: |-
+    canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:47:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: /2029/gematria/viral: ordinary calculation stays noindex and never becomes published numeric truth
+not ok 19 - /2029/gematria/viral: ordinary calculation stays noindex and never becomes published numeric truth
+  ---
+  duration_ms: 0.913406
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:50:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+    '<html><head>\n' +
+      '<meta charset="utf-8"/>\n' +
+      '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+      '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="robots" content="noindex, nofollow"/>\n' +
+      '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:site_name" content="SOD1820"/>\n' +
+      '<meta property="og:locale" content="he_IL"/>\n' +
+      '<meta property="og:type" content="website"/>\n' +
+      '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+      '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '<meta property="og:image:type" content="image/png"/>\n' +
+      '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+      '\n' +
+      '\n' +
+      '<meta name="twitter:card" content="summary_large_image"/>\n' +
+      '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+      '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+      '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+      '\n' +
+      '\n' +
+      '</head><body><div id="root">calculator shell</div></body></html>'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: |-
+    <html><head>
+    <meta charset="utf-8"/>
+    <title>מה מסתתר בשם שלך? · SOD1820</title>
+    <meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="robots" content="noindex, nofollow"/>
+    <link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:site_name" content="SOD1820"/>
+    <meta property="og:locale" content="he_IL"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>
+    <meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+    <meta property="og:image:type" content="image/png"/>
+    <meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>
+
+
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>
+    <meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>
+    <meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>
+
+
+    </head><body><div id="root">calculator shell</div></body></html>
+  operator: 'match'
+  stack: |-
+    canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:53:5)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: /2029/gematria/viral: HEAD keeps calculated-query privacy and has no document body
+ok 20 - /2029/gematria/viral: HEAD keeps calculated-query privacy and has no document body
+  ---
+  duration_ms: 0.940597
+  type: 'test'
+  ...
+# Subtest: Number alias 1820: canonical and admission use the existing public reader (true)
+not ok 21 - Number alias 1820: canonical and admission use the existing public reader (true)
+  ---
+  duration_ms: 15.326719
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:41:41'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+
+      assert.ok(res.body.includes(`rel="canonical" href="${SITE}/number/${address}"`))
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:44:12)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+  ...
+# Subtest: Number alias 1820: canonical and admission use the existing public reader (false)
+not ok 22 - Number alias 1820: canonical and admission use the existing public reader (false)
+  ---
+  duration_ms: 2.241145
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:41:41'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+
+      assert.ok(res.body.includes(`rel="canonical" href="${SITE}/number/${address}"`))
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:44:12)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: Number alias 1820: source outage fails closed instead of advertising an indexed result
+not ok 23 - Number alias 1820: source outage fails closed instead of advertising an indexed result
+  ---
+  duration_ms: 1.543745
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:52:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+
+    200 !== 503
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 503
+  actual: 200
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:54:12)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (true)
+not ok 24 - Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (true)
+  ---
+  duration_ms: 2.529399
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:41:41'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+
+      assert.ok(res.body.includes(`rel="canonical" href="${SITE}/number/${address}"`))
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:44:12)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (false)
+not ok 25 - Number alias %D7%9E%D7%A9%D7%99%D7%97: canonical and admission use the existing public reader (false)
+  ---
+  duration_ms: 1.285515
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:41:41'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+
+      assert.ok(res.body.includes(`rel="canonical" href="${SITE}/number/${address}"`))
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:44:12)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: Number alias %D7%9E%D7%A9%D7%99%D7%97: source outage fails closed instead of advertising an indexed result
+not ok 26 - Number alias %D7%9E%D7%A9%D7%99%D7%97: source outage fails closed instead of advertising an indexed result
+  ---
+  duration_ms: 0.587605
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:52:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+
+    200 !== 503
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 503
+  actual: 200
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:54:12)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: Number alias HEAD reuses admission, remains no-store and sends no document body
+not ok 27 - Number alias HEAD reuses admission, remains no-store and sends no document body
+  ---
+  duration_ms: 0.608516
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:58:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+
+    0 !== 1
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 1
+  actual: 0
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:62:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: Gallery collection metadata is public without querying a Post or exposing a selected image
+not ok 28 - Gallery collection metadata is public without querying a Post or exposing a selected image
+  ---
+  duration_ms: 38.194834
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:65:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+
+    404 !== 200
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 200
+  actual: 404
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:67:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: Gallery HEAD is a real successful public document response with an empty body
+not ok 29 - Gallery HEAD is a real successful public document response with an empty body
+  ---
+  duration_ms: 4.440507
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:73:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly equal:
+
+    404 !== 200
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 200
+  actual: 404
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:75:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: ordinary Posts selection remains noindex (q=synthetic)
+not ok 30 - ordinary Posts selection remains noindex (q=synthetic)
+  ---
+  duration_ms: 1.39419
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:79:75'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /^noindex/. Input:
+
+    'index, follow'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: 'index, follow'
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:83:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: ordinary Posts selection remains noindex (page=2)
+not ok 31 - ordinary Posts selection remains noindex (page=2)
+  ---
+  duration_ms: 0.858072
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:79:75'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /^noindex/. Input:
+
+    'index, follow'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: 'index, follow'
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:83:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: ordinary Posts selection remains noindex (series=synthetic-series)
+not ok 32 - ordinary Posts selection remains noindex (series=synthetic-series)
+  ---
+  duration_ms: 0.580384
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:79:75'
+  failureType: 'testCodeFailure'
+  error: |-
+    The input did not match the regular expression /^noindex/. Input:
+
+    'index, follow'
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual: 'index, follow'
+  operator: 'match'
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:83:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: unfiltered public Posts retain their canonical identity and indexability
+ok 33 - unfiltered public Posts retain their canonical identity and indexability
+  ---
+  duration_ms: 0.559944
+  type: 'test'
+  ...
+# Subtest: a Gallery collection fix cannot turn an unknown Post/child path into a public success
+ok 34 - a Gallery collection fix cannot turn an unknown Post/child path into a public success
+  ---
+  duration_ms: 1.388761
+  type: 'test'
+  ...
+# Subtest: public normalization cannot strip internal aliases or grant account access
+ok 35 - public normalization cannot strip internal aliases or grant account access
+  ---
+  duration_ms: 2.834508
+  type: 'test'
+  ...
+# Subtest: dormant admission cannot be bypassed by selecting the newly fixed public routes
+ok 36 - dormant admission cannot be bypassed by selecting the newly fixed public routes
+  ---
+  duration_ms: 0.266582
+  type: 'test'
+  ...
+# Subtest: the standalone Golden Number metadata profile is unchanged by public document alias normalization
+not ok 37 - the standalone Golden Number metadata profile is unchanged by public document alias normalization
+  ---
+  duration_ms: 2.406063
+  type: 'test'
+  location: '/workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:115:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The expression evaluated to a falsy value:
+
+      assert.ok(res.body.includes('content="noindex, nofollow"'))
+
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: true
+  actual: false
+  operator: '=='
+  stack: |-
+    TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-canonical-parity-repair.test.mjs:119:10)
+    async Test.run (node:internal/test_runner/test:1409:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+1..37
+# tests 37
+# suites 0
+# pass 12
+# fail 25
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 581.603939

@@ -1,0 +1,140 @@
+{
+  "task": "PUBLIC_CANONICAL_SERVER_CLIENT_AUDIT_20261104",
+  "origin": "https://sod1820.co.il",
+  "anonymous": true,
+  "grantUsed": false,
+  "width": 1440,
+  "actualSW": true,
+  "performanceMeasurement": false,
+  "scope": "metadata parity, not full route/function/performance acceptance",
+  "rows": [
+    {
+      "id": "number-alias",
+      "path": "/2029/number/1820",
+      "family": "public-number",
+      "root": "1820",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/2029/number/1820",
+        "ogUrl": "https://sod1820.co.il/2029/number/1820",
+        "robots": "noindex, nofollow",
+        "headerRobots": "noindex, nofollow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/number/1820",
+        "ogUrl": "https://sod1820.co.il/number/1820",
+        "robots": "index, follow",
+        "title": "1820 · דף המספר · SOD1820",
+        "history": [
+          "https://sod1820.co.il/2029/number/1820",
+          "https://sod1820.co.il/number/1820"
+        ],
+        "surface": "number",
+        "worker": "/sw.js",
+        "readRequests": 47,
+        "denied": [
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/lang_links_list",
+            "method": "POST"
+          }
+        ]
+      },
+      "finalPath": "/2029/number/1820",
+      "canonicalEqual": false,
+      "oldPrefixRepairedInBrowser": true,
+      "observed": true
+    },
+    {
+      "id": "posts-public",
+      "path": "/post",
+      "family": "public-canonical-control",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/post",
+        "ogUrl": "https://sod1820.co.il/post",
+        "robots": "index, follow",
+        "headerRobots": "index, follow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/2029/posts",
+        "ogUrl": "https://sod1820.co.il/2029/posts",
+        "robots": "noindex, nofollow",
+        "title": "הפוסטים · SOD1820 2029 · SOD1820",
+        "history": [
+          "https://sod1820.co.il/post",
+          "https://sod1820.co.il/2029/posts"
+        ],
+        "surface": "posts-index",
+        "worker": "/sw.js",
+        "readRequests": 8,
+        "denied": []
+      },
+      "finalPath": "/post",
+      "canonicalEqual": false,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "gallery-public",
+      "path": "/gallery",
+      "family": "public-canonical-control",
+      "errors": [],
+      "httpStatus": 404,
+      "server": {
+        "canonical": "https://sod1820.co.il/gallery",
+        "ogUrl": "https://sod1820.co.il/gallery",
+        "robots": "noindex, nofollow, noarchive",
+        "headerRobots": "noindex, nofollow, noarchive"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/gallery",
+        "ogUrl": "https://sod1820.co.il/gallery",
+        "robots": "noindex, nofollow, noarchive",
+        "title": "הפוסט לא נמצא · SOD1820",
+        "history": [
+          "https://sod1820.co.il/gallery"
+        ],
+        "surface": null,
+        "worker": "/sw.js",
+        "readRequests": 10,
+        "denied": []
+      },
+      "finalPath": "/gallery",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    }
+  ],
+  "artifactBefore": {
+    "status": 200,
+    "sourceSha": "f4390dd356b374e839024eb235fc4a63344667de"
+  },
+  "galleryHeaders": [
+    {
+      "method": "GET",
+      "status": 404,
+      "headerRobots": "noindex, nofollow, noarchive",
+      "contentType": "text/html; charset=utf-8",
+      "bodyBytes": 11152
+    },
+    {
+      "method": "HEAD",
+      "status": 404,
+      "headerRobots": "noindex, nofollow, noarchive",
+      "contentType": "text/html; charset=utf-8",
+      "bodyBytes": 0
+    }
+  ],
+  "artifactAfter": {
+    "status": 200,
+    "sourceSha": "f4390dd356b374e839024eb235fc4a63344667de"
+  },
+  "sourceStable": true,
+  "completed": true
+}
