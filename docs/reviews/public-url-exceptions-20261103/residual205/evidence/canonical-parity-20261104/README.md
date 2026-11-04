@@ -81,3 +81,16 @@ guard, DB/RLS/Auth/Edge, shared flag, main, domain or Production change. It does
 not close formal G4 or change prior owner deferrals, H1 or account acceptance.
 Only existing documentation/current matrix statuses are updated with this
 evidence. Existing URL rows and every original source address are retained.
+
+## Current-source readback after the browser observations
+
+The original product branch independently advanced to
+`ae8deb7ae1775046dc616a41f66307a7881dfe70` (community likes changes).
+Production `dpl_8yput4peUzwKgnw62ntGaQFzSGBP` and its artifact identify that SHA.
+The metadata handlers, admission, route/profile, audited page sources and build
+script are byte-unchanged fromf439. Three targeted GETs on this newer source
+still show the Number old-prefix/noindex, Posts server `/post`, and Gallery404.
+`latest-http-readback.json` preserves that receipt. Browser evidence remains
+explicitly onf439; no new community/financial/account acceptance is claimed.
+No deployment, main push, shared configuration or original branch write was
+performed by this audit. There was no reason to repeat unaffected full gates.

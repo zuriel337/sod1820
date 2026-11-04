@@ -30,6 +30,14 @@
     "mobile19.json": "cbdf9ef7dc6c11e6b078a2b179fb2ce5a4a45e8627af53d316816e8a11152e9a",
     "desktop3.json": "b1357a56367f4286cf0b0325f06f9dc5f44ee5771541b146205b24e31a1881bb",
     "static-scope.json": "7aa9da6399a6e947195c0add5d3f386d673b6a5705d363f336f62b17181d376b",
-    "browser-audit.cjs": "9f9b1d1fa7d287077cd2cc3cbc743eb6f2e18080256069646419795f332f6e19"
+    "browser-audit.cjs": "9f9b1d1fa7d287077cd2cc3cbc743eb6f2e18080256069646419795f332f6e19",
+    "latest-http-readback.json": "f78215966ab7e1d473e3961af33d48ce23002fe54fd969b3d30b71f7426272c5"
+  },
+  "latestHttpCheckpoint": {
+    "sourceSha": "ae8deb7ae1775046dc616a41f66307a7881dfe70",
+    "deploymentId": "dpl_8yput4peUzwKgnw62ntGaQFzSGBP",
+    "targetedGets": 3,
+    "metadataSourcesUnchangedFromBrowserAudit": true,
+    "fullBrowserRerun": false
   }
 }
