@@ -150,7 +150,8 @@ function installPublicReadingWorker(policy) {
     // The restored original OpenWeb box uses its own guest/login/publication
     // API. Preserve that working service instead of applying native read-only
     // restrictions to its bootstrap and explicit chat actions.
-    if (url.origin === "https://api-2-0.spot.im" && ["GET", "HEAD", "POST", "OPTIONS"].includes(req.method)) return;
+    if (url.protocol === "https:" && (url.hostname === "spot.im" || url.hostname.endsWith(".spot.im"))
+      && ["GET", "HEAD", "POST", "OPTIONS"].includes(req.method)) return;
     if (interceptPublicReadingAdminAuth(event, authOrigin, { accountAccess: true, clientOrigin: self.location.origin }) || interceptOpeningMail(event, authOrigin)) return;
     if (url.origin === "https://linswmnnkjxvweumprav.storage.supabase.co" && url.pathname.startsWith("/storage/v1/upload/")) {
       event.respondWith(adminFetch(req).catch(() => denied())); return;

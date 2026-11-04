@@ -113,3 +113,15 @@ additional 21 public-artifact regression tests pass with the existing deploy
 and Legacy guards unchanged. Incremental production publication is expressly
 authorized by the subsequent user request; the previous branch-only report
 above is historical, not a restriction inferred against that new instruction.
+
+The first incremental release `bde0a822` / `dpl_9mWvyeuELvNzctiVCd5ouEAG3BNU`
+served correctly on all three canonical hosts and restored native writing.
+Live inspection then identified the exact remaining old-widget failure: the
+existing document CSP prevented its `api-2-0.spot.im/device-load` request, before
+the SDK could initialize. The correction admits the original provider's HTTPS
+and WebSocket hosts plus its normal form actions, retaining object/frame/base
+restrictions and unrelated API/model restrictions. The worker likewise permits
+the provider's SDK service hosts, including its initialization event stream;
+lookalike foreign hosts remain denied. All 22 focused transport tests pass.
+This follows the user's explicit request for the original box without the
+site-added restrictions; provider authentication/moderation remains original.

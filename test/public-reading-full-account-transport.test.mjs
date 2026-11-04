@@ -258,8 +258,19 @@ test('reply and reaction targets require the canonical anonymous public context'
 test('original OpenWeb API and authenticated existing SSO are available without opening foreign writes or model access',async()=>{
  const w=worker({role:'user'});
  assert.equal(await w.request('/v1.0.0/conversation/read',{origin:'https://api-2-0.spot.im'}),null);
+ assert.equal(await w.request('/api/v2/events',{origin:'https://event-stream.spot.im'}),null);
+ assert.equal((await w.request('/v1.0.0/conversation/read',{origin:'https://api-2-0.spot.im.foreign.invalid'})).status,403);
  assert.equal((await w.request('/v1.0.0/conversation/read',{origin:'https://foreign.invalid'})).status,403);
  assert.equal((await w.request('/functions/v1/openweb-sso',{body:{code_a:'synthetic-code'}})).status,200);
  assert.equal((await w.request('/functions/v1/openweb-sso',{body:{code_a:'synthetic-code',user_id:b}})).status,403);
  assert.equal((await w.request('/functions/v1/ai-analyze',{body:{persona:'raziel'}})).status,403);
+});
+
+
+test('published CSP admits the original OpenWeb service while retaining object/frame/base restrictions',()=>{
+ const config=JSON.parse(readFileSync(new URL('../public-reading-deploy/vercel.json',import.meta.url),'utf8'));
+ const csp=config.headers.flatMap(r=>r.headers).find(h=>h.key==='Content-Security-Policy').value;
+ assert.match(csp,/connect-src[^;]+https:\/\/\*\.spot\.im/);
+ assert.match(csp,/form-action[^;]+https:\/\/\*\.spot\.im/);
+ assert.match(csp,/object-src 'none'/);assert.match(csp,/frame-ancestors 'self'/);assert.match(csp,/base-uri 'self'/);
 });
