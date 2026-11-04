@@ -4,7 +4,7 @@
   vertical-align: middle;
   flex: 0 0 auto;
   max-width: 100%;
-  color: #dfbc71;
+  color: #f6df9b;
   font: inherit;
   font-size: .78rem;
   line-height: 1.25;
@@ -17,9 +17,9 @@
   gap: .38em;
   padding: .3em .65em;
   min-height: 28px;
-  border: 1px solid color-mix(in srgb, currentColor 60%, transparent);
+  border: 1px solid #b08d4d;
   border-radius: 999px;
-  background: color-mix(in srgb, currentColor 12%, transparent);
+  background: #43311b;
   color: inherit;
   cursor: pointer;
   white-space: nowrap;
