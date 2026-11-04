@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { KNOWLEDGE_WORLDS, BUILD_TRACKS, BUILD_PROGRESS, FIRST_STAGE_RELEASE_GATES, stagePercent } from "../lib/knowledgeMap.js";
+import { KNOWLEDGE_WORLDS, BUILD_TRACKS, BUILD_PROGRESS, BUILD_PUBLIC_PROGRESS, FIRST_STAGE_RELEASE_GATES, stagePercent } from "../lib/knowledgeMap.js";
 import StayUpdatedCTA from "../components/StayUpdatedCTA.jsx";
 
 function NumbersDepthPreview() {
@@ -92,15 +92,18 @@ function BuildStatusDeep() {
           <div style={{color:P.accentDim,fontFamily:F.heading,fontSize:11,fontWeight:900,letterSpacing:1.5}}>אותו מד שמופיע בדף הבית · כאן בעומק מלא</div>
           <h2 style={{margin:"5px 0 0",color:P.ink,fontFamily:F.regal,fontSize:25,fontWeight:900}}>🏗️ מצב הבנייה של SOD1820</h2>
         </div>
-        <div style={{fontFamily:F.numeric,color:P.accentText,fontSize:26,fontWeight:900}}>{BUILD_PROGRESS}%</div>
+        <div style={{textAlign:"start"}}>
+          <div style={{fontFamily:F.numeric,color:P.accentText,fontSize:26,fontWeight:900}}>{BUILD_PUBLIC_PROGRESS.percent}% <span style={{fontFamily:F.body,fontSize:12,fontWeight:700}}>הערכה</span></div>
+          <div style={{fontFamily:F.body,color:P.inkSoft,fontSize:11}}>נכון ל־{BUILD_PUBLIC_PROGRESS.updatedAt}</div>
+        </div>
       </div>
 
       <div style={{margin:"0 auto 17px",maxWidth:940,padding:"15px 17px",background:P.cardSoft,border:`1px solid ${P.border}`,borderRadius:16}}>
-        <div style={{fontFamily:F.heading,color:P.accentText,fontWeight:900,fontSize:15}}>עדכון מצב · 9 באוקטובר 2026</div>
+        <div style={{fontFamily:F.heading,color:P.accentText,fontWeight:900,fontSize:15}}>מתקרבים לפתיחת השלב הראשון · {BUILD_PUBLIC_PROGRESS.updatedAt}</div>
         <p style={{fontFamily:F.body,color:P.ink,lineHeight:1.85,fontSize:15,margin:"7px 0 12px"}}>
-          שלב G3 — סגירת התשתיות — נסגר ואומת ב־1 באוקטובר. כעת אנחנו במעבר G3→G4:
-          בודקים מסעות שימוש אמיתיים לקראת חוויית הזהב הראשונה. חלקים נוספים ייפתחו בהדרגה,
-          ורק לאחר שיעברו את הבדיקות ושערי האישור שלהם.
+          התשתיות G0–G3 נסגרו ואומתו. ב־2029 מתקדמים בשילוב של עולם, פוסטים, קהילה ומסלולי מחקר.
+          לפני פתיחה ציבורית נותרו מסעות שימוש מלאים, בדיקות Golden, בטיחות מעבר ואישור מפורש.
+          80% הוא אומדן התקדמות הפיתוח, ולא הודעה שהאתר כבר מוכן לעלייה.
         </p>
         <div style={{display:"flex",gap:8,flexWrap:"wrap"}} aria-label="מצב אבני הדרך של השלב הציבורי הראשון">
           {FIRST_STAGE_RELEASE_GATES.map(g => (
@@ -125,7 +128,7 @@ function BuildStatusDeep() {
         {otherTracks.map(t => <BuildTrackCard key={t.id} t={t} />)}
       </div>
       <p style={{margin:"14px auto 0",maxWidth:820,textAlign:"center",color:P.inkSoft,fontFamily:F.body,fontSize:12.5,lineHeight:1.7}}>
-        מד ההתקדמות העליון מציין אבני דרך שנסגרו בתוכנית, ולא את אחוז התכונות שכבר זמינות לציבור. מצב כל יכולת נקבע בנפרד לפי שערי הפתיחה שלה.
+        התקדמות פיתוח מוערכת: {BUILD_PUBLIC_PROGRESS.percent}%. שערי מוכנות מאומתים: {BUILD_PUBLIC_PROGRESS.auditedClosedGates} מתוך {BUILD_PUBLIC_PROGRESS.auditedTotalGates} ({BUILD_PROGRESS}%). האומדן אינו אחוז היכולות הפתוחות לציבור. כל יכולת נפתחת רק לאחר בדיקות ואישור.
       </p>
     </section>
   );
@@ -240,8 +243,8 @@ export default function NavigationCenterPage() {
         </p>
         <div style={{display:"inline-flex",alignItems:"center",gap:10,marginTop:18,padding:"9px 13px",border:`1px solid ${P.borderStrong}`,borderRadius:999,background:P.card}}>
           <span style={{fontFamily:F.heading,fontSize:11,fontWeight:900,color:P.ink}}>🏗️ SOD1820 V2</span>
-          <span style={{fontFamily:F.numeric,fontSize:14,fontWeight:900,color:P.accentText}}>{BUILD_PROGRESS}%</span>
-          <span style={{width:120,height:4,borderRadius:999,background:P.border,overflow:"hidden"}}><i style={{display:"block",width:`${BUILD_PROGRESS}%`,height:"100%",background:P.accent}} /></span>
+          <span style={{fontFamily:F.numeric,fontSize:14,fontWeight:900,color:P.accentText}}>{BUILD_PUBLIC_PROGRESS.percent}% <span style={{fontFamily:F.body,fontSize:10}}>הערכה</span></span>
+          <span style={{width:120,height:4,borderRadius:999,background:P.border,overflow:"hidden"}}><i style={{display:"block",width:`${BUILD_PUBLIC_PROGRESS.percent}%`,height:"100%",background:P.accent}} /></span>
         </div>
       </section>
 
