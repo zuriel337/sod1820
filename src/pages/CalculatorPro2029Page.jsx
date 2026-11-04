@@ -20,6 +20,7 @@ import {
   calculationAvailabilityLabel,
 } from "../lib/research/calculator2029Model.js";
 import { buildCalculatorShareUrl, makeCalculatorShareId } from "../lib/research/calculator2029Viral.js";
+import { GADOL_BASE, hasSofiot } from "../lib/gematria.js";
 import { applySeo } from "../lib/seo.js";
 import "./calculatorPro2029.css";
 
@@ -45,16 +46,16 @@ const CALCULATOR_ORIENTATION_COPY = Object.freeze({
   body: "הקלידו שם, מילה או ביטוי: כל שיטה מציגה ערך משלה. בחרו שיטה כדי לראות את הצעדים שלה; בלשונית למד תמצאו הדרכה עם הביטוי שהקלדתם.",
 });
 
-const MethodTile = React.memo(function MethodTile({ method, active, sameCount, onChoose }) {
+const MethodTile = React.memo(function MethodTile({ method, active, sameCount, onChoose, equivalentTo = null }) {
   const unavailable = calculationAvailabilityLabel(method);
-  const note = method.previewOnly
+  const note = equivalentTo ? `≡ זהה ל${equivalentTo}` : method.previewOnly
     ? (method.pendingNote || "מיידי")
     : (EXCEPTIONAL_STATE_HE[method.exceptionalState] || unavailable
       || (sameCount > 0 ? (sameCount === 1 ? "זהה גם בשיטה נוספת" : `זהה גם ב־${sameCount} שיטות`) : null));
   return (
     <button
       type="button"
-      className={`sod29-calcpro-tile${active ? " is-active" : ""}${sameCount > 0 ? " is-same" : ""}${method.previewOnly ? " is-preview" : ""}`}
+      className={`sod29-calcpro-tile${active ? " is-active" : ""}${sameCount > 0 ? " is-same" : ""}${method.previewOnly ? " is-preview" : ""}${equivalentTo ? " is-equivalent" : ""}`}
       onClick={() => onChoose(method)}
       aria-pressed={active}
       disabled={method.previewOnly && method.language !== "en"}
@@ -182,7 +183,12 @@ function ProExperience() {
   const { info } = row;
 
   const [selectedKey, setSelectedKey] = useState(seedMethod || null);
-  const [view, setView] = useState(params.get("tab") === "ledger" ? "ledger" : "tiles");
+  // Default view is "classic" (Human-Gate decision): every method in one flat grid right after the input.
+  // "tiles" = grouped by family (previous default, D4); "ledger" = letter ledger. Old ?tab=ledger links keep working.
+  const [view, setView] = useState(() => {
+    const tab = params.get("tab");
+    return tab === "ledger" ? "ledger" : tab === "tiles" ? "tiles" : "classic";
+  });
   const [showAllFamilies, setShowAllFamilies] = useState(false);
   const [advanced, setAdvanced] = useState(params.get("mode") === "adv");
   const desktop = useIsDesktop();
@@ -284,7 +290,7 @@ function ProExperience() {
     if (urlExpression) next.set("q", urlExpression);
     if (canonicalSelection?.methodKey) next.set("m", canonicalSelection.methodKey);
     else if (selectedKey && isEnglishMethodKey(selectedKey)) next.set("m", selectedKey);
-    if (view === "ledger") next.set("tab", "ledger");
+    if (view !== "classic") next.set("tab", view);
     if (advanced) next.set("mode", "adv");
     if (wideRequested) next.set("view", "wide");
     if (next.toString() !== params.toString()) setParams(next, { replace: true });
@@ -413,6 +419,26 @@ function ProExperience() {
     </section>
   ) : null;
 
+  // Classic: flat, registry-ordered grid of ALL methods directly under the input (legacy-style).
+  // Gadol-family methods with no final letters are shown as "≡ identical to base" (locked law), not as a separate finding.
+  const classicMethods = useMemo(() => familyGroups.flatMap((group) => group.methods), [familyGroups]);
+  const classicView = hasAnyResults ? (
+    <section className="sod29-calcpro-classic" aria-label="כל השיטות">
+      <div className="sod29-calcpro-grid is-classic">
+        {classicMethods.map((method) => (
+          <MethodTile
+            key={method.methodKey}
+            method={method}
+            active={method.methodKey === selectedKey}
+            sameCount={method.previewOnly ? 0 : Math.max(0, (valueCounts.get(Number(method.computedValue)) || 1) - 1)}
+            equivalentTo={info.hebrewApplicable && GADOL_BASE[method.methodKey] && !hasSofiot(info.expression) ? GADOL_BASE[method.methodKey] : null}
+            onChoose={chooseMethod}
+          />
+        ))}
+      </div>
+    </section>
+  ) : null;
+
   const tilesView = hasAnyResults ? (
     <>
       {canonicalSelection ? <LetterStrip ledgerState={ledgerState} /> : null}
@@ -477,7 +503,7 @@ function ProExperience() {
   ) : null;
 
   return (
-    <section className={`sod29-calcpro${wide ? " is-wide" : ""}`} data-experience-surface="calculator-pro-2029">
+    <section className={`sod29-calcpro${wide ? " is-wide" : ""}${!wide && effectiveView === "classic" ? " is-classic" : ""}`} data-experience-surface="calculator-pro-2029" data-calculator-view={wide ? "wide" : effectiveView}>
       <h1 className="sod29-calcpro-sr">מחשבון גימטריה מקצועי</h1>
       <form className="sod29-calcpro-command" onSubmit={(event) => event.preventDefault()}>
         <label htmlFor="calculator-pro-input" className="sod29-calcpro-sr">שם, מילה או ביטוי</label>
@@ -499,7 +525,8 @@ function ProExperience() {
           <div className="sod29-calcpro-modes">
             {!wide ? (
               <div className="sod29-calcpro-tabs" role="tablist" aria-label="תצוגה">
-                <button type="button" role="tab" aria-selected={effectiveView === "tiles"} onClick={() => setView("tiles")}>אריחים</button>
+                <button type="button" role="tab" aria-selected={effectiveView === "classic"} onClick={() => setView("classic")} disabled={!info.hebrewApplicable}>קלאסי</button>
+                <button type="button" role="tab" aria-selected={effectiveView === "tiles"} onClick={() => setView("tiles")}>משפחות</button>
                 <button type="button" role="tab" aria-selected={effectiveView === "ledger"} onClick={() => setView("ledger")} disabled={!info.hebrewApplicable}>פנקס</button>
               </div>
             ) : null}
@@ -543,6 +570,7 @@ function ProExperience() {
         ) : null}
 
         <div className="sod29-calcpro-main">
+          {!wide && effectiveView === "classic" ? classicView : null}
           {hero}
           {canonicalSelection ? (
             <CalculatorEqualsPreview2029
@@ -558,7 +586,7 @@ function ProExperience() {
               onShown={(total) => emit("calculator_2029", "equals_preview_shown", { props: { surface: "professional", method: canonicalSelection.methodKey, count: total } })}
             />
           ) : null}
-          {wide ? null : (effectiveView === "ledger" ? ledgerView : tilesView)}
+          {wide || effectiveView === "classic" ? null : (effectiveView === "ledger" ? ledgerView : tilesView)}
           {!wide ? englishBlock : null}
           {showDuo ? (
             <CalculatorDuo2029
