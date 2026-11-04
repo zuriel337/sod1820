@@ -34,8 +34,7 @@ import { publicPostCommentArchiveId } from "../components/experience2029/postCom
 import MatrixRain from "../components/MatrixRain.jsx";
 import { postCharacterFor, matrixOpeningFor } from "../lib/postCharacters2029.js";
 import { postBackground2029 } from "../lib/research/postBackground2029.js";
-import "./post2029-reading.css";
-import "./post2029-legacy-grade.css";
+import { postReadingClassName } from "./postReadingStyles2029.js";
 
 const normalize = (value) => String(value || "")
   .replace(/[״"']/g, "")
@@ -1001,7 +1000,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   };
 
   return <article
-    className={`sod29-reading-post${experience.wireframe ? " is-architecture-wireframe" : ""}`}
+    className={postReadingClassName(experience.wireframe ? "is-architecture-wireframe" : "")}
     data-golden={projection.golden ? "true" : "false"}
     data-experience-surface="post-reading"
     data-experience-capability="post-master-reading-stage"

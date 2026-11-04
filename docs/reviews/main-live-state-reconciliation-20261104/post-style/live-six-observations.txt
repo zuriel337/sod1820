@@ -1,0 +1,6 @@
+{"width":390,"slug":"flydubai-fz1073-363-14000-remzei-geula","content":"none","background":"none","zIndex":"auto","opacity":"1","position":"static","failed":[],"errors":[]}
+{"width":390,"slug":"mahi-eretz-5d-chayim-betadir-gavoha-dim5-20261103","content":"none","background":"none","zIndex":"auto","opacity":"1","position":"static","failed":[],"errors":[]}
+{"width":390,"slug":"mah-kore-elections-mutual-responsibility","content":"none","background":"none","zIndex":"auto","opacity":"1","position":"static","failed":[],"errors":[]}
+{"width":1440,"slug":"flydubai-fz1073-363-14000-remzei-geula","content":"none","background":"none","zIndex":"auto","opacity":"1","position":"static","failed":[],"errors":[]}
+{"width":1440,"slug":"mahi-eretz-5d-chayim-betadir-gavoha-dim5-20261103","content":"none","background":"none","zIndex":"auto","opacity":"1","position":"static","failed":[],"errors":[]}
+{"width":1440,"slug":"mah-kore-elections-mutual-responsibility","content":"none","background":"none","zIndex":"auto","opacity":"1","position":"static","failed":[],"errors":[]}

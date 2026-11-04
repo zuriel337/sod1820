@@ -14,8 +14,7 @@ import {
   publicHistoricalLecturePage2029, historicalLectureHtml2029,
 } from "../lib/publicContinuityReaders2029.js";
 import "./publicContinuity2029.css";
-import "./post2029-reading.css";
-import "./post2029-legacy-grade.css";
+import { postReadingClassName } from "./postReadingStyles2029.js";
 
 const TITLES = { "or-geula": "אור הגאולה", people: "הכתבים והחוקרים", forum: "פורום המחקר", comments: "תגובות לפוסטים", contact: "יצירת קשר", about: "אודות סוד 1820" };
 
@@ -258,7 +257,7 @@ function HistoricalLecturesContent() {
   const html = React.useMemo(() => historicalLectureHtml2029(page), [page]);
   useEffect(() => { if (page) applySeo({title:page.title,description:"הרצאות המקור ההיסטוריות, בסדרן ובכתובתן המקורית.",path:page.canonicalPath,type:"article"}); }, [page]);
   if (!page) return <StatePanel title="המקור לא נמצא" />;
-  return <article className="sod29-reading-post" data-post-character="quiet" data-historical-source={`wp:page:${page.wpPageId}`}>
+  return <article className={postReadingClassName()} data-post-character="quiet" data-historical-source={`wp:page:${page.wpPageId}`}>
     <header className="sod29-reading-hero"><span className="sod29-reading-source-badge">הרצאות המקור · תיעוד היסטורי</span>
       <h1>{page.title}</h1><p className="sod29-reading-source-line">פורסם {bilingualDateLabel(page.publishedAt)} · עודכן {bilingualDateLabel(page.modifiedAt)}</p>
       <p className="sod29-reading-deck">תוכן המקור משנת {new Date(page.publishedAt).getUTCFullYear()} נשמר כאן כפי שפורסם. המועדים והטענות שבו שייכים למקור ההיסטורי. לכל הרצאה יש גם קישור ישיר לאתר המקור.</p>

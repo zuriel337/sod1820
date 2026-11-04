@@ -1,23 +1,20 @@
 # SOD1820 — Claude Runtime Adapter
 
-## פרסום מאומת — אישור ZURIEL, ‏4.11.2026
+## מצב חי וכללי שחרור — 2029 (יישור ZURIEL, ‏4.11.2026)
 
-**אתר2029 חי כעת** ב־sod1820.co.il, www.sod1820.co.il ו־sod1820.vercel.app:
-Production `dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A`, מקור `1bc8260adaa889d7903aaa33ef43510df09817f2`. הבעלים אישר במפורש
-`2029 Production cutover` ישיר, כולל יצירת המזהה בזמן הבנייה, ובהמשך כתב
-„תחליף את האתר וכל הדפים”, „קדימה תעשה” ובחר „מאשר פרסום ישיר עכשיו”.
-הקוד נבדק ב־PreviewADnf6NL9; לאחר הבנייה עברו6 תרחישי דפדפן בתוצרProduction,
-6 בדומיין הקנוני ו־24 GET/HEAD. שלושת הכינויים אומתו לפריסה החדשה.
+**2029 הוא האתר החי. Legacy הוא יעד חזרה בלבד.** מצב חי נקבע מקריאה עדכנית של שיוך הדומיינים ב־Vercel, מקור הפריסה וה־artifact שמוגש בפועל; `main`, הודעה ישנה או work_log לבדם אינם הוכחת פריסה.
 
-זהו אישור **לפריסה הזו בלבד**. אין אישור לפריסה עתידית, main push/merge,
-שינוי דגלים/מסד/שרת משותפים או הרחבת יכולות. `CORE_PUBLIC_LAUNCH_2029=false`
-ושער הקוד נשמרו; אין להסיק אישור אוטומטי מתנועה חיה. main עדיין2195c978
-והקוד החי נשמר בענףgpt/2029-public-cutover-final-preparation-20261103.
-Legacy `dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2` נשמר כיעד חזרה; אינו האתר החי כעת.
-הפינים והאיסור ההיסטוריים מ־22.10 להלן נשמרים כהיסטוריה וביחס לכל שינוי
-שאינו הפריסה שאושרה; אין להחזיר את האתר אוטומטית בגלל הפין הישן.
-אין סגירתG4 פורמלית מכוח פרסום זה. [ראיות ותוכנית חזרה](docs/reviews/public-url-exceptions-20261103/residual205/evidence/direct-cutover-20261104/README.md).
+תצלום אימות למשימה זו: שלושת הדומיינים `sod1820.co.il`, `www.sod1820.co.il`, `sod1820.vercel.app` משרתים את `dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX`, מקור `d06cf1ab309c8278d61fc3c3588ea78a994262a1`. אין להפוך תצלום זה לפין נצחי: מאמתים שוב בכל פעולת מיזוג או פרסום. המעבר המקורי שאושר היה `1bc8260a` / `dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A`; הוא היסטוריית קבלה, לא בהכרח הפריסה העדכנית.
 
+- ZURIEL אישר במפורש הכנה ומיזוג של המוצר המאוחד העדכני ל־`main` במשימה `MAIN_2029_LIVE_STATE_RECONCILIATION_20261104`. זהו אישור המיזוג הנוכחי; אין צורך באישור נוסף לעצם המיזוג אם התנאים שהגדיר מתקיימים. בודקים תחילה שפריסת Git אוטומטית לא תחליף את החי בתוצר או בתצורה שלא אושרו.
+- מיזוג קוד אינו פריסה. main יכול לכלול תיקונים מאושרים שטרם נפרסו; מדווחים במפורש את ההבדל ממקור הפריסה החיה. Production, דומיינים, שרת/מסד משותפים ודגלים כפופים להרשאות המדויקות שכבר ניתנו, ללא הרחבה מכוח מיזוג.
+- **ענפים ומסירות שהוחלפו הם היסטוריה, לא מסלול שחרור.** אין למזג או לפרסם ענף ישן או עבודה מסשן ישן בלי אישור מיוחד מפורש של ZURIEL לאותה מסירה/דלתה. בודקים תוכן ותלות מול main העדכני; תאריך, שם סשן או אישור ישן אינם אישור חדש. אין למחוק את הענפים או את הראיות כדי לאכוף זאת.
+- הסשן המרכזי הוא המשלב היחיד של המשימה הנוכחית. סוכן שמגיע מענף היסטורי קורא את main והיומן העדכניים ונשאר בקריאה בלבד בתחום שכבר מוחזק. התיעוד והיומן הם התיאום הקיים; אין dispatch או המתנה ל־GPT.
+- Legacy `dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2` נשמר לחזרה מאושרת, ואינו Production הנוכחי. שחזור תנועה לפריסה אינו שחזור מסד או מדיה, ואין חזרה אוטומטית בגלל פין היסטורי.
+- שער Legacy שומר תאימות ליעד החזרה. מעבר שלו אינו הוכחה שהאתר החי הוא Legacy או שתוצר 2029 התקבל. אישור נפרד לשינוי השער נשאר בתוקף; אין להסיר או להחליש בדיקות. הצלחת workflow בשם G4 אינה סגירת G4 בתוכנית.
+- חיבורי החשבונות שכבר התקבלו, H1, החלטות הסיכון והדחיות המאוחרות נשמרים. אין דרישה חדשה לבדיקות שכבר תקפות ללא שינוי רלוונטי.
+
+מצב המועמד, אישור השער וראיות המיזוג/הפריסה: [המסירה הקיימת למשימה](docs/reviews/main-live-state-reconciliation-20261104/README.md), BEFORE `a89ac5ea-9802-49b2-a101-1786d13acd5f`. זהו קישור לראיות; הוא אינו מקור אמת חלופי או הרשאת פרסום.
 
 ## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
 
@@ -27,9 +24,11 @@ All agents report to ZURIEL in their active user conversation and write passive 
 **ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
 Historical records are retained. No product semantics, visual ownership or release permission is changed. The live database guard blocks GPT delivery; repository changes do not authorize a site deployment.
 
-## ZURIEL emergency production lock — 22.10.2026
+## Historical Legacy lock — 22.10.2026; superseded for the approved 2029 cutover
 
-Canonical Production is pinned to Legacy deployment `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq` at `99249526e91f1d720fae1aa43e82bbbe51ee5c45`. All 2029 work is Preview-only. Do not enable automatic custom-domain assignment or promote, rollback, alias, deploy or merge a 2029 cutover. A future cutover requires a new ZURIEL approval explicitly naming **2029 Production cutover**, the exact SHA and deployment ID. Generic release/rollback approval is insufficient. `node scripts/test-legacy-production-lock.mjs` is mandatory and may not be weakened in the same release change.
+The Legacy pin and Preview-only state below are historical. Preserve the existing exact release and separate gate-change approvals under the current section above.
+
+> Canonical Production is pinned to Legacy deployment `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq` at `99249526e91f1d720fae1aa43e82bbbe51ee5c45`. All 2029 work is Preview-only. Do not enable automatic custom-domain assignment or promote, rollback, alias, deploy or merge a 2029 cutover. A future cutover requires a new ZURIEL approval explicitly naming **2029 Production cutover**, the exact SHA and deployment ID. Generic release/rollback approval is insufficient. `node scripts/test-legacy-production-lock.mjs` is mandatory and may not be weakened in the same release change.
 
 
 > **STATUS:** runtime adapter / pointer only. This file is **not** project truth, a domain contract, a context database, or a second owner map.
