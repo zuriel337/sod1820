@@ -46,12 +46,13 @@ export function feedRows(items = [], { now = Date.now(), seen = {}, strongIds = 
     isNew: isNewItem(item, now) && !seen[feedSeenKey(item)],
   }));
   // One kind must not drown the others (source-group messages arrive in bursts): cap each bucket by newest first.
-  const bucket = (row) => (row.kind === "source" ? (row.item.sourceKind === "group_message" ? "group" : row.item.sourceKind === "channel_update" ? `channel:${row.item.channel}` : row.item.sourceKind === "gallery_update" ? "gallery" : "post") : row.kind);
+  // An item with an approved series identity is bucketed by series, so a series is represented even when the shared recent window is full.
+  const bucket = (row) => row.item?.seriesKey ? `series:${row.item.seriesKey}` : (row.kind === "source" ? (row.item.sourceKind === "group_message" ? "group" : row.item.sourceKind === "channel_update" ? `channel:${row.item.channel}` : row.item.sourceKind === "gallery_update" ? "gallery" : "post") : row.kind);
   const taken = {};
   const newestFirst = [...rows].sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || a.index - b.index);
   const kept = newestFirst.filter((row) => {
     const key = bucket(row); taken[key] = (taken[key] || 0) + 1;
-    return taken[key] <= (caps[key] ?? 2);
+    return taken[key] <= (caps[key] ?? (key.startsWith("series:") ? 12 : 2));
   });
   kept.sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || a.index - b.index);
   return kept.slice(0, limit);

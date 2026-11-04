@@ -8,11 +8,30 @@ export const APPROVED_GROUP_WRITERS = Object.freeze(['tzvi-opoc', 'yaniv-levi', 
 export const GROUP_SOURCE_LABEL = "הודעת מקור · טרם נבדקה";
 export const WORLD_GROUP_SOURCE_READER = "world_group_source_arrivals_v2";
 
+// Public site/video links and calendar dates are NOT private data. Everything else keeps the original conservative
+// redaction: other URLs, e-mail addresses and phone-like numbers. Allow-lists are exact hosts, never wildcards.
+const PUBLIC_LINK_HOSTS = Object.freeze(["sod1820.co.il", "www.sod1820.co.il", "youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"]);
+const PRIVATE_QUERY_KEY = /token|signed|signature|key|secret|auth|email|phone|birth|name|session|invite|code|return|redirect|next/i;
+function publicLinkOrNull(raw) {
+  const trimmed = raw.replace(/[.,;:!?)\]]+$/, "");
+  try {
+    const u = new URL(trimmed);
+    if (!/^https?:$/.test(u.protocol) || u.username || u.password || !PUBLIC_LINK_HOSTS.includes(u.hostname.toLowerCase())
+      || [...u.searchParams.keys()].some(k => PRIVATE_QUERY_KEY.test(k) && !(k === "v" || k === "t"))) return null;
+    return { url: trimmed, tail: raw.slice(trimmed.length) };
+  } catch { return null; }
+}
+const DATE_TOKEN = /(?<![\d./]|\d-)(?:(?:0?[1-9]|[12]\d|3[01])[./-](?:0?[1-9]|1[0-2])[./-](?:19|20)\d{2}|(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])|(?:0?[1-9]|[12]\d|3[01])[./](?:0?[1-9]|1[0-2])(?![\d./-]))(?![\d])/g;
+
 export function redactGroupText(text) {
+  const keep = [];
+  const hold = (value) => { keep.push(value); return `\u0000${keep.length - 1}\u0000`; };
   return clean(text)
-    .replace(/(https?:\/\/|www\.)\S+/gi, "[קישור]")
+    .replace(/(https?:\/\/|www\.)\S+/gi, (match) => { const link = publicLinkOrNull(/^www\./i.test(match) ? `https://${match}` : match); return link && !/^www\./i.test(match) ? hold(link.url) + link.tail : "[קישור]"; })
     .replace(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[דוא״ל]")
+    .replace(DATE_TOKEN, hold)
     .replace(/\+?\d[\d\s().-]{7,}\d/g, "[מספר]")
+    .replace(/\u0000(\d+)\u0000/g, (_, index) => keep[Number(index)])
     .slice(0, 1200);
 }
 

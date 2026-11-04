@@ -80,6 +80,8 @@ export async function projectApprovedContentSeriesSource(row, asset, seriesKey, 
     publishedAt: row.created_at, updatedAt: row.created_at,
     imageUrl: publicNowMediaHref(row.thumb_url) || publicNowMediaHref(asset.thumb_url || asset.poster_url),
     href: `/video/${asset.public_id}`, assetKey: asset.asset_key,
+    // Exact public media object (same policy as imageUrl) so a reader can play it on selection.
+    mediaUrl: media,
     decisionRef: approval.decisionRef,
   };
 }

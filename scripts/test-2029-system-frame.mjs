@@ -150,10 +150,12 @@ assert.match(frame, /force/);
 // Main navigation and opened updates remain ordinary World entries. The two
 // approved user-invoked contextual actions explicitly mark their continuation.
 const worldLiteralCount = [...frame.matchAll(/"\/world"/g)].length;
-assert.equal(worldLiteralCount, 5, "World destinations stay limited to navigation, opened updates and explicit contextual actions");
+// 4 here + the Now publications window's own "all updates in the World" link (asserted next to AttentionProjection).
+assert.equal(worldLiteralCount, 4, "World destinations stay limited to navigation, opened updates and explicit contextual actions");
 assert.match(frame, /target && action\.href === "\/world" \? "\/world\?focus=context" : action\.href/);
 assert.match(frame, /go\(finding\.href === "\/world" \? "\/world\?focus=context" : finding\.href, \{ preserve: false, state: \{ sodResearchIntent: "continue" \} \}\)/);
-assert.match(frame, /function AttentionProjection[\s\S]*onOpen\?\.\("\/world"\)/);
+assert.match(frame, /function AttentionProjection[\s\S]*<NowPublications2029 feed=\{feed\} onOpen=\{onOpen\}/);
+assert.match(fs.readFileSync(path.resolve("src/components/experience2029/NowPublications2029.jsx"), "utf8"), /onOpen\?\.\("\/world"\)/);
 
 // Raziel route-action consumer is fail-closed and presentation-only.
 const validRazielRoute = {

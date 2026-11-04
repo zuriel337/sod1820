@@ -1,0 +1,129 @@
+// "Now" publications window: pure presentation projection over the EXISTING system feed rows
+// (useSystemFeed2029 -> feedRows). No network, store, ranking or second reader.
+// One publication is ONE row: identity comes from feed row ids / sourceRefs (see mergeSystemFeedItems);
+// the same row model feeds the compact Now list, its filters and its detail. Similar wording never merges rows.
+// Series, source/channel, content family and media type stay SEPARATE dimensions (CONTENT-AUDIENCES-HYBRID-NOW).
+import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
+
+// Public name of the shared series is "מסרים"; the historical source titles and the series key stay untouched.
+export const NOW_SERIES_PUBLIC_LABEL = Object.freeze({ "messages-from-righteous": "מסרים" });
+export const nowSeriesLabel = (key, fallback = "") => NOW_SERIES_PUBLIC_LABEL[key] || fallback;
+
+// Exact public category names (compatibility evidence, never inferred from wording).
+const MESSAGE_CATEGORIES = Object.freeze(["מסרים", "מסרים מצדיקים", "רמזים מצדיקים"]);
+const HINT_CATEGORIES = Object.freeze(["רמזי הגאולה", "רמזים חזקים"]);
+const HINT_CHANNELS = Object.freeze(["reality-code"]);
+const VIDEO_CATEGORY = "וידאו";
+
+export const NOW_LENSES = Object.freeze([
+  Object.freeze({ id: "all", label: "הכול" }),
+  Object.freeze({ id: "series", label: "סדרות" }),
+  Object.freeze({ id: "messages", label: "מסרים" }),
+  Object.freeze({ id: "hints", label: "רמזי גאולה וקוד המציאות" }),
+]);
+export const NOW_MEDIA = Object.freeze([
+  Object.freeze({ id: "video", label: "וידאו" }),
+  Object.freeze({ id: "image", label: "תמונה" }),
+  Object.freeze({ id: "text", label: "טקסט" }),
+]);
+
+const VIDEO_URL = /\.(?:mp4|webm|mov|m4v)(?:[?#].*)?$/i;
+// Raw media addresses are storage plumbing, never reading text.
+const RAW_MEDIA_URL = /(?:https?:)?\/\/[^\s<>"'\])]+\.(?:mp4|webm|mov|m4v)(?:\?[^\s<>"'\])]*)?/gi;
+
+/** Reading text with raw video/storage addresses removed (the source row itself is never rewritten). */
+export function cleanNowText(value) {
+  return String(value == null ? "" : value)
+    .replace(RAW_MEDIA_URL, " ")
+    .replace(/[ \t ]+/g, " ")
+    .replace(/\s*\n\s*/g, "\n")
+    .replace(/^[\s\-–—·•:|]+|[\s\-–—·•:|]+$/g, "")
+    .trim();
+}
+
+/** Short visual title: first words only, cut at a word boundary. Full text stays in the detail. */
+export function shortNowTitle(value, max = 84) {
+  // Addresses belong to the detail, not the one-line title.
+  const text = cleanNowText(value).replace(/(?:https?:\/\/|www\.)\S+|\[(?:קישור|מספר|דוא״ל)\]/gi, " ").replace(/[ \t]+/g, " ").trim().split("\n").map(line => line.trim()).filter(Boolean)[0] || "";
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const space = cut.lastIndexOf(" ");
+  return `${(space > max * 0.55 ? cut.slice(0, space) : cut).replace(/[\s,.;:!?\-–—]+$/g, "")}…`;
+}
+
+const list = value => Array.isArray(value) ? value : [];
+const hasAny = (values, wanted) => list(values).some(value => wanted.includes(value));
+
+/** Compact, filterable model for one feed row (see feedRows). */
+export function nowRowModel(row) {
+  const item = row?.item || {};
+  const categories = list(item.categories), tags = list(item.tags);
+  const isGroup = item.sourceKind === "group_message", isPost = item.sourceKind === "post";
+  const isGallery = item.sourceKind === "gallery_update", isChannel = item.sourceKind === "channel_update";
+  const media = item.mediaHref || item.mediaUrl || null;
+  const href = row?.href || null;
+  const video = Boolean(media && VIDEO_URL.test(media)) || /^\/video\/[^/]+\/?$/.test(href || "")
+    || (isPost && categories.includes(VIDEO_CATEGORY));
+  const image = !video && Boolean(media || isGallery);
+  const seriesKey = item.seriesKey || (isPost ? contentSeriesKeysForPost({ categories, tags, author: item.author })[0] || null : null);
+  const seriesLabel = seriesKey ? nowSeriesLabel(seriesKey, item.seriesLabel || contentSeriesByKey(seriesKey)?.label || "") : "";
+  const sourceName = isGroup ? (item.creator || "מקור ציבורי")
+    : isChannel ? (item.sourceLabel || item.creator || "")
+    : isGallery ? (item.sourceLabel || "זרם המציאות")
+    : isPost ? (item.sourceLabel === "פוסט מקור באתר" ? "" : item.sourceLabel || "") || item.creator || ""
+    : (item.creator || "");
+  const unverified = isGroup;
+  const typeLabel = unverified ? "מקור · טרם נבדק"
+    : row?.kind === "convergence" ? "התכנסות" : row?.kind === "finding" ? "ממצא"
+    : item.sourceUpdate ? "עדכון מקור" : video ? "סרטון" : image ? "תמונה" : isPost ? "פוסט" : "עדכון";
+  const lenses = new Set(["all"]);
+  if (seriesKey) lenses.add("series");
+  if (seriesKey === "messages-from-righteous" || hasAny(categories, MESSAGE_CATEGORIES)) lenses.add("messages");
+  if (hasAny(categories, HINT_CATEGORIES) || (isChannel && HINT_CHANNELS.includes(item.channel))) lenses.add("hints");
+  const fullText = cleanNowText(item.fullText);
+  const summary = cleanNowText(item.summary);
+  const title = shortNowTitle(row?.title || item.label) || (video ? "סרטון" : image ? "תמונה" : "עדכון");
+  const byline = [seriesLabel, sourceName].filter((part, index, all) => part && all.indexOf(part) === index);
+  return {
+    id: row?.id, row, item, title, byline, typeLabel, unverified,
+    at: row?.at || null, href, seriesKey, seriesLabel, sourceName,
+    media: video ? "video" : image ? "image" : "text", video, image,
+    thumb: [!video && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
+    mediaHref: media, lenses,
+    fullText, summary: summary && summary !== title ? summary : "",
+    canExpand: Boolean(fullText || media),
+  };
+}
+
+export const nowModels = rows => list(rows).filter(row => row?.id && row.title)
+  .map(nowRowModel)
+  .sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
+
+/** Primary lenses with at least one row; "all" is always available. */
+export function availableNowLenses(models) {
+  const all = list(models);
+  return NOW_LENSES.filter(lens => lens.id === "all" || all.some(model => model.lenses.has(lens.id)));
+}
+
+/** Secondary choices (series / source / media) derived from the rows that exist, never fixed lists. */
+export function nowSecondaryChoices(models) {
+  const all = list(models), series = new Map(), sources = new Map(), media = new Set();
+  for (const model of all) {
+    if (model.seriesKey) series.set(model.seriesKey, model.seriesLabel);
+    if (model.sourceName) sources.set(model.sourceName, model.sourceName);
+    media.add(model.media);
+  }
+  return {
+    series: [...series].map(([id, label]) => ({ id, label })),
+    sources: [...sources].map(([id, label]) => ({ id, label })),
+    media: NOW_MEDIA.filter(option => media.has(option.id)),
+  };
+}
+
+export function filterNowModels(models, { lens = "all", series = "", source = "", media = "" } = {}) {
+  return list(models).filter(model => (lens === "all" || model.lenses.has(lens))
+    && (!series || model.seriesKey === series) && (!source || model.sourceName === source) && (!media || model.media === media));
+}
+
+/** The series page for a model (series key is the existing approved identity). */
+export const nowSeriesHref = model => model?.seriesKey ? `/2029/posts?series=${encodeURIComponent(model.seriesKey)}` : null;

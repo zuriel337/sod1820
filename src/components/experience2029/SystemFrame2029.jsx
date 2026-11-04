@@ -40,9 +40,10 @@ import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "./ContactGatewayOnDemand2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
-import GlobalLivingRibbon2029, { LivingRibbonDetail2029, NowSourceDetail2029 } from "./GlobalLivingRibbon2029.jsx";
+import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 const RazielCenter2029 = React.lazy(() => import("./RazielCenter2029.jsx"));
+const NowPublications2029 = React.lazy(() => import("./NowPublications2029.jsx"));
 import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";
 import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspaceRazielPresence2029.js";
 const RazielViewModeSelector2029 = React.lazy(() => import("./RazielViewModeSelector2029.jsx"));
@@ -699,66 +700,11 @@ function ActionProjection({
 
 function AttentionProjection({ context, onWorkspace, onOpen, feed, timeMode }) {
   // The mobile Now sheet and left Companion show the SAME authorized public rows.
-  // SystemFrame owns one useSystemFeed2029 watcher; this sheet creates no polling,
-  // independent ordering, research read or seen-state cache.
-  const [sourceFilter, setSourceFilter] = useState("all"), [visibleCount, setVisibleCount] = useState(12);
-  useEffect(() => { feed?.requestNowDetails?.(); }, [feed?.requestNowDetails]);
-  const allRows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
-  const sourceOf = row => row.item?.channel || row.item?.sourceKind || row.kind;
-  const sourceChoices = [...new Map(allRows.map(row => [sourceOf(row), row.item?.sourceLabel || row.typeLabel])).entries()];
-  const rows = sourceFilter === "all" ? allRows : allRows.filter(row => sourceOf(row) === sourceFilter);
-  const additionalLoading = Boolean(feed?.nowSources && (!feed.nowSources.requested || feed.nowSources.loading));
-  const additionalUnavailable = Boolean(feed?.nowSources?.error || feed?.nowSources?.sourceStates?.some(source => ["failed", "access_filtered"].includes(source.status)));
-  const partial = Array.isArray(feed?.unavailableSources) && feed.unavailableSources.length > 0;
-
+  // SystemFrame owns one useSystemFeed2029 watcher; the publications window creates no polling,
+  // independent ordering, research read or seen-state cache (see NowPublications2029).
   return (
     <>
-      <div className="sod29-panel-lead">
-        <div className="sod29-kicker">העולם חי</div>
-        <h3>מה חדש בעולם</h3>
-        <p>מקורות שהתעדכנו באתר והתכנסויות מאושרות, לפי זמן. חדש אינו בהכרח ממצא מחקר מאומת.</p>
-      </div>
-      <div className="sod29-attention-projection" aria-label="מה חדש בעולם">
-        {feed?.loading ? <FrameState kind="loading" title="טוען חידושים">קורא עדכונים ציבוריים.</FrameState> : null}
-        {feed?.error ? <FrameState kind="unavailable" title="העדכונים אינם זמינים">אפשר להמשיך ישירות אל העולם.</FrameState> : null}
-        {!feed?.loading && !feed?.error && !additionalLoading && !additionalUnavailable && !rows.length ? <FrameState kind="empty" title="אין כרגע חידושים להצגה">העולם עדיין זמין לקריאה.</FrameState> : null}
-        {feed?.groupArrivals ? <p role="status">{feed?.groupArrivals.message}</p> : null}
-        {partial ? <small>חלק ממקורות העדכון אינם זמינים כרגע.</small> : null}
-        <div className="sod29-now-source-filters" role="group" aria-label="מקורות העדכונים">
-          {[["all", "הכול"], ...sourceChoices].map(([key, label]) => <button key={key} type="button" className="sod29-action" aria-pressed={sourceFilter === key} onClick={() => { setSourceFilter(key);setVisibleCount(12); }}>{label}</button>)}
-        </div>
-        {additionalLoading ? <p role="status">קורא עדכונים ציבוריים נוספים…</p> : null}
-        {additionalUnavailable
-          ? <p role="status">חלק ממקורות העדכון לא נקראו. <button type="button" className="sod29-action" onClick={feed?.refreshNowDetails}>ניסיון נוסף</button></p> : null}
-        <small>{rows.length} עדכונים בחלון שנקרא</small>
-        {rows.slice(0, visibleCount).map((row) => {
-          const item = row.item || {};
-          const href = row.href;
-          if (item.fullText || item.mediaHref) return <details key={row.id} className="sod29-now-source-row">
-            <summary onClick={() => feed?.see?.(row)}><small>{row.typeLabel} · {item.creator} · {recordTimeLabel(row.at, timeMode, "זמן לא צוין")}</small><strong>{row.title}</strong></summary>
-            <NowSourceDetail2029 row={row} onOpen={onOpen} feed={feed} />
-          </details>;
-          return <button
-            type="button"
-            key={row.id}
-            className="sod29-action"
-            disabled={!href}
-            onClick={() => { feed?.see?.(row); if (href) onOpen?.(href); }}
-            style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", width: "100%", textAlign: "start", minHeight: 44, gap: 4 }}
-          >
-            <small>{row.typeLabel}{row.strong ? " · ◆ חזקה" : ""} · {item.creator || "מקור ציבורי"} · {recordTimeLabel(row.at, timeMode, "זמן לא צוין")}</small>
-            <strong>{row.title}</strong>
-            {item.summary ? <small>{item.summary}</small> : null}
-            {item.kind === "source" && item.researchCount > 0 ? <small>מחקר קשור זמין בהעמקה</small> : null}
-          </button>;
-        })}
-        {visibleCount < rows.length ? <button className="sod29-action" type="button" onClick={() => setVisibleCount(n => n + 12)}>עוד עדכונים · {visibleCount} מתוך {rows.length}</button> : null}
-        <button className="sod29-action primary" type="button" onClick={() => onOpen?.("/world")}>פתח את החידושים בעולם</button>
-        <details><summary>עוד התראות אישיות</summary>
-          <FrameState kind="unavailable" title="אני עוקב">פריטים שבחרת לעקוב אחריהם יופיעו כאן כשהחיבור יושלם.</FrameState>
-          <FrameState kind="unavailable" title="הודעות">הודעות אישיות יופיעו כאן דרך המערכת החדשה.</FrameState>
-        </details>
-      </div>
+      <NowPublications2029 feed={feed} onOpen={onOpen} timeMode={timeMode} />
       {context?.subject ? <button className="sod29-action primary" type="button" onClick={onWorkspace}>◎ פתח את האזור שלי</button> : null}
     </>
   );
@@ -2149,7 +2095,7 @@ function SystemFrame2029Body({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="עכשיו" title="עכשיו"><NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />{transient?.payload?.ribbonDetail ? <LivingRibbonDetail2029 detail={transient.payload.ribbonDetail} onOpen={go} feed={feed} /> : corePublicViewer ? worldLocked
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="פרסומי האתר" title="עכשיו"><NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />{transient?.payload?.ribbonDetail ? <LivingRibbonDetail2029 detail={transient.payload.ribbonDetail} onOpen={go} feed={feed} /> : corePublicViewer ? worldLocked
       ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState>
       : <FrameState title="העולם פתוח"><Link to="/world" onClick={closeTransient}>למקורות ולחיבורים בעולם ←</Link></FrameState>
       : <AttentionProjection context={pageContext} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} timeMode={recordTimeMode} />}</PanelShell>;
