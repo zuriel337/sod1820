@@ -591,7 +591,7 @@ function ProExperience() {
 
       {isNumeric ? (
         <div className="sod29-calcpro-empty">
-          <Link to={`/2029/number/${encodeURIComponent(info.expression.replace(/\D/g, ""))}`}>פתח את המספר {info.expression}</Link>
+          <Link to={numberExpressionFocusHref(info.expression.replace(/\D/g, ""))}>פתח את המספר {info.expression}</Link>
         </div>
       ) : null}
 
