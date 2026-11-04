@@ -1,0 +1,671 @@
+{
+  "task": "PUBLIC_CANONICAL_SERVER_CLIENT_AUDIT_20261104",
+  "origin": "https://sod1820.co.il",
+  "anonymous": true,
+  "grantUsed": false,
+  "width": 390,
+  "actualSW": true,
+  "performanceMeasurement": false,
+  "scope": "metadata parity, not full route/function/performance acceptance",
+  "rows": [
+    {
+      "id": "home-alias",
+      "path": "/2029",
+      "family": "public-home",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il",
+        "ogUrl": "https://sod1820.co.il",
+        "robots": "index, follow",
+        "headerRobots": "index, follow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il",
+        "ogUrl": "https://sod1820.co.il",
+        "robots": "index, follow",
+        "title": "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
+        "history": [
+          "https://sod1820.co.il"
+        ],
+        "surface": null,
+        "worker": "/sw.js",
+        "readRequests": 14,
+        "denied": []
+      },
+      "finalPath": "/2029",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "posts-alias",
+      "path": "/2029/posts",
+      "family": "public-posts",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/post",
+        "ogUrl": "https://sod1820.co.il/post",
+        "robots": "index, follow",
+        "headerRobots": "index, follow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/2029/posts",
+        "ogUrl": "https://sod1820.co.il/2029/posts",
+        "robots": "noindex, nofollow",
+        "title": "הפוסטים · SOD1820 2029 · SOD1820",
+        "history": [
+          "https://sod1820.co.il/post",
+          "https://sod1820.co.il/2029/posts"
+        ],
+        "surface": "posts-index",
+        "worker": "/sw.js",
+        "readRequests": 8,
+        "denied": []
+      },
+      "finalPath": "/2029/posts",
+      "canonicalEqual": false,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "number-alias",
+      "path": "/2029/number/1820",
+      "family": "public-number",
+      "root": "1820",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/2029/number/1820",
+        "ogUrl": "https://sod1820.co.il/2029/number/1820",
+        "robots": "noindex, nofollow",
+        "headerRobots": "noindex, nofollow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/number/1820",
+        "ogUrl": "https://sod1820.co.il/number/1820",
+        "robots": "index, follow",
+        "title": "1820 · דף המספר · SOD1820",
+        "history": [
+          "https://sod1820.co.il/2029/number/1820",
+          "https://sod1820.co.il/number/1820"
+        ],
+        "surface": "number",
+        "worker": "/sw.js",
+        "readRequests": 54,
+        "denied": [
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/lang_links_list",
+            "method": "POST"
+          }
+        ]
+      },
+      "finalPath": "/2029/number/1820",
+      "canonicalEqual": false,
+      "oldPrefixRepairedInBrowser": true,
+      "observed": true
+    },
+    {
+      "id": "phrase-alias",
+      "path": "/2029/number/%D7%9E%D7%A9%D7%99%D7%97",
+      "family": "public-phrase",
+      "root": "358",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/2029/number/%D7%9E%D7%A9%D7%99%D7%97",
+        "ogUrl": "https://sod1820.co.il/2029/number/%D7%9E%D7%A9%D7%99%D7%97",
+        "robots": "noindex, nofollow",
+        "headerRobots": "noindex, nofollow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+        "ogUrl": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+        "robots": "index, follow",
+        "title": "משיח · דף המספר · SOD1820",
+        "history": [
+          "https://sod1820.co.il/2029/number/%D7%9E%D7%A9%D7%99%D7%97",
+          "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97"
+        ],
+        "surface": "number",
+        "worker": "/sw.js",
+        "readRequests": 61,
+        "denied": [
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/lang_links_list",
+            "method": "POST"
+          }
+        ]
+      },
+      "finalPath": "/2029/number/%D7%9E%D7%A9%D7%99%D7%97",
+      "canonicalEqual": false,
+      "oldPrefixRepairedInBrowser": true,
+      "observed": true
+    },
+    {
+      "id": "calculator-pro",
+      "path": "/2029/calculator?q=%D7%9E%D7%A9%D7%99%D7%97",
+      "family": "public-calculator",
+      "text": "358",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/2029/gematria",
+        "ogUrl": "https://sod1820.co.il/2029/gematria",
+        "robots": "noindex, nofollow",
+        "headerRobots": "noindex, nofollow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/gematria",
+        "ogUrl": "https://sod1820.co.il/gematria",
+        "robots": "noindex, nofollow",
+        "title": "מחשבון גימטריה מקצועי · SOD1820 · SOD1820",
+        "history": [
+          "https://sod1820.co.il/2029/gematria",
+          "https://sod1820.co.il/gematria"
+        ],
+        "surface": "calculator-pro-2029",
+        "worker": "/sw.js",
+        "readRequests": 6,
+        "denied": []
+      },
+      "finalPath": "/2029/calculator?q=%D7%9E%D7%A9%D7%99%D7%97&m=%D7%A8%D7%92%D7%99%D7%9C",
+      "canonicalEqual": false,
+      "oldPrefixRepairedInBrowser": true,
+      "observed": true
+    },
+    {
+      "id": "calculator-entry",
+      "path": "/2029/gematria?q=%D7%9E%D7%A9%D7%99%D7%97",
+      "family": "public-calculator",
+      "text": "358",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/2029/gematria",
+        "ogUrl": "https://sod1820.co.il/2029/gematria",
+        "robots": "noindex, nofollow",
+        "headerRobots": "noindex, nofollow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/gematria",
+        "ogUrl": "https://sod1820.co.il/gematria",
+        "robots": "noindex, nofollow",
+        "title": "מחשבון גימטריה מקצועי · SOD1820 · SOD1820",
+        "history": [
+          "https://sod1820.co.il/2029/gematria",
+          "https://sod1820.co.il/gematria"
+        ],
+        "surface": "calculator-pro-2029",
+        "worker": "/sw.js",
+        "readRequests": 6,
+        "denied": []
+      },
+      "finalPath": "/2029/gematria?q=%D7%9E%D7%A9%D7%99%D7%97&m=%D7%A8%D7%92%D7%99%D7%9C",
+      "canonicalEqual": false,
+      "oldPrefixRepairedInBrowser": true,
+      "observed": true
+    },
+    {
+      "id": "calculator-viral",
+      "path": "/2029/gematria/viral?q=%D7%9E%D7%A9%D7%99%D7%97",
+      "family": "public-calculator",
+      "text": "358",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/2029/gematria",
+        "ogUrl": "https://sod1820.co.il/2029/gematria",
+        "robots": "noindex, nofollow",
+        "headerRobots": "noindex, nofollow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/gematria",
+        "ogUrl": "https://sod1820.co.il/gematria",
+        "robots": "noindex, nofollow",
+        "title": "מחשבון גימטריה 2029 · SOD1820 · SOD1820",
+        "history": [
+          "https://sod1820.co.il/2029/gematria",
+          "https://sod1820.co.il/gematria"
+        ],
+        "surface": "calculator-2029",
+        "worker": "/sw.js",
+        "readRequests": 3,
+        "denied": []
+      },
+      "finalPath": "/2029/gematria/viral?q=%D7%9E%D7%A9%D7%99%D7%97",
+      "canonicalEqual": false,
+      "oldPrefixRepairedInBrowser": true,
+      "observed": true
+    },
+    {
+      "id": "number-alias-method",
+      "path": "/2029/number/358?phrase=%D7%9E%D7%A9%D7%99%D7%97&method=regular&returnTo=%2Fworld%3Fpart%3D2&part=2&part=7",
+      "family": "public-number",
+      "root": "358",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/2029/number/358",
+        "ogUrl": "https://sod1820.co.il/2029/number/358",
+        "robots": "noindex, nofollow",
+        "headerRobots": "noindex, nofollow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/number/358",
+        "ogUrl": "https://sod1820.co.il/number/358",
+        "robots": "index, follow",
+        "title": "358 · דף המספר · SOD1820",
+        "history": [
+          "https://sod1820.co.il/2029/number/358",
+          "https://sod1820.co.il/number/358"
+        ],
+        "surface": "number",
+        "worker": "/sw.js",
+        "readRequests": 52,
+        "denied": [
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/lang_links_list",
+            "method": "POST"
+          }
+        ]
+      },
+      "finalPath": "/2029/number/358?phrase=%D7%9E%D7%A9%D7%99%D7%97&method=regular&returnTo=%2Fworld%3Fpart%3D2&part=2&part=7",
+      "canonicalEqual": false,
+      "oldPrefixRepairedInBrowser": true,
+      "observed": true
+    },
+    {
+      "id": "number-entry-continuation",
+      "path": "/2029/number?returnTo=%2Fworld&part=2&part=7",
+      "family": "public-continuation",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/number",
+        "ogUrl": "https://sod1820.co.il/number",
+        "robots": "index, follow",
+        "headerRobots": "index, follow"
+      },
+      "redirects": [
+        {
+          "path": "/2029/number?returnTo=%2Fworld&part=2&part=7",
+          "status": 308,
+          "location": "/number?returnTo=%2Fworld&part=2&part=7"
+        }
+      ],
+      "client": {
+        "canonical": "https://sod1820.co.il/number",
+        "ogUrl": "https://sod1820.co.il/number",
+        "robots": "index, follow",
+        "title": "מספר או ביטוי · SOD1820",
+        "history": [
+          "https://sod1820.co.il/number"
+        ],
+        "surface": null,
+        "worker": "/sw.js",
+        "readRequests": 3,
+        "denied": []
+      },
+      "finalPath": "/number?returnTo=%2Fworld&part=2&part=7",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "number-public",
+      "path": "/number/1820",
+      "family": "public-canonical-control",
+      "root": "1820",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/number/1820",
+        "ogUrl": "https://sod1820.co.il/number/1820",
+        "robots": "index, follow",
+        "headerRobots": "index, follow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/number/1820",
+        "ogUrl": "https://sod1820.co.il/number/1820",
+        "robots": "index, follow",
+        "title": "1820 · דף המספר · SOD1820",
+        "history": [
+          "https://sod1820.co.il/number/1820"
+        ],
+        "surface": "number",
+        "worker": "/sw.js",
+        "readRequests": 54,
+        "denied": [
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/lang_links_list",
+            "method": "POST"
+          }
+        ]
+      },
+      "finalPath": "/number/1820",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "phrase-public",
+      "path": "/number/%D7%9E%D7%A9%D7%99%D7%97",
+      "family": "public-canonical-control",
+      "root": "358",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+        "ogUrl": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+        "robots": "index, follow",
+        "headerRobots": "index, follow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+        "ogUrl": "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97",
+        "robots": "index, follow",
+        "title": "משיח · דף המספר · SOD1820",
+        "history": [
+          "https://sod1820.co.il/number/%D7%9E%D7%A9%D7%99%D7%97"
+        ],
+        "surface": "number",
+        "worker": "/sw.js",
+        "readRequests": 56,
+        "denied": [
+          {
+            "origin": "https://linswmnnkjxvweumprav.supabase.co",
+            "path": "/rest/v1/rpc/lang_links_list",
+            "method": "POST"
+          }
+        ]
+      },
+      "finalPath": "/number/%D7%9E%D7%A9%D7%99%D7%97",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "calculator-public",
+      "path": "/gematria?q=%D7%9E%D7%A9%D7%99%D7%97",
+      "family": "public-canonical-control",
+      "text": "358",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/gematria",
+        "ogUrl": "https://sod1820.co.il/gematria",
+        "robots": "noindex, follow",
+        "headerRobots": "noindex, follow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/gematria",
+        "ogUrl": "https://sod1820.co.il/gematria",
+        "robots": "noindex, nofollow",
+        "title": "מחשבון גימטריה מקצועי · SOD1820 · SOD1820",
+        "history": [
+          "https://sod1820.co.il/gematria"
+        ],
+        "surface": "calculator-pro-2029",
+        "worker": "/sw.js",
+        "readRequests": 6,
+        "denied": []
+      },
+      "finalPath": "/gematria?q=%D7%9E%D7%A9%D7%99%D7%97&m=%D7%A8%D7%92%D7%99%D7%9C",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "world-public",
+      "path": "/world",
+      "family": "public-canonical-control",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/world",
+        "ogUrl": "https://sod1820.co.il/world",
+        "robots": "index, follow",
+        "headerRobots": "index, follow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/world",
+        "ogUrl": "https://sod1820.co.il/world",
+        "robots": "index, follow",
+        "title": "העולם · SOD1820 · SOD1820",
+        "history": [
+          "https://sod1820.co.il/world"
+        ],
+        "surface": null,
+        "worker": "/sw.js",
+        "readRequests": 16,
+        "denied": []
+      },
+      "finalPath": "/world",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "posts-public",
+      "path": "/post",
+      "family": "public-canonical-control",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/post",
+        "ogUrl": "https://sod1820.co.il/post",
+        "robots": "index, follow",
+        "headerRobots": "index, follow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/2029/posts",
+        "ogUrl": "https://sod1820.co.il/2029/posts",
+        "robots": "noindex, nofollow",
+        "title": "הפוסטים · SOD1820 2029 · SOD1820",
+        "history": [
+          "https://sod1820.co.il/post",
+          "https://sod1820.co.il/2029/posts"
+        ],
+        "surface": "posts-index",
+        "worker": "/sw.js",
+        "readRequests": 8,
+        "denied": []
+      },
+      "finalPath": "/post",
+      "canonicalEqual": false,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "home-public",
+      "path": "/",
+      "family": "public-canonical-control",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il",
+        "ogUrl": "https://sod1820.co.il",
+        "robots": "index, follow",
+        "headerRobots": "index, follow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il",
+        "ogUrl": "https://sod1820.co.il",
+        "robots": "index, follow",
+        "title": "כי לה' המלוכה — סוד 1820 · לגלות את המציאות בשפת המספרים",
+        "history": [
+          "https://sod1820.co.il"
+        ],
+        "surface": null,
+        "worker": "/sw.js",
+        "readRequests": 14,
+        "denied": []
+      },
+      "finalPath": "/",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "gallery-public",
+      "path": "/gallery",
+      "family": "public-canonical-control",
+      "errors": [],
+      "httpStatus": 404,
+      "server": {
+        "canonical": "https://sod1820.co.il/gallery",
+        "ogUrl": "https://sod1820.co.il/gallery",
+        "robots": "noindex, nofollow, noarchive",
+        "headerRobots": "noindex, nofollow, noarchive"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/gallery",
+        "ogUrl": "https://sod1820.co.il/gallery",
+        "robots": "noindex, nofollow, noarchive",
+        "title": "הפוסט לא נמצא · SOD1820",
+        "history": [
+          "https://sod1820.co.il/gallery"
+        ],
+        "surface": null,
+        "worker": "/sw.js",
+        "readRequests": 10,
+        "denied": []
+      },
+      "finalPath": "/gallery",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "books-public",
+      "path": "/books",
+      "family": "public-canonical-control",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/books",
+        "ogUrl": "https://sod1820.co.il/books",
+        "robots": "index, follow",
+        "headerRobots": "index, follow"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/books",
+        "ogUrl": "https://sod1820.co.il/books",
+        "robots": "index, follow",
+        "title": "ספרים ומקורות · SOD1820",
+        "history": [
+          "https://sod1820.co.il/books"
+        ],
+        "surface": null,
+        "worker": "/sw.js",
+        "readRequests": 5,
+        "denied": []
+      },
+      "finalPath": "/books",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "research-tool-continuation",
+      "path": "/research?tool=gematria&q=%D7%9E%D7%A9%D7%99%D7%97",
+      "family": "public-continuation",
+      "text": "358",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/gematria",
+        "ogUrl": "https://sod1820.co.il/gematria",
+        "robots": "noindex, follow",
+        "headerRobots": "noindex, follow"
+      },
+      "redirects": [
+        {
+          "path": "/research?tool=gematria&q=%D7%9E%D7%A9%D7%99%D7%97",
+          "status": 308,
+          "location": "/gematria?tool=gematria&q=%D7%9E%D7%A9%D7%99%D7%97"
+        }
+      ],
+      "client": {
+        "canonical": "https://sod1820.co.il/gematria",
+        "ogUrl": "https://sod1820.co.il/gematria",
+        "robots": "noindex, nofollow",
+        "title": "מחשבון גימטריה מקצועי · SOD1820 · SOD1820",
+        "history": [
+          "https://sod1820.co.il/gematria"
+        ],
+        "surface": "calculator-pro-2029",
+        "worker": "/sw.js",
+        "readRequests": 6,
+        "denied": []
+      },
+      "finalPath": "/gematria?tool=gematria&q=%D7%9E%D7%A9%D7%99%D7%97&m=%D7%A8%D7%92%D7%99%D7%9C",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    },
+    {
+      "id": "journey-closed",
+      "path": "/2029/journey",
+      "family": "intentionally-closed-control",
+      "errors": [],
+      "httpStatus": 200,
+      "server": {
+        "canonical": "https://sod1820.co.il/2029/journey",
+        "ogUrl": "https://sod1820.co.il/2029/journey",
+        "robots": "noindex, nofollow, noarchive",
+        "headerRobots": "noindex, nofollow, noarchive"
+      },
+      "redirects": [],
+      "client": {
+        "canonical": "https://sod1820.co.il/2029/journey",
+        "ogUrl": "https://sod1820.co.il/2029/journey",
+        "robots": "noindex, nofollow",
+        "title": "מסע החיים · SOD1820",
+        "history": [
+          "https://sod1820.co.il/2029/journey"
+        ],
+        "surface": null,
+        "worker": "/sw.js",
+        "readRequests": 3,
+        "denied": []
+      },
+      "finalPath": "/2029/journey",
+      "canonicalEqual": true,
+      "oldPrefixRepairedInBrowser": false,
+      "observed": true
+    }
+  ],
+  "artifactBefore": {
+    "status": 200,
+    "sourceSha": "f4390dd356b374e839024eb235fc4a63344667de"
+  },
+  "artifactAfter": {
+    "status": 200,
+    "sourceSha": "f4390dd356b374e839024eb235fc4a63344667de"
+  },
+  "sourceStable": true,
+  "completed": true
+}

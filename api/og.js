@@ -365,6 +365,14 @@ export default async function handler(req, res) {
     desc = documentStatus === 404 ? 'המקור המבוקש אינו זמין.' : 'האזור אינו פתוח בגרסת הקריאה הציבורית.';
     const capability = publicReadingCapability(key);
     if (capability) { title = `${capability.title} · ${SITE_NAME}`; desc = capability.description; image = cardUrl({ w: capability.title, sub: 'בבנייה' }); }
+  } else if (productionReading && decodedKey === '/gallery') {
+    // This admitted collection is not a Post slug. Selected images still pass
+    // through the existing public gallery reader; no query becomes metadata.
+    title = 'גלריות ומקורות · ' + SITE_NAME;
+    desc = 'תמונות, מקורות וממצאים שפורסמו בגלריות סוד 1820.';
+    canonical = SITE + '/gallery'; type = 'website';
+    image = cardUrl({ w: 'גלריות ומקורות', sub: 'תמונות · מקורות · ממצאים' });
+    if (['gallery', 'image', 'q', 'source'].some(key => continuityParams.has(key))) robots = 'noindex, follow';
   } else if (productionReading && decodedKey === '/verified') {
     title='פוסטים עם סימון אימות · '+SITE_NAME;desc='הפרסומים הציבוריים עם סימון האימות השמור במקור.';
     canonical=SITE+'/verified';
@@ -789,6 +797,11 @@ export default async function handler(req, res) {
   } else if (STATIC[staticKey] && !wpId) {
     if (["/unsubscribe", "/updates", "/login", "/auth/callback"].includes(key)) robots = "noindex, nofollow";
     if (key === "/posts") canonical = SITE + "/post";
+    if (productionReading && key === '/post') {
+      const page = Number(continuityParams.get('page') || 1);
+      if (continuityParams.get('q') || continuityParams.get('series')
+        || Number.isSafeInteger(page) && page > 1 && page <= 10000) robots = 'noindex, follow';
+    }
     title = STATIC[staticKey].title;
     desc = STATIC[staticKey].desc;
     if (STATIC[staticKey].card) image = cardUrl(STATIC[staticKey].card);

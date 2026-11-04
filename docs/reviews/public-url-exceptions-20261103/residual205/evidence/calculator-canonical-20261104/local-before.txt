@@ -1,0 +1,274 @@
+✔ /gematria: initial document and sharing use the public calculator canonical (6.516219ms)
+✔ /gematria: ordinary calculation stays noindex and never becomes published numeric truth (1.276381ms)
+✔ /gematria: HEAD keeps calculated-query privacy and has no document body (1.916956ms)
+✖ /2029/calculator: initial document and sharing use the public calculator canonical (1.636122ms)
+✖ /2029/calculator: ordinary calculation stays noindex and never becomes published numeric truth (1.527333ms)
+✔ /2029/calculator: HEAD keeps calculated-query privacy and has no document body (0.954456ms)
+✖ /2029/gematria: initial document and sharing use the public calculator canonical (0.924441ms)
+✖ /2029/gematria: ordinary calculation stays noindex and never becomes published numeric truth (0.894617ms)
+✔ /2029/gematria: HEAD keeps calculated-query privacy and has no document body (0.563068ms)
+✖ /2029/gematria/viral: initial document and sharing use the public calculator canonical (0.696198ms)
+✖ /2029/gematria/viral: ordinary calculation stays noindex and never becomes published numeric truth (0.822098ms)
+✔ /2029/gematria/viral: HEAD keeps calculated-query privacy and has no document body (0.600023ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 6
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 142.740043
+
+✖ failing tests:
+
+test at test/public-calculator-canonical-compatibility.test.mjs:45:3
+✖ /2029/calculator: initial document and sharing use the public calculator canonical (1.636122ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+  '<html><head>\n' +
+    '<meta charset="utf-8"/>\n' +
+    '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+    '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="robots" content="noindex, nofollow"/>\n' +
+    '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:site_name" content="SOD1820"/>\n' +
+    '<meta property="og:locale" content="he_IL"/>\n' +
+    '<meta property="og:type" content="website"/>\n' +
+    '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:type" content="image/png"/>\n' +
+    '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+    '\n' +
+    '\n' +
+    '<meta name="twitter:card" content="summary_large_image"/>\n' +
+    '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '\n' +
+    '\n' +
+    '</head><body><div id="root">calculator shell</div></body></html>'
+
+      at canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+      at TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:47:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '<html><head>\n<meta charset="utf-8"/>\n<title>מה מסתתר בשם שלך? · SOD1820</title>\n<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="robots" content="noindex, nofollow"/>\n<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:site_name" content="SOD1820"/>\n<meta property="og:locale" content="he_IL"/>\n<meta property="og:type" content="website"/>\n<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:type" content="image/png"/>\n<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n\n\n<meta name="twitter:card" content="summary_large_image"/>\n<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n\n\n</head><body><div id="root">calculator shell</div></body></html>',
+    expected: /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at test/public-calculator-canonical-compatibility.test.mjs:50:3
+✖ /2029/calculator: ordinary calculation stays noindex and never becomes published numeric truth (1.527333ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+  '<html><head>\n' +
+    '<meta charset="utf-8"/>\n' +
+    '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+    '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="robots" content="noindex, nofollow"/>\n' +
+    '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:site_name" content="SOD1820"/>\n' +
+    '<meta property="og:locale" content="he_IL"/>\n' +
+    '<meta property="og:type" content="website"/>\n' +
+    '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:type" content="image/png"/>\n' +
+    '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+    '\n' +
+    '\n' +
+    '<meta name="twitter:card" content="summary_large_image"/>\n' +
+    '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '\n' +
+    '\n' +
+    '</head><body><div id="root">calculator shell</div></body></html>'
+
+      at canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+      at TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:53:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '<html><head>\n<meta charset="utf-8"/>\n<title>מה מסתתר בשם שלך? · SOD1820</title>\n<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="robots" content="noindex, nofollow"/>\n<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:site_name" content="SOD1820"/>\n<meta property="og:locale" content="he_IL"/>\n<meta property="og:type" content="website"/>\n<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:type" content="image/png"/>\n<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n\n\n<meta name="twitter:card" content="summary_large_image"/>\n<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n\n\n</head><body><div id="root">calculator shell</div></body></html>',
+    expected: /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at test/public-calculator-canonical-compatibility.test.mjs:45:3
+✖ /2029/gematria: initial document and sharing use the public calculator canonical (0.924441ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+  '<html><head>\n' +
+    '<meta charset="utf-8"/>\n' +
+    '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+    '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="robots" content="noindex, nofollow"/>\n' +
+    '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:site_name" content="SOD1820"/>\n' +
+    '<meta property="og:locale" content="he_IL"/>\n' +
+    '<meta property="og:type" content="website"/>\n' +
+    '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:type" content="image/png"/>\n' +
+    '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+    '\n' +
+    '\n' +
+    '<meta name="twitter:card" content="summary_large_image"/>\n' +
+    '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '\n' +
+    '\n' +
+    '</head><body><div id="root">calculator shell</div></body></html>'
+
+      at canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+      at TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:47:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '<html><head>\n<meta charset="utf-8"/>\n<title>מה מסתתר בשם שלך? · SOD1820</title>\n<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="robots" content="noindex, nofollow"/>\n<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:site_name" content="SOD1820"/>\n<meta property="og:locale" content="he_IL"/>\n<meta property="og:type" content="website"/>\n<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:type" content="image/png"/>\n<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n\n\n<meta name="twitter:card" content="summary_large_image"/>\n<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n\n\n</head><body><div id="root">calculator shell</div></body></html>',
+    expected: /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at test/public-calculator-canonical-compatibility.test.mjs:50:3
+✖ /2029/gematria: ordinary calculation stays noindex and never becomes published numeric truth (0.894617ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+  '<html><head>\n' +
+    '<meta charset="utf-8"/>\n' +
+    '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+    '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="robots" content="noindex, nofollow"/>\n' +
+    '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:site_name" content="SOD1820"/>\n' +
+    '<meta property="og:locale" content="he_IL"/>\n' +
+    '<meta property="og:type" content="website"/>\n' +
+    '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:type" content="image/png"/>\n' +
+    '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+    '\n' +
+    '\n' +
+    '<meta name="twitter:card" content="summary_large_image"/>\n' +
+    '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '\n' +
+    '\n' +
+    '</head><body><div id="root">calculator shell</div></body></html>'
+
+      at canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+      at TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:53:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '<html><head>\n<meta charset="utf-8"/>\n<title>מה מסתתר בשם שלך? · SOD1820</title>\n<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="robots" content="noindex, nofollow"/>\n<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:site_name" content="SOD1820"/>\n<meta property="og:locale" content="he_IL"/>\n<meta property="og:type" content="website"/>\n<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:type" content="image/png"/>\n<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n\n\n<meta name="twitter:card" content="summary_large_image"/>\n<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n\n\n</head><body><div id="root">calculator shell</div></body></html>',
+    expected: /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at test/public-calculator-canonical-compatibility.test.mjs:45:3
+✖ /2029/gematria/viral: initial document and sharing use the public calculator canonical (0.696198ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+  '<html><head>\n' +
+    '<meta charset="utf-8"/>\n' +
+    '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+    '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="robots" content="noindex, nofollow"/>\n' +
+    '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:site_name" content="SOD1820"/>\n' +
+    '<meta property="og:locale" content="he_IL"/>\n' +
+    '<meta property="og:type" content="website"/>\n' +
+    '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:type" content="image/png"/>\n' +
+    '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+    '\n' +
+    '\n' +
+    '<meta name="twitter:card" content="summary_large_image"/>\n' +
+    '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '\n' +
+    '\n' +
+    '</head><body><div id="root">calculator shell</div></body></html>'
+
+      at canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+      at TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:47:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '<html><head>\n<meta charset="utf-8"/>\n<title>מה מסתתר בשם שלך? · SOD1820</title>\n<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="robots" content="noindex, nofollow"/>\n<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:site_name" content="SOD1820"/>\n<meta property="og:locale" content="he_IL"/>\n<meta property="og:type" content="website"/>\n<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:type" content="image/png"/>\n<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n\n\n<meta name="twitter:card" content="summary_large_image"/>\n<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n\n\n</head><body><div id="root">calculator shell</div></body></html>',
+    expected: /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at test/public-calculator-canonical-compatibility.test.mjs:50:3
+✖ /2029/gematria/viral: ordinary calculation stays noindex and never becomes published numeric truth (0.822098ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/. Input:
+
+  '<html><head>\n' +
+    '<meta charset="utf-8"/>\n' +
+    '<title>מה מסתתר בשם שלך? · SOD1820</title>\n' +
+    '<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="robots" content="noindex, nofollow"/>\n' +
+    '<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:site_name" content="SOD1820"/>\n' +
+    '<meta property="og:locale" content="he_IL"/>\n' +
+    '<meta property="og:type" content="website"/>\n' +
+    '<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n' +
+    '<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '<meta property="og:image:type" content="image/png"/>\n' +
+    '<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n' +
+    '\n' +
+    '\n' +
+    '<meta name="twitter:card" content="summary_large_image"/>\n' +
+    '<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n' +
+    '<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n' +
+    '<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n' +
+    '\n' +
+    '\n' +
+    '</head><body><div id="root">calculator shell</div></body></html>'
+
+      at canonical (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:39:10)
+      at TestContext.<anonymous> (file:///workspace/sod1820-bd-approved/test/public-calculator-canonical-compatibility.test.mjs:53:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '<html><head>\n<meta charset="utf-8"/>\n<title>מה מסתתר בשם שלך? · SOD1820</title>\n<meta name="description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="robots" content="noindex, nofollow"/>\n<link rel="canonical" href="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:site_name" content="SOD1820"/>\n<meta property="og:locale" content="he_IL"/>\n<meta property="og:type" content="website"/>\n<meta property="og:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta property="og:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta property="og:url" content="https://sod1820.co.il/2029/gematria"/>\n<meta property="og:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:secure_url" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n<meta property="og:image:type" content="image/png"/>\n<meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>\n\n\n<meta name="twitter:card" content="summary_large_image"/>\n<meta name="twitter:title" content="מה מסתתר בשם שלך? · SOD1820"/>\n<meta name="twitter:description" content="חשבו שם, מילה או ביטוי דרך מנוע הגימטריה הקנוני של SOD1820 ופתחו מסע גילוי."/>\n<meta name="twitter:image" content="https://sod1820.co.il/api/card?w=%D7%9E%D7%94+%D7%9E%D7%A1%D7%AA%D7%AA%D7%A8+%D7%91%D7%A9%D7%9D+%D7%A9%D7%9C%D7%9A%3F&amp;sub=%D7%9E%D7%97%D7%A9%D7%91%D7%95%D7%9F+%D7%92%D7%99%D7%9E%D7%98%D7%A8%D7%99%D7%94+2029&amp;cap=%D7%97%D7%A9%D7%91+%C2%B7+%D7%92%D7%9C%D7%94+%C2%B7+%D7%A9%D7%AA%D7%A3&amp;sig=gem"/>\n\n\n</head><body><div id="root">calculator shell</div></body></html>',
+    expected: /rel="canonical" href="https:\/\/sod1820\.co\.il\/gematria"/,
+    operator: 'match',
+    diff: 'simple'
+  }
