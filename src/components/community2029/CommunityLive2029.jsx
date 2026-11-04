@@ -571,7 +571,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           communityOwnProfileHref={!actionsLocked && isOwner ? writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search }) : null}
           onCommunityReply={actionsLocked ? undefined : (item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
-        {actionsLocked ? <p className="sod29-community-registration-note" role="note">השיחות וההיסטוריה הציבורית פתוחות לקריאה. פרסום, תגובות, סימון אהבתי ופעולות חשבון עדיין אינם זמינים בגרסה זו.</p> : <div className="sod29-community-entry-tools"><CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} />{!user ? <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /> : null}</div>}
+        {!actionsLocked ? <div className="sod29-community-entry-tools"><CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} />{!user ? <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /> : null}</div> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
@@ -629,9 +629,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
         </>}
       </section></div>}
-      {!memberId && !claimId ? <footer className="sod29-community-public-footer" aria-label="השתתפות בקהילה">
-        {trailingContent && !hasThreadRequest ? <a href="#legacy-chat">{actionsLocked ? "היסטוריית הצ׳אט הוותיק ↓" : "ממשיכים לשוחח ↓"}</a> : null}
-        <p>משתפים בכבוד, מצרפים מקורות כשאפשר ושומרים על הפרטיות.</p>
+      {!memberId && !claimId && trailingContent && !hasThreadRequest ? <footer className="sod29-community-public-footer" aria-label="השתתפות בקהילה">
+        <a href="#legacy-chat">ממשיכים לשוחח ↓</a>
       </footer> : null}
       {cardId ? <div className="sod29-community-card-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCard(); }}>
         <section className="sod29-community-card" role="dialog" aria-modal="true" aria-label={`הודעות של ${memberName}`}>
