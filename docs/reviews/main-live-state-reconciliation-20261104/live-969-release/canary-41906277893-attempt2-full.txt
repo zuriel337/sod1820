@@ -1,0 +1,295 @@
+canary	Set up job	﻿2026-11-04T20:33:55.8441025Z Current runner version: '2.338.2'
+canary	Set up job	2026-11-04T20:33:55.8480218Z ##[group]Runner Image Provisioner
+canary	Set up job	2026-11-04T20:33:55.8481629Z Hosted Compute Agent
+canary	Set up job	2026-11-04T20:33:55.8482638Z Version: 20261028.624
+canary	Set up job	2026-11-04T20:33:55.8483709Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+canary	Set up job	2026-11-04T20:33:55.8485440Z Build Date: 2026-10-28T21:51:42Z
+canary	Set up job	2026-11-04T20:33:55.8486674Z Worker ID: {dd25e98f-8407-4306-9a37-9eafa57eb273}
+canary	Set up job	2026-11-04T20:33:55.8488452Z Region: eastus
+canary	Set up job	2026-11-04T20:33:55.8489416Z Cloud: Azure
+canary	Set up job	2026-11-04T20:33:55.8490305Z ##[endgroup]
+canary	Set up job	2026-11-04T20:33:55.8492838Z ##[group]Operating System
+canary	Set up job	2026-11-04T20:33:55.8493935Z Ubuntu
+canary	Set up job	2026-11-04T20:33:55.8495192Z 24.04.5
+canary	Set up job	2026-11-04T20:33:55.8496172Z LTS
+canary	Set up job	2026-11-04T20:33:55.8497100Z ##[endgroup]
+canary	Set up job	2026-11-04T20:33:55.8498367Z ##[group]Runner Image
+canary	Set up job	2026-11-04T20:33:55.8499379Z Image: ubuntu-24.04
+canary	Set up job	2026-11-04T20:33:55.8500494Z Version: 20261101.360.1
+canary	Set up job	2026-11-04T20:33:55.8502500Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+canary	Set up job	2026-11-04T20:33:55.8506151Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+canary	Set up job	2026-11-04T20:33:55.8508118Z ##[endgroup]
+canary	Set up job	2026-11-04T20:33:55.8510524Z ##[group]GITHUB_TOKEN Permissions
+canary	Set up job	2026-11-04T20:33:55.8513778Z Actions: read
+canary	Set up job	2026-11-04T20:33:55.8515104Z Contents: read
+canary	Set up job	2026-11-04T20:33:55.8516191Z Deployments: read
+canary	Set up job	2026-11-04T20:33:55.8517307Z Metadata: read
+canary	Set up job	2026-11-04T20:33:55.8518333Z Statuses: write
+canary	Set up job	2026-11-04T20:33:55.8519548Z ##[endgroup]
+canary	Set up job	2026-11-04T20:33:55.8522947Z Secret source: Actions
+canary	Set up job	2026-11-04T20:33:55.8525086Z Cache mode: write
+canary	Set up job	2026-11-04T20:33:55.8526411Z Prepare workflow directory
+canary	Set up job	2026-11-04T20:33:55.9017382Z Prepare all required actions
+canary	Set up job	2026-11-04T20:33:55.9091770Z Getting action download info
+canary	Set up job	2026-11-04T20:33:56.0851655Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+canary	Set up job	2026-11-04T20:33:56.2046021Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+canary	Set up job	2026-11-04T20:33:56.3944307Z Complete job name: canary
+canary	Checkout	﻿2026-11-04T20:33:56.4807234Z ##[group]Run actions/checkout@v4
+canary	Checkout	2026-11-04T20:33:56.4808150Z with:
+canary	Checkout	2026-11-04T20:33:56.4808600Z   repository: zuriel337/sod1820
+canary	Checkout	2026-11-04T20:33:56.4812226Z   token: ***
+canary	Checkout	2026-11-04T20:33:56.4812664Z   ssh-strict: true
+canary	Checkout	2026-11-04T20:33:56.4813104Z   ssh-user: git
+canary	Checkout	2026-11-04T20:33:56.4813551Z   persist-credentials: true
+canary	Checkout	2026-11-04T20:33:56.4814043Z   clean: true
+canary	Checkout	2026-11-04T20:33:56.4814487Z   sparse-checkout-cone-mode: true
+canary	Checkout	2026-11-04T20:33:56.4815226Z   fetch-depth: 1
+canary	Checkout	2026-11-04T20:33:56.4815661Z   fetch-tags: false
+canary	Checkout	2026-11-04T20:33:56.4816103Z   show-progress: true
+canary	Checkout	2026-11-04T20:33:56.4816543Z   lfs: false
+canary	Checkout	2026-11-04T20:33:56.4816953Z   submodules: false
+canary	Checkout	2026-11-04T20:33:56.4817406Z   set-safe-directory: true
+canary	Checkout	2026-11-04T20:33:56.4817912Z   allow-unsafe-pr-checkout: false
+canary	Checkout	2026-11-04T20:33:56.4818694Z ##[endgroup]
+canary	Checkout	2026-11-04T20:33:56.7888403Z Syncing repository: zuriel337/sod1820
+canary	Checkout	2026-11-04T20:33:56.7891572Z ##[group]Getting Git version info
+canary	Checkout	2026-11-04T20:33:56.7892999Z Working directory is '/home/runner/work/sod1820/sod1820'
+canary	Checkout	2026-11-04T20:33:56.7894920Z [command]/usr/bin/git version
+canary	Checkout	2026-11-04T20:33:56.7982045Z git version 2.56.0
+canary	Checkout	2026-11-04T20:33:56.8012327Z ##[endgroup]
+canary	Checkout	2026-11-04T20:33:56.8029217Z Temporarily overriding HOME='/home/runner/work/_temp/73409a1f-93a7-4053-98bc-0a2fcd728fd1' before making global git config changes
+canary	Checkout	2026-11-04T20:33:56.8032507Z Adding repository directory to the temporary git global config as a safe directory
+canary	Checkout	2026-11-04T20:33:56.8035750Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sod1820/sod1820
+canary	Checkout	2026-11-04T20:33:56.8099296Z Deleting the contents of '/home/runner/work/sod1820/sod1820'
+canary	Checkout	2026-11-04T20:33:56.8103765Z ##[group]Initializing the repository
+canary	Checkout	2026-11-04T20:33:56.8108103Z [command]/usr/bin/git init /home/runner/work/sod1820/sod1820
+canary	Checkout	2026-11-04T20:33:56.8269822Z hint: Using 'master' as the name for the initial branch. This default branch name
+canary	Checkout	2026-11-04T20:33:56.8272530Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+canary	Checkout	2026-11-04T20:33:56.8274347Z hint: to use in all of your new repositories, which will suppress this warning,
+canary	Checkout	2026-11-04T20:33:56.8276365Z hint: call:
+canary	Checkout	2026-11-04T20:33:56.8277198Z hint:
+canary	Checkout	2026-11-04T20:33:56.8278194Z hint: 	git config --global init.defaultBranch <name>
+canary	Checkout	2026-11-04T20:33:56.8279412Z hint:
+canary	Checkout	2026-11-04T20:33:56.8280558Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+canary	Checkout	2026-11-04T20:33:56.8282396Z hint: 'development'. The just-created branch can be renamed via this command:
+canary	Checkout	2026-11-04T20:33:56.8283914Z hint:
+canary	Checkout	2026-11-04T20:33:56.8284935Z hint: 	git branch -m <name>
+canary	Checkout	2026-11-04T20:33:56.8285873Z hint:
+canary	Checkout	2026-11-04T20:33:56.8287034Z hint: Disable this message with "git config set advice.defaultBranchName false"
+canary	Checkout	2026-11-04T20:33:56.8303476Z Initialized empty Git repository in /home/runner/work/sod1820/sod1820/.git/
+canary	Checkout	2026-11-04T20:33:56.8314159Z [command]/usr/bin/git remote add origin https://github.com/zuriel337/sod1820
+canary	Checkout	2026-11-04T20:33:56.8368101Z ##[endgroup]
+canary	Checkout	2026-11-04T20:33:56.8369836Z ##[group]Disabling automatic garbage collection
+canary	Checkout	2026-11-04T20:33:56.8371260Z [command]/usr/bin/git config --local gc.auto 0
+canary	Checkout	2026-11-04T20:33:56.8405586Z ##[endgroup]
+canary	Checkout	2026-11-04T20:33:56.8407092Z ##[group]Setting up auth
+canary	Checkout	2026-11-04T20:33:56.8412081Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+canary	Checkout	2026-11-04T20:33:56.8457283Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+canary	Checkout	2026-11-04T20:33:56.8917442Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+canary	Checkout	2026-11-04T20:33:56.8968231Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+canary	Checkout	2026-11-04T20:33:56.9256917Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+canary	Checkout	2026-11-04T20:33:56.9302490Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+canary	Checkout	2026-11-04T20:33:56.9557998Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+canary	Checkout	2026-11-04T20:33:56.9608749Z ##[endgroup]
+canary	Checkout	2026-11-04T20:33:56.9609691Z ##[group]Fetching the repository
+canary	Checkout	2026-11-04T20:33:56.9621971Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +969b51423d8b67b7b8061d067b5366e1e2a1c5e4:refs/remotes/origin/main
+canary	Checkout	2026-11-04T20:34:01.7028067Z From https://github.com/zuriel337/sod1820
+canary	Checkout	2026-11-04T20:34:01.7029997Z  * [new ref]         969b51423d8b67b7b8061d067b5366e1e2a1c5e4 -> origin/main
+canary	Checkout	2026-11-04T20:34:01.7034038Z ##[endgroup]
+canary	Checkout	2026-11-04T20:34:01.7035760Z ##[group]Determining the checkout info
+canary	Checkout	2026-11-04T20:34:01.7037633Z ##[endgroup]
+canary	Checkout	2026-11-04T20:34:01.7042583Z [command]/usr/bin/git sparse-checkout disable
+canary	Checkout	2026-11-04T20:34:01.7103769Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+canary	Checkout	2026-11-04T20:34:01.7144175Z ##[group]Checking out the ref
+canary	Checkout	2026-11-04T20:34:01.7155872Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+canary	Checkout	2026-11-04T20:34:02.7253403Z Updating files:  86% (4761/5477)
+canary	Checkout	2026-11-04T20:34:02.7294604Z Updating files:  87% (4765/5477)
+canary	Checkout	2026-11-04T20:34:02.7341130Z Updating files:  88% (4820/5477)
+canary	Checkout	2026-11-04T20:34:02.7377671Z Updating files:  89% (4875/5477)
+canary	Checkout	2026-11-04T20:34:02.7415948Z Updating files:  90% (4930/5477)
+canary	Checkout	2026-11-04T20:34:02.7465484Z Updating files:  91% (4985/5477)
+canary	Checkout	2026-11-04T20:34:02.7517898Z Updating files:  92% (5039/5477)
+canary	Checkout	2026-11-04T20:34:02.7557630Z Updating files:  93% (5094/5477)
+canary	Checkout	2026-11-04T20:34:02.7598293Z Updating files:  94% (5149/5477)
+canary	Checkout	2026-11-04T20:34:02.7628736Z Updating files:  95% (5204/5477)
+canary	Checkout	2026-11-04T20:34:02.7669099Z Updating files:  96% (5258/5477)
+canary	Checkout	2026-11-04T20:34:02.7708382Z Updating files:  97% (5313/5477)
+canary	Checkout	2026-11-04T20:34:02.7745856Z Updating files:  98% (5368/5477)
+canary	Checkout	2026-11-04T20:34:02.8312253Z Updating files:  99% (5423/5477)
+canary	Checkout	2026-11-04T20:34:02.8312853Z Updating files: 100% (5477/5477)
+canary	Checkout	2026-11-04T20:34:02.8313308Z Updating files: 100% (5477/5477), done.
+canary	Checkout	2026-11-04T20:34:02.8377037Z Switched to a new branch 'main'
+canary	Checkout	2026-11-04T20:34:02.8380395Z branch 'main' set up to track 'origin/main'.
+canary	Checkout	2026-11-04T20:34:02.8443316Z ##[endgroup]
+canary	Checkout	2026-11-04T20:34:02.8500162Z [command]/usr/bin/git log -1 --format=%H
+canary	Checkout	2026-11-04T20:34:02.8537917Z 969b51423d8b67b7b8061d067b5366e1e2a1c5e4
+canary	Setup Node	﻿2026-11-04T20:34:02.8857630Z ##[group]Run actions/setup-node@v4
+canary	Setup Node	2026-11-04T20:34:02.8857959Z with:
+canary	Setup Node	2026-11-04T20:34:02.8858190Z   node-version-file: .nvmrc
+canary	Setup Node	2026-11-04T20:34:02.8858447Z   always-auth: false
+canary	Setup Node	2026-11-04T20:34:02.8858674Z   check-latest: false
+canary	Setup Node	2026-11-04T20:34:02.8861035Z   token: ***
+canary	Setup Node	2026-11-04T20:34:02.8861248Z ##[endgroup]
+canary	Setup Node	2026-11-04T20:34:03.0274919Z Node version file is not JSON file
+canary	Setup Node	2026-11-04T20:34:03.0277247Z Resolved .nvmrc as 24.21.0
+canary	Setup Node	2026-11-04T20:34:03.0300939Z Attempting to download 24.21.0...
+canary	Setup Node	2026-11-04T20:34:03.0465369Z (node:2381) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+canary	Setup Node	2026-11-04T20:34:03.0466706Z (Use `node --trace-deprecation ...` to show where the warning was created)
+canary	Setup Node	2026-11-04T20:34:03.6240817Z Acquiring 24.21.0 - x64 from https://github.com/actions/node-versions/releases/download/24.21.0-34304089047/node-24.21.0-linux-x64.tar.gz
+canary	Setup Node	2026-11-04T20:34:04.0146241Z Extracting ...
+canary	Setup Node	2026-11-04T20:34:04.0303978Z [command]/usr/bin/tar xz --strip 1 --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/ab0e19b1-07cf-4614-803d-f90874126265 -f /home/runner/work/_temp/f092db79-8935-43e2-a07e-10cecf33d41e
+canary	Setup Node	2026-11-04T20:34:05.2416000Z Adding to the cache ...
+canary	Setup Node	2026-11-04T20:34:06.8928999Z ##[group]Environment details
+canary	Setup Node	2026-11-04T20:34:07.1447067Z node: v24.21.0
+canary	Setup Node	2026-11-04T20:34:07.1447441Z npm: 11.19.0
+canary	Setup Node	2026-11-04T20:34:07.1447745Z yarn: 1.22.22
+canary	Setup Node	2026-11-04T20:34:07.1448469Z ##[endgroup]
+canary	Resolve exact deployed SHA, URL and sparse budget	﻿2026-11-04T20:34:07.1681963Z ##[group]Run set -euo pipefail
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1682364Z set -euo pipefail
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1682629Z KIND="manual"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1682872Z SKIP="false"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1683143Z resolve_latest_production_sha() {
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1683458Z   local id="" state=""
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1684007Z   for i in $(gh api "repos/zuriel337/sod1820/deployments?environment=Production&per_page=20" --jq '.[].id'); do
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1685143Z     state=$(gh api "repos/zuriel337/sod1820/deployments/$i/statuses?per_page=1" --jq '.[0].state')
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1685714Z     if [ "$state" = "success" ]; then id="$i"; break; fi
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1686031Z   done
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1686406Z   if [ -z "$id" ]; then echo "::error::no successful Production deployment" >&2; return 1; fi
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1686957Z   gh api "repos/zuriel337/sod1820/deployments/$id" --jq '.sha'
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1687348Z }
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1687583Z if [ "$EVENT" = "deployment_status" ]; then
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1687893Z   SHA="$EVENT_SHA"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1688171Z   URL="https://sod1820.co.il"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1688450Z   KIND="deploy"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1688769Z   CURRENT_PRODUCTION_SHA="$(resolve_latest_production_sha)"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1689181Z   if [ "$CURRENT_PRODUCTION_SHA" != "$SHA" ]; then
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1689730Z     echo "::error::Production alias is not bound to event SHA: event=$SHA current=$CURRENT_PRODUCTION_SHA"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1690227Z     exit 1
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1690430Z   fi
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1690625Z else
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1690866Z   SHA="$(resolve_latest_production_sha)"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1691380Z   URL="https://sod1820.co.il"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1691729Z   if [ "$EVENT" = "schedule" ]; then KIND="scheduled"; fi
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1692103Z   TODAY="$(date -u +%Y-%m-%dT00:00:00Z)"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1693085Z   COUNT=$(gh api "repos/zuriel337/sod1820/actions/workflows/post-deploy-canary.yml/runs?per_page=100"               --jq "[.workflow_runs[] | select((.event == \"schedule\" or .event == \"workflow_dispatch\") and .created_at >= \"$TODAY\")] | length")
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1694086Z   if [ "$COUNT" -gt 4 ]; then SKIP="true"; fi
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1694378Z fi
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1695007Z if [ -z "$SHA" ] || [ -z "$URL" ]; then echo "::error::could not resolve exact SHA/URL"; exit 1; fi
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1695482Z echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1695783Z echo "url=$URL" >> "$GITHUB_OUTPUT"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1696085Z echo "kind=$KIND" >> "$GITHUB_OUTPUT"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1696403Z echo "skip=$SKIP" >> "$GITHUB_OUTPUT"
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1722134Z shell: /usr/bin/bash -e {0}
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1722437Z env:
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1725224Z   GH_TOKEN: ***
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1725462Z   EVENT: schedule
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1725670Z   EVENT_SHA:
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1725865Z   EVENT_URL:
+canary	Resolve exact deployed SHA, URL and sparse budget	2026-11-04T20:34:07.1726061Z ##[endgroup]
+canary	Canary	﻿2026-11-04T20:34:10.7918326Z ##[group]Run node scripts/post-deploy-canary.mjs --url "$TARGET_URL" --sha "$TARGET_SHA" --kind "$CANARY_KIND"
+canary	Canary	2026-11-04T20:34:10.7919132Z node scripts/post-deploy-canary.mjs --url "$TARGET_URL" --sha "$TARGET_SHA" --kind "$CANARY_KIND"
+canary	Canary	2026-11-04T20:34:10.7940269Z shell: /usr/bin/bash -e {0}
+canary	Canary	2026-11-04T20:34:10.7940525Z env:
+canary	Canary	2026-11-04T20:34:10.7940745Z   TARGET_URL: https://sod1820.co.il
+canary	Canary	2026-11-04T20:34:10.7941068Z   TARGET_SHA: 969b51423d8b67b7b8061d067b5366e1e2a1c5e4
+canary	Canary	2026-11-04T20:34:10.7941385Z   CANARY_KIND: scheduled
+canary	Canary	2026-11-04T20:34:10.7941609Z ##[endgroup]
+canary	Canary	2026-11-04T20:34:26.3468863Z {
+canary	Canary	2026-11-04T20:34:26.3469579Z   "sha": "969b51423d8b67b7b8061d067b5366e1e2a1c5e4",
+canary	Canary	2026-11-04T20:34:26.3470192Z   "url": "https://sod1820.co.il",
+canary	Canary	2026-11-04T20:34:26.3470657Z   "kind": "scheduled",
+canary	Canary	2026-11-04T20:34:26.3470931Z   "ok": true,
+canary	Canary	2026-11-04T20:34:26.3471132Z   "checks": [
+canary	Canary	2026-11-04T20:34:26.3471324Z     {
+canary	Canary	2026-11-04T20:34:26.3471526Z       "name": "home_200",
+canary	Canary	2026-11-04T20:34:26.3471756Z       "ok": true,
+canary	Canary	2026-11-04T20:34:26.3472065Z       "detail": "status=200"
+canary	Canary	2026-11-04T20:34:26.3472316Z     },
+canary	Canary	2026-11-04T20:34:26.3472504Z     {
+canary	Canary	2026-11-04T20:34:26.3472739Z       "name": "home_has_root",
+canary	Canary	2026-11-04T20:34:26.3473006Z       "ok": true,
+canary	Canary	2026-11-04T20:34:26.3473218Z       "detail": ""
+canary	Canary	2026-11-04T20:34:26.3473421Z     },
+canary	Canary	2026-11-04T20:34:26.3473599Z     {
+canary	Canary	2026-11-04T20:34:26.3473821Z       "name": "home_has_entry_bundle",
+canary	Canary	2026-11-04T20:34:26.3474091Z       "ok": true,
+canary	Canary	2026-11-04T20:34:26.3474298Z       "detail": ""
+canary	Canary	2026-11-04T20:34:26.3474521Z     },
+canary	Canary	2026-11-04T20:34:26.3475080Z     {
+canary	Canary	2026-11-04T20:34:26.3475514Z       "name": "entry_bundle_200",
+canary	Canary	2026-11-04T20:34:26.3475862Z       "ok": true,
+canary	Canary	2026-11-04T20:34:26.3476116Z       "detail": "status=200 bytes=273271"
+canary	Canary	2026-11-04T20:34:26.3476386Z     },
+canary	Canary	2026-11-04T20:34:26.3476609Z     {
+canary	Canary	2026-11-04T20:34:26.3476808Z       "name": "robots_200",
+canary	Canary	2026-11-04T20:34:26.3477045Z       "ok": true,
+canary	Canary	2026-11-04T20:34:26.3477273Z       "detail": "status=200"
+canary	Canary	2026-11-04T20:34:26.3477509Z     },
+canary	Canary	2026-11-04T20:34:26.3477687Z     {
+canary	Canary	2026-11-04T20:34:26.3477883Z       "name": "sitemap_200",
+canary	Canary	2026-11-04T20:34:26.3478114Z       "ok": true,
+canary	Canary	2026-11-04T20:34:26.3478326Z       "detail": "status=200"
+canary	Canary	2026-11-04T20:34:26.3478561Z     },
+canary	Canary	2026-11-04T20:34:26.3478741Z     {
+canary	Canary	2026-11-04T20:34:26.3478974Z       "name": "health_watch_heartbeat",
+canary	Canary	2026-11-04T20:34:26.3479245Z       "ok": true,
+canary	Canary	2026-11-04T20:34:26.3479520Z       "detail": "age_minutes=4.4 max_age_minutes=45"
+canary	Canary	2026-11-04T20:34:26.3479816Z     }
+canary	Canary	2026-11-04T20:34:26.3480003Z   ],
+canary	Canary	2026-11-04T20:34:26.3480193Z   "heartbeat": {
+canary	Canary	2026-11-04T20:34:26.3480749Z     "healthy": true,
+canary	Canary	2026-11-04T20:34:26.3480980Z     "age_minutes": 4.4,
+canary	Canary	2026-11-04T20:34:26.3481213Z     "max_age_minutes": 45
+canary	Canary	2026-11-04T20:34:26.3481440Z   }
+canary	Canary	2026-11-04T20:34:26.3481621Z }
+canary	Re-confirm exact Production SHA after smoke	﻿2026-11-04T20:34:26.3575023Z ##[group]Run set -euo pipefail
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3575391Z set -euo pipefail
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3575639Z ID=""
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3576118Z for i in $(gh api "repos/zuriel337/sod1820/deployments?environment=Production&per_page=20" --jq '.[].id'); do
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3576859Z   S=$(gh api "repos/zuriel337/sod1820/deployments/$i/statuses?per_page=1" --jq '.[0].state')
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3577403Z   if [ "$S" = "success" ]; then ID="$i"; break; fi
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3577710Z done
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3578101Z if [ -z "$ID" ]; then echo "::error::no successful Production deployment after smoke"; exit 1; fi
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3578681Z CURRENT_SHA=$(gh api "repos/zuriel337/sod1820/deployments/$ID" --jq '.sha')
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3579138Z if [ "$CURRENT_SHA" != "$EXPECTED_SHA" ]; then
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3579659Z   echo "::error::Production SHA changed during canary: expected=$EXPECTED_SHA current=$CURRENT_SHA"
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3580182Z   exit 1
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3580387Z fi
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3601182Z shell: /usr/bin/bash -e {0}
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3601446Z env:
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3603862Z   GH_TOKEN: ***
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3604134Z   EXPECTED_SHA: 969b51423d8b67b7b8061d067b5366e1e2a1c5e4
+canary	Re-confirm exact Production SHA after smoke	2026-11-04T20:34:26.3604463Z ##[endgroup]
+canary	Record exact-SHA canary status	﻿2026-11-04T20:34:27.1133220Z ##[group]Run set -euo pipefail
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1133581Z set -euo pipefail
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1133833Z STATE="failure"
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1134105Z DESCRIPTION="Post-deploy canary failed"
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1134497Z if [ "success" = "success" ] && [ "success" = "success" ]; then
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1135172Z   STATE="success"
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1135468Z   DESCRIPTION="Post-deploy canary passed"
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1135760Z fi
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1136813Z gh api --method POST "repos/zuriel337/sod1820/statuses/969b51423d8b67b7b8061d067b5366e1e2a1c5e4"             -f state="$STATE"             -f context="sod1820/post-deploy-canary"             -f description="$DESCRIPTION"             -f target_url="https://github.com/zuriel337/sod1820/actions/runs/41906277893"
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1158038Z shell: /usr/bin/bash -e {0}
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1158312Z env:
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1160735Z   GH_TOKEN: ***
+canary	Record exact-SHA canary status	2026-11-04T20:34:27.1160978Z ##[endgroup]
+canary	Record exact-SHA canary status	2026-11-04T20:34:28.0776960Z {"url":"https://api.github.com/repos/zuriel337/sod1820/statuses/969b51423d8b67b7b8061d067b5366e1e2a1c5e4","avatar_url":"https://avatars.githubusercontent.com/in/15368?v=4","id":58086354835,"node_id":"SC_kwDOSwmW2s8AAAANhjdvkw","state":"success","description":"Post-deploy canary passed","target_url":"https://github.com/zuriel337/sod1820/actions/runs/41906277893","context":"sod1820/post-deploy-canary","created_at":"2026-11-04T20:34:27Z","updated_at":"2026-11-04T20:34:27Z","creator":{"login":"github-actions[bot]","id":41898282,"node_id":"MDM6Qm90NDE4OTgyODI=","avatar_url":"https://avatars.githubusercontent.com/in/15368?v=4","gravatar_id":"","url":"https://api.github.com/users/github-actions%5Bbot%5D","html_url":"https://github.com/apps/github-actions","followers_url":"https://api.github.com/users/github-actions%5Bbot%5D/followers","following_url":"https://api.github.com/users/github-actions%5Bbot%5D/following{/other_user}","gists_url":"https://api.github.com/users/github-actions%5Bbot%5D/gists{/gist_id}","starred_url":"https://api.github.com/users/github-actions%5Bbot%5D/starred{/owner}{/repo}","subscriptions_url":"https://api.github.com/users/github-actions%5Bbot%5D/subscriptions","organizations_url":"https://api.github.com/users/github-actions%5Bbot%5D/orgs","repos_url":"https://api.github.com/users/github-actions%5Bbot%5D/repos","events_url":"https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}","received_events_url":"https://api.github.com/users/github-actions%5Bbot%5D/received_events","type":"Bot","user_view_type":"public","site_admin":false}}
+canary	Post Setup Node	﻿2026-11-04T20:34:28.0885779Z Post job cleanup.
+canary	Post Setup Node	2026-11-04T20:34:28.2175059Z (node:2485) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+canary	Post Setup Node	2026-11-04T20:34:28.2175937Z (Use `node --trace-deprecation ...` to show where the warning was created)
+canary	Post Checkout	﻿2026-11-04T20:34:28.2412747Z Post job cleanup.
+canary	Post Checkout	2026-11-04T20:34:28.3370047Z [command]/usr/bin/git version
+canary	Post Checkout	2026-11-04T20:34:28.3421359Z git version 2.56.0
+canary	Post Checkout	2026-11-04T20:34:28.3468289Z Temporarily overriding HOME='/home/runner/work/_temp/a3f445d5-dde5-4f46-ae05-acc84707fa8a' before making global git config changes
+canary	Post Checkout	2026-11-04T20:34:28.3470133Z Adding repository directory to the temporary git global config as a safe directory
+canary	Post Checkout	2026-11-04T20:34:28.3477919Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/sod1820/sod1820
+canary	Post Checkout	2026-11-04T20:34:28.3527256Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+canary	Post Checkout	2026-11-04T20:34:28.3588640Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+canary	Post Checkout	2026-11-04T20:34:28.3869344Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+canary	Post Checkout	2026-11-04T20:34:28.3902427Z http.https://github.com/.extraheader
+canary	Post Checkout	2026-11-04T20:34:28.3919011Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+canary	Post Checkout	2026-11-04T20:34:28.3959619Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+canary	Post Checkout	2026-11-04T20:34:28.4320171Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+canary	Post Checkout	2026-11-04T20:34:28.4368983Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+canary	Complete job	﻿2026-11-04T20:34:28.4811716Z Cleaning up orphan processes
+canary	Complete job	2026-11-04T20:34:28.5218767Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

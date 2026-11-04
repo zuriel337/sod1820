@@ -1,0 +1,31 @@
+[
+  {
+    "origin": "https://www.sod1820.co.il",
+    "status": 308,
+    "location": "https://sod1820.co.il/gematria?part=2&part=7&q=%D7%9E%D7%A9%D7%99%D7%97"
+  },
+  {
+    "origin": "https://sod1820.vercel.app",
+    "status": 308,
+    "location": "https://sod1820.co.il/gematria?part=2&part=7&q=%D7%9E%D7%A9%D7%99%D7%97"
+  },
+  {
+    "manifestName": "כי לה' המלוכה — סוד 1820",
+    "icon": "/brand/2029/app-icon-3f8a2a2fdc0a.png",
+    "iconStatus": 200,
+    "iconSha256": "3f8a2a2fdc0a5a141d10b63bc633eefbd9ba2bfe7dbf7521f3984c21830dcd18",
+    "exactRegistered2029Icon": true
+  },
+  {
+    "case": "ordinary-browser",
+    "status": 200
+  },
+  {
+    "case": "bad-bot",
+    "status": 403
+  },
+  {
+    "case": "public-crawler",
+    "status": 200
+  }
+]

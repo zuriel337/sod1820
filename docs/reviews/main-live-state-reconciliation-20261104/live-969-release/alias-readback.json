@@ -1,0 +1,20 @@
+[
+  {
+    "alias": "sod1820.co.il",
+    "uid": "0167ce774dd739abcc6fd5ce24fa61cfc3033c55b466fce6f74149a07cea4a1d311ffa2f04e772bff7e10cd5e9294178b27b8934cbe6acd63007a019f7f91765",
+    "deploymentId": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+    "created": "2026-06-13T19:13:31.479Z"
+  },
+  {
+    "alias": "www.sod1820.co.il",
+    "uid": "cc87dab0d053a8b0091a0324d5944fb1eac626ba45d961c760bf965c826dc1f5d367cef1e41a53d7bc01661b996a61c4f6f2e114ce476f1dfc1f7b87f4710a9e",
+    "deploymentId": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+    "created": "2026-06-13T19:13:31.839Z"
+  },
+  {
+    "alias": "sod1820.vercel.app",
+    "uid": "752ba5ca5a3fe4c1168eb7f6c0b268acfc0739950a499767df6e4b42b4ea525ea21d3266d00804013378cb7c5c68cc69aa9428b7e3c3e1e25fb915d90bc1ee19",
+    "deploymentId": "dpl_xw7fECMyWRrZvxxKdy71yobAhj8h",
+    "created": "2026-06-04T03:55:34.247Z"
+  }
+]
