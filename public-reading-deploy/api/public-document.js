@@ -85,7 +85,7 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       let metadata = "", metadataLocation = null, status = state === "missing" ? 404 : 200;
       // Closed and unknown addresses never invoke unrelated/private readers.
       const metadataPath = state === "account" ? "/login" : ({ "/2029": "/", "/2029/posts": "/post",
-        "/2029/gematria/viral": "/2029/gematria", "/2029/calculator": "/2029/gematria" })[path] || path;
+        "/2029/gematria": "/gematria", "/2029/gematria/viral": "/gematria", "/2029/calculator": "/gematria" })[path] || path;
       await metadataHandler({ ...req,
         publicFoundationPreview: true,
         publicReadingRelease: PUBLIC_READING_PROFILE_ID,
