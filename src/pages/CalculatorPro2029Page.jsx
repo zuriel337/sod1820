@@ -51,8 +51,10 @@ const MethodTile = React.memo(function MethodTile({ method, active, sameCount, o
   const unavailable = calculationAvailabilityLabel(method);
   const note = equivalentTo ? `≡ זהה ל${equivalentTo}` : method.previewOnly
     ? (method.pendingNote || "מיידי")
-    : (EXCEPTIONAL_STATE_HE[method.exceptionalState] || unavailable
-      || (sameCount > 0 ? (sameCount === 1 ? "זהה גם בשיטה נוספת" : `זהה גם ב־${sameCount} שיטות`) : null));
+    : (EXCEPTIONAL_STATE_HE[method.exceptionalState] || unavailable || null);
+  // The tile's third line is reserved for material states only (derived / equivalent / composite / contextual /
+  // unavailable …) and the locked "≡ identical to base" note. "Same value in other methods" is no longer
+  // spelled out per tile (it carried no information a reader could act on).
   const tileClass = `sod29-calcpro-tile${active ? " is-active" : ""}${sameCount > 0 ? " is-same" : ""}${method.previewOnly ? " is-preview" : ""}${equivalentTo ? " is-equivalent" : ""}`;
   const inner = (
     <>

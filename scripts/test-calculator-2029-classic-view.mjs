@@ -47,4 +47,5 @@ assert.equal(dailyWordFor(new Date(2026, 10, 5)), dailyWordFor(new Date(2027, 2,
 // unscoped rule used to turn the controls row into a 124px/1fr/74px grid (tabs, status and "מתקדם" on 3 rows).
 assert.match(css, /\.sod29-calcpro-command \.sod29-calcpro-bar \{\s*display: flex;\s*grid-template-columns: none;/);
 assert.doesNotMatch(css, /^\.sod29-calcpro-bar \{\s*display: flex;/m, "no unscoped flex rule that the grid method-bar rule can override");
+assert.doesNotMatch(page, /זהה גם/, "tiles no longer carry the 'same in another method' wording");
 console.log("Calculator 2029 classic-default view contract: PASS");
