@@ -59,3 +59,11 @@
 @media (prefers-reduced-motion: reduce) {
   .sod29-history-seal summary { scroll-behavior: auto; }
 }
+
+.sod29-community-author-identity {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem;
+  max-width: 100%;
+}
