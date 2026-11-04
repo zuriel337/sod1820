@@ -48,7 +48,7 @@ export default function MethodLens2029({ selection, compact = false, autoOpen = 
   if (!requestedKey) {
     return <section className="sod29-method-lens is-idle" data-method-lens="idle">
       <div>
-        <span>METHOD LENS</span>
+        <span>עדשת שיטה</span>
         <strong>מה יש בתוך {selection.methodLabel || selection.methodKey} = {selection.resultValue}?</strong>
         <small>הביטויים עצמם · מאגר מאומת · נרמול מנוע · בלי AI</small>
       </div>
@@ -59,7 +59,7 @@ export default function MethodLens2029({ selection, compact = false, autoOpen = 
   return <section className={"sod29-method-lens" + (compact ? " is-compact" : "")} data-method-lens="evidence" aria-busy={state.loading}>
     <header>
       <div>
-        <span>METHOD LENS · EVIDENCE FIRST</span>
+        <span>עדשת שיטה · הראיות קודם</span>
         <strong>{selection.methodLabel || selection.methodKey} = {selection.resultValue}</strong>
         <small>{selection.expression} · המידע עצמו, לא סיכום AI</small>
       </div>
@@ -71,7 +71,7 @@ export default function MethodLens2029({ selection, compact = false, autoOpen = 
     </header>
 
     {state.loading ? <div className="sod29-method-lens-state">פותח התאמות מאומתות ומנרמל יחסים…</div> : null}
-    {state.error ? <div className="sod29-method-lens-state is-error">Method Lens לא זמין כרגע. החישוב עצמו נשאר תקין.</div> : null}
+    {state.error ? <div className="sod29-method-lens-state is-error">עדשת השיטה לא זמינה כרגע. החישוב עצמו נשאר תקין.</div> : null}
     {data && !items.length ? <div className="sod29-method-lens-state">אין כרגע ביטוי נוסף מאומת בשיטה ובערך האלה.</div> : null}
 
     {primary.length ? <div className="sod29-method-lens-list" role="list">

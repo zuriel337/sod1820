@@ -37,12 +37,19 @@ const EXCEPTIONAL_STATE_HE = Object.freeze({
   unavailable: "לא זמין",
 });
 
+// Presentation copy only: the calculator reuses the "number" entry surface for dock/feature/telemetry
+// behaviour, but must not tell the visitor they are looking at a Number page.
+const CALCULATOR_ORIENTATION_COPY = Object.freeze({
+  label: "מה אני רואה במחשבון?",
+  body: "הקלידו שם, מילה או ביטוי: כל שיטה מציגה ערך משלה. בחרו שיטה כדי לראות את הצעדים שלה; בלשונית למד תמצאו הדרכה עם הביטוי שהקלדתם.",
+});
+
 const MethodTile = React.memo(function MethodTile({ method, active, sameCount, onChoose }) {
   const unavailable = calculationAvailabilityLabel(method);
   const note = method.previewOnly
     ? (method.pendingNote || "מיידי")
     : (EXCEPTIONAL_STATE_HE[method.exceptionalState] || unavailable
-      || (sameCount > 0 ? `שווה ל־${sameCount} נוספות` : null));
+      || (sameCount > 0 ? (sameCount === 1 ? "זהה גם בשיטה נוספת" : `זהה גם ב־${sameCount} שיטות`) : null));
   return (
     <button
       type="button"
@@ -456,8 +463,8 @@ function ProExperience() {
           id="calculator-pro-input"
           value={row.draft}
           onChange={(event) => row.setDraft(event.target.value)}
-          placeholder="שם, מילה או ביטוי · עברית או English"
-          dir="auto"
+          placeholder={"שם, מילה או ביטוי · עברית או \u2066English\u2069"}
+          dir={row.draft ? "auto" : "rtl"}
           autoComplete="off"
           spellCheck="false"
           aria-describedby="calculator-pro-status"
@@ -605,6 +612,7 @@ export default function CalculatorPro2029Page() {
     <Sod2029Shell
       wide
       surface="number"
+      orientationCopy={CALCULATOR_ORIENTATION_COPY}
       introVariant="none"
       symbol="∑"
       eyebrow="מחשבון מקצועי"

@@ -1454,6 +1454,7 @@ export default function SystemFrame2029({
   status = "2029 · BUILD",
   wide = false,
   surface = "home",
+  orientationCopy = null,
   symbol = "✦",
   introVariant = "hero",
 }) {
@@ -2144,13 +2145,13 @@ export default function SystemFrame2029({
           {orientation.mode !== "hidden" && orientation.manifest ? (() => {
             const mark = <LearnMark2029
               scope={LEARN_SCOPE.SURFACE}
-              label={orientation.manifest.label}
+              label={orientationCopy?.label || orientation.manifest.label}
               compact={orientation.mode === "compact"}
               prominent={orientation.mode === "prominent"}
               onOpen={expandOrientation}
               onDismiss={orientation.mode === "prominent" ? dismissOrientation : null}
             >
-              <p>{orientation.manifest.body}</p>
+              <p>{orientationCopy?.body || orientation.manifest.body}</p>
               <p><strong>{experience.experience.question}</strong></p>
             </LearnMark2029>;
             return orientationHost && surface === "post"
