@@ -1,3 +1,4 @@
+import { SUPABASE_ANON } from "../src/lib/supabase.js";
 // Vercel Serverless Function — תובנות Google Analytics (GA4) חיות לדאשבורד.
 // מושך דרך GA4 Data API מערך מלא: סך הכל + מעורבות, זמן-אמת (כולל מה צופים עכשיו),
 // מדינות *עם זמן שהייה*, ערים, ערוצים/מקורות/מדיום, מכשירים/מערכת/דפדפן/שפה,
@@ -10,7 +11,7 @@
 import crypto from 'crypto';
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBiYXNlIiwicmVmIjoibGluc3dtbm5ranh2d2V1bXByYXYiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4MDYyODc2MiwiZXhwIjoyMDk2MjA0NzYyfQ.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+const ANON = SUPABASE_ANON;
 
 async function getAdminToken(req) {
   try {
@@ -77,7 +78,7 @@ function gaDailyRows(data) {
   }).filter(x => x.date && x.views > 0);
 }
 
-export default async function handler(req, res) {
+export async function gaInsightsHandler(req, res, { refreshCountryHistory = true } = {}) {
   const adminToken = await getAdminToken(req);
   if (!adminToken) { res.status(401).json({ error: 'unauthorized' }); return; }
 
@@ -151,11 +152,14 @@ export default async function handler(req, res) {
     // Refresh the Israel history through that same authenticated path so a transient POST/session-race
     // on /api/ga-sync cannot block the canonical country history. RPC remains admin-gated in DB.
     const ilRows = gaDailyRows(ilDailyHistory);
-    const countryHistory = { source: 'ga:country:IL', fetched: ilRows.length, written: 0 };
-    try {
-      countryHistory.written = num(await callRpc(adminToken, 'ingest_ga_country_daily', { p_rows: ilRows, p_country_id: 'IL' }));
-    } catch (persistErr) {
-      countryHistory.error = String(persistErr?.message || persistErr).slice(0, 180);
+    const countryHistory = { source: 'ga:country:IL', fetched: ilRows.length,
+      written: refreshCountryHistory ? 0 : null, state: refreshCountryHistory ? 'requested' : 'not_requested' };
+    if (refreshCountryHistory) {
+      try {
+        countryHistory.written = num(await callRpc(adminToken, 'ingest_ga_country_daily', { p_rows: ilRows, p_country_id: 'IL' }));
+      } catch (persistErr) {
+        countryHistory.error = String(persistErr?.message || persistErr).slice(0, 180);
+      }
     }
 
     const t = totals.rows?.[0]?.metricValues || [];
@@ -189,3 +193,6 @@ export default async function handler(req, res) {
     res.status(200).json({ configured: true, error: String(e.message || e) });
   }
 }
+
+// Legacy retains its existing explicitly documented history-refresh behavior.
+export default function handler(req, res) { return gaInsightsHandler(req, res); }

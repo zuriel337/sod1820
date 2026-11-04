@@ -875,14 +875,14 @@
   {
     "id": "F30",
     "old_address": "/admin; /edit…; /traffic; /reports; /2029/control",
-    "evidence": "App.jsx; Admin admission;12.48/49 source073/3c/98d + hosted16",
+    "evidence": "App.jsx; Admin admission;12.48/49 source073/3c/98d + hosted16;12.57 branch-only observability2c/3t6; main-live-state-reconciliation-20261104/public-observability/HANDOFF.md",
     "meaning": "מסכים פרטיים/מנהל",
     "target_2029": "כניסה ויעדמקביל רק לפי הרשאה",
-    "verified_status": "קבלתהמנהלוהחשבונותהקודמתנשמרת.12.49:GA/Vercel/SearchConsoleAPI404וגםמחוץלSW;middlewareתוקןב3cוהגיעלחי98dדרךנתיבאחר. איןקבלתבקרהמלאה.",
+    "verified_status": "קבלתהמנהלוהחשבונותהקודמתנשמרת.12.49:GA/Vercel/SearchConsoleAPI404וגםמחוץלSW;middlewareתוקןב3cוהגיעלחי98dדרךנתיבאחר. איןקבלתבקרהמלאה. 12.57 BRANCH_ONLY: GA/RUM וקוראי3ספקים מומשו במקור2c/Preview3t6, ולאנפרסו. 91בדיקות/12בדיקותשלילה/10תצפיותליבהעברו; קבלתמנהל/ספקאמיתיתוקליטהבחיעדייןפתוחות. המשימהנעצרהלמסירהלקלודולשחרורבעלות.",
     "permissions": "מנהל/בעלים בשרת, failclosed",
     "parameters_anchors": "returnTo בטוח; בלי דליפת metadata",
     "acceptance": "אנונימי/חבר/admin;401/403/404 לפי חוזה",
-    "open_task": "לחבר3קוריאדמיןלendpointsולSWעםJWTותפקידשרתמאומת,ללאpublicproxy;CP1מלאלאסומןעבר.",
+    "open_task": "לחבר3קוריאדמיןלendpointsולSWעםJWTותפקידשרתמאומת,ללאpublicproxy;CP1מלאלאסומןעבר. המשך12.57: reviewpublic-observability/HANDOFF; קבלתGoogleSDK/ספקיםאמיתיים, בחירתVercelופרסוםמדויק. source969החיללאשינוי.",
     "treatment": "ADMIN_CONTINUITY_RETAINED_MONITORING_APIS_OPEN",
     "exception_previous_checkpoint": {
       "verified_status": "אין להפוךכתובתאמיתיתלציבורית",
@@ -931,7 +931,12 @@
       "treatment": "LIVE_ADMIN_GUARDS_OWNER_OPENING_ACCEPTANCE_RETAINED",
       "evidence": "App.jsx; Admin admission"
     },
-    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md"
+    "integration1248_evidence": "../public-url-exceptions-20261103/residual205/evidence/middleware-activity-20261104/README.md",
+    "observability_handoff_previous_checkpoint": {
+      "verified_status": "קבלתהמנהלוהחשבונותהקודמתנשמרת.12.49:GA/Vercel/SearchConsoleAPI404וגםמחוץלSW;middlewareתוקןב3cוהגיעלחי98dדרךנתיבאחר. איןקבלתבקרהמלאה.",
+      "open_task": "לחבר3קוריאדמיןלendpointsולSWעםJWTותפקידשרתמאומת,ללאpublicproxy;CP1מלאלאסומןעבר.",
+      "evidence": "App.jsx; Admin admission;12.48/49 source073/3c/98d + hosted16"
+    }
   },
   {
     "id": "F31",
@@ -955,14 +960,14 @@
   {
     "id": "F32",
     "old_address": "/audio/*; /wp-content/*; uploads; /api/card; OG; XML; robots; RSS",
-    "evidence": "DB href/src; api/sitemap; publicfiles; hosting; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16;12.54–55 bounded SEO/toolchain and exactd96 acceptance, main-live-state-reconciliation-20261104/current-main-seo-toolchain;12.56 actual969 live evidence, main-live-state-reconciliation-20261104/live-969-release",
+    "evidence": "DB href/src; api/sitemap; publicfiles; hosting; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16;12.54–55 bounded SEO/toolchain and exactd96 acceptance, main-live-state-reconciliation-20261104/current-main-seo-toolchain;12.56 actual969 live evidence, main-live-state-reconciliation-20261104/live-969-release;12.57 branch-only observability2c/3t6; main-live-state-reconciliation-20261104/public-observability/HANDOFF.md",
     "meaning": "משאב אמיתי/SEO/API; גם probe אפשרי",
     "target_2029": "המשאב/הנכס המדויק אם זמין",
-    "verified_status": "פעריSEO/HTTPתוקנוב073ושולבוב98dהחי;פריוויו98d16תרחישיםמוגבלים.12.49:entrymiddlewareהוחזרלאותומקורקנוניובוט403בחי,ללאשינוימדינה.3APIsלניטורעדיין404/חסומיSW.193השמעוהדחיותנשמרו. 12.53: APIמפתXMLמשמרpublicCDN6h/SWR24hרקל־GET200קנוניאינדקסבילי;Preview/nonGET/כשליםno-store.95בדיקותו־SEOעוברות;הקנריתהקרהב־3fc0נכשלה2/2בסף15.איןCDNHITקנונימאומתואיןפריסה.robots.txtהסטטינשמרכ־Legacyfallbackבלבדהערה;המדיניותהדינמיתללאשינוי. יתרפעריהכתובותלאנסרקומחדש. 12.54–55: כלי esbuild נעול; serverSEO ו־A3 עברו בGitHub עלa106. G4 ציבורי עבר; Isolation/Visual/ELS אינםPASS. ספיCLS/15s ותקציבי הקוד קבועים. אין פריסה או CDNHIT קנוני מאומת. 12.56 LIVE source969/dpl_xw7fECMyWRrZvxxKdy71yobAhj8h: artifact969 ושלושתaliases אומתו. XML200CDNHIT543ms/16,757loc; ניסיון2 שלקנרית41906277893עברבסף15ללאשינויו, ניסיון1 וריצה41905860259נכשלו. איןקבלתXMLקרגורפת. manifest/icon2029זהים; דפדפן200/בוט403/זחלן200; שלושנקודותניטור404/SWנשארו.",
+    "verified_status": "פעריSEO/HTTPתוקנוב073ושולבוב98dהחי;פריוויו98d16תרחישיםמוגבלים.12.49:entrymiddlewareהוחזרלאותומקורקנוניובוט403בחי,ללאשינוימדינה.3APIsלניטורעדיין404/חסומיSW.193השמעוהדחיותנשמרו. 12.53: APIמפתXMLמשמרpublicCDN6h/SWR24hרקל־GET200קנוניאינדקסבילי;Preview/nonGET/כשליםno-store.95בדיקותו־SEOעוברות;הקנריתהקרהב־3fc0נכשלה2/2בסף15.איןCDNHITקנונימאומתואיןפריסה.robots.txtהסטטינשמרכ־Legacyfallbackבלבדהערה;המדיניותהדינמיתללאשינוי. יתרפעריהכתובותלאנסרקומחדש. 12.54–55: כלי esbuild נעול; serverSEO ו־A3 עברו בGitHub עלa106. G4 ציבורי עבר; Isolation/Visual/ELS אינםPASS. ספיCLS/15s ותקציבי הקוד קבועים. אין פריסה או CDNHIT קנוני מאומת. 12.56 LIVE source969/dpl_xw7fECMyWRrZvxxKdy71yobAhj8h: artifact969 ושלושתaliases אומתו. XML200CDNHIT543ms/16,757loc; ניסיון2 שלקנרית41906277893עברבסף15ללאשינויו, ניסיון1 וריצה41905860259נכשלו. איןקבלתXMLקרגורפת. manifest/icon2029זהים; דפדפן200/בוט403/זחלן200; שלושנקודותניטור404/SWנשארו. 12.57 BRANCH_ONLY: GA/RUM וקוראי3ספקים מומשו במקור2c/Preview3t6, ולאנפרסו. 91בדיקות/12בדיקותשלילה/10תצפיותליבהעברו; קבלתמנהל/ספקאמיתיתוקליטהבחיעדייןפתוחות. המשימהנעצרהלמסירהלקלודולשחרורבעלות.",
     "permissions": "publicasset לעומתחתום/פרטי; API לפי owner",
     "parameters_anchors": "שם קובץ,טווח זמן,range,queryAPI מותרים",
     "acceptance": "HEAD/GET/MIME/CSP; אין HTML200 במקום תמונה/שמע;probe נשאר 404",
-    "open_task": "שלושנקודותניטור/הרשאותadminמקצהלקצה;ביצועים/CLSמלאלאהתקבלו. איןסגירתG4אוהכרזתגיבוימסד/מדיהעדכני.",
+    "open_task": "שלושנקודותניטור/הרשאותadminמקצהלקצה;ביצועים/CLSמלאלאהתקבלו. איןסגירתG4אוהכרזתגיבוימסד/מדיהעדכני. המשך12.57: reviewpublic-observability/HANDOFF; קבלתGoogleSDK/ספקיםאמיתיים, בחירתVercelופרסוםמדויק. source969החיללאשינוי.",
     "treatment": "LIVE_969_CANARY_PASS_WARM_CDN_VERIFIED_COLD_RELIABILITY_OPEN",
     "exception_previous_checkpoint": {
       "verified_status": "193audio hrefs; לא כל בקשת WP היאתוכן אמיתי",
@@ -1026,7 +1031,12 @@
       "treatment": "LIVE_EDGE_RESTORED_ADMIN_MONITORING_OPEN_AUDIO_DEFERRED",
       "open_task": "שלושנקודותניטור/הרשאותadminמקצהלקצה;ביצועים/CLSמלאלאהתקבלו. איןסגירתG4אוהכרזתגיבוימסד/מדיהעדכני."
     },
-    "live1256_evidence": "../main-live-state-reconciliation-20261104/README.md#המשך-1256--החבילה-המצטברת-פורסמה-לחי"
+    "live1256_evidence": "../main-live-state-reconciliation-20261104/README.md#המשך-1256--החבילה-המצטברת-פורסמה-לחי",
+    "observability_handoff_previous_checkpoint": {
+      "verified_status": "פעריSEO/HTTPתוקנוב073ושולבוב98dהחי;פריוויו98d16תרחישיםמוגבלים.12.49:entrymiddlewareהוחזרלאותומקורקנוניובוט403בחי,ללאשינוימדינה.3APIsלניטורעדיין404/חסומיSW.193השמעוהדחיותנשמרו. 12.53: APIמפתXMLמשמרpublicCDN6h/SWR24hרקל־GET200קנוניאינדקסבילי;Preview/nonGET/כשליםno-store.95בדיקותו־SEOעוברות;הקנריתהקרהב־3fc0נכשלה2/2בסף15.איןCDNHITקנונימאומתואיןפריסה.robots.txtהסטטינשמרכ־Legacyfallbackבלבדהערה;המדיניותהדינמיתללאשינוי. יתרפעריהכתובותלאנסרקומחדש. 12.54–55: כלי esbuild נעול; serverSEO ו־A3 עברו בGitHub עלa106. G4 ציבורי עבר; Isolation/Visual/ELS אינםPASS. ספיCLS/15s ותקציבי הקוד קבועים. אין פריסה או CDNHIT קנוני מאומת. 12.56 LIVE source969/dpl_xw7fECMyWRrZvxxKdy71yobAhj8h: artifact969 ושלושתaliases אומתו. XML200CDNHIT543ms/16,757loc; ניסיון2 שלקנרית41906277893עברבסף15ללאשינויו, ניסיון1 וריצה41905860259נכשלו. איןקבלתXMLקרגורפת. manifest/icon2029זהים; דפדפן200/בוט403/זחלן200; שלושנקודותניטור404/SWנשארו.",
+      "open_task": "שלושנקודותניטור/הרשאותadminמקצהלקצה;ביצועים/CLSמלאלאהתקבלו. איןסגירתG4אוהכרזתגיבוימסד/מדיהעדכני.",
+      "evidence": "DB href/src; api/sitemap; publicfiles; hosting; canonical/HTTP audit f4390dd3 (12.47);12.48/49 source073/3c/98d + hosted16;12.54–55 bounded SEO/toolchain and exactd96 acceptance, main-live-state-reconciliation-20261104/current-main-seo-toolchain;12.56 actual969 live evidence, main-live-state-reconciliation-20261104/live-969-release"
+    }
   },
   {
     "id": "F33",

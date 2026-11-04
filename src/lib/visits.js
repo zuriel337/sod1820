@@ -376,12 +376,19 @@ export async function generateCandidates(limit = 20) {
 }
 
 // ── תובנות Google Analytics חיות (מקורות, מדינות, מכשירים, זמן-אמת) ──
-export async function getGaInsights(days = 28) {
-  if (!supabase) return null;
+async function providerReadToken({ signal, expectedUserId } = {}) {
+  if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
   const { data } = await supabase.auth.getSession();
-  const token = data?.session?.access_token;
+  if (signal?.aborted || expectedUserId && data?.session?.user?.id !== expectedUserId)
+    throw new DOMException("Account changed", "AbortError");
+  return data?.session?.access_token || null;
+}
+
+export async function getGaInsights(days = 28, options = {}) {
+  if (!supabase) return null;
+  const token = await providerReadToken(options);
   if (!token) return null;
-  const r = await fetch(`/api/ga-insights?days=${days}`, { headers: { Authorization: "Bearer " + token } });
+  const r = await fetch(`/api/ga-insights?days=${days}`, { headers: { Authorization: "Bearer " + token }, signal: options.signal, cache: "no-store" });
   if (!r.ok) throw new Error("ga-insights " + r.status);
   const payload = await r.json();
   return annotateTrafficPayloadDaily(payload);
@@ -389,12 +396,11 @@ export async function getGaInsights(days = 28) {
 
 // ── Vercel Web Analytics — מקור משלים, read-only, דרך endpoint אדמין בצד-שרת ──
 // לא מחליף GA4 ולא את מדידת SOD1820; מיועד להשוואת אמת בין שלושת המקורות.
-export async function getVercelInsights(days = 30) {
+export async function getVercelInsights(days = 30, options = {}) {
   if (!supabase) return null;
-  const { data } = await supabase.auth.getSession();
-  const token = data?.session?.access_token;
+  const token = await providerReadToken(options);
   if (!token) return null;
-  const r = await fetch(`/api/vercel-insights?days=${days}`, { headers: { Authorization: "Bearer " + token } });
+  const r = await fetch(`/api/vercel-insights?days=${days}`, { headers: { Authorization: "Bearer " + token }, signal: options.signal, cache: "no-store" });
   if (!r.ok) throw new Error("vercel-insights " + r.status);
   const payload = await r.json();
   return annotateTrafficPayloadDaily(payload);
@@ -421,12 +427,11 @@ export async function getLegacyTopPages(limit = 15) {
 
 // ── Google Search Console — שאילתות חיפוש כנתונים (דרך api/search-console) ──
 // שולח את ה-session token של המנהל; ה-endpoint מאמת role=admin ומושך מגוגל.
-export async function getSearchConsole(days = 90) {
+export async function getSearchConsole(days = 90, options = {}) {
   if (!supabase) return null;
-  const { data } = await supabase.auth.getSession();
-  const token = data?.session?.access_token;
+  const token = await providerReadToken(options);
   if (!token) return null;
-  const r = await fetch(`/api/search-console?days=${days}`, { headers: { Authorization: "Bearer " + token } });
+  const r = await fetch(`/api/search-console?days=${days}`, { headers: { Authorization: "Bearer " + token }, signal: options.signal, cache: "no-store" });
   if (!r.ok) throw new Error("search-console " + r.status);
   return r.json();
 }

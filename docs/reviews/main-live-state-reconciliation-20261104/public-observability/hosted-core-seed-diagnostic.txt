@@ -1,0 +1,20 @@
+{"phase":"error","stack":"SecurityError: Failed to read the 'localStorage' property from 'Window': Access is denied for this document.\n    at <anonymous>:2:99\n    at <anonymous>:3:7","url":"https://sod1820-hgneby80w-sod1820-s-projects.vercel.app/"}
+{"phase":"row","path":"/","width":390,"errors":["Failed to read the 'localStorage' property from 'Window': Access is denied for this document."]}
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
++ [
++   "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
++ ]
+- []
+
+    at /tmp/sod-observability-hosted-core-diagnostic.cjs:17:71
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at process.processImmediate (node:internal/timers:541:9) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: [Array],
+  expected: [],
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}

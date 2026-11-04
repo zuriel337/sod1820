@@ -9,6 +9,7 @@ import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
+import { readingTelemetryPath } from "./lib/publicReadingTelemetry2029.js";
 const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
 import Opening2029 from "./components/experience2029/Opening2029.jsx";
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
@@ -146,9 +147,18 @@ function Loading2029() { return <Opening2029 />; }
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
 function RouteEffects2029() {
   const { pathname } = useLocation();
+  const auth = useAuth();
+  const measurementAuth = React.useRef(auth);
+  measurementAuth.current = auth;
 
   useEffect(() => {
-    if (PUBLIC_READING_RELEASE || integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
+    if (PUBLIC_READING_RELEASE) {
+      // Production only. Existing RUM writes anonymous performance events;
+      // it does not bridge identities, start marketing, or activate a system.
+      return startWebVitals2029({ publicReading: true,
+        shouldMeasure: () => !measurementAuth.current.loading && !measurementAuth.current.isAdmin });
+    }
+    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     initGA();
     initMarketing();
     ensureIdentity();
@@ -157,7 +167,29 @@ function RouteEffects2029() {
   }, []);
 
   useEffect(() => {
-    if (PUBLIC_READING_RELEASE || integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
+    if (PUBLIC_READING_RELEASE) {
+      if (!["sod1820.co.il", "www.sod1820.co.il"].includes(window.location.hostname)) return undefined;
+      if (!readingTelemetryPath(pathname)) return undefined;
+      // Keep the public home's primary content ahead of the optional Google
+      // script. A canceled navigation cannot initialize a stale page view.
+      let stopped = false, timer, observer, idle;
+      const run = () => {
+        if (stopped) return;
+        initGA({ publicReading: true, path: pathname });
+        trackPageview(pathname, { publicReading: true });
+      };
+      const schedule = () => {
+        observer?.disconnect();
+        if (window.requestIdleCallback) idle = window.requestIdleCallback(run, { timeout: 3000 });
+        else timer = setTimeout(run, 350);
+      };
+      if (pathname === "/" && !document.querySelector('[data-home-primary="ready"]')) {
+        observer = new MutationObserver(() => { if (document.querySelector('[data-home-primary="ready"]')) schedule(); });
+        observer.observe(document.getElementById("root") || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-primary"] });
+      } else schedule();
+      return () => { stopped = true; observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
+    }
+    if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
     if (pathname.startsWith("/2029/control")) return undefined;
     const timer = setTimeout(() => {

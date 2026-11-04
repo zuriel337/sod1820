@@ -3,6 +3,7 @@ import { readingPersonalResponse } from "./personal-request.js";
 import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.js";
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
 import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
+import { readingTelemetryPath, readingWebVitalBody } from "../src/lib/publicReadingTelemetry2029.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
 // which records are public. Explicit verified-admin actions retain the existing
@@ -39,6 +40,14 @@ function installPublicReadingWorker(policy) {
   }
   const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   const readFetch = req => fetch(new Request(req, { cache: "no-store", credentials: "omit", redirect: "error" }));
+  const metricDocuments = new Map();
+  const measurementClient = async event => {
+    if (!event.clientId || !["https://sod1820.co.il", "https://www.sod1820.co.il"].includes(self.location.origin)) return null;
+    const client = await self.clients.get(event.clientId);
+    if (!client || client.type !== "window") return null;
+    const source = new URL(client.url);
+    return source.origin === self.location.origin ? readingTelemetryPath(source.pathname) : null;
+  };
   // Existing Community contracts restored from the accepted working weekly
   // Preview. This admits only explicit authenticated Community operations;
   // the canonical RPCs retain authorship, moderation and ownership authority.
@@ -155,6 +164,40 @@ function installPublicReadingWorker(policy) {
   self.addEventListener("fetch", event => {
     const req = event.request, url = new URL(req.url);
     const rpc = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(url.pathname)?.[1];
+    // Only existing GA4 collection endpoints and the configured public
+    // measurement ID. No Ads/Meta conversion endpoints, user properties,
+    // raw expressions, private routes, query tokens or document titles.
+    if (["https://www.google-analytics.com", "https://region1.google-analytics.com"].includes(url.origin)) {
+      event.respondWith((async () => {
+        if (!["GET", "POST"].includes(req.method) || url.pathname !== "/g/collect" || !policy.gaId) return denied();
+        const clientPath = await measurementClient(event);
+        if (!clientPath) return denied();
+        const text = req.method === "POST" ? await req.clone().text() : "";
+        if (text.length > 8192 || /[\r\n]/.test(text)) return denied();
+        const params = new URLSearchParams(url.search);
+        for (const [key, value] of new URLSearchParams(text)) {
+          if (params.has(key)) return denied();
+          params.append(key, value);
+        }
+        if (params.getAll("tid").length !== 1 || params.get("tid") !== policy.gaId || params.get("v") !== "2"
+          || !["page_view", "user_engagement", "scroll", "session_start", "first_visit"].includes(params.get("en"))
+          || [...params.keys()].some(key => /^(?:uid|user_id|uip|up\.|upn\.|ep\.|epn\.)/.test(key))) return denied();
+        const page = new URL(params.get("dl") || "");
+        if (page.origin !== self.location.origin || page.search || page.hash || page.username || page.password
+          || page.pathname !== clientPath || params.get("dt") !== "SOD1820"
+          || params.get("dp") && params.get("dp") !== clientPath || params.get("dr")) return denied();
+        return fetch(new Request(req, { credentials: "omit", cache: "no-store", redirect: "error", referrerPolicy: "no-referrer" }));
+      })().catch(() => denied())); return;
+    }
+    if (url.origin === self.location.origin && ["/api/ga-insights", "/api/vercel-insights", "/api/search-console"].includes(url.pathname)) {
+      event.respondWith((async () => {
+        if (req.method !== "GET" || [...url.searchParams.keys()].some(key => key !== "days") || url.searchParams.getAll("days").length > 1
+          || !/^Bearer [A-Za-z0-9_.-]{20,8192}$/.test(req.headers.get("Authorization") || "")) return denied();
+        // The deployment adapter and original handler independently verify
+        // JWT/current admin role. No browser role claim grants access.
+        return fetch(new Request(req, { cache: "no-store", credentials: "omit", redirect: "error" }));
+      })().catch(() => denied())); return;
+    }
     // The restored original OpenWeb box uses its own guest/login/publication
     // API. Preserve that working service instead of applying native read-only
     // restrictions to its bootstrap and explicit chat actions.
@@ -220,6 +263,20 @@ function installPublicReadingWorker(policy) {
         const body = url.pathname.endsWith("/contact_messages") && Array.isArray(parsed) && parsed.length === 1 ? parsed[0] : parsed;
         if (!plainObject(body)) return denied();
         if (url.pathname.endsWith("/ingest_event")) {
+          if (body.p_surface === "performance") {
+            if (!readingWebVitalBody(body) || await measurementClient(event) !== body.p_path || !policy.anonKey) return denied();
+            const now = Date.now();
+            for (const [key, value] of metricDocuments) if (now - value.at > 1800000) metricDocuments.delete(key);
+            let record = metricDocuments.get(event.clientId);
+            if (!record) {
+              if (metricDocuments.size >= 500) return denied();
+              record = { at: now, sample: body.p_props.sample_id, phases: new Set() };
+              metricDocuments.set(event.clientId, record);
+            }
+            if (record.sample !== body.p_props.sample_id || record.phases.has(body.p_props.phase)) return denied();
+            record.phases.add(body.p_props.phase);
+            return readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: `Bearer ${policy.anonKey}`, "Content-Type": "application/json" } }));
+          }
           const fields = ["path","source_href","surface","capability","concept","learn_stage","action_tried","at","locale","viewport","auth","interaction_id","message"];
           if (!["p_event_type,p_is_bot,p_path,p_props,p_sod_id,p_surface", "p_event_type,p_is_bot,p_path,p_props,p_session_id,p_sod_id,p_surface"].includes(Object.keys(body).sort().join(","))
             || body.p_session_id != null && !uuid(body.p_session_id)
@@ -306,10 +363,10 @@ function installPublicReadingWorker(policy) {
   });
 }
 
-export function buildPublicReadingWorker(sourceSha, { anonKey = "" } = {}) {
+export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
-    sourceSha, anonKey, reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
+  return `${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+    sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 
 // One deadline covers register, install, ready, controller and policy handshake.

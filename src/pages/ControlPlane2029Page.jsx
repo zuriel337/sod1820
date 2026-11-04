@@ -4,6 +4,7 @@ import { Navigate } from "react-router-dom";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getOperationalTrace, getOperationalTraceList, getSystemHealth, getVideoMapHealth } from "../lib/visits.js";
+const OperationalMetrics2029 = React.lazy(() => import("../components/experience2029/OperationalMetrics2029.jsx"));
 
 const n = v => v == null || typeof v === "boolean" || typeof v === "string" && !v.trim() ? NaN : Number(v);
 const num = v => Number.isFinite(n(v)) ? n(v).toLocaleString("he-IL") : "—";
@@ -69,6 +70,7 @@ function ControlPlaneBody({ auth }) {
   const requestVersion = useRef(0);
   const [state, setState] = useState({ loading: true, health: null, videoMap: null, traces: [], healthError: null, videoError: null, traceError: null, traceLoading: true, traceVersion: 0 });
   const [selectedId, setSelectedId] = useState(null);
+  const [metricsOpen, setMetricsOpen] = useState(false);
   const [detail, setDetail] = useState({ loading: false, data: null, error: null });
 
   const load = useCallback(async () => {
@@ -156,6 +158,12 @@ function ControlPlaneBody({ auth }) {
     symbol={<NavigationIcon2029 name="tools" />}
     wide
   >
+    <section className="sod29-section">
+      <button className="sod29-action" type="button" aria-expanded={metricsOpen} onClick={()=>setMetricsOpen(open=>!open)}>
+        {metricsOpen ? "סגירת מדידה וגוגל" : "מדידה וגוגל"}
+      </button>
+      {metricsOpen ? <React.Suspense fallback={<p role="status">פותח את קוראי המדידה…</p>}><OperationalMetrics2029 principal={principal}/></React.Suspense> : null}
+    </section>
     <section className="sod29-section">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">SYSTEM HEALTH</div><h2>מה דורש תשומת לב עכשיו</h2>

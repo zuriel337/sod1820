@@ -1,10 +1,11 @@
+import { SUPABASE_ANON } from "../src/lib/supabase.js";
 // Vercel Serverless Function — Vercel Web Analytics read-only connector for the admin Growth Center.
 // One Tree: does not create a parallel analytics store; it reads Vercel's official Web Analytics API
 // and returns a normalized projection alongside GA4 + first-party SOD1820 metrics.
 // Requires server-only VERCEL_API_TOKEN. Never expose this token to the browser.
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+const ANON = SUPABASE_ANON;
 
 const DEFAULT_TEAM = 'team_vtfWHZfKvdbob8gvynQb5N89';
 const DEFAULT_PROJECT = 'prj_43q7k7QFAcWnin1tcBjce5xOi7Cq';
