@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./communityMessageManage2029.css";
+import CommunityRichText2029 from "./CommunityRichText2029.jsx";
+import { plainMessageText } from "../../lib/community/messageFormatting.js";
 
 // Existing inline editor/confirmation presentation from Community handoff
 // 15a4a956. Data wiring uses the shared principal-scoped adapters, never a local
@@ -29,12 +31,11 @@ export function MessageEditor({ row, actions, onCancel, onSaved }) {
   };
   return <div className="sod29-community-editor">
     <label className="sod29-community-sr-only" htmlFor={`edit-${row.id}`}>עריכת ההודעה</label>
-    <textarea ref={ref} id={`edit-${row.id}`} rows={3} maxLength={COMMUNITY_EDIT_MAX_LENGTH} value={value} disabled={saving} dir="auto"
-      onChange={event => setValue(event.target.value)}
-      onKeyDown={event => { if (event.key === "Escape" && !saving) { event.stopPropagation(); onCancel(); } else if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) save(); }} />
+    <CommunityRichText2029 inputRef={ref} id={`edit-${row.id}`} maxLength={COMMUNITY_EDIT_MAX_LENGTH} maxEncodedLength={COMMUNITY_EDIT_MAX_LENGTH} value={value} disabled={saving} label="עריכת ההודעה" onChange={setValue}
+      onKeyDown={event => { if (event.key === "Escape" && !saving) { event.stopPropagation(); onCancel(); } else if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); save(); } }} />
     {error ? <p className="sod29-community-status" role="alert">{error}</p> : null}
     <div className="sod29-community-editor-actions">
-      <button type="button" className="sod29-community-primary" disabled={!trimmed || saving} onClick={save}>{saving ? "שומר…" : "שמירה"}</button>
+      <button type="button" className="sod29-community-primary" disabled={!plainMessageText(value).trim() || saving} onClick={save}>{saving ? "שומר…" : "שמירה"}</button>
       <button type="button" className="sod29-community-secondary" disabled={saving} onClick={onCancel}>ביטול</button>
     </div>
   </div>;

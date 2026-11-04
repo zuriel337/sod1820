@@ -3,6 +3,7 @@ import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../publicLaunch2029.js";
 import { getPublicResearchClient } from "../research/researchViewMode.js";
 import { addContribution } from "../contributions.js";
 import { COMMUNITY_THREAD_UUID as UUID_PATTERN } from "./communityThreadFocus.js";
+import { MESSAGE_FORMAT_PREFIX } from "./messageFormatting.js";
 export { normalizeCommunityThreadFocus } from "./communityThreadFocus.js";
 
 // Public reading never borrows the current account or admin session.
@@ -93,6 +94,7 @@ const entityDecoder = typeof document === "undefined" ? null : document.createEl
 
 export function decodeCommunityText(value) {
   const text = String(value || "");
+  if (text.startsWith(MESSAGE_FORMAT_PREFIX)) return text;
   if (!entityDecoder || !text.includes("&")) return text;
   entityDecoder.innerHTML = text;
   return entityDecoder.value;

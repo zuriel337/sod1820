@@ -11,6 +11,8 @@ import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES
 import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
+import CommunityRichText2029 from "./CommunityRichText2029.jsx";
+import { appendMessageQuote, appendMessageText, plainMessageText, selectedMessageQuote } from "../../lib/community/messageFormatting.js";
 import CommunitySignIn from "./CommunitySignIn.jsx";
 import LegacyAccountClaim, { LegacyAccountClaimEntry } from "./LegacyAccountClaim.jsx";
 import { isLegacyContributorId } from "../../lib/community/legacyClaim.js";
@@ -90,6 +92,8 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
   const permissions = messageActions?.items[row.id];
   const [selection, setSelection] = useState({ principalKey: null, mode: null });
   const editButton = useRef(null);
+  const messageBodyRef = useRef(null);
+  const [quoteNotice, setQuoteNotice] = useState("");
   const actor = messageActions?.principalKey || null;
   const mode = actor && selection.principalKey === actor
     && (selection.mode === "edit" && permissions?.canEdit || selection.mode === "delete" && permissions?.canDelete)
@@ -110,15 +114,21 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
     {showSource ? <div className="sod29-community-activity-source">{sourceLabels[row.origin] || "תרומה"}{row.parentId ? " · תגובה" : ""}</div> : null}
     {showSource && row.title && row.title !== row.body ? <h4 className="sod29-community-activity-title" dir="auto">{row.title}</h4> : null}
     {mode === "edit" ? <MessageEditor key={`${actor}:${row.id}`} row={row} actions={messageActions} onCancel={close} onSaved={close} />
-      : row.body ? <CommunityMessageContent text={row.body} /> : <p className="sod29-community-missing-parent">תוכן הודעת המקור אינו זמין; התגובות הציבוריות נשמרו בשרשור.</p>}
+      : row.body ? <CommunityMessageContent text={row.body} bodyRef={messageBodyRef} /> : <p className="sod29-community-missing-parent">תוכן הודעת המקור אינו זמין; התגובות הציבוריות נשמרו בשרשור.</p>}
     <div className="sod29-community-thread-actions">
       {canReply ? <button type="button" className="sod29-community-reply-action" onClick={() => onReply(row)}>השב</button> : null}
+      {canReply && mode !== "edit" && row.body ? <button type="button" aria-label="ציטוט מההודעה" onPointerDown={event => event.preventDefault()} onMouseDown={event => event.preventDefault()} onClick={() => {
+        const quote = selectedMessageQuote(window.getSelection(), messageBodyRef.current);
+        if (!quote) { setQuoteNotice("סמנו משפט בהודעה, עד 600 תווים, ואז לחצו על ציטוט."); return; }
+        setQuoteNotice(""); onReply({ ...row, quote });
+      }}>ציטוט</button> : null}
       <LiveLike row={row} />
       {shareUrl ? <ShareActions type="community_message" entityId={row.id} url={shareUrl} title="הודעה בקהילת סוד 1820" sourceSurface="community_thread_2029" variant="icon" iconLabel="שיתוף הודעה" iconCopiedLabel="הקישור להודעה הועתק" force /> : null}
       {showSource && target ? <Link to={target}>לתרומה המלאה ←</Link> : null}
       {permissions?.state === "ready" && permissions.canEdit && mode !== "edit" ? <button type="button" ref={editButton} className="sod29-community-manage-action" onClick={() => open("edit")}>עריכה</button> : null}
       {permissions?.state === "ready" && permissions.canDelete && !mode ? <button type="button" className="sod29-community-manage-action" onClick={() => open("delete")}>מחיקה</button> : null}
     </div>
+    {quoteNotice ? <p className="sod29-community-edited" role="status">{quoteNotice}</p> : null}
     {permissions?.reason === "source_requires_review" ? <p className="sod29-community-edited">עדכון המקור דורש בדיקה.</p> : null}
     {mode === "delete" ? <MessageConfirm key={`${actor}:${row.id}`} row={row} actions={messageActions} onCancel={close} onDone={close} /> : null}
   </article>;
@@ -489,7 +499,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("he");
     const visible = rows.filter((row) => row.isDeleted || row.body || replyCounts[row.id] > 0);
-    const matching = needle ? visible.filter((row) => `${row.authorName} ${row.body}`.toLocaleLowerCase("he").includes(needle)) : visible;
+    const matching = needle ? visible.filter((row) => `${row.authorName} ${plainMessageText(row.body)}`.toLocaleLowerCase("he").includes(needle)) : visible;
     return sort === "liked" ? [...matching].sort(compareCommunityLikedRows) : matching;
   }, [query, rows, replyCounts, sort]);
   const baseline = VERIFIED_ARCHIVE_PROFILES[selectedAuthorId];
@@ -514,7 +524,18 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     setProfileFilter("all"); setProfileSort("newest");
     setParams((current) => { const next = new URLSearchParams(current); next.set("member", selectedAuthorId); next.delete("memberCard"); return next; });
   };
-  const startReply = (row) => { if (actionsLocked) return; setReplyTo(row); requestAnimationFrame(() => composerRef.current?.focus()); };
+  const startReply = (row) => {
+    if (actionsLocked) return;
+    if (row.quote) {
+      const next = appendMessageQuote(draft, row.quote);
+      if (plainMessageText(next).length > 1500 || next.length > 5000) { setNotice("אין מספיק מקום בטיוטה לציטוט הזה."); return; }
+      setDraft(next);
+    }
+    setReplyTo(row); setComposerExpanded(true); requestAnimationFrame(() => {
+      const editor = composerRef.current; editor?.focus();
+      if (row.quote && editor) { const range = document.createRange(); range.selectNodeContents(editor); range.collapse(false); const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range); }
+    });
+  };
   const pickAttachments = (event) => {
     if (actionsLocked) return;
     setComposerExpanded(true);
@@ -530,7 +551,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const submit = async () => {
     if (actionsLocked) return;
     const body = draft.trim();
-    if ((!body && !attachments.length) || sending) return;
+    if ((!plainMessageText(draft).trim() && !attachments.length) || sending) return;
     if ((PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user) { setNotice("יש להתחבר כדי לפרסם הודעה."); return; }
     setSending(true); setNotice(""); setAttachmentError("");
     const principal = composerPrincipal;
@@ -545,7 +566,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         if (!item.url) setAttachments((current) => current.map((entry) => entry.file === item.file ? { ...entry, ...result } : entry));
       }
       if (!isCurrent()) return;
-      await publishCommunityMessage({ body: appendCommunityAttachments(body, uploaded), parentId: replyTo?.id || null, authorName: profile?.display_name || profile?.username || null });
+      await publishCommunityMessage({ body: appendMessageText(body, appendCommunityAttachments("", uploaded)), parentId: replyTo?.id || null, authorName: profile?.display_name || profile?.username || null });
       if (!isCurrent()) return;
       if (replyTo) {
         requestedReplyCounts.current.delete(replyTo.id);
@@ -583,7 +604,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <div className={compactComposer ? "sod29-community-compose-row" : undefined}>
             {compactComposer ? <Link className="sod29-community-compose-avatar" to={user ? writerPersonalHref("profile", { returnTo: communityAccountReturnHref(window.location) }) : `/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`} aria-label={user ? "הפרופיל שלי" : "התחברות"}><UserBadge avatarOnly name={composerProfile?.display_name || composerProfile?.username || (user ? "החשבון שלי" : "אורח")} avatarUrl={composerProfile?.avatar_url} /></Link> : null}
             <div className={compactComposer ? "sod29-community-compose-input" : undefined}>
-              <textarea ref={composerRef} id="community-live-draft" rows={compactComposer ? 1 : 2} maxLength={1500} value={draft} onFocus={() => setComposerExpanded(true)} onKeyDown={event => { if (event.key === "Escape" && !draft && !attachments.length && !replyTo) { setComposerExpanded(false); composerRef.current?.blur(); } }} onChange={(event) => setDraft(event.target.value)} placeholder={compactComposer ? "הוסף תגובה…" : "כתבו משהו לקהילה…"} />
+              <CommunityRichText2029 inputRef={composerRef} id="community-live-draft" value={draft} onChange={setDraft} expanded={composerOpen} disabled={sending} onFocus={() => setComposerExpanded(true)} onKeyDown={event => { if (event.key === "Escape" && !draft && !attachments.length && !replyTo) { setComposerExpanded(false); composerRef.current?.blur(); } }} placeholder={compactComposer ? "הוסף תגובה…" : "כתבו משהו לקהילה…"} />
               {compactComposer ? <button type="button" className="sod29-community-compose-attach" aria-label="צירוף קובץ או סרטון" title="צירוף קובץ או סרטון" aria-describedby={user ? "community-attachment-limits" : undefined} disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={() => attachmentRef.current?.click()}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21 11-8.5 8.5a6 6 0 0 1-8.5-8.5L14 1a4 4 0 0 1 5.7 5.7L9.5 16.9a2 2 0 0 1-2.8-2.8L16 4.8" /></svg></button> : null}
             </div>
           </div>
@@ -593,7 +614,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {!compactComposer ? <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} title={!user ? "יש להתחבר כדי לצרף קבצים" : undefined} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ או סרטון</button><small>עד 3 קבצים · סרטון עד 50MB, קובץ אחר עד 8MB · גלויים לציבור</small></div> : null}
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index))} />)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
-          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{draft.length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!draft.trim() && !attachments.length) || sending || (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user} title={(PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
+          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!plainMessageText(draft).trim() && !attachments.length) || sending || (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user} title={(PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
         </section> : null}
         {hasThreadRequest ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">
@@ -643,7 +664,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <div className="sod29-community-card-section"><h3>ההודעות של {memberName}</h3>{!profileLoading && !profileError && Number.isSafeInteger(profileCount) ? <span>{profileCount.toLocaleString("he-IL")} הודעות</span> : null}</div>
           {profileLoading ? <p className="sod29-community-card-note" role="status">טוען הודעות…</p> : null}
           {profileError ? <p className="sod29-community-card-note" role="alert">{profileError}</p> : null}
-          <div className="sod29-community-card-messages">{profileRows.slice(0, 4).map((row) => <article key={row.id}><div className="sod29-community-card-meta"><span>{row.origin === "openweb" ? `הצ׳אט הוותיק · ${row.authorName}` : "הקהילה"}</span><time dateTime={row.createdAt}>{dateFormat.format(new Date(row.createdAt))}</time></div><p dir="auto">{row.body}</p><div>{legacyLikeCount(row.reactions) > 0 ? <span>👍 {legacyLikeCount(row.reactions)}</span> : null}{row.parentId ? <span>תגובה בצ׳אט</span> : null}</div></article>)}</div>
+          <div className="sod29-community-card-messages">{profileRows.slice(0, 4).map((row) => <article key={row.id}><div className="sod29-community-card-meta"><span>{row.origin === "openweb" ? `הצ׳אט הוותיק · ${row.authorName}` : "הקהילה"}</span><time dateTime={row.createdAt}>{dateFormat.format(new Date(row.createdAt))}</time></div><p dir="auto">{plainMessageText(row.body)}</p><div>{legacyLikeCount(row.reactions) > 0 ? <span>👍 {legacyLikeCount(row.reactions)}</span> : null}{row.parentId ? <span>תגובה בצ׳אט</span> : null}</div></article>)}</div>
           {!profileLoading && !profileRows.length && !profileError ? <p className="sod29-community-card-note">אין הודעות ציבוריות לכותב זה.</p> : null}
           {writer ? <Link className="sod29-community-card-full sod29-community-card-writer" to={writerHref()}>{writer.isWriter ? "לדף הכותב ←" : "לדף הפרופיל ←"}</Link> : null}
           <button type="button" className={writer ? "sod29-community-card-full sod29-community-card-secondary" : "sod29-community-card-full"} onClick={openFullProfile}>{writer ? "כל ההודעות בקהילה ←" : "לעמוד הכותב המלא ←"}</button>

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/messageLinks.js";
+import { messageFormattingText, parseMessageFormatting } from "../../lib/community/messageFormatting.js";
+import { use2029Palette } from "../../lib/palette.js";
 
 function LinkPreview({ link }) {
   const [playing, setPlaying] = useState(false);
@@ -20,11 +22,41 @@ function LinkPreview({ link }) {
   </div>;
 }
 
-export default function CommunityMessageContent({ text, previewsOnly = false }) {
-  const parts = splitMessageLinks(text);
+export default function CommunityMessageContent({ text, previewsOnly = false, bodyRef }) {
+  const palette = use2029Palette();
+  const nodes = parseMessageFormatting(text);
+  const parts = splitMessageLinks(messageFormattingText(nodes));
+  let partIndex = 0, partOffset = 0;
+  const renderText = value => {
+    const fragments = [];
+    let offset = 0;
+    while (offset < value.length && partIndex < parts.length) {
+      const part = parts[partIndex], length = Math.min(value.length - offset, part.text.length - partOffset);
+      const segment = value.slice(offset, offset + length);
+      if (part.link) {
+        const attachment = { image: "פתיחת התמונה המצורפת", video: "פתיחת הסרטון המצורף", file: `פתיחת קובץ ${part.link.extension}` }[part.link.kind];
+        if (!attachment || partOffset === 0) fragments.push(<a key={`${partIndex}:${partOffset}`} dir="auto" href={part.link.href} target="_blank" rel="noopener noreferrer">{attachment || segment}</a>);
+      } else fragments.push(segment);
+      offset += length; partOffset += length;
+      if (partOffset === part.text.length) { partIndex++; partOffset = 0; }
+    }
+    return fragments;
+  };
+  const render = (nodes, path = "body") => nodes.map((node, index) => {
+    const key = `${path}:${index}`;
+    if (node.type === "text") {
+      return <React.Fragment key={key}>{renderText(node.text)}</React.Fragment>;
+    }
+    const children = render(node.children, key);
+    if (node.type === "bold") return <strong key={key}>{children}</strong>;
+    if (node.type === "underline") return <u key={key}>{children}</u>;
+    if (node.type === "quote") return <blockquote key={key}>{children}</blockquote>;
+    return <span key={key} className={`sod29-community-text-${node.type}`}>{children}</span>;
+  });
+  const content = render(nodes);
   const links = messageLinkPreviews(parts);
   return <>
-    {!previewsOnly ? <p className="sod29-community-body">{parts.map((part, index) => part.link ? <a key={index} dir="auto" href={part.link.href} target="_blank" rel="noopener noreferrer">{part.link.kind === "image" ? "פתיחת התמונה המצורפת" : part.link.kind === "video" ? "פתיחת הסרטון המצורף" : part.link.kind === "file" ? `פתיחת קובץ ${part.link.extension}` : part.text}</a> : part.text)}</p> : null}
+    {!previewsOnly ? <div ref={bodyRef} className="sod29-community-body" style={{ "--community-text-gold": palette.warmAccent, "--community-text-blue": palette.accentText }}>{content}</div> : null}
     {links.length ? <div className="sod29-community-link-previews" aria-label="תצוגה מקדימה לקישורים">{links.map((link) => <LinkPreview key={link.key} link={link} />)}</div> : null}
   </>;
 }

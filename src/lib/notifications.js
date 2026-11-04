@@ -1,6 +1,7 @@
 import { supabase } from "./supabase.js";
 import { canonicalFollowTopic } from "./followIdentity.js";
 import { contentSeriesByKey } from "./research/contentSeries2029Identity.js";
+import { messageNotificationPreview } from "./community/messageFormatting.js";
 
 // ===== מרכז התראות — נושאים וערוצים (תשתית, ערוץ-אגנוסטי) =====
 // מקור אחד לכל ההתראות: Follow נשמר ככוונת-מעקב, וה-Dispatcher החי שולח כרגע In-App.
@@ -99,7 +100,7 @@ export async function getMyNotifications(limit = 30, { strict = false, userId = 
     const { data, error } = await query;
     if (error) throw error;
     if (strict && !Array.isArray(data)) throw new Error("Notification list unavailable");
-    return data || [];
+    return (data || []).map(item => ({ ...item, body: messageNotificationPreview(item.body) }));
   } catch (error) { if (strict) throw error; return []; }
 }
 
