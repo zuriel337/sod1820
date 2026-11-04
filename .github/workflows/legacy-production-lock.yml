@@ -1,4 +1,4 @@
-name: Legacy Production Lock
+name: Production Release and Legacy Compatibility
 
 on:
   pull_request:
@@ -18,5 +18,9 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Reject a 2029 canonical-production cutover
+      - name: Preserve the Legacy fallback routes and launch flag
         run: node scripts/test-legacy-production-lock.mjs
+      - name: Verify explicit 2029 publication and deployment separation
+        run: node scripts/test-public-reading-main-release-contract.mjs
+      - name: Verify negative cases for the release and retired-branch boundary
+        run: node --test test/public-reading-main-release-contract.test.mjs

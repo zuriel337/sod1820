@@ -34,10 +34,10 @@ test("Production target needs explicit staged mode and remains non-cutover", () 
   assert.throws(() => protectedReviewBuildIdentity(defaultMode), /identity_rejected/);
 });
 
-test("staged admission rejects wrong SHA, dirty sources, copied deployment, main and missing platform identity", () => {
+test("staged admission rejects wrong SHA, dirty sources, copied deployment, superseded branches and missing platform identity", () => {
   const badEnvs = [null, {}, ...Object.keys(env).map(key => ({ ...env, [key]: undefined })),
     { ...env, VERCEL_ENV: "preview" }, { ...env, VERCEL_TARGET_ENV: "preview" },
-    { ...env, VERCEL_GIT_COMMIT_REF: "main" }, { ...env, VERCEL_GIT_COMMIT_REF: "gpt/2029-residual205-books-personal-20261103" },
+    { ...env, VERCEL_GIT_COMMIT_REF: "gpt/2029-public-cutover-final-preparation-20261103" }, { ...env, VERCEL_GIT_COMMIT_REF: "gpt/2029-residual205-books-personal-20261103" },
     { ...env, VERCEL_PROJECT_ID: "prj_Other" }, { ...env, VERCEL_GIT_COMMIT_SHA: "b".repeat(40) },
     ...["sod1820.co.il", "www.sod1820.co.il", "sod1820.vercel.app", "evil.test",
       "sod1820-git-main-sod1820-s-projects.vercel.app", env.VERCEL_URL + ":443"].map(host => ({ ...env, VERCEL_URL: host }))];

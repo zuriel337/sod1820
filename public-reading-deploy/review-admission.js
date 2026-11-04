@@ -5,8 +5,8 @@
 // compiler records its own platform identity, which runtime must match exactly.
 // No user request/header/query or shared site flag selects this mode.
 export const REVIEW_PROJECT_ID = "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq";
-export const REVIEW_BRANCH = "gpt/2029-public-cutover-final-preparation-20261103";
-export const PRODUCTION_REVIEW_BRANCH = "gpt/2029-public-cutover-final-preparation-20261103";
+export const REVIEW_BRANCH = "gpt/2029-main-live-state-reconcile-20261104";
+export const PRODUCTION_REVIEW_BRANCH = "main";
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.
 export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";

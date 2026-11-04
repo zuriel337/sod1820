@@ -43,8 +43,8 @@ test('public-capable candidate needs exact real-shaped Production identity but d
  for(const key of ['productionAuthorized','cutoverAuthorized','domainAssignmentAuthorized'])assert.equal(receipt[key],false);
  assert.equal(publicCandidateRuntimeAuthorized(receipt,env),true);assert.equal(protectedReviewRuntimeAuthorized(receipt,env),false);assert.equal(receipt.authHost,undefined);
 });
-test('missing, wrong, copied, Preview, main, foreign, dirty and unpinned identities fail closed',()=>{
- const bad=[null,{},...Object.keys(env).map(k=>({...env,[k]:undefined})),{...env,VERCEL_ENV:'preview'},{...env,VERCEL_TARGET_ENV:'preview'},{...env,VERCEL_PROJECT_ID:'prj_other'},{...env,VERCEL_GIT_COMMIT_REF:'main'},{...env,VERCEL_GIT_COMMIT_SHA:'d'.repeat(40)},...['sod1820.co.il','www.sod1820.co.il','evil.vercel.app',env.VERCEL_URL+'.evil.test',REVIEW_AUTH_HOST].map(host=>({...env,VERCEL_URL:host}))];
+test('missing, wrong, copied, Preview, retired-branch, foreign, dirty and unpinned identities fail closed',()=>{
+ const bad=[null,{},...Object.keys(env).map(k=>({...env,[k]:undefined})),{...env,VERCEL_ENV:'preview'},{...env,VERCEL_TARGET_ENV:'preview'},{...env,VERCEL_PROJECT_ID:'prj_other'},{...env,VERCEL_GIT_COMMIT_REF:'gpt/2029-public-cutover-final-preparation-20261103'},{...env,VERCEL_GIT_COMMIT_SHA:'d'.repeat(40)},...['sod1820.co.il','www.sod1820.co.il','evil.vercel.app',env.VERCEL_URL+'.evil.test',REVIEW_AUTH_HOST].map(host=>({...env,VERCEL_URL:host}))];
  for(const v of bad){assert.throws(()=>publicCandidateBuildIdentity({...input,env:v}),/identity_rejected/);assert.equal(publicCandidateRuntimeAuthorized(receipt,v),false);}
  for(const v of [{sourceDirty:true},{requestedSourceSha:null},{requestedSourceSha:'HEAD'},{requestedSourceSha:'d'.repeat(40)}])assert.throws(()=>publicCandidateBuildIdentity({...input,...v}),/identity_rejected/);
  for(const key of ['sourceSha','projectId','branch','deploymentId','host','mode','target'])assert.equal(publicCandidateRuntimeAuthorized({...receipt,[key]:'wrong'},env),false,key);

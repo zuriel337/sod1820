@@ -37,4 +37,4 @@ assert.match(app, /path="\/community\/chat" element=\{CORE_PUBLIC_LAUNCH_2029 \?
 assert.match(app, /path="\/code" element=\{CORE_PUBLIC_LAUNCH_2029 \? <Product2029DocumentHandoff \/> : <CodePage \/>\}/);
 assert.match(app, /path="\/:slug" element=\{CORE_PUBLIC_LAUNCH_2029 \? <LegacyPostDocumentHandoff \/> : <PostBySlugRoute \/>\}/);
 
-console.log("Legacy Production lock: PASS");
+console.log("Legacy fallback compatibility: PASS (not live deployment verification)");

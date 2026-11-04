@@ -1,0 +1,23 @@
+{
+  "approvedPatchSource": "df0fd09f556066d09f584d707780f2b134efe90e",
+  "approvedPatchSha256": "7c250d29635f5225090f89374d3d101d1bfd835769a8ce78977ccfbb557baa4a",
+  "approval": "ZURIEL explicit separate gate-only reply; earlier independent main/publication instructions remain separate",
+  "exactFileBytesMatchTestedProposal": true,
+  "files": [
+    ".github/workflows/legacy-production-lock.yml",
+    "public-reading-deploy/review-admission.js",
+    "public-reading-deploy/vercel.json",
+    "scripts/test-legacy-production-lock.mjs",
+    "scripts/test-public-reading-main-release-contract.mjs",
+    "test/public-reading-main-release-contract.test.mjs",
+    "test/public-reading-production-review.test.mjs",
+    "test/public-reading-public-candidate.test.mjs",
+    "vercel.json"
+  ],
+  "currentTests": 53,
+  "pass": 53,
+  "fail": 0,
+  "automaticGitDeploymentDisabledAtBothRoots": true,
+  "mainMerged": false,
+  "productionChangedByRoot": false
+}
