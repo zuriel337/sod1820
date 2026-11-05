@@ -105,6 +105,8 @@ jobs:
           src/lib/research/number2029LiveGlass.test.js
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
+      - name: Bottom command bar is one row (nothing lifts the Raziel orb off the centre line of the other four controls)
+        run: node --test test/command-island-one-row-2029.test.mjs
       - name: Beit Midrash contracts (World lenses over the governed tree attachment, methods study, learning projection, study UI, source reading, route, method registry and definitions)
         run: >
           node --test
