@@ -2,6 +2,8 @@ const { test, expect } = require('@playwright/test');
 const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
 const { installPublicReadOnlyEgress, disposePublicReadOnlyEgress } = require('./fixtures/public-readonly-egress.cjs');
 
+const { installSyntheticAdmin } = require('./fixtures/synthetic-admin-session.cjs');
+
 const BASE = 'http://127.0.0.1:4173';
 
 test.beforeEach(async ({ context }) => {
@@ -45,6 +47,8 @@ test.setTimeout(60_000);
 test.describe.configure({ mode: 'serial' });
 
 test('direct Post opens Number; contextual teaching and help retain the same focus at 390px', async ({ page }) => {
+  // "כאן" (page map/context) is an admin-only dock control: this scenario runs as the synthetic admin viewer (test-only fixture).
+  await installSyntheticAdmin(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.addInitScript((key) => {
     try { localStorage.removeItem(key); } catch {}
