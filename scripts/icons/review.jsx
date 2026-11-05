@@ -2,7 +2,7 @@ import React,{useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import Icon,{ICON_CATALOG} from '../../src/components/experience2029/NavigationIcon2029.jsx';
 import {resolve2029Palette} from '../../src/lib/palette2029.js';
-import {useThemePreset,setThemePreset} from '../../src/lib/themeMode.js';
+import {useThemePreset,setThemePreset} from '../../src/lib/themePreset2029.js';
 import {TYPEFACE} from '../../src/lib/designTokens.js';
 import './review.css';
 function Review(){

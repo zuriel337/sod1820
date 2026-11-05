@@ -63,8 +63,8 @@ try {
     await page.waitForTimeout(2500);
     for (const preset of presets) {
       await page.evaluate(async preset => {
-        const { resolve2029Palette } = await import('/src/lib/palette.js'), p = resolve2029Palette(preset);
-        const { TYPEFACE } = await import('/src/lib/designTokens.js'), { setThemePreset } = await import('/src/lib/themeMode.js');
+        const { resolve2029Palette } = await import('/src/lib/palette2029.js'), p = resolve2029Palette(preset);
+        const { TYPEFACE } = await import('/src/lib/designTokens.js'), { setThemePreset } = await import('/src/lib/themePreset2029.js');
         setThemePreset(preset);
         for (const [key, value] of Object.entries(TYPEFACE)) document.body.style.setProperty('--s29-font-' + key, value);
         document.body.style.fontFamily = TYPEFACE.body;
@@ -77,7 +77,7 @@ try {
       }, preset);
       await page.waitForTimeout(150);
       const roles = await page.evaluate(async preset => {
-        const { resolve2029Palette, resolveTreatment } = await import('/src/lib/palette.js'), p = resolve2029Palette(preset), want = k => resolveTreatment(p, { purpose: k }).fg;
+        const { resolve2029Palette, resolveTreatment } = await import('/src/lib/palette2029.js'), p = resolve2029Palette(preset), want = k => resolveTreatment(p, { purpose: k }).fg;
         const got = sel => document.querySelector(sel)?.style.getPropertyValue('--tr-fg').trim() ?? null;
         return { number: [got('.r29-num'), want('identity')], share: [got('.r29-share'), want('discovery')], action: [got('.r29-river'), want('action')] };
       }, preset);

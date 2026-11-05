@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { F } from "../theme.js";
+import { TYPEFACE } from "../lib/designTokens.js";
 import { KEY_NUMBERS } from "../lib/gematriaCore.js";
 import { cleanName } from "../lib/galleryName.js";
 import { shortDate, domNum, hintNums } from "../lib/reality.js";
@@ -96,7 +96,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
       >
         <button onClick={onClose} style={closeBtn} aria-label="סגור">✕</button>
         {images.length > 1 && (
-          <span style={{ color: "#ffffff55", fontFamily: F.heading, fontSize: 12.5 }}>
+          <span style={{ color: "#ffffff55", fontFamily: TYPEFACE.ui, fontSize: 12.5 }}>
             {idx + 1} / {images.length}
           </span>
         )}
@@ -117,7 +117,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
         )}
         {v != null && (
           <Link to={`/number/${v}`} onClick={onClose}
-            style={{ background: "rgba(212,175,55,0.88)", color: "#1a0e00", fontFamily: F.mono, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "4px 16px", textDecoration: "none" }}>{v}</Link>
+            style={{ background: "rgba(212,175,55,0.88)", color: "#1a0e00", fontFamily: TYPEFACE.numeric, fontWeight: 800, fontSize: 14, borderRadius: 999, padding: "4px 16px", textDecoration: "none" }}>{v}</Link>
         )}
       </div>
 
@@ -154,22 +154,22 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
         {hasInfo && (
           <aside className="lb-panel" onClick={e => e.stopPropagation()}>
             {note && (
-              <div style={{ display: "inline-block", background: "rgba(62,166,255,0.14)", border: "1px solid rgba(62,166,255,0.5)", color: "#8fd0ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, borderRadius: 999, padding: "5px 14px", marginBottom: 12 }}>
+              <div style={{ display: "inline-block", background: "rgba(62,166,255,0.14)", border: "1px solid rgba(62,166,255,0.5)", color: "#8fd0ff", fontFamily: TYPEFACE.ui, fontSize: 12.5, fontWeight: 700, borderRadius: 999, padding: "5px 14px", marginBottom: 12 }}>
                 {note}
               </div>
             )}
             {title
-              ? <div style={{ color: "#fff", fontFamily: F.regal, fontSize: 18, fontWeight: 700, lineHeight: 1.45, marginBottom: 6 }}>{title}</div>
-              : h?.name ? <div style={{ color: "#ffffffcc", fontFamily: F.body, fontSize: 15, marginBottom: 6 }}>{h.name}</div> : null}
+              ? <div style={{ color: "#fff", fontFamily: TYPEFACE.display, fontSize: 18, fontWeight: 700, lineHeight: 1.45, marginBottom: 6 }}>{title}</div>
+              : h?.name ? <div style={{ color: "#ffffffcc", fontFamily: TYPEFACE.body, fontSize: 15, marginBottom: 6 }}>{h.name}</div> : null}
 
             {date && (
-              <div style={{ color: "#ffffff77", fontFamily: F.heading, fontSize: 12.5, fontWeight: 700, marginBottom: 12 }}>🗓️ {date}</div>
+              <div style={{ color: "#ffffff77", fontFamily: TYPEFACE.ui, fontSize: 12.5, fontWeight: 700, marginBottom: 12 }}>🗓️ {date}</div>
             )}
 
             {research && (
               <div className="lb-sec" data-lightbox-research="true">
                 <div className="lb-sec-t">פרטי מחקר</div>
-                <div style={{ color: "#ffffffaa", fontFamily: F.body, fontSize: 13, lineHeight: 1.6 }}>
+                <div style={{ color: "#ffffffaa", fontFamily: TYPEFACE.body, fontSize: 13, lineHeight: 1.6 }}>
                   <div>OCR: {({ done: "הושלם", pending: "ממתין", error: "שגיאה" })[research.ocrStatus] || "לא ידוע"}</div>
                   {research.sourceLabel ? <div>מקור: {research.sourceLabel}</div> : null}
                   {research.mediaKind === "screenshot" ? <div>סוג: צילום מסך (לפי מטא־דאטה שמורה)</div> : null}
@@ -206,7 +206,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
             {desc && (
               <div className="lb-sec">
                 <div className="lb-sec-t">תיאור</div>
-                <div style={{ color: "#ffffffb5", fontFamily: F.body, fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{desc}</div>
+                <div style={{ color: "#ffffffb5", fontFamily: TYPEFACE.body, fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{desc}</div>
               </div>
             )}
 
@@ -250,7 +250,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
         style={{ flexShrink: 0, display: "flex", justifyContent: "center", padding: "10px 16px calc(12px + env(safe-area-inset-bottom))",
           background: "linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.55) 60%, rgba(0,0,0,0) 100%)" }}>
         <button onClick={onClose} aria-label="סגור תמונה"
-          style={{ background: "rgba(0,0,0,0.72)", border: "2px solid rgba(255,255,255,0.7)", color: "#fff", fontFamily: F.heading, fontWeight: 800, fontSize: 15.5,
+          style={{ background: "rgba(0,0,0,0.72)", border: "2px solid rgba(255,255,255,0.7)", color: "#fff", fontFamily: TYPEFACE.ui, fontWeight: 800, fontSize: 15.5,
             borderRadius: 999, padding: "11px 34px", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 9, boxShadow: "0 4px 18px rgba(0,0,0,0.55)", backdropFilter: "blur(3px)" }}>✕ סגירה</button>
       </div>
     </div>
@@ -271,22 +271,22 @@ const LB_CSS = `
   .lb-panel { flex-shrink: 0; max-height: 38vh; overflow-y: auto; padding: 14px 18px 18px; -webkit-overflow-scrolling: touch; }
   .lb-main.lb-scroll .lb-panel { max-height: none; overflow: visible; }
   .lb-sec { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); }
-  .lb-sec-t { color: #ffffff66; font-family: ${F.heading}; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
+  .lb-sec-t { color: #ffffff66; font-family: ${TYPEFACE.ui}; font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; }
   .lb-num { display: flex; align-items: center; gap: 10px; text-decoration: none;
     background: rgba(255,255,255,0.04); border: 1px solid rgba(212,175,55,0.2); border-radius: 10px; padding: 8px 12px; transition: border-color .15s, background .15s; }
   .lb-num:hover { border-color: #d4af37; background: rgba(212,175,55,0.1); }
   .lb-num.dom { background: linear-gradient(135deg, rgba(246,221,146,0.16), rgba(212,175,55,0.08)); border-color: rgba(212,175,55,0.55); }
-  .lb-num-v { font-family: ${F.mono}; font-weight: 800; font-size: 16px; color: #f6dd92; min-width: 44px; }
+  .lb-num-v { font-family: ${TYPEFACE.numeric}; font-weight: 800; font-size: 16px; color: #f6dd92; min-width: 44px; }
   .lb-num.dom .lb-num-v { color: #ffe9a8; }
-  .lb-num-m { flex: 1; color: #ffffffb0; font-family: ${F.body}; font-size: 12.5px; line-height: 1.4; }
+  .lb-num-m { flex: 1; color: #ffffffb0; font-family: ${TYPEFACE.body}; font-size: 12.5px; line-height: 1.4; }
   .lb-num-go { color: #d4af3788; font-size: 14px; }
-  .lb-tag { background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.32); color: #e6c66a; font-family: ${F.heading}; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 11px; }
+  .lb-tag { background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.32); color: #e6c66a; font-family: ${TYPEFACE.ui}; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 3px 11px; }
   .lb-cta { display: block; text-align: center; text-decoration: none; margin-top: 16px;
-    background: linear-gradient(135deg, #f6dd92, #d4af37); color: #1a0e00; font-family: ${F.heading}; font-weight: 800; font-size: 13.5px;
+    background: linear-gradient(135deg, #f6dd92, #d4af37); color: #1a0e00; font-family: ${TYPEFACE.ui}; font-weight: 800; font-size: 13.5px;
     border-radius: 11px; padding: 11px 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
   .lb-edit { display: block; width: 100%; margin-top: 10px; cursor: pointer;
     background: rgba(212,175,55,0.1); border: 1px solid rgba(212,175,55,0.45); color: #d4af37;
-    font-family: ${F.heading}; font-weight: 700; font-size: 13.5px; border-radius: 11px; padding: 10px 16px; }
+    font-family: ${TYPEFACE.ui}; font-weight: 700; font-size: 13.5px; border-radius: 11px; padding: 10px 16px; }
   @media (min-width: 920px) {
     .lb-main, .lb-main.lb-scroll { flex-direction: row; overflow: hidden; }
     .lb-imgpane { padding: 0 10px; }

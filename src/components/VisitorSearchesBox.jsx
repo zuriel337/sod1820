@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { C, F } from "../theme.js";
+import { use2029Palette } from "../lib/palette2029.js";
+import { accentRoles2029 } from "../lib/paletteRoles2029.js";
+import { TYPEFACE } from "../lib/designTokens.js";
 import { getWallRecent } from "../lib/supabase.js";
 import { timeAgoHe } from "../lib/format.js";
 import { isReadable } from "../lib/nameMask.js";
@@ -13,6 +15,7 @@ const wallText = (r) => (wallOk(r) ? r.phrase : "★★★");
 // השמות/המילים/הביטויים שאנשים בדקו במחשבון. רשימה נפרדת מהמאגר המאומת.
 // מובהר לגולש שאלו חיפושים של אנשים. נייטיב לכל מקום שיש בו חיפוש.
 export default function VisitorSearchesBox({ light = false, limit = 24, onPick, refreshKey }) {
+  const C = accentRoles2029(use2029Palette());
   const [rows, setRows] = useState(null);
 
   const load = useCallback(() => {
@@ -28,9 +31,9 @@ export default function VisitorSearchesBox({ light = false, limit = 24, onPick, 
 
   const chipInner = (r) => (
     <>
-      <span style={{ color: P.ink, fontFamily: F.body, fontSize: 14, fontWeight: 600 }}>{wallText(r)}</span>
-      <span style={{ background: P.badge, color: P.gold, fontFamily: F.mono, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px", minWidth: 26, textAlign: "center" }}>{r.ragil}</span>
-      {r.last_at && <span style={{ color: P.sub, fontFamily: F.body, fontSize: 11, whiteSpace: "nowrap" }}>· {timeAgoHe(r.last_at)}</span>}
+      <span style={{ color: P.ink, fontFamily: TYPEFACE.body, fontSize: 14, fontWeight: 600 }}>{wallText(r)}</span>
+      <span style={{ background: P.badge, color: P.gold, fontFamily: TYPEFACE.numeric, fontSize: 12, fontWeight: 800, borderRadius: 999, padding: "2px 9px", minWidth: 26, textAlign: "center" }}>{r.ragil}</span>
+      {r.last_at && <span style={{ color: P.sub, fontFamily: TYPEFACE.body, fontSize: 11, whiteSpace: "nowrap" }}>· {timeAgoHe(r.last_at)}</span>}
     </>
   );
   const chipStyle = { display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer",
@@ -39,11 +42,11 @@ export default function VisitorSearchesBox({ light = false, limit = 24, onPick, 
   return (
     <div style={{ background: P.panel, border: `1px solid ${P.line}`, borderRadius: 16, padding: "14px 16px" }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-        <span style={{ color: P.gold, fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>🔎 מה גולשים חיפשו</span>
-        <span style={{ color: P.sub, fontFamily: F.body, fontSize: 12.5 }}>שמות, מילים וביטויים שאנשים בדקו במחשבון — לחצו לחקור</span>
+        <span style={{ color: P.gold, fontFamily: TYPEFACE.display, fontSize: 16, fontWeight: 800 }}>🔎 מה גולשים חיפשו</span>
+        <span style={{ color: P.sub, fontFamily: TYPEFACE.body, fontSize: 12.5 }}>שמות, מילים וביטויים שאנשים בדקו במחשבון — לחצו לחקור</span>
       </div>
       {rows === null ? (
-        <div style={{ color: P.sub, fontFamily: F.body, fontSize: 13, padding: 4 }}>טוען…</div>
+        <div style={{ color: P.sub, fontFamily: TYPEFACE.body, fontSize: 13, padding: 4 }}>טוען…</div>
       ) : (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {rows.map((r) => onPick ? (

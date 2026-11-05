@@ -767,8 +767,8 @@ import {MemoryRouter} from 'react-router-dom';
 import Native from '/src/components/experience2029/ElsNativeClassic2029.jsx';
 import Advanced from '/src/components/experience2029/ElsAdvancedSearch2029.jsx';
 import '/src/components/experience2029/els2029-research.css';
-import {resolve2029Palette,usePalette} from '/src/lib/palette.js';
-import {useThemePreset,setThemePreset} from '/src/lib/themeMode.js';
+import {resolve2029Palette,use2029Palette} from '/src/lib/palette2029.js';
+import {useThemePreset,setThemePreset} from '/src/lib/themePreset2029.js';
 import {findingColorChoices,projectFindingColor,nextFindingColor} from '/src/components/experience2029/elsFindingColors2029.js';
 import '/src/components/experience2029/sod2029.css';
 import '/src/components/experience2029/sod2029-closed.css';
@@ -802,7 +802,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
- function PaletteProbe(){const p=usePalette();return React.createElement('span',{'data-palette-probe':JSON.stringify({accent:p.accent,panel:p.card}),hidden:true});}
+ function PaletteProbe(){const p=use2029Palette();return React.createElement('span',{'data-palette-probe':JSON.stringify({accent:p.accent,panel:p.card}),hidden:true});}
  function FullFrameFixture(){
   const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
   const [,forceRender]=React.useState(0);window.__forceParentRender=()=>flushSync(()=>forceRender(n=>n+1));

@@ -1,7 +1,7 @@
 // Test-only component harness. No product route, reader or source iframe.
 import React,{useState,useEffect,StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
-import {setThemePreset,useThemePreset} from '../../../src/lib/themeMode.js';
+import {setThemePreset,useThemePreset} from '../../../src/lib/themePreset2029.js';
 import {use2029Palette} from '../../../src/lib/palette2029.js';
 import LetterFamiliesModel2029 from '../../../src/components/books2029/yetzirahModels/LetterFamiliesModel2029.jsx';
 import PhoneticGroupsModel2029 from '../../../src/components/books2029/yetzirahModels/PhoneticGroupsModel2029.jsx';

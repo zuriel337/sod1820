@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import FindingSurface from "./FindingSurface.jsx";
-import { use2029Palette } from "../../lib/palette.js";
+import { use2029Palette } from "../../lib/palette2029.js";
 import { LAYOUT, RADIUS, SPACE, TYPE_SCALE_V2 as TYPE_SCALE, TYPEFACE as F } from "../../lib/designTokens.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { galThumb } from "../../lib/img.js";

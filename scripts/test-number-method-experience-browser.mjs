@@ -128,7 +128,7 @@ try {
   }, r3fModuleUrl, { timeout: 30000 });
   const materials = [];
   for (const preset of ["dark", "light", "parchment"]) {
-    await page.evaluate(async (value) => (await import("/src/lib/themeMode.js")).setThemePreset(value), preset);
+    await page.evaluate(async (value) => (await import("/src/lib/themePreset2029.js")).setThemePreset(value), preset);
     await page.waitForTimeout(350);
     await layout(`mistater-${preset}`);
     const material = await page.evaluate(async (url) => {
@@ -148,7 +148,7 @@ try {
   }
   assert.ok(new Set(materials.map((m) => m.glyphs[0].color)).size >= 2, "3D materials follow palette changes");
   receipt.cases.push({ name: "svg-extrusion-and-presets", materials });
-  await page.evaluate(async () => (await import("/src/lib/themeMode.js")).setThemePreset("dark"));
+  await page.evaluate(async () => (await import("/src/lib/themePreset2029.js")).setThemePreset("dark"));
   await inspector.screenshot({ animations: "disabled", path: `${output}/mistater-3d.png` });
   receipt.cases.push({ name: "mistater-3d", scene, canvas: true });
   await inspector.locator('[data-s4-action="return"]').click();

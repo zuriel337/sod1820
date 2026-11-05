@@ -37,7 +37,8 @@ export function crawl(entry) {
 const mustNotExist = [
   "index.html", "src/App.jsx", "src/main.jsx", "src/routes.jsx", "src/legacy", "src/adminTheme.css",
   "src/components/userCenter/UserCenter.jsx", "src/pages/AdminPage.jsx", "src/pages/PostEditorPage.jsx",
-  "src/lib/appHeal.js",
+  "src/lib/appHeal.js", "src/lib/palette.js", "src/lib/themeMode.js", "src/lib/lightRoutes.js", "src/lib/chromeTheme.js", "src/lib/stream.js",
+  "src/components/layout", "src/components/admin/ResearchViewerLegacyV0Page.jsx",
 ];
 for (const p of mustNotExist) assert.equal(fs.existsSync(path.join(root, p)), false, `retired Legacy path must not exist: ${p}`);
 
@@ -45,7 +46,4 @@ for (const p of mustNotExist) assert.equal(fs.existsSync(path.join(root, p)), fa
 const { parent, unresolved } = crawl("src/main2029.jsx");
 assert.deepEqual(unresolved, [], `2029 graph imports files that do not exist:\n  ${unresolved.join("\n  ")}`);
 
-// 3. The retired Legacy theme modules are not imported by 2029-owned code.
-const retiredTheme = ["src/lib/themeMode.js", "src/lib/palette.js"];
-void retiredTheme; // enforced for 2029-named modules by test-2029-theme-isolation.mjs until the remaining shared UI is migrated
 console.log(`2029 module boundary: PASS (${parent.size} modules, Legacy runtime absent, graph closed)`);

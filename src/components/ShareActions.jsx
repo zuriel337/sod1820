@@ -1,10 +1,10 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { F } from "../theme.js";
+import { TYPEFACE } from "../lib/designTokens.js";
 import NavigationIcon2029 from "./experience2029/NavigationIcon2029.jsx";
 import "./experience2029/contentActions2029.css";
 
-import { usePalette, use2029Palette } from "../lib/palette.js";
+import { use2029Palette } from "../lib/palette2029.js";
 import { CHANNELS as CH, SHARE_SITE as SITE, canNativeShare, nativeShare, copyLink, floatingShareShown, canShareFile, shareImageFile } from "../lib/share.js";
 import { createShareIntent, resolveModality } from "../lib/share/shareObject.js";
 import { emitShare, shareSlug, attributedShareUrl } from "../lib/share/shareTelemetry.js";
@@ -36,7 +36,7 @@ export default function ShareActions({
   video = null, poster = null, onShare = null, variant = "default",
   iconLabel = "שתף קישור לתמונה", iconCopiedLabel = "הקישור לתמונה הועתק",
 }) {
-  const P = usePalette();
+  const P = use2029Palette();
   const visualPalette = use2029Palette();
   const copyTimer = useRef(null);
   const [copyFailed, setCopyFailed] = useState(false);
@@ -132,7 +132,7 @@ export default function ShareActions({
 
   const btn = { display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", textDecoration: "none",
     background: P.card, borderWidth: 1, borderStyle: "solid", borderColor: P.border, borderRadius: 999, padding: compact ? "8px 11px" : "8px 15px",
-    fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, color: P.ink, minHeight: 44, whiteSpace: "nowrap", flexShrink: 0 };
+    fontFamily: TYPEFACE.ui, fontSize: 12.5, fontWeight: 800, color: P.ink, minHeight: 44, whiteSpace: "nowrap", flexShrink: 0 };
   const label = (t) => compact ? null : <span>{t}</span>;
 
   return (

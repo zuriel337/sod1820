@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
+import { TYPEFACE } from "../lib/designTokens.js";
+import { use2029Palette } from "../lib/palette2029.js";
 import {
   canonicalProgressPercent,
   canonicalProgressTier,
@@ -82,7 +82,7 @@ export default function CanonicalProgress({
   className = "",
   copy = null,
 }) {
-  const palette = usePalette();
+  const palette = use2029Palette();
   const t = useMemo(() => ({ ...DEFAULT_CANONICAL_PROGRESS_COPY, ...(copy || {}) }), [copy]);
   const startedAt = useRef(Date.now());
   const [elapsed, setElapsed] = useState(0);
@@ -119,7 +119,7 @@ export default function CanonicalProgress({
     "--cp-on-accent": palette.onAccent,
     "--cp-accent-btn": palette.accentBtn,
     "--cp-progress": percent == null ? "38%" : `${Math.max(0, Math.min(100, percent))}%`,
-    fontFamily: `var(--s29-font-body, ${F.body})`,
+    fontFamily: `var(--s29-font-body, ${TYPEFACE.body})`,
   };
 
   return (

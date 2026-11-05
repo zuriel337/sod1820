@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { displayAvatarUrl, writerAvatarStyle } from "../lib/avatar.js";
-import { use2029Palette } from "../lib/palette.js";
+import { use2029Palette } from "../lib/palette2029.js";
 import "./UserBadge.css";
 
 // Canonical user presentation. Identity/visibility must be resolved by the reader;

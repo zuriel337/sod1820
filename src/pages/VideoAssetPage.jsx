@@ -2,8 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Navigate, Link, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase.js";
 import { applySeo, clearUnifiedVideoJsonLd, setUnifiedVideoJsonLd } from "../lib/seo.js";
-import { usePalette } from "../lib/palette.js";
-import { F } from "../theme.js";
+import { use2029Palette } from "../lib/palette2029.js";
+import { TYPEFACE } from "../lib/designTokens.js";
 
 const SERIES_LABELS = {
   "or-geula": "אור הגאולה",
@@ -72,7 +72,7 @@ export function Player({ asset, poster }) {
 
 export default function VideoAssetPage() {
   const { assetId } = useParams();
-  const P = usePalette();
+  const P = use2029Palette();
   const [state, setState] = useState({ loading: true, asset: null, error: null });
 
   useEffect(() => {
@@ -146,8 +146,8 @@ export default function VideoAssetPage() {
 
   return <main style={{ direction: "rtl", minHeight: "100vh", background: P.pageBg, color: P.ink }}>
     <div style={{ maxWidth: 980, margin: "0 auto", padding: "42px 16px 90px" }}>
-      <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800, letterSpacing: ".08em" }}>VIDEO · SOD1820</div>
-      <h1 style={{ fontFamily: F.regal, fontSize: "clamp(28px,5vw,46px)", margin: "8px 0 20px", lineHeight: 1.18 }}>{title}</h1>
+      <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 12, fontWeight: 800, letterSpacing: ".08em" }}>VIDEO · SOD1820</div>
+      <h1 style={{ fontFamily: TYPEFACE.display, fontSize: "clamp(28px,5vw,46px)", margin: "8px 0 20px", lineHeight: 1.18 }}>{title}</h1>
 
       <Player asset={{ ...asset, title }} poster={poster} />
 
@@ -158,7 +158,7 @@ export default function VideoAssetPage() {
       </section> : null}
 
       {linkedPlacements.length ? <section style={{ marginTop: 30, borderTop: `1px solid ${P.border}`, paddingTop: 20 }}>
-        <h2 style={{ fontFamily: F.heading, fontSize: 18 }}>מופיע גם בתוך</h2>
+        <h2 style={{ fontFamily: TYPEFACE.ui, fontSize: 18 }}>מופיע גם בתוך</h2>
         <div style={{ display: "grid", gap: 8 }}>
           {linkedPlacements.map((p, i) => {
             const path = internalPath(p.page_url);

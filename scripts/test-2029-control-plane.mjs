@@ -11,7 +11,6 @@ const vercel = JSON.parse(read("vercel.json"));
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const egressMigration = read("supabase/migrations/20260928113000_egress_hardening_monitoring_v1.sql");
 const videoThumb = read("src/lib/videoThumb.js");
-const storyChip = read("src/components/OrGeulaStoryChip.jsx");
 const post2029 = read("src/pages/Post2029Page.jsx");
 
 assert.match(app, /ControlPlane2029Page/);
@@ -77,12 +76,6 @@ assert.match(egressMigration, /status = 'sensor_stale'/);
 assert.ok(!/create table/i.test(egressMigration), "egress monitoring must reuse analytics_cache, not create a parallel ledger");
 assert.ok(!/api\/sitemap\.js|video:content_loc|setVideoGalleryJsonLd|setPostVideoJsonLd|setOrGeulaVideosJsonLd/i.test(egressMigration), "egress monitoring must not seize the parallel SEO implementation scope");
 
-// Public surfaces cannot generate thumbnails by fetching hidden videos anymore.
-for (const [name, source] of [
-  ["OrGeulaStoryChip", storyChip],
-]) {
-  assert.equal(source.includes("ensureVideoThumbs"), false, `${name} must not invoke client thumbnail capture`);
-}
 assert.match(videoThumb, /retired: true/);
 assert.equal(videoThumb.includes('document.createElement("video")'), false, "thumbnail compatibility module must never create hidden video");
 assert.equal(videoThumb.includes('preload = "auto"'), false, "thumbnail compatibility module must never preload video");

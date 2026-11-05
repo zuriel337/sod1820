@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
-import { setForcedMode, hasStoredThemePreference } from "../lib/themeMode.js";
+import { TYPEFACE } from "../lib/designTokens.js";
+import { use2029Palette } from "../lib/palette2029.js";
+import { setForcedMode, hasStoredThemePreference } from "../lib/themePreset2029.js";
 import { onlyHeb, METHODS } from "../lib/gematria.js";
 import { resolve } from "../lib/engine.js";
 import { getAllValuePhrases, addWallWord, getAiAnalysis } from "../lib/supabase.js";
@@ -81,8 +81,8 @@ function BabyNameTool({ P, methodStates, initialState, onStateChange, renderTool
     onStateChange?.({ names, family, bDate, afterSunset, showCtx });
   }, [names, family, bDate, afterSunset, showCtx, onStateChange]);
 
-  const chip = { display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 999, fontFamily: F.body, fontSize: 13, fontWeight: 700, textDecoration: "none" };
-  const fld = { width: "100%", boxSizing: "border-box", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 12, color: P.ink, fontFamily: F.heading, fontSize: 18, fontWeight: 700, padding: "13px 15px", textAlign: "center", outline: "none" };
+  const chip = { display: "inline-flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 999, fontFamily: TYPEFACE.body, fontSize: 13, fontWeight: 700, textDecoration: "none" };
+  const fld = { width: "100%", boxSizing: "border-box", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 12, color: P.ink, fontFamily: TYPEFACE.ui, fontSize: 18, fontWeight: 700, padding: "13px 15px", textAlign: "center", outline: "none" };
 
   // ניתוח כל שם: 3 שיטות + חיבור-לסוד + ערך רגיל
   const analyzed = useMemo(() => names.map(n => {
@@ -164,8 +164,8 @@ function BabyNameTool({ P, methodStates, initialState, onStateChange, renderTool
     <div style={{ display: "grid", gap: 16 }}>
       {/* שלב 1 — שמות */}
       <div style={{ background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 14, padding: "16px" }}>
-        <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800, textAlign: "center", marginBottom: 3 }}>👶 כלי מחקר לשם תינוק</div>
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, textAlign: "center", lineHeight: 1.7, marginBottom: 12 }}>
+        <div style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 16, fontWeight: 800, textAlign: "center", marginBottom: 3 }}>👶 כלי מחקר לשם תינוק</div>
+        <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 12.5, textAlign: "center", lineHeight: 1.7, marginBottom: 12 }}>
           כלי-גילוי, לא שיפוט — מציג את הקשרים והמשמעויות, ואתם מחליטים. הזינו שם אחד או עד שלושה להשוואה.
         </div>
         <div style={{ display: "grid", gap: 10 }}>
@@ -174,23 +174,23 @@ function BabyNameTool({ P, methodStates, initialState, onStateChange, renderTool
           ))}
         </div>
         {names.length < 3 && (
-          <button onClick={() => setNames(a => [...a, ""])} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "underline", marginTop: 10 }}>+ הוסף שם להשוואה</button>
+          <button onClick={() => setNames(a => [...a, ""])} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 13, fontWeight: 700, textDecoration: "underline", marginTop: 10 }}>+ הוסף שם להשוואה</button>
         )}
       </div>
 
       {/* שלב 2 — הקשר אופציונלי */}
       <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 14, padding: showCtx ? "16px" : "0" }}>
         {!showCtx ? (
-          <button onClick={() => setShowCtx(true)} style={{ cursor: "pointer", width: "100%", background: "none", border: "none", color: P.accentDim, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, padding: "13px" }}>
+          <button onClick={() => setShowCtx(true)} style={{ cursor: "pointer", width: "100%", background: "none", border: "none", color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 13.5, fontWeight: 700, padding: "13px" }}>
             ➕ שלב 2 (אופציונלי): שם משפחה + תאריך לידה — להתאמות וקשרים
           </button>
         ) : (
           <div style={{ display: "grid", gap: 10 }}>
-            <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800 }}>הקשר (אופציונלי) — לא חובה, מוסיף עומק</div>
+            <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 12, fontWeight: 800 }}>הקשר (אופציונלי) — לא חובה, מוסיף עומק</div>
             <input style={{ ...fld, fontSize: 16 }} value={family} onChange={e => setFamily(e.target.value)} placeholder="שם משפחה…" dir="rtl" />
-            <label style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800, textAlign: "center", marginTop: 2 }}>📅 תאריך לידה (לועזי) — הזינו יום, חודש ושנה</label>
+            <label style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 12, fontWeight: 800, textAlign: "center", marginTop: 2 }}>📅 תאריך לידה (לועזי) — הזינו יום, חודש ושנה</label>
             <HumanDateInput value={bDate} onChange={setBDate} disableFuture />
-            {heb && <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13, textAlign: "center" }}>🗓️ תאריך עברי: <b>{heb.pretty}</b> = <b style={{ fontFamily: F.mono }}>{heb.value}</b></div>}
+            {heb && <div style={{ color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 13, textAlign: "center" }}>🗓️ תאריך עברי: <b>{heb.pretty}</b> = <b style={{ fontFamily: TYPEFACE.numeric }}>{heb.value}</b></div>}
           </div>
         )}
       </div>
@@ -205,15 +205,15 @@ function BabyNameTool({ P, methodStates, initialState, onStateChange, renderTool
         return (
           <div key={i} style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 16, padding: "18px 16px" }}>
             <div style={{ textAlign: "center", marginBottom: 12 }}>
-              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>{a.name}</div>
+              <div style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 20, fontWeight: 800 }}>{a.name}</div>
             </div>
             {/* 3 שיטות */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
               {a.core.map(c => (
                 <Link key={c.key} to={`/number/${c.value}`} title={CORE3_INFO[c.key]?.desc} style={{ textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 4px", textAlign: "center" }}>
-                  <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: 22, fontWeight: 800 }}>{c.value}</div>
-                  <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 11, fontWeight: 800 }}>{c.key}</div>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 9.5 }}>{CORE3_INFO[c.key]?.tag}</div>
+                  <div style={{ color: P.heroNum, fontFamily: TYPEFACE.numeric, fontSize: 22, fontWeight: 800 }}>{c.value}</div>
+                  <div style={{ color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 11, fontWeight: 800 }}>{c.key}</div>
+                  <div style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 9.5 }}>{CORE3_INFO[c.key]?.tag}</div>
                 </Link>
               ))}
             </div>
@@ -226,7 +226,7 @@ function BabyNameTool({ P, methodStates, initialState, onStateChange, renderTool
             {/* ביטויים תואמים */}
             {phrases && phrases.length > 0 && (
               <div style={{ marginBottom: 12 }}>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, marginBottom: 6, textAlign: "center" }}>✨ שווה בגימטריה גם ל:</div>
+                <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 11.5, fontWeight: 800, marginBottom: 6, textAlign: "center" }}>✨ שווה בגימטריה גם ל:</div>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
                   {phrases.slice(0, 8).filter(p => p.phrase !== a.name).map(p => (
                     <Link key={p.phrase} to={`/number/${a.value}`} style={{ ...chip, background: P.cardSoft, color: P.accentText, border: `1px solid ${P.border}`, fontSize: 12 }}>{p.is_verified ? "✓ " : ""}{p.phrase}</Link>
@@ -237,31 +237,31 @@ function BabyNameTool({ P, methodStates, initialState, onStateChange, renderTool
             {/* התאמות — שם משפחה / תאריך לידה */}
             {(famMatch.length > 0 || dateEq || (fam && fam.value === a.value)) && (
               <div style={{ background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "11px 13px", marginBottom: 12 }}>
-                <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 5 }}>🔎 התאמות שנמצאו</div>
-                {fam && fam.value === a.value && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>• השם ושם המשפחה «{fam.name}» שווים באותו ערך רגיל ({a.value}).</div>}
-                {famMatch.length > 0 && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>• מתחבר לשם המשפחה ב-{famMatch.length} שיטות: {famMatch.map(m => m.key).join(" · ")}.</div>}
-                {dateEq && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7 }}>• גימטריית השם שווה בדיוק לגימטריית תאריך הלידה העברי ({heb.value}).</div>}
+                <div style={{ color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 12.5, fontWeight: 800, marginBottom: 5 }}>🔎 התאמות שנמצאו</div>
+                {fam && fam.value === a.value && <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 12.5, lineHeight: 1.7 }}>• השם ושם המשפחה «{fam.name}» שווים באותו ערך רגיל ({a.value}).</div>}
+                {famMatch.length > 0 && <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 12.5, lineHeight: 1.7 }}>• מתחבר לשם המשפחה ב-{famMatch.length} שיטות: {famMatch.map(m => m.key).join(" · ")}.</div>}
+                {dateEq && <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 12.5, lineHeight: 1.7 }}>• גימטריית השם שווה בדיוק לגימטריית תאריך הלידה העברי ({heb.value}).</div>}
               </div>
             )}
             {/* ניתוח AI עובדתי — 3 זוויות (זמני, לבדיקה איזו משתלבת) */}
             <div style={{ marginBottom: 12 }}>
-              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, fontWeight: 800, textAlign: "center", marginBottom: 7 }}>🤖 ניתוח AI — בחרו זווית:</div>
+              <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 11.5, fontWeight: 800, textAlign: "center", marginBottom: 7 }}>🤖 ניתוח AI — בחרו זווית:</div>
               <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
                 {AI_ANGLES.map(ang => {
                   const on = ai[i]?.angle === ang.key;
                   return (
                     <button key={ang.key} onClick={() => runAi(i, ang)} disabled={ai[i]?.busy}
-                      style={{ cursor: ai[i]?.busy ? "wait" : "pointer", background: on ? "linear-gradient(135deg,#3ea6ff,#7c3aed)" : P.card, color: on ? "#fff" : P.accentText, border: `1px solid ${on ? "transparent" : P.border}`, borderRadius: 999, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, padding: "9px 14px" }}>
+                      style={{ cursor: ai[i]?.busy ? "wait" : "pointer", background: on ? "linear-gradient(135deg,#3ea6ff,#7c3aed)" : P.card, color: on ? "#fff" : P.accentText, border: `1px solid ${on ? "transparent" : P.border}`, borderRadius: 999, fontFamily: TYPEFACE.ui, fontSize: 12.5, fontWeight: 800, padding: "9px 14px" }}>
                       {ang.label}
                     </button>
                   );
                 })}
               </div>
-              {ai[i]?.busy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5, textAlign: "center", padding: "10px 0" }}>🤖 ה-AI חושב… (כמה שניות)</div>}
+              {ai[i]?.busy && <div style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 13.5, textAlign: "center", padding: "10px 0" }}>🤖 ה-AI חושב… (כמה שניות)</div>}
               {ai[i]?.text && !ai[i]?.busy && (
                 <div style={{ marginTop: 10 }}>
-                  <div style={{ color: "#3ea6ff", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, marginBottom: 5 }}>🔵 ניתוח AI · עובדתי (מהמנוע)</div>
-                  <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-line" }}>{ai[i].text}</div>
+                  <div style={{ color: "#3ea6ff", fontFamily: TYPEFACE.ui, fontSize: 12.5, fontWeight: 800, marginBottom: 5 }}>🔵 ניתוח AI · עובדתי (מהמנוע)</div>
+                  <div style={{ color: P.ink, fontFamily: TYPEFACE.body, fontSize: 14, lineHeight: 1.85, whiteSpace: "pre-line" }}>{ai[i].text}</div>
                 </div>
               )}
             </div>
@@ -276,7 +276,7 @@ function BabyNameTool({ P, methodStates, initialState, onStateChange, renderTool
       })}
 
       {validCount === 0 && (
-        <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5, textAlign: "center", padding: "10px 0" }}>הזינו שם בעברית למעלה כדי להתחיל את המחקר ✦</div>
+        <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 13.5, textAlign: "center", padding: "10px 0" }}>הזינו שם בעברית למעלה כדי להתחיל את המחקר ✦</div>
       )}
     </div>
   );
@@ -286,7 +286,7 @@ export default function CommunityCalculatorPage({
   initialState, renderCalculator, renderBabyTool, actionsLocked = false,
   passive = false,
 } = {}) {
-  const P = usePalette();
+  const P = use2029Palette();
   const loc = useLocation();
   const sharedSeed = useMemo(() => (new URLSearchParams(loc.search).get("w") || "").trim(), [loc.search]);
   const [methodStates, setMethodStates] = useState(null);
@@ -473,9 +473,9 @@ export default function CommunityCalculatorPage({
 
   // ── סגנונות theme-aware ──
   const lightMode = P.mode === "light";
-  const inp = { width: "100%", boxSizing: "border-box", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 12, color: P.ink, fontFamily: F.heading, fontSize: 19, fontWeight: 700, padding: "15px 16px", textAlign: "center", outline: "none" };
-  const chip = { display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 13px", borderRadius: 999, fontFamily: F.body, fontSize: 14, fontWeight: 700, textDecoration: "none" };
-  const pillBtn = (bg, fg) => ({ cursor: "pointer", background: bg, color: fg, border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 26px", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7 });
+  const inp = { width: "100%", boxSizing: "border-box", background: P.card, border: `1px solid ${P.borderStrong}`, borderRadius: 12, color: P.ink, fontFamily: TYPEFACE.ui, fontSize: 19, fontWeight: 700, padding: "15px 16px", textAlign: "center", outline: "none" };
+  const chip = { display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 13px", borderRadius: 999, fontFamily: TYPEFACE.body, fontSize: 14, fontWeight: 700, textDecoration: "none" };
+  const pillBtn = (bg, fg) => ({ cursor: "pointer", background: bg, color: fg, border: "none", borderRadius: 999, fontFamily: TYPEFACE.ui, fontSize: 15, fontWeight: 800, padding: "13px 26px", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 7 });
 
   function Reveal({ name, r, phrases }) {
     const shown = r.all;                                          // כל השיטות הזמינות — לתצוגת ההרחבה
@@ -483,17 +483,17 @@ export default function CommunityCalculatorPage({
     return (
       <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 18, padding: "22px 18px", boxShadow: P.mode === "light" ? "0 6px 24px rgba(120,90,20,0.08)" : "0 6px 24px rgba(0,0,0,0.35)" }}>
         <div style={{ textAlign: "center" }}>
-          <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, marginBottom: 2 }}>{name.trim()}</div>
+          <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 13, marginBottom: 2 }}>{name.trim()}</div>
           <Link to={`/number/${r.value}`} style={{ textDecoration: "none" }}>
-            <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: 62, fontWeight: 800, lineHeight: 1.05 }}>{r.value}</div>
-            <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5 }}>גימטריה רגילה · לחצו לחקירה מלאה →</div>
+            <div style={{ color: P.heroNum, fontFamily: TYPEFACE.numeric, fontSize: 62, fontWeight: 800, lineHeight: 1.05 }}>{r.value}</div>
+            <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 11.5 }}>גימטריה רגילה · לחצו לחקירה מלאה →</div>
           </Link>
         </div>
 
         {/* ✨ הקסם — לאילו ביטויים השם שווה */}
         {phrases?.length > 0 && (
           <div style={{ marginTop: 16, textAlign: "center" }}>
-            <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, marginBottom: 8 }}>✨ השם שלך שווה גם ל:</div>
+            <div style={{ color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 13.5, fontWeight: 800, marginBottom: 8 }}>✨ השם שלך שווה גם ל:</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center" }}>
               {phrases.slice(0, 6).map(p => (
                 <Link key={p.phrase} to={`/number/${r.value}`} style={{ ...chip, background: P.glow, color: P.accentText, border: `1px solid ${P.border}` }}>{p.phrase}</Link>
@@ -511,12 +511,12 @@ export default function CommunityCalculatorPage({
               return (
                 <Link key={a.key} to={`/number/${a.value}`} style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 12, background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 12, padding: "12px 14px" }}>
                   <div style={{ textAlign: "center", flexShrink: 0, minWidth: 62 }}>
-                    <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: 26, fontWeight: 800, lineHeight: 1 }}>{a.value}</div>
-                    <div style={{ color: P.accentText, fontFamily: F.heading, fontSize: 12, fontWeight: 800, marginTop: 2 }}>{a.key}</div>
+                    <div style={{ color: P.heroNum, fontFamily: TYPEFACE.numeric, fontSize: 26, fontWeight: 800, lineHeight: 1 }}>{a.value}</div>
+                    <div style={{ color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 12, fontWeight: 800, marginTop: 2 }}>{a.key}</div>
                   </div>
                   <div style={{ minWidth: 0, textAlign: "start" }}>
-                    <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11, fontWeight: 800, marginBottom: 2 }}>{info.tag}</div>
-                    <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6 }}>{info.desc}</div>
+                    <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 11, fontWeight: 800, marginBottom: 2 }}>{info.tag}</div>
+                    <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 12.5, lineHeight: 1.6 }}>{info.desc}</div>
                   </div>
                 </Link>
               );
@@ -526,17 +526,17 @@ export default function CommunityCalculatorPage({
           <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px,1fr))", gap: 8 }}>
             {shown.map(a => (
               <Link key={a.key} to={`/number/${a.value}`} title={a.sub} style={{ textDecoration: "none", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 6px", textAlign: "center" }}>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 10.5 }}>{a.key}</div>
-                <div style={{ color: P.accentText, fontFamily: F.mono, fontSize: 18, fontWeight: 700 }}>{a.value}</div>
+                <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 10.5 }}>{a.key}</div>
+                <div style={{ color: P.accentText, fontFamily: TYPEFACE.numeric, fontSize: 18, fontWeight: 700 }}>{a.value}</div>
               </Link>
             ))}
           </div>
         )}
         <div style={{ textAlign: "center", marginTop: 10, display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
-          <button onClick={() => setShowAll(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13, fontWeight: 700, textDecoration: "underline" }}>
+          <button onClick={() => setShowAll(s => !s)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 13, fontWeight: 700, textDecoration: "underline" }}>
             {showAll ? "− חזרה ל-3 שיטות הליבה" : "+ כל השיטות הזמינות"}
           </button>
-          <Link to={`/research?tool=gematria${onlyHeb(name).length ? `&w=${encodeURIComponent(name.trim())}` : ""}`} style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>🔬 למחשבון המקצועי →</Link>
+          <Link to={`/research?tool=gematria${onlyHeb(name).length ? `&w=${encodeURIComponent(name.trim())}` : ""}`} style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 13, fontWeight: 700 }}>🔬 למחשבון המקצועי →</Link>
         </div>
       </div>
     );
@@ -555,23 +555,23 @@ export default function CommunityCalculatorPage({
     <div style={{ direction: "rtl", maxWidth: 720, margin: "0 auto", padding: "48px 16px 100px", position: "relative", zIndex: 1 }}>
       {/* Hero */}
       <div style={{ textAlign: "center", marginBottom: 22 }}>
-        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>כלי חינמי · שתפו לחברים</div>
-        <h1 style={{ color: P.ink, fontFamily: F.regal, fontSize: 34, fontWeight: 800, margin: "6px 0 4px" }}>🧮 מה השם שלך מסתיר?</h1>
-        <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.85, maxWidth: 520, margin: "0 auto" }}>
+        <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 12, letterSpacing: 3, textTransform: "uppercase" }}>כלי חינמי · שתפו לחברים</div>
+        <h1 style={{ color: P.ink, fontFamily: TYPEFACE.display, fontSize: 34, fontWeight: 800, margin: "6px 0 4px" }}>🧮 מה השם שלך מסתיר?</h1>
+        <p style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 15, lineHeight: 1.85, maxWidth: 520, margin: "0 auto" }}>
           הקלידו שם או מילה בעברית — וגלו את ערכם, לאילו ביטויים מהתורה הם שווים, ומה מסתתר ביניהם. ✨
         </p>
       </div>
 
       {fromShare && (
-        <div style={{ background: P.glow, border: `1px solid ${P.borderStrong}`, borderRadius: 14, padding: "12px 16px", marginBottom: 18, textAlign: "center", color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
+        <div style={{ background: P.glow, border: `1px solid ${P.borderStrong}`, borderRadius: 14, padding: "12px 16px", marginBottom: 18, textAlign: "center", color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 14, fontWeight: 700 }}>
           👋 חבר שיתף אותך — עכשiו <b>בדוק את השם שלך</b> למטה 👇
         </div>
       )}
 
       {/* 📅 מילה של היום — סיבה לחזור */}
       <button onClick={() => { setName1(daily.word); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-        style={{ cursor: "pointer", width: "100%", boxSizing: "border-box", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 12, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8, justifyContent: "center", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700 }}>
-        📅 מילה של היום: <b style={{ color: P.heroNum }}>{daily.word}</b> = <b style={{ fontFamily: F.mono }}>{daily.value}</b> · הקליקו לחקור →
+        style={{ cursor: "pointer", width: "100%", boxSizing: "border-box", background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 12, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 8, justifyContent: "center", color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 13.5, fontWeight: 700 }}>
+        📅 מילה של היום: <b style={{ color: P.heroNum }}>{daily.word}</b> = <b style={{ fontFamily: TYPEFACE.numeric }}>{daily.value}</b> · הקליקו לחקור →
       </button>
 
       {/* קלט — מוסתר במצב «בחירת שם לתינוק» (לכלי יש קלט משלו) */}
@@ -582,13 +582,13 @@ export default function CommunityCalculatorPage({
         </div>
       )}
       <div style={{ textAlign: "center", marginBottom: babyMode ? 12 : 24, display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-        <button onClick={() => setCompare(c => !c)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textDecoration: "underline" }}>
+        <button onClick={() => setCompare(c => !c)} style={{ cursor: "pointer", background: "none", border: "none", color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 13.5, fontWeight: 700, textDecoration: "underline" }}>
           {compare ? "− הסר השוואה" : "💞 השוואת שני שמות (תאימות)"}
         </button>
-        <button onClick={() => setBabyMode(b => !b)} style={{ cursor: "pointer", background: "none", border: "none", color: babyMode ? P.heroNum : P.accentDim, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textDecoration: "underline" }}>
+        <button onClick={() => setBabyMode(b => !b)} style={{ cursor: "pointer", background: "none", border: "none", color: babyMode ? P.heroNum : P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 13.5, fontWeight: 700, textDecoration: "underline" }}>
           👶 בחירת שם לתינוק
         </button>
-        <button onClick={() => setDateMode(d => !d)} style={{ cursor: "pointer", background: "none", border: "none", color: dateMode ? P.heroNum : P.accentDim, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, textDecoration: "underline" }}>
+        <button onClick={() => setDateMode(d => !d)} style={{ cursor: "pointer", background: "none", border: "none", color: dateMode ? P.heroNum : P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 13.5, fontWeight: 700, textDecoration: "underline" }}>
           🗓️ תאריך עברי (יום הולדת)
         </button>
       </div>
@@ -596,25 +596,25 @@ export default function CommunityCalculatorPage({
       {/* 🗓️ מצב תאריך עברי — לועזי → עברי → גימטריה */}
       {!babyMode && dateMode && (
         <div style={{ background: P.cardSoft, border: `1px dashed ${P.borderStrong}`, borderRadius: 14, padding: "16px 16px", marginBottom: 20 }}>
-          <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800, textAlign: "center", marginBottom: 4 }}>🗓️ הגימטריה של יום ההולדת העברי שלך</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, textAlign: "center", lineHeight: 1.7, marginBottom: 12 }}>
+          <div style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 16, fontWeight: 800, textAlign: "center", marginBottom: 4 }}>🗓️ הגימטריה של יום ההולדת העברי שלך</div>
+          <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 13, textAlign: "center", lineHeight: 1.7, marginBottom: 12 }}>
             הזינו את תאריך הלידה הלועזי — נמיר לתאריך העברי ונחשב את ערכו. ✨
           </div>
-          <label style={{ display: "block", color: P.accentDim, fontFamily: F.heading, fontSize: 12, fontWeight: 800, textAlign: "center", marginBottom: 6 }}>📅 תאריך לידה (לועזי) — הזינו יום, חודש ושנה</label>
+          <label style={{ display: "block", color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 12, fontWeight: 800, textAlign: "center", marginBottom: 6 }}>📅 תאריך לידה (לועזי) — הזינו יום, חודש ושנה</label>
           <div style={{ display: "flex", justifyContent: "center" }}><HumanDateInput value={gDate} onChange={setGDate} disableFuture /></div>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", marginTop: 10, color: P.inkSoft, fontFamily: F.body, fontSize: 13, cursor: "pointer" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, justifyContent: "center", marginTop: 10, color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 13, cursor: "pointer" }}>
             <input type="checkbox" checked={afterSunset} onChange={e => setAfterSunset(e.target.checked)} />
             נולדתי אחרי השקיעה (היום העברי הבא)
           </label>
 
-          {hebBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "12px 0" }}>🗓️ ממיר…</div>}
+          {hebBusy && <div style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 14, textAlign: "center", padding: "12px 0" }}>🗓️ ממיר…</div>}
           {heb && !hebBusy && (
             <div style={{ marginTop: 14, textAlign: "center" }}>
-              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, marginBottom: 3 }}>התאריך העברי שלך</div>
-              <div style={{ color: P.heroNum, fontFamily: F.regal, fontSize: 26, fontWeight: 800, lineHeight: 1.2 }}>{heb.pretty}</div>
+              <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 12.5, marginBottom: 3 }}>התאריך העברי שלך</div>
+              <div style={{ color: P.heroNum, fontFamily: TYPEFACE.display, fontSize: 26, fontWeight: 800, lineHeight: 1.2 }}>{heb.pretty}</div>
               <Link to={`/number/${heb.value}`} style={{ textDecoration: "none", display: "inline-block", marginTop: 8 }}>
-                <div style={{ color: P.accentText, fontFamily: F.mono, fontSize: 40, fontWeight: 800, lineHeight: 1 }}>{heb.value}</div>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5 }}>גימטריה של התאריך · לחצו לחקירה →</div>
+                <div style={{ color: P.accentText, fontFamily: TYPEFACE.numeric, fontSize: 40, fontWeight: 800, lineHeight: 1 }}>{heb.value}</div>
+                <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 11.5 }}>גימטריה של התאריך · לחצו לחקירה →</div>
               </Link>
               <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 14 }}>
                 <button onClick={() => { setName1(heb.clean); setDateMode(false); window.scrollTo({ top: 0, behavior: "smooth" }); }} style={pillBtn(P.accentBtn, P.onAccent)}>
@@ -635,9 +635,9 @@ export default function CommunityCalculatorPage({
           {/* ✦ חיבור לסוד 1820 — הרגע המיוחד */}
           {!r2 && geula && (
             <Link to={`/number/${geula.num}`} style={{ textDecoration: "none", display: "block", background: "linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06))", border: `1.5px solid ${P.accent}`, borderRadius: 16, padding: "16px 18px", textAlign: "center" }}>
-              <div style={{ color: P.heroNum, fontFamily: F.regal, fontSize: 17, fontWeight: 800, marginBottom: 3 }}>✦ השם שלך מחובר לסוד!</div>
-              <div style={{ color: P.accentText, fontFamily: F.body, fontSize: 14, lineHeight: 1.7 }}>
-                בשיטת <b>{geula.method}</b> הוא שווה <b style={{ fontFamily: F.mono }}>{geula.num}</b> — <b>{geula.meaning}</b>. לחצו לחקירת הצומת →
+              <div style={{ color: P.heroNum, fontFamily: TYPEFACE.display, fontSize: 17, fontWeight: 800, marginBottom: 3 }}>✦ השם שלך מחובר לסוד!</div>
+              <div style={{ color: P.accentText, fontFamily: TYPEFACE.body, fontSize: 14, lineHeight: 1.7 }}>
+                בשיטת <b>{geula.method}</b> הוא שווה <b style={{ fontFamily: TYPEFACE.numeric }}>{geula.num}</b> — <b>{geula.meaning}</b>. לחצו לחקירת הצומת →
               </div>
             </Link>
           )}
@@ -648,11 +648,11 @@ export default function CommunityCalculatorPage({
             const blurb = `✨ גיליתי ש"${name1.trim()}" שווה בגימטריה (${r1.value}) ל«${top.phrase}»${rest[0] ? ` וגם ל«${rest[0].phrase}»` : ""}!\nמה השם שלך מסתיר?\n${shareUrl(name1.trim())}`;
             return (
               <div style={{ background: P.glow, border: `1.5px solid ${P.borderStrong}`, borderRadius: 16, padding: "18px", textAlign: "center" }}>
-                <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, letterSpacing: 0.3, marginBottom: 6 }}>✨ תגלית</div>
-                <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 18, fontWeight: 800, lineHeight: 1.4 }}>
-                  «{name1.trim()}» <span style={{ color: P.accentDim }}>=</span> <span style={{ fontFamily: F.mono, color: P.heroNum }}>{r1.value}</span> <span style={{ color: P.accentDim }}>=</span> «{top.phrase}»
+                <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 12.5, fontWeight: 800, letterSpacing: 0.3, marginBottom: 6 }}>✨ תגלית</div>
+                <div style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 18, fontWeight: 800, lineHeight: 1.4 }}>
+                  «{name1.trim()}» <span style={{ color: P.accentDim }}>=</span> <span style={{ fontFamily: TYPEFACE.numeric, color: P.heroNum }}>{r1.value}</span> <span style={{ color: P.accentDim }}>=</span> «{top.phrase}»
                 </div>
-                <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 4 }}>אותו ערך בגימטריה רגילה — עובדה מהמנוע ✦ הפירוש למטה ב-AI</div>
+                <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 12.5, marginTop: 4 }}>אותו ערך בגימטריה רגילה — עובדה מהמנוע ✦ הפירוש למטה ב-AI</div>
                 {rest.length > 0 && (
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center", marginTop: 10 }}>
                     {rest.map(p => (
@@ -673,13 +673,13 @@ export default function CommunityCalculatorPage({
           {/* 💞 התאמה גימטרית — ציון מדיד (כמה מהשיטות הזמינות נפגשות), לא אחוז מומצא */}
           {compat && (
             <div style={{ background: compat.strong ? P.glow : P.cardSoft, border: `1px solid ${compat.strong ? P.borderStrong : P.border}`, borderRadius: 16, padding: "18px", textAlign: "center" }}>
-              <div style={{ color: P.heroNum, fontFamily: F.mono, fontSize: 40, fontWeight: 800, lineHeight: 1.05 }}>
+              <div style={{ color: P.heroNum, fontFamily: TYPEFACE.numeric, fontSize: 40, fontWeight: 800, lineHeight: 1.05 }}>
                 {compat.count}<span style={{ fontSize: 22, color: P.accentDim }}> / {compat.total}</span>
               </div>
-              <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>שיטות נפגשות</div>
-              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13.5 }}>{compat.note}</div>
-              {matches.length > 0 && <div style={{ color: P.accentText, fontFamily: F.body, fontSize: 13, marginTop: 6 }}>{matches.map(m => `${m.key} (${m.value})`).join(" · ")}</div>}
-              <Link to={`/number/${r1.value + r2.value}`} style={{ display: "inline-block", marginTop: 8, color: P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>סכום שני השמות: {r1.value + r2.value} →</Link>
+              <div style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 16, fontWeight: 700, marginBottom: 4 }}>שיטות נפגשות</div>
+              <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 13.5 }}>{compat.note}</div>
+              {matches.length > 0 && <div style={{ color: P.accentText, fontFamily: TYPEFACE.body, fontSize: 13, marginTop: 6 }}>{matches.map(m => `${m.key} (${m.value})`).join(" · ")}</div>}
+              <Link to={`/number/${r1.value + r2.value}`} style={{ display: "inline-block", marginTop: 8, color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 13, fontWeight: 700 }}>סכום שני השמות: {r1.value + r2.value} →</Link>
             </div>
           )}
 
@@ -692,16 +692,16 @@ export default function CommunityCalculatorPage({
                 </button>
               ) : (
                 <>
-                  <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 16, fontWeight: 800, marginBottom: 10 }}>🔮 מה מסתתר בשם שלך</div>
+                  <div style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 16, fontWeight: 800, marginBottom: 10 }}>🔮 מה מסתתר בשם שלך</div>
                   <div style={{ display: "grid", gap: 8 }}>
                     {analysis.map((m, i) => (
-                      <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", color: m.fact ? P.ink : P.inkSoft, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.7 }}>
+                      <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", color: m.fact ? P.ink : P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 14.5, lineHeight: 1.7 }}>
                         <span style={{ color: m.fact ? P.accent : P.accentDim, flexShrink: 0 }}>{m.fact ? "✓" : "✧"}</span>
                         <span>{m.text}</span>
                       </div>
                     ))}
                   </div>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 10, lineHeight: 1.6 }}>✓ עובדה מאומתת במנוע · ✧ רמז משלים (פרשנות)</div>
+                  <div style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 11.5, marginTop: 10, lineHeight: 1.6 }}>✓ עובדה מאומתת במנוע · ✧ רמז משלים (פרשנות)</div>
                 </>
               )}
             </div>
@@ -712,35 +712,35 @@ export default function CommunityCalculatorPage({
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: aiText ? 10 : 8 }}>
                 <span style={{ fontSize: 20 }}>🤖</span>
                 <div>
-                  <div style={{ color: P.ink, fontFamily: F.regal, fontSize: 16, fontWeight: 800, lineHeight: 1.2 }}>{r2 ? `ניתוח AI — «${name1.trim()}» מול «${name2.trim()}»` : `ניתוח AI אישי לשם «${name1.trim()}»`}</div>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
+                  <div style={{ color: P.ink, fontFamily: TYPEFACE.display, fontSize: 16, fontWeight: 800, lineHeight: 1.2 }}>{r2 ? `ניתוח AI — «${name1.trim()}» מול «${name2.trim()}»` : `ניתוח AI אישי לשם «${name1.trim()}»`}</div>
+                  <div style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 12, lineHeight: 1.5 }}>מבוסס על עובדות המנוע — מפרש, לא מנבא ✨</div>
                 </div>
               </div>
               {!aiText && !aiBusy && (
                 <div style={{ display: "grid", gap: 8 }}>
-                  <button onClick={() => runAi("claude")} title={AI_ENGINES.claude.tagline} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
+                  <button onClick={() => runAi("claude")} title={AI_ENGINES.claude.tagline} style={{ cursor: "pointer", background: "linear-gradient(135deg,#3ea6ff,#7c3aed)", color: "#fff", border: "none", borderRadius: 999, fontFamily: TYPEFACE.ui, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
                     {r2 ? `🔵 מה ${engName("claude")} אומר על החיבור?` : `🔵 ניתוח עם ${engName("claude")}`}
                   </button>
-                  <button onClick={() => runAi("gemini")} title={AI_ENGINES.gemini.tagline} style={{ cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: F.heading, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
+                  <button onClick={() => runAi("gemini")} title={AI_ENGINES.gemini.tagline} style={{ cursor: "pointer", background: "linear-gradient(135deg,#8a63f4,#6d3ff0)", color: "#fff", border: "none", borderRadius: 999, fontFamily: TYPEFACE.ui, fontSize: 15, fontWeight: 800, padding: "13px 22px", width: "100%", boxSizing: "border-box" }}>
                     {r2 ? `🟣 מה ${engName("gemini")} אומר על החיבור?` : `🟣 ניתוח עם ${engName("gemini")}`}
                   </button>
-                  <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, textAlign: "center", fontStyle: "italic" }}>שני מנועים · אותן עובדות מהמנוע · פרשנות משלימה</div>
+                  <div style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 11.5, textAlign: "center", fontStyle: "italic" }}>שני מנועים · אותן עובדות מהמנוע · פרשנות משלימה</div>
                 </div>
               )}
-              {aiBusy && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiEngine === "gemini" ? `🟣 ${engName("gemini")} חושב…` : `🔵 ${engName("claude")} חושב…`}</div>}
+              {aiBusy && <div style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 14, textAlign: "center", padding: "10px 0" }}>{aiEngine === "gemini" ? `🟣 ${engName("gemini")} חושב…` : `🔵 ${engName("claude")} חושב…`}</div>}
               {aiText && (
                 <div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 7, marginBottom: 7, flexWrap: "wrap" }}>
-                    <span style={{ color: aiEngine === "gemini" ? "#8a63f4" : "#3ea6ff", fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>
+                    <span style={{ color: aiEngine === "gemini" ? "#8a63f4" : "#3ea6ff", fontFamily: TYPEFACE.ui, fontSize: 13.5, fontWeight: 800 }}>
                       {aiEngine === "gemini" ? `🟣 ${engName("gemini")}` : `🔵 ${engName("claude")}`} · פרשנות מאומתת מהמנוע
                     </span>
                     <button onClick={() => runAi(aiEngine === "gemini" ? "claude" : "gemini")} disabled={aiBusy}
-                      style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: F.heading, fontSize: 11.5, fontWeight: 700, padding: "5px 12px" }}>
+                      style={{ cursor: "pointer", background: "none", border: `1px solid ${P.border}`, borderRadius: 999, color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 11.5, fontWeight: 700, padding: "5px 12px" }}>
                       {aiEngine === "gemini" ? `🔵 השווה מול ${engName("claude")}` : `🟣 השווה מול ${engName("gemini")}`}
                     </button>
                   </div>
-                  <div style={{ color: P.ink, fontFamily: F.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>
-                  <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: F.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic" }}>
+                  <div style={{ color: P.ink, fontFamily: TYPEFACE.body, fontSize: 14.5, lineHeight: 1.85, whiteSpace: "pre-line" }}>{aiText}</div>
+                  <div style={{ marginTop: 9, paddingTop: 8, borderTop: `1px dashed ${P.border}`, color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 11, lineHeight: 1.6, fontStyle: "italic" }}>
                     כל הפרשנויות מבוססות על אותם נתוני גימטריה — ההבדל הוא רק בדרך שכל מודל מסביר אותם.
                   </div>
                 </div>
@@ -764,7 +764,7 @@ export default function CommunityCalculatorPage({
           {/* 📸 תצוגת כרטיס-השיתוף */}
           {!r2 && (
             <div style={{ textAlign: "center" }}>
-              <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 11.5, marginBottom: 7 }}>📸 כך זה ייראה בשיתוף</div>
+              <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 11.5, marginBottom: 7 }}>📸 כך זה ייראה בשיתוף</div>
               <img src={cardFor(name1.trim(), r1.value)} alt={`${name1.trim()} = ${r1.value}`} loading="lazy"
                 style={{ width: "100%", maxWidth: 420, borderRadius: 14, border: `1px solid ${P.border}`, boxShadow: P.mode === "light" ? "0 4px 18px rgba(120,90,20,0.12)" : "0 4px 18px rgba(0,0,0,0.5)" }} />
             </div>
@@ -776,8 +776,8 @@ export default function CommunityCalculatorPage({
       {!babyMode && deepName && (
         <div style={{ marginTop: 30, background: P.card, border: `1px solid ${P.border}`, borderRadius: 18, padding: "18px 15px" }}>
           <div style={{ textAlign: "center", marginBottom: 14 }}>
-            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800 }}>🔬 מחקר מעמיק על «{deepName}»</div>
-            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.7, marginTop: 3 }}>מעבר לגימטריה — כל המנועים, ממצאים מנורמלים, וסיכום לשיתוף.</div>
+            <div style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 20, fontWeight: 800 }}>🔬 מחקר מעמיק על «{deepName}»</div>
+            <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 12.5, lineHeight: 1.7, marginTop: 3 }}>מעבר לגימטריה — כל המנועים, ממצאים מנורמלים, וסיכום לשיתוף.</div>
           </div>
           <NameMultiSearch name={deepName} hideInput />
         </div>
@@ -790,7 +790,7 @@ export default function CommunityCalculatorPage({
 
       {/* גשר למקצועי */}
       <div style={{ marginTop: 26, textAlign: "center" }}>
-        <Link to={`/research?tool=gematria${onlyHeb(name1).length ? `&w=${encodeURIComponent(name1.trim())}` : ""}`} style={{ color: P.accentText, fontFamily: F.heading, fontSize: 14, fontWeight: 700 }}>
+        <Link to={`/research?tool=gematria${onlyHeb(name1).length ? `&w=${encodeURIComponent(name1.trim())}` : ""}`} style={{ color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 14, fontWeight: 700 }}>
           רוצים לעומק? המחשבון המקצועי — שיטות מתקדמות, הצלבות ומנוע מלא →
         </Link>
       </div>

@@ -89,7 +89,7 @@ for (const f of own2029) {
   const body = read(f);
   assert.equal(/from\s*["'](?:\.\.?\/)+(?:lib\/)?(?:palette|themeMode|lightRoutes|chromeTheme)\.js["']/.test(body), false, `${f} must not import the Legacy palette/theme/route modules`);
 }
-for (const f of ["src/lib/palette2029.js", "src/lib/paletteTokens2029.js", "src/lib/themePreset2029.js", "src/lib/paletteBridge2029.js"]) {
+for (const f of ["src/lib/palette2029.js", "src/lib/paletteTokens2029.js", "src/lib/themePreset2029.js"]) {
   const body = read(f).replace(/\/\/.*$/gm, "");
   assert.equal(/from\s*["']\.\/(?:palette|themeMode|lightRoutes|chromeTheme)\.js["']/.test(body), false, `${f} must not import Legacy theme modules`);
 }
@@ -97,8 +97,8 @@ for (const f of src.filter((p) => p.endsWith(".css") && /2029/i.test(p))) {
   const body = read(f);
   assert.equal(/\[data-theme(?:-preset)?=/.test(body), false, `${f} must use the namespaced data-theme-2029 attribute only`);
 }
-assert.match(read("vite.config.js"), /themeBridge2029[\s\S]*themePreset2029\.js[\s\S]*paletteBridge2029\.js/, "the 2029 build must bridge the old theme/palette module paths");
-assert.match(read("vite.config.js"), /plugins: \[themeBridge2029\(\), react\(\)\]/);
+assert.equal(read("vite.config.js").includes("Bridge"), false, "no theme/palette build bridge remains");
+for (const gone of ["src/lib/palette.js", "src/lib/themeMode.js", "src/lib/lightRoutes.js", "src/lib/chromeTheme.js", "src/lib/stream.js", "src/lib/paletteBridge2029.js"]) assert.equal(fs.existsSync(gone), false, `${gone} is retired`);
 assert.equal(fs.existsSync("src/lib/themeHostAdapter2029.js") || fs.existsSync("src/lib/paletteHostAdapter2029.js"), false, "Legacy host adapters are removed with Legacy");
 
 // 7. Emitted 2029 bundle (needs a build).
@@ -114,10 +114,8 @@ if (fs.existsSync(manifestPath)) {
     assert.equal(text.includes("data-theme-preset"), false, `Legacy theme attribute emitted in 2029 chunk ${f}`);
     assert.equal(text.includes("linear-gradient(135deg, #ffffff, #f7f2e6)"), false, `Legacy palette emitted in 2029 chunk ${f}`);
     if (text.includes('"sod-theme"') || text.includes("'sod-theme'")) {
-      assert.match(f, /palette2029-/, `Legacy theme key referenced outside the one-time seed: ${f}`);
+      assert.match(f, /palette2029-|themePreset2029-/, `old theme key referenced outside the one-time seed: ${f}`);
     }
   }
-  assert.ok(Object.values(body).some((t) => t.includes("labDark")), "the 2029 bridge (PALETTES lab variants) must be bundled for the still-shared components");
-
 }
 console.log("2029 theme/palette isolation: PASS");

@@ -41,7 +41,7 @@ function fixtures() {
     name: "quiet-share-fixtures", enforce: "pre",
     resolveId(source) {
       if (source === "/__quiet-share-entry.jsx") return "\0quiet-entry.jsx";
-      if (source.endsWith("/lib/palette.js")) return "\0quiet-palette.js";
+      if (source.endsWith("/lib/palette2029.js")) return "\0quiet-palette.js";
       if (source.endsWith("/lib/share/shareTelemetry.js") || source === "../lib/share/shareTelemetry.js") return "\0quiet-telemetry.js";
       if (source.endsWith("/Lightbox.jsx")) return "\0quiet-lightbox.js";
     },

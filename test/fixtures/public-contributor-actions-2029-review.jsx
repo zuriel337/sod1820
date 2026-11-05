@@ -8,7 +8,7 @@ import { withPublicContributorPerson2029 } from "../../src/components/contributo
 import { sourceCatalogFixtureView } from "../../src/components/contributor2029/publicSourceCatalog2029Fixtures.js";
 import { TYPEFACE, TYPE_SCALE_V2 } from "../../src/lib/designTokens.js";
 import { use2029Palette } from "../../src/lib/palette2029.js";
-import { setThemePreset } from "../../src/lib/themeMode.js";
+import { setThemePreset } from "../../src/lib/themePreset2029.js";
 setThemePreset(new URLSearchParams(location.search).get("theme") || "dark");
 function Review() {
   const P = use2029Palette();
