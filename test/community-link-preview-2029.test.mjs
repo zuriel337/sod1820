@@ -57,3 +57,13 @@ test("wiring: component uses the flag-gated client; the Edge function guards red
   for (const needle of ['redirect: "manual"', "resolvesPublic", "hop <= 3", "262144", "text\\/html", 'credentials: "omit"', "parsePublicHttpsUrl", "AbortController"]) assert.ok(fn.includes(needle), needle);
   assert.ok(!/service_role|SUPABASE_SERVICE|createClient/i.test(fn), "no database access");
 });
+
+test('the preview service only fetches an address that a member posted in a public community message, and drafts ask nothing', async () => {
+  const { readFileSync } = await import('node:fs');
+  const fn = readFileSync(new URL('../supabase/functions/link-preview/index.ts', import.meta.url), 'utf8');
+  const guard = fn.indexOf('await isPostedInCommunity(target.href)'), fetchPage = fn.indexOf('await fetchHtml(target)');
+  assert.ok(guard > 0 && fetchPage > guard, 'the posted-address check must run before any outbound fetch');
+  assert.match(fn, /research_contributions\?select=id&status=eq\.approved&deleted_at=is\.null&origin=in\.\(openweb,community_2029\)/);
+  const card = readFileSync(new URL('../src/components/community2029/CommunityMessageContent.jsx', import.meta.url), 'utf8');
+  assert.match(card, /if \(draft\) return undefined;/);
+});
