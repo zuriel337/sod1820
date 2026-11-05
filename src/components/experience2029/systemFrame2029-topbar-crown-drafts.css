@@ -16,8 +16,8 @@
 /* Light presets: the pod is deep sapphire, so the gold crown and the gold verse always read. */
 .sod29-root[data-crown-draft][data-frame-theme-preset="light"],
 .sod29-root[data-crown-draft][data-frame-theme-preset="parchment"] {
-  --s29-pod-fill: #101a45;
-  --s29-pod-line: #e9b949;
+  --s29-pod-fill: rgb(16 26 69 / .82);   /* "fade": deep sapphire, soft enough not to dominate the light page */
+  --s29-pod-line: rgb(233 185 73 / .9);
   --s29-rail: color-mix(in srgb, var(--s29-brand-gold) 80%, transparent);
 }
 
@@ -129,3 +129,37 @@
   .sod29-root.closed-shell.native-frame:is([data-crown-draft="2"], [data-crown-draft="3"]) { --s29-crown-w: 70px; --s29-dip-w: 220px; --s29-dip-h: 48px; --s29-crown-slot: 100px; }
   .sod29-root.closed-shell.native-frame[data-crown-draft="1"] { --s29-crown-w: 68px; --s29-bar-h: 74px; }
 }
+
+
+/* ── Draft 2b · shrink on scroll + a quiet backdrop for the light presets ─────────────────────────── */
+@property --s29-gap { syntax: "<length>"; inherits: true; initial-value: 320px; }
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] { --s29-gap: var(--s29-dip-w); }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] { --s29-gap: calc(var(--s29-dip-w) * .34); }
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header.closed-orientation::after {
+  transition: --s29-gap .3s cubic-bezier(.2, .8, .2, 1);
+  background: linear-gradient(90deg, transparent, var(--s29-pod-line) 8%, var(--s29-pod-line) calc(50% - var(--s29-gap) / 2), transparent calc(50% - var(--s29-gap) / 2),
+    transparent calc(50% + var(--s29-gap) / 2), var(--s29-pod-line) calc(50% + var(--s29-gap) / 2), var(--s29-pod-line) 92%, transparent);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown img { transform-origin: 50% 0; }
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-crown-dip,
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown::before { transform-origin: 50% 0; transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown img { transform: translateX(-50%) scale(.56); }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-crown-dip { transform: translateX(-50%) scale(.34, .3); }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown::before { transform: translateX(-50%) scaleX(.5); }
+@media (prefers-reduced-motion: reduce) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header.closed-orientation::after,
+  .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-crown-dip,
+  .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown::before { transition: none; }
+}
+.sod29-root[data-frame-reduced-motion="true"][data-crown-draft="2"] .sod29-header.closed-orientation::after,
+.sod29-root[data-frame-reduced-motion="true"][data-crown-draft="2"] .sod29-crown-dip,
+.sod29-root[data-frame-reduced-motion="true"][data-crown-draft="2"] .sod29-header-crown::before { transition: none; }
+
+/* Light backdrop options (the preview can switch with ?crownLight=…). Dark presets are not affected. */
+html[data-crown-light="solid"] .sod29-root[data-crown-draft][data-frame-theme-preset="light"],
+html[data-crown-light="solid"] .sod29-root[data-crown-draft][data-frame-theme-preset="parchment"] { --s29-pod-fill: #101a45; --s29-pod-line: #e9b949; }
+html[data-crown-light="frost"] .sod29-root[data-crown-draft][data-frame-theme-preset="light"],
+html[data-crown-light="frost"] .sod29-root[data-crown-draft][data-frame-theme-preset="parchment"] { --s29-pod-fill: rgb(16 26 69 / .58); --s29-pod-line: rgb(233 185 73 / .9); }
+html[data-crown-light="ivory"] .sod29-root[data-crown-draft][data-frame-theme-preset="light"],
+html[data-crown-light="ivory"] .sod29-root[data-crown-draft][data-frame-theme-preset="parchment"] { --s29-pod-fill: #fff4d9; --s29-pod-line: #a9791f; }
+html[data-crown-light="ivory"] .sod29-root[data-crown-draft] .sod29-header-crown img { filter: drop-shadow(0 3px 5px rgb(60 36 0 / .55)) drop-shadow(0 0 1px rgb(60 36 0 / .7)); }
