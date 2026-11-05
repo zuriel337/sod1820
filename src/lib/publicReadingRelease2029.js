@@ -39,6 +39,16 @@ function addressPath(pathname) {
   } catch { return null; }
 }
 
+// ZURIEL 5.11: old taxonomy addresses that still arrive from Google and from old links. Exact names only, never similarity:
+// the old "סרט" category is the video category; the old "סוד האותיות" category is today's "סוד האותיות והמספרים"; a tag whose label
+// has a quote (") lost it in the old address (a label with "?" cannot be addressed at all and stays 404); "ארי נווה" is the tag "אריק נווה". Names with no counterpart are left as 404.
+const LEGACY_TAXONOMY_ALIASES = Object.freeze({
+  "/category/סרט": "/category/וידאו",
+  "/category/סוד-האותיות": "/category/סוד-האותיות-והמספרים",
+  "/tag/ארי-נווה": "/tag/אריק-נווה",
+  "/tag/הרב-ציון-ברכה-זצל": "/tag/הרב-ציון-ברכה-זצ%22ל",
+});
+
 export function publicReadingContinuation(pathname, search = "", hash = "") {
   const path = addressPath(pathname);
   if (!path) return null;
@@ -81,10 +91,21 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
   // Use the raw encoded segment: an encoded slash can belong to a label.
   const book = /^\/books\/([^/]+)\/?$/.exec(pathname);
   if (book) target = `/book/${book[1]}`;
+  // Old WordPress forms: /<address>/trackback is the address itself; /category|tag/<name>/page/<n> is the same list with ?page=<n>.
+  let archivePage = null;
+  const trackback = /^(\/.+)\/trackback$/.exec(path);
+  if (!target && trackback && !/^\/(?:post|tag|category|number|topic|video|book|books|researcher|codes|forum|community)$/.test(trackback[1])) target = trackback[1];
+  const archive = /^\/(category|tag)\/([^/]+)\/page\/(\d{1,4})$/.exec(path);
+  if (!target && archive) { target = `/${archive[1]}/${archive[2]}`; if (Number(archive[3]) > 1) archivePage = Number(archive[3]); }
+  // Taxonomy aliases (also for the base of an old paged address). A space in the old address is the same name as a hyphen.
+  const aliasKey = (target || path).replace(/ /g, "-");
+  if (/^\/(?:category|tag)\//.test(aliasKey) && LEGACY_TAXONOMY_ALIASES[aliasKey]) target = LEGACY_TAXONOMY_ALIASES[aliasKey];
   if (!target) return null;
   // Keep original query bytes, duplicates and anchors (OAuth/payment data is
   // never interpreted here). Router and HTTP redirects share this adapter.
-  return target + (search.startsWith("?") ? search : search ? `?${search}` : "")
+  const rest = search.startsWith("?") ? search.slice(1) : search;
+  const outSearch = [archivePage ? `page=${archivePage}` : "", rest].filter(Boolean).join("&");
+  return target + (outSearch ? `?${outSearch}` : "")
     + (hash.startsWith("#") ? hash : hash ? `#${hash}` : "");
 }
 
@@ -100,6 +121,19 @@ const registeredExternalSources = new Set(Object.values(externalSources));
 // owner above; an arbitrary https URL or a merely matching host is insufficient.
 export function publicReadingExternalSourceHref(value) {
   return typeof value === "string" && registeredExternalSources.has(value) ? value : null;
+}
+
+// ZURIEL 5.11: feature areas that are closed only until they reopen in a few days. They keep their address in the index and are
+// answered 503 + Retry-After (the standard way to say "temporarily unavailable"), never noindex. Personal, payment, mailing and
+// private screens are NOT in this list and stay out of the index.
+export const PUBLIC_TEMPORARILY_CLOSED_PATHS = Object.freeze([
+  "/code", "/els", "/research", "/heichal", "/היכל", "/name", "/name-lab", "/spatial-gematria", "/verse-gematria", "/languages", "/cross",
+  "/archive", "/reality", "/timeline", "/numbers", "/broadcasts",
+]);
+export const PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER = 259200; // 3 days, in seconds
+export function publicTemporarilyClosed(pathname) {
+  const path = addressPath(pathname);
+  return Boolean(path && PUBLIC_TEMPORARILY_CLOSED_PATHS.includes(path) && publicReadingCapability(path));
 }
 
 export function publicReadingCapability(pathname) {
@@ -145,7 +179,7 @@ export function publicReadingCapability(pathname) {
     "/whats-new": ["מה חדש באתר", "עדכוני האתר ותמונת הזמינות מופיעים בבית ובמפת האתר. ההרשמה במייל עדיין אינה פעילה בגרסה זו.", "/map", "למפת האתר"],
     "/start": ["מתחילים כאן", "הבית, העולם, הפוסטים, המספרים והגלריות פתוחים לקריאה. מפת האתר מציגה גם את החלקים שעדיין בבנייה.", "/map", "למפת האתר"],
   })[path];
-  return item ? { title: item[0], description: item[1], links: [[item[2], item[3]]] } : null;
+  return item ? { title: item[0], description: item[1] + (PUBLIC_TEMPORARILY_CLOSED_PATHS.includes(path) ? " האזור סגור זמנית וייפתח בקרוב." : ""), links: [[item[2], item[3]]] } : null;
 }
 
 export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {}) {

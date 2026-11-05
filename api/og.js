@@ -1,4 +1,4 @@
-import { PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability } from "../src/lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
 import { postsTaxonomyRoute2029, postsTaxonomyScope2029, postsTaxonomyPage2029, postsTaxonomySelection2029, postsTaxonomyEvidence2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
   loadPublicForumContinuation2029, loadPublicCommentPostContinuation2029,
@@ -359,7 +359,8 @@ export default async function handler(req, res) {
     taxonomy = selectors.length === 1 ? postsTaxonomyScope2029(...selectors[0]) : { kind: 'invalid', key: '', label: 'בחירה לא תקינה' };
   }
   if (productionReading && ["closed", "missing", "service-closed"].includes(productionRouteState)) {
-    robots = 'noindex, nofollow';
+    // A feature area that is only closed until it reopens in a few days stays in the index (the document is answered 503 + Retry-After).
+    robots = productionRouteState === "closed" && publicTemporarilyClosed(key) ? 'index, follow' : 'noindex, nofollow';
     documentStatus = productionRouteState === "missing" ? 404 : 200;
     title = `${documentStatus === 404 ? 'העמוד לא נמצא' : 'האזור ייפתח בהמשך'} · ${SITE_NAME}`;
     desc = documentStatus === 404 ? 'המקור המבוקש אינו זמין.' : 'האזור אינו פתוח בגרסת הקריאה הציבורית.';
@@ -470,6 +471,12 @@ export default async function handler(req, res) {
       const forum = await loadPublicForumContinuation2029(decodedKey === '/forum' ? null : decodedKey.slice(7), { readRows: readContinuityRows });
       documentStatus = publicContinuityHttpStatus2029(forum);
       if (forum.exists === true) {
+        res.setHeader('Location', publicForumChatHref2029(continuitySearch));
+        return res.status(308).send('');
+      }
+      // The retired Forum is replaced by the community chat: an old thread address (a well-formed id) that no longer exists
+      // continues to the chat like the ones that do; a malformed address stays 404 and an unavailable source stays 503.
+      if (documentStatus === 404 && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(decodedKey.slice(7))) {
         res.setHeader('Location', publicForumChatHref2029(continuitySearch));
         return res.status(308).send('');
       }

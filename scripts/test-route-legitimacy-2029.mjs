@@ -27,6 +27,16 @@ for (const route of singleStatic) {
   assert.equal(isKnownSingleSegmentRoute(route), true, `known App route missing from route legitimacy projection: ${route}`);
 }
 
+// Every preserved historical lecture page (single-segment ones) must pass the Edge legitimacy check, in both encodings.
+import { PUBLIC_HISTORICAL_LECTURE_PATHS } from "../src/lib/publicReadingRelease2029.js";
+for (const href of PUBLIC_HISTORICAL_LECTURE_PATHS) {
+  const path = href.replace(/\/+$/, "");
+  if (path.slice(1).includes("/")) continue;
+  assert.equal(isKnownSingleSegmentRoute(path), true, `historical lecture page missing from route legitimacy: ${path}`);
+  assert.equal(isKnownSingleSegmentRoute(encodeURI(path)), true, `historical lecture page (encoded) missing from route legitimacy: ${path}`);
+  assert.equal(isKnownSingleSegmentRoute(encodeURI(path).replace(/%[0-9A-F]{2}/g, m => m.toLowerCase())), true, `historical lecture page (lowercase encoding) missing: ${path}`);
+}
+
 // Native 2029 exact single-segment routes share the same Edge legitimacy owner.
 const app2029Routes = [...productionApp2029Source(app2029).matchAll(/<Route\s+path="([^"]+)"/g)].map(m => m[1]);
 const singleStatic2029 = app2029Routes.filter(p => {

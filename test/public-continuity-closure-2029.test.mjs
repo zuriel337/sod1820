@@ -44,7 +44,7 @@ test('original historical documents have exact self canonicals without querying 
  finally{globalThis.fetch=original;}
 });
 
-test('proven Forum aliases retain query/anchor and only approved UUID arrivals redirect to existing chat',async()=>{
+test('proven Forum aliases retain query/anchor and every well-formed old thread address continues to the chat, uniformly',async()=>{
  for(const path of ['/forum','/yuval-kogan-echad-hasichim-hamashiach','/post/yuval-kogan-echad-hasichim-hamashiach'])
   assert.equal(publicReadingContinuation(path,'?part=2&part=7','#return'),'/community/chat?part=2&part=7#return');
  assert.equal(publicReadingContinuation('/','?p=36971&source=google','#original'),'/community/chat?p=36971&source=google#original');
@@ -52,7 +52,9 @@ test('proven Forum aliases retain query/anchor and only approved UUID arrivals r
  const id='00000000-0000-4000-8000-000000000001';
  const original=globalThis.fetch;
  try{
-  for(const [rows,status]of [[[ {id,status:'approved'} ],308],[[],404],[[{id,status:'draft'}],404],[[{id:'00000000-0000-4000-8000-000000000002',status:'approved'}],404]]){
+  // ZURIEL 5.11: the retired Forum is replaced by the chat. A well-formed old thread address continues to the chat whether or not the thread still
+ // exists (approved, draft or gone): the answer is identical, so nothing about an unpublished thread is disclosed.
+ for(const [rows,status]of [[[ {id,status:'approved'} ],308],[[],308],[[{id,status:'draft'}],308],[[{id:'00000000-0000-4000-8000-000000000002',status:'approved'}],308]]){
    let reads=0;globalThis.fetch=async input=>{const u=new URL(input);assert.ok(u.pathname.endsWith('/research_contributions'));assert.equal(u.searchParams.get('select'),'id,status');assert.equal(u.searchParams.get('id'),'eq.'+id);assert.equal(u.searchParams.get('status'),'eq.approved');reads++;return json(rows);};
    const result=await document('/forum/'+id+'?part=2&part=7');assert.equal(result.code,status);assert.equal(reads,1);
    if(status===308)assert.equal(result.headers.location,'/community/chat?part=2&part=7');else assert.equal(result.headers.location,undefined);

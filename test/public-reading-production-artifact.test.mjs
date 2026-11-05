@@ -77,13 +77,34 @@ test("Production document uses canonical owner, preserves old/native/encoded/wp 
   });
 });
 
+// ZURIEL 5.11: feature areas that are closed only until they reopen in a few days keep their address in the index. The standard
+// way to say "temporarily unavailable" is 503 + Retry-After; they are never noindex. Personal, payment and private screens stay out.
+test("temporarily closed feature areas answer 503 with Retry-After and stay indexable; the rest stay noindex", async () => {
+  await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
+    const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
+    for (const path of ["/code", "/els", "/research", "/archive", "/reality", "/timeline", "/name", "/numbers", "/languages", "/cross"]) {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 503, path);
+      assert.equal(res.headers.get("retry-after"), "259200", path);
+      assert.equal(res.headers.get("x-robots-tag"), "index, follow", path);
+      assert.match(res.body, /name="robots" content="index, follow"/, path);
+      assert.match(res.body, /האזור סגור זמנית וייפתח בקרוב/, path);
+    }
+    for (const path of ["/login", "/journey", "/raziel", "/credits", "/buy", "/join", "/start", "/2029/control", "/updates"]) {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 200, path); assert.equal(res.headers.get("retry-after"), undefined, path);
+      assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
+    }
+  });
+});
+
 test("closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe", async () => {
   await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
     const handler=publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
     // Fragments are kept by the browser across redirects, never sent in HTTP.
     const alias=response();await handler(req('/2029/me?returnTo=%2Fworld'),alias);
     assert.equal(alias.code,308);assert.equal(alias.headers.get('location'),'/2029/me/research?returnTo=%2Fworld');assert.match(alias.headers.get('x-robots-tag'),/noindex/);
-    for (const path of ["/login", "/2029/me/research?returnTo=%2Fworld#private", "/community/researcher/me", "/journey", "/raziel", "/els", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
+    for (const path of ["/login", "/2029/me/research?returnTo=%2Fworld#private", "/community/researcher/me", "/journey", "/raziel", "/credits", "/start", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
       const res = response(); await publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document })(req(path), res);
       assert.equal(res.code, 200, path); assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
       assert.ok(!res.body.includes("e=synthetic"));
@@ -98,9 +119,11 @@ test("public aliases and named existing capabilities retain truthful continuatio
     for (const path of ["/2029", "/2029/posts", "/2029/gematria/viral", "/2029/calculator"]) {
       const res = response(); await handler(req(path), res); assert.equal(res.code, 200, path);
     }
-    for (const path of ["/name", "/or-geula"]) {
+    for (const path of ["/or-geula"]) {
       const res = response(); await handler(req(path), res); assert.equal(res.code, 200, path);
     }
+    // A named capability that is closed only until it reopens soon is a truthful 503 (see the temporarily-closed test).
+    { const res = response(); await handler(req("/name"), res); assert.equal(res.code, 503); assert.equal(res.headers.get("retry-after"), "259200"); }
     // ZURIEL's accepted Forum continuation preserves the exact public chat
     // destination. It is a redirect, not a generic200 status placeholder.
     const forum=response();await handler(req('/forum?part=2&part=7'),forum);

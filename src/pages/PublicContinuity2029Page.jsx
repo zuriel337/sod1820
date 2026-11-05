@@ -4,7 +4,7 @@ import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { applySeo } from "../lib/seo.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
-import { publicReadingExternalSourceHref } from "../lib/publicReadingRelease2029.js";
+import { publicReadingExternalSourceHref, publicTemporarilyClosed } from "../lib/publicReadingRelease2029.js";
 import {
   loadPublicOrGeulaCollection2029, loadPublicOrGeulaOccurrence2029,
   loadPublicPeopleContinuation2029, loadPublicForumContinuation2029,
@@ -37,9 +37,11 @@ function usePublicRead(reader) {
 function ContentPlane({ kind, title, description, path, state = "ready", children }) {
   const location = useLocation();
   const canonicalPath = path || location.pathname;
+  // A feature area closed only until it reopens soon stays indexable (the server answers it 503 + Retry-After).
+  const reopeningSoon = state === "gated" && publicTemporarilyClosed(location.pathname);
   useEffect(() => {
-    applySeo({ title, description, path: canonicalPath, noindex: !["ready", "empty"].includes(state) });
-  }, [title, description, canonicalPath, state]);
+    applySeo({ title, description, path: canonicalPath, noindex: !(["ready", "empty"].includes(state) || reopeningSoon) });
+  }, [title, description, canonicalPath, state, reopeningSoon]);
   return <section className="public-continuity-2029" dir="rtl" data-continuity-kind={kind} data-read-state={state} data-state={state}>
     <header className="continuity-heading">
       <span className="continuity-eyebrow">סוד 1820</span>
