@@ -1,5 +1,7 @@
 # הפרדה ארכיטקטונית 2029 ↔ Legacy — Audit ומסירה (5.11.2026)
 
+> **מצב חי (5.11):** הפרודקשן הוא `main` = `b0a752c66` (`dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP`; יעד חזרה `dpl_8wS3rP2YgbqSaapmYxa3SAk8jdFk` = `18c98fa6f`). **ההסרה המתוארת כאן עדיין אינה בחי** — היא בענף `claude/2029-legacy-separation-e8j9tf` בלבד, ממוזגת נקי מול `b0a752c66`, ללא PR/מיזוג/פריסה.
+
 > **עדכון:** הסיווג המעמיק של הרכיבים והחוזים המשותפים נמצא ב־[FINDINGS.md](FINDINGS.md). `src/features/personalPanels/*` שנוצר בסבב הראשון **אינו** מצב סופי — הוא עדיין בסגנון Legacy ומסומן שם כ־F.
 
 בסיס: `origin/main` = `a27d8d06ff72e8ae664c02f0a5bc0bb66dd7a1b5`, ענף `claude/2029-legacy-separation-e8j9tf`.

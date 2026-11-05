@@ -1,5 +1,7 @@
 # יומן ביצוע — שלבים 1–3 (החלטות צוריאל, 5.11.2026)
 
+> **מצב חי (5.11):** הפרודקשן הוא `main` = `b0a752c66` (`dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP`; יעד חזרה `dpl_8wS3rP2YgbqSaapmYxa3SAk8jdFk` = `18c98fa6f`). **ההסרה המתוארת כאן עדיין אינה בחי** — היא בענף `claude/2029-legacy-separation-e8j9tf` בלבד, ממוזגת נקי מול `b0a752c66`, ללא PR/מיזוג/פריסה.
+
 כל שלב בקומיט נפרד; rollback = `git revert` של הקומיט. אין PR, merge או פריסה.
 
 ## עדכון חוק `canonical_ui_components_law` (רשומה בריפו בלבד)

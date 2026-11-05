@@ -1,5 +1,7 @@
 # הסרת Legacy מהקוד הפעיל — דוח ביצוע (5.11.2026)
 
+> **מצב חי (5.11):** הפרודקשן הוא `main` = `b0a752c66` (`dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP`; יעד חזרה `dpl_8wS3rP2YgbqSaapmYxa3SAk8jdFk` = `18c98fa6f`). **ההסרה המתוארת כאן עדיין אינה בחי** — היא בענף `claude/2029-legacy-separation-e8j9tf` בלבד, ממוזגת נקי מול `b0a752c66`, ללא PR/מיזוג/פריסה.
+
 החלטת צוריאל: Legacy מוצר שפרש; נשמר רק ב־Git (לצורך rollback). בסיס העבודה `28ab3aaea`, ענף `claude/2029-legacy-separation-e8j9tf`. אין PR/merge/פריסה. רשימת הקבצים שנמחקו: [`deleted-files.txt`](deleted-files.txt) (419 קבצים; 509 קבצים שונו; −84,924 שורות).
 
 ## קומיטים (כל אחד ניתן ל־`git revert` בנפרד)
@@ -16,6 +18,34 @@
 - **מסוף הניהול** (`AdminPage` + `components/admin/*`, 60 קבצים), **עורך הפוסטים** (`PostEditorPage`, `AdvancedPostEditor`, `ContributorStudio`, `UploadFindings`, `LeadOrderEditor`), `CreditsBuyPage`, `WaInboxPage`/`WaChatWindow` — באישור מפורש; אין להם מקבילה ב־2029 וה־artifact החי לא הגיש אותם. נשארו ב־Git בלבד.
 - 17 בדיקות שנושאן קוד שנמחק; בדיקות מעורבות נערכו (הוסרו רק הצהרות על קבצי Legacy).
 - הגדרות: יעד build Legacy, `build:legacy`, שער ה־Legacy lock, rollback SW, workflow paths/steps לקבצים שנמחקו.
+
+## נשמר לטובת מסוף הניהול החדש (צוריאל בונה אותו; לא נבנה בענף הזה)
+**נשאר בעץ ולא נמחק:**
+- צד שרת: edge functions (`supabase/functions/*`), RPC/מיגרציות, RLS, Storage/TUS.
+- Auth: `src/lib/AuthContext.jsx` (`isAdmin`, אימות תפקיד מול השרת), `src/lib/auth.js`, `oauthReturn.js`.
+- משטחי 2029: `/2029/control` (`ControlPlane2029Page`), `/2029/me/*` (`WriterPersonal2029Page`).
+- הקרנות וסביבת עבודה: `src/lib/research/researchViewerProjection.js`, `useUniversalWorkspace.js`.
+- העלאת מדיה: `src/lib/mediaResumableUpload.js`, `src/lib/research/lifeJourneyHintMedia.js`, `src/lib/community/communityAttachments.js`.
+- תיעוד: `docs/admin-command-blue-slice-v1.md`, `docs/reviews/admin-full-access-auth-20261103/`.
+- `src/lib/presence.js` (Realtime): הוחזר כי חוזה ה־Realtime ב־main (#1228) מונה אותו כצרכן צפוי.
+
+**נמחק מהעץ, זמין מ־`b0a752c66` (הקוד החי היום ב־main):**
+```
+git show b0a752c66:src/pages/AdminPage.jsx
+git show b0a752c66:src/pages/PostEditorPage.jsx
+git show b0a752c66:src/components/AdvancedPostEditor.jsx
+git show b0a752c66:src/components/ContributorStudio.jsx
+git show b0a752c66:src/components/UploadFindings.jsx
+git show b0a752c66:src/components/LeadOrderEditor.jsx
+git show b0a752c66:src/pages/CreditsBuyPage.jsx
+git show b0a752c66:src/pages/WaInboxPage.jsx
+git ls-tree -r --name-only b0a752c66 src/components/admin/        # components/admin/* (ResearchViewer*, Raziel*, KnowledgeControlCenter...)
+git show b0a752c66:src/lib/moderation.js     # עטיפות לקוח ל־RPC של מודרציה
+git show b0a752c66:src/lib/ccwork.js         # buildAttentionDigest (ה־edge function raziel-attention מתייחס אליו)
+git show b0a752c66:src/lib/credits.js
+git show b0a752c66:src/lib/waReply.js
+```
+שימוש חוזר בלוגיקה = חילוץ ללוגיקה בלבד (שירות ניטרלי) ולא העתקת ממשק Legacy; אין לייבא קבצים אלה בחזרה כמות שהם.
 
 ## מה נשמר ולמה
 | פריט | סיבה |
