@@ -49,13 +49,22 @@
 - סט מלא (875 קבצי בדיקה Node): בסיס 728 עוברות / 146 נכשלות (סביבה: חסרות חבילות, Playwright/Supabase חיים); אחרי השינויים: אין בדיקה שעברה לפני ונכשלת עכשיו (למעט `expression-extract-packaging-guard`, שנכשלת רק כשיש שינויים לא־committed ועוברת אחרי commit).
 - Build, בדיקות בידוד, גרף 2029 סגור, `test-legacy-retired`, build של ה־artifact הציבורי (מצב dormant) — עוברים.
 - דפדפן (Chromium, 390 ו־1440): 18 נתיבים × 2 viewports נטענים ללא שגיאות (`/2029`, `/world`, `/post`, `/number`, `/gematria`, מחשבון הקהילה, `/community/chat`, `/code`, `/books`, `/gallery`, `/privacy`, `/unsubscribe`, `/heichal`, `/login`, `/2029/control`, `/2029/me`, 404). בדיקת theme בדפדפן עוברת.
-- CI (workflow_dispatch על הענף): ראו הדיווח.
+- **CI (workflow_dispatch על הענף, קומיט `e9ed34893`):**
+  - עברו: Legacy-retired gate (`legacy-production-lock.yml`), G4 Public Core, Observability/SEO, Research Sync, Community Reaction Visibility, Agent Dispatch, Dependency Radar V2, System Self Maintenance, Video Ingest.
+  - נכשלו **זהה ל־`main` ולבסיס**: 2029 Isolation Gate (`tests/entry-learn-2029.spec.cjs:47`) ו־Release Visual Gate (`release-visual.spec.cjs:485`, Bennett 1440px; 19 מתוך 20 עוברות).
+  - ELS Core Compatibility: ללא תוצאה (הריצה נתקעת גם על `main`).
+  - ה־CI חשף ותוקנו בקומיטים נפרדים: סקריפט SEO שקרא `src/routes.jsx`; `release-visual` שהניח `dist/index.html` של Legacy; בדיקת `gallery FIT_WHOLE_IMAGE` שהסתמכה על `LightboxVisualFoundation.css` של Legacy (נמחקה — ראו להלן); וקבצי `public/` שבדיקת ELS שכתבה מקומית וצורפו בטעות (שוחזרו).
 
 ## לא ניתן היה לבדוק
 - Preview של Vercel (אין deployments לענף; `git.deploymentEnabled=false`; לא נוצר ללא אישור).
 - Auth/העלאות/פרסום/קהילה **חיים** (דורשים Supabase חי ו־Playwright ב־CI); נבדקו רק חוזים סטטיים וטעינת מסכים.
 - INP; ביצועי רשת/CDN אמיתיים; שערי `pull_request`־בלבד (`follow-identity-isolated-db-gate`, `media-release-batch-gate`).
 - ה־CLAUDE.md ו־`SOD1820_MASTER_*` עדיין מתארים את Legacy; לא עודכנו (מסמכי בעלים).
+
+## ממצאים שנחשפו תוך כדי
+- **Lightbox:** כלל ה"תמונה מלאה בלי חיתוך" (`LightboxVisualFoundation.css`) נטען רק ע"י כניסת Legacy; 2029 מעולם לא שלח אותו (ובדיקת הבידוד אסרה זאת). ב־2029 תמונות גבוהות נגללות ב־≥920px. בדיקת `FIT_WHOLE_IMAGE` ב־Release Visual נמחקה; האם לאמץ את הכלל ב־Lightbox של 2029 — החלטת מוצר פתוחה.
+- **שער ה־SEO של Observability** בדק את נתיבי Legacy (`App.jsx`/`ROUTE_META`) ונמחק; **אין כעת שער מקביל לנתיבי `App2029`** (מומלץ לבנות).
+- **סיכון תפעולי:** בדיקות ELS מקומיות משכתבות את `public/els-dynamic-lexicon-v1.gz64.txt` ו־`public/tzofen.html` (כותרת gzip שונה). יש לבדוק `git status` לפני `git add -A` אחרי הרצת הסט המלא.
 
 ## סיכונים פתוחים
 1. אין כרגע ממשק פרסום/ניהול/העלאה בריפו; נדרש תחליף 2029 אם הוא נדרש מעבר ל־Git.
