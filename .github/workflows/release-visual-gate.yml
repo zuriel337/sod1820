@@ -325,7 +325,9 @@ jobs:
             const panelBox = await sidecar.boundingBox();
             expect(panelBox).not.toBeNull();
             if (width < 600) {
-              expect(panelBox.width).toBeGreaterThanOrEqual(width - 2);
+              // The sheet spans the layout viewport; with a reserved scrollbar gutter that is clientWidth, not the window width.
+              const layoutWidth = await page.evaluate(() => document.documentElement.clientWidth);
+              expect(panelBox.width).toBeGreaterThanOrEqual(layoutWidth - 2);
               expect(Math.abs((panelBox.y + panelBox.height) - height)).toBeLessThanOrEqual(2);
             } else {
               expect(panelBox.x).toBeLessThanOrEqual(12);
@@ -558,7 +560,9 @@ jobs:
             const panelBox = await sidecar.boundingBox();
             expect(panelBox).not.toBeNull();
             if (width < 600) {
-              expect(panelBox.width).toBeGreaterThanOrEqual(width - 2);
+              // The sheet spans the layout viewport; with a reserved scrollbar gutter that is clientWidth, not the window width.
+              const layoutWidth = await page.evaluate(() => document.documentElement.clientWidth);
+              expect(panelBox.width).toBeGreaterThanOrEqual(layoutWidth - 2);
               expect(Math.abs((panelBox.y + panelBox.height) - height)).toBeLessThanOrEqual(2);
             } else {
               expect(panelBox.x).toBeLessThanOrEqual(12);
