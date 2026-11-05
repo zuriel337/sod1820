@@ -1,0 +1,51 @@
+name: 2029 Live Contracts
+
+# Static, dependency-free contracts that must survive the retirement of the Legacy runtime.
+# The assertions were salvaged from Legacy-era tests (see the header of each script); nothing here is new behaviour, a threshold or a budget.
+# It runs on every pull request to main and can be dispatched by hand. No network, no browser, no secrets.
+# The second job, perf-contracts-2029, builds the app and runs speed contracts that existed but ran nowhere (today: the Realtime/Phoenix chunk stays out of the 2029 entry).
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live-contracts-2029:
+    name: live-contracts-2029
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Canonical presentation contract (pure presentation functions, Home 2029, fast preview, public OG, number message)
+        run: node scripts/test-2029-canonical-presentation.mjs
+      - name: Live static contracts (sitemap, Heichal entry, ELS 2029 page, early access, WhatsApp edge functions, research viewer Human Gate)
+        run: node scripts/test-2029-live-contracts.mjs
+      - name: Avatar rendition contract (public storage avatars are served as small renditions; animation is kept)
+        run: node --test src/lib/avatar.test.js
+
+  perf-contracts-2029:
+    name: perf-contracts-2029
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Production build
+        run: npm run build
+      - name: Realtime entry split (the deferred Realtime/Phoenix chunk is not in the 2029 entry; browser use of the SDK stays inside the checked subset)
+        run: node --test test/realtime-entry-split-2029.test.mjs

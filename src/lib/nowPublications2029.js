@@ -15,12 +15,18 @@ const HINT_CATEGORIES = Object.freeze(["רמזי הגאולה", "רמזים חז
 const HINT_CHANNELS = Object.freeze(["reality-code"]);
 const VIDEO_CATEGORY = "וידאו";
 
+// Hierarchy (ZURIEL / GPT 5.11.2026): the public source path first, then messages (including Or HaGeula),
+// then the reality stream; "all" and the remaining lenses follow. Lens = presentation only; rows are never re-ranked.
+export const NOW_PRIMARY_LENSES = Object.freeze(["sources", "messages", "reality"]);
 export const NOW_LENSES = Object.freeze([
+  Object.freeze({ id: "sources", label: "מקורות ציבוריים" }),
+  Object.freeze({ id: "messages", label: "מסרים ואור הגאולה" }),
+  Object.freeze({ id: "reality", label: "זרם המציאות" }),
   Object.freeze({ id: "all", label: "הכול" }),
   Object.freeze({ id: "series", label: "סדרות" }),
-  Object.freeze({ id: "messages", label: "מסרים" }),
   Object.freeze({ id: "hints", label: "רמזי גאולה וקוד המציאות" }),
 ]);
+const MESSAGE_CHANNELS = Object.freeze(["or-geula"]);
 export const NOW_MEDIA = Object.freeze([
   Object.freeze({ id: "video", label: "וידאו" }),
   Object.freeze({ id: "image", label: "תמונה" }),
@@ -52,6 +58,7 @@ export function shortNowTitle(value, max = 84) {
 }
 
 const list = value => Array.isArray(value) ? value : [];
+const clean = value => value == null ? "" : String(value).trim();
 const hasAny = (values, wanted) => list(values).some(value => wanted.includes(value));
 
 /**
@@ -73,14 +80,17 @@ export function nowRowModel(row) {
   const categories = list(item.categories), tags = list(item.tags);
   const isGroup = item.sourceKind === "group_message", isPost = item.sourceKind === "post";
   const isGallery = item.sourceKind === "gallery_update", isChannel = item.sourceKind === "channel_update";
-  const media = item.mediaHref || item.mediaUrl || null;
+  const media = item.mediaHref || item.mediaUrl || item.media?.url || null;
   const href = row?.href || null;
-  const video = Boolean(media && VIDEO_URL.test(media)) || /^\/video\/[^/]+\/?$/.test(href || "")
+  const groupMediaKind = isGroup ? item.media?.kind : null; // a group source declares its own media kind
+  const video = groupMediaKind === "video" || (!groupMediaKind && Boolean(media && VIDEO_URL.test(media))) || /^\/video\/[^/]+\/?$/.test(href || "")
     || (isPost && categories.includes(VIDEO_CATEGORY));
-  const image = !video && Boolean(media || isGallery);
+  const image = !video && (groupMediaKind ? groupMediaKind === "image" : Boolean(media || isGallery));
   const seriesKey = item.seriesKey || (isPost ? contentSeriesKeysForPost({ categories, tags, author: item.author })[0] || null : null);
   const seriesLabel = seriesKey ? nowSeriesLabel(seriesKey, item.seriesLabel || contentSeriesByKey(seriesKey)?.label || "") : "";
-  const sourceName = isGroup ? (item.creator || "מקור ציבורי")
+  // A public group source is labelled by its GROUP (the source); the writer stays in the byline.
+  const groupLabel = isGroup ? clean(item.sourceGroupLabel) : "";
+  const sourceName = isGroup ? (groupLabel || item.creator || "מקור ציבורי")
     : isChannel ? (item.sourceLabel || item.creator || "")
     : isGallery ? (item.sourceLabel || "זרם המציאות")
     : isPost ? (item.sourceLabel === "פוסט מקור באתר" ? "" : item.sourceLabel || "") || item.creator || ""
@@ -91,21 +101,25 @@ export function nowRowModel(row) {
     : item.sourceUpdate ? "עדכון מקור" : video ? "סרטון" : image ? "תמונה" : isPost ? "פוסט" : "עדכון";
   const lenses = new Set(["all"]);
   if (seriesKey) lenses.add("series");
-  if (seriesKey === "messages-from-righteous" || hasAny(categories, MESSAGE_CATEGORIES)) lenses.add("messages");
+  if (isGroup) lenses.add("sources");
+  if (seriesKey === "messages-from-righteous" || hasAny(categories, MESSAGE_CATEGORIES) || (isChannel && MESSAGE_CHANNELS.includes(item.channel))) lenses.add("messages");
+  if (isGallery || (isChannel && HINT_CHANNELS.includes(item.channel))) lenses.add("reality");
   if (hasAny(categories, HINT_CATEGORIES) || (isChannel && HINT_CHANNELS.includes(item.channel))) lenses.add("hints");
   const fullText = cleanNowText(item.fullText);
   const summary = cleanNowText(item.summary);
   const title = shortNowTitle(row?.title || item.label) || (video ? "סרטון" : image ? "תמונה" : "עדכון");
-  const byline = [seriesLabel, sourceName].filter((part, index, all) => part && all.indexOf(part) === index);
+  const byline = [seriesLabel, sourceName, isGroup ? item.creator : ""].filter((part, index, all) => part && all.indexOf(part) === index);
   return {
     id: row?.id, row, item, title, byline, typeLabel, unverified,
     at: row?.at || null, href, seriesKey, seriesLabel, sourceName,
     media: video ? "video" : image ? "image" : "text", video, image,
     thumb: [!video && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
+    groupLabel, creatorHref: isGroup ? item.creatorHref || null : null,
     mediaHref: media, lenses,
     fullText, summary: summary && summary !== title ? summary : "",
     ...nowExcerpt({ unverified, title, fullText, summary }),
-    previewKind: unverified ? null : video ? "video" : (image || media) ? "image" : null,
+    // Unverified source rows stay two lines without a text excerpt; a group source WITH media still shows its preview.
+    previewKind: (unverified && !(isGroup && (video || image))) ? null : video ? "video" : (image || media) ? "image" : null,
     canExpand: Boolean(fullText || media),
   };
 }
@@ -118,6 +132,12 @@ export const nowModels = rows => list(rows).filter(row => row?.id && row.title)
 export function availableNowLenses(models) {
   const all = list(models);
   return NOW_LENSES.filter(lens => lens.id === "all" || all.some(model => model.lenses.has(lens.id)));
+}
+
+/** First primary lens that has rows (sources → messages → reality); "all" when none does. */
+export function defaultNowLens(models) {
+  const all = list(models);
+  return NOW_PRIMARY_LENSES.find(id => all.some(model => model.lenses.has(id))) || "all";
 }
 
 /** Secondary choices (series / source / media) derived from the rows that exist, never fixed lists. */

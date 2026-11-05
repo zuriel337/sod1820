@@ -1452,8 +1452,8 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    await dock.getByRole('button',{name:'עוד · פעולות, כלים ושיתוף',exact:true}).click();
    const more=page.getByRole('dialog',{name:'עוד',exact:true});
    await more.getByRole('button',{name:'כלים',exact:true}).click();
-   await page.getByRole('dialog',{name:'כלים',exact:true}).getByRole('button',{name:'חיפוש',exact:true}).click();
-   await page.getByRole('dialog',{name:'חיפוש',exact:true}).waitFor();
+   await page.getByRole('dialog',{name:'כלים',exact:true}).getByRole('button',{name:'חיפוש באתר',exact:true}).click();
+   await page.getByRole('dialog',{name:'חיפוש באתר',exact:true}).waitFor();
    await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
    await dock.getByRole('button',{name:'עוד · פעולות, כלים ושיתוף',exact:true}).click();
    await more.getByRole('button',{name:'חזור לכלי הצופן',exact:true}).click();
@@ -1469,7 +1469,10 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    assert.equal(await dock.locator('[data-tool-action]').count(),0,'leaving the matrix removes its tool registration');
    assert.equal(await dock.getByRole('button',{name:/^עכשיו(?: · \d+ חדשים)?$/}).count(),1);
    await dock.getByRole('button',{name:/^עכשיו(?: · \d+ חדשים)?$/}).click();
-   assert.equal(await page.getByRole('dialog',{name:'עכשיו',exact:true}).getByRole('button',{name:'עכשיו · בשבילי',exact:true}).count(),1);
+   // The Now window renders its tabs a moment after the dialog opens (lazy content); wait for them, then assert exactly one.
+   const forMeTab=page.getByRole('dialog',{name:'עכשיו',exact:true}).getByRole('button',{name:'עכשיו · בשבילי',exact:true});
+   await forMeTab.waitFor({timeout:10000});
+   assert.equal(await forMeTab.count(),1);
    await page.keyboard.press('Escape');
   },{fullFrame:true,leavesMatrix:true,mobile:width<981});
  });

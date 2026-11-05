@@ -61,10 +61,10 @@ test("public footer links come from the registry and external links keep their v
 test("closed routes are shown as under construction, never as active links (public viewer)", async () => {
   const footer = await loadFooter(false);
   const html = render(footer, "/2029/posts");
-  for (const label of ["ארכיון", "היכל", "דילוגי אותיות", "המחקר שלי", "כאן מתחילים", "בית המדרש"]) {
+  for (const label of ["ארכיון", "היכל", "דילוגי אותיות", "המחקר שלי", "כאן מתחילים"]) {
     assert.match(html, new RegExp(`<li class="f29-closed"><span>${label}</span><small>בבנייה</small></li>`), label);
   }
-  for (const closedHref of ["/archive", "/research", "/code", "/start", "/beit-midrash"]) assert.ok(!hrefs(html).includes(closedHref), closedHref);
+  for (const closedHref of ["/archive", "/research", "/code", "/start"]) assert.ok(!hrefs(html).includes(closedHref), closedHref);
 });
 
 test("an admin sees the admin-view routes as working links with a visible admin marker", async () => {
@@ -106,9 +106,11 @@ test("the footer is part of the page end: mounted once in the frame, never fixed
   assert.match(css, /min-height:44px/);
 });
 
-test("the gematria calculator and Beit Midrash are footer destinations; Beit Midrash opens as a link only for an admin", async () => {
+test("the gematria calculator and Beit Midrash are footer destinations; Beit Midrash is an open link for everyone", async () => {
   const publicHtml = render(await loadFooter(false), "/2029/posts");
   assert.ok(hrefs(publicHtml).includes("/gematria"), "מחשבון גימטריה must be a footer link");
+  assert.ok(hrefs(publicHtml).includes("/beit-midrash"), "Beit Midrash is a working public footer link");
+  assert.doesNotMatch(publicHtml, /<li class="f29-closed"><span>בית המדרש<\/span>/);
   const adminHtml = render(await loadFooter(true), "/2029/posts");
   assert.ok(hrefs(adminHtml).includes("/beit-midrash"), "admin sees Beit Midrash as a working link");
 });

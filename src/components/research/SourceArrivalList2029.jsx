@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FrameState } from '../experience2029/Sod2029Shell.jsx';
 import NavigationIcon2029 from '../experience2029/NavigationIcon2029.jsx';
 import SourceRepeatInfo2029 from './SourceRepeatInfo2029.jsx';
+import { GroupSourceBadge, GroupSourceMedia, GroupSourceCreator } from './GroupSourceMeta2029.jsx';
 import '../../pages/home-world-story2029.css';
 import { recentSource, readSeen, markSeen } from '../../lib/homeMotion2029.js';
 import { recordTimeLabel } from '../../lib/relativeTime2029.js';
@@ -32,14 +33,14 @@ export default function SourceArrivalList2029({ items = [], loading, availabilit
         && Date.parse(item.sourceUpdatedAt) > Date.parse(item.sourcePublishedAt);
       const isNew = showNew && recentSource(latestSourceAt) && !seen[newKey];
       const copy = <><span className="sod29-source-arrival-icon"><NavigationIcon2029 name="source" /></span><span className="sod29-source-arrival-copy">
-        <span className="sod29-source-arrival-label">{isNew ? <><i className="sod29-source-arrival-dot" aria-hidden="true" /><span className="sod29-sr-only">חדש · </span></> : null}{group ? 'מהמקור · טרם נבדק' : 'פוסט מקור'}</span>
+        <span className="sod29-source-arrival-label">{isNew ? <><i className="sod29-source-arrival-dot" aria-hidden="true" /><span className="sod29-sr-only">חדש · </span></> : null}{group ? `${item.sourceGroupLabel || 'מהמקור'} · טרם נבדק` : 'פוסט מקור'}</span>
         <strong>{item.label}</strong><span>{item.creator || 'שם הכותב לא צוין'}</span>
         <small>{group ? 'נשמר במערכת' : updatedPost ? 'הפוסט עודכן' : 'פרסום המקור'} · {date(latestSourceAt, timeMode)}</small>
       </span><span className="sod29-source-arrival-open" aria-hidden="true">{group ? '↓' : '←'}</span></>;
       return group ? <details key={item.id} id={surface === 'world' ? `group-source-${item.id.slice(6)}` : undefined}
         className="sod29-world-group-source sod29-source-arrival" data-source-arrival={item.sourceRef}>
-        <summary onClick={() => { if (isNew) see(newKey); }}>{copy}</summary><div className="sod29-source-arrival-body"><p>{item.fullText}</p>
-          <p className="sod29-source-arrival-label">מאת: {item.creator || 'שם הכותב לא צוין'}</p>
+        <summary onClick={() => { if (isNew) see(newKey); }}>{copy}</summary><div className="sod29-source-arrival-body"><GroupSourceBadge item={item} /><GroupSourceMedia item={item} />{item.fullText ? <p>{item.fullText}</p> : null}
+          <p className="sod29-source-arrival-label"><GroupSourceCreator item={item} prefix="מאת: " /></p>
           <p className="sod29-source-arrival-label">מועד גילוי חיבור: לא תועד בנתונים הזמינים.</p>
           <SourceRepeatInfo2029 item={item} anchorIds={surface === 'world'} timeMode={timeMode} onSelect={(event) => onOpen({ ...item, sourceRef: event.sourceRef, href: `/world#group-source-${event.id}` })} />
           <button className="sod29-action" onClick={() => onOpen(item)}>{surface === 'home' ? 'פתיחה בעולם' : 'שמירת ההקשר לקריאה'}</button>

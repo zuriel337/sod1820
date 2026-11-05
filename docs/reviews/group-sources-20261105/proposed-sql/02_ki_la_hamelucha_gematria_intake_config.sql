@@ -1,0 +1,11 @@
+-- PROPOSAL ONLY — NOT APPLIED. Separate from 01 on purpose: this changes WHO is ingested, which is a privacy decision.
+-- Current live state (read-only check 5.11.2026): channel_ingest_sources.channel='ki-la-hamelucha-gematria' enabled=true,
+-- intake_mode='research_first', admin_only=true, is a real group (@g.us); 5 rows in channel_updates, all private,
+-- 0 flagged group_source_intake_public, 0 group-proof rows.
+-- admin_only=true means only the listed admin_ids are ingested. To open the group as a PUBLIC source path the way
+-- torat-haremez works (admin_only=false), every member's messages would be ingested into channel_updates (private by default);
+-- only messages from an approved writer with a verified phone proof ever become public.
+-- DO NOT APPLY WITHOUT: (a) ZURIEL's explicit decision to widen intake for this group, (b) the matching wa-channel-ingest deployment
+-- (WORLD_GROUP_CHANNELS includes the channel) and (c) the 01 reader extension. The five existing private rows are NOT touched
+-- and are never bulk-published.
+-- update public.channel_ingest_sources set admin_only = false where channel = 'ki-la-hamelucha-gematria';

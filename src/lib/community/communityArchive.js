@@ -1,3 +1,4 @@
+import { REVIEWED_TORAH_TAMIMA_LINK, reviewedCommunityAccountId, canonicalCommunityAuthorKey } from "./communityCanonicalIdentity2029.js";
 import { supabase } from "../supabase.js";
 import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../publicLaunch2029.js";
 import { getPublicResearchClient } from "../research/researchViewMode.js";
@@ -56,6 +57,10 @@ export const PROFILE_BASELINES = Object.freeze({
 // Verified OpenWeb source IDs resolve to these existing contributor records.
 // A screenshot/name alone never grants account ownership.
 export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
+  [REVIEWED_TORAH_TAMIMA_LINK.contributorId]: { sourceUserId: "U_QAu9LlY39eZZzLYi", name: "תורה תמימה", accountUserId: REVIEWED_TORAH_TAMIMA_LINK.accountId,
+    ...PROFILE_BASELINES["תורה תמימה"] },
+  [`user:${REVIEWED_TORAH_TAMIMA_LINK.accountId}`]: { name: "תורה תמימה", accountUserId: REVIEWED_TORAH_TAMIMA_LINK.accountId,
+    ...PROFILE_BASELINES["תורה תמימה"] },
   "f499536a-e993-4a7d-8706-a2e69337c320": { sourceUserId: "u_zawiGiUO", name: "שינשין", ...PROFILE_BASELINES["שינשין"] },
   // ZURIEL explicitly approved this public historical bio on 2026-10-25.
   // It grants no account binding or platform permission; the source dossier remains private.
@@ -74,6 +79,7 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
 // These display bridges mirror the reviewed server Person edges; they grant no
 // account authority. Each reader keeps the two accounts and their activity separate.
 const VERIFIED_OWNER_PAIRS = Object.freeze([
+  { accountId: REVIEWED_TORAH_TAMIMA_LINK.accountId, contributorId: REVIEWED_TORAH_TAMIMA_LINK.contributorId }, // Human-gated exact OpenWeb source link, 2026-11-04.
   { accountId: "02a0d207-0136-4beb-a34d-8ff57d10cd85", contributorId: "4cd9c034-0464-4600-a35d-7156f0584d9b" }, // zyz997 ↔ Sod1820
   { accountId: "b6ce542a-2b07-4749-8aba-532c886f6de7", contributorId: "19936860-6b35-4386-bc44-113289858ff0" }, // כי לה׳ המלוכה ↔ YosiViner559
 ]);
@@ -131,9 +137,9 @@ export function normalizeCommunityRow(row) {
     id: row.id,
     parentId: row.parent_id || null,
     authorName,
-    authorKey: row.author_user_id ? `user:${row.author_user_id}` : contributorId,
+    authorKey: row.author_user_id ? `user:${row.author_user_id}` : canonicalCommunityAuthorKey(contributorId),
     authorUserId: row.author_user_id || null,
-    linkedUserId: contributor?.user_id || null,
+    linkedUserId: contributor?.user_id || reviewedCommunityAccountId(contributorId),
     avatarUrl: contributor?.avatar_url || null,
     title: row.title || null,
     body: decodeCommunityText(row.body || row.title || ""),

@@ -15,6 +15,7 @@ import { Palette2029Provider, use2029Palette } from "../../lib/palette2029.js";
 import { setThemePreset, useThemePreset } from "../../lib/themePreset2029.js";
 import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import Footer2029 from "./Footer2029.jsx";
+import AccountLinkOffer2029 from "./AccountLinkOffer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
@@ -23,6 +24,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
+import { adminOpenClosedDestinations } from "./adminOpenDestinations2029.js";
 import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked, personalActionsLocked } from "../../lib/publicLaunch2029.js";
 const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));
 import { makeEntity } from "../../lib/research/entity.js";
@@ -201,8 +203,9 @@ const FOCUSABLE = [
   "[tabindex]:not([tabindex='-1'])",
 ].join(",");
 
-// בית המדרש is a visible menu destination (ZURIEL 5.11.2026). While the public router keeps it closed it appears with its
-// true "בבנייה" state instead of a link that leads nowhere; for a verified admin or once opened it is a normal link.
+
+// בית המדרש is a visible menu destination (ZURIEL 5.11.2026). Open to the public since 5.11.2026; if the router ever closes it again it appears
+// with its true "בבנייה" state instead of a link that leads nowhere.
 export function beitMidrashNavItem(item, isAdmin = false) {
   const state = publicReadingPath(item.to, { isAdmin: isAdmin === true });
   return state === "closed" || state === "missing" ? { label: item.label, icon: item.icon, status: "בבנייה" } : item;
@@ -2111,7 +2114,7 @@ function SystemFrame2029Body({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="פרסומי האתר" title="עכשיו"><NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />{transient?.payload?.ribbonDetail ? <LivingRibbonDetail2029 detail={transient.payload.ribbonDetail} onOpen={go} feed={feed} /> : corePublicViewer ? worldLocked
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} panelKind="now" icon="◉" kicker="פרסומי האתר" title="עכשיו"><NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />{transient?.payload?.ribbonDetail ? <LivingRibbonDetail2029 detail={transient.payload.ribbonDetail} onOpen={go} feed={feed} /> : corePublicViewer ? worldLocked
       ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState>
       : <FrameState title="העולם פתוח"><Link to="/world" onClick={closeTransient}>למקורות ולחיבורים בעולם ←</Link></FrameState>
       : <AttentionProjection context={pageContext} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} timeMode={recordTimeMode} />}</PanelShell>;
@@ -2122,6 +2125,12 @@ function SystemFrame2029Body({
           <button className="sod29-action" type="button" onClick={() => openAction(inspectTarget)}>פעולות</button>
           <button className="sod29-action" type="button" onClick={openTools}>כלים</button>
         </div>
+        {adminOpenClosedDestinations(isAdmin).length ? <section className="sod29-panel-admin-open" aria-label="פתוח למנהל בלבד" data-admin-open-destinations="true">
+          <h3>בבנייה · פתוח למנהל בלבד</h3>
+          <div className="sod29-panel-actions-grid">
+            {adminOpenClosedDestinations(isAdmin).map((item) => <button key={item.id} className="sod29-action" type="button" onClick={() => { setTransient(null); go(item.href); }}>{item.label}</button>)}
+          </div>
+        </section> : null}
       </> : null}
       {shareHref ? <section className="sod29-panel-share" aria-label="שיתוף העמוד" data-share-owner="ShareActions"><h3>שיתוף</h3><ShareActions type={surface === "post" ? "post" : "page"} url={shareHref} title={title || "SOD1820"} sourceSurface={surface} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} style={{ flexWrap: "wrap", overflowX: "visible" }} force /></section> : <FrameState title="עמוד אישי">אין קישור ציבורי לשיתוף מתוך העמוד האישי.</FrameState>}
       {activeToolDock ? <button className="sod29-action" type="button" onClick={() => { setTransient(null); setSystemDockMode(false); }}>חזור לכלי הצופן</button> : null}
@@ -2251,6 +2260,7 @@ function SystemFrame2029Body({
               : <div className="sod29-entry-orientation-slot">{mark}</div>;
           })() : null}
 
+          <AccountLinkOffer2029 />
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
               {resolvedIntroVariant !== "none" && (eyebrow || title || description) ? (
@@ -2331,7 +2341,7 @@ function SystemFrame2029Body({
           }} disabled={numberLocked} aria-label={numberLocked ? "גימטריה · נעולה כרגע" : "גימטריה · מספר, ביטוי ושיטות חישוב"} aria-haspopup="dialog"><NavigationIcon2029 name="number" /><small>גימטריה</small></button>
           <RazielOrb compact active={!razielLocked && transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} locked={razielLocked} />
           <button type="button" onClick={research.elsResearchOperation?.task ? openWorkspace : openAttention} aria-label={research.elsResearchOperation?.task ? `עכשיו · ${research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות"}` : feed.newCount > 0 ? `עכשיו · ${feed.newCount} חדשים` : "עכשיו"} aria-haspopup="dialog" aria-expanded={transientKind === (research.elsResearchOperation?.task ? TRANSIENT.WORKSPACE : TRANSIENT.ATTENTION)}><NavigationIcon2029 name="now" /><small>{research.elsResearchOperation?.task ? research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות" : "עכשיו"}</small>{feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
-          <button type="button" onClick={openShare} disabled={!shareHref} title={shareHref ? "שיתוף העמוד" : "אין קישור ציבורי לשיתוף מתוך העמוד האישי"} aria-label="שיתוף" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.MORE && transient?.payload?.shareOnly === true}><NavigationIcon2029 name="share" /><small>שיתוף</small></button>
+          <button type="button" onClick={openMore} title="עוד · פעולות, כלים, חיפוש ושיתוף" aria-label="עוד · פעולות, כלים ושיתוף" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.MORE}><NavigationIcon2029 name="tools" /><small>עוד</small></button>
         </div> : <div className="sod29-command-island is-unified-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="tool" data-tool-owner={activeToolDock?.surface}>
           <div className="sod29-bar-zone is-context"><SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /></div>
           <RazielOrb compact active={!razielLocked && transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} locked={razielLocked} />

@@ -1086,13 +1086,18 @@
     position:sticky;
     top:78px;
     align-self:start;
-    max-height:calc(100vh - 98px);
+    /* Ends above the floating bottom bar (its clearance token), never behind it. */
+    max-height:calc(100vh - 78px - var(--s29-island-clearance,90px));
+    max-height:calc(100dvh - 78px - var(--s29-island-clearance,90px));
     overflow-y:auto;
     overscroll-behavior:contain;
     z-index:18;
   }
+  /* The rail ends above the floating bottom bar from ANY resting position, not only when pinned: on a page too short to scroll
+     it stays at its natural offset (~140px below the top, under the page header and strip), so its height leaves that
+     offset plus the bar clearance. 150px = natural offset + margin. (Bennett desktop gate: 139 + 828 overlapped the bar by 39px.) */
   .sod29-root.closed-shell:is(.surface-post,.surface-topic) .sod29-surface-context-rail{
-    height:calc(100dvh - 82px - var(--s29-island-clearance,92px));
+    height:calc(100dvh - 150px - var(--s29-island-clearance,92px));
   }
 }
 .sod29-root.surface-post .sod29-surface-tabs,
