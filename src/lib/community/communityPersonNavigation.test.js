@@ -54,3 +54,15 @@ test("community return preserves exact legacy or canonical reading state without
   assert.equal(communityReadingReturnHref(`/community/chat?member=user%3A${id}&section=community#message-${id}`), `/community/chat?member=user%3A${id}&section=community#message-${id}`);
   for (const href of ["//evil.example/community/chat", "https://evil.example/community/chat", "/2029?preview=world", "/2029/me/messages", "/community/chat/extra", "/community/chat\\secret"]) assert.equal(communityReadingReturnHref(href), null);
 });
+
+test("reviewed historical Torah Tamima link uses only the newer account public page", () => {
+  const oldContributor = "1f95f46b-b18b-480b-a2d2-8a9ce90eb194";
+  const account = "365fb241-77ed-4a9d-98ab-4e30ab53c093";
+  const canonical = `/community/chat?member=user%3A${account}`;
+  assert.equal(communityPersonHref(oldContributor), canonical);
+  assert.equal(communityPersonHref(`user:${account}`), canonical);
+  assert.equal(isCommunityPersonHref(canonical), true);
+  assert.equal(communityPersonHref("793dc271-2194-4110-b5ff-d2422d6f1c85"),
+    "/community/chat?member=793dc271-2194-4110-b5ff-d2422d6f1c85",
+    "older distinct login is never automatically treated as the newly claimed source");
+});
