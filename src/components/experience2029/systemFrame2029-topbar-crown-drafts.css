@@ -163,3 +163,19 @@ html[data-crown-light="frost"] .sod29-root[data-crown-draft][data-frame-theme-pr
 html[data-crown-light="ivory"] .sod29-root[data-crown-draft][data-frame-theme-preset="light"],
 html[data-crown-light="ivory"] .sod29-root[data-crown-draft][data-frame-theme-preset="parchment"] { --s29-pod-fill: #fff4d9; --s29-pod-line: #a9791f; }
 html[data-crown-light="ivory"] .sod29-root[data-crown-draft] .sod29-header-crown img { filter: drop-shadow(0 3px 5px rgb(60 36 0 / .55)) drop-shadow(0 0 1px rgb(60 36 0 / .7)); }
+
+
+/* Draft 2c · ONE continuous line. The bar's line and the arc under the letters used to be two strokes (1px with fading ends,
+   and 1.5px) meeting with a visible step. Now both are 2px, the same opaque colour, hard-edged and aligned on the same rows,
+   so the line leaves the bar, goes round the pod under the verse and returns as one stroke. */
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] { --s29-line-w: 2px; --s29-gap: calc(var(--s29-dip-w) - 6px); }   /* the bar's line overlaps the arc by 3px each side: no seam */
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] { --s29-gap: calc(var(--s29-dip-w) * .34 - 6px); }
+.sod29-root[data-crown-draft="2"][data-frame-theme-preset="light"],
+.sod29-root[data-crown-draft="2"][data-frame-theme-preset="parchment"] { --s29-pod-line: #e9b949; }
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header.closed-orientation::after {
+  block-size: var(--s29-line-w); opacity: 1;
+  background: linear-gradient(90deg, var(--s29-pod-line) 0 calc(50% - var(--s29-gap) / 2), transparent calc(50% - var(--s29-gap) / 2) calc(50% + var(--s29-gap) / 2), var(--s29-pod-line) calc(50% + var(--s29-gap) / 2) 100%);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-crown-dip { inset-block-start: calc(var(--s29-bar-h) - var(--s29-line-w) / 2); }
+.sod29-crown-dip .dip-line { stroke-width: 2px; stroke-linecap: butt; stroke-linejoin: round; }
+.sod29-root[data-crown-draft="2"] .sod29-crown-dip .dip-fill { stroke: none; }
