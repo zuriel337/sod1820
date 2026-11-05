@@ -46,3 +46,7 @@
 @media(max-width:560px){.f29-wrap{grid-template-columns:minmax(0,1fr)}.f29-social{justify-content:flex-start}}
 @media(max-width:340px){.f29-nav{grid-template-columns:minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.f29-social a{transition:none}}
+
+/* CLS: the footer must not be on the first screen while the page content is still loading (it then jumped below the fold when the
+   content arrived: CLS 0.19-0.26 at 390px). The content area reserves one viewport, so the footer always starts below the first screen. */
+.sod29-main-stage>.sod29-content{min-height:100vh;min-height:100dvh}
