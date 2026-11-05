@@ -349,5 +349,26 @@ try {
   assert.equal(failed.statusCode, 503); assert.equal(failed.headers.get("cache-control"), "no-store");
   assert.doesNotMatch(failed.body, /<urlset/);
 } finally { globalThis.fetch = privacySitemapFetch; }
+// The public learning area is a SPA route, not a Post slug. Before this branch existed the server document fell through to the
+// post lookup and answered 404 "הפוסט לא נמצא" (and noindex metadata) for a page that renders fine in the browser.
+const beitMidrashFetch = globalThis.fetch;
+try {
+  globalThis.fetch = async (url) => { throw new Error("Beit Midrash server metadata must not fetch data: " + url); };
+  for (const path of ["/beit-midrash", "/beit-midrash/standard", "/beit-midrash/standard/"]) {
+    const bm = makeRes();
+    await handler({ publicFoundationPreview: true, publicReadingRelease: PUBLIC_READING_PROFILE_ID,
+      publicReadingProductionArtifact: true, query: { path, crawler: "search" } }, bm);
+    assert.equal(bm.statusCode, 200, `${path} must be a public document, not a missing Post`);
+    assert.match(bm.body, /<title>בית המדרש · לומדים לגלות · SOD1820<\/title>/, path);
+    assert.match(bm.body, /canonical" href="https:\/\/sod1820.co.il\/beit-midrash"/, path);
+    assert.equal(bm.headers.get("x-robots-tag"), "noindex, nofollow", path);
+    assert.doesNotMatch(bm.body, /הפוסט לא נמצא/, path);
+  }
+  // Addresses that are not a method/section stay missing rather than becoming a Post lookup.
+  const deep = makeRes();
+  await handler({ publicFoundationPreview: true, publicReadingRelease: PUBLIC_READING_PROFILE_ID,
+    publicReadingProductionArtifact: true, query: { path: "/beit-midrash/standard/extra", crawler: "search" } }, deep);
+  assert.equal(deep.statusCode, 404);
+} finally { globalThis.fetch = beitMidrashFetch; }
 execFileSync(process.execPath, ["--test", "test/public-sitemap-cache-2029.test.mjs"], { cwd: new URL("..", import.meta.url), stdio: "inherit" });
 console.log("2029 server/crawler SEO+AI metadata parity: PASS");
