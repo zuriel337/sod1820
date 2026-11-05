@@ -369,7 +369,7 @@ test("actual local artifact retains font fix, compiler isolation, no index shado
   assert.ok(!config.redirects.some(rule=>recoveredSources.some(source=>source.source===rule.source)),'recovered WP2481 must stay at its own original address');
   assert.deepEqual(config.redirects, [...exactAttachmentRules,...embedRules,...legacyRedirects.filter(rule=>!recoveredSources.includes(rule)),
     { source: "/posts", destination: "/post", permanent: true }]);
-  const gate = spawnSync(process.execPath, ["scripts/test-legacy-production-lock.mjs"], { cwd: root, encoding: "utf8" }); assert.equal(gate.status, 0, gate.stderr);
+  const gate = spawnSync(process.execPath, ["scripts/test-legacy-retired.mjs"], { cwd: root, encoding: "utf8" }); assert.equal(gate.status, 0, gate.stderr);
 });
 
  test("native public image loading retains opaque response compatibility without bypassing private reads or writes", async () => {
