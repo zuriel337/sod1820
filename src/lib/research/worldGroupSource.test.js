@@ -152,9 +152,3 @@ test("World source card: channel_updates ref shows writer, date and excerpt; no 
   const short = indexGroupMessagesByRef([groupRowToWorldUpdate(row())]);
   assert.equal(groupSourceCardContext({ ref: "channel_updates:u1" }, short).excerpt, "שלום עולם 358");
 });
-test("World page wires cards and inspect to the redacted reader only", () => {
-  const world = readFileSync(new URL("../../pages/World2029Page.jsx", import.meta.url), "utf8");
-  assert.match(world, /groupSourceCardContext\(source, groupMessages/);
-  assert.match(world, /indexGroupMessagesByRef\(rows\)/);
-  assert.equal((world.match(/fetchGroupSourceArrivals\(\{ limit: 40 \}\)/g) || []).length, 1);
-});

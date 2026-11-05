@@ -44,7 +44,7 @@ import {
 } from "../lib/research/worldJourneyProjection.js";
 import { fetchTopicCreatorOptions } from "../lib/research/topicConvergence.js";
 import { fetchWorldDiscoveryStream, watchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
-import { fetchGroupSourceArrivals, groupSourceCardContext, indexGroupMessagesByRef, GROUP_SOURCE_LABEL } from "../lib/research/worldGroupSource.js";
+import { fetchGroupSourceArrivals, groupSourceCardContext, indexGroupMessagesByRef } from "../lib/research/worldGroupSource.js";
 import {
   WORLD_RESEARCH_ATTENTION,
   WORLD_RESEARCH_FILTER_DEFAULTS,
@@ -1640,17 +1640,17 @@ function AnchoredWorld({ research, shell, subject, context }) {
   };
 
   const inspectSource = (source) => {
-    const message = groupMessages[String(source?.ref || "")] || null;
+    const card = groupSourceCardContext(source, groupMessages);
+    const message = card?.message || null;
     shell.openInspect({
       id: String(source?.ref || source?.label || "source"),
       type: source?.type === "verse" ? "verse" : "source",
-      label: message ? (message.sourceGroupLabel || "הודעת מקור") : humanSourceLabel(source),
+      label: card ? (card.groupLabel || "הודעת מקור") : humanSourceLabel(source),
       href: "/world",
       ...(message ? {
         excerpt: message.fullText || null,
         attribution: message.creator || null,
-        stateLabel: message.stateLabel || GROUP_SOURCE_LABEL,
-        recordedAt: message.arrivalAt || null,
+        stateLabel: card.stateLabel,
       } : {}),
     });
   };
@@ -2056,7 +2056,6 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <div className="sod29-list">
           {sourceRows.slice(0, 12).map((source, index) => {
             const card = groupSourceCardContext(source, groupMessages, { formatDate: bilingualDateLabel });
-            const message = card?.message || null;
             const label = card?.groupLabel || humanSourceLabel(source);
             const rawRef = source.ref || source.label || null;
             const messageMeta = card?.meta || "";
