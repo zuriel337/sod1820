@@ -1,5 +1,6 @@
 // Consent-based account link (historical only). Shipped DARK: nothing runs unless VITE_ACCOUNT_LINK_OFFER=1.
 // The signed-in account can only ask "is there an offer for ME"; the other account is never returned before proof.
+import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_URL, SUPABASE_ANON } from "./supabase.js";
 
 export const ACCOUNT_LINK_ENABLED = (() => { try { return import.meta.env?.VITE_ACCOUNT_LINK_OFFER === "1"; } catch { return false; } })();
@@ -26,7 +27,7 @@ export async function beginAccountLink(client, offerId) {
 
 // Proof of control of the OTHER (primary) account: OTP to that account's own email in a separate, non-persisted client.
 export async function createProofClient() {
-  const { createClient } = await import("@supabase/supabase-js");
+  // Static import: the SDK is already part of the entry graph (supabase.js), and the repository's Realtime contract only accepts the statically checked createClient import.
   return createClient(SUPABASE_URL, SUPABASE_ANON, { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: "sod-account-link-proof" } });
 }
 export async function sendPrimaryOtp(proof, email) {

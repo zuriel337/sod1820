@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 import {
@@ -298,6 +298,9 @@ test('the current joinEvents broadcast/listener path stays inside the tested sub
   assert.match(source, /return\s*\(\)\s*=>\s*\{[^}]*supabase\.removeChannel\(ch\)/s);
 });
 
+// Exact files that run in Node only (loopback database acceptance harness, a Node test) and are never bundled for the browser.
+const NODE_ONLY_FILES = new Set(['scripts/isolation-a3/client.mjs', 'test/public-reading-production-artifact.test.mjs']);
+
 function walkCodeFiles(path, output = []) {
   for (const entry of readdirSync(path, { withFileTypes: true })) {
     if (['.git', 'dist', 'docs', 'node_modules'].includes(entry.name)) continue;
@@ -379,11 +382,14 @@ test('repository use is mechanically bounded to the explicit browser-only subset
         `${relative(root, file)} must not import the partial aliased Realtime export surface`,
       );
     }
-    assert.doesNotMatch(
-      source,
-      /(?:import\s*\(|require\s*\()\s*['"]@supabase\/supabase-js['"]\s*\)?/,
-      `${relative(root, file)} must use the statically checked createClient import`,
-    );
+    // Node-only files may load the SDK lazily; everything else, browser code in particular, must use the statically checked createClient import.
+    if (!NODE_ONLY_FILES.has(relative(root, file).split(sep).join('/'))) {
+      assert.doesNotMatch(
+        source,
+        /(?:import\s*\(|require\s*\()\s*['"]@supabase\/supabase-js['"]\s*\)?/,
+        `${relative(root, file)} must use the statically checked createClient import`,
+      );
+    }
     assert.doesNotMatch(
       source,
       /export\s+(?:\*|\{[^}]*\})\s+from\s*['"]@supabase\/supabase-js['"]/s,
@@ -406,6 +412,9 @@ test('repository use is mechanically bounded to the explicit browser-only subset
     ['src/pages/AdminPage.jsx', 1],
   ]);
   const actualConsumers = new Map();
+  // Legacy-only consumers that may be retired together with the Legacy runtime: when one exists it is still bounded to its expected use,
+  // when it is gone nothing else is allowed to take its place (every other consumer must match exactly).
+  for (const retirable of ['src/pages/AdminPage.jsx']) if (!existsSync(join(root, retirable))) expectedConsumers.delete(retirable);
   const allowedMethods = new Set(LAZY_REALTIME_2029_CONTRACT.channelMethods);
   for (const file of walkCodeFiles(join(root, 'src'))) {
     if (file === adapterPath) continue;
