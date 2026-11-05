@@ -3188,7 +3188,7 @@ export async function getGalleryPage({
   withCount = true,
 } = {}) {
   if (!supabase) return { data: [], count: 0 };
-  const publicFields = 'id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,image_type,source,importance,curator_hidden';
+  const publicFields = 'id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,stream_at,created_at,image_type,source,importance,curator_hidden';
   // The review shape is consumed only by the existing authenticated World manager surface.
   // It deliberately omits OCR text and metadata bodies: the queue needs status, source
   // identity and completeness signals, not the extracted corpus itself.

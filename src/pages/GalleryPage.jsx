@@ -252,7 +252,8 @@ export default function GalleryPage() {
         <div className="gl-wall">
           {images.map((img, idx) => {
             const title = cleanName(img.name) || img.description?.slice(0, 60) || "";
-            const date = img.occurred_at ? new Date(img.occurred_at).toLocaleDateString("he-IL", { day: "numeric", month: "short", year: "numeric" }) : "";
+            const streamDate = img.stream_at || img.created_at;
+            const date = streamDate ? new Date(streamDate).toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" }) : "";
             const typeBadge = { hint: "💡", gematria: "🔢", method: "📐", event: "📰", gallery: "🖼" }[img.image_type];
             return (
               <div key={img.id} className={"gl-card" + (selectMode ? " selmode" : "") + (selected.has(img.id) ? " selected" : "")}>
@@ -278,7 +279,7 @@ export default function GalleryPage() {
                 {(title || date) && (
                   <div className="gl-body">
                     {title && <div className="gl-title">{title}</div>}
-                    {date && <div className="gl-date">📅 {date}</div>}
+                    {date && <div className="gl-date">📅 נכנס לזרם: {date}</div>}
                   </div>
                 )}
               </div>
