@@ -98,6 +98,8 @@ jobs:
 
       - name: Start built app
         run: |
+          # Legacy is retired: vite preview needs an index document for its SPA fallback; serve the 2029 document there.
+          cp dist/2029.html dist/index.html
           nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/sod1820-preview.log 2>&1 &
           for i in {1..30}; do
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
