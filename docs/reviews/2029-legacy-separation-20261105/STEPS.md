@@ -65,3 +65,13 @@
   - `StrongHintBadge` — הצרכן שלו `PostCategories2029` מרונדר גם ב־Legacy.
   - `PrivacyPage` — טקסט משפטי; גרסה נפרדת תשכפל תוכן, והפרדה נכונה דורשת הוצאת התוכן למודול נתונים ושינוי הקובץ של Legacy.
   - `UnsubscribePage` — לוגיקת fetch חתומה (~15 שורות); הפרדה נכונה דורשת הוצאתה לשירות ושינוי הקובץ של Legacy.
+
+---
+# בדיקות לפני שלב 4 (5.11.2026)
+- אין PR ולכן CI לא רץ אוטומטית על הענף; הורצו ידנית (`workflow_dispatch`) 12 שערים על `b564dd267`. `follow-identity-isolated-db-gate` ו־`media-release-batch-gate` תומכים רק ב־`pull_request` ולכן לא הורצו.
+- עברו (success): Legacy Production Lock, G4 Public Core, Observability/SEO, Research Sync, Community Reaction Visibility, Agent Dispatch, Dependency Upgrade Radar V2, System Self Maintenance V1, Video Ingest.
+- נכשלו, **וכשלו זהה על `main` (`18c98fa6`) ועל הבסיס שלי `a27d8d06`**: 2029 Isolation Gate (`tests/entry-learn-2029.spec.cjs:47`, שוחזר מקומית על הבסיס ללא שינויי הענף) ו־Release Visual Gate (`release-visual.spec.cjs:485`, Bennett 1440px). 20 מתוך 21 בדיקות הוויזואל עברו. אלה כשלים קיימים מראש, לא רגרסיה של הענף.
+- ELS Core Compatibility Gate נשאר `in_progress` ללא התקדמות (ייתכן runner תקוע); לא נקבעה תוצאה.
+- Vercel Preview: לא קיים לענף (`git.deploymentEnabled=false`, אין deployments לענף). לא נוצר Preview ללא אישור; במקומו בדיקה מקומית על build של 2029.
+- ויזואלי (Chromium, 390px ו־1440px, dark/light/parchment): `FeatureClosedNotice2029` ו־`NotFound2029Page` מוצגים נכון בתוך מעטפת 2029, ללא overflow אופקי וללא שגיאות.
+- הענף: 8 קומיטים לפני ו־22 אחרי `origin/main`; נדרש rebase לפני כל מיזוג.
