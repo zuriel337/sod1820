@@ -2,6 +2,7 @@ const { test, expect } = require('@playwright/test');
 const { installPublicTopicFixture, installSyntheticWorldCatalogFixture } = require('./fixtures/public-topic-888.cjs');
 const { installStorageEgressGuard } = require('./playwright-storage-egress-guard.cjs');
 const { installPublicReadOnlyEgress, disposePublicReadOnlyEgress, installSyntheticPublicLanguageFixture } = require('./fixtures/public-readonly-egress.cjs');
+const { installSyntheticAdmin } = require('./fixtures/synthetic-admin-session.cjs');
 
 const BASE = 'http://127.0.0.1:4173';
 const WORLD = '/world';
@@ -102,6 +103,12 @@ test.beforeEach(async ({ context, page }) => {
   });
   await installPublicReadOnlyEgress(context, { baseUrl: BASE });
   await installStorageEgressGuard(context);
+  // The guest newsletter invite opens after 22 s or a scroll past 450 px and covered the page in unrelated scenarios, so clicks timed out.
+  // Only its dismissal hints are set (same as the release-visual gate); no consent or subscription is simulated.
+  await page.addInitScript(() => {
+    try { sessionStorage.setItem('sod_guest_signup_popup_dismissed', '1'); } catch {}
+    try { localStorage.setItem('sod_legacy_newsletter_invite_until', String(Date.now() + 86400000)); } catch {}
+  });
   if (!PRE_CUTOVER_FIXTURE) return;
 
   // Exercise the positive World/Number capability contracts without changing live
@@ -206,7 +213,7 @@ async function assertNoHorizontalOverflow(page) {
 }
 
 async function openNumberCapabilityFromIsland(page) {
-  const number = page.locator('.sod29-command-island').getByRole('button', { name: 'מספר · פתח חלונית מספר', exact: true });
+  const number = page.locator('.sod29-command-island').getByRole('button', { name: 'גימטריה · מספר, ביטוי ושיטות חישוב', exact: true });
   await expect(number).toBeVisible();
   await number.click();
 }
@@ -517,6 +524,8 @@ test('Number 2029 1118 uses canonical Hebrew verse refs and appends the gematria
 });
 
 test('Number 2029 global drawer reuses the same method-first Core and carries Raziel context', async ({ page }) => {
+  // Raziel is an admin-only capability until Zuriel opens it to the public (the dock keeps it locked for visitors), so this scenario needs an admin viewer.
+  await installSyntheticAdmin(page);
   await openLaunchFlagForAcceptance(page, 'lock_raziel_site');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/2029/number/1237`, { waitUntil: 'domcontentloaded' });
@@ -931,7 +940,7 @@ test('SPARSE live World 122 stays honestly sparse with no fabricated research', 
 test('World uses the shared Command, Inspect, Share and exact-return seams', async ({ page }) => {
   await openWorldAnchor(page, 1820, 390);
 
-  const command = page.locator('.sod29-header').getByRole('button', { name: 'חיפוש', exact: true });
+  const command = page.locator('.sod29-header').getByRole('button', { name: 'חיפוש באתר', exact: true });
   await expect(command).toBeVisible();
   await command.click();
   await expect(page.getByRole('dialog', { name: 'חיפוש' })).toBeVisible();
