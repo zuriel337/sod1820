@@ -59,6 +59,8 @@ test("ELS 2029 public release is Classic only: no mode switch, library, advanced
   assert.match(native, /publicClassic && id === "research"/);
   assert.match(native, /publicClassic && tool === "research"/);
   assert.match(native, /\{publicClassic \? null : <ElsSavePanel2029/);
+  assert.equal((native.match(/!publicClassic && \(matrixReading \|\| typeof onRazielMatrix === "function"\)/g) || []).length, 2);
+  assert.match(native, /matrixReading && !publicClassic \? <ElsMatrixReadingCard2029/);
 });
 
 test("Classic representation remains a flat projection of the same canonical layers", async () => {

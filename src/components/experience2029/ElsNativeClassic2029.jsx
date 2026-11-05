@@ -1686,7 +1686,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
           <small>מציג את הציר ואחריו את הממצאים, אחד אחרי השני. אפשר להקליט באמצעות כלי צילום המסך במכשיר.</small>
         </section> : null}
-        {matrixReading || typeof onRazielMatrix === "function" ? <button type="button" className="els29-ai-entry"
+        {!publicClassic && (matrixReading || typeof onRazielMatrix === "function") ? <button type="button" className="els29-ai-entry"
           aria-expanded={activeTool === "ai"} aria-controls="els29-context-panel"
           onClick={event => openTool("ai", event.currentTarget)}>
           <strong>✦ גילוי עם AI</strong><span>{readingPending ? "סריקה פעילה · פתח מעקב" : readingResult?.state === "COMPLETE" ? "התוצאה מוכנה · הצג במטריצה" : "בחרו אזור, בדקו עלות והתחילו רק בלחיצה"}</span>
@@ -1716,7 +1716,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
             onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
           ><NavigationIcon2029 name={icon} /><small>{tool === "findings" ? "סריקה" : label}</small></button>)}
-          {matrixReading || typeof onRazielMatrix === "function" ? <button type="button" aria-label="גילוי עם AI"
+          {!publicClassic && (matrixReading || typeof onRazielMatrix === "function") ? <button type="button" aria-label="גילוי עם AI"
             aria-expanded={activeTool === "ai"} aria-controls="els29-context-panel"
             onClick={event => activeTool === "ai" ? closeTool() : openTool("ai", event.currentTarget)}>
             <span aria-hidden="true">✦</span><small>AI</small>
@@ -1730,7 +1730,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             <button type="button" hidden={guidedProfile} onClick={closeTool} aria-label="סגור כלי מטריצה" title="סגור את הסרגל">×</button>
           </header>
         <div className="els29-ai-inspector" hidden={activeTool !== "ai"}>
-        {matrixReading ? <ElsMatrixReadingCard2029 context={readingContext} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix}
+        {matrixReading && !publicClassic ? <ElsMatrixReadingCard2029 context={readingContext} reading={matrixReading} pending={searchPending} onSubmit={onRazielMatrix}
           projection={readingProjection} selectedKey={selectedReading?.key} overlayVisible={readingOverlayVisible}
           onToggleOverlay={() => setReadingDisplay({ result: readingResult, hidden: readingOverlayVisible })}
           onSelectFinding={key => {
