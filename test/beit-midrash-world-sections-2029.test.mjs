@@ -7,8 +7,11 @@ import {
   buildBeitMidrashWorldSections,
   beitMidrashWorldSectionHref,
 } from "../src/lib/research/beitMidrashWorldSections.js";
-import { worldPublicResearchDto } from "../src/lib/research/worldAllResearchProjection.js";
+import { normalizeWorldAllResearchRow, worldPublicResearchDto } from "../src/lib/research/worldAllResearchProjection.js";
 
+// The atlas lens is a filter over `documentedTreeConnected`, which the World projection derives ONLY from the governed attachment
+// (`meta.governance.tree_attachment` on a canonical row). A raw `treeMatches` entry is a search hint, not graph evidence, so the
+// default fixture below is a row the projection would really mark as connected; rows that only carry hints say so explicitly.
 function finding(overrides = {}) {
   return {
     id: "research:f-1",
@@ -28,6 +31,8 @@ function finding(overrides = {}) {
     access: "public",
     confidence: 88,
     treeMatches: [{ type: "topic", key: "topic-1820", label: "1820" }],
+    documentedTreeAttachment: { targetNodeId: "node-1820", targetType: "number" },
+    documentedTreeConnected: true,
     linkedTopicRating: { title: "1820", meterScore: 91, quality: 8 },
     occurrenceCount: 2,
     occurrences: [
@@ -91,13 +96,75 @@ test("admin consumes the authorized review DTO without exposing triage to public
 test("atlas and convergence are canonical filters over the same rows", () => {
   const rows = [
     finding(),
-    finding({ id: "research:unmatched", sourceId: "unmatched", treeMatches: [], linkedTopicRating: null }),
+    finding({
+      id: "research:unmatched",
+      sourceId: "unmatched",
+      treeMatches: [],
+      documentedTreeAttachment: null,
+      documentedTreeConnected: false,
+      linkedTopicRating: null,
+    }),
     finding({ id: "research:unmetered", sourceId: "unmetered", linkedTopicRating: { title: "יעד", meterScore: null, quality: null } }),
   ];
   const result = buildBeitMidrashWorldSections({ rows });
   assert.deepEqual(result.sections.crosses.map((row) => row.sourceId), ["f-1", "unmatched", "unmetered"]);
   assert.deepEqual(result.sections.atlas.map((row) => row.sourceId), ["f-1", "unmetered"]);
   assert.deepEqual(result.sections.convergence.map((row) => row.sourceId), ["f-1"]);
+});
+
+test("a raw tree match is a search hint: it never puts a finding in the atlas", () => {
+  const hintOnly = finding({
+    id: "research:hint",
+    sourceId: "hint",
+    treeMatches: [{ type: "topic", key: "topic-1820", label: "1820", match: "candidate" }],
+    documentedTreeAttachment: null,
+    documentedTreeConnected: false,
+  });
+  const result = buildBeitMidrashWorldSections({ rows: [finding(), hintOnly] });
+  assert.deepEqual(result.sections.crosses.map((row) => row.sourceId), ["f-1", "hint"], "the hint is still a public cross");
+  assert.deepEqual(result.sections.atlas.map((row) => row.sourceId), ["f-1"], "only the governed attachment reaches the atlas");
+  assert.deepEqual(result.sections.convergence.map((row) => row.sourceId), ["f-1", "hint"], "the convergence lens depends on the topic meter, not on the attachment");
+});
+
+test("the atlas admits exactly what the real World projection marks as governed-connected", () => {
+  // Raw research_objects rows, normalized by the real projection and served through the real public DTO.
+  const raw = (id, overrides = {}) => ({
+    id,
+    created_at: "2026-10-22T10:00:00Z",
+    kind: "relation",
+    statement: `נוסח ${id}`,
+    source: "channel_updates",
+    source_ref: `channel_updates:s-${id}`,
+    contributor: "חוקר",
+    confidence: 88,
+    status: "canonical",
+    privacy_scope: "public",
+    value: 1820,
+    promoted_node_id: "node-1820",
+    meta: { governance: { tree_attachment: { mode: "existing_graph_identity_pointer", target_node_type: "number", target_node_id: "node-1820" } } },
+    engine_verified: true,
+    ...overrides,
+  });
+  const rows = [
+    raw("governed"),
+    // Hints and look-alikes that must NOT count as graph evidence:
+    raw("hint-only", { promoted_node_id: null, meta: { ext: { wa_channel_intake: { tree_matches: [{ type: "topic", key: "t-1820", label: "1820" }] } } } }),
+    raw("bare-promoted-id", { meta: {} }),
+    raw("other-node", { promoted_node_id: "node-other" }),
+    raw("only-approved", { status: "approved" }),
+    raw("topic-target", { meta: { governance: { tree_attachment: { mode: "existing_graph_identity_pointer", target_node_type: "topic", target_node_id: "node-1820" } } } }),
+    raw("wrong-mode", { meta: { governance: { tree_attachment: { mode: "free_text", target_node_type: "number", target_node_id: "node-1820" } } } }),
+    raw("no-value", { value: null }),
+  ].map((row) => normalizeWorldAllResearchRow(row));
+  const result = buildBeitMidrashWorldSections(worldPublicResearchDto({ rows }));
+
+  assert.deepEqual(result.sections.crosses.map((row) => row.sourceId).sort(), rows.map((row) => row.sourceId).sort(), "every public finding is a cross");
+  assert.deepEqual(result.sections.atlas.map((row) => row.sourceId), ["governed"], "one governed attachment, nothing else");
+  // The public lenses keep the yes/no (the row is in the atlas), never the governance attachment record itself.
+  assert.equal(JSON.stringify(result).includes("existing_graph_identity_pointer"), false);
+  for (const lens of Object.values(result.sections)) {
+    for (const row of lens) assert.equal(Object.hasOwn(row, "documentedTreeAttachment"), false, "no attachment record in a public lens row");
+  }
 });
 
 test("non-destructive occurrences and exact source locators survive the projection", () => {
