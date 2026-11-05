@@ -327,6 +327,27 @@ function installPublicReadingWorker(policy) {
         event.respondWith(fetch(new Request(url.href, { method: "GET", headers: { accept: "application/json" }, credentials: "omit", redirect: "error" })).catch(() => denied()));
         return;
       }
+      // Bible code (Classic mode): the engine verifies every candidate through the canonical bridge. The bridge is rate-limited,
+      // traced and gated by the server flag, so it is open to visitors; the worker only admits its three operations with a bounded
+      // JSON body and sends the public key (or the verified member's own session), never a role claim.
+      if (url.pathname === "/functions/v1/els-search-bridge") {
+        event.respondWith((async () => {
+          if (req.method !== "POST" || url.search || req.signal.aborted) return denied();
+          const raw = await req.clone().text();
+          if (raw.length > 262144) return denied();
+          let body; try { body = JSON.parse(raw); } catch { return denied(); }
+          if (!plainObject(body) || !["verify", "page", "verify_batch"].includes(body.op)
+            || typeof body.term !== "string" || body.term.trim().length < 2 || body.term.length > 200
+            || body.scope !== undefined && !["torah", "tanakh"].includes(body.scope)) return denied();
+          const key = policy.anonKey || req.headers.get("apikey") || "";
+          const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+          const uid = token && token !== key ? await verifyReadingPrincipal({ token, apiKey: key, signal: req.signal }) : null;
+          if (req.signal.aborted) return denied();
+          return readFetch(new Request(url.href, { method: "POST", signal: req.signal,
+            headers: { apikey: key, Authorization: "Bearer " + (uid ? token : key), "Content-Type": "application/json" }, body: raw }));
+        })().catch(() => denied()));
+        return;
+      }
       if (url.pathname.startsWith("/functions/v1")) { event.respondWith(adminFetch(req).catch(() => denied())); return; }
       if (url.pathname.startsWith("/auth/v1/") && !["/auth/v1/user", "/auth/v1/settings"].includes(url.pathname)
         || url.pathname.startsWith("/rest/v1/rpc/") && safeMethods.has(req.method) && !getReads.has(rpc)) {
@@ -335,6 +356,33 @@ function installPublicReadingWorker(policy) {
       if (safeMethods.has(req.method)) { event.respondWith(readFetch(req)); return; }
       if (req.method !== "POST" || !rpc) { event.respondWith(adminFetch(req).catch(() => denied())); return; }
       event.respondWith((async () => {
+        // Bible code: a verified member saves a private cipher to their own library (the server owns authorship, status and
+        // moderation; only the exact calls of the Classic save panel are admitted, with bounded values).
+        if ((rpc === "save_els_matrix" || rpc === "update_els_matrix") && !url.search) {
+          const raw = await req.clone().text();
+          if (raw.length > 200000) return denied();
+          let body; try { body = JSON.parse(raw); } catch { return denied(); }
+          if (!plainObject(body)) return denied();
+          const keys = Object.keys(body).sort().join(",");
+          const text = (value, max) => value === null || typeof value === "string" && value.length <= max;
+          const int = value => value === null || Number.isSafeInteger(value);
+          const object = value => value === null || plainObject(value);
+          const imageOk = value => value === null || typeof value === "string" && value.length <= 400
+            && value.startsWith(authOrigin + "/storage/v1/object/public/gallery/sod1820/ciphers/");
+          const exact = rpc === "save_els_matrix"
+            ? keys === "p_direction,p_engine_detail,p_from_topic,p_image_url,p_note,p_positions,p_public,p_scope,p_skip,p_start_index,p_term,p_title"
+              && typeof body.p_term === "string" && body.p_term.trim().length >= 2 && body.p_term.length <= 200
+              && ["torah", "tanakh"].includes(body.p_scope) && int(body.p_skip) && text(body.p_direction, 20) && object(body.p_positions)
+              && imageOk(body.p_image_url) && text(body.p_title, 300) && text(body.p_note, 4000) && typeof body.p_public === "boolean"
+              && text(body.p_from_topic, 200) && int(body.p_start_index) && object(body.p_engine_detail)
+            : keys === "p_description,p_engine_detail,p_id,p_image_url,p_positions"
+              && uuid(body.p_id) && object(body.p_positions) && imageOk(body.p_image_url) && text(body.p_description, 4000) && object(body.p_engine_detail);
+          if (!exact) return denied();
+          const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+          const uid = await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
+          if (!uid || req.signal.aborted) return denied();
+          return readFetch(req);
+        }
         if (reads.has(rpc) && !url.search) { await jsonBody(req); return readFetch(req); }
         if (rpc === "convergence_meter" && !url.search) {
           const body = await jsonBody(req);

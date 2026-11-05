@@ -93,7 +93,7 @@ import "./googleEntry2029.css";
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
 const SiteSearch2029 = React.lazy(() => import("./SiteSearch2029.jsx"));
 const GuestNewsletterInvite2029 = React.lazy(() => import("./GuestNewsletterInvite2029.jsx"));
-import { dismissGuestNewsletterInvite2029, guestNewsletterRoute2029, useGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
+import { dismissGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
@@ -1733,12 +1733,7 @@ function SystemFrame2029Body({
     setNavOpen(false);
   }, [navOpen, completeSurfaceEntry, contextLocked]);
 
-  useGuestNewsletterInvite2029({
-    eligible: !authLoading && !user && (surface === "post" || guestNewsletterRoute2029(location.pathname)),
-    blocked: navOpen || Boolean(transient),
-    routeKey: location.pathname + location.search,
-    onOpen: () => openTransient(TRANSIENT.NEWSLETTER),
-  });
+  // ZURIEL 5.11: no automatic "join the updates" popup. Joining the updates lives in the footer only.
   useEffect(() => {
     if (authLoading || user) setTransient(current => current?.kind === TRANSIENT.NEWSLETTER ? null : current);
   }, [authLoading, user?.id]);

@@ -20,7 +20,7 @@ test("Guided/Research/Classic switch stays controlled and uses one profile model
 
 test("ELS 2029 opens in Guided Discovery and mode changes do not own replay or search", async () => {
   const page = await readFile(PAGE, "utf8");
-  assert.match(page, /Els2029Page\(\{ previewAdvanced = false \}\)/);
+  assert.match(page, /Els2029Page\(\{ previewAdvanced = false, publicClassic = false \}\)/);
   assert.match(page, /return ELS_MATRIX_PROFILE\.GUIDED/);
   assert.match(page, /projectElsMatrixProfile/);
   assert.match(page, /<ElsMatrixProfileSwitch profile=\{matrixProfile\} onChange=\{setMatrixProfile\} \/>/);
@@ -29,7 +29,7 @@ test("ELS 2029 opens in Guided Discovery and mode changes do not own replay or s
   assert.match(page, /const researchProfile = profileModel\.profile !== ELS_MATRIX_PROFILE\.CLASSIC/);
   assert.match(page, /<Els2029Representation layers=\{replayLayers\} profile=\{matrixProfile\}/);
 
-  const replayEffect = page.slice(page.indexOf("if (elsState.loading || elsState.blocked || !replayKey)"), page.indexOf("const replayProjection"));
+  const replayEffect = page.slice(page.indexOf("if (publicClassic || elsState.loading || elsState.blocked || !replayKey)"), page.indexOf("const replayProjection"));
   assert.doesNotMatch(replayEffect, /matrixProfile|researchProfile/);
 
   assert.match(page, /advancedResearchProfile \?\s*<aside className="sod29-inspector"/);
@@ -43,6 +43,25 @@ test("ELS 2029 opens in Guided Discovery and mode changes do not own replay or s
   assert.doesNotMatch(page, /href="\/lab\/els"/);
   assert.match(page, /one canonical Tzofen engine/);
   assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
+});
+
+test("ELS 2029 public release is Classic only: no mode switch, advanced search, AI scan or replay bridge for the public; the cipher library stays readable", async () => {
+  const page = await readFile(PAGE, "utf8");
+  assert.match(page, /const publicClassic = publicReadingActionsLocked\(useAuth\(\)\.isAdmin\)/);
+  assert.match(page, /if \(publicClassic \|\| requested === "classic"/);
+  assert.match(page, /\{publicClassic \? null : <ElsMatrixProfileSwitch/);
+  assert.match(page, /<ElsRecentCiphers2029 onOpen=\{openCipher\}/);
+  assert.match(page, /const library = params\.get\("library"\)/);
+  assert.match(page, /advancedSearch=\{publicClassic \? null : <ElsAdvancedSearch2029/);
+  const replayEffect = page.slice(page.indexOf("if (publicClassic || elsState.loading"), page.indexOf("const replayProjection"));
+  assert.match(replayEffect, /CONTEXT_REQUIRED/);
+  const native = await readFile(new URL("../src/components/experience2029/ElsNativeClassic2029.jsx", import.meta.url), "utf8");
+  assert.match(native, /publicClassic && !user && id === "research"/);
+  assert.match(native, /publicClassic && !user && tool === "research"/);
+  assert.match(native, /\{publicClassic && !user \? null : <ElsSavePanel2029/);
+  assert.match(native, /onWorkspace=\{publicClassic \? undefined :/);
+  assert.equal((native.match(/!publicClassic && \(matrixReading \|\| typeof onRazielMatrix === "function"\)/g) || []).length, 2);
+  assert.match(native, /matrixReading && !publicClassic \? <ElsMatrixReadingCard2029/);
 });
 
 test("Classic representation remains a flat projection of the same canonical layers", async () => {

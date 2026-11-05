@@ -50,7 +50,8 @@ test('exact aliases retain duplicate query bytes, encoded values and fragment wi
 test('public reading routes preserve engine/action gates and exact source identities', () => {
   for (const path of ['/community','/community/chat','/community/calculator','/tag/סוד-החשמל','/category/אסונות%2Fתופעות-טבע',
     '/number/1820','/number/אחת%20ארבע','/books','/book/ahavat-torah','/codes','/codes/מחקר','/or-geula','/contact']) assert.equal(publicReadingPath(path),'public',path);
-  for (const path of ['/code','/journey','/raziel','/heichal','/2029/me/unknown']) assert.equal(publicReadingPath(path),'closed',path);
+  assert.equal(publicReadingPath('/code'),'public'); assert.equal(publicReadingPath('/els'),'continuation');
+  for (const path of ['/journey','/raziel','/heichal','/2029/me/unknown']) assert.equal(publicReadingPath(path),'closed',path);
   assert.equal(publicReadingPath('/2029/me/profile'),'account');
   assert.equal(publicReadingPath('/community/researcher/me'),'account');
   assert.equal(publicReadingContinuation('/me','?tab=messages&dm=owned&returnTo=%2Fworld','#thread'),'/2029/me/messages?tab=messages&dm=owned&returnTo=%2Fworld#thread');
@@ -58,7 +59,7 @@ test('public reading routes preserve engine/action gates and exact source identi
   assert.equal(publicReadingContinuation('/me','?tab=unknown'),null);
   for (const path of ['/not/a/real/page','/category/x/y','/code/invented','/%ZZ']) assert.equal(publicReadingPath(path),'missing',path);
   assert.equal(publicReadingPath('/unknown-post'),'post-lookup');
-  for (const key of ['lock_els','lock_life_journey','lock_raziel_site','lock_heichal','unknown']) assert.equal(publicReadingFeatureLock(key).enabled,true);
+  for (const key of ['lock_life_journey','lock_raziel_site','lock_heichal','unknown']) assert.equal(publicReadingFeatureLock(key).enabled,true); assert.equal(publicReadingFeatureLock('lock_els').enabled,false);
   assert.match(publicReadingCapability('/name').title,/השם/);
   assert.equal(publicPostHref({slug:'old',wp_id:1820,source:'wordpress'}),'/old');
   assert.equal(publicPostHref({slug:'new',wp_id:40000,source:'sod1820'}),'/post/new');

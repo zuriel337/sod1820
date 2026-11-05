@@ -71,7 +71,7 @@ test('historical Preview Auth remains password-only unless explicitly opted in b
  assert.equal(interceptPublicReadingAdminAuth(ev,API),true);assert.equal((await reply).status,403);
 });
 test('explicit admin actions verify canonical JWT and exact own role before forwarding original request',async()=>{
- for(const path of ['/functions/v1/ai-analyze','/functions/v1/els-search-bridge','/functions/v1/research-run','/rest/v1/rpc/fn_get_or_create_my_person']) {
+ for(const path of ['/functions/v1/ai-analyze','/functions/v1/research-run','/rest/v1/rpc/fn_get_or_create_my_person']) {
   const w=worker();const response=await w.request(path,{body:{user_id:a,operation:'explicit'},method:path.includes('/users?')?'PATCH':'POST'});
   assert.equal(response.status,200,path);assert.equal(w.calls.length,3,path);
   assert.equal(w.calls[0].url,API+'/auth/v1/user');assert.match(w.calls[1].url,new RegExp('id=eq.'+a));
@@ -402,4 +402,57 @@ test('community link preview: only the exact public GET is forwarded, without se
  const post=worker({role:'user'});
  assert.equal((await post.request(good,{method:'POST',body:{}})).status,403);
  assert.ok(!post.calls.some(call=>call.url.includes('/functions/v1/')));
+});
+
+test('Bible code bridge: visitors reach the rate-limited verifier with the public key only; bad shapes never leave the worker',async()=>{
+ const path='/functions/v1/els-search-bridge';
+ const body={op:'verify_batch',term:'משיח',scope:'torah',corpus_id:'a'.repeat(16),candidates:[{skip:2,dir:1,start:5}],interaction_id:'x'};
+ const guest=worker({anonKey:'anon-key'});
+ const ok=await guest.request(path,{body,jwt:'anon-key'});
+ assert.equal(ok.status,200);
+ const call=guest.calls.find(c=>c.url.includes(path));
+ assert.ok(call);assert.equal(call.method,'POST');assert.equal(call.headers.get('Authorization'),'Bearer anon-key');assert.equal(call.headers.get('apikey'),'anon-key');
+ assert.equal((await call.clone().json()).op,'verify_batch');
+ // a member's own verified session is kept (per-user rate), a forged token is replaced by the public key
+ const member=worker({role:'user',anonKey:'anon-key'});
+ assert.equal((await member.request(path,{body:{op:'page',term:'משיח',scope:'tanakh',skip_min:2,skip_max:50}})).status,200);
+ assert.match(member.calls.find(c=>c.url.includes(path)).headers.get('Authorization'),/^Bearer eyJ/);
+ const forged=worker({anonKey:'anon-key',authError:true});
+ assert.equal((await forged.request(path,{body})).status,200);
+ assert.equal(forged.calls.find(c=>c.url.includes(path)).headers.get('Authorization'),'Bearer anon-key');
+ for(const [label,bad,extra] of [
+  ['unknown op',{...body,op:'admin'}],['no term',{op:'page'}],['short term',{op:'page',term:'א'}],['long term',{op:'page',term:'א'.repeat(201)}],
+  ['bad scope',{...body,scope:'everything'}],['array body',[1,2]],['too large',{...body,pad:'x'.repeat(262200)}],
+  ['query string',body,'?x=1']]) {
+  const w=worker({anonKey:'anon-key'});
+  const response=await w.request(path+(extra||''),{body:bad,jwt:'anon-key'});
+  assert.equal(response.status,403,label);
+  assert.ok(!w.calls.some(c=>c.url.includes(path)),label+' must not reach the function');
+ }
+ const get=worker({anonKey:'anon-key'});
+ assert.equal((await get.request(path,{method:'GET',jwt:'anon-key'})).status,403);
+});
+
+test('Bible code save: a verified member saves to their own library with the exact panel shape; everything else stays out',async()=>{
+ const save={p_term:'משיח',p_scope:'torah',p_skip:2,p_direction:'fwd',p_positions:{findings:[]},p_image_url:null,p_title:'משיח',p_note:'הסבר קצר של הממצא',p_public:false,p_from_topic:null,p_start_index:100,p_engine_detail:{v:1}};
+ const update={p_id:'33333333-3333-4333-8333-333333333333',p_positions:{findings:[]},p_image_url:null,p_description:'הסבר',p_engine_detail:{v:1}};
+ const member=worker({role:'user',anonKey:'anon-key'});
+ assert.equal((await member.request('/rest/v1/rpc/save_els_matrix',{body:save})).status,200);
+ assert.equal((await member.request('/rest/v1/rpc/update_els_matrix',{body:update})).status,200);
+ assert.equal(member.calls.filter(c=>/rpc\/(save|update)_els_matrix$/.test(c.url)).length,2);
+ const cdn=API+'/storage/v1/object/public/gallery/sod1820/ciphers/c-abc-def.png';
+ assert.equal((await worker({role:'user'}).request('/rest/v1/rpc/save_els_matrix',{body:{...save,p_image_url:cdn}})).status,200);
+ const bad=[
+  ['extra key',{...save,p_owner:'x'}],['missing key',(({p_note,...rest})=>rest)(save)],['short term',{...save,p_term:'א'}],['bad scope',{...save,p_scope:'all'}],
+  ['public flag not boolean',{...save,p_public:'yes'}],['foreign image',{...save,p_image_url:'https://evil.invalid/a.png'}],['huge',{...save,p_note:'x'.repeat(5000)}],
+ ];
+ for(const [label,body] of bad){const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/save_els_matrix',{body})).status,403,label);assert.ok(!w.calls.some(c=>c.url.includes('save_els_matrix')),label);}
+ for(const [label,body] of [['bad id',{...update,p_id:'nope'}],['extra',{...update,p_status:'published'}]]){const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/update_els_matrix',{body})).status,403,label);assert.ok(!w.calls.some(c=>c.url.includes('update_els_matrix')),label);}
+ // not a verified member: forged identity or failed verification never reaches the server
+ const forged=worker({authError:true});assert.equal((await forged.request('/rest/v1/rpc/save_els_matrix',{body:save})).status,403);
+ assert.ok(!forged.calls.some(c=>c.url.includes('save_els_matrix')));
+ // moderation and publication stay administrator-only
+ for(const name of ['moderate_els_matrix','admin_els_to_dossier','merge_els_variant','delete_els_matrix','self_publish_matrix']){
+  const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/'+name,{body:{p_id:update.p_id,p_status:'published'}})).status,403,name);
+ }
 });

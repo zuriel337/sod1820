@@ -11,7 +11,8 @@ const branch='gpt/2029-public-reading-release-configuration-20261101';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 test('one release scope opens only the approved readers; closed aliases cannot enter product routes',()=>{
  for(const path of ['/','/world','/post','/post/existing','/old-post','/number/1820','/number/בראשית','/gematria','/gallery','/map','/topic/existing','/community/researcher/zvi'])assert.ok(['public','post-lookup'].includes(publicReadingPath(path)),path);
- for(const path of ['/code','/els','/journey','/2029/journey','/raziel','/2029/raziel','/admin','/heichal','/היכל'])assert.equal(publicReadingPath(path),'closed',path);
+ assert.equal(publicReadingPath('/code'),'public');assert.equal(publicReadingPath('/els'),'continuation');
+ for(const path of ['/journey','/2029/journey','/raziel','/2029/raziel','/admin','/heichal','/היכל'])assert.equal(publicReadingPath(path),'closed',path);
  // Existing-account continuation was explicitly accepted after this test was
  // authored. It must remain a private account destination, never a public read.
  assert.equal(publicReadingPath('/2029/me'),'continuation');
@@ -23,7 +24,7 @@ test('one release scope opens only the approved readers; closed aliases cannot e
  for(const path of ['/2029/control','/2029/kingdom'])assert.equal(publicReadingPath(path),'closed',path);
  for(const path of ['/entity-hub-preview/topic/example','/%ZZ'])assert.equal(publicReadingPath(path),'missing',path);
  for(const flag of ['lock_world','lock_number','lock_gematria'])assert.equal(publicReadingFeatureLock(flag).enabled,false);
- for(const flag of ['lock_els','lock_life_journey','lock_raziel_site','lock_heichal','unknown'])assert.equal(publicReadingFeatureLock(flag).enabled,true);
+ for(const flag of ['lock_life_journey','lock_raziel_site','lock_heichal','unknown'])assert.equal(publicReadingFeatureLock(flag).enabled,true);assert.equal(publicReadingFeatureLock('lock_els').enabled,false);
 });
 test('legacy calculator parameters seed the existing engine, never trust claimed old n, preserve extra context',()=>{
  for(const key of ['w','calc']){

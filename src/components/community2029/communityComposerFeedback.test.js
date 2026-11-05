@@ -25,3 +25,13 @@ test("the typist is marked locally before the throttled broadcast", () => {
   assert.ok(local > 0 && broadcast > local, "own marking must run before the broadcast throttle");
   assert.match(source, /self: false/);
 });
+
+// A visitor without an account cannot upload (storage accepts members only). The paperclip must not stay disabled and
+// silent: it explains and offers the one-step signup.
+test("the attach button explains itself to a guest instead of staying disabled", () => {
+  const source = read("./CommunityLive2029.jsx");
+  assert.doesNotMatch(source, /disabled=\{sending \|\| !user \|\| attachments\.length >= COMMUNITY_ATTACHMENT_MAX_FILES\}/);
+  assert.match(source, /const clickAttach = \(\) => \{\s*if \(!user\) \{ setGuestAttachHint\(true\)/);
+  assert.equal((source.match(/onClick=\{clickAttach\}/g) || []).length, 2);
+  assert.match(source, /data-guest-attach-hint="true"/);
+});
