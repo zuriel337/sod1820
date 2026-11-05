@@ -1,4 +1,4 @@
-import { PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability } from "../src/lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_PROFILE_ID, publicReadingFeatureLock, publicReadingPath, publicReadingCapability, publicTemporarilyClosed } from "../src/lib/publicReadingRelease2029.js";
 import { postsTaxonomyRoute2029, postsTaxonomyScope2029, postsTaxonomyPage2029, postsTaxonomySelection2029, postsTaxonomyEvidence2029 } from "../src/lib/research/postsTaxonomy2029Route.js";
 import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
   loadPublicForumContinuation2029, loadPublicCommentPostContinuation2029,
@@ -82,8 +82,8 @@ const STATIC = {
     card: { w: "הצ'אט החי", sub: 'קוד המציאות · בזמן אמת', cap: 'מה מתגלה עכשיו?' } },
   '/community/calculator': { title: "מחשבון גימטריה חינם — גלו את הסוד שבשם שלכם · " + SITE_NAME, desc: "רוצים לדעת מה מסתתר בשם שלכם? מחשבון הגימטריה החינמי והמדויק של SOD1820 — חישוב כל שם או מילה ב-8 שיטות, השוואה בין שני שמות וגילוי הקשרים הנסתרים בשפת המספרים.",
     card: { w: 'מחשבון הגימטריה', sub: 'חשבו כל מילה · שם · ביטוי', cap: 'מה מסתתר בשם שלכם?' } },
-  '/code': { title: "ELS · SOD1820", desc: "חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים",
-    card: { w: 'הצופן התנ"כי', sub: 'דילוגי אותיות · AI', cap: 'מה חבוי בתורה?' } },
+  '/code': { title: "הצופן התנ״כי — חיפוש דילוגי אותיות בתורה", desc: "חפשו מילה בדילוגי אותיות (ELS) בתורה, ראו אותה במטריצה וקראו את הפסוקים שסביבה.",
+    card: { w: 'הצופן התנ"כי', sub: 'דילוגי אותיות · חיפוש בתורה', cap: 'מה חבוי בתורה?' } },
   '/codes': { title: "ספריית הצפנים — כל דילוגי-האותיות · " + SITE_NAME, desc: "כל הצפנים שנחקרו ואומתו בסוד 1820 — דילוגי אותיות (ELS) עם המונח, הדילוג והממצאים. כל צופן בעמוד משלו. עדות — לא ניבוי.",
     card: { w: 'ספריית הצפנים', sub: 'דילוגי אותיות · ELS', cap: 'כל הצפנים שנחקרו ואומתו' } },
   '/codes/מחקר': { title: "תיקיית המחקר — צירים ארוכים (ELS) בתנ״ך · " + SITE_NAME,
@@ -359,7 +359,8 @@ export default async function handler(req, res) {
     taxonomy = selectors.length === 1 ? postsTaxonomyScope2029(...selectors[0]) : { kind: 'invalid', key: '', label: 'בחירה לא תקינה' };
   }
   if (productionReading && ["closed", "missing", "service-closed"].includes(productionRouteState)) {
-    robots = 'noindex, nofollow';
+    // A feature area that is only closed until it reopens in a few days stays in the index (the document is answered 503 + Retry-After).
+    robots = productionRouteState === "closed" && publicTemporarilyClosed(key) ? 'index, follow' : 'noindex, nofollow';
     documentStatus = productionRouteState === "missing" ? 404 : 200;
     title = `${documentStatus === 404 ? 'העמוד לא נמצא' : 'האזור ייפתח בהמשך'} · ${SITE_NAME}`;
     desc = documentStatus === 404 ? 'המקור המבוקש אינו זמין.' : 'האזור אינו פתוח בגרסת הקריאה הציבורית.';
@@ -443,7 +444,9 @@ export default async function handler(req, res) {
   } else if (productionReading && decodedKey === '/community/calculator') {
     title = 'מחשבון הקהילה — גימטריה, שמות ותאריך עברי · ' + SITE_NAME;
     desc = 'המחשבון הקיים: שיטות גימטריה, השוואת ביטויים, שמות ותאריך עברי.';
-    robots = 'noindex, follow'; // never include names, dates or private query inputs in server metadata
+    // The bare calculator page brings search traffic (about 500 Google visits in 45 days) and stays indexable. Any query string can carry
+    // names, dates or other private inputs, so those variants stay out of the index (and never reach the server metadata).
+    robots = continuityParams.toString() ? 'noindex, follow' : 'index, follow';
     image = cardUrl({ w: 'מחשבון הקהילה', sub: 'גימטריה · שמות · תאריך' });
   } else if (productionReading && (decodedKey === '/or-geula' || /^\/or-geula\/video\/[^/]+$/.test(decodedKey))) {
     const id = decodedKey.startsWith('/or-geula/video/') ? decodedKey.slice('/or-geula/video/'.length) : continuityParams.get('v');
@@ -471,6 +474,12 @@ export default async function handler(req, res) {
         res.setHeader('Location', publicForumChatHref2029(continuitySearch));
         return res.status(308).send('');
       }
+      // The retired Forum is replaced by the community chat: an old thread address (a well-formed id) that no longer exists
+      // continues to the chat like the ones that do; a malformed address stays 404 and an unavailable source stays 503.
+      if (documentStatus === 404 && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(decodedKey.slice(7))) {
+        res.setHeader('Location', publicForumChatHref2029(continuitySearch));
+        return res.status(308).send('');
+      }
       if (documentStatus === 404) { title = 'הדיון לא נמצא · ' + SITE_NAME; desc = 'הדיון אינו זמין לציבור.'; }
     } catch { documentStatus = 503; }
   } else if (productionReading && decodedKey === '/community/comments') {
@@ -491,6 +500,8 @@ export default async function handler(req, res) {
       '/melech-hamisparim/718': ['מלך המספרים · 718', 'העמוד והפרסומים של מלך המספרים בסוד 1820.'],
     }[decodedKey];
     title = `${info[0]} · ${SITE_NAME}`; desc = info[1]; image = cardUrl({ w: info[0], sub: 'SOD1820' });
+    // /community shows the same chat: consolidate it onto the chat address (the client declares the same canonical).
+    if (decodedKey === '/community') canonical = SITE + '/community/chat';
     if (!['/community', '/community/researchers', '/members'].includes(decodedKey)) robots = 'noindex, follow';
     if (['/community/researchers', '/members'].includes(decodedKey)) {
       const page = publicContinuityPage2029(continuityParams.has('page') ? continuityParams.getAll('page') : null);
@@ -549,7 +560,9 @@ export default async function handler(req, res) {
     desc = cleanDesc(routeFlag?.message || launchGate.message, 180);
     image = cardUrl({ w: launchGate.title, sub: 'בבנייה', cap: 'האזור ייפתח בהמשך' });
   } else if (decodedKey === '/community/chat') {
-    robots = 'noindex, follow';
+    // The bare chat page was indexed and brings search traffic: it stays indexable (as before the 2029 move).
+    // Any query string (thread, reply, member, search, sort...) is a variant of it and stays out of the index.
+    robots = continuityParams.toString() ? 'noindex, follow' : 'index, follow';
     title = STATIC['/community/chat'].title;
     desc = STATIC['/community/chat'].desc;
     image = cardUrl(STATIC['/community/chat'].card);

@@ -74,7 +74,7 @@ test('WWW redirects preserve raw encoded path and repeated query; old addresses 
 });
 test('genuine missing, closed, private, non-indexable and failed source states never become indexable successes',async()=>{
  const c=await context();const handler=c.adapters.publicReadingDocumentHandler({readDocument});
- for(const path of ['/this-is-not-a-real-public-page','/2029/control','/login','/els']){c.ownerRows[path]={status:path==='/this-is-not-a-real-public-page'?404:200,html:metadata(path)};const res=response();await handler(request(path),res);assert.equal(res.code,path==='/this-is-not-a-real-public-page'?404:200,path);assert.match(res.headers['x-robots-tag'],/noindex/,path);}
+ for(const path of ['/this-is-not-a-real-public-page','/2029/control','/login','/credits']){c.ownerRows[path]={status:path==='/this-is-not-a-real-public-page'?404:200,html:metadata(path)};const res=response();await handler(request(path),res);assert.equal(res.code,path==='/this-is-not-a-real-public-page'?404:200,path);assert.match(res.headers['x-robots-tag'],/noindex/,path);}
  c.ownerRows['/number/1820']={html:metadata('/number/1820','noindex, follow')};let res=response();await handler(request('/number/1820'),res);assert.match(res.headers['x-robots-tag'],/noindex/);
  c.ownerRows['/old-post']={status:503};res=response();await handler(request('/old-post'),res);assert.equal(res.code,503);assert.equal(res.headers['retry-after'],'60');assert.match(res.headers['x-robots-tag'],/noindex/);
  c.ownerRows['/old-post']={status:404,html:metadata('/old-post','noindex, follow')};res=response();await handler(request('/old-post'),res);assert.equal(res.code,404);assert.match(res.headers['x-robots-tag'],/noindex/);

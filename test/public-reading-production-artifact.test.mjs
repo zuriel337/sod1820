@@ -77,13 +77,41 @@ test("Production document uses canonical owner, preserves old/native/encoded/wp 
   });
 });
 
+// ZURIEL 5.11: feature areas that are closed only until they reopen in a few days keep their address in the index. The standard
+// way to say "temporarily unavailable" is 503 + Retry-After; they are never noindex. Personal, payment and private screens stay out.
+test("temporarily closed feature areas answer 503 with Retry-After and stay indexable; the rest stay noindex", async () => {
+  await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
+    const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
+    for (const path of ["/research", "/archive", "/reality", "/timeline", "/name", "/numbers", "/languages", "/cross"]) {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 503, path);
+      assert.equal(res.headers.get("retry-after"), "259200", path);
+      assert.equal(res.headers.get("x-robots-tag"), "index, follow", path);
+      assert.match(res.body, /name="robots" content="index, follow"/, path);
+      assert.match(res.body, /האזור סגור זמנית וייפתח בקרוב/, path);
+    }
+    // The Bible code is open in its Classic mode: a normal indexable 200 page, and /els is a permanent continuation to it.
+    { const res = response(); await handler(req("/code"), res);
+      assert.equal(res.code, 200); assert.equal(res.headers.get("retry-after"), undefined);
+      assert.doesNotMatch(String(res.headers.get("x-robots-tag") || ""), /noindex/); assert.doesNotMatch(res.body, /name="robots" content="noindex/);
+      assert.match(res.body, /rel="canonical" href="https:\/\/sod1820\.co\.il\/code"/);
+      assert.match(res.body, /חיפוש דילוגי אותיות/); assert.doesNotMatch(res.body, /בטא — נפתח בקרוב/); }
+    { const res = response(); await handler(req("/els"), res); assert.equal(res.code, 308); assert.equal(res.headers.get("location"), "/code"); }
+    for (const path of ["/login", "/journey", "/raziel", "/credits", "/buy", "/join", "/start", "/2029/control", "/updates"]) {
+      const res = response(); await handler(req(path), res);
+      assert.equal(res.code, 200, path); assert.equal(res.headers.get("retry-after"), undefined, path);
+      assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
+    }
+  });
+});
+
 test("closed, private and unknown routes remain noindex without product lookups; service metadata preserves signed unsubscribe", async () => {
   await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
     const handler=publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
     // Fragments are kept by the browser across redirects, never sent in HTTP.
     const alias=response();await handler(req('/2029/me?returnTo=%2Fworld'),alias);
     assert.equal(alias.code,308);assert.equal(alias.headers.get('location'),'/2029/me/research?returnTo=%2Fworld');assert.match(alias.headers.get('x-robots-tag'),/noindex/);
-    for (const path of ["/login", "/2029/me/research?returnTo=%2Fworld#private", "/community/researcher/me", "/journey", "/raziel", "/els", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
+    for (const path of ["/login", "/2029/me/research?returnTo=%2Fworld#private", "/community/researcher/me", "/journey", "/raziel", "/credits", "/start", "/updates", "/2029/control", "/unsubscribe?e=synthetic&t=synthetic"]) {
       const res = response(); await publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document })(req(path), res);
       assert.equal(res.code, 200, path); assert.match(res.headers.get("x-robots-tag"), /noindex/, path);
       assert.ok(!res.body.includes("e=synthetic"));
@@ -98,9 +126,11 @@ test("public aliases and named existing capabilities retain truthful continuatio
     for (const path of ["/2029", "/2029/posts", "/2029/gematria/viral", "/2029/calculator"]) {
       const res = response(); await handler(req(path), res); assert.equal(res.code, 200, path);
     }
-    for (const path of ["/name", "/or-geula"]) {
+    for (const path of ["/or-geula"]) {
       const res = response(); await handler(req(path), res); assert.equal(res.code, 200, path);
     }
+    // A named capability that is closed only until it reopens soon is a truthful 503 (see the temporarily-closed test).
+    { const res = response(); await handler(req("/name"), res); assert.equal(res.code, 503); assert.equal(res.headers.get("retry-after"), "259200"); }
     // ZURIEL's accepted Forum continuation preserves the exact public chat
     // destination. It is a redirect, not a generic200 status placeholder.
     const forum=response();await handler(req('/forum?part=2&part=7'),forum);
@@ -187,9 +217,9 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     const res = response(); await publicReadingSitemapHandler({ authorized: () => true, indexable: origin => origin === SITE })(req("/sitemap.xml"), res);
     assert.equal(res.code, 200); assert.equal(res.headers.get("cache-control"), "public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400");
     for (const path of ["/old-post", "/post/new-post", "/number/1820", "/number/" + encodeURIComponent("בראשית"),
-      "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/codes/published-cipher", "/privacy"])
+      "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/code", "/codes/published-cipher", "/privacy"])
       assert.ok(res.body.includes(`<loc>${SITE}${path}</loc>`), path);
-    for (const path of ["/login", "/journey", "/unsubscribe", "/code", "/codes/מחקר"]) assert.ok(!res.body.includes(`<loc>${SITE}${path}</loc>`), path);
+    for (const path of ["/login", "/journey", "/unsubscribe", "/codes/מחקר"]) assert.ok(!res.body.includes(`<loc>${SITE}${path}</loc>`), path);
     assert.ok(!calls.some(url => /site_flags|research_contributions/.test(url)));
   });
   await withFetch(async () => { throw Error("synthetic outage"); }, async () => {

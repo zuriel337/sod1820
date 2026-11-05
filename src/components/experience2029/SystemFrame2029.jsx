@@ -93,7 +93,7 @@ import "./googleEntry2029.css";
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
 const SiteSearch2029 = React.lazy(() => import("./SiteSearch2029.jsx"));
 const GuestNewsletterInvite2029 = React.lazy(() => import("./GuestNewsletterInvite2029.jsx"));
-import { dismissGuestNewsletterInvite2029, guestNewsletterRoute2029, useGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
+import { dismissGuestNewsletterInvite2029 } from "./useGuestNewsletterInvite2029.js";
 
 const TRANSIENT = Object.freeze({
   COMMAND: "command",
@@ -1733,12 +1733,7 @@ function SystemFrame2029Body({
     setNavOpen(false);
   }, [navOpen, completeSurfaceEntry, contextLocked]);
 
-  useGuestNewsletterInvite2029({
-    eligible: !authLoading && !user && (surface === "post" || guestNewsletterRoute2029(location.pathname)),
-    blocked: navOpen || Boolean(transient),
-    routeKey: location.pathname + location.search,
-    onOpen: () => openTransient(TRANSIENT.NEWSLETTER),
-  });
+  // ZURIEL 5.11: no automatic "join the updates" popup. Joining the updates lives in the footer only.
   useEffect(() => {
     if (authLoading || user) setTransient(current => current?.kind === TRANSIENT.NEWSLETTER ? null : current);
   }, [authLoading, user?.id]);
@@ -2240,7 +2235,7 @@ function SystemFrame2029Body({
               <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
             </div>
           </header>
-          <GlobalLivingRibbon2029 onContact={() => openIssueReport({ actionTried: "renewal_notice" })} />
+          <GlobalLivingRibbon2029 />
           </div>
 
           {orientation.mode !== "hidden" && orientation.manifest ? (() => {

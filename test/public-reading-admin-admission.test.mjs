@@ -31,7 +31,9 @@ test('reading account storage stays separate and tab scoped; only the exact call
 });
 
 test('verified admin can enter existing private surfaces while public and unknown services remain closed', () => {
- for(const path of ['/code','/els','/heichal','/היכל']) {
+ // The Bible code is public (Classic only); /els continues to /code. Neither is an administrator-only view any more.
+ assert.equal(publicReadingPath('/code'),'public');assert.equal(publicReadingPath('/els'),'continuation');
+ for(const path of ['/heichal','/היכל']) {
   assert.equal(publicReadingPath(path),'closed');
   assert.equal(publicReadingPath(path,{isAdmin:true}),'admin-view');
  }
@@ -50,8 +52,8 @@ test('verified admin can enter existing private surfaces while public and unknow
  assert.equal(publicReadingPath('/auth/callback'),'account');
  assert.equal(publicReadingPath('/unknown/surface',{isAdmin:true}),'missing');
  assert.equal(publicReadingPath('/login'),'account');
- for(const key of ['lock_els','lock_heichal','lock_raziel_site','lock_life_journey','unknown'])assert.equal(publicReadingFeatureLock(key).enabled,true);
- assert.equal(publicReadingFeatureLock('lock_books').enabled,false);
+ for(const key of ['lock_heichal','lock_raziel_site','lock_life_journey','unknown'])assert.equal(publicReadingFeatureLock(key).enabled,true);
+ for(const key of ['lock_books','lock_els'])assert.equal(publicReadingFeatureLock(key).enabled,false);
 });
 
 async function mountAuth({profileReader=async id=>({id,role:'admin'}),verify=async token=>({data:{user:{id:token,user_metadata:{avatar_url:'https://example.invalid/avatar'}}}})}={}) {
@@ -110,7 +112,7 @@ async function featureState({admin=false,lock=null,authLoading=false,policyLoadi
  const context={React:{},PUBLIC_READING_RELEASE:profile,publicReadingFeatureLock,useAuth:()=>({user:admin?{id:'admin'}:null,isAdmin:admin,loading:authLoading}),
   useState:()=>[{loading:policyLoading,lock,readKey:null,enabled:!profile||admin},()=>{}],useEffect:()=>{},useMemo:fn=>fn(),Set,JSON};
  vm.createContext(context);vm.runInContext(compiled+';globalThis.feature=useFeatureState;',context);
- return context.feature('lock_els',{requireFlag:true});
+ return context.feature('lock_heichal',{requireFlag:true});
 }
 
 test('canonical feature state opens verified admin, denies public, missing flags and pending verification',async()=>{
@@ -157,10 +159,11 @@ test('Book save stays disabled for public/member, including direct handler invoc
  const button=nodes.find(n=>n.type==='button');assert.equal(button.props.disabled,true);button.props.onClick();assert.equal(saved,0);
 });
 
-test('ELS public view never mounts operational readers, replay or engine',async()=>{
- const h=await screenHarness('src/pages/Els2029Page.jsx','Els2029Page',{useResearch:()=>assert.fail('operational hooks mounted')});
- const node=h.render({});assert.equal(node.type.name,'ElsReadingAvailability');
- const content=node.type();assert.equal(treeElements(content).some(n=>n.props?.['data-els-view']==='read-only-availability'),true);assert.deepEqual(h.calls,[]);
+test('ELS public view is the Classic mode only; the administrator keeps every mode',async()=>{
+ const h=await screenHarness('src/pages/Els2029Page.jsx','Els2029Page',{useResearch:()=>assert.fail('operational hooks mounted by the wrapper')});
+ const node=h.render({});assert.equal(node.type.name,'OperationalEls2029Page');assert.equal(node.props.publicClassic,true);assert.equal(node.props.key,'public-classic');
+ const admin=await screenHarness('src/pages/Els2029Page.jsx','Els2029Page',{useAuth:()=>({isAdmin:true,user:{id:'verified-admin'}})});
+ const adminNode=admin.render({});assert.equal(adminNode.props.publicClassic,false);assert.equal(adminNode.props.key,'full');
 });
 
 

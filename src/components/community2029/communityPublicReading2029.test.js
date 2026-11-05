@@ -54,6 +54,8 @@ async function harness(file, names, overrides = {}) {
     communityAccountReturnHref, communityChatHref, communityPersonReturnHref, communityReadingReturnHref, personalMessagesReturnHref: () => null,
     writerPersonalHref: module => `/2029/me/${module}`,
     useCommunityMessageActions2029: () => ({ items: {}, patches: {}, register() {} }),
+    canonicalCommunityAuthorKey: value => value, useCommunityTyping2029: () => ({ typingPeople: { names: [], anonymous: 0 }, notifyTyping() {} }),
+    fetchGuestUnreviewed: async () => [], typingLabel: people => people.names.length || people.anonymous ? "x" : "",
     fetchCommunityArchivePage: async () => ({ rows: [], nextOffset: 0, count: 0 }),
     fetchLinkedAccountProfiles: async () => ({}), fetchCommunityReplyCounts: async () => ({}),
     startCommunityRefresh: () => () => {}, applySeo() {}, restoreCommunityScrollAnchor() {},
@@ -284,4 +286,26 @@ test('canonical UserBadge keeps opt-in fallbacks colorful while real images and 
   tree=h.render(h.UserBadge,{name:'historical',avatarOnly:true,fallbackImage:'/community-avatars/090688eb8d8b7febc9c3.jpg'});assert.equal(tree.props['data-avatar-state'],'image');
   tree=h.render(h.UserBadge,{name:'unsafe',avatarOnly:true,fallbackImage:'/community-avatars/../../private.svg'});assert.equal(tree.props['data-avatar-state'],'fallback');
   tree=h.render(h.UserBadge,{name:'ordinary',avatarOnly:true});assert.equal(tree.props['data-avatar-treatment'],undefined);assert.equal(tree.props.style['--user-badge-fallback-ink'],undefined);
+});
+
+test("a guest sees one-step signup and publish-as-guest, a member sees only publish", async () => {
+  for (const [user, guest] of [[null, true], [{ id: "account" }, false]]) {
+    const h = await harness("./CommunityLive2029.jsx", ["CommunityLive2029"], {
+      PUBLIC_READING_PRODUCTION_ARTIFACT: true, communityActionsLocked: () => false, plainMessageText: value => value,
+      useAuth: () => ({ user, profile: {}, isAdmin: false, loading: false, verified: Boolean(user) }),
+      useCommunityDraft2029: () => ({ draft: "שלום", setDraft() {}, replyTo: null, setReplyTo() {}, status: "idle", clear() {}, setHasFiles() {}, reattach: false }),
+    });
+    const tree = elements(h.render(h.CommunityLive2029, {}));
+    const primary = tree.find(node => node.props?.className === "sod29-community-primary");
+    // A guest has ONE main button (publish as guest) and a quiet signup link; a member has just the main button.
+    assert.equal(primary.props["data-guest-publish"], guest ? "true" : undefined);
+    assert.equal(Boolean(primary.props.disabled), false);
+    assert.equal(tree.some(node => node.props?.className === "sod29-community-join-link" && node.props["data-guest-join"] === "true"), guest);
+    assert.equal(tree.filter(node => String(node.props?.className || "").includes("sod29-community-primary")).length, 1);
+    assert.equal(tree.some(node => node.props?.name === "website"), guest);
+    assert.ok(tree.some(node => node.props?.className === "sod29-community-typing"));
+    const authLinks = tree.filter(node => String(node.props?.className || "").startsWith("sod29-community-auth-btn"));
+    assert.equal(authLinks.length, guest ? 2 : 0);
+    if (guest) assert.deepEqual(authLinks.map(node => node.props.children.join("")), ["התחברות", "הרשמה"]);
+  }
 });

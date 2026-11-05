@@ -2725,3 +2725,14 @@
 .sod29-number-ai-analysis section p{color:var(--s29-ink);white-space:pre-wrap}
 .sod29-number-ai-analysis button:disabled{opacity:.55;cursor:default}
 .sod29-number-root-open{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer}
+
+/* Phone first screen (ZURIEL 5.11.2026): the regular-phrases card reserves the height it has once loaded, so the phrases arriving no
+   longer push the method switcher while it is on screen. Measured on the baseline build: the loaded chips are 64px tall at every width
+   (the placeholder was 51px) and the head is 70px up to about 400px wide, 46px from 412px up. (Without this reservation the first
+   screen, now higher, showed that shift inside the viewport; measurements: docs/reviews/number-page-speed-20261105.) */
+@media(max-width:720px){
+  .sod29-number-v11-regular-rail.is-loading .sod29-number-v11-regular-placeholder{min-height:60px}
+}
+@media(max-width:405px){
+  .sod29-number-v11-regular-rail.is-loading .sod29-number-v11-regular-head{min-height:70px}
+}

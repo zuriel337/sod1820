@@ -205,11 +205,15 @@ export default async function handler(req, res) {
   const foundation = req.publicFoundationPreview === true;
   const foundationStatics = new Set(["/", "/world", "/post", "/map", "/privacy", "/number"]);
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID) foundationStatics.add("/gematria");
-  if (productionReading) for (const path of ['/books', '/codes', '/or-geula', '/community/researchers']) foundationStatics.add(path);
+  if (productionReading) for (const path of ['/books', '/code', '/codes', '/or-geula', '/community/researchers']) foundationStatics.add(path);
   const urls = foundation ? STATIC.filter(row => foundationStatics.has(row.loc)) : [...STATIC];
   if (foundation && !urls.some(row => row.loc === "/number")) urls.push({ loc: "/number", priority: "0.6", changefreq: "monthly" });
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID && !urls.some(row => row.loc === "/gallery")) urls.push({ loc: "/gallery", priority: "0.6", changefreq: "weekly" });
   if (productionReading) urls.push({ loc: '/community/researchers', priority: '0.5', changefreq: 'weekly' });
+  // The community chat is the replacement of the retired forum and a popular search landing page: it belongs in the sitemap.
+  if (productionReading) urls.push({ loc: '/community/chat', priority: '0.7', changefreq: 'daily' });
+  // The calculator is a popular search landing page too (bare address only; query variants carry private inputs).
+  if (productionReading) urls.push({ loc: '/community/calculator', priority: '0.7', changefreq: 'weekly' });
   if (productionReading) for (const loc of PUBLIC_HISTORICAL_LECTURE_PATHS) urls.push({loc,priority:'0.4',changefreq:'yearly'});
   let foundationSourceFailed = false;
   let posts;

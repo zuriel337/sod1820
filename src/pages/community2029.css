@@ -457,3 +457,44 @@ html[data-theme-2029="parchment"] .sod29-community--artwork{--community-art-opac
 .sod29-community-avatar-camera{position:absolute;inset-inline-end:-2px;inset-block-end:-2px;display:grid;place-items:center;width:18px;height:18px;border:1px solid var(--s29-line-strong);border-radius:50%;background:var(--s29-panel);color:var(--s29-accent-text);font-size:13px;pointer-events:none}
 .sod29-community--full .sod29-community-replies .sod29-community-thread-group>.sod29-community-replies-toggle{margin-block-end:8px}
 @media(prefers-reduced-transparency:reduce){.sod29-community--full .sod29-community-feed{background:var(--s29-panel)}.sod29-community-compose-input{background:var(--s29-panel)}}
+
+/* Guest composer: the message waits while the account is created inline. */
+.sod29-community-guest-join { display: grid; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
+.sod29-community-guest-join > p { margin: 0; font-weight: 600; }
+
+/* Guest-published messages are public at once; only the administrator sees the unreviewed ones greyed. */
+.sod29-community-thread.is-guest-unreviewed{opacity:.62;background:color-mix(in srgb,currentColor 5%,transparent);border-radius:12px;padding-inline:10px}
+.sod29-community-guest-review{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:.85em;margin-block-end:4px}
+.sod29-community-guest-banner{margin:0 0 8px;font-weight:600}
+/* Reserve the line so the typing label never moves the page. */
+.sod29-community-typing{margin:0;min-height:1.4em;font-size:.85em;opacity:.75}
+.sod29-community-typing[data-typing="false"]{visibility:hidden}
+
+/* Composer actions stay one aligned group; guests get two equal-height buttons. */
+.sod29-community-composer-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-inline-start:auto}
+.sod29-community-composer-actions[data-guest="true"]>button{min-height:48px}
+@media(max-width:600px){
+  .sod29-community-composer-bottom:has(.sod29-community-composer-actions[data-guest="true"]){flex-wrap:wrap;gap:10px}
+  .sod29-community-composer-actions[data-guest="true"]{flex:1 1 100%;margin-inline-start:0}
+  .sod29-community-composer-actions[data-guest="true"]>button{flex:1 1 100%}
+}
+
+/* Top of the community for guests: two small buttons on the left, as in the old chat. */
+.sod29-community-auth-buttons{display:flex;align-items:center;gap:10px;margin-inline-start:auto}
+.sod29-community-auth-btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:6px 18px;border-radius:12px;border:1px solid var(--s29-line-strong);background:var(--s29-panel-soft);color:var(--s29-ink);font-family:var(--s29-font-ui);font-size:14px;font-weight:600;line-height:1.4;text-decoration:none;white-space:nowrap}
+.sod29-community-auth-btn.is-signup{background:var(--community-action-fill,var(--s29-accent));color:var(--s29-on-accent);border-color:transparent}
+.sod29-community-auth-btn:focus-visible{outline:2px solid var(--s29-accent-text);outline-offset:2px}
+
+/* Open Graph link preview (shown only when the preview service answers). */
+.sod29-community-link-card.has-og{grid-template-columns:minmax(0,1fr);gap:0;padding:0;overflow:hidden;color:var(--s29-ink)}
+.sod29-community-link-og-image{display:block;width:100%;max-height:220px;object-fit:cover;background:var(--s29-panel)}
+.sod29-community-link-og-copy{display:grid;gap:4px;padding:12px 14px}
+.sod29-community-link-og-copy strong{font-size:16px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sod29-community-link-og-copy span{font-size:14px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Proposal: typing status sits under the box with its own space; signup is a quiet link, publish-as-guest is the main button. */
+.sod29-community-typing{margin:6px 4px 14px;min-height:1.4em;font-size:.85em;opacity:.8}
+.sod29-community-typing[data-typing="true"]::before{content:"";display:inline-block;width:7px;height:7px;margin-inline-end:6px;border-radius:50%;background:var(--s29-accent-text);vertical-align:middle}
+.sod29-community-join-link{background:none;border:0;padding:8px 4px;min-height:40px;color:var(--s29-accent-text);font-family:var(--s29-font-ui);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.sod29-community-join-link:disabled{opacity:.5;cursor:default}
+@media(max-width:600px){.sod29-community-composer-actions[data-guest="true"]>.sod29-community-join-link{flex:1 1 100%;text-align:center}}

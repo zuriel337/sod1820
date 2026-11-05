@@ -204,6 +204,7 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
 .h29-series-item .h29-media { width: 100%; height: 72px; border-radius: 8px; object-fit: cover; }
 .h29-series-item > span { min-width: 0; display: grid; gap: 5px; }
 .h29-series-item strong { font: 500 14px/1.5 var(--s29-font-ui); }
+.h29-series-item .h29-updated { display: block; color: var(--s29-gold, var(--s29-muted)); }
 .h29-series-item small,.h29-series-item time,.h29-series-item span > span { color: var(--s29-muted); font: 400 12px/1.5 var(--s29-font-ui); }
 .h29-series-card > .h29-empty { padding: 12px; }
 .h29-admin-updates { display: grid; gap: 6px; }

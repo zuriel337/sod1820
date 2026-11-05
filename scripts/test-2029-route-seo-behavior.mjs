@@ -22,13 +22,15 @@ if (!fs.existsSync(path.join(root, "public-reading-deploy/.generated/protected-r
   throw new Error("run `node scripts/build-public-reading-production.mjs` first (the document handler needs its generated build receipt)");
 }
 const { publicReadingDocumentHandler } = await import(new URL("../public-reading-deploy/api/public-document.js", import.meta.url));
-const { publicReadingPath } = await import(new URL("../src/lib/publicReadingRelease2029.js", import.meta.url));
+const { publicReadingPath, publicTemporarilyClosed, PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER } = await import(new URL("../src/lib/publicReadingRelease2029.js", import.meta.url));
 const SITE = "https://sod1820.co.il";
 
 // kind -> what the server must do
 //   index       200, X-Robots-Tag "index, follow", canonical as given (default: the route itself)
 //   noindex     200, X-Robots-Tag starts with "noindex", canonical as given
 //   closed      200, "noindex, nofollow, noarchive", the release table says closed / service-closed
+//   closed503   a feature area that is closed only until it reopens soon (publicTemporarilyClosed): 503 + Retry-After, X-Robots-Tag "index, follow"
+//               (kept in the index on purpose, #1236); the only kind allowed to be indexable with a non-200 status
 //   account     200, "noindex, nofollow, noarchive", the release table says account, canonical /login
 //   missing     404, noindex
 //   redirect    308 to `to`, then the target answers as `then`
@@ -48,20 +50,22 @@ const DECISIONS = {
   "/2029/gematria/viral": { kind: "index", canonical: "/gematria", note: "alias" },
   "/2029/calculator": { kind: "index", canonical: "/gematria", note: "alias" },
   "/number": { kind: "index" },
-  "/community": { kind: "index" },
+  "/community": { kind: "index", canonical: "/community/chat", note: "#1234: the community address is the chat" },
   "/community/researchers": { kind: "index" },
   "/members": { kind: "index" },
   "/codes": { kind: "index" },
+  "/code": { kind: "index", note: "#1237: the Bible code is open to the public in Classic mode" },
+  "/els": { kind: "redirect", to: "/code", then: { kind: "index", canonical: "/code" }, note: "#1237: the old /els address continues at /code (308, the query is kept)" },
   "/world": { kind: "index" },
   "/books": { kind: "index" },
 
-  "/community/calculator": { kind: "noindex", note: "private query inputs never reach server metadata" },
+  "/community/calculator": { kind: "index", note: "#1234: the bare address is indexable again; addresses with query inputs stay out of the index (the sample probes the bare address)" },
   "/community/comments": { kind: "noindex" },
-  "/community/chat": { kind: "noindex" },
+  "/community/chat": { kind: "index", note: "#1234: indexable again (it had been noindex since the 2029 cutover)" },
   "/contact": { kind: "noindex" },
   "/early-access": { kind: "noindex" },
   "/melech-hamisparim/718": { kind: "noindex" },
-  "/forum": { kind: "redirect", to: "/community/chat", then: { kind: "noindex", canonical: "/community/chat" }, note: "the old forum continues in the community chat" },
+  "/forum": { kind: "redirect", to: "/community/chat", then: { kind: "index", canonical: "/community/chat" }, note: "the old forum continues in the community chat (#1236); the chat is indexable (#1234)" },
   "/beit-midrash": { kind: "noindex", note: "open to everyone, kept out of search by the owner's decision (same as the page's applySeo)" },
   "/beit-midrash/:method": { kind: "noindex", canonical: "/beit-midrash" },
   "/researcher/:slug": { kind: "noindex", note: "admin corpus projection; never reads the corpus server-side" },
@@ -73,11 +77,9 @@ const DECISIONS = {
   "/2029/journey": { kind: "closed" },
   "/2029/control": { kind: "closed" },
   "/2029/me/:module": { kind: "closed" },
-  "/research": { kind: "closed" },
-  "/code": { kind: "closed" },
-  "/els": { kind: "closed", canonical: "/code" },
-  "/heichal": { kind: "closed" },
-  "/היכל": { kind: "closed", canonical: "/heichal" },
+  "/research": { kind: "closed503", note: "#1236: closed only until it reopens soon: 503 + Retry-After, kept indexable" },
+  "/heichal": { kind: "closed503", note: "#1236, same" },
+  "/היכל": { kind: "closed503", canonical: "/heichal", note: "#1236, same (Hebrew alias)" },
 
   "/login": { kind: "account" },
   "/auth/callback": { kind: "account" },
@@ -129,7 +131,7 @@ async function ask(url, mode) {
   try { await handler({ method: "GET", url, headers: { host: "sod1820.co.il", "x-forwarded-proto": "https" }, query: {} }, res); }
   finally { globalThis.fetch = previous; }
   const canonical = (res.body.match(/rel="canonical" href="([^"]*)/) || [])[1];
-  return { status: res.statusCode, robots: res.h.get("x-robots-tag") || "", location: res.h.get("location") || "",
+  return { status: res.statusCode, robots: res.h.get("x-robots-tag") || "", location: res.h.get("location") || "", retryAfter: res.h.get("retry-after") || "",
     title: (res.body.match(/<title>([^<]*)/) || [])[1] || "", canonical: canonical === undefined ? null : (canonical.replace(SITE, "") || "/") };
 }
 const NOT_FOUND_TITLE = /(?:הפוסט|העמוד|האוסף|הפריט|הדיון|המקור) לא נמצא|אינו זמין/;
@@ -156,6 +158,14 @@ function expectDocument(label, a, d, route, mode) {
       const state = publicReadingPath(sample(route), { search: "" });
       check(label, d.kind === "account" ? state === "account" : ["closed", "service-closed"].includes(state), `release table state "${state}" does not match decision "${d.kind}"`);
       check(label, a.canonical === (d.kind === "account" ? "/login" : want), `canonical ${a.canonical}`);
+      break;
+    }
+    case "closed503": {
+      check(label, a.status === 503 && a.robots === "index, follow", `want 503 "index, follow" (temporarily closed, kept indexable), got ${a.status} "${a.robots}"`);
+      check(label, a.retryAfter === String(PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER), `want Retry-After ${PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER}, got "${a.retryAfter}"`);
+      check(label, publicTemporarilyClosed(sample(route)) === true, `publicTemporarilyClosed(${sample(route)}) must be true for a closed503 decision`);
+      check(label, a.canonical === want, `canonical ${a.canonical} != ${want}`);
+      check(label, a.title && !NOT_FOUND_TITLE.test(a.title), `title "${a.title}" is empty or a not-found title`);
       break;
     }
     case "missing":
@@ -197,8 +207,9 @@ for (const route of routes) {
       expectDocument(`${label} -> ${d.to}`, a, { ...d.then, canonical: d.then.canonical ?? d.to }, d.to.startsWith("/book/") ? "/book/:slug" : d.to, mode);
     } else expectDocument(label, a, d, route, mode);
     // Invariants that hold for every route and every data condition.
-    check(label, !(a.status !== 200 && a.status !== 308 && !/^noindex/.test(a.robots)), `status ${a.status} must never be indexable ("${a.robots}")`);
-    check(label, !(/^index/.test(a.robots) && a.status !== 200), `an indexable robots decision needs status 200, got ${a.status}`);
+    const temporarilyClosed = d.kind === "closed503";   // the only kind that may be indexable with a non-200 status, and it must carry Retry-After (checked above)
+    check(label, temporarilyClosed || !(a.status !== 200 && a.status !== 308 && !/^noindex/.test(a.robots)), `status ${a.status} must never be indexable ("${a.robots}")`);
+    check(label, temporarilyClosed || !(/^index/.test(a.robots) && a.status !== 200), `an indexable robots decision needs status 200, got ${a.status}`);
     check(label, !(a.status === 200 && NOT_FOUND_TITLE.test(a.title)), `status 200 carries the not-found title "${a.title}"`);
   }
 }

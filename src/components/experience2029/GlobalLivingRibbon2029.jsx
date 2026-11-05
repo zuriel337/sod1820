@@ -50,11 +50,19 @@ export function LivingRibbonDetail2029({ detail, onOpen, feed }) {
   </section>;
 }
 
-export const RENEWAL_NOTICE_2029 = "האתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.";
+// ZURIEL 5.11.2026: the static renewal notice and its contact button are replaced by one
+// verse. Authored static text: no feed, timer or action. Issue reporting stays available
+// from the header ("דווח על בעיה"). Verse: Malachi 3:23 (Masoretic numbering).
+export const ELIJAH_VERSE_2029 = Object.freeze({
+  text: "הִנֵּה אָנֹכִי שֹׁלֵחַ לָכֶם אֵת אֵלִיָּה הַנָּבִיא לִפְנֵי בּוֹא יוֹם ה׳ הַגָּדוֹל וְהַנּוֹרָא",
+  source: "מלאכי ג׳, כג",
+});
 
-export default function GlobalLivingRibbon2029({ onContact }) {
-  return <section className="sod29-living-ribbon" aria-label="האתר מתחדש" data-ribbon-state="renewal" dir="rtl">
-    <p className="sod29-living-notice">{RENEWAL_NOTICE_2029}</p>
-    <button type="button" className="sod29-living-contact" onClick={onContact} aria-haspopup="dialog">דיווח או הצעה ←</button>
+export default function GlobalLivingRibbon2029() {
+  return <section className="sod29-living-ribbon" aria-label="פסוק" data-ribbon-state="verse" dir="rtl" lang="he">
+    <p className="sod29-living-verse">
+      <span className="sod29-living-verse-text">{ELIJAH_VERSE_2029.text}</span>
+      <small className="sod29-living-verse-source">{ELIJAH_VERSE_2029.source}</small>
+    </p>
   </section>;
 }

@@ -246,8 +246,8 @@ test('explicitly open book and legacy number flags preserve their existing ident
   }
 });
 
-test('forum and transitional chat are noindex with a canonical chat link and no database lookup', async () => {
-  for (const path of ['/forum', '/forum/thread', '/forum/דיון', '/community/chat']) {
+test('retired forum paths are noindex with a canonical chat link and no database lookup', async () => {
+  for (const path of ['/forum', '/forum/thread', '/forum/דיון']) {
     const result = await invoke(ogHandler, async () => { throw new Error('retired forum/chat must not read old discussions'); }, { path: encodeURI(path), crawler: 'search' });
     assert.equal(result.headers.get('x-robots-tag'), 'noindex, follow');
     assert.match(result.body, /canonical" href="https:\/\/sod1820\.co\.il\/community\/chat"/);
@@ -255,6 +255,29 @@ test('forum and transitional chat are noindex with a canonical chat link and no 
     assert.doesNotMatch(result.body, /DiscussionForumPosting|\/archive\//);
     assert.equal(result.calls.length, 0);
   }
+});
+
+// ZURIEL: the chat page is popular and brings search traffic (about half of its visits came from Google), so the bare page
+// stays indexable as it was before the 2029 move; any query string is a variant of it and stays out of the index.
+test('the bare chat page stays indexable; its query variants do not', async () => {
+  const fail = async () => { throw new Error('chat metadata must not read old discussions'); };
+  const bare = await invoke(ogHandler, fail, { path: '/community/chat', crawler: 'search' });
+  assert.equal(bare.headers.get('x-robots-tag'), 'index, follow');
+  assert.match(bare.body, /canonical" href="https:\/\/sod1820\.co\.il\/community\/chat"/);
+  assert.equal(bare.calls.length, 0);
+  for (const path of ['/community/chat?member=someone', '/community/chat?q=1820', '/community/chat?sort=liked']) {
+    const variant = await invoke(ogHandler, fail, { path, crawler: 'search' });
+    assert.equal(variant.headers.get('x-robots-tag'), 'noindex, follow', path);
+  }
+});
+
+test('the chat is in the production sitemap and /community consolidates onto it', async () => {
+  const { readFileSync } = await import('node:fs');
+  const sitemap = readFileSync(new URL('../api/sitemap.js', import.meta.url), 'utf8');
+  assert.match(sitemap, /if \(productionReading\) urls\.push\(\{ loc: '\/community\/chat'/);
+  assert.match(sitemap, /if \(productionReading\) urls\.push\(\{ loc: '\/community\/calculator'/);
+  const og = readFileSync(new URL('../api/og.js', import.meta.url), 'utf8');
+  assert.match(og, /if \(decodedKey === '\/community'\) canonical = SITE \+ '\/community\/chat'/);
 });
 
 test('public Post metadata remains independent of launch gates and retains Article structured data', async () => {
