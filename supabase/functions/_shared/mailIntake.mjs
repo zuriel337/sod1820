@@ -1,5 +1,5 @@
 // mailIntake — pure decision layer: one received email -> at most one HELD channel_updates row + one mail-proof row.
-// Task MAIL_INTAKE_ZION_20261105. Builds on the ported sourceEmail.mjs (draft PR #1089 provenance).
+// Task MAIL_INTAKE_ZION_20261105. Uses the trimmed sourceEmail.mjs helpers (derived from draft PR #1089).
 //
 // Contract (ZURIEL decisions, 2026-11-05):
 //  * No IO, no model calls, no actions. Everything in `email` is untrusted source data.
@@ -53,7 +53,7 @@ export async function planMailIntake(input) {
   const proof = providerSenderProof(email, providerContext);
   if (!proof) return skip('no_sender_proof');
 
-  const n = await normalizeReceivedEmail(email, { ...providerContext, receivedAt });
+  const n = await normalizeReceivedEmail(email, { providerId: providerContext.providerId, receivedAt });
   if (n.text_state !== 'available') return skip('no_text', { text_state: n.text_state });
   if (!n.message_id) return skip('no_message_id');
   if (knownExtIds.has(n.id) || knownMessageIds.has(n.message_id)) return skip('duplicate', { ext_msg_id: n.id });

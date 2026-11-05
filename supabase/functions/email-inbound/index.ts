@@ -3,10 +3,9 @@
 // The signing secret is read from RESEND_WEBHOOK_SECRET when configured, otherwise retrieved/cached
 // from the authenticated Resend Webhooks API using the already-existing RESEND_API_KEY.
 import { createClient } from "jsr:@supabase/supabase-js@2";
-import { planMailIntake } from "../_shared/mailIntake.mjs";
-import { exactMailbox } from "../_shared/sourceEmail.mjs";
 
 // MAIL_INTAKE_ZION_20261105: held-only intake of approved senders. OFF unless this Edge secret is exactly "true".
+// With the flag off nothing below runs and no new module is even loaded (dynamic imports live inside admitHeldMail).
 // Whatever happens here, the private inbox store below is never blocked or rolled back.
 const MAIL_INTAKE_ENABLED = (Deno.env.get("MAIL_INTAKE_ZION_ENABLED") || "").trim() === "true";
 
@@ -83,6 +82,8 @@ async function verifyWebhook(rawBody: string, req: Request): Promise<boolean> {
 
 // Returns a short status token; never the mail content. The RPC is the authoritative dedupe + held-shape check.
 async function admitHeldMail(inboxId: number, emailId: string, receipt: any): Promise<string> {
+  const { planMailIntake } = await import("../_shared/mailIntake.mjs");
+  const { exactMailbox } = await import("../_shared/sourceEmail.mjs");
   const mailbox = exactMailbox(receipt?.from);
   if (!mailbox) return "skip:sender_unparseable";
   const { data: rows, error: apErr } = await sb.from("mail_source_approvals")

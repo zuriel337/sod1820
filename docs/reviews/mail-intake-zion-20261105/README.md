@@ -7,11 +7,12 @@
 
 | קובץ | תפקיד |
 |---|---|
-| `supabase/functions/_shared/sourceEmail.mjs` | פורט ללא שינוי של הפונקציות הטהורות מ־PR #1089 (טיוטה שלא מוזגה): נרמול מייל, הסרת ציטוטים, הוכחת DKIM/DMARC של Resend. ללא תלות בקוד Legacy. |
+| `supabase/functions/_shared/sourceEmail.mjs` | **מצומצם** (ירד מ־139 לכ־100 שורות) ממה שנגזר מ־PR #1089 (טיוטה שלא מוזגה): רק מה שהמסלול החדש משתמש בו — נרמול מייל, הסרת ציטוטים, זיהוי תיבה מדויקת, הוכחת DKIM/DMARC של Resend. Resend בלבד. הוסרו: `replyMessageId`, `resolveApprovedSender`, `canHydrateLegacy`, `TECHNICAL_TEST_PROVIDER_IDS`, תמיכת ספק Gmail ושדות שאינם נקראים. |
 | `supabase/functions/_shared/mailIntake.mjs` | שכבת החלטה טהורה: מייל אחד ← שורת `channel_updates` אחת במצב held + שורת הוכחת מייל, או דילוג עם סיבה. |
-| `supabase/functions/email-inbound/index.ts` | חיבור מוגן־דגל (`MAIL_INTAKE_ZION_ENABLED === "true"`, כבוי כברירת מחדל). כשל בקליטה לא משפיע על שמירת המייל ב־`inbound_emails`. |
+| `supabase/functions/email-inbound/index.ts` | חיבור מוגן־דגל (`MAIL_INTAKE_ZION_ENABLED === "true"`, כבוי כברירת מחדל). המודולים החדשים נטענים **דינמית בתוך הפונקציה בלבד**, כך שעם הדגל כבוי הם לא נטענים כלל. כשל בקליטה לא משפיע על שמירת המייל ב־`inbound_emails`. |
 | `scripts/sql/mail-intake-zion-v1/001-channel-update-mail-proof.draft.sql` | **טיוטה, לא הוחלה.** בכוונה מחוץ ל־`supabase/migrations/`. טבלאות `mail_source_approvals`, `channel_update_mail_proof`, שומר (trigger) ו־RPC `admit_mail_source_held_v1`. |
-| `test/mail-intake-zion.test.mjs` | 14 בדיקות. |
+| `test/mail-intake-zion.test.mjs` | 14 בדיקות (שכבת ההחלטה, הטיוטה, החיווט). |
+| `test/email-inbound-mail-intake-flag.test.mjs` + `test/helpers/emailInboundHarness.mjs` | 8 בדיקות שמריצות את ה־handler האמיתי של `email-inbound` מול מסד מדומה: דגל כבוי ← בדיוק הזרימה המקורית; דגל דלוק ← שמירת התיבה קודמת, וכשל בקליטה לא משפיע עליה. |
 
 ## עקרונות שנאכפים
 - **הוכחת זהות:** שולח מדויק ברשימת מורשים פעילה בצד השרת, בדיוק זהות `contributors` אחת, ו־DKIM+DMARC=pass מתוך Resend בלבד. תצוגת שם, To/Cc וגוף המייל אינם מאשרים שולח. Gmail כספק אינו מאושר (אין לו מאמת שולח).
@@ -22,7 +23,7 @@
 - **הרחבה עתידית:** רשימת הכותבים מ־11.10 נשמרת כמבנה בלבד (שורות `active=false`, בהערה בטיוטה); כרגע רק ציון.
 
 ## אימות שבוצע
-- `node --test test/mail-intake-zion.test.mjs` — 14/14 עברו: held בלבד, פרטיות, כפילות, כתובת לא מורשית, תצוגת שם מתחזה, אישור לא פעיל, זהות כפולה (3 וריאנטים + שני אישורים), הוכחה חסרה/נכשלת/ספק לא נתמך/אי־התאמת מזהה, שרשור (שורש/הורה קיים/הורה חסר), ציטוטים, HTML בלבד, העדר שדה AI, אי־נגיעה בקוראים ציבוריים, דגל כבוי.
+- `node --test test/mail-intake-zion.test.mjs test/email-inbound-mail-intake-flag.test.mjs` — 22/22 עברו. השוואה חד־פעמית (לא בקומיט) בין ה־handler של `main` (`a5ef82cc`) לזה שבענף, עם דגל כבוי ב־7 תרחישים, הראתה תגובות, קריאות fetch וכל קריאת DB זהות בייט־לבייט. מוטציה שמתעלמת מהדגל נתפסת. בדיקות הליבה (14): held בלבד, פרטיות, כפילות, כתובת לא מורשית, תצוגת שם מתחזה, אישור לא פעיל, זהות כפולה (3 וריאנטים + שני אישורים), הוכחה חסרה/נכשלת/ספק לא נתמך/אי־התאמת מזהה, שרשור (שורש/הורה קיים/הורה חסר), ציטוטים, HTML בלבד, העדר שדה AI, אי־נגיעה בקוראים ציבוריים, דגל כבוי.
 - טיוטת ה־SQL הורצה מול PostgreSQL 16 זמני (טבלאות עזר בלבד, לא ה־Supabase החי; הושמד): הוחלה נקי; anon/authenticated נדחו מהטבלאות ומה־RPC; קליטה תקינה, כפילות (`dup`), הורה קיים (`parent_present`), צורה לא־held (`not_held_shape`), שולח אחר (`inbox_mismatch`), שולח לא מאושר (`sender_not_approved`), והשומר חסם הוכחה על עדכון `live`.
 - לא הורצה מול המסד החי ולא נבדק עם מייל אמיתי.
 
