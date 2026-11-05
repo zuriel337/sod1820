@@ -179,3 +179,53 @@ html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crow
 .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-crown-dip { inset-block-start: calc(var(--s29-bar-h) - var(--s29-line-w) / 2); }
 .sod29-crown-dip .dip-line { stroke-width: 2px; stroke-linecap: butt; stroke-linejoin: round; }
 .sod29-root[data-crown-draft="2"] .sod29-crown-dip .dip-fill { stroke: none; }
+
+
+/* ── Draft 5 · one solid pod: straight sides that start at the top edge of the page, a fully round bottom ────────────────
+   No translucent shading and no funnel/neck: the pod is opaque deep-dark in every theme, ringed in gold with the same 2px as the
+   bar's line, which stops exactly at the pod's sides. Gold glow only on the dark presets (on light it would look muddy). */
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"] {
+  --s29-bar-h: 56px; --s29-pod-w: 136px; --s29-pod-h: calc(var(--s29-bar-h) + var(--s29-pod-w) / 2);
+  --s29-crown-w: 98px; --s29-crown-top: 12px; --s29-crown-slot: 156px;
+  --s29-draft-reserve: calc(var(--s29-pod-h) - var(--s29-bar-h) + 8px);
+  --s29-line-w: 2px; --s29-gap: calc(var(--s29-pod-w) - 4px);
+  --s29-pod-core: #241552; --s29-pod-base: #0b0819; --s29-pod-ring: var(--s29-brand-gold); --s29-pod-glow: rgb(249 186 63 / .30);
+  --s29-pod-line: var(--s29-pod-ring);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"][data-frame-theme-preset="light"],
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"][data-frame-theme-preset="parchment"] {
+  --s29-pod-ring: #e9b949; --s29-pod-glow: transparent;
+}
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-gap: calc(var(--s29-pod-w) * .42 - 4px); }
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header.closed-orientation::after {
+  block-size: var(--s29-line-w); opacity: 1; transition: --s29-gap .3s cubic-bezier(.2, .8, .2, 1);
+  background: linear-gradient(90deg, var(--s29-pod-line) 0 calc(50% - var(--s29-gap) / 2), transparent calc(50% - var(--s29-gap) / 2) calc(50% + var(--s29-gap) / 2), var(--s29-pod-line) calc(50% + var(--s29-gap) / 2) 100%);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown::before {
+  content: ""; position: absolute; left: 50%; right: auto; inset-block-start: 0; box-sizing: border-box;
+  inline-size: var(--s29-pod-w); block-size: var(--s29-pod-h); transform: translateX(-50%); transform-origin: 50% 0; z-index: 2; pointer-events: none;
+  border: var(--s29-line-w) solid var(--s29-pod-ring); border-block-start: 0;
+  border-radius: 0 0 calc(var(--s29-pod-w) / 2) calc(var(--s29-pod-w) / 2) / 0 0 calc(var(--s29-pod-w) / 2) calc(var(--s29-pod-w) / 2);
+  background: radial-gradient(circle at 50% 66%, var(--s29-pod-core) 0, var(--s29-pod-base) 72%);
+  box-shadow: 0 0 30px 4px var(--s29-pod-glow), 0 12px 24px rgb(0 0 0 / .26);
+  transition: transform .3s cubic-bezier(.2, .8, .2, 1);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown img { z-index: 3; transform-origin: 50% 0; }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown::before { transform: translateX(-50%) scale(.42); }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown img { transform: translateX(-50%) translateY(-5px) scale(.5); }
+@media (max-width: 980px) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-pod-w: 108px; --s29-crown-w: 78px; --s29-crown-top: 10px; --s29-crown-slot: 124px; --s29-draft-reserve: calc(var(--s29-pod-h) - var(--s29-bar-h) + 6px); }
+  html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown::before { transform: translateX(-50%) scale(.5); }
+  html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-gap: calc(var(--s29-pod-w) * .5 - 4px); }
+  html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown img { transform: translateX(-50%) translateY(-4px) scale(.5); }
+}
+@media (max-width: 340px) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-pod-w: 92px; --s29-crown-w: 66px; --s29-crown-top: 9px; --s29-crown-slot: 100px; }
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-leading .sod29-orientation { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown::before,
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header.closed-orientation::after { transition: none; }
+}
+.sod29-root[data-frame-reduced-motion="true"][data-crown-draft="5"] .sod29-header-crown::before,
+.sod29-root[data-frame-reduced-motion="true"][data-crown-draft="5"] .sod29-header.closed-orientation::after { transition: none; }
