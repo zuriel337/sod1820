@@ -265,14 +265,6 @@ function humanSourceLabel(source) {
   return "מקור מחקר";
 }
 
-function groupMessageDateLabel(value) {
-  const time = Date.parse(String(value || ""));
-  if (!Number.isFinite(time)) return null;
-  try {
-    return new Intl.DateTimeFormat("he-IL", { day: "numeric", month: "numeric", year: "numeric", timeZone: "Asia/Jerusalem" }).format(new Date(time));
-  } catch (_) { return null; }
-}
-
 function looksTechnicalResearchTitle(value) {
   const text = String(value || "").trim();
   return /\b(?:DOSSIER|CHAIN|ENGINE|PROCEDURE|FAMILY|SYNTHESIS|UUID|CANONICAL)\b/i.test(text)
@@ -2072,7 +2064,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
             const message = groupMessages[String(source.ref || "")] || null;
             const label = message ? (message.sourceGroupLabel || humanSourceLabel(source)) : humanSourceLabel(source);
             const rawRef = source.ref || source.label || null;
-            const messageMeta = message ? [message.creator, groupMessageDateLabel(message.arrivalAt)].filter(Boolean).join(" · ") : "";
+            const messageMeta = message ? [message.creator, bilingualDateLabel(message.arrivalAt)].filter(Boolean).join(" · ") : "";
             const excerpt = message?.fullText ? (message.fullText.length > 160 ? `${message.fullText.slice(0, 160)}…` : message.fullText) : "";
             return <div className="sod29-row sod29-world-source-row" key={`${source.ref || source.label}-${index}`}>
               <div>
