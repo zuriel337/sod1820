@@ -168,7 +168,7 @@ export default function PublicLibraryContinuity2029Page({ kind = "codes", collec
                   : <FrameState kind="empty" title={query ? "לא נמצאו פרסומים לחיפוש הזה" : page ? "אין פרסומים נוספים בעמוד הזה" : "אין כרגע פרסומים זמינים בספרייה הזאת"}>{query ? "אפשר לנסות שם או מילה אחרת." : "הספרייה מציגה מקורות הזמינים לקריאה ציבורית."}</FrameState>}
                 {page > 0 || data.value?.more ? <nav className="public-library29-pagination" aria-label="דפי הספרייה"><button className="sod29-action" type="button" disabled={page === 0} onClick={() => changePage(page - 1)}>→ הקודם</button><span>עמוד <bdi>{page + 1}</bdi></span><button className="sod29-action" type="button" disabled={!data.value?.more} onClick={() => changePage(page + 1)}>הבא ←</button></nav> : null}
               </>}
-      {kind === "books" && !slug ? <section className="sod29-section" aria-labelledby="public-books29-tanakh-title"><h2 id="public-books29-tanakh-title">ספרי התנ״ך — בהכנה</h2><p>כ״ד ספרי התנ״ך יקבלו כאן מקום לקריאה לפי ספר, פרק ופסוק. הקריאה בהם מתוך הספרייה עדיין אינה זמינה.</p></section>:null}
+      {kind === "books" && !slug && data.status !== "loading" ? <section className="sod29-section" aria-labelledby="public-books29-tanakh-title"><h2 id="public-books29-tanakh-title">ספרי התנ״ך — בהכנה</h2><p>כ״ד ספרי התנ״ך יקבלו כאן מקום לקריאה לפי ספר, פרק ופסוק. הקריאה בהם מתוך הספרייה עדיין אינה זמינה.</p></section>:null}
     </main>
   </Sod2029Shell>;
 }
