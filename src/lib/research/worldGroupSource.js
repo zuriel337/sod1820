@@ -155,6 +155,32 @@ export async function fetchGroupSourceArrivals({ limit = 12, before = null, rpc 
   return (Array.isArray(data) ? data : []).map(groupRowToWorldUpdate).filter(Boolean);
 }
 
+// Index projected group messages by every `channel_updates:<id>` ref they carry (first row wins).
+export function indexGroupMessagesByRef(rows) {
+  const byRef = {};
+  for (const row of Array.isArray(rows) ? rows : []) {
+    for (const ref of (row?.sourceRefs?.length ? row.sourceRefs : [row?.sourceRef])) {
+      if (ref && !byRef[ref]) byRef[ref] = row;
+    }
+  }
+  return byRef;
+}
+
+// Card context for a World source row: present only when the row's ref matches a loaded group message.
+// A row without a match returns null so the caller renders it exactly as before. Never produces an interpretation.
+export function groupSourceCardContext(source, byRef, { formatDate = (iso) => iso || "" } = {}) {
+  const message = byRef?.[String(source?.ref || "")] || null;
+  if (!message) return null;
+  const full = message.fullText || "";
+  return {
+    message,
+    groupLabel: message.sourceGroupLabel || null,
+    stateLabel: message.stateLabel || GROUP_SOURCE_LABEL,
+    meta: [message.creator, formatDate(message.arrivalAt)].filter(Boolean).join(" · "),
+    excerpt: full.length > 160 ? `${full.slice(0, 160)}…` : full,
+  };
+}
+
 export const GROUP_ARRIVALS_CONNECTED = Object.freeze({
   state: "connected",
   message: "מוצגות הודעות מקור מארבעה כותבים שאושרו לעריכה, כפי שנשמרו. הודעה אינה ממצא מאומת, ואין טענה שהגיעו הודעות היום.",

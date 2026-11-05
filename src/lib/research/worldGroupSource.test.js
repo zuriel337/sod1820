@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { groupRowToWorldUpdate, redactGroupText, fetchGroupSourceArrivals, GROUP_SOURCE_LABEL, WORLD_GROUP_SOURCE_READER } from "./worldGroupSource.js";
+import { groupRowToWorldUpdate, redactGroupText, fetchGroupSourceArrivals, GROUP_SOURCE_LABEL, WORLD_GROUP_SOURCE_READER, indexGroupMessagesByRef, groupSourceCardContext } from "./worldGroupSource.js";
 import { buildWorldDiscoveryStream } from "./worldDiscoveryStream.js";
 import { readFileSync } from "node:fs";
 
@@ -131,4 +131,30 @@ test("group timeline is accessible without mandatory topical classification or r
   assert.match(component, /סיווג|שיוך לנושא אינו תנאי/);
   assert.doesNotMatch(component, /\.from\("research_objects"\)|fetchResearchObjects|\.from\("channel_updates"\)/);
   assert.equal((world.match(/<ZviGroupTimeline2029 /g) || []).length, 1);
+});
+
+test("World source card: channel_updates ref shows writer, date and excerpt; no match renders as before", () => {
+  const long = "א".repeat(300);
+  const byRef = indexGroupMessagesByRef([groupRowToWorldUpdate(row({ id: "u9", body: long, group_channel: "torat-haremez" }))]);
+  const formatDate = (iso) => `D:${iso.slice(0, 10)}`;
+  const hit = groupSourceCardContext({ ref: "channel_updates:u9", type: "source" }, byRef, { formatDate });
+  assert.equal(hit.groupLabel, "תורת הרמז");
+  assert.equal(hit.meta, "צבי · D:2026-10-01");
+  assert.equal(hit.excerpt.length, 161); assert.ok(hit.excerpt.endsWith("…"));
+  assert.equal(hit.stateLabel, GROUP_SOURCE_LABEL); // stays "not yet checked": no interpretation is generated
+  assert.equal(hit.message.fullText, long.slice(0, 300));
+  // no matching message (older than the reader window, other ref shape, missing ref) => null => unchanged card
+  assert.equal(groupSourceCardContext({ ref: "channel_updates:u-old" }, byRef), null);
+  assert.equal(groupSourceCardContext({ ref: "verse:1:1" }, byRef), null);
+  assert.equal(groupSourceCardContext({ label: "x" }, byRef), null);
+  assert.equal(groupSourceCardContext({ ref: "channel_updates:u9" }, {}), null);
+  // short message: full text, no ellipsis
+  const short = indexGroupMessagesByRef([groupRowToWorldUpdate(row())]);
+  assert.equal(groupSourceCardContext({ ref: "channel_updates:u1" }, short).excerpt, "שלום עולם 358");
+});
+test("World page wires cards and inspect to the redacted reader only", () => {
+  const world = readFileSync(new URL("../../pages/World2029Page.jsx", import.meta.url), "utf8");
+  assert.match(world, /groupSourceCardContext\(source, groupMessages/);
+  assert.match(world, /indexGroupMessagesByRef\(rows\)/);
+  assert.equal((world.match(/fetchGroupSourceArrivals\(\{ limit: 40 \}\)/g) || []).length, 1);
 });

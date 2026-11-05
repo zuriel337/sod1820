@@ -44,7 +44,7 @@ import {
 } from "../lib/research/worldJourneyProjection.js";
 import { fetchTopicCreatorOptions } from "../lib/research/topicConvergence.js";
 import { fetchWorldDiscoveryStream, watchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
-import { fetchGroupSourceArrivals, GROUP_SOURCE_LABEL } from "../lib/research/worldGroupSource.js";
+import { fetchGroupSourceArrivals, groupSourceCardContext, indexGroupMessagesByRef, GROUP_SOURCE_LABEL } from "../lib/research/worldGroupSource.js";
 import {
   WORLD_RESEARCH_ATTENTION,
   WORLD_RESEARCH_FILTER_DEFAULTS,
@@ -1477,13 +1477,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
     let cancelled = false;
     fetchGroupSourceArrivals({ limit: 40 }).then((rows) => {
       if (cancelled) return;
-      const byRef = {};
-      for (const row of rows) {
-        for (const ref of (row.sourceRefs?.length ? row.sourceRefs : [row.sourceRef])) {
-          if (ref && !byRef[ref]) byRef[ref] = row;
-        }
-      }
-      setGroupMessages(byRef);
+      setGroupMessages(indexGroupMessagesByRef(rows));
     }).catch(() => {});
     return () => { cancelled = true; };
   }, [activeLane, hasGroupSourceRows]);
@@ -2061,15 +2055,16 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
         <div className="sod29-list">
           {sourceRows.slice(0, 12).map((source, index) => {
-            const message = groupMessages[String(source.ref || "")] || null;
-            const label = message ? (message.sourceGroupLabel || humanSourceLabel(source)) : humanSourceLabel(source);
+            const card = groupSourceCardContext(source, groupMessages, { formatDate: bilingualDateLabel });
+            const message = card?.message || null;
+            const label = card?.groupLabel || humanSourceLabel(source);
             const rawRef = source.ref || source.label || null;
-            const messageMeta = message ? [message.creator, bilingualDateLabel(message.arrivalAt)].filter(Boolean).join(" · ") : "";
-            const excerpt = message?.fullText ? (message.fullText.length > 160 ? `${message.fullText.slice(0, 160)}…` : message.fullText) : "";
+            const messageMeta = card?.meta || "";
+            const excerpt = card?.excerpt || "";
             return <div className="sod29-row sod29-world-source-row" key={`${source.ref || source.label}-${index}`}>
               <div>
                 <strong>{label}</strong>
-                <small>{source.type === "verse" ? "פסוק · מקור טקסטואלי" : message ? message.stateLabel || GROUP_SOURCE_LABEL : "מקור מחקר"}</small>
+                <small>{source.type === "verse" ? "פסוק · מקור טקסטואלי" : card ? card.stateLabel : "מקור מחקר"}</small>
                 {messageMeta ? <small>{messageMeta}</small> : null}
                 {excerpt ? <p className="sod29-muted" data-source-excerpt>{excerpt}</p> : null}
                 {adminMode && rawRef && label !== rawRef ? <small>Trace · {rawRef}</small> : null}

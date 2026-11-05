@@ -617,7 +617,7 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
         <span>{entityTypeNounHe(target.type)}</span>
       </section>
 
-      {target.excerpt ? <section className="sod29-inspect-excerpt" data-inspect-excerpt>
+      {target.excerpt ? <section className="sod29-inspect-excerpt" data-inspect-excerpt style={{ display: "grid", gap: 2 }}>
         {target.stateLabel ? <small>{target.stateLabel}</small> : null}
         {target.attribution ? <small>{target.attribution}</small> : null}
         <p style={{ whiteSpace: "pre-wrap", margin: "8px 0 0" }}>{target.excerpt}</p>
