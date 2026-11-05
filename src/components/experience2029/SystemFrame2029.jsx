@@ -23,6 +23,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
+import { adminOpenClosedDestinations } from "./adminOpenDestinations2029.js";
 import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked, personalActionsLocked } from "../../lib/publicLaunch2029.js";
 const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));
 import { makeEntity } from "../../lib/research/entity.js";
@@ -200,6 +201,7 @@ const FOCUSABLE = [
   "textarea:not([disabled])",
   "[tabindex]:not([tabindex='-1'])",
 ].join(",");
+
 
 // בית המדרש is a visible menu destination (ZURIEL 5.11.2026). While the public router keeps it closed it appears with its
 // true "בבנייה" state instead of a link that leads nowhere; for a verified admin or once opened it is a normal link.
@@ -2122,6 +2124,12 @@ function SystemFrame2029Body({
           <button className="sod29-action" type="button" onClick={() => openAction(inspectTarget)}>פעולות</button>
           <button className="sod29-action" type="button" onClick={openTools}>כלים</button>
         </div>
+        {adminOpenClosedDestinations(isAdmin).length ? <section className="sod29-panel-admin-open" aria-label="פתוח למנהל בלבד" data-admin-open-destinations="true">
+          <h3>בבנייה · פתוח למנהל בלבד</h3>
+          <div className="sod29-panel-actions-grid">
+            {adminOpenClosedDestinations(isAdmin).map((item) => <button key={item.id} className="sod29-action" type="button" onClick={() => { setTransient(null); go(item.href); }}>{item.label}</button>)}
+          </div>
+        </section> : null}
       </> : null}
       {shareHref ? <section className="sod29-panel-share" aria-label="שיתוף העמוד" data-share-owner="ShareActions"><h3>שיתוף</h3><ShareActions type={surface === "post" ? "post" : "page"} url={shareHref} title={title || "SOD1820"} sourceSurface={surface} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} style={{ flexWrap: "wrap", overflowX: "visible" }} force /></section> : <FrameState title="עמוד אישי">אין קישור ציבורי לשיתוף מתוך העמוד האישי.</FrameState>}
       {activeToolDock ? <button className="sod29-action" type="button" onClick={() => { setTransient(null); setSystemDockMode(false); }}>חזור לכלי הצופן</button> : null}
