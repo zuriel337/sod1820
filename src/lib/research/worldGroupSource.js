@@ -18,6 +18,7 @@ export const GROUP_SOURCE_CHANNELS = Object.freeze({
   "torat-haremez": "תורת הרמז",
   "ki-la-hamelucha-gematria": "כי לה׳ המלוכה — גימטריות",
   "gilui-yomi": "הגילוי היומי",
+  "blaze-888": "בלייז 888 BLAZE",
 });
 export const GROUP_SOURCE_NEUTRAL_LABEL = "קבוצת מקור";
 

@@ -24,7 +24,7 @@ test("each public group is named on its publication; the neutral label only when
 
 test("Or HaGeula, other channels and anything unlisted never enter the group path", () => {
   for (const channel of ["or-geula", "sfot-vheker", "main", "site-news", "reality-code", "sod-hachashmal"]) assert.equal(groupRowToWorldUpdate(row({ group_channel: channel })), null, channel);
-  assert.deepEqual(Object.keys(GROUP_SOURCE_CHANNELS).sort(), ["gilui-yomi", "ki-la-hamelucha-gematria", "torat-haremez"]);
+  assert.deepEqual(Object.keys(GROUP_SOURCE_CHANNELS).sort(), ["blaze-888", "gilui-yomi", "ki-la-hamelucha-gematria", "torat-haremez"]);
 });
 
 test("verified / unverified source and identified / unidentified author", () => {
@@ -121,7 +121,7 @@ test("proposed SQL: extends the one reader, keeps every privacy filter, adds onl
 
 test("ingest: ki-la joins only the proof path in code; guard and sender-JID proof are unchanged", () => {
   const ts = read("supabase/functions/wa-channel-ingest/index.ts");
-  assert.match(ts, /WORLD_GROUP_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "ki-la-hamelucha-gematria"\]\)/);
+  assert.match(ts, /WORLD_GROUP_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "ki-la-hamelucha-gematria", "blaze-888"\]\)/);
   assert.ok(!/WORLD_GROUP_CHANNELS[^;]*or-geula/.test(ts));
   const at = ts.indexOf('rpc("record_channel_update_group_proof_v1"');
   const guard = ts.slice(ts.lastIndexOf("if (WORLD_GROUP_CHANNELS", at), at);

@@ -86,7 +86,7 @@ function pickHistory<T>(v: any): { ok: boolean; rows: T[] } {
   return { ok: false, rows: [] };
 }
 // Public source groups. ki-la-hamelucha-gematria joins ONLY the proof/flag path (code); its intake scope (admin_only) is a separate gated config change.
-const WORLD_GROUP_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "ki-la-hamelucha-gematria"]);
+const WORLD_GROUP_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "ki-la-hamelucha-gematria", "blaze-888"]);
 function channelStatus(channel: string): "live" | "private" {
   return STORY_LIVE_CHANNELS.has(channel) ? "live" : "private";
 }
