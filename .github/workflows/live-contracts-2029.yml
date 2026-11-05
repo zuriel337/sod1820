@@ -106,7 +106,7 @@ jobs:
           src/lib/research/number2029LiveGlass.test.js
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
-      - name: Top bar (the crown at the centre, dark glass, the rounded arc: one final design, one stylesheet, and the traps it hit stay handled)
+      - name: Top bar (the crown at the centre, dark glass, the rounded arc; one final design, one stylesheet, and the traps it hit stay handled)
         run: node --test test/topbar-crown-2029.test.mjs
       - name: Beit Midrash contracts (World lenses over the governed tree attachment, methods study, learning projection, study UI, source reading, route, method registry and definitions)
         run: >
