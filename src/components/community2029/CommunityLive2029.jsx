@@ -14,7 +14,7 @@ import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_ACCEPT, COMMUNITY_ATTA
 import { applySeo } from "../../lib/seo.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { use2029Palette } from "../../lib/palette.js";
-import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, VERIFIED_ARCHIVE_PROFILES, compareCommunityLikedRows, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityThreadFocus, publishCommunityMessage } from "../../lib/community/communityArchive.js";
+import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, COMMUNITY_SEARCH_MAX_LENGTH, COMMUNITY_SEARCH_MIN_LENGTH, VERIFIED_ARCHIVE_PROFILES, compareCommunityLikedRows, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReply, fetchCommunityReplies, fetchCommunityMessagePath, fetchCommunityReplyCounts, fetchCommunityThread, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityThreadFocus, publishCommunityMessage, searchCommunityMessages } from "../../lib/community/communityArchive.js";
 import { captureCommunityScrollAnchor, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import CommunityMessageContent from "./CommunityMessageContent.jsx";
@@ -280,6 +280,39 @@ const NO_ACCOUNT_PROFILES = {};
 const formatActivityDate = (value) => bilingualDateLabel(value) || "תאריך לא זמין";
 const countLabel = (value) => Number(value).toLocaleString("he-IL");
 
+// One corpus-search hit: the message (or reply) itself plus a way to open the
+// full public thread around it. Replies resolve their path on demand so only a
+// fully public chain can be opened.
+function SearchHit({ row, accountProfiles, onReply, messageActions }) {
+  const [currentParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [state, setState] = useState("idle");
+  const hrefFor = path => {
+    const next = new URLSearchParams(currentParams);
+    for (const key of ["reply", "path", "member", "memberCard", "claim"]) next.delete(key);
+    next.set("thread", path[0]);
+    if (path.length > 1) next.set("path", path.join(","));
+    return communityChatHref(next, "");
+  };
+  const openReply = async () => {
+    setState("loading");
+    try {
+      const path = await fetchCommunityMessagePath(row.id);
+      if (!path) { setState("error"); return; }
+      navigate(hrefFor(path));
+    } catch { setState("error"); }
+  };
+  return <div className="sod29-community-search-hit">
+    <LiveMessage row={row} accountProfiles={accountProfiles} showSource onReply={onReply} formatDate={formatActivityDate} messageActions={messageActions} />
+    <div className="sod29-community-search-hit-open">
+      {row.parentId
+        ? <button type="button" className="sod29-community-secondary" disabled={state === "loading"} onClick={openReply}>{state === "loading" ? "פותח…" : "פתיחת התגובה בשרשור"}</button>
+        : <Link className="sod29-community-secondary" to={hrefFor([row.id])}>פתיחת השיחה</Link>}
+      {state === "error" ? <span role="alert"> לא הצלחנו לפתוח את השרשור הזה.</span> : null}
+    </div>
+  </div>;
+}
+
 // Controlled, embeddable author activity. Same LiveMessage/ReactionBar rows as the community feed;
 // the parent owns reading and state. Totals render only when supplied.
 export function PublicCommunityActivity2029({ rows = [], count = null, loading = false, error = "", onRetry, hasMore = false, onLoadMore, loadingMore = false, fullHref = "", firstAt = null, likesTotal = null, likesSource = null, itemLabel = "הודעות", onReply, onMessagesChanged }) {
@@ -525,14 +558,60 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   // Same title and description the server sends, so the tab and what a crawler renders match. The bare page was indexed and
   // brings search traffic, so it stays indexable; any query string (thread, member, search...) is a variant and stays out.
   useEffect(() => { applySeo({ title: "הצ'אט החי — קוד המציאות בזמן אמת", description: "שיחות, שאלות וגילויים בקהילת SOD1820.", path: canonicalPath, noindex: location.search !== "" }); }, [canonicalPath, location.search]);
+  // Corpus-wide search: from two characters the query goes to the server, which
+  // searches every public message and reply (not only the loaded pages). If the
+  // server function is unavailable the page falls back to filtering what is loaded.
+  const searchText = query.trim();
+  const searchLength = [...searchText].length;
+  const serverSearchWanted = searchLength >= COMMUNITY_SEARCH_MIN_LENGTH && searchLength <= COMMUNITY_SEARCH_MAX_LENGTH;
+  const [search, setSearch] = useState({ query: "", status: "idle", rows: [], count: null, nextOffset: 0, loadingMore: false });
+  const [searchRetry, setSearchRetry] = useState(0);
+  const searchRequestRef = useRef(0);
+  useEffect(() => {
+    const request = ++searchRequestRef.current;
+    if (!serverSearchWanted) { setSearch(current => current.status === "idle" ? current : { query: "", status: "idle", rows: [], count: null, nextOffset: 0, loadingMore: false }); return undefined; }
+    setSearch({ query: searchText, status: "loading", rows: [], count: null, nextOffset: 0, loadingMore: false });
+    const timer = setTimeout(async () => {
+      try {
+        const page = await searchCommunityMessages(searchText);
+        if (request !== searchRequestRef.current) return;
+        setSearch(page ? { query: searchText, status: "ready", rows: page.rows, count: page.count, nextOffset: page.nextOffset, loadingMore: false }
+          : { query: searchText, status: "unavailable", rows: [], count: null, nextOffset: 0, loadingMore: false });
+      } catch {
+        if (request === searchRequestRef.current) setSearch({ query: searchText, status: "error", rows: [], count: null, nextOffset: 0, loadingMore: false });
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchText, serverSearchWanted, searchRetry]);
+  const searchMoreAvailable = search.status === "ready" && search.count != null && search.nextOffset < search.count;
+  const loadMoreSearch = async () => {
+    if (!searchMoreAvailable || search.loadingMore) return;
+    const request = searchRequestRef.current;
+    setSearch(current => ({ ...current, loadingMore: true, moreFailed: false }));
+    try {
+      const page = await searchCommunityMessages(search.query, { offset: search.nextOffset });
+      if (request !== searchRequestRef.current) return;
+      if (!page) { setSearch(current => ({ ...current, loadingMore: false, moreFailed: true })); return; }
+      setSearch(current => ({ ...current, loadingMore: false,
+        rows: [...current.rows, ...page.rows.filter(item => !current.rows.some(existing => existing.id === item.id))],
+        nextOffset: page.nextOffset,
+        // An empty page means the end, whatever the first-page total said.
+        count: page.nextOffset === current.nextOffset ? current.nextOffset : current.count }));
+    } catch {
+      if (request === searchRequestRef.current) setSearch(current => ({ ...current, loadingMore: false, moreFailed: true }));
+    }
+  };
+  const serverSearchActive = serverSearchWanted && search.status !== "unavailable";
+  // Hits get the same owner/admin edit and delete permissions as feed messages.
+  useEffect(() => { if (search.rows.length) messageActions.register(search.rows); }, [search.rows, messageActions.register]);
   useEffect(() => { let active = true; fetchLinkedAccountProfiles().then((accounts) => { if (active) setAccountProfiles(accounts); }).catch(() => {}); return () => { active = false; }; }, []);
   useEffect(() => {
-    const ids = [...new Set([...rows, ...profileRows, focusedThread].filter(Boolean).flatMap((row) => [row.authorUserId, row.linkedUserId]).filter(Boolean))];
+    const ids = [...new Set([...rows, ...profileRows, ...search.rows, focusedThread].filter(Boolean).flatMap((row) => [row.authorUserId, row.linkedUserId]).filter(Boolean))];
     if (!ids.length) return undefined;
     let active = true;
     fetchLinkedAccountProfiles(ids).then((accounts) => { if (active) setAccountProfiles((current) => ({ ...current, ...accounts })); }).catch(() => {});
     return () => { active = false; };
-  }, [rows, profileRows, focusedThread]);
+  }, [rows, profileRows, search.rows, focusedThread]);
   const onReplyCountKnown = useCallback((id, count) => setReplyCounts(current => current[id] === count ? current : { ...current, [id]: count }), []);
   const onRepliesLoaded = useCallback((items) => {
     messageActions.register(items);
@@ -587,6 +666,13 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [cardId]);
 
+  const searchScopeNote = serverSearchActive
+    ? search.status === "loading" ? "מחפש בכל השיחות והתגובות…"
+      : search.status === "error" ? "החיפוש אינו זמין כרגע. אפשר לנסות שוב בעוד רגע."
+        : search.count === 1 ? "נמצאה תוצאה אחת בכל השיחות והתגובות." : search.count != null ? `נמצאו ${countLabel(search.count)} תוצאות בכל השיחות והתגובות, מהחדש לישן.` : "תוצאות מכל השיחות והתגובות, מהחדש לישן."
+    : searchText && searchLength < COMMUNITY_SEARCH_MIN_LENGTH ? "הקלידו לפחות שני תווים כדי לחפש בכל השיחות. בינתיים מוצגות התאמות מתוך ההודעות שכבר נטענו."
+      : searchText ? "החיפוש בכל הארכיון אינו זמין כרגע; מוצגות התאמות מתוך ההודעות שכבר נטענו."
+        : sort === "liked" ? "לפי מספר הלייקים, מתוך ההודעות שכבר נטענו בלבד." : "אפשר לחפש בכל השיחות והתגובות בארכיון.";
   const filtered = useMemo(() => {
     const needle = query.trim().toLocaleLowerCase("he");
     const visible = rows.filter((row) => row.isDeleted || row.body || replyCounts[row.id] > 0);
@@ -810,7 +896,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {focusedThreadState === "not_found" ? <FrameState kind="empty" title="השיחה אינה זמינה"><p>ייתכן שהשיחה אינה ציבורית או שהוסרה.</p></FrameState> : null}
           {focusedThread && threadFocus && focusedThread.id === threadFocus.threadId ? <LiveThread key={`${focusedThread.id}:${threadFocus.path.join(",")}`} row={focusedThread} accountProfiles={accountProfiles} onReply={actionsLocked ? undefined : startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} focusPath={threadFocus.path} messageActions={messageActions} newReplies={reading.updates[focusedThread.id]} onReplyCountKnown={onReplyCountKnown} /> : null}
         </section> : <>
-          <div className="sod29-community-stream-tools"><label className="sod29-community-search"><span className="sod29-community-sr-only">חיפוש בשיחות שבדף</span><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש בשיחות שבדף" /></label>
+          <div className="sod29-community-stream-tools"><label className="sod29-community-search"><span className="sod29-community-sr-only">חיפוש בכל השיחות והתגובות</span><input type="search" value={query} maxLength={COMMUNITY_SEARCH_MAX_LENGTH} onChange={(event) => setQuery(event.target.value)} placeholder="חיפוש בכל השיחות והתגובות" /></label>
           <section className="sod29-community-feed-controls" aria-label="סידור וסינון השיחות" aria-describedby="community-search-scope">
             <div className="sod29-community-feed-controls-top">
               <label className="sod29-community-sort sod29-community-stream-sort"><span className="sod29-community-sr-only">סדר לפי</span><select value={sort} aria-describedby="community-search-scope" onChange={event => {
@@ -828,12 +914,21 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
             <div className="sod29-community-feed-filter-chips" role="group" aria-label="סינון שיחות" tabIndex={0}>
               <button type="button" aria-pressed={!query.trim()} onClick={() => setQuery("")}>הכול</button>
             </div>
-            <p id="community-search-scope" className={`sod29-community-feed-controls-note${!query.trim() && sort !== "liked" ? " sod29-community-sr-only" : ""}`}>{sort === "liked" ? "לפי מספר הלייקים, מתוך ההודעות שכבר נטענו בלבד. החיפוש חל על אותן הודעות." : "החיפוש מציג התאמות מתוך ההודעות שכבר נטענו."}</p>
+            <p id="community-search-scope" className={`sod29-community-feed-controls-note${!searchText && sort !== "liked" ? " sod29-community-sr-only" : ""}`} role={serverSearchActive ? "status" : undefined}>{searchScopeNote}</p>
           </section></div>
           {error ? <FrameState kind="error" title="טעינת השיחות נכשלה"><p>{error}</p><button type="button" className="sod29-community-secondary" onClick={() => loadPage(0, true)}>ניסיון נוסף</button></FrameState> : null}
-          {!error && !loading && !filtered.length ? <FrameState kind="empty" title={query.trim() ? "לא נמצאו התאמות לחיפוש" : "אין הודעות להצגה כרגע"}>{query.trim() ? <><p>החיפוש חל רק על ההודעות שכבר נטענו.</p><button type="button" className="sod29-community-secondary" onClick={() => setQuery("")}>ניקוי החיפוש</button></> : <p>אפשר לנסות לרענן את השיחות.</p>}</FrameState> : null}
+          {serverSearchActive ? <>
+            {search.status === "error" ? <FrameState kind="error" title="החיפוש נכשל"><p>לא הצלחנו לחפש כרגע.</p><button type="button" className="sod29-community-secondary" onClick={() => setSearchRetry(count => count + 1)}>ניסיון נוסף</button></FrameState> : null}
+            {search.status === "loading" ? <p className="sod29-community-end" role="status">מחפש…</p> : null}
+            {search.status === "ready" && !search.rows.length ? <FrameState kind="empty" title="לא נמצאו התאמות לחיפוש"><p>חיפשנו בכל השיחות והתגובות בארכיון.</p><button type="button" className="sod29-community-secondary" onClick={() => setQuery("")}>ניקוי החיפוש</button></FrameState> : null}
+            <div className="sod29-community-feed sod29-community-search-results">{search.rows.map(row => <SearchHit key={row.id} row={row} accountProfiles={accountProfiles} onReply={actionsLocked ? undefined : startReply} messageActions={messageActions} />)}</div>
+            {searchMoreAvailable ? <button className="sod29-community-load" type="button" disabled={search.loadingMore} onClick={loadMoreSearch}>{search.loadingMore ? "טוען…" : "עוד תוצאות"} <span aria-hidden="true">↓</span></button> : null}
+            {search.moreFailed ? <p role="alert">לא הצלחנו לטעון תוצאות נוספות. אפשר לנסות שוב.</p> : null}
+          </> : <>
+          {!error && !loading && !filtered.length ? <FrameState kind="empty" title={query.trim() ? "לא נמצאו התאמות לחיפוש" : "אין הודעות להצגה כרגע"}>{query.trim() ? <><p>החיפוש חל על ההודעות שנטענו בלבד, כי חיפוש בכל הארכיון אינו זמין כרגע.</p><button type="button" className="sod29-community-secondary" onClick={() => setQuery("")}>ניקוי החיפוש</button></> : <p>אפשר לנסות לרענן את השיחות.</p>}</FrameState> : null}
           <div className={`sod29-community-feed${loading && !filtered.length ? " is-initial-loading" : ""}`}>{filtered.map((row) => <LiveThread key={row.id} row={row} accountProfiles={accountProfiles} onReply={actionsLocked ? undefined : startReply} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} messageActions={messageActions} newReplies={reading.updates[row.id]} onReplyCountKnown={onReplyCountKnown} />)}</div>
           {nextOffset < total ? <button className="sod29-community-load" type="button" disabled={loading} onClick={() => loadPage(nextOffset, false)}>{loading ? "טוען…" : "עוד הודעות"} <span aria-hidden="true">↓</span></button> : <p className="sod29-community-end">הגעתם לסוף השיחות.</p>}
+          </>}
         </>}
       </section></div>}
       {!memberId && !claimId && trailingContent && !hasThreadRequest ? <footer className="sod29-community-public-footer" aria-label="השתתפות בקהילה">

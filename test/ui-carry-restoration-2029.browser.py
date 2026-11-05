@@ -80,6 +80,11 @@ def wire(page, delayed_feed=False, paginated=False):
             offset = args.get("p_offset",0)
             data = data[offset:offset + (2 if paginated else args.get("p_limit",40))]
             return handler.fulfill(content_type="application/json", headers={"access-control-allow-origin": "*"}, body=json.dumps(data))
+        if req.method == "POST" and url.path.startswith("/rest/v1/rpc/") and name == "community_search":
+            q = (req.post_data_json or {}).get("p_query", "")
+            data = [dict(row) for row in ROWS + ([OLDER] if paginated else []) if q in (row.get("body") or "")]
+            for row in data: row["total_count"] = len(data)
+            return handler.fulfill(content_type="application/json", headers={"access-control-allow-origin": "*"}, body=json.dumps(data))
         if req.method == "POST" and url.path.startswith("/rest/v1/rpc/") and name in READ_RPCS:
             return handler.fulfill(content_type="application/json", headers={"access-control-allow-origin": "*"}, body="[]")
         if req.method == "POST" and url.path.startswith("/rest/v1/rpc/") and name in BLOCKED_TELEMETRY:
@@ -277,7 +282,7 @@ def community_case(page, width, suffix="", theme="dark"):
     expect(controls.get_by_role("button", name="חיפוש בכל הארכיון")).to_have_count(0)
     for label in ("ללא מענה", "עם קבצים", "ההודעות שלי", "מהקהילה החדשה", "מהצ׳אט הוותיק"):
         expect(controls.get_by_role("button", name=label, exact=True)).to_have_count(0)
-    expect(controls).to_contain_text("החיפוש מציג התאמות מתוך ההודעות שכבר נטענו.")
+    expect(controls).to_contain_text("אפשר לחפש בכל השיחות והתגובות בארכיון.")
     select = controls.locator("select")
     for value in ("active", "discussed"):
         expect(select.locator(f'option[value="{value}"]')).to_have_count(0)
@@ -307,7 +312,7 @@ def community_case(page, width, suffix="", theme="dark"):
     page.reload()
     expect(page.locator(".sod29-community-stream-sort select")).to_have_value("liked")
     assert report["feed_sorts"][-1] == "oldest", "reload must retain the chosen source window"
-    search = feed.get_by_placeholder("חיפוש בשיחות שבדף")
+    search = feed.get_by_placeholder("חיפוש בכל השיחות והתגובות")
     search.fill("זית")
     expect(feed.get_by_text("הודעת זית", exact=True)).to_be_visible()
     expect(feed.get_by_text("הודעת דקל", exact=True)).to_have_count(0)

@@ -55,6 +55,9 @@ def install(context):
    if body.get('p_sort')=='oldest':roots=list(reversed(roots))
    rows=roots[body.get('p_offset',0):body.get('p_offset',0)+body.get('p_limit',50)]
    reply([{**r,'total_count':len(roots)} for r in rows]);return
+  if name=='community_search':
+   found=[r for r in state['rows'] if body['p_query'] in (r.get('body') or '')]
+   reply([{**r,'total_count':len(found)} for r in found][body.get('p_offset',0):body.get('p_offset',0)+body.get('p_limit',20)]);return
   if name=='community_message_actions_v1':reply([]);return
   if name=='community_reply_counts':reply({});return
   if name in ('community_replies_page','world_group_source_arrivals_v2','fn_list_family'):reply([]);return
@@ -124,7 +127,7 @@ with sync_playwright() as p:
     context=browser.new_context(viewport={'width':width,'height':1000});context.add_init_script('localStorage.setItem('+json.dumps(KEY)+','+json.dumps(json.dumps(session(ADMIN)))+');')
     state=install(context);page=context.new_page();page.set_default_timeout(20000);page.on('pageerror',lambda e:state['errors'].append(str(e)))
     page.goto(BASE+'/community/chat'+suffix,wait_until='domcontentloaded');page.locator('#message-'+OLD).wait_for()
-    search=page.get_by_placeholder('חיפוש בשיחות שבדף');previous='https://youtu.be/DAT6Soq3jf8?si=old-share';published='https://youtu.be/DAT6Soq3jf8?si=new-share'
+    search=page.get_by_placeholder('חיפוש בכל השיחות והתגובות');previous='https://youtu.be/DAT6Soq3jf8?si=old-share';published='https://youtu.be/DAT6Soq3jf8?si=new-share'
     search.fill(previous);expect(page.get_by_text('לא נמצאו התאמות לחיפוש',exact=True)).to_be_visible()
     page.get_by_role('button',name='ניקוי החיפוש',exact=True).click();expect(search).to_have_value('');expect(page.locator('#message-'+OLD)).to_be_visible();search.fill(previous)
     page.locator('textarea').fill(published);state['publish_fail']=True;page.get_by_role('button',name='פרסום',exact=True).click()
@@ -134,13 +137,13 @@ with sync_playwright() as p:
     expect(search).to_have_value('');expect(page.locator('select')).to_have_value('newest');expect(page.locator('#message-'+NEW)).to_be_visible()
     expect(page.get_by_text('לא נמצאו התאמות לחיפוש',exact=True)).to_have_count(0)
     assert 'sort=' not in page.url and 'sourceSort=' not in page.url;assert state['feed_sorts'][-1]=='newest'
-    page.reload();expect(page.locator('#message-'+NEW)).to_be_visible();expect(page.get_by_placeholder('חיפוש בשיחות שבדף')).to_have_value('')
+    page.reload();expect(page.locator('#message-'+NEW)).to_be_visible();expect(page.get_by_placeholder('חיפוש בכל השיחות והתגובות')).to_have_value('')
     assert not state['errors'] and not state['unexpected'],state
     cases.append({'width':width,'successful_publish_visible_after':sort,'stale_search_cleared':True,'failed_publish_retains_context':True,'reload_visible':True});context.close()
   for width in [390,1440]:
    context=browser.new_context(viewport={'width':width,'height':1000});context.add_init_script('localStorage.setItem('+json.dumps(KEY)+','+json.dumps(json.dumps(session(ADMIN)))+');')
    state=install(context);page=context.new_page();page.goto(BASE+'/community/chat?sort=oldest',wait_until='domcontentloaded');row=page.locator('#message-'+OLD);row.wait_for()
-   search=page.get_by_placeholder('חיפוש בשיחות שבדף');search.fill('הודעת בדיקה');row.get_by_role('button',name='השב',exact=True).click()
+   search=page.get_by_placeholder('חיפוש בכל השיחות והתגובות');search.fill('הודעת בדיקה');row.get_by_role('button',name='השב',exact=True).click()
    page.locator('textarea').fill('תשובה בתוך השיחה הקיימת');page.get_by_role('button',name='פרסום',exact=True).click();expect(page.get_by_text('ההודעה פורסמה.',exact=True)).to_be_visible()
    expect(search).to_have_value('הודעת בדיקה');expect(page.locator('select')).to_have_value('oldest');assert state['posts'][0]['p_parent_id']==OLD
    expect(row).to_be_visible();assert state['feed_sorts'][-1]=='oldest';assert not state['unexpected'],state['unexpected']

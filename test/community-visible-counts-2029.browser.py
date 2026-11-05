@@ -29,6 +29,9 @@ def install(context,theme='dark',mode='ready'):
    rows=[{'id':f'11111111-1111-4111-8111-{n:012d}','parent_id':None,'body':'ייחודית' if n==1 else f'הודעת בדיקה {n}','origin':'community_2029','author_name':'אדם בדיקה','created_at':'2026-10-31T00:00:00Z','reactions':{},**({} if state['mode']=='unknown' else {'total_count':state['total']})} for n in range(1,43)]
    if args.get('p_sort')=='oldest':rows.reverse()
    offset=args.get('p_offset',0);reply(rows[offset:offset+args.get('p_limit',40)]);return
+  if name=='community_search':
+   q=req.post_data_json['p_query'];found=[{'id':'11111111-1111-4111-8111-000000000001','parent_id':None,'body':'ייחודית','origin':'community_2029','author_name':'אדם בדיקה','created_at':'2026-10-31T00:00:00Z','reactions':{},'total_count':1}] if q=='ייחודית' else []
+   state.setdefault('searches',[]).append(q);reply(found);return
   if name in ['community_reply_counts','world_group_source_arrivals_v2','rd_is_admin','fn_list_family','writer_public_contributions_page_v1']:reply([]);return
   if name in ['link_identity','track_visit','ingest_event']:h.abort();return
   if req.method in ['GET','HEAD']:reply([],headers={'content-range':'*/0'});return
@@ -52,9 +55,9 @@ with sync_playwright() as p:
   for width in [390,1440]:
    context=browser.new_context(viewport={'width':width,'height':950});state=install(context);page=context.new_page();page.goto(BASE+'/community/chat');summaries=page.locator('.sod29-community-conversation-count');expect(summaries.first.locator('button')).to_have_text('(134.9K)')
    page.get_by_role('button',name='עוד הודעות',exact=False).click();expect(page.locator('.sod29-community-feed>.sod29-community-thread-group')).to_have_count(42)
-   page.get_by_role('searchbox',name='חיפוש בשיחות שבדף').fill('ייחודית');expect(page.locator('.sod29-community-feed>.sod29-community-thread-group')).to_have_count(1)
+   page.get_by_role('searchbox',name='חיפוש בכל השיחות והתגובות').fill('ייחודית');expect(page.locator('.sod29-community-search-hit')).to_have_count(1)
    expect(summaries.first.locator('button')).to_have_text('(134.9K)')
-   expect(page.locator('#community-search-scope')).to_contain_text('מתוך ההודעות שכבר נטענו')
+   expect(page.locator('#community-search-scope')).to_contain_text('נמצאה תוצאה אחת בכל השיחות והתגובות');assert 'ייחודית' in state['searches']
    page.get_by_role('searchbox').fill('אין כזו הודעה');expect(page.get_by_text('לא נמצאו התאמות לחיפוש',exact=True)).to_be_visible()
    page.get_by_role('button',name='ניקוי החיפוש',exact=True).click();page.locator('.sod29-community-stream-sort select').select_option('liked');expect(page.locator('#community-search-scope')).to_contain_text('מתוך ההודעות שכבר נטענו בלבד')
    page.reload();expect(page.locator('.sod29-community-stream-sort select')).to_have_value('liked');expect(summaries.first.locator('button')).to_have_text('(134.9K)');assert not state['writes'];cases.append({'width':width,'pagination_search_liked_reload':True});context.close()

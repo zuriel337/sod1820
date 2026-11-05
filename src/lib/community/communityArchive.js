@@ -187,6 +187,37 @@ export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_
   return { rows: (data || []).map(normalizeCommunityRow), count: count ?? null, nextOffset: safeOffset + (data || []).length };
 }
 
+// Corpus-wide text search over every public message and reply. The server
+// (`community_search`) applies the same visibility chain as the feed, so a hit
+// is never returned for hidden, deleted or unapproved content. Results are
+// newest-first; `count` is the total number of matches and is only known for
+// the first page. Returns null when the server function is not deployed so the
+// caller can fall back to filtering the already-loaded messages.
+export const COMMUNITY_SEARCH_MIN_LENGTH = 2;
+export const COMMUNITY_SEARCH_MAX_LENGTH = 80;
+export const COMMUNITY_SEARCH_PAGE_SIZE = 20;
+export async function searchCommunityMessages(query, { offset = 0, limit = COMMUNITY_SEARCH_PAGE_SIZE, client = communityReadClient() } = {}) {
+  const text = String(query ?? "").trim();
+  const safeOffset = Math.max(0, Math.trunc(offset) || 0);
+  const safeLimit = Math.max(1, Math.min(50, Math.trunc(limit) || COMMUNITY_SEARCH_PAGE_SIZE));
+  if ([...text].length < COMMUNITY_SEARCH_MIN_LENGTH || [...text].length > COMMUNITY_SEARCH_MAX_LENGTH) return { rows: [], count: 0, nextOffset: safeOffset };
+  const projected = await readCommunityRpc("community_search", { p_query: text, p_offset: safeOffset, p_limit: safeLimit }, client);
+  if (!projected) return null;
+  const rows = projected.map(normalizeCommunityRow).filter(row => !row.isDeleted && row.body);
+  return { rows, count: safeOffset === 0 ? (projected.length ? knownCount(projected[0].total_count) : 0) : null, nextOffset: safeOffset + projected.length };
+}
+
+// Ids from the thread root down to `messageId`, using the same public context
+// reader as the "Replies to me" links. Returns null unless the whole chain is
+// public, so a search hit can only open a thread the visitor may already read.
+export async function fetchCommunityMessagePath(messageId, { client = communityReadClient() } = {}) {
+  if (!UUID_PATTERN.test(messageId || "")) return null;
+  const chain = await readCommunityRpc("community_message_context", { p_id: messageId }, client);
+  if (!chain?.length || chain[0].parent_id != null || chain[chain.length - 1].id !== messageId) return null;
+  const path = chain.map(row => row.id);
+  return path.every((id, index) => index === 0 || chain[index].parent_id === path[index - 1]) ? path : null;
+}
+
 // Exact public root reader for links from the private "Replies to me" inbox.
 // It does not search by text/name and never widens visibility: only an approved
 // root from one of the two public community origins can be returned.
