@@ -13,7 +13,10 @@ import React, {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
-import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
+import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
+
+// DRAFT SWITCH (preview branches only): "" = hanging crown (option A), "1" flat tall bar, "2" arc under the letters, "3" bridge under the letters.
+const CROWN_DRAFT = "5";
 import Footer2029 from "./Footer2029.jsx";
 import AccountLinkOffer2029 from "./AccountLinkOffer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
@@ -88,6 +91,8 @@ import "./myWorkspace2029.css";
 import "./discoveryGate2029.css";
 import "./systemToolDock2029.css";
 import "./systemFrame2029-unified-bar.css";
+import "./systemFrame2029-topbar-crown.css";
+import "./systemFrame2029-topbar-crown-drafts.css";
 import "./googleEntry2029.css";
 
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
@@ -1507,6 +1512,33 @@ function SystemFrame2029Body({
   const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
   const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
+
+  // DRAFT 2b: once the page is scrolled the crown and its pod shrink (one passive listener flips one attribute; the sizes animate in CSS).
+  // ?crownLight=solid|fade|frost|ivory lets a reviewer compare the light-theme backdrop on the preview only.
+  useEffect(() => {
+    if (!CROWN_DRAFT) return undefined;
+    const html = document.documentElement;
+    const light = new URLSearchParams(window.location.search).get("crownLight");
+    if (light && /^(solid|fade|frost|ivory)$/.test(light)) html.setAttribute("data-crown-light", light);
+    let frame = 0;
+    let scrolled = false;
+    const update = () => {
+      frame = 0;
+      const next = scrolled ? (window.scrollY || 0) > 10 : (window.scrollY || 0) > 48;
+      if (next === scrolled) return;
+      scrolled = next;
+      html.setAttribute("data-crown-scrolled", String(next));
+    };
+    const onScroll = () => { if (!frame) frame = window.requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+      html.removeAttribute("data-crown-scrolled");
+      html.removeAttribute("data-crown-light");
+    };
+  }, []);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });
@@ -2182,6 +2214,7 @@ function SystemFrame2029Body({
         data-frame-reduced-motion={String(experience.motion.reduced)}
         data-frame-theme-mode={palette.mode}
         data-frame-theme-preset={palette.preset || palette.mode}
+        data-crown-draft={CROWN_DRAFT || undefined}
       >
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
@@ -2221,7 +2254,27 @@ function SystemFrame2029Body({
                 <span>SOD1820</span><i>/</i><b>{title || BRAND_LOCKUP_2029.alt}</b>
                 {pageContext?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{contextDisplayTitle(pageContext) || "ההקשר הנוכחי"}</span></span> : null}
               </div>
+              <i className="sod29-header-rail" aria-hidden="true" />
             </div>
+            <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-header-crown" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
+              <svg className="sod29-crown-dip" viewBox="0 0 320 64" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                <path className="dip-fill is-curve" d="M0 0H320C276 0 250 62 160 62S44 0 0 0Z" />
+                <path className="dip-line is-curve" d="M0 0C44 0 70 62 160 62S276 0 320 0" />
+                <path className="dip-fill is-angular" d="M0 0H44L80 62H240L276 0H320Z" />
+                <path className="dip-line is-angular" d="M44 0L80 62H240L276 0" />
+              </svg>
+              <img
+                src={BRAND_LOCKUP_NAV_2029.src}
+                width={BRAND_LOCKUP_NAV_2029.width}
+                height={BRAND_LOCKUP_NAV_2029.height}
+                alt=""
+                decoding="async"
+                draggable="false"
+                data-brand-asset-state={BRAND_LOCKUP_NAV_2029.state}
+              />
+            </Link>
+            <div className="sod29-header-end">
+            <i className="sod29-header-rail" aria-hidden="true" />
             <button className="sod29-header-search" type="button" onClick={openSiteSearch} aria-label="חיפוש באתר" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.SEARCH}>
               <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
               <span className="sod29-search-pill-icon" aria-hidden="true">⌕</span>
@@ -2233,6 +2286,7 @@ function SystemFrame2029Body({
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="issue-label"> דווח על בעיה</span></button>
               <ThemePresetControl2029 compact header />
               <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
+            </div>
             </div>
           </header>
           <GlobalLivingRibbon2029 />
