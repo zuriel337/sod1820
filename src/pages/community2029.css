@@ -455,3 +455,10 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community-avatar-camera{position:absolute;inset-inline-end:-2px;inset-block-end:-2px;display:grid;place-items:center;width:18px;height:18px;border:1px solid var(--s29-line-strong);border-radius:50%;background:var(--s29-panel);color:var(--s29-accent-text);font-size:13px;pointer-events:none}
 .sod29-community--full .sod29-community-replies .sod29-community-thread-group>.sod29-community-replies-toggle{margin-block-end:8px}
 @media(prefers-reduced-transparency:reduce){.sod29-community--full .sod29-community-feed{background:var(--s29-panel)}.sod29-community-compose-input{background:var(--s29-panel)}}
+
+/* Open Graph link preview (shown only when the preview service answers). */
+.sod29-community-link-card.has-og{grid-template-columns:minmax(0,1fr);gap:0;padding:0;overflow:hidden;color:var(--s29-ink)}
+.sod29-community-link-og-image{display:block;width:100%;max-height:220px;object-fit:cover;background:var(--s29-panel)}
+.sod29-community-link-og-copy{display:grid;gap:4px;padding:12px 14px}
+.sod29-community-link-og-copy strong{font-size:16px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sod29-community-link-og-copy span{font-size:14px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
