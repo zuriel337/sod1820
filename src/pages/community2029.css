@@ -491,3 +491,10 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community-link-og-copy{display:grid;gap:4px;padding:12px 14px}
 .sod29-community-link-og-copy strong{font-size:16px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .sod29-community-link-og-copy span{font-size:14px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Proposal: typing status sits under the box with its own space; signup is a quiet link, publish-as-guest is the main button. */
+.sod29-community-typing{margin:6px 4px 14px;min-height:1.4em;font-size:.85em;opacity:.8}
+.sod29-community-typing[data-typing="true"]::before{content:"";display:inline-block;width:7px;height:7px;margin-inline-end:6px;border-radius:50%;background:var(--s29-accent-text);vertical-align:middle}
+.sod29-community-join-link{background:none;border:0;padding:8px 4px;min-height:40px;color:var(--s29-accent-text);font-family:var(--s29-font-ui);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.sod29-community-join-link:disabled{opacity:.5;cursor:default}
+@media(max-width:600px){.sod29-community-composer-actions[data-guest="true"]>.sod29-community-join-link{flex:1 1 100%;text-align:center}}

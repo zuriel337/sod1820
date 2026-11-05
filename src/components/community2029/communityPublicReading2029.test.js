@@ -297,9 +297,11 @@ test("a guest sees one-step signup and publish-as-guest, a member sees only publ
     });
     const tree = elements(h.render(h.CommunityLive2029, {}));
     const primary = tree.find(node => node.props?.className === "sod29-community-primary");
-    assert.equal(primary.props["data-guest-join"], guest ? "true" : undefined);
+    // A guest has ONE main button (publish as guest) and a quiet signup link; a member has just the main button.
+    assert.equal(primary.props["data-guest-publish"], guest ? "true" : undefined);
     assert.equal(Boolean(primary.props.disabled), false);
-    assert.equal(tree.some(node => node.props?.["data-guest-publish"] === "true"), guest);
+    assert.equal(tree.some(node => node.props?.className === "sod29-community-join-link" && node.props["data-guest-join"] === "true"), guest);
+    assert.equal(tree.filter(node => String(node.props?.className || "").includes("sod29-community-primary")).length, 1);
     assert.equal(tree.some(node => node.props?.name === "website"), guest);
     assert.ok(tree.some(node => node.props?.className === "sod29-community-typing"));
     const authLinks = tree.filter(node => String(node.props?.className || "").startsWith("sod29-community-auth-btn"));
