@@ -1519,7 +1519,9 @@ function SystemFrame2029Body({
   useEffect(() => {
     if (!CROWN_DRAFT) return undefined;
     const html = document.documentElement;
-    const progressOn = new URLSearchParams(window.location.search).get("crownLine") !== "calm";
+    const query = new URLSearchParams(window.location.search);
+    const progressOn = query.get("crownLine") !== "calm";
+    if (query.get("crownShape") === "straight") html.setAttribute("data-crown-shape", "straight");
     let frame = 0;
     let scrolled = false;
     let reading = null;
@@ -1562,7 +1564,7 @@ function SystemFrame2029Body({
       document.removeEventListener("scroll", onScroll, { capture: true });
       window.removeEventListener("resize", onScroll);
       if (frame) window.cancelAnimationFrame(frame);
-      ["data-crown-scrolled", "data-crown-line", "data-crown-read-mid"].forEach((name) => html.removeAttribute(name));
+      ["data-crown-scrolled", "data-crown-line", "data-crown-read-mid", "data-crown-shape"].forEach((name) => html.removeAttribute(name));
       html.style.removeProperty("--s29-read");
     };
   }, [location.pathname]);

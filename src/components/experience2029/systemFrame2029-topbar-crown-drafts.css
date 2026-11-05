@@ -362,3 +362,13 @@ html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crow
 .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown img {
   filter: drop-shadow(0 0 9px rgb(0 0 0 / .6)) drop-shadow(0 3px 6px rgb(0 0 0 / .45));
 }
+
+
+/* Arc · "straight lines" option (?crownShape=straight): the same glass shape with straight, angled sides instead of the curve. */
+html[data-crown-shape="straight"] .sod29-root[data-crown-draft="2"] .sod29-crown-dip .is-curve { display: none; }
+html[data-crown-shape="straight"] .sod29-root[data-crown-draft="2"] .sod29-crown-dip .is-angular.dip-line { display: inline; stroke-linejoin: miter; }
+html[data-crown-shape="straight"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] { --s29-gap: calc(var(--s29-dip-w) * .725 - 6px); }
+html[data-crown-shape="straight"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown::after {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20320%2064%22%20preserveAspectRatio=%22none%22%3E%3Cpath%20d=%22M0%200H44L80%2062H240L276%200H320Z%22/%3E%3C/svg%3E") center / 100% 100% no-repeat; mask: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20320%2064%22%20preserveAspectRatio=%22none%22%3E%3Cpath%20d=%22M0%200H44L80%2062H240L276%200H320Z%22/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+html[data-crown-shape="straight"][data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] { --s29-gap: 0px; }
