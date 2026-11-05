@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fetchGuestUnreviewed, guestBodyHasLink, guestPublishErrorMessage, publishGuestCommunityMessage, reviewGuestMessage } from "./communityGuestApi.js";
+import { GUEST_NAME_STORAGE_KEY, cleanGuestName, fetchGuestUnreviewed, guestBodyHasLink, guestNameProblem, guestPublishErrorMessage, publishGuestCommunityMessage, readGuestName, reviewGuestMessage, saveGuestName } from "./communityGuestApi.js";
 import { cleanTypingName, createTypingTracker, shouldSendTyping, typingLabel, TYPING_TTL_MS } from "./communityTyping.js";
 
 test("guest links and attachments are detected like the server does", () => {
@@ -51,4 +51,33 @@ test("typing is throttled and labelled by name, anonymous or both", () => {
   assert.equal(typingLabel({ names: ["דוד"], anonymous: 1 }), "דוד, אנונימי מקלידים…");
   assert.equal(typingLabel({ names: ["דוד", "רות", "יעל"], anonymous: 2 }), "דוד, רות ועוד 3 מקלידים…");
   assert.equal(typingLabel({ names: ["דוד"], anonymous: 3 }), "דוד, 3 אנונימיים מקלידים…");
+});
+
+test("a guest name is sent only when typed, cleaned, under the exact named argument", async () => {
+  const calls = [];
+  const client = { rpc: async (name, args) => { calls.push([name, args]); return { data: "id-2", error: null }; } };
+  await publishGuestCommunityMessage({ body: "היי", name: "  דוד\u202e   כהן " }, client);
+  await publishGuestCommunityMessage({ body: "היי", name: "   " }, client);
+  await publishGuestCommunityMessage({ body: "היי" }, client);
+  assert.deepEqual(calls[0][1], { p_body: "היי", p_parent_id: null, p_website: null, p_name: "דוד כהן" });
+  assert.deepEqual(Object.keys(calls[1][1]), ["p_body", "p_parent_id", "p_website"], "no name means the previous request shape");
+  assert.deepEqual(Object.keys(calls[2][1]), ["p_body", "p_parent_id", "p_website"]);
+});
+test("guest name validation mirrors the server rules", () => {
+  assert.equal(guestNameProblem(""), ""); assert.equal(guestNameProblem("   "), "");
+  for (const ok of ["דוד", "דוד כהן", "Ruth", "אבי-עזר", "יוסי 7", "א".repeat(30)]) assert.equal(guestNameProblem(ok), "ok", ok);
+  for (const bad of ["א", "א".repeat(31), "<b>x</b>", "a_b", "a@b", "a/b", "x;y"]) assert.equal(guestNameProblem(bad), "invalid_name", bad);
+  for (const link of ["www.evil.com", "http://x.co", "evil.co.il/a", "📎 קובץ"]) assert.equal(guestNameProblem(link), "links_not_allowed", link);
+  assert.equal(cleanGuestName("  רות\u202e \n לוי  "), "רות לוי");
+  assert.match(guestPublishErrorMessage({ message: "invalid_name" }), /2 עד 30/);
+});
+test("the remembered guest name is a best-effort device convenience", () => {
+  const store = new Map();
+  const storage = { getItem: key => store.has(key) ? store.get(key) : null, setItem: (key, value) => store.set(key, value), removeItem: key => store.delete(key) };
+  assert.equal(readGuestName(storage), "");
+  saveGuestName(storage, " דוד  כהן "); assert.equal(store.get(GUEST_NAME_STORAGE_KEY), "דוד כהן"); assert.equal(readGuestName(storage), "דוד כהן");
+  saveGuestName(storage, "  "); assert.equal(store.has(GUEST_NAME_STORAGE_KEY), false, "an empty name forgets the saved one");
+  const broken = { getItem() { throw new Error("blocked"); }, setItem() { throw new Error("blocked"); }, removeItem() { throw new Error("blocked"); } };
+  assert.equal(readGuestName(broken), ""); assert.doesNotThrow(() => saveGuestName(broken, "דוד"));
+  assert.equal(readGuestName(null), "");
 });

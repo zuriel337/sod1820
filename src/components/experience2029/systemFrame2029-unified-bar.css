@@ -88,7 +88,7 @@
   color: var(--s29-ink); background: color-mix(in srgb, var(--s29-accent) 9%, transparent); transform: none;
 }
 
-/* Raziel: physical center of the bar, raised slightly above it. */
+/* Raziel: the physical centre of the bar, on the same centre line as the other four controls: the bar is one row (ZURIEL 5.11.2026; it used to be raised above the row on desktop). */
 .sod29-root.native-frame .sod29-command-island.is-unified-bar .sod29-raziel-orb.compact {
   min-width: 48px; width: 48px; height: 48px; margin-block: 0; box-shadow: none;
 }
@@ -189,7 +189,6 @@
   .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-bar-zone > button,
   .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-bar-zone .sod29-command-actions > button { min-width: 46px; height: 46px; border-radius: 50%; }
   .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-now-tab { min-width: 40px; padding: 0 12px; font-size: 13px; }
-  .sod29-root.native-frame .sod29-command-island.is-unified-bar:not(.has-context-trail) .sod29-raziel-orb.compact { margin-block: -14px 0; }
 }
 
 /* Side rail as a floating capsule (desktop), same language as the dock. The home glyph above the nav duplicated the Home item and is hidden when the rail is slim. */

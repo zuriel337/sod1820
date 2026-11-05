@@ -13,7 +13,7 @@ import React, {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Palette2029Provider, use2029Palette } from "../../lib/palette2029.js";
 import { setThemePreset, useThemePreset } from "../../lib/themePreset2029.js";
-import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
+import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 import Footer2029 from "./Footer2029.jsx";
 import AccountLinkOffer2029 from "./AccountLinkOffer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
@@ -88,6 +88,7 @@ import "./myWorkspace2029.css";
 import "./discoveryGate2029.css";
 import "./systemToolDock2029.css";
 import "./systemFrame2029-unified-bar.css";
+import "./systemFrame2029-topbar-crown.css";
 import "./googleEntry2029.css";
 
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
@@ -155,43 +156,47 @@ export function framePublicShareHref(location, canonicalHref = null) {
 }
 
 const publicFoundationPreview = (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101");
+// Every destination names its own picture from the NavigationIcon2029 catalogue in `symbol`. The old text glyph (`icon`) no longer
+// picks it: "123" was shared by the calculator and the Number page, "▤" by Books and Beit Midrash, "◌" by the World and the site map,
+// and "◉" / "✉" / "◇" fell back to the generic tools grid. test/navigation-symbols-distinct-2029.test.mjs reads these four lists
+// from this file, renders each item through the real component and fails on a missing, uncatalogued, shared or fallback symbol.
 const HOME_NAV = [
-  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },
-  { to: "/world", label: "העולם", icon: "◌" },
-  { to: "/heichal", label: "היכל", icon: "◇" },
-  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },
-  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },
-  { to: "/community/chat", label: "קהילה", icon: "◉" },
+  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", symbol: "home", exact: true },
+  { to: "/world", label: "העולם", symbol: "world" },
+  { to: "/heichal", label: "היכל", symbol: "heichal" },
+  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", symbol: "posts" },
+  { to: "/2029/journey", label: "מסע החיים", symbol: "journey" },
+  { to: "/community/chat", label: "קהילה", symbol: "community" },
 ];
 
 const DIRECT_NAV = [
-  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },
-  { action: "number-search", label: "דף המספר", icon: "123" },
-  { to: "/books", label: "ספרים ומקורות", icon: "▤" },
-  { to: "/beit-midrash", label: "בית המדרש", icon: "▤" },
-  { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
+  { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
+  { action: "number-search", label: "דף המספר", symbol: "number" },
+  { to: "/books", label: "ספרים ומקורות", symbol: "books" },
+  { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
+  { to: "/els", label: "ELS · הצופן התנ״כי", symbol: "els" },
   ...(publicFoundationPreview ? [
-    { to: "/map", label: "מפת האתר", icon: "◌" },
-    { to: "/updates", label: "עדכונים במייל", icon: "✉" },
-    { to: "/privacy", label: "פרטיות", icon: "◇" },
+    { to: "/map", label: "מפת האתר", symbol: "map" },
+    { to: "/updates", label: "עדכונים במייל", symbol: "mail" },
+    { to: "/privacy", label: "פרטיות", symbol: "privacy" },
   ] : []),
 ];
 
 const CORE_HOME_NAV = [
-  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },
-  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },
-  { to: "/community/chat", label: "קהילה", icon: "◉" },
+  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", symbol: "home", exact: true },
+  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", symbol: "posts" },
+  { to: "/community/chat", label: "קהילה", symbol: "community" },
   HOME_NAV[1],
-  { to: "/heichal", label: "היכל", icon: "◇" },
-  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },
+  { to: "/heichal", label: "היכל", symbol: "heichal" },
+  { to: "/2029/journey", label: "מסע החיים", symbol: "journey" },
 ];
 
 const CORE_DIRECT_NAV = [
-  { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },
-  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },
-  { action: "number-search", label: "דף המספר", icon: "123" },
-  { to: "/books", label: "ספרים ומקורות", icon: "▤" },
-  { to: "/beit-midrash", label: "בית המדרש", icon: "▤" },
+  { to: "/code", label: "ELS · הצופן התנ״כי", symbol: "els" },
+  { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
+  { action: "number-search", label: "דף המספר", symbol: "number" },
+  { to: "/books", label: "ספרים ומקורות", symbol: "books" },
+  { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
 ];
 
 const FOCUSABLE = [
@@ -208,7 +213,7 @@ const FOCUSABLE = [
 // with its true "בבנייה" state instead of a link that leads nowhere.
 export function beitMidrashNavItem(item, isAdmin = false) {
   const state = publicReadingPath(item.to, { isAdmin: isAdmin === true });
-  return state === "closed" || state === "missing" ? { label: item.label, icon: item.icon, status: "בבנייה" } : item;
+  return state === "closed" || state === "missing" ? { label: item.label, symbol: item.symbol, status: "בבנייה" } : item;
 }
 
 function activeClass({ isActive }) {
@@ -389,7 +394,7 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
       <div className="sod29-nav-group-title">{title}</div>
       {items.map((item) => item.locked ? (
         <button className="sod29-nav-link is-gated" key={item.label} type="button" disabled aria-label={`${item.label} · נעול`} title={`${item.label} · נעול`}>
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.symbol} /></span>
           <span className="sod29-nav-copy">{item.label} · נעול</span>
         </button>
       ) : item.to ? (
@@ -403,17 +408,17 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
           state={{ sodEntryArrival: "internal" }}
           onClick={() => { preserveReturnFor(item.to); onNavigate?.(); }}
         >
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.symbol} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
         </NavLink>
       ) : item.action ? (
         <button className="sod29-nav-link" key={item.label} aria-label={item.label} title={item.label} type="button" onClick={() => { onAction?.(item.action); onNavigate?.(); }}>
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.symbol} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
         </button>
       ) : (
         <button className="sod29-nav-link is-pending" key={item.label} type="button" disabled aria-label={`${item.label} · ${item.status}`} title={`${item.label} · ${item.status}`}>
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.symbol} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
           <span className="sod29-nav-status">{item.status}</span>
         </button>
@@ -1507,6 +1512,54 @@ function SystemFrame2029Body({
   const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
   const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
+
+  // The crown settles into the bar once the page is scrolled, and the bar's line fills with how much of the page was read.
+  // One passive, capture-phase scroll listener (it also hears a page that scrolls inside its own region); one rAF per frame; attributes and one variable on <html>.
+  useEffect(() => {
+    const html = document.documentElement;
+    let frame = 0;
+    let scrolled = false;
+    let reading = null;
+    let lastTarget = null;
+    const metrics = (el) => {
+      if (!el) {
+        const doc = document.scrollingElement || html;
+        return { top: window.scrollY || doc.scrollTop || 0, room: Math.max(0, doc.scrollHeight - window.innerHeight) };
+      }
+      return { top: el.scrollTop, room: Math.max(0, el.scrollHeight - el.clientHeight) };
+    };
+    const regionOf = (target) => {
+      // The page scrolls with the window; if it does not, the region that holds the page content does (never a dialog or a small list).
+      const doc = document.scrollingElement || html;
+      if (doc.scrollHeight - window.innerHeight > 40) return null;
+      if (!(target instanceof Element) || target.closest('[role="dialog"], .sod29-frame-panel, .sod29-mobile-drawer')) return reading;
+      return target.clientHeight >= window.innerHeight * 0.5 ? target : reading;
+    };
+    const update = () => {
+      frame = 0;
+      reading = regionOf(lastTarget);
+      const { top, room } = metrics(reading);
+      const next = scrolled ? top > 10 : top > 48;
+      if (next !== scrolled) { scrolled = next; html.setAttribute("data-crown-scrolled", String(next)); }
+      const ratio = room > 40 ? Math.min(1, Math.max(0, top / room)) : 0;
+      html.style.setProperty("--s29-read", ratio.toFixed(3));
+      html.setAttribute("data-crown-read-mid", String(ratio >= 0.5));
+    };
+    const onScroll = (event) => {
+      lastTarget = event.target === document || event.target === window ? null : event.target;
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    update();
+    document.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      window.removeEventListener("resize", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+      ["data-crown-scrolled", "data-crown-read-mid"].forEach((name) => html.removeAttribute(name));
+      html.style.removeProperty("--s29-read");
+    };
+  }, [location.pathname]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });
@@ -2221,7 +2274,24 @@ function SystemFrame2029Body({
                 <span>SOD1820</span><i>/</i><b>{title || BRAND_LOCKUP_2029.alt}</b>
                 {pageContext?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{contextDisplayTitle(pageContext) || "ההקשר הנוכחי"}</span></span> : null}
               </div>
+              <i className="sod29-header-rail" aria-hidden="true" />
             </div>
+            <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-header-crown" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
+              <svg className="sod29-crown-dip" viewBox="0 0 320 64" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                <path className="dip-line" d="M0 0C44 0 70 62 160 62S276 0 320 0" />
+              </svg>
+              <img
+                src={BRAND_LOCKUP_NAV_2029.src}
+                width={BRAND_LOCKUP_NAV_2029.width}
+                height={BRAND_LOCKUP_NAV_2029.height}
+                alt=""
+                decoding="async"
+                draggable="false"
+                data-brand-asset-state={BRAND_LOCKUP_NAV_2029.state}
+              />
+            </Link>
+            <div className="sod29-header-end">
+            <i className="sod29-header-rail" aria-hidden="true" />
             <button className="sod29-header-search" type="button" onClick={openSiteSearch} aria-label="חיפוש באתר" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.SEARCH}>
               <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
               <span className="sod29-search-pill-icon" aria-hidden="true">⌕</span>
@@ -2233,6 +2303,7 @@ function SystemFrame2029Body({
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="issue-label"> דווח על בעיה</span></button>
               <ThemePresetControl2029 compact header />
               <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
+            </div>
             </div>
           </header>
           <GlobalLivingRibbon2029 />
