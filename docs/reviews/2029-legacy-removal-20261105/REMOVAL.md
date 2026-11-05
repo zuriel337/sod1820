@@ -1,103 +1,157 @@
-# הסרת Legacy מהקוד הפעיל — דוח ביצוע (5.11.2026)
+# הסרת Legacy מהקוד הפעיל — דוח ביצוע, מחושב מחדש (5.11.2026)
 
-> **מצב חי (5.11):** הפרודקשן הוא `main` = `b0a752c66` (`dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP`; יעד חזרה `dpl_8wS3rP2YgbqSaapmYxa3SAk8jdFk` = `18c98fa6f`). **ההסרה המתוארת כאן עדיין אינה בחי** — היא בענף `claude/2029-legacy-separation-e8j9tf` בלבד, ממוזגת נקי מול `b0a752c66`, ללא PR/מיזוג/פריסה.
+> **סטטוס: BRANCH-ONLY.** הענף `claude/2029-legacy-separation-e8j9tf` לא מוזג ל־`main`, לא נפרס, אין לו PR ואין לו Preview. מתועד ≠ ממוזג ≠ פרוס. מצב חי נקרא מ־Vercel (alias ← deployment ← `sourceSha`) ומ־`origin/main` בזמן הפעולה, לא מהמסמך הזה.
+>
+> **מה המסמך הזה.** הוא מחליף את הגרסה הקודמת, שנכתבה לפני המיזוגים עם `main` ושנתוני ה־CI והבסיס שבה התיישנו. כל המספרים כאן חושבו מחדש על ראש הקוד **`6847e6799`**, מול `origin/main` = **`2500ec56`**. הקומיטים שאחריו מוסיפים רק כלי מדידה, קובצי ראיות ותיעוד (בלי קוד מוצר). מסמכי `docs/reviews/2029-legacy-separation-20261105/*` ו־`AUDIT.md` הם תצלומים היסטוריים.
 
-החלטת צוריאל: Legacy מוצר שפרש; נשמר רק ב־Git (לצורך rollback). בסיס העבודה `28ab3aaea`, ענף `claude/2029-legacy-separation-e8j9tf`. אין PR/merge/פריסה. רשימת הקבצים שנמחקו: [`deleted-files.txt`](deleted-files.txt) (419 קבצים; 509 קבצים שונו; −84,924 שורות).
+## החלטה והיקף
+- החלטת צוריאל (5.11.2026): **Legacy פרש. אין חזרה.** הקוד נשמר בהיסטוריית Git בלבד, ושחזורו הוא `git show <sha>:<path>`.
+- ההיקף: הסרת קוד Legacy מהעץ הפעיל, ושערים ותיעוד בהתאם. לא בוצעו כאן merge, פריסה, שינוי alias, שינוי DB או דגלים, מחיקת ענף או PR, ולא נוצר Preview.
+- לא נגעתי ב־`middleware-core.js`, ב־`public-reading-deploy/`, ב־`api/og.js` וב־`api/public-document`: הם **זהים ל־`origin/main`** (נבדק ב־`git diff`). התנהגות ELS והיכל לא שונתה (ראו להלן). מסוף ניהול חדש לא נבנה.
+
+## מצב הענף (נמדד מחדש)
+| | |
+|---|---|
+| בסיס | `origin/main` = `2500ec56`, מוזג ב־merge רגיל (בלי rebase ובלי force push) |
+| ראש הקוד | `6847e6799`: 34 קומיטים לפני `main`, 0 מאחוריו (2 קומיטי merge) |
+| קבצים לעומת `main` | 630: **415 נמחקו**, 187 שונו, 25 נוספו, 3 הועברו |
+| שורות | +2,943 / −85,199 |
+| `src` שנמחק | 394 קבצים, כ־5.2MB מקור |
+| בדיקות שנמחקו | 18 קבצי בדיקה (הרשימה למטה; הם בדקו קוד שנמחק) |
+| `npm run build` | build אחד (2029) במקום שניים: 4.6 שניות במקום 8.2 באותה מכונה; `dist` 60MB במקום 69MB |
+
+לשחזור: `git diff --shortstat origin/main HEAD`, `git diff --name-status origin/main HEAD`; רשימת הקבצים שנמחקו: [`deleted-files.txt`](deleted-files.txt) (415 שורות, חושבה מחדש).
 
 ## קומיטים (כל אחד ניתן ל־`git revert` בנפרד)
-| קומיט | תוכן |
+| קבוצה | קומיטים |
 |---|---|
-| `295381f7d` + `1c0029c3d` | Audit, כלי מיפוי, בסיס ביצועים |
-| `11fd78a8b` | **שערי שחרור** (קומיט נפרד, באישור): `test-legacy-production-lock` → `test-legacy-retired`; הוסר rollback worker של Legacy מה־artifact; catch-all ב־`vercel.json` → `/2029.html`; rewrites מפורשים ל־`/code`, `/community/chat`, `/login` |
-| `623b8d38a` | **הסרת ריצת Legacy**: 343 קבצי `src`, `index.html`, יעד בנייה Legacy, adapters של ה־host; `App2029` — כתובת לא מוכרת מסתיימת ב־404 של 2029 (בלי hand-off) |
-| `872db6de7` | 43 קבצי UI מתים (אין להם שום הפניה): טיקרים, ווידג׳טי פורום/פיד, פופאפים, דפי מחשבון והיכל ישנים |
-| `f0b541f43` | **הסרת חוזי theme/palette של Legacy**: `palette.js`, `themeMode.js`, `lightRoutes.js`, `chromeTheme.js`, `stream.js`, ה־bridge ב־vite; רכיבים חיים הועברו ל־`use2029Palette`, `TYPEFACE`, `accentRoles2029`, `themePreset2029` |
+| Audit, כלי מיפוי, בסיס ביצועים | `295381f7d`, `1c0029c3d`, `28ab3aaea` |
+| הפרדה לפני המחיקה: חילוץ מנוע הגימטריה (`gematriaCore.js`), ערכת theme עצמאית ל־2029, `FeatureClosedNotice`/`NotFound` של 2029, הוצאת פאנלי האזור האישי מקליפת Legacy | `b71326e80`, `bdd7649a9`, `df4616850`, `422769560`, `b564dd267` (ניסיון שבוטל: `978db7979` ← `9411dfde7`) |
+| **שערי שחרור** (קומיט נפרד, באישור): `test-legacy-production-lock` ← `test-legacy-retired`; הוסר rollback worker של Legacy מה־artifact; catch-all ב־`vercel.json` ← `/2029.html`; rewrites מפורשים ל־`/code`, `/community/chat`, `/login` | `11fd78a8b` |
+| **הסרת ריצת Legacy**: `index.html`, `src/main.jsx`, יעד הבנייה, adapters של ה־host; כתובת לא מוכרת מסתיימת ב־404 של 2029 בלי hand-off | `623b8d38a` |
+| 43 קבצי UI מתים שאין להם הפניה כלל | `872db6de7` |
+| הסרת חוזי theme/palette של Legacy | `f0b541f43` |
+| ניקוי CI: שער ה־SEO הישן של Legacy וסקריפטי אימות של Legacy בלבד; ה־visual gate מגיש את מסמך 2029; ניסיון Lightbox שבוטל; שחזור קבצי `public/` | `2ca718f03`, `b02dcb548`, `fb6598c2b`, `0a860350d`, `e9ed34893`, `70cdadcf9` |
+| מיזוגי `main` | `c1cc7ef1e` (`b0a752c66`), `414f31e4b` (`2500ec56`); בין לבין `2c8cdab52`: `presence.js` הוחזר כי חוזה ה־Realtime ב־`main` (#1228) מונה אותו כצרכן |
+| שערי SEO: החלטה מפורשת לכל נתיב; התנהגות השרת לכל נתיב | `5585c7539`, `faa112e4d` |
+| כלי ELS: הבדיקה לא משכתבת קבצי `public/` | `746b6e6f0` |
+| תיקוני בדיקות אחרי המיזוג | `4a47a36d4`, `6847e6799` |
+| תיעוד | `969162de6`, `7bdffee35`, `97800b811`, `3966fa637`, `1a3bd6b58`, `2b011a1d8` |
 
 ## מה הוסר
-- כל מה שנגיש רק מ־`src/main.jsx` (App, routes, `legacy.jsx` 265KB, layout/Navbar/BottomBar/טיקרים, UserCenter, דפי תוכן ציבוריים שיש להם מקבילה ב־2029).
-- **מסוף הניהול** (`AdminPage` + `components/admin/*`, 60 קבצים), **עורך הפוסטים** (`PostEditorPage`, `AdvancedPostEditor`, `ContributorStudio`, `UploadFindings`, `LeadOrderEditor`), `CreditsBuyPage`, `WaInboxPage`/`WaChatWindow` — באישור מפורש; אין להם מקבילה ב־2029 וה־artifact החי לא הגיש אותם. נשארו ב־Git בלבד.
-- 17 בדיקות שנושאן קוד שנמחק; בדיקות מעורבות נערכו (הוסרו רק הצהרות על קבצי Legacy).
-- הגדרות: יעד build Legacy, `build:legacy`, שער ה־Legacy lock, rollback SW, workflow paths/steps לקבצים שנמחקו.
+- **ריצת Legacy** (כל מה שנגיש רק מ־`src/main.jsx`): `App`, routes, `legacy.jsx` (265KB), layout/Navbar/BottomBar/טיקרים, `UserCenter`, דפי תוכן ציבוריים שיש להם מקבילה ב־2029.
+- **מסוף הניהול והעורך הישנים**, באישור מפורש: `AdminPage`, 9 מ־10 קבצי `components/admin/*` (`RoadmapMap3D.jsx` נשאר), `PostEditorPage`, `AdvancedPostEditor`, `ContributorStudio`, `UploadFindings`, `LeadOrderEditor`, `CreditsBuyPage`, `WaInboxPage`/`WaChatWindow`, `FileAnalyzer`. סגור הקשר המחושב מחדש על `main` (`capability-closure.mjs`): מסוף ניהול 60 קבצים (1,405KB), עריכת פוסטים 5 (112KB), קרדיטים 1 (18KB), תיבת WhatsApp 2 (13KB). סך הכול 68 קבצים (1,548KB). **ה־artifact החי לא הגיש אותם מאז המעבר ל־2029** (נבדק חי ב־5.11: `/admin` מציג ״האזור ייפתח בהמשך״, `/post-editor` ו־`/wa-inbox` ״העמוד לא נמצא״, ובחבילת הכניסה החיה אין `AdminPage` או `PostEditorPage`). לכן ההסרה מהעץ אינה מורידה יכולת מהפרודקשן; היא מורידה מהעץ את מקור הקוד לפרסום והעלאה.
+- **43 קבצי UI מתים** (טיקרים, ווידג׳טי פורום/פיד, פופאפים, דפי מחשבון והיכל ישנים), **חוזי theme/palette** (`palette.js` הפך ל־`paletteTokens2029.js`, `themeMode.js`, `lightRoutes.js`, `chromeTheme.js`, `stream.js`, ה־bridge ב־vite).
+- **הגדרות:** יעד build של Legacy, `build:legacy`, שער ה־Legacy lock, rollback worker, שורות workflow לקבצים שנמחקו.
+- **18 קבצי בדיקה** של קוד שנמחק (גם ב־`main` הם בדקו קוד Legacy): `test-beit-midrash-methods-registry`, `test-legacy-home-recent-gematria`, `test-legacy-production-lock`, `test-legacy-research-containment`, `test-whatsapp-kod-hametsiut-join`, `coreEngine.test`, `explorerAccess.test`, `researchDnaDimensions.test`, `bot-observability-no-false-volume`, `code-page-els-launch-gate`, `convergence-tree-closure`, `dead-bot-signal-adjudication`, `legacy-build-meter-80-honesty`, `live-whatsapp-feed-projection` ו־4 בדיקות `research-viewer-*`. בדקתי שהחלקים של שלוש מהן שהגנו על דברים שעדיין חיים (זרע מטריצת ELS 2029, החרגת `/numbers` מה־sitemap, פונקציות ה־WhatsApp) נשמרו ב־`scripts/test-2029-live-contracts.mjs` (נכנס ל־`main` ב־#1225).
 
-## נשמר לטובת מסוף הניהול החדש (צוריאל בונה אותו; לא נבנה בענף הזה)
-**נשאר בעץ ולא נמחק:**
-- צד שרת: edge functions (`supabase/functions/*`), RPC/מיגרציות, RLS, Storage/TUS.
-- Auth: `src/lib/AuthContext.jsx` (`isAdmin`, אימות תפקיד מול השרת), `src/lib/auth.js`, `oauthReturn.js`.
-- משטחי 2029: `/2029/control` (`ControlPlane2029Page`), `/2029/me/*` (`WriterPersonal2029Page`).
-- הקרנות וסביבת עבודה: `src/lib/research/researchViewerProjection.js`, `useUniversalWorkspace.js`.
-- העלאת מדיה: `src/lib/mediaResumableUpload.js`, `src/lib/research/lifeJourneyHintMedia.js`, `src/lib/community/communityAttachments.js`.
-- תיעוד: `docs/admin-command-blue-slice-v1.md`, `docs/reviews/admin-full-access-auth-20261103/`.
-- `src/lib/presence.js` (Realtime): הוחזר כי חוזה ה־Realtime ב־main (#1228) מונה אותו כצרכן צפוי.
-
-**נמחק מהעץ, זמין מ־`b0a752c66` (הקוד החי היום ב־main):**
-```
-git show b0a752c66:src/pages/AdminPage.jsx
-git show b0a752c66:src/pages/PostEditorPage.jsx
-git show b0a752c66:src/components/AdvancedPostEditor.jsx
-git show b0a752c66:src/components/ContributorStudio.jsx
-git show b0a752c66:src/components/UploadFindings.jsx
-git show b0a752c66:src/components/LeadOrderEditor.jsx
-git show b0a752c66:src/pages/CreditsBuyPage.jsx
-git show b0a752c66:src/pages/WaInboxPage.jsx
-git ls-tree -r --name-only b0a752c66 src/components/admin/        # components/admin/* (ResearchViewer*, Raziel*, KnowledgeControlCenter...)
-git show b0a752c66:src/lib/moderation.js     # עטיפות לקוח ל־RPC של מודרציה
-git show b0a752c66:src/lib/ccwork.js         # buildAttentionDigest (ה־edge function raziel-attention מתייחס אליו)
-git show b0a752c66:src/lib/credits.js
-git show b0a752c66:src/lib/waReply.js
-```
-שימוש חוזר בלוגיקה = חילוץ ללוגיקה בלבד (שירות ניטרלי) ולא העתקת ממשק Legacy; אין לייבא קבצים אלה בחזרה כמות שהם.
-
-## מה נשמר ולמה
+## מה נשמר, ולמה
 | פריט | סיבה |
 |---|---|
-| `src/lib/analysisFlow.js`, `triage.js` | מיובאים ע"י edge function `expression-extract` וסקריפטי audit |
-| `src/theme.js` | מופיע כמקור קנוני ב־packaging ובבדיקת provenance של `expression-extract`. אין לו צרכנים ב־`src`. מועמד למחיקה יחד עם עדכון ה־packaging (דורש אישור — נוגע בפונקציית Supabase חיה) |
-| `src/lib/gematriaCore.js` | המנוע (`GEM`, `calcGem`, `KEY_NUMBERS`) — חולץ בשלב 1 |
-| libs ללא צרכנים: `richScore`, `systemEvents`, `wizard`, `nameCard`, `worldAnchorProjection`... | לוגיקת Foundation; לא נמחקו (דורשים החלטת בעלים) |
-| 46 קבצי foundation/2029 עם בדיקות אך ללא צרכן בריצה | לא Legacy; חלק מהמנועים/המשטחים של 2029 בבנייה |
-| 383 "יתומים" מקוריים | נבדקו; נמחקו רק 43 קבצי UI של Legacy שאין להם הפניה כלל |
-| `public/sw.js` (37 שורות) | ה־2029 רושם `/sw.js` להתראות; ב־artifact החי נדרס ע"י ה־worker של ה־public-reading |
-| הזכרות "legacy" ב־195 קבצים | מושגי נתונים (legacy_id, ארכיון הצ׳אט הוותיק, claim של פרופילים ישנים) — לא קוד Legacy |
-| יכולות שנשארות בצד שרת | Auth, Supabase, Storage/TUS (`mediaResumableUpload`, `lifeJourneyHintMedia`), RLS, API, מנועי גימטריה/ELS/Raziel/Journey — לא נגעתי |
+| `supabase/functions/*`, מיגרציות, RLS, Storage/TUS | תשתית משותפת; זהה ל־`main` |
+| `src/lib/AuthContext.jsx` (`isAdmin`), `auth.js`, `oauthReturn.js` | Auth של 2029 ושל מסוף הניהול החדש; זהים ל־`main` |
+| `/2029/control` (`ControlPlane2029Page`), `/2029/me/*` (`WriterPersonal2029Page`) | משטחי 2029 קיימים. ב־`WriterPersonal2029Page` שונו רק שלוש שורות import: הפאנלים עברו ל־`src/features/personalPanels/*` |
+| `researchViewerProjection.js`, `useUniversalWorkspace.js` | הקרנות וסביבת עבודה למסוף החדש; זהים ל־`main` |
+| `mediaResumableUpload.js`, `lifeJourneyHintMedia.js`, `communityAttachments.js` | העלאת מדיה; זהים ל־`main` |
+| `docs/admin-command-blue-slice-v1.md`, `docs/reviews/admin-full-access-auth-20261103/` | תיעוד המסוף החדש; זהים ל־`main` |
+| `src/lib/presence.js` | חוזה ה־Realtime ב־`main` מונה אותו כצרכן |
+| `src/lib/analysisFlow.js`, `triage.js` | מיובאים ע"י edge function `expression-extract` וסקריפטי audit (שני קובצי ה־`legacy-only` היחידים שנשארו) |
+| `src/theme.js` | מקור קנוני בבדיקת provenance וב־packaging של `expression-extract`; אין לו צרכנים ב־`src`. מועמד למחיקה יחד עם עדכון ה־packaging (נוגע בפונקציית Supabase חיה, דורש אישור) |
+| `public/sw.js` | ה־2029 רושם `/sw.js` להתראות; ב־artifact החי נדרס ע"י ה־worker של ה־public-reading |
+| libs ללא צרכנים (`richScore`, `systemEvents`, `wizard`, `nameCard`, `worldAnchorProjection`...) ו־46 קבצי foundation/2029 עם בדיקות | לוגיקת Foundation, לא Legacy; דורשים החלטת בעלים |
 
-## שירותים שחולצו
-`gematriaCore.js` (מנוע), `palette2029`/`paletteTokens2029`/`themePreset2029` (theme עצמאי), `paletteRoles2029` (תפקידי צבע על פלטת 2029 במקום קבועי הזהב של Legacy), lens metadata ב־`experienceContext`.
+**מה בדיוק נמחק, לפי סיווג ה־import graph (חושב מחדש על `main`):** מתוך 394 קבצי `src` שנמחקו, 334 היו נגישים רק מכניסת Legacy, 50 היו יתומים בלי שום הפנייה מסקריפטים או מבדיקות, ו־**10** היו "משותפים" (נגישים גם מכניסת 2029): `MyTreeCard`, `userCenter/HintsPanel`, `userCenter/UserCenter`, `userCenter/UserCenterContext`, `userCenter/useWaLink`, `hintTypes`, `chromeTheme`, `lightRoutes`, `stream`, `themeMode`. 2029 הועבר מהם קודם (`features/personalPanels/*`, `palette2029`, `TYPEFACE`, `themePreset2029`), ורק אחר כך הם נמחקו; הוכחה: ה־build, שער ה־boundary (861 מודולים, הגרף סגור) ושער ה־isolation עוברים.
 
-## ביצועים — לפני/אחרי (`scripts/measure-2029-load.mjs`; Chromium, CPU x4, 390×844, localhost בלבד)
-| מדד | לפני | אחרי הסרת הריצה | אחרי הסרת ה־theme |
-|---|---|---|---|
-| Eager: chunks / gzip / modules | 26 / 199.9KB / 100 | 26 / 199.8KB / 100 | 26 / 199.5KB / 99 |
-| כל ה־chunks הנגישים (gzip) | 1,955.5KB | 1,955.7KB | 1,955.6KB |
-| Build 2029 (בלבד) | 2.7s | 1.9s | 2.7s |
-| `npm run build` | שני builds (Legacy+2029) | build יחיד | ≈3.3s |
-| ביקור ראשון LCP / long tasks | 1,012ms / 2 | 1,024ms / 2 | 1,012ms / 3 |
-| ביקור חוזר LCP | 656ms | 664ms | 640ms |
-| בקשות בעמוד הבית / JS | 109 / 60 | 109 / 60 | 110 / 61 |
-**מסקנה:** הסרת Legacy לא שינתה את ביצועי 2029 בפועל (בתוך רעש המדידה). זה צפוי: Legacy היה מסמך ובנייה נפרדים. היתרון הוא תחזוקה: −401 קבצי `src` (−5.4MB מקור), build אחד, גרף סגור. **האיטיות לא נפתרה** — עמוד הבית טוען 60 קובצי JS (≈1.8MB לא דחוס), וזה האזור לטיפול בנפרד.
+## בדיקת בידוד Legacy מול 2029
+הכלי `tools/legacy-removal/isolation-scan.mjs` (ללא רשת), פלט מלא ב־[`isolation-scan-branch.json`](isolation-scan-branch.json) וב־[`isolation-scan-main.json`](isolation-scan-main.json). **ההוכחה היא מבנית, לא ספירת מילים.**
 
-## בדיקות
-- סט מלא (875 קבצי בדיקה Node): בסיס 728 עוברות / 146 נכשלות (סביבה: חסרות חבילות, Playwright/Supabase חיים); אחרי השינויים: אין בדיקה שעברה לפני ונכשלת עכשיו (למעט `expression-extract-packaging-guard`, שנכשלת רק כשיש שינויים לא־committed ועוברת אחרי commit).
-- Build, בדיקות בידוד, גרף 2029 סגור, `test-legacy-retired`, build של ה־artifact הציבורי (מצב dormant) — עוברים.
-- דפדפן (Chromium, 390 ו־1440): 18 נתיבים × 2 viewports נטענים ללא שגיאות (`/2029`, `/world`, `/post`, `/number`, `/gematria`, מחשבון הקהילה, `/community/chat`, `/code`, `/books`, `/gallery`, `/privacy`, `/unsubscribe`, `/heichal`, `/login`, `/2029/control`, `/2029/me`, 404). בדיקת theme בדפדפן עוברת.
-- **CI (workflow_dispatch על הענף, קומיט `e9ed34893`):**
-  - עברו: Legacy-retired gate (`legacy-production-lock.yml`), G4 Public Core, Observability/SEO, Research Sync, Community Reaction Visibility, Agent Dispatch, Dependency Radar V2, System Self Maintenance, Video Ingest.
-  - נכשלו **זהה ל־`main` ולבסיס**: 2029 Isolation Gate (`tests/entry-learn-2029.spec.cjs:47`) ו־Release Visual Gate (`release-visual.spec.cjs:485`, Bennett 1440px; 19 מתוך 20 עוברות).
-  - ELS Core Compatibility: ללא תוצאה (הריצה נתקעת גם על `main`).
-  - ה־CI חשף ותוקנו בקומיטים נפרדים: סקריפט SEO שקרא `src/routes.jsx`; `release-visual` שהניח `dist/index.html` של Legacy; בדיקת `gallery FIT_WHOLE_IMAGE` שהסתמכה על `LightboxVisualFoundation.css` של Legacy (נמחקה — ראו להלן); וקבצי `public/` שבדיקת ELS שכתבה מקומית וצורפו בטעות (שוחזרו).
+**הוכחות מבניות (מה נבדק בפועל)**
+- יעד build יחיד: `vite.config.js` בונה רק את `2029.html`; `package.json` מריץ build 2029 בלבד; אין rewrite או redirect ל־`/index.html` (שער `test-legacy-retired`). בנייה עם כל דגלי ה־preview דולקים (`VITE_INTEGRATED_PREVIEW`, `VITE_FUNCTIONAL_UNIFIED_PREVIEW`, `VITE_KINGDOM_PREVIEW`, `VITE_BOOK_PUBLICATION_REVIEW_PREVIEW`, `VITE_FOLLOW_CENTER_PREVIEW`, `VITE_PUBLIC_FOUNDATION_PREVIEW`) עוברת גם על הענף וגם על `main`.
+- שער ה־boundary והגרף הסגור עוברים; שערי theme ו־isolation עוברים.
+- **imports יחסיים שאינם מתרגמים לקובץ:** 203 בענף מול 202 ב־`main` (כולם קודמים להסרה, למעט חמישה). שניים מהחמישה הם תוצאת כלי בלבד (`test/small-n-components-2029.test.mjs` מתרגם נתיבים מול תיקיית העבודה דרך esbuild והבדיקה עוברת). **שלושה אמיתיים:** `EntityHubGoldenControls.jsx` ← `QuickActions.jsx`, `OrGeulaSourceShortcut2029.jsx` ← `OrGeulaStoryColumnCore.jsx`, `StoryViewerOnDemand2029.jsx` ← `StoryViewer.jsx`. הם קבצים רדומים: אף אחד לא מגיע אליהם מכניסת 2029, גם לא בבנייה עם כל דגלי ה־preview, ולכן אין להם השפעה על ריצה או על build. ראו "שאריות".
+- חיפוש ממוקד של שורות שמציינות את Legacy כמוצר פעיל (app, ui, runtime, build, theme, host, rollback): 64 שורות בקוד, בבדיקות ובהגדרות; הן שערי הגנה שמוכיחים היעדר, הערות היסטוריות, תיאורי בדיקות, או בדיקות דפדפן ישנות (ראו "שאריות").
 
-## לא ניתן היה לבדוק
-- Preview של Vercel (אין deployments לענף; `git.deploymentEnabled=false`; לא נוצר ללא אישור).
-- Auth/העלאות/פרסום/קהילה **חיים** (דורשים Supabase חי ו־Playwright ב־CI); נבדקו רק חוזים סטטיים וטעינת מסכים.
-- INP; ביצועי רשת/CDN אמיתיים; שערי `pull_request`־בלבד (`follow-identity-isolated-db-gate`, `media-release-batch-gate`).
-- ה־CLAUDE.md ו־`SOD1820_MASTER_*` עדיין מתארים את Legacy; לא עודכנו (מסמכי בעלים).
+**חמש קטגוריות**
+1. **קוד מוצר Legacy שנמחק:** 415 קבצים (ראו לעיל).
+2. **מונחים היסטוריים ונתוני ארכיון שנדרשים:** המילה legacy מופיעה ב־2,205 שורות ב־513 קבצים מחוץ לתיקיות ההיסטוריה (ב־`main`: 2,395 שורות ב־560). 794 שורות סווגו לפי משמעות: צנרת **World legacy replay** של מחקר 2029 (304), נתוני ארכיון וזהות (`legacy_id`, צ׳אט ישן, חשבונות ישנים, claims: 256), קוראי תאימות לערכים ופורמטים ישנים (66+37), שמות שערים ו־workflow (29), טבלאות הפניה (17), שמות קבצי נכסים (16), ניסוח על המוצר שפרש (69).
+3. **תשתיות משותפות שנשמרו בכוונה:** כל הטבלה ב"מה נשמר".
+4. **שאריות שדורשות החלטה:** ראו הסעיף "שאריות והחלטות פתוחות".
+5. **false positives:** שם קובץ התמונה `legacy-dark-bg-post-mobile-v2-720x1280-….webp` (נטען באתר החי בעמוד פוסט) ושמות chunks של ווידג׳ט OpenWeb של צד שלישי (`packages_legacy_notifications-bell…`), נתוני ארכיון, והערות.
 
-## ממצאים שנחשפו תוך כדי
-- **Lightbox:** כלל ה"תמונה מלאה בלי חיתוך" (`LightboxVisualFoundation.css`) נטען רק ע"י כניסת Legacy; 2029 מעולם לא שלח אותו (ובדיקת הבידוד אסרה זאת). ב־2029 תמונות גבוהות נגללות ב־≥920px. בדיקת `FIT_WHOLE_IMAGE` ב־Release Visual נמחקה; האם לאמץ את הכלל ב־Lightbox של 2029 — החלטת מוצר פתוחה.
-- **שער ה־SEO של Observability** בדק את נתיבי Legacy (`App.jsx`/`ROUTE_META`) ונמחק; **אין כעת שער מקביל לנתיבי `App2029`** (מומלץ לבנות).
-- **סיכון תפעולי:** בדיקות ELS מקומיות משכתבות את `public/els-dynamic-lexicon-v1.gz64.txt` ו־`public/tzofen.html` (כותרת gzip שונה). יש לבדוק `git status` לפני `git add -A` אחרי הרצת הסט המלא.
+**מה לא נבדק:** 1,411 שורות עם המילה שלא נתפסו על ידי אף כלל סיווג לא נקראו אחת אחת (הקבצים הגדולים ביניהן: בדיקות ה־raziel result bundle, `test-2029-world-surface`, `worldLegacyReplayProjection` ובדיקותיו, `ai-analyze`; דגימה הראתה שימוש במשמעות "ישן" של נתונים ופורמטים). אין כאן טענה ל־100% בידוד: הטענה היא שאין **צימוד מבני** מוכח, ושלושה קבצים רדומים עם import שבור מתועדים. מחרוזות שנבנות דינמית ושימוש בקבצים דרך נתיבי ריצה לא נבדקו.
 
-## סיכונים פתוחים
-1. אין כרגע ממשק פרסום/ניהול/העלאה בריפו; נדרש תחליף 2029 אם הוא נדרש מעבר ל־Git.
-2. קישורים פנימיים של 2029 לכתובות ישנות (למשל `/reality`) מסתיימים ב־404.
-3. `src/theme.js` והפרוביננס של `expression-extract` — ראו למעלה.
-4. הענף 22 קומיטים אחרי `origin/main`; נדרש rebase לפני מיזוג.
+## שימור תשתיות Admin/2029
+נבדק בענף: כל הנתיבים שברשימת ההוראה קיימים וזהים ל־`main` (למעט שלוש שורות ב־`WriterPersonal2029Page.jsx`). `/2029/control` ו־`/2029/me/:module` רשומים ב־`App2029.jsx`; `isAdmin` מוגדר ב־`AuthContext` ו־44 קבצים צורכים אותו; `supabase/functions` ו־`supabase/migrations` זהים ל־`main`. מה שחסר למסוף הניהול החדש וקיים רק ב־Git: ממשקי הפרסום, העריכה, ההעלאה והמודרציה הישנים (פקודות `git show b0a752c66:<path>` למעלה, ובקובץ `deleted-files.txt`); ה־RPC, ה־Edge functions וה־Storage שמאחוריהם נשארו. רשימה של "איזו יכולת נשענת על איזה RPC" לא נכתבה כאן (מחוץ להיקף).
+
+## SEO
+- `scripts/test-2029-route-seo-decisions.mjs` (+ workflow `route-seo-decision-2029.yml`): כל נתיב ב־`App2029` חייב מקור החלטה מפורש (`api/og.js`, `route-legitimacy.js`, כותרת noindex ב־`vercel.json`, noindex ברמת הדף או דגל preview). אין baseline ואין allow-list. חולשה: זו בדיקת רישום, והיא הייתה מקבלת גם את `/beit-midrash` כשהשרת ענה לו 404.
+- `scripts/test-2029-route-seo-behavior.mjs` (חדש): החלטה אחת מפורשת לכל אחד מ־60 הנתיבים (index, noindex, closed, account, missing, redirect, item, shape, collection, number), והשרת האמיתי (`public-document` שמריץ `api/og.js`, מיובאים בלבד) חייב לענות אותה: status, `X-Robots-Tag`, canonical וכותרת, בשלושה מצבי נתונים סינתטיים. הוכחה במוטציות על worktree נקי של `main`: עם `api/og.js` מלפני תיקון בית המדרש הוא נכשל על `/beit-midrash` (404, ״הפוסט לא נמצא״); נתיב חדש בלי החלטה נכשל. הוא **אינו** מפעיל את שכבת ה־rewrites של Vercel ואת ה־Edge middleware (מכוסים ב־`test-route-legitimacy-2029` ובבדיקה אחרי פרסום).
+- ה־workflow החדש אינו ניתן להפעלה ידנית לפני שהוא ב־`main` (GitHub מחזיר 404): הוא ירוץ ב־PR. הפקודות שלו ופקודת ההתנהגות עוברות מקומית. **לא מוצג כעבר ב־CI.**
+
+## בדיקות (פקודה, SHA, תוצאה)
+**מקומי, על `6847e6799` (ללא רשת; אין בדיקת Preview או production):** כולן exit 0: `node scripts/test-legacy-retired.mjs`, `test-one-tree-content-contract`, `npm run build`, `test-2029-built-graph`, `test-2029-module-boundary`, `test-2029-isolation`, `test-2029-system-frame`, `test-2029-theme-isolation`, `test-2029-world-surface`, `test-2029-route-seo-decisions`, `test-2029-route-seo-behavior`, `test-2029-server-seo-ai-parity`, `test-route-legitimacy-2029`, `test-2029-canonical-presentation`, `test-2029-live-contracts`, `test-search-indexing-2029`, `test-public-reading-main-release-contract` (וה־`--test` שלו), `build-public-reading-production` ו־`--test test/public-reading-production-artifact.test.mjs` (22/22), `test/realtime-entry-split-2029.test.mjs`, `test/beit-midrash-rail-no-page-scroll-2029.test.mjs`, `test/public-launch-seo-gates.test.mjs`, `test/public-canonical-parity-repair.test.mjs`, `test/public-reading-release-2029.test.mjs`, `test/small-n-components-2029.test.mjs`, `src/lib/avatar.test.js`, `test-g1-agent-routing-smoke` (18/18).
+
+**כל קבצי ה־Node שרצים בלי דפדפן (884 קבצים: 866 בענף, 879 ב־`main`), בלי רשת, ענף מול worktree נקי של `main`** ([`node-tests-main-vs-branch.tsv`](node-tests-main-vs-branch.tsv)): בענף 703 עברו ו־72 נכשלו (91 קבצי דפדפן/שרת לא הורצו); ב־`main` 703 עברו ו־85 נכשלו. **אין קובץ שעובר ב־`main` ונכשל בענף.** 72 הכשלים בענף נכשלים זהה גם ב־`main` (חסרות חבילות כמו `react-test-renderer` ו־`@electric-sql/pglite`, ואין רשת): baseline סביבתי. 13 קבצים נכשלים ב־`main` ועוברים בענף. 18 הקבצים שנמחקו קיימים רק ב־`main`. ההרצה הזוגית חשפה בדיוק **שלוש בדיקות ש־Legacy שבר** (קראו קובץ שנמחק) ותוקנו בקומיט `6847e6799` בלי להוריד דרישה על קוד שקיים: `public-url-residual205-2029` (הוסרה ההצהרה על `SearchTabs` של Legacy), `research-viewer-entity-graph-lens` (הוסר החצי שקרא את דף ה־viewer שנמחק; הבדיקה על `researchViewerProjection.js` נשארה ונכשלת זהה ב־`main` על הצהרה ישנה אחרת), `companion-2029-public-source-shortcuts` (הוסרה הבדיקה שקראה `OrGeulaStoryColumnCore`). כשל אחד בהרצה המקבילית, `els-matrix-reading-client-e2e`, התברר כקפיצת עומס: 4 הרצות בודדות עברו 6/6. בנוסף, `test/public-reading-production-artifact.test.mjs` (שה־job החדש `release-contracts-2029` ב־`main` מריץ) נשבר אחרי המיזוג כי קרא לסקריפט ה־Legacy lock שנמחק; תוקן ב־`4a47a36d4`.
+
+## CI בענף מול `main`
+כל הריצות הן `workflow_dispatch` על הענף (לא בדיקות PR). לכל gate: ענף, `main`/baseline, והאם הכשל נגרם מהשינוי.
+
+| Gate | ענף `1a3bd6b58` | ענף `4a47a36d4` | `main` / baseline | נגרם מהשינוי? |
+|---|---|---|---|---|
+| 2029 Isolation | success `42022009194` | success `42025470835` | נכשל ב־`entry-learn-2029.spec.cjs:47` על `main` מוקדם יותר; תוקן ב־#1215 וב־#1222; ירוק ב־PR #1229 (`42021952573`) | לא |
+| Release Visual | success `42022022262` | success `42025475634` | נכשל (Bennett ב־1440, 19/20) על `main` מוקדם יותר; תוקן ב־#1216 וב־#1221; ירוק ב־#1229 (`42021952530`) | לא |
+| ELS Core Compatibility | success `42022036546` | success `42025480160` | נכשל ב־`74ead2ec` (`41977804829`, שלב הדפדפן); תוקן ב־#1219; **success על `main@2500ec56`: `42025489393`** | לא |
+| G4 Public Core | success `42022017959` | success `42025484665` | success ב־#1229 (`42021952309`) | לא |
+| Production Release and Legacy Compatibility (`legacy-production-lock.yml`) | success `42022013747` | | success על `main@2500ec56`: `42022871702` | לא |
+| 2029 Live Contracts (כולל perf-contracts) | success `42022030975` | | success ב־#1229 (`42021952328`) | לא |
+| Observability/SEO Build Gate | success `42022026670` | | | לא |
+| Agent Dispatch, Community Reaction Visibility, Dependency Radar V2, Research Sync, System Self Maintenance, Video Ingest | success (`42022062691`, `42022066190`, `42022069174`, `42022072728`, `42022077112`, `42022081028`) | | | לא |
+
+**CI על הראש הסופי:** יתווסף אחרי ההרצה (סעיף למטה). **לא הורצו:** `route-seo-decision-2029` (ראו SEO), `follow-identity-isolated-db-gate` ו־`media-release-batch-gate` (`pull_request` בלבד), Preview מוגן, קנרית. כשל או timeout שלא נפתר לא יסומן כירוק.
+
+## ביצועים — נמדד מחדש (`scripts/measure-2029-load.mjs`, 5 ריצות, Chromium CPU x4, 390×844, localhost בלבד)
+המכונה הייתה עמוסה בעבודות אחרות, ולכן ל־LCP יש רעש של כ־±200ms. הנתונים בקובץ [`perf-main-vs-branch.json`](perf-main-vs-branch.json).
+
+| מדד | `main@2500ec56` (build 2029) | ענף `6847e6799` |
+|---|---|---|
+| Eager: chunks / gzip / modules | 18 / 199.6KB / 101 | 18 / 198.9KB / 102 |
+| כל ה־chunks הנגישים (gzip) | 1,954KB (240) | 1,951KB (238) |
+| ביקור ראשון: LCP / long tasks | 1,784ms / 7 | 1,968ms / 8 |
+| בקשות / JS / העברה | 101 / 52 / 1,802KB | 102 / 53 / 1,798KB |
+| ביקור חוזר: LCP | 1,036ms | 972ms |
+| `npm run build` המלא | 8.2s (Legacy + 2029) | 4.6s (2029) |
+
+**מסקנה, מופרדת:** (א) *פישוט ארכיטקטורה:* אמיתי: −415 קבצים, build אחד, גרף סגור, פחות סתירות לסוכנים. (ב) *הקטנת קוד ריצה בחבילה:* לא נמדדה (Legacy היה מסמך ו־build נפרדים). (ג) *שיפור build:* כ־3.6 שניות מתוך 8.2 ב־`npm run build`. (ד) *שיפור initial load:* **אין**; ההבדלים בתוך הרעש, וב־eager gzip הם 0.7KB. (ה) *TTFB ופרודקשן:* לא נמדדו כאן. **אין לטעון שהאתר מהיר יותר בגלל ההסרה.** (הטבלה הקודמת, 26 chunks eager, נמדדה על בסיס ישן; `main` הנוכחי כבר ב־18.) האיטיות האמיתית נמצאת במקום אחר: זמן תגובת השרת של המסמך (השרת בארה״ב והמסד בטוקיו) וכ־50–60 קבצי JS בעמוד הבית.
+
+## ממצאים תוך כדי
+- **Lightbox:** כלל "תמונה מלאה בלי חיתוך" (`LightboxVisualFoundation.css`) נטען רק ע"י כניסת Legacy. ב־2029 תמונות גבוהות נגללות. לא נוסף CSS; בדיקת `FIT_WHOLE_IMAGE` ב־Release Visual נמחקה. **החלטת מוצר פתוחה:** המלצה להשאיר את ה־Lightbox המשותף (יש לו `object-fit: contain`).
+- **סיכון תפעולי שתוקן:** בדיקות ELS מקומיות שכתבו את `public/els-dynamic-lexicon-v1.gz64.txt` ו־`public/tzofen.html`; עכשיו הבדיקה בונה לתיקייה זמנית (`ELS_BUILD_OUT_DIR`, ברירת מחדל ללא שינוי). מקומית השוואת הבתים עדיין נכשלת כי ה־zlib כאן מפיק פלט שונה (נכשלה כך גם לפני התיקון); ב־CI היא עוברת.
+- **שער ה־SEO של Observability** בדק את נתיבי Legacy ונמחק; במקומו שני שערי SEO חדשים (לעיל).
+
+## ELS והיכל
+לא שונתה התנהגות. השינויים בקבצים ששמם ELS/היכל: החלפת import של `palette.js` ל־`palette2029.js` ושל `FeatureClosedNotice` לעותק 2029 (12 קבצי `yetzirahModels` + `ElsNativeClassic2029`, `ElsRotatingMatrixCard2029`, `elsFindingColors2029`, `Els2029Page`), מחיקת רכיבי ELS ו־`HeichalPage`/`ElsWorkAreaPage` של Legacy, ו־`tools/els/build.py` (משתנה סביבה אופציונלי, ברירת מחדל ללא שינוי). ELS Core Compatibility עבר בענף (`42022036546`, `42025480160`).
+
+## שאריות והחלטות פתוחות
+1. **שלושה קבצי src רדומים עם import שבור** (`EntityHubGoldenControls.jsx`, `OrGeulaSourceShortcut2029.jsx`, `StoryViewerOnDemand2029.jsx`). ה־Companion מנותק בהחלטת ZURIEL (1.11) וה־EntityHub preview אינו מחובר. אפשרויות: למחוק את האיים הרדומים (ובדיקותיהם), או לשחזר רכיבים ניטרליים בשם 2029. לא נעשה דבר כדי לא להגדיל מחיקה ולא לשחזר UI של Legacy.
+2. **התלות `xlsx`** ב־`package.json` אינה בשימוש אחרי מחיקת `FileAnalyzer.jsx` (הייתה בשימוש רק בו). הסרה נוגעת ב־lockfile ודורשת החלטה.
+3. **`src/theme.js`** (ראו "מה נשמר").
+4. **בדיקות דפדפן ב־Python שמניחות את ה־hand-off של Legacy** ואינן רצות באף workflow: `test/public-contributor-routes-2029.browser.py` (מצפה ל־"Legacy document target"), `test/email-verify-2029-boundary.browser.py` (מצב `legacy`). לא הורצו ולא שונו.
+5. **שמות ותוויות ישנים בלבד:** צעד ב־`2029-isolation-gate.yml` ששמו ״Theme/palette isolation (2029 store, Legacy-host adapter)״; שם הבדיקה ״normal Legacy build remains the default״ ב־`public-reading-release-2029.test.mjs` (עוברת); `SOD_BUILD_TARGET=2029` שנשאר בבדיקות דפדפן (מתעלמים ממנו); ושם ה־workflow `legacy-production-lock` שנשמר בכוונה לשמות הבדיקות הנדרשות.
+6. **`src/features/personalPanels/*`** (`MessagesHub`, `PageEditor`): הועברו מקליפת Legacy, בשימוש `/2029/me/:module`, ועדיין בסגנון Legacy. החלטת עיצוב.
+7. **נעילות `site_flags` במסד** (`lock_number`, `lock_books`...) אינן קובעות את מה שהציבור רואה באתר החי: פרופיל הקריאה הציבורית (`publicReadingRelease2029.js`) פותח בעצמו את `lock_world`, `lock_number`, `lock_gematria`, `lock_books`. רק נעילות שאינן ברשימה (למשל רזיאל) נשארות נעולות בפועל. סטייה תיעודית שמטעה סוכנים; הכרעה והחלטת DB אצל ZURIEL.
+8. **מסמכי בעלים** (`SOD1820_MASTER_*`, `SOD1820_DESIGN_CONTRACT_V*`): ערכים היסטוריים כרונולוגיים שמזכירים את Legacy כפעיל נשארו כמות שהם; בקומיט הניסוח נערך רק ניסוח נעילת Legacy וחזרה. בראש `CLAUDE.md` ו־`AGENTS.md` נוסף בלוק "Legacy פרש".
+9. **ענפים:** `claude/legacy-removal-integration-20261105` נשאר כראיית נחיתה. מחיקת ענפים ו־PR ישנים רק אחרי ארכוב ובאישור (תג לא ניתן לדחיפה מהסביבה הזו).
+10. **שורש `vercel.json`:** ה־catch-all שלו מגיש עכשיו `/2029.html`. הפרודקשן משתמש ב־`public-reading-deploy/vercel.json` (לא שונה).
+
+## מה לא נבדק (מגבלות)
+Preview מוגן של הענף; Auth, העלאות, פרסום וקהילה חיים מקצה לקצה (נבדקו חוזים סטטיים ומסכים); INP; ביצועי רשת ו־CDN אמיתיים; 91 קבצי בדיקה שדורשים דפדפן או שרת (חלק מכוסים ב־Playwright gates ב־CI); בדיקות Python; שכבת ה־rewrites של Vercel ו־Edge middleware בבדיקת ה־SEO; מחרוזות דינמיות. הרצות ה־CI הן dispatch על הענף ולא בדיקות PR.
+
+## נדרש לפני merge
+1. אישור מפורש של ZURIEL לפתיחת **טיוטת PR** ל־`main` (אין PR כרגע) ולנחיתה ב־**commit merge** (לא squash).
+2. בדיקות ה־PR ירוקות, כולל ה־workflow החדש `route-seo-decision-2029` ושערי ה־PR בלבד (`follow-identity-isolated-db-gate`, `media-release-batch-gate`).
+3. הכרעה בשאריות 1–2 או קבלתן כמתועדות.
+4. אם `main` זז: merge רגיל נוסף (בלי rebase), ובדיקת התנגשויות.
+5. **Preview מוגן** של ה־SHA המדויק, באישור, ובו מעבר ידני על התחברות, העלאה, קהילה, `/2029/control`, `/2029/me/*` וכל הנתיבים הציבוריים.
+
+## נדרש לפני production
+אישור מפורש של ZURIEL ל־**SHA מדויק**; קנרית מוצלחת על ה־SHA החי הנוכחי (Production Canary Gate); בנייה לפי מתכון ה־public-reading; אחרי מעבר הכתובות, הרצת קנרית ידנית אחת (הקנרית האוטומטית רצה לפני המעבר ואינה ראיה) ובדיקת דפדפן אמיתי ב־390 וב־1440 בדומיין החי. יעד חזרה: פריסת 2029 קודמת ולא Legacy; החזרה אינה משחזרת מסד או מדיה.
