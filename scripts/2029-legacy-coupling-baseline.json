@@ -1,0 +1,544 @@
+{
+ "_comment": "Ratchet baseline for scripts/test-2029-module-boundary.mjs. Entries may only be REMOVED (as coupling is eliminated); a new coupling fails the test. class: L=Legacy-owned, N=needs 2029-owned replacement, I=neutral shared infrastructure, F=shared functionality (split logic/UI). No automatic baseline update.",
+ "directLegacyContract": {
+  "src/components/CanonicalProgress.jsx": {
+   "class": "N",
+   "action": "No Legacy-only importer: already 2029-owned in practice; uses Legacy usePalette → switch to use2029Palette and rename under 2029."
+  },
+  "src/components/EmailVerify.jsx": {
+   "class": "F",
+   "action": "OTP UI; reached via WatchButton/SubscribeGate. Auth2029Page exists; remove from 2029 path after WatchButton split."
+  },
+  "src/components/FeatureClosedNotice.jsx": {
+   "class": "N",
+   "action": "2029 closed notice on use2029Palette; Legacy copy stays for Forum/Discourse."
+  },
+  "src/components/Lightbox.jsx": {
+   "class": "N",
+   "action": "329 lines, theme.js tokens, fixed overlay, Legacy edit/admin button; 2029 media viewer (CanonicalMediaFigure2029 is the 2029 owner)."
+  },
+  "src/components/MaintenanceLock.jsx": {
+   "class": "F",
+   "action": "Split: feature-state resolver (site_flags, public-reading lock) → neutral service; Legacy keeps the mlock UI (heritage logo, inline styles); 2029 closed-state UI already exists in App2029 FramedGate2029."
+  },
+  "src/components/PostFollowBox.jsx": {
+   "class": "F",
+   "action": "Composition of WatchButton with Legacy defaults; follows WatchButton split."
+  },
+  "src/components/ReactionBar.jsx": {
+   "class": "F",
+   "action": "Reaction RPC/optimistic-update logic → neutral service; 2029 UI over use2029Palette."
+  },
+  "src/components/ReportHint.jsx": {
+   "class": "F",
+   "action": "community_hints reporting logic stays; 2029 modal UI."
+  },
+  "src/components/ShareActions.jsx": {
+   "class": "F",
+   "action": "Share logic stays in lib/share.js (neutral); 2029 share UI separate from Legacy usePalette/theme.js button."
+  },
+  "src/components/StayUpdatedCTA.jsx": {
+   "class": "F",
+   "action": "Newsletter consent/transport stays; uses Legacy chromeTheme + themeMode. 2029 CTA UI (Footer2029/Home already host it)."
+  },
+  "src/components/StrongHintBadge.jsx": {
+   "class": "N",
+   "action": "43-line badge on theme.js tokens; 2029 badge."
+  },
+  "src/components/SubscribeGate.jsx": {
+   "class": "L",
+   "action": "Legacy subscribe_gate_law UI; reached only via TzofenEmbed. Remove from 2029 path."
+  },
+  "src/components/VisitorSearchesBox.jsx": {
+   "class": "N",
+   "action": "Reached only via CommunityCalculatorPage; follows the calculator decision."
+  },
+  "src/components/WatchButton.jsx": {
+   "class": "F",
+   "action": "Funnel/subscription logic → neutral service; 2029 follow UI. Canonical-component law conflict (see doc)."
+  },
+  "src/components/experience2029/CurationMark2029.jsx": {
+   "class": "N",
+   "action": "2029-named but calls Legacy usePalette: switch to use2029Palette."
+  },
+  "src/components/experience2029/SpatialGlyphScene2029.jsx": {
+   "class": "N",
+   "action": "Uses Legacy themeMode: switch to 2029 theme store."
+  },
+  "src/components/experience2029/SystemFrame2029.jsx": {
+   "class": "N",
+   "action": "Uses Legacy themeMode: switch to 2029 theme store."
+  },
+  "src/components/experience2029/previewVisualReview2029.jsx": {
+   "class": "N",
+   "action": "Preview-only; uses Legacy themeMode."
+  },
+  "src/components/research/TopicConvergenceContent.jsx": {
+   "class": "N",
+   "action": "Legacy TopicPage + World2029Page both mount it; 2029 topic content."
+  },
+  "src/lib/engine.js": {
+   "class": "I",
+   "action": "Same: calcGem from theme.js."
+  },
+  "src/lib/experienceContext.js": {
+   "class": "F",
+   "action": "Pulls F (fonts) from theme.js and STREAMS from stream.js; needs 2029 font/stream tokens in designTokens."
+  },
+  "src/lib/gematria.js": {
+   "class": "I",
+   "action": "Engine; only coupling is import of GEM from theme.js. Rewire import after theme.js extraction; no logic change."
+  },
+  "src/lib/numberMessage.js": {
+   "class": "I",
+   "action": "Same: KEY_NUMBERS from theme.js."
+  },
+  "src/lib/palette.js": {
+   "class": "F",
+   "action": "Mixed file: Legacy PALETTES/usePalette/effectiveMode (route table) + 2029 DESIGN_V2/use2029Palette/PaletteProvider. Split into Legacy palette and palette2029; 2029 PaletteProvider context must not be shared."
+  },
+  "src/lib/timeFlow.js": {
+   "class": "I",
+   "action": "Same: calcGem from theme.js."
+  },
+  "src/pages/CommunityCalculatorPage.jsx": {
+   "class": "N",
+   "action": "802 lines, Legacy palette, localStorage, fixed popups; 2029 wraps it with passive/actionsLocked props. Needs a 2029 calculator surface over the unchanged gematria engine."
+  },
+  "src/pages/HomePreview2029Page.jsx": {
+   "class": "N",
+   "action": "Uses Legacy themeMode."
+  },
+  "src/pages/NotFoundPage.jsx": {
+   "class": "N",
+   "action": "29-line page: 2029 NotFound over use2029Palette; Legacy keeps its own."
+  },
+  "src/pages/PrivacyPage.jsx": {
+   "class": "N",
+   "action": "2029 legal page owner; text content is data, UI uses Legacy usePalette."
+  },
+  "src/pages/UnsubscribePage.jsx": {
+   "class": "F",
+   "action": "Unsubscribe RPC logic stays; 2029 UI over it."
+  },
+  "src/pages/VideoAssetPage.jsx": {
+   "class": "F",
+   "action": "2029 imports only the named Player export: extract Player into a neutral media primitive or a 2029 Player; the page stays Legacy."
+  },
+  "src/pages/World2029Page.jsx": {
+   "class": "N",
+   "action": "2029-named but calls Legacy usePalette."
+  }
+ },
+ "sharedUiState": {
+  "src/components/FeatureClosedNotice.jsx": {
+   "class": "N",
+   "action": "2029 closed notice on use2029Palette; Legacy copy stays for Forum/Discourse."
+  },
+  "src/components/HumanDateInput.jsx": {
+   "class": "I",
+   "action": "Pure input control, no palette/router/state imports. Allowed as neutral."
+  },
+  "src/components/Lightbox.jsx": {
+   "class": "N",
+   "action": "329 lines, theme.js tokens, fixed overlay, Legacy edit/admin button; 2029 media viewer (CanonicalMediaFigure2029 is the 2029 owner)."
+  },
+  "src/components/MaintenanceLock.jsx": {
+   "class": "F",
+   "action": "Split: feature-state resolver (site_flags, public-reading lock) → neutral service; Legacy keeps the mlock UI (heritage logo, inline styles); 2029 closed-state UI already exists in App2029 FramedGate2029."
+  },
+  "src/components/MatrixRain.jsx": {
+   "class": "I",
+   "action": "Pure props-only canvas effect, only imports React, no theme/palette/state. Allowed as neutral; postFx mapping stays Legacy."
+  },
+  "src/components/NameMultiSearch.jsx": {
+   "class": "N",
+   "action": "Reached only via CommunityCalculatorPage; follows the calculator decision."
+  },
+  "src/components/PersonJourney.jsx": {
+   "class": "N",
+   "action": "1,796 lines with a variant=\"2029\" flag: Legacy UI carrying a 2029 mode. Needs a 2029-owned Journey surface; engines/projections reused."
+  },
+  "src/components/PostFollowBox.jsx": {
+   "class": "F",
+   "action": "Composition of WatchButton with Legacy defaults; follows WatchButton split."
+  },
+  "src/components/ProfileSettings.jsx": {
+   "class": "F",
+   "action": "Avatar upload/Storage and profile-save logic unchanged → neutral service; 2029 form UI (QuickProfileAvatar2029 exists)."
+  },
+  "src/components/ReactionBar.jsx": {
+   "class": "F",
+   "action": "Reaction RPC/optimistic-update logic → neutral service; 2029 UI over use2029Palette."
+  },
+  "src/components/ReportHint.jsx": {
+   "class": "F",
+   "action": "community_hints reporting logic stays; 2029 modal UI."
+  },
+  "src/components/ShareActions.jsx": {
+   "class": "F",
+   "action": "Share logic stays in lib/share.js (neutral); 2029 share UI separate from Legacy usePalette/theme.js button."
+  },
+  "src/components/StayUpdatedCTA.jsx": {
+   "class": "F",
+   "action": "Newsletter consent/transport stays; uses Legacy chromeTheme + themeMode. 2029 CTA UI (Footer2029/Home already host it)."
+  },
+  "src/components/StrongHintBadge.jsx": {
+   "class": "N",
+   "action": "43-line badge on theme.js tokens; 2029 badge."
+  },
+  "src/components/SubscribeGate.jsx": {
+   "class": "L",
+   "action": "Legacy subscribe_gate_law UI; reached only via TzofenEmbed. Remove from 2029 path."
+  },
+  "src/components/TzofenEmbed.jsx": {
+   "class": "N",
+   "action": "781 lines, own storage/events/fixed popups, wrapped by SubscribeGate (Legacy gate). 2029 ELS embed should not carry the Legacy gate."
+  },
+  "src/components/VisitorSearchesBox.jsx": {
+   "class": "N",
+   "action": "Reached only via CommunityCalculatorPage; follows the calculator decision."
+  },
+  "src/components/WatchButton.jsx": {
+   "class": "F",
+   "action": "Funnel/subscription logic → neutral service; 2029 follow UI. Canonical-component law conflict (see doc)."
+  },
+  "src/components/research/ContributorFindingsLens.jsx": {
+   "class": "N",
+   "action": "Legacy ContributorPage + PublicContributor2029Page both mount it; 2029 lens over shared projections."
+  },
+  "src/components/research/TopicConvergenceContent.jsx": {
+   "class": "N",
+   "action": "Legacy TopicPage + World2029Page both mount it; 2029 topic content."
+  },
+  "src/features/personalPanels/MessagesHub.jsx": {
+   "class": "F",
+   "action": "Same as PageEditor."
+  },
+  "src/features/personalPanels/PageEditor.jsx": {
+   "class": "F",
+   "action": "Created last pass as a neutral home, but still Legacy-styled (T palette from UserCenter) and RPC-bound: needs 2029 panel + neutral service. Not accepted as final."
+  },
+  "src/lib/AuthContext.jsx": {
+   "class": "I",
+   "action": "Single Supabase session is required infrastructure, BUT it embeds Legacy side-effects (credits, referral, WA credits, marketing). Make them opt-in from the Legacy root only."
+  },
+  "src/lib/acquisition.js": {
+   "class": "I",
+   "action": "Attribution; keep."
+  },
+  "src/lib/auth.js": {
+   "class": "I",
+   "action": "Auth entry; keep."
+  },
+  "src/lib/events.js": {
+   "class": "I",
+   "action": "Telemetry; keep."
+  },
+  "src/lib/hints.js": {
+   "class": "I",
+   "action": "Hints data/storage; keep."
+  },
+  "src/lib/identity.js": {
+   "class": "I",
+   "action": "Visitor identity; keep."
+  },
+  "src/lib/oauthReturn.js": {
+   "class": "I",
+   "action": "OAuth return policy; keep."
+  },
+  "src/lib/openweb.js": {
+   "class": "I",
+   "action": "OpenWeb chat data; keep."
+  },
+  "src/lib/palette.js": {
+   "class": "F",
+   "action": "Mixed file: Legacy PALETTES/usePalette/effectiveMode (route table) + 2029 DESIGN_V2/use2029Palette/PaletteProvider. Split into Legacy palette and palette2029; 2029 PaletteProvider context must not be shared."
+  },
+  "src/lib/privacy.js": {
+   "class": "I",
+   "action": "Privacy/consent storage; keep."
+  },
+  "src/lib/propagation.js": {
+   "class": "I",
+   "action": "Share propagation (visitor_events); keep."
+  },
+  "src/lib/research/ResearchProvider.jsx": {
+   "class": "F",
+   "action": "Shared React context/state for both runtimes (separate roots, shared localStorage rollout key). Decision needed: 2029-owned provider vs shared canonical research environment."
+  },
+  "src/lib/research/researchViewMode.js": {
+   "class": "F",
+   "action": "View-mode storage shared with Legacy; confirm key independence."
+  },
+  "src/lib/seo.js": {
+   "class": "I",
+   "action": "Head/meta only; keep."
+  },
+  "src/lib/stream.js": {
+   "class": "N",
+   "action": "Visitor stream (kingdom/reality) store with <html data-stream> shared with Legacy; used by experienceContext for STREAMS constants. Decision needed."
+  },
+  "src/lib/supabase.js": {
+   "class": "I",
+   "action": "Client + data access; no UI. Keep."
+  },
+  "src/lib/themeMode.js": {
+   "class": "N",
+   "action": "Shared localStorage \"sod-theme\" + <html data-theme> with Legacy Navbar toggle: 2029 needs its own theme-preset store (migration decision on the stored value)."
+  },
+  "src/lib/tracking.js": {
+   "class": "I",
+   "action": "Telemetry; keep."
+  },
+  "src/lib/visits.js": {
+   "class": "I",
+   "action": "Telemetry; keep."
+  },
+  "src/pages/CommunityCalculatorPage.jsx": {
+   "class": "N",
+   "action": "802 lines, Legacy palette, localStorage, fixed popups; 2029 wraps it with passive/actionsLocked props. Needs a 2029 calculator surface over the unchanged gematria engine."
+  },
+  "src/pages/EntityHubPreviewPage.jsx": {
+   "class": "N",
+   "action": "Mounted by both App.jsx and App2029. Decide owner; recommended 2029-only with Legacy route becoming a document handoff (needs approval, touches Legacy routing)."
+  },
+  "src/pages/NotFoundPage.jsx": {
+   "class": "N",
+   "action": "29-line page: 2029 NotFound over use2029Palette; Legacy keeps its own."
+  },
+  "src/pages/PrivacyPage.jsx": {
+   "class": "N",
+   "action": "2029 legal page owner; text content is data, UI uses Legacy usePalette."
+  },
+  "src/pages/UnsubscribePage.jsx": {
+   "class": "F",
+   "action": "Unsubscribe RPC logic stays; 2029 UI over it."
+  },
+  "src/pages/VideoAssetPage.jsx": {
+   "class": "F",
+   "action": "2029 imports only the named Player export: extract Player into a neutral media primitive or a 2029 Player; the page stays Legacy."
+  }
+ },
+ "taintedNative2029": [
+  "src/App2029.jsx",
+  "src/components/auth2029/AccountEntry2029.jsx",
+  "src/components/beitMidrash2029/BeitMidrashGuided.jsx",
+  "src/components/beitMidrash2029/BeitMidrashMethods.jsx",
+  "src/components/beitMidrash2029/BeitMidrashParticipate.jsx",
+  "src/components/books2029/AhavatBookEntry2029.jsx",
+  "src/components/books2029/BookPdfPage2029.jsx",
+  "src/components/books2029/BookSourceReader2029.jsx",
+  "src/components/books2029/DepthsLearningWorkspace2029.jsx",
+  "src/components/books2029/LetterGateExploration2029.jsx",
+  "src/components/books2029/SeferYetzirahStructureCatalog2029.jsx",
+  "src/components/books2029/yetzirahModels/FiveAgainstFiveLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/FiveAgainstFiveModel2029.jsx",
+  "src/components/books2029/yetzirahModels/GraDoublesLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/GraDoublesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/GraSealsLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/GraSealsModel2029.jsx",
+  "src/components/books2029/yetzirahModels/LetterFamiliesLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/LetterFamiliesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/MothersCorrespondencesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/MothersLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/MouthGroupsLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/PhoneticGroupsModel2029.jsx",
+  "src/components/books2029/yetzirahModels/StonesHousesLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/StonesHousesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/SynopticDoublesLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/SynopticDoublesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/SynopticSealsLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/SynopticSealsModel2029.jsx",
+  "src/components/books2029/yetzirahModels/TenDepthsModel2029.jsx",
+  "src/components/books2029/yetzirahModels/ThreeKingsLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/ThreeKingsModel2029.jsx",
+  "src/components/books2029/yetzirahModels/TwelveBoundariesLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/TwelveBoundariesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/YetzirahModelCard.jsx",
+  "src/components/community2029/CommunityLive2029.jsx",
+  "src/components/community2029/CommunityMessageContent.jsx",
+  "src/components/community2029/CommunityMessageManage.jsx",
+  "src/components/community2029/CommunityPersonalActions2029.jsx",
+  "src/components/community2029/CommunityRichText2029.jsx",
+  "src/components/community2029/CommunitySignIn.jsx",
+  "src/components/community2029/CommunitySignedInControls2029.jsx",
+  "src/components/community2029/LegacyAccountClaim.jsx",
+  "src/components/community2029/LegacyOpenWebChat2029.jsx",
+  "src/components/community2029/useCommunityDraft2029.js",
+  "src/components/community2029/useCommunityMessageActions2029.js",
+  "src/components/community2029/useCommunityReadingPosition2029.js",
+  "src/components/contributor2029/ContributorActionsController2029.jsx",
+  "src/components/contributor2029/ContributorCommunityActivity2029.jsx",
+  "src/components/contributor2029/ContributorPersonMedallion2029.jsx",
+  "src/components/contributor2029/ContributorPublicExtras2029.jsx",
+  "src/components/contributor2029/ContributorReadingController2029.jsx",
+  "src/components/contributor2029/ContributorReadingControls2029.jsx",
+  "src/components/contributor2029/PublicSourceCatalog2029.jsx",
+  "src/components/contributor2029/QuickProfileAvatar2029.jsx",
+  "src/components/contributor2029/WriterPersonalViews2029.jsx",
+  "src/components/contributor2029/contributorCuration2029Model.js",
+  "src/components/contributor2029/contributorInteractions2029.js",
+  "src/components/contributor2029/contributorOverview2029Model.js",
+  "src/components/contributor2029/contributorPersonView2029.js",
+  "src/components/contributor2029/contributorReading2029Model.js",
+  "src/components/contributor2029/loadCommunityPerson2029.js",
+  "src/components/contributor2029/loadPublicContributor2029.js",
+  "src/components/contributor2029/publicContributor2029Model.js",
+  "src/components/contributor2029/publicContributorPerson2029.js",
+  "src/components/contributor2029/publicSourceCatalog2029Model.js",
+  "src/components/experience2029/CanonicalMediaFigure2029.jsx",
+  "src/components/experience2029/CanonicalVerseCards2029.jsx",
+  "src/components/experience2029/ContactGatewayOnDemand2029.jsx",
+  "src/components/experience2029/ContextualVideoLayer2029.jsx",
+  "src/components/experience2029/ConvergenceRatings2029.jsx",
+  "src/components/experience2029/CurationMark2029.jsx",
+  "src/components/experience2029/ElsAdvancedSearch2029.jsx",
+  "src/components/experience2029/ElsLexiconResearch2029.jsx",
+  "src/components/experience2029/ElsMatrixReadingActivity2029.jsx",
+  "src/components/experience2029/ElsNativeClassic2029.jsx",
+  "src/components/experience2029/ElsOccurrencePlanner2029.jsx",
+  "src/components/experience2029/ElsResearchActivity2029.jsx",
+  "src/components/experience2029/ElsRotatingMatrixCard2029.jsx",
+  "src/components/experience2029/ElsSavedLibrary2029.jsx",
+  "src/components/experience2029/Footer2029.jsx",
+  "src/components/experience2029/GoldenProjectorModeLayer2029.jsx",
+  "src/components/experience2029/GuestNewsletterInvite2029.jsx",
+  "src/components/experience2029/HomeComposition2029.jsx",
+  "src/components/experience2029/HomeHeroMotion2029.jsx",
+  "src/components/experience2029/IconTile2029.jsx",
+  "src/components/experience2029/LearnMark2029.jsx",
+  "src/components/experience2029/LifeJourneyCapabilities2029.jsx",
+  "src/components/experience2029/LifeJourneyDate2029.jsx",
+  "src/components/experience2029/LifeJourneyHints2029.jsx",
+  "src/components/experience2029/LifeJourneyMaps2029.jsx",
+  "src/components/experience2029/LifeJourneyName2029.jsx",
+  "src/components/experience2029/LifeJourneyResume2029.jsx",
+  "src/components/experience2029/Opening2029.jsx",
+  "src/components/experience2029/OperationalMetrics2029.jsx",
+  "src/components/experience2029/PostCategories2029.jsx",
+  "src/components/experience2029/PostComments2029.jsx",
+  "src/components/experience2029/PostConvergenceMeasures2029.jsx",
+  "src/components/experience2029/ProjectorMediaCards2029.jsx",
+  "src/components/experience2029/RazielSessionMount2029.jsx",
+  "src/components/experience2029/RazielViewModeSelector2029.jsx",
+  "src/components/experience2029/SiteSearch2029.jsx",
+  "src/components/experience2029/Sod2029Shell.jsx",
+  "src/components/experience2029/SpatialGlyphScene2029.jsx",
+  "src/components/experience2029/SurfaceContextRail2029.jsx",
+  "src/components/experience2029/SystemFrame2029.jsx",
+  "src/components/experience2029/elsFindingColors2029.js",
+  "src/components/experience2029/previewVisualReview2029.jsx",
+  "src/components/experience2029/useSystemFeed2029.js",
+  "src/components/followCenter2029/FollowCenter2029.jsx",
+  "src/components/followCenter2029/FollowCenterController2029.jsx",
+  "src/components/followCenter2029/WatchControl2029.jsx",
+  "src/components/followCenter2029/followCenterModel2029.js",
+  "src/components/gematria2029/CalculatorAiAnalysis2029.jsx",
+  "src/components/gematria2029/CalculatorCompare2029.jsx",
+  "src/components/gematria2029/CalculatorDuo2029.jsx",
+  "src/components/gematria2029/CalculatorEqualsPreview2029.jsx",
+  "src/components/gematria2029/CalculatorOpening2029.jsx",
+  "src/components/gematria2029/CalculatorWordsBar2029.jsx",
+  "src/components/gematria2029/MethodLens2029.jsx",
+  "src/components/gematria2029/MethodTraceExplanation2029.jsx",
+  "src/components/gematria2029/SpatialMethodStage2029.jsx",
+  "src/components/kingdom/KingdomMap2029.jsx",
+  "src/components/number2029/NumberAiAnalysis2029.jsx",
+  "src/components/number2029/NumberCore2029.jsx",
+  "src/components/number2029/NumberDrawer2029.jsx",
+  "src/components/number2029/NumberLivingWorld2029.jsx",
+  "src/components/number2029/NumberPathContinuation2029.jsx",
+  "src/components/number2029/NumberZviPublicResearch2029.jsx",
+  "src/components/research/RealityRiver2029.jsx",
+  "src/components/research/RealityStreamFollow2029.jsx",
+  "src/components/research/Revelation1237Gate2029.jsx",
+  "src/components/research/SourceArrivalList2029.jsx",
+  "src/components/research/StoryTreeSequence2029.jsx",
+  "src/components/research/TopicNumberResearch2029.jsx",
+  "src/components/research/WorldFlightStory2029.jsx",
+  "src/components/research/WorldKnowledgeTypes2029.jsx",
+  "src/components/research/WorldPeopleSources2029.jsx",
+  "src/components/research/WorldPublicSourceSubjects2029.jsx",
+  "src/components/research/WorldPublicUpdates2029.jsx",
+  "src/components/research/WorldZviApprovedFindings2029.jsx",
+  "src/components/research/WorldZviSourceFindings2029.jsx",
+  "src/components/research/ZviGroupTimeline2029.jsx",
+  "src/components/userCenter/PersonalNotes2029.jsx",
+  "src/components/userCenter/PersonalSaveButton2029.jsx",
+  "src/lib/analytics2029.js",
+  "src/lib/entryLearn2029.js",
+  "src/lib/publicContinuityReaders2029.js",
+  "src/lib/research/RazielSessionProvider2029.jsx",
+  "src/lib/research/calculator2029FastPreview.js",
+  "src/lib/research/calculator2029Model.js",
+  "src/lib/research/communityCalculatorContinuity2029.js",
+  "src/lib/research/contentSeries2029Projection.js",
+  "src/lib/research/curationProjection2029.js",
+  "src/lib/research/home2029Projection.js",
+  "src/lib/research/homeLaunchPosts2029.js",
+  "src/lib/research/journey2029Telemetry.js",
+  "src/lib/research/numberAiFactPack2029.js",
+  "src/lib/research/post2029ReadingProjection.js",
+  "src/lib/research/postsCatalog2029Projection.js",
+  "src/lib/research/publicLibraryContinuity2029.js",
+  "src/lib/research/publicPostSourceLinks2029.js",
+  "src/lib/research/publicVideo2029Reading.js",
+  "src/lib/research/revelation1237Gate2029.js",
+  "src/lib/research/siteSearch2029.js",
+  "src/lib/research/storyTreeSequence2029.js",
+  "src/lib/research/systemFeedPublicSources2029.js",
+  "src/lib/research/topic2029Projection.js",
+  "src/lib/research/topicExpressionFocus2029.js",
+  "src/lib/research/world2029Presentation.js",
+  "src/lib/research/worldFocusedMaterial2029.js",
+  "src/lib/research/worldGraphRelationOpener2029.js",
+  "src/lib/research/worldPublicSourceSubjects2029.js",
+  "src/lib/userCenter/followCenter2029.js",
+  "src/lib/userCenter/writerPersonal2029.js",
+  "src/lib/webVitals2029.js",
+  "src/main2029.jsx",
+  "src/pages/AhavatTorahSystem2029Page.jsx",
+  "src/pages/Auth2029Page.jsx",
+  "src/pages/BeitMidrash2029Page.jsx",
+  "src/pages/BentovFindingsProduct2029Page.jsx",
+  "src/pages/BookPublicationReview2029Page.jsx",
+  "src/pages/Books2029Page.jsx",
+  "src/pages/BooksLibraryJourney2029Page.jsx",
+  "src/pages/Calculator2029Page.jsx",
+  "src/pages/CalculatorPro2029Page.jsx",
+  "src/pages/Campaign718Page2029.jsx",
+  "src/pages/Community2029Page.jsx",
+  "src/pages/CommunityCalculator2029Page.jsx",
+  "src/pages/CommunityChatTransition2029Page.jsx",
+  "src/pages/ControlPlane2029Page.jsx",
+  "src/pages/DaatTevunotTree2029Page.jsx",
+  "src/pages/EarlyAccess2029Page.jsx",
+  "src/pages/Els2029Page.jsx",
+  "src/pages/FollowCenterPreview2029Page.jsx",
+  "src/pages/Gallery2029Page.jsx",
+  "src/pages/Heichal2029Page.jsx",
+  "src/pages/Home2029Page.jsx",
+  "src/pages/HomePreview2029Page.jsx",
+  "src/pages/IntegratedPreview2029Page.jsx",
+  "src/pages/Kingdom2029Page.jsx",
+  "src/pages/LifeJourney2029Page.jsx",
+  "src/pages/Number2029Page.jsx",
+  "src/pages/NumberAddress2029Page.jsx",
+  "src/pages/OAuthCallback2029.jsx",
+  "src/pages/Post2029Page.jsx",
+  "src/pages/Posts2029Page.jsx",
+  "src/pages/PostsTaxonomy2029Page.jsx",
+  "src/pages/PublicContinuity2029Page.jsx",
+  "src/pages/PublicContributor2029Page.jsx",
+  "src/pages/PublicLibraryContinuity2029Page.jsx",
+  "src/pages/PublicPostAddress2029Page.jsx",
+  "src/pages/PublicServices2029Page.jsx",
+  "src/pages/Researcher2029Page.jsx",
+  "src/pages/SeferYetzirahWorld2029Page.jsx",
+  "src/pages/Topic2029Page.jsx",
+  "src/pages/Video2029Page.jsx",
+  "src/pages/World2029Page.jsx",
+  "src/pages/WriterPersonal2029Page.jsx"
+ ]
+}

@@ -78,6 +78,7 @@ on:
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
       - "scripts/test-2029-module-boundary.mjs"
+      - "scripts/2029-legacy-coupling-baseline.json"
       - "src/features/personalPanels/**"
       - "scripts/test-2029-system-frame.mjs"
       - "scripts/test-2029-canonical-contract-wiring.mjs"

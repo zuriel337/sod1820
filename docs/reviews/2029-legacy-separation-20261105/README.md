@@ -1,5 +1,7 @@
 # הפרדה ארכיטקטונית 2029 ↔ Legacy — Audit ומסירה (5.11.2026)
 
+> **עדכון:** הסיווג המעמיק של הרכיבים והחוזים המשותפים נמצא ב־[FINDINGS.md](FINDINGS.md). `src/features/personalPanels/*` שנוצר בסבב הראשון **אינו** מצב סופי — הוא עדיין בסגנון Legacy ומסומן שם כ־F.
+
 בסיס: `origin/main` = `a27d8d06ff72e8ae664c02f0a5bc0bb66dd7a1b5`, ענף `claude/2029-legacy-separation-e8j9tf`.
 היקף: קוד בלבד. אין Production/alias/דומיינים, אין שינוי Supabase/RLS/Storage, אין מחיקת קבצים. זו עבודת ענף ולא פריסה.
 
