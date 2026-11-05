@@ -14,8 +14,8 @@
 | סיווג | קבצים | פירוט |
 |---|---|---|
 | **Keep / Extract** | 2 | `lib/analysisFlow.js`, `lib/triage.js` — מיובאים ע"י `supabase/functions/expression-extract` וסקריפטי audit (לוגיקה שנדרשת בצד שרת). |
-| **Replace — אין תחליף ב־2029** | 68 (≈1.5MB) | ראו הסעיף הבא. |
-| **Delete** | 275 (≈3.5MB) | `src/App.jsx`, `main.jsx`, `routes.jsx`, `legacy/legacy.jsx` (265KB), `components/layout/*` (Navbar, BottomBar, Footer, טיקרים), דפי תוכן ציבוריים שיש להם מקבילה ב־2029 (Home, Posts, Number, Topic, Gallery, Beit Midrash, Journey...), UserCenter, `adminTheme.css` וכו'. |
+| **Replace — אין תחליף ב־2029** | 66 (≈1.5MB) | ראו הסעיף הבא. |
+| **Delete** | 277 (≈3.5MB) | `src/App.jsx`, `main.jsx`, `routes.jsx`, `legacy/legacy.jsx` (265KB), `components/layout/*` (Navbar, BottomBar, Footer, טיקרים), דפי תוכן ציבוריים שיש להם מקבילה ב־2029 (Home, Posts, Number, Topic, Gallery, Beit Midrash, Journey...), UserCenter, `adminTheme.css` וכו'. |
 
 ## יכולות שקיימות רק ב־Legacy (אסור להכריז על מחיקה בלי החלטה)
 בגרף 2029 **אין** עורך פוסטים, מסוף ניהול, העלאת מדיה (TUS/Storage) מתוך ממשק, רכישת קרדיטים או תיבת WhatsApp. הם נמצאים רק כאן:
