@@ -4,7 +4,7 @@ name: 2029 Live Contracts
 # The assertions were salvaged from Legacy-era tests (see the header of each script); nothing here is new behaviour, a threshold or a budget.
 # It runs on every pull request to main and can be dispatched by hand. No network, no browser, no secrets.
 # The second job, perf-contracts-2029, builds the app and runs speed contracts that existed but ran nowhere (today: the Realtime/Phoenix chunk stays out of the 2029 entry).
-# The third job, release-contracts-2029, runs release-path contracts that also ran nowhere: the server document metadata for public routes, the Beit Midrash strips, and the production service worker.
+# The third job, release-contracts-2029, runs release-path contracts that also ran nowhere: the server document metadata for public routes, the Beit Midrash strips, the production service worker, and the Number page (projection reads and the phone first screen).
 
 on:
   pull_request:
@@ -72,3 +72,5 @@ jobs:
         run: |
           node scripts/build-public-reading-production.mjs
           node --test test/public-reading-production-artifact.test.mjs
+      - name: Number page contracts (value reads start with the node lookup and share one fn_number_lookup; the phone first screen keeps the number high)
+        run: node --test test/entity-graph-anchor-reuse-2029.test.mjs test/number-projection-shared-reads-2029.test.mjs test/number-mobile-first-screen-2029.test.mjs

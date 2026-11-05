@@ -3,6 +3,9 @@
   gap:18px;
   direction:rtl;
 }
+/* Wrapper for the way-back link and the save action. Display:contents above the phone breakpoint: the two controls keep their
+   original stacked layout and the wrapper adds no box. */
+.sod29-number-hero-bar{display:contents}
 .sod29-number-hero{
   position:relative;
   overflow:hidden;
@@ -856,6 +859,12 @@
 }
 @media(max-width:560px){
   .sod29-number-hero{padding:12px}
+  /* Mobile first screen (ZURIEL 5.11.2026): the way back to the calculator and the save action sit in one row instead of
+     two stacked blocks, so the number and the central content start about 80px higher. Same controls, same labels. */
+  .sod29-number-hero-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 10px}
+  .sod29-number-hero-bar>.sod29-number-calculator-return{flex:1 1 auto;min-width:0;margin:0}
+  .sod29-number-hero-bar .sod29-actions{flex:0 0 auto;margin:0}
+  .sod29-number-hero-bar .sod29-action{padding-inline:12px;font-size:14px}
   .sod29-number-resolver{margin-bottom:11px}
   .sod29-number-value{letter-spacing:.025em}
   .sod29-number-observatory{
