@@ -2,14 +2,36 @@
 // גרדיאנט צבעוני ייחודי + האות הראשונה. מי שרוצה תמונה אמיתית שם avatar_url (גובר).
 // שימוש: <img src={avatar_url || genAvatar(display_name)} />.
 
+const STORAGE_PUBLIC = "/storage/v1/object/public/";
+const STORAGE_RENDER = "/storage/v1/render/image/public/";
+
+// A small, cacheable rendition of a public Supabase Storage image for avatar slots (36-104 px).
+// The stored object is served "private, no-cache" and some avatars are multi-megabyte animated GIFs (3.7 MB on /community).
+// The render endpoint keeps the animation (animated WebP, or GIF for clients without WebP) at a fraction of the weight and the result is cacheable.
+// resize=contain keeps the whole image (no-crop law); the slot's own object-fit crops for display exactly as before.
+// Anything that is not a public object of Supabase Storage over https (local assets, other hosts, already-transformed URLs) is returned untouched.
+export function avatarThumb(value, size = 160, quality = 70) {
+  if (typeof value !== "string") return value;
+  let url;
+  try { url = new URL(value); } catch { return value; }
+  if (url.protocol !== "https:" || !/\.supabase\.co$/i.test(url.hostname) || !url.pathname.startsWith(STORAGE_PUBLIC)) return value;
+  url.pathname = STORAGE_RENDER + url.pathname.slice(STORAGE_PUBLIC.length);
+  url.searchParams.set("width", String(size));
+  url.searchParams.set("height", String(size));
+  url.searchParams.set("resize", "contain");
+  url.searchParams.set("quality", String(quality));
+  return url.href;
+}
+
 // Display only an explicit image URL returned by an authorized identity reader.
 // Never derive an image from a name/email or allow executable/local URL schemes.
-export function displayAvatarUrl(value) {
+// With { size } a public storage image is returned as its small rendition (see avatarThumb); without it the validated URL is returned as is.
+export function displayAvatarUrl(value, { size } = {}) {
   if (typeof value !== "string" || !value.trim()) return null;
   try {
     const url = new URL(value.trim());
     if (url.protocol !== "https:" || url.username || url.password || url.port) return null;
-    return url.href;
+    return size ? avatarThumb(url.href, size) : url.href;
   } catch { return null; }
 }
 
