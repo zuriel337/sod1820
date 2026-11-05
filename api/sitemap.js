@@ -212,6 +212,8 @@ export default async function handler(req, res) {
   if (productionReading) urls.push({ loc: '/community/researchers', priority: '0.5', changefreq: 'weekly' });
   // The community chat is the replacement of the retired forum and a popular search landing page: it belongs in the sitemap.
   if (productionReading) urls.push({ loc: '/community/chat', priority: '0.7', changefreq: 'daily' });
+  // The calculator is a popular search landing page too (bare address only; query variants carry private inputs).
+  if (productionReading) urls.push({ loc: '/community/calculator', priority: '0.7', changefreq: 'weekly' });
   if (productionReading) for (const loc of PUBLIC_HISTORICAL_LECTURE_PATHS) urls.push({loc,priority:'0.4',changefreq:'yearly'});
   let foundationSourceFailed = false;
   let posts;

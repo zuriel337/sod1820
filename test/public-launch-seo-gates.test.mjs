@@ -275,6 +275,7 @@ test('the chat is in the production sitemap and /community consolidates onto it'
   const { readFileSync } = await import('node:fs');
   const sitemap = readFileSync(new URL('../api/sitemap.js', import.meta.url), 'utf8');
   assert.match(sitemap, /if \(productionReading\) urls\.push\(\{ loc: '\/community\/chat'/);
+  assert.match(sitemap, /if \(productionReading\) urls\.push\(\{ loc: '\/community\/calculator'/);
   const og = readFileSync(new URL('../api/og.js', import.meta.url), 'utf8');
   assert.match(og, /if \(decodedKey === '\/community'\) canonical = SITE \+ '\/community\/chat'/);
 });

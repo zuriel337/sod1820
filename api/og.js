@@ -443,7 +443,9 @@ export default async function handler(req, res) {
   } else if (productionReading && decodedKey === '/community/calculator') {
     title = 'מחשבון הקהילה — גימטריה, שמות ותאריך עברי · ' + SITE_NAME;
     desc = 'המחשבון הקיים: שיטות גימטריה, השוואת ביטויים, שמות ותאריך עברי.';
-    robots = 'noindex, follow'; // never include names, dates or private query inputs in server metadata
+    // The bare calculator page brings search traffic (about 500 Google visits in 45 days) and stays indexable. Any query string can carry
+    // names, dates or other private inputs, so those variants stay out of the index (and never reach the server metadata).
+    robots = continuityParams.toString() ? 'noindex, follow' : 'index, follow';
     image = cardUrl({ w: 'מחשבון הקהילה', sub: 'גימטריה · שמות · תאריך' });
   } else if (productionReading && (decodedKey === '/or-geula' || /^\/or-geula\/video\/[^/]+$/.test(decodedKey))) {
     const id = decodedKey.startsWith('/or-geula/video/') ? decodedKey.slice('/or-geula/video/'.length) : continuityParams.get('v');

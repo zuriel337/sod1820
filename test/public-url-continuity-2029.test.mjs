@@ -154,3 +154,22 @@ test('known campaign content does not enable held signup or automatic acquisitio
     assert.match(code,/PUBLIC_READING_RELEASE \? <p role="status">/);
   }
 });
+
+// ZURIEL: the community calculator and the chat are popular search landing pages. The bare addresses stay indexable;
+// any query string can carry names or dates and keeps the page out of the index.
+test('the bare calculator and chat are indexable; their query variants are not', async () => {
+  const indexing = publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
+  const metadata = async path => { const res = response(); await indexing(request(path), res); return res; };
+  await isolated(forbidden, async () => {
+    const bare = await metadata('/community/calculator');
+    assert.equal(bare.code, 200);
+    assert.equal(bare.headers.get('x-robots-tag'), 'index, follow');
+    assert.match(bare.body, /name="robots" content="index, follow"/);
+    for (const path of ['/community/calculator?q=%D7%A9%D7%9D&m=1', '/community/calculator?name=abc']) {
+      const variant = await metadata(path);
+      assert.equal(variant.headers.get('x-robots-tag'), 'noindex, follow', path);
+    }
+    const chat = await metadata('/community/chat');
+    assert.equal(chat.headers.get('x-robots-tag'), 'index, follow');
+  });
+});
