@@ -457,3 +457,7 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 .sod29-community-avatar-camera{position:absolute;inset-inline-end:-2px;inset-block-end:-2px;display:grid;place-items:center;width:18px;height:18px;border:1px solid var(--s29-line-strong);border-radius:50%;background:var(--s29-panel);color:var(--s29-accent-text);font-size:13px;pointer-events:none}
 .sod29-community--full .sod29-community-replies .sod29-community-thread-group>.sod29-community-replies-toggle{margin-block-end:8px}
 @media(prefers-reduced-transparency:reduce){.sod29-community--full .sod29-community-feed{background:var(--s29-panel)}.sod29-community-compose-input{background:var(--s29-panel)}}
+
+/* Guest composer: the message waits while the account is created inline. */
+.sod29-community-guest-join { display: grid; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
+.sod29-community-guest-join > p { margin: 0; font-weight: 600; }

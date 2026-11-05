@@ -3,6 +3,8 @@ import { canonicalCommunityAuthorKey } from "../../lib/community/communityCanoni
 import React, { lazy, Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import AccountEntry2029 from "../auth2029/AccountEntry2029.jsx";
+import { clearGuestPost, peekGuestPost, stashGuestPost } from "../../lib/community/communityGuestPost.js";
 import { PUBLIC_READING_PRODUCTION_ARTIFACT } from "../../lib/publicReadingRelease2029.js";
 import { communityActionsLocked, publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
 import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_ACCEPT, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
@@ -349,6 +351,11 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [notice, setNotice] = useState("");
   const [composerExpanded, setComposerExpanded] = useState(false);
   const [publishedFeedRefresh, setPublishedFeedRefresh] = useState(0);
+  // A guest cannot publish: the primary action becomes a one-step community signup
+  // and the written message is published automatically as soon as it completes.
+  const [joinOpen, setJoinOpen] = useState(false);
+  const guestMustJoin = (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user;
+  const guestPublishing = useRef(false);
   const composerPrincipal = actionsLocked ? null : user?.id || null;
   const activeComposerPrincipal = useRef(composerPrincipal);
   activeComposerPrincipal.current = composerPrincipal;
@@ -603,7 +610,13 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     if (actionsLocked || authLoading || user && !authVerified) return;
     const body = draft.trim();
     if ((!plainMessageText(draft).trim() && !attachments.length) || sending || replyTo?.draftRestoring || replyTo?.draftUnavailable) return;
-    if ((PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user) { setNotice("יש להתחבר כדי לפרסם הודעה."); return; }
+    if (guestMustJoin) {
+      if (!plainMessageText(draft).trim()) return;
+      const saved = stashGuestPost(window.localStorage, { body, parentId: replyTo?.id || null });
+      setNotice(saved ? "" : "לא ניתן לשמור את ההודעה במכשיר הזה. הדביקו אותה שוב אחרי ההרשמה.");
+      setJoinOpen(true);
+      return;
+    }
     setSending(true); setNotice(""); setAttachmentError("");
     const principal = composerPrincipal;
     const isCurrent = () => activeComposerPrincipal.current === principal;
@@ -635,6 +648,32 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     } catch (error) { if (isCurrent()) setNotice(error?.code === "AUTH_REQUIRED" ? "יש להתחבר מחדש כדי לצרף קבצים. הטיוטה נשמרה." : attachments.length ? "השליחה או העלאת הקובץ נכשלה. הקבצים שנבחרו נשמרו בטיוטה לניסיון חוזר." : "לא הצלחנו לפרסם את ההודעה. הטיוטה נשמרה לניסיון חוזר."); }
     finally { if (isCurrent()) setSending(false); }
   };
+
+  // Completes the guest flow, also after an OAuth redirect: the signed-in account
+  // publishes the message that was waiting on this device, exactly once.
+  useEffect(() => {
+    if (!user || !authVerified || authLoading || actionsLocked || guestPublishing.current) return;
+    const pending = peekGuestPost(window.localStorage);
+    if (!pending) return;
+    guestPublishing.current = true;
+    const principal = user.id;
+    (async () => {
+      try {
+        await publishCommunityMessage({ body: pending.body, parentId: pending.parentId, authorName: null });
+        clearGuestPost(window.localStorage);
+        if (activeComposerPrincipal.current !== principal) return;
+        setJoinOpen(false); setNotice("נרשמתם לקהילה וההודעה פורסמה.");
+        if (pending.parentId) { setThreadRefresh(value => value + 1); await loadPage(0, true); }
+        else {
+          setParams(current => { const next = new URLSearchParams(current); next.delete("q"); next.delete("sort"); next.delete("sourceSort"); return next; }, { replace: true });
+          setPublishedFeedRefresh(value => value + 1);
+        }
+      } catch {
+        // The message stays stored on this device: the next visit retries once.
+        if (activeComposerPrincipal.current === principal) setNotice("נרשמתם לקהילה, אבל לא הצלחנו לפרסם את ההודעה. ההודעה נשמרה במכשיר, נסו לרענן את העמוד.");
+      } finally { guestPublishing.current = false; }
+    })();
+  }, [user?.id, authVerified, authLoading, actionsLocked]);
 
   return <Sod2029Shell surface="community" title="הקהילה" introVariant="none" status="קהילה" symbol="◎">
     {!memberId ? leadingContent : null}
@@ -668,7 +707,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {!compactComposer ? <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} title={!user ? "יש להתחבר כדי לצרף קבצים" : undefined} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ או סרטון</button><small>עד 3 קבצים · סרטון עד 50MB, קובץ אחר עד 8MB · גלויים לציבור</small></div> : null}
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => { draftCache.setHasFiles(attachments.length > 1); setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index)); }} />)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
-          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!plainMessageText(draft).trim() && !attachments.length) || sending || replyTo?.draftRestoring || replyTo?.draftUnavailable || (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user} title={(PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
+          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!plainMessageText(draft).trim() && (guestMustJoin || !attachments.length)) || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} data-guest-join={guestMustJoin ? "true" : undefined} onClick={submit}>{sending ? "שולח…" : guestMustJoin ? "הרשמה לקהילה ופרסום" : "פרסום"}</button></div> : null}
           {(draft.length > 0 || replyTo || draftCache.reattach) && draftCache.status !== "idle" ? <div className="sod29-community-draft-state" data-draft-state={draftCache.status} role="status">
             <span>{draftCache.status === "unavailable" ? "לא ניתן לשמור את הטיוטה במכשיר הזה כרגע." : draftCache.reattach ? "טיוטת הטקסט שוחזרה. יש לצרף קבצים מחדש." : draftCache.status === "restored" ? "הטיוטה שוחזרה מהמכשיר הזה" : "טיוטה נשמרה במכשיר הזה"}</span>
             <button type="button" className="sod29-community-text-action" disabled={sending} onClick={() => { draftCache.clear(); setAttachments([]); setComposerExpanded(false); }}>מחיקת טיוטה</button>
@@ -676,6 +715,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {replyTo?.draftRestoring ? <p className="sod29-community-status" role="status">בודק את ההודעה שאליה עונים…</p> : null}
           {replyTo?.draftUnavailable ? <p className="sod29-community-status" role="alert">לא ניתן לפתוח את ההודעה שאליה עונים. אפשר לנסות שוב או לבטל את התשובה. <button type="button" className="sod29-community-text-action" onClick={draftCache.retryReply}>ניסיון נוסף</button></p> : null}
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
+          {guestMustJoin && joinOpen ? <div className="sod29-community-guest-join" id="community-guest-join"><p role="status">ההודעה שלכם שמורה. נרשמים בשנייה והיא מתפרסמת מיד.</p><AccountEntry2029 inline returnHref={communityAccountReturnHref(window.location)} /></div> : null}
         </section> : null}
         {hasThreadRequest ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">
           <header className="sod29-community-focus-head"><div><p>{personalThreadReturn ? "מתוך התגובות אליי" : "הקהילה"}</p><h2 id="community-focus-title">{personalThreadReturn ? "השיחה שבה התקבלה התגובה" : "השיחה המלאה"}</h2></div><div>
