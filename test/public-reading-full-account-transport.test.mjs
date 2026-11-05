@@ -374,3 +374,32 @@ test('guest community publishing: only the exact anonymous request is forwarded,
  const noKey=worker();
  assert.equal((await noKey.request(path,{body:ok,jwt:KEY})).status,403);
 });
+
+test('community link preview: only the exact public GET is forwarded, without session or key',async()=>{
+ const base='/functions/v1/link-preview?url=';
+ const good=base+encodeURIComponent('https://example.org/article?id=1');
+ const w=worker();
+ const accepted=await w.request(good,{method:'GET'});
+ assert.equal(accepted.status,200);
+ assert.equal(w.calls.length,1);
+ assert.equal(w.calls[0].method,'GET');
+ assert.equal(w.calls[0].headers.get('Authorization'),null);
+ assert.equal(w.calls[0].headers.get('apikey'),null);
+ assert.equal(new URL(w.calls[0].url).searchParams.get('url'),'https://example.org/article?id=1');
+ const denyCases=[
+  ['http address',base+encodeURIComponent('http://example.org/')],
+  ['no address',base],
+  ['extra parameter',good+'&x=1'],
+  ['too long',base+encodeURIComponent('https://example.org/'+'a'.repeat(2100))],
+  ['other function',good.replace('link-preview','ai-analyze')],
+ ];
+ for(const [label,path] of denyCases){
+  const v=worker({role:'user'});
+  const response=await v.request(path,{method:'GET'});
+  assert.equal(response.status,403,label);
+  assert.ok(!v.calls.some(call=>call.url.includes('/functions/v1/')),label+' must not reach any function');
+ }
+ const post=worker({role:'user'});
+ assert.equal((await post.request(good,{method:'POST',body:{}})).status,403);
+ assert.ok(!post.calls.some(call=>call.url.includes('/functions/v1/')));
+});

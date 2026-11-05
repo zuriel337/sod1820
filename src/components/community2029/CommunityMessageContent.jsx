@@ -6,14 +6,16 @@ import { fetchLinkPreview } from "../../lib/community/linkPreviewClient.js";
 
 // Generic external link: the plain card (host + address) is always there; Open Graph title/description/image replace it only
 // when the preview service answered. No request happens while the feature flag is off.
-function GenericLinkCard({ link }) {
+function GenericLinkCard({ link, draft = false }) {
   const [preview, setPreview] = useState(null);
   const [imageFailed, setImageFailed] = useState(false);
   useEffect(() => {
-    let alive = true;
-    fetchLinkPreview(link.href).then((value) => { if (alive) setPreview(value); });
-    return () => { alive = false; };
-  }, [link.href]);
+    let alive = true, timer = null;
+    // While the text is still being typed every letter is a new address: ask only once it stayed the same.
+    const ask = () => fetchLinkPreview(link.href).then((value) => { if (alive) setPreview(value); });
+    if (draft) timer = setTimeout(ask, 900); else ask();
+    return () => { alive = false; if (timer) clearTimeout(timer); };
+  }, [link.href, draft]);
   if (!preview) return <a className="sod29-community-link-card" href={link.href} target="_blank" rel="noopener noreferrer"><strong dir="ltr">{link.host}</strong><span dir="ltr">{link.href}</span><small>פתיחת הקישור ↗</small></a>;
   return <a className="sod29-community-link-card has-og" data-link-preview="og" href={link.href} target="_blank" rel="noopener noreferrer">
     {preview.image && !imageFailed ? <img className="sod29-community-link-og-image" src={preview.image} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setImageFailed(true)} /> : null}
@@ -25,7 +27,7 @@ function GenericLinkCard({ link }) {
   </a>;
 }
 
-function LinkPreview({ link }) {
+function LinkPreview({ link, draft = false }) {
   const [playing, setPlaying] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
@@ -33,7 +35,7 @@ function LinkPreview({ link }) {
   if (link.kind === "video") return <div className="sod29-community-video-card">{videoFailed ? <p>לא ניתן לנגן את הקובץ בדפדפן הזה. אפשר לפתוח את הסרטון בקישור.</p> : <video controls playsInline preload="metadata" src={link.href} aria-label="סרטון שצורף להודעה" onError={() => setVideoFailed(true)} />}<a href={link.href} target="_blank" rel="noopener noreferrer">פתיחת הסרטון המצורף ↗</a></div>;
   if (link.kind === "image") return <a className="sod29-community-attachment-image" href={link.href} target="_blank" rel="noopener noreferrer" aria-label="פתיחת התמונה המצורפת">{imageFailed ? <span role="status">התמונה לא נטענה. אפשר לפתוח אותה בקישור ↗</span> : <img src={link.href} alt="תמונה שצורפה להודעה" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setImageFailed(true)} />}</a>;
   if (link.kind === "file") return <a className="sod29-community-link-card" href={link.href} target="_blank" rel="noopener noreferrer"><strong>📎 קובץ {link.extension}</strong><small>פתיחת הקובץ המצורף ↗</small></a>;
-  if (link.kind === "link") return <GenericLinkCard link={link} />;
+  if (link.kind === "link") return <GenericLinkCard link={link} draft={draft} />;
   return <div className="sod29-community-video-card">
     {playing ? <iframe src={link.embed} title={`סרטון ${provider}`} allow="encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
       : <button type="button" className="sod29-community-video-cover" onClick={() => setPlaying(true)} aria-label={`פתיחת נגן ${provider}`}>
@@ -88,6 +90,6 @@ export default function CommunityMessageContent({ text, previewsOnly = false, bo
   const links = messageLinkPreviews(previewParts);
   return <>
     {!previewsOnly ? <div ref={bodyRef} className="sod29-community-body" style={{ "--community-text-gold": palette.warmAccent, "--community-text-blue": palette.accentText }}>{content}</div> : null}
-    {links.length ? <div className="sod29-community-link-previews" aria-label="תצוגה מקדימה לקישורים">{links.map((link) => <LinkPreview key={link.key} link={link} />)}</div> : null}
+    {links.length ? <div className="sod29-community-link-previews" aria-label="תצוגה מקדימה לקישורים">{links.map((link) => <LinkPreview key={link.key} link={link} draft={previewsOnly} />)}</div> : null}
   </>;
 }

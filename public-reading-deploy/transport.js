@@ -319,6 +319,14 @@ function installPublicReadingWorker(policy) {
       if (ambiguous || url.pathname.startsWith("/realtime/v1")) {
         event.respondWith(Promise.resolve(denied())); return;
       }
+      // Community link preview (Open Graph): a read-only GET of the public preview service with exactly one
+      // https address. The request is rebuilt without any session or key, so no account data leaves the browser.
+      if (url.pathname === "/functions/v1/link-preview") {
+        const target = url.searchParams.get("url") || "";
+        if (req.method !== "GET" || url.searchParams.size !== 1 || target.length > 2048 || !/^https:\/\/[^\s]+$/i.test(target)) { event.respondWith(Promise.resolve(denied())); return; }
+        event.respondWith(fetch(new Request(url.href, { method: "GET", headers: { accept: "application/json" }, credentials: "omit", redirect: "error" })).catch(() => denied()));
+        return;
+      }
       if (url.pathname.startsWith("/functions/v1")) { event.respondWith(adminFetch(req).catch(() => denied())); return; }
       if (url.pathname.startsWith("/auth/v1/") && !["/auth/v1/user", "/auth/v1/settings"].includes(url.pathname)
         || url.pathname.startsWith("/rest/v1/rpc/") && safeMethods.has(req.method) && !getReads.has(rpc)) {
