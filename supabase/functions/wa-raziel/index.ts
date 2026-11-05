@@ -9,6 +9,7 @@ import {
   parseRazielNavigationRequest, resolveRazielNavigationAction, resolveRazielNavigationFollowUp, razielNavigationNeedsFocus,
   razielNavigationWhatsappText, razielNavigationIsClarification, razielWhatsappVerifiedFocus,
 } from "../_shared/razielNavigationActions.js";
+import { resolveRazielSiteLinkAnswer, razielSiteLinkWhatsappText } from "../_shared/razielSiteLinks.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CHRISTINA_PHONE = "972507555102";
@@ -654,12 +655,15 @@ async function respondWithNavigation(cleanText, chatId, quotedId) {
   if (request) {
     const focus = razielNavigationNeedsFocus(request) ? await verifiedNavigationFocus(chatId, quotedId) : null;
     action = resolveRazielNavigationAction({ request, focus });
+  } else if (resolveRazielSiteLinkAnswer({ text: cleanText })) {
+    // Verified site-link registry answer (deterministic, no model); URLs exist only as registry entries.
+    action = resolveRazielSiteLinkAnswer({ text: cleanText });
   } else if (/^\s*(?:(?:ה)?מספר\s+)?\d{1,12}\s*$/.test(cleanText)) {
     // A numeral answers Raziel's own "לאיזה מספר תרצה שאפתח דף?" — only when that question is the message right before it.
     if (await lastRazielMessageIsClarification(chatId, quotedId)) action = resolveRazielNavigationFollowUp({ text: cleanText });
   }
   if (!action) return null;
-  const reply = razielNavigationWhatsappText(action, SITE);
+  const reply = action.type === "link_answer" ? razielSiteLinkWhatsappText(action) : razielNavigationWhatsappText(action, SITE);
   if (!reply) return null;   // never send a malformed/empty link; the normal path answers instead
   trace.push({ step: "navigation", intent: action.intent, type: action.type, model_calls: 0 });
   const payload = { chatId, message: reply };

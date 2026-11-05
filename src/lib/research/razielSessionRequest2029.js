@@ -18,6 +18,7 @@ import {
   resolveRazielNavigationAction,
   resolveRazielNavigationFollowUp,
 } from "../../../supabase/functions/_shared/razielNavigationActions.js";
+import { resolveRazielSiteLinkAnswer } from "../../../supabase/functions/_shared/razielSiteLinks.js";
 import {
   ELS_RAZIEL_PLANNING_SUBJECT,
   normalizeElsRazielPlanningAction,
@@ -626,7 +627,8 @@ export function resolveRazielNavigationTurn({ question, state, contextSnapshot }
     if (followUp) return followUp;
   }
   const request = parseRazielNavigationRequest(question);
-  if (!request) return null;
+  // Not a number/world navigation: the verified site-link registry may still answer ("איפה הוואטסאפ?").
+  if (!request) return resolveRazielSiteLinkAnswer({ text: question });
   const focus = razielNavigationNeedsFocus(request)
     ? selectRazielVerifiedNumberFocus({ thread, surfaceSemantic: snapshotSurfaceSemantic(contextSnapshot) })
     : null;

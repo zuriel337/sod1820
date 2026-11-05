@@ -40,6 +40,8 @@ import ShareActions from "../ShareActions.jsx";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "./ContactGatewayOnDemand2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
+// Page-end footer (registry-driven). Lazy so the opening graph and its fixed budgets are untouched.
+const SiteFooter2029 = React.lazy(() => import("./SiteFooter2029.jsx"));
 import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 const RazielCenter2029 = React.lazy(() => import("./RazielCenter2029.jsx"));
@@ -2252,6 +2254,7 @@ function SystemFrame2029Body({
                 </section>
               ) : null}
               {children}
+              <React.Suspense fallback={null}><SiteFooter2029 /></React.Suspense>
             </main>
             {showContextRail ? <SurfaceContextRail2029
               surface={surface}
