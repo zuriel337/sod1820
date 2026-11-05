@@ -943,7 +943,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       ...(!guidedProfile ? [{ id: "search", label: "חיפוש בצופן", shortLabel: "חיפוש", icon: "search", controls: "els29-query", onSelect: () => toolActionsRef.current.search() }] : []),
       ...(guidedProfile
         ? [["results", "הגילוי", "גילוי", "posts"], ["findings", "מקור וממצאים", "מקור", "els"], ["research", "שמירת הגילוי", "שמירה", "books"]]
-        : [["findings", "סריקה וממצאים", "סריקה", "els"], ["results", "תוצאות", "תוצאות", "posts"], ["research", "שמירה", "שמירה", "books"]]).filter(([id]) => !(publicClassic && id === "research")).map(([id, label, shortLabel, icon]) => ({
+        : [["findings", "סריקה וממצאים", "סריקה", "els"], ["results", "תוצאות", "תוצאות", "posts"], ["research", "שמירה", "שמירה", "books"]]).filter(([id]) => !(publicClassic && !user && id === "research")).map(([id, label, shortLabel, icon]) => ({
         id, label, shortLabel, icon, expanded: !classicOpen && activeTool === id,
         controls: "els29-context-panel", onSelect: (trigger) => toolActionsRef.current.select(id, trigger),
       })),
@@ -1711,7 +1711,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
         </section>
         <div className="els29-native-toolstrip" ref={toolRailRef} hidden={classicOpen} role="group" aria-label="כלי המטריצה">
-          {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].filter(([tool]) => !(publicClassic && tool === "research")).map(([tool, label, icon]) => <button
+          {[["findings", "סריקה וממצאים", "els"], ["results", "תוצאות", "posts"], ["research", "שמירה", "books"]].filter(([tool]) => !(publicClassic && !user && tool === "research")).map(([tool, label, icon]) => <button
             type="button" key={tool} aria-label={label} title={label}
             aria-expanded={activeTool === tool} aria-controls="els29-context-panel"
             onClick={(event) => activeTool === tool && !classicOpen ? closeTool() : openTool(tool, event.currentTarget)}
@@ -1769,9 +1769,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           guidedSourceContext={guidedSourceContext} guidedSourcePendingItemId={guidedSourcePendingItemId}
           onHighlightVerse={highlightVerse} verseHighlight={verseHighlight}
           onSelect={requestControl} onRetry={() => requestSearch(operations.search?.searchKind || "regular", operations.search?.payload || { term: query, scope: activeScope })} />
-        {publicClassic ? null : <ElsSavePanel2029 visible={activeTool === "research"} state={engineState} matrix={matrix} user={user}
+        {publicClassic && !user ? null : <ElsSavePanel2029 visible={activeTool === "research"} state={engineState} matrix={matrix} user={user}
           pending={savePending} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} result={saveResult}
-          onSave={requestSave} onWorkspace={() => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
+          onSave={requestSave} onWorkspace={publicClassic ? undefined : () => setWorkspaceRequest({ seq: ++actionSeqRef.current })}
           onAccount={() => { setAccountRequired(true);setNotice("שמירה פרטית זמינה לאחר התחברות לחשבון."); }} />}
         <FindingsRail
           readingCount={readingProjection.findings.length}
