@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
-import { F, KEY_NUMBERS } from "../theme.js";
+import { F } from "../theme.js";
+import { KEY_NUMBERS } from "../lib/gematriaCore.js";
 import { cleanName } from "../lib/galleryName.js";
 import { shortDate, domNum, hintNums } from "../lib/reality.js";
 import { trackShare } from "../lib/tracking.js";

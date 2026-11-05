@@ -1,4 +1,4 @@
-import { GEM } from "../theme.js";
+import { GEM } from "./gematriaCore.js";
 
 // ===== ליבת החישוב בצד-הלקוח — definitions קיימים; method identity/lifecycle נקראים מה-Registry הקנוני =====
 // "התגלות": רגיל 844 · מילוי 1026 · מסתתר 1237 · קדמי 3137 · גדול 844 · סידורי 70 · אתבש 392 · אלבם 241.
