@@ -14,6 +14,9 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
 import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
+
+// DRAFT SWITCH (preview branches only): "" = hanging crown (option A), "1" flat tall bar, "2" arc under the letters, "3" bridge under the letters.
+const CROWN_DRAFT = "1";
 import Footer2029 from "./Footer2029.jsx";
 import AccountLinkOffer2029 from "./AccountLinkOffer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
@@ -89,6 +92,7 @@ import "./discoveryGate2029.css";
 import "./systemToolDock2029.css";
 import "./systemFrame2029-unified-bar.css";
 import "./systemFrame2029-topbar-crown.css";
+import "./systemFrame2029-topbar-crown-drafts.css";
 import "./googleEntry2029.css";
 
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
@@ -2188,6 +2192,7 @@ function SystemFrame2029Body({
         data-frame-reduced-motion={String(experience.motion.reduced)}
         data-frame-theme-mode={palette.mode}
         data-frame-theme-preset={palette.preset || palette.mode}
+        data-crown-draft={CROWN_DRAFT || undefined}
       >
         <div className="sod29-ambient-field" aria-hidden="true"><i /><i /><i /></div>
 
@@ -2227,8 +2232,15 @@ function SystemFrame2029Body({
                 <span>SOD1820</span><i>/</i><b>{title || BRAND_LOCKUP_2029.alt}</b>
                 {pageContext?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{contextDisplayTitle(pageContext) || "ההקשר הנוכחי"}</span></span> : null}
               </div>
+              <i className="sod29-header-rail" aria-hidden="true" />
             </div>
             <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-header-crown" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
+              <svg className="sod29-crown-dip" viewBox="0 0 320 64" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                <path className="dip-fill is-curve" d="M0 0H320C276 0 250 62 160 62S44 0 0 0Z" />
+                <path className="dip-line is-curve" d="M0 0C44 0 70 62 160 62S276 0 320 0" />
+                <path className="dip-fill is-angular" d="M0 0H44L80 62H240L276 0H320Z" />
+                <path className="dip-line is-angular" d="M44 0L80 62H240L276 0" />
+              </svg>
               <img
                 src={BRAND_LOCKUP_NAV_2029.src}
                 width={BRAND_LOCKUP_NAV_2029.width}
@@ -2240,6 +2252,7 @@ function SystemFrame2029Body({
               />
             </Link>
             <div className="sod29-header-end">
+            <i className="sod29-header-rail" aria-hidden="true" />
             <button className="sod29-header-search" type="button" onClick={openSiteSearch} aria-label="חיפוש באתר" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.SEARCH}>
               <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
               <span className="sod29-search-pill-icon" aria-hidden="true">⌕</span>

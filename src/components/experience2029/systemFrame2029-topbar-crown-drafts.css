@@ -1,0 +1,131 @@
+/* DRAFTS for the top bar (preview branches only). Each draft keeps the WHOLE approved lockup (crown + verse) inside the bar,
+   so nothing hangs below the line and the line passes under the letters.  Selected by data-crown-draft on .sod29-root:
+     1  flat tall bar          — one hairline under the whole lockup
+     2  arc under the letters  — the bar's line dips in a smooth curve under the verse (a "pod")
+     3  bridge under the letters — same, with an angular, bridge-like pod and a thin light strip (futuristic)
+   Empty side zones are filled with quiet rails that run from each side's controls toward the crown.
+   Colours: --s29-* only, plus one fixed deep-sapphire pod for the light presets so the crown has a backdrop there. */
+
+.sod29-crown-dip, .sod29-header-rail { display: none; }
+
+.sod29-root[data-crown-draft] {
+  --s29-pod-fill: color-mix(in srgb, var(--s29-panel) 97%, transparent);
+  --s29-pod-line: var(--s29-brand-gold);
+  --s29-rail: color-mix(in srgb, var(--s29-brand-gold) 70%, transparent);
+}
+/* Light presets: the pod is deep sapphire, so the gold crown and the gold verse always read. */
+.sod29-root[data-crown-draft][data-frame-theme-preset="light"],
+.sod29-root[data-crown-draft][data-frame-theme-preset="parchment"] {
+  --s29-pod-fill: #101a45;
+  --s29-pod-line: #e9b949;
+  --s29-rail: color-mix(in srgb, var(--s29-brand-gold) 80%, transparent);
+}
+
+/* ── Shared: a flat bar (no capsule) with one line at its bottom edge ────────────────────────── */
+.sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header.closed-orientation {
+  border: 0; border-radius: 0; box-shadow: none; margin-block: 0 var(--s29-draft-reserve);
+  top: var(--sod-review-offset, 0px); block-size: var(--s29-bar-h); min-block-size: var(--s29-bar-h); padding-block: 0;
+  background: color-mix(in srgb, var(--s29-panel) 92%, transparent);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header.closed-orientation::after {
+  content: ""; position: absolute; inset-inline: 0; inset-block-end: 0; block-size: 1px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--s29-pod-line) 8%, var(--s29-pod-line) 92%, transparent);
+  opacity: .85;
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header-crown { position: static; }
+.sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header-crown img {
+  inset-block-start: var(--s29-crown-top);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header-rail {
+  display: block; flex: 1 1 0; min-inline-size: 6px; block-size: 1px; align-self: center; position: relative; margin-inline: 6px;
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header-leading .sod29-header-rail { background: linear-gradient(to left, var(--s29-rail), transparent); }
+.sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header-end .sod29-header-rail { background: linear-gradient(to right, var(--s29-rail), transparent); }
+.sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header-rail::before {
+  content: ""; position: absolute; inset-block-start: -2px; inline-size: 5px; block-size: 5px; transform: rotate(45deg); background: var(--s29-rail);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header-leading .sod29-header-rail::before { inset-inline-end: 0; }
+.sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header-end .sod29-header-rail::before { inset-inline-start: 0; }
+
+@media (min-width: 981px) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft].sidebar-collapsed .sod29-header.closed-orientation { margin-inline: -72px 0; padding-inline: 78px; }
+  .sod29-root.closed-shell.native-frame[data-crown-draft].sidebar-collapsed .sod29-logo-toggle { inset-block-start: calc(var(--sod-review-offset, 0px) + (var(--s29-bar-h) - 56px) / 2); }
+  .sod29-root.closed-shell.native-frame[data-crown-draft] { --s29-capsule-top: calc(var(--sod-review-offset, 0px) + var(--s29-bar-h) + 14px); }
+}
+@media (max-width: 980px) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header.closed-orientation { padding-inline: 10px; margin-inline: 0; }
+}
+
+/* The where-am-I text keeps its natural width; the rail takes only what is left. */
+.sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header-leading .sod29-orientation { flex: 0 1 auto !important; }
+@media (max-width: 980px) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header-leading { gap: 6px; }
+  .sod29-root.closed-shell.native-frame[data-crown-draft] .sod29-header-rail { margin-inline: 3px; }
+}
+
+/* ── Draft 1 · flat tall bar: the whole lockup fits inside, the line runs under the letters ──── */
+.sod29-root.closed-shell.native-frame[data-crown-draft="1"] {
+  --s29-bar-h: 96px; --s29-crown-w: 92px; --s29-crown-top: 2px; --s29-crown-slot: 120px; --s29-draft-reserve: 12px;
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="1"][data-frame-theme-preset="light"] .sod29-header-crown::before,
+.sod29-root.closed-shell.native-frame[data-crown-draft="1"][data-frame-theme-preset="parchment"] .sod29-header-crown::before {
+  content: ""; position: absolute; left: 50%; right: auto; inset-block-start: 6px; inline-size: calc(var(--s29-crown-w) + 22px); block-size: calc(var(--s29-bar-h) - 12px);
+  transform: translateX(-50%); border-radius: 18px; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse at 50% 30%, #1f3380 0, #101a45 75%); box-shadow: 0 0 0 1.5px #e9b949, 0 6px 16px rgb(16 26 69 / .30);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="1"] .sod29-header-crown img { z-index: 3; }
+
+/* ── Drafts 2 and 3 · the line dips under the letters ─────────────────────────────────────────── */
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"],
+.sod29-root.closed-shell.native-frame[data-crown-draft="3"] {
+  --s29-bar-h: 56px; --s29-crown-w: 96px; --s29-crown-top: 5px; --s29-crown-slot: 150px;
+  --s29-dip-w: 320px; --s29-dip-h: 66px; --s29-draft-reserve: calc(var(--s29-dip-h) + 6px);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header.closed-orientation::after,
+.sod29-root.closed-shell.native-frame[data-crown-draft="3"] .sod29-header.closed-orientation::after {
+  background: linear-gradient(90deg, transparent, var(--s29-pod-line) 8%, var(--s29-pod-line) calc(50% - var(--s29-dip-w) / 2), transparent calc(50% - var(--s29-dip-w) / 2),
+    transparent calc(50% + var(--s29-dip-w) / 2), var(--s29-pod-line) calc(50% + var(--s29-dip-w) / 2), var(--s29-pod-line) 92%, transparent);
+}
+.sod29-root.closed-shell.native-frame:is([data-crown-draft="2"], [data-crown-draft="3"]) .sod29-crown-dip {
+  display: block; position: absolute; left: 50%; right: auto; inset-block-start: calc(var(--s29-bar-h) - 1px);
+  inline-size: var(--s29-dip-w); block-size: var(--s29-dip-h); transform: translateX(-50%); overflow: visible; pointer-events: none;
+  filter: drop-shadow(0 10px 14px color-mix(in srgb, var(--s29-page) 55%, transparent));
+}
+.sod29-crown-dip .dip-fill { fill: var(--s29-pod-fill); stroke: none; }
+.sod29-crown-dip .dip-line { fill: none; stroke: var(--s29-pod-line); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+[data-crown-draft="2"] .sod29-crown-dip .is-angular, [data-crown-draft="3"] .sod29-crown-dip .is-curve { display: none; }
+/* the bar behind the crown joins the pod, so the pod reads as one piece with the bar */
+.sod29-root.closed-shell.native-frame:is([data-crown-draft="2"], [data-crown-draft="3"]) .sod29-header-crown::before {
+  content: ""; position: absolute; left: 50%; inset-block-start: 0; inline-size: calc(var(--s29-crown-slot) - 6px); block-size: var(--s29-bar-h); transform: translateX(-50%);
+  background: var(--s29-pod-fill); pointer-events: none;
+}
+.sod29-root.closed-shell.native-frame:is([data-crown-draft="2"], [data-crown-draft="3"]) .sod29-header-crown img { z-index: 3; }
+
+/* Draft 3: light strip under the pod and small ticks on the bar; one slow pulse, off for reduced motion */
+.sod29-root.closed-shell.native-frame[data-crown-draft="3"] .sod29-header.closed-orientation {
+  background:
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--s29-brand-gold) 22%, transparent) 0 1px, transparent 1px 10px) 0 5px / 100% 3px no-repeat,
+    color-mix(in srgb, var(--s29-panel) 92%, transparent);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="3"] .sod29-header-crown::after {
+  content: ""; position: absolute; left: 50%; inset-block-start: calc(var(--s29-bar-h) + var(--s29-dip-h) - 3px); inline-size: 150px; block-size: 3px; transform: translateX(-50%);
+  border-radius: 3px; background: linear-gradient(90deg, transparent, #7fe7ff, #fff, #7fe7ff, transparent); box-shadow: 0 0 14px rgb(127 231 255 / .7);
+  animation: s29-crown-strip 3.4s ease-in-out infinite; pointer-events: none;
+}
+@keyframes s29-crown-strip { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .sod29-root[data-crown-draft="3"] .sod29-header-crown::after { animation: none; } }
+.sod29-root[data-frame-reduced-motion="true"][data-crown-draft="3"] .sod29-header-crown::after { animation: none; }
+
+/* ── Phones ─────────────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 980px) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="1"] { --s29-bar-h: 80px; --s29-crown-w: 76px; --s29-crown-top: 1px; --s29-crown-slot: 96px; --s29-draft-reserve: 10px; }
+  .sod29-root.closed-shell.native-frame:is([data-crown-draft="2"], [data-crown-draft="3"]) {
+    --s29-bar-h: 56px; --s29-crown-w: 80px; --s29-crown-top: 3px; --s29-crown-slot: 112px; --s29-dip-w: 250px; --s29-dip-h: 54px;
+  }
+  .sod29-root.closed-shell.native-frame[data-crown-draft="3"] .sod29-header-crown::after { inline-size: 110px; }
+}
+@media (max-width: 340px) {
+  .sod29-root.closed-shell.native-frame:is([data-crown-draft="2"], [data-crown-draft="3"]) .sod29-header-leading .sod29-orientation { display: none; }
+  .sod29-root.closed-shell.native-frame:is([data-crown-draft="2"], [data-crown-draft="3"]) { --s29-crown-w: 70px; --s29-dip-w: 220px; --s29-dip-h: 48px; --s29-crown-slot: 100px; }
+  .sod29-root.closed-shell.native-frame[data-crown-draft="1"] { --s29-crown-w: 68px; --s29-bar-h: 74px; }
+}
