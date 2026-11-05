@@ -549,7 +549,9 @@ export default async function handler(req, res) {
     desc = cleanDesc(routeFlag?.message || launchGate.message, 180);
     image = cardUrl({ w: launchGate.title, sub: 'בבנייה', cap: 'האזור ייפתח בהמשך' });
   } else if (decodedKey === '/community/chat') {
-    robots = 'noindex, follow';
+    // The bare chat page was indexed and brings search traffic: it stays indexable (as before the 2029 move).
+    // Any query string (thread, reply, member, search, sort...) is a variant of it and stays out of the index.
+    robots = continuityParams.toString() ? 'noindex, follow' : 'index, follow';
     title = STATIC['/community/chat'].title;
     desc = STATIC['/community/chat'].desc;
     image = cardUrl(STATIC['/community/chat'].card);
