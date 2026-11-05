@@ -58,6 +58,7 @@ export function shortNowTitle(value, max = 84) {
 }
 
 const list = value => Array.isArray(value) ? value : [];
+const clean = value => value == null ? "" : String(value).trim();
 const hasAny = (values, wanted) => list(values).some(value => wanted.includes(value));
 
 /**
@@ -79,14 +80,17 @@ export function nowRowModel(row) {
   const categories = list(item.categories), tags = list(item.tags);
   const isGroup = item.sourceKind === "group_message", isPost = item.sourceKind === "post";
   const isGallery = item.sourceKind === "gallery_update", isChannel = item.sourceKind === "channel_update";
-  const media = item.mediaHref || item.mediaUrl || null;
+  const media = item.mediaHref || item.mediaUrl || item.media?.url || null;
   const href = row?.href || null;
-  const video = Boolean(media && VIDEO_URL.test(media)) || /^\/video\/[^/]+\/?$/.test(href || "")
+  const groupMediaKind = isGroup ? item.media?.kind : null; // a group source declares its own media kind
+  const video = groupMediaKind === "video" || (!groupMediaKind && Boolean(media && VIDEO_URL.test(media))) || /^\/video\/[^/]+\/?$/.test(href || "")
     || (isPost && categories.includes(VIDEO_CATEGORY));
-  const image = !video && Boolean(media || isGallery);
+  const image = !video && (groupMediaKind ? groupMediaKind === "image" : Boolean(media || isGallery));
   const seriesKey = item.seriesKey || (isPost ? contentSeriesKeysForPost({ categories, tags, author: item.author })[0] || null : null);
   const seriesLabel = seriesKey ? nowSeriesLabel(seriesKey, item.seriesLabel || contentSeriesByKey(seriesKey)?.label || "") : "";
-  const sourceName = isGroup ? (item.creator || "מקור ציבורי")
+  // A public group source is labelled by its GROUP (the source); the writer stays in the byline.
+  const groupLabel = isGroup ? clean(item.sourceGroupLabel) : "";
+  const sourceName = isGroup ? (groupLabel || item.creator || "מקור ציבורי")
     : isChannel ? (item.sourceLabel || item.creator || "")
     : isGallery ? (item.sourceLabel || "זרם המציאות")
     : isPost ? (item.sourceLabel === "פוסט מקור באתר" ? "" : item.sourceLabel || "") || item.creator || ""
@@ -104,16 +108,18 @@ export function nowRowModel(row) {
   const fullText = cleanNowText(item.fullText);
   const summary = cleanNowText(item.summary);
   const title = shortNowTitle(row?.title || item.label) || (video ? "סרטון" : image ? "תמונה" : "עדכון");
-  const byline = [seriesLabel, sourceName].filter((part, index, all) => part && all.indexOf(part) === index);
+  const byline = [seriesLabel, sourceName, isGroup ? item.creator : ""].filter((part, index, all) => part && all.indexOf(part) === index);
   return {
     id: row?.id, row, item, title, byline, typeLabel, unverified,
     at: row?.at || null, href, seriesKey, seriesLabel, sourceName,
     media: video ? "video" : image ? "image" : "text", video, image,
     thumb: [!video && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
+    groupLabel, creatorHref: isGroup ? item.creatorHref || null : null,
     mediaHref: media, lenses,
     fullText, summary: summary && summary !== title ? summary : "",
     ...nowExcerpt({ unverified, title, fullText, summary }),
-    previewKind: unverified ? null : video ? "video" : (image || media) ? "image" : null,
+    // Unverified source rows stay two lines without a text excerpt; a group source WITH media still shows its preview.
+    previewKind: (unverified && !(isGroup && (video || image))) ? null : video ? "video" : (image || media) ? "image" : null,
     canExpand: Boolean(fullText || media),
   };
 }

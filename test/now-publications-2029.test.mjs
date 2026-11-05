@@ -37,7 +37,7 @@ test("unverified source rows: opening words, source, time, 'מקור · טרם �
   const [model] = nowModels(rows([g]));
   assert.equal(model.typeLabel, "מקור · טרם נבדק"); assert.equal(model.unverified, true);
   assert.ok(model.title.length <= 85 && model.title.startsWith("פתיחה ארוכה מאוד"));
-  assert.deepEqual(model.byline, ["צבי"]);
+  assert.deepEqual(model.byline, ["קבוצת מקור", "צבי"], "the group (source) is named; the live reader returns no channel yet, so the neutral label");
   assert.equal(model.href, "/world#group-source-20000000-0000-4000-8000-000000000001");
   assert.ok(model.canExpand && model.fullText.length > model.title.length);
   assert.equal(model.lenses.has("series"), false, "no series/tree attribution is implied");

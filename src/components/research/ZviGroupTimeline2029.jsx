@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { fetchGroupSourceArrivals } from "../../lib/research/worldGroupSource.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
+import { GroupSourceBadge, GroupSourceMedia } from "./GroupSourceMeta2029.jsx";
 import "./ZviGroupTimeline2029.css";
 
 const PAGE = 40;
@@ -91,8 +92,10 @@ export default function ZviGroupTimeline2029({ recentItems = [] }) {
                 <span>{bilingualDateLabel(item.arrivalAt || item.at, "זמן לא צוין")}</span>
                 <strong>{item.label}</strong>
                 <small>הודעת מקור</small>
+                <GroupSourceBadge item={item} />
               </summary>
-              <p>{item.fullText}</p>
+              <GroupSourceMedia item={item} compact />
+              {item.fullText ? <p>{item.fullText}</p> : null}
               <small>דברי צבי · הודעת מקור</small>
             </details>
           </li>;
