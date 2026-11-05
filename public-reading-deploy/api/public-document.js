@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import deploymentConfig from "../vercel.json" with { type: "json" };
 import ogHandler from "../../api/og.js";
-import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation } from "../../src/lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation, publicTemporarilyClosed, PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER } from "../../src/lib/publicReadingRelease2029.js";
 import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, protectedReviewAuthOrigin, publicCandidateOrigin, publicIndexingAllowed, deploymentAuthorized } from "../authorization.js";
 
 export function requestOrigin(req) {
@@ -105,8 +105,11 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
         return res.status(308).send("");
       }
       if (status >= 500) throw new Error("public_source_unavailable");
-      const noindex = !originalDocument || !indexable(origin) || closed || state === "account" || status !== 200;
+      // A feature area closed only until it reopens soon is answered 503 + Retry-After and keeps its indexable state.
+      const temporarilyClosed = state === "closed" && publicTemporarilyClosed(path);
+      const noindex = !originalDocument || !indexable(origin) || (closed && !temporarilyClosed) || state === "account" || status !== 200;
       const html = mergeProductionDocumentMetadata(await readDocument(), metadata, { noindex });
+      if (temporarilyClosed) { status = 503; res.setHeader("Retry-After", String(PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER)); }
       const robots = html.match(/<meta\b[^>]*name=["']robots["'][^>]*content=["']([^"']+)/i)?.[1];
       if (!robots) throw new Error("public_robots_unavailable");
       res.setHeader("X-Robots-Tag", robots);

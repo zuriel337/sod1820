@@ -56,11 +56,30 @@ async function fetchHtml(start: URL): Promise<{ html: string; finalUrl: URL } | 
   return null;
 }
 
+// Only an address that a member actually posted in a public community message is fetched. The function is open to guests and has
+// no account, so without this guard it would be a free "fetch any public page" service. The check reads the same public rows a
+// visitor can read (approved, not deleted, the two community origins) with the project's public key.
+async function isPostedInCommunity(href: string): Promise<boolean> {
+  const base = Deno.env.get("SUPABASE_URL"), key = Deno.env.get("SUPABASE_ANON_KEY");
+  if (!base || !key || href.length > 600) return false;
+  // A bare address is normalized with a trailing slash; the message may not have it. Match from the address without it.
+  const pattern = "*" + href.replace(/\/$/, "").replace(/[*\\]/g, "") + "*";
+  try {
+    const res = await fetch(`${base}/rest/v1/research_contributions?select=id&status=eq.approved&deleted_at=is.null&origin=in.(openweb,community_2029)&body=ilike.${encodeURIComponent(pattern)}&limit=1`, {
+      headers: { apikey: key, Authorization: "Bearer " + key }, signal: AbortSignal.timeout(4000),
+    });
+    if (!res.ok) return false;
+    const rows = await res.json();
+    return Array.isArray(rows) && rows.length > 0;
+  } catch { return false; }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
   if (req.method !== "GET") return json({ error: "method" }, 405, "no-store");
   const target = parsePublicHttpsUrl(new URL(req.url).searchParams.get("url") || "");
   if (!target) return json({ preview: null }, 200, "public, max-age=300");
+  if (!(await isPostedInCommunity(target.href))) return json({ preview: null }, 200, "public, max-age=300");
   const page = await fetchHtml(target);
   const preview = page ? parseOpenGraph(page.html, page.finalUrl.href) : null;
   return json({ preview }, 200, preview ? "public, max-age=3600, s-maxage=86400" : "public, max-age=600");

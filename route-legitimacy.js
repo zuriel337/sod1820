@@ -92,6 +92,8 @@ export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/דף-צאט-ראשי",
   "/דף-ראשי",
   "/דף-ראשי-2",
+  // One of the three preserved historical lecture pages: without this entry the Edge legitimacy check answered 404 for a page that exists.
+  "/הוכחות-לאמיתות-התורה-משמים",
   "/היכל",
   "/הצלבה",
   "/חישוב",

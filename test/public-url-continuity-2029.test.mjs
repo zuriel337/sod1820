@@ -128,7 +128,9 @@ test('an empty search needs an unfiltered public membership witness, and paging 
 
 test('named services remain truthful and do not make missing items, drafts or malformed people pages public', async () => {
   await isolated(forbidden, async () => {
-    for (const path of ['/name','/journey','/credits','/contact','/early-access','/melech-hamisparim/718']) assert.equal((await metadata(path)).code,200,path);
+    for (const path of ['/journey','/credits','/contact','/early-access','/melech-hamisparim/718']) assert.equal((await metadata(path)).code,200,path);
+    // /name is closed only until it reopens soon: a truthful 503 with Retry-After, not a 200 and not a 404.
+    const name = await metadata('/name'); assert.equal(name.code,503); assert.equal(name.headers.get('retry-after'),'259200');
     for (const path of ['/or-geula?v=','/or-geula?page=0','/members?page=0','/community/researchers?page=1&page=2','/forum/not-an-id']) assert.equal((await metadata(path)).code,404,path);
   });
   await isolated(async url => {
@@ -136,7 +138,10 @@ test('named services remain truthful and do not make missing items, drafts or ma
     if (new URL(url).pathname.endsWith('/els_records')) { assert.equal(params.get('status'),'eq.published'); assert.equal(params.get('visibility'),'eq.public'); }
     return json([]);
   }, async () => {
-    for (const path of ['/book/missing','/codes/missing','/unknown-real-looking-slug','/forum/00000000-0000-4000-8000-000000000001']) assert.equal((await metadata(path)).code,404,path);
+    for (const path of ['/book/missing','/codes/missing','/unknown-real-looking-slug']) assert.equal((await metadata(path)).code,404,path);
+    // ZURIEL 5.11: the retired Forum is replaced by the chat, so a well-formed old thread address that no longer exists continues to the chat.
+    const retired = await metadata('/forum/00000000-0000-4000-8000-000000000001');
+    assert.equal(retired.code,308); assert.equal(retired.headers.get('location'),'/community/chat');
   });
 });
 
@@ -172,4 +177,21 @@ test('the bare calculator and chat are indexable; their query variants are not',
     const chat = await metadata('/community/chat');
     assert.equal(chat.headers.get('x-robots-tag'), 'index, follow');
   });
+});
+
+// ZURIEL 5.11: old taxonomy addresses that still arrive from Google. Exact names only, never similarity.
+test('explicit legacy taxonomy aliases, trackback and old paging continue to the existing addresses', () => {
+  const to = (path, search = '') => publicReadingContinuation(path, search);
+  assert.equal(to('/category/סרט'), '/category/וידאו');
+  assert.equal(to(encodeURI('/category/סרט/')), '/category/וידאו');
+  assert.equal(to('/category/סוד-האותיות'), '/category/סוד-האותיות-והמספרים');
+  assert.equal(to('/tag/ארי-נווה'), '/tag/אריק-נווה');
+  assert.equal(to('/tag/ארי נווה'), '/tag/אריק-נווה');
+  assert.equal(to('/tag/הרב-ציון-ברכה-זצל'), '/tag/הרב-ציון-ברכה-זצ%22ל');
+  assert.equal(to('/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא/trackback'), '/הילרי-קלינטון-במועד-ההכרזה-היא-בת-67-ולא');
+  assert.equal(to('/category/סוד-האותיות/page/8'), '/category/סוד-האותיות-והמספרים?page=8');
+  assert.equal(to('/category/סרט/page/2', '?x=1'), '/category/וידאו?page=2&x=1');
+  assert.equal(to('/tag/ארי-נווה/page/1'), '/tag/אריק-נווה');
+  // No similarity: unknown names, existing ones and family roots are untouched.
+  for (const path of ['/category/וידאו', '/tag/אריק-נווה', '/tag/nir-abugan', '/category/סרטים', '/trackback', '/post/trackback', '/category/trackback']) assert.equal(to(path), null, path);
 });

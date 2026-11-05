@@ -10,11 +10,12 @@ function GenericLinkCard({ link, draft = false }) {
   const [preview, setPreview] = useState(null);
   const [imageFailed, setImageFailed] = useState(false);
   useEffect(() => {
-    let alive = true, timer = null;
-    // While the text is still being typed every letter is a new address: ask only once it stayed the same.
-    const ask = () => fetchLinkPreview(link.href).then((value) => { if (alive) setPreview(value); });
-    if (draft) timer = setTimeout(ask, 900); else ask();
-    return () => { alive = false; if (timer) clearTimeout(timer); };
+    // A draft is not posted yet: the preview service only answers for addresses already posted in a public message, so a draft keeps
+    // the plain card and asks nothing (no request per typed letter either).
+    if (draft) return undefined;
+    let alive = true;
+    fetchLinkPreview(link.href).then((value) => { if (alive) setPreview(value); });
+    return () => { alive = false; };
   }, [link.href, draft]);
   if (!preview) return <a className="sod29-community-link-card" href={link.href} target="_blank" rel="noopener noreferrer"><strong dir="ltr">{link.host}</strong><span dir="ltr">{link.href}</span><small>פתיחת הקישור ↗</small></a>;
   return <a className="sod29-community-link-card has-og" data-link-preview="og" href={link.href} target="_blank" rel="noopener noreferrer">
