@@ -1,0 +1,123 @@
+/* SOD1820 2029 · Top bar with the crown at the physical centre (ZURIEL 5.11.2026, option A "hanging crown").
+   Presentation only, on the single System Frame. Reading order in the bar (RTL):
+   start  → menu entrance + where-am-I line;   centre → the approved lockup, always on the page's centre line;
+   end    → search, theme, account.
+   The lockup is the complete approved asset (crown and verse); it is never cropped, redrawn or recoloured.
+   The bar keeps its own fixed height; only the lockup hangs below it, and the header reserves exactly that
+   overhang so nothing is covered and nothing shifts (CLS). Colours come only from --s29-* variables. */
+
+.sod29-root.closed-shell.native-frame {
+  --s29-crown-w: 120px;        /* rendered lockup width */
+  --s29-crown-top: -8px;       /* lockup top relative to the bar */
+  --s29-crown-slot: 132px;     /* the centre column reserved for the lockup */
+  --s29-crown-hang: 52px;      /* how far the lockup (with its verse) reaches below the bar */
+}
+
+/* ── Header: three equal zones so the centre is the page centre ───────────────────────────── */
+.sod29-root.closed-shell.native-frame .sod29-header.closed-orientation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--s29-crown-slot) minmax(0, 1fr);
+  align-items: center;
+  column-gap: 8px;
+  margin-block-end: calc(var(--s29-crown-hang) + 6px);
+  position: sticky;
+  z-index: 40;
+}
+.sod29-root.closed-shell.native-frame .sod29-header-leading {
+  display: flex; align-items: center; gap: 10px; min-width: 0; grid-column: 1; justify-self: stretch;
+}
+.sod29-root.closed-shell.native-frame .sod29-header-end {
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-width: 0; grid-column: 3; justify-self: stretch;
+}
+.sod29-root.closed-shell.native-frame .sod29-header-end .sod29-header-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.sod29-root.closed-shell.native-frame .sod29-header-search { grid-column: auto; flex: 0 0 auto; }
+
+/* ── The crown ────────────────────────────────────────────────────────────────────────────── */
+.sod29-root.closed-shell.native-frame .sod29-header-crown {
+  grid-column: 2; justify-self: center; align-self: start;
+  position: relative; display: block; inline-size: var(--s29-crown-slot); block-size: 56px;
+  text-decoration: none; -webkit-tap-highlight-color: transparent; border-radius: 12px;
+}
+.sod29-root.closed-shell.native-frame .sod29-header-crown img {
+  position: absolute; left: 50%; right: auto; inset-block-start: var(--s29-crown-top);
+  inline-size: var(--s29-crown-w); block-size: var(--s29-crown-w); max-inline-size: none;
+  transform: translateX(-50%); display: block; object-fit: contain; pointer-events: none; user-select: none;
+  filter: drop-shadow(0 7px 10px color-mix(in srgb, var(--s29-page) 70%, transparent))
+          drop-shadow(0 0 16px color-mix(in srgb, var(--s29-brand-gold) 30%, transparent));
+  transition: transform 240ms cubic-bezier(.2, .8, .2, 1), filter 240ms ease;
+}
+.sod29-root.closed-shell.native-frame .sod29-header-crown:hover img { transform: translateX(-50%) translateY(2px); }
+.sod29-root.closed-shell.native-frame .sod29-header-crown:focus-visible { outline: 2px solid var(--s29-focus-ring, var(--s29-accent-text)); outline-offset: 2px; }
+.sod29-root[data-frame-reduced-motion="true"] .sod29-header-crown img,
+.sod29-root[data-frame-reduced-motion="true"] .sod29-header-crown:hover img { transition: none; transform: translateX(-50%); }
+@media (prefers-reduced-motion: reduce) {
+  .sod29-root.closed-shell.native-frame .sod29-header-crown img { transition: none; }
+  .sod29-root.closed-shell.native-frame .sod29-header-crown:hover img { transform: translateX(-50%); }
+}
+
+/* ── Menu entrance: a plain ☰ on the start side (the crown is no longer the menu button) ───── */
+.sod29-root.closed-shell.native-frame :is(.sod29-logo-toggle, .sod29-mobile-menu-trigger) .sod29-discovery-gate { position: relative; }
+.sod29-root.closed-shell.native-frame :is(.sod29-logo-toggle, .sod29-mobile-menu-trigger) :is(.sod29-gate-artwork, .sod29-gate-halo, .sod29-gate-arcs) { display: none !important; }
+.sod29-root.closed-shell.native-frame :is(.sod29-logo-toggle, .sod29-mobile-menu-trigger) .sod29-gate-menu {
+  display: block !important; position: static; inset: auto; inline-size: 26px; block-size: 26px; margin: auto; color: var(--s29-brand-gold);
+  background: none; border-radius: 0;
+}
+.sod29-root.closed-shell.native-frame :is(.sod29-logo-toggle, .sod29-mobile-menu-trigger) .sod29-gate-menu path { stroke-width: 1.9; }
+
+/* ── Desktop ──────────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 981px) {
+  /* Collapsed rail: the bar runs over the rail column too, so its centre is the page centre.
+     The rail's toggle (the ☰) sits inside the bar's start end instead of beside it. */
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-header.closed-orientation {
+    /* 72px = the collapsed rail column fixed in systemFrame2029-human-gate.css; the bar ends 10px from the page edge on both sides. */
+    margin-inline-start: -62px;
+    padding-inline: 68px;   /* equal on both sides so the centre column is the page centre */
+  }
+  .sod29-root.closed-shell.native-frame.sidebar-collapsed .sod29-logo-toggle {
+    border-color: transparent; background: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; z-index: 46;
+  }
+  /* The theme choice becomes one 44px control, like the account and search entries (the three-way pill is too wide for a balanced bar). */
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets.is-header-control {
+    position: relative; display: flex; flex: 0 0 44px; inline-size: 44px; min-inline-size: 44px; padding: 0; gap: 0; border: 0; border-radius: 14px; background: transparent;
+  }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets .sod29-theme-trigger {
+    display: inline-flex !important; inline-size: 44px; min-inline-size: 44px; block-size: 44px; min-block-size: 44px;
+  }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-trigger b { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .is-header-control .sod29-theme-options { display: none; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .is-header-control.is-open .sod29-theme-options {
+    position: absolute; inset-block-start: calc(100% + 8px); inset-inline-end: 0; z-index: 3;
+    display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px;
+    inline-size: 228px; max-inline-size: calc(100vw - 20px); padding: 6px;
+    border: 1px solid var(--s29-line-strong); border-radius: 16px; background: var(--s29-panel);
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--s29-page) 60%, transparent);
+  }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .is-header-control .sod29-theme-options button {
+    display: grid !important; inline-size: auto; min-inline-size: 44px; block-size: 52px; min-block-size: 44px; padding: 4px !important; border-radius: 12px;
+  }
+}
+
+/* ── Phones and tablets: same three zones, smaller lockup ─────────────────────────────────── */
+@media (max-width: 980px) {
+  .sod29-root.closed-shell.native-frame {
+    --s29-crown-w: 100px; --s29-crown-top: -2px; --s29-crown-slot: 108px; --s29-crown-hang: 24px;
+  }
+  .sod29-root.closed-shell.native-frame .sod29-header.closed-orientation {
+    display: grid; grid-template-columns: minmax(0, 1fr) var(--s29-crown-slot) minmax(0, 1fr); gap: 0; padding: 7px 10px;
+    margin-block-end: calc(var(--s29-crown-hang) + 4px);
+  }
+  .sod29-root.closed-shell.native-frame .sod29-header-leading { display: flex; grid-column: 1; }
+  .sod29-root.closed-shell.native-frame .sod29-header-leading .sod29-mobile-menu-trigger { grid-column: auto; flex: 0 0 44px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-leading .sod29-orientation { grid-column: auto; justify-self: start; flex: 1 1 auto; min-inline-size: 0; text-align: start; }
+  .sod29-root.closed-shell.native-frame .sod29-header-end { grid-column: 3; gap: 6px; }
+  .sod29-root.closed-shell.native-frame .sod29-header-search { grid-column: auto; }
+  .sod29-root.closed-shell.native-frame .sod29-header-actions { grid-column: auto; }
+}
+@media (max-width: 620px) {
+  /* The three theme choices are already inside the navigation drawer; the bar keeps only search and account. */
+  .sod29-root.closed-shell.native-frame .sod29-header-actions .sod29-theme-presets.is-header-control { display: none !important; }
+}
+@media (max-width: 340px) {
+  .sod29-root.closed-shell.native-frame { --s29-crown-w: 88px; --s29-crown-slot: 96px; --s29-crown-hang: 20px; }
+  .sod29-root.closed-shell.native-frame .sod29-header.closed-orientation { padding-inline: 6px; }
+}

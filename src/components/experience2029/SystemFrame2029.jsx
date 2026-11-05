@@ -13,7 +13,7 @@ import React, {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
-import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
+import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 import Footer2029 from "./Footer2029.jsx";
 import AccountLinkOffer2029 from "./AccountLinkOffer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
@@ -88,6 +88,7 @@ import "./myWorkspace2029.css";
 import "./discoveryGate2029.css";
 import "./systemToolDock2029.css";
 import "./systemFrame2029-unified-bar.css";
+import "./systemFrame2029-topbar-crown.css";
 import "./googleEntry2029.css";
 
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
@@ -2227,6 +2228,18 @@ function SystemFrame2029Body({
                 {pageContext?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{contextDisplayTitle(pageContext) || "ההקשר הנוכחי"}</span></span> : null}
               </div>
             </div>
+            <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-header-crown" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
+              <img
+                src={BRAND_LOCKUP_NAV_2029.src}
+                width={BRAND_LOCKUP_NAV_2029.width}
+                height={BRAND_LOCKUP_NAV_2029.height}
+                alt=""
+                decoding="async"
+                draggable="false"
+                data-brand-asset-state={BRAND_LOCKUP_NAV_2029.state}
+              />
+            </Link>
+            <div className="sod29-header-end">
             <button className="sod29-header-search" type="button" onClick={openSiteSearch} aria-label="חיפוש באתר" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.SEARCH}>
               <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
               <span className="sod29-search-pill-icon" aria-hidden="true">⌕</span>
@@ -2238,6 +2251,7 @@ function SystemFrame2029Body({
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="issue-label"> דווח על בעיה</span></button>
               <ThemePresetControl2029 compact header />
               <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
+            </div>
             </div>
           </header>
           <GlobalLivingRibbon2029 />
