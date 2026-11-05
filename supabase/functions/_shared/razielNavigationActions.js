@@ -13,6 +13,10 @@
 //
 // Dependency-free on purpose (Deno edge + Vite lazy chunk + node:test).
 
+import {
+  findSiteLinkByPhrase, isRegistryExternalHref, isRegistrySiteHref, siteLinkAbsoluteUrl, siteLinkByHref, siteLinkById,
+} from "./siteLinkRegistry.js";
+
 export const RAZIEL_NAVIGATION_ACTIONS_VERSION = "raziel-canonical-navigation-actions-v1";
 
 export const RAZIEL_NAVIGATION_INTENT = Object.freeze({
@@ -20,6 +24,8 @@ export const RAZIEL_NAVIGATION_INTENT = Object.freeze({
   NUMBER_EXPRESSIONS: "number_expressions",
   RESEARCH_MAP: "research_map",
   WORLD: "world",
+  // "Where is the WhatsApp / community / Heichal / privacy ...": answered from SITE_LINK_REGISTRY_V1 only.
+  SITE_LINK: "site_link",
 });
 
 export const RAZIEL_NAVIGATION_NUMBER_MIN = 1;
@@ -50,12 +56,14 @@ export function razielNumberPageHref(value) {
 
 export function isCanonicalRazielNavigationHref(href) {
   if (typeof href !== "string") return false;
-  return href === WORLD_HREF || NUMBER_HREF.test(href);
+  return href === WORLD_HREF || NUMBER_HREF.test(href) || isRegistrySiteHref(href);
 }
 
 // Absolute https link for chat transports. Same-site canonical hrefs only; never a Preview/dev origin.
 export function razielNavigationUrl(href, origin) {
+  if (isRegistryExternalHref(href)) return href;
   if (!isCanonicalRazielNavigationHref(href)) return "";
+  if (href !== WORLD_HREF && !NUMBER_HREF.test(href)) return siteLinkAbsoluteUrl(siteLinkByHref(href), origin);
   try {
     const parsed = new URL(origin);
     if (parsed.protocol !== "https:") return "";
@@ -116,6 +124,9 @@ const LEADS = [
   { kind: "give", re: new RegExp(`^(?:אני )?${GIVE_VERBS}(?: |$)`, "u") },
 ];
 
+// "Where is X" / "where can I find X" — a question about a link, never a request for a number page.
+const WHERE_LEAD = /^(?:איפה|היכן)(?: (?:אפשר|ניתן|אני יכול|אני יכולה|אנחנו יכולים))?(?: (?:למצוא|לראות|להגיע|ללכת|לגשת|לפתוח|נמצא|נמצאת|נמצאים|נמצאות|יש|זה|היא|הוא))*(?: |$)/u;
+
 const LINK_NOUN = /^(?:ה)?(?:לינק|קישור|קישורית)(?: (?:אל|עבור|של))?(?: |$)/u;
 
 const PREP = "(?:את |אל |ל|ב)?";
@@ -169,12 +180,19 @@ export function parseRazielNavigationRequest(text) {
   if (!rest) return null;
 
   let leadKind = "none";
-  for (const lead of LEADS) {
-    const match = rest.match(lead.re);
-    if (match) {
-      leadKind = lead.kind;
-      rest = rest.slice(match[0].length).trim();
-      break;
+  let whereLead = false;
+  const whereMatch = rest.match(WHERE_LEAD);
+  if (whereMatch) {
+    whereLead = true;
+    rest = rest.slice(whereMatch[0].length).trim();
+  } else {
+    for (const lead of LEADS) {
+      const match = rest.match(lead.re);
+      if (match) {
+        leadKind = lead.kind;
+        rest = rest.slice(match[0].length).trim();
+        break;
+      }
     }
   }
   let link = false;
@@ -183,13 +201,13 @@ export function parseRazielNavigationRequest(text) {
     link = true;
     rest = rest.slice(linkMatch[0].length).trim();
   }
-  if (leadKind === "none" && !link) return null;
+  if (leadKind === "none" && !link && !whereLead) return null;
   if (!rest) return null;
 
   // An explicit link noun ("לינק", "קישור") makes the request unambiguous for every target; otherwise the
   // lead verb decides what may navigate ("תן לי את המספר 73" is an information request, not a link request).
   const mode = link ? "none" : leadKind;
-  for (const target of TARGETS) {
+  for (const target of whereLead ? [] : TARGETS) {
     if (target.linkOnly && !link) continue;
     if (!target.allow.includes(mode)) continue;
     if (!target.re.test(rest)) continue;
@@ -203,7 +221,28 @@ export function parseRazielNavigationRequest(text) {
       number: Object.freeze(slot),
     });
   }
-  return null;
+  // No number/world target matched: a whole-message phrase that is exactly a registry alias is a site-link request.
+  // "תשלח את הלינק לאינסטגרם": the particle before a link noun is tolerated here only (existing grammar unchanged).
+  let siteRest = rest;
+  let siteLinkNoun = link;
+  if (!siteLinkNoun) {
+    const bare = siteRest.replace(/^את /u, "");
+    const nounMatch = bare.match(LINK_NOUN);
+    if (nounMatch) {
+      siteLinkNoun = true;
+      siteRest = bare.slice(nounMatch[0].length).trim();
+    }
+  }
+  const siteLink = findSiteLinkByPhrase(siteRest);
+  if (!siteLink) return null;
+  return Object.freeze({
+    version: RAZIEL_NAVIGATION_ACTIONS_VERSION,
+    intent: RAZIEL_NAVIGATION_INTENT.SITE_LINK,
+    lead: whereLead ? "where" : leadKind,
+    link: siteLinkNoun,
+    number: Object.freeze({ status: "none", value: null }),
+    site_link_id: siteLink.id,
+  });
 }
 
 // ── Resolution ───────────────────────────────────────────────────────────────────────────────────
@@ -273,10 +312,45 @@ function navigate(intent, number, numberSource) {
 // focus: null | { ambiguous: true } | { number: <verified integer>, source: "conversation" | "surface" | ... }
 // A verified focus is supplied by the transport adapter from its own trusted context; it is
 // revalidated here (shape + range) so a bad value can never mint a wrong or out-of-range page.
-export function resolveRazielNavigationAction({ text = "", request = null, focus = null } = {}) {
+const SITE_LINK_MESSAGES = Object.freeze({
+  whatsapp: "בשמחה — הנה הקישור לקבוצת הוואטסאפ של האתר. 🌳",
+  updates: "בשמחה — הנה ההרשמה לעדכוני האתר במייל. 🌳",
+});
+
+function siteLinkNavigate(item, message, label, closedTarget = null) {
+  return Object.freeze({
+    type: "navigate",
+    version: RAZIEL_NAVIGATION_ACTIONS_VERSION,
+    intent: RAZIEL_NAVIGATION_INTENT.SITE_LINK,
+    href: item.href,
+    number: null,
+    number_source: null,
+    site_link_id: item.id,
+    external: item.external === true,
+    ...(closedTarget ? { closed_target: closedTarget } : {}),
+    message,
+    label,
+    model_calls: 0,
+  });
+}
+
+// linkState(item) => "closed" | anything else. The web adapter injects the live route router; without it the
+// registry's own defaultState (pinned to the router by test) decides. A closed target is never offered as open:
+// the honest reason and the registry's open alternative are returned instead.
+function resolveSiteLinkAction(id, linkState) {
+  const item = siteLinkById(id);
+  if (!item) return null;
+  const closed = typeof linkState === "function" ? linkState(item) === "closed" : item.defaultState === "closed";
+  if (!closed) return siteLinkNavigate(item, SITE_LINK_MESSAGES[item.id] || `בשמחה — הנה ${item.label}. 🌳`, `פתח: ${item.label}`);
+  const alt = item.closed ? siteLinkById(item.closed.alt) : null;
+  return alt ? siteLinkNavigate(alt, item.closed.message, `לעבור אל ${alt.label}`, item.id) : null;
+}
+
+export function resolveRazielNavigationAction({ text = "", request = null, focus = null, linkState = null } = {}) {
   const parsed = request || parseRazielNavigationRequest(text);
   if (!parsed) return null;
   const { intent, number } = parsed;
+  if (intent === RAZIEL_NAVIGATION_INTENT.SITE_LINK) return resolveSiteLinkAction(parsed.site_link_id, linkState);
   if (intent === RAZIEL_NAVIGATION_INTENT.WORLD) return navigate(intent, null, null);
   if (number.status === "invalid") return clarify("invalid_number", intent);
   if (number.status === "explicit") return navigate(intent, number.value, "explicit");
@@ -292,7 +366,7 @@ export function resolveRazielNavigationAction({ text = "", request = null, focus
 // Does the message need a verified focus before it can resolve? Lets a transport skip any context
 // lookup (history fetch, DB call) when the number is explicit or the request does not need one.
 export function razielNavigationNeedsFocus(request) {
-  return Boolean(request) && request.intent !== RAZIEL_NAVIGATION_INTENT.WORLD && (request.number.status === "reference" || request.number.status === "none");
+  return Boolean(request) && request.intent !== RAZIEL_NAVIGATION_INTENT.WORLD && request.intent !== RAZIEL_NAVIGATION_INTENT.SITE_LINK && (request.number.status === "reference" || request.number.status === "none");
 }
 
 // After Raziel asked "לאיזה מספר תרצה שאפתח דף?", a bare numeral ("73" / "המספר 73") answers it.
@@ -409,6 +483,7 @@ export function normalizeRazielNavigationAction(value) {
     href: value.href,
     label,
     number: match ? Number(match[1]) : null,
+    ...(isRegistryExternalHref(value.href) ? { external: true } : {}),
   });
 }
 

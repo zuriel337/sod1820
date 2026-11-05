@@ -81,6 +81,10 @@ export default function NumberDrawer2029({
   const inputInfo = useMemo(() => classifyCalculatorInput(expression), [expression]);
   const profileRows = profileState.expression === clean(expression) ? profileState.rows : EMPTY_METHOD_PROFILE;
   const [selectedMethodKey, setSelectedMethodKey] = useState(initialMethodKey);
+  // The profile fetch resolves later than the render that started it; read the latest requested method
+  // from a ref so a method selected meanwhile (e.g. a Golden "מסתתר" entry) is never replaced by profile[0].
+  const selectedMethodKeyRef = useRef(initialMethodKey);
+  selectedMethodKeyRef.current = selectedMethodKey;
   const [traceState, setTraceState] = useState({ loading: false, finding: null, error: null });
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
@@ -183,7 +187,7 @@ export default function NumberDrawer2029({
         if (!alive) return;
         const applicable = filterProfileRowsForInput(rows, classifyCalculatorInput(expr));
         setProfileState({ loading: false, rows: applicable, error: null, expression: expr });
-        const requested = clean(selectedMethodKey);
+        const requested = clean(selectedMethodKeyRef.current);
         const selected = applicable.find((row) => row.methodKey === requested) || applicable[0] || null;
         if (selected && selected.methodKey !== requested) setSelectedMethodKey(selected.methodKey);
         if (!Number.isSafeInteger(root) && selected?.computedValue != null) setRoot(Number(selected.computedValue));

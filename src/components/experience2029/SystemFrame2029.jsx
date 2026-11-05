@@ -14,6 +14,7 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
 import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
+import Footer2029 from "./Footer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
@@ -21,6 +22,7 @@ import { buildExactReturnPatch, researchContextNumber } from "../../lib/research
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
+import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked, personalActionsLocked } from "../../lib/publicLaunch2029.js";
 const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));
 import { makeEntity } from "../../lib/research/entity.js";
@@ -164,6 +166,7 @@ const DIRECT_NAV = [
   { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },
   { action: "number-search", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
+  { to: "/beit-midrash", label: "בית המדרש", icon: "▤" },
   { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
   ...(publicFoundationPreview ? [
     { to: "/map", label: "מפת האתר", icon: "◌" },
@@ -186,6 +189,7 @@ const CORE_DIRECT_NAV = [
   { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },
   { action: "number-search", label: "דף המספר", icon: "123" },
   { to: "/books", label: "ספרים ומקורות", icon: "▤" },
+  { to: "/beit-midrash", label: "בית המדרש", icon: "▤" },
 ];
 
 const FOCUSABLE = [
@@ -196,6 +200,13 @@ const FOCUSABLE = [
   "textarea:not([disabled])",
   "[tabindex]:not([tabindex='-1'])",
 ].join(",");
+
+// בית המדרש is a visible menu destination (ZURIEL 5.11.2026). While the public router keeps it closed it appears with its
+// true "בבנייה" state instead of a link that leads nowhere; for a verified admin or once opened it is a normal link.
+export function beitMidrashNavItem(item, isAdmin = false) {
+  const state = publicReadingPath(item.to, { isAdmin: isAdmin === true });
+  return state === "closed" || state === "missing" ? { label: item.label, icon: item.icon, status: "בבנייה" } : item;
+}
 
 function activeClass({ isActive }) {
   return `sod29-nav-link${isActive ? " active" : ""}`;
@@ -825,7 +836,9 @@ function RazielNativeChat({ context, label, numberFocus, readingFocus, elsFocus 
           <div key={`${m.turnId || i}:${m.role}`} ref={i === thread.length - 1 ? lastTurnRef : undefined} className={m.role === "user" ? "sod29-raziel-chat-user" : "sod29-raziel-chat-raziel"}>
             <small>{m.role === "user" ? "שאלת" : "רזיאל"}</small>
             {m.viewMode === "landscape" && m.viewModeApplied ? <details open><summary>התמונה המלאה</summary><span dir="auto">{m.text}</span></details> : <span dir="auto">{m.text}</span>}
-            {razielNavigationButton(m) ? <div className="sod29-raziel-nav-action"><Link className="sod29-action primary" to={razielNavigationButton(m).href} data-raziel-navigation-action={razielNavigationButton(m).intent}>{razielNavigationButton(m).label}</Link></div> : null}
+            {razielNavigationButton(m) ? <div className="sod29-raziel-nav-action">{razielNavigationButton(m).external
+              ? <a className="sod29-action primary" href={razielNavigationButton(m).href} target="_blank" rel="noopener noreferrer" data-raziel-navigation-action={razielNavigationButton(m).intent}>{razielNavigationButton(m).label}</a>
+              : <Link className="sod29-action primary" to={razielNavigationButton(m).href} data-raziel-navigation-action={razielNavigationButton(m).intent}>{razielNavigationButton(m).label}</Link>}</div> : null}
             {m.role === "raziel" ? <div className="sod29-raziel-answer-meta">
               <small data-raziel-level={m.level}>{RAZIEL_LEVEL_LABEL[m.level] || ""}</small>
               {m.viewMode ? <small data-raziel-view-mode-answer={m.viewModeApplied ? m.viewMode : "not_applied"}>{m.viewModeApplied ? `${razielViewModeLabel(m.viewMode)} · ניסוי` : `${razielViewModeLabel(m.viewMode)} לא הופעל`}</small> : null}
@@ -1489,7 +1502,7 @@ function SystemFrame2029Body({
   const numberLocked = numberFeature.loading || numberFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
   const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
-  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
+  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
@@ -2266,6 +2279,7 @@ function SystemFrame2029Body({
               suppressLearn={Boolean(transientKind)}
             /> : null}
           </div>
+          <Footer2029 />
         </div>
 
         {navOpen ? <>
