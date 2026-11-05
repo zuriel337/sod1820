@@ -1,11 +1,13 @@
 index.html
-scripts/2029-legacy-coupling-baseline.json
+scripts/check-observability-seo-gate.mjs
+scripts/observability-seo-gate-baseline.json
 scripts/test-beit-midrash-methods-registry.mjs
 scripts/test-legacy-home-recent-gematria.mjs
 scripts/test-legacy-production-lock.mjs
 scripts/test-legacy-research-containment.mjs
 scripts/test-whatsapp-kod-hametsiut-join.mjs
 scripts/test_canonical_presentation.mjs
+scripts/verify-raziel-787-browser.mjs
 src/App.jsx
 src/adminTheme.css
 src/components/ActiveEntityPanel.jsx
@@ -67,7 +69,6 @@ src/components/EnglishDiscovery.jsx
 src/components/EntityLiveHeader.jsx
 src/components/ErrorBoundary.jsx
 src/components/FamilyCross.jsx
-src/components/FeatureClosedNotice.jsx
 src/components/FeatureSurfaceSync.jsx
 src/components/FileAnalyzer.jsx
 src/components/FindingsTab.jsx
@@ -303,11 +304,7 @@ src/lib/numHrefCtx.js
 src/lib/numberCard.js
 src/lib/numberDrawer.js
 src/lib/numberSets.js
-src/lib/palette.js
-src/lib/paletteBridge2029.js
-src/lib/paletteHostAdapter2029.js
 src/lib/postExperiment.js
-src/lib/presence.js
 src/lib/printDoc.js
 src/lib/reporters.js
 src/lib/research/coreEngine.js
@@ -326,7 +323,6 @@ src/lib/siteUpdates.js
 src/lib/spatialReveals.js
 src/lib/storyTrack.js
 src/lib/stream.js
-src/lib/themeHostAdapter2029.js
 src/lib/themeMode.js
 src/lib/topicCards.js
 src/lib/translit.js
@@ -379,7 +375,6 @@ src/pages/MeaningLabPage.jsx
 src/pages/NameLabPage.jsx
 src/pages/NamePage.jsx
 src/pages/NavigationCenterPage.jsx
-src/pages/NotFoundPage.jsx
 src/pages/NumberSearchPage.jsx
 src/pages/NumbersPage.jsx
 src/pages/OrGeulaPage.jsx
@@ -412,6 +407,7 @@ test/code-page-els-launch-gate.test.mjs
 test/convergence-tree-closure.test.mjs
 test/dead-bot-signal-adjudication.test.mjs
 test/legacy-build-meter-80-honesty.test.mjs
+test/legacy-calculator-evidence.browser.mjs
 test/live-whatsapp-feed-projection.test.mjs
 test/research-viewer-heterogeneous-sources.test.mjs
 test/research-viewer-judgment-surface.test.mjs
