@@ -6,7 +6,7 @@
 //   1. Behavioral: feed a SYNTHETIC fixture (different shape values/words/quantities/sides — never the
 //      real Zvi 3060 specimen) through the exact same functions the renderer calls, and assert the
 //      output tracks the fixture exactly.
-//   2. Lexical: read GematriaCube.jsx's own source and assert none of the real 3060 specimen's content
+//   2. (retired) the Lexical check of the removed Legacy GematriaCube.jsx renderer
 //      (765, 3060, ברית, טוב, ישר, 510, 612, 180, 1020) appears in its executable code (comments are
 //      stripped first — explaining a design decision by referencing the real example in a comment is
 //      fine and matches this codebase's existing convention; the CODE itself must not know it).
@@ -105,12 +105,3 @@ function stripComments(src) {
     .replace(/\/\*[\s\S]*?\*\//g, " ")   // /* ... */
     .replace(/\/\/[^\n]*$/gm, " ");       // // ... to end of line
 }
-
-test("GematriaCube.jsx's executable code (comments stripped) contains none of the real Zvi 3060 specimen's content", () => {
-  const here = dirname(fileURLToPath(import.meta.url));
-  const src = readFileSync(join(here, "..", "components", "GematriaCube.jsx"), "utf8");
-  const code = stripComments(src);
-  const forbidden = ["765", "3060", "ברית", "טוב", "ישר", "510", "612", "1020", "180"];
-  const leaked = forbidden.filter(f => code.includes(f));
-  assert.deepEqual(leaked, [], `renderer code must not hardcode any of: ${leaked.join(", ")}`);
-});

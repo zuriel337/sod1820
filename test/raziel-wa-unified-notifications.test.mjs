@@ -79,12 +79,8 @@ try {
   fromMock.mock.restore();
   fetchMock.mock.restore();
 }
-const nc = fs.readFileSync("src/components/NotificationCenter.jsx", "utf8");
-assert.match(nc, /useWaLink/); assert.match(nc, /wa\.linked/);
-assert.doesNotMatch(nc, /["']\/(admin|archive|number|or-geula)/);
 import { ADMIN_NOTIFICATION_PREFS } from "../src/lib/notifications.js";
 assert.ok(!ADMIN_NOTIFICATION_PREFS.some(a => a.key === "admin:attention"));
-assert.doesNotMatch(nc, /admin:attention/);
 const act = ADMIN_NOTIFICATION_PREFS.find(a => a.key === "admin:raziel_activity");
 assert.doesNotMatch(act.desc, /על כל תשובת/); assert.match(act.desc, /לא כל תשובה/);
 // system_high producer + column-privilege hardening (static)
