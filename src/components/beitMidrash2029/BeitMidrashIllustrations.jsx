@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
+import { centerInRail } from "./centerInRail.js";
 
 /*
  * Presentational teaching illustrations. They draw shapes and lay out words the lesson already has;
@@ -25,8 +26,9 @@ export function FibonacciSpiral() {
 // chosen step is only marked here, never remembered.
 export function SourceReadingStrip({ steps, focusedId }) {
   const list = useRef(null);
+  // Only the strip scrolls: the page must stay where the visitor is (see centerInRail).
   useEffect(() => {
-    list.current?.querySelector('[aria-current="step"]')?.scrollIntoView?.({ inline: "center", block: "nearest", behavior: "auto" });
+    centerInRail(list.current, list.current?.querySelector('[aria-current="step"]'));
   }, [focusedId]);
   return <nav className="bm-source-strip" aria-label="שבעת שלבי קריאת המקור">
     <ol ref={list} className="bm-source-trail">

@@ -40,6 +40,19 @@ function installPublicReadingWorker(policy) {
   }
   const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   const readFetch = req => fetch(new Request(req, { cache: "no-store", credentials: "omit", redirect: "error" }));
+  // Sizing parameters of a public image rendition (avatar and thumbnail slots). Nothing else may ride on the address.
+  const publicRenditionQuery = params => {
+    const seen = new Set();
+    for (const [key, value] of params) {
+      if (seen.has(key)) return false;
+      seen.add(key);
+      if (key === "resize") { if (!["cover", "contain", "fill"].includes(value)) return false; }
+      else if (key === "width" || key === "height") { if (!/^[0-9]{1,4}$/.test(value) || Number(value) < 1 || Number(value) > 2048) return false; }
+      else if (key === "quality") { if (!/^[0-9]{1,3}$/.test(value) || Number(value) < 1 || Number(value) > 100) return false; }
+      else return false;
+    }
+    return seen.has("width") || seen.has("height");
+  };
   const metricDocuments = new Map();
   const measurementClient = async event => {
     if (!event.clientId || !["https://sod1820.co.il", "https://www.sod1820.co.il"].includes(self.location.origin)) return null;
@@ -250,6 +263,12 @@ function installPublicReadingWorker(policy) {
     if (url.origin === authOrigin && req.method === "GET" && req.destination === "image"
       && req.mode === "no-cors" && !url.search && !url.hash
       && /^\/storage\/v1\/object\/public\/(?:media|gallery|magar)\//.test(url.pathname)) return;
+    // The same exception covers the small renditions of those public images. Through readFetch they failed outright
+    // (net::ERR_FAILED), so avatar slots fell back to the multi-megabyte original. Only sizing parameters are accepted.
+    if (url.origin === authOrigin && req.method === "GET" && req.destination === "image"
+      && req.mode === "no-cors" && !url.hash && !url.pathname.includes("//")
+      && /^\/storage\/v1\/render\/image\/public\/(?:media|gallery|magar)\//.test(url.pathname)
+      && publicRenditionQuery(url.searchParams)) return;
     if (url.origin === authOrigin && req.method === "POST"
       && ["/rest/v1/rpc/ingest_event", "/rest/v1/contact_messages"].includes(url.pathname)) {
       event.respondWith((async () => {

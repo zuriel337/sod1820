@@ -69,7 +69,8 @@ export default function BeitMidrash2029Page() {
 
   useEffect(() => {
     applySeo({
-      title: "בית המדרש · לומדים לגלות · SOD1820",
+      // applySeo appends the site name itself; the server document (api/og.js) carries the same final title.
+      title: "בית המדרש · לומדים לגלות",
       description: "לומדים את דרכי החישוב, הקריאה והפענוח: שיטות, מקורות, דוגמאות מודרכות ותרגול.",
       path: "/beit-midrash",
       noindex: true,
