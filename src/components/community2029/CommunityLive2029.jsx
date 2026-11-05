@@ -3,6 +3,11 @@ import { canonicalCommunityAuthorKey } from "../../lib/community/communityCanoni
 import React, { lazy, Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import AccountEntry2029 from "../auth2029/AccountEntry2029.jsx";
+import { clearGuestPost, peekGuestPost, stashGuestPost } from "../../lib/community/communityGuestPost.js";
+import { fetchGuestUnreviewed, guestBodyHasLink, guestPublishErrorMessage, publishGuestCommunityMessage, reviewGuestMessage } from "../../lib/community/communityGuestApi.js";
+import { typingLabel } from "../../lib/community/communityTyping.js";
+import { useCommunityTyping2029 } from "./useCommunityTyping2029.js";
 import { PUBLIC_READING_PRODUCTION_ARTIFACT } from "../../lib/publicReadingRelease2029.js";
 import { communityActionsLocked, publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
 import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_ACCEPT, COMMUNITY_ATTACHMENT_MAX_FILES, uploadCommunityAttachment, validateCommunityAttachment } from "../../lib/community/communityAttachments.js";
@@ -93,9 +98,18 @@ function LiveLike({ row }) {
   </div>;
 }
 
+// Administrator-only: ids of guest messages that were published at once but not
+// yet reviewed. Everyone else gets an empty set, so nothing changes for the public.
+// Set by the page on every render (messages render beneath it), so a change of
+// the set re-renders them without threading a prop through every thread level.
+const NO_GUEST_REVIEW = { ids: new Set(), review: null };
+const guestReviewHolder = { current: NO_GUEST_REVIEW };
+
 function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = false, formatDate, linkAuthor = true, showAuthorAvatar = true, focused = false, messageActions, sharePath }) {
   const actionsLocked = communityActionsLocked(useAuth().isAdmin);
+  const guestReview = guestReviewHolder.current;
   const row = { ...sourceRow, ...messageActions?.patches[sourceRow.id] };
+  const guestUnreviewed = guestReview.ids.has(sourceRow.id);
   const permissions = messageActions?.items[row.id];
   const [selection, setSelection] = useState({ principalKey: null, mode: null });
   const editButton = useRef(null);
@@ -115,7 +129,10 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
   if (row.isDeleted) return <article id={`message-${row.id}`} className={`sod29-community-thread sod29-community-thread--deleted${focused ? " is-focused" : ""}`} tabIndex={focused ? -1 : undefined}>
     <p className="sod29-community-deleted" role="note">ההודעה נמחקה</p>
   </article>;
-  return <article id={`message-${row.id}`} data-community-path={sharePath?.join(",")} data-community-created={row.createdAt} className={`sod29-community-thread${focused ? " is-focused" : ""}`} tabIndex={focused ? -1 : undefined}>
+  return <article id={`message-${row.id}`} data-community-path={sharePath?.join(",")} data-community-created={row.createdAt} className={`sod29-community-thread${focused ? " is-focused" : ""}${guestUnreviewed ? " is-guest-unreviewed" : ""}`} data-guest-unreviewed={guestUnreviewed ? "true" : undefined} tabIndex={focused ? -1 : undefined}>
+    {guestUnreviewed ? <div className="sod29-community-guest-review" role="group" aria-label="הודעת אורח שטרם נבדקה"><span>הודעת אורח · פורסמה ועדיין לא נבדקה</span>
+      <button type="button" className="sod29-community-text-action" onClick={() => guestReview.review(sourceRow.id, "approve")}>אישור</button>
+      <button type="button" className="sod29-community-text-action" onClick={() => guestReview.review(sourceRow.id, "hide")}>הסתרה</button></div> : null}
     <div className="sod29-community-author"><LiveAuthor row={row} accountProfiles={accountProfiles} formatDate={formatDate} linkAuthor={linkAuthor} showAvatar={showAuthorAvatar} /></div>
     {row.editedAt ? <p className="sod29-community-edited">נערך · {bilingualDateLabel(row.editedAt) || "תאריך לא זמין"}</p> : null}
     {showSource ? <div className="sod29-community-activity-source">{sourceLabels[row.origin] || "תרומה"}{row.parentId ? " · תגובה" : ""}</div> : null}
@@ -349,6 +366,26 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [notice, setNotice] = useState("");
   const [composerExpanded, setComposerExpanded] = useState(false);
   const [publishedFeedRefresh, setPublishedFeedRefresh] = useState(0);
+  // A guest cannot publish: the primary action becomes a one-step community signup
+  // and the written message is published automatically as soon as it completes.
+  const [joinOpen, setJoinOpen] = useState(false);
+  const guestMustJoin = (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user;
+  const guestPublishing = useRef(false);
+  const [guestWebsite, setGuestWebsite] = useState("");
+  const [guestSending, setGuestSending] = useState(false);
+  const [guestUnreviewedIds, setGuestUnreviewedIds] = useState(() => new Set());
+  const guestReviewRead = useRef(0);
+  const refreshGuestUnreviewed = useCallback(async () => {
+    if (!isAdmin || !user) { setGuestUnreviewedIds(current => current.size ? new Set() : current); return; }
+    const request = ++guestReviewRead.current;
+    try { const ids = await fetchGuestUnreviewed(); if (request === guestReviewRead.current) setGuestUnreviewedIds(new Set(ids)); } catch { /* admin hint only */ }
+  }, [isAdmin, user?.id]);
+  const reviewGuest = useCallback(async (id, action) => {
+    try { await reviewGuestMessage(id, action); setGuestUnreviewedIds(current => { const next = new Set(current); next.delete(id); return next; }); if (action === "hide") { setThreadRefresh(value => value + 1); setPublishedFeedRefresh(value => value + 1); } }
+    catch { setNotice("הפעולה על הודעת האורח לא הושלמה. נסו שוב."); }
+  }, []);
+  const guestReview = useMemo(() => ({ ids: guestUnreviewedIds, review: reviewGuest }), [guestUnreviewedIds, reviewGuest]);
+  const { typingPeople, notifyTyping } = useCommunityTyping2029({ enabled: !actionsLocked && !memberId && !claimId });
   const composerPrincipal = actionsLocked ? null : user?.id || null;
   const activeComposerPrincipal = useRef(composerPrincipal);
   activeComposerPrincipal.current = composerPrincipal;
@@ -382,6 +419,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     composerRef.current.style.height = "auto";
     composerRef.current.style.height = `${Math.max(48, Math.min(composerRef.current.scrollHeight, 224))}px`;
   }, [draft, user?.id]);
+  // Only real keystrokes count as typing: a draft restored from the device must not announce anyone.
+  const onDraftChange = value => { setDraft(value); if (typeof value === "string" && plainMessageText(value).trim()) notifyTyping(user ? profile?.display_name || profile?.username || null : null); };
   const attachmentRef = useRef(null);
   const cardCloseRef = useRef(null);
   const streamRequestRef = useRef(0);
@@ -603,7 +642,13 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     if (actionsLocked || authLoading || user && !authVerified) return;
     const body = draft.trim();
     if ((!plainMessageText(draft).trim() && !attachments.length) || sending || replyTo?.draftRestoring || replyTo?.draftUnavailable) return;
-    if ((PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user) { setNotice("יש להתחבר כדי לפרסם הודעה."); return; }
+    if (guestMustJoin) {
+      if (!plainMessageText(draft).trim()) return;
+      const saved = stashGuestPost(window.localStorage, { body, parentId: replyTo?.id || null });
+      setNotice(saved ? "" : "לא ניתן לשמור את ההודעה במכשיר הזה. הדביקו אותה שוב אחרי ההרשמה.");
+      setJoinOpen(true);
+      return;
+    }
     setSending(true); setNotice(""); setAttachmentError("");
     const principal = composerPrincipal;
     const isCurrent = () => activeComposerPrincipal.current === principal;
@@ -636,6 +681,65 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     finally { if (isCurrent()) setSending(false); }
   };
 
+  // Administrator: keep the list of unreviewed guest messages current.
+  useEffect(() => {
+    refreshGuestUnreviewed();
+    if (!isAdmin || !user) return undefined;
+    const timer = setInterval(refreshGuestUnreviewed, 30000);
+    return () => clearInterval(timer);
+  }, [refreshGuestUnreviewed, publishedFeedRefresh, threadRefresh, rows.length]);
+
+  // A guest publishes at once, as "אורח", text only. The server enforces limits.
+  const publishAsGuest = async () => {
+    if (!guestMustJoin || authLoading || guestSending || sending) return;
+    const body = draft.trim();
+    if (!plainMessageText(draft).trim() || replyTo?.draftRestoring || replyTo?.draftUnavailable) return;
+    if (guestBodyHasLink(body)) { setNotice(guestPublishErrorMessage({ message: "links_not_allowed" })); return; }
+    setGuestSending(true); setNotice("");
+    try {
+      await publishGuestCommunityMessage({ body, parentId: replyTo?.id || null, website: guestWebsite });
+      clearGuestPost(window.localStorage);
+      if (replyTo) {
+        requestedReplyCounts.current.delete(replyTo.id);
+        setReplyCounts((current) => { const next = { ...current }; delete next[replyTo.id]; return next; });
+        setThreadRefresh((current) => current + 1);
+      }
+      draftCache.clear(); setComposerExpanded(false); setJoinOpen(false); setNotice("ההודעה פורסמה כאורח.");
+      if (!replyTo && !threadFocus) {
+        setParams(current => { const next = new URLSearchParams(current); next.delete("q"); next.delete("sort"); next.delete("sourceSort"); return next; }, { replace: true });
+        setPublishedFeedRefresh(value => value + 1);
+      } else await loadPage(0, true);
+    } catch (error) { setNotice(guestPublishErrorMessage(error)); }
+    finally { setGuestSending(false); }
+  };
+
+  // Completes the guest flow, also after an OAuth redirect: the signed-in account
+  // publishes the message that was waiting on this device, exactly once.
+  useEffect(() => {
+    if (!user || !authVerified || authLoading || actionsLocked || guestPublishing.current) return;
+    const pending = peekGuestPost(window.localStorage);
+    if (!pending) return;
+    guestPublishing.current = true;
+    const principal = user.id;
+    (async () => {
+      try {
+        await publishCommunityMessage({ body: pending.body, parentId: pending.parentId, authorName: null });
+        clearGuestPost(window.localStorage);
+        if (activeComposerPrincipal.current !== principal) return;
+        setJoinOpen(false); setNotice("נרשמתם לקהילה וההודעה פורסמה.");
+        if (pending.parentId) { setThreadRefresh(value => value + 1); await loadPage(0, true); }
+        else {
+          setParams(current => { const next = new URLSearchParams(current); next.delete("q"); next.delete("sort"); next.delete("sourceSort"); return next; }, { replace: true });
+          setPublishedFeedRefresh(value => value + 1);
+        }
+      } catch {
+        // The message stays stored on this device: the next visit retries once.
+        if (activeComposerPrincipal.current === principal) setNotice("נרשמתם לקהילה, אבל לא הצלחנו לפרסם את ההודעה. ההודעה נשמרה במכשיר, נסו לרענן את העמוד.");
+      } finally { guestPublishing.current = false; }
+    })();
+  }, [user?.id, authVerified, authLoading, actionsLocked]);
+
+  guestReviewHolder.current = guestReview;
   return <Sod2029Shell surface="community" title="הקהילה" introVariant="none" status="קהילה" symbol="◎">
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": `color-mix(in srgb, ${palette.cardRaised} 94%, ${palette.accentText})`, "--community-discovery": palette.accentDiscovery, "--community-depth": palette.accentSecondary, "--community-warm": palette.warmAccent, "--community-success": palette.successText, "--community-action-fill": palette.accentBtn, "--community-danger": palette.dangerText }}>
@@ -651,14 +755,16 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           onCommunityReply={actionsLocked ? undefined : (item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
         {!actionsLocked ? <div className="sod29-community-entry-tools">{user ? <CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} /> : <Link className="sod29-community-secondary" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה לקהילה</Link>}</div> : null}
+        {isAdmin && guestUnreviewedIds.size ? <p className="sod29-community-guest-banner" role="status">{guestUnreviewedIds.size === 1 ? "הודעת אורח אחת פורסמה ועדיין לא נבדקה" : `${guestUnreviewedIds.size} הודעות אורח פורסמו ועדיין לא נבדקו`} · מוצגות באפור</p> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
+          <p className="sod29-community-typing" role="status" aria-live="polite" data-typing={typingLabel(typingPeople) ? "true" : "false"}>{typingLabel(typingPeople)}</p>
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
           <div className={compactComposer ? "sod29-community-compose-row" : undefined}>
             {compactComposer ? <Link className="sod29-community-compose-avatar" to={user ? writerPersonalHref("profile", { returnTo: communityAccountReturnHref(window.location) }) : `/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`} aria-label={user ? "הפרופיל שלי" : "התחברות"} title={user ? "החלפת תמונת הפרופיל שלי" : "התחברות"}><UserBadge avatarOnly colorfulFallback fallbackSeed={user?.id ? `user:${user.id}` : "guest"} name={composerProfile?.display_name || composerProfile?.username || (user ? "החשבון שלי" : "אורח")} avatarUrl={composerProfile?.avatar_url} />{user ? <span className="sod29-community-avatar-camera" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 5l1-2h6l1 2h4a2 2 0 0 1 2 2v12H2V7a2 2 0 0 1 2-2z"/><circle cx="12" cy="12" r="4"/></svg></span> : null}</Link> : null}
             <div className={compactComposer ? "sod29-community-compose-input" : undefined}>
-              <CommunityRichText2029 inputRef={composerRef} id="community-live-draft" value={draft} onChange={setDraft} expanded={composerOpen} disabled={sending || authLoading || Boolean(user && !authVerified)} onFocus={() => setComposerExpanded(true)} onKeyDown={event => { if (event.key === "Escape" && !draft && !attachments.length && !replyTo) { setComposerExpanded(false); composerRef.current?.blur(); } }} placeholder={compactComposer ? "הוסף תגובה…" : "כתבו משהו לקהילה…"} />
+              <CommunityRichText2029 inputRef={composerRef} id="community-live-draft" value={draft} onChange={onDraftChange} expanded={composerOpen} disabled={sending || authLoading || Boolean(user && !authVerified)} onFocus={() => setComposerExpanded(true)} onKeyDown={event => { if (event.key === "Escape" && !draft && !attachments.length && !replyTo) { setComposerExpanded(false); composerRef.current?.blur(); } }} placeholder={compactComposer ? "הוסף תגובה…" : "כתבו משהו לקהילה…"} />
               {compactComposer ? <button type="button" className="sod29-community-compose-attach" aria-label="צירוף קובץ או סרטון" title="צירוף קובץ או סרטון" aria-describedby={user ? "community-attachment-limits" : undefined} disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={() => attachmentRef.current?.click()}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21 11-8.5 8.5a6 6 0 0 1-8.5-8.5L14 1a4 4 0 0 1 5.7 5.7L9.5 16.9a2 2 0 0 1-2.8-2.8L16 4.8" /></svg></button> : null}
             </div>
           </div>
@@ -668,7 +774,9 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {!compactComposer ? <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} title={!user ? "יש להתחבר כדי לצרף קבצים" : undefined} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ או סרטון</button><small>עד 3 קבצים · סרטון עד 50MB, קובץ אחר עד 8MB · גלויים לציבור</small></div> : null}
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => { draftCache.setHasFiles(attachments.length > 1); setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index)); }} />)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
-          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><button type="button" className="sod29-community-primary" disabled={(!plainMessageText(draft).trim() && !attachments.length) || sending || replyTo?.draftRestoring || replyTo?.draftUnavailable || (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user} title={(PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user ? "יש להתחבר כדי לפרסם" : undefined} onClick={submit}>{sending ? "שולח…" : "פרסום"}</button></div> : null}
+          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><div className="sod29-community-composer-actions" data-guest={guestMustJoin ? "true" : undefined}><button type="button" className="sod29-community-primary" disabled={(!plainMessageText(draft).trim() && (guestMustJoin || !attachments.length)) || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} data-guest-join={guestMustJoin ? "true" : undefined} onClick={submit}>{sending ? "שולח…" : guestMustJoin ? "הרשמה לקהילה ופרסום" : "פרסום"}</button>
+            {guestMustJoin ? <button type="button" className="sod29-community-secondary" data-guest-publish="true" disabled={!plainMessageText(draft).trim() || guestSending || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} onClick={publishAsGuest}>{guestSending ? "מפרסם…" : "פרסום כאורח"}</button> : null}
+            {guestMustJoin ? <input className="sod29-community-sr-only" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={guestWebsite} onChange={event => setGuestWebsite(event.target.value)} /> : null}</div></div> : null}
           {(draft.length > 0 || replyTo || draftCache.reattach) && draftCache.status !== "idle" ? <div className="sod29-community-draft-state" data-draft-state={draftCache.status} role="status">
             <span>{draftCache.status === "unavailable" ? "לא ניתן לשמור את הטיוטה במכשיר הזה כרגע." : draftCache.reattach ? "טיוטת הטקסט שוחזרה. יש לצרף קבצים מחדש." : draftCache.status === "restored" ? "הטיוטה שוחזרה מהמכשיר הזה" : "טיוטה נשמרה במכשיר הזה"}</span>
             <button type="button" className="sod29-community-text-action" disabled={sending} onClick={() => { draftCache.clear(); setAttachments([]); setComposerExpanded(false); }}>מחיקת טיוטה</button>
@@ -676,6 +784,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {replyTo?.draftRestoring ? <p className="sod29-community-status" role="status">בודק את ההודעה שאליה עונים…</p> : null}
           {replyTo?.draftUnavailable ? <p className="sod29-community-status" role="alert">לא ניתן לפתוח את ההודעה שאליה עונים. אפשר לנסות שוב או לבטל את התשובה. <button type="button" className="sod29-community-text-action" onClick={draftCache.retryReply}>ניסיון נוסף</button></p> : null}
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
+          {guestMustJoin && joinOpen ? <div className="sod29-community-guest-join" id="community-guest-join"><p role="status">ההודעה שלכם שמורה. נרשמים בשנייה והיא מתפרסמת מיד.</p><AccountEntry2029 inline returnHref={communityAccountReturnHref(window.location)} /></div> : null}
         </section> : null}
         {hasThreadRequest ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">
           <header className="sod29-community-focus-head"><div><p>{personalThreadReturn ? "מתוך התגובות אליי" : "הקהילה"}</p><h2 id="community-focus-title">{personalThreadReturn ? "השיחה שבה התקבלה התגובה" : "השיחה המלאה"}</h2></div><div>

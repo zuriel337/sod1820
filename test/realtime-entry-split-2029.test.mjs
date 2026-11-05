@@ -406,6 +406,8 @@ test('repository use is mechanically bounded to the explicit browser-only subset
   }
 
   const expectedConsumers = new Map([
+    // Community typing indicator: one broadcast-only channel, opened from an effect in the browser (on/subscribe/send only).
+    ['src/components/community2029/useCommunityTyping2029.js', 1],
     ['src/lib/joinEvents.js', 2],
     ['src/lib/presence.js', 1],
     ['src/lib/supabase.js', 2],
