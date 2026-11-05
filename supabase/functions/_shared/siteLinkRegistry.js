@@ -60,9 +60,9 @@ export const SITE_LINKS = Object.freeze([
   entry({ id: "number", label: "דף המספר", href: "/number", defaultState: "public", aliases: ["דף המספר", "עמוד המספר", "חיפוש מספר", "מספר או ביטוי", "חיפוש מספרים"], footer: { group: "research", order: 4 } }),
   entry({ id: "els", label: "דילוגי אותיות", href: "/code", defaultState: "closed", aliases: ["דילוגי אותיות", "דילוגים", "הצופן התנכי", "הצופן התנ״כי", "הצופן", "els"], legacyHrefs: ["/code", "/els", "/lab/els"],
     closed: { message: "כלי הצופן החדש נמצא בבנייה. הצפנים שפורסמו נשארים זמינים בספרייה.", alt: "codes" }, footer: { group: "research", order: 5 } }),
-  // בית המדרש (ZURIEL 5.11.2026): a first-class destination in the menu and footer. Its true state follows the router
-  // (`publicReadingPath` closes it for the public until the tools are adapted); it is never shown as an active link while closed.
-  entry({ id: "beit-midrash", label: "בית המדרש", href: "/beit-midrash", defaultState: "closed", aliases: ["בית מדרש", "בית המדרש", "הבית מדרש", "הבית מדרש של האתר", "בית המדרש של האתר"],
+  // בית המדרש (ZURIEL 5.11.2026): a first-class destination in the menu and footer. Open to the public (ZURIEL 5.11.2026); its
+  // true state still follows the router (`publicReadingPath`), and it is never shown as an active link if the router closes it.
+  entry({ id: "beit-midrash", label: "בית המדרש", href: "/beit-midrash", defaultState: "public", aliases: ["בית מדרש", "בית המדרש", "הבית מדרש", "הבית מדרש של האתר", "בית המדרש של האתר"],
     legacyHrefs: ["/beit-midrash", "/בית-מדרש"],
     closed: { message: "בית המדרש נמצא בתהליך התאמה למערכת החדשה. הספרים והמקורות הציבוריים זמינים בינתיים.", alt: "books" }, footer: { group: "research", order: 6 } }),
   // ── שלי ──

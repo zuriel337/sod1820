@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
+import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
 import { redactGroupText, groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
@@ -65,10 +65,12 @@ test("series, messages and hints are separate lenses; series is not inferred fro
   assert.equal(by("post:7").seriesKey, "messages-from-righteous"); assert.equal(by("post:7").seriesLabel, "מסרים");
   assert.ok(by("post:6").lenses.has("hints")); assert.ok(by("channel:30000000-0000-4000-8000-000000000003").lenses.has("hints"));
   const orGeula = by("channel:30000000-0000-4000-8000-000000000002");
-  assert.equal(orGeula.seriesKey, null, "channel name alone never joins a series"); assert.equal(orGeula.lenses.has("messages"), false);
-  assert.deepEqual(availableNowLenses(models).map(l => l.id), ["all", "series", "messages", "hints"]);
+  assert.equal(orGeula.seriesKey, null, "channel name alone never joins a series"); assert.equal(orGeula.lenses.has("messages"), true, "Or HaGeula belongs to the messages path (ZURIEL 5.11.2026), as a lens only");
+  assert.deepEqual(availableNowLenses(models).map(l => l.id), ["messages", "reality", "all", "series", "hints"], "hierarchy: sources → messages → reality, then all/series/hints");
+  assert.equal(defaultNowLens(models), "messages"); assert.equal(defaultNowLens([by("post:8")]), "all");
+  assert.equal(filterNowModels(models, { lens: "reality" }).length, 1);
   assert.deepEqual(availableNowLenses([by("post:8")]).map(l => l.id), ["all"], "lenses appear only when they have rows");
-  assert.equal(filterNowModels(models, { lens: "messages" }).length, 2);
+  assert.equal(filterNowModels(models, { lens: "messages" }).length, 3);
   assert.equal(filterNowModels(models, { series: "dimension-five" }).length, 1);
   assert.equal(filterNowModels(models, { media: "video" }).length, 1);
   assert.equal(filterNowModels(models, { lens: "hints", source: "קוד המציאות" }).length, 1);

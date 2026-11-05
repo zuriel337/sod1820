@@ -15,12 +15,18 @@ const HINT_CATEGORIES = Object.freeze(["רמזי הגאולה", "רמזים חז
 const HINT_CHANNELS = Object.freeze(["reality-code"]);
 const VIDEO_CATEGORY = "וידאו";
 
+// Hierarchy (ZURIEL / GPT 5.11.2026): the public source path first, then messages (including Or HaGeula),
+// then the reality stream; "all" and the remaining lenses follow. Lens = presentation only; rows are never re-ranked.
+export const NOW_PRIMARY_LENSES = Object.freeze(["sources", "messages", "reality"]);
 export const NOW_LENSES = Object.freeze([
+  Object.freeze({ id: "sources", label: "מקורות ציבוריים" }),
+  Object.freeze({ id: "messages", label: "מסרים ואור הגאולה" }),
+  Object.freeze({ id: "reality", label: "זרם המציאות" }),
   Object.freeze({ id: "all", label: "הכול" }),
   Object.freeze({ id: "series", label: "סדרות" }),
-  Object.freeze({ id: "messages", label: "מסרים" }),
   Object.freeze({ id: "hints", label: "רמזי גאולה וקוד המציאות" }),
 ]);
+const MESSAGE_CHANNELS = Object.freeze(["or-geula"]);
 export const NOW_MEDIA = Object.freeze([
   Object.freeze({ id: "video", label: "וידאו" }),
   Object.freeze({ id: "image", label: "תמונה" }),
@@ -95,7 +101,9 @@ export function nowRowModel(row) {
     : item.sourceUpdate ? "עדכון מקור" : video ? "סרטון" : image ? "תמונה" : isPost ? "פוסט" : "עדכון";
   const lenses = new Set(["all"]);
   if (seriesKey) lenses.add("series");
-  if (seriesKey === "messages-from-righteous" || hasAny(categories, MESSAGE_CATEGORIES)) lenses.add("messages");
+  if (isGroup) lenses.add("sources");
+  if (seriesKey === "messages-from-righteous" || hasAny(categories, MESSAGE_CATEGORIES) || (isChannel && MESSAGE_CHANNELS.includes(item.channel))) lenses.add("messages");
+  if (isGallery || (isChannel && HINT_CHANNELS.includes(item.channel))) lenses.add("reality");
   if (hasAny(categories, HINT_CATEGORIES) || (isChannel && HINT_CHANNELS.includes(item.channel))) lenses.add("hints");
   const fullText = cleanNowText(item.fullText);
   const summary = cleanNowText(item.summary);
@@ -124,6 +132,12 @@ export const nowModels = rows => list(rows).filter(row => row?.id && row.title)
 export function availableNowLenses(models) {
   const all = list(models);
   return NOW_LENSES.filter(lens => lens.id === "all" || all.some(model => model.lenses.has(lens.id)));
+}
+
+/** First primary lens that has rows (sources → messages → reality); "all" when none does. */
+export function defaultNowLens(models) {
+  const all = list(models);
+  return NOW_PRIMARY_LENSES.find(id => all.some(model => model.lenses.has(id))) || "all";
 }
 
 /** Secondary choices (series / source / media) derived from the rows that exist, never fixed lists. */

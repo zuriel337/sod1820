@@ -204,8 +204,8 @@ const FOCUSABLE = [
 ].join(",");
 
 
-// בית המדרש is a visible menu destination (ZURIEL 5.11.2026). While the public router keeps it closed it appears with its
-// true "בבנייה" state instead of a link that leads nowhere; for a verified admin or once opened it is a normal link.
+// בית המדרש is a visible menu destination (ZURIEL 5.11.2026). Open to the public since 5.11.2026; if the router ever closes it again it appears
+// with its true "בבנייה" state instead of a link that leads nowhere.
 export function beitMidrashNavItem(item, isAdmin = false) {
   const state = publicReadingPath(item.to, { isAdmin: isAdmin === true });
   return state === "closed" || state === "missing" ? { label: item.label, icon: item.icon, status: "בבנייה" } : item;
@@ -2114,7 +2114,7 @@ function SystemFrame2029Body({
       onNavigate={closeTransient}
       onNeedHelp={openIssueReport}
     /></PanelShell>;
-    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} icon="◉" kicker="פרסומי האתר" title="עכשיו"><NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />{transient?.payload?.ribbonDetail ? <LivingRibbonDetail2029 detail={transient.payload.ribbonDetail} onOpen={go} feed={feed} /> : corePublicViewer ? worldLocked
+    if (transientKind === TRANSIENT.ATTENTION) return <PanelShell {...common} panelKind="now" icon="◉" kicker="פרסומי האתר" title="עכשיו"><NowTabs2029 activeKind={transientKind} onWorld={openAttention} onMe={openWorkspace} onRaziel={() => openRaziel()} razielLocked={razielLocked} />{transient?.payload?.ribbonDetail ? <LivingRibbonDetail2029 detail={transient.payload.ribbonDetail} onOpen={go} feed={feed} /> : corePublicViewer ? worldLocked
       ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState>
       : <FrameState title="העולם פתוח"><Link to="/world" onClick={closeTransient}>למקורות ולחיבורים בעולם ←</Link></FrameState>
       : <AttentionProjection context={pageContext} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} timeMode={recordTimeMode} />}</PanelShell>;

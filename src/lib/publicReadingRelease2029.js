@@ -126,7 +126,6 @@ export function publicReadingCapability(pathname) {
     "/raziel": ["רזיאל", "רזיאל נמצא בבנייה ואינו מופעל בכניסה לדף. אפשר להשתמש בחיפוש ובמחשבון הקיימים.", "/gematria", "למחשבון"],
     "/2029/raziel": ["רזיאל", "רזיאל נמצא בבנייה ואינו מופעל בכניסה לדף. אפשר להשתמש בחיפוש ובמחשבון הקיימים.", "/gematria", "למחשבון"],
     "/research": ["סביבת המחקר", "כלי המחקר מתאימים בהדרגה למערכת החדשה. המחשבון הציבורי זמין כעת.", "/gematria", "למחשבון"],
-    "/beit-midrash": ["בית המדרש", "הקריאה והכלים של בית המדרש עדיין בתהליך התאמה. הספרים הציבוריים זמינים בנפרד.", "/books", "לספרים ולמקורות"],
     "/name": ["מחקר השם", "מסלול מחקר השם עדיין בתהליך התאמה. אפשר לחשב שם במחשבון הקהילה; זהו כלי נפרד ממחקר השם.", "/community/calculator", "למחשבון הקהילה"],
     "/name-lab": ["מעבדת השם", "מעבדת השם בתהליך התאמה. חישוב השם זמין במחשבון הקהילה, בלי הפעלת מחקר אישי.", "/community/calculator", "למחשבון הקהילה"],
     "/spatial-gematria": ["גימטריה מרחבית", "הכלי המרחבי עדיין בתהליך התאמה. המחשבון הרגיל נשאר זמין.", "/gematria", "למחשבון"],
@@ -158,14 +157,14 @@ export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {
   if (/^\/2029\/me\/(?:public-page|page-editor|profile|messages|notifications|progress|research|notes)$/.test(path)) return "account";
   // Only existing application surfaces; arbitrary /api or unknown paths do not
   // become public or executable merely because the viewer is an admin.
-  if (isAdmin === true && /^\/(?:code|els|heichal|היכל|books?|beit-midrash|research|admin|journey|raziel|2029\/(?:me|journey|raziel|control)|community\/(?:chat|researcher\/me))(?:\/|$)/.test(path)) return "admin-view";
+  if (isAdmin === true && /^\/(?:code|els|heichal|היכל|books?|research|admin|journey|raziel|2029\/(?:me|journey|raziel|control)|community\/(?:chat|researcher\/me))(?:\/|$)/.test(path)) return "admin-view";
   if (publicReadingCapability(path)) return "closed";
   if (/^\/(?:api|admin|auth|2029\/me|community\/researcher\/me)(?:\/|$)/.test(path)) return "closed";
   if (path === "/unsubscribe" && PUBLIC_READING_PRODUCTION_ARTIFACT) return "public";
   if (["/updates", "/unsubscribe"].includes(path)) return "service-closed";
   if (PUBLIC_HISTORICAL_LECTURE_PATHS.some(href => href.replace(/\/+$/, "") === path)) return "public";
-  if (["/", "/world", "/verified", "/post", "/posts", "/number", "/gematria", "/gallery", "/map", "/privacy", "/2029", "/2029/posts", "/2029/gematria", "/2029/gematria/viral", "/2029/calculator", "/community", "/community/chat", "/community/calculator", "/community/comments", "/community/researchers", "/members", "/forum", "/or-geula", "/books", "/codes", "/codes/מחקר", "/contact", "/early-access", "/melech-hamisparim/718"].includes(path)) return "public";
-  if (/^\/(?:post|number|topic|researcher|video|tag|category|book|codes|forum)\/[^/]+\/?$/.test(pathname) || /^\/or-geula\/video\/[^/]+$/.test(path) || /^\/2029\/number\/[^/]+$/.test(path) || /^\/community\/researcher\/[^/]+$/.test(path)) return "public";
+  if (["/", "/world", "/verified", "/post", "/posts", "/number", "/gematria", "/gallery", "/map", "/privacy", "/2029", "/2029/posts", "/2029/gematria", "/2029/gematria/viral", "/2029/calculator", "/community", "/community/chat", "/community/calculator", "/community/comments", "/community/researchers", "/members", "/forum", "/or-geula", "/books", "/beit-midrash", "/codes", "/codes/מחקר", "/contact", "/early-access", "/melech-hamisparim/718"].includes(path)) return "public";
+  if (/^\/(?:post|number|topic|researcher|video|tag|category|book|codes|forum)\/[^/]+\/?$/.test(pathname) || /^\/or-geula\/video\/[^/]+$/.test(path) || /^\/2029\/number\/[^/]+$/.test(path) || /^\/community\/researcher\/[^/]+$/.test(path) || /^\/beit-midrash\/[^/]+$/.test(path)) return "public";
   // A historical single-segment Post remains subject to the canonical public
   // Post lookup/boundary. This does not declare an unknown/draft slug published.
   return /^\/[^/]+$/.test(path) ? "post-lookup" : "missing";
