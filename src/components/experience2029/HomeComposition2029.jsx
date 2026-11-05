@@ -125,6 +125,17 @@ function PublicationTime({ at }) {
     : <span>מועד הפרסום לא זמין</span>;
 }
 
+// An "updated" line appears only when the saved edit is at least a day after
+// publication, so the first-hours finishing edits do not read as updates.
+const UPDATE_MIN_GAP_MS = 24 * 60 * 60 * 1000;
+function UpdatedTime({ published, updated }) {
+  const p = published && new Date(published);
+  const u = updated && new Date(updated);
+  if (!p || !u || !Number.isFinite(p.getTime()) || !Number.isFinite(u.getTime())) return null;
+  if (u.getTime() - p.getTime() < UPDATE_MIN_GAP_MS) return null;
+  return <time className="h29-updated" dateTime={u.toISOString()}>עודכן · {u.toLocaleDateString("he-IL", { timeZone: "Asia/Jerusalem" })} · {relativeTimeLabel(updated)}</time>;
+}
+
 function AdminLatestUpdates() {
   const [state, setState] = useState({ rows: [], loading: true, failed: false });
   useEffect(() => {
@@ -157,7 +168,7 @@ function HomeSeriesCards() {
         return <article className="h29-series-card" data-home-series={series.key} key={series.key}>
           <Link className="h29-series-name" to={`/2029/posts?series=${encodeURIComponent(series.key)}`}>{series.label}</Link>
           {item ? <Link className="h29-series-item h29-card-open" to={item.href}>
-            <Media src={item.imageUrl} fallback="✦" /><span><strong>{item.title}</strong><small>{item.author || series.writerLabel || series.publisherLabel || "פוסט"}</small><PublicationTime at={item.publishedAt} /></span>
+            <Media src={item.imageUrl} fallback="✦" /><span><strong>{item.title}</strong><small>{item.author || series.writerLabel || series.publisherLabel || "פוסט"}</small><PublicationTime at={item.publishedAt} /><UpdatedTime published={item.publishedAt} updated={item.updatedAt} /></span>
           </Link> : <p className="h29-empty" role={series.readState === "failed" ? "alert" : "status"}>{series.readState === "failed" ? "לא ניתן לקרוא כרגע את הסדרה." : series.hasApprovedSources && !series.sourcesRequested ? "אפשר לבדוק מקורות נוספים בעמוד הסדרה." : "אין כרגע פרסום זמין בסדרה."}</p>}
         </article>;
       })}
