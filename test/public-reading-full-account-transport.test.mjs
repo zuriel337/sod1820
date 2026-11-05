@@ -355,9 +355,14 @@ test('guest community publishing: only the exact anonymous request is forwarded,
  assert.equal(w.calls[0].headers.get('Authorization'),'Bearer '+KEY);
  assert.equal(w.calls[0].headers.get('apikey'),KEY);
  assert.equal((await w.request(path,{body:{...ok,p_parent_id:a},jwt:KEY})).status,200);
+ assert.equal((await w.request(path,{body:{...ok,p_name:'דוד כהן'},jwt:KEY})).status,200,'optional guest name is forwarded');
  const denyCases=[
   ['session token',{body:ok,jwt:token()}],
   ['extra field',{body:{...ok,p_intent:'שאלה'},jwt:KEY}],
+  ['empty guest name',{body:{...ok,p_name:'  '},jwt:KEY}],
+  ['non-string guest name',{body:{...ok,p_name:5},jwt:KEY}],
+  ['oversized guest name',{body:{...ok,p_name:'א'.repeat(101)},jwt:KEY}],
+  ['name next to an extra field',{body:{...ok,p_name:'דוד',p_intent:'שאלה'},jwt:KEY}],
   ['missing field',{body:{p_body:'x',p_parent_id:null},jwt:KEY}],
   ['empty body',{body:{...ok,p_body:'   '},jwt:KEY}],
   ['oversized body',{body:{...ok,p_body:'א'.repeat(3001)},jwt:KEY}],

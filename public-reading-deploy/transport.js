@@ -424,7 +424,10 @@ function installPublicReadingWorker(policy) {
           const authorization = req.headers.get("Authorization");
           if (authorization && authorization !== "Bearer " + key) return denied();
           const body = await jsonBody(req);
-          if (Object.keys(body).sort().join(",") !== "p_body,p_parent_id,p_website"
+          // p_name is optional (a guest's display name); the server validates and labels it.
+          const shape = Object.keys(body).sort().join(",");
+          if (!(shape === "p_body,p_parent_id,p_website" || shape === "p_body,p_name,p_parent_id,p_website")
+            || "p_name" in body && !(typeof body.p_name === "string" && body.p_name.trim() && Array.from(body.p_name).length <= 100)
             || typeof body.p_body !== "string" || !body.p_body.trim() || Array.from(body.p_body).length > 3000
             || !(body.p_parent_id === null || uuid(body.p_parent_id))
             || !(body.p_website === null || typeof body.p_website === "string" && body.p_website.length <= 200)) return denied();
