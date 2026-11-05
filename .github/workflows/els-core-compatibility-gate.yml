@@ -113,7 +113,10 @@ jobs:
         env:
           PLAYWRIGHT_BROWSERS_PATH: '0'
         run: |
-          npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright
+          # Pinned to the release this gate ran on from 14.10 until 5.11.2026 (every run before the incident). An unpinned install failed on 5.11:
+          # playwright@1.65.0 was published at 18:28Z but its playwright-core@1.65.0 only at 20:17Z, so `npm install playwright` hit ETARGET in between.
+          # Move the pin on purpose (with the other browser gates, which pin @playwright/test), not by whatever the registry serves that minute.
+          npm install --no-save --prefix "$RUNNER_TEMP/pw" playwright@1.64.1
           echo "NODE_PATH=$RUNNER_TEMP/pw/node_modules" >> "$GITHUB_ENV"
           "$RUNNER_TEMP/pw/node_modules/.bin/playwright" install --with-deps chromium
 

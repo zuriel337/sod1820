@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import { readingPersonalResponse } from '../public-reading-deploy/personal-request.js';
 import { verifyReadingPrincipal } from '../public-reading-deploy/admin-request.js';
 import { deriveHiddenCrossings, fetchNumberHiddenCrossings } from '../src/lib/research/numberCoreProjection.js';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createClient } from '@supabase/supabase-js';
-import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from '../src/lib/brandAssets2029.js';
+import { BRAND_APP_ICON_2029, BRAND_LOCKUP_NAV_2029 } from '../src/lib/brandAssets2029.js';
 const API='https://linswmnnkjxvweumprav.supabase.co', SITE='https://review.example';
 const a='00000000-0000-4000-8000-000000000001',b='00000000-0000-4000-8000-000000000002';
 const jwt=uid=>'e30.'+Buffer.from(JSON.stringify({sub:uid,role:'authenticated'})).toString('base64url')+'.signature';
@@ -86,11 +86,14 @@ test('actual Storage SDK avatar request fits only the owned existing avatar path
 });
 test('candidate installed-app metadata preserves Legacy identity and uses the complete existing 2029 mark',()=>{
  const read=path=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
+ // Acceptance of the built production artifact (as test/public-reading-production-artifact.test.mjs): the manifest and the document are build outputs.
+ assert.ok(existsSync(new URL('../public-reading-deploy/dist/site.webmanifest',import.meta.url)),'run node scripts/build-public-reading-production.mjs before this test');
  const legacy=JSON.parse(read('public/site.webmanifest')),candidate=JSON.parse(read('public-reading-deploy/dist/site.webmanifest'));
  for(const key of ['name','short_name','start_url','display','lang','dir'])assert.equal(candidate[key],legacy[key]);
  assert.equal(candidate.id,legacy.id||legacy.start_url);
- assert.deepEqual(candidate.icons,[{src:BRAND_LOCKUP_2029.src,sizes:'1254x1254',type:'image/png',purpose:'any'}]);
+ // The installed-app icon is the byte-exact local delivery of the same complete approved lockup (BRAND_APP_ICON_2029, #1191), not the remote candidate URL.
+ assert.deepEqual(candidate.icons,[{src:BRAND_APP_ICON_2029.src,sizes:`${BRAND_APP_ICON_2029.width}x${BRAND_APP_ICON_2029.height}`,type:'image/png',purpose:'any'}]);
  assert.ok(legacy.icons.every(x=>x.src==='/logo.png'));
  const html=read('public-reading-deploy/.generated/2029.html');
- assert.ok(html.includes('rel="manifest" href="/site.webmanifest"'));assert.ok(html.includes('rel="icon" href="'+BRAND_LOCKUP_NAV_2029.src+'"'));assert.ok(html.includes('rel="apple-touch-icon" href="'+BRAND_LOCKUP_2029.src+'"'));
+ assert.ok(html.includes('rel="manifest" href="/site.webmanifest"'));assert.ok(html.includes('rel="icon" href="'+BRAND_LOCKUP_NAV_2029.src+'"'));assert.ok(html.includes('rel="apple-touch-icon" href="'+BRAND_APP_ICON_2029.src+'"'));
 });

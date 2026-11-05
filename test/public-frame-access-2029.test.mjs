@@ -18,8 +18,12 @@ const lock=readFileSync(new URL('../src/components/MaintenanceLock.jsx',import.m
 const resolver=lock.slice(lock.indexOf('export function resolveFeatureState'),lock.indexOf('// canonical hook')).replace('export function','function');
 const hook=lock.slice(lock.indexOf('export function useFeatureState'),lock.indexOf('// עטיפה ברמת-הראוט')).replace('export function','function');
 const apply=lock.slice(lock.indexOf('function applyPreviewFeatureState'),lock.indexOf('export function MaintenanceLock'));
+// This file pins the Preview ceiling of a build that is NOT the public reading release (the release build has its own contracts:
+// public-reading-admin-admission.test.mjs and public-release-feature-state-2029.test.mjs). The hook reads the release
+// switch and the release policy, so the sandbox states both explicitly instead of leaving them undefined.
 function state(flag,{restricted=true,admin=false,user=null,enabled=false,loading=false,authLoading=false}={}){
  return vm.runInNewContext(`${resolver}\n${apply}\n${hook}\nuseFeatureState(flag,{requireFlag:true})`,{
+  PUBLIC_READING_RELEASE:false,publicReadingFeatureLock:()=>({enabled:true,mode:'all',message:''}),
   flag,publicFramePreview:restricted,unlockedPreview:true,LIFE_JOURNEY_PREVIEW_OPEN:true,
   previewAdminOnly:new Set(['lock_els','lock_life_journey','lock_raziel_site']),DEFAULT_MSG:'closed',
   useAuth:()=>({user,isAdmin:admin,loading:authLoading}),useMemo:fn=>fn(),
