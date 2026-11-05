@@ -203,8 +203,8 @@ const FOCUSABLE = [
 ].join(",");
 
 
-// בית המדרש is a visible menu destination (ZURIEL 5.11.2026). While the public router keeps it closed it appears with its
-// true "בבנייה" state instead of a link that leads nowhere; for a verified admin or once opened it is a normal link.
+// בית המדרש is a visible menu destination (ZURIEL 5.11.2026). Open to the public since 5.11.2026; if the router ever closes it again it appears
+// with its true "בבנייה" state instead of a link that leads nowhere.
 export function beitMidrashNavItem(item, isAdmin = false) {
   const state = publicReadingPath(item.to, { isAdmin: isAdmin === true });
   return state === "closed" || state === "missing" ? { label: item.label, icon: item.icon, status: "בבנייה" } : item;

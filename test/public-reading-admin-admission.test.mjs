@@ -35,7 +35,7 @@ test('verified admin can enter existing private surfaces while public and unknow
   assert.equal(publicReadingPath(path),'closed');
   assert.equal(publicReadingPath(path,{isAdmin:true}),'admin-view');
  }
- for(const path of ['/2029/journey','/2029/me/overview','/beit-midrash','/research']) {
+ for(const path of ['/2029/journey','/2029/me/overview','/research']) {
   assert.equal(publicReadingPath(path,{isAdmin:true}),'admin-view');
   assert.equal(publicReadingPath(path),'closed');
  }
@@ -44,7 +44,8 @@ test('verified admin can enter existing private surfaces while public and unknow
   assert.equal(publicReadingPath(path),'public');
   assert.equal(publicReadingPath(path,{isAdmin:true}),'admin-view');
  }
- assert.equal(publicReadingPath('/beit-midrash/unverified-method'),'missing');
+ // Beit Midrash is open to the public (ZURIEL 5.11.2026); an unknown method key is validated by the page itself against the method registry.
+ for(const path of ['/beit-midrash','/beit-midrash/standard','/beit-midrash/unverified-method'])for(const isAdmin of [false,true])assert.equal(publicReadingPath(path,{isAdmin}),'public');
  for(const path of ['/api/unknown','/auth/unknown'])assert.equal(publicReadingPath(path,{isAdmin:true}),'closed');
  assert.equal(publicReadingPath('/auth/callback'),'account');
  assert.equal(publicReadingPath('/unknown/surface',{isAdmin:true}),'missing');
