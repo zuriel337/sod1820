@@ -15,6 +15,7 @@ import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
 import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import Footer2029 from "./Footer2029.jsx";
+import AccountLinkOffer2029 from "./AccountLinkOffer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
 import { resolveExperienceContext } from "../../lib/experienceContext.js";
 import { useResearch } from "../../lib/research/ResearchProvider.jsx";
@@ -2251,6 +2252,7 @@ function SystemFrame2029Body({
               : <div className="sod29-entry-orientation-slot">{mark}</div>;
           })() : null}
 
+          <AccountLinkOffer2029 />
           <div className={`sod29-main-stage${showContextRail ? ` has-context-rail${numberPageRoute ? " number-context-only" : ""}` : ""}`}>
             <main className={`sod29-content${wide ? " wide" : ""}`}>
               {resolvedIntroVariant !== "none" && (eyebrow || title || description) ? (
