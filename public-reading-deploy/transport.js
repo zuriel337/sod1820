@@ -327,6 +327,27 @@ function installPublicReadingWorker(policy) {
         event.respondWith(fetch(new Request(url.href, { method: "GET", headers: { accept: "application/json" }, credentials: "omit", redirect: "error" })).catch(() => denied()));
         return;
       }
+      // Bible code (Classic mode): the engine verifies every candidate through the canonical bridge. The bridge is rate-limited,
+      // traced and gated by the server flag, so it is open to visitors; the worker only admits its three operations with a bounded
+      // JSON body and sends the public key (or the verified member's own session), never a role claim.
+      if (url.pathname === "/functions/v1/els-search-bridge") {
+        event.respondWith((async () => {
+          if (req.method !== "POST" || url.search || req.signal.aborted) return denied();
+          const raw = await req.clone().text();
+          if (raw.length > 262144) return denied();
+          let body; try { body = JSON.parse(raw); } catch { return denied(); }
+          if (!plainObject(body) || !["verify", "page", "verify_batch"].includes(body.op)
+            || typeof body.term !== "string" || body.term.trim().length < 2 || body.term.length > 200
+            || body.scope !== undefined && !["torah", "tanakh"].includes(body.scope)) return denied();
+          const key = policy.anonKey || req.headers.get("apikey") || "";
+          const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+          const uid = token && token !== key ? await verifyReadingPrincipal({ token, apiKey: key, signal: req.signal }) : null;
+          if (req.signal.aborted) return denied();
+          return readFetch(new Request(url.href, { method: "POST", signal: req.signal,
+            headers: { apikey: key, Authorization: "Bearer " + (uid ? token : key), "Content-Type": "application/json" }, body: raw }));
+        })().catch(() => denied()));
+        return;
+      }
       if (url.pathname.startsWith("/functions/v1")) { event.respondWith(adminFetch(req).catch(() => denied())); return; }
       if (url.pathname.startsWith("/auth/v1/") && !["/auth/v1/user", "/auth/v1/settings"].includes(url.pathname)
         || url.pathname.startsWith("/rest/v1/rpc/") && safeMethods.has(req.method) && !getReads.has(rpc)) {
