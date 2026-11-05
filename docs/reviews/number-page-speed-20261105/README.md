@@ -111,7 +111,7 @@
 
 **לפני המיזוג עם #1235, על `a61b003de`** (`workflow_dispatch`, אין PR): כל ששת השערים success — 2029 Live Contracts `42045543873` (כולל הצעד החדש "Number page contracts" ב־`release-contracts-2029`), 2029 Isolation `42045549446`, Release Visual `42045555416`, G4 Public Core `42045561334`, Production Release and Legacy Compatibility `42045567407`, Observability/SEO Build Gate `42045572316`.
 
-**על הראש אחרי המיזוג והסרת כלל הפס:** {{CI_HEAD_ROWS}}
+**על הראש אחרי המיזוג והסרת כלל הפס:** כל ששת השערים success על `385197ed1` (`workflow_dispatch`, אין PR) — 2029 Live Contracts `42050908377` (הצעד "Number page contracts" ב־`release-contracts-2029` רץ ועבר), 2029 Isolation `42050914294`, Release Visual `42050920080`, G4 Public Core `42050926411`, Production Release and Legacy Compatibility `42050932283`, Observability/SEO Build Gate `42050937847`. ראש הקוד הוא `16a09b87c`; `385197ed1` מוסיף מסמכים וראיות בלבד, והקומיט שמוסיף את השורה הזו משנה את המסמך בלבד (השערים לא הורצו עליו שוב).
 
 לא הורצו: Preview מוגן, קנרית (דורשים פריסה), ELS Core Compatibility (לא מושפע), שערי `pull_request` בלבד.
 
