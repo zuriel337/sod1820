@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, compareCommunityLikedRows, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchPublicAuthorActivityPage, fetchCommunityAuthorSummary, legacyLikeCount, normalizeCommunityRow, normalizeCommunityThreadFocus } from "./communityArchive.js";
+import { PROFILE_BASELINES, VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, compareCommunityLikedRows, decodeCommunityText, fetchCommunityArchivePage, fetchCommunityReply, fetchCommunityReplies, fetchCommunityMessagePath, fetchCommunityReplyCounts, fetchCommunityThread, fetchPublicAuthorActivityPage, searchCommunityMessages, fetchCommunityAuthorSummary, legacyLikeCount, normalizeCommunityRow, normalizeCommunityThreadFocus } from "./communityArchive.js";
 
 test("most-loved projection combines historical and current thumbs-up counts with stable ties", () => {
   const row = (id, day, reactions, isDeleted = false) => ({ id, createdAt: `2026-10-${day}T12:00:00Z`, reactions, isDeleted });
@@ -298,4 +298,50 @@ test("an injected public reader remains the reader for paginated replies and cou
 test('repeatable Community likes add to imported and per-identity likes without replacing either baseline',()=>{
  assert.equal(legacyLikeCount({likes:7,'👍':['one'],community_likes:3}),11);
  assert.equal(legacyLikeCount({likes:7,'👍':['one'],community_likes:-3}),8);
+});
+
+
+const rpcClient = (handler) => ({ rpc: (name, args) => ({ select: async () => handler(name, args) }) });
+
+test("corpus search sends the trimmed query and pages to the server, returning roots and replies with the first-page total", async () => {
+  const calls = [];
+  const row = (id, parent, body, total) => ({ id, parent_id: parent, author_name: "כותב", body, origin: "community_2029", created_at: "2026-10-01T00:00:00Z", is_deleted: false, total_count: total });
+  const client = rpcClient((name, args) => { calls.push([name, args]); return { data: [row("a", null, "שלום עולם", 479), row("b", "a", "שלום לכולם", 479)], error: null }; });
+  const first = await searchCommunityMessages("  שלום  ", { client });
+  assert.deepEqual(calls[0], ["community_search", { p_query: "שלום", p_offset: 0, p_limit: 20 }]);
+  assert.deepEqual(first.rows.map(item => [item.id, item.parentId]), [["a", null], ["b", "a"]]);
+  assert.equal(first.count, 479); assert.equal(first.nextOffset, 2);
+  const second = await searchCommunityMessages("שלום", { offset: 20, limit: 20, client });
+  assert.equal(second.count, null, "total is only reported on the first page");
+  assert.equal(second.nextOffset, 22);
+  assert.equal(calls[1][1].p_offset, 20);
+});
+
+test("corpus search never calls the server for queries outside the supported length and reports an undeployed function as null", async () => {
+  let called = 0;
+  const client = rpcClient(() => { called += 1; return { data: [], error: null }; });
+  for (const text of ["", " ", "א", " ב ", "x".repeat(81)]) assert.deepEqual(await searchCommunityMessages(text, { client }), { rows: [], count: 0, nextOffset: 0 });
+  assert.equal(called, 0);
+  assert.equal((await searchCommunityMessages("שלום", { client: rpcClient(() => ({ data: null, error: { code: "PGRST202" } })) })), null);
+  assert.equal((await searchCommunityMessages("שלום", { client: rpcClient(() => ({ data: null, error: { code: "42883" } })) })), null);
+  await assert.rejects(searchCommunityMessages("שלום", { client: rpcClient(() => ({ data: null, error: { code: "57014", message: "timeout" } })) }));
+  const none = await searchCommunityMessages("לא קיים", { client: rpcClient(() => ({ data: [], error: null })) });
+  assert.deepEqual(none, { rows: [], count: 0, nextOffset: 0 });
+});
+
+test("corpus search drops tombstones and rows without displayable text", async () => {
+  const client = rpcClient(() => ({ data: [{ id: "x", is_deleted: true, created_at: "2026-10-01T00:00:00Z", total_count: 2 }, { id: "y", parent_id: null, body: "", title: "", author_name: "ג", created_at: "2026-10-01T00:00:00Z", total_count: 2 }, { id: "z", parent_id: null, body: "טקסט", author_name: "ד", created_at: "2026-10-01T00:00:00Z", total_count: 2 }], error: null }));
+  const page = await searchCommunityMessages("טקסט", { client });
+  assert.deepEqual(page.rows.map(item => item.id), ["z"]);
+  assert.equal(page.nextOffset, 3, "offset advances by what the server returned so paging cannot repeat rows");
+});
+
+test("a search hit opens its thread only through a fully public root-to-reply path", async () => {
+  const [root, mid, leaf] = ["94970bb8-f12a-43b5-b1a8-5898e7e6cc57", "d69c5c78-fc0c-4f2c-9da5-620d426d84ed", "0f0c2b1e-6b0a-4b2a-8a39-3a1f6b6c9d10"];
+  const chain = [{ id: root, parent_id: null }, { id: mid, parent_id: root }, { id: leaf, parent_id: mid }];
+  assert.deepEqual(await fetchCommunityMessagePath(leaf, { client: rpcClient(() => ({ data: chain, error: null })) }), [root, mid, leaf]);
+  assert.equal(await fetchCommunityMessagePath(leaf, { client: rpcClient(() => ({ data: chain.slice(1), error: null })) }), null, "a chain whose root is hidden is not openable");
+  assert.equal(await fetchCommunityMessagePath(leaf, { client: rpcClient(() => ({ data: [], error: null })) }), null);
+  assert.equal(await fetchCommunityMessagePath(leaf, { client: rpcClient(() => ({ data: [chain[0], chain[2]], error: null })) }), null, "a broken parent link is not openable");
+  assert.equal(await fetchCommunityMessagePath("not-a-uuid", { client: rpcClient(() => { throw new Error("must not call"); }) }), null);
 });
