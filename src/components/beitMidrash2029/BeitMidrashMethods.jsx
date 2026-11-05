@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import BeitMidrashSection from "./BeitMidrashSection.jsx";
 import BeitMidrashLessonFlow from "./BeitMidrashLessonFlow.jsx";
+import { centerInRail } from "./centerInRail.js";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import { FrameState, use2029Shell } from "../experience2029/Sod2029Shell.jsx";
 import MethodTraceExplanation2029 from "../gematria2029/MethodTraceExplanation2029.jsx";
@@ -59,8 +60,7 @@ function MethodChooser({ methods, selectedKey, sampleExpression }) {
   const nav = useRef(null);
   // Keep the chosen method visible in the rail without moving the page.
   useEffect(() => {
-    const link = nav.current?.querySelector('[aria-current="page"]');
-    link?.scrollIntoView?.({ inline: "center", block: "nearest", behavior: "auto" });
+    centerInRail(nav.current, nav.current?.querySelector('[aria-current="page"]'));
   }, [selectedKey]);
 
   return <nav ref={nav} className={`bm-method-nav${selectedKey ? " is-rail" : ""}`} aria-label="שיטות הגימטריה">

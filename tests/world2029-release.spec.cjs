@@ -180,6 +180,24 @@ for (const width of [390, 1440]) {
   });
 }
 
+// Live finding after the 5.11 publish: /beit-midrash scrolled itself about 2300 px down a moment after opening (a strip called scrollIntoView on mount)
+// and the methods list, loading above the strip, then shifted the sections in view: CLS 0.66 at 390, 0.07 at 1440, on a first visit only.
+// The page must stay where the visitor opened it and a first visit must keep the same fixed CLS budget as every other route.
+for (const width of [390, 1440]) {
+  test(`Beit Midrash opens at the top and holds the CLS budget on a first visit at ${width}px`, async ({ page }) => {
+    await installClsObserver(page);
+    await page.setViewportSize({ width, height: width < 600 ? 844 : 900 });
+    await page.goto(`${BASE}/beit-midrash`, { waitUntil: 'domcontentloaded' });
+    await expect(page.locator('[data-experience-surface="beit-midrash"]')).toBeVisible({ timeout: 30_000 });
+    // The methods registry arrives after the first paint and lengthens the page below the fold: wait for it, then check nothing moved by itself.
+    await expect(page.locator('#methods .bm-method-nav a').first()).toBeVisible({ timeout: 30_000 });
+    await page.waitForTimeout(1500);
+    expect(await page.evaluate(() => Math.round(window.scrollY)), '/beit-midrash must not scroll itself').toBe(0);
+    await assertClsGood(page, '/beit-midrash');
+    await assertNoHorizontalOverflow(page);
+  });
+}
+
 function researchContext(value) {
   const id = String(value);
   return {
