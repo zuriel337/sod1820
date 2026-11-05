@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
-import { availableNowLenses, filterNowModels, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
+import { availableNowLenses, defaultNowLens, filterNowModels, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
 import "./nowPublications2029.css";
 
 // Compact "Now" publications window over the ONE shared system feed (feed.expandedRows).
@@ -79,18 +79,20 @@ function Row({ model, onOpen, feed, timeMode }) {
 }
 
 export default function NowPublications2029({ feed, onOpen, timeMode }) {
-  const [lens, setLens] = useState("all"), [series, setSeries] = useState(""), [source, setSource] = useState(""), [media, setMedia] = useState("");
+  const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [source, setSource] = useState(""), [media, setMedia] = useState("");
   const [count, setCount] = useState(PAGE);
   useEffect(() => { feed?.requestNowDetails?.(); }, [feed?.requestNowDetails]);
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
   const models = useMemo(() => nowModels(rows), [rows]);
   const lenses = useMemo(() => availableNowLenses(models), [models]);
   const choices = useMemo(() => nowSecondaryChoices(models), [models]);
-  const shown = useMemo(() => filterNowModels(models, { lens, series, source, media }), [models, lens, series, source, media]);
+  // Until the reader picks, the window opens on the first populated primary path (sources → messages → reality).
+  const activeLens = lens ?? defaultNowLens(models);
+  const shown = useMemo(() => filterNowModels(models, { lens: activeLens, series, source, media }), [models, activeLens, series, source, media]);
   const secondaryActive = Boolean(series || source || media);
   // A lens/choice that stopped existing (refresh, retry) must not leave an invisible empty filter.
   useEffect(() => {
-    if (lens !== "all" && !lenses.some(item => item.id === lens)) setLens("all");
+    if (lens && lens !== "all" && !lenses.some(item => item.id === lens)) setLens(null);
     if (series && !choices.series.some(item => item.id === series)) setSeries("");
     if (source && !choices.sources.some(item => item.id === source)) setSource("");
     if (media && !choices.media.some(item => item.id === media)) setMedia("");
@@ -108,7 +110,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
 
   return <section className="sod29-nowpub" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
     <div className="sod29-nowpub-filters" role="group" aria-label="סינון פרסומים">
-      {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" aria-pressed={lens === item.id} onClick={() => pick(setLens)(item.id)}>{item.label}</button>)}
+      {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" aria-pressed={activeLens === item.id} onClick={() => pick(setLens)(item.id)}>{item.label}</button>)}
     </div>
     {choices.series.length + choices.sources.length > 1 || choices.media.length > 1 ? <details className="sod29-nowpub-more" open={secondaryActive || undefined}>
       <summary>מסננים נוספים{secondaryActive ? " · פעיל" : ""}</summary>
@@ -129,7 +131,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
 
     {!initialLoading && !hardError && !additionalLoading && !shown.length
       ? <p className="sod29-nowpub-empty" role="status">{models.length ? "אין פרסומים בסינון הזה." : "אין כרגע פרסומים להצגה."}
-        {models.length && (lens !== "all" || secondaryActive) ? <> <button type="button" className="sod29-nowpub-link" onClick={clear}>הצג הכול</button></> : null}</p> : null}
+        {models.length && (activeLens !== "all" || secondaryActive) ? <> <button type="button" className="sod29-nowpub-link" onClick={clear}>הצג הכול</button></> : null}</p> : null}
 
     <ul className="sod29-nowpub-list">
       {shown.slice(0, count).map(model => <Row key={model.id} model={model} onOpen={onOpen} feed={feed} timeMode={timeMode} />)}
