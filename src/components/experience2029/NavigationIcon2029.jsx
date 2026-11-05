@@ -3,7 +3,9 @@ import { iconPress2029 } from "./iconPress2029.js";
 import "./navigationIcons2029.css";
 import { ALEF_ICON_PATH, ALEF_ICON_TRANSFORM } from "./hebrewIconPaths.js";
 
-const GLYPH_NAMES = { "⌂":"home", "◌":"world", "◇":"tools", "↟":"posts", "↝":"journey", "◎":"community", "123":"number", "▤":"books", "✦":"els" };
+// Text glyphs are a compatibility input only: global navigation names its symbol explicitly (see navigationItems2029.js), because
+// a glyph can be shared by two destinations ("123", "▤") or missing here ("◉", "✉") and then silently falls back to the tools grid.
+const GLYPH_NAMES = { "⌂":"home", "◌":"world", "◇":"tools", "↟":"posts", "↝":"journey", "◎":"community", "◉":"community", "✉":"mail", "123":"number", "▤":"books", "✦":"els" };
 const SHAPES = {
   letters: <path d={ALEF_ICON_PATH} transform={ALEF_ICON_TRANSFORM} stroke="none" fill="currentColor"/>,
   milui: <><path d="M4 4v5m0 6v5M20 4v5m0 6v5M2 12h5m10 0h5m-8-9-2 2-2-2m0 18 2-2 2 2"/><g transform="translate(5.4 5.4) scale(.55)"><path d={ALEF_ICON_PATH} transform={ALEF_ICON_TRANSFORM} stroke="none" fill="currentColor"/></g></>,
@@ -31,6 +33,13 @@ const SHAPES = {
   posts: <><path d="M5 3h10l4 4v14H5ZM14 3v5h5M8 12h8M8 16h8"/></>,
   number: <text x="12" y="16" textAnchor="middle" stroke="none" fill="currentColor" fontSize="12" fontWeight="750" fontFamily="Arial, sans-serif">123</text>,
   books: <><path d="M12 5v16M3 4c4-1 6 0 9 1 3-1 5-2 9-1v16c-4-1-6 0-9 1-3-1-5-2-9-1Z"/></>,
+  // Destinations that used to share a picture with another one (calculator = number, Beit Midrash = books, site map = world,
+  // updates/privacy = the tools fallback). Same 24×24 grid, round 1.8px strokes, currentColor only.
+  calculator: <><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><rect x="8" y="6" width="8" height="3.5" rx="1"/><path d="M8.5 13.5h.01M12 13.5h.01M15.5 13.5h.01M8.5 17.5h.01M12 17.5h.01M15.5 17.5h.01"/></>,
+  study: <><path d="M5 5.5v13M19 5.5v13M8.5 8h7M8.5 12h7M8.5 16h4"/><circle cx="5" cy="3.6" r="1.4"/><circle cx="5" cy="20.4" r="1.4"/><circle cx="19" cy="3.6" r="1.4"/><circle cx="19" cy="20.4" r="1.4"/></>,
+  map: <><path d="m3 6.5 6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5Z"/><path d="M9 4v13.5M15 6.5V20"/></>,
+  mail: <><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7.5 8.5 6.5 8.5-6.5"/></>,
+  privacy: <><rect x="5" y="10.5" width="14" height="10.5" rx="2.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5M12 15v2"/></>,
   journey: <><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 5h7a4 4 0 0 1 0 8h-4a3 3 0 0 0 0 6h7"/></>,
   community: <><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3ZM17 4a3 3 0 0 1 0 6m1 4a5 5 0 0 1 3 4v3h-3"/></>,
   search: <><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></>,
@@ -71,6 +80,11 @@ export const ICON_CATALOG = Object.freeze([
   ["posts","פוסטים","ניווט","תוכן ופרסומים"],
   ["number","דף המספר","ניווט","ערכים ושיטות חישוב"],
   ["books","ספרים","ניווט","ספרים ומקורות"],
+  ["calculator","מחשבון","ניווט","חישוב גימטריה והשוואת ביטויים"],
+  ["study","בית המדרש","ניווט","לימוד שיטות ומקורות"],
+  ["map","מפת האתר","ניווט","כל הדפים במקום אחד"],
+  ["mail","דואר","ניווט","עדכונים במייל"],
+  ["privacy","פרטיות","ניווט","מדיניות ושליטה במידע"],
   ["journey","מסע","ניווט","דרך והמשכיות בין תחנות"],
   ["community","קהילה","ניווט","אנשים ומחקר משותף"],
   ["search","חיפוש","ניווט","איתור תוכן"],
@@ -114,6 +128,17 @@ export const ICON_CATALOG = Object.freeze([
 export const NAVIGATION_ICON_NAMES = Object.freeze([...Object.keys(SHAPES), "els"]);
 const ALIASES = { time: "now", source: "posts", globe: "world", book: "books", gematria: "number" };
 
+/** The single picture-resolution rule: an explicit name, else the Heichal label, else a compatibility glyph, else the tools grid.
+ *  Asking for the tools grid is not a fallback; getting it because nothing matched (an unknown name, an unmapped glyph, no input)
+ *  is, and it is marked as one (data-icon-fallback). Before this, an unmapped glyph resolved straight to "tools" and was never marked,
+ *  so the community, updates and privacy rows showed the tools grid with nothing in the DOM to say so. */
+export function resolveNavigationIcon2029({ name, glyph, label } = {}) {
+  const requested = name || (label === "היכל" ? "heichal" : GLYPH_NAMES[glyph]);
+  const resolved = requested || "tools";
+  const canonical = ALIASES[resolved] || (NAVIGATION_ICON_NAMES.includes(resolved) ? resolved : "tools");
+  return { resolved, canonical, fallback: canonical === "tools" && requested !== "tools" };
+}
+
 /** Decorative SVG: the enclosing control owns its live accessible name. */
 export default function NavigationIcon2029({ name, glyph, label, size = 24, className = "" }) {
   const iconRef = useRef(null);
@@ -134,9 +159,8 @@ export default function NavigationIcon2029({ name, glyph, label, size = 24, clas
       control.removeEventListener("keydown", key);
     };
   }, []);
-  const resolved = name || (label === "היכל" ? "heichal" : GLYPH_NAMES[glyph]) || "tools";
-  const canonical = ALIASES[resolved] || (NAVIGATION_ICON_NAMES.includes(resolved) ? resolved : "tools");
-  return <svg ref={iconRef} className={`sod29-ui-icon sod29-ui-icon--${canonical} ${className}`} data-icon-shape={canonical} data-icon-name={canonical} data-icon-fallback={canonical === "tools" && resolved !== "tools" ? "true" : undefined} style={{ width: size, height: size }} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+  const { canonical, fallback } = resolveNavigationIcon2029({ name, glyph, label });
+  return <svg ref={iconRef} className={`sod29-ui-icon sod29-ui-icon--${canonical} ${className}`} data-icon-shape={canonical} data-icon-name={canonical} data-icon-fallback={fallback ? "true" : undefined} style={{ width: size, height: size }} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
     {canonical === "els" ? Array.from({length:9},(_,i)=><rect key={i} className={i%4===0?`sod29-icon-diagonal is-${i/4}`:undefined} x={3+(i%3)*7} y={3+Math.floor(i/3)*7} width="4" height="4" rx=".8" fill={i%4===0?"currentColor":"none"}/>) : SHAPES[canonical]}
   </svg>;
 }

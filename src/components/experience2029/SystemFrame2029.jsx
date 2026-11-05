@@ -155,43 +155,47 @@ export function framePublicShareHref(location, canonicalHref = null) {
 }
 
 const publicFoundationPreview = (import.meta.env.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101");
+// Every destination names its own picture from the NavigationIcon2029 catalogue in `symbol`. The old text glyph (`icon`) no longer
+// picks it: "123" was shared by the calculator and the Number page, "▤" by Books and Beit Midrash, "◌" by the World and the site map,
+// and "◉" / "✉" / "◇" fell back to the generic tools grid. test/navigation-symbols-distinct-2029.test.mjs reads these four lists
+// from this file, renders each item through the real component and fails on a missing, uncatalogued, shared or fallback symbol.
 const HOME_NAV = [
-  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },
-  { to: "/world", label: "העולם", icon: "◌" },
-  { to: "/heichal", label: "היכל", icon: "◇" },
-  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },
-  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },
-  { to: "/community/chat", label: "קהילה", icon: "◉" },
+  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", symbol: "home", exact: true },
+  { to: "/world", label: "העולם", symbol: "world" },
+  { to: "/heichal", label: "היכל", symbol: "heichal" },
+  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", symbol: "posts" },
+  { to: "/2029/journey", label: "מסע החיים", symbol: "journey" },
+  { to: "/community/chat", label: "קהילה", symbol: "community" },
 ];
 
 const DIRECT_NAV = [
-  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },
-  { action: "number-search", label: "דף המספר", icon: "123" },
-  { to: "/books", label: "ספרים ומקורות", icon: "▤" },
-  { to: "/beit-midrash", label: "בית המדרש", icon: "▤" },
-  { to: "/els", label: "ELS · הצופן התנ״כי", icon: "✦" },
+  { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
+  { action: "number-search", label: "דף המספר", symbol: "number" },
+  { to: "/books", label: "ספרים ומקורות", symbol: "books" },
+  { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
+  { to: "/els", label: "ELS · הצופן התנ״כי", symbol: "els" },
   ...(publicFoundationPreview ? [
-    { to: "/map", label: "מפת האתר", icon: "◌" },
-    { to: "/updates", label: "עדכונים במייל", icon: "✉" },
-    { to: "/privacy", label: "פרטיות", icon: "◇" },
+    { to: "/map", label: "מפת האתר", symbol: "map" },
+    { to: "/updates", label: "עדכונים במייל", symbol: "mail" },
+    { to: "/privacy", label: "פרטיות", symbol: "privacy" },
   ] : []),
 ];
 
 const CORE_HOME_NAV = [
-  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", icon: "⌂", exact: true },
-  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", icon: "↟" },
-  { to: "/community/chat", label: "קהילה", icon: "◉" },
+  { to: publicFoundationPreview ? "/" : "/2029", label: "בית", symbol: "home", exact: true },
+  { to: publicFoundationPreview ? "/post" : "/2029/posts", label: "פוסטים", symbol: "posts" },
+  { to: "/community/chat", label: "קהילה", symbol: "community" },
   HOME_NAV[1],
-  { to: "/heichal", label: "היכל", icon: "◇" },
-  { to: "/2029/journey", label: "מסע החיים", icon: "↝" },
+  { to: "/heichal", label: "היכל", symbol: "heichal" },
+  { to: "/2029/journey", label: "מסע החיים", symbol: "journey" },
 ];
 
 const CORE_DIRECT_NAV = [
-  { to: "/code", label: "ELS · הצופן התנ״כי", icon: "✦" },
-  { to: "/gematria", label: "מחשבון גימטריה", icon: "123" },
-  { action: "number-search", label: "דף המספר", icon: "123" },
-  { to: "/books", label: "ספרים ומקורות", icon: "▤" },
-  { to: "/beit-midrash", label: "בית המדרש", icon: "▤" },
+  { to: "/code", label: "ELS · הצופן התנ״כי", symbol: "els" },
+  { to: "/gematria", label: "מחשבון גימטריה", symbol: "calculator" },
+  { action: "number-search", label: "דף המספר", symbol: "number" },
+  { to: "/books", label: "ספרים ומקורות", symbol: "books" },
+  { to: "/beit-midrash", label: "בית המדרש", symbol: "study" },
 ];
 
 const FOCUSABLE = [
@@ -208,7 +212,7 @@ const FOCUSABLE = [
 // with its true "בבנייה" state instead of a link that leads nowhere.
 export function beitMidrashNavItem(item, isAdmin = false) {
   const state = publicReadingPath(item.to, { isAdmin: isAdmin === true });
-  return state === "closed" || state === "missing" ? { label: item.label, icon: item.icon, status: "בבנייה" } : item;
+  return state === "closed" || state === "missing" ? { label: item.label, symbol: item.symbol, status: "בבנייה" } : item;
 }
 
 function activeClass({ isActive }) {
@@ -389,7 +393,7 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
       <div className="sod29-nav-group-title">{title}</div>
       {items.map((item) => item.locked ? (
         <button className="sod29-nav-link is-gated" key={item.label} type="button" disabled aria-label={`${item.label} · נעול`} title={`${item.label} · נעול`}>
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.symbol} /></span>
           <span className="sod29-nav-copy">{item.label} · נעול</span>
         </button>
       ) : item.to ? (
@@ -403,17 +407,17 @@ function NavGroup({ title, items, preserveReturnFor, onNavigate, onAction }) {
           state={{ sodEntryArrival: "internal" }}
           onClick={() => { preserveReturnFor(item.to); onNavigate?.(); }}
         >
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.symbol} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
         </NavLink>
       ) : item.action ? (
         <button className="sod29-nav-link" key={item.label} aria-label={item.label} title={item.label} type="button" onClick={() => { onAction?.(item.action); onNavigate?.(); }}>
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.symbol} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
         </button>
       ) : (
         <button className="sod29-nav-link is-pending" key={item.label} type="button" disabled aria-label={`${item.label} · ${item.status}`} title={`${item.label} · ${item.status}`}>
-          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 glyph={item.icon} label={item.label} /></span>
+          <span className="sod29-nav-icon" aria-hidden="true"><NavigationIcon2029 name={item.symbol} /></span>
           <span className="sod29-nav-copy">{item.label}</span>
           <span className="sod29-nav-status">{item.status}</span>
         </button>
