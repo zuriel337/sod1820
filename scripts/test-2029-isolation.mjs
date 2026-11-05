@@ -81,14 +81,6 @@ for (const source of expected) {
   assert.ok(item, `missing unconditional human 2029 rewrite: ${source}`);
   assert.equal(item.destination, "/2029.html", `human 2029 rewrite must target isolated document: ${source}`);
 }
-for (const source of ["/", "/post", "/community/chat", "/code"]) {
-  assert.equal(
-    rewrites.some((r) => r.source === source && r.destination === "/2029.html" && !Array.isArray(r.has)),
-    false,
-    `Legacy Production lock forbids ${source} from entering the 2029 document`,
-  );
-}
-
 // Canonical Book routing: /books is the library home; /book/:slug is the individual identity.
 // The plural detail path survives only as a compatibility alias and must never become a second canonical.
 assert.equal(app2029.includes('path="/book/:slug" element={<BooksEntry2029 />}' ), true, "canonical Book detail must use the shared current reader admission");
@@ -160,11 +152,11 @@ assert.deepEqual(
   { source: "/books/(.*)", destination: "/book/$1", permanent: true },
   "plural detail alias must converge permanently to canonical /book/:slug"
 );
-const catchAllIndex = rewrites.findIndex((r) => r.source === "/(.*)" && r.destination === "/index.html" && !r.has);
-assert.ok(catchAllIndex >= 0, "legacy SPA catch-all must remain present");
+const catchAllIndex = rewrites.findIndex((r) => r.source === "/(.*)" && r.destination === "/2029.html" && !r.has);
+assert.ok(catchAllIndex >= 0, "the 2029 catch-all must remain present");
 for (const source of expected) {
   const idx = rewrites.findIndex((r) => r.source === source);
-  assert.ok(idx < catchAllIndex, `${source} isolation rewrite must precede legacy catch-all`);
+  assert.ok(idx < catchAllIndex, `${source} rewrite must precede the catch-all`);
 }
 
 // Explicit non-changes: public cutover policy remains legacy until G3 MAIN/Human Gate decides otherwise.

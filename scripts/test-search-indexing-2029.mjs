@@ -47,10 +47,10 @@ for (const publicPath of ["/video", "/number", "/codes", "/post", "/world", "/or
     `${publicPath} must not be intentionally blocked for public crawlers`);
 }
 
-// Vercel still has an SPA catch-all, but ROUTE_LEGITIMACY_2029 closes the main legacy /:slug
+// Vercel still has a catch-all (now the 2029 document), but ROUTE_LEGITIMACY_2029 closes the main legacy /:slug
 // soft-404 source at Edge. The map must remain explicit about residual nested/dynamic false IDs.
-const spaCatchAll = (vercel.rewrites || []).some(r => r.source === "/(.*)" && r.destination === "/index.html");
-assert.equal(spaCatchAll, true, "SPA catch-all still exists; route legitimacy must remain an explicit Edge layer");
+const spaCatchAll = (vercel.rewrites || []).some(r => r.source === "/(.*)" && r.destination === "/2029.html" && !r.has);
+assert.equal(spaCatchAll, true, "the 2029 catch-all still exists; route legitimacy must remain an explicit Edge layer");
 assert.match(map, /LIVE_VERIFY/);
 assert.match(map, /RESIDUAL/);
 assert.match(map, /Edge[^\n]{0,80}HTTP 404|HTTP 404[^\n]{0,80}Edge/i);

@@ -333,7 +333,7 @@ test("bootstrap bounds every worker phase, rejects redundant/wrong policy and ne
   assert.equal(installation.imports.length, 0);
 });
 
-test("actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and byte-exact Legacy rollback worker", () => {
+test("actual local artifact retains font fix, compiler isolation, no index shadow, no-store worker and no Legacy rollback worker", () => {
   assert.ok(existsSync(new URL("public-reading-deploy/dist/public-reading-artifact.json", root)), "run node scripts/build-public-reading-production.mjs before acceptance");
   const report = JSON.parse(read("public-reading-deploy/dist/public-reading-artifact.json"));
   const hash = data => createHash("sha256").update(data).digest("hex");
@@ -348,8 +348,8 @@ test("actual local artifact retains font fix, compiler isolation, no index shado
   assert.equal(existsSync(new URL("public-reading-deploy/dist/2029.html", root)), false);
   assert.equal(existsSync(new URL("public-reading-deploy/dist/robots.txt", root)), false);
   for (const alias of ["public-reading-sw.js", "preview-readonly-sw.js"]) assert.equal(read("public-reading-deploy/dist/" + alias), worker);
-  assert.equal(read("public-reading-deploy/dist/rollback/legacy-sw.js"), read("public/sw.js"));
-  assert.equal(report.legacyRollbackWorkerSha256, hash(read("public/sw.js")));
+  assert.equal(existsSync(new URL("public-reading-deploy/dist/rollback/legacy-sw.js", root)), false, "no Legacy rollback worker is shipped");
+  assert.equal("legacyRollbackWorkerSha256" in report, false);
   assert.ok(!worker.includes("caches.open")); assert.ok(!worker.includes("caches.match"));
   const config = JSON.parse(read("public-reading-deploy/vercel.json"));
   assert.equal(report.deploymentConfigSha256, hash(read("public-reading-deploy/vercel.json")));
