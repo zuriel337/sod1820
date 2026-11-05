@@ -121,7 +121,7 @@ if (fs.existsSync(manifestPath)) {
       assert.match(f, /palette2029-/, `Legacy theme key referenced outside the one-time seed: ${f}`);
     }
   }
-  assert.ok(files.some((f) => /paletteBridge2029-/.test(f)), "bridge chunk must carry the shared Legacy palette imports");
+  assert.ok(Object.values(body).some((t) => t.includes("labDark")), "the 2029 bridge (PALETTES lab variants) must be bundled for the still-shared components");
 
   // Legacy build: chunks not reachable from the 2029 entry must carry no 2029 theme store or palette hook.
   const in2029 = new Set(files);

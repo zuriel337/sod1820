@@ -15,7 +15,7 @@ import Opening2029 from "./components/experience2029/Opening2029.jsx";
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
-import FeatureClosedNotice from "./components/FeatureClosedNotice.jsx";
+import FeatureClosedNotice from "./components/experience2029/FeatureClosedNotice2029.jsx";
 import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS } from "./lib/publicReadingRelease2029.js";
 
 // Admit Home's component code before preparing the first Post. The existing

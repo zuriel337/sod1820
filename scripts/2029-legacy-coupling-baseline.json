@@ -9,10 +9,6 @@
    "class": "F",
    "action": "OTP UI; reached via WatchButton/SubscribeGate. Auth2029Page exists; remove from 2029 path after WatchButton split."
   },
-  "src/components/FeatureClosedNotice.jsx": {
-   "class": "N",
-   "action": "2029 closed notice on use2029Palette; Legacy copy stays for Forum/Discourse."
-  },
   "src/components/Lightbox.jsx": {
    "class": "N",
    "action": "329 lines, theme.js tokens, fixed overlay, Legacy edit/admin button; 2029 media viewer (CanonicalMediaFigure2029 is the 2029 owner)."
@@ -73,10 +69,6 @@
    "class": "N",
    "action": "802 lines, Legacy palette, localStorage, fixed popups; 2029 wraps it with passive/actionsLocked props. Needs a 2029 calculator surface over the unchanged gematria engine."
   },
-  "src/pages/NotFoundPage.jsx": {
-   "class": "N",
-   "action": "29-line page: 2029 NotFound over use2029Palette; Legacy keeps its own."
-  },
   "src/pages/PrivacyPage.jsx": {
    "class": "N",
    "action": "2029 legal page owner; text content is data, UI uses Legacy usePalette."
@@ -91,10 +83,6 @@
   }
  },
  "sharedUiState": {
-  "src/components/FeatureClosedNotice.jsx": {
-   "class": "N",
-   "action": "2029 closed notice on use2029Palette; Legacy copy stays for Forum/Discourse."
-  },
   "src/components/HumanDateInput.jsx": {
    "class": "I",
    "action": "Pure input control, no palette/router/state imports. Allowed as neutral."
@@ -262,10 +250,6 @@
   "src/pages/EntityHubPreviewPage.jsx": {
    "class": "N",
    "action": "Mounted by both App.jsx and App2029. Decide owner; recommended 2029-only with Legacy route becoming a document handoff (needs approval, touches Legacy routing)."
-  },
-  "src/pages/NotFoundPage.jsx": {
-   "class": "N",
-   "action": "29-line page: 2029 NotFound over use2029Palette; Legacy keeps its own."
   },
   "src/pages/PrivacyPage.jsx": {
    "class": "N",

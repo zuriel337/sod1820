@@ -37,3 +37,31 @@
 |---|---|---|---|---|
 | `lib/stream.js` | 1 (`experienceContext` — קבועי `STREAMS`) | 9 (App, HomeNewPage, HomeReality, StreamGate, JourneyPage/V2, StreamSwitch, Navbar, LayoutCore) | localStorage (מפתח זרם + A/B), `<html data-stream>` | 2029 צורך רק קבועים; אפשר להפריד קבועים טהורים משכבת ה־store |
 | `ResearchProvider.jsx` | 35 | 20 | `createContext`, localStorage/sessionStorage, מאזיני `online` ו־`message` (ELS), מפתח rollout | כל שורש מרכיב מופע משלו (App.jsx ו־App2029). אין channel ל־Realtime בקובץ, ולכן אין subscriptions כפולים בין השורשים; ההצעה: מופע נפרד לכל שורש וחלוקת מפתחות האחסון |
+
+
+---
+# עדכון — אחרי אישור אפשרות A (שלבים 2 ו־3)
+
+## שלב 2 — הושלם בקומיט נפרד (`422769560`)
+**2029 הציבורי:** store עצמאי `themePreset2029.js` (מפתח `sod2029:theme-preset`, מאפיין `data-theme-2029`), `paletteTokens2029.js` (טהור, הועבר מילה במילה), `palette2029.js` (קונטקסט/hook משלו). אין תלות ב־`lightRoutes` או ב־Navbar. ה־seed החד־פעמי קורא את `sod-theme` רק אם סמן ה־seed חסר ואין העדפה של 2029; אחרי הקריאה הראשונה נקבע סמן ולכן אין סנכרון ואין קריאה חוזרת.
+**Legacy host:** Adapter הפוך בזמן בנייה בלבד (`themeHostAdapter2029.js`, `paletteHostAdapter2029.js`, plugin `legacyHostThemeAdapter` ב־`vite.config.js`). דפי 2029 שמארח Legacy מקבלים את ה־theme של המארח (חד־כיווני); בחבילת Legacy אין store של 2029 ואין מפתחות `sod2029:*`. ה־adapter משקף את `data-theme-preset` של המארח ל־`data-theme-2029` (מאפיין בלבד, בלי storage) כדי שה־CSS של 2029 יעבוד בדפים המאורחים.
+**הסרה:** כשדפי 2029 מנותקים מ־Legacy — למחוק את שני קובצי ה־adapter ואת ה־plugin; אין להם שום ייבוא אחר (נאכף בבדיקה).
+**גשר 2029:** רכיבים שעדיין משותפים (ShareActions, WatchButton, ReactionBar, StayUpdatedCTA, CommunityCalculatorPage...) ממשיכים לייבא `palette.js`/`themeMode.js`; בבניית 2029 הם מקבלים את המימוש של 2029 (`paletteBridge2029.js`, `themePreset2029.js`). נמחק כשהם מפוצלים (שלב 4).
+**CommunityCalculatorPage:** בדיקת "יש העדפה שמורה" עברה ל־`hasStoredThemePreference()` של ה־store הרלוונטי (Legacy: אותה בדיקה על `sod-theme`; 2029: על המפתח שלו) — בלי שינוי התנהגות ב־Legacy.
+
+### הוכחות (דפדפן אמיתי, Chromium, רשת חסומה חוץ מ־localhost)
+- **שינוי theme ב־Legacy משנה רק דפי 2029 מאורחים:** `/2029` ב־Legacy מקבל `data-theme-2029` זהה למארח; בורר הערכה של הדף המאורח כותב למפתח המארח כמו קודם; עמוד Legacy רגיל (`/`) אינו נושא `data-theme-2029`; Legacy לא יוצר אף מפתח `sod2029:*`.
+- **שינוי theme ב־2029 אינו משנה Legacy:** בורר 2029 אינו כותב `sod-theme`; פתיחת Legacy אחרי שינוי ב־2029 נותנת אותם מאפיינים כמו קודם והוא לא קורא את `sod2029:theme-preset`.
+- **2029 הציבורי אחרי ה־seed אינו קורא את theme של Legacy:** שינוי `sod-theme` ל־`dark` וטעינה מחדש — 2029 נשאר עם בחירתו ואין קריאה למפתח (נמדד עם spy על `Storage.getItem`). **שימו לב:** בביקור הראשון בלבד נקרא `sod-theme` פעם אחת בהתאם להחלטה 3 (העתקה חד־פעמית); אם נדרש "אפס קריאות" מוחלט — להסיר את `seedOnce` (שורה אחת) במחיר איבוד העדפות קיימות.
+- **אין flash / mismatch:** ערך המאפיין בטעינה נקבע פעם אחת בלבד ושווה לסופי (MutationObserver מתחילת המסמך); אין אזהרות hydration/mismatch בקונסולה (הרינדור client-only).
+- **כל דפי Legacy כמו לפני:** 8 נתיבים × 4 מצבי theme (ללא/light/parchment/dark) מול בניית שלב 1 — theme attributes, צבעי רקע ומפתחות storage זהים 32/32, ו־Legacy לא כתב אף מפתח `sod2029:*`.
+- בדיקות: `scripts/test-2029-theme-isolation.mjs`, `test/theme-separation-2029.browser.mjs` (מחוברות ל־`2029-isolation-gate.yml`), ושינוי מכוון (הסרת ה־plugin) נתפס.
+
+## שלב 3 — רכיבי N קטנים שאומתו כבטוחים (קומיט נפרד)
+- `FeatureClosedNotice2029` (`components/experience2029/`) ו־`NotFound2029Page` (`pages/`): מוצגים על `use2029Palette` ו־`TYPEFACE` של 2029, ללא `theme.js`/`palette.js`. אותו טקסט, אותו SEO (noindex) ואותה התנהגות. צרכנים: `App2029`, `Els2029Page`, `PublicPostAddress2029Page`, `PublicServices2029Page` (אף אחד מהם לא מרונדר ב־Legacy). הגרסאות Legacy נשארו ללא שינוי.
+- שינוי חזותי יחיד: הגופן של שני הרכיבים עבר מ־`Assistant` (שלא נטען ב־2029) לגופני 2029 (Rubik / Noto Sans Hebrew).
+- נבדק: `test/small-n-components-2029.test.mjs` (חדש), בדיקות הנתיבים/שירותים הציבוריים, ו־build.
+- **לא בוצעו (ממתינים להחלטה):**
+  - `StrongHintBadge` — הצרכן שלו `PostCategories2029` מרונדר גם ב־Legacy.
+  - `PrivacyPage` — טקסט משפטי; גרסה נפרדת תשכפל תוכן, והפרדה נכונה דורשת הוצאת התוכן למודול נתונים ושינוי הקובץ של Legacy.
+  - `UnsubscribePage` — לוגיקת fetch חתומה (~15 שורות); הפרדה נכונה דורשת הוצאתה לשירות ושינוי הקובץ של Legacy.
