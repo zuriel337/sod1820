@@ -1452,8 +1452,8 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
    await dock.getByRole('button',{name:'עוד · פעולות, כלים ושיתוף',exact:true}).click();
    const more=page.getByRole('dialog',{name:'עוד',exact:true});
    await more.getByRole('button',{name:'כלים',exact:true}).click();
-   await page.getByRole('dialog',{name:'כלים',exact:true}).getByRole('button',{name:'חיפוש',exact:true}).click();
-   await page.getByRole('dialog',{name:'חיפוש',exact:true}).waitFor();
+   await page.getByRole('dialog',{name:'כלים',exact:true}).getByRole('button',{name:'חיפוש באתר',exact:true}).click();
+   await page.getByRole('dialog',{name:'חיפוש באתר',exact:true}).waitFor();
    await page.keyboard.press('Escape');assert.equal(await page.getByRole('dialog').count(),0);
    await dock.getByRole('button',{name:'עוד · פעולות, כלים ושיתוף',exact:true}).click();
    await more.getByRole('button',{name:'חזור לכלי הצופן',exact:true}).click();
