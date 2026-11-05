@@ -185,8 +185,9 @@ html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crow
    No translucent shading and no funnel/neck: the pod is opaque deep-dark in every theme, ringed in gold with the same 2px as the
    bar's line, which stops exactly at the pod's sides. Gold glow only on the dark presets (on light it would look muddy). */
 .sod29-root.closed-shell.native-frame[data-crown-draft="5"] {
-  --s29-bar-h: 56px; --s29-pod-w: 136px; --s29-pod-h: calc(var(--s29-bar-h) + var(--s29-pod-w) / 2);
-  --s29-crown-w: 98px; --s29-crown-top: 12px; --s29-crown-slot: 156px;
+  --s29-bar-h: 64px; --s29-pod-w: 136px; --s29-pod-h: calc(var(--s29-bar-h) + var(--s29-pod-w) / 2);
+  --s29-crown-w: 100px; --s29-crown-top: 16px; --s29-crown-slot: 156px;
+  --s29-pod-shrink: .455; --s29-crown-shrink: .56; --s29-crown-lift: -11px;   /* the scrolled state: the pod and crown settle inside the bar */
   --s29-draft-reserve: calc(var(--s29-pod-h) - var(--s29-bar-h) + 8px);
   --s29-line-w: 2px; --s29-gap: calc(var(--s29-pod-w) - 4px);
   --s29-pod-core: #241552; --s29-pod-base: #0b0819; --s29-pod-ring: var(--s29-brand-gold); --s29-pod-glow: rgb(249 186 63 / .30);
@@ -196,7 +197,7 @@ html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crow
 .sod29-root.closed-shell.native-frame[data-crown-draft="5"][data-frame-theme-preset="parchment"] {
   --s29-pod-ring: #e9b949; --s29-pod-glow: transparent;
 }
-html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-gap: calc(var(--s29-pod-w) * .42 - 4px); }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-gap: calc(var(--s29-pod-w) * var(--s29-pod-shrink) - 4px); }
 .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header.closed-orientation::after {
   block-size: var(--s29-line-w); opacity: 1; transition: --s29-gap .3s cubic-bezier(.2, .8, .2, 1);
   background: linear-gradient(90deg, var(--s29-pod-line) 0 calc(50% - var(--s29-gap) / 2), transparent calc(50% - var(--s29-gap) / 2) calc(50% + var(--s29-gap) / 2), var(--s29-pod-line) calc(50% + var(--s29-gap) / 2) 100%);
@@ -211,16 +212,16 @@ html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crow
   transition: transform .3s cubic-bezier(.2, .8, .2, 1);
 }
 .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown img { z-index: 3; transform-origin: 50% 0; }
-html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown::before { transform: translateX(-50%) scale(.42); }
-html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown img { transform: translateX(-50%) translateY(-5px) scale(.5); }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown::before { transform: translateX(-50%) scale(var(--s29-pod-shrink)); }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown img { transform: translateX(-50%) translateY(var(--s29-crown-lift)) scale(var(--s29-crown-shrink)); }
 @media (max-width: 980px) {
-  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-pod-w: 108px; --s29-crown-w: 78px; --s29-crown-top: 10px; --s29-crown-slot: 124px; --s29-draft-reserve: calc(var(--s29-pod-h) - var(--s29-bar-h) + 6px); }
-  html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown::before { transform: translateX(-50%) scale(.5); }
-  html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-gap: calc(var(--s29-pod-w) * .5 - 4px); }
-  html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown img { transform: translateX(-50%) translateY(-4px) scale(.5); }
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] {
+    --s29-pod-w: 114px; --s29-crown-w: 82px; --s29-crown-top: 13px; --s29-crown-slot: 130px; --s29-draft-reserve: calc(var(--s29-pod-h) - var(--s29-bar-h) + 6px);
+    --s29-pod-shrink: .5; --s29-crown-shrink: .72; --s29-crown-lift: -8px;
+  }
 }
 @media (max-width: 340px) {
-  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-pod-w: 92px; --s29-crown-w: 66px; --s29-crown-top: 9px; --s29-crown-slot: 100px; }
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-pod-w: 96px; --s29-crown-w: 70px; --s29-crown-top: 11px; --s29-crown-slot: 104px; --s29-crown-shrink: .74; --s29-crown-lift: -7px; }
   .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-leading .sod29-orientation { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -229,3 +230,40 @@ html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crow
 }
 .sod29-root[data-frame-reduced-motion="true"][data-crown-draft="5"] .sod29-header-crown::before,
 .sod29-root[data-frame-reduced-motion="true"][data-crown-draft="5"] .sod29-header.closed-orientation::after { transition: none; }
+
+
+/* ── Draft 5 · glass: the bar is a window, so the crown's pod is made of the same glass ──────────────────────────────────
+   The header itself no longer carries the blur (a backdrop-filter on a parent stops its children from seeing the page behind it):
+   the bar's glass is its own layer, the pod has its own, so whatever scrolls underneath is blurred behind both.
+   The pod is dark glass (tinted indigo), strong enough that the crown and the verse always read; more solid on light presets. */
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header.closed-orientation {
+  background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header.closed-orientation::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: color-mix(in srgb, var(--s29-panel) 70%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3); backdrop-filter: blur(18px) saturate(1.3);
+  box-shadow: inset 0 1px 0 var(--s29-glass-shine, transparent);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"] {
+  --s29-pod-core: rgb(52 34 120 / .62); --s29-pod-base: rgb(11 8 25 / .80);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"][data-frame-theme-preset="light"],
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"][data-frame-theme-preset="parchment"] {
+  --s29-pod-core: rgb(52 34 120 / .55); --s29-pod-base: rgb(11 8 25 / .90);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown::before {
+  background: radial-gradient(circle at 50% 66%, var(--s29-pod-core) 0, transparent 72%), var(--s29-pod-base);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: inset 0 1px 0 var(--s29-glass-shine, transparent), 0 0 30px 4px var(--s29-pod-glow), 0 12px 24px rgb(0 0 0 / .26);
+}
+/* No blur support, or the visitor asked for less transparency: the same shapes, solid. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header.closed-orientation::before { background: var(--s29-panel); }
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-pod-core: #241552; --s29-pod-base: #0b0819; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header.closed-orientation::before { background: var(--s29-panel); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-pod-core: #241552; --s29-pod-base: #0b0819; }
+  .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown::before { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
