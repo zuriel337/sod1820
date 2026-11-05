@@ -16,7 +16,7 @@ import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
 import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 
 // DRAFT SWITCH (preview branches only): "" = hanging crown (option A), "1" flat tall bar, "2" arc under the letters, "3" bridge under the letters.
-const CROWN_DRAFT = "5";
+const CROWN_DRAFT = "2";
 import Footer2029 from "./Footer2029.jsx";
 import AccountLinkOffer2029 from "./AccountLinkOffer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
@@ -1513,32 +1513,59 @@ function SystemFrame2029Body({
   const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
 
-  // DRAFT 2b: once the page is scrolled the crown and its pod shrink (one passive listener flips one attribute; the sizes animate in CSS).
-  // ?crownLight=solid|fade|frost|ivory lets a reviewer compare the light-theme backdrop on the preview only.
+  // DRAFT: the crown settles into the bar once the page is scrolled, and the bar's line fills with how much of the page was read.
+  // One passive, capture-phase scroll listener (it also hears a page that scrolls inside its own region); one rAF per frame; attributes/vars on <html>.
+  // ?crownLine=calm switches the progress colouring off on the preview.
   useEffect(() => {
     if (!CROWN_DRAFT) return undefined;
     const html = document.documentElement;
-    const light = new URLSearchParams(window.location.search).get("crownLight");
-    if (light && /^(solid|fade|frost|ivory)$/.test(light)) html.setAttribute("data-crown-light", light);
+    const progressOn = new URLSearchParams(window.location.search).get("crownLine") !== "calm";
     let frame = 0;
     let scrolled = false;
+    let reading = null;
+    let lastTarget = null;
+    const metrics = (el) => {
+      if (!el) {
+        const doc = document.scrollingElement || html;
+        return { top: window.scrollY || doc.scrollTop || 0, room: Math.max(0, doc.scrollHeight - window.innerHeight) };
+      }
+      return { top: el.scrollTop, room: Math.max(0, el.scrollHeight - el.clientHeight) };
+    };
+    const regionOf = (target) => {
+      // The page scrolls with the window; if it does not, the region that holds the page content does (never a dialog or a small list).
+      const doc = document.scrollingElement || html;
+      if (doc.scrollHeight - window.innerHeight > 40) return null;
+      if (!(target instanceof Element) || target.closest('[role="dialog"], .sod29-frame-panel, .sod29-mobile-drawer')) return reading;
+      return target.clientHeight >= window.innerHeight * 0.5 ? target : reading;
+    };
     const update = () => {
       frame = 0;
-      const next = scrolled ? (window.scrollY || 0) > 10 : (window.scrollY || 0) > 48;
-      if (next === scrolled) return;
-      scrolled = next;
-      html.setAttribute("data-crown-scrolled", String(next));
+      reading = regionOf(lastTarget);
+      const { top, room } = metrics(reading);
+      const next = scrolled ? top > 10 : top > 48;
+      if (next !== scrolled) { scrolled = next; html.setAttribute("data-crown-scrolled", String(next)); }
+      if (progressOn) {
+        const ratio = room > 40 ? Math.min(1, Math.max(0, top / room)) : 0;
+        html.style.setProperty("--s29-read", ratio.toFixed(3));
+        html.setAttribute("data-crown-read-mid", String(ratio >= 0.5));
+      }
     };
-    const onScroll = () => { if (!frame) frame = window.requestAnimationFrame(update); };
+    const onScroll = (event) => {
+      lastTarget = event.target === document || event.target === window ? null : event.target;
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    html.setAttribute("data-crown-line", progressOn ? "progress" : "calm");
     update();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    window.addEventListener("resize", onScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      window.removeEventListener("resize", onScroll);
       if (frame) window.cancelAnimationFrame(frame);
-      html.removeAttribute("data-crown-scrolled");
-      html.removeAttribute("data-crown-light");
+      ["data-crown-scrolled", "data-crown-line", "data-crown-read-mid"].forEach((name) => html.removeAttribute(name));
+      html.style.removeProperty("--s29-read");
     };
-  }, []);
+  }, [location.pathname]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });

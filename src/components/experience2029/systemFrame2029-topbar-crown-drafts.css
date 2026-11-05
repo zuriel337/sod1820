@@ -267,3 +267,98 @@ html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crow
   .sod29-root.closed-shell.native-frame[data-crown-draft="5"] { --s29-pod-core: #241552; --s29-pod-base: #0b0819; }
   .sod29-root.closed-shell.native-frame[data-crown-draft="5"] .sod29-header-crown::before { -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
+
+
+/* ═══ ARC · final candidate ═══════════════════════════════════════════════════════════════════════════════════════════════════
+   One shape: a dark glass bar whose line dips in an arc under the verse (the arc is the same glass, so bar + arc read as one piece),
+   in EVERY theme: on the light presets the bar stays dark and its controls take the dark palette, so the crown never needs a backdrop.
+   One 2px line, bar and arc alike. The line fills with how much of the page was read (cyan; the arc turns cyan past the middle).
+   Scrolled: the arc folds away, the line is straight and the crown settles inside the bar, larger than before (bar 64px). */
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] {
+  --s29-bar-h: 64px; --s29-crown-w: 100px; --s29-crown-top: 6px; --s29-crown-slot: 150px;
+  --s29-dip-w: 320px; --s29-dip-h: 62px; --s29-draft-reserve: calc(var(--s29-dip-h) + 6px);
+  --s29-line-w: 2px; --s29-gap: calc(var(--s29-dip-w) - 6px);
+  --s29-glass: color-mix(in srgb, var(--s29-panel) 72%, transparent);
+  --s29-pod-line: var(--s29-brand-gold); --s29-line-prog: #7fe7ff; --s29-rail: color-mix(in srgb, var(--s29-brand-gold) 70%, transparent);
+}
+/* light and parchment: the bar keeps the dark palette */
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"][data-frame-theme-preset="light"],
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"][data-frame-theme-preset="parchment"] {
+  --s29-glass: rgb(16 11 28 / .90); --s29-pod-line: #f9ba3f; --s29-rail: rgb(249 186 63 / .7);
+}
+.sod29-root[data-crown-draft="2"][data-frame-theme-preset="light"] .sod29-header.closed-orientation,
+.sod29-root[data-crown-draft="2"][data-frame-theme-preset="parchment"] .sod29-header.closed-orientation {
+  --s29-panel: #17120e; --s29-panel-soft: #211a13; --s29-line-strong: rgb(212 175 55 / .38); --s29-line: rgb(212 175 55 / .18);
+  --s29-muted: #c6c6c1; --s29-ink: #f5f5f0; --s29-accent-text: #a8c7ff; --s29-focus-ring: #69ded7; --s29-brand-gold: #f9ba3f;
+  --s29-glass-lift: color-mix(in srgb, #f5f5f0 11%, transparent); --s29-glass-edge: color-mix(in srgb, #f5f5f0 14%, transparent); --s29-glass-shine: color-mix(in srgb, #f5f5f0 12%, transparent);
+  color: var(--s29-ink);
+}
+/* the glass: the bar and the arc are separate layers (a parent's backdrop-filter would hide the page from its children) */
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header.closed-orientation { background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header.closed-orientation::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--s29-glass);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3); backdrop-filter: blur(18px) saturate(1.3); box-shadow: inset 0 1px 0 var(--s29-glass-shine, transparent);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown::before { display: none; }
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown::after {
+  content: ""; position: absolute; left: 50%; right: auto; inset-block-start: calc(var(--s29-bar-h) - 1px); inline-size: var(--s29-dip-w); block-size: var(--s29-dip-h);
+  transform: translateX(-50%); transform-origin: 50% 0; pointer-events: none; z-index: 1; background: var(--s29-glass);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3); backdrop-filter: blur(18px) saturate(1.3);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20320%2064%22%20preserveAspectRatio=%22none%22%3E%3Cpath%20d=%22M0%200H320C276%200%20250%2062%20160%2062S44%200%200%200Z%22/%3E%3C/svg%3E") center / 100% 100% no-repeat; mask: url("data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20320%2064%22%20preserveAspectRatio=%22none%22%3E%3Cpath%20d=%22M0%200H320C276%200%20250%2062%20160%2062S44%200%200%200Z%22/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  transition: transform .3s cubic-bezier(.2, .8, .2, 1), opacity .3s;
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-crown-dip { filter: none; z-index: 2; }
+.sod29-root[data-crown-draft="2"] .sod29-crown-dip .dip-fill { display: none; }
+.sod29-root[data-crown-draft="2"] .sod29-crown-dip .dip-line { stroke: var(--s29-pod-line); transition: stroke .3s; }
+html[data-crown-read-mid="true"] .sod29-root[data-crown-draft="2"] .sod29-crown-dip .dip-line { stroke: var(--s29-line-prog); }
+/* the line: progress colouring + the gap under the arc made with a mask, so the fill continues beneath the arc */
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header.closed-orientation::after {
+  background: var(--s29-pod-line);
+  -webkit-mask: linear-gradient(90deg, #000 0 calc(50% - var(--s29-gap) / 2), transparent calc(50% - var(--s29-gap) / 2) calc(50% + var(--s29-gap) / 2), #000 calc(50% + var(--s29-gap) / 2) 100%);
+          mask: linear-gradient(90deg, #000 0 calc(50% - var(--s29-gap) / 2), transparent calc(50% - var(--s29-gap) / 2) calc(50% + var(--s29-gap) / 2), #000 calc(50% + var(--s29-gap) / 2) 100%);
+}
+html[data-crown-line="progress"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header.closed-orientation::after {
+  background: linear-gradient(to left, var(--s29-line-prog) calc(var(--s29-read, 0) * 100%), var(--s29-pod-line) calc(var(--s29-read, 0) * 100%));
+}
+/* scrolled: the arc folds away, the line goes straight, the crown settles in the bar */
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] { --s29-gap: 0px; }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown::after { transform: translateX(-50%) scaleY(0); opacity: 0; }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-crown-dip { transform: translateX(-50%) scaleY(0); opacity: 0; }
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-crown-dip { transition: transform .3s cubic-bezier(.2, .8, .2, 1), opacity .3s; }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown img { transform: translateX(-50%) translateY(-2px) scale(.62); }
+@media (max-width: 980px) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="2"] { --s29-crown-w: 84px; --s29-crown-top: 6px; --s29-crown-slot: 116px; --s29-dip-w: 250px; --s29-dip-h: 54px; --s29-draft-reserve: calc(var(--s29-dip-h) + 4px); }
+  html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown img { transform: translateX(-50%) translateY(-1px) scale(.7); }
+}
+@media (max-width: 340px) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="2"] { --s29-crown-w: 72px; --s29-crown-slot: 102px; --s29-dip-w: 220px; --s29-dip-h: 48px; }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="2"] { --s29-glass: var(--s29-panel); }
+  .sod29-root[data-crown-draft="2"][data-frame-theme-preset="light"], .sod29-root[data-crown-draft="2"][data-frame-theme-preset="parchment"] { --s29-glass: #17120e; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="2"] { --s29-glass: var(--s29-panel); }
+  .sod29-root[data-crown-draft="2"][data-frame-theme-preset="light"], .sod29-root[data-crown-draft="2"][data-frame-theme-preset="parchment"] { --s29-glass: #17120e; }
+  .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header.closed-orientation::before,
+  .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown::after { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown::after,
+  .sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-crown-dip { transition: none; }
+}
+.sod29-root[data-frame-reduced-motion="true"][data-crown-draft="2"] .sod29-header-crown::after,
+.sod29-root[data-frame-reduced-motion="true"][data-crown-draft="2"] .sod29-crown-dip { transition: none; }
+
+/* desktop, collapsed rail: the menu button sits inside the dark bar, so on light presets it takes the dark palette too (when the rail is open it is the rail's own head and keeps the theme). */
+@media (min-width: 981px) {
+  .sod29-root[data-crown-draft="2"][data-frame-theme-preset="light"].sidebar-collapsed .sod29-logo-toggle,
+  .sod29-root[data-crown-draft="2"][data-frame-theme-preset="parchment"].sidebar-collapsed .sod29-logo-toggle {
+    --s29-brand-gold: #f9ba3f; --s29-ink: #f5f5f0; --s29-line-strong: rgb(212 175 55 / .38);
+  }
+}
+
+/* No bright glow behind the crown (it is already bright: a gold halo only dims it). Any halo is dark, so the crown and its verse stand out of the glass. */
+.sod29-root.closed-shell.native-frame[data-crown-draft="2"] .sod29-header-crown img {
+  filter: drop-shadow(0 0 9px rgb(0 0 0 / .6)) drop-shadow(0 3px 6px rgb(0 0 0 / .45));
+}
