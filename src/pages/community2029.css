@@ -469,3 +469,12 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 /* Reserve the line so the typing label never moves the page. */
 .sod29-community-typing{margin:0;min-height:1.4em;font-size:.85em;opacity:.75}
 .sod29-community-typing[data-typing="false"]{visibility:hidden}
+
+/* Composer actions stay one aligned group; guests get two equal-height buttons. */
+.sod29-community-composer-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-inline-start:auto}
+.sod29-community-composer-actions[data-guest="true"]>button{min-height:48px}
+@media(max-width:600px){
+  .sod29-community-composer-bottom:has(.sod29-community-composer-actions[data-guest="true"]){flex-wrap:wrap;gap:10px}
+  .sod29-community-composer-actions[data-guest="true"]{flex:1 1 100%;margin-inline-start:0}
+  .sod29-community-composer-actions[data-guest="true"]>button{flex:1 1 100%}
+}
