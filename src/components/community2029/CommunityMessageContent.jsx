@@ -1,7 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/messageLinks.js";
 import { parseMessageFormatting } from "../../lib/community/messageFormatting.js";
 import { use2029Palette } from "../../lib/palette.js";
+import { fetchLinkPreview } from "../../lib/community/linkPreviewClient.js";
+
+// Generic external link: the plain card (host + address) is always there; Open Graph title/description/image replace it only
+// when the preview service answered. No request happens while the feature flag is off.
+function GenericLinkCard({ link }) {
+  const [preview, setPreview] = useState(null);
+  const [imageFailed, setImageFailed] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    fetchLinkPreview(link.href).then((value) => { if (alive) setPreview(value); });
+    return () => { alive = false; };
+  }, [link.href]);
+  if (!preview) return <a className="sod29-community-link-card" href={link.href} target="_blank" rel="noopener noreferrer"><strong dir="ltr">{link.host}</strong><span dir="ltr">{link.href}</span><small>פתיחת הקישור ↗</small></a>;
+  return <a className="sod29-community-link-card has-og" data-link-preview="og" href={link.href} target="_blank" rel="noopener noreferrer">
+    {preview.image && !imageFailed ? <img className="sod29-community-link-og-image" src={preview.image} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setImageFailed(true)} /> : null}
+    <span className="sod29-community-link-og-copy">
+      <small dir="auto">{preview.siteName || link.host}</small>
+      {preview.title ? <strong dir="auto">{preview.title}</strong> : null}
+      {preview.description ? <span dir="auto">{preview.description}</span> : null}
+    </span>
+  </a>;
+}
 
 function LinkPreview({ link }) {
   const [playing, setPlaying] = useState(false);
@@ -11,7 +33,7 @@ function LinkPreview({ link }) {
   if (link.kind === "video") return <div className="sod29-community-video-card">{videoFailed ? <p>לא ניתן לנגן את הקובץ בדפדפן הזה. אפשר לפתוח את הסרטון בקישור.</p> : <video controls playsInline preload="metadata" src={link.href} aria-label="סרטון שצורף להודעה" onError={() => setVideoFailed(true)} />}<a href={link.href} target="_blank" rel="noopener noreferrer">פתיחת הסרטון המצורף ↗</a></div>;
   if (link.kind === "image") return <a className="sod29-community-attachment-image" href={link.href} target="_blank" rel="noopener noreferrer" aria-label="פתיחת התמונה המצורפת">{imageFailed ? <span role="status">התמונה לא נטענה. אפשר לפתוח אותה בקישור ↗</span> : <img src={link.href} alt="תמונה שצורפה להודעה" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setImageFailed(true)} />}</a>;
   if (link.kind === "file") return <a className="sod29-community-link-card" href={link.href} target="_blank" rel="noopener noreferrer"><strong>📎 קובץ {link.extension}</strong><small>פתיחת הקובץ המצורף ↗</small></a>;
-  if (link.kind === "link") return <a className="sod29-community-link-card" href={link.href} target="_blank" rel="noopener noreferrer"><strong dir="ltr">{link.host}</strong><span dir="ltr">{link.href}</span><small>פתיחת הקישור ↗</small></a>;
+  if (link.kind === "link") return <GenericLinkCard link={link} />;
   return <div className="sod29-community-video-card">
     {playing ? <iframe src={link.embed} title={`סרטון ${provider}`} allow="encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
       : <button type="button" className="sod29-community-video-cover" onClick={() => setPlaying(true)} aria-label={`פתיחת נגן ${provider}`}>
