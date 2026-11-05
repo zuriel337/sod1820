@@ -1,5 +1,5 @@
 import React, { useId, useRef, useState } from "react";
-import { use2029Palette } from "../../lib/palette.js";
+import { use2029Palette } from "../../lib/palette2029.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import "./contributorPersonMedallion2029.css";
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { F } from "../theme.js";
 import { usePalette } from "../lib/palette.js";
-import { setForcedMode } from "../lib/themeMode.js";
+import { setForcedMode, hasStoredThemePreference } from "../lib/themeMode.js";
 import { onlyHeb, METHODS } from "../lib/gematria.js";
 import { resolve } from "../lib/engine.js";
 import { getAllValuePhrases, addWallWord, getAiAnalysis } from "../lib/supabase.js";
@@ -360,9 +360,8 @@ export default function CommunityCalculatorPage({
   // מי שכבר בחר תמה (יש sod-theme) מקבל את בחירתו. משוחרר ביציאה מהדף (לא נשמר → לא משנה את שאר האתר).
   useEffect(() => {
     if (renderCalculator) return undefined;
-    let hasPref = true;
-    try { hasPref = localStorage.getItem("sod-theme") != null; } catch { /* ignore */ }
-    if (hasPref) return undefined;
+    // The stored-preference check lives with each system's own theme store (Legacy "sod-theme" / 2029 own key).
+    if (hasStoredThemePreference()) return undefined;
     setForcedMode("light");
     return () => setForcedMode(null);
   }, []);

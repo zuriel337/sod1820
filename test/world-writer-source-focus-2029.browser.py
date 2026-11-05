@@ -144,7 +144,7 @@ with sync_playwright() as p:
             assert_target(page)
             page.reload()
             assert_target(page)
-            assert page.locator('html').get_attribute('data-theme-preset') == theme
+            assert page.locator('html').get_attribute('data-theme-2029') == theme
             page.get_by_role('button', name='כתבים ופוסטים', exact=True).click()
             expect(page.locator('.sod29-world-public-material-grid > article')).to_have_count(5)
             page.get_by_role('button', name='נושאים', exact=True).click()

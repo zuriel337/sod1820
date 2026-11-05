@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import WorldMapShell2029 from "../../src/components/research/WorldMapShell2029.jsx";
 import { buildPublicWorldContentProjectionV1 } from "../../src/lib/research/publicWorldContentProjectionV1.js";
 import { universalFindingId } from "../../src/lib/research/universalFinding.js";
-import { resolve2029Palette } from "../../src/lib/palette.js";
+import { resolve2029Palette } from "../../src/lib/palette2029.js";
 import { TYPEFACE, TYPE_SCALE_V2 } from "../../src/lib/designTokens.js";
 import "../../src/components/experience2029/systemFrame2029.css";
 

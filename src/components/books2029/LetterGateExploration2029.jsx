@@ -1,5 +1,5 @@
 import React,{useState} from 'react';
-import {use2029Palette} from '../../lib/palette.js';
+import { use2029Palette } from '../../lib/palette2029.js';
 import {allLetterGates,letterGateRows,GATE_LETTERS} from './letterGateExploration2029.js';
 import './yetzirahModels/yetzirahModels.css';
 

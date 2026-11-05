@@ -95,7 +95,7 @@ test('Sefer Yetzirah source/native-PDF/return/fallback audit across nine viewpor
    try{
     await page.goto(`${base}/2029/control?surface=sefer-yetzirah-world&page=44`,{waitUntil:'domcontentloaded'});
     const panel=page.locator('#yetzirah29-source');await panel.waitFor({timeout:30000});
-    await page.waitForFunction(theme=>document.documentElement.getAttribute('data-theme-preset')===theme,theme);
+    await page.waitForFunction(theme=>document.documentElement.getAttribute('data-theme-2029')===theme,theme);
     const frame=panel.locator('iframe');assert.match(await frame.getAttribute('src'),/#page=44&view=FitH/);
     await panel.locator('input').fill('207');await panel.getByRole('button',{name:'עבור',exact:true}).click();
     await page.waitForFunction(()=>document.querySelector('#yetzirah29-source iframe')?.src.includes('#page=207&'));

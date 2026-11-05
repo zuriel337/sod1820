@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { use2029Palette } from '../../lib/palette.js';
+import { use2029Palette } from '../../lib/palette2029.js';
 import { useSourceModel } from './yetzirahModels/useSourceModel.js';
 import { componentSummary, DIRECTION_VECTORS, selectedComponent, sourcePayload } from './yetzirahModels/sourceModels.js';
 import { DEPTHS_GUIDE } from './depthsLearningGuide2029.js';

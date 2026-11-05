@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { DESIGN_V2_PALETTES } from "../src/lib/palette.js";
+import { DESIGN_V2_PALETTES } from "../src/lib/palette2029.js";
 import { findingColorChoices, projectFindingColor } from "../src/components/experience2029/elsFindingColors2029.js";
 
 // Design V2 §4: the same semantic roles in Day, Parchment and Night.

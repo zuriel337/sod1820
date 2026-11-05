@@ -78,6 +78,11 @@ on:
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
       - "scripts/test-2029-module-boundary.mjs"
+      - "scripts/test-2029-theme-isolation.mjs"
+      - "test/theme-separation-2029.browser.mjs"
+      - "src/lib/themePreset2029.js"
+      - "src/lib/themeHostAdapter2029.js"
+      - "src/lib/paletteHostAdapter2029.js"
       - "scripts/2029-legacy-coupling-baseline.json"
       - "src/features/personalPanels/**"
       - "scripts/test-2029-system-frame.mjs"
@@ -203,6 +208,8 @@ jobs:
         run: npm run build
       - name: Built dependency graph isolation
         run: node scripts/test-2029-built-graph.mjs
+      - name: Theme/palette isolation (2029 store, Legacy-host adapter)
+        run: node scripts/test-2029-theme-isolation.mjs
       - name: Verify isolated HTML artifact
         run: |
           test -f dist/2029.html
@@ -212,6 +219,8 @@ jobs:
         run: |
           npm install --no-save --no-package-lock @playwright/test@1.55.0
           npx playwright install --with-deps chromium
+      - name: Theme separation browser acceptance (Legacy host vs public 2029)
+        run: node test/theme-separation-2029.browser.mjs
       - name: Start isolated 2029 preview
         run: |
           cp dist/2029.html dist/index.html

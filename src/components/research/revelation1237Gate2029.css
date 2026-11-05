@@ -7,12 +7,12 @@
   --rv-f-line: rgba(42,62,87,0.18); --rv-f-strong: rgba(42,62,87,0.34);
   --rv-f-accent: #2454B8; --rv-f-gold: #80601D; --rv-f-violet: #7249A5; --rv-f-cyan: #086C70; --rv-f-focus: #086C70;
 }
-:root[data-theme-preset="parchment"] .rv {
+:root[data-theme-2029="parchment"] .rv {
   --rv-f-ink: #312B23; --rv-f-muted: #706252; --rv-f-panel: #FFF9EE; --rv-f-soft: #EEE3CF;
   --rv-f-line: rgba(89,70,39,0.20); --rv-f-strong: rgba(89,70,39,0.38);
   --rv-f-accent: #284E9F; --rv-f-gold: #80601D; --rv-f-violet: #764B87; --rv-f-cyan: #176965; --rv-f-focus: #176965;
 }
-:root[data-theme-preset="dark"] .rv {
+:root[data-theme-2029="dark"] .rv {
   --rv-f-ink: #F5F5F0; --rv-f-muted: #C6C6C1; --rv-f-panel: #17120E; --rv-f-soft: #211A13;
   --rv-f-line: rgba(212,175,55,0.18); --rv-f-strong: rgba(212,175,55,0.38);
   --rv-f-accent: #A8C7FF; --rv-f-gold: #DEBD77; --rv-f-violet: #C2A8FA; --rv-f-cyan: #69DED7; --rv-f-focus: #69DED7;
