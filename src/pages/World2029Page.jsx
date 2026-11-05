@@ -44,6 +44,7 @@ import {
 } from "../lib/research/worldJourneyProjection.js";
 import { fetchTopicCreatorOptions } from "../lib/research/topicConvergence.js";
 import { fetchWorldDiscoveryStream, watchWorldDiscoveryStream } from "../lib/research/worldDiscoveryStream.js";
+import { fetchGroupSourceArrivals, groupSourceCardContext, indexGroupMessagesByRef } from "../lib/research/worldGroupSource.js";
 import {
   WORLD_RESEARCH_ATTENTION,
   WORLD_RESEARCH_FILTER_DEFAULTS,
@@ -1290,6 +1291,9 @@ function AnchoredWorld({ research, shell, subject, context }) {
   const [gematriaTypeFilter, setGematriaTypeFilter] = useState("all");
   const [gematriaQuery, setGematriaQuery] = useState("");
   const [journeyState, setJourneyState] = useState({ loading: false, data: null, error: null });
+  // Group-message bodies for "הודעות מקור" cards. Loaded only through the sanctioned, redacted reader
+  // (fetchGroupSourceArrivals); a failure leaves the cards exactly as they were before.
+  const [groupMessages, setGroupMessages] = useState({});
   const key = subjectKey(subject);
   const expressionFocusExplicit = context?.dimensions?.expressionFocusExplicit === true;
   const focusedExpression = expressionFocusExplicit ? String(context?.selection?.expression || "").trim() : "";
@@ -1467,6 +1471,16 @@ function AnchoredWorld({ research, shell, subject, context }) {
   }, [gematriaRows, gematriaMethodFilter, gematriaTypeFilter, gematriaQuery]);
   const gematriaBounds = data?.lenses?.numberResearch?.bounds?.number_lookup || null;
   const sourceRows = data?.sources || [];
+  const hasGroupSourceRows = sourceRows.some((source) => String(source?.ref || "").startsWith("channel_updates:"));
+  useEffect(() => {
+    if (activeLane !== "sources" || !hasGroupSourceRows) return undefined;
+    let cancelled = false;
+    fetchGroupSourceArrivals({ limit: 40 }).then((rows) => {
+      if (cancelled) return;
+      setGroupMessages(indexGroupMessagesByRef(rows));
+    }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [activeLane, hasGroupSourceRows]);
   const mediaItems = data?.media?.items || [];
   const anchorProfile = data?.anchorProfile?.finding?.projection?.dimensions?.legacyNumberAnchor || null;
   const goldenJourney = journeyState.data;
@@ -1626,11 +1640,18 @@ function AnchoredWorld({ research, shell, subject, context }) {
   };
 
   const inspectSource = (source) => {
+    const card = groupSourceCardContext(source, groupMessages);
+    const message = card?.message || null;
     shell.openInspect({
       id: String(source?.ref || source?.label || "source"),
       type: source?.type === "verse" ? "verse" : "source",
-      label: humanSourceLabel(source),
+      label: card ? (card.groupLabel || "הודעת מקור") : humanSourceLabel(source),
       href: "/world",
+      ...(message ? {
+        excerpt: message.fullText || null,
+        attribution: message.creator || null,
+        stateLabel: card.stateLabel,
+      } : {}),
     });
   };
 
@@ -2034,12 +2055,17 @@ function AnchoredWorld({ research, shell, subject, context }) {
         </div>
         <div className="sod29-list">
           {sourceRows.slice(0, 12).map((source, index) => {
-            const label = humanSourceLabel(source);
+            const card = groupSourceCardContext(source, groupMessages, { formatDate: bilingualDateLabel });
+            const label = card?.groupLabel || humanSourceLabel(source);
             const rawRef = source.ref || source.label || null;
+            const messageMeta = card?.meta || "";
+            const excerpt = card?.excerpt || "";
             return <div className="sod29-row sod29-world-source-row" key={`${source.ref || source.label}-${index}`}>
               <div>
                 <strong>{label}</strong>
-                <small>{source.type === "verse" ? "פסוק · מקור טקסטואלי" : "מקור מחקר"}</small>
+                <small>{source.type === "verse" ? "פסוק · מקור טקסטואלי" : card ? card.stateLabel : "מקור מחקר"}</small>
+                {messageMeta ? <small>{messageMeta}</small> : null}
+                {excerpt ? <p className="sod29-muted" data-source-excerpt>{excerpt}</p> : null}
                 {adminMode && rawRef && label !== rawRef ? <small>Trace · {rawRef}</small> : null}
               </div>
               <button className="sod29-action" type="button" onClick={() => inspectSource(source)}>בדוק</button>

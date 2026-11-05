@@ -246,6 +246,12 @@ function normalizeTarget(input, source = "context") {
     number: Number.isSafeInteger(number) ? number : null,
     sectionLabel: input.sectionLabel || null,
     sourceLabel: input.sourceLabel || null,
+    // Optional body of a public source message (already redacted by its reader). Absent for every other target.
+    ...(typeof input.excerpt === "string" && input.excerpt.trim() ? {
+      excerpt: input.excerpt.trim().slice(0, 1200),
+      attribution: input.attribution ? String(input.attribution) : null,
+      stateLabel: input.stateLabel ? String(input.stateLabel) : null,
+    } : {}),
   };
 }
 
@@ -610,6 +616,12 @@ function InspectProjection({ target, context, surface = "system", onSetFocus, on
         <strong>{publicContextLabel(target.label) || entityTypeNounHe(target.type)}</strong>
         <span>{entityTypeNounHe(target.type)}</span>
       </section>
+
+      {target.excerpt ? <section className="sod29-inspect-excerpt" data-inspect-excerpt style={{ display: "grid", gap: 2 }}>
+        {target.stateLabel ? <small>{target.stateLabel}</small> : null}
+        {target.attribution ? <small>{target.attribution}</small> : null}
+        <p style={{ whiteSpace: "pre-wrap", margin: "8px 0 0" }}>{target.excerpt}</p>
+      </section> : null}
 
       {hasMethodContext ? <div className="sod29-surface-context-expression"><span>{target.expression}</span><small>{target.methodLabel || target.method}</small><b>{Number(target.resultValue)}</b></div> : null}
 
