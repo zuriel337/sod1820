@@ -11,7 +11,8 @@ import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 
 // Native presentation of the same newsletter owner. Consent is separate from
 // login and following. Tests substitute the transport; never send a test email.
-export function NewsletterSignup2029({ submitLabel = "הרשמה לעדכוני האתר", onSubscribed = null } = {}) {
+export function NewsletterSignup2029({ submitLabel = "הרשמה לעדכוני האתר", onSubscribed = null, variant = "card", children = null } = {}) {
+  const compact = variant === "compact";
   const { user } = useAuth();
   const [availability, setAvailability] = useState("idle");
   const [email, setEmail] = useState("");
@@ -55,18 +56,40 @@ export function NewsletterSignup2029({ submitLabel = "הרשמה לעדכוני 
     finally { if (pending.current === controller) pending.current = null; }
   }
   const label = submitLabel;
-  return <section className="sod29-section sod29-site-updates" aria-label="עדכוני האתר">
-    <h2>עדכוני האתר</h2>
-    <p>פרסומים חדשים וחלקים שנפתחים, במייל.</p>
-    {availability !== "ready" ? <button type="button" className="sod29-action" onClick={prepareForm} disabled={availability === "checking"} aria-busy={availability === "checking"}>{availability === "checking" ? "בודקים זמינות…" : availability === "unavailable" ? "בדיקת זמינות מחדש" : label}</button> : state === "new" || state === "exists" ? <p role="status">ההרשמה לעדכוני האתר נשמרה.</p> : <form onSubmit={submit} className="sod29-actions" aria-busy={state === "loading"}>
-      <label>כתובת דוא״ל <input type="email" autoComplete="email" dir="ltr" required maxLength={120} value={email} onChange={e => setEmail(e.target.value)} disabled={state === "loading"} /></label>
-      <label><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} disabled={state === "loading"} style={{ width: "auto", minHeight: "auto", accentColor: "var(--s29-accent)" }} /> אני רוצה לקבל במייל את עדכוני האתר.</label>
-      <button type="submit" className="sod29-action" disabled={!consent || state === "loading"}>{state === "loading" ? "רושמים…" : label}</button>
-    </form>}
+  const saved = state === "new" || state === "exists";
+  const askButton = <button type="button" className="sod29-action" onClick={prepareForm} disabled={availability === "checking"} aria-busy={availability === "checking"}>{availability === "checking" ? "בודקים זמינות…" : availability === "unavailable" ? "בדיקת זמינות מחדש" : label}</button>;
+  // Contract: a control and the text/link next to it always sit in one `sod29-action-row` (gap owned by the primitive),
+  // never as bare siblings that rely on whitespace.
+  const privacyLink = <a href="/privacy">פרטיות</a>;
+  const form = <form onSubmit={submit} className={compact ? "sod29-actions sod29-updates-form" : "sod29-actions"} aria-busy={state === "loading"}>
+    <label>כתובת דוא״ל <input type="email" autoComplete="email" dir="ltr" required maxLength={120} value={email} onChange={e => setEmail(e.target.value)} disabled={state === "loading"} /></label>
+    <label><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} disabled={state === "loading"} style={{ width: "auto", minHeight: "auto", accentColor: "var(--s29-accent)" }} /> אני רוצה לקבל במייל את עדכוני האתר.</label>
+    <button type="submit" className="sod29-action" disabled={!consent || state === "loading"}>{state === "loading" ? "רושמים…" : label}</button>
+  </form>;
+  const notices = <>
     {state === "verification-required" ? <p role="alert">נדרש אימות בעלות על הכתובת לפני שינוי העדפות הרשמה קיימות.</p> : null}
     {state === "unavailable" ? <p role="alert">ההרשמה לעדכוני האתר עדיין אינה זמינה. הכתובת לא נשלחה להרשמה כללית.</p> : null}
     {state === "error" ? <p role="alert">ההרשמה לא הושלמה. אפשר לבדוק את הכתובת ולנסות שוב.</p> : null}
-    <a href="/privacy">פרטיות</a>
+  </>;
+  if (compact) {
+    // Footer strip: one line on desktop, two short lines on a phone. No heading block, no card.
+    return <section className="sod29-site-updates sod29-site-updates--compact" aria-label="עדכוני האתר">
+      <strong className="sod29-updates-title">עדכונים</strong>
+      {availability === "ready" && !saved ? form : null}
+      <div className="sod29-action-row">
+        {saved ? <span role="status">ההרשמה לעדכוני האתר נשמרה.</span> : availability === "ready" ? null : askButton}
+        {children}
+        {privacyLink}
+      </div>
+      {notices}
+    </section>;
+  }
+  return <section className="sod29-section sod29-site-updates" aria-label="עדכוני האתר">
+    <h2>עדכוני האתר</h2>
+    <p>פרסומים חדשים וחלקים שנפתחים, במייל.</p>
+    {availability !== "ready" ? <div className="sod29-action-row">{askButton}{privacyLink}</div> : saved ? <p role="status">ההרשמה לעדכוני האתר נשמרה.</p> : form}
+    {notices}
+    {availability === "ready" || saved ? <div className="sod29-action-row">{privacyLink}</div> : null}
   </section>;
 }
 

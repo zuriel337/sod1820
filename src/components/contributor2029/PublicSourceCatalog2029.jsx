@@ -1,3 +1,4 @@
+import CommunityHistorySeal2029 from "../community2029/CommunityHistorySeal2029.jsx";
 import React, { useEffect, useMemo, useRef } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { use2029Palette } from "../../lib/palette.js";
@@ -39,7 +40,7 @@ export default function PublicSourceCatalog2029({ view, onRetry, onCommunityRepl
       "--pc-secondary": P.accentSecondary, "--pc-discovery": P.accentDiscovery }}>
     {returnHref ? <Link className="pc-return" to={returnHref}>חזרה למקום שממנו הגעת ↗</Link> : null}
     <header className="pc-profile">
-      <div className="pc-profile-copy"><p className="pc-eyebrow">{person?.eyebrow || "חבר קהילה"} · כתבים וחומרים</p><h1 id="public-contributor-title">{view.profile.name}</h1>
+      <div className="pc-profile-copy"><p className="pc-eyebrow">{person?.eyebrow || "חבר קהילה"} · כתבים וחומרים</p><h1 id="public-contributor-title">{view.profile.name}</h1><CommunityHistorySeal2029 authorKey={view.communityAuthorKey} />
         {view.profile.role ? <p className="pc-role">{view.profile.role}</p> : null}
         {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
         <p className="pc-boundary">להכיר את הכתבים, לקרוא במקור ולהמשיך אל הממצאים והקשרים בעולם.</p>

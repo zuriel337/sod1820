@@ -374,6 +374,26 @@ A 2029 visual-foundation change must prove:
 8. the primary content plane is centered with balanced inline gutters; RTL text alignment has not pinned the whole composition to the right;
 9. Personal Area, My Page, Messages and My Research are checked as a shared visual family at 320px, 390px, 768px and 1440px, with screenshots or browser geometry proving no unexplained opposite-side dead field or narrow right-hand column.
 
+## 13. Action adjacency — a control and the text beside it · Human Gate ZURIEL · 5.11.2026
+
+Defect class: a button followed directly by a link or text ("הרשמה לעדכוני האתר" then "פרטיות") rendered with no
+gap, because the two were bare siblings separated only by whitespace. This is fixed once, in the contract, so it cannot
+return when another button is added.
+
+1. **One primitive owns the gap.** Any control (`button`, `.sod29-action`, `[role=button]`, or a link styled as one)
+   that has a link, label or note next to it is placed with that neighbour inside one `.sod29-action-row`
+   (`display:flex; flex-wrap:wrap; gap: var(--s29-action-gap)`, default 12px; 8px between wrapped lines).
+   The gap is a token, never a one-off margin, `&nbsp;` or whitespace.
+2. **Targets.** Direct children of the row keep a 44px minimum height; wrapping to a second line is allowed, overflow is not.
+3. **Legacy safety net.** The shared stylesheet also gives `button.sod29-action` / `a.sod29-action` followed by a bare
+   link/button the same inline gap, so old markup is not left glued together while it is migrated. New code uses the row.
+4. **Automated check.** `test/action-adjacency-2029.test.mjs` fails the build when (a) the primitive or its token is
+   missing/under 8px, (b) a `.sod29-action` button is directly followed by a link/button in JSX without the row wrapper,
+   or (c) the shared newsletter and footer render bare control+link siblings. A new button next to text therefore fails
+   before review, not after ZURIEL notices it on the page.
+5. A change that adds a control beside text cites this section in its handoff; it is not a visual-owner change and does
+   not alter thresholds, gates or presets.
+
 ## Navigation icon family — approved 8.10.2026
 
 Global navigation and the research action island consume `NavigationIcon2029` as their shared decorative SVG projection. Controls retain their existing accessible names, labels, routes and owners. Icons use a 24×24 viewBox, 1.8px rounded strokes and semantic currentColor; minimum touch targets remain 44×44px. Home, globe, simplified gateway, document, 123, open book, journey, people, search, clock, tools, action and return share consistent geometry. ELS uses a 3×3 matrix with the three diagonal cells highlighted; no microscopic letter text. User avatars and Raziel keep their canonical identity components.

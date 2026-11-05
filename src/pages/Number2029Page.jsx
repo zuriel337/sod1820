@@ -1,7 +1,7 @@
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -1255,6 +1255,10 @@ function NumberPageBody({ resolvedAddress = null }) {
       </div>
     </section> : null}
     <section className="sod29-number-hero" id="number-now">
+      {/* ZURIEL 5.11.2026: the Legacy Number page always offered the way back to the gematria calculator; so does this one. */}
+      <nav className="sod29-action-row sod29-number-calculator-return" aria-label="חזרה למחשבון">
+        <Link to="/gematria" className="sod29-action" data-number-action="back-to-calculator">← חזרה למחשבון גימטריה</Link>
+      </nav>
       <div className="sod29-actions"><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
       <NumberCore2029
         projection={coreProjection}

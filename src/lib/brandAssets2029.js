@@ -23,6 +23,17 @@ export const BRAND_LOCKUP_NAV_2029 = Object.freeze({
   sourceSha256: BRAND_LOCKUP_2029.sha256,
 });
 
+// Larger delivery derivative of the same complete approved lockup, for the entrance intro.
+// Resized from the fingerprint-verified source; no crop, redraw, recolor or text removal.
+export const BRAND_LOCKUP_HERO_2029 = Object.freeze({
+  state: BRAND_LOCKUP_2029.state,
+  alt: BRAND_LOCKUP_2029.alt,
+  src: "/brand/2029/canonical-lockup-384.webp",
+  width: 384,
+  height: 384,
+  sourceSha256: BRAND_LOCKUP_2029.sha256,
+});
+
 // Byte-exact local delivery of the approved full square lockup for installed
 // applications. A fingerprinted URL updates the icon without changing PWA id.
 export const BRAND_APP_ICON_2029 = Object.freeze({

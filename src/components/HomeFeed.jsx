@@ -13,6 +13,11 @@ import { seenCutoff, markSeenKey, isNewSince } from "../lib/crossesNew.js";
 // המובלטות שאצר (image_order) בסדר שקבע. «חדש» לפי ביקור אחרון (whats_new_law).
 
 const valOf = (im, s) => im.primary_value ?? (im.all_values || [])[0] ?? (s?.numbers || [])[0];
+const streamDateHe = value => {
+  if (!value) return "";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString("he-IL", { day: "numeric", month: "long", year: "numeric" });
+};
 
 export default function HomeFeed() {
   const P = usePalette();
@@ -63,6 +68,7 @@ export default function HomeFeed() {
                   </div>
                   <div className="hf-body">
                     <div className="hf-title">{title}</div>
+                    {streamDateHe(u.stream_at || u.created_at) && <div className="hf-stream-date">📅 נכנס לזרם: {streamDateHe(u.stream_at || u.created_at)}</div>}
                     {u.description && <div className="hf-desc">{stripHtml(u.description)}</div>}
                   </div>
                 </Link>
@@ -152,6 +158,7 @@ const css = P => `
   .hf-card:hover { transform: translateY(-3px); border-color: ${P.accent}; }
   .hf-thumb { height: 120px; position: relative; }
   .hf-body { padding: 10px 12px; display: flex; flex-direction: column; gap: 5px; flex: 1; }
+  .hf-stream-date { color: ${P.inkSoft}; font-family: ${F.heading}; font-size: 11px; line-height: 1.4; }
   .hf-title { color: ${P.ink}; font-family: ${F.regal}; font-size: 14px; font-weight: 700; line-height: 1.45;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .hf-desc { color: ${P.inkSoft}; font-family: ${F.body}; font-size: 12.5px; line-height: 1.6;
