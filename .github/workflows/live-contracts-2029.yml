@@ -4,6 +4,7 @@ name: 2029 Live Contracts
 # The assertions were salvaged from Legacy-era tests (see the header of each script); nothing here is new behaviour, a threshold or a budget.
 # It runs on every pull request to main and can be dispatched by hand. No network, no browser, no secrets.
 # The second job, perf-contracts-2029, builds the app and runs speed contracts that existed but ran nowhere (today: the Realtime/Phoenix chunk stays out of the 2029 entry).
+# The third job, release-contracts-2029, runs release-path contracts that also ran nowhere: the server document metadata for public routes, the Beit Midrash strips, and the production service worker.
 
 on:
   pull_request:
@@ -49,3 +50,25 @@ jobs:
         run: npm run build
       - name: Realtime entry split (the deferred Realtime/Phoenix chunk is not in the 2029 entry; browser use of the SDK stays inside the checked subset)
         run: node --test test/realtime-entry-split-2029.test.mjs
+
+  release-contracts-2029:
+    name: release-contracts-2029
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Server document metadata parity (crawler, AI and social documents for public routes, including the Beit Midrash learning area)
+        run: node scripts/test-2029-server-seo-ai-parity.mjs
+      - name: Beit Midrash strips move only themselves, never the page
+        run: node --test test/beit-midrash-rail-no-page-scroll-2029.test.mjs
+      - name: Production service worker contract (native public images and renditions; private reads and writes stay wrapped)
+        run: |
+          node scripts/build-public-reading-production.mjs
+          node --test test/public-reading-production-artifact.test.mjs
