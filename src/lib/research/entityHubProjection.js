@@ -1139,7 +1139,54 @@ export async function fetchEntityHubProjection({
   allowUnstoredNumber = false,
   parallelNumberReads = false,
 } = {}) {
-  let node = await resolveEntityHubNode({ nodeId, type, key, parallelNumeric: parallelNumberReads && allowUnstoredNumber });
+  // fn_number_lookup is read ONCE per projection. The families and the number_lookup lens ask for identical rows (the paged
+  // call below, which the lens wrapper builds from the same window), so they share one request instead of fetching the same
+  // ~230 KB twice. The families keep their original unbounded read whenever the shared answer is missing, failed or reached
+  // the window cap (see getValueFamilies), so per-method counts never change.
+  const lookupLimit = numberLookupLimit === 500
+    ? DEFAULT_NUMBER_RESEARCH_OPTIONS.lookupWindow.limit
+    : safeLimit(numberLookupLimit, 500, 500);
+  const readLookup = async (number) => supabase.rpc("fn_number_lookup", { p_value: number, p_limit: lookupLimit, p_after_bid_id: null });
+  const isPagedLookup = (args, number) => Boolean(args) && Number(args.p_value) === number && args.p_limit === lookupLimit
+    && args.p_after_bid_id == null && Object.keys(args).length === 3;
+  const readFamilyDetails = async (groups) => {
+    const shownPhrases = groups.flatMap(group => (group.phrases || []).slice(0, SHOWN_PHRASES_PER_FAMILY).map(item => typeof item === "string" ? item : item?.phrase || item?.label));
+    const [registryRows, entityNodes] = await Promise.all([
+      fetchMethodRegistry(groups.map(group => group.method)),
+      fetchNodesByLabels("entity", shownPhrases),
+    ]);
+    return { registryRows, entityNodes };
+  };
+  // Number-page opt-in (parallelNumberReads + allowUnstoredNumber on a numeric key): every read that depends only on the
+  // numeric value starts NOW, in parallel with the node lookup, instead of one network round trip later (the node lookup is
+  // the first of about a dozen sequential levels). A speculative result is used only when the resolved node proves to be that
+  // same number (reuseNumber / reuseResearch below); otherwise it is ignored and the reads run exactly as before.
+  const settled = (promise) => { promise.catch(() => {}); return promise; }; // consumed later; never an unhandled rejection
+  const startNumberReads = (number) => {
+    const lookup = settled(readLookup(number));
+    const families = settled(getValueFamilies(number, 12, { lookup, lookupLimit }));
+    return {
+      number,
+      lookup,
+      families,
+      familyDetails: settled(families.then(readFamilyDetails)),
+      topics: settled(fetchTopicFindingsForNumber(number, { limit: topicLimit })),
+      bundle: settled(getEntityBundle({ term: String(number), value: number, isNumber: true })),
+      worlds: settled(fetchNumberWorlds(number)),
+      signatures: settled(fetchNumberSignatures(number)),
+      zeroScale: settled(fetchZeroScale(number)),
+      anchor: settled(fetchNumberAnchorProfile(number)),
+      research: settled(fetchResearchObjectsForEntity(
+        { id: null, type: "number", label: String(number), identity_key: String(number) },
+        { limit: researchLimit, locale, allowUnstoredNumber },
+      )),
+    };
+  };
+
+  const nodePromise = resolveEntityHubNode({ nodeId, type, key, parallelNumeric: parallelNumberReads && allowUnstoredNumber });
+  const speculative = parallelNumberReads && allowUnstoredNumber && !nodeId && type === "number" && /^\d+$/.test(clean(key))
+    && Number.isSafeInteger(Number(key)) ? startNumberReads(Number(key)) : null;
+  let node = await nodePromise;
   // A canonical numeric result does not require a persisted graph node to be
   // read. This explicit Number-page option never creates one, fabricates an id
   // or changes the default World/other entity callers.
@@ -1149,20 +1196,18 @@ export async function fetchEntityHubProjection({
 
   const isNumberNode = node.type === "number" && Number.isSafeInteger(Number(node.label));
   const parallel = parallelNumberReads && isNumberNode;
-  const researchPromise = fetchResearchObjectsForEntity(node, { limit: researchLimit, locale, allowUnstoredNumber });
+  const reuseNumber = speculative && isNumberNode && clean(node.label) === String(speculative.number) ? speculative : null;
+  // The research rows also read the node's identity key as a term; reuse them only when that adds nothing (same as the label).
+  const reuseResearch = reuseNumber && (clean(node.identity_key) === "" || clean(node.identity_key) === clean(node.label))
+    ? reuseNumber.research : null;
+  const researchPromise = reuseResearch || fetchResearchObjectsForEntity(node, { limit: researchLimit, locale, allowUnstoredNumber });
   let earlyFamilyOutcome = null;
-  const readFamilyDetails = async (groups) => {
-    const shownPhrases = groups.flatMap(group => (group.phrases || []).slice(0, SHOWN_PHRASES_PER_FAMILY).map(item => typeof item === "string" ? item : item?.phrase || item?.label));
-    const [registryRows, entityNodes] = await Promise.all([
-      fetchMethodRegistry(groups.map(group => group.method)),
-      fetchNodesByLabels("entity", shownPhrases),
-    ]);
-    return { registryRows, entityNodes };
-  };
   const readNumberData = () => {
     const number = Number(node.label);
-    const familiesRead = getValueFamilies(number, 12);
-    if (parallel) earlyFamilyOutcome = familiesRead.then(readFamilyDetails).then(
+    const early = reuseNumber && reuseNumber.number === number ? reuseNumber : null;
+    const lookup = early ? early.lookup : settled(readLookup(number));
+    const familiesRead = early ? early.families : getValueFamilies(number, 12, { lookup, lookupLimit });
+    if (parallel) earlyFamilyOutcome = (early ? early.familyDetails : familiesRead.then(readFamilyDetails)).then(
       value => ({ ok: true, value }), error => ({ ok: false, error }),
     );
     const readResearch = (research) => researchNumber(number, {
@@ -1173,7 +1218,8 @@ export async function fetchEntityHubProjection({
           5,
           Array.isArray(numberResearchLenses) && numberResearchLenses.length ? numberResearchLenses.length : 5,
         )), depth: 1 },
-        rpc: (name, args) => supabase.rpc(name, args),
+        // The number_lookup lens asks for the same paged rows the families read: hand it the shared request.
+        rpc: (name, args) => (name === "fn_number_lookup" && isPagedLookup(args, number) ? lookup : supabase.rpc(name, args)),
         // These independent canonical lenses need not wait for the research
         // rows. Only their own research_objects adapter awaits that read.
         fetchResearchObjects: async () => ({ data: (research || await researchPromise).rows }),
@@ -1184,14 +1230,14 @@ export async function fetchEntityHubProjection({
         provenance: { requestSource: "entity-hub-projection-v2", inputRef: node.id ? `node:${node.id}` : `number:${number}` },
       });
     return Promise.all([
-      fetchTopicFindingsForNumber(number, { limit: topicLimit }),
+      early ? early.topics : fetchTopicFindingsForNumber(number, { limit: topicLimit }),
       parallel ? readResearch(null) : researchPromise.then(readResearch),
-      getEntityBundle({ term: String(number), value: number, isNumber: true }),
+      early ? early.bundle : getEntityBundle({ term: String(number), value: number, isNumber: true }),
       familiesRead,
-      fetchNumberWorlds(number),
-      fetchNumberSignatures(number),
-      fetchZeroScale(number),
-      fetchNumberAnchorProfile(number),
+      early ? early.worlds : fetchNumberWorlds(number),
+      early ? early.signatures : fetchNumberSignatures(number),
+      early ? early.zeroScale : fetchZeroScale(number),
+      early ? early.anchor : fetchNumberAnchorProfile(number),
     ]);
   };
   // Full Number-page opt-in: overlap existing independent readers. Results

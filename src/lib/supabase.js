@@ -3567,10 +3567,22 @@ export function isGovernedMethod(states, method) { return !!(states && states[me
 // 🧩 Number Page Integration v1: המקור עבר מ-select ישיר על bidim ל-fn_number_lookup (אותו מקור-נתונים,
 // אך מורחב — atomic_or_composite/component_methods/component_values) כדי שקבוצות-Composite (רגיל+מילוי וכו')
 // יסומנו ויוסברו במפורש, לא רק יופיעו כמפתח-שיטה גולמי. אין שינוי-חישוב — כל ערך כבר-מחושב במנוע.
-export async function getValueFamilies(value, perMethod = 20) {
+//
+// `lookup` (אופציונלי): הבטחה ל-{data,error} של אותה קריאת fn_number_lookup(p_value, p_limit=lookupLimit) שדף המספר כבר מבצע
+// עבור עדשת number_lookup. כך נקרא אותו מטען פעם אחת במקום פעמיים. הקריאה המשותפת חסומה ב-lookupLimit שורות; רק תשובה שלמה
+// (פחות מ-lookupLimit שורות, ללא שגיאה) משמשת כאן. תשובה שחסרה, שנכשלה או שהגיעה לתקרה — נקראת הקריאה המקורית הלא-חסומה,
+// כדי שהספירות לפי שיטה יישארו בדיוק מה שהיו (גם למספרים עם יותר משורות החלון, וגם כשהעומס/ההעברה של הקריאה החסומה נכשלו).
+export async function getValueFamilies(value, perMethod = 20, { lookup = null, lookupLimit = 500 } = {}) {
   if (!supabase || !value || value < 1) return [];
   try {
-    const data = await getNumberLookup(value);
+    let data = null;
+    if (lookup) {
+      try {
+        const shared = await lookup;
+        if (!shared?.error && Array.isArray(shared?.data) && shared.data.length < lookupLimit) data = shared.data;
+      } catch { /* the original unbounded read below decides */ }
+    }
+    if (data === null) data = await getNumberLookup(value);
     if (!data || !data.length) return [];
     // סדר-תצוגה בלבד (לא ערך-מחושב) — אותה מיפוי-עדיפות המשמש ב-bidim_sync להצגה קודם של השיטות הליבתיות.
     const DISPLAY_PRIORITY = { "רגיל": 1, "מסתתר": 1, "קדמי": 1, "מילוי": 2, "אתבש": 3 };
