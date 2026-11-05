@@ -7,7 +7,6 @@ const pageOnly = read("src/pages/BeitMidrash2029Page.jsx");
 const partsDir = "src/components/beitMidrash2029";
 const page = [pageOnly, ...fs.readdirSync(partsDir).map((name) => read(path.join(partsDir, name)))].join("\n");
 const css = read("src/pages/beitMidrash2029.css");
-const app = read("src/App.jsx");
 const app2029 = read("src/App2029.jsx");
 const numberCore = read("src/components/number2029/NumberCore2029.jsx");
 
@@ -36,7 +35,6 @@ assert.match(page, /destinations/, "the calculator hand-off comes from the manif
 assert.match(page, /\/2029\/calculator\?q=/, "method lessons must hand practice to the canonical calculator");
 assert.doesNotMatch(page, /\/2029\/beit-midrash/, "Beit Midrash must not be nested under /2029");
 assert.doesNotMatch(page, /\/2029\/world|navigate\(["']\/world|<Navigate/, "the methods slice must not route Beit Midrash into World");
-assert.match(app, /<Route path="\/beit-midrash" element=\{<LegacyBeitMidrashTransitionRoute \/>\}/, "the existing compatibility route must remain intact alongside preview wiring");
 assert.match(app2029, /const BeitMidrash2029Page = lazy\(/, "App2029 must lazy-load the native Beit Midrash surface");
 assert.match(app2029, /path="\/beit-midrash"[\s\S]*?<BeitMidrash2029Page \/>/, "App2029 must own the canonical Beit Midrash route");
 assert.match(app2029, /path="\/beit-midrash\/:method"[\s\S]*?<BeitMidrash2029Page \/>/, "App2029 must preserve canonical method deep links");

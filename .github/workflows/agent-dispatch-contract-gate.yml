@@ -8,7 +8,6 @@ on:
       - "supabase/migrations/*openai_agents_gpt_wake*.sql"
       - "supabase/migrations/*unified_ai_cost_truth*.sql"
       - "src/lib/aiProviderRouter.js"
-      - "src/lib/cost.js"
       - "test/agent-dispatch-contract.test.mjs"
       - "test/gpt-agent-wake-contract.test.mjs"
       - "test/ai-provider-router-contract.test.mjs"

@@ -93,17 +93,13 @@ for (const f of ["src/lib/palette2029.js", "src/lib/paletteTokens2029.js", "src/
   const body = read(f).replace(/\/\/.*$/gm, "");
   assert.equal(/from\s*["']\.\/(?:palette|themeMode|lightRoutes|chromeTheme)\.js["']/.test(body), false, `${f} must not import Legacy theme modules`);
 }
-// The Legacy-host adapters are the only place 2029 theme names meet Legacy modules; nothing else may import them.
-for (const f of src.filter((p) => /\.jsx?$/.test(p))) {
-  assert.equal(/(?:themeHostAdapter2029|paletteHostAdapter2029)\.js["']/.test(read(f)), false, `${f} must not import a Legacy-host adapter (build-time only)`);
-}
 for (const f of src.filter((p) => p.endsWith(".css") && /2029/i.test(p))) {
   const body = read(f);
   assert.equal(/\[data-theme(?:-preset)?=/.test(body), false, `${f} must use the namespaced data-theme-2029 attribute only`);
 }
-assert.match(read("vite.config.js"), /legacyBridge2029[\s\S]*themePreset2029\.js[\s\S]*paletteBridge2029\.js/, "2029 build must bridge the shared Legacy theme/palette imports");
-assert.match(read("vite.config.js"), /legacyHostThemeAdapter[\s\S]*themeHostAdapter2029\.js[\s\S]*paletteHostAdapter2029\.js/, "Legacy build must adapt hosted 2029 theme imports to the host theme");
-assert.match(read("vite.config.js"), /plugins: is2029 \? \[legacyBridge2029\(\), react\(\)\] : \[legacyHostThemeAdapter\(\), react\(\)\]/, "bridge must be 2029-build only");
+assert.match(read("vite.config.js"), /themeBridge2029[\s\S]*themePreset2029\.js[\s\S]*paletteBridge2029\.js/, "the 2029 build must bridge the old theme/palette module paths");
+assert.match(read("vite.config.js"), /plugins: \[themeBridge2029\(\), react\(\)\]/);
+assert.equal(fs.existsSync("src/lib/themeHostAdapter2029.js") || fs.existsSync("src/lib/paletteHostAdapter2029.js"), false, "Legacy host adapters are removed with Legacy");
 
 // 7. Emitted 2029 bundle (needs a build).
 const manifestPath = path.join(root, "dist/.vite/manifest.json");
@@ -123,14 +119,5 @@ if (fs.existsSync(manifestPath)) {
   }
   assert.ok(Object.values(body).some((t) => t.includes("labDark")), "the 2029 bridge (PALETTES lab variants) must be bundled for the still-shared components");
 
-  // Legacy build: chunks not reachable from the 2029 entry must carry no 2029 theme store or palette hook.
-  const in2029 = new Set(files);
-  const legacyChunks = fs.readdirSync(path.join(root, "dist/assets")).filter((f) => f.endsWith(".js")).map((f) => `assets/${f}`).filter((f) => !in2029.has(f));
-  assert.ok(legacyChunks.length > 50, "expected the Legacy build output next to the 2029 build");
-  for (const f of legacyChunks) {
-    const text = fs.readFileSync(path.join(root, "dist", f), "utf8");
-    assert.equal(text.includes("sod2029:theme-preset"), false, `2029 theme store (storage keys) emitted in Legacy chunk ${f}`);
-    assert.equal(/\bpalette2029-|themePreset2029-/.test(f), false, `2029 theme/palette module emitted as a Legacy chunk: ${f}`);
-  }
 }
 console.log("2029 theme/palette isolation: PASS");

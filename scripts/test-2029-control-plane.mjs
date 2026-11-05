@@ -11,10 +11,7 @@ const vercel = JSON.parse(read("vercel.json"));
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const egressMigration = read("supabase/migrations/20260928113000_egress_hardening_monitoring_v1.sql");
 const videoThumb = read("src/lib/videoThumb.js");
-const homeOrGeula = read("src/components/HomeOrGeulaRail.jsx");
 const storyChip = read("src/components/OrGeulaStoryChip.jsx");
-const storyColumn = read("src/components/OrGeulaStoryColumn.jsx");
-const legacy = read("src/legacy/legacy.jsx");
 const post2029 = read("src/pages/Post2029Page.jsx");
 
 assert.match(app, /ControlPlane2029Page/);
@@ -82,9 +79,7 @@ assert.ok(!/api\/sitemap\.js|video:content_loc|setVideoGalleryJsonLd|setPostVide
 
 // Public surfaces cannot generate thumbnails by fetching hidden videos anymore.
 for (const [name, source] of [
-  ["HomeOrGeulaRail", homeOrGeula],
   ["OrGeulaStoryChip", storyChip],
-  ["OrGeulaStoryColumn", storyColumn],
 ]) {
   assert.equal(source.includes("ensureVideoThumbs"), false, `${name} must not invoke client thumbnail capture`);
 }
@@ -101,7 +96,6 @@ assert.match(hardened, /<video[^>]*preload="none"[^>]*data-sod-egress-guard="pas
 assert.match(hardened, /<audio[^>]*preload="none"[^>]*data-sod-egress-guard="passive"/i);
 assert.equal(/\sautoplay(?:\s|=|>)/i.test(hardened), false);
 assert.equal(/preload="auto"/i.test(hardened), false);
-assert.match(legacy, /hardenPassiveMediaHtml\(\(post\?\.content \?\? ""\)/);
 // The contained authored projection is hardened before the actual HTML sink.
 // Behavioral no-fetch and explicit-play coverage lives in the built browser test
 // home-loading-admission-2029.browser.mjs; this guard verifies the wiring too.
@@ -109,14 +103,6 @@ assert.match(post2029, /import \{ hardenPassiveMediaHtml \} from "\.\.\/lib\/med
 assert.match(post2029, /const passiveSourceHtml = useMemo\(\(\) => hardenPassiveMediaHtml\(postReadingHtml2029\(state\.projection\?\.post\?\.content \|\| ""\)\)/);
 assert.match(post2029, /dangerouslySetInnerHTML=\{\{ __html: passiveSourceHtml \}\}/);
 
-// ONE OWNER / NO ISLANDS: Legacy /traffic is only a temporary projection of the exact same
-// canonical System Health RPC consumed by /2029/control.
-assert.match(legacy, /import \{ getSystemHealth \} from "\.\.\/lib\/visits\.js"/);
-assert.match(legacy, /isAdmin \? getSystemHealth\(\)/);
-assert.match(legacy, /אותה הקרנה של admin_system_health\(\) שמזינה את \/2029\/control/);
-assert.match(legacy, /Control Plane 2029/);
-assert.equal((legacy.match(/admin_system_health/g) || []).length, 1,
-  "Legacy /traffic may name the canonical RPC in copy only; it must not define/call a second health RPC directly");
 
 
 console.log("2029-control-plane-trace: PASS");

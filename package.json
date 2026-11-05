@@ -8,8 +8,7 @@
     "prebuild": "node scripts/test-legacy-retired.mjs && npm run test:one-tree-content",
     "prebuild:2029": "npm run test:one-tree-content",
     "test:one-tree-content": "node scripts/test-one-tree-content-contract.mjs",
-    "build": "SOD_BUILD_TARGET=legacy vite build && SOD_BUILD_TARGET=2029 vite build",
-    "build:legacy": "SOD_BUILD_TARGET=legacy vite build",
+    "build": "SOD_BUILD_TARGET=2029 vite build",
     "build:2029": "SOD_BUILD_TARGET=2029 vite build",
     "preview": "vite preview",
     "preview:kingdom": "VITE_KINGDOM_PREVIEW=true SOD_BUILD_TARGET=2029 vite build --outDir dist/kingdom-preview && node scripts/spatial/build-review.mjs && node scripts/icons/build-review.mjs && node scripts/preview-kingdom.mjs",
@@ -46,7 +45,6 @@
     "test:g3-community-core-pr636-cross-batch-parent-order": "node --test scripts/test-g3-community-core-pr636-cross-batch-parent-order.mjs",
     "test:g3-community-core-pr636-source-verified-email-claim": "node --test scripts/test-g3-community-core-pr636-source-verified-email-claim.mjs",
     "test:g3-community-core-pr636-atomic-parent-link": "node --test scripts/test-g3-community-core-pr636-atomic-parent-link.mjs",
-    "test:legacy-research-containment": "node scripts/test-legacy-research-containment.mjs",
     "test:calculator-2029-golden": "node scripts/test-calculator-2029-golden.mjs",
     "test:public-candidate-relation-privacy": "node scripts/test-public-candidate-relation-privacy.mjs",
     "test:method-lens-2029": "node scripts/test-method-lens-2029.mjs",
@@ -61,7 +59,6 @@
     "test:my-workspace-2029": "node scripts/test-my-workspace-2029.mjs",
     "test:public-2029-language": "node --test scripts/test-public-2029-language.mjs",
     "test:tiktok-718-landing": "node scripts/test-tiktok-718-landing.mjs",
-    "test:whatsapp-kod-hametsiut-join": "node scripts/test-whatsapp-kod-hametsiut-join.mjs",
     "test:video-semantic-tree": "node --test scripts/test-video-semantic-tree-projector-v1.mjs"
   },
   "engines": {

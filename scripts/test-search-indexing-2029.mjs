@@ -4,10 +4,8 @@ import { readFileSync } from "node:fs";
 const read = p => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 
 const migration = read("supabase/migrations/20260928101719_search_indexing_2029_v1.sql");
-const entity = read("src/pages/EntityPageBase.jsx");
 const sitemap = read("api/sitemap.js");
 const publicationSitemap = read("public-reading-deploy/api/public-sitemap.js");
-const legacy = read("src/legacy/legacy.jsx");
 const seo = read("src/lib/seo.js");
 const robots = read("public/robots.txt");
 const vercel = JSON.parse(read("vercel.json"));
@@ -18,9 +16,6 @@ assert.match(migration, /create or replace view public\.sitemap_phrases_v1[\s\S]
 assert.match(migration, /coalesce\(is_verified,false\)[\s\S]*coalesce\(is_published,false\)[\s\S]*visibility_tier/i);
 assert.match(migration, /create or replace function public\.is_phrase_indexable\(p_phrase text\)/i);
 assert.match(migration, /from public\.sitemap_phrases_v1/i);
-assert.match(entity, /rpc\("is_phrase_indexable", \{ p_phrase:/);
-assert.match(entity, /const entityNoindex = searchAdmitted !== true/);
-assert.match(entity, /const showEntityLd = searchAdmitted === true/);
 assert.match(sitemap, /sitemap_phrases_v1\?select=phrase,lastmod/);
 assert.match(sitemap, /\{ loc: '\/privacy',/);
 assert.match(publicationSitemap, /origin === CANONICAL_ORIGIN && !noindex && sourceStatus === 200/);
@@ -29,9 +24,6 @@ assert.match(publicationSitemap, /cacheable \? sourceCacheControl : "no-store"/)
 assert.match(sitemap, /if \(!phrase \|\| \/\^\\d\+\$\/\.test\(phrase\)\) continue/);
 
 // Missing/unverifiable post slugs fail closed at client SEO level.
-assert.match(legacy, /title: "העמוד לא נמצא"[\s\S]*noindex: true/);
-assert.match(legacy, /title: "העמוד אינו זמין כרגע"[\s\S]*noindex: true/);
-assert.match(legacy, /clearPostVideoJsonLd\(\)/);
 
 // Video uploadDate uses ISO 8601 with timezone.
 assert.match(seo, /function videoUploadDate\(raw\)/);

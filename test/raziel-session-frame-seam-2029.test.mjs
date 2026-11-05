@@ -24,7 +24,6 @@ import {
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const app = read("src/App2029.jsx");
-const legacyApp = read("src/App.jsx");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const mount = read("src/components/experience2029/RazielSessionMount2029.jsx");
 const seam = read("src/components/experience2029/razielSessionSeam2029.js");
@@ -39,7 +38,6 @@ test("one provider: App2029 mounts it once below ResearchProvider and above the 
   assert.ok(iResearch > 0 && iResearch < iMount && iMount < iRoutes);
   assert.ok(app.indexOf("</Routes>") < app.indexOf("</RazielSessionMount2029>"));
   assert.ok(app.indexOf("</RazielSessionMount2029>") < app.indexOf("</ResearchProvider>"));
-  assert.doesNotMatch(legacyApp, /RazielSession/);
   assert.match(mount, /<RazielSessionProvider2029 key=\{principalKey\} transport=\{transport\}>/);
   assert.equal((mount.match(/askRaziel\s*\(/g) || []).length, 1);
   assert.doesNotMatch(mount + seam, /useReducer|createContext|razielSessionReducer/);

@@ -5,7 +5,7 @@ const read = p => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 
 const mig = read("supabase/migrations/20260928090955_unified_video_projection_2029_v1.sql");
 const sitemap = read("api/sitemap.js");
-const app = read("src/App.jsx");
+const app = read("src/App2029.jsx");
 const page = read("src/pages/VideoAssetPage.jsx");
 const worker = read("supabase/functions/wa-video-enrich/index.ts");
 const ingest = read("supabase/functions/wa-channel-ingest/index.ts");

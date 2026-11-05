@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const sql=readFileSync('supabase/migrations/20260930153000_g3_telemetry_retention_120d_v2.sql','utf8');
-const admin=readFileSync('src/pages/AdminPage.jsx','utf8');
 
 test('V2 preserves legacy first-party daily history without raw retention',()=>{
   assert.match(sql,/refresh_site_visits_history_v1/i);
@@ -35,14 +34,6 @@ test('V2 guard uses age-existence checks and existing health tree',()=>{
   assert.match(sql,/exists\(select 1 from public\.site_visits where ts<now\(\)-interval '122 days' limit 1\)/i);
   assert.match(sql,/perform public\.fn_telemetry_retention_guard_v1\(\)/i);
   assert.match(sql,/retention_heartbeat:telemetry_120d/i);
-});
-
-test('raw admin detail is capped at 120 days',()=>{
-  const ranges=admin.match(/const RANGES = \[[^;]+\];/)?.[0]||'';
-  assert.match(ranges,/\["120",\s*"120 יום · raw"\]/);
-  assert.doesNotMatch(ranges,/\["365",\s*"שנה"\]|\["all",\s*"הכל"\]/);
-  assert.match(sql,/least\(coalesce\(p_days,90\),120\)/i);
-  assert.match(sql,/least\(coalesce\(p_days,30\),120\)/i);
 });
 
 test('scope remains telemetry only',()=>{

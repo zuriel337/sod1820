@@ -12,9 +12,6 @@ on:
       - "public/fonts/**"
       - "src/main2029.jsx"
       - "src/App2029.jsx"
-      - "src/App.jsx"
-      - "src/pages/ResearchPage.jsx"
-      - "src/components/ResearchHome.jsx"
       - "src/components/experience2029/**"
       - "src/components/ContactGateway.jsx"
       - "src/components/IssueReport.jsx"
@@ -81,9 +78,6 @@ on:
       - "scripts/test-2029-theme-isolation.mjs"
       - "test/theme-separation-2029.browser.mjs"
       - "src/lib/themePreset2029.js"
-      - "src/lib/themeHostAdapter2029.js"
-      - "src/lib/paletteHostAdapter2029.js"
-      - "scripts/2029-legacy-coupling-baseline.json"
       - "src/features/personalPanels/**"
       - "scripts/test-2029-system-frame.mjs"
       - "scripts/test-2029-canonical-contract-wiring.mjs"
@@ -92,7 +86,6 @@ on:
       - "scripts/test-2029-researcher-corpus.mjs"
       - "scripts/test-2029-number-preview.mjs"
       - "scripts/test-2029-control-plane.mjs"
-      - "scripts/test-legacy-research-containment.mjs"
       - "tests/world2029-release.spec.cjs"
       - "tests/entry-learn-2029.spec.cjs"
       - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
@@ -148,8 +141,6 @@ jobs:
         run: npm run test:home-2029-pulse
       - name: 2029 cheap route/test/least-privilege hardening
         run: npm run test:2029-cheap-hardening
-      - name: Legacy Research containment + unopened Heichal entrypoint acceptance
-        run: npm run test:legacy-research-containment
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
       - name: Module-level Legacy/2029 boundary
@@ -219,7 +210,7 @@ jobs:
         run: |
           npm install --no-save --no-package-lock @playwright/test@1.55.0
           npx playwright install --with-deps chromium
-      - name: Theme separation browser acceptance (Legacy host vs public 2029)
+      - name: Theme browser acceptance (2029 own store)
         run: node test/theme-separation-2029.browser.mjs
       - name: Start isolated 2029 preview
         run: |
