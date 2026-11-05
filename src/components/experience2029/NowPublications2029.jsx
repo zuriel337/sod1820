@@ -78,9 +78,44 @@ function Row({ model, onOpen, feed, timeMode }) {
   </button></li>;
 }
 
+// Desktop (>= 761px): list + detail side by side (ZURIEL 5.11.2026). Phone keeps the single list with inline expansion.
+const WIDE_QUERY = "(min-width: 761px)";
+function useWide() {
+  const read = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(WIDE_QUERY).matches;
+  const [wide, setWide] = useState(read);
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return undefined;
+    const query = window.matchMedia(WIDE_QUERY), update = () => setWide(query.matches);
+    update(); query.addEventListener?.("change", update);
+    return () => query.removeEventListener?.("change", update);
+  }, []);
+  return wide;
+}
+
+function WideRow({ model, selected, onSelect, timeMode }) {
+  const className = `sod29-nowpub-row is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""} is-link${selected ? " is-selected" : ""}`;
+  return <li><button type="button" className={className} aria-pressed={selected} onClick={() => onSelect(model)}><RowHead model={model} timeMode={timeMode} /></button></li>;
+}
+
+function WideDetail({ model, onOpen, feed, timeMode }) {
+  if (!model) return <p className="sod29-nowpub-empty" role="status">בחרו פרסום מהרשימה.</p>;
+  const when = recordTimeLabel(model.at, timeMode, "זמן לא צוין");
+  return <article className="sod29-nowpub-pane" aria-label={model.title}>
+    <h3 className="sod29-nowpub-pane-title">{model.title}</h3>
+    <small className="sod29-nowpub-meta">
+      {model.byline.length ? <span>{model.byline.join(" · ")}</span> : null}
+      <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
+      <time dateTime={model.at || undefined}>{when}</time>
+    </small>
+    <RowDetail key={model.id} model={model} onOpen={onOpen} feed={feed} />
+  </article>;
+}
+
 export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [source, setSource] = useState(""), [media, setMedia] = useState("");
   const [count, setCount] = useState(PAGE);
+  const wide = useWide();
+  const [selectedId, setSelectedId] = useState(null);
   useEffect(() => { feed?.requestNowDetails?.(); }, [feed?.requestNowDetails]);
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
   const models = useMemo(() => nowModels(rows), [rows]);
@@ -89,6 +124,8 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   // Until the reader picks, the window opens on the first populated primary path (sources → messages → reality).
   const activeLens = lens ?? defaultNowLens(models);
   const shown = useMemo(() => filterNowModels(models, { lens: activeLens, series, source, media }), [models, activeLens, series, source, media]);
+  const selected = wide ? (shown.find(model => model.id === selectedId) || shown[0] || null) : null;
+  const select = model => { setSelectedId(model.id); feed?.see?.(model.row); };
   const secondaryActive = Boolean(series || source || media);
   // A lens/choice that stopped existing (refresh, retry) must not leave an invisible empty filter.
   useEffect(() => {
@@ -133,9 +170,14 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
       ? <p className="sod29-nowpub-empty" role="status">{models.length ? "אין פרסומים בסינון הזה." : "אין כרגע פרסומים להצגה."}
         {models.length && (activeLens !== "all" || secondaryActive) ? <> <button type="button" className="sod29-nowpub-link" onClick={clear}>הצג הכול</button></> : null}</p> : null}
 
-    <ul className="sod29-nowpub-list">
-      {shown.slice(0, count).map(model => <Row key={model.id} model={model} onOpen={onOpen} feed={feed} timeMode={timeMode} />)}
-    </ul>
+    {wide
+      ? <div className="sod29-nowpub-split">
+        <ul className="sod29-nowpub-list">{shown.slice(0, count).map(model => <WideRow key={model.id} model={model} selected={selected?.id === model.id} onSelect={select} timeMode={timeMode} />)}</ul>
+        {shown.length ? <WideDetail model={selected} onOpen={onOpen} feed={feed} timeMode={timeMode} /> : null}
+      </div>
+      : <ul className="sod29-nowpub-list">
+        {shown.slice(0, count).map(model => <Row key={model.id} model={model} onOpen={onOpen} feed={feed} timeMode={timeMode} />)}
+      </ul>}
     {count < shown.length ? <button type="button" className="sod29-action sod29-nowpub-more-btn" onClick={() => setCount(n => n + PAGE)}>עוד · {Math.min(count, shown.length)} מתוך {shown.length}</button> : null}
     <button type="button" className="sod29-action sod29-nowpub-world" onClick={() => onOpen?.("/world")}>לחידושים בעולם ←</button>
   </section>;
