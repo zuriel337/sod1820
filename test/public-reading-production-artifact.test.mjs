@@ -382,6 +382,39 @@ test("actual local artifact retains font fix, compiler isolation, no index shado
  assert.equal((await h.request("/storage/v1/object/public/gallery/a.jpg",{method:"POST"})).status,403);
  });
 
+ test("public image renditions load natively with sizing parameters only; every other shape stays with the API wrapper", async () => {
+ const h=workerHarness();
+ const image={method:"GET",mode:"no-cors",destination:"image"};
+ for(const bucket of ["media","gallery","magar"]){
+   assert.equal(await h.request(`/storage/v1/render/image/public/${bucket}/fixture.gif?width=160&height=160&resize=contain&quality=70`,image),null);
+   assert.equal(await h.request(`/storage/v1/render/image/public/${bucket}/fixture.jpg?width=480&quality=62&resize=contain`,image),null);
+ }
+ assert.equal(h.calls.length,0,"renditions are native loads, not worker fetches");
+ const wrapped=[
+   "/storage/v1/render/image/public/gallery/a.jpg",
+   "/storage/v1/render/image/public/gallery/a.jpg?quality=70",
+   "/storage/v1/render/image/public/gallery/a.jpg?width=160&token=synthetic",
+   "/storage/v1/render/image/public/gallery/a.jpg?width=160&width=170",
+   "/storage/v1/render/image/public/gallery/a.jpg?width=0",
+   "/storage/v1/render/image/public/gallery/a.jpg?width=99999",
+   "/storage/v1/render/image/public/gallery/a.jpg?width=160&quality=101",
+   "/storage/v1/render/image/public/gallery/a.jpg?width=160&resize=..%2Fx",
+   "/storage/v1/render/image/public/gallery/a.jpg?width=160#fragment",
+   "/storage/v1/render/image/public/submission-inbox/a.jpg?width=160",
+   "/storage/v1/render/image/authenticated/gallery/a.jpg?width=160",
+   "/storage/v1/render/image/sign/gallery/a.jpg?width=160&token=synthetic",
+ ];
+ for(const path of wrapped) assert.equal((await h.request(path,image)).status,200,path);
+ assert.equal(h.calls.length,wrapped.length,"existing API wrapper still owns every other rendition shape");
+ assert.equal((await h.request("/storage/v1/render/image/public//gallery/a.jpg?width=160",image)).status,403,"ambiguous double-slash paths stay refused");
+ assert.equal(h.calls.length,wrapped.length);
+ // Only a native image load qualifies: a script-initiated or cors read keeps going through the wrapper.
+ const before=h.calls.length;
+ assert.equal((await h.request("/storage/v1/render/image/public/gallery/a.jpg?width=160",{method:"GET",mode:"cors",destination:""})).status,200);
+ assert.equal(h.calls.length,before+1);
+ assert.equal((await h.request("/storage/v1/render/image/public/gallery/a.jpg?width=160",{method:"POST"})).status,403);
+ });
+
 test('approved explicit report receipt path permits no identity-bearing, generic telemetry or unrelated writes',async()=>{
  const h=workerHarness();const body={p_sod_id:null,p_surface:'issue_report',p_event_type:'issue_report',p_path:'/post',p_props:{message:'synthetic'},p_is_bot:false};
  assert.equal((await h.request('/rest/v1/rpc/ingest_event',{body:JSON.stringify(body)})).status,200);
