@@ -45,13 +45,13 @@ test("ELS 2029 opens in Guided Discovery and mode changes do not own replay or s
   assert.doesNotMatch(page, /display: researchProfile \? "none" : "block"/);
 });
 
-test("ELS 2029 public release is Classic only: no mode switch, library, advanced search, save or replay bridge for the public", async () => {
+test("ELS 2029 public release is Classic only: no mode switch, advanced search, AI scan or replay bridge for the public; the cipher library stays readable", async () => {
   const page = await readFile(PAGE, "utf8");
   assert.match(page, /const publicClassic = publicReadingActionsLocked\(useAuth\(\)\.isAdmin\)/);
   assert.match(page, /if \(publicClassic \|\| requested === "classic"/);
   assert.match(page, /\{publicClassic \? null : <ElsMatrixProfileSwitch/);
-  assert.match(page, /\{publicClassic \? null : <ElsRecentCiphers2029/);
-  assert.match(page, /const library = publicClassic \? null : params\.get\("library"\)/);
+  assert.match(page, /<ElsRecentCiphers2029 onOpen=\{openCipher\}/);
+  assert.match(page, /const library = params\.get\("library"\)/);
   assert.match(page, /advancedSearch=\{publicClassic \? null : <ElsAdvancedSearch2029/);
   const replayEffect = page.slice(page.indexOf("if (publicClassic || elsState.loading"), page.indexOf("const replayProjection"));
   assert.match(replayEffect, /CONTEXT_REQUIRED/);

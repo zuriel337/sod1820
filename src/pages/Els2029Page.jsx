@@ -155,8 +155,8 @@ function ElsNativeWithRaziel({ razielSession, researchContext, projection, layer
 
 // The read-only admin screen does not mount operational hooks, saved-record
 // readers or replay/engine controls. It is an honest service-readiness view.
-// ZURIEL 5.11: in the public release the Bible code is open in its Classic mode only. Guided discovery, Research,
-// saving, the saved-cipher library and Raziel stay for the administrator; the public gets the one local engine.
+// ZURIEL 5.11: in the public release the Bible code is open in its Classic mode only, with the public cipher library (read).
+// Guided discovery, Research, advanced search, the AI scan and Raziel stay for the administrator.
 export default function Els2029Page(props) {
   const publicClassic = publicReadingActionsLocked(useAuth().isAdmin);
   return <OperationalEls2029Page key={publicClassic ? "public-classic" : "full"} {...props} publicClassic={publicClassic} />;
@@ -168,7 +168,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   const sharedMatrix = useMemo(() => readElsMatrixShare(location.hash), [location.hash]);
   const { user, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
-  const library = publicClassic ? null : params.get("library");
+  const library = params.get("library");
   const [workspaceVisited, setWorkspaceVisited] = useState(!library);
   const [searchRevision, setSearchRevision] = useState(0);
   const [savedRevision, setSavedRevision] = useState(0);
@@ -401,7 +401,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}
     {sharedMatrix.present ? <p role="status">{sharedMatrix.loadItem ? "מטריצה משותפת: המופע והסימונים נבדקים מחדש במנוע לפני הצגתם." : "קישור המטריצה אינו תקין או גדול מדי. בקשו קישור חדש."}</p> : null}
-    {publicClassic ? null : <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />}
+    <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
     <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
       <div><small>סביבת עבודה</small><strong>{guidedProfile ? "גילוי מודרך" : advancedResearchProfile ? "מחקר" : "קלאסי"}</strong></div>
       {publicClassic ? null : <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />}
