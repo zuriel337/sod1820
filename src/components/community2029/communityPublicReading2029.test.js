@@ -302,5 +302,8 @@ test("a guest sees one-step signup and publish-as-guest, a member sees only publ
     assert.equal(tree.some(node => node.props?.["data-guest-publish"] === "true"), guest);
     assert.equal(tree.some(node => node.props?.name === "website"), guest);
     assert.ok(tree.some(node => node.props?.className === "sod29-community-typing"));
+    const authLinks = tree.filter(node => String(node.props?.className || "").startsWith("sod29-community-auth-btn"));
+    assert.equal(authLinks.length, guest ? 2 : 0);
+    if (guest) assert.deepEqual(authLinks.map(node => node.props.children.join("")), ["התחברות", "הרשמה"]);
   }
 });
