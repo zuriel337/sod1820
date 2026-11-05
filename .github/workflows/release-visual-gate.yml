@@ -392,6 +392,24 @@ jobs:
           async function assertPost2029ContextualFlow(page, width) {
             const height = width < 600 ? 844 : 1000;
             const postPath = '/post/bennett-melach-631-78';
+            // The real Bennett row is a private draft (tag טיוטה): anonymous readers cannot read it, and its text must not
+            // be copied into the repository. The Golden experience is built in code from the slug, so this gate serves a
+            // SYNTHETIC public record under the same slug (no draft tag, short original text) at the Supabase REST boundary.
+            await pinLaunchFlags(page);
+            await page.route('**/rest/v1/posts?*', async (route) => {
+              const query = new URL(route.request().url()).searchParams.get('slug') || '';
+              if (!query.includes('bennett-melach-631-78')) return route.continue();
+              await route.fulfill({
+                status: 200, contentType: 'application/json',
+                body: JSON.stringify([{
+                  id: 5113001, slug: 'bennett-melach-631-78', title: 'בנט והמלח — 78, 631 וברית מלח', author: 'SOD1820',
+                  date: '2026-10-01T00:00:00+00:00', modified: '2026-10-12T00:00:00+00:00', excerpt: 'פוסט בדיקה סינתטי.',
+                  categories: ['רמזים חזקים', 'בחירות', 'גימטריה', 'תיעוד אירועים'],
+                  tags: ['בנט', 'נפתלי בנט', 'מלח', '631', '78', '2029-golden-only', '2029-golden'],
+                  content: '<section class="sod29-bennet-section"><h2>האירוע</h2><p>טקסט בדיקה סינתטי.</p></section><section class="sod29-bennet-section"><h2>ברית מלח</h2><p>טקסט בדיקה סינתטי.</p></section><section class="sod29-bennet-section is-centered"><h2>הרמז המרכזי — מלח</h2><p class="sod29-gematria-line">מלח = <button type="button" data-contextual-number-focus="true" data-expression="מלח" data-method="רגיל" data-result="78" data-region-id="salt-78">78</button></p></section><section class="sod29-bennet-section"><h2>631</h2><p class="sod29-gematria-line">נפתלי בנט = <button type="button" data-contextual-number-focus="true" data-expression="נפתלי בנט" data-method="רגיל" data-result="631" data-region-id="bennett-631">631</button></p><p class="sod29-gematria-line">הבחירות = <button type="button" data-contextual-number-focus="true" data-expression="הבחירות" data-method="רגיל" data-result="631" data-region-id="bennett-631">631</button></p><p class="sod29-gematria-line">מלך ישראל = <button type="button" data-contextual-number-focus="true" data-expression="מלך ישראל" data-method="רגיל" data-result="631" data-region-id="bennett-631">631</button></p></section>',
+                }]),
+              });
+            });
             let traceRequests = 0;
             page.on('request', (request) => {
               if (request.url().includes('/rpc/gematria_method_trace')) traceRequests += 1;
@@ -434,21 +452,23 @@ jobs:
             await expect(contentMap.nth(7)).toContainText('חיבורים');
             if (width < 600) {
               await expect(restRail).toBeHidden();
-              const glassLocator = page.locator('.sod29-glass-locator');
-              await expect(glassLocator).toBeVisible();
-              await glassLocator.locator('.sod29-glass-locator-core').click();
-              const contextSheet = page.locator('[data-experience-capability="contextual-sidecar"]');
-              await expect(contextSheet).toBeVisible({ timeout: 20_000 });
-              await expect(contextSheet).toContainText('בתוך הפוסט');
-              await contextSheet.getByRole('button', { name: 'סגור' }).click();
-              await expect(contextSheet).toHaveCount(0);
+              // "Here"/page map is admin-only while the site is under construction (ZURIEL decision): the public phone
+              // has no page-map locator, the shell shows the disabled construction label, and nothing opens a context sheet.
+              await expect(page.locator('.sod29-glass-locator')).toBeHidden();
+              await expect(page.getByRole('button', { name: 'כאן · בבנייה · למנהל בלבד', exact: true })).toBeDisabled();
+              await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(0);
             } else {
               await expect(restRail).toBeVisible();
               await expect(restRail).toContainText('בתוך הפוסט');
               const desktopContext = hasCompanion ? companion : restRail;
               const before = await desktopContext.boundingBox();
+              // The construction strip above the rail scrolls away, so the sticky rail may settle at its pinned offset below
+              // where it started; the contract is that it pins and then stays put while scrolling further.
               await page.evaluate(() => window.scrollTo(0, Math.min(900, document.body.scrollHeight - window.innerHeight)));
-              await expect.poll(async () => (await desktopContext.boundingBox()).y).toBe(before.y);
+              await expect.poll(async () => (await desktopContext.boundingBox()).y).toBeLessThanOrEqual(before.y);
+              const pinned = await desktopContext.boundingBox();
+              await page.evaluate(() => window.scrollTo(0, Math.min(1500, document.body.scrollHeight - window.innerHeight)));
+              await expect.poll(async () => (await desktopContext.boundingBox()).y).toBe(pinned.y);
               const after = await desktopContext.boundingBox();
               expect(after.x).toBe(before.x);
               const dock = await page.locator('.sod29-command-island').boundingBox();
@@ -461,6 +481,10 @@ jobs:
             for (const expression of ['נפתלי בנט', 'הבחירות', 'מלך ישראל']) {
               await expect(focusSource.locator(`[data-contextual-number-focus="true"][data-expression="${expression}"]`).first()).toBeVisible();
             }
+            // The research block is a collapsed <details> by default (reading comes first); the timeline lives inside it.
+            const research = page.locator('details.sod29-post-research').first();
+            await expect(research).toHaveCount(1);
+            if (!(await research.evaluate((node) => node.open))) await research.locator('summary').first().click();
             const timeline = page.locator('[data-experience-capability="public-timeline"][data-timeline-surface="post"]');
             await expect(timeline).toBeVisible();
             const sourceBox = await post.locator('.sod29-reading-source').boundingBox();
@@ -681,6 +705,7 @@ jobs:
           });
           test('explicit 2029 Post Preview preserves equality interactions', async ({ page }) => {
             test.setTimeout(90_000);
+            await pinLaunchFlags(page);
             const slug = 'צופן-חותים-5784';
             const postPath = `/post/${encodeURIComponent(slug)}`;
             // Vite preview does not execute Vercel rewrites. Preserve the real
@@ -719,21 +744,23 @@ jobs:
               await expression.focus();
               await expect(expression).toBeFocused();
               await expression.press('Enter');
-              // Explicit expression intent opens the full Number page directly (4b148849): the URL carries the exact focus and
-              // method, no dialog or drawer is introduced, and browser Back returns to the exact Post and its equality card.
-              const numberPage = page.locator('.sod29-number-page');
-              await expect(numberPage.locator('[data-number-core-root="261"]')).toBeVisible({ timeout: 30_000 });
-              expect(new URL(page.url()).pathname).toBe('/number/261');
-              expect(new URL(page.url()).searchParams.get('focus')).toBe('אירן');
-              expect(new URL(page.url()).searchParams.get('method')).toBe('רגיל');
-              await expect(numberPage.locator('[data-expression-focus="true"]')).toContainText('אירן');
+              // An occurrence without a fully documented expression, method and result never receives an automatic method:
+              // the page says so next to the line and offers an explicit engine re-check (not a verification of the source).
+              const notice = page.locator('[data-post-calculation-feedback]');
+              await expect(notice).toContainText('לא נבחרה שיטה אוטומטית');
               await expect(page.getByRole('dialog')).toHaveCount(0);
-              await expect(page.locator('.sod29-number-drawer2029')).toHaveCount(0);
-              await page.goBack();
-              await expect(post).toBeVisible({ timeout: 30_000 });
+              await page.getByRole('button', { name: 'בדיקה חדשה במנוע' }).click();
+              const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
+              const drawer = sidecar.locator('.sod29-number-drawer2029');
+              await expect(drawer).toBeVisible({ timeout: 30_000 });
+              await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('אירן', { timeout: 20_000 });
+              await drawer.locator('[data-experience-action="number-result-preview"]').click();
+              await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'number');
+              await drawer.locator('[data-experience-action="contextual-number-back"]').click();
+              await expect(drawer).toHaveAttribute('data-contextual-number-mode', 'focus');
+              await expect(drawer.locator('.sod29-number-v10-expression strong')).toHaveText('אירן');
               expect(decodeURIComponent(new URL(page.url()).pathname)).toBe(`/post/${slug}`);
               expect(new URL(page.url()).searchParams.get('gemcard')).toBe('1');
-              await expect(source.locator('[data-gem="אירן"]')).toBeVisible();
 
               const metrics = await page.evaluate(() => ({
                 clientWidth: document.documentElement.clientWidth,
@@ -741,6 +768,8 @@ jobs:
               }));
               expectNoHorizontalOverflow(metrics.scrollWidth, metrics.clientWidth);
               await page.screenshot({ path: `test-results/release-visual/native-post-equality-${width}.png`, fullPage: false });
+              await sidecar.getByRole('button', { name: 'סגור', exact: true }).click();
+              await expect(sidecar).toHaveCount(0);
             }
           });
 
