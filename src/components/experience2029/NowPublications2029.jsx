@@ -62,6 +62,7 @@ function RowDetail({ model, onOpen, feed }) {
     <div className="sod29-nowpub-actions">
       {fullHref ? <button type="button" className="sod29-action primary" onClick={open(fullHref)}>{model.unverified ? "למקור" : "לפרסום המלא"}</button> : <small>אין קישור מדויק לפריט; הוא מוצג כאן במלואו.</small>}
       {seriesHref ? <button type="button" className="sod29-action" onClick={open(seriesHref)}>לסדרה{model.seriesLabel ? ` · ${model.seriesLabel}` : ""}</button> : null}
+      {model.creatorHref ? <button type="button" className="sod29-action" data-now-action="creator-profile" onClick={open(model.creatorHref)}>לפרופיל · {model.item.creator}</button> : null}
     </div>
   </div>;
 }

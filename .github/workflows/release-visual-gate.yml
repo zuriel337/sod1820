@@ -493,7 +493,10 @@ jobs:
             // The research block is a collapsed <details> by default (reading comes first); the timeline lives inside it.
             const research = page.locator('details.sod29-post-research').first();
             await expect(research).toHaveCount(1);
-            if (!(await research.evaluate((node) => node.open))) await research.locator('summary').first().click();
+            // The sticky header and the floating bottom bar can both cover the summary at the scroll position left by the rail checks above
+            // while late content is still settling (Playwright then reports "element is not stable" / "intercepts pointer events" and retries
+            // until the 60 s timeout). Opening the <details> is not what this scenario measures, so activate the summary itself.
+            if (!(await research.evaluate((node) => node.open))) await research.locator('summary').first().evaluate((node) => node.click());
             const timeline = page.locator('[data-experience-capability="public-timeline"][data-timeline-surface="post"]');
             await expect(timeline).toBeVisible();
             const sourceBox = await post.locator('.sod29-reading-source').boundingBox();
