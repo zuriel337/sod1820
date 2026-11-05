@@ -7,8 +7,11 @@ from collections import Counter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(HERE, "data")
-OUT  = os.path.normpath(os.path.join(HERE, "..", "..", "public", "tzofen.html"))
-DYNAMIC_LEXICON_OUT = os.path.normpath(os.path.join(HERE, "..", "..", "public", "els-dynamic-lexicon-v1.gz64.txt"))
+# Tooling only: ELS_BUILD_OUT_DIR redirects BOTH outputs (e.g. so a test can compare a fresh build against the tracked
+# files without rewriting them). Unset = the unchanged default, public/ (what the CI build-sync step and releases use).
+OUT_DIR = os.environ.get("ELS_BUILD_OUT_DIR") or os.path.join(HERE, "..", "..", "public")
+OUT  = os.path.normpath(os.path.join(OUT_DIR, "tzofen.html"))
+DYNAMIC_LEXICON_OUT = os.path.normpath(os.path.join(OUT_DIR, "els-dynamic-lexicon-v1.gz64.txt"))
 
 def d(name):  # קורא קובץ-נתונים מתיקיית data/
     return open(os.path.join(DATA, name), encoding="utf-8").read()
