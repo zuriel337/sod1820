@@ -29,6 +29,9 @@
   --s29-dip-w: 320px;          /* the arc: width and depth below the bar */
   --s29-dip-h: 62px;
   --s29-bar-reserve: calc(var(--s29-dip-h) + 6px);   /* what the header reserves below itself, so nothing is covered and nothing shifts (CLS) */
+  /* A sticky rail that has not pinned yet rests at the bar + the reserve + the stage padding (52px): 184px on desktop. The post and topic
+     rail leaves that offset plus a 20px margin, so it ends above the floating bottom bar from any resting position (the Release Visual Gate). */
+  --s29-rail-natural-offset: calc(var(--s29-bar-h) + var(--s29-bar-reserve) + 72px);
   --s29-line-w: 2px;
   --s29-gap: calc(var(--s29-dip-w) - 6px);           /* the bar's line overlaps the arc by 3px each side: no seam */
   --s29-glass: color-mix(in srgb, var(--s29-panel) 72%, transparent);

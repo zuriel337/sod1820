@@ -79,6 +79,21 @@ test("the approved numbers", () => {
   assert.match(css, /\[data-frame-theme-preset="light"\],\s*\n\.sod29-root\.closed-shell\.native-frame\[data-frame-theme-preset="parchment"\] \{\s*\n\s*--s29-glass: rgb\(16 11 28 \/ \.90\)/);
 });
 
+test("the post and topic rail ends above the floating bottom bar from its natural resting position", () => {
+  // Release Visual Gate (Bennett, desktop): a sticky rail that has not pinned yet rests at the bar + the reserve + the stage padding, and its
+  // height must still end above the bottom bar from there (gate: 184 + 760 = 944 against a bar at 928). The bar and the reserve are this
+  // file's numbers, so the rail's height budget follows them instead of a constant that assumed the previous 56px bar.
+  const frameCss = readFileSync(new URL("systemFrame2029.css", dir), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.match(frameCss, /height:calc\(100dvh - var\(--s29-rail-natural-offset,150px\) - var\(--s29-island-clearance,92px\)\);/, "the rail's height leaves the natural offset plus the bar clearance");
+  assert.equal(/height:calc\(100dvh - 150px - var\(--s29-island-clearance/.test(frameCss), false, "no constant that assumed the previous bar");
+  const token = code.match(/--s29-rail-natural-offset:\s*calc\(var\(--s29-bar-h\) \+ var\(--s29-bar-reserve\) \+ (\d+)px\);/);
+  assert.ok(token, "the crown stylesheet sets the token from the bar and the reserve");
+  for (const decl of ["--s29-bar-h: 64px", "--s29-dip-h: 62px", "--s29-bar-reserve: calc(var(--s29-dip-h) + 6px)"]) assert.ok(code.includes(decl), `${decl} is what the token is computed from`);
+  // Measured in the gate at 1024-1920px: natural offset 184 = 64 (bar) + 68 (reserve) + 52 (stage padding). Keep a margin of 20px or more above it.
+  const offset = 64 + (62 + 6) + Number(token[1]);
+  assert.ok(offset >= 184 + 20, `the budget (${offset}px) covers the natural offset (184px) plus a 20px margin`);
+});
+
 test("accessibility and fallbacks", () => {
   assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(css, /@media \(prefers-reduced-transparency: reduce\)/);
