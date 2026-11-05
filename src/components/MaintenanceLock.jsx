@@ -189,8 +189,23 @@ export function useFeatureState(flag, { requireFlag = false } = {}) {
   const pendingScope = typeof __SOD_2029_BUILD__ !== "undefined" && __SOD_2029_BUILD__
     ? JSON.stringify([user?.id || "anon", typeof window !== "undefined" ? [window.location.pathname, window.location.search, window.location.hash, window.history.state?.key || "initial"] : []])
     : null;
-  const { loading, lock } = useSiteFlag(flag, { pendingScope, enabled: !PUBLIC_READING_RELEASE || isAdmin });
+  // In the public reading release a flag that the release opens to everyone (lock_world, lock_number, lock_gematria, lock_books, lock_els) is open
+  // to everyone: a visitor, a member and the administrator alike, and it does not wait for sign-in or for a flag read. The public ceiling is the floor
+  // for every viewer. Before, the administrator's state for these areas came from the shared flag table: a new read on every navigation (the read scope
+  // includes the history key), "locked" while it was in flight, and closed for good when the flag row did not come back, because requireFlag fails
+  // closed even for the administrator. So the one person who can open everything could see Books and the Number page locked while a visitor saw them open.
+  const openToEveryone = PUBLIC_READING_RELEASE && publicReadingFeatureLock(flag).enabled === false;
+  const { loading, lock } = useSiteFlag(flag, { pendingScope, enabled: (!PUBLIC_READING_RELEASE || isAdmin) && !openToEveryone });
   return useMemo(() => {
+    if (openToEveryone) {
+      return {
+        flag,
+        loading: false,
+        lock: null,
+        ...applyPreviewFeatureState(flag, resolveFeatureState(publicReadingFeatureLock(flag), { user: null, isAdmin: false, requireFlag: false })),
+        adminViewAllowed: false,
+      };
+    }
     const publicCeiling = PUBLIC_READING_RELEASE && !isAdmin;
     const pendingAdmission = PUBLIC_READING_RELEASE && (authLoading || (!publicCeiling && loading));
     const resolved = resolveFeatureState(pendingAdmission ? null : publicCeiling ? publicReadingFeatureLock(flag) : lock, {
@@ -209,7 +224,7 @@ export function useFeatureState(flag, { requireFlag = false } = {}) {
       // Unknown required capabilities stay closed; no screen-only bypass.
       adminViewAllowed: false,
     };
-  }, [flag, loading, authLoading, lock, user, isAdmin, requireFlag]);
+  }, [flag, loading, authLoading, lock, user, isAdmin, requireFlag, openToEveryone]);
 }
 
 // עטיפה ברמת-הראוט. כל לוגיקת access מגיעה מה-resolver הקנוני — אין נוסחה מקומית.
