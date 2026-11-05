@@ -82,7 +82,7 @@ test("Production document uses canonical owner, preserves old/native/encoded/wp 
 test("temporarily closed feature areas answer 503 with Retry-After and stay indexable; the rest stay noindex", async () => {
   await withFetch(async () => { throw Error("closed route must not query data"); }, async () => {
     const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: origin => origin === SITE, readDocument: async () => document });
-    for (const path of ["/code", "/els", "/research", "/archive", "/reality", "/timeline", "/name", "/numbers", "/languages", "/cross"]) {
+    for (const path of ["/research", "/archive", "/reality", "/timeline", "/name", "/numbers", "/languages", "/cross"]) {
       const res = response(); await handler(req(path), res);
       assert.equal(res.code, 503, path);
       assert.equal(res.headers.get("retry-after"), "259200", path);
@@ -90,6 +90,13 @@ test("temporarily closed feature areas answer 503 with Retry-After and stay inde
       assert.match(res.body, /name="robots" content="index, follow"/, path);
       assert.match(res.body, /האזור סגור זמנית וייפתח בקרוב/, path);
     }
+    // The Bible code is open in its Classic mode: a normal indexable 200 page, and /els is a permanent continuation to it.
+    { const res = response(); await handler(req("/code"), res);
+      assert.equal(res.code, 200); assert.equal(res.headers.get("retry-after"), undefined);
+      assert.doesNotMatch(String(res.headers.get("x-robots-tag") || ""), /noindex/); assert.doesNotMatch(res.body, /name="robots" content="noindex/);
+      assert.match(res.body, /rel="canonical" href="https:\/\/sod1820\.co\.il\/code"/);
+      assert.match(res.body, /חיפוש דילוגי אותיות/); assert.doesNotMatch(res.body, /בטא — נפתח בקרוב/); }
+    { const res = response(); await handler(req("/els"), res); assert.equal(res.code, 308); assert.equal(res.headers.get("location"), "/code"); }
     for (const path of ["/login", "/journey", "/raziel", "/credits", "/buy", "/join", "/start", "/2029/control", "/updates"]) {
       const res = response(); await handler(req(path), res);
       assert.equal(res.code, 200, path); assert.equal(res.headers.get("retry-after"), undefined, path);
@@ -210,9 +217,9 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     const res = response(); await publicReadingSitemapHandler({ authorized: () => true, indexable: origin => origin === SITE })(req("/sitemap.xml"), res);
     assert.equal(res.code, 200); assert.equal(res.headers.get("cache-control"), "public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400");
     for (const path of ["/old-post", "/post/new-post", "/number/1820", "/number/" + encodeURIComponent("בראשית"),
-      "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/codes/published-cipher", "/privacy"])
+      "/topic/subject", "/community/researcher/2042", "/video/" + assetId, "/gematria", "/gallery", "/books", "/code", "/codes/published-cipher", "/privacy"])
       assert.ok(res.body.includes(`<loc>${SITE}${path}</loc>`), path);
-    for (const path of ["/login", "/journey", "/unsubscribe", "/code", "/codes/מחקר"]) assert.ok(!res.body.includes(`<loc>${SITE}${path}</loc>`), path);
+    for (const path of ["/login", "/journey", "/unsubscribe", "/codes/מחקר"]) assert.ok(!res.body.includes(`<loc>${SITE}${path}</loc>`), path);
     assert.ok(!calls.some(url => /site_flags|research_contributions/.test(url)));
   });
   await withFetch(async () => { throw Error("synthetic outage"); }, async () => {

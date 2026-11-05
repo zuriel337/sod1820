@@ -155,28 +155,20 @@ function ElsNativeWithRaziel({ razielSession, researchContext, projection, layer
 
 // The read-only admin screen does not mount operational hooks, saved-record
 // readers or replay/engine controls. It is an honest service-readiness view.
+// ZURIEL 5.11: in the public release the Bible code is open in its Classic mode only. Guided discovery, Research,
+// saving, the saved-cipher library and Raziel stay for the administrator; the public gets the one local engine.
 export default function Els2029Page(props) {
-  const actionsLocked = publicReadingActionsLocked(useAuth().isAdmin);
-  return actionsLocked ? <ElsReadingAvailability /> : <OperationalEls2029Page {...props} />;
+  const publicClassic = publicReadingActionsLocked(useAuth().isAdmin);
+  return <OperationalEls2029Page key={publicClassic ? "public-classic" : "full"} {...props} publicClassic={publicClassic} />;
 }
-function ElsReadingAvailability() {
-  const state = useFeatureState("lock_els", { requireFlag: true });
-  return <Sod2029Shell wide surface="els" symbol="✦" title="הצופן התנ״כי" introVariant="compact">
-    <section className="sod29-card" data-els-view="read-only-availability" dir="rtl">
-      <h2>מצב הצופן בגרסת הקריאה</h2>
-      <p>הסריקה, פתיחת מטריצות ושמירת ממצאים עדיין אינן מופעלות בגרסה זו. החומר הקיים נשמר.</p>
-      <FeatureClosedNotice state={state} title="הצופן התנ״כי" to="/world" />
-    </section>
-  </Sod2029Shell>;
-}
-function OperationalEls2029Page({ previewAdvanced = false }) {
+function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false }) {
   const research = useResearch();
   const razielSession = useOptionalRazielSession2029();
   const location = useLocation();
   const sharedMatrix = useMemo(() => readElsMatrixShare(location.hash), [location.hash]);
   const { user, loading: authLoading } = useAuth();
   const [params, setParams] = useSearchParams();
-  const library = params.get("library");
+  const library = publicClassic ? null : params.get("library");
   const [workspaceVisited, setWorkspaceVisited] = useState(!library);
   const [searchRevision, setSearchRevision] = useState(0);
   const [savedRevision, setSavedRevision] = useState(0);
@@ -234,7 +226,7 @@ function OperationalEls2029Page({ previewAdvanced = false }) {
   // starts a scan or an AI call; Guided starts only on its explicit submit.
   const [matrixProfile, setMatrixProfile] = useState(() => {
     const requested = clean(params.get("mode")).toLowerCase();
-    if (requested === "classic" || directSavedOpen || sharedMatrix.present) return ELS_MATRIX_PROFILE.CLASSIC;
+    if (publicClassic || requested === "classic" || directSavedOpen || sharedMatrix.present) return ELS_MATRIX_PROFILE.CLASSIC;
     if (requested === "research" || previewAdvanced) return ELS_MATRIX_PROFILE.RESEARCH;
     return ELS_MATRIX_PROFILE.GUIDED;
   });
@@ -321,7 +313,7 @@ function OperationalEls2029Page({ previewAdvanced = false }) {
     : null;
 
   useEffect(() => {
-    if (elsState.loading || elsState.blocked || !replayKey) {
+    if (publicClassic || elsState.loading || elsState.blocked || !replayKey) {
       setReplay({ loading: false, state: "CONTEXT_REQUIRED", result: null, traceId: null, error: null });
       return undefined;
     }
@@ -377,7 +369,7 @@ function OperationalEls2029Page({ previewAdvanced = false }) {
   const guidedRunActive = guidedProfile && researchLoad?.guidedDiscovery === true;
 
   useEffect(() => {
-    applySeo({ title: "ELS · SOD1820", description: "חיפוש צפנים בתנ״ך, מטריצות וממצאים שמורים", path: "/code" });
+    applySeo({ title: "הצופן התנ״כי — חיפוש דילוגי אותיות בתורה", description: "חפשו מילה בדילוגי אותיות (ELS) בתורה, ראו אותה במטריצה וקראו את הפסוקים שסביבה.", path: "/code", noindex: location.search !== "" });
     research.updateResearchContext?.({ lens: "els" });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -409,10 +401,10 @@ function OperationalEls2029Page({ previewAdvanced = false }) {
       : <div hidden={!!library}>
     {findingNotice ? <p role="status">{findingNotice}</p> : null}
     {sharedMatrix.present ? <p role="status">{sharedMatrix.loadItem ? "מטריצה משותפת: המופע והסימונים נבדקים מחדש במנוע לפני הצגתם." : "קישור המטריצה אינו תקין או גדול מדי. בקשו קישור חדש."}</p> : null}
-    <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
+    {publicClassic ? null : <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />}
     <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
       <div><small>סביבת עבודה</small><strong>{guidedProfile ? "גילוי מודרך" : advancedResearchProfile ? "מחקר" : "קלאסי"}</strong></div>
-      <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />
+      {publicClassic ? null : <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />}
       {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => { setMatrixProfile(ELS_MATRIX_PROFILE.GUIDED);setParams({}); }}>חיפוש חדש</button> : null}
     </nav>
     {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
@@ -472,7 +464,8 @@ function OperationalEls2029Page({ previewAdvanced = false }) {
           active={!library && (!guidedProfile || researchLoad?.guidedDiscovery === true || directSavedOpen)}
           advancedSearchRequestKey={location.state?.elsResearchReturnTaskId && location.state.elsResearchReturnTaskId === research.elsResearchOperation?.task?.id ? location.key : null}
           researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row ? null : sharedMatrix.loadItem || findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
-          advancedSearch={<ElsAdvancedSearch2029
+          publicClassic={publicClassic}
+          advancedSearch={publicClassic ? null : <ElsAdvancedSearch2029
             researchOrigin={replayMatched && layeredReady ? { ...context?.selection, corpusId: replayProjection?.corpusId } : null}
             exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary}
             onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />}

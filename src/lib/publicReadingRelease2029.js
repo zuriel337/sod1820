@@ -24,7 +24,8 @@ export function publicReadingActionsLocked(isAdmin) {
 
 // Books navigation now enters the admitted public source reader. Research and
 // actions retain their separate identity/action gates; shared flags never change.
-const openFlags = new Set(["lock_world", "lock_number", "lock_gematria", "lock_books"]);
+// ZURIEL 5.11: the Bible code opens to the public in its Classic mode only. Guided/Research stay administrator-only inside the page.
+const openFlags = new Set(["lock_world", "lock_number", "lock_gematria", "lock_books", "lock_els"]);
 export function publicReadingFeatureLock(flag) {
   return Object.freeze({ enabled: !openFlags.has(flag), mode: "all", message: openFlags.has(flag) ? "" : "האזור אינו פתוח בגרסת הקריאה הציבורית." });
 }
@@ -67,7 +68,7 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
     "/גימטריה": "/gematria", "/888": "/community/researcher/888",
     "/book": "/books", "/book.html": "/books",
     "/אור-הגאולה": "/or-geula", "/צור-קשר": "/contact", "/about": "/contact",
-    "/profile": "/2029/me/profile", "/lab/els": "/code", "/tzofen.html": "/code",
+    "/profile": "/2029/me/profile", "/lab/els": "/code", "/els": "/code", "/tzofen.html": "/code",
     "/שם": "/name", "/מעבדת-השם": "/name-lab", "/פסוקים": "/verse-gematria",
     "/קשרי-שפות": "/languages", "/הצלבה": "/cross",
     "/gematria-3d": "/spatial-gematria", "/גימטריה-תלת-ממדית": "/spatial-gematria", "/גימטריה-מרחבית": "/spatial-gematria",
@@ -127,7 +128,7 @@ export function publicReadingExternalSourceHref(value) {
 // answered 503 + Retry-After (the standard way to say "temporarily unavailable"), never noindex. Personal, payment, mailing and
 // private screens are NOT in this list and stay out of the index.
 export const PUBLIC_TEMPORARILY_CLOSED_PATHS = Object.freeze([
-  "/code", "/els", "/research", "/heichal", "/היכל", "/name", "/name-lab", "/spatial-gematria", "/verse-gematria", "/languages", "/cross",
+  "/research", "/heichal", "/היכל", "/name", "/name-lab", "/spatial-gematria", "/verse-gematria", "/languages", "/cross",
   "/archive", "/reality", "/timeline", "/numbers", "/broadcasts",
 ]);
 export const PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER = 259200; // 3 days, in seconds
@@ -151,8 +152,6 @@ export function publicReadingCapability(pathname) {
   const experiments={"/cheder/400":"חדר 400","/ניסיון":"תצוגת החוויה","/experience":"תצוגת החוויה","/חישוב":"מחשבון ההתגלות","/reveal":"מחשבון ההתגלות","/meaning-lab":"מעבדת המשמעות","/מעבדת-משמעות":"מעבדת המשמעות","/galaxy":"תצוגת הגלקסיה","/lab":"מעבדת הניסויים","/enter":"שער הכניסה","/community-shadow-preview-2029":"תצוגת הקהילה הניסיונית","/entity-hub-preview":"תצוגת הישויות הניסיונית","/entity-hub-preview/number/1237":"תצוגת הישויות הניסיונית","/explorer-preview":"תצוגת החוקר הניסיונית","/theme-preview":"תצוגת העיצוב הניסיונית","/2029/home-preview":"תצוגת הבית הניסיונית","/2029/kingdom":"תצוגת הממלכה הניסיונית","/2029/preview":"תצוגת המערכות הניסיונית","/2029/preview/follow-center":"תצוגת המעקב הניסיונית","/dev/torah-occurrence-scene":"תצוגת המקור הניסיונית"};
   if(experiments[path]||/^\/sulamot(?:[2-9]|10|11)?$/.test(path||""))return {title:experiments[path]||"ניסוי הסולמות",description:"תצוגה ניסיונית שנשמרת להמשך ואינה פתוחה בגרסת האתר הזאת.",links:[["/map","למפת הזמינות"]]};
   const item = ({
-    "/code": ["הצופן התנ״כי", "כלי המחקר החדש נמצא בבנייה. הצפנים שפורסמו נשארים זמינים בספרייה.", "/codes", "לספריית הצפנים"],
-    "/els": ["הצופן התנ״כי", "כלי המחקר החדש נמצא בבנייה. הצפנים שפורסמו נשארים זמינים בספרייה.", "/codes", "לספריית הצפנים"],
     "/heichal": ["ההיכל", "ההיכל נמצא בבנייה. אפשר להמשיך לקריאת המקורות והפרסומים הזמינים.", "/books", "לספרים ולמקורות"],
     "/היכל": ["ההיכל", "ההיכל נמצא בבנייה. אפשר להמשיך לקריאת המקורות והפרסומים הזמינים.", "/books", "לספרים ולמקורות"],
     "/journey": ["מסע החיים", "מסע החיים אינו פתוח לציבור עדיין. המידע האישי הקיים נשמר.", "/login", "כניסה לחשבון"],
@@ -191,13 +190,13 @@ export function publicReadingPath(pathname, { isAdmin = false, search = "" } = {
   if (/^\/2029\/me\/(?:public-page|page-editor|profile|messages|notifications|progress|research|notes)$/.test(path)) return "account";
   // Only existing application surfaces; arbitrary /api or unknown paths do not
   // become public or executable merely because the viewer is an admin.
-  if (isAdmin === true && /^\/(?:code|els|heichal|היכל|books?|research|admin|journey|raziel|2029\/(?:me|journey|raziel|control)|community\/(?:chat|researcher\/me))(?:\/|$)/.test(path)) return "admin-view";
+  if (isAdmin === true && /^\/(?:heichal|היכל|books?|research|admin|journey|raziel|2029\/(?:me|journey|raziel|control)|community\/(?:chat|researcher\/me))(?:\/|$)/.test(path)) return "admin-view";
   if (publicReadingCapability(path)) return "closed";
   if (/^\/(?:api|admin|auth|2029\/me|community\/researcher\/me)(?:\/|$)/.test(path)) return "closed";
   if (path === "/unsubscribe" && PUBLIC_READING_PRODUCTION_ARTIFACT) return "public";
   if (["/updates", "/unsubscribe"].includes(path)) return "service-closed";
   if (PUBLIC_HISTORICAL_LECTURE_PATHS.some(href => href.replace(/\/+$/, "") === path)) return "public";
-  if (["/", "/world", "/verified", "/post", "/posts", "/number", "/gematria", "/gallery", "/map", "/privacy", "/2029", "/2029/posts", "/2029/gematria", "/2029/gematria/viral", "/2029/calculator", "/community", "/community/chat", "/community/calculator", "/community/comments", "/community/researchers", "/members", "/forum", "/or-geula", "/books", "/beit-midrash", "/codes", "/codes/מחקר", "/contact", "/early-access", "/melech-hamisparim/718"].includes(path)) return "public";
+  if (["/", "/world", "/verified", "/post", "/posts", "/number", "/gematria", "/code", "/gallery", "/map", "/privacy", "/2029", "/2029/posts", "/2029/gematria", "/2029/gematria/viral", "/2029/calculator", "/community", "/community/chat", "/community/calculator", "/community/comments", "/community/researchers", "/members", "/forum", "/or-geula", "/books", "/beit-midrash", "/codes", "/codes/מחקר", "/contact", "/early-access", "/melech-hamisparim/718"].includes(path)) return "public";
   if (/^\/(?:post|number|topic|researcher|video|tag|category|book|codes|forum)\/[^/]+\/?$/.test(pathname) || /^\/or-geula\/video\/[^/]+$/.test(path) || /^\/2029\/number\/[^/]+$/.test(path) || /^\/community\/researcher\/[^/]+$/.test(path) || /^\/beit-midrash\/[^/]+$/.test(path)) return "public";
   // A historical single-segment Post remains subject to the canonical public
   // Post lookup/boundary. This does not declare an unknown/draft slug published.
