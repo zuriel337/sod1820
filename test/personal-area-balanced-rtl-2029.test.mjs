@@ -30,7 +30,9 @@ test("all personal modules consume one bounded balanced RTL layout", () => {
   assert.match(view, /<div className="wp-head-actions">/);
   assert.match(css, /\.wp-layout\{[^}]*width:min\(100%,980px\);margin-inline:auto/);
   assert.match(css, /\.wp-head\{[^}]*justify-items:center;text-align:center/);
-  assert.match(css, /\.wp-nav\{[^}]*justify-content:center/);
+  // The module nav is a balanced grid of equal columns (it was a centred flex row): the same bounded, centred result, with every link centring its own label.
+  assert.match(css, /\.wp-nav\{[^}]*display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)[^}]*width:100%;margin-inline:auto/);
+  assert.match(css, /\.wp-nav-link\{[^}]*justify-content:center;text-align:center/);
   assert.match(css, /@media\(max-width:620px\)[\s\S]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
   assert.match(css, /:is\(button,select,textarea,a,input:not\(\[type=checkbox\],\[type=radio\]\)\)[^}]*min-height:44px!important;min-width:44px/);
 });

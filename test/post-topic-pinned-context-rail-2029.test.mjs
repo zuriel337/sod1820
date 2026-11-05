@@ -22,7 +22,10 @@ test("desktop pinned region: sticky ~78px, viewport-bounded internal scroll, Pos
   assert.match(restoreCss, /\.sod29-root\.surface-post \.sod29-surface-context-rail/);
   assert.match(restoreCss, /\.sod29-root\.surface-topic \.sod29-surface-context-rail/);
   assert.match(restoreCss, /position:sticky;\s*top:78px/);
-  assert.match(restoreCss, /max-height:calc\(100vh - 98px\)/);
+  // The viewport bound is no longer a fixed 98px: the rail ends above the floating bottom bar, so its height budget is the viewport minus its own top
+  // offset minus the bar's clearance token (100vh as the fallback, 100dvh where supported). The resting-position bound is pinned in topbar-crown-2029.test.mjs.
+  assert.match(restoreCss, /max-height:calc\(100vh - 78px - var\(--s29-island-clearance,90px\)\)/);
+  assert.match(restoreCss, /max-height:calc\(100dvh - 78px - var\(--s29-island-clearance,90px\)\)/);
   assert.match(restoreCss, /overflow-y:auto/);
   assert.match(restoreCss, /overflow-x:clip/);
 });

@@ -61,10 +61,14 @@ test("public footer links come from the registry and external links keep their v
 test("closed routes are shown as under construction, never as active links (public viewer)", async () => {
   const footer = await loadFooter(false);
   const html = render(footer, "/2029/posts");
-  for (const label of ["ארכיון", "היכל", "דילוגי אותיות", "המחקר שלי", "כאן מתחילים"]) {
+  for (const label of ["ארכיון", "היכל", "המחקר שלי", "כאן מתחילים"]) {
     assert.match(html, new RegExp(`<li class="f29-closed"><span>${label}</span><small>בבנייה</small></li>`), label);
   }
-  for (const closedHref of ["/archive", "/research", "/code", "/start"]) assert.ok(!hrefs(html).includes(closedHref), closedHref);
+  for (const closedHref of ["/archive", "/research", "/start"]) assert.ok(!hrefs(html).includes(closedHref), closedHref);
+  // ZURIEL opened the Bible code (Classic) to the public on 5.11.2026: the footer takes its state from the same router as the pages, so it is a
+  // working link for the public and no longer "בבנייה" (the registry's own defaultState is not what the footer shows).
+  assert.ok(hrefs(html).includes("/code"), "the Bible code is an active link for the public");
+  assert.doesNotMatch(html, /<li class="f29-closed"><span>דילוגי אותיות<\/span>/, "the Bible code is not shown as under construction");
 });
 
 test("an admin sees the admin-view routes as working links with a visible admin marker", async () => {

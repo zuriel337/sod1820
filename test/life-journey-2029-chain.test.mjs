@@ -46,7 +46,10 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   const vercel = JSON.parse(read("vercel.json"));
   const packageJson = JSON.parse(read("package.json"));
 
-  assert.match(app, /path="\/2029\/journey" element=\{<Locked flag="lock_life_journey" requireFlag homeHref="\/2029"><LifeJourney2029Page \/><\/Locked>\}/);
+  // The route goes through the framed gate (a closed visitor sees the framed notice, not a bare page); the gate itself is the same Locked wrapper
+  // with the flag required to exist (fail closed), the administrator view allowed and the same home target.
+  assert.match(app, /path="\/2029\/journey" element=\{<FramedGate2029 flag="lock_life_journey" surface="journey" title="מסע החיים"><LifeJourney2029Page \/><\/FramedGate2029>\}/);
+  assert.match(app, /function FramedGate2029\(\{ flag, surface, title, children \}\) \{\s*return <Locked flag=\{flag\} requireFlag allowAdminView homeHref="\/2029" renderBlocked=/);
   assert.match(page, /data-experience-surface="life-journey-2029"/);
   assert.match(page, /LifeJourneyCapabilities2029/);
   assert.match(page, /<PersonJourney variant="2029" CapabilitySurface=\{LifeJourneyCapabilities2029\}/);

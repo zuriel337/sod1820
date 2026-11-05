@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 import { transformWithOxc } from "vite";
 import { contactSourceHref } from "./contactSource2029.js";
+import { adminOpenClosedDestinations } from "./adminOpenDestinations2029.js";
 import { publicPageShareUrl, postAddressSlug } from "../../lib/publicPostUrls.js";
 
 const read = file => readFile(new URL(file, import.meta.url), "utf8");
@@ -145,7 +146,10 @@ test("global dock opens ShareActions directly with all approved choices and keep
   for (const shareOnly of [true, false]) {
     const context = { React: react, transientKind: "more", TRANSIENT: { MORE: "more" }, transient: { payload: { shareOnly } },
       common: {}, PanelShell: "PanelShell", ShareActions: "ShareActions", FrameState: "FrameState", inspectTarget: null,
-      activeToolDock: null, shareHref: "https://sod1820.co.il/post/current", surface: "post", title: "Current", openAction() {}, openTools() {} };
+      activeToolDock: null, shareHref: "https://sod1820.co.il/post/current", surface: "post", title: "Current", openAction() {}, openTools() {},
+      // The "עוד" panel also renders the administrator's list of still-closed destinations (#1214). This fixture is an ordinary visitor, and the real
+      // helper answers an empty list for anyone who is not the administrator, so the share branch is exercised exactly as before.
+      isAdmin: false, adminOpenClosedDestinations };
     vm.runInNewContext(code, context);
     const tree = context.render(), share = elements(tree).find(node => node.type === "ShareActions");
     assert.equal(tree.props.title, shareOnly ? "שיתוף" : "עוד");
@@ -158,5 +162,7 @@ test("global dock opens ShareActions directly with all approved choices and keep
   assert.match(source, /sourceHref: contactSourceHref\(location\)/);
   assert.match(source, /const feed = useSystemFeed2029\(\{ enabled: surface !== "control", nowOpen: transient\?\.kind === TRANSIENT\.ATTENTION \}\)/);
   assert.match(source, /data-command-mode="tool"[\s\S]*activeToolDock\.actions\.slice\(0, 2\)[\s\S]*activeToolDock\.actions\.slice\(2, 4\)/);
-  assert.match(source, /onClick=\{openShare\} disabled=\{!shareHref\}/);
+  // #1214 replaced the share-only dock button with the one full "עוד" entry: sharing is a section of that panel (the branch exercised above, ShareActions
+  // with every approved channel) and test/dock-more-2029.test.mjs pins the five-control dock. The dock entry must open that panel.
+  assert.match(source, /onClick=\{openMore\}[^>]*aria-label="עוד · פעולות, כלים ושיתוף"/);
 });

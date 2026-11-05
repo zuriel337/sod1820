@@ -40,9 +40,14 @@ test("2029 post-title surfaces use the shared presentation sanitizer and bounded
   assert.match(posts, /humanContentTitle/);
   assert.match(numberCss, /-webkit-line-clamp:3/);
   assert.match(worldCss, /-webkit-line-clamp:3/);
-  assert.match(postsCss, /-webkit-line-clamp:3/);
   assert.match(numberCss, /font-size:28px/);
-  assert.match(postsCss, /font-size:22px/);
+  // The Posts library was redesigned in #1191 (approved, live): its cards no longer clamp the title to three lines and no longer use a fixed 22px size.
+  // A title there is bounded by the type tokens and by wrapping inside a card that can shrink (a title is never cut), so a long stored title cannot
+  // widen the grid or the page. These are the rules that carry that bound today.
+  assert.match(postsCss, /\.sod29-library-post-card\{[^}]*min-width:0;[^}]*overflow:hidden/);
+  assert.match(postsCss, /\.sod29-library-post-copy\{[^}]*min-width:0/);
+  assert.match(postsCss, /\.sod29-library-post-copy h2\{[^}]*font-size:var\(--s29-type-lead,21px\)[^}]*overflow-wrap:anywhere/);
+  assert.match(postsCss, /\.sod29-posts-library-hero h1\{[^}]*overflow-wrap:anywhere/);
 });
 
 
