@@ -491,6 +491,8 @@ export default async function handler(req, res) {
       '/melech-hamisparim/718': ['מלך המספרים · 718', 'העמוד והפרסומים של מלך המספרים בסוד 1820.'],
     }[decodedKey];
     title = `${info[0]} · ${SITE_NAME}`; desc = info[1]; image = cardUrl({ w: info[0], sub: 'SOD1820' });
+    // /community shows the same chat: consolidate it onto the chat address (the client declares the same canonical).
+    if (decodedKey === '/community') canonical = SITE + '/community/chat';
     if (!['/community', '/community/researchers', '/members'].includes(decodedKey)) robots = 'noindex, follow';
     if (['/community/researchers', '/members'].includes(decodedKey)) {
       const page = publicContinuityPage2029(continuityParams.has('page') ? continuityParams.getAll('page') : null);

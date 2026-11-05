@@ -271,6 +271,14 @@ test('the bare chat page stays indexable; its query variants do not', async () =
   }
 });
 
+test('the chat is in the production sitemap and /community consolidates onto it', async () => {
+  const { readFileSync } = await import('node:fs');
+  const sitemap = readFileSync(new URL('../api/sitemap.js', import.meta.url), 'utf8');
+  assert.match(sitemap, /if \(productionReading\) urls\.push\(\{ loc: '\/community\/chat'/);
+  const og = readFileSync(new URL('../api/og.js', import.meta.url), 'utf8');
+  assert.match(og, /if \(decodedKey === '\/community'\) canonical = SITE \+ '\/community\/chat'/);
+});
+
 test('public Post metadata remains independent of launch gates and retains Article structured data', async () => {
   const result = await invoke(ogHandler, async url => {
     assert.ok(url.includes('/posts?slug=eq.public-post'), `post made unrelated request: ${url}`);

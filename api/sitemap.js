@@ -210,6 +210,8 @@ export default async function handler(req, res) {
   if (foundation && !urls.some(row => row.loc === "/number")) urls.push({ loc: "/number", priority: "0.6", changefreq: "monthly" });
   if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID && !urls.some(row => row.loc === "/gallery")) urls.push({ loc: "/gallery", priority: "0.6", changefreq: "weekly" });
   if (productionReading) urls.push({ loc: '/community/researchers', priority: '0.5', changefreq: 'weekly' });
+  // The community chat is the replacement of the retired forum and a popular search landing page: it belongs in the sitemap.
+  if (productionReading) urls.push({ loc: '/community/chat', priority: '0.7', changefreq: 'daily' });
   if (productionReading) for (const loc of PUBLIC_HISTORICAL_LECTURE_PATHS) urls.push({loc,priority:'0.4',changefreq:'yearly'});
   let foundationSourceFailed = false;
   let posts;
