@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
-import { use2029Palette } from "../../lib/palette.js";
+import { use2029Palette } from "../../lib/palette2029.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { approvedReturnHref } from "./publicContributor2029Model.js";
 import { CATALOG_FORMATS, selectSourceCatalog2029 } from "./publicSourceCatalog2029Model.js";

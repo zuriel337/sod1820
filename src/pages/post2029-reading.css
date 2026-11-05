@@ -1425,7 +1425,7 @@
 /* Colour marks a RELATION, not every number: items that belong to the same relation (e.g. 27.10 -> 2710 -> 271 and the words equal to 271)
    share one colour (group a / b); everything else stays in the reading ink. Day/parchment use deeper tones for contrast. */
 .sod29-reading-post{--post-link-a:#A56F00;--post-link-b:#B3172F}
-html[data-theme-preset="dark"] .sod29-reading-post{--post-link-a:#FFE23A;--post-link-b:#FF6B6B}
+html[data-theme-2029="dark"] .sod29-reading-post{--post-link-a:#FFE23A;--post-link-b:#FF6B6B}
 .sod29-reading-source :is(.sod29-gematria-value,.sod-numlink,.sod29-gematria-hero,.sod29-gematria-expression,[data-gem]:not(a):not(button)){color:var(--s29-ink)!important}
 .sod29-reading-source [data-link-group="a"]{color:var(--post-link-a)!important;font-weight:850}
 .sod29-reading-source [data-link-group="b"]{color:var(--post-link-b)!important;font-weight:850}

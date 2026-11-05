@@ -1,4 +1,4 @@
-import { DESIGN_V2_PALETTES } from "../../lib/palette.js";
+import { DESIGN_V2_PALETTES } from "../../lib/palette2029.js";
 
 // Presentation only: preserve stored colors and map the canonical engine's automatic
 // slots to distinct matrix accents. Rail swatches and cells use the same projection.

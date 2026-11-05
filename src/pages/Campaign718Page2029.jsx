@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { Link, useSearchParams } from "react-router-dom";
 import { BRAND_LOCKUP_2029 } from "../lib/brandAssets2029.js";
-import { use2029Palette } from "../lib/palette.js";
+import { use2029Palette } from "../lib/palette2029.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { signupAttribution, visitorId } from "../lib/acquisition.js";
 import { SUPABASE_ANON, SUPABASE_URL, supabase } from "../lib/supabase.js";

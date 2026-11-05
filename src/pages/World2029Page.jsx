@@ -10,7 +10,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
 import WorldPublicSourceSubjects2029 from "../components/research/WorldPublicSourceSubjects2029.jsx";
-import { usePalette } from "../lib/palette.js";
+import { use2029Palette } from "../lib/palette2029.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
@@ -678,7 +678,7 @@ export function PublicWorldFindingFocus({ finding, context, shell }) {
 function LiveWorldLanding({ research, shell, context }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const palette = usePalette();
+  const palette = use2029Palette();
   const { isAdmin, loading: authLoading } = useAuth();
   const [activeView, setActiveView] = useState(() => resolveWorldLandingView(location));
   const [knowledgeKind, setKnowledgeKind] = useState(() => resolveWorldKnowledgeKind(location.search));

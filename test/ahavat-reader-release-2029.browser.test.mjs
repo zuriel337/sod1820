@@ -48,7 +48,7 @@ test("all primary reading surfaces, seven accounts and preserved research detail
       await page.goto(`${origin}/2029/control?surface=ahavat-torah-system`, { waitUntil: "domcontentloaded" });
       const heading = page.getByRole("heading", { name: "מן המניין אל עמוד המקור", exact: true });
       await heading.waitFor();
-      assert.equal(await page.locator("html").getAttribute("data-theme-preset"), theme);
+      assert.equal(await page.locator("html").getAttribute("data-theme-2029"), theme);
       const primaryText = await page.locator("main.ahavat29").innerText();
       assert.doesNotMatch(primaryText, /מצפה הנתונים של הספר|טבלאות שאפשר להיכנס לתוכן|גובה הוא מספר עמודי המקור|המערכת שאנחנו בונים|ARITHMETIC MISMATCH|מועמד למחקר|השלב הבא למאגר/);
       assert.doesNotMatch(primaryText, /\bDS-\d{2}\b/);

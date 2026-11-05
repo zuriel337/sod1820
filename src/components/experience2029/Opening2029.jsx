@@ -1,6 +1,6 @@
 import React from "react";
 import "./opening2029.css";
-import { use2029Palette } from "../../lib/palette.js";
+import { use2029Palette } from "../../lib/palette2029.js";
 import { BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 // Temporary document opening, not another System Frame. The actual Frame owns
 // all account, context, tools and Now actions. Plain public navigation is usable

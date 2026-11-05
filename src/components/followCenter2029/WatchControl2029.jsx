@@ -1,7 +1,7 @@
 import React from "react";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import IconTile2029 from "../experience2029/IconTile2029.jsx";
-import { use2029Palette, treatmentVars } from "../../lib/palette.js";
+import { use2029Palette, treatmentVars } from "../../lib/palette2029.js";
 import "./watchControl2029.css";
 
 // Design V2 presentation of the canonical WatchButton (variant="2029"). It owns no state, IO or consent: the WatchButton

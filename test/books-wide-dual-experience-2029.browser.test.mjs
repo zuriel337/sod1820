@@ -50,7 +50,7 @@ test("both book experiences preserve the source while widening desktop reading",
         await page.goto(`${origin}/2029/control?surface=${book.surface}&page=${book.page}`, { waitUntil: "domcontentloaded" });
         const source = page.locator(book.source);
         await source.waitFor();
-        await page.waitForFunction(value => document.documentElement.getAttribute("data-theme-preset") === value, theme);
+        await page.waitForFunction(value => document.documentElement.getAttribute("data-theme-2029") === value, theme);
         assert.match(await ahavatSourceHref(source), new RegExp(`#page=${book.page}&`));
         assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0, "3D remains opt-in");
         if (book.surface === "ahavat-torah-system") {

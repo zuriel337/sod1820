@@ -6,7 +6,7 @@ import {
   buildWorldMapFixtureProjection, createFixtureRelationOpener, WORLD_MAP_FIXTURE_CANDIDATES,
   WORLD_MAP_FIXTURE_LAYERS, WORLD_MAP_FIXTURE_NOTICE, WORLD_MAP_FIXTURE_TARGETS,
 } from "../../src/lib/research/worldMapFixture2029.js";
-import { use2029Palette } from "../../src/lib/palette.js";
+import { use2029Palette } from "../../src/lib/palette2029.js";
 import { setThemePreset } from "../../src/lib/themeMode.js";
 import { TYPEFACE, TYPE_SCALE_V2 } from "../../src/lib/designTokens.js";
 

@@ -111,7 +111,7 @@ for (const width of [320, 390, 1440]) test(`all ten source proofreading columns 
           await click(source.getByRole("link", { name: "חזור ליחידת הקריאה", exact: true }));
           await page.waitForFunction(id => document.activeElement?.closest("[data-reader-unit]")?.dataset.readerUnit === id, fragment.id);
         }
-        assert.equal(await page.locator("html").getAttribute("data-theme-preset"), theme);
+        assert.equal(await page.locator("html").getAttribute("data-theme-2029"), theme);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && document.body.scrollWidth <= innerWidth + 1), true, `${width}/${theme}/${fragment.id}: expanded overflow`);
         if (fragment.id === "roots:31:right" && theme === "parchment") await unit.screenshot({ path: `${screenshotDir}/review-${width}.png` });
         await page.reload({ waitUntil: "domcontentloaded" });

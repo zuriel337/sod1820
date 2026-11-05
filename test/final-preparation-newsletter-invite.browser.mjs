@@ -9,7 +9,7 @@ const source=await readFile('src/components/experience2029/SystemFrame2029.jsx',
 const panel=source.slice(source.indexOf('function PanelShell('),source.indexOf('function CommandProjection('));
 const shellStyle=source.slice(source.indexOf('  const shellStyle = useMemo('),source.indexOf('  const transientKind ='));
 const entry=`import React,{useState,useEffect,useMemo} from 'react';import{createRoot}from'react-dom/client';
-import{resolve2029Palette}from'./src/lib/palette.js';import{RADIUS,LAYOUT,TYPEFACE,TYPE_SCALE_V2,RAZIEL_PRESENCE}from'./src/lib/designTokens.js';
+import{resolve2029Palette}from'./src/lib/palette2029.js';import{RADIUS,LAYOUT,TYPEFACE,TYPE_SCALE_V2,RAZIEL_PRESENCE}from'./src/lib/designTokens.js';
 import Guest from './src/components/experience2029/GuestNewsletterInvite2029.jsx';
 import{guestNewsletterRoute2029,useGuestNewsletterInvite2029,dismissGuestNewsletterInvite2029}from'./src/components/experience2029/useGuestNewsletterInvite2029.js';
 const PreviewTransportDisclosure2029=()=>null;${panel}

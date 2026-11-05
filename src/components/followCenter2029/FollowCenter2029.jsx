@@ -1,7 +1,7 @@
 import React from "react";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import IconTile2029 from "../experience2029/IconTile2029.jsx";
-import { use2029Palette, treatmentVars } from "../../lib/palette.js";
+import { use2029Palette, treatmentVars } from "../../lib/palette2029.js";
 import "./followCenter2029.css";
 
 // Presentational 2029 personal update center. Everything arrives through the view model and callbacks:

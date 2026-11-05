@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { usePalette } from "../lib/palette.js";
+import { use2029Palette } from "../lib/palette2029.js";
 import { fetchCommunityStream } from "../lib/community/razielCommunitySeam.js";
 
 // 🧪 הקהילה — SHADOW PREVIEW, INTERNAL ONLY. G3 Community Core 2029 Phase 2
@@ -18,7 +18,7 @@ import { fetchCommunityStream } from "../lib/community/razielCommunitySeam.js";
 // future Phase 3 session applies that migration. That is the intended state of a hidden
 // runtime's Shadow Preview, not a bug.
 export default function CommunityShadowPreview2029Page() {
-  const pal = usePalette();
+  const pal = use2029Palette();
   const [messages, setMessages] = useState(null);
   const [notLiveYet, setNotLiveYet] = useState(false);
   const [draft, setDraft] = useState("");

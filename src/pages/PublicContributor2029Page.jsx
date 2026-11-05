@@ -4,7 +4,7 @@ import ContributorFindingsLens from "../components/research/ContributorFindingsL
 import { loadPublicContributor2029 } from "../components/contributor2029/loadPublicContributor2029.js";
 import { loadCommunityPerson2029 } from "../components/contributor2029/loadCommunityPerson2029.js";
 import { readContributorLocation, SECTIONS, selectContributorItems } from "../components/contributor2029/publicContributor2029Model.js";
-import { use2029Palette } from "../lib/palette.js";
+import { use2029Palette } from "../lib/palette2029.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./publicContributor2029.css";

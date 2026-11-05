@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { publicLaunchActionsLocked } from "../../lib/publicLaunch2029.js";
 import { supabase } from "../../lib/supabase.js";
-import { use2029Palette } from "../../lib/palette.js";
+import { use2029Palette } from "../../lib/palette2029.js";
 import { writerSelfRequest } from "../../lib/userCenter/writerPersonal2029.js";
 import ProfileSettings from "../ProfileSettings.jsx";
 import "./quickProfileAvatar2029.css";
