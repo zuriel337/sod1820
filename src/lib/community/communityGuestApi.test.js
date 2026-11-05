@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { fetchGuestUnreviewed, guestBodyHasLink, guestPublishErrorMessage, publishGuestCommunityMessage, reviewGuestMessage } from "./communityGuestApi.js";
-import { createTypingTracker, shouldSendTyping, typingLabel, TYPING_TTL_MS } from "./communityTyping.js";
+import { cleanTypingName, createTypingTracker, shouldSendTyping, typingLabel, TYPING_TTL_MS } from "./communityTyping.js";
 
 test("guest links and attachments are detected like the server does", () => {
   for (const text of ["https://x.co", "ראו www.example.com", "example.co.il/page", "youtu.be/abc", "📎 file"]) assert.equal(guestBodyHasLink(text), true, text);
@@ -24,17 +24,31 @@ test("guest API calls the exact RPCs with named arguments", async () => {
     ["community_guest_review", { p_id: "a", p_action: "hide" }]]);
   await assert.rejects(publishGuestCommunityMessage({ body: "x" }, { rpc: async () => ({ data: null, error: { message: "rate_limited" } }) }));
 });
-test("typing tracker expires, caps and ignores malformed keys", () => {
+test("typing tracker expires, caps, dedupes names and ignores malformed keys", () => {
   const t = createTypingTracker();
-  t.mark("abcdefgh-1", 0); t.mark("abcdefgh-1", 100); t.mark("abcdefgh-2", 100); t.mark("short", 100); t.mark(5, 100);
-  assert.equal(t.count(200), 2);
+  t.mark("abcdefgh-1", "דוד", 0); t.mark("abcdefgh-1", "דוד", 100); t.mark("abcdefgh-2", "דוד", 100);
+  t.mark("abcdefgh-3", null, 100); t.mark("abcdefgh-4", "   ", 100); t.mark("short", "x", 100); t.mark(5, "x", 100);
+  assert.deepEqual(t.people(200), { names: ["דוד"], anonymous: 2 });
+  assert.equal(t.count(200), 3);
   assert.equal(t.count(100 + TYPING_TTL_MS), 0);
-  for (let i = 0; i < 80; i++) t.mark(`key-${String(i).padStart(6, "0")}`, 0);
+  for (let i = 0; i < 80; i++) t.mark(`key-${String(i).padStart(6, "0")}`, null, 0);
   assert.equal(t.count(1), 50);
 });
-test("typing is throttled and labelled without names", () => {
+test("typing names are cleaned of control and direction characters", () => {
+  assert.equal(cleanTypingName("  רות\u202e  כהן\n"), "רות כהן");
+  assert.equal(cleanTypingName("א".repeat(100)).length, 40);
+  assert.equal(cleanTypingName(5), null); assert.equal(cleanTypingName(" "), null);
+});
+test("typing is throttled and labelled by name, anonymous or both", () => {
   assert.equal(shouldSendTyping(0, 0), true);
   assert.equal(shouldSendTyping(1000, 2000), false);
   assert.equal(shouldSendTyping(1000, 4000), true);
-  assert.equal(typingLabel(0), ""); assert.equal(typingLabel(1), "מישהו מקליד…"); assert.equal(typingLabel(3), "3 מקלידים…");
+  assert.equal(typingLabel({ names: [], anonymous: 0 }), "");
+  assert.equal(typingLabel({ names: ["דוד"], anonymous: 0 }), "דוד מקליד…");
+  assert.equal(typingLabel({ names: [], anonymous: 1 }), "אנונימי מקליד…");
+  assert.equal(typingLabel({ names: [], anonymous: 3 }), "3 אנונימיים מקלידים…");
+  assert.equal(typingLabel({ names: ["דוד", "רות"], anonymous: 0 }), "דוד, רות מקלידים…");
+  assert.equal(typingLabel({ names: ["דוד"], anonymous: 1 }), "דוד, אנונימי מקלידים…");
+  assert.equal(typingLabel({ names: ["דוד", "רות", "יעל"], anonymous: 2 }), "דוד, רות ועוד 3 מקלידים…");
+  assert.equal(typingLabel({ names: ["דוד"], anonymous: 3 }), "דוד, 3 אנונימיים מקלידים…");
 });

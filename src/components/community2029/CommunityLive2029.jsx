@@ -385,7 +385,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     catch { setNotice("הפעולה על הודעת האורח לא הושלמה. נסו שוב."); }
   }, []);
   const guestReview = useMemo(() => ({ ids: guestUnreviewedIds, review: reviewGuest }), [guestUnreviewedIds, reviewGuest]);
-  const { typingCount, notifyTyping } = useCommunityTyping2029({ enabled: !actionsLocked && !memberId && !claimId });
+  const { typingPeople, notifyTyping } = useCommunityTyping2029({ enabled: !actionsLocked && !memberId && !claimId });
   const composerPrincipal = actionsLocked ? null : user?.id || null;
   const activeComposerPrincipal = useRef(composerPrincipal);
   activeComposerPrincipal.current = composerPrincipal;
@@ -420,7 +420,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     composerRef.current.style.height = `${Math.max(48, Math.min(composerRef.current.scrollHeight, 224))}px`;
   }, [draft, user?.id]);
   // Only real keystrokes count as typing: a draft restored from the device must not announce anyone.
-  const onDraftChange = value => { setDraft(value); if (typeof value === "string" && plainMessageText(value).trim()) notifyTyping(); };
+  const onDraftChange = value => { setDraft(value); if (typeof value === "string" && plainMessageText(value).trim()) notifyTyping(user ? profile?.display_name || profile?.username || null : null); };
   const attachmentRef = useRef(null);
   const cardCloseRef = useRef(null);
   const streamRequestRef = useRef(0);
@@ -758,7 +758,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         {isAdmin && guestUnreviewedIds.size ? <p className="sod29-community-guest-banner" role="status">{guestUnreviewedIds.size === 1 ? "הודעת אורח אחת פורסמה ועדיין לא נבדקה" : `${guestUnreviewedIds.size} הודעות אורח פורסמו ועדיין לא נבדקו`} · מוצגות באפור</p> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
-          <p className="sod29-community-typing" role="status" aria-live="polite" data-typing={typingCount > 0 ? "true" : "false"}>{typingLabel(typingCount)}</p>
+          <p className="sod29-community-typing" role="status" aria-live="polite" data-typing={typingLabel(typingPeople) ? "true" : "false"}>{typingLabel(typingPeople)}</p>
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
           <div className={compactComposer ? "sod29-community-compose-row" : undefined}>
