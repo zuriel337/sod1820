@@ -70,8 +70,3 @@ export function useThemePreset() {
 export function useThemeMode() {
   return useSyncExternalStore(subscribe, () => legacyMode(), () => "dark");
 }
-
-// True when this system has a stored theme preference (used by surfaces that only force a mode for first-time visitors).
-export function hasStoredThemePreference() {
-  try { return localStorage.getItem(KEY) != null; } catch { return true; }
-}

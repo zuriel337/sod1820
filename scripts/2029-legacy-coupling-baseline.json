@@ -57,6 +57,22 @@
    "class": "F",
    "action": "Funnel/subscription logic → neutral service; 2029 follow UI. Canonical-component law conflict (see doc)."
   },
+  "src/components/experience2029/CurationMark2029.jsx": {
+   "class": "N",
+   "action": "2029-named but calls Legacy usePalette: switch to use2029Palette."
+  },
+  "src/components/experience2029/SpatialGlyphScene2029.jsx": {
+   "class": "N",
+   "action": "Uses Legacy themeMode: switch to 2029 theme store."
+  },
+  "src/components/experience2029/SystemFrame2029.jsx": {
+   "class": "N",
+   "action": "Uses Legacy themeMode: switch to 2029 theme store."
+  },
+  "src/components/experience2029/previewVisualReview2029.jsx": {
+   "class": "N",
+   "action": "Preview-only; uses Legacy themeMode."
+  },
   "src/components/research/TopicConvergenceContent.jsx": {
    "class": "N",
    "action": "Legacy TopicPage + World2029Page both mount it; 2029 topic content."
@@ -73,6 +89,10 @@
    "class": "N",
    "action": "802 lines, Legacy palette, localStorage, fixed popups; 2029 wraps it with passive/actionsLocked props. Needs a 2029 calculator surface over the unchanged gematria engine."
   },
+  "src/pages/HomePreview2029Page.jsx": {
+   "class": "N",
+   "action": "Uses Legacy themeMode."
+  },
   "src/pages/NotFoundPage.jsx": {
    "class": "N",
    "action": "29-line page: 2029 NotFound over use2029Palette; Legacy keeps its own."
@@ -88,6 +108,10 @@
   "src/pages/VideoAssetPage.jsx": {
    "class": "F",
    "action": "2029 imports only the named Player export: extract Player into a neutral media primitive or a 2029 Player; the page stays Legacy."
+  },
+  "src/pages/World2029Page.jsx": {
+   "class": "N",
+   "action": "2029-named but calls Legacy usePalette."
   }
  },
  "sharedUiState": {
@@ -282,20 +306,58 @@
  },
  "taintedNative2029": [
   "src/App2029.jsx",
+  "src/components/auth2029/AccountEntry2029.jsx",
   "src/components/beitMidrash2029/BeitMidrashGuided.jsx",
   "src/components/beitMidrash2029/BeitMidrashMethods.jsx",
   "src/components/beitMidrash2029/BeitMidrashParticipate.jsx",
   "src/components/books2029/BookPdfPage2029.jsx",
   "src/components/books2029/BookSourceReader2029.jsx",
+  "src/components/books2029/DepthsLearningWorkspace2029.jsx",
+  "src/components/books2029/LetterGateExploration2029.jsx",
+  "src/components/books2029/SeferYetzirahStructureCatalog2029.jsx",
+  "src/components/books2029/yetzirahModels/FiveAgainstFiveLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/FiveAgainstFiveModel2029.jsx",
+  "src/components/books2029/yetzirahModels/GraDoublesLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/GraDoublesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/GraSealsLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/GraSealsModel2029.jsx",
+  "src/components/books2029/yetzirahModels/LetterFamiliesLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/LetterFamiliesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/MothersCorrespondencesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/MothersLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/MouthGroupsLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/PhoneticGroupsModel2029.jsx",
+  "src/components/books2029/yetzirahModels/StonesHousesLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/StonesHousesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/SynopticDoublesLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/SynopticDoublesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/SynopticSealsLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/SynopticSealsModel2029.jsx",
+  "src/components/books2029/yetzirahModels/TenDepthsModel2029.jsx",
+  "src/components/books2029/yetzirahModels/ThreeKingsLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/ThreeKingsModel2029.jsx",
+  "src/components/books2029/yetzirahModels/TwelveBoundariesLearning2029.jsx",
+  "src/components/books2029/yetzirahModels/TwelveBoundariesModel2029.jsx",
+  "src/components/books2029/yetzirahModels/YetzirahModelCard.jsx",
   "src/components/community2029/CommunityLive2029.jsx",
+  "src/components/community2029/CommunityMessageContent.jsx",
+  "src/components/community2029/CommunityMessageManage.jsx",
   "src/components/community2029/CommunityPersonalActions2029.jsx",
+  "src/components/community2029/CommunityRichText2029.jsx",
+  "src/components/community2029/CommunitySignIn.jsx",
+  "src/components/community2029/LegacyAccountClaim.jsx",
   "src/components/contributor2029/ContributorActionsController2029.jsx",
   "src/components/contributor2029/ContributorCommunityActivity2029.jsx",
+  "src/components/contributor2029/ContributorPersonMedallion2029.jsx",
+  "src/components/contributor2029/ContributorPublicExtras2029.jsx",
   "src/components/contributor2029/ContributorReadingController2029.jsx",
+  "src/components/contributor2029/ContributorReadingControls2029.jsx",
   "src/components/contributor2029/PublicSourceCatalog2029.jsx",
+  "src/components/contributor2029/QuickProfileAvatar2029.jsx",
   "src/components/contributor2029/WriterPersonalViews2029.jsx",
   "src/components/experience2029/CanonicalMediaFigure2029.jsx",
   "src/components/experience2029/ContactGatewayOnDemand2029.jsx",
+  "src/components/experience2029/CurationMark2029.jsx",
   "src/components/experience2029/ElsAdvancedSearch2029.jsx",
   "src/components/experience2029/ElsLexiconResearch2029.jsx",
   "src/components/experience2029/ElsMatrixReadingActivity2029.jsx",
@@ -309,11 +371,13 @@
   "src/components/experience2029/GuestNewsletterInvite2029.jsx",
   "src/components/experience2029/HomeComposition2029.jsx",
   "src/components/experience2029/HomeHeroMotion2029.jsx",
+  "src/components/experience2029/IconTile2029.jsx",
   "src/components/experience2029/LifeJourneyCapabilities2029.jsx",
   "src/components/experience2029/LifeJourneyDate2029.jsx",
   "src/components/experience2029/LifeJourneyHints2029.jsx",
   "src/components/experience2029/LifeJourneyMaps2029.jsx",
   "src/components/experience2029/LifeJourneyName2029.jsx",
+  "src/components/experience2029/Opening2029.jsx",
   "src/components/experience2029/PostCategories2029.jsx",
   "src/components/experience2029/ProjectorMediaCards2029.jsx",
   "src/components/experience2029/RazielSessionMount2029.jsx",
@@ -321,6 +385,13 @@
   "src/components/experience2029/SpatialGlyphScene2029.jsx",
   "src/components/experience2029/SurfaceContextRail2029.jsx",
   "src/components/experience2029/SystemFrame2029.jsx",
+  "src/components/experience2029/elsFindingColors2029.js",
+  "src/components/experience2029/previewVisualReview2029.jsx",
+  "src/components/followCenter2029/FollowCenter2029.jsx",
+  "src/components/followCenter2029/FollowCenterController2029.jsx",
+  "src/components/followCenter2029/WatchControl2029.jsx",
+  "src/components/number2029/NumberCore2029.jsx",
+  "src/components/number2029/NumberDrawer2029.jsx",
   "src/components/number2029/NumberLivingWorld2029.jsx",
   "src/components/research/RealityRiver2029.jsx",
   "src/components/research/RealityStreamFollow2029.jsx",
@@ -340,16 +411,19 @@
   "src/pages/BooksLibraryJourney2029Page.jsx",
   "src/pages/Calculator2029Page.jsx",
   "src/pages/CalculatorPro2029Page.jsx",
+  "src/pages/Campaign718Page2029.jsx",
   "src/pages/Community2029Page.jsx",
   "src/pages/CommunityCalculator2029Page.jsx",
   "src/pages/CommunityChatTransition2029Page.jsx",
   "src/pages/ControlPlane2029Page.jsx",
   "src/pages/DaatTevunotTree2029Page.jsx",
+  "src/pages/EarlyAccess2029Page.jsx",
   "src/pages/Els2029Page.jsx",
   "src/pages/FollowCenterPreview2029Page.jsx",
   "src/pages/Gallery2029Page.jsx",
   "src/pages/Heichal2029Page.jsx",
   "src/pages/Home2029Page.jsx",
+  "src/pages/HomePreview2029Page.jsx",
   "src/pages/IntegratedPreview2029Page.jsx",
   "src/pages/Kingdom2029Page.jsx",
   "src/pages/LifeJourney2029Page.jsx",

@@ -8,7 +8,7 @@ import { getRealityHints } from '../../lib/supabase.js';
 import { realityStreamDatePresentation2029, loadPublicRealityStream2029 } from '../../lib/research/topicSourceContext.js';
 import { publicMediaCaption, publicMediaTitle } from '../../lib/presentation/contentTitle.js';
 import { numberExpressionFocusHref } from '../../lib/research/numberExpressionFocus.js';
-import { treatmentVars, use2029Palette } from '../../lib/palette2029.js';
+import { treatmentVars, use2029Palette } from '../../lib/palette.js';
 import './realityRiver2029.css';
 
 const RiverPicture = memo(function RiverPicture({ item, index, selected, registerCard, roles }) {

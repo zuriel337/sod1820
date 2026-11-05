@@ -5,7 +5,7 @@ import PublicContributor2029Page, {PublicContributor2029View} from '../../src/pa
 import {withPublicContributorPerson2029} from '../../src/components/contributor2029/publicContributorPerson2029.js';
 import {sourceCatalogFixtureView} from '../../src/components/contributor2029/publicSourceCatalog2029Fixtures.js';
 import {fixtureView} from '../../src/components/contributor2029/publicContributor2029Fixtures.js';
-import {use2029Palette} from '../../src/lib/palette2029.js';
+import {use2029Palette} from '../../src/lib/palette.js';
 import {TYPEFACE,TYPE_SCALE_V2} from '../../src/lib/designTokens.js';
 import {setThemePreset} from '../../src/lib/themeMode.js';
 const params=new URLSearchParams(location.search);

@@ -1,5 +1,5 @@
 import React, { useId, useState } from "react";
-import { use2029Palette } from "../../lib/palette2029.js";
+import { use2029Palette } from "../../lib/palette.js";
 import "./contributorReadingControls2029.css";
 
 const BIO_MAX = 600;

@@ -19,7 +19,7 @@ const entry = `import React,{useState} from 'react';import {createRoot} from 're
 import Card from '/src/components/experience2029/ElsMatrixReadingCard2029.jsx';
 import {RazielSessionProvider2029,useRazielSession2029} from '/src/lib/research/RazielSessionProvider2029.jsx';
 import {buildElsRazielMatrixContext} from '/src/lib/research/elsRazielMatrixContext.js';
-import {resolve2029Palette} from '/src/lib/palette2029.js';
+import {resolve2029Palette} from '/src/lib/palette.js';
 import '/src/components/experience2029/elsNativeClassic2029.css';
 const context=buildElsRazielMatrixContext({status:'ok',scope:'torah',termRaw:'קולומביה',verification:{state:'MATCH',corpus_id:'0b022e8eef6f9c16'},axis:{hitId:'4545_1_248765',skip:4545,direction:'fwd',start:248765,length:8},geometry:{S:4545},matrix:{S:4545,r0:40,c0:3300,cw:60,rows:Array(30).fill('א'.repeat(60))}});
 window.__requests=[];window.__cancels=0;window.__context=context;

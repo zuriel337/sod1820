@@ -138,7 +138,7 @@ try {
         const control=page.locator('.sod29-theme-presets.is-header-control');
         const option=control.getByRole('button',{name:label,exact:true});
         if(!await option.isVisible())await control.locator('.sod29-theme-trigger').click();
-        await option.click();await page.waitForFunction(value=>document.documentElement.dataset['theme-2029']===value,preset);
+        await option.click();await page.waitForFunction(value=>document.documentElement.dataset.themePreset===value,preset);
         assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
         await page.screenshot({path:resolve(output,`gallery-catalog-${preset}-${width}.png`)});
       }
@@ -169,7 +169,7 @@ try {
       for(const [preset,label] of [['light','יום'],['parchment','קלף'],['dark','לילה']]) {
         const control=page.locator('.sod29-theme-presets.is-header-control'),option=control.getByRole('button',{name:label,exact:true});
         if(!await option.isVisible())await control.locator('.sod29-theme-trigger').click();
-        await option.click();await page.waitForFunction(value=>document.documentElement.dataset['theme-2029']===value,preset);
+        await option.click();await page.waitForFunction(value=>document.documentElement.dataset.themePreset===value,preset);
         await page.screenshot({path:resolve(output,`gallery-date-${preset}-${width}.png`)});
       }
       await page.getByRole('link',{name:'כל הגלריות ←',exact:true}).click();await page.locator('[data-catalog-gallery="69"]').waitFor();
@@ -410,7 +410,7 @@ try {
       const control=page.locator('.sod29-theme-presets.is-header-control');
       const option=control.getByRole('button',{name:label,exact:true});
       if(!await option.isVisible())await control.locator('.sod29-theme-trigger').click();
-      await option.click();await page.waitForFunction(value=>document.documentElement.dataset['theme-2029']===value,preset);
+      await option.click();await page.waitForFunction(value=>document.documentElement.dataset.themePreset===value,preset);
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth),0);
       await page.screenshot({path:resolve(output,`gallery-29-${preset}-${width}.png`)});
     }

@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { use2029Palette } from "../../lib/palette2029.js";
+import { usePalette } from "../../lib/palette.js";
 import "./curationMark2029.css";
 
 const ICON = Object.freeze({
@@ -65,7 +65,7 @@ export default function CurationMark2029({
   catalog = null,
   compact = false,
 } = {}) {
-  const palette = use2029Palette();
+  const palette = usePalette();
   const [open, setOpen] = useState(false);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const kind = item?.kind || null;

@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import WorldZviApprovedFindings2029 from "../../src/components/research/WorldZviApprovedFindings2029.jsx";
-import { resolve2029Palette } from "../../src/lib/palette2029.js";
+import { resolve2029Palette } from "../../src/lib/palette.js";
 import { TYPEFACE, TYPE_SCALE_V2 } from "../../src/lib/designTokens.js";
 import "../../src/components/experience2029/systemFrame2029.css";
 import "../../src/pages/world2029-human.css";

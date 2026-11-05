@@ -1,5 +1,5 @@
 import React from 'react';
-import { use2029Palette } from '../../../lib/palette2029.js';
+import {use2029Palette} from '../../../lib/palette.js';
 import {useSourceModel} from './useSourceModel.js';
 import {DIRECTION_LABELS,selectedComponent,sourcePayload} from './sourceModels.js';
 import './synopticSealsLearning2029.css';

@@ -7,7 +7,7 @@ import ResearchProvider, { useResearch } from "virtual:life-journey-research.jsx
 import "../../src/components/experience2029/sod2029.css";
 import "../../src/components/experience2029/sod2029-closed.css";
 import "../../src/components/experience2029/systemFrame2029.css";
-import { DESIGN_V2_PALETTES } from "../../src/lib/palette2029.js";
+import { DESIGN_V2_PALETTES } from "../../src/lib/palette.js";
 import { LAYOUT, RADIUS, TYPEFACE, TYPE_SCALE_V2 } from "../../src/lib/designTokens.js";
 import { buildLifeJourneyExactReturnPatch } from "../../src/lib/research/lifeJourneyPersonContext.js";
 

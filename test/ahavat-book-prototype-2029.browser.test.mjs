@@ -52,7 +52,7 @@ async function start() {
     const errors = [];
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(`${origin}${path}`, { waitUntil: "domcontentloaded" });
-    await page.waitForFunction(value => document.documentElement.getAttribute("data-theme-2029") === value, theme);
+    await page.waitForFunction(value => document.documentElement.getAttribute("data-theme-preset") === value, theme);
     return { page, context, errors };
   };
   return { open, close: async () => { await browser.close(); await server.close(); } };

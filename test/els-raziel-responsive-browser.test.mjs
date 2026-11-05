@@ -48,7 +48,7 @@ test('global Raziel: three presets, 320/390/768/1440, mixed text, touch, keyboar
       await page.locator('.sod29-command-island .sod29-raziel-orb').click();
       const chat = page.locator(width >= 1000 ? '[data-raziel-companion-view="open"] [data-raziel-native-chat="true"]' : '.sod29-frame-panel [data-raziel-native-chat="true"]');
       await chat.waitFor(); assert.equal(ai,0,'opening the real Raziel window never calls AI');
-      assert.equal(await page.locator('html').getAttribute('data-theme-2029'),theme);
+      assert.equal(await page.locator('html').getAttribute('data-theme-preset'),theme);
       const input=chat.getByRole('textbox',{name:'שאלה לרזיאל',exact:true});
       await input.fill('בדיקת עברית and English 2029');
       await chat.getByRole('button',{name:'שלח',exact:true}).click();

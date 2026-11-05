@@ -5,8 +5,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
-import { use2029Palette } from "../lib/palette2029.js";
-import { setThemePreset, useThemePreset } from "../lib/themePreset2029.js";
+import { use2029Palette } from "../lib/palette.js";
+import { setThemePreset, useThemePreset } from "../lib/themeMode.js";
 import { RAZIEL_PRESENCE, TYPEFACE } from "../lib/designTokens.js";
 import { getLatestPostCards, getTzofonStories, getHomeVideos, getPostsFromSupabase } from "../lib/supabase.js";
 import { fetchHome2029Projection } from "../lib/research/home2029Projection.js";

@@ -1509,7 +1509,7 @@ test('native UI: vivid colors and exact finding focus stay readable in every the
      const row=document.querySelector('.els29-native-finding-group.is-selected .els29-native-color-dot');
      const selectedRow=row.closest('.els29-native-finding-group');
      const {findingColorChoices,projectFindingColor,nextFindingColor,resolve2029Palette}=window.__findingColors;
-     const palette=resolve2029Palette(document.documentElement.dataset['theme-2029'],'research_lab');
+     const palette=resolve2029Palette(document.documentElement.dataset.themePreset,'research_lab');
      const choices=findingColorChoices(palette),assigned=[];
      for(let i=0;i<12;i++)assigned.push({color:nextFindingColor(assigned,palette)});
      return {fill:getComputedStyle(cell).backgroundColor,ink:getComputedStyle(cell).color,swatch:getComputedStyle(row).backgroundColor,rowInk:getComputedStyle(selectedRow.querySelector('small')).color,rowFill:getComputedStyle(selectedRow).backgroundColor,plain:getComputedStyle(plain).color,canvas:getComputedStyle(matrix).backgroundColor,panel:palette.card,onMark:palette.matrix.onMark,axis:palette.matrix.axis,choices,assigned:assigned.map(f=>projectFindingColor(f.color,palette))};

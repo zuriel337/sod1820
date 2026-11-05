@@ -223,7 +223,7 @@ test("isolation: gate files import no reader of their own and make no writes; CS
   }
   const css = readFileSync(new URL("../src/components/research/revelation1237Gate2029.css", import.meta.url), "utf8");
   const selectors = css.replace(/\/\*[\s\S]*?\*\//g, "").split("{").slice(0, -1).map((c) => c.split("}").pop().trim()).filter((x) => x && !x.startsWith("@") && !/^(from|to|\d+%)/.test(x));
-  for (const selector of selectors) for (const part of selector.replace(/\([^)]*\)/g, "()").split(",")) assert.match(part.trim(), /\.rv|^:root\[data-theme-2029/, `unscoped selector: ${part}`);
+  for (const selector of selectors) for (const part of selector.replace(/\([^)]*\)/g, "()").split(",")) assert.match(part.trim(), /\.rv|^:root\[data-theme-preset/, `unscoped selector: ${part}`);
 });
 
 test("hero keeps accessible structure: heading under the shell h1, spoken numeral, no raster dependency", () => {

@@ -111,7 +111,7 @@ def visible_mock_disclosure(page):
 def scenario(page, width, theme):
     page.goto(BASE + "/2029")
     expect(page.locator(".sod29-root")).to_be_visible()
-    expect(page.locator("html")).to_have_attribute("data-theme-2029", theme)
+    expect(page.locator("html")).to_have_attribute("data-theme-preset", theme)
     no_overflow(page)
     visible_mock_disclosure(page)
     page.screenshot(path=str(OUT / f"header-{width}-{theme}.png"))
@@ -147,9 +147,9 @@ def scenario(page, width, theme):
     # Change preset once, then reload and prove the user's selection persists.
     target, label = ("dark", "לילה") if theme != "dark" else ("light", "יום")
     themes.get_by_role("button", name=label, exact=True).click()
-    expect(page.locator("html")).to_have_attribute("data-theme-2029", target)
+    expect(page.locator("html")).to_have_attribute("data-theme-preset", target)
     page.reload()
-    expect(page.locator("html")).to_have_attribute("data-theme-2029", target)
+    expect(page.locator("html")).to_have_attribute("data-theme-preset", target)
     no_overflow(page)
     report["cases"].append({"width": width, "initial_theme": theme, "changed_theme": target, "mobile_menu": mobile, "status": "passed"})
 

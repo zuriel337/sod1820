@@ -1,7 +1,7 @@
 import { useAuth } from "../lib/AuthContext.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import BookSourceReader2029 from "../components/books2029/BookSourceReader2029.jsx";
-import { use2029Palette } from "../lib/palette2029.js";
+import { use2029Palette } from "../lib/palette.js";
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";

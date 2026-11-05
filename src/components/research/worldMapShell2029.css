@@ -7,13 +7,13 @@
   --wm-f-accent: #2454B8; --wm-f-violet: #7249A5; --wm-f-cyan: #086C70; --wm-f-warm: #80601D;
   --wm-f-focus: #086C70; --wm-f-shadow: rgba(23,43,70,0.22);
 }
-:root[data-theme-2029="parchment"] .wm29 {
+:root[data-theme-preset="parchment"] .wm29 {
   --wm-f-ink: #312B23; --wm-f-muted: #706252; --wm-f-panel: #FFF9EE; --wm-f-soft: #EEE3CF;
   --wm-f-line: rgba(89,70,39,0.20); --wm-f-line-strong: rgba(89,70,39,0.38);
   --wm-f-accent: #284E9F; --wm-f-violet: #764B87; --wm-f-cyan: #176965; --wm-f-warm: #80601D;
   --wm-f-focus: #176965; --wm-f-shadow: rgba(49,43,35,0.24);
 }
-:root[data-theme-2029="dark"] .wm29 {
+:root[data-theme-preset="dark"] .wm29 {
   --wm-f-ink: #F5F5F0; --wm-f-muted: #C6C6C1; --wm-f-panel: #17120E; --wm-f-soft: #211A13;
   --wm-f-line: rgba(212,175,55,0.18); --wm-f-line-strong: rgba(212,175,55,0.38);
   --wm-f-accent: #A8C7FF; --wm-f-violet: #C2A8FA; --wm-f-cyan: #69DED7; --wm-f-warm: #DEBD77;

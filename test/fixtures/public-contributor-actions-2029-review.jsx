@@ -7,7 +7,7 @@ import { PublicContributor2029View } from "../../src/pages/PublicContributor2029
 import { withPublicContributorPerson2029 } from "../../src/components/contributor2029/publicContributorPerson2029.js";
 import { sourceCatalogFixtureView } from "../../src/components/contributor2029/publicSourceCatalog2029Fixtures.js";
 import { TYPEFACE, TYPE_SCALE_V2 } from "../../src/lib/designTokens.js";
-import { use2029Palette } from "../../src/lib/palette2029.js";
+import { use2029Palette } from "../../src/lib/palette.js";
 import { setThemePreset } from "../../src/lib/themeMode.js";
 setThemePreset(new URLSearchParams(location.search).get("theme") || "dark");
 function Review() {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { use2029Palette } from '../../../lib/palette2029.js';
+import {use2029Palette} from '../../../lib/palette.js';
 import {useSourceModel} from './useSourceModel.js';
 import {selectedComponent,sourcePayload} from './sourceModels.js';
 import {catalogFields} from './catalogModels.js';

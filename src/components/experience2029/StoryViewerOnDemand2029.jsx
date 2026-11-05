@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { use2029Palette } from "../../lib/palette2029.js";
+import { use2029Palette } from "../../lib/palette.js";
 import { F } from "../../theme.js";
 
 // One canonical viewer. Importing the shortcut never imports its playback code.

@@ -79,12 +79,12 @@ function fixturePlugin(){
       import {useResearch} from '/src/lib/research/ResearchProvider.jsx';
       import NumberDrawer from '/src/components/number2029/NumberDrawer2029.jsx';
       import {buildExactReturnPatch} from '/src/lib/research/researchContext.js';
-      import {resolve2029Palette} from '/src/lib/palette2029.js';
+      import {resolve2029Palette} from '/src/lib/palette.js';
       const Context=createContext(null);export const use2029Shell=()=>useContext(Context);
       export function FrameState({title,children}){return <section><h2>{title}</h2>{children}</section>;}
       export default function Shell({children}){const [target,setTarget]=useState(null),[orientationHost,setOrientationHost]=useState(null),[razielFocus,setRazielFocus]=useState(null);const research=useResearch(),navigate=useNavigate();
         const preset=new URLSearchParams(location.search).get('theme')||sessionStorage.getItem('fixture-theme')||'dark';sessionStorage.setItem('fixture-theme',preset);window.__fixturePreset=preset;
-        document.documentElement.dataset['theme-2029']=preset;
+        document.documentElement.dataset.themePreset=preset;
         const p=resolve2029Palette(preset);
         const go=href=>{setTarget(null);navigate(href);};
         const openNumber=value=>{window.__targets.push(value);research.updateResearchContext({subject:{id:String(value.resultValue),type:'number',label:String(value.resultValue)},selection:{entityId:value.id,entityType:'gematria_expression',expression:value.expression,method:value.method,resultValue:value.resultValue,locator:value.locator},lens:'gematria'});setTarget(value);};

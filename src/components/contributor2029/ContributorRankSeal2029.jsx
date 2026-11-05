@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from "react";
-import { use2029Palette } from "../../lib/palette2029.js";
+import { use2029Palette } from "../../lib/palette.js";
 import { fetchPublicContributorRank, publicContributorRank } from "./contributorRank2029Model.js";
 import "./contributorRankSeal2029.css";
 

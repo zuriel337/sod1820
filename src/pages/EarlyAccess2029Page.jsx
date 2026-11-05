@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BRAND_LOCKUP_2029 } from "../lib/brandAssets2029.js";
-import { use2029Palette } from "../lib/palette2029.js";
+import { use2029Palette } from "../lib/palette.js";
 import { signupAttribution, visitorId } from "../lib/acquisition.js";
 import { SUPABASE_ANON, SUPABASE_URL } from "../lib/supabase.js";
 import { captureAcquisition, captureArrivalSource, track } from "../lib/tracking.js";

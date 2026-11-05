@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "../../src/lib/AuthContext.jsx";
 import { supabase } from "../../src/lib/supabase.js";
-import { use2029Palette } from "../../src/lib/palette2029.js";
+import { use2029Palette } from "../../src/lib/palette.js";
 import FollowCenterController2029 from "../../src/components/followCenter2029/FollowCenterController2029.jsx";
 import "../../src/components/experience2029/systemFrame2029.css";
 

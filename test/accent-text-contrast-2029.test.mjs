@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { DESIGN_V2_PALETTES } from "../src/lib/palette2029.js";
+import { DESIGN_V2_PALETTES } from "../src/lib/palette.js";
 
 // `--s29-accent` is the action FILL role (royal blue). In Night it is only about 3:1 on the card, so it may
 // not be used as a text colour. Text uses `--s29-accent-text`. Graphic glyphs may keep the fill role (3:1).

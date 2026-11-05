@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { expressionOccurrences, boundaryAnchor } from '../../lib/spatial/glyphGeometry.js';
-import { useThemePreset } from '../../lib/themePreset2029.js';
+import { useThemePreset } from '../../lib/themeMode.js';
 import { resolveExperienceContext, SPATIAL_LEVEL } from '../../lib/experienceContext.js';
 import './spatialGlyphScene2029.css';
 import NavigationIcon2029 from './NavigationIcon2029.jsx';

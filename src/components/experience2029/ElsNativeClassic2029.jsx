@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { use2029Palette } from "../../lib/palette2029.js";
+import { use2029Palette } from "../../lib/palette.js";
 import { parseElsHitKey, buildJourneyPromotion } from "../../lib/elsJourney.js";
 import { buildElsRazielMatrixContext } from "../../lib/research/elsRazielMatrixContext.js";
 import ElsMatrixReadingCard2029 from "./ElsMatrixReadingCard2029.jsx";

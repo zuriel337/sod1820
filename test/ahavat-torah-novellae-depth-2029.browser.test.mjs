@@ -65,7 +65,7 @@ for (const width of [320, 390, 1440]) test(`all 189 companion units retain sourc
       }, initialId);
       await page.goto(`${origin}${ahavatReaderUnitHref(initialId)}`, { waitUntil: "domcontentloaded" });
       await initial.waitFor();
-      await page.waitForFunction(value => document.documentElement.getAttribute("data-theme-2029") === value, theme);
+      await page.waitForFunction(value => document.documentElement.getAttribute("data-theme-preset") === value, theme);
       assert.equal(await initial.evaluate(element => element.open), true);
       assert.match(await ahavatSourceHref(source), /#page=55&view=FitH$/);
       const click = async target => { await target.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" })); await target.click(); };

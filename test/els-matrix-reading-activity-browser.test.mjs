@@ -18,7 +18,7 @@ import {BrowserRouter,Link,useLocation} from 'react-router-dom';
 import Activity from '/src/components/experience2029/ElsMatrixReadingActivity2029.jsx';
 import Page from '/src/pages/Els2029Page.jsx';
 import {RazielSessionProvider2029,useRazielSession2029} from '/src/lib/research/RazielSessionProvider2029.jsx';
-import {resolve2029Palette} from '/src/lib/palette2029.js';
+import {resolve2029Palette} from '/src/lib/palette.js';
 import '/src/components/experience2029/systemFrame2029.css';
 import '/src/components/experience2029/sod2029.css';
 const axis={term:'קולומביה',scope:'torah',corpusId:'0b022e8eef6f9c16',skip:4545,dir:1,start:248765,hitId:'4545_1_248765'};

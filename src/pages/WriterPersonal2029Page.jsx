@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { use2029Palette } from "../lib/palette2029.js";
+import { use2029Palette } from "../lib/palette.js";
 import { personalActionsLocked } from "../lib/publicLaunch2029.js";
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";

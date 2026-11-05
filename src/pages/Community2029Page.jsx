@@ -4,7 +4,7 @@ import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Sh
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { PREVIEW_PEOPLE, PREVIEW_THREADS } from "../components/community2029/communityPreviewData.js";
 import { applySeo } from "../lib/seo.js";
-import { use2029Palette } from "../lib/palette2029.js";
+import { use2029Palette } from "../lib/palette.js";
 import ReactionBar from "../components/ReactionBar.jsx";
 import UserBadge from "../components/UserBadge.jsx";
 import CommunityMessageContent from "../components/community2029/CommunityMessageContent.jsx";

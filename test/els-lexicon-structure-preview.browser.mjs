@@ -50,7 +50,7 @@ try {
     assert.equal(identity.edge_deploy,false);
     for(const width of [320,390,1440]){
       await page.setViewportSize({width,height:900});
-      assert.equal(await page.locator('html').getAttribute('data-theme-2029'),theme);
+      assert.equal(await page.locator('html').getAttribute('data-theme-preset'),theme);
       if(searchOrder){
         const search=page.locator('#els29-query');
         for(const name of ['חיפוש רגיל','הצלבה בין צירים','חיפוש מתקדם'])assert.ok(await search.getByRole('button',{name,exact:true}).isVisible());

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/messageLinks.js";
 import { parseMessageFormatting } from "../../lib/community/messageFormatting.js";
-import { use2029Palette } from "../../lib/palette2029.js";
+import { use2029Palette } from "../../lib/palette.js";
 
 function LinkPreview({ link }) {
   const [playing, setPlaying] = useState(false);
