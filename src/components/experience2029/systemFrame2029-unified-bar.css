@@ -412,6 +412,9 @@
   white-space: normal; overflow-wrap: anywhere;
 }
 .sod29-root.native-frame.has-tool-dock { --s29-island-clearance: 142px; }
+/* The desktop rule above (`:not(:has(.has-context-trail))`, specificity 0,4,0) used to override this one (0,3,0), so with the tool dock open
+   at >=981px the clearance stayed 92px while the dock is ~108px tall plus its 14px offset: content scrolled "to the end" ended under the dock. */
+.sod29-root.native-frame.has-tool-dock:not(:has(.sod29-command-island.has-context-trail)) { --s29-island-clearance: 142px; }
 
 /* Now extends the same public feed; source filters stay inside its scroll area. */
 .sod29-now-source-filters{display:flex;gap:6px;flex-wrap:wrap;max-width:100%;margin-block:12px}
