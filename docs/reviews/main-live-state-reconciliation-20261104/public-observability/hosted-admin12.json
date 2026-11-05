@@ -1,0 +1,105 @@
+{
+  "sourceSha": "2c3899a0b7370b6e1dbaad34ccb2e90927aab339",
+  "origin": "https://sod1820-hgneby80w-sod1820-s-projects.vercel.app",
+  "artifactMeasurement": {
+    "gaConfigured": true,
+    "publicCanonicalHostsOnly": true,
+    "rumSource": "events.performance.web_vital",
+    "anonymousRum": true,
+    "marketingEnabled": false
+  },
+  "httpCases": [
+    {
+      "path": "/api/ga-insights",
+      "case": "guest",
+      "status": 403,
+      "cache": "private, no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/ga-insights",
+      "case": "bad-jwt",
+      "status": 403,
+      "cache": "private, no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/ga-insights",
+      "case": "post",
+      "status": 405,
+      "cache": "private, no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/ga-insights",
+      "case": "bad-query",
+      "status": 400,
+      "cache": "private, no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/vercel-insights",
+      "case": "guest",
+      "status": 403,
+      "cache": "private, no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/vercel-insights",
+      "case": "bad-jwt",
+      "status": 403,
+      "cache": "private, no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/vercel-insights",
+      "case": "post",
+      "status": 405,
+      "cache": "private, no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/vercel-insights",
+      "case": "bad-query",
+      "status": 400,
+      "cache": "private, no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/search-console",
+      "case": "guest",
+      "status": 403,
+      "cache": "private, no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/search-console",
+      "case": "bad-jwt",
+      "status": 403,
+      "cache": "private, no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/search-console",
+      "case": "post",
+      "status": 405,
+      "cache": "private, no-store",
+      "pass": true
+    },
+    {
+      "path": "/api/search-console",
+      "case": "bad-query",
+      "status": 400,
+      "cache": "private, no-store",
+      "pass": true
+    }
+  ],
+  "guestControl": {
+    "noProviderReadersMounted": true,
+    "noGoogleTrackingOnPreview": true,
+    "errors": [],
+    "pass": true
+  },
+  "realAdminProviderAcceptance": false,
+  "productionWrites": 0
+}

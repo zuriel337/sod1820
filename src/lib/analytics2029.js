@@ -9,13 +9,20 @@ export const AUDIENCE_KIND_2029 = Object.freeze({
   ANONYMOUS: "anonymous",
 });
 
-export async function get2029Analytics({ hours = 24, pathPrefix = null } = {}) {
+export async function get2029Analytics({ hours = 24, pathPrefix = null, signal, expectedUserId } = {}) {
   if (!supabase) return null;
+  if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+  if (expectedUserId) {
+    const { data } = await supabase.auth.getSession();
+    if (signal?.aborted || data?.session?.user?.id !== expectedUserId) throw new DOMException("Account changed", "AbortError");
+  }
   const safeHours = Math.max(1, Math.min(Number(hours) || 24, 24 * 90));
-  const { data, error } = await supabase.rpc("admin_2029_analytics", {
+  let request = supabase.rpc("admin_2029_analytics", {
     p_hours: safeHours,
     p_path_prefix: pathPrefix || null,
   });
+  if (signal) request = request.abortSignal(signal);
+  const { data, error } = await request;
   if (error) throw error;
   return data || null;
 }

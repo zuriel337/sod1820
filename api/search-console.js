@@ -1,3 +1,4 @@
+import { SUPABASE_ANON } from "../src/lib/supabase.js";
 // Vercel Serverless Function — נתוני Google Search Console כ-JSON (לדאשבורד הניהול).
 // מושך מ-GSC את מילות החיפוש, הקליקים, ההופעות והמיקום הממוצע — חי, ומחזיר JSON
 // שאפשר לחבר לישויות בגרף ("עץ אחד": חיפוש → /number/:n או מחשבון בית-המדרש).
@@ -9,7 +10,7 @@
 import crypto from 'crypto';
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
-const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
+const ANON = SUPABASE_ANON;
 
 // ── מאמת שהקורא הוא אדמין מחובר (לפי ה-session token שלו) ──
 async function verifyAdmin(req) {
@@ -62,6 +63,35 @@ async function gscQuery(token, siteUrl, body) {
   return (await r.json()).rows || [];
 }
 
+async function indexingEvidence(token, siteUrl) {
+  const headers = { Authorization: 'Bearer ' + token };
+  const signal = AbortSignal.timeout(8000);
+  const paths = ['/', '/gematria', '/number/1820'];
+  const results = await Promise.allSettled([
+    fetch(`https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(siteUrl)}/sitemaps`, { headers, signal }).then(async r => {
+      if (!r.ok) throw new Error(`provider_status_${r.status}`);
+      const data = await r.json();
+      return (data.sitemap || []).map(s => ({ path:s.path, lastDownloaded:s.lastDownloaded || null, lastSubmitted:s.lastSubmitted || null,
+        isPending:s.isPending === true, errors:s.errors ?? null, warnings:s.warnings ?? null }));
+    }),
+    ...paths.map(async path => {
+      const r = await fetch('https://searchconsole.googleapis.com/v1/urlInspection/index:inspect', {
+        method:'POST', headers:{...headers,'Content-Type':'application/json'}, signal,
+        body:JSON.stringify({inspectionUrl:'https://sod1820.co.il'+path,siteUrl,languageCode:'he-IL'}),
+      });
+      if (!r.ok) throw new Error(`provider_status_${r.status}`);
+      const data = await r.json(), v = data.inspectionResult?.indexStatusResult;
+      if (!v) throw new Error('inspection_not_returned');
+      return {path,verdict:v.verdict || 'VERDICT_UNSPECIFIED',coverageState:v.coverageState || null,
+        robotsTxtState:v.robotsTxtState || null,indexingState:v.indexingState || null,lastCrawlTime:v.lastCrawlTime || null,
+        pageFetchState:v.pageFetchState || null,googleCanonical:v.googleCanonical || null,userCanonical:v.userCanonical || null};
+    }),
+  ]);
+  return {scope:'three_fixed_public_urls_not_full_inventory',checkedAt:new Date().toISOString(),
+    sitemaps:results[0].status === 'fulfilled' ? {state:'measured',rows:results[0].value} : {state:'failed',error:results[0].reason.message},
+    inspections:results.slice(1).map((r,i)=>r.status==='fulfilled'?{state:'measured',...r.value}:{path:paths[i],state:'failed',error:r.reason.message})};
+}
+
 export default async function handler(req, res) {
   if (!(await verifyAdmin(req))) { res.status(401).json({ error: 'unauthorized' }); return; }
 
@@ -76,16 +106,17 @@ export default async function handler(req, res) {
     const base = { startDate: fmt(new Date(Date.now() - days * 864e5)), endDate: fmt(new Date()), rowLimit: 25 };
 
     const token = await getAccessToken(sa);
-    const [queries, pages, timeline] = await Promise.all([
+    const [queries, pages, timeline, indexing] = await Promise.all([
       gscQuery(token, siteUrl, { ...base, dimensions: ['query'] }),
       gscQuery(token, siteUrl, { ...base, dimensions: ['page'] }),
       gscQuery(token, siteUrl, { ...base, dimensions: ['date'], rowLimit: 500 }),
+      indexingEvidence(token, siteUrl),
     ]);
     const map = r => ({ key: r.keys[0], clicks: r.clicks || 0, impressions: r.impressions || 0, ctr: r.ctr || 0, position: r.position || 0 });
 
     res.setHeader('Cache-Control', 'private, max-age=600');
     res.status(200).json({
-      configured: true, days,
+      configured: true, days, indexing,
       queries: queries.map(map),
       pages: pages.map(map),
       timeline: timeline.map(r => ({ date: r.keys[0], clicks: r.clicks || 0, impressions: r.impressions || 0 })),

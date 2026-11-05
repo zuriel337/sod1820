@@ -1,0 +1,17 @@
+{
+  "handoffDocumentationOnlyAfterProductCheckpoint": true,
+  "matrixRows": 36,
+  "sourceAddressesAndLiveTreatmentPreserved": true,
+  "jsonCsvMdConsistent": true,
+  "secretsScan": {
+    "newEvidenceTextFilesOnly": true,
+    "unapprovedMatches": [],
+    "syntheticFixtures": [
+      {
+        "file": "hosted-admin-driver.cjs",
+        "class": "explicit invalid-signature JWT fixture"
+      }
+    ]
+  },
+  "privateAccessConfigCertificatesKeysAndSdkExcluded": true
+}

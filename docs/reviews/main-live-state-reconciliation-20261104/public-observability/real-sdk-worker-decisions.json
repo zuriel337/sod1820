@@ -1,0 +1,53 @@
+{
+  "scope": "REAL gtag.js request shapes replayed through the emitted worker; no network",
+  "realSdkRequests": [
+    {
+      "origin": "https://www.google.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "en": "page_view",
+      "status": 403,
+      "forwardedToNetwork": 0
+    },
+    {
+      "origin": "https://www.google-analytics.com",
+      "path": "/g/collect",
+      "method": "POST",
+      "en": "page_view",
+      "status": 204,
+      "forwardedToNetwork": 1
+    }
+  ],
+  "otherEndpoints": [
+    {
+      "method": "GET",
+      "url": "https://www.googletagmanager.com/gtag/js",
+      "status": "PASSTHROUGH",
+      "forwardedToNetwork": 0
+    },
+    {
+      "method": "GET",
+      "url": "https://www.googletagmanager.com/gtag/destination",
+      "status": "PASSTHROUGH",
+      "forwardedToNetwork": 0
+    },
+    {
+      "method": "POST",
+      "url": "https://analytics.google.com/g/collect",
+      "status": 403,
+      "forwardedToNetwork": 0
+    },
+    {
+      "method": "POST",
+      "url": "https://stats.g.doubleclick.net/g/collect",
+      "status": 403,
+      "forwardedToNetwork": 0
+    },
+    {
+      "method": "POST",
+      "url": "https://region1.google-analytics.com/g/collect",
+      "status": 204,
+      "forwardedToNetwork": 1
+    }
+  ]
+}

@@ -2976,7 +2976,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "connect-src 'self' https://linswmnnkjxvweumprav.supabase.co wss://linswmnnkjxvweumprav.supabase.co https://linswmnnkjxvweumprav.storage.supabase.co https://spot.im https://*.spot.im wss://*.spot.im; form-action 'self' https://spot.im https://*.spot.im; frame-ancestors 'self'; object-src 'none'; base-uri 'self'"
+          "value": "connect-src 'self' https://linswmnnkjxvweumprav.supabase.co wss://linswmnnkjxvweumprav.supabase.co https://linswmnnkjxvweumprav.storage.supabase.co https://spot.im https://*.spot.im wss://*.spot.im https://www.google-analytics.com https://region1.google-analytics.com; form-action 'self' https://spot.im https://*.spot.im; frame-ancestors 'self'; object-src 'none'; base-uri 'self'"
         }
       ]
     },
