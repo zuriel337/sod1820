@@ -342,3 +342,64 @@ test('reply unread count is an exact own-inbox read; arbitrary filters and forei
   const bad=worker({role:'member'});assert.equal((await bad.request(url,{method:'HEAD'})).status,403);assert.equal(bad.calls.some(c=>c.url===API+url),false);
  }
 });
+
+test('guest community publishing: only the exact anonymous request is forwarded, with the public key',async()=>{
+ const KEY='anon-public-key-synthetic';
+ const path='/rest/v1/rpc/add_guest_community_message';
+ const ok={p_body:'שלום',p_parent_id:null,p_website:''};
+ const w=worker({anonKey:KEY});
+ const accepted=await w.request(path,{body:ok,jwt:KEY});
+ assert.equal(accepted.status,200);
+ assert.equal(w.calls.length,1);
+ assert.equal(w.calls[0].url,API+path);
+ assert.equal(w.calls[0].headers.get('Authorization'),'Bearer '+KEY);
+ assert.equal(w.calls[0].headers.get('apikey'),KEY);
+ assert.equal((await w.request(path,{body:{...ok,p_parent_id:a},jwt:KEY})).status,200);
+ const denyCases=[
+  ['session token',{body:ok,jwt:token()}],
+  ['extra field',{body:{...ok,p_intent:'שאלה'},jwt:KEY}],
+  ['missing field',{body:{p_body:'x',p_parent_id:null},jwt:KEY}],
+  ['empty body',{body:{...ok,p_body:'   '},jwt:KEY}],
+  ['oversized body',{body:{...ok,p_body:'א'.repeat(3001)},jwt:KEY}],
+  ['bad parent',{body:{...ok,p_parent_id:'not-a-uuid'},jwt:KEY}],
+  ['non-string body',{body:{...ok,p_body:5},jwt:KEY}],
+  ['query string',{body:ok,jwt:KEY,path:path+'?x=1'}],
+ ];
+ for(const [label,{path:override,...options}] of denyCases.map(([l,o])=>[l,o])){
+  const v=worker({anonKey:KEY});
+  const response=await v.request(override||path,options);
+  assert.ok(response.status===403,label+' '+response.status);
+  assert.equal(v.calls.length,0,label+' must not reach the server');
+ }
+ const noKey=worker();
+ assert.equal((await noKey.request(path,{body:ok,jwt:KEY})).status,403);
+});
+
+test('community link preview: only the exact public GET is forwarded, without session or key',async()=>{
+ const base='/functions/v1/link-preview?url=';
+ const good=base+encodeURIComponent('https://example.org/article?id=1');
+ const w=worker();
+ const accepted=await w.request(good,{method:'GET'});
+ assert.equal(accepted.status,200);
+ assert.equal(w.calls.length,1);
+ assert.equal(w.calls[0].method,'GET');
+ assert.equal(w.calls[0].headers.get('Authorization'),null);
+ assert.equal(w.calls[0].headers.get('apikey'),null);
+ assert.equal(new URL(w.calls[0].url).searchParams.get('url'),'https://example.org/article?id=1');
+ const denyCases=[
+  ['http address',base+encodeURIComponent('http://example.org/')],
+  ['no address',base],
+  ['extra parameter',good+'&x=1'],
+  ['too long',base+encodeURIComponent('https://example.org/'+'a'.repeat(2100))],
+  ['other function',good.replace('link-preview','ai-analyze')],
+ ];
+ for(const [label,path] of denyCases){
+  const v=worker({role:'user'});
+  const response=await v.request(path,{method:'GET'});
+  assert.equal(response.status,403,label);
+  assert.ok(!v.calls.some(call=>call.url.includes('/functions/v1/')),label+' must not reach any function');
+ }
+ const post=worker({role:'user'});
+ assert.equal((await post.request(good,{method:'POST',body:{}})).status,403);
+ assert.ok(!post.calls.some(call=>call.url.includes('/functions/v1/')));
+});

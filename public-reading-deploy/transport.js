@@ -319,6 +319,14 @@ function installPublicReadingWorker(policy) {
       if (ambiguous || url.pathname.startsWith("/realtime/v1")) {
         event.respondWith(Promise.resolve(denied())); return;
       }
+      // Community link preview (Open Graph): a read-only GET of the public preview service with exactly one
+      // https address. The request is rebuilt without any session or key, so no account data leaves the browser.
+      if (url.pathname === "/functions/v1/link-preview") {
+        const target = url.searchParams.get("url") || "";
+        if (req.method !== "GET" || url.searchParams.size !== 1 || target.length > 2048 || !/^https:\/\/[^\s]+$/i.test(target)) { event.respondWith(Promise.resolve(denied())); return; }
+        event.respondWith(fetch(new Request(url.href, { method: "GET", headers: { accept: "application/json" }, credentials: "omit", redirect: "error" })).catch(() => denied()));
+        return;
+      }
       if (url.pathname.startsWith("/functions/v1")) { event.respondWith(adminFetch(req).catch(() => denied())); return; }
       if (url.pathname.startsWith("/auth/v1/") && !["/auth/v1/user", "/auth/v1/settings"].includes(url.pathname)
         || url.pathname.startsWith("/rest/v1/rpc/") && safeMethods.has(req.method) && !getReads.has(rpc)) {
@@ -358,6 +366,21 @@ function installPublicReadingWorker(policy) {
           const chain = await context.json();
           if (!Array.isArray(chain)) return denied();
           return chain.some(row => row.id === body.p_parent) ? readFetch(req) : new Response("[]", { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+        }
+        // Guest community publishing: no account is involved, the server enforces the
+        // limits (kill switch, per-address rate, text only). Only the exact anonymous
+        // request shape is forwarded, always with the public key; any session token is refused.
+        if (rpc === "add_guest_community_message" && !url.search) {
+          const key = policy.anonKey || "";
+          if (!key) return denied();
+          const authorization = req.headers.get("Authorization");
+          if (authorization && authorization !== "Bearer " + key) return denied();
+          const body = await jsonBody(req);
+          if (Object.keys(body).sort().join(",") !== "p_body,p_parent_id,p_website"
+            || typeof body.p_body !== "string" || !body.p_body.trim() || Array.from(body.p_body).length > 3000
+            || !(body.p_parent_id === null || uuid(body.p_parent_id))
+            || !(body.p_website === null || typeof body.p_website === "string" && body.p_website.length <= 200)) return denied();
+          return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
         }
         return adminFetch(req);
       })().catch(() => denied()));

@@ -2240,7 +2240,7 @@ function SystemFrame2029Body({
               <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
             </div>
           </header>
-          <GlobalLivingRibbon2029 onContact={() => openIssueReport({ actionTried: "renewal_notice" })} />
+          <GlobalLivingRibbon2029 />
           </div>
 
           {orientation.mode !== "hidden" && orientation.manifest ? (() => {

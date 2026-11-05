@@ -83,6 +83,10 @@ export default function CommunityRichText2029({ id, inputRef, value, onChange, o
     fillEditor(editor, value); lastValue.current = value; lastPreset.current = palette.preset; savedRange.current = null;
     if (focused) moveToEnd(editor);
   }, [value, palette.preset]);
+  // The placeholder follows the real content at once, including while a word is
+  // still being composed (phone keyboards keep the word "in composition" until
+  // it is committed, and the draft state is not updated until then).
+  const syncEmpty = () => { const editor = editorRef.current; if (editor) editor.setAttribute("data-empty", String(!editor.textContent)); };
   const change = () => {
     if (composing.current) return;
     const next = readEditor(editorRef.current);
@@ -105,8 +109,8 @@ export default function CommunityRichText2029({ id, inputRef, value, onChange, o
   };
   return <div className="sod29-community-rich-wrap" style={{ "--community-text-gold": palette.warmAccent, "--community-text-blue": palette.accentText }}>
     <div ref={editorRef} id={id} className="sod29-community-rich-input" contentEditable={!disabled} suppressContentEditableWarning role="textbox" aria-label={label} aria-multiline="true" aria-disabled={disabled} aria-describedby={error ? `${id}-error` : undefined} data-placeholder={placeholder} data-empty={!plainMessageText(value)} dir="auto"
-      onFocus={event => { onFocus?.(event); remember(); }} onBlur={remember} onSelect={remember} onMouseUp={remember} onKeyUp={remember} onInput={() => { inputRevision.current++; change(); }}
-      onCompositionStart={() => { composing.current = true; }} onCompositionEnd={() => { composing.current = false; change(); }}
+      onFocus={event => { onFocus?.(event); remember(); }} onBlur={remember} onSelect={remember} onMouseUp={remember} onKeyUp={remember} onInput={() => { inputRevision.current++; syncEmpty(); change(); }}
+      onCompositionStart={() => { composing.current = true; syncEmpty(); }} onCompositionUpdate={syncEmpty} onCompositionEnd={() => { composing.current = false; syncEmpty(); change(); }}
       onPaste={event => { event.preventDefault(); remember(); command("insertText", event.clipboardData.getData("text/plain")); }}
       onDrop={event => { event.preventDefault(); if (!event.dataTransfer.files.length) { remember(); command("insertText", event.dataTransfer.getData("text/plain")); } }}
       onKeyDown={event => {

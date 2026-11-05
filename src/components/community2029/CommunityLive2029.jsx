@@ -522,7 +522,9 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     }});
     return () => { active = false; stop(); };
   }, [fetchSort, memberId, claimId, cardId, hasThreadRequest]);
-  useEffect(() => { applySeo({ title: "הקהילה — סוד 1820", description: "שיחות והודעות של קהילת סוד 1820.", path: canonicalPath, noindex: true }); }, [canonicalPath]);
+  // Same title and description the server sends, so the tab and what a crawler renders match. The bare page was indexed and
+  // brings search traffic, so it stays indexable; any query string (thread, member, search...) is a variant and stays out.
+  useEffect(() => { applySeo({ title: "הצ'אט החי — קוד המציאות בזמן אמת", description: "שיחות, שאלות וגילויים בקהילת SOD1820.", path: canonicalPath, noindex: location.search !== "" }); }, [canonicalPath, location.search]);
   useEffect(() => { let active = true; fetchLinkedAccountProfiles().then((accounts) => { if (active) setAccountProfiles(accounts); }).catch(() => {}); return () => { active = false; }; }, []);
   useEffect(() => {
     const ids = [...new Set([...rows, ...profileRows, focusedThread].filter(Boolean).flatMap((row) => [row.authorUserId, row.linkedUserId]).filter(Boolean))];
@@ -744,7 +746,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": `color-mix(in srgb, ${palette.cardRaised} 94%, ${palette.accentText})`, "--community-discovery": palette.accentDiscovery, "--community-depth": palette.accentSecondary, "--community-warm": palette.warmAccent, "--community-success": palette.successText, "--community-action-fill": palette.accentBtn, "--community-danger": palette.dangerText }}>
       {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
-      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>שיחה {!hasThreadRequest ? <ConversationCount /> : null}</h1>
+      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>צ'אט הקהילה {!hasThreadRequest ? <ConversationCount /> : null}</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p>
         {!hasThreadRequest && reading.resume ? <div className="sod29-community-reading-tools"><Link className="sod29-community-secondary" to={communityReadingHref(reading.resume)} onClick={reading.requestResume}>להמשיך מאיפה שעצרתי <span aria-hidden="true">←</span></Link></div> : null}
         {reading.error && reading.resume ? <p className="sod29-community-reading-error" role="status">לא ניתן לעדכן כרגע את מספר התגובות החדשות.</p> : null}
       </header> : null}
@@ -754,11 +756,13 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           communityOwnProfileHref={!actionsLocked && isOwner ? writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search }) : null}
           onCommunityReply={actionsLocked ? undefined : (item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
-        {!actionsLocked ? <div className="sod29-community-entry-tools">{user ? <CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} /> : <Link className="sod29-community-secondary" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה לקהילה</Link>}</div> : null}
+        {!actionsLocked ? <div className="sod29-community-entry-tools">{user ? <CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} /> : <div className="sod29-community-auth-buttons" role="group" aria-label="כניסה לקהילה">
+          <Link className="sod29-community-auth-btn" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>התחברות</Link>
+          <Link className="sod29-community-auth-btn is-signup" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה</Link>
+        </div>}</div> : null}
         {isAdmin && guestUnreviewedIds.size ? <p className="sod29-community-guest-banner" role="status">{guestUnreviewedIds.size === 1 ? "הודעת אורח אחת פורסמה ועדיין לא נבדקה" : `${guestUnreviewedIds.size} הודעות אורח פורסמו ועדיין לא נבדקו`} · מוצגות באפור</p> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
-          <p className="sod29-community-typing" role="status" aria-live="polite" data-typing={typingLabel(typingPeople) ? "true" : "false"}>{typingLabel(typingPeople)}</p>
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
           <div className={compactComposer ? "sod29-community-compose-row" : undefined}>
@@ -768,14 +772,16 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
               {compactComposer ? <button type="button" className="sod29-community-compose-attach" aria-label="צירוף קובץ או סרטון" title="צירוף קובץ או סרטון" aria-describedby={user ? "community-attachment-limits" : undefined} disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={() => attachmentRef.current?.click()}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21 11-8.5 8.5a6 6 0 0 1-8.5-8.5L14 1a4 4 0 0 1 5.7 5.7L9.5 16.9a2 2 0 0 1-2.8-2.8L16 4.8" /></svg></button> : null}
             </div>
           </div>
+          <p className="sod29-community-typing" role="status" aria-live="polite" data-typing={typingLabel(typingPeople) ? "true" : "false"}>{typingLabel(typingPeople)}</p>
           <CommunityMessageContent text={draft} previewsOnly />
           {compactComposer && user ? <span id="community-attachment-limits" className="sod29-community-sr-only">עד 3 קבצים · תמונה עד 8MB · סרטון עד 50MB · גלויים לציבור</span> : null}
           <input ref={attachmentRef} type="file" multiple accept={COMMUNITY_ATTACHMENT_ACCEPT} onChange={pickAttachments} hidden />
           {!compactComposer ? <div className="sod29-community-attachment-toolbar"><button type="button" className="sod29-community-text-action" disabled={sending || !user || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} title={!user ? "יש להתחבר כדי לצרף קבצים" : undefined} onClick={() => attachmentRef.current?.click()}>📎 צירוף קובץ או סרטון</button><small>עד 3 קבצים · סרטון עד 50MB, קובץ אחר עד 8MB · גלויים לציבור</small></div> : null}
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => { draftCache.setHasFiles(attachments.length > 1); setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index)); }} />)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
-          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><div className="sod29-community-composer-actions" data-guest={guestMustJoin ? "true" : undefined}><button type="button" className="sod29-community-primary" disabled={(!plainMessageText(draft).trim() && (guestMustJoin || !attachments.length)) || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} data-guest-join={guestMustJoin ? "true" : undefined} onClick={submit}>{sending ? "שולח…" : guestMustJoin ? "הרשמה לקהילה ופרסום" : "פרסום"}</button>
-            {guestMustJoin ? <button type="button" className="sod29-community-secondary" data-guest-publish="true" disabled={!plainMessageText(draft).trim() || guestSending || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} onClick={publishAsGuest}>{guestSending ? "מפרסם…" : "פרסום כאורח"}</button> : null}
+          {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><div className="sod29-community-composer-actions" data-guest={guestMustJoin ? "true" : undefined}>
+            {guestMustJoin ? <button type="button" className="sod29-community-primary" data-guest-publish="true" disabled={!plainMessageText(draft).trim() || guestSending || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} onClick={publishAsGuest}>{guestSending ? "מפרסם…" : "פרסום כאורח"}</button> : null}
+            <button type="button" className={guestMustJoin ? "sod29-community-join-link" : "sod29-community-primary"} disabled={(!plainMessageText(draft).trim() && (guestMustJoin || !attachments.length)) || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} data-guest-join={guestMustJoin ? "true" : undefined} onClick={submit}>{sending ? "שולח…" : guestMustJoin ? "להירשם ולפרסם בשמי ←" : "פרסום"}</button>
             {guestMustJoin ? <input className="sod29-community-sr-only" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={guestWebsite} onChange={event => setGuestWebsite(event.target.value)} /> : null}</div></div> : null}
           {(draft.length > 0 || replyTo || draftCache.reattach) && draftCache.status !== "idle" ? <div className="sod29-community-draft-state" data-draft-state={draftCache.status} role="status">
             <span>{draftCache.status === "unavailable" ? "לא ניתן לשמור את הטיוטה במכשיר הזה כרגע." : draftCache.reattach ? "טיוטת הטקסט שוחזרה. יש לצרף קבצים מחדש." : draftCache.status === "restored" ? "הטיוטה שוחזרה מהמכשיר הזה" : "טיוטה נשמרה במכשיר הזה"}</span>

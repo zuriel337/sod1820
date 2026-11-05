@@ -120,7 +120,7 @@ test("2029 World and bottom share the same source reader; legacy WhatsApp/privat
   assert.match(frame, /aria-expanded=\{transientKind === \(research\.elsResearchOperation\?\.task \? TRANSIENT\.WORKSPACE : TRANSIENT\.ATTENTION\)\}/);
   assert.match(frame, /feed\.newCount > 0 \? <span className="sod29-dock-unread"/);
   assert.doesNotMatch(frame, /className="sod29-feed-chip"/);
-  assert.match(frame, /<GlobalLivingRibbon2029 onContact=\{\(\) => openIssueReport\(\{ actionTried: "renewal_notice" \}\)\}/);
+  assert.match(frame, /<GlobalLivingRibbon2029 \/>/);
   assert.doesNotMatch(frame, /<GlobalLivingRibbon2029[^>]*feed=\{/);
   assert.match(frame, /<NowPublications2029 feed=\{feed\}/);
   // ZURIEL temporarily hid the source Companion site-wide. The same public
