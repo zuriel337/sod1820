@@ -10,6 +10,44 @@ export const APPROVED_GROUP_WRITERS = Object.freeze(['tzvi-opoc', 'yaniv-levi', 
 export const GROUP_SOURCE_LABEL = "הודעת מקור · טרם נבדקה";
 export const WORLD_GROUP_SOURCE_READER = "world_group_source_arrivals_v2";
 
+// The public source groups that share ONE path (ZURIEL 5.11.2026). The group is the SOURCE of the publication and is always
+// named on it. `group_channel` is returned by the reader once the extended v2 definition is applied; a row from the currently live
+// definition carries no channel and keeps the neutral label. A channel that is not listed here (Or HaGeula, messages, site news ...)
+// never enters this path: an unknown channel is dropped, never relabelled.
+export const GROUP_SOURCE_CHANNELS = Object.freeze({
+  "torat-haremez": "תורת הרמז",
+  "ki-la-hamelucha-gematria": "כי לה׳ המלוכה — גימטריות",
+  "gilui-yomi": "הגילוי היומי",
+});
+export const GROUP_SOURCE_NEUTRAL_LABEL = "קבוצת מקור";
+
+// Canonical member page of a contributor: only for a contributor the server already proved for this row
+// (verified phone -> unique contributor -> approved writer). Never guessed from a display name.
+export const groupWriterProfileHref = (slug) => APPROVED_GROUP_WRITERS.includes(clean(slug)) ? `/community/researcher/${encodeURIComponent(clean(slug))}` : null;
+
+// Public media of a group source: exactly the project's public Storage, https, no signed/query credentials.
+const PUBLIC_MEDIA_ORIGIN = "https://linswmnnkjxvweumprav.supabase.co";
+const PUBLIC_MEDIA_PATH = /^\/storage\/v1\/(?:object|render\/image)\/public\/(?:media|gallery)\/[^?#]+$/;
+export function publicGroupMediaUrl(raw) {
+  const value = clean(raw);
+  if (!value) return null;
+  try {
+    const u = new URL(value);
+    if (u.origin !== PUBLIC_MEDIA_ORIGIN || u.username || u.password || u.hash || [...u.searchParams.keys()].some((k) => PRIVATE_QUERY_KEY.test(k))) return null;
+    if (!PUBLIC_MEDIA_PATH.test(u.pathname) || u.pathname.includes("..") || u.pathname.includes("//")) return null;
+    return u.href;
+  } catch { return null; }
+}
+// Supported group media: image and video only. Audio is NOT ingested by the intake today, so it is never projected here.
+export function groupMediaFromRow(row) {
+  const kind = clean(row?.media_kind);
+  if (kind !== "image" && kind !== "video") return null;
+  const url = publicGroupMediaUrl(row?.media_url);
+  if (!url) return null;
+  const thumbUrl = publicGroupMediaUrl(row?.thumb_url) || (kind === "image" ? url : null);
+  return Object.freeze({ kind, url, thumbUrl });
+}
+
 // Public site/video links and calendar dates are NOT private data. Everything else keeps the original conservative
 // redaction: other URLs, e-mail addresses and phone-like numbers. Allow-lists are exact hosts, never wildcards.
 const PUBLIC_LINK_HOSTS = Object.freeze(["sod1820.co.il", "www.sod1820.co.il", "youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be"]);
@@ -50,8 +88,15 @@ export function redactGroupText(text) {
 
 export function groupRowToWorldUpdate(row) {
   if (!row?.id || row.group_proof !== true || row.proof_basis !== "verified_phone_unique" || !APPROVED_GROUP_WRITERS.includes(clean(row.contributor_slug))) return null; // unproved / unverified author => excluded
+  const channel = clean(row.group_channel);
+  if (channel && !Object.hasOwn(GROUP_SOURCE_CHANNELS, channel)) return null; // not a public source group
+  const group = channel ? { key: channel, label: GROUP_SOURCE_CHANNELS[channel] } : { key: null, label: GROUP_SOURCE_NEUTRAL_LABEL };
+  const media = groupMediaFromRow(row);
+  // A row that declared media which failed public validation is dropped entirely, never shown as plain text.
+  if (clean(row.media_kind) && !media) return null;
   const body = redactGroupText(row.body);
-  if (!body) return null;
+  if (!body && !media) return null;
+  const slug = clean(row.contributor_slug);
   const seen = new Set();
   const occurrences = (Array.isArray(row.occurrences) ? row.occurrences : [{ id: row.id, created_at: row.created_at }])
     .filter((event) => {
@@ -71,8 +116,14 @@ export function groupRowToWorldUpdate(row) {
     kind: "source",
     sourceKind: "group_message",
     sourceLabel: "הודעה מקבוצת מקור",
-    label: body.length > 140 ? `${body.slice(0, 140)}…` : body,
+    label: body ? (body.length > 140 ? `${body.slice(0, 140)}…` : body) : (media?.kind === "video" ? "סרטון מהקבוצה" : "תמונה מהקבוצה"),
     fullText: body,
+    sourceGroup: group,
+    sourceGroupLabel: group.label,
+    media,
+    mediaHref: media?.url || null,
+    thumbUrl: media?.thumbUrl || null,
+    creatorHref: groupWriterProfileHref(slug),
     summary: null,
     stateLabel: GROUP_SOURCE_LABEL,
     creator: clean(row.contributor_name) || clean(row.contributor_slug),
