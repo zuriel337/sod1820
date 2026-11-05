@@ -142,6 +142,9 @@ jobs:
             if (testInfo.title.includes('guest signup popup')) return;
             await page.addInitScript(() => {
               try { sessionStorage.setItem('sod_guest_signup_popup_dismissed', '1'); } catch {}
+              // The guest newsletter invite opens after 22s or a scroll past 450px and would be the unexpected open sidecar in
+              // unrelated scenarios (Bennett). Only its dismissal hint is set; no consent or subscription is simulated.
+              try { localStorage.setItem('sod_legacy_newsletter_invite_until', String(Date.now() + 86400000)); } catch {}
             });
           });
 
