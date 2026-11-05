@@ -8,6 +8,7 @@ name: 2029 Live Contracts
 # Its later steps (5.11.2026) add the contract suites of five surfaces that were green on main but ran in no workflow, plus one new contract:
 # the Number page, Beit Midrash, the calculator, the Bible code opened to the public in its Classic form (release policy, URL continuity and the production worker transport),
 # and the navigation symbols (every destination has its own catalogued picture; none is shared or silently falls back).
+# The top bar contract (the crown at the centre, dark glass, the rounded arc) lives here too.
 # The mounted calculator tests need react-test-renderer; it is installed for that one step only, pinned and without touching package.json or the lockfile, exactly as research-sync-gate.yml does.
 # No threshold, budget or baseline is added or changed here; every file below passed on a clean `npm ci` checkout before it was wired.
 
@@ -105,6 +106,8 @@ jobs:
           src/lib/research/number2029LiveGlass.test.js
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
+      - name: Top bar (the crown at the centre, dark glass, the rounded arc: one final design, one stylesheet, and the traps it hit stay handled)
+        run: node --test test/topbar-crown-2029.test.mjs
       - name: Beit Midrash contracts (World lenses over the governed tree attachment, methods study, learning projection, study UI, source reading, route, method registry and definitions)
         run: >
           node --test
