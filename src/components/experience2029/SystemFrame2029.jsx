@@ -13,7 +13,7 @@ import React, {
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
-import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
+import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 import Footer2029 from "./Footer2029.jsx";
 import AccountLinkOffer2029 from "./AccountLinkOffer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
@@ -88,6 +88,7 @@ import "./myWorkspace2029.css";
 import "./discoveryGate2029.css";
 import "./systemToolDock2029.css";
 import "./systemFrame2029-unified-bar.css";
+import "./systemFrame2029-topbar-crown.css";
 import "./googleEntry2029.css";
 
 const NumberDrawer2029 = React.lazy(() => import("../number2029/NumberDrawer2029.jsx"));
@@ -1511,6 +1512,54 @@ function SystemFrame2029Body({
   const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
   const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
+
+  // The crown settles into the bar once the page is scrolled, and the bar's line fills with how much of the page was read.
+  // One passive, capture-phase scroll listener (it also hears a page that scrolls inside its own region); one rAF per frame; attributes and one variable on <html>.
+  useEffect(() => {
+    const html = document.documentElement;
+    let frame = 0;
+    let scrolled = false;
+    let reading = null;
+    let lastTarget = null;
+    const metrics = (el) => {
+      if (!el) {
+        const doc = document.scrollingElement || html;
+        return { top: window.scrollY || doc.scrollTop || 0, room: Math.max(0, doc.scrollHeight - window.innerHeight) };
+      }
+      return { top: el.scrollTop, room: Math.max(0, el.scrollHeight - el.clientHeight) };
+    };
+    const regionOf = (target) => {
+      // The page scrolls with the window; if it does not, the region that holds the page content does (never a dialog or a small list).
+      const doc = document.scrollingElement || html;
+      if (doc.scrollHeight - window.innerHeight > 40) return null;
+      if (!(target instanceof Element) || target.closest('[role="dialog"], .sod29-frame-panel, .sod29-mobile-drawer')) return reading;
+      return target.clientHeight >= window.innerHeight * 0.5 ? target : reading;
+    };
+    const update = () => {
+      frame = 0;
+      reading = regionOf(lastTarget);
+      const { top, room } = metrics(reading);
+      const next = scrolled ? top > 10 : top > 48;
+      if (next !== scrolled) { scrolled = next; html.setAttribute("data-crown-scrolled", String(next)); }
+      const ratio = room > 40 ? Math.min(1, Math.max(0, top / room)) : 0;
+      html.style.setProperty("--s29-read", ratio.toFixed(3));
+      html.setAttribute("data-crown-read-mid", String(ratio >= 0.5));
+    };
+    const onScroll = (event) => {
+      lastTarget = event.target === document || event.target === window ? null : event.target;
+      if (!frame) frame = window.requestAnimationFrame(update);
+    };
+    update();
+    document.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      window.removeEventListener("resize", onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+      ["data-crown-scrolled", "data-crown-read-mid"].forEach((name) => html.removeAttribute(name));
+      html.style.removeProperty("--s29-read");
+    };
+  }, [location.pathname]);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
     try { return localStorage.getItem("sod-global-rail") !== "expanded"; } catch { return true; }
   });
@@ -2225,7 +2274,24 @@ function SystemFrame2029Body({
                 <span>SOD1820</span><i>/</i><b>{title || BRAND_LOCKUP_2029.alt}</b>
                 {pageContext?.subject ? <span className="sod29-orientation-context"><i>/</i><span className="sod29-context-name">{contextDisplayTitle(pageContext) || "ההקשר הנוכחי"}</span></span> : null}
               </div>
+              <i className="sod29-header-rail" aria-hidden="true" />
             </div>
+            <Link to="/2029" state={{ sodEntryArrival: "internal" }} className="sod29-header-crown" onClick={() => preserveReturnFor("/2029")} aria-label="SOD1820 · בית">
+              <svg className="sod29-crown-dip" viewBox="0 0 320 64" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                <path className="dip-line" d="M0 0C44 0 70 62 160 62S276 0 320 0" />
+              </svg>
+              <img
+                src={BRAND_LOCKUP_NAV_2029.src}
+                width={BRAND_LOCKUP_NAV_2029.width}
+                height={BRAND_LOCKUP_NAV_2029.height}
+                alt=""
+                decoding="async"
+                draggable="false"
+                data-brand-asset-state={BRAND_LOCKUP_NAV_2029.state}
+              />
+            </Link>
+            <div className="sod29-header-end">
+            <i className="sod29-header-rail" aria-hidden="true" />
             <button className="sod29-header-search" type="button" onClick={openSiteSearch} aria-label="חיפוש באתר" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.SEARCH}>
               <span className="sod29-search-mobile-icon" aria-hidden="true">⌕</span>
               <span className="sod29-search-pill-icon" aria-hidden="true">⌕</span>
@@ -2237,6 +2303,7 @@ function SystemFrame2029Body({
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="issue-label"> דווח על בעיה</span></button>
               <ThemePresetControl2029 compact header />
               <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
+            </div>
             </div>
           </header>
           <GlobalLivingRibbon2029 />
