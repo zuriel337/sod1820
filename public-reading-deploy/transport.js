@@ -359,6 +359,21 @@ function installPublicReadingWorker(policy) {
           if (!Array.isArray(chain)) return denied();
           return chain.some(row => row.id === body.p_parent) ? readFetch(req) : new Response("[]", { headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
         }
+        // Guest community publishing: no account is involved, the server enforces the
+        // limits (kill switch, per-address rate, text only). Only the exact anonymous
+        // request shape is forwarded, always with the public key; any session token is refused.
+        if (rpc === "add_guest_community_message" && !url.search) {
+          const key = policy.anonKey || "";
+          if (!key) return denied();
+          const authorization = req.headers.get("Authorization");
+          if (authorization && authorization !== "Bearer " + key) return denied();
+          const body = await jsonBody(req);
+          if (Object.keys(body).sort().join(",") !== "p_body,p_parent_id,p_website"
+            || typeof body.p_body !== "string" || !body.p_body.trim() || Array.from(body.p_body).length > 3000
+            || !(body.p_parent_id === null || uuid(body.p_parent_id))
+            || !(body.p_website === null || typeof body.p_website === "string" && body.p_website.length <= 200)) return denied();
+          return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
+        }
         return adminFetch(req);
       })().catch(() => denied()));
       return;
