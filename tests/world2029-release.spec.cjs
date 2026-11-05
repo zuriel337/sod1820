@@ -158,6 +158,28 @@ for (const route of CLS_ROUTES) {
   });
 }
 
+// A real, long-lived public post (the Flydubai FZ1073 master). Real readers receive a post only after the shell is on screen (field TTFB p75 ~1 s),
+// so its reads are delayed: a footer or panel that is not reserved then shows up as a shift. This is how the field's worst offender reproduces in the lab
+// (post pages measured 0.21-0.37 CLS before the footer reservation and ~0.001-0.009 after). If the post stops being public the test fails loudly on purpose.
+const CLS_POST_ROUTE = '/post/flydubai-fz1073-363-14000-remzei-geula';
+for (const width of [390, 1440]) {
+  test(`Core Web Vitals CLS budget holds on a real post whose data arrives late at ${width}px`, async ({ page }) => {
+    await page.route('**/rest/v1/posts?*', async (postRoute) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await postRoute.fallback();
+    });
+    await installClsObserver(page);
+    await page.setViewportSize({ width, height: width < 600 ? 844 : 900 });
+    await page.goto(`${BASE}${CLS_POST_ROUTE}`, { waitUntil: 'domcontentloaded' });
+    await expect(
+      page.locator('[data-experience-surface="post-reading"]'),
+      `${CLS_POST_ROUTE} must render as a post; if it is no longer public, pick another long-lived public post for CLS_POST_ROUTE`,
+    ).toBeVisible({ timeout: 30_000 });
+    await assertClsGood(page, CLS_POST_ROUTE);
+    await assertNoHorizontalOverflow(page);
+  });
+}
+
 function researchContext(value) {
   const id = String(value);
   return {
