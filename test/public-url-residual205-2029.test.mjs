@@ -19,8 +19,7 @@ test("all frozen205 receive a bounded live review; audio HTML is never accepted 
   assert.equal(reviewed.filter(x=>x.reason==="exact_existing_restricted_draft_identity").length,4);
   assert.equal(reviewed.filter(x=>x.legacyReview.cutover.startsWith("blocker_")).length,0);
   assert.equal(reviewed.filter(x=>x.legacyReview.cutover.startsWith("possible_blocker_")).length,0);
-  const tab=readFileSync(new URL("../src/components/SearchTabs.jsx",import.meta.url),"utf8");
-  assert.match(tab,/path:\s*["']\/image["'][\s\S]{0,100}soon:\s*true|to:\s*["']\/image["'][\s\S]{0,100}soon:\s*true/);
+  // The former assertion on the Legacy SearchTabs component (its /image tab was marked soon) was removed with that component (Legacy removal, 5.11).
 });
 
 test("only the three proven Facebook source aliases continue; no guessed video IDs or source-playback claim",async()=>{

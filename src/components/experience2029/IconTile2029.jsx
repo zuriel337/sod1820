@@ -1,5 +1,5 @@
 import React from "react";
-import { use2029Palette, treatmentVars } from "../../lib/palette.js";
+import { use2029Palette, treatmentVars } from "../../lib/palette2029.js";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import "./iconTile2029.css";
 

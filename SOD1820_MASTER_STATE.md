@@ -187,7 +187,7 @@ Evidence baseline: branch `gpt/elections-world-seed-integration-20261030` at
 `f8b611cfb5d49cd418be553266f75e4f64c7cdcd` (READY, target=null when checked).
 The later small image-share implementation is NOT in that Preview. This branch
 checkpoint is not evidence of a main merge, Production change, G4 closure or final
-site design. The 22.10 Legacy Production lock in AGENTS.md remains controlling.
+site design. At that checkpoint the 22.10 Legacy Production lock in AGENTS.md was controlling; it is historical since the approved 4.11 cutover, and Legacy itself is retired (ZURIEL 5.11: no return; code kept in Git history only).
 
 Existing owners were live-verified: Reality Graph v8, canonical UI v11, Experience
 Governance v10. Runtime coverage/remaining work is kept in plan37 §12.10 rather

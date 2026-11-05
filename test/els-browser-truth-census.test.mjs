@@ -2,7 +2,9 @@
 // output (state / save / lens / search log / matrix marks) without a canonical server MATCH (h.v==="MATCH").
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const root = new URL('..', import.meta.url).pathname;
@@ -135,12 +137,14 @@ test('corpus identity is injected by build.py from the exact tk-letters source',
 });
 
 test('deterministic template -> public/tzofen.html and lazy lexicon asset build sync', () => {
-  const before = readFileSync(root + 'public/tzofen.html');
-  const lexiconBefore = readFileSync(root + 'public/els-dynamic-lexicon-v1.gz64.txt');
-  const r = spawnSync('python3', ['tools/els/build.py'], { cwd: root, encoding: 'utf8' });
-  assert.equal(r.status, 0, r.stderr);
-  const after = readFileSync(root + 'public/tzofen.html');
-  const lexiconAfter = readFileSync(root + 'public/els-dynamic-lexicon-v1.gz64.txt');
-  assert.ok(before.equals(after), 'public/tzofen.html is stale vs tools/els/els-code.template.html - run tools/els/build.py');
-  assert.ok(lexiconBefore.equals(lexiconAfter), 'lazy dynamic lexicon asset is stale vs its declared sources');
+  // Build into a temp dir (ELS_BUILD_OUT_DIR) and compare with the tracked files; the test never rewrites public/.
+  const outDir = mkdtempSync(join(tmpdir(), 'els-build-'));
+  try {
+    const r = spawnSync('python3', ['tools/els/build.py'], { cwd: root, encoding: 'utf8', env: { ...process.env, ELS_BUILD_OUT_DIR: outDir } });
+    assert.equal(r.status, 0, r.stderr);
+    assert.ok(readFileSync(root + 'public/tzofen.html').equals(readFileSync(join(outDir, 'tzofen.html'))), 'public/tzofen.html is stale vs tools/els/els-code.template.html - run tools/els/build.py');
+    assert.ok(readFileSync(root + 'public/els-dynamic-lexicon-v1.gz64.txt').equals(readFileSync(join(outDir, 'els-dynamic-lexicon-v1.gz64.txt'))), 'lazy dynamic lexicon asset is stale vs its declared sources');
+  } finally {
+    rmSync(outDir, { recursive: true, force: true });
+  }
 });

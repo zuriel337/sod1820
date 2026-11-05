@@ -1,6 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from "react";
-import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
+import { TYPEFACE } from "../lib/designTokens.js";
+import { use2029Palette } from "../lib/palette2029.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getVisitorId } from "../lib/tracking.js";
 import { supabase } from "../lib/supabase.js";
@@ -30,7 +30,7 @@ export default function ReactionBar(props) {
 }
 
 function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, variant, allowBoost = true, requireAccount = false, repeatable = false, rowAppearance }) {
-  const P = usePalette();
+  const P = use2029Palette();
   const { user, isAdmin } = useAuth();
   const myKey = repeatable ? "community-repeatable-like" : user?.id || ("v:" + getVisitorId());
   const [rx, setRx] = useState(reactions || {});
@@ -91,14 +91,14 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
     if (current()) { if (!saved) setError("לא נשמרה התגובה. נסו שוב."); setBusy(false); }
   };
 
-  const feedback = error ? <span id={errorId} role="alert" style={{ flexBasis: "100%", fontFamily: F.heading, fontSize: 13, color: P.accentDim }}>{error}</span> : null;
+  const feedback = error ? <span id={errorId} role="alert" style={{ flexBasis: "100%", fontFamily: TYPEFACE.ui, fontSize: 13, color: P.accentDim }}>{error}</span> : null;
 
   // תצוגה קומפקטית (רשימת-פורום ישנה) — רק ריאקציות שקיימות, לא-לחיץ
   if (compact) {
     const active = EMOJIS.filter(e => count(e) > 0);
     if (!active.length) return null;
     return (
-      <span style={{ display: "inline-flex", gap: 8, alignItems: "center", color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>
+      <span style={{ display: "inline-flex", gap: 8, alignItems: "center", color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 12 }}>
         {active.map(e => <span key={e} style={{ display: "inline-flex", gap: 2 }}>{e}<span style={{ fontVariantNumeric: "tabular-nums" }}>{count(e)}</span></span>)}
       </span>
     );
@@ -108,10 +108,10 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
   const adminBoost = (e) => isAdmin && allowBoost ? (
     <>
       <button onClick={(ev) => { ev.stopPropagation(); boost(e, 1); }} disabled={busy} title="עוד לייק (מנהל)"
-        style={{ cursor: busy ? "default" : "pointer", border: `1px solid ${P.border}`, background: "transparent", color: P.accentDim, borderRadius: 999, width: 22, height: 22, minWidth: 22, lineHeight: 1, fontFamily: F.heading, fontSize: 13, fontWeight: 900, padding: 0 }}>＋</button>
+        style={{ cursor: busy ? "default" : "pointer", border: `1px solid ${P.border}`, background: "transparent", color: P.accentDim, borderRadius: 999, width: 22, height: 22, minWidth: 22, lineHeight: 1, fontFamily: TYPEFACE.ui, fontSize: 13, fontWeight: 900, padding: 0 }}>＋</button>
       {boostOf(e) > 0 && (
         <button onClick={(ev) => { ev.stopPropagation(); boost(e, -1); }} disabled={busy} title="הפחת לייק (מנהל)"
-          style={{ cursor: busy ? "default" : "pointer", border: `1px solid ${P.border}`, background: "transparent", color: P.accentDim, borderRadius: 999, width: 22, height: 22, minWidth: 22, lineHeight: 1, fontFamily: F.heading, fontSize: 13, fontWeight: 900, padding: 0 }}>－</button>
+          style={{ cursor: busy ? "default" : "pointer", border: `1px solid ${P.border}`, background: "transparent", color: P.accentDim, borderRadius: 999, width: 22, height: 22, minWidth: 22, lineHeight: 1, fontFamily: TYPEFACE.ui, fontSize: 13, fontWeight: 900, padding: 0 }}>－</button>
       )}
     </>
   ) : null;
@@ -119,7 +119,7 @@ function LiveReactionBar({ id, reactions = {}, boosts = {}, compact = false, var
   const pill = (e, on) => ({
     cursor: busy ? "default" : "pointer", display: "inline-flex", alignItems: "center", gap: 4, borderRadius: 999, padding: "3px 10px",
     border: `1px solid ${on ? P.accent : P.border}`, background: on ? "rgba(212,175,55,0.15)" : "transparent",
-    color: on ? P.accentText : P.accentDim, fontFamily: F.heading, fontSize: 13, fontWeight: 700, lineHeight: 1,
+    color: on ? P.accentText : P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 13, fontWeight: 700, lineHeight: 1,
   });
 
   // 🟨 variant="row" — לייק-יחיד (👍) לחיץ לשורת-הפיד, + בוסט-אדמין. קליל, לא פותח את השורה.

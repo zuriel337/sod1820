@@ -1,5 +1,5 @@
 import { METHODS, onlyHeb } from "./gematria.js";
-import { KEY_NUMBERS } from "../theme.js";
+import { KEY_NUMBERS } from "./gematriaCore.js";
 import { canonicalMethodPublicLabel } from "./presentation/canonicalPresentation.js";
 
 // ===== מנוע המסרים — תמיד משהו אמיתי להגיד על מספר/שם (מפל A→F) =====

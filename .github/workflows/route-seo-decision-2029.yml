@@ -1,0 +1,45 @@
+name: 2029 Route SEO Decision Gate
+
+# Replaces the Legacy route-SEO coverage script (check-observability-seo-gate), which read the retired src/App.jsx.
+# EVERY public route registered in src/App2029.jsx must carry an explicit search/indexing decision:
+#   api/og.js registration, route-legitimacy.js, an X-Robots-Tag noindex header in vercel.json, a page-level
+#   applySeo({ noindex: true }), or a build-time preview flag. There is no baseline and no allow-list:
+#   a new route without a decision fails this job.
+# It adds no second SEO engine. The two existing server-layer acceptance scripts remain the behavioural truth
+# and run here unchanged; the existing Observability/SEO Build Gate keeps its own semantics (not edited by this file).
+# The behaviour step asks the real production document handler what it answers for every route (one explicit decision per
+# route, three synthetic data conditions) and needs the dormant public-reading build receipt, hence npm ci + the builder.
+# No network, no browser, no secrets, nothing is deployed.
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  route-seo-decision-2029:
+    name: route-seo-decision-2029
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Every public 2029 route has an explicit search/indexing decision
+        run: node scripts/test-2029-route-seo-decisions.mjs
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build the dormant public-reading artifact (generated build receipt for the document handler)
+        run: node scripts/build-public-reading-production.mjs
+      - name: The production document handler answers every route's explicit decision (status, robots, canonical, title)
+        run: node scripts/test-2029-route-seo-behavior.mjs
+      - name: Server SEO/AI parity (existing acceptance, unchanged)
+        run: node scripts/test-2029-server-seo-ai-parity.mjs
+      - name: Route legitimacy 2029 (existing acceptance, unchanged)
+        run: node scripts/test-route-legitimacy-2029.mjs

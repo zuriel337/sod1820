@@ -18,8 +18,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           persist-credentials: false
-      - name: Preserve the Legacy fallback routes and launch flag
-        run: node scripts/test-legacy-production-lock.mjs
+      - name: Verify Legacy is retired (no Legacy document, rollback worker or catch-all)
+        run: node scripts/test-legacy-retired.mjs
       - name: Install the existing locked middleware dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Verify explicit 2029 publication and deployment separation

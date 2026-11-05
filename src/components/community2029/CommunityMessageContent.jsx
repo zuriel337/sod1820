@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/messageLinks.js";
 import { parseMessageFormatting } from "../../lib/community/messageFormatting.js";
-import { use2029Palette } from "../../lib/palette.js";
+import { use2029Palette } from "../../lib/palette2029.js";
 import { fetchLinkPreview } from "../../lib/community/linkPreviewClient.js";
 
 // Generic external link: the plain card (host + address) is always there; Open Graph title/description/image replace it only

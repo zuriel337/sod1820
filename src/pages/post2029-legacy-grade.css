@@ -15,7 +15,7 @@
   --pg-lift:0 1px 0 color-mix(in srgb,var(--s29-ink) 5%,transparent),0 18px 46px color-mix(in srgb,var(--s29-page,#000) 34%,transparent);
   --pg-frame-pad:7px;
 }
-:is([data-theme-preset="light"],[data-theme-preset="parchment"]) .sod29-reading-post[data-post-character]{
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-post-character]{
   --pg-lift:0 1px 0 rgba(255,255,255,.7) inset,0 14px 38px color-mix(in srgb,var(--s29-ink) 12%,transparent);
 }
 
@@ -189,7 +189,7 @@
 .sod29-reading-post[data-post-character="matrix"]{
   --pg-matrix:var(--post-fx-color,#23c768);--pg-matrix-soft:var(--post-fx-head,#bfffd6);--pg-measure:42rem;
 }
-:is([data-theme-preset="light"],[data-theme-preset="parchment"]) .sod29-reading-post[data-post-character="matrix"]{--pg-matrix:color-mix(in srgb,var(--post-fx-color,#23c768) 62%,#000);--pg-matrix-soft:color-mix(in srgb,var(--post-fx-color,#23c768) 40%,#000)}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-post[data-post-character="matrix"]{--pg-matrix:color-mix(in srgb,var(--post-fx-color,#23c768) 62%,#000);--pg-matrix-soft:color-mix(in srgb,var(--post-fx-color,#23c768) 40%,#000)}
 /* the opening stage stays dark in every theme, so its own copy keeps the bright tones */
 .sod29-reading-post[data-post-character="matrix"] .sod29-reading-hero{--pg-matrix:var(--post-fx-color,#23c768);--pg-matrix-soft:var(--post-fx-head,#bfffd6)}
 /* The opening: a contained stage behind the title (the rain is POST_FX's, drawn by MatrixRain). */
@@ -294,25 +294,25 @@
    Night preset only; day/parchment keep their own surfaces. The Post supplies one
    approved series image (or the existing general photograph) in bounded WebP sizes.
    The adopted composition and centre veil are retained. No original PNG is fetched. */
-html[data-theme-preset="dark"] .sod29-reading-post::before,
-html[data-theme-preset="dark"] .sod29-reading-post::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none}
-html[data-theme-preset="dark"] .sod29-reading-post::before{
+html[data-theme-2029="dark"] .sod29-reading-post::before,
+html[data-theme-2029="dark"] .sod29-reading-post::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none}
+html[data-theme-2029="dark"] .sod29-reading-post::before{
   background:var(--post-background-desktop) center/cover no-repeat;opacity:.7;
 }
-html[data-theme-preset="dark"] .sod29-reading-post::after{
+html[data-theme-2029="dark"] .sod29-reading-post::after{
   background:
     radial-gradient(ellipse at 50% -10%,rgba(122,19,32,.26) 0%,transparent 55%),
     radial-gradient(ellipse at 50% 110%,rgba(61,31,92,.24) 0%,transparent 50%),
     radial-gradient(ellipse 70% 80% at 50% 48%,rgba(7,5,14,.55) 0%,rgba(7,5,14,.35) 45%,rgba(7,5,14,.12) 75%,rgba(7,5,14,0) 100%);
 }
 /* Lighter glass so the photograph reads through the panels (blur keeps text sharp). */
-html[data-theme-preset="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="plain"]) :is(.sod29-reading-source,.sod29-reading-cover,.sod29-post-research){
+html[data-theme-2029="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="plain"]) :is(.sod29-reading-source,.sod29-reading-cover,.sod29-post-research){
   background:color-mix(in srgb,#06040c 60%,transparent);
   -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
 }
-html[data-theme-preset="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="plain"]):not([data-post-character="matrix"]) .sod29-reading-hero{
+html[data-theme-2029="dark"] .sod29-reading-post[data-post-character]:not([data-post-character="plain"]):not([data-post-character="matrix"]) .sod29-reading-hero{
   background:color-mix(in srgb,#06040c 60%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
 }
 @media (max-width:760px){
-  html[data-theme-preset="dark"] .sod29-reading-post::before{background-image:var(--post-background-mobile)}
+  html[data-theme-2029="dark"] .sod29-reading-post::before{background-image:var(--post-background-mobile)}
 }

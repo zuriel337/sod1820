@@ -4,7 +4,7 @@ import Post2029Page from "./Post2029Page.jsx";
 import { supabase } from "../lib/supabase.js";
 import { publicPostOnlyFilter } from "../lib/research/publicPostBoundary.js";
 import Sod2029Shell, { FrameState } from "../components/experience2029/Sod2029Shell.jsx";
-import NotFoundPage from "./NotFoundPage.jsx";
+import NotFoundPage from "./NotFound2029Page.jsx";
 
 // The original WordPress address is a document identity, not a redirect to /post.
 export default function PublicPostAddress2029Page({ home = null }) {

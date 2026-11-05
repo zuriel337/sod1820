@@ -1,5 +1,5 @@
 import React,{Suspense,lazy,useEffect,useMemo,useId,useRef,useState} from 'react';
-import {use2029Palette} from '../../../lib/palette.js';
+import { use2029Palette } from '../../../lib/palette2029.js';
 import {useSourceModel} from './useSourceModel.js';
 import {selectedComponent,sourcePayload,componentSummary,componentCompanion,bindSourceModel,DIRECTION_LABELS,DIRECTION_VECTORS} from './sourceModels.js';
 import {SourceCatalogTable,SourceCatalogFacts} from './SourceCatalog2029.jsx';

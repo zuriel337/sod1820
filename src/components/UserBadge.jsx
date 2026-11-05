@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { displayAvatarUrl, writerAvatarStyle } from "../lib/avatar.js";
-import { use2029Palette } from "../lib/palette.js";
+import { use2029Palette } from "../lib/palette2029.js";
 import "./UserBadge.css";
 
 // Source size requested from storage: covers the 36-104 px avatar slots up to 2x density without shipping the original.

@@ -7,7 +7,7 @@
 // הוספת שפה/מקור חדש (אנגלית / חילוץ-מתמונה / השוואה) = registerResolver(adapter).
 // הליבה לא משתנה אף פעם. value-as-trunk: הערך הוא הגזע, הכל מתחבר דרכו.
 
-import { calcGem } from "../theme.js";
+import { calcGem } from "./gematriaCore.js";
 import { supabase, getEntityBundle, getRecentSearches } from "./supabase.js";
 import { buildMessages } from "./numberMessage.js";
 

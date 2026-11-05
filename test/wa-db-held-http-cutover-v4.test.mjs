@@ -14,8 +14,4 @@ assert.doesNotMatch(lc, /net\.|request_wa_link_code|green/i);
 for (const k of ["wa_admin_reply(send)", "wa_groups", "wa_state", "wa_distribute", "fn_wa_backfill_from_green", "detect_suggestions", "removal condition"]) {
   assert.ok(raw.includes(k), `matrix: ${k}`);
 }
-const ui = fs.readFileSync("src/components/userCenter/UserCenter.jsx", "utf8");
-assert.doesNotMatch(ui, /שלחנו קוד/);
-assert.match(ui, /נשלח לתור השליחה/);
-assert.match(ui, /r\.sent/);
 console.log("PASS wa db-held http cutover v4 (internal ACL) contract");

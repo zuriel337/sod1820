@@ -19,7 +19,7 @@ test("the owner-only reader includes imported posts only through a canonical acc
 });
 
 test("Replies to me describes both community and research and builds an exact community return", () => {
-  const center = read("src/components/userCenter/UserCenter.jsx");
+  const center = read("src/features/personalPanels/MessagesHub.jsx"); // panel moved out of the Legacy drawer shell
   assert.match(center, /אין עדיין תגובות לפוסטים או לתרומות שלך/);
   assert.match(center, /פוסט שפרסמת בקהילה/);
   assert.match(center, /חיבור מאומת של הפרופיל הישן לחשבון/);

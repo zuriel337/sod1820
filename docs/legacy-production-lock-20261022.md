@@ -1,6 +1,8 @@
 # Legacy Production lock — 22.10.2026
 
-Status: ACTIVE by explicit ZURIEL Human Gate.
+Status: **HISTORICAL / SUPERSEDED.** The approved 4.11.2026 cutover replaced this pin, and Legacy itself is retired (ZURIEL 5.11: no return; code kept in Git history only; live = 2029). `scripts/test-legacy-production-lock.mjs` named below was replaced by `scripts/test-legacy-retired.mjs`. Original text follows unchanged.
+
+Original status: ACTIVE by explicit ZURIEL Human Gate.
 
 ## Production pin
 

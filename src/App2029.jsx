@@ -15,7 +15,7 @@ import Opening2029 from "./components/experience2029/Opening2029.jsx";
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
-import FeatureClosedNotice from "./components/FeatureClosedNotice.jsx";
+import FeatureClosedNotice from "./components/experience2029/FeatureClosedNotice2029.jsx";
 import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingContinuation, publicReadingCapability, PUBLIC_HISTORICAL_LECTURE_PATHS } from "./lib/publicReadingRelease2029.js";
 
 // Admit Home's component code before preparing the first Post. The existing
@@ -206,8 +206,7 @@ function RouteEffects2029() {
   return null;
 }
 
-// A 2029 runtime never renders a legacy route inside the same React tree.
-// Exact-return or an explicit navigation to a non-2029 URL crosses the document boundary instead.
+// Unknown addresses end in the 2029 not-found page; there is no other document to hand off to.
 function CanonicalBookAlias2029() {
   const { slug } = useParams();
   const location = useLocation();
@@ -224,22 +223,6 @@ function BooksEntry2029() {
 function ElsAddressAlias2029() {
   const location = useLocation();
   return <Navigate replace to={`/code${location.search || ""}${location.hash || ""}`} />;
-}
-
-function LegacyDocumentHandoff() {
-  const location = useLocation();
-  const href = `${location.pathname}${location.search || ""}${location.hash || ""}`;
-  const functionalPreview = import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true";
-  useEffect(() => {
-    if(!functionalPreview)window.location.assign(href);
-  }, [href,functionalPreview]);
-  if(functionalPreview)return <PublicContributorFrame2029 surface="community" title="העמוד באתר הוותיק" introVariant="none">
-    <main dir="rtl" className="sod29-section"><h1>העמוד הזה זמין באתר הוותיק</h1>
-      <p>אפשר להמשיך אליו או לחזור לבית.</p>
-      <div className="sod29-actions"><a className="sod29-action" href={"https://sod1820.co.il"+href}>פתיחת העמוד באתר הוותיק</a><a className="sod29-action" href="/2029">חזרה לבית</a></div>
-    </main>
-  </PublicContributorFrame2029>;
-  return <Loading2029 />;
 }
 
 function GematriaEntry2029() {
@@ -391,7 +374,7 @@ export default function App2029() {
               <Route path="/2029/number/:value" element={<Locked flag="lock_number" requireFlag homeHref="/2029">{publicFoundationPreview ? <NumberAddress2029Page /> : <Number2029Page />}</Locked>} />
               <Route path="/entity-hub-preview/:type/:key" element={<EntityHubPreviewPage />} />
               <Route path="/2029/control" element={<ControlEntry2029 />} />
-              <Route path="*" element={publicFoundationPreview ? <PublicServices2029Page kind="not-found" /> : <LegacyDocumentHandoff />} />
+              <Route path="*" element={<PublicServices2029Page kind="not-found" />} />
               </Routes></PublicReadingBoundary>
             </Suspense>
           </RazielSessionMount2029>

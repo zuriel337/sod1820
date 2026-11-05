@@ -18,7 +18,7 @@ test("preview route is served by the 2029 document with noindex", () => {
 });
 
 test("preview is not linked from existing public surfaces", () => {
-  for (const file of ["src/pages/Home2029Page.jsx", "src/components/experience2029/SystemFrame2029.jsx", "src/pages/HomeNewPage.jsx"]) {
+  for (const file of ["src/pages/Home2029Page.jsx", "src/components/experience2029/SystemFrame2029.jsx"]) {
     assert.ok(!fs.readFileSync(file, "utf8").includes("/2029/home-preview"), `${file} links the preview`);
   }
 });

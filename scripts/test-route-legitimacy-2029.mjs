@@ -8,24 +8,13 @@ import {
 } from "../route-legitimacy.js";
 
 const read = p => readFileSync(new URL("../" + p, import.meta.url), "utf8");
-const app = read("src/App.jsx");
 const app2029 = read("src/App2029.jsx");
+const app = app2029; // Legacy is retired: the 2029 router is the only application router.
 const middleware = read("middleware-core.js");
 const migration = read("supabase/migrations/20260928103044_route_legitimacy_2029_v1.sql");
-const notFound = read("src/pages/NotFoundPage.jsx");
+const notFound = read("src/pages/NotFound2029Page.jsx");
 const vercel = JSON.parse(read("vercel.json"));
 const closure = read("docs/2029-search-indexing-closure-map-v1.md");
-
-// Every exact single-segment App route must bypass post-slug validation.
-const appRoutes = [...app.matchAll(/<Route\s+path="([^"]+)"/g)].map(m => m[1]);
-const singleStatic = appRoutes.filter(p => {
-  if (!p.startsWith("/")) return false;
-  const rest = p.slice(1);
-  return rest && !rest.includes("/") && !rest.includes(":") && !rest.includes("*");
-});
-for (const route of singleStatic) {
-  assert.equal(isKnownSingleSegmentRoute(route), true, `known App route missing from route legitimacy projection: ${route}`);
-}
 
 // Every preserved historical lecture page (single-segment ones) must pass the Edge legitimacy check, in both encodings.
 import { PUBLIC_HISTORICAL_LECTURE_PATHS } from "../src/lib/publicReadingRelease2029.js";
@@ -106,7 +95,7 @@ const routePos = middleware.indexOf("Route legitimacy runs only after security/q
 assert.ok(quarantinePos >= 0 && routePos > quarantinePos, "route legitimacy must run after quarantine policy");
 
 // SPA wildcard no longer soft-redirects home; it is noindex.
-assert.match(app, /<Route path="\*" element=\{<NotFoundPage \/>\} \/>/);
+assert.match(app, /<Route path="\*" element=\{<PublicServices2029Page kind="not-found" \/>\} \/>/);
 assert.doesNotMatch(app, /<Route path="\*" element=\{<Navigate to="\/" replace \/>\} \/>/);
 assert.match(notFound, /noindex: true/);
 assert.match(notFound, /404 · SOD1820/);

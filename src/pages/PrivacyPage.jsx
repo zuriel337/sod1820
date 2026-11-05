@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
+import { TYPEFACE } from "../lib/designTokens.js";
+import { use2029Palette } from "../lib/palette2029.js";
 import { applySeo } from "../lib/seo.js";
 
 // 📜 מדיניות פרטיות — דף אמיתי (SEO). נדרש ל-Facebook/Google Login ולאימות-העסק במטא.
@@ -9,7 +9,7 @@ import { applySeo } from "../lib/seo.js";
 const UPDATED = "10 ביולי 2026";
 
 export default function PrivacyPage() {
-  const P = usePalette();
+  const P = use2029Palette();
   useEffect(() => {
     applySeo({
       title: "מדיניות פרטיות",
@@ -21,18 +21,18 @@ export default function PrivacyPage() {
     }
   }, []);
 
-  const h2 = { color: P.accentText, fontFamily: F.regal, fontSize: 20, fontWeight: 800, margin: "28px 0 10px" };
-  const p = { color: P.ink, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 12px" };
-  const li = { color: P.ink, fontFamily: F.body, fontSize: 15, lineHeight: 1.85, marginBottom: 6 };
+  const h2 = { color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 20, fontWeight: 800, margin: "28px 0 10px" };
+  const p = { color: P.ink, fontFamily: TYPEFACE.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 12px" };
+  const li = { color: P.ink, fontFamily: TYPEFACE.body, fontSize: 15, lineHeight: 1.85, marginBottom: 6 };
   const strong = { color: P.accentText, fontWeight: 700 };
 
   return (
     <div style={{ background: P.pageBg, minHeight: "100vh" }}>
       <div style={{ direction: "rtl", maxWidth: 760, margin: "0 auto", padding: "48px 22px 100px" }}>
-        <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: "clamp(26px,5vw,38px)", fontWeight: 800, margin: 0 }}>
+        <h1 style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: "clamp(26px,5vw,38px)", fontWeight: 800, margin: 0 }}>
           מדיניות פרטיות
         </h1>
-        <div style={{ color: P.accentDim, fontFamily: F.heading, fontSize: 13, marginTop: 8 }}>
+        <div style={{ color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 13, marginTop: 8 }}>
           עודכן לאחרונה: {UPDATED} · אתר <b style={strong}>סוד 1820</b> (sod1820.co.il)
         </div>
 
@@ -97,7 +97,7 @@ export default function PrivacyPage() {
         </p>
 
         <div style={{ textAlign: "center", marginTop: 34 }}>
-          <Link to="/" style={{ color: P.accentDim, textDecoration: "none", fontFamily: F.heading, fontSize: 13 }}>← חזרה לאתר</Link>
+          <Link to="/" style={{ color: P.accentDim, textDecoration: "none", fontFamily: TYPEFACE.ui, fontSize: 13 }}>← חזרה לאתר</Link>
         </div>
       </div>
     </div>

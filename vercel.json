@@ -922,8 +922,20 @@
       "destination": "/2029.html"
     },
     {
+      "source": "/code",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/community/chat",
+      "destination": "/2029.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/2029.html"
+    },
+    {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/2029.html"
     }
   ],
   "headers": [

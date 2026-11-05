@@ -1,0 +1,81 @@
+{
+ "note": "scripts/measure-2029-load.mjs, 5 runs, Chromium CPU x4, 390x844, localhost only (Supabase and fonts blocked); same machine, back to back; the machine was loaded by other work, so the LCP numbers carry roughly +/-200 ms of noise",
+ "main@2500ec56": {
+  "label": "main-now",
+  "route": "/2029",
+  "runs": 5,
+  "cpuThrottle": 4,
+  "static": {
+   "buildMs": 4327,
+   "eagerChunks": 18,
+   "eagerGzipKB": 199.6,
+   "eagerModules": 101,
+   "eagerAppModules": 65,
+   "reachableChunks": 240,
+   "reachableGzipKB": 1954.3
+  },
+  "firstVisit": {
+   "ttfb": 7.1,
+   "dcl": 522,
+   "fcp": 312,
+   "lcp": 1784,
+   "longTasks": 7,
+   "longMs": 830,
+   "longMax": 245,
+   "requests": 101,
+   "jsRequests": 52,
+   "transferKB": 1801.9
+  },
+  "repeatVisit": {
+   "ttfb": 3.3,
+   "dcl": 173.8,
+   "fcp": 192,
+   "lcp": 1036,
+   "longTasks": 3,
+   "longMs": 213,
+   "longMax": 90,
+   "requests": 101,
+   "jsRequests": 52,
+   "transferKB": 1.5
+  }
+ },
+ "branch@6847e6799": {
+  "label": "branch-now",
+  "route": "/2029",
+  "runs": 5,
+  "cpuThrottle": 4,
+  "static": {
+   "buildMs": 4083,
+   "eagerChunks": 18,
+   "eagerGzipKB": 198.9,
+   "eagerModules": 102,
+   "eagerAppModules": 66,
+   "reachableChunks": 238,
+   "reachableGzipKB": 1950.9
+  },
+  "firstVisit": {
+   "ttfb": 4.4,
+   "dcl": 575.5,
+   "fcp": 296,
+   "lcp": 1968,
+   "longTasks": 8,
+   "longMs": 960,
+   "longMax": 271,
+   "requests": 102,
+   "jsRequests": 53,
+   "transferKB": 1798.1
+  },
+  "repeatVisit": {
+   "ttfb": 3.7,
+   "dcl": 187.1,
+   "fcp": 180,
+   "lcp": 972,
+   "longTasks": 2,
+   "longMs": 160,
+   "longMax": 69,
+   "requests": 102,
+   "jsRequests": 53,
+   "transferKB": 1.5
+  }
+ }
+}

@@ -63,10 +63,7 @@ test("wiring: boundary + window handlers go through track(); entries install onc
   const tr = read("src/lib/tracking.js");
   assert.match(tr, /initRuntimeErrorCapture\s*=\s*\(\)\s*=>\s*installRuntimeErrorCapture\(track\)/);
   assert.match(tr, /reportRuntimeIncident\s*=.*getSharedCapture\(track\)/);
-  const eb = read("src/components/ErrorBoundary.jsx");
-  assert.match(eb, /reportRuntimeIncident\("error_boundary"/);
-  assert.ok(!/track\("runtime_error"/.test(eb), "boundary no longer bypasses the shared capture");
-  assert.match(read("src/main.jsx"), /initRuntimeErrorCapture\(\)/);
+  assert.match(read("src/main2029.jsx"), /initRuntimeErrorCapture\(\)/);
   assert.match(read("src/main2029.jsx"), /initRuntimeErrorCapture\(\)/);
 });
 

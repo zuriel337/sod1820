@@ -7,7 +7,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useFeatureState } from "../MaintenanceLock.jsx";
-import { DESIGN_V2_PALETTES } from "../../lib/palette.js";
+import { DESIGN_V2_PALETTES } from "../../lib/palette2029.js";
 import "./elsRotatingMatrixCard2029.css";
 
 export const ELS_CARD_TITLE = "חיפוש בצופן התנ״כי";

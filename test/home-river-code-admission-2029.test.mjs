@@ -16,7 +16,7 @@ const fixtures = {
   "worldFindingShare.js": "export const worldMediaPublicShare=()=>null;",
   "contentTitle.js": "export const publicMediaTitle=v=>v||'',publicMediaCaption=v=>v||'';",
   "numberExpressionFocus.js": "export const numberExpressionFocusHref=n=>'/2029/number/'+n;",
-  "palette.js": "export const use2029Palette=()=>({}),treatmentVars=()=>({});",
+  "palette2029.js": "export const use2029Palette=()=>({}),treatmentVars=()=>({});",
 };
 await build({ entryPoints: ["src/components/research/RealityRiver2029.jsx"], bundle: true, splitting: true,
   format: "esm", platform: "node", outdir: output, outExtension: { ".js": ".mjs" },

@@ -2,8 +2,8 @@ import { useAuth } from "../lib/AuthContext.jsx";
 import React, { useEffect, useState } from "react";
 import { publicReadingActionsLocked } from "../lib/publicReadingRelease2029.js";
 import WatchButton from "./WatchButton.jsx";
-import { F } from "../theme.js";
-import { usePalette, PALETTES } from "../lib/palette.js";
+import { TYPEFACE } from "../lib/designTokens.js";
+import { use2029Palette, DESIGN_V2_PALETTES } from "../lib/palette2029.js";
 import { resolveAuthor } from "../lib/authors.js";
 import NavigationIcon2029 from "./experience2029/NavigationIcon2029.jsx";
 import { fetchPostFollowTargets2029, postFollowCandidates2029 } from "../lib/research/postsCatalog2029Projection.js";
@@ -65,8 +65,8 @@ function PostFollowOpen2029({ post, scope, source }) {
 // הקנוני היחיד והמנוע הקנוני (cat:<שם> / author:<שם>). אין post:<id>, אין fan-out לפוסט.
 // paletteMode=postMode כדי שיתאים לצבע-הפוסט (נעול-כהה מול מצב-אתר בהיר).
 export default function PostFollowBox({ categories = [], author = "", postMode = null, variant = null, post = null, scope = null, source = "post_footer_2029" }) {
-  const auto = usePalette();
-  const P = postMode ? (PALETTES[postMode] || auto) : auto;
+  const auto = use2029Palette();
+  const P = postMode ? (DESIGN_V2_PALETTES[postMode] || auto) : auto;
   const cats = [...new Set((categories || []).filter(Boolean))];
   const by = resolveAuthor(author);
   const hasWriter = by.name && by.name !== "המערכת";
@@ -75,10 +75,10 @@ export default function PostFollowBox({ categories = [], author = "", postMode =
 
   return (
     <div style={{ marginTop: 34, paddingTop: 20, borderTop: `1px solid ${P.border}`, direction: "rtl" }}>
-      <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 15.5, fontWeight: 800, marginBottom: 3, textAlign: "center" }}>
+      <div style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 15.5, fontWeight: 800, marginBottom: 3, textAlign: "center" }}>
         🔔 עקוב — וההתראה תחכה לך באתר (בפעמון), לא במייל
       </div>
-      <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginBottom: 14, textAlign: "center" }}>
+      <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 12.5, marginBottom: 14, textAlign: "center" }}>
         סמן וי על מה שמעניין אותך.
       </div>
       <div style={{ maxWidth: 430, margin: "0 auto", display: "flex", flexDirection: "column", gap: 8 }}>

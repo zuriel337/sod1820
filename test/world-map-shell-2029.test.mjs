@@ -146,5 +146,5 @@ test("isolation: no reader, DB, router or legacy import in the shell files", () 
   assert.match(opener, /fetchCanonicalGraphEntityFindings/);
   const css = readFileSync(new URL("../src/components/research/worldMapShell2029.css", import.meta.url), "utf8");
   const selectors = css.replace(/\/\*[\s\S]*?\*\//g, "").split("{").slice(0, -1).map((chunk) => chunk.split("}").pop().trim()).filter((s) => s && !s.startsWith("@"));
-  for (const selector of selectors) for (const part of selector.replace(/\([^)]*\)/g, "()").split(",")) assert.match(part.trim(), /\.wm29|^:root\[data-theme-preset/, `unscoped selector: ${part}`);
+  for (const selector of selectors) for (const part of selector.replace(/\([^)]*\)/g, "()").split(",")) assert.match(part.trim(), /\.wm29|^:root\[data-theme-2029/, `unscoped selector: ${part}`);
 });

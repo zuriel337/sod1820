@@ -21,7 +21,7 @@ import { buildElsRazielSurfaceContext } from "../lib/research/elsRazielContext.j
 import { ELS_MATRIX_PROFILE, projectElsMatrixProfile } from "../lib/research/els2029MatrixMode.js";
 import { publicReadingActionsLocked } from "../lib/publicReadingRelease2029.js";
 import { applySeo } from "../lib/seo.js";
-import FeatureClosedNotice from "../components/FeatureClosedNotice.jsx";
+import FeatureClosedNotice from "../components/experience2029/FeatureClosedNotice2029.jsx";
 import { useFeatureState } from "../components/MaintenanceLock.jsx";
 import { useElsJourneyReopen } from "../lib/research/useElsJourneyReopen.js";
 import { useOptionalRazielSession2029 } from "../components/experience2029/RazielSessionMount2029.jsx";

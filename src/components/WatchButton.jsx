@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { PUBLIC_READING_PRODUCTION_ARTIFACT, publicReadingActionsLocked } from "../lib/publicReadingRelease2029.js";
-import { F } from "../theme.js";
-import { usePalette, PALETTES } from "../lib/palette.js";
+import { TYPEFACE } from "../lib/designTokens.js";
+import { use2029Palette, DESIGN_V2_PALETTES } from "../lib/palette2029.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getVisitorId } from "../lib/tracking.js";
 import { getNotificationPrefs } from "../lib/supabase.js";
@@ -41,8 +41,8 @@ export default function WatchButton(props) {
 }
 
 function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "עקוב אחרי הנושא הזה", followLabel = null, heading = "רוצה לדעת כשיש חדש?", gate = false, compact = false, paletteMode = null, icon = "🔔", ghost = false, checkbox = false, noPush = false, variant = null, followIO = null, onVerifyIdentity = null }) {
-  const auto = usePalette();
-  const P = paletteMode ? (PALETTES[paletteMode] || auto) : auto;
+  const auto = use2029Palette();
+  const P = paletteMode ? (DESIGN_V2_PALETTES[paletteMode] || auto) : auto;
   const { user } = useAuth();
   const [view, setView] = useState(() => blankView(""));
   const pushReady = PUSH_CONFIGURED && pushSupported();
@@ -124,7 +124,7 @@ function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "�
   // One visible, announced error + retry for every variant. Unknown state is never presented as a saved/unsaved fact.
   const unknownMsg = toggleError || (loadFailed ? "לא ניתן לאמת את מצב המעקב כרגע." : "");
   const retry = (color, size) => (loadFailed || toggleError) && !busy
-    ? <button type="button" onClick={load} style={{ marginInlineStart: 8, minHeight: 44, minWidth: 44, cursor: "pointer", background: "transparent", border: "none", color, fontFamily: F.heading, fontSize: size, fontWeight: 800, textDecoration: "underline" }}>נסו שוב</button>
+    ? <button type="button" onClick={load} style={{ marginInlineStart: 8, minHeight: 44, minWidth: 44, cursor: "pointer", background: "transparent", border: "none", color, fontFamily: TYPEFACE.ui, fontSize: size, fontWeight: 800, textDecoration: "underline" }}>נסו שוב</button>
     : null;
   const locked = busy || !known;
 
@@ -158,13 +158,13 @@ function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "�
           background: following ? "rgba(132,88,255,.9)" : "rgba(255,255,255,.10)",
           border: `1px solid ${following ? "rgba(190,165,255,.8)" : "rgba(255,255,255,.28)"}`,
           color: "#fff", borderRadius: 999, padding: "4px 10px",
-          fontFamily: F.heading, fontWeight: 800, fontSize: 11, lineHeight: 1,
+          fontFamily: TYPEFACE.ui, fontWeight: 800, fontSize: 11, lineHeight: 1,
           opacity: following ? 1 : 0.5, transition: "opacity .2s, background .2s",
         }}>
         <span aria-hidden style={{ fontSize: 11 }}>✓</span>
         <span>{following ? (followLabel || "עוקב") : (label || "מעקב")}</span>
       </button>
-      {unknownMsg && <span role="alert" style={{ display: "inline-flex", alignItems: "center", marginInlineStart: 6, color: "#fff", fontFamily: F.heading, fontSize: 11.5 }}>{unknownMsg}{retry("#fff", 11.5)}</span>}
+      {unknownMsg && <span role="alert" style={{ display: "inline-flex", alignItems: "center", marginInlineStart: 6, color: "#fff", fontFamily: TYPEFACE.ui, fontSize: 11.5 }}>{unknownMsg}{retry("#fff", 11.5)}</span>}
       </>
     );
   }
@@ -175,7 +175,7 @@ function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "�
   const btn = {
     cursor: locked ? (loadFailed ? "not-allowed" : "wait") : "pointer", display: "inline-flex", alignItems: "center", gap: 6,
     minHeight: 44, padding: compact ? "7px 15px" : "9px 20px", borderRadius: 999,
-    fontFamily: F.heading, fontSize: 13.5, fontWeight: 800, whiteSpace: "nowrap",
+    fontFamily: TYPEFACE.ui, fontSize: 13.5, fontWeight: 800, whiteSpace: "nowrap",
     border: `1px solid ${outline ? P.accent : "transparent"}`,
     background: following ? soft : (ghost ? "transparent" : P.accentBtn),
     color: outline ? gold : (P.onAccent || "#1a0e00"),
@@ -195,12 +195,12 @@ function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "�
           border: `2px solid ${following ? P.accent : P.border}`, background: following ? P.accent : "transparent",
           color: following ? (P.onAccent || "#1a0e00") : "transparent", display: "grid", placeItems: "center",
           fontSize: 13, fontWeight: 900, transition: "all .15s ease" }}>✓</span>
-        <span style={{ flex: 1, minWidth: 0, color: following ? gold : P.ink, fontFamily: F.heading, fontSize: 13.5, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+        <span style={{ flex: 1, minWidth: 0, color: following ? gold : P.ink, fontFamily: TYPEFACE.ui, fontSize: 13.5, fontWeight: 700, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
           {icon} {label}
         </span>
-        {following && <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: F.body, fontSize: 11 }}>עוקב</span>}
+        {following && <span style={{ flex: "0 0 auto", color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 11 }}>עוקב</span>}
       </button>
-      {unknownMsg && <div role="alert" style={{ marginTop: 4, color: P.accentDim, fontFamily: F.heading, fontSize: 11.5 }}>{unknownMsg}{retry(gold, 12)}</div>}
+      {unknownMsg && <div role="alert" style={{ marginTop: 4, color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 11.5 }}>{unknownMsg}{retry(gold, 12)}</div>}
       </>
     );
   }
@@ -208,16 +208,16 @@ function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "�
   // Channel opt-in מוצע רק למשתמש מחובר. guest מקבל identity step בלבד.
   const pushOffer = !!user?.id && !noPush && justFollowed && following && pushReady && !pushOn && (
     <div style={{ marginTop: 9, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", justifyContent: gate ? "center" : "flex-start" }}>
-      <span style={{ color: P.ink, fontFamily: F.body, fontSize: 12.5 }}>📱 רוצה גם התראה מיידית?</span>
-      <button onClick={turnOnPush} style={{ cursor: "pointer", background: "transparent", border: `1px solid ${P.accent}`, color: gold, borderRadius: 999, padding: "5px 13px", fontFamily: F.heading, fontSize: 12.5, fontWeight: 800 }}>הפעל התראות</button>
+      <span style={{ color: P.ink, fontFamily: TYPEFACE.body, fontSize: 12.5 }}>📱 רוצה גם התראה מיידית?</span>
+      <button onClick={turnOnPush} style={{ cursor: "pointer", background: "transparent", border: `1px solid ${P.accent}`, color: gold, borderRadius: 999, padding: "5px 13px", fontFamily: TYPEFACE.ui, fontSize: 12.5, fontWeight: 800 }}>הפעל התראות</button>
     </div>
   );
   const statusNote = unknownMsg && (
-    <div role="alert" style={{ marginTop: 7, color: P.accentDim, fontFamily: F.heading, fontSize: 12, textAlign: gate ? "center" : "start" }}>
+    <div role="alert" style={{ marginTop: 7, color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 12, textAlign: gate ? "center" : "start" }}>
       {unknownMsg}{retry(gold, 12)}
     </div>
   );
-  const pushDone = pushMsg && <div style={{ marginTop: 7, color: P.accentDim, fontFamily: F.heading, fontSize: 12 }}>{pushMsg}</div>;
+  const pushDone = pushMsg && <div style={{ marginTop: 7, color: P.accentDim, fontFamily: TYPEFACE.ui, fontSize: 12 }}>{pushMsg}</div>;
 
   // 🔑 guest → verified identity. ה-Follow כבר נשמר; אימות החשבון רק קושר אותו לזהות הקנונית.
   // אין כאן Email/Push consent אוטומטי.
@@ -225,8 +225,8 @@ function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "�
     <div style={{ marginTop: 11, background: P.card, border: `1px dashed ${P.accent}`, borderRadius: 12, padding: "12px 14px", textAlign: gate ? "center" : "start" }}>
       {!showReg ? (
         <>
-          <div style={{ color: gold, fontFamily: F.heading, fontSize: 13.5, fontWeight: 800 }}>🔑 שמור את המעקב שלך</div>
-          <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, margin: "3px 0 9px" }}>אמת את החשבון כדי לקשור את המעקב לזהות שלך. ערוצי מייל/Push נבחרים בנפרד ורק בהסכמה.</div>
+          <div style={{ color: gold, fontFamily: TYPEFACE.ui, fontSize: 13.5, fontWeight: 800 }}>🔑 שמור את המעקב שלך</div>
+          <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 12.5, margin: "3px 0 9px" }}>אמת את החשבון כדי לקשור את המעקב לזהות שלך. ערוצי מייל/Push נבחרים בנפרד ורק בהסכמה.</div>
           <button onClick={() => typeof onVerifyIdentity === "function" ? onVerifyIdentity() : patch(scopeKey, { showReg: true })} style={{ ...btn, background: P.accentBtn, color: P.onAccent || "#1a0e00", border: "1px solid transparent" }}>✉️ אימות חשבון</button>
         </>
       ) : (
@@ -242,15 +242,15 @@ function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "�
         <div style={{ background: P.card, border: `1px solid ${P.border}`, borderRadius: 14, padding: "18px 18px", maxWidth: 460, margin: "0 auto" }}>
           {!following ? (
             <>
-              <div style={{ color: gold, fontFamily: F.regal, fontSize: 16.5, fontWeight: 800, marginBottom: 3 }}>🔔 {heading}</div>
-              {explainer && <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 13, marginBottom: 12 }}>{explainer}</div>}
+              <div style={{ color: gold, fontFamily: TYPEFACE.display, fontSize: 16.5, fontWeight: 800, marginBottom: 3 }}>🔔 {heading}</div>
+              {explainer && <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 13, marginBottom: 12 }}>{explainer}</div>}
               <button onClick={toggle} disabled={locked} aria-busy={(!known && !loadFailed) || busy || undefined} style={btn}>{icon} {label}</button>
               {statusNote}
             </>
           ) : (
             <>
-              <div style={{ color: gold, fontFamily: F.regal, fontSize: 16, fontWeight: 800 }}>✓ אתה במעקב</div>
-              <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 12.5, marginTop: 3 }}>{explainer || "נעדכן אותך כשמתפרסם משהו חדש."}</div>
+              <div style={{ color: gold, fontFamily: TYPEFACE.display, fontSize: 16, fontWeight: 800 }}>✓ אתה במעקב</div>
+              <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 12.5, marginTop: 3 }}>{explainer || "נעדכן אותך כשמתפרסם משהו חדש."}</div>
               <div style={{ marginTop: 8 }}>
                 <button onClick={toggle} disabled={locked} style={{ ...btn, background: "transparent", color: P.accentDim, border: `1px solid ${P.border}`, fontSize: 12 }}>ביטול מעקב</button>
               </div>
@@ -269,7 +269,7 @@ function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "�
         title={following ? "לחצו לביטול" : explainer || label} style={btn}>
         {icon} {following ? (followLabel || "עוקבים ✓") : label}
       </button>
-      {!following && explainer && <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11.5, marginTop: 5 }}>{explainer}</div>}
+      {!following && explainer && <div style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 11.5, marginTop: 5 }}>{explainer}</div>}
       {statusNote}{regCta}{pushOffer}{pushDone}
     </div>
   );

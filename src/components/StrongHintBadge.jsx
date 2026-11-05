@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { F } from "../theme.js";
+import { TYPEFACE } from "../lib/designTokens.js";
 
 // 💎 סימון «רמז חזק» לכרטיס-פוסט (canonical_ui_components_law) — רכיב יחיד, מוצב בכל מקום
 // שבו מוצג כרטיס-פוסט. פוסט «רמז חזק» = הקטגוריה שלו כוללת «רמזים חזקים» (תוכן-הדגל של צוריאל).
@@ -19,7 +19,7 @@ export default function StrongHintBadge({ variant = "chip", label = true, link =
   const base = {
     display: "inline-flex", alignItems: "center", gap: label ? 5 : 0, whiteSpace: "nowrap",
     background: "linear-gradient(135deg,#f7e08a,#d4af37 55%,#b8891f)", color: "#2a1c00",
-    fontFamily: F.heading, fontWeight: 900, borderRadius: 999, lineHeight: 1,
+    fontFamily: TYPEFACE.ui, fontWeight: 900, borderRadius: 999, lineHeight: 1,
     boxShadow: "0 0 0 1px rgba(255,230,150,.55)", cursor: link ? "pointer" : "default",
   };
   const linkProps = link ? { role: "link", tabIndex: 0, onClick: go, onKeyDown: onKey } : {};

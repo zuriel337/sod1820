@@ -1,6 +1,16 @@
 # SOD1820 — Claude Runtime Adapter
 
-**מצב נוכחי — 12.56 / LIVE, ‏4.11.2026:** החבילה המצטברת פורסמה ממקור `969b51423d8b67b7b8061d067b5366e1e2a1c5e4` ב־Production `dpl_xw7fECMyWRrZvxxKdy71yobAhj8h`. שלושת הדומיינים אומתו בפריסה זו; כלולים המחשבון, ״עכשיו״, רקעי הפוסטים, התפריט, התמונות28f והמסירה המדויקתd96. צוריאל אישר את הפרסום המדויק וחריגת הקנרית לשעה, עד `2026-11-04T21:16:17.346189Z`; זהו אישור שנצרך לפרסום זה, לא היתר לפרסום עתידי. אחרי המעבר עברו20 תרחישי דפדפן אמיתיים ב־390/1440, בדיקות alias/לוגו/בוט וקנרית969 [בניסיון2](https://github.com/zuriel337/sod1820/actions/runs/41906277893). הכשלים הראשונים נשמרו; HIT חם שלXML אינו קבלת זמן קר. Isolation/Visual/ELS המלאים וסגירתG4 בתוכנית אינם PASS. תיעוד מאוחר ב־main אינו שינויruntime או פריסה נוספת. סשנים חדשים מתחילים מ־origin/main העדכני, מאמתים Vercel ובעלויות, ואינם מייבאים שוב ענפים שהוחלפו. [הפעולה, הראיות והיתרה](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1256--החבילה-המצטברת-פורסמה-לחי).
+## Legacy פרש — קרא ראשון (החלטת ZURIEL, 5.11.2026)
+
+1. **Legacy retired — אינו מוצר פעיל.** אין ריצת Legacy, אין יעד build של Legacy ואין שער Legacy lock (הוחלף ב־`scripts/test-legacy-retired.mjs`). ההחלטה סופית. אם עץ ה־`main` שלפניך עדיין מכיל קוד Legacy, הסרתו טרם מוזגה (ענף `claude/2029-legacy-separation-e8j9tf`); מיזוג ופרסום שלה דורשים אישור מפורש של צוריאל.
+2. **מערכת 2029 היא המוצר הפעיל** (`src/App2029.jsx`, `src/main2029.jsx`, `2029.html`; פרסום דרך `public-reading-deploy`). מצב חי נקרא מ־Vercel (alias ← deployment ← `sourceSha`) ומ־`origin/main` בזמן הפעולה, לא ממסמך.
+3. **אין לשחזר Legacy** כ־runtime, route, UI, build target, rollback worker או compatibility layer. כתובת שאינה מוכרת מסתיימת ב־404 של 2029.
+4. **היסטוריית Git היא מנגנון השחזור** של קוד Legacy (`git show <sha>:<path>`; ראו [REMOVAL.md](docs/reviews/2029-legacy-removal-20261105/REMOVAL.md)); אין צורך להחזיק מוצר Legacy חי לשם rollback. חזרה תפעולית בפרודקשן היא לפריסת 2029 קודמת, באישור מפורש; היא אינה שחזור מסד או מדיה.
+5. **אין למחוק תשתיות משותפות** ש־2029 או מסוף הניהול החדש עדיין צריכים: Supabase (functions, RPC, RLS, Storage, TUS), `AuthContext` ו־`isAdmin`, `/2029/control`, `/2029/me/*`, `researchViewerProjection.js`, `useUniversalWorkspace.js`, ספריות העלאת המדיה, `docs/admin-command-blue-slice-v1.md` ו־`docs/reviews/admin-full-access-auth-20261103/`. גם נתוני ארכיון ושדות כמו `legacy_id` נשארים: שם שמכיל "legacy" אינו הוכחה לקוד Legacy.
+6. **מסמכים ישנים הם היסטוריים.** מסמך שמציג Legacy כפעיל, כיעד חזרה או כשער חובה הוא תצלום היסטורי ולא מקור אמת; ראו הבאנרים בראש מסמכי `docs/reviews/2029-legacy-*`. אין למחוק אותם.
+7. **כל שינוי בפרודקשן דורש אישור מפורש של ZURIEL** לקומיט ולפריסה מדויקים: merge ל־`main`, פרסום, שינוי alias, Preview מוגן, שינוי DB או דגל. מיזוג קוד אינו פריסה.
+
+**צילום היסטורי — 12.56 / LIVE, ‏4.11.2026 (אינו המצב החי הנוכחי; הפרודקשן הוחלף מאז, ומצב חי נקרא מ־Vercel בכל פעולה):** החבילה המצטברת פורסמה ממקור `969b51423d8b67b7b8061d067b5366e1e2a1c5e4` ב־Production `dpl_xw7fECMyWRrZvxxKdy71yobAhj8h`. שלושת הדומיינים אומתו בפריסה זו; כלולים המחשבון, ״עכשיו״, רקעי הפוסטים, התפריט, התמונות28f והמסירה המדויקתd96. צוריאל אישר את הפרסום המדויק וחריגת הקנרית לשעה, עד `2026-11-04T21:16:17.346189Z`; זהו אישור שנצרך לפרסום זה, לא היתר לפרסום עתידי. אחרי המעבר עברו20 תרחישי דפדפן אמיתיים ב־390/1440, בדיקות alias/לוגו/בוט וקנרית969 [בניסיון2](https://github.com/zuriel337/sod1820/actions/runs/41906277893). הכשלים הראשונים נשמרו; HIT חם שלXML אינו קבלת זמן קר. Isolation/Visual/ELS המלאים וסגירתG4 בתוכנית אינם PASS. תיעוד מאוחר ב־main אינו שינויruntime או פריסה נוספת. סשנים חדשים מתחילים מ־origin/main העדכני, מאמתים Vercel ובעלויות, ואינם מייבאים שוב ענפים שהוחלפו. [הפעולה, הראיות והיתרה](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1256--החבילה-המצטברת-פורסמה-לחי).
 
 העדכונים12.55 ומטה הם צילומים היסטוריים בתחומים שהוחלפו ב־12.56. הרשאות השחרור, קבלת שני החשבונות/H1 והדחיות שלא הוחלפו נשמרות.
 
@@ -9,7 +19,7 @@
 
 ## מצב חי וכללי שחרור — 2029 (יישור ZURIEL, ‏4.11.2026)
 
-**2029 הוא האתר החי. Legacy הוא יעד חזרה בלבד.** מצב חי נקבע מקריאה עדכנית של שיוך הדומיינים ב־Vercel, מקור הפריסה וה־artifact שמוגש בפועל; `main`, הודעה ישנה או work_log לבדם אינם הוכחת פריסה.
+**2029 הוא האתר החי. Legacy פרש (החלטת צוריאל 5.11: אין חזרה); הקוד נשמר בהיסטוריית Git בלבד.** מצב חי נקבע מקריאה עדכנית של שיוך הדומיינים ב־Vercel, מקור הפריסה וה־artifact שמוגש בפועל; `main`, הודעה ישנה או work_log לבדם אינם הוכחת פריסה.
 
 **צילום היסטורי12.54 — הבסיס הוחלף בהמשך12.56:** מתחילים מענף מבודד מתוך `origin/main` אחרי fetch ובדיקת הבעלויות; אין לחזור לענף cutover או לייבא שוב מסירות שכבר שולבו. קוד המוצר המאוחד הואa4910bc2; תיקון כלי ה־CI והקיבוע של הספים מתועדים ב־[המסירה העדכנית](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1254--בסיס-לסשנים-חדשים-seo-וספים-קבועים). בקשת צוריאל המאוחרת לפרסום כל השינויים מחליפה את הוראת הקוד־בלבד לעניין היעד, אך אינה override לקנרית או מעבר של שער שנכשל. לא מציגים את main כפרוס לפני אימותVercel.
 
@@ -22,13 +32,13 @@
 
 - ZURIEL אישר במפורש הכנה ומיזוג של המוצר המאוחד העדכני ל־`main` במשימה `MAIN_2029_LIVE_STATE_RECONCILIATION_20261104`. זהו אישור המיזוג הנוכחי; אין צורך באישור נוסף לעצם המיזוג אם התנאים שהגדיר מתקיימים. בודקים תחילה שפריסת Git אוטומטית לא תחליף את החי בתוצר או בתצורה שלא אושרו.
 - יישור הקוד הושלם ב־PR [#1191](https://github.com/zuriel337/sod1820/pull/1191), קומיט מוצר `71bb76467091ecd920eea92cc5b041c24c8145df`, עם tree זהה למועמד המאוחד שנבדק. זו צריכת אישור המיזוג הנוכחי, לא הרשאת מיזוג גורפת לענפים היסטוריים. תיעוד מאוחר יכול להתקדם מעל קומיט המוצר; קוראים מחדש את HEAD ולא מניחים שהוא פרוס.
-- מסלול פרסום 2029 הוא `public-reading-deploy`, עם `sourceFilesOutsideRootDirectory=true` ובנייה מפורשת `node scripts/build-public-reading-production.mjs --public-production-candidate --review-source=<exact-main-SHA>`. שורש המאגר והמתג `CORE_PUBLIC_LAUNCH_2029=false` נשמרים לתאימות Legacy; אין להשתמש בבניית ברירת המחדל כתחליף לתוצר הציבורי. `git.deploymentEnabled=false` בשני השורשים מפריד את main מהפעלה אוטומטית; אין לשנות דגל משותף כדי לחקות Preview.
+- מסלול פרסום 2029 הוא `public-reading-deploy`, עם `sourceFilesOutsideRootDirectory=true` ובנייה מפורשת `node scripts/build-public-reading-production.mjs --public-production-candidate --review-source=<exact-main-SHA>`. שורש המאגר והמתג `CORE_PUBLIC_LAUNCH_2029=false` נשמרים כפי שהם (הדגל בשימוש בקוד 2029; Legacy פרש); אין להשתמש בבניית ברירת המחדל כתחליף לתוצר הציבורי. `git.deploymentEnabled=false` בשני השורשים מפריד את main מהפעלה אוטומטית; אין לשנות דגל משותף כדי לחקות Preview.
 - התאמת השער ב־df0fd09f אושרה בנפרד והוחלה בדיוק. קבלת הפריוויו היא d031b5ea / GcNaZezW; הפרסום הבא עדיין כפוף לקנרית של מקור החי ולבדיקות הרלוונטיות. הוראת הפרסום הכללית כבר ניתנה במשימה; לא ניתן להסיק ממנה override לקנרית שנכשלה או PASS של workflow שנמצא בתור.
 - מיזוג קוד אינו פריסה. main יכול לכלול תיקונים מאושרים שטרם נפרסו; מדווחים במפורש את ההבדל ממקור הפריסה החיה. Production, דומיינים, שרת/מסד משותפים ודגלים כפופים להרשאות המדויקות שכבר ניתנו, ללא הרחבה מכוח מיזוג.
 - **ענפים ומסירות שהוחלפו הם היסטוריה, לא מסלול שחרור.** אין למזג או לפרסם ענף ישן או עבודה מסשן ישן בלי אישור מיוחד מפורש של ZURIEL לאותה מסירה/דלתה. בודקים תוכן ותלות מול main העדכני; תאריך, שם סשן או אישור ישן אינם אישור חדש. אין למחוק את הענפים או את הראיות כדי לאכוף זאת.
 - הסשן המרכזי הוא המשלב היחיד של המשימה הנוכחית. סוכן שמגיע מענף היסטורי קורא את main והיומן העדכניים ונשאר בקריאה בלבד בתחום שכבר מוחזק. התיעוד והיומן הם התיאום הקיים; אין dispatch או המתנה ל־GPT.
-- Legacy `dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2` נשמר לחזרה מאושרת, ואינו Production הנוכחי. שחזור תנועה לפריסה אינו שחזור מסד או מדיה, ואין חזרה אוטומטית בגלל פין היסטורי.
-- שער Legacy שומר תאימות ליעד החזרה. מעבר שלו אינו הוכחה שהאתר החי הוא Legacy או שתוצר 2029 התקבל. אישור נפרד לשינוי השער נשאר בתוקף; אין להסיר או להחליש בדיקות. הצלחת workflow בשם G4 אינה סגירת G4 בתוכנית.
+- Legacy פרש (החלטת צוריאל 5.11: אין חזרה). הפריסה `dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2` אינה יעד חזרה, ואין לשחזר אליה תנועה; קוד Legacy נשמר בהיסטוריית Git בלבד ([ההסרה והשחזור מההיסטוריה](docs/reviews/2029-legacy-removal-20261105/REMOVAL.md)). אם נדרשת חזרה — היא לפריסת 2029 קודמת, שנקבעת מחדש מ־Vercel באותה פעולה ובאישור מפורש. שחזור תנועה לפריסה אינו שחזור מסד או מדיה. הסרת קוד ה־Legacy אינה פריסה: היא חיה רק אחרי אימות Vercel (נכון ל־5.11 החי הוא `b0a752c66` / `dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP`, והסרה זו אינה בו).
+- שער Legacy הוחלף בשער ״Legacy פרש״ (`scripts/test-legacy-retired.mjs`; רץ גם ב־`prebuild`, וב־workflow `legacy-production-lock` ששמו נשמר בכוונה לשמות הבדיקות הנדרשות): הוא מוודא שאין מסמך Legacy, worker חזרה או catch-all ל־Legacy. מעבר שלו אינו הוכחה שתוצר 2029 התקבל. אישור נפרד של ZURIEL לשינוי השער נשאר בתוקף; אין להסיר או להחליש בדיקות. הצלחת workflow בשם G4 אינה סגירת G4 בתוכנית.
 - חיבורי החשבונות שכבר התקבלו, H1, החלטות הסיכון והדחיות המאוחרות נשמרים. אין דרישה חדשה לבדיקות שכבר תקפות ללא שינוי רלוונטי.
 
 מצב המועמד, אישור השער וראיות המיזוג/הפריסה: [המסירה הקיימת למשימה](docs/reviews/main-live-state-reconciliation-20261104/README.md), BEFORE `a89ac5ea-9802-49b2-a101-1786d13acd5f`. זהו קישור לראיות; הוא אינו מקור אמת חלופי או הרשאת פרסום.
@@ -43,7 +53,7 @@ Historical records are retained. No product semantics, visual ownership or relea
 
 ## Historical Legacy lock — 22.10.2026; superseded for the approved 2029 cutover
 
-The Legacy pin and Preview-only state below are historical. Preserve the existing exact release and separate gate-change approvals under the current section above.
+The Legacy pin and Preview-only state below are historical. Preserve the existing exact release and separate gate-change approvals under the current section above. Legacy itself is retired (ZURIEL 5.11: no return; code kept in Git history only): the pin, the Preview-only rule and `scripts/test-legacy-production-lock.mjs` named below are history; the live gate is `scripts/test-legacy-retired.mjs`.
 
 > Canonical Production is pinned to Legacy deployment `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq` at `99249526e91f1d720fae1aa43e82bbbe51ee5c45`. All 2029 work is Preview-only. Do not enable automatic custom-domain assignment or promote, rollback, alias, deploy or merge a 2029 cutover. A future cutover requires a new ZURIEL approval explicitly naming **2029 Production cutover**, the exact SHA and deployment ID. Generic release/rollback approval is insufficient. `node scripts/test-legacy-production-lock.mjs` is mandatory and may not be weakened in the same release change.
 

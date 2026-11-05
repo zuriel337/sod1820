@@ -7,7 +7,7 @@ const frame=read("src/components/experience2029/SystemFrame2029.jsx");
 const home=read("src/pages/Home2029Page.jsx");
 const post=read("src/pages/Post2029Page.jsx");
 const rail=read("src/components/experience2029/ReadingContextRail2029.jsx");
-const palette=read("src/lib/palette.js");
+const palette=read("src/lib/paletteTokens2029.js");
 
 assert.match(app,/path="\/post\/:slug"/);
 assert.match(home,/Home2029/);

@@ -767,8 +767,8 @@ import {MemoryRouter} from 'react-router-dom';
 import Native from '/src/components/experience2029/ElsNativeClassic2029.jsx';
 import Advanced from '/src/components/experience2029/ElsAdvancedSearch2029.jsx';
 import '/src/components/experience2029/els2029-research.css';
-import {resolve2029Palette,usePalette} from '/src/lib/palette.js';
-import {useThemePreset,setThemePreset} from '/src/lib/themeMode.js';
+import {resolve2029Palette,use2029Palette} from '/src/lib/palette2029.js';
+import {useThemePreset,setThemePreset} from '/src/lib/themePreset2029.js';
 import {findingColorChoices,projectFindingColor,nextFindingColor} from '/src/components/experience2029/elsFindingColors2029.js';
 import '/src/components/experience2029/sod2029.css';
 import '/src/components/experience2029/sod2029-closed.css';
@@ -802,7 +802,7 @@ return React.createElement('div',{style,className:'sod29-root closed-shell nativ
 }
 if(window.__fixtureFullFrame){
  const [{default:Frame},{BrowserRouter}]=await Promise.all([import('/src/components/experience2029/Sod2029Shell.jsx'),import('react-router-dom')]);
- function PaletteProbe(){const p=usePalette();return React.createElement('span',{'data-palette-probe':JSON.stringify({accent:p.accent,panel:p.card}),hidden:true});}
+ function PaletteProbe(){const p=use2029Palette();return React.createElement('span',{'data-palette-probe':JSON.stringify({accent:p.accent,panel:p.card}),hidden:true});}
  function FullFrameFixture(){
   const [visible,setVisible]=React.useState(true);window.__setNativeVisible=setVisible;
   const [,forceRender]=React.useState(0);window.__forceParentRender=()=>flushSync(()=>forceRender(n=>n+1));
@@ -1512,7 +1512,7 @@ test('native UI: vivid colors and exact finding focus stay readable in every the
      const row=document.querySelector('.els29-native-finding-group.is-selected .els29-native-color-dot');
      const selectedRow=row.closest('.els29-native-finding-group');
      const {findingColorChoices,projectFindingColor,nextFindingColor,resolve2029Palette}=window.__findingColors;
-     const palette=resolve2029Palette(document.documentElement.dataset.themePreset,'research_lab');
+     const palette=resolve2029Palette(document.documentElement.dataset['theme-2029'],'research_lab');
      const choices=findingColorChoices(palette),assigned=[];
      for(let i=0;i<12;i++)assigned.push({color:nextFindingColor(assigned,palette)});
      return {fill:getComputedStyle(cell).backgroundColor,ink:getComputedStyle(cell).color,swatch:getComputedStyle(row).backgroundColor,rowInk:getComputedStyle(selectedRow.querySelector('small')).color,rowFill:getComputedStyle(selectedRow).backgroundColor,plain:getComputedStyle(plain).color,canvas:getComputedStyle(matrix).backgroundColor,panel:palette.card,onMark:palette.matrix.onMark,axis:palette.matrix.axis,choices,assigned:assigned.map(f=>projectFindingColor(f.color,palette))};

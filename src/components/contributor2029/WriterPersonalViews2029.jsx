@@ -1,5 +1,5 @@
 import React, { useId, useState } from "react";
-import { use2029Palette } from "../../lib/palette.js";
+import { use2029Palette } from "../../lib/palette2029.js";
 import { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import "./writerPersonalViews2029.css";
 

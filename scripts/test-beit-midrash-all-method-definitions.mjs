@@ -31,13 +31,5 @@ assert.ok(contextual.structure);
 assert.match(contextual.structure, /סימון מפורש במקור/);
 assert.doesNotMatch(contextual.structure, /=|רגיל · גדול/);
 
-const component = fs.readFileSync("src/components/BeitMidrashMethodsRegistry.jsx", "utf8");
-assert.match(component, /מה השיטה עושה/);
-assert.match(component, /איך היא בנויה/);
-assert.match(component, /מתי צריך להיזהר מספירה כפולה/);
-assert.match(component, /רעיון מחקרי/);
-assert.doesNotMatch(component, /תת-קטגוריה:/);
-assert.doesNotMatch(component, /נשמה:/);
-assert.doesNotMatch(component, /METHODS|DEPTH_METHODS|gematria\.js/);
 
 console.log("PASS Beit Midrash all-method definition projection");

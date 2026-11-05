@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
-import { DESIGN_V2_PALETTES, use2029Palette } from "../../lib/palette.js";
+import { DESIGN_V2_PALETTES, use2029Palette } from "../../lib/palette2029.js";
 import { encodeMessageFormatting, parseMessageFormatting, plainMessageText } from "../../lib/community/messageFormatting.js";
 
 const colorKey = value => String(value || "").replace(/\s/g, "").toLowerCase();

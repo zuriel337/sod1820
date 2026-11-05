@@ -66,7 +66,7 @@ with sync_playwright() as p:
      if req.method in ['GET','HEAD','OPTIONS']:reply([]);return
      state['unexpected'].append(u.path);reply({},403)
     ctx.route('**/*',route);page=ctx.new_page();page.on('pageerror',lambda e:state['errors'].append(str(e)));page.goto(BASE+'/community/chat',wait_until='domcontentloaded')
-    expect(page.locator('#community-live-draft')).to_be_visible(timeout=30000);expect(page.locator('html')).to_have_attribute('data-theme-preset',theme)
+    expect(page.locator('#community-live-draft')).to_be_visible(timeout=30000);expect(page.locator('html')).to_have_attribute('data-theme-2029',theme)
     root=page.locator('#message-'+ROOT_ID);expect(root.locator('.sod-user-avatar')).to_have_attribute('data-avatar-state','image',timeout=15000);page.wait_for_function('(s)=>{const e=document.querySelector(s);return e&&e.complete&&e.naturalWidth>0}',arg='#message-'+ROOT_ID+' img',timeout=10000)
     expect(page.locator('#message-'+SECOND+' .sod-user-avatar')).to_have_attribute('data-avatar-state','fallback');assert 'linear-gradient' in page.locator('#message-'+SECOND+' .sod-user-avatar').evaluate('(e)=>getComputedStyle(e).backgroundImage')
     group=page.locator('#message-'+ROOT_ID).locator('..')

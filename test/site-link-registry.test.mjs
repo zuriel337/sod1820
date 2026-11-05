@@ -40,9 +40,7 @@ test("ids are unique, internal hrefs are site-relative and every footer entry si
   }
 });
 
-test("the Legacy footer links are preserved byte for byte (WhatsApp, Instagram, Facebook, TikTok)", () => {
-  const legacy = read("src/components/layout/Footer.jsx");
-  for (const url of Object.values(SITE_LINK_EXTERNAL)) assert.ok(legacy.includes(url), `Legacy footer no longer contains ${url}`);
+test("the external community links are preserved byte for byte (WhatsApp, Instagram, Facebook, TikTok)", () => {
   assert.equal(SITE_LINK_EXTERNAL.whatsapp, "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql");
   assert.equal(SITE_LINK_EXTERNAL.instagram, "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp");
   assert.equal(SITE_LINK_EXTERNAL.facebook, "https://www.facebook.com/sod1820");

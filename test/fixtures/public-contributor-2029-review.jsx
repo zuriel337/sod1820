@@ -5,9 +5,9 @@ import PublicContributor2029Page, {PublicContributor2029View} from '../../src/pa
 import {withPublicContributorPerson2029} from '../../src/components/contributor2029/publicContributorPerson2029.js';
 import {sourceCatalogFixtureView} from '../../src/components/contributor2029/publicSourceCatalog2029Fixtures.js';
 import {fixtureView} from '../../src/components/contributor2029/publicContributor2029Fixtures.js';
-import {use2029Palette} from '../../src/lib/palette.js';
+import {use2029Palette} from '../../src/lib/palette2029.js';
 import {TYPEFACE,TYPE_SCALE_V2} from '../../src/lib/designTokens.js';
-import {setThemePreset} from '../../src/lib/themeMode.js';
+import {setThemePreset} from '../../src/lib/themePreset2029.js';
 const params=new URLSearchParams(location.search);
 setThemePreset(params.get('theme')||'dark');
 if(params.get('scenario')?.startsWith('loader'))history.replaceState(null,'',('/community/researcher/'+(params.get('scenario')==='loader-tzvi'?'tzvi-opoc':'2042'))+location.search);

@@ -3,7 +3,7 @@
 // שרשרת: EXTRACT_DATES → NORMALIZE (עברי↔לועזי, בלי כפילות) → CLASSIFY (role) → LINK_DATE_TO_EVENT → DETECT_SEQUENCES.
 // כל תוצאה נושאת role + why. ⛔ לא יוצר Event, לא מקרין לציר — הקרנה = Human-Gate.
 import { HDate } from "@hebcal/core";
-import { calcGem } from "../theme.js";
+import { calcGem } from "./gematriaCore.js";
 import { getDayContext, ISRAEL_TIME_ZONE } from "./dayContext.js";
 
 export const TEMPORAL_CONTEXT_VERSION = "temporal-context-v1";

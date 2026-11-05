@@ -2,18 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const nav = fs.readFileSync("src/components/layout/Navbar.jsx", "utf8");
-const map = fs.readFileSync("src/lib/knowledgeMap.js", "utf8");
 const helper = fs.readFileSync("src/lib/analytics2029.js", "utf8");
 const migration = fs.readFileSync("supabase/migrations/20260919224500_g3_2029_analytics_one_tree_v1.sql", "utf8");
 const fix = fs.readFileSync("supabase/migrations/20260919225200_g3_2029_analytics_one_tree_v1_uuid_fix.sql", "utf8");
-
-test("legacy Navbar no longer promotes World", () => {
-  assert.doesNotMatch(nav, /label:\s*"העולם"[^\n]*to:\s*"\/world"/);
-  assert.doesNotMatch(nav, /l:\s*"העולם"[^\n]*to:\s*"\/world"/);
-  const quick = map.slice(map.indexOf("export const QUICK_NAV_GROUPS"));
-  assert.doesNotMatch(quick, /label:"העולם"[^\n]*to:"\/world"/);
-});
 
 test("Analytics 2029 is a projection over canonical telemetry and identity", () => {
   assert.match(migration, /from public\.events e/i);

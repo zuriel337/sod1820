@@ -49,7 +49,6 @@ import { buildTopicListQuery } from "../src/lib/research/topicConvergence.js";
 const root = process.cwd();
 const read = (p) => fs.readFileSync(path.join(root, p), "utf8");
 const world = read("src/pages/World2029Page.jsx");
-const authPage = read("src/pages/AuthPage.jsx");
 const number2029Page = read("src/pages/Number2029Page.jsx");
 const home2029Page = read("src/pages/Home2029Page.jsx");
 const post2029Page = read("src/pages/Post2029Page.jsx");
@@ -57,7 +56,6 @@ const researcher2029Page = read("src/pages/Researcher2029Page.jsx");
 const systemFrame2029 = read("src/components/experience2029/SystemFrame2029.jsx");
 const numberLivingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
 const app = read("src/App2029.jsx");
-const legacyApp = read("src/App.jsx");
 const sitemapSource = read("api/sitemap.js");
 const vercelConfig = JSON.parse(read("vercel.json"));
 const experienceContext = read("src/lib/experienceContext.js");
@@ -91,8 +89,6 @@ assert.equal(sitemapSource.includes("loc: '/beit-midrash'"), false, "restoring t
 assert.match(sitemapSource, /\/topic\//, "canonical Topic/Convergence URLs must remain in sitemap");
 const legacyRedirects = Array.isArray(vercelConfig.redirects) ? vercelConfig.redirects : [];
 assert.equal(legacyRedirects.some((r) => r.source === "/beit-midrash" || r.source === "/beit-midrash/(.*)"), false, "Beit Midrash must not redirect into World yet");
-assert.match(legacyApp, /path="\/beit-midrash" element=\{<LegacyBeitMidrashTransitionRoute \/>\}/);
-assert.match(legacyApp, /path="\/beit-midrash\/:method" element=\{<LegacyBeitMidrashTransitionRoute \/>\}/);
 assert.equal(world.includes('TransitionAnnouncement context="beit"'), false, "World must not show the Beit handoff before public opening");
 
 // World is content inside the one shared Frame, not its own shell/control system.
@@ -131,10 +127,6 @@ assert.match(world, /React\.lazy\(\(\) => import\("\.\.\/components\/research\/W
   "the heavy review component must stay out of the ordinary public World bundle");
 assert.match(worldPeopleSourcesComponent, /if \(!selected\)/,
   "the lightweight World entrance must not open a contributor corpus before the visitor chooses one");
-assert.match(authPage, /safeOAuthReturnPath/, "canonical login must validate local return targets");
-assert.match(authPage, /navigate\(returnTo, \{ replace: true \}\)/, "canonical login must return to the requested local surface");
-assert.match(authPage, /requestEmailOtp\(email, \{ shouldCreateUser: !preview \}\)/, "preview login must not create a new account");
-assert.match(authPage, /OAUTH_PREVIEW_UNVERIFIED/, "preview Google login must fail with a visible explanation");
 assert.match(worldPeopleSourcesProjection, /fetchContributorFindingsProjection/, "World must load the same contributor projection as the researcher page");
 assert.match(worldPeopleSourcesProjection, /fetchContributorSourceCatalogProjection/, "World must reuse the canonical source catalog projection");
 assert.match(worldPeopleSourcesProjection, /fetchContributorPublicationCatalog/, "World must reuse the canonical publication catalog");
