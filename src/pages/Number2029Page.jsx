@@ -1256,10 +1256,13 @@ function NumberPageBody({ resolvedAddress = null }) {
     </section> : null}
     <section className="sod29-number-hero" id="number-now">
       {/* ZURIEL 5.11.2026: the Legacy Number page always offered the way back to the gematria calculator; so does this one. */}
-      <nav className="sod29-action-row sod29-number-calculator-return" aria-label="חזרה למחשבון">
-        <Link to="/gematria" className="sod29-action" data-number-action="back-to-calculator">← חזרה למחשבון גימטריה</Link>
-      </nav>
-      <div className="sod29-actions"><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
+      {/* ZURIEL 5.11.2026 (mobile first screen): the way back and the save action share one row on a phone, so the number rises; on wider screens this wrapper is display:contents and nothing moves. */}
+      <div className="sod29-number-hero-bar">
+        <nav className="sod29-action-row sod29-number-calculator-return" aria-label="חזרה למחשבון">
+          <Link to="/gematria" className="sod29-action" data-number-action="back-to-calculator">← חזרה למחשבון גימטריה</Link>
+        </nav>
+        <div className="sod29-actions"><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
+      </div>
       <NumberCore2029
         projection={coreProjection}
         mode="page"

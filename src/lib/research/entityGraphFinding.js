@@ -187,23 +187,34 @@ function edgeRowsOf(result) {
  * their own bounded window, so a recent gallery batch can never push a node's posts,
  * convergences, entities or numbers out of its relation window. Retired (inactive) counterparts
  * are not projected as live relations unless a caller explicitly asks for them.
+ *
+ * A caller that has just read this exact row with the same NODE_FIELDS (the Entity Hub resolves the
+ * node before it reads the graph) may hand it over as `anchorNode`. The anchor is used only when its
+ * id equals the requested id; anything else is ignored and the row is read as before. This removes
+ * one sequential round trip from the graph chain and changes no result.
  */
 export async function fetchCanonicalGraphEntityFindings(nodeId, {
   relationLimit = 50,
   mediaRelationLimit = null,
   includeInactive = false,
+  anchorNode = null,
 } = {}) {
   const id = clean(nodeId);
   if (!id) return [];
   const safeLimit = Math.max(1, Math.min(Number(relationLimit) || 50, 200));
   const mediaLimit = Math.max(1, Math.min(Number(mediaRelationLimit) || safeLimit, 200));
 
-  const { data: node, error: nodeError } = await supabase
-    .from("nodes")
-    .select(NODE_FIELDS)
-    .eq("id", id)
-    .maybeSingle();
-  if (nodeError) throw nodeError;
+  let node = anchorNode && typeof anchorNode === "object" && anchorNode.id != null && String(anchorNode.id) === id
+    ? anchorNode : null;
+  if (!node) {
+    const { data, error: nodeError } = await supabase
+      .from("nodes")
+      .select(NODE_FIELDS)
+      .eq("id", id)
+      .maybeSingle();
+    if (nodeError) throw nodeError;
+    node = data;
+  }
   if (!node) return [];
 
   const anchorIsMedia = MEDIA_NODE_TYPES.includes(node.type);
