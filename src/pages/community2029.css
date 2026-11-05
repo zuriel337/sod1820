@@ -461,3 +461,11 @@ html[data-theme-preset="parchment"] .sod29-community--artwork{--community-art-op
 /* Guest composer: the message waits while the account is created inline. */
 .sod29-community-guest-join { display: grid; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid color-mix(in srgb, currentColor 14%, transparent); }
 .sod29-community-guest-join > p { margin: 0; font-weight: 600; }
+
+/* Guest-published messages are public at once; only the administrator sees the unreviewed ones greyed. */
+.sod29-community-thread.is-guest-unreviewed{opacity:.62;background:color-mix(in srgb,currentColor 5%,transparent);border-radius:12px;padding-inline:10px}
+.sod29-community-guest-review{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:.85em;margin-block-end:4px}
+.sod29-community-guest-banner{margin:0 0 8px;font-weight:600}
+/* Reserve the line so the typing label never moves the page. */
+.sod29-community-typing{margin:0;min-height:1.4em;font-size:.85em;opacity:.75}
+.sod29-community-typing[data-typing="false"]{visibility:hidden}
