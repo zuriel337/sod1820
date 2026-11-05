@@ -332,7 +332,10 @@ jobs:
               // reserves a 15px gutter that the fixed layer does not cover, so the contract is "full width of the layer", not of the window.
               const layoutWidth = (await page.locator('.sod29-frame-backdrop').first().boundingBox()).width;
               expect(panelBox.width).toBeGreaterThanOrEqual(layoutWidth - 2);
-              expect(Math.abs((panelBox.y + panelBox.height) - height)).toBeLessThanOrEqual(2);
+              // The bottom sheet rests on the command island's clearance (backdrop padding-block-end), not on the screen edge.
+              const island = await page.locator('.sod29-command-island').boundingBox();
+              expect(panelBox.y + panelBox.height).toBeLessThanOrEqual(island.y + 2);
+              expect(Math.abs((panelBox.y + panelBox.height) - island.y)).toBeLessThanOrEqual(24);
             } else {
               expect(panelBox.x).toBeLessThanOrEqual(12);
               expect(panelBox.width).toBeLessThanOrEqual(522);
@@ -502,7 +505,11 @@ jobs:
             expect(traceRequests).toBe(0);
             await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(0);
 
-            await focusSource.locator('[data-contextual-number-focus="true"][data-expression="נפתלי בנט"]').first().click();
+            const bennettFocus = focusSource.locator('[data-contextual-number-focus="true"][data-expression="נפתלי בנט"]').first();
+            // The annotation anchor is the element's own stable, content-hashed id (same contract the entry-learn spec reads).
+            const bennettAnchor = await bennettFocus.getAttribute('id');
+            expect(bennettAnchor).toMatch(/^post-annotation-[0-9a-f]{64}-[0-9]+$/);
+            await bennettFocus.click();
 
             const sidecar = page.locator('[data-experience-capability="contextual-sidecar"]');
             await expect(sidecar).toBeVisible({ timeout: 30_000 });
@@ -537,7 +544,7 @@ jobs:
                 Number(selection.resultValue),
                 selection.locator || null,
               ]);
-            }), { timeout: 5_000 }).toBe(JSON.stringify(['נפתלי בנט', 'רגיל', 631, '#source-region-bennett-631']));
+            }), { timeout: 5_000 }).toBe(JSON.stringify(['נפתלי בנט', 'רגיל', 631, `#${bennettAnchor}`]));
 
             const calculation = drawer.locator('.sod29-number-v10-calculation-card');
             await expect(calculation).toBeVisible({ timeout: 20_000 });
@@ -568,7 +575,10 @@ jobs:
               // reserves a 15px gutter that the fixed layer does not cover, so the contract is "full width of the layer", not of the window.
               const layoutWidth = (await page.locator('.sod29-frame-backdrop').first().boundingBox()).width;
               expect(panelBox.width).toBeGreaterThanOrEqual(layoutWidth - 2);
-              expect(Math.abs((panelBox.y + panelBox.height) - height)).toBeLessThanOrEqual(2);
+              // The bottom sheet rests on the command island's clearance (backdrop padding-block-end), not on the screen edge.
+              const island = await page.locator('.sod29-command-island').boundingBox();
+              expect(panelBox.y + panelBox.height).toBeLessThanOrEqual(island.y + 2);
+              expect(Math.abs((panelBox.y + panelBox.height) - island.y)).toBeLessThanOrEqual(24);
             } else {
               expect(panelBox.x).toBeLessThanOrEqual(12);
               expect(panelBox.width).toBeLessThanOrEqual(522);
