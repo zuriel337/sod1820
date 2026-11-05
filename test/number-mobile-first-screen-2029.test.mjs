@@ -3,10 +3,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
 // Number page on a phone (ZURIEL 5.11.2026): the number and the central content must appear higher on the first screen.
-// Measured on a production-profile build at 390 px: the number moved from 509 px to 387 px, the method switcher from 833 px to 711 px,
-// layout shift unchanged (about 0.006), nothing changes from 768 px up. These contracts pin how that is achieved, so a later edit cannot
-// quietly bring the stacked banner and buttons back or change desktop: markup and labels untouched, wrapper without a box above the
-// phone breakpoint, ribbon compaction scoped to the Number surface from the first render, and the loading card reserving its loaded height.
+// Measured on a production-profile build at 390 px (see docs/reviews/number-page-speed-20261105): the way back and the save action
+// share one row instead of two stacked blocks, and the loading phrase card keeps its loaded height so nothing shifts inside the now
+// higher first screen. Nothing changes from 768 px up. (The renewal ribbon that used to sit above the number was replaced by a verse in
+// main, #1235; the ribbon is the frame's business and Number-page rules no longer touch it.) These contracts pin how it is achieved,
+// so a later edit cannot quietly bring the stacked buttons back or change desktop.
 const read = (path) => fs.readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const page = read('src/pages/Number2029Page.jsx');
 const numberCss = read('src/pages/number2029.css');
@@ -51,14 +52,9 @@ test('on a phone the two controls form one row with their own margins removed (a
   assert.match(phone, /\.sod29-number-hero-bar \.sod29-actions\{[^}]*margin:0/, 'the Personal save button renders its own .sod29-actions with a 14px top margin');
 });
 
-test('the renewal ribbon is compacted only on the Number surface and only on a phone, from the first render', () => {
-  const phone = mediaBlocks(ribbonCss, 'max-width:700px');
-  assert.match(phone, /\.sod29-root\.surface-number \.sod29-living-ribbon\{[^}]*grid-template-columns:minmax\(0,1fr\) auto/);
-  assert.match(phone, /\.sod29-root\.surface-number \.sod29-living-ribbon \.sod29-living-contact\{justify-self:end\}/);
-  assert.doesNotMatch(ribbonCss, /white-space:nowrap/, 'the notice and its button must wrap, never truncate (frameRenewalShare2029.test.js pins the same)');
-  assert.doesNotMatch(ribbonCss, /:has\(\.sod29-number-page\)/, 'a rule keyed to the page mounting late would shift the layout when the page appears');
-  // Every other page keeps the stacked notice.
-  assert.match(ribbonCss, /@media\(max-width:700px\)\{\.sod29-living-ribbon\{display:grid;grid-template-columns:minmax\(0,1fr\);gap:4px;padding:8px 12px\}/);
+test('Number-page rules leave the frame ribbon alone (it is the frame\'s business, and a rule keyed to the page mounting late would shift the layout)', () => {
+  assert.doesNotMatch(ribbonCss, /surface-number|:has\(\.sod29-number-page\)/);
+  assert.doesNotMatch(numberCss, /sod29-living-ribbon/);
 });
 
 test('the loading regular-phrases card reserves the height it has once loaded, per width (no over-reservation where the head is one line)', () => {

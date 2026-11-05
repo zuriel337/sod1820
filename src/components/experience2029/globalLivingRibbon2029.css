@@ -10,10 +10,3 @@
 @media(max-width:700px){.sod29-living-ribbon{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;padding:8px 12px}.sod29-living-ribbon .sod29-living-verse-text{font-size:var(--s29-type-body,18px);line-height:1.72}}
 /* clip prevents sideways overflow without making a second vertical scroll container. */
 .sod29-root:has(.sod29-living-ribbon){overflow-x:clip;overflow-y:visible}
-/* Number page on a phone (ZURIEL 5.11.2026): the renewal notice and its button share one row instead of stacking, about 50px less above
-   the number. Scoped to the Number surface from the very first render (the frame sets surface-number before the page loads, so nothing shifts when the page mounts); every other page keeps the stacked notice. Same text, same button, same 44px target. */
-@media(max-width:700px){
-  .sod29-root.surface-number .sod29-living-ribbon{grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 10px;min-height:0;padding:6px 12px}
-  .sod29-root.surface-number .sod29-living-ribbon .sod29-living-notice{font-size:13px;line-height:1.4}
-  .sod29-root.surface-number .sod29-living-ribbon .sod29-living-contact{justify-self:end}
-}

@@ -78,7 +78,7 @@ async function one(browser, variant, profile) {
     const core = document.querySelector('.sod29-number-core2029'); const cr = core ? core.getBoundingClientRect() : null;
     const visibleCore = cr ? Math.round(Math.max(0, Math.min(cr.bottom, innerHeight) - Math.max(cr.top, 0))) : null;
     const railTop = topOf('.sod29-number-v11-regular-rail'); const switcherTop = topOf('.sod29-number-v10-method-switcher');
-    return { fcp: paints['first-contentful-paint'] || null, lcp: window.__m.lcp, cls: +window.__m.cls.toFixed(4), marks: window.__m.marks, dcl: Math.round(nav.domContentLoadedEventEnd || 0), numberTop: r ? Math.round(r.top + window.scrollY) : null, railTop, switcherTop, visibleCore, vh: innerHeight, closed: /נעול|ייפתח בהמשך/.test(document.body.innerText.slice(0, 2500)), title: document.title.slice(0, 40) };
+    return { fcp: paints['first-contentful-paint'] || null, lcp: window.__m.lcp, cls: +window.__m.cls.toFixed(4), marks: window.__m.marks, dcl: Math.round(nav.domContentLoadedEventEnd || 0), numberTop: r ? Math.round(r.top + window.scrollY) : null, railTop, switcherTop, visibleCore, vh: innerHeight, ...(() => { const t = document.body.innerText.slice(0, 2500); const m = /נעול|ייפתח בהמשך/.exec(t); return { closed: !!m, closedContext: m ? t.slice(Math.max(0, m.index - 70), m.index + 70).replace(/\s+/g, ' ') : null }; })(), title: document.title.slice(0, 40) };
   }).catch((e) => ({ evalError: String(e.message).slice(0, 80) }));
   const all = [...reqs.values()].filter((r) => r.end != null);
   const sb = all.filter((r) => /\.supabase\.co$/.test(new URL(r.url).hostname));
@@ -110,7 +110,7 @@ async function one(browser, variant, profile) {
       for (const variant of (i % 2 ? ['after', 'before'] : ['before', 'after'])) {
         const row = await one(browser, variant, profile);
         rows.push(row);
-        process.stderr.write(`${profile} ${variant} run ${i + 1}: db=${row.db_requests} decoded=${row.db_decoded_kb}KB lcp=${row.lcp} data_ready=${row.data_ready} full=${row.full_load}\n`);
+        process.stderr.write(`${profile} ${variant} run ${i + 1}: db=${row.db_requests} decoded=${row.db_decoded_kb}KB lcp=${row.lcp} data_ready=${row.data_ready} full=${row.full_load}${row.closed ? ' CLOSED-TEXT: ' + row.closedContext : ''}\n`);
       }
     }
   }
