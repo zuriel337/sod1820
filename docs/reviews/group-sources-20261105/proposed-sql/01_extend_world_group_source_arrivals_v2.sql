@@ -1,4 +1,4 @@
--- PROPOSAL ONLY — NOT APPLIED, NOT IN supabase/migrations. Apply only after a gate and an explicit ZURIEL authorization naming this file.
+-- PROPOSAL, approved by ZURIEL ("להחיל רק את 01") but NOT YET APPLIED (the Supabase connector asked for a confirmation that got no answer). Same signature, same filters; one added column.
 -- Extends the EXISTING reader (no parallel feed/RPC): same name, same arguments, same proof/hold/privacy filters, same writer allowlist
 -- and the same redaction. Added: (1) the group's channel as `group_channel` so each publication can be labelled by its source group;
 -- (2) the ki-la-hamelucha-gematria channel in the public group list. Old clients ignore the extra column.
@@ -41,5 +41,6 @@ as $function$
    limit greatest(1, least(coalesce(p_limit,12), 40));
 $function$;
 
--- Same exposure as before: whatever the live function grants today must be re-applied verbatim after the drop (verify with
--- `select proacl from pg_proc where proname='world_group_source_arrivals_v2'` BEFORE applying; do not widen it).
+revoke all on function public.world_group_source_arrivals_v2(integer, timestamp with time zone) from public;
+grant execute on function public.world_group_source_arrivals_v2(integer, timestamp with time zone) to anon, authenticated, service_role;
+-- ACL verified read-only before applying: {postgres=X, anon=X, authenticated=X, service_role=X}; identical after.
