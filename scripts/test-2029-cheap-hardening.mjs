@@ -36,14 +36,11 @@ const protectedPreview = JSON.parse(read("preview-deploy/vercel.json"));
 assert.ok(protectedPreview.rewrites.some(row => row.source === "/((?!api(?:/|$)).*)" && row.destination === "/api/public-document?path=/$1"), "Preview-only public routes require the protected canonical metadata/document adapter");
 assert.match(app2029, /kingdomPreviewEnabled && <Route path="\/2029\/kingdom"/);
 assert.match(app2029, /integratedPreviewEnabled && <Route path="\/2029\/preview"/);
-// During the Legacy Production lock these canonical URLs intentionally
-// enter index.html. They remain usable through client-side navigation inside a
-// 2029 Preview, but a direct request/refresh must return to Legacy.
-const legacyLockedRoutes = ["/code", "/community/chat", "/login"];
-const documentBackedAppRoutes = appRoutes.filter((route) => !clientOnlyPreviewRoutes.includes(route) && !legacyLockedRoutes.includes(route));
+// Legacy is retired: every explicit 2029 route is document-backed by the 2029 document.
+const documentBackedAppRoutes = appRoutes.filter((route) => !clientOnlyPreviewRoutes.includes(route));
 
 const documentRoutes = (vercel.rewrites || [])
-  .filter((row) => row.destination === "/2029.html")
+  .filter((row) => row.destination === "/2029.html" && row.source !== "/(.*)" && !row.has)
   .map((row) => routePattern(row.source))
   .sort();
 
@@ -55,7 +52,6 @@ assert.deepEqual(
 assert.ok(documentBackedAppRoutes.includes("/topic/(.*)"), "Topic deep links must be protected by the route/document parity gate");
 for (const route of hostedPreviewRoutes) assert.ok(documentRoutes.includes(route), `${route} must keep its approved protected-Preview document rewrite`);
 for (const route of clientOnlyPreviewRoutes) assert.ok(!documentRoutes.includes(route), `${route} must stay outside the document rewrites`);
-for (const route of legacyLockedRoutes) assert.ok(!documentRoutes.includes(route), `${route} must stay in Legacy while the Production lock is active`);
 
 // Legacy Journey telemetry: direct table reads are not a browser capability.
 assert.match(migration, /drop policy if exists journey_saves_public_read on public\.journey_saves/i);

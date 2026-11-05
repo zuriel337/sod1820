@@ -8,7 +8,7 @@ const read = path => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8'
 test('existing npm builds and isolation CI invoke the same acceptance command without weakening the Legacy lock', () => {
   const { scripts } = JSON.parse(read('package.json'));
   assert.equal(scripts['test:one-tree-content'], 'node scripts/test-one-tree-content-contract.mjs');
-  assert.equal(scripts.prebuild, 'node scripts/test-legacy-production-lock.mjs && npm run test:one-tree-content');
+  assert.equal(scripts.prebuild, 'node scripts/test-legacy-retired.mjs && npm run test:one-tree-content');
   assert.equal(scripts['prebuild:2029'], 'npm run test:one-tree-content');
   const workflow = read('.github/workflows/2029-isolation-gate.yml');
   assert.match(workflow, /name: One Tree content contract acceptance\s+run: npm run test:one-tree-content/);

@@ -118,7 +118,7 @@ function fixturePlugin() {
       import React from "react";
       import {createRoot} from "react-dom/client";
       import {BrowserRouter} from "react-router-dom";
-      import {setThemePreset} from "/src/lib/themeMode.js";
+      import {setThemePreset} from "/src/lib/themePreset2029.js";
       import World2029Page from "/src/pages/World2029Page.jsx";
       import "/src/components/experience2029/sod2029.css";
       setThemePreset("parchment");

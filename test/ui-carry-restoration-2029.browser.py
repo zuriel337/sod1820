@@ -129,7 +129,7 @@ def header_geometry(page):
 def theme_case(page, width, initial):
     page.goto(BASE + "/2029")
     expect(page.locator(".sod29-root")).to_be_visible()
-    expect(page.locator("html")).to_have_attribute("data-theme-preset", initial)
+    expect(page.locator("html")).to_have_attribute("data-theme-2029", initial)
     trigger = page.locator(".sod29-header .sod29-theme-trigger")
     mobile = width <= 980
     if mobile:
@@ -165,16 +165,16 @@ def theme_case(page, width, initial):
         options.get_by_role("button", name=label, exact=True).click()
         expect(trigger).to_have_attribute("aria-expanded", "false")
         expect(trigger).to_be_focused()
-        expect(page.locator("html")).to_have_attribute("data-theme-preset", target)
+        expect(page.locator("html")).to_have_attribute("data-theme-2029", target)
         page.reload()
-        expect(page.locator("html")).to_have_attribute("data-theme-preset", target)
+        expect(page.locator("html")).to_have_attribute("data-theme-2029", target)
         page.locator(".sod29-mobile-menu-trigger").click()
         drawer = page.locator("#sod29-mobile-navigation")
         expect(drawer).to_be_visible()
         buttons = drawer.locator(".sod29-theme-options")
         for text in ("יום", "קלף", "לילה"): size44(buttons.get_by_role("button", name=text, exact=True))
         buttons.get_by_role("button", name="קלף", exact=True).click()
-        expect(page.locator("html")).to_have_attribute("data-theme-preset", "parchment")
+        expect(page.locator("html")).to_have_attribute("data-theme-2029", "parchment")
     else:
         expect(trigger).to_be_hidden()
         options = page.locator(".sod29-header .sod29-theme-options")

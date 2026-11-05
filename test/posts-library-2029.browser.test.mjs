@@ -28,7 +28,7 @@ function libraryFixture() {
     identity: `import React from 'react';export default function Identity(){return <div data-identity-fixture='true'>אימות זהות לדוגמה בלבד</div>;}`,
     shell: `
       import React from 'react';
-      import {resolve2029Palette} from '/src/lib/palette.js';
+      import {resolve2029Palette} from '/src/lib/palette2029.js';
       export function FrameState({title,children}){return <section role='status'><h2>{title}</h2>{children}</section>;}
       export default function Shell({children}){
         const theme=new URLSearchParams(location.search).get('theme')||'dark',p=resolve2029Palette(theme);

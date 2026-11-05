@@ -80,7 +80,7 @@ test("availability is the existing feature state - nothing is enabled locally", 
 
 test("no ELS engine, scan, AI, Supabase or result reader is imported by the card", () => {
   const imports = [...code.matchAll(/^import .* from "([^"]+)"/gm)].map((m) => m[1]);
-  assert.deepEqual(imports.sort(), ["../../lib/palette.js", "../MaintenanceLock.jsx", "react", "react-router-dom"].sort());
+  assert.deepEqual(imports.sort(), ["../../lib/palette2029.js", "../MaintenanceLock.jsx", "react", "react-router-dom"].sort());
   assert.match(code, /import "\.\/elsRotatingMatrixCard2029\.css";/);
 });
 

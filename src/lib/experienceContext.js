@@ -3,8 +3,14 @@
 // voice system or truth layer. It consumes existing canonical owners/tokens and
 // returns one projection context for web, spatial, audio, AI, share and video renderers.
 
-import { F } from "../theme.js";
-import { STREAMS, isStream } from "./stream.js";
+import { TYPEFACE } from "./designTokens.js";
+// Experience lens metadata (output contract of resolveContext). Moved here from the retired Legacy visitor-stream store;
+// only the descriptive metadata is kept - there is no stored visitor stream or <html data-stream> in 2029.
+const LENS_META = Object.freeze({
+  kingdom: Object.freeze({ label: "כי לה' המלוכה", tagline: "גאולה · מלכות שמים · שם ה׳ 1820", home: "/" }),
+  reality: Object.freeze({ label: "קוד המציאות", tagline: "המספרים שמאחורי המציאות", home: "/reality" }),
+});
+const isLens = (value) => value === "kingdom" || value === "reality";
 import { ENVIRONMENT, MOTION, motionForPreference } from "./designTokens.js";
 
 export const EXPERIENCE_SURFACE = Object.freeze({
@@ -338,8 +344,8 @@ function canonicalIdentity(locale) {
 }
 
 function resolveLens(lens) {
-  const key = isStream(lens) ? lens : "kingdom";
-  const meta = STREAMS[key];
+  const key = isLens(lens) ? lens : "kingdom";
+  const meta = LENS_META[key];
   return Object.freeze({
     key,
     label: meta.label,
@@ -390,10 +396,10 @@ export function resolveExperienceContext({
     }),
 
     typography: Object.freeze({
-      ui: F.ui,
-      body: F.body,
-      display: F.display,
-      numeric: F.numeric,
+      ui: TYPEFACE.ui,
+      body: TYPEFACE.body,
+      display: TYPEFACE.display,
+      numeric: TYPEFACE.numeric,
       protectedHebrewWordmarkIsArtwork: true,
     }),
 

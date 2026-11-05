@@ -11,8 +11,8 @@ import React, {
   useState,
 } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
-import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
+import { Palette2029Provider, use2029Palette } from "../../lib/palette2029.js";
+import { setThemePreset, useThemePreset } from "../../lib/themePreset2029.js";
 import { BRAND_LOCKUP_2029 } from "../../lib/brandAssets2029.js";
 import Footer2029 from "./Footer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
@@ -2354,5 +2354,5 @@ function SystemFrame2029Body({
     </SystemToolDockContext2029.Provider>
     </ShellContext.Provider>
   );
-  return <PaletteProvider value={palette}>{frame}</PaletteProvider>;
+  return <Palette2029Provider value={palette}>{frame}</Palette2029Provider>;
 }

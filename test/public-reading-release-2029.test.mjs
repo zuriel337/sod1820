@@ -54,7 +54,6 @@ test('public metadata adapter uses the same trusted profile; Production and forg
 test('normal Legacy build remains the default and the new release branch cannot build in Production',()=>{
  assert.match(read('src/lib/publicLaunch2029.js'),/CORE_PUBLIC_LAUNCH_2029 = false/);
  for(const env of ['production','']){const result=spawnSync(process.execPath,['scripts/build-integrated-preview.mjs'],{cwd:new URL('..',import.meta.url),env:{...process.env,VERCEL_ENV:env,VERCEL_GIT_COMMIT_REF:branch},encoding:'utf8'});assert.notEqual(result.status,0);assert.match(result.stderr,/functional_preview_requires_preview_environment/);}
- const app=read('src/App.jsx');assert.match(app,/<Route path="\/"/);assert.match(app,/GematriaToLab/);
 });
 
 test('a stray public profile variable cannot change the Legacy capability or SDK session',()=>{

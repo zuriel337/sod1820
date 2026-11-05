@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { F } from "../theme.js";
-import { usePalette } from "../lib/palette.js";
+import { TYPEFACE } from "../lib/designTokens.js";
+import { use2029Palette } from "../lib/palette2029.js";
 import { applySeo } from "../lib/seo.js";
 import { SUPABASE_URL, SUPABASE_ANON } from "../lib/supabase.js";
 
@@ -10,7 +10,7 @@ import { SUPABASE_URL, SUPABASE_ANON } from "../lib/supabase.js";
 // והוא קורא ל-newsletter-unsubscribe במצב-JSON (?format=json) שמאמת HMAC ומכבה active. עץ אחד:
 // אותה פונקציה, בלי לשכפל לוגיקה — הדף רק מציג את התוצאה.
 export default function UnsubscribePage() {
-  const P = usePalette();
+  const P = use2029Palette();
   const [sp] = useSearchParams();
   const [state, setState] = useState("loading"); // loading | done | invalid
   const [email, setEmail] = useState("");
@@ -41,14 +41,14 @@ export default function UnsubscribePage() {
         {state === "loading" && (
           <>
             <div style={{ fontSize: 42, marginBottom: 10, opacity: 0.85 }}>⏳</div>
-            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 15 }}>מעבד את הבקשה…</div>
+            <div style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 15 }}>מעבד את הבקשה…</div>
           </>
         )}
         {state === "done" && (
           <>
             <div style={{ fontSize: 46, marginBottom: 12 }}>👋</div>
-            <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: 24, fontWeight: 800, margin: "0 0 10px" }}>הוסרת מרשימת התפוצה</h1>
-            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 6px" }}>
+            <h1 style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 24, fontWeight: 800, margin: "0 0 10px" }}>הוסרת מרשימת התפוצה</h1>
+            <p style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 6px" }}>
               {email ? <>הכתובת <b dir="ltr" style={{ color: P.accentText }}>{email}</b> </> : "הכתובת שלך "}
               לא תקבל עוד עדכונים. תמיד אפשר לחזור ולהירשם.
             </p>
@@ -62,13 +62,13 @@ export default function UnsubscribePage() {
         {state === "invalid" && (
           <>
             <div style={{ fontSize: 46, marginBottom: 12 }}>✋</div>
-            <h1 style={{ color: P.accentText, fontFamily: F.regal, fontSize: 24, fontWeight: 800, margin: "0 0 10px" }}>קישור לא תקין</h1>
-            <p style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 6px" }}>
+            <h1 style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 24, fontWeight: 800, margin: "0 0 10px" }}>קישור לא תקין</h1>
+            <p style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 15, lineHeight: 1.9, margin: "0 0 6px" }}>
               הקישור אינו תקין או פג תוקפו. אם התכוונת להסיר את עצמך — פנה אלינו ונדאג לכך.
             </p>
           </>
         )}
-        <Link to="/" style={{ display: "inline-block", marginTop: 20, background: P.accentBtn, color: P.onAccent || "#1a0e00", fontFamily: F.heading, fontSize: 14, fontWeight: 800, textDecoration: "none", borderRadius: 999, padding: "11px 28px" }}>
+        <Link to="/" style={{ display: "inline-block", marginTop: 20, background: P.accentBtn, color: P.onAccent || "#1a0e00", fontFamily: TYPEFACE.ui, fontSize: 14, fontWeight: 800, textDecoration: "none", borderRadius: 999, padding: "11px 28px" }}>
           ← לאתר סוד 1820
         </Link>
       </div>

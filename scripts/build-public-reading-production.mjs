@@ -38,7 +38,7 @@ if (publicMiddleware !== canonicalMiddleware
   throw new Error("public_reading_middleware_must_bind_canonical_policy");
 const output = resolve(root, "public-reading-deploy/dist");
 const templates = resolve(root, "public-reading-deploy/.generated");
-for (const gate of ["test-legacy-production-lock.mjs", "test-one-tree-content-contract.mjs"])
+for (const gate of ["test-legacy-retired.mjs", "test-one-tree-content-contract.mjs"])
   execFileSync(process.execPath, [resolve(root, "scripts", gate)], { cwd: root, stdio: "inherit" });
 const sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "utf8" }).trim();
 const trackedStatus = execFileSync("git", ["status", "--porcelain=v1", "-z", "--untracked-files=no"], { cwd: root, encoding: "utf8" });
@@ -106,8 +106,6 @@ await rm(resolve(output, "robots.txt"), { force: true });
 await rm(resolve(output, "sitemap.xml"), { force: true });
 const worker = buildPublicReadingWorker(sha, { anonKey: SUPABASE_ANON, gaId });
 for (const name of ["sw.js", "public-reading-sw.js", "preview-readonly-sw.js"]) await writeFile(resolve(output, name), worker);
-await mkdir(resolve(output, "rollback"), { recursive: true });
-await copyFile(resolve(root, "public/sw.js"), resolve(output, "rollback/legacy-sw.js"));
 const hash = data => createHash("sha256").update(data).digest("hex");
 const files = [];
 async function inventory(directory, prefix = "") {
@@ -160,7 +158,7 @@ await writeFile(resolve(output, "public-reading-artifact.json"), JSON.stringify(
   oauthCallback: protectedReview?.authHost ? "https://" + protectedReview.authHost + "/auth/callback" : null,
   siteUpdatesSignup: "pending-shared-purpose-contract",
   modelCalls: "explicit-admin-action-under-existing-server-policy", automaticModelCalls: false, siteFlagsChanged: false, previewBypassFlags: false,
-  workerSha256: hash(worker), legacyRollbackWorkerSha256: hash(await readFile(resolve(root, "public/sw.js"))),
+  workerSha256: hash(worker),
   files: files.sort((a, b) => a.path.localeCompare(b.path)),
 }, null, 2) + "\n");
 console.log(publicCandidateMode ? "Public-capable candidate built for protected unrouted acceptance; no traffic switch is authorized." : productionReviewMode ? "Staged Production-target review artifact built. Canonical serving, indexing and cutover remain denied."

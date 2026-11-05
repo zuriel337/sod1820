@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { DESIGN_V2_PALETTES, resolveTreatment, treatmentVars, TREATMENT_PURPOSES, TREATMENT_STATES } from "../src/lib/palette.js";
+import { DESIGN_V2_PALETTES, resolveTreatment, treatmentVars, TREATMENT_PURPOSES, TREATMENT_STATES } from "../src/lib/palette2029.js";
 import { readFileSync } from "node:fs";
 
 // Owner-resolved role and state (Design V2 "Shared icon and surface color resolution"), not a count of distinct hues.

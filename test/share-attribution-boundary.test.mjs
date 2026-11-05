@@ -75,13 +75,4 @@ for (const prop of ["entityId", "sourceSurface", "subtype", "locale", "exactStat
 // placement law untouched
 assert.match(actions, /floatingShareShown\(pathname\)/, "share_placement_law behavior must be preserved");
 
-// --- QuickActions also produces through the shared layer, not its own meta ---
-const quickCode = strip(read("src/components/QuickActions.jsx"));
-assert.match(quickCode, /emitShare\(/, "QuickActions must emit through the shared telemetry layer");
-assert.doesNotMatch(quickCode, /track\("share"/, "QuickActions must not hand-build a share event any more");
-assert.doesNotMatch(quickCode, /trackShare/, "and must not gain a credit call");
-assert.match(quickCode, /landingKey\(window\.location\.pathname\)/,
-  "its slug computation must stay exactly what it was");
-assert.match(quickCode, /contentId: entity\.id/, "content_id must still be emitted");
-
 console.log("share-attribution-boundary: ok");

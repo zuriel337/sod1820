@@ -14,7 +14,7 @@ async function render(readonly, artifact, kind) {
       'Sod2029Shell.jsx': 'import React from "react";export default function Frame({children}){return React.createElement("main",null,children)}',
       'PrivacyPage.jsx': 'import React from "react";export default function Privacy(){return React.createElement("section",{"data-fixture":"privacy"},"Existing privacy")}',
       'UnsubscribePage.jsx': 'import React from "react";export default function Unsubscribe(){return React.createElement("section",{"data-fixture":"unsubscribe"},"Existing signed removal")}',
-      'NotFoundPage.jsx': 'import React from "react";export default function Missing(){return React.createElement("section",{"data-fixture":"not-found"},"Missing")}',
+      'NotFound2029Page.jsx': 'import React from "react";export default function Missing(){return React.createElement("section",{"data-fixture":"not-found"},"Missing")}',
       'StayUpdatedCTA.jsx': 'import React from "react";export function NewsletterSignup2029(){return React.createElement("section",{"data-fixture":"existing-newsletter"},"Existing consent form")}',
       'seo.js': 'export function applySeo(){}',
       'publicLaunch2029.js': `export const PUBLIC_LAUNCH_READ_ONLY_PREVIEW=${readonly};`,
@@ -24,7 +24,7 @@ async function render(readonly, artifact, kind) {
     const { outputFiles } = await build({ stdin: { contents: `import React from 'react';import{renderToStaticMarkup}from'react-dom/server';import{MemoryRouter}from'react-router-dom';import Page from './src/pages/PublicServices2029Page.jsx';export function render(kind){return renderToStaticMarkup(React.createElement(MemoryRouter,{initialEntries:['/'+kind]},React.createElement(Page,{kind})));}`, resolveDir: root, loader: 'jsx' },
       bundle: true, write: false, platform: 'node', format: 'cjs', external: ['react', 'react-dom/server', 'react-router-dom'],
       plugins: [{ name: 'only-owned-route-profile-fixtures', setup(b) {
-        b.onResolve({ filter: /(?:Sod2029Shell|PrivacyPage|UnsubscribePage|NotFoundPage|StayUpdatedCTA)\.jsx$|(?:seo|publicLaunch2029|publicReadingRelease2029)\.js$|auth2029\.css$/ }, args => ({ path: args.path.split('/').at(-1), namespace: 'route-fixture' }));
+        b.onResolve({ filter: /(?:Sod2029Shell|PrivacyPage|UnsubscribePage|NotFound2029Page|StayUpdatedCTA)\.jsx$|(?:seo|publicLaunch2029|publicReadingRelease2029)\.js$|auth2029\.css$/ }, args => ({ path: args.path.split('/').at(-1), namespace: 'route-fixture' }));
         b.onLoad({ filter: /.*/, namespace: 'route-fixture' }, args => ({ contents: fixtures[args.path], loader: 'jsx' }));
       } }] });
     const module = { exports: {} };

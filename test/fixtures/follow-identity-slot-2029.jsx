@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "../../src/lib/AuthContext.jsx";
-import { use2029Palette } from "../../src/lib/palette.js";
+import { use2029Palette } from "../../src/lib/palette2029.js";
 import WatchButton from "../../src/components/WatchButton.jsx";
 import EmailVerify from "../../src/components/EmailVerify.jsx";
 import "../../src/components/experience2029/systemFrame2029.css";

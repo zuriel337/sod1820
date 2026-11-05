@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { resolve2029Palette } from "../../lib/palette.js";
-import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
+import { resolve2029Palette } from "../../lib/palette2029.js";
+import { setThemePreset, useThemePreset } from "../../lib/themePreset2029.js";
 import "./previewVisualCalibration2029.css";
 
 // Review controls only. All variants use the existing presets and App2029.

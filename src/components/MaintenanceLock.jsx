@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getSiteFlags } from "../lib/supabase.js";
-import { LOGO_URL } from "../theme.js";
+import { BRAND_APP_ICON_2029 } from "../lib/brandAssets2029.js";
 import { PUBLIC_READING_RELEASE, publicReadingFeatureLock } from "../lib/publicReadingRelease2029.js";
 
 // ===== מצב-יכולת קנוני (site_flags_lock_law v3) =====
@@ -47,11 +47,19 @@ export function MaintenanceLock({ message, showLogin = false, alternatives = fal
           .mlock a.mlock-cta{background:#8a5a0a;color:#fff;}
         }
         :root[data-theme="light"] .mlock h1{color:#6d4e0b;}
+        :root[data-theme-2029="light"] .mlock h1{color:#6d4e0b;}
+        :root[data-theme-2029="parchment"] .mlock h1{color:#6d4e0b;}
         :root[data-theme="light"] .mlock p{color:#33260a;}
+        :root[data-theme-2029="light"] .mlock p{color:#33260a;}
+        :root[data-theme-2029="parchment"] .mlock p{color:#33260a;}
         :root[data-theme="light"] .mlock a{color:#8a5a0a;}
+        :root[data-theme-2029="light"] .mlock a{color:#8a5a0a;}
+        :root[data-theme-2029="parchment"] .mlock a{color:#8a5a0a;}
         :root[data-theme="light"] .mlock a.mlock-cta{background:#8a5a0a;color:#fff;}
+        :root[data-theme-2029="light"] .mlock a.mlock-cta{background:#8a5a0a;color:#fff;}
+        :root[data-theme-2029="parchment"] .mlock a.mlock-cta{background:#8a5a0a;color:#fff;}
       `}</style>
-      <img src={LOGO_URL} alt="סוד 1820" />
+      <img src={BRAND_APP_ICON_2029.src} alt="סוד 1820" />
       <h1>{message || DEFAULT_MSG}</h1>
       {showLogin ? (
         <>

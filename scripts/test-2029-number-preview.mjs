@@ -23,7 +23,6 @@ const livingWorld = read("src/components/number2029/NumberLivingWorld2029.jsx");
 const livingWorldCss = read("src/components/number2029/numberLivingWorld2029.css");
 const canonicalMedia = read("src/components/experience2029/CanonicalMediaImage2029.jsx");
 const canonicalMediaCss = read("src/components/experience2029/canonicalMediaImage2029.css");
-const lightRoutes = read("src/lib/lightRoutes.js");
 const vercel = JSON.parse(read("vercel.json"));
 const browserAcceptance = read("tests/world2029-release.spec.cjs");
 const methodLensModel = read("src/lib/research/methodLensProjection.js");
@@ -276,7 +275,6 @@ for (const required of [
 assert.match(livingWorldCss, /prefers-reduced-motion/);
 assert.match(livingWorldCss, /var\(--s29-/);
 assert.equal(/#[0-9a-f]{3,8}/i.test(livingWorldCss), false, "Living Number page-local renderer must consume canonical theme tokens, not own a hex palette");
-assert.match(lightRoutes, /\/2029\\\/number/);
 assert.doesNotMatch(core, /NUMBER_CORE_PALETTE/, "embedded Number core must inherit the selected Frame palette");
 assert.match(core, /data-experience-action="number-life-seal"/);
 assert.match(core, /data-experience-capability="number-system-methods"/);

@@ -72,7 +72,7 @@ test("Books entry and exact source-unit return survive search/reload in 320/390/
       page.on("pageerror", error => errors.push(error.message));
       const click = async target => { await target.evaluate(element => element.scrollIntoView({ block: "center", behavior: "instant" })); await target.click(); };
       const assertFit = async () => {
-        assert.equal(await page.locator("html").getAttribute("data-theme-preset"), preset);
+        assert.equal(await page.locator("html").getAttribute("data-theme-2029"), preset);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1 && document.body.scrollWidth <= innerWidth + 1), true, `${width}/${preset}: overflow`);
         assert.equal(await page.locator("canvas:not([data-book-pdf-canvas])").count(), 0, "3D is never enabled by refresh/deep links");
       };

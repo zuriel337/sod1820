@@ -4,8 +4,8 @@ import { BrowserRouter, Route, Routes, useSearchParams } from "react-router-dom"
 import PublicContributor2029Page from "../../src/pages/PublicContributor2029Page.jsx";
 import WorldPeopleSources2029 from "../../src/components/research/WorldPeopleSources2029.jsx";
 import { fetchWorldPublicPeopleIndex } from "../../src/lib/research/worldPublicPeopleIndex.js";
-import { use2029Palette } from "../../src/lib/palette.js";
-import { setThemePreset } from "../../src/lib/themeMode.js";
+import { use2029Palette } from "../../src/lib/palette2029.js";
+import { setThemePreset } from "../../src/lib/themePreset2029.js";
 import { TYPEFACE, TYPE_SCALE_V2 } from "../../src/lib/designTokens.js";
 import "../../src/pages/world2029-human.css";
 import "../../src/pages/worldComposition2029.css";

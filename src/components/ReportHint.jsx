@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { createPortal } from "react-dom";
-import { usePalette } from "../lib/palette.js";
-import { F } from "../theme.js";
+import { use2029Palette } from "../lib/palette2029.js";
+import { TYPEFACE } from "../lib/designTokens.js";
 import { supabase } from "../lib/supabase.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { getVisitorId, track } from "../lib/tracking.js";
@@ -20,7 +20,7 @@ async function uploadToGallery(file) {
 }
 
 export default function ReportHint({ value = null, variant = "button", label, initialDescription = "", autoOpen = false }) {
-  const P = usePalette();
+  const P = use2029Palette();
   const { user } = useAuth();
   const [open, setOpen] = useState(Boolean(autoOpen));
   const [img, setImg] = useState(null);
@@ -61,17 +61,17 @@ export default function ReportHint({ value = null, variant = "button", label, in
     setBusy(false);
   };
 
-  const fieldStyle = { width: "100%", boxSizing: "border-box", background: P.cardSoft || P.card, border: `1px solid ${P.border}`, borderRadius: 10, color: P.ink, fontFamily: F.body, fontSize: 16, padding: "10px 12px" };
-  const labelStyle = { display: "block", color: P.accentText, fontFamily: F.heading, fontSize: 12.5, fontWeight: 800, margin: "0 0 5px" };
+  const fieldStyle = { width: "100%", boxSizing: "border-box", background: P.cardSoft || P.card, border: `1px solid ${P.border}`, borderRadius: 10, color: P.ink, fontFamily: TYPEFACE.body, fontSize: 16, padding: "10px 12px" };
+  const labelStyle = { display: "block", color: P.accentText, fontFamily: TYPEFACE.ui, fontSize: 12.5, fontWeight: 800, margin: "0 0 5px" };
 
   const trigger = variant === "banner" ? (
     <button onClick={() => setOpen(true)}
-      style={{ cursor: "pointer", width: "100%", border: `1px dashed ${P.accent}`, background: P.glow, color: P.accentText, borderRadius: 14, padding: "14px 16px", fontFamily: F.heading, fontSize: 15, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+      style={{ cursor: "pointer", width: "100%", border: `1px dashed ${P.accent}`, background: P.glow, color: P.accentText, borderRadius: 14, padding: "14px 16px", fontFamily: TYPEFACE.ui, fontSize: 15, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
       ➕ ראיתם רמז? דווחו לנו — נבדוק ונוסיף לזרם
     </button>
   ) : (
     <button onClick={() => setOpen(true)}
-      style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, borderRadius: 999, padding: "8px 15px", fontFamily: F.heading, fontSize: 13, fontWeight: 800, minHeight: 38, display: "inline-flex", alignItems: "center", gap: 6 }}>
+      style={{ cursor: "pointer", border: `1px solid ${P.border}`, background: P.card, color: P.accentText, borderRadius: 999, padding: "8px 15px", fontFamily: TYPEFACE.ui, fontSize: 13, fontWeight: 800, minHeight: 38, display: "inline-flex", alignItems: "center", gap: 6 }}>
       ➕ {label || "דווח רמז"}
     </button>
   );
@@ -86,14 +86,14 @@ export default function ReportHint({ value = null, variant = "button", label, in
         {done ? (
           <div style={{ textAlign: "center", padding: "18px 6px" }}>
             <div style={{ fontSize: 42, marginBottom: 10 }}>🌳</div>
-            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 21, fontWeight: 800, marginBottom: 8 }}>תודה! הרמז התקבל</div>
-            <div style={{ color: P.inkSoft, fontFamily: F.body, fontSize: 14, lineHeight: 1.7, marginBottom: 18 }}>הצוות יבדוק אותו — ואם הוא מתאים, הוא יופיע בזרם המציאות. כל רמז מוסיף לעץ האחד.</div>
-            <button onClick={close} style={{ cursor: "pointer", border: "none", borderRadius: 999, background: `linear-gradient(135deg,${P.accent},${P.accentBtn || P.accent})`, color: P.onAccent || "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 15, padding: "11px 26px" }}>סגור</button>
+            <div style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 21, fontWeight: 800, marginBottom: 8 }}>תודה! הרמז התקבל</div>
+            <div style={{ color: P.inkSoft, fontFamily: TYPEFACE.body, fontSize: 14, lineHeight: 1.7, marginBottom: 18 }}>הצוות יבדוק אותו — ואם הוא מתאים, הוא יופיע בזרם המציאות. כל רמז מוסיף לעץ האחד.</div>
+            <button onClick={close} style={{ cursor: "pointer", border: "none", borderRadius: 999, background: `linear-gradient(135deg,${P.accent},${P.accentBtn || P.accent})`, color: P.onAccent || "#1a0e00", fontFamily: TYPEFACE.ui, fontWeight: 800, fontSize: 15, padding: "11px 26px" }}>סגור</button>
           </div>
         ) : (
           <>
-            <div style={{ color: P.accentText, fontFamily: F.regal, fontSize: 21, fontWeight: 800, marginBottom: 3 }}>➕ דיווח רמז</div>
-            <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 12.5, lineHeight: 1.6, marginBottom: 16 }}>ראיתם מספר מעניין במציאות — שלט, כותרת, שעה, רכב? צלמו ושלחו. נבדוק ונוסיף לזרם.</div>
+            <div style={{ color: P.accentText, fontFamily: TYPEFACE.display, fontSize: 21, fontWeight: 800, marginBottom: 3 }}>➕ דיווח רמז</div>
+            <div style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 12.5, lineHeight: 1.6, marginBottom: 16 }}>ראיתם מספר מעניין במציאות — שלט, כותרת, שעה, רכב? צלמו ושלחו. נבדוק ונוסיף לזרם.</div>
 
             <div style={{ display: "grid", gap: 13 }}>
               <div>
@@ -101,7 +101,7 @@ export default function ReportHint({ value = null, variant = "button", label, in
                 <label style={{ display: "block", cursor: "pointer", border: `1px dashed ${P.border}`, borderRadius: 12, padding: preview ? 8 : "22px 12px", textAlign: "center", background: P.cardSoft || P.card }}>
                   {preview
                     ? <img src={preview} alt="תצוגה" style={{ maxWidth: "100%", maxHeight: 220, borderRadius: 8, display: "block", margin: "0 auto" }} />
-                    : <span style={{ color: P.accentDim, fontFamily: F.body, fontSize: 13.5 }}>לחצו לבחירת תמונה</span>}
+                    : <span style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 13.5 }}>לחצו לבחירת תמונה</span>}
                   <input type="file" accept="image/*" onChange={pick} style={{ display: "none" }} />
                 </label>
               </div>
@@ -128,13 +128,13 @@ export default function ReportHint({ value = null, variant = "button", label, in
                 <input value={src} onChange={e => setSrc(e.target.value)} placeholder="https://…" dir="ltr" style={{ ...fieldStyle, textAlign: "left" }} />
               </div>
 
-              {err && <div style={{ color: "#e0796f", fontFamily: F.heading, fontSize: 13, fontWeight: 700 }}>{err}</div>}
+              {err && <div style={{ color: "#e0796f", fontFamily: TYPEFACE.ui, fontSize: 13, fontWeight: 700 }}>{err}</div>}
 
               <button onClick={submit} disabled={busy}
-                style={{ cursor: busy ? "wait" : "pointer", border: "none", borderRadius: 999, background: `linear-gradient(135deg,${P.accent},${P.accentBtn || P.accent})`, color: P.onAccent || "#1a0e00", fontFamily: F.heading, fontWeight: 800, fontSize: 15.5, padding: "12px 20px", marginTop: 2 }}>
+                style={{ cursor: busy ? "wait" : "pointer", border: "none", borderRadius: 999, background: `linear-gradient(135deg,${P.accent},${P.accentBtn || P.accent})`, color: P.onAccent || "#1a0e00", fontFamily: TYPEFACE.ui, fontWeight: 800, fontSize: 15.5, padding: "12px 20px", marginTop: 2 }}>
                 {busy ? "📤 שולח…" : "📤 שליחת הרמז"}
               </button>
-              <div style={{ color: P.accentDim, fontFamily: F.body, fontSize: 11, textAlign: "center", lineHeight: 1.5 }}>הדיווח עובר בדיקה לפני פרסום. אין צורך בהרשמה.</div>
+              <div style={{ color: P.accentDim, fontFamily: TYPEFACE.body, fontSize: 11, textAlign: "center", lineHeight: 1.5 }}>הדיווח עובר בדיקה לפני פרסום. אין צורך בהרשמה.</div>
             </div>
           </>
         )}

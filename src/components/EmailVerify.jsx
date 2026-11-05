@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { C, F } from "../theme.js";
+import { use2029Palette } from "../lib/palette2029.js";
+import { accentRoles2029 } from "../lib/paletteRoles2029.js";
+import { TYPEFACE } from "../lib/designTokens.js";
 import { requestEmailOtp, verifyEmailOtp } from "../lib/auth.js";
 import { subscribeEmail } from "../lib/supabase.js";
 import { trackSubscribe } from "../lib/marketing.js";
@@ -21,15 +23,15 @@ import "./experience2029/emailVerify2029.css"; // scoped to variant="2029"; iner
 
 const RESEND_COOLDOWN = 30; // שניות בין שליחות קוד, למניעת הצפה
 
-const inputStyle = {
+const inputStyle = (C) => ({
   width: "100%", padding: "12px 14px", borderRadius: 10,
   background: C.surface, border: `1px solid ${C.border}`, color: C.goldLight,
-  fontFamily: F.body, fontSize: 15, textAlign: "center", outline: "none",
-};
-const btnStyle = (busy) => ({
+  fontFamily: TYPEFACE.body, fontSize: 15, textAlign: "center", outline: "none",
+});
+const btnStyle = (busy, C) => ({
   padding: "12px 26px", borderRadius: 10, border: "none", cursor: busy ? "wait" : "pointer",
   background: `linear-gradient(135deg, ${C.gold}, ${C.goldLight})`, color: "#1a0e00",
-  fontFamily: F.heading, fontSize: 15, fontWeight: 800, whiteSpace: "nowrap",
+  fontFamily: TYPEFACE.ui, fontSize: 15, fontWeight: 800, whiteSpace: "nowrap",
 });
 
 export default function EmailVerify({ source = "site", onVerified, cta = "שלחו לי קוד", subscribeToUpdates = true, variant = null }) {
@@ -46,7 +48,8 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
   const presentation = native2029 ? { className: "sod29-email-verify", "data-variant": "2029", "data-step": step,
     "data-state": busy ? "pending" : err ? "error" : "ready" } : {};
   // Let the canonical native-frame keyboard-focus rule apply instead of blocking it with Legacy inline outline:none.
-  const fieldStyle = native2029 ? { ...inputStyle, outline: undefined } : inputStyle;
+  const C = accentRoles2029(use2029Palette());
+  const fieldStyle = native2029 ? { ...inputStyle(C), outline: undefined } : inputStyle(C);
 
   // טיימר ההמתנה של כפתור "שלח שוב"
   useEffect(() => {
@@ -117,7 +120,7 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
   if (step === "code") {
     return (
       <form {...presentation} onSubmit={checkCode} style={{ direction: "rtl", maxWidth: 360, margin: "0 auto" }}>
-        <div style={{ color: C.goldDim, fontFamily: F.body, fontSize: 14, marginBottom: 12, lineHeight: 1.7 }}>
+        <div style={{ color: C.goldDim, fontFamily: TYPEFACE.body, fontSize: 14, marginBottom: 12, lineHeight: 1.7 }}>
           שלחנו קוד אל <span style={{ color: C.goldLight }} dir="ltr">{email}</span>. הזינו אותו כאן:
         </div>
         <input
@@ -127,10 +130,10 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
           data-field={native2029 ? "otp" : undefined}
           style={{ ...fieldStyle, letterSpacing: 6, fontSize: 22, fontWeight: 700 }} />
         <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          <button type="submit" data-action={native2029 ? "verify" : undefined} disabled={busy} style={btnStyle(busy)}>{busy ? "מאמת…" : "אמתו וכנסו"}</button>
+          <button type="submit" data-action={native2029 ? "verify" : undefined} disabled={busy} style={btnStyle(busy, C)}>{busy ? "מאמת…" : "אמתו וכנסו"}</button>
           <button type="button" onClick={() => { setStep("email"); setCode(""); setErr(""); setResendNote(""); }}
             data-action={native2029 ? "change-email" : undefined}
-            style={{ padding: "12px 18px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontFamily: F.heading, fontSize: 13, cursor: "pointer" }}>
+            style={{ padding: "12px 18px", borderRadius: 10, border: `1px solid ${C.border}`, background: "transparent", color: C.muted, fontFamily: TYPEFACE.ui, fontSize: 13, cursor: "pointer" }}>
             ← מייל אחר
           </button>
         </div>
@@ -141,20 +144,20 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
             style={{
               background: "transparent", border: "none", padding: 4,
               color: resendIn > 0 ? C.muted : C.goldLight,
-              fontFamily: F.body, fontSize: 13,
+              fontFamily: TYPEFACE.body, fontSize: 13,
               cursor: (busy || resendIn > 0) ? "default" : "pointer",
               textDecoration: resendIn > 0 ? "none" : "underline",
             }}>
             {resendIn > 0 ? `אפשר לשלוח שוב בעוד ${resendIn}…` : "לא קיבלתם? שלחו קוד חדש"}
           </button>
           {resendNote && (
-            <div style={{ color: C.gold, fontFamily: F.body, fontSize: 12, marginTop: 6 }}>{resendNote}</div>
+            <div style={{ color: C.gold, fontFamily: TYPEFACE.body, fontSize: 12, marginTop: 6 }}>{resendNote}</div>
           )}
-          <div style={{ color: C.muted, fontFamily: F.body, fontSize: 12, marginTop: 6, lineHeight: 1.6 }}>
+          <div style={{ color: C.muted, fontFamily: TYPEFACE.body, fontSize: 12, marginTop: 6, lineHeight: 1.6 }}>
             לא רואים? בדקו גם בתיקיית הספאם / קידומים
           </div>
         </div>
-        {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 13, marginTop: 12, textAlign: "center" }}>{err}</div>}
+        {err && <div style={{ color: "#e0857a", fontFamily: TYPEFACE.body, fontSize: 13, marginTop: 12, textAlign: "center" }}>{err}</div>}
       </form>
     );
   }
@@ -164,8 +167,8 @@ export default function EmailVerify({ source = "site", onVerified, cta = "שלח
       <input
         type="email" value={email} onChange={e => setEmail(e.target.value)}
         placeholder="האימייל שלכם" dir="ltr" data-field={native2029 ? "email" : undefined} style={{ ...fieldStyle, flex: "1 1 220px", minWidth: 200, width: "auto" }} />
-      <button type="submit" data-action={native2029 ? "send" : undefined} disabled={busy} style={btnStyle(busy)}>{busy ? "שולח…" : cta}</button>
-      {err && <div style={{ color: "#e0857a", fontFamily: F.body, fontSize: 13, marginTop: 8, width: "100%", textAlign: "center" }}>{err}</div>}
+      <button type="submit" data-action={native2029 ? "send" : undefined} disabled={busy} style={btnStyle(busy, C)}>{busy ? "שולח…" : cta}</button>
+      {err && <div style={{ color: "#e0857a", fontFamily: TYPEFACE.body, fontSize: 13, marginTop: 8, width: "100%", textAlign: "center" }}>{err}</div>}
     </form>
   );
 }

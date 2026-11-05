@@ -101,7 +101,7 @@ def open_companion(page):
 def scenario(page, width, theme):
     page.goto(BASE + "/fixture")
     expect(page.locator(".sod29-root")).to_be_visible()
-    expect(page.locator("html")).to_have_attribute("data-theme-preset", theme)
+    expect(page.locator("html")).to_have_attribute("data-theme-2029", theme)
     expect(page.locator(".sod29-command-island")).to_have_count(1)
     no_overflow(page)
     geometry = None

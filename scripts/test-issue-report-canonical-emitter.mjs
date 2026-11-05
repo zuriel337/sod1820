@@ -10,7 +10,6 @@ const gateway = read("src/components/ContactGateway.jsx");
 const frame = read("src/components/experience2029/SystemFrame2029.jsx");
 const css = read("src/components/experience2029/systemFrame2029.css");
 const community = read("src/lib/community.js");
-const suggestions = read("src/components/SystemSuggestionsTab.jsx");
 const aiAnalyze = read("supabase/functions/ai-analyze/index.ts");
 const contactTriageMigration = read("supabase/migrations/20261004161000_contact_gateway_ai_triage_status_v2.sql");
 
@@ -67,9 +66,6 @@ assert.equal(/grant\s+select[\s\S]*community_hints/i.test(contactTriageMigration
 assert.match(contactTriageMigration, /admin_contact_gateway_triage_refresh_v2/);
 assert.match(contactTriageMigration, /raw_user_text_included',false/);
 assert.match(contactTriageMigration, /public\.rd_is_admin\(\)/);
-assert.match(suggestions, /adminContactGatewayTriageRefresh/);
-assert.match(suggestions, /kind: "contact_triage"/);
-assert.match(suggestions, /סכם עם AI/);
 assert.match(aiAnalyze, /SYSTEM_CONTACT_TRIAGE/);
 assert.match(aiAnalyze, /kind === "contact_triage"/);
 assert.match(aiAnalyze, /אותות מצטברים מהמערכת/);

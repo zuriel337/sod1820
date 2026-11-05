@@ -251,18 +251,3 @@ for(const name of ["number-researcher","raziel-attention"]) {
     const prompt=await fn(UID,12);assert.equal(prompt.history[0].text,"user-33");assert.equal(prompt.snapshot.sequence,44);
   });
 }
-for(const mode of ["failure","success"]) {
-  test(`RazielRoom decision ${mode}: truthful acknowledgement and candidate retention`,async()=>{
-    const source=readFileSync(new URL("../src/components/admin/RazielRoom.jsx",import.meta.url),"utf8"),startAt=source.indexOf("const runCommand ="),endAt=source.indexOf("\n  //",startAt);
-    let candidates=[{id:randomUUID(),subject_ref:"787"}];const notes=[];
-    const fn=runInNewContext(source.slice(startAt,endAt)+"\nrunCommand",{
-      cands:candidates,setBusyC:()=>{},setCands:update=>{candidates=update(candidates);},
-      decideCandidate:async()=>{if(mode==="failure")throw Error("synthetic failure");return {decision_id:randomUUID(),decision:"approve"};},
-      push:(_role,note)=>notes.push(note),
-    });
-    await fn({kind:"approve",v:"787"});
-    assert.equal(candidates.length,mode==="failure"?1:0);
-    if(mode==="failure"){assert.ok(notes[0].includes("לא התקבל אישור"));assert.ok(!notes[0].includes("✅ אושר"));}
-    else assert.ok(notes[0].includes("ההחלטה נרשמה"));
-  });
-}

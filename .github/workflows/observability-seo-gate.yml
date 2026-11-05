@@ -1,7 +1,7 @@
 name: Observability/SEO Build Gate
 
 # SOD1820_OBSERVABILITY_SEO_BUILD_GATE_CI (2026-09-07) — EXTEND_EXISTING.
-# Wires the existing scripts/check-observability-seo-gate.mjs (built during
+# Wires the Observability/SEO build gate (the Legacy route-coverage script was removed with Legacy; built during
 # SITE_WIDE_OBSERVABILITY_SEO_REMEDIATION_V1) and the existing `npm run build`
 # into GitHub Actions. No new checker logic here — the script's own exit code
 # (0 = every in-scope public route has ROUTE_META or its own applySeo() call,
@@ -36,9 +36,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Observability/SEO route coverage check
-        run: node scripts/check-observability-seo-gate.mjs
 
       - name: Email OTP length compatibility
         run: node --test src/lib/emailOtp.test.js
@@ -78,7 +75,6 @@ jobs:
       - name: Canonical presentation regressions
         run: |
           node scripts/test_gematria_methods.mjs
-          node scripts/test_canonical_presentation.mjs
 
       - name: Calculator 2029 interaction contract
         run: npm run test:calculator-2029-golden

@@ -86,10 +86,6 @@ assert.match(healthWatchBody, /exception\s+when\s+others\s+then\s+null;\s*end;/i
 // ── 7. Client helper follows the existing getCommandCenter convention exactly, with no UI
 //      coupling introduced by this slice (Control Plane UI is explicitly out of scope). ───────
 assert.match(visits, /export async function getSystemHealth\(\)\s*\{\s*\n\s*if \(!supabase\) return null;\s*\n\s*const \{ data, error \} = await supabase\.rpc\("admin_system_health"\);\s*\n\s*if \(error\) throw error;\s*\n\s*return data \|\| null;\s*\n\}/);
-for (const uiFile of ["src/pages/AdminPage.jsx"]) {
-  assert.ok(!new RegExp("admin_system_health|getSystemHealth").test(read(uiFile)),
-    `${uiFile} must not wire up admin_system_health yet — no Control Plane UI in this slice`);
-}
 
 
 // ── 8. fn_health_watch is server-only after post-release advisor hardening. ───────────────

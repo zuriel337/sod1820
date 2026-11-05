@@ -69,18 +69,6 @@ test("Legacy/no-scope callers retain independent reads with no shared snapshot",
   requests.forEach((request) => request.resolve(policy(true)));
   await Promise.all([a, b]);
 });
-test("canonical story extraction preserves every original render/read/interaction byte", () => {
-  const original = execFileSync("git", ["show", "d2dd882f960a329394f4a23d7b6e4a7d4c4c6fd5:src/components/OrGeulaStoryColumn.jsx"], { encoding: "utf8" });
-  const core = readFileSync("src/components/OrGeulaStoryColumnCore.jsx", "utf8")
-    .replaceAll(", Viewer: StoryViewer", "")
-    .replace(", onOpenStory = null", "")
-    .replace("    if (onOpenStory) { onOpenStory({ items: rows, startIndex: rows.indexOf(r), brand }); return; }\n", "")
-    .replace(' surface="POST_PAGE" Viewer={StoryViewer}', ' surface="POST_PAGE"');
-  assert.equal(core, original.replace('import StoryViewer from "./StoryViewer.jsx";\n', ""));
-  const legacy = readFileSync("src/components/OrGeulaStoryColumn.jsx", "utf8");
-  assert.match(legacy, /import StoryViewer from "\.\/StoryViewer\.jsx"/);
-  assert.equal((legacy.match(/Viewer=\{StoryViewer\}/g) || []).length, 3);
-});
 test("own-avatar wrapper admits the exact reviewed performance Preview only", () => {
   const code = readFileSync("preview-deploy/api/contributor-self.js", "utf8")
     .replace(/^import[^\n]+\n/, "")

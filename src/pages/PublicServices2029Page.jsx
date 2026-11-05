@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import PrivacyPage from "./PrivacyPage.jsx";
 import UnsubscribePage from "./UnsubscribePage.jsx";
-import NotFoundPage from "./NotFoundPage.jsx";
+import NotFoundPage from "./NotFound2029Page.jsx";
 import { NewsletterSignup2029 } from "../components/StayUpdatedCTA.jsx";
 import { applySeo } from "../lib/seo.js";
 import "./auth2029.css";
