@@ -13,9 +13,9 @@
 | | |
 |---|---|
 | בסיס | `origin/main` = `2500ec56`, מוזג ב־merge רגיל (בלי rebase ובלי force push) |
-| ראש הקוד | `6847e6799`: 34 קומיטים לפני `main`, 0 מאחוריו (2 קומיטי merge) |
-| קבצים לעומת `main` | 630: **415 נמחקו**, 187 שונו, 25 נוספו, 3 הועברו |
-| שורות | +2,943 / −85,199 |
+| ראש קוד המוצר | `6847e6799`: 34 קומיטים לפני `main`, 0 מאחוריו (2 קומיטי merge). `2db83d565` ו־`a95b8170c` מוסיפים רק כלי מדידה, קובצי ראיות ואת הדוח (ראש הענף בזמן ריצות ה־CI: `a95b8170c`, 36 קומיטים); הקומיט שאחריהם משנה רק את המסמך הזה |
+| קבצים לעומת `main` | על `6847e6799`: 630 (**415 נמחקו**, 187 שונו, 25 נוספו, 3 הועברו). על `a95b8170c`: 635 (+5 שנוספו: ארבעה קובצי ראיות וסקריפט הבידוד; `deleted-files.txt` חושב מחדש). אין שינוי בקוד המוצר בין שני הראשים (`git diff --name-status 6847e6799 a95b8170c` מציג רק `docs/` ו־`tools/`) |
+| שורות | על `6847e6799`: +2,943 / −85,199. על `a95b8170c`: +4,591 / −85,199 (ההפרש הוא קובצי הראיות והדוח) |
 | `src` שנמחק | 394 קבצים, כ־5.2MB מקור |
 | בדיקות שנמחקו | 18 קבצי בדיקה (הרשימה למטה; הם בדקו קוד שנמחק) |
 | `npm run build` | build אחד (2029) במקום שניים: 4.6 שניות במקום 8.2 באותה מכונה; `dist` 60MB במקום 69MB |
@@ -81,7 +81,9 @@
 **מה לא נבדק:** 1,411 שורות עם המילה שלא נתפסו על ידי אף כלל סיווג לא נקראו אחת אחת (הקבצים הגדולים ביניהן: בדיקות ה־raziel result bundle, `test-2029-world-surface`, `worldLegacyReplayProjection` ובדיקותיו, `ai-analyze`; דגימה הראתה שימוש במשמעות "ישן" של נתונים ופורמטים). אין כאן טענה ל־100% בידוד: הטענה היא שאין **צימוד מבני** מוכח, ושלושה קבצים רדומים עם import שבור מתועדים. מחרוזות שנבנות דינמית ושימוש בקבצים דרך נתיבי ריצה לא נבדקו.
 
 ## שימור תשתיות Admin/2029
-נבדק בענף: כל הנתיבים שברשימת ההוראה קיימים וזהים ל־`main` (למעט שלוש שורות ב־`WriterPersonal2029Page.jsx`). `/2029/control` ו־`/2029/me/:module` רשומים ב־`App2029.jsx`; `isAdmin` מוגדר ב־`AuthContext` ו־44 קבצים צורכים אותו; `supabase/functions` ו־`supabase/migrations` זהים ל־`main`. מה שחסר למסוף הניהול החדש וקיים רק ב־Git: ממשקי הפרסום, העריכה, ההעלאה והמודרציה הישנים (פקודות `git show b0a752c66:<path>` למעלה, ובקובץ `deleted-files.txt`); ה־RPC, ה־Edge functions וה־Storage שמאחוריהם נשארו. רשימה של "איזו יכולת נשענת על איזה RPC" לא נכתבה כאן (מחוץ להיקף).
+נבדק בענף: כל הנתיבים שברשימת ההוראה קיימים וזהים ל־`main` (למעט שלוש שורות ב־`WriterPersonal2029Page.jsx`). `/2029/control` ו־`/2029/me/:module` רשומים ב־`App2029.jsx`; `isAdmin` מוגדר ב־`AuthContext` ו־44 קבצים צורכים אותו; `supabase/functions` ו־`supabase/migrations` זהים ל־`main`. מה שחסר למסוף הניהול החדש וקיים רק ב־Git: ממשקי הפרסום, העריכה, ההעלאה והמודרציה הישנים (פקודות `git show b0a752c66:<path>` למעלה, ובקובץ `deleted-files.txt`); ה־RPC, ה־Edge functions וה־Storage שמאחוריהם נשארו. מפת "איזו יכולת נשענת על איזה RPC/טבלה/Edge function" לא נכתבה כאן (מחוץ להיקף); הסשן השני כתב מפה כזו בשורת `work_log` `f69dd66e-500b-4f5b-9670-2b6dc6730cd9` (קריאה בלבד), וטענותיה על 122 RPC ועל ה־Edge functions לא נבדקו כאן מחדש.
+
+**בדיקה עצמאית של ה־RPC (קריאה בלבד מול ה־DB החי `linswmnnkjxvweumprav`, ללא שינוי):** `src` ב־`b0a752c66` קורא בשם מילולי ל־336 RPC; **333 קיימים** ב־schema `public`. החסרים: `mutation` (מחרוזת בתוך בדיקה, לא קריאה), `admin_people_identity_review_v1` (נקרא מ־`src/lib/research/peopleIdentityProjection.js`) ו־`els_search_v1` (נקרא מ־`src/lib/research/elsW2Executor.js` ומ־`api/world-corpus-triage-audit.js`; מוגדר במיגרציה `20260916150500_g3_els_callable_core_v1.sql` בקוד, אך ב־DB החי יש `els_search_core_v1`, `els_search_page_v1` ו־`els_search_geometry_v1` ואין `els_search_v1`, וגרסה זו אינה ברשימת המיגרציות שהוחלו). שני הקבצים נקראים גם ב־`main` הנוכחי ולא שונו בענף: **ממצא קיים שאינו נגרם מההסרה**. לא נגעתי בו (ELS קפוא) ולא בדקתי אם הנתיב נגיש בפועל בפרודקשן; החלטה ובדיקה אצל ZURIEL.
 
 ## SEO
 - `scripts/test-2029-route-seo-decisions.mjs` (+ workflow `route-seo-decision-2029.yml`): כל נתיב ב־`App2029` חייב מקור החלטה מפורש (`api/og.js`, `route-legitimacy.js`, כותרת noindex ב־`vercel.json`, noindex ברמת הדף או דגל preview). אין baseline ואין allow-list. חולשה: זו בדיקת רישום, והיא הייתה מקבלת גם את `/beit-midrash` כשהשרת ענה לו 404.
@@ -94,20 +96,25 @@
 **כל קבצי ה־Node שרצים בלי דפדפן (884 קבצים: 866 בענף, 879 ב־`main`), בלי רשת, ענף מול worktree נקי של `main`** ([`node-tests-main-vs-branch.tsv`](node-tests-main-vs-branch.tsv)): בענף 703 עברו ו־72 נכשלו (91 קבצי דפדפן/שרת לא הורצו); ב־`main` 703 עברו ו־85 נכשלו. **אין קובץ שעובר ב־`main` ונכשל בענף.** 72 הכשלים בענף נכשלים זהה גם ב־`main` (חסרות חבילות כמו `react-test-renderer` ו־`@electric-sql/pglite`, ואין רשת): baseline סביבתי. 13 קבצים נכשלים ב־`main` ועוברים בענף. 18 הקבצים שנמחקו קיימים רק ב־`main`. ההרצה הזוגית חשפה בדיוק **שלוש בדיקות ש־Legacy שבר** (קראו קובץ שנמחק) ותוקנו בקומיט `6847e6799` בלי להוריד דרישה על קוד שקיים: `public-url-residual205-2029` (הוסרה ההצהרה על `SearchTabs` של Legacy), `research-viewer-entity-graph-lens` (הוסר החצי שקרא את דף ה־viewer שנמחק; הבדיקה על `researchViewerProjection.js` נשארה ונכשלת זהה ב־`main` על הצהרה ישנה אחרת), `companion-2029-public-source-shortcuts` (הוסרה הבדיקה שקראה `OrGeulaStoryColumnCore`). כשל אחד בהרצה המקבילית, `els-matrix-reading-client-e2e`, התברר כקפיצת עומס: 4 הרצות בודדות עברו 6/6. בנוסף, `test/public-reading-production-artifact.test.mjs` (שה־job החדש `release-contracts-2029` ב־`main` מריץ) נשבר אחרי המיזוג כי קרא לסקריפט ה־Legacy lock שנמחק; תוקן ב־`4a47a36d4`.
 
 ## CI בענף מול `main`
-כל הריצות הן `workflow_dispatch` על הענף (לא בדיקות PR). לכל gate: ענף, `main`/baseline, והאם הכשל נגרם מהשינוי.
+כל הריצות הן `workflow_dispatch` על הענף (לא בדיקות PR; בענף אין ריצות `push`). לכל gate: הראש הסופי `a95b8170c`, ריצות קודמות בענף, `main`/baseline, והאם הכשל נגרם מהשינוי. **13 ה־gates שבטבלה רצו על הראש הסופי.** הקומיט שאחריו משנה רק את `REMOVAL.md` (`git diff --name-status a95b8170c HEAD`), ולכן לא הורצה עליו סדרה נוספת.
 
-| Gate | ענף `1a3bd6b58` | ענף `4a47a36d4` | `main` / baseline | נגרם מהשינוי? |
+| Gate | ראש סופי `a95b8170c` | ריצות קודמות בענף | `main` / baseline | נגרם מהשינוי? |
 |---|---|---|---|---|
-| 2029 Isolation | success `42022009194` | success `42025470835` | נכשל ב־`entry-learn-2029.spec.cjs:47` על `main` מוקדם יותר; תוקן ב־#1215 וב־#1222; ירוק ב־PR #1229 (`42021952573`) | לא |
-| Release Visual | success `42022022262` | success `42025475634` | נכשל (Bennett ב־1440, 19/20) על `main` מוקדם יותר; תוקן ב־#1216 וב־#1221; ירוק ב־#1229 (`42021952530`) | לא |
-| ELS Core Compatibility | success `42022036546` | success `42025480160` | נכשל ב־`74ead2ec` (`41977804829`, שלב הדפדפן); תוקן ב־#1219; **success על `main@2500ec56`: `42025489393`** | לא |
-| G4 Public Core | success `42022017959` | success `42025484665` | success ב־#1229 (`42021952309`) | לא |
-| Production Release and Legacy Compatibility (`legacy-production-lock.yml`) | success `42022013747` | | success על `main@2500ec56`: `42022871702` | לא |
-| 2029 Live Contracts (כולל perf-contracts) | success `42022030975` | | success ב־#1229 (`42021952328`) | לא |
-| Observability/SEO Build Gate | success `42022026670` | | | לא |
-| Agent Dispatch, Community Reaction Visibility, Dependency Radar V2, Research Sync, System Self Maintenance, Video Ingest | success (`42022062691`, `42022066190`, `42022069174`, `42022072728`, `42022077112`, `42022081028`) | | | לא |
+| 2029 Isolation (`hard-isolation`) | success `42029787361` | success `42022009194` (`1a3bd6b58`), `42025470835` (`4a47a36d4`) | נכשל ב־`entry-learn-2029.spec.cjs:47` על `main` מוקדם יותר; תוקן ב־#1215 וב־#1222; ירוק ב־PR #1229 (`42021952573`) | לא |
+| Release Visual | success `42029792284` | success `42022022262`, `42025475634` | נכשל (Bennett ב־1440, 19/20) על `main` מוקדם יותר; תוקן ב־#1216 וב־#1221; ירוק ב־#1229 (`42021952530`) | לא |
+| ELS Core Compatibility | success `42029796885` | success `42022036546`, `42025480160` | נכשל ב־`74ead2ec` (`41977804829`, שלב הדפדפן); תוקן ב־#1219; success על `main@2500ec56`: `42025489393` | לא |
+| G4 Public Core | success `42029800974` | success `42022017959`, `42025484665` | success ב־#1229 (`42021952309`) | לא |
+| Production Release and Legacy Compatibility (`legacy-production-lock.yml`) | success `42029805893` | success `42022013747` | success על `main@2500ec56`: `42022871702` | לא |
+| 2029 Live Contracts (3 jobs: `release-contracts-2029`, `perf-contracts-2029`, `live-contracts-2029`) | success `42029811331` (שלושת ה־jobs) | success `42022030975` | success ב־#1229 (`42021952328`) | לא |
+| Observability/SEO Build Gate | success `42029816887` | success `42022026670` | | לא |
+| Research Sync Acceptance | success `42030099046` | success `42022072728` | | לא |
+| Agent Dispatch Contract | success `42030103688` | success `42022062691` | | לא |
+| Community Reaction Visibility | success `42030108105` | success `42022066190` | | לא |
+| Dependency Upgrade Radar V2 | success `42030112506` | success `42022069174` | | לא |
+| System Self Maintenance V1 | success `42030117314` | success `42022077112` | | לא |
+| Video Ingest | success `42030121792` | success `42022081028` | | לא |
 
-**CI על הראש הסופי:** יתווסף אחרי ההרצה (סעיף למטה). **לא הורצו:** `route-seo-decision-2029` (ראו SEO), `follow-identity-isolated-db-gate` ו־`media-release-batch-gate` (`pull_request` בלבד), Preview מוגן, קנרית. כשל או timeout שלא נפתר לא יסומן כירוק.
+אין כשל שהוא baseline ואין regression בענף. **לא הורצו:** `route-seo-decision-2029` (workflow חדש: ה־dispatch החזיר 404 כי הוא טרם ב־`main`; לכן גם `test-2029-route-seo-behavior`, שה־workflow הזה מריץ, נבדק מקומית בלבד ולא ב־CI), `follow-identity-isolated-db-gate` ו־`media-release-batch-gate` (`pull_request` בלבד), Preview מוגן וקנרית (דורשים פריסה). כשל או timeout שלא נפתר לא יסומן כירוק.
 
 ## ביצועים — נמדד מחדש (`scripts/measure-2029-load.mjs`, 5 ריצות, Chromium CPU x4, 390×844, localhost בלבד)
 המכונה הייתה עמוסה בעבודות אחרות, ולכן ל־LCP יש רעש של כ־±200ms. הנתונים בקובץ [`perf-main-vs-branch.json`](perf-main-vs-branch.json).
@@ -131,6 +138,8 @@
 ## ELS והיכל
 לא שונתה התנהגות. השינויים בקבצים ששמם ELS/היכל: החלפת import של `palette.js` ל־`palette2029.js` ושל `FeatureClosedNotice` לעותק 2029 (12 קבצי `yetzirahModels` + `ElsNativeClassic2029`, `ElsRotatingMatrixCard2029`, `elsFindingColors2029`, `Els2029Page`), מחיקת רכיבי ELS ו־`HeichalPage`/`ElsWorkAreaPage` של Legacy, ו־`tools/els/build.py` (משתנה סביבה אופציונלי, ברירת מחדל ללא שינוי). ELS Core Compatibility עבר בענף (`42022036546`, `42025480160`).
 
+נבדק שוב נקודתית (`git diff -U0 origin/main`): 16 קבצי ELS/Yetzirah של 2029 השתנו בשורה אחת כל אחד, והיא החלפת נתיב import בלבד (`palette.js` ← `palette2029.js`, `FeatureClosedNotice` ← `FeatureClosedNotice2029`); אין שינוי בהתנהגות. ההגנה ש־[#1225](https://github.com/zuriel337/sod1820/pull/1225) הוסיפה על כניסת ההיכל (`scripts/test-2029-live-contracts.mjs`, קבוצה 2: אין קישור לכניסה הלא־פתוחה ממשטחי 2029) בודקת את קבצי משטחי 2029 ולא את `HeichalPage.jsx` שנמחק, ולכן היא עדיין נקשרת: 6/6 מקומית בענף ו־job `live-contracts-2029` ירוק בריצה `42029811331`.
+
 ## שאריות והחלטות פתוחות
 1. **שלושה קבצי src רדומים עם import שבור** (`EntityHubGoldenControls.jsx`, `OrGeulaSourceShortcut2029.jsx`, `StoryViewerOnDemand2029.jsx`). ה־Companion מנותק בהחלטת ZURIEL (1.11) וה־EntityHub preview אינו מחובר. אפשרויות: למחוק את האיים הרדומים (ובדיקותיהם), או לשחזר רכיבים ניטרליים בשם 2029. לא נעשה דבר כדי לא להגדיל מחיקה ולא לשחזר UI של Legacy.
 2. **התלות `xlsx`** ב־`package.json` אינה בשימוש אחרי מחיקת `FileAnalyzer.jsx` (הייתה בשימוש רק בו). הסרה נוגעת ב־lockfile ודורשת החלטה.
@@ -142,6 +151,7 @@
 8. **מסמכי בעלים** (`SOD1820_MASTER_*`, `SOD1820_DESIGN_CONTRACT_V*`): ערכים היסטוריים כרונולוגיים שמזכירים את Legacy כפעיל נשארו כמות שהם; בקומיט הניסוח נערך רק ניסוח נעילת Legacy וחזרה. בראש `CLAUDE.md` ו־`AGENTS.md` נוסף בלוק "Legacy פרש".
 9. **ענפים:** `claude/legacy-removal-integration-20261105` נשאר כראיית נחיתה. מחיקת ענפים ו־PR ישנים רק אחרי ארכוב ובאישור (תג לא ניתן לדחיפה מהסביבה הזו).
 10. **שורש `vercel.json`:** ה־catch-all שלו מגיש עכשיו `/2029.html`. הפרודקשן משתמש ב־`public-reading-deploy/vercel.json` (לא שונה).
+11. **ממצא קיים, לא קשור להסרה:** `public.els_search_v1` ו־`public.admin_people_identity_review_v1` נקראים מהקוד (גם ב־`main`) ואינם קיימים ב־DB החי (פירוט בסעיף "שימור תשתיות Admin/2029"). לא נגעתי; ELS קפוא. ההחלטה אם זה פגם חי, מיגרציה שלא הוחלה או נתיב רדום אצל ZURIEL.
 
 ## מה לא נבדק (מגבלות)
 Preview מוגן של הענף; Auth, העלאות, פרסום וקהילה חיים מקצה לקצה (נבדקו חוזים סטטיים ומסכים); INP; ביצועי רשת ו־CDN אמיתיים; 91 קבצי בדיקה שדורשים דפדפן או שרת (חלק מכוסים ב־Playwright gates ב־CI); בדיקות Python; שכבת ה־rewrites של Vercel ו־Edge middleware בבדיקת ה־SEO; מחרוזות דינמיות. הרצות ה־CI הן dispatch על הענף ולא בדיקות PR.
