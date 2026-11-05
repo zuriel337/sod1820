@@ -102,9 +102,23 @@ async function sha256Hex(value) {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-function vercelOidcToken() {
+// Vercel hands the deployment's OIDC token to a running function in the
+// `x-vercel-oidc-token` request header; `VERCEL_OIDC_TOKEN` is only the build/dev
+// fallback. Reading the env var alone left this limiter fail-open in Production
+// (runtime log 2026-11-04T21:20:37Z, nodejs24.x, region sin1). The header is read
+// first, the env var stays as a fallback. The token is never logged. The limiter
+// edge function still verifies signature, issuer, audience, project and the
+// production environment, so a forged/garbage header can only produce a 401, which
+// remains fail-open exactly as before.
+const OIDC_REQUEST_HEADER = 'x-vercel-oidc-token';
+
+function vercelOidcToken(request) {
   try {
-    return typeof process !== 'undefined' ? String(process.env?.VERCEL_OIDC_TOKEN || '') : '';
+    const fromHeader = String(request?.headers?.get?.(OIDC_REQUEST_HEADER) || '').trim();
+    if (fromHeader) return fromHeader;
+  } catch { /* fall through to the env fallback */ }
+  try {
+    return typeof process !== 'undefined' ? String(process.env?.VERCEL_OIDC_TOKEN || '').trim() : '';
   } catch {
     return '';
   }
@@ -115,11 +129,11 @@ async function sgBrowserRateLimit(request, risk, path) {
   const limit = sgRateLimitCap(risk, path);
   if (!ip) return { allowed: true, limit, windowSeconds: SG_RATE_LIMIT_WINDOW_SECONDS };
 
-  const oidc = vercelOidcToken();
+  const oidc = vercelOidcToken(request);
   if (!oidc) {
     if (!SG_RATE_LIMIT_WARNED) {
       SG_RATE_LIMIT_WARNED = true;
-      console.warn('sg-rate-limit fail-open: missing VERCEL_OIDC_TOKEN');
+      console.warn('sg-rate-limit fail-open: missing VERCEL_OIDC_TOKEN (x-vercel-oidc-token header and env both absent)');
     }
     return { allowed: true, limit, windowSeconds: SG_RATE_LIMIT_WINDOW_SECONDS };
   }
