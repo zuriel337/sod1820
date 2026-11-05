@@ -84,14 +84,14 @@ export async function legacySnapshot(browser, base) {
 
 if (process.argv.includes("--snapshot")) {
   const base = process.argv[process.argv.indexOf("--snapshot") + 1];
-  const browser = await chromium.launch();
+  const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
   console.log(JSON.stringify(await legacySnapshot(browser, base), null, 1));
   await browser.close();
   process.exit(0);
 }
 
 const { server, base } = await serve(path.join(root, "dist"));
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 try {
   // A. Host (Legacy) theme reaches hosted 2029 pages one-way; 2029 code never creates its own keys inside Legacy.
   {

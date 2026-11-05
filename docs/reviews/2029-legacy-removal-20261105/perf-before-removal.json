@@ -1,0 +1,39 @@
+{
+ "label": "before-removal",
+ "route": "/2029",
+ "runs": 3,
+ "cpuThrottle": 4,
+ "static": {
+  "buildMs": 2696,
+  "eagerChunks": 26,
+  "eagerGzipKB": 199.9,
+  "eagerModules": 100,
+  "eagerAppModules": 64,
+  "reachableChunks": 246,
+  "reachableGzipKB": 1955.5
+ },
+ "firstVisit": {
+  "ttfb": 2.8,
+  "dcl": 279.1,
+  "fcp": 140,
+  "lcp": 1012,
+  "longTasks": 2,
+  "longMs": 241,
+  "longMax": 114,
+  "requests": 109,
+  "jsRequests": 60,
+  "transferKB": 1791.3
+ },
+ "repeatVisit": {
+  "ttfb": 2.5,
+  "dcl": 96.2,
+  "fcp": 116,
+  "lcp": 656,
+  "longTasks": 0,
+  "longMs": 0,
+  "longMax": 0,
+  "requests": 109,
+  "jsRequests": 60,
+  "transferKB": 1.5
+ }
+}
