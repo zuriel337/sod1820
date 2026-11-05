@@ -231,6 +231,8 @@ export const KNOWLEDGE_WORLDS = [
   }
 ];
 
+// 🔗 קישורי תחתית/רזיאל (כולל חברתיים ו־WhatsApp) — מקור אמת יחיד: supabase/functions/_shared/siteLinkRegistry.js
+// (SITE_LINK_REGISTRY_V1, 5.11.2026). כאן נשארת רק ניווט-ההיכל הישן; אין להוסיף כאן קישורי תחתית.
 // fav:true = כלי-ליבה עובד (RESTORE_CORE_TOOL_REACHABILITY, 6.9.2026) — מוצג באריח המועדף
 // בהיכל-הנייד (Navbar MOBILE_TILES) כדי שלא ייעלם מהתפריט בזמן שההיכל מסומן "בבנייה".
 export const QUICK_NAV_GROUPS = [
