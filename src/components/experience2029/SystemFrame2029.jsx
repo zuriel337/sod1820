@@ -16,7 +16,7 @@ import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
 import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 
 // DRAFT SWITCH (preview branches only): "" = hanging crown (option A), "1" flat tall bar, "2" arc under the letters, "3" bridge under the letters.
-const CROWN_DRAFT = "2";
+const CROWN_DRAFT = "5";
 import Footer2029 from "./Footer2029.jsx";
 import AccountLinkOffer2029 from "./AccountLinkOffer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
