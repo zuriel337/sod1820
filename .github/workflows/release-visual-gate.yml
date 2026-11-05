@@ -325,8 +325,9 @@ jobs:
             const panelBox = await sidecar.boundingBox();
             expect(panelBox).not.toBeNull();
             if (width < 600) {
-              // The sheet spans the layout viewport; with a reserved scrollbar gutter that is clientWidth, not the window width.
-              const layoutWidth = await page.evaluate(() => document.documentElement.clientWidth);
+              // The sheet fills its fixed backdrop. With `scrollbar-gutter: stable` and the page scroll locked, desktop-engine Chromium
+              // reserves a 15px gutter that the fixed layer does not cover, so the contract is "full width of the layer", not of the window.
+              const layoutWidth = (await page.locator('.sod29-frame-backdrop').first().boundingBox()).width;
               expect(panelBox.width).toBeGreaterThanOrEqual(layoutWidth - 2);
               expect(Math.abs((panelBox.y + panelBox.height) - height)).toBeLessThanOrEqual(2);
             } else {
@@ -560,8 +561,9 @@ jobs:
             const panelBox = await sidecar.boundingBox();
             expect(panelBox).not.toBeNull();
             if (width < 600) {
-              // The sheet spans the layout viewport; with a reserved scrollbar gutter that is clientWidth, not the window width.
-              const layoutWidth = await page.evaluate(() => document.documentElement.clientWidth);
+              // The sheet fills its fixed backdrop. With `scrollbar-gutter: stable` and the page scroll locked, desktop-engine Chromium
+              // reserves a 15px gutter that the fixed layer does not cover, so the contract is "full width of the layer", not of the window.
+              const layoutWidth = (await page.locator('.sod29-frame-backdrop').first().boundingBox()).width;
               expect(panelBox.width).toBeGreaterThanOrEqual(layoutWidth - 2);
               expect(Math.abs((panelBox.y + panelBox.height) - height)).toBeLessThanOrEqual(2);
             } else {
