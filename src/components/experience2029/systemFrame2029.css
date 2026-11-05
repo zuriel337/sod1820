@@ -1086,7 +1086,9 @@
     position:sticky;
     top:78px;
     align-self:start;
-    max-height:calc(100vh - 98px);
+    /* Ends above the floating bottom bar (its clearance token), never behind it. */
+    max-height:calc(100vh - 78px - var(--s29-island-clearance,90px));
+    max-height:calc(100dvh - 78px - var(--s29-island-clearance,90px));
     overflow-y:auto;
     overscroll-behavior:contain;
     z-index:18;
