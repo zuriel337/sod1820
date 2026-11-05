@@ -522,7 +522,9 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     }});
     return () => { active = false; stop(); };
   }, [fetchSort, memberId, claimId, cardId, hasThreadRequest]);
-  useEffect(() => { applySeo({ title: "הקהילה — סוד 1820", description: "שיחות והודעות של קהילת סוד 1820.", path: canonicalPath, noindex: true }); }, [canonicalPath]);
+  // Same title and description the server sends, so the tab and what a crawler renders match. The bare page was indexed and
+  // brings search traffic, so it stays indexable; any query string (thread, member, search...) is a variant and stays out.
+  useEffect(() => { applySeo({ title: "הצ'אט החי — קוד המציאות בזמן אמת", description: "שיחות, שאלות וגילויים בקהילת SOD1820.", path: canonicalPath, noindex: location.search !== "" }); }, [canonicalPath, location.search]);
   useEffect(() => { let active = true; fetchLinkedAccountProfiles().then((accounts) => { if (active) setAccountProfiles(accounts); }).catch(() => {}); return () => { active = false; }; }, []);
   useEffect(() => {
     const ids = [...new Set([...rows, ...profileRows, focusedThread].filter(Boolean).flatMap((row) => [row.authorUserId, row.linkedUserId]).filter(Boolean))];
@@ -744,7 +746,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": `color-mix(in srgb, ${palette.cardRaised} 94%, ${palette.accentText})`, "--community-discovery": palette.accentDiscovery, "--community-depth": palette.accentSecondary, "--community-warm": palette.warmAccent, "--community-success": palette.successText, "--community-action-fill": palette.accentBtn, "--community-danger": palette.dangerText }}>
       {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
-      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>שיחה {!hasThreadRequest ? <ConversationCount /> : null}</h1>
+      {!memberId && !claimId ? <header className="sod29-community-intro"><h1>צ'אט הקהילה {!hasThreadRequest ? <ConversationCount /> : null}</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p>
         {!hasThreadRequest && reading.resume ? <div className="sod29-community-reading-tools"><Link className="sod29-community-secondary" to={communityReadingHref(reading.resume)} onClick={reading.requestResume}>להמשיך מאיפה שעצרתי <span aria-hidden="true">←</span></Link></div> : null}
         {reading.error && reading.resume ? <p className="sod29-community-reading-error" role="status">לא ניתן לעדכן כרגע את מספר התגובות החדשות.</p> : null}
       </header> : null}

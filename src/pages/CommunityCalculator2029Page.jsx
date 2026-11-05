@@ -263,8 +263,8 @@ export default function CommunityCalculator2029Page() {
   useEffect(() => {
     applySeo({ title: "מחשבון הקהילה — גימטריה, שמות ותאריך עברי",
       description: "מחשבון הגימטריה הקהילתי של SOD1820: השוואת שמות, בדיקת שמות לתינוק, שם משפחה ותאריך עברי, עם קישור לחזרה ולשיתוף.",
-      path: "/community/calculator", noindex: true });
-  }, []);
+      path: "/community/calculator", noindex: location.search !== "" });
+  }, [location.search]);
   return <Sod2029Shell surface="community" title="מחשבון הקהילה" introVariant="none">
     <CommunityCalculatorPage key={location.key} initialState={initialState} passive actionsLocked={actionsLocked}
       renderCalculator={model => <CalculatorExperience model={model} initialState={initialState} location={location} />}

@@ -443,7 +443,9 @@ export default async function handler(req, res) {
   } else if (productionReading && decodedKey === '/community/calculator') {
     title = 'מחשבון הקהילה — גימטריה, שמות ותאריך עברי · ' + SITE_NAME;
     desc = 'המחשבון הקיים: שיטות גימטריה, השוואת ביטויים, שמות ותאריך עברי.';
-    robots = 'noindex, follow'; // never include names, dates or private query inputs in server metadata
+    // The bare calculator page brings search traffic (about 500 Google visits in 45 days) and stays indexable. Any query string can carry
+    // names, dates or other private inputs, so those variants stay out of the index (and never reach the server metadata).
+    robots = continuityParams.toString() ? 'noindex, follow' : 'index, follow';
     image = cardUrl({ w: 'מחשבון הקהילה', sub: 'גימטריה · שמות · תאריך' });
   } else if (productionReading && (decodedKey === '/or-geula' || /^\/or-geula\/video\/[^/]+$/.test(decodedKey))) {
     const id = decodedKey.startsWith('/or-geula/video/') ? decodedKey.slice('/or-geula/video/'.length) : continuityParams.get('v');
@@ -491,6 +493,8 @@ export default async function handler(req, res) {
       '/melech-hamisparim/718': ['מלך המספרים · 718', 'העמוד והפרסומים של מלך המספרים בסוד 1820.'],
     }[decodedKey];
     title = `${info[0]} · ${SITE_NAME}`; desc = info[1]; image = cardUrl({ w: info[0], sub: 'SOD1820' });
+    // /community shows the same chat: consolidate it onto the chat address (the client declares the same canonical).
+    if (decodedKey === '/community') canonical = SITE + '/community/chat';
     if (!['/community', '/community/researchers', '/members'].includes(decodedKey)) robots = 'noindex, follow';
     if (['/community/researchers', '/members'].includes(decodedKey)) {
       const page = publicContinuityPage2029(continuityParams.has('page') ? continuityParams.getAll('page') : null);
@@ -549,7 +553,9 @@ export default async function handler(req, res) {
     desc = cleanDesc(routeFlag?.message || launchGate.message, 180);
     image = cardUrl({ w: launchGate.title, sub: 'בבנייה', cap: 'האזור ייפתח בהמשך' });
   } else if (decodedKey === '/community/chat') {
-    robots = 'noindex, follow';
+    // The bare chat page was indexed and brings search traffic: it stays indexable (as before the 2029 move).
+    // Any query string (thread, reply, member, search, sort...) is a variant of it and stays out of the index.
+    robots = continuityParams.toString() ? 'noindex, follow' : 'index, follow';
     title = STATIC['/community/chat'].title;
     desc = STATIC['/community/chat'].desc;
     image = cardUrl(STATIC['/community/chat'].card);
