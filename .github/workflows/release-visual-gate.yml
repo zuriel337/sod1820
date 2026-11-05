@@ -611,6 +611,8 @@ jobs:
             for (const width of widths) {
               await page.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
               await page.goto(`${BASE}${PATH}`, { waitUntil: 'networkidle' });
+              // The Lightbox stylesheet is a standalone file (the Legacy document used to provide it implicitly): load the real one.
+              await page.addStyleTag({ content: require('fs').readFileSync('src/components/lightbox.css', 'utf8') });
               for (const fixture of [
                 { name: 'landscape', w: 1600, h: 900, tall: false },
                 { name: 'portrait', w: 900, h: 1600, tall: true },
