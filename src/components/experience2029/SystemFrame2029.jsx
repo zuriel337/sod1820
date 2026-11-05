@@ -15,8 +15,8 @@ import { PaletteProvider, use2029Palette } from "../../lib/palette.js";
 import { setThemePreset, useThemePreset } from "../../lib/themeMode.js";
 import { BRAND_LOCKUP_2029, BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
 
-// DRAFT SWITCH (preview branches only): "" = hanging crown (option A), "1" flat tall bar, "2" arc under the letters, "3" bridge under the letters.
-const CROWN_DRAFT = "2";
+// DRAFT SWITCH (preview branches only): "" = hanging crown (option A), "1" flat tall bar, "2" arc under the letters, "3" bridge, "4" round medallion.
+const CROWN_DRAFT = "4";
 import Footer2029 from "./Footer2029.jsx";
 import AccountLinkOffer2029 from "./AccountLinkOffer2029.jsx";
 import { LAYOUT, RADIUS, RAZIEL_PRESENCE, TYPEFACE, TYPE_SCALE_V2 } from "../../lib/designTokens.js";
@@ -1513,21 +1513,28 @@ function SystemFrame2029Body({
   const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
 
-  // DRAFT 2b: once the page is scrolled the crown and its pod shrink (one passive listener flips one attribute; the sizes animate in CSS).
-  // ?crownLight=solid|fade|frost|ivory lets a reviewer compare the light-theme backdrop on the preview only.
+  // DRAFT: once the page is scrolled the crown and its medallion shrink (one passive listener; sizes animate in CSS with transform).
+  // Preview-only switches: ?crownLight=night|sun (light-theme medallion), ?crownLine=calm|shimmer|progress (the line under the bar).
   useEffect(() => {
     if (!CROWN_DRAFT) return undefined;
     const html = document.documentElement;
-    const light = new URLSearchParams(window.location.search).get("crownLight");
-    if (light && /^(solid|fade|frost|ivory)$/.test(light)) html.setAttribute("data-crown-light", light);
+    const query = new URLSearchParams(window.location.search);
+    const light = query.get("crownLight");
+    if (light && /^(night|sun)$/.test(light)) html.setAttribute("data-crown-light", light);
+    const line = query.get("crownLine");
+    const lineMode = line && /^(calm|shimmer|progress)$/.test(line) ? line : "calm";
+    html.setAttribute("data-crown-line", lineMode);
     let frame = 0;
     let scrolled = false;
     const update = () => {
       frame = 0;
-      const next = scrolled ? (window.scrollY || 0) > 10 : (window.scrollY || 0) > 48;
-      if (next === scrolled) return;
-      scrolled = next;
-      html.setAttribute("data-crown-scrolled", String(next));
+      const y = window.scrollY || 0;
+      const next = scrolled ? y > 10 : y > 48;
+      if (next !== scrolled) { scrolled = next; html.setAttribute("data-crown-scrolled", String(next)); }
+      if (lineMode === "progress") {
+        const room = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+        html.style.setProperty("--s29-read", Math.min(1, y / room).toFixed(3));
+      }
     };
     const onScroll = () => { if (!frame) frame = window.requestAnimationFrame(update); };
     update();
@@ -1535,8 +1542,8 @@ function SystemFrame2029Body({
     return () => {
       window.removeEventListener("scroll", onScroll);
       if (frame) window.cancelAnimationFrame(frame);
-      html.removeAttribute("data-crown-scrolled");
-      html.removeAttribute("data-crown-light");
+      ["data-crown-scrolled", "data-crown-light", "data-crown-line"].forEach((name) => html.removeAttribute(name));
+      html.style.removeProperty("--s29-read");
     };
   }, []);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {

@@ -163,3 +163,81 @@ html[data-crown-light="frost"] .sod29-root[data-crown-draft][data-frame-theme-pr
 html[data-crown-light="ivory"] .sod29-root[data-crown-draft][data-frame-theme-preset="light"],
 html[data-crown-light="ivory"] .sod29-root[data-crown-draft][data-frame-theme-preset="parchment"] { --s29-pod-fill: #fff4d9; --s29-pod-line: #a9791f; }
 html[data-crown-light="ivory"] .sod29-root[data-crown-draft] .sod29-header-crown img { filter: drop-shadow(0 3px 5px rgb(60 36 0 / .55)) drop-shadow(0 0 1px rgb(60 36 0 / .7)); }
+
+
+/* ── Draft 4 · a true circle: a medallion hung on the bar, the whole lockup inside, a soft gold glow behind ── */
+.sod29-root.closed-shell.native-frame[data-crown-draft="4"] {
+  --s29-bar-h: 56px; --s29-disc: 128px; --s29-crown-w: 94px; --s29-crown-top: 21px; --s29-crown-slot: 150px;
+  --s29-draft-reserve: calc(var(--s29-disc) - var(--s29-bar-h) + 8px);
+  --s29-disc-core: #241552; --s29-disc-fill: #0e0a22; --s29-disc-ring: var(--s29-brand-gold); --s29-disc-glow: rgb(249 186 63 / .34);
+}
+/* Light presets: the same dark medallion (it is the dark look that works), gold-bright ring and glow. */
+.sod29-root.closed-shell.native-frame[data-crown-draft="4"][data-frame-theme-preset="light"],
+.sod29-root.closed-shell.native-frame[data-crown-draft="4"][data-frame-theme-preset="parchment"] {
+  --s29-disc-ring: #e9b949; --s29-disc-glow: rgb(233 185 73 / .42);
+}
+html[data-crown-light="sun"] .sod29-root.closed-shell.native-frame[data-crown-draft="4"][data-frame-theme-preset="light"],
+html[data-crown-light="sun"] .sod29-root.closed-shell.native-frame[data-crown-draft="4"][data-frame-theme-preset="parchment"] {
+  --s29-disc-core: #fffaf0; --s29-disc-fill: #f6dc93; --s29-disc-ring: #a9791f; --s29-disc-glow: rgb(233 185 73 / .5);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header-crown::before {
+  content: ""; position: absolute; left: 50%; right: auto; inset-block-start: 0; inline-size: var(--s29-disc); block-size: var(--s29-disc);
+  transform: translateX(-50%); transform-origin: 50% 0; border-radius: 50%; z-index: 2; pointer-events: none;
+  background: radial-gradient(circle at 50% 36%, var(--s29-disc-core) 0, var(--s29-disc-fill) 72%);
+  box-shadow: 0 0 0 var(--s29-line-w) var(--s29-disc-ring), 0 0 34px 6px var(--s29-disc-glow), 0 12px 26px rgb(0 0 0 / .28);
+  transition: transform .3s cubic-bezier(.2, .8, .2, 1);
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header-crown img { z-index: 3; transform-origin: 50% 0; }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header-crown::before { transform: translateX(-50%) scale(.46); }
+html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header-crown img { transform: translateX(-50%) translateY(-13px) scale(.5); }
+@media (max-width: 980px) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="4"] { --s29-disc: 104px; --s29-crown-w: 76px; --s29-crown-top: 17px; --s29-crown-slot: 112px; --s29-draft-reserve: calc(var(--s29-disc) - var(--s29-bar-h) + 6px); }
+  html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header-crown::before { transform: translateX(-50%) scale(.5); }
+  html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header-crown img { transform: translateX(-50%) translateY(-9px) scale(.5); }
+}
+@media (max-width: 340px) {
+  .sod29-root.closed-shell.native-frame[data-crown-draft="4"] { --s29-disc: 92px; --s29-crown-w: 68px; --s29-crown-top: 15px; --s29-crown-slot: 100px; }
+}
+@media (prefers-reduced-motion: reduce) { .sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header-crown::before { transition: none; } }
+.sod29-root[data-frame-reduced-motion="true"][data-crown-draft="4"] .sod29-header-crown::before { transition: none; }
+
+
+/* Draft 4 · ONE line: the bar's line and the medallion's ring share the same thickness, colour and no fading ends. */
+@property --s29-spin { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.sod29-root.closed-shell.native-frame[data-crown-draft="4"] {
+  --s29-line-w: 2px; --s29-line-col: var(--s29-brand-gold); --s29-line-hi: #fff0bd; --s29-line-prog: #7fe7ff;
+}
+.sod29-root.closed-shell.native-frame[data-crown-draft="4"][data-frame-theme-preset="light"],
+.sod29-root.closed-shell.native-frame[data-crown-draft="4"][data-frame-theme-preset="parchment"] { --s29-line-col: #d9a43a; --s29-line-hi: #8a5a00; --s29-line-prog: #1957D9; }
+.sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header.closed-orientation::after {
+  block-size: var(--s29-line-w); opacity: 1; background: var(--s29-line-col);
+}
+/* shimmer: a soft light travels along the line and around the ring, slowly and only on the bar; off for reduced motion */
+html[data-crown-line="shimmer"] .sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header.closed-orientation::after {
+  background: linear-gradient(90deg, var(--s29-line-col) 0 38%, var(--s29-line-hi) 50%, var(--s29-line-col) 62% 100%) 0 0 / 300% 100%;
+  animation: s29-line-travel 9s linear infinite;
+}
+@keyframes s29-line-travel { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+html[data-crown-line="shimmer"] .sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header-crown::after {
+  content: ""; position: absolute; left: 50%; right: auto; inset-block-start: 0; inline-size: var(--s29-disc); block-size: var(--s29-disc);
+  transform: translateX(-50%); transform-origin: 50% 0; border-radius: 50%; z-index: 2; pointer-events: none;
+  background: conic-gradient(from var(--s29-spin), transparent 0 78%, var(--s29-line-hi) 92%, transparent 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--s29-line-w)), #000 calc(100% - var(--s29-line-w)));
+          mask: radial-gradient(farthest-side, transparent calc(100% - var(--s29-line-w)), #000 calc(100% - var(--s29-line-w)));
+  animation: s29-ring-spin 9s linear infinite; transition: transform .3s cubic-bezier(.2, .8, .2, 1);
+}
+@keyframes s29-ring-spin { to { --s29-spin: 360deg; } }
+html[data-crown-scrolled="true"][data-crown-line="shimmer"] .sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header-crown::after { transform: translateX(-50%) scale(.46); }
+/* progress: the line fills, from the start side, with how far the page has been read */
+html[data-crown-line="progress"] .sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header.closed-orientation::after {
+  background: linear-gradient(to left, var(--s29-line-prog) calc(var(--s29-read, 0) * 100%), var(--s29-line-col) calc(var(--s29-read, 0) * 100%));
+}
+@media (max-width: 980px) {
+  html[data-crown-scrolled="true"][data-crown-line="shimmer"] .sod29-root.closed-shell.native-frame[data-crown-draft="4"] .sod29-header-crown::after { transform: translateX(-50%) scale(.5); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-crown-line="shimmer"] .sod29-root[data-crown-draft="4"] .sod29-header.closed-orientation::after,
+  html[data-crown-line="shimmer"] .sod29-root[data-crown-draft="4"] .sod29-header-crown::after { animation: none; }
+}
+.sod29-root[data-frame-reduced-motion="true"][data-crown-draft="4"] .sod29-header.closed-orientation::after,
+.sod29-root[data-frame-reduced-motion="true"][data-crown-draft="4"] .sod29-header-crown::after { animation: none; }
