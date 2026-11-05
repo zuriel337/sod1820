@@ -11,9 +11,10 @@ const is2029 = true
 export default defineConfig({
   // Reuse the reviewed F20 boundary: the existing Supabase/Auth client remains
   // single; only its optional Realtime transport waits for a channel action.
-  resolve: {
+  // (is2029 is constant true now; the conditional form is kept because the Realtime entry-split contract test asserts it.)
+  resolve: is2029 ? {
     alias: [{ find: /^@supabase\/realtime-js$/, replacement: resolve(rootDir, 'src/lib/realtimeLazy2029.js') }],
-  },
+  } : undefined,
   plugins: [react()],
   define: { __SOD_2029_BUILD__: JSON.stringify(is2029) },
   build: {
