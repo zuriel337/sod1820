@@ -1,6 +1,6 @@
 # הסרת Legacy מהקוד הפעיל — Audit לפני מחיקה (5.11.2026)
 
-> **מצב חי (5.11):** הפרודקשן הוא `main` = `b0a752c66` (`dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP`; יעד חזרה `dpl_8wS3rP2YgbqSaapmYxa3SAk8jdFk` = `18c98fa6f`). **ההסרה המתוארת כאן עדיין אינה בחי** — היא בענף `claude/2029-legacy-separation-e8j9tf` בלבד, ממוזגת נקי מול `b0a752c66`, ללא PR/מיזוג/פריסה.
+> **📌 תצלום היסטורי — Audit לפני מחיקה.** המסמך מתאר את `src` לפני ההסרה (בסיס `28ab3aaea`) ואינו המצב הנוכחי. המצב הנוכחי, כולל מספרים מחושבים מחדש, נמצא ב־[REMOVAL.md](REMOVAL.md); הסיווג המשותף נמצא גם ב־[הפרדה 2029↔Legacy](../2029-legacy-separation-20261105/FINDINGS.md) (אף הוא תצלום היסטורי). אין להסיק ממנו ש־Legacy עדיין מוצר פעיל. מצב חי נקרא מ־Vercel ומ־`origin/main` בזמן הפעולה.
 
 בסיס: `28ab3aaea` על `claude/2029-legacy-separation-e8j9tf`. אין PR/merge/פריסה. הנתונים נוצרו מהכלים ב־`tools/legacy-removal/` (גרף ייבוא סטטי+דינמי מכניסת 2029 ומכניסת Legacy, והפניות מסקריפטים, בדיקות ו־edge functions).
 
