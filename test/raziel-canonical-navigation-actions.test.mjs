@@ -144,9 +144,19 @@ test("hrefs come only from the closed table, which mirrors App2029 and the exist
 
 test("no hardcoded URL, no model/network/db call and no Preview origin inside the shared resolver", () => {
   const source = read("supabase/functions/_shared/razielNavigationActions.js");
-  assert.doesNotMatch(source, /fetch\(|ANTHROPIC|ai-analyze|supabase\.|createClient|Deno\.|process\.env|import\s/);
+  assert.doesNotMatch(source, /fetch\(|ANTHROPIC|ai-analyze|supabase\.|createClient|Deno\.|process\.env/);
+  // SITE_LINK_REGISTRY_V1 extends the closed route table: the resolver may import exactly that sibling file and no
+  // other module; every URL lives in the registry, which is itself pure and whose URLs are pinned by
+  // test/site-link-registry.test.mjs. The resolver itself still contains no URL and no origin.
+  assert.deepEqual([...source.matchAll(/^import[\s\S]*?from\s+"([^"]+)";/gm)].map((match) => match[1]), ["./siteLinkRegistry.js"]);
   assert.doesNotMatch(source, /https?:\/\/(?!canonical)/);
   assert.doesNotMatch(source, /sod1820\.co\.il|preview-deploy/);
+  const registry = read("supabase/functions/_shared/siteLinkRegistry.js");
+  assert.doesNotMatch(registry, /fetch\(|ANTHROPIC|ai-analyze|supabase\.|createClient|Deno\.|process\.env|import\s/);
+  assert.deepEqual([...new Set(registry.match(/https?:\/\/[^"'`\s)]+/g))].sort(), [
+    "https://chat.whatsapp.com/FaI8Nq95NMrCvZheSrW6Ql", "https://www.facebook.com/sod1820",
+    "https://www.instagram.com/zuriel7676?igsh=ZnJodWtxcnh1Y3dp", "https://www.tiktok.com/@sod_1820", "https://sod1820.co.il",
+  ].sort());
 });
 
 // ── 3. Verified conversation focus on the site ──────────────────────────────────────────────────────────────────────
