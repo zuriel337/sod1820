@@ -77,6 +77,8 @@ on:
       - "test/ai-analyze-early-trace-coverage.test.mjs"
       - "scripts/test-2029-isolation.mjs"
       - "scripts/test-2029-built-graph.mjs"
+      - "scripts/test-2029-module-boundary.mjs"
+      - "src/features/personalPanels/**"
       - "scripts/test-2029-system-frame.mjs"
       - "scripts/test-2029-canonical-contract-wiring.mjs"
       - "scripts/test-2029-world-surface.mjs"
@@ -144,6 +146,8 @@ jobs:
         run: npm run test:legacy-research-containment
       - name: Source isolation regression
         run: node scripts/test-2029-isolation.mjs
+      - name: Module-level Legacy/2029 boundary
+        run: node scripts/test-2029-module-boundary.mjs
       - name: G4 source-section update / World / Companion public-read acceptance
         run: node --test src/lib/research/postSourceUpdates2029.test.js src/lib/research/worldDiscoveryStream.test.js src/lib/systemFeed2029.test.js src/lib/heroUpdate2029.test.js
       - name: Native System Frame acceptance

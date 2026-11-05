@@ -11,7 +11,8 @@ import { applySeo } from "../lib/seo.js";
 import { WRITER_PERSONAL_MODULES, personalMessagesState, personalReturnHref, writerPersonalHref, writerSelfRequest } from "../lib/userCenter/writerPersonal2029.js";
 import { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ProfileSettings from "../components/ProfileSettings.jsx";
-import { PageEditor, MessagesHub } from "../components/userCenter/UserCenter.jsx";
+import PageEditor from "../features/personalPanels/PageEditor.jsx";
+import MessagesHub from "../features/personalPanels/MessagesHub.jsx";
 import FollowCenterController2029 from "../components/followCenter2029/FollowCenterController2029.jsx";
 import { WriterPersonalLayout2029, WriterPersonalHome2029, WriterPublicPortrait2029, WriterPrivateProgress2029 } from "../components/contributor2029/WriterPersonalViews2029.jsx";
 
