@@ -3,6 +3,8 @@
 // src/lib/research/razielSession2029.js, consumed unchanged.
 // The submit-time adapter now projects the same bounded Phase-I descriptor into the canonical request.
 // Keep this seam as an identity adapter for existing callers without re-projecting or loading it eagerly.
+import { isRegistryExternalHref, isRegistrySiteHref } from "../../../supabase/functions/_shared/siteLinkRegistry.js";
+
 export function withRazielSurfaceContext(request) {
   return request;
 }
@@ -192,11 +194,14 @@ export function razielStatusLabel({ closed = false, busy = false, status = "idle
 // Button for a deterministic navigation answer (RAZIEL_CANONICAL_NAVIGATION_ACTIONS_V1). The href was produced by the
 // shared resolver from the closed canonical route table; it is re-checked here against the same two shapes, so a stored
 // or restored message can never render a link to anything else.
+// The check mirrors the shared resolver (without loading it eagerly): number page, world, or an exact SITE_LINK_REGISTRY_V1
+// href (internal, or one of the four verified external destinations). Nothing else renders.
 const CANONICAL_NAVIGATION_HREF = /^(?:\/2029\/number\/[1-9]\d{0,5}|\/world)$/;
 export function razielNavigationButton(message) {
   const action = message?.role === "raziel" ? message.navigationAction : null;
   if (!action || typeof action !== "object") return null;
   const href = typeof action.href === "string" ? action.href : "";
   const label = clean(action.label, 80);
-  return CANONICAL_NAVIGATION_HREF.test(href) && label ? { href, label, intent: clean(action.intent, 40) } : null;
+  if (!(CANONICAL_NAVIGATION_HREF.test(href) || isRegistrySiteHref(href)) || !label) return null;
+  return { href, label, intent: clean(action.intent, 40), ...(isRegistryExternalHref(href) ? { external: true } : {}) };
 }

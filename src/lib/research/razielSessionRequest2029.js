@@ -10,6 +10,7 @@ import { buildRazielSurfaceContext } from "./razielSurfaceContext.js";
 import { normalizeElsRazielMatrixContext } from "./elsRazielMatrixContext.js";
 import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurrence } from "../../../supabase/functions/_shared/elsRazielOccurrenceContext.js";
 import { isRegularMethodIdentity } from "./methodIdentity.js";
+import { publicReadingPath } from "../publicReadingRelease2029.js";
 import {
   isValidRazielNavigationNumber,
   normalizeRazielNavigationAction,
@@ -618,6 +619,14 @@ export function selectRazielVerifiedNumberFocus({ thread = [], surfaceSemantic =
   return null;
 }
 
+// Presentation state of a registry link for a PUBLIC visitor, from the same router the pages use. A closed route is never
+// offered as open by Raziel; the resolver answers with the honest reason and the registry's open alternative instead.
+const RAZIEL_OPEN_ROUTE_STATES = new Set(["public", "continuation", "account", "service-closed", "post-lookup"]);
+export function razielSiteLinkState(item) {
+  if (item?.external) return "open";
+  return RAZIEL_OPEN_ROUTE_STATES.has(publicReadingPath(String(item?.href || "").split("#")[0])) ? "open" : "closed";
+}
+
 export function resolveRazielNavigationTurn({ question, state, contextSnapshot } = {}) {
   const thread = Array.isArray(state?.thread) ? state.thread : [];
   const latest = thread[thread.length - 1];
@@ -630,7 +639,7 @@ export function resolveRazielNavigationTurn({ question, state, contextSnapshot }
   const focus = razielNavigationNeedsFocus(request)
     ? selectRazielVerifiedNumberFocus({ thread, surfaceSemantic: snapshotSurfaceSemantic(contextSnapshot) })
     : null;
-  return resolveRazielNavigationAction({ request, focus });
+  return resolveRazielNavigationAction({ request, focus, linkState: razielSiteLinkState });
 }
 
 export function createRazielNavigationTurnSucceededAction({ state, navigation, completedAt }) {
