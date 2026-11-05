@@ -29,9 +29,18 @@
 .f29-link:hover{text-decoration:underline;text-underline-offset:3px}
 .f29-closed{color:var(--s29-muted,inherit);opacity:.75;font-size:15px}
 .f29-closed small,.f29-admin{font-size:12px;border:1px solid color-mix(in srgb,var(--s29-brand-gold,#d4af37) 50%,transparent);border-radius:999px;padding:1px 8px}
-.f29-news{grid-column:1/-1;padding-top:6px}
+.f29-updates{grid-column:1/-1;padding-top:4px;border-top:1px solid color-mix(in srgb,var(--s29-line,#888) 55%,transparent)}
+.f29-updates .sod29-site-updates--compact{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:0;padding:8px 0;background:none;border:0;box-shadow:none}
+.f29-updates .sod29-updates-title{font-size:14px;font-weight:700;letter-spacing:.04em;color:var(--s29-brand-gold,#d4af37)}
+.f29-updates .sod29-updates-form{margin:0;flex:1 1 320px}
+.f29-updates .sod29-updates-form label{font-size:14px;line-height:1.5;min-width:0}
+.f29-updates .sod29-updates-form input[type="email"]{min-height:44px;max-width:100%}
+.f29-updates .sod29-action-row a:not(.f29-join){display:inline-flex;align-items:center;min-height:44px;font-size:14px;color:inherit;opacity:.85}
+.f29-join{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;text-decoration:none;color:inherit;font-size:15px;
+  border:1px solid color-mix(in srgb,#25d366 55%,var(--s29-line,#888));background:color-mix(in srgb,#25d366 10%,transparent)}
+.f29-join:hover{background:color-mix(in srgb,#25d366 22%,transparent)}
 .f29-meta{grid-column:1/-1;font-size:13px;color:var(--s29-muted,inherit);padding-top:6px}
-.f29 a:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-brand-gold,#d4af37));outline-offset:3px;border-radius:8px}
+.f29 :is(a,button):focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-brand-gold,#d4af37));outline-offset:3px;border-radius:8px}
 .f29-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media(max-width:900px){.f29-nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.f29-wrap{grid-template-columns:minmax(0,1fr)}.f29-social{justify-content:flex-start}}

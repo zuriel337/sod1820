@@ -176,6 +176,8 @@ function EntityHubPreviewBody() {
       id: spec.expression,
       type: "phrase",
       label: spec.expression,
+      method: spec.methodKey,
+      resultValue: root,
       source: "golden-1237",
     });
   };

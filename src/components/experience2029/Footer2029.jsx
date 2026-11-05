@@ -74,6 +74,15 @@ function FooterLink({ item, state }) {
   return <li><Link className="f29-link" to={item.href}>{item.label}</Link>{badge}</li>;
 }
 
+// Joining the community group is a real entry point of the system (carried over from the Legacy footer), not a
+// "tracking" feature; the join counter stays an internal measurement and never drives the label.
+function WhatsappJoin({ item }) {
+  return <a className="f29-join" href={item.href} target="_blank" rel="noopener noreferrer"
+    onClick={() => trackWhatsappJoin("footer")}>
+    <span aria-hidden="true">{item.glyph}</span> עדכונים בוואטסאפ<span className="f29-sr"> — הצטרפות לקבוצה (נפתח בלשונית חדשה)</span>
+  </a>;
+}
+
 export default function Footer2029() {
   const { pathname } = useLocation();
   const { isAdmin } = useAuth();
@@ -81,6 +90,7 @@ export default function Footer2029() {
   const isHome = pathname === "/" || pathname === "/2029";
   const suggestions = footerSuggestions(pathname, options);
   const social = siteLinksForFooterGroup("social");
+  const whatsapp = siteLinkById("whatsapp");
 
   return (
     <footer className="f29" aria-label="תחתית האתר" data-footer-2029="smart">
@@ -123,11 +133,20 @@ export default function Footer2029() {
           ))}
         </nav>
 
-        {!isHome ? (
-          <section className="f29-news" aria-label="עדכוני האתר במייל">
-            <NewsletterSignup2029 />
-          </section>
-        ) : null}
+        <section className="f29-updates" aria-label="עדכונים">
+          {/* Compact strip (ZURIEL 5.11.2026): email updates + joining the WhatsApp group, one line, no card.
+              On Home the page already carries its own updates section, so only the WhatsApp entry is shown there. */}
+          {!isHome ? (
+            <NewsletterSignup2029 variant="compact" submitLabel="עדכונים במייל">
+              {whatsapp ? <WhatsappJoin item={whatsapp} /> : null}
+            </NewsletterSignup2029>
+          ) : (
+            <div className="sod29-action-row">
+              <strong className="sod29-updates-title">עדכונים</strong>
+              {whatsapp ? <WhatsappJoin item={whatsapp} /> : null}
+            </div>
+          )}
+        </section>
 
         <div className="f29-meta">
           <span>© {new Date().getFullYear()} סוד 1820 · כל הזכויות שמורות</span>

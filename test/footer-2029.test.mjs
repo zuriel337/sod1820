@@ -28,7 +28,7 @@ async function loadFooter(adminFlag = false) {
     plugins: [
       stub(/lib[\\/]AuthContext\.jsx$/, `export const useAuth = () => ({ isAdmin: ${adminFlag} });`),
       stub(/lib[\\/]tracking\.js$/, "export const trackWhatsappJoin = () => {};"),
-      stub(/components[\\/]StayUpdatedCTA\.jsx$/, "export function NewsletterSignup2029() { return <div data-newsletter-signup=\"existing\" />; }"),
+      stub(/components[\\/]StayUpdatedCTA\.jsx$/, "export function NewsletterSignup2029({ variant, children }) { return <div data-newsletter-signup=\"existing\" data-variant={variant}>{children}</div>; }"),
     ],
   });
   // Written inside node_modules/.cache so the bundle resolves react exactly like the repository does.
@@ -61,10 +61,10 @@ test("public footer links come from the registry and external links keep their v
 test("closed routes are shown as under construction, never as active links (public viewer)", async () => {
   const footer = await loadFooter(false);
   const html = render(footer, "/2029/posts");
-  for (const label of ["ארכיון", "היכל", "דילוגי אותיות", "המחקר שלי", "כאן מתחילים"]) {
+  for (const label of ["ארכיון", "היכל", "דילוגי אותיות", "המחקר שלי", "כאן מתחילים", "בית המדרש"]) {
     assert.match(html, new RegExp(`<li class="f29-closed"><span>${label}</span><small>בבנייה</small></li>`), label);
   }
-  for (const closedHref of ["/archive", "/research", "/code", "/start"]) assert.ok(!hrefs(html).includes(closedHref), closedHref);
+  for (const closedHref of ["/archive", "/research", "/code", "/start", "/beit-midrash"]) assert.ok(!hrefs(html).includes(closedHref), closedHref);
 });
 
 test("an admin sees the admin-view routes as working links with a visible admin marker", async () => {
@@ -104,4 +104,24 @@ test("the footer is part of the page end: mounted once in the frame, never fixed
   assert.doesNotMatch(source, /href="[^{]|to="\//, "links must come from the registry, not literals");
   assert.match(css, /prefers-reduced-motion/);
   assert.match(css, /min-height:44px/);
+});
+
+test("the gematria calculator and Beit Midrash are footer destinations; Beit Midrash opens as a link only for an admin", async () => {
+  const publicHtml = render(await loadFooter(false), "/2029/posts");
+  assert.ok(hrefs(publicHtml).includes("/gematria"), "מחשבון גימטריה must be a footer link");
+  const adminHtml = render(await loadFooter(true), "/2029/posts");
+  assert.ok(hrefs(adminHtml).includes("/beit-midrash"), "admin sees Beit Midrash as a working link");
+});
+
+test("the footer updates strip is compact: no big card, WhatsApp join is part of it on every page, signup not duplicated", async () => {
+  const footer = await loadFooter(false);
+  const page = render(footer, "/2029/posts");
+  assert.doesNotMatch(page, /f29-news/);
+  assert.match(page, /data-newsletter-signup="existing" data-variant="compact"/);
+  const home = render(footer, "/");
+  assert.doesNotMatch(home, /data-newsletter-signup/, "Home already has its own updates section");
+  for (const html of [page, home]) {
+    assert.match(html, /<a class="f29-join" href="https:\/\/chat\.whatsapp\.com\/FaI8Nq95NMrCvZheSrW6Ql" target="_blank" rel="noopener noreferrer">/);
+    assert.match(html, /עדכונים בוואטסאפ/);
+  }
 });

@@ -178,6 +178,16 @@ a.sod29-card:hover,button.sod29-card:hover{transform:translateY(-3px);border-col
 .sod29-stat{font-size:clamp(26px,3vw,38px);font-weight:900;line-height:1;color:var(--s29-hero);font-variant-numeric:tabular-nums}
 .sod29-stat-label{font-size:11px;color:var(--s29-accent-text);margin-top:6px}
 .sod29-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+/* Contract V2 §13 — action adjacency. A control (button / .sod29-action) and the link or text beside it live in ONE
+   .sod29-action-row; the gap belongs to the primitive, never to whitespace or to a one-off margin. */
+:root{--s29-action-gap:12px}
+.sod29-action-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px var(--s29-action-gap);min-width:0}
+.sod29-action-row>:is(a,button,.sod29-action){min-height:var(--s29-control-min,44px)}
+.sod29-action-row>a:not(.sod29-action){display:inline-flex;align-items:center}
+/* Safety net for legacy markup: a bare button directly followed by a link/button still gets the primitive gap. */
+.sod29-root :where(button.sod29-action,a.sod29-action)+:where(a,button):not(.sod29-action){margin-inline-start:var(--s29-action-gap)}
+/* Containers that already own a gap (the row, .sod29-actions) must not receive the net's extra margin. */
+.sod29-root :is(.sod29-action-row,.sod29-actions)>:is(a,button){margin-inline-start:0}
 .sod29-action{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px}
 .sod29-input-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .sod29-input{flex:1 1 280px;min-width:0;min-height:var(--s29-control-min);border:1px solid var(--s29-line);border-radius:14px;background:color-mix(in srgb,var(--s29-panel-soft) 90%,transparent);color:var(--s29-ink);padding:13px 14px;outline:none;transition:border-color var(--s29-motion),box-shadow var(--s29-motion),background var(--s29-motion)}
