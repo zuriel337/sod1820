@@ -28,3 +28,5 @@ jobs:
         run: node scripts/test-2029-canonical-presentation.mjs
       - name: Live static contracts (sitemap, Heichal entry, ELS 2029 page, early access, WhatsApp edge functions, research viewer Human Gate)
         run: node scripts/test-2029-live-contracts.mjs
+      - name: Avatar rendition contract (public storage avatars are served as small renditions; animation is kept)
+        run: node --test src/lib/avatar.test.js
