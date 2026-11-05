@@ -43,20 +43,23 @@ async function componentFixture(file, names, overrides = {}) {
   return { ...context.exports, transportCalls, render(fn, props) { cursor = 0; return fn(props); } };
 }
 
-test("renewal ribbon renders one exact notice and one explicit contact action without timers or feed consumption", async () => {
-  let opened = 0;
-  const h = await componentFixture("./GlobalLivingRibbon2029.jsx", ["GlobalLivingRibbon2029"]);
-  const tree = h.render(h.GlobalLivingRibbon2029, { onContact: () => { opened++; }, feed: { error: true, rows: [{ title: "other" }] } });
-  const nodes = elements(tree), buttons = nodes.filter(node => node.type === "button");
-  assert.equal(nodes.find(node => node.type === "p").props.children[0], "האתר מתחדש ונבנה בהדרגה. נתקלתם בתקלה או שיש לכם רעיון לשיפור? עזרו לנו לבנות אותו יחד.");
-  assert.equal(buttons.length, 1);
-  assert.equal(buttons[0].props.children[0], "דיווח או הצעה ←");
-  assert.equal(opened, 0); buttons[0].props.onClick(); assert.equal(opened, 1);
+test("verse ribbon renders one exact static verse with its source, no action, timers or feed consumption", async () => {
+  const h = await componentFixture("./GlobalLivingRibbon2029.jsx", ["GlobalLivingRibbon2029", "ELIJAH_VERSE_2029"]);
+  const tree = h.render(h.GlobalLivingRibbon2029, { feed: { error: true, rows: [{ title: "other" }] } });
+  const nodes = elements(tree);
+  assert.equal(h.ELIJAH_VERSE_2029.text, "הִנֵּה אָנֹכִי שֹׁלֵחַ לָכֶם אֵת אֵלִיָּה הַנָּבִיא לִפְנֵי בּוֹא יוֹם ה׳ הַגָּדוֹל וְהַנּוֹרָא");
+  assert.equal(h.ELIJAH_VERSE_2029.source, "מלאכי ג׳, כג");
+  assert.equal(nodes.filter(node => node.type === "button").length, 0, "the verse ribbon carries no action");
+  assert.equal(nodes.filter(node => node.type === "p").length, 1);
+  assert.equal(nodes.find(node => node.type === "section").props["data-ribbon-state"], "verse");
   const source = await read("./GlobalLivingRibbon2029.jsx"), css = await read("./globalLivingRibbon2029.css");
   assert.doesNotMatch(source, /setInterval|setTimeout|Marquee|useEffect|useState|useMemo/);
   assert.doesNotMatch(css, /line-clamp|text-overflow|white-space:nowrap|@keyframes|(?:^|[;{])height:52px[;}]/);
   assert.match(css, /grid-template-columns:minmax\(0,1fr\)/);
-  assert.match(css, /white-space:normal/); assert.match(css, /min-height:44px/);
+  assert.match(css, /white-space:normal/); assert.match(css, /min-height:52px/);
+  // Typography comes from the Design V2 tokens the System Frame publishes, never page-local literals.
+  assert.match(css, /var\(--s29-type-lead,21px\)/); assert.match(css, /var\(--s29-type-body,18px\)/); assert.match(css, /var\(--s29-type-micro,14px\)/);
+  assert.match(css, /var\(--s29-brand-gold/); assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b/);
 });
 
 test("approved explicit forms wait for persistence and never claim success after failure", async () => {
@@ -151,7 +154,7 @@ test("global dock opens ShareActions directly with all approved choices and keep
     assert.equal(elements(tree).some(node => node.type === "button" && node.props.children.includes("כלים")), !shareOnly);
   }
   assert.match(source, /const openShare = useCallback\(\(\) => openTransient\(TRANSIENT\.MORE, \{ shareOnly: true \}\)/);
-  assert.match(source, /<GlobalLivingRibbon2029 onContact=\{\(\) => openIssueReport\(\{ actionTried: "renewal_notice" \}\)\}/);
+  assert.match(source, /<GlobalLivingRibbon2029 \/>/);
   assert.match(source, /sourceHref: contactSourceHref\(location\)/);
   assert.match(source, /const feed = useSystemFeed2029\(\{ enabled: surface !== "control", nowOpen: transient\?\.kind === TRANSIENT\.ATTENTION \}\)/);
   assert.match(source, /data-command-mode="tool"[\s\S]*activeToolDock\.actions\.slice\(0, 2\)[\s\S]*activeToolDock\.actions\.slice\(2, 4\)/);
