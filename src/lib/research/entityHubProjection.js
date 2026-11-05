@@ -816,7 +816,7 @@ export async function fetchGraphMediaForNumbers({ numbers = [], limit = 12, perN
   const results = await Promise.all(list.map(async (n) => {
     const node = await resolveEntityHubNode({ type: "number", key: String(n) });
     if (!node?.id) return { items: [], access: { available: true, reason: null } };
-    const findings = await fetchCanonicalGraphEntityFindings(node.id, { relationLimit: 80 });
+    const findings = await fetchCanonicalGraphEntityFindings(node.id, { relationLimit: 80, anchorNode: node });
     const relations = findings.filter((finding) => finding?.kind === "graph-relation");
     return fetchWorldMediaProjection(relations, { limit: perNumberLimit });
   }));
@@ -1202,7 +1202,7 @@ export async function fetchEntityHubProjection({
 
   const [definition, graphFindings, research, topicSources] = await Promise.all([
     fetchEntityTypeDefinition(node.type),
-    node.id ? fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200) }) : Promise.resolve([]),
+    node.id ? fetchCanonicalGraphEntityFindings(node.id, { relationLimit: safeLimit(relationLimit, 100, 200), anchorNode: node }) : Promise.resolve([]),
     researchPromise,
     topicSourceSlug ? fetchTopicSourceContext({ topicSlug: topicSourceSlug })
       .catch(() => ({ items: [], access: { available: false, reason: "topic_sources_unavailable" } })) : Promise.resolve(null),
