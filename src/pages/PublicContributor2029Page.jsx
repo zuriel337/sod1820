@@ -1,3 +1,4 @@
+import CommunityHistorySeal2029 from "../components/community2029/CommunityHistorySeal2029.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
 import ContributorFindingsLens from "../components/research/ContributorFindingsLens.jsx";
@@ -69,6 +70,7 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
       <header className="pc-profile">
         <div className="pc-profile-copy"><p className="pc-eyebrow">{person?.eyebrow || "חבר קהילה"} · {view.contextLabel || "כתבים ומחקר"}</p>
           <h1 id="public-contributor-title">{view.profile.name}</h1>
+          <CommunityHistorySeal2029 authorKey={view.communityAuthorKey} />
           {view.profile.role ? <p className="pc-role">{view.profile.role}</p> : null}
           {view.profile.bio ? <p className="pc-bio">{view.profile.bio}</p> : null}
           <p className="pc-boundary">{person?.boundary || "מה שהאדם כתב והעלה בקהילה ובמקורות. שיוך לאדם אינו אימות של תוכן."}</p>

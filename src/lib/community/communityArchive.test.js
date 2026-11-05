@@ -77,6 +77,24 @@ test("a signed-in message uses the account identity even when a new contributor 
   assert.equal(communityAuthorIdentity("e7581ab5-8c15-4832-b602-f361e41ff373").verifiedOwner, false);
 });
 
+test("Torah Tamima exact historical and new posts open one account; older Google login remains separate", () => {
+  const contributor = "1f95f46b-b18b-480b-a2d2-8a9ce90eb194";
+  const account = "365fb241-77ed-4a9d-98ab-4e30ab53c093";
+  const old = normalizeCommunityRow({ id: "archive", origin: "openweb", author_name: "תורה תמימה",
+    author_contributor_id: contributor, body: "פרסום מקורי" });
+  const current = normalizeCommunityRow({ id: "new", origin: "community_2029", author_name: "תורה תמימה",
+    author_user_id: account, body: "פרסום חדש" });
+  const another = normalizeCommunityRow({ id: "not-the-reviewed-account", author_name: "תורה תמימה",
+    author_user_id: "793dc271-2194-4110-b5ff-d2422d6f1c85", body: "חשבון קודם" });
+  assert.equal(old.authorKey, `user:${account}`);
+  assert.equal(current.authorKey, old.authorKey);
+  assert.equal(old.linkedUserId, account);
+  assert.equal(another.authorKey, "user:793dc271-2194-4110-b5ff-d2422d6f1c85");
+  assert.deepEqual(communityAuthorIdentity(old.authorKey).contributorIds, [contributor]);
+  assert.deepEqual(communityAuthorIdentity(contributor).accountIds, [account]);
+  assert.equal(VERIFIED_ARCHIVE_PROFILES[contributor].accountUserId, account);
+});
+
 test("same display name never makes an unlinked message part of a known author profile", () => {
   const unlinked = normalizeCommunityRow({ id: "m2", author_name: "אמילי", body: "שלום", reactions: {} });
   assert.equal(unlinked.authorKey, null);

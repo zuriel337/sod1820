@@ -95,3 +95,21 @@ test("a public historical biography does not grant capabilities or invent archiv
   const unknown = await loadCommunityPerson2029(other, options());
   assert.equal(unknown.profile.bio, "", "no name matching or unapproved private-bio fallback");
 });
+
+test("reviewed Torah Tamima gets one account page and its public avatar without reading a private dossier", async () => {
+  const contributor = "1f95f46b-b18b-480b-a2d2-8a9ce90eb194";
+  const account = "365fb241-77ed-4a9d-98ab-4e30ab53c093";
+  const canonical = `user:${account}`;
+  const calls = [];
+  const result = await loadCommunityPerson2029(contributor, options({
+    activityReader: async (key) => { calls.push(key); return { rows: [{ ...row, authorName: "תורה תמימה" }], count: 9, nextOffset: 1 }; },
+    summaryReader: async (key) => { calls.push(key); return { firstAt: "2026-10-21", archiveLikes: 5 }; },
+    avatarReader: async (ids) => { assert.deepEqual(ids, [account]); return { [account]: { avatar_url: "https://sod1820.co.il/community-avatars/1215acc5cd59c120f52d.jpg" } }; },
+  }));
+  assert.deepEqual(calls, [canonical, canonical]);
+  assert.equal(result.communityAuthorKey, canonical);
+  assert.equal(result.profile.avatar, "https://sod1820.co.il/community-avatars/1215acc5cd59c120f52d.jpg");
+  assert.equal(new URL(result.canonicalHref, "https://local.invalid").searchParams.get("member"), canonical);
+  assert.equal(result.personProjection.identityScope, "account");
+  assert.deepEqual(result.publicLinks, []);
+});
