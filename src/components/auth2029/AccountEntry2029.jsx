@@ -51,7 +51,14 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
           setPassword(""); setCode(""); if (!inline) navigate(returnTo, { replace: true });
         }
       }
-    } catch {
+    } catch (failure) {
+      // A 5xx from the code request (for example "Error sending confirmation email") does not prove that no mail left: the code may
+      // still arrive. Never strand the person on the email step with nowhere to type it.
+      if (action === "email" && Number(failure?.status) >= 500 && current() && !principal.current) {
+        setEmail(address); setStep("code");
+        setError("לא הצלחנו לאשר את שליחת הקוד, אבל ייתכן שהמייל בדרך. אם קיבלתם קוד, הזינו אותו כאן. אחרת אפשר לבקש קוד חדש.");
+        return;
+      }
       if (current() && !principal.current) setError(action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? "הקוד שגוי או שפג תוקפו. אפשר לבקש קוד חדש." : "המייל או הסיסמה אינם נכונים. אפשר להיכנס גם עם קוד למייל.");
     } finally { if (current()) setBusy(false); }
   }
@@ -92,6 +99,8 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
             <button className="sod29-auth-primary" type="submit" disabled={busy}>{busy ? "רגע, מתחברים…" : step === "email" ? "שלחו לי קוד כניסה" : "כניסה לחשבון ←"}</button>
           </form> : null}
           <div className="sod29-auth-alternatives">
+            {methods.state === "ready" && methods.email && step === "email" ? <button className="sod29-auth-link" type="button" disabled={busy} data-auth-action="have-code"
+              onClick={() => { const address = email.trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) { setError("הזינו קודם את כתובת המייל שאליה נשלח הקוד."); return; } setEmail(address); setStep("code"); setError(""); }}>כבר קיבלתי קוד</button> : null}
             {methods.state === "ready" && methods.email ? <button className="sod29-auth-link" type="button" disabled={busy} onClick={() => changeStep(step === "email" ? "password" : "email")}>{step === "email" ? "כניסה עם סיסמה" : step === "code" ? "שינוי כתובת או בקשת קוד חדש" : "כניסה עם קוד למייל"}</button> : null}
             {methods.oauth.map(method => <button key={method.id} className="sod29-auth-secondary" type="button" disabled={busy || !method.available} aria-describedby={!method.available ? `${fieldId}-oauth-state` : undefined} onClick={() => federated(method.id)}>המשך עם {method.label}</button>)}
             {methods.oauth.some(method => !method.available) ? <p id={`${fieldId}-oauth-state`} className="sod29-auth-method-note">{"הכניסה עם Google ו־Facebook ממתינה לאישור כתובת החזרה. אפשר להיכנס עם מייל וסיסמה או קוד למייל."}</p> : null}
