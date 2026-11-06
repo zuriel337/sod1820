@@ -58,6 +58,9 @@ run "$PSQL -c \"do \\\$\\\$ declare m record; begin
 end \\\$\\\$\""
 echo "CONCURRENCY PASSED"
 
+echo "--- canary against the real function (HTTP shim; see the test header for what it does and does not prove)"
+RA_PG_BIN="$BIN" RA_PG_SOCKET="$D" RA_PG_PORT=55433 RA_PG_AS_POSTGRES=$([ "$(id -u)" = 0 ] && echo 1 || echo 0) node --test test/reading-activity-canary.test.mjs
+
 if [ "${1:-}" = "--with-els" ]; then
   echo "--- real els-search-bridge handler against this database"
   RA_PG_BIN="$BIN" RA_PG_SOCKET="$D" RA_PG_PORT=55433 RA_PG_AS_POSTGRES=$([ "$(id -u)" = 0 ] && echo 1 || echo 0) node --test test/els-activity-e2e.test.mjs

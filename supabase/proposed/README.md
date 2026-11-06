@@ -33,3 +33,25 @@ GA4 (stage A) is separate and is not part of this order.
 
 ## Rollback
 See the header of `reading_activity_v1.sql`. The three new objects can be dropped without touching any other family; restoring `ingest_event` removes only the guard. Rows written by the beacon are identified by `props->>'beacon' = 'v1'` and are deleted only on explicit approval.
+
+## Does `cf-connecting-ip` reach the function? (evidence, in order of strength)
+1. **Production, existing behaviour (read-only):** the live `add_guest_community_message` reads `request.headers`, takes `cf-connecting-ip` first, **fails closed when there is no address** (`v_ip is null`), and 8 guest posts succeeded through it between 2026-11-05 13:40 and 20:18 UTC. Every success needed an address; `x-real-ip` never appears at the edge and `x-forwarded-for` appears on 0.17% of requests, so the address came from `cf-connecting-ip`.
+2. **Edge logs:** `cf-connecting-ip` is present on 497,960 of 497,960 edge requests (100%).
+3. **Supabase documentation:** "Securing your API" documents `current_setting('request.headers', true)` and its own example reads `headers->>'cf-connecting-ip'`.
+4. **Still missing: an end-to-end run through the real PostgREST.** A staging run was prepared (a pinned PostgREST binary against the local database) but executing a downloaded binary was not permitted in this session, so it was not run and nothing was extracted. What the tests do prove: the function's behaviour for every header combination (`test/reading-activity-canary.test.mjs` and the SQL cases T6b/T6c), using an HTTP shim that copies incoming headers into `request.headers` *as the documentation describes* — this proves the function and the canary, not PostgREST itself.
+5. **The decisive proof is the canary after the DB step is approved** (below): its first call must be `recorded`, never `no_address`.
+
+## Canary (runs only after the DB step is approved and applied)
+```
+node scripts/canary-reading-activity.mjs --url https://<project>.supabase.co --anon-key <publishable key> \
+     --expect-host <project>.supabase.co --confirm-write [--service-key <key>]
+```
+- Refuses without `--confirm-write` and without `--expect-host` equal to the target host; sends nothing in those cases.
+- Two real calls with the same closed body: the first must be `recorded` (so `no_address` = 0: the header reached `request.headers`), the second `duplicate`.
+- With `--service-key` it also reads `reading_activity_outcomes` and requires the `no_address` counter to be 0 since one minute before it started.
+- Prints the explicit `activity_event_ids` it wrote; those ids are the only way these rows are told apart from real traffic. It writes one event row.
+- Never prints a key. Exit code 0 pass, 1 assertion failed (the message says which rollout step is wrong), 2 refused.
+- If the first call returns `no_address`: do not deploy the site; the header is not reaching the function.
+
+## What the counter table stores
+`reading_activity_outcomes` has exactly three columns: `minute`, `outcome` (one of seven enumerated names, enforced by a CHECK) and `n`. No address, no hash of an address, no identity, no free text. `reading_activity_ids` has exactly a random UUID and a time. SQL case T14 scans every stored row of every application table for the test addresses and finds none. The only address-derived value anywhere is the existing limiter's `key_hash` (a SHA-256 of a namespaced address, kept at most about two hours, not readable by API roles).

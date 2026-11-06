@@ -13,7 +13,7 @@ create function t.call_hdr(p_role text, p_headers jsonb, p_uid text, p_event tex
 declare v jsonb;
 begin
   perform set_config('request.headers', coalesce(p_headers, '{}'::jsonb)::text, true);
-  perform set_config('request.jwt.claim.sub', coalesce(p_uid, ''), true);
+  perform set_config('request.jwt.claims', case when p_uid is null then '{"role":"anon"}' else json_build_object('sub', p_uid, 'role', p_role)::text end, true);   -- the JSON claims object, as current PostgREST sets it
   execute format('set local role %I', p_role);
   begin
     v := public.ingest_reading_activity_v1(p_event, p_path, p_ctx, p_props);
@@ -319,4 +319,20 @@ end $$;
 truncate public.events;
 select 'T7 ok: guard blocks exactly 3 non-bot calls out of 242 combinations; every other result is identical' as t7;
 
-select 'SQL CASES T1..T13 PASSED' as result;
+-- ───── T14 the counter table holds counts only: no address, no identity, no free text ─────
+do $$ declare r record; cnt bigint; hits bigint := 0; o text; begin
+  assert (select string_agg(column_name || ':' || data_type, ',' order by ordinal_position) from information_schema.columns where table_schema = 'public' and table_name = 'reading_activity_outcomes')
+       = 'minute:timestamp with time zone,outcome:text,n:bigint', 'T14 the counter table has exactly minute, outcome, n';
+  foreach o in array array['duplicate','rejected_size','rejected_schema','rejected_account_id','rate_limited_address','rate_limited_global','no_address'] loop
+    assert (select pg_get_constraintdef(oid) from pg_constraint where conrelid = 'public.reading_activity_outcomes'::regclass and contype = 'c') like '%' || o || '%', 'T14 outcome is limited to the enumerated value ' || o;
+  end loop;
+  assert not exists (select 1 from public.reading_activity_outcomes where outcome !~ '^[a-z_]+$' or reading_activity_outcomes.n < 1), 'T14 only enumerated outcomes and positive counts';
+  assert (select string_agg(column_name, ',' order by ordinal_position) from information_schema.columns where table_schema = 'public' and table_name = 'reading_activity_ids') = 'activity_event_id,first_seen_at', 'T14 the key table has exactly a random id and a time';
+  -- not one test address, in any form, in any stored row of any application table (the limiter keeps only a hash)
+  for r in select schemaname, tablename from pg_tables where schemaname in ('public', 'private') loop
+    execute format('select count(*) from %I.%I x where x::text ~ %L', r.schemaname, r.tablename, '(198\.51\.100\.|203\.0\.113\.|198\.18\.|198\.19\.|192\.0\.2\.|2001:db8|::ffff:)') into cnt; hits := hits + cnt;
+  end loop;
+  assert hits = 0, 'T14 an address was stored in ' || hits || ' row(s)';
+  assert (select count(*) from private.edge_rate_limit_buckets where key_hash !~ '^[0-9a-f]{64}$') = 0, 'T14 the limiter stores hashes only';
+end $$;
+select 'SQL CASES T1..T14 PASSED' as result;
