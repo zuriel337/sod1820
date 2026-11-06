@@ -36,9 +36,12 @@ test('the way back and the save action share one wrapper; the link, its label an
   const start = page.indexOf('<div className="sod29-number-hero-bar">');
   assert.ok(start > 0, 'wrapper exists');
   const hero = page.slice(start, page.indexOf('<NumberCore2029', start));
-  assert.match(hero, /<Link to="\/gematria" className="sod29-action" data-number-action="back-to-calculator">← חזרה למחשבון גימטריה<\/Link>/);
+  assert.match(hero, /<ContextReturnAction2029[\s\S]*?to="\/gematria"/);
+  assert.match(hero, /"data-number-action": "open-calculator"/);
+  assert.match(hero, /"data-number-action": "back-to-calculator"/);
   assert.match(hero, /<div className="sod29-actions"><PersonalSaveButton2029 /);
-  assert.doesNotMatch(hero, /\?\s*<|&&\s*</, 'neither control sits behind a condition');
+  // The calculator action picks one of two variants (back / open) but is always present; the save control is never conditional.
+  assert.doesNotMatch(hero.slice(hero.indexOf('<div className="sod29-actions">')), /\?\s*<|&&\s*</, 'the save control does not sit behind a condition');
 });
 
 test('above the phone breakpoint the wrapper adds no box (desktop and tablet layout is exactly what it was)', () => {

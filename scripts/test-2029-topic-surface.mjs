@@ -215,8 +215,10 @@ assert.match(number2029Source, /parseNumberExpressionFocus/);
 assert.match(number2029Source, /resolveExpressionFocus/);
 assert.match(number2029Source, /shell\.returnExact/);
 assert.match(world2029Source, /focusedExpression/);
-assert.match(world2029Source, /חזור לחישוב/);
-assert.match(world2029Source, /\/2029\/number\//);
+// The World focus ribbon's calculation action is the shared ContextReturnAction2029 (6.11.2026): exact return
+// when the reader came from the Number page (/number/ or /2029/number/), a plain link that opens the calculation otherwise.
+assert.match(world2029Source, /<ContextReturnAction2029[\s\S]*?returnLabel="חזרה לחישוב"[\s\S]*?openLabel="פתח את החישוב"/);
+assert.match(world2029Source, /\(\\\/2029\)\?\\\/number\\\//);
 assert.match(heichal2029Source, /ביטוי:/);
 assert.match(heichal2029Source, /resolveExpressionFocus/);
 assert.match(researchProviderSource, /expressionFocusExplicit/);

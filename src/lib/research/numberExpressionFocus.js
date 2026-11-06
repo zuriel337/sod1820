@@ -5,6 +5,15 @@ export { isRegularMethodIdentity } from "./methodIdentity.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 
+// True when the saved way back is the gematria calculator itself (public /gematria or the
+// preview /2029/gematria[/…]); false for any other source (topic, post, community calculator, none).
+export function isCalculatorReturnTarget(returnTo) {
+  const href = clean(returnTo?.href);
+  if (!href.startsWith("/")) return false;
+  const path = href.split(/[?#]/)[0].replace(/\/+$/, "");
+  return /^(\/2029)?\/gematria(\/|$)/.test(path);
+}
+
 // A return address is the document actually being read, including its source,
 // repeated query values and fragment. Reuse the existing credential sanitizer.
 export function numberReadingReturnHref(location = {}) {

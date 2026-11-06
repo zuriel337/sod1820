@@ -1,0 +1,3 @@
+/* Shared in-page transition (ContextReturnAction2029): optional icon beside the label. */
+.sod29-context-action-with-icon{display:inline-flex;align-items:center;gap:8px}
+.sod29-context-action-with-icon svg{flex:0 0 auto}

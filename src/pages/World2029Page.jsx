@@ -4,6 +4,7 @@ import WorldPublicUpdates2029 from '../components/research/WorldPublicUpdates202
 import ZviGroupTimeline2029 from '../components/research/ZviGroupTimeline2029.jsx';
 import SourceRepeatInfo2029 from '../components/research/SourceRepeatInfo2029.jsx';
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
+import ContextReturnAction2029 from "../components/experience2029/ContextReturnAction2029.jsx";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -1720,10 +1721,16 @@ function AnchoredWorld({ research, shell, subject, context }) {
         <small>{focusedMethod ? `שיטה · ${focusedMethod}` : "מיקוד ביטוי"} · העולם מרחיב הקשר, Number נשאר בית החישוב</small>
       </div>
       <div className="sod29-actions">
-        {focusedNumberHref ? <button className="sod29-action primary" type="button" onClick={() => {
-          if (context?.returnTo?.href?.startsWith("/2029/number/")) shell.returnExact();
-          else shell.go(focusedNumberHref, { preserve: false });
-        }}>חזור לחישוב</button> : null}
+        {focusedNumberHref ? <ContextReturnAction2029
+          returnTo={context?.returnTo}
+          matches={(target) => /^(\/2029)?\/number\//.test(String(target.href || ""))}
+          onReturn={() => shell.returnExact()}
+          returnLabel="חזרה לחישוב"
+          to={focusedNumberHref}
+          openLabel="פתח את החישוב"
+          icon="number"
+          className="sod29-action primary"
+        /> : null}
         <button className="sod29-action" type="button" onClick={clearExpressionFocus}>הצג את העולם בלי מיקוד</button>
       </div>
     </section> : null}
