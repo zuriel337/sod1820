@@ -1,14 +1,14 @@
 // Approved Home composition (reference fa0e26f) inside the single System Frame.
 // Presentation over existing public readers: latest posts, cipher posts, home videos and the
 // Home projection. Existing capability components arrive as slots so none is duplicated here.
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { getLatestPostCards, getTzofonStories, getHomeVideos } from "../../lib/supabase.js";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { NewsletterSignup2029 } from "../StayUpdatedCTA.jsx";
-import { getHomeLaunchPostCards, getHomeStandalonePostCards, HOME_STANDALONE_LIMIT } from "../../lib/research/homeLaunchPosts2029.js";
-import { CONTENT_SERIES_2029, fetchContentSeriesCatalog2029, seriesHomeFamilies2029, seriesHomeTeaser2029 } from "../../lib/research/contentSeries2029Projection.js";
+import { getHomeLaunchPostCards } from "../../lib/research/homeLaunchPosts2029.js";
+import { fetchContentSeriesCatalog2029 } from "../../lib/research/contentSeries2029Projection.js";
 import { stripHtml } from "../../lib/format.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
@@ -19,7 +19,7 @@ import EntranceIntro2029 from "./EntranceIntro2029.jsx";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
-import { publicPostHref, postAddressSlug } from "../../lib/publicPostUrls.js";
+import { publicPostHref } from "../../lib/publicPostUrls.js";
 import { HOME_ATMOSPHERE_2029 } from "../../lib/brandAssets2029.js";
 import { PUBLIC_READING_RELEASE } from "../../lib/publicReadingRelease2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
@@ -151,44 +151,6 @@ function AdminLatestUpdates() {
   </div>;
 }
 
-// Latest published item of a series (shared by every series card).
-function SeriesLatestItem({ item, series }) {
-  return <Link className="h29-series-item h29-card-open" to={item.href}>
-    <Media src={item.imageUrl} fallback="✦" /><span><strong>{item.title}</strong><small>{item.author || series.writerLabel || series.publisherLabel || "פוסט"}</small><PublicationTime at={item.publishedAt} /><UpdatedTime published={item.publishedAt} updated={item.updatedAt} /></span>
-  </Link>;
-}
-
-// The primary series card (מפת המציאות): full row, compact, with an approved sample linked to its source Post.
-// It is never an empty card: without a member and without an approved sample it renders nothing. The series page
-// link appears only once the series has a member to show, so it never leads to an empty page.
-function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
-  const item = series?.items?.[0] || null;
-  if (!teaser && !item) return null;
-  const seriesHref = `/2029/posts?series=${encodeURIComponent(spec.key)}`;
-  const open = Boolean(item);
-  return <article className="h29-series-card is-primary" data-home-series={spec.key} data-home-series-primary="true">
-    {open ? <Link className="h29-series-name" to={seriesHref}>{spec.label}</Link> : <h3 className="h29-series-name">{spec.label}</h3>}
-    <div className="h29-primary-body">
-      {teaser ? <Link className="h29-series-teaser h29-card-open" to={teaser.href} data-home-series-teaser={teaser.sourceRef} aria-label={`${teaser.text}. מתוך הפוסט: ${teaser.sourceTitle}`}>
-        <span className="h29-teaser-kicker">דוגמית מהסדרה{teaser.step ? ` · ${teaser.step}` : ""}</span>
-        <span className="h29-teaser-tiles" dir="ltr" aria-hidden="true">
-          {teaser.tiles.map((tile, index) => <i key={index} style={{ "--i": index }}>{tile.letter}<small>{tile.value}</small></i>)}
-          <b className="h29-teaser-total">= {teaser.total}</b>
-        </span>
-        <strong className="h29-teaser-line" aria-hidden="true"><bdi dir="ltr">{teaser.highlight}</bdi></strong>
-        <small className="h29-teaser-source" aria-hidden="true">מתוך הפוסט: {teaser.sourceTitle}{teaser.methodNote ? ` · ${teaser.methodNote}` : ""}</small>
-      </Link> : null}
-      {item ? <SeriesLatestItem item={item} series={series} /> : null}
-    </div>
-    {open ? <Link className="h29-series-more" to={seriesHref}>לפתוח את הסדרה ←</Link> : null}
-    {families.length ? <nav className="h29-fam" aria-label="משפחות תוכן במפת המציאות" data-home-series-families="true">
-      {families.map(family => family.href
-        ? <Link key={family.key} to={family.href} data-home-family={family.key}>{family.label}{family.note ? <small>{family.note}</small> : null}</Link>
-        : <span key={family.key} className="soon" data-home-family={family.key}>{family.label}{family.note ? <small>{family.note}</small> : null}</span>)}
-    </nav> : null}
-  </article>;
-}
-
 function HomeSeriesCards() {
   const [state, setState] = useState({ series: [], loading: true, failed: false });
   useEffect(() => {
@@ -198,50 +160,19 @@ function HomeSeriesCards() {
       .catch(() => { if (!controller.signal.aborted) setState({ series: [], loading: false, failed: true }); });
     return () => controller.abort();
   }, []);
-  // The primary series comes first, from the owner's list order; the other series keep their existing order and cards.
-  const primarySpec = CONTENT_SERIES_2029.find(spec => spec.priorityLane === "primary") || null;
-  const primarySeries = state.series.find(series => series.priorityLane === "primary") || null;
-  const others = state.series.filter(series => series.priorityLane !== "primary");
   return <Section title="מהסדרות והכותבים" className="h29-series-section" link={<Link to="/2029/posts">לכל הסדרות ←</Link>}>
     <div className="h29-series-grid" aria-busy={state.loading} data-home-public-series="true">
-      {primarySpec ? <PrimarySeriesCard series={primarySeries} spec={primarySpec} teaser={seriesHomeTeaser2029(primarySpec)} families={seriesHomeFamilies2029(primarySpec)} /> : null}
-      {state.loading ? Array.from({ length: CONTENT_SERIES_2029.length - (primarySpec ? 1 : 0) }, (_, i) => <div className="h29-series-card h29-skel" key={i} aria-hidden="true" />) : null}
-      {others.map(series => {
+      {state.loading ? Array.from({ length: 4 }, (_, i) => <div className="h29-series-card h29-skel" key={i} aria-hidden="true" />) : null}
+      {state.series.map(series => {
         const item = series.items[0];
         return <article className="h29-series-card" data-home-series={series.key} key={series.key}>
           <Link className="h29-series-name" to={`/2029/posts?series=${encodeURIComponent(series.key)}`}>{series.label}</Link>
-          {item ? <SeriesLatestItem item={item} series={series} /> : <p className="h29-empty" role={series.readState === "failed" ? "alert" : "status"}>{series.readState === "failed" ? "לא ניתן לקרוא כרגע את הסדרה." : series.hasApprovedSources && !series.sourcesRequested ? "אפשר לבדוק מקורות נוספים בעמוד הסדרה." : "אין כרגע פרסום זמין בסדרה."}</p>}
+          {item ? <Link className="h29-series-item h29-card-open" to={item.href}>
+            <Media src={item.imageUrl} fallback="✦" /><span><strong>{item.title}</strong><small>{item.author || series.writerLabel || series.publisherLabel || "פוסט"}</small><PublicationTime at={item.publishedAt} /><UpdatedTime published={item.publishedAt} updated={item.updatedAt} /></span>
+          </Link> : <p className="h29-empty" role={series.readState === "failed" ? "alert" : "status"}>{series.readState === "failed" ? "לא ניתן לקרוא כרגע את הסדרה." : series.hasApprovedSources && !series.sourcesRequested ? "אפשר לבדוק מקורות נוספים בעמוד הסדרה." : "אין כרגע פרסום זמין בסדרה."}</p>}
         </article>;
       })}
       {state.failed ? <p role="alert">הסדרות אינן זמינות כרגע. <Link to="/2029/posts">אפשר לפתוח את רשימת הפוסטים.</Link></p> : null}
-    </div>
-  </Section>;
-}
-
-// "מחקרים ותוכן נוסף": public Posts in no series and not in the "עכשיו" pool (exact complement, shared predicates), after the
-// series and the lead. It forces no series membership, is read only once its section approaches, never repeats an item
-// already shown by another Home source, and renders nothing (no empty strip, no error) when there is nothing to show.
-function HomeStandalonePosts({ exclude, admitted, admissionRef }) {
-  const [state, setState] = useState({ posts: [], loading: true });
-  useEffect(() => {
-    if (!admitted) return undefined;
-    const controller = new AbortController();
-    getHomeStandalonePostCards({ limit: 12, signal: controller.signal })
-      .then(posts => { if (!controller.signal.aborted) setState({ posts, loading: false }); })
-      .catch(() => { if (!controller.signal.aborted) setState({ posts: [], loading: false }); });
-    return () => controller.abort();
-  }, [admitted]);
-  const shown = useMemo(() => state.posts.filter(post => !exclude.has(String(post.slug)) && !exclude.has(String(post.id))).slice(0, HOME_STANDALONE_LIMIT), [state.posts, exclude]);
-  const pending = !admitted || state.loading;
-  if (!pending && !shown.length) return null;
-  return <Section title="מחקרים ותוכן נוסף" className="h29-standalone-section" admissionRef={admissionRef} link={<Link to="/2029/posts">לכל הפוסטים ←</Link>}>
-    <div className="h29-series-grid h29-standalone-grid" aria-busy={pending} data-home-standalone="true">
-      {pending ? Array.from({ length: HOME_STANDALONE_LIMIT }, (_, i) => <div className="h29-series-card h29-skel" key={i} aria-hidden="true" />)
-        : shown.map(post => <article className="h29-series-card h29-standalone-card" data-home-standalone-post={post.slug} key={post.id}>
-          <Link className="h29-series-item h29-card-open" to={postHref(post.sourcePost)}>
-            <Media src={post.poster} fallback="✦" /><span><strong>{clean(post.title)}</strong><small>{post.author || "פוסט"}</small><PublicationTime at={post.publishedAt} /></span>
-          </Link>
-        </article>)}
     </div>
   </Section>;
 }
@@ -278,7 +209,6 @@ export default function HomeComposition2029({
   // skeleton must not admit distant readers before the real content arrives.
   const [videosRef, videosAdmitted] = useApproach2029(!corePublic && !primary.loading);
   const [summaryRef, summaryAdmitted] = useApproach2029(!primary.loading);
-  const [standaloneRef, standaloneAdmitted] = useApproach2029(!primary.loading);
   const [worldRef, worldAdmitted] = useApproach2029(!corePublic && worldOpen && !primary.loading);
   const [storyRef, storyAdmitted] = useApproach2029(!corePublic && worldOpen, {
     rootMargin: "0px", layoutReady: !primary.loading && !primary.notableLoading,
@@ -288,11 +218,6 @@ export default function HomeComposition2029({
   const adminViewer = isAdmin === true && Boolean(user?.id);
   useEffect(() => { if (summaryAdmitted) onSummaryApproach?.(true); }, [summaryAdmitted, onSummaryApproach]);
   const data = { ...primary, ...deferred };
-  // Items already shown by the lead, the videos strip or the cipher strip are not repeated in the standalone strip.
-  const standaloneExclude = useMemo(() => new Set([
-    ...data.posts.map(post => post.slug), ...(data.videos || []).map(video => video.slug),
-    ...(data.ciphers || []).map(cipher => postAddressSlug(cipher.link_url)),
-  ].filter(Boolean).map(String)), [data.posts, data.videos, data.ciphers]);
   useEffect(() => { if (worldAdmitted) onWorldApproach?.(true); }, [worldAdmitted, onWorldApproach]);
   const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
@@ -329,8 +254,6 @@ export default function HomeComposition2029({
     <HomeSeriesCards />
 
     {(lead ? <HomeHeroMotion2029 key={lead.slug} lead={lead} href={postHref(lead)} includeWorld={!corePublic && worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} data-home-primary={data.loading ? "loading" : data.postsError ? "failed" : "empty"} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>תיעוד אירועים ורמזי המערכת</h1>{!data.loading ? <p>{data.postsError ? "העדכונים אינם זמינים כרגע. אפשר לנסות שוב או להמשיך לעולם ולמחשבון." : "אין כרגע עדכונים להצגה. אפשר להמשיך לעולם ולמחשבון."}</p> : null}</div></section>)}
-
-    <HomeStandalonePosts exclude={standaloneExclude} admitted={standaloneAdmitted} admissionRef={standaloneRef} />
 
     {!corePublic && worldOpen ? <Section className="h29-notable-section" title="התכנסויות בולטות" link={<Link to="/world#world-all-convergences">כל ההתכנסויות ←</Link>}>
       <p className="h29-note">מסודרות לפי מד ההתכנסות הקיים. המדדים נפרדים: איכות, חוזק וסימוני זהב ויהלום.</p>
@@ -389,7 +312,7 @@ export default function HomeComposition2029({
         <Link className="h29-anchor k29-rv" to="/world"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
           <span><b>הכותבים</b><small>{people.length ? people.map((person) => person.displayName).join(" · ") : "הכותבים שמקורותיהם בעולם"}</small></span></Link>
         <Link className="h29-anchor k29-rv" to="/2029/posts?series=messages-from-righteous"><span className="h29-glyph is-geula"><NavigationIcon2029 name="spark" /></span>
-          <span><b>מסרים</b><small>הסדרה המשותפת · המקור נשמר בכל פריט</small></span></Link>
+          <span><b>מסרים מצדיקים</b><small>הסדרה המשותפת · המקור נשמר בכל פריט</small></span></Link>
       </div>
     </Section> : null}
 

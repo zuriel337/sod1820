@@ -5,55 +5,6 @@ const clean = (value) => value == null ? "" : String(value).trim();
 // not a registry, taxonomy, store or publication authority. Topic/channel identities
 // (for example הצופן בסרטים and אור הגאולה) intentionally do not become series here.
 export const CONTENT_SERIES_2029 = Object.freeze([
-  // מפת המציאות — the primary series (ZURIEL series & Home plan, 6.11.2026, stage 1). It is FIRST so every consumer
-  // that reads this list in order (Home, Posts entrances, search) shows it first; the relative order of the other
-  // series is unchanged. Membership is the exact tag only: no category, author, family or channel admits an item,
-  // and no existing Post is assigned by this entry. families (סוד 1820, הצופן בסרטים, שבילי שפה, תכני גאולה) are a
-  // reserved future split and are NOT represented here. "רמזים חזקים" stays a cross-cutting category (not a series
-  // and not a hints-pane admission). decisionId stays pending until PLAN37 records the decision (a DB write that
-  // needs explicit approval); nothing here writes or reads PLAN37.
-  Object.freeze({
-    key: "reality-map",
-    label: "מפת המציאות",
-    decisionId: "PENDING-PLAN37-DECISION",
-    writerLabel: null,
-    publisherLabel: null,
-    priorityLane: "primary",
-    membership: Object.freeze([
-      Object.freeze({ field: "tags", value: "מפת המציאות" }),
-    ]),
-    exactAuthor: null,
-    relationNote: "הסדרה הראשית: מחקרים, צפנים ותגליות. חברות רק מהתגית המדויקת; אינה חלונית רמזים, אינה גרף הקשרים ואינה זרם המציאות.",
-    // Home entrances to the future content families (ZURIEL 6.11.2026). They are LINKS to the existing source-category pages
-    // ("סיווג במקור"), nothing more: no membership, no selector, no field, no assignment. A family without a category is shown
-    // as "coming soon" and is not a link. "רמזים חזקים" stays a cross-cutting category, not a family and not a hints pane.
-    families: Object.freeze([
-      Object.freeze({ key: "sod-1820", label: "סוד 1820", note: "כולל ברכת כהנים", category: "סוד 1820" }),
-      Object.freeze({ key: "movies-cipher", label: "הצופן בסרטים", note: "מטריקס · משחקי הדיונון", category: "הצופן בסרטים" }),
-      Object.freeze({ key: "language-paths", label: "שבילי שפה", note: "חיבור בין שפות", category: "שבילי שפה" }),
-      Object.freeze({ key: "redemption", label: "תכני גאולה", note: "בקרוב", category: null }),
-    ]),
-    // Home sample. Shown only while approval is explicit; the quote is verbatim from the source Post (read live 6.11.2026,
-    // post 5018) and is the Post's own claim, not an SOD1820 computation (English ordinal is not in the method registry).
-    // It links to the source Post and does NOT make that Post a member of the series.
-    teaser: Object.freeze({
-      approval: Object.freeze({
-        status: "approved",
-        decisionRef: "ZURIEL/20261106/series-home-plan-stage1",
-        scope: "שבילי שפה · בראשית באנגלית (דוגמית בית). אישור סופי של הנוסח נדרש לפני פרסום.",
-      }),
-      sourceRef: "posts:5018",
-      sourcePost: Object.freeze({ id: 5018, slug: "chibur-bein-hasafot-mafteach-lagan", source: "ai", wp_id: 36960 }),
-      sourceTitle: "שבילי שפה — חיבור בין שפות",
-      // The Post's own letter-tile block (class "sgx"), verbatim: caption, tiles with their values, and the stated total.
-      step: "גימטריה באנגלית · A=1 … Z=26",
-      tiles: Object.freeze([["B", 2], ["E", 5], ["R", 18], ["E", 5], ["S", 19], ["H", 8], ["I", 9], ["T", 20]].map(tile => Object.freeze(tile))),
-      total: 86,
-      highlight: "Bereshit = 86",
-      text: "באנגלית מחשבים בפשטות: כל אות לפי מקומה באלף-בית — A=1, B=2, C=3 … Z=26 — ומחברים. Bereshit = 86",
-      methodNote: "חישוב כפי שמופיע בפוסט המקור",
-    }),
-  }),
   Object.freeze({
     key: "mah-kore-habora",
     label: "מה קורה הבורא",
@@ -96,15 +47,13 @@ export const CONTENT_SERIES_2029 = Object.freeze([
   }),
   Object.freeze({
     key: "messages-from-righteous",
-    // Public name "מסרים" (PLAN37 CONTENT-AUDIENCES-HYBRID-NOW-20261102: replaces the earlier public name everywhere; the key and
-    // historical source titles are unchanged). It is also the name of an existing category, which stays followable on its own.
-    label: "מסרים",
-    shadowedCategories: Object.freeze([]),
+    label: "מסרים מצדיקים",
     decisionId: "CONTENT-AUDIENCES-HYBRID-NOW-20261102/SERIES-01",
     writerLabel: null,
     publisherLabel: null,
     priorityLane: "second_ring",
     membership: Object.freeze([
+      Object.freeze({ field: "categories", value: "מסרים מצדיקים" }),
       Object.freeze({ field: "categories", value: "רמזים מצדיקים" }),
     ]),
     // ZURIEL approved this one existing public occurrence after reviewing the
@@ -122,10 +71,6 @@ export const CONTENT_SERIES_2029 = Object.freeze([
     relationNote: "סדרה משותפת. אור הגאולה נשאר מקור; עדכונים ממנו מצטרפים רק לאחר אישור ושיוך לפריט, לא מכוח שם הערוץ.",
   }),
 ]);
-
-// Category names a series visually replaces (shown once, as the series). Default: the series label. A series whose public
-// name equals a live category that must stay independently followable (מסרים) declares an empty list.
-export const seriesShadowedCategories = (spec) => Array.isArray(spec?.shadowedCategories) ? spec.shadowedCategories : [spec?.label];
 
 function postgrestValue(value) {
   return clean(value).replace(/["\\]/g, "");

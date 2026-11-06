@@ -49,7 +49,7 @@ after(async () => { await rm(outfile, { force: true }); delete globalThis.__mixe
 const KEY = "messages-from-righteous", REF = "channel_updates:9d4e6b80-f52b-4461-9231-ca30f37f0db9";
 const source = { kind: "channel_update", id: REF, sourceRef: REF, title: "מקור בדיקה", href: "/video/fixture", publishedAt: "2026-11-02T00:00:00Z" };
 const posts = (start, count = 24) => Array.from({ length: count }, (_, i) => ({ id: start + i, title: `פוסט ${start + i}`, slug: `post-${start + i}`,
-  categories: ["רמזים מצדיקים"], tags: [], date: "2026-10-01T00:00:00Z", source: "wordpress", wp_id: start + i }));
+  categories: ["מסרים מצדיקים"], tags: [], date: "2026-10-01T00:00:00Z", source: "wordpress", wp_id: start + i }));
 const packet = (sourceState = "measured") => ({ series: CONTENT_SERIES_2029.map(spec => ({ ...spec, items: [],
   sourceStates: spec.key === KEY ? [{ sourceRef: REF, state: sourceState }] : [],
   sourceItems: spec.key === KEY && sourceState === "measured" ? [source] : [],

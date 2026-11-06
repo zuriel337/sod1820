@@ -13,43 +13,6 @@ function isSuppressedPost(row) {
   return hasSuppressedPublicPostTag(row);
 }
 
-// Home entrances to a series' future content families: exact links to existing category pages, or a non-link "coming soon".
-// Never membership, never a selector; a malformed entry is dropped.
-export function seriesHomeFamilies2029(spec) {
-  const seen = new Set();
-  return (Array.isArray(spec?.families) ? spec.families : []).flatMap(family => {
-    const key = clean(family?.key), label = clean(family?.label), category = clean(family?.category);
-    if (!key || !label || seen.has(key)) return [];
-    seen.add(key);
-    return [{ key, label, note: clean(family.note),
-      href: category ? `/2029/posts?category=${encodeURIComponent(category)}` : null }];
-  });
-}
-
-// Home sample of a series. It is returned ONLY when the owner declared an explicit approval and an exact source Post
-// reference; anything else yields null (no sample is shown, never a placeholder). The sample links to its source Post
-// and never creates series membership.
-export function seriesHomeTeaser2029(spec) {
-  const teaser = spec?.teaser;
-  if (!teaser || teaser.approval?.status !== "approved" || !clean(teaser.approval?.decisionRef)) return null;
-  const text = clean(teaser.text), highlight = clean(teaser.highlight), sourceRef = clean(teaser.sourceRef);
-  const post = teaser.sourcePost;
-  if (!text || !highlight || !text.includes(highlight) || !/^posts:[1-9]\d*$/.test(sourceRef)
-    || String(post?.id) !== sourceRef.slice("posts:".length) || !clean(post?.slug)) return null;
-  // The tile block must be the Post's own, internally consistent quote: single Latin letters with positive integer values that
-  // add up to the stated total, which the highlight names. Anything else hides the sample (never a wrong number).
-  const tiles = Array.isArray(teaser.tiles) ? teaser.tiles : [];
-  const total = Number(teaser.total);
-  const tilesValid = tiles.length > 0 && tiles.every(tile => Array.isArray(tile) && /^[A-Za-z]$/.test(tile[0]) && Number.isInteger(tile[1]) && tile[1] > 0)
-    && Number.isInteger(total) && tiles.reduce((sum, tile) => sum + tile[1], 0) === total && highlight.includes(String(total));
-  if (!tilesValid) return null;
-  const href = publicPostHref(post);
-  if (!href) return null;
-  return { text, highlight, sourceRef, href, sourceTitle: clean(teaser.sourceTitle), methodNote: clean(teaser.methodNote),
-    step: clean(teaser.step), tiles: tiles.map(([letter, value]) => ({ letter, value })), total,
-    decisionRef: clean(teaser.approval.decisionRef) };
-}
-
 const publishedFirst = (a, b) => {
   const dateOrder = (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0);
   if (dateOrder) return dateOrder;
@@ -229,7 +192,6 @@ export function buildContentSeriesCatalog2029(results = [], { homeOnly = false }
       writerLabel: spec.writerLabel,
       publisherLabel: spec.publisherLabel,
       priorityLane: spec.priorityLane,
-      homeTeaser: seriesHomeTeaser2029(spec),
       relationNote: spec.relationNote,
       mappingState: "approved_identity_partial_membership",
       homeOnly,

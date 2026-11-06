@@ -32,7 +32,6 @@ function post(id, {
 
 test("approved content map keeps series distinct from topic and channel identities", () => {
   assert.deepEqual(CONTENT_SERIES_2029.map((spec) => spec.key), [
-    "reality-map",
     "mah-kore-habora",
     "dimension-five",
     "sod-hashmal",

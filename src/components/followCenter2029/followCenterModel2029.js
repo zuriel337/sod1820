@@ -1,7 +1,7 @@
 import { topicLabel, NOTIFICATION_CHANNELS } from "../../lib/notifications.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { canonicalFollowTopic } from "../../lib/followIdentity.js";
-import { CONTENT_SERIES_2029, seriesShadowedCategories } from "../../lib/research/contentSeries2029Identity.js";
+import { CONTENT_SERIES_2029 } from "../../lib/research/contentSeries2029Identity.js";
 
 // View model for the 2029 personal update center. It only arranges what the existing owners already supply
 // (notifications, explicit follows, resolver links, channel metadata). It stores nothing, sends nothing and
@@ -65,7 +65,7 @@ export function buildFollowCenterModel({ principal = "loading", notifications = 
   const links = follows.links || {}, pending = follows.pending || {};
   const entries = new Map(), groups = new Map();
   for (const topic of topics) {
-    const legacySeries = topic.startsWith("cat:") ? CONTENT_SERIES_2029.find(spec => seriesShadowedCategories(spec).includes(topic.slice(4))) : null;
+    const legacySeries = topic.startsWith("cat:") ? CONTENT_SERIES_2029.find(spec => spec.label === topic.slice(4)) : null;
     // Group presentation only when the series was ALSO explicitly selected.
     // A category-only legacy intent remains a category, never a subscription to a series.
     const container = legacySeries && topics.includes(`series:${legacySeries.key}`) ? `series:${legacySeries.key}` : topic;
