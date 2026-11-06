@@ -162,7 +162,7 @@ jobs:
       # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
       # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
       - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)
-        run: node --test test/def001-email-exposure-contract.test.mjs test/sitemap-no-redirecting-locs-2029.test.mjs test/ci-workflow-references-exist.test.mjs test/public-foundation-seo.test.mjs test/public-video-asset-reader-2029.test.mjs test/public-video-source-2029.test.mjs
+        run: node --test test/def001-email-exposure-contract.test.mjs test/sitemap-no-redirecting-locs-2029.test.mjs test/ci-workflow-references-exist.test.mjs test/public-foundation-seo.test.mjs test/public-video-asset-reader-2029.test.mjs test/public-video-source-2029.test.mjs test/def005-rpc-grants-contract.test.mjs
 
   # The SQL behaviour of the security migrations runs on a throwaway PostgreSQL container (never a live database).
   security-sql-contracts:
@@ -171,5 +171,5 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - name: DEF-001 and DEF-001b SQL regression (anon and authenticated cannot read e-mail addresses or visitor ids)
+      - name: DEF-001, DEF-001b, DEF-004 and DEF-005 SQL regression (anon and authenticated cannot read e-mail addresses or visitor ids; proposed Storage policies and RPC grants behave as specified)
         run: bash scripts/run-def001-sql-test.sh

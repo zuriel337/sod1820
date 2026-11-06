@@ -4,7 +4,7 @@
 # docker: SOD_SQL_TEST_SOCKET_DIR=/path/to/unix-socket-dir SOD_SQL_TEST_PORT=55432 (a local unix socket only).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-SQLS=(tests/sql/def001_visitor_email_exposure_v1.sql tests/sql/def001b_visitor_id_exposure_v1.sql)
+SQLS=(tests/sql/def001_visitor_email_exposure_v1.sql tests/sql/def001b_visitor_id_exposure_v1.sql tests/sql/def004_gallery_storage_upload_policies_v1.sql tests/sql/def005_public_rpc_guards_v1.sql)
 if [ -n "${SOD_SQL_TEST_SOCKET_DIR:-}" ]; then
   case "$SOD_SQL_TEST_SOCKET_DIR" in /*) ;; *) echo "socket dir must be an absolute local path" >&2; exit 2;; esac
   P=(psql -X -h "$SOD_SQL_TEST_SOCKET_DIR" -p "${SOD_SQL_TEST_PORT:-5432}" -U postgres)
