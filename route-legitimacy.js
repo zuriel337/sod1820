@@ -1,5 +1,8 @@
 // ROUTE_LEGITIMACY_2029_V1
 // Pure routing projection used by Edge middleware. No DB access, no bot policy, no truth owner.
+// Every exact single-segment Vercel redirect/rewrite source (vercel.json) must also be listed in KNOWN_SINGLE_SEGMENT_ROUTES below,
+// or Edge middleware treats it as an unknown post slug. scripts/test-route-legitimacy-2029.mjs enforces this in CI
+// (it failed the "2029 Route SEO Decision" and "Observability/SEO Build" gates when /tzofen.html was added to vercel.json).
 
 export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/2029",
@@ -78,6 +81,7 @@ export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/theme-preview",
   "/timeline",
   "/traffic",
+  "/tzofen.html",
   "/unsubscribe",
   "/verified",
   "/verse-gematria",
