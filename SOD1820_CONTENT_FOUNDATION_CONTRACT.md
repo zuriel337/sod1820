@@ -4,7 +4,7 @@
 >
 > **סטטוס:** `FOUNDATION CANONICALIZED` (26.8.2026 — approved-in-principle ZURIEL/GPT + תיקון-אחד, ר' §5). ה-canonicalization הוחל **חי** על `nodes`/`project_codex` (§8 — עדכון אדיטיבי, rule_versioning). קבצי-מסמך (חוזה/CLAUDE.md/Roadmap-anchor) על **ענף-בלבד, לא-מוזג, לא-פרוס**.
 >
-> **Human-Gate:** כל 8 ההחלטות = **מאושרות ע"י ZURIEL**. תיקון-review יחיד הוחל: מימד-חמש כ-Series מיוצג קנונית ב-`posts.tags` (feed-eligibility); נוכחות ב-`posts.categories` = transitional/legacy-compat בלבד, **ואין כלל המחייב Series להיכתב גם כ-Category** (§5).
+> **Human-Gate:** כל 8 ההחלטות = **מאושרות ע"י ZURIEL**. תיקון-review יחיד הוחל ב-26.8.2026 על ייצוג «מימד חמש»; **הוחלף ב-6.11.2026 בהפניה ל-PLAN37 ולקוד הקנוני (§5)**. נשאר בתוקף: **אין כלל המחייב Series להיכתב גם כ-Category**.
 
 > **עדכון 6.11.2026 (תכנוני בלבד · ענף-בלבד · לא-מוזג · לא-פרוס):** נוסף §12 — הבחנה מחייבת בין סדרות, מפת-המציאות, זרם-המציאות וחלונית-הרמזים, ושישה צירי-סיווג נפרדים. §1–§11 נשארים כתיעוד-היסטורי של 26.8.2026; כל סתירה מדווחת ב-§12.7 ולא נפתרת בשקט.
 
@@ -34,7 +34,7 @@ canonicalized    = nodes: dim5_upload_law v2, canonical_ui_components_law v2 (ad
 
 | ציר | דוגמה | הגדרה | ייצוג חי היום |
 |---|---|---|---|
-| **Series / Content Stream** | «מימד חמש» | סדרת-תוכן חוצת-מדיה. **לא סוג-מדיה.** | טוקן `מימד חמש` ב-`posts.tags` (מקור-אמת-לפיד; נוכחות ב-`categories` = transitional/legacy בלבד) — ר' §5 |
+| **Series / Content Stream** | «מימד חמש» | סדרת-תוכן חוצת-מדיה. **לא סוג-מדיה.** | חברות: PLAN37 + `contentSeries2029Identity.js` (אין הגדרה מקבילה כאן) — ר' §5 |
 | **Category / Topic** | «רמזים חזקים» · «עלוני גאולה» · «צפונות בתורה» | סיווג-תמטי/עריכתי | `posts.categories[]` |
 | **Medium / Media** | video · image · audio · text | סוג-המדיה בפריט | **נגזר מ-`posts.content`** (יש `<video>`/`<audio>`/`<img>`) — ר' §4 |
 | **Representation / Projection** | DimensionFiveFeed · card · rail · full-page · OG | איך אותה זהות **מוצגת** | קוד-רינדור בלבד (ללא שדה-DB) |
@@ -80,7 +80,7 @@ canonicalized    = nodes: dim5_upload_law v2, canonical_ui_components_law v2 (ad
 ## 4. MEDIUM DETECTION + DIMENSION FIVE FEED (Decision #1 & #3)
 
 - **Medium נגזר מהתוכן** (לא שדה): `getDimensionFiveVideos()` מזהה `mp4`→`kind:"video"`; אחרת `m4a|mp3|aac|ogg`+`<img>`→`kind:"photo"`. **זהו ה-medium-resolver החי.**
-- **Eligibility לפיד = חברות-Series** (`tag "מימד חמש"`), **לא medium**. ✅ מאומת חי: פוסט 5082 (photo, `categories=['מימד חמש']`, **בלי «וידאו»**) חוזר מהשאילתה-לפי-תג ומופיע בפיד.
+- **Eligibility לפיד = חברות-Series** (בקורא-הפיד הישן: `tag "מימד חמש"`; חברות-סדרה קנונית — §5), **לא medium**. ✅ מאומת חי: פוסט 5082 (photo, `categories=['מימד חמש']`, **בלי «וידאו»**) חוזר מהשאילתה-לפי-תג ומופיע בפיד.
 - **Feed בוחר rendering לפי medium** (רכיב אחד, `DimensionFiveFeed`, אין feed/store נפרד):
   - **Video** → vertical-immersive + `<track>` he(default)+en + language-switching (היכולת הקיימת).
   - **Image+Text+Audio** → vertical-immersive image + מלל-נגלל + `<audio autoPlay loop>` + gesture/autostart לפי מגבלות-הדפדפן.
@@ -88,13 +88,24 @@ canonicalized    = nodes: dim5_upload_law v2, canonical_ui_components_law v2 (ad
 
 ---
 
-## 5. SERIES REPRESENTATION — הבהרה + Extension-Point
+## 5. SERIES REPRESENTATION — מצביע למקור-האמת הקיים  [עודכן 6.11.2026]
 
-**תיקון-review יחיד (ZURIEL/GPT 26.8.2026) — קנוני:** ייצוג-Series קנוני של «מימד חמש» = **הטוקן ב-`posts.tags` בלבד** (מקור-האמת ל-feed eligibility). נוכחותו ב-`posts.categories` היא **transitional/legacy-compatibility בלבד — ואינה חלק מחוזה-Series.** ⛔ **אין לקבוע כלל המחייב Series להיכתב גם כ-Category.**
-- **representable → אין-צורך בשדה-`series` כעת:** `getDimensionFiveVideos({tag:"מימד חמש"})` משתמש בטוקן-התג כסמן-Series.
-- **EXTENSION POINT (לא-בונים עכשיו):** אם/כאשר יידרש Series-אמיתי חוצה-מדיה עם metadata (עונה/סדר/hero) — שדה/טבלת-Series ייעודי. עד אז: **התג ב-`tags` הוא ה-Series-marker הקנוני היחיד.**
-- Category≠Series — לא להסתמך על נוכחות «מימד חמש» ב-`categories` כאילו היא category-תמטי; היא compat-שריד בלבד.
-- ⚠️ **DRIFT מדווח (6.11.2026):** ייצוג-החברות ב-§5 (תג בלבד) קדם להחלטות PLAN37 DEC-SERIES-003/004/005/006 וליישום `contentSeries2029Identity.js`, שבהם החברות נקבעת לפי מתארים מפורשים לכל סדרה (קטגוריה ו/או תג, ובמקרה הצורך מפרסם מדויק). ר' §12.7 — ההכרעה בידי ZURIEL; §5 לא נמחק.
+> **מסמך זה אינו מגדיר סדרות ואינו מגדיר חברות בסדרה.** ההגדרה נמצאת אצל הבעלים הקיימים בלבד:
+> - **החלטות:** PLAN37 (`project_codex` id 37) — DEC-SERIES-003/004/005/006 וההחלטה על «מסרים מצדיקים» (CONTENT-AUDIENCES-HYBRID-NOW-20261102/SERIES-01).
+> - **קוד קנוני:** `src/lib/research/contentSeries2029Identity.js` — `CONTENT_SERIES_2029`, `contentSeriesMembershipFilter`, `hasExactMembership`, `contentSeriesByKey`, `contentSeriesKeysForPost`; ו-`src/lib/research/contentSeries2029Projection.js` כקורא הסדרות המשותף ל-Home/World.
+>
+> ⚠️ **ההגדרה בקוד היא «bounded presentation contract», לא registry, store או סמכות פרסום** (כלשון הקוד). כשיש סתירה בין סעיף זה לבין PLAN37 או הקוד, הם קובעים, והסתירה מדווחת (§12.7) ולא נפתרת כאן.
+
+- **אין שדה/טבלת `series`.** נשאר **EXTENSION POINT** (לא-בונים): רק אם יידרש Series חוצה-מדיה עם metadata (עונה/סדר/hero).
+- **Category≠Series נשאר חוק:** נוכחות שם-סדרה ב-`categories` אינה הוכחת-חברות, ולהפך. ⛔ אין כלל המחייב Series להיכתב גם כ-Category (או להפך).
+- **חסר-שיוך נשאר חסר-שיוך** — לא מסיקים חברות מנושא, משם או מקשר-למפה (§12.4).
+- קורא פיד «מימד חמש» הישן (`getDimensionFiveVideos`, §4) קורא תג בלבד; הוא קורא-פיד היסטורי ואינו קובע חברות-סדרה קנונית.
+
+<details><summary>היסטורי · 26.8.2026 · לא נורמטיבי</summary>
+
+הנוסח שקדם לעדכון: «ייצוג-Series קנוני של «מימד חמש» = הטוקן ב-`posts.tags` בלבד; נוכחותו ב-`posts.categories` = transitional/legacy-compat». נוסח זה הוחלף בהפניה למעלה בעקבות DEC-SERIES-003/004/005/006 וממומש ב-`contentSeries2029Identity.js`. נשמר כאן כתיעוד הפרובננס בלבד.
+
+</details>
 
 ---
 
@@ -120,7 +131,7 @@ canonicalized    = nodes: dim5_upload_law v2, canonical_ui_components_law v2 (ad
 | Author/System-voice separation | **MUST NOW ✅ סגור** | `posts.ai_addition` + `authors.js` |
 | Human Gate | **MUST NOW ✅ קיים** | ZURIEL |
 | Extensibility hook | **MUST NOW ✅ סגור** | Series-token + medium-resolver + projection-layer (רכיב-אחד) |
-| Dedicated `series` field/table | **EXTENSION POINT** | representable-via-tag היום; לבנות רק כשיידרש metadata |
+| Dedicated `series` field/table | **EXTENSION POINT** | representable דרך המתארים הקיימים (§5); לבנות רק כשיידרש metadata |
 | Multilingual **non-video** (image+audio/text) | **EXTENSION POINT** | טרם-נדרש; hook ל-`content_translation_law` שמור |
 | Carousel / PDF / live / audio-only | **EXTENSION POINT** | medium-resolver מרחיב בלי-schema |
 | Alternate feed renderers | **EXTENSION POINT** | projection-layer מרחיב בלי-store |
@@ -217,7 +228,7 @@ collision-check חי: workstream-המחקר (Shared Expression v1) **מוזג+ה
 - כניסה מחייבת **סיווג-רמז מפורש** ו**אישור** (Human Gate = ZURIEL), פר-פריט.
 - קטגוריית «רמזים חזקים» (§6) נשארת **סימן-עריכה ברף-גבוה** על הפוסט; היא אינה, לבדה, אישור כניסה לחלונית.
 - פוסט מחקר/ליבה (ר' §12.6) אינו נכנס לחלונית אוטומטית, ואף לא פוסט שכבר נושא את הקטגוריה.
-- אין ליצור חלונית, רשימה או מאגר נוסף; המסלול מוגדר מעל הקיים. **הבעלים הקנוני להסמכת כניסה לחלונית לא אומת בבדיקה זו** (ר' §12.7).
+- אין ליצור חלונית, רשימה או מאגר נוסף; המסלול מוגדר מעל הקיים. **בבדיקה (6.11.2026) לא נמצא חוק ייעודי שמגדיר כניסה לחלונית** (ר' §12.7 סעיף 3); PLAN37 §32.3 קובע שהסיווג משותף עם סינון הפוסטים ונשאר אצל בעלי המקור/Intake/Graph.
 
 ### 12.6 פוסטים לדוגמה — תוכן-ליבה / מחקר (אסנס)
 
@@ -231,14 +242,14 @@ collision-check חי: workstream-המחקר (Shared Expression v1) **מוזג+ה
 | **משחקי הדיונון** (5004) | מימד חמש · הצופן בסרטים | — | אין | כנ"ל |
 | **5009** עטרת תפארתכם = 1820 | סוד 1820 · סוד האותיות והמספרים | — | אין | התגית «גאולה» אינה סיווג-רמז (§12.4) |
 
-- קשרים קיימים: בבדיקה תחומה של מטא-דאטה ב-`nodes` לא נמצאה הפניה למזהי הפוסטים האלה. הבדיקה לא כיסתה את קוראי-ההקשר/העולם בקוד, ולכן **אין כאן טענה לגבי היעדר קשר** — נדרשת בדיקת-קשרים לפני כל הצעת-שיוך.
+- קשרים קיימים (נבדק 6.11.2026 בקריאה בלבד, ר' טבלאות `research_objects`/`world_contributor_research_v1` לפי `source_ref`, `post_gematria_links`, `post_qa`, `post_revisions`, `news_ticker*`, `entity_links`, `edges.metadata`, `nodes.metadata`): **5018, 5084 ו-5009** מחוברים לשורת `research_objects` אחת כל אחד במצב `candidate` (`source_ref` = `posts:<id>#…`), שנוצרה ב-backfill של 7.10.2026; **5003 ו-5004 — לא נמצא קשר**. אין edge/entity_link/nodes לאף אחד מהחמישה. ללא שינוי; קשר `candidate` אינו אישור, אינו סדרה ואינו סיווג-רמז (§12.4).
 - אין להכניסם אוטומטית לחלונית-הרמזים. אין למחוק אף פוסט.
 
 ### 12.7 נקודות פתוחות לאישור ZURIEL
 
-1. **DRIFT §5 מול PLAN37:** אילו מתארי-חברות (תג/קטגוריה/מפרסם) קובעים סדרה בפועל. ההצעה: להחליף את §5 בהפניה ל-PLAN37 + `contentSeries2029Identity.js`.
+1. **DRIFT §5 מול PLAN37 — ✅ תוקן בענף (6.11.2026):** §5 הוחלף בהפניה ל-PLAN37 + `contentSeries2029Identity.js`, ללא הגדרה מקבילה. הנוסח הישן נשמר כהיסטוריה. ממתין לאישור מיזוג.
 2. **סדרה לפוסטי-הליבה שלעיל:** האם קיימת להם סדרה מוגדרת, או שהם נשארים תוכן-ליבה ללא סדרה. נדרשת קודם בדיקת-קשרים (§12.6). אין להציע סדרה חדשה בלי צורך מוכח.
-3. **בעלים להסמכת חלונית-הרמזים:** `research_gold_hints_law` מופיע ב-Owner Index כבעל דירוג-בולטות בעולם; לא אומת שהוא חל על החלונית. ההצעה: אישור הבעלים לפני כל מימוש.
+3. **בעלים להסמכת חלונית-הרמזים (נבדק 6.11.2026):** Owner Index אינו מפרט בעלים לחלונית. `research_gold_hints_law` v4 = דירוג בולטות/אצירה בעולם — **לא** הסמכת-כניסה. `reality_stream_law` = זרם התמונות (`gallery_images`, יחידה «רמז»), לא פוסטים. PLAN37 §32.3 מגדיר רק שהסיווג משותף עם סינון הפוסטים ונשאר אצל בעלי המקור/Intake/Graph. **לא נמצא בעלים ייעודי** — נדרשת החלטה: להרחיב בעלים קיים (EXTEND_EXISTING) או לקבוע ש-PLAN37 §32.3 הוא הבית. ללא שדה/חוק חדש לפני החלטה.
 4. **סטייה בין חוזה לקוד (לא שונה כאן):** `src/lib/research/homeLaunchPosts2029.js` בוחר כרטיסי «עכשיו» לפי קטגוריות «תיעוד אירועים» / «רמזים חזקים» / «רמזי הגאולה» (ללא סדרה; כותב ריק או «המערכת»). זה אינו סיווג-רמז לפי §12.5. שינוי הקוד דורש אישור נפרד.
 5. **חוזה Reality Graph:** `reality_graph_law` הוא רשומת DB (`project_codex` id 18), לא קובץ-מקור. ההצעה: תוספת אדיטיבית (גרסה חדשה לפי `rule_versioning`) עם ההבהרה «שכבת קשרים, לא מסווגת רמזים». היא דורשת אישור כתיבה נפרד ולא בוצעה כאן.
 
