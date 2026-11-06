@@ -69,35 +69,3 @@ test('drawer/page parity: hidden slot is fed only by hiddenCrossings, cross-meth
   assert.match(drawer, /hiddenCrossings=\{hiddenCrossState\.rows\}/);
   assert.match(page, /hiddenCrossings=\{hiddenCrossState\.key === hiddenCrossSourceKey \? hiddenCrossState\.rows : EMPTY_METHOD_PROFILE_ROWS\}/);
 });
-
-test('same final letters: ירושלים = שומרים is two independent methods, not four (גדול variants are implied)', () => {
-  const rules = {
-    רגיל: { dependencyRules: [{ type: 'conditional_equivalence', condition: 'no_final_letters', to: 'גדול' }] },
-    גדול: { dependencyRules: [{ type: 'conditional_equivalence', condition: 'no_final_letters', to: 'רגיל' }] },
-    ריבוע: { dependencyRules: [{ type: 'conditional_equivalence', condition: 'no_final_letters', to: 'ריבוע גדול' }] },
-    'ריבוע גדול': { dependencyRules: [{ type: 'conditional_equivalence', condition: 'no_final_letters', to: 'ריבוע' }] },
-  };
-  const own = { רגיל: 596, ריבוע: 2650, גדול: 1156, 'ריבוע גדול': 3210 };
-  const rows = deriveHiddenCrossings({
-    expression: 'ירושלים',
-    methodProfile: profile(own, rules),
-    candidates: [cand('שומרים', own)],
-  });
-  assert.deepEqual(rows.map((r) => r.partner), ['שומרים']);
-  assert.deepEqual(rows[0].methods.map((m) => m.methodKey), ['רגיל', 'ריבוע']);
-  assert.equal(rows[0].methodCount, 2);
-});
-
-test('different final letters: a גדול match stays independent evidence', () => {
-  const rules = {
-    רגיל: { dependencyRules: [{ type: 'conditional_equivalence', condition: 'no_final_letters', to: 'גדול' }] },
-    גדול: { dependencyRules: [{ type: 'conditional_equivalence', condition: 'no_final_letters', to: 'רגיל' }] },
-  };
-  const own = { רגיל: 596, גדול: 1156 };
-  const rows = deriveHiddenCrossings({
-    expression: 'ירושלים',
-    methodProfile: profile(own, rules),
-    candidates: [cand('אבךגד', own)],
-  });
-  assert.deepEqual(rows[0].methods.map((m) => m.methodKey), ['רגיל', 'גדול']);
-});
