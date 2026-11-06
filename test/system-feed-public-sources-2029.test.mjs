@@ -17,6 +17,12 @@ test('gallery activity preserves stream chronology, exact native image source an
  for(const x of[{published:0},{min_tier:1},{curator_hidden:true},{source:'private'},{id:'bad'}])assert.equal(publicGalleryToSystemItem({...g,...x}),null);
  assert.equal(publicGalleryToSystemItem({...g,wp_gallery_id:null}).href,null);
 });
+test('Or HaGeula video pages open from Now by exact UUID only; the collection root, other paths and credentials stay closed',()=>{
+ const id='7b0e6c1a-3f5d-4a52-9c2e-1d8f4b6a9e10';
+ assert.equal(publicNowSourceHref(`https://sod1820.co.il/or-geula/video/${id}`),`/or-geula/video/${id}`);
+ assert.equal(publicNowSourceHref(`/or-geula/video/${id.toUpperCase()}/#source`),`/or-geula/video/${id.toUpperCase()}/#source`);
+ for(const href of['/or-geula','/or-geula/video','/or-geula/video/not-a-uuid',`/or-geula/video/${id}/extra`,`/or-geula/video/${id}?token=x`,`/or-geula/video/${id.slice(0,35)}`,`//outside.invalid/or-geula/video/${id}`,`https://user:pass@sod1820.co.il/or-geula/video/${id}`])assert.equal(publicNowSourceHref(href),null,href);
+});
 test('source URLs retain exact public parameters/anchors and reject private/Legacy landings or credentials',()=>{
  assert.equal(publicNowSourceHref('/?p=34200&part=2&part=7#source'),'/?p=34200&part=2&part=7#source');assert.equal(publicNowSourceHref('/post/public#source'),'/post/public#source');
  for(const href of['/admin','/broadcasts','/archive','/2029/me','/post/public?token=secret','//outside.invalid/post/public','https://user:pass@sod1820.co.il/post/x','/post/%2fprivate'])assert.equal(publicNowSourceHref(href),null,href);
