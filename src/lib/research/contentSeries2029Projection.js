@@ -13,6 +13,19 @@ function isSuppressedPost(row) {
   return hasSuppressedPublicPostTag(row);
 }
 
+// Home entrances to a series' future content families: exact links to existing category pages, or a non-link "coming soon".
+// Never membership, never a selector; a malformed entry is dropped.
+export function seriesHomeFamilies2029(spec) {
+  const seen = new Set();
+  return (Array.isArray(spec?.families) ? spec.families : []).flatMap(family => {
+    const key = clean(family?.key), label = clean(family?.label), category = clean(family?.category);
+    if (!key || !label || seen.has(key)) return [];
+    seen.add(key);
+    return [{ key, label, note: clean(family.note),
+      href: category ? `/2029/posts?category=${encodeURIComponent(category)}` : null }];
+  });
+}
+
 // Home sample of a series. It is returned ONLY when the owner declared an explicit approval and an exact source Post
 // reference; anything else yields null (no sample is shown, never a placeholder). The sample links to its source Post
 // and never creates series membership.
