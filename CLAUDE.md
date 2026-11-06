@@ -43,6 +43,17 @@
 
 מצב המועמד, אישור השער וראיות המיזוג/הפריסה: [המסירה הקיימת למשימה](docs/reviews/main-live-state-reconciliation-20261104/README.md), BEFORE `a89ac5ea-9802-49b2-a101-1786d13acd5f`. זהו קישור לראיות; הוא אינו מקור אמת חלופי או הרשאת פרסום.
 
+## נוהל פריסה ל־Production מסשן ענן — בלי CLI, בלי טוקן (אומת 6.11.2026, `be9b173` / `dpl_HcoHSTtpq6uv6CYkAkrTda8R2H13`)
+
+מיזוג ל־`main` אינו יוצר פריסה. ב־Vercel (פרויקט `sod1820`) מוגדר Ignored Build Step ישן (`main → exit 0`) שמבטל כל בנייה של `main`: גם redeploy, גם `gitSource` רגיל וגם `forceNew` מתבטלים בתוך שניות (`errorLink: ignored-build-step`). מי שמכריז "פרוס" לפני שבדק `readyState` כמה שניות אחרי היצירה טועה. הנוהל המאושר, באישור מפורש של ZURIEL לקומיט ולפריסה מדויקים:
+
+1. **יצירה:** Vercel MCP `create_deployment` עם הבקשה המתועדת ב־[executed-production-request.json](docs/reviews/main-live-state-reconciliation-20261104/live-969-release/executed-production-request.json), עם ה־SHA המדויק במקום `969b514…`: `gitSource` (github, `zuriel337/sod1820`, `ref: main`, `sha`), `target: production`, ו־`projectSettings` (`rootDirectory: public-reading-deploy`, `sourceFilesOutsideRootDirectory: true`, `installCommand`, `buildCommand` עם `--public-production-candidate --review-source=<SHA>`, `outputDirectory: dist`, ו־`commandForIgnoringBuildStep` שמתיר רק `VERCEL_ENV=production` עם ה־SHA המדויק ושומר `main → exit 0` בכל מקרה אחר). לא שולחים PATCH להגדרות הפרויקט.
+2. **המתנה ל־READY:** בודקים `get_deployment` אחרי ~40 שניות. `CANCELED` = ה־Ignored Build Step; לא ממשיכים ולא מנסים שוב באותה צורה.
+3. **דומיינים:** `assign_alias` של `sod1820.co.il`, `www.sod1820.co.il` ו־`sod1820.vercel.app` לפריסה החדשה. READY לבדו לא מזיז דומיינים. חזרה אחורה היא אותו `assign_alias` לפריסה הקודמת (לקרוא אותה מ־`get_alias` לפני ההזזה ולדווח).
+4. **אימות:** מורידים את `/code` מהדומיין החי, מוצאים את ה־chunk הרלוונטי דרך `/assets/2029-*.js` ומוודאים מחרוזת חדשה מהשינוי; אחר כך קנרית (`post-deploy-canary`). מדווחים מה לא נבדק.
+
+האישור אינו עובר מסשן לסשן, ושינוי DB (`apply_migration`) כפוף להודעת האישור של שרת Supabase עצמו: אישור בצ'אט אינו מגיע אליה. שינוי DB מוחל לפני הפריסה שתלויה בו.
+
 ## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
 
 **אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
