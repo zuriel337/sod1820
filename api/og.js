@@ -11,7 +11,7 @@ import { publicPostLinkedMedia } from "../src/lib/research/publicPostSourceLinks
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
 import { hasSuppressedPublicPostTag } from "../src/lib/research/publicPostBoundary.js";
 import { fetchPublicVideo2029 } from "../src/lib/research/publicVideo2029Reading.js";
-import { createVideoAssetReader } from "../src/lib/research/publicVideoAssetReader2029.js";
+import { createVideoAssetReader, createVideoAssetSource, VIDEO_ASSET_MV } from "../src/lib/research/publicVideoAssetReader2029.js";
 // Vercel Serverless Function — הזרקת תגיות Open Graph לכל עמוד עבור רובוטי הרשתות.
 import { resolveResearchObjectPresentation } from '../src/lib/research/researchObjectPresentation.js';
 import { worldFindingShareCard } from '../src/lib/research/worldFindingShare.js';
@@ -219,13 +219,18 @@ const vidUploadIso = (s) => { s = String(s || ''); return /^\d{4}-\d{2}-\d{2}T/.
 // DEF-003: one bounded network read per video asset per request (see publicVideoAssetReader2029.js). Per request on purpose: no state
 // is shared between requests, so a source outage is never masked and a newly published video is visible at once.
 function publicVideoRows(headers) {
-  return createVideoAssetReader({ fetchRows: async (table, params) => {
+  const read = async (table, params) => {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${new URLSearchParams(params)}`, { headers, signal: AbortSignal.timeout(8000) });
-    if (!response.ok) throw new Error('video-source-unavailable');
+    if (!response.ok) {
+      // PostgREST answers 404 (PGRST205) for a relation it does not know: the optional materialized projection before the DB step is applied.
+      throw Object.assign(new Error('video-source-unavailable'), { relationMissing: table === VIDEO_ASSET_MV && response.status === 404 });
+    }
     const rows = await response.json();
     if (!Array.isArray(rows)) throw new Error('video-source-invalid');
     return rows;
-  } });
+  };
+  // Dormant until the DB step is applied AND SOD_VIDEO_ASSETS_MV=1 is set on the project (a production setting that needs its own approval).
+  return createVideoAssetReader({ fetchRows: createVideoAssetSource({ read, preferMaterialized: process.env.SOD_VIDEO_ASSETS_MV === '1' }) });
 }
 
 export default async function handler(req, res) {

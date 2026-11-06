@@ -134,4 +134,16 @@ begin;
   select public.push_subscription_delete_v1('https://push.example.invalid/ep-after');
 rollback;
 
+-- the documented rollback (step 2 and step 1) restores the pre-change access
+\i supabase/proposed/ROLLBACK_20261106121000_def001b.sql
+begin;
+  set local role anon;
+  do $$ begin
+    if (select count(visitor_id) from public.feedback) = 0 then raise exception 'rollback: feedback not readable again'; end if;
+    if (select count(visitor_id) from public.els_records) = 0 then raise exception 'rollback: els_records.visitor_id not readable again'; end if;
+    if (select count(visitor_id) from public.push_subscriptions) = 0 then raise exception 'rollback: push_subscriptions not readable again'; end if;
+  end $$;
+rollback;
+do $$ begin if exists (select 1 from pg_proc where proname like 'push_subscription_%_v1') then raise exception 'rollback left the RPCs behind'; end if; end $$;
+
 \echo DEF-001b SQL regression: PASS

@@ -66,3 +66,35 @@ test("errors and empty answers are never cached; unknown shapes pass straight th
   await reader("home_videos", { select: "id", id: "eq.1" });
   assert.equal(calls.length, before + 3, "everything outside the per-asset pattern is passed through");
 });
+
+import { createVideoAssetSource, VIDEO_ASSET_MV } from "../src/lib/research/publicVideoAssetReader2029.js";
+
+test("materialized projection is preferred; the live view is the fallback for 'relation missing' and for an empty answer, never for other errors", async () => {
+  const calls = [];
+  const q = { select: "public_id", public_id: `eq.${ID}`, limit: "1" };
+  const make = (impl) => createVideoAssetSource({ read: async (table, params) => { calls.push(table); return impl(table, params); } });
+
+  calls.length = 0; // MV answers
+  assert.deepEqual(await make((t) => [asset])("video_media_assets_v1", q), [asset]);
+  assert.deepEqual(calls, [VIDEO_ASSET_MV]);
+
+  calls.length = 0; // MV not created yet (deploy before DB)
+  const missing = make((t) => { if (t === VIDEO_ASSET_MV) throw Object.assign(new Error("x"), { relationMissing: true }); return [asset]; });
+  assert.deepEqual(await missing("video_media_assets_v1", q), [asset]);
+  assert.deepEqual(calls, [VIDEO_ASSET_MV, "video_media_assets_v1"]);
+
+  calls.length = 0; // asset newer than the last refresh: MV empty -> live view decides
+  const fresh = make((t) => (t === VIDEO_ASSET_MV ? [] : [asset]));
+  assert.deepEqual(await fresh("video_media_assets_v1", q), [asset]);
+  assert.deepEqual(calls, [VIDEO_ASSET_MV, "video_media_assets_v1"]);
+
+  calls.length = 0; // outage on the MV is surfaced, not turned into a stampede on the heavy view
+  const down = make(() => { throw new Error("video-source-unavailable"); });
+  await assert.rejects(() => down("video_media_assets_v1", q));
+  assert.deepEqual(calls, [VIDEO_ASSET_MV]);
+
+  calls.length = 0; // other tables and a disabled switch are untouched
+  await make(() => [])("channel_updates", { id: "eq.1" });
+  await createVideoAssetSource({ read: async (t) => { calls.push(t); return [asset]; }, preferMaterialized: false })("video_media_assets_v1", q);
+  assert.deepEqual(calls, ["channel_updates", "video_media_assets_v1"]);
+});

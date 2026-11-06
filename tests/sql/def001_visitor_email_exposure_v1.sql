@@ -201,4 +201,14 @@ create temp table _audit as select * from (
     and p.prorettype <> 'trigger'::regtype) a;
 do $$ begin if exists (select 1 from _audit) then raise exception 'audit: client-executable e-mail reader without caller check: %', (select string_agg(proname, ',') from _audit); end if; end $$;
 
+-- 7. the documented rollback restores the pre-change behaviour (and only then)
+\i supabase/proposed/ROLLBACK_20261106120000_def001.sql
+begin;
+  set local role anon;
+  do $$ begin
+    if public.resolve_visitor_email(null, '11111111-1111-4111-8111-111111111111') is distinct from 'victim@example.invalid' then raise exception 'rollback did not restore resolve_visitor_email'; end if;
+    if public.notification_prefs_guest_get_v1('00000000-0000-4000-8000-0000000000aa') ->> 'email' is distinct from 'guest@example.invalid' then raise exception 'rollback did not restore the guest get payload'; end if;
+  end $$;
+rollback;
+
 \echo DEF-001 SQL regression: PASS
