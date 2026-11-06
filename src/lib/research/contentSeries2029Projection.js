@@ -23,9 +23,17 @@ export function seriesHomeTeaser2029(spec) {
   const post = teaser.sourcePost;
   if (!text || !highlight || !text.includes(highlight) || !/^posts:[1-9]\d*$/.test(sourceRef)
     || String(post?.id) !== sourceRef.slice("posts:".length) || !clean(post?.slug)) return null;
+  // The tile block must be the Post's own, internally consistent quote: single Latin letters with positive integer values that
+  // add up to the stated total, which the highlight names. Anything else hides the sample (never a wrong number).
+  const tiles = Array.isArray(teaser.tiles) ? teaser.tiles : [];
+  const total = Number(teaser.total);
+  const tilesValid = tiles.length > 0 && tiles.every(tile => Array.isArray(tile) && /^[A-Za-z]$/.test(tile[0]) && Number.isInteger(tile[1]) && tile[1] > 0)
+    && Number.isInteger(total) && tiles.reduce((sum, tile) => sum + tile[1], 0) === total && highlight.includes(String(total));
+  if (!tilesValid) return null;
   const href = publicPostHref(post);
   if (!href) return null;
   return { text, highlight, sourceRef, href, sourceTitle: clean(teaser.sourceTitle), methodNote: clean(teaser.methodNote),
+    step: clean(teaser.step), tiles: tiles.map(([letter, value]) => ({ letter, value })), total,
     decisionRef: clean(teaser.approval.decisionRef) };
 }
 

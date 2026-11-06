@@ -137,7 +137,7 @@ test("Home and series entrances do not fetch approved media until its series is 
   for (const sourceSeriesKey of [null, "dimension-five", "unrecognized"]) {
     const fake = reader({ posts: () => ({ data: [], count: 0, error: null }) });
     const result = (await fetchContentSeriesCatalog2029({ client: fake.client, sourceSeriesKey })).byKey[KEY];
-    assert.deepEqual(fake.calls.map(call => call.table), Array(4).fill("posts"));
+    assert.deepEqual(fake.calls.map(call => call.table), Array(CONTENT_SERIES_2029.length).fill("posts"), "one Posts preview per series and no media lookup");
     assert.equal(result.sourcesRequested, false);
     assert.equal(result.sourceTotal, null);
     assert.equal(result.readState, "not_loaded");

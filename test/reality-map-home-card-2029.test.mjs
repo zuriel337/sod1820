@@ -54,6 +54,18 @@ test("loading: the approved sample card is first and static; no series link and 
   await act(async () => { root.unmount(); });
 });
 
+test("the sample renders the Post's own letter tiles and total, with an accessible text, and no free text beyond the quote", async () => {
+  const f = fixture(); let root;
+  await act(async () => { root = Renderer.create(React.createElement(HomeSeriesCards)); });
+  const teaser = cards(root)[0].findAll(node => node.type === "a" && node.props["data-home-series-teaser"])[0];
+  const tiles = teaser.findAll(node => node.type === "i");
+  assert.deepEqual(tiles.map(node => node.children.map(child => typeof child === "string" ? child : child.children.join("")).join("")), ["B2", "E5", "R18", "E5", "S19", "H8", "I9", "T20"]);
+  assert.ok(teaser.findAll(node => node.type === "b").some(node => node.children.join("") === "= 86"));
+  assert.match(teaser.props["aria-label"], /Bereshit = 86/); assert.match(teaser.props["aria-label"], /שבילי שפה/);
+  assert.equal(teaser.findAll(node => node.props["aria-hidden"] === "true").length >= 1, true, "decorative tiles are hidden from assistive tech");
+  await act(async () => { root.unmount(); });
+});
+
 test("loaded without a member: primary first, then the other series in their existing order", async () => {
   const f = fixture(); let root;
   await act(async () => { root = Renderer.create(React.createElement(HomeSeriesCards)); });
