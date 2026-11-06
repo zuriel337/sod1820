@@ -1,8 +1,10 @@
 // One owner for "which vercel.json sources must Edge route legitimacy know?". route-legitimacy.js keeps its hand-written
 // list of App routes; everything that vercel.json already declares (single-segment redirect and 2029 rewrite sources)
-// is DERIVED here into a marked block, so adding a redirect can never again require remembering a second list.
+// is DERIVED here into a marked block, so adding a redirect can never again require remembering a second list. The exact
+// single-segment App routes are derived the same way, from the router itself (src/App2029.jsx, production scope projection).
 import { readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { productionApp2029Source } from "./public-preview-route-scope.mjs";
 
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const read = p => readFileSync(root + p, "utf8");
@@ -26,9 +28,15 @@ const isSingleSegment = p => {
 };
 const decode = p => { try { return decodeURIComponent(p); } catch { return p; } };
 
+// Exact single-segment routes of the 2029 router as it ships in production (no params, no wildcards).
+export function appRoutes() {
+  const source = productionApp2029Source(read("src/App2029.jsx"));
+  return [...source.matchAll(/<Route\s+path="([^"]+)"/g)].map(m => m[1]).filter(isSingleSegment);
+}
+
 export function derivedSources() {
   const matcher = middlewareMatcher();
-  const out = new Set();
+  const out = new Set(appRoutes().map(decode));
   for (const file of CONFIGS) {
     const config = JSON.parse(read(file));
     const sources = [
