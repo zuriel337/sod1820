@@ -49,3 +49,27 @@ export function readingWebVitalBody(body) {
   return p.ratings && !Array.isArray(p.ratings) && Object.keys(p.ratings).sort().join(",") === "cls,fcp,inp,lcp,ttfb"
     && Object.values(p.ratings).every(v => v === null || ["good", "needs_improvement", "poor"].includes(v));
 }
+
+// Research-activity beacon (gematria compute), measurement family 2 of the public-reading telemetry.
+// A closed, content-free schema: it carries no expression, term, value, method, query, hash, route detail,
+// sod_id or persistent identifier. The two UUIDs are random and per-tab/per-event: `activity_session`
+// is never stored beyond the tab session; `activity_event_id` only makes a replay idempotent.
+// This function is serialized into the worker text, so it must stay self-contained.
+export function readingActivityBody(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)
+    || Object.keys(body).sort().join(",") !== "p_app_context,p_event_type,p_is_bot,p_path,p_props,p_session_id,p_sod_id,p_surface"
+    || body.p_sod_id !== null || body.p_session_id !== null || body.p_is_bot !== false
+    || body.p_surface !== "gematria"
+    || !["first_compute", "repeat_compute", "recompute"].includes(body.p_event_type)
+    || !["/gematria", "/community/calculator"].includes(body.p_path)
+    || !["facebook", "instagram", "whatsapp", "telegram", "line", "chrome-ios", "edge", "opera", "firefox", "android-webview", "chrome", "safari", "other"].includes(body.p_app_context)) return false;
+  const p = body.p_props;
+  if (!p || typeof p !== "object" || Array.isArray(p)
+    || Object.keys(p).sort().join(",") !== "activity_event_id,activity_session,entry,length_bucket,schema,surface_kind"
+    || p.schema !== 1
+    || !["direct", "share", "handoff"].includes(p.entry)
+    || !["2-3", "4-8", "9-20", "21+"].includes(p.length_bucket)
+    || !["community", "calculator", "professional"].includes(p.surface_kind)) return false;
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuid.test(p.activity_event_id || "") && uuid.test(p.activity_session || "");
+}

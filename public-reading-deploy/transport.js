@@ -3,7 +3,7 @@ import { readingPersonalResponse } from "./personal-request.js";
 import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.js";
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
 import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
-import { readingTelemetryPath, readingWebVitalBody } from "../src/lib/publicReadingTelemetry2029.js";
+import { readingTelemetryPath, readingWebVitalBody, readingActivityBody } from "../src/lib/publicReadingTelemetry2029.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
 // which records are public. Explicit verified-admin actions retain the existing
@@ -54,6 +54,9 @@ function installPublicReadingWorker(policy) {
     return seen.has("width") || seen.has("height");
   };
   const metricDocuments = new Map();
+  // Research-activity beacon: bounded in-memory replay/rate state (worker lifetime only, never persisted).
+  const activityEvents = new Map();
+  const activityClients = new Map();
   const measurementClient = async event => {
     if (!event.clientId || !["https://sod1820.co.il", "https://www.sod1820.co.il"].includes(self.location.origin)) return null;
     const client = await self.clients.get(event.clientId);
@@ -296,6 +299,32 @@ function installPublicReadingWorker(policy) {
             record.phases.add(body.p_props.phase);
             return readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: `Bearer ${policy.anonKey}`, "Content-Type": "application/json" } }));
           }
+          if (body.p_surface === "gematria") {
+            // Closed content-free compute beacon: exact schema, matching canonical window, anon key only,
+            // one-time event id and a per-window ceiling. No other surface/event reaches ingest_event.
+            if (!readingActivityBody(body) || await measurementClient(event) !== body.p_path || !policy.anonKey) return denied();
+            const now = Date.now();
+            for (const [id, at] of activityEvents) if (now - at > 3600000) activityEvents.delete(id);
+            for (const [client, state] of activityClients) if (now - state.at > 3600000) activityClients.delete(client);
+            const eventId = body.p_props.activity_event_id;
+            // Defence in depth: a random-looking id must never be the signed-in account id (the JWT is stripped below).
+            const bearer = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+            let accountId = null;
+            try { accountId = JSON.parse(atob(bearer.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).sub || null; } catch { accountId = null; }
+            if (accountId && (body.p_props.activity_session === accountId || eventId === accountId)) return denied();
+            if (activityEvents.has(eventId) || activityEvents.size >= 2000) return denied();
+            let state = activityClients.get(event.clientId);
+            if (!state) {
+              if (activityClients.size >= 500) return denied();
+              state = { at: now, windowAt: now, windowCount: 0, total: 0 };
+              activityClients.set(event.clientId, state);
+            }
+            if (now - state.windowAt > 60000) { state.windowAt = now; state.windowCount = 0; }
+            state.windowCount += 1; state.total += 1; state.at = now;
+            if (state.windowCount > 30 || state.total > 500) return denied();
+            activityEvents.set(eventId, now);
+            return readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: `Bearer ${policy.anonKey}`, "Content-Type": "application/json" } }));
+          }
           const fields = ["path","source_href","surface","capability","concept","learn_stage","action_tried","at","locale","viewport","auth","interaction_id","message"];
           if (!["p_event_type,p_is_bot,p_path,p_props,p_sod_id,p_surface", "p_event_type,p_is_bot,p_path,p_props,p_session_id,p_sod_id,p_surface"].includes(Object.keys(body).sort().join(","))
             || body.p_session_id != null && !uuid(body.p_session_id)
@@ -490,7 +519,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingActivityBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 

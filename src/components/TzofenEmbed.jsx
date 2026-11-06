@@ -76,6 +76,9 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   const readyDocumentRef = useRef(null);
   const exactProbeRef = useRef(null);
   const engineRequestsRef = useRef(new Map());
+  // Current UI search (random id + closed-enum kind). It lets the server group the verify calls of one Classic-mode
+  // search without ever receiving the term; it expires after 2 minutes without a new search message.
+  const searchActivityRef = useRef(null);
   useEffect(() => () => { for (const controller of engineRequestsRef.current.values()) controller.abort(); engineRequestsRef.current.clear(); }, []);
   const lastKeyRef = useRef(null);   // זהות-הצופן שנטענה לאחרונה — מונע טעינה-חוזרת מיותרת (סרט חוזר) על שינויי-שדה
   const findingsRef = useRef({ id: null, sig: null });   // 🎯 חתימת-הממצאים — לשליחת update-findings בלי טעינה-מלאה
@@ -388,8 +391,10 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         engineRequestsRef.current.set(requestId, controller);
         try {
           const payload = d.payload && typeof d.payload === "object" ? d.payload : {};
+          const activeSearch = searchActivityRef.current && Date.now() - searchActivityRef.current.at < 120000 ? searchActivityRef.current : null;
           const { data, error } = await supabase.functions.invoke("els-search-bridge", {
-            body: { op, ...payload, interaction_id: newInteractionId() },
+            body: { op, ...payload, interaction_id: newInteractionId(),
+              ...(activeSearch ? { search_id: activeSearch.id, search_kind: activeSearch.kind } : {}) },
             signal: controller.signal,
           });
           if (controller.signal.aborted) return;
@@ -457,6 +462,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         return;
       }
       if (d.type === "search") {
+        searchActivityRef.current = { id: newInteractionId(), kind: ["regular", "cross", "forms"].includes(d.kind) ? d.kind : "unspecified", at: Date.now() };
         try {
           track("els", (d.term || "").slice(0, 80),
             d.kind === "cross" ? "cross_search" : "search",

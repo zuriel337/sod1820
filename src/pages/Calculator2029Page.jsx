@@ -35,6 +35,7 @@ import {
 } from "../lib/research/calculator2029Viral.js";
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
+import { reportReadingCompute } from "../lib/readingActivity2029.js";
 import { applySeo } from "../lib/seo.js";
 import "./calculator2029.css";
 
@@ -351,6 +352,10 @@ function CalculatorExperience() {
           },
         });
       } else {
+        // Public-reading compute metric (content-free beacon). Restore/seed paths never reach this branch.
+        if (method && isReportableValue(method.computedValue)) {
+          reportReadingCompute({ expression: phrase, entry: arrivalShareIdRef.current ? "share" : "direct", surfaceKind: "calculator" });
+        }
         if (!firstComputeRef.current) {
           firstComputeRef.current = true;
           emit("calculator_2029", "first_compute", {

@@ -1,3 +1,5 @@
+import { elsActivityDescriptor } from "./activity.js";
+
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
@@ -247,6 +249,10 @@ Deno.serve(async (req: Request) => {
     after_start: body?.after_start ?? null,
     after_dir: body?.after_dir ?? null,
   }));
+  // Content-free activity label stored in the engine span's `resources` (no term, result, coordinate or identity).
+  // A page call without any continuation cursor opens a search; the capability name/gate input are unchanged.
+  const pageCursorCount = [body?.after_skip, body?.after_start, body?.after_dir].filter(x => intOrNull(x) != null).length;
+  const activity = elsActivityDescriptor(op, body, pageCursorCount);
   const trace = await traceBegin(userId ? "user" : "anon", op, inputHash, safeInteractionId(body?.interaction_id));
   // Fail closed: the gate decision must be witnessed by a server-issued trace root.
   if (!trace) return json({ error: "trace_unavailable" }, 503);
@@ -304,7 +310,7 @@ Deno.serve(async (req: Request) => {
         capability: "els:verify_batch",
         owner_ref: "els_research_layer_law v9",
         output_use: "used",
-        resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)), candidates: batchCandidates.length },
+        resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)), candidates: batchCandidates.length, els_activity: activity },
         cost: { certainty: "not_billable" },
         replay: { inputRef: `sha256:${inputHash}`, ownerRuleRefs: ["els_research_layer_law v9", "els_single_engine_law v2"] },
         privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
@@ -331,7 +337,7 @@ Deno.serve(async (req: Request) => {
         capability: "els:verify",
         owner_ref: "els_research_layer_law v9",
         output_use: "used",
-        resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)) },
+        resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)), els_activity: activity },
         cost: { certainty: "not_billable" },
         replay: { inputRef: `sha256:${inputHash}`, ownerRuleRefs: ["els_research_layer_law v9", "els_single_engine_law v2"] },
         privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },
@@ -378,7 +384,7 @@ Deno.serve(async (req: Request) => {
       capability: "els:page",
       owner_ref: "els_research_layer_law v9",
       output_use: "used",
-      resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)) },
+      resources: { rpc_calls: 1, latency_ms: Math.max(0, Date.parse(endedAt) - Date.parse(startedAt)), els_activity: activity },
       cost: { certainty: "not_billable" },
       replay: { inputRef: `sha256:${inputHash}`, ownerRuleRefs: ["els_research_layer_law v9", "els_single_engine_law v2"] },
       privacy: { redactionApplied: true, rawPrivatePayloadLogged: false },

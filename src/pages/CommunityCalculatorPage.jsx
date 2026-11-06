@@ -11,6 +11,7 @@ import { engName, AI_ENGINES } from "../lib/aiEngines.js";
 import { applySeo, SITE_URL } from "../lib/seo.js";
 import { waHref } from "../lib/share.js";
 import { track } from "../lib/tracking.js";
+import { reportReadingCompute } from "../lib/readingActivity2029.js";
 import { calculateGematriaEnvelope } from "../lib/research/gematriaCalculationContract.js";
 import { fetchGematriaMethodStates } from "../lib/research/gematriaMethodRegistry.js";
 import VisitorSearchesBox from "../components/VisitorSearchesBox.jsx";
@@ -388,6 +389,20 @@ export default function CommunityCalculatorPage({
     }, 900);
     return () => clearTimeout(t);
   }, [name1, r1?.value, passive, actionsLocked]); // eslint-disable-line
+
+  // 📊 Public-reading compute metric (content-free beacon, single source for the 2029 community calculator).
+  // Independent of `passive`/`actionsLocked`: those lock saves/AI, not measurement of a plain read-only compute.
+  // A URL/share seed present at mount is "seeded" and never reported; only a later settled word is a compute.
+  const beaconSeed = useRef((initialState?.name1 || sharedSeed || "").trim());
+  const beaconEntry = useRef(sharedSeed ? "share" : "direct"); // fixed at arrival: `fromShare` is never set in the 2029 render path
+  useEffect(() => {
+    const word = name1.trim();
+    if (!renderCalculator || !r1 || onlyHeb(word).length < 2 || word === beaconSeed.current) return undefined;
+    const t = setTimeout(() => {
+      reportReadingCompute({ expression: word, entry: beaconEntry.current, surfaceKind: "community" });
+    }, 900);
+    return () => clearTimeout(t);
+  }, [name1, r1?.value]); // eslint-disable-line
 
   // ✦ חיבור לסוד 1820 — האם השם פוגע במספר-גאולה באחת מהשיטות הזמינות
   const geula = useMemo(() => {
