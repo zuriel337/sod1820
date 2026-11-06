@@ -2,7 +2,7 @@
 // verify_jwt=false on purpose: guests read the community. Safety: https only, default port, DNS must resolve ONLY to public addresses
 // (re-checked on every redirect hop, max 3), 4s timeout, 256KB read cap, text/html only, no cookies/credentials sent, no body
 // returned to the client except the parsed title/description/site/image. Nothing is stored.
-import { isPublicIp, parsePublicHttpsUrl, parseOpenGraph } from "../_shared/linkPreviewCore.js";
+import { isPublicIp, parsePublicHttpsUrl, parseOpenGraph, decodeHtmlBytes } from "../_shared/linkPreviewCore.js";
 
 const CORS = {
   "access-control-allow-origin": "*",
@@ -50,7 +50,7 @@ async function fetchHtml(start: URL): Promise<{ html: string; finalUrl: URL } | 
       try { await reader.cancel(); } catch { /* already closed */ }
       const all = new Uint8Array(size); let off = 0;
       for (const c of chunks) { all.set(c, off); off += c.length; }
-      return { html: new TextDecoder("utf-8", { fatal: false }).decode(all), finalUrl: url };
+      return { html: decodeHtmlBytes(all, res.headers.get("content-type")), finalUrl: url };
     } catch { return null; } finally { clearTimeout(timer); }
   }
   return null;

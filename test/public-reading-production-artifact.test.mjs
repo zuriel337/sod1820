@@ -288,6 +288,24 @@ test("emitted worker retains public calculator/STABLE GET/community projection r
   assert.ok(harness.calls.every(([request, options]) => request instanceof Request ? request.cache === "no-store" && request.credentials === "omit" : options.cache === "no-store"));
 });
 
+test("emitted worker admits the exact community_search request and nothing wider", async () => {
+  const harness = workerHarness(), select = "/rest/v1/rpc/community_search?select=" + encodeURIComponent(COMMUNITY_PUBLIC_FIELDS);
+  const search = (body, path = select) => harness.request(path, { body: JSON.stringify(body) });
+  assert.equal((await search({ p_query: "משיח", p_offset: 0, p_limit: 20 })).status, 200);
+  assert.equal((await search({ p_query: "משיח", p_offset: 20, p_limit: 50 })).status, 200);
+  assert.equal(harness.calls.length, 2);
+  const before = harness.calls.length;
+  for (const body of [
+    { p_query: "א", p_offset: 0, p_limit: 20 }, { p_query: " ב ", p_offset: 0, p_limit: 20 }, { p_query: "x".repeat(81), p_offset: 0, p_limit: 20 },
+    { p_query: 5, p_offset: 0, p_limit: 20 }, { p_query: "משיח", p_offset: -1, p_limit: 20 }, { p_query: "משיח", p_offset: 1000001, p_limit: 20 },
+    { p_query: "משיח", p_offset: 0, p_limit: 0 }, { p_query: "משיח", p_offset: 0, p_limit: 51 }, { p_query: "משיח", p_offset: "0", p_limit: 20 },
+    { p_query: "משיח", p_offset: 0 }, { p_query: "משיח", p_offset: 0, p_limit: 20, extra: true }, {},
+  ]) assert.equal((await search(body)).status, 403, JSON.stringify(body));
+  assert.equal((await search({ p_query: "משיח", p_offset: 0, p_limit: 20 }, "/rest/v1/rpc/community_search?select=*")).status, 403);
+  assert.equal((await search({ p_query: "משיח", p_offset: 0, p_limit: 20 }, "/rest/v1/rpc/community_search")).status, 403);
+  assert.equal(harness.calls.length, before);
+});
+
 test("language-link reader admits approved-only scope and denies visitor drafts before any network call", async () => {
   const harness = workerHarness();
   for (const body of ["{}", '{"p_visitor":null}', '{"p_visitor":""}']) {
