@@ -213,8 +213,12 @@ test('posts, ELS, calculator and Number are reachable on mobile', async ({ page 
   await page.goto(`${BASE}/2029/posts`, { waitUntil: 'domcontentloaded' });
   await expect(page.locator('[data-experience-surface="posts-index"]')).toBeVisible();
   await page.goto(`${BASE}/els`, { waitUntil: 'domcontentloaded' });
-  // Guided opens with its actual story entry; no result/matrix is invented
-  // before explicit intent. Classic still exposes the existing local query.
+  // ZURIEL 6.11: ELS opens in Research for everyone. The existing local query is there at once and the story entry of
+  // Guided does not appear by default; Guided stays reachable by explicit request, still with no invented result/matrix.
+  await expect(page.getByRole('button', { name: 'מחקר', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#els29-query input').first()).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'הסיפור לגילוי מודרך', exact: true })).toHaveCount(0);
+  await page.goto(`${BASE}/els?mode=guided`, { waitUntil: 'domcontentloaded' });
   await expect(page.getByRole('textbox', { name: 'הסיפור לגילוי מודרך', exact: true })).toBeVisible();
   await expect(page.locator('[data-els-2029-surface="v1"]')).toBeHidden();
   await page.getByRole('button', { name: 'קלאסי', exact: true }).click();
