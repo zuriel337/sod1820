@@ -25,6 +25,7 @@ await build({ stdin: { contents: `
   const PublicationTime = () => React.createElement('time');
   const UpdatedTime = () => null;
   const nowModels = () => [];
+  const SeriesBell2029 = ({seriesKey}) => React.createElement('i', {'data-bell': seriesKey});
   const relativeTimeLabel = () => '';
   const Section = ({title, link, children, className}) => React.createElement('section', {className, 'aria-label': title}, link, children);
   ${components}
@@ -137,7 +138,7 @@ test("hierarchy: logo and identity, then the title, then the leading sample, the
   await act(async () => { root = Renderer.create(React.createElement(HomeSeriesCards)); });
   await act(async () => { f.calls[0].resolve(catalog([item("reality-map", 3, { publishedAt: "2026-11-05T00:00:00Z" }), item("reality-map", 2, { publishedAt: "2026-11-03T00:00:00Z" })])); });
   const article = root.root.findAll(node => node.type === "article" && node.props["data-home-series-primary"] === "true")[0];
-  const order = article.findAll(node => node.parent === article && (node.props["data-home-rm-identity"] || node.props["data-home-series-teaser"] || node.props["data-home-rm-products"] || node.props["data-home-series-families"] || /h29-rm-title/.test(String(node.props.className))))
+  const order = article.findAll(node => node.parent === article && (node.props["data-home-rm-identity"] || node.props["data-home-series-teaser"] || node.props["data-home-rm-products"] || node.props["data-home-series-families"] || /h29-series-head/.test(String(node.props.className))))
     .map(node => node.props["data-home-rm-identity"] ? "identity" : node.props["data-home-series-teaser"] ? "sample" : node.props["data-home-rm-products"] ? "products" : node.props["data-home-series-families"] ? "families" : "title");
   assert.deepEqual(order, ["identity", "title", "sample", "products", "families"]);
   const logo = article.findAll(node => node.type === "img" && /h29-rm-logo/.test(String(node.props.className)))[0];
