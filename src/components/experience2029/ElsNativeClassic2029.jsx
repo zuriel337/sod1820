@@ -1701,7 +1701,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             aria-expanded={researchToolsOpen} aria-controls="els29-research-tools"
             onClick={() => { setLexiconVisited(true); setResearchToolsOpen(value => !value); }}>
             <NavigationIcon2029 name="tools" />
-            <span className="els29-research-entry-copy"><strong>כלי מחקר</strong><span>גילוי וקשרים במטריצה · ללא AI</span></span>
+            <span className="els29-research-entry-copy"><strong>כלי מחקר <em className="els29-research-badge">מצב מחקר</em></strong><span>גילוי וקשרים במטריצה · ללא AI</span></span>
             <span className="els29-research-entry-state" aria-hidden="true">{researchToolsOpen ? "סגור" : "פתח"}</span>
           </button>
           <div id="els29-research-tools" hidden={!researchToolsOpen}>
