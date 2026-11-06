@@ -11,6 +11,7 @@ import { publicPostLinkedMedia } from "../src/lib/research/publicPostSourceLinks
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
 import { hasSuppressedPublicPostTag } from "../src/lib/research/publicPostBoundary.js";
 import { fetchPublicVideo2029 } from "../src/lib/research/publicVideo2029Reading.js";
+import { createVideoAssetReader } from "../src/lib/research/publicVideoAssetReader2029.js";
 // Vercel Serverless Function — הזרקת תגיות Open Graph לכל עמוד עבור רובוטי הרשתות.
 import { resolveResearchObjectPresentation } from '../src/lib/research/researchObjectPresentation.js';
 import { worldFindingShareCard } from '../src/lib/research/worldFindingShare.js';
@@ -214,6 +215,18 @@ function launchGateForPath(path) {
 const ogVideoType = (u = '') => /\.webm/i.test(u) ? 'video/webm' : /\.mov/i.test(u) ? 'video/quicktime' : /\.m4v/i.test(u) ? 'video/x-m4v' : 'video/mp4';
 // uploadDate ל-VideoObject — ISO 8601 עם אזור-זמן (created_at מ-REST כבר תקין; date-only → חצות UTC)
 const vidUploadIso = (s) => { s = String(s || ''); return /^\d{4}-\d{2}-\d{2}T/.test(s) ? s : (/^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) + 'T00:00:00+00:00' : undefined); };
+
+// DEF-003: one bounded network read per video asset per request (see publicVideoAssetReader2029.js). Per request on purpose: no state
+// is shared between requests, so a source outage is never masked and a newly published video is visible at once.
+function publicVideoRows(headers) {
+  return createVideoAssetReader({ fetchRows: async (table, params) => {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${new URLSearchParams(params)}`, { headers, signal: AbortSignal.timeout(8000) });
+    if (!response.ok) throw new Error('video-source-unavailable');
+    const rows = await response.json();
+    if (!Array.isArray(rows)) throw new Error('video-source-invalid');
+    return rows;
+  } });
+}
 
 export default async function handler(req, res) {
   const productionReading = req.publicReadingProductionArtifact === true && req.publicReadingRelease === PUBLIC_READING_PROFILE_ID;
@@ -729,13 +742,7 @@ export default async function handler(req, res) {
       try {
         let v;
         if (req.publicReadingRelease === PUBLIC_READING_PROFILE_ID) {
-          v = await fetchPublicVideo2029(assetId, { readRows: async (table, params) => {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${new URLSearchParams(params)}`, { headers: ogHeaders });
-            if (!response.ok) throw new Error('video-source-unavailable');
-            const rows = await response.json();
-            if (!Array.isArray(rows)) throw new Error('video-source-invalid');
-            return rows;
-          } });
+          v = await fetchPublicVideo2029(assetId, { readRows: publicVideoRows(ogHeaders) });
         } else {
           // Legacy metadata retains its existing reader and behavior.
           const r = await fetch(`${SUPABASE_URL}/rest/v1/video_media_assets_v1?public_id=eq.${encodeURIComponent(assetId)}&select=public_id,title,video_kind,media_url,youtube_id,poster_url,thumb_url,topics,google_indexable,first_seen_at,last_seen_at&limit=1`, { headers: ogHeaders });
