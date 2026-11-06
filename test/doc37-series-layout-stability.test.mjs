@@ -46,7 +46,7 @@ test("all canonical entrances are usable before metadata, and metadata adds no n
   assert.equal(initial.length, CONTENT_SERIES_2029.length, "one entrance per canonical series (reality-map is first; the others keep their order)");
   assert.deepEqual(initial.map(link => link.title), CONTENT_SERIES_2029.map(spec => spec.label));
   assert.deepEqual(initial.map(link => link.href), CONTENT_SERIES_2029.map(spec => `/2029/posts?series=${spec.key}`));
-  assert.equal(initial.find(link => link.current === "page").title, "מסרים מצדיקים");
+  assert.equal(initial.find(link => link.current === "page").title, "מסרים");
   assert.equal(f.calls.length, 1); assert.equal(f.calls[0].limitPerSeries, 1);
   assert.equal(f.calls[0].sourceSeriesKey, "messages-from-righteous");
   assert.equal(reads[0].loading, true);

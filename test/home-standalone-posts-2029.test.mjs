@@ -26,7 +26,7 @@ const shapes = {
   seriesD5: row(6002, { categories: ["מימד חמש"], author: "בדרך לנצח", date: "2026-11-02T00:00:00Z" }),
   seriesMkb: row(6003, { tags: ["מה קורה הבורא"], author: "אלון לוי", date: "2026-11-02T00:00:00Z" }),
   seriesHashmal: row(6004, { categories: ["סוד החשמל"], date: "2026-11-02T00:00:00Z" }),
-  seriesMessages: row(6005, { categories: ["מסרים מצדיקים"], date: "2026-11-02T00:00:00Z" }),
+  seriesMessages: row(6005, { categories: ["רמזים מצדיקים"], date: "2026-11-02T00:00:00Z" }),
   orphanD5Doc: row(2, { categories: ["מסרים", "מימד חמש", "תיעוד אירועים"], author: "", date: "2026-10-31T00:00:00Z" }),
 };
 

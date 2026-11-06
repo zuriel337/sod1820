@@ -46,7 +46,7 @@ test("existing series membership is unchanged by the new series", () => {
   assert.deepEqual(contentSeriesKeysForPost(row(20, { author: "בדרך לנצח", categories: ["מימד חמש"] })), ["dimension-five"]);
   assert.deepEqual(contentSeriesKeysForPost(row(21, { author: "אלון לוי", tags: ["מה קורה הבורא"] })), ["mah-kore-habora"]);
   assert.deepEqual(contentSeriesKeysForPost(row(22, { categories: ["סוד החשמל"] })), ["sod-hashmal"]);
-  assert.deepEqual(contentSeriesKeysForPost(row(23, { categories: ["מסרים מצדיקים"] })), ["messages-from-righteous"]);
+  assert.deepEqual(contentSeriesKeysForPost(row(23, { categories: ["רמזים מצדיקים"] })), ["messages-from-righteous"]);
   // Non-member shapes stay non-members.
   assert.deepEqual(contentSeriesKeysForPost(row(24, { categories: ["מימד חמש"], author: "מדריך לריפוי 10 הספירות" })), []);
   assert.deepEqual(contentSeriesKeysForPost(row(25, { categories: ["תיעוד אירועים"] })), []);
@@ -70,8 +70,16 @@ test("the Home sample is shown only with an explicit approval, an exact source r
   assert.equal(teaser.href, "/post/chibur-bein-hasafot-mafteach-lagan", "links to the source Post, not to the series");
   assert.ok(teaser.text.includes(teaser.highlight) && teaser.highlight === "Bereshit = 86");
   assert.match(teaser.methodNote, /כפי שמופיע בפוסט/, "the Post's own claim, not an SOD1820 computation");
+  assert.deepEqual(teaser.tiles.map(tile => [tile.letter, tile.value]), [["B", 2], ["E", 5], ["R", 18], ["E", 5], ["S", 19], ["H", 8], ["I", 9], ["T", 20]], "the Post's own tile block");
+  assert.equal(teaser.total, 86); assert.equal(teaser.tiles.reduce((sum, tile) => sum + tile.value, 0), teaser.total);
+  assert.match(teaser.step, /A=1 … Z=26/);
   const base = spec.teaser;
   const variants = [
+    { ...base, total: 87 }, { ...base, tiles: [] }, { ...base, tiles: undefined },
+    { ...base, tiles: [["B", 2], ["E", 5], ["R", 18], ["E", 5], ["S", 19], ["H", 8], ["I", 9], ["T", 21]] },
+    { ...base, tiles: [["ב", 2], ["E", 5], ["R", 18], ["E", 5], ["S", 19], ["H", 8], ["I", 9], ["T", 20]] },
+    { ...base, tiles: [["B", 2.5], ["E", 4.5], ["R", 18], ["E", 5], ["S", 19], ["H", 8], ["I", 9], ["T", 20]] },
+    { ...base, highlight: "Bereshit = 85", text: "x Bereshit = 85" },
     { ...base, approval: { ...base.approval, status: "proposed" } },
     { ...base, approval: { status: "approved" } },
     { ...base, approval: undefined },
