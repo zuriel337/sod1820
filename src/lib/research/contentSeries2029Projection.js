@@ -281,13 +281,17 @@ export async function fetchContentSeriesCatalog2029({
   homeOnly = false,
   signal,
   sourceSeriesKey = null,
+  primaryLimit = null,
 } = {}) {
   const limit = Math.max(1, Math.min(Number(limitPerSeries) || 4, 12));
+  // The primary series (reality-map) may be read deeper than the others in the SAME single read per series (Home's flagship
+  // list). Every other series keeps `limit`; membership, ordering and the public boundary are unchanged.
+  const limitFor = spec => spec.priorityLane === "primary" && Number(primaryLimit) > 0 ? Math.max(limit, Math.min(Math.floor(Number(primaryLimit)), 24)) : limit;
   canceled(signal);
   const results = await Promise.all(CONTENT_SERIES_2029.map(async spec => {
     const sourcesRequested = sourceSeriesKey === spec.key && Boolean(spec.approvedSources?.length);
     const [posts, sources] = await Promise.all([
-      fetchSeriesPreview(spec, { client, limit, homeOnly, signal }).catch(error => {
+      fetchSeriesPreview(spec, { client, limit: limitFor(spec), homeOnly, signal }).catch(error => {
         if (signal?.aborted) throw error;
         return { key: spec.key, rows: [], total: null, failed: true };
       }),

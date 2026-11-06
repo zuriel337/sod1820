@@ -20,7 +20,7 @@ import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
 import { publicPostHref, postAddressSlug } from "../../lib/publicPostUrls.js";
-import { HOME_ATMOSPHERE_2029 } from "../../lib/brandAssets2029.js";
+import { BRAND_LOCKUP_NAV_2029, HOME_ATMOSPHERE_2029 } from "../../lib/brandAssets2029.js";
 import { PUBLIC_READING_RELEASE } from "../../lib/publicReadingRelease2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";
@@ -158,29 +158,47 @@ function SeriesLatestItem({ item, series }) {
   </Link>;
 }
 
-// The primary series card (מפת המציאות): full row, compact, with an approved sample linked to its source Post.
-// It is never an empty card: without a member and without an approved sample it renders nothing. The series page
-// link appears only once the series has a member to show, so it never leads to an empty page.
+// How many flagship products the Home list reads (one read, the series' own membership: the exact tag only).
+const REALITY_MAP_LIST_LIMIT = 20;
+
+// The primary series region (מפת המציאות): a branded, compact royal region for our own content. Hierarchy: logo and identity,
+// the title, the leading sample (kept first, never part of the list), then the flagship products. It is never empty: without a
+// member and without an approved sample it renders nothing; the series page link and the products list appear only once the
+// series has a member, so they never lead to an empty page. The list is the series' exact-tag membership, newest first by the
+// Post's publication date; nothing is admitted by title, author or category.
 function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
-  const item = series?.items?.[0] || null;
-  if (!teaser && !item) return null;
+  const items = Array.isArray(series?.items) ? series.items : [];
+  if (!teaser && !items.length) return null;
   const seriesHref = `/2029/posts?series=${encodeURIComponent(spec.key)}`;
-  const open = Boolean(item);
-  return <article className="h29-series-card is-primary" data-home-series={spec.key} data-home-series-primary="true">
-    {open ? <Link className="h29-series-name" to={seriesHref}>{spec.label}</Link> : <h3 className="h29-series-name">{spec.label}</h3>}
-    <div className="h29-primary-body">
-      {teaser ? <Link className="h29-series-teaser h29-card-open" to={teaser.href} data-home-series-teaser={teaser.sourceRef} aria-label={`${teaser.text}. מתוך הפוסט: ${teaser.sourceTitle}`}>
-        <span className="h29-teaser-kicker">דוגמית מהסדרה{teaser.step ? ` · ${teaser.step}` : ""}</span>
-        <span className="h29-teaser-tiles" dir="ltr" aria-hidden="true">
-          {teaser.tiles.map((tile, index) => <i key={index} style={{ "--i": index }}>{tile.letter}<small>{tile.value}</small></i>)}
-          <b className="h29-teaser-total">= {teaser.total}</b>
-        </span>
-        <strong className="h29-teaser-line" aria-hidden="true"><bdi dir="ltr">{teaser.highlight}</bdi></strong>
-        <small className="h29-teaser-source" aria-hidden="true">מתוך הפוסט: {teaser.sourceTitle}{teaser.methodNote ? ` · ${teaser.methodNote}` : ""}</small>
-      </Link> : null}
-      {item ? <SeriesLatestItem item={item} series={series} /> : null}
-    </div>
-    {open ? <Link className="h29-series-more" to={seriesHref}>לפתוח את הסדרה ←</Link> : null}
+  const open = items.length > 0;
+  const total = Number.isFinite(Number(series?.total)) ? Number(series.total) : items.length;
+  return <article className={`h29-series-card is-primary h29-rm${open ? " has-list" : ""}`} data-home-series={spec.key} data-home-series-primary="true">
+    <header className="h29-rm-id" data-home-rm-identity="true">
+      <img className="h29-rm-logo" src={BRAND_LOCKUP_NAV_2029.src} width={BRAND_LOCKUP_NAV_2029.width} height={BRAND_LOCKUP_NAV_2029.height} alt="" decoding="async" draggable="false" />
+      <span className="h29-rm-brand"><b>כי לה׳ המלוכה</b><small>סוד 1820 · התוכן המקורי שלנו</small></span>
+    </header>
+    {open ? <Link className="h29-series-name h29-rm-title" to={seriesHref}>{spec.label}</Link> : <h3 className="h29-series-name h29-rm-title">{spec.label}</h3>}
+    {teaser ? <Link className="h29-series-teaser h29-card-open" to={teaser.href} data-home-series-teaser={teaser.sourceRef} aria-label={`${teaser.text}. מתוך הפוסט: ${teaser.sourceTitle}`}>
+      <span className="h29-teaser-kicker">דוגמית מהסדרה{teaser.step ? ` · ${teaser.step}` : ""}</span>
+      <span className="h29-teaser-tiles" dir="ltr" aria-hidden="true">
+        {teaser.tiles.map((tile, index) => <i key={index} style={{ "--i": index }}>{tile.letter}<small>{tile.value}</small></i>)}
+        <b className="h29-teaser-total">= {teaser.total}</b>
+      </span>
+      <strong className="h29-teaser-line" aria-hidden="true"><bdi dir="ltr">{teaser.highlight}</bdi></strong>
+      <small className="h29-teaser-source" aria-hidden="true">מתוך הפוסט: {teaser.sourceTitle}{teaser.methodNote ? ` · ${teaser.methodNote}` : ""}</small>
+    </Link> : null}
+    {open ? <section className="h29-rm-products" aria-label="מוצרי הדגל" data-home-rm-products="true">
+      <h4>מוצרי הדגל<small>{total}</small></h4>
+      <ol className="h29-rm-list" tabIndex={0} aria-label="מוצרי הדגל במפת המציאות, מהחדש לישן">
+        {items.map(item => <li key={item.sourceRef || item.id}>
+          <Link className="h29-rm-item" to={item.href} data-home-rm-item={item.id}>
+            <Media src={item.imageUrl} fallback="✦" className="h29-rm-thumb" />
+            <span><strong>{item.title}</strong><small>פוסט {item.id} · <PublicationTime at={item.publishedAt} /></small></span>
+          </Link>
+        </li>)}
+      </ol>
+      <Link className="h29-series-more" to={seriesHref}>לכל הפוסטים בסדרה ←</Link>
+    </section> : null}
     {families.length ? <nav className="h29-fam" aria-label="משפחות תוכן במפת המציאות" data-home-series-families="true">
       {families.map(family => family.href
         ? <Link key={family.key} to={family.href} data-home-family={family.key}>{family.label}{family.note ? <small>{family.note}</small> : null}</Link>
@@ -193,7 +211,7 @@ function HomeSeriesCards() {
   const [state, setState] = useState({ series: [], loading: true, failed: false });
   useEffect(() => {
     const controller = new AbortController();
-    fetchContentSeriesCatalog2029({ limitPerSeries: 1, homeOnly: true, signal: controller.signal })
+    fetchContentSeriesCatalog2029({ limitPerSeries: 1, homeOnly: true, primaryLimit: REALITY_MAP_LIST_LIMIT, signal: controller.signal })
       .then(result => { if (!controller.signal.aborted) setState({ series: result.series, loading: false, failed: false }); })
       .catch(() => { if (!controller.signal.aborted) setState({ series: [], loading: false, failed: true }); });
     return () => controller.abort();
@@ -218,15 +236,16 @@ function HomeSeriesCards() {
   </Section>;
 }
 
-// "מחקרים ותוכן נוסף": public Posts in no series and not in the "עכשיו" pool (exact complement, shared predicates), after the
-// series and the lead. It forces no series membership, is read only once its section approaches, never repeats an item
-// already shown by another Home source, and renders nothing (no empty strip, no error) when there is nothing to show.
+// "פוסטים אחרונים": the newest public Posts that are in no series and not in the "עכשיו" pool (exact complement, shared
+// predicates), after the series and the lead. A secondary, compact area: it forces no series membership, is read only once
+// it approaches, never repeats an item already shown by another Home source, and renders nothing (no empty area, no error)
+// when there is nothing to show.
 function HomeStandalonePosts({ exclude, admitted, admissionRef }) {
   const [state, setState] = useState({ posts: [], loading: true });
   useEffect(() => {
     if (!admitted) return undefined;
     const controller = new AbortController();
-    getHomeStandalonePostCards({ limit: 12, signal: controller.signal })
+    getHomeStandalonePostCards({ limit: HOME_STANDALONE_LIMIT + 8, signal: controller.signal })
       .then(posts => { if (!controller.signal.aborted) setState({ posts, loading: false }); })
       .catch(() => { if (!controller.signal.aborted) setState({ posts: [], loading: false }); });
     return () => controller.abort();
@@ -234,15 +253,16 @@ function HomeStandalonePosts({ exclude, admitted, admissionRef }) {
   const shown = useMemo(() => state.posts.filter(post => !exclude.has(String(post.slug)) && !exclude.has(String(post.id))).slice(0, HOME_STANDALONE_LIMIT), [state.posts, exclude]);
   const pending = !admitted || state.loading;
   if (!pending && !shown.length) return null;
-  return <Section title="מחקרים ותוכן נוסף" className="h29-standalone-section" admissionRef={admissionRef} link={<Link to="/2029/posts">לכל הפוסטים ←</Link>}>
-    <div className="h29-series-grid h29-standalone-grid" aria-busy={pending} data-home-standalone="true">
-      {pending ? Array.from({ length: HOME_STANDALONE_LIMIT }, (_, i) => <div className="h29-series-card h29-skel" key={i} aria-hidden="true" />)
-        : shown.map(post => <article className="h29-series-card h29-standalone-card" data-home-standalone-post={post.slug} key={post.id}>
-          <Link className="h29-series-item h29-card-open" to={postHref(post.sourcePost)}>
-            <Media src={post.poster} fallback="✦" /><span><strong>{clean(post.title)}</strong><small>{post.author || "פוסט"}</small><PublicationTime at={post.publishedAt} /></span>
+  return <Section title="פוסטים אחרונים" className="h29-recent-section" admissionRef={admissionRef} link={<Link to="/2029/posts">לכל הפוסטים ←</Link>}>
+    <ul className="h29-recent-list" aria-busy={pending} data-home-standalone="true">
+      {pending ? Array.from({ length: HOME_STANDALONE_LIMIT }, (_, i) => <li className="h29-recent-item h29-skel" key={i} aria-hidden="true" />)
+        : shown.map(post => <li className="h29-recent-item" data-home-standalone-post={post.slug} key={post.id}>
+          <Link to={postHref(post.sourcePost)}>
+            <Media src={post.poster} fallback="✦" className="h29-recent-thumb" />
+            <span><strong>{clean(post.title)}</strong>{post.excerpt ? <small className="h29-recent-excerpt">{post.excerpt}</small> : null}<PublicationTime at={post.publishedAt} /></span>
           </Link>
-        </article>)}
-    </div>
+        </li>)}
+    </ul>
   </Section>;
 }
 
