@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { isPublicIp, parsePublicHttpsUrl, parseOpenGraph } from "../supabase/functions/_shared/linkPreviewCore.js";
+import { isPublicIp, parsePublicHttpsUrl, parseOpenGraph, decodeHtmlBytes, detectHtmlCharset } from "../supabase/functions/_shared/linkPreviewCore.js";
 import { fetchLinkPreview, normalizeLinkPreview, _resetLinkPreviewCache } from "../src/lib/community/linkPreviewClient.js";
 
 test("SSRF: private, loopback, link-local, metadata and reserved addresses are never public", () => {
@@ -66,4 +66,23 @@ test('the preview service only fetches an address that a member posted in a publ
   assert.match(fn, /research_contributions\?select=id&status=eq\.approved&deleted_at=is\.null&origin=in\.\(openweb,community_2029\)/);
   const card = readFileSync(new URL('../src/components/community2029/CommunityMessageContent.jsx', import.meta.url), 'utf8');
   assert.match(card, /if \(draft\) return undefined;/);
+});
+
+test("charset: windows-1255 pages (rotter.net) decode to readable Hebrew; UTF-8 and unknown labels stay safe", () => {
+  const hebrew = "בדיקה: משיח בא"; // every letter has a windows-1255 byte (0xE0 + index of the letter)
+  const letters = "אבגדהוזחטיךכלםמןנסעףפץצקרשת";
+  const win1255 = text => Uint8Array.from([...text].map(ch => ch === " " ? 32 : ch === ":" ? 58 : 0xE0 + letters.indexOf(ch)));
+  const page = (head, text) => Uint8Array.from([...Buffer.from(`<html><head>${head}<title>`), ...win1255(text), ...Buffer.from("</title></head></html>")]);
+  // header charset wins; meta charset (both forms) is used when the header has none
+  assert.equal(decodeHtmlBytes(page("", hebrew), "text/html; charset=windows-1255").includes(hebrew), true);
+  assert.equal(parseOpenGraph(decodeHtmlBytes(page('<meta charset="windows-1255">', hebrew), "text/html"), "https://example.org/").title, hebrew);
+  assert.equal(parseOpenGraph(decodeHtmlBytes(page('<meta http-equiv="Content-Type" content="text/html; charset=windows-1255">', hebrew), "text/html"), "https://example.org/").title, hebrew);
+  // no declaration, UTF-8 declarations and unknown labels all decode as UTF-8 and never throw
+  const utf8 = Buffer.from(`<title>${hebrew}</title>`);
+  for (const type of ["text/html", "text/html; charset=utf-8", "text/html; charset=no-such-charset", ""]) assert.equal(decodeHtmlBytes(utf8, type).includes(hebrew), true, type);
+  assert.equal(detectHtmlCharset("text/html; charset=no-such-charset", utf8), "utf-8");
+  // the Edge function actually uses it
+  const fn = readFileSync(new URL("../supabase/functions/link-preview/index.ts", import.meta.url), "utf8");
+  assert.match(fn, /decodeHtmlBytes\(all, res\.headers\.get\("content-type"\)\)/);
+  assert.ok(!/new TextDecoder\("utf-8"/.test(fn), "no hard-coded UTF-8 decode of the page");
 });

@@ -415,9 +415,18 @@ function installPublicReadingWorker(policy) {
           const key = policy.anonKey || req.headers.get("apikey") || "";
           return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
         }
-        if (["community_feed_page", "community_message_context", "community_replies_page"].includes(rpc)
+        if (["community_feed_page", "community_message_context", "community_replies_page", "community_search"].includes(rpc)
           && url.searchParams.size === 1 && url.searchParams.get("select") === policy.communityFields) {
           const body = await jsonBody(req);
+          // Corpus-wide community search: read-only, exact body only. The database function owns visibility
+          // (approved, not deleted, whole chain public); the worker bounds the query text and the page window.
+          if (rpc === "community_search") {
+            const text = typeof body.p_query === "string" ? body.p_query.trim() : "";
+            const length = Array.from(text).length;
+            return Object.keys(body).sort().join(",") === "p_limit,p_offset,p_query" && length >= 2 && length <= 80
+              && Number.isSafeInteger(body.p_offset) && body.p_offset >= 0 && body.p_offset <= 1000000
+              && Number.isSafeInteger(body.p_limit) && body.p_limit >= 1 && body.p_limit <= 50 ? readFetch(req) : denied();
+          }
           if (rpc !== "community_replies_page") return readFetch(req);
           if (Object.keys(body).sort().join(",") !== "p_limit,p_offset,p_parent" || !uuid(body.p_parent)
             || !Number.isSafeInteger(body.p_offset) || body.p_offset < 0 || body.p_offset > 1000000
