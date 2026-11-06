@@ -1,0 +1,16 @@
+/* Install suggestion: fixed, non-modal, no layout shift. Mounted outside the themed
+   frame root, so it carries its own palette (dark default, same gold/ink as the
+   frame) and follows the html data-theme-2029 preset. Sits above the phone's bottom bars. */
+.sod29-install{--i-bg:#17120e;--i-ink:#f5f5f0;--i-muted:#c6c6c1;--i-line:rgb(212 175 55 / .38);--i-accent:#f9ba3f;
+  position:fixed;z-index:58;inset-inline:12px;bottom:calc(84px + env(safe-area-inset-bottom));max-width:520px;margin-inline:auto;display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--i-line);border-radius:16px;background:var(--i-bg);color:var(--i-ink);box-shadow:0 8px 28px rgba(0,0,0,.35);font-family:Rubik,"Noto Sans Hebrew",Arial,sans-serif;line-height:1.45;direction:rtl}
+html[data-theme-2029="light"] .sod29-install{--i-bg:#fffdf8;--i-ink:#1d1a16;--i-muted:#5c5648;--i-line:rgb(120 90 20 / .35);--i-accent:#8a6a12;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+html[data-theme-2029="parchment"] .sod29-install{--i-bg:#f3e9d2;--i-ink:#2a2216;--i-muted:#5f5238;--i-line:rgb(120 90 20 / .4);--i-accent:#7a5a0e;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.sod29-install img{flex:none;display:block;object-fit:contain}
+.sod29-install-copy{flex:1;min-width:0;display:grid;gap:2px}
+.sod29-install-copy strong{font-size:16px}
+.sod29-install-copy small{color:var(--i-muted);font-size:14px}
+.sod29-install button{font:inherit;cursor:pointer;min-height:44px;border-radius:12px}
+.sod29-install-go{flex:none;padding:0 16px;border:1px solid var(--i-accent);background:color-mix(in srgb,var(--i-accent) 18%,transparent);color:var(--i-ink);font-weight:800}
+.sod29-install-close{flex:none;min-width:44px;border:0;background:transparent;color:var(--i-muted);font-size:24px;line-height:1}
+.sod29-install button:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+@media(min-width:981px){.sod29-install{bottom:24px}}

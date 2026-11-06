@@ -2950,6 +2950,18 @@
       "destination": "/api/public-robots"
     },
     {
+      "source": "/favicon.ico",
+      "destination": "/brand/2029/favicon-3f8a2a2fdc0a.ico"
+    },
+    {
+      "source": "/apple-touch-icon.png",
+      "destination": "/brand/2029/apple-touch-icon-180-3f8a2a2fdc0a.png"
+    },
+    {
+      "source": "/apple-touch-icon-precomposed.png",
+      "destination": "/brand/2029/apple-touch-icon-180-3f8a2a2fdc0a.png"
+    },
+    {
       "source": "/2029.html",
       "destination": "/api/public-document?path=/2029"
     },
@@ -2986,6 +2998,15 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(favicon.ico|apple-touch-icon.png|apple-touch-icon-precomposed.png)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
         }
       ]
     },
