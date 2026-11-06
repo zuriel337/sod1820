@@ -67,7 +67,7 @@ test("projection: newest first, window enforced, hidden/draft/forum/no-slug/no-t
   assert.deepEqual(projectHomeStandalonePosts(rows, { limit: 2, now: NOW }).map(card => card.id), [5124, 5009]);
   assert.deepEqual(projectHomeStandalonePosts(rows, { limit: 10, now: NOW, exclude: ["post-5124", 5009] }).map(card => card.id), [5121, 5084],
     "an item already shown by another Home source (by slug or id) is not repeated");
-  assert.equal(HOME_STANDALONE_LIMIT, 4);
+  assert.equal(HOME_STANDALONE_LIMIT, 6); assert.equal(HOME_STANDALONE_WINDOW_DAYS, 90, "measured bound, not carried over from the earlier 120-day proposal");
   const [first] = cards;
   assert.equal(first.slug, "post-5124"); assert.equal(first.publishedAt, shapes.externalWriter.date); assert.equal(first.sourcePost, shapes.externalWriter);
 });

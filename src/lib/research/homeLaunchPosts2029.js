@@ -51,9 +51,12 @@ export async function getHomeLaunchPostCards({ client = getPublicResearchClient(
 // It is the exact complement of the two other Home Post sources, computed with their own predicates, so a Post can never
 // appear in two of them. Presentation only: it assigns nothing to a series, category, tag or family, and it neither reads
 // nor changes the reality stream, event documentation or the "עכשיו" pool.
-export const HOME_STANDALONE_WINDOW_DAYS = 120;
-export const HOME_STANDALONE_LIMIT = 4;
-const HOME_STANDALONE_READ_LIMIT = 60;
+// "פוסטים אחרונים" bounds (measured 6.11.2026, not carried over from an earlier proposal): the newest six, none older than
+// 90 days (15 candidates today; 4 in 30 days, 8 in 60, 27 in 120). 90 days keeps "latest" truthful in a quiet period (the
+// area hides itself rather than showing stale items) and bounds the one read to roughly the posts of one quarter.
+export const HOME_STANDALONE_WINDOW_DAYS = 90;
+export const HOME_STANDALONE_LIMIT = 6;
+const HOME_STANDALONE_READ_LIMIT = 80;
 
 export function isHomeStandalonePost(row) {
   return Boolean(row?.slug) && stripHtml(row?.title || "").trim() !== ""
@@ -77,6 +80,7 @@ export function projectHomeStandalonePosts(rows, { limit = HOME_STANDALONE_LIMIT
     .slice(0, Math.max(1, Math.min(HOME_STANDALONE_READ_LIMIT, Number(limit) || HOME_STANDALONE_LIMIT))).map(row => ({
       id: row.id, slug: row.slug, source: row.source, link: row.link, wp_id: row.wp_id,
       title: stripHtml(row.title || ""), poster: row.thumb_url || row.image_url || null,
+      excerpt: stripHtml(row.excerpt || "").replace(/\s+/g, " ").trim().slice(0, 160) || null,
       author: stripHtml(row.author || "").trim() || null, publishedAt: row.date || null, sourcePost: row,
     }));
 }
@@ -86,7 +90,7 @@ export async function getHomeStandalonePostCards({ client = getPublicResearchCli
   const since = new Date(now - HOME_STANDALONE_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
   // One bounded read of recent public Posts; series/pool membership is decided by the shared predicates, not re-expressed in SQL.
   let query = client.from("posts")
-    .select("id,slug,title,image_url,thumb_url,date,modified,tags,categories,author,source,link,wp_id,home_hidden")
+    .select("id,slug,title,excerpt,image_url,thumb_url,date,modified,tags,categories,author,source,link,wp_id,home_hidden")
     .or(publicPostOnlyFilter()).eq("home_hidden", false).not("slug", "is", null).gte("date", since)
     .order("date", { ascending: false, nullsFirst: false }).limit(HOME_STANDALONE_READ_LIMIT);
   if (signal) query = query.abortSignal(signal);

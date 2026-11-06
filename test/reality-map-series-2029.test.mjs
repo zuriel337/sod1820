@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesKeysForPost, contentSeriesMembershipFilter, hasExactMembership } from "../src/lib/research/contentSeries2029Identity.js";
-import { buildContentSeriesCatalog2029, projectContentSeriesItems, seriesHomeFamilies2029, seriesHomeTeaser2029 } from "../src/lib/research/contentSeries2029Projection.js";
+import { buildContentSeriesCatalog2029, fetchContentSeriesCatalog2029, projectContentSeriesItems, seriesHomeFamilies2029, seriesHomeTeaser2029 } from "../src/lib/research/contentSeries2029Projection.js";
 
 // Stage 1 of the series & Home plan (ZURIEL, 6.11.2026): מפת המציאות is a regular series in the existing mechanism.
 // Pure identity/projection checks: no network, no database, no Post is read or written.
@@ -121,4 +121,44 @@ test("family entrances are links to existing category pages (or a non-link soon)
   // Malformed or duplicate entries are dropped; other series declare no families.
   assert.deepEqual(seriesHomeFamilies2029({ families: [{ key: "a", label: "א", category: "ק" }, { key: "a", label: "ב", category: "ק" }, { label: "ג" }, null] }).map(family => family.key), ["a"]);
   for (const other of CONTENT_SERIES_2029.filter(item => item.key !== "reality-map")) assert.deepEqual(seriesHomeFamilies2029(other), []);
+});
+
+function seriesClient(rowsByFilter = () => []) {
+  const calls = [];
+  const client = { from(table) {
+    const entry = { table, ops: [] };
+    calls.push(entry);
+    const q = { then(resolve, reject) { return Promise.resolve({ data: rowsByFilter(entry), error: null, count: rowsByFilter(entry).length }).then(resolve, reject); } };
+    for (const method of ["select", "or", "eq", "order", "limit", "abortSignal"]) q[method] = (...args) => { entry.ops.push([method, ...args]); return q; };
+    return q;
+  } };
+  return { client, calls };
+}
+const opsOf = (entry, method) => entry.ops.filter(op => op[0] === method);
+
+test("the Home reader reads reality-map deeper in the same single read, newest first by publication date; every other series keeps one item", async () => {
+  const fake = seriesClient();
+  await fetchContentSeriesCatalog2029({ client: fake.client, limitPerSeries: 1, homeOnly: true, primaryLimit: 20 });
+  assert.equal(fake.calls.length, CONTENT_SERIES_2029.length, "one read per series: no extra request for the list");
+  const limits = Object.fromEntries(CONTENT_SERIES_2029.map((item, index) => [item.key, opsOf(fake.calls[index], "limit")[0][1]]));
+  assert.deepEqual(limits, { "reality-map": 20, "mah-kore-habora": 1, "dimension-five": 1, "sod-hashmal": 1, "messages-from-righteous": 1 });
+  const rm = fake.calls[CONTENT_SERIES_2029.findIndex(item => item.key === "reality-map")];
+  assert.ok(opsOf(rm, "or").some(op => op[1] === 'tags.cs.{"מפת המציאות"}'), "membership is the exact tag only");
+  assert.ok(opsOf(rm, "eq").some(op => op[1] === "home_hidden" && op[2] === false), "the current Home hiding rule is kept");
+  assert.deepEqual(opsOf(rm, "order").map(op => [op[1], op[2]?.ascending]), [["date", false], ["id", true]], "newest first by the publication date");
+  assert.equal(opsOf(rm, "eq").some(op => op[1] === "author"), false, "no author admission");
+  // Without primaryLimit nothing changes for any series (Posts page, Now).
+  const plain = seriesClient();
+  await fetchContentSeriesCatalog2029({ client: plain.client, limitPerSeries: 4, homeOnly: true });
+  assert.deepEqual(plain.calls.map(entry => opsOf(entry, "limit")[0][1]), CONTENT_SERIES_2029.map(() => 4));
+});
+
+test("the reader returns the members it finds in date order and nothing it was not asked to admit", async () => {
+  const rows = [row(60, { tags: ["מפת המציאות"], date: "2026-11-04T00:00:00Z" }), row(61, { tags: ["מפת המציאות"], date: "2026-10-02T00:00:00Z" }),
+    row(62, { tags: ["אחר"], categories: ["סוד 1820"], title: "מפת המציאות בכותרת", author: "SOD1820" })];
+  const fake = seriesClient(entry => (opsOf(entry, "or").some(op => op[1] === 'tags.cs.{"מפת המציאות"}') ? rows : []));
+  const catalog = await fetchContentSeriesCatalog2029({ client: fake.client, limitPerSeries: 1, homeOnly: true, primaryLimit: 20 });
+  const items = catalog.byKey["reality-map"].items;
+  assert.deepEqual(items.map(item => item.id), ["60", "61"], "the title, author and category never admit post 62");
+  assert.equal(catalog.byKey["reality-map"].readState, "measured");
 });
