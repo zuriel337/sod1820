@@ -15,6 +15,7 @@ import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
+import SeriesBell2029 from "./SeriesBell2029.jsx";
 import { nowModels } from "../../lib/nowPublications2029.js";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
@@ -177,7 +178,10 @@ function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
       <img className="h29-rm-logo" src={BRAND_LOCKUP_NAV_2029.src} width={BRAND_LOCKUP_NAV_2029.width} height={BRAND_LOCKUP_NAV_2029.height} alt="" decoding="async" draggable="false" />
       <span className="h29-rm-brand"><b>כי לה׳ המלוכה</b><small>סוד 1820 · התוכן המקורי שלנו</small></span>
     </header>
-    {open ? <Link className="h29-series-name h29-rm-title" to={seriesHref}>{spec.label}</Link> : <h3 className="h29-series-name h29-rm-title">{spec.label}</h3>}
+    <div className="h29-series-head">
+      {open ? <Link className="h29-series-name h29-rm-title" to={seriesHref}>{spec.label}</Link> : <h3 className="h29-series-name h29-rm-title">{spec.label}</h3>}
+      <SeriesBell2029 seriesKey={spec.key} label={spec.label} />
+    </div>
     {teaser ? <Link className="h29-series-teaser h29-card-open" to={teaser.href} data-home-series-teaser={teaser.sourceRef} aria-label={`${teaser.text}. מתוך הפוסט: ${teaser.sourceTitle}`}>
       <span className="h29-teaser-kicker">דוגמית מהסדרה{teaser.step ? ` · ${teaser.step}` : ""}</span>
       <span className="h29-teaser-tiles" dir="ltr" aria-hidden="true">
@@ -242,7 +246,7 @@ function HomeOtherSeries({ state }) {
       {others.map(series => {
         const item = series.items[0];
         return <article className="h29-series-card" data-home-series={series.key} key={series.key}>
-          <Link className="h29-series-name" to={`/2029/posts?series=${encodeURIComponent(series.key)}`}>{series.label}</Link>
+          <div className="h29-series-head"><Link className="h29-series-name" to={`/2029/posts?series=${encodeURIComponent(series.key)}`}>{series.label}</Link><SeriesBell2029 seriesKey={series.key} label={series.label} /></div>
           {item ? <SeriesLatestItem item={item} series={series} /> : <p className="h29-empty" role={series.readState === "failed" ? "alert" : "status"}>{series.readState === "failed" ? "לא ניתן לקרוא כרגע את הסדרה." : series.hasApprovedSources && !series.sourcesRequested ? "אפשר לבדוק מקורות נוספים בעמוד הסדרה." : "אין כרגע פרסום זמין בסדרה."}</p>}
         </article>;
       })}
