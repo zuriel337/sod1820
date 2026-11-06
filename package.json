@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "sync:route-legitimacy": "node scripts/sync-route-legitimacy.mjs --write",
     "prebuild": "node scripts/test-legacy-retired.mjs && npm run test:one-tree-content",
     "prebuild:2029": "npm run test:one-tree-content",
     "test:one-tree-content": "node scripts/test-one-tree-content-contract.mjs",
