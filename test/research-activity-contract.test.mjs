@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { elsActivityDescriptor, ELS_SEARCH_KINDS } from "../supabase/functions/els-search-bridge/activity.js";
 import {
   METRIC_SOURCES, FORBIDDEN_AGGREGATES, assertSingleSource, classifyActor, isHumanActor, ACTOR_CLASSES,
-  countComputes, countElsSearches, DECLARED_AGENT_VIAS, ANONYMOUS_BEACON_SOURCE, METRIC_QUALITY, metricQualityLabel,
+  countComputes, countElsSearches, DECLARED_AGENT_VIAS, ANONYMOUS_BEACON_SOURCE, METRIC_QUALITY, metricQualityLabel, measurementHealth,
 } from "../src/lib/research/researchActivityContract2029.js";
 
 const read = p => readFileSync(p, "utf8");
@@ -97,8 +97,25 @@ test("metric quality: compute is labelled not dedupe-verified and actor unknown 
   assert.equal(metricQualityLabel("els_search_regular"), "n/a");
   // The flag may only be turned on together with the database proof: the SQL acceptance script must exist and cover replay + concurrency.
   const runner = readFileSync("scripts/run-reading-activity-sql-test.sh", "utf8"), cases = readFileSync("tests/sql/reading_activity_v1.sql", "utf8");
-  assert.match(runner, /concurrent duplicates/); assert.match(runner, /expected 1 recorded \+ 39 duplicate/); assert.match(cases, /T2 replay is a duplicate/);
+  assert.match(runner, /concurrency A: 40 simultaneous sessions, ONE activity_event_id/); assert.match(runner, /expected 1 recorded \+ 39 duplicate/); assert.match(cases, /T2 replay is a duplicate/);
   assert.match(readFileSync("supabase/proposed/reading_activity_v1.sql", "utf8"), /on conflict do nothing/);
+});
+
+test("refusals are metrics: a fall in compute is told apart from suppression of it", () => {
+  const h = measurementHealth;
+  assert.equal(h({ recorded: 100, outcomes: { duplicate: 40 } }).state, "healthy", "duplicates are harmless and are not suppression");
+  assert.equal(h({ recorded: 100, outcomes: { duplicate: 40 } }).suppressed, 0);
+  const squeezed = h({ recorded: 60, outcomes: { rate_limited_address: 40 } });
+  assert.deepEqual({ state: squeezed.state, share: squeezed.suppressed_share, why: squeezed.dominant_reason }, { state: "under_counted", share: 0.4, why: "rate_limited_address" });
+  assert.equal(h({ recorded: 10, outcomes: { rejected_schema: 12 } }).dominant_reason, "rejected_schema", "a client/schema drift shows up as rejected_schema, not as 'fewer users'");
+  assert.equal(h({ recorded: 0, outcomes: { no_address: 30 } }).state, "measurement_fault", "no trusted address header = infrastructure fault, not zero activity");
+  assert.equal(h({ recorded: 0, outcomes: {} }).state, "no_data", "no attempts at all is no data, not a healthy zero");
+  assert.equal(h({ recorded: 95, outcomes: { rate_limited_global: 5 } }).state, "under_counted", "5% suppressed is flagged");
+  assert.equal(h({ recorded: 96, outcomes: { rate_limited_global: 4 } }).state, "healthy", "4% is below the flag");
+  for (const key of ["duplicate", "rejected_size", "rejected_schema", "rejected_account_id", "rate_limited_address", "rate_limited_global", "no_address"])
+    assert.equal(METRIC_SOURCES["reading_beacon_" + key], "reading_activity_outcomes:" + key, key);
+  assert.equal(Object.keys(METRIC_SOURCES).some(k => /recorded/.test(k) && /outcomes/.test(METRIC_SOURCES[k])), false, "recorded is derived from events, never stored twice");
+  assert.equal(assertSingleSource(), true);
 });
 
 test("actor_class: a human-user count never contains agents, workers or imports", () => {

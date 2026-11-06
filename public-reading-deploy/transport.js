@@ -289,7 +289,7 @@ function installPublicReadingWorker(policy) {
           // per-address rate limit, unique-key idempotency, server-set actor class), because the RPC is reachable
           // without this worker. The Maps below live as long as the worker (a browser may stop it at any time) and
           // cover neither another browser nor a direct call, so they are never the basis for "deduplicated".
-          if (!readingActivityBody(body) || await measurementClient(event) !== body.p_path || !policy.anonKey) return denied();
+          if (raw.length > 1024 || !readingActivityBody(body) || await measurementClient(event) !== body.p_path || !policy.anonKey) return denied();   // a valid body is about 350 bytes
           const now = Date.now();
           for (const [id, at] of activityEvents) if (now - at > 3600000) activityEvents.delete(id);
           for (const [client, state] of activityClients) if (now - state.at > 3600000) activityClients.delete(client);

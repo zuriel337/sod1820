@@ -202,6 +202,16 @@ test("worker denies wrong window, foreign origin, missing client, query strings 
   const q = worker(); assert.equal((await q.request(RPC + "?select=*", beacon())).status, 403); assert.equal(q.calls.length, 0);
 });
 
+test("worker refuses an oversize beacon body before parsing its content", async () => {
+  const w = worker();
+  const big = beacon(); big.p_props.pad = "x".repeat(2000);
+  assert.equal((await send(w, big)).status, 403);
+  const ok = JSON.stringify(beacon()).length;
+  assert.ok(ok < 500, "a valid body is about 350 bytes, got " + ok);
+  assert.equal(w.calls.length, 0);
+  assert.match(readFileSync("public-reading-deploy/transport.js", "utf8"), /raw\.length > 1024 \|\| !readingActivityBody\(body\)/);
+});
+
 test("the worker's replay map is temporary defence in depth, NOT the authority for deduplication", async () => {
   const w = worker(); assert.equal((await send(w, beacon())).status, 200);
   assert.equal((await send(w, beacon())).status, 403, "within one worker lifetime a replay is dropped early");
@@ -265,7 +275,9 @@ test("the application (and so the beacon) is not loaded before the matching work
   // The RPC is also reachable without the worker (the anon key is public, and the generic RPC is executable by PUBLIC), so the
   // proposed database function is the enforcement point. Its proof is tests/sql/reading_activity_v1.sql (scripts/run-reading-activity-sql-test.sh).
   const proposed = readFileSync("supabase/proposed/reading_activity_v1.sql", "utf8");
-  for (const needle of ["edge_rate_limit_check", "on conflict do nothing", "'actor_class', 'unknown'", "GUARD: reserved compute identities"]) assert.ok(proposed.includes(needle), needle);
+  for (const needle of ["edge_rate_limit_check", "on conflict do nothing", "'actor_class', 'unknown'", "-- GUARD", "cf-connecting-ip", "pg_column_size(p_props) > 1024", "c_address_limit constant integer := 60", "c_global_limit constant integer := 120"]) assert.ok(proposed.includes(needle), needle);
+  const code = proposed.replace(/^\s*--.*$/gm, "");
+  assert.doesNotMatch(code, /x-forwarded-for|x-real-ip/i, "only the Cloudflare-set header may select a bucket; client-controllable headers are never read");
   assert.equal(readdirSync("supabase/migrations").some(f => /reading_activity/.test(f)), false, "the proposal is not a migration and cannot be applied by a tool");
 });
 

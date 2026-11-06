@@ -24,7 +24,16 @@ export const METRIC_SOURCES = Object.freeze({
   finding_published: "owner-table visibility (gematria_words.is_published | els_records.visibility | research_contributions.status)",
   ga4_visitors: "traffic_history(source=ga):visitors",
   anonymous_activity_sessions: "events:gematria/*:props.activity_session",
-});
+
+  // Beacon refusals are metrics of their own, so a fall in activity can be told from suppression of it.
+  // "recorded" is the number of beacon rows in events (never stored twice); every other outcome is one row-per-minute counter.
+  reading_beacon_duplicate: "reading_activity_outcomes:duplicate",
+  reading_beacon_rejected_size: "reading_activity_outcomes:rejected_size",
+  reading_beacon_rejected_schema: "reading_activity_outcomes:rejected_schema",
+  reading_beacon_rejected_account_id: "reading_activity_outcomes:rejected_account_id",
+  reading_beacon_rate_limited_address: "reading_activity_outcomes:rate_limited_address",
+  reading_beacon_rate_limited_global: "reading_activity_outcomes:rate_limited_global",
+  reading_beacon_no_address: "reading_activity_outcomes:no_address",});
 
 // A dashboard may never publish a number built by adding these distinct metrics together.
 export const FORBIDDEN_AGGREGATES = Object.freeze([
@@ -129,4 +138,19 @@ export function countElsSearches(spans) {
     out[["regular", "cross", "forms"].includes(a.search_kind) ? a.search_kind : "unspecified"] += 1;
   }
   return Object.freeze(out);
+}
+
+// ── Is a fall in compute a real fall, or is the beacon being refused? ─────────────────────────────────────────────
+// recorded = beacon rows in events; outcomes = the reading_activity_outcomes counters for the same window.
+// Suppression is any refusal other than a harmless duplicate. A window with no_address is a header/infrastructure fault.
+export function measurementHealth({ recorded = 0, outcomes = {} } = {}) {
+  const n = key => Number(outcomes[key]) || 0;
+  const suppressed = n("rate_limited_address") + n("rate_limited_global") + n("rejected_size") + n("rejected_schema") + n("rejected_account_id") + n("no_address");
+  const attempts = recorded + suppressed;
+  const share = attempts ? suppressed / attempts : 0;
+  const reasons = ["rate_limited_address", "rate_limited_global", "rejected_schema", "rejected_size", "rejected_account_id", "no_address"].map(k => [k, n(k)]).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+  const state = n("no_address") > 0 && n("no_address") >= recorded ? "measurement_fault"
+    : share >= 0.05 ? "under_counted"
+    : attempts === 0 ? "no_data" : "healthy";
+  return Object.freeze({ state, suppressed, attempts, suppressed_share: Math.round(share * 1000) / 1000, dominant_reason: reasons[0]?.[0] ?? null, duplicates: n("duplicate") });
 }
