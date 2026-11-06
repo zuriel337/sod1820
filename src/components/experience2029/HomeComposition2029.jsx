@@ -8,7 +8,7 @@ import { getLatestPostCards, getTzofonStories, getHomeVideos } from "../../lib/s
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { NewsletterSignup2029 } from "../StayUpdatedCTA.jsx";
 import { getHomeLaunchPostCards } from "../../lib/research/homeLaunchPosts2029.js";
-import { fetchContentSeriesCatalog2029 } from "../../lib/research/contentSeries2029Projection.js";
+import { CONTENT_SERIES_2029, fetchContentSeriesCatalog2029, seriesHomeTeaser2029 } from "../../lib/research/contentSeries2029Projection.js";
 import { stripHtml } from "../../lib/format.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
@@ -150,6 +150,51 @@ function AdminLatestUpdates() {
   </div>;
 }
 
+// Latest published item of a series (shared by every series card).
+function SeriesLatestItem({ item, series }) {
+  return <Link className="h29-series-item h29-card-open" to={item.href}>
+    <Media src={item.imageUrl} fallback="✦" /><span><strong>{item.title}</strong><small>{item.author || series.writerLabel || series.publisherLabel || "פוסט"}</small><PublicationTime at={item.publishedAt} /><UpdatedTime published={item.publishedAt} updated={item.updatedAt} /></span>
+  </Link>;
+}
+
+// A quoted line that mixes Hebrew with Latin letters/numbers: each Latin/number run is isolated left-to-right so the
+// quote reads in its original order inside the RTL card. The visible text is exactly the stored quote.
+const LTR_RUN = /[A-Za-z0-9][A-Za-z0-9=,\s…]*[A-Za-z0-9]/g;
+function MixedDirectionText({ text }) {
+  const parts = [];
+  let last = 0;
+  for (const match of text.matchAll(LTR_RUN)) {
+    if (match.index > last) parts.push(text.slice(last, match.index));
+    parts.push(<bdi dir="ltr" key={match.index}>{match[0]}</bdi>);
+    last = match.index + match[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return <>{parts}</>;
+}
+
+// The primary series card (מפת המציאות): full row, compact, with an approved sample linked to its source Post.
+// It is never an empty card: without a member and without an approved sample it renders nothing. The series page
+// link appears only once the series has a member to show, so it never leads to an empty page.
+function PrimarySeriesCard({ series, spec, teaser }) {
+  const item = series?.items?.[0] || null;
+  if (!teaser && !item) return null;
+  const seriesHref = `/2029/posts?series=${encodeURIComponent(spec.key)}`;
+  const open = Boolean(item);
+  return <article className="h29-series-card is-primary" data-home-series={spec.key} data-home-series-primary="true">
+    {open ? <Link className="h29-series-name" to={seriesHref}>{spec.label}</Link> : <h3 className="h29-series-name">{spec.label}</h3>}
+    <div className="h29-primary-body">
+      {teaser ? <Link className="h29-series-teaser h29-card-open" to={teaser.href} data-home-series-teaser={teaser.sourceRef}>
+        <span className="h29-teaser-kicker">דוגמית מהסדרה</span>
+        <strong className="h29-teaser-line"><bdi dir="ltr">{teaser.highlight}</bdi></strong>
+        <small className="h29-teaser-text"><MixedDirectionText text={teaser.text} /></small>
+        <small className="h29-teaser-source">מתוך הפוסט: {teaser.sourceTitle}{teaser.methodNote ? ` · ${teaser.methodNote}` : ""}</small>
+      </Link> : null}
+      {item ? <SeriesLatestItem item={item} series={series} /> : null}
+    </div>
+    {open ? <Link className="h29-series-more" to={seriesHref}>לפתוח את הסדרה ←</Link> : null}
+  </article>;
+}
+
 function HomeSeriesCards() {
   const [state, setState] = useState({ series: [], loading: true, failed: false });
   useEffect(() => {
@@ -159,16 +204,19 @@ function HomeSeriesCards() {
       .catch(() => { if (!controller.signal.aborted) setState({ series: [], loading: false, failed: true }); });
     return () => controller.abort();
   }, []);
+  // The primary series comes first, from the owner's list order; the other series keep their existing order and cards.
+  const primarySpec = CONTENT_SERIES_2029.find(spec => spec.priorityLane === "primary") || null;
+  const primarySeries = state.series.find(series => series.priorityLane === "primary") || null;
+  const others = state.series.filter(series => series.priorityLane !== "primary");
   return <Section title="מהסדרות והכותבים" className="h29-series-section" link={<Link to="/2029/posts">לכל הסדרות ←</Link>}>
     <div className="h29-series-grid" aria-busy={state.loading} data-home-public-series="true">
-      {state.loading ? Array.from({ length: 4 }, (_, i) => <div className="h29-series-card h29-skel" key={i} aria-hidden="true" />) : null}
-      {state.series.map(series => {
+      {primarySpec ? <PrimarySeriesCard series={primarySeries} spec={primarySpec} teaser={seriesHomeTeaser2029(primarySpec)} /> : null}
+      {state.loading ? Array.from({ length: CONTENT_SERIES_2029.length - (primarySpec ? 1 : 0) }, (_, i) => <div className="h29-series-card h29-skel" key={i} aria-hidden="true" />) : null}
+      {others.map(series => {
         const item = series.items[0];
         return <article className="h29-series-card" data-home-series={series.key} key={series.key}>
           <Link className="h29-series-name" to={`/2029/posts?series=${encodeURIComponent(series.key)}`}>{series.label}</Link>
-          {item ? <Link className="h29-series-item h29-card-open" to={item.href}>
-            <Media src={item.imageUrl} fallback="✦" /><span><strong>{item.title}</strong><small>{item.author || series.writerLabel || series.publisherLabel || "פוסט"}</small><PublicationTime at={item.publishedAt} /><UpdatedTime published={item.publishedAt} updated={item.updatedAt} /></span>
-          </Link> : <p className="h29-empty" role={series.readState === "failed" ? "alert" : "status"}>{series.readState === "failed" ? "לא ניתן לקרוא כרגע את הסדרה." : series.hasApprovedSources && !series.sourcesRequested ? "אפשר לבדוק מקורות נוספים בעמוד הסדרה." : "אין כרגע פרסום זמין בסדרה."}</p>}
+          {item ? <SeriesLatestItem item={item} series={series} /> : <p className="h29-empty" role={series.readState === "failed" ? "alert" : "status"}>{series.readState === "failed" ? "לא ניתן לקרוא כרגע את הסדרה." : series.hasApprovedSources && !series.sourcesRequested ? "אפשר לבדוק מקורות נוספים בעמוד הסדרה." : "אין כרגע פרסום זמין בסדרה."}</p>}
         </article>;
       })}
       {state.failed ? <p role="alert">הסדרות אינן זמינות כרגע. <Link to="/2029/posts">אפשר לפתוח את רשימת הפוסטים.</Link></p> : null}

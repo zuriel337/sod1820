@@ -5,6 +5,42 @@ const clean = (value) => value == null ? "" : String(value).trim();
 // not a registry, taxonomy, store or publication authority. Topic/channel identities
 // (for example הצופן בסרטים and אור הגאולה) intentionally do not become series here.
 export const CONTENT_SERIES_2029 = Object.freeze([
+  // מפת המציאות — the primary series (ZURIEL series & Home plan, 6.11.2026, stage 1). It is FIRST so every consumer
+  // that reads this list in order (Home, Posts entrances, search) shows it first; the relative order of the other
+  // series is unchanged. Membership is the exact tag only: no category, author, family or channel admits an item,
+  // and no existing Post is assigned by this entry. families (סוד 1820, הצופן בסרטים, שבילי שפה, תכני גאולה) are a
+  // reserved future split and are NOT represented here. "רמזים חזקים" stays a cross-cutting category (not a series
+  // and not a hints-pane admission). decisionId stays pending until PLAN37 records the decision (a DB write that
+  // needs explicit approval); nothing here writes or reads PLAN37.
+  Object.freeze({
+    key: "reality-map",
+    label: "מפת המציאות",
+    decisionId: "PENDING-PLAN37-DECISION",
+    writerLabel: null,
+    publisherLabel: null,
+    priorityLane: "primary",
+    membership: Object.freeze([
+      Object.freeze({ field: "tags", value: "מפת המציאות" }),
+    ]),
+    exactAuthor: null,
+    relationNote: "הסדרה הראשית: מחקרים, צפנים ותגליות. חברות רק מהתגית המדויקת; אינה חלונית רמזים, אינה גרף הקשרים ואינה זרם המציאות.",
+    // Home sample. Shown only while approval is explicit; the quote is verbatim from the source Post (read live 6.11.2026,
+    // post 5018) and is the Post's own claim, not an SOD1820 computation (English ordinal is not in the method registry).
+    // It links to the source Post and does NOT make that Post a member of the series.
+    teaser: Object.freeze({
+      approval: Object.freeze({
+        status: "approved",
+        decisionRef: "ZURIEL/20261106/series-home-plan-stage1",
+        scope: "שבילי שפה · בראשית באנגלית (דוגמית בית). אישור סופי של הנוסח נדרש לפני פרסום.",
+      }),
+      sourceRef: "posts:5018",
+      sourcePost: Object.freeze({ id: 5018, slug: "chibur-bein-hasafot-mafteach-lagan", source: "ai", wp_id: 36960 }),
+      sourceTitle: "שבילי שפה — חיבור בן שפות",
+      highlight: "Bereshit = 86",
+      text: "באנגלית מחשבים בפשטות: כל אות לפי מקומה באלף-בית — A=1, B=2, C=3 … Z=26 — ומחברים. Bereshit = 86",
+      methodNote: "חישוב כפי שמופיע בפוסט המקור",
+    }),
+  }),
   Object.freeze({
     key: "mah-kore-habora",
     label: "מה קורה הבורא",
