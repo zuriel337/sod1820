@@ -7,6 +7,26 @@
 
 חומרה: P0 אבטחה/חשיפת מידע/אובדן · P1 SEO קריטי, הרשאות, מערכת מרכזית · P2 UX/ביצועים/metadata חלקי · P3 ליטוש.
 
+## סטטוס תיקון (עודכן 2026-11-06, ענף `claude/sod1820-audit-remediation-g93w32`)
+
+פירוט מלא, ראיות והחלטות הנדרשות: [`docs/reviews/audit-remediation-20261106/README.md`](reviews/audit-remediation-20261106/README.md). **דבר מזה לא מוזג, לא פורס ולא הוחל על DB/Storage.**
+
+| מזהה | סטטוס |
+|---|---|
+| DEF-001 | תיקון SQL + בדיקות מוכנים (`supabase/migrations/…120000`, `…121000`, `supabase/proposed/…121500`) — **ממתין לאישורך להחלה** |
+| DEF-002 | תוקן בקוד (`api/sitemap.js`) + בדיקה; שינוי אחד בבדיקת חוזה ממתין לאישור |
+| DEF-003 | תוקן חלקית בקוד (קריאה אחת לתצוגה הכבדה); תיקון שורש ב־DB — ממתין להחלטה |
+| DEF-004 | הצעת מדיניות + בדיקות (`supabase/proposed/…130000`) — ממתין לאישור; הממצא תוקן (ראו להלן) |
+| DEF-005 | הצעת REVOKE + בדיקות (`supabase/proposed/…131000`) — ממתין לאישור |
+| DEF-006 / DEF-011 | חסום בגישה — רשימה מדויקת בסעיף 9 של ה־README |
+| DEF-007 | תוקן + בדיקת מניעה |
+| DEF-008 | תוקן (CLS 0.263→0.061 במדידה מקומית של build ציבורי) — לאמת ב־Preview |
+| DEF-012 | שורש נמצא: ה־worker של ה־build הציבורי חוסם כתיבה; הבקשה הוסרה |
+| DEF-015 | תוקן בקוד (timeouts + cache לכרטיס קנוני) |
+| DEF-018 | נותח: מכוון; אין שינוי — החלטת מוצר נדרשת |
+| DEF-019 | תוקן (ה־cron הוסר) |
+| DEF-009, 010, 013, 014, 016, 017, 020–025 | לא שונו — סיבות ב־README §7 |
+
 ## סיכום
 
 | חומרה | כמות | מזהים |
@@ -46,7 +66,7 @@
 - **תיקון מוצע:** הוספת cache (`s-maxage`) לדף הווידאו או הורדת זמן המקור; שחזור עם `autocannon` מוגבל ב־Preview; מעקב `get_runtime_logs` לאותה כתובת.
 
 ### DEF-004 — העלאה אנונימית ל־bucket `gallery` (מדיניות Storage)
-- **ראיה:** `pg_policies` על `storage.objects`: `community_anon_upload` — `INSERT` ל־`anon, authenticated` כאשר `bucket_id='gallery'` ותיקייה ראשונה `community`. ל־bucket `gallery` אין `file_size_limit` ואין `allowed_mime_types`. המדיניות `community_authenticated_media_paths_v1` היא PERMISSIVE ולכן אינה מצמצמת (מדיניות permissive מחוברות ב־OR). בנוסף `public_upload` מתיר לכל משתמש מחובר `INSERT` לכל נתיב ב־`gallery`.
+- **ראיה:** `pg_policies` על `storage.objects`: `community_anon_upload` — `INSERT` ל־`anon, authenticated` כאשר `bucket_id='gallery'` ותיקייה ראשונה `community`. ל־bucket `gallery` אין `file_size_limit` ואין `allowed_mime_types`. **תיקון (6.11, אחרי קריאת `pg_policy.polpermissive`):** `community_authenticated_media_paths_v1` היא **RESTRICTIVE** ולכן חוסמת וידאו אנונימי ונתיבי חשבון — הטענה המקורית שהיא "PERMISSIVE ואינה מצמצמת" הייתה שגויה. הפער שנותר: כל סוג קובץ שאינו וידאו ובכל גודל, ב־`gallery/community/*` (שלושה קבצי `svg` הועלו ב־3.9), ובנוסף `public_upload` מתיר לכל משתמש מחובר `INSERT` לכל נתיב ב־`gallery`.
 - **לא נוסה** (אין כתיבה לפרודקשן); ניסיון העלאה נחסם בכוונה.
 - **השפעה:** תוכן שרירותי (כולל HTML/SVG/וידאו כבד) על דומיין האחסון הציבורי של הפרויקט, הוצאות אחסון/Egress, ספאם. נדרש לאשר אם העלאה אנונימית היא תכונה מכוונת בקהילה.
 - **תיקון מוצע (DB, דורש אישור):** הגבלת mime/גודל ב־bucket; הפיכת הכלל ל־RESTRICTIVE או החלפתו; דרישת `authenticated` להעלאה.
