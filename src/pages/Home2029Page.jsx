@@ -494,6 +494,7 @@ function HomeBody({ primaryReader = null } = {}) {
     primaryReader={primaryReader}
     projection={{ ...homeState.projection, worldPreview }}
     onWorldApproach={setWorldRequested}
+    onOpenNow={() => shell.openAttention?.()}
     onSummaryApproach={setSummaryRequested}
     onNavigate={() => research.updateResearchContext?.({ returnTo: {
       href: location.pathname + location.search + location.hash, label: "דף הבית",

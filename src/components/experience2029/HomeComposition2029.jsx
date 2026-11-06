@@ -1,7 +1,7 @@
 // Approved Home composition (reference fa0e26f) inside the single System Frame.
 // Presentation over existing public readers: latest posts, cipher posts, home videos and the
 // Home projection. Existing capability components arrive as slots so none is duplicated here.
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import { getLatestPostCards, getTzofonStories, getHomeVideos } from "../../lib/supabase.js";
@@ -14,7 +14,8 @@ import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
-import HomeUpdatesPreview2029 from "./HomeUpdatesPreview2029.jsx";
+import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
+import { nowModels } from "../../lib/nowPublications2029.js";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
@@ -158,7 +159,7 @@ function SeriesLatestItem({ item, series }) {
 }
 
 // How many flagship products the Home list reads (one read, the series' own membership: the exact tag only).
-const REALITY_MAP_LIST_LIMIT = 20;
+const REALITY_MAP_LIST_LIMIT = 6;
 
 // The primary series region (מפת המציאות): a branded, compact royal region for our own content. Hierarchy: logo and identity,
 // the title, the leading sample (kept first, never part of the list), then the flagship products. It is never empty: without a
@@ -206,7 +207,8 @@ function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
   </article>;
 }
 
-function HomeSeriesCards() {
+// One read of the series catalog serves both Home areas (the flagship region and the other series).
+function useHomeSeries() {
   const [state, setState] = useState({ series: [], loading: true, failed: false });
   useEffect(() => {
     const controller = new AbortController();
@@ -215,14 +217,28 @@ function HomeSeriesCards() {
       .catch(() => { if (!controller.signal.aborted) setState({ series: [], loading: false, failed: true }); });
     return () => controller.abort();
   }, []);
-  // The primary series comes first, from the owner's list order; the other series keep their existing order and cards.
+  return state;
+}
+
+// The primary series comes first (the owner's list order) in its own area right after the live updates.
+function HomeFlagshipRegion({ state }) {
   const primarySpec = CONTENT_SERIES_2029.find(spec => spec.priorityLane === "primary") || null;
   const primarySeries = state.series.find(series => series.priorityLane === "primary") || null;
-  const others = state.series.filter(series => series.priorityLane !== "primary");
-  return <Section title="מהסדרות והכותבים" className="h29-series-section" link={<Link to="/2029/posts">לכל הסדרות ←</Link>}>
+  if (!primarySpec) return null;
+  return <section className="h29-sec h29-flagship-section" aria-label="מפת המציאות" data-home-flagship="true">
     <div className="h29-series-grid" aria-busy={state.loading} data-home-public-series="true">
-      {primarySpec ? <PrimarySeriesCard series={primarySeries} spec={primarySpec} teaser={seriesHomeTeaser2029(primarySpec)} families={seriesHomeFamilies2029(primarySpec)} /> : null}
-      {state.loading ? Array.from({ length: CONTENT_SERIES_2029.length - (primarySpec ? 1 : 0) }, (_, i) => <div className="h29-series-card h29-skel" key={i} aria-hidden="true" />) : null}
+      <PrimarySeriesCard series={primarySeries} spec={primarySpec} teaser={seriesHomeTeaser2029(primarySpec)} families={seriesHomeFamilies2029(primarySpec)} />
+    </div>
+  </section>;
+}
+
+// The other series keep their existing order and cards, after the flagship region, the ELS entry and the latest ciphers.
+function HomeOtherSeries({ state }) {
+  const others = state.series.filter(series => series.priorityLane !== "primary");
+  const hasPrimary = CONTENT_SERIES_2029.some(spec => spec.priorityLane === "primary");
+  return <Section title="מהסדרות והכותבים" className="h29-series-section" link={<Link to="/2029/posts">לכל הסדרות ←</Link>}>
+    <div className="h29-series-grid" aria-busy={state.loading} data-home-other-series="true">
+      {state.loading ? Array.from({ length: CONTENT_SERIES_2029.length - (hasPrimary ? 1 : 0) }, (_, i) => <div className="h29-series-card h29-skel" key={i} aria-hidden="true" />) : null}
       {others.map(series => {
         const item = series.items[0];
         return <article className="h29-series-card" data-home-series={series.key} key={series.key}>
@@ -233,6 +249,45 @@ function HomeSeriesCards() {
       {state.failed ? <p role="alert">הסדרות אינן זמינות כרגע. <Link to="/2029/posts">אפשר לפתוח את רשימת הפוסטים.</Link></p> : null}
     </div>
   </Section>;
+}
+
+// "עדכונים אחרונים" (ZURIEL, 6.11.2026): the first Home area, always live. It is a projection of the Frame's ONE shared stream
+// watcher (the same publications as "עכשיו"), newest first, with the type (an image from the reality stream shows as an image),
+// the source and the relative time ("לפני X" is the main-Home record-time rule). Unverified source messages are never shown here;
+// while the world is closed to the public only Posts appear. Anything the flagship region or the ciphers already show is left
+// out (one appearance per item). Nothing to show, or no feed: no card and no error text.
+const HOME_UPDATES_LIMIT = 4;
+function useHomeUpdates(feed, { exclude, postsOnly }) {
+  const loading = Boolean(feed?.loading || feed?.detailsPending);
+  const models = useMemo(() => {
+    const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
+    return nowModels(rows)
+      .filter(model => !model.unverified && (!postsOnly || model.item?.sourceKind === "post") && !(model.href && exclude.has(model.href)))
+      .slice(0, HOME_UPDATES_LIMIT);
+  }, [feed?.expandedRows, feed?.rows, exclude, postsOnly]);
+  return { loading, models };
+}
+
+function HomeLiveUpdates({ updates, onOpenNow }) {
+  const { loading, models } = updates;
+  if (!loading && !models.length) return null;
+  return <section className="h29-launch-card h29-updates-royal h29-live" aria-label="עדכונים אחרונים" data-home-top-updates="live" aria-busy={loading}>
+    <div className="h29-sec-h"><h2><i className="h29-live-dot" aria-hidden="true" />עדכונים אחרונים</h2>
+      {onOpenNow ? <button type="button" className="h29-linkbtn" onClick={onOpenNow}>כל העדכונים ←</button> : <Link to="/2029/posts">כל הפוסטים ←</Link>}</div>
+    <ul className="h29-live-list">
+      {loading ? Array.from({ length: HOME_UPDATES_LIMIT }, (_, i) => <li className="h29-live-item h29-skel" key={i} aria-hidden="true" />)
+        : models.map((model, index) => {
+          const body = <>
+            <Media src={model.thumb} fallback="✦" className="h29-live-thumb" />
+            <span><small className="h29-live-meta"><b>{model.typeLabel}</b>{model.byline[0] ? ` · ${model.byline[0]}` : ""}{model.at && Number.isFinite(new Date(model.at).getTime()) ? <> · <time dateTime={new Date(model.at).toISOString()}>{relativeTimeLabel(model.at)}</time></> : null}</small>
+              <strong>{model.title}</strong></span>
+          </>;
+          return <li className={`h29-live-item${index === 0 ? " is-lead" : ""}`} data-home-update-item={model.id} key={model.id}>
+            {model.href?.startsWith("/") ? <Link to={model.href}>{body}</Link> : model.href ? <a href={model.href}>{body}</a> : <div>{body}</div>}
+          </li>;
+        })}
+    </ul>
+  </section>;
 }
 
 // "פוסטים אחרונים": the newest public Posts that are in no series and not in the "עכשיו" pool (exact complement, shared
@@ -289,7 +344,7 @@ function HomeAvailabilityMap() {
 export default function HomeComposition2029({
   projection, loading, nowHero, story, elsEntry, arrivals, calculator, entry, continuity, primaryReader = null,
   selectedSlug, onSelectPost, onOpenWorkspace, journeyLocked = false, corePublic = false, worldOpen = false,
-  onWorldApproach, onSummaryApproach,
+  onWorldApproach, onSummaryApproach, onOpenNow = null,
   onNavigate,
 }) {
   const primary = useHomeCompositionData({ includeWorld: !corePublic && worldOpen, primaryReader });
@@ -308,10 +363,19 @@ export default function HomeComposition2029({
   useEffect(() => { if (summaryAdmitted) onSummaryApproach?.(true); }, [summaryAdmitted, onSummaryApproach]);
   const data = { ...primary, ...deferred };
   // Items already shown by the lead, the videos strip or the cipher strip are not repeated in the standalone strip.
+  const seriesState = useHomeSeries();
+  const feed = useContext(SystemFeedContext2029);
+  // An item shown by the flagship region or the ciphers is not repeated in the live updates strip.
+  const updatesExclude = useMemo(() => new Set([
+    ...(seriesState.series.find(series => series.priorityLane === "primary")?.items || []).map(item => item.href),
+    ...(data.ciphers || []).map(cipher => postHref(cipher.link_url)),
+  ].filter(Boolean).map(String)), [seriesState.series, data.ciphers]);
+  const updates = useHomeUpdates(feed, { exclude: updatesExclude, postsOnly: corePublic && !worldOpen });
   const standaloneExclude = useMemo(() => new Set([
     ...data.posts.map(post => post.slug), ...(data.videos || []).map(video => video.slug),
     ...(data.ciphers || []).map(cipher => postAddressSlug(cipher.link_url)),
-  ].filter(Boolean).map(String)), [data.posts, data.videos, data.ciphers]);
+    ...updates.models.map(model => model.href ? postAddressSlug(model.href) : null),
+  ].filter(Boolean).map(String)), [data.posts, data.videos, data.ciphers, updates.models]);
   useEffect(() => { if (worldAdmitted) onWorldApproach?.(true); }, [worldAdmitted, onWorldApproach]);
   const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
@@ -328,23 +392,26 @@ export default function HomeComposition2029({
     const href = link?.getAttribute("href");
     if (link && !link.hasAttribute("download") && (!link.target || link.target === "_self") && href?.startsWith("/") && !href.startsWith("//") && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) onNavigate?.(href);
   }}>
-    <section className="h29-launch-card h29-updates-royal" aria-label="עדכונים אחרונים" data-home-top-updates={adminViewer ? "admin" : "public-closed"}>
-      <div className="h29-sec-h"><h2>עדכונים אחרונים</h2><Link to="/2029/posts">כל הפוסטים ←</Link></div>
-      <div className="h29-construction-notice" role="note">
-        <span className="h29-construction-mark" aria-hidden="true"><svg viewBox="0 0 40 40" fill="none"><path d="M10 29v5m20-5v5M7 17h26v12H7z" /><path d="m8 25 8-8m1 12 12-12m-1 12 5-5" /><path d="M20 6v4m-9-1 3 3m15-3-3 3" /></svg></span>
-        <div><strong>האתר בבנייה</strong><p>אנחנו בונים את השלב הבא. האתר עדיין לא מוכן במלואו.</p></div>
-      </div>
-      <div className="h29-updates-stage">
-        <HomeUpdatesPreview2029 />
-        <div className="h29-updates-copy">
-          <span className="h29-preview-badge">תצוגה מקדימה · להמחשה</span>
-          {adminViewer ? <p className="h29-note">🔒 תצוגת מנהל · סגור לציבור</p> : <p className="h29-construction">בקרוב: פרסומים מחוברים לאורך הזמן</p>}
+    <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} />
+    <HomeFlagshipRegion state={seriesState} />
+
+    {elsEntry ? <Reveal id="els-entry">{elsEntry}</Reveal> : null}
+
+    <Section label="הצפנים האחרונים בתורה">
+      <div className="h29-strips">
+        <div className="h29-strip k29-rv">
+          <div className="h29-sec-h"><h2>הצפנים האחרונים בתורה</h2><Link to="/2029/posts?category=צפונות%20בתורה">כל פרסומי הצופן ←</Link></div>
+          <div className="h29-strip-row">
+            {data.ciphers.map((cipher) => <Link key={cipher.id} className="h29-tile" to={postHref(cipher.link_url)}>
+              <Media src={cipher.thumb_url} fallback="✦" /><span>{clean(cipher.text)}</span>
+            </Link>)}
+            {!data.loading && !data.ciphers.length ? <p className="h29-empty">אין צפנים להצגה כרגע.</p> : null}
+          </div>
         </div>
       </div>
-      {adminViewer ? <AdminLatestUpdates key={user?.id || "no-user"} /> : null}
-      <NewsletterSignup2029 />
-    </section>
-    <HomeSeriesCards />
+    </Section>
+
+    <HomeOtherSeries state={seriesState} />
 
     {(lead ? <HomeHeroMotion2029 key={lead.slug} lead={lead} href={postHref(lead)} includeWorld={!corePublic && worldOpen} /> : <section className={`h29-hero${data.loading ? " is-loading" : ""}`} data-home-primary={data.loading ? "loading" : data.postsError ? "failed" : "empty"} aria-busy={data.loading}><div className="h29-hero-copy"><div className="h29-kicker">עכשיו</div><h1>תיעוד אירועים ורמזי המערכת</h1>{!data.loading ? <p>{data.postsError ? "העדכונים אינם זמינים כרגע. אפשר לנסות שוב או להמשיך לעולם ולמחשבון." : "אין כרגע עדכונים להצגה. אפשר להמשיך לעולם ולמחשבון."}</p> : null}</div></section>)}
 
@@ -374,20 +441,9 @@ export default function HomeComposition2029({
     {story && worldOpen ? <Reveal id="story" admissionRef={storyRef}>{storyAdmitted ? story
       : <section id="home-plane" className="sod29-flight-story is-home is-loading" aria-label="סיפור המטוס נטען"><p role="status">סיפור המטוס וכיווני הגילוי</p></section>}</Reveal> : null}
 
-    {elsEntry ? <Reveal id="els-entry">{elsEntry}</Reveal> : null}
-
-    <Section label="צפנים וסרטים">
+    {!corePublic ? <Section label="סרטים">
       <div className="h29-strips">
-        <div className="h29-strip k29-rv">
-          <div className="h29-sec-h"><h2>הצפנים האחרונים בתורה</h2><Link to="/2029/posts?category=צפונות%20בתורה">כל פרסומי הצופן ←</Link></div>
-          <div className="h29-strip-row">
-            {data.ciphers.map((cipher) => <Link key={cipher.id} className="h29-tile" to={postHref(cipher.link_url)}>
-              <Media src={cipher.thumb_url} fallback="✦" /><span>{clean(cipher.text)}</span>
-            </Link>)}
-            {!data.loading && !data.ciphers.length ? <p className="h29-empty">אין צפנים להצגה כרגע.</p> : null}
-          </div>
-        </div>
-        {!corePublic ? <div ref={videosRef} className="h29-strip k29-rv">
+        <div ref={videosRef} className="h29-strip k29-rv">
           <div className="h29-sec-h"><h2>הסרטים האחרונים</h2><Link to="/2029/posts?category=וידאו">כל הסרטים ←</Link></div>
           <div className="h29-strip-row">
             {data.videos.map((video) => <a key={video.yt || video.slug} className="h29-tile is-video" href={video.slug ? postHref(video) : "/2029/posts?category=וידאו"}>
@@ -396,9 +452,9 @@ export default function HomeComposition2029({
             </a>)}
             {!data.videosLoading && !data.videos.length ? <p className="h29-empty">אין סרטים להצגה כרגע.</p> : null}
           </div>
-        </div> : null}
+        </div>
       </div>
-    </Section>
+    </Section> : null}
 
     {arrivals && worldOpen ? <Reveal id="arrivals" admissionRef={worldRef}>{arrivals}</Reveal> : null}
 
@@ -435,6 +491,7 @@ export default function HomeComposition2029({
       <span>{pulse?.corpusTotal ? `${Number(pulse.corpusTotal).toLocaleString("he-IL")} ביטויים במאגר${pulse.contributions7d ? ` · ${pulse.contributions7d} תרומות השבוע` : ""}` : summaryAdmitted && loading ? "בודק מה זז עכשיו…" : "האתר מתחדש. כל אזור נפתח לציבור כשהוא בשל."}</span>
       {!corePublic ? <a href="/map">מה כבר חי ומה בדרך ←</a> : null}
     </section>
+    <section className="h29-launch-card h29-newsletter-end" aria-label="הרשמה לעדכונים במייל" data-home-newsletter="end"><NewsletterSignup2029 /></section>
   </div>;
 }
 

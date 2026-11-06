@@ -6,17 +6,21 @@ import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
 
-export function useSystemFeed2029({ enabled = true, nowOpen = false } = {}) {
+// `homeStrip`: the Home "עדכונים אחרונים" strip needs the same public details once (reality-stream images, channel updates, series
+// Posts). It loads them ONCE after mount; only an open Now panel keeps re-reading them on every poll.
+export function useSystemFeed2029({ enabled = true, nowOpen = false, homeStrip = false } = {}) {
   const [state, setState] = useState({ loading: true, items: [], error: false, unavailableSources: [], groupArrivals: null });
   const [seen, setSeen] = useState(readSeen);
   const [strongIds, setStrongIds] = useState({});
   const asked = useRef(new Set());
   const nowActive = useRef(false);
   nowActive.current = enabled && nowOpen;
+  const detailsWanted = useRef(false);
+  detailsWanted.current = enabled && (nowOpen || homeStrip);
   const nowEpoch = useRef(0), nowController = useRef(null), nowPending = useRef(false), streamResults = useRef(0);
   const [nowSources, setNowSources] = useState({ requested: false, loading: false, items: [], sourceStates: [], error: false });
   const refreshNowDetails = useCallback(() => {
-    if (!nowActive.current || nowPending.current) return;
+    if (!detailsWanted.current || nowPending.current) return;
     nowPending.current = true;
     const epoch = ++nowEpoch.current;nowController.current?.abort();
     const controller = new AbortController();nowController.current = controller;
@@ -24,7 +28,7 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false } = {}) {
     import("../../lib/research/systemFeedPublicSources2029.js")
       .then(({ fetchSystemFeedPublicSources2029 }) => {
         // Closing while the chunk is still loading must not start a detached read.
-        if (epoch !== nowEpoch.current || !nowActive.current || controller.signal.aborted) { controller.abort(); return null; }
+        if (epoch !== nowEpoch.current || !detailsWanted.current || controller.signal.aborted) { controller.abort(); return null; }
         return fetchSystemFeedPublicSources2029({ signal: controller.signal });
       })
       .then(result => { if (epoch === nowEpoch.current && !controller.signal.aborted) setNowSources({ ...result, requested: true, loading: false, error: false }); })
@@ -33,14 +37,14 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false } = {}) {
   }, []);
   const requestNowDetails = refreshNowDetails;
   useEffect(() => {
-    if (enabled && nowOpen) refreshNowDetails();
+    if (enabled && (nowOpen || homeStrip)) refreshNowDetails();
     else setNowSources(current => current.loading ? { ...current, loading: false } : current);
     return () => {
       nowEpoch.current += 1;
       nowController.current?.abort();
       nowPending.current = false;
     };
-  }, [enabled, nowOpen, refreshNowDetails]);
+  }, [enabled, nowOpen, homeStrip, refreshNowDetails]);
 
 
   useEffect(() => {
@@ -90,5 +94,7 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false } = {}) {
   const newCount = rows.filter((row) => row.isNew).length;
   const newest = rows.filter((row) => row.isNew).map((row) => row.at).filter(Boolean).sort().reverse()[0] || null;
   const see = useCallback((row) => setSeen((current) => (current[feedSeenKey(row.item)] ? current : markSeen(feedSeenKey(row.item), current))), []);
-  return { ...state, items, rows, expandedRows, nowSources, requestNowDetails, refreshNowDetails, newCount, newest, see };
+  // The Home strip waits for the details read it asked for (settled = loaded or failed), so it never flashes empty between stages.
+  const detailsPending = enabled && homeStrip && !nowOpen && (!nowSources.requested || nowSources.loading);
+  return { ...state, items, rows, expandedRows, nowSources, detailsPending, requestNowDetails, refreshNowDetails, newCount, newest, see };
 }
