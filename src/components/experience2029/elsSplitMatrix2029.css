@@ -22,8 +22,3 @@
 .els29-split-cell.is-start{outline:2px solid currentColor;outline-offset:-2px}
 .els29-split-colctl{display:flex;gap:8px}
 @media(max-width:520px){.els29-split-grid{grid-template-columns:repeat(var(--els29-split-cols),30px)}.els29-split-cell{width:30px;height:32px;font-size:18px}.els29-split-row{grid-template-columns:minmax(0,2fr) .6fr 1fr 1fr auto;font-size:14px}}
-.els29-fold{min-width:0;padding:clamp(10px,2vw,16px);border:1px solid var(--s29-line);border-radius:18px;background:var(--s29-panel);color:var(--s29-ink);font-family:var(--s29-font-ui);text-align:start}
-.els29-fold button,.els29-fold select{font:inherit;font-size:max(var(--s29-type-ui),16px);min-height:44px;min-width:44px;padding:8px 14px;color:var(--s29-ink);background:var(--s29-panel-soft);border:1px solid var(--s29-line);border-radius:12px;cursor:pointer}
-.els29-fold button:disabled{opacity:.5;cursor:default}
-.els29-fold-jump{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-block:8px}
-.els29-fold-jump select{min-width:0;max-width:100%}
