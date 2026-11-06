@@ -28,7 +28,7 @@ import { selectedTopicSourceReturn, resolveJourneySourceReturn } from "../lib/re
 import { applySeo } from "../lib/seo.js";
 import { getValuePhrasesPage, langLinksList, supabase } from "../lib/supabase.js";
 import { canonicalMethodPublicLabel, canonicalResearchPublicLabel } from "../lib/presentation/canonicalPresentation.js";
-import { numberExpressionFocusHref, numberReadingReturnHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
+import { isCalculatorReturnTarget, numberExpressionFocusHref, numberReadingReturnHref, parseNumberExpressionFocus, resolveExpressionFocus } from "../lib/research/numberExpressionFocus.js";
 import { createNumberMethodProfileReuse } from "../lib/research/numberMethodProfileReuse.js";
 import { defaultNumberReadingExpression } from "../lib/research/numberReadingOrder.js";
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
@@ -1008,6 +1008,8 @@ function NumberPageBody({ resolvedAddress = null }) {
   const sourceReturnRequest = useRef(0);
   useEffect(() => () => { sourceReturnRequest.current += 1; }, [location.pathname, location.search, research.setResearchContext]);
   const sourceReturn = selectedTopicSourceReturn(research.context?.returnTo);
+  // One calculator action only: "back" (exact state) when the reader came from the calculator, "open" when they arrived on their own.
+  const arrivedFromCalculator = isCalculatorReturnTarget(research.context?.returnTo);
   const returnToSelectedSource = async () => {
     const request = ++sourceReturnRequest.current;
     const result = await resolveJourneySourceReturn(sourceReturn, fetchTopicSourceContext);
@@ -1246,7 +1248,7 @@ function NumberPageBody({ resolvedAddress = null }) {
         <small>{activeMethodLabel || focusMethodKey || "שיטה"} {(traceNumber(activeResult) != null) ? `= ${activeResult}` : ""} · הבית המספרי {root}</small>
       </div>
       <div className="sod29-actions">
-        {research.context?.returnTo?.href
+        {research.context?.returnTo?.href && !arrivedFromCalculator
           ? <button className="sod29-action" type="button" onClick={sourceReturn ? returnToSelectedSource : () => shell.returnExact()}>↩ {research.context.returnTo.label || "חזרה מדויקת"}</button>
           : originTopicSlug
             ? <button className="sod29-action" type="button" onClick={returnToOriginTopic}>↩ חזרה להתכנסות</button>
@@ -1259,7 +1261,9 @@ function NumberPageBody({ resolvedAddress = null }) {
       {/* ZURIEL 5.11.2026 (mobile first screen): the way back and the save action share one row on a phone, so the number rises; on wider screens this wrapper is display:contents and nothing moves. */}
       <div className="sod29-number-hero-bar">
         <nav className="sod29-action-row sod29-number-calculator-return" aria-label="חזרה למחשבון">
-          <Link to="/gematria" className="sod29-action" data-number-action="back-to-calculator">← חזרה למחשבון גימטריה</Link>
+          {arrivedFromCalculator
+            ? <button type="button" className="sod29-action sod29-number-calculator-action" data-number-action="back-to-calculator" onClick={() => shell.returnExact()}><NavigationIcon2029 name="calculator" size={18} /><span>חזרה למחשבון</span></button>
+            : <Link to="/gematria" className="sod29-action sod29-number-calculator-action" data-number-action="open-calculator"><NavigationIcon2029 name="calculator" size={18} /><span>למחשבון גימטריה</span></Link>}
         </nav>
         <div className="sod29-actions"><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
       </div>

@@ -6,6 +6,9 @@
 /* Wrapper for the way-back link and the save action. Display:contents above the phone breakpoint: the two controls keep their
    original stacked layout and the wrapper adds no box. */
 .sod29-number-hero-bar{display:contents}
+/* The single calculator action (back-to-calculator or open-calculator) carries the calculator's own icon. */
+.sod29-number-calculator-action{display:inline-flex;align-items:center;gap:8px}
+.sod29-number-calculator-action svg{flex:0 0 auto}
 .sod29-number-hero{
   position:relative;
   overflow:hidden;
