@@ -114,3 +114,26 @@
   .sod29-workspace-section-head{display:grid;justify-items:center;gap:2px}
   .sod29-workspace-raziel-actions{grid-template-columns:1fr}
 }
+
+/* Personal area on a desktop screen (ZURIEL 6.11): the sign-in entry used to sit in three nested frames, stretched into one very wide
+   column and clipped by a short panel. The panel now uses the available height, the entry is not framed twice, and the sign-in
+   methods sit side by side. Layout only — no auth behaviour, provider or copy changes. */
+@media (min-width: 981px) {
+  .sod29-root.native-frame .sod29-frame-panel[data-panel-kind="workspace"] {
+    height: min(calc(100dvh - var(--s29-island-clearance, 90px) - 24px), 880px);
+    max-block-size: none;
+  }
+  .sod29-workspace-account:has(> .sod29-account-entry) { padding: 0; border: 0; background: transparent; }
+  .sod29-workspace-account > .sod29-account-entry {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 40px; row-gap: 10px; align-items: start;
+    padding: 6px 4px 14px; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+  }
+  .sod29-workspace-account > .sod29-account-entry > :is(h2, p, .sod29-auth-method-note, .sod29-auth-error) { grid-column: 1 / -1; }
+  .sod29-workspace-account > .sod29-account-entry h2 { margin: 0; }
+  .sod29-workspace-account > .sod29-account-entry > p { margin: 0 0 4px; }
+  .sod29-workspace-account > .sod29-account-entry > form { grid-column: 1; }
+  .sod29-workspace-account > .sod29-account-entry > .sod29-auth-alternatives {
+    grid-column: 2; display: grid; gap: 10px; align-content: start;
+    padding-inline-start: 40px; border-inline-start: 1px solid var(--s29-line);
+  }
+}

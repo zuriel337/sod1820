@@ -1,4 +1,3 @@
-import { foldOptionsFor } from "../../lib/elsSplitMatrix.js";
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { use2029Palette } from "../../lib/palette2029.js";
 import { parseElsHitKey, buildJourneyPromotion } from "../../lib/elsJourney.js";
@@ -26,7 +25,6 @@ import "./elsNativeClassic2029.css";
 const ElsGuidedMatrixSnapshot2029 = React.lazy(() => import("./ElsGuidedMatrixSnapshot2029.jsx"));
 const ElsLexiconResearch2029 = React.lazy(() => import("./ElsLexiconResearch2029.jsx"));
 const ElsSplitMatrix2029 = React.lazy(() => import("./ElsSplitMatrix2029.jsx"));
-const ElsFoldedMatrix2029 = React.lazy(() => import("./ElsFoldedMatrix2029.jsx"));
 const ElsPairPlanner2029 = React.lazy(() => import("./ElsPairPlanner2029.jsx"));
 const ElsOccurrencePlanner2029 = React.lazy(() => import("./ElsOccurrencePlanner2029.jsx"));
 
@@ -367,17 +365,20 @@ function MatrixControls({ state, onControl, onContext, busy }) {
   </div>;
 }
 
-// Research mode only. One always-visible side control: how many rows sit between consecutive letters of the axis. Stepping it folds the
-// same text into narrower rows (width = skip / k) and the whole matrix re-flows. Only exact divisors of the skip are offered.
-function MatrixSideRail({ options, option, active, onStep }) {
-  const index = Math.max(0, options.findIndex(item => item.k === option?.k));
-  const single = options.length < 2;
-  return <div className="els29-native-side-rail" role="group" aria-label="קיפול המטריצה">
-    <button type="button" disabled={!active || single || index >= options.length - 1} onClick={() => onStep(1)} aria-label="עוד שורות בין אותיות הציר" title="עוד שורות בין אותיות הציר">＋</button>
-    <output aria-label="שורות בין אותיות הציר" dir="ltr">{option?.between ?? 0}</output>
-    <small>שורות בין האותיות</small>
-    <button type="button" disabled={!active || single || index <= 0} onClick={() => onStep(-1)} aria-label="פחות שורות בין אותיות הציר" title="פחות שורות בין אותיות הציר">−</button>
-    {single ? <small aria-label="אין קיפול מדויק">אין קיפול לדילוג הזה</small> : <small dir="ltr">{option?.width?.toLocaleString("he-IL")}</small>}
+const ROW_GAP_PX = [2, 8, 16, 28];
+
+// Research mode only. Always-visible side controls: zoom (the engine's own zoom control) and the spacing between rows
+// (presentation only, applied live through a CSS variable — letters, positions and verification are never touched).
+function MatrixSideRail({ zoom, active, rowGapStep, onZoom, onRowGap }) {
+  const percent = Math.round(clamp(Number(zoom) || 1, 0.5, 2.8) * 100);
+  return <div className="els29-native-side-rail" role="group" aria-label="גודל ורווח שורות במטריצה">
+    <button type="button" disabled={!active || percent >= 280} onClick={() => onZoom(1)} aria-label="הגדל מטריצה · פקדי צד" title="הגדל מטריצה">＋</button>
+    <output aria-label="גודל המטריצה" dir="ltr">{percent}%</output>
+    <button type="button" disabled={!active || percent <= 50} onClick={() => onZoom(-1)} aria-label="הקטן מטריצה · פקדי צד" title="הקטן מטריצה">−</button>
+    <hr aria-hidden="true" />
+    <button type="button" disabled={!active || rowGapStep >= ROW_GAP_PX.length - 1} onClick={() => onRowGap(1)} aria-label="הגדל רווח בין השורות" title="הגדל רווח בין השורות">⇕</button>
+    <small aria-label="רווח בין שורות">{rowGapStep ? `רווח ${rowGapStep}` : "צפוף"}</small>
+    <button type="button" disabled={!active || rowGapStep <= 0} onClick={() => onRowGap(-1)} aria-label="הקטן רווח בין השורות" title="הקטן רווח בין השורות">⇔</button>
   </div>;
 }
 
@@ -878,8 +879,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
   const [panelPinned, setPanelPinned] = useState(true);
   const [heightExpanded, setHeightExpanded] = useState(false);
-  const [foldK, setFoldK] = useState(1);   // research mode only: 1 = the engine's matrix; k > 1 = the same text folded into rows of width skip/k
-  const [foldResponse, setFoldResponse] = useState(null);
+  const [rowGapStep, setRowGapStep] = useState(0);   // research-mode presentation only: spacing between matrix rows
   const [matrixOptionsOpen, setMatrixOptionsOpen] = useState(false);
   const matrixOptionsTriggerRef = useRef(null);
   const [classicGlyphs, setClassicGlyphs] = useState(false);
@@ -960,11 +960,6 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     select: (tool, trigger) => activeTool === tool && !classicOpen && window.matchMedia("(min-width:981px)").matches ? closeTool() : openTool(tool, trigger),
   };
   const sideRail = researchProfile && !guidedProfile;   // research mode only; the classic matrix keeps its current layout
-  const foldOptionList = useMemo(() => foldOptionsFor(engineState?.axis?.skip, engineState?.axis?.length), [engineState?.axis?.skip, engineState?.axis?.length]);
-  const foldOption = foldOptionList.find(option => option.k === foldK) || foldOptionList[0];
-  const foldActive = sideRail && foldOption && foldOption.k > 1;
-  const foldIdentity = `${engineState?.scope}|${engineState?.axis?.hitId || ""}`;
-  useEffect(() => { setFoldK(1); setFoldResponse(null); }, [foldIdentity]);
   const aiAvailable = !publicClassic && Boolean(matrixReading || typeof onRazielMatrix === "function");
   const dockProjection = useMemo(() => ({
     surface: "els",
@@ -1266,7 +1261,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const handleLens = (result) => {
     if (result?.lens === "matrix-lexicon") { setLexiconResponse(result); return; }
-    if (result?.lens === "matrix-window") { if (result.target?.foldSeq != null) setFoldResponse(result); else setSplitResponse(result); return; }
+    if (result?.lens === "matrix-window") { setSplitResponse(result); return; }
     if (result?.target?.researchOccurrenceInspection === true) {
       if (result.target.inspectionRun === lensRequestRef.current?.target?.inspectionRun) setResearchInspectionResponse(result);
       return;
@@ -1653,15 +1648,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             </div>
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
-          {sideRail ? <div className="els29-native-matrix-with-rail">
-            <MatrixSideRail options={foldOptionList} option={foldOption} active={matrixActive && !searchPending}
-              onStep={delta => { const index = foldOptionList.findIndex(option => option.k === foldOption?.k); const next = foldOptionList[clamp(index + delta, 0, foldOptionList.length - 1)]; if (next) setFoldK(next.k); }} />
+          {sideRail ? <div className="els29-native-matrix-with-rail" style={{ "--els29-row-gap": `${ROW_GAP_PX[rowGapStep]}px` }}>
+            <MatrixSideRail zoom={engineState?.ui?.zoom} active={matrixActive && !searchPending} rowGapStep={rowGapStep}
+              onZoom={direction => requestControl("zoom-set", clamp(Math.round(((Number(engineState?.ui?.zoom) || 1) + direction * 0.2) * 10) / 10, 0.5, 2.8))} onRowGap={delta => setRowGapStep(step => clamp(step + delta, 0, ROW_GAP_PX.length - 1))} />
             <div className="els29-native-matrix-with-rail-body">
-            {foldActive ? <React.Suspense fallback={<p role="status">טוען מטריצה מקופלת…</p>}>
-                <ElsFoldedMatrix2029 state={engineState} option={foldOption} busy={searchPending} response={foldResponse}
-                  onRequest={target => setLensRequest({ lens: "matrix-window", target })} onExit={() => setFoldK(1)} />
-              </React.Suspense> : <MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
-              readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />}
+            <MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
+              readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />
             </div>
           </div> :
 <MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
@@ -1760,7 +1752,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                 onFindWords={event => openTool("findings", event.currentTarget)} />
               <ElsSplitMatrix2029 key={`split-${user?.id || "guest"}`} state={engineState} visible={active && researchProfile && !guidedProfile}
                 busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={splitResponse}
-                onRequest={target => setLensRequest({ lens: "matrix-window", target })} onFold={k => setFoldK(k)} />
+                onRequest={target => setLensRequest({ lens: "matrix-window", target })} />
             </React.Suspense> : null}
           </div>
         </section>
