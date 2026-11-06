@@ -112,7 +112,7 @@ jobs:
         run: node --test test/topbar-crown-2029.test.mjs
       - name: Bottom command bar is one row (nothing lifts the Raziel orb off the centre line of the other four controls)
         run: node --test test/command-island-one-row-2029.test.mjs
-      - name: Beit Midrash contracts (World lenses over the governed tree attachment, methods study, learning projection, study UI, source reading, route, method registry and definitions)
+      - name: Beit Midrash contracts (World lenses over the governed tree attachment, methods study, learning projection, study UI, source reading, route and method definitions; the Legacy-page method-registry script was removed with the Legacy runtime in 623b8d38a)
         run: >
           node --test
           test/beit-midrash-world-sections-2029.test.mjs
@@ -121,7 +121,6 @@ jobs:
           test/beit-midrash-world-study-ui-2029.test.mjs
           test/beit-midrash-source-reading-lesson-2029.test.mjs
           test/kingdom-beit-midrash-learning-route-2029.test.mjs
-          scripts/test-beit-midrash-methods-registry.mjs
           scripts/test-beit-midrash-all-method-definitions.mjs
       - name: Calculator contracts, static (opening, compare, classic view, equals preview, pro, semantic surface, viral, English posts)
         run: >
@@ -160,3 +159,17 @@ jobs:
         run: |
           npm run test:cn-sg-security
           node --test middleware.test.js test/public-reading-middleware-entry.test.mjs test/bot-read-no-side-effect.test.mjs test/bot-read-sink-guard.test.mjs
+      # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
+      # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
+      - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)
+        run: node --test test/def001-email-exposure-contract.test.mjs test/sitemap-no-redirecting-locs-2029.test.mjs test/ci-workflow-references-exist.test.mjs test/public-foundation-seo.test.mjs
+
+  # The SQL behaviour of the security migrations runs on a throwaway PostgreSQL container (never a live database).
+  security-sql-contracts:
+    name: security-sql-contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: DEF-001 and DEF-001b SQL regression (anon and authenticated cannot read e-mail addresses or visitor ids)
+        run: bash scripts/run-def001-sql-test.sh
