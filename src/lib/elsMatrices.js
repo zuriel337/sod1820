@@ -181,6 +181,20 @@ export async function selfPublishMatrix(id, on = true) {
   return data;
 }
 
+// ✏️🗑 ניהול הצפנים שלי — בעלים בלבד, ורק על רשומה שלא אושרה לפרסום (status != 'published').
+// RPC מחזיר {ok:true} או {ok:false,error:'not_authenticated'|'not_found'|'not_owner'|'published_locked'|'invalid_title'}.
+export async function renameMyMatrix(id, title) {
+  const { data, error } = await supabase.rpc("rename_my_els_matrix", { p_id: id, p_title: title });
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteMyMatrix(id) {
+  const { data, error } = await supabase.rpc("delete_my_els_matrix", { p_id: id });
+  if (error) throw error;
+  return data;
+}
+
 export async function saveMatrix({ term, scope = "torah", skip = null, direction = null, positions = null, imageUrl = null, title = null, note = null, isPublic = true, fromTopic = null, startIndex = null, engineDetail = null }) {
   // 🆔 startIndex = עוגן-הממצא 0-based (occ().start). corpus_id/term_norm נגזרים בשרת — לא בצד-לקוח.
   // 🧬 engineDetail = מעטפת-שחזור (GAP-5, Pass 3) — תוספתית בלבד, לעולם לא מחליפה את שדות-הזהות למעלה.

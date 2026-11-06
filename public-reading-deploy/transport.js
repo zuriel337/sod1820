@@ -383,6 +383,22 @@ function installPublicReadingWorker(policy) {
           if (!uid || req.signal.aborted) return denied();
           return readFetch(req);
         }
+        // Bible code: a verified member renames or deletes their own cipher. The database function owns the ownership check and
+        // refuses moderated (published) records; the worker admits only the exact bodies, so publication stays administrator-only.
+        if ((rpc === "rename_my_els_matrix" || rpc === "delete_my_els_matrix") && !url.search) {
+          const raw = await req.clone().text();
+          if (raw.length > 2000) return denied();
+          let body; try { body = JSON.parse(raw); } catch { return denied(); }
+          if (!plainObject(body)) return denied();
+          const exact = rpc === "rename_my_els_matrix"
+            ? Object.keys(body).sort().join(",") === "p_id,p_title" && uuid(body.p_id) && typeof body.p_title === "string" && body.p_title.length <= 400
+            : Object.keys(body).join(",") === "p_id" && uuid(body.p_id);
+          if (!exact) return denied();
+          const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+          const uid = await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
+          if (!uid || req.signal.aborted) return denied();
+          return readFetch(req);
+        }
         if (reads.has(rpc) && !url.search) { await jsonBody(req); return readFetch(req); }
         if (rpc === "convergence_meter" && !url.search) {
           const body = await jsonBody(req);

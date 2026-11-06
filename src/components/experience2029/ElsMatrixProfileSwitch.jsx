@@ -27,6 +27,8 @@ export default function ElsMatrixProfileSwitch({
   onChange,
   disabled = false,
   ariaLabel = "מצב מטריצה",
+  // Public visitors get Research and Classic; Guided discovery stays with the administrator.
+  allowed = null,
 }) {
   const active = normalizeElsMatrixProfile(profile);
 
@@ -39,7 +41,7 @@ export default function ElsMatrixProfileSwitch({
       className="sod29-actions"
       style={{ flexWrap: "wrap", gap: 8 }}
     >
-      {OPTIONS.map((option) => {
+      {OPTIONS.filter((option) => !allowed || allowed.includes(option.key)).map((option) => {
         const selected = active === option.key;
         return (
           <button

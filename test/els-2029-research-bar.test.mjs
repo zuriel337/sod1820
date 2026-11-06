@@ -1,21 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const page = readFileSync(new URL("../src/pages/Els2029Page.jsx", import.meta.url), "utf8");
-const bar = readFileSync(new URL("../src/components/experience2029/ElsResearchBar2029.jsx", import.meta.url), "utf8");
 const css = readFileSync(new URL("../src/components/experience2029/els2029-research.css", import.meta.url), "utf8");
 
-test("research bar renders only in the Research profile and keeps Classic mounted in place", () => {
-  assert.match(page, /\{researchProfile && \(!guidedProfile \|\| researchLoad\?\.guidedDiscovery === true \|\| savedRecord\.row\) \? <ElsResearchBarConnected/);
+test("the floating Raziel research bar is retired: it covered the matrix tools and the shared dock", () => {
+  assert.equal(existsSync(new URL("../src/components/experience2029/ElsResearchBar2029.jsx", import.meta.url)), false);
+  assert.doesNotMatch(page, /ElsResearchBar/);
+  assert.doesNotMatch(css, /els29-rbar/);
+  assert.doesNotMatch(css, /data-els-research-bar/);
+});
+
+test("Classic stays mounted in place for every profile", () => {
   assert.match(page, /<ElsNativeWithRaziel[^>]*initialSeed=\{savedRecord\.row \|\| legacyMatrix \|\| sharedMatrix\.present \|\| location\.state\?\.elsReadingReturnTurnId \|\| location\.state\?\.elsResearchReturnTaskId \? "" : classicSeed\}/);
   assert.match(page, /return <ElsNativeClassic2029 \{\.\.\.props\}/);
   assert.match(page, /data-els-research-composition/);
-});
-
-test("research bar is presentation-only: no search, verify or bridge calls", () => {
-  assert.doesNotMatch(bar, /supabase|invoke|verifyEls2029|els-search-bridge|fetch\(/);
-  assert.match(bar, /disabled=\{!razielAvailable\}/);
 });
 
 test("research styling is scoped and Classic receives no rules", () => {

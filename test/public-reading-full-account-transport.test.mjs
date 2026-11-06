@@ -456,6 +456,19 @@ test('Bible code save: a verified member saves to their own library with the exa
  // not a verified member: forged identity or failed verification never reaches the server
  const forged=worker({authError:true});assert.equal((await forged.request('/rest/v1/rpc/save_els_matrix',{body:save})).status,403);
  assert.ok(!forged.calls.some(c=>c.url.includes('save_els_matrix')));
+ // a verified member manages only their own cipher through the two owner-scoped functions, with the exact body
+ const owned={p_id:update.p_id,p_title:'שם חדש'};
+ const manager=worker({role:'user',anonKey:'anon-key'});
+ assert.equal((await manager.request('/rest/v1/rpc/rename_my_els_matrix',{body:owned})).status,200);
+ assert.equal((await manager.request('/rest/v1/rpc/delete_my_els_matrix',{body:{p_id:update.p_id}})).status,200);
+ for(const [name,body] of [['rename_my_els_matrix',{...owned,p_owner:'x'}],['rename_my_els_matrix',{p_id:'nope',p_title:'x'}],['rename_my_els_matrix',{p_id:update.p_id,p_title:5}],
+   ['delete_my_els_matrix',{p_id:update.p_id,p_status:'published'}],['delete_my_els_matrix',{p_id:'nope'}]]){
+  const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/'+name,{body})).status,403,name);assert.ok(!w.calls.some(c=>c.url.includes(name)),name);
+ }
+ for(const name of ['rename_my_els_matrix','delete_my_els_matrix']){
+  const w=worker({authError:true});assert.equal((await w.request('/rest/v1/rpc/'+name,{body:name.startsWith('rename')?owned:{p_id:update.p_id}})).status,403,name);
+  assert.ok(!w.calls.some(c=>c.url.includes(name)),name);
+ }
  // moderation and publication stay administrator-only
  for(const name of ['moderate_els_matrix','admin_els_to_dossier','merge_els_variant','delete_els_matrix','self_publish_matrix']){
   const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/'+name,{body:{p_id:update.p_id,p_status:'published'}})).status,403,name);
