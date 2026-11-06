@@ -369,9 +369,10 @@ const ROW_GAP_PX = [2, 8, 16, 28];
 
 // Research mode only. Always-visible side controls: zoom (the engine's own zoom control) and the spacing between rows
 // (presentation only, applied live through a CSS variable — letters, positions and verification are never touched).
-function MatrixSideRail({ zoom, active, rowGapStep, onZoom, onRowGap }) {
+function MatrixSideRail({ zoom, active, rowGapStep, onZoom, onRowGap, fullscreen, onFullscreen }) {
   const percent = Math.round(clamp(Number(zoom) || 1, 0.5, 2.8) * 100);
   return <div className="els29-native-side-rail" role="group" aria-label="גודל ורווח שורות במטריצה">
+    <button type="button" className="els29-fs-toggle" disabled={!active && !fullscreen} aria-pressed={fullscreen} onClick={onFullscreen} aria-label={fullscreen ? "יציאה ממסך מלא" : "מסך מלא"} title={fullscreen ? "יציאה ממסך מלא" : "מטריצה במסך מלא"}>{fullscreen ? "⤡" : "⤢"}</button>
     <button type="button" disabled={!active || percent >= 280} onClick={() => onZoom(1)} aria-label="הגדל מטריצה · פקדי צד" title="הגדל מטריצה">＋</button>
     <output aria-label="גודל המטריצה" dir="ltr">{percent}%</output>
     <button type="button" disabled={!active || percent <= 50} onClick={() => onZoom(-1)} aria-label="הקטן מטריצה · פקדי צד" title="הקטן מטריצה">−</button>
@@ -879,6 +880,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
   const [panelPinned, setPanelPinned] = useState(true);
   const [heightExpanded, setHeightExpanded] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);   // research mode: the whole ELS surface fills the screen, windows float over the matrix
+  const [fsQueryOpen, setFsQueryOpen] = useState(false);
+  const sectionRef = useRef(null);
+  const nativeFullscreenRef = useRef(false);
   const [rowGapStep, setRowGapStep] = useState(0);   // research-mode presentation only: spacing between matrix rows
   const [matrixOptionsOpen, setMatrixOptionsOpen] = useState(false);
   const matrixOptionsTriggerRef = useRef(null);
@@ -920,6 +925,36 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       else setNotice("מסך מלא אינו זמין בדפדפן הזה; אפשר להמשיך בהצגה בתוך העמוד.");
     } catch { setNotice("מסך מלא אינו זמין כרגע; אפשר להמשיך בהצגה בתוך העמוד."); }
   };
+  // Fullscreen for the whole ELS surface (matrix, search windows and tool panels). The browser's fullscreen is used when it exists;
+  // phones that do not offer it (iOS Safari) get the same layout as a fixed full-viewport surface.
+  const enterFullscreen = async () => {
+    const node = sectionRef.current;
+    nativeFullscreenRef.current = false;
+    try {
+      if (node?.requestFullscreen) { await node.requestFullscreen(); nativeFullscreenRef.current = true; }
+    } catch { nativeFullscreenRef.current = false; }
+    setFullscreen(true);
+  };
+  const exitFullscreen = async () => {
+    setFullscreen(false); setFsQueryOpen(false);
+    try { if (document.fullscreenElement && document.fullscreenElement === sectionRef.current) await document.exitFullscreen(); } catch { /* already left */ }
+  };
+  const toggleFullscreen = () => (fullscreen ? exitFullscreen() : enterFullscreen());
+  useEffect(() => {
+    if (!fullscreen) return undefined;
+    const onChange = () => { if (nativeFullscreenRef.current && document.fullscreenElement !== sectionRef.current) { setFullscreen(false); setFsQueryOpen(false); } };
+    const onKey = event => { if (event.key === "Escape" && !nativeFullscreenRef.current && !event.defaultPrevented) { setFullscreen(false); setFsQueryOpen(false); } };
+    const previousOverflow = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.addEventListener("fullscreenchange", onChange);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.documentElement.style.overflow = previousOverflow;
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [fullscreen]);
+  useEffect(() => { if (!active || !researchProfile || guidedProfile) { if (fullscreen) exitFullscreen(); } }, [active, researchProfile, guidedProfile]);
   const highlightVerse = (verse) => {
     const projected = projectVerseWords(verse);
     if (!projected) { setVerseHighlight(null); setNotice("אין כרגע התאמה מלאה בין מילות הפסוק לאותיות המטריצה."); return; }
@@ -1479,10 +1514,18 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     else requestSearch("regular", { term: current.termRaw || current.term, scope: current.scope, windowSize: size });
   };
 
-  return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}${guidedProfile ? " is-guided-surface" : ""}${guidedMatrixOpen ? " is-guided-matrix-open" : ""}`}
+  return <section ref={sectionRef} className={`els29-native-classic${fullscreen ? " is-fullscreen" : ""}${heightExpanded ? " is-height-expanded" : ""}${guidedProfile ? " is-guided-surface" : ""}${guidedMatrixOpen ? " is-guided-matrix-open" : ""}`}
     data-els-native-classic="v4" {...(guidedProfile ? { "data-els-guided-result-surface": "results-first-v1" } : {})}
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
-    <div id="els29-query" ref={queryRef} className="els29-native-query" aria-label="חיפוש ELS" hidden={guidedProfile}>
+    {fullscreen ? <div className="els29-fs-bar" role="toolbar" aria-label="חלונות במסך מלא">
+      <button type="button" aria-pressed={fsQueryOpen && !advancedSearchOpen} onClick={() => { setAdvancedOpen(false); setFsQueryOpen(open => (open && !advancedSearchOpen ? false : true)); }}>חיפוש</button>
+      {advancedSearch ? <button type="button" aria-pressed={fsQueryOpen && advancedSearchOpen} onClick={() => { if (fsQueryOpen && advancedSearchOpen) { setFsQueryOpen(false); } else { setAdvancedOpen(true); setFsQueryOpen(true); } }}>מתקדם</button> : null}
+      {[["findings", "סריקה"], ["results", "תוצאות"], ["research", "שמירה"]].map(([tool, label]) => <button type="button" key={tool} aria-pressed={activeTool === tool}
+        onClick={event => (activeTool === tool ? closeTool() : openTool(tool, event.currentTarget))}>{label}</button>)}
+      <span className="els29-fs-spacer" />
+      <button type="button" className="els29-fs-exit" onClick={exitFullscreen} aria-label="יציאה ממסך מלא">✕ יציאה</button>
+    </div> : null}
+    <div id="els29-query" ref={queryRef} className={`els29-native-query${fsQueryOpen ? " is-fs-open" : ""}`} aria-label="חיפוש ELS" hidden={guidedProfile}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
         <span><strong>חיפוש חדש</strong></span>
         {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen && !advancedSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-three-continue", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); setAdvancedOpen(false); }}>חיפוש רגיל</button>
@@ -1656,7 +1699,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
           {sideRail ? <div className="els29-native-matrix-with-rail" style={{ "--els29-row-gap": `${ROW_GAP_PX[rowGapStep]}px` }}>
-            <MatrixSideRail zoom={engineState?.ui?.zoom} active={matrixActive && !searchPending} rowGapStep={rowGapStep}
+            <MatrixSideRail zoom={engineState?.ui?.zoom} active={matrixActive && !searchPending} rowGapStep={rowGapStep} fullscreen={fullscreen} onFullscreen={toggleFullscreen}
               onZoom={direction => requestControl("zoom-set", clamp(Math.round(((Number(engineState?.ui?.zoom) || 1) + direction * 0.2) * 10) / 10, 0.5, 2.8))} onRowGap={delta => setRowGapStep(step => clamp(step + delta, 0, ROW_GAP_PX.length - 1))} />
             <div className="els29-native-matrix-with-rail-body">
             <MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
