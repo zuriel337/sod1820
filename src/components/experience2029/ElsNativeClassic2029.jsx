@@ -24,6 +24,7 @@ import "./elsNativeClassic2029.css";
 
 const ElsGuidedMatrixSnapshot2029 = React.lazy(() => import("./ElsGuidedMatrixSnapshot2029.jsx"));
 const ElsLexiconResearch2029 = React.lazy(() => import("./ElsLexiconResearch2029.jsx"));
+const ElsSplitMatrix2029 = React.lazy(() => import("./ElsSplitMatrix2029.jsx"));
 const ElsPairPlanner2029 = React.lazy(() => import("./ElsPairPlanner2029.jsx"));
 const ElsOccurrencePlanner2029 = React.lazy(() => import("./ElsOccurrencePlanner2029.jsx"));
 
@@ -874,6 +875,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [lexiconVisited, setLexiconVisited] = useState(false);
   const [researchToolsOpen, setResearchToolsOpen] = useState(false);
   const [lexiconResponse, setLexiconResponse] = useState(null);
+  const [splitResponse, setSplitResponse] = useState(null);
   useEffect(() => {
     const sync = () => setCameraFullscreen(document.fullscreenElement === cameraStageRef.current);
     document.addEventListener("fullscreenchange", sync);
@@ -1240,6 +1242,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
 
   const handleLens = (result) => {
     if (result?.lens === "matrix-lexicon") { setLexiconResponse(result); return; }
+    if (result?.lens === "matrix-window") { setSplitResponse(result); return; }
     if (result?.target?.researchOccurrenceInspection === true) {
       if (result.target.inspectionRun === lensRequestRef.current?.target?.inspectionRun) setResearchInspectionResponse(result);
       return;
@@ -1720,6 +1723,9 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                 onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}
                 color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
                 onFindWords={event => openTool("findings", event.currentTarget)} />
+              <ElsSplitMatrix2029 key={`split-${user?.id || "guest"}`} state={engineState} visible={active && researchProfile && !guidedProfile}
+                busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} response={splitResponse}
+                onRequest={target => setLensRequest({ lens: "matrix-window", target })} />
             </React.Suspense> : null}
           </div>
         </section>

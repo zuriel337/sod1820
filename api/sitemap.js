@@ -219,12 +219,16 @@ export default async function handler(req, res) {
   let posts;
   try { posts = await fetchAll(`posts?select=id,slug,source,link,wp_id,modified,date${productionReading ? ',tags,categories' : ''}${POST_PUBLISHED_FILTER}&order=date.desc`); }
   catch { res.setHeader("Cache-Control", "no-store"); return res.status(503).send("sitemap source unavailable"); }
+  // DEF-002: the served canonical for a post is the address WITHOUT a trailing slash (the edge answers `/<slug>/` with a
+  // 308 to `/<slug>` and the page's canonical is slash-free), so the sitemap lists exactly that form. The stored WordPress
+  // link keeps its slash for the client-side address contract (publicPostHref), which stays untouched.
+  const sitemapPostPath = href => (href && href !== '/' ? href.replace(/\/+$/, '') || '/' : href);
   const postBySlug = new Map(posts.filter(post => post.slug).map(post => [postAddressSlug(publicPostHref(post)), post]));
   const videoPage = raw => {
     try {
       const url = new URL(raw); if (url.origin !== SITE) return null;
       const post = postBySlug.get(postAddressSlug(url.pathname));
-      if (post) return publicPostUrl(post);
+      if (post) return sitemapPostPath(publicPostUrl(post));
       if (foundation && !/^\/(?:number|topic)(?:\/|$)/.test(url.pathname) && !foundationStatics.has(url.pathname)
         && !(productionReading && (/^\/video\/[0-9a-f]{32}$/i.test(url.pathname) || /^\/or-geula\/video\/[0-9a-f-]{36}$/i.test(url.pathname)))) return null;
       return url.origin + url.pathname;
@@ -266,7 +270,7 @@ export default async function handler(req, res) {
       const lastmod = (p.modified || p.date || '').slice(0, 10) || undefined;
       // סלאגים מוורדפרס כבר מקודדי-URL (%d7%aa...). encodeURI היה מקודד שוב את ה-%
       // ל-%25 → קידוד-כפול שגוי שלא תואם ל-canonical. לכן מקודדים רק עברית "נקייה".
-      const postHref = publicPostHref(p);
+      const postHref = sitemapPostPath(publicPostHref(p));
       if (!postHref) continue;
       const postPath = postHref.toLowerCase();
       if (videoPrimaryPaths.has(postPath)) continue;

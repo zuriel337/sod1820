@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /unsubscribe
+Sitemap: https://sod1820.co.il/sitemap.xml

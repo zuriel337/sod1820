@@ -112,7 +112,7 @@ jobs:
         run: node --test test/topbar-crown-2029.test.mjs
       - name: Bottom command bar is one row (nothing lifts the Raziel orb off the centre line of the other four controls)
         run: node --test test/command-island-one-row-2029.test.mjs
-      - name: Beit Midrash contracts (World lenses over the governed tree attachment, methods study, learning projection, study UI, source reading, route, method registry and definitions)
+      - name: Beit Midrash contracts (World lenses over the governed tree attachment, methods study, learning projection, study UI, source reading, route and method definitions; the Legacy-page method-registry script was removed with the Legacy runtime in 623b8d38a)
         run: >
           node --test
           test/beit-midrash-world-sections-2029.test.mjs
@@ -121,7 +121,6 @@ jobs:
           test/beit-midrash-world-study-ui-2029.test.mjs
           test/beit-midrash-source-reading-lesson-2029.test.mjs
           test/kingdom-beit-midrash-learning-route-2029.test.mjs
-          scripts/test-beit-midrash-methods-registry.mjs
           scripts/test-beit-midrash-all-method-definitions.mjs
       - name: Calculator contracts, static (opening, compare, classic view, equals preview, pro, semantic surface, viral, English posts)
         run: >
@@ -160,3 +159,7 @@ jobs:
         run: |
           npm run test:cn-sg-security
           node --test middleware.test.js test/public-reading-middleware-entry.test.mjs test/bot-read-no-side-effect.test.mjs test/bot-read-sink-guard.test.mjs
+      # Audit remediation 2026-11-06 (DEF-002, DEF-003, DEF-007): slash-free sitemap addresses, one bounded video read per request,
+      # and the rule that no workflow names a test file that does not exist. (DEF-001/001b need a DB change and are NOT included.)
+      - name: Audit remediation contracts (slash-free sitemap addresses, bounded video read, workflow path references exist)
+        run: node --test test/sitemap-no-redirecting-locs-2029.test.mjs test/ci-workflow-references-exist.test.mjs test/public-foundation-seo.test.mjs test/public-video-asset-reader-2029.test.mjs test/public-video-source-2029.test.mjs

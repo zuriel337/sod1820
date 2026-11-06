@@ -18,7 +18,12 @@ test("XML uses the same historical/native policy including video primaries and p
     return Response.json(rows);
   },async()=>{
     const res=response();await sitemap({publicFoundationPreview:true},res);assert.equal(res.code,200);
-    assert.match(res.body,/<loc>https:\/\/sod1820.co.il\/old-original\/<\/loc>/);
+    // DEF-002 (audit 2026-11-06): the edge answers `/old-original/` with a 308 to `/old-original` and the served canonical is
+    // slash-free, so the sitemap lists the slash-free form of the preserved original address. CONTRACT NOTE: this line used
+    // to expect the WordPress trailing slash; the change is proposed to ZURIEL together with the evidence in
+    // docs/reviews/audit-remediation-20261106/README.md (section DEF-002).
+    assert.match(res.body,/<loc>https:\/\/sod1820.co.il\/old-original<\/loc>/);
+    assert.doesNotMatch(res.body,/<loc>https:\/\/sod1820.co.il\/old-original\/<\/loc>/);
     assert.equal((res.body.match(/<loc>https:\/\/sod1820.co.il\/post\/new-native<\/loc>/g)||[]).length,1);
     assert.match(res.body,/video:video/);assert.match(res.body,/number\/%D7%91%D7%A8%D7%90%D7%A9%D7%99%D7%AA/);
     assert.doesNotMatch(res.body,/<loc>https:\/\/sod1820.co.il\/(?:heichal|books|unsubscribe|updates|new-native)<\/loc>/);
