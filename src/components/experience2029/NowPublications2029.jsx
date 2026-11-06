@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
-import { availableNowLenses, defaultNowLens, filterNowModels, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
+import { availableNowLenses, defaultNowLens, filterNowModels, nowLensCounts, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
 import "./nowPublications2029.css";
 
 // Compact "Now" publications window over the ONE shared system feed (feed.expandedRows).
@@ -121,8 +121,10 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
   const models = useMemo(() => nowModels(rows), [rows]);
   const lenses = useMemo(() => availableNowLenses(models), [models]);
+  // Entries per lens among the rows already loaded here: a count of loaded entries, never a site-wide total.
+  const counts = useMemo(() => nowLensCounts(models), [models]);
   const choices = useMemo(() => nowSecondaryChoices(models), [models]);
-  // Until the reader picks, the window opens on the first populated primary path (sources → messages → reality).
+  // Until the reader picks, the window opens on "all" (ZURIEL 6.11.2026), in time order.
   const activeLens = lens ?? defaultNowLens(models);
   const shown = useMemo(() => filterNowModels(models, { lens: activeLens, series, source, media }), [models, activeLens, series, source, media]);
   const selected = wide ? (shown.find(model => model.id === selectedId) || shown[0] || null) : null;
@@ -148,7 +150,9 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
 
   return <section className="sod29-nowpub" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
     <div className="sod29-nowpub-filters" role="group" aria-label="סינון פרסומים">
-      {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" aria-pressed={activeLens === item.id} onClick={() => pick(setLens)(item.id)}>{item.label}</button>)}
+      {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" aria-pressed={activeLens === item.id}
+        aria-label={`${item.label}, ${counts[item.id]} פרסומים שנטענו בחלונית`} title={`${counts[item.id]} פרסומים שנטענו בחלונית`}
+        onClick={() => pick(setLens)(item.id)}>{item.label}<span className="sod29-nowpub-chip-count" aria-hidden="true">{counts[item.id]}</span></button>)}
     </div>
     {choices.series.length + choices.sources.length > 1 || choices.media.length > 1 ? <details className="sod29-nowpub-more" open={secondaryActive || undefined}>
       <summary>מסננים נוספים{secondaryActive ? " · פעיל" : ""}</summary>

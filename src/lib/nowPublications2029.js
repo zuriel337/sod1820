@@ -19,10 +19,12 @@ const VIDEO_CATEGORY = "וידאו";
 // then the reality stream; "all" and the remaining lenses follow. Lens = presentation only; rows are never re-ranked.
 export const NOW_PRIMARY_LENSES = Object.freeze(["sources", "messages", "reality"]);
 export const NOW_LENSES = Object.freeze([
+  // "all" is first: the window opens on it (ZURIEL 6.11.2026; NOW-CENTRAL-HANDOFF-20261103 lists הכול first), so the active chip is
+  // always visible without scrolling the chip row on a phone. The primary lenses keep their relative order.
+  Object.freeze({ id: "all", label: "הכול" }),
   Object.freeze({ id: "sources", label: "מקורות ציבוריים" }),
   Object.freeze({ id: "messages", label: "מסרים ואור הגאולה" }),
   Object.freeze({ id: "reality", label: "זרם המציאות" }),
-  Object.freeze({ id: "all", label: "הכול" }),
   Object.freeze({ id: "series", label: "סדרות" }),
   Object.freeze({ id: "hints", label: "רמזי גאולה וקוד המציאות" }),
 ]);
@@ -134,10 +136,23 @@ export function availableNowLenses(models) {
   return NOW_LENSES.filter(lens => lens.id === "all" || all.some(model => model.lenses.has(lens.id)));
 }
 
-/** First primary lens that has rows (sources → messages → reality); "all" when none does. */
-export function defaultNowLens(models) {
-  const all = list(models);
-  return NOW_PRIMARY_LENSES.find(id => all.some(model => model.lenses.has(id))) || "all";
+/**
+ * The window opens on "all" (ZURIEL 6.11.2026; NOW-CENTRAL-HANDOFF-20261103: time order in "הכול"). This replaces the 5.11 default
+ * that opened on the first populated primary lens, which showed only the public group sources. NOW_PRIMARY_LENSES remains the
+ * order of the primary chips; it no longer picks the opening lens.
+ */
+export function defaultNowLens(_models) {
+  return "all";
+}
+
+/**
+ * Entries per lens among the rows ALREADY LOADED in the window. This counts loaded entries only: it is not site activity, not a
+ * site-wide total and not an audience size (traffic_intelligence_law: activity != audience; no multiplier, no floor).
+ */
+export function nowLensCounts(models) {
+  const all = list(models), counts = Object.create(null);
+  for (const lens of NOW_LENSES) counts[lens.id] = lens.id === "all" ? all.length : all.filter(model => model.lenses.has(lens.id)).length;
+  return counts;
 }
 
 /** Secondary choices (series / source / media) derived from the rows that exist, never fixed lists. */

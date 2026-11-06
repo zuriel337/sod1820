@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
+import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
 import { redactGroupText, groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
@@ -66,8 +66,15 @@ test("series, messages and hints are separate lenses; series is not inferred fro
   assert.ok(by("post:6").lenses.has("hints")); assert.ok(by("channel:30000000-0000-4000-8000-000000000003").lenses.has("hints"));
   const orGeula = by("channel:30000000-0000-4000-8000-000000000002");
   assert.equal(orGeula.seriesKey, null, "channel name alone never joins a series"); assert.equal(orGeula.lenses.has("messages"), true, "Or HaGeula belongs to the messages path (ZURIEL 5.11.2026), as a lens only");
-  assert.deepEqual(availableNowLenses(models).map(l => l.id), ["messages", "reality", "all", "series", "hints"], "hierarchy: sources → messages → reality, then all/series/hints");
-  assert.equal(defaultNowLens(models), "messages"); assert.equal(defaultNowLens([by("post:8")]), "all");
+  assert.deepEqual(availableNowLenses(models).map(l => l.id), ["all", "messages", "reality", "series", "hints"], "all first (the opening lens), then the primary sources → messages → reality, then series/hints");
+  // ZURIEL 6.11.2026: the window opens on "all" (time order), whatever lenses have rows; it no longer opens on the first populated primary lens.
+  assert.equal(defaultNowLens(models), "all"); assert.equal(defaultNowLens([by("post:8")]), "all"); assert.equal(defaultNowLens([]), "all");
+  // Counts are entries already loaded per lens, derived from the same filter the chips apply (never a separate tally).
+  const counts = nowLensCounts(models);
+  assert.equal(counts.all, models.length);
+  for (const lens of availableNowLenses(models)) assert.equal(counts[lens.id], filterNowModels(models, { lens: lens.id }).length, `count matches the filter for ${lens.id}`);
+  assert.equal(counts.messages, 3); assert.equal(counts.reality, 1);
+  assert.equal(nowLensCounts([]).all, 0); assert.equal(nowLensCounts(null).series, 0);
   assert.equal(filterNowModels(models, { lens: "reality" }).length, 1);
   assert.deepEqual(availableNowLenses([by("post:8")]).map(l => l.id), ["all"], "lenses appear only when they have rows");
   assert.equal(filterNowModels(models, { lens: "messages" }).length, 3);
