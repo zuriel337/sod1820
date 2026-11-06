@@ -1,4 +1,5 @@
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
+import ContextReturnAction2029 from "../components/experience2029/ContextReturnAction2029.jsx";
 import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -1261,9 +1262,17 @@ function NumberPageBody({ resolvedAddress = null }) {
       {/* ZURIEL 5.11.2026 (mobile first screen): the way back and the save action share one row on a phone, so the number rises; on wider screens this wrapper is display:contents and nothing moves. */}
       <div className="sod29-number-hero-bar">
         <nav className="sod29-action-row sod29-number-calculator-return" aria-label="חזרה למחשבון">
-          {arrivedFromCalculator
-            ? <button type="button" className="sod29-action sod29-number-calculator-action" data-number-action="back-to-calculator" onClick={() => shell.returnExact()}><NavigationIcon2029 name="calculator" size={18} /><span>חזרה למחשבון</span></button>
-            : <Link to="/gematria" className="sod29-action sod29-number-calculator-action" data-number-action="open-calculator"><NavigationIcon2029 name="calculator" size={18} /><span>למחשבון גימטריה</span></Link>}
+          <ContextReturnAction2029
+            returnTo={research.context?.returnTo}
+            matches={isCalculatorReturnTarget}
+            onReturn={() => shell.returnExact()}
+            returnLabel="חזרה למחשבון"
+            to="/gematria"
+            openLabel="למחשבון גימטריה"
+            icon="calculator"
+            returnProps={{ "data-number-action": "back-to-calculator" }}
+            openProps={{ "data-number-action": "open-calculator" }}
+          />
         </nav>
         <div className="sod29-actions"><PersonalSaveButton2029 entity={{...(activeExpression&&!/^\d+$/.test(activeExpression)?entityFromPhrase(activeExpression,traceNumber(selectedMethodProfile?.computedValue)??root):entityFromNumber(root)),link:location.pathname+location.search+location.hash,metadata:{method:selectedMethodKey||"רגיל",value:traceNumber(selectedMethodProfile?.computedValue)??root}}}/></div>
       </div>

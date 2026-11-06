@@ -8,14 +8,17 @@ import { isCalculatorReturnTarget } from "../src/lib/research/numberExpressionFo
 
 const src = fs.readFileSync("src/pages/Number2029Page.jsx", "utf8");
 
-test("the hero always renders exactly one calculator action: exact return from the calculator, a plain link otherwise", () => {
+test("the hero always renders exactly one calculator action through the shared component", () => {
   const start = src.indexOf('<nav className="sod29-action-row sod29-number-calculator-return"');
   const nav = src.slice(start, src.indexOf("</nav>", start));
   assert.ok(start > 0);
-  assert.equal((nav.match(/data-number-action=/g) || []).length, 2, "two mutually exclusive variants inside one nav");
-  assert.match(nav, /arrivedFromCalculator\s*\?\s*<button[^>]*data-number-action="back-to-calculator".*shell\.returnExact\(\)/);
-  assert.match(nav, /<Link to="\/gematria"[^>]*data-number-action="open-calculator"/);
-  assert.equal((nav.match(/name="calculator"/g) || []).length, 2, "both variants carry the calculator icon");
+  assert.equal((nav.match(/<ContextReturnAction2029/g) || []).length, 1, "one component, not two buttons");
+  assert.match(nav, /matches=\{isCalculatorReturnTarget\}/);
+  assert.match(nav, /onReturn=\{\(\) => shell\.returnExact\(\)\}/);
+  assert.match(nav, /to="\/gematria"/);
+  assert.match(nav, /icon="calculator"/);
+  assert.match(nav, /"data-number-action": "back-to-calculator"/);
+  assert.match(nav, /"data-number-action": "open-calculator"/);
   assert.doesNotMatch(src.slice(Math.max(0, start - 200), start), /\?\s*<|&&\s*</, "the nav itself is never conditional");
 });
 
@@ -35,4 +38,16 @@ test("calculator origin detection", () => {
 
 test("the target the link points to is an open public route", () => {
   assert.equal(publicReadingPath("/gematria"), "public");
+});
+
+test("the shared component returns when the origin matches, links otherwise, and renders nothing without a link target", () => {
+  const comp = fs.readFileSync("src/components/experience2029/ContextReturnAction2029.jsx", "utf8");
+  assert.match(comp, /returnTo\?\.href && matches\(returnTo\) && typeof onReturn === "function"/);
+  assert.match(comp, /if \(to\)/);
+  assert.match(comp, /return null;/);
+});
+
+test("the World page's calculation action uses the same component (back to the number page when it came from there, open otherwise)", () => {
+  const world = fs.readFileSync("src/pages/World2029Page.jsx", "utf8");
+  assert.match(world, /<ContextReturnAction2029[\s\S]*?returnLabel="חזרה לחישוב"[\s\S]*?openLabel="פתח את החישוב"/);
 });
