@@ -1416,9 +1416,7 @@ test('native UI: actual SystemFrame dock owns search, tools, Raziel and registra
     const box=await item.boundingBox();assert.ok(box.width>=44&&box.height>=44,`${width}: dock target ${JSON.stringify(box)}`);
     const label=item.locator('small');if(await label.count())assert.ok(await label.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)>=14),'dock labels remain readable');
    }
-   await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).click();
-   assert.equal(await page.getByRole('dialog').count(),0,'local Search focuses the inline form');
-   assert.equal(await page.locator('#els29-query input').first().evaluate(el=>el===document.activeElement),true);
+   assert.equal(await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).count(),0,'search is not a dock action; the page form owns it');
    const panel=page.locator('#els29-context-panel');
    for(const [label,title] of [['שמירה','שמירה והמשך מחקר'],['תוצאות','תוצאות החיפוש'],['סריקה וממצאים','סריקה וממצאים']]){
     await dock.getByRole('button',{name:label,exact:true}).click();
@@ -3088,7 +3086,7 @@ test('design integration: royal controls preserve matrix identity and stable tou
    await page.waitForFunction(()=>document.querySelector('.sod29-command-island')?.dataset.commandMode==='tool');
    for(const preset of ['light','parchment','dark']){
     await page.evaluate(preset=>window.__setThemePreset(preset),preset);
-    await dock.getByRole('button',{name:'חיפוש בצופן',exact:true}).click();
+    await page.locator('#els29-query input').first().focus();
     const submit=page.locator('.els29-native-search');
     const primary=await submit.evaluate(el=>({background:getComputedStyle(el).backgroundImage,color:getComputedStyle(el).color,font:getComputedStyle(el).fontFamily}));
     // The primary action role is royal blue in every preset (Design V2 section 4); Night keeps the approved

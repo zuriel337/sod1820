@@ -19,7 +19,10 @@ export default function ElsSavePanel2029({ visible, state, matrix, user, pending
   return <div className="els29-native-rail-scroll els29-native-save" hidden={!visible}>
     <strong>{updating ? "עדכון הממצא השמור" : copying ? "שמירת עותק אישי" : "שמירת הצופן שלי"}</strong>
     <p className="els29-native-muted">{updating ? "הממצאים וההסבר יעדכנו את אותה רשומה אישית." : copying ? "הצופן המקורי יישאר בידי מי ששמר אותו. העותק שלך יישמר בפרטיות." : "הצופן נשמר בחשבון שלך עם הציר, הממצאים והגדרות התצוגה. השמירה פרטית."}</p>
-    {!user ? <button type="button" onClick={onAccount}>היכנסו לחשבון כדי לשמור</button> : <form onSubmit={(event) => {
+    {!user ? <div className="els29-native-save-guest">
+      <p className="els29-native-muted">אפשר לחפש ולבדוק צפנים בלי חשבון. כדי לשמור צופן ולחזור אליו, צריך להיכנס או להירשם.</p>
+      <a className="sod29-action primary" href="/login">היכנסו לחשבון כדי לשמור</a>
+    </div> : <form onSubmit={(event) => {
       event.preventDefault();
       if (ready && !pending && !busy && description.trim().length >= 12) onSave({ title: title.trim(), desc: description.trim(), isPublic: false });
     }}>
@@ -36,7 +39,7 @@ export default function ElsSavePanel2029({ visible, state, matrix, user, pending
         : "השמירה לא הושלמה. ההסבר נשאר כאן — אפשר לנסות שוב."}
     </div> : null}
     <div className="els29-native-hit-actions">
-      <a className="sod29-action" href="/els?library=mine">הצפנים שלי</a>
+      {user ? <a className="sod29-action" href="/els?library=mine">הצפנים שלי</a> : null}
       <a className="sod29-action" href="/els?library=public">צפנים שפורסמו</a>
       {onWorkspace ? <button type="button" disabled={!ready || busy} onClick={onWorkspace}>הוסף למחקר</button> : null}
     </div>

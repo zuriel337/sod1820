@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { getMatrixLibraryPage } from "../../lib/elsMatrices.js";
+import { deleteMyMatrix, getMatrixLibraryPage, renameMyMatrix, selfPublishMatrix } from "../../lib/elsMatrices.js";
 import { hasExactSavedMatrix, savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";
 import { thumb } from "../../lib/img.js";
 import CanonicalProgress from "../CanonicalProgress.jsx";
@@ -41,10 +41,66 @@ function useCipherLibrary({ view, query = "", pageSize = 24, enabled = true, rev
   }, [scopeKey, authLoading, enabled]);
   return { user, authLoading, rows, loading, error: scopeReady && state.error, more: scopeReady && state.more,
     retry: () => rows.length ? load(rows.length, true, generation.current) : setRetry(value => value + 1),
-    next: () => load(rows.length, true, generation.current) };
+    next: () => load(rows.length, true, generation.current),
+    reload: () => setRetry(value => value + 1) };
 }
 
-function CipherCard({ row, personal, compact = false, onOpen }) {
+const OWNER_ERRORS = {
+  published_locked: "צופן שאושר לפרסום נשמר כראיה ואי אפשר לשנות או למחוק אותו כאן.",
+  not_owner: "אפשר לנהל רק צפנים שאתם שמרתם.",
+  not_authenticated: "נדרשת התחברות לחשבון.",
+  not_found: "הצופן כבר לא קיים.",
+  invalid_title: "כתבו שם של עד 160 תווים.",
+};
+
+// Owner-only management of one saved cipher. Every action goes through its own authorized RPC;
+// the visible state is re-read from the library after a successful change.
+function CipherOwnerActions({ row, onChanged }) {
+  const [mode, setMode] = useState(null);
+  const [title, setTitle] = useState(row.title || row.search_term || "");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState(null);
+  const approved = row.status === "published";
+  const alreadyPublic = approved && row.visibility === "public";
+  const run = async (action, done) => {
+    if (busy) return;
+    setBusy(true);setMessage(null);
+    try {
+      const result = await action();
+      if (result?.ok === false) setMessage({ error: true, text: OWNER_ERRORS[result.error] || "הפעולה לא הושלמה. נסו שוב." });
+      else { setMode(null);setMessage({ error: false, text: done });onChanged?.(); }
+    } catch {
+      setMessage({ error: true, text: "הפעולה לא הושלמה. נסו שוב." });
+    } finally { setBusy(false); }
+  };
+  return <div className="els29-library-owner">
+    <div className="els29-library-owner-row">
+      {approved ? null : <button type="button" className="sod29-action" disabled={busy} aria-expanded={mode === "rename"} onClick={() => { setTitle(row.title || row.search_term || "");setMode(mode === "rename" ? null : "rename"); }}>שנה שם</button>}
+      {alreadyPublic ? null : <button type="button" className="sod29-action" disabled={busy} aria-pressed={!!row.self_published}
+        onClick={() => mode === "publish" || row.self_published
+          ? run(() => selfPublishMatrix(row.id, !row.self_published), row.self_published ? "הצופן הוסר מהתיק הציבורי." : "הצופן מוצג בתיק הציבורי שלך.")
+          : setMode("publish")}>{row.self_published ? "הסר מהתיק הציבורי" : "הצג בתיק הציבורי"}</button>}
+      {approved ? null : <button type="button" className="sod29-action is-danger" disabled={busy} aria-expanded={mode === "delete"} onClick={() => setMode(mode === "delete" ? null : "delete")}>מחק</button>}
+    </div>
+    {mode === "rename" ? <form className="els29-library-owner-form" onSubmit={event => { event.preventDefault();run(() => renameMyMatrix(row.id, title), "השם עודכן."); }}>
+      <label>שם הצופן<input value={title} maxLength={160} onChange={event => setTitle(event.target.value)} disabled={busy} /></label>
+      <button type="submit" className="sod29-action primary" disabled={busy || !title.trim()}>{busy ? "שומר…" : "שמור שם"}</button>
+    </form> : null}
+    {mode === "publish" ? <div className="els29-library-owner-form" role="group" aria-label="אישור הצגה בתיק הציבורי">
+      <p>הצגה בתיק הציבורי תאפשר לכל מבקר לראות את הצופן, את ההסבר ואת הממצאים שלו. אפשר להסיר אותו משם בכל עת.</p>
+      <button type="button" className="sod29-action primary" disabled={busy} onClick={() => run(() => selfPublishMatrix(row.id, true), "הצופן מוצג בתיק הציבורי שלך.")}>הצג בתיק הציבורי</button>
+      <button type="button" className="sod29-action" disabled={busy} onClick={() => setMode(null)}>ביטול</button>
+    </div> : null}
+    {mode === "delete" ? <div className="els29-library-owner-form" role="group" aria-label="אישור מחיקה">
+      <p>למחוק את הצופן „{row.title || row.search_term}”? המחיקה סופית ואי אפשר לשחזר אותו.</p>
+      <button type="button" className="sod29-action is-danger" disabled={busy} onClick={() => run(() => deleteMyMatrix(row.id), "הצופן נמחק.")}>{busy ? "מוחק…" : "מחק לצמיתות"}</button>
+      <button type="button" className="sod29-action" disabled={busy} onClick={() => setMode(null)}>ביטול</button>
+    </div> : null}
+    {message ? <p role={message.error ? "alert" : "status"} className="els29-library-owner-message">{message.text}</p> : null}
+  </div>;
+}
+
+function CipherCard({ row, personal, compact = false, onOpen, onChanged }) {
   const exact = hasExactSavedMatrix(row);
   const [failedImage, setFailedImage] = useState(null);
   const imageUrl = row.visibility === "public" && row.image_url ? thumb(row.image_url, compact ? 240 : 480) : null;
@@ -69,6 +125,7 @@ function CipherCard({ row, personal, compact = false, onOpen }) {
         <span className="els29-library-open">{exact ? "המשך מחקר" : "פתח למחקר"}<span aria-hidden="true">←</span></span>
       </div>
     </a>
+    {personal && !compact && onChanged ? <CipherOwnerActions row={row} onChanged={onChanged} /> : null}
   </article>;
 }
 
@@ -121,7 +178,7 @@ export default function ElsSavedLibrary2029({ view = "public", onView, onOpen, o
       </form> : null}
     </div>
     <div className="els29-library-order">האחרונים שנשמרו מופיעים ראשונים</div>
-    <div className="els29-library-grid">{data.rows.map(row => <CipherCard key={row.id} row={row} personal={personal} onOpen={onOpen} />)}</div>
+    <div className="els29-library-grid">{data.rows.map(row => <CipherCard key={row.id} row={row} personal={personal} onOpen={onOpen} onChanged={data.reload} />)}</div>
     <LibraryStatus data={data} personal={personal} query={query} />
     {!data.loading && !data.error && data.more ? <button className="sod29-action els29-library-load" type="button" onClick={data.next}>טען צפנים נוספים</button> : null}
   </section>;

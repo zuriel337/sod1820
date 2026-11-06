@@ -56,9 +56,11 @@ test("ELS 2029 public release is Classic only: no mode switch, advanced search, 
   const replayEffect = page.slice(page.indexOf("if (publicClassic || elsState.loading"), page.indexOf("const replayProjection"));
   assert.match(replayEffect, /CONTEXT_REQUIRED/);
   const native = await readFile(new URL("../src/components/experience2029/ElsNativeClassic2029.jsx", import.meta.url), "utf8");
-  assert.match(native, /publicClassic && !user && id === "research"/);
-  assert.match(native, /publicClassic && !user && tool === "research"/);
-  assert.match(native, /\{publicClassic && !user \? null : <ElsSavePanel2029/);
+  // Guests keep the save tool so they can see how to save; only members get the form.
+  assert.doesNotMatch(native, /publicClassic && !user && id === "research"/);
+  assert.doesNotMatch(native, /publicClassic && !user && tool === "research"/);
+  assert.doesNotMatch(native, /publicClassic && !user \? null : <ElsSavePanel2029/);
+  assert.match(native, /<ElsSavePanel2029 visible=\{activeTool === "research"\}/);
   assert.match(native, /onWorkspace=\{publicClassic \? undefined :/);
   assert.equal((native.match(/!publicClassic && \(matrixReading \|\| typeof onRazielMatrix === "function"\)/g) || []).length, 2);
   assert.match(native, /matrixReading && !publicClassic \? <ElsMatrixReadingCard2029/);

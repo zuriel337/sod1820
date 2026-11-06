@@ -4,7 +4,6 @@ import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience
 import Els2029Representation from "../components/experience2029/Els2029Representation.jsx";
 import ElsMatrixProfileSwitch from "../components/experience2029/ElsMatrixProfileSwitch.jsx";
 import ElsNativeClassic2029 from "../components/experience2029/ElsNativeClassic2029.jsx";
-import ElsResearchBar2029 from "../components/experience2029/ElsResearchBar2029.jsx";
 import ElsAdvancedSearch2029 from "../components/experience2029/ElsAdvancedSearch2029.jsx";
 import ElsGuidedDiscovery2029 from "../components/experience2029/ElsGuidedDiscovery2029.jsx";
 import "../components/experience2029/els2029-research.css";
@@ -113,25 +112,6 @@ function ElsRazielEntry({ researchContext, projection, layers, planSummary, read
   >
     {shell.razielLocked ? "✦ רזיאל · נעול" : available ? "✦ רזיאל · פתח על הממצא" : "✦ רזיאל · ממתין למופע מאומת"}
   </button>;
-}
-
-function ElsResearchBarConnected({ researchContext, projection, layers, planSummary, replay, ready, subject, locator, onLibrary, profileSwitch }) {
-  const shell = use2029Shell();
-  const surfaceContext = useMemo(
-    () => ready ? buildElsRazielSurfaceContext({ researchContext, projection, layers, planSummary, includeText: true }) : null,
-    [ready, researchContext, projection, layers, planSummary]
-  );
-  const available = Boolean(surfaceContext?.occurrence?.occurrenceRef);
-  return <ElsResearchBar2029
-    subjectLabel={subject?.label}
-    locator={locator}
-    replay={replay}
-    razielAvailable={available}
-    onRaziel={() => shell.openRaziel({ razielMicroIntent: "explain_els_occurrence", elsSurfaceContext: surfaceContext })}
-    onLibrary={() => onLibrary("public")}
-    onMine={() => onLibrary("mine")}
-    profileSwitch={profileSwitch}
-  />;
 }
 
 function ElsNativeWithRaziel({ razielSession, researchContext, projection, layers, planSummary, replayReady, ...props }) {
@@ -478,17 +458,6 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
           }} />
       </section>
 
-      {researchProfile && (!guidedProfile || researchLoad?.guidedDiscovery === true || savedRecord.row) ? <ElsResearchBarConnected
-        researchContext={context}
-        projection={replayProjection}
-        layers={replayLayers}
-        planSummary={automaticSummary}
-        replay={replay}
-        ready={replayMatched && layeredReady}
-        subject={subject}
-        locator={locator}
-        onLibrary={showLibrary}
-      /> : null}
 
 
       <details className="sod29-els-research-details" hidden={!advancedResearchProfile}>
