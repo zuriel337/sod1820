@@ -162,7 +162,7 @@ jobs:
       # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
       # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
       - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)
-        run: node --test test/def001-email-exposure-contract.test.mjs test/sitemap-no-redirecting-locs-2029.test.mjs test/ci-workflow-references-exist.test.mjs test/public-foundation-seo.test.mjs
+        run: node --test test/def001-email-exposure-contract.test.mjs test/sitemap-no-redirecting-locs-2029.test.mjs test/ci-workflow-references-exist.test.mjs test/public-foundation-seo.test.mjs test/public-video-asset-reader-2029.test.mjs test/public-video-source-2029.test.mjs
 
   # The SQL behaviour of the security migrations runs on a throwaway PostgreSQL container (never a live database).
   security-sql-contracts:
