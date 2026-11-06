@@ -88,7 +88,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
           <button className="sod29-auth-link" type="button" disabled={busy} onClick={switchAccount}>{variant === "account" ? "התנתקות" : "כניסה עם חשבון אחר"}</button>
         </> : <>
           <h2 id={`${fieldId}-title`}>{step === "code" ? "הקוד בדרך אליכם" : step === "password" ? "כניסה עם סיסמה" : "כניסה והרשמה"}</h2>
-          <p>{step === "code" ? <>הזינו את הקוד שנשלח אל <b dir="ltr">{email}</b>.</> : step === "password" ? "השתמשו במייל ובסיסמה של החשבון שלכם." : "בחרו כיצד להיכנס לחשבון שלכם."}</p>
+          <p>{step === "code" ? <>שלחנו מייל אל <b dir="ltr">{email}</b>. אם יש בו קוד — הזינו אותו כאן. אם יש בו קישור — לחצו עליו, ותחזרו לאתר מחוברים.</> : step === "password" ? "השתמשו במייל ובסיסמה של החשבון שלכם." : "בחרו כיצד להיכנס לחשבון שלכם."}</p>
           {PUBLIC_READING_RELEASE ? <aside className="sod29-auth-method-note" data-signup-updates-policy="existing-site-default"><strong>הרשמה ועדכוני האתר</strong><p>בהרשמה לחשבון חדש תקבלו גם עדכוני אתר במייל. אפשר להסיר בכל מייל. הסרה קודמת נשמרת. כניסה לחשבון קיים אינה משנה את ההרשמה לעדכונים.</p></aside> : null}
           {methods.state === "loading" ? <p role="status">טוענים אפשרויות כניסה…</p> : methods.state === "unavailable" ? <div role="alert"><p>לא הצלחנו לטעון את אפשרויות הכניסה.</p><button type="button" className="sod29-auth-secondary" onClick={methods.retry}>נסו שוב</button></div> : null}
           {methods.state === "ready" && methods.email ? <form onSubmit={submit} aria-busy={busy}>
