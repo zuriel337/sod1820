@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CanonicalProgress from "../CanonicalProgress.jsx";
-import { clampInt, foldAxisColumns, splitHitLabel, splitMarkMap, splitRowStartFor } from "../../lib/elsSplitMatrix.js";
+import { clampInt, splitHitLabel, splitMarkMap, splitRowStartFor } from "../../lib/elsSplitMatrix.js";
 import "./elsSplitMatrix2029.css";
 
 const errors = {
@@ -16,9 +16,7 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
   const axisHitId = state?.axis?.hitId || null, scope = state?.scope || null;
   const axisLength = Number(state?.axis?.length) || 5;
   const defaultRows = clampInt((axisLength - 1) * option.k + 7, 15, 61, 15);
-  const axisColumns = foldAxisColumns(state?.axis, option.width);
-  const defaultCols = clampInt(axisColumns + 4, 11, 21, 11);
-  const [view, setView] = useState({ focus: axisHitId, rowStart: null, colStart: null, rowCount: defaultRows, colCount: defaultCols });
+  const [view, setView] = useState({ focus: axisHitId, rowStart: null, colStart: null, rowCount: defaultRows, colCount: 11 });
   const [data, setData] = useState(null);
   const [pending, setPending] = useState(false);
   const [notice, setNotice] = useState("");
@@ -35,7 +33,7 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
   // A new width (or a new axis) re-flows the whole matrix from the axis; nothing from the previous layout stays on screen.
   useEffect(() => {
     if (!axisHitId || busy) return;
-    send({ focus: axisHitId, rowStart: null, colStart: null, rowCount: clampInt((axisLength - 1) * option.k + 7, 15, 61, 15), colCount: defaultCols });
+    send({ focus: axisHitId, rowStart: null, colStart: null, rowCount: clampInt((axisLength - 1) * option.k + 7, 15, 61, 15), colCount: view.colCount });
   }, [axisHitId, option.width]);
   useEffect(() => {
     if (!response || !requestRef.current || !(response.target?.foldSeq === requestRef.current.foldSeq && response.target?.axisHitId === requestRef.current.axisHitId && response.target?.scope === requestRef.current.scope)) return;
@@ -65,7 +63,7 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
       <strong>מטריצה מקופלת <em className="els29-research-badge">מצב מחקר</em></strong>
       <button type="button" onClick={onExit}>חזרה למטריצה הרגילה</button>
     </header>
-    <p className="els29-split-note">אותו טקסט בשורות של {width.toLocaleString("he-IL")} אותיות: בין כל שתי אותיות של הציר יש {option.between.toLocaleString("he-IL")} שורות. הכול זז יחד; האותיות והממצאים הם של המנוע, רק הפריסה השתנתה.{option.exact ? null : <> הדילוג אינו מתחלק בשורות האלה בדיוק, ולכן הציר נוטה: כל אות מוסטת ב־{Math.abs(option.drift).toLocaleString("he-IL")} עמודות.</>}</p>
+    <p className="els29-split-note">אותו טקסט בשורות של {width.toLocaleString("he-IL")} אותיות: בין כל שתי אותיות של הציר יש {option.between.toLocaleString("he-IL")} שורות. הכול זז יחד; האותיות והממצאים הם של המנוע, רק הפריסה השתנתה.</p>
     {pending ? <CanonicalProgress compact title="מקפל את המטריצה" phase="פורס את אותו טקסט בשורות חדשות" onCancel={onExit} /> : null}
     {notice ? <p role="alert" className="els29-split-note">{notice}</p> : null}
     {band ? <>

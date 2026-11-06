@@ -5,22 +5,13 @@ import { foldOptions, foldOptionsFor, foldSuggestion, hitBoxAt, hitPositionsOf }
 
 const read = path => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
-test("fold k puts about k-1 rows between axis letters; exact when k divides the skip, otherwise the axis leans", () => {
-  const byK = options => Object.fromEntries(options.map(o => [o.k, o]));
-  const fifty = byK(foldOptions(50));
-  assert.deepEqual([fifty[2].width, fifty[2].exact, fifty[2].drift], [25, true, 0]);
-  assert.deepEqual([fifty[5].width, fifty[5].between, fifty[5].exact], [10, 4, true]);
-  assert.deepEqual([fifty[3].width, fifty[3].exact, fifty[3].drift], [17, false, -1], "50 is not divisible by 3: nearest width, slight lean");
-  // A prime skip still gets folds (this used to be "no fold available").
-  const prime = foldOptionsFor(97, 5);
-  assert.ok(prime.length > 3 && prime.every(o => o.k === 1 || !o.exact));
-  assert.ok(prime.every(o => o.k === 1 || Math.abs(o.drift) * 4 <= 20), "a leaning axis never sweeps across more than 20 columns");
-  // Exact divisors stay exact and straight.
-  const big = byK(foldOptionsFor(16965, 5));
-  assert.deepEqual([big[3].width, big[3].exact, big[5].width, big[5].exact], [5655, true, 3393, true]);
+test("fold options are the exact divisors of the skip, so the axis stays a straight line", () => {
+  assert.deepEqual(foldOptions(50).map(o => [o.k, o.width, o.between]), [[1, 50, 0], [2, 25, 1], [5, 10, 4], [10, 5, 9]]);
+  assert.deepEqual(foldOptions(97).map(o => o.k), [1], "a prime skip has no exact fold");
+  assert.deepEqual(foldOptions(175).map(o => [o.k, o.width]), [[1, 175], [5, 35], [7, 25], [25, 7], [35, 5]]);
   // Folds whose axis would no longer fit one window (61 rows) are not offered.
+  assert.deepEqual(foldOptionsFor(175, 5).map(o => o.k), [1, 5, 7]);
   assert.ok(foldOptionsFor(175, 5).every(o => (5 - 1) * o.k + 1 <= 61));
-  assert.ok(foldOptions(2).length === 1, "a skip too small to fold has only the normal layout");
 });
 
 test("positions and boxes are rebuilt from the lens facts only", () => {
@@ -38,7 +29,7 @@ test("a fold is recommended only when it brings a verified occurrence next to th
   const b = { hitId: "b", term: "y", skip: 50, direction: "fwd", start: 1000 + 25 * 7 + 9, length: 5 };
   assert.deepEqual(foldSuggestion([a, b], "a", 50, { reach: 3 }), { k: 5, width: 10, between: 4, hitId: "b", term: "y", gap: 3 });
   assert.equal(foldSuggestion([a], "a", 50), null);
-  assert.equal(foldSuggestion([a, b], "a", 97), null, "a skip unrelated to the occurrences gives no recommendation");
+  assert.equal(foldSuggestion([a, b], "a", 97), null, "no exact fold for a prime skip");
 });
 
 test("engine lens re-flows the same text by width and never changes what it reads", async () => {

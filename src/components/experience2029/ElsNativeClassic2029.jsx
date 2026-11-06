@@ -368,7 +368,7 @@ function MatrixControls({ state, onControl, onContext, busy }) {
 }
 
 // Research mode only. One always-visible side control: how many rows sit between consecutive letters of the axis. Stepping it folds the
-// same text into narrower rows (width ≈ skip / k) and the whole matrix re-flows. A skip that k does not divide leans the axis slightly.
+// same text into narrower rows (width = skip / k) and the whole matrix re-flows. Only exact divisors of the skip are offered.
 function MatrixSideRail({ options, option, active, onStep }) {
   const index = Math.max(0, options.findIndex(item => item.k === option?.k));
   const single = options.length < 2;
@@ -377,8 +377,7 @@ function MatrixSideRail({ options, option, active, onStep }) {
     <output aria-label="שורות בין אותיות הציר" dir="ltr">{option?.between ?? 0}</output>
     <small>שורות בין האותיות</small>
     <button type="button" disabled={!active || single || index <= 0} onClick={() => onStep(-1)} aria-label="פחות שורות בין אותיות הציר" title="פחות שורות בין אותיות הציר">−</button>
-    {single ? <small aria-label="אין קיפול">אין קיפול לדילוג הזה</small> : <small dir="ltr">{option?.width?.toLocaleString("he-IL")}</small>}
-    {!single && option && !option.exact ? <small aria-label="הציר נוטה">ציר נוטה</small> : null}
+    {single ? <small aria-label="אין קיפול מדויק">אין קיפול לדילוג הזה</small> : <small dir="ltr">{option?.width?.toLocaleString("he-IL")}</small>}
   </div>;
 }
 
@@ -961,7 +960,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     select: (tool, trigger) => activeTool === tool && !classicOpen && window.matchMedia("(min-width:981px)").matches ? closeTool() : openTool(tool, trigger),
   };
   const sideRail = researchProfile && !guidedProfile;   // research mode only; the classic matrix keeps its current layout
-  const foldOptionList = useMemo(() => foldOptionsFor(engineState?.axis?.skip, engineState?.axis?.length, { axis: engineState?.axis }), [engineState?.axis?.hitId, engineState?.axis?.skip, engineState?.axis?.length]);
+  const foldOptionList = useMemo(() => foldOptionsFor(engineState?.axis?.skip, engineState?.axis?.length), [engineState?.axis?.skip, engineState?.axis?.length]);
   const foldOption = foldOptionList.find(option => option.k === foldK) || foldOptionList[0];
   const foldActive = sideRail && foldOption && foldOption.k > 1;
   const foldIdentity = `${engineState?.scope}|${engineState?.axis?.hitId || ""}`;
