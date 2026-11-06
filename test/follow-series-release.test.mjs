@@ -16,7 +16,8 @@ test('exact reviewed artifacts match the shared descriptor build and release has
   assert.deepEqual([...REVIEWED_FOLLOW_SERIES.map(item=>item.key)].sort(),[...manifest.series].sort());
   assert.ok(REVIEWED_FOLLOW_SERIES.every(item=>CONTENT_SERIES_2029.includes(item)), 'release retains the exact shared identities');
   const pending=CONTENT_SERIES_2029.filter(item=>!manifest.series.includes(item.key));
-  assert.deepEqual(pending.map(item=>item.key), ['messages-from-righteous']);
+  // reality-map (6.11.2026) is a new reading identity too: it stays pending, outside the reviewed Follow SQL, until a separate Human-Gated release adds it.
+  assert.deepEqual(pending.map(item=>item.key), ['reality-map','messages-from-righteous']);
   assert.ok(pending.every(item=>!candidate.includes(item.key)), 'new reading identity must not activate historical Follow SQL');
 });
 test('series release preserves Legacy category normalization and existing authorization primitives',()=>{
