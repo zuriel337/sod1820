@@ -458,6 +458,13 @@ function installPublicReadingWorker(policy) {
     }
     if (!safeMethods.has(req.method)) { event.respondWith(Promise.resolve(denied())); return; }
     if (url.origin === self.location.origin) {
+      // The raw engine page is an internal iframe document. A top-level navigation to it (a search-engine result, a shared link)
+      // goes to the cipher page. Server rules cannot tell the two apart for a browser this worker controls, because the worker's
+      // own fetch() carries Sec-Fetch-Dest: empty and the raw page would be served; so the decision is made here, from the real
+      // navigation destination. The engine iframe (destination "iframe") is untouched.
+      if (url.pathname === "/tzofen.html" && req.mode === "navigate" && req.destination === "document") {
+        event.respondWith(Response.redirect(new URL("/code", self.location.origin).href, 307)); return;
+      }
       // No same-origin proxy or Auth adapter can bypass the browser boundary.
       if (url.pathname.startsWith("/api/") && !["/api/card", "/api/public-document", "/api/public-sitemap", "/api/public-robots",
         "/api/public-contributor-rank", "/api/contributor-public-overview", "/api/contributor-interactions"].includes(url.pathname)) {
