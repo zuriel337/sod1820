@@ -57,16 +57,18 @@ export async function enablePush({ userId = null, topics = [] } = {}) {
     }
     const json = sub.toJSON();
     if (supabase && json?.endpoint) {
-      await supabase.from("push_subscriptions").upsert({
-        endpoint: json.endpoint,
-        p256dh: json.keys?.p256dh,
-        auth: json.keys?.auth,
-        user_id: userId || null,
-        visitor_id: userId ? null : getVisitorId(),
-        topics,
-        user_agent: navigator.userAgent,
-        last_seen: new Date().toISOString(),
-      }, { onConflict: "endpoint" });
+      // DEF-001b: the write goes through a SECURITY DEFINER RPC so the browser needs no table access (visitor ids and push
+      // keys of other subscribers stay unreadable). The RPC takes the account from the session; the visitor id only
+      // identifies an anonymous subscription.
+      const { error } = await supabase.rpc("push_subscription_upsert_v1", {
+        p_endpoint: json.endpoint,
+        p_p256dh: json.keys?.p256dh,
+        p_auth: json.keys?.auth,
+        p_topics: topics,
+        p_user_agent: navigator.userAgent,
+        p_visitor: userId ? null : getVisitorId(),
+      });
+      if (error) return { ok: false, reason: "error", error: String(error.message || error) };
     }
     return { ok: true };
   } catch (e) {
@@ -100,7 +102,7 @@ export async function disablePush() {
       const endpoint = sub.endpoint;
       try { await sub.unsubscribe(); } catch { /* noop */ }
       if (supabase && endpoint) {
-        try { await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint); } catch { /* noop */ }
+        try { await supabase.rpc("push_subscription_delete_v1", { p_endpoint: endpoint }); } catch { /* noop */ }
       }
     }
   } catch { /* noop */ }
