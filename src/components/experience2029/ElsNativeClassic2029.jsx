@@ -365,6 +365,23 @@ function MatrixControls({ state, onControl, onContext, busy }) {
   </div>;
 }
 
+const ROW_GAP_PX = [2, 8, 16, 28];
+
+// Research mode only. Always-visible side controls: zoom (the engine's own zoom control) and the spacing between rows
+// (presentation only, applied live through a CSS variable — letters, positions and verification are never touched).
+function MatrixSideRail({ zoom, active, rowGapStep, onZoom, onRowGap }) {
+  const percent = Math.round(clamp(Number(zoom) || 1, 0.5, 2.8) * 100);
+  return <div className="els29-native-side-rail" role="group" aria-label="גודל ורווח שורות במטריצה">
+    <button type="button" disabled={!active || percent >= 280} onClick={() => onZoom(1)} aria-label="הגדל מטריצה · פקדי צד" title="הגדל מטריצה">＋</button>
+    <output aria-label="גודל המטריצה" dir="ltr">{percent}%</output>
+    <button type="button" disabled={!active || percent <= 50} onClick={() => onZoom(-1)} aria-label="הקטן מטריצה · פקדי צד" title="הקטן מטריצה">−</button>
+    <hr aria-hidden="true" />
+    <button type="button" disabled={!active || rowGapStep >= ROW_GAP_PX.length - 1} onClick={() => onRowGap(1)} aria-label="הגדל רווח בין השורות" title="הגדל רווח בין השורות">⇕</button>
+    <small aria-label="רווח בין שורות">{rowGapStep ? `רווח ${rowGapStep}` : "צפוף"}</small>
+    <button type="button" disabled={!active || rowGapStep <= 0} onClick={() => onRowGap(-1)} aria-label="הקטן רווח בין השורות" title="הקטן רווח בין השורות">⇔</button>
+  </div>;
+}
+
 function LineExplorer({ result, findings, onAddFinding, addingFinding }) {
   const [selectedTerm, setSelectedTerm] = useState(null);
   const stripRef = useRef(null);
@@ -862,6 +879,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
   const [panelPinned, setPanelPinned] = useState(true);
   const [heightExpanded, setHeightExpanded] = useState(false);
+  const [rowGapStep, setRowGapStep] = useState(0);   // research-mode presentation only: spacing between matrix rows
   const [matrixOptionsOpen, setMatrixOptionsOpen] = useState(false);
   const matrixOptionsTriggerRef = useRef(null);
   const [classicGlyphs, setClassicGlyphs] = useState(false);
@@ -941,6 +959,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     },
     select: (tool, trigger) => activeTool === tool && !classicOpen && window.matchMedia("(min-width:981px)").matches ? closeTool() : openTool(tool, trigger),
   };
+  const sideRail = researchProfile && !guidedProfile;   // research mode only; the classic matrix keeps its current layout
   const aiAvailable = !publicClassic && Boolean(matrixReading || typeof onRazielMatrix === "function");
   const dockProjection = useMemo(() => ({
     surface: "els",
@@ -1629,8 +1648,16 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             </div>
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
-          <MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
-            readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />
+          {sideRail ? <div className="els29-native-matrix-with-rail" style={{ "--els29-row-gap": `${ROW_GAP_PX[rowGapStep]}px` }}>
+            <MatrixSideRail zoom={engineState?.ui?.zoom} active={matrixActive && !searchPending} rowGapStep={rowGapStep}
+              onZoom={direction => requestControl(direction > 0 ? "zoom-in" : "zoom-out")} onRowGap={delta => setRowGapStep(step => clamp(step + delta, 0, ROW_GAP_PX.length - 1))} />
+            <div className="els29-native-matrix-with-rail-body">
+            <MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
+              readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />
+            </div>
+          </div> :
+<MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
+            readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />}
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">
           <button type="button" className="els29-matrix-quick-action els29-matrix-height-trigger"
