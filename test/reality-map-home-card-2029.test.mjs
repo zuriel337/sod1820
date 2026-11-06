@@ -12,10 +12,10 @@ import { CONTENT_SERIES_2029 } from "../src/lib/research/contentSeries2029Identi
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 const source = await readFile(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8");
 const components = source.slice(source.indexOf("// Latest published item of a series"), source.indexOf("function AvailabilityItem("));
-assert.ok(components.includes("function HomeSeriesCards") && components.includes("function PrimarySeriesCard"));
+assert.ok(components.includes("function useHomeSeries") && components.includes("function HomeFlagshipRegion") && components.includes("function HomeOtherSeries") && components.includes("function PrimarySeriesCard"));
 const outfile = resolve(`.test-reality-map-home-${process.pid}.mjs`);
 await build({ stdin: { contents: `
-  import React, {useState,useEffect} from 'react';
+  import React, {useState,useEffect,useMemo} from 'react';
   import {CONTENT_SERIES_2029} from './src/lib/research/contentSeries2029Identity.js';
   import {seriesHomeTeaser2029, seriesHomeFamilies2029} from './src/lib/research/contentSeries2029Projection.js';
   const BRAND_LOCKUP_NAV_2029 = { src: '/brand/2029/canonical-lockup-128.webp', width: 128, height: 128, alt: 'x' };
@@ -24,8 +24,12 @@ await build({ stdin: { contents: `
   const Media = ({src, className}) => React.createElement('img', {src, alt:'', className});
   const PublicationTime = () => React.createElement('time');
   const UpdatedTime = () => null;
+  const nowModels = () => [];
+  const relativeTimeLabel = () => '';
   const Section = ({title, link, children, className}) => React.createElement('section', {className, 'aria-label': title}, link, children);
   ${components}
+  // The Home composition renders the two areas from one shared read; this wrapper does the same for the test.
+  const HomeSeriesCards = () => { const state = useHomeSeries(); return React.createElement(React.Fragment, null, React.createElement(HomeFlagshipRegion, {state}), React.createElement(HomeOtherSeries, {state})); };
   export {HomeSeriesCards, PrimarySeriesCard};
 `, loader: "jsx", resolveDir: process.cwd() }, bundle: true, platform: "node", format: "esm", outfile, external: ["react"] });
 const { HomeSeriesCards, PrimarySeriesCard } = await import(pathToFileURL(outfile));
@@ -149,7 +153,7 @@ test("flagship products: the series' members as a scrollable list, newest first 
   const members = [item("reality-map", 9, { title: "החדש ביותר", imageUrl: "https://example.test/9.jpg", publishedAt: "2026-11-05T09:00:00Z" }),
     item("reality-map", 4, { title: "ישן יותר", publishedAt: "2026-10-01T09:00:00Z" }), item("reality-map", 2, { title: "הישן ביותר", publishedAt: "2026-08-01T09:00:00Z" })];
   await act(async () => { f.calls[0].resolve(catalog(members)); });
-  assert.equal(f.calls[0].primaryLimit, 20, "one read; the primary series is read deeper than the others");
+  assert.equal(f.calls[0].primaryLimit, 6, "one read; the primary series is read deeper than the others");
   assert.equal(f.calls[0].limitPerSeries, 1); assert.equal(f.calls[0].homeOnly, true);
   const products = root.root.findAll(node => node.props["data-home-rm-products"] === "true")[0];
   const list = products.findAll(node => node.type === "ol")[0];

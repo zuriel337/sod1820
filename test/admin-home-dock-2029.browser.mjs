@@ -78,13 +78,18 @@ try {
       window.__fixture={reads:[],unexpected:[],posts:[{id:1,slug:'fixture-event',title:'תיעוד אירועים מבוקר',source:'site',publishedAt:'2026-11-02T12:00:00Z',sourcePost:{id:1,slug:'fixture-event',source:'site',date:'2026-11-02T12:00:00Z',modified:'2026-11-02T12:00:00Z',categories:['תיעוד אירועים'],tags:[]}}]};
     },theme);
     const page=await context.newPage();page.on('pageerror',error=>{errors.push({width,theme,message:error.message});console.error('Fixture browser error:',error.message);});
-    await page.goto(origin+'/');await page.locator('[data-home-top-updates="public-closed"]').waitFor();
+    await page.goto(origin+'/');await page.locator('[data-home-newsletter="end"]').waitFor();
     await page.waitForFunction(()=>document.querySelector('.h29-hero')?.getAttribute('data-home-primary')==='ready');
     assert.equal(await page.locator('.sod29-root').getAttribute('data-frame-theme-preset'),theme);
-    const panel=page.locator('[data-home-top-updates]');
-    assert.match(await panel.innerText(),/האתר בבנייה/);assert.match(await panel.innerText(),/עדכוני האתר/);assert.doesNotMatch(await panel.innerText(),/הסר|הסרה/);
-    const order=await page.locator('.h29').evaluate(el=>[...el.children].slice(0,3).map(el=>el.className));
-    assert.match(order[0],/h29-updates-royal/);assert.match(order[1],/h29-series-section/);assert.match(order[2],/h29-hero/);
+    // ZURIEL 6.11.2026: the top updates card is live (shown only when the shared feed has items) and the newsletter closes the page.
+    // The build notice remains in the availability map (LAUNCH-03).
+    const panel=page.locator('[data-home-newsletter="end"]');
+    assert.match(await panel.innerText(),/עדכוני האתר/);assert.doesNotMatch(await panel.innerText(),/הסר|הסרה/);
+    assert.match(await page.locator('[data-home-availability-map]').innerText(),/האתר ממשיך להיבנות/);
+    const order=await page.locator('.h29').evaluate(el=>[...el.children].map(el=>el.className));
+    const at=re=>order.findIndex(name=>re.test(name));
+    assert.ok(at(/h29-flagship-section/)<at(/h29-series-section/)&&at(/h29-series-section/)<at(/h29-hero/),'flagship, other series, then the lead');
+    assert.ok(at(/h29-newsletter-end/)===order.length-1,'the newsletter is the last Home area');
     const dock=page.locator('.sod29-command-island'),here=dock.locator('.sod29-dock-here'),orb=dock.locator('.sod29-raziel-orb');
     assert.equal(await here.isDisabled(),true);assert.equal(await orb.isDisabled(),true);
     assert.match(await here.innerText(),/בבנייה/);assert.match(await orb.innerText(),/בבנייה/);
