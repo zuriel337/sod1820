@@ -13,6 +13,22 @@ function isSuppressedPost(row) {
   return hasSuppressedPublicPostTag(row);
 }
 
+// Home sample of a series. It is returned ONLY when the owner declared an explicit approval and an exact source Post
+// reference; anything else yields null (no sample is shown, never a placeholder). The sample links to its source Post
+// and never creates series membership.
+export function seriesHomeTeaser2029(spec) {
+  const teaser = spec?.teaser;
+  if (!teaser || teaser.approval?.status !== "approved" || !clean(teaser.approval?.decisionRef)) return null;
+  const text = clean(teaser.text), highlight = clean(teaser.highlight), sourceRef = clean(teaser.sourceRef);
+  const post = teaser.sourcePost;
+  if (!text || !highlight || !text.includes(highlight) || !/^posts:[1-9]\d*$/.test(sourceRef)
+    || String(post?.id) !== sourceRef.slice("posts:".length) || !clean(post?.slug)) return null;
+  const href = publicPostHref(post);
+  if (!href) return null;
+  return { text, highlight, sourceRef, href, sourceTitle: clean(teaser.sourceTitle), methodNote: clean(teaser.methodNote),
+    decisionRef: clean(teaser.approval.decisionRef) };
+}
+
 const publishedFirst = (a, b) => {
   const dateOrder = (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0);
   if (dateOrder) return dateOrder;
@@ -192,6 +208,7 @@ export function buildContentSeriesCatalog2029(results = [], { homeOnly = false }
       writerLabel: spec.writerLabel,
       publisherLabel: spec.publisherLabel,
       priorityLane: spec.priorityLane,
+      homeTeaser: seriesHomeTeaser2029(spec),
       relationNote: spec.relationNote,
       mappingState: "approved_identity_partial_membership",
       homeOnly,
