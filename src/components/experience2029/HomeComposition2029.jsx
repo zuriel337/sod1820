@@ -8,7 +8,7 @@ import { getLatestPostCards, getTzofonStories, getHomeVideos } from "../../lib/s
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { NewsletterSignup2029 } from "../StayUpdatedCTA.jsx";
 import { getHomeLaunchPostCards, getHomeStandalonePostCards, HOME_STANDALONE_LIMIT } from "../../lib/research/homeLaunchPosts2029.js";
-import { CONTENT_SERIES_2029, fetchContentSeriesCatalog2029, seriesHomeTeaser2029 } from "../../lib/research/contentSeries2029Projection.js";
+import { CONTENT_SERIES_2029, fetchContentSeriesCatalog2029, seriesHomeFamilies2029, seriesHomeTeaser2029 } from "../../lib/research/contentSeries2029Projection.js";
 import { stripHtml } from "../../lib/format.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
@@ -161,7 +161,7 @@ function SeriesLatestItem({ item, series }) {
 // The primary series card (מפת המציאות): full row, compact, with an approved sample linked to its source Post.
 // It is never an empty card: without a member and without an approved sample it renders nothing. The series page
 // link appears only once the series has a member to show, so it never leads to an empty page.
-function PrimarySeriesCard({ series, spec, teaser }) {
+function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
   const item = series?.items?.[0] || null;
   if (!teaser && !item) return null;
   const seriesHref = `/2029/posts?series=${encodeURIComponent(spec.key)}`;
@@ -181,6 +181,11 @@ function PrimarySeriesCard({ series, spec, teaser }) {
       {item ? <SeriesLatestItem item={item} series={series} /> : null}
     </div>
     {open ? <Link className="h29-series-more" to={seriesHref}>לפתוח את הסדרה ←</Link> : null}
+    {families.length ? <nav className="h29-fam" aria-label="משפחות תוכן במפת המציאות" data-home-series-families="true">
+      {families.map(family => family.href
+        ? <Link key={family.key} to={family.href} data-home-family={family.key}>{family.label}{family.note ? <small>{family.note}</small> : null}</Link>
+        : <span key={family.key} className="soon" data-home-family={family.key}>{family.label}{family.note ? <small>{family.note}</small> : null}</span>)}
+    </nav> : null}
   </article>;
 }
 
@@ -199,7 +204,7 @@ function HomeSeriesCards() {
   const others = state.series.filter(series => series.priorityLane !== "primary");
   return <Section title="מהסדרות והכותבים" className="h29-series-section" link={<Link to="/2029/posts">לכל הסדרות ←</Link>}>
     <div className="h29-series-grid" aria-busy={state.loading} data-home-public-series="true">
-      {primarySpec ? <PrimarySeriesCard series={primarySeries} spec={primarySpec} teaser={seriesHomeTeaser2029(primarySpec)} /> : null}
+      {primarySpec ? <PrimarySeriesCard series={primarySeries} spec={primarySpec} teaser={seriesHomeTeaser2029(primarySpec)} families={seriesHomeFamilies2029(primarySpec)} /> : null}
       {state.loading ? Array.from({ length: CONTENT_SERIES_2029.length - (primarySpec ? 1 : 0) }, (_, i) => <div className="h29-series-card h29-skel" key={i} aria-hidden="true" />) : null}
       {others.map(series => {
         const item = series.items[0];

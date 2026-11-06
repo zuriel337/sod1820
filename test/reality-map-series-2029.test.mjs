@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesKeysForPost, contentSeriesMembershipFilter, hasExactMembership } from "../src/lib/research/contentSeries2029Identity.js";
-import { buildContentSeriesCatalog2029, projectContentSeriesItems, seriesHomeTeaser2029 } from "../src/lib/research/contentSeries2029Projection.js";
+import { buildContentSeriesCatalog2029, projectContentSeriesItems, seriesHomeFamilies2029, seriesHomeTeaser2029 } from "../src/lib/research/contentSeries2029Projection.js";
 
 // Stage 1 of the series & Home plan (ZURIEL, 6.11.2026): מפת המציאות is a regular series in the existing mechanism.
 // Pure identity/projection checks: no network, no database, no Post is read or written.
@@ -104,4 +104,21 @@ test("the sample never makes its source Post a member, and the catalog carries i
   assert.equal(byKey["reality-map"].homeTeaser.sourceRef, "posts:5018");
   assert.equal(byKey["reality-map"].items.length, 0, "an unmatched teaser adds no series item");
   for (const key of ["mah-kore-habora", "dimension-five", "sod-hashmal", "messages-from-righteous"]) assert.equal(byKey[key].homeTeaser, null);
+});
+
+test("family entrances are links to existing category pages (or a non-link soon), never membership, and never the strong-hints category", () => {
+  const families = seriesHomeFamilies2029(spec);
+  assert.deepEqual(families.map(family => [family.key, family.label]), [["sod-1820", "סוד 1820"], ["movies-cipher", "הצופן בסרטים"], ["language-paths", "שבילי שפה"], ["redemption", "תכני גאולה"]]);
+  assert.deepEqual(families.map(family => family.href), [
+    `/2029/posts?category=${encodeURIComponent("סוד 1820")}`, `/2029/posts?category=${encodeURIComponent("הצופן בסרטים")}`,
+    `/2029/posts?category=${encodeURIComponent("שבילי שפה")}`, null]);
+  assert.equal(families.some(family => /רמזים חזקים|רמזי הגאולה/.test(`${family.label}${family.href}`)), false);
+  assert.equal(new Set(families.map(family => family.key)).size, families.length);
+  // The entrances change nothing about who is a member.
+  const inFamilyCategories = row(40, { categories: ["סוד 1820", "הצופן בסרטים", "שבילי שפה"] });
+  assert.deepEqual(contentSeriesKeysForPost(inFamilyCategories), []);
+  assert.equal(JSON.stringify(spec.membership), JSON.stringify([{ field: "tags", value: "מפת המציאות" }]));
+  // Malformed or duplicate entries are dropped; other series declare no families.
+  assert.deepEqual(seriesHomeFamilies2029({ families: [{ key: "a", label: "א", category: "ק" }, { key: "a", label: "ב", category: "ק" }, { label: "ג" }, null] }).map(family => family.key), ["a"]);
+  for (const other of CONTENT_SERIES_2029.filter(item => item.key !== "reality-map")) assert.deepEqual(seriesHomeFamilies2029(other), []);
 });
