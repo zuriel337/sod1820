@@ -51,15 +51,16 @@ export function readingWebVitalBody(body) {
 }
 
 // Research-activity beacon (gematria compute), measurement family 2 of the public-reading telemetry.
-// A closed, content-free schema: it carries no expression, term, value, method, query, hash, route detail,
-// sod_id or persistent identifier. The two UUIDs are random and per-tab/per-event: `activity_session`
-// is never stored beyond the tab session; `activity_event_id` only makes a replay idempotent.
-// This function is serialized into the worker text, so it must stay self-contained.
+// It travels ONLY through the dedicated RPC `ingest_reading_activity_v1` (never through the generic `ingest_event`)
+// and its body has exactly four named arguments. The schema is closed and content-free: no expression, term,
+// value, method, query, hash, route detail, sod_id, bot flag or actor claim. The two UUIDs are random:
+// `activity_session` lives for one tab session and `activity_event_id` only makes a replay idempotent.
+// The worker applies this as defence in depth; the database function applies the same schema, a rate limit and
+// idempotency itself, because a caller can reach the RPC without the worker. This function is serialized into
+// the worker text, so it must stay self-contained.
 export function readingActivityBody(body) {
   if (!body || typeof body !== "object" || Array.isArray(body)
-    || Object.keys(body).sort().join(",") !== "p_app_context,p_event_type,p_is_bot,p_path,p_props,p_session_id,p_sod_id,p_surface"
-    || body.p_sod_id !== null || body.p_session_id !== null || body.p_is_bot !== false
-    || body.p_surface !== "gematria"
+    || Object.keys(body).sort().join(",") !== "p_app_context,p_event_type,p_path,p_props"
     || !["first_compute", "repeat_compute", "recompute"].includes(body.p_event_type)
     || !["/gematria", "/community/calculator"].includes(body.p_path)
     || !["facebook", "instagram", "whatsapp", "telegram", "line", "chrome-ios", "edge", "opera", "firefox", "android-webview", "chrome", "safari", "other"].includes(body.p_app_context)) return false;

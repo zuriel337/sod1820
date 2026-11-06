@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { elsActivityDescriptor, ELS_SEARCH_KINDS } from "../supabase/functions/els-search-bridge/activity.js";
 import {
   METRIC_SOURCES, FORBIDDEN_AGGREGATES, assertSingleSource, classifyActor, isHumanActor, ACTOR_CLASSES,
-  countComputes, countElsSearches, DECLARED_AGENT_VIAS,
+  countComputes, countElsSearches, DECLARED_AGENT_VIAS, ANONYMOUS_BEACON_SOURCE, METRIC_QUALITY, metricQualityLabel,
 } from "../src/lib/research/researchActivityContract2029.js";
 
 const read = p => readFileSync(p, "utf8");
@@ -67,6 +67,38 @@ test("actor_class: behaviour alone, free-text labels or client claims never prod
     assert.notEqual(classifyActor({ declared, authenticated: true }).actor_class, "ai_agent", JSON.stringify(declared));
   }
   assert.deepEqual([...DECLARED_AGENT_VIAS].sort(), ["agent_identity", "ai_token_log.source", "convergence_actor_type", "decision_ledger.created_by_agent"]);
+});
+
+test("actor_class: the server cannot tell who sent an anonymous beacon, so it is 'unknown' - never inferred from a window, a session or a role claim", () => {
+  assert.equal(ANONYMOUS_BEACON_SOURCE, "anonymous_beacon");
+  const beaconOnly = classifyActor({ source: "anonymous_beacon" });
+  assert.deepEqual({ ...beaconOnly, flags: [...beaconOnly.flags] }, { actor_class: "unknown", actor_basis: "anonymous_beacon_no_identity", agent_name: null, flags: [] });
+  // Nothing a caller could attach changes it: not a role, not authentication, not a session id, not a test window, not an agent label.
+  const smuggled = classifyActor({ source: "anonymous_beacon", authRole: "admin", authenticated: true, identityClass: "admin", activity_session: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+    window: { from: "2026-11-06T08:00Z", to: "2026-11-06T08:30Z", label: "owner-acceptance-test" }, testWindow: true, ts: Date.now(), userAgent: "Claude-User", actor_class: "owner_admin" });
+  assert.equal(smuggled.actor_class, "unknown");
+  // Without a reliable identity the answer is unknown, not human_anon.
+  assert.equal(classifyActor({}).actor_class, "unknown"); assert.equal(classifyActor({ identityClass: "something_new" }).actor_class, "unknown");
+  assert.equal(classifyActor({ identityClass: "anon" }).actor_class, "human_anon", "human_anon needs a server identity class that says anon");
+  // owner_admin only ever from a verified server role / identity class, whatever else is present.
+  let seed = 31; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  for (let i = 0; i < 2000; i += 1) {
+    const out = classifyActor({ activity_session: "x" + i, ts: rnd() * 1e12, testWindow: rnd() < 0.5, userAgent: rnd() < 0.5 ? "Claude-User" : "Mozilla", authenticated: rnd() < 0.5, identityClass: ["anon", "user", "public_user", undefined][Math.floor(rnd() * 4)], behavior: { actionsPerSession: rnd() * 900, shareOfWindow: rnd() } });
+    assert.notEqual(out.actor_class, "owner_admin"); assert.notEqual(out.actor_class, "ai_agent");
+  }
+  assert.equal(isHumanActor("unknown"), false, "unknown is reported as anonymous activity, not as a human user and not as an agent");
+});
+
+test("metric quality: compute is labelled not dedupe-verified and actor unknown until the database enforces idempotency", () => {
+  for (const metric of ["gematria_compute_first", "gematria_compute_repeat", "gematria_compute_recompute"]) {
+    assert.deepEqual({ ...METRIC_QUALITY[metric] }, { dedupe: "client_session_only", dedupe_verified: false, actor_class: "unknown" });
+    assert.equal(metricQualityLabel(metric), "not dedupe-verified · actor unknown");
+  }
+  assert.equal(metricQualityLabel("els_search_regular"), "n/a");
+  // The flag may only be turned on together with the database proof: the SQL acceptance script must exist and cover replay + concurrency.
+  const runner = readFileSync("scripts/run-reading-activity-sql-test.sh", "utf8"), cases = readFileSync("tests/sql/reading_activity_v1.sql", "utf8");
+  assert.match(runner, /concurrent duplicates/); assert.match(runner, /expected 1 recorded \+ 39 duplicate/); assert.match(cases, /T2 replay is a duplicate/);
+  assert.match(readFileSync("supabase/proposed/reading_activity_v1.sql", "utf8"), /on conflict do nothing/);
 });
 
 test("actor_class: a human-user count never contains agents, workers or imports", () => {

@@ -8,6 +8,7 @@ import { buildPublicReadingWorker } from "../public-reading-deploy/transport.js"
 import { buildWebVitalsSnapshot } from "../src/lib/webVitalsCore.js";
 
 const SITE = "https://sod1820.co.il", DB = "https://linswmnnkjxvweumprav.supabase.co";
+const RPC = DB + "/rest/v1/rpc/ingest_reading_activity_v1", GENERIC = DB + "/rest/v1/rpc/ingest_event";
 const HEBREW = /[֐-׿]/;
 const U = n => `aaaaaaaa-aaaa-4aaa-8aaa-${String(n).padStart(12, "0")}`;
 const SESSION = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
@@ -15,8 +16,9 @@ const UID = "11111111-1111-4111-8111-111111111111";
 const token = Buffer.from("{}").toString("base64url") + "." + Buffer.from(JSON.stringify({ role: "authenticated", sub: UID })).toString("base64url") + ".signature";
 const json = value => new Response(JSON.stringify(value), { headers: { "Content-Type": "application/json" } });
 
+// The dedicated RPC has exactly four named arguments.
 function beacon(over = {}, props = {}) {
-  return { p_sod_id: null, p_session_id: null, p_surface: "gematria", p_event_type: "first_compute", p_path: "/gematria", p_app_context: "chrome", p_is_bot: false,
+  return { p_event_type: "first_compute", p_path: "/gematria", p_app_context: "chrome",
     p_props: { schema: 1, activity_event_id: U(1), activity_session: SESSION, length_bucket: "4-8", entry: "direct", surface_kind: "calculator", ...props }, ...over };
 }
 
@@ -37,23 +39,25 @@ function worker({ origin = SITE, clientPath = "/gematria", clientId = "window-1"
       return response ? response : null;
     } };
 }
-const ingest = (w, body, headers = { "Content-Type": "application/json" }) => w.request(DB + "/rest/v1/rpc/ingest_event", body, { headers });
+const send = (w, body, headers = { "Content-Type": "application/json" }) => w.request(RPC, body, { headers });
 
 // ───────────────────────── validator: closed schema, content-free ─────────────────────────
 test("beacon validator accepts exactly the closed content-free shape", () => {
   for (const type of ["first_compute", "repeat_compute", "recompute"]) assert.equal(readingActivityBody(beacon({ p_event_type: type })), true);
   for (const path of ["/gematria", "/community/calculator"]) assert.equal(readingActivityBody(beacon({ p_path: path })), true);
   const b = beacon();
+  assert.deepEqual(Object.keys(b).sort(), ["p_app_context", "p_event_type", "p_path", "p_props"]);
   assert.deepEqual(Object.keys(b.p_props).sort(), ["activity_event_id", "activity_session", "entry", "length_bucket", "schema", "surface_kind"]);
 });
 
-test("beacon validator rejects identity, content, query, hash and every extra or missing field", () => {
+test("beacon validator rejects identity, actor claims, content, query, hash and every extra or missing field", () => {
   const mutations = [
-    b => { b.p_sod_id = UID; }, b => { b.p_sod_id = "sod_abc"; }, b => { b.p_session_id = UID; }, b => { b.p_is_bot = true; },
-    b => { b.p_surface = "els"; }, b => { b.p_surface = "research"; }, b => { b.p_event_type = "compute"; }, b => { b.p_event_type = "search"; },
+    // arguments the generic ingest_event has but this RPC must never carry
+    ...["p_sod_id", "p_session_id", "p_surface", "p_is_bot", "p_via", "p_utm", "p_actor_class", "p_user_id"].map(key => b => { b[key] = null; }),
+    b => { b.p_event_type = "compute"; }, b => { b.p_event_type = "search"; }, b => { b.p_event_type = "seeded"; },
     b => { b.p_path = "/number/:value"; }, b => { b.p_path = "/gematria?q=שלום"; }, b => { b.p_path = "/gematria#x"; }, b => { b.p_path = "/2029/me/research"; },
-    b => { b.p_app_context = "curl"; }, b => { b.extra = 1; }, b => { delete b.p_app_context; },
-    ...["expression", "term", "slug", "query", "hash", "value", "method_key", "method", "user_id", "uid", "email", "sod_id", "share_id", "q", "url"]
+    b => { b.p_app_context = "curl"; }, b => { b.extra = 1; }, b => { delete b.p_app_context; }, b => { delete b.p_props; },
+    ...["expression", "term", "slug", "query", "hash", "value", "method_key", "method", "user_id", "uid", "email", "sod_id", "share_id", "q", "url", "actor_class", "actor_basis", "role", "seeded", "beacon"]
       .map(key => b => { b.p_props[key] = "x"; }),
     b => { delete b.p_props.entry; }, b => { delete b.p_props.activity_event_id; },
     b => { b.p_props.schema = 2; }, b => { b.p_props.entry = "שיתוף"; }, b => { b.p_props.entry = "other"; },
@@ -68,7 +72,7 @@ test("beacon validator rejects identity, content, query, hash and every extra or
 test("privacy fuzz: no Hebrew or arbitrary string can pass in any slot of the beacon", () => {
   let seed = 7; const rnd = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
   const pool = ["שלום עולם", "משיח", "q=1820", "https://x.invalid/?a=b", "<script>", "1820", "", "a".repeat(300), "דני", "user@example.invalid"];
-  const slots = ["p_surface", "p_event_type", "p_path", "p_app_context"];
+  const slots = ["p_event_type", "p_path", "p_app_context"];
   const propSlots = ["activity_event_id", "activity_session", "length_bucket", "entry", "surface_kind"];
   let accepted = 0;
   for (let i = 0; i < 4000; i += 1) {
@@ -116,7 +120,7 @@ test("client: first / repeat / recompute are separate event types; rapid duplica
   assert.equal(new Set(h.sent.map(b => b.p_props.activity_event_id)).size, 3, "every event has its own id");
 });
 
-test("client: nothing content-bearing is ever serialized; every body passes the worker validator", async () => {
+test("client: nothing content-bearing, no identity and no actor claim is ever serialized; every body passes the validator", async () => {
   const { createReadingActivity } = await loadActivity(); const h = harness(); const a = createReadingActivity(h.make());
   const expressions = ["שלום עולם", "משיח בן דוד", "1820 שנת", "Hello World"];
   for (const e of expressions) { a.reportCompute({ expression: e, entry: "direct", surfaceKind: "professional" }); h.tick(61000); }
@@ -126,7 +130,8 @@ test("client: nothing content-bearing is ever serialized; every body passes the 
     assert.equal(HEBREW.test(text), false, text);
     for (const e of expressions) assert.equal(text.includes(e), false);
     assert.equal(readingActivityBody(body), true);
-    assert.equal(body.p_sod_id, null); assert.equal(body.p_session_id, null);
+    assert.deepEqual(Object.keys(body).sort(), ["p_app_context", "p_event_type", "p_path", "p_props"], "no sod_id, session, bot flag, surface or actor class");
+    assert.doesNotMatch(text, /actor|sod_id|user|role|admin/i);
   }
   assert.equal(h.store.get("sod_act_s").includes("שלום"), false, "storage holds only an id and flags");
 });
@@ -138,7 +143,7 @@ test("client: not reported for bots, disabled build, single letters, non-calcula
     [{ pathname: () => "/number/1820" }, "שלום"], [{ pathname: () => "/2029/me/research" }, "שלום"], [{ pathname: () => "/code" }, "שלום"],
   ];
   for (const [over, expression] of cases) { const h = harness(); createReadingActivity(h.make(over)).reportCompute({ expression, entry: "direct", surfaceKind: "calculator" }); assert.equal(h.sent.length, 0, JSON.stringify(over) + expression); }
-  const h = harness(); createReadingActivity(h.make({ appContext: () => "unknown-ua" })).reportCompute({ expression: "שלום", entry: "share", surfaceKind: "community", });
+  const h = harness(); createReadingActivity(h.make({ appContext: () => "unknown-ua" })).reportCompute({ expression: "שלום", entry: "share", surfaceKind: "community" });
   assert.equal(h.sent[0].p_app_context, "other");
   const e = harness(); const boom = createReadingActivity(e.make({ send: () => { throw new Error("network"); } }));
   assert.doesNotThrow(() => boom.reportCompute({ expression: "שלום", entry: "direct", surfaceKind: "calculator" }));
@@ -160,69 +165,82 @@ test("client: session persists across a reload (no second first_compute) and rot
   assert.equal(noStorage.sent.length, 1);
 });
 
+test("client default sender calls the dedicated RPC, never the generic ingest_event", () => {
+  const src = readFileSync("src/lib/readingActivity2029.js", "utf8");
+  assert.match(src, /supabase\.rpc\("ingest_reading_activity_v1", body\)/);
+  assert.doesNotMatch(src.replace(/^\s*\/\/.*$/gm, ""), /ingest_event/);
+});
+
 // ───────────────────────── worker (service worker) integration ─────────────────────────
-test("worker admits a valid beacon from the matching canonical window, with the anon key only", async () => {
+test("worker admits a valid beacon on the dedicated RPC from the matching canonical window, with the anon key only", async () => {
   const w = worker();
-  const res = await ingest(w, beacon(), { "Content-Type": "application/json", Authorization: "Bearer " + token });
+  const res = await send(w, beacon(), { "Content-Type": "application/json", Authorization: "Bearer " + token });
   assert.equal(res.status, 200); assert.equal(w.calls.length, 1);
+  assert.equal(w.calls[0].url, RPC);
   assert.equal(w.calls[0].headers.get("Authorization"), "Bearer public-fixture", "the account JWT never reaches the beacon");
   assert.equal(w.calls[0].headers.get("apikey"), "public-fixture");
-  const community = worker({ clientPath: "/community/calculator" });
-  assert.equal((await ingest(community, beacon({ p_path: "/community/calculator" }))).status, 200);
-  const alias = worker({ clientPath: "/2029/calculator" });
-  assert.equal((await ingest(alias, beacon())).status, 200, "the SW label of /2029/calculator is /gematria");
+  assert.equal((await send(worker({ clientPath: "/community/calculator" }), beacon({ p_path: "/community/calculator" }))).status, 200);
+  assert.equal((await send(worker({ clientPath: "/2029/calculator" }), beacon())).status, 200, "the SW label of /2029/calculator is /gematria");
 });
 
 test("worker refuses a beacon whose random ids equal the signed-in account id (no stable user identifier)", async () => {
   const auth = { "Content-Type": "application/json", Authorization: "Bearer " + token };
   for (const props of [{ activity_session: UID }, { activity_event_id: UID }]) {
-    const w = worker(); assert.equal((await ingest(w, beacon({}, props), auth)).status, 403); assert.equal(w.calls.length, 0);
+    const w = worker(); assert.equal((await send(w, beacon({}, props), auth)).status, 403); assert.equal(w.calls.length, 0);
   }
-  const w = worker(); assert.equal((await ingest(w, beacon(), auth)).status, 200);
+  const w = worker(); assert.equal((await send(w, beacon(), auth)).status, 200);
   assert.equal(w.calls[0].headers.get("Authorization"), "Bearer public-fixture");
 });
 
-test("worker denies replay, wrong window, foreign origin, missing client and any schema deviation", async () => {
-  const w = worker(); assert.equal((await ingest(w, beacon())).status, 200);
-  assert.equal((await ingest(w, beacon())).status, 403, "replayed activity_event_id");
-  assert.equal(w.calls.length, 1);
+test("worker denies wrong window, foreign origin, missing client, query strings and any schema deviation", async () => {
   for (const opts of [{ origin: "https://preview.invalid" }, { clientPath: "/world" }, { clientPath: "/login" }, { clientPath: "/code" }, { clientPath: "/community/calculator" }, { clientId: "" }]) {
-    const d = worker(opts); assert.equal((await ingest(d, beacon())).status, 403, JSON.stringify(opts)); assert.equal(d.calls.length, 0);
+    const d = worker(opts); assert.equal((await send(d, beacon())).status, 403, JSON.stringify(opts)); assert.equal(d.calls.length, 0);
   }
-  for (const bad of [beacon({ p_sod_id: UID }), beacon({ p_is_bot: true }), beacon({ extra: 1 }), beacon({}, { expression: "שלום" }), beacon({}, { entry: "שלום" }), beacon({ p_event_type: "compute" })]) {
-    const d = worker(); assert.equal((await ingest(d, bad)).status, 403); assert.equal(d.calls.length, 0);
+  for (const bad of [beacon({ p_sod_id: UID }), beacon({ p_is_bot: true }), beacon({ extra: 1 }), beacon({}, { expression: "שלום" }), beacon({}, { entry: "שלום" }), beacon({ p_event_type: "compute" }), beacon({}, { actor_class: "owner_admin" })]) {
+    const d = worker(); assert.equal((await send(d, bad)).status, 403); assert.equal(d.calls.length, 0);
   }
+  const q = worker(); assert.equal((await q.request(RPC + "?select=*", beacon())).status, 403); assert.equal(q.calls.length, 0);
+});
+
+test("the worker's replay map is temporary defence in depth, NOT the authority for deduplication", async () => {
+  const w = worker(); assert.equal((await send(w, beacon())).status, 200);
+  assert.equal((await send(w, beacon())).status, 403, "within one worker lifetime a replay is dropped early");
+  // A browser may stop and restart the worker at any time; a different browser has a different worker. Memory is lost with it.
+  const restarted = worker(); assert.equal((await send(restarted, beacon())).status, 200, "the same id passes a fresh worker: only the database can deduplicate");
+  const src = readFileSync("public-reading-deploy/transport.js", "utf8");
+  assert.match(src, /DEFENCE IN DEPTH ONLY\. The authority is the database function ingest_reading_activity_v1/);
 });
 
 test("worker bounds a client: 30 events per minute, window reset, 500 per worker lifetime", async () => {
   const w = worker(); let ok = 0, denied = 0;
-  for (let i = 1; i <= 35; i += 1) ((await ingest(w, beacon({}, { activity_event_id: U(i) }))).status === 200 ? ok++ : denied++);
+  for (let i = 1; i <= 35; i += 1) ((await send(w, beacon({}, { activity_event_id: U(i) }))).status === 200 ? ok++ : denied++);
   assert.equal(ok, 30); assert.equal(denied, 5);
   w.advance(61000);
-  assert.equal((await ingest(w, beacon({}, { activity_event_id: U(100) }))).status, 200, "a new minute resets the window");
+  assert.equal((await send(w, beacon({}, { activity_event_id: U(100) }))).status, 200, "a new minute resets the window");
   const long = worker(); let accepted = 0;
-  for (let i = 1; i <= 520; i += 1) { long.advance(61000); if ((await ingest(long, beacon({}, { activity_event_id: U(i) }))).status === 200) accepted += 1; }
+  for (let i = 1; i <= 520; i += 1) { long.advance(61000); if ((await send(long, beacon({}, { activity_event_id: U(i) }))).status === 200) accepted += 1; }
   assert.equal(accepted, 500);
 });
 
-test("no general ingest_event path opened: only performance, issue_report and the closed gematria beacon pass", async () => {
+test("no general ingest_event path opened: the generic RPC admits only performance and issue_report, as before; this RPC admits only its own shape", async () => {
   const src = readFileSync("public-reading-deploy/transport.js", "utf8");
   const surfaces = [...src.matchAll(/p_surface\s*(?:===|!==)\s*"([a-z_]+)"/g)].map(m => m[1]);
-  assert.deepEqual([...new Set(surfaces)].sort(), ["gematria", "issue_report", "performance"]);
-  const generic = ["page", "arrival", "els", "research", "share", "app", "ai", "number", "journey_2029", "calculator_2029", "reality-stream", "post_exp", "home", "runtime_error", "or-geula"];
-  for (const surface of generic) for (const type of ["view", "compute", "search", "cross_search", "add", "save", "first_compute"]) {
-    const w = worker(); const r = await ingest(w, { p_sod_id: null, p_session_id: null, p_surface: surface, p_event_type: type, p_path: "/gematria", p_app_context: "chrome", p_is_bot: false, p_props: { slug: "שלום" } });
+  assert.deepEqual([...new Set(surfaces)].sort(), ["issue_report", "performance"], "unchanged from origin/main: gematria is NOT admitted on ingest_event");
+  const generic = ["gematria", "page", "arrival", "els", "research", "share", "app", "ai", "number", "journey_2029", "calculator_2029", "reality-stream", "post_exp", "home", "runtime_error", "or-geula"];
+  for (const surface of generic) for (const type of ["view", "compute", "first_compute", "repeat_compute", "recompute", "search", "cross_search", "add", "save"]) {
+    const w = worker(); const r = await w.request(GENERIC, { p_sod_id: null, p_session_id: null, p_surface: surface, p_event_type: type, p_path: "/gematria", p_app_context: "chrome", p_is_bot: false, p_props: { slug: "שלום" } });
     assert.equal(r.status, 403, surface + "/" + type); assert.equal(w.calls.length, 0);
   }
-  // The gematria surface itself stays closed for the legacy shapes (value/slug, event_type "compute").
-  for (const legacy of [beacon({ p_event_type: "compute", p_props: { slug: "שלום", value: 376, projection: "community" } }), beacon({ p_sod_id: "sod_x" })]) {
-    const w = worker(); assert.equal((await ingest(w, legacy)).status, 403); assert.equal(w.calls.length, 0);
-  }
-  for (const table of ["events", "visitor_events", "search_log"]) {
+  // the beacon cannot be sent through the generic RPC, nor a generic body through the beacon RPC
+  const viaGeneric = worker(); assert.equal((await viaGeneric.request(GENERIC, { p_sod_id: null, p_session_id: null, p_surface: "gematria", p_event_type: "first_compute", p_path: "/gematria", p_app_context: "chrome", p_is_bot: false, p_props: beacon().p_props })).status, 403);
+  const viaBeacon = worker(); assert.equal((await send(viaBeacon, { p_sod_id: null, p_session_id: null, p_surface: "gematria", p_event_type: "first_compute", p_path: "/gematria", p_app_context: "chrome", p_is_bot: false, p_props: beacon().p_props })).status, 403);
+  const rpcNames = new Set([...src.matchAll(/"\/rest\/v1\/rpc\/([a-z_0-9]+)"/g)].map(m => m[1]));
+  assert.ok(rpcNames.has("ingest_reading_activity_v1") && rpcNames.has("ingest_event"));
+  for (const table of ["events", "visitor_events", "search_log", "reading_activity_ids"]) {
     const w = worker(); const r = await w.request(DB + "/rest/v1/" + table, { slug: "שלום" }); assert.equal(r.status, 403, table); assert.equal(w.calls.length, 0);
   }
-  for (const rpc of ["link_identity", "claim_daily_credit", "newsletter_send", "ingest_ga_daily"]) {
-    const w = worker(); assert.equal((await w.request(DB + "/rest/v1/rpc/" + rpc, {})).status, 403); assert.equal(w.calls.length, 0);
+  for (const rpc of ["link_identity", "claim_daily_credit", "newsletter_send", "ingest_ga_daily", "fn_reading_activity_ids_prune_v1", "edge_rate_limit_check"]) {
+    const w = worker(); assert.equal((await w.request(DB + "/rest/v1/rpc/" + rpc, {})).status, 403, rpc); assert.equal(w.calls.length, 0);
   }
 });
 
@@ -230,10 +248,25 @@ test("the existing RUM family keeps working beside the beacon and is not widened
   const vital = { p_sod_id: null, p_session_id: null, p_surface: "performance", p_event_type: "web_vital", p_path: "/gematria", p_app_context: "chrome", p_is_bot: false,
     p_props: { ...buildWebVitalsSnapshot(), sample_id: U(7), phase: "checkpoint", flush_reason: "15s_checkpoint", initial_path: "/gematria", current_path: "/gematria", collector: "performance_observer", measurement_scope: "document_navigation_hard_load_only", nav_type: "navigate", visibility_at_flush: "visible" } };
   assert.equal(readingWebVitalBody(vital), true);
-  const w = worker(); assert.equal((await ingest(w, vital)).status, 200);
-  assert.equal((await ingest(w, beacon())).status, 200);
+  const w = worker(); assert.equal((await w.request(GENERIC, vital)).status, 200);
+  assert.equal((await send(w, beacon())).status, 200);
   assert.equal(w.calls.length, 2);
   assert.equal(readingActivityBody(vital), false); assert.equal(readingWebVitalBody(beacon()), false);
+});
+
+// ───────────────────────── before the worker controls the page ─────────────────────────
+test("the application (and so the beacon) is not loaded before the matching worker controls the page; a direct call needs the database to enforce", () => {
+  const src = readFileSync("public-reading-deploy/transport.js", "utf8");
+  const start = src.slice(src.indexOf("export async function startPublicReading"), src.indexOf("export function publicReadingBootstrap"));
+  const order = ["serviceWorker.register", "serviceWorker.ready", "serviceWorker.controller", "public-reading-policy", "worker_identity_mismatch", "await loadEntry(config.entry)"].map(m => start.indexOf(m));
+  assert.ok(order.every(i => i > 0) && order.every((v, i, a) => i === 0 || v > a[i - 1]), "register -> ready -> controller -> policy handshake -> identity check -> only then import the application: " + order);
+  const artifact = readFileSync("test/public-reading-production-artifact.test.mjs", "utf8");
+  assert.match(artifact, /startPublicReading\(config, stalledUpdate\), false\); assert\.equal\(stalledUpdate\.imports\.length, 0\)/, "an existing test proves a stalled worker never imports the application");
+  // The RPC is also reachable without the worker (the anon key is public, and the generic RPC is executable by PUBLIC), so the
+  // proposed database function is the enforcement point. Its proof is tests/sql/reading_activity_v1.sql (scripts/run-reading-activity-sql-test.sh).
+  const proposed = readFileSync("supabase/proposed/reading_activity_v1.sql", "utf8");
+  for (const needle of ["edge_rate_limit_check", "on conflict do nothing", "'actor_class', 'unknown'", "GUARD: reserved compute identities"]) assert.ok(proposed.includes(needle), needle);
+  assert.equal(readdirSync("supabase/migrations").some(f => /reading_activity/.test(f)), false, "the proposal is not a migration and cannot be applied by a tool");
 });
 
 // ───────────────────────── call sites: single emitter set, no overlapping sources ─────────────────────────

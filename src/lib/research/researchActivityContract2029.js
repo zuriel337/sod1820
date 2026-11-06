@@ -47,11 +47,16 @@ export function assertSingleSource(registry = METRIC_SOURCES) {
 export const DECLARED_AGENT_VIAS = Object.freeze([
   "decision_ledger.created_by_agent", "convergence_actor_type", "ai_token_log.source", "agent_identity",
 ]);
-export const ACTOR_CLASSES = Object.freeze(["human_anon", "human_auth", "owner_admin", "ai_agent", "service_worker", "import"]);
+// "unknown" = the sender cannot be established. Every row written by the public-reading beacon is "unknown": the worker
+// replaces the account JWT with the anon key, so the database sees an anonymous caller whether it was a visitor, the owner
+// or a script. It is never upgraded from a time window, an activity_session or an observed pattern.
+export const ACTOR_CLASSES = Object.freeze(["unknown", "human_anon", "human_auth", "owner_admin", "ai_agent", "service_worker", "import"]);
+export const ANONYMOUS_BEACON_SOURCE = "anonymous_beacon";
 export const POWER_IDENTITY_THRESHOLDS = Object.freeze({ actionsPerSession: 50, shareOfWindow: 0.05 });
 
-// input: { source?: "import", declared?: { via, name }, identityClass?, authRole?, authenticated?,
+// input: { source?: "import"|"anonymous_beacon", declared?: { via, name }, identityClass?, authRole?, authenticated?,
 //          behavior?: { actionsPerSession, shareOfWindow } }
+// Only these fields are read. Anything else (activity_session, timestamps, test windows, user agents) is ignored by design.
 export function classifyActor(input = {}) {
   const flags = [];
   const behavior = input.behavior || {};
@@ -59,19 +64,34 @@ export function classifyActor(input = {}) {
     || (Number(behavior.shareOfWindow) || 0) >= POWER_IDENTITY_THRESHOLDS.shareOfWindow) {
     flags.push("unverified_power_identity", "anomalous_rate");
   }
-  let actor = null;
-  if (input.source === "import") actor = "import";
-  else if (input.declared && DECLARED_AGENT_VIAS.includes(input.declared.via) && typeof input.declared.name === "string" && input.declared.name.trim()) actor = "ai_agent";
-  else if (input.identityClass === "service") actor = "service_worker";
-  else if (input.authRole === "admin" || input.identityClass === "admin") actor = "owner_admin";
-  else if (input.authenticated === true || ["user", "authenticated_user"].includes(input.identityClass)) actor = "human_auth";
-  else actor = "human_anon";
+  let actor = null, basis = null;
+  if (input.source === "import") { actor = "import"; basis = "declared_import"; }
+  else if (input.source === ANONYMOUS_BEACON_SOURCE) { actor = "unknown"; basis = "anonymous_beacon_no_identity"; }
+  else if (input.declared && DECLARED_AGENT_VIAS.includes(input.declared.via) && typeof input.declared.name === "string" && input.declared.name.trim()) { actor = "ai_agent"; basis = "declared_agent:" + input.declared.via; }
+  else if (input.identityClass === "service") { actor = "service_worker"; basis = "server_identity_class"; }
+  else if (input.authRole === "admin" || input.identityClass === "admin") { actor = "owner_admin"; basis = "verified_server_role"; }
+  else if (input.authenticated === true || ["user", "authenticated_user"].includes(input.identityClass)) { actor = "human_auth"; basis = "verified_server_auth"; }
+  else if (["anon", "public_user"].includes(input.identityClass)) { actor = "human_anon"; basis = "server_identity_class"; }
+  else { actor = "unknown"; basis = "no_reliable_identity"; }
   const agentName = actor === "ai_agent" ? input.declared.name.trim() : null;
-  // Behavior may only add flags, never change the class: an anomalous human stays human_*.
-  return Object.freeze({ actor_class: actor, agent_name: agentName, flags: Object.freeze(flags) });
+  // Behavior may only add flags, never change the class: an anomalous caller keeps the class its identity proves.
+  return Object.freeze({ actor_class: actor, actor_basis: basis, agent_name: agentName, flags: Object.freeze(flags) });
 }
 
+// "unknown" is not counted as a human user (nor as an agent): it is reported as anonymous activity, with its own label.
 export const isHumanActor = actorClass => actorClass === "human_anon" || actorClass === "human_auth" || actorClass === "owner_admin";
+
+// ── Quality of each metric, stated next to it so no dashboard can imply more than is verified ─────────────────
+// dedupe_verified becomes true only when the database enforces idempotency (unique key + RPC) and its acceptance tests pass.
+export const METRIC_QUALITY = Object.freeze({
+  gematria_compute_first: { dedupe: "client_session_only", dedupe_verified: false, actor_class: "unknown" },
+  gematria_compute_repeat: { dedupe: "client_session_only", dedupe_verified: false, actor_class: "unknown" },
+  gematria_compute_recompute: { dedupe: "client_session_only", dedupe_verified: false, actor_class: "unknown" },
+});
+export function metricQualityLabel(metric) {
+  const q = METRIC_QUALITY[metric];
+  return q ? (q.dedupe_verified ? "dedupe-verified" : "not dedupe-verified") + " · actor " + q.actor_class : "n/a";
+}
 
 // ── 3. Counting semantics ─────────────────────────────────────────────────────────────────────────────────
 // events: [{ activity_event_id, activity_session, event_type }] -> three separate counts, never one total.

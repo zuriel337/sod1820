@@ -5,7 +5,9 @@
 // is a no-op there and is still the emitter in non-public builds, so the two are never active together.
 //
 // PRIVACY CONTRACT (enforced by test/reading-activity-beacon.test.mjs):
-//  - never sends an expression, term, value, method, query, hash, route detail, sod_id or user id;
+//  - never sends an expression, term, value, method, query, hash, route detail, sod_id, user id or actor claim;
+//  - uses its own RPC (`ingest_reading_activity_v1`), not the generic `ingest_event`; the database function is the
+//    authority for schema, rate limit, idempotency and actor class (always "unknown": an anonymous beacon cannot prove who sent it);
 //  - the expression is used only IN MEMORY to decide first/repeat/recompute and is never serialized;
 //  - the two UUIDs are random: `activity_session` lives in sessionStorage for one tab (30 min idle rotation),
 //    `activity_event_id` exists only to make a replay idempotent;
@@ -66,7 +68,7 @@ export function createReadingActivity(deps = {}) {
   const storage = deps.storage === undefined ? defaultStorage() : deps.storage;
   const send = deps.send ?? (body => {
     if (!supabase) return;
-    try { supabase.rpc("ingest_event", body).then(() => {}).catch(() => {}); } catch { /* observability never blocks a page */ }
+    try { supabase.rpc("ingest_reading_activity_v1", body).then(() => {}).catch(() => {}); } catch { /* observability never blocks a page */ }
   });
 
   const state = { id: null, lastAt: 0, firstSent: false, seen: new Map() };
@@ -103,8 +105,7 @@ export function createReadingActivity(deps = {}) {
       if (!eventType) { saveSession(at); return null; }
       const appCtx = context();
       const body = {
-        p_sod_id: null, p_session_id: null, p_surface: "gematria", p_event_type: eventType, p_path: path,
-        p_app_context: APP_CONTEXTS.includes(appCtx) ? appCtx : "other", p_is_bot: false,
+        p_event_type: eventType, p_path: path, p_app_context: APP_CONTEXTS.includes(appCtx) ? appCtx : "other",
         p_props: { schema: 1, activity_event_id: uuid(), activity_session: state.id, length_bucket: bucket, entry, surface_kind: surfaceKind },
       };
       if (!readingActivityBody(body)) return null;

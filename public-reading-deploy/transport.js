@@ -273,7 +273,7 @@ function installPublicReadingWorker(policy) {
       && /^\/storage\/v1\/render\/image\/public\/(?:media|gallery|magar)\//.test(url.pathname)
       && publicRenditionQuery(url.searchParams)) return;
     if (url.origin === authOrigin && req.method === "POST"
-      && ["/rest/v1/rpc/ingest_event", "/rest/v1/contact_messages"].includes(url.pathname)) {
+      && ["/rest/v1/rpc/ingest_event", "/rest/v1/rpc/ingest_reading_activity_v1", "/rest/v1/contact_messages"].includes(url.pathname)) {
       event.respondWith((async () => {
         const columns = url.searchParams.get("columns");
         const contactColumns = url.pathname.endsWith("/contact_messages") && url.searchParams.size === 1
@@ -284,6 +284,34 @@ function installPublicReadingWorker(policy) {
         const parsed = JSON.parse(raw);
         const body = url.pathname.endsWith("/contact_messages") && Array.isArray(parsed) && parsed.length === 1 ? parsed[0] : parsed;
         if (!plainObject(body)) return denied();
+        if (url.pathname.endsWith("/ingest_reading_activity_v1")) {
+          // DEFENCE IN DEPTH ONLY. The authority is the database function ingest_reading_activity_v1 (closed schema,
+          // per-address rate limit, unique-key idempotency, server-set actor class), because the RPC is reachable
+          // without this worker. The Maps below live as long as the worker (a browser may stop it at any time) and
+          // cover neither another browser nor a direct call, so they are never the basis for "deduplicated".
+          if (!readingActivityBody(body) || await measurementClient(event) !== body.p_path || !policy.anonKey) return denied();
+          const now = Date.now();
+          for (const [id, at] of activityEvents) if (now - at > 3600000) activityEvents.delete(id);
+          for (const [client, state] of activityClients) if (now - state.at > 3600000) activityClients.delete(client);
+          const eventId = body.p_props.activity_event_id;
+          // A random-looking id must never be the signed-in account id (the account JWT is replaced below).
+          const bearer = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+          let accountId = null;
+          try { accountId = JSON.parse(atob(bearer.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).sub || null; } catch { accountId = null; }
+          if (accountId && (body.p_props.activity_session === accountId || eventId === accountId)) return denied();
+          if (activityEvents.has(eventId) || activityEvents.size >= 2000) return denied();
+          let state = activityClients.get(event.clientId);
+          if (!state) {
+            if (activityClients.size >= 500) return denied();
+            state = { at: now, windowAt: now, windowCount: 0, total: 0 };
+            activityClients.set(event.clientId, state);
+          }
+          if (now - state.windowAt > 60000) { state.windowAt = now; state.windowCount = 0; }
+          state.windowCount += 1; state.total += 1; state.at = now;
+          if (state.windowCount > 30 || state.total > 500) return denied();
+          activityEvents.set(eventId, now);
+          return readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: `Bearer ${policy.anonKey}`, "Content-Type": "application/json" } }));
+        }
         if (url.pathname.endsWith("/ingest_event")) {
           if (body.p_surface === "performance") {
             if (!readingWebVitalBody(body) || await measurementClient(event) !== body.p_path || !policy.anonKey) return denied();
@@ -297,32 +325,6 @@ function installPublicReadingWorker(policy) {
             }
             if (record.sample !== body.p_props.sample_id || record.phases.has(body.p_props.phase)) return denied();
             record.phases.add(body.p_props.phase);
-            return readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: `Bearer ${policy.anonKey}`, "Content-Type": "application/json" } }));
-          }
-          if (body.p_surface === "gematria") {
-            // Closed content-free compute beacon: exact schema, matching canonical window, anon key only,
-            // one-time event id and a per-window ceiling. No other surface/event reaches ingest_event.
-            if (!readingActivityBody(body) || await measurementClient(event) !== body.p_path || !policy.anonKey) return denied();
-            const now = Date.now();
-            for (const [id, at] of activityEvents) if (now - at > 3600000) activityEvents.delete(id);
-            for (const [client, state] of activityClients) if (now - state.at > 3600000) activityClients.delete(client);
-            const eventId = body.p_props.activity_event_id;
-            // Defence in depth: a random-looking id must never be the signed-in account id (the JWT is stripped below).
-            const bearer = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
-            let accountId = null;
-            try { accountId = JSON.parse(atob(bearer.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).sub || null; } catch { accountId = null; }
-            if (accountId && (body.p_props.activity_session === accountId || eventId === accountId)) return denied();
-            if (activityEvents.has(eventId) || activityEvents.size >= 2000) return denied();
-            let state = activityClients.get(event.clientId);
-            if (!state) {
-              if (activityClients.size >= 500) return denied();
-              state = { at: now, windowAt: now, windowCount: 0, total: 0 };
-              activityClients.set(event.clientId, state);
-            }
-            if (now - state.windowAt > 60000) { state.windowAt = now; state.windowCount = 0; }
-            state.windowCount += 1; state.total += 1; state.at = now;
-            if (state.windowCount > 30 || state.total > 500) return denied();
-            activityEvents.set(eventId, now);
             return readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: `Bearer ${policy.anonKey}`, "Content-Type": "application/json" } }));
           }
           const fields = ["path","source_href","surface","capability","concept","learn_stage","action_tried","at","locale","viewport","auth","interaction_id","message"];

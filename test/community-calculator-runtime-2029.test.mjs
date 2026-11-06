@@ -80,9 +80,9 @@ test("public calculator mount and typing calculate immediately without wall, AI,
   // The arrival seed ("אור") and the mount produced nothing; no legacy track/wall/AI/deep search ran.
   assert.deepEqual(state.effects.map(effect => effect[0]), ["rpc"]);
   const [, rpc, body] = state.effects[0];
-  assert.equal(rpc, "ingest_event");
-  assert.equal(body.p_surface, "gematria"); assert.equal(body.p_event_type, "first_compute");
-  assert.equal(body.p_path, "/community/calculator"); assert.equal(body.p_sod_id, null); assert.equal(body.p_session_id, null);
+  assert.equal(rpc, "ingest_reading_activity_v1", "the dedicated RPC, never the generic ingest_event");
+  assert.equal(body.p_event_type, "first_compute"); assert.equal(body.p_path, "/community/calculator");
+  assert.deepEqual(Object.keys(body).sort(), ["p_app_context", "p_event_type", "p_path", "p_props"], "no sod_id, session, bot flag, surface or actor class");
   assert.equal(body.p_props.entry, "share"); assert.equal(body.p_props.surface_kind, "community"); assert.equal(body.p_props.length_bucket, "4-8");
   assert.equal(/[\u0590-\u05FF]/.test(JSON.stringify(body)), false, "no expression, name or Hebrew text leaves the page");
   assert.deepEqual(Object.keys(body.p_props).sort(), ["activity_event_id", "activity_session", "entry", "length_bucket", "schema", "surface_kind"]);
