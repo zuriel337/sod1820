@@ -15,7 +15,9 @@ test("side rail is research-only: the classic and Guided matrices keep their cur
 
 test("zoom uses the engine's own control and row spacing is presentation only", async () => {
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
-  assert.match(native, /onZoom=\{direction => requestControl\(direction > 0 \? "zoom-in" : "zoom-out"\)\}/);
+  // "zoom-set" leaves the fit-to-screen layout (the engine clears fit), so the side buttons visibly enlarge/shrink the matrix; the
+  // older "zoom-in"/"zoom-out" kept fit on, where the percentage changed but the matrix did not.
+  assert.match(native, /onZoom=\{direction => requestControl\("zoom-set", clamp\(Math\.round\(\(\(Number\(engineState\?\.ui\?\.zoom\) \|\| 1\) \+ direction \* 0\.2\) \* 10\) \/ 10, 0\.5, 2\.8\)\)\}/);
   assert.match(native, /const ROW_GAP_PX = \[2, 8, 16, 28\];/);
   assert.match(native, /"--els29-row-gap": `\$\{ROW_GAP_PX\[rowGapStep\]\}px`/);
   // The spacing never reaches the engine: no request or state transfer carries it.

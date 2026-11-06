@@ -1650,7 +1650,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
           {sideRail ? <div className="els29-native-matrix-with-rail" style={{ "--els29-row-gap": `${ROW_GAP_PX[rowGapStep]}px` }}>
             <MatrixSideRail zoom={engineState?.ui?.zoom} active={matrixActive && !searchPending} rowGapStep={rowGapStep}
-              onZoom={direction => requestControl(direction > 0 ? "zoom-in" : "zoom-out")} onRowGap={delta => setRowGapStep(step => clamp(step + delta, 0, ROW_GAP_PX.length - 1))} />
+              onZoom={direction => requestControl("zoom-set", clamp(Math.round(((Number(engineState?.ui?.zoom) || 1) + direction * 0.2) * 10) / 10, 0.5, 2.8))} onRowGap={delta => setRowGapStep(step => clamp(step + delta, 0, ROW_GAP_PX.length - 1))} />
             <div className="els29-native-matrix-with-rail-body">
             <MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
               readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />
