@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useState } from "react";
+import React, { Suspense, lazy, useEffect, useState, useSyncExternalStore } from "react";
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "./lib/AuthContext.jsx";
 import { beginPostReadingSource, beginHomeReadingSource } from "./lib/supabase.js";
@@ -10,6 +10,7 @@ import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
 import { readingTelemetryPath } from "./lib/publicReadingTelemetry2029.js";
+import { hasInstallOffer, subscribeInstallOffer } from "./lib/installOffer2029.js";
 const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
 import Opening2029 from "./components/experience2029/Opening2029.jsx";
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
@@ -143,6 +144,14 @@ const SeferYetzirahWorld2029Page = bookPublicationReviewPreviewEnabled
   ? lazy(() => import("./pages/SeferYetzirahWorld2029Page.jsx")) : null;
 
 function Loading2029() { return <Opening2029 />; }
+
+// Android install suggestion: nothing is loaded or rendered unless the browser
+// currently offers installation (see lib/installOffer2029.js).
+const InstallSuggestion2029 = lazy(() => import("./components/experience2029/InstallSuggestion2029.jsx"));
+function InstallSuggestionMount2029() {
+  const offered = useSyncExternalStore(subscribeInstallOffer, hasInstallOffer, () => false);
+  return offered ? <Suspense fallback={null}><InstallSuggestion2029 /></Suspense> : null;
+}
 
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
 function RouteEffects2029() {
@@ -301,6 +310,7 @@ export default function App2029() {
       <BrowserRouter>
         <ResearchProvider>
           <RouteEffects2029 />
+          <InstallSuggestionMount2029 />
           {/* One temporary in-memory Raziel session is projected by both desktop and mobile chrome. */}
           <RazielSessionMount2029>
             <Suspense fallback={<Loading2029 />}>
