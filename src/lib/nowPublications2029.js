@@ -10,7 +10,7 @@ export const NOW_SERIES_PUBLIC_LABEL = Object.freeze({ "messages-from-righteous"
 export const nowSeriesLabel = (key, fallback = "") => NOW_SERIES_PUBLIC_LABEL[key] || fallback;
 
 // Exact public category names (compatibility evidence, never inferred from wording).
-const MESSAGE_CATEGORIES = Object.freeze(["מסרים", "מסרים מצדיקים", "רמזים מצדיקים"]);
+const MESSAGE_CATEGORIES = Object.freeze(["מסרים", "רמזים מצדיקים"]);
 const HINT_CATEGORIES = Object.freeze(["רמזי הגאולה", "רמזים חזקים"]);
 const HINT_CHANNELS = Object.freeze(["reality-code"]);
 const VIDEO_CATEGORY = "וידאו";

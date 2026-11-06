@@ -1,7 +1,7 @@
 import { publicPostHref } from "../publicPostUrls.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { canonicalPostCategories } from "../postCategoryIdentity.js";
-import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesKeysForPost, contentSeriesMembershipFilter, hasExactMembership } from "./contentSeries2029Identity.js";
+import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesKeysForPost, contentSeriesMembershipFilter, hasExactMembership, seriesShadowedCategories } from "./contentSeries2029Identity.js";
 import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./publicPostBoundary.js";
 import { publicWriterFollowLinks } from "../userCenter/writerPersonal2029.js";
 import { postsTaxonomyScope2029, postsTaxonomySelection2029, postMatchesTaxonomy2029, postsTaxonomyEvidence2029 } from "./postsTaxonomy2029Route.js";
@@ -53,7 +53,7 @@ export function postClassification2029(post) {
     const spec = contentSeriesByKey(key);
     return { role: "series", name: spec.label, prefix: "סדרה", href: seriesHref(key), key, decisionId: spec.decisionId };
   });
-  const resolvedSeriesCategories = new Set(series.flatMap(item => [item.name, ...contentSeriesByKey(item.key).membership
+  const resolvedSeriesCategories = new Set(series.flatMap(item => [...seriesShadowedCategories(contentSeriesByKey(item.key)), ...contentSeriesByKey(item.key).membership
     .filter(member => member.field === "categories").map(member => member.value)]));
   const categories = canonicalPostCategories(post.categories).filter(name => !resolvedSeriesCategories.has(name));
   const editorial = categories.filter(name => name === "רמזים חזקים" || name === "תיעוד אירועים")
@@ -142,7 +142,7 @@ export function postFollowCandidates2029({ post = null, scope = null } = {}) {
     : scope?.kind === "category" && scope.key !== "וידאו" ? [scope.key] : [];
   // The modern entry offers one series target. Old category choices stay
   // readable/cancellable in the center; they are never silently converted.
-  for (const name of [...new Set(categories)].filter(name => !CONTENT_SERIES_2029.some(spec => spec.label === name)).slice(0, 16)) candidates.push({ entityType: "category", stableId: name, topic: `cat:${name}`, label: name, kind: "סיווג במקור", icon: "layers" });
+  for (const name of [...new Set(categories)].filter(name => !CONTENT_SERIES_2029.some(spec => seriesShadowedCategories(spec).includes(name))).slice(0, 16)) candidates.push({ entityType: "category", stableId: name, topic: `cat:${name}`, label: name, kind: "סיווג במקור", icon: "layers" });
   const author = typeof post?.author === "string" ? post.author : "";
   const publisher = series.some(item => contentSeriesByKey(item.key)?.publisherLabel === author);
   if (author && author === author.trim() && author !== "המערכת" && !publisher) candidates.push({ entityType: "author", stableId: author, topic: `author:${author}`, label: author, kind: "ייחוס במקור", icon: "posts" });

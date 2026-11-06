@@ -45,7 +45,7 @@ test("lead reader constrains public source before reading and propagates failure
 
 test("Messages righteous is explicit post membership, OrGeula channel never becomes a series by name", () => {
   const spec = CONTENT_SERIES_2029.find(s => s.key === "messages-from-righteous");
-  const result = projectContentSeriesItems([row(1, { categories: ["רמזים מצדיקים"] }), row(2, { categories: ["אור הגאולה"] }), row(3, { categories: ["מסרים מצדיקים"], tags: ["טיוטה"] })], spec);
+  const result = projectContentSeriesItems([row(1, { categories: ["רמזים מצדיקים"] }), row(2, { categories: ["אור הגאולה"] }), row(3, { categories: ["רמזים מצדיקים"], tags: ["טיוטה"] })], spec);
   assert.deepEqual(result.items.map(item => item.id), ["1"]);
   assert.equal(result.items[0].href, "/post-1", "old WordPress address is retained");
   assert.equal(result.items[0].sourceRef, "posts:1");

@@ -36,6 +36,10 @@ export const CONTENT_SERIES_2029 = Object.freeze([
       sourceRef: "posts:5018",
       sourcePost: Object.freeze({ id: 5018, slug: "chibur-bein-hasafot-mafteach-lagan", source: "ai", wp_id: 36960 }),
       sourceTitle: "שבילי שפה — חיבור בן שפות",
+      // The Post's own letter-tile block (class "sgx"), verbatim: caption, tiles with their values, and the stated total.
+      step: "גימטריה באנגלית · A=1 … Z=26",
+      tiles: Object.freeze([["B", 2], ["E", 5], ["R", 18], ["E", 5], ["S", 19], ["H", 8], ["I", 9], ["T", 20]].map(tile => Object.freeze(tile))),
+      total: 86,
       highlight: "Bereshit = 86",
       text: "באנגלית מחשבים בפשטות: כל אות לפי מקומה באלף-בית — A=1, B=2, C=3 … Z=26 — ומחברים. Bereshit = 86",
       methodNote: "חישוב כפי שמופיע בפוסט המקור",
@@ -83,13 +87,15 @@ export const CONTENT_SERIES_2029 = Object.freeze([
   }),
   Object.freeze({
     key: "messages-from-righteous",
-    label: "מסרים מצדיקים",
+    // Public name "מסרים" (PLAN37 CONTENT-AUDIENCES-HYBRID-NOW-20261102: replaces the earlier public name everywhere; the key and
+    // historical source titles are unchanged). It is also the name of an existing category, which stays followable on its own.
+    label: "מסרים",
+    shadowedCategories: Object.freeze([]),
     decisionId: "CONTENT-AUDIENCES-HYBRID-NOW-20261102/SERIES-01",
     writerLabel: null,
     publisherLabel: null,
     priorityLane: "second_ring",
     membership: Object.freeze([
-      Object.freeze({ field: "categories", value: "מסרים מצדיקים" }),
       Object.freeze({ field: "categories", value: "רמזים מצדיקים" }),
     ]),
     // ZURIEL approved this one existing public occurrence after reviewing the
@@ -107,6 +113,10 @@ export const CONTENT_SERIES_2029 = Object.freeze([
     relationNote: "סדרה משותפת. אור הגאולה נשאר מקור; עדכונים ממנו מצטרפים רק לאחר אישור ושיוך לפריט, לא מכוח שם הערוץ.",
   }),
 ]);
+
+// Category names a series visually replaces (shown once, as the series). Default: the series label. A series whose public
+// name equals a live category that must stay independently followable (מסרים) declares an empty list.
+export const seriesShadowedCategories = (spec) => Array.isArray(spec?.shadowedCategories) ? spec.shadowedCategories : [spec?.label];
 
 function postgrestValue(value) {
   return clean(value).replace(/["\\]/g, "");

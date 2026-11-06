@@ -158,21 +158,6 @@ function SeriesLatestItem({ item, series }) {
   </Link>;
 }
 
-// A quoted line that mixes Hebrew with Latin letters/numbers: each Latin/number run is isolated left-to-right so the
-// quote reads in its original order inside the RTL card. The visible text is exactly the stored quote.
-const LTR_RUN = /[A-Za-z0-9][A-Za-z0-9=,\s…]*[A-Za-z0-9]/g;
-function MixedDirectionText({ text }) {
-  const parts = [];
-  let last = 0;
-  for (const match of text.matchAll(LTR_RUN)) {
-    if (match.index > last) parts.push(text.slice(last, match.index));
-    parts.push(<bdi dir="ltr" key={match.index}>{match[0]}</bdi>);
-    last = match.index + match[0].length;
-  }
-  if (last < text.length) parts.push(text.slice(last));
-  return <>{parts}</>;
-}
-
 // The primary series card (מפת המציאות): full row, compact, with an approved sample linked to its source Post.
 // It is never an empty card: without a member and without an approved sample it renders nothing. The series page
 // link appears only once the series has a member to show, so it never leads to an empty page.
@@ -184,11 +169,14 @@ function PrimarySeriesCard({ series, spec, teaser }) {
   return <article className="h29-series-card is-primary" data-home-series={spec.key} data-home-series-primary="true">
     {open ? <Link className="h29-series-name" to={seriesHref}>{spec.label}</Link> : <h3 className="h29-series-name">{spec.label}</h3>}
     <div className="h29-primary-body">
-      {teaser ? <Link className="h29-series-teaser h29-card-open" to={teaser.href} data-home-series-teaser={teaser.sourceRef}>
-        <span className="h29-teaser-kicker">דוגמית מהסדרה</span>
-        <strong className="h29-teaser-line"><bdi dir="ltr">{teaser.highlight}</bdi></strong>
-        <small className="h29-teaser-text"><MixedDirectionText text={teaser.text} /></small>
-        <small className="h29-teaser-source">מתוך הפוסט: {teaser.sourceTitle}{teaser.methodNote ? ` · ${teaser.methodNote}` : ""}</small>
+      {teaser ? <Link className="h29-series-teaser h29-card-open" to={teaser.href} data-home-series-teaser={teaser.sourceRef} aria-label={`${teaser.text}. מתוך הפוסט: ${teaser.sourceTitle}`}>
+        <span className="h29-teaser-kicker">דוגמית מהסדרה{teaser.step ? ` · ${teaser.step}` : ""}</span>
+        <span className="h29-teaser-tiles" dir="ltr" aria-hidden="true">
+          {teaser.tiles.map((tile, index) => <i key={index} style={{ "--i": index }}>{tile.letter}<small>{tile.value}</small></i>)}
+          <b className="h29-teaser-total">= {teaser.total}</b>
+        </span>
+        <strong className="h29-teaser-line" aria-hidden="true"><bdi dir="ltr">{teaser.highlight}</bdi></strong>
+        <small className="h29-teaser-source" aria-hidden="true">מתוך הפוסט: {teaser.sourceTitle}{teaser.methodNote ? ` · ${teaser.methodNote}` : ""}</small>
       </Link> : null}
       {item ? <SeriesLatestItem item={item} series={series} /> : null}
     </div>
@@ -396,7 +384,7 @@ export default function HomeComposition2029({
         <Link className="h29-anchor k29-rv" to="/world"><span className="h29-glyph is-people"><NavigationIcon2029 name="community" /></span>
           <span><b>הכותבים</b><small>{people.length ? people.map((person) => person.displayName).join(" · ") : "הכותבים שמקורותיהם בעולם"}</small></span></Link>
         <Link className="h29-anchor k29-rv" to="/2029/posts?series=messages-from-righteous"><span className="h29-glyph is-geula"><NavigationIcon2029 name="spark" /></span>
-          <span><b>מסרים מצדיקים</b><small>הסדרה המשותפת · המקור נשמר בכל פריט</small></span></Link>
+          <span><b>מסרים</b><small>הסדרה המשותפת · המקור נשמר בכל פריט</small></span></Link>
       </div>
     </Section> : null}
 

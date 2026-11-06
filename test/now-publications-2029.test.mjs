@@ -76,7 +76,7 @@ test("series, messages and hints are separate lenses; series is not inferred fro
   assert.equal(filterNowModels(models, { lens: "hints", source: "קוד המציאות" }).length, 1);
   assert.deepEqual(nowSecondaryChoices(models).series.map(s => s.id).sort(), ["dimension-five", "mah-kore-habora", "messages-from-righteous", "sod-hashmal"]);
   assert.equal(nowSeriesHref(by("post:2")), "/2029/posts?series=mah-kore-habora");
-  assert.equal(nowSeriesLabel("messages-from-righteous", "מסרים מצדיקים"), "מסרים");
+  assert.equal(nowSeriesLabel("messages-from-righteous", "מסרים"), "מסרים");
 });
 
 test("'הכול' is chronological newest first, with a stable tie-break", () => {
@@ -88,7 +88,7 @@ test("one publication = one row: the approved Or HaGeula video enriches the same
   const id = "9d4e6b80-f52b-4461-9231-ca30f37f0db9";
   const channel = publicChannelToSystemItem({ id, channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "מסר מאור הגאולה", image_url: MP4 });
   const approved = approvedSeriesToSystemItem({ sourceRef: `channel_updates:${id}`, kind: "channel_update", title: "מסר מאור הגאולה", excerpt: "מסר מאור הגאולה", channel: "or-geula",
-    publishedAt: "2026-11-03T09:49:00Z", mediaUrl: MP4, imageUrl: MP4.replace("clip.mp4", "t.png"), href: "/video/25e378462b55298219e5f7562698bfa7" }, { key: "messages-from-righteous", label: "מסרים מצדיקים" });
+    publishedAt: "2026-11-03T09:49:00Z", mediaUrl: MP4, imageUrl: MP4.replace("clip.mp4", "t.png"), href: "/video/25e378462b55298219e5f7562698bfa7" }, { key: "messages-from-righteous", label: "מסרים" });
   assert.equal(approved.id, channel.id);
   const merged = mergeSystemFeedItems([approved], [channel]);
   assert.equal(merged.length, 1);
@@ -107,7 +107,7 @@ test("no activity/personal features are modelled as active: the projection expos
 
 test("series previews (same Home reader) keep every approved series present even when the shared recent window is full", () => {
   const recent = Array.from({ length: 45 }, (_, i) => postRowToWorldUpdate(post(1 + (i % 9), { id: 100 + i, slug: `r${i}`, date: `2026-11-03T${String(i % 24).padStart(2, "0")}:00:00Z`, modified: "2026-11-03T12:00:00Z" })));
-  const catalog = { series: [{ key: "messages-from-righteous", label: "מסרים מצדיקים", items: [
+  const catalog = { series: [{ key: "messages-from-righteous", label: "מסרים", items: [
     { kind: "post", id: "9001", title: "מסר ישן", excerpt: "תקציר", author: "כותב", publishedAt: "2026-10-01T10:00:00Z", href: "/old-message", sourceRef: "posts:9001", imageUrl: "https://example.test/t.webp" },
     { kind: "channel_update", id: "x", title: "לא פוסט", publishedAt: "2026-10-02T10:00:00Z", href: "/video/abc", sourceRef: "channel_updates:x" },
     { kind: "post", id: "9002", title: "ללא קישור", publishedAt: "2026-10-02T10:00:00Z", href: "", sourceRef: "posts:9002" },
