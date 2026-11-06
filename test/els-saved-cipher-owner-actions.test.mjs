@@ -55,3 +55,21 @@ test("tool dock: one labelled straight row for Classic and Research", async () =
   assert.doesNotMatch(native, /id: "search", label: "חיפוש בצופן"/);
   assert.match(native, /\["findings", "סריקה וממצאים", "סריקה", "els"\], \["results", "תוצאות", "תוצאות", "posts"\], \["research", "שמירה", "שמירה", "books"\]/);
 });
+
+test("public release: Research is open, AI shows 'soon', four dock tools in one row", async () => {
+  const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
+  assert.match(native, /const aiAvailable = !publicClassic && Boolean\(matrixReading \|\| typeof onRazielMatrix === "function"\)/);
+  assert.match(native, /shortLabel: "AI בקרוב", icon: "discovery", disabled: true/);
+  assert.match(native, /data-soon="true"/);
+  const dock = await read("src/components/experience2029/SystemToolDock2029.jsx");
+  assert.match(dock, /disabled=\{action\.disabled\}/);
+  assert.match(dock, /if \(!action\.disabled\) onInvoke/);
+  const switcher = await read("src/components/experience2029/ElsMatrixProfileSwitch.jsx");
+  assert.match(switcher, /allowed\.includes\(option\.key\)/);
+  const worker = await read("public-reading-deploy/transport.js");
+  // Publication stays administrator-only: only rename and delete of the member's own record are admitted.
+  assert.match(worker, /rpc === "rename_my_els_matrix" \|\| rpc === "delete_my_els_matrix"/);
+  assert.doesNotMatch(worker, /rpc === "self_publish_matrix"/);
+  const library = await read("src/components/experience2029/ElsSavedLibrary2029.jsx");
+  assert.match(library, /publicReadingActionsLocked\(isAdmin\)/);
+});

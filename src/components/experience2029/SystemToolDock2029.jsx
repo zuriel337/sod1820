@@ -18,7 +18,8 @@ export function SystemToolDockActions2029({ actions, onInvoke }) {
   return actions.map((action) => <button
     type="button" key={action.id} data-tool-action={action.id}
     aria-label={action.label} title={action.label}
-    aria-expanded={action.expanded} aria-controls={action.controls}
-    onClick={(event) => onInvoke(action, event.currentTarget)}
+    aria-expanded={action.disabled ? undefined : action.expanded} aria-controls={action.disabled ? undefined : action.controls}
+    disabled={action.disabled} data-soon={action.disabled ? "true" : undefined}
+    onClick={(event) => { if (!action.disabled) onInvoke(action, event.currentTarget); }}
   ><NavigationIcon2029 name={action.icon} /><small>{action.shortLabel || action.label}</small></button>);
 }

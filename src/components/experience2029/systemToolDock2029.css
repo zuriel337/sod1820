@@ -25,3 +25,5 @@
   max-width:100%;font-size:14px;line-height:1.2;white-space:nowrap;text-overflow:ellipsis;
 }
 .sod29-root.native-frame .sod29-command-island.is-unified-bar[data-tool-owner]:not(.has-context-trail)>.sod29-raziel-orb{flex:none;margin-block:0}
+.sod29-root.native-frame .sod29-command-island.is-unified-bar[data-tool-owner]:not(.has-context-trail) .sod29-bar-zone>button[data-soon="true"]{opacity:.62;cursor:default}
+.sod29-root.native-frame .sod29-command-island.is-unified-bar[data-tool-owner]:not(.has-context-trail) .sod29-bar-zone>button[data-soon="true"]>small{font-size:12px}

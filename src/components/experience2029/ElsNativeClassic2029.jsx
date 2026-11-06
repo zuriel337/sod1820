@@ -937,6 +937,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     },
     select: (tool, trigger) => activeTool === tool && !classicOpen && window.matchMedia("(min-width:981px)").matches ? closeTool() : openTool(tool, trigger),
   };
+  const aiAvailable = !publicClassic && Boolean(matrixReading || typeof onRazielMatrix === "function");
   const dockProjection = useMemo(() => ({
     surface: "els",
     actions: [
@@ -946,8 +947,12 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
         id, label, shortLabel, icon, expanded: !classicOpen && activeTool === id,
         controls: "els29-context-panel", onSelect: (trigger) => toolActionsRef.current.select(id, trigger),
       })),
+      // AI discovery: a working tool for the administrator, a visible "soon" placeholder for everyone else.
+      ...(aiAvailable ? [{ id: "ai", label: "גילוי עם AI", shortLabel: "AI", icon: "discovery", expanded: !classicOpen && activeTool === "ai",
+        controls: "els29-context-panel", onSelect: (trigger) => toolActionsRef.current.select("ai", trigger) }]
+        : publicClassic ? [{ id: "ai", label: "גילוי עם AI · בקרוב", shortLabel: "AI בקרוב", icon: "discovery", disabled: true }] : []),
     ],
-  }), [activeTool, classicOpen, guidedProfile]);
+  }), [activeTool, classicOpen, guidedProfile, aiAvailable, publicClassic]);
   const hasSystemDock = useSystemToolDock2029(active ? dockProjection : null);
   useEffect(() => {
     if (!active || !activeTool || classicOpen) return;
@@ -1719,6 +1724,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             aria-expanded={activeTool === "ai"} aria-controls="els29-context-panel"
             onClick={event => activeTool === "ai" ? closeTool() : openTool("ai", event.currentTarget)}>
             <span aria-hidden="true">✦</span><small>AI</small>
+          </button> : publicClassic ? <button type="button" aria-label="גילוי עם AI · בקרוב" title="גילוי עם AI · בקרוב" disabled data-soon="true">
+            <span aria-hidden="true">✦</span><small>AI בקרוב</small>
           </button> : null}
         </div>
         <div ref={panelRef} className="els29-native-panel-wrap" hidden={classicOpen || !activeTool}>

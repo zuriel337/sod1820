@@ -141,6 +141,7 @@ export default function Els2029Page(props) {
   const publicClassic = publicReadingActionsLocked(useAuth().isAdmin);
   return <OperationalEls2029Page key={publicClassic ? "public-classic" : "full"} {...props} publicClassic={publicClassic} />;
 }
+// ZURIEL 6.11: Classic and Research are open to every visitor; Guided discovery, AI and Raziel stay with the administrator.
 function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false }) {
   const research = useResearch();
   const razielSession = useOptionalRazielSession2029();
@@ -206,8 +207,9 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   // starts a scan or an AI call; Guided starts only on its explicit submit.
   const [matrixProfile, setMatrixProfile] = useState(() => {
     const requested = clean(params.get("mode")).toLowerCase();
-    if (publicClassic || requested === "classic" || directSavedOpen || sharedMatrix.present) return ELS_MATRIX_PROFILE.CLASSIC;
+    if (requested === "classic" || directSavedOpen || sharedMatrix.present) return ELS_MATRIX_PROFILE.CLASSIC;
     if (requested === "research" || previewAdvanced) return ELS_MATRIX_PROFILE.RESEARCH;
+    if (publicClassic) return ELS_MATRIX_PROFILE.CLASSIC;
     return ELS_MATRIX_PROFILE.GUIDED;
   });
   useEffect(() => {
@@ -293,7 +295,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     : null;
 
   useEffect(() => {
-    if (publicClassic || elsState.loading || elsState.blocked || !replayKey) {
+    if (elsState.loading || elsState.blocked || !replayKey) {
       setReplay({ loading: false, state: "CONTEXT_REQUIRED", result: null, traceId: null, error: null });
       return undefined;
     }
@@ -384,8 +386,8 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
     <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
       <div><small>סביבת עבודה</small><strong>{guidedProfile ? "גילוי מודרך" : advancedResearchProfile ? "מחקר" : "קלאסי"}</strong></div>
-      {publicClassic ? null : <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} />}
-      {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => { setMatrixProfile(ELS_MATRIX_PROFILE.GUIDED);setParams({}); }}>חיפוש חדש</button> : null}
+      <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} allowed={publicClassic ? [ELS_MATRIX_PROFILE.RESEARCH, ELS_MATRIX_PROFILE.CLASSIC] : null} />
+      {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => { setMatrixProfile(publicClassic ? ELS_MATRIX_PROFILE.CLASSIC : ELS_MATRIX_PROFILE.GUIDED);setParams({}); }}>חיפוש חדש</button> : null}
     </nav>
     {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
       <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
@@ -445,7 +447,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
           advancedSearchRequestKey={location.state?.elsResearchReturnTaskId && location.state.elsResearchReturnTaskId === research.elsResearchOperation?.task?.id ? location.key : null}
           researchProfile={researchProfile} guidedProfile={guidedProfile} researchLoad={researchLoad || (savedRecord.row ? null : sharedMatrix.loadItem || findingJourneyLoad)} researchProbe={researchProbe} onResearchProbeResult={receiveExactSkip} onResearchLoadError={() => setExactStatus("failed")}
           publicClassic={publicClassic}
-          advancedSearch={publicClassic ? null : <ElsAdvancedSearch2029
+          advancedSearch={<ElsAdvancedSearch2029
             researchOrigin={replayMatched && layeredReady ? { ...context?.selection, corpusId: replayProjection?.corpusId } : null}
             exactStatus={exactStatus} onExactSkip={requestExactSkip} deriveCanonicalForms={deriveCanonicalForms} onPlanSummary={setAutomaticSummary}
             onLoad={item => { pendingProbeRef.current = null; setResearchProbe(null); setExactStatus("idle"); setResearchLoad(item); }} />}
@@ -460,7 +462,7 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
 
 
 
-      <details className="sod29-els-research-details" hidden={!advancedResearchProfile}>
+      <details className="sod29-els-research-details" hidden={!advancedResearchProfile || publicClassic}>
         <summary>פרטי מחקר מתקדמים · חלק מהפעולות עדיין לא פעילות</summary>
       {advancedResearchProfile ? <div className="sod29-els-architecture">
         <div className="sod29-els-matrix-stage">

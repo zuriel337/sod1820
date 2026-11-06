@@ -3,6 +3,7 @@ import { useAuth } from "../../lib/AuthContext.jsx";
 import { deleteMyMatrix, getMatrixLibraryPage, renameMyMatrix, selfPublishMatrix } from "../../lib/elsMatrices.js";
 import { hasExactSavedMatrix, savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";
 import { thumb } from "../../lib/img.js";
+import { publicReadingActionsLocked } from "../../lib/publicReadingRelease2029.js";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import "./elsSavedLibrary2029.css";
@@ -60,8 +61,10 @@ function CipherOwnerActions({ row, onChanged }) {
   const [title, setTitle] = useState(row.title || row.search_term || "");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null);
+  const { isAdmin } = useAuth();
   const approved = row.status === "published";
-  const alreadyPublic = approved && row.visibility === "public";
+  // In the public release, publication is administrator-only; members rename and delete their own private ciphers.
+  const noPublishToggle = (approved && row.visibility === "public") || publicReadingActionsLocked(isAdmin);
   const run = async (action, done) => {
     if (busy) return;
     setBusy(true);setMessage(null);
@@ -76,7 +79,7 @@ function CipherOwnerActions({ row, onChanged }) {
   return <div className="els29-library-owner">
     <div className="els29-library-owner-row">
       {approved ? null : <button type="button" className="sod29-action" disabled={busy} aria-expanded={mode === "rename"} onClick={() => { setTitle(row.title || row.search_term || "");setMode(mode === "rename" ? null : "rename"); }}>שנה שם</button>}
-      {alreadyPublic ? null : <button type="button" className="sod29-action" disabled={busy} aria-pressed={!!row.self_published}
+      {noPublishToggle ? null : <button type="button" className="sod29-action" disabled={busy} aria-pressed={!!row.self_published}
         onClick={() => mode === "publish" || row.self_published
           ? run(() => selfPublishMatrix(row.id, !row.self_published), row.self_published ? "הצופן הוסר מהתיק הציבורי." : "הצופן מוצג בתיק הציבורי שלך.")
           : setMode("publish")}>{row.self_published ? "הסר מהתיק הציבורי" : "הצג בתיק הציבורי"}</button>}

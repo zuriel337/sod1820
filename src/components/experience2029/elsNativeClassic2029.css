@@ -859,3 +859,4 @@
 .els29-matrix-share textarea{box-sizing:border-box;width:100%;min-width:0;max-width:100%;min-height:60px;font-size:var(--s29-type-ui);color:var(--s29-ink);background:var(--s29-panel);border:1px solid var(--s29-line);border-radius:10px;overflow-wrap:anywhere;resize:vertical}
 .els29-matrix-share-actions{display:flex;flex-wrap:wrap;gap:8px}
 .els29-matrix-share-actions button{min-width:44px;min-height:44px;white-space:normal;font-size:var(--s29-type-ui)}
+.els29-native-toolstrip button[data-soon="true"]{opacity:.6;cursor:default}
