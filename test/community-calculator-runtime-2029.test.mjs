@@ -17,7 +17,8 @@ const fixtures = {
   "engine.js": "import {METHODS} from './src/lib/gematria.js';export const resolve=name=>({value:METHODS[0].fn(name)});",
   "supabase.js": `export const getAllValuePhrases=async value=>{globalThis.__communityCalc.reads.push(value);return [{phrase:'רז',is_verified:true}];};
     export const addWallWord=(...args)=>globalThis.__communityCalc.effects.push(['wall',...args]);
-    export const getAiAnalysis=async(...args)=>{globalThis.__communityCalc.effects.push(['ai',...args]);return 'AI';};`,
+    export const getAiAnalysis=async(...args)=>{globalThis.__communityCalc.effects.push(['ai',...args]);return 'AI';};
+    export const supabase={rpc:(...args)=>{globalThis.__communityCalc.effects.push(['rpc',...args]);return Promise.resolve({});}};`,
   "gematriaMethodRegistry.js": "export const fetchGematriaMethodStates=async()=>null;export const indexGematriaMethodStates=()=>null;",
   "tracking.js": "export const track=(...args)=>globalThis.__communityCalc.effects.push(['track',...args]);",
   "numberMessage.js": "export const buildMessages=()=>[];",
@@ -48,12 +49,12 @@ function fixture(search) {
   const browserSearch = new URL(`https://preview.example/community/calculator${search}`).search;
   const value = { location: { pathname: "/community/calculator", search: browserSearch, hash: "#result", key: "arrival" }, effects: [], reads: [], contexts: [], replacements: [] };
   globalThis.__communityCalc = value;
-  globalThis.window = { location: { origin: "https://preview.example" }, history: { state: { key: "arrival" }, replaceState: (_state, _title, url) => value.replacements.push(url) } };
+  globalThis.window = { location: { origin: "https://preview.example", pathname: "/community/calculator" }, history: { state: { key: "arrival" }, replaceState: (_state, _title, url) => value.replacements.push(url) } };
   return value;
 }
 const output = root => JSON.stringify(root.toJSON());
 
-test("public calculator mount and typing calculate immediately without wall, AI, telemetry or deep search", async context => {
+test("public calculator mount and typing calculate immediately without wall, AI, legacy telemetry or deep search; typing emits one content-free beacon", async context => {
   context.mock.timers.enable({ apis: ["setTimeout"] });
   const state = fixture("?w=אור&w2=רז&compare=1&method=מילוי&result=643&source=one&source=two");
   let root;
@@ -75,7 +76,16 @@ test("public calculator mount and typing calculate immediately without wall, AI,
   assert.equal(updated.searchParams.get("w2"), "רז");
   assert.equal(updated.searchParams.get("method"), "מילוי");
   assert.deepEqual(updated.searchParams.getAll("source"), ["one", "two"]);
-  assert.deepEqual(state.effects, []);
+  // ZURIEL 6.11: the only telemetry is ONE content-free compute beacon (first_compute) for the typed, settled name.
+  // The arrival seed ("אור") and the mount produced nothing; no legacy track/wall/AI/deep search ran.
+  assert.deepEqual(state.effects.map(effect => effect[0]), ["rpc"]);
+  const [, rpc, body] = state.effects[0];
+  assert.equal(rpc, "ingest_reading_activity_v1", "the dedicated RPC, never the generic ingest_event");
+  assert.equal(body.p_event_type, "first_compute"); assert.equal(body.p_path, "/community/calculator");
+  assert.deepEqual(Object.keys(body).sort(), ["p_app_context", "p_event_type", "p_path", "p_props"], "no sod_id, session, bot flag, surface or actor class");
+  assert.equal(body.p_props.entry, "share"); assert.equal(body.p_props.surface_kind, "community"); assert.equal(body.p_props.length_bucket, "4-8");
+  assert.equal(/[\u0590-\u05FF]/.test(JSON.stringify(body)), false, "no expression, name or Hebrew text leaves the page");
+  assert.deepEqual(Object.keys(body.p_props).sort(), ["activity_event_id", "activity_session", "entry", "length_bucket", "schema", "surface_kind"]);
   await act(async () => { root.unmount(); });
 });
 
