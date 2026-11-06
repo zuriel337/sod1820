@@ -113,3 +113,21 @@ Checked in Vercel and GitHub, not from documents. **Every** Production deploymen
 * CLS on a local public-reading build (same harness reproduces production numbers: 0.263 phone): `/gallery` 0.263 → 0.061 (phone), 0.238 → 0.057 (desktop); home unchanged (0.000 / 0.007). Tools: `docs/reviews/audit-remediation-20261106/tools/`.
 * GitHub Actions `2029 Live Contracts` dispatched on the branch (see the report).
 * Not verified: anything that needs a deployment (the CLS result on a real Preview, `/video` latency, `/api/card` caching headers on the CDN), and the SQL against the real Supabase schema (fixtures mirror the dumped policies/definitions, not the whole database).
+
+
+---
+
+# Round 2 (after ZURIEL's decisions of 2026-11-06)
+
+| Item | State | Where |
+|---|---|---|
+| P0 package for point approval (final SQL, impact, order, rollback, proof matrix) | **Ready — awaiting your approval** | [`P0-APPROVAL-PACKAGE.md`](P0-APPROVAL-PACKAGE.md); rollbacks `supabase/proposed/ROLLBACK_*` are executed inside the SQL tests |
+| Storage + RPC (policy diff, who is affected, proof) | **Ready — awaiting approval** | [`STORAGE-RPC-APPROVAL.md`](STORAGE-RPC-APPROVAL.md) |
+| `/video` DB solution (materialized projection, indexes, refresh, cost, rollback) | **Ready — awaiting approval**; code switch dormant (`SOD_VIDEO_ASSETS_MV=1`) | `supabase/proposed/20261106140000_def003_…`, `tests/sql/def003_…`, `src/lib/research/publicVideoAssetReader2029.js` |
+| OpenWeb / CSP | Analysed, no change | [`OPENWEB-CSP-ANALYSIS.md`](OPENWEB-CSP-ANALYSIS.md) |
+| GSC / GA4 / Vercel / test accounts — exact instructions | Done | [`GSC-GA4-ACCESS.md`](GSC-GA4-ACCESS.md) |
+| Series plan, auto-registration, archive, legacy, `/heichal` | Findings + one open question | [`SERIES-AUTOREGISTRATION.md`](SERIES-AUTOREGISTRATION.md) |
+| `/sulamot*` marked legacy | Done (comment + guard test) | `route-legitimacy.js`, `test/legacy-routes-served-as-notice-2029.test.mjs` |
+| New defect found: `/updates` (home nav) and `/raziel` (map) returned a bare edge 404 although a designed page exists | **Fixed** (allow-list) | `route-legitimacy.js`, `test/route-legitimacy-service-pages-2029.test.mjs` |
+| Internal-link crawl (18 key pages, 123 internal links) | 115 × 200, 3 × 308 (aliases), 3 × 503 (closed areas, by design), 2 × 404 → both fixed above | `docs/audit-evidence/20261106/` |
+| JSON-LD validity (70 live pages, Article/VideoObject/WebPage/Breadcrumb) | 70/70 parse and carry the required properties | — |
