@@ -80,3 +80,23 @@ export function parseOpenGraph(html, pageUrl) {
   if (!title && !description && !image) return null;
   return { title, description, siteName, image, url: String(pageUrl) };
 }
+
+// Pages are not always UTF-8 (rotter.net serves windows-1255). Decoding them as UTF-8 turns every Hebrew title into replacement
+// characters. The charset comes from the response header first, then from a <meta> tag in the first bytes, else UTF-8. Only labels
+// the runtime's TextDecoder knows are used; anything else (or a decoder error) falls back to UTF-8, so this can never throw.
+export function detectHtmlCharset(contentType, bytes) {
+  const fromHeader = /charset\s*=\s*["']?([\w.:-]+)/i.exec(String(contentType || ""))?.[1];
+  const head = new TextDecoder("latin1").decode(bytes.subarray(0, 4096));
+  const fromMeta = /<meta\b[^>]*\bcharset\s*=\s*["']?\s*([\w.:-]+)/i.exec(head)?.[1]
+    || /<meta\b[^>]*http-equiv\s*=\s*["']?content-type["']?[^>]*charset\s*=\s*([\w.:-]+)/i.exec(head)?.[1];
+  for (const label of [fromHeader, fromMeta]) {
+    if (!label) continue;
+    try { return new TextDecoder(label.trim()).encoding; } catch { /* unknown label: try the next source */ }
+  }
+  return "utf-8";
+}
+
+export function decodeHtmlBytes(bytes, contentType) {
+  const encoding = detectHtmlCharset(contentType, bytes);
+  try { return new TextDecoder(encoding, { fatal: false }).decode(bytes); } catch { return new TextDecoder("utf-8", { fatal: false }).decode(bytes); }
+}

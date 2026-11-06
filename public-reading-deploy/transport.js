@@ -415,9 +415,18 @@ function installPublicReadingWorker(policy) {
           const key = policy.anonKey || req.headers.get("apikey") || "";
           return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
         }
-        if (["community_feed_page", "community_message_context", "community_replies_page"].includes(rpc)
+        if (["community_feed_page", "community_message_context", "community_replies_page", "community_search"].includes(rpc)
           && url.searchParams.size === 1 && url.searchParams.get("select") === policy.communityFields) {
           const body = await jsonBody(req);
+          // Corpus-wide community search: read-only, exact body only. The database function owns visibility
+          // (approved, not deleted, whole chain public); the worker bounds the query text and the page window.
+          if (rpc === "community_search") {
+            const text = typeof body.p_query === "string" ? body.p_query.trim() : "";
+            const length = Array.from(text).length;
+            return Object.keys(body).sort().join(",") === "p_limit,p_offset,p_query" && length >= 2 && length <= 80
+              && Number.isSafeInteger(body.p_offset) && body.p_offset >= 0 && body.p_offset <= 1000000
+              && Number.isSafeInteger(body.p_limit) && body.p_limit >= 1 && body.p_limit <= 50 ? readFetch(req) : denied();
+          }
           if (rpc !== "community_replies_page") return readFetch(req);
           if (Object.keys(body).sort().join(",") !== "p_limit,p_offset,p_parent" || !uuid(body.p_parent)
             || !Number.isSafeInteger(body.p_offset) || body.p_offset < 0 || body.p_offset > 1000000
@@ -458,6 +467,13 @@ function installPublicReadingWorker(policy) {
     }
     if (!safeMethods.has(req.method)) { event.respondWith(Promise.resolve(denied())); return; }
     if (url.origin === self.location.origin) {
+      // The raw engine page is an internal iframe document. A top-level navigation to it (a search-engine result, a shared link)
+      // goes to the cipher page. Server rules cannot tell the two apart for a browser this worker controls, because the worker's
+      // own fetch() carries Sec-Fetch-Dest: empty and the raw page would be served; so the decision is made here, from the real
+      // navigation destination. The engine iframe (destination "iframe") is untouched.
+      if (url.pathname === "/tzofen.html" && req.mode === "navigate" && req.destination === "document") {
+        event.respondWith(Response.redirect(new URL("/code", self.location.origin).href, 307)); return;
+      }
       // No same-origin proxy or Auth adapter can bypass the browser boundary.
       if (url.pathname.startsWith("/api/") && !["/api/card", "/api/public-document", "/api/public-sitemap", "/api/public-robots",
         "/api/public-contributor-rank", "/api/contributor-public-overview", "/api/contributor-interactions"].includes(url.pathname)) {

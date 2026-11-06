@@ -201,6 +201,20 @@ test('emitted OAuth navigation requires exact callback, genuine PKCE shape and b
  assert.equal((await send(base,{mode:'cors'})).status,403);assert.equal((await send(base,{suffix:'&provider=facebook'})).status,403);assert.equal(calls,0);
 });
 
+test('emitted worker sends a top-level navigation to the raw engine page to /code and leaves the engine iframe alone',async()=>{
+ let listener,network=[];
+ const ctx={Request,Response,URL,Set,Map,JSON,atob,fetch:async req=>{network.push(req.url);return new Response('<engine>',{status:200});},self:{location:{origin:SITE},addEventListener:(type,fn)=>{if(type==='fetch')listener=fn;}}};
+ vm.runInNewContext(buildPublicReadingWorker('a'.repeat(40)),ctx);
+ const send=async(path,{mode='navigate',destination='document'}={})=>{let reply;const request=new Request(SITE+path);Object.defineProperty(request,'mode',{value:mode});Object.defineProperty(request,'destination',{value:destination});listener({request,respondWith(p){reply=p;}});return reply?await reply:null;};
+ const top=await send('/tzofen.html?embed=1');
+ assert.equal(top.status,307);assert.equal(top.headers.get('location'),SITE+'/code');assert.equal(network.length,0,'the raw page is never fetched for a top-level navigation');
+ // the engine inside the app is an iframe document (or a same-origin fetch): it still reaches the network
+ for(const [mode,destination] of [['navigate','iframe'],['same-origin','empty']]){const r=await send('/tzofen.html?embed=1&bridge=hidden&experience=2029',{mode,destination});assert.ok(!r||r.status===200,`${mode}/${destination}`);}
+ assert.ok(network.length>=1,'iframe loads still pass through to the network');
+ // other pages are unaffected
+ assert.notEqual((await send('/code')).status,307);
+});
+
 test('actual emitted worker admits only read-only verified WhatsApp association with server-verified matching JWT',async()=>{
  const path='/rest/v1/wa_account_links?select=verified_at&user_id=eq.'+a+'&verified_at=not.is.null&limit=1';
  for(const method of ['GET','HEAD']){const w=worker({role:'user'});assert.equal((await w.request(path,{method})).status,200);assert.equal(w.calls.length,2);assert.equal(w.calls[1].url,API+path);assert.equal(w.calls[1].headers.get('authorization'),'Bearer '+token());assert.equal(w.calls[1].cache,'no-store');}
