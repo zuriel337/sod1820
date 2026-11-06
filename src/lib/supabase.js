@@ -2230,6 +2230,9 @@ export async function logView(kind, ref) {
   // בוט כמו ש-site_visits/events עושים; האפשרות הישרה היחידה היא לא לכתוב. הבוט עדיין קורא
   // את הדף במלואו — רק הצפייה שלו לא נספרת. (נפח-הבוטים נמדד בקצה: crawl_daily.)
   if (!sideEffectAllowed("page_views")) return;
+  // DEF-012: the public-reading build's request worker (public-reading-deploy/transport.js) denies every write except an explicit allow-list, and
+  // page_views is not on it. Sending the insert only produced a 403 + console error on every post view, so the public build does not attempt it.
+  if (PUBLIC_READING_RELEASE) return;
   const key = `pv-${kind}-${ref}`;
   try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
   try { await supabase.from("page_views").insert({ kind, ref: String(ref) }); } catch { /* ignore */ }

@@ -193,4 +193,9 @@
   .r29-picture-meta{grid-template-areas:'num title title' 'gallery gallery share'}
   .r29-detail-foot .r29-numbers a svg{display:none}
 }
+/* DEF-008: the river is a fixed-height window plus a constant frame (heading, tray/caption, follow). While the pictures load, reserve exactly that
+   height so the content below it (the gallery catalog) does not jump by ~900px when the river opens. Measured on the public build:
+   final height - window height = 580px on phones (<=760px) and 490px otherwise, for 360-1920px wide viewports. */
+.r29-river.is-loading{min-height:calc(var(--r29-window-height) + 490px)}
+@media(max-width:760px){.r29-river.is-loading{min-height:calc(var(--r29-window-height) + 580px)}}
 @media(prefers-reduced-motion:reduce){.r29-river *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

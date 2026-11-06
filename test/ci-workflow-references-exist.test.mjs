@@ -29,3 +29,10 @@ test("the Beit Midrash step keeps its 2029 coverage after the dead path was remo
     assert.ok(text.includes(kept), `${kept} must stay in the gate`);
   }
 });
+
+test("no scheduled workflow with write access regenerates a static sitemap that would shadow the dynamic one", () => {
+  const text = fs.readFileSync(path.join(dir, "update-sitemap.yml"), "utf8");
+  const triggers = text.split("jobs:")[0].replace(/^\s*#.*$/gm, "");
+  assert.doesNotMatch(triggers, /schedule\s*:/, "update-sitemap.yml must not run on a schedule (DEF-019)");
+  assert.match(triggers, /workflow_dispatch/);
+});

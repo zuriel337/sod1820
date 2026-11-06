@@ -1,9 +1,10 @@
 name: עדכון אוטומטי של Sitemap
 
+# DEF-019 (audit 2026-11-06): the daily schedule was removed. The production sitemap is generated dynamically (/sitemap.xml -> api/public-sitemap)
+# and a committed static public/sitemap.xml would shadow it (scripts/gen-sitemap.mjs and the production build both say so). Manual dispatch stays
+# for a human who wants a one-off static export; it still commits only when public/sitemap.xml changes.
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 4 * * *'   # כל יום ב-04:00 UTC
 
 permissions:
   contents: write

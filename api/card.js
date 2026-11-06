@@ -55,7 +55,8 @@ async function topPhrases(n) {
   try {
     const r = await fetch(
       `${SUPABASE_URL}/rest/v1/gematria_words?ragil=eq.${n}&is_verified=eq.true&is_published=eq.true&visibility_tier=lte.1&select=phrase&limit=40`,
-      { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON } }
+      // DEF-015: bounded read - a hung Supabase request must not hold the render until the platform's 300 s limit.
+      { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON }, signal: AbortSignal.timeout(4000) }
     );
     const rows = await r.json();
     if (!Array.isArray(rows)) return [];
@@ -83,7 +84,9 @@ async function topPhrases(n) {
 let _fontPromise;
 function loadFont() {
   if (!_fontPromise) {
-    _fontPromise = fetch(new URL('./_assets/heebo-800.ttf', import.meta.url)).then((r) => r.arrayBuffer());
+    // DEF-015: bounded, and a failed or timed-out load is forgotten so the next request retries instead of inheriting a dead promise.
+    _fontPromise = fetch(new URL('./_assets/heebo-800.ttf', import.meta.url), { signal: AbortSignal.timeout(8000) }).then((r) => r.arrayBuffer())
+      .catch((error) => { _fontPromise = undefined; throw error; });
   }
   return _fontPromise;
 }
@@ -91,7 +94,7 @@ function loadFont() {
 let _logoPromise;
 function loadLogo() {
   if (!_logoPromise) {
-    _logoPromise = fetch(new URL('./_assets/logo.png', import.meta.url))
+    _logoPromise = fetch(new URL('./_assets/logo.png', import.meta.url), { signal: AbortSignal.timeout(8000) })
       .then((r) => r.arrayBuffer())
       .then((buf) => {
         const bytes = new Uint8Array(buf);
@@ -101,7 +104,7 @@ function loadLogo() {
         }
         return 'data:image/png;base64,' + btoa(bin);
       })
-      .catch(() => null);
+      .catch(() => { _logoPromise = undefined; return null; });
   }
   return _logoPromise;
 }

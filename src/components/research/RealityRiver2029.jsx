@@ -125,7 +125,7 @@ export function RealityRiver2029({ items = [], loading = false, failed = false, 
       if (frame.current !== null) cancelAnimationFrame(frame.current); frame.current = null; };
   }, [items, loading, failed, schedule]); // Window progress only, never a viewed/follow signal.
 
-  return <section id="reality-stream" className="r29-river" style={roles.action} dir="rtl" aria-label="זרם המציאות" data-reality-river>
+  return <section id="reality-stream" className={loading ? "r29-river is-loading" : "r29-river"} style={roles.action} dir="rtl" aria-label="זרם המציאות" data-reality-river>
     <header className="r29-heading"><div><p className="r29-eyebrow">תמונה פותחת סיפור</p>
       <h2>זרם המציאות</h2><p>רגעים, מספרים וסיפורים. גוללים בתמונות, ופותחים את המקור כדי להעמיק.</p></div>
       <Link to="/world?view=gallery&flow=1" className="r29-link">לכל הגלריות ←</Link></header>
@@ -178,7 +178,7 @@ export function RealityRiver2029({ items = [], loading = false, failed = false, 
       <p className="r29-note">חלון מתוך הזרם, לא כל הארכיון. ההתקדמות כאן מתארת גלילה בלבד.
         <span className="r29-note-tags"> התיוגים במקור אינם כשלעצמם אימות חישוב או קשר בעץ.</span></p>
     </> : null}
-    {follow}
+    {loading ? null : follow}
   </section>;
 }
 
