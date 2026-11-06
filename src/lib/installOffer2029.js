@@ -1,15 +1,17 @@
-// Android install suggestion: browser-local state only.
+// Install suggestion state: browser-local only.
 //
-// Captures Chrome's own install offer (beforeinstallprompt) at entry time so a
-// small, dismissible suggestion can offer it later. No network request, no
-// telemetry, no identity, no storage other than one dismissal hint. Desktop,
-// iOS and an already-installed app are never touched: the browser's default
-// behaviour is left alone there, and also while a dismissal is in force.
+// Android: captures Chrome's own install offer (beforeinstallprompt) at entry
+// time so a small, dismissible suggestion can offer it. iOS has no such event,
+// so there the suggestion shows the manual "add to home screen" steps. No
+// network request, no telemetry, no identity, no storage other than one
+// dismissal hint. Desktop and an already-installed app are never touched, and
+// the browser's default behaviour is left alone while a dismissal is in force.
 const UNTIL_KEY = "sod2029:install-suggestion-until";
 export const INSTALL_DISMISS_DAYS = 14;
 export const INSTALL_ACCEPTED_DAYS = 365;
 
 export const isAndroidBrowser = (userAgent) => /android/i.test(String(userAgent || ""));
+export const isIosBrowser = (userAgent) => /iphone|ipad|ipod/i.test(String(userAgent || ""));
 const store = () => { try { return localStorage; } catch { return null; } };
 
 export function installSuggestionSuppressed(storage = store(), now = Date.now()) {
@@ -23,6 +25,14 @@ let deferred = null;
 const subscribers = new Set();
 const notify = () => subscribers.forEach(listener => listener());
 export const hasInstallOffer = () => deferred !== null;
+// "native" = the browser offers installation; "ios-manual" = iOS, show the steps;
+// null = nothing to suggest. A primitive, so it is a stable useSyncExternalStore snapshot.
+export function installOfferKind() {
+  if (typeof window === "undefined" || standalone()) return null;
+  if (deferred !== null) return installSuggestionSuppressed() ? null : "native";
+  if (isIosBrowser(window.navigator?.userAgent) && !installSuggestionSuppressed()) return "ios-manual";
+  return null;
+}
 export function subscribeInstallOffer(listener) {
   subscribers.add(listener);
   return () => subscribers.delete(listener);
@@ -43,7 +53,8 @@ export async function requestInstall() {
 }
 
 function standalone() {
-  try { return window.matchMedia("(display-mode: standalone)").matches; } catch { return false; }
+  try { if (window.matchMedia("(display-mode: standalone)").matches) return true; } catch { /* no matchMedia */ }
+  return window.navigator?.standalone === true; // iOS Safari
 }
 
 if (typeof window !== "undefined" && isAndroidBrowser(window.navigator?.userAgent) && !standalone()) {

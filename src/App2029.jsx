@@ -10,7 +10,7 @@ import { startPageEngagement } from "./lib/engagement.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
 import { readingTelemetryPath } from "./lib/publicReadingTelemetry2029.js";
-import { hasInstallOffer, subscribeInstallOffer } from "./lib/installOffer2029.js";
+import { installOfferKind, subscribeInstallOffer } from "./lib/installOffer2029.js";
 const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
 import Opening2029 from "./components/experience2029/Opening2029.jsx";
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
@@ -145,12 +145,13 @@ const SeferYetzirahWorld2029Page = bookPublicationReviewPreviewEnabled
 
 function Loading2029() { return <Opening2029 />; }
 
-// Android install suggestion: nothing is loaded or rendered unless the browser
-// currently offers installation (see lib/installOffer2029.js).
+// Install suggestion: nothing is loaded or rendered unless there is something to
+// suggest (the browser offers installation, or iOS needs the manual steps; see
+// lib/installOffer2029.js).
 const InstallSuggestion2029 = lazy(() => import("./components/experience2029/InstallSuggestion2029.jsx"));
 function InstallSuggestionMount2029() {
-  const offered = useSyncExternalStore(subscribeInstallOffer, hasInstallOffer, () => false);
-  return offered ? <Suspense fallback={null}><InstallSuggestion2029 /></Suspense> : null;
+  const kind = useSyncExternalStore(subscribeInstallOffer, installOfferKind, () => null);
+  return kind ? <Suspense fallback={null}><InstallSuggestion2029 kind={kind} /></Suspense> : null;
 }
 
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
