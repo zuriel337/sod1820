@@ -20,3 +20,7 @@ test("the loading state reserves the measured final height (window height + 490p
   assert.match(css, /\.r29-river\.is-loading\{min-height:calc\(var\(--r29-window-height\) \+ 490px\)\}/);
   assert.match(css, /@media\(max-width:760px\)\{\.r29-river\.is-loading\{min-height:calc\(var\(--r29-window-height\) \+ 580px\)\}\}/);
 });
+
+test("the first two pictures reserve a typical mat size so the frame does not jump when the file arrives", () => {
+  assert.match(css, /\.r29-picture:nth-child\(-n\+2\) \.r29-image-surface\{min-height:calc\(var\(--r29-image-max\) \* \.62\);min-width:min\(100%,calc\(var\(--r29-image-max\) \* 1\.05\)\)\}/);
+});
