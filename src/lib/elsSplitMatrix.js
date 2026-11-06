@@ -99,18 +99,42 @@ export function splitMarkMap(band) {
 // occurrence stay exactly as the engine verified them. Only exact divisors are offered, so the axis stays a straight vertical line.
 export const FOLD_MIN_WIDTH = 3;
 
-export function foldOptions(skip, { minWidth = FOLD_MIN_WIDTH } = {}) {
+// Fold k puts about k-1 rows between consecutive axis letters: the text is re-flowed into rows of width ≈ skip/k. When k divides the
+// skip the axis stays a straight vertical line (exact). Otherwise the width is the nearest whole number and the axis leans by `drift`
+// columns per letter (still a perfectly regular line, only slanted). This is the same text in a different layout, nothing else.
+export function foldOptions(skip, { minWidth = FOLD_MIN_WIDTH, maxK = 60 } = {}) {
   const S = int(skip, 0);
-  if (!Number.isSafeInteger(S) || S < 2) return [{ k: 1, width: S, between: 0 }];
-  const out = [{ k: 1, width: S, between: 0 }];
-  for (let k = 2; k <= S / minWidth && out.length < 400; k += 1) if (S % k === 0) out.push({ k, width: S / k, between: k - 1 });
+  if (!Number.isSafeInteger(S) || S < 2) return [{ k: 1, width: S, between: 0, exact: true, drift: 0 }];
+  const out = [{ k: 1, width: S, between: 0, exact: true, drift: 0 }];
+  const seen = new Set([S]);
+  for (let k = 2; k <= maxK; k += 1) {
+    const width = S % k === 0 ? S / k : Math.round(S / k);
+    if (width < minWidth) break;
+    if (seen.has(width)) continue;
+    seen.add(width);
+    out.push({ k, width, between: k - 1, exact: S === k * width, drift: S - k * width });
+  }
   return out;
 }
 
 // Only folds whose axis still fits one window (the engine shows at most SPLIT_LIMITS.maxRows rows) are useful to look at.
-export function foldOptionsFor(skip, length, { maxRows = SPLIT_LIMITS.maxRows } = {}) {
-  const span = k => (Math.max(1, int(length, 1)) - 1) * k + 1;
-  return foldOptions(skip).filter(option => span(option.k) <= maxRows);
+export function foldOptionsFor(skip, length, { maxRows = SPLIT_LIMITS.maxRows, maxLean = 20, axis = null } = {}) {
+  const letters = Math.max(1, int(length, 1));
+  const span = k => (letters - 1) * k + 1;
+  // A leaning axis stays readable only while it does not sweep across more than about maxLean columns. When the axis occurrence is
+  // known, its real column span is measured (a lean that wraps past the row end would otherwise be split across the whole row).
+  const columns = option => {
+    if (axis && axis.start != null) { const box = hitBoxAt({ ...axis, length: letters, skip: axis.skip ?? skip }, option.width); return box.colMax - box.colMin + 1; }
+    return Math.abs(option.drift) * (letters - 1) + 1;
+  };
+  return foldOptions(skip).filter(option => span(option.k) <= maxRows && (option.exact || columns(option) <= maxLean));
+}
+
+// Columns the axis occupies at a given row width (1 for a straight line).
+export function foldAxisColumns(axis, width) {
+  if (!axis || axis.start == null) return 1;
+  const box = hitBoxAt(axis, width);
+  return box.colMax - box.colMin + 1;
 }
 
 // Positions (0-based text indexes) of one verified occurrence, rebuilt from what the lens reports about it.
@@ -133,15 +157,17 @@ export function hitBoxAt(hit, width) {
 export function foldSuggestion(hits = [], axisHitId, skip, { reach = 10, rowSlack = 12 } = {}) {
   const axis = hits.find(hit => hit.hitId === axisHitId);
   if (!axis) return null;
-  const options = foldOptionsFor(skip, axis.length);
+  // Straight (exact) folds are preferred; a leaning fold is suggested only when no straight one helps.
+  const all = foldOptionsFor(skip, axis.length);
+  const options = [...all.filter(option => option.exact), ...all.filter(option => !option.exact)];
   const gapAt = (hit, width) => {
     const a = { ...axis, ...hitBoxAt(axis, width) }, b = { ...hit, ...hitBoxAt(hit, width) };
     return { gap: splitColumnGap(a, b), rows: splitRowsOverlap(a, b, rowSlack) };
   };
   const others = hits.filter(hit => hit.hitId !== axisHitId && hit.length > 0);
   if (!options.length) return null;
-  const far = others.filter(hit => gapAt(hit, options[0].width).gap > reach);
-  for (const option of options.slice(1)) {
+  const far = others.filter(hit => gapAt(hit, skip).gap > reach);
+  for (const option of options.filter(item => item.k > 1)) {
     for (const hit of far) {
       const { gap, rows } = gapAt(hit, option.width);
       if (gap <= reach && rows) return { k: option.k, width: option.width, between: option.between, hitId: hit.hitId, term: hit.term, gap };
