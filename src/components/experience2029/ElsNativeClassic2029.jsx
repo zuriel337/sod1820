@@ -11,6 +11,7 @@ import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import TzofenEmbed from "../TzofenEmbed.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import ElsSavePanel2029 from "./ElsSavePanel2029.jsx";
+import ElsOperationMeter2029 from "./ElsOperationMeter2029.jsx";
 import ElsMatrixShare2029 from "./ElsMatrixShare2029.jsx";
 import { useSystemToolDock2029 } from "./SystemToolDock2029.jsx";
 import { projectVerseWords, projectPresentation } from "./elsPresentation2029.js";
@@ -844,6 +845,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   // so changing a term/scope never creates a second engine instance or remounts the canonical one.
   const [engineSeed] = useState(() => clean(initialSeed));
   const [engineState, setEngineState] = useState(null);
+  const [engineReady, setEngineReady] = useState(false);
   const readingContext = useMemo(() => buildElsRazielMatrixContext(engineState), [engineState]);
   const { result: readingResult, matching: readingPending } = selectElsMatrixReading(matrixReading?.session, readingContext?.axis);
   const readingProjection = useMemo(() => {
@@ -1562,6 +1564,13 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       </div>
     </div>
 
+    <ElsOperationMeter2029 phase={!active ? null
+      : !engineReady ? "פותח את המטריצה והמנוע הקנוני…"
+      : operations.search?.status === "verifying" || operations.findings?.status === "verifying" ? "מאמת מול המנוע הקנוני…"
+      : operations.search?.status === "searching" ? "מחפש את המילה במטריצה…"
+      : operations.findings?.status === "searching" ? "סורק את הממצאים…"
+      : savePending ? "שומר את הצופן…"
+      : lensPending ? "טוען מקור והקשר…" : null} />
     <SearchProgress operation={operations.search} onCancel={() => cancelOperation("search")} />
     {notice ? <div className="els29-native-notice" role="status">{notice}{accountRequired ? <> · <a href="/login">כניסה לחשבון</a></> : null}</div> : null}
 
@@ -1701,7 +1710,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             aria-expanded={researchToolsOpen} aria-controls="els29-research-tools"
             onClick={() => { setLexiconVisited(true); setResearchToolsOpen(value => !value); }}>
             <NavigationIcon2029 name="tools" />
-            <span className="els29-research-entry-copy"><strong>כלי מחקר</strong><span>גילוי וקשרים במטריצה · ללא AI</span></span>
+            <span className="els29-research-entry-copy"><strong>כלי מחקר <em className="els29-research-badge">מצב מחקר</em></strong><span>גילוי וקשרים במטריצה · ללא AI</span></span>
             <span className="els29-research-entry-state" aria-hidden="true">{researchToolsOpen ? "סגור" : "פתח"}</span>
           </button>
           <div id="els29-research-tools" hidden={!researchToolsOpen}>
@@ -1818,6 +1827,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           engineOnly={!classicOpen}
           showResearchBusWhenHiddenBridge
           onState={handleEngineState}
+          onEngineReady={() => setEngineReady(true)}
           onOperation={handleOperation}
           onGate={() => { setClassicOpen(false); setOperations({ search: null, findings: null }); setAccountRequired(true); setNotice("פעולה זו זמינה דרך החשבון באתר."); }}
           onOnboardingRequired={() => { setClassicOpen(false); setNotice("התחילו במילה קצרה, ואז בדקו את המקור והמילים שסביבה."); }}

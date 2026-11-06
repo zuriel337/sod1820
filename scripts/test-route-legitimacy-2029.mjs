@@ -37,26 +37,17 @@ for (const route of singleStatic2029) {
   assert.equal(isKnownSingleSegmentRoute(route), true, `known App2029 route missing from route legitimacy projection: ${route}`);
 }
 
-// Every exact single-segment Vercel rewrite into the 2029 document must bypass Edge slug validation.
-const rewriteSingles2029 = (vercel.rewrites || [])
-  .filter(r => r.destination === "/2029.html")
-  .map(r => r.source)
-  .filter(p => {
-    if (!p.startsWith("/")) return false;
-    const rest = p.slice(1);
-    return rest && !rest.includes("/") && !rest.includes("(") && !rest.includes(":") && !rest.includes("*");
-  });
-for (const route of rewriteSingles2029) {
-  assert.equal(isKnownSingleSegmentRoute(route), true, `known 2029 rewrite missing from route legitimacy projection: ${route}`);
-}
-
-// Every exact single-segment Vercel redirect source must also bypass validation.
-const redirectSingles = (vercel.redirects || []).map(r => r.source).filter(p => {
-  if (!p.startsWith("/")) return false;
-  const rest = p.slice(1);
-  return rest && !rest.includes("/") && !rest.includes("(") && !rest.includes(":") && !rest.includes("*");
-});
-for (const route of redirectSingles) {
+// Every exact single-segment Vercel redirect source and 2029 rewrite source that the Edge middleware can SEE must bypass slug
+// validation. The list is derived from vercel.json (no hand-kept second list): the derived block must be current, and dotted
+// sources (files such as /tzofen.html) are outside the middleware matcher, so they never need registration.
+import { derivedSources, middlewareMatcher, middlewareSees, syncRouteLegitimacy } from "./helpers/route-legitimacy-sources.mjs";
+const sync = syncRouteLegitimacy();
+assert.equal(sync.upToDate, true, "route-legitimacy.js derived block is stale: run `npm run sync:route-legitimacy` and commit the result");
+for (const route of derivedSources()) assert.equal(isKnownSingleSegmentRoute(route), true, `vercel.json source missing from route legitimacy: ${route}`);
+const matcher = middlewareMatcher();
+for (const file of ["/tzofen.html", "/heichal.html", "/sitemap.xml", "/robots.txt"]) assert.equal(middlewareSees(matcher, file), false, `${file} must be outside the Edge middleware matcher`);
+for (const route of ["/posts", "/real-slug"]) assert.equal(middlewareSees(matcher, route), true, `${route} must be inside the Edge middleware matcher`);
+for (const route of (vercel.redirects || []).map(r => r.source).filter(p => /^\/[^/(:*]+$/.test(p) && middlewareSees(matcher, p))) {
   assert.equal(isKnownSingleSegmentRoute(route), true, `known Vercel redirect missing: ${route}`);
 }
 

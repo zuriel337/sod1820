@@ -73,3 +73,21 @@ test("public release: Research is open, AI shows 'soon', four dock tools in one 
   const library = await read("src/components/experience2029/ElsSavedLibrary2029.jsx");
   assert.match(library, /publicReadingActionsLocked\(isAdmin\)/);
 });
+
+test("Operation Visibility Law: one always-on-screen meter covers opening, search, verification, scan, save and context loading", async () => {
+  const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
+  const meter = await read("src/components/experience2029/ElsOperationMeter2029.jsx");
+  const css = await read("src/components/experience2029/elsOperationMeter2029.css");
+  assert.match(native, /<ElsOperationMeter2029 phase=\{!active \? null/);
+  for (const phase of ["פותח את המטריצה והמנוע הקנוני", "מאמת מול המנוע הקנוני", "מחפש את המילה במטריצה", "סורק את הממצאים", "שומר את הצופן", "טוען מקור והקשר"]) assert.ok(native.includes(phase), phase);
+  assert.match(native, /onEngineReady=\{\(\) => setEngineReady\(true\)\}/);
+  const embed = await read("src/components/TzofenEmbed.jsx");
+  assert.match(embed, /messageContextRef\.current\.onEngineReady\?\.\(\)/);
+  // honest by construction: no invented percentage, always attached to the screen, announced to assistive tech
+  assert.doesNotMatch(meter, /%/);
+  assert.match(meter, /role="status" aria-live="polite"/);
+  assert.match(css, /position:fixed/);
+  assert.match(css, /prefers-reduced-motion/);
+  const page = await read("src/pages/Els2029Page.jsx");
+  assert.match(page, /return ELS_MATRIX_PROFILE\.RESEARCH;/);
+});

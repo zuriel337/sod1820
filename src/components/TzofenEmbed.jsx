@@ -68,7 +68,7 @@ function rowToItem(m) {
 //    buildJourneyPromotion/buildJourneyRestore ({term,skip,start,dir,hitId,words,scope}) — נשלח לכלי
 //    דרך *אותו* מסלול "load-matrix" הקיים (לא מסלול-טעינה שני), כי הכלי כבר יודע לקרוא את השדות האלה.
 //    onLoadError נקרא כש-loadMatrix בכלי לא מצא את המונח/העוגן המדויק (postMessage type="load-error").
-export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, saveRequest = null, onSaveResult = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null, exactSkipProbe = null, onExactSkipProbeResult = null, formsPreviewRequest = null, onFormsPreviewResult = null }) {
+export default function TzofenEmbed({ seed = "", full = false, matrix = null, fromTopic = null, onQuality = null, onState = null, hiddenBridge = false, engineOnly = false, experience2029 = false, showResearchBusWhenHiddenBridge = false, onGate = null, onOnboardingRequired = null, onOperation = null, lensRequest = null, onLens = null, controlRequest = null, searchRequest = null, cancelRequest = null, findingsRequest = null, findingControlRequest = null, actionRequest = null, saveRequest = null, onSaveResult = null, workspaceRequest = null, onWorkspaceAdded = null, contextRequest = null, journeyLoad = null, onLoadError = null, exactSkipProbe = null, onExactSkipProbeResult = null, formsPreviewRequest = null, onFormsPreviewResult = null, onEngineReady = null }) {
   const { isAdmin, verified, user } = useAuth();
   const navigate = useNavigate();
   const tier = isAdmin ? "admin" : verified ? "registered" : "anon";
@@ -350,7 +350,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
   // Keep the listener registered through synchronous Research Bus renders during dispatch.
   // Read current props/callbacks without removing a listener before it receives that same event.
   const messageContextRef = useRef(null);
-  messageContextRef.current = { verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult, exactSkipProbe, onExactSkipProbeResult, formsPreviewRequest, onFormsPreviewResult };
+  messageContextRef.current = { onEngineReady, verified, experience2029, postTier, saveToCloud, user, pushSavedMatrices, matrix, postToTool, navigate, isAdmin, onQuality, onState, onGate, onOnboardingRequired, onOperation, onLens, lensRequest, searchRequest, findingsRequest, onLoadError, journeyLoad, saveRequest, onSaveResult, exactSkipProbe, onExactSkipProbeResult, formsPreviewRequest, onFormsPreviewResult };
 
   // האזנה להודעות הכלי: לחיצת-יד (ready→שולח דרגה) + רישום חיפושים + בקשת-שער + שמירה
   useEffect(() => {
@@ -413,6 +413,7 @@ export default function TzofenEmbed({ seed = "", full = false, matrix = null, fr
         return;
       }
       if (d.type === "ready") {
+        messageContextRef.current.onEngineReady?.();   // Operation Visibility Law: the opening meter ends when the engine says it is ready
         postTier();   // 🤝 הכלי מוכן — עונים לו בדרגת-המשתמש (סוגר את מרוץ-הטעינה: מנהל לא נחסם)
         // The tool retries ready until tier arrives. Replaying one-shot commands
         // on every ping can cancel the verification they just started. A real

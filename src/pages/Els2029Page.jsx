@@ -143,6 +143,7 @@ export default function Els2029Page(props) {
 }
 // ZURIEL 6.11: Classic and Research are open to every visitor; Guided discovery, AI and Raziel stay with the administrator.
 function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false }) {
+  const guidedVisible = !publicClassic && import.meta.env?.VITE_ELS_GUIDED_DISCOVERY === "visible";
   const research = useResearch();
   const razielSession = useOptionalRazielSession2029();
   const location = useLocation();
@@ -208,9 +209,10 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   const [matrixProfile, setMatrixProfile] = useState(() => {
     const requested = clean(params.get("mode")).toLowerCase();
     if (requested === "classic" || directSavedOpen || sharedMatrix.present) return ELS_MATRIX_PROFILE.CLASSIC;
-    if (requested === "research" || previewAdvanced) return ELS_MATRIX_PROFILE.RESEARCH;
-    if (publicClassic) return ELS_MATRIX_PROFILE.CLASSIC;
-    return ELS_MATRIX_PROFILE.GUIDED;
+    // ZURIEL 6.11: the Bible code opens in Research for everyone. Guided discovery is hidden for everyone, administrator
+    // included, until the AI is connected; the code stays behind VITE_ELS_GUIDED_DISCOVERY=visible.
+    if (requested === "guided" && guidedVisible) return ELS_MATRIX_PROFILE.GUIDED;
+    return ELS_MATRIX_PROFILE.RESEARCH;
   });
   useEffect(() => {
     if (directSavedOpen) setMatrixProfile(ELS_MATRIX_PROFILE.CLASSIC);
@@ -386,8 +388,8 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
     <ElsRecentCiphers2029 onOpen={openCipher} onLibrary={showLibrary} collapseSignal={searchRevision} revision={savedRevision} enabled={!library} />
     <nav className="els29-mode-selector" aria-label="מצבי הצופן התנ״כי">
       <div><small>סביבת עבודה</small><strong>{guidedProfile ? "גילוי מודרך" : advancedResearchProfile ? "מחקר" : "קלאסי"}</strong></div>
-      <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} allowed={publicClassic ? [ELS_MATRIX_PROFILE.RESEARCH, ELS_MATRIX_PROFILE.CLASSIC] : null} />
-      {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => { setMatrixProfile(publicClassic ? ELS_MATRIX_PROFILE.CLASSIC : ELS_MATRIX_PROFILE.GUIDED);setParams({}); }}>חיפוש חדש</button> : null}
+      <ElsMatrixProfileSwitch profile={matrixProfile} onChange={setMatrixProfile} allowed={guidedVisible ? null : [ELS_MATRIX_PROFILE.RESEARCH, ELS_MATRIX_PROFILE.CLASSIC]} />
+      {savedRecord.row ? <button className="sod29-action" type="button" onClick={() => { setMatrixProfile(guidedVisible ? ELS_MATRIX_PROFILE.GUIDED : ELS_MATRIX_PROFILE.RESEARCH);setParams({}); }}>חיפוש חדש</button> : null}
     </nav>
     {savedRecord.row ? <section className="els29-saved-record" aria-label="פרטי הצופן השמור">
       <h2>{savedRecord.row.title || savedRecord.row.search_term}</h2>
