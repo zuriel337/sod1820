@@ -2935,6 +2935,36 @@
       "permanent": true
     },
     {
+      "source": "/tzofen.html",
+      "has": [
+        {
+          "type": "header",
+          "key": "sec-fetch-dest",
+          "value": "document"
+        }
+      ],
+      "destination": "/code",
+      "permanent": false
+    },
+    {
+      "source": "/tzofen.html",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(Googlebot|Google-InspectionTool|GoogleOther|AdsBot-Google|bingbot|YandexBot|DuckDuckBot|Applebot|Baiduspider).*"
+        }
+      ],
+      "missing": [
+        {
+          "type": "header",
+          "key": "sec-fetch-dest"
+        }
+      ],
+      "destination": "/code",
+      "permanent": false
+    },
+    {
       "source": "/posts",
       "destination": "/post",
       "permanent": true
@@ -3020,6 +3050,19 @@
         {
           "key": "X-Robots-Tag",
           "value": "noindex, nofollow, noarchive"
+        }
+      ]
+    },
+    {
+      "source": "/tzofen.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Vary",
+          "value": "Sec-Fetch-Dest"
         }
       ]
     },
