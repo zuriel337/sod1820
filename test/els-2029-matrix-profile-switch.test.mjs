@@ -23,7 +23,7 @@ test("ELS 2029 opens in Research and mode changes do not own replay or search", 
   assert.match(page, /Els2029Page\(\{ previewAdvanced = false, publicClassic = false \}\)/);
   assert.match(page, /ELS_MATRIX_PROFILE\.GUIDED/);
   assert.match(page, /projectElsMatrixProfile/);
-  assert.match(page, /<ElsMatrixProfileSwitch profile=\{matrixProfile\} onChange=\{setMatrixProfile\} allowed=\{publicClassic \? \[ELS_MATRIX_PROFILE\.RESEARCH, ELS_MATRIX_PROFILE\.CLASSIC\] : null\} \/>/);
+  assert.match(page, /<ElsMatrixProfileSwitch profile=\{matrixProfile\} onChange=\{setMatrixProfile\} allowed=\{guidedVisible \? null : \[ELS_MATRIX_PROFILE\.RESEARCH, ELS_MATRIX_PROFILE\.CLASSIC\]\} \/>/);
   assert.match(page, /const guidedProfile = profileModel\.profile === ELS_MATRIX_PROFILE\.GUIDED/);
   assert.match(page, /const advancedResearchProfile = profileModel\.profile === ELS_MATRIX_PROFILE\.RESEARCH/);
   assert.match(page, /const researchProfile = profileModel\.profile !== ELS_MATRIX_PROFILE\.CLASSIC/);
@@ -51,9 +51,10 @@ test("ELS 2029 public release: Classic and Research are open, Guided, AI scan an
   // Classic and Research are open to the public; Guided discovery stays with the administrator.
   assert.match(page, /if \(requested === "classic" \|\| directSavedOpen \|\| sharedMatrix\.present\) return ELS_MATRIX_PROFILE\.CLASSIC/);
   // Opens in Research for everyone; Guided only by explicit request and never for the public.
-  assert.match(page, /if \(requested === "guided" && !publicClassic\) return ELS_MATRIX_PROFILE\.GUIDED/);
+  assert.match(page, /const guidedVisible = !publicClassic && import\.meta\.env\?\.VITE_ELS_GUIDED_DISCOVERY === "visible"/);
+  assert.match(page, /if \(requested === "guided" && guidedVisible\) return ELS_MATRIX_PROFILE\.GUIDED/);
+  assert.match(page, /allowed=\{guidedVisible \? null : \[ELS_MATRIX_PROFILE\.RESEARCH, ELS_MATRIX_PROFILE\.CLASSIC\]\}/);
   assert.match(page, /return ELS_MATRIX_PROFILE\.RESEARCH;\n  \}\);/);
-  assert.match(page, /allowed=\{publicClassic \? \[ELS_MATRIX_PROFILE\.RESEARCH, ELS_MATRIX_PROFILE\.CLASSIC\] : null\}/);
   assert.match(page, /<ElsRecentCiphers2029 onOpen=\{openCipher\}/);
   assert.match(page, /const library = params\.get\("library"\)/);
   assert.match(page, /advancedSearch=\{<ElsAdvancedSearch2029/);

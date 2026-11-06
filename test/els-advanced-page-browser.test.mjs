@@ -1,3 +1,4 @@
+process.env.VITE_ELS_GUIDED_DISCOVERY = "visible"; // Guided stays tested behind its hidden flag
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
