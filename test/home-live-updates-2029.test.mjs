@@ -24,9 +24,9 @@ await build({ stdin: { contents: `
   const Link = ({to,...props}) => React.createElement('a', {...props,href:to});
   const Media = ({src, className}) => React.createElement('img', {src, alt:'', className});
   ${components}
-  export {HomeLiveUpdates, useHomeUpdates};
+  export {HomeLiveUpdates, useHomeUpdates, HomeEntryBand};
 `, loader: "jsx", resolveDir: process.cwd() }, bundle: true, platform: "node", format: "esm", outfile, external: ["react"] });
-const { HomeLiveUpdates, useHomeUpdates } = await import(pathToFileURL(outfile));
+const { HomeLiveUpdates, useHomeUpdates, HomeEntryBand } = await import(pathToFileURL(outfile));
 after(async () => { await rm(outfile, { force: true }); });
 
 const NOW = Date.now();
@@ -80,10 +80,28 @@ test("loading reserves rows; nothing to show or no feed renders nothing: no empt
   }
 });
 
-test("the strip is the first Home area and the end of the page is statistics then the newsletter", () => {
+test("Home order: ELS, latest ciphers, live updates, flagship region, entrances, other series; the end is statistics then the newsletter", () => {
   const body = source.slice(source.indexOf("<EntranceIntro2029 />"));
-  const order = ["<HomeLiveUpdates", "<HomeFlagshipRegion", "elsEntry ? <Reveal", '<Section label="הצפנים האחרונים בתורה">', "<HomeOtherSeries"].map(marker => body.indexOf(marker));
+  const order = ["elsEntry ? <Reveal", '<Section label="הצפנים האחרונים בתורה">', "<HomeLiveUpdates", "<HomeFlagshipRegion", "<HomeEntryBand", "<HomeOtherSeries"].map(marker => body.indexOf(marker));
   assert.ok(order.every(index => index > 0) && order.every((index, i) => i === 0 || index > order[i - 1]), order.join(","));
   assert.ok(body.indexOf('data-home-newsletter="end"') > body.indexOf('aria-label="דופק ומצב בנייה"'), "newsletter after the statistics line, last");
   assert.equal((source.match(/<NewsletterSignup2029 \/>/g) || []).length, 1, "one newsletter component, only at the end");
+});
+
+test("entrances: Beit Midrash and the life-journey promo link only while open; a closed gate shows its true state; the build note leads to the sign-up", async () => {
+  let root;
+  await act(async () => { root = Renderer.create(React.createElement(HomeEntryBand, { journeyLocked: false, midrashOpen: true })); });
+  const link = key => root.root.findAll(node => node.props["data-home-entry"] === key && node.type === "a")[0];
+  assert.equal(link("beit-midrash").props.href, "/beit-midrash");
+  assert.equal(link("life-journey").props.href, "/2029/journey");
+  const build = root.root.findAll(node => node.props["data-home-entry"] === "construction")[0];
+  assert.match(build.findAll(node => node.type === "b" || node.type === "span").map(node => node.children.join("")).join(" "), /האתר בבנייה/);
+  assert.equal(build.findAllByType("button").length, 1, "a button that goes to the sign-up at the end of the page");
+  await act(async () => { root.unmount(); });
+  await act(async () => { root = Renderer.create(React.createElement(HomeEntryBand, { journeyLocked: true, midrashOpen: false })); });
+  assert.equal(link("beit-midrash"), undefined); assert.equal(link("life-journey"), undefined);
+  const closed = root.root.findAll(node => node.props["aria-disabled"] === "true");
+  assert.equal(closed.length, 2);
+  assert.match(closed.map(node => JSON.stringify(node.children.map(child => typeof child === "string" ? child : child.children?.join("")))).join(" "), /בבנייה/);
+  await act(async () => { root.unmount(); });
 });

@@ -22,7 +22,7 @@ import { useApproach2029 } from "./useApproach2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
 import { publicPostHref, postAddressSlug } from "../../lib/publicPostUrls.js";
 import { BRAND_LOCKUP_NAV_2029, HOME_ATMOSPHERE_2029 } from "../../lib/brandAssets2029.js";
-import { PUBLIC_READING_RELEASE } from "../../lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_RELEASE, publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
 import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import PostCategories2029 from "./PostCategories2029.jsx";
@@ -188,12 +188,12 @@ function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
       <strong className="h29-teaser-line" aria-hidden="true"><bdi dir="ltr">{teaser.highlight}</bdi></strong>
       <small className="h29-teaser-source" aria-hidden="true">מתוך הפוסט: {teaser.sourceTitle}{teaser.methodNote ? ` · ${teaser.methodNote}` : ""}</small>
     </Link> : null}
-    {open ? <section className="h29-rm-products" aria-label="מוצרי הדגל" data-home-rm-products="true">
-      <h4>מוצרי הדגל<small>{total}</small></h4>
-      <ol className="h29-rm-list" tabIndex={0} aria-label="מוצרי הדגל במפת המציאות, מהחדש לישן">
+    {open ? <section className="h29-rm-products" aria-label="הפוסטים במפה" data-home-rm-products="true">
+      <h4>מהמפה<small>{total}</small></h4>
+      <ol className="h29-rm-list" tabIndex={0} aria-label="הפוסטים במפת המציאות, מהחדש לישן">
         {items.map(item => <li key={item.sourceRef || item.id}>
           <Link className="h29-rm-item" to={item.href} data-home-rm-item={item.id}>
-            <Media src={item.imageUrl} fallback="✦" className="h29-rm-thumb" />
+            <Media src={item.imageUrl} fallback={<img src={BRAND_LOCKUP_NAV_2029.src} alt="" width={40} height={40} />} className="h29-rm-thumb" />
             <span><strong>{item.title}</strong><small>פוסט {item.id} · <PublicationTime at={item.publishedAt} /></small></span>
           </Link>
         </li>)}
@@ -291,6 +291,28 @@ function HomeLiveUpdates({ updates, onOpenNow }) {
   </section>;
 }
 
+// Entrances (ZURIEL, 6.11.2026): the Beit Midrash (the methods, explained), a promo for the life journey and the "site under
+// construction" note with a way to sign up for updates. A gate that is closed shows its true state (HOME-05), never a dead link.
+function scrollToNewsletter() {
+  const target = document.getElementById("home-newsletter");
+  if (!target) return;
+  const calm = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  target.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "center" });
+  target.querySelector("button, input, a")?.focus?.({ preventScroll: true });
+}
+function HomeEntryBand({ journeyLocked, midrashOpen }) {
+  return <section className="h29-entry-band" aria-label="כניסות והרשמה לעדכונים" data-home-entry-band="true">
+    {midrashOpen
+      ? <Link className="h29-entry k29-rv" to="/beit-midrash" data-home-entry="beit-midrash"><span className="h29-entry-k">בית המדרש</span><strong>איך מחשבים ואיך מגלים</strong><small>השיטות מוסברות, שיטה אחר שיטה</small></Link>
+      : <div className="h29-entry k29-rv is-locked" aria-disabled="true" data-home-entry="beit-midrash"><span className="h29-entry-k">בית המדרש · בבנייה</span><strong>איך מחשבים ואיך מגלים</strong><small>ייפתח בהמשך</small></div>}
+    {journeyLocked
+      ? <div className="h29-entry k29-rv is-locked" aria-disabled="true" data-home-entry="life-journey"><span className="h29-entry-k">מסע החיים · פרומו</span><strong>מסע קצר עם השם והתאריך שלכם</strong><small>בבנייה · ייפתח בהמשך</small></div>
+      : <Link className="h29-entry k29-rv" to="/2029/journey" data-home-entry="life-journey"><span className="h29-entry-k">מסע החיים · פרומו</span><strong>מסע קצר עם השם והתאריך שלכם</strong><small>מתחילים כאן</small></Link>}
+    <div className="h29-entry k29-rv is-build" data-home-entry="construction"><span className="h29-entry-k">האתר בבנייה</span><strong>נפתח בהדרגה, חלק אחר חלק</strong>
+      <button type="button" className="h29-linkbtn" onClick={scrollToNewsletter}>להרשמה לעדכונים במייל ←</button></div>
+  </section>;
+}
+
 // "פוסטים אחרונים": the newest public Posts that are in no series and not in the "עכשיו" pool (exact complement, shared
 // predicates), after the series and the lead. A secondary, compact area: it forces no series membership, is read only once
 // it approaches, never repeats an item already shown by another Home source, and renders nothing (no empty area, no error)
@@ -366,6 +388,8 @@ export default function HomeComposition2029({
   // Items already shown by the lead, the videos strip or the cipher strip are not repeated in the standalone strip.
   const seriesState = useHomeSeries();
   const feed = useContext(SystemFeedContext2029);
+  const midrashState = publicReadingPath("/beit-midrash", { isAdmin: adminViewer });
+  const midrashOpen = !(midrashState === "closed" || midrashState === "missing");
   // An item shown by the flagship region or the ciphers is not repeated in the live updates strip.
   const updatesExclude = useMemo(() => new Set([
     ...(seriesState.series.find(series => series.priorityLane === "primary")?.items || []).map(item => item.href),
@@ -394,9 +418,6 @@ export default function HomeComposition2029({
     if (link && !link.hasAttribute("download") && (!link.target || link.target === "_self") && href?.startsWith("/") && !href.startsWith("//") && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) onNavigate?.(href);
   }}>
     <EntranceIntro2029 />
-    <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} />
-    <HomeFlagshipRegion state={seriesState} />
-
     {elsEntry ? <Reveal id="els-entry">{elsEntry}</Reveal> : null}
 
     <Section label="הצפנים האחרונים בתורה">
@@ -412,6 +433,10 @@ export default function HomeComposition2029({
         </div>
       </div>
     </Section>
+
+    <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} />
+    <HomeFlagshipRegion state={seriesState} />
+    <HomeEntryBand journeyLocked={journeyLocked} midrashOpen={midrashOpen} />
 
     <HomeOtherSeries state={seriesState} />
 
@@ -493,7 +518,7 @@ export default function HomeComposition2029({
       <span>{pulse?.corpusTotal ? `${Number(pulse.corpusTotal).toLocaleString("he-IL")} ביטויים במאגר${pulse.contributions7d ? ` · ${pulse.contributions7d} תרומות השבוע` : ""}` : summaryAdmitted && loading ? "בודק מה זז עכשיו…" : "האתר מתחדש. כל אזור נפתח לציבור כשהוא בשל."}</span>
       {!corePublic ? <a href="/map">מה כבר חי ומה בדרך ←</a> : null}
     </section>
-    <section className="h29-launch-card h29-newsletter-end" aria-label="הרשמה לעדכונים במייל" data-home-newsletter="end"><NewsletterSignup2029 /></section>
+    <section id="home-newsletter" className="h29-launch-card h29-newsletter-end" aria-label="הרשמה לעדכונים במייל" data-home-newsletter="end"><NewsletterSignup2029 /></section>
   </div>;
 }
 
