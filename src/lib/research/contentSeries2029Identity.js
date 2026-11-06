@@ -24,6 +24,15 @@ export const CONTENT_SERIES_2029 = Object.freeze([
     ]),
     exactAuthor: null,
     relationNote: "הסדרה הראשית: מחקרים, צפנים ותגליות. חברות רק מהתגית המדויקת; אינה חלונית רמזים, אינה גרף הקשרים ואינה זרם המציאות.",
+    // Home entrances to the future content families (ZURIEL 6.11.2026). They are LINKS to the existing source-category pages
+    // ("סיווג במקור"), nothing more: no membership, no selector, no field, no assignment. A family without a category is shown
+    // as "coming soon" and is not a link. "רמזים חזקים" stays a cross-cutting category, not a family and not a hints pane.
+    families: Object.freeze([
+      Object.freeze({ key: "sod-1820", label: "סוד 1820", note: "כולל ברכת כהנים", category: "סוד 1820" }),
+      Object.freeze({ key: "movies-cipher", label: "הצופן בסרטים", note: "מטריקס · משחקי הדיונון", category: "הצופן בסרטים" }),
+      Object.freeze({ key: "language-paths", label: "שבילי שפה", note: "חיבור בין שפות", category: "שבילי שפה" }),
+      Object.freeze({ key: "redemption", label: "תכני גאולה", note: "בקרוב", category: null }),
+    ]),
     // Home sample. Shown only while approval is explicit; the quote is verbatim from the source Post (read live 6.11.2026,
     // post 5018) and is the Post's own claim, not an SOD1820 computation (English ordinal is not in the method registry).
     // It links to the source Post and does NOT make that Post a member of the series.
@@ -35,7 +44,7 @@ export const CONTENT_SERIES_2029 = Object.freeze([
       }),
       sourceRef: "posts:5018",
       sourcePost: Object.freeze({ id: 5018, slug: "chibur-bein-hasafot-mafteach-lagan", source: "ai", wp_id: 36960 }),
-      sourceTitle: "שבילי שפה — חיבור בן שפות",
+      sourceTitle: "שבילי שפה — חיבור בין שפות",
       // The Post's own letter-tile block (class "sgx"), verbatim: caption, tiles with their values, and the stated total.
       step: "גימטריה באנגלית · A=1 … Z=26",
       tiles: Object.freeze([["B", 2], ["E", 5], ["R", 18], ["E", 5], ["S", 19], ["H", 8], ["I", 9], ["T", 20]].map(tile => Object.freeze(tile))),

@@ -17,7 +17,7 @@ const outfile = resolve(`.test-reality-map-home-${process.pid}.mjs`);
 await build({ stdin: { contents: `
   import React, {useState,useEffect} from 'react';
   import {CONTENT_SERIES_2029} from './src/lib/research/contentSeries2029Identity.js';
-  import {seriesHomeTeaser2029} from './src/lib/research/contentSeries2029Projection.js';
+  import {seriesHomeTeaser2029, seriesHomeFamilies2029} from './src/lib/research/contentSeries2029Projection.js';
   const fetchContentSeriesCatalog2029 = options => globalThis.__homeSeries.read(options);
   const Link = ({to,...props}) => React.createElement('a', {...props,href:to});
   const Media = ({src}) => React.createElement('img', {src, alt:''});
@@ -38,6 +38,7 @@ const catalog = (withMember = false) => ({ series: CONTENT_SERIES_2029.map(spec 
   items: spec.key === "reality-map" ? (withMember ? [item(spec.key, 77)] : []) : [item(spec.key, spec.key.length)], hasApprovedSources: false, sourcesRequested: false })) });
 const cards = root => root.root.findAll(node => node.type === "article" && node.props["data-home-series"]);
 const hrefs = node => node.findAllByType("a").map(link => link.props.href);
+const nonFamilyHrefs = node => hrefs(node).filter(href => !href.startsWith("/2029/posts?category="));
 
 test("loading: the approved sample card is first and static; no series link and no empty card", async () => {
   const f = fixture(); let root;
@@ -46,7 +47,7 @@ test("loading: the approved sample card is first and static; no series link and 
   assert.equal(rest.length, 0, "other series wait for their reader; skeletons only");
   assert.equal(primary.props["data-home-series"], "reality-map");
   assert.equal(primary.props["data-home-series-primary"], "true");
-  assert.deepEqual(hrefs(primary), ["/post/chibur-bein-hasafot-mafteach-lagan"], "only the source Post link while the series has no member");
+  assert.deepEqual(nonFamilyHrefs(primary), ["/post/chibur-bein-hasafot-mafteach-lagan"], "only the source Post link (besides the family entrances) while the series has no member");
   assert.equal(primary.findAllByType("h3").length, 1, "the series name is not a link to an empty page");
   const skeletons = root.root.findAll(node => node.type === "div" && String(node.props.className).includes("h29-skel"));
   assert.equal(skeletons.length, CONTENT_SERIES_2029.length - 1);
@@ -66,6 +67,19 @@ test("the sample renders the Post's own letter tiles and total, with an accessib
   await act(async () => { root.unmount(); });
 });
 
+test("the family entrances are three exact category links and one non-link 'soon'; no other element is a link", async () => {
+  const f = fixture(); let root;
+  await act(async () => { root = Renderer.create(React.createElement(HomeSeriesCards)); });
+  const nav = cards(root)[0].findAll(node => node.type === "nav" && node.props["data-home-series-families"] === "true")[0];
+  assert.ok(nav, "family row present");
+  assert.deepEqual(nav.findAllByType("a").map(link => [link.props["data-home-family"], decodeURIComponent(link.props.href)]), [
+    ["sod-1820", "/2029/posts?category=סוד 1820"], ["movies-cipher", "/2029/posts?category=הצופן בסרטים"], ["language-paths", "/2029/posts?category=שבילי שפה"]]);
+  const soon = nav.findAll(node => node.type === "span" && node.props["data-home-family"] === "redemption");
+  assert.equal(soon.length, 1); assert.match(String(soon[0].props.className), /soon/);
+  assert.equal(nav.findAll(node => node.type === "a" && node.props["data-home-family"] === "redemption").length, 0);
+  await act(async () => { root.unmount(); });
+});
+
 test("loaded without a member: primary first, then the other series in their existing order", async () => {
   const f = fixture(); let root;
   await act(async () => { root = Renderer.create(React.createElement(HomeSeriesCards)); });
@@ -73,7 +87,7 @@ test("loaded without a member: primary first, then the other series in their exi
   const found = cards(root);
   assert.deepEqual(found.map(node => node.props["data-home-series"]), CONTENT_SERIES_2029.map(spec => spec.key));
   assert.deepEqual(found.slice(1).map(node => node.props["data-home-series"]), ["mah-kore-habora", "dimension-five", "sod-hashmal", "messages-from-righteous"]);
-  assert.deepEqual(hrefs(found[0]), ["/post/chibur-bein-hasafot-mafteach-lagan"]);
+  assert.deepEqual(nonFamilyHrefs(found[0]), ["/post/chibur-bein-hasafot-mafteach-lagan"]);
   for (const other of found.slice(1)) assert.ok(hrefs(other)[0].startsWith("/2029/posts?series="), "other series keep their own name link");
   assert.equal(root.root.findAll(node => String(node.props.className).includes("h29-skel")).length, 0);
   await act(async () => { root.unmount(); });
