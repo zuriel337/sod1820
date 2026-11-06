@@ -938,12 +938,18 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const queryRef = useRef(null);
   const panelTriggerRef = useRef(null);
   const toolActionsRef = useRef(null);
+  const panelOffScreen = () => {
+    const rect = panelRef.current?.getBoundingClientRect();
+    return Boolean(rect) && rect.height > 0 && (rect.top > window.innerHeight - 140 || rect.bottom < 140);
+  };
   const openTool = (tool, trigger) => {
     if (trigger) panelTriggerRef.current = trigger;
     setClassicOpen(false);
     setActiveTool(tool);
     if (trigger) requestAnimationFrame(() => {
-      if (window.matchMedia("(max-width:980px)").matches) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
+      // Phones always jump to the panel. On a wide screen the panel sits below the matrix (and below the advanced search when it is
+      // open), so a tool opened from the bottom dock looked dead: bring the panel into view whenever it is off screen.
+      if (window.matchMedia("(max-width:980px)").matches || panelOffScreen()) panelRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
       panelRef.current?.querySelector('[aria-label="סגור כלי מטריצה"]')?.focus({ preventScroll: true });
     });
   };
@@ -957,7 +963,8 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       queryRef.current?.scrollIntoView({ block: "start", behavior: "instant" });
       queryRef.current?.querySelector("input")?.focus({ preventScroll: true });
     },
-    select: (tool, trigger) => activeTool === tool && !classicOpen && window.matchMedia("(min-width:981px)").matches ? closeTool() : openTool(tool, trigger),
+    // Pressing the tool that is already open closes it on a wide screen, unless the panel is out of view: then the press brings it into view.
+    select: (tool, trigger) => activeTool === tool && !classicOpen && window.matchMedia("(min-width:981px)").matches && !panelOffScreen() ? closeTool() : openTool(tool, trigger),
   };
   const sideRail = researchProfile && !guidedProfile;   // research mode only; the classic matrix keeps its current layout
   const aiAvailable = !publicClassic && Boolean(matrixReading || typeof onRazielMatrix === "function");
