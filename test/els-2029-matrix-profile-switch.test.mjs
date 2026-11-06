@@ -18,10 +18,10 @@ test("Guided/Research/Classic switch stays controlled and uses one profile model
   assert.doesNotMatch(source, /fetch\s*\(|supabase|localStorage|sessionStorage/);
 });
 
-test("ELS 2029 opens in Guided Discovery and mode changes do not own replay or search", async () => {
+test("ELS 2029 opens in Research and mode changes do not own replay or search", async () => {
   const page = await readFile(PAGE, "utf8");
   assert.match(page, /Els2029Page\(\{ previewAdvanced = false, publicClassic = false \}\)/);
-  assert.match(page, /return ELS_MATRIX_PROFILE\.GUIDED/);
+  assert.match(page, /ELS_MATRIX_PROFILE\.GUIDED/);
   assert.match(page, /projectElsMatrixProfile/);
   assert.match(page, /<ElsMatrixProfileSwitch profile=\{matrixProfile\} onChange=\{setMatrixProfile\} allowed=\{publicClassic \? \[ELS_MATRIX_PROFILE\.RESEARCH, ELS_MATRIX_PROFILE\.CLASSIC\] : null\} \/>/);
   assert.match(page, /const guidedProfile = profileModel\.profile === ELS_MATRIX_PROFILE\.GUIDED/);
@@ -50,7 +50,9 @@ test("ELS 2029 public release: Classic and Research are open, Guided, AI scan an
   assert.match(page, /const publicClassic = publicReadingActionsLocked\(useAuth\(\)\.isAdmin\)/);
   // Classic and Research are open to the public; Guided discovery stays with the administrator.
   assert.match(page, /if \(requested === "classic" \|\| directSavedOpen \|\| sharedMatrix\.present\) return ELS_MATRIX_PROFILE\.CLASSIC/);
-  assert.match(page, /if \(publicClassic\) return ELS_MATRIX_PROFILE\.CLASSIC/);
+  // Opens in Research for everyone; Guided only by explicit request and never for the public.
+  assert.match(page, /if \(requested === "guided" && !publicClassic\) return ELS_MATRIX_PROFILE\.GUIDED/);
+  assert.match(page, /return ELS_MATRIX_PROFILE\.RESEARCH;\n  \}\);/);
   assert.match(page, /allowed=\{publicClassic \? \[ELS_MATRIX_PROFILE\.RESEARCH, ELS_MATRIX_PROFILE\.CLASSIC\] : null\}/);
   assert.match(page, /<ElsRecentCiphers2029 onOpen=\{openCipher\}/);
   assert.match(page, /const library = params\.get\("library"\)/);

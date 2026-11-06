@@ -208,9 +208,9 @@ function OperationalEls2029Page({ previewAdvanced = false, publicClassic = false
   const [matrixProfile, setMatrixProfile] = useState(() => {
     const requested = clean(params.get("mode")).toLowerCase();
     if (requested === "classic" || directSavedOpen || sharedMatrix.present) return ELS_MATRIX_PROFILE.CLASSIC;
-    if (requested === "research" || previewAdvanced) return ELS_MATRIX_PROFILE.RESEARCH;
-    if (publicClassic) return ELS_MATRIX_PROFILE.CLASSIC;
-    return ELS_MATRIX_PROFILE.GUIDED;
+    // ZURIEL 6.11: the Bible code opens in Research for everyone; Guided discovery only by explicit request (administrator).
+    if (requested === "guided" && !publicClassic) return ELS_MATRIX_PROFILE.GUIDED;
+    return ELS_MATRIX_PROFILE.RESEARCH;
   });
   useEffect(() => {
     if (directSavedOpen) setMatrixProfile(ELS_MATRIX_PROFILE.CLASSIC);
