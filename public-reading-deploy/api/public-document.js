@@ -35,6 +35,21 @@ export function mergeProductionDocumentMetadata(document, metadata, { noindex = 
   return clean.replace(/<\/head>/i, head + "</head>");
 }
 
+// Home document CDN window (performance only). The document is rebuilt per
+// request from a no-store function, so every launch of the installed app paid a
+// full function round trip (real-user TTFB p50 0.53s, p90 1.9s, max 10.5s)
+// before the first paint. Only the Vercel CDN may keep the exact canonical Home
+// document, and only briefly: browsers and the service worker keep the existing
+// `Cache-Control: no-store`, and the edge middleware (bot/rate/country policy)
+// still runs before the CDN on every request. A closure or reopening of an area
+// reaches Home at most max-age + stale-while-revalidate (60s) late.
+export const HOME_DOCUMENT_CDN_CACHE = "max-age=30, stale-while-revalidate=30";
+const HOME_DOCUMENT_PATHS = new Set(["/", "/2029"]);
+export function homeDocumentCdnCacheable({ method, origin, originalDocument, path, search, state, status }) {
+  return method === "GET" && originalDocument === true && origin === CANONICAL_ORIGIN
+    && HOME_DOCUMENT_PATHS.has(path) && !search && state === "public" && status === 200;
+}
+
 // Dependency injection remains a local synthetic test seam. Hosted admission
 // uses only the exact generated protected-review receipt; no request selects it.
 export function publicReadingDocumentHandler({ authorized = deploymentAuthorized, indexable = publicIndexingAllowed,
@@ -114,6 +129,8 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       if (!robots) throw new Error("public_robots_unavailable");
       res.setHeader("X-Robots-Tag", robots);
       res.setHeader("Content-Type", "text/html; charset=utf-8");
+      if (homeDocumentCdnCacheable({ method: req.method, origin, originalDocument, path, search, state, status }))
+        res.setHeader("Vercel-CDN-Cache-Control", HOME_DOCUMENT_CDN_CACHE);
       if (path.replace(/\/+$/, "") === "/unsubscribe") res.setHeader("Referrer-Policy", "no-referrer");
       return res.status(status).send(req.method === "HEAD" ? "" : html);
     } catch {

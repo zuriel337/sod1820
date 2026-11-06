@@ -112,3 +112,16 @@ test('direct document API remains noindex even for an eligible public post on th
  await c.adapters.publicReadingDocumentHandler({readDocument})(request('/api/public-document?path=%2Fold-post',canonical,{query:{path:'/old-post'}}),res);
  assert.equal(res.code,200);assert.match(res.headers['x-robots-tag'],/noindex/);assert.match(res.body,/canonical" href="https:\/\/sod1820.co.il\/old-post/);assert.equal(res.headers['cache-control'],'no-store');
 });
+
+test('canonical Home gets a CDN-only window; browsers keep no-store; nothing else is cached at the CDN',async()=>{
+ const c=await context();
+ const home=async(path,origin=canonical,extra={})=>{c.ownerRows[path]={html:metadata(path)};const res=response();await c.adapters.publicReadingDocumentHandler({readDocument})(request(path,origin,extra),res);return res;};
+ for(const path of ['/','/2029']){const res=await home(path);assert.equal(res.code,200,path);assert.equal(res.headers['cache-control'],'no-store',path);assert.equal(res.headers['vercel-cdn-cache-control'],'max-age=30, stale-while-revalidate=30',path);}
+ for(const [path,origin,extra] of [['/',immutable,{}],['/old-post',canonical,{}],['/2029/posts',canonical,{}],['/',canonical,{method:'HEAD'}],['/api/public-document?path=%2F',canonical,{query:{path:'/'}}]]){
+  const res=await home(path,origin,extra);assert.equal(res.headers['cache-control'],'no-store',path);assert.equal(res.headers['vercel-cdn-cache-control'],undefined,path+' '+origin+' '+(extra.method||'GET'));}
+ // A query string (marketing parameters, WordPress ?p=) never joins the cache key.
+ for(const url of ['/?utm_source=x','/?p=12']){const res=await home(url);assert.equal(res.headers['vercel-cdn-cache-control'],undefined,url);}
+ // Closed, missing and failed states never get a window.
+ c.ownerRows['/']={fail:true};const failed=response();await c.adapters.publicReadingDocumentHandler({readDocument})(request('/'),failed);
+ assert.equal(failed.code,503);assert.equal(failed.headers['vercel-cdn-cache-control'],undefined);
+});
