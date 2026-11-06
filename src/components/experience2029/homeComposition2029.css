@@ -240,9 +240,10 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
 .h29-rm-products > h4 { display: flex; align-items: baseline; gap: 8px; margin: 0; padding: 8px 14px 4px; font: 600 13px/1.3 var(--s29-font-ui); color: var(--s29-brand-gold); }
 .h29-rm-products > h4 small { color: var(--s29-muted); font: 500 11px/1 var(--s29-font-numeric, var(--s29-font-ui)); }
 .h29-rm-list { list-style: none; margin: 0; padding: 0 6px; max-height: 232px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb,var(--s29-brand-gold) 50%,transparent) transparent; }
-.h29-rm-item { display: grid; grid-template-columns: 44px minmax(0,1fr); align-items: center; gap: 10px; min-height: 56px; padding: 6px 8px; border-radius: 10px; }
+.h29-rm-item { display: grid; grid-template-columns: 64px minmax(0,1fr); align-items: center; gap: 12px; min-height: 76px; padding: 6px 8px; border-radius: 10px; }
 .h29-rm-item:hover, .h29-rm-item:focus-visible { background: color-mix(in srgb,var(--s29-brand-gold) 8%,transparent); }
-.h29-rm-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; }
+.h29-rm-thumb { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 30%, transparent); }
+.h29-rm-thumb.is-empty img { width: 40px; height: 40px; }
 .h29-rm-thumb.is-empty { display: grid; place-items: center; background: color-mix(in srgb,var(--s29-brand-gold) 8%,transparent); color: var(--s29-brand-gold); }
 .h29-rm-item > span { display: grid; gap: 2px; min-width: 0; }
 .h29-rm-item strong { font: 500 14px/1.4 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -295,7 +296,7 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
   .h29-series-grid { gap: 8px; }
   .h29-fam { gap: 6px; padding: 8px 10px; }
   .h29-fam > a small, .h29-fam > span small { display: none; }
-  .h29-rm-list { max-height: 180px; }
+  .h29-rm-list { max-height: 240px; }
   .h29-teaser-tiles i { font-size: 17px; min-width: 1.9em; }
   .h29-series-card.is-primary > .h29-series-name { font-size: 20px; }
   .h29-series-card { min-height: 216px; }
@@ -410,3 +411,18 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
   .h29-live-item:nth-last-child(2) { border-bottom: 0; }
 }
 .h29-newsletter-end { padding-block: 8px; }
+
+/* HOME-ENTRY-BAND-20261106 (ZURIEL): compact royal entrances after the flagship region. Three cards: Beit Midrash, life-journey promo,
+   "under construction" with sign-up. A closed gate shows its true state, never a dead link. */
+.h29-entry-band { display: grid; grid-template-columns: 1fr; gap: 10px; min-width: 0; }
+.h29-entry { display: grid; gap: 4px; align-content: start; min-width: 0; padding: 14px 16px; border-radius: 16px; color: inherit; text-decoration: none;
+  border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 34%, var(--s29-line));
+  background: linear-gradient(140deg, color-mix(in srgb, var(--s29-brand-gold) 11%, transparent), transparent 60%), color-mix(in srgb, var(--s29-panel) 88%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--s29-brand-gold) 22%, transparent); }
+a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gold); }
+.h29-entry-k { color: var(--s29-brand-gold); font: 600 12px/1.4 var(--s29-font-ui); letter-spacing: .04em; }
+.h29-entry strong { font: 500 17px/1.35 var(--s29-font-ui); }
+.h29-entry small { color: var(--s29-muted); font: 400 13px/1.4 var(--s29-font-ui); }
+.h29-entry.is-locked { opacity: .78; }
+.h29-entry.is-build .h29-linkbtn { justify-self: start; min-height: 44px; }
+@container h29 (min-width: 701px) { .h29-entry-band { grid-template-columns: repeat(3, 1fr); } }
