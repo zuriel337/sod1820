@@ -49,7 +49,7 @@ Filled in from the run results below (dispatched `workflow_dispatch` on the bran
 | G4 Public Core Gate | [42358331972](https://github.com/zuriel337/sod1820/actions/runs/42358331972) (#435) | `success` |
 | 2029 Live Contracts | [42358336257](https://github.com/zuriel337/sod1820/actions/runs/42358336257) (#97) | `success`, all 4 jobs; the two new steps (21 reading-mode research/continuity, 22 Preview worker policy) and the PG2 + Analytics steps ran and passed in the shallow CI checkout |
 | Observability/SEO Build Gate | [42358338818](https://github.com/zuriel337/sod1820/actions/runs/42358338818) (#2944) | `success` |
-| 2029 Isolation Gate | [42358334192](https://github.com/zuriel337/sod1820/actions/runs/42358334192) (#2308) | in progress when this file was committed; result recorded in a follow-up commit below |
+| 2029 Isolation Gate | [42358334192](https://github.com/zuriel337/sod1820/actions/runs/42358334192) (#2308) | `success` (6 min 14 s; browser theme, entry-orientation and World acceptance included) |
 | Release Visual Gate | not re-run on this SHA | no application source changed since `552b391c6` (run 42357290729, `success`, §2) |
 
 ## 5. Analytics — what is proven, what is not
