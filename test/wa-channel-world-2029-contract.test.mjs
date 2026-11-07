@@ -55,11 +55,23 @@ assert.match(intake, /source: "channel_updates"/);
 assert.match(intake, /story_first_selective/);
 assert.match(intake, /private_channel_media_access/);
 assert.match(intake, /createSignedUrl\(resolved\.path, 300\)/);
-assert.match(intake, /HEAVY_CHANNELS\.has\(row\.channel\)/);
+// Heavy-research channels (private media -> OCR) are selected by the channel_ingest_sources registry
+// policy, not by a hard-coded channel set: d55221013 (trusted-author tree routing v1, 4.10) replaced
+// `HEAVY_CHANNELS.has(row.channel)` with the row's `_sourcePolicy.intake_mode`, and
+// wa-trusted-author-tree-routing.test.mjs asserts that no hard-coded channel set returns.
+assert.match(intake, /row\.image_url && row\._sourcePolicy\?\.intake_mode === "research_first"/);
+assert.match(intake, /_sourcePolicy: policy/);
+assert.doesNotMatch(intake, /HEAVY_CHANNELS/);
 assert.match(intake, /source_preserved_needs_transcription/);
 assert.match(intake, /extracted_caption_media_needs_transcription/);
 assert.match(intake, /extracted_caption_media_needs_ocr/);
-assert.match(intake, /maxAttempts < 3/);
+// Bounded automatic retry. 6ab185b54 (resumable historical intake scan, 21.10) expressed the old single
+// predicate `maxAttempts < 3 && latestFailure > 0 && now - latestFailure >= 30m` as explicit states:
+// 3 failed attempts end the retry (retry_exhausted), a failure younger than 30 minutes waits
+// (retry_cooldown), and only the remaining case is retried (retry_ready).
+assert.match(intake, /if \(maxAttempts >= 3\) \{\s*eligibilityState\.set\(r\.id, "retry_exhausted"\);\s*return false;\s*\}/);
+assert.match(intake, /if \(!\(latestFailure > 0 && now - latestFailure >= 30 \* 60 \* 1000\)\) \{\s*eligibilityState\.set\(r\.id, "retry_cooldown"\);\s*return false;\s*\}/);
+assert.match(intake, /eligibilityState\.set\(r\.id, "retry_ready"\);\s*return true;/);
 assert.match(intake, /30 \* 60 \* 1000/);
 assert.match(intake, /processing_error_retry_pending/);
 assert.match(intake, /One malformed\/transient source must not abort/);
