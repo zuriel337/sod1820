@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {execFileSync,spawnSync} from 'node:child_process';
+import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import vm from 'node:vm';
 import {COMMUNITY_UPLOAD_POLICY} from '../src/lib/community/communityUploadPolicy.js';
 import {AVATAR_UPLOAD_POLICY} from '../src/lib/userCenter/avatarPolicy.js';
@@ -9,24 +10,45 @@ import {previewRazielHandler} from '../preview-deploy/api/preview-raziel.js';
 
 const branch='gpt/2029-world-one-tree-sources-20261101';
 const baseBranch='gpt/2029-community1187-unified-20261101';
+const continuation=[branch,'gpt/2029-number-fullpage-performance-20261101','gpt/2029-public-world-number-acceptance-20261101'];
 const builder=readFileSync(new URL('../scripts/build-integrated-preview.mjs',import.meta.url),'utf8');
-test('Preview integration only adds the three exact accepted World/Number continuation bindings',()=>{
- for(const file of ['scripts/build-integrated-preview.mjs','preview-deploy/api/contributor-self.js','preview-deploy/api/preview-capabilities.js','preview-deploy/api/preview-raziel.js','preview-deploy/api/public-document.js','preview-deploy/api/public-sitemap.js']){
-  const baseline=execFileSync('git',['show','dbbe91de46d21a37110664dc732473de6d9cc6ca:'+file],{encoding:'utf8'});
-  const current=readFileSync(new URL('../'+file,import.meta.url),'utf8');
-  assert.equal(current.split(branch).length,baseline.split(baseBranch).length,file);
-  const stripped=[branch,'gpt/2029-number-fullpage-performance-20261101','gpt/2029-public-world-number-acceptance-20261101']
-    .reduce((text,ref)=>text.replaceAll(', "'+ref+'"','').replaceAll(", '"+ref+"'",''),current);
-  assert.equal(stripped,baseline,file);
+const sha256=data=>createHash('sha256').update(data).digest('hex');
+// Hermetic pins (sha256): the original baseline commit dbbe91de (PR1187 unified Preview) is not on main and CI checks out
+// shallow, so `git show` of it cannot be a test input. Provenance: `git show <commit>:<path> | sha256sum`.
+// Accepted state of the Preview integration surface = the files as merged to main by the owner-approved reconcile
+// (#1191, 71bb7646). Since the original dbbe91de baseline that reconcile added more than the three World/Number
+// continuation branches (launch-candidate / public-reading branches, the read-only launch transport, the opening-mail and
+// admin-readonly interceptors), so the old "baseline plus three branch names" equality no longer describes main.
+const ACCEPTED={
+  'scripts/build-integrated-preview.mjs':'9851e0f2c4c829c1610f573afdca8a0485a64da16067c244344da24a76796435',
+  'preview-deploy/api/contributor-self.js':'12dd60314e24431561d4571ee4161f55425c90a8fc86d593a699af4acf8489be',
+  'preview-deploy/api/preview-capabilities.js':'c89cb629c47949854a5a4716a5797af031b0f9187614df9e54464da409ef7cd4',
+  'preview-deploy/api/preview-raziel.js':'3e653f662964ea909667da5ebeee36f64bc7473af925d2ba99869f7a48241f2e',
+  'preview-deploy/api/public-document.js':'d77d0d19d32d5a57ea7b3a077deef9f453fb1de9a99a9db46102580aea598aef',
+  'preview-deploy/api/public-sitemap.js':'7ba96d45357d7242def6e158a327781e3b88272899766a9348cfad367e4f73bc',
+};
+test('Preview integration equals the accepted reconciled state, and the three World/Number continuation branches are granted exactly where the base branch is',()=>{
+ for(const [file,expected] of Object.entries(ACCEPTED)){
+  const bytes=readFileSync(new URL('../'+file,import.meta.url));
+  assert.equal(sha256(bytes),expected,file+' differs from the accepted state (git diff 71bb7646 -- '+file+')');
+  const current=bytes.toString('utf8');
+  // Invariant kept from the original check: each continuation branch is admitted at every place the base branch is, nowhere else.
+  for(const ref of continuation)assert.equal(current.split(ref).length,current.split(baseBranch).length,file+': '+ref);
  }
 });
 function worker(source,ref){
  return vm.runInNewContext(source.slice(source.indexOf('const allow ='),source.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")'))+';worker;',{COMMUNITY_UPLOAD_POLICY,AVATAR_UPLOAD_POLICY,process:{env:{VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:ref}}});
 }
+// sha256 of the worker source the ACCEPTED baseline builder (dbbe91de) generates for each Preview ref.
+const BASELINE_WORKER_SHA256={
+ [baseBranch]:'989e1cc315d8b42ae1cc01c57f44bbe6cd2ff4b90b6eb4e9453090008d57f2fb',
+ 'gpt/2029-functional-unified-preview-20261031':'f799fe988297e140c3f9d1ec2453e71a1934d4138fbc5570450bee41c8d75516',
+ [branch+'-foreign']:'18c84dc4f615d04956ed89b81fd73b3ed15a5749d4e261ac7b3f427980b51317',
+ 'gpt/unrelated':'18c84dc4f615d04956ed89b81fd73b3ed15a5749d4e261ac7b3f427980b51317',
+};
 test('new exact branch inherits the complete accepted worker without widening any principal or operation',()=>{
- const baseline=execFileSync('git',['show','dbbe91de46d21a37110664dc732473de6d9cc6ca:scripts/build-integrated-preview.mjs'],{encoding:'utf8'});
- assert.equal(worker(builder,branch),worker(baseline,baseBranch));
- for(const ref of [baseBranch,'gpt/2029-functional-unified-preview-20261031',branch+'-foreign','gpt/unrelated'])assert.equal(worker(builder,ref),worker(baseline,ref));
+ for(const ref of continuation)assert.equal(sha256(worker(builder,ref)),BASELINE_WORKER_SHA256[baseBranch],ref);
+ for(const [ref,expected] of Object.entries(BASELINE_WORKER_SHA256))assert.equal(sha256(worker(builder,ref)),expected,ref);
 });
 test('the new branch cannot build for Production or an unspecified environment',()=>{
  for(const environment of ['production','']){
