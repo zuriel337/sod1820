@@ -34,3 +34,10 @@ Every deleted branch is fully contained in `main`; its tip is recorded in `delet
 ```
 git push origin <tip_sha>:refs/heads/<branch>
 ```
+
+## Execution result (7.11.2026)
+
+* **Branches: 0 deleted.** Remote ref deletion is refused for this session: `git push origin --delete noop` (a branch whose tip was re-verified unchanged and fully merged) returned `HTTP 403` from the session's git proxy, and the GitHub MCP tools expose no delete-branch operation. Nothing was attempted by any other route. The 203 verified branches, with their tips, are in `deletion-manifest-20261107.tsv`; `delete-branches.sh` (dry run by default, `--apply` to delete) re-checks each tip against the manifest before deleting and is meant to be run by the owner.
+* **Logs: 90 GitHub Actions run logs deleted** (listed in `actions-logs-cleared-20261107.txt`): scheduled, successful sitemap-update runs created on or before 31.10.2026, none cited anywhere in the repository. The run records remain; only log text was removed. Deleted via the Actions API (`204 No Content` each).
+* **Logs kept, and why:** every CI log of the audit/RC/G4 evidence (runs cited in this directory and in `G4-FINAL-EVIDENCE.md`); all failed, cancelled and skipped runs (diagnostic value, cited in the CI-failure analysis); all runs from the last 7 days; the 3 failed sitemap runs; the `work_log/` document (CLAUDE.md retains historical records); the Supabase `work_log` table and any other database log (no DB change allowed); Vercel deployment/runtime logs (platform-managed, read-only here). GitHub expires the remaining Actions logs automatically after the repository's retention period.
+* **Heichal:** 6 branches excluded by name/subject (`claude/heichal-gematria-capability-hook-v1`, `claude/heichal-gematria-opening-ui-wiring-v1`, `claude/beit-midrash-2029-golden-v1`, `claude/check-temple-access-attempts-u1xskv`, `claude/christina-engine-x9gvs8`, `claude/awesome-dirac-5ewam7`); no Heichal file, branch, log or process was touched.
