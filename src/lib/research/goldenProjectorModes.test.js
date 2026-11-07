@@ -229,9 +229,15 @@ test("NEGATIVE PRIVACY (wiring): PUBLIC_VIEW never fetches admin data; admin pay
   assert.ok(!/entityHubProjection|fetchResearchObjectsForEntity|fetchGoldenAdminUniverse/.test(post));
   const proj = fs.readFileSync("src/lib/research/post2029ReadingProjection.js", "utf8");
   assert.ok(!/research_objects/.test(proj.slice(proj.indexOf("export async function fetchGoldenContextPack"), proj.indexOf("export async function fetchPost2029ReadingProjection"))));
-  // Rail mounts the layer only on the post surface; no change to other surfaces.
+  // Rail mounts the layer only on the post surface and only once identity has resolved to an admin
+  // (d13233577), through a lazy chunk (276c67336) so the public entry graph never loads it. Exactly one
+  // mount site, never a static import, no change to other surfaces.
   const rail = fs.readFileSync("src/components/experience2029/SurfaceContextRail2029.jsx", "utf8");
-  assert.match(rail, /surface === "post" \? <GoldenProjectorModeLayer2029/);
+  assert.match(rail, /^const GoldenProjectorModeLayer2029 = lazy\(\(\) => import\("\.\/GoldenProjectorModeLayer2029\.jsx"\)\);$/m);
+  assert.doesNotMatch(rail, /^import\s+GoldenProjectorModeLayer2029\b/m);
+  assert.match(rail, /const \{ isAdmin, loading: identityLoading \} = useAuth\(\);/);
+  assert.match(rail, /surface === "post" && !identityLoading && isAdmin \? <Suspense fallback=\{null\}><GoldenProjectorModeLayer2029 context=\{context\} surface=\{surface\} \/><\/Suspense> : null/);
+  assert.equal(rail.match(/<GoldenProjectorModeLayer2029\b/g).length, 1);
 });
 
 test("Research Context cannot carry admin-only fields even if a caller tried", () => {
