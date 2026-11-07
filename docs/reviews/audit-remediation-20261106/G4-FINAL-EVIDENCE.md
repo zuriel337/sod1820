@@ -65,3 +65,34 @@ Filled in from the run results below (dispatched `workflow_dispatch` on the bran
 2. **Approvals needed for DB/Production-touching items:** DEF-001/001b/003/004/005/026/027 SQL/Storage applications, `modulepreload`/LCP attribution, `handle_new_user` auto-enrolment trigger (Auth track, AUTH-3).
 3. **Gate coverage choices:** wire `public-launch-closure-preview-guards-2029` into a Playwright job; optional move of three read-POST RPCs into the Release Visual allow-list.
 4. **Not run here by design:** ELS Core (no path overlap), Post-Deploy Canary (Production-facing).
+
+## 7. State on the final RC source `b0b09e179` (everything after it is documentation only)
+
+Kept apart on purpose: what passed, what is not proven, what waits for ZURIEL, and what is a verified security problem. A green workflow is not G4 closure.
+
+### 7.1 Gates that passed (workflow_dispatch on the exact SHA)
+
+| Gate | Run | Result |
+| --- | --- | --- |
+| G4 Public Core | [42422996873](https://github.com/zuriel337/sod1820/actions/runs/42422996873) (#438) | success |
+| 2029 Isolation | [42422999168](https://github.com/zuriel337/sod1820/actions/runs/42422999168) (#2311) | success |
+| 2029 Live Contracts (now also runs ~63 repaired/new contract files, the PG2 and analytics steps, the performance contracts and the first-load graph guard) | [42423001331](https://github.com/zuriel337/sod1820/actions/runs/42423001331) (#101) | success |
+| Observability/SEO | [42423003483](https://github.com/zuriel337/sod1820/actions/runs/42423003483) (#2947) | success |
+| Release Visual (egress guard) | [42423005693](https://github.com/zuriel337/sod1820/actions/runs/42423005693) (#3025) | success: 20/20, `leaks=0` in every spec; no new `site_visits` row on the spec routes since the baseline taken before the run (id 531556) |
+
+Local on the integrated tree: `npm run build` exit 0 (only the pre-existing >500 kB notice); Legacy-retired, module-boundary, isolation, built-graph, theme-isolation and first-load-graph gates pass; 60 added/changed test files pass; the five SQL proof suites (DEF-001, 001b, 003, 004, 005) and the new DEF-028 suite pass on a throwaway PostgreSQL 16.
+
+### 7.2 Missing receipts (not proven; no claim made)
+
+* Receipt of GA4 events inside the GA4 property (needs access); Search Console ownership method for the restored tags.
+* PG2 consumer receipts for the delta since 7.10 (+541 `channel_updates`, +18 posts) and the P0-C direct test; `world-corpus-continuation-2029` snapshot (Zvi).
+* Field effect of the performance and robustness changes (LCP, CLS, entry preload, stale-chunk recovery): RUM after an approved deploy only; Safari/Firefox/real devices never exercised.
+* 95 browser/Playwright files and 6 PostgreSQL/Docker files are outside the sandbox's reach (several verified under a non-root PostgreSQL); Post-Deploy Canary and ELS Core were not run (Production-facing / no path overlap).
+
+### 7.3 Decisions that wait for ZURIEL (no code can resolve them)
+
+Merge of PR #1262 (and its order: SQL, Edge, then site); applying the DEF-001 / 001b / 003 / 004 / 005 / 026 / 027 / 028 SQL; Edge redeploys (`els-search-bridge`, Raziel `_shared`); GA4/GSC access; GA route widening; PG2 receipts; Cardcom bridge, Companion cluster, orphan public assets, `theme.js`, gate-pinned dead exports; the 26 accent-contrast CSS lines and the Home date display; stale browser-test fixtures; running the branch-deletion script; extending the egress guard to the other Playwright gates; required status checks on `main`; Skew Protection and the `/assets` routing; the DB/CDN recommendations.
+
+### 7.4 Verified security problems (live, read-only, 7.11.2026)
+
+See [`EMAIL-EXPOSURE-VERIFICATION-20261107.md`](EMAIL-EXPOSURE-VERIFICATION-20261107.md). **P0:** `resolve_visitor_email` returns e-mail addresses to anyone with the public anon key (21 of 21 reachable user UUIDs and 1 guest resolved to an address; counts only, nothing printed), and `notification_prefs_guest_get_v1` echoes the address for a readable visitor id. Fix = the existing DEF-001 migration A (tested, rollback ready, **not applied**). **Not e-mail leaks:** `legacy_top_pages` (unused statistics endpoint, P3), `redirect_map` (no bypass, lint only), `topic_cards_public` (intentional door).
