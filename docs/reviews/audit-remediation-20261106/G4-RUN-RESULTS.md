@@ -32,6 +32,8 @@ Residual caveat, stated plainly: the "read-only" property of the two browser gat
 
 ## 3. Release Visual Gate — held; exact operations and what "Production canary" means
 
+> **Superseded 7.11.2026 (later in the day):** the hold was resolved by the fail-closed egress guard (RC `552b391c6`); Release Visual then ran and passed with `leaks=0` in all 20 specs and 0 new telemetry rows. See [`G4-FINAL-EVIDENCE.md`](G4-FINAL-EVIDENCE.md) §2. The analysis below is kept as the historical reason for the hold.
+
 File `.github/workflows/release-visual-gate.yml` (950 lines). Triggers: pull request to `main` (opened/synchronize/reopened/ready_for_review) and `workflow_dispatch`. Permissions: `contents: read`, `deployments: read`, `statuses: read` (no write). Two jobs, no `needs` between them.
 
 **Job 1 — `release-canary-gate` ("Production Canary Gate")** — operations, in order:
@@ -55,4 +57,4 @@ Options (none applied; a workflow change is a gate change and needs its own appr
 
 ## 4. Not run
 
-Release Visual (held, §3); ELS Core (no overlap with its path filter; not requested); Post-Deploy Canary (a Production-facing workflow; not requested); PG2 workflow step (not installed).
+(As of the `352c560` runs. Release Visual and the PG2 step were run later — see [`G4-FINAL-EVIDENCE.md`](G4-FINAL-EVIDENCE.md).) Release Visual (held, §3); ELS Core (no overlap with its path filter; not requested); Post-Deploy Canary (a Production-facing workflow; not requested); PG2 workflow step (not installed).
