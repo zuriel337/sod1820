@@ -54,8 +54,9 @@ test("a closed route is never offered as open: honest reason plus the registry's
     assert.equal(action.message, siteLinkById(closedId).closed.message, text);
     assert.match(action.message, /בבנייה|בתהליך התאמה/u, text);
   }
-  // The Bible code (/code) is open to the public in its Classic mode since the owner's 5.11 decision, so the registry's own state
-  // is open and Raziel answers with the real link, not with the "under construction" alternative that was true only while it was closed.
+  // The Bible code (/code) is open to the public since the owner's 5.11 decision (Classic and Research open to everyone since 6.11),
+  // so the registry's own state is open and Raziel answers with the real link, not with the "under construction" alternative that
+  // was true only while it was closed.
   for (const text of ["איפה דילוגי אותיות", "איפה הצופן התנ״כי", "הלינק לדילוגים"]) {
     const els = ask(text);
     assert.equal(els?.type, "navigate", text);
@@ -65,12 +66,13 @@ test("a closed route is never offered as open: honest reason plus the registry's
     assert.equal(els.external, false, text);
   }
   // The same guarantee as for the other closed routes is kept for it: if the live router closes /code, Raziel never offers it as
-  // open, it gives the registry's honest reason (Classic-only release) and the open alternative.
+  // open, it gives the registry's honest reason (not available to the public right now) and the open alternative.
   const closedEls = ask("איפה דילוגי אותיות", { linkState: (item) => (item.id === "els" ? "closed" : "open") });
   assert.equal(closedEls.closed_target, "els");
   assert.equal(closedEls.href, "/codes");
   assert.equal(closedEls.message, siteLinkById("els").closed.message);
-  assert.match(closedEls.message, /הקלאסי/u);
+  assert.match(closedEls.message, /אינו זמין כרגע/u);
+  assert.doesNotMatch(closedEls.message, /הקלאסי|המודרכ|המחקרי|למנהל/u, "the closed fallback is neutral: it names no mode and no administrator-only policy");
   // lock injection: a route the live router closes turns an otherwise open answer into the honest alternative
   const closedNumber = ask("איפה דף המספר", { linkState: (item) => (item.id === "number" ? "closed" : "open") });
   assert.equal(closedNumber, null, "an entry without a defined alternative answers nothing rather than a closed link");
@@ -79,7 +81,7 @@ test("a closed route is never offered as open: honest reason plus the registry's
 });
 
 test("the web adapter's live route state agrees with every registry entry", () => {
-  // "els": the Bible code is public (Classic mode) since ZURIEL's 5.11 decision, so the web adapter reports it open (router flag lock_els).
+  // "els": the Bible code is public since ZURIEL's 5.11 decision (Classic and Research open to everyone since 6.11), so the web adapter reports it open (router flag lock_els).
   for (const id of ["posts", "or-geula", "community", "privacy", "number", "map", "els", "whatsapp", "instagram", "updates"]) {
     assert.equal(razielSiteLinkState(siteLinkById(id)), "open", id);
   }
