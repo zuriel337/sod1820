@@ -55,7 +55,6 @@ import { RESEARCH_OPERATION_LABELS_HE, methodComponentStateLabelHe, sourceMethod
 import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProjection.js";
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldPublicPeopleIndex } from "../lib/research/worldPublicPeopleIndex.js";
-import { fetchWorldPublicFindingById } from "../lib/research/worldPublicFindingReader.js";
 import { worldFindingPublicShare, worldFindingFollowTarget } from "../lib/research/worldFindingShare.js";
 import ShareActions from "../components/ShareActions.jsx";
 import WatchButton from "../components/WatchButton.jsx";
@@ -751,7 +750,9 @@ function LiveWorldLanding({ research, shell, context }) {
     }
 
     setPublicFinding({ id: focusedPublicFindingId, loading: true, finding: null, error: null });
-    fetchWorldPublicFindingById(focusedPublicFindingId)
+    // The reader (with the approved-findings projection it carries) is needed only by the finding view.
+    import("../lib/research/worldPublicFindingReader.js")
+      .then(({ fetchWorldPublicFindingById }) => fetchWorldPublicFindingById(focusedPublicFindingId))
       .then((finding) => {
         if (!alive || requestId !== publicFindingRequest.current) return;
         setPublicFinding({
