@@ -1446,6 +1446,8 @@ export async function logView(kind, ref) {
   try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
   try { await supabase.from("page_views").insert({ kind, ref: String(ref) }); } catch { /* ignore */ }
 }
+// 🔎 ספירת חיפושים כוללת [עוגן-מבחן] — test/def012-page-views-public-build.test.mjs חותך את logView עד הסימן הזה (indexOf).
+//    getSearchCount שישב כאן הוסר: אין לו קוראים מאז הסרת ה-Legacy (a5ef82cce); הקוד נשמר בהיסטוריית git.
 // 📡 הודעות-טיקר ידניות — צוריאל שולט (טבלת ticker_messages). מוצגות ראשונות בטיקר.
 // להוסיף: insert into ticker_messages(text,priority[,link_url]) · להסיר: update ... set is_active=false.
 // 🫧 דופק-פעילות ציבורי (activity_pulse) — סוגי פעילות בשעה האחרונה, בלי תוכן (פרטיות).
