@@ -172,3 +172,8 @@
 * **DEF-012** (הצד הלקוח, 3 שורות ב־`src/lib/supabase.js`) — נשאר ב־RC ללא שינוי. אושר מול סשן "תיקון כשלים במנגנון קבוע": אין התנגשות בעבודתו וב־PR #1259. הסיבה, שהייתה `UNKNOWN`, ידועה: ה־worker של `public-reading-deploy` דוחה כל כתיבה שאינה ב־allow-list.
 * **DEF-026 (P2, חדש)** — `public.page_views` עדיין פתוח ל־INSERT אנונימי דרך המדיניות `pv_insert` (`WITH CHECK (true)`), ללא ולידציה והגבלת קצב. DEF-012 אינו סוגר זאת בצד השרת (ה־worker הוא כלל תעבורה, לא בקרת DB). זהו פער S2 נפרד. ניתוח callers/consumers, אפשרויות תיקון, rollback ותוכנית בדיקות: `docs/reviews/audit-remediation-20261106/DEF-026-PAGE-VIEWS-SERVER-SIDE.md`. לא בוצע שינוי DB.
 * **ירידת איסוף האנליטיקס של `page_views`** — בעיה נפרדת; אין עדיין החלטה על מנגנון חלופי. אינה מטופלת כאן.
+
+## עדכון 7.11.2026 (המשך) — DEF-027
+
+* **DEF-027 (P3, חדש)** — `public.fn_name_research_stats(int)`: SECURITY DEFINER, ללא בדיקת אדמין או זהות בגוף הפונקציה; המיגרציה נותנת EXECUTE ל־`authenticated`, וה־ACL החי שתועד ב־7.11 (`{=X, postgres=X, authenticated=X}`) כולל גם PUBLIC, כלומר גם `anon`. מחזירה אגרגטים בלבד (ספירות, אחוזי פגיעה, ממוצעים) — בלי שמות ובלי מזהים. אין צרכנים בקוד. מקור: `supabase/migrations/20260728_namelab_quality_log.sql`. תיעוד, אפשרויות ו־rollback: `docs/reviews/audit-remediation-20261106/S2-INVENTORY-ENTRIES.md` (S2-B). לא בוצע שינוי ACL או SQL.
+* **תיקון תהליך ל־DEF-005**: הפונקציה אינה מופיעה בשום מחלקה (A–F) במסמכי ה־RC; פונקציות קריאה ללא guard נספרו כ"קריאות ציבוריות" (מחלקה E, ≈110) ולא נבדקו אחת-אחת. מומלץ מעבר קריאה־בלבד על המחלקה הזו לאיתור קריאות טלמטריה פנימיות (טעון אישור לשאילתה חיה).

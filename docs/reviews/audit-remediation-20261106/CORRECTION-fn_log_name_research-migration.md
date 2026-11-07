@@ -34,9 +34,27 @@ No other migration or proposed SQL in the repository defines or alters these thr
 | Retirement stages | A later repository change (revoke / drop) should be a **new** migration; it must not edit `20260728_…` in place. |
 | Privacy of historical rows | unchanged: the table keeps up to 80 characters of the searched name per row (`left(…,80)`); the retention proposal (07) still applies. |
 
-## 5. A related observation for the same plan (to be checked by its owner)
+## 5. Call chain of `fn_log_name_research` (read-only check, 7.11.2026) — replaces an earlier, wrong version of this section
 
-Document 08 names `NameMultiSearch` → `logNameResearch` as the only caller and describes the old calling page as having left service on 4.11. In the RC / `main` tree the caller is still mounted by the 2029 calculator: `CommunityCalculator2029Page.jsx` renders `CommunityCalculatorPage`, which renders `<NameMultiSearch name={deepName} hideInput />` under `{!babyMode && deepName && …}` (`src/pages/CommunityCalculatorPage.jsx:776-783`; the call is `src/components/NameMultiSearch.jsx:386`; the RPC call is `src/lib/supabase.js:3993`, wrapped in `.then(() => {}, () => {})`). The public-reading worker's allow-lists do **not** contain `fn_log_name_research` (searched `public-reading-deploy/*.js`), which is consistent with the zero gateway calls reported in 08 — so the call is prevented by the transport rule, not by the code being gone. After a stage-2 revoke the client call would fail silently, as it does today in the public build. Not verified here: whether the deep-name panel can be reached in the public release, and what a non-public build sends.
+The first version of this section said the caller "is still mounted by the 2029 calculator". **That was wrong**: it was inferred from imports without reading the `passive` prop. Corrected chain, read from the RC tree (`cfda877a1` base):
+
+| Step | Evidence |
+|---|---|
+| The RPC is called only by `logNameResearch` | `src/lib/supabase.js:3990-3994` (`fire-and-forget`, errors swallowed); no other caller of the RPC in `src/`, `api/`, `supabase/functions/`, `public-reading-deploy/` |
+| `logNameResearch` is called only after a successful research result | `src/components/NameMultiSearch.jsx:386`, after `getNameMulti(w)` (which calls the RPC `fn_name_research_graded`) returned a document; `if (!d) { setPhase("err"); return; }` runs first |
+| `NameMultiSearch` has exactly one importer | `src/pages/CommunityCalculatorPage.jsx:17`, rendered at lines 776-783 only under `{!babyMode && deepName && …}` |
+| `deepName` is set in exactly one place | `CommunityCalculatorPage.jsx:316` — `useEffect(() => { if (passive) return undefined; … setDeepName(name1.trim()) … })`; initial value `""` |
+| `CommunityCalculatorPage` has exactly one importer, and it always passes `passive` | `src/pages/CommunityCalculator2029Page.jsx:3` and `:269` (`<CommunityCalculatorPage … passive actionsLocked=… />`), route `/community/calculator` (`src/App2029.jsx:331`) |
+
+**Result:** in the 2029 tree `deepName` stays `""`, so the deep-name research panel ("🔬 מחקר מעמיק על «…»") is **never rendered**, `NameMultiSearch` is never mounted, `getNameMulti` and `logNameResearch` are never called. The chain is dead code in the product.
+
+**Second, independent barrier:** neither `fn_name_research_graded` nor `fn_log_name_research` is in the public-reading worker's allow-lists (`public-reading-deploy/transport.js:11-20`; searched `public-reading-deploy/*.js`). The worker admits named RPCs with explicit body checks and answers other operations with `public_reading_operation_denied` (the same mechanism the audit observed for `page_views`); I read the POST branch up to line ~440, not every path.
+
+**Accessibility of the public research panel (read-only answer):** not accessible in the product as built — not because it is hidden by a flag but because the only mounting condition (`deepName`) can never become true while `passive` is set. The route `/community/calculator` itself exists; the edge allow-list contains the `/community` prefix (`route-legitimacy.js:20`); I did not test the exact path or run a browser.
+
+**Consistency with doc 08:** its conclusion "no live caller; 0 gateway calls since 4.11" is supported. Its stated *reason* ("the Legacy page that called it left service") is incomplete — the 2029 tree still contains the caller code, which is unreachable. That matters for stage 2 of the retirement plan: removing `NameMultiSearch`/`logNameResearch` becomes a pure dead-code removal, while the ACL revoke has no client impact.
+
+**Not verified:** runtime behaviour in a browser; old cached client bundles from before 4.11 (the gateway count in doc 08 covers them from 4.11 only).
 
 ## 6. What was and was not done
 
