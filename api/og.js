@@ -28,6 +28,20 @@ const SITE_NAME = 'SOD1820';
 const DEFAULT_DESC = "אתר כי לה' המלוכה – רמזי הגאולה הגדול בעולם. 13 שנות מחקר, תוכנת דילוגי אותיות, מחשבון גימטריה, עץ המספרים, מאגר חי של צפנים, חידושי AI וכלים לקריאת המציאות בשפת המספרים.";
 const DEFAULT_IMAGE = SITE + '/logo.png';
 
+// CLN-04 — site identity of the home document ONLY. These lived in the retired Legacy index.html (git 8ae69125f:index.html;
+// the Google tag was added deliberately by 99f476343, the Meta tag by f0263bf31) and were lost when the 2029 shell became the
+// served document. Values are byte-identical to that history. They are search-engine / platform ownership proofs and
+// site-level structured data, so they are emitted for the home address and never for any other route (see homeIdentity below).
+const HOME_SITE_VERIFICATION = Object.freeze([
+  ['google-site-verification', 'kgWILoBLnsZrbYQ6ApBbxmc0VWFZatRVFttxsMGYKrY'],
+  ['facebook-domain-verification', 'uvblasa08zc9m3xf1145ncc6zx4bz5'],
+]);
+const homeIdentityLd = () => [
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, url: SITE, inLanguage: 'he-IL',
+    potentialAction: { '@type': 'SearchAction', target: SITE + '/post?q={search_term_string}', 'query-input': 'required name=search_term_string' } },
+  { '@context': 'https://schema.org', '@type': 'Organization', name: SITE_NAME, alternateName: "כי לה' המלוכה — סוד 1820", url: SITE, logo: DEFAULT_IMAGE },
+];
+
 // בונה כתובת לתמונת שיתוף דינמית (כרטיס 1200×630) — w=גיבור · sub=שורת משנה · cap=טיזר · sig=חתימה
 const cardUrl = (o = {}) => {
   const p = new URLSearchParams();
@@ -1034,6 +1048,13 @@ export default async function handler(req, res) {
   const imgType = ogImageType(image);
   const imgDims = ogImageDims(image);
 
+  // Home identity (verification metas + WebSite/Organization JSON-LD): only the real home document. The production document
+  // handler also serves /2029 with this route's metadata; it reports the address that was actually requested so that the alias
+  // does not carry the home-only proofs. Post short links (/?p=), non-200 states and every other route are excluded.
+  const requestedPath = typeof req.publicRequestedPath === 'string' ? req.publicRequestedPath : path;
+  const homeIdentity = key === '/' && (requestedPath.replace(/\/+$/, '') || '/') === '/'
+    && !wpId && !post && canonical === SITE && type === 'website' && documentStatus === 200;
+
   // ── מטא ייעודי למאמרים + JSON-LD ──
   let articleMeta = '';
   let jsonLd = '';
@@ -1105,11 +1126,13 @@ export default async function handler(req, res) {
       publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } },
     };
     jsonLd = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
+  } else if (homeIdentity) {
+    jsonLd = homeIdentityLd().map(ld => `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`).join('');
   }
 
   const html = `<!doctype html>
 <html lang="he" dir="rtl"><head>
-<meta charset="utf-8"/>
+<meta charset="utf-8"/>${homeIdentity ? HOME_SITE_VERIFICATION.map(([name, content]) => `<meta name="${name}" content="${esc(content)}"/>`).join('') : ''}
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}"/>
 <meta name="robots" content="${esc(robots)}"/>

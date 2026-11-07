@@ -8,6 +8,9 @@
 // and the production document handler - the function the platform runs for every public address
 // (public-reading-deploy/api/public-document.js, which in turn runs api/og.js) - must answer exactly that decision:
 //   status, X-Robots-Tag, canonical and title, under three synthetic data conditions (source unavailable, no rows, indexable RPC true/false).
+// It also gates the home-only site identity (CLN-04: Google / Meta domain proofs and WebSite + Organization JSON-LD): the merged
+// production document carries it exactly once on "/" and on no other address in any data condition, notably not on the /2029 alias
+// that the document handler serves with the home route's metadata.
 // No network, no browser, no secrets. It only IMPORTS those two files; it never edits or copies them. The table is not a baseline: it
 // cannot approve a route automatically, and each entry is a product decision that someone reviewed.
 //
@@ -124,6 +127,15 @@ const fetchFor = (mode) => async (url) => {
 };
 const handler = publicReadingDocumentHandler({ authorized: () => true, indexable: (origin) => origin === SITE,
   readDocument: async () => "<!doctype html><html><head><title>x</title></head><body></body></html>" });
+// Home-only site identity of a merged document: verification metas (name=content) and the top-level JSON-LD types, malformed JSON-LD throws.
+const identityOf = (html) => ({
+  verification: [...html.matchAll(/<meta\b[^>]*name="(google-site-verification|facebook-domain-verification)"[^>]*content="([^"]*)"/g)].map((m) => `${m[1]}=${m[2]}`),
+  ldTypes: [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]))
+    .flatMap((block) => (Array.isArray(block["@graph"]) ? block["@graph"] : [block])).map((node) => node["@type"]),
+});
+const HOME_IDENTITY = { verification: ["google-site-verification=kgWILoBLnsZrbYQ6ApBbxmc0VWFZatRVFttxsMGYKrY", "facebook-domain-verification=uvblasa08zc9m3xf1145ncc6zx4bz5"],
+  ldTypes: ["WebSite", "Organization"] };
+const NO_IDENTITY = { verification: [], ldTypes: [] };
 async function ask(url, mode) {
   const res = { h: new Map(), statusCode: null, body: "", setHeader(k, v) { this.h.set(String(k).toLowerCase(), v); }, status(c) { this.statusCode = c; return this; }, send(b) { this.body = String(b); return this; } };
   const previous = globalThis.fetch;
@@ -131,7 +143,7 @@ async function ask(url, mode) {
   try { await handler({ method: "GET", url, headers: { host: "sod1820.co.il", "x-forwarded-proto": "https" }, query: {} }, res); }
   finally { globalThis.fetch = previous; }
   const canonical = (res.body.match(/rel="canonical" href="([^"]*)/) || [])[1];
-  return { status: res.statusCode, robots: res.h.get("x-robots-tag") || "", location: res.h.get("location") || "", retryAfter: res.h.get("retry-after") || "",
+  return { identity: identityOf(res.body), status: res.statusCode, robots: res.h.get("x-robots-tag") || "", location: res.h.get("location") || "", retryAfter: res.h.get("retry-after") || "",
     title: (res.body.match(/<title>([^<]*)/) || [])[1] || "", canonical: canonical === undefined ? null : (canonical.replace(SITE, "") || "/") };
 }
 const NOT_FOUND_TITLE = /(?:הפוסט|העמוד|האוסף|הפריט|הדיון|המקור) לא נמצא|אינו זמין/;
@@ -211,6 +223,12 @@ for (const route of routes) {
     check(label, temporarilyClosed || !(a.status !== 200 && a.status !== 308 && !/^noindex/.test(a.robots)), `status ${a.status} must never be indexable ("${a.robots}")`);
     check(label, temporarilyClosed || !(/^index/.test(a.robots) && a.status !== 200), `an indexable robots decision needs status 200, got ${a.status}`);
     check(label, !(a.status === 200 && NOT_FOUND_TITLE.test(a.title)), `status 200 carries the not-found title "${a.title}"`);
+    // CLN-04: the home-only site identity is on the home address (exactly once, exact tokens) and nowhere else. A redirect has no
+    // document of its own; its target is judged. The /2029 alias shares the home metadata but is not the home address.
+    const effective = d.kind === "redirect" ? d.to : url;
+    const wantIdentity = effective === "/" ? HOME_IDENTITY : NO_IDENTITY;
+    check(label, JSON.stringify(a.identity) === JSON.stringify(wantIdentity),
+      `site identity ${JSON.stringify(a.identity)} != ${JSON.stringify(wantIdentity)} for ${effective}`);
   }
 }
 assert.deepEqual(failures, [], `route SEO behaviour differs from the explicit decisions:\n  ${failures.join("\n  ")}`);

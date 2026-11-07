@@ -112,6 +112,9 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
         publicReadingRelease: PUBLIC_READING_PROFILE_ID,
         publicReadingProductionArtifact: true,
         publicReadingSearch: search,
+        // The metadata owner serves a few aliases (for example /2029) with another route's metadata; it needs the address that
+        // was actually requested to keep home-only site identity off those aliases.
+        publicRequestedPath: path,
         query: { ...req.query, path: metadataPath, crawler: "search" },
       }, { setHeader(name,value) { if (name.toLowerCase() === "location") metadataLocation = value; }, status(code) { if (!closed) status = code; return this; }, send(value) { metadata = String(value); } });
       if (status === 308 && metadataLocation) {
