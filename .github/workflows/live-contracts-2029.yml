@@ -163,7 +163,7 @@ jobs:
           npm install --no-save --package-lock=false react-test-renderer@19.3.0
           node --test test/calculator-equals-preview-lifecycle.test.mjs test/community-calculator-runtime-2029.test.mjs test/community-calculator-continuity-2029.test.mjs
       - name: Reading-mode research and continuity contracts (verified-principal research provider, exact historical pages, root vercel.json content pin; previously unwired, drifted from approved changes and repaired; the research provider test mounts the real provider and needs react-test-renderer from the step above)
-        run: node --test test/doc37-research-reading-access.test.mjs test/public-continuity-closure-2029.test.mjs
+        run: node --test test/doc37-research-reading-access.test.mjs test/public-continuity-closure-2029.test.mjs test/doc37-mixed-page-readiness.test.mjs
       - name: Preview worker admission policy (Preview-only write allow-list, 28 cases; repaired fixture, no product change)
         run: node --test scripts/test-integrated-preview-auth-guard.mjs
       # test/public-frame-access-2029.test.mjs is deliberately not here: one of its tests runs `git show 4987d7a1…` on a commit of a retired preview branch,
@@ -190,6 +190,51 @@ jobs:
       # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
       - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)
         run: node --test test/def001-email-exposure-contract.test.mjs test/sitemap-no-redirecting-locs-2029.test.mjs test/ci-workflow-references-exist.test.mjs test/public-foundation-seo.test.mjs test/public-video-asset-reader-2029.test.mjs test/public-video-source-2029.test.mjs test/def005-rpc-grants-contract.test.mjs test/def012-page-views-public-build.test.mjs test/api-card-bounded-cacheable-2029.test.mjs test/gallery-river-reserved-height-2029.test.mjs test/release-visual-egress-contract.test.mjs
+
+      - name: Contracts repaired to the approved state (Raziel, World, Posts, Community, Contributors, Research Viewer, WhatsApp, Companion, golden and Preview-integration pins; previously unwired, they had drifted from merged owner-approved changes and were repaired without weakening any assertion)
+        run: >
+          node --test
+          src/components/community2029/communityPublicReading2029.test.js
+          src/components/contributor2029/publicContributor2029.test.js
+          src/components/contributor2029/publicContributorPerson2029.test.js
+          src/components/contributor2029/publicSourceCatalog2029.test.js
+          src/lib/publicContinuityReaders2029.test.js
+          src/lib/research/eventObservationCompiler.test.js
+          src/lib/research/eventSystemMethodRuntime.test.js
+          src/lib/research/goldenProjectorModes.test.js
+          src/lib/research/nasrallahPost92Golden.test.js
+          src/lib/research/razielOneShot2029.test.js
+          test/companion-2029-public-source-shortcuts.test.mjs
+          test/global-living-ribbon-state.test.mjs
+          test/personal-self-preview-route.test.mjs
+          test/post-hierarchy-raziel-2029.test.mjs
+          test/posts-raziel-final-2029.test.mjs
+          test/raziel-center-workspace-2029.test.mjs
+          test/raziel-personal-area-companion-seam.test.mjs
+          test/raziel-safe-actions-preview.test.mjs
+          test/raziel-site-links.test.mjs
+          test/research-viewer-entity-graph-lens.test.mjs
+          test/research-viewer-graph-readpath.test.mjs
+          test/wa-channel-world-2029-contract.test.mjs
+          test/wa-trusted-author-tree-routing.test.mjs
+          test/world-topic-gallery-state-map-2029.test.mjs
+          test/world-gallery-entry-follow-chain-2029.test.mjs
+          test/world-one-tree-preview-2029.test.mjs
+      - name: Connected golden theme contract (script runner)
+        run: node scripts/test-connected-golden-2029.mjs
+      - name: Robustness and rollout-order contracts (stale-chunk recovery and error boundary, /api/card deadline and glyphs, guest/member preferences split, push and RPC deploy-order manifests, ELS bridge anonymous bearer, missing-asset 404, client read de-duplication, bot-observability migrations; the asset-miss test reads the production build generated earlier in this job)
+        run: >
+          node --test
+          test/app-recovery-2029.test.mjs
+          test/api-card-deadline-glyphs-2029.test.mjs
+          test/notification-prefs-guest-member-split.test.mjs
+          test/push-subscription-rollout-order.test.mjs
+          test/rpc-deploy-order-contract.test.mjs
+          test/els-search-bridge-resolve-user.test.mjs
+          test/supabase-client-read-dedupe.test.mjs
+          src/lib/readDedupe.test.js
+          test/bot-observability-migrations.test.mjs
+          test/public-reading-asset-miss.test.mjs
 
   # The SQL behaviour of the security migrations runs on a throwaway PostgreSQL container (never a live database).
   security-sql-contracts:
