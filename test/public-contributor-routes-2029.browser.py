@@ -41,10 +41,10 @@ threading.Thread(target=server.serve_forever, daemon=True).start()
 BASE = "http://127.0.0.1:" + str(server.server_port)
 report = {"runtime": "built App2029 + existing providers/frame + World", "data": "synthetic HTTP fixtures only",
           "hosting_rewrite": "test-only; vercel.json unchanged", "captures": [], "round_trips": [],
-          "legacy_handoffs": [], "errors": [], "blocked_external_hosts": []}
+          "editor_paths": [], "errors": [], "blocked_external_hosts": []}
 
 
-def intercept(page, *, handoff_path=None, general=False):
+def intercept(page, *, general=False):
     calls = []
     documents = []
     page.on("pageerror", lambda error: report["errors"].append(str(error)))
@@ -55,8 +55,6 @@ def intercept(page, *, handoff_path=None, general=False):
         if u.hostname == "127.0.0.1":
             if req.is_navigation_request() and req.resource_type == "document":
                 documents.append(u.path + ("?" + u.query if u.query else ""))
-                if u.path == handoff_path and len(documents) > 1:
-                    return request.fulfill(content_type="text/html", body="<h1>Legacy document target</h1>")
                 if u.path.startswith(("/community/researcher/", "/researcher/")) or u.path == "/world":
                     return request.fulfill(content_type="text/html", body=HTML)
             if u.path == "/api/public-contributor-rank":
@@ -180,28 +178,29 @@ try:
         assert page.locator(".sod29-root.surface-community").count() == 1
         report["general_route"] = {"key": code, "existing_frame": True, "rendered": True}
         context.close()
-        # The router must cross the document boundary, not interpret the legacy editor as a writer.
+        # The router must not interpret the editor address as a writer. The editor
+        # lives in no document of its own any more (the earlier document hand-off
+        # is gone), so the address ends in the 2029 not-found page of the same
+        # document. The heading wait makes the "no public content" check below
+        # meaningful: it runs after the router has settled on that page.
         for path in ["/community/researcher/tzvi-opoc/edit"]:
             context = browser.new_context()
             page = context.new_page()
-            calls, documents = intercept(page, handoff_path=path)
-            # The existing LegacyDocumentHandoff has a separate known limitation:
-            # assigning its current URL with a fragment can remain same-document.
-            # This route-only change preserves that helper; test the supported query
-            # handoff here. The negative fragment result is documented in the handoff.
+            calls, documents = intercept(page)
             href = BASE + path + "?section=about"
             page.goto(href)
-            page.get_by_role("heading", name="Legacy document target").wait_for()
+            page.get_by_role("heading", name="העמוד לא נמצא", exact=True).first.wait_for()
             assert page.url == href
+            assert len(documents) == 1, documents
             assert not any(c["table"] in ["contributors", "channel_updates", "rank"] for c in calls)
-            report["legacy_handoffs"].append({"path": path, "url_preserved": True,
-                                              "public_content_requests": 0, "document_count": len(documents)})
+            report["editor_paths"].append({"path": path, "url_preserved": True, "not_found_page": True,
+                                           "public_content_requests": 0, "document_count": len(documents)})
             context.close()
         browser.close()
     assert not report["errors"], report["errors"]
     (OUTPUT / "results.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
     print(json.dumps({"captures": len(report["captures"]), "round_trips": report["round_trips"],
-                      "general_route": report["general_route"], "legacy_handoffs": report["legacy_handoffs"],
+                      "general_route": report["general_route"], "editor_paths": report["editor_paths"],
                       "errors": report["errors"]}, ensure_ascii=False))
 finally:
     server.shutdown()

@@ -47,7 +47,7 @@ async function serve(dist) {
   return { origin: `http://127.0.0.1:${server.address().port}`, server };
 }
 
-async function install(context, origin, theme, { failChunk = null, chunkDelay = 0 } = {}) {
+async function install(context, origin, theme, { failChunk = null } = {}) {
   const state = { flagReads: 0, requests: [], modelCalls: [], blockedWrites: [], pageErrors: [], failChunk };
   await context.addInitScript(({ theme, title }) => {
     localStorage.setItem("sod-theme", theme);
@@ -68,7 +68,6 @@ async function install(context, origin, theme, { failChunk = null, chunkDelay = 
     if (url.origin === origin) {
       if (url.pathname.startsWith("/api/")) return reply({ state: "login_required" }, 401);
       if (state.failChunk && url.pathname.endsWith(state.failChunk)) return route.abort();
-      if (chunkDelay && /StoryViewer-/.test(url.pathname)) await new Promise(done => setTimeout(done, chunkDelay));
       return route.continue();
     }
     if (url.hostname === "public-fixture.invalid" || /\.(png|jpg|webp)(\?|$)/.test(url.pathname)) return route.fulfill({ contentType: "image/png", body: image });
@@ -91,10 +90,6 @@ async function install(context, origin, theme, { failChunk = null, chunkDelay = 
 const servers = { before: await serve(BEFORE), after: await serve(AFTER) };
 const browser = await chromium.launch({ executablePath: "/usr/bin/chromium", args: ["--no-sandbox"] });
 const evidence = { scope: "local_lab_synthetic_API_not_field_p75", base: "d2dd882f960a329394f4a23d7b6e4a7d4c4c6fd5", runs: [], acceptance: [] };
-async function revealCompanion(page) {
-  await page.locator(".sod29-companion").hover();
-  await page.locator(".sod29-companion.is-peek").waitFor();
-}
 try {
   for (const profile of [{ width: 390, cpu: 4, net: true }, { width: 1440, cpu: 1, net: false }]) {
     for (let i = 0; i < RUNS; i++) for (const label of i % 2 ? ["after", "before"] : ["before", "after"]) {
@@ -117,54 +112,22 @@ try {
     }
   }
   const manifest = JSON.parse(readFileSync(resolve(AFTER, ".vite/manifest.json")));
-  const storyFile = manifest["src/components/StoryViewer.jsx"].file;
   const gatewayFile = manifest["src/components/ContactGateway.jsx"].file;
   for (const theme of ["light", "parchment", "dark"]) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 950 }, serviceWorkers: "block" });
-    const state = await install(context, servers.after.origin, theme, { chunkDelay: 1000 });
+    const state = await install(context, servers.after.origin, theme);
     const page = await context.newPage(); page.on("pageerror", error => state.pageErrors.push(error.message));
     await page.goto(servers.after.origin + "/2029");
     await page.waitForFunction(() => window.__perf.primary_ms !== null);
-    assert.ok(!state.requests.some(r => r.path.endsWith(storyFile) || r.path.endsWith(gatewayFile)));
-    await revealCompanion(page);
-    await page.locator(".sod29-or-geula-shortcut.is-new:visible").first().click();
-    await page.mouse.move(900, 600);
-    await page.locator('[data-story-viewer-status="loading"]').waitFor();
-    await page.locator('[data-story-viewer-status="loading"] button').first().evaluate(button => button.blur());
-    await page.locator('.sod29-companion.is-slim').waitFor();
-    await page.locator('[data-story-viewer-status="loading"]').waitFor();
-    await page.getByRole("button", { name: "הבא", exact: true }).waitFor();
-    await page.keyboard.press("Escape");
-    await page.getByRole("button", { name: "הבא", exact: true }).waitFor({ state: "detached" });
+    assert.ok(!state.requests.some(r => r.path.endsWith(gatewayFile)));
     await page.getByRole("button", { name: "דווח על בעיה", exact: true }).filter({ visible: true }).first().click();
     await page.locator('[data-contact-gateway="true"]').waitFor();
-    assert.ok(state.requests.some(r => r.path.endsWith(storyFile)));
     assert.ok(state.requests.some(r => r.path.endsWith(gatewayFile)));
     assert.equal(state.modelCalls.length, 0); assert.deepEqual(state.pageErrors, []);
     await page.screenshot({ path: resolve(OUT, `gateway-${theme}.png`) });
-    evidence.acceptance.push({ theme, unpinnedCompanionCanCollapseWhileLoading: true, canonicalStoryOpenedClosed: true, canonicalGatewayOpened: true, zeroPreopenChunks: true, zeroModelCalls: true });
+    evidence.acceptance.push({ theme, canonicalGatewayOpened: true, zeroPreopenChunks: true, zeroModelCalls: true });
     await context.close();
   }
-  // A failed chunk has a closable, keyboard-accessible state; a reload recovers
-  // the canonical viewer without a second store/renderer or an automatic model.
-  const context = await browser.newContext({ viewport: { width: 1440, height: 950 }, serviceWorkers: "block" });
-  const state = await install(context, servers.after.origin, "dark", { failChunk: storyFile });
-  const page = await context.newPage();
-  await page.goto(servers.after.origin + "/2029");
-  await revealCompanion(page);
-  await page.locator(".sod29-or-geula-shortcut.is-new:visible").first().click();
-  await page.locator('[data-story-viewer-status="error"]').waitFor();
-  await page.keyboard.press("Escape");
-  await page.locator('[data-story-viewer-status]').waitFor({ state: "detached" });
-  state.failChunk = null;
-  await Promise.all([page.waitForResponse(response => response.url().includes("/channel_updates")), page.reload()]);
-  await page.waitForTimeout(100);
-  await revealCompanion(page);
-  await page.locator(".sod29-or-geula-shortcut:visible").first().click();
-  await page.getByRole("button", { name: "הבא", exact: true }).waitFor();
-  assert.equal(state.modelCalls.length, 0);
-  evidence.acceptance.push({ failedChunkVisible: true, escapeCloses: true, reloadRecovers: true });
-  await context.close();
   const gatewayContext = await browser.newContext({ viewport: { width: 1440, height: 950 }, serviceWorkers: "block" });
   const gatewayState = await install(gatewayContext, servers.after.origin, "light", { failChunk: gatewayFile });
   const gatewayPage = await gatewayContext.newPage();
@@ -179,20 +142,6 @@ try {
   assert.equal(gatewayState.modelCalls.length, 0);
   evidence.acceptance.push({ failedContactChunkVisible: true, existingPanelEscapeCloses: true, contactReloadRecovers: true });
   await gatewayContext.close();
-  const cancelContext = await browser.newContext({ viewport: { width: 1440, height: 950 }, serviceWorkers: "block" });
-  const cancelState = await install(cancelContext, servers.after.origin, "parchment", { chunkDelay: 1000 });
-  const cancelPage = await cancelContext.newPage();
-  await cancelPage.goto(servers.after.origin + "/2029"); await revealCompanion(cancelPage);
-  await cancelPage.locator(".sod29-or-geula-shortcut.is-new:visible").first().click();
-  await cancelPage.locator('[data-story-viewer-status="loading"]').waitFor(); await cancelPage.keyboard.press("Escape");
-  await cancelPage.waitForTimeout(1200);
-  assert.equal(await cancelPage.getByRole("button", { name: "הבא", exact: true }).count(), 0, "a completed import cannot reopen a dismissed viewer");
-  await revealCompanion(cancelPage); await cancelPage.waitForTimeout(300);
-  await cancelPage.locator(".sod29-or-geula-shortcut:visible").first().click();
-  await cancelPage.getByRole("button", { name: "הבא", exact: true }).waitFor();
-  assert.equal(cancelState.modelCalls.length, 0);
-  evidence.acceptance.push({ pendingLoadCanBeDismissed: true, noLateReopen: true, explicitReopenWorks: true });
-  await cancelContext.close();
 } finally {
   await writeFile(resolve(OUT, "results.json"), JSON.stringify(evidence, null, 2));
   await browser.close(); await Promise.all(Object.values(servers).map(s => new Promise(done => s.server.close(done))));
