@@ -524,6 +524,110 @@ export async function fetchCanonicalTopicConvergenceFinding(slug) {
   return topicConvergenceToUniversalFinding({ card, node, edges, targets });
 }
 
+// Batched form of fetchCanonicalTopicConvergenceFinding for a LIST of slugs (entity hubs: Number / World / Topic pages).
+// The per-slug function costs a card read plus, for every card with a node (all 204 live cards have one), three more
+// sequential reads (convergence node, its edges, the edge targets): 4 requests per card, so number 1820 (7 topic cards)
+// fired 28 requests and a 24-card hub up to 96. This resolves the same findings with one read per stage for the whole
+// list (4 requests, plus one more per 25-40 ids), applying exactly the per-slug rules above: candidate slugs, canonical
+// slug normalisation, "canonical row wins, else the first candidate row", node type = convergence, all edges of the node.
+// If any stage could have been truncated by the PostgREST row cap, the per-slug path is used instead, so the result never
+// differs from calling the single-slug function for each entry (null where it would return null).
+const BATCH_NODE_CHUNK = 40;     // 40 nodes x the largest live fan-out (24 edges) stays below the 1,000-row cap
+const BATCH_TARGET_CHUNK = 100;
+const BATCH_SLUG_CHUNK = 40;
+const BATCH_ROW_CAP = 1000;
+
+const chunked = (list, size) => {
+  const out = [];
+  for (let i = 0; i < list.length; i += size) out.push(list.slice(i, i + size));
+  return out;
+};
+
+export async function fetchCanonicalTopicConvergenceFindings(slugs) {
+  const list = Array.isArray(slugs) ? slugs : [];
+  const plans = list.map((slug) => {
+    const requestedSlug = nonEmpty(slug);
+    if (!requestedSlug) return null;
+    return { canonicalSlug: canonicalTopicSlug(requestedSlug), candidates: topicSourceSlugCandidates(requestedSlug) };
+  });
+  const candidateSlugs = [...new Set(plans.flatMap((plan) => plan?.candidates || []))];
+  if (!candidateSlugs.length) return plans.map(() => null);
+  const perSlug = () => Promise.all(list.map((slug) => fetchCanonicalTopicConvergenceFinding(slug)));
+
+  const cardPages = await Promise.all(chunked(candidateSlugs, BATCH_SLUG_CHUNK).map(async (chunk) => {
+    const { data, error } = await supabase
+      .from("topic_cards_public")
+      .select(TOPIC_CARD_SELECT_FIELDS)
+      .in("slug", chunk)
+      .limit(chunk.length);
+    if (error) throw error;
+    return Array.isArray(data) ? data : [];
+  }));
+  const cardRows = cardPages.flat();
+
+  const cards = plans.map((plan) => {
+    if (!plan) return null;
+    const rows = cardRows.filter((row) => plan.candidates.includes(row?.slug));
+    const sourceCard = rows.find((row) => row?.slug === plan.canonicalSlug) || rows[0];
+    if (!sourceCard) return null;
+    return sourceCard.slug === plan.canonicalSlug ? sourceCard : { ...sourceCard, slug: plan.canonicalSlug };
+  });
+
+  const nodeIds = [...new Set(cards.map((card) => card?.node_id).filter(Boolean))];
+  const nodeById = new Map();
+  if (nodeIds.length) {
+    const pages = await Promise.all(chunked(nodeIds, BATCH_NODE_CHUNK).map(async (chunk) => {
+      const { data, error } = await supabase
+        .from("nodes")
+        .select("id,type,label,description,metadata,is_active,weight,created_at")
+        .in("id", chunk)
+        .eq("type", "convergence");
+      if (error) throw error;
+      return Array.isArray(data) ? data : [];
+    }));
+    for (const node of pages.flat()) if (node?.id != null) nodeById.set(node.id, node);
+  }
+
+  const foundNodeIds = [...nodeById.keys()];
+  let allEdges = [];
+  if (foundNodeIds.length) {
+    const pages = await Promise.all(chunked(foundNodeIds, BATCH_NODE_CHUNK).map(async (chunk) => {
+      const { data, error } = await supabase
+        .from("edges")
+        .select("id,from_node,to_node,relation_type,metadata,created_at")
+        .in("from_node", chunk);
+      if (error) throw error;
+      return Array.isArray(data) ? data : [];
+    }));
+    if (pages.some((page) => page.length >= BATCH_ROW_CAP)) return perSlug();
+    allEdges = pages.flat();
+  }
+
+  const targetIds = [...new Set(allEdges.map((edge) => edge.to_node).filter(Boolean))];
+  let allTargets = [];
+  if (targetIds.length) {
+    const pages = await Promise.all(chunked(targetIds, BATCH_TARGET_CHUNK).map(async (chunk) => {
+      const { data, error } = await supabase
+        .from("nodes")
+        .select("id,type,label,metadata,is_active")
+        .in("id", chunk);
+      if (error) throw error;
+      return Array.isArray(data) ? data : [];
+    }));
+    if (pages.some((page) => page.length >= BATCH_ROW_CAP)) return perSlug();
+    allTargets = pages.flat();
+  }
+
+  return cards.map((card) => {
+    if (!card) return null;
+    const node = card.node_id ? nodeById.get(card.node_id) || null : null;
+    const edges = node ? allEdges.filter((edge) => edge.from_node === node.id) : [];
+    const ownTargets = new Set(edges.map((edge) => edge.to_node).filter(Boolean));
+    const targets = node ? allTargets.filter((target) => ownTargets.has(target.id)) : [];
+    return topicConvergenceToUniversalFinding({ card, node, edges, targets });
+  });
+}
+
 // ── UNIVERSAL_EXPLORER_V1_SLICE1_GENERIC_LIST_MODE (work_log dispatch e3097bb5) ──
 // Bounded, paginated, deterministically-ordered list of approved Topic/Convergence cards for a
 // facet list view. Deliberately narrower than TOPIC_CARD_SELECT_FIELDS: no `findings` body, no
