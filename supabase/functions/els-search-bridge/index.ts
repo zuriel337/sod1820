@@ -36,9 +36,32 @@ async function serviceRpc(name: string, args: Record<string, unknown>) {
   return await r.json();
 }
 
+// Routing decision only: can this bearer possibly identify a user? The payload is decoded WITHOUT
+// verifying the signature; /auth/v1/user stays the sole verifier for every token that is sent upstream.
+// A guest's bearer is the project anon key (role=anon, no sub claim), which GoTrue answers on every
+// request with 403 bad_jwt "missing sub claim" (~213/day in Auth logs); a non-JWT bearer is rejected the
+// same way. Neither can resolve to a user, so asking Auth adds noise and latency, never information.
+// Real user sessions are untouched: role=authenticated with a sub, including Supabase anonymous-auth
+// sessions (is_anonymous=true still carries a sub and is a real user id for rate limit/gate).
+function bearerMayIdentifyUser(token: string): boolean {
+  const parts = token.split(".");
+  if (parts.length !== 3 || !parts[1]) return false;
+  try {
+    const b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const bytes = Uint8Array.from(atob(b64.padEnd(Math.ceil(b64.length / 4) * 4, "=")), (c) => c.charCodeAt(0));
+    const claims = JSON.parse(new TextDecoder().decode(bytes));
+    if (!claims || typeof claims !== "object" || Array.isArray(claims)) return false;
+    if (claims.role === "anon") return false;
+    return typeof claims.sub === "string" && claims.sub.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 async function resolveUser(req: Request): Promise<string | null> {
   const authorization = req.headers.get("authorization") || "";
   if (!authorization.startsWith("Bearer ") || !SUPABASE_URL || !SERVICE_KEY) return null;
+  if (!bearerMayIdentifyUser(authorization.slice("Bearer ".length).trim())) return null;
   try {
     const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
       headers: { apikey: SERVICE_KEY, authorization },
