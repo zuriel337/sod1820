@@ -1,5 +1,6 @@
 import { PUBLIC_READING_RELEASE, PUBLIC_READING_PRODUCTION_ARTIFACT } from "./publicReadingRelease2029.js";
 import { readingSessionOptions } from "./publicReadingAuthSession.js";
+import { sharedReadDedupe } from "./readDedupe.js";
 import { createClient } from '@supabase/supabase-js';
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
 import { signupAttribution } from './acquisition.js';
@@ -19,10 +20,15 @@ export const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 
 let readingStorage;
 if (PUBLIC_READING_RELEASE) { try { readingStorage = globalThis.sessionStorage; } catch { /* Private mode: memory-only session. */ } }
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON,
-  PUBLIC_READING_RELEASE
+// In-flight sharing + short anonymous-only TTL memo for an explicit list of read-only RPCs/relations (src/lib/readDedupe.js).
+// Writes, telemetry, auth, storage and every unlisted read pass through untouched.
+const readDedupe = sharedReadDedupe(SUPABASE_URL);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  ...(PUBLIC_READING_RELEASE
     ? { auth: readingSessionOptions(readingStorage, globalThis.location, { productionArtifact: PUBLIC_READING_PRODUCTION_ARTIFACT }) }
-    : undefined);
+    : {}),
+  global: { fetch: readDedupe.fetch },
+});
 
 export default supabase;
 export { supabase };
