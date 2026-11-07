@@ -56,6 +56,8 @@ jobs:
         run: npm run build
       - name: Realtime entry split (the deferred Realtime/Phoenix chunk is not in the 2029 entry; browser use of the SDK stays inside the checked subset)
         run: node --test test/realtime-entry-split-2029.test.mjs
+      - name: First-load graph guard (shell and always-loaded chunks must not statically import the heavy modules moved to their own lazy chunks; reads the production build above)
+        run: node scripts/test-2029-first-load-graph.mjs
 
   release-contracts-2029:
     name: release-contracts-2029
@@ -235,6 +237,20 @@ jobs:
           src/lib/readDedupe.test.js
           test/bot-observability-migrations.test.mjs
           test/public-reading-asset-miss.test.mjs
+
+      - name: Performance contracts (explicit column lists and one union count instead of repeated reads, batched topic findings, gallery paging, post cover priority, footer hidden while only the loading placeholder is shown so it cannot shift, Supabase preconnect; the public-candidate test reads the production build generated earlier in this job)
+        run: >
+          node --test
+          src/lib/postReaderColumns.test.js
+          src/lib/research/home2029Pulse.test.js
+          src/lib/research/topicConvergenceBatch.test.js
+          src/lib/research/worldProminenceInputs.test.js
+          test/footer-loading-cls-2029.test.mjs
+          test/gallery-overview-paging-2029.test.mjs
+          test/home-doc37-launch-projection.test.mjs
+          test/post2029-reading-cover.test.mjs
+          test/public-reading-public-candidate.test.mjs
+          test/shell-supabase-preconnect-2029.test.mjs
 
   # The SQL behaviour of the security migrations runs on a throwaway PostgreSQL container (never a live database).
   security-sql-contracts:
