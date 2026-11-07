@@ -645,11 +645,7 @@ export async function getGalleriesOverview({ force = false, publicSourceOnly = f
     .from('galleries')
     .select(publicSourceOnly ? 'id,name,wp_gallery_id' : 'id,name,anchor_number,img_count,wp_gallery_id', publicSourceOnly ? { count: 'exact' } : undefined);
   if (publicSourceOnly) galleryQuery = galleryQuery.order('id').range(0, 999);
-  const { data: gals, error: galleryError, count: galleryCount } = await galleryQuery;
-  if (galleryError && publicSourceOnly) throw galleryError;
-  let imgs = [], from = 0;
-  let partial = publicSourceOnly && galleryCount > (gals || []).length;
-  while (true) {
+  const imageQuery = (start) => {
     let query = client
       .from('gallery_images')
       .select(publicSourceOnly ? 'id,gallery_id,wp_gallery_id,image_url,thumb_url,ordering,published,min_tier,curator_hidden,occurred_at,created_at,date_derived:ocr_meta->>date_derived,name,description,primary_value,all_values,related_values,image_type,source,stream_at'
@@ -657,7 +653,19 @@ export async function getGalleriesOverview({ force = false, publicSourceOnly = f
       .not('image_url', 'is', null);
     query = publicSourceOnly ? query.eq('published', 1).eq('min_tier', 0).not('curator_hidden', 'is', true).order('id')
       : query.order('occurred_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false });
-    const { data, error } = await query.range(from, from + 999);
+    return query.range(start, start + 999);
+  };
+  // Public catalog: the galleries read and the first three image pages (stable order('id') offsets 0/1000/2000; 2,195 rows
+  // today) do not depend on each other, so they are issued together instead of one after another (4 sequential round
+  // trips -> 1). The pages are still consumed in order below, so the stop rules, the 10,000-row bound and the errors are
+  // unchanged: a prefetched page that is never reached is never inspected. Later pages stay sequential.
+  const [galleryResult, ...prefetched] = await Promise.all([galleryQuery, ...(publicSourceOnly ? [0, 1000, 2000].map(imageQuery) : [])]);
+  const { data: gals, error: galleryError, count: galleryCount } = galleryResult;
+  if (galleryError && publicSourceOnly) throw galleryError;
+  let imgs = [], from = 0;
+  let partial = publicSourceOnly && galleryCount > (gals || []).length;
+  while (true) {
+    const { data, error } = from / 1000 < prefetched.length ? prefetched[from / 1000] : await imageQuery(from);
     if (error && publicSourceOnly) throw error;
     if (!data || !data.length) break;
     imgs = imgs.concat(data);
