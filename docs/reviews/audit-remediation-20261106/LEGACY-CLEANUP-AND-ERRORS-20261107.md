@@ -36,7 +36,36 @@ Scope: RC branch `claude/sod1820-audit-rc-g93w32` (base `cfda877a1` = `origin/ma
 
 ## 4. Fixes and removals on the RC
 
-_In progress when this file was first committed: the fixes below are being implemented in isolated worktrees and independently reviewed; the results are recorded here in a follow-up commit._
+Every item below was implemented in its own worktree off the RC, reviewed by an independent agent that re-ran the tests and tried to refute it (rejected items got one revision and a second review), and then cherry-picked without conflicts. Verification on the integrated tree: `npm run build` exit 0 (only the pre-existing >500 kB notice), the Legacy-retired, module-boundary, isolation, built-graph, theme-isolation and first-load-graph gates pass, and every added or changed test file passes (60 files, three consecutive runs in a depth-1 clone for the newly wired ones). Nothing was deployed and no DB/Storage/Auth/permission/Production state was touched.
+
+### 4.1 Fixed (code on the RC)
+
+| ID | What | Evidence |
+| --- | --- | --- |
+| A1 | Stale-bundle recovery (`appRecovery2029`: one automatic reload per entry build, fail-closed when storage is unavailable) + `ErrorBoundary2029` around the lazy routes with a Hebrew fallback; restores the dropped reliability assertions | Lab: before = blank app (`#root` empty, no reload); after = 14/14 browser scenarios at 390 and 1440; 8 of 9 mutations killed (the 9th was redundant code, removed) |
+| A2 | `/api/card` hard deadline (504 no-store) and font-safe glyph normalisation | 5 production timeouts of 300 s on 6.11; stalled-render and `∩⊂` contract tests |
+| A3 | Browser no longer queries the service_role-only `cross_method_strength` view | ~1,100 permission-denied requests/day removed at the source; same `available:false` result shape |
+| A4 | `els-search-bridge` does not ask Auth about the anonymous key | 213 `bad_jwt` 403/day; source only, **Edge deploy needs approval** |
+| A5 | Guest preferences RPC only for guests | members got 403 on the anon-only RPC |
+| A6 | Push RPC deploy-order hazard: graceful fallback + `supabase/proposed/APPLY-BEFORE-DEPLOY.json` and a CI contract that every client RPC exists or is listed | the RC's own DEF-001b change would have broken subscribe if deployed before the SQL |
+| A7 | Missing `/assets/*` answered as a cheap plain 404 at handler level | `vercel.json` routing untouched |
+| A8 | GSC/Facebook verification metas + WebSite/Organization JSON-LD restored on `/` only | needs the owner's confirmation and a deploy |
+| A9 | ELS registry aligned with the router (public, Classic) | needs a Raziel Edge redeploy to take effect |
+| B1 | Workflow-reference guard now covers `src/ supabase/ api/ tools/`; 120-day retention-cap assertions restored; bot-migration guards re-homed | mutation-checked |
+| C1 | Removed retired 3D stubs, broken stage3 harness, `design-backup-441.js`, three dead analysis tools (11 files) | dist byte-identical to the parent build |
+| C2 | Removed the unused, known-vulnerable `xlsx` dependency | package.json + lockfile only; `npm ci --dry-run` ok |
+| C3 | Removed the orphan EntityHub functional page, its controls and two orphan CSS files (4 files) | route unchanged; dist identical |
+| C4 | Removed 239-export-class dead client wrappers orphaned by #1239 (guard-neutral set only; −1,950 lines in `supabase.js`/`visits.js`) | build + 88 related tests + 80-load browser smoke; **171 chunk hashes change, so A1 must ship before or with it (it does: same RC)** |
+| C5 | Trimmed the obsolete Legacy/Companion blocks from five unwired browser tests | each file run before/after |
+| D1-D8 | 34 contract-drift test files triaged: **28 stale expectations repaired, 10 stale references repaired**, 2 pass now, 8 environment-only (PostgreSQL/Docker/root; verified under a non-root PostgreSQL 16 where possible), 3 real product violations and 4 owner decisions left failing and described | no assertion deleted or loosened; mutation checks |
+
+### 4.2 Found but deliberately not changed (owner decision)
+
+* **Real product violations the repaired tests now describe** (not changed because they change visible design): 26 `color:var(--s29-accent)` declarations that should be `--s29-accent-text` (6 CSS files, test `accent-text-contrast-2029`); Home shows a calendar date next to relative time (`HomeComposition2029.jsx:124,136`, test `date-display-rule-2029`).
+* **Stale browser-test fixtures** (hero post without the documentation category; series-shaped posts; contributor first-load research read) in four unwired browser tests: need a fixture/expectation refresh by the Home/contributor owners.
+* **The Heichal scripture-capabilities test** is stale too (inline token after the panel refactor); Heichal is excluded from this work, so it was restored byte-for-byte and left failing exactly as before.
+* **Side effect to disclose:** two verification scripts run by an agent while checking C4 (`scripts/test-journey-source-integration.mjs`, the posts-map audit scripts) write fixed paths outside the repo (`/workspace/artifacts/...`, `/workspace/shared/downloads/...`) and read live Supabase anonymously; those files live on this ephemeral sandbox disk only and no repository file changed.
+
 
 ## 5. What stays, with the reason (not Legacy code, or not deletable without an owner decision)
 
