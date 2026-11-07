@@ -1,5 +1,7 @@
 # SOD1820 — Codex session bootstrap
 
+> **משמעת סשן (פתיחה, ענפים ישנים, מניעת כפילות, אישורי Production, דוח מסירה): מקור יחיד הוא [`CLAUDE.md` §0](CLAUDE.md).** חל גם על Codex; אין להעתיק אותו לכאן. במקרה של סתירה חל הכלל המגביל יותר, ומדווחים לצוריאל.
+
 ## Legacy פרש — קרא ראשון (החלטת ZURIEL, 5.11.2026)
 
 1. **Legacy retired — אינו מוצר פעיל.** אין ריצת Legacy, אין יעד build של Legacy ואין שער Legacy lock (הוחלף ב־`scripts/test-legacy-retired.mjs`). ההחלטה סופית. אם עץ ה־`main` שלפניך עדיין מכיל קוד Legacy, הסרתו טרם מוזגה (ענף `claude/2029-legacy-separation-e8j9tf`); מיזוג ופרסום שלה דורשים אישור מפורש של צוריאל.
