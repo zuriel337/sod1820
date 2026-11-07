@@ -8,7 +8,7 @@
 
 | Defect | State | What exists | Needs from ZURIEL |
 |---|---|---|---|
-| **DEF-001 (P0)** e-mail exposure | **Fix + tests ready, NOT applied** | `supabase/migrations/20261106120000_def001_revoke_resolve_visitor_email.sql`, `…121000_def001b_visitor_id_exposure_step1.sql`, `supabase/proposed/20261106121500_def001b_push_subscriptions_lockdown.sql`, `src/lib/push.js` (RPC calls), tests `tests/sql/def001*.sql`, `test/def001-email-exposure-contract.test.mjs` | **Approve applying the two migrations** (production DB). Step 2 after the frontend release. |
+| **DEF-001 (P0)** e-mail exposure | **Fix + tests ready, NOT applied** | `supabase/proposed/20261106120000_def001_revoke_resolve_visitor_email.sql`, `…121000_def001b_visitor_id_exposure_step1.sql`, `supabase/proposed/20261106121500_def001b_push_subscriptions_lockdown.sql`, `src/lib/push.js` (RPC calls), tests `tests/sql/def001*.sql`, `test/def001-email-exposure-contract.test.mjs` | **Approve applying the two migrations** (production DB). Step 2 after the frontend release. |
 | DEF-002 sitemap 308 | **Fixed in code** | `api/sitemap.js`, `test/sitemap-no-redirecting-locs-2029.test.mjs` | Approve the one-line contract-test change in `test/public-foundation-seo.test.mjs` (see §2) |
 | DEF-003 `/video/*` | **Partly fixed in code** (read once, bounded); root cause is DB | `src/lib/research/publicVideoAssetReader2029.js`, `api/og.js`, tests | Decide on the DB-side fix in §3 |
 | DEF-004 Storage | **Proposal + tests ready, NOT applied** (finding corrected, §4) | `supabase/proposed/20261106130000_def004_…sql`, `tests/sql/def004_…sql` | Approve |

@@ -24,7 +24,7 @@ test("no shipped code calls resolve_visitor_email (the function is server-side o
 test("push.js reaches push_subscriptions only through the RPCs, with the SQL parameter names", () => {
   const src = read("src/lib/push.js");
   assert.doesNotMatch(src, /\.from\(\s*["']push_subscriptions["']\s*\)/, "direct table access must be gone");
-  const sql = read("supabase/migrations/20261106121000_def001b_visitor_id_exposure_step1.sql");
+  const sql = read("supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql");
   for (const param of ["p_endpoint", "p_p256dh", "p_auth", "p_topics", "p_user_agent", "p_visitor"]) {
     assert.match(src, new RegExp(`${param}\\s*:`), `push.js must send ${param}`);
     assert.match(sql, new RegExp(`\\b${param}\\b`), `SQL must declare ${param}`);
@@ -49,7 +49,7 @@ test("guest notification prefs UI never depends on an e-mail echoed back by the 
 });
 
 test("DEF-001 migrations are not silently marked applied: they live in the migrations folder, the lockdown stays proposed", () => {
-  assert.ok(fs.existsSync(path.join(root, "supabase/migrations/20261106120000_def001_revoke_resolve_visitor_email.sql")));
+  assert.ok(fs.existsSync(path.join(root, "supabase/proposed/20261106120000_def001_revoke_resolve_visitor_email.sql")));
   assert.ok(fs.existsSync(path.join(root, "supabase/proposed/20261106121500_def001b_push_subscriptions_lockdown.sql")));
   assert.ok(!fs.existsSync(path.join(root, "supabase/migrations/20261106121500_def001b_push_subscriptions_lockdown.sql")));
 });

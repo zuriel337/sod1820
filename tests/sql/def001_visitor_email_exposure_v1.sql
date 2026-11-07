@@ -104,7 +104,7 @@ begin;
 rollback;
 
 -- ---- the real migration under test ----
-\i supabase/migrations/20261106120000_def001_revoke_resolve_visitor_email.sql
+\i supabase/proposed/20261106120000_def001_revoke_resolve_visitor_email.sql
 
 -- ---- after the fix ----
 -- 1. privilege shape

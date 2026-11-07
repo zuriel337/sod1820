@@ -61,7 +61,7 @@ begin;
   end $$;
 rollback;
 
-\i supabase/migrations/20261106121000_def001b_visitor_id_exposure_step1.sql
+\i supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql
 
 -- feedback: not readable by anon or a plain user; the administrator can read it
 begin;

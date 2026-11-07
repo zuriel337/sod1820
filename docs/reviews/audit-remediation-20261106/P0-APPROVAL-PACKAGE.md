@@ -12,7 +12,7 @@
 
 ## 2. Final SQL
 
-### Migration A — `supabase/migrations/20261106120000_def001_revoke_resolve_visitor_email.sql`
+### Migration A — `supabase/proposed/20261106120000_def001_revoke_resolve_visitor_email.sql`
 ```sql
 -- DEF-001 (P0) - e-mail exposure to the `anon` role. Two independent exposure paths are closed here.
 --
@@ -153,7 +153,7 @@ end
 $function$;
 ```
 
-### Migration B (step 1) — `supabase/migrations/20261106121000_def001b_visitor_id_exposure_step1.sql`
+### Migration B (step 1) — `supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql`
 ```sql
 -- DEF-001b (step 1 of 2) - stop guest visitor ids (bearer-style identifiers used by the guest notification RPCs and
 -- watch_toggle) from being readable by clients. Companion of 20261106120000_def001_revoke_resolve_visitor_email.sql.
