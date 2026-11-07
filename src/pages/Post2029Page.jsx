@@ -8,7 +8,7 @@ import PostTimeline2029 from "../components/experience2029/PostTimeline2029.jsx"
 import PostFollowBox from "../components/PostFollowBox.jsx";
 import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029, revalidatePostMeasureSource, postReadingHtml2029, isPostEnglishExpression } from "../lib/research/post2029ReadingProjection.js";
 import { useAuth } from "../lib/AuthContext.jsx";
-import { mergeContextPackWithConnections } from "../lib/research/goldenPostContextPacks.js";
+import { mergeContextPackWithConnections } from "../lib/research/goldenPostPackClaims.js";
 import { goldenPublicSurfaceFindings } from "../lib/research/goldenProjectorModes.js";
 import { publicSurfaceFindingsFromConnections } from "../lib/research/post2029ExperienceProjection.js";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
