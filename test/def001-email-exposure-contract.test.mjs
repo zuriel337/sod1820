@@ -21,16 +21,31 @@ test("no shipped code calls resolve_visitor_email (the function is server-side o
   assert.deepEqual(offenders, []);
 });
 
-test("push.js reaches push_subscriptions only through the RPCs, with the SQL parameter names", () => {
-  const src = read("src/lib/push.js");
-  assert.doesNotMatch(src, /\.from\(\s*["']push_subscriptions["']\s*\)/, "direct table access must be gone");
+test("push subscriptions are written through the RPCs first, with the SQL parameter names; the direct table path is a gated rollout-order fallback only", () => {
+  // push.js (the module the UI imports) has no table access and no raw rpc call: everything goes through the store.
+  const push = read("src/lib/push.js");
+  assert.doesNotMatch(push, /\.from\(\s*["']push_subscriptions["']\s*\)/, "direct table access must stay out of push.js");
+  assert.doesNotMatch(push, /\.rpc\(/, "push.js must not call RPCs itself");
+  assert.match(push, /upsertPushSubscription\(\s*supabase\b/);
+  assert.match(push, /deletePushSubscription\(\s*supabase\b/);
+
+  const store = read("src/lib/pushSubscriptionStore.js");
   const sql = read("supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql");
   for (const param of ["p_endpoint", "p_p256dh", "p_auth", "p_topics", "p_user_agent", "p_visitor"]) {
-    assert.match(src, new RegExp(`${param}\\s*:`), `push.js must send ${param}`);
+    assert.match(store, new RegExp(`${param}\\s*:`), `the store must send ${param}`);
     assert.match(sql, new RegExp(`\\b${param}\\b`), `SQL must declare ${param}`);
   }
-  assert.match(src, /rpc\(\s*["']push_subscription_upsert_v1["']/);
-  assert.match(src, /rpc\(\s*["']push_subscription_delete_v1["']\s*,\s*\{\s*p_endpoint/);
+  assert.match(store, /rpc\(\s*["']push_subscription_upsert_v1["']/);
+  assert.match(store, /rpc\(\s*["']push_subscription_delete_v1["']\s*,\s*\{\s*p_endpoint/);
+
+  // The only table access in the shipped client is the previous release's write inside two helpers, each reachable solely
+  // after the RPC answered "function not found" (A6; behaviour is proven in push-subscription-rollout-order.test.mjs).
+  assert.equal((store.match(/\.from\(\s*["']push_subscriptions["']\s*\)/g) || []).length, 2, "exactly two direct table statements (upsert, delete)");
+  for (const [rpc, fallback] of [["push_subscription_upsert_v1", "tableUpsert"], ["push_subscription_delete_v1", "tableDelete"]]) {
+    const gate = new RegExp(`rpc\\("${rpc}"[\\s\\S]*?if \\(!isRpcMissing\\(res\\)\\) return \\{[^\\n]*\\n\\s*return ${fallback}\\(client`);
+    assert.match(store, gate, `${fallback} must only be reachable after isRpcMissing(res)`);
+    assert.equal((store.match(new RegExp(`return ${fallback}\\(`, "g")) || []).length, 1, `${fallback} has a single call site`);
+  }
 });
 
 test("no client code reads visitor_id from feedback or els_records", () => {
