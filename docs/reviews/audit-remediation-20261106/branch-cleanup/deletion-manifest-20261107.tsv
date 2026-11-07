@@ -1,0 +1,204 @@
+branch	tip_sha	tip_date	author	ahead_of_main	behind_main	tip_subject
+claude/website-seo-author-removal-vfpbq3	2ad27826d6f2c11696c5d16d0f6e247d9ae57684	2026-06-14T20:17:03Z	Claude	0	5765	Merge remote-tracking branch 'origin/main' into claude/website-seo-author-removal-vfpbq3
+claude/image-resize-placement-cthjfb	99455b868d16cde458e3947461be6cbc1f1a4eb6	2026-06-24T21:01:27Z	Claude	0	5168	feat(EntityPage): render canonical entity notes + tags on number/term lens
+claude/app-download-analytics-lg03yy	cf991a1150cc97f2a8db66f3bef806838488a7d4	2026-06-26T08:17:17Z	Claude	0	5105	Footer CTA: add discreet browser-push option as inline link
+claude/gueta-funnel-post-jdurpn	51a5ed9acfa234bff023aa316dcfbe626fabcda1	2026-07-03T03:51:03Z	Claude	0	4589	זרם המציאות במובייל: כיתוב הרמז סטיקי בתחתית — מתחת לתמונה
+claude/hebrew-post-creation-8ossyk	97b7fe10bd211246bae2b45831544cce186fc8ec	2026-07-05T12:28:02Z	Claude	0	4497	Posts: canonical .sod-verse class for verses (theme-aware, light+dark)
+claude/session-planning-review-n3hxql	f9ebb02a7401698f3cc9de78f3368c16a5df5ae0	2026-07-05T12:42:13Z	Claude	0	4492	Merge remote-tracking branch 'origin/main' into claude/session-planning-review-n3hxql
+claude/torah-ai-analysis-xtu2uj	6859324075baaa9cbe3687b297aaed5b7a065c3f	2026-07-07T13:22:25Z	Claude	0	4484	אוצרות הגילוי — הצלבה חוצת-שיטות על עמוד המספר (לא התכנסות)
+claude/project-health-check-v8vyhm	da63d16a8390a7ae5be2bbd9ebd278875e1e6ac1	2026-07-07T18:41:30Z	Claude	0	4466	Phase B: מודול «הרמזים שלי» חי — ארכיון אישי לפי סוג (עץ אחד)
+claude/english-journal-entries-m5dpnm	59c4c90cd430d162d0d6f555154aa73304b704af	2026-07-07T22:57:42Z	Claude	0	4450	feat(nav): writers page + app-install in menus (mobile tiles + desktop more-menu)
+claude/user-profile-pages-iv0x9j	9373e4cc0f70652bf790ff4812c9f6700716411e	2026-07-07T23:21:01Z	Claude	0	4449	feat(researcher-page): convergences + tagged-posts lenses; under-construction (building) state
+claude/google-search-console-access-c8sefy	672fee34d7f3bcaef28e1ccf8b12626fef12ff31	2026-07-08T00:34:02Z	Claude	0	4446	gsc-sync: קריאת סודות מ-Vault (RPC gsc_secrets) + פעולת אבחון sites
+claude/post-image-search-udu0um	4e64061057ccd75f2c2a3225bc8283daf5e949f4	2026-07-08T16:55:57Z	Claude	0	4428	feat(lead-order): בחירה-מרובה + «העלה נבחרים לראש» בכלי סידור הגימטריות
+claude/community-calculator-ai	b396dd40d719aa555223b3a68e236fd8e9e7d4b9	2026-07-08T18:18:11Z	Claude	0	4424	feat(calculator): v3 — סטורי 1080×1920 · מצב שם-תינוק
+claude/chat-news-updates-ticker-fwxlmq	57de165fdd40de693e051064ecf70a3740ea1d45	2026-07-08T18:20:14Z	Claude	0	4400	Merge remote-tracking branch 'origin/claude/community-calculator-ai' into claude/chat-news-updates-t
+claude/whatsapp-agent-api-1mysb1	bbd70f128b4a715a0732e7077c7ec446b9690e26	2026-07-09T02:08:09Z	Claude	0	4372	משפך המחקר שלב 6: נהג-המרה בדף המספר + טאב «המרות» בניהול
+claude/hebrew-greeting-x5tgh3	6df99e7b4b2d272ea161544db90b05717fbc3ce5	2026-07-09T07:08:38Z	Claude	0	4343	מיזוג עבודת הסוכן השני (רמז מציאות: בועה לצד שמאל) עם הסתרת חלונות הגילוי + 18 פוסטים
+claude/hebrew-greeting-vzils1	391f74718699f28311b7cf0dacd2d20ad3f274a4	2026-07-09T18:30:57Z	Claude	0	4323	fix(posts): revert canonical sgx color override — it clobbered self-contained graphic posts
+claude/hebrew-greeting-1sfvqj	90ebeb968f8c48a9568bf81ae3f07c05862ef70c	2026-07-09T21:55:29Z	Claude	0	4312	feat(identity): research lives INSIDE the personal area — one environment
+claude/hebrew-greeting-gtq7d1	8c178ccbc539bca45a6bc1ba0b529838cb90d85d	2026-07-10T05:43:38Z	Claude	0	4277	הסרת בועת-הרמזים הצפה (RealityHint) מדף המספר
+claude/hebrew-greeting-yugug1	54950f5c7217d937b7e1027c651af02fdabda6a1	2026-07-11T04:38:31Z	Claude	0	4223	דף-מספר — פאנל-התכנסות מקובץ-לפי-עולם + מסננים (מצב-מחקר)
+claude/english-expansion-y3op9z	453f996a17fc1229aaa32bc4d099adae2ab997cd	2026-07-11T23:30:23Z	Claude	0	4199	טאב-שיתוף במובייל: «שתפו» בלי הכתר (ברור שזה שיתוף)
+claude/ai-search-number-page-depth-3512uq	4d0b610cb725d1988fd89edcbc44a3aa07ad9481	2026-07-12T14:47:33Z	Claude	0	4165	🧠 מנוע-ההמלצות + השומר (system_suggestions_law): Observe→Detect→Suggest→Explain→Decide + דייג'סט שבו
+claude/sso-migration-followup-d3yhai	e1c6a0054ffca07b4f1c528165ae47dc10745154	2026-07-12T23:55:13Z	Claude	0	4094	ads: הקפאת כל הפרסומות באתר (ADSENSE_KILL_SWITCH=true)
+claude/els-h7wdws	a567f0f02aa0810fbe61380c0885bf1a4b636d6a	2026-07-14T17:02:33Z	Claude	0	4043	הצופן: תיקון באג שער — מנהל/רשום נחסמו בטעות ("הירשם")
+claude/ai-search-stats-styles-e48l0b	ed9c87362b803ae7dfbc022708517a5d1accc10a	2026-07-15T00:09:22Z	Claude	0	4020	Merge remote-tracking branch 'origin/main' into claude/ai-search-stats-styles-e48l0b
+claude/riddle-decoding-08ikng	078d690474fe5bf5a50fb05346f0accb2a66d9a5	2026-07-15T04:04:38Z	Claude	0	4012	fix: big-number pages — block only EMPTY ones; stop convergence home-bump
+claude/renewal-approval-notifications-bgma3y	48855b87ff64ffe157229664d686c80328769239	2026-07-15T08:43:35Z	Claude	0	3977	צפנים: כרטיסי-שיתוף סטטיים (תיקון תצוגה-מקדימה) + לוגו-הצפנים בכל מקום + פתיחת התפריט
+claude/email-setup-94pkxm	d9ba1ba78aadc08e62068d11cbafb382fdf3c9c3	2026-07-15T17:37:14Z	Claude	0	3974	דילוגי אותיות: חיפוש רגיל + מוצלב פתוחים לכולם (תנ״ך נשאר לרשומים)
+claude/email-verification-signups-xy86rr	141a7443153a64c91b68b213403e3d49128dee6e	2026-07-17T04:38:53Z	Claude	0	3927	feat(admin): comments center — one lens on all contributions
+claude/christina-bot-sleep-60efh3	d45f5bebf0daf342a7d00d7e39bec68cdd8efd6b	2026-07-17T05:54:13Z	Claude	0	3920	רזיאל v31 (לא פרוס): מייל מאומת בלינק → מצטרף לניוזלטר (subscribers)
+claude/letter-skips-comprehensive-guide-ltltwg	0394fc9df7ac2bc221413aeb9f60530e9cc73ca5	2026-07-17T21:23:46Z	Claude	0	3914	דילוגי אותיות · «איכות הצופן» יורדת לתחתית פאנל-הממצאים — במובייל בלבד
+claude/name-test-page-plan-9iqjso	c4776cd5b561c513c28d049650a9c15648375633	2026-07-18T00:57:28Z	Claude	0	3912	בדיקת השם: מדור «סיכום הבדיקה» — מבט-על מאוחד על כל המנועים
+claude/dilu-otiyot-g22vru	feb22624c7e158184eb2033f09a14d40891624b9	2026-07-19T18:05:33Z	Claude	0	3883	user center: affordance polish for collapsible worlds
+claude/engine-language-learning-jn90b3	21af044cf830d871048a9820e83515f25d11dc85	2026-07-20T23:21:21Z	Claude	0	3878	lab: make it a learning bot — learner model + curriculum + reflect loop
+claude/channels-info-review-xkwp5q	ec05ffe2897ed5b8be3def3ee37ae9748bdfa270	2026-07-21T11:57:24Z	Claude	0	3823	Merge remote-tracking branch 'origin/main' into claude/channels-info-review-xkwp5q
+claude/full-program-counter-page-hksfb9	9821565de83a8139a39ebeea3fc3664ab935bd40	2026-07-21T13:03:10Z	Claude	0	3806	perf(api/card): drop redundant manual Cache-Control on ImageResponse
+claude/worcel-investigation-nv1377	9821565de83a8139a39ebeea3fc3664ab935bd40	2026-07-21T13:03:10Z	Claude	0	3806	perf(api/card): drop redundant manual Cache-Control on ImageResponse
+claude/articles-list-nzb9zo	d291080ccda504d2b163a09e7e62eecb20356a70	2026-07-21T16:05:27Z	Claude	0	3805	feat(forum): embed YouTube player for video contributions
+claude/tanach-cipher-search-y5a29u	f6b955d838dddc62d5e590d6e27034a98a4903db	2026-07-21T23:07:52Z	Claude	0	3772	כאן מתחילים: הצופן התנ"כי (ELS) כצעד עצמאי בולט עם הלוגו האמיתי
+claude/check-gematrias-daily-discovery-pp89zx	622a3ac199f8162786ca546c1ea22b94b787aed0	2026-07-22T01:43:21Z	Claude	0	3770	feat(community-words): show author name (vip_source) on new-gematria feed
+claude/video-display-matrix-0xpmtj	1856a9ff86f5f46e99febf0ac00e635a0d9ea946	2026-07-22T17:47:44Z	Claude	0	3758	ELS: תצוגה-מקדימה בגלריה = תמונה ממוזערת (thumb) במקום כרטיס מלא
+claude/forum-comments-button-aakezf	ae530587e31dd9ffcc6846c03c0abfe408e9d517	2026-07-23T02:18:34Z	Claude	0	3720	Merge branch 'main' of http://127.0.0.1:41729/git/zuriel337/sod1820
+claude/ariel-matrix-storage-7af8kb	99097e43c16e05cb70f39d80ac7b45860b6577c4	2026-07-23T03:04:16Z	Claude	0	3716	רזיאל: חוזה-נתונים (raziel_response_contract) — המוח מחליט, ה-UI מציג
+claude/china-traffic-drop-kdp55o	83b85b81e6f39b791f3dcbd5372a8fdd34fdf1e1	2026-07-23T14:32:19Z	Claude	0	3709	feat(journey): מדידה אנושית — משפך-המסע לפייפליין events (is_bot + person)
+claude/recent-group-messages-mtic6k	89c403acdc5d83b1c50bafba0dfb1016f3a03fda	2026-07-23T14:47:37Z	Claude	0	3687	דף כתב רספונסיבי + רשימת-כתבים: ציון סיבוני מופיע, עמית (סגור) מופיע, בלי חשבון-מערכת
+claude/raziel-hagadol-ercdtt	05405d97562bb78e7e40e15f35f90d6105004d6f	2026-07-23T16:39:19Z	Claude	0	3675	רזיאל: מנגנון «זוכר אנשים» — לכידת נתונים אישיים + כרטיסיה
+claude/menu-desktop-review-f7udqx	7ca528ab98f09e0514d7b37e009866484a0e5426	2026-07-23T18:32:11Z	Claude	0	3665	merge: main (deploy/caching fix) into menu-desktop-review לפני פריסה
+claude/sap-base-load-test-x8ettc	7e6cfb468922092afc1238a02db33de4e4517ae7	2026-07-23T18:37:03Z	Claude	0	3663	Merge remote-tracking branch 'origin/main' into claude/sap-base-load-test-x8ettc
+claude/forum-post-only-2wd5tp	6cacf25f53c7cf72aea067eb3b473f4734e46e67	2026-07-23T21:53:30Z	Claude	0	3660	feat(forum): route posts to the forum only via 'פורום' tag
+claude/open-journal-mq5nz2	2c3fc848bfd7c2c47888cff456739176ab756cef	2026-07-24T01:48:09Z	Claude	0	3656	Raziel free-chat home in /research (replaces the hidden "under construction" AI panel)
+claude/gematria-api-customers-uki5jc	891dd13df90fa6aebed355ffa0f4dae84a91fff6	2026-07-25T14:04:34Z	Claude	0	3648	feat(wa-raziel): smart research-paths menu — only on generic first message (v46)
+claude/image-tagging-3pmxst	b1e845d024b7db97287cb04bf191bd2aa9f14174	2026-07-25T14:06:43Z	Claude	0	3643	merge: origin/main into image-tagging (raziel/API/research-chat) before deploy
+claude/gematria-messiah-analysis-pg9obc	ded7b9429e29e27e7b5aa31d06fc812e11971f4a	2026-07-25T20:34:55Z	Claude	0	3636	טיקר: קליק על רמז-מציאות מוביל לזרם עצמו (/archive?q=) במקום לדף-המספר
+claude/what-is-878-5zvfx3	fda3af29a3c0690f3929923cfe4d5c259acab1db	2026-07-26T03:53:24Z	Claude	0	3628	EntityPage: make "מפת הידע" card open the working per-number map
+claude/check-bokhnik-writer-page-4lveik	c072297871b53e762cd538ad9a360d3161e3ce02	2026-07-26T16:40:08Z	Claude	0	3621	feat(els): admin "approve to writer's page" action for pending ciphers
+claude/articles-hierarchy-order-ftut53	4b65679ad684711ed8bf3d0db6ce4d60e3d7541a	2026-07-27T20:48:04Z	Claude	0	3615	דף הכתבים: מיון היררכי — כתב חדש בתחתית ומתעורר כלפי מעלה
+claude/hidushim-beit-midrash-forum-mdhet2	909cc81765f707cfbdcbc21f6a31c24e35c326a6	2026-07-29T01:41:02Z	Claude	0	3598	מונה «מה חדש» בדף הבית — כתבים מהימנים מקפיצים אותו
+claude/names-search-page-k9woev	b4ae11f8386b1eb9b8ea986ff878e9193c87292e	2026-07-29T10:08:16Z	Claude	0	3591	מעבדת-השם — «חקור הכל»: מדור «🔠 השם בתורה» + «💡 הצעת שם מתאים»
+claude/disable-repeating-questions-cdqkrm	e85c500617017a57e15c07bd4bbb448348a975a5	2026-07-30T05:21:52Z	Claude	0	3584	קרדיטים: צירוף צילום-תשלום ברכישה + הצגה באדמין ובמייל-ההתראה
+claude/remove-tinker-homepage-pmw987	6cb490b9aa5dcd00511524a37cd17a5e1890b0b2	2026-07-30T11:06:08Z	Claude	0	3583	הסרת טיקר-החדשות הזז מדף הבית
+claude/shalom-ck2h4o	23d8a4c1f7f7442945d2d439cb366f4c4b84b53d	2026-08-04T14:11:44Z	Claude	0	3576	אשף התקנון גם בדף-הניהול — טאב «✍️ אישור חידושים»
+claude/new-researcher-pages-7vsltu	51a0a6ec455baa2d668536101442e8623f607485	2026-08-04T17:08:52Z	Claude	0	3572	fix(ticker): רכיב Marquee קנוני עם לולאה חלקה + «כאן מתחילים» כאריח-ריבוע במובייל
+claude/decode-cipher-image-5knzq4	50c31171260921ce1f9531727e2b693e30631b1a	2026-08-05T00:10:51Z	Claude	0	3568	els: turn misleading 'not found in Torah' into a Tanakh invite
+claude/3d-gematria-category-i8rg4o	e48b98281be007d548a6c54348420a29b8457bc4	2026-08-05T17:08:32Z	Claude	0	3560	feat(pulse): טיקר fade-rotator (בלי תנועה) + צ'יפ חוקרי-הצופן באזור ה-ELS
+claude/metatron-statistics-message-1uejjq	bab43cdfb740062cdaca6ef8a144158cb3e32b1a	2026-08-06T00:10:34Z	Claude	0	3552	Merge remote-tracking branch 'origin/main' into claude/metatron-statistics-message-1uejjq
+claude/forum-cleanup-organization-964mrz	9e7b227314a0dc1fbcdaa983b2f61585d935fef9	2026-08-06T17:00:29Z	Claude	0	3530	פורום: שורת-צופן מציגה את מילות-המטריצה, לא את מילת-החיפוש
+claude/cipher-sharing-auto-rounding-lr1r52	a1c3ff20a60c4fa29436cb1cbfc1d8382b21a393	2026-08-06T19:22:11Z	Claude	0	3522	דף הבית: הסתרת 910+620 (רק 1020 נשאר) + אותיות נקיות בקובייה/עשרימון
+claude/bank-letters-holes-a0drfo	21677f1dd57b3f998e5afe58b5abe0df1157af16	2026-08-07T17:29:06Z	Claude	0	3505	TimeMeter: brush navigator strip for fast history navigation
+claude/forum-recent-activity-qgjd55	e10d873d97f8a7e2bba3a28ac94bdc91e924df09	2026-08-07T20:33:23Z	Claude	0	3503	Direction lens on the real number-page word list (NumberFamilies)
+claude/discovery-axis-bar-14o2rz	1a84c4ab7b4bf45035d46513d80c2a64e177f5ee	2026-08-08T01:23:18Z	Claude	0	3473	חדר רזיאל: פירוק מעטפת-JSON לעברית נקייה + שמות-שיטות בעברית
+claude/control-area-clickable-12q8wu	e9a55ad190342bb129be2de3893f5595dc2ef670	2026-08-08T14:29:04Z	Claude	0	3456	Fix silent-failure on Metatron approve + judge decide
+claude/mah-zeh-42d24n	4390d3992e58b5164779bbbd3a69a9682904780b	2026-08-08T16:34:22Z	Claude	0	3416	Merge remote-tracking branch 'origin/main' into claude/mah-zeh-42d24n
+claude/homepage-videos-section-2uvla1	e2d8513013099a27a618280d3b81e509cfbd609d	2026-08-08T18:01:28Z	Claude	0	3401	Merge remote-tracking branch 'origin/main' into claude/homepage-videos-section-2uvla1
+claude/infrastructure-load-check-z3qz0g	45b0ddcee20708ec55c70bbd60410ae77930de07	2026-08-08T18:16:19Z	Claude	0	3410	admin: add '🩺 עומסים ותשתית' tab — traffic vs background DB load
+claude/activity-log-agents-10zlgm	aa0314e3b16f8a1dd269d9bcb5f27e39a57bc706	2026-08-08T19:32:07Z	Claude	0	3388	Merge remote-tracking branch 'origin/main' into claude/activity-log-agents-10zlgm
+preview/home-week-ago	325b1416c27c339ae3fa59b4f3f0e0a59beb8bb2	2026-08-08T21:59:25Z	Claude	0	3388	feat(or-geula): הלוגו המקורי בכל מקום במקום סמל-השמש/🎬
+claude/whatsapp-auto-reply-setup-3v3l0q	dff1c61113c1a1986b99166aa75dd5c713e729af	2026-08-09T16:37:12Z	Claude	0	3352	sitemap: הוספת דפי-הכתבים → /community/researcher/:slug
+claude/site-shares-24h-ey1fjw	f2a52e704b8ecdd6d6fd7fa1cdd16bb885a0e555	2026-08-09T16:55:44Z	Claude	0	3351	feat(chat): עמודת סרטוני «אור הגאולה» בדסקטופ + שיתוף ישיר לכל פריט
+claude/blocked-countries-site-b6nxfa	7b6b99af787ecd994154234dc352c0010a50858e	2026-08-10T02:43:22Z	Claude	0	3325	fix(home): שורת «המספר החם עכשיו» יורדת מתחת לשער (לא על התמונה)
+claude/video-category-link-9dht4x	87c8e5ccbd9e3f99c0cd548de64bc96550446d36	2026-08-10T21:58:50Z	Claude	0	3314	feat(chat): persistent OrGeula story rail on mobile
+claude/payments-standing-orders-o8wj1o	b416fda62c6ffb11c6d37844856a6caba20d8128	2026-08-12T01:39:15Z	Claude	0	3290	fix(seo): VideoObject uploadDate as ISO 8601 with timezone
+gpt/warroom-agent-dashboard-20260812	68caff92567709f4e5f5f78309cdd829b2fca1ba	2026-08-12T16:25:38Z	Claude	0	3276	Merge remote-tracking branch 'origin/main' into claude/filter-obadia-yosef-content-fqr1b0
+claude/filter-obadia-yosef-content-fqr1b0	96e0f53c1b4b97a555635f4f45e5c0b533caa2f5	2026-08-12T20:55:21Z	Claude	0	3271	feat(stories): story feed = all our videos (not just ciphers), newest 3, with dates
+claude/promo-ticker	96cc2aa5a36aa9aa6b431cfa69905639bca15fe9	2026-08-16T17:22:41Z	Claude	0	3111	chore(layout): הסתרת טיזר «בקרוב» כרגע; באנר-צופן/אלול נשאר בפוסטים+צ'אט
+claude/story-display-restrictions-prq2oq	6f8fb9a2a278d3e8300c8c5c6a8896f52f266975	2026-08-18T19:14:13Z	Claude	0	3098	Add speaker filter on /or-geula and a permanent "remove from updates" option
+claude/els-function-inventory-86klre	3a09b8dda62ce27fe1e6f158981bfcbe911601c4	2026-08-20T07:53:38Z	Claude	0	3074	docs(master): focused addendum to Universal Research Contract (§19-C/D, §0#15)
+gpt/roadmap-cross-research-engine	9b6863918a8bc8505cacd6fcd82fdd1dd4c7bf47	2026-08-21T14:39:02Z	Claude	0	3056	docs(roadmap): note research_objects is owner/privacy-scoped (§16/R1)
+claude/raziel-messages-check-g1609u	3662c69b251273024dd7f4199dded99057f9438b	2026-08-22T18:25:06Z	Claude	0	3054	Merge remote-tracking branch 'origin/main' into claude/raziel-messages-check-g1609u
+claude/private-research-collections-78vium	1579c77454a74f15cff4ed3ce88693d60bb634d8	2026-08-22T18:48:48Z	Claude	0	3050	Merge remote-tracking branch 'origin/main' into claude/private-research-collections-78vium
+claude/live-state-resolution-vmk90g	ac2f3339e3b54abedcda286ce3771d801cabb51d	2026-08-22T23:53:20Z	Claude	0	3030	Clarify Live State Resolution Law: DB writes always need live-schema check
+claude/human-gate-provenance-a757eeec-lzocl4	83372895890d4bcb16688518830a8e991e7a248e	2026-08-23T00:41:59Z	Claude	0	3019	docs(roadmap): propagate Gate #4 CLOSED to the OPEN HUMAN-GATES list
+gpt/els-state-port	bcb3833c04ea409a56eeab24ad7daaf9753969e2	2026-08-23T02:14:36Z	zuriel337	0	3012	Merge PR #174: ELS lifecycle contract + schema reconciliation
+gpt/decimal-point-research-rule	b074eb56c6035afc92ebf335093df481dca3ef42	2026-08-24T05:05:07Z	zuriel337	0	2991	Merge PR #187: Research Studio v1 architecture contract
+claude/lab-els-scan-recommendations-so42nt	40e5f050e7d3155e47ec946439a219b44205e2ec	2026-08-24T15:32:45Z	Claude	0	2985	els: fix capped type mismatch (1/0 vs true/false) found by equivalence suite
+gpt/els-system-integration	171157cad1529284694407b10ee35dafab3fabcf	2026-08-24T16:00:40Z	zuriel337	0	2983	feat(research): enrich ELS history with canonical gematria number
+gpt/pesukim-year-journey-import	2a05181433a72a5183c158a7df90dce30e817c0f	2026-08-25T04:40:17Z	zuriel337	0	2957	Merge PR #192: Number Page Integration v1 — Composite provenance + Relation Engine v1 wiring
+claude/sod1820-roadmap-reconciliation-jmbti4	56556be29945dfc53595e9829bb0e636cc7a58fb	2026-08-25T08:11:04Z	Claude	0	2949	docs: Master State §23.5 — FOUNDATION EXPANSION GATE (governance addendum before v5.3 merge)
+claude/sod1820-intake-readiness-8yud6u	79a0ad49a6948252b2560e418e0f60f36876db95	2026-08-25T08:47:07Z	Claude	0	2948	docs: INTAKE_FOUNDATION_CLOSURE — Security Fix + Research Intake Foundation Contract
+claude/sod1820-research-intake-ijouwk	a7f3adfbd98d9838b5a46a721d4ba78ab851af82	2026-08-25T09:59:51Z	Claude	0	2944	Research Intake STEP 1B read-fix: admin-only column-scoped SELECT on research_objects
+claude/sod1820-personal-journey-research-kr4mcp	44faddcbb0b9e3c644ba24f50e7dd1ff6c76081e	2026-08-25T10:22:19Z	Claude	0	2943	docs: PERSONAL_FOUNDATION_CANONICALIZATION — Master State §23.7 + Roadmap pointer
+claude/sod1820-person-security-fix	6b927c8e4956f4c9cde1c603b05e5ecf381fe4df	2026-08-25T10:36:55Z	Claude	0	2942	Security fix: close anon/authenticated EXECUTE on fn_mem_add + fn_raziel_fact
+claude/zvi-image-ocr-pilot	58f8d93c789ef684e8e4bb6065ebcdf8e6d76b34	2026-08-25T15:00:17Z	Claude	0	2941	Zvi Image × OCR × Visual Extraction Pilot — Research Intake for images
+claude/zvi-human-gate-workflow	40ac430db247f8af28758460a1ebd452b9cb358e	2026-08-25T22:30:56Z	Claude	0	2930	ACL hygiene: close default PUBLIC/anon EXECUTE on the two image-pilot RPCs
+claude/research-triage-before-human-gate	862aff23dd0b86b0e32225db4be796b106e2d3b4	2026-08-26T02:47:58Z	Claude	0	2927	Zvi Conversation View — chronological Thread projection + Engine Match (Phase 5)
+gpt/numeric-router-roadmap-sync	0bbc88736aaee42095dd27d7b9ad4cc9d7ef8727	2026-08-26T21:41:07Z	zuriel337	0	2904	Merge PR #200: Corpus Admission Foundation canonical metadata reconciliation
+gpt/research-intake-final-freeze-sync	559fc9037e46bd2a175f15008cfb89e19148e680	2026-08-27T00:37:13Z	Claude	0	2894	harden(spatial-gematria): reveal_id identity (not slug) + drop duplicated truth flag
+claude/beit-midrash-replies-fm13nz	de9ff9fdd868351f298eff5976518a627a6821a4	2026-08-27T03:16:32Z	Claude	0	2879	בית המדרש: אפשרות להגיב לחידושי-הצלבות (Discourse קנוני)
+claude/open-personal-area-dm-notifications	8979bdf504150bb9ad7aa24b102e5ab4201a3906	2026-08-27T03:58:59Z	Claude	0	2878	פותח את האזור האישי לכל המשתמשים + מצמצם את אריחי-הבית
+claude/open-page-editor-everyone	3cc0b1fe7315ba7dcfa8911184fc75b8e7fef8c3	2026-08-27T04:15:01Z	Claude	0	2877	פותח את "ערוך את הדף שלי" לכל משתמש, לא רק לכותבים/חוקרים
+gpt/research-viewer-experience-v0-2	3cc0b1fe7315ba7dcfa8911184fc75b8e7fef8c3	2026-08-27T04:15:01Z	Claude	0	2877	פותח את "ערוך את הדף שלי" לכל משתמש, לא רק לכותבים/חוקרים
+claude/remove-writers-nav-list	731e62f4c6c1b4310b74d8434fa2e15ac6e6b4b9	2026-08-27T04:38:17Z	Claude	0	2876	מסיר את "הכתבים והחוקרים" מהתפריט (הרצועה עברה לעמוד הבית)
+claude/page-name-nudges	83fd4cab831b3696d1e0fa37e823b5be4233f823	2026-08-27T05:09:45Z	Claude	0	2875	דף אישי: שדה שם-תצוגה + נאדג'ים לשם-טכני ולדף-ריק
+claude/spatial-v2-renderer-expansion	8a112d1c9f60d3f8806ec4e17fe9bee9de1021fd	2026-08-27T05:58:41Z	Claude	0	2870	Spatial v2 renderer: remove remaining hardcoded literals from GematriaCube
+gpt/research-intake-v6-integration	0e4ebc18d02d1cc1e9577851d736cc5cd205617f	2026-08-27T16:08:49Z	zuriel337	0	2850	Merge PR #217: Command Center Attention — Pass 1+1B+1C+1C-Closure
+gpt/usercenter-research-boundary-v0	e8461b31b19ed1918c32490d0d7a423fd021282f	2026-08-29T02:54:33Z	zuriel337	0	2843	Merge PR #224 — Foundation → Research Studio Projection
+gpt/usercenter-remove-community-nudge-20260829	0c839ccf0278c7d61f557023b1fef743479ff09a	2026-08-29T06:18:20Z	zuriel337	0	2835	Merge PR #228 — User Center reachability follow-up
+claude/gematria-verified-published-separation	e5f21efc04d9ba79ec547118cca686b9f0cd4866	2026-08-29T12:11:32Z	zuriel337	0	2813	Merge PR #234: Experience Governance Foundation v1
+noop	7274a8b159d7c169a1bc48a536eb221dc9564b82	2026-09-01T06:57:54Z	zuriel337	0	2693	Merge pull request #278 from zuriel337/gpt/research-viewer-graph-readpath-v1-refresh
+gpt/els-85-capability-canonical-closure-rebased	17e5874dccfa5ae4b3a06665174812631a6e741f	2026-09-01T08:31:53Z	zuriel337	0	2681	Merge PR #282: Number Anchor → Universal Finding adapter v1
+gpt/portable-research-context-closure-20260901	b54f93f0318cf7aa9cce07917b02625e721973ab	2026-09-01T08:33:32Z	zuriel337	0	2679	Merge PR #284: ELS 85-Capability Canonical Closure
+claude/research-studio-depth-crosswalk-4h0m2k	8ee255db1faf90721625e096114d63d0ec31181d	2026-09-01T11:18:07Z	Claude	0	2677	research: Depth Dimension Inspector v0 — read-only facets on Research Viewer
+claude/media-posts-gallery-foundation-closure	0f73b41523a99c1876645332762ce2492a3d6ce4	2026-09-02T14:33:01Z	Claude	0	2662	docs: Media/Posts/Gallery/Reality-Stream Unified Foundation Closure Delta
+claude/research-intake-source-refs-drift-fix	ac607dc77b53ff2c512c8a334fa0b243ba23f411	2026-09-02T15:10:27Z	Claude	0	2662	docs: point research-intake addendum at the §1<->§2 source_refs drift resolution
+claude/multi-source-convergence-writer-v1	bac7bd7fd99694acd0f051baf8956a9fd7a375c7	2026-09-02T16:02:11Z	Claude	0	2661	fix(research-intake): correct convergence writer Human/AI provenance drift
+claude/rule-application-provenance-v1	6b060e76d3e4eec87bd62731665f0a05ec375b51	2026-09-02T17:09:50Z	Claude	0	2662	docs(research-intake): mirror §8 Rule/Method Application Provenance (v7)
+gpt/atbach-method-correctness-20260902-v2	8f0ba1a1dbe68e85dad1c0b0763c55b935c6cbe2	2026-09-02T19:47:30Z	zuriel337	0	2662	Atbach correctness: quarantine legacy, implement Rabenu Chananel
+claude/forum-admin-only-closure-nyfpln	b9f64acc1417af499d4aed318ef0ad8a416c94ef	2026-09-03T06:04:08Z	Claude	0	2652	נעילת הפורום — בבנייה, פתוח רק לאדמין
+claude/clean-ab-measurement-v1	d2750a0283437aa50ef80cf07f4ad7a8c02531f9	2026-09-03T06:45:42Z	Claude	0	2648	CLEAN_AB_MEASUREMENT_V1: fix landing-path encoding bug, de-risk story diagnostics
+claude/gematria-method-readiness-mikum-haot	ba170ad8857ff5a0b2fe7cce2ec993fd87710b5c	2026-09-03T07:01:07Z	Claude	0	2644	Register מיקום האות (implemented+opened) and במדבר רבה (fail-closed)
+claude/source-deep-research-orchestration-sec9	413fcb0a34fb8a20accb17fbb88dc5277b99e909	2026-09-03T07:12:45Z	Claude	0	2642	docs(research-intake): mirror §9 Universal Source Deep Research Orchestration (v8)
+claude/cion-siboni-tbdok-hora-e38jf4	9adacb393b0bd9162450022462a071922e4f867a	2026-09-03T13:07:26Z	Claude	0	2633	Move contributor feature_media gallery to top of page (ZION_FEATURE_MEDIA_HERO_TOP_FIX)
+claude/writers-rail-freshness-source	2109110bd5b2928ef108f732bd2353116f5f5f0b	2026-09-03T14:20:31Z	Claude	0	2632	Include channel_updates (WhatsApp broadcasts) in HomeWritersRail freshness
+gpt/codes-reference-surface-reconcile-temp	3085491909350123fef10d5ad742a0a04b9498d5	2026-09-04T16:44:11Z	zuriel337	0	2545	Merge PR #309: lock canonical Research OS
+gpt/remove-courier-numeric-font-v1	bae282da2c8f910b1b50ca8a597f87e832b92f16	2026-09-05T10:23:31Z	zuriel337	0	2497	Public /book projection for Ahavat Torah and Sefer HaPliah (#329)
+claude/book-phase-b-selection-adapter-clean	e3c9cdc3c24fe192334351199978b20ad369cd63	2026-09-05T16:22:21Z	Claude	0	2495	Book Golden Preview 2D: theme tokens, research_clean chrome, live gate coverage
+gpt/roadmap-session-closure-20260905	a580b85c684e84f781607615a49d8b8eb95b484d	2026-09-05T16:37:48Z	zuriel337	0	2481	Merge Universal Research Context adapter v1
+claude/royal-context-bar-provenance-fix	96d292a0a4988234f3ac093700962903d5c054e8	2026-09-05T16:49:54Z	Claude	0	2480	fix: never tag research_subject from a stale/diverged root
+claude/book-hub-integration-v1	60d407b3cd615ca9ca88c33e72901ecf212bbfb8	2026-09-05T17:44:31Z	Claude	0	2446	Reconcile Book Hub candidate onto post-A+B main (RoyalContextBar hotfix + PR285 source corpus)
+gpt/book-portability-peliah-v1	d83d058b2065fc1fb83301315ea023e24e0446d8	2026-09-05T18:26:08Z	zuriel337	0	2439	Keep Book sharing canonical and render structural variants
+claude/fix-book-scope-dd7t38	c8cd023732d72f7f5ff5bea35fac5a2b858d278f	2026-09-05T19:20:06Z	Claude	0	2437	Fix Book Hub exact-reopen for rows outside the default bounded batch
+claude/book-experience-context-bridge	42536fded54abc886480d968f1100b9f797910d9	2026-09-05T20:24:59Z	Claude	0	2435	Finite fix pass: human-facing upper Overview, dossier Context bridge, honest PELIAH state
+claude/amcha-israel-gematria-post-mtz8xl	f55979394e8ea06b11f5c8895ba8723fca5b6c13	2026-09-06T17:36:31Z	Claude	0	2416	Blink strong-hint cards in Latest Updates for 48h after publish
+gpt/restore-core-tool-navigation	71b028bfcd045ab98d9765afb068b92b6687ff3e	2026-09-06T18:37:38Z	zuriel337	0	2412	Merge Research→Graph Promotion Safety Patch v1
+gpt/explorer-v1-slice7-search-composition	f7843f27a3d746aebdf3dd84d94db162b5df8a8a	2026-09-07T04:47:12Z	zuriel337	0	2353	Merge PR #359: Universal Explorer v1 — Slice 6 progressive depth/access
+claude/jacob-kirsh-videos-hb90ov	1441a792d650e088c35552179378810f8d1cbad5	2026-09-07T17:33:46Z	Claude	0	2285	Register יעקב קירש as external-creator author
+claude/video-dimension-five-transcript-me9vu5	a5962f52163c75f6237c65b5cf2ad9984b0fb840	2026-09-09T10:38:50Z	zuriel337	0	2144	Agent upload: bounded base64 mode
+gpt/public-build-map-reconciliation-v1	2ccb2aa2a77cbd9c577f43ba256953bf8ef529fa	2026-09-09T14:12:58Z	zuriel337	0	2130	Merge PR #413: record dead bot signal adjudication
+claude/openweb-sso-implementation-j7mp8k	82af5010e415497e454894d4cb08393beedc7e5f	2026-09-10T15:21:51Z	Claude	0	2117	OpenWeb SSO — codeA/codeB handshake (Edge Function + מודול קנוני בצד-לקוח)
+claude/agent-upload-adapter-thiy1c	4046c12a8352146a5dcd297dfbbb8d3bca14f1a2	2026-09-10T18:28:34Z	Claude	0	2110	agent-upload: file-attachment adapter + canonical media-owner pointer
+gpt/system-map-vision-refresh-v1	01eb780aa4b78b8b9eb6ff17cdf5194979d904e4	2026-09-10T19:10:13Z	zuriel337	0	2108	Books: publish Raziel and Daat Tevunot projections
+gpt/entity-publishing-indexability-v2-current-main	6a378505945fb1f6f53359609afa97bf1e232614	2026-09-11T09:04:27Z	zuriel337	0	2102	W2.2a: fail-closed number executor bridge and 358 replay
+gpt/g2-read-budget-artifact-target-v1	625990db8b48ebfa7eaa79b965d1bb1958e8dcac	2026-09-14T07:51:02Z	zuriel337	0	1951	G2: clarify L2 artifact target without new rule
+gpt/g2-smart-number-core-v1	8496ffc73d9c9f63553fe01780da3dac44e7e51e	2026-09-14T08:22:35Z	zuriel337	0	1948	G2: lock Foundation-maximal walkthrough standard
+gpt/g3-openai-agents-items-race-fix-v1	f78fafee06a881a70ad17739261f144409bf30d2	2026-09-15T20:36:24Z	zuriel337	0	1834	G3 OpenAI Agents API GPT result-wake v1 (#472)
+claude/g3-number-2029-current-main-reconcile-v13	bbd8316ee329c536a94fb67f3bffa80450379c3e	2026-09-19T08:52:01Z	zuriel337	0	1626	G3 Self Maintenance migration parity
+gpt/g3-2029-transition-branding-rollout-v1	e0d8967d68c6cde500450ad2397640d8149d9887	2026-09-19T21:24:52Z	zuriel337	0	1610	Release hotfix: qualify relation rarity references (#572)
+claude/research-public-candidate-reader-privacy-hardening-v1	29e1029522100298846e94b6f24d90973c87aaf0	2026-09-23T03:11:00Z	zuriel337	0	1578	ELS: require free registration before partner link (#626)
+claude/awesome-dirac-pyv13f	6404343f0007f3c4dec5b2031de27510e19eb233	2026-09-23T19:32:35Z	Claude	0	1577	G3 Community Foundation Runtime v1: branch-only OpenWeb import planner
+claude/g3-connected-golden-2029-v1	d047cfab84ddaf2f8800f465835e45cd5004d2bc	2026-09-24T01:07:43Z	zuriel337	0	1550	Legacy post: move AI addition to end
+claude/community-openweb-import-live-20260924	290bba281a83301019949034f4854b19de4b2a09	2026-09-24T15:04:09Z	zuriel337	0	1518	Merge pull request #636 from zuriel337/claude/awesome-dirac-88xf74
+gpt/els-g3-runtime-closure-v1	90618c1367b2a6cbb0b30ac03df947fcde7e0fa9	2026-09-29T15:19:18Z	zuriel337	0	1254	ELS 2029: release Classic/Research projection mount (#817)
+gpt/g3-security-preclosure-admin-rpc-parity-v1	07953591121563ecbf1885798f90089a88e009db	2026-09-29T22:45:33Z	zuriel337	0	1241	G3 security preclosure: harden admin RPC authorization (#832)
+gpt/legacy-dark-background-20260930	fb5a107ced27cd29a3361fcb717b1c94198d552b	2026-09-29T23:58:56Z	zuriel337	0	1235	G3 pre-close: reconcile live documented state (#842)
+gpt/unified-2029-contextual-goldens-reconcile-v2	4560f53e436ae025d544b413449b7690fd4fcf61	2026-09-30T16:20:03Z	zuriel337	0	1206	Post Golden add post2029-living-tree-infra.test.mjs
+gpt/world-golden-connected-live-v1	49ebb4914dd2a9714463066cc7ed35d72d227c49	2026-10-01T00:04:47Z	zuriel337	0	1180	Post 2029: FZ1073 and Bennett salt Goldens (#874)
+claude/awesome-dirac-r1yo6a	883fe9a80e35423557184b33816ef71c9ad8c517	2026-10-01T07:04:04Z	Claude	0	1166	G3 integration: rename inventory projection migration to 20261001071000 to resolve version collision
+claude/awesome-dirac-r5b773	13bfdff902c599a502f55d9d031dcabddf52f2b8	2026-10-01T07:14:51Z	Claude	0	1164	G3 WA V6A: fail closed on ambiguous Green send outcomes (retry only explicit 429); no auto-resend on
+gpt/contact-gateway-unified-entry-v1	07b06bc3d8ac16b6ef4bd73d256b5e1ee6b8a6a5	2026-10-04T10:51:58Z	zuriel337	0	939	Remove plane hint notice from homepage
+claude/awesome-dirac-03kjkv	defadf1cac1bf09035aa1c7d0586ea31d6ff185c	2026-10-05T08:37:12Z	Claude	0	756	Number 2029: glass Fibonacci scrub rail, entity-safe public titles, live-only worlds, paged timeline
+claude/awesome-dirac-sxv37c	96aa684ce1cb628dd3e05350476d66088aac8414	2026-10-05T13:05:57Z	Claude	0	746	Raziel Intelligence Core v1 Phase A: plan-first fn_raziel_answer, gematria question-form gate
+claude/awesome-dirac-upt7dm	b3a0449b1965f788599f0a0499c97bc9eb82aef4	2026-10-05T13:12:10Z	Claude	0	745	Raziel Intelligence Core v1 Phase B: plan injection + bounded semantic surface context
+claude/awesome-dirac-69i8o1	d63f153ab0d8b07e6789e6a6da3e3a18d41c1c74	2026-10-05T13:29:38Z	Claude	0	743	Raziel Phase C: canonical traffic owner (admin_entries_daily/admin_traffic_insights) replaces legacy
+claude/awesome-dirac-jiq81k	93fb4e136b5c955b122775af8dd4fd4f49302fca	2026-10-05T17:47:45Z	Claude	0	742	Raziel Intelligence Core v1 Phase D: minimum-sufficient-intelligence selector (L0/L2/L3) + Golden ma
+claude/awesome-dirac-9g019z	9762bdabd6dcddb25e763198bfd85b560fd5d17f	2026-10-05T17:54:13Z	Claude	0	741	Raziel Intelligence Core v1 Phase D2: conservative plan-side intelligence signals (route_intent/doma
+claude/awesome-dirac-ue75eo	4b71dc3113bacd2ae55d70bae847ada6454f3ef4	2026-10-05T18:02:23Z	Claude	0	740	Raziel Intelligence Core v1 Phase E: bounded L4_TOOL_RESEARCH (Gematria+ELS) — additive migration, a
+claude/awesome-dirac-8iwjnu	1a3e8819a5f5ba89da860f51f5e67c4f7d6bb24b	2026-10-05T18:13:54Z	Claude	0	739	Raziel Intelligence Core v1 Phase F: Sandalphon single-source protocol (tanakh_source via fn_ev_sour
+claude/awesome-dirac-y1qtea	96ec8c7a884519b70cc5ecfbe11264b749b944b6	2026-10-05T18:22:14Z	Claude	0	738	Raziel Intelligence Core v1 Phase G: Sandalphon tanakh_source combined with gematria/ELS in the exis
+claude/awesome-dirac-vjs066	694e13c985943c185c20f1d8e4653b8ead336329	2026-10-05T18:31:52Z	Claude	0	737	Raziel Intelligence Core v1 Phase H: reality_number_context — number_map/number_dossier_json read pr
+claude/awesome-dirac-n5lx8z	5394d82b905c8d9ea604405e3496775fcd34af54	2026-10-05T19:09:29Z	Claude	0	735	Raziel Phase I review fix: readingFocus + bounded navigation (entrySource/sourceRef/journey/selectio
+claude/awesome-dirac-guwqv3	d77bd78d36aaa3020ec919ba3a835d883e387f0e	2026-10-05T19:16:05Z	Claude	0	734	Raziel Intelligence Core v1 Phase J: on-demand READ of the current Post/Topic via anon path from sur
+claude/awesome-dirac-gcx8tt	231bcf5967b8e204998e14e1ee978abac559efc4	2026-10-05T19:26:14Z	Claude	0	733	Raziel Intelligence Core v1 Phase K: verified-admin operator coordination/attention READ via caller 
+claude/awesome-dirac-bnzx0r	151f9099abe47e432cc09ffe290dfb87d673431e	2026-10-05T19:32:37Z	Claude	0	732	Raziel Intelligence Core v1 Phase L: bounded public-GitHub live_external_state verifier for verified
+claude/yaniv-researcher-workbench-v1	5043768bdd6570acc7a213b08b5094ada6a50344	2026-10-06T05:13:14Z	zuriel337	0	689	fix(video): stream Source Video ingest to Storage
+gpt/tmp-dim5-poster-transport	5043768bdd6570acc7a213b08b5094ada6a50344	2026-10-06T05:13:14Z	zuriel337	0	689	fix(video): stream Source Video ingest to Storage
+claude/raziel-whatsapp-response-speed-v1	6d01e7f08349a67e3c382e76fb06c60058a2e6e1	2026-10-06T19:53:42Z	Claude	0	683	wa-raziel: WhatsApp Surface Profile v1 runtime (concise-first, depth intent, fail-closed action boun
+claude/awesome-dirac-g9d56y	ef9f0aea0856a94f82721749f3d43b9ffff831f8	2026-10-06T20:02:53Z	Claude	0	681	test: Phase I projection expects bounded returnTo.href
+claude/raziel-whatsapp-notifications-v1	b4d5ec47132ed8003b822cc70de9e1b82447cb7c	2026-10-06T20:21:14Z	Claude	0	680	raziel: unified WhatsApp notification projection (NotificationCenter channel, user_notifications->bo
+claude/world-source-depth-slice	7e86dacda0b8574d7338d8116c43d77e2373fbc0	2026-10-08T11:09:38Z	Claude	0	660	World 2029: source/subject depth slice (attested Topic links, scoped counts, full unlinked directory
+claude/awesome-dirac-87qltt	4295399a4ee9185b94c404334d964c04da55d424	2026-10-08T15:16:10Z	Claude	0	651	fix(world): source-first public writer reader, Hashmal full corpus, research read grant + publicatio
+claude/awesome-dirac-wapuv7	af3f10ad2bb52b6ad73688bbfe88087fda745b87	2026-10-08T15:29:29Z	Claude	0	650	fix(world): server-side draft suppression + exact public corpus count, honest source copy, canonical
+claude/awesome-dirac-aigtw8	73d0abecf6e6f2246e835e68685eb2bb3c011b91	2026-10-08T16:57:31Z	Claude	0	647	feat(world): four-writer curated group source bridge (branch-only reader + admin editor)
+claude/awesome-dirac-lny8i6	c2b53d819166334a3b532e4c25c9071daddadfcc	2026-10-08T17:05:59Z	Claude	0	646	fix(world): group source provenance from ingest chain, not wa_msg_ext; add SQL role tests
+claude/awesome-dirac-d3e5zq	238255a908d175b79f0562b3991a510ca70b37d4	2026-10-08T18:09:30Z	Claude	0	645	feat(world): positive group-source provenance (private proof table, JID->phone identity, human hold,
+claude/awesome-dirac-p7occ2	d5dcc8d1339dc9838e8122d0d1d8e73afddd9d5d	2026-10-08T18:15:48Z	Claude	0	644	feat(world): resolve group proof identity via verified wa_account_links + safe first-capture contrib
+claude/awesome-dirac-ldnx5p	27ea3a7db72f10be5705a67241ebe21b59de879f	2026-10-11T16:57:22Z	Claude	0	453	Number page: compact number-first opening (CSS-only, preview branch)
+claude/awesome-dirac-4j4mtb	10c9af5ed9c8bf2eaaec0df0d17b61c63bd927f0	2026-10-11T17:13:24Z	Claude	0	454	ELS Research: bottom context/state bar and scoped Research composition (presentation only)
+gpt/left-companion-preview-20261012	69baeb8d6e6a152c6243833e3103fdf676d1d750	2026-10-11T21:55:49Z	zuriel337	0	430	fix: preserve system voice over Claude left companion preview
+gpt/category-hints-normalization-20261012	e9f35853e6fe7bf8e160235f6e64aa2d19bfe776	2026-10-11T23:11:04Z	zuriel337	0	421	Normalize accidental hint category to existing strong hints in preview readers
+codex/els-desktop-split-dock-20261012	7bd2046ea2e622c958610b485a289ca8006c6f11	2026-10-11T23:16:50Z	zuriel Polayes	0	442	Group ELS phrase search and split action in one bundle
+codex/els-advanced-live-forms-20261011	c6f59c0aad6e591656ad6015bd9bda980ecc121f	2026-10-11T23:33:31Z	zuriel Polayes	0	441	Show live ELS form scans and distinguish server failures
+codex/els-classic-public-opening-20261012	e7f2510cae4bd0a76444dacc2f8e153e0741b3e5	2026-10-12T14:43:16Z	zuriel Polayes	0	436	Align ELS browser cutover tests with blank Classic opening
+ccr-aaa4c5f2-ootj8u	6ef3ec2d6c139cd06af628b20ac2d5c3fb776a70	2026-10-17T11:18:04Z	Claude	0	183	Hide global news ticker (LiveActivityBar) site-wide
+ccr-d98acfb3-ibkwqo	d6150a82bb275129dca33908aa7313e4e1f3528e	2026-10-20T20:31:25Z	Claude	0	182	Add video assets for post 5123 (sprites over France)
