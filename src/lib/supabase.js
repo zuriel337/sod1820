@@ -9,6 +9,7 @@ import { isReadable } from './nameMask.js';
 import { stripHtml } from './format.js';
 import { postCategoryFilterNames } from './postCategoryIdentity.js';
 import { decodePostSlug, publicPostHref } from './publicPostUrls.js';
+import { POST_READER_SELECT } from './postReaderColumns.js';
 
 // 🔑 מיוצאים כדי לאפשר fetch ישיר ל-PostgREST במקומות שדורשים עקיפת-קאש (cache:no-store) —
 // למשל עמוד-הצופן הקנוני, שאחרי עריכה/שמירה-מחדש חייב תמיד את הרשומה הטרייה (התגובה מ-PostgREST
@@ -259,7 +260,7 @@ export async function getPostBySlug(slug, { throwOnError = false, signal = null 
   const slugs = [...new Set([slug, decoded, encoded])];
   let query = supabase
     .from('posts')
-    .select('*')
+    .select(POST_READER_SELECT)   // explicit columns, not * (see postReaderColumns.js)
     .in('slug', slugs)
     .limit(1);
   if (signal) query = query.abortSignal(signal);
