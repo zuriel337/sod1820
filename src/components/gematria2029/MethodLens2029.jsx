@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { fetchMethodLensProjection } from "../../lib/research/methodLensProjection.js";
 import "./methodLens2029.css";
 
@@ -17,6 +17,13 @@ export default function MethodLens2029({ selection, compact = false, autoOpen = 
   const [state, setState] = useState({ loading: false, data: null, error: null });
   const [showDependent, setShowDependent] = useState(false);
   const key = selection ? [selection.expression, selection.methodKey, selection.resultValue].join("::") : "";
+  // The projection is a function of `key` only. `selection` is often rebuilt by the parent on every render and `onProjection`
+  // may be an inline callback; as effect dependencies they re-ran the whole lens read (1 lookup + up to 28 relation RPCs) on every
+  // parent render and, when onProjection set parent state, in an endless loop. Read the latest values through refs instead.
+  const selectionRef = useRef(selection);
+  const onProjectionRef = useRef(onProjection);
+  selectionRef.current = selection;
+  onProjectionRef.current = onProjection;
 
   useEffect(() => {
     setRequestedKey(autoOpen && key ? key : "");
@@ -25,18 +32,19 @@ export default function MethodLens2029({ selection, compact = false, autoOpen = 
   }, [key, autoOpen]);
 
   useEffect(() => {
-    if (!selection || !requestedKey || requestedKey !== key) return undefined;
+    const current = selectionRef.current;
+    if (!current || !requestedKey || requestedKey !== key) return undefined;
     let alive = true;
     setState({ loading: true, data: null, error: null });
     fetchMethodLensProjection({
-      expression: selection.expression,
-      methodKey: selection.methodKey,
-      value: selection.resultValue,
+      expression: current.expression,
+      methodKey: current.methodKey,
+      value: current.resultValue,
     })
-      .then((data) => { if (alive) { setState({ loading: false, data, error: null }); onProjection?.(data); } })
+      .then((data) => { if (alive) { setState({ loading: false, data, error: null }); onProjectionRef.current?.(data); } })
       .catch((error) => { if (alive) setState({ loading: false, data: null, error }); });
     return () => { alive = false; };
-  }, [selection, requestedKey, key, onProjection]);
+  }, [requestedKey, key]);
 
   const data = state.data;
   const items = Array.isArray(data?.items) ? data.items : [];
