@@ -63,7 +63,11 @@ test("wiring: boundary + window handlers go through track(); entries install onc
   const tr = read("src/lib/tracking.js");
   assert.match(tr, /initRuntimeErrorCapture\s*=\s*\(\)\s*=>\s*installRuntimeErrorCapture\(track\)/);
   assert.match(tr, /reportRuntimeIncident\s*=.*getSharedCapture\(track\)/);
-  assert.match(read("src/main2029.jsx"), /initRuntimeErrorCapture\(\)/);
+  // The 2029 boundary replaces the retired Legacy src/components/ErrorBoundary.jsx (and its assertions, dropped with it).
+  const eb = read("src/components/experience2029/ErrorBoundary2029.jsx");
+  assert.match(eb, /reportRuntimeIncident\("error_boundary"/);
+  assert.ok(!/track\("runtime_error"/.test(eb), "boundary no longer bypasses the shared capture");
+  assert.match(read("src/App2029.jsx"), /<ErrorBoundary2029 resetKey=\{pathname\}>/, "the Routes are wrapped by the boundary");
   assert.match(read("src/main2029.jsx"), /initRuntimeErrorCapture\(\)/);
 });
 
