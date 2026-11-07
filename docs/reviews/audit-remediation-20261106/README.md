@@ -19,7 +19,7 @@
 | DEF-009 no `<h1>` in server HTML | Not changed (needs design decision) | §7 | Decide |
 | DEF-010 CSP / OpenWeb | Not changed (security-surface decision) | §7 | Decide |
 | DEF-011 GA4 on 5 routes | By design (privacy allow-list) — see §7 | | Confirm |
-| DEF-012 `page_views` 403 | **Root cause found, fixed** | `src/lib/supabase.js`, test | — |
+| DEF-012 `page_views` 403 | **Root cause found, fixed in code — PENDING COORDINATION with the analytics session (`claude/sod1820-ci-failures-diagnosis-6z9ej6`)** | `src/lib/supabase.js` (3 lines), `test/def012-page-views-public-build.test.mjs`, its name in the `live-contracts-2029.yml` contracts step | Kept unchanged on the RC branch for now. Do not change or revert before the other session reports. Isolating it later = one commit removing those three items; until then the public build still sends the denied `page_views` insert only if this fix is removed. |
 | DEF-013 sitemap 404 (`/community/researcher/panzer`) | Not changed | §7 | — |
 | DEF-014 endpoints missing live | Analysed, not changed | §7 | Decide |
 | DEF-015 `/api/card` | **Fixed in code** | `api/card.js`, `public-reading-deploy/api/card.js`, test | — |
