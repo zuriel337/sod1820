@@ -97,12 +97,11 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Prove the telemetry-write guard (fail-closed; no live network)
-        # Blocking. Proves, before the acceptance run starts, that every write/telemetry request and every unexpected request is
-        # denied before it leaves the browser. The browser proof sends Chromium through a local tripwire proxy, so even a broken
-        # guard could not reach Supabase or any third party from this step.
-        run: |
-          node --test test/release-visual-egress-contract.test.mjs test/release-visual-egress-guard.test.mjs
-          node test/release-visual-egress-guard.browser.mjs
+        # Blocking, and it runs before the app is started or the acceptance run begins. Proves on THIS job's Playwright and Chromium that every
+        # write / telemetry / third-party / unexpected request is denied before it leaves the browser, that an abort is never accepted as a
+        # denial, and that the exact hook block of the spec below is wired correctly. Chromium goes through a local tripwire proxy, so even a
+        # broken guard could not reach Supabase or any third party from this step. The same script runs in release-visual-egress-proof.yml.
+        run: bash scripts/release-visual-egress-proof.sh
 
       - name: Start built app
         run: |

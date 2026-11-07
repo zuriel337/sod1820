@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "policy": "DEFAULT-DENY. Nothing leaves the browser unless it is the canonical Supabase read policy of the shared read-only guard (tests/fixtures/public-readonly-egress.cjs), the one extra GET read below, or an exact third-party entry below. Every entry needs the exact request, why the Release Visual run needs it and the evidence. Never add an entry to make a failing run pass without first recording the blocked request (method, host, path, resource type, test — see test-results/release-visual/egress-receipt.ndjson) and the reason in docs/reviews/audit-remediation-20261106/RELEASE-VISUAL-EGRESS-GUARD.md section 6. Analytics, advertising and session-recording hosts can never be listed here.",
+  "thirdParty": [
+    {
+      "host": "fonts.googleapis.com",
+      "methods": ["GET"],
+      "resourceTypes": ["stylesheet"],
+      "pathRegex": "^/css2$",
+      "search": "?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap",
+      "reason": "2029.html loads the numeric font IBM Plex Mono as a progressive stylesheet. Without it the numeric text is measured in a fallback font, which changes the overflow / text-zoom assertions of this run.",
+      "evidence": "2029.html lines 15-20 (the <link> and its <noscript> twin); offline capture of the spec's routes: GET fonts.googleapis.com/css2 x13 in 14 navigations, resource type stylesheet; the stylesheet has no @import."
+    },
+    {
+      "host": "fonts.gstatic.com",
+      "methods": ["GET"],
+      "resourceTypes": ["font"],
+      "pathRegex": "^/s/ibmplexmono/",
+      "reason": "The font files named by the stylesheet above.",
+      "evidence": "2029.html line 16 (preconnect); the live stylesheet (fetched read-only 7.11.2026) contains 20 @font-face blocks and every url() is https://fonts.gstatic.com/s/ibmplexmono/..."
+    }
+  ],
+  "canonicalExtraGetRpcs": [
+    {
+      "name": "canonical_follow_subject",
+      "reason": "Read the post pages issue (the follow / watch button state). It is not in the shared read inventory. GET only: PostgREST refuses GET for volatile functions and runs GET calls read-only; the public reading worker lists it as a GET read.",
+      "evidence": "Offline capture: GET /rest/v1/rpc/canonical_follow_subject x3 (post pages only); public-reading-deploy/transport.js PUBLIC_READING_GET_RPCS."
+    }
+  ]
+}
