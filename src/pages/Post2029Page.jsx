@@ -1092,7 +1092,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       </details> : null}
     </aside> : null}
     {coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
-      <CanonicalMediaFigure2029 item={coverItem} primary alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
+      <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high" alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
     </figure> : null}
 
     <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" />
