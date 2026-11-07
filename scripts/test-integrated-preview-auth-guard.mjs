@@ -12,7 +12,7 @@ const source = builder.slice(builder.indexOf('const allow ='), builder.indexOf('
 const postsBranch = 'gpt/posts-integrated-backgrounds-20261030';
 const functionalBranch = 'gpt/2029-functional-unified-preview-20261031';
 const functionalWorker = vm.runInNewContext(`${source}\nworker;`, { COMMUNITY_UPLOAD_POLICY, AVATAR_UPLOAD_POLICY, process: {env:{VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:functionalBranch}} });
-const worker = vm.runInNewContext(`${source}\nworker;`, { COMMUNITY_UPLOAD_POLICY, AVATAR_UPLOAD_POLICY });
+const worker = vm.runInNewContext(`${source}\nworker;`, { COMMUNITY_UPLOAD_POLICY, AVATAR_UPLOAD_POLICY, process: {env:{}} });
 async function request(path, { method = 'POST', body, rawBody, headers, serverUser = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', serverConfirmed = true, replyContext = undefined, contextStatus = 200, origin = 'https://linswmnnkjxvweumprav.supabase.co', workerSource = worker } = {}) {
   let handler, response, forwarded = 0;
   vm.runInNewContext(workerSource, {
