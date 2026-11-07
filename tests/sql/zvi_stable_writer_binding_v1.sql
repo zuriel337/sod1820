@@ -1,4 +1,4 @@
--- Focused SQL test for 20261004090000_zvi_stable_writer_binding_v1.sql.
+-- Focused SQL test for 20261004064040_zvi_stable_writer_binding_v1.sql.
 -- Runs against a THROWAWAY local Postgres with minimal stubs (never the live project). Each check raises on failure.
 \set ON_ERROR_STOP on
 create table contributors (id uuid primary key, display_name text, wa_names text[]);
@@ -30,7 +30,7 @@ insert into research_objects(status,source_ref,meta,contributor)
 create temp table ro_before as select id,status,source_ref,meta,contributor,privacy_scope from research_objects;
 create temp table cu_credit_before as select id,credit,channel from channel_updates;
 
-\i supabase/migrations/20261004090000_zvi_stable_writer_binding_v1.sql
+\i supabase/migrations/20261004064040_zvi_stable_writer_binding_v1.sql
 -- the migration only (re)defines the function; install the trigger as in 20260927195900
 create trigger trg_00 before insert or update of status, source_ref on research_objects
  for each row execute function public.fn_zvi_standing_approve_research_object();
