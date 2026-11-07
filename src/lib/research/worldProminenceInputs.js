@@ -25,8 +25,8 @@ function isAccessDenied(error) {
   return error?.code === "42501" || /permission denied/i.test(String(error?.message || ""));
 }
 
-// `meta` is by far the heaviest research_objects column (avg 2.8 KB of a ~4 KB row; 41 KB for the 15 public rows of
-// number 1820). The Hub rows (RESEARCH_FIELDS) already carry it and researchCandidates() merges { ...row, ...supplement },
+// `meta` is by far the heaviest research_objects column (avg 2.9 KB of a ~4.0 KB row over the 10,233 anon-visible
+// rows; 117 KB for the 36 anon-visible rows of number 1820; SELECT-only, 2026-11-07). The Hub rows (RESEARCH_FIELDS) already carry it and researchCandidates() merges { ...row, ...supplement },
 // so re-reading it for the same ids only repeats bytes. It is requested only when some Hub row arrived without the key.
 async function fetchResearchSupplements(data) {
   const baseRows = asArray(data?.research?.rows);
