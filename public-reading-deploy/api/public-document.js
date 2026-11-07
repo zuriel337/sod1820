@@ -35,6 +35,18 @@ export function mergeProductionDocumentMetadata(document, metadata, { noindex = 
   return clean.replace(/<\/head>/i, head + "</head>");
 }
 
+// A file address under /assets/ (build output: hashed scripts, styles, fonts, images). The platform serves every file that exists
+// in this deployment before any rewrite runs, so a request for such an address that reaches this function is a miss: typically a
+// tab that still holds the previous deployment's HTML and asks for a chunk this deployment no longer carries. The answer for a
+// file is a plain not-found (a few bytes, no-store, noindex), never the 2029 not-found document: HTML is the wrong type for a
+// script, style or font, and every miss would run the metadata reader and render the whole ~11 KB shell for nothing. Only /assets/
+// paths whose last segment has a file extension qualify; /assets, /assets/ and extension-less addresses are ordinary unknown
+// routes and keep the document answer.
+const ASSET_FILE_PATH = /^\/assets\/.*\.[A-Za-z0-9]{1,16}$/;
+function missingAssetFile(path) {
+  try { return ASSET_FILE_PATH.test(decodeURIComponent(path)); } catch { return false; }
+}
+
 // Dependency injection remains a local synthetic test seam. Hosted admission
 // uses only the exact generated protected-review receipt; no request selects it.
 export function publicReadingDocumentHandler({ authorized = deploymentAuthorized, indexable = publicIndexingAllowed,
@@ -60,6 +72,13 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       const decoded = decodeURIComponent(path);
       if (/[\\\u0000-\u001f\u007f]/.test(decoded) || decoded.startsWith("//")) return res.status(400).send("invalid path");
     } catch { return res.status(400).send("invalid path"); }
+    if (missingAssetFile(path)) {
+      // After the activation, origin, method and path guards above; before any document, metadata or data work.
+      res.setHeader("Cache-Control", "no-store");
+      res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      return res.status(404).send(req.method === "HEAD" ? "" : "Asset not found.");
+    }
     if (/^\/(?:audio\/|data\/user\/|wp-content\/plugins\/gallery-images\/style\/)/.test(path)) {
       res.setHeader("Content-Type", "text/plain; charset=utf-8");return res.status(404).send(req.method === "HEAD" ? "" : "Public asset not found.");
     }
