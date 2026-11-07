@@ -121,6 +121,10 @@ test("canonical trace receipt: Registry-open (אתבש), alias has no receipt, f
   const split = (x) => gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: x.expression, result: 363, method_version: "fixture-v1",
     verification: { parity: true, trace_value: 363, canonical_value: 364 } }, { inputText: x.expression });
   assert.equal(split({ expression: "המשיח" }), null);
+  const traceSplit = (x) => gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: x.expression, result: 363, method_version: "fixture-v1",
+    verification: { parity: true, trace_value: 364, canonical_value: 363 } }, { inputText: x.expression });
+  assert.equal(traceSplit({ expression: "המשיח" }), null);
+  assert.equal(compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "רגיל", 363)], receiptResolver: traceSplit }).rejected_members[0].reason, "engine_receipt_missing");
   // alias-keyed trace whose method disagrees with the member
   const mismatch = compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "רגיל", 363)], receiptResolver: (x) => trace("מסתתר", x.expression, 363) });
   assert.equal(mismatch.rejected_members[0].reason, "engine_receipt_method_mismatch");

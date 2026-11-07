@@ -203,7 +203,10 @@ test("continuation module is server-importable and UI mounts no legacy activity 
   assert.doesNotMatch(page, /<iframe|<Discourse|<ForumFeed|<OrGeulaPage|<ResearchersIndexPage|\btrack\(|storyEvent|useAuth|markForumSeen/);
   // The one raw-HTML sink is the preserved historical lecture body (43a26b7ff). It is exactly one site, inside
   // HistoricalLecturesContent, fed only by the sanitising presentation adapter over the bundled page record,
-  // never by a fetched, URL or user-supplied value.
+  // never by a fetched, URL or user-supplied value. The "bundled" half is pinned below: the adapter's only
+  // source is the static JSON import and the only value it parses is that record's html. This matters because
+  // the sanitiser is a denylist; its safety rests on the input being these bundled records, so the data itself
+  // is also checked for the vectors the denylist does not remove.
   assert.equal(page.match(/dangerouslySetInnerHTML/g).length, 1);
   const lectureStart = page.indexOf("function HistoricalLecturesContent()"), lectureEnd = page.indexOf("export default function PublicContinuity2029Page");
   assert.ok(lectureStart > -1 && lectureEnd > lectureStart);
@@ -211,6 +214,13 @@ test("continuation module is server-importable and UI mounts no legacy activity 
   assert.match(lecture, /const page = React\.useMemo\(\(\) => publicHistoricalLecturePage2029\(location\.pathname\), \[location\.pathname\]\);/);
   assert.match(lecture, /const html = React\.useMemo\(\(\) => historicalLectureHtml2029\(page\), \[page\]\);/);
   assert.match(lecture, /dangerouslySetInnerHTML=\{\{__html:html\}\}/);
+  assert.match(helper, /^import historicalLecturePages from "\.\.\/data\/publicLegacyLecturePages2029\.json" with \{ type: "json" \};$/m);
+  assert.match(helper, /template\.innerHTML = page\.html;/);
+  const bundledLectures = JSON.parse(readFileSync(new URL("../data/publicLegacyLecturePages2029.json", import.meta.url), "utf8"));
+  assert.ok(Array.isArray(bundledLectures) && bundledLectures.length > 0);
+  for (const record of bundledLectures) {
+    assert.doesNotMatch(String(record.html), /<svg|<math|xlink|formaction|javascript:|<script|srcdoc|[\s"'\/]on[a-z]+\s*=/i, `bundled lecture ${record.path} carries active content the denylist sanitiser does not remove`);
+  }
   // ... and the adapter still neutralises active content: it removes script/object/embed/form/base/link/meta,
   // strips every on* handler and srcdoc, keeps only YouTube-identified frames (lazy, no-referrer, sandboxed,
   // src withheld until the viewer opens them) and drops non-http(s) link targets.
