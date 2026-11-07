@@ -1,6 +1,7 @@
 # P0 approval package — DEF-001 (e-mail exposure)
 
-> **Status: awaiting ZURIEL's point approval. Nothing below has been applied.** Branch `claude/sod1820-audit-remediation-g93w32`.
+> **Status update 7.11.2026: Migration A was approved and APPLIED to Production (migration `20261107233659`); see [`DEF-001-APPLY-RECEIPT-20261107.md`](DEF-001-APPLY-RECEIPT-20261107.md). Migration B (DEF-001b) is still NOT applied.** The text below is the pre-approval package.
+> **Original status: awaiting ZURIEL's point approval. Nothing below had been applied.** Branch `claude/sod1820-audit-remediation-g93w32`.
 > Everything in this file is verified read-only against production and by the throw-away PostgreSQL suites `tests/sql/def001*.sql` (run by `scripts/run-def001-sql-test.sh` and by CI job `security-sql-contracts`).
 
 ## 1. What is being closed
