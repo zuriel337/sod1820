@@ -17,7 +17,6 @@ import SurfaceMapBar2029 from "../experience2029/SurfaceMapBar2029.jsx";
 import CanonicalMediaFigure2029 from "../experience2029/CanonicalMediaFigure2029.jsx";
 import CanonicalVerseCards2029 from "../experience2029/CanonicalVerseCards2029.jsx";
 import NumberZviPublicResearch2029 from "./NumberZviPublicResearch2029.jsx";
-import { fetchWorldPublicFindingsPage } from "../../lib/research/worldPublicFindingReader.js";
 import { publicNumberSourceCards } from "../../lib/research/numberSourceCards.js";
 import { numberReadingReturnHref } from "../../lib/research/numberExpressionFocus.js";
 import ZviFindingCards2029 from "../research/ZviFindingCards2029.jsx";
@@ -249,6 +248,8 @@ export default function NumberLivingWorld2029({
     const request = ++sourceRequest.current;
     setPublicSources(current => ({ ...current, root, status: "loading" }));
     try {
+      // Loaded when the section is read (it is armed by IntersectionObserver below), like NumberZviPublicResearch2029.
+      const { fetchWorldPublicFindingsPage } = await import("../../lib/research/worldPublicFindingReader.js");
       const page = await fetchWorldPublicFindingsPage({ value: root, pageSize: 25,
         cursor: append && publicSources.root === root ? publicSources.nextCursor : null });
       if (request !== sourceRequest.current) return;
