@@ -141,7 +141,9 @@ test("weight: gate, spec, copy and panel are lazy-only; the report normaliser mo
 });
 
 test("UI: both actions sit beside 'בדוק לעומק' on the latest answer, never in the composer; the full picture is a native collapsible; no mode switch", () => {
-  assert.match(frame, /import RazielOneShotActions2029 from "\.\/RazielOneShotActions2029\.jsx"/);
+  // The frame (eager chunk) loads the actions component lazily (71bb76467); a static import would pull it back into the eager graph.
+  assert.match(frame, /^const RazielOneShotActions2029 = React\.lazy\(\(\) => import\("\.\/RazielOneShotActions2029\.jsx"\)\);$/m);
+  assert.doesNotMatch(frame, /^import RazielOneShotActions2029 /m, "the one-shot actions must not be a static import of the eager frame");
   assert.match(frame, /\{m === lastRaziel && status === "ready" \? <RazielOneShotActions2029 session=\{session\} disabled=\{guestQuotaEnded\} onRun=\{\(kind\) => runSessionAction\(\(\) => session\.submitOneShot\(kind, \{ projection \}\)\)\} \/> : null\}/);
   assert.ok(frame.indexOf("data-raziel-deepen-preview") < frame.indexOf("<RazielOneShotActions2029"), "next to the deepen action");
   const chat = frame.slice(frame.indexOf("function RazielNativeChat"), frame.indexOf("function RazielProjection"));

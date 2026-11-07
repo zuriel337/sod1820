@@ -41,9 +41,17 @@ test("ZURIEL 1.11: Companion is unmounted, authorized context and shared feed st
   const frame = read("src/components/experience2029/SystemFrame2029.jsx");
   assert.doesNotMatch(frame, /import CompanionPanel2029|<CompanionPanel2029|has-companion/);
   assert.match(frame, /data-companion-visibility="temporarily-hidden"/);
-  assert.match(frame, /feed = useSystemFeed2029\(\{ enabled: surface !== "control" \}\)/);
+  // The single frame watcher now also receives `nowOpen` (71bb76467): the extra "now" public-source reads run only while the Now panel (TRANSIENT.ATTENTION) is open.
+  assert.match(frame, /feed = useSystemFeed2029\(\{ enabled: surface !== "control", nowOpen: transient\?\.kind === TRANSIENT\.ATTENTION \}\)/);
   assert.equal((frame.match(/feed = useSystemFeed2029\(/g) || []).length, 1);
   assert.match(frame, /showContextRail \? <SurfaceContextRail2029/);
   assert.doesNotMatch(frame, /<EventSequencePanel2029/);
-  assert.match(frame, /<GlobalLivingRibbon2029[\s\S]{0,600}feed=\{feed\}/);
+  // ZURIEL 5.11.2026: the header ribbon is one authored static verse and takes no feed (4e82797e6, #1235). The single shared feed
+  // above serves the Now sheet only, so "feed stays independent" now means the ribbon neither receives nor consumes it.
+  assert.match(frame, /<GlobalLivingRibbon2029 \/>/);
+  assert.doesNotMatch(frame, /<GlobalLivingRibbon2029[^>]*\bfeed=/);
+  assert.match(frame, /<AttentionProjection [\s\S]{0,300}feed=\{feed\}/);
+  const ribbon = read("src/components/experience2029/GlobalLivingRibbon2029.jsx");
+  assert.match(ribbon, /export default function GlobalLivingRibbon2029\(\) \{/, "the header ribbon component takes no props at all");
+  assert.doesNotMatch(ribbon.slice(ribbon.indexOf("export default function GlobalLivingRibbon2029")), /\bfeed\b|setInterval|setTimeout|useEffect/);
 });
