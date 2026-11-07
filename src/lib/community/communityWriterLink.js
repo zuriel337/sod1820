@@ -1,6 +1,6 @@
 import { contributorHref } from "../supabase.js";
 import { getPublicResearchClient } from "../research/researchViewMode.js";
-import { approvedReturnHref } from "../../components/contributor2029/publicContributor2029Model.js";
+import { approvedReturnHref } from "../../components/contributor2029/contributorLinkPolicy2029.js";
 import { publicWriterVisible } from "../userCenter/writerPersonal2029.js";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
