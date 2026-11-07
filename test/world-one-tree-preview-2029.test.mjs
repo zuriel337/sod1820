@@ -4,8 +4,6 @@ import {readFileSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import vm from 'node:vm';
-import {COMMUNITY_UPLOAD_POLICY} from '../src/lib/community/communityUploadPolicy.js';
-import {AVATAR_UPLOAD_POLICY} from '../src/lib/userCenter/avatarPolicy.js';
 import {previewRazielHandler} from '../preview-deploy/api/preview-raziel.js';
 
 const branch='gpt/2029-world-one-tree-sources-20261101';
@@ -36,15 +34,21 @@ test('Preview integration equals the accepted reconciled state, and the three Wo
   for(const ref of continuation)assert.equal(current.split(ref).length,current.split(baseBranch).length,file+': '+ref);
  }
 });
+// The builder embeds JSON.stringify(COMMUNITY_UPLOAD_POLICY) / JSON.stringify(AVATAR_UPLOAD_POLICY) into the generated worker.
+// These are product values (src/lib/community/communityUploadPolicy.js, src/lib/userCenter/avatarPolicy.js) that this test does
+// not guard, so it injects fixed fixture policies: a legitimate upload-policy change must not break the branch/worker guarantee.
+// The pinned hashes below were generated with exactly these fixtures.
+const FIXTURE_COMMUNITY_UPLOAD_POLICY={fixture:'community'};
+const FIXTURE_AVATAR_UPLOAD_POLICY={fixture:'avatar'};
 function worker(source,ref){
- return vm.runInNewContext(source.slice(source.indexOf('const allow ='),source.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")'))+';worker;',{COMMUNITY_UPLOAD_POLICY,AVATAR_UPLOAD_POLICY,process:{env:{VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:ref}}});
+ return vm.runInNewContext(source.slice(source.indexOf('const allow ='),source.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")'))+';worker;',{COMMUNITY_UPLOAD_POLICY:FIXTURE_COMMUNITY_UPLOAD_POLICY,AVATAR_UPLOAD_POLICY:FIXTURE_AVATAR_UPLOAD_POLICY,process:{env:{VERCEL_ENV:'preview',VERCEL_GIT_COMMIT_REF:ref}}});
 }
-// sha256 of the worker source the ACCEPTED baseline builder (dbbe91de) generates for each Preview ref.
+// sha256 of the worker source the ACCEPTED baseline builder (dbbe91de) generates for each Preview ref, with the fixture policies above.
 const BASELINE_WORKER_SHA256={
- [baseBranch]:'989e1cc315d8b42ae1cc01c57f44bbe6cd2ff4b90b6eb4e9453090008d57f2fb',
- 'gpt/2029-functional-unified-preview-20261031':'f799fe988297e140c3f9d1ec2453e71a1934d4138fbc5570450bee41c8d75516',
- [branch+'-foreign']:'18c84dc4f615d04956ed89b81fd73b3ed15a5749d4e261ac7b3f427980b51317',
- 'gpt/unrelated':'18c84dc4f615d04956ed89b81fd73b3ed15a5749d4e261ac7b3f427980b51317',
+ [baseBranch]:'e748b1375ebb33d2dc9e678408417d9d223182c6cfe6a1d38e786cd8dc6c9b36',
+ 'gpt/2029-functional-unified-preview-20261031':'cdce06b519119429017dd90118ddcf6f922b2f16d8f07bf0dc83ca1eb23f3c04',
+ [branch+'-foreign']:'4716a10905b57044fffdc909093c5784e04cd3a6501a0eaece1815088b2095c7',
+ 'gpt/unrelated':'4716a10905b57044fffdc909093c5784e04cd3a6501a0eaece1815088b2095c7',
 };
 test('new exact branch inherits the complete accepted worker without widening any principal or operation',()=>{
  for(const ref of continuation)assert.equal(sha256(worker(builder,ref)),BASELINE_WORKER_SHA256[baseBranch],ref);
