@@ -25,12 +25,17 @@ function isAccessDenied(error) {
   return error?.code === "42501" || /permission denied/i.test(String(error?.message || ""));
 }
 
+// `meta` is by far the heaviest research_objects column (avg 2.8 KB of a ~4 KB row; 41 KB for the 15 public rows of
+// number 1820). The Hub rows (RESEARCH_FIELDS) already carry it and researchCandidates() merges { ...row, ...supplement },
+// so re-reading it for the same ids only repeats bytes. It is requested only when some Hub row arrived without the key.
 async function fetchResearchSupplements(data) {
-  const ids = [...new Set(asArray(data?.research?.rows).map((row) => clean(row?.id)).filter(Boolean))];
+  const baseRows = asArray(data?.research?.rows);
+  const ids = [...new Set(baseRows.map((row) => clean(row?.id)).filter(Boolean))];
   if (!ids.length) return { available: true, rows: [] };
+  const baseCarriesMeta = baseRows.every((row) => !row?.id || Object.hasOwn(row, "meta"));
   const { data: rows, error } = await supabase
     .from("research_objects")
-    .select("id,parent_id,evidence,owner_person_id,meta")
+    .select(baseCarriesMeta ? "id,parent_id,evidence,owner_person_id" : "id,parent_id,evidence,owner_person_id,meta")
     .in("id", ids);
   if (error) {
     if (isAccessDenied(error)) return { available: false, rows: [], reason: "research_supplements_access_filtered" };
