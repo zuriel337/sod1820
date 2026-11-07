@@ -1,0 +1,22 @@
+--- a/.github/workflows/live-contracts-2029.yml	2026-11-07 04:37:46.523775430 +0000
++++ b/.github/workflows/live-contracts-2029.yml	2026-11-07 04:37:46.538025033 +0000
+@@ -106,6 +106,19 @@
+           src/lib/research/numberMathProfileFinding.test.js
+           src/lib/research/numberPhrasePresentationOrder.test.js
+           src/lib/research/number2029LiveGlass.test.js
++      # P0-A/B/C consumer contracts (PG2): source identity, occurrence and independence across Post, Topic, World and Number.
++      # All seven were green on main but ran in no workflow; they read only repository files (no network, no browser, no git history). About 5 s together.
++      # world-corpus-continuation-2029 is bound to a committed snapshot (checksum): remove it from this list if the owner retires that audit.
++      - name: Source-identity consumer contracts (one witness identity, exact occurrences, no false independence, private evidence withheld, owner review API)
++        run: >
++          node --test
++          test/connection-depth-fidelity.test.mjs
++          test/one-tree-branch-contract-2029.test.mjs
++          test/world-people-sources-2029.test.mjs
++          test/world-gallery-triage-projection-2029.test.mjs
++          test/post-content-interest-2029.test.mjs
++          test/world-finding-review-api-2029.test.mjs
++          test/world-corpus-continuation-2029.test.mjs
+       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
+         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
+       - name: Top bar (the crown at the centre, dark glass, the rounded arc; one final design, one stylesheet, and the traps it hit stay handled)
