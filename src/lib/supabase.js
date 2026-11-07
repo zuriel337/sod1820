@@ -2465,18 +2465,36 @@ export async function subscribeEmail({ email, name = null, source = 'site' }) {
 
 // ── מרכז התראות — העדפות נושאים/ערוצים (notification_prefs) ──
 // מקור אחד לכל הערוצים. שורה לכל זהות: userId (מחובר) או visitorId (אנונימי).
+// Member read: the existing RLS-scoped table path (user_id = auth.uid()). One implementation for both entry points below.
+async function readMemberNotificationPrefs(userId) {
+  const { data, error } = await supabase
+    .from('notification_prefs')
+    .select('topics, channels, email, intensity, muted_until')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
+}
+
+// The principal the Supabase client will actually authenticate as. The SDK attaches the stored member JWT to
+// every request, whatever the React tree has resolved so far (AuthContext is still loading, or its verification
+// has not finished). notification_prefs_guest_get_v1 is anon-only (EXECUTE for anon; it also raises for
+// auth.uid() IS NOT NULL), so a member JWT on that call is a guaranteed 403 "permission denied for function".
+async function clientMemberUserId() {
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    const id = error ? null : data?.session?.user?.id;
+    return typeof id === 'string' && id ? id : null;
+  } catch { return null; }
+}
+
 export async function getNotificationPrefs({ userId = null, visitorId = null } = {}) {
   if (!supabase) return null;
-  if (userId) {
-    const { data, error } = await supabase
-      .from('notification_prefs')
-      .select('topics, channels, email, intensity, muted_until')
-      .eq('user_id', userId)
-      .maybeSingle();
-    if (error) throw error;
-    return data || null;
-  }
+  if (userId) return readMemberNotificationPrefs(userId);
   if (visitorId) {
+    // Guest RPC only for a real guest. With a member session present, read the member's own row (same columns/shape).
+    const memberId = await clientMemberUserId();
+    if (memberId) return readMemberNotificationPrefs(memberId);
     const { data, error } = await supabase.rpc('notification_prefs_guest_get_v1', { p_visitor: visitorId });
     if (error) throw error;
     return data || null;
