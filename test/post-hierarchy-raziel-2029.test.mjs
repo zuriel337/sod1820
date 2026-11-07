@@ -6,7 +6,9 @@ import { transformWithOxc } from "vite";
 import { postClassification2029, postHierarchyContext2029, postFollowCandidates2029 } from "../src/lib/research/postsCatalog2029Projection.js";
 import { createRazielRequestContextSnapshot, buildRazielSessionRequest } from "../src/lib/research/razielSessionRequest2029.js";
 
-const post = over => ({ id: 5105, slug: "koach-hashtika-dim5", title: "כוח השתיקה", author: "בדרך לנצח", categories: ["מימד חמש"], tags: [], ...over });
+// source/wp_id are the real provenance of post 5105 (docs/reviews/url-continuity-plan-20261103/db-census.json). Since #1191 the return
+// address comes from publicPostHref, which prefers /post/ only for native publications and never moves a row without provenance.
+const post = over => ({ id: 5105, slug: "koach-hashtika-dim5", title: "כוח השתיקה", author: "בדרך לנצח", categories: ["מימד חמש"], tags: [], source: "ai", wp_id: 37039, ...over });
 const requestFor = patch => buildRazielSessionRequest({ question: "מה אני רואה כאן?", contextSnapshot: createRazielRequestContextSnapshot(patch) });
 
 test("admitted series, publisher and comparison channel retain different roles through the existing request", () => {
@@ -24,6 +26,11 @@ test("admitted series, publisher and comparison channel retain different roles t
   assert.equal(surface.context.navigation.sourceRef, "posts:5105");
   assert.equal(surface.context.navigation.returnTo.href, "/post/koach-hashtika-dim5#post-classification");
   assert.equal(surface.context.navigation.selection.locator, "#post-classification");
+  // A row without provenance keeps its conservative existing root address (publicPostUrls "conservative_existing_address").
+  const unresolved = postHierarchyContext2029(post({ source: undefined, wp_id: undefined }), { seriesKey: "dimension-five" });
+  assert.equal(unresolved.returnTo.href, "/koach-hashtika-dim5#post-classification");
+  assert.equal(unresolved.subject.href, "/koach-hashtika-dim5");
+  assert.equal(patch.subject.href, "/post/koach-hashtika-dim5");
   assert.equal(surface.number, undefined);
   assert.doesNotMatch(JSON.stringify(request), /PRIVATE_BODY|PRIVATE_WORKSPACE|channel:or-geula/);
   assert.deepEqual(postFollowCandidates2029({ post: row }).map(item => item.topic), ["series:dimension-five"]);

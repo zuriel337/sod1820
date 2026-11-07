@@ -229,15 +229,21 @@ test("principal switch aborts the active request, ignores its late answer and cl
 test("the real transport drops cancelled late quota/answers before global events or telemetry", async () => {
   const start = transportSource.indexOf("export async function askRaziel(");
   const end = transportSource.indexOf("// 🧭 askRazielAdvanced", start);
-  const functionSource = transportSource.slice(start, end).replace("export async function", "async function");
+  // #1191 added the Preview-only `import.meta.env?.VITE_FUNCTIONAL_UNIFIED_PREVIEW` switch inside askRaziel; import.meta is a syntax error in a vm
+  // Script, so the build env is injected instead (flag unset = the default Production/public path, which is the one under test).
+  const functionSource = transportSource.slice(start, end).replace("export async function", "async function").replaceAll("import.meta.env", "razielBuildEnv");
+  assert.match(functionSource, /razielBuildEnv\?\.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true'/, "the only build switch is the exact-string Preview flag");
+  assert.doesNotMatch(functionSource, /import\.meta/);
   for (const payload of [{ error: "quota", tier: "anon" }, { analysis: "old principal answer" }]) {
     const controller = new AbortController();
     let calls = 0;
     const events = [], logs = [];
     const transport = runInNewContext(functionSource + "\naskRaziel;", {
       AbortSignal,
-      supabase: { functions: { invoke: async (_name, options) => {
+      razielBuildEnv: {},
+      supabase: { functions: { invoke: async (name, options) => {
         calls++;
+        assert.equal(name, "ai-analyze", "without the Preview flag the real transport is the ai-analyze function");
         assert.equal(options.signal, controller.signal);
         controller.abort();
         return { data: payload, error: null };
