@@ -67,7 +67,37 @@ Rules kept: only anonymous read-only RPCs are shared/memoised (explicit list, `p
 
 ## 5. Final lab A/B, base vs integrated RC (same harness for both, N=7, interleaved)
 
-_The final base-vs-RC lab run (slow and fast 4G, seven routes, N=7, interleaved) was still running when this file was first committed; its table is added in a follow-up commit. The per-area A/B numbers in sections 2 to 4 were measured by the implementers and re-measured by independent reviewers._
+Same harness for both trees (production public-reading artifacts of `7a820d049` and of the integrated RC `b0b09e179`), 390 px, public-row fixtures, service worker active, interleaved A/B, N=7 per route, median [min-max]. `ready` = the skeleton was replaced by the app; `B<A` = pairs in which the RC was faster. Raw data: `final-ab/slow.json`, `final-ab/fast.json` (session scratchpad).
+
+**Slow 4G (150 ms RTT, 1.6 Mbps, CPU x4), cold**
+
+| Route | ready base -> RC | delta | pairs | LCP base -> RC | delta | pairs |
+| --- | --- | ---: | :---: | --- | ---: | :---: |
+| `/` | 3732 -> 3590 | **-142** | 7/7 | 4484 -> 4316 | **-168** | 7/7 |
+| `/post/<slug>` | 4019 -> 3820 | **-199** | 7/7 | 4228 -> 4020 | **-208** | 7/7 |
+| `/number/1820` | 4265 -> 4134 | -131 | 5/7 | 4696 -> 4616 | -80 | 6/7 |
+| `/world` | 4602 -> 4253 | **-349** | 7/7 | 5020 -> 4616 | **-404** | 7/7 |
+| `/gematria` | 3484 -> 3366 | -118 | 6/7 | 3700 -> 3572 | -128 | 6/7 |
+| `/community/chat` | 3805 -> 3660 | -145 | 7/7 | 3964 -> 3816 | -148 | 7/7 |
+| `/map` | 3267 -> 3142 | -125 | 7/7 | 3600 -> 3472 | -128 | 7/7 |
+
+Warm (reload with the worker active): ready improves by 113-316 ms and LCP by 128-320 ms on all seven routes, 6/7 or 7/7 pairs each.
+
+**Fast 4G (60 ms RTT, 9 Mbps, CPU x2), cold**
+
+| Route | ready base -> RC | delta | LCP base -> RC | delta |
+| --- | --- | ---: | --- | ---: |
+| `/` | 1057 -> 985 | -72 (7/7) | 1592 -> 1548 | -44 (6/7) |
+| `/post/<slug>` | 1108 -> 998 | -110 (7/7) | 1252 -> 1196 | -56 (7/7) |
+| `/number/1820` | 1155 -> 1054 | -101 (7/7) | 1488 -> 1404 | -84 (7/7) |
+| `/world` | 1220 -> 1048 | **-172** (7/7) | 1556 -> 1348 | **-208** (7/7) |
+| `/gematria` | 993 -> 918 | -75 (7/7) | 1156 -> 1068 | -88 (7/7) |
+| `/community/chat` | 1101 -> 978 | -123 (7/7) | 1244 -> 1112 | -132 (7/7) |
+| `/map` | 994 -> 893 | -101 (7/7) | 1248 -> 1160 | -88 (7/7) |
+
+Exact bytes per cold load (slow-4G run, wire log): `/` 695,562 -> 668,129 B (-27.4 KB); `/post/<slug>` 638,141 -> 594,525 B (-43.6 KB); `/number/1820` 659,412 -> 632,865 B (-26.5 KB); `/world` 705,019 -> 648,592 B (-56.4 KB); `/gematria` -13.8 KB; `/community/chat` -12.9 KB; `/map` -13.8 KB. Requests change by -1 to +2.
+
+Honest notes: (1) main-thread long-task time is not uniformly lower: `/post` cold +106 ms (slow) and +45 ms (fast), `/gematria` +95 ms (slow, 4/7 pairs), `/number` warm +67 ms; the cost is the extra lazy-chunk wrappers plus the recovery/boundary code, and it is far smaller than the gain in time-to-app. (2) These are lab numbers on a loaded machine with a stubbed backend; the field LCP p75 (3.8 s `/`, 5.6 s `/post/:item`, 4.6 s `/community/chat`) will move only by the client-side share measured here (roughly 0.1-0.4 s); the larger levers are server-side (section 7). (3) CLS in this run: 0.000-0.006 cold on every route in both trees (no regression); the `/post` return-visit CLS gain is in section 4.
 
 ## 6. Legacy / dead code removed in the same pass (proven unused, behaviour-neutral)
 
