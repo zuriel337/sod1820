@@ -25,6 +25,7 @@
 | G4 closure map (what was checked, what is open, what to re-run on the RC) | **Mapping only — nothing run** | [`G4-MAP.md`](G4-MAP.md) | Approval to dispatch the gates on the exact RC SHA |
 | G4 gate runs on the RC (G4 Public Core, 2029 Isolation, Live Contracts, Observability/SEO) at `352c560` + Release Visual hold analysis | **4 of 4 success — evidence only; G4 stays OPEN**; Release Visual **not run** | [`G4-RUN-RESULTS.md`](G4-RUN-RESULTS.md) | Decision on Release Visual (it has no write-blocking egress guard) |
 | S2 inventory entries: `page_views` (S2-A), `fn_name_research_stats` (S2-B, DEF-027), `fn_log_name_research` (S2-C) | **Entries only — no ACL/SQL change** | [`S2-INVENTORY-ENTRIES.md`](S2-INVENTORY-ENTRIES.md) | Owner of the S2 inventory copies them; any DB change needs separate approval |
+| Release Visual — fail-closed telemetry-write guard for "Mobile + Accessibility" (spec fix + proofs; **Release Visual not run**) | **Prepared for review; nothing run in CI** | [`RELEASE-VISUAL-EGRESS-GUARD.md`](RELEASE-VISUAL-EGRESS-GUARD.md) (identification, design, 8 + 11 + 7 proof checks, 5/5 mutants caught) | Owner review of the diff, then approval to dispatch Release Visual on the updated RC |
 | DEF-013 sitemap 404 (`/community/researcher/panzer`) | Not changed | §7 | — |
 | DEF-014 endpoints missing live | Analysed, not changed | §7 | Decide |
 | DEF-015 `/api/card` | **Fixed in code** | `api/card.js`, `public-reading-deploy/api/card.js`, test | — |
