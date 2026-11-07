@@ -32,7 +32,9 @@ async function wrapper(status) {
     } }],
   });
   const module = { exports: {} };
-  vm.runInNewContext(outputFiles[0].text, { module, exports: module.exports, require: createRequire(import.meta.url), Response, Headers, URL, Request }, { filename: "card-wrapper.cjs" });
+  // The wrapper now also races the render against a timer (A2 deadline, see api-card-deadline-glyphs-2029.test.mjs), so the sandbox
+  // needs the host's timers, encoder and console; the cache assertions below are unchanged.
+  vm.runInNewContext(outputFiles[0].text, { module, exports: module.exports, require: createRequire(import.meta.url), Response, Headers, URL, Request, setTimeout, clearTimeout, TextEncoder, console }, { filename: "card-wrapper.cjs" });
   return module.exports.default;
 }
 

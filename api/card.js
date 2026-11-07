@@ -2,9 +2,13 @@
 // כשמשתפים /number/358 או /topic/... → og.js מצביע על /api/card?... והרובוט
 // מקבל תמונה 1200×630 עם המספר/המילה הגדולים + מה שווה לו + כיתוב ויראלי.
 //
-// חשוב: קובץ זה הוא .js (לא .jsx) — Vercel מזהה רק .js/.ts כפונקציות, ולכן
-// בונים את העץ עם React.createElement במקום JSX (אחרת הפונקציה לא נפרסת
-// והבקשה נופלת ל-index.html → og:image שבור).
+// הקובץ הוא .js ובונה את העץ עם React.createElement במקום JSX, כך שאין תלות בשלב המרת JSX בבניית הפונקציה.
+//
+// כל טקסט מה-query (w / t / sub / cap) וכל ביטוי שנשלף מהמסד עובר דרך cardText (_card-text.js) לפני הרינדור:
+// רק תווים שיש להם גליף בפונט המוטמע (Heebo) נשארים, והשאר מוחלף במפריד «·». תו בלי גליף גורם ל-@vercel/og
+// לטעון פונט/אימוג'י חלופי מהרשת (fonts.googleapis.com / twemoji) בלי timeout — כך נתקעו 5 בקשות עד 300 שניות.
+// בנוסף, תקרת הזמן של הרינדור נאכפת ב-public-reading-deploy/api/card.js (card-deadline.js): ImageResponse מרנדר
+// בזמן קריאת ה-body, ולכן ה-handler עצמו חוזר מיד גם כשהרינדור תקוע.
 //
 // פרמטרים:
 //   n  = מספר (למשל 358) — מוצג ענק, ומתחתיו הביטויים השווים לו.
@@ -14,6 +18,7 @@
 
 import React from 'react';
 import { ImageResponse } from '@vercel/og';
+import { cardText, glyphCoverage } from './_card-text.js';
 
 export const config = { runtime: 'edge' };
 
@@ -51,7 +56,7 @@ const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
 const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM';
 
 // שליפת כמה ביטויים מאומתים ששווים למספר (בשיטת רגיל = היסוד) — הקצרים/החזקים קודם.
-async function topPhrases(n) {
+async function topPhrases(n, has) {
   try {
     const r = await fetch(
       `${SUPABASE_URL}/rest/v1/gematria_words?ragil=eq.${n}&is_verified=eq.true&is_published=eq.true&visibility_tier=lte.1&select=phrase&limit=40`,
@@ -63,7 +68,7 @@ async function topPhrases(n) {
     const seen = new Set();
     const out = [];
     rows
-      .map((x) => (x.phrase || '').trim())
+      .map((x) => cardText(x.phrase, has))
       .filter(Boolean)
       .sort((a, b) => a.length - b.length)
       .forEach((p) => {
@@ -91,6 +96,10 @@ function loadFont() {
   return _fontPromise;
 }
 
+// מה הפונט המוטמע יכול לצייר — נקרא פעם אחת לכל isolate מה-cmap של קובץ הפונט עצמו (לא רשימה כתובה ביד).
+let _coverage;
+const coverageOf = (font) => (_coverage = _coverage || glyphCoverage(font));
+
 let _logoPromise;
 function loadLogo() {
   if (!_logoPromise) {
@@ -111,10 +120,14 @@ function loadLogo() {
 
 export default async function handler(req) {
   const { searchParams } = new URL(req.url);
+  // הפונט נטען ראשון: ממנו נגזר אילו תווים מותר לשלוח לרינדור (ראו _card-text.js).
+  const font = await loadFont();
+  const has = coverageOf(font);
+  const text = (name) => cardText(searchParams.get(name), has);
   const nRaw = searchParams.get('n');
-  const w = (searchParams.get('w') || '').trim();
-  const t = (searchParams.get('t') || '').trim();
-  const subParam = (searchParams.get('sub') || '').trim();
+  const w = text('w');
+  const t = text('t');
+  const subParam = text('sub');
   const n = nRaw && /^\d+$/.test(nRaw) ? parseInt(nRaw, 10) : null;
   // 📸 פורמט סטורי (אינסטגרם/וואטסאפ) — 1080×1920 לאורך; ברירת מחדל 1200×630.
   const story = (searchParams.get('format') || '') === 'story';
@@ -131,7 +144,7 @@ export default async function handler(req) {
     if (w && n != null) {
       sub = `שווה ל־${n}`;
     } else if (heroIsNumber) {
-      const phrases = await topPhrases(n);
+      const phrases = await topPhrases(n, has);
       sub = phrases.length ? phrases.join('  ·  ') : 'מרכז ההתכנסות';
     } else if (t) {
       sub = t;
@@ -139,7 +152,7 @@ export default async function handler(req) {
   }
 
   // כיתוב ויראלי בתחתית (ניתן לעקיפה דרך cap=)
-  const cap = (searchParams.get('cap') || '').trim();
+  const cap = text('cap');
   const teaser = cap
     ? cap
     : heroIsNumber
@@ -155,8 +168,6 @@ export default async function handler(req) {
   const sigGem = sig === 'gem' || (sig !== 'els' && heroIsNumber);
   // A public World finding is a cited research unit, not a gematria/ELS teaser.
   const signature = sig === 'finding' ? 'ממצא · מקור · מחקר' : sigGem ? 'מה מסתתר בשם שלך?' : 'חפש את שמך בתורה';
-
-  const font = await loadFont();
 
   // 👑 הלוגו האמיתי (הכתר + «כי לה' המלוכה») — מוטמע כ-data URI מתוך _assets, בלי תלות-רשת בזמן רינדור.
   //    logo_integrity_law: המקור היחיד /logo.png (512×512 מרובע) — מוצג contain, בלי חיתוך המילים.
