@@ -102,8 +102,3 @@ export function topicSourceSlugCandidates(slug) {
     NEW_TO_OLD.get(key),
   ].filter(Boolean))];
 }
-
-export function legacyTopicSlugForCanonical(slug) {
-  const key = String(slug || "").trim();
-  return NEW_TO_OLD.get(key) || null;
-}

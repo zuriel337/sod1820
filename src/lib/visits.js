@@ -56,11 +56,6 @@ export async function trackVisit(path) {
   try { emit("page", "view", { path }); } catch { /* ignore */ }
 }
 
-// 🌙🕯️ הקשר-יום משותף לכל צרכני התנועה. READ/PURE בלבד — לא משנה policy או classification.
-export function getTrafficDayContext(day = new Date()) {
-  return getDayContext(day);
-}
-
 // ── שני מונים אחידים (מנהל) ─────────────────────────────────────────────────
 // (א) יחידות-ביקורים מ-site_visits: כולל-בוטים · אנשים(is_bot=false) · בוטים.
 export async function getVisitsTwoMeter(days = 21) {
@@ -404,17 +399,6 @@ export async function getVercelInsights(days = 30, options = {}) {
   if (!r.ok) throw new Error("vercel-insights " + r.status);
   const payload = await r.json();
   return annotateTrafficPayloadDaily(payload);
-}
-
-// ── סנכרון Google Analytics → traffic_history (source='ga') דרך api/ga-sync ──
-export async function syncGoogleAnalytics(days = 540) {
-  if (!supabase) return null;
-  const { data } = await supabase.auth.getSession();
-  const token = data?.session?.access_token;
-  if (!token) return null;
-  const r = await fetch(`/api/ga-sync?days=${days}`, { method: "POST", headers: { Authorization: "Bearer " + token } });
-  if (!r.ok) throw new Error("ga-sync " + r.status);
-  return r.json();
 }
 
 // ── העמודים הישנים הכי נצפים (Jetpack top-posts) ──
