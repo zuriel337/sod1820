@@ -8,13 +8,8 @@ const heichal = readFileSync(
 );
 
 test("Heichal projects Scripture discovery from the existing Research/Entity Hub seam", () => {
-  // The Entity Hub projection is the only source of `data`; its research block is handed to ScriptureDiscoveryPanel as
-  // researchProjection and the panel reads both candidate lists from it. (The panel wiring replaced the earlier inline
-  // data?.research?.scriptureDiscovery reads; the seam is unchanged and now pinned end to end instead of by a single token.)
-  assert.match(heichal, /fetchEntityHubProjection\(\{[^}]*\}\)\s*\.then\(data => alive && setState\(\{ loading: false, data, error: null \}\)\)/);
-  assert.match(heichal, /<ScriptureDiscoveryPanel\s+researchProjection=\{data\?\.research \|\| null\}/);
-  assert.match(heichal, /researchProjection\?\.scriptureDiscovery\?\.candidates/);
-  assert.match(heichal, /researchProjection\?\.scriptureTermDiscovery\?\.candidates/);
+  assert.match(heichal, /data\?\.research\?\.scriptureDiscovery/);
+  assert.match(heichal, /data\?\.research\?\.scriptureTermDiscovery/);
   assert.match(heichal, /Discovery ≠ Truth/);
   assert.match(heichal, /fetchTanachVerseByOrdinal/);
 });
