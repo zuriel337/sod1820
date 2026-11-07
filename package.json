@@ -14,6 +14,8 @@
     "preview": "vite preview",
     "preview:kingdom": "VITE_KINGDOM_PREVIEW=true SOD_BUILD_TARGET=2029 vite build --outDir dist/kingdom-preview && node scripts/spatial/build-review.mjs && node scripts/icons/build-review.mjs && node scripts/preview-kingdom.mjs",
     "test:kingdom": "node --test src/lib/kingdom/kingdomPreview.test.js",
+    "test:handle-new-user-consent": "bash scripts/run-handle-new-user-consent-sql-test.sh",
+    "test:auth-password-account": "node --test src/lib/accountPassword.test.js src/lib/accountFlowMemory.test.js test/public-reading-password-account-transport.test.mjs test/public-reading-full-account-transport.test.mjs test/shared-auth-entry-2029.test.mjs",
     "test:world-group-source": "node --test src/lib/research/worldGroupSource.test.js && bash scripts/run-world-group-source-sql-test.sh",
     "test:zvi-stable-writer-binding": "node --test scripts/test-zvi-stable-writer-binding.mjs && bash scripts/run-zvi-stable-writer-binding-sql-test.sh",
     "test:spatial-scene-v1": "node --test test/spatial-scene-v1-m0.test.mjs test/spatial-scene-v1-m1.test.mjs test/spatial-scene-v1-m2.test.mjs test/spatial-scene-v1-m3.test.mjs",

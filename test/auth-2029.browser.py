@@ -1,4 +1,4 @@
-"""Native 2029 entry over existing Auth; intercepted local fixtures only."""
+"""Native 2029 entry over existing Auth: e-mail + password accounts, code confirmation; intercepted local fixtures only."""
 import base64
 import functools
 import json
@@ -39,7 +39,7 @@ threading.Thread(target=server.serve_forever,daemon=True).start()
 BASE=f'http://127.0.0.1:{server.server_port}'
 
 def install(context, preset='dark', initial=None):
- state={'requests':[],'errors':[],'unexpected':[],'blocked_reads':[],'actor':initial,'fail_password':False,'fail_verify':False,'hold':False,'held':None}
+ state={'requests':[],'errors':[],'unexpected':[],'blocked_reads':[],'actor':initial,'fail_password':False,'fail_verify':False,'fail_send':0,'hold':False,'held':None}
  context.add_init_script('localStorage.setItem("sod-theme",'+json.dumps(preset)+');'+('localStorage.setItem('+json.dumps(KEY)+','+json.dumps(json.dumps(session(initial)))+');' if initial else ''))
  def route(handler):
   req=handler.request;u=urlparse(req.url)
@@ -51,8 +51,11 @@ def install(context, preset='dark', initial=None):
   if u.path.startswith('/auth/v1/'):
    state['requests'].append({'path':u.path,'query':u.query,'body':body})
    if u.path=='/auth/v1/otp':
-    assert body['create_user'] is False,'Preview must not sign up accounts'
-    reply({});return
+    state['unexpected'].append('otp: the entry no longer signs in by emailed code or link');reply({},403);return
+   if u.path in ('/auth/v1/signup','/auth/v1/resend','/auth/v1/recover'):
+    if state['fail_send']:
+     reply({'code':state['fail_send'],'error_code':'unexpected_failure','msg':'Error sending confirmation email'},state['fail_send']);return
+    reply({'id':ADMIN,'email':body.get('email'),'app_metadata':{'provider':'email'},'user_metadata':{},'identities':[{'id':ADMIN}]} if u.path=='/auth/v1/signup' else {});return
    if u.path in ('/auth/v1/token','/auth/v1/verify'):
     if state['hold']: state['held']=handler;return
     if state['fail_password'] or state['fail_verify']: reply({'msg':'Invalid credentials','error_code':'invalid_credentials'},400);return
@@ -78,10 +81,9 @@ def install(context, preset='dark', initial=None):
 def open_entry(page,path=ENTRY):
  page.goto(BASE+path,wait_until='domcontentloaded')
  page.locator('[data-experience-surface="auth-2029"]').wait_for()
- page.get_by_role('heading',name='כניסה לחשבון',exact=True).wait_for()
+ page.get_by_role('heading',name='כניסה עם מייל וסיסמה',exact=True).wait_for()
 
 def password(page,email='admin@example.invalid'):
- page.get_by_role('button',name='כניסה עם סיסמה',exact=True).click()
  page.get_by_label('כתובת מייל',exact=True).fill(email)
  page.get_by_label('סיסמה',exact=True).fill('local-synthetic-password')
 
@@ -101,21 +103,30 @@ with sync_playwright() as p:
     for box in page.locator('.sod29-auth button,.sod29-auth input,.sod29-auth a').all():
      if box.is_visible(): assert box.bounding_box()['height']>=44
     page.get_by_label('כתובת מייל').focus();page.keyboard.press('Tab')
+    assert page.locator(':focus').get_attribute('type')=='password'
+    page.keyboard.press('Tab');page.keyboard.press('Tab')
     assert page.locator(':focus').get_attribute('type')=='submit'
     if (width,preset) in [(390,'dark'),(1440,'light')]:page.screenshot(path=str(OUT/f'{width}-{preset}.png'),full_page=True)
     assert not state['errors'],state['errors'];assert not state['unexpected'],state['unexpected']
     cases.append({'case':'layout','width':width,'preset':preset,'touch':True,'keyboard':True,'no_overflow':True})
     context.close()
-  # OTP: source validation, failure recovery, exact return and refresh, no signup.
+  # Sign-up with e-mail + password, confirmation by code: a failed send never looks like success; exact return and refresh.
   context=browser.new_context(viewport={'width':390,'height':900});state=install(context);page=context.new_page();open_entry(page)
-  page.get_by_label('כתובת מייל').fill('admin@example.invalid');page.get_by_role('button',name='שלחו לי קוד כניסה').click()
-  field=page.get_by_label('קוד כניסה מהמייל');field.wait_for();field.fill('123');page.get_by_role('button',name='כניסה לחשבון ←',exact=True).click()
+  page.get_by_role('button',name='אין לכם חשבון? פתיחת חשבון חדש',exact=True).click()
+  page.get_by_label('כתובת מייל',exact=True).fill('admin@example.invalid');page.get_by_label('סיסמה',exact=True).fill('local-synthetic-password')
+  state['fail_send']=500;page.get_by_role('button',name='פתיחת חשבון ←',exact=True).click()
+  expect(page.get_by_role('alert')).to_contain_text('לא הצלחנו לשלוח')
+  assert page.get_by_label('קוד אימות מהמייל').count()==0,'a failed send must not open the code step'
+  state['fail_send']=0;page.get_by_role('button',name='פתיחת חשבון ←',exact=True).click()
+  field=page.get_by_label('קוד אימות מהמייל');field.wait_for();field.fill('123');page.get_by_role('button',name='אימות הכתובת ←',exact=True).click()
   expect(page.get_by_role('alert')).to_contain_text('6–10')
   assert not any(x['path']=='/auth/v1/verify' for x in state['requests'])
-  state['fail_verify']=True;field.fill('1234567890');page.get_by_role('button',name='כניסה לחשבון ←',exact=True).click();expect(page.get_by_role('alert')).to_contain_text('הקוד שגוי')
-  state['fail_verify']=False;page.get_by_role('button',name='כניסה לחשבון ←',exact=True).click();page.wait_for_url(BASE+TARGET)
+  state['fail_verify']=True;field.fill('1234567890');page.get_by_role('button',name='אימות הכתובת ←',exact=True).click();expect(page.get_by_role('alert')).to_contain_text('הקוד שגוי')
+  state['fail_verify']=False;page.get_by_role('button',name='אימות הכתובת ←',exact=True).click();page.wait_for_url(BASE+TARGET)
   page.reload(wait_until='domcontentloaded');assert urlparse(page.url).path=='/community/chat'
-  assert not state['unexpected'],state['unexpected'];cases.append({'case':'otp-failure-retry-10digits-exact-return-refresh','pass':True});context.close()
+  signup=[x for x in state['requests'] if x['path']=='/auth/v1/signup'][-1]
+  assert signup['query']=='' and signup['body']['data']=={},signup
+  assert not state['unexpected'],state['unexpected'];cases.append({'case':'signup-send-failure-code-retry-10digits-exact-return-refresh','pass':True});context.close()
   # Password failure and admin return, without deciding privilege from display name.
   context=browser.new_context();state=install(context);page=context.new_page();open_entry(page);password(page)
   state['fail_password']=True;page.get_by_role('button',name='כניסה לחשבון ←',exact=True).click();expect(page.get_by_role('alert')).to_contain_text('המייל או הסיסמה')
@@ -123,11 +134,11 @@ with sync_playwright() as p:
   cases.append({'case':'password-admin-failure-retry-exact-return','pass':True});context.close()
   # A hostile return target never leaves the existing 2029 app.
   context=browser.new_context();state=install(context);page=context.new_page();open_entry(page,'/login?returnTo='+quote('//external.example/private',safe=''));password(page)
-  page.get_by_role('button',name='כניסה לחשבון ←',exact=True).click();page.wait_for_url(BASE+'/2029');cases.append({'case':'external-return-rejected','pass':True});context.close()
+  page.get_by_role('button',name='כניסה לחשבון ←',exact=True).click();page.wait_for_url(BASE+'/');cases.append({'case':'external-return-rejected','pass':True});context.close()
   # Current-account view and local signout preserve the same destination.
   context=browser.new_context();state=install(context,initial=ADMIN);page=context.new_page()
   page.goto(BASE+ENTRY,wait_until='domcontentloaded');page.get_by_role('heading',name='שלום, חשבון מנהל לבדיקה').wait_for()
-  page.get_by_role('button',name='כניסה עם חשבון אחר').click();page.get_by_role('heading',name='כניסה לחשבון',exact=True).wait_for()
+  page.get_by_role('button',name='כניסה עם חשבון אחר').click();page.get_by_role('heading',name='כניסה עם מייל וסיסמה',exact=True).wait_for()
   password(page,'member@example.invalid');page.get_by_role('button',name='כניסה לחשבון ←',exact=True).click();page.wait_for_url(BASE+TARGET)
   assert state['actor']==OTHER;cases.append({'case':'local-signout-account-switch-same-return','pass':True});context.close()
   # An abandoned form cannot navigate back when a late authentication settles.

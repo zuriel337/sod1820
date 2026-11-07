@@ -29,21 +29,19 @@ assert.match(frame, /בבנייה/);
 assert.match(frame, /function AccountConnection2029/);
 const authEntry = fs.readFileSync("src/components/auth2029/AccountEntry2029.jsx", "utf8");
 assert.match(frame, /<AccountEntry2029 inline variant="account"/);
-for (const helper of ["requestEmailOtp", "verifyEmailOtp", "isValidEmailOtp", "sanitizeEmailOtp"]) assert.match(authEntry, new RegExp(helper));
+for (const helper of ["signInWithPassword", "signUpWithPassword", "confirmSignupCode", "requestPasswordReset", "verifyRecoveryCode", "isValidEmailOtp", "sanitizeEmailOtp"]) assert.match(authEntry, new RegExp(helper));
 assert.match(frame, /data-workspace-section="account"/);
 // Accepted public and functional preview registration remains available;
 // a read-only preview must still refuse account creation.
-const creationExpression = authEntry.match(/shouldCreateUser: ([^}]+) \}/)?.[1];
-assert.ok(creationExpression, "canonical OTP entry must choose account creation explicitly");
-assert.equal(creationExpression.trim(), 'PUBLIC_READING_RELEASE || !preview || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true"');
-const chooseCreation = new Function("PUBLIC_READING_RELEASE", "preview", "functionalPreview", `return (${creationExpression.replace("import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW", "functionalPreview")})`);
+assert.match(authEntry, /accountCreationAllowed\(\{ publicReading: PUBLIC_READING_RELEASE, preview, functionalPreview: import\.meta\.env\.VITE_FUNCTIONAL_UNIFIED_PREVIEW \}\)/, "account creation must be chosen explicitly by the canonical rule");
+const { accountCreationAllowed } = await import(new URL("../src/lib/accountPassword.js", import.meta.url));
 for (const [name, publicReading, preview, functional, expected] of [
   ["public registration", true, true, "false", true],
   ["ordinary account entry", false, false, undefined, true],
   ["approved functional preview", false, true, "true", true],
   ["read-only preview", false, true, "false", false],
   ["missing functional grant", false, true, undefined, false],
-]) assert.equal(chooseCreation(publicReading, preview, functional), expected, name);
+]) assert.equal(accountCreationAllowed({ publicReading, preview, functionalPreview: functional }), expected, name);
 assert.match(authEntry, /signOut\(\{ scope: "local" \}\)/);
 assert.match(frame, /signOut/);
 assert.match(frame, /onClick: openAccount/);

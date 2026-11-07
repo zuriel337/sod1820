@@ -30,7 +30,7 @@ function worker({role='admin',uid=a,rows,authError=false,throwFetch=false,fetchA
  }};
 }
 test('worker policy changed and exact callback alone consumes tab-bound PKCE',()=>{
- assert.equal(PUBLIC_READING_POLICY_ID,'public-reading-owned-account-continuity-20261103');
+ assert.equal(PUBLIC_READING_POLICY_ID,'public-reading-password-account-20261107');
  const storage={getItem(){},setItem(){},removeItem(){}};
  for(const pathname of ['/','/world','/auth/callback/','/post/auth/callback'])assert.equal(readingSessionOptions(storage,{pathname}).detectSessionInUrl,false);
  const configured=readingSessionOptions(storage,{pathname:'/auth/callback'});
@@ -55,15 +55,18 @@ test('emitted account transport admits existing login, new signup, verification 
  ]){const response=await w.request(path,{body});assert.equal(response.status,200,path);}
  assert.equal(w.calls.length,4);
 });
-test('new Auth transport denies role/data injection, phone, arbitrary callback, recovery and non-PKCE grants',async()=>{
+test('new Auth transport denies role/data injection, phone, arbitrary callback, unsupported verification types and non-PKCE grants',async()=>{
+ // Password-account operations (sign-up, recovery, resend, password update) are admitted only in their exact shapes: see
+ // public-reading-password-account-transport.test.mjs. Here they must still be refused when empty or malformed.
  for(const [path,body] of [
   ['/auth/v1/otp',{email:'owner@example.invalid',data:{role:'admin'},create_user:true,code_challenge:'a'.repeat(43),code_challenge_method:'s256'}],
   ['/auth/v1/otp?redirect_to=https://evil.invalid',{email:'owner@example.invalid',data:{},create_user:true}],
   ['/auth/v1/otp',{phone:'+15555555555',create_user:true}],
-  ['/auth/v1/verify',{email:'owner@example.invalid',token:'123456',type:'recovery'}],
+  ['/auth/v1/verify',{email:'owner@example.invalid',token:'123456',type:'magiclink'}],
+  ['/auth/v1/verify',{email:'owner@example.invalid',token:'123456',type:'email_change'}],
   ['/auth/v1/token?grant_type=pkce',{auth_code:'code',code_verifier:'short'}],
   ['/auth/v1/token?grant_type=pkce&grant_type=password',{auth_code:'code',code_verifier:'a'.repeat(56)}],
-  ['/auth/v1/user',{role:'admin'}],['/auth/v1/signup',{}],['/auth/v1/recover',{}],
+  ['/auth/v1/user',{role:'admin'}],['/auth/v1/signup',{}],['/auth/v1/recover',{}],['/auth/v1/resend',{}],
  ]){const w=worker();assert.equal((await w.request(path,{body})).status,403,path);assert.equal(w.calls.length,0,path);}
 });
 test('historical Preview Auth remains password-only unless explicitly opted in by this worker',async()=>{

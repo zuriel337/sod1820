@@ -82,6 +82,49 @@ export async function verifyEmailOtp(email, token) {
   return data;
 }
 
+// ── חשבון עם מייל וסיסמה: הרשמה, אימות כתובת בקוד, איפוס סיסמה ──
+// כל הקריאות כאן מבוססות קוד: לא נשלחים emailRedirectTo ולא user_metadata, לכן ה־Worker מתיר רק את הצורה המדויקת
+// (ראו test/public-reading-password-account-transport.test.mjs), ושום קישור במייל אינו נדרש. האימות והאיפוס מושלמים
+// בהקלדת הקוד מהמייל, בכל דפדפן ובכל מכשיר. ההרשמה אינה מצרפת לרשימת הדיוור: אין כאן אף שדה הסכמה.
+const addressOf = email => String(email || '').trim();
+const codeOf = token => String(token || '').trim();
+
+export async function signUpWithPassword(email, password) {
+  const { data, error } = await supabase.auth.signUp({ email: addressOf(email), password: String(password || '') });
+  if (error) throw error;
+  return data;
+}
+
+export async function confirmSignupCode(email, token) {
+  const { data, error } = await supabase.auth.verifyOtp({ email: addressOf(email), token: codeOf(token), type: 'signup' });
+  if (error) throw error;
+  return data;
+}
+
+export async function resendSignupCode(email) {
+  const { error } = await supabase.auth.resend({ type: 'signup', email: addressOf(email) });
+  if (error) throw error;
+  return { ok: true };
+}
+
+export async function requestPasswordReset(email) {
+  const { error } = await supabase.auth.resetPasswordForEmail(addressOf(email));
+  if (error) throw error;
+  return { ok: true };
+}
+
+export async function verifyRecoveryCode(email, token) {
+  const { data, error } = await supabase.auth.verifyOtp({ email: addressOf(email), token: codeOf(token), type: 'recovery' });
+  if (error) throw error;
+  return data;
+}
+
+export async function setNewPassword(password) {
+  const { data, error } = await supabase.auth.updateUser({ password: String(password || '') });
+  if (error) throw error;
+  return data;
+}
+
 export async function getSession() {
   const { data } = await supabase.auth.getSession();
   return data?.session ?? null;

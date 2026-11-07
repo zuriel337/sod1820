@@ -61,15 +61,17 @@ try{for(const width of [390,1440]){
  await check('World, calculator and guest personal/admin gates remain truthful',width,async row=>{
   await page.goto(origin+'/world',{waitUntil:'domcontentloaded',timeout:60000});await page.locator('.sod29-root.surface-world').waitFor();await expect(page.locator('h1').first()).toContainText('עולם');assert.equal(await page.getByRole('dialog').count(),0);
   await page.goto(origin+'/gematria?w='+encodeURIComponent('משיח'),{waitUntil:'domcontentloaded',timeout:60000});await page.locator('[data-experience-surface="calculator-pro-2029"]').waitFor();
-  await page.goto(origin+'/login?returnTo=%2F2029%2Fme%2Fresearch',{waitUntil:'domcontentloaded',timeout:60000});await page.getByRole('button',{name:'כניסה עם סיסמה',exact:true}).waitFor();
-  const signupPolicy=page.locator('[data-signup-updates-policy="existing-site-default"]');
-  await expect(signupPolicy).toContainText('בהרשמה לחשבון חדש תקבלו גם עדכוני אתר במייל. אפשר להסיר בכל מייל. הסרה קודמת נשמרת. כניסה לחשבון קיים אינה משנה את ההרשמה לעדכונים.');
+  await page.goto(origin+'/login?returnTo=%2F2029%2Fme%2Fresearch',{waitUntil:'domcontentloaded',timeout:60000});await page.getByLabel('סיסמה',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'אין לכם חשבון? פתיחת חשבון חדש',exact:true}).click();
+  const signupPolicy=page.locator('[data-signup-updates-policy="explicit-consent-only"]');
+  await expect(signupPolicy).toContainText('פתיחת חשבון אינה מצרפת אתכם לרשימת הדיוור. אפשר להירשם לעדכוני האתר בנפרד, רק בהסכמה מפורשת.');
+  assert.equal(await page.locator('input[type=checkbox]').count(),0);
   const stableAuthOrigin='https://sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app';
   for(const provider of ['Google','Facebook']) {
     const button=page.getByRole('button',{name:'המשך עם '+provider,exact:true});
     if(origin===stableAuthOrigin && cfg.oauthReady===true)await expect(button).toBeEnabled();else await expect(button).toBeDisabled();
   }
-  row.signupPolicy='existing site default visible; ordinary existing-account login changes no preference; OAuth uses only the platform-bound stable callback';
+  row.signupPolicy='sign-up states that opening an account does not join the mailing list; no consent control on the account form; OAuth uses only the platform-bound stable callback';
   await page.goto(origin+'/2029/control',{waitUntil:'domcontentloaded',timeout:60000});await page.getByText('זהו מסך פרטי.',{exact:false}).waitFor();assert.equal(await page.getByRole('heading',{name:'Control Plane',exact:true}).count(),0);assert.equal(await page.locator('[data-experience-capability="operational-health-summary"]').count(),0);row.privilegedReads='no genuine admin session used; named private state retained without revealing CP1';
  });
  report.denied.push({width,requests:await page.evaluate(()=>window.__denied||[])});await ctx.close();page=null;

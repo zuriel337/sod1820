@@ -25,6 +25,9 @@
 .sod29-account-entry :is(a,button,input):focus-visible{outline:3px solid var(--s29-focus-ring);outline-offset:3px}
 .sod29-account-entry .sod29-auth-error{color:var(--auth29-danger);font-size:15px;line-height:1.7;overflow-wrap:anywhere}
 .sod29-auth-method-note{font-size:14px;line-height:1.8;color:var(--s29-muted);margin:8px 0 0}
+.sod29-account-entry .sod29-auth-notice{font-size:15px;line-height:1.7;color:var(--s29-ink);margin:4px 0;padding:10px 12px;border-radius:10px;border:1px solid var(--s29-line-strong);background:color-mix(in srgb,var(--s29-accent) 8%,transparent);overflow-wrap:anywhere}
+.sod29-account-entry .sod29-auth-progress{font-size:14px;line-height:1.7;color:var(--s29-muted);margin:2px 0}
+.sod29-account-entry .sod29-auth-hint{font-size:13px;line-height:1.6;color:var(--s29-muted)}
 .sod29-community-sign-in>.sod29-account-entry{width:100%;max-width:520px;margin:auto;padding:16px;border:0;box-shadow:none;background:transparent}
 .sod29-community-sign-in .sod29-account-entry form{display:grid;gap:10px;margin:0}
 .sod29-community-sign-in .sod29-account-entry input{width:100%;min-height:50px;flex:initial}

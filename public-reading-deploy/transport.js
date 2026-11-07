@@ -18,7 +18,7 @@ export const PUBLIC_READING_READ_RPCS = Object.freeze([
 export const PUBLIC_READING_GET_RPCS = Object.freeze([
   ...PUBLIC_READING_READ_RPCS, "writer_public_contributions_page_v1", "canonical_follow_subject",
 ]);
-export const PUBLIC_READING_POLICY_ID = "public-reading-owned-account-continuity-20261103";
+export const PUBLIC_READING_POLICY_ID = "public-reading-password-account-20261107";
 export const COMMUNITY_PUBLIC_FIELDS = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
 
 // Kept as a function so Node VM tests execute precisely the emitted worker.

@@ -67,7 +67,8 @@ try {
       await account.getByRole('button', { name: 'כניסה לחשבון ←', exact: true }).click();
     };
     await openAccount();
-    await account.getByRole('button',{name:'כניסה עם סיסמה',exact:true}).click();
+    // E-mail + password is the entry's default (and in this read-only preview its only) way in: no step to open first.
+    await account.getByLabel('סיסמה', { exact: true }).waitFor();
     assert.equal(await account.getByLabel('סיסמה', { exact: true }).getAttribute('autocomplete'), 'current-password');
     await account.getByRole('button', { name: 'הצגת סיסמה', exact: true }).click();
     assert.equal(await account.getByLabel('סיסמה', { exact: true }).getAttribute('type'), 'text');
@@ -107,18 +108,18 @@ try {
     await account.getByRole('button', { name: 'התנתקות', exact: true }).click();
     await account.waitFor({ state: 'hidden' });
     await page.reload({ waitUntil: 'domcontentloaded' }); await openAccount();
-    await account.getByRole('button',{name:'כניסה עם סיסמה',exact:true}).waitFor();
+    await account.getByLabel('סיסמה',{exact:true}).waitFor();
     assert.ok(calls.filter(c => c.path.endsWith('/logout')).every(c => c.scope === 'local'));
-    if(await account.getByLabel('סיסמה',{exact:true}).isVisible()) await account.getByRole('button',{name:'כניסה עם קוד למייל',exact:true}).click();
-    await account.getByLabel('כתובת מייל', {exact:true}).fill('b@example.invalid');
-    await account.getByRole('button', { name: 'שלחו לי קוד כניסה', exact: true }).click();
-    await account.getByRole('textbox', { name: 'קוד כניסה מהמייל', exact: true }).fill('123456');
-    await account.getByRole('button', { name: 'כניסה לחשבון ←', exact: true }).click();
-    await account.waitFor({ state: 'hidden' }); await openAccount();
+    // Sign-in by an emailed code or link no longer exists, and this read-only preview offers neither sign-up nor reset (they need the
+    // full-account transport): the only control that asks for an e-mail address is the password form.
+    assert.equal(await account.getByRole('button', { name: /קוד כניסה|קוד למייל|קישור/ }).count(), 0);
+    assert.equal(await account.getByRole('button', { name: /פתיחת חשבון|שכחתי סיסמה/ }).count(), 0);
+    await login('b'); await account.waitFor({ state: 'hidden' }); await openAccount();
     await account.getByText('b@example.invalid', { exact: true }).waitFor();
+    assert.equal(calls.some(c => ['/auth/v1/otp', '/auth/v1/signup', '/auth/v1/recover', '/auth/v1/resend'].includes(c.path)), false, 'no emailed-code, sign-up or reset request is made');
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false);
     assert.deepEqual(errors, []);
-    receipt.cases.push({ width, wrongPassword: true, accountSwitch: true, staleProfileIgnored: true, reload: true, refresh: true, localLogout: true, existingAccountOtp: true, passwordNotPersisted: true, noOverflow: true, errors });
+    receipt.cases.push({ width, wrongPassword: true, accountSwitch: true, staleProfileIgnored: true, reload: true, refresh: true, localLogout: true, noEmailedCodeSignIn: true, passwordNotPersisted: true, noOverflow: true, errors });
     await context.close();
   }
 } catch (e) {
