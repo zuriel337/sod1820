@@ -223,5 +223,15 @@ export function collapseSourceRuns(models, { min = 2 } = {}) {
   return entries;
 }
 
+/** The newest valid time among the rows of a collapsed run (ISO string), or null when none has a usable time. */
+export function latestRunAt(models) {
+  let best = null;
+  for (const model of list(models)) {
+    const time = Date.parse(model?.at || "");
+    if (Number.isFinite(time) && (best == null || time > best)) best = time;
+  }
+  return best == null ? null : new Date(best).toISOString();
+}
+
 /** The series page for a model (series key is the existing approved identity). */
 export const nowSeriesHref = model => model?.seriesKey ? `/2029/posts?series=${encodeURIComponent(model.seriesKey)}` : null;
