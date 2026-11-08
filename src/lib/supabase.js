@@ -1512,11 +1512,23 @@ export async function getHotPostsLive({ days = 7, limit = 4 } = {}) {
 
 // ── Contact ────────────────────────────────────────────────
 export async function sendContactMessage({ name, email, subject, message }) {
-  const { error } = await supabase.from('contact_messages').insert([{
+  const payload = {
     name: name.trim(), email: email.trim(),
     subject: subject.trim(), message: message.trim(),
-  }]);
+  };
+  const { error } = await supabase.from('contact_messages').insert([payload]);
   if (error) throw error;
+
+  // Notify site admin after the contact message is safely persisted.
+  // Email failure must not make the user resubmit and create duplicate messages.
+  try {
+    const { error: notifyError } = await supabase.functions.invoke('contact-notify', {
+      body: payload,
+    });
+    if (notifyError) console.warn('[contact] admin notification failed', notifyError.message);
+  } catch (notifyError) {
+    console.warn('[contact] admin notification failed', notifyError);
+  }
 }
 
 // ── Chat ───────────────────────────────────────────────────
