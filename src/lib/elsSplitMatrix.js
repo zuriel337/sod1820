@@ -92,3 +92,68 @@ export function splitMarkMap(band) {
   for (const mark of ordered) for (const [r, c] of mark.cells) map.set(`${r}-${c}`, { ...mark, start: mark.start });
   return map;
 }
+
+// ── Folding ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// The matrix row width equals the axis skip, so the axis letters sit in consecutive rows. Re-flowing the SAME text into rows of
+// width S/k puts k-1 rows between consecutive axis letters. This is presentation only: letters, positions and verification of every
+// occurrence stay exactly as the engine verified them. Only exact divisors are offered, so the axis stays a straight vertical line.
+export const FOLD_MIN_WIDTH = 3;
+export const FOLD_MAX_MULTIPLE = 4;
+export const FOLD_MAX_WIDTH = 8192;
+
+// Row widths offered for one axis, ascending: the exact divisors of the skip (S/k: k-1 rows sit between consecutive axis letters, the axis
+// stays a straight vertical line) and the small multiples of it (S*m: m axis letters per row, the axis lies along the rows). Every option
+// re-flows the same text; the default width (the skip itself) is `base: true`.
+export function foldOptions(skip, { minWidth = FOLD_MIN_WIDTH, maxMultiple = FOLD_MAX_MULTIPLE } = {}) {
+  const S = int(skip, 0);
+  if (!Number.isSafeInteger(S) || S < 2) return [{ k: 1, m: 1, width: S, between: 0, perRow: 1, base: true }];
+  const out = [];
+  for (let k = Math.floor(S / minWidth); k >= 2; k -= 1) if (S % k === 0) out.push({ k, m: 1, width: S / k, between: k - 1, perRow: 1, base: false });
+  out.push({ k: 1, m: 1, width: S, between: 0, perRow: 1, base: true });
+  for (let m = 2; m <= maxMultiple && S * m <= FOLD_MAX_WIDTH; m += 1) out.push({ k: 1, m, width: S * m, between: 0, perRow: m, base: false });
+  return out.sort((a, b) => a.width - b.width);
+}
+
+// Only layouts whose axis still fits one window (the engine shows at most SPLIT_LIMITS.maxRows rows) are useful to look at.
+export function foldOptionsFor(skip, length, { maxRows = SPLIT_LIMITS.maxRows } = {}) {
+  const rows = option => Math.ceil((Math.max(1, int(length, 1)) - 1) * option.k / option.m) + 1;
+  return foldOptions(skip).filter(option => rows(option) <= maxRows);
+}
+
+// Positions (0-based text indexes) of one verified occurrence, rebuilt from what the lens reports about it.
+export function hitPositionsOf(hit) {
+  const step = (hit?.direction === "back" ? -1 : 1) * (hit?.skip || 0);
+  return Array.from({ length: Math.max(0, hit?.length || 0) }, (_, i) => (hit?.start || 0) + i * step);
+}
+
+export function hitBoxAt(hit, width) {
+  const W = Math.max(2, int(width, 2));
+  let rowMin = Infinity, rowMax = -Infinity, colMin = Infinity, colMax = -Infinity;
+  for (const p of hitPositionsOf(hit)) {
+    const r = Math.floor(p / W), c = ((p % W) + W) % W;
+    rowMin = Math.min(rowMin, r); rowMax = Math.max(rowMax, r); colMin = Math.min(colMin, c); colMax = Math.max(colMax, c);
+  }
+  return { rowMin, rowMax, colMin, colMax };
+}
+
+// The smallest fold that brings a verified occurrence, which is too far from the axis in the normal layout, next to it.
+export function foldSuggestion(hits = [], axisHitId, skip, { reach = 10, rowSlack = 12 } = {}) {
+  const axis = hits.find(hit => hit.hitId === axisHitId);
+  if (!axis) return null;
+  const options = foldOptionsFor(skip, axis.length);
+  const gapAt = (hit, width) => {
+    const a = { ...axis, ...hitBoxAt(axis, width) }, b = { ...hit, ...hitBoxAt(hit, width) };
+    return { gap: splitColumnGap(a, b), rows: splitRowsOverlap(a, b, rowSlack) };
+  };
+  const others = hits.filter(hit => hit.hitId !== axisHitId && hit.length > 0);
+  if (!options.length) return null;
+  const baseWidth = options.find(option => option.base)?.width ?? skip;
+  const far = others.filter(hit => gapAt(hit, baseWidth).gap > reach);
+  for (const option of options.filter(option => option.k > 1).sort((a, b) => a.k - b.k)) {
+    for (const hit of far) {
+      const { gap, rows } = gapAt(hit, option.width);
+      if (gap <= reach && rows) return { k: option.k, width: option.width, between: option.between, hitId: hit.hitId, term: hit.term, gap };
+    }
+  }
+  return null;
+}
