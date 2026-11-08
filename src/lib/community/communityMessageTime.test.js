@@ -6,7 +6,7 @@ test("Community uses original creation time, only in the past 24 hours", (t) => 
   const now = Date.parse("2026-11-04T18:10:00Z");
   t.mock.method(Date, "now", () => now);
   const at = age => new Date(now - age).toISOString();
-  for (const [age, label] of [[0,"לפני רגע"], [60_000,"לפני דקה"], [300_000,"לפני 5 דקות"], [3_600_000,"לפני שעה"], [7_200_000,"לפני 2 שעות"], [86_399_999,"לפני 23 שעות"]]) {
+  for (const [age, label] of [[0,"לפני רגע"], [60_000,"לפני דקה"], [300_000,"לפני 5 דקות"], [3_600_000,"לפני שעה"], [7_200_000,"לפני שעתיים"], [86_399_999,"לפני 23 שעות"]]) {
     const result = communityMessageTime(at(age));
     assert.equal(result.label, label);
     assert.ok(result.full.includes("2026"));

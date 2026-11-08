@@ -1,6 +1,6 @@
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { publicPostOnlyFilter, hasSuppressedPublicPostTag } from "./publicPostBoundary.js";
-import { CONTENT_SERIES_2029, hasExactMembership } from "./contentSeries2029Identity.js";
+import { CONTENT_SERIES_2029, contentSeriesKeysForPost, hasExactMembership } from "./contentSeries2029Identity.js";
 import { canonicalPostCategories } from "../postCategoryIdentity.js";
 import { stripHtml } from "../format.js";
 
@@ -45,4 +45,56 @@ export async function getHomeLaunchPostCards({ client = getPublicResearchClient(
   const { data, error } = await query;
   if (error) throw error;
   return projectHomeDocumentationPosts(data, Math.max(1, Math.min(4, Number(limit) || 4)));
+}
+
+// "מחקרים ותוכן נוסף" (series & Home plan, stage 2): public Posts that are in NO series and NOT in the documentation pool above.
+// It is the exact complement of the two other Home Post sources, computed with their own predicates, so a Post can never
+// appear in two of them. Presentation only: it assigns nothing to a series, category, tag or family, and it neither reads
+// nor changes the reality stream, event documentation or the "עכשיו" pool.
+// "פוסטים אחרונים" bounds (measured 6.11.2026, not carried over from an earlier proposal): the newest six, none older than
+// 90 days (15 candidates today; 4 in 30 days, 8 in 60, 27 in 120). 90 days keeps "latest" truthful in a quiet period (the
+// area hides itself rather than showing stale items) and bounds the one read to roughly the posts of one quarter.
+export const HOME_STANDALONE_WINDOW_DAYS = 90;
+export const HOME_STANDALONE_LIMIT = 6;
+const HOME_STANDALONE_READ_LIMIT = 80;
+
+export function isHomeStandalonePost(row) {
+  return Boolean(row?.slug) && stripHtml(row?.title || "").trim() !== ""
+    && row?.home_hidden !== true && !hasSuppressedPublicPostTag(row)
+    && contentSeriesKeysForPost(row).length === 0
+    && !isHomeDocumentationPost(row);
+}
+
+// `exclude` holds slugs or ids already shown by another Home source (for example the videos and cipher strips).
+export function projectHomeStandalonePosts(rows, { limit = HOME_STANDALONE_LIMIT, exclude = [], now = Date.now() } = {}) {
+  const blocked = new Set([...exclude].map(String));
+  const since = now - HOME_STANDALONE_WINDOW_DAYS * 24 * 60 * 60 * 1000;
+  const seen = new Set();
+  return (Array.isArray(rows) ? rows : []).filter(row => {
+    const published = Date.parse(row?.date);
+    if (!isHomeStandalonePost(row) || !Number.isFinite(published) || published < since || published > now + 24 * 60 * 60 * 1000) return false;
+    if (blocked.has(String(row.id)) || blocked.has(String(row.slug)) || seen.has(String(row.id))) return false;
+    seen.add(String(row.id));
+    return true;
+  }).sort((a, b) => (Date.parse(b.date) || 0) - (Date.parse(a.date) || 0) || Number(b.id) - Number(a.id))
+    .slice(0, Math.max(1, Math.min(HOME_STANDALONE_READ_LIMIT, Number(limit) || HOME_STANDALONE_LIMIT))).map(row => ({
+      id: row.id, slug: row.slug, source: row.source, link: row.link, wp_id: row.wp_id,
+      title: stripHtml(row.title || ""), poster: row.thumb_url || row.image_url || null,
+      excerpt: stripHtml(row.excerpt || "").replace(/\s+/g, " ").trim().slice(0, 160) || null,
+      author: stripHtml(row.author || "").trim() || null, publishedAt: row.date || null, sourcePost: row,
+    }));
+}
+
+export async function getHomeStandalonePostCards({ client = getPublicResearchClient(), limit = HOME_STANDALONE_LIMIT, signal, now = Date.now(), exclude = [] } = {}) {
+  if (!client) throw new Error("public_posts_unavailable");
+  const since = new Date(now - HOME_STANDALONE_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  // One bounded read of recent public Posts; series/pool membership is decided by the shared predicates, not re-expressed in SQL.
+  let query = client.from("posts")
+    .select("id,slug,title,excerpt,image_url,thumb_url,date,modified,tags,categories,author,source,link,wp_id,home_hidden")
+    .or(publicPostOnlyFilter()).eq("home_hidden", false).not("slug", "is", null).gte("date", since)
+    .order("date", { ascending: false, nullsFirst: false }).limit(HOME_STANDALONE_READ_LIMIT);
+  if (signal) query = query.abortSignal(signal);
+  const { data, error } = await query;
+  if (error) throw error;
+  return projectHomeStandalonePosts(data, { limit, exclude, now });
 }

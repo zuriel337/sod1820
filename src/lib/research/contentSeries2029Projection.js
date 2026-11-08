@@ -13,6 +13,43 @@ function isSuppressedPost(row) {
   return hasSuppressedPublicPostTag(row);
 }
 
+// Home entrances to a series' future content families: exact links to existing category pages, or a non-link "coming soon".
+// Never membership, never a selector; a malformed entry is dropped.
+export function seriesHomeFamilies2029(spec) {
+  const seen = new Set();
+  return (Array.isArray(spec?.families) ? spec.families : []).flatMap(family => {
+    const key = clean(family?.key), label = clean(family?.label), category = clean(family?.category);
+    if (!key || !label || seen.has(key)) return [];
+    seen.add(key);
+    return [{ key, label, note: clean(family.note), category: category || null,
+      href: category ? `/2029/posts?category=${encodeURIComponent(category)}` : null }];
+  });
+}
+
+// Home sample of a series. It is returned ONLY when the owner declared an explicit approval and an exact source Post
+// reference; anything else yields null (no sample is shown, never a placeholder). The sample links to its source Post
+// and never creates series membership.
+export function seriesHomeTeaser2029(spec) {
+  const teaser = spec?.teaser;
+  if (!teaser || teaser.approval?.status !== "approved" || !clean(teaser.approval?.decisionRef)) return null;
+  const text = clean(teaser.text), highlight = clean(teaser.highlight), sourceRef = clean(teaser.sourceRef);
+  const post = teaser.sourcePost;
+  if (!text || !highlight || !text.includes(highlight) || !/^posts:[1-9]\d*$/.test(sourceRef)
+    || String(post?.id) !== sourceRef.slice("posts:".length) || !clean(post?.slug)) return null;
+  // The tile block must be the Post's own, internally consistent quote: single Latin letters with positive integer values that
+  // add up to the stated total, which the highlight names. Anything else hides the sample (never a wrong number).
+  const tiles = Array.isArray(teaser.tiles) ? teaser.tiles : [];
+  const total = Number(teaser.total);
+  const tilesValid = tiles.length > 0 && tiles.every(tile => Array.isArray(tile) && /^[A-Za-z]$/.test(tile[0]) && Number.isInteger(tile[1]) && tile[1] > 0)
+    && Number.isInteger(total) && tiles.reduce((sum, tile) => sum + tile[1], 0) === total && highlight.includes(String(total));
+  if (!tilesValid) return null;
+  const href = publicPostHref(post);
+  if (!href) return null;
+  return { text, highlight, sourceRef, href, sourceTitle: clean(teaser.sourceTitle), methodNote: clean(teaser.methodNote),
+    step: clean(teaser.step), tiles: tiles.map(([letter, value]) => ({ letter, value })), total,
+    decisionRef: clean(teaser.approval.decisionRef) };
+}
+
 const publishedFirst = (a, b) => {
   const dateOrder = (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0);
   if (dateOrder) return dateOrder;
@@ -166,12 +203,30 @@ export function projectContentSeriesItems(rows = [], spec = {}) {
       imageUrl: clean(row?.thumb_url || row?.image_url) || null,
       publishedAt: row?.date || null,
       updatedAt: row?.modified || row?.date || null,
+      categories: Array.isArray(row?.categories) ? row.categories.filter(Boolean).map(String) : [],
       href: publicPostHref(row),
       sourceRef: `posts:${row.id}`,
       kind: "post",
     });
   }
   return { items: items.sort((a, b) => (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0)), excluded };
+}
+
+// Home option C (ZURIEL 8.11.2026): one row per content family. A family shows the NEWEST series member whose own category is the
+// family's category (display grouping of already-admitted members; it never admits, assigns or changes anything). A family with a category
+// but no member keeps its link only; a family without a category is a "soon" label. Members shown by no row are returned as `rest`.
+export function seriesFamilyRows2029(items, families) {
+  const list = (Array.isArray(items) ? items : []).slice().sort((a, b) => (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0));
+  const shown = new Set();
+  const rows = [], soon = [];
+  for (const family of Array.isArray(families) ? families : []) {
+    if (!family.href) { soon.push(family); continue; }
+    const category = family.category || null;
+    const item = category ? list.find(candidate => !shown.has(candidate.sourceRef || candidate.id) && Array.isArray(candidate.categories) && candidate.categories.includes(category)) || null : null;
+    if (item) shown.add(item.sourceRef || item.id);
+    rows.push({ ...family, item });
+  }
+  return { rows, soon, rest: list.filter(item => !shown.has(item.sourceRef || item.id)) };
 }
 
 export function buildContentSeriesCatalog2029(results = [], { homeOnly = false } = {}) {
@@ -192,6 +247,7 @@ export function buildContentSeriesCatalog2029(results = [], { homeOnly = false }
       writerLabel: spec.writerLabel,
       publisherLabel: spec.publisherLabel,
       priorityLane: spec.priorityLane,
+      homeTeaser: seriesHomeTeaser2029(spec),
       relationNote: spec.relationNote,
       mappingState: "approved_identity_partial_membership",
       homeOnly,
@@ -237,23 +293,83 @@ async function fetchSeriesPreview(spec, { client, limit, homeOnly, signal }) {
   };
 }
 
-export async function fetchContentSeriesCatalog2029({
-  client = getPublicResearchClient(),
-  limitPerSeries = 4,
-  homeOnly = false,
-  signal,
-  sourceSeriesKey = null,
-} = {}) {
+// ONE read of the series catalog serves Home and the shared feed's details (ZURIEL 8.11.2026: no duplicate reads, no change of content or
+// counts). The default (non-injected) reader always reads the SUPERSET both consumers need (primary SUPERSET_PRIMARY, others SUPERSET_OTHER, newest
+// first, window-free) once per minute; each caller then gets its own exact shape from it:
+//  - the feed's details: the first `limitPerSeries` rows of every series, exactly as before (no window);
+//  - Home (`homeDisplay`): each series' explicit `homeDisplay.limit` inside its `windowDays` (null = no window).
+// An injected `client` other than the default public one (tests) keeps the direct, uncached read with the requested limits.
+const SUPERSET_PRIMARY = 6, SUPERSET_OTHER = 4, CATALOG_TTL_MS = 60 * 1000;
+let sharedCatalogRead = null;
+function resetSharedCatalogRead() { sharedCatalogRead = null; }
+export { resetSharedCatalogRead as resetSharedCatalogRead2029 };
+function supersetLimit(spec) { return spec.priorityLane === "primary" ? SUPERSET_PRIMARY : SUPERSET_OTHER; }
+function readSharedCatalogRows(homeOnly) {
+  const now = Date.now();
+  if (sharedCatalogRead && sharedCatalogRead.homeOnly === homeOnly && now - sharedCatalogRead.at < CATALOG_TTL_MS) return sharedCatalogRead.promise;
+  const client = getPublicResearchClient();
+  const promise = Promise.all(CONTENT_SERIES_2029.map(spec =>
+    fetchSeriesPreview(spec, { client, limit: supersetLimit(spec), homeOnly, signal: null })
+      .catch(() => ({ key: spec.key, rows: [], total: null, failed: true }))));
+  const entry = { homeOnly, at: now, promise };
+  sharedCatalogRead = entry;
+  // A read that failed anywhere is never reused.
+  promise.then(rows => { if (rows.some(row => row.failed) && sharedCatalogRead === entry) sharedCatalogRead = null; }, () => { if (sharedCatalogRead === entry) sharedCatalogRead = null; });
+  return promise;
+}
+
+// Pure: the exact shape each consumer gets from the shared superset rows (see above).
+export function shapeSharedCatalogRows2029(rows, { homeDisplay = false, limit = 4, primaryLimit = null, now = Date.now() } = {}) {
+  return CONTENT_SERIES_2029.map(spec => {
+    const read = (Array.isArray(rows) ? rows : []).find(row => row.key === spec.key) || { key: spec.key, rows: [], total: null, failed: true };
+    let list = Array.isArray(read.rows) ? read.rows : [];
+    if (homeDisplay) {
+      const display = spec.homeDisplay || { limit, windowDays: null };
+      if (display.windowDays) {
+        const since = now - display.windowDays * 24 * 60 * 60 * 1000;
+        list = list.filter(row => Number.isFinite(Date.parse(row?.date)) && Date.parse(row.date) >= since);
+      }
+      list = list.slice(0, display.limit);
+    } else {
+      const cap = spec.priorityLane === "primary" && Number(primaryLimit) > 0 ? Math.max(limit, Math.min(Math.floor(Number(primaryLimit)), SUPERSET_PRIMARY)) : limit;
+      list = list.slice(0, cap);
+    }
+    return { ...read, rows: list, sourceItems: [], sourceStates: [], sourcesRequested: false };
+  });
+}
+
+export async function fetchContentSeriesCatalog2029(options = {}) {
+  const {
+    client = null,
+    limitPerSeries = 4,
+    homeOnly = false,
+    signal,
+    sourceSeriesKey = null,
+    primaryLimit = null,
+    homeDisplay = false,
+    now = Date.now(),
+  } = options;
   const limit = Math.max(1, Math.min(Number(limitPerSeries) || 4, 12));
   canceled(signal);
+  // Only the default public reader (no other injected client, no approved-source read) shares; everything else reads directly as before.
+  const shared = (!client || client === getPublicResearchClient()) && !sourceSeriesKey && limit <= SUPERSET_OTHER && !(Number(primaryLimit) > SUPERSET_PRIMARY);
+  if (shared) {
+    const rows = await readSharedCatalogRows(homeOnly);
+    canceled(signal);
+    return buildContentSeriesCatalog2029(shapeSharedCatalogRows2029(rows, { homeDisplay, limit, primaryLimit, now }), { homeOnly });
+  }
+  const direct = client || getPublicResearchClient();
+  // The primary series (reality-map) may be read deeper than the others in the SAME single read per series (Home's flagship
+  // list). Every other series keeps `limit`; membership, ordering and the public boundary are unchanged.
+  const limitFor = spec => spec.priorityLane === "primary" && Number(primaryLimit) > 0 ? Math.max(limit, Math.min(Math.floor(Number(primaryLimit)), 24)) : limit;
   const results = await Promise.all(CONTENT_SERIES_2029.map(async spec => {
     const sourcesRequested = sourceSeriesKey === spec.key && Boolean(spec.approvedSources?.length);
     const [posts, sources] = await Promise.all([
-      fetchSeriesPreview(spec, { client, limit, homeOnly, signal }).catch(error => {
+      fetchSeriesPreview(spec, { client: direct, limit: limitFor(spec), homeOnly, signal }).catch(error => {
         if (signal?.aborted) throw error;
         return { key: spec.key, rows: [], total: null, failed: true };
       }),
-      sourcesRequested ? fetchApprovedContentSeriesSources2029(spec.key, { client, signal })
+      sourcesRequested ? fetchApprovedContentSeriesSources2029(spec.key, { client: direct, signal })
         : Promise.resolve({ items: [], sourceStates: [] }),
     ]);
     return { ...posts, sourceItems: sources.items, sourceStates: sources.sourceStates, sourcesRequested };

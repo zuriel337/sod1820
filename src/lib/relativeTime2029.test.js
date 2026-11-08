@@ -6,7 +6,7 @@ const ago = (ms) => new Date(Date.now() - ms).toISOString();
 test("relative time: minutes, hours, yesterday, days, months", () => {
   assert.equal(relativeTimeLabel(ago(5 * 60000)), "לפני 5 דקות");
   assert.equal(relativeTimeLabel(ago(3 * 3600000)), "לפני 3 שעות");
-  assert.equal(relativeTimeLabel(ago(30 * 3600000)), "אתמול");
+  assert.equal(relativeTimeLabel(ago(30 * 3600000)), "לפני יום");
   assert.equal(relativeTimeLabel(ago(3 * 86400000)), "לפני 3 ימים");
   assert.match(relativeTimeLabel(ago(100 * 86400000)), /^לפני 3 חודשים$/);
 });

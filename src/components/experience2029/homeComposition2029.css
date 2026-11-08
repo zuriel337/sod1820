@@ -207,6 +207,76 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
 .h29-series-item .h29-updated { display: block; color: var(--s29-gold, var(--s29-muted)); }
 .h29-series-item small,.h29-series-item time,.h29-series-item span > span { color: var(--s29-muted); font: 400 12px/1.5 var(--s29-font-ui); }
 .h29-series-card > .h29-empty { padding: 12px; }
+/* Primary series region (מפת המציאות): a branded, compact royal region for our own content, full width. Hierarchy: logo and
+   identity -> title -> leading sample -> flagship products. Glass over the frame palette, gold hairline, one short entrance
+   (no loop; the finished composition shows at once without motion). The other series cards are untouched. */
+.h29-series-card.is-primary { grid-column: 1 / -1; min-height: 0; position: relative; display: grid; gap: 0 18px; padding: 0; overflow: hidden;
+  grid-template-columns: minmax(0,1fr); grid-template-areas: "id" "title" "sample" "list" "fam";
+  border-color: color-mix(in srgb,var(--s29-brand-gold) 46%,var(--s29-line));
+  background: linear-gradient(135deg, color-mix(in srgb,var(--s29-brand-gold) 14%,transparent), transparent 55%), color-mix(in srgb,var(--s29-panel) 88%,transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  box-shadow: inset 0 1px 0 color-mix(in srgb,var(--s29-brand-gold) 30%,transparent), 0 0 34px -18px var(--s29-brand-gold); }
+.h29-rm-id { grid-area: id; display: flex; align-items: center; gap: 10px; padding: 10px 14px 0; }
+.h29-rm-logo { width: 40px; height: 40px; flex: none; object-fit: contain; filter: drop-shadow(0 0 10px color-mix(in srgb,var(--s29-brand-gold) 45%,transparent)); }
+.h29-rm-brand { display: grid; gap: 1px; min-width: 0; }
+.h29-rm-brand b { font: 600 13px/1.3 var(--s29-font-display, var(--s29-font-ui)); color: var(--s29-brand-gold); letter-spacing: .02em; }
+.h29-rm-brand small { font: 400 11px/1.3 var(--s29-font-ui); color: var(--s29-muted); }
+.h29-series-card.is-primary > .h29-series-head { grid-area: title; padding-inline-end: 10px; }
+.h29-series-card.is-primary .h29-series-name { margin: 0; min-height: 0; padding: 4px 14px 2px; border: 0; justify-content: flex-start;
+  font: 600 clamp(22px,2.6vw,30px)/1.2 var(--s29-font-display, var(--s29-font-ui)); letter-spacing: .01em; }
+.h29-series-card.is-primary .h29-series-name::before { content: "✦"; margin-inline-end: 8px; color: var(--s29-brand-gold); font-size: .55em; }
+.h29-series-teaser.h29-card-open { grid-area: sample; display: grid; align-content: center; justify-items: stretch; gap: 8px; padding: 8px 14px 12px; min-width: 0; container-type: inline-size; container-name: h29tz; }
+.h29-teaser-kicker { color: var(--s29-brand-gold); font: 600 12px/1.4 var(--s29-font-ui); letter-spacing: .02em; text-align: center; }
+/* The letters and the total always share ONE row and scale with the width of the sample itself (container units), so the same sample reads
+   well from a 320px phone to a wide desktop column. */
+.h29-teaser-tiles { display: flex; flex-wrap: nowrap; align-items: stretch; justify-content: center; gap: clamp(3px, 1.6cqw, 9px); direction: ltr; inline-size: 100%; max-inline-size: 640px; margin-inline: auto; }
+.h29-teaser-tiles i { flex: 1 1 0; min-width: 0; max-inline-size: 72px; display: grid; place-items: center; align-content: center; gap: 2px; padding: clamp(5px, 2cqw, 12px) 0 clamp(4px, 1.6cqw, 9px); border-radius: clamp(7px, 2cqw, 12px); font: 600 clamp(15px, 7cqw, 32px)/1.05 var(--s29-font-display, var(--s29-font-ui)); font-style: normal; color: var(--s29-ink);
+  background: color-mix(in srgb,var(--s29-brand-gold) 9%,transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb,var(--s29-brand-gold) 38%,transparent);
+  animation: h29-tile-in .5s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i) * 70ms); }
+.h29-teaser-tiles i small { color: var(--s29-brand-gold); font: 500 clamp(9px, 2.9cqw, 14px)/1.2 var(--s29-font-numeric, var(--s29-font-ui)); }
+.h29-teaser-total { flex: 0 0 auto; align-self: center; margin-inline-start: clamp(2px, 1.2cqw, 8px); font: 700 clamp(22px, 9.5cqw, 44px)/1 var(--s29-font-numeric, var(--s29-font-ui)); white-space: nowrap; color: var(--s29-hero, var(--s29-accent-text)); text-shadow: 0 0 22px var(--s29-glow, transparent);
+  animation: h29-tile-in .6s cubic-bezier(.2,.7,.2,1) .65s both; }
+.h29-teaser-line { color: var(--s29-muted); font: 500 13px/1.4 var(--s29-font-ui); text-align: center; }
+.h29-teaser-source { color: var(--s29-muted); font: 400 11px/1.5 var(--s29-font-ui); text-align: center; }
+/* Flagship products: a compact, vertically scrolling list (the series' exact-tag members, newest first). */
+.h29-rm-products { grid-area: list; display: grid; grid-template-rows: auto minmax(0,1fr) auto; min-width: 0; border-top: 1px solid color-mix(in srgb,var(--s29-brand-gold) 24%,var(--s29-line)); }
+.h29-rm-products > h4 { display: flex; align-items: baseline; gap: 8px; margin: 0; padding: 8px 14px 4px; font: 600 13px/1.3 var(--s29-font-ui); color: var(--s29-brand-gold); }
+.h29-rm-products > h4 small { color: var(--s29-muted); font: 500 11px/1 var(--s29-font-numeric, var(--s29-font-ui)); }
+.h29-rm-list { list-style: none; margin: 0; padding: 0 6px; max-height: 232px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: color-mix(in srgb,var(--s29-brand-gold) 50%,transparent) transparent; }
+.h29-rm-item { display: grid; grid-template-columns: 64px minmax(0,1fr); align-items: center; gap: 12px; min-height: 76px; padding: 6px 8px; border-radius: 10px; }
+.h29-rm-item:hover, .h29-rm-item:focus-visible { background: color-mix(in srgb,var(--s29-brand-gold) 8%,transparent); }
+.h29-rm-thumb { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 30%, transparent); }
+.h29-rm-thumb.is-empty img { width: 40px; height: 40px; }
+.h29-rm-thumb.is-empty { display: grid; place-items: center; background: color-mix(in srgb,var(--s29-brand-gold) 8%,transparent); color: var(--s29-brand-gold); }
+.h29-rm-item > span { display: grid; gap: 2px; min-width: 0; }
+.h29-rm-item strong { font: 500 14px/1.4 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.h29-rm-item small { color: var(--s29-muted); font: 400 12px/1.4 var(--s29-font-ui); }
+.h29-series-more { min-height: 44px; display: flex; align-items: center; padding: 6px 14px; font: 600 14px/1.4 var(--s29-font-ui); color: var(--s29-accent-text) !important; }
+.h29-fam { grid-area: fam; display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 14px; border-top: 1px solid color-mix(in srgb,var(--s29-brand-gold) 30%,var(--s29-line)); }
+.h29-fam > a, .h29-fam > span { display: inline-flex; flex-direction: column; justify-content: center; gap: 1px; min-height: 44px; padding: 6px 14px; border-radius: 12px; font: 600 14px/1.3 var(--s29-font-ui); color: var(--s29-ink);
+  border: 1px solid color-mix(in srgb,var(--s29-brand-gold) 38%,var(--s29-line)); background: color-mix(in srgb,var(--s29-brand-gold) 7%,transparent); }
+.h29-fam > a small, .h29-fam > span small { font: 400 11px/1.3 var(--s29-font-ui); color: var(--s29-muted); }
+.h29-fam > span.soon { opacity: .62; border-style: dashed; }
+@keyframes h29-tile-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .h29-teaser-tiles i, .h29-teaser-total { animation: none; } }
+/* Wide: identity, title and the leading sample on one side, the flagship list beside them. */
+@container h29 (min-width: 901px) {
+  .h29-series-card.is-primary.has-list { grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); grid-template-areas: "id list" "title list" "sample list"; grid-template-rows: auto auto minmax(0,1fr); }
+  .h29-series-card.is-primary.has-list .h29-rm-products { border-top: 0; border-inline-start: 1px solid color-mix(in srgb,var(--s29-brand-gold) 24%,var(--s29-line)); }
+  .h29-rm-list { max-height: 300px; }
+}
+/* "פוסטים אחרונים": secondary and compact; it never competes with the region above. */
+.h29-recent-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px 12px; }
+.h29-recent-item { min-width: 0; border-bottom: 1px solid var(--s29-line); }
+.h29-recent-item.h29-skel { min-height: 68px; border: 0; border-radius: 10px; }
+.h29-recent-item > a { display: grid; grid-template-columns: 52px minmax(0,1fr); align-items: start; gap: 10px; padding: 8px 4px; min-height: 68px; }
+.h29-recent-thumb { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; }
+.h29-recent-thumb.is-empty { display: grid; place-items: center; background: color-mix(in srgb,var(--s29-brand-gold) 6%,transparent); color: var(--s29-muted); }
+.h29-recent-item > a > span { display: grid; gap: 2px; min-width: 0; }
+.h29-recent-item strong { font: 500 14px/1.4 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.h29-recent-excerpt { color: var(--s29-muted); font: 400 12px/1.45 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.h29-recent-item time { color: var(--s29-muted); font: 400 11px/1.4 var(--s29-font-ui); }
+@container h29 (max-width: 620px) { .h29-recent-list { grid-template-columns: minmax(0,1fr); } }
 .h29-admin-updates { display: grid; gap: 6px; }
 .h29-admin-updates a { min-height: 44px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px; }
 .h29-admin-updates time { color: var(--s29-muted); font-size: 12px; }
@@ -227,6 +297,10 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
   .h29-launch .h29-actions { gap: 5px; }
   .h29-launch-card { padding: 10px 12px; }
   .h29-series-grid { gap: 8px; }
+  .h29-fam { gap: 6px; padding: 8px 10px; }
+  .h29-fam > a small, .h29-fam > span small { display: none; }
+  .h29-rm-list { max-height: 240px; }
+  .h29-series-card.is-primary .h29-series-name { font-size: 20px; }
   .h29-series-card { min-height: 216px; }
   .h29-series-item.h29-card-open { padding: 8px; }
   .h29-series-name { padding: 6px 8px; font-size: 14px; }
@@ -313,3 +387,152 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
   color: var(--s29-accent-text); background: color-mix(in srgb, var(--s29-brand-gold) 8%, transparent);
   border: 1px solid var(--s29-line-strong); box-shadow: inset 0 0 16px color-mix(in srgb, var(--s29-brand-gold) 7%, transparent); }
 .h29-construction-mark svg { width: 34px; height: 34px; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+/* HOME-LIVE-UPDATES-20261106 (ZURIEL): the first Home area, always live. Royal glass card, thumbnail rows, newest first.
+   Rows have ONE fixed height (skeleton and loaded alike), so loading and the later arrival of images/channel items never shift
+   the page (CLS). Compact on mobile so the flagship region still starts on the first screen. */
+.h29-live .h29-sec-h h2 { display: inline-flex; align-items: center; gap: 8px; }
+.h29-live-dot { inline-size: 8px; block-size: 8px; border-radius: 50%; background: var(--s29-brand-gold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--s29-brand-gold) 22%, transparent); }
+.h29-linkbtn { appearance: none; border: 0; background: none; padding: 4px 0; color: var(--s29-accent-text); font: 400 14px/1.4 var(--s29-font-ui); cursor: pointer; min-height: 32px; }
+.h29-linkbtn:hover { text-decoration: underline; }
+.h29-live-list { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 0; }
+.h29-live-item { min-width: 0; block-size: 76px; overflow: hidden; border-bottom: 1px solid color-mix(in srgb, var(--s29-brand-gold) 16%, var(--s29-line)); }
+.h29-live-item:last-child { border-bottom: 0; }
+.h29-live-item.h29-skel { min-height: 0; border: 0; border-radius: 10px; }
+.h29-live-item > a, .h29-live-item > div { display: grid; grid-template-columns: 56px minmax(0,1fr); align-items: center; gap: 12px; padding: 8px 2px; block-size: 100%; box-sizing: border-box; color: inherit; text-decoration: none; }
+.h29-live-thumb { inline-size: 56px; block-size: 56px; border-radius: 10px; object-fit: cover; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 30%, transparent); }
+.h29-live-thumb.is-empty { display: grid; place-items: center; background: color-mix(in srgb, var(--s29-brand-gold) 8%, transparent); color: var(--s29-brand-gold); }
+.h29-live-item > a > span, .h29-live-item > div > span { display: grid; gap: 3px; min-width: 0; }
+.h29-live-meta { color: var(--s29-accent-text); font: 400 12px/1.4 var(--s29-font-ui); letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.h29-live-meta b { font-weight: 500; }
+.h29-live-meta time { color: var(--s29-muted); }
+.h29-live-item strong { font: 500 15px/1.4 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.h29-live-item.is-lead strong { font-size: 16px; }
+@container h29 (min-width: 901px) {
+  .h29-live-list { grid-template-columns: 1fr 1fr; column-gap: 28px; }
+  .h29-live-item:nth-last-child(2) { border-bottom: 0; }
+}
+.h29-newsletter-end { padding-block: 8px; }
+
+/* HOME-ENTRY-BAND-20261106 (ZURIEL): compact royal entrances after the flagship region. Three cards: Beit Midrash, life-journey promo,
+   "under construction" with sign-up. A closed gate shows its true state, never a dead link. */
+.h29-entry-band { display: grid; grid-template-columns: 1fr; gap: 10px; min-width: 0; }
+.h29-entry { display: grid; gap: 4px; align-content: start; min-width: 0; padding: 14px 16px; border-radius: 16px; color: inherit; text-decoration: none;
+  border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 34%, var(--s29-line));
+  background: linear-gradient(140deg, color-mix(in srgb, var(--s29-brand-gold) 11%, transparent), transparent 60%), color-mix(in srgb, var(--s29-panel) 88%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--s29-brand-gold) 22%, transparent); }
+a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gold); }
+.h29-entry-k { color: var(--s29-brand-gold); font: 600 12px/1.4 var(--s29-font-ui); letter-spacing: .04em; }
+.h29-entry strong { font: 500 17px/1.35 var(--s29-font-ui); }
+.h29-entry small { color: var(--s29-muted); font: 400 13px/1.4 var(--s29-font-ui); }
+.h29-entry.is-locked { opacity: .78; }
+.h29-entry.is-build .h29-linkbtn { justify-self: start; min-height: 44px; }
+@container h29 (min-width: 701px) { .h29-entry-band { grid-template-columns: repeat(3, 1fr); } }
+
+/* HOME-SERIES-BELL-20261106: the small royal follow bell beside each series name. 44px target, gold ring; off (not yet active) is dim
+   with a dashed ring and its reason in the accessible name; on is filled gold. State is never colour alone. (The live state is the canonical WatchButton bell face.) */
+.h29-series-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.h29-series-head .h29-series-name { min-width: 0; }
+.h29-bell-slot { display: inline-flex; flex: 0 0 auto; }
+.h29-bell { display: inline-grid; place-items: center; inline-size: 44px; block-size: 44px; padding: 0; border-radius: 50%; cursor: pointer;
+  color: var(--s29-brand-gold); background: color-mix(in srgb, var(--s29-brand-gold) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 55%, transparent); box-shadow: inset 0 1px 0 color-mix(in srgb, var(--s29-brand-gold) 25%, transparent); }
+.h29-bell:hover:not(:disabled), .h29-bell:focus-visible { background: color-mix(in srgb, var(--s29-brand-gold) 18%, transparent); outline: 2px solid color-mix(in srgb, var(--s29-brand-gold) 70%, transparent); outline-offset: 2px; }
+.h29-bell.is-on { color: color-mix(in srgb, black 88%, var(--s29-brand-gold)); background: var(--s29-brand-gold); border-color: var(--s29-brand-gold); }
+.h29-bell:disabled { opacity: .6; cursor: wait; }
+.h29-bell-note { font: 400 12px/1.4 var(--s29-font-ui); color: var(--s29-muted); }
+.h29-bell.is-off { cursor: default; opacity: .6; border-style: dashed; box-shadow: none; }
+.h29-rm .h29-series-head { margin-top: 2px; }
+
+/* Extra items of a series card (each series shows its own explicit count, ZURIEL 8.11.2026): compact title + time rows under the lead item. */
+.h29-series-more-list { list-style: none; margin: 0; padding: 0 8px 8px; display: grid; gap: 0; }
+.h29-series-more-list li { border-top: 1px solid var(--s29-line); }
+.h29-series-more-list a { display: grid; gap: 2px; padding: 8px 4px; min-height: 44px; color: inherit; text-decoration: none; }
+.h29-series-more-list strong { font: 500 13px/1.4 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.h29-series-more-list time { color: var(--s29-muted); font: 400 11px/1.4 var(--s29-font-ui); }
+
+/* HOME-FAMILY-ROWS-20261106 (ZURIEL 8.11: option C): one row per content family inside the map region (newest member of that family's own
+   category + a link to the family), then a short "more" list; mobile one column, wide three columns. */
+.h29-sec-logo { inline-size: 28px; block-size: 28px; border-radius: 50%; object-fit: cover; margin-inline-end: 8px; vertical-align: middle; box-shadow: 0 0 0 1px color-mix(in srgb, var(--s29-brand-gold) 55%, transparent); }
+.h29-fam-rows { display: grid; gap: 0; padding: 0 6px; }
+.h29-fam-row { position: relative; display: grid; gap: 0; padding: 6px 6px; border-top: 1px solid color-mix(in srgb, var(--s29-brand-gold) 18%, var(--s29-line)); min-width: 0; }
+.h29-fam-post { display: grid; grid-template-columns: 56px minmax(0,1fr); align-items: center; gap: 10px; min-height: 60px; color: inherit; text-decoration: none; min-width: 0; }
+.h29-fam-post.is-empty { grid-template-columns: 1fr; min-height: 44px; align-content: center; }
+.h29-fam-post .h29-rm-thumb { width: 56px; height: 56px; }
+.h29-fam-post > span { display: grid; gap: 2px; min-width: 0; }
+.h29-fam-k { color: var(--s29-brand-gold); font: 600 12px/1.4 var(--s29-font-ui); letter-spacing: .04em; }
+.h29-fam-post strong { font: 500 14px/1.35 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.h29-fam-post small { color: var(--s29-muted); font: 400 12px/1.4 var(--s29-font-ui); }
+.h29-fam-all { position: absolute; inset-block-start: 4px; inset-inline-end: 6px; min-height: 28px; display: inline-flex; align-items: center; padding-inline: 4px; color: var(--s29-accent-text); font: 400 12px var(--s29-font-ui); text-decoration: none; }
+.h29-fam-row .h29-fam-k { padding-inline-end: 6.5em; }
+.h29-rm-rest { list-style: none; margin: 0; padding: 2px 12px; display: grid; border-top: 1px solid color-mix(in srgb, var(--s29-brand-gold) 18%, var(--s29-line)); }
+.h29-rm-rest a { display: grid; gap: 0; padding: 5px 0; min-height: 40px; color: inherit; text-decoration: none; }
+.h29-rm-rest strong { font: 500 13px/1.35 var(--s29-font-ui); display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.h29-rm-rest time { color: var(--s29-muted); font: 400 11px/1.4 var(--s29-font-ui); }
+.h29-fam-soon { display: block; padding: 2px 14px; color: var(--s29-muted); font: 400 12px var(--s29-font-ui); }
+@container h29 (min-width: 901px) { .h29-fam-post .h29-rm-thumb { max-height: 150px; } .h29-fam-row .h29-fam-k { padding-inline-end: 0; } .h29-fam-all { position: static; justify-self: end; margin-top: 2px; } .h29-fam-rows { grid-template-columns: repeat(3, 1fr); gap: 0 14px; } .h29-fam-row { border-top: 0; } .h29-fam-post { grid-template-columns: 1fr; } .h29-fam-post .h29-rm-thumb { width: 100%; height: auto; aspect-ratio: 16/10; } }
+
+/* HOME-SAMPLE-ATTACHED-20261108 (ZURIEL): the Bereshit sample is an EXAMPLE of its source Post, so it sits attached under that Post
+   (the שבילי שפה row, first), on one framed block: no empty space beside it and the reader sees what שבילי שפה is. */
+.h29-fam-row.is-lead { padding: 8px 8px 10px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 34%, var(--s29-line)); background: linear-gradient(150deg, color-mix(in srgb, var(--s29-brand-gold) 10%, transparent), transparent 70%); margin-block: 6px; }
+.h29-fam-row.is-lead .h29-series-teaser { grid-area: auto; margin-top: 6px; padding: 8px 0 2px; border-top: 1px dashed color-mix(in srgb, var(--s29-brand-gold) 38%, transparent); }
+@container h29 (min-width: 901px) {
+  .h29-series-card.is-primary.is-attached.has-list { grid-template-columns: minmax(0,1fr); grid-template-areas: "id" "title" "list"; grid-template-rows: auto auto auto; }
+  .h29-series-card.is-attached .h29-fam-rows { grid-template-columns: minmax(0,1.25fr) minmax(0,1fr); gap: 0 18px; align-items: start; }
+  .h29-series-card.is-attached .h29-fam-row.is-lead { grid-column: 1; grid-row: 1 / span 2; }
+  .h29-series-card.is-attached .h29-fam-row:not(.is-lead) { grid-column: 2; border-top: 1px solid color-mix(in srgb, var(--s29-brand-gold) 18%, var(--s29-line)); }
+  .h29-series-card.is-attached .h29-fam-post { grid-template-columns: 64px minmax(0,1fr); }
+  .h29-series-card.is-attached .h29-fam-post .h29-rm-thumb { width: 64px; height: 64px; max-height: none; aspect-ratio: 1; }
+  .h29-series-card.is-attached .h29-fam-row .h29-fam-k { padding-inline-end: 6.5em; }
+  .h29-series-card.is-attached .h29-fam-all { position: absolute; margin-top: 0; justify-self: auto; }
+}
+
+/* HOME-FEATURED-20261108 (ZURIEL): the first Home card — one featured Post: video, title, the message beside it (prominent), the tree note beneath,
+   numbers and connections in a details block (open on wide screens). Height is reserved while loading (no layout shift). */
+.h29-featured { display: grid; grid-template-columns: 132px minmax(0,1fr); grid-template-areas: "video head" "note note"; gap: 10px 12px; align-items: start; min-height: 544px; padding: 12px; border-color: color-mix(in srgb, var(--s29-brand-gold) 40%, var(--s29-line)); background: linear-gradient(150deg, color-mix(in srgb, var(--s29-brand-gold) 11%, transparent), transparent 60%), color-mix(in srgb, var(--s29-panel) 90%, transparent); }
+.h29-featured.h29-skel { min-height: 544px; }
+.h29-featured-poster { grid-area: video; inline-size: 100%; block-size: auto; align-self: stretch; min-block-size: 220px; aspect-ratio: auto; object-fit: cover; object-position: 50% 28%; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 34%, transparent); background: color-mix(in srgb, var(--s29-brand-gold) 8%, transparent); display: block; }
+.h29-featured-poster.is-empty { display: grid; place-items: center; color: var(--s29-brand-gold); font-size: 32px; }
+.h29-featured-head { grid-area: head; display: grid; gap: 6px; min-width: 0; align-content: start; }
+.h29-featured-title { font: 600 15px/1.4 var(--s29-font-ui); color: var(--s29-accent-text); text-decoration: none; }
+.h29-featured-credit { color: var(--s29-muted); font: 400 11.5px/1.4 var(--s29-font-ui); }
+.h29-featured-message { display: grid; gap: 6px; padding: 10px 12px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 55%, transparent); background: linear-gradient(160deg, color-mix(in srgb, var(--s29-brand-gold) 16%, transparent), color-mix(in srgb, var(--s29-brand-gold) 4%, transparent)); box-shadow: 0 0 28px color-mix(in srgb, var(--s29-brand-gold) 14%, transparent); }
+.h29-featured-message b { color: var(--s29-brand-gold); font: 700 13px/1.3 var(--s29-font-ui); letter-spacing: .08em; }
+.h29-featured-message p { margin: 0; color: var(--s29-ink); font: 500 13.5px/1.55 var(--s29-font-ui); }
+.h29-featured-note { grid-area: note; margin: 0; color: var(--s29-ink); font: 400 13.5px/1.6 var(--s29-font-ui); border-inline-start: 2px solid color-mix(in srgb, var(--s29-brand-gold) 55%, transparent); padding-inline-start: 10px; }
+.h29-featured-note a { color: var(--s29-accent-text); white-space: nowrap; font-weight: 600; }
+.h29-featured-more { display: grid; gap: 8px; }
+.h29-featured-more > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--s29-accent-text); font: 500 14px var(--s29-font-ui); }
+.h29-featured-more[open] > summary { min-height: 36px; }
+.h29-featured-numbers { display: grid; gap: 6px; }
+.h29-featured-numbers small { color: var(--s29-brand-gold); font: 600 12px/1.4 var(--s29-font-ui); letter-spacing: .03em; }
+.h29-featured-numbers ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.h29-featured-numbers li { display: inline-flex; align-items: baseline; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 38%, transparent); background: color-mix(in srgb, var(--s29-brand-gold) 7%, transparent); }
+.h29-featured-numbers b { font: 700 15px/1.2 var(--s29-font-numeric, var(--s29-font-ui)); color: var(--s29-hero, var(--s29-accent-text)); }
+.h29-featured-numbers span { color: var(--s29-muted); font: 400 11.5px/1.3 var(--s29-font-ui); }
+.h29-featured-connections { display: grid; gap: 6px; }
+.h29-featured-connections small { color: var(--s29-brand-gold); font: 600 12px/1.4 var(--s29-font-ui); letter-spacing: .03em; }
+.h29-featured-connections ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.h29-featured-connections a { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 11px; min-height: 36px; border-radius: 999px; text-decoration: none; color: inherit; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 50%, transparent); background: color-mix(in srgb, var(--s29-brand-gold) 10%, transparent); }
+.h29-featured-connections a:hover, .h29-featured-connections a:focus-visible { border-color: var(--s29-brand-gold); }
+.h29-featured-connections b { font: 700 15px/1.2 var(--s29-font-numeric, var(--s29-font-ui)); color: var(--s29-hero, var(--s29-accent-text)); }
+.h29-featured-connections span { font: 400 12.5px/1.3 var(--s29-font-ui); color: var(--s29-ink); }
+.h29-featured-connections em { color: var(--s29-muted); font: 400 11.5px/1.4 var(--s29-font-ui); font-style: normal; }
+@container h29 (min-width: 901px) {
+  .h29-featured, .h29-featured.h29-skel { min-height: 448px; }
+  .h29-featured-poster { align-self: center; aspect-ratio: 362/600; min-block-size: 0; object-position: center; }
+  .h29-featured { grid-template-columns: 250px minmax(0,1fr); grid-template-areas: "video head" "video note"; gap: 12px 26px; padding: 16px; align-items: center; }
+  .h29-featured-head { gap: 10px; align-self: end; }
+  .h29-featured-note { align-self: start; font-size: 15px; line-height: 1.7; }
+  .h29-featured-title { font-size: 22px; line-height: 1.35; }
+  .h29-featured-credit { font-size: 12.5px; }
+  .h29-featured-message { padding: 16px 20px; gap: 10px; }
+  .h29-featured-message b { font-size: 14px; }
+  .h29-featured-message p { font-size: 18px; line-height: 1.65; }
+}
+
+/* HOME-VERSE-STRONGER-20261108 (ZURIEL): the Malachi verse under the logo read weak on Home (thin, small strokes on dark). Home only: bolder, a touch
+   larger, the display face and a soft glow; same text, same colours family, no motion. */
+.sod29-root.surface-home .sod29-living-ribbon .sod29-living-verse-text { font-family: var(--s29-font-display, var(--s29-font-body, system-ui)); font-weight: 700; font-size: clamp(19px, 5.4vw, 26px); line-height: 1.55; letter-spacing: .01em; -webkit-text-stroke: .25px currentColor; text-shadow: 0 0 16px color-mix(in srgb, var(--s29-brand-gold) 38%, transparent), 0 1px 0 color-mix(in srgb, black 55%, transparent); }
+.sod29-root.surface-home .sod29-living-ribbon .sod29-living-verse-source { font-weight: 600; color: var(--s29-accent-text); }
+.sod29-root[data-frame-theme-preset="light"].surface-home .sod29-living-ribbon .sod29-living-verse-text, .sod29-root[data-frame-theme-preset="parchment"].surface-home .sod29-living-ribbon .sod29-living-verse-text { text-shadow: none; }

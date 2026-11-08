@@ -6,17 +6,27 @@ import { readSeen, markSeen } from "../../lib/homeMotion2029.js";
 import { tierLookupNumbers } from "../../lib/ratings2029.js";
 import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js";
 
-export function useSystemFeed2029({ enabled = true, nowOpen = false } = {}) {
+// `homeStrip`: the Home "עדכונים אחרונים" strip needs the same public details once (reality-stream images, channel updates, series
+// Posts). It loads them ONCE after mount; only an open Now panel keeps re-reading them on every poll.
+const DETAILS_FRESH_MS = 60 * 1000;
+export function useSystemFeed2029({ enabled = true, nowOpen = false, homeStrip = false } = {}) {
   const [state, setState] = useState({ loading: true, items: [], error: false, unavailableSources: [], groupArrivals: null });
   const [seen, setSeen] = useState(readSeen);
   const [strongIds, setStrongIds] = useState({});
   const asked = useRef(new Set());
   const nowActive = useRef(false);
   nowActive.current = enabled && nowOpen;
+  const detailsWanted = useRef(false);
+  detailsWanted.current = enabled && (nowOpen || homeStrip);
   const nowEpoch = useRef(0), nowController = useRef(null), nowPending = useRef(false), streamResults = useRef(0);
   const [nowSources, setNowSources] = useState({ requested: false, loading: false, items: [], sourceStates: [], error: false });
-  const refreshNowDetails = useCallback(() => {
-    if (!nowActive.current || nowPending.current) return;
+  const detailsAt = useRef(0), detailsFromHome = useRef(false);
+  // `force` (retry buttons, poll refresh while Now is open) always re-reads. The ONLY reuse: the first time Now opens after the Home strip
+  // loaded the details less than a minute ago (one read instead of two); closing and reopening Now re-reads exactly as before.
+  const loadNowDetails = useCallback((force) => {
+    if (!detailsWanted.current || nowPending.current) return;
+    if (!force && detailsFromHome.current && Date.now() - detailsAt.current < DETAILS_FRESH_MS) return;
+    detailsFromHome.current = !nowActive.current;
     nowPending.current = true;
     const epoch = ++nowEpoch.current;nowController.current?.abort();
     const controller = new AbortController();nowController.current = controller;
@@ -24,23 +34,26 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false } = {}) {
     import("../../lib/research/systemFeedPublicSources2029.js")
       .then(({ fetchSystemFeedPublicSources2029 }) => {
         // Closing while the chunk is still loading must not start a detached read.
-        if (epoch !== nowEpoch.current || !nowActive.current || controller.signal.aborted) { controller.abort(); return null; }
+        if (epoch !== nowEpoch.current || !detailsWanted.current || controller.signal.aborted) { controller.abort(); return null; }
         return fetchSystemFeedPublicSources2029({ signal: controller.signal });
       })
-      .then(result => { if (epoch === nowEpoch.current && !controller.signal.aborted) setNowSources({ ...result, requested: true, loading: false, error: false }); })
+      .then(result => { if (epoch === nowEpoch.current && !controller.signal.aborted) { detailsAt.current = Date.now(); setNowSources({ ...result, requested: true, loading: false, error: false }); } })
       .catch(() => { if (epoch === nowEpoch.current && !controller.signal.aborted) setNowSources({ requested: true, items: [], sourceStates: [], loading: false, error: true }); })
       .finally(() => { if (epoch === nowEpoch.current) nowPending.current = false; });
   }, []);
-  const requestNowDetails = refreshNowDetails;
+  // Closing Now consumes the Home-loaded details: a later reopen re-reads exactly as before.
+  useEffect(() => { if (!nowOpen) return undefined; return () => { detailsFromHome.current = false; }; }, [nowOpen]);
+  const refreshNowDetails = useCallback(() => loadNowDetails(true), [loadNowDetails]);
+  const requestNowDetails = useCallback(() => loadNowDetails(false), [loadNowDetails]);
   useEffect(() => {
-    if (enabled && nowOpen) refreshNowDetails();
+    if (enabled && (nowOpen || homeStrip)) loadNowDetails(false);
     else setNowSources(current => current.loading ? { ...current, loading: false } : current);
     return () => {
       nowEpoch.current += 1;
       nowController.current?.abort();
       nowPending.current = false;
     };
-  }, [enabled, nowOpen, refreshNowDetails]);
+  }, [enabled, nowOpen, homeStrip, loadNowDetails]);
 
 
   useEffect(() => {
@@ -81,7 +94,18 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false } = {}) {
     });
   }, [state.items]);
 
-  const items = useMemo(() => mergeSystemFeedItems(state.items, nowSources.items), [state.items, nowSources.items]);
+  // The featured Post's whole message (ZURIEL 8.11.2026) is ONE more item of this same feed: identity `post:<id>`, listed first so it is the
+  // single enriched row even if the stream also carries that Post. Read once (shared with Home); nothing here reads anything else.
+  const [featuredItem, setFeaturedItem] = useState(null);
+  useEffect(() => {
+    if (!enabled) return undefined;
+    let live = true;
+    Promise.all([import("../../lib/research/homeFeaturedPost2029.js"), import("../../lib/research/worldDiscoveryStream.js")])
+      .then(([featured, stream]) => featured.getFeaturedPostRow2029().then(row => featured.featuredFeedItem(row, stream.postRowToWorldUpdate)))
+      .then(item => { if (live) setFeaturedItem(item); }).catch(() => { if (live) setFeaturedItem(null); });
+    return () => { live = false; };
+  }, [enabled]);
+  const items = useMemo(() => mergeSystemFeedItems(featuredItem ? [featuredItem] : [], mergeSystemFeedItems(state.items, nowSources.items)), [featuredItem, state.items, nowSources.items]);
   const rows = useMemo(() => feedRows(items, { seen, strongIds }), [items, seen, strongIds]);
   const expandedRows = useMemo(() => feedRows(items, { seen, strongIds, limit: 160,
     caps: { group: 40, post: 40, convergence: 40, finding: 12, gallery: 10,
@@ -90,5 +114,7 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false } = {}) {
   const newCount = rows.filter((row) => row.isNew).length;
   const newest = rows.filter((row) => row.isNew).map((row) => row.at).filter(Boolean).sort().reverse()[0] || null;
   const see = useCallback((row) => setSeen((current) => (current[feedSeenKey(row.item)] ? current : markSeen(feedSeenKey(row.item), current))), []);
-  return { ...state, items, rows, expandedRows, nowSources, requestNowDetails, refreshNowDetails, newCount, newest, see };
+  // The Home strip waits for the details read it asked for (settled = loaded or failed), so it never flashes empty between stages.
+  const detailsPending = enabled && homeStrip && !nowOpen && (!nowSources.requested || nowSources.loading);
+  return { ...state, items, rows, expandedRows, nowSources, detailsPending, requestNowDetails, refreshNowDetails, newCount, newest, see };
 }

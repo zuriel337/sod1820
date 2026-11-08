@@ -24,6 +24,8 @@ export function publicNowSourceHref(value) {
       || [...u.searchParams.keys()].some(k => /token|signed|signature|email|phone|birth|name|return|redirect|next/i.test(k))) return null;
     if (u.pathname === "/" && /^\d+$/.test(u.searchParams.get("p") || "")) return u.pathname + u.search + u.hash;
     if (/^\/(?:post|topic|number)\/[^/]+\/?$/.test(u.pathname) && !/%(?:2f|5c)/i.test(u.pathname)) return u.pathname + u.search + u.hash;
+    // Or HaGeula video pages: the 2029 route /or-geula/video/:id exists and the release policy keeps it open. Exact UUID only.
+    if (/^\/or-geula\/video\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/?$/i.test(u.pathname)) return u.pathname + u.search + u.hash;
     return null;
   } catch { return null; }
 }

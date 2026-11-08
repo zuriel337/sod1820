@@ -92,7 +92,7 @@ try {
   });
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   const back='/?keep=one&keep=two#search-return';
-  await page.goto(origin+back);await page.locator('[data-home-top-updates]').waitFor();
+  await page.goto(origin+back);await page.locator('[data-home-newsletter="end"]').waitFor();
   const header=page.getByRole('button',{name:'חיפוש באתר',exact:true});
   assert.equal(await page.evaluate(()=>window.__searchCalls.length),0);
   await header.click();const search=page.getByRole('dialog',{name:'חיפוש באתר',exact:true});await search.waitFor();

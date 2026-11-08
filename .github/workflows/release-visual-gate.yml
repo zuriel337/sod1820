@@ -173,7 +173,7 @@ jobs:
             });
           });
 
-          test('2029 Preview Home keeps the staged updates illustration, public series and one dock without claiming a Production opening', async ({ page }) => {
+          test('2029 Preview Home keeps the entrance band, public series and one dock without claiming a Production opening', async ({ page }) => {
             test.setTimeout(120_000);
             await page.route('**/rest/v1/site_flags*', async (route) => route.fulfill({
               status: 200,
@@ -185,11 +185,12 @@ jobs:
               await page.goto(`${BASE}/2029`, { waitUntil: 'networkidle' });
               const home = page.locator('[data-experience-capability="home-composition"]');
               await expect(home).toBeVisible({ timeout: 30_000 });
-              // Current Home contract (HomeComposition2029): the top block is an illustration-only staged updates
-              // preview for guests (data-home-top-updates="public-closed"), followed by real public series cards.
-              // The former four `.h29-updates > .h29-card` markup no longer exists by design.
-              await expect(home.locator('[data-home-top-updates="public-closed"]')).toHaveCount(1, { timeout: 30_000 });
-              await expect(home.locator('[data-home-updates-preview="illustration"]')).toHaveCount(1);
+              // Current Home contract (HomeComposition2029, ZURIEL 8.11.2026, PLAN37 HOME-03 addendum): the closed, illustration-only
+              // "updates preview" card is gone by design (the live strip reads the shared "עכשיו" feed); the "האתר בבנייה" notice and the
+              // sign-up entry now live in the entrance band after the map region. Both former markers must be absent.
+              await expect(home.locator('[data-home-entry-band="true"]')).toHaveCount(1, { timeout: 30_000 });
+              await expect(home.locator('[data-home-top-updates="public-closed"]')).toHaveCount(0);
+              await expect(home.locator('[data-home-updates-preview="illustration"]')).toHaveCount(0);
               await expect(home.getByText('האתר בבנייה', { exact: true })).toBeVisible();
               await expect(home.locator('[data-home-public-series="true"]')).toHaveCount(1);
               await expect(home.locator('[data-home-public-series="true"] .h29-series-card:not(.h29-skel)').first()).toBeVisible({ timeout: 30_000 });

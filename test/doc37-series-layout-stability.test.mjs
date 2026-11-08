@@ -43,16 +43,16 @@ test("all canonical entrances are usable before metadata, and metadata adds no n
     activeKey: "messages-from-righteous", onRead: result => reads.push(result),
   })); });
   const initial = links(root);
-  assert.equal(initial.length, 4);
+  assert.equal(initial.length, CONTENT_SERIES_2029.length, "one entrance per canonical series (reality-map is first; the others keep their order)");
   assert.deepEqual(initial.map(link => link.title), CONTENT_SERIES_2029.map(spec => spec.label));
   assert.deepEqual(initial.map(link => link.href), CONTENT_SERIES_2029.map(spec => `/2029/posts?series=${spec.key}`));
-  assert.equal(initial.find(link => link.current === "page").title, "מסרים מצדיקים");
+  assert.equal(initial.find(link => link.current === "page").title, "מסרים");
   assert.equal(f.calls.length, 1); assert.equal(f.calls[0].limitPerSeries, 1);
   assert.equal(f.calls[0].sourceSeriesKey, "messages-from-righteous");
   assert.equal(reads[0].loading, true);
   await act(async () => { f.calls[0].resolve(packet()); });
   assert.deepEqual(links(root), initial);
-  assert.equal(root.root.findAllByType("img").length, 4);
+  assert.equal(root.root.findAllByType("img").length, CONTENT_SERIES_2029.length);
   assert.equal(f.calls.length, 1, "cover update does not start another reader");
   assert.equal(reads.at(-1).loading, false);
   assert.equal(root.root.findByType("button").props.disabled, true, "inactive retry is not focusable");

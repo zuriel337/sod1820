@@ -107,7 +107,13 @@ async function open(browser, { width, height = 900, theme = "dark", mode = "succ
       assert.ok(!/\.mp4|supabase\.co\/storage/i.test(text), "no raw MP4/storage address in visible text");
       assert.ok(!/050-123|example\.com/.test(text), "phone / foreign link redacted");
       const chips = await panel.locator(".sod29-nowpub-chip").allInnerTexts();
-      assert.deepEqual(chips, ["הכול", "סדרות", "מסרים", "רמזי גאולה וקוד המציאות"]);
+      const chipLabels = chips.map(text => text.replace(/\d+$/, "")), chipCounts = chips.map(text => Number(text.match(/\d+$/)?.[0]));
+      assert.deepEqual(chipLabels, ["הכול", "מקורות ציבוריים", "מסרים ואור הגאולה", "זרם המציאות", "סדרות", "רמזי גאולה וקוד המציאות"]);
+      // ZURIEL 6.11.2026: opens on "הכול" and every chip carries the number of entries loaded in the window (never a site-wide total).
+      assert.ok(chipCounts.every(n => Number.isInteger(n) && n > 0), "every chip carries its loaded count: " + chips.join(" | "));
+      assert.equal((await panel.locator(".sod29-nowpub-chip[aria-pressed='true']").innerText()).replace(/\d+$/, ""), "הכול", "the window opens on all");
+      assert.equal(chipCounts[chipLabels.indexOf("הכול")], Math.max(...chipCounts), "the all chip is the largest count");
+      assert.match(await panel.locator(".sod29-nowpub-chip").first().getAttribute("aria-label"), /פרסומים שנטענו בחלונית/, "the count is labelled as loaded entries");
       // the words of the message and a visible preview are in the row itself (not just a headline)
       const msgRow = panel.locator(".sod29-nowpub-row", { hasText: "מילות המסר עצמן" }).first();
       assert.equal(await msgRow.locator(".sod29-nowpub-preview").count(), 1, "visible media preview in the row");

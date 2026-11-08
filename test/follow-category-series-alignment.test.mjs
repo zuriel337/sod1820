@@ -26,7 +26,7 @@ test("approved category rename recognizes both stored namespaces, without wideni
 });
 
 test("series membership is exact and keeps author, publisher and topic separate", () => {
-  assert.equal(CONTENT_SERIES_2029.length, 4);
+  assert.equal(CONTENT_SERIES_2029.length, 5, "reality-map (6.11.2026) joined the four earlier series");
   assert.deepEqual(contentSeriesKeysForPost(post({ categories: ["רמזים מצדיקים"] })), ["messages-from-righteous"]);
   assert.deepEqual(contentSeriesKeysForPost(post({ categories: ["אור הגאולה"] })), [], "a source channel is not blanket series membership");
   assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", tags: ["מה קורה הבורא"] })), ["mah-kore-habora"]);

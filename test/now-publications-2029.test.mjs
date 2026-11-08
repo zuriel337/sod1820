@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
+import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
 import { redactGroupText, groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
@@ -66,8 +66,15 @@ test("series, messages and hints are separate lenses; series is not inferred fro
   assert.ok(by("post:6").lenses.has("hints")); assert.ok(by("channel:30000000-0000-4000-8000-000000000003").lenses.has("hints"));
   const orGeula = by("channel:30000000-0000-4000-8000-000000000002");
   assert.equal(orGeula.seriesKey, null, "channel name alone never joins a series"); assert.equal(orGeula.lenses.has("messages"), true, "Or HaGeula belongs to the messages path (ZURIEL 5.11.2026), as a lens only");
-  assert.deepEqual(availableNowLenses(models).map(l => l.id), ["messages", "reality", "all", "series", "hints"], "hierarchy: sources → messages → reality, then all/series/hints");
-  assert.equal(defaultNowLens(models), "messages"); assert.equal(defaultNowLens([by("post:8")]), "all");
+  assert.deepEqual(availableNowLenses(models).map(l => l.id), ["all", "messages", "reality", "series", "hints"], "all first (the opening lens), then the primary sources → messages → reality, then series/hints");
+  // ZURIEL 6.11.2026: the window opens on "all" (time order), whatever lenses have rows; it no longer opens on the first populated primary lens.
+  assert.equal(defaultNowLens(models), "all"); assert.equal(defaultNowLens([by("post:8")]), "all"); assert.equal(defaultNowLens([]), "all");
+  // Counts are entries already loaded per lens, derived from the same filter the chips apply (never a separate tally).
+  const counts = nowLensCounts(models);
+  assert.equal(counts.all, models.length);
+  for (const lens of availableNowLenses(models)) assert.equal(counts[lens.id], filterNowModels(models, { lens: lens.id }).length, `count matches the filter for ${lens.id}`);
+  assert.equal(counts.messages, 3); assert.equal(counts.reality, 1);
+  assert.equal(nowLensCounts([]).all, 0); assert.equal(nowLensCounts(null).series, 0);
   assert.equal(filterNowModels(models, { lens: "reality" }).length, 1);
   assert.deepEqual(availableNowLenses([by("post:8")]).map(l => l.id), ["all"], "lenses appear only when they have rows");
   assert.equal(filterNowModels(models, { lens: "messages" }).length, 3);
@@ -76,7 +83,7 @@ test("series, messages and hints are separate lenses; series is not inferred fro
   assert.equal(filterNowModels(models, { lens: "hints", source: "קוד המציאות" }).length, 1);
   assert.deepEqual(nowSecondaryChoices(models).series.map(s => s.id).sort(), ["dimension-five", "mah-kore-habora", "messages-from-righteous", "sod-hashmal"]);
   assert.equal(nowSeriesHref(by("post:2")), "/2029/posts?series=mah-kore-habora");
-  assert.equal(nowSeriesLabel("messages-from-righteous", "מסרים מצדיקים"), "מסרים");
+  assert.equal(nowSeriesLabel("messages-from-righteous", "מסרים"), "מסרים");
 });
 
 test("'הכול' is chronological newest first, with a stable tie-break", () => {
@@ -88,7 +95,7 @@ test("one publication = one row: the approved Or HaGeula video enriches the same
   const id = "9d4e6b80-f52b-4461-9231-ca30f37f0db9";
   const channel = publicChannelToSystemItem({ id, channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "מסר מאור הגאולה", image_url: MP4 });
   const approved = approvedSeriesToSystemItem({ sourceRef: `channel_updates:${id}`, kind: "channel_update", title: "מסר מאור הגאולה", excerpt: "מסר מאור הגאולה", channel: "or-geula",
-    publishedAt: "2026-11-03T09:49:00Z", mediaUrl: MP4, imageUrl: MP4.replace("clip.mp4", "t.png"), href: "/video/25e378462b55298219e5f7562698bfa7" }, { key: "messages-from-righteous", label: "מסרים מצדיקים" });
+    publishedAt: "2026-11-03T09:49:00Z", mediaUrl: MP4, imageUrl: MP4.replace("clip.mp4", "t.png"), href: "/video/25e378462b55298219e5f7562698bfa7" }, { key: "messages-from-righteous", label: "מסרים" });
   assert.equal(approved.id, channel.id);
   const merged = mergeSystemFeedItems([approved], [channel]);
   assert.equal(merged.length, 1);
@@ -107,7 +114,7 @@ test("no activity/personal features are modelled as active: the projection expos
 
 test("series previews (same Home reader) keep every approved series present even when the shared recent window is full", () => {
   const recent = Array.from({ length: 45 }, (_, i) => postRowToWorldUpdate(post(1 + (i % 9), { id: 100 + i, slug: `r${i}`, date: `2026-11-03T${String(i % 24).padStart(2, "0")}:00:00Z`, modified: "2026-11-03T12:00:00Z" })));
-  const catalog = { series: [{ key: "messages-from-righteous", label: "מסרים מצדיקים", items: [
+  const catalog = { series: [{ key: "messages-from-righteous", label: "מסרים", items: [
     { kind: "post", id: "9001", title: "מסר ישן", excerpt: "תקציר", author: "כותב", publishedAt: "2026-10-01T10:00:00Z", href: "/old-message", sourceRef: "posts:9001", imageUrl: "https://example.test/t.webp" },
     { kind: "channel_update", id: "x", title: "לא פוסט", publishedAt: "2026-10-02T10:00:00Z", href: "/video/abc", sourceRef: "channel_updates:x" },
     { kind: "post", id: "9002", title: "ללא קישור", publishedAt: "2026-10-02T10:00:00Z", href: "", sourceRef: "posts:9002" },
@@ -138,4 +145,30 @@ test("the words of the message are shown with its media; unverified source rows 
   const [img] = nowModels(rows([publicChannelToSystemItem({ id, channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "טקסט", image_url: MP4.replace("clip.mp4", "i.jpg") })])); assert.equal(img.previewKind, "image");
   const zvi = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "פתיחה ".repeat(40), created_at: "2026-11-03T08:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
   assert.equal(nowModels(rows([zvi]))[0].previewKind, null);
+});
+
+test("collapseSourceRuns: only consecutive unverified rows of one source collapse; order and rows are kept, nothing merged", () => {
+  const m = (id, unverified, sourceName = "צבי") => ({ id, unverified, sourceName });
+  const flat = es => es.flatMap(e => e.kind === "run" ? e.models.map(x => x.id) : [e.model.id]);
+  const input = [m("a", true), m("b", true), m("c", true), m("d", false, "אור"), m("e", true), m("f", true), m("g", true, "מקור אחר"), m("h", true, "מקור אחר"), m("i", true, "מקור אחר")];
+  const out = collapseSourceRuns(input);
+  assert.deepEqual(flat(out), input.map(x => x.id), "same rows, same order");
+  assert.deepEqual(out.map(e => e.kind), ["run", "row", "run", "run"]);
+  assert.equal(out[0].models.length, 3); assert.equal(out[0].sourceName, "צבי"); assert.equal(out[3].sourceName, "מקור אחר"); assert.equal(out[2].models.length, 2);
+  assert.deepEqual(collapseSourceRuns([m("a", true), m("b", true)]).map(e => e.kind), ["run"], "two consecutive rows already collapse");
+  assert.deepEqual(collapseSourceRuns([m("a", true), m("d", false), m("b", true)]).map(e => e.kind), ["row", "row", "row"], "a single row never collapses");
+  assert.deepEqual(collapseSourceRuns(null), []);
+});
+
+test("source logos mark OUR material only: system-byline posts, Or HaGeula, ELS findings; third-party series and named writers get none", () => {
+  const sys = nowModels(rows([postRowToWorldUpdate(post(1, { author: "מערכת כי לה׳ המלוכה" }))]))[0];
+  assert.equal(sys.logo?.label, "כי לה׳ המלוכה");
+  const alon = nowModels(rows([postRowToWorldUpdate(post(2, { author: "אלון לוי", tags: ["מה קורה הבורא"] }))]))[0];
+  assert.equal(alon.seriesKey, "mah-kore-habora"); assert.equal(alon.logo, null);
+  const named = nowModels(rows([postRowToWorldUpdate(post(3, { author: "כותב" }))]))[0];
+  assert.equal(named.logo, null);
+  const orGeula = nowModels(rows([publicChannelToSystemItem({ id: "10000000-0000-4000-8000-000000000009", channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "מסר" })]))[0];
+  assert.equal(orGeula.logo?.label, "אור הגאולה");
+  const zvi = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000002", body: "הודעה", created_at: "2026-11-03T08:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
+  assert.equal(nowModels(rows([zvi]))[0].logo, null);
 });

@@ -62,6 +62,7 @@ import { razielViewModeLabel } from "../../lib/research/razielViewMode2029.js";
 import { publicPageShareUrl, postAddressSlug } from "../../lib/publicPostUrls.js";
 import { contactSourceHref } from "./contactSource2029.js";
 import { useSystemFeed2029 } from "./useSystemFeed2029.js";
+import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import DiscoveryGateMark2029 from "./DiscoveryGateMark2029.jsx";
@@ -1579,7 +1580,7 @@ function SystemFrame2029Body({
   // Keep its component/preferences intact; no source-shortcut reader is imported.
   // This single feed still serves the Now sheet; the static header notice does not own it.
   const [transient, setTransient] = useState(null);
-  const feed = useSystemFeed2029({ enabled: surface !== "control", nowOpen: transient?.kind === TRANSIENT.ATTENTION });
+  const feed = useSystemFeed2029({ enabled: surface !== "control", nowOpen: transient?.kind === TRANSIENT.ATTENTION, homeStrip: surface === "home" && !(corePublicViewer && worldLocked) });
   // The logo opens and closes the navigation rail (click, Enter or Space). Hover only highlights; nothing moves.
   const [toolDock, setToolDock] = useState(null);
   const [systemDockMode, setSystemDockMode] = useState(false);
@@ -2232,6 +2233,7 @@ function SystemFrame2029Body({
   const introIcon = { world: "world", heichal: "heichal", topic: "world", books: "books", els: "els", calculator: "number" }[surface];
   const frame = (
     <ShellContext.Provider value={shellApi}>
+    <SystemFeedContext2029.Provider value={feed}>
     <SystemToolDockContext2029.Provider value={registerToolDock}>
       <div
         className={`sod29-root closed-shell native-frame surface-${surface}${calmBottomChrome ? " calm-bottom-chrome" : ""}${numberPageRoute ? " number-page-route" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}${activeToolDock ? " has-tool-dock" : ""}`}
@@ -2432,6 +2434,7 @@ function SystemFrame2029Body({
         {renderTransient()}
       </div>
     </SystemToolDockContext2029.Provider>
+    </SystemFeedContext2029.Provider>
     </ShellContext.Provider>
   );
   return <Palette2029Provider value={palette}>{frame}</Palette2029Provider>;
