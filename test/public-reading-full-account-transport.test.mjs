@@ -394,6 +394,63 @@ test('guest community publishing: only the exact anonymous request is forwarded,
  assert.equal((await noKey.request(path,{body:ok,jwt:KEY})).status,403);
 });
 
+test('community tree hints and online-now reads are forwarded without requiring a verified admin, matching the database\'s own public grant (ZURIEL, 8.11.2026: these were silently falling to the admin-only fallback)',async()=>{
+ for(const path of ['/rest/v1/rpc/community_tree_hints_list','/rest/v1/rpc/community_tree_hints_by_number','/rest/v1/rpc/community_presence_online']){
+  const w=worker({anonKey:'anon-read-key'});
+  const response=await w.request(path,{jwt:'',body:{p_limit:20}});
+  assert.equal(response.status,200,path);
+  assert.equal(w.calls.length,1,path+' must reach the database directly, with no admin-verification round trip');
+  assert.equal(w.calls[0].url,API+path);
+ }
+});
+test('community_tree_hint_set stays administrator-only: the new public reads above do not widen it',async()=>{
+ const path='/rest/v1/rpc/community_tree_hint_set';
+ const admin=worker({role:'admin'});
+ assert.equal((await admin.request(path,{body:{p_id:a,p_action:'enter',p_numbers:null}})).status,200);
+ const member=worker({role:'user'});
+ assert.equal((await member.request(path,{body:{p_id:a,p_action:'enter',p_numbers:null}})).status,403);
+ const guest=worker();
+ assert.equal((await guest.request(path,{jwt:'',body:{p_id:a,p_action:'enter',p_numbers:null}})).status,403);
+});
+test('presence heartbeat requires a real verified signed-in account; exact empty body only',async()=>{
+ const pingPath='/rest/v1/rpc/community_presence_ping';
+ const member=worker({role:'user'});
+ assert.equal((await member.request(pingPath,{body:{}})).status,200);
+ assert.equal(member.calls.filter(c=>c.url===API+pingPath).length,1);
+ const guest=worker();
+ assert.equal((await guest.request(pingPath,{jwt:'',body:{}})).status,403);
+ for(const body of [{p_extra:1},{p_limit:1}]){
+  const bad=worker({role:'user'});
+  assert.equal((await bad.request(pingPath,{body})).status,403,JSON.stringify(body));
+ }
+});
+test('community_guest_unreviewed admits only a bounded uuid list or null, from a verified signed-in account',async()=>{
+ const path='/rest/v1/rpc/community_guest_unreviewed';
+ const nullIds=worker({role:'user'});
+ assert.equal((await nullIds.request(path,{body:{p_ids:null}})).status,200);
+ const withIds=worker({role:'user'});
+ assert.equal((await withIds.request(path,{body:{p_ids:[a,b]}})).status,200);
+ for(const body of [{p_ids:['not-a-uuid']},{p_ids:a},{p_ids:null,extra:1}]){
+  const bad=worker({role:'user'});
+  assert.equal((await bad.request(path,{body})).status,403,JSON.stringify(body));
+ }
+ const guest=worker();
+ assert.equal((await guest.request(path,{jwt:'',body:{p_ids:null}})).status,403);
+});
+test('community_guest_review admits only the exact approve/hide body, from a verified signed-in account',async()=>{
+ const path='/rest/v1/rpc/community_guest_review';
+ for(const action of ['approve','hide']){
+  const w=worker({role:'user'});
+  assert.equal((await w.request(path,{body:{p_id:a,p_action:action}})).status,200,action);
+ }
+ for(const body of [{p_id:a,p_action:'delete'},{p_id:'not-a-uuid',p_action:'hide'},{p_id:a,p_action:'hide',extra:1}]){
+  const bad=worker({role:'user'});
+  assert.equal((await bad.request(path,{body})).status,403,JSON.stringify(body));
+ }
+ const guest=worker();
+ assert.equal((await guest.request(path,{jwt:'',body:{p_id:a,p_action:'hide'}})).status,403);
+});
+
 test('community link preview: only the exact public GET is forwarded, without session or key',async()=>{
  const base='/functions/v1/link-preview?url=';
  const good=base+encodeURIComponent('https://example.org/article?id=1');
