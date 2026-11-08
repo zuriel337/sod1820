@@ -469,7 +469,20 @@ html[data-theme-2029="parchment"] .sod29-community--artwork{--community-art-opac
 /* Guest-published messages are public at once; only the administrator sees the unreviewed ones greyed. */
 .sod29-community-thread.is-guest-unreviewed{opacity:.62;background:color-mix(in srgb,currentColor 5%,transparent);border-radius:12px;padding-inline:10px}
 .sod29-community-guest-review{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:.85em;margin-block-end:4px}
-.sod29-community-guest-banner{margin:0 0 8px;font-weight:600}
+/* Pending guest messages: a pinned, expandable panel that jumps straight to each one. */
+.sod29-community-pending-panel{margin:0 0 12px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel);overflow:hidden}
+.sod29-community-pending-toggle{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:0 12px;border:0;background:transparent;color:var(--s29-ink);font:inherit;font-weight:600;text-align:start;cursor:pointer}
+.sod29-community-pending-toggle:hover,.sod29-community-pending-toggle:focus-visible{background:color-mix(in srgb,var(--s29-ink) 6%,transparent)}
+.sod29-community-pending-toggle>span:nth-child(2){flex:1;min-width:0}
+.sod29-community-pending-dot{flex:none;width:8px;height:8px;border-radius:50%;background:#9aa0a6}
+#community-pending-guest-list{list-style:none;margin:0;padding:0;border-top:1px solid var(--s29-line-strong);max-height:min(40vh,260px);overflow-y:auto}
+#community-pending-guest-list li+li{border-top:1px solid var(--s29-line-strong)}
+#community-pending-guest-list li{display:flex;align-items:center;gap:8px;padding:0 8px 0 4px}
+.sod29-community-pending-jump{display:flex;align-items:center;gap:8px;flex:1;min-width:0;min-height:44px;color:var(--s29-ink);text-decoration:none;overflow:hidden}
+a.sod29-community-pending-jump:hover,a.sod29-community-pending-jump:focus-visible{text-decoration:underline}
+.sod29-community-pending-author{flex:none;white-space:nowrap}
+.sod29-community-pending-line{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--s29-muted);font-size:var(--s29-type-small,15px)}
+.sod29-community-pending-actions{flex:none;display:flex;gap:4px}
 /* Reserve the line so the typing label never moves the page. */
 .sod29-community-typing{margin:0;min-height:1.4em;font-size:.85em;opacity:.75}
 .sod29-community-typing[data-typing="false"]{visibility:hidden}
@@ -519,12 +532,3 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
 .sod29-tree-pin-numbers{flex:none;display:flex;gap:4px}
 .sod29-tree-pin-numbers b{font:inherit;font-weight:700;font-size:12px;line-height:1;padding:2px 6px;border-radius:999px;background:color-mix(in srgb,var(--s29-gold,var(--s29-ink)) 16%,transparent);color:var(--s29-ink)}
 .sod29-tree-pin-line{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--s29-type-small,15px)}
-
-/* Who's online now, like the legacy chat. */
-.sod29-community-online-now{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 0;font-size:var(--s29-type-small,15px);color:var(--s29-muted)}
-.sod29-community-online-dot{flex:none;width:8px;height:8px;border-radius:50%;background:#2ecc71;box-shadow:0 0 0 2px color-mix(in srgb,#2ecc71 25%,transparent)}
-.sod29-community-online-avatars{display:flex}
-.sod29-community-online-avatars>*{margin-inline-start:-8px}
-.sod29-community-online-avatars>*:first-child{margin-inline-start:0}
-.sod29-community-online-avatar{width:22px;height:22px;border-radius:50%;border:2px solid var(--s29-panel,#fff)}
-.sod29-community-online-names{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

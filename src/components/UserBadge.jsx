@@ -8,7 +8,7 @@ const AVATAR_SOURCE_PX = 160;
 
 // Canonical user presentation. Identity/visibility must be resolved by the reader;
 // this component never looks users up by name, fetches a profile, or claims ownership.
-export default function UserBadge({ name, avatarUrl, initial, avatarOnly = false, avatarClassName = "", colorfulFallback = false, fallbackSeed, fallbackImage, children }) {
+export default function UserBadge({ name, avatarUrl, initial, avatarOnly = false, avatarClassName = "", colorfulFallback = false, fallbackSeed, fallbackImage, online = false, children }) {
   const palette = use2029Palette();
   const style = { "--user-badge-ink": palette.ink, "--user-badge-muted": palette.inkSoft, "--user-badge-accent": palette.accentText, "--user-badge-surface": palette.cardSoft, "--user-badge-border": palette.border, ...(colorfulFallback ? writerAvatarStyle(fallbackSeed || name || initial) : {}) };
   const original = displayAvatarUrl(avatarUrl);
@@ -19,7 +19,7 @@ export default function UserBadge({ name, avatarUrl, initial, avatarOnly = false
   const [originalSource, setOriginalSource] = useState(null);
   const showImage = source && source !== failedSource;
   const imageSrc = optimized && optimized !== source && originalSource !== source ? optimized : source;
-  const avatar = <span className={`sod-user-avatar ${avatarClassName}`} style={style} aria-hidden="true" data-avatar-state={showImage ? "image" : "fallback"} data-avatar-treatment={colorfulFallback ? "color" : undefined}>
+  const avatar = <span className={`sod-user-avatar ${avatarClassName}`} style={style} aria-hidden="true" data-avatar-state={showImage ? "image" : "fallback"} data-avatar-treatment={colorfulFallback ? "color" : undefined} data-online={online ? "true" : undefined}>
     {showImage ? <img src={imageSrc} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => { if (imageSrc !== source) setOriginalSource(source); else setFailedSource(source); }} /> : (initial || [...(name || "?")][0])}
   </span>;
   if (avatarOnly) return avatar;

@@ -22,7 +22,8 @@ import CommunityMessageTime2029 from "./CommunityMessageTime2029.jsx";
 import CommunityRichText2029 from "./CommunityRichText2029.jsx";
 import CommunityPersonalActions2029 from "./CommunityPersonalActions2029.jsx";
 import CommunityTreeHints2029 from "./CommunityTreeHints2029.jsx";
-import CommunityOnlineNow2029 from "./CommunityOnlineNow2029.jsx";
+import { COMMUNITY_PRESENCE_PING_MS, fetchCommunityPresenceOnline, pingCommunityPresence } from "../../lib/community/communityPresence.js";
+import CommunityGuestReviewPanel2029 from "./CommunityGuestReviewPanel2029.jsx";
 import { fetchTreeHints, parseTreeHintNumbers, setTreeHint } from "../../lib/community/communityTreeHints.js";
 import { useCommunityDraft2029 } from "./useCommunityDraft2029.js";
 import { useCommunityReadingPosition2029 } from "./useCommunityReadingPosition2029.js";
@@ -75,7 +76,8 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
   const accountId = row.authorUserId || row.linkedUserId || VERIFIED_ARCHIVE_PROFILES[row.authorKey]?.accountUserId;
   const account = accountId ? accountProfiles[accountId] : null;
   const name = account?.display_name || account?.username || row.authorName;
-  const badge = <UserBadge colorfulFallback fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
+  const isOnline = Boolean(accountId) && onlinePresenceHolder.current.has(accountId);
+  const badge = <UserBadge colorfulFallback online={isOnline} fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
     <CommunityMessageTime2029 value={row.createdAt} formatDate={formatDate} />
   </UserBadge>;
   if (!row.authorKey || !linkAuthor) return <div className="sod29-community-author-identity"><span className="sod29-community-author-link">{badge}</span><CommunityHistorySeal2029 authorKey={row.authorKey} compact /></div>;
@@ -108,6 +110,10 @@ const guestReviewHolder = { current: NO_GUEST_REVIEW };
 // Administrator-only "entered the tree" marker, set by the page like the guest review above.
 const NO_TREE_HINTS = { ids: new Set(), toggle: null };
 const treeHintHolder = { current: NO_TREE_HINTS };
+// ZURIEL: a green dot on the person's own avatar inside the chat, not a banner/count
+// at the top. Set by the page on every render, read wherever an author's badge shows.
+const NO_ONLINE = new Set();
+const onlinePresenceHolder = { current: NO_ONLINE };
 
 function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = false, formatDate, linkAuthor = true, showAuthorAvatar = true, focused = false, messageActions, sharePath }) {
   const actionsLocked = communityActionsLocked(useAuth().isAdmin);
@@ -413,7 +419,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const guestPublishing = useRef(false);
   const [guestWebsite, setGuestWebsite] = useState("");
   const [guestSending, setGuestSending] = useState(false);
-  const [guestUnreviewedIds, setGuestUnreviewedIds] = useState(() => new Set());
+  const [guestPending, setGuestPending] = useState(() => []);
+  const guestUnreviewedIds = useMemo(() => new Set(guestPending.map(item => item.id)), [guestPending]);
   const guestReviewRead = useRef(0);
   const [treeHints, setTreeHints] = useState([]);
   const [treeHintRefresh, setTreeHintRefresh] = useState(0);
@@ -435,13 +442,33 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     catch { setNotice("הפעולה על רמז העץ לא הושלמה. נסו שוב."); }
   }, []);
   const treeHintControl = useMemo(() => ({ ids: new Set(treeHints.map(item => item.id)), toggle: isAdmin && user ? toggleTreeHint : null }), [treeHints, isAdmin, user, toggleTreeHint]);
+  // Online now: a green dot on a person's own avatar, not a banner/count (ZURIEL 8.11.2026).
+  // A signed-in member pings every ~45s while this page is open and visible; everyone
+  // (members and guests) reads the short public list and sees the dot wherever that
+  // person's avatar appears in the chat.
+  const [onlineIds, setOnlineIds] = useState(() => new Set());
+  useEffect(() => {
+    if (!user) return undefined;
+    const ping = () => { if (!document.hidden) pingCommunityPresence().catch(() => {}); };
+    ping();
+    const timer = setInterval(ping, COMMUNITY_PRESENCE_PING_MS);
+    document.addEventListener("visibilitychange", ping);
+    return () => { clearInterval(timer); document.removeEventListener("visibilitychange", ping); };
+  }, [user?.id]);
+  useEffect(() => {
+    let alive = true;
+    const load = () => { fetchCommunityPresenceOnline().then(list => { if (alive) setOnlineIds(new Set(list.map(person => person.id))); }).catch(() => {}); };
+    load();
+    const timer = setInterval(load, 60000);
+    return () => { alive = false; clearInterval(timer); };
+  }, []);
   const refreshGuestUnreviewed = useCallback(async () => {
-    if (!canModerateGuests || !user) { setGuestUnreviewedIds(current => current.size ? new Set() : current); return; }
+    if (!canModerateGuests || !user) { setGuestPending(current => current.length ? [] : current); return; }
     const request = ++guestReviewRead.current;
-    try { const ids = await fetchGuestUnreviewed(); if (request === guestReviewRead.current) setGuestUnreviewedIds(new Set(ids)); } catch { /* moderator hint only */ }
+    try { const items = await fetchGuestUnreviewed({ href: window.location.href }); if (request === guestReviewRead.current) setGuestPending(items); } catch { /* moderator hint only */ }
   }, [canModerateGuests, user?.id]);
   const reviewGuest = useCallback(async (id, action) => {
-    try { await reviewGuestMessage(id, action); setGuestUnreviewedIds(current => { const next = new Set(current); next.delete(id); return next; }); if (action === "hide") { setThreadRefresh(value => value + 1); setPublishedFeedRefresh(value => value + 1); } }
+    try { await reviewGuestMessage(id, action); setGuestPending(current => current.filter(item => item.id !== id)); if (action === "hide") { setThreadRefresh(value => value + 1); setPublishedFeedRefresh(value => value + 1); } }
     catch { setNotice("הפעולה על הודעת האורח לא הושלמה. נסו שוב."); }
   }, []);
   const guestReview = useMemo(() => ({ ids: guestUnreviewedIds, review: reviewGuest }), [guestUnreviewedIds, reviewGuest]);
@@ -864,12 +891,12 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
 
   guestReviewHolder.current = guestReview;
   treeHintHolder.current = treeHintControl;
+  onlinePresenceHolder.current = onlineIds;
   return <Sod2029Shell surface="community" title="הקהילה" introVariant="none" status="קהילה" symbol="◎">
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": `color-mix(in srgb, ${palette.cardRaised} 94%, ${palette.accentText})`, "--community-discovery": palette.accentDiscovery, "--community-depth": palette.accentSecondary, "--community-warm": palette.warmAccent, "--community-success": palette.successText, "--community-action-fill": palette.accentBtn, "--community-danger": palette.dangerText }}>
       {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
       {!memberId && !claimId ? <header className="sod29-community-intro"><h1>צ'אט הקהילה {!hasThreadRequest ? <ConversationCount /> : null}</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p>
-        <CommunityOnlineNow2029 />
         {!hasThreadRequest && reading.resume ? <div className="sod29-community-reading-tools"><Link className="sod29-community-secondary" to={communityReadingHref(reading.resume)} onClick={reading.requestResume}>להמשיך מאיפה שעצרתי <span aria-hidden="true">←</span></Link></div> : null}
         {reading.error && reading.resume ? <p className="sod29-community-reading-error" role="status">לא ניתן לעדכן כרגע את מספר התגובות החדשות.</p> : null}
       </header> : null}
@@ -884,13 +911,13 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <Link className="sod29-community-auth-btn is-signup" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה</Link>
         </div>}</div> : null}
         <CommunityTreeHints2029 hints={treeHints} />
-        {canModerateGuests && guestUnreviewedIds.size ? <p className="sod29-community-guest-banner" role="status">{guestUnreviewedIds.size === 1 ? "הודעת אורח אחת פורסמה ועדיין לא נבדקה" : `${guestUnreviewedIds.size} הודעות אורח פורסמו ועדיין לא נבדקו`} · מוצגות באפור</p> : null}
+        {canModerateGuests ? <CommunityGuestReviewPanel2029 pending={guestPending} onReview={reviewGuest} /> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
           <div className={compactComposer ? "sod29-community-compose-row" : undefined}>
-            {compactComposer ? <Link className="sod29-community-compose-avatar" to={user ? writerPersonalHref("profile", { returnTo: communityAccountReturnHref(window.location) }) : `/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`} aria-label={user ? "הפרופיל שלי" : "התחברות"} title={user ? "החלפת תמונת הפרופיל שלי" : "התחברות"}><UserBadge avatarOnly colorfulFallback fallbackSeed={user?.id ? `user:${user.id}` : "guest"} name={composerProfile?.display_name || composerProfile?.username || (user ? "החשבון שלי" : "אורח")} avatarUrl={composerProfile?.avatar_url} />{user ? <span className="sod29-community-avatar-camera" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 5l1-2h6l1 2h4a2 2 0 0 1 2 2v12H2V7a2 2 0 0 1 2-2z"/><circle cx="12" cy="12" r="4"/></svg></span> : null}</Link> : null}
+            {compactComposer ? <Link className="sod29-community-compose-avatar" to={user ? writerPersonalHref("profile", { returnTo: communityAccountReturnHref(window.location) }) : `/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`} aria-label={user ? "הפרופיל שלי" : "התחברות"} title={user ? "החלפת תמונת הפרופיל שלי" : "התחברות"}><UserBadge avatarOnly colorfulFallback online={Boolean(user?.id) && onlinePresenceHolder.current.has(user.id)} fallbackSeed={user?.id ? `user:${user.id}` : "guest"} name={composerProfile?.display_name || composerProfile?.username || undefined} avatarUrl={composerProfile?.avatar_url} />{user ? <span className="sod29-community-avatar-camera" aria-hidden="true"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M8 5l1-2h6l1 2h4a2 2 0 0 1 2 2v12H2V7a2 2 0 0 1 2-2z"/><circle cx="12" cy="12" r="4"/></svg></span> : null}</Link> : null}
             <div className={compactComposer ? "sod29-community-compose-input" : undefined}>
               <CommunityRichText2029 inputRef={composerRef} id="community-live-draft" value={draft} onChange={onDraftChange} expanded={composerOpen} disabled={sending || authLoading || Boolean(user && !authVerified)} onFocus={() => setComposerExpanded(true)} onKeyDown={event => { if (event.key === "Escape" && !draft && !attachments.length && !replyTo) { setComposerExpanded(false); composerRef.current?.blur(); } }} placeholder={compactComposer ? "הוסף תגובה…" : "כתבו משהו לקהילה…"} />
               {compactComposer ? <button type="button" className="sod29-community-compose-attach" aria-label="צירוף קובץ או סרטון" title="צירוף קובץ או סרטון" aria-describedby={user ? "community-attachment-limits" : undefined} disabled={sending || attachments.length >= COMMUNITY_ATTACHMENT_MAX_FILES} onClick={clickAttach}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m21 11-8.5 8.5a6 6 0 0 1-8.5-8.5L14 1a4 4 0 0 1 5.7 5.7L9.5 16.9a2 2 0 0 1-2.8-2.8L16 4.8" /></svg></button> : null}
