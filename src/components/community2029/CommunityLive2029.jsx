@@ -341,7 +341,7 @@ export function PublicCommunityActivity2029({ rows = [], count = null, loading =
 
 export default function CommunityLive2029({ leadingContent = null, trailingContent = null, canonicalPath = "/community/chat" }) {
   const palette = use2029Palette();
-  const { user, profile, isAdmin, loading: authLoading, verified: authVerified } = useAuth();
+  const { user, profile, isAdmin, canModerateGuests, loading: authLoading, verified: authVerified } = useAuth();
   const actionsLocked = communityActionsLocked(isAdmin);
   const location = useLocation(), navigate = useNavigate();
   const [params] = useSearchParams();
@@ -435,10 +435,10 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   }, []);
   const treeHintControl = useMemo(() => ({ ids: new Set(treeHints.map(item => item.id)), toggle: isAdmin && user ? toggleTreeHint : null }), [treeHints, isAdmin, user, toggleTreeHint]);
   const refreshGuestUnreviewed = useCallback(async () => {
-    if (!isAdmin || !user) { setGuestUnreviewedIds(current => current.size ? new Set() : current); return; }
+    if (!canModerateGuests || !user) { setGuestUnreviewedIds(current => current.size ? new Set() : current); return; }
     const request = ++guestReviewRead.current;
-    try { const ids = await fetchGuestUnreviewed(); if (request === guestReviewRead.current) setGuestUnreviewedIds(new Set(ids)); } catch { /* admin hint only */ }
-  }, [isAdmin, user?.id]);
+    try { const ids = await fetchGuestUnreviewed(); if (request === guestReviewRead.current) setGuestUnreviewedIds(new Set(ids)); } catch { /* moderator hint only */ }
+  }, [canModerateGuests, user?.id]);
   const reviewGuest = useCallback(async (id, action) => {
     try { await reviewGuestMessage(id, action); setGuestUnreviewedIds(current => { const next = new Set(current); next.delete(id); return next; }); if (action === "hide") { setThreadRefresh(value => value + 1); setPublishedFeedRefresh(value => value + 1); } }
     catch { setNotice("הפעולה על הודעת האורח לא הושלמה. נסו שוב."); }
@@ -802,13 +802,13 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     finally { if (isCurrent()) setSending(false); }
   };
 
-  // Administrator: keep the list of unreviewed guest messages current.
+  // Admin or community guest moderator: keep the list of unreviewed guest messages current.
   useEffect(() => {
     refreshGuestUnreviewed();
-    if (!isAdmin || !user) return undefined;
+    if (!canModerateGuests || !user) return undefined;
     const timer = setInterval(refreshGuestUnreviewed, 30000);
     return () => clearInterval(timer);
-  }, [refreshGuestUnreviewed, publishedFeedRefresh, threadRefresh, rows.length]);
+  }, [refreshGuestUnreviewed, canModerateGuests, user, publishedFeedRefresh, threadRefresh, rows.length]);
 
   // A guest publishes at once, as "אורח", text only. The server enforces limits.
   const publishAsGuest = async () => {
@@ -882,7 +882,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <Link className="sod29-community-auth-btn is-signup" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה</Link>
         </div>}</div> : null}
         <CommunityTreeHints2029 hints={treeHints} />
-        {isAdmin && guestUnreviewedIds.size ? <p className="sod29-community-guest-banner" role="status">{guestUnreviewedIds.size === 1 ? "הודעת אורח אחת פורסמה ועדיין לא נבדקה" : `${guestUnreviewedIds.size} הודעות אורח פורסמו ועדיין לא נבדקו`} · מוצגות באפור</p> : null}
+        {canModerateGuests && guestUnreviewedIds.size ? <p className="sod29-community-guest-banner" role="status">{guestUnreviewedIds.size === 1 ? "הודעת אורח אחת פורסמה ועדיין לא נבדקה" : `${guestUnreviewedIds.size} הודעות אורח פורסמו ועדיין לא נבדקו`} · מוצגות באפור</p> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
