@@ -13,11 +13,19 @@ function localPath(href) {
   try { const url = new URL(href); return `${url.pathname}${url.search}`; } catch { return null; }
 }
 
+// The numbers are also the marker a future recognition feature (a live meter or the
+// Golden Projector) would look up by; showing them here is only the visible half.
+function PinNumbers({ numbers }) {
+  if (!numbers?.length) return null;
+  return <span className="sod29-tree-pin-numbers" aria-label="מספרים מסומנים">{numbers.map(n => <b key={n}>{n}</b>)}</span>;
+}
+
 function PinLine({ hint }) {
   const to = hint.href ? localPath(hint.href) : null;
   const content = <>
     <TreeMark />
     <strong className="sod29-tree-pin-label">נכנס לעץ</strong>
+    <PinNumbers numbers={hint.numbers} />
     <span className="sod29-tree-pin-line" dir="auto">{hint.line}</span>
   </>;
   const title = hint.authorName ? `${hint.authorName}: ${hint.line}` : hint.line;

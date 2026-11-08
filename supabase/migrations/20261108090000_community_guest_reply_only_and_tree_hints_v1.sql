@@ -97,10 +97,19 @@ revoke all on function public.add_guest_community_message(text, uuid, text, text
 grant execute on function public.add_guest_community_message(text, uuid, text, text) to anon, authenticated;
 
 -- ------------------------------------------------------------ 2. tree hints
+--
+-- `numbers`: the canonical number(s) this hint is about (e.g. 77), set by the admin
+-- when it enters. This is deliberately only a marker — a plain lookup a future
+-- recognition feature (a "projector" / live meter that notices a number already has
+-- a hint) can query by number. It does not touch the separate, existing
+-- community_hints → approve_community_hint → gallery_images pipeline (the
+-- diamond/gold/crown treasures on a Number page), which requires its own image and
+-- its own Human Gate review; these chat hints are not pushed into that pipeline.
 create table if not exists public.community_tree_hints (
   contribution_id uuid primary key references public.research_contributions(id) on delete cascade,
   entered_at timestamptz not null default now(),
-  entered_by uuid
+  entered_by uuid,
+  numbers int[]
 );
 create index if not exists community_tree_hints_entered_idx on public.community_tree_hints (entered_at desc);
 alter table public.community_tree_hints enable row level security;
@@ -109,13 +118,13 @@ revoke all on public.community_tree_hints from anon, authenticated;
 -- Public read: only messages that are still public. `path` is the ancestry
 -- (root first) so the page can link straight to the message in its thread.
 create or replace function public.community_tree_hints_list(p_limit int default 20)
-returns table (id uuid, author_name text, body text, entered_at timestamptz, path uuid[])
+returns table (id uuid, author_name text, body text, entered_at timestamptz, numbers int[], path uuid[])
 language sql
 stable
 security definer
 set search_path to 'public'
 as $function$
-  select r.id, r.author_name, r.body, h.entered_at,
+  select r.id, r.author_name, r.body, h.entered_at, h.numbers,
          (with recursive up as (
             select c.id, c.parent_id, array[c.id] as chain, 1 as depth
             from public.research_contributions c where c.id = r.id
@@ -136,7 +145,8 @@ revoke all on function public.community_tree_hints_list(int) from public;
 grant execute on function public.community_tree_hints_list(int) to anon, authenticated;
 
 -- Administrator only: ids of hints (so the message action can show its state).
-create or replace function public.community_tree_hint_set(p_id uuid, p_action text)
+-- p_numbers is read only on 'enter'; it replaces any numbers already marked on that hint.
+create or replace function public.community_tree_hint_set(p_id uuid, p_action text, p_numbers int[] default null)
 returns void
 language plpgsql
 security definer
@@ -151,12 +161,34 @@ begin
       where r.id = p_id and r.status = 'approved' and r.deleted_at is null
         and r.origin in ('openweb', 'community_2029')
     ) then raise exception 'invalid_message'; end if;
-    insert into public.community_tree_hints (contribution_id, entered_by)
-    values (p_id, auth.uid()) on conflict (contribution_id) do nothing;
+    insert into public.community_tree_hints (contribution_id, entered_by, numbers)
+    values (p_id, auth.uid(), p_numbers)
+    on conflict (contribution_id) do update set numbers = excluded.numbers, entered_by = excluded.entered_by;
   else
     delete from public.community_tree_hints where contribution_id = p_id;
   end if;
 end;
 $function$;
-revoke all on function public.community_tree_hint_set(uuid, text) from public;
-grant execute on function public.community_tree_hint_set(uuid, text) to authenticated;
+revoke all on function public.community_tree_hint_set(uuid, text, int[]) from public;
+grant execute on function public.community_tree_hint_set(uuid, text, int[]) to authenticated;
+
+-- Lookup by number: the hook a future recognition feature (a live meter/projector that
+-- notices "77" already has a hint) can call. Same visibility rule as the list above.
+create or replace function public.community_tree_hints_by_number(p_number int)
+returns table (id uuid, author_name text, body text, entered_at timestamptz, numbers int[])
+language sql
+stable
+security definer
+set search_path to 'public'
+as $function$
+  select r.id, r.author_name, r.body, h.entered_at, h.numbers
+  from public.community_tree_hints h
+  join public.research_contributions r on r.id = h.contribution_id
+  where p_number = any(h.numbers)
+    and r.status = 'approved' and r.deleted_at is null and r.thread_hidden_at is null
+    and r.origin in ('openweb', 'community_2029')
+  order by h.entered_at desc
+  limit 20
+$function$;
+revoke all on function public.community_tree_hints_by_number(int) from public;
+grant execute on function public.community_tree_hints_by_number(int) to anon, authenticated;

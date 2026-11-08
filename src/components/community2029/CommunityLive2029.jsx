@@ -22,7 +22,7 @@ import CommunityMessageTime2029 from "./CommunityMessageTime2029.jsx";
 import CommunityRichText2029 from "./CommunityRichText2029.jsx";
 import CommunityPersonalActions2029 from "./CommunityPersonalActions2029.jsx";
 import CommunityTreeHints2029 from "./CommunityTreeHints2029.jsx";
-import { fetchTreeHints, setTreeHint } from "../../lib/community/communityTreeHints.js";
+import { fetchTreeHints, parseTreeHintNumbers, setTreeHint } from "../../lib/community/communityTreeHints.js";
 import { useCommunityDraft2029 } from "./useCommunityDraft2029.js";
 import { useCommunityReadingPosition2029 } from "./useCommunityReadingPosition2029.js";
 import { historicalCommunityAvatar } from "../../lib/community/communityAvatar.js";
@@ -422,7 +422,15 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     return () => { live = false; };
   }, [treeHintRefresh]);
   const toggleTreeHint = useCallback(async (id, action) => {
-    try { await setTreeHint(id, action); setTreeHintRefresh(value => value + 1); setNotice(action === "enter" ? "ההודעה נכנסה לעץ ונעוצה בראש הצ׳אט." : "ההודעה הוצאה מהעץ."); }
+    // The numbers are not built into a dedicated form yet (no live recognition feature
+    // reads them today) - this prompt is the minimal way to mark them now.
+    let numbers;
+    if (action === "enter") {
+      const typed = window.prompt("מספרים שהרמז הזה עוסק בהם (אופציונלי, מופרדים בפסיק, למשל 77):", "");
+      if (typed === null) return;
+      numbers = parseTreeHintNumbers(typed);
+    }
+    try { await setTreeHint(id, action, { numbers }); setTreeHintRefresh(value => value + 1); setNotice(action === "enter" ? "ההודעה נכנסה לעץ ונעוצה בראש הצ׳אט." : "ההודעה הוצאה מהעץ."); }
     catch { setNotice("הפעולה על רמז העץ לא הושלמה. נסו שוב."); }
   }, []);
   const treeHintControl = useMemo(() => ({ ids: new Set(treeHints.map(item => item.id)), toggle: isAdmin && user ? toggleTreeHint : null }), [treeHints, isAdmin, user, toggleTreeHint]);
