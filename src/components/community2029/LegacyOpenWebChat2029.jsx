@@ -25,35 +25,25 @@ export default function LegacyOpenWebChat2029() {
   const sectionRef = useRef(null);
   const hostRef = useRef(null);
   // An external OpenWeb iframe is outside the preview worker's write boundary.
-  // Keep historical read-only/mock previews closed. The user explicitly restored
-  // the original working chat in the public artifact, open on initial load.
+  // Keep historical read-only/mock previews closed. ZURIEL (8.11.2026): the old
+  // chat feels heavy on the page — closed by default, loaded only if the person
+  // asks for it (a click, or a direct #legacy-chat link).
   const readOnlyPreview = (actionsLocked && !PUBLIC_READING_PRODUCTION_ARTIFACT) || import.meta.env.VITE_INTEGRATED_PREVIEW === "true"
     || (typeof document !== "undefined" && Boolean(document.querySelector('[data-raziel-preview-transport="mock-only"]')));
-  const [active, setActive] = useState(() => !readOnlyPreview && (PUBLIC_READING_PRODUCTION_ARTIFACT || typeof IntersectionObserver === "undefined" || wantsHistoryNow()));
+  const [active, setActive] = useState(() => !readOnlyPreview && wantsHistoryNow());
 
   useEffect(() => {
     let frame;
     const scrollToHistory = () => {
       if (!wantsHistoryNow()) return;
+      setActive((current) => current || !readOnlyPreview);
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => sectionRef.current?.scrollIntoView({ block: "start", behavior: "auto" }));
     };
     scrollToHistory();
     window.addEventListener("hashchange", scrollToHistory);
     return () => { cancelAnimationFrame(frame); window.removeEventListener("hashchange", scrollToHistory); };
-  }, [location.hash, location.search]);
-
-  useEffect(() => {
-    if (readOnlyPreview || active) return undefined;
-    if (typeof IntersectionObserver === "undefined") { setActive(true); return undefined; }
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) setActive(true);
-    }, { rootMargin: "900px 0px" });
-    if (hostRef.current) observer.observe(hostRef.current);
-    const onHash = () => { if (wantsHistoryNow()) setActive(true); };
-    window.addEventListener("hashchange", onHash);
-    return () => { observer.disconnect(); window.removeEventListener("hashchange", onHash); };
-  }, [active, readOnlyPreview]);
+  }, [location.hash, location.search, readOnlyPreview]);
 
   return <section ref={sectionRef} id="legacy-chat" className="sod29-legacy-chat" aria-labelledby="legacy-chat-title"
     data-community-chat="legacy" data-openweb-loaded={!readOnlyPreview && active ? "true" : "false"}>
@@ -63,7 +53,7 @@ export default function LegacyOpenWebChat2029() {
     </header>
     <div ref={hostRef} className="sod29-legacy-chat-conversation">
       {readOnlyPreview ? <p role="note">ההודעות מהצ׳אט הוותיק שזמינות לקריאה ציבורית מופיעות בשיחה למעלה. רכיב OpenWeb המקורי, שכולל התחברות וכתיבה, אינו פעיל בגרסה זו. קישור להודעה במקור OpenWeb אינו מבטיח שההודעה המסוימת זמינה כאן. <a href="#community-new-chat">לשיחות הציבוריות ↑</a></p>
-        : active ? <OpenWebConversation /> : <p role="status">טוענים את השיחה…</p>}
+        : active ? <OpenWebConversation /> : <button type="button" className="sod29-legacy-chat-open" onClick={() => setActive(true)}>הצגת הצ׳אט הישן <span aria-hidden="true">↓</span></button>}
     </div>
   </section>;
 }

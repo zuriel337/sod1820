@@ -111,6 +111,10 @@ test('chat transition has one frame with the connected new chat above the retain
     await expect(page.locator('.sod29-surface-context-rail')).toHaveCount(0);
     expect(await newChat.evaluate((element) => Boolean(element.compareDocumentPosition(document.querySelector('[data-community-chat="legacy"]')) & Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
     await oldChat.scrollIntoViewIfNeeded();
+    // ZURIEL (8.11.2026): the old chat feels heavy on the page — closed by default now, one click to load it.
+    await expect(oldChat).toHaveAttribute('data-openweb-loaded', 'false');
+    await oldChat.getByRole('button', { name: 'הצגת הצ׳אט הישן' }).click();
+    await expect(oldChat).toHaveAttribute('data-openweb-loaded', 'true');
     await expect(oldChat.locator('[data-spotim-module="conversation"]')).toHaveAttribute('data-post-id', 'POST_ID_GOES_HERE');
     await expect(oldChat.locator('[data-spotim-module="conversation"]')).toHaveAttribute('data-post-url', 'https://sod1820.co.il/community/chat');
     await expect(page.locator('#spotim-script')).toHaveCount(1);

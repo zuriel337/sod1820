@@ -247,11 +247,26 @@ test("all default community reads use the anonymous client in the read profile a
 });
 
 
-test("restored production artifact opens the original old-chat box immediately", async () => {
+test("the old chat is closed by default (ZURIEL 8.11.2026: it feels heavy on the page) and opens only on an explicit click", async () => {
   const h = await harness("./LegacyOpenWebChat2029.jsx", ["LegacyOpenWebChat2029"], {
     PUBLIC_READING_PRODUCTION_ARTIFACT: true,
   });
-  const tree = elements(h.render(h.LegacyOpenWebChat2029, {}));
+  let tree = elements(h.render(h.LegacyOpenWebChat2029, {}));
+  assert.ok(tree.some(node => node.props?.["data-openweb-loaded"] === "false"));
+  assert.equal(tree.some(node => typeof node.type === "function" && node.type.name === "OpenWebConversation"), false);
+  const open = tree.find(node => node.type === "button" && node.props.className === "sod29-legacy-chat-open");
+  assert.ok(open);
+  open.props.onClick();
+  tree = elements(h.render(h.LegacyOpenWebChat2029, {}));
+  assert.ok(tree.some(node => node.props?.["data-openweb-loaded"] === "true"));
+  assert.ok(tree.some(node => typeof node.type === "function" && node.type.name === "OpenWebConversation"));
+});
+test("a direct #legacy-chat link still opens the old chat immediately", async () => {
+  const h = await harness("./LegacyOpenWebChat2029.jsx", ["LegacyOpenWebChat2029"], {
+    PUBLIC_READING_PRODUCTION_ARTIFACT: true,
+  });
+  h.location.hash = "#legacy-chat";
+  const tree = elements(h.render(h.LegacyOpenWebChat2029, {})); await h.flush();
   assert.ok(tree.some(node => node.props?.["data-openweb-loaded"] === "true"));
   assert.ok(tree.some(node => typeof node.type === "function" && node.type.name === "OpenWebConversation"));
 });
