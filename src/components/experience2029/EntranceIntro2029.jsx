@@ -4,8 +4,9 @@ import "./entranceIntro2029.css";
 import { BRAND_LOCKUP_HERO_2029 } from "../../lib/brandAssets2029.js";
 import { ENTRANCE_INTRO_MS, ENTRANCE_INTRO_SEEN_KEY, shouldPlayEntranceIntro } from "./entranceIntro2029.js";
 
-// How long the larger lockup may take to decode before the intro is skipped (the page never waits for it).
-const DECODE_WAIT_MS = 700;
+// How long the larger lockup may take to decode before the intro is skipped. The crown stays at the bar meanwhile, so waiting costs nothing
+// visible and the page itself never waits for it.
+const DECODE_WAIT_MS = 1500;
 const EASE_OUT = "cubic-bezier(.2,.8,.2,1)";
 
 function decide() {
@@ -50,6 +51,9 @@ export default function EntranceIntro2029() {
     };
     const go = () => {
       if (ended) return;
+      // The bar may have moved while the image decoded (the visitor scrolled, the window was resized): start only from where the crown really is.
+      const now = header.getBoundingClientRect();
+      if (Math.abs(now.left - from.left) > 2 || Math.abs(now.top - from.top) > 2 || Math.abs(now.width - from.width) > 2) { finish(); return; }
       const width = window.innerWidth;
       const height = window.innerHeight;
       const size = Math.min(220, width * 0.56);
