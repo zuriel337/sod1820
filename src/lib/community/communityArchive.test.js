@@ -378,3 +378,20 @@ test("a search hit opens its thread only through a fully public root-to-reply pa
   assert.equal(await fetchCommunityMessagePath(leaf, { client: rpcClient(() => ({ data: [chain[0], chain[2]], error: null })) }), null, "a broken parent link is not openable");
   assert.equal(await fetchCommunityMessagePath("not-a-uuid", { client: rpcClient(() => { throw new Error("must not call"); }) }), null);
 });
+
+test("Esther26 legacy posts and Esther Gem current posts resolve to one reviewed owner", () => {
+  const contributor = "99bcfb38-85be-4f38-89f0-7886f2f179e6", account = "9196e2b4-6473-4d44-9bad-913a4e4c4865";
+  const old = normalizeCommunityRow({ id: "esther-legacy", origin: "openweb", author_name: "Esther26",
+    author_contributor_id: contributor, body: "הודעה ישנה" });
+  const current = normalizeCommunityRow({ id: "esther-new", origin: "community_2029", author_name: "Esther Gem",
+    author_user_id: account, body: "הודעה חדשה" });
+  assert.equal(old.authorKey, `user:${account}`);
+  assert.equal(current.authorKey, old.authorKey);
+  assert.equal(old.authorName, "Esther Gem");
+  assert.equal(old.linkedUserId, account);
+  assert.deepEqual(communityAuthorIdentity(old.authorKey).contributorIds, [contributor]);
+  assert.deepEqual(communityAuthorIdentity(contributor).accountIds, [account]);
+  assert.equal(communityAuthorIdentity(contributor).verifiedOwner, true);
+  assert.equal(VERIFIED_ARCHIVE_PROFILES[contributor].accountUserId, account);
+  assert.equal(VERIFIED_ARCHIVE_PROFILES[`user:${account}`].name, "Esther Gem");
+});
