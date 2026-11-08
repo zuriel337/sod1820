@@ -7,6 +7,7 @@ export const ZOOM_MAX = 2.8;
 export const CELL_MIN = 11;
 export const CELL_MAX = 64;
 export const CELL_GAP = 2;
+export const FIT_MIN_COLS = 18;
 
 const num = (value, fallback) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -33,7 +34,7 @@ export const letterPx = cell => Math.max(8, Math.round(num(cell, 26)) - 5);
 
 // The window "fit to screen" shows: the box around everything marked (axis + findings) with a margin, widened to fill the screen
 // and kept inside the engine's research window. Mirrors the engine's markedBBox. `marks` are absolute text indexes.
-export function fitWindow(window, marks, viewportWidth = 800, { hideMain = false } = {}) {
+export function fitWindow(window, marks, _viewportWidth = 800, { hideMain = false } = {}) {
   const S = num(window?.S, 0), r0 = num(window?.r0, 0), r1 = num(window?.r1, 0), c0 = num(window?.c0, 0), cw = num(window?.cw, 0);
   const base = { r0, r1, c0, cw };
   if (!(S > 0) || !(cw > 0) || r1 < r0) return base;
@@ -47,9 +48,9 @@ export function fitWindow(window, marks, viewportWidth = 800, { hideMain = false
   if (!Number.isFinite(rMin)) return base;
   let top = Math.max(r0, rMin - 2), bottom = Math.min(r1, rMax + 2);
   let left = Math.max(c0, cMin - 2), right = Math.min(c0 + cw, cMax + 3), width = Math.max(1, right - left);
-  const availW = Math.min(viewportWidth, 1280) - 40;
-  const target = viewportWidth >= 980 ? 34 : viewportWidth >= 600 ? 24 : 18;
-  const minCols = Math.max(12, Math.floor(availW / (target + CELL_GAP)));
+  // The crop is the same on every screen (18 columns at least), so rotating or resizing never changes which letters are shown;
+  // only the cell size follows the width.
+  const minCols = FIT_MIN_COLS;
   if (width < minCols) {
     const want = Math.min(minCols, cw), mainCol = num(window?.mainCol, Math.round((cMin + cMax) / 2));
     let start = Math.round(mainCol - want / 2);

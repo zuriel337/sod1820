@@ -71,7 +71,8 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
     observer.observe(el);
     return () => observer.disconnect();
   }, [visible, Boolean(matrix?.rows?.length)]);
-  // "Fit to screen" shows the box around everything marked, widened to fill the screen — the same crop the classic matrix uses.
+  // "Fit to screen" sizes the cells so the box around everything marked fills the screen width and centres on it, like the classic matrix.
+  // Every cell of the research window stays rendered (nothing is hidden, so AI-scan marks and the reading layout are never lost): the rest is a pan away.
   const viewportWidth = typeof window === "undefined" ? 800 : window.innerWidth || 800;
   const fitBox = useMemo(() => {
     if (!research || !matrix?.rows?.length || !geometry || !state?.ui?.fit || state?.ui?.selMode || readingView) return null;
@@ -263,13 +264,11 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
   // Research mode only: the same cell rules as the classic engine (fit fills the width, free uses the base size, the zoom multiplies both
   // and the letter follows the cell). Every other surface keeps its original cell size.
   const minCell = state?.ui?.selMode ? 44 : undefined;
-  const shownCols = fitBox?.cw || matrix.cw || geometry.cw || 1;
+  const shownCols = matrix.cw || geometry.cw || 1;
   const cellPx = research
-    ? (fitBox ? fitCellPx(shownCols, boxWidth - 24, zoom, viewportWidth, { min: minCell }) : freeCellPx(shownCols, zoom, { min: minCell }))
+    ? (fitBox ? fitCellPx(fitBox.cw, boxWidth - 24, zoom, viewportWidth, { min: minCell }) : freeCellPx(shownCols, zoom, { min: minCell }))
     : clamp(Math.round(26 * zoom), state?.ui?.selMode ? 44 : 16, 54);
-  const rowFrom = fitBox ? fitBox.r0 - Number(matrix.r0 ?? geometry.r0 ?? 0) : 0;
-  const rowTo = fitBox ? fitBox.r1 - Number(matrix.r0 ?? geometry.r0 ?? 0) : matrix.rows.length - 1;
-  const colFrom = fitBox ? fitBox.c0 - Number(matrix.c0 ?? geometry.c0 ?? 0) : 0;
+  const rowFrom = 0, rowTo = matrix.rows.length - 1, colFrom = 0;
 
   return <div
     ref={scrollRef}
