@@ -225,17 +225,19 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
 .h29-series-card.is-primary .h29-series-name { margin: 0; min-height: 0; padding: 4px 14px 2px; border: 0; justify-content: flex-start;
   font: 600 clamp(22px,2.6vw,30px)/1.2 var(--s29-font-display, var(--s29-font-ui)); letter-spacing: .01em; }
 .h29-series-card.is-primary .h29-series-name::before { content: "✦"; margin-inline-end: 8px; color: var(--s29-brand-gold); font-size: .55em; }
-.h29-series-teaser.h29-card-open { grid-area: sample; display: grid; align-content: center; justify-items: start; gap: 6px; padding: 8px 14px 12px; min-width: 0; }
-.h29-teaser-kicker { color: var(--s29-brand-gold); font: 600 12px/1.4 var(--s29-font-ui); letter-spacing: .02em; }
-.h29-teaser-tiles { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; direction: ltr; }
-.h29-teaser-tiles i { display: grid; place-items: center; min-width: 2.1em; padding: 4px 6px 3px; border-radius: 9px; font: 600 20px/1.1 var(--s29-font-display, var(--s29-font-ui)); font-style: normal; color: var(--s29-ink);
+.h29-series-teaser.h29-card-open { grid-area: sample; display: grid; align-content: center; justify-items: stretch; gap: 8px; padding: 8px 14px 12px; min-width: 0; container-type: inline-size; container-name: h29tz; }
+.h29-teaser-kicker { color: var(--s29-brand-gold); font: 600 12px/1.4 var(--s29-font-ui); letter-spacing: .02em; text-align: center; }
+/* The letters and the total always share ONE row and scale with the width of the sample itself (container units), so the same sample reads
+   well from a 320px phone to a wide desktop column. */
+.h29-teaser-tiles { display: flex; flex-wrap: nowrap; align-items: stretch; justify-content: center; gap: clamp(3px, 1.6cqw, 9px); direction: ltr; inline-size: 100%; max-inline-size: 640px; margin-inline: auto; }
+.h29-teaser-tiles i { flex: 1 1 0; min-width: 0; max-inline-size: 72px; display: grid; place-items: center; align-content: center; gap: 2px; padding: clamp(5px, 2cqw, 12px) 0 clamp(4px, 1.6cqw, 9px); border-radius: clamp(7px, 2cqw, 12px); font: 600 clamp(15px, 7cqw, 32px)/1.05 var(--s29-font-display, var(--s29-font-ui)); font-style: normal; color: var(--s29-ink);
   background: color-mix(in srgb,var(--s29-brand-gold) 9%,transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb,var(--s29-brand-gold) 38%,transparent);
   animation: h29-tile-in .5s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(var(--i) * 70ms); }
-.h29-teaser-tiles i small { color: var(--s29-brand-gold); font: 500 11px/1.2 var(--s29-font-numeric, var(--s29-font-ui)); }
-.h29-teaser-total { margin-inline-start: 6px; font: 700 clamp(26px,3.4vw,36px)/1 var(--s29-font-numeric, var(--s29-font-ui)); color: var(--s29-hero, var(--s29-accent-text)); text-shadow: 0 0 22px var(--s29-glow, transparent);
+.h29-teaser-tiles i small { color: var(--s29-brand-gold); font: 500 clamp(9px, 2.9cqw, 14px)/1.2 var(--s29-font-numeric, var(--s29-font-ui)); }
+.h29-teaser-total { flex: 0 0 auto; align-self: center; margin-inline-start: clamp(2px, 1.2cqw, 8px); font: 700 clamp(22px, 9.5cqw, 44px)/1 var(--s29-font-numeric, var(--s29-font-ui)); white-space: nowrap; color: var(--s29-hero, var(--s29-accent-text)); text-shadow: 0 0 22px var(--s29-glow, transparent);
   animation: h29-tile-in .6s cubic-bezier(.2,.7,.2,1) .65s both; }
-.h29-teaser-line { color: var(--s29-muted); font: 500 13px/1.4 var(--s29-font-ui); }
-.h29-teaser-source { color: var(--s29-muted); font: 400 11px/1.5 var(--s29-font-ui); }
+.h29-teaser-line { color: var(--s29-muted); font: 500 13px/1.4 var(--s29-font-ui); text-align: center; }
+.h29-teaser-source { color: var(--s29-muted); font: 400 11px/1.5 var(--s29-font-ui); text-align: center; }
 /* Flagship products: a compact, vertically scrolling list (the series' exact-tag members, newest first). */
 .h29-rm-products { grid-area: list; display: grid; grid-template-rows: auto minmax(0,1fr) auto; min-width: 0; border-top: 1px solid color-mix(in srgb,var(--s29-brand-gold) 24%,var(--s29-line)); }
 .h29-rm-products > h4 { display: flex; align-items: baseline; gap: 8px; margin: 0; padding: 8px 14px 4px; font: 600 13px/1.3 var(--s29-font-ui); color: var(--s29-brand-gold); }
@@ -259,7 +261,7 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
 @media (prefers-reduced-motion: reduce) { .h29-teaser-tiles i, .h29-teaser-total { animation: none; } }
 /* Wide: identity, title and the leading sample on one side, the flagship list beside them. */
 @container h29 (min-width: 901px) {
-  .h29-series-card.is-primary.has-list { grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); grid-template-areas: "id list" "title list" "sample list" "fam fam"; }
+  .h29-series-card.is-primary.has-list { grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); grid-template-areas: "id list" "title list" "sample list"; grid-template-rows: auto auto minmax(0,1fr); }
   .h29-series-card.is-primary.has-list .h29-rm-products { border-top: 0; border-inline-start: 1px solid color-mix(in srgb,var(--s29-brand-gold) 24%,var(--s29-line)); }
   .h29-rm-list { max-height: 300px; }
 }
@@ -298,7 +300,6 @@ html[data-theme-2029="dark"] .h29-home-cosmos :is(.h29-hero,.h29-card,.h29-strip
   .h29-fam { gap: 6px; padding: 8px 10px; }
   .h29-fam > a small, .h29-fam > span small { display: none; }
   .h29-rm-list { max-height: 240px; }
-  .h29-teaser-tiles i { font-size: 17px; min-width: 1.9em; }
   .h29-series-card.is-primary .h29-series-name { font-size: 20px; }
   .h29-series-card { min-height: 216px; }
   .h29-series-item.h29-card-open { padding: 8px; }
