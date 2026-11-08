@@ -8,7 +8,7 @@ import { verifyReadingSession } from './publicReadingAuthSession.js';
 
 const AuthContext = createContext({
   user: null, profile: null, loading: true,
-  isAdmin: false, isMember: false,
+  isAdmin: false, isMember: false, canModerateGuests: false,
   signOut: () => {}, refreshProfile: () => {},
 });
 
@@ -130,6 +130,9 @@ export function AuthProvider({ children }) {
     verified: !!user && (!PUBLIC_READING_RELEASE || verified),
     isAdmin: currentProfile?.role === 'admin',
     isMember: currentProfile?.tier === 'member',
+    // A narrow, additional grant: sees and approves/hides anonymous (guest) community
+    // messages only. Not site admin — it never implies isAdmin or any other admin action.
+    canModerateGuests: currentProfile?.role === 'admin' || currentProfile?.community_moderator === true,
     signOut: async (options) => {
       const { error } = await doSignOut(options || (passiveAccount ? { scope: 'local' } : undefined));
       if (error) throw error;

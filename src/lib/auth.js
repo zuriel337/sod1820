@@ -6,7 +6,7 @@ import { providerOAuthRequest, rememberPreviewOAuthReturn } from './oauthReturn.
 const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 // 🌱 עץ אחד: כלכלה (credits/xp/level) נקראת מ-profiles הקנונית (getMyProfile), לא מ-users.
 // כאן רק שדות-זהות: users נשאר מקור-הזהות (username/display_name/avatar/role/tier-member).
-const PROFILE_COLS = 'id, username, display_name, avatar_url, tier, role, created_at';
+const PROFILE_COLS = 'id, username, display_name, avatar_url, tier, role, community_moderator, created_at';
 
 // ── מערכת המשתמשים (Google + Magic Link + פרופילים) ──
 export function signInWithGoogle({ returnTo = '/' } = {}) {
