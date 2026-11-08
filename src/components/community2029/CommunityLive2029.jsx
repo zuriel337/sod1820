@@ -21,6 +21,8 @@ import CommunityMessageContent from "./CommunityMessageContent.jsx";
 import CommunityMessageTime2029 from "./CommunityMessageTime2029.jsx";
 import CommunityRichText2029 from "./CommunityRichText2029.jsx";
 import CommunityPersonalActions2029 from "./CommunityPersonalActions2029.jsx";
+import CommunityTreeHints2029 from "./CommunityTreeHints2029.jsx";
+import { fetchTreeHints, setTreeHint } from "../../lib/community/communityTreeHints.js";
 import { useCommunityDraft2029 } from "./useCommunityDraft2029.js";
 import { useCommunityReadingPosition2029 } from "./useCommunityReadingPosition2029.js";
 import { historicalCommunityAvatar } from "../../lib/community/communityAvatar.js";
@@ -102,12 +104,17 @@ function LiveLike({ row }) {
 // the set re-renders them without threading a prop through every thread level.
 const NO_GUEST_REVIEW = { ids: new Set(), review: null };
 const guestReviewHolder = { current: NO_GUEST_REVIEW };
+// Administrator-only "entered the tree" marker, set by the page like the guest review above.
+const NO_TREE_HINTS = { ids: new Set(), toggle: null };
+const treeHintHolder = { current: NO_TREE_HINTS };
 
 function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = false, formatDate, linkAuthor = true, showAuthorAvatar = true, focused = false, messageActions, sharePath }) {
   const actionsLocked = communityActionsLocked(useAuth().isAdmin);
   const guestReview = guestReviewHolder.current;
   const row = { ...sourceRow, ...messageActions?.patches[sourceRow.id] };
   const guestUnreviewed = guestReview.ids.has(sourceRow.id);
+  const treeHints = treeHintHolder.current;
+  const inTree = treeHints.ids.has(sourceRow.id);
   const permissions = messageActions?.items[row.id];
   const [selection, setSelection] = useState({ principalKey: null, mode: null });
   const editButton = useRef(null);
@@ -148,6 +155,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
       {shareUrl ? <ShareActions type="community_message" entityId={row.id} url={shareUrl} title="הודעה בקהילת סוד 1820" sourceSurface="community_thread_2029" variant="icon" iconLabel="שיתוף הודעה" iconCopiedLabel="הקישור להודעה הועתק" force /> : null}
       {showSource && target ? <Link to={target}>לתרומה המלאה ←</Link> : null}
       {canReply && shareUrl && mode !== "edit" ? <CommunityPersonalActions2029 key={`${row.id}:${messageActions?.principalKey || "guest"}`} row={row} rootId={sharePath[0]} href={new URL(shareUrl).pathname + new URL(shareUrl).search} /> : null}
+      {treeHints.toggle && (row.origin === "openweb" || row.origin === "community_2029") ? <button type="button" className="sod29-community-manage-action" data-tree-hint-toggle={inTree ? "remove" : "enter"} aria-pressed={inTree} onClick={() => treeHints.toggle(sourceRow.id, inTree ? "remove" : "enter")}>{inTree ? "הוצאה מהעץ" : "הכנסה לעץ"}</button> : null}
       {permissions?.state === "ready" && permissions.canEdit && mode !== "edit" ? <button type="button" ref={editButton} className="sod29-community-manage-action" onClick={() => open("edit")}>עריכה</button> : null}
       {permissions?.state === "ready" && permissions.canDelete && !mode ? <button type="button" className="sod29-community-manage-action" onClick={() => open("delete")}>מחיקה</button> : null}
     </div>
@@ -407,6 +415,18 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [guestSending, setGuestSending] = useState(false);
   const [guestUnreviewedIds, setGuestUnreviewedIds] = useState(() => new Set());
   const guestReviewRead = useRef(0);
+  const [treeHints, setTreeHints] = useState([]);
+  const [treeHintRefresh, setTreeHintRefresh] = useState(0);
+  useEffect(() => {
+    let live = true;
+    fetchTreeHints({ limit: 20, href: window.location.href }).then(items => { if (live) setTreeHints(items); }).catch(() => { /* the pinned strip is optional */ });
+    return () => { live = false; };
+  }, [treeHintRefresh]);
+  const toggleTreeHint = useCallback(async (id, action) => {
+    try { await setTreeHint(id, action); setTreeHintRefresh(value => value + 1); setNotice(action === "enter" ? "ההודעה נכנסה לעץ ונעוצה בראש הצ׳אט." : "ההודעה הוצאה מהעץ."); }
+    catch { setNotice("הפעולה על רמז העץ לא הושלמה. נסו שוב."); }
+  }, []);
+  const treeHintControl = useMemo(() => ({ ids: new Set(treeHints.map(item => item.id)), toggle: isAdmin && user ? toggleTreeHint : null }), [treeHints, isAdmin, user, toggleTreeHint]);
   const refreshGuestUnreviewed = useCallback(async () => {
     if (!isAdmin || !user) { setGuestUnreviewedIds(current => current.size ? new Set() : current); return; }
     const request = ++guestReviewRead.current;
@@ -786,6 +806,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   // A guest publishes at once, as "אורח", text only. The server enforces limits.
   const publishAsGuest = async () => {
     if (!guestMustJoin || authLoading || guestSending || sending) return;
+    if (!replyTo?.id) { setNotice(guestPublishErrorMessage({ message: "reply_only" })); return; }
     const body = draft.trim();
     if (!plainMessageText(draft).trim() || replyTo?.draftRestoring || replyTo?.draftUnavailable) return;
     if (guestBodyHasLink(body)) { setNotice(guestPublishErrorMessage({ message: "links_not_allowed" })); return; }
@@ -837,6 +858,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   }, [user?.id, authVerified, authLoading, actionsLocked]);
 
   guestReviewHolder.current = guestReview;
+  treeHintHolder.current = treeHintControl;
   return <Sod2029Shell surface="community" title="הקהילה" introVariant="none" status="קהילה" symbol="◎">
     {!memberId ? leadingContent : null}
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": `color-mix(in srgb, ${palette.cardRaised} 94%, ${palette.accentText})`, "--community-discovery": palette.accentDiscovery, "--community-depth": palette.accentSecondary, "--community-warm": palette.warmAccent, "--community-success": palette.successText, "--community-action-fill": palette.accentBtn, "--community-danger": palette.dangerText }}>
@@ -855,6 +877,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <Link className="sod29-community-auth-btn" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>התחברות</Link>
           <Link className="sod29-community-auth-btn is-signup" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה</Link>
         </div>}</div> : null}
+        <CommunityTreeHints2029 hints={treeHints} />
         {isAdmin && guestUnreviewedIds.size ? <p className="sod29-community-guest-banner" role="status">{guestUnreviewedIds.size === 1 ? "הודעת אורח אחת פורסמה ועדיין לא נבדקה" : `${guestUnreviewedIds.size} הודעות אורח פורסמו ועדיין לא נבדקו`} · מוצגות באפור</p> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
@@ -875,11 +898,12 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => { draftCache.setHasFiles(attachments.length > 1); setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index)); }} />)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
           {guestAttachHint && !user ? <p className="sod29-community-status" role="status" data-guest-attach-hint="true">צירוף תמונות וקבצים זמין לחברי הקהילה. <Link to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>נרשמים בשנייה ←</Link></p> : null}
-          {guestMustJoin && (!compactComposer || composerOpen) ? <label className="sod29-community-guest-name"><span>השם שלכם (לא חובה)</span>
+          {guestMustJoin && replyTo?.id && (!compactComposer || composerOpen) ? <label className="sod29-community-guest-name"><span>השם שלכם (לא חובה)</span>
             <input type="text" name="guest-name" value={guestName} maxLength={GUEST_NAME_MAX} autoComplete="nickname" placeholder="למשל: דוד" disabled={guestSending} onChange={event => setGuestName(event.target.value)} aria-describedby="community-guest-name-note" />
-            <small id="community-guest-name-note">אפשר לפרסם בלי להירשם. ההודעה תופיע בשם שתכתבו, עם התווית ״אורח״.</small></label> : null}
+            <small id="community-guest-name-note">אפשר להגיב בלי להירשם. התגובה תופיע בשם שתכתבו, עם התווית ״אורח״.</small></label> : null}
+          {guestMustJoin && !replyTo?.id && (!compactComposer || composerOpen) ? <p className="sod29-community-status" role="note" data-guest-reply-only="true">אורחים יכולים להגיב על הודעה קיימת (״השב״). פתיחת שיחה חדשה — לחברי הקהילה.</p> : null}
           {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><div className="sod29-community-composer-actions" data-guest={guestMustJoin ? "true" : undefined}>
-            {guestMustJoin ? <button type="button" className="sod29-community-primary" data-guest-publish="true" disabled={!plainMessageText(draft).trim() || guestSending || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} onClick={publishAsGuest}>{guestSending ? "מפרסם…" : "פרסום כאורח"}</button> : null}
+            {guestMustJoin && replyTo?.id ? <button type="button" className="sod29-community-primary" data-guest-publish="true" disabled={!plainMessageText(draft).trim() || guestSending || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} onClick={publishAsGuest}>{guestSending ? "מפרסם…" : "תגובה כאורח"}</button> : null}
             <button type="button" className={guestMustJoin ? "sod29-community-join-link" : "sod29-community-primary"} disabled={(!plainMessageText(draft).trim() && (guestMustJoin || !attachments.length)) || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} data-guest-join={guestMustJoin ? "true" : undefined} onClick={submit}>{sending ? "שולח…" : guestMustJoin ? "להירשם ולפרסם בשמי ←" : "פרסום"}</button>
             {guestMustJoin ? <input className="sod29-community-sr-only" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={guestWebsite} onChange={event => setGuestWebsite(event.target.value)} /> : null}</div></div> : null}
           {(draft.length > 0 || replyTo || draftCache.reattach) && draftCache.status !== "idle" ? <div className="sod29-community-draft-state" data-draft-state={draftCache.status} role="status">

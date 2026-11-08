@@ -14,6 +14,7 @@ const GUEST_ERRORS = {
   use_account: "אתם מחוברים לחשבון. נסו לפרסם שוב.",
   invalid_parent: "ההודעה שאליה עונים אינה זמינה יותר.",
   invalid_name: "השם צריך להיות בן 2 עד 30 תווים, בלי סימנים מיוחדים.",
+  reply_only: "אורחים יכולים להגיב על הודעה קיימת בלבד. כדי לפתוח שיחה חדשה אפשר להירשם.",
 };
 export function guestPublishErrorMessage(error) {
   const text = `${error?.message || ""} ${error?.details || ""} ${error?.hint || ""}`;
@@ -43,7 +44,9 @@ export function readGuestName(storage) {
 export function saveGuestName(storage, name) {
   try { const clean = cleanGuestName(name); if (clean) storage?.setItem(GUEST_NAME_STORAGE_KEY, clean); else storage?.removeItem(GUEST_NAME_STORAGE_KEY); } catch { /* storage unavailable */ }
 }
+// A guest may only comment on an existing message; the server enforces it too.
 export async function publishGuestCommunityMessage({ body, parentId = null, website = "", name = "" }, client = supabase) {
+  if (!parentId) throw Object.assign(new Error("reply_only"), { code: "reply_only" });
   const guestName = cleanGuestName(name);
   const { data, error } = await client.rpc("add_guest_community_message", { p_body: body, p_parent_id: parentId, p_website: website || null, ...(guestName ? { p_name: guestName } : {}) });
   if (error) throw error;

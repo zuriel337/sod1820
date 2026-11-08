@@ -15,14 +15,22 @@ test("server error codes become Hebrew explanations", () => {
 test("guest API calls the exact RPCs with named arguments", async () => {
   const calls = [];
   const client = { rpc: async (name, args) => { calls.push([name, args]); return { data: name === "community_guest_unreviewed" ? ["a", "b"] : "id-1", error: null }; } };
-  assert.equal(await publishGuestCommunityMessage({ body: "היי", parentId: null, website: "" }, client), "id-1");
+  const parent = "11111111-2222-4333-8444-555555555555";
+  assert.equal(await publishGuestCommunityMessage({ body: "היי", parentId: parent, website: "" }, client), "id-1");
   assert.deepEqual(await fetchGuestUnreviewed(client), ["a", "b"]);
   await reviewGuestMessage("a", "hide", client);
   assert.deepEqual(calls, [
-    ["add_guest_community_message", { p_body: "היי", p_parent_id: null, p_website: null }],
+    ["add_guest_community_message", { p_body: "היי", p_parent_id: parent, p_website: null }],
     ["community_guest_unreviewed", { p_ids: null }],
     ["community_guest_review", { p_id: "a", p_action: "hide" }]]);
-  await assert.rejects(publishGuestCommunityMessage({ body: "x" }, { rpc: async () => ({ data: null, error: { message: "rate_limited" } }) }));
+  await assert.rejects(publishGuestCommunityMessage({ body: "x", parentId: parent }, { rpc: async () => ({ data: null, error: { message: "rate_limited" } }) }));
+});
+test("a guest can only comment: a message without a parent never reaches the server", async () => {
+  let called = false;
+  const client = { rpc: async () => { called = true; return { data: "id", error: null }; } };
+  await assert.rejects(publishGuestCommunityMessage({ body: "שיחה חדשה", parentId: null }, client), /reply_only/);
+  assert.equal(called, false);
+  assert.match(guestPublishErrorMessage({ message: "reply_only" }), /להגיב על הודעה קיימת/);
 });
 test("typing tracker expires, caps, dedupes names and ignores malformed keys", () => {
   const t = createTypingTracker();
@@ -56,10 +64,11 @@ test("typing is throttled and labelled by name, anonymous or both", () => {
 test("a guest name is sent only when typed, cleaned, under the exact named argument", async () => {
   const calls = [];
   const client = { rpc: async (name, args) => { calls.push([name, args]); return { data: "id-2", error: null }; } };
-  await publishGuestCommunityMessage({ body: "היי", name: "  דוד\u202e   כהן " }, client);
-  await publishGuestCommunityMessage({ body: "היי", name: "   " }, client);
-  await publishGuestCommunityMessage({ body: "היי" }, client);
-  assert.deepEqual(calls[0][1], { p_body: "היי", p_parent_id: null, p_website: null, p_name: "דוד כהן" });
+  const parentId = "11111111-2222-4333-8444-555555555555";
+  await publishGuestCommunityMessage({ body: "היי", parentId, name: "  דוד\u202e   כהן " }, client);
+  await publishGuestCommunityMessage({ body: "היי", parentId, name: "   " }, client);
+  await publishGuestCommunityMessage({ body: "היי", parentId }, client);
+  assert.deepEqual(calls[0][1], { p_body: "היי", p_parent_id: parentId, p_website: null, p_name: "דוד כהן" });
   assert.deepEqual(Object.keys(calls[1][1]), ["p_body", "p_parent_id", "p_website"], "no name means the previous request shape");
   assert.deepEqual(Object.keys(calls[2][1]), ["p_body", "p_parent_id", "p_website"]);
 });
