@@ -50,24 +50,16 @@ test.beforeEach(async ({ context }) => {
   }));
 });
 
-test('2029 Preview Home keeps the adopted page without claiming a public opening', async ({ page }) => {
+test('2029 Home is under construction for guests with a world entry', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
-  await expect(page.locator('[data-experience-capability="home-composition"]')).toBeVisible();
-  await expect(page.locator('[data-home-launch-notice="gradual-opening"]')).toHaveCount(0);
-  await expect(page.locator('[data-home-user-area="open"]')).toBeVisible();
-  await expect(page.locator('[data-home-world="open"]')).toHaveCount(0);
-  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/world"]').first()).toBeVisible();
-  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/community/chat"]')).toHaveCount(0);
-  await expect(page.locator('[data-experience-capability="home-composition"] a[href="/archive"]').first()).toBeVisible();
-  // Doc37 availability map uses the canonical address, while /els stays an alias.
-  // This test's explicit OPEN_FLAGS fixture admits the existing screen link.
-  const cipherAvailability = page.locator('[data-home-availability-map="true"] li').filter({ has: page.locator('a[href="/code"]') });
-  await expect(cipherAvailability).toBeVisible();
-  await expect(cipherAvailability).toContainText('פתוח לציבור');
-  await page.locator('[data-home-user-area="open"]').click();
-  await expect(page.locator('[data-workspace-section="account"]')).toBeVisible();
-  await expect(page.locator('[data-workspace-card="life-journey"]')).toHaveAttribute('aria-disabled', 'true');
+  for (const path of ['/2029', '/']) {
+    await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
+    const home = page.locator('[data-home-construction="true"]');
+    await expect(home).toBeVisible();
+    await expect(home.locator('[data-home-construction-badge="true"]')).toHaveText('בבנייה');
+    await expect(home.locator('a[href="/world"]')).toHaveCount(1);
+    await expect(page.locator('[data-experience-capability="home-composition"]')).toHaveCount(0);
+  }
 });
 
 test('public navigation opens the same user area', async ({ page }) => {
@@ -188,8 +180,15 @@ test('site search stays separate and a phrase in the Number drawer opens its cal
 test('a large signed-in profile image cannot squeeze the account text', async ({ page }) => {
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 844 });
-    await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
-    await page.locator('[data-home-user-area="open"]').click();
+    await page.goto(`${BASE}/world`, { waitUntil: 'domcontentloaded' });
+    const menu = page.getByRole('button', { name: 'פתח ניווט' });
+    if (await menu.isVisible()) {
+      await menu.click();
+      await page.getByRole('dialog', { name: 'ניווט SOD1820 2029', exact: true })
+        .getByRole('button', { name: 'האזור האישי שלי', exact: true }).click();
+    } else {
+      await page.locator('.sod29-header-workspace, .sod29-sidebar-workspace').first().click();
+    }
     const sizes = await page.locator('[data-workspace-section="account"]').evaluate((account) => {
       const card = document.createElement('div');
       card.className = 'sod29-workspace-account-connected';
@@ -263,7 +262,7 @@ test('World opens from Home and requests its grouped source reader', async ({ pa
   }));
   await page.goto(`${BASE}/2029`, { waitUntil: 'domcontentloaded' });
   const groupedRead = page.waitForResponse((response) => response.url().includes('/rpc/world_group_source_arrivals_v2'));
-  await page.locator('[data-experience-capability="home-composition"] a[href="/world"]').first().click();
+  await page.locator('[data-home-construction="true"] a[href="/world"]').first().click();
   await expect(page).toHaveURL(`${BASE}/world`);
   await expect(page.getByRole('region', { name: 'כניסה לעולם' })).toBeVisible({ timeout: 30_000 });
   expect((await groupedRead).ok()).toBe(true);
