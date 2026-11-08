@@ -61,6 +61,7 @@ async function harness(file, names, overrides = {}) {
     useCommunityMessageActions2029: () => ({ items: {}, patches: {}, register() {} }),
     canonicalCommunityAuthorKey: value => value, useCommunityTyping2029: () => ({ typingPeople: { names: [], anonymous: 0 }, notifyTyping() {} }),
     fetchGuestUnreviewed: async () => [], typingLabel: people => people.names.length || people.anonymous ? "x" : "",
+    fetchTreeHints: async () => [], setTreeHint: async () => {}, parseTreeHintNumbers: () => [],
     fetchCommunityArchivePage: async () => ({ rows: [], nextOffset: 0, count: 0 }),
     fetchLinkedAccountProfiles: async () => ({}), fetchCommunityReplyCounts: async () => ({}),
     startCommunityRefresh: () => () => {}, applySeo() {}, restoreCommunityScrollAnchor() {},
@@ -296,21 +297,32 @@ test('canonical UserBadge keeps opt-in fallbacks colorful while real images and 
   tree=h.render(h.UserBadge,{name:'ordinary',avatarOnly:true});assert.equal(tree.props['data-avatar-treatment'],undefined);assert.equal(tree.props.style['--user-badge-fallback-ink'],undefined);
 });
 
-test("a guest sees one-step signup and publish-as-guest, a member sees only publish", async () => {
-  for (const [user, guest] of [[null, true], [{ id: "account" }, false]]) {
+test("a guest can only comment (reply-only); a member always sees publish", async () => {
+  const replyTo = { id: "11111111-1111-4111-8111-111111111111" };
+  // [user, guest, replyTo]: a member always publishes; a guest needs an open reply to publish at all.
+  for (const [user, guest, reply] of [[null, true, null], [null, true, replyTo], [{ id: "account" }, false, null]]) {
     const h = await harness("./CommunityLive2029.jsx", ["CommunityLive2029"], {
       PUBLIC_READING_PRODUCTION_ARTIFACT: true, communityActionsLocked: () => false, plainMessageText: value => value,
       useAuth: () => ({ user, profile: {}, isAdmin: false, loading: false, verified: Boolean(user) }),
-      useCommunityDraft2029: () => ({ draft: "שלום", setDraft() {}, replyTo: null, setReplyTo() {}, status: "idle", clear() {}, setHasFiles() {}, reattach: false }),
+      useCommunityDraft2029: () => ({ draft: "שלום", setDraft() {}, replyTo: reply, setReplyTo() {}, status: "idle", clear() {}, setHasFiles() {}, reattach: false }),
     });
     const tree = elements(h.render(h.CommunityLive2029, {}));
     const primary = tree.find(node => node.props?.className === "sod29-community-primary");
-    // A guest has ONE main button (publish as guest) and a quiet signup link; a member has just the main button.
-    assert.equal(primary.props["data-guest-publish"], guest ? "true" : undefined);
-    assert.equal(Boolean(primary.props.disabled), false);
+    // A guest sees the publish-as-guest button only once they are replying to an existing message;
+    // a member always sees it. Either way a quiet signup/registration link is also present for a guest.
+    const expectPublish = guest ? Boolean(reply) : true;
+    assert.equal(Boolean(primary), expectPublish);
+    if (expectPublish) {
+      assert.equal(primary.props["data-guest-publish"], guest ? "true" : undefined);
+      assert.equal(Boolean(primary.props.disabled), false);
+    }
     assert.equal(tree.some(node => node.props?.className === "sod29-community-join-link" && node.props["data-guest-join"] === "true"), guest);
-    assert.equal(tree.filter(node => String(node.props?.className || "").includes("sod29-community-primary")).length, 1);
+    assert.equal(tree.filter(node => String(node.props?.className || "").includes("sod29-community-primary")).length, expectPublish ? 1 : 0);
+    // Without an open reply, a guest sees the reply-only explanation instead of a publish button.
+    assert.equal(tree.some(node => node.props?.["data-guest-reply-only"] === "true"), guest && !reply);
     assert.equal(tree.some(node => node.props?.name === "website"), guest);
+    // A guest never gets to type their own name; every guest comment publishes as plain "אורח".
+    assert.equal(tree.some(node => node.props?.name === "guest-name"), false);
     assert.ok(tree.some(node => node.props?.className === "sod29-community-typing"));
     const authLinks = tree.filter(node => String(node.props?.className || "").startsWith("sod29-community-auth-btn"));
     assert.equal(authLinks.length, guest ? 2 : 0);

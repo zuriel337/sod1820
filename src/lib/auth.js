@@ -74,10 +74,17 @@ export async function requestEmailOtp(email, { shouldCreateUser = true } = {}) {
   return { ok: true };
 }
 
-export async function verifyEmailOtp(email, token) {
-  const { data, error } = await supabase.auth.verifyOtp({
-    email: email.trim(), token: token.trim(), type: 'email',
-  });
+// A code emailed to an account whose address is not confirmed yet is a signup
+// confirmation code, which Auth only accepts as type 'signup'; a confirmed account's
+// code is type 'email'. The person cannot tell them apart, so try 'email' first and,
+// only for an invalid/expired answer, 'signup' with the same code.
+export async function verifyEmailOtp(email, token, client = supabase) {
+  const params = { email: email.trim(), token: token.trim() };
+  let { data, error } = await client.auth.verifyOtp({ ...params, type: 'email' });
+  if (error && (error.code === 'otp_expired' || /expired or is invalid/i.test(error.message || ''))) {
+    const retry = await client.auth.verifyOtp({ ...params, type: 'signup' });
+    if (!retry.error) { data = retry.data; error = null; }
+  }
   if (error) throw error;
   return data;
 }
