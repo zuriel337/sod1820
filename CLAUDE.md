@@ -2,7 +2,7 @@
 
 ## Legacy פרש — קרא ראשון (החלטת ZURIEL, 5.11.2026)
 
-1. **Legacy retired — אינו מוצר פעיל.** אין ריצת Legacy, אין יעד build של Legacy ואין שער Legacy lock (הוחלף ב־`scripts/test-legacy-retired.mjs`). ההחלטה סופית. אם עץ ה־`main` שלפניך עדיין מכיל קוד Legacy, הסרתו טרם מוזגה (ענף `claude/2029-legacy-separation-e8j9tf`); מיזוג ופרסום שלה דורשים אישור מפורש של צוריאל.
+1. **Legacy retired — אינו מוצר פעיל.** אין ריצת Legacy, אין יעד build של Legacy ואין שער Legacy lock (הוחלף ב־`scripts/test-legacy-retired.mjs`). ההחלטה סופית. הסרת קוד ה־Legacy מהעץ הפעיל הושלמה ומוזגה ל־`main` (PR #1239, קומיט `a5ef82cce`, 5.11.2026); ענף ההסרה הישן אינו מקור אמת ואין להחיות, למזג או להמשיך אותו. אם נראה קוד Legacy פעיל ב־`main` — מדווחים לצוריאל כסתירה; לא משחזרים ולא ״משלימים הסרה״ מענף ישן.
 2. **מערכת 2029 היא המוצר הפעיל** (`src/App2029.jsx`, `src/main2029.jsx`, `2029.html`; פרסום דרך `public-reading-deploy`). מצב חי נקרא מ־Vercel (alias ← deployment ← `sourceSha`) ומ־`origin/main` בזמן הפעולה, לא ממסמך.
 3. **אין לשחזר Legacy** כ־runtime, route, UI, build target, rollback worker או compatibility layer. כתובת שאינה מוכרת מסתיימת ב־404 של 2029.
 4. **היסטוריית Git היא מנגנון השחזור** של קוד Legacy (`git show <sha>:<path>`; ראו [REMOVAL.md](docs/reviews/2029-legacy-removal-20261105/REMOVAL.md)); אין צורך להחזיק מוצר Legacy חי לשם rollback. חזרה תפעולית בפרודקשן היא לפריסת 2029 קודמת, באישור מפורש; היא אינה שחזור מסד או מדיה.
@@ -16,10 +16,10 @@
 
 ### 0.1 פתיחת סשן — לפני כל עבודה
 
-1. קוראים את `CLAUDE.md` ואת ההוראות הרלוונטיות למשימה בלבד (ניתוב: `SOD1820_MASTER_OWNER_INDEX.md`; Codex: גם `AGENTS.md`), לפי תקציב הקריאה ב־§3. כשהמשימה נוגעת בהם — בודקים את היומן (`work_log_current`, §10) ואת Doc37 (״מסמך 37״, מוזכר ב־`SOD1820_MASTER_STATE.md` וב־`SOD1820_MASTER_ROADMAP.md`) דרך הניתוב שם, בלי סריקה רחבה.
+1. קוראים את `CLAUDE.md` ואת ההוראות הרלוונטיות למשימה בלבד (ניתוב: `SOD1820_MASTER_OWNER_INDEX.md`; Codex: גם `AGENTS.md`), לפי תקציב הקריאה ב־§3. את היומן (`work_log_current`) בודקים בתחילת כל סשן לפי §10 ו־0.3. Doc37 (״מסמך 37״) הוא `project_codex.id=37` ב־Supabase ואינו קובץ בריפו (מוזכר ב־`SOD1820_MASTER_STATE.md` וב־`SOD1820_MASTER_ROADMAP.md`): קוראים רק את הסעיף הרלוונטי למשימה, ורק כשהיא נוגעת בו; סעיפיו (12.xx) הם רשומות מתוארכות — תצלום היסטורי, לא הוראה ולא הרשאה (מצב חי: Vercel ו־`origin/main`).
 2. מזהים את המאגר הנכון (שם המאגר וה־remote) לפני כל קריאה או כתיבה.
-3. `git fetch origin --prune`, ואז רושמים: ה־SHA של `origin/main`, הענף הנוכחי וה־HEAD שלו, מצב ה־working tree, PRs פתוחים בתחום המשימה ומצב ה־CI של ה־SHA הרלוונטי (§9).
-4. **ה־SHA המאושר** הוא `origin/main` כפי שנקרא בפעולה, אלא אם צוריאל קבע SHA אחר בסשן הנוכחי. לא קובעים בסיס מזיכרון של סשן קודם, מסיכום, משם ענף או מ־PR ישן. מצב חי נקרא מ־Vercel בלבד: `main` אינו הוכחת פריסה (ראו ״מצב חי וכללי שחרור״ למעלה).
+3. `git fetch origin --prune`, ואז רושמים: ה־SHA של `origin/main`, הענף הנוכחי וה־HEAD שלו, מצב ה־working tree (הפקודות ב־§9), PRs פתוחים בתחום המשימה ומצב ה־CI של ה־SHA הרלוונטי.
+4. **ה־SHA המאושר** הוא `origin/main` כפי שנקרא בפעולה, אלא אם צוריאל קבע SHA אחר בסשן הנוכחי; זהו בסיס עבודה בלבד, ואישור למיזוג או לפריסה ניתן לקומיט מדויק לפי 0.4. לא קובעים בסיס מזיכרון של סשן קודם, מסיכום, משם ענף או מ־PR ישן. מצב חי נקרא מ־Vercel בלבד: `main` אינו הוכחת פריסה (ראו ״מצב חי וכללי שחרור״ למטה).
 5. הוראה מפורשת של צוריאל על SHA עדיפה על הנחות שנשענות על ענף ישן, אך עדיין בודקים שהיא קיימת, שהיא מתאימה למשימה ושאין בה סיכון (למשל שאינה דורסת עבודה של כותב אחר או אישור שכבר נצרך); אם לא — מדווחים לפני ביצוע.
 6. סתירה בין הוראות, יומן, ענף או SHA — **עוצרים ומדווחים; לא מנחשים.**
 
@@ -40,7 +40,7 @@
 
 ### 0.4 הגנת Production — נדרש אישור מפורש של ZURIEL
 
-אישור מפורש, לפעולה ולקומיט מדויקים, נדרש ל: merge ל־`main`; deployment, promotion, rollback או שינוי alias; הגדרות דומיין או Production; DB, SQL ו־migrations; הרשאות, policies, secrets והגדרות אבטחה; מחיקת ענפים, קבצים או נתונים; cherry-pick או שילוב מענפים ישנים.
+אישור מפורש, לפעולה ולקומיט מדויקים, נדרש ל: merge ל־`main`; deployment, promotion, rollback או שינוי alias; הגדרות דומיין או Production; DB, SQL ו־migrations; הרשאות, policies, secrets והגדרות אבטחה; מחיקת ענפים, קבצים או נתונים; cherry-pick או שילוב מענפים ישנים; וכן כל שינוי שמונה בכלל 7 שבראש הקובץ (כולל Preview מוגן ודגלים).
 
 - בדיקות קריאה בלבד מותרות כשהן נחוצות, ואינן היתר לשינוי.
 - אישור שנצרך, אישור היסטורי (למשל המיזוג של `MAIN_2029_LIVE_STATE_RECONCILIATION_20261104`) ואישור מסשן אחר אינם מתחדשים; אישור אינו מורחב לפעולה אחרת.
@@ -54,36 +54,22 @@
 
 ### 0.6 הקשר השקה
 
-מתקדמים לקראת השקה: לא פותחים מחדש עבודה שהושלמה; אין ניקוי ענפים רחב; אין הרחבת היקף אבטחה; אין מיפוי מלא מחדש כשקיים מיפוי עדכני; מפרידים בין RC, בדיקות, תיעוד ו־Production; מציינים חסם אמיתי בדיוק (מה חסום, למה, מי מחליט); לא ממציאים משימות.
-
-**צילום היסטורי — 12.56 / LIVE, ‏4.11.2026 (אינו המצב החי הנוכחי; הפרודקשן הוחלף מאז, ומצב חי נקרא מ־Vercel בכל פעולה):** החבילה המצטברת פורסמה ממקור `969b51423d8b67b7b8061d067b5366e1e2a1c5e4` ב־Production `dpl_xw7fECMyWRrZvxxKdy71yobAhj8h`. שלושת הדומיינים אומתו בפריסה זו; כלולים המחשבון, ״עכשיו״, רקעי הפוסטים, התפריט, התמונות28f והמסירה המדויקתd96. צוריאל אישר את הפרסום המדויק וחריגת הקנרית לשעה, עד `2026-11-04T21:16:17.346189Z`; זהו אישור שנצרך לפרסום זה, לא היתר לפרסום עתידי. אחרי המעבר עברו20 תרחישי דפדפן אמיתיים ב־390/1440, בדיקות alias/לוגו/בוט וקנרית969 [בניסיון2](https://github.com/zuriel337/sod1820/actions/runs/41906277893). הכשלים הראשונים נשמרו; HIT חם שלXML אינו קבלת זמן קר. Isolation/Visual/ELS המלאים וסגירתG4 בתוכנית אינם PASS. תיעוד מאוחר ב־main אינו שינויruntime או פריסה נוספת. סשנים חדשים מתחילים מ־origin/main העדכני, מאמתים Vercel ובעלויות, ואינם מייבאים שוב ענפים שהוחלפו. [הפעולה, הראיות והיתרה](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1256--החבילה-המצטברת-פורסמה-לחי).
-
-העדכונים12.55 ומטה הם צילומים היסטוריים בתחומים שהוחלפו ב־12.56. הרשאות השחרור, קבלת שני החשבונות/H1 והדחיות שלא הוחלפו נשמרות.
-
-**צילום היסטורי 12.55 — מצב טרם הפרסום12.56:** [PR1195](https://github.com/zuriel337/sod1820/pull/1195) מוזג ל־`2149cb748176529a7af756cda23b95d646cf639c`, עץ זהה למקור הפריוויו `a106a140` / `dpl_78xR91VjtFhwKivWo4ixYk9BEmQY`. נכללת מסירת הקהילה המדויקת `d96c41ea`; SQL הזהות כבר הוחל בסשן המוסר ולא הורץ שוב. G4 הציבורי עבר על a106; serverSEO ו־A3 עברו, אך Isolation/Visual המלאים אינם PASS. זמני הודעות הקהילה פחות מ־24 שעות הם חריג מאושר ומתועד לבעלים הקיים, בלי שינוי כלל העולם. צוריאל ביקש לפרסם את כל החבילה; החי עדיין d06/7Kcv והקנרית האחרונה חוסמת. אין override או פריסה מכוח המיזוג. סשנים חדשים מתחילים מ־origin/main העדכני ומאמתים פריסה ובעלויות. [ראיות ויתרה](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1255--שילוב-d96c41ea-וקבלה-של-החבילה-המצטברת).
-
+מתקדמים לקראת השקה: לא פותחים מחדש עבודה שהושלמה; אין ניקוי ענפים רחב; אין הרחבת היקף אבטחה (ממצא אבטחה חדש מדווחים לצוריאל; הרחבת היקף היא החלטתו); אין מיפוי מלא מחדש כשקיים מיפוי עדכני; מפרידים בין RC, בדיקות, תיעוד ו־Production; מציינים חסם אמיתי בדיוק (מה חסום, למה, מי מחליט); לא ממציאים משימות.
 
 ## מצב חי וכללי שחרור — 2029 (יישור ZURIEL, ‏4.11.2026)
 
 **2029 הוא האתר החי. Legacy פרש (החלטת צוריאל 5.11: אין חזרה); הקוד נשמר בהיסטוריית Git בלבד.** מצב חי נקבע מקריאה עדכנית של שיוך הדומיינים ב־Vercel, מקור הפריסה וה־artifact שמוגש בפועל; `main`, הודעה ישנה או work_log לבדם אינם הוכחת פריסה.
 
-**צילום היסטורי12.54 — הבסיס הוחלף בהמשך12.56:** מתחילים מענף מבודד מתוך `origin/main` אחרי fetch ובדיקת הבעלויות; אין לחזור לענף cutover או לייבא שוב מסירות שכבר שולבו. קוד המוצר המאוחד הואa4910bc2; תיקון כלי ה־CI והקיבוע של הספים מתועדים ב־[המסירה העדכנית](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1254--בסיס-לסשנים-חדשים-seo-וספים-קבועים). בקשת צוריאל המאוחרת לפרסום כל השינויים מחליפה את הוראת הקוד־בלבד לעניין היעד, אך אינה override לקנרית או מעבר של שער שנכשל. לא מציגים את main כפרוס לפני אימותVercel.
+**צילומי מצב ישנים (12.53–12.56, 4.11.2026) — היסטוריה בלבד.** הפריסות, ה־SHA והאישורים שבהם — ובכלל זה Production `dpl_xw7fECMyWRrZvxxKdy71yobAhj8h` / מקור `969b51423d8b67b7b8061d067b5366e1e2a1c5e4` והפריסה הקודמת `dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX` — אינם המצב החי הנוכחי ואינם הרשאה לפעולה חדשה; האישורים שניתנו בהם נצרכו. הראיות המלאות: [12.53](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1253--תמונות-ומפת-האתר) · [12.54](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1254--בסיס-לסשנים-חדשים-seo-וספים-קבועים) · [12.55](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1255--שילוב-d96c41ea-וקבלה-של-החבילה-המצטברת) · [12.56](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1256--החבילה-המצטברת-פורסמה-לחי). סשן חדש מתחיל מ־`origin/main` העדכני (0.1), מאמת פריסה ובעלויות מול Vercel והיומן, ואינו מייבא שוב ענפים או מסירות שכבר שולבו או הוחלפו (0.2).
 
 **ספים קבועים גם עם תוספת יכולות (ZURIEL,4.11):** משתמשים בספים ובתקציבים הקיימים; אין עדכון אוטומטי של baseline או הגדלת סף כדי להעביר בדיקה. CLS נשאר≤0.1, ברירת מחדל לקנרית נשארת15,000ms, וספיWebVitals ותקציב גרף הפתיחה נשארים כפי שנקבעו בקוד הקנוני. שינוי מכוון בסף דורש החלטה מפורשת של צוריאל. התאמת ציפייה לממשק שאושר אינה שינוי סף ואינה פטור מבדיקת התנהגות.
 
-
-תצלום האימות הקודם, שהוחלף בהמשך12.56: שלושת הדומיינים `sod1820.co.il`, `www.sod1820.co.il`, `sod1820.vercel.app` משרתים את `dpl_7KcvdVHsp26uyiLrNHppBtCKeGbX`, מקור `d06cf1ab309c8278d61fc3c3588ea78a994262a1`. אין להפוך תצלום זה לפין נצחי: מאמתים שוב בכל פעולת מיזוג או פרסום. המעבר המקורי שאושר היה `1bc8260a` / `dpl_CkoiEsaT1UJ7rAZuzYE7i79noi9A`; הוא היסטוריית קבלה, לא בהכרח הפריסה העדכנית.
-
-- המשך12.53: דלתת תמונות הצ׳אט28f ותיקוני מפת האתר מוזגו בקוד בלבד ב־PR1193 / מוצר `a4910bc27a33e58a94cb66098c2e0f883bcf466b`, בלי להחליף את החיd06/7Kcv. הפריוויו המדויק הוא3fc0dc1e/GhM44; קנרית קרה בסף15 עדיין נכשלת ואין CDNHIT קנוני מאומת. הוראת ההמשך העדכנית היא תיקונים חשובים ומיזוג קוד בלבד, ללא Production/alias/דומיינים או תשתית משותפת מכוח המיזוג. אין להרחיב שוב לסריקה היסטורית או לשינוי אינדוקס הקהילה; ראו [המסירה12.53](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1253--תמונות-ומפת-האתר). אישור מסירה ישנה נשאר מוגבל לדלתה שנקבה בה, והבדיקות שאינן עברו אינן פטורות.
-
-- ZURIEL אישר במפורש הכנה ומיזוג של המוצר המאוחד העדכני ל־`main` במשימה `MAIN_2029_LIVE_STATE_RECONCILIATION_20261104`. זהו אישור המיזוג הנוכחי; אין צורך באישור נוסף לעצם המיזוג אם התנאים שהגדיר מתקיימים. בודקים תחילה שפריסת Git אוטומטית לא תחליף את החי בתוצר או בתצורה שלא אושרו.
-- יישור הקוד הושלם ב־PR [#1191](https://github.com/zuriel337/sod1820/pull/1191), קומיט מוצר `71bb76467091ecd920eea92cc5b041c24c8145df`, עם tree זהה למועמד המאוחד שנבדק. זו צריכת אישור המיזוג הנוכחי, לא הרשאת מיזוג גורפת לענפים היסטוריים. תיעוד מאוחר יכול להתקדם מעל קומיט המוצר; קוראים מחדש את HEAD ולא מניחים שהוא פרוס.
+- היסטוריה (נצרך): אישור המיזוג של `MAIN_2029_LIVE_STATE_RECONCILIATION_20261104` ניתן ונצרך במלואו במיזוג PR [#1191](https://github.com/zuriel337/sod1820/pull/1191) (קומיט מוצר `71bb76467091ecd920eea92cc5b041c24c8145df`, כבר ב־`origin/main`). אין בו אישור קיים או מתחדש, והוא אינו חל על מיזוג אחר או על ענפים היסטוריים (0.4). תיעוד שמתקדם מעל קומיט המוצר אינו פריסה — קוראים מחדש את HEAD ולא מניחים שהוא פרוס; ולפני כל מיזוג בודקים שפריסת Git אוטומטית לא תחליף את החי בתוצר או בתצורה שלא אושרו.
 - מסלול פרסום 2029 הוא `public-reading-deploy`, עם `sourceFilesOutsideRootDirectory=true` ובנייה מפורשת `node scripts/build-public-reading-production.mjs --public-production-candidate --review-source=<exact-main-SHA>`. שורש המאגר והמתג `CORE_PUBLIC_LAUNCH_2029=false` נשמרים כפי שהם (הדגל בשימוש בקוד 2029; Legacy פרש); אין להשתמש בבניית ברירת המחדל כתחליף לתוצר הציבורי. `git.deploymentEnabled=false` בשני השורשים מפריד את main מהפעלה אוטומטית; אין לשנות דגל משותף כדי לחקות Preview.
-- התאמת השער ב־df0fd09f אושרה בנפרד והוחלה בדיוק. קבלת הפריוויו היא d031b5ea / GcNaZezW; הפרסום הבא עדיין כפוף לקנרית של מקור החי ולבדיקות הרלוונטיות. הוראת הפרסום הכללית כבר ניתנה במשימה; לא ניתן להסיק ממנה override לקנרית שנכשלה או PASS של workflow שנמצא בתור.
-- מיזוג קוד אינו פריסה. main יכול לכלול תיקונים מאושרים שטרם נפרסו; מדווחים במפורש את ההבדל ממקור הפריסה החיה. Production, דומיינים, שרת/מסד משותפים ודגלים כפופים להרשאות המדויקות שכבר ניתנו, ללא הרחבה מכוח מיזוג.
-- **ענפים ומסירות שהוחלפו הם היסטוריה, לא מסלול שחרור.** אין למזג או לפרסם ענף ישן או עבודה מסשן ישן בלי אישור מיוחד מפורש של ZURIEL לאותה מסירה/דלתה. בודקים תוכן ותלות מול main העדכני; תאריך, שם סשן או אישור ישן אינם אישור חדש. אין למחוק את הענפים או את הראיות כדי לאכוף זאת.
-- הסשן המרכזי הוא המשלב היחיד של המשימה הנוכחית. סוכן שמגיע מענף היסטורי קורא את main והיומן העדכניים ונשאר בקריאה בלבד בתחום שכבר מוחזק. התיעוד והיומן הם התיאום הקיים; אין dispatch או המתנה ל־GPT.
-- Legacy פרש (החלטת צוריאל 5.11: אין חזרה). הפריסה `dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2` אינה יעד חזרה, ואין לשחזר אליה תנועה; קוד Legacy נשמר בהיסטוריית Git בלבד ([ההסרה והשחזור מההיסטוריה](docs/reviews/2029-legacy-removal-20261105/REMOVAL.md)). אם נדרשת חזרה — היא לפריסת 2029 קודמת, שנקבעת מחדש מ־Vercel באותה פעולה ובאישור מפורש. שחזור תנועה לפריסה אינו שחזור מסד או מדיה. הסרת קוד ה־Legacy אינה פריסה: היא חיה רק אחרי אימות Vercel (נכון ל־5.11 החי הוא `b0a752c66` / `dpl_jMPhd1gbMuoDRHk1PLXxg18PRHPP`, והסרה זו אינה בו).
+- בקשה כללית לפרסום, PASS של workflow שבתור ואישור מסירה ישנה אינם override לקנרית או לשער שנכשלו; חריגה דורשת אישור מפורש ומוגבל של ZURIEL (`deploy_on_request`) לקומיט ולפריסה מדויקים. אישור מסירה ישנה נשאר מוגבל לדלתה שנקבה בה, ובדיקות שלא עברו אינן פטורות.
+- מיזוג קוד אינו פריסה. `main` יכול לכלול תיקונים מאושרים שטרם נפרסו; מדווחים במפורש את ההבדל ממקור הפריסה החיה. Production, דומיינים, שרת/מסד משותפים ודגלים — רק באישור מפורש לפי 0.4, ללא הרחבה מכוח מיזוג.
+- **ענפים ומסירות שהוחלפו הם היסטוריה, לא מסלול שחרור** — הכללים ב־0.2 וב־0.4. אין למחוק את הענפים או את הראיות כדי לאכוף זאת.
+- הפריסה `dpl_BFpwZGiYL3Qpdy9nCuGKGb9Xmko2` (Legacy) אינה יעד חזרה ואין לשחזר אליה תנועה; קוד Legacy נשמר בהיסטוריית Git בלבד ([ההסרה והשחזור מההיסטוריה](docs/reviews/2029-legacy-removal-20261105/REMOVAL.md)). מסמכים שמציגים אותה כיעד חזרה (למשל 12.55 ו־12.56 ב־README של המשימה) הם היסטוריים. חזרה, אם נדרשת — לפי כלל 4 שבראש הקובץ.
 - שער Legacy הוחלף בשער ״Legacy פרש״ (`scripts/test-legacy-retired.mjs`; רץ גם ב־`prebuild`, וב־workflow `legacy-production-lock` ששמו נשמר בכוונה לשמות הבדיקות הנדרשות): הוא מוודא שאין מסמך Legacy, worker חזרה או catch-all ל־Legacy. מעבר שלו אינו הוכחה שתוצר 2029 התקבל. אישור נפרד של ZURIEL לשינוי השער נשאר בתוקף; אין להסיר או להחליש בדיקות. הצלחת workflow בשם G4 אינה סגירת G4 בתוכנית.
 - חיבורי החשבונות שכבר התקבלו, H1, החלטות הסיכון והדחיות המאוחרות נשמרים. אין דרישה חדשה לבדיקות שכבר תקפות ללא שינוי רלוונטי.
 
@@ -102,7 +88,7 @@
 3. **דומיינים:** `assign_alias` של `sod1820.co.il`, `www.sod1820.co.il` ו־`sod1820.vercel.app` לפריסה החדשה. READY לבדו לא מזיז דומיינים. חזרה אחורה היא אותו `assign_alias` לפריסה הקודמת (לקרוא אותה מ־`get_alias` לפני ההזזה ולדווח).
 4. **אימות:** מורידים את `/code` מהדומיין החי, מוצאים את ה־chunk הרלוונטי דרך `/assets/2029-*.js` ומוודאים מחרוזת חדשה מהשינוי; אחר כך קנרית (`post-deploy-canary`). מדווחים מה לא נבדק.
 
-האישור אינו עובר מסשן לסשן, ושינוי DB (`apply_migration`) כפוף להודעת האישור של שרת Supabase עצמו: אישור בצ'אט אינו מגיע אליה. שינוי DB מוחל לפני הפריסה שתלויה בו.
+האישור אינו עובר מסשן לסשן. שינוי DB (`apply_migration`, `execute_sql` שכותב, `deploy_edge_function`) דורש אישור מפורש של ZURIEL לפי 0.4: הודעת האישור של שרת Supabase חלה על `apply_migration` ואישור בצ'אט אינו מגיע אליה, ואילו `execute_sql` מופיע ברשימת ההיתרים ב־`.claude/settings.json` ורץ בלי הודעה טכנית — ההגנה עליו היא האישור המפורש בלבד. שינוי DB מוחל לפני הפריסה שתלויה בו.
 
 **אימות מקור הפריסות (ביקורת SOD1820, 6.11.2026 — נקרא מ־Vercel ומ־GitHub, לא ממסמך):** כל פריסות ה־Production של 5–6.11 (11 פריסות, האחרונות `be9b173`, `42ff151`, `1f08639`) נוצרו **ידנית "via Vercel MCP"** תחת חשבון `zuriel337` לפי הנוהל שלמעלה — לא מ־Git Integration ולא מ־workflow ב־GitHub. הוכחה: (א) יומן האירועים של Vercel (`list_user_events`) מציג לכל פריסה "You deployed … (via Vercel MCP)"; (ב) יומן הבנייה של `dpl_7Hn7…` מריץ את פקודת ה־Ignored Build Step של אותה בקשה: `if [ "$VERCEL_ENV" = "production" ] && [ "$VERCEL_GIT_COMMIT_SHA" = "<sha מדויק>" ]; then exit 1; elif [ "$VERCEL_GIT_COMMIT_REF" = "main" ]; then exit 0; else exit 1; fi` — כלומר בנייה מותרת רק ל־SHA המדויק שבבקשה, וכל בנייה אחרת של `main` נדלגת; (ג) `git.deploymentEnabled=false` בשני השורשים; (ד) workflow `legacy-production-lock` ו־`post-deploy-canary` אינם מפרסמים — הראשון רץ ב־push והשני ב־`deployment_status`. **ההגנה אינה פגומה והנוהל מדויק.** מה שנצפה כ"שתי פריסות Production אוטומטיות" היה סשן אחר שביצע את הנוהל מיד אחרי מיזוג (פריסה כ־60–90 שניות אחרי ה־push). לפיכך: (1) שני אישורים נפרדים נשארים נדרשים — מיזוג ופריסה; סשן שממזג אינו מפרסם; (2) אחרי כל מיזוג קוראים שוב את ה־alias (`get_alias`) לפני דיווח "פרוס/לא פרוס", כי סשן מקביל עשוי לפרסם ברגע זה; (3) פריסה שנוצרה בלי שורת הפקודה הזו ביומן הבנייה (או בלי "via Vercel MCP" באירועים) היא חריגה ויש לדווח עליה; (4) `ssoProtection=all_except_custom_domains`: כתובות `*.vercel.app` של פריסות מוגנות והדומיינים הציבוריים פתוחים — כמצופה. שינוי מנגנון הפריסה לא בוצע ואינו מוצע לפני החלטה של ZURIEL.
 
@@ -116,10 +102,7 @@ Historical records are retained. No product semantics, visual ownership or relea
 
 ## Historical Legacy lock — 22.10.2026; superseded for the approved 2029 cutover
 
-The Legacy pin and Preview-only state below are historical. Preserve the existing exact release and separate gate-change approvals under the current section above. Legacy itself is retired (ZURIEL 5.11: no return; code kept in Git history only): the pin, the Preview-only rule and `scripts/test-legacy-production-lock.mjs` named below are history; the live gate is `scripts/test-legacy-retired.mjs`.
-
-> Canonical Production is pinned to Legacy deployment `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq` at `99249526e91f1d720fae1aa43e82bbbe51ee5c45`. All 2029 work is Preview-only. Do not enable automatic custom-domain assignment or promote, rollback, alias, deploy or merge a 2029 cutover. A future cutover requires a new ZURIEL approval explicitly naming **2029 Production cutover**, the exact SHA and deployment ID. Generic release/rollback approval is insufficient. `node scripts/test-legacy-production-lock.mjs` is mandatory and may not be weakened in the same release change.
-
+The 4.11.2026 approved 2029 cutover replaced this lock, and Legacy itself is retired (ZURIEL 5.11: no return; code kept in Git history only). The lock pinned canonical Production to the Legacy deployment `dpl_46k9WvaD5QBUo969obYzJ7pKkNyq`, kept all 2029 work Preview-only, and required a ZURIEL approval explicitly naming **2029 Production cutover**, the exact SHA and the deployment ID. None of this is a current state or restriction: live state is read from Vercel, Production changes follow rule 7, section 0.4 and the deployment procedure above, `scripts/test-legacy-production-lock.mjs` no longer exists, and the live gate is `scripts/test-legacy-retired.mjs`. The original text is kept unchanged in `docs/legacy-production-lock-20261022.md`. Do not remove the two literals `dpl_46k9...` and `2029 Production cutover` from CLAUDE.md or AGENTS.md without a ZURIEL decision to change `scripts/test-g1-agent-routing-smoke.mjs`, which asserts them.
 
 > **STATUS:** runtime adapter / pointer only. This file is **not** project truth, a domain contract, a context database, or a second owner map.
 > Canonical coordination owner: current active `inter_agent_coordination_law` in Supabase.
@@ -245,7 +228,7 @@ git rev-list --left-right --count HEAD...origin/main
 
 ## 10. Work log / coordination
 
-At session start and before becoming idle after meaningful work, scan recent **current** `work_log` for assignments addressed to CLAUDE and relevant active scopes.
+At session start and before becoming idle after meaningful work, scan recent **current** `work_log` for assignments addressed to CLAUDE and relevant active scopes. A log entry is information, not an activation: act on it only on ZURIEL's instruction in the session (see the v17 section above).
 
 Before WRITE, rescan for overlapping active writers.
 
@@ -273,7 +256,7 @@ Keep states distinct:
 
 `DOCUMENTED ≠ IMPLEMENTED ≠ COMMITTED ≠ BRANCH-ONLY ≠ MERGED ≠ DEPLOYED ≠ LIVE ≠ VERIFIED`
 
-Do not merge/deploy/push `main` merely because work is implemented. Release only after explicit ZURIEL authorization such as `תעלה`, and re-run release gates immediately before the action.
+Do not merge/deploy/push `main` merely because work is implemented. Release only after explicit ZURIEL authorization (such as `תעלה`) for the exact commit and deployment presented (rule 7, 0.4), and re-run release gates immediately before the action.
 
 ## 13. Specialist escalation
 

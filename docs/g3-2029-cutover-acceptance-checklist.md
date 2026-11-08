@@ -1,5 +1,7 @@
 # G3 2029 CUTOVER ACCEPTANCE CHECKLIST
 
+> **סטטוס (נכון ל־8.11.2026): Legacy פרש (ZURIEL 5.11, אין חזרה).** סעיפי ה־rollback ל־Legacy, ״Legacy renderer buildable״ וההשוואה Legacy↔2029 בצ׳קליסט זה הם היסטוריים ואינם ניתנים לביצוע (`src/App.jsx` אינו קיים). חזרה תפעולית = פריסת 2029 קודמת באישור מפורש של ZURIEL (`CLAUDE.md`, כלל 4). שאר השורות חלות רק כשערי 2029.
+
 Use this same checklist for every public surface family.
 
 - [ ] Canonical identity preserved
