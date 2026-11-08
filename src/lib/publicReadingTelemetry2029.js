@@ -6,8 +6,8 @@ export function readingTelemetryPath(value) {
   let path;
   try { path = decodeURIComponent(value.split(/[?#]/, 1)[0]).replace(/\/+$/, "") || "/"; } catch { return null; }
   if (/[\\\u0000-\u001f\u007f?#]/.test(path)) return null;
-  if (/^\/(?:api|auth|admin|login|me|profile|traffic|reports|editor|edit|unsubscribe|updates|credits|buy|journey|raziel|research|code|els|heichal|היכל)(?:\/|$)/i.test(path)
-    || /^\/2029\/(?:me|control|journey|raziel|research|code|els|preview)(?:\/|$)/i.test(path)
+  if (/^\/(?:api|auth|admin|login|me|profile|traffic|reports|editor|edit|unsubscribe|updates|credits|buy)(?:\/|$)/i.test(path)
+    || /^\/2029\/(?:me|control|preview)(?:\/|$)/i.test(path)
     || /^\/community\/(?:researcher\/me|whatsapp)(?:\/|$)/i.test(path)) return null;
   if (path === "/2029") return "/";
   if (/^\/(?:2029\/)?(?:calculator|gematria)(?:\/viral)?$/.test(path)) return "/gematria";
