@@ -14,6 +14,11 @@ export const PUBLIC_READING_READ_RPCS = Object.freeze([
   "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods",
   "world_group_source_arrivals_v2", "rd_is_admin", "fn_list_family", "fn_name_protocol", "fn_cross_research",
   "is_number_indexable", "is_phrase_indexable",
+  // Community reads the database already grants to anon/authenticated (ZURIEL, 8.11.2026):
+  // tree-hint pins and the online-now list are public by design; this worker's own allowlist
+  // had not caught up, so every caller without a verified admin token fell to the admin-only
+  // fallback and was denied. community_tree_hint_set (admin marks a hint) stays off this list.
+  "community_tree_hints_list", "community_tree_hints_by_number", "community_presence_online",
 ]);
 export const PUBLIC_READING_GET_RPCS = Object.freeze([
   ...PUBLIC_READING_READ_RPCS, "writer_public_contributions_page_v1", "canonical_follow_subject",
@@ -67,7 +72,11 @@ function installPublicReadingWorker(policy) {
   const communityResponse = async req => {
     const url = new URL(req.url);
     const rpc = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(url.pathname)?.[1];
-    const names = new Set(["add_contribution", "toggle_contribution_reaction", "contributors_claim_legacy", "community_message_actions_v1", "community_edit_message", "community_delete_message"]);
+    const names = new Set(["add_contribution", "toggle_contribution_reaction", "contributors_claim_legacy", "community_message_actions_v1", "community_edit_message", "community_delete_message",
+      // Presence heartbeat and guest-review moderation (ZURIEL, 8.11.2026): each DB function
+      // already requires a real signed-in account (grant to authenticated, or self-checked
+      // inside); missing from this worker's allowlist, both fell to the admin-only fallback.
+      "community_presence_ping", "community_guest_unreviewed", "community_guest_review"]);
     const upload = url.pathname.startsWith("/storage/v1/object/gallery/community/") && !safeMethods.has(req.method);
     const sso = url.pathname === "/functions/v1/openweb-sso";
     if (url.origin !== authOrigin || !names.has(rpc) && !upload && !sso) return null;
@@ -99,6 +108,12 @@ function installPublicReadingWorker(policy) {
     if (rpc === "community_edit_message") return keys === "p_body,p_id" && uuid(body.p_id)
       && typeof body.p_body === "string" && body.p_body.trim().length > 0
       && Array.from(body.p_body.trim()).length <= 6000 ? readFetch(req) : denied();
+    if (rpc === "community_presence_ping") return keys === "" ? readFetch(req) : denied();
+    if (rpc === "community_guest_unreviewed") return (keys === "" || keys === "p_ids")
+      && (!("p_ids" in body) || body.p_ids === null || Array.isArray(body.p_ids) && body.p_ids.length <= 200 && body.p_ids.every(uuid))
+      ? readFetch(req) : denied();
+    if (rpc === "community_guest_review") return keys === "p_action,p_id" && uuid(body.p_id)
+      && ["approve", "hide"].includes(body.p_action) ? readFetch(req) : denied();
     let publicTarget = null;
     if (rpc === "toggle_contribution_reaction") {
       if (keys !== "p_emoji,p_id,p_visitor" || !uuid(body.p_id) || body.p_visitor !== null && !repeatableLike
