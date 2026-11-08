@@ -123,7 +123,7 @@ export default function ElsFoldedMatrix2029({ state, option, busy, response, onR
         </> : null}
       </div>
       <div ref={scrollRef} className="els29-native-matrix-scroll els29-fold-scroll" role="region" tabIndex={0} aria-label={`מטריצה ברוחב ${width}, עמודות ${band.c0} עד ${band.c1}`}>
-        <div className="els29-native-matrix" aria-hidden="true" style={{ "--els29-cols": cols, "--els29-cell": `${cellPx}px`, "--els29-font": `${letterPx(cellPx)}px` }}>
+        <div className="els29-native-matrix is-research" aria-hidden="true" style={{ "--els29-cols": cols, "--els29-cell": `${cellPx}px`, "--els29-font": `${letterPx(cellPx)}px` }}>
           {band.rows.map((line, r) => <div className="els29-native-matrix-row" key={r}>
             {Array.from(line).map((letter, c) => {
               const mark = markAt.get(`${r}-${c}`);

@@ -325,9 +325,19 @@
   min-width:100%;
   direction:rtl;
 }
-/* "Fit to screen" is computed in the component (cell size from the available width, the same rule as the classic engine), not by fr tracks. */
-.els29-native-matrix.is-fit{min-width:100%}
-.els29-native-matrix.is-fit .els29-native-matrix-row{justify-content:center}   /* a cropped matrix narrower than the screen stays centred */
+.els29-native-matrix.is-fit{width:100%;min-width:calc(var(--els29-cols) * 20px - 2px)}
+.els29-native-matrix.is-fit .els29-native-matrix-row{
+  width:100%;
+  grid-template-columns:repeat(var(--els29-cols),minmax(18px,1fr));
+}
+.els29-native-matrix.is-fit .els29-native-cell{width:auto}
+/* Research mode only: "fit to screen" is computed in the component (cell size from the available width, the same rule as the classic engine),
+   not by fr tracks; the letter follows the cell. */
+.els29-native-matrix.is-research.is-fit{width:max-content;min-width:100%}
+.els29-native-matrix.is-research.is-fit .els29-native-matrix-row{width:max-content;min-width:100%;grid-template-columns:repeat(var(--els29-cols),var(--els29-cell));justify-content:center}   /* a cropped matrix narrower than the screen stays centred */
+.els29-native-matrix.is-research.is-fit .els29-native-cell{width:var(--els29-cell)}
+.els29-native-matrix.is-research .els29-native-cell{font-size:var(--els29-font,18px)}
+.els29-native-matrix.is-research.is-classic-glyphs .els29-native-cell{font-size:calc(var(--els29-font,18px) + 2px)}
 /* Reflow only the complete contiguous source window; indexed cells retain their identity. */
 .els29-native-matrix.is-reading{width:100%;min-width:0;grid-template-columns:repeat(auto-fill,minmax(var(--els29-cell),1fr));align-items:start}
 .els29-native-matrix.is-reading .els29-native-matrix-row{display:contents}
@@ -341,12 +351,12 @@
   border-radius:6px;
   color:var(--els29-letter-ink);
   font-family:var(--s29-font-display);
-  font-size:var(--els29-font,18px);   /* follows the cell (cell - 5px), so the zoom enlarges the letters too, like the classic matrix */
+  font-size:18px;
   line-height:1;
   direction:rtl;
   user-select:none;
 }
-.els29-native-matrix.is-classic-glyphs .els29-native-cell{font-family:"Frank Ruhl Libre","David Libre",Georgia,serif;font-size:calc(var(--els29-font,18px) + 2px)}
+.els29-native-matrix.is-classic-glyphs .els29-native-cell{font-family:"Frank Ruhl Libre","David Libre",Georgia,serif;font-size:min(22px,calc(var(--els29-cell) - 2px))}
 .els29-native-matrix.is-niqqud .els29-native-cell{height:calc(var(--els29-cell) + 8px);padding-block:2px;line-height:1.35}
 
 .els29-native-cell.is-axis{
@@ -585,6 +595,9 @@
   .els29-native-occ-controls,.els29-native-view-controls{justify-content:center;flex-wrap:wrap}
   .els29-native-view-controls button:last-child{flex:1 1 120px}
   .els29-native-matrix-scroll{padding:10px}
+  .els29-native-matrix.is-fit{min-width:calc(var(--els29-cols) * 18px - 2px)}
+  .els29-native-matrix.is-fit .els29-native-matrix-row{grid-template-columns:repeat(var(--els29-cols),minmax(16px,1fr))}
+  .els29-native-cell{font-size:17px}
 }
 @media(prefers-reduced-motion:reduce){
   .els29-native-classic *{scroll-behavior:auto!important}
@@ -883,4 +896,47 @@
   .els29-native-side-rail{position:static;flex-direction:row;flex-wrap:wrap;justify-content:center;width:auto;padding:6px 8px;gap:8px}
   .els29-native-side-rail hr{width:0;height:28px;margin:0 2px;border-top:0;border-inline-start:1px solid var(--s29-line)}
   .els29-native-side-rail small{max-width:none}
+}
+
+/* Fullscreen (research mode): the whole ELS surface fills the screen; the search window and the tool panel float over the matrix. */
+.els29-native-classic.is-fullscreen{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;box-sizing:border-box;margin:0;padding:0;border-radius:0;overflow:hidden;background:var(--els29-canvas);color:var(--s29-ink);--els29-stage-height:calc(100dvh - 58px)}
+.els29-native-classic.is-fullscreen .els29-fs-bar{position:relative;z-index:50;display:flex;flex:none;align-items:center;gap:8px;min-height:50px;padding:4px 10px;border-bottom:1px solid var(--s29-line-strong);background:var(--s29-panel);overflow-x:auto}
+.els29-fs-bar button{min-width:44px;min-height:44px;padding:6px 14px;border:1px solid var(--s29-line);border-radius:12px;background:var(--s29-panel-soft);color:var(--s29-ink);font:inherit;font-size:max(var(--s29-type-ui),16px);white-space:nowrap;cursor:pointer}
+.els29-fs-bar button[aria-pressed="true"]{border-color:var(--s29-accent);background:color-mix(in srgb,var(--s29-accent) 18%,var(--s29-panel-soft))}
+.els29-fs-bar button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
+.els29-fs-spacer{flex:1}
+.els29-native-classic.is-fullscreen .els29-native-layout{position:relative;display:block;flex:1;min-height:0}
+.els29-native-classic.is-fullscreen .els29-native-stage-column,.els29-native-classic.is-fullscreen .els29-native-matrix-with-rail{height:100%}
+.els29-native-classic.is-fullscreen .els29-native-stage{height:100%;border-radius:0;border-inline:0}
+.els29-native-classic.is-fullscreen .els29-native-matrix-with-rail-body{height:100%;min-height:0}
+.els29-native-classic.is-fullscreen .els29-native-toolstrip{display:none!important}
+.els29-native-classic.is-fullscreen .els29-native-layout .els29-native-panel-wrap,.els29-native-classic.is-fullscreen .els29-native-layout.is-panel-pinned .els29-native-panel-wrap{position:absolute;top:8px;inset-inline-end:8px;inset-inline-start:auto;grid-column:auto;grid-row:auto;width:min(440px,calc(100% - 16px));max-height:calc(100% - 16px);z-index:30}
+.els29-native-classic.is-fullscreen .els29-native-context-panel,.els29-native-classic.is-fullscreen .els29-native-layout.is-panel-pinned .els29-native-context-panel{height:min(72dvh,calc(100dvh - 90px));box-shadow:0 18px 60px #000a}
+.els29-native-classic.is-fullscreen .els29-native-query{display:none}
+.els29-native-classic.is-fullscreen .els29-native-query.is-fs-open{display:block;position:absolute;top:54px;inset-inline-start:8px;width:min(580px,calc(100% - 16px));max-height:calc(100% - 66px);overflow:auto;overscroll-behavior:contain;z-index:40;box-sizing:border-box;padding:12px;border:1px solid var(--s29-line-strong);border-radius:18px;background:var(--s29-panel);box-shadow:0 18px 60px #000a}
+.els29-fs-toggle{font-size:24px!important}
+@media(max-width:980px){
+  .els29-native-classic.is-fullscreen .els29-native-layout .els29-native-panel-wrap,.els29-native-classic.is-fullscreen .els29-native-layout.is-panel-pinned .els29-native-panel-wrap{inset-inline-start:8px;width:calc(100% - 16px)}
+  .els29-native-classic.is-fullscreen .els29-native-query.is-fs-open{inset-inline-end:8px;width:auto}
+}
+.els29-native-classic.is-fullscreen :is(.els29-ai-entry,.els29-native-structure-entry,.els29-native-more){display:none!important}
+.els29-native-classic.is-fullscreen .els29-native-stage-column{min-height:0}
+@media(max-width:520px){.els29-fs-bar{gap:5px;padding-inline:6px}.els29-fs-bar button{padding:6px 9px;font-size:15px}}
+
+/* Fullscreen keeps every matrix control: the bottom controls become a compact bar under the matrix (the display options open upward),
+   the matrix fills the rest of the screen, and on a phone the title block folds away so the matrix gets the room. */
+.els29-native-classic.is-fullscreen .els29-native-stage-column{display:grid;grid-template-rows:minmax(0,1fr) auto;gap:0}
+.els29-native-classic.is-fullscreen .els29-native-stage{height:auto;min-height:0}
+.els29-native-classic.is-fullscreen .els29-native-matrix-with-rail-body>.els29-native-matrix-scroll,.els29-native-classic.is-fullscreen .els29-native-matrix-with-rail-body>.els29-fold{height:100%;max-height:none;box-sizing:border-box}
+.els29-native-classic.is-fullscreen .els29-native-bottom-controls{position:relative;z-index:30;grid-template-columns:repeat(3,minmax(0,1fr));padding:4px 6px;border-radius:0}
+.els29-native-classic.is-fullscreen .els29-native-bottom-controls>button{grid-column:auto!important;min-height:52px}
+.els29-native-classic.is-fullscreen .els29-matrix-height-trigger{display:none!important}
+.els29-native-classic.is-fullscreen .els29-matrix-display-options{position:absolute;inset-inline:6px;inset-block-end:calc(100% + 4px);z-index:35;max-height:min(50dvh,420px);overflow:auto;padding:10px;border:1px solid var(--s29-line-strong);border-radius:14px;background:var(--s29-panel);box-shadow:0 14px 40px #000a}
+.els29-native-classic.is-fullscreen .els29-native-bottom-controls .els29-matrix-display-options[hidden]{display:none}
+@media(max-width:700px){
+  .els29-native-classic.is-fullscreen .els29-native-stage-head{display:none}
+  .els29-native-classic.is-fullscreen .els29-native-controls{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;padding:6px}
+  .els29-native-classic.is-fullscreen .els29-native-view-controls button:last-child{flex:0 1 auto}
+  .els29-native-classic.is-fullscreen .els29-native-side-rail{padding:4px 8px;gap:6px}
+  .els29-native-classic.is-fullscreen .els29-native-side-rail small{display:none}
 }

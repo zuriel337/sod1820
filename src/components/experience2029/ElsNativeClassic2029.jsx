@@ -51,7 +51,7 @@ const scopeLabel = (scope) => scope === "tanakh" ? "כל התנ״ך" : "תורה
 const directionLabel = (direction) => direction === "back" ? "אחורה" : direction === "fwd" ? "קדימה" : "—";
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
-function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView, onZoomChange, readingFindings = [], selectedReading, readingFocus }) {
+function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFinding, visible, classicGlyphs, verseHighlight, presentation, presentationPlan, readingView, onZoomChange, readingFindings = [], selectedReading, readingFocus, research = false }) {
   const palette = use2029Palette("research_lab");
   const matrix = state?.matrix;
   const manualSelection = useMemo(() => new Set(state?.ui?.selCells || []), [state?.ui?.selCells]);
@@ -74,11 +74,11 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
   // "Fit to screen" shows the box around everything marked, widened to fill the screen — the same crop the classic matrix uses.
   const viewportWidth = typeof window === "undefined" ? 800 : window.innerWidth || 800;
   const fitBox = useMemo(() => {
-    if (!matrix?.rows?.length || !geometry || !state?.ui?.fit || state?.ui?.selMode || readingView) return null;
+    if (!research || !matrix?.rows?.length || !geometry || !state?.ui?.fit || state?.ui?.selMode || readingView) return null;
     const marks = [...(matrix.marks || []).map(mark => ({ i: Number(mark.i), main: mark.type === "main" })), ...(matrix.sourceMarks || []).map(mark => ({ i: Number(mark.i) }))];
     return fitWindow({ S: matrix.S ?? geometry.S, r0: matrix.r0 ?? geometry.r0, r1: matrix.r1 ?? geometry.r1, c0: matrix.c0 ?? geometry.c0, cw: matrix.cw ?? geometry.cw, mainCol: geometry.mainCol },
       marks, viewportWidth, { hideMain: Boolean(state?.ui?.hideMain) });
-  }, [matrix, geometry, state?.ui?.fit, state?.ui?.selMode, state?.ui?.hideMain, readingView, viewportWidth]);
+  }, [research, matrix, geometry, state?.ui?.fit, state?.ui?.selMode, state?.ui?.hideMain, readingView, viewportWidth]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -118,7 +118,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
         ? a.bottom - viewport.top - el.clientHeight + 24
         : a.top - viewport.top - 24;
     // Presentation only: marking, inspection and panel changes preserve manual panning.
-  }, [visible, readingView, state?.status, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw, state?.ui?.zoom, state?.ui?.fit, fitBox?.c0, fitBox?.cw, fitBox?.r0, fitBox?.r1]);
+  }, [visible, readingView, state?.status, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw, research ? state?.ui?.zoom : null, research ? state?.ui?.fit : null, fitBox?.c0, fitBox?.cw, fitBox?.r0, fitBox?.r1]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -258,12 +258,15 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
   }
 
   const summaryId = "els29-native-matrix-summary";
-  const zoom = clampZoom(state?.ui?.zoom);
+  const zoom = clamp(Number(state?.ui?.zoom) || 1, 0.5, 2.8);
   const fit = Boolean(state?.ui?.fit) && !state?.ui?.selMode;
-  // Same cell rules as the classic engine: fit fills the width, free uses the base size; the zoom multiplies both and the letter follows the cell.
+  // Research mode only: the same cell rules as the classic engine (fit fills the width, free uses the base size, the zoom multiplies both
+  // and the letter follows the cell). Every other surface keeps its original cell size.
   const minCell = state?.ui?.selMode ? 44 : undefined;
   const shownCols = fitBox?.cw || matrix.cw || geometry.cw || 1;
-  const cellPx = fitBox ? fitCellPx(shownCols, boxWidth - 24, zoom, viewportWidth, { min: minCell }) : freeCellPx(shownCols, zoom, { min: minCell });
+  const cellPx = research
+    ? (fitBox ? fitCellPx(shownCols, boxWidth - 24, zoom, viewportWidth, { min: minCell }) : freeCellPx(shownCols, zoom, { min: minCell }))
+    : clamp(Math.round(26 * zoom), state?.ui?.selMode ? 44 : 16, 54);
   const rowFrom = fitBox ? fitBox.r0 - Number(matrix.r0 ?? geometry.r0 ?? 0) : 0;
   const rowTo = fitBox ? fitBox.r1 - Number(matrix.r0 ?? geometry.r0 ?? 0) : matrix.rows.length - 1;
   const colFrom = fitBox ? fitBox.c0 - Number(matrix.c0 ?? geometry.c0 ?? 0) : 0;
@@ -294,9 +297,9 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
       רצף המקור בשורות רחבות · {state?.axis?.direction === "back" ? "קוראים את הסימון משמאל לימין, מלמטה למעלה" : "קוראים את הסימון מימין לשמאל, מלמעלה למטה"}
     </p> : null}
     <div
-      className={`els29-native-matrix${fit ? " is-fit" : ""}${readingView ? " is-reading" : ""}${classicGlyphs ? " is-classic-glyphs" : ""}${state?.ui?.niqqud ? " is-niqqud" : ""}`}
+      className={`els29-native-matrix${research ? " is-research" : ""}${fit ? " is-fit" : ""}${readingView ? " is-reading" : ""}${classicGlyphs ? " is-classic-glyphs" : ""}${state?.ui?.niqqud ? " is-niqqud" : ""}`}
       aria-hidden={state?.ui?.selMode ? undefined : true}
-      style={{ "--els29-cols": shownCols, "--els29-cell": `${cellPx}px`, "--els29-font": `${letterPx(cellPx)}px` }}
+      style={{ "--els29-cols": shownCols, "--els29-cell": `${cellPx}px`, ...(research ? { "--els29-font": `${letterPx(cellPx)}px` } : {}) }}
     >
       {matrix.rows.slice(rowFrom, rowTo + 1).map((row, shownRow) => {
         const rowOffset = rowFrom + shownRow;
@@ -398,12 +401,13 @@ function MatrixControls({ state, onControl, onContext, busy }) {
 // Research mode only. Always-visible side controls: zoom (the engine's own zoom, like the classic matrix) and the row width. The row width
 // re-flows the SAME text into rows of another width: a narrower one (an exact divisor of the skip) puts rows between consecutive axis
 // letters, a wider one (a multiple of the skip) puts several axis letters in one row. Letters, positions and verification stay the engine's.
-function MatrixSideRail({ zoom, active, onZoom, fold, onFoldStep }) {
+function MatrixSideRail({ zoom, active, onZoom, fold, onFoldStep, fullscreen, onFullscreen }) {
   const percent = Math.round(clampZoom(zoom) * 100);
   const options = fold?.options || [], index = Math.max(0, options.findIndex(option => option.width === fold?.option?.width));
   const single = options.length < 2, option = fold?.option;
   const detail = !option ? "" : option.base ? "רוחב הדילוג" : option.m > 1 ? `${option.perRow.toLocaleString("he-IL")} אותיות ציר בשורה` : `${option.between.toLocaleString("he-IL")} שורות בין האותיות`;
   return <div className="els29-native-side-rail" role="group" aria-label="גודל ורוחב שורה במטריצה">
+    <button type="button" className="els29-fs-toggle" disabled={!active && !fullscreen} aria-pressed={fullscreen} onClick={onFullscreen} aria-label={fullscreen ? "יציאה ממסך מלא" : "מסך מלא"} title={fullscreen ? "יציאה ממסך מלא" : "מטריצה במסך מלא"}>{fullscreen ? "⤡" : "⤢"}</button>
     <button type="button" disabled={!active || percent >= 280} onClick={() => onZoom(1)} aria-label="הגדל מטריצה · פקדי צד" title="הגדל מטריצה">＋</button>
     <output aria-label="גודל המטריצה" dir="ltr">{percent}%</output>
     <button type="button" disabled={!active || percent <= 50} onClick={() => onZoom(-1)} aria-label="הקטן מטריצה · פקדי צד" title="הקטן מטריצה">−</button>
@@ -914,6 +918,10 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
   const [activeTool, setActiveTool] = useState(() => window.matchMedia("(min-width:981px)").matches ? "findings" : null);
   const [panelPinned, setPanelPinned] = useState(true);
   const [heightExpanded, setHeightExpanded] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);   // research mode: the whole ELS surface fills the screen, windows float over the matrix
+  const [fsQueryOpen, setFsQueryOpen] = useState(false);
+  const sectionRef = useRef(null);
+  const nativeFullscreenRef = useRef(false);
   const [foldWidth, setFoldWidth] = useState(null);   // research mode only: null = the engine's matrix (row width = skip); otherwise the same text in rows of this width
   const [foldResponse, setFoldResponse] = useState(null);
   const [matrixOptionsOpen, setMatrixOptionsOpen] = useState(false);
@@ -956,6 +964,36 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       else setNotice("מסך מלא אינו זמין בדפדפן הזה; אפשר להמשיך בהצגה בתוך העמוד.");
     } catch { setNotice("מסך מלא אינו זמין כרגע; אפשר להמשיך בהצגה בתוך העמוד."); }
   };
+  // Fullscreen for the whole ELS surface (matrix, search windows and tool panels). The browser's fullscreen is used when it exists;
+  // phones that do not offer it (iOS Safari) get the same layout as a fixed full-viewport surface.
+  const enterFullscreen = async () => {
+    const node = sectionRef.current;
+    nativeFullscreenRef.current = false;
+    try {
+      if (node?.requestFullscreen) { await node.requestFullscreen(); nativeFullscreenRef.current = true; }
+    } catch { nativeFullscreenRef.current = false; }
+    setFullscreen(true);
+  };
+  const exitFullscreen = async () => {
+    setFullscreen(false); setFsQueryOpen(false);
+    try { if (document.fullscreenElement && document.fullscreenElement === sectionRef.current) await document.exitFullscreen(); } catch { /* already left */ }
+  };
+  const toggleFullscreen = () => (fullscreen ? exitFullscreen() : enterFullscreen());
+  useEffect(() => {
+    if (!fullscreen) return undefined;
+    const onChange = () => { if (nativeFullscreenRef.current && document.fullscreenElement !== sectionRef.current) { setFullscreen(false); setFsQueryOpen(false); } };
+    const onKey = event => { if (event.key === "Escape" && !nativeFullscreenRef.current && !event.defaultPrevented) { setFullscreen(false); setFsQueryOpen(false); } };
+    const previousOverflow = document.documentElement.style.overflow;
+    document.documentElement.style.overflow = "hidden";
+    document.addEventListener("fullscreenchange", onChange);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.documentElement.style.overflow = previousOverflow;
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [fullscreen]);
+  useEffect(() => { if (!active || !researchProfile || guidedProfile) { if (fullscreen) exitFullscreen(); } }, [active, researchProfile, guidedProfile]);
   const highlightVerse = (verse) => {
     const projected = projectVerseWords(verse);
     if (!projected) { setVerseHighlight(null); setNotice("אין כרגע התאמה מלאה בין מילות הפסוק לאותיות המטריצה."); return; }
@@ -1520,10 +1558,18 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
     else requestSearch("regular", { term: current.termRaw || current.term, scope: current.scope, windowSize: size });
   };
 
-  return <section className={`els29-native-classic${heightExpanded ? " is-height-expanded" : ""}${guidedProfile ? " is-guided-surface" : ""}${guidedMatrixOpen ? " is-guided-matrix-open" : ""}`}
+  return <section ref={sectionRef} className={`els29-native-classic${fullscreen ? " is-fullscreen" : ""}${heightExpanded ? " is-height-expanded" : ""}${guidedProfile ? " is-guided-surface" : ""}${guidedMatrixOpen ? " is-guided-matrix-open" : ""}`}
     data-els-native-classic="v4" {...(guidedProfile ? { "data-els-guided-result-surface": "results-first-v1" } : {})}
     style={{ "--els29-canvas": palette.matrix.surface, "--els29-letter-ink": palette.matrix.ink, "--els29-frame": palette.matrix.frame, "--els29-axis": palette.matrix.axis, "--els29-mark-ink": palette.matrix.onMark }}>
-    <div id="els29-query" ref={queryRef} className="els29-native-query" aria-label="חיפוש ELS" hidden={guidedProfile}>
+    {fullscreen ? <div className="els29-fs-bar" role="toolbar" aria-label="חלונות במסך מלא">
+      <button type="button" aria-pressed={fsQueryOpen && !advancedSearchOpen} onClick={() => { setAdvancedOpen(false); setFsQueryOpen(open => (open && !advancedSearchOpen ? false : true)); }}>חיפוש</button>
+      {advancedSearch ? <button type="button" aria-pressed={fsQueryOpen && advancedSearchOpen} onClick={() => { if (fsQueryOpen && advancedSearchOpen) { setFsQueryOpen(false); } else { setAdvancedOpen(true); setFsQueryOpen(true); } }}>מתקדם</button> : null}
+      {[["findings", "סריקה"], ["results", "תוצאות"], ["research", "שמירה"]].map(([tool, label]) => <button type="button" key={tool} aria-pressed={activeTool === tool}
+        onClick={event => (activeTool === tool ? closeTool() : openTool(tool, event.currentTarget))}>{label}</button>)}
+      <span className="els29-fs-spacer" />
+      <button type="button" className="els29-fs-exit" onClick={exitFullscreen} aria-label="יציאה ממסך מלא">✕ יציאה</button>
+    </div> : null}
+    <div id="els29-query" ref={queryRef} className={`els29-native-query${fsQueryOpen ? " is-fs-open" : ""}`} aria-label="חיפוש ELS" hidden={guidedProfile}>
       <div className="els29-native-search-mode" role="group" aria-label="סוג החיפוש">
         <span><strong>חיפוש חדש</strong></span>
         {researchProfile ? <><button type="button" aria-pressed={!crossSearchOpen && !advancedSearchOpen} onClick={() => { if (crossSearchOpen && ["cross", "cross-three", "cross-three-continue", "cross-continue"].includes(operations.search?.searchKind)) cancelOperation("search"); setCrossOpen(false); setAdvancedOpen(false); }}>חיפוש רגיל</button>
@@ -1697,7 +1743,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
           {sideRail ? <div className="els29-native-matrix-with-rail">
-            <MatrixSideRail zoom={engineState?.ui?.zoom} active={matrixActive && !searchPending}
+            <MatrixSideRail zoom={engineState?.ui?.zoom} active={matrixActive && !searchPending} fullscreen={fullscreen} onFullscreen={toggleFullscreen}
               onZoom={direction => requestControl(direction > 0 ? "zoom-in" : "zoom-out")}
               fold={{ options: foldOptionList, option: foldOption }}
               onFoldStep={delta => { const index = foldOptionList.findIndex(option => option.width === foldOption?.width); const next = foldOptionList[clamp(index + delta, 0, foldOptionList.length - 1)]; if (next) setFoldWidth(next.base ? null : next.width); }} />
@@ -1705,11 +1751,11 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
             {foldActive ? <React.Suspense fallback={<p role="status">טוען את המטריצה ברוחב החדש…</p>}>
                 <ElsFoldedMatrix2029 state={engineState} option={foldOption} busy={searchPending} response={foldResponse}
                   onRequest={target => setLensRequest({ lens: "matrix-window", target })} onExit={() => setFoldWidth(null)} />
-              </React.Suspense> : <MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-pinch", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
+              </React.Suspense> : <MatrixSnapshot research state={engineState} onZoomChange={zoom => requestControl("zoom-pinch", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
               readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />}
             </div>
           </div> :
-<MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-pinch", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
+<MatrixSnapshot state={engineState} onZoomChange={zoom => requestControl("zoom-set", zoom)} onLetterClick={matrixActive ? handleLetterClick : null} selectedLetterIndex={selectedLetterIndex} selectedFinding={selectedFinding} visible={!classicOpen} classicGlyphs={classicGlyphs} verseHighlight={verseHighlight} presentation={activePresentation} presentationPlan={presentationPlan} readingView={readingView}
             readingFindings={readingOverlayVisible ? readingProjection.findings : []} selectedReading={selectedReading} readingFocus={readingDisplay?.focus} />}
         </main>
         <footer className="els29-native-bottom-controls" role="group" aria-label="תצוגת המטריצה">

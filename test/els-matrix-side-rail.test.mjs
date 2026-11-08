@@ -30,15 +30,25 @@ test("side zoom is the classic engine's zoom: it keeps fit-to-screen and the pin
 
 test("the matrix re-centres on the axis after every zoom and every fit change, like the classic engine", async () => {
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
-  assert.match(native, /geometry\?\.cw, state\?\.ui\?\.zoom, state\?\.ui\?\.fit, fitBox\?\.c0/);
+  assert.match(native, /geometry\?\.cw, research \? state\?\.ui\?\.zoom : null, research \? state\?\.ui\?\.fit : null, fitBox\?\.c0/);
 });
 
-test("the letter follows the cell, so zoom enlarges the letters (no fixed font size)", async () => {
-  const css = await read("src/components/experience2029/elsNativeClassic2029.css");
-  assert.match(css, /font-size:var\(--els29-font,18px\)/);
-  assert.doesNotMatch(css, /\.els29-native-cell\{font-size:17px\}/);
+test("research mode only: the new cell rules, fit crop and recentring never reach the classic or Guided matrix", async () => {
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
-  assert.match(native, /"--els29-font": `\$\{letterPx\(cellPx\)\}px`/);
+  const css = await read("src/components/experience2029/elsNativeClassic2029.css");
+  // Exactly one snapshot is the research one; the other keeps the original zoom call and the original cell size.
+  assert.equal((native.match(/<MatrixSnapshot research /g) || []).length, 1);
+  assert.match(native, /<MatrixSnapshot state=\{engineState\} onZoomChange=\{zoom => requestControl\("zoom-set", zoom\)\}/);
+  assert.match(native, /: clamp\(Math\.round\(26 \* zoom\), state\?\.ui\?\.selMode \? 44 : 16, 54\);/);
+  assert.match(native, /if \(!research \|\| !matrix\?\.rows\?\.length/);
+  // The letter follows the cell only under .is-research; the original fixed sizes and fit rules stay for everyone else.
+  assert.match(css, /\.els29-native-matrix\.is-research \.els29-native-cell\{font-size:var\(--els29-font,18px\)\}/);
+  assert.match(css, /\.els29-native-cell\{[^}]*font-size:18px;/);
+  assert.match(css, /\.els29-native-cell\{font-size:17px\}/);
+  assert.match(css, /\.els29-native-matrix\.is-fit\{width:100%;min-width:calc\(var\(--els29-cols\) \* 20px - 2px\)\}/);
+  assert.match(native, /\.\.\.\(research \? \{ "--els29-font": `\$\{letterPx\(cellPx\)\}px` \} : \{\}\)/);
+  const folded = await read("src/components/experience2029/ElsFoldedMatrix2029.jsx");
+  assert.match(folded, /className="els29-native-matrix is-research"/);
 });
 
 test("rail buttons are labelled distinctly from the existing zoom bar and meet the touch-target size", async () => {
