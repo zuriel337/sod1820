@@ -22,19 +22,17 @@ export default function HomeFeaturedPost2029({ state }) {
   if (loading) return <section className="h29-launch-card h29-featured h29-skel" aria-hidden="true" data-home-featured="loading" />;
   if (!post) return null;
   return <section className="h29-launch-card h29-featured" aria-label="תיעוד מוצג" data-home-featured={post.id}>
-    <div className="h29-featured-main">
-      {post.video
-        ? <video className="h29-featured-poster is-video" controls preload="none" playsInline poster={post.video.poster} width="362" height="600" aria-label={`${post.title}. ${post.video.credit}`}>
-          <source src={post.video.src} type="video/mp4" />
-        </video>
-        : post.poster ? <img className="h29-featured-poster" src={post.poster} alt="" width="640" height="360" decoding="async" /> : <span className="h29-featured-poster is-empty" aria-hidden="true">▶</span>}
-      <div className="h29-featured-head">
-        <Link className="h29-featured-title" to={post.href}>{post.title}</Link>
-        {post.video ? <small className="h29-featured-credit">{post.video.credit}</small> : null}
-        <div className="h29-featured-message" data-home-featured-message="true">
-          <b>{post.messageTitle}</b>
-          {post.message.map(line => <p key={line}>{line}</p>)}
-        </div>
+    {post.video
+      ? <video className="h29-featured-poster is-video" controls preload="none" playsInline poster={post.video.poster} width="362" height="600" aria-label={`${post.title}. ${post.video.credit}`}>
+        <source src={post.video.src} type="video/mp4" />
+      </video>
+      : post.poster ? <img className="h29-featured-poster" src={post.poster} alt="" width="640" height="360" decoding="async" /> : <span className="h29-featured-poster is-empty" aria-hidden="true">▶</span>}
+    <div className="h29-featured-head">
+      <Link className="h29-featured-title" to={post.href}>{post.title}</Link>
+      {post.video ? <small className="h29-featured-credit">{post.video.credit}</small> : null}
+      <div className="h29-featured-message" data-home-featured-message="true">
+        <b>{post.messageTitle}</b>
+        {post.message.map(line => <p key={line}>{line}</p>)}
       </div>
     </div>
     <p className="h29-featured-note" data-home-featured-note="true">{post.note} <Link to={post.href}>{post.noteLink}</Link></p>
