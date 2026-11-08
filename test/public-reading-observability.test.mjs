@@ -33,8 +33,10 @@ function worker({origin=SITE,clientPath="/",clientId="window-1"}={}) {
 test("public measurement labels redact expressions, source slugs, query tokens and private/account routes",()=>{
   for(const path of ["/number/משה?email=person@example.invalid#secret","/number/1820","/2029/number/משיח"])assert.equal(readingTelemetryPath(path),"/number/:value");
   for(const path of ["/post/public-slug","/old-wordpress-post"])assert.equal(readingTelemetryPath(path),"/post/:item");
-  for(const path of ["/","/world","/number/:value","/post/:item","/tag/:item"])assert.equal(readingTelemetryPath(path),path);
-  for(const path of ["/login","/auth/callback","/2029/me/research","/me/messages","/profile","/2029/control","/unsubscribe","/credits","/journey","/community/researcher/me","//evil.invalid","/%2fauth/callback","/bad%zz"])assert.equal(readingTelemetryPath(path),null,path);
+  for(const path of ["/","/world","/number/:value","/post/:item","/tag/:item","/journey","/raziel","/research","/code","/els","/heichal"])assert.equal(readingTelemetryPath(path),path);
+  assert.equal(readingTelemetryPath("/journey/private-user-name"),"/journey/:item");
+  assert.equal(readingTelemetryPath("/raziel/secret-token"),"/raziel/:item");
+  for(const path of ["/login","/auth/callback","/2029/me/research","/me/messages","/profile","/2029/control","/unsubscribe","/credits","/community/researcher/me","//evil.invalid","/%2fauth/callback","/bad%zz"])assert.equal(readingTelemetryPath(path),null,path);
 });
 test("the existing RUM schema preserves missing metrics and permits only the anonymous bounded family",()=>{
   const b=vital();assert.equal(readingWebVitalBody(b),true);assert.equal(b.p_props.inp_ms,null);
