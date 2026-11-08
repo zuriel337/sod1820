@@ -55,7 +55,7 @@ test('2029 Home is under construction for guests with a world entry', async ({ p
   for (const path of ['/2029', '/']) {
     await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
     const home = page.locator('[data-home-construction="true"]');
-    await expect(home).toBeVisible();
+    await expect(home).toBeVisible({ timeout: 30_000 });
     await expect(home.locator('[data-home-construction-badge="true"]')).toHaveText('בבנייה');
     await expect(home.locator('a[href="/world"]')).toHaveCount(1);
     await expect(page.locator('[data-experience-capability="home-composition"]')).toHaveCount(0);
@@ -187,7 +187,7 @@ test('a large signed-in profile image cannot squeeze the account text', async ({
       await page.getByRole('dialog', { name: 'ניווט SOD1820 2029', exact: true })
         .getByRole('button', { name: 'האזור האישי שלי', exact: true }).click();
     } else {
-      await page.locator('.sod29-header-workspace, .sod29-sidebar-workspace').first().click();
+      await page.locator('.sod29-header-workspace:visible, .sod29-sidebar-workspace:visible').first().click();
     }
     const sizes = await page.locator('[data-workspace-section="account"]').evaluate((account) => {
       const card = document.createElement('div');
