@@ -53,10 +53,16 @@ test("contract: class, aria-busy, status, crown link, hidden links", () => {
   assert.match(stat, /<img src="\/brand\/2029\/canonical-lockup-128\.webp" width="128" height="128" alt="">/);
 });
 
-test("no temporary navigation bar, skeleton or spinner in the markup or the stylesheet", () => {
+test("no temporary navigation bar, skeleton or spinner; the only motion is the delayed breathing line", () => {
   const stat = staticTwin();
   for (const retired of ["sod29-opening-header", "sod29-opening-identity", "sod29-opening-content", "sod29-opening-card", "sod29-opening-row", "סוד 1820"]) assert.equal(stat.includes(retired), false, retired);
-  assert.doesNotMatch(css.replace(/\/\*[\s\S]*?\*\//g, ""), /@keyframes|animation\s*:|transition\s*:|spinner|skeleton/i);
+  const code = css.replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.doesNotMatch(code, /transition\s*:|spinner|skeleton/i);
+  // the only motion: the gold line + arc breathe (opacity) after a 1s delay, and never under reduced motion
+  assert.deepEqual(code.match(/@keyframes\s+[\w-]+/g), ["@keyframes o-breathe"]);
+  assert.match(code, /\.sod29-opening-bar::after,\.sod29-opening-dip \.line\{animation:o-breathe 2\.4s ease-in-out 1s infinite\}/);
+  assert.match(code, /@keyframes o-breathe\{0%,100%\{opacity:1\}50%\{opacity:\.42\}\}/);
+  assert.match(code, /prefers-reduced-motion:reduce\)\{\.sod29-opening-bar::after,\.sod29-opening-dip \.line\{animation:none\}/);
   // the links exist for keyboard / screen readers only: hidden until focus, never a visible bar
   assert.match(css, /\.sod29-opening-nav\{[^}]*clip-path:inset\(50%\)/);
   assert.match(css, /\.sod29-opening-nav:focus-within\{[^}]*clip-path:none/);
