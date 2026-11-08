@@ -8,7 +8,7 @@ import { getLatestPostCards, getTzofonStories, getHomeVideos } from "../../lib/s
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { NewsletterSignup2029 } from "../StayUpdatedCTA.jsx";
 import { getHomeLaunchPostCards, getHomeStandalonePostCards, HOME_STANDALONE_LIMIT } from "../../lib/research/homeLaunchPosts2029.js";
-import { CONTENT_SERIES_2029, fetchContentSeriesCatalog2029, seriesHomeFamilies2029, seriesHomeTeaser2029 } from "../../lib/research/contentSeries2029Projection.js";
+import { CONTENT_SERIES_2029, fetchContentSeriesCatalog2029, seriesFamilyRows2029, seriesHomeFamilies2029, seriesHomeTeaser2029 } from "../../lib/research/contentSeries2029Projection.js";
 import { stripHtml } from "../../lib/format.js";
 import { levelNumbers } from "../../lib/ratings2029.js";
 import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
@@ -171,6 +171,7 @@ function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
   const seriesHref = `/2029/posts?series=${encodeURIComponent(spec.key)}`;
   const open = items.length > 0;
   const total = Number.isFinite(Number(series?.total)) ? Number(series.total) : items.length;
+  const famView = seriesFamilyRows2029(items, families);
   return <article className={`h29-series-card is-primary h29-rm${open ? " has-list" : ""}`} data-home-series={spec.key} data-home-series-primary="true">
     <header className="h29-rm-id" data-home-rm-identity="true">
       <img className="h29-rm-logo" src={BRAND_LOCKUP_NAV_2029.src} width={BRAND_LOCKUP_NAV_2029.width} height={BRAND_LOCKUP_NAV_2029.height} alt="" decoding="async" draggable="false" />
@@ -189,23 +190,25 @@ function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
       <strong className="h29-teaser-line" aria-hidden="true"><bdi dir="ltr">{teaser.highlight}</bdi></strong>
       <small className="h29-teaser-source" aria-hidden="true">מתוך הפוסט: {teaser.sourceTitle}{teaser.methodNote ? ` · ${teaser.methodNote}` : ""}</small>
     </Link> : null}
-    {open ? <section className="h29-rm-products" aria-label="הפוסטים במפה" data-home-rm-products="true">
-      <h4>מהמפה<small>{total}</small></h4>
-      <ol className="h29-rm-list" tabIndex={0} aria-label="הפוסטים במפת המציאות, מהחדש לישן">
-        {items.map(item => <li key={item.sourceRef || item.id}>
-          <Link className="h29-rm-item" to={item.href} data-home-rm-item={item.id}>
-            <Media src={item.imageUrl} fallback={<img src={BRAND_LOCKUP_NAV_2029.src} alt="" width={40} height={40} />} className="h29-rm-thumb" />
-            <span><strong>{item.title}</strong><small>פוסט {item.id} · <PublicationTime at={item.publishedAt} /></small></span>
-          </Link>
-        </li>)}
-      </ol>
-      <Link className="h29-series-more" to={seriesHref}>לכל הפוסטים בסדרה ←</Link>
+    {open || families.length ? <section className="h29-rm-products h29-rm-fams" aria-label="הפוסטים במפה" data-home-rm-products="true">
+      <h4>מהמפה{open ? <small>{total}</small> : null}</h4>
+      <div className="h29-fam-rows">
+        {famView.rows.map(row => <div className={`h29-fam-row${row.item ? "" : " is-bare"}`} key={row.key} data-home-family={row.key}>
+          {row.item
+            ? <Link className="h29-fam-post" to={row.item.href} data-home-rm-item={row.item.id}>
+              <Media src={row.item.imageUrl} fallback={<img src={BRAND_LOCKUP_NAV_2029.src} alt="" width={40} height={40} />} className="h29-rm-thumb" />
+              <span><b className="h29-fam-k">{row.label}</b><strong>{row.item.title}</strong><small>פוסט {row.item.id} · <PublicationTime at={row.item.publishedAt} /></small></span>
+            </Link>
+            : <span className="h29-fam-post is-empty"><b className="h29-fam-k">{row.label}</b>{row.note ? <small>{row.note}</small> : null}</span>}
+          <Link className="h29-fam-all" to={row.href} aria-label={`כל הפוסטים ב${row.label}`}>{row.label} ←</Link>
+        </div>)}
+      </div>
+      {famView.rest.length ? <ul className="h29-rm-rest" aria-label="עוד פוסטים במפה">
+        {famView.rest.slice(0, 3).map(item => <li key={item.sourceRef || item.id}><Link to={item.href} data-home-rm-item={item.id}><strong>{item.title}</strong><PublicationTime at={item.publishedAt} /></Link></li>)}
+      </ul> : null}
+      {famView.soon.map(family => <span key={family.key} className="soon h29-fam-soon" data-home-family={family.key}>{family.label}{family.note ? ` · ${family.note}` : ""}</span>)}
+      {open ? <Link className="h29-series-more" to={seriesHref}>לכל הפוסטים בסדרה ←</Link> : null}
     </section> : null}
-    {families.length ? <nav className="h29-fam" aria-label="משפחות תוכן במפת המציאות" data-home-series-families="true">
-      {families.map(family => family.href
-        ? <Link key={family.key} to={family.href} data-home-family={family.key}>{family.label}{family.note ? <small>{family.note}</small> : null}</Link>
-        : <span key={family.key} className="soon" data-home-family={family.key}>{family.label}{family.note ? <small>{family.note}</small> : null}</span>)}
-    </nav> : null}
   </article>;
 }
 
@@ -426,7 +429,7 @@ export default function HomeComposition2029({
     <Section label="הצפנים האחרונים בתורה">
       <div className="h29-strips">
         <div className="h29-strip k29-rv">
-          <div className="h29-sec-h"><h2>הצפנים האחרונים בתורה</h2><Link to="/2029/posts?category=צפונות%20בתורה">כל פרסומי הצופן ←</Link></div>
+          <div className="h29-sec-h"><h2><img className="h29-sec-logo" src="/els-logo.png" width="28" height="28" alt="" loading="lazy" decoding="async" />הצפנים האחרונים בתורה</h2><Link to="/2029/posts?category=צפונות%20בתורה">כל פרסומי הצופן ←</Link></div>
           <div className="h29-strip-row">
             {data.ciphers.map((cipher) => <Link key={cipher.id} className="h29-tile" to={postHref(cipher.link_url)}>
               <Media src={cipher.thumb_url} fallback="✦" /><span>{clean(cipher.text)}</span>

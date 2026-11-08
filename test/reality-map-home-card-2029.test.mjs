@@ -17,7 +17,7 @@ const outfile = resolve(`.test-reality-map-home-${process.pid}.mjs`);
 await build({ stdin: { contents: `
   import React, {useState,useEffect,useMemo} from 'react';
   import {CONTENT_SERIES_2029} from './src/lib/research/contentSeries2029Identity.js';
-  import {seriesHomeTeaser2029, seriesHomeFamilies2029} from './src/lib/research/contentSeries2029Projection.js';
+  import {seriesHomeTeaser2029, seriesHomeFamilies2029, seriesFamilyRows2029} from './src/lib/research/contentSeries2029Projection.js';
   const BRAND_LOCKUP_NAV_2029 = { src: '/brand/2029/canonical-lockup-128.webp', width: 128, height: 128, alt: 'x' };
   const fetchContentSeriesCatalog2029 = options => globalThis.__homeSeries.read(options);
   const Link = ({to,...props}) => React.createElement('a', {...props,href:to});
@@ -38,7 +38,7 @@ after(async () => { await rm(outfile, { force: true }); delete globalThis.__home
 
 function deferred() { let resolve, reject; const promise = new Promise((a, b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; }
 function fixture() { const f = { calls: [], read(options) { const d = deferred(); f.calls.push({ ...d, ...options }); return d.promise; } }; globalThis.__homeSeries = f; return f; }
-const item = (series, id, extra = {}) => ({ id, sourceRef: `posts:${id}`, href: `/post-${id}`, title: `פוסט ${id}`, author: "כותב", imageUrl: null, publishedAt: "2026-11-01T00:00:00Z", updatedAt: "2026-11-01T00:00:00Z", ...extra });
+const item = (series, id, extra = {}) => ({ id, sourceRef: `posts:${id}`, href: `/post-${id}`, title: `פוסט ${id}`, author: "כותב", imageUrl: null, publishedAt: "2026-11-01T00:00:00Z", updatedAt: "2026-11-01T00:00:00Z", categories: [], ...extra });
 // `members` = the reality-map members the reader returned (true = one member, or an explicit array of items, newest first).
 const catalog = (members = false) => { const list = members === true ? [item("reality-map", 77)] : Array.isArray(members) ? members : [];
   return { series: CONTENT_SERIES_2029.map(spec => ({
@@ -76,16 +76,17 @@ test("the sample renders the Post's own letter tiles and total, with an accessib
   await act(async () => { root.unmount(); });
 });
 
-test("the family entrances are three exact category links and one non-link 'soon'; no other element is a link", async () => {
+test("family rows (option C): three exact category links in the family order and one non-link 'soon'; no member needed", async () => {
   const f = fixture(); let root;
   await act(async () => { root = Renderer.create(React.createElement(HomeSeriesCards)); });
-  const nav = cards(root)[0].findAll(node => node.type === "nav" && node.props["data-home-series-families"] === "true")[0];
-  assert.ok(nav, "family row present");
-  assert.deepEqual(nav.findAllByType("a").map(link => [link.props["data-home-family"], decodeURIComponent(link.props.href)]), [
+  const section = cards(root)[0].findAll(node => node.props["data-home-rm-products"] === "true")[0];
+  assert.ok(section, "family rows present even before any member exists");
+  const rows = section.findAll(node => node.type === "div" && node.props["data-home-family"]);
+  assert.deepEqual(rows.map(row => [row.props["data-home-family"], decodeURIComponent(row.findAllByType("a")[0].props.href)]), [
     ["sod-1820", "/2029/posts?category=סוד 1820"], ["movies-cipher", "/2029/posts?category=הצופן בסרטים"], ["language-paths", "/2029/posts?category=שבילי שפה"]]);
-  const soon = nav.findAll(node => node.type === "span" && node.props["data-home-family"] === "redemption");
+  const soon = section.findAll(node => node.type === "span" && node.props["data-home-family"] === "redemption");
   assert.equal(soon.length, 1); assert.match(String(soon[0].props.className), /soon/);
-  assert.equal(nav.findAll(node => node.type === "a" && node.props["data-home-family"] === "redemption").length, 0);
+  assert.equal(section.findAll(node => node.type === "a" && node.props["data-home-family"] === "redemption").length, 0);
   await act(async () => { root.unmount(); });
 });
 
@@ -140,7 +141,7 @@ test("hierarchy: logo and identity, then the title, then the leading sample, the
   const article = root.root.findAll(node => node.type === "article" && node.props["data-home-series-primary"] === "true")[0];
   const order = article.findAll(node => node.parent === article && (node.props["data-home-rm-identity"] || node.props["data-home-series-teaser"] || node.props["data-home-rm-products"] || node.props["data-home-series-families"] || /h29-series-head/.test(String(node.props.className))))
     .map(node => node.props["data-home-rm-identity"] ? "identity" : node.props["data-home-series-teaser"] ? "sample" : node.props["data-home-rm-products"] ? "products" : node.props["data-home-series-families"] ? "families" : "title");
-  assert.deepEqual(order, ["identity", "title", "sample", "products", "families"]);
+  assert.deepEqual(order, ["identity", "title", "sample", "products"]);
   const logo = article.findAll(node => node.type === "img" && /h29-rm-logo/.test(String(node.props.className)))[0];
   assert.ok(logo && /canonical-lockup-128\.webp$/.test(logo.props.src), "the existing approved lockup, not a new mark");
   assert.equal(logo.props.width, 128); assert.equal(logo.props.height, 128);
@@ -148,25 +149,27 @@ test("hierarchy: logo and identity, then the title, then the leading sample, the
   await act(async () => { root.unmount(); });
 });
 
-test("flagship products: the series' members as a scrollable list, newest first as read, each linking to its own Post; the sample stays outside the list", async () => {
+test("family rows: each family shows the newest member of its OWN category, linking to that Post; members outside any family go to a short 'more' list; the sample stays outside", async () => {
   const f = fixture(); let root;
   await act(async () => { root = Renderer.create(React.createElement(HomeSeriesCards)); });
-  const members = [item("reality-map", 9, { title: "החדש ביותר", imageUrl: "https://example.test/9.jpg", publishedAt: "2026-11-05T09:00:00Z" }),
-    item("reality-map", 4, { title: "ישן יותר", publishedAt: "2026-10-01T09:00:00Z" }), item("reality-map", 2, { title: "הישן ביותר", publishedAt: "2026-08-01T09:00:00Z" })];
+  const members = [item("reality-map", 9, { title: "מטריקס חדש", categories: ["הצופן בסרטים"], imageUrl: "https://example.test/9.jpg", publishedAt: "2026-11-05T09:00:00Z" }),
+    item("reality-map", 8, { title: "דיונון ישן יותר", categories: ["הצופן בסרטים"], publishedAt: "2026-10-20T09:00:00Z" }),
+    item("reality-map", 4, { title: "שבילי שפה", categories: ["שבילי שפה", "רמזים חזקים"], publishedAt: "2026-10-01T09:00:00Z" }),
+    item("reality-map", 2, { title: "ברכת כהנים", categories: ["גימטריה מרחבית"], publishedAt: "2026-08-01T09:00:00Z" })];
   await act(async () => { f.calls[0].resolve(catalog(members)); });
-  assert.equal(f.calls[0].homeDisplay, true, "one shared read; the explicit per-series count (reality-map 6) comes from the series identity");
   assert.equal(f.calls[0].homeDisplay, true); assert.equal(f.calls[0].homeOnly, true);
   const products = root.root.findAll(node => node.props["data-home-rm-products"] === "true")[0];
-  const list = products.findAll(node => node.type === "ol")[0];
-  assert.equal(list.props.tabIndex, 0, "keyboard-scrollable"); assert.match(list.props["aria-label"], /מהחדש לישן/);
-  const rows = list.findAll(node => node.type === "a" && node.props["data-home-rm-item"]);
-  assert.deepEqual(rows.map(node => node.props["data-home-rm-item"]), [9, 4, 2]);
-  assert.deepEqual(rows.map(node => node.props.href), ["/post-9", "/post-4", "/post-2"]);
-  assert.ok(rows[0].findAll(node => node.type === "img" && node.props.src === "https://example.test/9.jpg").length === 1, "thumbnail when the data has one");
-  assert.match(rows[0].findAll(node => node.type === "small")[0].children.filter(child => typeof child === "string").join(""), /פוסט 9/);
-  assert.equal(rows[0].findAll(node => node.type === "time").length, 1, "publication date");
-  assert.equal(products.findAll(node => node.props["data-home-series-teaser"]).length, 0, "the sample is not part of the list");
-  assert.equal(products.findAll(node => node.type === "h4")[0].children.some(child => child.type === "small" && child.children.join("") === "3"), true, "member count");
+  const row = key => products.findAll(node => node.type === "div" && node.props["data-home-family"] === key)[0];
+  assert.equal(row("sod-1820").findAll(node => node.props["data-home-rm-item"]).length, 0, "no member of that category: the row keeps only its link");
+  const cipher = row("movies-cipher").findAll(node => node.type === "a" && node.props["data-home-rm-item"])[0];
+  assert.equal(cipher.props["data-home-rm-item"], 9); assert.equal(cipher.props.href, "/post-9", "the newest of the family");
+  assert.ok(cipher.findAll(node => node.type === "img" && node.props.src === "https://example.test/9.jpg").length === 1, "thumbnail when the data has one");
+  assert.equal(cipher.findAll(node => node.type === "time").length, 1, "publication date");
+  assert.equal(row("language-paths").findAll(node => node.type === "a" && node.props["data-home-rm-item"])[0].props.href, "/post-4");
+  const rest = products.findAll(node => node.type === "ul")[0];
+  assert.deepEqual(rest.findAll(node => node.type === "a" && node.props["data-home-rm-item"]).map(node => node.props["data-home-rm-item"]), [8, 2], "not shown by a row, newest first");
+  assert.equal(products.findAll(node => node.props["data-home-series-teaser"]).length, 0, "the sample is not part of the rows");
+  assert.equal(products.findAll(node => node.type === "h4")[0].children.some(child => child.type === "small" && child.children.join("") === "4"), true, "member count");
   await act(async () => { root.unmount(); });
 });
 
@@ -177,9 +180,9 @@ test("adding the tag adds a Post to the list and removing it removes the Post (m
     const ids = root.root.findAll(node => node.type === "a" && node.props["data-home-rm-item"]).map(node => node.props["data-home-rm-item"]);
     const hasProducts = root.root.findAll(node => node.props["data-home-rm-products"] === "true").length > 0;
     await act(async () => { root.unmount(); }); return { ids, hasProducts }; };
-  assert.deepEqual(await mount([]), { ids: [], hasProducts: false }, "no member: no list and no series link");
+  assert.deepEqual(await mount([]), { ids: [], hasProducts: true }, "no member: only the family links (no Post, no series link)");
   assert.deepEqual((await mount([item("reality-map", 5)])).ids, [5], "tag added to 5");
   assert.deepEqual((await mount([item("reality-map", 6), item("reality-map", 5)])).ids, [6, 5], "tag added to 6: newest first");
   assert.deepEqual((await mount([item("reality-map", 6)])).ids, [6], "tag removed from 5: it leaves the list");
-  assert.deepEqual(await mount([]), { ids: [], hasProducts: false }, "tag removed from the last member: the list disappears");
+  assert.deepEqual(await mount([]), { ids: [], hasProducts: true }, "tag removed from the last member: the Post disappears");
 });

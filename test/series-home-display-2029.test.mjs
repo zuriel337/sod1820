@@ -61,3 +61,19 @@ test("the feed hook reuses Home-loaded details (under a minute old) only for the
   assert.match(hook, /const requestNowDetails = useCallback\(\(\) => loadNowDetails\(false\)/);
   assert.match(hook, /if \(enabled && \(nowOpen \|\| homeStrip\)\) loadNowDetails\(false\);/);
 });
+
+test("option C helper: one row per family from the family's own category, 'soon' for a family without one, the rest returned", async () => {
+  const { seriesFamilyRows2029 } = await import("../src/lib/research/contentSeries2029Projection.js");
+  const families = [{ key: "a", label: "א", href: "/x?category=א", category: "א" }, { key: "b", label: "ב", href: "/x?category=ב", category: "ב" }, { key: "c", label: "ג", href: null, category: null }];
+  const post = (id, categories, at) => ({ id: String(id), sourceRef: `posts:${id}`, categories, publishedAt: at });
+  const out = seriesFamilyRows2029([post(1, ["א"], "2026-01-01"), post(2, ["א", "ב"], "2026-03-01"), post(3, [], "2026-02-01")], families);
+  assert.deepEqual(out.rows.map(row => [row.key, row.item?.id ?? null]), [["a", "2"], ["b", null]], "a post is shown by one row only (2 is taken by א)");
+  assert.deepEqual(out.soon.map(family => family.key), ["c"]);
+  assert.deepEqual(out.rest.map(item => item.id), ["3", "1"], "newest first");
+});
+
+test("the Biblical-cipher logo (approved 8.11.2026, version 3) sits in the ciphers header only", async () => {
+  const home = await readFile(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8");
+  assert.equal((home.match(/src="\/els-logo\.png"/g) || []).length, 1);
+  assert.match(home, /<h2><img className="h29-sec-logo" src="\/els-logo\.png"[^>]*alt=""[^>]*\/>הצפנים האחרונים בתורה<\/h2>/);
+});

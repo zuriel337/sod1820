@@ -21,7 +21,7 @@ export function seriesHomeFamilies2029(spec) {
     const key = clean(family?.key), label = clean(family?.label), category = clean(family?.category);
     if (!key || !label || seen.has(key)) return [];
     seen.add(key);
-    return [{ key, label, note: clean(family.note),
+    return [{ key, label, note: clean(family.note), category: category || null,
       href: category ? `/2029/posts?category=${encodeURIComponent(category)}` : null }];
   });
 }
@@ -203,12 +203,30 @@ export function projectContentSeriesItems(rows = [], spec = {}) {
       imageUrl: clean(row?.thumb_url || row?.image_url) || null,
       publishedAt: row?.date || null,
       updatedAt: row?.modified || row?.date || null,
+      categories: Array.isArray(row?.categories) ? row.categories.filter(Boolean).map(String) : [],
       href: publicPostHref(row),
       sourceRef: `posts:${row.id}`,
       kind: "post",
     });
   }
   return { items: items.sort((a, b) => (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0)), excluded };
+}
+
+// Home option C (ZURIEL 8.11.2026): one row per content family. A family shows the NEWEST series member whose own category is the
+// family's category (display grouping of already-admitted members; it never admits, assigns or changes anything). A family with a category
+// but no member keeps its link only; a family without a category is a "soon" label. Members shown by no row are returned as `rest`.
+export function seriesFamilyRows2029(items, families) {
+  const list = (Array.isArray(items) ? items : []).slice().sort((a, b) => (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0));
+  const shown = new Set();
+  const rows = [], soon = [];
+  for (const family of Array.isArray(families) ? families : []) {
+    if (!family.href) { soon.push(family); continue; }
+    const category = family.category || null;
+    const item = category ? list.find(candidate => !shown.has(candidate.sourceRef || candidate.id) && Array.isArray(candidate.categories) && candidate.categories.includes(category)) || null : null;
+    if (item) shown.add(item.sourceRef || item.id);
+    rows.push({ ...family, item });
+  }
+  return { rows, soon, rest: list.filter(item => !shown.has(item.sourceRef || item.id)) };
 }
 
 export function buildContentSeriesCatalog2029(results = [], { homeOnly = false } = {}) {
