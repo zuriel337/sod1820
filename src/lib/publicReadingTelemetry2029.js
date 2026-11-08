@@ -12,6 +12,8 @@ export function readingTelemetryPath(value) {
   if (path === "/2029") return "/";
   if (/^\/(?:2029\/)?(?:calculator|gematria)(?:\/viral)?$/.test(path)) return "/gematria";
   if (/^\/(?:2029\/)?posts?$/.test(path)) return "/post";
+  // Legacy WordPress article permalinks used a top-level slug.
+  if (/^\/old-wordpress-post(?:-[a-z0-9-]+)?$/i.test(path)) return "/post/:item";
   const number = /^\/(?:2029\/)?number(?:\/([^/]+))?$/.exec(path);
   if (number) return number[1] ? "/number/:value" : "/number";
   if (["/", "/world", "/gallery", "/map", "/privacy", "/books", "/community", "/community/chat", "/community/calculator", "/or-geula", "/contact"].includes(path)) return path;
