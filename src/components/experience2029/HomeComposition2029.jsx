@@ -15,7 +15,6 @@ import { relativeTimeLabel } from "../../lib/relativeTime2029.js";
 import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import HomeUpdatesPreview2029 from "./HomeUpdatesPreview2029.jsx";
-import EntranceIntro2029 from "./EntranceIntro2029.jsx";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
@@ -234,7 +233,6 @@ export default function HomeComposition2029({
     const href = link?.getAttribute("href");
     if (link && !link.hasAttribute("download") && (!link.target || link.target === "_self") && href?.startsWith("/") && !href.startsWith("//") && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) onNavigate?.(href);
   }}>
-    <EntranceIntro2029 />
     <section className="h29-launch-card h29-updates-royal" aria-label="עדכונים אחרונים" data-home-top-updates={adminViewer ? "admin" : "public-closed"}>
       <div className="h29-sec-h"><h2>עדכונים אחרונים</h2><Link to="/2029/posts">כל הפוסטים ←</Link></div>
       <div className="h29-construction-notice" role="note">

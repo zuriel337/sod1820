@@ -13,6 +13,7 @@ import { readingTelemetryPath } from "./lib/publicReadingTelemetry2029.js";
 import { installOfferKind, subscribeInstallOffer } from "./lib/installOffer2029.js";
 const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
 import Opening2029 from "./components/experience2029/Opening2029.jsx";
+import Awakening2029 from "./components/experience2029/Awakening2029.jsx";
 import ErrorBoundary2029 from "./components/experience2029/ErrorBoundary2029.jsx";
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
@@ -321,6 +322,7 @@ export default function App2029() {
         <ResearchProvider>
           <RouteEffects2029 />
           <InstallSuggestionMount2029 />
+          <Awakening2029 />
           {/* One temporary in-memory Raziel session is projected by both desktop and mobile chrome. */}
           <RazielSessionMount2029>
             <RouteErrorBoundary2029><Suspense fallback={<Loading2029 />}>

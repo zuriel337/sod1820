@@ -1,0 +1,12 @@
+/* Awakening: decorative layer in document.body (above the whole frame), never takes a click, never shifts layout, transform/opacity/mask only.
+   Geometry is read from the real bar, arc and crown at the moment it plays (Awakening2029.jsx). */
+.wk29{position:fixed;inset:0;z-index:2147483000;pointer-events:none}
+.wk29 svg{position:fixed;overflow:visible}
+.wk29-line{position:fixed;height:3px;overflow:hidden}
+.wk29-line i{position:absolute;top:0;bottom:0;left:50%;width:70px;margin-left:-35px;opacity:0;background:linear-gradient(90deg,transparent,#fff3c4,transparent)}
+.wk29-glint{position:fixed;opacity:0;-webkit-mask-size:contain;mask-size:contain;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;
+  background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.95) 50%,transparent 62%) 160% 0/260% 100% no-repeat}
+/* the verse rises as the frame arrives (set before the first paint by the component, removed after) */
+html[data-awakening="go"] .sod29-living-ribbon{animation:wk-rise .5s ease .2s both}
+@keyframes wk-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.wk29{display:none}html[data-awakening="go"] .sod29-living-ribbon{animation:none}}

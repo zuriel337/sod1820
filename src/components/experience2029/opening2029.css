@@ -1,13 +1,46 @@
-/* The same inert opening markup is painted by the HTML and React fallback.
-   No spinner, fake content, animation, SDK or pre-guard data request. */
-.sod29-opening{min-height:100vh;color:inherit;background:transparent;font-family:Rubik,Arial,sans-serif;direction:rtl}
-.sod29-opening-header{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px max(16px,calc((100vw - 1180px)/2));border-block-end:1px solid color-mix(in srgb,currentColor 16%,transparent)}
-.sod29-opening a{color:inherit;text-decoration:none;display:inline-flex;align-items:center;min-height:44px;padding:4px 9px;font-size:16px}
-.sod29-opening a:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:8px}
-.sod29-opening-identity{gap:8px;white-space:nowrap}.sod29-opening-identity img{display:block;flex:none;object-fit:contain}
-.sod29-opening nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.sod29-opening-content{width:min(1040px,calc(100% - 24px));margin:36px auto;display:grid;gap:16px}
-.sod29-opening-card,.sod29-opening-row{border:1px solid color-mix(in srgb,currentColor 10%,transparent);border-radius:18px;background:color-mix(in srgb,currentColor 3%,transparent)}
-.sod29-opening-card{min-height:350px}.sod29-opening-row{height:96px}
-.sod29-opening-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-@media(max-width:620px){.sod29-opening-header{gap:4px;flex-wrap:wrap;justify-content:center;padding:8px 12px}.sod29-opening-content{margin-block:24px}.sod29-opening nav{justify-content:center}.sod29-opening-card{min-height:390px}}
+/* Royal opening shell — the ONE style source for the static HTML twin (2029.html) and the React Suspense fallback (Opening2029.jsx).
+   It is the closed bar of the real System Frame and nothing else: the same 64px dark glass bar, the approved crown on the page's centre line,
+   the rounded gold arc under it and the 2px gold line (systemFrame2029-topbar-crown.css), on the shell's own page background. Dimensions are
+   copied from the live frame at each breakpoint (bar 64 · crown 100/84/72 · arc 320x62 / 250x54 / 220x48 · reserve below the bar 68/58/52), so
+   the bar, the crown and the first line of content do not move when the real frame replaces it.
+   No temporary navigation bar, no skeleton cards, no spinner, no SDK or pre-guard data request. The only motion is the "alive" breathing of the gold line,
+   which starts after 1s of waiting (a fast load never sees it) and ends when the real frame replaces this markup.
+   The three public links stay available for keyboard and screen-reader users only: visually hidden until one of them has focus. */
+.sod29-opening{
+  --o-bar:64px;--o-crown:100px;--o-top:6px;--o-slot:150px;--o-dip-w:320px;--o-dip-h:62px;--o-reserve:68px;
+  --o-gold:#F9BA3F;--o-glass:rgb(23 18 14 / .72);--o-gap:calc(var(--o-dip-w) - 6px);
+  position:relative;min-height:100vh;direction:rtl;color:#F5F5F0;
+  background-color:#0B0907;background-image:radial-gradient(at 92% 0,rgb(249 186 63 / .08),transparent 46%);
+  font-family:'Noto Sans Hebrew',Rubik,Arial,sans-serif;
+}
+/* light and parchment: the page is light, the bar keeps its dark glass (as in the real frame); the attribute is set by the theme store before React paints */
+html[data-theme-2029="light"] .sod29-opening{background-color:#F4F7FC;background-image:none;color:#172B46;--o-glass:rgb(16 11 28 / .90)}
+html[data-theme-2029="parchment"] .sod29-opening{background-color:#F4EDDE;background-image:none;color:#312B23;--o-glass:rgb(16 11 28 / .90)}
+
+.sod29-opening-bar{position:relative;block-size:var(--o-bar);margin-block-end:var(--o-reserve);background:var(--o-glass);box-shadow:inset 0 1px 0 rgb(245 245 240 / .12)}
+/* the 2px line: gold, interrupted under the arc (the same mask as the frame's bar) */
+.sod29-opening-bar::after{content:"";position:absolute;inset-inline:0;inset-block-end:0;block-size:2px;background:var(--o-gold);pointer-events:none;
+  -webkit-mask:linear-gradient(90deg,#000 0 calc(50% - var(--o-gap) / 2),transparent calc(50% - var(--o-gap) / 2) calc(50% + var(--o-gap) / 2),#000 calc(50% + var(--o-gap) / 2) 100%);
+  mask:linear-gradient(90deg,#000 0 calc(50% - var(--o-gap) / 2),transparent calc(50% - var(--o-gap) / 2) calc(50% + var(--o-gap) / 2),#000 calc(50% + var(--o-gap) / 2) 100%)}
+.sod29-opening-crown{position:absolute;inset-block-start:0;left:50%;display:block;inline-size:var(--o-slot);block-size:56px;margin-left:calc(var(--o-slot) / -2);border-radius:12px;color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.sod29-opening-crown:focus-visible{outline:2px solid #69ded7;outline-offset:2px}
+.sod29-opening-dip{position:absolute;left:50%;inset-block-start:calc(var(--o-bar) - 1px);inline-size:var(--o-dip-w);block-size:var(--o-dip-h);transform:translateX(-50%);overflow:visible;pointer-events:none;z-index:1}
+.sod29-opening-dip .arc{fill:var(--o-glass)}
+.sod29-opening-dip .line{fill:none;stroke:var(--o-gold);stroke-width:2px;stroke-linecap:butt;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.sod29-opening-crown img{position:absolute;left:50%;inset-block-start:var(--o-top);inline-size:var(--o-crown);block-size:var(--o-crown);max-inline-size:none;transform:translateX(-50%);z-index:3;display:block;object-fit:contain;pointer-events:none;user-select:none;filter:drop-shadow(0 0 9px rgb(0 0 0 / .6)) drop-shadow(0 3px 6px rgb(0 0 0 / .45))}
+
+/* links for keyboard / screen reader: present in the document and in the tab order, invisible until focused, then a compact dark pill below the arc, never over the crown (no layout) */
+.sod29-opening-nav{position:absolute;inset-block-start:calc(var(--o-bar) + var(--o-dip-h) + 6px);inset-inline-start:12px;z-index:6;display:flex;gap:4px;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.sod29-opening-nav:focus-within{inline-size:auto;block-size:auto;max-inline-size:calc(100% - 24px);overflow:visible;clip-path:none;padding:2px 6px;border:1px solid rgb(212 175 55 / .38);border-radius:14px;background:#17120E;color:#F5F5F0}
+.sod29-opening-nav a{display:inline-flex;align-items:center;min-block-size:44px;padding:4px 12px;border-radius:10px;color:inherit;font-size:16px;text-decoration:none}
+.sod29-opening-nav a:focus-visible{outline:2px solid #69ded7;outline-offset:-2px}
+.sod29-opening-status{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* alive indicator (Operation Visibility Law: a waiting screen is never frozen): after 1s the bar's gold line and the arc breathe together, an honest
+   indeterminate cue with no invented percentage; opacity only; it stops the moment the real frame (or the React twin) replaces this markup */
+.sod29-opening-bar::after,.sod29-opening-dip .line{animation:o-breathe 2.4s ease-in-out 1s infinite}
+@keyframes o-breathe{0%,100%{opacity:1}50%{opacity:.42}}
+@media(prefers-reduced-motion:reduce){.sod29-opening-bar::after,.sod29-opening-dip .line{animation:none}}
+
+@media(max-width:980px){.sod29-opening{--o-crown:84px;--o-slot:116px;--o-dip-w:250px;--o-dip-h:54px;--o-reserve:58px}}
+@media(max-width:340px){.sod29-opening{--o-crown:72px;--o-slot:102px;--o-dip-w:220px;--o-dip-h:48px;--o-reserve:52px}}
