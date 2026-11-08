@@ -5,7 +5,7 @@
 // compiler records its own platform identity, which runtime must match exactly.
 // No user request/header/query or shared site flag selects this mode.
 export const REVIEW_PROJECT_ID = "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq";
-export const REVIEW_BRANCH = "gpt/2029-main-live-state-reconcile-20261104";
+export const REVIEW_BRANCH = "claude/sod1820-first-paint-preview-g93w32";
 export const PRODUCTION_REVIEW_BRANCH = "main";
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.
