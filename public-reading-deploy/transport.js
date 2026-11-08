@@ -3,7 +3,7 @@ import { readingPersonalResponse } from "./personal-request.js";
 import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.js";
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
 import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
-import { readingTelemetryPath, readingWebVitalBody } from "../src/lib/publicReadingTelemetry2029.js";
+import { readingTelemetryPath, readingWebVitalBody, readingActivityBody } from "../src/lib/publicReadingTelemetry2029.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
 // which records are public. Explicit verified-admin actions retain the existing
@@ -59,6 +59,9 @@ function installPublicReadingWorker(policy) {
     return seen.has("width") || seen.has("height");
   };
   const metricDocuments = new Map();
+  // Research-activity beacon: bounded in-memory replay/rate state (worker lifetime only, never persisted).
+  const activityEvents = new Map();
+  const activityClients = new Map();
   const measurementClient = async event => {
     if (!event.clientId || !["https://sod1820.co.il", "https://www.sod1820.co.il"].includes(self.location.origin)) return null;
     const client = await self.clients.get(event.clientId);
@@ -285,7 +288,7 @@ function installPublicReadingWorker(policy) {
       && /^\/storage\/v1\/render\/image\/public\/(?:media|gallery|magar)\//.test(url.pathname)
       && publicRenditionQuery(url.searchParams)) return;
     if (url.origin === authOrigin && req.method === "POST"
-      && ["/rest/v1/rpc/ingest_event", "/rest/v1/contact_messages"].includes(url.pathname)) {
+      && ["/rest/v1/rpc/ingest_event", "/rest/v1/rpc/ingest_reading_activity_v1", "/rest/v1/contact_messages"].includes(url.pathname)) {
       event.respondWith((async () => {
         const columns = url.searchParams.get("columns");
         const contactColumns = url.pathname.endsWith("/contact_messages") && url.searchParams.size === 1
@@ -296,6 +299,34 @@ function installPublicReadingWorker(policy) {
         const parsed = JSON.parse(raw);
         const body = url.pathname.endsWith("/contact_messages") && Array.isArray(parsed) && parsed.length === 1 ? parsed[0] : parsed;
         if (!plainObject(body)) return denied();
+        if (url.pathname.endsWith("/ingest_reading_activity_v1")) {
+          // DEFENCE IN DEPTH ONLY. The authority is the database function ingest_reading_activity_v1 (closed schema,
+          // per-address rate limit, unique-key idempotency, server-set actor class), because the RPC is reachable
+          // without this worker. The Maps below live as long as the worker (a browser may stop it at any time) and
+          // cover neither another browser nor a direct call, so they are never the basis for "deduplicated".
+          if (raw.length > 1024 || !readingActivityBody(body) || await measurementClient(event) !== body.p_path || !policy.anonKey) return denied();   // a valid body is about 350 bytes
+          const now = Date.now();
+          for (const [id, at] of activityEvents) if (now - at > 3600000) activityEvents.delete(id);
+          for (const [client, state] of activityClients) if (now - state.at > 3600000) activityClients.delete(client);
+          const eventId = body.p_props.activity_event_id;
+          // A random-looking id must never be the signed-in account id (the account JWT is replaced below).
+          const bearer = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+          let accountId = null;
+          try { accountId = JSON.parse(atob(bearer.split(".")[1].replace(/-/g, "+").replace(/_/g, "/"))).sub || null; } catch { accountId = null; }
+          if (accountId && (body.p_props.activity_session === accountId || eventId === accountId)) return denied();
+          if (activityEvents.has(eventId) || activityEvents.size >= 2000) return denied();
+          let state = activityClients.get(event.clientId);
+          if (!state) {
+            if (activityClients.size >= 500) return denied();
+            state = { at: now, windowAt: now, windowCount: 0, total: 0 };
+            activityClients.set(event.clientId, state);
+          }
+          if (now - state.windowAt > 60000) { state.windowAt = now; state.windowCount = 0; }
+          state.windowCount += 1; state.total += 1; state.at = now;
+          if (state.windowCount > 30 || state.total > 500) return denied();
+          activityEvents.set(eventId, now);
+          return readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: `Bearer ${policy.anonKey}`, "Content-Type": "application/json" } }));
+        }
         if (url.pathname.endsWith("/ingest_event")) {
           if (body.p_surface === "performance") {
             if (!readingWebVitalBody(body) || await measurementClient(event) !== body.p_path || !policy.anonKey) return denied();
@@ -505,7 +536,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingActivityBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 

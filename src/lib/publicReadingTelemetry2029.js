@@ -49,3 +49,28 @@ export function readingWebVitalBody(body) {
   return p.ratings && !Array.isArray(p.ratings) && Object.keys(p.ratings).sort().join(",") === "cls,fcp,inp,lcp,ttfb"
     && Object.values(p.ratings).every(v => v === null || ["good", "needs_improvement", "poor"].includes(v));
 }
+
+// Research-activity beacon (gematria compute), measurement family 2 of the public-reading telemetry.
+// It travels ONLY through the dedicated RPC `ingest_reading_activity_v1` (never through the generic `ingest_event`)
+// and its body has exactly four named arguments. The schema is closed and content-free: no expression, term,
+// value, method, query, hash, route detail, sod_id, bot flag or actor claim. The two UUIDs are random:
+// `activity_session` lives for one tab session and `activity_event_id` only makes a replay idempotent.
+// The worker applies this as defence in depth; the database function applies the same schema, a rate limit and
+// idempotency itself, because a caller can reach the RPC without the worker. This function is serialized into
+// the worker text, so it must stay self-contained.
+export function readingActivityBody(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)
+    || Object.keys(body).sort().join(",") !== "p_app_context,p_event_type,p_path,p_props"
+    || !["first_compute", "repeat_compute", "recompute"].includes(body.p_event_type)
+    || !["/gematria", "/community/calculator"].includes(body.p_path)
+    || !["facebook", "instagram", "whatsapp", "telegram", "line", "chrome-ios", "edge", "opera", "firefox", "android-webview", "chrome", "safari", "other"].includes(body.p_app_context)) return false;
+  const p = body.p_props;
+  if (!p || typeof p !== "object" || Array.isArray(p)
+    || Object.keys(p).sort().join(",") !== "activity_event_id,activity_session,entry,length_bucket,schema,surface_kind"
+    || p.schema !== 1
+    || !["direct", "share", "handoff"].includes(p.entry)
+    || !["2-3", "4-8", "9-20", "21+"].includes(p.length_bucket)
+    || !["community", "calculator", "professional"].includes(p.surface_kind)) return false;
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuid.test(p.activity_event_id || "") && uuid.test(p.activity_session || "");
+}

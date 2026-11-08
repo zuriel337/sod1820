@@ -24,6 +24,7 @@ import {
 } from "../lib/research/calculator2029Model.js";
 import { buildCalculatorShareUrl, makeCalculatorShareId, calculatorEntryParams } from "../lib/research/calculator2029Viral.js";
 import { publicLaunchActionsLocked } from "../lib/publicLaunch2029.js";
+import { reportReadingCompute } from "../lib/readingActivity2029.js";
 import { GADOL_BASE, hasSofiot } from "../lib/research/gematriaCalculationContract.js";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { applySeo } from "../lib/seo.js";
@@ -205,6 +206,10 @@ function ProExperience() {
   const location = useLocation();
   const seedExpression = clean(calculatorEntryParams(params.toString()).get("q"));
   const seedMethod = clean(params.get("m"));
+  // Compute metric: a URL/handoff seed present at mount is "seeded" (never reported); only a later,
+  // different settled expression is a user compute. A method change on the same expression is not a compute.
+  const initialSeedRef = useRef(seedExpression);
+  const reportedExpressionRef = useRef(null);
   const inputRef = useRef(null);
   const row = useCalculatorRow(seedExpression);
   const { info } = row;
@@ -303,6 +308,11 @@ function ProExperience() {
     setShareDiscovery(null);
     setShowOpening(false);
     if (canonicalSelection) {
+      if (canonicalSelection.expression !== reportedExpressionRef.current) {
+        const seeded = reportedExpressionRef.current === null && canonicalSelection.expression === initialSeedRef.current;
+        reportedExpressionRef.current = canonicalSelection.expression;
+        if (!seeded) reportReadingCompute({ expression: canonicalSelection.expression, entry: "direct", surfaceKind: "professional" });
+      }
       research.updateResearchContext?.(buildCalculatorResearchContext(canonicalSelection, { surface: "calculator-pro-2029" }));
       emit("calculator_2029", "result_selected", {
         props: { surface: "professional", expression: canonicalSelection.expression, method: canonicalSelection.methodKey, value: canonicalSelection.resultValue },
