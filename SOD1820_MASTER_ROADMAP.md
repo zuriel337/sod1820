@@ -1,12 +1,6 @@
 # SOD1820 — MASTER ROADMAP v6.12 COMPACT
 
-> **עדכון 8.11.2026:** פסקאות 12.56 ו־12.57 שלהלן הן תצלומים היסטוריים. עבודת המדידה (12.57) מוזגה ל־`main` ב־PR #1198 (`11346873d`); הענף `gpt/2029-production-observability-reconnect-20261104` אינו מקור אמת (`CLAUDE.md` 0.2). מצב חי נקרא מ־Vercel ומ־`origin/main` בזמן הפעולה (`CLAUDE.md`).
-
-**מסירת עבודה12.57 — BRANCH ONLY, לא LIVE:** חיבור המדידה וקוראי הניהול מומש בענף `gpt/2029-production-observability-reconnect-20261104`, מקור2c3899a0/Preview3t6, ונעצר בהוראת צוריאל למסירה לקלוד. הבעלות משוחררת; main נשאר03e והחי969/xw. עברו91בדיקות ממוקדות,10תצפיות ליבה מתארחות ו־12בדיקות הרשאה שליליות; קבלת ספק/מנהל חיובית אינה מושלמת, ו־Vercel Analytics לא נמצא זמין. [מסירה, ראיות והמשך](docs/reviews/main-live-state-reconciliation-20261104/public-observability/HANDOFF.md). העדכון בתיעוד ענף המסירה בלבד, ואינו טענת מיזוג/פריסה.
-
-**מצב נוכחי — 12.56 / LIVE, ‏4.11.2026:** החבילה המצטברת פורסמה ממקור `969b51423d8b67b7b8061d067b5366e1e2a1c5e4` ב־Production `dpl_xw7fECMyWRrZvxxKdy71yobAhj8h`. שלושת הדומיינים אומתו בפריסה זו; כלולים המחשבון, ״עכשיו״, רקעי הפוסטים, התפריט, התמונות28f והמסירה המדויקתd96. צוריאל אישר את הפרסום המדויק וחריגת הקנרית לשעה, עד `2026-11-04T21:16:17.346189Z`; זהו אישור שנצרך לפרסום זה, לא היתר לפרסום עתידי. אחרי המעבר עברו20 תרחישי דפדפן אמיתיים ב־390/1440, בדיקות alias/לוגו/בוט וקנרית969 [בניסיון2](https://github.com/zuriel337/sod1820/actions/runs/41906277893). הכשלים הראשונים נשמרו; HIT חם שלXML אינו קבלת זמן קר. Isolation/Visual/ELS המלאים וסגירתG4 בתוכנית אינם PASS. תיעוד מאוחר ב־main אינו שינויruntime או פריסה נוספת. סשנים חדשים מתחילים מ־origin/main העדכני, מאמתים Vercel ובעלויות, ואינם מייבאים שוב ענפים שהוחלפו. [הפעולה, הראיות והיתרה](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1256--החבילה-המצטברת-פורסמה-לחי).
-
-העדכונים12.55 ומטה הם צילומים היסטוריים בתחומים שהוחלפו ב־12.56. הרשאות השחרור, קבלת שני החשבונות/H1 והדחיות שלא הוחלפו נשמרות.
+> **ארכיון (עודכן 8.11.2026):** תצלומי המצב 12.55–12.57 הוסרו מכאן והם היסטוריה: מסירת המדידה (12.57, ענף `gpt/2029-production-observability-reconnect-20261104`) מוזגה ל־`main` ב־PR #1198 (`11346873d`) והענף אינו מקור אמת (`CLAUDE.md` 0.2); הפריסה והראיות של 12.53–12.56 — [docs/reviews/main-live-state-reconciliation-20261104/README.md](docs/reviews/main-live-state-reconciliation-20261104/README.md). מצב חי נקרא מ־Vercel ומ־`origin/main` בזמן הפעולה (`CLAUDE.md`). הרשאות השחרור, קבלת שני החשבונות/H1 והדחיות שלא הוחלפו נשמרות.
 
 **צילום היסטורי 12.55 — מצב טרם הפרסום12.56:** [PR1195](https://github.com/zuriel337/sod1820/pull/1195) מוזג ל־`2149cb748176529a7af756cda23b95d646cf639c`, עץ זהה למקור הפריוויו `a106a140` / `dpl_78xR91VjtFhwKivWo4ixYk9BEmQY`. נכללת מסירת הקהילה המדויקת `d96c41ea`; SQL הזהות כבר הוחל בסשן המוסר ולא הורץ שוב. G4 הציבורי עבר על a106; serverSEO ו־A3 עברו, אך Isolation/Visual המלאים אינם PASS. זמני הודעות הקהילה פחות מ־24 שעות הם חריג מאושר ומתועד לבעלים הקיים, בלי שינוי כלל העולם. צוריאל ביקש לפרסם את כל החבילה; החי עדיין d06/7Kcv והקנרית האחרונה חוסמת. אין override או פריסה מכוח המיזוג. סשנים חדשים מתחילים מ־origin/main העדכני ומאמתים פריסה ובעלויות. [ראיות ויתרה](docs/reviews/main-live-state-reconciliation-20261104/README.md#המשך-1255--שילוב-d96c41ea-וקבלה-של-החבילה-המצטברת).
 
@@ -114,7 +108,7 @@ owns route-inventory navigation. Provenance: AFTER
 `e18c1cb9-0ea0-4e6c-9617-232bb296d31b`; documentation BEFORE
 `2b9004b6-5285-4aee-93e2-4b1174ec06cf`.
 
-**Next work under the existing gates, in dependency order:** accept remaining
+**[ארכיון — תוכנית 3.11, מלפני המעבר; אינה רשימת משימות עדכנית]** Next work under the existing gates, in dependency order: accept remaining
 public URL/service exceptions after the implemented priority 1 adapters and
 readers ([bounded evidence](docs/reviews/public-url-continuity-20261103/README.md)); retain source boundaries and finish the affected
 Posts/Skeleton, identity and exact-return acceptance; close the existing S2
@@ -129,14 +123,10 @@ do not receive an exemption because a larger UI is closed.
 includes its specific content and a finished, polished 2029 presentation using
 the approved Posts language and Design V2. A bare technical list, right-pinned
 controls or a generic World redirect does not close the family. Reuse existing
-components; inspect Legacy for content/behavior when unclear. This scoped
+components; when unclear, read Legacy only from Git history (`git show <sha>:<path>`). This scoped
 quality requirement does not move the deferred whole-World/Home Goldens forward.
 
-One integrated candidate does not waive the existing
-[family cutover/rollback and automated parity requirements](docs/g3-2029-cutover-acceptance-checklist.md#cutover-gate-extensions--2026-10-04).
-Exact activation is still unapproved. AGENTS.md requires an explicit 2029
-Production cutover authorization naming the final SHA and deployment, and
-separate authorization for a release-guard change when applicable.
+(היסטורי: הפעלת 2029 אושרה ובוצעה ב־4.11, ראו 12.56. כל פעולת Production חדשה דורשת אישור מפורש לקומיט ולפריסה מדויקים — `CLAUDE.md` 0.4. דרישות ה־rollback וה־parity של Legacy בצ׳קליסט המעבר הן היסטוריות.)
 
 ## Current position
 
