@@ -57,6 +57,10 @@ export function formatDateWP(isoDate) {
 // "לפני X דקות/שעות/ימים/שבועות/חודשים/שנים" — זמן יחסי בעברית, תמיד יחסי («יותר יפה»,
 // בקשת צוריאל 15.8.2026: בכל האתר להציג «לפני כמה זמן» במקום תאריך). בלי נפילה-לתאריך.
 // למי שעדיין צריך תאריך מלא (SEO/סכמה/ארכיון) — יש formatDateHe/formatDateWP.
+// Natural Hebrew counts (ZURIEL 8.11.2026): one = "לפני שעה", two = the dual ("לפני שעתיים"), three and more = "לפני 3 שעות".
+// Minutes use "שתי דקות" (the dual noun form "דקתיים" is not used in speech). Never "לפני 2 ימים" / "לפני 2 שעות".
+const agoUnit = (n, one, two, many) => n === 1 ? `לפני ${one}` : n === 2 ? `לפני ${two}` : `לפני ${n} ${many}`;
+
 export function timeAgoHe(dateStr) {
   if (!dateStr) return "";
   const then = new Date(dateStr).getTime();
@@ -64,24 +68,18 @@ export function timeAgoHe(dateStr) {
   const sec = Math.max(0, Math.floor((Date.now() - then) / 1000));
   if (sec < 60) return "לפני רגע";
   const min = Math.floor(sec / 60);
-  if (min === 1) return "לפני דקה";
-  if (min < 60) return `לפני ${min} דקות`;
+  if (min < 60) return agoUnit(min, "דקה", "שתי דקות", "דקות");
   const hr = Math.floor(min / 60);
-  if (hr === 1) return "לפני שעה";
-  if (hr < 24) return `לפני ${hr} שעות`;
+  if (hr < 24) return agoUnit(hr, "שעה", "שעתיים", "שעות");
   const day = Math.floor(hr / 24);
-  if (day === 1) return "אתמול";
-  if (day < 7) return `לפני ${day} ימים`;
+  if (day < 7) return agoUnit(day, "יום", "יומיים", "ימים");
   const week = Math.floor(day / 7);
-  if (week === 1) return "לפני שבוע";
-  if (day < 30) return `לפני ${week} שבועות`;
+  if (day < 30) return agoUnit(week, "שבוע", "שבועיים", "שבועות");
   const month = Math.floor(day / 30);
-  if (month === 1) return "לפני חודש";
-  if (month < 12) return `לפני ${month} חודשים`;
+  if (month < 12) return agoUnit(month, "חודש", "חודשיים", "חודשים");
   // 360–364 days is month 12 (not < 12) but not yet a full 365-day year: it reads "לפני שנה", never "לפני 0 שנים".
   const year = Math.max(1, Math.floor(day / 365));
-  if (year === 1) return "לפני שנה";
-  return `לפני ${year} שנים`;
+  return agoUnit(year, "שנה", "שנתיים", "שנים");
 }
 
 // 🎬 מזהה-וידאו יוטיוב מתוך טקסט חופשי (youtu.be/ID · watch?v=ID · embed/ID · shorts/ID).

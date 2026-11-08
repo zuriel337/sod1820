@@ -6,6 +6,9 @@ import "./nowPublications2029.css";
 // Compact "Now" publications window over the ONE shared system feed (feed.expandedRows).
 // No reader, store, polling or ranking of its own: the same rows power the left rail and this sheet.
 const PAGE = 12;
+// ZURIEL 8.11.2026: "Now" always shows relative time in the same Home style (shared helper), wherever the window is opened.
+// The Hebrew + Gregorian rule for other surfaces is unchanged (they never pass through here).
+const NOW_TIME_MODE = "relative";
 
 function Thumb({ model }) {
   if (!model.thumb && model.logo) return <img className="sod29-nowpub-thumb is-logo" src={model.logo.src} alt="" width="44" height="44" loading="lazy" decoding="async" title={model.logo.label} />;
@@ -27,7 +30,7 @@ function RowPreview({ model }) {
 }
 
 function RowHead({ model, timeMode }) {
-  const when = recordTimeLabel(model.at, timeMode, "זמן לא צוין");
+  const when = recordTimeLabel(model.at, NOW_TIME_MODE, "זמן לא צוין");
   const rich = Boolean(model.previewKind);
   return <>
     {rich ? <RowPreview model={model} /> : <Thumb model={model} />}
@@ -110,7 +113,7 @@ function WideRow({ model, selected, onSelect, timeMode }) {
 
 function WideDetail({ model, onOpen, feed, timeMode }) {
   if (!model) return <p className="sod29-nowpub-empty" role="status">בחרו פרסום מהרשימה.</p>;
-  const when = recordTimeLabel(model.at, timeMode, "זמן לא צוין");
+  const when = recordTimeLabel(model.at, NOW_TIME_MODE, "זמן לא צוין");
   return <article className="sod29-nowpub-pane" data-tone={model.tone} aria-label={model.title}>
     <h3 className="sod29-nowpub-pane-title">{model.title}</h3>
     <small className="sod29-nowpub-meta">

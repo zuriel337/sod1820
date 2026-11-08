@@ -1,6 +1,7 @@
 // Record-time display rule (ZURIEL, 15.8.2026, narrowed 11.10.2026 and 22.10.2026): relative time ("לפני X") is used
 // only on the main Home surface. Everywhere else (World, archive, posts, researcher and the other surfaces) a time of record is
 // shown as the Hebrew and the Gregorian date together, like the timeline ("כ״ו בסיוון · 22.06.2026").
+// Exception (ZURIEL 8.11.2026): the "Now" window shows relative time too, in the same Home style, through recordTimeLabel(.., "relative").
 // Event/content dates (when something happened in the world) are data and keep the bilingual date everywhere.
 import { timeAgoHe } from "./format.js";
 import { formatBilingualDate } from "./research/timeline2029.js";
