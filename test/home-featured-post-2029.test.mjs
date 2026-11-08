@@ -9,8 +9,8 @@ const row = (extra = {}) => ({ id: 5107, slug: "sharshar-elections-redemption-hi
 test("the card links to the existing Post itself (no copy), with the exact approved note and the on-screen numbers", () => {
   const card = projectHomeFeaturedPost(row());
   assert.equal(card.id, 5107); assert.match(card.href, /sharshar-elections-redemption-hints-draft/); assert.equal(card.poster, "https://x.test/t.jpg");
-  assert.equal(card.note, "התיעוד הזה הוא חלק מעץ המציאות שנבנה בימים אלה — מערכת המחברת בין אירועים, מקורות, מספרים ורמזים. החיבורים המוצגים כאן הם חלק מתהליך הגילוי והם עשויים להתפתח ככל שיתגלו עוד חיבורים.");
-  assert.deepEqual(HOME_FEATURED_POST_2029.numbers.map(item => item.value), ["14", "1,437", "140", "396", "78", "6", "6:18", "14"]);
+  assert.equal(card.note, "הבורא מדבר דרך כל המציאות. התיעוד הזה הוא חלק מעץ המציאות שנבנה בימים אלה — מערכת המחברת בין אירועים, מקורות, מספרים ורמזים. החיבורים המוצגים כאן הם חלק מתהליך הגילוי והם עשויים להתפתח ככל שיתגלו עוד חיבורים. זה רק חלק — היכנסו לפוסט לראות.");
+  assert.deepEqual(HOME_FEATURED_POST_2029.numbers.map(item => item.value), ["14", "1,437", "140", "396", "78", "6:18", "14"]);
   assert.ok(HOME_FEATURED_POST_2029.numbers.every(item => item.label), "every number says what it is");
 });
 
@@ -29,7 +29,7 @@ test("Home: the featured card is the first area (before the ELS entry); its Post
   assert.ok(body.indexOf("<HomeFeaturedPost2029") > 0 && body.indexOf("<HomeFeaturedPost2029") < body.indexOf("elsEntry ? <Reveal"));
   assert.match(home, /featured\.post\?\.href,/); assert.match(home, /featured\.post\?\.slug,/);
   const css = await readFile(new URL("../src/components/experience2029/homeComposition2029.css", import.meta.url), "utf8");
-  assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 443px; \}/, "height reserved while loading");
+  assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 523px; \}/, "height reserved while loading");
 });
 
 test("the whole message is ONE feed item for 'עכשיו': same post:<id> identity, headline + note + numbers + connections + interpretation as one body", async () => {
@@ -40,7 +40,7 @@ test("the whole message is ONE feed item for 'עכשיו': same post:<id> identi
   const { feedRows } = await import("../src/lib/systemFeed2029.js");
   const item = featuredFeedItem(row({ date: "2026-09-30T08:55:00Z", excerpt: "תקציר ישן" }), postRowToWorldUpdate);
   assert.equal(item.id, "post:5107"); assert.equal(item.label, HOME_FEATURED_POST_2029.headline);
-  for (const part of ["התיעוד הזה הוא חלק מעץ המציאות", "המסר:", "46 הוא היפוך של 64, דין", "מה שנראה דין מתגלה כרחמים", "סוד הבינה, 67", "1,437 (לייקים)", "618 = משיח צדקינו", "396 = הישועה = דויד בן ישי", "78 = מחל", "64 = דין", "פ״ז", "שרשר = 1000", "608"]) assert.ok(item.fullText.includes(part), part);
+  for (const part of ["הבורא מדבר דרך כל המציאות", "התיעוד הזה הוא חלק מעץ המציאות", "המסר:", "46 הוא היפוך של 64, דין", "מה שנראה דין מתגלה כרחמים", "סוד הבינה, 67", "1,437 (לייקים)", "618 = משיח צדקינו", "396 = הישועה = דויד בן ישי", "78 = מחל", "64 = דין", "פ״ז", "שרשר = 1000", "608"]) assert.ok(item.fullText.includes(part), part);
   assert.equal(item.at, "2026-11-08T04:18:00.000Z");
   assert.equal(featuredFeedItem(row({ home_hidden: true }), postRowToWorldUpdate), null);
   // The stream's own item for the same Post can never make a second row: ours is listed first and wins.
@@ -67,4 +67,14 @@ test("the latest-ciphers area is hidden by a switch (code and tests kept) until 
   assert.equal(HOME_SECTIONS_2029.ciphers, false);
   const home = await readFile(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8");
   assert.match(home, /\{HOME_SECTIONS_2029\.ciphers \? <Section label="הצפנים האחרונים בתורה">/);
+});
+
+test("no single stray numbers, and Home shows words only: the numbers live inside the Post (the feed body keeps them)", async () => {
+  assert.ok(!HOME_FEATURED_POST_2029.numbers.some(item => item.value === "6"), "the lone '6' (friends badge) was removed at the owner's request");
+  const home = await readFile(new URL("../src/components/experience2029/HomeFeaturedPost2029.jsx", import.meta.url), "utf8");
+  assert.doesNotMatch(home, /post\.numbers|post\.connections/, "the Home card renders no number strip and no connections");
+  assert.match(home, /data-home-featured-note="true"/);
+  assert.equal((HOME_FEATURED_POST_2029.note.match(/בבנייה|נבנה/g) || []).length, 1, "'under construction' is said once, not twice");
+  assert.match(HOME_FEATURED_POST_2029.note, /^הבורא מדבר דרך כל המציאות\./); assert.match(HOME_FEATURED_POST_2029.note, /רק חלק/);
+  assert.doesNotMatch(home, /bridge/, "no second line");
 });

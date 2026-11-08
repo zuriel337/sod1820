@@ -1,5 +1,5 @@
-// The first Home card (ZURIEL 8.11.2026): the featured Post — its video, title and link — with the message beside it, the reality-tree note beneath,
-// and the numbers on screen + the engine-checked connections. The language follows public_language_revelation_geula_law (discovery/hint voice;
+// The first Home card (ZURIEL 8.11.2026): the featured Post — its video, title and link — with the message beside it and the reality-tree note beneath;
+// the numbers and connections are NOT on Home, they live inside the Post. The language follows public_language_revelation_geula_law (discovery/hint voice;
 // arithmetic stays arithmetic, interpretation is labelled). A reserved-height skeleton while it loads; nothing at all when there is no Post.
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -17,11 +17,8 @@ export function useHomeFeaturedPost() {
   return state;
 }
 
-const wide = () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(min-width: 900px)").matches;
-
 export default function HomeFeaturedPost2029({ state }) {
   const { post, loading } = state;
-  const [open, setOpen] = useState(wide);
   if (loading) return <section className="h29-launch-card h29-featured h29-skel" aria-hidden="true" data-home-featured="loading" />;
   if (!post) return null;
   return <section className="h29-launch-card h29-featured" aria-label="תיעוד מוצג" data-home-featured={post.id}>
@@ -40,18 +37,6 @@ export default function HomeFeaturedPost2029({ state }) {
         </div>
       </div>
     </div>
-    <details className="h29-featured-more" open={open} onToggle={event => setOpen(event.currentTarget.open)} data-home-featured-more="true">
-      <summary>העץ, המספרים והחיבורים</summary>
-      <p className="h29-featured-note" data-home-featured-note="true">{post.note}</p>
-      <div className="h29-featured-numbers" role="group" aria-label={post.numbersTitle}>
-        <small>{post.numbersTitle}</small>
-        <ul>{post.numbers.map(item => <li key={`${item.value}-${item.label}`}><b>{item.value}</b><span>{item.label}</span></li>)}</ul>
-      </div>
-      <div className="h29-featured-connections" role="group" aria-label={post.connectionsTitle} data-home-featured-connections="true">
-        <small>{post.connectionsTitle}</small>
-        <ul>{post.connections.map(item => <li key={`${item.value}-${item.phrase}`}><Link to={`/2029/number/${item.value}`}><b>{item.value}</b><span>{item.phrase}</span></Link></li>)}</ul>
-        <em>{post.connectionsFootnote}</em>
-      </div>
-    </details>
+    <p className="h29-featured-note" data-home-featured-note="true">{post.note} <Link to={post.href}>{post.noteLink}</Link></p>
   </section>;
 }

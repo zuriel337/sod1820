@@ -26,9 +26,11 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
     Object.freeze({ value: 64, phrase: "דין — וההיפוך שלו 46" }),
   ]),
   connectionsFootnote: "הכתיב משפיע: «משיח צדקנו» = 608, «משיח צדקינו» = 618.",
-  // The owner's note, in the public discovery voice (public_language_revelation_geula_law: "מחקר" is not the public default): the single change from the
-  // wording first given is "תהליך המחקר/ממצאים" -> "תהליך הגילוי/חיבורים".
-  note: "התיעוד הזה הוא חלק מעץ המציאות שנבנה בימים אלה — מערכת המחברת בין אירועים, מקורות, מספרים ורמזים. החיבורים המוצגים כאן הם חלק מתהליך הגילוי והם עשויים להתפתח ככל שיתגלו עוד חיבורים.",
+  // ONE text under the message (ZURIEL 8.11.2026: merge the note and the bridge; say it once). The owner's tree note in the public discovery voice
+  // (public_language_revelation_geula_law: "מחקר" is not the public default: "תהליך המחקר/ממצאים" became "תהליך הגילוי/חיבורים"), opened by the line that the
+  // Creator speaks through all of reality; the numbers live inside the Post.
+  note: "הבורא מדבר דרך כל המציאות. התיעוד הזה הוא חלק מעץ המציאות שנבנה בימים אלה — מערכת המחברת בין אירועים, מקורות, מספרים ורמזים. החיבורים המוצגים כאן הם חלק מתהליך הגילוי והם עשויים להתפתח ככל שיתגלו עוד חיבורים. זה רק חלק — היכנסו לפוסט לראות.",
+  noteLink: "לפוסט ←",
   // The video (public/media/posts/…, the same place as the earlier post videos; it is served after the next deploy).
   video: Object.freeze({ src: "/media/posts/2026-11-sharshar-crown/sharshar-crown.mp4", poster: "/media/posts/2026-11-sharshar-crown/sharshar-crown-poster.jpg", credit: "מקור הסרטון: שרשר המלך" }),
   // The message, in hint language: a framing in the owner's words ("כביכול"), arithmetic stated as arithmetic, interpretation labelled as such.
@@ -47,7 +49,6 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
     Object.freeze({ value: "140", label: "תגובות" }),
     Object.freeze({ value: "396", label: "שיתופים" }),
     Object.freeze({ value: "78", label: "שמירות" }),
-    Object.freeze({ value: "6", label: "חברים (סימון בתחתית)" }),
     Object.freeze({ value: "6:18", label: "שעת ההקלטה" }),
     Object.freeze({ value: "14", label: "סוללה בהקלטה" }),
   ]),
@@ -58,7 +59,7 @@ export function projectHomeFeaturedPost(row, config = HOME_FEATURED_POST_2029) {
   if (!row || Number(row.id) !== config.id || !row.slug || row.home_hidden === true || hasSuppressedPublicPostTag(row)) return null;
   const title = stripHtml(row.title == null ? "" : String(row.title)).trim();
   if (!title) return null;
-  return { id: config.id, slug: String(row.slug), message: config.message, messageTitle: config.messageTitle, video: config.video, title: config.headline || title, postTitle: title, headline: config.headline || null, connections: config.connections, connectionsTitle: config.connectionsTitle, connectionsFootnote: config.connectionsFootnote, poster: row.thumb_url || row.image_url || null, href: publicPostHref(row), note: config.note, numbers: config.numbers, numbersTitle: config.numbersTitle };
+  return { id: config.id, slug: String(row.slug), message: config.message, messageTitle: config.messageTitle, noteLink: config.noteLink, video: config.video, title: config.headline || title, postTitle: title, headline: config.headline || null, connections: config.connections, connectionsTitle: config.connectionsTitle, connectionsFootnote: config.connectionsFootnote, poster: row.thumb_url || row.image_url || null, href: publicPostHref(row), note: config.note, numbers: config.numbers, numbersTitle: config.numbersTitle };
 }
 
 export async function getHomeFeaturedPost2029({ client = null, signal, config = HOME_FEATURED_POST_2029 } = {}) {
