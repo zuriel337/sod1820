@@ -15,7 +15,16 @@ export const REVIEWED_EMILY_LINK = Object.freeze({
   contributorId: "e7581ab5-8c15-4832-b602-f361e41ff373",
 });
 
-export const REVIEWED_COMMUNITY_HISTORY_LINKS = Object.freeze([REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_EMILY_LINK]);
+// ZURIEL, 8.11.2026: the historical community contributor he personally identified as
+// שינשין (shmuels@mot.gov.il), linked to the account he verified and signed into. Same
+// seal/unified-stats treatment as the two links above, nothing more; dossier visibility
+// is unchanged (still private, as before this link).
+export const REVIEWED_SHINSHIN_LINK = Object.freeze({
+  accountId: "771dbcbd-82ab-42a8-84eb-b8043464626e",
+  contributorId: "f499536a-e993-4a7d-8706-a2e69337c320",
+});
+
+export const REVIEWED_COMMUNITY_HISTORY_LINKS = Object.freeze([REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_EMILY_LINK, REVIEWED_SHINSHIN_LINK]);
 
 function findReviewedLink(authorKey) {
   return REVIEWED_COMMUNITY_HISTORY_LINKS.find(

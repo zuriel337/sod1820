@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { REVIEWED_EMILY_LINK, REVIEWED_TORAH_TAMIMA_LINK, canonicalCommunityAuthorKey, hasReviewedCommunityHistory, reviewedCommunityAccountId } from "./communityCanonicalIdentity2029.js";
+import { REVIEWED_EMILY_LINK, REVIEWED_SHINSHIN_LINK, REVIEWED_TORAH_TAMIMA_LINK, canonicalCommunityAuthorKey, hasReviewedCommunityHistory, reviewedCommunityAccountId } from "./communityCanonicalIdentity2029.js";
 
 const { accountId, contributorId } = REVIEWED_TORAH_TAMIMA_LINK;
 const accountKey = `user:${accountId}`;
@@ -21,6 +21,16 @@ test("reviewed Emily history has its own canonical public account key, independe
   // Neither link's ids are recognized under the other link's key.
   assert.equal(hasReviewedCommunityHistory(REVIEWED_TORAH_TAMIMA_LINK.accountId), false);
   assert.equal(reviewedCommunityAccountId(accountKey), null);
+});
+test("reviewed Shinshin history has its own canonical public account key, independent of the other links", () => {
+  const shinshinAccountKey = `user:${REVIEWED_SHINSHIN_LINK.accountId}`;
+  assert.equal(canonicalCommunityAuthorKey(REVIEWED_SHINSHIN_LINK.contributorId), shinshinAccountKey);
+  assert.equal(canonicalCommunityAuthorKey(shinshinAccountKey), shinshinAccountKey);
+  assert.equal(reviewedCommunityAccountId(REVIEWED_SHINSHIN_LINK.contributorId), REVIEWED_SHINSHIN_LINK.accountId);
+  assert.equal(hasReviewedCommunityHistory(REVIEWED_SHINSHIN_LINK.contributorId), true);
+  assert.equal(hasReviewedCommunityHistory(shinshinAccountKey), true);
+  assert.equal(hasReviewedCommunityHistory(REVIEWED_EMILY_LINK.accountId), false);
+  assert.equal(hasReviewedCommunityHistory(REVIEWED_TORAH_TAMIMA_LINK.accountId), false);
 });
 test("matching names, unrelated users and the older login ID grant no history seal or alias", () => {
   for (const key of ["תורה תמימה", "user:793dc271-2194-4110-b5ff-d2422d6f1c85", "793dc271-2194-4110-b5ff-d2422d6f1c85",
