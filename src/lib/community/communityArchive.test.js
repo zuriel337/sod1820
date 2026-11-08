@@ -93,6 +93,23 @@ test("Emily exact historical and new posts open one account (ZURIEL, 8.11.2026)"
   assert.equal(VERIFIED_ARCHIVE_PROFILES[contributor].accountUserId, account);
 });
 
+test("Shinshin exact historical and new posts open one account (ZURIEL, 8.11.2026)", () => {
+  const contributor = "f499536a-e993-4a7d-8706-a2e69337c320";
+  const account = "771dbcbd-82ab-42a8-84eb-b8043464626e";
+  const old = normalizeCommunityRow({ id: "shinshin-archive", origin: "openweb", author_name: "שינשין",
+    author_contributor_id: contributor, body: "פרסום מקורי" });
+  const current = normalizeCommunityRow({ id: "shinshin-new", origin: "community_2029", author_name: "שינשין",
+    author_user_id: account, body: "פרסום חדש" });
+  assert.equal(old.authorKey, `user:${account}`);
+  assert.equal(current.authorKey, old.authorKey);
+  const identity = communityAuthorIdentity(old.authorKey);
+  assert.deepEqual(identity.contributorIds, [contributor]);
+  assert.equal(identity.verifiedOwner, true);
+  assert.deepEqual(communityAuthorIdentity(contributor).accountIds, [account]);
+  assert.equal(communityAuthorIdentity(contributor).verifiedOwner, true);
+  assert.equal(VERIFIED_ARCHIVE_PROFILES[contributor].accountUserId, account);
+});
+
 test("Torah Tamima exact historical and new posts open one account; older Google login remains separate", () => {
   const contributor = "1f95f46b-b18b-480b-a2d2-8a9ce90eb194";
   const account = "365fb241-77ed-4a9d-98ab-4e30ab53c093";
