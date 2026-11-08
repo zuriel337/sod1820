@@ -3,7 +3,8 @@
    the rounded gold arc under it and the 2px gold line (systemFrame2029-topbar-crown.css), on the shell's own page background. Dimensions are
    copied from the live frame at each breakpoint (bar 64 · crown 100/84/72 · arc 320x62 / 250x54 / 220x48 · reserve below the bar 68/58/52), so
    the bar, the crown and the first line of content do not move when the real frame replaces it.
-   No temporary navigation bar, no skeleton cards, no spinner, no animation, no SDK or pre-guard data request.
+   No temporary navigation bar, no skeleton cards, no spinner, no SDK or pre-guard data request. The only motion is the "alive" breathing of the gold line,
+   which starts after 1s of waiting (a fast load never sees it) and ends when the real frame replaces this markup.
    The three public links stay available for keyboard and screen-reader users only: visually hidden until one of them has focus. */
 .sod29-opening{
   --o-bar:64px;--o-crown:100px;--o-top:6px;--o-slot:150px;--o-dip-w:320px;--o-dip-h:62px;--o-reserve:68px;
@@ -34,6 +35,12 @@ html[data-theme-2029="parchment"] .sod29-opening{background-color:#F4EDDE;backgr
 .sod29-opening-nav a{display:inline-flex;align-items:center;min-block-size:44px;padding:4px 12px;border-radius:10px;color:inherit;font-size:16px;text-decoration:none}
 .sod29-opening-nav a:focus-visible{outline:2px solid #69ded7;outline-offset:-2px}
 .sod29-opening-status{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+
+/* alive indicator (Operation Visibility Law: a waiting screen is never frozen): after 1s the bar's gold line and the arc breathe together, an honest
+   indeterminate cue with no invented percentage; opacity only; it stops the moment the real frame (or the React twin) replaces this markup */
+.sod29-opening-bar::after,.sod29-opening-dip .line{animation:o-breathe 2.4s ease-in-out 1s infinite}
+@keyframes o-breathe{0%,100%{opacity:1}50%{opacity:.42}}
+@media(prefers-reduced-motion:reduce){.sod29-opening-bar::after,.sod29-opening-dip .line{animation:none}}
 
 @media(max-width:980px){.sod29-opening{--o-crown:84px;--o-slot:116px;--o-dip-w:250px;--o-dip-h:54px;--o-reserve:58px}}
 @media(max-width:340px){.sod29-opening{--o-crown:72px;--o-slot:102px;--o-dip-w:220px;--o-dip-h:48px;--o-reserve:52px}}
