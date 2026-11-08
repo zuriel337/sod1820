@@ -119,7 +119,7 @@ function MatrixSnapshot({ state, onLetterClick, selectedLetterIndex, selectedFin
         ? a.bottom - viewport.top - el.clientHeight + 24
         : a.top - viewport.top - 24;
     // Presentation only: marking, inspection and panel changes preserve manual panning.
-  }, [visible, readingView, state?.status, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw, research ? state?.ui?.zoom : null, research ? state?.ui?.fit : null, fitBox?.c0, fitBox?.cw, fitBox?.r0, fitBox?.r1]);
+  }, [visible, readingView, state?.status, state?.scope, state?.term, state?.axis?.hitId, state?.axis?.length, geometry?.r0, geometry?.r1, geometry?.c0, geometry?.cw, research ? state?.ui?.zoom : null, research ? state?.ui?.fit : null]);   // panning is preserved when findings are added: only zoom / fit re-centre
 
   useEffect(() => {
     const el = scrollRef.current;

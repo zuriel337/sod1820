@@ -30,7 +30,8 @@ test("side zoom is the classic engine's zoom: it keeps fit-to-screen and the pin
 
 test("the matrix re-centres on the axis after every zoom and every fit change, like the classic engine", async () => {
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
-  assert.match(native, /geometry\?\.cw, research \? state\?\.ui\?\.zoom : null, research \? state\?\.ui\?\.fit : null, fitBox\?\.c0/);
+  assert.match(native, /geometry\?\.cw, research \? state\?\.ui\?\.zoom : null, research \? state\?\.ui\?\.fit : null\]\);/);
+  assert.doesNotMatch(native, /fitBox\?\.c0, fitBox/, "adding findings must not re-centre a panned matrix");
 });
 
 test("research mode only: the new cell rules, fit crop and recentring never reach the classic or Guided matrix", async () => {
