@@ -62,9 +62,13 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
   [`user:${REVIEWED_TORAH_TAMIMA_LINK.accountId}`]: { name: "תורה תמימה", accountUserId: REVIEWED_TORAH_TAMIMA_LINK.accountId,
     ...PROFILE_BASELINES["תורה תמימה"] },
   "f499536a-e993-4a7d-8706-a2e69337c320": { sourceUserId: "u_zawiGiUO", name: "שינשין", ...PROFILE_BASELINES["שינשין"] },
-  // ZURIEL explicitly approved this public historical bio on 2026-10-25.
-  // It grants no account binding or platform permission; the source dossier remains private.
+  // ZURIEL explicitly approved this public historical bio on 2026-10-25, then on 8.11.2026
+  // identified the account she verified and signed into (accountUserId) — same human-gated
+  // link as the other verified owner pairs below.
   "e7581ab5-8c15-4832-b602-f361e41ff373": { sourceUserId: "u_r6fetXIK", name: "אמילי", ...PROFILE_BASELINES["אמילי"],
+    accountUserId: "5516d596-46d3-486d-a9c7-a35b36bc3755",
+    publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
+  "user:5516d596-46d3-486d-a9c7-a35b36bc3755": { name: "אמילי", accountUserId: "5516d596-46d3-486d-a9c7-a35b36bc3755",
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   // ZURIEL explicitly identified Esther26; this is distinct from the source named אסתר.
   "99bcfb38-85be-4f38-89f0-7886f2f179e6": {
@@ -82,6 +86,7 @@ const VERIFIED_OWNER_PAIRS = Object.freeze([
   { accountId: REVIEWED_TORAH_TAMIMA_LINK.accountId, contributorId: REVIEWED_TORAH_TAMIMA_LINK.contributorId }, // Human-gated exact OpenWeb source link, 2026-11-04.
   { accountId: "02a0d207-0136-4beb-a34d-8ff57d10cd85", contributorId: "4cd9c034-0464-4600-a35d-7156f0584d9b" }, // zyz997 ↔ Sod1820
   { accountId: "b6ce542a-2b07-4749-8aba-532c886f6de7", contributorId: "19936860-6b35-4386-bc44-113289858ff0" }, // כי לה׳ המלוכה ↔ YosiViner559
+  { accountId: "5516d596-46d3-486d-a9c7-a35b36bc3755", contributorId: "e7581ab5-8c15-4832-b602-f361e41ff373" }, // ZURIEL, 8.11.2026: אמילי ↔ the account she verified and signed into.
 ]);
 
 export function communityAuthorIdentity(authorKey) {

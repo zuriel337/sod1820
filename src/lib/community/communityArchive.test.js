@@ -74,7 +74,23 @@ test("a signed-in message uses the account identity even when a new contributor 
   assert.deepEqual(second.accountIds, ["b6ce542a-2b07-4749-8aba-532c886f6de7"]);
   assert.deepEqual(communityAuthorIdentity("user:b6ce542a-2b07-4749-8aba-532c886f6de7").contributorIds, ["19936860-6b35-4386-bc44-113289858ff0"]);
   assert.equal(communityAuthorIdentity("user:36f5cb84-71c3-4977-a2c7-d6413e973443").verifiedOwner, false, "former presentation pair is no longer ownership evidence");
-  assert.equal(communityAuthorIdentity("e7581ab5-8c15-4832-b602-f361e41ff373").verifiedOwner, false);
+});
+
+test("Emily exact historical and new posts open one account (ZURIEL, 8.11.2026)", () => {
+  const contributor = "e7581ab5-8c15-4832-b602-f361e41ff373";
+  const account = "5516d596-46d3-486d-a9c7-a35b36bc3755";
+  const old = normalizeCommunityRow({ id: "emily-archive", origin: "openweb", author_name: "אמילי",
+    author_contributor_id: contributor, body: "פרסום מקורי" });
+  const current = normalizeCommunityRow({ id: "emily-new", origin: "community_2029", author_name: "אמילי",
+    author_user_id: account, body: "פרסום חדש" });
+  assert.equal(old.authorKey, `user:${account}`);
+  assert.equal(current.authorKey, old.authorKey);
+  const identity = communityAuthorIdentity(old.authorKey);
+  assert.deepEqual(identity.contributorIds, [contributor]);
+  assert.equal(identity.verifiedOwner, true);
+  assert.deepEqual(communityAuthorIdentity(contributor).accountIds, [account]);
+  assert.equal(communityAuthorIdentity(contributor).verifiedOwner, true);
+  assert.equal(VERIFIED_ARCHIVE_PROFILES[contributor].accountUserId, account);
 });
 
 test("Torah Tamima exact historical and new posts open one account; older Google login remains separate", () => {
@@ -175,12 +191,12 @@ test("a public author page with no count header keeps its messages and an unknow
     return new Response(JSON.stringify(rows), { headers: { "content-type": "application/json", ...(unknownRange ? { "content-range": "0-0/*" } : {}) } });
   };
   try {
-    const page = await fetchPublicAuthorActivityPage("e7581ab5-8c15-4832-b602-f361e41ff373", { filter: "chat", limit: 20 });
+    const page = await fetchPublicAuthorActivityPage("d2c3b4a5-6e7f-4890-9a1b-2c3d4e5f6071", { filter: "chat", limit: 20 });
     assert.equal(page.count, null); assert.equal(page.rows[0].id, "message-ref"); assert.equal(page.nextOffset, 1);
     assert.equal(requests[1].searchParams.get("status"), "eq.approved");
     assert.equal(requests[1].searchParams.get("origin"), "in.(openweb,community_2029)");
     unknownRange = true;
-    assert.equal((await fetchPublicAuthorActivityPage("e7581ab5-8c15-4832-b602-f361e41ff373", { filter: "chat", limit: 20 })).count, null);
+    assert.equal((await fetchPublicAuthorActivityPage("d2c3b4a5-6e7f-4890-9a1b-2c3d4e5f6071", { filter: "chat", limit: 20 })).count, null);
   } finally { globalThis.fetch = previousFetch; }
 });
 

@@ -80,12 +80,14 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
   const badge = <UserBadge colorfulFallback online={isOnline} fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
     <CommunityMessageTime2029 value={row.createdAt} formatDate={formatDate} />
   </UserBadge>;
-  if (!row.authorKey || !linkAuthor) return <div className="sod29-community-author-identity"><span className="sod29-community-author-link">{badge}</span><CommunityHistorySeal2029 authorKey={row.authorKey} compact /></div>;
+  // ZURIEL, 8.11.2026: the "history united" seal stays inside the profile card (opened by
+  // clicking the author) — it no longer shows next to a message out in the general feed.
+  if (!row.authorKey || !linkAuthor) return <div className="sod29-community-author-identity"><span className="sod29-community-author-link">{badge}</span></div>;
   const target = new URLSearchParams(currentParams);
   target.set("memberCard", canonicalCommunityAuthorKey(row.authorKey)); target.delete("member");
   return <div className="sod29-community-author-identity"><Link className="sod29-community-author-link" to={communityChatHref(target, location.hash)} aria-label={`פתיחת כרטיס הכותב של ${name}`}>
     {badge}
-  </Link><CommunityHistorySeal2029 authorKey={row.authorKey} compact /></div>;
+  </Link></div>;
 }
 
 function LiveLike({ row }) {
