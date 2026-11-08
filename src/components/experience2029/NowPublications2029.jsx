@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
-import { availableNowLenses, collapseSourceRuns, defaultNowLens, NOW_LENS_TONE, filterNowModels, nowLensCounts, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
+import { availableNowLenses, collapseSourceRuns, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowModels, nowLensCounts, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
 import "./nowPublications2029.css";
 
 // Compact "Now" publications window over the ONE shared system feed (feed.expandedRows).
@@ -74,8 +74,10 @@ function RowDetail({ model, onOpen, feed }) {
 
 // A collapsed run of consecutive source rows: one summary line, every row still its own publication inside.
 function RunGroup({ entry, children }) {
+  // The closed group shows when its LAST update arrived (relative, same helper as every row).
+  const latest = latestRunAt(entry.models);
   return <li><details className="sod29-nowpub-run" data-tone="ember" data-now-run={entry.sourceName}>
-    <summary><strong>{entry.sourceName}</strong><span>{entry.models.length} הודעות</span><span className="is-unverified">מקור · טרם נבדק</span><em>{entry.models[0].title}</em></summary>
+    <summary><strong>{entry.sourceName}</strong><span>{entry.models.length} הודעות</span>{latest ? <span>עדכון אחרון · <time dateTime={latest}>{recordTimeLabel(latest, NOW_TIME_MODE, "")}</time></span> : null}<span className="is-unverified">מקור · טרם נבדק</span><em>{entry.models[0].title}</em></summary>
     <ul className="sod29-nowpub-list">{children}</ul>
   </details></li>;
 }

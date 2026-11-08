@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
+import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, latestRunAt, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
 import { redactGroupText, groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
@@ -171,4 +171,12 @@ test("source logos mark OUR material only: system-byline posts, Or HaGeula, ELS 
   assert.equal(orGeula.logo?.label, "אור הגאולה");
   const zvi = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000002", body: "הודעה", created_at: "2026-11-03T08:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
   assert.equal(nowModels(rows([zvi]))[0].logo, null);
+});
+
+test("a collapsed run reports its newest valid time, whatever the row order, and none when no row is dated", () => {
+  const m = at => ({ at });
+  assert.equal(latestRunAt([m("2026-11-03T08:00:00Z"), m("2026-11-03T10:00:00Z"), m("2026-11-02T10:00:00Z")]), "2026-11-03T10:00:00.000Z");
+  assert.equal(latestRunAt([m(null), m("not a date"), m("2026-11-03T08:00:00Z")]), "2026-11-03T08:00:00.000Z");
+  assert.equal(latestRunAt([m(null), m(undefined)]), null);
+  assert.equal(latestRunAt(null), null);
 });
