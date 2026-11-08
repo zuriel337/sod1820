@@ -44,7 +44,7 @@ const sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: root, encoding: "u
 const trackedStatus = execFileSync("git", ["status", "--porcelain=v1", "-z", "--untracked-files=no"], { cwd: root, encoding: "utf8" });
 const dirty = trackedStatus.length > 0;
 let platformConfigMaterialization = null;
-if (reviewMode && trackedStatus === " M vercel.json\0") {
+if (reviewMode && trackedStatus === " Mvercel.json\0") {
   // Read committed bytes, never a mutable worktree baseline; never reset/copy
   // the materialized file. Any other tracked/index change still fails closed.
   const committedConfig = execFileSync("git", ["show", `${sha}:public-reading-deploy/vercel.json`], { cwd: root, encoding: "utf8" });
@@ -62,8 +62,8 @@ if (reviewMode) {
     branch: platform.VERCEL_GIT_COMMIT_REF === "gpt/analytics-full-site-restoration-20261108",
     shaFormat: /^[0-9a-f]{40}$/.test(platform.VERCEL_GIT_COMMIT_SHA || ""), shaMatchesBuild: platform.VERCEL_GIT_COMMIT_SHA === sha,
     pinMatches: requestedSourceSha === sha, deploymentFormat: /^dpl_[A-Za-z0-9]+$/.test(platform.VERCEL_DEPLOYMENT_ID || ""),
-    hostFormat: /^sod1820-[a-z0-9]+-sod1820-s-projects\\.vercel\\.app$/.test(platform.VERCEL_URL || ""),
-    dirty, configMaterializationAccepted: Boolean(platformConfigMaterialization), trackedStatus: trackedStatus.replace(/[^\\x20-\\x7e]/g, "[NUL]")
+    hostFormat: /^sod1820-[a-z0-9-]+-sod1820-s-projects\\.vercel\\.app$/.test(platform.VERCEL_URL || ""),
+    dirty, configMaterializationAccepted: Boolean(platformConfigMaterialization), trackedStatusEntries: (() => { const parts = trackedStatus.split("\\0"); const entries = []; for (let i = 0; i < parts.length; i++) if (parts[i]) { const status = parts[i].slice(0, 2); const path = parts[i].slice(2); entries.push({ status, path }); if (status.includes("R") || status.includes("C")) entries.push({ status: "continuation", path: parts[++i] || "" }); } return entries; })()
   };
   console.log("[protected-review-identity-diagnostic]", JSON.stringify(diagnostic));
 }
