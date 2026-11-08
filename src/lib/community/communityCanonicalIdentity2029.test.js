@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { REVIEWED_EMILY_LINK, REVIEWED_SHINSHIN_LINK, REVIEWED_TORAH_TAMIMA_LINK, canonicalCommunityAuthorKey, hasReviewedCommunityHistory, reviewedCommunityAccountId } from "./communityCanonicalIdentity2029.js";
+import { REVIEWED_EMILY_LINK, REVIEWED_SHINSHIN_LINK, REVIEWED_ESTHER_LINK, REVIEWED_TORAH_TAMIMA_LINK, canonicalCommunityAuthorKey, hasReviewedCommunityHistory, reviewedCommunityAccountId } from "./communityCanonicalIdentity2029.js";
 
 const { accountId, contributorId } = REVIEWED_TORAH_TAMIMA_LINK;
 const accountKey = `user:${accountId}`;
@@ -39,4 +39,15 @@ test("matching names, unrelated users and the older login ID grant no history se
     assert.equal(hasReviewedCommunityHistory(key), false);
     assert.equal(reviewedCommunityAccountId(key), null);
   }
+});
+
+test("reviewed Esther26 history has its own canonical account key, independent of the other links", () => {
+  const estherAccountKey = `user:${REVIEWED_ESTHER_LINK.accountId}`;
+  assert.equal(canonicalCommunityAuthorKey(REVIEWED_ESTHER_LINK.contributorId), estherAccountKey);
+  assert.equal(canonicalCommunityAuthorKey(estherAccountKey), estherAccountKey);
+  assert.equal(reviewedCommunityAccountId(REVIEWED_ESTHER_LINK.contributorId), REVIEWED_ESTHER_LINK.accountId);
+  assert.equal(hasReviewedCommunityHistory(REVIEWED_ESTHER_LINK.contributorId), true);
+  assert.equal(hasReviewedCommunityHistory(estherAccountKey), true);
+  assert.equal(hasReviewedCommunityHistory(REVIEWED_EMILY_LINK.accountId), false);
+  assert.equal(hasReviewedCommunityHistory(REVIEWED_SHINSHIN_LINK.accountId), false);
 });
