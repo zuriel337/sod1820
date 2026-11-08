@@ -1,4 +1,4 @@
-import { REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_SHINSHIN_LINK, reviewedCommunityAccountId, canonicalCommunityAuthorKey } from "./communityCanonicalIdentity2029.js";
+import { REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_SHINSHIN_LINK, REVIEWED_ESTHER_LINK, reviewedCommunityAccountId, canonicalCommunityAuthorKey } from "./communityCanonicalIdentity2029.js";
 import { supabase } from "../supabase.js";
 import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../publicLaunch2029.js";
 import { getPublicResearchClient } from "../research/researchViewMode.js";
@@ -75,9 +75,12 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   "user:5516d596-46d3-486d-a9c7-a35b36bc3755": { name: "אמילי", accountUserId: "5516d596-46d3-486d-a9c7-a35b36bc3755",
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
-  // ZURIEL explicitly identified Esther26; this is distinct from the source named אסתר.
+  // ZURIEL, 8.11.2026: reviewed Esther26 contributor ↔ Esther Gem account.
   "99bcfb38-85be-4f38-89f0-7886f2f179e6": {
-    name: "Esther26",
+    name: "Esther Gem", accountUserId: REVIEWED_ESTHER_LINK.accountId,
+    publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
+  [`user:${REVIEWED_ESTHER_LINK.accountId}`]: {
+    name: "Esther Gem", accountUserId: REVIEWED_ESTHER_LINK.accountId,
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
   "27c10d9a-14a6-4493-980b-2f5eda105ad7": { sourceUserId: "u_vtNX8TEGu5VV", name: "אביזוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"] },
   "4cd9c034-0464-4600-a35d-7156f0584d9b": { sourceUserId: "u_3knnZ5YC", name: "Sod1820", accountUserId: "02a0d207-0136-4beb-a34d-8ff57d10cd85" },
@@ -93,6 +96,7 @@ const VERIFIED_OWNER_PAIRS = Object.freeze([
   { accountId: "b6ce542a-2b07-4749-8aba-532c886f6de7", contributorId: "19936860-6b35-4386-bc44-113289858ff0" }, // כי לה׳ המלוכה ↔ YosiViner559
   { accountId: "5516d596-46d3-486d-a9c7-a35b36bc3755", contributorId: "e7581ab5-8c15-4832-b602-f361e41ff373" }, // ZURIEL, 8.11.2026: אמילי ↔ the account she verified and signed into.
   { accountId: REVIEWED_SHINSHIN_LINK.accountId, contributorId: REVIEWED_SHINSHIN_LINK.contributorId }, // ZURIEL, 8.11.2026: שינשין ↔ the account he verified and signed into.
+  { accountId: REVIEWED_ESTHER_LINK.accountId, contributorId: REVIEWED_ESTHER_LINK.contributorId }, // ZURIEL, 8.11.2026: Esther26 ↔ Esther Gem.
 ]);
 
 export function communityAuthorIdentity(authorKey) {
