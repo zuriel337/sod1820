@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import handler from "../api/og.js";
 import sitemapHandler from "../api/sitemap.js";
 import { loadPublicSitemapAdapter } from "../test/fixtures/public-sitemap-adapter.mjs";
-import { PUBLIC_READING_PROFILE_ID } from "../src/lib/publicReadingRelease2029.js";
+import { PUBLIC_READING_PROFILE_ID, publicReadingPath } from "../src/lib/publicReadingRelease2029.js";
 
 function makeRes() {
   return {
@@ -51,6 +51,110 @@ const homeSearchCrawler = await renderResponse("/", async () => {
 assert.match(homeSearchCrawler.body, /canonical" href="https:\/\/sod1820\.co\.il"/);
 assert.equal(homeSearchCrawler.headers.get("x-robots-tag"), "index, follow");
 assert.doesNotMatch(homeSearchCrawler.body, /http-equiv="refresh"/);
+
+// ── CLN-04: site identity of the home document ONLY ─────────────────────────────────────────────────────────────────────────
+// The Google Search Console and Meta domain proofs and the WebSite/Organization JSON-LD lived only in the retired Legacy
+// index.html (git 8ae69125f:index.html; Google tag added by 99f476343, Meta tag by f0263bf31) and were silently dropped when the
+// 2029 shell became the served document. The expected strings below are byte-identical to that history. Whether Google Search
+// Console ownership is still valid through another method (DNS, GA, GTM) is NOT knowable from the repository.
+const SITE_ORIGIN = "https://sod1820.co.il";
+const GOOGLE_SITE_VERIFICATION = "kgWILoBLnsZrbYQ6ApBbxmc0VWFZatRVFttxsMGYKrY";
+const FACEBOOK_DOMAIN_VERIFICATION = "uvblasa08zc9m3xf1145ncc6zx4bz5";
+const HOME_WEBSITE_LD = '{"@context":"https://schema.org","@type":"WebSite","name":"SOD1820","url":"https://sod1820.co.il","inLanguage":"he-IL","potentialAction":{"@type":"SearchAction","target":"https://sod1820.co.il/post?q={search_term_string}","query-input":"required name=search_term_string"}}';
+const HOME_ORGANIZATION_LD = '{"@context":"https://schema.org","@type":"Organization","name":"SOD1820","alternateName":"כי לה\' המלוכה — סוד 1820","url":"https://sod1820.co.il","logo":"https://sod1820.co.il/logo.png"}';
+const verificationMetas = html => [...html.matchAll(/<meta\b[^>]*name=["'](?:google-site-verification|facebook-domain-verification)["'][^>]*>/gi)].map(m => m[0]);
+const ldSources = html => [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => m[1]);
+// Top-level schema.org types of every JSON-LD block (an @graph contributes its members). Nested types are not counted.
+const ldTopTypes = html => ldSources(html).map(source => JSON.parse(source)).flatMap(block => Array.isArray(block["@graph"]) ? block["@graph"] : [block]).map(node => node["@type"]);
+const headOf = html => html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] ?? "";
+function assertHomeIdentity(html, label) {
+  const head = headOf(html);
+  assert.deepEqual(verificationMetas(head), [
+    `<meta name="google-site-verification" content="${GOOGLE_SITE_VERIFICATION}"/>`,
+    `<meta name="facebook-domain-verification" content="${FACEBOOK_DOMAIN_VERIFICATION}"/>`,
+  ], `${label}: both verification metas, exact tokens, exactly once, inside <head>`);
+  assert.equal(verificationMetas(html).length, 2, `${label}: no verification meta outside <head>`);
+  const sources = ldSources(head);
+  assert.deepEqual(sources, [HOME_WEBSITE_LD, HOME_ORGANIZATION_LD], `${label}: exactly the historical WebSite and Organization blocks, in the head`);
+  assert.equal(ldSources(html).length, 2, `${label}: no JSON-LD outside <head>`);
+  const [website, organization] = sources.map(source => JSON.parse(source));
+  assert.equal(website["@context"], "https://schema.org");
+  assert.equal(website["@type"], "WebSite");
+  assert.equal(website.url, SITE_ORIGIN);
+  assert.equal(website.inLanguage, "he-IL");
+  assert.equal(website.potentialAction["@type"], "SearchAction");
+  const target = new URL(website.potentialAction.target.replace("{search_term_string}", "test"));
+  assert.equal(target.origin, SITE_ORIGIN, `${label}: SearchAction stays on the canonical origin`);
+  assert.equal(target.pathname + target.search, "/post?q=test");
+  assert.ok(website.potentialAction.target.endsWith("={search_term_string}"));
+  assert.equal(website.potentialAction["query-input"], "required name=search_term_string");
+  assert.equal(organization["@type"], "Organization");
+  assert.equal(organization.url, SITE_ORIGIN);
+  assert.equal(new URL(organization.logo).origin, SITE_ORIGIN, `${label}: logo on the canonical origin`);
+  assert.equal(organization.logo, SITE_ORIGIN + "/logo.png");
+  assert.match(html, /<link rel="canonical" href="https:\/\/sod1820\.co\.il"\/>/, `${label}: identity belongs to the canonical home address`);
+}
+function assertNoHomeIdentity(html, label) {
+  assert.deepEqual(verificationMetas(html), [], `${label}: no verification meta`);
+  assert.equal(html.includes(GOOGLE_SITE_VERIFICATION) || html.includes(FACEBOOK_DOMAIN_VERIFICATION), false, `${label}: no verification token anywhere`);
+  assert.equal(html.includes("SearchAction"), false, `${label}: no site-search action`);
+  for (const source of ldSources(html)) assert.notEqual(source, HOME_WEBSITE_LD), assert.notEqual(source, HOME_ORGANIZATION_LD);
+  const types = ldTopTypes(html);
+  assert.equal(types.includes("WebSite") || types.includes("Organization"), false, `${label}: no top-level WebSite/Organization block (found ${types.join(",")})`);
+}
+
+// Present on "/" for both the search-crawler document and the social-crawler document; no data fetch is needed or allowed.
+assertHomeIdentity(homeSearchCrawler.body, "/ (search crawler)");
+assertHomeIdentity(await render("/", async () => { throw new Error("home server document must not require Supabase fetch"); }), "/ (social crawler)");
+assertHomeIdentity(await render("/", async () => { throw new Error("no fetch"); }, { utm_source: "newsletter" }), "/?utm_source");
+// The client page that the SearchAction points at really reads ?q= and is a public route (the structured data must not advertise a dead search).
+assert.equal(publicReadingPath("/post", { search: "?q=test" }), "public");
+assert.match(readFileSync("src/pages/Posts2029Page.jsx", "utf8"), /searchParams\.get\("q"\)/);
+assert.match(readFileSync("src/App2029.jsx", "utf8"), /<Route path="\/post" element=\{<Posts2029Page \/>\} \/>/);
+// The organization logo is a real, square, crawlable PNG shipped from public/ (Vite copies public/ into the 2029 artifact).
+const logo = readFileSync("public/logo.png");
+assert.equal(logo.subarray(0, 8).toString("hex"), "89504e470d0a1a0a", "public/logo.png is a PNG");
+const [logoWidth, logoHeight] = [logo.readUInt32BE(16), logo.readUInt32BE(20)];
+assert.ok(logoWidth === logoHeight && logoWidth >= 112, `logo must be square and at least 112px (is ${logoWidth}x${logoHeight})`);
+// Neither the shell template nor the client SEO module may add a second copy (the server head is the single owner).
+for (const file of ["2029.html", "src/lib/seo.js"]) {
+  const source = readFileSync(file, "utf8");
+  assert.equal(/google-site-verification|facebook-domain-verification/.test(source), false, `${file} must not duplicate the verification proofs`);
+  assert.equal(source.includes(GOOGLE_SITE_VERIFICATION) || source.includes(FACEBOOK_DOMAIN_VERIFICATION), false, `${file} must not carry the tokens`);
+}
+
+// Absent everywhere else: static routes (several gated/closed in this release profile), aliases and non-200 home variants.
+const anyFetch = async url => {
+  if (String(url).includes("/site_flags?")) return { ok: true, json: async () => [] };
+  return { ok: true, json: async () => [] };
+};
+for (const path of ["/post", "/posts", "/world", "/map", "/start", "/login", "/privacy", "/community/chat", "/community", "/code", "/els", "/codes", "/cross",
+  "/archive", "/timeline", "/heichal", "/journey", "/book", "/books", "/members", "/2029", "/2029/posts", "/2029/gematria", "/gematria", "/gallery", "/verified"]) {
+  assertNoHomeIdentity(await render(path, anyFetch), path);
+  assertNoHomeIdentity(await render(path, anyFetch, { crawler: "search" }), path + " (search crawler)");
+}
+// "/" with a WordPress short link resolves to a Post (or to a missing Post): never the home identity.
+assertNoHomeIdentity(await render("/", async url => {
+  assert.ok(String(url).includes("wp_id=eq.4242"), "short link must resolve by wp_id only");
+  return { ok: true, json: async () => [{ id: 4242, slug: "short-link-post", source: "ai", title: "פוסט קישור קצר", excerpt: "תיאור", content: "<p>x</p>", image_url: null,
+    date: "2026-09-28T08:00:00+00:00", modified: "2026-09-28T09:00:00+00:00", tags: [], categories: ["מחקר"], author: "SOD1820" }] };
+}, { p: "4242" }), "/?p=4242 (post found)");
+assertNoHomeIdentity(await render("/", async () => ({ ok: true, json: async () => [] }), { p: "4243" }), "/?p=4243 (post missing)");
+// An alias that the production document handler serves with the home route's metadata is not the home address: it reports the
+// address that was actually requested, and the owner keeps the home-only identity off it.
+// (The merged production document, which also serves /2029 with the home route's metadata, is gated in
+// scripts/test-2029-route-seo-behavior.mjs because it needs the generated build receipt that this script does not.)
+{
+  const res = makeRes();
+  await handler({ query: { path: "/", crawler: "search" }, publicRequestedPath: "/2029" }, res);
+  assertNoHomeIdentity(res.body, "home metadata requested as /2029");
+  const home = makeRes();
+  await handler({ query: { path: "/", crawler: "search" }, publicRequestedPath: "/" }, home);
+  assertHomeIdentity(home.body, "home metadata requested as /");
+  const trailing = makeRes();
+  await handler({ query: { path: "/", crawler: "search" }, publicRequestedPath: "//".slice(1) }, trailing);
+  assertHomeIdentity(trailing.body, "home metadata requested as / (normalised)");
+}
 
 const number = await render("/2029/number/123", withOpenLaunchFlag("lock_number"));
 assert.match(number, /<meta name="robots" content="noindex, nofollow"\/>/);
@@ -192,6 +296,9 @@ assert.doesNotMatch(videoSocialCrawler.body, /property="og:video"/);
 assert.doesNotMatch(videoSocialCrawler.body, /"contentUrl":/);
 assert.doesNotMatch(videoSocialCrawler.body, /og:image" content="https:\/\/example\.test\/video\.mp4"/);
 assert.doesNotMatch(videoSocialCrawler.body, /"thumbnailUrl":\["https:\/\/example\.test\/video\.mp4"\]/);
+// Documents that already carry their own structured data (topic WebPage, Post Article, Video VideoObject; each nests a publisher
+// Organization / isPartOf WebSite) must not gain the home-only site identity.
+for (const [label, body] of [["topic", topicSearchCrawler.body], ["post", postSearchCrawler.body], ["video (search crawler)", videoSearchCrawler.body], ["video (social crawler)", videoSocialCrawler.body]]) assertNoHomeIdentity(body, label);
 
 
 

@@ -1,7 +1,7 @@
 import { supabase, getEntityBundle, getValueFamilies } from "../supabase.js";
 import { fetchCanonicalGraphEntityFindings } from "./entityGraphFinding.js";
 import { researchObjectFacetDimensions, researchObjectsToUniversalFindings } from "./researchObjectFinding.js";
-import { fetchCanonicalTopicConvergenceFinding } from "./topicConvergence.js";
+import { fetchCanonicalTopicConvergenceFindings } from "./topicConvergence.js";
 import { researchNumber } from "./numericResearch.js";
 import { fetchCanonicalGematriaFindings } from "./canonicalGematria.js";
 import { numberAnchorToUniversalFinding } from "./numberAnchorFinding.js";
@@ -391,9 +391,8 @@ export async function fetchVideoSemanticMapsForEntity(node, { limit = 24 } = {})
 }
 
 async function topicRowsToFindings(rows) {
-  const findings = (await Promise.all(
-    rows.map(row => row?.slug ? fetchCanonicalTopicConvergenceFinding(row.slug) : null)
-  )).filter(Boolean);
+  // One batched read per stage for the whole list instead of 4 sequential reads per card (see topicConvergence.js).
+  const findings = (await fetchCanonicalTopicConvergenceFindings(rows.map(row => row?.slug || null))).filter(Boolean);
   return { rows, findings };
 }
 

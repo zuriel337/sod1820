@@ -18,6 +18,11 @@ import { buildSourceBundles } from "./sourceBundleProjection.js";
 import { EVENT_MEMBER_TYPE, EVENT_SURFACE, FZ1073_EVENT_CANDIDATE_DECLARATION, projectEventContextForSurface } from "./eventObservationCompiler.js";
 import { ATTRIBUTION_ROLE, compileEventObservationWithSystemMethods, normalizeAttribution } from "./eventSystemMethodRuntime.js";
 import { compileNasrallahPost92Golden } from "./nasrallahPost92Golden.js";
+import { GOLDEN_PACK_CLAIMS, goldenContextPackClaims, mergeContextPackWithConnections } from "./goldenPostPackClaims.js";
+
+// The claim table and the pure merge live in the dependency-free goldenPostPackClaims.js (loaded for every Post);
+// this module (the governed owner chain) is loaded on demand for the pilot Posts. Re-exported unchanged.
+export { goldenContextPackClaims, mergeContextPackWithConnections };
 
 export const GOLDEN_CONTEXT_PACK_MAX_ROWS = 6;
 
@@ -31,14 +36,7 @@ const PACKS = Object.freeze({
     packId: "golden-fz1073",
     flight: { type: EVENT_MEMBER_TYPE.FLIGHT_NUMBER, number: 1073, key: "flight:FZ1073", label: "FZ1073", source_ref: "post:5112" },
     supportNumbers: [730],
-    claims: [
-      { expression: "אשר בשמים ממעל", method_key: "רגיל", claimed_value: 1073 },
-      { expression: "ולמות לא נתנני", method_key: "רגיל", claimed_value: 1073 },
-      { expression: "משיח בן דוד", method_key: "רגיל", claimed_value: 424 },
-      { expression: "ולדימיר פוטין", method_key: "מסתתר", claimed_value: 424 },
-      { expression: "שבעים וחמש", method_key: "רגיל", claimed_value: 776 },
-      { expression: "ביאת המשיח", method_key: "רגיל", claimed_value: 776 },
-    ],
+    claims: GOLDEN_PACK_CLAIMS["5112"],
     order: ["event", "calculations", "convergence", "sourceBundles"],
   },
   "92": {
@@ -46,23 +44,13 @@ const PACKS = Object.freeze({
     clockObservation: { display: "18:20", hour: 18, minute: 20, timezone: "Asia/Beirut", context: "site approved reading", source_ref: "post:92", accessTier: "public" },
     dayOrdinal: { ordinal: 358, counting_context: "day of the war (source claim)", source_ref: "post:92", accessTier: "public" },
     sourceWork: { role: ATTRIBUTION_ROLE.SOURCE_WORK, display_name: "סוד החשמל" },
-    claims: [
-      { expression: "משיח", method_key: "רגיל", claimed_value: 358 },
-      { expression: "חכמה", method_key: "רגיל", claimed_value: 73 },
-      // 1202 is admitted by the owner compiler only as the sourced Oct7 cross-time member with a מסתתר receipt.
-      { expression: "סוד יהונתן תשפד", method_key: "מסתתר", claimed_value: 1202, scope: "cross_time", cross_time_subject: "oct7" },
-    ],
+    claims: GOLDEN_PACK_CLAIMS["92"],
     order: ["clock", "day", "calculations", "interpretation"],
   },
 });
 
 export function goldenContextPackFor(postId) {
   return PACKS[clean(postId)] || null;
-}
-
-/** Source claims (expression + exact registered method) whose live Trace the caller must fetch. */
-export function goldenContextPackClaims(postId) {
-  return goldenContextPackFor(postId)?.claims || [];
 }
 
 const claimKey = (method, expression) => `${clean(method)}\u0000${clean(expression)}`;
@@ -270,15 +258,4 @@ export async function buildGoldenPostContextPack({ postId, post = null, traces =
   } catch {
     return null;
   }
-}
-
-// Pack rows lead (bounded); an existing connection that merely repeats a pack value is a reference, so
-// it is dropped from the list (the number stays reachable from the pack row). Other connections keep
-// their place: the pack never crowds out the rest of the existing adapter list.
-export function mergeContextPackWithConnections(pack, connections = []) {
-  if (!pack) return Array.isArray(connections) ? connections : [];
-  const packValues = new Set(pack.rows.map((r) => r.value).filter(Boolean));
-  const rest = (Array.isArray(connections) ? connections : [])
-    .filter((c) => !(c?.value != null && packValues.has(String(c.value))));
-  return [...pack.rows, ...rest];
 }

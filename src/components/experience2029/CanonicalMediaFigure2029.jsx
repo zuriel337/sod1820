@@ -16,6 +16,8 @@ export default function CanonicalMediaFigure2029({
   alt = "",
   primary = false,
   thumbnail = false,
+  loading = undefined,
+  fetchPriority = undefined,
   contextNote = null,
   onOpen = null,
   className = "",
@@ -33,7 +35,7 @@ export default function CanonicalMediaFigure2029({
     onClick={() => { onOpen?.(item); if (lightboxImage) setOpen(true); }}
     aria-label={alt || item.label || "פתח תמונה"}
   >
-    <CanonicalMediaImage2029 item={item} alt={alt} primary={primary} thumbnail={thumbnail} />
+    <CanonicalMediaImage2029 item={item} alt={alt} primary={primary} thumbnail={thumbnail} loading={loading} fetchPriority={fetchPriority} />
     {children}
   </button>;
   return <>

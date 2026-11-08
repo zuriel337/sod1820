@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "purpose": "Deploy-order manifest for client-called RPCs that do not exist in the live database yet. Checked by test/rpc-deploy-order-contract.test.mjs: every .rpc('<name>') literal in shipped code must be defined in supabase/migrations, listed here, or listed in supabase/rpc-live-baseline.json. Nothing in this file applies SQL; every listed file is a proposal that needs explicit ZURIEL approval for a production DB change.",
+  "how_the_list_was_built": "Client rpc names (src, api, public-reading-deploy, server, middleware.js) at the release candidate were diffed against origin/main cfda877a1: the only names added by the candidate are push_subscription_upsert_v1 and push_subscription_delete_v1 (DEF-001b). All other names that are absent from supabase/migrations were checked against the live schema on 2026-11-07 (read-only, public.pg_proc) and are listed in supabase/rpc-live-baseline.json or in known_missing_dormant below.",
+  "rollout_order": [
+    "1. Apply supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql (backward compatible, adds the two RPCs; production DB change, needs ZURIEL approval).",
+    "2. Deploy the frontend that calls them. If the frontend goes live first, src/lib/pushSubscriptionStore.js degrades per call to the previous direct table write when the RPC answers PGRST202 / HTTP 404, so subscribe and unsubscribe keep working.",
+    "3. Only then apply supabase/proposed/20261106121500_def001b_push_subscriptions_lockdown.sql. Applying it before steps 1 and 2 breaks anonymous Web Push subscribe and unsubscribe."
+  ],
+  "apply_before_deploy": [
+    {
+      "rpc": "push_subscription_upsert_v1",
+      "sql": "supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql",
+      "rollback_sql": "supabase/proposed/ROLLBACK_20261106121000_def001b.sql",
+      "callers": ["src/lib/pushSubscriptionStore.js"],
+      "introduced_by": "ba67fa5ae (DEF-001b)",
+      "deployed_before_sql": "degrades_gracefully",
+      "degradation_test": "test/push-subscription-rollout-order.test.mjs"
+    },
+    {
+      "rpc": "push_subscription_delete_v1",
+      "sql": "supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql",
+      "rollback_sql": "supabase/proposed/ROLLBACK_20261106121000_def001b.sql",
+      "callers": ["src/lib/pushSubscriptionStore.js"],
+      "introduced_by": "ba67fa5ae (DEF-001b)",
+      "deployed_before_sql": "degrades_gracefully",
+      "degradation_test": "test/push-subscription-rollout-order.test.mjs"
+    }
+  ],
+  "known_missing_dormant": [
+    {
+      "rpc": "els_search_v1",
+      "callers": ["src/lib/research/elsW2Executor.js"],
+      "reason": "Defined in repo migrations 20260916150500 and 20260916150700, but those versions are not recorded as applied in the live project (live has els_search_core_v1, els_search_page_v1 and els_search_geometry_v1, no els_search_v1). Reached only through the lazily imported W2 research executors (researchW2Executors.js); no request for it was seen in the Supabase API logs of the last 72 hours. Resolve by applying or retiring the migration, not by calling it from new code."
+    },
+    {
+      "rpc": "admin_people_identity_review_v1",
+      "callers": ["src/lib/research/peopleIdentityProjection.js"],
+      "reason": "Not defined in any migration or proposal and absent from the live schema. peopleIdentityProjection.js has no importer in shipped code (only test/people-identity-review-2029-contract.test.mjs imports it), so no route can call it. Do not wire it into a screen before the function exists."
+    }
+  ]
+}

@@ -50,3 +50,10 @@
 /* CLS: the footer must not be on the first screen while the page content is still loading (it then jumped below the fold when the
    content arrived: CLS 0.19-0.26 at 390px). The content area reserves one viewport, so the footer always starts below the first screen. */
 .sod29-main-stage>.sod29-content{min-height:100vh;min-height:100dvh}
+/* CLS (field RUM: footer.f29 and div.sod29-main-stage.has-context-rail are the top shift sources on /post, avg CLS 0.66-1.26).
+   While the route content is ONLY the loading placeholder, the footer is not part of the page. Otherwise a scroll position applied
+   during loading (URL fragment, reload/back restoration) clamps to the bottom of the short loading document, the footer sits in the
+   viewport, and it jumps out of it when the real content arrives (measured lab CLS 0.66-1.17 -> <= 0.23, same fixture).
+   Once real content replaces the placeholder the footer is back at the end of the page exactly as before; the rule is skipped by
+   browsers without :has() and then behaves as before. */
+.sod29-root:has(.sod29-main-stage>.sod29-content>.sod-canonical-progress:only-child) .f29{display:none}

@@ -46,7 +46,7 @@ async function serve(dist) {
   return { origin: `http://127.0.0.1:${server.address().port}`, server };
 }
 
-async function install(context, origin, theme, { failChunk = null, chunkDelay = 0, noObserver = false, primaryDelay = 0, fixture = {} } = {}) {
+async function install(context, origin, theme, { failChunk = null, noObserver = false, primaryDelay = 0, fixture = {} } = {}) {
   const state = { flagReads: 0, requests: [], modelCalls: [], blockedWrites: [], pageErrors: [], failChunk };
   await context.addInitScript(({ theme, title, noObserver }) => {
     if (noObserver) delete window.IntersectionObserver;
@@ -68,7 +68,6 @@ async function install(context, origin, theme, { failChunk = null, chunkDelay = 
     if (url.origin === origin) {
       if (url.pathname.startsWith("/api/")) return reply({ state: "login_required" }, 401);
       if (state.failChunk && url.pathname.endsWith(state.failChunk)) return route.abort();
-      if (chunkDelay && /StoryViewer-/.test(url.pathname)) await new Promise(done => setTimeout(done, chunkDelay));
       return route.continue();
     }
     if (url.hostname === "public-fixture.invalid" || /\.(png|jpg|webp)(\?|$)/.test(url.pathname)) return route.fulfill({ contentType: "image/png", body: image });

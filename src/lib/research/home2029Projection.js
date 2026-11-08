@@ -44,22 +44,21 @@ function mergeLatestPublicWords(...groups) {
     .slice(0, PULSE_LATEST_LIMIT);
 }
 
-async function fetchHomeSystemPulse2029({ signal } = {}) {
+export async function fetchHomeSystemPulse2029({ signal } = {}) {
   const since = new Date(Date.now() - PULSE_WINDOW_DAYS * 86400000).toISOString();
 
   const [
     totalResult,
-    createdResult,
-    visibilityResult,
-    overlapResult,
+    addedResult,
     latestCreatedResult,
     latestVisibilityResult,
     contributionsResult,
   ] = await Promise.all([
     publicWordQuery("phrase", { count: "exact", head: true }),
-    publicWordQuery("phrase", { count: "exact", head: true }).gte("created_at", since),
-    publicWordQuery("phrase", { count: "exact", head: true }).gte("visibility_changed_at", since),
-    publicWordQuery("phrase", { count: "exact", head: true }).gte("created_at", since).gte("visibility_changed_at", since),
+    // Rows that became public in the window = created OR made visible in it. One exact count of that union equals
+    // created + visibility - overlap, which used to cost three separate exact counts (three table scans) per Home view.
+    publicWordQuery("phrase", { count: "exact", head: true })
+      .or(`created_at.gte."${since}",visibility_changed_at.gte."${since}"`),
     publicWordQuery("phrase,ragil,created_at,visibility_changed_at")
       .order("created_at", { ascending: false, nullsFirst: false })
       .limit(PULSE_LATEST_LIMIT),
@@ -75,19 +74,14 @@ async function fetchHomeSystemPulse2029({ signal } = {}) {
       .limit(1000),
   ].map(query => signal ? query.abortSignal(signal) : query));
 
-  const hasCorpusError = [totalResult, createdResult, visibilityResult, overlapResult]
+  const hasCorpusError = [totalResult, addedResult]
     .some((result) => Boolean(result?.error));
   const contributionsError = contributionsResult?.error || null;
 
   const corpusTotal = hasCorpusError ? null : Number(totalResult.count || 0);
   const corpusAdded7d = hasCorpusError
     ? null
-    : Math.max(
-      0,
-      Number(createdResult.count || 0)
-      + Number(visibilityResult.count || 0)
-      - Number(overlapResult.count || 0)
-    );
+    : Math.max(0, Number(addedResult.count || 0));
 
   const latestWords = mergeLatestPublicWords(
     latestCreatedResult?.error ? [] : (latestCreatedResult.data || []),

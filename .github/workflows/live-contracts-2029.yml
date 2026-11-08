@@ -56,6 +56,8 @@ jobs:
         run: npm run build
       - name: Realtime entry split (the deferred Realtime/Phoenix chunk is not in the 2029 entry; browser use of the SDK stays inside the checked subset)
         run: node --test test/realtime-entry-split-2029.test.mjs
+      - name: First-load graph guard (shell and always-loaded chunks must not statically import the heavy modules moved to their own lazy chunks; reads the production build above)
+        run: node scripts/test-2029-first-load-graph.mjs
 
   release-contracts-2029:
     name: release-contracts-2029
@@ -106,6 +108,29 @@ jobs:
           src/lib/research/numberMathProfileFinding.test.js
           src/lib/research/numberPhrasePresentationOrder.test.js
           src/lib/research/number2029LiveGlass.test.js
+      # P0-A/B/C consumer contracts (PG2): source identity, occurrence and independence across Post, Topic, World and Number.
+      # All seven were green on main but ran in no workflow; they read only repository files (no network, no browser, no git history). About 5 s together.
+      # Proven on Node 24 on ci-verify/pg2-workflow-20261107 (71/71). world-corpus-continuation-2029 is bound to a committed snapshot (checksum): remove it from
+      # this list if the owner retires that audit. Wiring tests is contract coverage, not consumer acceptance.
+      - name: Source-identity consumer contracts (one witness identity, exact occurrences, no false independence, private evidence withheld, owner review API)
+        run: >
+          node --test
+          test/connection-depth-fidelity.test.mjs
+          test/one-tree-branch-contract-2029.test.mjs
+          test/world-people-sources-2029.test.mjs
+          test/world-gallery-triage-projection-2029.test.mjs
+          test/post-content-interest-2029.test.mjs
+          test/world-finding-review-api-2029.test.mjs
+          test/world-corpus-continuation-2029.test.mjs
+      # Analytics measurement contracts. All three ran in no workflow. They read only repository files and evaluate the emitted worker and the route effects in a VM
+      # (no network, no browser). public-reading-observability had silently stopped running: its end marker had been deleted from src/App2029.jsx, the slice
+      # then included `export default` and the route-effects proof failed with "module is not defined". Repaired in the same change.
+      - name: Analytics measurement contracts (public GA4 transport and labels, anonymous RUM family, the route effects that start them, one-tree analytics contract)
+        run: >
+          node --test
+          test/analytics-2029-one-tree-contract.test.mjs
+          test/public-reading-real-gtag-shape.test.mjs
+          test/public-reading-observability.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
       - name: Top bar (the crown at the centre, dark glass, the rounded arc; one final design, one stylesheet, and the traps it hit stay handled)
@@ -139,6 +164,10 @@ jobs:
         run: |
           npm install --no-save --package-lock=false react-test-renderer@19.3.0
           node --test test/calculator-equals-preview-lifecycle.test.mjs test/community-calculator-runtime-2029.test.mjs test/community-calculator-continuity-2029.test.mjs
+      - name: Reading-mode research and continuity contracts (verified-principal research provider, exact historical pages, root vercel.json content pin; previously unwired, drifted from approved changes and repaired; the research provider test mounts the real provider and needs react-test-renderer from the step above)
+        run: node --test test/doc37-research-reading-access.test.mjs test/public-continuity-closure-2029.test.mjs test/doc37-mixed-page-readiness.test.mjs
+      - name: Preview worker admission policy (Preview-only write allow-list, 28 cases; repaired fixture, no product change)
+        run: node --test scripts/test-integrated-preview-auth-guard.mjs
       # test/public-frame-access-2029.test.mjs is deliberately not here: one of its tests runs `git show 4987d7a1…` on a commit of a retired preview branch,
       # which exists only in a full clone; the checkout of this job is shallow. Its Preview-ceiling tests were repaired and pass in a full clone.
       - name: Frame contracts that had drifted from approved changes (opened destinations, release-aware feature state boundary, the one more panel, pinned rail budget, framed journey gate, personal layout, post-title bounds)
@@ -159,7 +188,76 @@ jobs:
         run: |
           npm run test:cn-sg-security
           node --test middleware.test.js test/public-reading-middleware-entry.test.mjs test/bot-read-no-side-effect.test.mjs test/bot-read-sink-guard.test.mjs
-      # Audit remediation 2026-11-06 (DEF-002, DEF-003, DEF-007): slash-free sitemap addresses, one bounded video read per request,
-      # and the rule that no workflow names a test file that does not exist. (DEF-001/001b need a DB change and are NOT included.)
-      - name: Audit remediation contracts (slash-free sitemap addresses, bounded video read, workflow path references exist)
-        run: node --test test/sitemap-no-redirecting-locs-2029.test.mjs test/ci-workflow-references-exist.test.mjs test/public-foundation-seo.test.mjs test/public-video-asset-reader-2029.test.mjs test/public-video-source-2029.test.mjs
+      # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
+      # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
+      - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)
+        run: node --test test/def001-email-exposure-contract.test.mjs test/sitemap-no-redirecting-locs-2029.test.mjs test/ci-workflow-references-exist.test.mjs test/public-foundation-seo.test.mjs test/public-video-asset-reader-2029.test.mjs test/public-video-source-2029.test.mjs test/def005-rpc-grants-contract.test.mjs test/def012-page-views-public-build.test.mjs test/api-card-bounded-cacheable-2029.test.mjs test/gallery-river-reserved-height-2029.test.mjs test/release-visual-egress-contract.test.mjs
+
+      - name: Contracts repaired to the approved state (Raziel, World, Posts, Community, Contributors, Research Viewer, WhatsApp, Companion, golden and Preview-integration pins; previously unwired, they had drifted from merged owner-approved changes and were repaired without weakening any assertion)
+        run: >
+          node --test
+          src/components/community2029/communityPublicReading2029.test.js
+          src/components/contributor2029/publicContributor2029.test.js
+          src/components/contributor2029/publicContributorPerson2029.test.js
+          src/components/contributor2029/publicSourceCatalog2029.test.js
+          src/lib/publicContinuityReaders2029.test.js
+          src/lib/research/eventObservationCompiler.test.js
+          src/lib/research/eventSystemMethodRuntime.test.js
+          src/lib/research/goldenProjectorModes.test.js
+          src/lib/research/nasrallahPost92Golden.test.js
+          src/lib/research/razielOneShot2029.test.js
+          test/companion-2029-public-source-shortcuts.test.mjs
+          test/global-living-ribbon-state.test.mjs
+          test/personal-self-preview-route.test.mjs
+          test/post-hierarchy-raziel-2029.test.mjs
+          test/posts-raziel-final-2029.test.mjs
+          test/raziel-center-workspace-2029.test.mjs
+          test/raziel-personal-area-companion-seam.test.mjs
+          test/raziel-safe-actions-preview.test.mjs
+          test/raziel-site-links.test.mjs
+          test/research-viewer-entity-graph-lens.test.mjs
+          test/research-viewer-graph-readpath.test.mjs
+          test/wa-channel-world-2029-contract.test.mjs
+          test/wa-trusted-author-tree-routing.test.mjs
+          test/world-topic-gallery-state-map-2029.test.mjs
+          test/world-gallery-entry-follow-chain-2029.test.mjs
+          test/world-one-tree-preview-2029.test.mjs
+      - name: Connected golden theme contract (script runner)
+        run: node scripts/test-connected-golden-2029.mjs
+      - name: Robustness and rollout-order contracts (stale-chunk recovery and error boundary, /api/card deadline and glyphs, guest/member preferences split, push and RPC deploy-order manifests, ELS bridge anonymous bearer, missing-asset 404, client read de-duplication, bot-observability migrations; the asset-miss test reads the production build generated earlier in this job)
+        run: >
+          node --test
+          test/app-recovery-2029.test.mjs
+          test/api-card-deadline-glyphs-2029.test.mjs
+          test/notification-prefs-guest-member-split.test.mjs
+          test/push-subscription-rollout-order.test.mjs
+          test/rpc-deploy-order-contract.test.mjs
+          test/els-search-bridge-resolve-user.test.mjs
+          test/supabase-client-read-dedupe.test.mjs
+          src/lib/readDedupe.test.js
+          test/bot-observability-migrations.test.mjs
+          test/public-reading-asset-miss.test.mjs
+
+      - name: Performance contracts (explicit column lists and one union count instead of repeated reads, batched topic findings, gallery paging, post cover priority, footer hidden while only the loading placeholder is shown so it cannot shift, Supabase preconnect; the public-candidate test reads the production build generated earlier in this job)
+        run: >
+          node --test
+          src/lib/postReaderColumns.test.js
+          src/lib/research/home2029Pulse.test.js
+          src/lib/research/topicConvergenceBatch.test.js
+          src/lib/research/worldProminenceInputs.test.js
+          test/footer-loading-cls-2029.test.mjs
+          test/gallery-overview-paging-2029.test.mjs
+          test/home-doc37-launch-projection.test.mjs
+          test/post2029-reading-cover.test.mjs
+          test/public-reading-public-candidate.test.mjs
+          test/shell-supabase-preconnect-2029.test.mjs
+
+  # The SQL behaviour of the security migrations runs on a throwaway PostgreSQL container (never a live database).
+  security-sql-contracts:
+    name: security-sql-contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: DEF-001, DEF-001b, DEF-004 and DEF-005 SQL regression (anon and authenticated cannot read e-mail addresses or visitor ids; proposed Storage policies and RPC grants behave as specified)
+        run: bash scripts/run-def001-sql-test.sh

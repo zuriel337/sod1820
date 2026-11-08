@@ -58,8 +58,12 @@ export const SITE_LINKS = Object.freeze([
   // never from a "where is" question, so the site-link answers do not index this entry.
   entry({ id: "world", label: "העולם", href: "/world", defaultState: "public", raziel: false, aliases: ["עולם", "העולם"], footer: { group: "research", order: 2 } }),
   entry({ id: "number", label: "דף המספר", href: "/number", defaultState: "public", aliases: ["דף המספר", "עמוד המספר", "חיפוש מספר", "מספר או ביטוי", "חיפוש מספרים"], footer: { group: "research", order: 4 } }),
-  entry({ id: "els", label: "דילוגי אותיות", href: "/code", defaultState: "closed", aliases: ["דילוגי אותיות", "דילוגים", "הצופן התנכי", "הצופן התנ״כי", "הצופן", "els"], legacyHrefs: ["/code", "/els", "/lab/els"],
-    closed: { message: "כלי הצופן החדש נמצא בבנייה. הצפנים שפורסמו נשארים זמינים בספרייה.", alt: "codes" }, footer: { group: "research", order: 5 } }),
+  // דילוגי אותיות (ZURIEL 5.11.2026, 6.11.2026): the Bible code is open to the public (router flag `lock_els`); the Classic and
+  // Research modes are open to every visitor, while Guided discovery, the AI scan and Raziel stay with the administrator. Like
+  // Beit Midrash, the `closed` block is only the honest fallback that applies if the live router ever closes `/code` again; it
+  // is neutral on purpose (it says nothing about which modes are open) and is never shown while the route is open.
+  entry({ id: "els", label: "דילוגי אותיות", href: "/code", defaultState: "public", aliases: ["דילוגי אותיות", "דילוגים", "הצופן התנכי", "הצופן התנ״כי", "הצופן", "els"], legacyHrefs: ["/code", "/els", "/lab/els"],
+    closed: { message: "הצופן התנ״כי אינו זמין כרגע לציבור. הצפנים שפורסמו נשארים זמינים בספרייה.", alt: "codes" }, footer: { group: "research", order: 5 } }),
   // בית המדרש (ZURIEL 5.11.2026): a first-class destination in the menu and footer. Open to the public (ZURIEL 5.11.2026); its
   // true state still follows the router (`publicReadingPath`), and it is never shown as an active link if the router closes it.
   entry({ id: "beit-midrash", label: "בית המדרש", href: "/beit-midrash", defaultState: "public", aliases: ["בית מדרש", "בית המדרש", "הבית מדרש", "הבית מדרש של האתר", "בית המדרש של האתר"],

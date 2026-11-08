@@ -10,7 +10,12 @@ import { normalizeRazielResponse } from "../src/lib/research/razielSessionReques
 const builder = readFileSync(new URL("../scripts/build-integrated-preview.mjs", import.meta.url), "utf8");
 const start = builder.indexOf("const allow =");
 const end = builder.indexOf('await writeFile(resolve(output, "preview-readonly-sw.js")');
-const base = vm.runInNewContext(builder.slice(start, end) + "\nworker;", { COMMUNITY_UPLOAD_POLICY, AVATAR_UPLOAD_POLICY });
+// The slice is evaluated hermetically: an explicit, empty `process.env` (no VERCEL_ENV,
+// no VERCEL_GIT_COMMIT_REF) so every Preview/branch switch in it is false and the
+// result is the plain read-only mock worker. Since #1191 the slice reads
+// `process.env` unguarded (`adminReadingAuth`), so it can no longer run with `process`
+// undefined; host environment variables must still never leak into this sandbox.
+const base = vm.runInNewContext(builder.slice(start, end) + "\nworker;", { process: { env: {} }, COMMUNITY_UPLOAD_POLICY, AVATAR_UPLOAD_POLICY });
 const selectorStart = builder.indexOf("const legacyMockBranch =");
 const selectorEnd = builder.indexOf("const selectedMockBranch =");
 const selectMockPreviewBranch = vm.runInNewContext(

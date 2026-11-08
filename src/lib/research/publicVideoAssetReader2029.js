@@ -43,3 +43,18 @@ export function createVideoAssetReader({ fetchRows, ttlMs = 60_000, maxEntries =
     return Number.isFinite(limit) && limit >= 0 ? out.slice(0, limit) : out;
   };
 }
+
+// DEF-003 (DB step, optional until applied): prefer the materialized projection `video_media_assets_mv` for the per-asset reads and fall back to
+// the live view when the MV does not exist yet (deploy-before-DB safe), is empty for the asset (a video newer than the last refresh), or is disabled.
+// Errors other than "relation missing" are never retried against the heavy view, so an outage cannot be amplified into a view stampede.
+export const VIDEO_ASSET_MV = "video_media_assets_mv";
+export function createVideoAssetSource({ read, preferMaterialized = true } = {}) {
+  if (typeof read !== "function") throw new TypeError("read is required");
+  return async function fetchRows(table, params, options) {
+    if (!preferMaterialized || table !== "video_media_assets_v1") return read(table, params, options);
+    let rows;
+    try { rows = await read(VIDEO_ASSET_MV, params, options); }
+    catch (error) { if (error?.relationMissing) return read(table, params, options); throw error; }
+    return Array.isArray(rows) && rows.length ? rows : read(table, params, options);
+  };
+}

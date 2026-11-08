@@ -96,6 +96,13 @@ jobs:
           npm install --no-save --no-package-lock @playwright/test@1.55.0
           npx playwright install --with-deps chromium
 
+      - name: Prove the telemetry-write guard (fail-closed; no live network)
+        # Blocking, and it runs before the app is started or the acceptance run begins. Proves on THIS job's Playwright and Chromium that every
+        # write / telemetry / third-party / unexpected request is denied before it leaves the browser, that an abort is never accepted as a
+        # denial, and that the exact hook block of the spec below is wired correctly. Chromium goes through a local tripwire proxy, so even a
+        # broken guard could not reach Supabase or any third party from this step. The same script runs in release-visual-egress-proof.yml.
+        run: bash scripts/release-visual-egress-proof.sh
+
       - name: Start built app
         run: |
           # Legacy is retired: vite preview needs an index document for its SPA fallback; serve the 2029 document there.
@@ -114,9 +121,25 @@ jobs:
           cat > .release-gate/release-visual.spec.cjs <<'EOF'
           const { test, expect } = require('@playwright/test');
           const { installStorageEgressGuard } = require('../tests/playwright-storage-egress-guard.cjs');
+          const { installReleaseVisualEgress } = require('../tests/fixtures/release-visual-egress.cjs');
 
           const BASE = 'http://127.0.0.1:4173';
-          test.beforeEach(async ({ context }) => installStorageEgressGuard(context));
+          // FAIL-CLOSED egress. This run drives the plain production build, which sends visit/identity telemetry (track_visit,
+          // ingest_event, link_identity) on every route change. None of it may reach the canonical Supabase project from CI:
+          // the guard denies every request that is not an explicit read before it leaves the browser, and afterEach fails the
+          // test if a request the policy blocks was not actually denied. Page-level routes below may only fulfill or fall back:
+          // a page-level route.continue() would bypass the context-level guard (forbidden by test/release-visual-egress-contract).
+          test.use({ serviceWorkers: 'block' });
+          const egressByContext = new WeakMap();
+          test.beforeEach(async ({ context }) => {
+            await installStorageEgressGuard(context);
+            egressByContext.set(context, await installReleaseVisualEgress(context, { baseUrl: BASE }));
+          });
+          test.afterEach(async ({ context }, testInfo) => {
+            const egress = egressByContext.get(context);
+            if (!egress) throw new Error('release_visual_egress_guard_missing');
+            try { await egress.finish(testInfo); } finally { await egress.dispose(); }
+          });
           const PATH = '/entity-hub-preview/number/1237';
           const widths = [320, 360, 390, 1440];
           // No horizontal overflow: the document must never be wider than its viewport. 2029.html reserves a stable
@@ -409,7 +432,7 @@ jobs:
             await pinLaunchFlags(page);
             await page.route('**/rest/v1/posts?*', async (route) => {
               const query = new URL(route.request().url()).searchParams.get('slug') || '';
-              if (!query.includes('bennett-melach-631-78')) return route.continue();
+              if (!query.includes('bennett-melach-631-78')) return route.fallback();
               await route.fulfill({
                 status: 200, contentType: 'application/json',
                 body: JSON.stringify([{
@@ -705,7 +728,7 @@ jobs:
             });
             await page.route('**/rest/v1/posts?*', async (route) => {
               const query = new URL(route.request().url()).searchParams.get('slug') || '';
-              if (!query.includes(slug) && !query.toLowerCase().includes(encodeURIComponent(slug).toLowerCase())) return route.continue();
+              if (!query.includes(slug) && !query.toLowerCase().includes(encodeURIComponent(slug).toLowerCase())) return route.fallback();
               await route.fulfill({
                 status: 200, contentType: 'application/json',
                 body: JSON.stringify([{

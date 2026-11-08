@@ -7,11 +7,22 @@ const response=()=>({code:0,headers:{},setHeader(k,v){this.headers[k]=v;},status
 test('Preview Node entry shares the canonical ESM package mode used by its imported handler',()=>{
  for(const path of ['../preview-deploy/package.json','../package.json'])assert.equal(JSON.parse(fs.readFileSync(new URL(path,import.meta.url),'utf8')).type,'module');
 });
-test('Preview SPA fallback excludes API paths and retains native personal routes',()=>{
+test('Preview document fallback excludes API paths and retains native personal routes',()=>{
+ // #1191 replaced the static "/index.html" catch-all with the protected canonical metadata/document adapter
+ // (same API-excluding source). The fallback is therefore found by that exact destination, as scripts/test-2029-cheap-hardening.mjs does.
  const config=JSON.parse(fs.readFileSync(new URL('../preview-deploy/vercel.json',import.meta.url),'utf8'));
- const fallback=config.rewrites.find(r=>r.destination==='/index.html');const match=new RegExp('^'+fallback.source+'$');
+ const documentAdapter='/api/public-document?path=/$1';
+ const fallbacks=config.rewrites.filter(r=>r.destination===documentAdapter);assert.equal(fallbacks.length,1,'exactly one catch-all document fallback');
+ const fallback=fallbacks[0];const match=new RegExp('^'+fallback.source+'$');
+ assert.equal(config.rewrites.at(-1),fallback,'the document fallback stays last so it only receives what no explicit rewrite claimed');
  for(const path of ['/api/contributor-self','/api/unknown','/api'])assert.equal(match.test(path),false,path);
  for(const path of ['/','/2029/me/page-editor','/2029/me/public-page','/community/chat'])assert.equal(match.test(path),true,path);
+ // Rewrites apply in order, first match wins: no earlier rewrite may capture an API path, and every native personal route
+ // must end in the static 2029 shell or the document adapter - never a missing page or another API function.
+ const toRegExp=source=>new RegExp('^'+(source.includes('(')?source:source.replace(/[.+?^${}|[\]\\]/g,'\\$&').replace(/\/:\w+\*/g,'(?:/.*)?'))+'$');
+ const resolve=path=>config.rewrites.find(r=>toRegExp(r.source).test(path))?.destination;
+ for(const path of ['/api/contributor-self','/api/unknown','/api'])assert.equal(resolve(path),undefined,'API path stays on its serverless function: '+path);
+ for(const path of ['/','/2029/me/page-editor','/2029/me/public-page','/community/chat'])assert.ok(['/2029.html',documentAdapter].includes(resolve(path)),path+' -> '+resolve(path));
 });
 test('deployed Preview wrapper returns private JSON Auth denial, never a static page',async()=>{
  const r=response();await handler({method:'GET',headers:{},url:'/api/contributor-self'},r);

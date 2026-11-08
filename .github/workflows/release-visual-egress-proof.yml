@@ -1,0 +1,37 @@
+name: Release Visual Egress Guard Proof
+
+# PROOF ONLY. Runs the fail-closed proof of the Release Visual egress guard on the Playwright version and Chromium that the Release Visual
+# job uses, and nothing else: no application build, no acceptance run, no Production canary, no GitHub deployment lookup, no secrets, no
+# network beyond the npm registry and the Playwright browser download. Manual dispatch only. The proof sends Chromium through a local tripwire
+# proxy, so it cannot reach Supabase or any third party even if the guard were broken.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  egress-guard-proof:
+    name: Egress guard proof (Playwright 1.55.0)
+    # Same runner image as the Release Visual acceptance job (Playwright 1.55 stays on its supported image).
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install Playwright runner and Chromium
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Prove the telemetry-write guard (fail-closed; no live network)
+        run: bash scripts/release-visual-egress-proof.sh

@@ -10,6 +10,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import { supabase, SUPABASE_URL, SUPABASE_ANON } from "../supabase.js";
+import { sharedReadDedupe } from "../readDedupe.js";
 
 export const PROJECTOR_MODE = Object.freeze({ ADMIN_ALL: "admin_all", PUBLIC_VIEW: "public_view" });
 export const PUBLIC_SCOPE = "public";
@@ -61,6 +62,7 @@ export function getPublicResearchClient() {
   if (!publicClient) {
     publicClient = createClient(SUPABASE_URL, SUPABASE_ANON, {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+      global: { fetch: sharedReadDedupe(SUPABASE_URL).fetch },
     });
   }
   return publicClient;

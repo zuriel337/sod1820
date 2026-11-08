@@ -3,8 +3,13 @@ import { supabase } from "../supabase.js";
 const RESEARCH_PROMINENCE_FIELDS =
   "id,created_at,kind,statement,terms,value,relates,source,source_ref,contributor,confidence,engine_verified,engine_detail,status,privacy_scope,promoted_node_id,parent_id,evidence,owner_person_id,meta";
 
-const CROSS_METHOD_FIELDS =
-  "value,phrase_count,independent_phrase_count,dependent_expression_phrase_count,p1_hits,independent_p1_method_count,methods,in_ragil,in_misratar,in_kadmi,signal,dependent_methods,dependent_phrase_count,unregistered_methods";
+// public.cross_method_strength is granted to service_role only (migrations 20260829151530 and
+// 20260919204530; live role_table_grants: postgres + service_role, no anon, no authenticated).
+// No browser session can ever read it, so a client query could only return 42501 -- which the
+// edge logs showed as ~1,100 failing PostgREST requests per day against that view. The browser
+// therefore does not issue that query at all. Consumers keep the exact shape they already handle
+// on denial (available:false + this reason); this is not a claim that the row does not exist.
+export const CROSS_METHOD_STRENGTH_ACCESS_FILTERED = "cross_method_strength_access_filtered";
 
 function clean(value) {
   if (value == null) return null;
@@ -20,12 +25,17 @@ function isAccessDenied(error) {
   return error?.code === "42501" || /permission denied/i.test(String(error?.message || ""));
 }
 
+// `meta` is by far the heaviest research_objects column (avg 2.9 KB of a ~4.0 KB row over the 10,233 anon-visible
+// rows; 117 KB for the 36 anon-visible rows of number 1820; SELECT-only, 2026-11-07). The Hub rows (RESEARCH_FIELDS) already carry it and researchCandidates() merges { ...row, ...supplement },
+// so re-reading it for the same ids only repeats bytes. It is requested only when some Hub row arrived without the key.
 async function fetchResearchSupplements(data) {
-  const ids = [...new Set(asArray(data?.research?.rows).map((row) => clean(row?.id)).filter(Boolean))];
+  const baseRows = asArray(data?.research?.rows);
+  const ids = [...new Set(baseRows.map((row) => clean(row?.id)).filter(Boolean))];
   if (!ids.length) return { available: true, rows: [] };
+  const baseCarriesMeta = baseRows.every((row) => !row?.id || Object.hasOwn(row, "meta"));
   const { data: rows, error } = await supabase
     .from("research_objects")
-    .select("id,parent_id,evidence,owner_person_id,meta")
+    .select(baseCarriesMeta ? "id,parent_id,evidence,owner_person_id" : "id,parent_id,evidence,owner_person_id,meta")
     .in("id", ids);
   if (error) {
     if (isAccessDenied(error)) return { available: false, rows: [], reason: "research_supplements_access_filtered" };
@@ -34,20 +44,12 @@ async function fetchResearchSupplements(data) {
   return { available: true, rows: asArray(rows) };
 }
 
-async function fetchCrossMethodStrength(data) {
+// Deliberately makes NO network request (see CROSS_METHOD_STRENGTH_ACCESS_FILTERED above).
+function fetchCrossMethodStrength(data) {
   if (data?.identity?.type !== "number") return { available: true, row: null };
   const value = Number(data?.identity?.label);
   if (!Number.isSafeInteger(value)) return { available: true, row: null };
-  const { data: row, error } = await supabase
-    .from("cross_method_strength")
-    .select(CROSS_METHOD_FIELDS)
-    .eq("value", value)
-    .maybeSingle();
-  if (error) {
-    if (isAccessDenied(error)) return { available: false, row: null, reason: "cross_method_strength_access_filtered" };
-    throw error;
-  }
-  return { available: true, row: row || null };
+  return { available: false, row: null, reason: CROSS_METHOD_STRENGTH_ACCESS_FILTERED };
 }
 
 async function fetchEventContext(data, { researchLimit = 20 } = {}) {

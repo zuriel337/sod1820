@@ -6,7 +6,10 @@ const src = fs.readFileSync(new URL("../src/lib/research/researchViewerProjectio
 assert.match(src, /fetchCanonicalGraphEntityFindings/);
 assert.match(src, /searchResearchViewerGraphEntities/);
 assert.match(src, /fetchResearchViewerGraphEntity/);
-assert.match(src, /return fetchCanonicalGraphEntityFindings\(nodeId, \{ relationLimit \}\)/);
+// #1043 (f15c72884, 12.10): the canonical adapter no longer projects retired (is_active=false)
+// counterparts as live relations; this admin inspection path opts back in explicitly and must
+// keep doing so (the previous exact call, without includeInactive, now silently hides them).
+assert.match(src, /return fetchCanonicalGraphEntityFindings\(nodeId, \{ relationLimit, includeInactive: true \}\)/);
 assert.match(src, /\.from\("nodes"\)/);
 assert.match(src, /\.ilike\("label"/);
 assert.match(src, /UUID_RE/);

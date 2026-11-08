@@ -4,8 +4,9 @@ import { postHierarchyContext2029, postFollowCandidates2029 } from "../src/lib/r
 import { createRazielRequestContextSnapshot, buildRazielSessionRequest } from "../src/lib/research/razielSessionRequest2029.js";
 import { runAiAnalyze, USER_JWT, UID } from "./helpers/ai-analyze-handler.mjs";
 
+// A new public Post is a native publication; since #1191 the return address (publicPostHref) is /post/ only with that provenance.
 const post = (over = {}) => ({ id: 990005, slug: "future-dimension-five", title: "פוסט ציבורי חדש",
-  author: "בדרך לנצח", categories: ["מימד חמש"], tags: [], ...over });
+  author: "בדרך לנצח", categories: ["מימד חמש"], tags: [], source: "sod1820", ...over });
 const question = "מה ההבדל בין מימד חמש לאור הגאולה?";
 const modelResult = { text: JSON.stringify({ v: 1, agent: "raziel", answer: "תשובת בדיקה בלבד",
   facts: [], suggested_paths: [], follow_up_question: null }),

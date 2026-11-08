@@ -36,6 +36,17 @@ test('V2 guard uses age-existence checks and existing health tree',()=>{
   assert.match(sql,/retention_heartbeat:telemetry_120d/i);
 });
 
+// CLN-06: this used to be the SQL half of 'raw admin detail is capped at 120 days'. The AdminPage RANGES half died with the
+// page (623b8d38a); the two SQL caps below still ship in the migration, so they keep their own test. UI assertions are not restored.
+test('raw admin detail RPCs cap the requested window at 120 days',()=>{
+  assert.match(sql,/least\(coalesce\(p_days,90\),120\)/i);
+  assert.match(sql,/least\(coalesce\(p_days,30\),120\)/i);
+  // Same guarantee, pinned to the function each cap belongs to, so moving a cap onto another function cannot satisfy it.
+  const fn=(name)=>sql.match(new RegExp('create or replace function public\\.'+name+'\\([\\s\\S]*?\\$function\\$;','i'))?.[0]||'';
+  assert.match(fn('visits_stats'),/least\(coalesce\(p_days,90\),120\)/i);
+  assert.match(fn('arrival_sources'),/least\(coalesce\(p_days,30\),120\)/i);
+});
+
 test('scope remains telemetry only',()=>{
   const deletes=[...sql.matchAll(/delete\s+from\s+public\.([a-zA-Z0-9_]+)/gi)].map(m=>m[1]);
   assert.deepEqual([...new Set(deletes)].sort(),['site_visits','visitor_events']);

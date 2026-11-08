@@ -1,15 +1,15 @@
 import { PUBLIC_READING_RELEASE, PUBLIC_READING_PRODUCTION_ARTIFACT } from "./publicReadingRelease2029.js";
 import { readingSessionOptions } from "./publicReadingAuthSession.js";
+import { sharedReadDedupe } from "./readDedupe.js";
 import { createClient } from '@supabase/supabase-js';
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
 import { signupAttribution } from './acquisition.js';
 import { isAnon } from './privacy.js';
 import { isReadable } from './nameMask.js';
-import { AUTHORS } from './authors.js';
 import { stripHtml } from './format.js';
-import { METHOD_DB_COLS } from './gematria.js';
 import { postCategoryFilterNames } from './postCategoryIdentity.js';
 import { decodePostSlug, publicPostHref } from './publicPostUrls.js';
+import { POST_READER_SELECT } from './postReaderColumns.js';
 
 // 🔑 מיוצאים כדי לאפשר fetch ישיר ל-PostgREST במקומות שדורשים עקיפת-קאש (cache:no-store) —
 // למשל עמוד-הצופן הקנוני, שאחרי עריכה/שמירה-מחדש חייב תמיד את הרשומה הטרייה (התגובה מ-PostgREST
@@ -19,10 +19,15 @@ export const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 
 let readingStorage;
 if (PUBLIC_READING_RELEASE) { try { readingStorage = globalThis.sessionStorage; } catch { /* Private mode: memory-only session. */ } }
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON,
-  PUBLIC_READING_RELEASE
+// In-flight sharing + short anonymous-only TTL memo for an explicit list of read-only RPCs/relations (src/lib/readDedupe.js).
+// Writes, telemetry, auth, storage and every unlisted read pass through untouched.
+const readDedupe = sharedReadDedupe(SUPABASE_URL);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  ...(PUBLIC_READING_RELEASE
     ? { auth: readingSessionOptions(readingStorage, globalThis.location, { productionArtifact: PUBLIC_READING_PRODUCTION_ARTIFACT }) }
-    : undefined);
+    : {}),
+  global: { fetch: readDedupe.fetch },
+});
 
 export default supabase;
 export { supabase };
@@ -52,46 +57,6 @@ export async function getPostsFromSupabase({ limit = 10, page = 1, category = nu
   return { posts: data ?? [], total: count ?? 0 };
 }
 
-// 🎬 כל סרטוני «מימד חמש» — לפיד-הרצף (נגן סגנון Shorts/YouTube). מושך את פוסטי התגית,
-//    מסנן רק כאלה עם וידאו (.mp4 בתוכן), ומחלץ וידאו/פוסטר/כתוביות. ממוין מהחדש לישן.
-export async function getDimensionFiveVideos() {
-  try {
-    const { posts } = await getPostsFromSupabase({ tag: "מימד חמש", limit: 50, orderBy: "modified" });
-    const items = [];
-    for (const p of (posts || [])) {
-      if ((p.tags || []).includes("טיוטה") || (p.tags || []).includes("פורום")) continue;   // רק טיוטה/פורום יורדים מהפיד — לא home_hidden
-      const c = typeof p.content === "string" ? p.content : "";
-      const mp4 = c.match(/https?:\/\/[^"'\s]+\.mp4/i);
-      if (mp4) {
-        const video_url = mp4[0];
-        const poster = (c.match(/poster="([^"]+)"/i) || [])[1] || p.image_url || null;
-        const heM = c.match(/src="([^"]+)"[^>]*srclang="he"/i) || c.match(/srclang="he"[^>]*src="([^"]+)"/i);
-        const enM = c.match(/src="([^"]+)"[^>]*srclang="en"/i) || c.match(/srclang="en"[^>]*src="([^"]+)"/i);
-        items.push({
-          id: p.id, slug: p.slug, title: p.title, kind: "video",
-          video_url, poster, card: p.image_url || poster,
-          he_vtt: (heM && heM[1]) || video_url.replace(/\.mp4$/i, ".he.vtt"),
-          en_vtt: (enM && enM[1]) || video_url.replace(/\.mp4$/i, ".en.vtt"),
-        });
-        continue;
-      }
-      // 🖼️ פוסט-תמונה בסגנון-טיקטוק — אין וידאו אך יש אודיו (מוזיקה) + תמונה + מלל (למשל «הודעה גלקטית»).
-      //    במציג-הפיד המשתמש כבר מחליק (יש gesture) → המוזיקה מתנגנת אוטומטית, בניגוד לכניסה רגילה לפוסט.
-      const aud = c.match(/https?:\/\/[^"'\s]+\.(?:m4a|mp3|aac|ogg)/i);
-      if (aud) {
-        const img = (c.match(/<img[^>]+src="([^"]+)"/i) || [])[1] || p.image_url || null;
-        items.push({
-          id: p.id, slug: p.slug, title: p.title, kind: "photo",
-          audio_url: aud[0], image: img, card: p.image_url || img,
-          html: c,
-        });
-        continue;
-      }
-    }
-    return items;
-  } catch { return []; }
-}
-
 // 🙈 אדמין — הסתר/הצג פוסט מ«עדכונים אחרונים» בבית (posts.home_hidden דרך RPC מאובטח rd_is_admin).
 //    הפוסט נשאר חי בקטגוריות/‏/post/בעמוד עצמו — מוסתר רק מרצועת-הבית.
 export async function adminSetPostHomeHidden(id, hidden) {
@@ -112,37 +77,6 @@ export async function adminSetCipherHomeHidden(id, hidden) {
   const { error } = await supabase.rpc('admin_set_cipher_home_hidden', { p_id: id, p_hidden: !!hidden });
   return !error;
 }
-// ↩️ אדמין — כל הפריטים שהוסתרו (לפאנל «בטל הסתרה»): פוסטים · צפנים · פריטי-ערוץ · רמזי-זרם.
-export async function getHiddenHomeItems() {
-  if (!supabase) return { posts: [], ciphers: [], channels: [], hints: [] };
-  const [posts, ciphers, channels, hints] = await Promise.all([
-    supabase.from('posts').select('id,slug,title,image_url').eq('home_hidden', true).order('modified', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
-    supabase.from('els_records').select('id,slug,title,search_term').eq('home_hidden', true).order('created_at', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
-    supabase.from('channel_updates').select('id,text,credit,channel,image_url').eq('status', 'hidden').order('created_at', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
-    supabase.from('gallery_images').select('id,name,primary_value,image_url,thumb_url').eq('source', 'update').eq('curator_hidden', true).order('stream_at', { ascending: false }).limit(60).then(r => r.data || []).catch(() => []),
-  ]);
-  return { posts, ciphers, channels, hints };
-}
-
-// 🎬 פוסטי «קוד המציאות» — עדשת המציאות/קולנוע. מאחד את כל התגיות של העולם הזה
-// (מימד חמש · מטריקס · משחקי הדיונון · קולנוע/סרטים) + קטגוריית «הצופן בסרטים», ממוזג
-// ומדורג לפי תאריך-עדכון. עץ אחד — לא טבלה חדשה, רק עדשה על posts.
-export const REALITY_CODE_TAGS = ["מימד חמש", "מטריקס", "משחקי הדיונון", "קולנוע"];
-export const REALITY_CODE_CATS = ["הצופן בסרטים"];
-export async function getRealityCodePosts(limit = 12) {
-  if (!supabase) return [];
-  try {
-    const [byTag, byCat] = await Promise.all([
-      supabase.from("posts").select("*").overlaps("tags", REALITY_CODE_TAGS).order("modified", { ascending: false, nullsFirst: false }).limit(limit),
-      supabase.from("posts").select("*").overlaps("categories", REALITY_CODE_CATS).order("modified", { ascending: false, nullsFirst: false }).limit(limit),
-    ]);
-    const map = new Map();
-    for (const p of [...(byTag.data || []), ...(byCat.data || [])]) map.set(p.id ?? p.wp_id, p);
-    return [...map.values()]
-      .sort((a, b) => new Date(b.modified || b.date) - new Date(a.modified || a.date))
-      .slice(0, limit);
-  } catch { return []; }
-}
 
 // גלריית הסרטים בדף הבית — נמשכת מהטבלה home_videos (ניהול ע"י צוריאל, בלי שינוי קוד).
 // חוזרת ריק אם אין נתונים/כשל → VideoGallery נופל לרשימת ברירת-המחדל בקוד.
@@ -159,34 +93,6 @@ export async function getHomeVideos({ limit = 24 } = {}) {
       .limit(limit);
     if (error) return [];
     return data || [];
-  } catch { return []; }
-}
-
-// 🎬 סרטוני-כותב (למשל אלון לוי) לגלריית-הבית — נמשכים אוטומטית מהפוסטים שלו שיש בהם וידאו.
-// מוחזר בצורת שורת-גלריה (video_url=mp4 מהתוכן · poster_url=image_url · uploaded_at=תאריך הפוסט).
-export async function getAuthorGalleryVideos(author, { limit = 12 } = {}) {
-  if (!supabase || !author) return [];
-  try {
-    const { data, error } = await supabase
-      .from("posts")
-      .select("id, slug, title, image_url, content, date, author")
-      .eq("author", author)
-      .order("date", { ascending: false, nullsFirst: false })
-      .limit(40);
-    if (error || !data) return [];
-    const out = [];
-    for (const p of data) {
-      const m = typeof p.content === "string" && p.content.match(/https?:\/\/[^"'\s]+\.mp4/i);
-      if (!m) continue;
-      out.push({
-        yt: null, title: stripHtml(p.title || ""), slug: p.slug || null,
-        video_url: m[0], poster_url: p.image_url || null,
-        uploaded_at: p.date ? String(p.date).slice(0, 10) : null,
-        featured: false, pinned: false, cipher_slug: null, author: p.author || author,
-      });
-      if (out.length >= limit) break;
-    }
-    return out;
   } catch { return []; }
 }
 
@@ -331,192 +237,6 @@ export async function getTzofonStories({ limit = 30 } = {}) {
   } catch { return []; }
 }
 
-// סרטון-גלריה המקושר לצופן (cipher_slug) — לחיבור דו-כיווני בעמוד הצופן /codes/:slug
-export async function getHomeVideoByCipher(cipherSlug) {
-  if (!supabase || !cipherSlug) return null;
-  try {
-    const { data, error } = await supabase
-      .from("home_videos")
-      .select("yt, title, slug, video_url, poster_url")
-      .eq("is_active", true)
-      .eq("cipher_slug", cipherSlug)
-      .limit(1)
-      .maybeSingle();
-    if (error) return null;
-    return data || null;
-  } catch { return null; }
-}
-
-// הפוסט/כתבה המקושר לצופן (posts.cipher_slug) — מראה קנוני של getHomeVideoByCipher, לכיוון צופן→פוסט.
-export async function getPostByCipher(cipherSlug) {
-  if (!supabase || !cipherSlug) return null;
-  try {
-    const { data, error } = await supabase
-      .from("posts")
-      .select("id, wp_id, title, slug, image_url")
-      .eq("cipher_slug", cipherSlug)
-      .order("modified", { ascending: false, nullsFirst: false })
-      .limit(1)
-      .maybeSingle();
-    if (error) return null;
-    return data || null;
-  } catch { return null; }
-}
-
-// Smart Analysis Flow · DB-First — מה כבר קיים בבנק לביטויים ולערך (READ-ONLY, בלי הרצת-מנוע).
-export async function dbFirstLookup(phrases = [], value = null) {
-  const out = { known: [], hubValue: value, hubCount: 0 };
-  if (!supabase) return out;
-  const uniq = [...new Set((phrases || []).map(p => (p || "").trim()).filter(Boolean))];
-  try {
-    if (uniq.length) {
-      const { data } = await supabase.from("gematria_words")
-        .select("phrase,ragil,is_verified,vip_source,source").in("phrase", uniq).limit(50);
-      out.known = data || [];
-    }
-    if (value != null) {
-      const { count } = await supabase.from("gematria_words")
-        .select("id", { count: "exact", head: true }).eq("ragil", value).eq("is_verified", true);
-      out.hubCount = count || 0;
-    }
-  } catch { /* ignore */ }
-  return out;
-}
-
-// DB-First לכל אשכול — כמה ביטויים מאומתים כבר בבנק לכל ערך-אשכול (שאילתה אחת, READ-ONLY).
-// מחזיר Map(value → count). כך «ניתוח מלא» מראה לכל אשכול «X בבנק · שלך חדש/חיזוק» בלי לשכפל.
-export async function getHubCounts(values = []) {
-  const map = new Map();
-  if (!supabase) return map;
-  const uniq = [...new Set((values || []).map(Number).filter(v => Number.isFinite(v)))];
-  if (!uniq.length) return map;
-  try {
-    const { data } = await supabase.from("gematria_words")
-      .select("ragil").in("ragil", uniq).eq("is_verified", true);
-    for (const r of data || []) map.set(r.ragil, (map.get(r.ragil) || 0) + 1);
-  } catch { /* ignore */ }
-  return map;
-}
-
-// CHECK_EXISTING_AXIS_DATA · DB-First לציר — האם תאריך/שנה/אירוע כבר בציר? READ-ONLY, בלי טבלה/פונקציה חדשה.
-// מקורות-הציר הקיימים: nodes(type='event') + teder_stations. התאמה לפי שנה · תאריך-לועזי (occurred_at/event_date) · תאריך-עברי.
-// מחזיר { byYear:Map(year→[hit]), byIso:Map(iso→[hit]), byHebrew:[hit], events:[...] } — כל hit נושא source/label/matchedBy.
-export async function checkAxisData({ years = [], isoDates = [], hebrew = [] } = {}) {
-  const res = { byYear: new Map(), byIso: new Map(), byHebrew: [], all: [] };
-  if (!supabase) return res;
-  const yrs = [...new Set(years.map(String))].filter(Boolean);
-  const isos = [...new Set(isoDates)].filter(Boolean);
-  try {
-    // events: לפי שנה (server-side) + כל בעלי תאריך-עברי (קטן) לצורך התאמה עברית.
-    const queries = [];
-    if (yrs.length) queries.push(supabase.from("nodes").select("id,label,hebrew_date,metadata").eq("type", "event").filter("metadata->>year", "in", `(${yrs.join(",")})`).limit(60));
-    queries.push(supabase.from("nodes").select("id,label,hebrew_date,metadata").eq("type", "event").not("hebrew_date", "is", null).limit(60));
-    queries.push(supabase.from("teder_stations").select("id,title,year,event_date,hebrew_date,central_numbers").limit(60));
-    const [ev1, evHeb, teder] = await Promise.all([
-      yrs.length ? queries[0] : Promise.resolve({ data: [] }),
-      queries[yrs.length ? 1 : 0], queries[yrs.length ? 2 : 1],
-    ]);
-    const evRows = [...(ev1?.data || []), ...(evHeb?.data || [])];
-    const seen = new Set();
-    const addHit = (hit, bucket, key) => {
-      if (bucket === "year") { if (!res.byYear.has(key)) res.byYear.set(key, []); res.byYear.get(key).push(hit); }
-      else if (bucket === "iso") { if (!res.byIso.has(key)) res.byIso.set(key, []); res.byIso.get(key).push(hit); }
-      else res.byHebrew.push(hit);
-      const uk = hit.source + hit.id; if (!seen.has(uk)) { seen.add(uk); res.all.push(hit); }
-    };
-    for (const r of evRows) {
-      const y = r.metadata?.year != null ? String(r.metadata.year) : null;
-      const occ = r.metadata?.occurred_at ? String(r.metadata.occurred_at).slice(0, 10) : null;
-      const hit = { source: "event", id: r.id, label: r.label, year: y, occurred_at: occ, hebrew_date: r.hebrew_date };
-      if (y && yrs.includes(y)) addHit({ ...hit, matchedBy: "year" }, "year", +y);
-      if (occ && isos.includes(occ)) addHit({ ...hit, matchedBy: "occurred_at" }, "iso", occ);
-      if (r.hebrew_date) for (const h of hebrew) if (h && hebrewMatch(r.hebrew_date, h)) addHit({ ...hit, matchedBy: "hebrew_date" }, "hebrew");
-    }
-    for (const r of (teder?.data || [])) {
-      const y = r.year != null ? String(r.year) : null;
-      const occ = r.event_date ? String(r.event_date).slice(0, 10) : null;
-      const hit = { source: "teder", id: r.id, label: r.title, year: y, occurred_at: occ, hebrew_date: r.hebrew_date };
-      if (y && yrs.includes(y)) addHit({ ...hit, matchedBy: "year" }, "year", +y);
-      if (occ && isos.includes(occ)) addHit({ ...hit, matchedBy: "occurred_at" }, "iso", occ);
-    }
-  } catch { /* ignore */ }
-  return res;
-}
-// התאמת תאריך-עברי גמישה: אותו יום+חודש (מתעלם מגרשיים/מקפים/שנה) — «טז׳ מר-חשון תרצ״ט» ~ «טז מרחשון».
-function hebrewMatch(a, b) {
-  const norm = (s) => String(s || "").replace(/[־\-'"׳״]/g, "").replace(/מרחשון|מרחשוון/g, "חשון").replace(/\s+/g, " ").trim();
-  const na = norm(a), nb = norm(b);
-  if (!na || !nb) return false;
-  const dayMon = (s) => (s.match(/^(\S+)\s+(\S+)/) || []).slice(1, 3).join(" ");
-  return na.includes(nb) || nb.includes(na) || (dayMon(na) && dayMon(na) === dayMon(nb));
-}
-
-// Smart Analysis Flow · פרופיל-שיטות של כתב — טענות עם gematria_claim בלבד (המאומתות מסוננות בצד-הלקוח). READ-ONLY.
-export async function getWriterVerifiedClaims(names = []) {
-  if (!supabase) return [];
-  const uniq = [...new Set((names || []).map(n => (n || "").trim()).filter(Boolean))];
-  if (!uniq.length) return [];
-  try {
-    const { data } = await supabase.from("research_contributions")
-      .select("id,author_name,title,gematria_claim,created_at")
-      .in("author_name", uniq).not("gematria_claim", "is", null).limit(200);
-    return data || [];
-  } catch { return []; }
-}
-
-// 🎬 תמלול רב-לשוני לסרטון (video_transcription_law) — מחזיר את כל השורות המפורסמות
-// לפי זהות הסרטון. מקבל אחד מ: videoKey (yt id / reel shortcode / slug), yt, או sourceUrl.
-// מוחזר ממוין: המקור (is_original) קודם, ואז שאר השפות. הלקוח קורא ישירות (RLS: status='published').
-export async function getVideoTranscripts({ videoKey, yt, sourceUrl } = {}) {
-  if (!supabase) return [];
-  const key = videoKey || yt || sourceUrl;
-  if (!key) return [];
-  try {
-    let dbq = supabase
-      .from("video_transcripts")
-      .select("video_key, yt, source_url, title, lang, transcript, summary, is_original, translated_by, updated_at");
-    if (videoKey) dbq = dbq.eq("video_key", videoKey);
-    else if (yt) dbq = dbq.eq("yt", yt);
-    else dbq = dbq.eq("source_url", sourceUrl);
-    const { data, error } = await dbq
-      .order("is_original", { ascending: false })
-      .order("lang", { ascending: true });
-    if (error) return [];
-    return data || [];
-  } catch { return []; }
-}
-
-// Search in title + content, optional filters
-export async function searchPosts(query, { limit = 40, category = null, tag = null, year = null } = {}) {
-  if (!supabase || !query?.trim()) return [];
-  const q = query.trim();
-  let dbq = supabase
-    .from('posts')
-    .select('*')
-    .or(`title.ilike.%${q}%,content.ilike.%${q}%`)
-    .order('date', { ascending: false })
-    .limit(limit);
-  if (category) dbq = dbq.contains('categories', [category]);
-  if (tag) dbq = dbq.contains('tags', [tag]);
-  if (year) dbq = dbq.gte('date', `${year}-01-01`).lte('date', `${year}-12-31T23:59:59`);
-  const { data, error } = await dbq;
-  if (error) throw error;
-  return data ?? [];
-}
-
-// Fetch all distinct categories and tags (for dropdowns)
-export async function getDistinctCategoriesAndTags() {
-  if (!supabase) return { categories: [], tags: [] };
-  const { data } = await supabase.from('posts').select('categories, tags');
-  if (!data) return { categories: [], tags: [] };
-  const cats = new Set(), tags = new Set();
-  data.forEach(r => {
-    (r.categories || []).forEach(c => c && cats.add(c));
-    (r.tags || []).forEach(t => t && tags.add(t));
-  });
-  return { categories: [...cats].sort(), tags: [...tags].sort() };
-}
-
 // תגיות לפי פופולריות (כמות פוסטים) — לתצוגת "תגיות פופולריות"
 export async function getTagCounts({ limit = 200 } = {}) {
   if (!supabase) return [];
@@ -540,7 +260,7 @@ export async function getPostBySlug(slug, { throwOnError = false, signal = null 
   const slugs = [...new Set([slug, decoded, encoded])];
   let query = supabase
     .from('posts')
-    .select('*')
+    .select(POST_READER_SELECT)   // explicit columns, not * (see postReaderColumns.js)
     .in('slug', slugs)
     .limit(1);
   if (signal) query = query.abortSignal(signal);
@@ -587,47 +307,6 @@ export function beginPostReadingSource(slug, { readPost = getPostBySlug } = {}) 
   };
 }
 
-export async function getGematriaByPhrases(phrases) {
-  if (!supabase || !phrases?.length) return [];
-  const { data } = await supabase
-    .from('gematria_words')
-    .select('phrase, ragil')
-    .in('phrase', phrases)
-    .limit(5);
-  return data ?? [];
-}
-
-// Get gematria words matching a specific value.
-// opts.method = 'ragil' | 'misratar' | 'kadmi' (עמודת-ההשוואה, לסינון חוצה-שיטות) · opts.limit (ברירת-מחדל 12).
-// תאימות-לאחור: קריאה עם ערך בלבד → רגיל, 12.
-// 🔗 נגזר מ-gematria.js METHOD_DB_COLS (מקור-אמת יחיד לשם-שיטה→עמודת-DB) — לא רשימה מקבילה משלה
-// (canonical_methods_registry_law). אותם 3 ערכים בדיוק כמו קודם: ragil/misratar/kadmi.
-const GEM_METHOD_COL = { ragil: METHOD_DB_COLS['רגיל'], misratar: METHOD_DB_COLS['מסתתר'], kadmi: METHOD_DB_COLS['קדמי'] };
-export async function getGematriaByValue(value, opts = {}) {
-  if (!supabase || !value) return [];
-  const col = GEM_METHOD_COL[opts.method] || 'ragil';
-  const { data } = await supabase
-    .from('gematria_words')
-    .select('phrase, ragil, misratar, kadmi')
-    .eq(col, value)
-    .eq('is_verified', true).eq('is_published', true)   // ✅ verified-only public projection (verified_only_public_gematria_law)
-    .order('created_at', { ascending: false, nullsFirst: false })   // ביטוי חדש שהוסף — תמיד למעלה
-    .limit(opts.limit || 12);
-  return data ?? [];
-}
-
-// כמה ביטויים במאגר שווים לערך בשיטה נתונה (למד-הנדירות) — count בלבד, בלי להביא שורות.
-export async function getGematriaCountByValue(value, method = 'ragil') {
-  if (!supabase || !value) return 0;
-  const col = GEM_METHOD_COL[method] || 'ragil';
-  const { count } = await supabase
-    .from('gematria_words')
-    .select('*', { count: 'exact', head: true })
-    .eq(col, value)
-    .eq('is_verified', true).eq('is_published', true);   // ✅ verified-only public projection
-  return count || 0;
-}
-
 // התכנסות רשומה חזקה לערך (fn_convergence_for_value — SECURITY DEFINER; convergences אינה קריאה-לקוח).
 export async function getConvergenceForValue(value) {
   if (!supabase || !value) return null;
@@ -635,82 +314,11 @@ export async function getConvergenceForValue(value) {
   catch { return null; }
 }
 
-// 🔢 ההתכנסויות במאגר המיוחסות לכתב (details.contributors[].author). אוטומציה: כל גימטריה
-// שנכנסת למאגר עם ייחוס לכתב מופיעה בדף שלו — הקריאה החיה היא האוטומציה. convergences אינה
-// קריאה-לקוח → RPC SECURITY DEFINER (convergences_for_author). מחזיר גם author_phrases (הביטויים שלו).
-export async function getConvergencesByAuthor(names) {
-  const list = (Array.isArray(names) ? names : [names]).map(n => (n || "").trim()).filter(Boolean);
-  if (!supabase || !list.length) return [];
-  try { const { data } = await supabase.rpc('convergences_for_author', { p_names: list }); return Array.isArray(data) ? data : []; }
-  catch { return []; }
-}
-
 // הצעת ביטוי-קהילתי חדש לערך (pending — ממתין לאישור אדמין). מחזיר: ok|exists|pending|invalid|error.
 export async function proposeCommunityWord(phrase, value, method = 'רגיל') {
   if (!supabase) return 'error';
   try { const { data } = await supabase.rpc('propose_community_word', { p_phrase: String(phrase).trim(), p_value: value, p_method: method }); return data || 'ok'; }
   catch { return 'error'; }
-}
-
-// הצלבה-המונית: לכל ערך ברשימה — אילו ביטויים במאגר האתר שווים לו (לכלי «ניתוח קובץ»).
-// מחזיר Map: value → [phrases]. שאילתה אחת (IN) במקום בקשה לכל ערך.
-export async function getGematriaByValues(values) {
-  const uniq = [...new Set((values || []).filter(v => Number.isFinite(v) && v > 0))];
-  const out = new Map();
-  if (!supabase || !uniq.length) return out;
-  const { data } = await supabase
-    .from('gematria_words')
-    .select('phrase, ragil')
-    .in('ragil', uniq)
-    .eq('is_verified', true).eq('is_published', true)   // ✅ verified-only public projection
-    .limit(2000);
-  for (const r of data ?? []) {
-    if (!out.has(r.ragil)) out.set(r.ragil, []);
-    out.get(r.ragil).push(r.phrase);
-  }
-  return out;
-}
-
-// ✦ מילים חדשות מהקהילה — N הביטויים האחרונים שנוספו למאגר (מאומתים), עם זמן.
-export async function getRecentCommunityWords(limit = 4) {
-  if (!supabase) return [];
-  // «נוסף למאגר» = הפך לגלוי. מילה שאושרה/נחשפה עכשיו (visibility_changed_at) קופצת לראש —
-  // גם אם ה-created_at שלה ישן. מושכים לפי שני הצירים וממזגים לפי «רגע-החשיפה» האפקטיבי.
-  const clean = arr => (arr ?? []).filter(r => r.phrase && !/^[\d\s.,-]+$/.test(r.phrase.trim()) && r.ragil > 0);
-  const sel = 'phrase, ragil, created_at, visibility_changed_at, source, vip_source';
-  const [byCreated, byVis] = await Promise.all([
-    supabase.from('gematria_words').select(sel).eq('is_verified', true)
-      .not('created_at', 'is', null).order('created_at', { ascending: false, nullsFirst: false }).limit(limit * 3),
-    supabase.from('gematria_words').select(sel).eq('is_verified', true)
-      .not('visibility_changed_at', 'is', null).order('visibility_changed_at', { ascending: false, nullsFirst: false }).limit(limit * 3),
-  ]);
-  const seen = new Set(), merged = [];
-  for (const r of [...clean(byCreated.data), ...clean(byVis.data)]) {
-    if (seen.has(r.phrase)) continue; seen.add(r.phrase);
-    const eff = Math.max(new Date(r.created_at || 0).getTime(), new Date(r.visibility_changed_at || 0).getTime());
-    merged.push({ ...r, created_at: new Date(eff).toISOString() });   // «נוסף» = רגע-החשיפה האפקטיבי
-  }
-  return merged.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, limit);
-}
-
-// 📡 שידורים חיים (channel_updates) — «עדכון חי» בטיקר + כרטיס בעמוד הבית.
-// קריאה ציבורית: רק live שלא פג; כתיבה: אדמין בלבד (RLS). מקור עתידי: גשר הוואטסאפ.
-// channel: null = הטיקר הראשי (main + reality-code) · 'or-geula'/'reality-code' = טיקר ממותג
-// byDate=true → מיון לפי תאריך בלבד (החדשים קודם), בלי priority — לפידים החיים («מכל הערוצים»),
-// כדי שעדכוני היום לא ייחסמו ע״י שורות ישנות בעלות priority גבוה.
-export async function getChannelUpdates(limit = 6, channel = null, byDate = false) {
-  if (!supabase) return [];
-  let q = supabase.from('channel_updates')
-    .select('id,text,image_url,thumb_url,credit,channel,is_urgent,created_at,link_url,source')
-    .eq('status', 'live')
-    .eq('page_only', false)   // עדכוני-כתב page_only מופיעים רק בדף-הכתב, לא בפידים הגלובליים
-    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
-  q = byDate ? q.order('created_at', { ascending: false })
-             : q.order('priority', { ascending: false }).order('created_at', { ascending: false });
-  q = q.limit(limit);
-  q = channel ? q.eq('channel', channel) : q.in('channel', ['main', 'reality-code']);
-  const { data } = await q;
-  return data || [];
 }
 
 // 💬 תורת הרמז → projection ציבורי מצומצם עבור LiveChannelFeed הישן בלבד.
@@ -724,80 +332,6 @@ export async function getToratHaremezLiveFeed(limit = 60) {
   } catch {
     return [];
   }
-}
-// 👤 כל העדכונים החיים של כתב מסוים (credit) — עדשה על channel_updates לדף הכתב (ContributorPage).
-// עץ אחד: לא עותק — אותו מקור של הטיקר/מרכז השידורים, מסונן לפי הכותב.
-export async function getUpdatesByReporter(credit, limit = 60) {
-  return getUpdatesByReporterNames([credit], limit);
-}
-// גרסה לפי כמה שמות (display_name + כינויי-וואטסאפ wa_names) — כדי שעדכוני כתב תחת
-// שם-וואטסאפ שונה (למשל «OPOC1 OPOC1» → צבי) יופיעו כולם בדף הכתב הקנוני.
-export async function getUpdatesByReporterNames(names, limit = 60) {
-  const list = (Array.isArray(names) ? names : [names]).map(n => (n || "").trim()).filter(Boolean);
-  if (!supabase || !list.length) return [];
-  const { data } = await supabase.from('channel_updates')
-    .select('id,text,image_url,thumb_url,credit,channel,created_at,link_url,source')
-    .eq('status', 'live')
-    .in('credit', list)
-    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  return data || [];
-}
-// 👤 העדכונים של קבוצת-הוואטסאפ האישית של כתב — עדשה על channel_updates לפי channel=writer-<slug>.
-// כשלכתב יש קבוצה אישית (contributors.wa_channel) הפיד שלו = כל מה שנקלט מהקבוצה שלו (עץ אחד, לא עותק).
-export async function getUpdatesByChannel(channel, limit = 60) {
-  const ch = (channel || "").trim();
-  if (!supabase || !ch) return [];
-  const { data } = await supabase.from('channel_updates')
-    .select('id,text,image_url,thumb_url,credit,channel,created_at,link_url,source')
-    .eq('status', 'live')
-    .eq('channel', ch)
-    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  return data || [];
-}
-// 👤 CORE של כתב — מילים מאוצרות (gematria_words) לפי מפתחות-הזהות (vip_source ∈ names · source='contribution:<name>').
-// READ-ONLY. reuse של אותם מפתחות (display_name+wa_names). מחזיר שדות-סיווג (method/tags/tier) ל-Writer OS.
-export async function getWriterCoreWords(names, limit = 500) {
-  const list = (Array.isArray(names) ? names : [names]).map(n => (n || "").trim()).filter(Boolean);
-  if (!supabase || !list.length) return [];
-  const sel = 'id,phrase,ragil,other_method,essence_method,tags,vip_source,source,is_verified,visibility_tier,node_id,created_at,notes';
-  const [byVip, bySrc] = await Promise.all([
-    supabase.from('gematria_words').select(sel).in('vip_source', list).not('ragil', 'is', null).limit(limit),
-    supabase.from('gematria_words').select(sel).in('source', list.map(n => `contribution:${n}`)).not('ragil', 'is', null).limit(limit),
-  ]);
-  const map = new Map();
-  for (const r of [...(byVip.data || []), ...(bySrc.data || [])]) if (r && !map.has(r.id)) map.set(r.id, r);
-  return [...map.values()];
-}
-// 🎗 כתבים מודגשים (contributors.feature_media) לרצועת «עדכונים אחרונים» בדף הבית —
-// כרטיס-כתב עם התמונה האחרונה שלו מהשידורים, שמקפיץ את דף-הכתב כשעולה עדכון-תמונה חדש.
-// עדשה על עץ אחד: contributors ⨯ channel_updates (לפי credit=display_name) — לא עותק.
-export async function getFeaturedResearchers(limit = 6) {
-  if (!supabase) return [];
-  try {
-    const { data: cons } = await supabase.from('contributors')
-      .select('slug,code,display_name,avatar_url,role')
-      .eq('feature_media', true);
-    if (!cons?.length) return [];
-    const out = [];
-    for (const c of cons) {
-      const name = (c.display_name || '').trim();
-      if (!name) continue;
-      const { data: ups } = await supabase.from('channel_updates')
-        .select('id,image_url,thumb_url,created_at')
-        .eq('status', 'live').eq('credit', name)
-        .not('image_url', 'is', null)
-        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
-        .order('created_at', { ascending: false }).limit(1);
-      const u = ups?.[0];
-      if (!u) continue;
-      out.push({ ...c, latest_image: u.image_url, latest_thumb: u.thumb_url || null, latest_at: u.created_at });
-    }
-    return out.sort((a, b) => +new Date(b.latest_at) - +new Date(a.latest_at)).slice(0, limit);
-  } catch { return []; }
 }
 // 🔖 שמירת-מסע ל-DB (visitor_id + השורש + השביל) — כדי לראות בניהול מי שמר איזה מסע.
 export async function logJourneySave(visitor, { root, path = [], world = null }) {
@@ -1023,18 +557,6 @@ export async function adminBulkTriage(action) {
   if (!supabase) return null;
   const { data, error } = await supabase.rpc('admin_bulk_triage', { p_action: action }); if (error) throw error; return data;
 }
-// 🌍 מילים חדשות באנגלית — קורא מאותו מקור של «דף האנגלית» (language_links, מאושרים)
-// דרך ה-RPC הקנוני lang_links_list (SECURITY DEFINER) — עץ אחד, בלי טבלה מקבילה.
-// ממופה לצורת התצוגה הקיימת: { alias, gematria_words:{ phrase, ragil } }.
-export async function getRecentEnglishWords(limit = 3) {
-  if (!supabase) return [];
-  const { data, error } = await supabase.rpc('lang_links_list', { p_visitor: null });
-  if (error || !Array.isArray(data)) return [];
-  return data
-    .filter(r => (r.lang || 'en') === 'en' && r.status === 'approved' && r.foreign_word && r.hebrew)
-    .slice(0, limit)
-    .map(r => ({ alias: r.foreign_word, gematria_words: { phrase: r.hebrew, ragil: r.gematria_he } }));
-}
 // 🌍 הוספת תרגום/תעתוק אנגלי למילה עברית — ממלא את מאגר-האנגלית (word_aliases).
 export async function addEnglishAlias({ phrase, alias, method = 'transliteration', verified = true }) {
   if (!supabase) return null;
@@ -1044,27 +566,6 @@ export async function addEnglishAlias({ phrase, alias, method = 'transliteration
   if (error) throw error;
   return data;
 }
-// 🔷 אוצרות הגילוי — הצלבה חוצת-שיטות: ביטויים ששווים למספר-העוגן בשיטה כלשהי.
-// היררכיה (otzarot_giluy_hierarchy): שכבה 1 «אוצרות הגילוי» · שכבה 2 «השלמה לאוצרות». עץ אחד — קורא מ-gematria_words לפי תגית.
-export async function getGiluyTreasures(anchor) {
-  if (!supabase || !anchor) return { core: [], supplement: [] };
-  const { data } = await supabase.from('gematria_words')
-    .select('phrase, ragil, other_value, other_method, tags')
-    .or(`other_value.eq.${anchor},ragil.eq.${anchor}`)
-    .overlaps('tags', ['אוצרות הגילוי', 'השלמה לאוצרות'])
-    .eq('is_verified', true).eq('is_published', true)   // ✅ verified-only public projection
-    .limit(80);
-  const rows = data || [];
-  const method = r => r.other_method || (r.ragil === anchor ? 'רגיל' : '');
-  const seen = new Set();
-  const pick = tier => rows.filter(r => {
-    const tags = r.tags || [];
-    if (tier === 'core' && !tags.includes('אוצרות הגילוי')) return false;
-    if (tier === 'supp' && !(tags.includes('השלמה לאוצרות') && !tags.includes('אוצרות הגילוי'))) return false;
-    if (seen.has(r.phrase)) return false; seen.add(r.phrase); return true;
-  }).map(r => ({ phrase: r.phrase, method: method(r) }));
-  return { core: pick('core'), supplement: pick('supp') };
-}
 // 🎯 «להיכנס להתכנסות» — כל הביטויים באותו ערך-רגיל (מאומתים + ממתינים), לאדמין (עוקף RLS).
 export async function adminValueConvergence(value) {
   if (!supabase) return null;
@@ -1073,13 +574,6 @@ export async function adminValueConvergence(value) {
     if (error) return null;
     return data || null;
   } catch { return null; }
-}
-// ✨ changelog «מה הוספנו לאתר» — לטיקר האוטומטי (בלי טיפול ידני של צוריאל).
-export async function getSiteUpdates(limit = 6) {
-  if (!supabase) return [];
-  const { data } = await supabase.from('site_updates').select('icon,title,link_url')
-    .eq('is_active', true).order('priority', { ascending: false }).order('created_at', { ascending: false }).limit(limit);
-  return data || [];
 }
 const VIDEO_URL_RE = /\.(mp4|mov|webm|m4v|avi|mkv)(\?|#|$)/i;
 // 🎞️ לוכד פריים-תצוגה מסרטון (קנבס בדפדפן) ומעלה כ-thumbnail לדלי gallery.
@@ -1127,25 +621,10 @@ export async function broadcastChannelUpdate({ text, imageUrl = null, hours = nu
   if (error) throw error;
   return data;
 }
-export async function listChannelUpdates(limit = 30) {   // אדמין — כולל כבויים/שפגו
-  if (!supabase) return [];
-  const { data } = await supabase.from('channel_updates')
-    .select('*').order('created_at', { ascending: false }).limit(limit);
-  return data || [];
-}
 export async function setChannelUpdateStatus(id, status) {
   if (!supabase) throw new Error('no supabase');
   const { error } = await supabase.from('channel_updates').update({ status }).eq('id', id);
   if (error) throw error;
-}
-
-// סך כל המילים במאגר — count מדויק בלי למשוך שורות (לפי האמת, לא מספר קבוע)
-export async function getGematriaWordsCount() {
-  if (!supabase) return 0;
-  const { count } = await supabase
-    .from('gematria_words')
-    .select('*', { count: 'exact', head: true });
-  return count || 0;
 }
 
 // ===== ארכיון הגלריות ("גלריית רמזי הגאולה") =====
@@ -1166,11 +645,7 @@ export async function getGalleriesOverview({ force = false, publicSourceOnly = f
     .from('galleries')
     .select(publicSourceOnly ? 'id,name,wp_gallery_id' : 'id,name,anchor_number,img_count,wp_gallery_id', publicSourceOnly ? { count: 'exact' } : undefined);
   if (publicSourceOnly) galleryQuery = galleryQuery.order('id').range(0, 999);
-  const { data: gals, error: galleryError, count: galleryCount } = await galleryQuery;
-  if (galleryError && publicSourceOnly) throw galleryError;
-  let imgs = [], from = 0;
-  let partial = publicSourceOnly && galleryCount > (gals || []).length;
-  while (true) {
+  const imageQuery = (start) => {
     let query = client
       .from('gallery_images')
       .select(publicSourceOnly ? 'id,gallery_id,wp_gallery_id,image_url,thumb_url,ordering,published,min_tier,curator_hidden,occurred_at,created_at,date_derived:ocr_meta->>date_derived,name,description,primary_value,all_values,related_values,image_type,source,stream_at'
@@ -1178,7 +653,19 @@ export async function getGalleriesOverview({ force = false, publicSourceOnly = f
       .not('image_url', 'is', null);
     query = publicSourceOnly ? query.eq('published', 1).eq('min_tier', 0).not('curator_hidden', 'is', true).order('id')
       : query.order('occurred_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false });
-    const { data, error } = await query.range(from, from + 999);
+    return query.range(start, start + 999);
+  };
+  // Public catalog: the galleries read and the first three image pages (stable order('id') offsets 0/1000/2000; 2,195 rows
+  // today) do not depend on each other, so they are issued together instead of one after another (4 sequential round
+  // trips -> 1). The pages are still consumed in order below, so the stop rules, the 10,000-row bound and the errors are
+  // unchanged: a prefetched page that is never reached is never inspected. Later pages stay sequential.
+  const [galleryResult, ...prefetched] = await Promise.all([galleryQuery, ...(publicSourceOnly ? [0, 1000, 2000].map(imageQuery) : [])]);
+  const { data: gals, error: galleryError, count: galleryCount } = galleryResult;
+  if (galleryError && publicSourceOnly) throw galleryError;
+  let imgs = [], from = 0;
+  let partial = publicSourceOnly && galleryCount > (gals || []).length;
+  while (true) {
+    const { data, error } = from / 1000 < prefetched.length ? prefetched[from / 1000] : await imageQuery(from);
     if (error && publicSourceOnly) throw error;
     if (!data || !data.length) break;
     imgs = imgs.concat(data);
@@ -1580,11 +1067,6 @@ export function signalAiBehavior(signal) {
     if (l && Date.now() - l.at < 10 * 60 * 1000) sendAiSignal(l.id, signal);
   } catch { /* noop */ }
 }
-export async function listAiStyles() {
-  if (!supabase) return [];
-  try { const { data } = await supabase.from('ai_style_profiles').select('*').order('created_at'); return data || []; }
-  catch { return []; }
-}
 export async function adminAiRecent(limit = 40) {
   if (!supabase) return [];
   try { const { data } = await supabase.rpc('admin_ai_recent', { p_limit: limit }); return data || []; }
@@ -1666,20 +1148,6 @@ export async function adminFireWatchman() {
   catch { return false; }
 }
 
-// 🔑 חלונות הגילוי — סטורי בראש דף הבית. קריאה ציבורית (RLS: active=true). מיון: sort↓ ואז חדש.
-export async function getStories(lim = 20) {
-  if (!supabase) return [];
-  try {
-    const { data } = await supabase.from('stories')
-      .select('id,title,image_url,video_url,link,credit,contributor_slug,sort')
-      .eq('active', true)
-      .order('sort', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(lim);
-    return data || [];
-  } catch { return []; }
-}
-
 // 🧲 לכידת ליד-מחקר (research_workspace funnel שלב 4) — מייל + snapshot של תיק-המחקר.
 // הכנסה ציבורית מותרת (RLS insert בלבד; קריאה = server-only). מחזיר true בהצלחה.
 export async function saveResearchLead({ email, items, visitorId }) {
@@ -1695,57 +1163,6 @@ export async function saveResearchLead({ email, items, visitorId }) {
     });
     return !error;
   } catch { return false; }
-}
-
-// 💌 הודעה אישית מבעל האתר לדף מספר (owner_note_law) — דאטא-דרייבן מ-nodes (role='owner_note').
-// מחזיר {title, teaser, body, cta, signature} או null. מאפשר לצוריאל להוסיף/לערוך מספרים אישיים
-// בלי פריסה (שינוי נתונים חי מיד). קריאה ציבורית — nodes כבר פתוח לקריאת anon.
-export async function getOwnerNote(value) {
-  if (!supabase || value == null) return null;
-  try {
-    const { data, error } = await supabase.from('nodes')
-      .select('description,metadata')
-      .eq('type', 'entity').eq('is_active', true)
-      .eq('metadata->>role', 'owner_note')
-      .eq('metadata->>value', String(value))
-      .limit(1).maybeSingle();
-    if (error || !data) return null;
-    const m = data.metadata || {};
-    return {
-      title: m.title || '💌 הודעה אישית מבעל האתר',
-      teaser: m.teaser || '',
-      body: data.description || '',
-      cta: m.cta || 'כן, אשמח לשמוע עוד ✨',
-      signature: m.signature || '',
-    };
-  } catch { return null; }
-}
-
-// 📣 פופ-אפ קמפיין אתר-רחב (site_promo) — דאטא-דרייבן מ-nodes (role='site_promo'). מחזיר את
-// הקמפיין הפעיל האחרון בתוך חלון-הזמן (active_until), או null. צוריאל מכבה/מאריך בלי פריסה.
-export async function getSitePromo() {
-  if (!supabase) return null;
-  try {
-    const { data, error } = await supabase.from('nodes')
-      .select('id,metadata')
-      .eq('type', 'entity').eq('is_active', true)
-      .eq('metadata->>role', 'site_promo')
-      .order('created_at', { ascending: false })
-      .limit(1).maybeSingle();
-    if (error || !data) return null;
-    const m = data.metadata || {};
-    if (m.active_until && Date.parse(m.active_until) <= Date.now()) return null;  // חלון נגמר
-    if (!m.href) return null;
-    return {
-      id: data.id,
-      href: m.href,
-      title: m.title || 'פוסט חדש באתר',
-      teaser: m.teaser || '',
-      image: m.image || '',
-      cta: m.cta || '📖 לקריאת הפוסט',
-      activeUntil: m.active_until || null,
-    };
-  } catch { return null; }
 }
 
 // 🧲 פניית גולש בעקבות ההודעה האישית — משאיר דרך ליצירת קשר (INSERT ציבורי; קריאה server-only).
@@ -1807,33 +1224,7 @@ export async function getMyTreeStats() {
   } catch { return empty; }
 }
 
-// סך התמונות הציבוריות בארכיון — ל«באנר האוצר» בדף הבית.
-export async function getGalleryImageCount() {
-  if (!supabase) return 0;
-  const { count } = await supabase.from('gallery_images')
-    .select('*', { count: 'exact', head: true })
-    .not('image_url', 'is', null).not('curator_hidden', 'is', true).eq('min_tier', 0);
-  return count || 0;
-}
-
-// מטא-דאטה של גלריות לפי wp_gallery_id — לרצועת «פתח את הגלריה המלאה» בפוסט ישן.
-// עץ אחד: הפוסט שומר את התמונות המוטמעות, וזה רק מפנה לעדשה העריכה (לא משכפל).
-export async function getGalleriesByWpIds(wpIds) {
-  if (!supabase || !Array.isArray(wpIds) || !wpIds.length) return [];
-  const { data } = await supabase
-    .from('galleries')
-    .select('id,name,anchor_number,img_count,wp_gallery_id')
-    .in('wp_gallery_id', wpIds);
-  return data || [];
-}
-
 // ===== סטים של מספרים (number_sets) =====
-export async function getNumberSets() {
-  if (!supabase) return [];
-  const { data } = await supabase.from('number_sets').select('*')
-    .eq('is_active', true).order('sort_order', { ascending: true }).order('created_at', { ascending: true });
-  return data || [];
-}
 export async function saveNumberSet({ id, name, numbers, description = null, sort_order = 0, image_order = undefined, show_on_home = undefined }) {
   if (!supabase) throw new Error('no supabase');
   const row = { name, numbers, description, sort_order };
@@ -1851,31 +1242,6 @@ export async function deleteNumberSet(id) {
   if (!supabase) throw new Error('no supabase');
   const { error } = await supabase.from('number_sets').delete().eq('id', id);
   if (error) throw error;
-}
-// סטים שצוריאל סימן «הצג בדף הבית» — שליטה אילו סדרות גימטריה מהגלריה מופיעות בבית.
-export async function getHomeSets() {
-  if (!supabase) return [];
-  const { data } = await supabase.from('number_sets').select('*')
-    .eq('is_active', true).eq('show_on_home', true)
-    .order('sort_order', { ascending: true }).order('created_at', { ascending: true });
-  return data || [];
-}
-
-// ===== פיד «עדכוני גלריה» — עדשה על gallery_images (source='update') =====
-// תצלומי-עדכון טריים (חדשות/ממצאים) — לא טבלה חדשה, רק שאילתה. החדש למעלה.
-export async function getGalleryUpdates(limit = 60) {
-  if (!supabase) return [];
-  const { data } = await supabase
-    .from('gallery_images')
-    .select('id,image_url,thumb_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance')
-    .eq('source', 'update')
-    .not('image_url', 'is', null)
-    .not('curator_hidden', 'is', true)
-    .eq('min_tier', 0)                                               // נראות: ציבורי בלבד (פרימיום/מוסתר נחסם)
-    .order('stream_at', { ascending: false, nullsFirst: false })    // 🌊 לפי «נוסף לזרם»
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  return data || [];
 }
 
 // ===== זרם המציאות (Reality Stream) — כל ה«רמזים» (source='update') במאגר אחד =====
@@ -1920,122 +1286,10 @@ export async function getSiteFlags({ pendingScope = null } = {}) {
   finally { if (siteFlagPendingReads.get(pendingScope) === pending) siteFlagPendingReads.delete(pendingScope); }
 }
 
-// 🔥 המספרים החמים באתר — לפי מפת-החום האמיתית (search_log, 7 ימים): אילו מספרים הכי חיפשו.
-// ספירה בצד-לקוח על values בלבד (בלי מונחים — פרטיות). [{n, count}] ממוין חם→קר.
-export async function getHotNumbers(days = 7, lim = 10) {
-  if (!supabase) return [];
-  try {
-    const since = new Date(Date.now() - days * 864e5).toISOString();
-    const { data } = await supabase.from('search_log').select('value')
-      .gte('created_at', since).not('value', 'is', null).limit(4000);
-    const counts = new Map();
-    for (const r of (data || [])) {
-      const n = Number(r.value);
-      if (n > 0) counts.set(n, (counts.get(n) || 0) + 1);
-    }
-    return [...counts.entries()].map(([n, count]) => ({ n, count }))
-      .sort((a, b) => b.count - a.count).slice(0, lim);
-  } catch { return []; }
-}
-
-// 👑 «אוצרות הגילוי» — ציר-הערך: תמונות שצוריאל סימן treasure=true (אצירה ידנית, לא תלוי-זמן).
-// סדר: הבלטה (importance) ואז חדש→ישן. הראשונה = «בחירת העורך» (ה-Hero של שער-המוזיאון).
-export async function getTreasures(limit = 12) {
-  if (!supabase) return [];
-  const { data } = await supabase
-    .from('gallery_images')
-    .select('id,image_url,thumb_url,name,description,primary_value,all_values,occurred_at,created_at,stream_at,importance,image_type')
-    .eq('treasure', true)
-    .not('image_url', 'is', null)
-    .not('curator_hidden', 'is', true)
-    .eq('min_tier', 0)
-    .order('importance', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  return data || [];
-}
+// 🔥 המספרים החמים [עוגן-מבחן] — test/unified-performance-read-policy-2029.test.mjs חותך את getSiteFlags עד הסימן הזה (indexOf).
+//    getHotNumbers שישב כאן הוסר: אין לו קוראים מאז הסרת ה-Legacy (a5ef82cce); הקוד נשמר בהיסטוריית git.
 
 // ===== אוספים (gallery_collections) — גלריות/אוספים/מסלולים גמישים מעל הדרגות הקבועות =====
-// אוסף = כלל (filter jsonb) על gallery_images. הדרגה (image_type) לא משתנה; זו רק תצוגה.
-export async function getGalleryCollections() {
-  if (!supabase) return [];
-  const { data } = await supabase.from('gallery_collections')
-    .select('id,slug,title,description,kind,filter,is_premium,cover_url,sort')
-    .eq('is_active', true).order('sort', { ascending: true });
-  return data || [];
-}
-
-// תמונות של אוסף לפי ה-filter שלו ({tag}/{primary_value}/{source}/{image_type}). נראות ציבורית בלבד.
-export async function getCollectionImages(filter, limit = 500) {
-  if (!supabase || !filter) return [];
-  let q = supabase.from('gallery_images')
-    .select('id,image_url,thumb_url,name,description,primary_value,all_values,occurred_at,created_at,importance,image_type,tags')
-    .not('image_url', 'is', null).not('curator_hidden', 'is', true).eq('min_tier', 0);
-  if (filter.tag) q = q.contains('tags', [filter.tag]);
-  if (filter.primary_value) q = q.eq('primary_value', filter.primary_value);
-  if (filter.source) q = Array.isArray(filter.source) ? q.in('source', filter.source) : q.eq('source', filter.source);
-  if (filter.image_type) q = q.eq('image_type', filter.image_type);
-  const { data } = await q
-    .order('importance', { ascending: false, nullsFirst: false })
-    .order('occurred_at', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  return data || [];
-}
-
-// תחנות ציר ההתגלות (לגשר בין סט מספרים לאירועים)
-export async function getTederStations() {
-  if (!supabase) return [];
-  const { data } = await supabase.from('teder_stations')
-    .select('id,title,year,event_date,central_numbers,post_ref,description,sort_order,is_active')
-    .eq('is_active', true).order('year', { ascending: false });
-  return data || [];
-}
-
-// פירוט גלריה אחת — כל התמונות בסדר כרונולוגי (ordering) עם תיאורים.
-export async function getGalleryDetail(galleryId) {
-  if (!supabase || !galleryId) return [];
-  const { data } = await supabase
-    .from('gallery_images')
-    .select('id,name,description,image_url,thumb_url,ordering,primary_value,all_values,occurred_at')
-    .eq('gallery_id', galleryId)
-    .not('curator_hidden', 'is', true)
-    .eq('min_tier', 0)                                               // נראות: ציבורי בלבד
-    .order('ordering', { ascending: true });
-  return data || [];
-}
-
-// תמונות לפי ערך-ראשי (primary_value) — לקרוסלת רמזים בתוך פוסט. כרונולוגי (חדש→ישן).
-export async function getImagesByPrimaryValue(value) {
-  if (!supabase || !value) return [];
-  const { data } = await supabase
-    .from('gallery_images')
-    .select('id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,created_at,importance')
-    .eq('primary_value', value)
-    .not('image_url', 'is', null)
-    .not('curator_hidden', 'is', true)                              // אצירה: מוסתר לא מוצג
-    .eq('min_tier', 0)                                               // נראות: פרימיום/מוסתר לא לציבור
-    .order('importance', { ascending: false, nullsFirst: false })   // אצירה: המובחר ראשון
-    .order('occurred_at', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false });
-  return data || [];
-}
-
-// תמונות לפי ערך מלא (primary_value או all_values) — למשפחת האפסים / מספרים בלי primary ייעודי.
-export async function getImagesByValue(value) {
-  if (!supabase || !value) return [];
-  const { data } = await supabase
-    .from('gallery_images')
-    .select('id,name,description,image_url,thumb_url,primary_value,all_values,occurred_at,created_at,importance')
-    .or(`primary_value.eq.${value},all_values.cs.{${value}}`)
-    .not('image_url', 'is', null)
-    .not('curator_hidden', 'is', true)
-    .eq('min_tier', 0)                                               // נראות: ציבורי בלבד
-    .order('importance', { ascending: false, nullsFirst: false })
-    .order('occurred_at', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false });
-  return data || [];
-}
 
 // תמונות של גלריה אחת (wp_gallery_id) — לקרוסלה החיה בתוך פוסט (data-sod-gallery-id).
 // עץ אחד: הפוסט הישן מפסיק להציג HTML קפוא ומצביע ל-gallery_images העריך —
@@ -2177,42 +1431,6 @@ export async function getCommentsByPostId(postWpId) {
   return data ?? [];
 }
 
-// כל התגובות מהאתר הישן, מקובצות תחת כל פוסט (לתצוגת ניהול)
-export async function getOldSiteComments() {
-  if (!supabase) return [];
-  // PostgREST מגביל ~1000 שורות לבקשה — מושכים בעמודים
-  async function fetchAll(table, cols, order) {
-    const CH = 1000, out = [];
-    for (let from = 0; ; from += CH) {
-      let q = supabase.from(table).select(cols).range(from, from + CH - 1);
-      if (order) q = q.order(order, { ascending: false });
-      const { data } = await q;
-      if (!data || !data.length) break;
-      out.push(...data);
-      if (data.length < CH) break;
-    }
-    return out;
-  }
-  const [cms, ps] = await Promise.all([
-    fetchAll('comments', 'wp_id,post_wp_id,author_name,date,content', 'date'),
-    fetchAll('posts', 'wp_id,title,slug', null),
-  ]);
-  const pmap = {};
-  ps.forEach(p => { pmap[p.wp_id] = { title: p.title || '', slug: p.slug }; });
-  const groups = new Map();
-  for (const c of cms) {
-    let g = groups.get(c.post_wp_id);
-    if (!g) {
-      g = { post_wp_id: c.post_wp_id, title: pmap[c.post_wp_id]?.title || `פוסט #${c.post_wp_id}`,
-            slug: pmap[c.post_wp_id]?.slug || null, comments: [], latest: c.date };
-      groups.set(c.post_wp_id, g);
-    }
-    g.comments.push(c);
-    if (c.date > g.latest) g.latest = c.date;
-  }
-  return [...groups.values()].sort((a, b) => (a.latest < b.latest ? 1 : -1));
-}
-
 // ── Popular posts (by comment count) ──────────────────────
 export async function getPopularPosts({ limit = 10 } = {}) {
   const { data } = await supabase.rpc('popular_posts_by_comments', { lim: limit });
@@ -2230,61 +1448,15 @@ export async function logView(kind, ref) {
   // בוט כמו ש-site_visits/events עושים; האפשרות הישרה היחידה היא לא לכתוב. הבוט עדיין קורא
   // את הדף במלואו — רק הצפייה שלו לא נספרת. (נפח-הבוטים נמדד בקצה: crawl_daily.)
   if (!sideEffectAllowed("page_views")) return;
+  // DEF-012: the public-reading build's request worker (public-reading-deploy/transport.js) denies every write except an explicit allow-list, and
+  // page_views is not on it. Sending the insert only produced a 403 + console error on every post view, so the public build does not attempt it.
+  if (PUBLIC_READING_RELEASE) return;
   const key = `pv-${kind}-${ref}`;
   try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch { /* ignore */ }
   try { await supabase.from("page_views").insert({ kind, ref: String(ref) }); } catch { /* ignore */ }
 }
-// 🔎 ספירת חיפושים כוללת (כל הזמן) למספר — מד קבוע "כמה פעמים חיפשו". מקור: search_log.
-export async function getSearchCount(value) {
-  if (!supabase || !value) return 0;
-  const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true }).eq("value", value);
-  return count || 0;
-}
-// 🔎 סטטיסטיקת חיפושים של היום (לרצועת הטיקר): כמה חיפושים נעשו + כמה מילים ייחודיות נחקרו.
-// מקור: search_log. ספירת החיפושים = exact head count; המילים = distinct מדגם (עד 2000 שורות).
-export async function getSearchStatsToday() {
-  if (!supabase) return { searches: 0, words: 0, total: 0 };
-  const start = new Date(); start.setHours(0, 0, 0, 0);
-  const iso = start.toISOString();
-  let searches = 0, words = 0, total = 0;
-  try {
-    const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true }).gte("created_at", iso);
-    searches = count || 0;
-  } catch { /* ignore */ }
-  let topNumber = null;
-  try {
-    const { data } = await supabase.from("search_log").select("term,value").gte("created_at", iso).limit(2000);
-    words = new Set((data || []).map(r => (r.term || "").trim()).filter(Boolean)).size;
-    const freq = {};
-    for (const r of (data || [])) if (r.value != null) freq[r.value] = (freq[r.value] || 0) + 1;
-    const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
-    if (top && top[1] >= 2) topNumber = Number(top[0]);
-  } catch { /* ignore */ }
-  try {
-    const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true });
-    total = count || 0;
-  } catch { /* ignore */ }
-  let month = 0;
-  try {
-    const m0 = new Date(); m0.setDate(1); m0.setHours(0, 0, 0, 0);
-    const { count } = await supabase.from("search_log").select("*", { count: "exact", head: true }).gte("created_at", m0.toISOString());
-    month = count || 0;
-  } catch { /* ignore */ }
-  return { searches, words, total, topNumber, month };
-}
-// 💎 כותרות הצלבות מאומתות-ציבוריות (לרצועת הטיקר). רק space='core' + verified=true —
-// כך רמזי-גלם/מעבדה שלא אושרו לא דולפים לציבור. מחזיר עד `limit` (לגיוון ברוטציה).
-export async function getVerifiedCrossTitles(limit = 3) {
-  if (!supabase) return [];
-  try {
-    const { data } = await supabase.from("insights")
-      .select("title,created_at")
-      .eq("is_active", true).eq("space", "core").eq("verified", true)
-      .not("title", "is", null)
-      .order("created_at", { ascending: false }).limit(limit);
-    return (data || []).map(r => r.title).filter(Boolean);
-  } catch { return []; }
-}
+// 🔎 ספירת חיפושים כוללת [עוגן-מבחן] — test/def012-page-views-public-build.test.mjs חותך את logView עד הסימן הזה (indexOf).
+//    getSearchCount שישב כאן הוסר: אין לו קוראים מאז הסרת ה-Legacy (a5ef82cce); הקוד נשמר בהיסטוריית git.
 // 📡 הודעות-טיקר ידניות — צוריאל שולט (טבלת ticker_messages). מוצגות ראשונות בטיקר.
 // להוסיף: insert into ticker_messages(text,priority[,link_url]) · להסיר: update ... set is_active=false.
 // 🫧 דופק-פעילות ציבורי (activity_pulse) — סוגי פעילות בשעה האחרונה, בלי תוכן (פרטיות).
@@ -2319,35 +1491,12 @@ export async function getRecentNumbers(limit = 8) {
   } catch { return []; }
 }
 
-export async function getTickerMessages() {
-  if (!supabase) return [];
-  try {
-    const { data } = await supabase.from("ticker_messages")
-      .select("text,link_url").eq("is_active", true)
-      .order("priority", { ascending: false }).order("created_at", { ascending: false }).limit(10);
-    // link_url (אופציונלי) — נתיב פנימי בלבד (מתחיל ב-«/»); אחרת הלחיצה מובילה לדף הבית.
-    return (data || []).filter(r => r.text).map(r => ({
-      text: r.text,
-      to: typeof r.link_url === "string" && /^\/(?!\/)/.test(r.link_url) ? r.link_url : "/",
-    }));
-  } catch { return []; }
-}
-
 // 🧹 [הוסר 22.7.2026] saveUserItem/getUserItems/deleteUserItem + טבלת user_saved_items —
 //    קוד מת: הפונקציות לא נקראו מאף רכיב, והטבלה נשארה ריקה (0 שורות) מאז ומתמיד.
 //    מערכת השמירה הפעילה היא research_items (bucket library/favorite) דרך useResearch,
 //    שהיא הטבלה המאוחדת הקנונית לפי research_workspace_law («research_items שמאחדת גם את
 //    user_saved_items»). הוסר כדי לא לבלבל (עץ אחד — אין מערכת מקבילה מתה).
 
-// 👣 ספירת כניסות היום (best-effort — אם RLS חוסם, מחזיר 0). מקור: site_visits.
-export async function getVisitorsToday() {
-  if (!supabase) return 0;
-  const start = new Date(); start.setHours(0, 0, 0, 0);
-  try {
-    const { count } = await supabase.from("site_visits").select("*", { count: "exact", head: true }).gte("ts", start.toISOString());
-    return count || 0;
-  } catch { return 0; }
-}
 // 👁 ספירת צפיות חיה לפריט יחיד (מספר/פוסט) בחלון ימים — למחוון "חם" בדף עצמו
 export async function getViewCount(kind, ref, days = 7) {
   if (!supabase || ref == null || ref === "") return 0;
@@ -2371,14 +1520,6 @@ export async function sendContactMessage({ name, email, subject, message }) {
 }
 
 // ── Chat ───────────────────────────────────────────────────
-export async function getChatMessages({ limit = 80 } = {}) {
-  const { data } = await supabase
-    .from('chat_messages')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  return (data ?? []).reverse();
-}
 
 export async function sendChatMessage({ author, content }) {
   const { data, error } = await supabase
@@ -2399,53 +1540,6 @@ export function subscribeToChatMessages(callback) {
     .subscribe();
 }
 
-// ── Traffic / Jetpack stats (legacy_traffic) ───────────────
-// היסטוריית גלישה שיובאה מ-Jetpack/WordPress.com (ראה scripts/sync-jetpack-stats.mjs).
-const TRAFFIC_SEL = 'post_id, title, url, views, period, source';
-
-// PostgREST מגביל ~1000 שורות לבקשה — מושכים בעמודים עד שמתרוקן
-async function fetchAllTraffic(source, orderCol, asc) {
-  const PAGE = 1000;
-  let from = 0, out = [];
-  for (;;) {
-    const { data, error } = await supabase
-      .from('legacy_traffic').select(TRAFFIC_SEL)
-      .eq('source', source).order(orderCol, { ascending: asc })
-      .range(from, from + PAGE - 1);
-    if (error) throw error;
-    out = out.concat(data ?? []);
-    if (!data || data.length < PAGE) break;
-    from += PAGE;
-  }
-  return out;
-}
-
-export async function getTrafficStats() {
-  const empty = { yearly: [], daily: [], posts: [], referrers: [], clicks: [], searches: [] };
-  if (!supabase) return empty;
-  const small = (source, col, asc) =>
-    supabase.from('legacy_traffic').select(TRAFFIC_SEL).eq('source', source).order(col, { ascending: asc }).limit(200);
-  const [daily, posts, yearlyR, refR, clickR, searchR] = await Promise.all([
-    fetchAllTraffic('jetpack-daily', 'period', true),
-    fetchAllTraffic('jetpack', 'views', false),
-    small('jetpack-total', 'period', true),
-    small('jetpack-referrer', 'views', false),
-    small('jetpack-click', 'views', false),
-    small('jetpack-search', 'views', false),
-  ]);
-  const bad = [yearlyR, refR, clickR, searchR].find(r => r.error);
-  if (bad?.error) throw bad.error;
-  const num = arr => (arr ?? []).map(x => ({ ...x, views: Number(x.views) || 0 }));
-  return {
-    yearly: num(yearlyR.data).map(r => ({ period: r.period, views: r.views })),
-    daily: num(daily).map(r => ({ date: r.period, views: r.views })),
-    posts: num(posts),
-    referrers: num(refR.data),
-    clicks: num(clickR.data),
-    searches: num(searchR.data),
-  };
-}
-
 // ── Subscribers (רשימת תפוצה) ──────────────────────────────
 export async function subscribeEmail({ email, name = null, source = 'site' }) {
   if (!supabase || !email?.trim()) return { ok: false };
@@ -2462,18 +1556,36 @@ export async function subscribeEmail({ email, name = null, source = 'site' }) {
 
 // ── מרכז התראות — העדפות נושאים/ערוצים (notification_prefs) ──
 // מקור אחד לכל הערוצים. שורה לכל זהות: userId (מחובר) או visitorId (אנונימי).
+// Member read: the existing RLS-scoped table path (user_id = auth.uid()). One implementation for both entry points below.
+async function readMemberNotificationPrefs(userId) {
+  const { data, error } = await supabase
+    .from('notification_prefs')
+    .select('topics, channels, email, intensity, muted_until')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
+}
+
+// The principal the Supabase client will actually authenticate as. The SDK attaches the stored member JWT to
+// every request, whatever the React tree has resolved so far (AuthContext is still loading, or its verification
+// has not finished). notification_prefs_guest_get_v1 is anon-only (EXECUTE for anon; it also raises for
+// auth.uid() IS NOT NULL), so a member JWT on that call is a guaranteed 403 "permission denied for function".
+async function clientMemberUserId() {
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    const id = error ? null : data?.session?.user?.id;
+    return typeof id === 'string' && id ? id : null;
+  } catch { return null; }
+}
+
 export async function getNotificationPrefs({ userId = null, visitorId = null } = {}) {
   if (!supabase) return null;
-  if (userId) {
-    const { data, error } = await supabase
-      .from('notification_prefs')
-      .select('topics, channels, email, intensity, muted_until')
-      .eq('user_id', userId)
-      .maybeSingle();
-    if (error) throw error;
-    return data || null;
-  }
+  if (userId) return readMemberNotificationPrefs(userId);
   if (visitorId) {
+    // Guest RPC only for a real guest. With a member session present, read the member's own row (same columns/shape).
+    const memberId = await clientMemberUserId();
+    if (memberId) return readMemberNotificationPrefs(memberId);
     const { data, error } = await supabase.rpc('notification_prefs_guest_get_v1', { p_visitor: visitorId });
     if (error) throw error;
     return data || null;
@@ -2511,25 +1623,7 @@ export async function saveNotificationPrefs({ userId = null, visitorId = null, t
   return { ok: true };
 }
 
-// תפר השדרוג (אנונימי → חשבון): כשמבקר מתחבר, "תובעים" את שורת ההעדפות שלו
-// (visitor_id) ומקשרים אותה ל-user_id. מריצים בשתיקה בעת התחברות.
-export async function claimVisitorPrefs(_userId, _visitorId) {
-  // G3 identity spine owns guest→account Follow projection.
-  // stitchLogin() writes the canonical identity edge; PR #692's DB trigger performs the
-  // verified claim under ordered advisory locks. Do not mutate guest rows directly from client code.
-  return;
-}
-
 // ── מונה שיתופים לפוסטים (הוכחה חברתית) ─────────────────────
-export async function getShareCount(wpId) {
-  if (!supabase || !wpId) return 0;
-  const { data } = await supabase
-    .from('post_share_counts')
-    .select('count')
-    .eq('wp_id', wpId)
-    .maybeSingle();
-  return data?.count ?? 0;
-}
 
 export async function incrementShareCount(wpId) {
   if (!supabase || !wpId) return null;
@@ -2564,22 +1658,6 @@ export async function logActivity(kind, ref = null, title = null) {
   } catch { /* silent */ }
 }
 
-// מטא-דאטה קל לכמה פוסטים לפי wp_id (בלי עמודת content הכבדה) — לכרטיסים/תצוגות
-export async function getPostsMetaByWpIds(wpIds = []) {
-  if (!supabase || !wpIds.length) return [];
-  const { data } = await supabase.from('posts').select('wp_id, slug, title, image_url, thumb_url').in('wp_id', wpIds);
-  return data || [];
-}
-
-// מוני שיתופים למספר פוסטים בבת אחת → מפה { wp_id: count }
-export async function getShareCounts(wpIds = []) {
-  if (!supabase || !wpIds.length) return {};
-  const { data } = await supabase.from('post_share_counts').select('wp_id, count').in('wp_id', wpIds);
-  const map = {};
-  (data || []).forEach(r => { map[r.wp_id] = r.count; });
-  return map;
-}
-
 // ── Admin inbox (הודעות + מנויים) — הרשאה בצד-שרת בלבד: auth.uid() מול users.role='admin' ──
 // ⛔ אין סיסמה משותפת. הסוד הישן (ADMIN_PASSWORD) נארז ל-bundle הציבורי ולכן מעולם לא היה הרשאה.
 // p_key נשאר בחתימת ה-RPC לצורך תאימות בלבד ומתעלמים ממנו לחלוטין — שולחים null.
@@ -2598,35 +1676,12 @@ export async function markMessageRead(id, read = true) {
 }
 
 // ── פאנל ניהול חדש (מבוסס role=admin דרך RLS) ──
-export async function adminGetMessages() {
-  if (!supabase) return [];
-  const { data, error } = await supabase.from('contact_messages')
-    .select('id,name,email,subject,message,created_at,read').order('created_at', { ascending: false });
-  if (error) throw error;
-  return data || [];
-}
 export async function adminSetMessageRead(id, read = true) {
   if (!supabase) throw new Error('no supabase');
   const { error } = await supabase.from('contact_messages').update({ read }).eq('id', id);
   if (error) throw error;
 }
-export async function adminGetSubscribers() {
-  if (!supabase) return [];
-  const { data, error } = await supabase.from('subscribers')
-    .select('id,email,name,source,active,created_at,acquisition').order('created_at', { ascending: false });
-  if (error) throw error;
-  return data || [];
-}
 
-// 📥 מיילים נכנסים (inbound_emails) — תשובות «השב» לניוזלטר וכל מייל שנכנס. אדמין-בלבד (RLS).
-export async function adminGetInbound({ limit = 100 } = {}) {
-  if (!supabase) return [];
-  const { data, error } = await supabase.from('inbound_emails')
-    .select('id,from_email,from_name,to_email,subject,body_text,received_at,read,replied_at,reply_count')
-    .order('received_at', { ascending: false }).limit(limit);
-  if (error) throw error;
-  return data || [];
-}
 export async function adminSetInboundRead(id, read = true) {
   if (!supabase) throw new Error('no supabase');
   const { error } = await supabase.from('inbound_emails').update({ read }).eq('id', id);
@@ -2691,19 +1746,6 @@ export async function adminResetPostPosition(id, removeFromAxis = false) {
   return data;
 }
 
-// 🕘 היסטוריית גרסאות של פוסט — הצילומים שנשמרו בכל עריכה מהותית (post_revisions). מנהל בלבד (RLS).
-// מחזיר [{ id, title, content, excerpt, categories, tags, image_url, theme, author, authors, note, created_at }] מהחדש לישן.
-export async function getPostRevisions(postId, limit = 50) {
-  if (!supabase || !postId) return [];
-  const { data, error } = await supabase.from('post_revisions')
-    .select('id,title,content,excerpt,categories,tags,image_url,theme,author,authors,note,created_at')
-    .eq('post_id', postId)
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  if (error) return [];
-  return data || [];
-}
-
 // שחזור גרסה — דורס את הפוסט בערכי הגרסה. הפיך: נשמר צילום «לפני שחזור» של המצב הנוכחי. מנהל בלבד.
 export async function restorePostRevision(revisionId) {
   if (!supabase) throw new Error('no supabase');
@@ -2733,103 +1775,13 @@ export async function getPostAiEdit({ content = '', instruction, title = '', eng
   } catch (e) { return { html: null, error: String(e?.message || e) }; }
 }
 
-// קטגוריות/תגיות קיימות — למלאי בעורך (למניעת כפילויות). מחזיר { categories:[], tags:[] } ממויין.
-export async function getPostCategoriesTags() {
-  if (!supabase) return { categories: [], tags: [] };
-  const cats = new Set(), tgs = new Set();
-  for (let from = 0; ; from += 1000) {
-    const { data } = await supabase.from('posts').select('categories,tags').range(from, from + 999);
-    if (!data || !data.length) break;
-    for (const r of data) { (r.categories || []).forEach(c => c && cats.add(c)); (r.tags || []).forEach(t => t && tgs.add(t)); }
-    if (data.length < 1000) break;
-  }
-  const he = (a, b) => a.localeCompare(b, 'he');
-  return { categories: [...cats].sort(he), tags: [...tgs].sort(he) };
-}
-
-// רשימת הטיוטות (פוסטים עם תגית «טיוטה») — לרשימת-הטיוטות בעורך. מנהל בלבד (RLS posts_admin_write לא חוסם קריאה; קריאה ציבורית מסוננת בפיד).
-export async function getDraftPosts(limit = 40) {
-  if (!supabase) return [];
-  const { data, error } = await supabase.from('posts')
-    .select('id,slug,title,modified,image_url,thumb_url,categories,author')
-    .contains('tags', ['טיוטה'])
-    .order('modified', { ascending: false, nullsFirst: false }).limit(limit);
-  if (error) return [];
-  return data || [];
-}
-
-// רשימת הכותבים/תורמים — לבורר «קשר לכתב» בעורך. slug + שם + אם נעול.
-export async function getContributorsList() {
-  if (!supabase) return [];
-  const { data, error } = await supabase.from('contributors')
-    .select('slug,display_name,locked')   // עמודות מאושרות לקריאה בלבד (active עלול להיות חסום)
-    .order('display_name', { ascending: true });
-  if (error) return [];
-  return data || [];
-}
-
-// 🔗 גשר כותב↔חוקר — לפי התאמת-שם אחידה (contributors.display_name = posts.author).
-// מחזיר { slug, code, vip, building, locked } או null. כולל חוקרים בבנייה/נעולים (מקשרים גם אליהם).
-// Cache בזיכרון כדי לא לשאול פעמיים על אותו שם.
-const _contribByName = new Map();
-export async function getContributorByName(name) {
-  const key = String(name || '').trim();
-  if (!key || !supabase) return null;
-  if (_contribByName.has(key)) return _contribByName.get(key);
-  let result = null;
-  try {
-    const { data } = await supabase.from('contributors')
-      .select('slug, code, display_name, vip, building, locked')
-      .eq('display_name', key).eq('active', true).maybeSingle();
-    result = data || null;
-  } catch { result = null; }
-  _contribByName.set(key, result);
-  return result;
-}
 // כתובת דף-החוקר הקנונית (קוד-מספר עדיף על slug — בלי שמות-אנשים בכתובת)
 export function contributorHref(c) {
   if (!c) return null;
   return `/community/researcher/${c.code || c.slug}`;
 }
 
-// 👥 כל הכתבים באתר — איחוד שלושה מקורות (כדי שלא יחסרו כתבים ישנים בבורר):
-//   1) כתבים אמיתיים מהפוסטים (author + authors[]) — כולל «מזכה הרבים» והרבנים.
-//   2) מרשם הכותבים (authors.js) — שמות עם תמונה/תפקיד.
-//   3) טבלת contributors — תורמים רשומים.
-// מחזיר מערך שמות ייחודי, ממויין עברית. (הבורר בעורך משתמש בזה במקום contributors בלבד.)
-export async function getAllAuthors() {
-  const names = new Set();
-  if (supabase) {
-    for (let from = 0; ; from += 1000) {
-      const { data } = await supabase.from('posts').select('author,authors').range(from, from + 999);
-      if (!data || !data.length) break;
-      for (const r of data) {
-        if (r.author && String(r.author).trim()) names.add(String(r.author).trim());
-        (r.authors || []).forEach(a => { if (a && String(a).trim()) names.add(String(a).trim()); });
-      }
-      if (data.length < 1000) break;
-    }
-    try {
-      const { data } = await supabase.from('contributors').select('display_name');
-      (data || []).forEach(c => { if (c.display_name) names.add(String(c.display_name).trim()); });
-    } catch { /* noop */ }
-  }
-  try { Object.keys(AUTHORS || {}).forEach(n => names.add(n)); } catch { /* noop */ }
-  return [...names].filter(Boolean).sort((a, b) => a.localeCompare(b, 'he'));
-}
-
 // ── OCR גלריות (Edge Function gallery-ocr — Claude Vision) ──
-export async function getOcrCounts() {
-  if (!supabase) return { total: 0, done: 0, pending: 0, error: 0, other: 0 };
-  const c = { total: 0, done: 0, pending: 0, error: 0, other: 0 };
-  for (let from = 0; ; from += 1000) {
-    const { data } = await supabase.from('gallery_images').select('ocr_status').range(from, from + 999);
-    if (!data || !data.length) break;
-    for (const r of data) { c.total++; const k = r.ocr_status; if (k === 'done' || k === 'pending' || k === 'error') c[k]++; else c.other++; }
-    if (data.length < 1000) break;
-  }
-  return c;
-}
 export async function runOcrBatch({ limit = 50, retry = false, runKey = '' } = {}) {
   if (!supabase) throw new Error('no supabase');
   const { data, error } = await supabase.functions.invoke('gallery-ocr', {
@@ -2847,46 +1799,6 @@ export async function runOcrBatch({ limit = 50, retry = false, runKey = '' } = {
 // (כל הסטטוסים + findings גולמי) = מנהל בלבד דרך ה-RPC `admin_topic_cards_full` (SECURITY DEFINER,
 // בדיקת users.role='admin'). אין סינון-React ואין חריג-לכרטיס.
 export const TOPIC_CARDS_PUBLIC = 'topic_cards_public';
-export async function getTopicCards({ approvedOnly = false } = {}) {
-  if (!supabase) return [];
-  if (approvedOnly) {
-    const { data } = await supabase.from(TOPIC_CARDS_PUBLIC).select('*')
-      .order('quality', { ascending: false }).order('created_at', { ascending: false });
-    return data || [];
-  }
-  // מנהל: כל הסטטוסים, שורה קנונית מלאה (ממוין בתוך ה-RPC: quality↓, created_at↓)
-  const { data, error } = await supabase.rpc('admin_topic_cards_full');
-  if (error) throw error;
-  return data || [];
-}
-// 🔡 צפנים — ממצאי «הצופן» (nodes type=convergence, חוצי-שפה/שיטה): 86=אלהים=הטבע, בן=son=sun…
-// מוצגים ב«היכל הגילוי» לצד ההתכנסויות (topic_cards). עדשה על הגרף — לא טבלה חדשה.
-export async function getCipherFindings(limit = 8) {
-  if (!supabase) return [];
-  const { data } = await supabase.from('nodes')
-    .select('id,label,metadata,created_at')
-    .eq('type', 'convergence').eq('is_active', true)
-    .order('created_at', { ascending: false }).limit(40);
-  return (data || [])
-    .filter(n => n.metadata && (n.metadata.kind === 'cross-language' || n.metadata.lang))
-    .slice(0, limit)
-    .map(n => ({
-      t: String(n.label || '').replace(/^\s*\d+\s*[—–-]\s*/, '').trim(),
-      num: (n.metadata.numbers || [])[0] ?? null,
-      slug: n.metadata.slug || null,
-      by: n.metadata.discovered_by || null,
-      created_at: n.created_at,
-    }));
-}
-// אירועי ציר ההתגלות (nodes type=event) — לשימוש ב"מהארכיון" בדף הבית
-export async function getAxisEvents(limit = 24) {
-  if (!supabase) return [];
-  const { data } = await supabase.from('nodes')
-    .select('id,label,weight,hebrew_date,metadata')
-    .eq('type', 'event').eq('is_active', true)
-    .order('weight', { ascending: false }).limit(limit);
-  return data || [];
-}
 export async function getTopicCardBySlug(slug) {
   if (!supabase || !slug) return null;
   // ציבורי: דרך מודל-הקריאה הבטוח בלבד
@@ -2902,54 +1814,8 @@ export async function getTopicCardBySlug(slug) {
     return (rows && rows[0]) || null;
   } catch { return null; }
 }
-// ישויות (זהב/חתימות) המחוברות לציר ההתכנסות בגרף — דרך edges related מה-node של הכרטיס
-export async function getConvergenceEntities(nodeId) {
-  if (!supabase || !nodeId) return [];
-  // convergence_number_method_law: הערך+השיטה ספציפיים להתכנסות ויושבים על ה-edge (לא על הישות)
-  const { data: eg } = await supabase.from('edges').select('to_node, metadata').eq('from_node', nodeId).eq('relation_type', 'related');
-  const ids = [...new Set((eg || []).map(x => x.to_node))];
-  if (!ids.length) return [];
-  const edgeMeta = Object.fromEntries((eg || []).map(x => [x.to_node, x.metadata || {}]));
-  const { data } = await supabase.from('nodes').select('id,label,description,metadata').eq('type', 'entity').in('id', ids);
-  return (data || [])
-    .map(n => ({ ...n, edgeValue: edgeMeta[n.id]?.value ?? null, edgeMethod: edgeMeta[n.id]?.method ?? null }))
-    .sort((a, b) => (b.metadata?.tier === 'gold' ? 1 : 0) - (a.metadata?.tier === 'gold' ? 1 : 0));
-}
-
-// 🔠 צפנים (ELS) שמתלכדים על מספרי ההתכנסות/המספר — דרך הדילוג או המספר-הדומיננטי.
-// els_research_layer_law: צופן = ראיית-ELS. round-trip: צופן בדילוג N מופיע לבד בהתכנסות/מספר N.
-export async function getElsForNumbers(numbers) {
-  if (!supabase || !numbers?.length) return [];
-  const nums = [...new Set(numbers.map(Number).filter(n => Number.isFinite(n) && n > 0))];
-  if (!nums.length) return [];
-  const list = nums.join(',');
-  const { data } = await supabase.from('els_records')
-    .select('slug,title,search_term,skip_distance,primary_number,anchor_numbers,torah_book,direction')
-    .eq('visibility', 'public').eq('status', 'published')
-    .or(`skip_distance.in.(${list}),primary_number.in.(${list}),anchor_numbers.ov.{${list}}`)
-    .limit(12);
-  return data || [];
-}
 
 // ===== אצירת תמונות — דירוג (importance) + הסתרה (curator_hidden). מיון: חזק קודם, ואז תאריך =====
-export async function searchGalleryForCuration(term = '', { limit = 60 } = {}) {
-  if (!supabase) return [];
-  let q = supabase.from('gallery_images')
-    .select('id,image_url,name,ocr_numbers,occurred_at,importance,curator_hidden,source')
-    .not('image_url', 'is', null);
-  const t = (term || '').trim();
-  if (t) {
-    // מספר → אותו סט בדיוק שמוצג בתצוגות (primary_value / all_values), כדי שמה
-    // שתאצור פה ישפיע ישירות על כל הגלריות של אותו מספר.
-    if (/^\d+$/.test(t)) { const num = parseInt(t, 10); q = q.or(`primary_value.eq.${num},all_values.cs.{${num}}`); }
-    else q = q.or(`ocr_text.ilike.%${t}%,name.ilike.%${t}%`);
-  }
-  q = q.order('importance', { ascending: false })
-       .order('occurred_at', { ascending: false, nullsFirst: false })
-       .limit(limit);
-  const { data } = await q;
-  return data || [];
-}
 // חיפוש OCR בצד-שרת — מחזיר ids תואמים (במקום לטעון את כל ה-ocr_text מראש)
 export async function searchArchiveOcrIds(q, { limit = 800, publicSourceOnly = false, client = supabase } = {}) {
   if(publicSourceOnly){
@@ -2991,42 +1857,7 @@ export async function uploadGalleryImage(file) {
   if (error) throw error;
   return supabase.storage.from('gallery').getPublicUrl(path).data.publicUrl;
 }
-// 🌊 הזזת רמז בזרם (אדמין): מחליפים את חותמות-הזמן האפקטיביות של שני רמזים שכנים —
-// הסדר בזרם נקבע לפי stream_at (עם נפילה ל-created_at), אז החלפה = החלפת מיקום.
-// dir: 'up' | 'down' — אם החותמות שוות, מזיזים שנייה אחת כדי שההחלפה תיתפס.
-export async function swapStreamOrder(a, b, dir = 'up') {
-  if (!supabase) throw new Error('no supabase');
-  const eff = h => h.stream_at || h.created_at || new Date().toISOString();
-  let ta = eff(a), tb = eff(b);
-  if (ta === tb) ta = new Date(new Date(tb).getTime() + (dir === 'up' ? -1000 : 1000)).toISOString();
-  const { error: e1 } = await supabase.from('gallery_images').update({ stream_at: tb }).eq('id', a.id);
-  if (e1) throw e1;
-  const { error: e2 } = await supabase.from('gallery_images').update({ stream_at: ta }).eq('id', b.id);
-  if (e2) throw e2;
-  invalidateGalleriesOverview();
-  return { [a.id]: tb, [b.id]: ta };   // id → stream_at החדש (לעדכון מצב מקומי)
-}
 
-// הסתרה/הצגה מרובה (אדמין) — עדכון curator_hidden לרשימת מזהים בבת אחת
-export async function bulkSetCuratorHidden(ids, hidden) {
-  if (!supabase || !ids?.length) return [];
-  const { data, error } = await supabase.from('gallery_images')
-    .update({ curator_hidden: !!hidden }).in('id', ids).select('id');
-  if (error) throw error;
-  invalidateGalleriesOverview();
-  return data || [];
-}
-// השורה המלאה של תמונה לפי id — "עץ אחד": העורך מושך את כל השדות (תגיות/מספרים/הגדרות)
-// גם אם נפתח ממקור שמביא רק חלק מהשדות (קרוסלה/עדכונים/חיפוש).
-export async function getGalleryImageFull(id) {
-  if (!supabase || !id) return null;
-  try {
-    const { data } = await supabase.from('gallery_images')
-      .select('id,image_url,thumb_url,name,description,primary_value,all_values,occurred_at,created_at,importance,image_type,source,curator_hidden,tags,ocr_status,ocr_numbers,treasure')
-      .eq('id', id).maybeSingle();
-    return data || null;
-  } catch { return null; }
-}
 export async function setTopicCardStatus(id, status) {  if (!supabase) throw new Error('no supabase');
   const patch = { status };
   if (status === 'approved') patch.approved_at = new Date().toISOString();
@@ -3076,17 +1907,6 @@ export async function getGalleryImagesByIds(ids = []) {
     .select('id,image_url,name,description,ocr_numbers,occurred_at,gallery_id,primary_value,all_values').in('id', ids);
   return data || [];
 }
-// 🕸️ עץ-קשרים ממוקד-מספר: ההתכנסויות שהמספר שייך אליהן (כל אחת מכילה את
-// המספרים האחרים שמתכנסים יחד). זה הגרף האמיתי — חוט בין מספר↔התכנסות↔מספר.
-export async function getNumberGraph(value) {
-  const n = Number(value);
-  if (!supabase || !Number.isFinite(n)) return { value: n, convergences: [] };
-  const { data } = await supabase.from('nodes')
-    .select('id,label,description,metadata')
-    .eq('type', 'convergence').eq('is_active', true)
-    .contains('metadata', { numbers: [n] });
-  return { value: n, convergences: data || [] };
-}
 // מנוע "צידה": לכל תמונה — אילו מספרים שלה חוזרים במקומות אחרים ובאילו סטים
 export async function getImageConnections(imageId) {
   if (!supabase || !imageId) return null;
@@ -3094,69 +1914,8 @@ export async function getImageConnections(imageId) {
   if (error) throw error;
   return data; // { image_id, image_url, numbers, connections:[{number, images, sets}] }
 }
-export async function findGalleryImages(term, limit = 10) {
-  if (!supabase || !term) return [];
-  const { data } = await supabase.from('gallery_images')
-    .select('id,image_url,name,ocr_numbers')
-    .or(`image_url.ilike.%${term}%,ocr_text.ilike.%${term}%`)
-    .not('image_url', 'is', null).limit(limit);
-  return data || [];
-}
-
-// ===== כפתור «הוסף לזרם» — מכל הגלריות ל-source='update' =====
-export async function getGalleriesForStreamPicker({ limit = 300, search = "" } = {}) {
-  if (!supabase) return [];
-  let q = supabase.from('gallery_images')
-    .select('id,image_url,name,primary_value,all_values,occurred_at,source,gallery_id')
-    .not('image_url', 'is', null)
-    .not('source', 'eq', 'update')
-    .not('curator_hidden', 'is', true);
-  if (search.trim()) {
-    const t = search.trim();
-    if (/^\d+$/.test(t)) { const n = parseInt(t, 10); q = q.or(`primary_value.eq.${n},all_values.cs.{${n}}`); }
-    else q = q.or(`name.ilike.%${t}%,ocr_text.ilike.%${t}%`);
-  }
-  const { data } = await q
-    .order('occurred_at', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false })
-    .limit(limit);
-  return data || [];
-}
 
 // ===== ניהול תמונות — עריכה ומחיקה =====
-
-// בדיקת חיבורים לפני מחיקת תמונה — מחזיר רשימת מקומות שהתמונה מופיעה בהם.
-export async function checkImageConnections(imageId, imageUrl) {
-  if (!supabase) return [];
-  const refs = [];
-  try {
-    const { data: topics } = await supabase
-      .from('topic_cards')
-      .select('id,title')
-      .contains('image_ids', [imageId])
-      .limit(10);
-    if (topics?.length) refs.push(...topics.map(t => ({ type: 'topic', label: t.title || 'התכנסות ללא שם' })));
-  } catch {}
-  try {
-    if (imageUrl) {
-      const { data: posts } = await supabase
-        .from('posts')
-        .select('wp_id,title,slug')
-        .eq('image_url', imageUrl)
-        .limit(10);
-      if (posts?.length) refs.push(...posts.map(p => ({ type: 'post', label: p.title || p.slug || 'פוסט' })));
-    }
-  } catch {}
-  try {
-    const { data: ins } = await supabase
-      .from('insights')
-      .select('id,title')
-      .eq('source_ref', String(imageId))
-      .limit(10);
-    if (ins?.length) refs.push(...ins.map(i => ({ type: 'insight', label: i.title || 'חידוש' })));
-  } catch {}
-  return refs;
-}
 
 // מחיקת תמונה מ-gallery_images (מחיקה מוחלטת — מנהל בלבד).
 export async function deleteGalleryImage(id) {
@@ -3164,16 +1923,6 @@ export async function deleteGalleryImage(id) {
   const { error } = await supabase.from('gallery_images').delete().eq('id', id);
   if (error) throw error;
   invalidateGalleriesOverview();
-}
-
-export async function addImageToRealityStream(id, occurredAt = null) {
-  if (!supabase) throw new Error('no supabase');
-  const { data, error } = await supabase.from('gallery_images')
-    .update({ source: 'update', occurred_at: occurredAt ?? new Date().toISOString() })
-    .eq('id', id)
-    .select('id').single();
-  if (error) throw error;
-  return data;
 }
 
 // גלריה ציבורית — כל התמונות עם פילטר סוג + חיפוש + פגינציה
@@ -3236,14 +1985,6 @@ export async function saveWallWordPrivate(phrase, ragil) {
   try { await supabase.rpc('save_wall_word_private', { p_phrase: String(phrase).trim(), p_ragil: ragil }); }
   catch { /* שקט */ }
 }
-// הקיר הפרטי של האדמין — רק המילים שסומנו private.
-export async function getWallPrivate(limit = 60) {
-  if (!supabase) return [];
-  const { data } = await supabase.from('gematria_wall')
-    .select('phrase,ragil,hits,last_at').eq('private', true)
-    .order('last_at', { ascending: false }).limit(limit);
-  return data || [];
-}
 // 🛟 שכבת "מציל" — מילה שנכשלה במבחן הכתיב המבני אבל קיימת במאגר gematria_words
 // מסומנת recognized=true כדי שתוצג במלואה. לעולם רק מוסיף (מציל מילה אמיתית נדירה),
 // אף פעם לא חוסם מילה תקינה — מילים איכותיות שלא במאגר ממשיכות להופיע כרגיל.
@@ -3261,50 +2002,8 @@ export async function getWallRecent(limit = 60) {
     .select('phrase,ragil,hits,last_at').eq('private', false).order('last_at', { ascending: false }).limit(limit);
   return rescueFromCorpus(data || []);
 }
-export async function getWallPopular(limit = 60) {
-  if (!supabase) return [];
-  const { data } = await supabase.from('gematria_wall')
-    .select('phrase,ragil,hits').eq('private', false).order('hits', { ascending: false }).limit(limit);
-  return rescueFromCorpus(data || []);
-}
-export async function getWallCount() {
-  if (!supabase) return 0;
-  const { count } = await supabase.from('gematria_wall').select('*', { count: 'exact', head: true }).eq('private', false);
-  return count || 0;
-}
-
-export function adaptPost(row) {
-  return {
-    id: row.wp_id,
-    title: { rendered: row.title },
-    excerpt: { rendered: row.excerpt ?? '' },
-    date: row.date,
-    modified: row.modified ?? row.date,
-    link: row.link,
-    slug: row.slug,
-    author: row.author ?? '',
-    source: row.source ?? null,
-    categories: row.categories ?? [],   // top-level — כדי שכרטיסי-פוסט יזהו «וידאו» בלי לחפור ב-_embedded
-    tags: row.tags ?? [],
-    _embedded: {
-      'wp:featuredmedia': (row.thumb_url || row.image_url) ? [{ source_url: row.thumb_url || row.image_url }] : [],
-      'wp:term': [
-        (row.categories ?? []).map(name => ({ taxonomy: 'category', id: name, name })),
-        (row.tags ?? []).map(name => ({ taxonomy: 'post_tag', id: name, name })),
-      ],
-    },
-  };
-}
 
 // ===== פס פעילות חי (LiveActivityBar) — עדכונים אמיתיים בלבד =====
-// ניקוי כותרת (תגיות HTML + ישויות נפוצות) לתצוגה בפס.
-function cleanTitle(s) {
-  return String(s || '')
-    .replace(/<[^>]*>/g, '')
-    .replace(/&#8211;/g, '–').replace(/&#8217;/g, '’').replace(/&#8220;|&#8221;/g, '"')
-    .replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ')
-    .trim();
-}
 
 const SEARCH_TERM_OK = /^[ 0-9א-ת׳״'"\-]{1,40}$/;
 // תיעוד חיפוש אמיתי (מהמחשבון / דף הביטוי). ללא PII; נכשל בשקט. דדופ לכל גלישה.
@@ -3339,79 +2038,6 @@ export async function logSearch(term, value) {
   } catch { /* ignore */ }
   // היסטוריה אישית (פר-משתמש) — לתצוגת "חיפושים אחרונים" בפרופיל. RLS דואג לבעלות.
   try { logActivity('gematria', t, Number.isFinite(value) ? String(value) : null); } catch { /* ignore */ }
-}
-
-// 🕒 היסטוריית פעילות אישית (פר-משתמש, RLS) — חיפושים אחרונים / פוסטים שנגלשו.
-// kinds: מערך סוגים (למשל ['gematria'] או ['post']). מחזיר רשומות אחרונות, דדופ לפי ref.
-export async function getUserActivity(kinds = [], limit = 8) {
-  if (!supabase || !kinds.length) return [];
-  try {
-    const { data } = await supabase.from('user_activity')
-      .select('kind, ref, title, created_at')
-      .in('kind', kinds)
-      .order('created_at', { ascending: false })
-      .limit(120);
-    const seen = new Set(); const out = [];
-    for (const r of (data || [])) {
-      const k = (r.ref || '') + '|' + r.kind;
-      if (!r.ref || seen.has(k)) continue;
-      seen.add(k); out.push(r);
-      if (out.length >= limit) break;
-    }
-    return out;
-  } catch { return []; }
-}
-
-// 🔬 המחקר של המשתמש המחובר — research_items (owner-only דרך RLS ri_select_own).
-//    המקור הקנוני לזיכרון-המחקר (ביטויים/מספרים/פסוקים שחקר/שמר/נעץ). לתיק-המחקר ולפרופיל.
-//    dedup לפי entity_ref, אחרונים קודם. מחזיר [] לאורח/לא-בעלים (RLS חוסם).
-export async function getMyResearch({ limit = 40, types = null } = {}) {
-  if (!supabase) return [];
-  try {
-    let q = supabase.from('research_items')
-      .select('entity_type, entity_ref, title, bucket, link, created_at')
-      .order('created_at', { ascending: false }).limit(300);
-    if (Array.isArray(types) && types.length) q = q.in('entity_type', types);
-    const { data } = await q;
-    const seen = new Set(); const out = [];
-    for (const r of (data || [])) {
-      if (!r.entity_ref || seen.has(r.entity_ref)) continue;
-      seen.add(r.entity_ref); out.push(r);
-      if (out.length >= limit) break;
-    }
-    return out;
-  } catch { return []; }
-}
-
-// 🚪 שער היום — נבחר דטרמיניסטית לפי היום בשנה מתוך חידושי ההצלבות המככבים (כולם רואים אותו שער).
-export function dayOfYear() {
-  const now = new Date();
-  return Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 0)) / 86400000);
-}
-
-// 🕒 פיד חיפושים מאוחד — מקור אחד (search_log) עם דרגות לפי משתמש.
-// אנונימי: 3 · רשום: 3 ימים · מנוי: 30 יום · אדמין: הכל.
-const SEARCH_TIERS = {
-  anon:  { days: 2,    limit: 3 },
-  user:  { days: 3,    limit: 50 },
-  sub:   { days: 30,   limit: 200 },
-  admin: { days: 3650, limit: 600 },
-};
-export async function getSearchFeed(tier = 'anon') {
-  try {
-    const t = SEARCH_TIERS[tier] || SEARCH_TIERS.anon;
-    let q = supabase.from('search_log').select('term,value,created_at').order('created_at', { ascending: false });
-    if (t.days) q = q.gte('created_at', new Date(Date.now() - t.days * 86400000).toISOString());
-    const { data } = await q.limit(Math.min(800, t.limit * 4));
-    const seen = new Set(); const out = [];
-    for (const r of (data || [])) {
-      const term = (r.term || '').trim();
-      if (!term || seen.has(term)) continue;
-      seen.add(term); out.push({ term, value: r.value, at: r.created_at });
-      if (out.length >= t.limit) break;
-    }
-    return out;
-  } catch { return []; }
 }
 
 // ➕ אדמין: הוספת מילה מהחיפושים למאגר הראשי (ערכים מהמנוע המאומת).
@@ -3450,29 +2076,6 @@ export async function getRecentSearchCount(hours = 24) {
       .gte('created_at', since);
     return count || 0;
   } catch { return 0; }
-}
-
-// ✦ חידושי הצלבות — מהמנוע (origin=ai), החדשים ראשונים. למהבהב "כמה נוספו" ולקופסת הבית.
-export async function getRecentCrosses(limit = 12) {
-  try {
-    const { data } = await supabase.from('insights')
-      .select('id,title,body,related_numbers,method_tags,convergence_score,panel_data,gematria_pairs,verified,created_at')
-      .eq('category', 'הצלבות').eq('is_active', true)
-      .order('created_at', { ascending: false }).limit(limit);
-    return data || [];
-  } catch { return []; }
-}
-
-// 🧪 מעבדת צוריאל — שכבת חקירה (insights space='lab'): חידושים חזקים/מבניים שטרם עברו שרשרת הוכחה מלאה.
-export async function getLabInsights(limit = 80) {
-  if (!supabase) return [];
-  try {
-    const { data } = await supabase.from('insights')
-      .select('id,title,body,category,related_numbers,related_phrases,evidence_level,origin,tags,created_at')
-      .eq('space', 'lab').eq('is_active', true)
-      .order('created_at', { ascending: false }).limit(limit);
-    return data || [];
-  } catch { return []; }
 }
 
 // 🧬 כל המילים-השוות ברגיל לערך (לכפתור «פתח עוד» — הרשימה המלאה). ממוין לפי חוזק
@@ -3517,50 +2120,6 @@ export async function getValuePhrasesPage(value, { offset = 0, limit = 30 } = {}
   if (error) throw error;
   return { rows: data || [], count: count ?? (start + (data || []).length) };
 }
-
-// 🆕 Legacy Home projection: הגימטריות האחרונות שנוספו למאגר הקנוני.
-// Projection בלבד — לא מחשבת ולא מאמתת מחדש; מציגה רק רשומות שכבר verified+published.
-export async function getRecentPublishedGematria(limit = 8) {
-  if (!supabase) return [];
-  try {
-    const safeLimit = Math.max(1, Math.min(50, Number(limit) || 50));
-    const { data } = await supabase.from("gematria_words")
-      .select("id,phrase,ragil,created_at")
-      .eq("is_verified", true)
-      .eq("is_published", true)
-      .eq("is_encrypted", false)
-      .not("phrase", "is", null)
-      .order("created_at", { ascending: false, nullsFirst: false })
-      .limit(safeLimit);
-    return (data || []).filter(r => r.phrase && Number.isFinite(Number(r.ragil)));
-  } catch { return []; }
-}
-
-// ⚖️ מצב-ממשל קנוני של השיטות (v_method_states) — מקור-אמת יחיד, לקריאה בלבד, במטמון.
-// BLOCKER-EG-1 / HG-E4: הפרויקציה הציבורית חייבת לרשת את אותו חוק שמגדר את הכתיבות העתידיות.
-// ⛔ לא רשימה קשיחה, לא רישום שני, לא allowlist ב-UI — רק קריאה מהרישום הקנוני.
-let _methodStatesCache = null, _methodStatesAt = 0;
-export async function getMethodStates() {
-  if (_methodStatesCache && Date.now() - _methodStatesAt < 5 * 60 * 1000) return _methodStatesCache;
-  if (!supabase) return {};
-  try {
-    const { data } = await supabase.from('v_method_states')
-      .select('method_key,category,active,scannable,executable,engine_verified');
-    const map = {};
-    (data || []).forEach(r => {
-      map[r.method_key] = {
-        category: r.category, active: r.active, scannable: r.scannable,
-        executable: r.executable, engineVerified: r.engine_verified,
-        // «מושל» = בדיוק אותו חוזה שמגדר כתיבה: scannable ∧ active ∧ executable ∧ engine_verified
-        governed: !!r.scannable,
-      };
-    });
-    _methodStatesCache = map; _methodStatesAt = Date.now();
-    return map;
-  } catch { return _methodStatesCache || {}; }
-}
-// שיטה שאינה מוכרת לרישום נחשבת לא-מושלת (fail-closed לצורך *דירוג*, לא לצורך *הסתרה*).
-export function isGovernedMethod(states, method) { return !!(states && states[method] && states[method].governed); }
 
 // 🧬 משפחות המילים — לכל ערך, הביטויים השווים לו בכל שיטה (מ-bidim, דרך fn_number_lookup) + העולם של כל ביטוי (מ-nodes).
 // המקום היחיד למילים שוות בדף המספר (כולל רגיל). כל פריט: {phrase, world}.
@@ -3634,74 +2193,7 @@ export async function getValueFamilies(value, perMethod = 20, { lookup = null, l
   } catch { return []; }
 }
 
-// 🔢 תהודת האפס (zero_scale_law) — אותו שורש בסדר גודל אחר. סקאלות אחיות לערך.
-export function zeroScales(n) {
-  n = Number(n);
-  const out = [];
-  if (!n || n < 1) return out;
-  if (n % 100 === 0 && n / 100 >= 10) out.push({ v: n / 100, label: "÷100" });
-  if (n % 10 === 0 && n / 10 >= 10) out.push({ v: n / 10, label: "÷10" });
-  out.push({ v: n * 10, label: "×10" });
-  if (n * 100 <= 1000000) out.push({ v: n * 100, label: "×100" });
-  return out;
-}
 
-// 🔢 תהודת האפס — הערך מהדהד בכל שכבות הגרף בסדרי גודל שונים (לא רק התאמת-ערך — משפחת-ערך).
-// לכל סקאלה אחות מחזיר: מילים (רגיל) · גלריות · התכנסויות. מסנן סקאלות ריקות.
-export async function getZeroResonance(value) {
-  if (!supabase) return [];
-  const scales = zeroScales(value);
-  if (!scales.length) return [];
-  const vals = scales.map(s => s.v);
-  // מילים (רגיל) בכל הסקאלות — שאילתה אחת
-  const wordsBy = {};
-  try {
-    const { data } = await supabase.from('bidim').select('value,phrase').eq('method', 'רגיל').in('value', vals).limit(5000);
-    (data || []).forEach(r => {
-      const g = (wordsBy[r.value] ||= { count: 0, seen: new Set(), sample: [] });
-      if (!g.seen.has(r.phrase)) { g.seen.add(r.phrase); g.count++; if (g.sample.length < 8) g.sample.push(r.phrase); }
-    });
-  } catch { /* ignore */ }
-  // התכנסויות מאושרות שמכילות אחת הסקאלות — שאילתה אחת
-  const topicsBy = {};
-  try {
-    const { data } = await supabase.from(TOPIC_CARDS_PUBLIC).select('slug,title,numbers').overlaps('numbers', vals).limit(200);
-    (data || []).forEach(t => (t.numbers || []).forEach(n => { if (vals.includes(n)) (topicsBy[n] ||= []).push({ slug: t.slug, title: t.title }); }));
-  } catch { /* ignore */ }
-  // גלריות — לכל סקאלה (תמונות שהערך מופיע בהן)
-  const imgs = await Promise.all(scales.map(s => getImagesByValue(s.v).then(x => x || []).catch(() => [])));
-  return scales.map((s, i) => ({
-    v: s.v, label: s.label,
-    words: { count: wordsBy[s.v]?.count || 0, sample: wordsBy[s.v]?.sample || [] },
-    images: imgs[i],
-    topics: topicsBy[s.v] || [],
-  })).filter(r => r.words.count || r.images.length || r.topics.length);
-}
-
-
-// מחזיר [{value, size}] ממוין יורד לפי גודל המשפחה (כמה ביטויים שווים לאותו ערך).
-export async function getPhraseValueFamilies(phrase) {
-  if (!supabase || !phrase) return [];
-  const { data: mine } = await supabase.from('bidim').select('value').eq('phrase', phrase);
-  const vals = [...new Set((mine || []).map(r => r.value).filter(v => v >= 10))];
-  if (!vals.length) return [];
-  // ⚖️ HG-E4: גודל-המשפחה מדווח גם כ«מושל» וגם כ«כולל היסטורי» — לא מסתירים שורות היסטוריות,
-  // אבל גם לא מציגים גודל מנופח כאילו כולו עדות מושלת.
-  const [{ data: fam }, states] = await Promise.all([
-    supabase.from('bidim').select('value,phrase,method').in('value', vals).limit(8000),
-    getMethodStates(),
-  ]);
-  const byVal = {}, byValGov = {};
-  (fam || []).forEach(r => {
-    (byVal[r.value] ||= new Set()).add(r.phrase);
-    if (isGovernedMethod(states, r.method)) (byValGov[r.value] ||= new Set()).add(r.phrase);
-  });
-  return vals.map(v => ({
-    value: v,
-    size: byVal[v] ? byVal[v].size : 0,
-    governedSize: byValGov[v] ? byValGov[v].size : 0,
-  })).sort((a, b) => b.governedSize - a.governedSize || b.size - a.size);
-}
 // 🌳 מסע ההתכנסות — רשימת הביטויים ששווים לערך (משפחת-הערך = "בתוך המספר"). + world מ-nodes כשקיים.
 export async function getValuePhraseList(value, limit = 120) {
   if (!supabase || !value) return [];
@@ -3758,21 +2250,6 @@ export async function getNumberResonanceStats(word, pairs) {
   } catch { return null; }
 }
 
-// 🧭 המודל הפרשני של SOD1820 (method_semantics) — שיטה→סוג-יחס (🪞 מראה · 🌗 בן-זוג · 🔍 נסתר…).
-// פרשנות, לא עובדה: profile מאפשר אסכולות עתידיות. cache מודולרי (15 שורות, קריאה אחת לסשן).
-let _methodSemCache = null;
-export async function getMethodSemantics(profile = 'sod1820') {
-  if (_methodSemCache) return _methodSemCache;
-  if (!supabase) return {};
-  try {
-    const { data } = await supabase.from('method_semantics')
-      .select('method,relation_type,emoji,label_he,phrase_template,confidence_source,status,calculation_description,semantic_description,core_note,core_note_visibility,review_version')
-      .eq('profile', profile).eq('is_active', true);
-    _methodSemCache = Object.fromEntries((data || []).map(r => [r.method, r]));
-  } catch { _methodSemCache = {}; }
-  return _methodSemCache;
-}
-
 // 🔁 לולאת-האימות — "ממצאים" (relation_evidence): המנוע מגלה, צוריאל מאשר/דוחה.
 export async function getRelationEvidenceStats() {
   if (!supabase) return [];
@@ -3782,14 +2259,6 @@ export async function discoverRelationCandidates(method = null, limit = 40) {
   if (!supabase) return [];
   try { const { data } = await supabase.rpc('discover_relation_candidates', { p_method: method, p_limit: limit }); return data || []; }
   catch { return []; }
-}
-export async function listRelationEvidence(status = null, limit = 60) {
-  if (!supabase) return [];
-  try {
-    let q = supabase.from('relation_evidence').select('*').order('updated_at', { ascending: false }).limit(limit);
-    if (status) q = q.eq('status', status);
-    const { data } = await q; return data || [];
-  } catch { return []; }
 }
 // `source` = EVIDENCE-SOURCE, not the acting user (live vocabulary: engine_scan, els_record:<id>,
 // ai_judge:<tag>, cross_method:<n>, cipher_scan:<tag>, vip). Leave it null and the RPC records the
@@ -3829,23 +2298,6 @@ export async function getStrongestCrossings(word, min = 2, limit = 4) {
   catch { return []; }
 }
 
-// 🤖🌳 האטלס מדבר אל ה-AI: הממצאים המאושרים שנוגעים לישות (מילה או ערך) — משקל-בכורה בניתוח.
-export async function getAtlasFindingsForEntity(term, value = null, limit = 6) {
-  if (!supabase) return [];
-  try {
-    const w = String(term || '').trim();
-    let q = supabase.from('relation_evidence')
-      .select('relation_type,method,a_phrase,b_phrase,value,note')
-      .eq('status', 'confirmed').limit(limit);
-    if (/^\d+$/.test(w)) q = q.eq('value', parseInt(w, 10));
-    else if (w) q = q.or(`a_phrase.eq.${w},b_phrase.eq.${w}${value ? `,value.eq.${Number(value)}` : ''}`);
-    else if (value) q = q.eq('value', Number(value));
-    else return [];
-    const { data } = await q;
-    return data || [];
-  } catch { return []; }
-}
-
 // 🌳 שכבת-הידע הציבורית של האטלס — ממצאים שנבדקו (דרגות-תמיכה מחושבות) + סטטיסטיקת העץ-האחד.
 export async function getAtlasFindings(relation = null, limit = 80) {
   if (!supabase) return [];
@@ -3875,11 +2327,6 @@ export async function mapAnchorFamily(value) {
   try { const { data } = await supabase.rpc('map_anchor_family', { p_value: Number(value) }); return data || null; }
   catch { return null; }
 }
-export async function getAnchorFamilies() {
-  if (!supabase) return [];
-  try { const { data } = await supabase.from('anchor_families').select('*').order('evidence_count', { ascending: false }); return data || []; }
-  catch { return []; }
-}
 // קידום-סטטוס סדרתי (discovered→reviewed→approved_anchor→featured). מנהל בלבד (נאכף בשרת).
 export async function setAnchorFamilyStatus(root, status, notes = null) {
   if (!supabase) throw new Error('no supabase');
@@ -3895,48 +2342,6 @@ export async function getNameResearch(word, value) {
   const { data, error } = await supabase.rpc('name_lab_research', { p_word: w, p_value: value || null });
   if (error) return null;
   return data || null;
-}
-
-// 👑 תיק-השם (Name Dossier) — משטח «בדיקת השם»: מאחד את כל מנועי-השם בקריאה אחת מקבילה.
-//   fn_name_research = מנוע-העל (גימטריה עמוקה · תנ״ך · שכנים · same_value · ביטויים · אנגרמות),
-//   name_lab_research = גשרים חוצי-שפות + הקשר (פוסטים/אוצרות/חידושים, כבר מחווט),
-//   fn_cross_research  = הצלבת שם + שם-משפחה + תאריך (רק כשיש יותר מפריט אחד).
-// ⚠️ החלטת-מוצר (18.7): שמות-הסוכנים הפנימיים לא נחשפים ללקוח. ה-API מחזיר מפתחות-תפקיד
-//   ניטרליים בלבד (gematria/sources/patterns/language/context/cross) — אף שם-מלאך לא חוצה.
-//   לכן גם *לא* קוראים כאן ל-fn_metatron_route (הוא מחזיר name/agent_id של סוכן).
-export async function getNameDossier(name, { surname, birthdate } = {}) {
-  const w = (name || '').trim();
-  if (!supabase || !w) return null;
-  const items = [w, (surname || '').trim(), (birthdate || '').trim()].filter(Boolean);
-  const rpc = (fn, args) => supabase.rpc(fn, args).then(r => (r.error ? null : r.data)).catch(() => null);
-  const [research, lab, cross] = await Promise.all([
-    rpc('fn_name_research', { p_name: w }),
-    rpc('name_lab_research', { p_word: w, p_value: null }),
-    items.length > 1 ? rpc('fn_cross_research', { p_items: items }) : Promise.resolve(null),
-  ]);
-  const g = research?.gematria || {};
-  const value = (typeof g['רגיל'] === 'number') ? g['רגיל'] : null;
-  return {
-    name: w,
-    value,
-    gematria: research ? { methods: research.gematria || {}, letters: research.letters || [] } : null,
-    sources: research ? { ...(research.tanach || {}), verses_same_gematria: research.verses_same_gematria || null } : null,
-    patterns: research ? {
-      neighbors: research.neighbors || [],
-      same_value: research.same_value || [],
-      anagrams: research.anagrams || [],
-      transforms: research.transforms || null,
-      expressions: research.expressions || [],
-    } : null,
-    language: lab ? { bridges: lab.bridges || [] } : null,
-    context: lab ? {
-      posts: lab.posts || [], posts_count: lab.posts_count || 0,
-      treasures: lab.treasures || [], treasures_count: lab.treasures_count || 0,
-      hints: lab.hints || [], hints_count: lab.hints_count || 0,
-    } : null,
-    cross: cross || null,
-    principle: research?.principle || null,
-  };
 }
 
 // 🧭 פרוטוקול חיפוש-השם (Name Research Protocol) — קריאה אחת שמחזירה את מסמך-המחקר המאוחד:
@@ -4025,173 +2430,7 @@ export async function getDiscoveries(value, term) {
   return data || [];
 }
 // ── CC-1 · «חדר המפקדה» — עטיפות-קריאה דקות (READ-ONLY · reuse-first · אפס WRITE) ──
-// מועמדי-מנוע (research_objects) דרך ה-RPC הקיים admin_research_feed (SECURITY DEFINER, admin).
-export async function getResearchFeed({ status = 'candidate', kind = null, limit = 100 } = {}) {
-  if (!supabase) return [];
-  const { data, error } = await supabase.rpc('admin_research_feed', { p_status: status, p_kind: kind, p_limit: limit });
-  if (error) { console.error('getResearchFeed', error.message || error); return []; }
-  return data || [];
-}
-// 🔖 אינדקס-כתבים (CC-1.2 · Identity Resolver) — עמודות בטוחות בלבד (column-grants; access_code/phone/email חסומים).
-// READ-ONLY. משמש את resolveWriter() למיפוי מחרוזת-מחבר → contributor קנוני (כולל wa_names + merged_into).
-export async function getContributorsIndex() {
-  if (!supabase) return [];
-  const { data, error } = await supabase.from('contributors')
-    .select('id,slug,display_name,wa_names,merged_into,vip');
-  if (error) { console.error('getContributorsIndex', error.message || error); return []; }
-  return data || [];
-}
-// קבוצות-WhatsApp (wa_bot_config — policy admin) — כולל מצב enabled (לזהות מקור-רדום).
-export async function getWaGroups() {
-  if (!supabase) return [];
-  const { data } = await supabase.from('wa_bot_config')
-    .select('group_id,enabled,max_per_hour,ai_chat,created_at').order('enabled', { ascending: false });
-  return data || [];
-}
-// יומן-הודעות WhatsApp (wa_bot_log — policy wabl_admin_read) — נכנס+תשובת-בוט באותה שורה.
-// כולל reply_out (תשובת-הבוט) · msg_id (מזהה-ספק) · bot_mode + sender (טלפון) — לפאנל-הקשר-מלא. READ-ONLY.
-export async function getWaLog({ group = null, sender = null, limit = 80 } = {}) {
-  if (!supabase) return [];
-  let q = supabase.from('wa_bot_log')
-    .select('group_id,sender,sender_name,text_in,reply_out,msg_id,bot_mode,value,action,created_at')
-    .order('created_at', { ascending: false }).limit(limit);
-  if (group) q = q.eq('group_id', group);
-  if (sender) q = q.ilike('sender_name', `%${sender}%`);
-  const { data } = await q;
-  return data || [];
-}
-// 🕐 Timeline של שיחה אחת — כל ההודעות של אותו group_id (הקשר קיים, לא טבלת-conversations חדשה). READ-ONLY.
-// ממוין ישן→חדש (סדר-שיחה). כל שורה = מה האדם שלח (text_in) + מה הבוט החזיר (reply_out).
-export async function getWaThread({ groupId = null, sender = null, limit = 60 } = {}) {
-  if (!supabase || (!groupId && !sender)) return [];
-  let q = supabase.from('wa_bot_log')
-    .select('group_id,sender,sender_name,text_in,reply_out,msg_id,bot_mode,value,action,created_at')
-    .order('created_at', { ascending: true }).limit(limit);
-  if (groupId) q = q.eq('group_id', groupId);
-  else if (sender) q = q.eq('sender', sender);
-  const { data } = await q;
-  return data || [];
-}
-// 💬 ZVI CONVERSATION VIEW (PHASE 1-3) — Thread ≠ Research Case: זו רק projection כרונולוגית של המקור,
-// לא Case/interpretation. ממזגת 3 מקורות אמיתיים בלבד (READ-ONLY, אין טבלת-thread חדשה): channel_updates
-// (לפי credit — הזהות היחידה שיש לה טווח-תאריכים מלא + טקסט אמיתי), wa_bot_log+wa_deep_queue (לפי sender —
-// חלון 3-5.7.2026 בלבד, יש חפיפת-msg_id בין השניים שדורשת dedup). ⛔ בכוונה לא כולל: gallery_images (אין
-// שורות אמיתיות של צבי — כל ה-match הוא "צבי" כמילה בכותרות-חדשות ישנות, לא הכתב), research_contributions
-// (כל 45 השורות חולקות אותו created_at מדויק=זמן-ייבוא-בבאצ׳, לא זמן-כתיבה אמיתי — מיזוגן לרצף כרונולוגי
-// היה מזייף סדר, ר' work_log), wa_msg_ext (777 שורות אך ללא עמודת-טקסט כלל — אינדקס-דדופ ריק-מתוכן).
-// PERSON=identity מוזרקת (phone+credits) ע"י הקורא — לא Person-system חדש. sender/credit הם ה-PERSON,
-// group_id/channel הם ה-CHANNEL, כל שורה היא MESSAGE, thread הוא סדר-כרונולוגי גרידא (ASC, real created_at).
-// ⚠️ waSenderName חובה גם על wa_bot_log, לא רק eq(sender): נמצאו בפועל שורות עם sender=הטלפון-של-צבי אך
-// sender_name="רזיאל (agent)"/action="agent_reply" — תשובת-הבוט-עצמו שנרשמת תחת אותו טלפון בלוג-הפרטי
-// (id 211/220, 4-5.7.2026). בלי הסינון הזה "השיחה של צבי" הייתה מציגה גם את מה שהבוט אמר, לא רק מה שהוא כתב.
-export async function getContributorConversation({ phone = null, waSenderName = null, credits = [], limit = 500 } = {}) {
-  if (!supabase) return [];
-  const waSender = phone ? `${phone}@c.us` : null;
-  const [cuRes, botRes, deepRes] = await Promise.all([
-    credits.length
-      ? supabase.from('channel_updates')
-          .select('id,text,image_url,credit,source,channel,ext_msg_id,created_at')
-          .in('credit', credits).order('created_at', { ascending: true }).limit(limit)
-      : Promise.resolve({ data: [] }),
-    waSender
-      ? (() => {
-          let q = supabase.from('wa_bot_log')
-            .select('id,msg_id,group_id,sender,sender_name,text_in,reply_out,action,created_at')
-            .eq('sender', waSender);
-          if (waSenderName) q = q.eq('sender_name', waSenderName);
-          return q.order('created_at', { ascending: true }).limit(limit);
-        })()
-      : Promise.resolve({ data: [] }),
-    waSender
-      ? (() => {
-          let q = supabase.from('wa_deep_queue')
-            .select('id,msg_id,chat_id,sender,sender_name,raw_text,phrase,created_at')
-            .eq('sender', waSender);
-          if (waSenderName) q = q.eq('sender_name', waSenderName);
-          return q.order('created_at', { ascending: true }).limit(limit);
-        })()
-      : Promise.resolve({ data: [] }),
-  ]);
 
-  const items = [];
-  for (const r of cuRes.data || []) {
-    items.push({
-      kind: 'channel_updates', id: r.id, ts: r.created_at, text: r.text || null, img: r.image_url || null,
-      msgId: r.ext_msg_id || null, channel: r.channel || null, credit: r.credit || null,
-      sourceRef: `channel_updates:${r.id}`,
-    });
-  }
-  // wa_bot_log + wa_deep_queue מכסים אותו חלון-זמן (3-5.7.2026) דרך שני pipelines שונים — אותו msg_id
-  // יכול להופיע בשניהם. dedup לפי msg_id, מעדיף wa_deep_queue.raw_text (מלא-יותר, ר' work_log).
-  const byMsgId = new Map();
-  for (const r of botRes.data || []) {
-    const text = r.text_in === '[image]' ? null : (r.text_in || null);
-    byMsgId.set(r.msg_id, {
-      kind: 'wa_bot_log', id: r.id, ts: r.created_at, text, img: null,
-      isImagePlaceholder: r.text_in === '[image]', ocrNotStored: r.action === 'ocr_replied' && !r.reply_out,
-      msgId: r.msg_id, channel: r.group_id || null, credit: r.sender_name || null,
-      sourceRef: `wa_bot_log:${r.id}`,
-    });
-  }
-  for (const r of deepRes.data || []) {
-    const text = r.raw_text || r.phrase || null;
-    const existing = byMsgId.get(r.msg_id);
-    if (existing) {
-      // אותה הודעה נלכדה ע"י שני ה-pipelines — לא שתי שורות, שדרוג-טקסט בלבד + שתי provenance.
-      existing.text = text || existing.text;
-      existing.sourceRef = `${existing.sourceRef}+wa_deep_queue:${r.id}`;
-      continue;
-    }
-    byMsgId.set(r.msg_id, {
-      kind: 'wa_deep_queue', id: r.id, ts: r.created_at, text, img: null,
-      msgId: r.msg_id, channel: r.chat_id || null, credit: r.sender_name || null,
-      sourceRef: `wa_deep_queue:${r.id}`,
-    });
-  }
-  items.push(...byMsgId.values());
-
-  items.sort((a, b) => new Date(a.ts) - new Date(b.ts));
-
-  // ingestion כפולה (לא re-post לגיטימי אחרי ימים) — אותו טקסט מדויק בתוך חלון קצר (≤10 דק') מסומן, לא נעלם.
-  for (let i = 1; i < items.length; i++) {
-    const prev = items[i - 1], cur = items[i];
-    if (cur.text && prev.text && cur.text === prev.text) {
-      const gapMs = new Date(cur.ts) - new Date(prev.ts);
-      if (gapMs >= 0 && gapMs <= 10 * 60 * 1000) cur.duplicateOfSourceRef = prev.sourceRef;
-    }
-  }
-
-  return items;
-}
-
-// 🗂️ CONTRIBUTOR RESEARCH DOSSIER (Zvi Full Corpus Pass) — Foundation → Projection → Experience.
-// קורא בלבד מ-research_objects הקיים (הפאונדיישן — אחרי ה-batch pass, לא לפני-כן) + research_items(handled)
-// הקיים לסטטוס-עיבוד. אין הרצה חיה של extractCandidates על 400+ הודעות בדפדפן בכל טעינה — זו רק פרוייקציה
-// על מה שכבר-נשמר, בדיוק כמו שדף-ישות (EntityPage) קורא מ-nodes ולא מחשב-מחדש. אין WRITE כאן בכלל.
-export async function getContributorDossierData({ contributor, handledPrefix = null } = {}) {
-  if (!supabase) return { objects: [], handledCount: 0 };
-  const [objRes, handledRes] = await Promise.all([
-    supabase.from('research_objects')
-      .select('id,kind,value,statement,terms,source,source_ref,contributor,engine_verified,engine_detail,status,privacy_scope,created_at')
-      .eq('contributor', contributor).order('created_at', { ascending: true }),
-    handledPrefix
-      ? supabase.from('research_items').select('entity_ref,metadata,created_at')
-          .eq('bucket', 'handled').eq('entity_type', 'cc_handled').ilike('entity_ref', `${handledPrefix}%`)
-      : Promise.resolve({ data: [] }),
-  ]);
-  return { objects: objRes.data || [], handled: handledRes.data || [] };
-}
-
-// חומר-פורום (research_contributions — policy rc_public_read) — טענת-גימטריה + provenance.
-export async function getForumMaterial({ author = null, limit = 120 } = {}) {
-  if (!supabase) return [];
-  let q = supabase.from('research_contributions')
-    .select('id,author_name,target_type,target_id,title,body,gematria_claim,image_url,graph_node_id,projected_insight_id,status,created_at')
-    .order('created_at', { ascending: false }).limit(limit);
-  if (author) q = q.eq('author_name', author);
-  const { data } = await q;
-  return data || [];
-}
 // שכבת-השפות: קישורים מובחנים (תרגום/תעתיק/ערך-משותף) דרך הנתיב הקנוני.
 // ⚠️ language_links חסום לקריאה-ישירה (RLS: 0 policies) — קוראים דרך ה-RPC lang_links_list
 //    (SECURITY DEFINER), אותו מקור שבו «דף האנגלית» משתמש. reuse, בלי טבלה/RPC/DB חדש.
@@ -4216,13 +2455,6 @@ export async function wasScanned(term) {
   const { data, error } = await supabase.rpc('was_scanned', { p_term: term.trim() });
   if (error) return [];
   return data || [];
-}
-// 🌳 מסע ההתכנסות — התחלה אקראית: ביטוי-זהב במשקל גבוה (כדי שיהיה אשכול-ערך עשיר).
-export async function getRandomStartPhrase() {
-  if (!supabase) return null;
-  const { data } = await supabase.from('nodes').select('label').eq('type', 'entity').eq('is_active', true).gte('weight', 4).limit(400);
-  const pool = [...new Set((data || []).map(r => r.label).filter(Boolean))];
-  return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
 }
 
 // 🧪 ניסוי-תוכן — זריעת «מסע קלאסי»: ערך אקראי + משפחתו, מתוך ישויות שה-AI יצר בעולמות
@@ -4254,85 +2486,11 @@ export async function getJourneyPulse() {
   } catch { return null; }
 }
 
-// 🧬 משפחות לפי שיטה — לדף ביטוי: לכל שיטה הערך של הביטוי *באותה שיטה* + המילים השוות לו שם.
-// pairs: [{method, value}] (הערך של הביטוי בכל שיטה). מחזיר [{method, value, count, phrases}].
-export async function getMethodFamilies(pairs, selfTerm = null, perMethod = 20) {
-  if (!supabase || !Array.isArray(pairs) || !pairs.length) return [];
-  try {
-    const valByMethod = {}; pairs.forEach(p => { if (p.value > 0) valByMethod[p.method] = p.value; });
-    const values = [...new Set(Object.values(valByMethod))];
-    if (!values.length) return [];
-    const { data } = await supabase.from('bidim').select('method,phrase,value,priority')
-      .in('value', values).limit(4000);   // note: bidim RLS is source-derived (is_verified+is_published on gematria_words), no client-side filter needed
-    if (!data || !data.length) return [];
-    // משאירים רק שורות שבהן הערך של השורה = הערך של הביטוי באותה שיטה
-    const rows = data.filter(r => valByMethod[r.method] === r.value);
-    if (!rows.length) return [];
-    const phrases = [...new Set(rows.map(r => r.phrase))];
-    const worldMap = {}, ragilMap = {};
-    for (let i = 0; i < phrases.length; i += 300) {
-      const chunk = phrases.slice(i, i + 300);
-      const { data: ents } = await supabase.from('nodes').select('label,metadata')
-        .eq('type', 'entity').in('label', chunk).limit(1000);
-      (ents || []).forEach(n => { const w = n.metadata?.world; if (w && !worldMap[n.label]) worldMap[n.label] = w; });
-      const { data: gw } = await supabase.from('gematria_words').select('phrase,ragil').in('phrase', chunk).limit(1000);
-      (gw || []).forEach(r => { if (r.ragil != null && ragilMap[r.phrase] == null) ragilMap[r.phrase] = r.ragil; });
-    }
-    const groups = {};
-    for (const r of rows) {
-      const g = (groups[r.method] ||= { method: r.method, value: r.value, priority: r.priority ?? 9, seen: new Set(), phrases: [] });
-      if (!g.seen.has(r.phrase)) {
-        g.seen.add(r.phrase);
-        if (r.phrase !== selfTerm) g.phrases.push({ phrase: r.phrase, world: worldMap[r.phrase] || null, ragil: ragilMap[r.phrase] ?? null });
-      }
-    }
-    // ⚖️ HG-E4: כל קבוצה נושאת את מצב-הממשל שלה מהרישום הקנוני; מושלות מדורגות ראשונות, אף אחת לא מוסתרת.
-    const states = await getMethodStates();
-    return Object.values(groups)
-      .map(g => ({ method: g.method, value: g.value, priority: g.priority, count: g.phrases.length,
-        governed: isGovernedMethod(states, g.method),
-        evidenceClass: states[g.method] ? (states[g.method].governed ? 'governed' : 'historical') : 'unregistered',
-        phrases: g.phrases.slice(0, perMethod) }))
-      .sort((a, b) => (a.method === "רגיל" ? -1 : b.method === "רגיל" ? 1 : 0)
-        || (Number(b.governed) - Number(a.governed)) || (a.priority - b.priority) || (b.count - a.count));
-  } catch { return []; }
-}
-
-// 🔥 מספר חם עכשיו — ה-term שנחקר הכי הרבה היום (הוכחה חברתית).
-export async function getHotNumber() {
-  try {
-    const since = new Date(); since.setHours(0, 0, 0, 0);
-    const { data } = await supabase.from('search_log')
-      .select('term,value').gte('created_at', since.toISOString()).limit(800);
-    const counts = {};
-    for (const r of (data || [])) {
-      const t = (r.term || '').trim(); if (!t) continue;
-      (counts[t] = counts[t] || { n: 0, value: r.value }).n++;
-    }
-    let best = null;
-    for (const [term, o] of Object.entries(counts)) if (!best || o.n > best.n) best = { term, value: o.value, n: o.n };
-    return best && best.n >= 2 ? best : null;
-  } catch { return null; }
-}
-
 // 💎 הצלבת קציר: פוסטים שמזכירים ביטוי ששווה למספר הזה (mentions שנקצרו מהפוסטים).
 export async function getHarvestedPosts(value, lim = 6) {
   if (!supabase || !value) return [];
   try {
     const { data } = await supabase.rpc('posts_harvested_for_number', { num: value, lim });
-    return data || [];
-  } catch { return []; }
-}
-
-// ✦ topic_cards שמכילים מספר — לרצועת גילוי בדף המספר.
-export async function getTopicCardsByNumber(value, limit = 6) {
-  if (!supabase || !value) return [];
-  try {
-    const { data } = await supabase.from(TOPIC_CARDS_PUBLIC)
-      .select('slug, title, subtitle, numbers, quality')
-      .contains('numbers', [value])
-      .order('quality', { ascending: false })
-      .limit(limit);
     return data || [];
   } catch { return []; }
 }
@@ -4363,45 +2521,7 @@ export async function setLeadRanks(value, phrases) {
   return data || {};
 }
 
-// 🔍 autocomplete עברי — חיפוש prefix בטבלת bidim (שיטת רגיל).
-export async function searchPhrases(prefix, limit = 8) {
-  if (!supabase || !prefix || prefix.length < 2) return [];
-  try {
-    const { data } = await supabase.from('bidim')
-      .select('phrase, value')
-      .eq('method', 'רגיל')
-      .ilike('phrase', `${prefix}%`)
-      .order('value', { ascending: true })
-      .limit(limit * 3);
-    const seen = new Set(), out = [];
-    for (const r of (data || [])) {
-      if (!seen.has(r.phrase)) {
-        seen.add(r.phrase);
-        out.push(r);
-        if (out.length >= limit) break;
-      }
-    }
-    return out;
-  } catch { return []; }
-}
-
 // ── hint_sets ──
-export async function getHintSets({ status = null } = {}) {
-  if (!supabase) return [];
-  let q = supabase.from('hint_sets').select('*')
-    .order('importance', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false });
-  if (status) q = q.eq('status', status);
-  const { data } = await q;
-  return data || [];
-}
-
-export async function getHintSet(id) {
-  if (!supabase) return null;
-  const { data: set } = await supabase.from('hint_sets').select('*').eq('id', id).single();
-  const { data: members } = await supabase.from('hint_set_members').select('*').eq('set_id', id).order('sort_order');
-  return { ...set, members: members || [] };
-}
 
 export async function saveHintSet(fields) {
   if (!supabase) throw new Error('no supabase');
@@ -4436,15 +2556,6 @@ export async function reorderHintSetMembers(setId, orderedMemberIds) {
 }
 
 // ── trails ──
-export async function getTrails({ status = null } = {}) {
-  if (!supabase) return [];
-  let q = supabase.from('trails').select('*')
-    .order('importance', { ascending: false, nullsFirst: false })
-    .order('created_at', { ascending: false });
-  if (status) q = q.eq('status', status);
-  const { data } = await q;
-  return data || [];
-}
 
 export async function saveTrail(fields) {
   if (!supabase) throw new Error('no supabase');
