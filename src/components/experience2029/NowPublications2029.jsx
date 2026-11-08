@@ -1,13 +1,17 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
-import { availableNowLenses, defaultNowLens, filterNowModels, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
+import { availableNowLenses, collapseSourceRuns, defaultNowLens, NOW_LENS_TONE, filterNowModels, nowLensCounts, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
 import "./nowPublications2029.css";
 
 // Compact "Now" publications window over the ONE shared system feed (feed.expandedRows).
 // No reader, store, polling or ranking of its own: the same rows power the left rail and this sheet.
 const PAGE = 12;
+// ZURIEL 8.11.2026: "Now" always shows relative time in the same Home style (shared helper), wherever the window is opened.
+// The Hebrew + Gregorian rule for other surfaces is unchanged (they never pass through here).
+const NOW_TIME_MODE = "relative";
 
 function Thumb({ model }) {
+  if (!model.thumb && model.logo) return <img className="sod29-nowpub-thumb is-logo" src={model.logo.src} alt="" width="44" height="44" loading="lazy" decoding="async" title={model.logo.label} />;
   return model.thumb
     ? <img className="sod29-nowpub-thumb" src={model.thumb} alt="" loading="lazy" decoding="async" />
     : <span className="sod29-nowpub-thumb is-glyph" aria-hidden="true">{model.video ? "▶" : model.unverified ? "✦" : "◈"}</span>;
@@ -21,11 +25,12 @@ function RowPreview({ model }) {
       ? <video src={`${model.mediaHref}#t=0.1`} preload="metadata" muted playsInline tabIndex={-1} />
       : poster ? <img src={poster} alt="" loading="lazy" decoding="async" /> : null}
     {model.previewKind === "video" ? <span className="sod29-nowpub-playmark">▶</span> : null}
+    {model.logo ? <img className="sod29-nowpub-badge" src={model.logo.src} alt="" width="32" height="32" loading="lazy" decoding="async" /> : null}
   </span>;
 }
 
 function RowHead({ model, timeMode }) {
-  const when = recordTimeLabel(model.at, timeMode, "זמן לא צוין");
+  const when = recordTimeLabel(model.at, NOW_TIME_MODE, "זמן לא צוין");
   const rich = Boolean(model.previewKind);
   return <>
     {rich ? <RowPreview model={model} /> : <Thumb model={model} />}
@@ -67,13 +72,21 @@ function RowDetail({ model, onOpen, feed }) {
   </div>;
 }
 
+// A collapsed run of consecutive source rows: one summary line, every row still its own publication inside.
+function RunGroup({ entry, children }) {
+  return <li><details className="sod29-nowpub-run" data-tone="ember" data-now-run={entry.sourceName}>
+    <summary><strong>{entry.sourceName}</strong><span>{entry.models.length} הודעות</span><span className="is-unverified">מקור · טרם נבדק</span><em>{entry.models[0].title}</em></summary>
+    <ul className="sod29-nowpub-list">{children}</ul>
+  </details></li>;
+}
+
 function Row({ model, onOpen, feed, timeMode }) {
   const className = `sod29-nowpub-row is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""}`;
-  if (model.canExpand) return <li><details className={className} onToggle={event => { if (event.currentTarget.open) feed?.see?.(model.row); }}>
+  if (model.canExpand) return <li><details className={className} data-tone={model.tone} onToggle={event => { if (event.currentTarget.open) feed?.see?.(model.row); }}>
     <summary><RowHead model={model} timeMode={timeMode} /></summary>
     <RowDetail model={model} onOpen={onOpen} feed={feed} />
   </details></li>;
-  return <li><button type="button" className={`${className} is-link`} disabled={!model.href}
+  return <li><button type="button" className={`${className} is-link`} data-tone={model.tone} disabled={!model.href}
     onClick={() => { feed?.see?.(model.row); if (model.href) onOpen?.(model.href); }}>
     <RowHead model={model} timeMode={timeMode} />
   </button></li>;
@@ -95,13 +108,13 @@ function useWide() {
 
 function WideRow({ model, selected, onSelect, timeMode }) {
   const className = `sod29-nowpub-row is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""} is-link${selected ? " is-selected" : ""}`;
-  return <li><button type="button" className={className} aria-pressed={selected} onClick={() => onSelect(model)}><RowHead model={model} timeMode={timeMode} /></button></li>;
+  return <li><button type="button" className={className} data-tone={model.tone} aria-pressed={selected} onClick={() => onSelect(model)}><RowHead model={model} timeMode={timeMode} /></button></li>;
 }
 
 function WideDetail({ model, onOpen, feed, timeMode }) {
   if (!model) return <p className="sod29-nowpub-empty" role="status">בחרו פרסום מהרשימה.</p>;
-  const when = recordTimeLabel(model.at, timeMode, "זמן לא צוין");
-  return <article className="sod29-nowpub-pane" aria-label={model.title}>
+  const when = recordTimeLabel(model.at, NOW_TIME_MODE, "זמן לא צוין");
+  return <article className="sod29-nowpub-pane" data-tone={model.tone} aria-label={model.title}>
     <h3 className="sod29-nowpub-pane-title">{model.title}</h3>
     <small className="sod29-nowpub-meta">
       {model.byline.length ? <span>{model.byline.join(" · ")}</span> : null}
@@ -121,10 +134,17 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
   const models = useMemo(() => nowModels(rows), [rows]);
   const lenses = useMemo(() => availableNowLenses(models), [models]);
+  // Entries per lens among the rows already loaded here: a count of loaded entries, never a site-wide total.
+  const counts = useMemo(() => nowLensCounts(models), [models]);
   const choices = useMemo(() => nowSecondaryChoices(models), [models]);
-  // Until the reader picks, the window opens on the first populated primary path (sources → messages → reality).
+  // Until the reader picks, the window opens on "all" (ZURIEL 6.11.2026), in time order.
   const activeLens = lens ?? defaultNowLens(models);
   const shown = useMemo(() => filterNowModels(models, { lens: activeLens, series, source, media }), [models, activeLens, series, source, media]);
+  // Only the mixed "all" view collapses consecutive source rows; a lens/filter the reader chose on purpose lists every row.
+  const collapse = activeLens === "all" && !series && !source && !media;
+  const entries = useMemo(() => collapse ? collapseSourceRuns(shown) : shown.map(model => ({ kind: "row", model })), [shown, collapse]);
+  const visibleEntries = entries.slice(0, count);
+  const visibleCount = visibleEntries.reduce((sum, entry) => sum + (entry.kind === "run" ? entry.models.length : 1), 0);
   const selected = wide ? (shown.find(model => model.id === selectedId) || shown[0] || null) : null;
   const select = model => { setSelectedId(model.id); feed?.see?.(model.row); };
   const secondaryActive = Boolean(series || source || media);
@@ -148,7 +168,9 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
 
   return <section className="sod29-nowpub" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
     <div className="sod29-nowpub-filters" role="group" aria-label="סינון פרסומים">
-      {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" aria-pressed={activeLens === item.id} onClick={() => pick(setLens)(item.id)}>{item.label}</button>)}
+      {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" data-tone={NOW_LENS_TONE[item.id]} aria-pressed={activeLens === item.id}
+        aria-label={`${item.label}, ${counts[item.id]} פרסומים שנטענו בחלונית`} title={`${counts[item.id]} פרסומים שנטענו בחלונית`}
+        onClick={() => pick(setLens)(item.id)}>{item.label}<span className="sod29-nowpub-chip-count" aria-hidden="true">{counts[item.id]}</span></button>)}
     </div>
     {choices.series.length + choices.sources.length > 1 || choices.media.length > 1 ? <details className="sod29-nowpub-more" open={secondaryActive || undefined}>
       <summary>מסננים נוספים{secondaryActive ? " · פעיל" : ""}</summary>
@@ -173,13 +195,19 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
 
     {wide
       ? <div className="sod29-nowpub-split">
-        <ul className="sod29-nowpub-list">{shown.slice(0, count).map(model => <WideRow key={model.id} model={model} selected={selected?.id === model.id} onSelect={select} timeMode={timeMode} />)}</ul>
+        <ul className="sod29-nowpub-list">{visibleEntries.map(entry => {
+          const wideRow = model => <WideRow key={model.id} model={model} selected={selected?.id === model.id} onSelect={select} timeMode={timeMode} />;
+          return entry.kind === "run" ? <RunGroup key={entry.id} entry={entry}>{entry.models.map(wideRow)}</RunGroup> : wideRow(entry.model);
+        })}</ul>
         {shown.length ? <WideDetail model={selected} onOpen={onOpen} feed={feed} timeMode={timeMode} /> : null}
       </div>
       : <ul className="sod29-nowpub-list">
-        {shown.slice(0, count).map(model => <Row key={model.id} model={model} onOpen={onOpen} feed={feed} timeMode={timeMode} />)}
+        {visibleEntries.map(entry => {
+          const row = model => <Row key={model.id} model={model} onOpen={onOpen} feed={feed} timeMode={timeMode} />;
+          return entry.kind === "run" ? <RunGroup key={entry.id} entry={entry}>{entry.models.map(row)}</RunGroup> : row(entry.model);
+        })}
       </ul>}
-    {count < shown.length ? <button type="button" className="sod29-action sod29-nowpub-more-btn" onClick={() => setCount(n => n + PAGE)}>עוד · {Math.min(count, shown.length)} מתוך {shown.length}</button> : null}
+    {count < entries.length ? <button type="button" className="sod29-action sod29-nowpub-more-btn" onClick={() => setCount(n => n + PAGE)}>עוד · {visibleCount} מתוך {shown.length}</button> : null}
     <button type="button" className="sod29-action sod29-nowpub-world" onClick={() => onOpen?.("/world")}>לחידושים בעולם ←</button>
   </section>;
 }

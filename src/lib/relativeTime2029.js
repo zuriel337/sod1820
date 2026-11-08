@@ -1,15 +1,22 @@
 // Record-time display rule (ZURIEL, 15.8.2026, narrowed 11.10.2026 and 22.10.2026): relative time ("לפני X") is used
 // only on the main Home surface. Everywhere else (World, archive, posts, researcher and the other surfaces) a time of record is
 // shown as the Hebrew and the Gregorian date together, like the timeline ("כ״ו בסיוון · 22.06.2026").
+// Exception (ZURIEL 8.11.2026): the "Now" window shows relative time too, in the same Home style, through recordTimeLabel(.., "relative").
 // Event/content dates (when something happened in the world) are data and keep the bilingual date everywhere.
 import { timeAgoHe } from "./format.js";
 import { formatBilingualDate } from "./research/timeline2029.js";
 
-/** Main Home only. "לפני 3 ימים" / "אתמול" / "לפני שעה". Missing or invalid input returns `missing` (never a date). */
+// A timestamp up to this far ahead of the clock is clock skew between the device and the server ("לפני רגע"); anything later is a
+// future time and must never read as "ago".
+export const FUTURE_SKEW_MS = 5 * 60 * 1000;
+
+/** Main Home only. "לפני 3 ימים" / "אתמול" / "לפני שעה". Missing or invalid input returns `missing` (never a date).
+ *  A genuinely future time returns the bilingual date instead of a false "לפני …". */
 export function relativeTimeLabel(value, missing = "") {
   if (!value) return missing;
   const time = new Date(value).getTime();
   if (!Number.isFinite(time)) return missing;
+  if (time - Date.now() > FUTURE_SKEW_MS) return bilingualDateLabel(value, missing);
   return timeAgoHe(value);
 }
 

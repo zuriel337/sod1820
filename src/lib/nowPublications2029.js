@@ -3,6 +3,7 @@
 // One publication is ONE row: identity comes from feed row ids / sourceRefs (see mergeSystemFeedItems);
 // the same row model feeds the compact Now list, its filters and its detail. Similar wording never merges rows.
 // Series, source/channel, content family and media type stay SEPARATE dimensions (CONTENT-AUDIENCES-HYBRID-NOW).
+import { publicAuthorName, SYSTEM_BYLINE } from "./publicIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
 
 // Public name of the shared series is "מסרים"; the historical source titles and the series key stay untouched.
@@ -19,10 +20,12 @@ const VIDEO_CATEGORY = "וידאו";
 // then the reality stream; "all" and the remaining lenses follow. Lens = presentation only; rows are never re-ranked.
 export const NOW_PRIMARY_LENSES = Object.freeze(["sources", "messages", "reality"]);
 export const NOW_LENSES = Object.freeze([
+  // "all" is first: the window opens on it (ZURIEL 6.11.2026; NOW-CENTRAL-HANDOFF-20261103 lists הכול first), so the active chip is
+  // always visible without scrolling the chip row on a phone. The primary lenses keep their relative order.
+  Object.freeze({ id: "all", label: "הכול" }),
   Object.freeze({ id: "sources", label: "מקורות ציבוריים" }),
   Object.freeze({ id: "messages", label: "מסרים ואור הגאולה" }),
   Object.freeze({ id: "reality", label: "זרם המציאות" }),
-  Object.freeze({ id: "all", label: "הכול" }),
   Object.freeze({ id: "series", label: "סדרות" }),
   Object.freeze({ id: "hints", label: "רמזי גאולה וקוד המציאות" }),
 ]);
@@ -32,6 +35,29 @@ export const NOW_MEDIA = Object.freeze([
   Object.freeze({ id: "image", label: "תמונה" }),
   Object.freeze({ id: "text", label: "טקסט" }),
 ]);
+
+// Presentation-only colour family of a row / lens chip (never ranking, never a claim): drives CSS hue only.
+export const NOW_LENS_TONE = Object.freeze({ all: "sky", sources: "ember", messages: "gold", reality: "teal", series: "violet", hints: "rose" });
+const toneOf = (lenses, unverified) => unverified ? "ember" : lenses.has("messages") ? "gold" : lenses.has("reality") ? "teal"
+  : lenses.has("hints") ? "rose" : lenses.has("series") ? "violet" : "sky";
+
+// Source logos (small webp copies of the approved logos: Or HaGeula = the broadcast logo, ELS = Bible-cipher research, site = the crown).
+// A logo only names WHERE a row comes from; it never claims verification. Unverified group sources get none. The series session adds
+// per-series logos here only when the series is OURS and ZURIEL approved its logo; no logo is the default.
+export const NOW_SOURCE_LOGOS = Object.freeze({
+  "or-geula": Object.freeze({ src: "/brand/2029/source-logos/or-geula.webp", label: "אור הגאולה" }),
+  els: Object.freeze({ src: "/brand/2029/source-logos/els.webp", label: "הצופן התנכי" }),
+  site: Object.freeze({ src: "/brand/2029/source-logos/site.webp", label: "כי לה׳ המלוכה" }),
+});
+// OUR logos mark OUR material only (ZURIEL 6.11.2026): Or HaGeula channel, ELS findings, and posts whose public byline is the system
+// identity. A named human writer or a third-party series (e.g. מה קורה הבורא, מימד חמש, סוד החשמל) never gets a site logo: default is none.
+const logoKeyOf = ({ unverified, isChannel, channel, kind, isPost, author, seriesKey }) => {
+  if (unverified) return null;
+  if (isChannel && channel === "or-geula") return "or-geula";
+  if (kind === "finding" || kind === "convergence") return "els";
+  if (isPost && !seriesKey && publicAuthorName(author) === SYSTEM_BYLINE) return "site";
+  return null;
+};
 
 const VIDEO_URL = /\.(?:mp4|webm|mov|m4v)(?:[?#].*)?$/i;
 // Raw media addresses are storage plumbing, never reading text.
@@ -111,6 +137,8 @@ export function nowRowModel(row) {
   const byline = [seriesLabel, sourceName, isGroup ? item.creator : ""].filter((part, index, all) => part && all.indexOf(part) === index);
   return {
     id: row?.id, row, item, title, byline, typeLabel, unverified,
+    tone: toneOf(lenses, unverified),
+    logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, author: item.author, seriesKey })] || null,
     at: row?.at || null, href, seriesKey, seriesLabel, sourceName,
     media: video ? "video" : image ? "image" : "text", video, image,
     thumb: [!video && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
@@ -134,10 +162,23 @@ export function availableNowLenses(models) {
   return NOW_LENSES.filter(lens => lens.id === "all" || all.some(model => model.lenses.has(lens.id)));
 }
 
-/** First primary lens that has rows (sources → messages → reality); "all" when none does. */
-export function defaultNowLens(models) {
-  const all = list(models);
-  return NOW_PRIMARY_LENSES.find(id => all.some(model => model.lenses.has(id))) || "all";
+/**
+ * The window opens on "all" (ZURIEL 6.11.2026; NOW-CENTRAL-HANDOFF-20261103: time order in "הכול"). This replaces the 5.11 default
+ * that opened on the first populated primary lens, which showed only the public group sources. NOW_PRIMARY_LENSES remains the
+ * order of the primary chips; it no longer picks the opening lens.
+ */
+export function defaultNowLens(_models) {
+  return "all";
+}
+
+/**
+ * Entries per lens among the rows ALREADY LOADED in the window. This counts loaded entries only: it is not site activity, not a
+ * site-wide total and not an audience size (traffic_intelligence_law: activity != audience; no multiplier, no floor).
+ */
+export function nowLensCounts(models) {
+  const all = list(models), counts = Object.create(null);
+  for (const lens of NOW_LENSES) counts[lens.id] = lens.id === "all" ? all.length : all.filter(model => model.lenses.has(lens.id)).length;
+  return counts;
 }
 
 /** Secondary choices (series / source / media) derived from the rows that exist, never fixed lists. */
@@ -158,6 +199,28 @@ export function nowSecondaryChoices(models) {
 export function filterNowModels(models, { lens = "all", series = "", source = "", media = "" } = {}) {
   return list(models).filter(model => (lens === "all" || model.lenses.has(lens))
     && (!series || model.seriesKey === series) && (!source || model.sourceName === source) && (!media || model.media === media));
+}
+
+/**
+ * Presentation only (ZURIEL 6.11.2026 "לכווץ"): a run of at least `min` CONSECUTIVE unverified group-source rows from the same source
+ * becomes one collapsible entry, so a busy source does not bury the rest of the window. Every row stays its own publication inside the
+ * run (same ids, same order, nothing merged, nothing dropped); the input order is never changed.
+ * Returns entries: { kind: "row", model } | { kind: "run", id, sourceName, models }.
+ */
+export function collapseSourceRuns(models, { min = 2 } = {}) {
+  const entries = [], all = list(models);
+  const flush = run => {
+    if (run.length >= min) entries.push({ kind: "run", id: `run:${run[0].id}`, sourceName: run[0].sourceName, models: run });
+    else for (const model of run) entries.push({ kind: "row", model });
+  };
+  let run = [];
+  for (const model of all) {
+    if (model.unverified && (!run.length || run[0].sourceName === model.sourceName)) { run.push(model); continue; }
+    flush(run); run = [];
+    if (model.unverified) run.push(model); else entries.push({ kind: "row", model });
+  }
+  flush(run);
+  return entries;
 }
 
 /** The series page for a model (series key is the existing approved identity). */
