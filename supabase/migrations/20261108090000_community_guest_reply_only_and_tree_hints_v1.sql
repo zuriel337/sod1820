@@ -89,7 +89,9 @@ begin
           'home', 'community', p_parent_id, v_body)
   returning id into v_id;
   insert into public.community_guest_posts (contribution_id) values (v_id);
-  update public.research_contributions set last_activity_at = now() where id = p_parent_id;
+  -- No last_activity_at bump: a guest's reply must not surface a dormant thread
+  -- (ZURIEL, community chat 8.11.2026, reply to תורה תמימה). Only a registered
+  -- member's reply (add_contribution) does that.
   return v_id;
 end;
 $function$;
