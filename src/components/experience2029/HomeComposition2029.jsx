@@ -171,8 +171,22 @@ function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
   const seriesHref = `/2029/posts?series=${encodeURIComponent(spec.key)}`;
   const open = items.length > 0;
   const total = Number.isFinite(Number(series?.total)) ? Number(series.total) : items.length;
-  const famView = seriesFamilyRows2029(items, families);
-  return <article className={`h29-series-card is-primary h29-rm${open ? " has-list" : ""}`} data-home-series={spec.key} data-home-series-primary="true">
+  const famAll = seriesFamilyRows2029(items, families);
+  // The sample IS an example of its source Post. When that Post is a member shown by a family row (today: שבילי שפה, post 5018), the sample
+  // sits attached under that Post, that row comes first, and nothing is left empty beside it. Otherwise the sample stays on its own as before.
+  const leadIndex = teaser ? famAll.rows.findIndex(row => row.item && row.item.sourceRef === teaser.sourceRef) : -1;
+  const attached = leadIndex >= 0;
+  const famView = attached ? { ...famAll, rows: [famAll.rows[leadIndex], ...famAll.rows.filter((_, index) => index !== leadIndex)] } : famAll;
+  const sample = teaser ? <Link className="h29-series-teaser h29-card-open" to={teaser.href} data-home-series-teaser={teaser.sourceRef} aria-label={`${teaser.text}. מתוך הפוסט: ${teaser.sourceTitle}`}>
+      <span className="h29-teaser-kicker">{attached ? `דוגמה מ${famView.rows[0].label}` : "דוגמית מהסדרה"}{teaser.step ? ` · ${teaser.step}` : ""}</span>
+      <span className="h29-teaser-tiles" dir="ltr" aria-hidden="true">
+        {teaser.tiles.map((tile, index) => <i key={index} style={{ "--i": index }}>{tile.letter}<small>{tile.value}</small></i>)}
+        <b className="h29-teaser-total">= {teaser.total}</b>
+      </span>
+      <strong className="h29-teaser-line" aria-hidden="true"><bdi dir="ltr">{teaser.highlight}</bdi></strong>
+      <small className="h29-teaser-source" aria-hidden="true">מתוך הפוסט: {teaser.sourceTitle}{teaser.methodNote ? ` · ${teaser.methodNote}` : ""}</small>
+    </Link> : null;
+  return <article className={`h29-series-card is-primary h29-rm${open ? " has-list" : ""}${attached ? " is-attached" : ""}`} data-home-series={spec.key} data-home-series-primary="true">
     <header className="h29-rm-id" data-home-rm-identity="true">
       <img className="h29-rm-logo" src={BRAND_LOCKUP_NAV_2029.src} width={BRAND_LOCKUP_NAV_2029.width} height={BRAND_LOCKUP_NAV_2029.height} alt="" decoding="async" draggable="false" />
       <span className="h29-rm-brand"><b>כי לה׳ המלוכה</b><small>סוד 1820 · התוכן המקורי שלנו</small></span>
@@ -181,25 +195,18 @@ function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
       {open ? <Link className="h29-series-name h29-rm-title" to={seriesHref}>{spec.label}</Link> : <h3 className="h29-series-name h29-rm-title">{spec.label}</h3>}
       <SeriesBell2029 seriesKey={spec.key} label={spec.label} />
     </div>
-    {teaser ? <Link className="h29-series-teaser h29-card-open" to={teaser.href} data-home-series-teaser={teaser.sourceRef} aria-label={`${teaser.text}. מתוך הפוסט: ${teaser.sourceTitle}`}>
-      <span className="h29-teaser-kicker">דוגמית מהסדרה{teaser.step ? ` · ${teaser.step}` : ""}</span>
-      <span className="h29-teaser-tiles" dir="ltr" aria-hidden="true">
-        {teaser.tiles.map((tile, index) => <i key={index} style={{ "--i": index }}>{tile.letter}<small>{tile.value}</small></i>)}
-        <b className="h29-teaser-total">= {teaser.total}</b>
-      </span>
-      <strong className="h29-teaser-line" aria-hidden="true"><bdi dir="ltr">{teaser.highlight}</bdi></strong>
-      <small className="h29-teaser-source" aria-hidden="true">מתוך הפוסט: {teaser.sourceTitle}{teaser.methodNote ? ` · ${teaser.methodNote}` : ""}</small>
-    </Link> : null}
+    {!attached ? sample : null}
     {open || families.length ? <section className="h29-rm-products h29-rm-fams" aria-label="הפוסטים במפה" data-home-rm-products="true">
       <h4>מהמפה{open ? <small>{total}</small> : null}</h4>
       <div className="h29-fam-rows">
-        {famView.rows.map(row => <div className={`h29-fam-row${row.item ? "" : " is-bare"}`} key={row.key} data-home-family={row.key}>
+        {famView.rows.map((row, rowIndex) => <div className={`h29-fam-row${row.item ? "" : " is-bare"}${attached && rowIndex === 0 ? " is-lead" : ""}`} key={row.key} data-home-family={row.key}>
           {row.item
             ? <Link className="h29-fam-post" to={row.item.href} data-home-rm-item={row.item.id}>
               <Media src={row.item.imageUrl} fallback={<img src={BRAND_LOCKUP_NAV_2029.src} alt="" width={40} height={40} />} className="h29-rm-thumb" />
               <span><b className="h29-fam-k">{row.label}</b><strong>{row.item.title}</strong><small>פוסט {row.item.id} · <PublicationTime at={row.item.publishedAt} /></small></span>
             </Link>
             : <span className="h29-fam-post is-empty"><b className="h29-fam-k">{row.label}</b>{row.note ? <small>{row.note}</small> : null}</span>}
+          {attached && rowIndex === 0 ? sample : null}
           <Link className="h29-fam-all" to={row.href} aria-label={`כל הפוסטים ב${row.label}`}>{row.label} ←</Link>
         </div>)}
       </div>

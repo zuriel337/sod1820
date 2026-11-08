@@ -471,3 +471,18 @@ a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gol
 .h29-rm-rest time { color: var(--s29-muted); font: 400 11px/1.4 var(--s29-font-ui); }
 .h29-fam-soon { display: block; padding: 2px 14px; color: var(--s29-muted); font: 400 12px var(--s29-font-ui); }
 @container h29 (min-width: 901px) { .h29-fam-post .h29-rm-thumb { max-height: 150px; } .h29-fam-row .h29-fam-k { padding-inline-end: 0; } .h29-fam-all { position: static; justify-self: end; margin-top: 2px; } .h29-fam-rows { grid-template-columns: repeat(3, 1fr); gap: 0 14px; } .h29-fam-row { border-top: 0; } .h29-fam-post { grid-template-columns: 1fr; } .h29-fam-post .h29-rm-thumb { width: 100%; height: auto; aspect-ratio: 16/10; } }
+
+/* HOME-SAMPLE-ATTACHED-20261108 (ZURIEL): the Bereshit sample is an EXAMPLE of its source Post, so it sits attached under that Post
+   (the שבילי שפה row, first), on one framed block: no empty space beside it and the reader sees what שבילי שפה is. */
+.h29-fam-row.is-lead { padding: 8px 8px 10px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 34%, var(--s29-line)); background: linear-gradient(150deg, color-mix(in srgb, var(--s29-brand-gold) 10%, transparent), transparent 70%); margin-block: 6px; }
+.h29-fam-row.is-lead .h29-series-teaser { grid-area: auto; margin-top: 6px; padding: 8px 0 2px; border-top: 1px dashed color-mix(in srgb, var(--s29-brand-gold) 38%, transparent); }
+@container h29 (min-width: 901px) {
+  .h29-series-card.is-primary.is-attached.has-list { grid-template-columns: minmax(0,1fr); grid-template-areas: "id" "title" "list"; grid-template-rows: auto auto auto; }
+  .h29-series-card.is-attached .h29-fam-rows { grid-template-columns: minmax(0,1.25fr) minmax(0,1fr); gap: 0 18px; align-items: start; }
+  .h29-series-card.is-attached .h29-fam-row.is-lead { grid-column: 1; grid-row: 1 / span 2; }
+  .h29-series-card.is-attached .h29-fam-row:not(.is-lead) { grid-column: 2; border-top: 1px solid color-mix(in srgb, var(--s29-brand-gold) 18%, var(--s29-line)); }
+  .h29-series-card.is-attached .h29-fam-post { grid-template-columns: 64px minmax(0,1fr); }
+  .h29-series-card.is-attached .h29-fam-post .h29-rm-thumb { width: 64px; height: 64px; max-height: none; aspect-ratio: 1; }
+  .h29-series-card.is-attached .h29-fam-row .h29-fam-k { padding-inline-end: 6.5em; }
+  .h29-series-card.is-attached .h29-fam-all { position: absolute; margin-top: 0; justify-self: auto; }
+}

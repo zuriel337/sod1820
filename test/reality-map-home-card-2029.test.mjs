@@ -186,3 +186,21 @@ test("adding the tag adds a Post to the list and removing it removes the Post (m
   assert.deepEqual((await mount([item("reality-map", 6)])).ids, [6], "tag removed from 5: it leaves the list");
   assert.deepEqual(await mount([]), { ids: [], hasProducts: true }, "tag removed from the last member: the Post disappears");
 });
+
+test("the sample is attached under its source Post's family row (שבילי שפה, post 5018): that row first, the sample inside it, no standalone sample", async () => {
+  const f = fixture(); let root;
+  await act(async () => { root = Renderer.create(React.createElement(HomeSeriesCards)); });
+  const members = [item("reality-map", 92, { title: "סוד", categories: ["סוד 1820"], publishedAt: "2026-11-05T09:00:00Z" }),
+    item("reality-map", 5018, { title: "שבילי שפה", categories: ["שבילי שפה"], publishedAt: "2026-07-09T09:00:00Z" })];
+  await act(async () => { f.calls[0].resolve(catalog(members)); });
+  const article = root.root.findAll(node => node.type === "article" && node.props["data-home-series-primary"] === "true")[0];
+  assert.match(String(article.props.className), /is-attached/);
+  const rows = article.findAll(node => node.type === "div" && node.props["data-home-family"]);
+  assert.deepEqual(rows.map(row => row.props["data-home-family"]).slice(0, 2), ["language-paths", "sod-1820"], "the example's family first");
+  assert.match(String(rows[0].props.className), /is-lead/);
+  const samples = scope => scope.findAll(node => node.type === "a" && node.props["data-home-series-teaser"]);
+  assert.equal(samples(rows[0]).length, 1, "the sample sits inside that row");
+  assert.equal(samples(article).length, 1, "and nowhere else");
+  assert.match(article.findAll(node => node.type === "span" && /h29-teaser-kicker/.test(String(node.props.className)))[0].children.join(""), /דוגמה משבילי שפה/);
+  await act(async () => { root.unmount(); });
+});
