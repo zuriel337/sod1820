@@ -54,5 +54,5 @@ Not done:
 
 ## Stage split (ZURIEL 8.11.2026 — final order)
 **Stage 1 (Home + "עכשיו" + the video) ships WITHOUT any follow-series migration artifact.** On the integration branch the migration SQL, its release manifest/preflight, the generator guard change, the `WatchButton.jsx` bell variant and its re-pin were reverted to `origin/main`; `SeriesBell2029` is back on the existing `mini` variant. Nothing here is applied anywhere.
-**Stage 2 (after Stage 1 is live and verified):** re-apply Phase 1 with `git revert <the revert commit>` (the Phase 1 commits are in this branch's history: `456c3c6d3`), then the isolated Supabase branch, the diff and rollback review, and a separate approval for Production. The Phase 1 notes above remain accurate for Stage 2.
+**Stage 2 (after Stage 1 is live and verified):** re-apply Phase 1 with `git revert ff7428de8` (Phase 1 is commit `456c3c6d3` in this branch's history), then the isolated Supabase branch, the diff and rollback review, and a separate approval for Production. The Phase 1 notes above remain accurate for Stage 2.
 
