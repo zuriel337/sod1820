@@ -6,6 +6,14 @@
 .sod29-nowpub-chip-count{margin-inline-start:6px;font-variant-numeric:tabular-nums;font-size:.85em;font-weight:600;opacity:.8}
 .sod29-nowpub-chip:hover{color:var(--s29-ink)}
 .sod29-nowpub-chip[aria-pressed="true"]{border-color:var(--s29-accent-text);color:var(--s29-accent-text);background:color-mix(in srgb,var(--s29-accent-text) 9%,transparent)}
+.sod29-nowpub-run{border:1px dashed var(--s29-line);border-radius:14px;background:color-mix(in srgb,var(--s29-panel) 55%,transparent);min-width:0}
+.sod29-nowpub-run>summary{position:relative;padding-inline-end:34px!important;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:8px 12px;min-height:48px;cursor:pointer;font-size:var(--s29-type-ui)}
+.sod29-nowpub-run>summary::-webkit-details-marker{display:none}
+.sod29-nowpub-run>summary::after{content:"▾";position:absolute;inset-inline-end:12px;top:50%;margin-top:-.6em;line-height:1.2;transition:transform .15s}
+.sod29-nowpub-run[open]>summary::after{transform:rotate(180deg)}
+.sod29-nowpub-run>summary span{font-size:var(--s29-type-small);color:var(--s29-muted)}
+.sod29-nowpub-run>summary .is-unverified{color:var(--s29-brand-gold)}
+.sod29-nowpub-run>.sod29-nowpub-list{padding:0 6px 8px}
 .sod29-nowpub-more>summary::marker{content:""}
 .sod29-nowpub-more>summary::after{content:"▾";margin-inline-start:6px;display:inline-block;transition:transform .15s}
 .sod29-nowpub-more[open]>summary::after{transform:rotate(180deg)}
@@ -51,6 +59,31 @@
   .sod29-nowpub-thumb{flex-basis:40px;width:40px;height:40px}
 }
 @media (prefers-reduced-motion:reduce){.sod29-nowpub *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Calm colour (ZURIEL 8.11.2026): one even surface; the source logo is the colour anchor. Hue shows only as a thin edge bar and a small
+   glyph; the active chip is the one strong colour. Hue is decoration only: text stays on the theme ink, so day / parchment / night keep contrast. */
+.sod29-nowpub [data-tone="sky"]{--tone:#2f7be0}
+.sod29-nowpub [data-tone="gold"]{--tone:#c98a12}
+.sod29-nowpub [data-tone="teal"]{--tone:#12a594}
+.sod29-nowpub [data-tone="violet"]{--tone:#7b55e0}
+.sod29-nowpub [data-tone="rose"]{--tone:#e0487a}
+.sod29-nowpub [data-tone="ember"]{--tone:#e8742a}
+.sod29-nowpub-chip[data-tone][aria-pressed="true"]{border-color:transparent;background:color-mix(in srgb,var(--tone) 72%,#000);color:#fff;font-weight:800}
+.sod29-nowpub-chip[data-tone] .sod29-nowpub-chip-count{opacity:1}
+.sod29-nowpub-chip[data-tone][aria-pressed="true"] .sod29-nowpub-chip-count{display:inline-grid;place-items:center;min-width:20px;padding:0 6px;border-radius:999px;background:rgb(255 255 255/.22)}
+.sod29-nowpub-row[data-tone]{position:relative;overflow:hidden}
+.sod29-nowpub-row[data-tone]::before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:3px;background:var(--tone)}
+.sod29-nowpub-row[data-tone].is-source{border-style:solid}
+.sod29-nowpub-row[data-tone] .sod29-nowpub-thumb.is-glyph{background:color-mix(in srgb,var(--tone) 12%,transparent);color:var(--tone)}
+.sod29-nowpub-run[data-tone]{border:1px solid color-mix(in srgb,var(--tone) 55%,var(--s29-line));background:transparent}
+.sod29-nowpub-run[data-tone]>summary strong{color:var(--s29-ink)}
+.sod29-nowpub-run[data-tone]>summary .is-unverified{color:color-mix(in srgb,var(--tone) 55%,var(--s29-ink))}
+.sod29-nowpub-pane[data-tone]{border-color:var(--s29-line)}
+
+/* Source logos: where a row comes from (never a verification claim). */
+.sod29-nowpub-thumb.is-logo{background:none;object-fit:cover;border-radius:50%;box-shadow:0 0 0 1px color-mix(in srgb,var(--tone,var(--s29-line)) 45%,transparent),0 4px 10px -4px rgb(0 0 0/.45)}
+.sod29-nowpub-preview .sod29-nowpub-badge{position:absolute;inset-block-start:8px;inset-inline-start:8px;inset:auto;inset-block-start:8px;inset-inline-start:8px;width:32px;height:32px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgb(255 255 255/.7),0 4px 10px rgb(0 0 0/.4)}
+.sod29-nowpub-run>summary em{flex-basis:100%;font-style:normal;font-size:var(--s29-type-small);color:var(--s29-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* Now window size (ZURIEL 5.11.2026): near full screen on mobile, wide and centered on desktop. Layout only; the #1203 badge rule is untouched.
    The backdrop keeps its bottom clearance (--s29-island-clearance) so the bottom bar stays reachable; only inline/top spacing is set here. */

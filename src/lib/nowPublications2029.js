@@ -3,6 +3,7 @@
 // One publication is ONE row: identity comes from feed row ids / sourceRefs (see mergeSystemFeedItems);
 // the same row model feeds the compact Now list, its filters and its detail. Similar wording never merges rows.
 // Series, source/channel, content family and media type stay SEPARATE dimensions (CONTENT-AUDIENCES-HYBRID-NOW).
+import { publicAuthorName, SYSTEM_BYLINE } from "./publicIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
 
 // Public name of the shared series is "מסרים"; the historical source titles and the series key stay untouched.
@@ -34,6 +35,29 @@ export const NOW_MEDIA = Object.freeze([
   Object.freeze({ id: "image", label: "תמונה" }),
   Object.freeze({ id: "text", label: "טקסט" }),
 ]);
+
+// Presentation-only colour family of a row / lens chip (never ranking, never a claim): drives CSS hue only.
+export const NOW_LENS_TONE = Object.freeze({ all: "sky", sources: "ember", messages: "gold", reality: "teal", series: "violet", hints: "rose" });
+const toneOf = (lenses, unverified) => unverified ? "ember" : lenses.has("messages") ? "gold" : lenses.has("reality") ? "teal"
+  : lenses.has("hints") ? "rose" : lenses.has("series") ? "violet" : "sky";
+
+// Source logos (small webp copies of the approved logos: Or HaGeula = the broadcast logo, ELS = Bible-cipher research, site = the crown).
+// A logo only names WHERE a row comes from; it never claims verification. Unverified group sources get none. The series session adds
+// per-series logos here only when the series is OURS and ZURIEL approved its logo; no logo is the default.
+export const NOW_SOURCE_LOGOS = Object.freeze({
+  "or-geula": Object.freeze({ src: "/brand/2029/source-logos/or-geula.webp", label: "אור הגאולה" }),
+  els: Object.freeze({ src: "/brand/2029/source-logos/els.webp", label: "הצופן התנכי" }),
+  site: Object.freeze({ src: "/brand/2029/source-logos/site.webp", label: "כי לה׳ המלוכה" }),
+});
+// OUR logos mark OUR material only (ZURIEL 6.11.2026): Or HaGeula channel, ELS findings, and posts whose public byline is the system
+// identity. A named human writer or a third-party series (e.g. מה קורה הבורא, מימד חמש, סוד החשמל) never gets a site logo: default is none.
+const logoKeyOf = ({ unverified, isChannel, channel, kind, isPost, author, seriesKey }) => {
+  if (unverified) return null;
+  if (isChannel && channel === "or-geula") return "or-geula";
+  if (kind === "finding" || kind === "convergence") return "els";
+  if (isPost && !seriesKey && publicAuthorName(author) === SYSTEM_BYLINE) return "site";
+  return null;
+};
 
 const VIDEO_URL = /\.(?:mp4|webm|mov|m4v)(?:[?#].*)?$/i;
 // Raw media addresses are storage plumbing, never reading text.
@@ -113,6 +137,8 @@ export function nowRowModel(row) {
   const byline = [seriesLabel, sourceName, isGroup ? item.creator : ""].filter((part, index, all) => part && all.indexOf(part) === index);
   return {
     id: row?.id, row, item, title, byline, typeLabel, unverified,
+    tone: toneOf(lenses, unverified),
+    logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, author: item.author, seriesKey })] || null,
     at: row?.at || null, href, seriesKey, seriesLabel, sourceName,
     media: video ? "video" : image ? "image" : "text", video, image,
     thumb: [!video && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
@@ -173,6 +199,28 @@ export function nowSecondaryChoices(models) {
 export function filterNowModels(models, { lens = "all", series = "", source = "", media = "" } = {}) {
   return list(models).filter(model => (lens === "all" || model.lenses.has(lens))
     && (!series || model.seriesKey === series) && (!source || model.sourceName === source) && (!media || model.media === media));
+}
+
+/**
+ * Presentation only (ZURIEL 6.11.2026 "לכווץ"): a run of at least `min` CONSECUTIVE unverified group-source rows from the same source
+ * becomes one collapsible entry, so a busy source does not bury the rest of the window. Every row stays its own publication inside the
+ * run (same ids, same order, nothing merged, nothing dropped); the input order is never changed.
+ * Returns entries: { kind: "row", model } | { kind: "run", id, sourceName, models }.
+ */
+export function collapseSourceRuns(models, { min = 2 } = {}) {
+  const entries = [], all = list(models);
+  const flush = run => {
+    if (run.length >= min) entries.push({ kind: "run", id: `run:${run[0].id}`, sourceName: run[0].sourceName, models: run });
+    else for (const model of run) entries.push({ kind: "row", model });
+  };
+  let run = [];
+  for (const model of all) {
+    if (model.unverified && (!run.length || run[0].sourceName === model.sourceName)) { run.push(model); continue; }
+    flush(run); run = [];
+    if (model.unverified) run.push(model); else entries.push({ kind: "row", model });
+  }
+  flush(run);
+  return entries;
 }
 
 /** The series page for a model (series key is the existing approved identity). */

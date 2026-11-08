@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
+import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
 import { redactGroupText, groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
@@ -145,4 +145,30 @@ test("the words of the message are shown with its media; unverified source rows 
   const [img] = nowModels(rows([publicChannelToSystemItem({ id, channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "טקסט", image_url: MP4.replace("clip.mp4", "i.jpg") })])); assert.equal(img.previewKind, "image");
   const zvi = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "פתיחה ".repeat(40), created_at: "2026-11-03T08:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
   assert.equal(nowModels(rows([zvi]))[0].previewKind, null);
+});
+
+test("collapseSourceRuns: only consecutive unverified rows of one source collapse; order and rows are kept, nothing merged", () => {
+  const m = (id, unverified, sourceName = "צבי") => ({ id, unverified, sourceName });
+  const flat = es => es.flatMap(e => e.kind === "run" ? e.models.map(x => x.id) : [e.model.id]);
+  const input = [m("a", true), m("b", true), m("c", true), m("d", false, "אור"), m("e", true), m("f", true), m("g", true, "מקור אחר"), m("h", true, "מקור אחר"), m("i", true, "מקור אחר")];
+  const out = collapseSourceRuns(input);
+  assert.deepEqual(flat(out), input.map(x => x.id), "same rows, same order");
+  assert.deepEqual(out.map(e => e.kind), ["run", "row", "run", "run"]);
+  assert.equal(out[0].models.length, 3); assert.equal(out[0].sourceName, "צבי"); assert.equal(out[3].sourceName, "מקור אחר"); assert.equal(out[2].models.length, 2);
+  assert.deepEqual(collapseSourceRuns([m("a", true), m("b", true)]).map(e => e.kind), ["run"], "two consecutive rows already collapse");
+  assert.deepEqual(collapseSourceRuns([m("a", true), m("d", false), m("b", true)]).map(e => e.kind), ["row", "row", "row"], "a single row never collapses");
+  assert.deepEqual(collapseSourceRuns(null), []);
+});
+
+test("source logos mark OUR material only: system-byline posts, Or HaGeula, ELS findings; third-party series and named writers get none", () => {
+  const sys = nowModels(rows([postRowToWorldUpdate(post(1, { author: "מערכת כי לה׳ המלוכה" }))]))[0];
+  assert.equal(sys.logo?.label, "כי לה׳ המלוכה");
+  const alon = nowModels(rows([postRowToWorldUpdate(post(2, { author: "אלון לוי", tags: ["מה קורה הבורא"] }))]))[0];
+  assert.equal(alon.seriesKey, "mah-kore-habora"); assert.equal(alon.logo, null);
+  const named = nowModels(rows([postRowToWorldUpdate(post(3, { author: "כותב" }))]))[0];
+  assert.equal(named.logo, null);
+  const orGeula = nowModels(rows([publicChannelToSystemItem({ id: "10000000-0000-4000-8000-000000000009", channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-03T09:49:00Z", text: "מסר" })]))[0];
+  assert.equal(orGeula.logo?.label, "אור הגאולה");
+  const zvi = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000002", body: "הודעה", created_at: "2026-11-03T08:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
+  assert.equal(nowModels(rows([zvi]))[0].logo, null);
 });
