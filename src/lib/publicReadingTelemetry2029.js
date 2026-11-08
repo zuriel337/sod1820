@@ -15,12 +15,16 @@ export function readingTelemetryPath(value) {
   const number = /^\/(?:2029\/)?number(?:\/([^/]+))?$/.exec(path);
   if (number) return number[1] ? "/number/:value" : "/number";
   if (["/", "/world", "/gallery", "/map", "/privacy", "/books", "/community", "/community/chat", "/community/calculator", "/or-geula", "/contact"].includes(path)) return path;
-  for (const family of ["post", "tag", "category", "topic", "book", "video", "researcher"])
-    if (path.startsWith("/" + family + "/") && path.split("/").length === 3) return "/" + family + "/:item";
-  // Old public posts keep their original URL in navigation/SEO. The measured
-  // label groups them without shipping arbitrary historical slug text.
-  if (/^\/[^/]+$/.test(path)) return "/post/:item";
-  return null;
+  for (const family of ["post", "tag", "category", "topic", "book", "video", "researcher", "number"])
+    if (path.startsWith("/" + family + "/") && path.split("/").length === 3) return "/" + family + (family === "number" ? "/:value" : "/:item");
+  // Broad site coverage: retain safe static route names; collapse dynamic
+  // trailing segments so names, IDs, search terms, and private slugs never leave the browser.
+  const segments = path.split("/").filter(Boolean);
+  if (segments.length === 0) return "/";
+  const safeSegment = /^[a-z0-9][a-z0-9-]{0,63}$/i;
+  if (segments.some(segment => !safeSegment.test(segment))) return "/" + segments[0].toLowerCase() + (segments.length > 1 ? "/:item" : "");
+  if (segments.length === 1) return "/" + segments[0].toLowerCase();
+  return "/" + segments[0].toLowerCase() + "/:item";
 }
 
 export function readingWebVitalBody(body) {
