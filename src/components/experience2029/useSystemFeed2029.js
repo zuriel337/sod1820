@@ -8,6 +8,7 @@ import { fetchNumberTierSignals } from "../../lib/research/numberTierSignals.js"
 
 // `homeStrip`: the Home "עדכונים אחרונים" strip needs the same public details once (reality-stream images, channel updates, series
 // Posts). It loads them ONCE after mount; only an open Now panel keeps re-reading them on every poll.
+const DETAILS_FRESH_MS = 60 * 1000;
 export function useSystemFeed2029({ enabled = true, nowOpen = false, homeStrip = false } = {}) {
   const [state, setState] = useState({ loading: true, items: [], error: false, unavailableSources: [], groupArrivals: null });
   const [seen, setSeen] = useState(readSeen);
@@ -19,8 +20,13 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false, homeStrip =
   detailsWanted.current = enabled && (nowOpen || homeStrip);
   const nowEpoch = useRef(0), nowController = useRef(null), nowPending = useRef(false), streamResults = useRef(0);
   const [nowSources, setNowSources] = useState({ requested: false, loading: false, items: [], sourceStates: [], error: false });
-  const refreshNowDetails = useCallback(() => {
+  const detailsAt = useRef(0), detailsFromHome = useRef(false);
+  // `force` (retry buttons, poll refresh while Now is open) always re-reads. The ONLY reuse: the first time Now opens after the Home strip
+  // loaded the details less than a minute ago (one read instead of two); closing and reopening Now re-reads exactly as before.
+  const loadNowDetails = useCallback((force) => {
     if (!detailsWanted.current || nowPending.current) return;
+    if (!force && detailsFromHome.current && Date.now() - detailsAt.current < DETAILS_FRESH_MS) return;
+    detailsFromHome.current = !nowActive.current;
     nowPending.current = true;
     const epoch = ++nowEpoch.current;nowController.current?.abort();
     const controller = new AbortController();nowController.current = controller;
@@ -31,20 +37,23 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false, homeStrip =
         if (epoch !== nowEpoch.current || !detailsWanted.current || controller.signal.aborted) { controller.abort(); return null; }
         return fetchSystemFeedPublicSources2029({ signal: controller.signal });
       })
-      .then(result => { if (epoch === nowEpoch.current && !controller.signal.aborted) setNowSources({ ...result, requested: true, loading: false, error: false }); })
+      .then(result => { if (epoch === nowEpoch.current && !controller.signal.aborted) { detailsAt.current = Date.now(); setNowSources({ ...result, requested: true, loading: false, error: false }); } })
       .catch(() => { if (epoch === nowEpoch.current && !controller.signal.aborted) setNowSources({ requested: true, items: [], sourceStates: [], loading: false, error: true }); })
       .finally(() => { if (epoch === nowEpoch.current) nowPending.current = false; });
   }, []);
-  const requestNowDetails = refreshNowDetails;
+  // Closing Now consumes the Home-loaded details: a later reopen re-reads exactly as before.
+  useEffect(() => { if (!nowOpen) return undefined; return () => { detailsFromHome.current = false; }; }, [nowOpen]);
+  const refreshNowDetails = useCallback(() => loadNowDetails(true), [loadNowDetails]);
+  const requestNowDetails = useCallback(() => loadNowDetails(false), [loadNowDetails]);
   useEffect(() => {
-    if (enabled && (nowOpen || homeStrip)) refreshNowDetails();
+    if (enabled && (nowOpen || homeStrip)) loadNowDetails(false);
     else setNowSources(current => current.loading ? { ...current, loading: false } : current);
     return () => {
       nowEpoch.current += 1;
       nowController.current?.abort();
       nowPending.current = false;
     };
-  }, [enabled, nowOpen, homeStrip, refreshNowDetails]);
+  }, [enabled, nowOpen, homeStrip, loadNowDetails]);
 
 
   useEffect(() => {

@@ -60,7 +60,7 @@ test("loading: the approved sample card is first and static; no series link and 
   assert.equal(primary.findAllByType("h3").length, 1, "the series name is not a link to an empty page");
   const skeletons = root.root.findAll(node => node.type === "div" && String(node.props.className).includes("h29-skel"));
   assert.equal(skeletons.length, CONTENT_SERIES_2029.length - 1);
-  assert.equal(f.calls[0].homeOnly, true); assert.equal(f.calls[0].limitPerSeries, 1);
+  assert.equal(f.calls[0].homeOnly, true); assert.equal(f.calls[0].homeDisplay, true, "each series shows its own explicit count (identity homeDisplay)");
   await act(async () => { root.unmount(); });
 });
 
@@ -154,8 +154,8 @@ test("flagship products: the series' members as a scrollable list, newest first 
   const members = [item("reality-map", 9, { title: "החדש ביותר", imageUrl: "https://example.test/9.jpg", publishedAt: "2026-11-05T09:00:00Z" }),
     item("reality-map", 4, { title: "ישן יותר", publishedAt: "2026-10-01T09:00:00Z" }), item("reality-map", 2, { title: "הישן ביותר", publishedAt: "2026-08-01T09:00:00Z" })];
   await act(async () => { f.calls[0].resolve(catalog(members)); });
-  assert.equal(f.calls[0].primaryLimit, 6, "one read; the primary series is read deeper than the others");
-  assert.equal(f.calls[0].limitPerSeries, 1); assert.equal(f.calls[0].homeOnly, true);
+  assert.equal(f.calls[0].homeDisplay, true, "one shared read; the explicit per-series count (reality-map 6) comes from the series identity");
+  assert.equal(f.calls[0].homeDisplay, true); assert.equal(f.calls[0].homeOnly, true);
   const products = root.root.findAll(node => node.props["data-home-rm-products"] === "true")[0];
   const list = products.findAll(node => node.type === "ol")[0];
   assert.equal(list.props.tabIndex, 0, "keyboard-scrollable"); assert.match(list.props["aria-label"], /מהחדש לישן/);

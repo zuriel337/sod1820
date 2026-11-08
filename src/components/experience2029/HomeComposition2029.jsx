@@ -159,8 +159,6 @@ function SeriesLatestItem({ item, series }) {
   </Link>;
 }
 
-// How many flagship products the Home list reads (one read, the series' own membership: the exact tag only).
-const REALITY_MAP_LIST_LIMIT = 6;
 
 // The primary series region (מפת המציאות): a branded, compact royal region for our own content. Hierarchy: logo and identity,
 // the title, the leading sample (kept first, never part of the list), then the flagship products. It is never empty: without a
@@ -211,12 +209,13 @@ function PrimarySeriesCard({ series, spec, teaser, families = [] }) {
   </article>;
 }
 
-// One read of the series catalog serves both Home areas (the flagship region and the other series).
+// One read of the series catalog serves both Home areas (the flagship region and the other series) AND the shared feed's details
+// (the reader shares one read; each series shows its own explicit count inside the 90-day window: `homeDisplay` in the series identity).
 function useHomeSeries() {
   const [state, setState] = useState({ series: [], loading: true, failed: false });
   useEffect(() => {
     const controller = new AbortController();
-    fetchContentSeriesCatalog2029({ limitPerSeries: 1, homeOnly: true, primaryLimit: REALITY_MAP_LIST_LIMIT, signal: controller.signal })
+    fetchContentSeriesCatalog2029({ homeOnly: true, homeDisplay: true, signal: controller.signal })
       .then(result => { if (!controller.signal.aborted) setState({ series: result.series, loading: false, failed: false }); })
       .catch(() => { if (!controller.signal.aborted) setState({ series: [], loading: false, failed: true }); });
     return () => controller.abort();
@@ -245,9 +244,11 @@ function HomeOtherSeries({ state }) {
       {state.loading ? Array.from({ length: CONTENT_SERIES_2029.length - (hasPrimary ? 1 : 0) }, (_, i) => <div className="h29-series-card h29-skel" key={i} aria-hidden="true" />) : null}
       {others.map(series => {
         const item = series.items[0];
+        const more = series.items.slice(1);
         return <article className="h29-series-card" data-home-series={series.key} key={series.key}>
           <div className="h29-series-head"><Link className="h29-series-name" to={`/2029/posts?series=${encodeURIComponent(series.key)}`}>{series.label}</Link><SeriesBell2029 seriesKey={series.key} label={series.label} /></div>
           {item ? <SeriesLatestItem item={item} series={series} /> : <p className="h29-empty" role={series.readState === "failed" ? "alert" : "status"}>{series.readState === "failed" ? "לא ניתן לקרוא כרגע את הסדרה." : series.hasApprovedSources && !series.sourcesRequested ? "אפשר לבדוק מקורות נוספים בעמוד הסדרה." : "אין כרגע פרסום זמין בסדרה."}</p>}
+          {more.length ? <ul className="h29-series-more-list" data-home-series-more={series.key}>{more.map(next => <li key={next.sourceRef || next.id}><Link to={next.href}><strong>{next.title}</strong><PublicationTime at={next.publishedAt} /></Link></li>)}</ul> : null}
         </article>;
       })}
       {state.failed ? <p role="alert">הסדרות אינן זמינות כרגע. <Link to="/2029/posts">אפשר לפתוח את רשימת הפוסטים.</Link></p> : null}

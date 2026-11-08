@@ -14,6 +14,9 @@ export const CONTENT_SERIES_2029 = Object.freeze([
   // needs explicit approval); nothing here writes or reads PLAN37.
   Object.freeze({
     key: "reality-map",
+    // Home display (ZURIEL 8.11.2026): an EXPLICIT item count per series, no uniform cap, inside a 90-day content window. The flagship
+    // is membership by exact tag, so it has no window (its strong Posts stay however old); the others show only what is newer than 90 days.
+    homeDisplay: Object.freeze({ limit: 6, windowDays: null }),
     label: "מפת המציאות",
     decisionId: "PENDING-PLAN37-DECISION",
     writerLabel: null,
@@ -56,6 +59,7 @@ export const CONTENT_SERIES_2029 = Object.freeze([
   }),
   Object.freeze({
     key: "mah-kore-habora",
+    homeDisplay: Object.freeze({ limit: 3, windowDays: 90 }), // ~8 Posts in the last 90 days: a short, fresh list
     label: "מה קורה הבורא",
     decisionId: "DEC-SERIES-005",
     writerLabel: "אלון לוי",
@@ -69,6 +73,7 @@ export const CONTENT_SERIES_2029 = Object.freeze([
   }),
   Object.freeze({
     key: "dimension-five",
+    homeDisplay: Object.freeze({ limit: 4, windowDays: 90 }), // ~27 Posts in the last 90 days: the busiest series gets the most room
     label: "מימד חמש",
     decisionId: "DEC-SERIES-003+006",
     writerLabel: null,
@@ -82,6 +87,7 @@ export const CONTENT_SERIES_2029 = Object.freeze([
   }),
   Object.freeze({
     key: "sod-hashmal",
+    homeDisplay: Object.freeze({ limit: 3, windowDays: 90 }), // ~6 Posts in the last 90 days
     label: "סוד החשמל",
     decisionId: "DEC-SERIES-004",
     writerLabel: null,
@@ -96,6 +102,7 @@ export const CONTENT_SERIES_2029 = Object.freeze([
   }),
   Object.freeze({
     key: "messages-from-righteous",
+    homeDisplay: Object.freeze({ limit: 2, windowDays: 90 }), // ~2 Posts in the last 90 days (80 in all): two fresh ones, the rest in the series page
     // Public name "מסרים" (PLAN37 CONTENT-AUDIENCES-HYBRID-NOW-20261102: replaces the earlier public name everywhere; the key and
     // historical source titles are unchanged). It is also the name of an existing category, which stays followable on its own.
     label: "מסרים",

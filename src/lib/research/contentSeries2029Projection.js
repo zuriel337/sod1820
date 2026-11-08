@@ -275,27 +275,83 @@ async function fetchSeriesPreview(spec, { client, limit, homeOnly, signal }) {
   };
 }
 
-export async function fetchContentSeriesCatalog2029({
-  client = getPublicResearchClient(),
-  limitPerSeries = 4,
-  homeOnly = false,
-  signal,
-  sourceSeriesKey = null,
-  primaryLimit = null,
-} = {}) {
+// ONE read of the series catalog serves Home and the shared feed's details (ZURIEL 8.11.2026: no duplicate reads, no change of content or
+// counts). The default (non-injected) reader always reads the SUPERSET both consumers need (primary SUPERSET_PRIMARY, others SUPERSET_OTHER, newest
+// first, window-free) once per minute; each caller then gets its own exact shape from it:
+//  - the feed's details: the first `limitPerSeries` rows of every series, exactly as before (no window);
+//  - Home (`homeDisplay`): each series' explicit `homeDisplay.limit` inside its `windowDays` (null = no window).
+// An injected `client` other than the default public one (tests) keeps the direct, uncached read with the requested limits.
+const SUPERSET_PRIMARY = 6, SUPERSET_OTHER = 4, CATALOG_TTL_MS = 60 * 1000;
+let sharedCatalogRead = null;
+function resetSharedCatalogRead() { sharedCatalogRead = null; }
+export { resetSharedCatalogRead as resetSharedCatalogRead2029 };
+function supersetLimit(spec) { return spec.priorityLane === "primary" ? SUPERSET_PRIMARY : SUPERSET_OTHER; }
+function readSharedCatalogRows(homeOnly) {
+  const now = Date.now();
+  if (sharedCatalogRead && sharedCatalogRead.homeOnly === homeOnly && now - sharedCatalogRead.at < CATALOG_TTL_MS) return sharedCatalogRead.promise;
+  const client = getPublicResearchClient();
+  const promise = Promise.all(CONTENT_SERIES_2029.map(spec =>
+    fetchSeriesPreview(spec, { client, limit: supersetLimit(spec), homeOnly, signal: null })
+      .catch(() => ({ key: spec.key, rows: [], total: null, failed: true }))));
+  const entry = { homeOnly, at: now, promise };
+  sharedCatalogRead = entry;
+  // A read that failed anywhere is never reused.
+  promise.then(rows => { if (rows.some(row => row.failed) && sharedCatalogRead === entry) sharedCatalogRead = null; }, () => { if (sharedCatalogRead === entry) sharedCatalogRead = null; });
+  return promise;
+}
+
+// Pure: the exact shape each consumer gets from the shared superset rows (see above).
+export function shapeSharedCatalogRows2029(rows, { homeDisplay = false, limit = 4, primaryLimit = null, now = Date.now() } = {}) {
+  return CONTENT_SERIES_2029.map(spec => {
+    const read = (Array.isArray(rows) ? rows : []).find(row => row.key === spec.key) || { key: spec.key, rows: [], total: null, failed: true };
+    let list = Array.isArray(read.rows) ? read.rows : [];
+    if (homeDisplay) {
+      const display = spec.homeDisplay || { limit, windowDays: null };
+      if (display.windowDays) {
+        const since = now - display.windowDays * 24 * 60 * 60 * 1000;
+        list = list.filter(row => Number.isFinite(Date.parse(row?.date)) && Date.parse(row.date) >= since);
+      }
+      list = list.slice(0, display.limit);
+    } else {
+      const cap = spec.priorityLane === "primary" && Number(primaryLimit) > 0 ? Math.max(limit, Math.min(Math.floor(Number(primaryLimit)), SUPERSET_PRIMARY)) : limit;
+      list = list.slice(0, cap);
+    }
+    return { ...read, rows: list, sourceItems: [], sourceStates: [], sourcesRequested: false };
+  });
+}
+
+export async function fetchContentSeriesCatalog2029(options = {}) {
+  const {
+    client = null,
+    limitPerSeries = 4,
+    homeOnly = false,
+    signal,
+    sourceSeriesKey = null,
+    primaryLimit = null,
+    homeDisplay = false,
+    now = Date.now(),
+  } = options;
   const limit = Math.max(1, Math.min(Number(limitPerSeries) || 4, 12));
+  canceled(signal);
+  // Only the default public reader (no other injected client, no approved-source read) shares; everything else reads directly as before.
+  const shared = (!client || client === getPublicResearchClient()) && !sourceSeriesKey && limit <= SUPERSET_OTHER && !(Number(primaryLimit) > SUPERSET_PRIMARY);
+  if (shared) {
+    const rows = await readSharedCatalogRows(homeOnly);
+    canceled(signal);
+    return buildContentSeriesCatalog2029(shapeSharedCatalogRows2029(rows, { homeDisplay, limit, primaryLimit, now }), { homeOnly });
+  }
+  const direct = client || getPublicResearchClient();
   // The primary series (reality-map) may be read deeper than the others in the SAME single read per series (Home's flagship
   // list). Every other series keeps `limit`; membership, ordering and the public boundary are unchanged.
   const limitFor = spec => spec.priorityLane === "primary" && Number(primaryLimit) > 0 ? Math.max(limit, Math.min(Math.floor(Number(primaryLimit)), 24)) : limit;
-  canceled(signal);
   const results = await Promise.all(CONTENT_SERIES_2029.map(async spec => {
     const sourcesRequested = sourceSeriesKey === spec.key && Boolean(spec.approvedSources?.length);
     const [posts, sources] = await Promise.all([
-      fetchSeriesPreview(spec, { client, limit: limitFor(spec), homeOnly, signal }).catch(error => {
+      fetchSeriesPreview(spec, { client: direct, limit: limitFor(spec), homeOnly, signal }).catch(error => {
         if (signal?.aborted) throw error;
         return { key: spec.key, rows: [], total: null, failed: true };
       }),
-      sourcesRequested ? fetchApprovedContentSeriesSources2029(spec.key, { client, signal })
+      sourcesRequested ? fetchApprovedContentSeriesSources2029(spec.key, { client: direct, signal })
         : Promise.resolve({ items: [], sourceStates: [] }),
     ]);
     return { ...posts, sourceItems: sources.items, sourceStates: sources.sourceStates, sourcesRequested };
