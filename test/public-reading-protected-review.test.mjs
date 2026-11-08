@@ -23,6 +23,10 @@ const fixtureIdentity = protectedReviewBuildIdentity({ env: fixtureEnv,
 const generatedIdentityPath = resolve(root, "public-reading-deploy/.generated/protected-review-build.js");
 
 test("exact clean source emits a frozen Preview-only receipt and admits only that runtime", () => {
+  const standardVercelPreview = { ...fixtureEnv }; delete standardVercelPreview.VERCEL_TARGET_ENV;
+  const standardIdentity = protectedReviewBuildIdentity({ env: standardVercelPreview, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha });
+  assert.equal(protectedReviewRuntimeAuthorized(standardIdentity, standardVercelPreview), true);
+  assert.throws(() => protectedReviewBuildIdentity({ env: { ...fixtureEnv, VERCEL_TARGET_ENV: "staging" }, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }), /identity_rejected/);
   assert.ok(Object.isFrozen(fixtureIdentity));
   assert.equal(fixtureIdentity.sourceSha, sha);
   assert.equal(fixtureIdentity.deploymentId, fixtureEnv.VERCEL_DEPLOYMENT_ID);
@@ -46,7 +50,8 @@ test("analytics restoration branch is admitted only as a pinned protected Previe
   assert.throws(() => protectedReviewBuildIdentity({ env: { ...env, VERCEL_GIT_COMMIT_REF: "claude/other-work" },
     sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }), /identity_rejected/);
 });
-\ntest("build identity rejects missing or wrong platform fields, targets, source pins and dirty source", () => {
+
+test("build identity rejects missing or wrong platform fields, targets, source pins and dirty source", () => {
   const invalid = [undefined, null, {}, ...Object.keys(fixtureEnv).map(key => ({ ...fixtureEnv, [key]: undefined })),
     { ...fixtureEnv, VERCEL_ENV: "production" }, { ...fixtureEnv, VERCEL_TARGET_ENV: "production" },
     { ...fixtureEnv, VERCEL_TARGET_ENV: "staging" }, { ...fixtureEnv, VERCEL_TARGET_ENV: "development" },
