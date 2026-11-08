@@ -519,3 +519,12 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
 .sod29-tree-pin-numbers{flex:none;display:flex;gap:4px}
 .sod29-tree-pin-numbers b{font:inherit;font-weight:700;font-size:12px;line-height:1;padding:2px 6px;border-radius:999px;background:color-mix(in srgb,var(--s29-gold,var(--s29-ink)) 16%,transparent);color:var(--s29-ink)}
 .sod29-tree-pin-line{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--s29-type-small,15px)}
+
+/* Who's online now, like the legacy chat. */
+.sod29-community-online-now{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 0;font-size:var(--s29-type-small,15px);color:var(--s29-muted)}
+.sod29-community-online-dot{flex:none;width:8px;height:8px;border-radius:50%;background:#2ecc71;box-shadow:0 0 0 2px color-mix(in srgb,#2ecc71 25%,transparent)}
+.sod29-community-online-avatars{display:flex}
+.sod29-community-online-avatars>*{margin-inline-start:-8px}
+.sod29-community-online-avatars>*:first-child{margin-inline-start:0}
+.sod29-community-online-avatar{width:22px;height:22px;border-radius:50%;border:2px solid var(--s29-panel,#fff)}
+.sod29-community-online-names{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
