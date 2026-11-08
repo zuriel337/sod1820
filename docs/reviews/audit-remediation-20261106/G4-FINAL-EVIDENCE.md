@@ -1,6 +1,6 @@
 # G4 — evidence on the final RC, baseline-failure classification, Analytics status (7.11.2026)
 
-Scope: RC branch `claude/sod1820-audit-rc-g93w32` only. `main`, Production, aliases, DB, Storage and permissions were not touched.
+Scope: RC branch `claude/sod1820-audit-rc-g93w32` only. `main`, Production, aliases, Storage and permissions were not touched. The one Production database change is DEF-001 Migration A, applied on 7.11.2026 with ZURIEL's explicit approval and independent of this branch's content (see §7.4 and `DEF-001-APPLY-RECEIPT-20261107.md`); the RC code itself has not been merged or deployed.
 A green workflow is **not** G4 closure (CLAUDE.md): this file records evidence per exact SHA and what is still open.
 
 ## 1. SHA chain (every row is evidence for that SHA only)
@@ -62,7 +62,7 @@ Filled in from the run results below (dispatched `workflow_dispatch` on the bran
 ## 6. What is still open after this round (exact, small)
 
 1. **Owner decisions, not code:** merge of the RC; PG2 consumer receipts for the delta (+541 `channel_updates`, +18 posts since 7.10) and the P0-C direct test; `world-corpus-continuation-2029` snapshot (Zvi); GA route widening (privacy); GA4/GSC access for real receipt proof.
-2. **Approvals needed for DB/Production-touching items:** DEF-001/001b/003/004/005/026/027 SQL/Storage applications, `modulepreload`/LCP attribution, `handle_new_user` auto-enrolment trigger (Auth track, AUTH-3).
+2. **Approvals needed for DB/Production-touching items:** DEF-001b/003/004/005/026/027 SQL/Storage applications (DEF-001 Migration A is already applied, 7.11.2026), `modulepreload`/LCP attribution, `handle_new_user` auto-enrolment trigger (Auth track, AUTH-3).
 3. **Gate coverage choices:** wire `public-launch-closure-preview-guards-2029` into a Playwright job; optional move of three read-POST RPCs into the Release Visual allow-list.
 4. **Not run here by design:** ELS Core (no path overlap), Post-Deploy Canary (Production-facing).
 
@@ -91,8 +91,8 @@ Local on the integrated tree: `npm run build` exit 0 (only the pre-existing >500
 
 ### 7.3 Decisions that wait for ZURIEL (no code can resolve them)
 
-Merge of PR #1262 (and its order: SQL, Edge, then site); applying the DEF-001 / 001b / 003 / 004 / 005 / 026 / 027 / 028 SQL; Edge redeploys (`els-search-bridge`, Raziel `_shared`); GA4/GSC access; GA route widening; PG2 receipts; Cardcom bridge, Companion cluster, orphan public assets, `theme.js`, gate-pinned dead exports; the 26 accent-contrast CSS lines and the Home date display; stale browser-test fixtures; running the branch-deletion script; extending the egress guard to the other Playwright gates; required status checks on `main`; Skew Protection and the `/assets` routing; the DB/CDN recommendations.
+Merge of PR #1262 (and its order: SQL, Edge, then site); applying the DEF-001b / 003 / 004 / 005 / 026 / 027 / 028 SQL (DEF-001 Migration A is already applied); Edge redeploys (`els-search-bridge`, Raziel `_shared`); GA4/GSC access; GA route widening; PG2 receipts; Cardcom bridge, Companion cluster, orphan public assets, `theme.js`, gate-pinned dead exports; the 26 accent-contrast CSS lines and the Home date display; stale browser-test fixtures; running the branch-deletion script; extending the egress guard to the other Playwright gates; required status checks on `main`; Skew Protection and the `/assets` routing; the DB/CDN recommendations.
 
 ### 7.4 Verified security problems (live, read-only, 7.11.2026)
 
-See [`EMAIL-EXPOSURE-VERIFICATION-20261107.md`](EMAIL-EXPOSURE-VERIFICATION-20261107.md). **P0:** `resolve_visitor_email` returns e-mail addresses to anyone with the public anon key (21 of 21 reachable user UUIDs and 1 guest resolved to an address; counts only, nothing printed), and `notification_prefs_guest_get_v1` echoes the address for a readable visitor id. Fix = the existing DEF-001 migration A (tested, rollback ready, **not applied**). **Not e-mail leaks:** `legacy_top_pages` (unused statistics endpoint, P3), `redirect_map` (no bypass, lint only), `topic_cards_public` (intentional door).
+See [`EMAIL-EXPOSURE-VERIFICATION-20261107.md`](EMAIL-EXPOSURE-VERIFICATION-20261107.md). **P0 (as verified before the fix):** `resolve_visitor_email` returned e-mail addresses to anyone with the public anon key (21 of 21 reachable user UUIDs and 1 guest resolved to an address; counts only, nothing printed), and `notification_prefs_guest_get_v1` echoed the address for a readable visitor id. **Status after the fix: DEF-001 Migration A was APPLIED to Production on 7.11.2026** (migration `20261107233659`, approved by ZURIEL, file byte-identical to the tested version): `anon`/`authenticated` now get `42501` (HTTP 401 on the public API) on `resolve_visitor_email`, `service_role` and `els_analytics` are unchanged, and the guest RPCs no longer return the address (receipt and rollback: [`DEF-001-APPLY-RECEIPT-20261107.md`](DEF-001-APPLY-RECEIPT-20261107.md)). **Still open:** DEF-001b (the visitor ids and user ids themselves stay readable by `anon`) and DEF-028 are **not applied** and wait for separate approval. **Not e-mail leaks:** `legacy_top_pages` (unused statistics endpoint, P3), `redirect_map` (no bypass, lint only), `topic_cards_public` (intentional door).

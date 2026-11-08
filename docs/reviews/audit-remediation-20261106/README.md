@@ -8,7 +8,7 @@
 
 | Defect | State | What exists | Needs from ZURIEL |
 |---|---|---|---|
-| **DEF-001 (P0)** e-mail exposure | **Fix + tests ready, NOT applied** | `supabase/proposed/20261106120000_def001_revoke_resolve_visitor_email.sql`, `…121000_def001b_visitor_id_exposure_step1.sql`, `supabase/proposed/20261106121500_def001b_push_subscriptions_lockdown.sql`, `src/lib/push.js` (RPC calls), tests `tests/sql/def001*.sql`, `test/def001-email-exposure-contract.test.mjs` | **Approve applying the two migrations** (production DB). Step 2 after the frontend release. |
+| **DEF-001 (P0)** e-mail exposure | **Migration A (`…120000`) APPLIED to Production 7.11.2026** ([receipt](DEF-001-APPLY-RECEIPT-20261107.md)); **DEF-001b (`…121000`, `…121500`) NOT applied** | `supabase/proposed/20261106120000_def001_revoke_resolve_visitor_email.sql`, `…121000_def001b_visitor_id_exposure_step1.sql`, `supabase/proposed/20261106121500_def001b_push_subscriptions_lockdown.sql`, `src/lib/push.js` (RPC calls), tests `tests/sql/def001*.sql`, `test/def001-email-exposure-contract.test.mjs` | **Approve DEF-001b step 1** (production DB; recommended before the deploy). Step 2 only after the frontend release. |
 | DEF-002 sitemap 308 | **Fixed in code** | `api/sitemap.js`, `test/sitemap-no-redirecting-locs-2029.test.mjs` | Approve the one-line contract-test change in `test/public-foundation-seo.test.mjs` (see §2) |
 | DEF-003 `/video/*` | **Partly fixed in code** (read once, bounded); root cause is DB | `src/lib/research/publicVideoAssetReader2029.js`, `api/og.js`, tests | Decide on the DB-side fix in §3 |
 | DEF-004 Storage | **Proposal + tests ready, NOT applied** (finding corrected, §4) | `supabase/proposed/20261106130000_def004_…sql`, `tests/sql/def004_…sql` | Approve |
@@ -128,7 +128,7 @@ Checked in Vercel and GitHub, not from documents. **Every** Production deploymen
 
 | Item | State | Where |
 |---|---|---|
-| P0 package for point approval (final SQL, impact, order, rollback, proof matrix) | **Ready — awaiting your approval** | [`P0-APPROVAL-PACKAGE.md`](P0-APPROVAL-PACKAGE.md); rollbacks `supabase/proposed/ROLLBACK_*` are executed inside the SQL tests |
+| P0 package for point approval (final SQL, impact, order, rollback, proof matrix) | **Migration A approved and applied (7.11.2026); Migration B (DEF-001b) still awaiting your approval** | [`P0-APPROVAL-PACKAGE.md`](P0-APPROVAL-PACKAGE.md); rollbacks `supabase/proposed/ROLLBACK_*` are executed inside the SQL tests |
 | Storage + RPC (policy diff, who is affected, proof) | **Ready — awaiting approval** | [`STORAGE-RPC-APPROVAL.md`](STORAGE-RPC-APPROVAL.md) |
 | `/video` DB solution (materialized projection, indexes, refresh, cost, rollback) | **Ready — awaiting approval**; code switch dormant (`SOD_VIDEO_ASSETS_MV=1`) | `supabase/proposed/20261106140000_def003_…`, `tests/sql/def003_…`, `src/lib/research/publicVideoAssetReader2029.js` |
 | OpenWeb / CSP | Analysed, no change | [`OPENWEB-CSP-ANALYSIS.md`](OPENWEB-CSP-ANALYSIS.md) |
