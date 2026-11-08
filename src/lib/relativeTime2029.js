@@ -5,11 +5,17 @@
 import { timeAgoHe } from "./format.js";
 import { formatBilingualDate } from "./research/timeline2029.js";
 
-/** Main Home only. "לפני 3 ימים" / "אתמול" / "לפני שעה". Missing or invalid input returns `missing` (never a date). */
+// A timestamp up to this far ahead of the clock is clock skew between the device and the server ("לפני רגע"); anything later is a
+// future time and must never read as "ago".
+export const FUTURE_SKEW_MS = 5 * 60 * 1000;
+
+/** Main Home only. "לפני 3 ימים" / "אתמול" / "לפני שעה". Missing or invalid input returns `missing` (never a date).
+ *  A genuinely future time returns the bilingual date instead of a false "לפני …". */
 export function relativeTimeLabel(value, missing = "") {
   if (!value) return missing;
   const time = new Date(value).getTime();
   if (!Number.isFinite(time)) return missing;
+  if (time - Date.now() > FUTURE_SKEW_MS) return bilingualDateLabel(value, missing);
   return timeAgoHe(value);
 }
 

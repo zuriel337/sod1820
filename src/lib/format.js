@@ -78,7 +78,8 @@ export function timeAgoHe(dateStr) {
   const month = Math.floor(day / 30);
   if (month === 1) return "לפני חודש";
   if (month < 12) return `לפני ${month} חודשים`;
-  const year = Math.floor(day / 365);
+  // 360–364 days is month 12 (not < 12) but not yet a full 365-day year: it reads "לפני שנה", never "לפני 0 שנים".
+  const year = Math.max(1, Math.floor(day / 365));
   if (year === 1) return "לפני שנה";
   return `לפני ${year} שנים`;
 }
