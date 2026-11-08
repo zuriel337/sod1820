@@ -1,4 +1,4 @@
-# Full series follow — proposal for approval (nothing here is applied)
+# Full series follow — phase 1 prepared in the branch (nothing is applied to any database)
 
 Date 2026-11-08 · ZURIEL decision 3: restore full follow, **including the migration and a re-pin of `WatchButton.jsx`, only after tests and an explicit approval before Production.**
 Status: PROPOSAL, BRANCH-ONLY. No migration was run, no pin was changed, `WatchButton.jsx` is byte-identical to `origin/main`.
@@ -32,3 +32,22 @@ The drift: the live `watch_toggle` contains the Community-thread branch (`p_sour
 - A migration generated against a base that moved again between review and apply: the guards fail closed (that is their purpose); re-run the md5 table above immediately before applying.
 - The trigger widening to `UPDATE OF tags` (point 4 above) affects editorial tagging from the admin; confirm that is wanted.
 - Re-pinning a byte-pinned canonical component needs owner review of the patch (small: one added variant branch).
+
+
+## Phase 1 status (ZURIEL approved 8.11.2026: prepare migration + re-pin, isolated environment, tests, diff, rollback; NOT production)
+Done in the git branch only:
+- `scripts/generate-follow-content-series-only.mjs`: the guard now expects the live `watch_toggle` md5 `807aaccb…` (the community migration `20261104135237` output) instead of `fa41495b…`. Regenerated migration diff = **one line** (the hash). `--check` passes.
+- Release package `docs/reviews/follow-series-release-20261031/`: `manifest.json` (`preimage_md5.watch_toggle`, `candidate_sha256` → `6556916bb2fb…`) and `preflight.sql` updated to match; `rollback.sql` unchanged (it guards post-images, not `watch_toggle`). `live-preflight-readonly.json` is a dated evidence snapshot and was left as is.
+- `WatchButton.jsx` + pin: bell face added (patch above), pin in `world-gallery-entry-follow-chain-2029.test.mjs` moved `8502baa9…` → `d9e0a5f6880075d76bd91aeda3f2b8bee55c5243c31cd8a960f5e6bf684cbafb`; `SeriesBell2029` back on `variant="bell"`; live-bell CSS restored without hex colours.
+Not done:
+- **Isolated Supabase branch:** `create_branch` asked the user to confirm cost and got no answer within 60s; not retried. No branch exists, so the migration was **not executed anywhere** (not even on a branch).
+
+## Findings that need a decision before any apply
+1. **The reviewed migration covers only 3 series** (`mah-kore-habora`, `dimension-five`, `sod-hashmal`; `REVIEWED_FOLLOW_SERIES`). `reality-map` and `messages-from-righteous` are deliberately outside it (the release test asserts they stay pending). After applying it, only those 3 bells could become live; the flagship and "מסרים" bells stay inert until a separate reviewed extension adds their identities (membership: tag `מפת המציאות`; category `רמזים מצדיקים`) to the SQL helper and the manifest.
+2. **Ordering:** the file keeps its CLI timestamp `20261031091248`, earlier than the already-applied `20261104135237` (which created today's `watch_toggle`). With the Supabase CLI it would be rejected as out-of-order; with `apply_migration` it gets a new timestamp. Apply only after the preflight table (README top) is re-run live.
+3. The trigger widening to `UPDATE OF tags` (see above).
+
+## Rollback and recovery
+- Preferred: the already-reviewed `docs/reviews/follow-series-release-20261031/rollback.sql` (guarded on post-images; never deletes follow data). 
+- Alternative captured today from the live DB: `rollback-pre-state.sql`.
+- Code: revert the code commit; bells return to inert.

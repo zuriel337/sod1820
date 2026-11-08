@@ -56,11 +56,13 @@ test('Claude river source/styles and canonical Follow controller/styles are not 
   //    by the Home reader) on 42276956 (Step 2: palette2029 replaces the shared palette);
   //  - realityRiver2029.css 44b84c5f (DEF-008 reserved mat size) on 1d9fac93 (is-loading min-height);
   //  - WatchButton.jsx f0b541f4 (Legacy theme/palette contracts removed) on 71bb7646 (#1191: read-only action lock, thread variant);
+  //  - WatchButton.jsx re-pinned 8.11.2026 (ZURIEL approved phase 1 of full series follow): adds ONLY the small `variant="bell"` face for the series bell
+  //    (patch: docs/reviews/follow-series-full-20261108/watchbutton-bell-variant.patch); previous pin 8502baa9...;
   //  - WatchControl2029.jsx 42276956 (palette2029); watchControl2029.css unchanged since fba5cf57.
   const pins={
     'src/components/research/RealityRiver2029.jsx':'9a496e612666bd986e07eaa86c0de6726b7d31381bd044bc8268ddf9d9d92793',
     'src/components/research/realityRiver2029.css':'951246e810316699eafd7f003978d8c63e29ac8741bfea2ccda7a898b6016d68',
-    'src/components/WatchButton.jsx':'8502baa9f814c97cf943821ed5d2717d528a03f9164dfdceee43a5b5716e838a',
+    'src/components/WatchButton.jsx':'d9e0a5f6880075d76bd91aeda3f2b8bee55c5243c31cd8a960f5e6bf684cbafb',
     'src/components/followCenter2029/WatchControl2029.jsx':'c5d0ebd2056e671d38b1798a733bf27e8eaacf1b6c2ca64c44043783d9b9d900',
     'src/components/followCenter2029/watchControl2029.css':'707cb64bd790e5d0bbfae07326faa39f76b91d028ad4f118c5962401c9814ffc',
   };

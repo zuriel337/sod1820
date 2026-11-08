@@ -1,5 +1,5 @@
 // The small follow bell next to a series name on Home. It owns no follow logic: when the server can resolve the series identity
-// it mounts the ONE canonical WatchButton (its existing small "mini" variant; WatchButton.jsx is byte-pinned, so it is not edited here); otherwise it shows the truthful reason as an inert bell.
+// it mounts the ONE canonical WatchButton (its small "bell" face; re-pinned 8.11.2026); otherwise it shows the truthful reason as an inert bell.
 // A series never falls back to a category, author or post (same rule as postFollowCandidates2029).
 import React, { useEffect, useState } from "react";
 import WatchButton from "../WatchButton.jsx";
@@ -32,8 +32,8 @@ export default function SeriesBell2029({ seriesKey, label, source = "home_series
   }, [locked, seriesKey]);
   const view = seriesBellView({ locked, state });
   if (view.kind === "live") {
-    return <span className="h29-bell-slot" data-home-series-bell="live"><WatchButton variant="mini" topic={`series:${seriesKey}`} source={source} noPush
-      label="מעקב" followLabel="עוקבים" explainer={`עדכון באתר כשמתפרסם פוסט חדש ב${label}`} /></span>;
+    return <span className="h29-bell-slot" data-home-series-bell="live"><WatchButton variant="bell" topic={`series:${seriesKey}`} source={source} noPush
+      label={`מעקב אחרי ${label}`} followLabel={`עוקבים אחרי ${label}`} explainer={`עדכון באתר כשמתפרסם פוסט חדש ב${label}`} /></span>;
   }
   return <span className="h29-bell-slot"><span className="h29-bell is-off" role="img" aria-label={`${label}: ${view.reason}`} title={view.reason} data-home-series-bell={view.kind}><BellGlyph /></span></span>;
 }
