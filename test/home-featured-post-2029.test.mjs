@@ -40,7 +40,7 @@ test("the whole message is ONE feed item for 'עכשיו': same post:<id> identi
   const { feedRows } = await import("../src/lib/systemFeed2029.js");
   const item = featuredFeedItem(row({ date: "2026-09-30T08:55:00Z", excerpt: "תקציר ישן" }), postRowToWorldUpdate);
   assert.equal(item.id, "post:5107"); assert.equal(item.label, HOME_FEATURED_POST_2029.headline);
-  for (const part of ["הבורא מדבר דרך כל המציאות", "התיעוד הזה הוא חלק מעץ המציאות", "המסר:", "46 הוא היפוך של 64, דין", "מה שנראה דין מתגלה כרחמים", "סוד הבינה, 67", "1,437 (לייקים)", "618 = משיח צדקינו", "396 = הישועה = דויד בן ישי", "78 = מחל", "64 = דין", "פ״ז", "שרשר = 1000", "608"]) assert.ok(item.fullText.includes(part), part);
+  for (const part of ["הבורא מדבר דרך כל המציאות", "התיעוד הזה הוא חלק מעץ המציאות", "המסר:", "46 הוא היפוך של 64, דין", "מה שנראה דין מתגלה כרחמים", "סוד הבינה, 67", "1,437 (לייקים)", "618 = משיח צדקינו", "396 = הישועה = דויד בן ישי", "78 = מחל", "64 = דין", "פ״ז", "שרשר = 1000"]) assert.ok(item.fullText.includes(part), part);
   assert.equal(item.at, "2026-11-08T04:18:00.000Z");
   assert.equal(featuredFeedItem(row({ home_hidden: true }), postRowToWorldUpdate), null);
   // The stream's own item for the same Post can never make a second row: ours is listed first and wins.
@@ -49,6 +49,7 @@ test("the whole message is ONE feed item for 'עכשיו': same post:<id> identi
   assert.equal(merged.length, 1); assert.equal(merged[0].label, HOME_FEATURED_POST_2029.headline);
   const [model] = nowModels(feedRows(merged, { now: Date.parse("2026-11-08T12:00:00Z"), limit: 10 }));
   assert.equal(model.title.startsWith("ממשלת אייזנקוט"), true); assert.ok(model.fullText.includes("חיבורים במספרים"));
+  assert.ok(!featuredBodyText().includes("608"), "only what 618 is, not the other spelling");
   assert.equal(featuredBodyText().split("\n").length, 5);
 });
 

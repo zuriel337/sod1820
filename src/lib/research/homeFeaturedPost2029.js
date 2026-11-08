@@ -25,7 +25,7 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
     Object.freeze({ value: 67, phrase: "בינה" }),
     Object.freeze({ value: 64, phrase: "דין — וההיפוך שלו 46" }),
   ]),
-  connectionsFootnote: "הכתיב משפיע: «משיח צדקנו» = 608, «משיח צדקינו» = 618.",
+  connectionsFootnote: null, // no spelling footnote: each number says what it is (ZURIEL 8.11.2026: "don't load")
   // ONE text under the message (ZURIEL 8.11.2026: merge the note and the bridge; say it once). The owner's tree note in the public discovery voice
   // (public_language_revelation_geula_law: "מחקר" is not the public default: "תהליך המחקר/ממצאים" became "תהליך הגילוי/חיבורים"), opened by the line that the
   // Creator speaks through all of reality; the numbers live inside the Post.
@@ -73,7 +73,7 @@ export function featuredBodyText(config = HOME_FEATURED_POST_2029) {
   return [
     config.headline, `${config.messageTitle}: ${config.message.join(" ")}`, config.note,
     `${config.numbersTitle}: ${config.numbers.map(item => `${item.value} (${item.label})`).join(" · ")}`,
-    `${config.connectionsTitle}: ${config.connections.map(item => `${item.value} = ${item.phrase}`).join(" · ")}. ${config.connectionsFootnote}`,
+    `${config.connectionsTitle}: ${config.connections.map(item => `${item.value} = ${item.phrase}`).join(" · ")}${config.connectionsFootnote ? `. ${config.connectionsFootnote}` : ""}`,
   ].filter(Boolean).join("\n");
 }
 
