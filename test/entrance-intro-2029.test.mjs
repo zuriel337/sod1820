@@ -53,3 +53,15 @@ test("the intro logo is the complete approved lockup (fingerprinted source, deli
   assert.equal(BRAND_LOCKUP_HERO_2029.width, BRAND_LOCKUP_HERO_2029.height);
   assert.equal(BRAND_LOCKUP_2029.width, BRAND_LOCKUP_2029.height);
 });
+
+test("one crown: the overlay clones the header crown, hides the real one while it travels, and never waits for a slow image", () => {
+  const component = read("src/components/experience2029/EntranceIntro2029.jsx");
+  const css = read("src/components/experience2029/entranceIntro2029.css");
+  assert.match(component, /\.sod29-header-crown img/, "starts exactly on the header crown");
+  assert.match(component, /data-entrance-crown/, "the real crown is hidden only while the clone travels");
+  assert.match(css, /html\[data-entrance-crown="playing"\] \.sod29-header-crown img\{visibility:hidden\}/);
+  assert.match(component, /pointerdown/, "a tap ends the intro");
+  assert.match(component, /DECODE_WAIT_MS/, "skipped, not waited for, when the larger image is slow");
+  assert.match(component, /transform:/);
+  assert.doesNotMatch(component.replace(/Object\.assign\(img\.style[^\n]*\n/, ""), /(left|top|width|height):\s*["'`$]/, "no layout property is animated");
+});
