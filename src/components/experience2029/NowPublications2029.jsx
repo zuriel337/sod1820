@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { availableNowLenses, defaultNowLens, filterNowModels, nowLensCounts, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
+import NowMetricsSlot2029 from "./NowMetricsSlot2029.jsx";
 import "./nowPublications2029.css";
 
 // Compact "Now" publications window over the ONE shared system feed (feed.expandedRows).
@@ -149,6 +150,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const clear = () => { setLens("all"); setSeries(""); setSource(""); setMedia(""); setCount(PAGE); };
 
   return <section className="sod29-nowpub" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
+    <NowMetricsSlot2029 />
     <div className="sod29-nowpub-filters" role="group" aria-label="סינון פרסומים">
       {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" aria-pressed={activeLens === item.id}
         aria-label={`${item.label}, ${counts[item.id]} פרסומים שנטענו בחלונית`} title={`${counts[item.id]} פרסומים שנטענו בחלונית`}
