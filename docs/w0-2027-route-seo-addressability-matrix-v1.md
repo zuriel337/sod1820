@@ -1,5 +1,7 @@
 # SOD1820 — W0 2027 ROUTE / SEO / ADDRESSABILITY MATRIX V1
 
+> **עדכון 8.11.2026:** סעיף 8 הוא תצלום מ־3.11, לפני המעבר ב־4.11. Production אינו Legacy (Legacy פרש, 5.11) והענף `gpt/2029-url-continuity-plan-20261103` אינו בסיס עבודה. המסמך נשאר מלאי כתובות היסטורי; מצב נוכחי נקרא מ־Vercel ומ־`origin/main`.
+
 **Status:** EXISTING MIGRATION INVENTORY · HISTORICAL W0 + CURRENT 2029 RECONCILIATION · DOCS ONLY · CUTOVER NOT ACCEPTED
 **Historical W0 verified main:** `cf4d8df54cde53a22f5d217d2f79c11f0f734e13`
 **Owner check:** `EXTEND_EXISTING` — existing React Router + SEO owners + Reality Graph identity registry; no new route/SEO registry.

@@ -1,5 +1,7 @@
 # המשך חיבור המדידה וקוראי הניהול — Claude, 4.11.2026 (ענף בלבד)
 
+> **תצלום היסטורי (4.11.2026):** העבודה מוזגה ל־`main` ב־PR #1198 (`11346873d`); הענף אינו מקור אמת ואין להמשיך ממנו (`CLAUDE.md` 0.2). הסקריפט `scripts/test-legacy-production-lock.mjs` שמוזכר כאן אינו קיים עוד (השער החי: `scripts/test-legacy-retired.mjs`).
+
 סטטוס: **BRANCH_ONLY / לא מוזג / לא פרוס.** החי נשאר `969b51423d8b67b7b8061d067b5366e1e2a1c5e4` / `dpl_xw7fECMyWRrZvxxKdy71yobAhj8h`.
 BEFORE ביומן: `db8fc5d4-1812-4082-b1da-ad252e1f46dd`, משימה `PUBLIC_PRODUCTION_OBSERVABILITY_RECONNECT_20261104`.
 אין שינוי בקוד המוצר (22 הקבצים של `78775e8c3`). נוספו רק ראיות, סקריפטי בדיקה ובדיקת רגרסיה אחת.

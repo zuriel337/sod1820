@@ -1,5 +1,7 @@
 # SOD1820 — Session Handoff
 
+> **ארכיון — אינו הוראה פעילה.** מסמך מסירה/ייצוא של סשן שהסתיים; ענפים, סטטוסים ורשימות הקריאה בו אינם מקור אמת ואינם נקודת התחלה (`CLAUDE.md` §0.2, §3). מצב נוכחי נקרא מ־Vercel, מ־`origin/main` ומהיומן.
+
 Read first: `CLAUDE.md` → `SOD1820_MASTER_STATE.md` → latest `work_log` → active DB rules/`project_codex` → `docs/research-object-map.md` → `docs/MASTER_STATE_STRATEGIC_ADDENDA.md` → `docs/sod1820-research-time-and-extensible-laws.md`.
 
 ## Current strategy

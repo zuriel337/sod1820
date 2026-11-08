@@ -1,5 +1,7 @@
 # מסירה לקלוד — חיבור המדידה וקוראי הניהול, 4.11.2026
 
+> **תצלום היסטורי (4.11.2026):** העבודה מוזגה ל־`main` ב־PR #1198 (`11346873d`); הענף אינו מקור אמת ואין להמשיך ממנו (`CLAUDE.md` 0.2). חיבור הבדיקות ל־CI הושלם חלקית: `public-reading-observability` ו־`real-gtag-shape` מחוברות ב־`live-contracts-2029.yml`; `operational-metrics-2029`, `public-reading-provider-readers` ו־`final-preparation-control-plane` עדיין לא מחוברות לשום workflow; שאר הפתוחים נבדקים מחדש מול `main` ו־Vercel.
+
 **STOPPED_BY_ZURIEL / HANDOFF / SCOPE_RELEASED.** צוריאל ביקש לעצור ולשחרר בעלות כדי שקלוד ימשיך. אין אישור או טענה שהחיבור החדש כבר פורסם לחי. לא הופעלו סוכני משנה ולא נשלח dispatch.
 
 ## הבסיס המדויק
