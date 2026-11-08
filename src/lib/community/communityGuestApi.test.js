@@ -61,16 +61,13 @@ test("typing is throttled and labelled by name, anonymous or both", () => {
   assert.equal(typingLabel({ names: ["דוד"], anonymous: 3 }), "דוד, 3 אנונימיים מקלידים…");
 });
 
-test("a guest name is sent only when typed, cleaned, under the exact named argument", async () => {
+test("a guest never sends a name: the request has no name argument whatever the caller passes", async () => {
   const calls = [];
   const client = { rpc: async (name, args) => { calls.push([name, args]); return { data: "id-2", error: null }; } };
   const parentId = "11111111-2222-4333-8444-555555555555";
-  await publishGuestCommunityMessage({ body: "היי", parentId, name: "  דוד\u202e   כהן " }, client);
-  await publishGuestCommunityMessage({ body: "היי", parentId, name: "   " }, client);
+  await publishGuestCommunityMessage({ body: "היי", parentId, name: "דוד כהן" }, client);
   await publishGuestCommunityMessage({ body: "היי", parentId }, client);
-  assert.deepEqual(calls[0][1], { p_body: "היי", p_parent_id: parentId, p_website: null, p_name: "דוד כהן" });
-  assert.deepEqual(Object.keys(calls[1][1]), ["p_body", "p_parent_id", "p_website"], "no name means the previous request shape");
-  assert.deepEqual(Object.keys(calls[2][1]), ["p_body", "p_parent_id", "p_website"]);
+  for (const [, args] of calls) assert.deepEqual(Object.keys(args), ["p_body", "p_parent_id", "p_website"]);
 });
 test("guest name validation mirrors the server rules", () => {
   assert.equal(guestNameProblem(""), ""); assert.equal(guestNameProblem("   "), "");

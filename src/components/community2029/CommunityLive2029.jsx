@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router-do
 import { useAuth } from "../../lib/AuthContext.jsx";
 import AccountEntry2029 from "../auth2029/AccountEntry2029.jsx";
 import { clearGuestPost, peekGuestPost, stashGuestPost } from "../../lib/community/communityGuestPost.js";
-import { GUEST_NAME_MAX, cleanGuestName, fetchGuestUnreviewed, guestBodyHasLink, guestNameProblem, guestPublishErrorMessage, publishGuestCommunityMessage, readGuestName, reviewGuestMessage, saveGuestName } from "../../lib/community/communityGuestApi.js";
+import { fetchGuestUnreviewed, guestBodyHasLink, guestPublishErrorMessage, publishGuestCommunityMessage, reviewGuestMessage } from "../../lib/community/communityGuestApi.js";
 import { typingLabel } from "../../lib/community/communityTyping.js";
 import { useCommunityTyping2029 } from "./useCommunityTyping2029.js";
 import { PUBLIC_READING_PRODUCTION_ARTIFACT } from "../../lib/publicReadingRelease2029.js";
@@ -411,7 +411,6 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const guestMustJoin = (PUBLIC_READING_PRODUCTION_ARTIFACT || import.meta.env.VITE_INTEGRATED_PREVIEW === "true") && !user;
   const guestPublishing = useRef(false);
   const [guestWebsite, setGuestWebsite] = useState("");
-  const [guestName, setGuestName] = useState(() => typeof window === "undefined" ? "" : readGuestName(window.localStorage));
   const [guestSending, setGuestSending] = useState(false);
   const [guestUnreviewedIds, setGuestUnreviewedIds] = useState(() => new Set());
   const guestReviewRead = useRef(0);
@@ -810,19 +809,16 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     const body = draft.trim();
     if (!plainMessageText(draft).trim() || replyTo?.draftRestoring || replyTo?.draftUnavailable) return;
     if (guestBodyHasLink(body)) { setNotice(guestPublishErrorMessage({ message: "links_not_allowed" })); return; }
-    const nameProblem = guestNameProblem(guestName);
-    if (nameProblem && nameProblem !== "ok") { setNotice(guestPublishErrorMessage({ message: nameProblem })); return; }
     setGuestSending(true); setNotice("");
     try {
-      await publishGuestCommunityMessage({ body, parentId: replyTo?.id || null, website: guestWebsite, name: guestName });
-      saveGuestName(window.localStorage, guestName);
+      await publishGuestCommunityMessage({ body, parentId: replyTo?.id || null, website: guestWebsite });
       clearGuestPost(window.localStorage);
       if (replyTo) {
         requestedReplyCounts.current.delete(replyTo.id);
         setReplyCounts((current) => { const next = { ...current }; delete next[replyTo.id]; return next; });
         setThreadRefresh((current) => current + 1);
       }
-      draftCache.clear(); setComposerExpanded(false); setJoinOpen(false); setNotice(cleanGuestName(guestName) ? `ההודעה פורסמה בשם ${cleanGuestName(guestName)} (אורח).` : "ההודעה פורסמה כאורח.");
+      draftCache.clear(); setComposerExpanded(false); setJoinOpen(false); setNotice("התגובה פורסמה כאורח.");
       if (!replyTo && !threadFocus) {
         setParams(current => { const next = new URLSearchParams(current); next.delete("q"); next.delete("sort"); next.delete("sourceSort"); return next; }, { replace: true });
         setPublishedFeedRefresh(value => value + 1);
@@ -898,9 +894,6 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {attachments.length ? <ul className="sod29-community-attachment-list">{attachments.map((item, index) => <DraftAttachment key={`${item.file.name}-${index}`} item={item} disabled={sending} onRemove={() => { draftCache.setHasFiles(attachments.length > 1); setAttachments((current) => current.filter((_, itemIndex) => itemIndex !== index)); }} />)}</ul> : null}
           {attachmentError ? <p className="sod29-community-status" role="alert">{attachmentError}</p> : null}
           {guestAttachHint && !user ? <p className="sod29-community-status" role="status" data-guest-attach-hint="true">צירוף תמונות וקבצים זמין לחברי הקהילה. <Link to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>נרשמים בשנייה ←</Link></p> : null}
-          {guestMustJoin && replyTo?.id && (!compactComposer || composerOpen) ? <label className="sod29-community-guest-name"><span>השם שלכם (לא חובה)</span>
-            <input type="text" name="guest-name" value={guestName} maxLength={GUEST_NAME_MAX} autoComplete="nickname" placeholder="למשל: דוד" disabled={guestSending} onChange={event => setGuestName(event.target.value)} aria-describedby="community-guest-name-note" />
-            <small id="community-guest-name-note">אפשר להגיב בלי להירשם. התגובה תופיע בשם שתכתבו, עם התווית ״אורח״.</small></label> : null}
           {guestMustJoin && !replyTo?.id && (!compactComposer || composerOpen) ? <p className="sod29-community-status" role="note" data-guest-reply-only="true">אורחים יכולים להגיב על הודעה קיימת (״השב״). פתיחת שיחה חדשה — לחברי הקהילה.</p> : null}
           {!compactComposer || composerOpen ? <div className="sod29-community-composer-bottom"><small>{plainMessageText(draft).length}/1500</small><div className="sod29-community-composer-actions" data-guest={guestMustJoin ? "true" : undefined}>
             {guestMustJoin && replyTo?.id ? <button type="button" className="sod29-community-primary" data-guest-publish="true" disabled={!plainMessageText(draft).trim() || guestSending || sending || authLoading || replyTo?.draftRestoring || replyTo?.draftUnavailable} onClick={publishAsGuest}>{guestSending ? "מפרסם…" : "תגובה כאורח"}</button> : null}

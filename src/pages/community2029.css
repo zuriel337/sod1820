@@ -503,9 +503,14 @@ html[data-theme-2029="parchment"] .sod29-community--artwork{--community-art-opac
 .sod29-community-join-link:disabled{opacity:.5;cursor:default}
 @media(max-width:600px){.sod29-community-composer-actions[data-guest="true"]>.sod29-community-join-link{flex:1 1 100%;text-align:center}}
 
-/* Hints that entered the tree: one pinned line each at the top of the chat. */
+/* Hints that entered the tree: latest pinned as one line, earlier ones on demand. */
 .sod29-tree-pins{margin:0 0 12px;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel);overflow:hidden}
-.sod29-tree-pins ul{list-style:none;margin:0;padding:0;max-height:min(30vh,176px);overflow-y:auto}
+.sod29-tree-pins-head{display:flex;align-items:center;min-width:0}
+.sod29-tree-pins-head .sod29-tree-pin{flex:1}
+.sod29-tree-pins-toggle{flex:none;min-height:44px;padding:0 14px;border:0;border-inline-start:1px solid var(--s29-line-strong);background:transparent;color:var(--s29-ink);font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
+.sod29-tree-pins-toggle:hover,.sod29-tree-pins-toggle:focus-visible{background:color-mix(in srgb,var(--s29-ink) 6%,transparent)}
+.sod29-tree-pins ul{list-style:none;margin:0;padding:0;max-height:min(40vh,240px);overflow-y:auto;border-top:1px solid var(--s29-line-strong)}
+.sod29-tree-pins ul[hidden]{display:none}
 .sod29-tree-pins li+li{border-top:1px solid var(--s29-line-strong)}
 .sod29-tree-pin{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;color:var(--s29-ink);text-decoration:none;box-sizing:border-box;min-width:0}
 a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in srgb,var(--s29-ink) 6%,transparent)}

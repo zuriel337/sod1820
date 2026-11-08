@@ -6,6 +6,8 @@
 --    text only, size, rate limits, review) is unchanged. The signature is unchanged,
 --    so the client and grants keep working; only the new error 'reply_only' is added.
 --
+-- Guests also lose the optional display name (existing named guest messages stay as they are).
+--
 -- 2. "Entered the tree" hints. An administrator (the Human Gate) marks a public chat
 --    message as a hint that entered the tree. The marker is a side table: the
 --    message itself is not edited, copied or re-ranked. Everyone can read the short
@@ -28,7 +30,6 @@ declare
   v_ip text;
   v_body text := btrim(coalesce(p_body, ''));
   v_plain text;
-  v_name text;
   v_author text := 'אורח';
   v_hour int;
   v_day int;
@@ -52,17 +53,8 @@ begin
     raise exception 'links_not_allowed';
   end if;
 
-  if nullif(btrim(coalesce(p_name, '')), '') is not null then
-    v_name := btrim(regexp_replace(regexp_replace(p_name, '[\u0001-\u001f\u007f-\u009f​-‏‪-‮⁦-⁩﻿]', '', 'g'), '\s+', ' ', 'g'));
-    if v_name ~* '(https?://|www\.|[a-z0-9-]+\.(com|co\.il|org\.il|org|net|il|io|me|ly|tv|ru|info|xyz|app|dev|gl|be|to)(/|\b))' or v_name ~ '📎' then
-      raise exception 'links_not_allowed';
-    end if;
-    if char_length(v_name) < 2 or char_length(v_name) > 30
-       or v_name ~ '[<>&{}\[\]\\/|@#$%^*=+~`;:_]' then
-      raise exception 'invalid_name';
-    end if;
-    v_author := v_name || ' (אורח)';
-  end if;
+  -- A guest has no name of their own: p_name is accepted for compatibility with older
+  -- clients and ignored, so every guest comment is published as plain 'אורח'.
 
   if not exists (
     select 1 from public.research_contributions r

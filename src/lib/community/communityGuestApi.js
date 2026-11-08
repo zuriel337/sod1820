@@ -45,10 +45,10 @@ export function saveGuestName(storage, name) {
   try { const clean = cleanGuestName(name); if (clean) storage?.setItem(GUEST_NAME_STORAGE_KEY, clean); else storage?.removeItem(GUEST_NAME_STORAGE_KEY); } catch { /* storage unavailable */ }
 }
 // A guest may only comment on an existing message; the server enforces it too.
-export async function publishGuestCommunityMessage({ body, parentId = null, website = "", name = "" }, client = supabase) {
+// A guest has no name of their own: every guest comment is published as plain "אורח".
+export async function publishGuestCommunityMessage({ body, parentId = null, website = "" }, client = supabase) {
   if (!parentId) throw Object.assign(new Error("reply_only"), { code: "reply_only" });
-  const guestName = cleanGuestName(name);
-  const { data, error } = await client.rpc("add_guest_community_message", { p_body: body, p_parent_id: parentId, p_website: website || null, ...(guestName ? { p_name: guestName } : {}) });
+  const { data, error } = await client.rpc("add_guest_community_message", { p_body: body, p_parent_id: parentId, p_website: website || null });
   if (error) throw error;
   return data;
 }
