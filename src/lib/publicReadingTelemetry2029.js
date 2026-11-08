@@ -5,7 +5,7 @@ export function readingTelemetryPath(value) {
   if (typeof value !== "string" || value.length > 2048 || !value.startsWith("/") || value.startsWith("//")) return null;
   let path;
   try { path = decodeURIComponent(value.split(/[?#]/, 1)[0]).replace(/\/+$/, "") || "/"; } catch { return null; }
-  if (/[\\\u0000-\u001f\u007f?#]/.test(path)) return null;
+  if (path.startsWith("//") || /[\\\u0000-\u001f\u007f?#]/.test(path)) return null;
   if (/^\/(?:api|auth|admin|login|me|profile|traffic|reports|editor|edit|unsubscribe|updates|credits|buy)(?:\/|$)/i.test(path)
     || /^\/2029\/(?:me|control|preview)(?:\/|$)/i.test(path)
     || /^\/community\/(?:researcher\/me|whatsapp)(?:\/|$)/i.test(path)) return null;
