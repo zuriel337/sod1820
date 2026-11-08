@@ -17,6 +17,28 @@ export function publicReadingReadOnlyApi(handler, { authorized = deploymentAutho
   };
 }
 
+// ZURIEL, 8.11.2026: contributor-interactions' own handler already verifies the
+// caller for itself — it checks the request's Origin/Host match for a write
+// (sameOrigin) and re-verifies the bearer token against Supabase auth directly
+// (client.auth.getUser(token)), never trusting any claim from the request body;
+// its one write goes through the existing dm_send RPC under that verified
+// caller's own token, so RLS applies exactly as if they called it themselves.
+// Unlike the read-only wrapper above, this one must pass Authorization through
+// and allow POST, or every caller looks anonymous to the handler and a real
+// member cannot send a message. Cookies are still stripped — the handler never
+// reads them, only the bearer token.
+export function publicReadingWritableApi(handler, { authorized = deploymentAuthorized } = {}) {
+  return async (req, res) => {
+    res.setHeader("Cache-Control", "no-store");
+    if (!authorized()) return res.status(503).json({ state: "unavailable" });
+    if (!requestOrigin(req)) return res.status(421).json({ state: "unavailable" });
+    if (!["GET", "POST"].includes(req.method)) { res.setHeader("Allow", "GET, POST"); return res.status(405).json({ state: "unavailable" }); }
+    const headers = { ...req.headers };
+    for (const name of Object.keys(headers)) if (name.toLowerCase() === "cookie") delete headers[name];
+    return handler({ ...req, headers }, res);
+  };
+}
+
 // Existing provider readers stay private. Deployment admission is not an admin
 // credential; verify the current caller on the canonical Auth/RLS path before
 // handing the request to the existing endpoint (which also checks its caller).
