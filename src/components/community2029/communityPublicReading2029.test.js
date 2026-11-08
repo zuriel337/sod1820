@@ -62,6 +62,7 @@ async function harness(file, names, overrides = {}) {
     canonicalCommunityAuthorKey: value => value, useCommunityTyping2029: () => ({ typingPeople: { names: [], anonymous: 0 }, notifyTyping() {} }),
     fetchGuestUnreviewed: async () => [], typingLabel: people => people.names.length || people.anonymous ? "x" : "",
     fetchTreeHints: async () => [], setTreeHint: async () => {}, parseTreeHintNumbers: () => [],
+    pingCommunityPresence: async () => {}, fetchCommunityPresenceOnline: async () => [], COMMUNITY_PRESENCE_PING_MS: 45000,
     fetchCommunityArchivePage: async () => ({ rows: [], nextOffset: 0, count: 0 }),
     fetchLinkedAccountProfiles: async () => ({}), fetchCommunityReplyCounts: async () => ({}),
     startCommunityRefresh: () => () => {}, applySeo() {}, restoreCommunityScrollAnchor() {},

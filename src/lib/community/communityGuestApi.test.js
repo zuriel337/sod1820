@@ -14,16 +14,31 @@ test("server error codes become Hebrew explanations", () => {
 });
 test("guest API calls the exact RPCs with named arguments", async () => {
   const calls = [];
-  const client = { rpc: async (name, args) => { calls.push([name, args]); return { data: name === "community_guest_unreviewed" ? ["a", "b"] : "id-1", error: null }; } };
+  const guestRow = { id: "a", author_name: "אורח", body: "הודעה ממתינה", created_at: "2026-11-08T10:00:00Z", path: ["a"] };
+  const client = { rpc: async (name, args) => { calls.push([name, args]); return { data: name === "community_guest_unreviewed" ? [guestRow] : "id-1", error: null }; } };
   const parent = "11111111-2222-4333-8444-555555555555";
   assert.equal(await publishGuestCommunityMessage({ body: "היי", parentId: parent, website: "" }, client), "id-1");
-  assert.deepEqual(await fetchGuestUnreviewed(client), ["a", "b"]);
+  const pending = await fetchGuestUnreviewed({}, client);
+  assert.equal(pending.length, 1);
+  assert.equal(pending[0].line, "הודעה ממתינה");
   await reviewGuestMessage("a", "hide", client);
   assert.deepEqual(calls, [
     ["add_guest_community_message", { p_body: "היי", p_parent_id: parent, p_website: null }],
     ["community_guest_unreviewed", { p_ids: null }],
     ["community_guest_review", { p_id: "a", p_action: "hide" }]]);
   await assert.rejects(publishGuestCommunityMessage({ body: "x", parentId: parent }, { rpc: async () => ({ data: null, error: { message: "rate_limited" } }) }));
+});
+test("pending guest messages normalize like tree hints: drop empty/duplicate rows, link to the thread path", () => {
+  const client = { rpc: async () => ({ data: [
+    { id: "11111111-2222-4333-8444-555555555555", author_name: " דוד ", body: "שלום", created_at: "2026-11-08T10:00:00Z", path: ["11111111-2222-4333-8444-555555555555"] },
+    { id: "11111111-2222-4333-8444-555555555555", body: "כפול" },
+    { id: "", body: "בלי מזהה" },
+  ], error: null }) };
+  return fetchGuestUnreviewed({ href: "https://sod1820.co.il/community/chat" }, client).then(pending => {
+    assert.equal(pending.length, 1);
+    assert.equal(pending[0].authorName, "דוד");
+    assert.equal(pending[0].href, "https://sod1820.co.il/community/chat?thread=11111111-2222-4333-8444-555555555555");
+  });
 });
 test("a guest can only comment: a message without a parent never reaches the server", async () => {
   let called = false;

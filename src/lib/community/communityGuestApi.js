@@ -1,4 +1,6 @@
 import { supabase } from "../supabase.js";
+import { treeHintLine } from "./communityTreeHints.js";
+import { communityMessageShareUrl } from "./communityMessageShare.js";
 
 // Guest publishing: the server enforces everything (kill switch, rate limits,
 // text only, valid parent). These helpers only call it and explain failures.
@@ -52,11 +54,32 @@ export async function publishGuestCommunityMessage({ body, parentId = null, webs
   if (error) throw error;
   return data;
 }
-// Administrator-only; the server returns an empty list to everyone else.
-export async function fetchGuestUnreviewed(client = supabase) {
+// Each pending guest message, with enough to jump straight to it in the thread
+// (ZURIEL: don't make a moderator hunt for it in the feed). Admin or community
+// guest moderator only; the server returns an empty list to everyone else.
+export function normalizeGuestUnreviewed(data, currentHref = "https://sod1820.co.il/community/chat") {
+  if (!Array.isArray(data)) return [];
+  const seen = new Set();
+  const items = [];
+  for (const item of data) {
+    const id = typeof item?.id === "string" ? item.id : "";
+    if (!id || seen.has(id)) continue;
+    seen.add(id);
+    const path = Array.isArray(item.path) ? item.path : [id];
+    items.push({
+      id,
+      line: treeHintLine(item?.body) || "(ללא טקסט)",
+      authorName: typeof item.author_name === "string" && item.author_name.trim() ? item.author_name.trim() : "אורח",
+      createdAt: item.created_at || null,
+      href: communityMessageShareUrl(currentHref, path),
+    });
+  }
+  return items;
+}
+export async function fetchGuestUnreviewed({ href } = {}, client = supabase) {
   const { data, error } = await client.rpc("community_guest_unreviewed", { p_ids: null });
   if (error) throw error;
-  return Array.isArray(data) ? data.map(item => typeof item === "string" ? item : Object.values(item || {})[0]).filter(Boolean) : [];
+  return normalizeGuestUnreviewed(data, href);
 }
 export async function reviewGuestMessage(id, action, client = supabase) {
   const { error } = await client.rpc("community_guest_review", { p_id: id, p_action: action });
