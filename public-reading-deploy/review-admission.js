@@ -21,7 +21,7 @@ function reviewPlatform(env, target = "preview") {
     : target === "production" ? [PRODUCTION_REVIEW_BRANCH] : [];
   return branches.length > 0 && Boolean(env) && typeof env === "object"
     && env.VERCEL === "1" && env.VERCEL_ENV === target
-    && env.VERCEL_TARGET_ENV === target
+    && (env.VERCEL_TARGET_ENV == null || env.VERCEL_TARGET_ENV === target)
     && env.VERCEL_PROJECT_ID === REVIEW_PROJECT_ID
     && branches.includes(env.VERCEL_GIT_COMMIT_REF)
     && sourceShaPattern.test(env.VERCEL_GIT_COMMIT_SHA || "")
