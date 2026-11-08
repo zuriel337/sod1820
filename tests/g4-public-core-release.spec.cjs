@@ -52,7 +52,7 @@ test.beforeEach(async ({ context }) => {
 
 test('2029 Home is under construction for guests with a world entry', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const path of ['/2029', '/']) {
+  for (const path of ['/2029']) { // '/' is served by the Vercel rewrite, not by the preview server
     await page.goto(`${BASE}${path}`, { waitUntil: 'domcontentloaded' });
     const home = page.locator('[data-home-construction="true"]');
     await expect(home).toBeVisible({ timeout: 30_000 });
