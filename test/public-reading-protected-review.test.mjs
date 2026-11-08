@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { build } from "esbuild";
 import { protectedReviewBuildIdentity, protectedReviewRuntimeAuthorized, protectedReviewConfigMaterialization,
-  REVIEW_BRANCH, REVIEW_PROJECT_ID, REVIEW_AUTH_HOST } from "../public-reading-deploy/review-admission.js";
+  REVIEW_BRANCH, ANALYTICS_PREVIEW_BRANCH, REVIEW_PROJECT_ID, REVIEW_AUTH_HOST } from "../public-reading-deploy/review-admission.js";
 
 // All platform identities and responses in this file are synthetic. Real Vercel
 // identity is never forged for a build or deployment. No fetch may reach network.
@@ -23,6 +23,10 @@ const fixtureIdentity = protectedReviewBuildIdentity({ env: fixtureEnv,
 const generatedIdentityPath = resolve(root, "public-reading-deploy/.generated/protected-review-build.js");
 
 test("exact clean source emits a frozen Preview-only receipt and admits only that runtime", () => {
+  const standardVercelPreview = { ...fixtureEnv }; delete standardVercelPreview.VERCEL_TARGET_ENV;
+  const standardIdentity = protectedReviewBuildIdentity({ env: standardVercelPreview, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha });
+  assert.equal(protectedReviewRuntimeAuthorized(standardIdentity, standardVercelPreview), true);
+  assert.throws(() => protectedReviewBuildIdentity({ env: { ...fixtureEnv, VERCEL_TARGET_ENV: "staging" }, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }), /identity_rejected/);
   assert.ok(Object.isFrozen(fixtureIdentity));
   assert.equal(fixtureIdentity.sourceSha, sha);
   assert.equal(fixtureIdentity.deploymentId, fixtureEnv.VERCEL_DEPLOYMENT_ID);
@@ -30,6 +34,21 @@ test("exact clean source emits a frozen Preview-only receipt and admits only tha
   assert.equal(fixtureIdentity.productionAuthorized, false);
   assert.equal(fixtureIdentity.indexingAuthorized, false);
   assert.equal(protectedReviewRuntimeAuthorized(fixtureIdentity, fixtureEnv), true);
+});
+
+
+test("analytics restoration branch is admitted only as a pinned protected Preview, never Production", () => {
+  const env = Object.freeze({ ...fixtureEnv, VERCEL_GIT_COMMIT_REF: ANALYTICS_PREVIEW_BRANCH });
+  const identity = protectedReviewBuildIdentity({ env, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha });
+  assert.equal(identity.branch, ANALYTICS_PREVIEW_BRANCH);
+  assert.equal(identity.productionAuthorized, false);
+  assert.equal(identity.indexingAuthorized, false);
+  assert.equal(protectedReviewRuntimeAuthorized(identity, env), true);
+  assert.equal(protectedReviewRuntimeAuthorized(identity, { ...env, VERCEL_ENV: "production", VERCEL_TARGET_ENV: "production" }), false);
+  assert.throws(() => protectedReviewBuildIdentity({ env: { ...env, VERCEL_GIT_COMMIT_SHA: "b".repeat(40) },
+    sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }), /identity_rejected/);
+  assert.throws(() => protectedReviewBuildIdentity({ env: { ...env, VERCEL_GIT_COMMIT_REF: "claude/other-work" },
+    sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }), /identity_rejected/);
 });
 
 test("build identity rejects missing or wrong platform fields, targets, source pins and dirty source", () => {
@@ -66,7 +85,7 @@ test("only Preview's sole unstaged root config may equal the complete committed 
   const config = { framework: null, redirects: [{ source: "/old", destination: "/post/new", permanent: true },
     { source: "/posts", destination: "/post", permanent: true }], headers: [{ source: "/(.*)",
     headers: [{ key: "Cache-Control", value: "no-store" }] }] };
-  const input = { reviewMode: true, env: fixtureEnv, trackedStatus: " M vercel.json\0",
+  const input = { reviewMode: true, env: fixtureEnv, trackedStatus: " Mvercel.json\0",
     trackedDiff: `:100644 100644 ${"c".repeat(40)} ${"0".repeat(40)} M\0vercel.json\0`,
     committedConfig: JSON.stringify(config, null, 2), workingConfig: JSON.stringify(config) };
   assert.equal(protectedReviewConfigMaterialization(input), true);
@@ -79,8 +98,8 @@ test("only Preview's sole unstaged root config may equal the complete committed 
       headers: [{ key: "Cache-Control", value: "public" }] }] }])
     assert.equal(protectedReviewConfigMaterialization({ ...input, workingConfig: JSON.stringify(configChange) }), false);
   for (const trackedStatus of ["", "M  vercel.json\0", "MM vercel.json\0", " M vercel.json\0 M src/App2029.jsx\0",
-    " M public-reading-deploy/vercel.json\0", " M vercel.json\0 M public-reading-deploy/vercel.json\0",
-    " D vercel.json\0", " T vercel.json\0", "T  vercel.json\0", "R  vercel.json\0previous.json\0", " M vercel.json\n"])
+    " Mpublic-reading-deploy/vercel.json\0", " M vercel.json\0 M public-reading-deploy/vercel.json\0",
+    " Dvercel.json\0", " Tvercel.json\0", "T vercel.json\0", "R  vercel.json\0previous.json\0", " Mvercel.json\n"])
     assert.equal(protectedReviewConfigMaterialization({ ...input, trackedStatus }), false, JSON.stringify(trackedStatus));
   for (const trackedDiff of [undefined, "", input.trackedDiff.replace("100644 100644", "100644 100755"),
     input.trackedDiff.replace("100644 100644", "100644 120000"),

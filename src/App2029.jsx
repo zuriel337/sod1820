@@ -7,6 +7,7 @@ import RazielSessionMount2029 from "./components/experience2029/RazielSessionMou
 import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { startPageEngagement } from "./lib/engagement.js";
+import { trackVisit } from "./lib/visits.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
 import { readingTelemetryPath } from "./lib/publicReadingTelemetry2029.js";
@@ -189,14 +190,19 @@ function RouteEffects2029() {
   useEffect(() => {
     if (PUBLIC_READING_RELEASE) {
       if (!["sod1820.co.il", "www.sod1820.co.il"].includes(window.location.hostname)) return undefined;
-      if (!readingTelemetryPath(pathname)) return undefined;
+      const telemetryPath = readingTelemetryPath(pathname);
+      if (!telemetryPath) return undefined;
+      // Public production release: restore first-party visit + engagement
+      // collection using the privacy-normalized route (no raw slug/query/PII).
+      void trackVisit(telemetryPath);
+      const stopEngagement = startPageEngagement(telemetryPath);
       // Keep the public home's primary content ahead of the optional Google
       // script. A canceled navigation cannot initialize a stale page view.
       let stopped = false, timer, observer, idle;
       const run = () => {
         if (stopped) return;
-        initGA({ publicReading: true, path: pathname });
-        trackPageview(pathname, { publicReading: true });
+        initGA({ publicReading: true, path: telemetryPath });
+        trackPageview(telemetryPath, { publicReading: true });
       };
       const schedule = () => {
         observer?.disconnect();
@@ -207,7 +213,7 @@ function RouteEffects2029() {
         observer = new MutationObserver(() => { if (document.querySelector('[data-home-primary="ready"]')) schedule(); });
         observer.observe(document.getElementById("root") || document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-home-primary"] });
       } else schedule();
-      return () => { stopped = true; observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); };
+      return () => { stopped = true; observer?.disconnect(); clearTimeout(timer); if (idle != null) window.cancelIdleCallback?.(idle); try { stopEngagement?.(); } catch { /* analytics must never block navigation */ } };
     }
     if (integratedPreviewEnabled || (kingdomPreviewEnabled && pathname === "/2029/kingdom")) return undefined;
     // Internal Control Plane is operational/admin traffic, not public product analytics.
