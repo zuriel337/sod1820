@@ -82,7 +82,7 @@ test("loading reserves rows; nothing to show or no feed renders nothing: no empt
 
 test("Home order: ELS, latest ciphers, live updates, flagship region, entrances, other series; the end is statistics then the newsletter", () => {
   const body = source.slice(source.indexOf(`data-experience-capability="home-composition"`));
-  const order = ["elsEntry ? <Reveal", '<Section label="הצפנים האחרונים בתורה">', "<HomeLiveUpdates", "<HomeFlagshipRegion", "<HomeEntryBand", "<HomeOtherSeries"].map(marker => body.indexOf(marker));
+  const order = ["<HomeFeaturedPost2029", "elsEntry ? <Reveal", '<Section label="הצפנים האחרונים בתורה">', "<HomeLiveUpdates", "<HomeFlagshipRegion", "<HomeEntryBand", "<HomeOtherSeries"].map(marker => body.indexOf(marker));
   assert.ok(order.every(index => index > 0) && order.every((index, i) => i === 0 || index > order[i - 1]), order.join(","));
   assert.ok(body.indexOf('data-home-newsletter="end"') > body.indexOf('aria-label="דופק ומצב בנייה"'), "newsletter after the statistics line, last");
   assert.equal((source.match(/<NewsletterSignup2029 \/>/g) || []).length, 1, "one newsletter component, only at the end");

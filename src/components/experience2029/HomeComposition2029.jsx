@@ -16,6 +16,7 @@ import ConvergenceRatings2029 from "./ConvergenceRatings2029.jsx";
 import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
 import SeriesBell2029 from "./SeriesBell2029.jsx";
+import HomeFeaturedPost2029, { useHomeFeaturedPost } from "./HomeFeaturedPost2029.jsx";
 import { nowModels } from "../../lib/nowPublications2029.js";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
@@ -401,6 +402,7 @@ export default function HomeComposition2029({
   const data = { ...primary, ...deferred };
   // Items already shown by the lead, the videos strip or the cipher strip are not repeated in the standalone strip.
   const seriesState = useHomeSeries();
+  const featured = useHomeFeaturedPost();
   const feed = useContext(SystemFeedContext2029);
   const midrashState = publicReadingPath("/beit-midrash", { isAdmin: adminViewer });
   const midrashOpen = !(midrashState === "closed" || midrashState === "missing");
@@ -408,13 +410,15 @@ export default function HomeComposition2029({
   const updatesExclude = useMemo(() => new Set([
     ...(seriesState.series.find(series => series.priorityLane === "primary")?.items || []).map(item => item.href),
     ...(data.ciphers || []).map(cipher => postHref(cipher.link_url)),
-  ].filter(Boolean).map(String)), [seriesState.series, data.ciphers]);
+    featured.post?.href,
+  ].filter(Boolean).map(String)), [seriesState.series, data.ciphers, featured.post]);
   const updates = useHomeUpdates(feed, { exclude: updatesExclude, postsOnly: corePublic && !worldOpen });
   const standaloneExclude = useMemo(() => new Set([
     ...data.posts.map(post => post.slug), ...(data.videos || []).map(video => video.slug),
     ...(data.ciphers || []).map(cipher => postAddressSlug(cipher.link_url)),
     ...updates.models.map(model => model.href ? postAddressSlug(model.href) : null),
-  ].filter(Boolean).map(String)), [data.posts, data.videos, data.ciphers, updates.models]);
+    featured.post?.slug,
+  ].filter(Boolean).map(String)), [data.posts, data.videos, data.ciphers, updates.models, featured.post]);
   useEffect(() => { if (worldAdmitted) onWorldApproach?.(true); }, [worldAdmitted, onWorldApproach]);
   const now = projection?.temporalNow || null;
   const people = projection?.worldPreview?.people || [];
@@ -431,6 +435,8 @@ export default function HomeComposition2029({
     const href = link?.getAttribute("href");
     if (link && !link.hasAttribute("download") && (!link.target || link.target === "_self") && href?.startsWith("/") && !href.startsWith("//") && event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) onNavigate?.(href);
   }}>
+    <HomeFeaturedPost2029 state={featured} />
+
     {elsEntry ? <Reveal id="els-entry">{elsEntry}</Reveal> : null}
 
     <Section label="הצפנים האחרונים בתורה">
