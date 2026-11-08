@@ -1785,7 +1785,7 @@ function SystemFrame2029Body({
   }, []);
 
   const openTransient = useCallback((kind, payload = null) => {
-    if (kind === TRANSIENT.CONTEXT && contextLocked) return;
+    if ((kind === TRANSIENT.CONTEXT || kind === TRANSIENT.ATTENTION) && contextLocked) return;
     // Switching an existing sheet must keep its persistent entry as the return
     // target; an inner tab/search button disappears when that sheet changes.
     if (!document.activeElement?.closest?.(".sod29-frame-panel")) {
@@ -2096,7 +2096,7 @@ function SystemFrame2029Body({
 
   const transientKind = transient?.kind || null;
   useEffect(() => {
-    if ((razielLocked && transientKind === TRANSIENT.RAZIEL) || (contextLocked && transientKind === TRANSIENT.CONTEXT)) setTransient(null);
+    if ((razielLocked && transientKind === TRANSIENT.RAZIEL) || (contextLocked && (transientKind === TRANSIENT.CONTEXT || transientKind === TRANSIENT.ATTENTION))) setTransient(null);
   }, [razielLocked, contextLocked, transientKind]);
   const numberPageRoute = surface === "number" && /^\/2029\/number\/[^/]+\/?$/.test(location.pathname);
   const subjectHref = pageContext?.subject?.href || "";
@@ -2418,7 +2418,7 @@ function SystemFrame2029Body({
             openNumber(value != null ? { id: String(value), type: "number", label: String(value) } : activeTarget);
           }} disabled={numberLocked} aria-label={numberLocked ? "גימטריה · נעולה כרגע" : "גימטריה · מספר, ביטוי ושיטות חישוב"} aria-haspopup="dialog"><NavigationIcon2029 name="number" /><small>גימטריה</small></button>
           <RazielOrb compact active={!razielLocked && transientKind === TRANSIENT.RAZIEL} onClick={openRaziel} locked={razielLocked} />
-          <button type="button" onClick={research.elsResearchOperation?.task ? openWorkspace : openAttention} aria-label={research.elsResearchOperation?.task ? `עכשיו · ${research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות"}` : feed.newCount > 0 ? `עכשיו · ${feed.newCount} חדשים` : "עכשיו"} aria-haspopup="dialog" aria-expanded={transientKind === (research.elsResearchOperation?.task ? TRANSIENT.WORKSPACE : TRANSIENT.ATTENTION)}><NavigationIcon2029 name="now" /><small>{research.elsResearchOperation?.task ? research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות" : "עכשיו"}</small>{feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
+          <button type="button" className="sod29-dock-now" disabled={contextLocked} title={contextLocked ? "עכשיו בבנייה · למנהל בלבד" : undefined} onClick={research.elsResearchOperation?.task ? openWorkspace : openAttention} aria-label={contextLocked ? "עכשיו · בבנייה · למנהל בלבד" : research.elsResearchOperation?.task ? `עכשיו · ${research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות"}` : feed.newCount > 0 ? `עכשיו · ${feed.newCount} חדשים` : "עכשיו"} aria-haspopup="dialog" aria-expanded={transientKind === (research.elsResearchOperation?.task ? TRANSIENT.WORKSPACE : TRANSIENT.ATTENTION)}><NavigationIcon2029 name="now" /><small>{research.elsResearchOperation?.task ? research.elsResearchOperation.task.status === "RUNNING" ? "סורק" : "תוצאות" : "עכשיו"}</small>{contextLocked ? <span className="sod29-construction-badge" aria-hidden="true">בבנייה</span> : null}{!contextLocked && feed.newCount > 0 ? <span className="sod29-dock-unread" aria-hidden="true">{feed.newCount}</span> : null}</button>
           <button type="button" onClick={openMore} title="עוד · פעולות, כלים, חיפוש ושיתוף" aria-label="עוד · פעולות, כלים ושיתוף" aria-haspopup="dialog" aria-expanded={transientKind === TRANSIENT.MORE}><NavigationIcon2029 name="tools" /><small>עוד</small></button>
         </div> : <div className="sod29-command-island is-unified-bar" role="toolbar" aria-label="מסלול המחקר והפעולות הזמינות עכשיו" data-raziel-anchor="center" data-command-mode="tool" data-tool-owner={activeToolDock?.surface}>
           <div className="sod29-bar-zone is-context"><SystemToolDockActions2029 actions={activeToolDock.actions.slice(0, 2)} onInvoke={(action, trigger) => { setTransient(null); action.onSelect(trigger); }} /></div>

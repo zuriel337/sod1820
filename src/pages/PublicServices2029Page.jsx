@@ -10,7 +10,7 @@ import "./auth2029.css";
 import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../lib/publicLaunch2029.js";
 import { PUBLIC_READING_PRODUCTION_ARTIFACT } from "../lib/publicReadingRelease2029.js";
 
-const LABELS = { "launch-closed": "האזור ייפתח בהמשך", privacy: "פרטיות", unsubscribe: "הסרה מהדיוור", updates: "עדכונים במייל", map: "מפת האתר", "number-search": "מספר או ביטוי", "not-found": "העמוד לא נמצא" };
+const LABELS = { "home-construction": "בבנייה", "launch-closed": "האזור ייפתח בהמשך", privacy: "פרטיות", unsubscribe: "הסרה מהדיוור", updates: "עדכונים במייל", map: "מפת האתר", "number-search": "מספר או ביטוי", "not-found": "העמוד לא נמצא" };
 function NumberEntry() {
   const [term, setTerm] = useState(""); const navigate = useNavigate();
   return <section className="sod29-section sod29-auth-card"><h1>מספר או ביטוי</h1><p>המספרים, הביטויים והמקורות במנוע הקיים. חיפוש אינו פרסום ציבורי.</p>
@@ -22,11 +22,11 @@ function NumberEntry() {
 export default function PublicServices2029Page({ kind }) {
   useEffect(() => {
     if (["privacy", "unsubscribe", "not-found"].includes(kind)) return;
-    applySeo({ title: LABELS[kind], path: kind === "number-search" ? "/number" : `/${kind}`, noindex: kind === "updates" });
+    applySeo({ title: LABELS[kind], path: kind === "number-search" ? "/number" : kind === "home-construction" ? "/" : `/${kind}`, noindex: kind === "updates" || kind === "home-construction" });
   }, [kind]);
   return <Sod2029Shell surface="community" title={LABELS[kind]} introVariant="none">
     {PUBLIC_LAUNCH_READ_ONLY_PREVIEW && !PUBLIC_READING_PRODUCTION_ARTIFACT && (kind === "updates" || kind === "unsubscribe") ? <section className="sod29-section"><h1>{LABELS[kind]}</h1><p>פעולות הדיוור אינן פעילות בגרסה זו. קישורי ההסרה הקיימים באתר הוותיק נשארים ללא שינוי.</p><Link to="/privacy">פרטיות ויצירת קשר</Link></section> : <>
-    {kind === "launch-closed" ? <section className="sod29-section"><h1>האזור ייפתח בהמשך</h1><p>גרסת הקריאה הציבורית כוללת בית, עולם, פוסטים, מספרים, ביטויים, מחשבון וגלריות. פעולות חשבון, כתיבה ומודלים עדיין אינן פעילות.</p><Link to="/">חזרה לבית</Link></section> : kind === "privacy" ? <PrivacyPage /> : kind === "unsubscribe" ? <UnsubscribePage /> : kind === "number-search" ? <NumberEntry />
+    {kind === "home-construction" ? <section className="sod29-section" data-home-construction="true"><h1>בבנייה</h1><p>דף הבית בבנייה. הכניסה כרגע למנהל בלבד.</p><Link to="/login?returnTo=%2F">כניסת מנהל</Link></section> : kind === "launch-closed" ? <section className="sod29-section"><h1>האזור ייפתח בהמשך</h1><p>גרסת הקריאה הציבורית כוללת בית, עולם, פוסטים, מספרים, ביטויים, מחשבון וגלריות. פעולות חשבון, כתיבה ומודלים עדיין אינן פעילות.</p><Link to="/">חזרה לבית</Link></section> : kind === "privacy" ? <PrivacyPage /> : kind === "unsubscribe" ? <UnsubscribePage /> : kind === "number-search" ? <NumberEntry />
       : kind === "not-found" ? <NotFoundPage /> : kind === "updates" ? <>
         <h1>עדכונים במייל</h1><NewsletterSignup2029 /><p>להסרה: השתמשו בקישור האישי שבתחתית המייל שקיבלתם. <Link to="/unsubscribe">עזרה בהסרה</Link> · <Link to="/privacy">פרטיות ויצירת קשר</Link></p>
       </> : <section className="sod29-section"><h1>מפת האתר</h1><p>קריאה, מקורות ושירותים. חלק מהיכולות החדשות עדיין בבנייה; כניסה לדף אינה מפעילה כתיבה או כלי מחקר.</p><nav aria-label="דפי האתר" className="sod29-actions">

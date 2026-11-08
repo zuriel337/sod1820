@@ -77,15 +77,18 @@ function WorldEntry2029() {
 // navigation or require a competing edit to the deployment rewrite configuration.
 function HomeEntry2029() {
   const location = useLocation();
-  const { user, loading } = useAuth();
+  const { user, loading, isAdmin } = useAuth();
   const identity = user?.id || "guest";
   const [source, setSource] = useState(null);
   useEffect(() => {
-    if (!PUBLIC_READING_RELEASE || loading) return undefined;
+    if (!PUBLIC_READING_RELEASE || loading || isAdmin !== true) return undefined;
     const request = beginHomeReadingSource({ readCards: options => import("./lib/research/homeLaunchPosts2029.js").then(module => module.getHomeLaunchPostCards(options)) });
     setSource({ key: location.key, identity, read: request.read });
     return () => request.cancel();
-  }, [location.key, identity, loading]);
+  }, [location.key, identity, loading, isAdmin]);
+  // ZURIEL 8.11: the home page is under construction; only a signed-in administrator enters.
+  if (loading) return <Loading2029 />;
+  if (isAdmin !== true) return <PublicServices2029Page kind="home-construction" />;
   if (!PUBLIC_READING_RELEASE) return new URLSearchParams(location.search).get("preview") === "community"
     ? <Community2029Page /> : <Home2029Page />;
   // Commit the route-owned read before suspending on Home/Shell component code.
