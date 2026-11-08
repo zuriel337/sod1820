@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { build } from "esbuild";
 import { protectedReviewBuildIdentity, protectedReviewRuntimeAuthorized, protectedReviewConfigMaterialization,
-  REVIEW_BRANCH, REVIEW_PROJECT_ID, REVIEW_AUTH_HOST } from "../public-reading-deploy/review-admission.js";
+  REVIEW_BRANCH, ANALYTICS_PREVIEW_BRANCH, REVIEW_PROJECT_ID, REVIEW_AUTH_HOST } from "../public-reading-deploy/review-admission.js";
 
 // All platform identities and responses in this file are synthetic. Real Vercel
 // identity is never forged for a build or deployment. No fetch may reach network.
@@ -32,7 +32,21 @@ test("exact clean source emits a frozen Preview-only receipt and admits only tha
   assert.equal(protectedReviewRuntimeAuthorized(fixtureIdentity, fixtureEnv), true);
 });
 
-test("build identity rejects missing or wrong platform fields, targets, source pins and dirty source", () => {
+
+test("analytics restoration branch is admitted only as a pinned protected Preview, never Production", () => {
+  const env = Object.freeze({ ...fixtureEnv, VERCEL_GIT_COMMIT_REF: ANALYTICS_PREVIEW_BRANCH });
+  const identity = protectedReviewBuildIdentity({ env, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha });
+  assert.equal(identity.branch, ANALYTICS_PREVIEW_BRANCH);
+  assert.equal(identity.productionAuthorized, false);
+  assert.equal(identity.indexingAuthorized, false);
+  assert.equal(protectedReviewRuntimeAuthorized(identity, env), true);
+  assert.equal(protectedReviewRuntimeAuthorized(identity, { ...env, VERCEL_ENV: "production", VERCEL_TARGET_ENV: "production" }), false);
+  assert.throws(() => protectedReviewBuildIdentity({ env: { ...env, VERCEL_GIT_COMMIT_SHA: "b".repeat(40) },
+    sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }), /identity_rejected/);
+  assert.throws(() => protectedReviewBuildIdentity({ env: { ...env, VERCEL_GIT_COMMIT_REF: "claude/other-work" },
+    sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }), /identity_rejected/);
+});
+\ntest("build identity rejects missing or wrong platform fields, targets, source pins and dirty source", () => {
   const invalid = [undefined, null, {}, ...Object.keys(fixtureEnv).map(key => ({ ...fixtureEnv, [key]: undefined })),
     { ...fixtureEnv, VERCEL_ENV: "production" }, { ...fixtureEnv, VERCEL_TARGET_ENV: "production" },
     { ...fixtureEnv, VERCEL_TARGET_ENV: "staging" }, { ...fixtureEnv, VERCEL_TARGET_ENV: "development" },
