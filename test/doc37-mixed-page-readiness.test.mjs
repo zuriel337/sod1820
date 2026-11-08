@@ -18,6 +18,8 @@ await build({ stdin: { contents: `
   import {CONTENT_SERIES_2029,contentSeriesByKey} from './src/lib/research/contentSeries2029Identity.js';
   import {mergeContentSeriesItems,projectContentSeriesItems} from './src/lib/research/contentSeries2029Projection.js';
   import {publicPostHref} from './src/lib/publicPostUrls.js';
+  import {PUBLIC_READING_RELEASE} from './src/lib/publicReadingRelease2029.js';
+  import {postsTaxonomyPage2029} from './src/lib/research/postsTaxonomy2029Route.js';
   import * as viewport2029 from './src/lib/research/postsCatalogViewport2029.js';
   const useLocation=()=>globalThis.__mixedPage.location;
   const useNavigationType=()=>globalThis.__mixedPage.navigationType;

@@ -10,13 +10,19 @@ import { fetchContributorFindingsProjection } from "../../lib/research/contribut
 const origin = "https://sod1820.co.il";
 function fakeClient(tables, calls) {
   return { from(table) {
-    const entry = { table, filters: [] }; calls.push(entry);
+    const entry = { table, filters: [], nots: [] }; calls.push(entry);
     let filters = [];
     const b = {
       select: (fields) => { entry.fields = fields; return b; },
       eq: (key, value) => { entry.filters.push([key,value]); filters.push((row) => String(row[key]) === String(value)); return b; },
       in: (key, values) => { filters.push((row) => values.includes(row[key])); return b; },
       or: () => b, like: () => b,
+      // PostgREST `not(column, "is", null)`: only the operator the reader uses is modelled; anything else fails loudly.
+      not: (key, op, value) => {
+        assert.equal(op, "is", "fakeClient models only not(column, 'is', null)");
+        assert.equal(value, null);
+        entry.nots.push([key, op, value]); filters.push((row) => row[key] != null); return b;
+      },
       is: (key, value) => { filters.push((row) => value === null ? row[key] == null : row[key] === value); return b; },
       order: () => b,
       range: () => Promise.resolve(result()), maybeSingle: () => Promise.resolve(result(true)),
@@ -53,7 +59,14 @@ test("loader resolves exact code/slug, reuses canonical reader with PUBLIC_VIEW 
   }
   assert.ok(calls.some((c) => c.filters.some(([key,value]) => key === "code" && value === identity.code)));
   assert.ok(calls.every((c) => !/email|phone/.test(c.fields)));
-  assert.ok(!calls.some((c) => c.table === "world_contributor_research_v1"), "initial catalogue defers full research");
+  // The source library reads the contributor's research only as the bounded promoted slice (documented tree placement):
+  // status = canonical AND promoted_node_id IS NOT NULL. It never reads the full or candidate corpus (see
+  // fetchContributorFindingsProjection `promotedOnly`, #1191); the candidate fixtureFinding therefore stays out of the view.
+  const researchReads = calls.filter((c) => c.table === "world_contributor_research_v1");
+  assert.ok(researchReads.length > 0, "the initial catalogue reads the promoted slice for tree placement");
+  assert.ok(researchReads.every((c) => c.filters.some(([key, value]) => key === "status" && value === "canonical")
+    && c.nots.some(([key, op, value]) => key === "promoted_node_id" && op === "is" && value === null)),
+  "initial catalogue defers full research: every research read is canonical and promoted only");
   assert.ok(calls.filter((c)=>c.table==="contributors").every((c)=>!c.fields.includes(",dossier_settings")));
 });
 

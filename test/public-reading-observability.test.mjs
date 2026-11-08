@@ -120,7 +120,10 @@ test("the actual public RUM collector never creates/bridges identity and finaliz
   events.pagehide();assert.equal(posts.length,1);cleanup();
 });
 test("actual route effects activate only anonymous RUM and delayed public GA, preserving the marketing/identity/credit ceiling",async()=>{
-  const app=readFileSync("src/App2029.jsx","utf8");const source=app.slice(app.indexOf("function RouteEffects2029()"),app.indexOf("// A 2029 runtime never"));
+  const app=readFileSync("src/App2029.jsx","utf8");
+  // The function ends at the first closing brace in column 0 after its start. (The previous end marker was a comment that no longer exists, so the slice ran to the end of
+  // the file, pulled in `export default` and failed with "module is not defined": the proof of the route effects had silently stopped running.)
+  const start=app.indexOf("function RouteEffects2029()"),end=app.indexOf("\n}\n",start);assert.ok(start>=0&&end>start,"RouteEffects2029 must be found");const source=app.slice(start,end+3);
   const code=(await transform(source,{loader:"jsx",format:"cjs"})).code;const calls=[],effects=[];let mutation,ready=false,idle;
   const context={PUBLIC_READING_RELEASE:true,integratedPreviewEnabled:false,kingdomPreviewEnabled:false,useLocation:()=>({pathname:"/"}),useEffect:fn=>effects.push(fn),
     useAuth:()=>({loading:false,isAdmin:false}),React:{useRef:value=>({current:value})},

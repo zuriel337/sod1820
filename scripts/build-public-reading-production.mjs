@@ -86,7 +86,13 @@ await build({ root, define: {
 let document = await readFile(resolve(output, "2029.html"), "utf8");
 const entry = document.match(/<script\b[^>]*type="module"[^>]*src="([^"]+)"[^>]*><\/script>/);
 if (!entry) throw new Error("missing_2029_entry");
-document = document.replace(entry[0], publicReadingBootstrap(entry[1], sha));
+// The bootstrap imports the entry only after the worker is admitted (register, activate, policy
+// handshake: several round trips), so without a hint the entry download starts after that wait.
+// A module preload of the same URL fetches it in parallel and stores it in the document's module
+// map; the bootstrap's import() then consumes that map entry (still one request). The URL is the
+// exact string the bootstrap imports, which publicReadingBootstrap restricts to /assets/<name>.js.
+// transport.js (worker, handshake, policy id) is not involved: this is document markup only.
+document = document.replace(entry[0], `<link rel="modulepreload" crossorigin href="${entry[1]}">${publicReadingBootstrap(entry[1], sha)}`);
 // Candidate PWA only: retain the existing installed-app identity/name/start URL.
 // Refer to the exact complete 2029 brand asset; do not redraw/crop the mark or
 // replace Legacy public/site.webmanifest, logo.png, root HTML or worker.

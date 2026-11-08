@@ -12,6 +12,8 @@ export default function CanonicalMediaImage2029({
   primary = false,
   thumbnail = false,
   loading = "lazy",
+  decoding = undefined,
+  fetchPriority = undefined,
   className = "",
 }) {
   const resolvedSrc = src || (
@@ -20,12 +22,16 @@ export default function CanonicalMediaImage2029({
       : (item?.thumbUrl || item?.imageUrl || null)
   );
   if (!resolvedSrc) return null;
+  // Lazy (below-the-fold) media decodes off the critical path; an eager/priority image keeps the browser default.
+  const resolvedDecoding = decoding ?? (loading === "lazy" ? "async" : undefined);
   const resolvedAlt = alt || item?.label || "תמונה";
 
   return <img
     src={resolvedSrc}
     alt={resolvedAlt}
     loading={loading}
+    decoding={resolvedDecoding}
+    fetchPriority={fetchPriority}
     className={[
       "sod29-canonical-media-image",
       primary ? "is-primary" : "",

@@ -10,7 +10,6 @@ import { Link } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import TopicConvergenceContent from "../components/research/TopicConvergenceContent.jsx";
-import WorldPublicSourceSubjects2029 from "../components/research/WorldPublicSourceSubjects2029.jsx";
 import { use2029Palette } from "../lib/palette2029.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { EXPERIENCE_SURFACE, resolveExperienceContext } from "../lib/experienceContext.js";
@@ -56,7 +55,6 @@ import { RESEARCH_OPERATION_LABELS_HE, methodComponentStateLabelHe, sourceMethod
 import { researchSourceOccurrenceKey } from "../lib/research/sourceBundleProjection.js";
 import { canonicalMediaPublicLabel, canonicalResearchPublicLabel, formatTanakhRef, formatVerseGematriaSuffix } from "../lib/presentation/canonicalPresentation.js";
 import { fetchWorldPublicPeopleIndex } from "../lib/research/worldPublicPeopleIndex.js";
-import { fetchWorldPublicFindingById } from "../lib/research/worldPublicFindingReader.js";
 import { worldFindingPublicShare, worldFindingFollowTarget } from "../lib/research/worldFindingShare.js";
 import ShareActions from "../components/ShareActions.jsx";
 import WatchButton from "../components/WatchButton.jsx";
@@ -80,6 +78,8 @@ import {
 const WorldAllResearchTable = React.lazy(() => import("../components/research/WorldAllResearchTable.jsx"));
 const WorldKnowledgeTypes2029 = React.lazy(() => import("../components/research/WorldKnowledgeTypes2029.jsx"));
 const WorldPeopleSources2029 = React.lazy(() => import("../components/research/WorldPeopleSources2029.jsx"));
+// Shown only in the Sources view; it also carries the elections seed bundle and its result-bundle engine.
+const WorldPublicSourceSubjects2029 = React.lazy(() => import("../components/research/WorldPublicSourceSubjects2029.jsx"));
 // This reader (including its spatial calculation stage) is used only by an
 // explicit source-discovery address, not by ordinary World entry.
 const WorldConnectedDiscovery = React.lazy(() => import("../components/research/WorldSourceStory.jsx"));
@@ -750,7 +750,9 @@ function LiveWorldLanding({ research, shell, context }) {
     }
 
     setPublicFinding({ id: focusedPublicFindingId, loading: true, finding: null, error: null });
-    fetchWorldPublicFindingById(focusedPublicFindingId)
+    // The reader (with the approved-findings projection it carries) is needed only by the finding view.
+    import("../lib/research/worldPublicFindingReader.js")
+      .then(({ fetchWorldPublicFindingById }) => fetchWorldPublicFindingById(focusedPublicFindingId))
       .then((finding) => {
         if (!alive || requestId !== publicFindingRequest.current) return;
         setPublicFinding({
@@ -1197,7 +1199,9 @@ function LiveWorldLanding({ research, shell, context }) {
     </> : null}
 
     {activeView === WORLD_LANDING_VIEW.SOURCES ? <>
-      <WorldPublicSourceSubjects2029 peopleIndex={landing.contributors} />
+      <React.Suspense fallback={<p role="status">טוען נושאים ומקורות ציבוריים…</p>}>
+        <WorldPublicSourceSubjects2029 peopleIndex={landing.contributors} />
+      </React.Suspense>
       <React.Suspense fallback={<p role="status">פותח אנשים ומקורות…</p>}>
         <WorldPeopleSources2029 index={landing.contributors} loading={landing.contributorLoading}
           error={landing.contributorError} recentCounts={landing.discovery?.recentCounts || {}}

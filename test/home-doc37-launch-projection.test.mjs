@@ -63,7 +63,7 @@ test("series reads keep independent failures distinct from measured-empty; signa
   assert.equal(empty.byKey["messages-from-righteous"].sourceTotal, null);
 });
 
-test("Home summary admission suppresses all seven reads, and admitted summary preserves existing reader", async () => {
+test("Home summary admission suppresses all pulse reads, and admitted summary preserves existing reader", async () => {
   const original = supabase.from; let reads = 0;
   supabase.from = () => {
     reads++;
@@ -75,6 +75,9 @@ test("Home summary admission suppresses all seven reads, and admitted summary pr
     const idle = await fetchHome2029Projection({ includeWorld: false, includeTemporal: false, includePulse: false });
     assert.equal(reads, 0); assert.equal(idle.systemPulse, null);
     const admitted = await fetchHome2029Projection({ includeWorld: false, includeTemporal: false });
-    assert.equal(reads, 7); assert.equal(admitted.systemPulse.corpusTotal, 0);
+    // 7 -> 5: the created / visibility-changed / overlap exact counts of "added in the window"
+    // are now ONE union count (or=(created_at.gte,visibility_changed_at.gte)); a strict reduction
+    // of requests, same number (see src/lib/research/home2029Pulse.test.js for the equivalence proof).
+    assert.equal(reads, 5); assert.equal(admitted.systemPulse.corpusTotal, 0);
   } finally { supabase.from = original; }
 });

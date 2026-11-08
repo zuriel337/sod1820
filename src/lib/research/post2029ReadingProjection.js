@@ -1,6 +1,6 @@
 import { publicPostHref, postAddressSlug, decodePostSlug } from "../publicPostUrls.js";
 import { getPostBySlug, supabase } from "../supabase.js";
-import { buildGoldenPostContextPack, goldenContextPackClaims } from "./goldenPostContextPacks.js";
+import { goldenContextPackClaims } from "./goldenPostPackClaims.js";
 import { formatBilingualDate } from "./timeline2029.js";
 import { buildPost2029ArchitectureWireframe, projectPost2029Experience } from "./post2029ExperienceProjection.js";
 import { isDocumentedIndiaCaptainPost } from "./topicSourceContext.js";
@@ -821,9 +821,11 @@ export async function fetchGoldenContextPack(post) {
   // Plain Posts and bounded source invitations do not execute System Methods.
   // Load their existing engine adapters only for a real governed Golden pack;
   // overlap that code download with the same mandatory canonical trace reads.
-  const [{ createCanonicalNumberW2Executors }, { fetchLiveNumericRuleVersions }, traces] = await Promise.all([
+  // The governed pack owner chain (event compiler, System Method runtime, Nasrallah golden) loads here too.
+  const [{ createCanonicalNumberW2Executors }, { fetchLiveNumericRuleVersions }, { buildGoldenPostContextPack }, traces] = await Promise.all([
     import("./researchW2Executors.js"),
     import("./numberSystemMethods.js"),
+    import("./goldenPostContextPacks.js"),
     fetchGoldenPackTraces(post.id),
   ]);
   return buildGoldenPostContextPack({

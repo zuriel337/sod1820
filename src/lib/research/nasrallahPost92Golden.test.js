@@ -12,7 +12,10 @@ const clock = { display: "18:20", hour: 18, minute: 20, timezone: "Asia/Beirut",
 const day = { ordinal: 358, counting_context: "day of the war (source claim)", source_ref: "post:92", accessTier: "public" };
 const ruleVersions = { moment_clock_law: 2 };
 const receiptResolver = (m) => (m.expression === "משיח" && m.method_key === "רגיל"
-  ? gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: "משיח", result: 358, method_version: "fixture-v1" }, { inputText: "משיח", createdAt: "2026-10-06T00:00:00Z" })
+  ? gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: "משיח", result: 358, method_version: "fixture-v1",
+    // Canonical gematria_method_trace RPC shape: gematriaTraceToFinding only accepts a parity-verified trace
+    // (isVerifiedMethodTrace, af970703); an unverified fixture is refused and yields no engine Finding.
+    verification: { parity: true, trace_value: 358, canonical_value: 358 } }, { inputText: "משיח", createdAt: "2026-10-06T00:00:00Z" })
   : null);
 const run = (over = {}) => compileNasrallahPost92Golden({ post, clockObservation: clock, dayOrdinal: day, ruleVersions, receiptResolver, ...over });
 const find = (pack, id) => pack.bundle.findings.find(f => f.id === id);
@@ -98,6 +101,25 @@ test("canonical Trace משיח=358 is a separate engine finding; no receipt -> n
   const none = await run({ receiptResolver: () => null });
   assert.equal(none.golden.engine_trace_finding_id, null);
   assert.equal(none.golden.interpretation_finding_id, null);
+});
+
+test("an unverified Trace (no parity, wrong value, wrong identity) is refused: no engine fact and no interpretation", async () => {
+  const base = { status: "ok", method_key: "רגיל", input: "משיח", result: 358, method_version: "fixture-v1" };
+  const verified = { parity: true, trace_value: 358, canonical_value: 358 };
+  const bad = [
+    base,
+    { ...base, verification: { ...verified, parity: null } },
+    { ...base, verification: { ...verified, parity: false } },
+    { ...base, verification: { ...verified, trace_value: 359 } },
+    { ...base, verification: { ...verified, canonical_value: 359 } },
+    { ...base, input: "חכמה", verification: verified },
+  ];
+  for (const trace of bad) {
+    const p = await run({ receiptResolver: () => gematriaTraceToFinding(trace, { inputText: "משיח", createdAt: "2026-10-06T00:00:00Z" }) });
+    assert.equal(p.golden.engine_trace_finding_id, null, JSON.stringify(trace.verification ?? trace.input));
+    assert.equal(p.golden.interpretation_finding_id, null);
+    assert.ok(p.golden.refusals.some(r => r.part === "site_interpretation"));
+  }
 });
 
 test("site interpretation composes 1820+358, attributed כי לה׳ המלוכה, depends on observations + engine, not independent", async () => {

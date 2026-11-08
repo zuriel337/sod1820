@@ -61,24 +61,41 @@ test("native live publication state survives the public adapter without broadeni
   assert.ok(view.catalog.items.every(item=>item.publicationState==="live"));
 });
 
-test("Tzvi loader calls the canonical SOURCE_LIBRARY wrapper; never queries research on entry",async()=>{
-  const calls=[];const identity={...catalogFixtureIdentity,public_visibility:"public"};
+test("Tzvi loader calls the canonical SOURCE_LIBRARY wrapper; entry reads only already-promoted tree findings, never the full research corpus",async()=>{
+  const calls=[];const researchReads=[];const identity={...catalogFixtureIdentity,public_visibility:"public"};
   const sources=catalogFixtureSources();
+  // One already-promoted canonical finding carrying a term: reading it must not trigger a lexical lookup on entry.
+  const promoted={id:"r-promoted",created_at:"2026-10-02T10:00:00Z",kind:"equality",statement:"ממצא",terms:["אור"],value:207,
+    source_ref:`channel_updates:${sources[0].id}`,contributor:identity.display_name,status:"canonical",promoted_node_id:"node-1",privacy_scope:"public"};
   const client={from(table){
     calls.push(table);
-    if(table.includes("research")&&table!=="research_contributions")throw new Error("full_research_was_requested");
+    // The only research relation the source library may touch is the canonical per-contributor view, and only as the
+    // promoted tree slice (4157ffc78). The raw research_objects table and every other research relation stay closed.
+    if(table.includes("research")&&!["research_contributions","world_contributor_research_v1"].includes(table))throw new Error("full_research_was_requested");
+    const read={table,filters:[]};
+    if(table==="world_contributor_research_v1")researchReads.push(read);
     let filters=[];
-    const b={select:()=>b,eq:(k,v)=>{filters.push(r=>String(r[k])===String(v));return b;},
-      in:(k,v)=>{filters.push(r=>v.includes(r[k]));return b;},is:(k,v)=>{filters.push(r=>r[k]==null&&v===null);return b;},order:()=>b,
+    const b={select:()=>b,eq:(k,v)=>{read.filters.push(["eq",k,v]);filters.push(r=>String(r[k])===String(v));return b;},
+      in:(k,v)=>{read.filters.push(["in",k]);filters.push(r=>v.includes(r[k]));return b;},is:(k,v)=>{read.filters.push(["is",k,v]);filters.push(r=>r[k]==null&&v===null);return b;},
+      or:(v)=>{read.filters.push(["or",v]);return b;},not:(k,op,v)=>{read.filters.push(["not",k,op,v]);return b;},like:(k,v)=>{read.filters.push(["like",k,v]);return b;},order:()=>b,
       maybeSingle:()=>Promise.resolve({data:identity}),
-      range:()=>{const data=table==="channel_updates"?sources.filter(r=>filters.every(f=>f(r))):[];return Promise.resolve({data,count:data.length});}};
+      range:()=>{const data=table==="channel_updates"?sources.filter(r=>filters.every(f=>f(r))):table==="world_contributor_research_v1"?[promoted]:[];return Promise.resolve({data,count:data.length});}};
     return b;
-  }};
+  },rpc(name){calls.push(`rpc:${name}`);throw new Error("lexical_lookup_was_requested");}};
   const view=await loadPublicContributor2029("tzvi-opoc",{publicClient:()=>client});
   assert.equal(view.kind,"source_catalog");
-  assert.equal(view.catalog.researchDeferred,true);
+  // research is loaded as the promoted tree slice, not deferred; the model still maps a deferred projection to true
+  assert.equal(view.catalog.researchDeferred,false);
+  assert.equal(sourceCatalogFixtureView().catalog.researchDeferred,true);
   assert.equal(view.catalog.recentItems.length,20);
-  assert.equal(calls.some(table=>table==="research_objects"||table==="world_contributor_research_v1"),false);
+  assert.equal(calls.includes("research_objects"),false);
+  assert.equal(calls.some(call=>call.startsWith("rpc:")),false);
+  assert.ok(researchReads.length>0);
+  for(const read of researchReads){
+    assert.deepEqual(read.filters.filter(f=>f[0]==="eq"&&f[1]==="status"),[["eq","status","canonical"]]);
+    assert.ok(read.filters.some(f=>f[0]==="not"&&f[1]==="promoted_node_id"&&f[2]==="is"&&f[3]===null));
+    assert.equal(read.filters.some(f=>f[0]==="like"),false);
+  }
   assert.equal(calls.filter(table=>table==="channel_updates").length,3);
 });
 

@@ -420,6 +420,33 @@ test("actual local artifact retains font fix, compiler isolation, no index shado
   const gate = spawnSync(process.execPath, ["scripts/test-legacy-retired.mjs"], { cwd: root, encoding: "utf8" }); assert.equal(gate.status, 0, gate.stderr);
 });
 
+test("the generated document hints the exact entry the bootstrap imports after worker admission (one module preload, same URL, no second loader)", () => {
+  assert.ok(existsSync(new URL("public-reading-deploy/dist/public-reading-artifact.json", root)), "run node scripts/build-public-reading-production.mjs before acceptance");
+  const html = read("public-reading-deploy/.generated/2029.html");
+  // The URL the bootstrap hands to import(): the serialized config at the end of the inline module script.
+  const config = JSON.parse(/\}\)\((\{"entry":"[^"]+","sourceSha":"[a-f0-9]{40}","policy":"[^"]+","timeoutMs":\d+\}),\{navigator,/.exec(html)?.[1] ?? "null");
+  assert.ok(config, "bootstrap config is present");
+  assert.match(config.entry, /^\/assets\/[A-Za-z0-9_.-]+\.js$/);
+  const tag = `<link rel="modulepreload" crossorigin href="${config.entry}">`;
+  // Exactly one hint for the entry, in the position the Vite entry <script> had, directly before the bootstrap.
+  assert.equal(html.split(tag).length - 1, 1, "exactly one module preload of the entry");
+  assert.ok(html.includes(tag + '<script type="module">(async function startPublicReading'), "the hint sits directly before the inline bootstrap");
+  assert.ok(html.indexOf(tag) < html.indexOf("await loadEntry("), "the hint is in the document before the import that consumes it");
+  // The hinted URL, the imported URL and the Vite manifest entry are one and the same file, and it exists.
+  const manifest = JSON.parse(read("public-reading-deploy/dist/.vite/manifest.json"));
+  const entries = Object.values(manifest).filter(item => item.isEntry);
+  assert.equal(entries.length, 1); assert.equal("/" + entries[0].file, config.entry);
+  assert.ok(existsSync(new URL("public-reading-deploy/dist" + config.entry, root)));
+  // A module preload is consumed by import(); a classic script preload of a module would be fetched twice. The bootstrap is the only module script.
+  assert.ok(!/<link\b[^>]*rel="preload"[^>]*as="script"/.test(html), "no classic script preload");
+  assert.equal(html.match(/<script\b[^>]*type="module"/g)?.length, 1, "the bootstrap is the only module script");
+  assert.ok(!/<script\b[^>]*\bsrc=/.test(html), "the entry is not loaded by a src script before worker admission");
+  // Same-origin script fetches stay allowed by the deployment CSP (no script-src/default-src today; if one is added it must keep 'self').
+  const csp = JSON.parse(read("public-reading-deploy/vercel.json")).headers.flatMap(rule => rule.headers).find(header => header.key === "Content-Security-Policy").value;
+  const directive = name => csp.split(";").map(part => part.trim()).find(part => part === name || part.startsWith(name + " "));
+  for (const name of ["default-src", "script-src", "script-src-elem"]) assert.ok(!directive(name) || /(^|\s)'self'(\s|$)/.test(directive(name)), name + " must admit 'self' for the entry preload");
+});
+
  test("native public image loading retains opaque response compatibility without bypassing private reads or writes", async () => {
  const h=workerHarness();
  for(const bucket of ["media","gallery","magar"]) assert.equal(await h.request(`/storage/v1/object/public/${bucket}/fixture.jpg`,{method:"GET",mode:"no-cors",destination:"image"}),null);

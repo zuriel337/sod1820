@@ -62,6 +62,8 @@
   position:relative;display:grid;place-items:center;max-width:100%;min-width:0;padding:8px;border-radius:2px;background:var(--r29-mat);
   box-shadow:inset 0 0 0 1px color-mix(in srgb,black 35%,transparent),inset 0 3px 9px color-mix(in srgb,black 40%,transparent);
 }
+/* DEF-008: the first pictures are in the viewport while their files load; give the mat the size a typical picture ends up with so the frame does not jump. */
+.r29-picture:nth-child(-n+2) .r29-image-surface{min-height:calc(var(--r29-image-max) * .62);min-width:min(100%,calc(var(--r29-image-max) * 1.05))}
 .r29-picture-frame img{width:auto;max-width:100%;max-height:var(--r29-image-max);object-fit:contain;border-radius:1px;box-shadow:0 0 0 1px color-mix(in srgb,black 35%,transparent)}
 
 /* Hung by hand: alternate slight tilt, straight when active (class toggle only, never per scroll) */
@@ -193,4 +195,9 @@
   .r29-picture-meta{grid-template-areas:'num title title' 'gallery gallery share'}
   .r29-detail-foot .r29-numbers a svg{display:none}
 }
+/* DEF-008: the river is a fixed-height window plus a constant frame (heading, tray/caption, follow). While the pictures load, reserve exactly that
+   height so the content below it (the gallery catalog) does not jump by ~900px when the river opens. Measured on the public build:
+   final height - window height = 580px on phones (<=760px) and 490px otherwise, for 360-1920px wide viewports. */
+.r29-river.is-loading{min-height:calc(var(--r29-window-height) + 490px)}
+@media(max-width:760px){.r29-river.is-loading{min-height:calc(var(--r29-window-height) + 580px)}}
 @media(prefers-reduced-motion:reduce){.r29-river *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

@@ -52,10 +52,20 @@ test("paired media and appended posts retain source identities; counts never sum
   const view = appendSourceCatalogWritings2029(source, { rows: Array.from({ length: 5 }, (_, i) => ({ id: i, slug: `post-${i}`, title: "מאמר", date: "2020-01-01" })),
     complete: true, availability: "ok" }, { slug: "tzvi-opoc" });
   const before = JSON.stringify(view);
+  const catalogBefore = view.catalog, itemsBefore = view.catalog.items, recentBefore = view.catalog.recentItems;
   const composed = withPublicContributorPerson2029(view, { kind: "contributor" });
-  assert.equal(composed.catalog, view.catalog);
-  assert.equal(composed.catalog.recentItems, source.catalog.recentItems);
+  // appendSourceCatalogWritings2029 deliberately recomputes items/recentItems across sources and writings (#1191), so the
+  // composer is compared with the appended view it receives (captured before composing), not with the pre-append source:
+  // it must neither copy, rebuild nor replace them.
+  assert.equal(composed.catalog, catalogBefore);
+  assert.equal(composed.catalog.items, itemsBefore);
+  assert.equal(composed.catalog.recentItems, recentBefore);
+  assert.equal(view.catalog, catalogBefore);
+  assert.equal(view.catalog.items, itemsBefore);
+  assert.equal(view.catalog.recentItems, recentBefore);
   assert.equal(JSON.stringify(view), before);
+  // Appended writings join the catalogue without cloning the source publications: the same item objects stay in the recent set.
+  assert.ok(source.catalog.recentItems.length > 0 && source.catalog.recentItems.every((item) => composed.catalog.recentItems.includes(item)));
   const result = composed.personProjection;
   assert.equal(result.profile.metrics.sources, 29);
   assert.equal(result.profile.metrics.publications, 5);

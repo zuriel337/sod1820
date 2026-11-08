@@ -29,7 +29,11 @@ const RECEIPTS = new Map([
 // Receipts are the canonical gematria-trace Universal Finding, produced by the real adapter from a
 // gematria_method_trace-shaped fixture. A method/expression with no fixture -> null (as production
 // fetchGematriaMethodTrace returns null/error for aliases like "regular").
-const trace = (method_key, input, result) => gematriaTraceToFinding({ status: "ok", method_key, input, result, method_version: "fixture-v1" }, { inputText: input, createdAt: "2026-10-06T00:00:00Z" });
+// The live RPC carries its own parity proof; the adapter admits a trace only when
+// isVerifiedMethodTrace holds (verification.parity === true and trace_value === canonical_value === result,
+// af970703f), so the fixture models that proof instead of a bare result.
+const trace = (method_key, input, result) => gematriaTraceToFinding({ status: "ok", method_key, input, result, method_version: "fixture-v1",
+  trace_kind: "LETTER_LEDGER", verification: { parity: true, trace_value: result, canonical_value: result } }, { inputText: input, createdAt: "2026-10-06T00:00:00Z" });
 const resolver = (m) => {
   const result = RECEIPTS.get(`${m.method_key}|${m.expression}`);
   return result == null ? null : trace(m.method_key, m.expression, result);
@@ -109,6 +113,18 @@ test("canonical trace receipt: Registry-open (אתבש), alias has no receipt, f
   // API alias: canonical fetch returns null -> no receipt -> never verified (no local alias mapping)
   const alias = compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "regular", 363)] });
   assert.equal(alias.rejected_members[0].reason, "engine_receipt_missing");
+  // a bare result without the RPC's parity proof is not a receipt (isVerifiedMethodTrace): the adapter returns null
+  const bare = (x) => gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: x.expression, result: 363, method_version: "fixture-v1" }, { inputText: x.expression });
+  assert.equal(bare({ expression: "המשיח" }), null);
+  assert.equal(compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "רגיל", 363)], receiptResolver: bare }).rejected_members[0].reason, "engine_receipt_missing");
+  // parity proof that disagrees with the result is equally refused
+  const split = (x) => gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: x.expression, result: 363, method_version: "fixture-v1",
+    verification: { parity: true, trace_value: 363, canonical_value: 364 } }, { inputText: x.expression });
+  assert.equal(split({ expression: "המשיח" }), null);
+  const traceSplit = (x) => gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: x.expression, result: 363, method_version: "fixture-v1",
+    verification: { parity: true, trace_value: 364, canonical_value: 363 } }, { inputText: x.expression });
+  assert.equal(traceSplit({ expression: "המשיח" }), null);
+  assert.equal(compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "רגיל", 363)], receiptResolver: traceSplit }).rejected_members[0].reason, "engine_receipt_missing");
   // alias-keyed trace whose method disagrees with the member
   const mismatch = compile({ members: [m(T.EXPRESSION_MATCH, "המשיח", "רגיל", 363)], receiptResolver: (x) => trace("מסתתר", x.expression, 363) });
   assert.equal(mismatch.rejected_members[0].reason, "engine_receipt_method_mismatch");

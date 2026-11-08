@@ -4,6 +4,7 @@
 
 import { supabase } from "./supabase.js";
 import { getVisitorId } from "./tracking.js";
+import { upsertPushSubscription, deletePushSubscription } from "./pushSubscriptionStore.js";
 
 const VAPID_PUBLIC = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 export const PUSH_CONFIGURED = !!VAPID_PUBLIC;
@@ -57,16 +58,20 @@ export async function enablePush({ userId = null, topics = [] } = {}) {
     }
     const json = sub.toJSON();
     if (supabase && json?.endpoint) {
-      await supabase.from("push_subscriptions").upsert({
+      // DEF-001b: the write goes through a SECURITY DEFINER RPC so the browser needs no table access (visitor ids and push
+      // keys of other subscribers stay unreadable). The RPC takes the account from the session; the visitor id only
+      // identifies an anonymous subscription. If the RPC is not deployed yet (frontend live before the SQL), the store
+      // falls back once to the previous direct table write for this call - see pushSubscriptionStore.js.
+      const saved = await upsertPushSubscription(supabase, {
         endpoint: json.endpoint,
         p256dh: json.keys?.p256dh,
         auth: json.keys?.auth,
-        user_id: userId || null,
-        visitor_id: userId ? null : getVisitorId(),
         topics,
-        user_agent: navigator.userAgent,
-        last_seen: new Date().toISOString(),
-      }, { onConflict: "endpoint" });
+        userAgent: navigator.userAgent,
+        userId,
+        visitorId: userId ? null : getVisitorId(),
+      });
+      if (!saved.ok) return { ok: false, reason: "error", error: saved.error };
     }
     return { ok: true };
   } catch (e) {
@@ -100,7 +105,7 @@ export async function disablePush() {
       const endpoint = sub.endpoint;
       try { await sub.unsubscribe(); } catch { /* noop */ }
       if (supabase && endpoint) {
-        try { await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint); } catch { /* noop */ }
+        try { await deletePushSubscription(supabase, endpoint); } catch { /* noop */ }
       }
     }
   } catch { /* noop */ }

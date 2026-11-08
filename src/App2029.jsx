@@ -13,6 +13,7 @@ import { readingTelemetryPath } from "./lib/publicReadingTelemetry2029.js";
 import { installOfferKind, subscribeInstallOffer } from "./lib/installOffer2029.js";
 const Calculator2029Page = lazy(() => import("./pages/Calculator2029Page.jsx"));
 import Opening2029 from "./components/experience2029/Opening2029.jsx";
+import ErrorBoundary2029 from "./components/experience2029/ErrorBoundary2029.jsx";
 const CalculatorPro2029Page = lazy(() => import("./pages/CalculatorPro2029Page.jsx"));
 import { parseCalculatorShareState } from "./lib/research/calculator2029Viral.js";
 import Locked from "./components/MaintenanceLock.jsx";
@@ -149,9 +150,17 @@ function Loading2029() { return <Opening2029 />; }
 // suggest (the browser offers installation, or iOS needs the manual steps; see
 // lib/installOffer2029.js).
 const InstallSuggestion2029 = lazy(() => import("./components/experience2029/InstallSuggestion2029.jsx"));
+// Its chunk is requested on demand, so a stale deployment can fail it outside the Routes boundary: it must never take the app down.
 function InstallSuggestionMount2029() {
   const kind = useSyncExternalStore(subscribeInstallOffer, installOfferKind, () => null);
-  return kind ? <Suspense fallback={null}><InstallSuggestion2029 kind={kind} /></Suspense> : null;
+  return kind ? <ErrorBoundary2029 fallback={null}><Suspense fallback={null}><InstallSuggestion2029 kind={kind} /></Suspense></ErrorBoundary2029> : null;
+}
+
+// A failed lazy route chunk (new deployment) or a render error shows a Hebrew fallback instead of unmounting the app;
+// the fallback resets when the address changes.
+function RouteErrorBoundary2029({ children }) {
+  const { pathname } = useLocation();
+  return <ErrorBoundary2029 resetKey={pathname}>{children}</ErrorBoundary2029>;
 }
 
 // Same telemetry owners as the legacy runtime; only the renderer/runtime boundary differs.
@@ -314,7 +323,7 @@ export default function App2029() {
           <InstallSuggestionMount2029 />
           {/* One temporary in-memory Raziel session is projected by both desktop and mobile chrome. */}
           <RazielSessionMount2029>
-            <Suspense fallback={<Loading2029 />}>
+            <RouteErrorBoundary2029><Suspense fallback={<Loading2029 />}>
               <PublicReadingBoundary><Routes>
               <Route path="/2029" element={<HomeEntry2029 />} />
               {publicFoundationPreview && <>
@@ -387,7 +396,7 @@ export default function App2029() {
               <Route path="/2029/control" element={<ControlEntry2029 />} />
               <Route path="*" element={<PublicServices2029Page kind="not-found" />} />
               </Routes></PublicReadingBoundary>
-            </Suspense>
+            </Suspense></RouteErrorBoundary2029>
           </RazielSessionMount2029>
         </ResearchProvider>
       </BrowserRouter>

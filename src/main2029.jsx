@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App2029 from "./App2029.jsx";
 import { initRuntimeErrorCapture } from "./lib/tracking.js";
+import { installAppRecovery2029 } from "./lib/appRecovery2029.js";
 import "./lib/homeAtmospherePreload2029.js";
 import "./lib/installOffer2029.js";
 
@@ -12,6 +13,9 @@ if (import.meta.env.VITE_INTEGRATED_PREVIEW === "true") {
 }
 
 initRuntimeErrorCapture();
+// A lazy chunk that disappears after a new deployment reloads once (guarded per entry build) instead of blanking the app.
+// The entry's own URL identifies the build; the worker/bootstrap handshake is not involved.
+installAppRecovery2029({ entryKey: import.meta.url });
 
 const root = createRoot(document.getElementById("root"));
 const startupMark = name => { try { performance.mark(`sod2029:${name}`); } catch { /* optional local measurement */ } };

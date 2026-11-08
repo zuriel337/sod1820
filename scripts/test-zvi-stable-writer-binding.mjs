@@ -39,7 +39,7 @@ test('edge functions are wired to the shared helper and carry contributor_id', (
   assert.equal((itk.match(/contributor_id: row\.contributor_id \|\| null/g) || []).length, 2);
 });
 test('migration scope: additive column, null-only legacy fallback, exact backfill, no research_objects write', () => {
-  const sql = readFileSync('supabase/migrations/20261004090000_zvi_stable_writer_binding_v1.sql', 'utf8').replace(/--.*$/gm, '');
+  const sql = readFileSync('supabase/migrations/20261004064040_zvi_stable_writer_binding_v1.sql', 'utf8').replace(/--.*$/gm, '');
   assert.match(sql, /add column if not exists contributor_id uuid null references public\.contributors\(id\)/);
   assert.match(sql, /cu\.contributor_id is null and cu\.credit = 'צבי \(OPOC\)'/);
   assert.match(sql, /where channel = 'torat-haremez'\s+and credit = 'צבי \(OPOC\)'\s+and contributor_id is null/);

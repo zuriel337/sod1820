@@ -5,6 +5,8 @@ import vm from "node:vm";
 import { transformWithOxc } from "vite";
 import { normalizeCommunityThreadFocus, legacyLikeCount } from "../../lib/community/communityArchive.js";
 import { communityAccountReturnHref, communityChatHref, communityPersonReturnHref, communityReadingReturnHref } from "../../lib/community/communityPersonNavigation.js";
+import { readGuestName } from "../../lib/community/communityGuestApi.js";
+import { reviewedCommunityAccountId } from "../../lib/community/communityCanonicalIdentity2029.js";
 
 // Execute the actual component and effect bodies with isolated hooks/transports.
 // This is a focused unit harness, not a browser or a replacement authorization model.
@@ -50,6 +52,9 @@ async function harness(file, names, overrides = {}) {
     use2029Palette: () => ({}), useLocation: () => location,
     useSearchParams: () => [new URLSearchParams(location.search)], useNavigate: () => () => {},
     publicStats: { messages: 1 }, normalizeCommunityThreadFocus, legacyLikeCount,
+    // Pure helpers the components call while rendering/normalizing (guest name memory #1243, reviewed account link 59694e8bb);
+    // the real implementations run, never opaque placeholders.
+    readGuestName, reviewedCommunityAccountId,
     UUID_PATTERN: /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
     communityAccountReturnHref, communityChatHref, communityPersonReturnHref, communityReadingReturnHref, personalMessagesReturnHref: () => null,
     writerPersonalHref: module => `/2029/me/${module}`,
@@ -86,6 +91,9 @@ function elements(tree) {
   return [tree, ...elements(tree.props?.children)];
 }
 const row = { id: "11111111-1111-4111-8111-111111111111", origin: "openweb", body: "public", reactions: { likes: 7 } };
+// The general feed container is "sod29-community-feed", plus "is-initial-loading" while the first page reserves its screen
+// (CLS fix cd2a91975, #1223). Exactly these two class strings are the feed; anything else is not.
+const isGeneralFeed = node => ["sod29-community-feed", "sod29-community-feed is-initial-loading"].includes(node.props?.className);
 
 test("public read mounts the feed while its composer/account widgets stay unmounted; admin keeps compact composer", async () => {
   for (const [user, isAdmin] of [[null, false], [{ id: "account" }, false], [{ id: "admin" }, true]]) {
@@ -97,7 +105,7 @@ test("public read mounts the feed while its composer/account widgets stay unmoun
     assert.equal(Boolean(composer), isAdmin);
     if (isAdmin) assert.equal(composer.props["data-compact"], true);
     assert.equal(tree.some(node => node.type === "CommunitySignIn"), isAdmin);
-    assert.ok(tree.some(node => node.props?.className === "sod29-community-feed"));
+    assert.ok(tree.some(isGeneralFeed));
     const likes = elements(h.render(h.LiveLike, { row }));
     assert.equal(likes.some(node => node.type === "ReactionBar"), isAdmin);
   }
@@ -112,7 +120,7 @@ test("a malformed exact thread request does not read or display the general feed
   h.render(h.CommunityLive2029, {}); await h.flush();
   const tree = elements(h.render(h.CommunityLive2029, {}));
   assert.equal(feedReads, 0);
-  assert.equal(tree.some(node => node.props?.className === "sod29-community-feed"), false);
+  assert.equal(tree.some(isGeneralFeed), false);
   assert.ok(tree.some(node => node.props?.title === "השיחה אינה זמינה"));
 });
 

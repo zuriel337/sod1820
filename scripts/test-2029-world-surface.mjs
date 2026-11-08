@@ -1414,10 +1414,17 @@ assert.ok(eventAuthorized.items.some((item) => item.kind === "temporal-control")
 
 // The live-input adapter is bounded and read-only, consumes existing tables/views under current-session RLS,
 // and never reconstructs privacy_scope policy or uses a privileged-key bypass.
-assert.match(prominenceInputs, /cross_method_strength/);
-assert.match(prominenceInputs, /independent_phrase_count/);
-assert.match(prominenceInputs, /dependent_expression_phrase_count/);
-assert.match(prominenceInputs, /independent_p1_method_count/);
+// public.cross_method_strength is granted to service_role only (migration 20260919204530), so a browser
+// query can only ever return 42501 (~1,100 failing requests/day in the Supabase edge logs, SBR-03). The
+// adapter must therefore report the access-filtered state WITHOUT issuing that request; the result
+// shape consumers already handle on denial stays identical.
+assert.match(prominenceInputs, /cross_method_strength_access_filtered/, "the access-filtered reason consumers receive must stay");
+assert.equal(/\.from\(\s*["'`]cross_method_strength["'`]/.test(prominenceInputs), false, "adapter must not query service_role-only cross_method_strength from the browser");
+// The independence-normalised columns are still part of the contract: the composer that consumes a row
+// (when a governed server-side projection supplies one) reads exactly these fields.
+assert.match(prominenceHelper, /independent_phrase_count/);
+assert.match(prominenceHelper, /dependent_expression_phrase_count/);
+assert.match(prominenceHelper, /independent_p1_method_count/);
 assert.match(prominenceInputs, /parent_id,evidence,owner_person_id,meta/);
 assert.match(prominenceInputs, /post_wp_id/);
 assert.match(prominenceInputs, /posts:\$\{post\.id\}/);
@@ -1426,6 +1433,73 @@ assert.equal(/\.insert\(|\.update\(|\.delete\(|\.upsert\(/.test(prominenceInputs
 assert.equal(/create table|create view|create function/i.test(prominenceInputs), false, "no new ranking store/view/function may be created");
 assert.equal(/SUPABASE_SERVICE_ROLE_KEY|SERVICE_ROLE_KEY/.test(prominenceInputs), false, "reader must not carry a privileged service-role credential");
 assert.equal(/\.eq\(["']privacy_scope["']/.test(prominenceInputs), false, "projection must not duplicate source-owned privacy policy");
+
+// No browser module may query the service_role-only view, directly or through the REST path.
+{
+  const offenders = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (/\.(?:js|jsx|mjs|ts|tsx)$/.test(entry.name) && /\.from\(\s*["'`]cross_method_strength["'`]|rest\/v1\/cross_method_strength/.test(fs.readFileSync(full, "utf8"))) offenders.push(full);
+    }
+  };
+  walk(path.join(root, "src"));
+  assert.deepEqual(offenders, [], "no src/ module may request service_role-only cross_method_strength (permission denied for view)");
+}
+
+// Behavioural pin: for a number identity the adapter returns the same access-filtered result it used to
+// return after the 42501 denial, but makes NO request to cross_method_strength (the recorder proves it
+// sees requests: the supplements read is observed, the view is not).
+{
+  const { fetchWorldProminenceInputs } = await import("../src/lib/research/worldProminenceInputs.js");
+  const { supabase } = await import("../src/lib/supabase.js");
+  const realFrom = supabase.from;
+  const requested = [];
+  const builder = (table) => {
+    const result = table === "research_objects"
+      ? { data: [{ id: "r1", parent_id: null, evidence: null, owner_person_id: null, meta: {} }], error: null }
+      : table === "cross_method_strength"
+        ? { data: null, error: { code: "42501", message: "permission denied for view cross_method_strength" } }
+        : { data: null, error: null };
+    const chain = new Proxy({}, { get: (_target, prop) => (prop === "then" ? (resolve, reject) => Promise.resolve(result).then(resolve, reject) : () => chain) });
+    return chain;
+  };
+  supabase.from = (table) => { requested.push(table); return builder(table); };
+  try {
+    const run = async (data) => { requested.length = 0; const out = await fetchWorldProminenceInputs(data); return { out, tables: [...requested] }; };
+    const deniedShape = (out, supplements) => {
+      assert.equal(out.crossMethodStrength, null);
+      assert.deepEqual(out.access, { boundary: "current_session_rls", researchSupplements: true, crossMethodStrength: false, eventContext: true });
+      assert.deepEqual(out.missing, ["cross_method_strength_access_filtered"]);
+      assert.equal(out.eventContext, null);
+      assert.equal(out.researchSupplements.length, supplements);
+    };
+
+    const withRows = await run({ identity: { type: "number", label: "1820" }, research: { rows: [{ id: "r1" }] } });
+    assert.deepEqual(withRows.tables, ["research_objects"], "number identity reads supplements but never the service_role-only view");
+    deniedShape(withRows.out, 1);
+
+    const noRows = await run({ identity: { type: "number", label: "1820" } });
+    assert.deepEqual(noRows.tables, [], "number identity without research rows issues no request at all");
+    deniedShape(noRows.out, 0);
+
+    // Unchanged branches: non-number identity, non-integer number label and missing identity never reported "filtered".
+    for (const data of [{ identity: { type: "topic", label: "x" } }, { identity: { type: "number", label: "abc" } }]) {
+      const other = await run(data);
+      assert.equal(other.tables.includes("cross_method_strength"), false);
+      assert.equal(other.out.crossMethodStrength, null);
+      assert.equal(other.out.access.crossMethodStrength, true);
+      assert.deepEqual(other.out.missing, []);
+    }
+    const none = await run({});
+    assert.deepEqual(none.tables, []);
+    assert.equal(none.out.access.crossMethodStrength, true);
+    assert.equal("missing" in none.out, false);
+  } finally {
+    supabase.from = realFrom;
+  }
+}
 
 const helper = read("src/lib/research/world2029Presentation.js");
 assert.match(helper, /does NOT rank truth/i);

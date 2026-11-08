@@ -35,7 +35,8 @@ test('three exact public historical pages retain original body bytes, dates, par
  assert.equal(publicReadingContinuation('/','?p=3798&p=3288'),null);
  const config=JSON.parse(read('public-reading-deploy/vercel.json'));
  assert.ok(!config.redirects.some(r=>decodeURI(r.source).replace(/\/$/,'')==='/משיח-בשנת-התשעו'));
- assert.equal(read('vercel.json'),execFileSync('git',['show','7360f1d8:vercel.json'],{encoding:'utf8'}));
+ // Root vercel.json is pinned by content hash to the last approved main version (42ff15120: #1191 deploymentEnabled=false, #1253 /tzofen.html). A hash, not `git show`, so the pin needs no commit history and also holds in the shallow CI checkout. Re-pin only with an explicit approval of the config change.
+ assert.equal(createHash('sha256').update(readFileSync(new URL('../vercel.json',import.meta.url))).digest('hex'),'62144d03db717f2f6c1283bb08ba647ba7d76631043d8a0b34c76f875d600887','root vercel.json changed since the approved pin 42ff15120');
 });
 
 test('original historical documents have exact self canonicals without querying a guessed Post identity',async()=>{

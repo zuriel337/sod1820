@@ -4,6 +4,10 @@
 // the router as shipped in production (src/App2029.jsx) and from single-segment redirect/rewrite sources in vercel.json; (2) the list
 // below is the explicit hand-kept allow-list for pages that are a deliberate decision (legacy and Hebrew aliases, preview-scoped pages).
 // Paths with a dot never reach this middleware (see its matcher).
+// LEGACY / OBSOLETE (owner decision ZURIEL 2026-11-06, recorded in docs/reviews/audit-remediation-20261106/README.md): "/sulamot", "/sulamot2".."/sulamot11"
+// and the rest of the old 3D / experiment generation are NOT part of the current product. They stay listed only so an old link answers the
+// "experimental preview, not open in this version" notice (src/lib/publicReadingRelease2029.js, noindex, no data, no writes) instead of a bare 404.
+// No fixes, no revival. "/archive" is NOT in this group: it is the new archive, closed temporarily while it is completed. "/heichal" stays closed until decided.
 export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/888",
   "/about",
@@ -52,6 +56,7 @@ export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/reality",
   "/research",
   "/research-viewer",
+  "/raziel",
   "/reveal",
   "/spatial-gematria",
   "/start",
@@ -71,6 +76,7 @@ export const KNOWN_SINGLE_SEGMENT_ROUTES = new Set([
   "/timeline",
   "/traffic",
   "/unsubscribe",
+  "/updates",
   "/verified",
   "/verse-gematria",
   "/welcome",

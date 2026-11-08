@@ -138,13 +138,42 @@ test("R3F renderer performs no pair arithmetic and no duplicate Mistater semanti
   assert.match(code, /resolveSceneConnectorCurve/);
 });
 
-test("lazy boundary: three/@react-three only imported by the S4 module; default render is S2 and never touches WebGL", async () => {
+// Every module allowed to import three / @react-three is a 3D surface that is its OWN lazy chunk. The set is closed:
+// this assertion used to name only MistaterScene3D2029, but the product now ships the other approved 3D surfaces
+// below, each reached only through React.lazy. A new importer must be added here on purpose, together with its
+// lazy edge; the loop in the next test fails on any static, re-exported or eager reference to one of them.
+const THREE_LAZY_MODULES = [
+  "components/books2029/AhavatTorahSpatialScene2029.jsx",
+  "components/books2029/SeferYetzirahScene2029.jsx",
+  "components/books2029/yetzirahModels/YetzirahModelCanvas.jsx",
+  "components/experience2029/BirthMapScene3D2029.jsx",
+  "components/experience2029/GlyphVolume2029.jsx",
+  "components/gematria2029/MistaterScene3D2029.jsx",
+];
+
+test("lazy boundary: three/@react-three only imported by the closed set of S4/3D modules, each reached only through React.lazy; default render is S2 and never touches WebGL", async () => {
   const walk = (dir) => readdirSync(dir).flatMap((f) => { const p = join(dir, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
   const root = new URL("../src/", import.meta.url).pathname;
-  const offenders = walk(root).filter((f) => /\.(jsx?|mjs)$/.test(f))
-    .filter((f) => /from\s+["'](three|three\/[^"']*|@react-three\/[^"']*)["']|import\(["']three/.test(readFileSync(f, "utf8")))
-    .map((f) => f.slice(root.length));
-  assert.deepEqual(offenders, ["components/gematria2029/MistaterScene3D2029.jsx"]);
+  const sources = walk(root).filter((f) => /\.(jsx?|mjs)$/.test(f)).map((f) => ({ rel: f.slice(root.length), text: readFileSync(f, "utf8") }));
+  const offenders = sources
+    .filter(({ text }) => /from\s+["'](three|three\/[^"']*|@react-three\/[^"']*)["']|import\(["']three/.test(text))
+    .map(({ rel }) => rel).sort();
+  assert.deepEqual(offenders, THREE_LAZY_MODULES);
+  // The boundary itself: no file may statically import / re-export / side-effect-import a 3D module (that would pull
+  // three into the importer's chunk); every reference must be a lazy(() => import(...)) edge, and each module has one.
+  for (const mod of THREE_LAZY_MODULES) {
+    const base = mod.split("/").pop().replace(/\./g, "\\.");
+    const spec = `["'][^"']*\\/${base}["']`;
+    const staticEdge = new RegExp(`(?:^|\\n)\\s*(?:import|export)\\b[^;'"]*?\\bfrom\\s*${spec}|(?:^|\\n)\\s*import\\s*${spec}`);
+    const lazyEdge = new RegExp(`\\blazy\\(\\s*\\(\\s*\\)\\s*=>\\s*import\\(\\s*${spec}\\s*\\)`);
+    const anyRef = new RegExp(spec);
+    const others = sources.filter(({ rel }) => rel !== mod);
+    assert.deepEqual(others.filter(({ text }) => staticEdge.test(text)).map(({ rel }) => rel), [], `${mod} must not be statically imported`);
+    const refs = others.filter(({ text }) => anyRef.test(text)).map(({ rel }) => rel);
+    const lazyRefs = others.filter(({ text }) => lazyEdge.test(text)).map(({ rel }) => rel);
+    assert.ok(lazyRefs.length >= 1, `${mod} must be reached through a React.lazy dynamic import`);
+    assert.deepEqual(refs, lazyRefs, `${mod}: every reference must be a lazy dynamic import`);
+  }
   const cap = readFileSync(new URL("../src/lib/spatial/gpuCapability.js", import.meta.url), "utf8");
   assert.equal(/from\s+["']three/.test(cap), false);
 

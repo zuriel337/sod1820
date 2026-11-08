@@ -6,7 +6,9 @@ const read = path => readFileSync(new URL(path, import.meta.url), "utf8");
 test("existing owner index routes to the live-verified UI and Experience versions", () => {
   const index=read("../SOD1820_MASTER_OWNER_INDEX.md");
   assert.match(index,/Experience lifecycle[^\n]+`experience_governance_foundation_v1_law` \*\*v10 ACTIVE/);
-  assert.match(index,/canonical reusable UI primitives[^\n]+`canonical_ui_components_law` \*\*v11 ACTIVE/);
+  // v12: this test was written against v11, then the owner index pointer was moved (v7 -> v12) by #1191 (71bb7646) after v12 was verified live
+  // (docs/reviews/central-unified-end-to-end-preview-20261031.md); in the rules table v12 is the only active canonical_ui_components_law row.
+  assert.match(index,/canonical reusable UI primitives[^\n]+`canonical_ui_components_law` \*\*v12 ACTIVE/);
   assert.match(index,/type='rule' AND nodes\.is_active=true/);
   assert.match(index,/version-pointer correction, not a new owner/);
 });

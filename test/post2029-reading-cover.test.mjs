@@ -21,3 +21,16 @@ test("cover item uses image_url for reading and keeps thumb_url as preview only"
   assert.equal(item.intrinsic.representation.imageUrl, "a/reading-v2.jpg");
   assert.equal(item.mediaId, "");
 });
+
+// The cover is the LCP image on mobile post pages (lab: element = img.is-primary at 390px) and sits in the first viewport at 390 and 1440.
+test("the reading cover is fetched eagerly with high priority; other media stay lazy and decode async", () => {
+  assert.match(src, /<CanonicalMediaFigure2029 item=\{coverItem\} primary loading="eager" fetchPriority="high"/);
+  const figure = readFileSync(new URL("../src/components/experience2029/CanonicalMediaFigure2029.jsx", import.meta.url), "utf8");
+  const image = readFileSync(new URL("../src/components/experience2029/CanonicalMediaImage2029.jsx", import.meta.url), "utf8");
+  assert.match(image, /loading = "lazy"/);
+  assert.match(image, /decoding = undefined/);
+  assert.match(image, /decoding \?\? \(loading === "lazy" \? "async" : undefined\)/);
+  assert.match(image, /decoding=\{resolvedDecoding\}/);
+  assert.match(image, /fetchPriority=\{fetchPriority\}/);
+  assert.match(figure, /loading=\{loading\} fetchPriority=\{fetchPriority\}/);
+});

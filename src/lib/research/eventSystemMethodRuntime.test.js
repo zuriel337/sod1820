@@ -32,8 +32,10 @@ const numericOperators = createCanonicalNumberW2Executors({
 const post = { id: 5112, slug: "flydubai-fz1073", date: "2026-09-30T20:15:36.179757+00:00" };
 const flight = { type: T.FLIGHT_NUMBER, number: 1073, key: "flight:FZ1073", label: "FZ1073", source_ref: "post:5112" };
 const wisdom = { type: T.EXPRESSION_MATCH, expression: "חכמה", method_key: "רגיל", claimed_value: 73, source_ref: "post:5112" };
+// The adapter admits only a trace carrying the RPC's parity proof (isVerifiedMethodTrace, af970703f).
 const traceFor = (m) => (m.expression === "חכמה" && m.method_key === "רגיל"
-  ? gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: "חכמה", result: 73, method_version: "fixture-v1" }, { inputText: "חכמה", createdAt: "2026-10-06T00:00:00Z" })
+  ? gematriaTraceToFinding({ status: "ok", method_key: "רגיל", input: "חכמה", result: 73, method_version: "fixture-v1",
+    trace_kind: "LETTER_LEDGER", verification: { parity: true, trace_value: 73, canonical_value: 73 } }, { inputText: "חכמה", createdAt: "2026-10-06T00:00:00Z" })
   : null);
 
 const galleryRow = (id, extra = {}) => ({

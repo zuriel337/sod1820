@@ -9,7 +9,12 @@ const css = read("src/components/experience2029/razielCenter2029.css");
 const provider = read("src/lib/research/RazielSessionProvider2029.jsx");
 
 test("My Workspace opens the Raziel conversation center before the existing chat", () => {
-  assert.match(frame, /import RazielCenter2029 from "\.\/RazielCenter2029\.jsx"/);
+  // #1191 split the center out of the opening frame graph: a lazy chunk, rendered inside the panel shell's Suspense boundary.
+  assert.match(frame, /^const RazielCenter2029 = React\.lazy\(\(\) => import\("\.\/RazielCenter2029\.jsx"\)\);$/m);
+  assert.doesNotMatch(frame, /^import RazielCenter2029 from /m);
+  const shell = frame.slice(frame.indexOf("function PanelShell("), frame.indexOf("function PanelShell(") + 2400);
+  assert.match(shell, /<React\.Suspense fallback=\{<div role="status">[^<]*<\/div>\}>\{children\}<\/React\.Suspense>/);
+  assert.match(frame, /<PanelShell \{\.\.\.common\} panelKind="workspace"[^\n]*><WorkspaceProjection /);
   assert.match(frame, /id: "raziel"[\s\S]*state: "live", onClick: \(\) => setWorkspaceSection\("raziel"\)/);
   assert.match(frame, /razielLocked \? "השיחות השמורות זמינות; המשך עם רזיאל עדיין נעול"/);
   assert.doesNotMatch(frame, /onClick: razielLocked \? null : \(\) => setWorkspaceSection\("raziel"\)/);

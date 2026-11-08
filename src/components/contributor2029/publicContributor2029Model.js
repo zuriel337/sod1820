@@ -1,10 +1,13 @@
 // Page-local presentation over the canonical readers. No persistence or attribution inference.
 import { normalizeWorldAllResearchRow } from "../../lib/research/worldAllResearchProjection.js";
 import { humanContentTitle } from "../../lib/presentation/contentTitle.js";
+import { safePublicUrl, approvedReturnHref } from "./contributorLinkPolicy2029.js";
 import {
   contributorPublicationRecordTime,
   contributorPublicationRecordTimeKind,
 } from "../../lib/research/contributorPublicationCatalog.js";
+// Re-exported unchanged: the link-admission helpers now live in the dependency-free contributorLinkPolicy2029.js.
+export { safePublicUrl, approvedReturnHref };
 export const SECTIONS = Object.freeze([
   ["all", "הכול"], ["writings", "כתבים ומאמרים"], ["sources", "מקורות ועדכונים"],
   ["findings", "ממצאים"], ["topics", "התכנסויות ונושאים"], ["media", "מדיה וגלריות"], ["community", "הודעות, לייקים ותגובות"],
@@ -18,38 +21,11 @@ const list = (v) => Array.isArray(v) ? v : [];
 // canonical URL uses a numeric code rather than the generated slug.
 const AUTO_PROFILE_RE = /^r-[0-9a-f]{16,}$/i;
 
-export function safePublicUrl(value) {
-  const raw = text(value);
-  if (!raw || /[\\\u0000-\u0020]/.test(raw) || raw.startsWith("//")) return null;
-  if (raw.startsWith("/") && !/^\/(?:researcher|admin)(?:\/|$)/i.test(raw)) return raw;
-  try {
-    const url = new URL(raw);
-    return url.protocol === "https:" && !url.username && !url.password ? url.href : null;
-  } catch { return null; }
-}
-
 export function publicContributorAvatar(identity) {
   const choice = identity?.public_avatar;
   if (choice && typeof choice === "object" && choice.enabled === false) return null;
   if (choice && typeof choice === "object" && choice.enabled === true) return safePublicUrl(choice.url);
   return safePublicUrl(identity?.avatar_url);
-}
-
-const RETURN_PATH = /^\/(?:(?:2029\/)?(?:world|post|posts|p|topic|number|book|books|source|sources|community|search)(?:\/|$)|2029\/me\/(?:public-page|page-editor|profile|messages|notifications|progress)(?:\/|$))/;
-// The Preview community is one exact URL shape, `/2029?preview=community`; other /2029 targets stay rejected.
-const isPreviewCommunity = (url) => url.pathname === "/2029" && url.searchParams.get("preview") === "community";
-
-export function approvedReturnHref(value, origin) {
-  const raw = text(value);
-  if (!raw || raw.length > 2500 || /[\\\u0000-\u0020]/.test(raw) || raw.startsWith("//")) return null;
-  try {
-    const base = new URL(origin);
-    const url = new URL(raw, base);
-    const decoded = decodeURIComponent(url.pathname);
-    if (url.origin !== base.origin || url.username || url.password || !(RETURN_PATH.test(decoded) || isPreviewCommunity(url))
-      || /[\\\u0000-\u0020]/.test(decoded) || decoded.includes("//") || decoded.includes("%")) return null;
-    return `${url.pathname}${url.search}${url.hash}`;
-  } catch { return null; }
 }
 
 export function readContributorLocation(search, origin, { defaultSection = "all", sections = SECTIONS, returnHref = null } = {}) {

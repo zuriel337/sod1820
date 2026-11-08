@@ -76,6 +76,8 @@ test('public/member reading denies private operations and IO while preserving lo
     { user: { id: 'A', user_metadata: { role: 'admin' } }, isAdmin: false, loading: false },
     { user: null, isAdmin: false, loading: false },
     { user: null, isAdmin: true, loading: false },
+    // Signed in but not confirmed by Auth.getUser (verified is supplied by AuthContext, never by metadata): still locked, even as admin.
+    { user: { id: 'A' }, isAdmin: true, verified: false, loading: false },
   ]) {
     const f = fixture(auth);
     let root; await act(async () => { root = Renderer.create(tree()); });
@@ -97,7 +99,7 @@ test('public/member reading denies private operations and IO while preserving lo
 });
 
 test('verified admin reads existing research on login but only explicit actions can write; telemetry/model stay off', async () => {
-  const f = fixture({ user: { id: 'A' }, isAdmin: true, loading: false });
+  const f = fixture({ user: { id: 'A' }, isAdmin: true, verified: true, loading: false });
   let root; await act(async () => { root = Renderer.create(tree()); });
   assert.ok(f.calls.some(x => x.kind === 'read'));
   assert.ok(f.calls.some(x => x.kind === 'RPC' && x.args[0] === 'fn_research_path_resume_v1'));
@@ -117,14 +119,14 @@ test('verified admin reads existing research on login but only explicit actions 
   assert.equal(saved.ok, true);
   assert.equal(f.latest.context.returnTo.href, '/old-post?p=1#source');
   assert.equal(f.calls.some(x => ['track', 'AIbehavior', 'model', 'telemetry'].includes(x.kind)), false);
-  await act(async () => { f.auth = { user: { id: 'B' }, isAdmin: true, loading: false }; root.update(tree()); });
+  await act(async () => { f.auth = { user: { id: 'B' }, isAdmin: true, verified: true, loading: false }; root.update(tree()); });
   assert.equal(f.latest.saved.length, 0); assert.equal(f.latest.context, null);
   assert.equal(f.renders.some(x => x.uid === 'B' && x.ids.includes('A-save')), false);
   await act(async () => { root.unmount(); });
 });
 
 test('same-account permission revalidation preserves context, denies stale actions and ignores late path results', async () => {
-  const f = fixture({ user: { id: 'A' }, isAdmin: true, loading: false });
+  const f = fixture({ user: { id: 'A' }, isAdmin: true, verified: true, loading: false });
   let root; await act(async () => { root = Renderer.create(tree()); f.latest?.setResearchContext(context); });
   await act(async () => { f.latest.setResearchContext(context); });
   const staleSave = f.latest.saveItem;
@@ -137,7 +139,7 @@ test('same-account permission revalidation preserves context, denies stale actio
   };
   await act(async () => { pending = f.latest.saveCurrentResearchPath(); });
   assert.ok(resolveSave);
-  await act(async () => { f.auth = { user: { id: 'A' }, isAdmin: false, loading: false }; root.update(tree()); });
+  await act(async () => { f.auth = { user: { id: 'A' }, isAdmin: true, verified: false, loading: false }; root.update(tree()); });
   assert.equal(f.latest.context.returnTo.href, '/old-post?p=1#source');
   assert.equal(staleSave({ id: 'stale-save', type: 'number' }), false);
   assert.equal(await f.latest.retryResearchSync(), false);
@@ -145,7 +147,7 @@ test('same-account permission revalidation preserves context, denies stale actio
   assert.equal(result.error, 'session_unavailable'); assert.equal(f.latest.pathResume.latest, null);
   assert.equal(f.latest.context.journey, null);
   const writesBefore = passive(f).length;
-  await act(async () => { f.auth = { user: { id: 'A' }, isAdmin: true, loading: false }; root.update(tree()); });
+  await act(async () => { f.auth = { user: { id: 'A' }, isAdmin: true, verified: true, loading: false }; root.update(tree()); });
   await act(async () => { await new Promise(resolve => setTimeout(resolve, 400)); });
   assert.equal(passive(f).length, writesBefore, 'regaining access does not replay pending work');
   assert.equal(f.latest.context.returnTo.href, '/old-post?p=1#source');

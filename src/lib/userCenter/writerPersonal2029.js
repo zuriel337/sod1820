@@ -1,7 +1,7 @@
 import { supabase, contributorHref } from "../supabase.js";
 import { PUBLIC_READING_RELEASE, publicReadingPath, publicReadingCapability } from "../publicReadingRelease2029.js";
 import { getPublicResearchClient } from "../research/researchViewMode.js";
-import { safePublicUrl } from "../../components/contributor2029/publicContributor2029Model.js";
+import { safePublicUrl } from "../../components/contributor2029/contributorLinkPolicy2029.js";
 
 export const WRITER_PERSONAL_MODULES = Object.freeze([
   ["research", "השמורים והמחקר שלי"], ["notes", "הפנקס שלי"],
