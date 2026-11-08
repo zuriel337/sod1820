@@ -85,7 +85,7 @@ test("only Preview's sole unstaged root config may equal the complete committed 
   const config = { framework: null, redirects: [{ source: "/old", destination: "/post/new", permanent: true },
     { source: "/posts", destination: "/post", permanent: true }], headers: [{ source: "/(.*)",
     headers: [{ key: "Cache-Control", value: "no-store" }] }] };
-  const input = { reviewMode: true, env: fixtureEnv, trackedStatus: " M vercel.json\0",
+  const input = { reviewMode: true, env: fixtureEnv, trackedStatus: " Mvercel.json\0",
     trackedDiff: `:100644 100644 ${"c".repeat(40)} ${"0".repeat(40)} M\0vercel.json\0`,
     committedConfig: JSON.stringify(config, null, 2), workingConfig: JSON.stringify(config) };
   assert.equal(protectedReviewConfigMaterialization(input), true);
@@ -98,8 +98,8 @@ test("only Preview's sole unstaged root config may equal the complete committed 
       headers: [{ key: "Cache-Control", value: "public" }] }] }])
     assert.equal(protectedReviewConfigMaterialization({ ...input, workingConfig: JSON.stringify(configChange) }), false);
   for (const trackedStatus of ["", "M  vercel.json\0", "MM vercel.json\0", " M vercel.json\0 M src/App2029.jsx\0",
-    " M public-reading-deploy/vercel.json\0", " M vercel.json\0 M public-reading-deploy/vercel.json\0",
-    " D vercel.json\0", " T vercel.json\0", "T  vercel.json\0", "R  vercel.json\0previous.json\0", " M vercel.json\n"])
+    " Mpublic-reading-deploy/vercel.json\0", " M vercel.json\0 M public-reading-deploy/vercel.json\0",
+    " Dvercel.json\0", " Tvercel.json\0", "T vercel.json\0", "R  vercel.json\0previous.json\0", " Mvercel.json\n"])
     assert.equal(protectedReviewConfigMaterialization({ ...input, trackedStatus }), false, JSON.stringify(trackedStatus));
   for (const trackedDiff of [undefined, "", input.trackedDiff.replace("100644 100644", "100644 100755"),
     input.trackedDiff.replace("100644 100644", "100644 120000"),
