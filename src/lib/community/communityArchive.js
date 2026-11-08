@@ -96,6 +96,7 @@ const VERIFIED_OWNER_PAIRS = Object.freeze([
   { accountId: "b6ce542a-2b07-4749-8aba-532c886f6de7", contributorId: "19936860-6b35-4386-bc44-113289858ff0" }, // כי לה׳ המלוכה ↔ YosiViner559
   { accountId: "5516d596-46d3-486d-a9c7-a35b36bc3755", contributorId: "e7581ab5-8c15-4832-b602-f361e41ff373" }, // ZURIEL, 8.11.2026: אמילי ↔ the account she verified and signed into.
   { accountId: REVIEWED_SHINSHIN_LINK.accountId, contributorId: REVIEWED_SHINSHIN_LINK.contributorId }, // ZURIEL, 8.11.2026: שינשין ↔ the account he verified and signed into.
+  { accountId: REVIEWED_ESTHER_LINK.accountId, contributorId: REVIEWED_ESTHER_LINK.contributorId }, // ZURIEL, 8.11.2026: Esther26 ↔ Esther Gem.
 ]);
 
 export function communityAuthorIdentity(authorKey) {
