@@ -31,3 +31,23 @@ test("Home: the featured card is the first area (before the ELS entry); its Post
   const css = await readFile(new URL("../src/components/experience2029/homeComposition2029.css", import.meta.url), "utf8");
   assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 381px; \}/, "height reserved while loading");
 });
+
+test("the whole message is ONE feed item for 'עכשיו': same post:<id> identity, headline + note + numbers + connections + interpretation as one body", async () => {
+  const { featuredFeedItem, featuredBodyText } = await import("../src/lib/research/homeFeaturedPost2029.js");
+  const { postRowToWorldUpdate } = await import("../src/lib/research/worldDiscoveryStream.js");
+  const { mergeSystemFeedItems } = await import("../src/lib/systemFeed2029.js");
+  const { nowModels } = await import("../src/lib/nowPublications2029.js");
+  const { feedRows } = await import("../src/lib/systemFeed2029.js");
+  const item = featuredFeedItem(row({ date: "2026-09-30T08:55:00Z", excerpt: "תקציר ישן" }), postRowToWorldUpdate);
+  assert.equal(item.id, "post:5107"); assert.equal(item.label, HOME_FEATURED_POST_2029.headline);
+  for (const part of ["התיעוד הזה הוא חלק מעץ המציאות", "1,437 (לייקים)", "618 = משיח צדקינו", "396 = הישועה = דויד בן ישי", "78 = מחל", "פ״ז", "שרשר = 1000", "608"]) assert.ok(item.fullText.includes(part), part);
+  assert.equal(item.at, "2026-11-08T04:18:00.000Z");
+  assert.equal(featuredFeedItem(row({ home_hidden: true }), postRowToWorldUpdate), null);
+  // The stream's own item for the same Post can never make a second row: ours is listed first and wins.
+  const streamItem = postRowToWorldUpdate(row({ date: "2026-11-07T00:00:00Z" }));
+  const merged = mergeSystemFeedItems([item], [streamItem]);
+  assert.equal(merged.length, 1); assert.equal(merged[0].label, HOME_FEATURED_POST_2029.headline);
+  const [model] = nowModels(feedRows(merged, { now: Date.parse("2026-11-08T12:00:00Z"), limit: 10 }));
+  assert.equal(model.title.startsWith("ממשלת אייזנקוט"), true); assert.ok(model.fullText.includes("חיבורים בגימטריה"));
+  assert.equal(featuredBodyText().split("\n").length, 5);
+});

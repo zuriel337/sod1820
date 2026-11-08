@@ -509,3 +509,12 @@ a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gol
   .h29-featured-note { grid-area: note; align-self: end; }
   .h29-featured-numbers { grid-area: numbers; align-self: start; }
 }
+.h29-featured-connections { display: grid; gap: 6px; }
+.h29-featured-connections small { color: var(--s29-brand-gold); font: 600 12px/1.4 var(--s29-font-ui); letter-spacing: .03em; }
+.h29-featured-connections ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.h29-featured-connections a { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 11px; min-height: 36px; border-radius: 999px; text-decoration: none; color: inherit; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 50%, transparent); background: color-mix(in srgb, var(--s29-brand-gold) 10%, transparent); }
+.h29-featured-connections a:hover, .h29-featured-connections a:focus-visible { border-color: var(--s29-brand-gold); }
+.h29-featured-connections b { font: 700 15px/1.2 var(--s29-font-numeric, var(--s29-font-ui)); color: var(--s29-hero, var(--s29-accent-text)); }
+.h29-featured-connections span { font: 400 12.5px/1.3 var(--s29-font-ui); color: var(--s29-ink); }
+.h29-featured-connections em { color: var(--s29-muted); font: 400 11.5px/1.4 var(--s29-font-ui); font-style: normal; }
+.h29-featured-interpretation { margin: 0; padding: 8px 12px; border-radius: 12px; color: var(--s29-ink); font: 500 13.5px/1.55 var(--s29-font-ui); border: 1px dashed color-mix(in srgb, var(--s29-brand-gold) 45%, transparent); background: color-mix(in srgb, var(--s29-brand-gold) 6%, transparent); }

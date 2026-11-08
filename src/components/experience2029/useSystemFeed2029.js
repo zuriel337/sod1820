@@ -94,7 +94,18 @@ export function useSystemFeed2029({ enabled = true, nowOpen = false, homeStrip =
     });
   }, [state.items]);
 
-  const items = useMemo(() => mergeSystemFeedItems(state.items, nowSources.items), [state.items, nowSources.items]);
+  // The featured Post's whole message (ZURIEL 8.11.2026) is ONE more item of this same feed: identity `post:<id>`, listed first so it is the
+  // single enriched row even if the stream also carries that Post. Read once (shared with Home); nothing here reads anything else.
+  const [featuredItem, setFeaturedItem] = useState(null);
+  useEffect(() => {
+    if (!enabled) return undefined;
+    let live = true;
+    Promise.all([import("../../lib/research/homeFeaturedPost2029.js"), import("../../lib/research/worldDiscoveryStream.js")])
+      .then(([featured, stream]) => featured.getFeaturedPostRow2029().then(row => featured.featuredFeedItem(row, stream.postRowToWorldUpdate)))
+      .then(item => { if (live) setFeaturedItem(item); }).catch(() => { if (live) setFeaturedItem(null); });
+    return () => { live = false; };
+  }, [enabled]);
+  const items = useMemo(() => mergeSystemFeedItems(featuredItem ? [featuredItem] : [], mergeSystemFeedItems(state.items, nowSources.items)), [featuredItem, state.items, nowSources.items]);
   const rows = useMemo(() => feedRows(items, { seen, strongIds }), [items, seen, strongIds]);
   const expandedRows = useMemo(() => feedRows(items, { seen, strongIds, limit: 160,
     caps: { group: 40, post: 40, convergence: 40, finding: 12, gallery: 10,

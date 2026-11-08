@@ -26,6 +26,12 @@ export default function HomeFeaturedPost2029({ state }) {
       <span className="h29-featured-title">{post.title}</span>
     </Link>
     <p className="h29-featured-note" data-home-featured-note="true">{post.note}</p>
+    <div className="h29-featured-connections" role="group" aria-label={post.connectionsTitle} data-home-featured-connections="true">
+      <small>{post.connectionsTitle}</small>
+      <ul>{post.connections.map(item => <li key={`${item.value}-${item.phrase}`}><Link to={`/2029/number/${item.value}`}><b>{item.value}</b><span>{item.phrase}</span></Link></li>)}</ul>
+      <em>{post.connectionsFootnote}</em>
+    </div>
+    <p className="h29-featured-interpretation" data-home-featured-interpretation="true">{post.interpretation}</p>
     <div className="h29-featured-numbers" role="group" aria-label={post.numbersTitle}>
       <small>{post.numbersTitle}</small>
       <ul>{post.numbers.map(item => <li key={`${item.value}-${item.label}`}><b>{item.value}</b><span>{item.label}</span></li>)}</ul>
