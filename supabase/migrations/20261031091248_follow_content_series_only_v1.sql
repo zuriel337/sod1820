@@ -23,7 +23,7 @@ begin
   if md5(pg_get_functiondef('public.dispatch(text,text,text,text,text,text,text,uuid)'::regprocedure)) <> 'c2bf5b273b5ef4644997786a95835553' then
     raise exception 'Follow alignment base changed: dispatch; re-review instead of overwriting';
   end if;
-  if md5(pg_get_functiondef('public.watch_toggle(text,text,boolean,text)'::regprocedure)) <> '807aaccbb3b7f8d8ed412eb0b3dbea3e' then
+  if md5(pg_get_functiondef('public.watch_toggle(text,text,boolean,text)'::regprocedure)) <> 'fa41495b802bbd75155fc1ab74c5cb39' then
     raise exception 'Follow alignment base changed: watch_toggle; re-review instead of overwriting';
   end if;
   if not exists (select 1 from pg_trigger where tgrelid = 'public.posts'::regclass and tgname = 'trg_posts_notify' and pg_get_triggerdef(oid) = 'CREATE TRIGGER trg_posts_notify AFTER INSERT ON public.posts FOR EACH ROW EXECUTE FUNCTION notify_on_post_publish()') then

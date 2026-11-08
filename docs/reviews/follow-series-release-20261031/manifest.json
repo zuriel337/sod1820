@@ -2,7 +2,7 @@
   "scope": "REVIEW_ONLY_NOT_APPLIED",
   "base_branch_sha": "015c0269c566804ae3d6933e96339a58f69afdb1",
   "candidate_path": "supabase/migrations/20261031091248_follow_content_series_only_v1.sql",
-  "candidate_sha256": "6556916bb2fb93c7e99610e986129759ffdf29e8051de78dacd53137e4441b79",
+  "candidate_sha256": "fcdc20284b6d824b6b6b20aeaec7a63e517fb3a59dcde2adfda7e87178b7df19",
   "supabase_cli_version": "2.122.0",
   "preserve_legacy_category_functions": true,
   "legacy_client_sha": "99249526e91f1d720fae1aa43e82bbbe51ee5c45",
@@ -15,7 +15,7 @@
     "notify_on_post_publish": "a680e77bf85a506588de457819b139be",
     "resolve_topics": "2f34eb18e00a050d3931c37b25f8847d",
     "dispatch": "c2bf5b273b5ef4644997786a95835553",
-    "watch_toggle": "807aaccbb3b7f8d8ed412eb0b3dbea3e"
+    "watch_toggle": "fa41495b802bbd75155fc1ab74c5cb39"
   },
   "postimage_md5": {
     "follow_topic_aliases": "3b207f3b0a2e9e1049ce7487275c76f0",

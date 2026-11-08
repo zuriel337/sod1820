@@ -7,15 +7,6 @@ import {generatedMigration as combinedMigration} from './generate-follow-categor
 const paths=readdirSync(new URL('../supabase/migrations/',import.meta.url)).filter(name=>/^\d{14}_follow_content_series_only_v1\.sql$/.test(name));
 if(paths.length!==1)throw Error('Expected one CLI-created series-only migration');
 export const migrationPath='supabase/migrations/'+paths[0];
-// The live watch_toggle is the one produced by 20261104135237_community_thread_follow_notifications.sql (it adds the community_thread
-// branch; md5 verified live read-only on 2026-11-08). The series migration does NOT replace watch_toggle; the guard only proves the base
-// did not move again, so it now expects that reviewed definition instead of the pre-community one (fa41495b...).
-export const WATCH_TOGGLE_BASE_BEFORE_COMMUNITY='fa41495b802bbd75155fc1ab74c5cb39';
-export const WATCH_TOGGLE_BASE_LIVE='807aaccbb3b7f8d8ed412eb0b3dbea3e';
-function rebaseWatchToggleGuard(guard){
-  if(!guard.includes(WATCH_TOGGLE_BASE_BEFORE_COMMUNITY))throw Error('watch_toggle guard not found; review extractor');
-  return guard.replace(WATCH_TOGGLE_BASE_BEFORE_COMMUNITY,WATCH_TOGGLE_BASE_LIVE);
-}
 export function generatedMigration(){
   const full=combinedMigration();
   const guard=full.match(/do \$guard\$[\s\S]*?\$guard\$;/)?.[0];
@@ -33,7 +24,7 @@ export function generatedMigration(){
 -- Preserves Legacy canonical_follow_topic/follow_topic_aliases byte-for-byte.
 -- No category rename, preference rewrite, history backfill, ACL expansion or external delivery.
 begin;
-${rebaseWatchToggleGuard(guard.replace('end\n$guard$;',helperGuard+'end\n$guard$;'))}
+${guard.replace('end\n$guard$;',helperGuard+'end\n$guard$;')}
 
 ${subject}
 

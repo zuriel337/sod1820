@@ -24,12 +24,11 @@ test("states: closed actions and unsupported/unavailable series are inert with t
 });
 
 test("wiring: the bell uses the one canonical WatchButton and the existing series resolver; no series falls back to a category, author or post", () => {
-  assert.match(bellSource, /<WatchButton variant="bell" topic=\{`series:\$\{seriesKey\}`\}/);
+  assert.match(bellSource, /<WatchButton variant="mini" topic=\{`series:\$\{seriesKey\}`\}/);
   assert.match(bellSource, /fetchPostFollowTargets2029\(\{ scope: \{ kind: "series", key: seriesKey \} \}\)/);
   assert.doesNotMatch(bellSource, /cat:|author:|post:/);
   assert.match(bellSource, /if \(locked\) return undefined;/, "no resolver call while actions are closed (public reading)");
-  assert.match(watch, /if \(variant === "bell"\)/);
-  assert.equal((watch.match(/variant === "bell"/g) || []).length, 1, "one bell face in the canonical button (re-pinned 8.11.2026)");
+  assert.doesNotMatch(watch, /variant === "bell"/, "the byte-pinned canonical button is not edited for the bell");
 });
 
 test("Home: one bell beside the flagship title and one beside every other series name", () => {

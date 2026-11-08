@@ -11,7 +11,6 @@ import { trackConversion } from "../lib/marketing.js";
 import { includesFollowSubject } from "../lib/followIdentity.js";
 import EmailVerify from "./EmailVerify.jsx";
 import WatchControl2029 from "./followCenter2029/WatchControl2029.jsx";
-import BellGlyph from "./BellGlyph.jsx";
 
 // 🔔 WatchButton — הרכיב הקנוני היחיד של מנוע-המשפך (subscription_funnel_law).
 // חוקי-ברזל: (1) אותו רכיב בכל מקום, רק ה-topic משתנה · (2) כל Follow שומר source · (3) משפט-הסבר
@@ -145,20 +144,6 @@ function WatchButtonOpen({ topic, source = "unknown", explainer = "", label = "�
       onToggle={toggle} onRetry={() => load(true)} onTurnOnPush={turnOnPush}
       onVerifyIdentity={() => typeof onVerifyIdentity === "function" ? onVerifyIdentity() : patch(scopeKey, { showReg: true })}
       identitySlot={<EmailVerify variant="2029" source={`follow:${source}`} cta="שלחו לי קוד" onVerified={() => patch(scopeKey, { showReg: false, justFollowed: false })} />} />;
-  }
-
-  // 🔔 variant "bell" — the small round follow control next to a series name (Home). The same controller and engine as every other
-  // variant; only the face is a bell. State is always readable text for assistive tech (aria-label/title), never colour alone.
-  if (variant === "bell") {
-    return (
-      <>
-      <button type="button" className={`h29-bell${following ? " is-on" : ""}`} onClick={toggle} disabled={locked} aria-pressed={following} aria-busy={(!known && !loadFailed) || busy || undefined}
-        aria-label={following ? (followLabel || `עוקבים: ${label || "הסדרה"}`) : (label || "מעקב")} title={toggleError || (following ? "עוקבים — לחצו לביטול" : (explainer || "מעקב אחרי הסדרה"))}>
-        <BellGlyph filled={following} />
-      </button>
-      {unknownMsg && <span role="alert" className="h29-bell-note">{unknownMsg}{retry("currentColor", 12)}</span>}
-      </>
-    );
   }
 
   // ✓ וריאנט mini — «וי קטן» עדין למשטחי-מדיה כהים (למשל בתוך נגן-הShorts). כמעט-שקוף כשלא-עוקב,

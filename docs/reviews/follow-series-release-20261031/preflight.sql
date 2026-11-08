@@ -6,7 +6,7 @@ with expected(name,signature,expected_md5) as (values
     ('notify_on_post_publish','public.notify_on_post_publish()','a680e77bf85a506588de457819b139be'),
     ('resolve_topics','public.resolve_topics(text,text)','2f34eb18e00a050d3931c37b25f8847d'),
     ('dispatch','public.dispatch(text,text,text,text,text,text,text,uuid)','c2bf5b273b5ef4644997786a95835553'),
-    ('watch_toggle','public.watch_toggle(text,text,boolean,text)','807aaccbb3b7f8d8ed412eb0b3dbea3e')
+    ('watch_toggle','public.watch_toggle(text,text,boolean,text)','fa41495b802bbd75155fc1ab74c5cb39')
 ), functions as (select *,md5(pg_get_functiondef(to_regprocedure(signature))) as actual_md5 from expected)
 select jsonb_build_object(
   'function_preimages_match',(select bool_and(coalesce(actual_md5=expected_md5,false)) from functions),
