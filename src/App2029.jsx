@@ -7,6 +7,7 @@ import RazielSessionMount2029 from "./components/experience2029/RazielSessionMou
 import { initGA, trackPageview } from "./lib/analytics.js";
 import { initMarketing, trackMarketingPageview } from "./lib/marketing.js";
 import { startPageEngagement } from "./lib/engagement.js";
+import { trackVisit } from "./lib/visits.js";
 import { ensureIdentity } from "./lib/identity.js";
 import { startWebVitals2029 } from "./lib/webVitals2029.js";
 import { readingTelemetryPath } from "./lib/publicReadingTelemetry2029.js";
@@ -193,7 +194,7 @@ function RouteEffects2029() {
       if (!telemetryPath) return undefined;
       // Public production release: restore first-party visit + engagement
       // collection using the privacy-normalized route (no raw slug/query/PII).
-      void import("./lib/visits.js").then(({ trackVisit }) => trackVisit(telemetryPath)).catch(() => {});
+      void trackVisit(telemetryPath);
       const stopEngagement = startPageEngagement(telemetryPath);
       // Keep the public home's primary content ahead of the optional Google
       // script. A canceled navigation cannot initialize a stale page view.
