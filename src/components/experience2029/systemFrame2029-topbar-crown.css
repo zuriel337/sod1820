@@ -229,6 +229,11 @@ html[data-crown-scrolled="true"] .sod29-root.closed-shell.native-frame .sod29-he
    The avatar keeps its own fill and glow (identity); only its size and ring change. */
 .sod29-root.closed-shell.native-frame[data-frame-theme-preset] :is(.sod29-mobile-menu-trigger, .sod29-logo-toggle) .sod29-discovery-gate { display: grid; place-items: center; }
 .sod29-root.closed-shell.native-frame[data-frame-theme-preset] :is(.sod29-mobile-menu-trigger, .sod29-logo-toggle) .sod29-gate-menu { margin: 0; }
+@media (min-width: 981px) {
+  /* the collapsed desktop menu button is a true 56px circle on the rail's centre line (it was a 62x56 oval, so the glyph looked off-centre in it);
+     expanded, it is still the rail's head and grows as before */
+  .sod29-root.closed-shell.native-frame[data-frame-theme-preset].sidebar-collapsed .sod29-logo-toggle { inline-size: 56px; inset-inline-start: 11px; border-radius: 50%; }
+}
 @media (max-width: 980px) {
   .sod29-root.closed-shell.native-frame[data-frame-theme-preset] .sod29-header-actions .sod29-header-workspace .sod29-user-avatar.is-header {
     box-sizing: border-box; inline-size: 44px; block-size: 44px;
