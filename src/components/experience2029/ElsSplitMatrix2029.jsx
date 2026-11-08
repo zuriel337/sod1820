@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import {
-  SPLIT_LIMITS, clampInt, splitHitLabel, splitResponseMatches, splitMarkMap, splitRowStartFor, splitSuggestion,
+  SPLIT_LIMITS, clampInt, splitHitLabel, splitResponseMatches, foldSuggestion, splitMarkMap, splitRowStartFor, splitSuggestion,
   splitTableRows, splitWindowRequest, toggleSplitBand,
 } from "../../lib/elsSplitMatrix.js";
 import "./elsSplitMatrix2029.css";
@@ -15,7 +15,7 @@ const errors = {
 
 // Research-only "split matrix": the same axis matrix, read as several narrow column bands over one shared row window.
 // It only projects occurrences the canonical engine already verified; it never searches, ranks by meaning or saves anything.
-export default function ElsSplitMatrix2029({ state, visible, busy, response, onRequest }) {
+export default function ElsSplitMatrix2029({ state, visible, busy, response, onRequest, onFold }) {
   const axisHitId = state?.axis?.hitId || null, scope = state?.scope || null;
   const identity = axisHitId ? `${scope}|${state?.term}|${axisHitId}` : "";
   const [view, setView] = useState({ open: false, bands: [], rowStart: null, rowCount: 15, colCount: 5, columnStarts: {} });
@@ -51,6 +51,7 @@ export default function ElsSplitMatrix2029({ state, visible, busy, response, onR
 
   const rows = useMemo(() => splitTableRows(data?.hits || []), [data?.hits]);
   const suggestion = useMemo(() => (data && view.bands.length <= 1 ? splitSuggestion(data.hits, axisHitId, view.colCount) : null), [data, view.bands.length, axisHitId, view.colCount]);
+  const fold = useMemo(() => (data && onFold ? foldSuggestion(data.hits, axisHitId, data.S) : null), [data, axisHitId, onFold]);
   const byId = useMemo(() => new Map((data?.hits || []).map(hit => [hit.hitId, hit])), [data?.hits]);
   const showOnly = (hitId) => {
     const hit = byId.get(hitId); if (!hit || !data) return;
@@ -86,6 +87,8 @@ export default function ElsSplitMatrix2029({ state, visible, busy, response, onR
       </div>
       {suggestion ? <p className="els29-split-suggest" role="note"><strong>המלצה:</strong> «{suggestion.term}» נמצא ומאומת, אך רחוק {suggestion.gap.toLocaleString("he-IL")} עמודות מהציר. להציג אותו בפס נפרד על אותן שורות?{" "}
         <button type="button" disabled={pending} onClick={() => showOnly(suggestion.hitId)}>הפרד</button></p> : null}
+      {fold ? <p className="els29-split-suggest" role="note"><strong>קיפול מומלץ:</strong> בפריסה של {fold.width.toLocaleString("he-IL")} אותיות בשורה («{fold.between.toLocaleString("he-IL")} שורות בין אותיות הציר») «{fold.term}» מתקרב לציר ל־{fold.gap} עמודות.{" "}
+        <button type="button" disabled={pending} onClick={() => onFold(fold.width)}>קפל את המטריצה</button></p> : null}
       <div className="els29-split-bands">
         <div className="els29-split-rowctl" aria-label="תנועה בשורות">
           <button type="button" aria-label="שורות קודמות" disabled={pending || data.r0 <= 0} onClick={() => moveRows(-Math.max(1, Math.floor(view.rowCount / 2)))}>▲</button>

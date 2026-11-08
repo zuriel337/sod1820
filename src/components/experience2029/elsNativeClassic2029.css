@@ -315,7 +315,6 @@
   min-width:100%;
   display:grid;
   gap:2px;
-  row-gap:var(--els29-row-gap,2px);
   direction:rtl;
 }
 .els29-native-matrix-row{
@@ -326,12 +325,9 @@
   min-width:100%;
   direction:rtl;
 }
-.els29-native-matrix.is-fit{width:100%;min-width:calc(var(--els29-cols) * 20px - 2px)}
-.els29-native-matrix.is-fit .els29-native-matrix-row{
-  width:100%;
-  grid-template-columns:repeat(var(--els29-cols),minmax(18px,1fr));
-}
-.els29-native-matrix.is-fit .els29-native-cell{width:auto}
+/* "Fit to screen" is computed in the component (cell size from the available width, the same rule as the classic engine), not by fr tracks. */
+.els29-native-matrix.is-fit{min-width:100%}
+.els29-native-matrix.is-fit .els29-native-matrix-row{justify-content:center}   /* a cropped matrix narrower than the screen stays centred */
 /* Reflow only the complete contiguous source window; indexed cells retain their identity. */
 .els29-native-matrix.is-reading{width:100%;min-width:0;grid-template-columns:repeat(auto-fill,minmax(var(--els29-cell),1fr));align-items:start}
 .els29-native-matrix.is-reading .els29-native-matrix-row{display:contents}
@@ -345,12 +341,12 @@
   border-radius:6px;
   color:var(--els29-letter-ink);
   font-family:var(--s29-font-display);
-  font-size:18px;
+  font-size:var(--els29-font,18px);   /* follows the cell (cell - 5px), so the zoom enlarges the letters too, like the classic matrix */
   line-height:1;
   direction:rtl;
   user-select:none;
 }
-.els29-native-matrix.is-classic-glyphs .els29-native-cell{font-family:"Frank Ruhl Libre","David Libre",Georgia,serif;font-size:min(22px,calc(var(--els29-cell) - 2px))}
+.els29-native-matrix.is-classic-glyphs .els29-native-cell{font-family:"Frank Ruhl Libre","David Libre",Georgia,serif;font-size:calc(var(--els29-font,18px) + 2px)}
 .els29-native-matrix.is-niqqud .els29-native-cell{height:calc(var(--els29-cell) + 8px);padding-block:2px;line-height:1.35}
 
 .els29-native-cell.is-axis{
@@ -589,9 +585,6 @@
   .els29-native-occ-controls,.els29-native-view-controls{justify-content:center;flex-wrap:wrap}
   .els29-native-view-controls button:last-child{flex:1 1 120px}
   .els29-native-matrix-scroll{padding:10px}
-  .els29-native-matrix.is-fit{min-width:calc(var(--els29-cols) * 18px - 2px)}
-  .els29-native-matrix.is-fit .els29-native-matrix-row{grid-template-columns:repeat(var(--els29-cols),minmax(16px,1fr))}
-  .els29-native-cell{font-size:17px}
 }
 @media(prefers-reduced-motion:reduce){
   .els29-native-classic *{scroll-behavior:auto!important}
@@ -881,5 +874,13 @@
 .els29-native-side-rail button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}
 .els29-native-side-rail output,.els29-native-side-rail small{font-size:13px;line-height:1.2;color:var(--s29-muted);text-align:center;font-variant-numeric:tabular-nums}
 .els29-native-side-rail hr{width:70%;margin:2px 0;border:0;border-top:1px solid var(--s29-line)}
-.els29-native-matrix{transition:row-gap .18s ease}
-@media(prefers-reduced-motion:reduce){.els29-native-matrix{transition:none}}
+.els29-native-side-rail .els29-rail-width{font-size:15px;font-weight:700}
+.els29-native-side-rail output.els29-rail-width-value{font-size:15px;font-weight:700;color:var(--s29-ink)}
+.els29-native-side-rail small{max-width:60px;overflow-wrap:anywhere}
+/* On a phone the rail lies in one strip above the matrix, so the matrix keeps the full width of the screen. */
+@media(max-width:700px){
+  .els29-native-matrix-with-rail{flex-direction:column;align-items:stretch;gap:8px}
+  .els29-native-side-rail{position:static;flex-direction:row;flex-wrap:wrap;justify-content:center;width:auto;padding:6px 8px;gap:8px}
+  .els29-native-side-rail hr{width:0;height:28px;margin:0 2px;border-top:0;border-inline-start:1px solid var(--s29-line)}
+  .els29-native-side-rail small{max-width:none}
+}
