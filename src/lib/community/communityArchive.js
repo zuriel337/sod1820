@@ -1,4 +1,4 @@
-import { REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_SHINSHIN_LINK, reviewedCommunityAccountId, canonicalCommunityAuthorKey } from "./communityCanonicalIdentity2029.js";
+import { REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_SHINSHIN_LINK, REVIEWED_ESTHER_LINK, reviewedCommunityAccountId, canonicalCommunityAuthorKey } from "./communityCanonicalIdentity2029.js";
 import { supabase } from "../supabase.js";
 import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../publicLaunch2029.js";
 import { getPublicResearchClient } from "../research/researchViewMode.js";
