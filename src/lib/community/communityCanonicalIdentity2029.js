@@ -24,7 +24,13 @@ export const REVIEWED_SHINSHIN_LINK = Object.freeze({
   contributorId: "f499536a-e993-4a7d-8706-a2e69337c320",
 });
 
-export const REVIEWED_COMMUNITY_HISTORY_LINKS = Object.freeze([REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_EMILY_LINK, REVIEWED_SHINSHIN_LINK]);
+// ZURIEL, 8.11.2026: Esther26 historical contributor linked to the account she verified and signed into.
+export const REVIEWED_ESTHER_LINK = Object.freeze({
+  accountId: "9196e2b4-6473-4d44-9bad-913a4e4c4865",
+  contributorId: "99bcfb38-85be-4f38-89f0-7886f2f179e6",
+});
+
+export const REVIEWED_COMMUNITY_HISTORY_LINKS = Object.freeze([REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_EMILY_LINK, REVIEWED_SHINSHIN_LINK, REVIEWED_ESTHER_LINK]);
 
 function findReviewedLink(authorKey) {
   return REVIEWED_COMMUNITY_HISTORY_LINKS.find(
