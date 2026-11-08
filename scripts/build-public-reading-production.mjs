@@ -53,6 +53,20 @@ if (reviewMode && trackedStatus === " M vercel.json\0") {
   if (protectedReviewConfigMaterialization({ reviewMode, reviewTarget, env: process.env, trackedStatus, trackedDiff,
     committedConfig, workingConfig })) platformConfigMaterialization = { committedConfig, workingConfig, trackedDiff };
 }
+if (reviewMode) {
+  const requestedSourceSha = pins[0].slice("--review-source=".length);
+  const platform = process.env;
+  const diagnostic = {
+    vercel: platform.VERCEL === "1", target: platform.VERCEL_ENV === reviewTarget,
+    targetEnv: platform.VERCEL_TARGET_ENV === reviewTarget, project: platform.VERCEL_PROJECT_ID === "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq",
+    branch: platform.VERCEL_GIT_COMMIT_REF === "gpt/analytics-full-site-restoration-20261108",
+    shaFormat: /^[0-9a-f]{40}$/.test(platform.VERCEL_GIT_COMMIT_SHA || ""), shaMatchesBuild: platform.VERCEL_GIT_COMMIT_SHA === sha,
+    pinMatches: requestedSourceSha === sha, deploymentFormat: /^dpl_[A-Za-z0-9]+$/.test(platform.VERCEL_DEPLOYMENT_ID || ""),
+    hostFormat: /^sod1820-[a-z0-9]+-sod1820-s-projects\\.vercel\\.app$/.test(platform.VERCEL_URL || ""),
+    dirty, configMaterializationAccepted: Boolean(platformConfigMaterialization), trackedStatus: trackedStatus.replace(/[^\\x20-\\x7e]/g, "[NUL]")
+  };
+  console.log("[protected-review-identity-diagnostic]", JSON.stringify(diagnostic));
+}
 const protectedReview = reviewMode ? (publicCandidateMode ? publicCandidateBuildIdentity : protectedReviewBuildIdentity)({ env: process.env, reviewTarget,
   sourceSha: sha, sourceDirty: dirty && !platformConfigMaterialization,
   requestedSourceSha: pins[0].slice("--review-source=".length) }) : null;
