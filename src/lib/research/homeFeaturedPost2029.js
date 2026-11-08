@@ -14,7 +14,7 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
   at: "2026-11-08T06:18:00+02:00",
   headline: "ממשלת אייזנקוט מושבעת — הרוב לגוש השינוי: 67 חברי כנסת",
   // Gematria connections, each value read from the canonical engine fn_method_value('רגיל', phrase) on 2026-11-08 (not from memory).
-  connectionsTitle: "חיבורים בגימטריה — נבדקו במנוע, שיטה רגילה",
+  connectionsTitle: "חיבורים במספרים — חישוב מאומת במנוע (שיטה רגילה)",
   connections: Object.freeze([
     Object.freeze({ value: 618, phrase: "משיח צדקינו" }),
     Object.freeze({ value: 396, phrase: "הישועה = דויד בן ישי" }),
@@ -23,10 +23,21 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
     Object.freeze({ value: 87, phrase: "פ״ז — השנה תשפ״ז" }),
     Object.freeze({ value: 1000, phrase: "שרשר" }),
     Object.freeze({ value: 67, phrase: "בינה" }),
+    Object.freeze({ value: 64, phrase: "דין — וההיפוך שלו 46" }),
   ]),
   connectionsFootnote: "הכתיב משפיע: «משיח צדקנו» = 608, «משיח צדקינו» = 618.",
-  interpretation: "פרשנות: בפועל מי ששולט בעולם הוא הבורא, וזה משתקף גם דרך שרשר = 1000 — יש רק כוח אחד בעולם.",
-  note: "התיעוד הזה הוא חלק מעץ המציאות שנבנה בימים אלה — מערכת המחברת בין אירועים, מקורות, מספרים ורמזים. החיבורים המוצגים כאן הם חלק מתהליך המחקר והם עשויים להתפתח ככל שיתווספו ממצאים.",
+  // The owner's note, in the public discovery voice (public_language_revelation_geula_law: "מחקר" is not the public default): the single change from the
+  // wording first given is "תהליך המחקר/ממצאים" -> "תהליך הגילוי/חיבורים".
+  note: "התיעוד הזה הוא חלק מעץ המציאות שנבנה בימים אלה — מערכת המחברת בין אירועים, מקורות, מספרים ורמזים. החיבורים המוצגים כאן הם חלק מתהליך הגילוי והם עשויים להתפתח ככל שיתגלו עוד חיבורים.",
+  // The video (public/media/posts/…, the same place as the earlier post videos; it is served after the next deploy).
+  video: Object.freeze({ src: "/media/posts/2026-11-sharshar-crown/sharshar-crown.mp4", poster: "/media/posts/2026-11-sharshar-crown/sharshar-crown-poster.jpg", credit: "מקור הסרטון: שרשר המלך" }),
+  // The message, in hint language: a framing in the owner's words ("כביכול"), arithmetic stated as arithmetic, interpretation labelled as such.
+  messageTitle: "המסר",
+  message: Object.freeze([
+    "46 — המספר שקיבל גוש הימין כביכול. 67 — גוש השמאל, כביכול.",
+    "46 הוא היפוך של 64, דין. וכשהופכים את המבט, מה שנראה דין מתגלה כרחמים — וזה סוד הבינה, 67.",
+    "מאחורי שני הגושים עומד כוח אחד: הבורא. כך גם משתקף בשרשר = 1000 — אין בעולם אלא כוח אחד.",
+  ]),
   // Numbers that are visible on the screen recording of the video (read from its frames, 8.11.2026). They are shown as numbers with their
   // on-screen role only; the first group is part of the clip's own screen, the last two are the recording phone's clock and battery.
   numbersTitle: "המספרים שמופיעים על המסך בסרטון",
@@ -47,7 +58,7 @@ export function projectHomeFeaturedPost(row, config = HOME_FEATURED_POST_2029) {
   if (!row || Number(row.id) !== config.id || !row.slug || row.home_hidden === true || hasSuppressedPublicPostTag(row)) return null;
   const title = stripHtml(row.title == null ? "" : String(row.title)).trim();
   if (!title) return null;
-  return { id: config.id, slug: String(row.slug), title: config.headline || title, postTitle: title, headline: config.headline || null, connections: config.connections, connectionsTitle: config.connectionsTitle, connectionsFootnote: config.connectionsFootnote, interpretation: config.interpretation, poster: row.thumb_url || row.image_url || null, href: publicPostHref(row), note: config.note, numbers: config.numbers, numbersTitle: config.numbersTitle };
+  return { id: config.id, slug: String(row.slug), message: config.message, messageTitle: config.messageTitle, video: config.video, title: config.headline || title, postTitle: title, headline: config.headline || null, connections: config.connections, connectionsTitle: config.connectionsTitle, connectionsFootnote: config.connectionsFootnote, poster: row.thumb_url || row.image_url || null, href: publicPostHref(row), note: config.note, numbers: config.numbers, numbersTitle: config.numbersTitle };
 }
 
 export async function getHomeFeaturedPost2029({ client = null, signal, config = HOME_FEATURED_POST_2029 } = {}) {
@@ -59,10 +70,9 @@ export async function getHomeFeaturedPost2029({ client = null, signal, config = 
 /** One body: headline, note, the numbers on screen, the engine-checked connections and the interpretation — shown with the video on Home AND in "עכשיו". */
 export function featuredBodyText(config = HOME_FEATURED_POST_2029) {
   return [
-    config.headline, config.note,
+    config.headline, `${config.messageTitle}: ${config.message.join(" ")}`, config.note,
     `${config.numbersTitle}: ${config.numbers.map(item => `${item.value} (${item.label})`).join(" · ")}`,
     `${config.connectionsTitle}: ${config.connections.map(item => `${item.value} = ${item.phrase}`).join(" · ")}. ${config.connectionsFootnote}`,
-    config.interpretation,
   ].filter(Boolean).join("\n");
 }
 
@@ -72,7 +82,7 @@ export function featuredFeedItem(row, postRowToWorldUpdate, config = HOME_FEATUR
   const base = typeof postRowToWorldUpdate === "function" && projectHomeFeaturedPost(row, config) && postRowToWorldUpdate(row);
   if (!base) return null;
   const at = new Date(config.at).toISOString();
-  return { ...base, label: config.headline || base.label, summary: config.interpretation.slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at };
+  return { ...base, label: config.headline || base.label, summary: config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at };
 }
 
 // One public read shared by Home and the feed hook (cached for a minute): never two requests for the same Post.

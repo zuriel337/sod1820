@@ -17,6 +17,7 @@ import HomeHeroMotion2029 from "./HomeHeroMotion2029.jsx";
 import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
 import SeriesBell2029 from "./SeriesBell2029.jsx";
 import HomeFeaturedPost2029, { useHomeFeaturedPost } from "./HomeFeaturedPost2029.jsx";
+import { HOME_SECTIONS_2029 } from "../../lib/research/homeSections2029.js";
 import { nowModels } from "../../lib/nowPublications2029.js";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
@@ -409,13 +410,13 @@ export default function HomeComposition2029({
   // An item shown by the flagship region or the ciphers is not repeated in the live updates strip.
   const updatesExclude = useMemo(() => new Set([
     ...(seriesState.series.find(series => series.priorityLane === "primary")?.items || []).map(item => item.href),
-    ...(data.ciphers || []).map(cipher => postHref(cipher.link_url)),
+    ...(HOME_SECTIONS_2029.ciphers ? (data.ciphers || []).map(cipher => postHref(cipher.link_url)) : []),
     featured.post?.href,
   ].filter(Boolean).map(String)), [seriesState.series, data.ciphers, featured.post]);
   const updates = useHomeUpdates(feed, { exclude: updatesExclude, postsOnly: corePublic && !worldOpen });
   const standaloneExclude = useMemo(() => new Set([
     ...data.posts.map(post => post.slug), ...(data.videos || []).map(video => video.slug),
-    ...(data.ciphers || []).map(cipher => postAddressSlug(cipher.link_url)),
+    ...(HOME_SECTIONS_2029.ciphers ? (data.ciphers || []).map(cipher => postAddressSlug(cipher.link_url)) : []),
     ...updates.models.map(model => model.href ? postAddressSlug(model.href) : null),
     featured.post?.slug,
   ].filter(Boolean).map(String)), [data.posts, data.videos, data.ciphers, updates.models, featured.post]);
@@ -439,7 +440,7 @@ export default function HomeComposition2029({
 
     {elsEntry ? <Reveal id="els-entry">{elsEntry}</Reveal> : null}
 
-    <Section label="הצפנים האחרונים בתורה">
+    {HOME_SECTIONS_2029.ciphers ? <Section label="הצפנים האחרונים בתורה">
       <div className="h29-strips">
         <div className="h29-strip k29-rv">
           <div className="h29-sec-h"><h2><img className="h29-sec-logo" src="/els-logo.png" width="28" height="28" alt="" loading="lazy" decoding="async" />הצפנים האחרונים בתורה</h2><Link to="/2029/posts?category=צפונות%20בתורה">כל פרסומי הצופן ←</Link></div>
@@ -451,7 +452,7 @@ export default function HomeComposition2029({
           </div>
         </div>
       </div>
-    </Section>
+    </Section> : null}
 
     <HomeLiveUpdates updates={updates} onOpenNow={onOpenNow} />
     <HomeFlagshipRegion state={seriesState} />
