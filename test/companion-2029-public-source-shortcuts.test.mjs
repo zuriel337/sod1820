@@ -42,7 +42,7 @@ test("ZURIEL 1.11: Companion is unmounted, authorized context and shared feed st
   assert.doesNotMatch(frame, /import CompanionPanel2029|<CompanionPanel2029|has-companion/);
   assert.match(frame, /data-companion-visibility="temporarily-hidden"/);
   // The single frame watcher now also receives `nowOpen` (71bb76467): the extra "now" public-source reads run only while the Now panel (TRANSIENT.ATTENTION) is open.
-  assert.match(frame, /feed = useSystemFeed2029\(\{ enabled: surface !== "control", nowOpen: transient\?\.kind === TRANSIENT\.ATTENTION \}\)/);
+  assert.match(frame, /feed = useSystemFeed2029\(\{ enabled: surface !== "control", nowOpen: transient\?\.kind === TRANSIENT\.ATTENTION(?:, homeStrip: surface === "home" \&\& !\(corePublicViewer \&\& worldLocked\))? \}\)/);
   assert.equal((frame.match(/feed = useSystemFeed2029\(/g) || []).length, 1);
   assert.match(frame, /showContextRail \? <SurfaceContextRail2029/);
   assert.doesNotMatch(frame, /<EventSequencePanel2029/);

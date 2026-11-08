@@ -1,4 +1,4 @@
-// One bell glyph for every small follow control (no emoji: the same outline in every theme).
+// The bell glyph of the inert series bell on Home (no emoji: the same outline in every theme).
 import React from "react";
 
 export default function BellGlyph({ size = 20, filled = false }) {

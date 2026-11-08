@@ -96,7 +96,7 @@ test("integration is one optional slot and one callsite; hero, posts and stream 
   // ZURIEL 6.11.2026: the ELS entry is the FIRST Home area, then the latest ciphers, then the live updates, the flagship region and the other series.
   const els = composition.indexOf("elsEntry ? <Reveal");
   const ciphers = composition.indexOf('<Section label="הצפנים האחרונים בתורה">');
-  assert.ok(els > composition.indexOf("<EntranceIntro2029 />") && els < ciphers);
+  assert.ok(els > composition.indexOf(`data-experience-capability="home-composition"`) && els < ciphers);
   assert.ok(ciphers < composition.indexOf("<HomeLiveUpdates") && composition.indexOf("<HomeLiveUpdates") < composition.indexOf("<HomeFlagshipRegion"));
   assert.ok(composition.indexOf("<HomeFlagshipRegion") < composition.indexOf("<HomeOtherSeries"));
   assert.ok(els < composition.indexOf(`<Reveal id="story"`));
