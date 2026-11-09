@@ -59,7 +59,13 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
         setError("לא הצלחנו לאשר את שליחת הקוד, אבל ייתכן שהמייל בדרך. אם קיבלתם קוד, הזינו אותו כאן. אחרת אפשר לבקש קוד חדש.");
         return;
       }
-      if (current() && !principal.current) setError(action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? "הקוד שגוי או שפג תוקפו. אפשר לבקש קוד חדש." : "המייל או הסיסמה אינם נכונים. אפשר להיכנס גם עם קוד למייל.");
+      // 429: a code was just sent. Do not strand the person; the earlier email is still the valid one.
+      if (action === "email" && Number(failure?.status) === 429 && current() && !principal.current) {
+        setEmail(address); setStep("code");
+        setError("כבר שלחנו קוד לפני רגע. השתמשו בקוד מהמייל האחרון שהגיע (כל בקשה חדשה מבטלת את הקודם), או המתינו כחצי דקה ובקשו שוב.");
+        return;
+      }
+      if (current() && !principal.current) setError(action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? "הקוד שגוי, שכבר נוצל או שפג תוקפו. הקוד תקף פעם אחת, ורק האחרון שנשלח. אם כבר התחברתם — רעננו את הדף. אפשר גם להיכנס עם סיסמה." : "המייל או הסיסמה אינם נכונים. אפשר להיכנס גם עם קוד למייל.");
     } finally { if (current()) setBusy(false); }
   }
   async function federated(provider) {
