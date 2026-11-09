@@ -68,7 +68,9 @@ export async function requestEmailOtp(email, { shouldCreateUser = true } = {}) {
   }
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim(),
-    options: { shouldCreateUser: createUser, data },
+    // The emailed link must land on the route that completes the session (/auth/callback);
+    // without this it opens the site root, where nothing reads the link and it "does nothing".
+    options: { shouldCreateUser: createUser, data, ...(SITE_URL ? { emailRedirectTo: SITE_URL + '/auth/callback' } : {}) },
   });
   if (error) throw error;
   return { ok: true };
