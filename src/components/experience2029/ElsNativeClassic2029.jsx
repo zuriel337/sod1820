@@ -793,7 +793,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   const removeFinding = (index) => onFindingsChange(projected().filter((_, itemIndex) => itemIndex !== index));
   const changeFindingColor = (index, color) => onFindingsChange(projected().map((finding, itemIndex) => itemIndex === index ? { ...finding, color } : finding));
 
-  return <div className="els29-native-unified-rail" hidden={activeTool === "results" || activeTool === "ai"}>
+  return <div className="els29-native-unified-rail" hidden={activeTool === "results" || activeTool === "ai" || activeTool === "research"}>
     <div ref={railScrollRef} className="els29-native-rail-scroll" hidden={activeTool === "research"}>
       <label className="els29-native-secondary-label" htmlFor="els29-secondary-term">חיפוש משני במטריצה</label>
       <div className="els29-native-finding-add">
