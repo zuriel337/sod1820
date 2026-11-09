@@ -18,7 +18,7 @@ test("side rail is research-only: the classic and Guided matrices keep their cur
 
 test("side zoom is the classic engine's zoom: it keeps fit-to-screen and the pinch never clears it", async () => {
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
-  assert.match(native, /onZoom=\{direction => requestControl\(direction > 0 \? "zoom-in" : "zoom-out"\)\}/);
+  assert.doesNotMatch(native, /onZoom=/, "no side +/- zoom wiring remains");
   assert.match(native, /onZoomChange=\{zoom => requestControl\("zoom-pinch", zoom\)\}/);
   const template = await read("tools/els/els-code.template.html");
   assert.match(template, /d\.action==="zoom-pinch"&&Number\.isFinite\(d\.value\)\)setZoom\(d\.value\)/);
@@ -54,8 +54,7 @@ test("research mode only: the new cell rules, fit crop and recentring never reac
 
 test("rail buttons are labelled distinctly from the existing zoom bar and meet the touch-target size", async () => {
   const native = await read("src/components/experience2029/ElsNativeClassic2029.jsx");
-  assert.match(native, /aria-label="הגדל מטריצה · פקדי צד"/);
-  assert.match(native, /aria-label="הקטן מטריצה · פקדי צד"/);
+  assert.doesNotMatch(native, /פקדי צד/, "the duplicate side zoom (+/-) is gone; the zoom bar above the matrix remains");
   assert.match(native, /aria-label="שורות רחבות יותר"/);
   assert.match(native, /aria-label="שורות צרות יותר"/);
   const css = await read("src/components/experience2029/elsNativeClassic2029.css");

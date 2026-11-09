@@ -1950,6 +1950,27 @@ test('native reliability: cancel aborts verification, rolls back secondary edits
   },{realHost:true});
  });
 
+test('Research matrix scrolls and drags vertically as well as horizontally, and has no side +/- zoom',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:120000},async()=>{
+  await withNative({width:1440,height:900},async page=>{
+    const rail=page.locator('.els29-native-side-rail');
+    assert.equal(await rail.getByRole('button',{name:/הגדל מטריצה|הקטן מטריצה/}).count(),0,'the duplicate side zoom is removed');
+    assert.equal(await page.getByRole('button',{name:'הגדל מטריצה',exact:true}).count(),1,'the zoom bar above the matrix stays');
+    const box=page.locator('.els29-native-matrix-scroll');
+    const sizes=await box.evaluate(el=>({sh:el.scrollHeight,ch:el.clientHeight,sw:el.scrollWidth,cw:el.clientWidth}));
+    assert.ok(sizes.sh>sizes.ch+40,'the matrix has vertical overflow inside its own box');
+    const before=await box.evaluate(el=>el.scrollTop);
+    await box.scrollIntoViewIfNeeded();
+    const full=await box.boundingBox(), top=Math.max(full.y,0), bottom=Math.min(full.y+full.height,900);
+    const rect={x:full.x,width:full.width,y:top,height:bottom-top};   // the visible part: pointer coordinates must be inside the viewport
+    const atBottom=before>=sizes.sh-sizes.ch-2;   // the axis may already centre the view at the bottom edge
+    await page.mouse.move(rect.x+rect.width/2,rect.y+rect.height*(atBottom?0.2:0.8));await page.mouse.down();
+    await page.mouse.move(rect.x+rect.width/2,rect.y+rect.height*(atBottom?0.8:0.2),{steps:8});await page.mouse.up();
+    const after=await box.evaluate(el=>el.scrollTop);
+    assert.ok(Math.abs(after-before)>20,`a vertical drag moves the matrix (scrollTop ${before} -> ${after}, max ${sizes.sh-sizes.ch})`);
+  },{researchProfile:true});
+ });
+
 test('native save: cloud-only, published to the research file by default unless the person ticks "do not publish"',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:150000},async()=>{
   await withNative({width:1440,height:1000},async page=>{
