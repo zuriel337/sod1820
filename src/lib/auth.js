@@ -68,9 +68,9 @@ export async function requestEmailOtp(email, { shouldCreateUser = true } = {}) {
   }
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim(),
-    // The emailed link must land on the route that completes the session (/auth/callback);
-    // without this it opens the site root, where nothing reads the link and it "does nothing".
-    options: { shouldCreateUser: createUser, data, ...(SITE_URL ? { emailRedirectTo: SITE_URL + '/auth/callback' } : {}) },
+    // No emailRedirectTo: the public-reading service worker admits /auth/v1/otp only with an
+    // empty query string (preview-deploy/admin-readonly-auth.js), so redirect_to would block the request.
+    options: { shouldCreateUser: createUser, data },
   });
   if (error) throw error;
   return { ok: true };
