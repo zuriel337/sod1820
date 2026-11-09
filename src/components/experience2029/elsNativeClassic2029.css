@@ -879,8 +879,10 @@
 .els29-native-structure-entry{border-color:var(--s29-accent);box-shadow:0 0 0 1px color-mix(in srgb,var(--s29-accent) 22%,transparent)}
 
 /* Research mode: always-visible side controls next to the matrix (zoom + spacing between rows). */
-.els29-native-matrix-with-rail{display:flex;align-items:flex-start;gap:6px;min-width:0}
-.els29-native-matrix-with-rail-body{flex:1 1 auto;min-width:0}
+.els29-native-matrix-with-rail{display:flex;align-items:flex-start;gap:6px;min-width:0;min-height:0;height:100%}
+/* The body fills the stage row, so the matrix scrolls (and drags) vertically as well as horizontally, like the regular matrix. */
+.els29-native-matrix-with-rail-body{flex:1 1 auto;min-width:0;min-height:0;align-self:stretch;display:flex;flex-direction:column}
+.els29-native-matrix-with-rail-body>.els29-native-matrix-scroll{flex:1 1 auto;min-height:0}
 .els29-native-side-rail{position:sticky;top:96px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:6px;flex:0 0 auto;width:48px;padding:6px 2px;border:1px solid var(--s29-line-strong);border-radius:14px;background:var(--s29-panel);box-shadow:0 6px 18px #0005}
 .els29-native-side-rail button{width:44px;height:44px;padding:0;font:inherit;font-size:22px;line-height:1;color:var(--s29-ink);background:var(--s29-panel-soft);border:1px solid var(--s29-line);border-radius:12px;cursor:pointer}
 .els29-native-side-rail button:disabled{opacity:.4;cursor:default}

@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { foldOptionsFor } from "../../lib/elsSplitMatrix.js";
-import { clampZoom, fitCellPx, fitWindow, freeCellPx, letterPx } from "../../lib/elsMatrixZoom.js";
+import { fitCellPx, fitWindow, freeCellPx, letterPx } from "../../lib/elsMatrixZoom.js";
 import { use2029Palette } from "../../lib/palette2029.js";
 import { parseElsHitKey, buildJourneyPromotion } from "../../lib/elsJourney.js";
 import { buildElsRazielMatrixContext } from "../../lib/research/elsRazielMatrixContext.js";
@@ -400,16 +400,12 @@ function MatrixControls({ state, onControl, onContext, busy }) {
 // Research mode only. Always-visible side controls: zoom (the engine's own zoom, like the classic matrix) and the row width. The row width
 // re-flows the SAME text into rows of another width: a narrower one (an exact divisor of the skip) puts rows between consecutive axis
 // letters, a wider one (a multiple of the skip) puts several axis letters in one row. Letters, positions and verification stay the engine's.
-function MatrixSideRail({ zoom, active, onZoom, fold, onFoldStep, fullscreen, onFullscreen }) {
-  const percent = Math.round(clampZoom(zoom) * 100);
+function MatrixSideRail({ active, fold, onFoldStep, fullscreen, onFullscreen }) {
   const options = fold?.options || [], index = Math.max(0, options.findIndex(option => option.width === fold?.option?.width));
   const single = options.length < 2, option = fold?.option;
   const detail = !option ? "" : option.base ? "רוחב הדילוג" : option.m > 1 ? `${option.perRow.toLocaleString("he-IL")} אותיות ציר בשורה` : `${option.between.toLocaleString("he-IL")} שורות בין האותיות`;
-  return <div className="els29-native-side-rail" role="group" aria-label="גודל ורוחב שורה במטריצה">
+  return <div className="els29-native-side-rail" role="group" aria-label="מסך מלא ורוחב שורה במטריצה">
     <button type="button" className="els29-fs-toggle" disabled={!active && !fullscreen} aria-pressed={fullscreen} onClick={onFullscreen} aria-label={fullscreen ? "יציאה ממסך מלא" : "מסך מלא"} title={fullscreen ? "יציאה ממסך מלא" : "מטריצה במסך מלא"}>{fullscreen ? "⤡" : "⤢"}</button>
-    <button type="button" disabled={!active || percent >= 280} onClick={() => onZoom(1)} aria-label="הגדל מטריצה · פקדי צד" title="הגדל מטריצה">＋</button>
-    <output aria-label="גודל המטריצה" dir="ltr">{percent}%</output>
-    <button type="button" disabled={!active || percent <= 50} onClick={() => onZoom(-1)} aria-label="הקטן מטריצה · פקדי צד" title="הקטן מטריצה">−</button>
     <hr aria-hidden="true" />
     <button type="button" className="els29-rail-width" disabled={!active || single || index >= options.length - 1} onClick={() => onFoldStep(1)}
       aria-label="שורות רחבות יותר" title="שורות רחבות יותר (פי 2, פי 3…)">רחב</button>
@@ -793,7 +789,7 @@ function FindingsRail({ onHighlightVerse, verseHighlight, activeTool, state, sel
   const removeFinding = (index) => onFindingsChange(projected().filter((_, itemIndex) => itemIndex !== index));
   const changeFindingColor = (index, color) => onFindingsChange(projected().map((finding, itemIndex) => itemIndex === index ? { ...finding, color } : finding));
 
-  return <div className="els29-native-unified-rail" hidden={activeTool === "results" || activeTool === "ai"}>
+  return <div className="els29-native-unified-rail" hidden={activeTool === "results" || activeTool === "ai" || activeTool === "research"}>
     <div ref={railScrollRef} className="els29-native-rail-scroll" hidden={activeTool === "research"}>
       <label className="els29-native-secondary-label" htmlFor="els29-secondary-term">חיפוש משני במטריצה</label>
       <div className="els29-native-finding-add">
@@ -1742,8 +1738,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
           </div>
           <MatrixControls state={engineState} onControl={requestControl} onContext={requestContext} busy={searchPending || ["searching", "verifying"].includes(operations.findings?.status)} />
           {sideRail ? <div className="els29-native-matrix-with-rail">
-            <MatrixSideRail zoom={engineState?.ui?.zoom} active={matrixActive && !searchPending} fullscreen={fullscreen} onFullscreen={toggleFullscreen}
-              onZoom={direction => requestControl(direction > 0 ? "zoom-in" : "zoom-out")}
+            <MatrixSideRail active={matrixActive && !searchPending} fullscreen={fullscreen} onFullscreen={toggleFullscreen}
               fold={{ options: foldOptionList, option: foldOption }}
               onFoldStep={delta => { const index = foldOptionList.findIndex(option => option.width === foldOption?.width); const next = foldOptionList[clamp(index + delta, 0, foldOptionList.length - 1)]; if (next) setFoldWidth(next.base ? null : next.width); }} />
             <div className="els29-native-matrix-with-rail-body">
