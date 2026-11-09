@@ -29,6 +29,37 @@ export function readingTelemetryPath(value) {
   return "/" + segments[0].toLowerCase() + "/:item";
 }
 
+// First-party visit counter (track_visit → site_visits). Only the normalized route label,
+// a browser-local random visitor counter, the external referrer host and a device class.
+export function readingVisitBody(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)
+    || Object.keys(body).sort().join(",") !== "p_device,p_is_bot,p_path,p_referrer,p_visitor"
+    || typeof body.p_path !== "string" || readingTelemetryPath(body.p_path) !== body.p_path
+    || typeof body.p_is_bot !== "boolean"
+    || ![null, "mobile", "desktop"].includes(body.p_device)
+    || body.p_visitor !== null && (typeof body.p_visitor !== "string" || !/^[0-9a-z-]{8,64}$/i.test(body.p_visitor))
+    || body.p_referrer !== null && (typeof body.p_referrer !== "string" || !/^[a-z0-9.-]{1,253}(?::[0-9]{1,5})?$/i.test(body.p_referrer))) return false;
+  return true;
+}
+
+// Page engagement (ingest_event, surface=page, event_type=engagement). Anonymous like RUM:
+// no visitor/session identity, normalized route label and bounded timing counters only.
+export function readingEngagementBody(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)
+    || Object.keys(body).sort().join(",") !== "p_app_context,p_event_type,p_is_bot,p_path,p_props,p_session_id,p_sod_id,p_surface"
+    || body.p_sod_id !== null || body.p_session_id !== null || body.p_is_bot !== false
+    || body.p_surface !== "page" || body.p_event_type !== "engagement"
+    || typeof body.p_path !== "string" || readingTelemetryPath(body.p_path) !== body.p_path
+    || !["facebook", "instagram", "whatsapp", "telegram", "line", "chrome-ios", "edge", "opera", "firefox", "android-webview", "chrome", "safari", "other"].includes(body.p_app_context)) return false;
+  const p = body.p_props;
+  if (!p || typeof p !== "object" || Array.isArray(p)
+    || Object.keys(p).sort().join(",") !== "engaged_ms,engagement_version,flush_reason,idle_threshold_ms,max_scroll_pct,visible_ms"
+    || p.engagement_version !== 1 || !["route_change", "pagehide"].includes(p.flush_reason)) return false;
+  const bounded = (value, max) => Number.isSafeInteger(value) && value >= 0 && value <= max;
+  return bounded(p.visible_ms, 86400000) && bounded(p.engaged_ms, 86400000) && p.engaged_ms <= p.visible_ms
+    && bounded(p.max_scroll_pct, 100) && Number.isSafeInteger(p.idle_threshold_ms) && p.idle_threshold_ms >= 1000 && p.idle_threshold_ms <= 600000;
+}
+
 export function readingWebVitalBody(body) {
   if (!body || typeof body !== "object" || Array.isArray(body)
     || Object.keys(body).sort().join(",") !== "p_app_context,p_event_type,p_is_bot,p_path,p_props,p_session_id,p_sod_id,p_surface"

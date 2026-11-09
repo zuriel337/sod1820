@@ -3,7 +3,7 @@ import { readingPersonalResponse } from "./personal-request.js";
 import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.js";
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
 import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
-import { readingTelemetryPath, readingWebVitalBody } from "../src/lib/publicReadingTelemetry2029.js";
+import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEngagementBody } from "../src/lib/publicReadingTelemetry2029.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
 // which records are public. Explicit verified-admin actions retain the existing
@@ -285,17 +285,30 @@ function installPublicReadingWorker(policy) {
       && /^\/storage\/v1\/render\/image\/public\/(?:media|gallery|magar)\//.test(url.pathname)
       && publicRenditionQuery(url.searchParams)) return;
     if (url.origin === authOrigin && req.method === "POST"
-      && ["/rest/v1/rpc/ingest_event", "/rest/v1/contact_messages"].includes(url.pathname)) {
+      && ["/rest/v1/rpc/ingest_event", "/rest/v1/rpc/track_visit", "/rest/v1/contact_messages"].includes(url.pathname)) {
       event.respondWith((async () => {
         const columns = url.searchParams.get("columns");
         const contactColumns = url.pathname.endsWith("/contact_messages") && url.searchParams.size === 1
           && columns?.split(",").sort().join(",") === '\"email\",\"message\",\"name\",\"subject\"';
-        if (url.search && !contactColumns) return denied();
+        // An engagement beacon sent at pagehide carries only the public anon key in its address.
+        const beaconKey = url.pathname.endsWith("/ingest_event") && url.searchParams.size === 1
+          && Boolean(policy.anonKey) && url.searchParams.get("apikey") === policy.anonKey;
+        if (url.search && !contactColumns && !beaconKey) return denied();
         const raw = await req.clone().text();
         if (raw.length > 8192) return denied();
         const parsed = JSON.parse(raw);
         const body = url.pathname.endsWith("/contact_messages") && Array.isArray(parsed) && parsed.length === 1 ? parsed[0] : parsed;
         if (!plainObject(body)) return denied();
+        const anonymous = () => readFetch(new Request(req, { headers: { apikey: policy.anonKey, Authorization: `Bearer ${policy.anonKey}`, "Content-Type": "application/json" } }));
+        // First-party visit counter: exact track_visit shape, bound to the sending window's normalized route.
+        if (url.pathname.endsWith("/track_visit"))
+          return policy.anonKey && readingVisitBody(body) && await measurementClient(event) === body.p_path ? anonymous() : denied();
+        if (beaconKey && body.p_surface !== "page") return denied();
+        if (url.pathname.endsWith("/ingest_event") && body.p_surface === "page") {
+          // Page engagement is flushed on route change (the window has already moved on) or at pagehide,
+          // so it is bound to an admitted public-site window rather than to that window's current route.
+          return policy.anonKey && readingEngagementBody(body) && await measurementClient(event) !== null ? anonymous() : denied();
+        }
         if (url.pathname.endsWith("/ingest_event")) {
           if (body.p_surface === "performance") {
             if (!readingWebVitalBody(body) || await measurementClient(event) !== body.p_path || !policy.anonKey) return denied();
@@ -505,7 +518,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 
