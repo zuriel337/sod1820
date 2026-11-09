@@ -131,6 +131,7 @@ jobs:
           test/analytics-2029-one-tree-contract.test.mjs
           test/public-reading-real-gtag-shape.test.mjs
           test/public-reading-observability.test.mjs
+          test/public-reading-analytics-worker.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
       - name: Top bar (the crown at the centre, dark glass, the rounded arc; one final design, one stylesheet, and the traps it hit stay handled)

@@ -189,14 +189,20 @@ function RouteEffects2029() {
   useEffect(() => {
     if (PUBLIC_READING_RELEASE) {
       if (!["sod1820.co.il", "www.sod1820.co.il"].includes(window.location.hostname)) return undefined;
-      if (!readingTelemetryPath(pathname)) return undefined;
+      const telemetryPath = readingTelemetryPath(pathname);
+      if (!telemetryPath) return undefined;
+      // First-party visit + engagement on the privacy-normalized route label only (no raw slug,
+      // query or identity). visits.js stays out of the opening graph; engagement carries no
+      // visitor/session identity, matching the worker's exact admission.
+      void import("./lib/visits.js").then(({ trackVisit }) => trackVisit(telemetryPath)).catch(() => {});
+      startPageEngagement(telemetryPath, { getSodIdFn: () => null, sessionIdFn: () => null });
       // Keep the public home's primary content ahead of the optional Google
       // script. A canceled navigation cannot initialize a stale page view.
       let stopped = false, timer, observer, idle;
       const run = () => {
         if (stopped) return;
-        initGA({ publicReading: true, path: pathname });
-        trackPageview(pathname, { publicReading: true });
+        initGA({ publicReading: true, path: telemetryPath });
+        trackPageview(telemetryPath, { publicReading: true });
       };
       const schedule = () => {
         observer?.disconnect();
