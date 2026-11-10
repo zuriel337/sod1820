@@ -549,3 +549,16 @@ test('Bible code save: a verified member saves to their own library with the exa
   const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/'+name,{body:{p_id:update.p_id,p_status:'published'}})).status,403,name);
  }
 });
+
+test('emitted worker lets public storage video/audio range requests reach the network natively, but still guards the rest',async()=>{
+ let listener;
+ const ctx={Request,Response,URL,Set,Map,JSON,atob,fetch:async()=>new Response('x'),self:{location:{origin:SITE},addEventListener:(type,fn)=>{if(type==='fetch')listener=fn;}}};
+ vm.runInNewContext(buildPublicReadingWorker('a'.repeat(40)),ctx);
+ const ORIGIN='https://linswmnnkjxvweumprav.supabase.co';
+ const probe=(path,{destination='video',mode='no-cors',method='GET'}={})=>{let handled=false;const request=new Request(ORIGIN+path,{method,headers:{Range:'bytes=0-'}});Object.defineProperty(request,'mode',{value:mode});Object.defineProperty(request,'destination',{value:destination});listener({request,clientId:'',respondWith(){handled=true;}});return handled;};
+ assert.equal(probe('/storage/v1/object/public/media/a/b/original.mp4'),false,'public video goes native');
+ assert.equal(probe('/storage/v1/object/public/media/a/b/x.mp3',{destination:'audio'}),false,'public audio goes native');
+ assert.equal(probe('/storage/v1/object/public/media/a/b/original.mp4?token=1'),true,'query strings stay under the worker');
+ assert.equal(probe('/storage/v1/object/sign/media/a/b/original.mp4'),true,'signed objects stay under the worker');
+ assert.equal(probe('/storage/v1/object/public/private-bucket/a.mp4'),true,'other buckets stay under the worker');
+});

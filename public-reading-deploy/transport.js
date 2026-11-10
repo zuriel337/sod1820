@@ -284,6 +284,12 @@ function installPublicReadingWorker(policy) {
       && req.mode === "no-cors" && !url.hash && !url.pathname.includes("//")
       && /^\/storage\/v1\/render\/image\/public\/(?:media|gallery|magar)\//.test(url.pathname)
       && publicRenditionQuery(url.searchParams)) return;
+    // Public video/audio objects: the media element sends no-cors Range requests. Forwarding them through readFetch
+    // (redirect=error, no-store) breaks the partial-content exchange on phones ("המדיה לא נטענה"), so, like public images,
+    // already-public media GETs go straight to the network. Private/signed objects and writes do not.
+    if (url.origin === authOrigin && req.method === "GET" && (req.destination === "video" || req.destination === "audio")
+      && req.mode === "no-cors" && !url.search && !url.hash && !url.pathname.includes("//")
+      && /^\/storage\/v1\/object\/public\/(?:media|gallery|magar)\//.test(url.pathname)) return;
     if (url.origin === authOrigin && req.method === "POST"
       && ["/rest/v1/rpc/ingest_event", "/rest/v1/rpc/track_visit", "/rest/v1/contact_messages"].includes(url.pathname)) {
       event.respondWith((async () => {
