@@ -488,12 +488,24 @@ export const POST_CONTENT_CSS = `
   .sod-post-content:not(.clean) [style*="color: blue"] {
     color: ${C.goldBright} !important;
   }
+  /* VIDEO FRAME FIDELITY — never crop source-frame edges (status bar, battery, clock, captions).
+     Keep the complete native frame; scale down proportionally only. The original upload remains untouched. */
   .sod-post-content video {
-    max-width: min(100%, 360px) !important;
-    width: auto !important;
-    height: auto !important;
     display: block !important;
+    box-sizing: border-box;
+    width: min(100%, 560px) !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    object-fit: contain !important;
+    object-position: center center !important;
     margin: 1.5em auto !important;
+    background: #000;
+  }
+  .sod-post-content .wp-video {
+    width: min(100%, 560px) !important;
+    max-width: 100% !important;
   }
   .sod-post-content table {
     width: 100%; border-collapse: collapse; margin: 1.6em 0;
