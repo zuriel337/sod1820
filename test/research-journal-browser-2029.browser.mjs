@@ -89,7 +89,8 @@ run('REAL BROWSER, passive history on every load stays bounded; pagehide release
 });
 
 run('REAL BROWSER, crash + restore + resumed sync: nothing unsynced is lost, journals do not multiply, the server ends complete', async ({ fx, context }) => {
-  const doomed = await open(context, fx); await fx.setOnline(doomed, false);
+  const LEASE = { leaseTtlMs: 6000 };   // long enough that a slow runner still restores "inside the lease"; the test waits it out explicitly
+  const doomed = await open(context, fx, LEASE); await fx.setOnline(doomed, false);
   await doomed.evaluate(() => { window.H.write('w1'); window.H.write('w2'); window.H.passive('seen'); });
   const sessionBefore = await doomed.evaluate(() => window.H.sessionPointer());
   const cdp = await context.newCDPSession(doomed), crashed = new Promise(done => doomed.once('crash', done));
@@ -100,14 +101,14 @@ run('REAL BROWSER, crash + restore + resumed sync: nothing unsynced is lost, jou
   assert.equal(afterCrash.length, 1); assert.notEqual(afterCrash[0].released, true, 'a crash does not release the lease');
   // the browser restores the tab: new page with the crashed tab's sessionStorage, still inside the lease TTL -> must COPY, not take over
   const restoredEarly = await context.newPage(); await restoredEarly.goto(fx.origin + '/'); await restoredEarly.evaluate(s => window.H.setSession(s), sessionBefore);
-  await restoredEarly.evaluate(() => window.H.mount({})); await restoredEarly.waitForTimeout(150);
+  await restoredEarly.evaluate(o => window.H.mount(o), LEASE); await restoredEarly.waitForTimeout(150);
   assert.deepEqual((await restoredEarly.evaluate(() => window.H.queue())).sort(), ['seen', 'w1', 'w2']);
   await restoredEarly.evaluate(() => window.H.write('w3'));
   const mid = await witness.evaluate(() => window.H.journals());
   assert.ok(mid.some(j => j.ids.includes('w3')) && mid.some(j => j.ids.join() === 'w1,w2,seen'), `crashed journal kept intact, restored tab owns a distinct one: ${JSON.stringify(mid.map(j => j.ids))}`);
   // after the TTL passes the crashed journal is a free, redundant copy: a new load collapses it
-  await restoredEarly.close(); await sleep(1800);
-  const late = await context.newPage(); await late.goto(fx.origin + '/'); await late.evaluate(() => window.H.mount({})); await late.waitForTimeout(200);
+  await restoredEarly.close(); await sleep(6600);   // the crashed tab's last heartbeat is now older than the lease
+  const late = await context.newPage(); await late.goto(fx.origin + '/'); await late.evaluate(o => window.H.mount(o), LEASE); await late.waitForTimeout(200);
   const settled = await late.evaluate(() => window.H.journals());
   assert.ok(settled.length <= 2, `journals do not multiply (${settled.length})`);
   const all = new Set(settled.flatMap(j => j.ids)); for (const id of ['w1', 'w2', 'w3']) assert.ok(all.has(id), `${id} is still durable`);

@@ -18,7 +18,7 @@ window.H = {
     runtime = createResearchSyncRuntime({
       userId: 'A', storage: localStorage, session: sessionStorage,
       readCloud: () => post('/srv/read', {}), writeCloud: (uid, ops, meta) => post('/srv/write', { ops, batchId: meta.batchId, expectedRevision: meta.expectedRevision }),
-      delay: options.delay ?? 400, heartbeatMs: options.heartbeatMs ?? 250, leaseTtlMs: options.leaseTtlMs ?? 1500,
+      delay: options.delay ?? 400, heartbeatMs: options.heartbeatMs ?? 250, leaseTtlMs: options.leaseTtlMs ?? 4000,
       resumePendingOnStart: options.resumePendingOnStart ?? true,
     });
     runtime.start();
