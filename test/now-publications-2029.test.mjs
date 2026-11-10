@@ -201,3 +201,16 @@ test("Or HaGeula rabbi box: 'רב'/'הרב' as a word goes in; other updates and
   assert.deepEqual(buildNowEntries([models[0], models[2]]).map(e => e.model.id), ["a", "c"]);
   assert.equal(buildNowEntries(models, { rabbiBox: false }).some(e => e.kind === "box"), false);
 });
+
+test("a pinned item (the Home featured post) stays first in the Now window whatever its time", () => {
+  const mk = (id, at, pinned) => ({ id, title: "כותרת " + id, at, item: { sourceKind: "post", label: "כותרת " + id, pinned }, href: "/post/" + id });
+  const models = nowModels([mk("a", "2026-11-10T10:00:00Z"), mk("b", "2026-11-01T10:00:00Z", true), mk("c", "2026-11-09T10:00:00Z")]);
+  assert.deepEqual(models.map(x => x.id), ["b", "a", "c"]);
+  assert.equal(models[0].pinned, true); assert.equal(models[1].pinned, false);
+});
+
+test("an owner-flagged update carries a dot label; rows without the flag carry none", () => {
+  const mk = (id, extra = {}) => ({ id, title: "כותרת " + id, at: "2026-11-10T10:00:00Z", item: { sourceKind: "post", label: "כותרת " + id, ...extra }, href: "/post/" + id });
+  const [a, b, c] = nowModels([mk("a", { liveDot: "עדכון חדש בפוסט" }), mk("b"), mk("c", { liveDot: "" })]);
+  assert.equal(a.dot, "עדכון חדש בפוסט"); assert.equal(b.dot, null); assert.equal(c.dot, null);
+});

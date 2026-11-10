@@ -138,6 +138,10 @@ export function nowRowModel(row) {
   return {
     id: row?.id, row, item, title, byline, typeLabel, unverified,
     tone: toneOf(lenses, unverified),
+    // Pinned by the owner (the Home featured item): stays first in "עכשיו" whatever its time; how pinning is governed is to be set in the contracts.
+    pinned: item.pinned === true,
+    // A blinking dot attached to the title marks an update the owner flagged (the Home featured Post update). Its label is the accessible name.
+    dot: typeof item.liveDot === "string" && item.liveDot ? item.liveDot : null,
     logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, author: item.author, seriesKey })] || null,
     at: row?.at || null, href, seriesKey, seriesLabel, sourceName,
     media: video ? "video" : image ? "image" : "text", video, image,
@@ -154,7 +158,7 @@ export function nowRowModel(row) {
 
 export const nowModels = rows => list(rows).filter(row => row?.id && row.title)
   .map(nowRowModel)
-  .sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
+  .sort((a, b) => (Number(b.pinned) - Number(a.pinned)) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 /** Primary lenses with at least one row; "all" is always available. */
 export function availableNowLenses(models) {
