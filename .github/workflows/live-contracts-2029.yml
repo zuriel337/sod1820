@@ -292,6 +292,8 @@ jobs:
         run: node --test test/auth-browser-acceptance-2029.browser.mjs test/auth-storage-browser-2029.browser.mjs
         env:
           AUTH_EVIDENCE_DIR: ${{ runner.temp }}/auth-evidence
+      - name: Google Analytics 4 is not blocked (real CSP header + real worker)
+        run: node --test test/ga-measurement-browser-2029.browser.mjs
       - name: Keep the evidence
         if: always()
         uses: actions/upload-artifact@v4

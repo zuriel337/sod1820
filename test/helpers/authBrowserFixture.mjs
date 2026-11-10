@@ -15,12 +15,13 @@ export const dist = resolve(root, 'public-reading-deploy/dist');
 const SUPABASE_HOST = 'linswmnnkjxvweumprav.supabase.co';
 const TYPES = { '.js': 'application/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.webp': 'image/webp', '.png': 'image/png', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
 
-export async function startFixture({ authOptions, port: wantedPort = Number(process.env.FIXTURE_PORT || 0) } = {}) {
+export async function startFixture({ authOptions, deploymentCsp = false, port: wantedPort = Number(process.env.FIXTURE_PORT || 0) } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'auth-fixture-'));
   execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '2', '-subj', '/CN=sod1820.co.il',
     '-addext', `subjectAltName=DNS:sod1820.co.il,DNS:www.sod1820.co.il,DNS:${SUPABASE_HOST}`, '-keyout', join(dir, 'k.pem'), '-out', join(dir, 'c.pem')], { stdio: 'ignore' });
   const template = readFileSync(resolve(root, 'public-reading-deploy/.generated/2029.html'), 'utf8');
   const goodWorker = readFileSync(resolve(dist, 'sw.js'), 'utf8');
+  const csp = JSON.parse(readFileSync(resolve(root, 'public-reading-deploy/vercel.json'), 'utf8')).headers.flatMap(rule => rule.headers).find(header => header.key === 'Content-Security-Policy').value;
   const auth = createAuthServer(authOptions);
   const state = { worker: 'good', documents: 0, workerFetches: 0, consoleLog: [] };
   // A stale worker: still installs and activates, but answers the page handshake with another policy and denies Auth.
@@ -60,7 +61,9 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
       }
       if (url.pathname.startsWith('/api/')) return send(404, 'application/json', '{}');
       state.documents++;
-      return send(200, 'text/html; charset=utf-8', template.replace('loadEntry:entry=>import(entry)', 'loadEntry:entry=>import(entry),onFailure:error=>{window.__bootstrapFailure={name:error.name,message:error.message}}'));
+      // Opt-in: serve documents with the deployment's real Content-Security-Policy (public-reading-deploy/vercel.json), as production does.
+      const cspHeader = deploymentCsp ? { 'content-security-policy': csp } : {};
+      return send(200, 'text/html; charset=utf-8', template.replace('loadEntry:entry=>import(entry)', 'loadEntry:entry=>import(entry),onFailure:error=>{window.__bootstrapFailure={name:error.name,message:error.message}}'), cspHeader);
     } catch (error) { return send(500, 'application/json', JSON.stringify({ error: String(error?.message || error) })); }
   });
   await new Promise(resolveListen => server.listen(wantedPort, '127.0.0.1', resolveListen));
