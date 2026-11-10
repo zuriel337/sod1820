@@ -24,7 +24,7 @@ export default function HomeFeaturedPost2029({ state }) {
   if (!post) return null;
   return <section className="h29-launch-card h29-featured" aria-label="תיעוד מוצג" data-home-featured={post.id}>
     {post.video
-      ? <video className="h29-featured-poster is-video" controls preload="none" playsInline poster={post.video.poster} width="362" height="600" aria-label={`${post.title}. ${post.video.credit}`}>
+      ? <video className="h29-featured-poster is-video" controls preload="none" playsInline poster={post.video.poster} width="480" height="800" aria-label={`${post.title}. ${post.video.credit}`}>
         <source src={post.video.src} type="video/mp4" />
       </video>
       : post.poster ? <img className="h29-featured-poster" src={post.poster} alt="" width="640" height="360" decoding="async" /> : <span className="h29-featured-poster is-empty" aria-hidden="true">▶</span>}
