@@ -38,6 +38,12 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
       if (host === SUPABASE_HOST) {
         const cors = { 'access-control-allow-origin': 'https://sod1820.co.il', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS', 'access-control-expose-headers': '*' };
         if (req.method === 'OPTIONS') { res.writeHead(204, cors); return res.end(); }
+        // A provider round trip: the person "signs in" at Google/Facebook and Auth redirects back with a PKCE code bound to the request's challenge.
+        if (url.pathname === '/auth/v1/authorize' && req.method === 'GET') {
+          const provider = url.searchParams.get('provider') || 'google', back = new URL(url.searchParams.get('redirect_to') || 'https://sod1820.co.il/auth/callback');
+          back.searchParams.set('code', auth.issueOAuthCode(`${provider}.person@example.invalid`, url.searchParams.get('code_challenge')));
+          return send(302, 'text/plain', '', { location: back.toString() });
+        }
         if (url.pathname.startsWith('/auth/v1/')) {
           const request = new Request(url, { method: req.method, headers: req.headers, ...(req.method === 'GET' || req.method === 'HEAD' ? {} : { body }) });
           const response = await auth.handle(request);

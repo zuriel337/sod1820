@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { requestEmailOtp, signInWithConfiguredProvider, signInWithPassword, verifyEmailOtp } from "../../lib/auth.js";
 import { useAuthMethods } from "../../lib/authMethods.js";
-import { AUTH_MESSAGES, RECOVERABLE_BY_REFRESH, classifyAuthError } from "../../lib/authDiagnostics.js";
+import { AUTH_MESSAGES, RECOVERABLE_BY_REFRESH, classifyAuthError, recordAuthEvent } from "../../lib/authDiagnostics.js";
+import { authStorageStatus, probeAuthStorage, summarizeLocalStorage } from "../../lib/authStorage.js";
 import { refreshAppRuntime } from "../../lib/authRecovery.js";
 import { markOtpSent, otpResendWaitMs } from "../../lib/otpThrottle.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
@@ -27,11 +28,17 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
   const [step, setStep] = useState("email"), [email, setEmail] = useState("");
   const [password, setPassword] = useState(""), [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [failureKind, setFailureKind] = useState("");
+  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [failureKind, setFailureKind] = useState(""), [storageNote, setStorageNote] = useState(null);
   const attempt = useRef(0), mounted = useRef(true), principal = useRef(user?.id || null);
   principal.current = user?.id || null;
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; attempt.current++; }; }, []);
   useEffect(() => { setPassword(""); setShowPassword(false); setCode(""); setError(""); }, [user?.id]);
+  // Honest durability: if this browser cannot keep a sign-in (full or blocked site data) say so before the person tries.
+  useEffect(() => {
+    if (user) return;
+    const level = probeAuthStorage(), status = authStorageStatus();
+    setStorageNote(level === "durable" && status.mode === "normal" ? null : { level, summary: summarizeLocalStorage() });
+  }, [user?.id, failureKind]);
   const nextLabel = returnTo.startsWith("/community/chat") ? "להמשך לקהילה" : "להמשך הגלישה";
   function changeStep(next) { if (busy) return; attempt.current++; setStep(next); setPassword(""); setShowPassword(false); setCode(""); setError(""); }
   async function submit(event) {
@@ -72,7 +79,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
         return;
       }
       if (current() && !principal.current) {
-        const specific = ["blocked_by_worker", "stale_worker", "network", "server_error", "pkce_mismatch", "refresh_failed"].includes(kind);
+        const specific = ["blocked_by_worker", "stale_worker", "network", "server_error", "pkce_mismatch", "refresh_failed", "storage_unavailable"].includes(kind);
         setFailureKind(kind);
         setError(specific ? AUTH_MESSAGES[kind] : action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? AUTH_MESSAGES[kind === "otp_consumed" ? "otp_consumed" : "otp_expired"] : AUTH_MESSAGES.invalid_credentials);
       }
@@ -80,9 +87,16 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
   }
   async function federated(provider) {
     if (busy || !methods.oauth.some(method => method.id === provider && method.available)) return;
-    const requestId = ++attempt.current; setBusy(true); setError("");
+    // An OAuth redirect leaves the page: if nothing can keep the PKCE verifier across it, say so instead of sending the person away to fail.
+    if (probeAuthStorage() === "none") { setFailureKind("storage_unavailable"); recordAuthEvent("storage_unavailable", "oauth", 0); setError("הדפדפן לא מאפשר לשמור נתוני אתר, ולכן כניסה עם Google או Facebook לא תושלם (היא עוברת בין דפים). אפשר להיכנס עם קוד למייל או עם סיסמה: הן מושלמות בלי לעזוב את הדף."); return; }
+    const requestId = ++attempt.current; setBusy(true); setError(""); setFailureKind("");
     try { const result = await signInWithConfiguredProvider(provider, { returnTo }); if (result?.error) throw result.error; }
-    catch { if (mounted.current && requestId === attempt.current) { setError("לא הצלחנו לפתוח את הכניסה. אפשר להיכנס עם קוד למייל או סיסמה."); setBusy(false); } }
+    catch (failure) {
+      if (mounted.current && requestId === attempt.current) {
+        const kind = classifyAuthError(failure); recordAuthEvent(kind, "oauth", failure?.status); setFailureKind(kind);
+        setError(["storage_unavailable", "network", "server_error"].includes(kind) ? AUTH_MESSAGES[kind] : "לא הצלחנו לפתוח את הכניסה. אפשר להיכנס עם קוד למייל או סיסמה."); setBusy(false);
+      }
+    }
   }
   async function switchAccount() {
     attempt.current++; setBusy(true); setError("");
@@ -114,6 +128,11 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
             {error ? <p className="sod29-auth-error" role="alert">{error}</p> : null}
             {RECOVERABLE_BY_REFRESH.has(failureKind) ? <button type="button" className="sod29-auth-secondary" disabled={busy} data-auth-action="refresh-runtime" onClick={() => refreshAppRuntime()}>רענון האתר</button> : null}
             {failureKind && failureKind !== "unknown" ? <small className="sod29-auth-method-note" dir="ltr" data-auth-diagnostic={failureKind}>{failureKind}</small> : null}
+            {storageNote ? <details className="sod29-auth-method-note" data-auth-storage={storageNote.level}>
+              <summary>{storageNote.level === "none" ? "האחסון בדפדפן חסום: ההתחברות תחזיק רק עד רענון הדף" : "האחסון בדפדפן מלא או חסום: ההתחברות תחזיק רק בטאב הזה"}</summary>
+              <p>{storageNote.summary.available ? `נתוני האתר בדפדפן תופסים כ־${Math.round(storageNote.summary.totalChars / 1024).toLocaleString("he-IL")}KB (מכסה של בערך 5,000KB). הגדולים ביותר, שמות וגדלים בלבד:` : "הדפדפן אינו מאפשר לקרוא את נתוני האתר."}</p>
+              <ul dir="ltr">{storageNote.summary.entries.map(entry => <li key={entry.key}>{entry.key}{entry.count > 1 ? ` ×${entry.count}` : ""} · {Math.round(entry.chars / 1024 * 10) / 10}KB</li>)}</ul>
+            </details> : null}
             <button className="sod29-auth-primary" type="submit" disabled={busy}>{busy ? "רגע, מתחברים…" : step === "email" ? "שלחו לי קוד כניסה" : "כניסה לחשבון ←"}</button>
           </form> : null}
           <div className="sod29-auth-alternatives">
