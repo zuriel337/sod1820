@@ -70,3 +70,24 @@ select pg_temp.ok((select not topics@>array['thread:22222222-2222-4222-8222-2222
 select watch_toggle('number:1820','fixture',false,null);
 select watch_toggle('number:1820','fixture',true,null);
 select pg_temp.ok((select topics@>array['number:1820'] and channels=array['email'] from notification_prefs where user_id=auth.uid()),'established non-Community watch behavior preserved');
+
+-- ZURIEL, 8.11.2026: a reply to a legacy message (author_contributor_id only, no
+-- author_user_id) must still notify the contributor's linked account.
+insert into contributors(id,user_id,display_name) values
+('66666666-6666-4666-8666-666666666661','11111111-1111-4111-8111-111111111115','Legacy Owner');
+insert into research_contributions(id,origin,status,body,author_contributor_id,author_name) values
+('66666666-6666-4666-8666-666666666662','openweb','approved','legacy root','66666666-6666-4666-8666-666666666661','Legacy Owner');
+insert into research_contributions(id,parent_id,origin,status,body,author_user_id,author_name,intent) values
+('66666666-6666-4666-8666-666666666663','66666666-6666-4666-8666-666666666662','community_2029','approved','reply to legacy owner','11111111-1111-4111-8111-111111111113','reply author','תגובה');
+select pg_temp.ok((select count(*)=1 from user_notifications where user_id='11111111-1111-4111-8111-111111111115'),'reply to a legacy (contributor-only) message notifies its linked account');
+select pg_temp.ok((select bool_and(kind='reply' and link like '%thread=66666666-6666-4666-8666-666666666662&reply=66666666-6666-4666-8666-666666666663%') from user_notifications where user_id='11111111-1111-4111-8111-111111111115'),'legacy-owner notification carries the exact thread/reply link');
+-- An explicit author_user_id on the message itself is never superseded by a
+-- conflicting contributor link (mirrors _community_message_owned_by_caller_v1).
+insert into contributors(id,user_id,display_name) values
+('66666666-6666-4666-8666-666666666664','11111111-1111-4111-8111-111111111112','Other Owner');
+insert into research_contributions(id,origin,status,body,author_user_id,author_contributor_id,author_name) values
+('66666666-6666-4666-8666-666666666665','openweb','approved','explicit author wins','11111111-1111-4111-8111-111111111115','66666666-6666-4666-8666-666666666664','Explicit Owner');
+insert into research_contributions(id,parent_id,origin,status,body,author_user_id,author_name,intent) values
+('66666666-6666-4666-8666-666666666666','66666666-6666-4666-8666-666666666665','community_2029','approved','reply to explicit author','11111111-1111-4111-8111-111111111113','reply author','תגובה');
+select pg_temp.ok((select count(*)=1 from user_notifications where user_id='11111111-1111-4111-8111-111111111115' and link like '%reply=66666666-6666-4666-8666-666666666666%'),'an explicit author_user_id is notified, never the conflicting contributor link');
+select pg_temp.ok(not exists(select 1 from user_notifications where user_id='11111111-1111-4111-8111-111111111112' and link like '%reply=66666666-6666-4666-8666-666666666666%'),'the conflicting linked account of a different contributor is not notified');
