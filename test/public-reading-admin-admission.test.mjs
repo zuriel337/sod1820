@@ -22,7 +22,9 @@ test('server verifies JWT and same principal; local metadata never admits a mism
 
 test('reading account storage stays separate and tab scoped; only the exact callback can complete PKCE', () => {
  const storage = {getItem(){},setItem(){},removeItem(){}};
- assert.equal(readingSessionOptions(storage).storage,storage);
+ // The SDK is given a storage that cannot throw; while the given store works it is written and read through unchanged.
+ const map=new Map(),through={getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};
+ const wrapped=readingSessionOptions(through).storage;wrapped.setItem('k','v');assert.equal(map.get('k'),'v');assert.equal(wrapped.getItem('k'),'v');wrapped.removeItem('k');assert.equal(map.has('k'),false);
  assert.equal(readingSessionOptions(storage).persistSession,true);
  assert.equal(readingSessionOptions(undefined).persistSession,false);
  assert.equal(readingSessionOptions(storage, {pathname:'/'}).detectSessionInUrl,false);

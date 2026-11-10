@@ -17,7 +17,7 @@ export const ANON = 'publishable-synthetic';
 export const SHA = 'a'.repeat(40);
 
 const b64 = value => Buffer.from(typeof value === 'string' ? value : JSON.stringify(value)).toString('base64url');
-export const jwt = (sub, extra = {}) => `${b64({ alg: 'HS256', typ: 'JWT' })}.${b64({ sub, role: 'authenticated', exp: Math.floor(Date.now() / 1000) + 3600, ...extra })}.${b64('sig')}`;
+export const jwt = (sub, extra = {}) => `${b64({ alg: 'HS256', typ: 'JWT' })}.${b64({ sub, role: 'authenticated', exp: Math.floor(Date.now() / 1000) + 3600, jti: randomBytes(6).toString('hex'), ...extra })}.${b64('sig')}`;
 const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });
 
 export class MemoryStorage {
@@ -25,6 +25,26 @@ export class MemoryStorage {
   getItem(key) { return this.map.has(key) ? this.map.get(key) : null; }
   setItem(key, value) { this.map.set(key, String(value)); }
   removeItem(key) { this.map.delete(key); }
+}
+
+// Storage doubles. FullStorage reads work but every write throws QuotaExceededError (the browser's text is kept: it starts with "Failed to").
+// BlockedStorage throws SecurityError on every operation (site data blocked).
+export class FullStorage extends MemoryStorage {
+  setItem() { throw new DOMException("Failed to execute 'setItem' on 'Storage': Setting the value of 'k' exceeded the quota.", 'QuotaExceededError'); }
+}
+// A realistic quota: a write that would push the total size over `capacity` throws; removals always work and free their space.
+export class QuotaStorage extends MemoryStorage {
+  constructor(capacity) { super(); this.capacity = capacity; }
+  get used() { let total = 0; for (const [k, v] of this.map) total += k.length + v.length; return total; }
+  setItem(key, value) {
+    const next = this.used - (this.map.has(key) ? key.length + this.map.get(key).length : 0) + key.length + String(value).length;
+    if (next > this.capacity) throw new DOMException("Failed to execute 'setItem' on 'Storage': Setting the value of '" + key + "' exceeded the quota.", 'QuotaExceededError');
+    super.setItem(key, value);
+  }
+}
+export class BlockedStorage {
+  getItem() { throw new DOMException("Failed to read the 'localStorage' property from 'Window': Access is denied for this document.", 'SecurityError'); }
+  setItem() { return this.getItem(); } removeItem() { return this.getItem(); }
 }
 
 // ---- GoTrue model -------------------------------------------------------------------------------
@@ -35,7 +55,7 @@ export function createAuthServer({ codeLength = 6, resendWindowMs = 60_000, now 
   const refresh = new Map();    // refresh_token -> userId
   const log = [];               // {method,path,status,errorCode} only: never credentials
   let id = 0, lastSent = new Map();
-  const state = { sent: [], rejectNextSend: null };
+  const state = { sent: [], rejectNextSend: null, failNetwork: false };
 
   const newUser = (email, confirmed, password = null) => {
     const user = { id: `00000000-0000-4000-8000-${String(++id).padStart(12, '0')}`, email, confirmed, password };
@@ -52,6 +72,7 @@ export function createAuthServer({ codeLength = 6, resendWindowMs = 60_000, now 
   const sha256 = value => createHash('sha256').update(value).digest('base64url');
 
   async function handle(request) {
+    if (state.failNetwork) throw new TypeError('Failed to fetch');   // the Auth server is unreachable
     const url = new URL(request.url);
     const path = url.pathname.replace('/auth/v1', '');
     const body = request.method === 'POST' ? await request.clone().json().catch(() => ({})) : {};
@@ -104,7 +125,9 @@ export function createAuthServer({ codeLength = 6, resendWindowMs = 60_000, now 
     log.push({ method: request.method, path, search: url.search.replace(/=[^&]*/g, '=…'), status: response.status });
     return response;
   }
-  return { handle, users, codes, state, log, newUser, lastCode: email => codes.get(email.toLowerCase())?.code, lastLink: email => codes.get(email.toLowerCase())?.link,
+  // An OAuth provider round trip: the user signed in at the provider; Auth redirects back with a PKCE code bound to the request's challenge.
+  const issueOAuthCode = (email, challenge) => { let user = users.get(email); if (!user) user = newUser(email, true); user.confirmed = true; const code = randomBytes(8).toString('base64url'); authCodes.set(code, { userId: user.id, challenge }); return code; };
+  return { handle, issueOAuthCode, users, codes, state, log, newUser, lastCode: email => codes.get(email.toLowerCase())?.code, lastLink: email => codes.get(email.toLowerCase())?.link,
     reset: () => { lastSent = new Map(); } , forgetSendTimes: () => { lastSent = new Map(); } };
 }
 
@@ -149,6 +172,7 @@ export function loadAuthModule(client, { reading = true, location = { origin: SI
   };
   vm.createContext(ctx);
   vm.runInContext(load('src/lib/oauthReturn.js') + ';globalThis.providerOAuthRequest=providerOAuthRequest;', ctx);
+  vm.runInContext(load('src/lib/authStorage.js') + ';globalThis.isStorageError=isStorageError;', ctx);
   vm.runInContext(load('src/lib/authDiagnostics.js') + ';globalThis.classifyAuthError=classifyAuthError;globalThis.reportAuthFailure=reportAuthFailure;', ctx);
   vm.runInContext(load('src/lib/auth.js') + ';globalThis.api={requestEmailOtp,verifyEmailOtp,signInWithPassword,signOut,getSession,emailLinkRedirect};', ctx);
   return ctx.api;

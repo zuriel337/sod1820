@@ -3,15 +3,20 @@
 // or any response body: only the fixed `kind`, the step name and the numeric HTTP status.
 export const AUTH_FAILURE_KINDS = Object.freeze([
   'blocked_by_worker', 'otp_expired', 'otp_consumed', 'rate_limited', 'invalid_verification_type', 'pkce_mismatch',
-  'refresh_failed', 'stale_worker', 'callback_failed', 'invalid_credentials', 'network', 'server_error', 'unknown',
+  'refresh_failed', 'stale_worker', 'callback_failed', 'invalid_credentials', 'storage_unavailable', 'network', 'server_error', 'unknown',
 ]);
 
+import { isStorageError } from './authStorage.js';
 const text = value => String(value ?? '');
 export function classifyAuthError(error, { step = '' } = {}) {
   if (!error) return 'unknown';
   const status = Number(error.status ?? error.statusCode ?? 0) || 0;
   const code = text(error.code ?? error.error_code), message = text(error.message ?? error.msg ?? error.error);
+  // A real upstream outage reported by the worker is a network failure, not a policy denial.
+  if (/public_reading_auth_unreachable/.test(message + code)) return 'network';
   if (/public_reading_auth_denied/.test(message + code)) return 'blocked_by_worker';
+  // The browser refused to store something (full quota, blocked site data): never a network problem, even though the text starts with "Failed to".
+  if (isStorageError(error)) return 'storage_unavailable';
   if (/worker_(identity_mismatch|redundant|bootstrap_timeout|bootstrap_expired|required)/.test(message)) return 'stale_worker';
   if (code === 'over_email_send_rate_limit' || code === 'over_request_rate_limit' || status === 429) return 'rate_limited';
   if (code === 'otp_expired' || /expired or is invalid/i.test(message)) return step === 'verify_repeat' ? 'otp_consumed' : 'otp_expired';
@@ -47,6 +52,7 @@ export const AUTH_MESSAGES = Object.freeze({
   refresh_failed: 'החיבור לחשבון פג. היכנסו שוב.',
   callback_failed: 'הכניסה לא הושלמה. אם פתחתם את הקישור בדפדפן או במכשיר אחר מזה שבו ביקשתם אותו, חזרו למסך הכניסה והזינו את הקוד מהמייל.',
   invalid_credentials: 'המייל או הסיסמה אינם נכונים. אפשר להיכנס גם עם קוד למייל.',
+  storage_unavailable: 'הדפדפן לא מאפשר לשמור נתוני אתר (האחסון מלא או חסום), ולכן ההתחברות לא יכולה להישמר לצמיתות. הכניסה עדיין אפשרית וההתחברות תחזיק בטאב הזה, אבל תצטרכו להיכנס שוב אחרי שסוגרים אותו. פרטי האחסון מוצגים למטה. שום מידע שלכם לא נמחק.',
   network: 'אין חיבור יציב לרשת. בדקו את החיבור ונסו שוב.',
   server_error: 'השרת לא ענה כרגע. נסו שוב בעוד רגע.',
   unknown: 'הכניסה לא הושלמה. נסו שוב או היכנסו עם סיסמה.',

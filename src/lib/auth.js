@@ -22,7 +22,8 @@ export function signInWithFacebook({returnTo='/'}={}) {
 // All federated methods consume the same trusted-origin and exact-return policy.
 export function signInWithConfiguredProvider(provider, { returnTo = '/' } = {}) {
   const request=providerOAuthRequest({ provider, origin: SITE_URL, returnTo, integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' });
-  if(PUBLIC_READING_RELEASE || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true')rememberPreviewOAuthReturn(returnTo);
+  // The remembered return path is a convenience: a storage failure must never stop the sign-in from opening.
+  if(PUBLIC_READING_RELEASE || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === 'true'){ try { rememberPreviewOAuthReturn(returnTo); } catch { /* best effort */ } }
   return supabase.auth.signInWithOAuth(request);
 }
 

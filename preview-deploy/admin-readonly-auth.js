@@ -22,7 +22,12 @@ export function interceptPublicReadingAdminAuth(event, authOrigin, { accountAcce
   event.respondWith((async () => {
     const deny = () => new Response(JSON.stringify({error:'public_reading_auth_denied'}), {status:403,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
     const bearer = /^Bearer [A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/i.test(req.headers.get('Authorization') || '');
-    const forward = () => fetch(new Request(req,{cache:'no-store',credentials:'omit',redirect:'error'}));
+    // An admitted request that cannot reach Auth is a network failure, reported as such (503): it must not look like a policy denial (403),
+    // or the page would blame a stale worker. Nothing here admits anything new.
+    const forward = async () => {
+      try { return await fetch(new Request(req,{cache:'no-store',credentials:'omit',redirect:'error'})); }
+      catch { return new Response(JSON.stringify({error:'public_reading_auth_unreachable'}), {status:503,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}); }
+    };
     if (req.method === 'GET' && !url.search && (url.pathname === '/auth/v1/settings' || url.pathname === '/auth/v1/user' && bearer)) return forward();
     if (req.method !== 'POST') return deny();
     if (url.pathname === '/auth/v1/logout') return bearer && url.searchParams.size === 1 && url.searchParams.get('scope') === 'local' && !(await req.clone().text()) ? forward() : deny();
