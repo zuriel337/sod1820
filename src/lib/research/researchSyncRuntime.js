@@ -336,7 +336,8 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       } else notify();
     },
     stop() {
-      active = false; generation += 1; clearTimeout(timer); release();
+      // stop() never rewrites a journal (retained as-is); only an explicit release() (pagehide) marks the lease released.
+      active = false; generation += 1; clearTimeout(timer); clearInterval(heartbeatTimer); heartbeatTimer = null;
       // Logout/account-key unmount ends the active session, never the saved workspace.
       try { session?.removeItem(contextKey); } catch { /* preserve other principal */ }
       onContext(null);

@@ -129,11 +129,13 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
   }, [runtime, disabled]);
   useLayoutEffect(() => { runtime.setCloudAccess(!actionsLocked); }, [runtime, actionsLocked]);
   // A page that goes away releases its journal lease, so a reload of this tab continues the same journal in place instead of copying it.
+  // Only a tab that may hold pending work registers it (a locked or disabled reading session registers nothing).
   useEffect(() => {
+    if (disabled || actionsLocked) return undefined;
     const release = () => runtime.release?.();
     window.addEventListener("pagehide", release);
     return () => window.removeEventListener("pagehide", release);
-  }, [runtime]);
+  }, [runtime, disabled, actionsLocked]);
   useEffect(() => {
     if (PUBLIC_READING_RELEASE) return undefined;
     const reconnect = () => { void runtime.retry(); };

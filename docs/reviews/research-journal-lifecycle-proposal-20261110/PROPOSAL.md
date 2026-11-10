@@ -87,6 +87,7 @@ the whole `src/lib/research` suite passes (1586 tests).
 * The journal key is claimed lazily: only when the tab has pending work AND has touched it (commit, flush, retry, recovery, conflict resolution).
   A drained tab removes its own journal. Journals written by older code are only read and copied, never adopted.
 * The record gains `owner: { id, at, released }`; a heartbeat (15 s, only while it holds work) and `release()` (on `stop()` and `pagehide`).
+* `stop()` never writes (existing contract: "existing research journals are retained when cloud admission is closed" compares bytes); only an explicit `release()` marks the lease released. The provider calls `release()` on `pagehide`, and only for a session that may hold pending work (the reading-access contract requires a locked session to register no window listeners).
 * `planPersist` decides write-own / adopt-in-place (free + content unchanged since restore) / copy. `reapRedundant()` runs once at `start()`.
 * New optional parameters `now` and `heartbeatMs` (tests); the public API only gains `heartbeat()` and `release()`.
 
@@ -97,3 +98,8 @@ the whole `src/lib/research` suite passes (1586 tests).
 * Journals written by the previous version stay until drained or recovered (they are classified `legacy`: copied, never collapsed, only removed if empty).
 * The race between the compare-and-set read and the write across tabs is not atomic; the consequence is a duplicate journal, never a lost batch (a tab always writes its full queue).
 * Verified in Node with fake storage and clocks; not yet in a real browser with real timers and `pagehide`.
+
+## Existing contract tests that constrained the design (found by running the provider-level tests, not by the sync tests)
+* `doc37-runtime-admission` "existing research journals are retained when cloud admission is closed": `stop()` must not rewrite a journal -> lease release moved out of `stop()`.
+* `doc37-research-reading-access`: a locked reading session registers no window listeners -> the `pagehide` listener is registered only when actions are allowed.
+After those two adjustments the 12 node-level tests that import the runtime or provider give the same result on this branch as on `main` (100 of 101; the one failure, "font failure or a never-settling font…", fails identically on `main` in this environment). `src/lib/research` passes (1586 of 1586). Browser-level tests of the provider were not run locally.
