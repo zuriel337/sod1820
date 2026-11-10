@@ -65,7 +65,7 @@ export const CONTENT_SERIES_2029 = Object.freeze([
     writerLabel: "אלון לוי",
     publisherLabel: null,
     priorityLane: "supporting_series",
-    membership: Object.freeze([]),
+    membership: Object.freeze([Object.freeze({ field: "tags", value: "מה קורה הבורא" })]),
     exactAuthor: "אלון לוי",
     relationNote: "כל הפוסטים המזוהים עם אלון לוי שייכים לסדרה, גם ללא תגית; אין לשייך פוסטים של מחברים אחרים.",
   }),
