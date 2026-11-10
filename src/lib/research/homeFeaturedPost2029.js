@@ -25,6 +25,13 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
     Object.freeze({ value: 67, phrase: "בינה" }),
     Object.freeze({ value: 64, phrase: "דין — וההיפוך שלו 46" }),
   ]),
+  // The prominent line under the message (ZURIEL 10.11.2026): two phrases with the same value, each read from the canonical engine
+  // fn_method_value('רגיל', phrase) on 2026-11-10 (ממשלת משיח בן דוד = 1234, התגלות השכינה = 1234). Arithmetic only, no claim beyond the equality.
+  highlight: Object.freeze({
+    value: 1234,
+    title: "שווים במספר — חישוב מאומת במנוע (שיטה רגילה)",
+    phrases: Object.freeze(["ממשלת משיח בן דוד", "התגלות השכינה"]),
+  }),
   connectionsFootnote: null, // no spelling footnote: each number says what it is (ZURIEL 8.11.2026: "don't load")
   // ONE text under the message (ZURIEL 8.11.2026: merge the note and the bridge; say it once). The owner's tree note in the public discovery voice
   // (public_language_revelation_geula_law: "מחקר" is not the public default: "תהליך המחקר/ממצאים" became "תהליך הגילוי/חיבורים"), opened by the line that the
@@ -59,7 +66,7 @@ export function projectHomeFeaturedPost(row, config = HOME_FEATURED_POST_2029) {
   if (!row || Number(row.id) !== config.id || !row.slug || row.home_hidden === true || hasSuppressedPublicPostTag(row)) return null;
   const title = stripHtml(row.title == null ? "" : String(row.title)).trim();
   if (!title) return null;
-  return { id: config.id, slug: String(row.slug), message: config.message, messageTitle: config.messageTitle, noteLink: config.noteLink, video: config.video, title: config.headline || title, postTitle: title, headline: config.headline || null, connections: config.connections, connectionsTitle: config.connectionsTitle, connectionsFootnote: config.connectionsFootnote, poster: row.thumb_url || row.image_url || null, href: publicPostHref(row), note: config.note, numbers: config.numbers, numbersTitle: config.numbersTitle };
+  return { id: config.id, slug: String(row.slug), message: config.message, messageTitle: config.messageTitle, noteLink: config.noteLink, video: config.video, title: config.headline || title, postTitle: title, headline: config.headline || null, connections: config.connections, connectionsTitle: config.connectionsTitle, connectionsFootnote: config.connectionsFootnote, highlight: config.highlight || null, poster: row.thumb_url || row.image_url || null, href: publicPostHref(row), note: config.note, numbers: config.numbers, numbersTitle: config.numbersTitle };
 }
 
 export async function getHomeFeaturedPost2029({ client = null, signal, config = HOME_FEATURED_POST_2029 } = {}) {
@@ -72,6 +79,7 @@ export async function getHomeFeaturedPost2029({ client = null, signal, config = 
 export function featuredBodyText(config = HOME_FEATURED_POST_2029) {
   return [
     config.headline, `${config.messageTitle}: ${config.message.join(" ")}`, config.note,
+    config.highlight ? `${config.highlight.title}: ${config.highlight.phrases.map(phrase => `${phrase} = ${config.highlight.value}`).join(" · ")}` : null,
     `${config.numbersTitle}: ${config.numbers.map(item => `${item.value} (${item.label})`).join(" · ")}`,
     `${config.connectionsTitle}: ${config.connections.map(item => `${item.value} = ${item.phrase}`).join(" · ")}${config.connectionsFootnote ? `. ${config.connectionsFootnote}` : ""}`,
   ].filter(Boolean).join("\n");

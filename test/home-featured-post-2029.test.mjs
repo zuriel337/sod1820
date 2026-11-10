@@ -50,7 +50,8 @@ test("the whole message is ONE feed item for 'עכשיו': same post:<id> identi
   const [model] = nowModels(feedRows(merged, { now: Date.parse("2026-11-08T12:00:00Z"), limit: 10 }));
   assert.equal(model.title.startsWith("ממשלת אייזנקוט"), true); assert.ok(model.fullText.includes("חיבורים במספרים"));
   assert.ok(!featuredBodyText().includes("608"), "only what 618 is, not the other spelling");
-  assert.equal(featuredBodyText().split("\n").length, 5);
+  assert.equal(featuredBodyText().split("\n").length, 6, "headline, message, note, the 1234 highlight, numbers, connections");
+  assert.match(featuredBodyText(), /ממשלת משיח בן דוד = 1234 · התגלות השכינה = 1234/);
 });
 
 test("language (public_language_revelation_geula_law): discovery/hint voice, no research voice, the owner's framing kept as framing; the video sits where earlier post videos live", async () => {
@@ -79,4 +80,11 @@ test("no single stray numbers, and Home shows words only: the numbers live insid
   assert.equal((HOME_FEATURED_POST_2029.note.match(/בבנייה|נבנה/g) || []).length, 1, "'under construction' is said once, not twice");
   assert.match(HOME_FEATURED_POST_2029.note, /^הבורא מדבר דרך כל המציאות\./); assert.match(HOME_FEATURED_POST_2029.note, /רק חלק/);
   assert.doesNotMatch(home, /bridge/, "no second line");
+});
+
+test("the Home highlight: two phrases that both equal 1234 in the canonical regular method (read from the engine on 10.11.2026), shown as arithmetic only", () => {
+  const h = HOME_FEATURED_POST_2029.highlight;
+  assert.equal(h.value, 1234); assert.deepEqual([...h.phrases], ["ממשלת משיח בן דוד", "התגלות השכינה"]);
+  assert.match(h.title, /חישוב מאומת במנוע \(שיטה רגילה\)/);
+  assert.equal(projectHomeFeaturedPost(row(), HOME_FEATURED_POST_2029).highlight.value, 1234);
 });
