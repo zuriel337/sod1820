@@ -37,8 +37,7 @@ export default function HomeFeaturedPost2029({ state }) {
     </div>
     {post.highlight ? <div className="h29-featured-spot" data-home-featured-spot={post.highlight.value}>
       <b className="h29-featured-spot-value">{post.highlight.value}</b>
-      <div><small>{post.highlight.title}</small>
-        {post.highlight.phrases.map(phrase => <p key={phrase}>{phrase} <span>= {post.highlight.value}</span></p>)}</div>
+      <div>{post.highlight.phrases.map(phrase => <p key={phrase}>{phrase} <span>= {post.highlight.value}</span></p>)}</div>
     </div> : null}
     <p className="h29-featured-note" data-home-featured-note="true">{post.note} <Link to={post.href}>{post.noteLink}</Link></p>
   </section>;

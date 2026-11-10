@@ -29,7 +29,6 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
   // fn_method_value('רגיל', phrase) on 2026-11-10 (ממשלת משיח בן דוד = 1234, התגלות השכינה = 1234). Arithmetic only, no claim beyond the equality.
   highlight: Object.freeze({
     value: 1234,
-    title: "שווים במספר — חישוב מאומת במנוע (שיטה רגילה)",
     phrases: Object.freeze(["ממשלת משיח בן דוד", "התגלות השכינה"]),
   }),
   connectionsFootnote: null, // no spelling footnote: each number says what it is (ZURIEL 8.11.2026: "don't load")
@@ -79,7 +78,7 @@ export async function getHomeFeaturedPost2029({ client = null, signal, config = 
 export function featuredBodyText(config = HOME_FEATURED_POST_2029) {
   return [
     config.headline, `${config.messageTitle}: ${config.message.join(" ")}`, config.note,
-    config.highlight ? `${config.highlight.title}: ${config.highlight.phrases.map(phrase => `${phrase} = ${config.highlight.value}`).join(" · ")}` : null,
+    config.highlight ? config.highlight.phrases.map(phrase => `${phrase} = ${config.highlight.value}`).join(" · ") : null,
     `${config.numbersTitle}: ${config.numbers.map(item => `${item.value} (${item.label})`).join(" · ")}`,
     `${config.connectionsTitle}: ${config.connections.map(item => `${item.value} = ${item.phrase}`).join(" · ")}${config.connectionsFootnote ? `. ${config.connectionsFootnote}` : ""}`,
   ].filter(Boolean).join("\n");

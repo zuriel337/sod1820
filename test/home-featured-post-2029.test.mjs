@@ -85,6 +85,6 @@ test("no single stray numbers, and Home shows words only: the numbers live insid
 test("the Home highlight: two phrases that both equal 1234 in the canonical regular method (read from the engine on 10.11.2026), shown as arithmetic only", () => {
   const h = HOME_FEATURED_POST_2029.highlight;
   assert.equal(h.value, 1234); assert.deepEqual([...h.phrases], ["ממשלת משיח בן דוד", "התגלות השכינה"]);
-  assert.match(h.title, /חישוב מאומת במנוע \(שיטה רגילה\)/);
+  assert.equal("title" in h, false, "no caption line above the two phrases");
   assert.equal(projectHomeFeaturedPost(row(), HOME_FEATURED_POST_2029).highlight.value, 1234);
 });
