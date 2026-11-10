@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getHomeFeaturedPost2029 } from "../../lib/research/homeFeaturedPost2029.js";
+import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 
 export function useHomeFeaturedPost() {
   const [state, setState] = useState({ post: null, loading: true });
@@ -23,7 +24,7 @@ export default function HomeFeaturedPost2029({ state }) {
   if (!post) return null;
   return <section className="h29-launch-card h29-featured" aria-label="תיעוד מוצג" data-home-featured={post.id}>
     {post.video
-      ? <video className="h29-featured-poster is-video" controls preload="none" playsInline poster={post.video.poster} width="362" height="600" aria-label={`${post.title}. ${post.video.credit}`}>
+      ? <video className="h29-featured-poster is-video" controls preload="none" playsInline poster={post.video.poster} width="480" height="800" aria-label={`${post.title}. ${post.video.credit}`}>
         <source src={post.video.src} type="video/mp4" />
       </video>
       : post.poster ? <img className="h29-featured-poster" src={post.poster} alt="" width="640" height="360" decoding="async" /> : <span className="h29-featured-poster is-empty" aria-hidden="true">▶</span>}
@@ -35,10 +36,22 @@ export default function HomeFeaturedPost2029({ state }) {
         {post.message.map(line => <p key={line}>{line}</p>)}
       </div>
     </div>
-    {post.highlight ? <div className="h29-featured-spot" data-home-featured-spot={post.highlight.value}>
-      <b className="h29-featured-spot-value">{post.highlight.value}</b>
-      <div>{post.highlight.phrases.map(phrase => <p key={phrase}>{phrase} <span>= {post.highlight.value}</span></p>)}</div>
-    </div> : null}
+    <div className="h29-featured-spots">
+    {post.highlights.map(group => {
+      // The number opens its own number window (the same address the rest of the site uses for a number); each phrase opens it focused on that phrase.
+      const method = group.method || "רגיל";
+      const numberHref = numberExpressionFocusHref(group.value, { method });
+      return <div className="h29-featured-spot" data-home-featured-spot={group.value} key={group.value}>
+        {numberHref ? <Link className="h29-featured-spot-value" to={numberHref} aria-label={`פתח את המספר ${group.value}`} data-home-featured-spot-link="number">{group.value}</Link>
+          : <b className="h29-featured-spot-value">{group.value}</b>}
+        <ul className="h29-featured-rows">{group.phrases.map(phrase => {
+          const href = (group.numberOnly || []).includes(phrase) ? null : numberExpressionFocusHref(group.value, { expression: (group.expressions && group.expressions[phrase]) || phrase, method });
+          return <li key={phrase}><span className="h29-featured-row-text">{href ? <Link to={href} data-home-featured-spot-link="phrase">{phrase}</Link> : phrase}</span><b className="h29-featured-row-eq">= {group.value}</b></li>;
+        })}</ul>
+      </div>;
+    })}
+    {post.statement ? <p className="h29-featured-statement" data-home-featured-statement="true">{post.statement}</p> : null}
+    </div>
     <p className="h29-featured-note" data-home-featured-note="true">{post.note} <Link to={post.href}>{post.noteLink}</Link></p>
   </section>;
 }

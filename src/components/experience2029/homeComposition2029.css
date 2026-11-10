@@ -490,9 +490,9 @@ a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gol
 
 /* HOME-FEATURED-20261108 (ZURIEL): the first Home card — one featured Post: video, title, the message beside it (prominent), the tree note beneath,
    numbers and connections in a details block (open on wide screens). Height is reserved while loading (no layout shift). */
-.h29-featured { display: grid; grid-template-columns: 132px minmax(0,1fr); grid-template-areas: "video head" "spot spot" "note note"; gap: 10px 12px; align-items: start; min-height: 544px; padding: 12px; border-color: color-mix(in srgb, var(--s29-brand-gold) 40%, var(--s29-line)); background: linear-gradient(150deg, color-mix(in srgb, var(--s29-brand-gold) 11%, transparent), transparent 60%), color-mix(in srgb, var(--s29-panel) 90%, transparent); }
-.h29-featured.h29-skel { min-height: 682px; } /* + the 1234 block (was 544) so the loaded card does not shift the page */
-.h29-featured-poster { grid-area: video; inline-size: 100%; block-size: auto; align-self: stretch; min-block-size: 220px; aspect-ratio: auto; object-fit: cover; object-position: 50% 28%; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 34%, transparent); background: color-mix(in srgb, var(--s29-brand-gold) 8%, transparent); display: block; }
+.h29-featured { display: grid; grid-template-columns: minmax(0,1fr); grid-template-areas: "video" "head" "spots" "note"; gap: 10px 12px; align-items: start; min-height: 544px; padding: 12px; border-color: color-mix(in srgb, var(--s29-brand-gold) 40%, var(--s29-line)); background: linear-gradient(150deg, color-mix(in srgb, var(--s29-brand-gold) 11%, transparent), transparent 60%), color-mix(in srgb, var(--s29-panel) 90%, transparent); }
+.h29-featured.h29-skel { min-height: 1440px; } /* + the 1234 and 1011 blocks and the sentence (was 544) so the loaded card does not shift the page */
+.h29-featured-poster { grid-area: video; justify-self: center; inline-size: min(100%, 280px); block-size: auto; align-self: start; min-block-size: 0; aspect-ratio: 480/800; object-fit: contain; object-position: center; background-color: #111; border-radius: 12px; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 34%, transparent); background: color-mix(in srgb, var(--s29-brand-gold) 8%, transparent); display: block; }
 .h29-featured-poster.is-empty { display: grid; place-items: center; color: var(--s29-brand-gold); font-size: 32px; }
 .h29-featured-head { grid-area: head; display: grid; gap: 6px; min-width: 0; align-content: start; }
 .h29-featured-title { font: 600 15px/1.4 var(--s29-font-ui); color: var(--s29-accent-text); text-decoration: none; }
@@ -502,11 +502,19 @@ a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gol
 .h29-featured-message p { margin: 0; color: var(--s29-ink); font: 500 13.5px/1.55 var(--s29-font-ui); }
 .h29-featured-note { grid-area: note; margin: 0; color: var(--s29-ink); font: 400 13.5px/1.6 var(--s29-font-ui); border-inline-start: 2px solid color-mix(in srgb, var(--s29-brand-gold) 55%, transparent); padding-inline-start: 10px; }
 .h29-featured-note a { color: var(--s29-accent-text); white-space: nowrap; font-weight: 600; }
-.h29-featured-spot { grid-area: spot; display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 60%, var(--s29-line)); background: linear-gradient(135deg, color-mix(in srgb, var(--s29-brand-gold) 20%, transparent), color-mix(in srgb, var(--s29-brand-gold) 6%, transparent)); box-shadow: 0 6px 22px -12px color-mix(in srgb, var(--s29-brand-gold) 70%, transparent); min-width: 0; }
-.h29-featured-spot-value { flex: 0 0 auto; font: 800 clamp(34px, 10vw, 56px)/1 var(--s29-font-numeric, var(--s29-font-ui)); color: var(--s29-brand-gold); letter-spacing: .01em; font-variant-numeric: tabular-nums; }
-.h29-featured-spot small { display: block; color: var(--s29-muted); font: 600 11.5px/1.4 var(--s29-font-ui); margin-bottom: 2px; }
-.h29-featured-spot p { margin: 0; color: var(--s29-ink); font: 700 14px/1.5 var(--s29-font-ui); }
-.h29-featured-spot p span { color: var(--s29-brand-gold); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.h29-featured-spots { grid-area: spots; display: grid; gap: 10px; min-width: 0; }
+.h29-featured-statement { margin: 2px 0 0; padding: 12px 16px; border-radius: 14px; text-align: center; color: var(--s29-ink); font: 700 15px/1.7 var(--s29-font-ui); border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 35%, var(--s29-line)); }
+.h29-featured-spot { grid-area: auto; display: grid; grid-template-columns: minmax(0,1fr); justify-items: stretch; align-items: center; gap: 2px 16px; padding: 12px 16px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--s29-brand-gold) 60%, var(--s29-line)); background: linear-gradient(135deg, color-mix(in srgb, var(--s29-brand-gold) 20%, transparent), color-mix(in srgb, var(--s29-brand-gold) 6%, transparent)); box-shadow: 0 6px 22px -12px color-mix(in srgb, var(--s29-brand-gold) 70%, transparent); min-width: 0; }
+.h29-featured-spot-value { grid-column: 1; justify-self: center; font: 800 clamp(34px, 10vw, 52px)/1 var(--s29-font-numeric, var(--s29-font-ui)); color: var(--s29-brand-gold); letter-spacing: .01em; font-variant-numeric: tabular-nums; }
+.h29-featured-spot a.h29-featured-spot-value { color: var(--s29-brand-gold); text-decoration: none; min-inline-size: 44px; min-block-size: 44px; display: inline-flex; align-items: center; border-bottom: 0; }
+/* One tidy row per phrase: the phrase at the start, "= value" in an aligned column at the end, thin rule between rows. */
+.h29-featured-rows { grid-column: 1; list-style: none; margin: 0; padding: 0; display: grid; min-width: 0; }
+.h29-featured-rows li { display: grid; grid-template-columns: minmax(0,1fr) 4.2ch; align-items: baseline; gap: 10px; padding: 6px 0; border-bottom: 1px solid color-mix(in srgb, var(--s29-brand-gold) 22%, transparent); }
+.h29-featured-rows li:last-child { border-bottom: 0; }
+.h29-featured-row-text { color: var(--s29-ink); font: 700 14px/1.45 var(--s29-font-ui); }
+.h29-featured-row-eq { color: var(--s29-brand-gold); font: 800 14px/1.45 var(--s29-font-numeric, var(--s29-font-ui)); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: end; }
+.h29-featured-spot a:not(.h29-featured-spot-value) { color: inherit; text-decoration: none; border-bottom: 1px dotted color-mix(in srgb, var(--s29-brand-gold) 60%, transparent); padding-block: 4px; }
+.h29-featured-spot a:hover, .h29-featured-spot a:focus-visible { color: var(--s29-accent-text); border-bottom-style: solid; }
 .h29-featured-more { display: grid; gap: 8px; }
 .h29-featured-more > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--s29-accent-text); font: 500 14px var(--s29-font-ui); }
 .h29-featured-more[open] > summary { min-height: 36px; }
@@ -525,9 +533,12 @@ a.h29-entry:hover, a.h29-entry:focus-visible { border-color: var(--s29-brand-gol
 .h29-featured-connections span { font: 400 12.5px/1.3 var(--s29-font-ui); color: var(--s29-ink); }
 .h29-featured-connections em { color: var(--s29-muted); font: 400 11.5px/1.4 var(--s29-font-ui); font-style: normal; }
 @container h29 (min-width: 901px) {
-  .h29-featured, .h29-featured.h29-skel { min-height: 547px; }
-  .h29-featured-poster { align-self: center; aspect-ratio: 362/600; min-block-size: 0; object-position: center; }
-  .h29-featured { grid-template-columns: 250px minmax(0,1fr); grid-template-areas: "video head" "video spot" "video note"; gap: 12px 26px; padding: 16px; align-items: center; }
+  .h29-featured-spot { grid-template-columns: auto minmax(0,1fr); }
+  .h29-featured-spot-value { justify-self: start; }
+  .h29-featured-rows { grid-column: 2; max-inline-size: 30em; }
+  .h29-featured, .h29-featured.h29-skel { min-height: 750px; }
+  .h29-featured-poster { align-self: center; justify-self: stretch; inline-size: 100%; }
+  .h29-featured { grid-template-columns: 250px minmax(0,1fr); grid-template-areas: "video head" "video spots" "video note"; gap: 12px 26px; padding: 16px; align-items: center; }
   .h29-featured-head { gap: 10px; align-self: end; }
   .h29-featured-note { align-self: start; font-size: 15px; line-height: 1.7; }
   .h29-featured-title { font-size: 22px; line-height: 1.35; }
