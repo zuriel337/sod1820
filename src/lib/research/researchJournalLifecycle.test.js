@@ -1,27 +1,13 @@
-// Evidence for the journal lifecycle PROPOSAL (researchJournalLifecycle.js is not wired into the runtime).
-//  1. BASELINE on the unchanged runtime: passive loads grow keys and bytes without bound. (When the runtime adopts the proposal this
-//     block is inverted; it exists so the finding is reproducible, not as a desired behaviour.)
-//  2. MODEL: thousands of random histories (tabs opening, reloading, duplicating, committing, acknowledging, closing cleanly or
+// Evidence for the journal lifecycle planner (researchJournalLifecycle.js): a model of the rules. The real runtime is tested in researchJournalRuntime.test.js.
+//  MODEL: thousands of random histories (tabs opening, reloading, duplicating, committing, acknowledging, closing cleanly or
 //     crashing, background throttling that expires leases, reaping, explicit recovery) against the planner. After EVERY step:
 //     no unsynced batch exists only outside durable journals (no data loss), and a tab that persisted holds a journal of its own.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createResearchSyncRuntime } from './researchSyncRuntime.js';
-import { emptyResearchState, applyResearchOps } from './researchSyncState.js';
+import { applyResearchOps } from './researchSyncState.js';
 import { LEASE_TTL_MS, MAX_UNOWNED, leaseState, planPersist, planReap, isEmptyJournal } from './researchJournalLifecycle.js';
 
 const copy = x => JSON.parse(JSON.stringify(x));
-const tick = () => new Promise(resolve => setImmediate(resolve));
-class Storage {
-  data = new Map();
-  get length() { return this.data.size; }
-  key(i) { return [...this.data.keys()][i] ?? null; }
-  getItem(k) { return this.data.get(k) ?? null; }
-  setItem(k, v) { this.data.set(k, String(v)); }
-  removeItem(k) { this.data.delete(k); }
-  get chars() { let n = 0; for (const [k, v] of this.data) n += k.length + v.length; return n; }
-  pending() { return [...this.data.keys()].filter(k => k.includes(':pending:')); }
-}
 const server = () => ({ read: async () => ({ ...emptyResearchState(), revision: 0 }), write: async () => { throw new Error('offline'); } });
 async function load(storage, session, { commit = 0 } = {}) {
   const s = server();
@@ -31,20 +17,8 @@ async function load(storage, session, { commit = 0 } = {}) {
   runtime.stop();
 }
 
-test('BASELINE (unchanged runtime): passive loads of one tab create one durable journal per load', async () => {
-  const storage = new Storage(), session = new Storage();
-  for (let i = 0; i < 30; i++) await load(storage, session);
-  assert.equal(storage.pending().length, 30, 'one empty journal per page load, none ever reclaimed');
-});
-
-test('BASELINE (unchanged runtime): a passive tab that records history on each load copies a growing queue into every new journal', async () => {
-  const storage = new Storage(), session = new Storage(); const chars = [];
-  for (let i = 0; i < 12; i++) { await load(storage, session, { commit: 1 }); chars.push(storage.chars); }
-  assert.equal(storage.pending().length, 12);
-  const sizes = storage.pending().map(k => storage.getItem(k).length).sort((a, b) => a - b);
-  assert.ok(sizes[sizes.length - 1] > sizes[0] * 6, 'each journal carries the whole queue so far');
-  assert.ok(chars[11] > chars[5] * 2.5, `total bytes grow faster than linearly (${chars[5]} -> ${chars[11]})`);
-});
+// The baseline of the UNCHANGED runtime (passive loads: one journal per load; growing copies) is reproduced by researchJournalRuntime.test.js
+// run against the pre-change runtime; see the proposal for the recorded result.
 
 // ------------------------------------------------------------------------------------------------------------------ model
 function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }

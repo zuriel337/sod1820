@@ -128,6 +128,12 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     return () => { pathSession.current.active = false; runtime.stop(); };
   }, [runtime, disabled]);
   useLayoutEffect(() => { runtime.setCloudAccess(!actionsLocked); }, [runtime, actionsLocked]);
+  // A page that goes away releases its journal lease, so a reload of this tab continues the same journal in place instead of copying it.
+  useEffect(() => {
+    const release = () => runtime.release?.();
+    window.addEventListener("pagehide", release);
+    return () => window.removeEventListener("pagehide", release);
+  }, [runtime]);
   useEffect(() => {
     if (PUBLIC_READING_RELEASE) return undefined;
     const reconnect = () => { void runtime.retry(); };

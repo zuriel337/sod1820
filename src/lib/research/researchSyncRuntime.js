@@ -5,6 +5,7 @@ import { applyResearchOps, assertCloudSnapshot, emptyResearchState, normalizeRes
   newResearchId, principalToken, principalStateKey, principalContextKey, LEGACY_UNSCOPED_KEY,
   LEGACY_CONTEXT_SESSION_KEY } from './researchSyncState.js';
 import { normalizeResearchContext } from './researchContext.js';
+import { HEARTBEAT_MS, planPersist, planReap } from './researchJournalLifecycle.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
 const object = x => !!x && typeof x === 'object' && !Array.isArray(x);
@@ -26,9 +27,11 @@ function readLegacyContext(session) {
 }
 export function createResearchSyncRuntime({ userId = null, storage, session, readCloud, writeCloud,
   onContext = () => {}, idFactory = newResearchId, delay = 350, disabled = false, cloudEnabled = true,
-  resumePendingOnStart = true } = {}) {
+  resumePendingOnStart = true, now = () => Date.now(), heartbeatMs = HEARTBEAT_MS } = {}) {
   const principal = principalToken(userId), key = principalStateKey(principal);
-  const pointerKey = `${key}:journal`, journalKey = `${key}:pending:${idFactory()}`;
+  const pointerKey = `${key}:journal`, selfId = idFactory();
+  // Journal ownership (see researchJournalLifecycle.js): the journal key is claimed lazily, only when this tab has pending work to persist.
+  let journalKey = null, restoredSnapshot = null, touched = false, heartbeatTimer = null;
   const contextKey = principalContextKey(principal);
   let restoredFrom = null, restoredRaw = null, storageFault = false;
   let cached = {}, journal = { revision: null, queue: [], inflight: null }, activeContext = null;
@@ -49,6 +52,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       restoredRaw = storage?.getItem(restoredFrom);
       if (restoredRaw) {
         journal = JSON.parse(restoredRaw);
+        restoredSnapshot = { revision: journal.revision, queue: clone(journal.queue || []), inflight: journal.inflight ? clone(journal.inflight) : null };
         if (journal.principal !== principal || !Array.isArray(journal.queue) ||
           (journal.revision !== null && (!Number.isSafeInteger(journal.revision) || journal.revision < 0)) ||
           journal.queue.some(b => !b.batch_id || !Array.isArray(b.ops) || !b.ops.length || b.ops.length > 100)) {
@@ -104,12 +108,33 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   }
   // Every mounted tab owns a separate journal. Copy-on-resume retains exact batch IDs/revisions;
   // duplicated tabs cannot overwrite another tab's pending operations. Version conflicts fail closed.
+  const readRecord = name => { try { const raw = storage?.getItem(name); return raw == null ? null : JSON.parse(raw); } catch { return null; } };
+  const ownedRecord = () => { const record = journalKey ? readRecord(journalKey) : null; return record?.owner?.id === selfId ? record : null; };
+  // Claim (or re-claim) the journal this tab writes: its own, the one it restored from if that is free and unchanged, else a new copy.
+  function claimJournal() {
+    const plan = planPersist({ ownKey: journalKey, ownRecord: journalKey ? readRecord(journalKey) : null, pointerKey: restoredFrom, pointerRecord: restoredFrom ? readRecord(restoredFrom) : null,
+      restoredRecord: restoredSnapshot, now: now(), selfId, newKey: `${key}:pending:${idFactory()}` });
+    if (plan.action === 'adopt') { restoredFrom = null; restoredRaw = null; }
+    restoredSnapshot = null; journalKey = plan.key;
+  }
+  function writeJournal() {
+    claimJournal();
+    storage.setItem(journalKey, JSON.stringify({ principal, revision, queue, inflight, owner: { id: selfId, at: now(), released: false } }));
+    session.setItem(pointerKey, journalKey);
+  }
+  // Every mounted tab with pending work owns a separate journal. Copy-on-resume retains exact batch IDs/revisions;
+  // duplicated tabs cannot overwrite another tab's pending operations. Version conflicts fail closed.
+  // A tab with nothing to persist writes no journal at all (and removes its own once it drains).
   function persist() {
     if (disabled || storageFault) return false;
     try {
       if (!storage || !session) throw new Error('RESEARCH_STORAGE_UNAVAILABLE');
-      storage.setItem(journalKey, JSON.stringify({ principal, revision, queue, inflight }));
-      session.setItem(pointerKey, journalKey);
+      const hasWork = queue.length > 0 || Boolean(inflight);
+      if (hasWork && (touched || journalKey)) writeJournal();
+      else if (!hasWork && journalKey) {
+        if (ownedRecord()) { storage.removeItem(journalKey); session.removeItem(pointerKey); }
+        journalKey = null;
+      }
       storage.setItem(key, JSON.stringify({ state, mode, revision }));
       if (state.context == null) session.removeItem(contextKey);
       else session.setItem(contextKey, JSON.stringify(state.context));
@@ -121,6 +146,31 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       }
       return true;
     } catch { status = 'local_error'; return false; }
+  }
+  // Lease upkeep: only the owner touches `owner.at`; `released` is set when the page goes away so a reload can continue the journal in place.
+  function heartbeat() {
+    if (disabled || storageFault || !storage || !journalKey) return;
+    try { const record = ownedRecord(); if (record && !record.owner.released) { record.owner.at = now(); storage.setItem(journalKey, JSON.stringify(record)); } } catch { /* the next persist re-claims */ }
+  }
+  function release() {
+    clearInterval(heartbeatTimer); heartbeatTimer = null;
+    if (disabled || storageFault || !storage || !journalKey) return;
+    try { const record = ownedRecord(); if (record) { record.owner.released = true; record.owner.at = now(); storage.setItem(journalKey, JSON.stringify(record)); } } catch { /* a stale lease simply expires */ }
+  }
+  // Remove only journals that hold nothing, or whose every batch (id, ops, revision) is also held by another free journal that stays.
+  function reapRedundant() {
+    if (disabled || storageFault || !storage) return;
+    try {
+      const rows = [];
+      for (let i = 0; i < storage.length; i += 1) {
+        const name = storage.key(i);
+        if (!name?.startsWith(`${key}:pending:`) || name.includes(':conflict:')) continue;
+        const record = readRecord(name);
+        if (record?.principal === principal && Array.isArray(record.queue)) rows.push({ key: name, record });
+      }
+      const { reap } = planReap(rows, { now: now(), selfId, protectedKeys: new Set([journalKey, restoredFrom].filter(Boolean)) });
+      for (const name of reap) storage.removeItem(name);
+    } catch { /* leftover journals are safer than lost state */ }
   }
   function cleanRecoveredCopy() {
     if (queue.length || inflight || !restoredFrom || !restoredRaw) return;
@@ -173,6 +223,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     clearTimeout(timer);
     const epoch = generation;
     // Commit the exact immutable request to local storage BEFORE sending it.
+    touched = true;
     if (!inflight) inflight = { ...clone(queue[0]), expected_revision: revision };
     const sent = clone(inflight);
     status = 'syncing';
@@ -203,6 +254,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   }
   function commit(ops) {
     if (!active || disabled || storageFault || resolving) return false;
+    touched = true;
     const safe = clone(ops);
     if (!safe.length || safe.length > 100) throw new Error('RESEARCH_OPS_BATCH_TOO_LARGE');
     state = applyResearchOps(state, safe);
@@ -221,7 +273,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     const epoch = generation;
     if (operation) await operation;
     if (!active || !cloudEnabled || generation !== epoch) return false;
-    writeIntent = true;
+    writeIntent = true; touched = true;
     if (!persist()) { notify(); return false; }
     if (!cloudReady) await hydrate();
     else { status = 'pending'; await flush(); }
@@ -230,13 +282,13 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   async function resolveConflict({ confirm = false, action } = {}) {
     if (!active || !cloudEnabled || !userId || !confirm || resolving || operation || status !== 'conflict' || !['reapply', 'keep_remote'].includes(action)) return false;
     const epoch = generation;
-    writeIntent = true;
+    writeIntent = true; touched = true;
     resolving = true; status = 'resolving'; notify();
     try {
       const cloud = assertCloudSnapshot(await readCloud(userId));
       if (!active || epoch !== generation) return false;
       // Preserve the disputed batch in its old journal for explicit recovery/provenance.
-      storage.setItem(`${journalKey}:conflict:${idFactory()}`, JSON.stringify({ principal, revision, queue, inflight }));
+      storage.setItem(`${journalKey || `${key}:pending:${selfId}`}:conflict:${idFactory()}`, JSON.stringify({ principal, revision, queue, inflight }));
       if (action === 'keep_remote') queue = [];
       else queue = queue.map(b => ({ ...b, batch_id: idFactory() }));
       inflight = null; revision = cloud.revision;
@@ -258,8 +310,8 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       if (record.inflight && (record.inflight.batch_id !== record.queue[0].batch_id ||
         JSON.stringify(record.inflight.ops) !== JSON.stringify(record.queue[0].ops) ||
         !Number.isSafeInteger(record.inflight.expected_revision) || record.inflight.expected_revision < 0)) return false;
-      restoredFrom = sourceKey; restoredRaw = raw;
-      writeIntent = true;
+      restoredFrom = sourceKey; restoredRaw = raw; restoredSnapshot = { revision: record.revision, queue: clone(record.queue), inflight: record.inflight ? clone(record.inflight) : null };
+      writeIntent = true; touched = true;
       queue = clone(record.queue); inflight = record.inflight ? clone(record.inflight) : null;
       revision = record.revision; cloudReady = false;
       if (!persist()) { notify(); return false; }
@@ -274,7 +326,8 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     start() {
       if (active || disabled) return;
       active = true; generation += 1;
-      persist(); onContext(state.context);
+      persist(); onContext(state.context); reapRedundant();
+      if (heartbeatMs > 0) { clearInterval(heartbeatTimer); heartbeatTimer = setInterval(heartbeat, heartbeatMs); heartbeatTimer.unref?.(); }
       if (userId && cloudEnabled && !storageFault) {
         // React StrictMode replays effects while the prior read may still be pending.
         const epoch = generation;
@@ -283,7 +336,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       } else notify();
     },
     stop() {
-      active = false; generation += 1; clearTimeout(timer);
+      active = false; generation += 1; clearTimeout(timer); release();
       // Logout/account-key unmount ends the active session, never the saved workspace.
       try { session?.removeItem(contextKey); } catch { /* preserve other principal */ }
       onContext(null);
@@ -305,7 +358,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       if (operation) void operation.finally(() => { if (active && generation === epoch) void hydrate(); });
       else void hydrate();
     },
-    commit, flush, retry, resolveConflict, recoverJournal,
+    commit, flush, retry, resolveConflict, recoverJournal, heartbeat, release,
     listRecoveryJournals,
     setMode(value) { if (!active || disabled) return; mode = value === 'discovery' ? 'discovery' : 'reader'; persist(); notify(); },
     // Export is caller-initiated, principal-bound and never publishes or auto-adopts unscoped v1 data.

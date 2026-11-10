@@ -1,7 +1,8 @@
 # Research pending journals — lifecycle proposal (10.11.2026)
 
-**Status: PROPOSAL + evidence only.** `researchSyncRuntime.js` and the approved two-tab contract are unchanged and not touched by this branch.
-Nothing here is wired into the runtime, merged, deployed, or changes data. Base `origin/main` `0d718702c`.
+**Status: DRAFT implementation + evidence. NOT approved to merge or to activate.** (ZURIEL, 10.11: a separate Draft PR is allowed; merging or
+activating the lease change is not.) Base: `origin/main` `defc7c573` (includes the auth fix #1292, which this branch does not touch).
+The approved two-tab contract tests pass unchanged. Nothing here is deployed, and no data is deleted or changed.
 
 ## Problem (measured on the unchanged runtime, `researchJournalLifecycle.test.js` BASELINE tests)
 * Every page load of a signed-in tab creates a new durable journal `<state>:pending:<id>` and writes it immediately, even with an empty
@@ -61,3 +62,38 @@ N concurrent tabs with pending work -> N journals; closed tabs -> collapse to th
 2. Invert the two BASELINE tests; keep the contract test; add the model test as a permanent gate.
 3. Ship without any deletion of existing journals: they are classified `legacy` and only reaped if empty.
 4. After deploy, measure journal counts from the storage report (names and sizes only) already shown on the sign-in screen.
+
+
+## Proof against the REAL runtime (second pass; `researchJournalRuntime.test.js`, real `createResearchSyncRuntime`, no model)
+Harness: shared localStorage, one sessionStorage per tab, a server with durable receipts (idempotent by batch id) and compare-and-set revisions,
+tabs that open / reload / duplicate / commit (write and passive) / flush / go offline / throttle heartbeats / close cleanly / crash / get restored by
+the browser with their sessionStorage / recover explicitly. The invariants are checked after every step.
+
+| Property | Unchanged runtime | With the lease |
+|---|---|---|
+| No unsynced batch ever exists outside durable journals (300 histories x 40 steps; also run with 2500 seeds) | pass | pass |
+| A duplicated live tab commits without touching the original's journal; owns a distinct one | pass | pass |
+| 300 passive reloads + 50 duplicates write no journal | **fail (351)** | pass (0) |
+| A tab with pending work reloaded 200x keeps one journal, constant size | **fail (201 journals)** | pass (1) |
+| History recorded on each of 100 loads: one journal, linear size, no batch dropped | **fail (101 journals)** | pass |
+| 20 crashed tabs with distinct work + 30 crash/restore cycles of one tab | **fail (51 journals)** | pass (21: one per distinct unsynced work) |
+| Duplicate of a live tab, both closed, later load: never more journals, all unsynced work present | **fail** | pass |
+| A stale tab never overwrites a journal that changed after it restored (compare-and-set) | n/a (always copies) | pass |
+Mutation checks on the real runtime: disabling the compare-and-set breaks 2 tests; disabling the ownership claim breaks 22 of the 46 runtime tests.
+Existing: all 37 sync runtime tests (including "duplicated tabs own distinct durable pending journals") and the recovery tests pass unchanged;
+the whole `src/lib/research` suite passes (1586 tests).
+
+## What the draft changes in the runtime (`researchSyncRuntime.js`, `ResearchProvider.jsx`)
+* The journal key is claimed lazily: only when the tab has pending work AND has touched it (commit, flush, retry, recovery, conflict resolution).
+  A drained tab removes its own journal. Journals written by older code are only read and copied, never adopted.
+* The record gains `owner: { id, at, released }`; a heartbeat (15 s, only while it holds work) and `release()` (on `stop()` and `pagehide`).
+* `planPersist` decides write-own / adopt-in-place (free + content unchanged since restore) / copy. `reapRedundant()` runs once at `start()`.
+* New optional parameters `now` and `heartbeatMs` (tests); the public API only gains `heartbeat()` and `release()`.
+
+## Residual risks and limits (not hidden)
+* A passive tab still appends one real batch per recorded navigation to its single journal (history/context ops never grant write intent, so
+  they never flush): size is linear in real batches, no longer quadratic or multiplied. Bounding that queue (for example, trimming history
+  batches that can no longer be visible) changes data semantics and is NOT in this draft; it needs its own decision.
+* Journals written by the previous version stay until drained or recovered (they are classified `legacy`: copied, never collapsed, only removed if empty).
+* The race between the compare-and-set read and the write across tabs is not atomic; the consequence is a duplicate journal, never a lost batch (a tab always writes its full queue).
+* Verified in Node with fake storage and clocks; not yet in a real browser with real timers and `pagehide`.
