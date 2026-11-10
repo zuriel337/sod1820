@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  MemoryStorage, FullStorage, BlockedStorage, createAuthServer, createProductionLikeClient, loadAuthModule, SITE,
+  MemoryStorage, FullStorage, BlockedStorage, QuotaStorage, createAuthServer, createProductionLikeClient, loadAuthModule, SITE,
 } from './helpers/authContractHarness.mjs';
 import { createResilientAuthStorage, authStorageStatus, isStorageError, summarizeLocalStorage } from '../src/lib/authStorage.js';
 import { classifyAuthError, AUTH_MESSAGES } from '../src/lib/authDiagnostics.js';
@@ -90,18 +90,25 @@ test('[full + blocked tab storage] sign-in still works on this page, honestly re
   } finally { cleanup(); }
 });
 
-test('a stale session that cannot be overwritten never shadows the fresh one; once storage works again the fallback copy is dropped', () => {
-  let failing = true; const real = new MemoryStorage();
-  const primary = { getItem: k => real.getItem(k), setItem: (k, v) => { if (failing) throw new DOMException('Failed to execute setItem: exceeded the quota', 'QuotaExceededError'); real.setItem(k, v); }, removeItem: k => real.removeItem(k) };
-  const tab = new MemoryStorage();
-  real.setItem('session', 'OLD');
+test('a stale session that cannot be overwritten never shadows the fresh one, is not lost, and the fallback copy is dropped once there is room', () => {
+  const primary = new QuotaStorage(70); const tab = new MemoryStorage();
+  primary.setItem('session', 'OLD'.repeat(5));                                // 'session' + 15 chars
+  primary.setItem('research_state', 'x'.repeat(30));                           // data that must never be evicted
   const storage = createResilientAuthStorage({ primary, secondary: tab });
-  storage.setItem('session', 'NEW');
-  assert.equal(storage.getItem('session'), 'NEW'); assert.equal(real.getItem('session'), 'OLD');
+  storage.setItem('session', 'NEW'.repeat(20));                                // far too large even with the old value removed
+  assert.equal(storage.getItem('session'), 'NEW'.repeat(20));
+  assert.equal(primary.getItem('session'), 'OLD'.repeat(5), 'the old value is left in place, not lost');
+  assert.equal(primary.getItem('research_state'), 'x'.repeat(30), 'other keys are never touched');
+  assert.equal(tab.getItem('session'), 'NEW'.repeat(20), 'the fresh value really lives in the tab store');
+  assert.equal(storage.status().persistence, 'tab');
   const reloaded = createResilientAuthStorage({ primary, secondary: tab });
-  assert.equal(reloaded.getItem('session'), 'NEW', 'a reload reads the tab copy before the stale primary');
-  failing = false; storage.setItem('session', 'NEWER');
-  assert.equal(real.getItem('session'), 'NEWER'); assert.equal(tab.getItem('session'), null); assert.equal(storage.status().mode, 'normal');
+  assert.equal(reloaded.getItem('session'), 'NEW'.repeat(20), 'a reload reads the tab copy before the stale primary');
+  assert.equal(reloaded.status().persistence, 'tab', 'durability is reported honestly after a reload too');
+  const otherTab = createResilientAuthStorage({ primary, secondary: new MemoryStorage() });
+  assert.equal(otherTab.getItem('session'), 'OLD'.repeat(5), 'another tab still finds the durable (older) session instead of nothing');
+  primary.removeItem('research_state');                                        // room again
+  storage.setItem('session', 'NEWER');
+  assert.equal(primary.getItem('session'), 'NEWER'); assert.equal(tab.getItem('session'), null); assert.equal(storage.status().mode, 'normal');
   storage.removeItem('session'); assert.equal(storage.getItem('session'), null);
 });
 

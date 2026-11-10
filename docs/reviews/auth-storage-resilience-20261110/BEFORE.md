@@ -1,6 +1,6 @@
 # BEFORE — Auth storage resilience (10.11.2026)
 
-**work_log status: NOT VERIFIED.** The write of the BEFORE row to `public.work_log` timed out waiting for the Supabase server's
+**work_log status: WRITTEN 10.11.2026 (row `d425234e-8f39-4287-8f12-9bc80997839a`, task_key `auth-storage-resilience-20261110`; checked first: no earlier row).** The text below describes the earlier failed attempt: The write of the BEFORE row to `public.work_log` timed out waiting for the Supabase server's
 confirmation question (nothing is known to have been inserted; ZURIEL's check found no new row). Per ZURIEL's instruction the work is
 not delayed for it. When the work_log permission is available: check for duplicates (task_key `auth-storage-resilience-20261110`), then
 insert BEFORE and AFTER from these files.

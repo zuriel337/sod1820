@@ -32,6 +32,16 @@ export class MemoryStorage {
 export class FullStorage extends MemoryStorage {
   setItem() { throw new DOMException("Failed to execute 'setItem' on 'Storage': Setting the value of 'k' exceeded the quota.", 'QuotaExceededError'); }
 }
+// A realistic quota: a write that would push the total size over `capacity` throws; removals always work and free their space.
+export class QuotaStorage extends MemoryStorage {
+  constructor(capacity) { super(); this.capacity = capacity; }
+  get used() { let total = 0; for (const [k, v] of this.map) total += k.length + v.length; return total; }
+  setItem(key, value) {
+    const next = this.used - (this.map.has(key) ? key.length + this.map.get(key).length : 0) + key.length + String(value).length;
+    if (next > this.capacity) throw new DOMException("Failed to execute 'setItem' on 'Storage': Setting the value of '" + key + "' exceeded the quota.", 'QuotaExceededError');
+    super.setItem(key, value);
+  }
+}
 export class BlockedStorage {
   getItem() { throw new DOMException("Failed to read the 'localStorage' property from 'Window': Access is denied for this document.", 'SecurityError'); }
   setItem() { return this.getItem(); } removeItem() { return this.getItem(); }

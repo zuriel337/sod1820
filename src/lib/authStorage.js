@@ -30,6 +30,7 @@ export function isStorageError(error) {
 
 export function createResilientAuthStorage({ primary, secondary, onChange } = {}) {
   const memory = new Map();
+  const lastKnown = new Map();   // last value this page read from or wrote to the primary: used only when a later primary read THROWS
   const state = { mode: 'normal', lastFailure: null, degradedKeys: new Set() };
   const notify = () => { try { onChange?.(status()); } catch { /* observers never affect storage */ } };
   const failure = (op, error) => { state.lastFailure = { op, name: str(error?.name) || 'Error' }; };
@@ -58,7 +59,10 @@ export function createResilientAuthStorage({ primary, secondary, onChange } = {}
           }
         } catch (error) { failure('read', error); }
       }
-      if (first) { try { return first.getItem(key); } catch (error) { failure('read', error); } }
+      if (first) {
+        try { const value = first.getItem(key); if (value != null) lastKnown.set(key, value); return value; }
+        catch (error) { failure('read', error); if (lastKnown.has(key)) { state.degradedKeys.add(key); if (state.mode === 'normal') state.mode = 'session'; return lastKnown.get(key); } }
+      }
       return null;
     },
     setItem(key, value) {
@@ -66,6 +70,7 @@ export function createResilientAuthStorage({ primary, secondary, onChange } = {}
       if (first) {
         try {
           first.setItem(key, value);
+          lastKnown.set(key, value);
           // The primary holds the truth again: drop any fallback copy so it can never shadow a newer primary value.
           memory.delete(key); safeRemove(second, key);
           if (state.degradedKeys.delete(key)) { if (!state.degradedKeys.size) state.mode = 'normal'; notify(); }
@@ -80,7 +85,7 @@ export function createResilientAuthStorage({ primary, secondary, onChange } = {}
       memory.set(key, value); state.mode = 'memory'; notify();
     },
     removeItem(key) {
-      memory.delete(key);
+      memory.delete(key); lastKnown.delete(key);
       const { first, second } = stores();
       safeRemove(first, key); safeRemove(second, key);
       if (state.degradedKeys.delete(key) && !state.degradedKeys.size) { state.mode = 'normal'; notify(); }

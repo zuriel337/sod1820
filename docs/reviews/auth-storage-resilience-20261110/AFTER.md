@@ -1,6 +1,6 @@
 # AFTER — Auth storage resilience (10.11.2026)
 
-**work_log status: NOT VERIFIED** (same as BEFORE.md). Branch only: **not merged, not deployed, no Supabase change, no data deleted.**
+**work_log:** BEFORE written (row `d425234e-8f39-4287-8f12-9bc80997839a`); AFTER inserted after the PR was opened. Branch only: **not merged, not deployed, no Supabase change, no data deleted.**
 Base `origin/main` `1f0867ff`; work on branch `ccr-d05c4578-8f9w85`.
 
 ## Root cause
@@ -51,3 +51,16 @@ Not verified: a real installed Android PWA and a real device with a genuinely fu
 2. Approve the worker 503 change and the edited transport-test assertion.
 3. Chrome site-settings storage size on the affected device (would prove or refute the candidate).
 4. Supabase "Confirm signup" template with `{{ .Token }}` (prepared, not applied); work_log BEFORE/AFTER insertion.
+
+## Addendum (second pass, ZURIEL approval to open a PR and run CI)
+* New `test/auth-storage-compat-2029.test.mjs` (5 tests) proves moving between localStorage and sessionStorage is safe:
+  an existing user whose session was written by the legacy client stays signed in (same keys, no copy, sessionStorage untouched, no logout);
+  localStorage filling AFTER sign-in keeps the refreshed session in the tab store (asserted to hold it), keeps the older durable copy
+  and research data untouched, survives a same-tab reload, and returns to localStorage (tab copy dropped) once room exists;
+  localStorage becoming unreadable mid-session keeps the tab signed in; OAuth with a full localStorage keeps the verifier in the tab store
+  across the redirect and leaves no verifier behind; healthy browsers write exactly the keys the legacy client wrote.
+* Small change found by that review: if a later read of localStorage THROWS after this page had read or written the key, the last known
+  value is returned instead of "no session" (otherwise a mid-session block signed the tab out).
+* Known limit, documented not hidden: with a full quota a *second tab or a restarted browser* finds only the older durable session; its
+  refresh token has been rotated, so it signs in again. That is the "tab" durability the UI states.
+* An in-place "remove then write the same key" step was prototyped and dropped: browsers already net out the replaced value, so it gains nothing.
