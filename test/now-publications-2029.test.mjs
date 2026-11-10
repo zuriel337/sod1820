@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, latestRunAt, buildNowEntries, isRabbiBoxModel, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
+import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, latestRunAt, buildNowEntries, isRabbiBoxModel, nowTodayBand, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
 import { redactGroupText, groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
@@ -213,4 +213,18 @@ test("an owner-flagged update carries a dot label; rows without the flag carry n
   const mk = (id, extra = {}) => ({ id, title: "כותרת " + id, at: "2026-11-10T10:00:00Z", item: { sourceKind: "post", label: "כותרת " + id, ...extra }, href: "/post/" + id });
   const [a, b, c] = nowModels([mk("a", { liveDot: "עדכון חדש בפוסט" }), mk("b"), mk("c", { liveDot: "" })]);
   assert.equal(a.dot, "עדכון חדש בפוסט"); assert.equal(b.dot, null); assert.equal(c.dot, null);
+});
+
+test("the 'מספר היום' band shows for exactly its days (Asia/Jerusalem) and then disappears; no band, no output", () => {
+  const band = { value: 1011, from: "2026-11-10", days: 3, title: "היום", phrases: ["א", "ב"] };
+  const models = [{ item: { band } }, { item: {} }];
+  const at = iso => Date.parse(iso);
+  assert.equal(nowTodayBand(models, at("2026-11-09T21:59:00Z")), null, "before the first Israeli day (23:59 on 9.11)");
+  assert.equal(nowTodayBand(models, at("2026-11-09T22:01:00Z")).value, 1011, "00:01 on 10.11 Israel time");
+  assert.equal(nowTodayBand(models, at("2026-11-12T20:00:00Z")).value, 1011, "last day, 12.11 evening");
+  assert.equal(nowTodayBand(models, at("2026-11-12T22:30:00Z")), null, "00:30 on 13.11 Israel time: gone");
+  assert.deepEqual(nowTodayBand(models, at("2026-11-11T10:00:00Z")).phrases, ["א", "ב"]);
+  assert.equal(nowTodayBand([{ item: {} }], at("2026-11-11T10:00:00Z")), null);
+  assert.equal(nowTodayBand(null), null);
+  for (const bad of [{ ...band, days: 0 }, { ...band, from: "10.11.2026" }, { ...band, value: "1011" }]) assert.equal(nowTodayBand([{ item: { band: bad } }], at("2026-11-11T10:00:00Z")), null);
 });

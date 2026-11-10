@@ -273,5 +273,19 @@ export function buildNowEntries(models, { rabbiBox = true, sourceRuns = true } =
   return entries;
 }
 
+/**
+ * The "מספר היום" band: carried by an owner-flagged feed item (`item.band` = { value, from, days, title, phrases }), shown only while today's date
+ * (Asia/Jerusalem) is inside [from, from + days). Pure presentation: no reader, no calculation; outside the window (or without a band) it is null.
+ */
+export function nowTodayBand(models, now = Date.now(), timeZone = "Asia/Jerusalem") {
+  const band = list(models).map(model => model?.item?.band).find(Boolean);
+  if (!band || !Number.isInteger(band.value) || !Number.isInteger(band.days) || band.days < 1 || !/^\d{4}-\d{2}-\d{2}$/.test(band.from || "")) return null;
+  const dayIndex = key => { const [y, m, d] = key.split("-").map(Number); return Date.UTC(y, m - 1, d) / 86400000; };
+  let today;
+  try { today = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now); } catch { return null; }
+  const offset = dayIndex(today) - dayIndex(band.from);
+  return offset >= 0 && offset < band.days ? { value: band.value, title: String(band.title || ""), phrases: list(band.phrases).map(String) } : null;
+}
+
 /** The series page for a model (series key is the existing approved identity). */
 export const nowSeriesHref = model => model?.seriesKey ? `/2029/posts?series=${encodeURIComponent(model.seriesKey)}` : null;

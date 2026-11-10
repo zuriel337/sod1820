@@ -104,3 +104,13 @@ test("the Home 1234 block links to the number's own window; each phrase to the s
   const jsx = await readFile(new URL("../src/components/experience2029/HomeFeaturedPost2029.jsx", import.meta.url), "utf8");
   assert.match(jsx, /data-home-featured-spot-link="number"/); assert.match(jsx, /data-home-featured-spot-link="phrase"/);
 });
+
+test("the Now band is carried by the featured feed item from the one config: 1011, three verified phrases, three days from 10.11.2026", async () => {
+  const { featuredFeedItem } = await import("../src/lib/research/homeFeaturedPost2029.js");
+  const { postRowToWorldUpdate } = await import("../src/lib/research/worldDiscoveryStream.js");
+  const item = featuredFeedItem(row({ date: "2026-09-30T08:55:00Z" }), postRowToWorldUpdate);
+  assert.deepEqual({ value: item.band.value, from: item.band.from, days: item.band.days }, { value: 1011, from: "2026-11-10", days: 3 });
+  assert.deepEqual([...item.band.phrases], ["המשיח פועל במעשים", "הגאלה תבא בהיסח הדעת", "קץ זוהמת הנחש"]);
+  const g1011 = HOME_FEATURED_POST_2029.highlights.find(group => group.value === 1011);
+  for (const phrase of item.band.phrases) assert.ok(g1011.phrases.includes(phrase), phrase + " is one of the verified 1011 phrases");
+});
