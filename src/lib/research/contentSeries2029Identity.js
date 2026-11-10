@@ -65,11 +65,9 @@ export const CONTENT_SERIES_2029 = Object.freeze([
     writerLabel: "אלון לוי",
     publisherLabel: null,
     priorityLane: "supporting_series",
-    membership: Object.freeze([
-      Object.freeze({ field: "tags", value: "מה קורה הבורא" }),
-    ]),
+    membership: Object.freeze([]),
     exactAuthor: "אלון לוי",
-    relationNote: "אלון לוי הוא הכתב; חברות בסדרה נקבעת רק מהתגית המדויקת, לא מכל חומריו.",
+    relationNote: "כל הפוסטים המזוהים עם אלון לוי שייכים לסדרה, גם ללא תגית; אין לשייך פוסטים של מחברים אחרים.",
   }),
   Object.freeze({
     key: "dimension-five",
@@ -161,6 +159,9 @@ export function contentSeriesByKey(key) {
 }
 
 export function contentSeriesKeysForPost(row) {
-  return CONTENT_SERIES_2029.filter(spec => hasExactMembership(row, spec)
-    && (!spec.exactAuthor || row?.author === spec.exactAuthor)).map(spec => spec.key);
+  return CONTENT_SERIES_2029.filter(spec => (
+    (spec.key === "mah-kore-habora" && row?.author === "אלון לוי") ||
+    (spec.key === "dimension-five" && [5003, 5004].includes(Number(row?.id))) ||
+    (hasExactMembership(row, spec) && (!spec.exactAuthor || row?.author === spec.exactAuthor))
+  )).map(spec => spec.key);
 }
