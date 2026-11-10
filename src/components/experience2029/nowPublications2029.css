@@ -105,6 +105,17 @@
 @keyframes sod29-nowpub-blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgb(232 72 63/.55)}50%{opacity:.35;box-shadow:0 0 0 .5em rgb(232 72 63/0)}}
 .sod29-nowpub-pin{font-weight:700;color:var(--s29-brand-gold)}
 .sod29-nowpub-row[data-now-pinned-row]{border-color:color-mix(in srgb,var(--s29-brand-gold) 55%,var(--s29-line))}
+/* "מספר היום" band */
+.sod29-nowpub-today{display:flex;align-items:center;gap:14px;padding:10px 14px;border-radius:16px;border:1px solid color-mix(in srgb,var(--s29-brand-gold) 60%,var(--s29-line));background:linear-gradient(135deg,color-mix(in srgb,var(--s29-brand-gold) 18%,transparent),color-mix(in srgb,var(--s29-brand-gold) 5%,transparent));min-width:0}
+.sod29-nowpub-today-num{flex:0 0 auto;font-weight:800;font:800 clamp(30px,9vw,40px)/1 var(--s29-font-numeric,var(--s29-font-ui));color:var(--s29-brand-gold);font-variant-numeric:tabular-nums;padding:6px 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--s29-brand-gold) 70%,transparent);background:color-mix(in srgb,var(--s29-brand-gold) 10%,transparent);cursor:pointer;min-block-size:44px;animation:sod29-nowpub-ring 1.6s ease-out 3}
+@keyframes sod29-nowpub-ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--s29-brand-gold) 60%,transparent)}100%{box-shadow:0 0 0 16px transparent}}
+.sod29-nowpub-today-text{display:grid;gap:2px;min-width:0;flex:1 1 auto}
+.sod29-nowpub-today-text>strong{font-size:var(--s29-type-ui);line-height:1.35}
+.sod29-nowpub-today-text summary{cursor:pointer;color:var(--s29-accent-text);font-size:var(--s29-type-small);min-height:32px;display:flex;align-items:center}
+.sod29-nowpub-today-text ul{list-style:none;margin:2px 0 4px;padding:0;display:grid}
+.sod29-nowpub-today-text li{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid color-mix(in srgb,var(--s29-brand-gold) 22%,transparent);font-size:var(--s29-type-small);font-weight:700}
+.sod29-nowpub-today-text li:last-child{border-bottom:0}
+.sod29-nowpub-today-text li b{color:var(--s29-brand-gold);font-variant-numeric:tabular-nums;white-space:nowrap}
 /* Now window size (ZURIEL 5.11.2026): near full screen on mobile, wide and centered on desktop. Layout only; the #1203 badge rule is untouched.
    The backdrop keeps its bottom clearance (--s29-island-clearance) so the bottom bar stays reachable; only inline/top spacing is set here. */
 .sod29-root.native-frame .sod29-frame-backdrop:has([data-panel-kind="now"]){align-items:stretch;justify-content:center;padding-block-start:12px;padding-inline:16px}

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
-import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowModels, nowLensCounts, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
+import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowModels, nowLensCounts, nowModels, nowTodayBand, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
+import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 import "./nowPublications2029.css";
 
 // Compact "Now" publications window over the ONE shared system feed (feed.expandedRows).
@@ -89,6 +90,21 @@ function RunGroup({ entry, children }) {
   </details></li>;
 }
 
+// "מספר היום": a gold number chip (opens the number window) with today's line; the connections fold under "+N חיבורים".
+// The ring around the number pulses three times and then rests (no pulse for reduced motion).
+function TodayBand({ band, onOpen }) {
+  const href = numberExpressionFocusHref(band.value, { method: "רגיל" });
+  return <section className="sod29-nowpub-today" data-now-today-band={band.value} aria-label="מספר היום">
+    {href ? <button type="button" className="sod29-nowpub-today-num" onClick={() => onOpen?.(href)} aria-label={`פתח את המספר ${band.value}`}>{band.value}</button>
+      : <b className="sod29-nowpub-today-num">{band.value}</b>}
+    <div className="sod29-nowpub-today-text">
+      <strong>{band.title}</strong>
+      {band.phrases.length ? <details><summary>+{band.phrases.length} חיבורים</summary>
+        <ul>{band.phrases.map(phrase => <li key={phrase}>{phrase} <b>= {band.value}</b></li>)}</ul></details> : null}
+    </div>
+  </section>;
+}
+
 // The Or HaGeula rabbi box: every update with "רב"/"הרב" lives here; the box sits at its newest member, so a new update lifts the box.
 function BoxGroup({ entry, children }) {
   const lead = entry.models[0], fresh = entry.models.some(model => model.row?.isNew);
@@ -172,6 +188,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const entries = useMemo(() => collapse ? buildNowEntries(shown) : shown.map(model => ({ kind: "row", model })), [shown, collapse]);
   const visibleEntries = entries.slice(0, count);
   const visibleCount = visibleEntries.reduce((sum, entry) => sum + (entry.models ? entry.models.length : 1), 0);
+  const todayBand = useMemo(() => nowTodayBand(models), [models]);
   const selected = wide ? (shown.find(model => model.id === selectedId) || shown[0] || null) : null;
   const select = (model, play = false) => { setSelectedId(model.id); setPlayId(play ? model.id : null); feed?.see?.(model.row); };
   const secondaryActive = Boolean(series || source || media);
@@ -194,6 +211,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const clear = () => { setLens("all"); setSeries(""); setSource(""); setMedia(""); setCount(PAGE); };
 
   return <section className="sod29-nowpub" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
+    {todayBand ? <TodayBand band={todayBand} onOpen={onOpen} /> : null}
     <div className="sod29-nowpub-filters" role="group" aria-label="סינון פרסומים">
       {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" data-tone={NOW_LENS_TONE[item.id]} aria-pressed={activeLens === item.id}
         aria-label={`${item.label}, ${counts[item.id]} פרסומים שנטענו בחלונית`} title={`${counts[item.id]} פרסומים שנטענו בחלונית`}

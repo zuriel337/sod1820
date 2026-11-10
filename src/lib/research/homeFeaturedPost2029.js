@@ -30,10 +30,15 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
   // date of the Knesset swearing-in (10.11.2026) read as the number 1011, not a letter calculation. Arithmetic only.
   highlights: Object.freeze([
     Object.freeze({ value: 1234, phrases: Object.freeze(["ממשלת משיח בן דוד", "התגלות השכינה"]) }),
-    // 1437 is in the engine's "קדמי" (triangular) method, NOT the regular one: fn_method_value('קדמי', 'משיח יהוה') = 1437 on 2026-11-10 (the row says so).
-    Object.freeze({ value: 1437, method: "קדמי", phrases: Object.freeze(["משיח י-הוה — משולש"]), expressions: Object.freeze({ "משיח י-הוה — משולש": "משיח יהוה" }) }),
     Object.freeze({ value: 1011, phrases: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים", "הגאלה תבא בהיסח הדעת", "קץ זוהמת הנחש"]), numberOnly: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26"]) }),
   ]),
+  // "מספר היום" band at the top of "עכשיו" (ZURIEL 10.11.2026): shown for three days starting 10.11.2026 (Asia/Jerusalem), then it disappears by itself.
+  // The value and every phrase are the verified ones above (1011); nothing is computed in the browser.
+  band: Object.freeze({
+    value: 1011, from: "2026-11-10", days: 3,
+    title: "היום 10.11.2026 · השבעת הכנסת ה־26",
+    phrases: Object.freeze(["המשיח פועל במעשים", "הגאלה תבא בהיסח הדעת", "קץ זוהמת הנחש"]),
+  }),
   // The sentence the owner asked to keep with the numbers (also in the Post's update and in "עכשיו").
   statement: "מה שאנחנו רואים בעיניים — הכול פעולות של הבורא, שפועל דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.",
   connectionsFootnote: null, // no spelling footnote: each number says what it is (ZURIEL 8.11.2026: "don't load")
@@ -97,7 +102,7 @@ export function featuredFeedItem(row, postRowToWorldUpdate, config = HOME_FEATUR
   const base = typeof postRowToWorldUpdate === "function" && projectHomeFeaturedPost(row, config) && postRowToWorldUpdate(row);
   if (!base) return null;
   const at = new Date(config.at).toISOString();
-  return { ...base, label: config.headline || base.label, summary: config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: true, liveDot: "עדכון חדש בפוסט" };
+  return { ...base, label: config.headline || base.label, summary: config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: true, liveDot: "עדכון חדש בפוסט", band: config.band || null };
 }
 
 // One public read shared by Home and the feed hook (cached for a minute): never two requests for the same Post.
