@@ -79,14 +79,17 @@ test('public account returns preserve Home, old Posts, calculator, taxonomy, phr
 });
 
 test('canonical dormant artifact reuses SDK-owned local storage without a token-copy bridge; all Preview origins remain isolated',async()=>{
- const tab={id:'tab'},canonicalStorage={id:'canonical'};
+ const mapStore=()=>{const map=new Map();return {map,getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};};
+ // The SDK receives a storage that cannot throw; while the given store works it writes and reads through to exactly that store.
+ const writesThrough=(options,target)=>{options.storage.setItem('probe','1');const ok=target.map.get('probe')==='1'&&options.storage.getItem('probe')==='1';options.storage.removeItem('probe');return ok&&!target.map.has('probe');};
+ const tab=mapStore(),canonicalStorage=mapStore();
  const options={productionArtifact:true,canonicalStorage};
  const canonical=readingSessionOptions(tab,{origin:'https://sod1820.co.il',pathname:'/old-post'},options);
- assert.equal(canonical.storage,canonicalStorage);assert.equal(canonical.persistSession,true);assert.equal(Object.hasOwn(canonical,'storageKey'),false);assert.equal(canonical.detectSessionInUrl,false);
+ assert.equal(writesThrough(canonical,canonicalStorage),true);assert.equal(tab.map.size,0);assert.equal(canonical.persistSession,true);assert.equal(Object.hasOwn(canonical,'storageKey'),false);assert.equal(canonical.detectSessionInUrl,false);
  for(const origin of ['https://preview.vercel.app','https://www.sod1820.co.il','https://sod1820.vercel.app','http://sod1820.co.il','https://sod1820.co.il.evil.invalid']){
-  const o=readingSessionOptions(tab,{origin,pathname:'/'},options);assert.equal(o.storage,tab);assert.equal(o.storageKey,'sod-public-reading-account');
+  const o=readingSessionOptions(tab,{origin,pathname:'/'},options);assert.equal(writesThrough(o,tab),true);assert.equal(canonicalStorage.map.size,0);assert.equal(o.storageKey,'sod-public-reading-account');
  }
- assert.equal(readingSessionOptions(tab,{origin:'https://sod1820.co.il',pathname:'/'},{...options,productionArtifact:false}).storage,tab);
+ {const o=readingSessionOptions(tab,{origin:'https://sod1820.co.il',pathname:'/'},{...options,productionArtifact:false});assert.equal(writesThrough(o,tab),true);assert.equal(canonicalStorage.map.size,0);}
  for(const value of [{data:{user:{id:'b'}}},{error:Error('expired')},{data:{user:null}}])assert.equal(await verifyReadingSession({access_token:'synthetic',user:{id:'a'}},{getUser:async()=>value}),null);
 });
 

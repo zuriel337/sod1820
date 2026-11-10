@@ -34,7 +34,11 @@ test('worker policy changed and exact callback alone consumes tab-bound PKCE',()
  const storage={getItem(){},setItem(){},removeItem(){}};
  for(const pathname of ['/','/world','/auth/callback/','/post/auth/callback'])assert.equal(readingSessionOptions(storage,{pathname}).detectSessionInUrl,false);
  const configured=readingSessionOptions(storage,{pathname:'/auth/callback'});
- assert.equal(configured.detectSessionInUrl,true);assert.equal(configured.flowType,'pkce');assert.equal(configured.storage,storage);
+ assert.equal(configured.detectSessionInUrl,true);assert.equal(configured.flowType,'pkce');
+ // The SDK now receives a storage that cannot throw. While the given storage works it is written and read through unchanged.
+ const map=new Map(),through={getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,v),removeItem:k=>map.delete(k)};
+ const wrapped=readingSessionOptions(through,{pathname:'/auth/callback'}).storage;
+ wrapped.setItem('a','1');assert.equal(map.get('a'),'1');assert.equal(wrapped.getItem('a'),'1');wrapped.removeItem('a');assert.equal(map.has('a'),false);
  assert.equal(configured.storageKey,'sod-public-reading-account');
 });
 test('Google and Facebook share verified exact callback and reject unapproved Preview origins',()=>{
