@@ -37,7 +37,8 @@ const fixtureStorageFile = name => {
 };
 function sendStorage(req, res, file, log) {
   const size = file.bytes.length, range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
-  const headers = { 'content-type': file.type, 'accept-ranges': 'bytes', 'access-control-allow-origin': '*', 'cache-control': 'public, max-age=3600' };
+  // no-store: every visit (first load and reload) must really reach storage, so a native load is always visible in the log.
+  const headers = { 'content-type': file.type, 'accept-ranges': 'bytes', 'access-control-allow-origin': '*', 'cache-control': 'no-store' };
   if (!range) { log.status = 200; res.writeHead(200, { ...headers, 'content-length': size }); return res.end(file.bytes); }
   let start = range[1] === '' ? Math.max(0, size - Number(range[2])) : Number(range[1]);
   // At most 256 KiB per answer (valid for any range), so a seek always has to ask for a later range, as on a slow network.

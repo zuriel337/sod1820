@@ -14,6 +14,8 @@ const req = createRequire(import.meta.url);
 let pw; for (const name of ['playwright', '@playwright/test']) { try { pw = req(name); break; } catch { /* optional tooling */ } }
 const executablePath = process.env.CHROMIUM_PATH || process.env.CHROMIUM_EXECUTABLE_PATH;
 const skip = !(Boolean(pw) && existsSync(join(dist, 'sw.js'))) && 'playwright or the built artifact is unavailable';
+// Set by the CI step when the browser it runs can decode H.264 (Google Chrome): then video must really play and seek, not only load.
+const requireVideoDecode = process.env.PUBLIC_MEDIA_REQUIRE_VIDEO_DECODE === '1';
 
 const STORE = 'https://linswmnnkjxvweumprav.supabase.co/storage/v1';
 const PROFILES = {
@@ -78,6 +80,7 @@ for (const profile of Object.keys(PROFILES)) {
     try {
       const context = await browser.newContext({ ...PROFILES[profile], ignoreHTTPSErrors: true, locale: 'he-IL' });
       const page = await context.newPage();
+      console.log(`[public-media] ${profile}: browser ${browser.version()}, video decode required: ${requireVideoDecode}`);
       for (const visit of ['first load', 'reload']) {
         if (visit === 'first load') await page.goto(fixture.origin + '/', { waitUntil: 'domcontentloaded' }); else await page.reload({ waitUntil: 'domcontentloaded' });
         await ready(page);
@@ -86,7 +89,9 @@ for (const profile of Object.keys(PROFILES)) {
           const label = `${visit}: ${outcome.tag} ${outcome.src}`;
           const path = new URL(outcome.src).pathname, seen = fixture.state.storage.slice(before).filter(entry => entry.path === path);
           assert.ok(seen.some(entry => entry.range && entry.status === 206), `${label}: the browser reached storage natively with a Range request`);
-          if (outcome.tag === 'video' && !outcome.codec) continue; // the transport is proven above; this build cannot decode H.264
+          if (outcome.tag === 'video' && !outcome.codec) { // the transport is proven above; this browser build cannot decode H.264
+            assert.equal(requireVideoDecode, false, `${label}: this run requires real video decoding (browser ${browser.version()})`); continue;
+          }
           assert.equal(outcome.play, 'ok', label); assert.equal(outcome.error, null, label);
           assert.equal(outcome.seek, 'seeked', label); assert.ok(Math.abs(outcome.at - outcome.target) < 1.5, `${label}: seek landed at ${outcome.at}`);
           assert.ok(seen.some(entry => entry.status === 206 && entry.start > 0) || outcome.tag === 'audio', `${label}: seeking asked for a later byte range`);

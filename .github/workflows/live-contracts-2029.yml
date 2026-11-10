@@ -295,7 +295,10 @@ jobs:
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and
       # without a version key or a media start fragment, first load and reload; a signed object never becomes a native load.
       - name: Public storage media through the real worker (play, seek, reload)
-        run: node --test test/public-media-transport-2029.browser.mjs
+        # Playwright's Chromium build may not decode H.264; the runner's Google Chrome does, and then real playback is required.
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then export CHROMIUM_PATH="$(command -v google-chrome)" PUBLIC_MEDIA_REQUIRE_VIDEO_DECODE=1; fi
+          node --test test/public-media-transport-2029.browser.mjs
       - name: Keep the evidence
         if: always()
         uses: actions/upload-artifact@v4
