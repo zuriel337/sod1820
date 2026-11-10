@@ -65,3 +65,13 @@ export function providerOAuthRequest({ provider = 'google', origin, returnTo = '
 }
 
 export function googleOAuthRequest(args) { return providerOAuthRequest({ ...args, provider: 'google' }); }
+
+// Where an e-mailed sign-in link returns. Always the exact /auth/callback of a trusted origin (the same origin policy as
+// OAuth). Returns undefined for an untrusted/unverified preview origin, so the request then carries no redirect at all and
+// the code remains the way in. The public-reading worker admits this one query parameter and nothing else.
+export function emailLinkRedirect(origin, options = {}) {
+  try {
+    const request = providerOAuthRequest({ provider: 'google', origin, returnTo: '/', functionalPreview: true, ...options });
+    return request.options.redirectTo.endsWith('/auth/callback') ? request.options.redirectTo : undefined;
+  } catch { return undefined; }
+}

@@ -33,7 +33,10 @@ export function interceptPublicReadingAdminAuth(event, authOrigin, { accountAcce
     const security = value => value === undefined || value && !Array.isArray(value) && typeof value === 'object'
       && Object.keys(value).every(key => key === 'captcha_token') && (value.captcha_token === undefined || typeof value.captcha_token === 'string');
     const email = value => typeof value === 'string' && value.length <= 320 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(value);
-    if (accountAccess && !url.search && url.pathname === '/auth/v1/otp') {
+    // The code request may carry exactly one query parameter: redirect_to, and only our exact /auth/callback. The server still
+    // validates it against its redirect allow-list; any other parameter or destination is denied (the PR #1285 failure mode).
+    const onlyCallbackRedirect = url.searchParams.size === 1 && url.searchParams.getAll('redirect_to').length === 1 && callback(url.searchParams.get('redirect_to'));
+    if (accountAccess && (!url.search || onlyCallbackRedirect) && url.pathname === '/auth/v1/otp') {
       if (Object.keys(body).some(key => !['email','data','create_user','gotrue_meta_security','code_challenge','code_challenge_method'].includes(key))
         || !email(body.email) || typeof body.create_user !== 'boolean' || accountAccess !== true && body.create_user !== false
         || !body.data || Array.isArray(body.data) || typeof body.data !== 'object' || Object.keys(body.data).length
@@ -42,7 +45,7 @@ export function interceptPublicReadingAdminAuth(event, authOrigin, { accountAcce
     }
     if (accountAccess && !url.search && url.pathname === '/auth/v1/verify') {
       return Object.keys(body).every(key => ['email','token','type','gotrue_meta_security'].includes(key)) && email(body.email)
-        && /^[0-9]{6,10}$/.test(body.token || '') && body.type === 'email' && security(body.gotrue_meta_security) ? forward() : deny();
+        && /^[0-9]{6,10}$/.test(body.token || '') && ['email', 'signup'].includes(body.type) && security(body.gotrue_meta_security) ? forward() : deny();
     }
     if (url.pathname !== '/auth/v1/token' || url.searchParams.size !== 1) return deny();
     const grant = url.searchParams.get('grant_type');

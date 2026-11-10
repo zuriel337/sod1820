@@ -30,7 +30,7 @@ function worker({role='admin',uid=a,rows,authError=false,throwFetch=false,fetchA
  }};
 }
 test('worker policy changed and exact callback alone consumes tab-bound PKCE',()=>{
- assert.equal(PUBLIC_READING_POLICY_ID,'public-reading-owned-account-continuity-20261103');
+ assert.equal(PUBLIC_READING_POLICY_ID,'public-reading-owned-account-continuity-20261110');
  const storage={getItem(){},setItem(){},removeItem(){}};
  for(const pathname of ['/','/world','/auth/callback/','/post/auth/callback'])assert.equal(readingSessionOptions(storage,{pathname}).detectSessionInUrl,false);
  const configured=readingSessionOptions(storage,{pathname:'/auth/callback'});
