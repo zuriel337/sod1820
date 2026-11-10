@@ -239,7 +239,7 @@ export function latestRunAt(models) {
 // its newest member, so a new update lifts the whole box. Every member stays its own publication (same id, same order inside).
 // Pure presentation over the loaded rows: one function for Now and Home, no second reader, no re-ranking of anything else.
 const RABBI_WORD = /(?:^|[^\u05D0-\u05EA])(?:[ולבש]?ה|[ולב]|מה)?רב(?![\u05D0-\u05EA])/;
-export const RABBI_BOX_LABEL = "אור הגאולה · דברי רבנים";
+export const RABBI_BOX_LABEL = "אור הגאולה";
 export function isRabbiBoxModel(model) {
   if (!model || model.item?.sourceKind !== "channel_update" || model.item?.channel !== "or-geula" || model.unverified) return false;
   return [model.title, model.fullText, model.summary].some(text => RABBI_WORD.test(String(text || "")));
