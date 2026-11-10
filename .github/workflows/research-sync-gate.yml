@@ -5,6 +5,10 @@ on:
       - 'src/lib/auth.js'
       - 'src/lib/research/ResearchProvider.jsx'
       - 'src/lib/research/researchSync*'
+      - 'src/lib/research/researchJournal*'
+      - 'src/lib/research/researchQueue*'
+      - 'test/research-journal-browser-2029.browser.mjs'
+      - 'test/helpers/researchJournalHarness.entry.mjs'
       - 'supabase/migrations/20260916141000_g3_personal_research_sync_hardening_v1.sql'
       - 'scripts/test-research-sync*'
       - 'test/research-sync-hardening.test.mjs'
@@ -32,6 +36,8 @@ jobs:
           sudo -u postgres createdb research_sync_fixture
           PGPASSWORD=fixture_only psql -h localhost -U postgres -d research_sync_fixture -v ON_ERROR_STOP=1 -Atqc 'select current_database()'
       - run: node --test src/lib/research/researchSyncRuntime.test.js src/lib/research/researchSyncRecovery.test.js test/research-sync-hardening.test.mjs
+      - name: Journal lifecycle, lossless queue bound and real-runtime properties
+        run: node --test src/lib/research/researchJournalLifecycle.test.js src/lib/research/researchJournalRuntime.test.js src/lib/research/researchQueueCompaction.test.js
       - name: Execute actual migration and adversarial SQL in disposable PostgreSQL
         env:
           PGPASSWORD: fixture_only
@@ -41,3 +47,22 @@ jobs:
         run: npm install --no-save --package-lock=false esbuild@0.28.2 react-test-renderer@19.3.0
       - name: Mounted React provider / principal boundary
         run: node --test scripts/test-research-sync-provider.mjs
+
+  # Real Chromium, real timers / pagehide / crash / duplicated tabs against the real runtime and an idempotent compare-and-set fixture server.
+  journal-browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: npm ci --no-audit --no-fund
+      - name: Install the pinned browser
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Journal lifecycle in a real browser
+        run: node --test test/research-journal-browser-2029.browser.mjs
