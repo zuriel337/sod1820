@@ -180,6 +180,7 @@ Privacy/RLS rules are scoped invariants under Person/Foundation owners, not para
 | post voice (plural system voice "אנחנו", no first person); applies to authored post text, not to interface strings | `post_system_voice_law` v1 under publishing conventions |
 | legacy WordPress/gallery maintenance adapter | active `legacy_content_protocol` **on demand only** |
 | translation / source-language integrity | `content_translation_law` **v4 ACTIVE** |
+| video transcript identity / source transcript / video-specific transcript representation | `video_transcription_law` **v1 ACTIVE**, child of `content_translation_law`; publishing conventions retains post/video identity and publication/release |
 | contributor/source material | Research Intake + Research OS owners |
 | share UI primitive family | `canonical_ui_components_law` under Experience |
 
