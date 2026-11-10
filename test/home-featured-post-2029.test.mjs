@@ -29,7 +29,7 @@ test("Home: the featured card is the first area (before the ELS entry); its Post
   assert.ok(body.indexOf("<HomeFeaturedPost2029") > 0 && body.indexOf("<HomeFeaturedPost2029") < body.indexOf("elsEntry ? <Reveal"));
   assert.match(home, /featured\.post\?\.href,/); assert.match(home, /featured\.post\?\.slug,/);
   const css = await readFile(new URL("../src/components/experience2029/homeComposition2029.css", import.meta.url), "utf8");
-  assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 544px; \}/, "height reserved while loading");
+  assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 682px; \}/, "height reserved while loading (544 + the 1234 block, ZURIEL 10.11.2026)");
 });
 
 test("the whole message is ONE feed item for 'עכשיו': same post:<id> identity, headline + note + numbers + connections + interpretation as one body", async () => {
