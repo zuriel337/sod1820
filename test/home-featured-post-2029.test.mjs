@@ -29,7 +29,7 @@ test("Home: the featured card is the first area (before the ELS entry); its Post
   assert.ok(body.indexOf("<HomeFeaturedPost2029") > 0 && body.indexOf("<HomeFeaturedPost2029") < body.indexOf("elsEntry ? <Reveal"));
   assert.match(home, /featured\.post\?\.href,/); assert.match(home, /featured\.post\?\.slug,/);
   const css = await readFile(new URL("../src/components/experience2029/homeComposition2029.css", import.meta.url), "utf8");
-  assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 1440px; \}/, "height reserved while loading (544 + the 1234 and 1011 blocks and the sentence, ZURIEL 10.11.2026)");
+  assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 1140px; \}/, "height reserved while loading (544 + the 1234 and 1011 blocks and the sentence, ZURIEL 10.11.2026)");
 });
 
 test("the whole message is ONE feed item for 'עכשיו': same post:<id> identity, headline + note + numbers + connections + interpretation as one body", async () => {
@@ -50,8 +50,7 @@ test("the whole message is ONE feed item for 'עכשיו': same post:<id> identi
   const [model] = nowModels(feedRows(merged, { now: Date.parse("2026-11-08T12:00:00Z"), limit: 10 }));
   assert.equal(model.title.startsWith("ממשלת אייזנקוט"), true); assert.ok(model.fullText.includes("חיבורים במספרים"));
   assert.ok(!featuredBodyText().includes("608"), "only what 618 is, not the other spelling");
-  assert.equal(featuredBodyText().split("\n").length, 9, "headline, message, statement, 1234, 1437, 1011, note, numbers, connections");
-  assert.match(featuredBodyText(), /משיח י-הוה — משולש = 1437/);
+  assert.equal(featuredBodyText().split("\n").length, 8, "headline, message, statement, 1234, 1011, note, numbers, connections");
   assert.match(featuredBodyText(), /ממשלת משיח בן דוד = 1234 · התגלות השכינה = 1234/);
   assert.match(featuredBodyText(), /המשיח פועל במעשים = 1011 · הגאלה תבא בהיסח הדעת = 1011 · קץ זוהמת הנחש = 1011/);
   assert.match(featuredBodyText(), /אין עוד מלבדו/);
@@ -86,15 +85,15 @@ test("no single stray numbers, and Home shows words only: the numbers live insid
 });
 
 test("the Home numbers: 1234 and 1011, each phrase read from the canonical regular method (engine, 10.11.2026), plus the owner's sentence; no caption line", () => {
-  const [g1234, g1437, g1011] = HOME_FEATURED_POST_2029.highlights;
-  assert.deepEqual([g1234.value, g1437.value, g1011.value], [1234, 1437, 1011]);
-  assert.equal(g1437.method, "קדמי"); assert.deepEqual([...g1437.phrases], ["משיח י-הוה — משולש"]);
+  const [g1234, g1011] = HOME_FEATURED_POST_2029.highlights;
+  assert.deepEqual([g1234.value, g1011.value], [1234, 1011]);
+  assert.ok(!JSON.stringify(HOME_FEATURED_POST_2029).includes("1437"), "1437 lives only in the Post itself (ZURIEL 10.11.2026), not on Home");
   assert.deepEqual([...g1234.phrases], ["ממשלת משיח בן דוד", "התגלות השכינה"]);
   assert.deepEqual([...g1011.phrases], ["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים", "הגאלה תבא בהיסח הדעת", "קץ זוהמת הנחש"]);
   assert.equal(HOME_FEATURED_POST_2029.statement, "מה שאנחנו רואים בעיניים — הכול פעולות של הבורא, שפועל דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.");
   assert.ok(!JSON.stringify(HOME_FEATURED_POST_2029.highlights).includes("תתאה גבר"));
   const card = projectHomeFeaturedPost(row(), HOME_FEATURED_POST_2029);
-  assert.equal(card.highlights.length, 3); assert.equal(card.statement, HOME_FEATURED_POST_2029.statement);
+  assert.equal(card.highlights.length, 2); assert.equal(card.statement, HOME_FEATURED_POST_2029.statement);
 });
 
 test("the Home 1234 block links to the number's own window; each phrase to the same number focused on it", async () => {
