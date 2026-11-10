@@ -215,16 +215,16 @@ test("an owner-flagged update carries a dot label; rows without the flag carry n
   assert.equal(a.dot, "עדכון חדש בפוסט"); assert.equal(b.dot, null); assert.equal(c.dot, null);
 });
 
-test("the 'מספר היום' band shows for exactly its days (Asia/Jerusalem) and then disappears; no band, no output", () => {
-  const band = { value: 1011, from: "2026-11-10", days: 3, title: "היום", phrases: ["א", "ב"] };
+test("the update-of-the-day band carries the whole update, shows for exactly its days (Asia/Jerusalem), then disappears; no band, no output", () => {
+  const band = { from: "2026-11-10", days: 3, title: "עדכון היום", groups: [{ value: 1234, phrases: ["א", "ב"] }, { value: 1011, phrases: ["ג"], numberOnly: ["ג"] }], statement: "משפט" };
   const models = [{ item: { band } }, { item: {} }];
   const at = iso => Date.parse(iso);
   assert.equal(nowTodayBand(models, at("2026-11-09T21:59:00Z")), null, "before the first Israeli day (23:59 on 9.11)");
-  assert.equal(nowTodayBand(models, at("2026-11-09T22:01:00Z")).value, 1011, "00:01 on 10.11 Israel time");
-  assert.equal(nowTodayBand(models, at("2026-11-12T20:00:00Z")).value, 1011, "last day, 12.11 evening");
+  const first = nowTodayBand(models, at("2026-11-09T22:01:00Z"));
+  assert.deepEqual(first.groups.map(g => g.value), [1234, 1011]); assert.deepEqual(first.groups[0].phrases, ["א", "ב"]); assert.deepEqual(first.groups[1].numberOnly, ["ג"]); assert.equal(first.statement, "משפט");
+  assert.ok(nowTodayBand(models, at("2026-11-12T20:00:00Z")), "last day, 12.11 evening");
   assert.equal(nowTodayBand(models, at("2026-11-12T22:30:00Z")), null, "00:30 on 13.11 Israel time: gone");
-  assert.deepEqual(nowTodayBand(models, at("2026-11-11T10:00:00Z")).phrases, ["א", "ב"]);
   assert.equal(nowTodayBand([{ item: {} }], at("2026-11-11T10:00:00Z")), null);
   assert.equal(nowTodayBand(null), null);
-  for (const bad of [{ ...band, days: 0 }, { ...band, from: "10.11.2026" }, { ...band, value: "1011" }]) assert.equal(nowTodayBand([{ item: { band: bad } }], at("2026-11-11T10:00:00Z")), null);
+  for (const bad of [{ ...band, days: 0 }, { ...band, from: "10.11.2026" }, { ...band, groups: [] }, { ...band, groups: [{ value: "1011", phrases: ["ג"] }] }]) assert.equal(nowTodayBand([{ item: { band: bad } }], at("2026-11-11T10:00:00Z")), null);
 });
