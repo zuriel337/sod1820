@@ -270,7 +270,8 @@ jobs:
   # Existing account, new account, password, e-mail link, session persistence, desktop / mobile / installed-app presentation and a stale worker.
   auth-browser-acceptance-2029:
     name: auth-browser-acceptance-2029
-    runs-on: ubuntu-latest
+    # Pinned: Playwright 1.55 (pinned below) has no browser build for ubuntu-latest (26.04); the other browser gates use 24.04 too.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
