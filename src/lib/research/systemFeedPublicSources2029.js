@@ -1,6 +1,7 @@
 // Extra public Now lenses over EXISTING sources, admitted only on opening Now.
 // No Legacy WhatsApp endpoint, private intake, model, RPC, writer or new store.
 import { stripHtml } from "../format.js";
+import { publicStorageMedia } from "../mediaEgressGuard.js";
 import { redactGroupText } from "./worldGroupSource.js";
 import { gallerySourceHref2029 } from "./topicSourceContext.js";
 import { CONTENT_SERIES_2029 } from "./contentSeries2029Identity.js";
@@ -29,19 +30,24 @@ export function publicNowSourceHref(value) {
     return null;
   } catch { return null; }
 }
+// The shared public storage media rule (PUBLIC_STORAGE_MEDIA_V1), the same one the public-reading worker uses: an already-public
+// object of this project's public buckets, with at most a version/cache key or a media start fragment. Signed, private-bucket,
+// rendition and foreign addresses stay out.
 export function publicNowMediaHref(value) {
-  try {
-    const u = new URL(value);
-    return u.origin === "https://linswmnnkjxvweumprav.supabase.co" && /^\/storage\/v1\/object\/public\/(?:media|gallery|magar)\//.test(u.pathname)
-      && !u.search && !u.hash && !u.username && !u.password ? u.href : null;
-  } catch { return null; }
+  const media = publicStorageMedia(value);
+  return media && !media.rendition ? media.href : null;
+}
+// The media kind of an admitted address comes from its canonical path, never from a version key (…/original.mp4?v=2 is a video).
+export function publicNowMediaKind(value) {
+  const media = publicStorageMedia(value);
+  return media && !media.rendition ? media.kind : null;
 }
 export function publicChannelToSystemItem(row, { now = Date.now() } = {}) {
   if (!UUID.test(row?.id || "") || !NOW_PUBLIC_CHANNELS_2029[row.channel] || row.status !== "live" || row.page_only !== false
     || row.expires_at && (!date(row.expires_at) || Date.parse(row.expires_at) <= now)) return null;
   const body = text(row.text), at = date(row.created_at), mediaHref = publicNowMediaHref(row.image_url);
   if (!at || !body && !mediaHref) return null;
-  const label = body || `${/\.(?:mp4|webm|mov)$/i.test(mediaHref) ? "סרטון" : "תמונה"} · ${NOW_PUBLIC_CHANNELS_2029[row.channel]}`;
+  const label = body || `${publicNowMediaKind(mediaHref) === "video" ? "סרטון" : publicNowMediaKind(mediaHref) === "audio" ? "הקלטה" : "תמונה"} · ${NOW_PUBLIC_CHANNELS_2029[row.channel]}`;
   return { id: `channel:${row.id}`, kind: "source", sourceKind: "channel_update", channel: row.channel,
     sourceLabel: NOW_PUBLIC_CHANNELS_2029[row.channel], label: label.slice(0, 160), fullText: body, mediaHref, thumbUrl: publicNowMediaHref(row.thumb_url),
     fullTextTruncated: body.length === 1200,

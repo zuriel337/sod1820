@@ -3,6 +3,7 @@ import { readingPersonalResponse } from "./personal-request.js";
 import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.js";
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
 import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
+import { publicStorageMedia } from "../src/lib/mediaEgressGuard.js";
 import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEngagementBody } from "../src/lib/publicReadingTelemetry2029.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
@@ -45,19 +46,6 @@ function installPublicReadingWorker(policy) {
   }
   const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   const readFetch = req => fetch(new Request(req, { cache: "no-store", credentials: "omit", redirect: "error" }));
-  // Sizing parameters of a public image rendition (avatar and thumbnail slots). Nothing else may ride on the address.
-  const publicRenditionQuery = params => {
-    const seen = new Set();
-    for (const [key, value] of params) {
-      if (seen.has(key)) return false;
-      seen.add(key);
-      if (key === "resize") { if (!["cover", "contain", "fill"].includes(value)) return false; }
-      else if (key === "width" || key === "height") { if (!/^[0-9]{1,4}$/.test(value) || Number(value) < 1 || Number(value) > 2048) return false; }
-      else if (key === "quality") { if (!/^[0-9]{1,3}$/.test(value) || Number(value) < 1 || Number(value) > 100) return false; }
-      else return false;
-    }
-    return seen.has("width") || seen.has("height");
-  };
   const metricDocuments = new Map();
   const measurementClient = async event => {
     if (!event.clientId || !["https://sod1820.co.il", "https://www.sod1820.co.il"].includes(self.location.origin)) return null;
@@ -271,19 +259,14 @@ function installPublicReadingWorker(policy) {
       })().catch(() => denied()));
       return;
     }
-    // Native no-cors image responses must retain redirect=follow. Fetching
-    // them through readFetch's redirect=error makes the opaque response
-    // incompatible with the browser image request. Only already-public image
-    // GETs bypass that API wrapper; private/signed objects and writes do not.
-    if (url.origin === authOrigin && req.method === "GET" && req.destination === "image"
-      && req.mode === "no-cors" && !url.search && !url.hash
-      && /^\/storage\/v1\/object\/public\/(?:media|gallery|magar)\//.test(url.pathname)) return;
-    // The same exception covers the small renditions of those public images. Through readFetch they failed outright
-    // (net::ERR_FAILED), so avatar slots fell back to the multi-megabyte original. Only sizing parameters are accepted.
-    if (url.origin === authOrigin && req.method === "GET" && req.destination === "image"
-      && req.mode === "no-cors" && !url.hash && !url.pathname.includes("//")
-      && /^\/storage\/v1\/render\/image\/public\/(?:media|gallery|magar)\//.test(url.pathname)
-      && publicRenditionQuery(url.searchParams)) return;
+    // Already-public storage media load natively (PUBLIC_STORAGE_MEDIA_V1, the same shared rule the public readers use).
+    // readFetch rebuilds a request with redirect=error: a no-cors media/image request then fails before it reaches the network
+    // (net::ERR_FAILED: videos and audio never played, images with a version key and renditions broke), and the rebuild also
+    // drops Range, so seeking could not work. Native loading keeps redirects, Range/206 and the HTTP cache as the browser does
+    // them. Only public buckets of this project, version/cache keys (v, _) and image sizing keys qualify; signed objects,
+    // private buckets, any other parameter, script-initiated reads and writes stay with the API wrapper.
+    if (url.origin === authOrigin && req.method === "GET" && ["image", "video", "audio", "track"].includes(req.destination)
+      && publicStorageMedia(req.url)) return;
     if (url.origin === authOrigin && req.method === "POST"
       && ["/rest/v1/rpc/ingest_event", "/rest/v1/rpc/track_visit", "/rest/v1/contact_messages"].includes(url.pathname)) {
       event.respondWith((async () => {
@@ -518,7 +501,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 
