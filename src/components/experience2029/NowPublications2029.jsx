@@ -90,18 +90,23 @@ function RunGroup({ entry, children }) {
   </details></li>;
 }
 
-// "מספר היום": a gold number chip (opens the number window) with today's line; the connections fold under "+N חיבורים".
-// The ring around the number pulses three times and then rests (no pulse for reduced motion).
+// The update of the day (whole): every number group (gold chip that opens the number window, each phrase as one tidy row; the date line opens only the
+// number) and the owner's sentence. The ring around each number pulses three times and then rests (none for reduced motion).
 function TodayBand({ band, onOpen }) {
-  const href = numberExpressionFocusHref(band.value, { method: "רגיל" });
-  return <section className="sod29-nowpub-today" data-now-today-band={band.value} aria-label="מספר היום">
-    {href ? <button type="button" className="sod29-nowpub-today-num" onClick={() => onOpen?.(href)} aria-label={`פתח את המספר ${band.value}`}>{band.value}</button>
-      : <b className="sod29-nowpub-today-num">{band.value}</b>}
-    <div className="sod29-nowpub-today-text">
-      <strong>{band.title}</strong>
-      {band.phrases.length ? <details><summary>+{band.phrases.length} חיבורים</summary>
-        <ul>{band.phrases.map(phrase => <li key={phrase}>{phrase} <b>= {band.value}</b></li>)}</ul></details> : null}
-    </div>
+  return <section className="sod29-nowpub-today" data-now-today-band="true" aria-label={band.title}>
+    <strong className="sod29-nowpub-today-title">{band.title}</strong>
+    {band.groups.map(group => {
+      const numberHref = numberExpressionFocusHref(group.value, { method: "רגיל" });
+      return <div className="sod29-nowpub-today-group" key={group.value} data-now-today-group={group.value}>
+        {numberHref ? <button type="button" className="sod29-nowpub-today-num" onClick={() => onOpen?.(numberHref)} aria-label={`פתח את המספר ${group.value}`}>{group.value}</button>
+          : <b className="sod29-nowpub-today-num">{group.value}</b>}
+        <ul className="sod29-nowpub-today-rows">{group.phrases.map(phrase => {
+          const href = group.numberOnly.includes(phrase) ? null : numberExpressionFocusHref(group.value, { expression: phrase, method: "רגיל" });
+          return <li key={phrase}><span>{href ? <button type="button" className="sod29-nowpub-link" onClick={() => onOpen?.(href)}>{phrase}</button> : phrase}</span><b>= {group.value}</b></li>;
+        })}</ul>
+      </div>;
+    })}
+    {band.statement ? <p className="sod29-nowpub-today-statement" data-now-today-statement="true">{band.statement}</p> : null}
   </section>;
 }
 

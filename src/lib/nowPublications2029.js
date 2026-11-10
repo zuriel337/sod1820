@@ -274,17 +274,21 @@ export function buildNowEntries(models, { rabbiBox = true, sourceRuns = true } =
 }
 
 /**
- * The "מספר היום" band: carried by an owner-flagged feed item (`item.band` = { value, from, days, title, phrases }), shown only while today's date
- * (Asia/Jerusalem) is inside [from, from + days). Pure presentation: no reader, no calculation; outside the window (or without a band) it is null.
+ * The update-of-the-day band: carried by an owner-flagged feed item (`item.band` = { from, days, title, groups: [{ value, phrases, numberOnly }], statement }),
+ * shown only while today's date (Asia/Jerusalem) is inside [from, from + days). Pure presentation: no reader, no calculation; outside the window
+ * (or without a band, or without a valid group) it is null.
  */
 export function nowTodayBand(models, now = Date.now(), timeZone = "Asia/Jerusalem") {
   const band = list(models).map(model => model?.item?.band).find(Boolean);
-  if (!band || !Number.isInteger(band.value) || !Number.isInteger(band.days) || band.days < 1 || !/^\d{4}-\d{2}-\d{2}$/.test(band.from || "")) return null;
+  if (!band || !Number.isInteger(band.days) || band.days < 1 || !/^\d{4}-\d{2}-\d{2}$/.test(band.from || "")) return null;
+  const groups = list(band.groups).filter(group => group && Number.isInteger(group.value) && list(group.phrases).length)
+    .map(group => ({ value: group.value, phrases: list(group.phrases).map(String), numberOnly: list(group.numberOnly).map(String) }));
+  if (!groups.length) return null;
   const dayIndex = key => { const [y, m, d] = key.split("-").map(Number); return Date.UTC(y, m - 1, d) / 86400000; };
   let today;
   try { today = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now); } catch { return null; }
   const offset = dayIndex(today) - dayIndex(band.from);
-  return offset >= 0 && offset < band.days ? { value: band.value, title: String(band.title || ""), phrases: list(band.phrases).map(String) } : null;
+  return offset >= 0 && offset < band.days ? { title: String(band.title || ""), groups, statement: band.statement ? String(band.statement) : null } : null;
 }
 
 /** The series page for a model (series key is the existing approved identity). */

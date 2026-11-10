@@ -1,6 +1,6 @@
 /* Approved Home composition inside the System Frame (reference fa0e26f).
    Colors come only from the frame's --s29-* palette variables; widths follow the content column. */
-.h29 { container-type: inline-size; container-name: h29; display: flex; flex-direction: column; gap: 28px; color: var(--s29-ink); min-width: 0; }
+.h29 { container-type: inline-size; container-name: h29; display: flex; flex-direction: column; gap: 28px; color: var(--s29-ink); min-width: 0; padding-block-end: calc(var(--s29-island-clearance, 96px) + 24px); }
 .h29 *, .h29 *::before, .h29 *::after { box-sizing: border-box; }
 .h29 a { color: inherit; text-decoration: none; }
 .h29-kicker { font: 500 14px var(--s29-font-ui); letter-spacing: .02em; color: var(--s29-discovery); }
