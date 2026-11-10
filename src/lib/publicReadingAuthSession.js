@@ -20,7 +20,9 @@ export function readingSessionOptions(storage, location = globalThis.location, {
   // sessionStorage, then memory. A full or blocked localStorage no longer stops a sign-in; it only reduces how long it lasts.
   const primary = canonical ? () => canonicalStorage || globalThis.localStorage : () => storage;
   const resilient = registerAuthStorage(createResilientAuthStorage({ primary, secondary: () => globalThis.sessionStorage }));
-  return { persistSession: true, autoRefreshToken: true,
+  // With no usable store at all the SDK keeps its own memory-only session, exactly as before; with any usable store it uses the resilient one.
+  const usable = (() => { try { return Boolean(primary() || globalThis.sessionStorage); } catch { return false; } })();
+  return { persistSession: usable, autoRefreshToken: true,
     flowType: "pkce", detectSessionInUrl: location?.pathname === "/auth/callback",
     experimental: { appendPkceFlowIdToRedirects: false },
     // Omitting storageKey deliberately keeps the SDK's existing project key.
