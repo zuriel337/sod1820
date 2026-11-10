@@ -233,5 +233,41 @@ export function latestRunAt(models) {
   return best == null ? null : new Date(best).toISOString();
 }
 
+// ── Or HaGeula rabbi box (ZURIEL 10.11.2026) ─────────────────────────────────────────────────────────────────────────────────
+// Every Or HaGeula update whose own words contain "רב" or "הרב" (as a word: רב, הרב, and ו/ל/ב/ש/מה + הרב, ו/ל/ב + רב) goes
+// INTO one box; an Or HaGeula update without those words (e.g. a plain video) stays OUTSIDE as its own row. The box takes the place of
+// its newest member, so a new update lifts the whole box. Every member stays its own publication (same id, same order inside).
+// Pure presentation over the loaded rows: one function for Now and Home, no second reader, no re-ranking of anything else.
+const RABBI_WORD = /(?:^|[^\u05D0-\u05EA])(?:[ולבש]?ה|[ולב]|מה)?רב(?![\u05D0-\u05EA])/;
+export const RABBI_BOX_LABEL = "אור הגאולה";
+export function isRabbiBoxModel(model) {
+  if (!model || model.item?.sourceKind !== "channel_update" || model.item?.channel !== "or-geula" || model.unverified) return false;
+  return [model.title, model.fullText, model.summary].some(text => RABBI_WORD.test(String(text || "")));
+}
+
+/**
+ * Entries of the window: { kind: "row", model } | { kind: "run", ... } (consecutive source rows) | { kind: "box", id, label, models, latest }.
+ * Order = the order of `models` (newest first); a box sits where its newest member sits.
+ */
+export function buildNowEntries(models, { rabbiBox = true, sourceRuns = true } = {}) {
+  const all = list(models), entries = [];
+  const members = rabbiBox ? all.filter(isRabbiBoxModel) : [];
+  let segment = [], boxPlaced = false;
+  const flush = () => {
+    if (sourceRuns) entries.push(...collapseSourceRuns(segment));
+    else for (const model of segment) entries.push({ kind: "row", model });
+    segment = [];
+  };
+  for (const model of all) {
+    if (members.length && isRabbiBoxModel(model)) {
+      if (boxPlaced) continue;
+      flush(); boxPlaced = true;
+      entries.push({ kind: "box", id: "box:or-geula-rabbi", label: RABBI_BOX_LABEL, models: members, latest: latestRunAt(members) });
+    } else segment.push(model);
+  }
+  flush();
+  return entries;
+}
+
 /** The series page for a model (series key is the existing approved identity). */
 export const nowSeriesHref = model => model?.seriesKey ? `/2029/posts?series=${encodeURIComponent(model.seriesKey)}` : null;

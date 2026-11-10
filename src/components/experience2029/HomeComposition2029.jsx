@@ -18,7 +18,7 @@ import { SystemFeedContext2029 } from "./systemFeedContext2029.js";
 import SeriesBell2029 from "./SeriesBell2029.jsx";
 import HomeFeaturedPost2029, { useHomeFeaturedPost } from "./HomeFeaturedPost2029.jsx";
 import { HOME_SECTIONS_2029 } from "../../lib/research/homeSections2029.js";
-import { nowModels } from "../../lib/nowPublications2029.js";
+import { nowModels, buildNowEntries } from "../../lib/nowPublications2029.js";
 import { useReveal } from "./useReveal2029.js";
 import { useApproach2029 } from "./useApproach2029.js";
 import { realUpdate } from "../../lib/heroUpdate2029.js";
@@ -278,8 +278,9 @@ function useHomeUpdates(feed, { exclude, postsOnly }) {
   const loading = Boolean(feed?.loading || feed?.detailsPending);
   const models = useMemo(() => {
     const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
-    return nowModels(rows)
-      .filter(model => !model.unverified && (!postsOnly || model.item?.sourceKind === "post") && !(model.href && exclude.has(model.href)))
+    // Same grouping function as "עכשיו": every Or HaGeula "רב/הרב" update lives in ONE box that sits at its newest member (one entry here).
+    return buildNowEntries(nowModels(rows)
+      .filter(model => !model.unverified && (!postsOnly || model.item?.sourceKind === "post") && !(model.href && exclude.has(model.href))), { sourceRuns: false })
       .slice(0, HOME_UPDATES_LIMIT);
   }, [feed?.expandedRows, feed?.rows, exclude, postsOnly]);
   return { loading, models };
@@ -293,7 +294,19 @@ function HomeLiveUpdates({ updates, onOpenNow }) {
       {onOpenNow ? <button type="button" className="h29-linkbtn" onClick={onOpenNow}>כל העדכונים ←</button> : <Link to="/2029/posts">כל הפוסטים ←</Link>}</div>
     <ul className="h29-live-list">
       {loading ? Array.from({ length: HOME_UPDATES_LIMIT }, (_, i) => <li className="h29-live-item h29-skel" key={i} aria-hidden="true" />)
-        : models.map((model, index) => {
+        : models.map((entry, index) => {
+          if (entry.kind === "box") {
+            const lead = entry.models[0];
+            const body = <>
+              <Media src={lead.logo?.src || lead.thumb} fallback="✦" className="h29-live-thumb" />
+              <span><small className="h29-live-meta"><b>{entry.label}</b> · {entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}{entry.latest ? <> · <time dateTime={entry.latest}>{relativeTimeLabel(entry.latest)}</time></> : null}</small>
+                <strong>{lead.title}</strong></span>
+            </>;
+            return <li className={`h29-live-item${index === 0 ? " is-lead" : ""}`} data-home-update-item={entry.id} data-home-update-box="or-geula-rabbi" key={entry.id}>
+              {onOpenNow ? <button type="button" className="h29-live-open" onClick={onOpenNow}>{body}</button> : <div>{body}</div>}
+            </li>;
+          }
+          const model = entry.model;
           const body = <>
             <Media src={model.thumb} fallback="✦" className="h29-live-thumb" />
             <span><small className="h29-live-meta"><b>{model.typeLabel}</b>{model.byline[0] ? ` · ${model.byline[0]}` : ""}{model.at && Number.isFinite(new Date(model.at).getTime()) ? <> · <time dateTime={new Date(model.at).toISOString()}>{relativeTimeLabel(model.at)}</time></> : null}</small>
