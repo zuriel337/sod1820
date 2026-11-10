@@ -29,7 +29,7 @@ test("Home: the featured card is the first area (before the ELS entry); its Post
   assert.ok(body.indexOf("<HomeFeaturedPost2029") > 0 && body.indexOf("<HomeFeaturedPost2029") < body.indexOf("elsEntry ? <Reveal"));
   assert.match(home, /featured\.post\?\.href,/); assert.match(home, /featured\.post\?\.slug,/);
   const css = await readFile(new URL("../src/components/experience2029/homeComposition2029.css", import.meta.url), "utf8");
-  assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 544px; \}/, "height reserved while loading");
+  assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 682px; \}/, "height reserved while loading (544 + the 1234 block, ZURIEL 10.11.2026)");
 });
 
 test("the whole message is ONE feed item for 'עכשיו': same post:<id> identity, headline + note + numbers + connections + interpretation as one body", async () => {
@@ -50,14 +50,16 @@ test("the whole message is ONE feed item for 'עכשיו': same post:<id> identi
   const [model] = nowModels(feedRows(merged, { now: Date.parse("2026-11-08T12:00:00Z"), limit: 10 }));
   assert.equal(model.title.startsWith("ממשלת אייזנקוט"), true); assert.ok(model.fullText.includes("חיבורים במספרים"));
   assert.ok(!featuredBodyText().includes("608"), "only what 618 is, not the other spelling");
-  assert.equal(featuredBodyText().split("\n").length, 5);
+  assert.equal(featuredBodyText().split("\n").length, 6, "headline, message, note, the 1234 highlight, numbers, connections");
+  assert.match(featuredBodyText(), /ממשלת משיח בן דוד = 1234 · התגלות השכינה = 1234/);
 });
 
 test("language (public_language_revelation_geula_law): discovery/hint voice, no research voice, the owner's framing kept as framing; the video sits where earlier post videos live", async () => {
   const { existsSync } = await import("node:fs");
   const all = [HOME_FEATURED_POST_2029.note, HOME_FEATURED_POST_2029.messageTitle, ...HOME_FEATURED_POST_2029.message, HOME_FEATURED_POST_2029.connectionsTitle, HOME_FEATURED_POST_2029.connectionsFootnote, HOME_FEATURED_POST_2029.numbersTitle].join(" ");
   assert.doesNotMatch(all, /מחקר|ממצא/, "'מחקר' is not the public default voice");
-  assert.match(HOME_FEATURED_POST_2029.message[0], /כביכול.*כביכול/, "the bloc numbers are the owner's framing, not stated as fact");
+  assert.match(HOME_FEATURED_POST_2029.message[0], /משויך לגוש הימין.*ולא תיאור של חלוקת המנדטים הרשמית/, "the bloc numbers are framed as a reading, not as the official seat split; same wording as the Post's own block (ZURIEL 10.11.2026)");
+  assert.doesNotMatch(HOME_FEATURED_POST_2029.message[0], /כביכול/, "no repeated 'כביכול' on Home: the Post says it once, plainly");
   assert.ok(HOME_FEATURED_POST_2029.message.some(line => line.includes("46") && line.includes("64") && line.includes("67")));
   assert.doesNotMatch(all, /הוכיח|ודאי|בוודאות|המשיח הוא/, "no certainty, no messianic identification of a person");
   for (const path of [HOME_FEATURED_POST_2029.video.src, HOME_FEATURED_POST_2029.video.poster]) assert.ok(existsSync(new URL("../public" + path, import.meta.url)), path);
@@ -78,4 +80,11 @@ test("no single stray numbers, and Home shows words only: the numbers live insid
   assert.equal((HOME_FEATURED_POST_2029.note.match(/בבנייה|נבנה/g) || []).length, 1, "'under construction' is said once, not twice");
   assert.match(HOME_FEATURED_POST_2029.note, /^הבורא מדבר דרך כל המציאות\./); assert.match(HOME_FEATURED_POST_2029.note, /רק חלק/);
   assert.doesNotMatch(home, /bridge/, "no second line");
+});
+
+test("the Home highlight: two phrases that both equal 1234 in the canonical regular method (read from the engine on 10.11.2026), shown as arithmetic only", () => {
+  const h = HOME_FEATURED_POST_2029.highlight;
+  assert.equal(h.value, 1234); assert.deepEqual([...h.phrases], ["ממשלת משיח בן דוד", "התגלות השכינה"]);
+  assert.equal("title" in h, false, "no caption line above the two phrases");
+  assert.equal(projectHomeFeaturedPost(row(), HOME_FEATURED_POST_2029).highlight.value, 1234);
 });
