@@ -39,12 +39,13 @@ export default function HomeFeaturedPost2029({ state }) {
     <div className="h29-featured-spots">
     {post.highlights.map(group => {
       // The number opens its own number window (the same address the rest of the site uses for a number); each phrase opens it focused on that phrase.
-      const numberHref = numberExpressionFocusHref(group.value, { method: "רגיל" });
+      const method = group.method || "רגיל";
+      const numberHref = numberExpressionFocusHref(group.value, { method });
       return <div className="h29-featured-spot" data-home-featured-spot={group.value} key={group.value}>
         {numberHref ? <Link className="h29-featured-spot-value" to={numberHref} aria-label={`פתח את המספר ${group.value}`} data-home-featured-spot-link="number">{group.value}</Link>
           : <b className="h29-featured-spot-value">{group.value}</b>}
         <ul className="h29-featured-rows">{group.phrases.map(phrase => {
-          const href = (group.numberOnly || []).includes(phrase) ? null : numberExpressionFocusHref(group.value, { expression: phrase, method: "רגיל" });
+          const href = (group.numberOnly || []).includes(phrase) ? null : numberExpressionFocusHref(group.value, { expression: (group.expressions && group.expressions[phrase]) || phrase, method });
           return <li key={phrase}><span className="h29-featured-row-text">{href ? <Link to={href} data-home-featured-spot-link="phrase">{phrase}</Link> : phrase}</span><b className="h29-featured-row-eq">= {group.value}</b></li>;
         })}</ul>
       </div>;

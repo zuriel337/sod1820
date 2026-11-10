@@ -30,6 +30,8 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
   // date of the Knesset swearing-in (10.11.2026) read as the number 1011, not a letter calculation. Arithmetic only.
   highlights: Object.freeze([
     Object.freeze({ value: 1234, phrases: Object.freeze(["ממשלת משיח בן דוד", "התגלות השכינה"]) }),
+    // 1437 is in the engine's "קדמי" (triangular) method, NOT the regular one: fn_method_value('קדמי', 'משיח יהוה') = 1437 on 2026-11-10 (the row says so).
+    Object.freeze({ value: 1437, method: "קדמי", phrases: Object.freeze(["משיח י-הוה — משולש"]), expressions: Object.freeze({ "משיח י-הוה — משולש": "משיח יהוה" }) }),
     Object.freeze({ value: 1011, phrases: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים", "הגאלה תבא בהיסח הדעת", "קץ זוהמת הנחש"]), numberOnly: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26"]) }),
   ]),
   // The sentence the owner asked to keep with the numbers (also in the Post's update and in "עכשיו").
