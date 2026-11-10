@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { requestEmailOtp, signInWithConfiguredProvider, signInWithPassword, verifyEmailOtp } from "../../lib/auth.js";
 import { useAuthMethods } from "../../lib/authMethods.js";
+import { AUTH_MESSAGES, RECOVERABLE_BY_REFRESH, classifyAuthError } from "../../lib/authDiagnostics.js";
+import { refreshAppRuntime } from "../../lib/authRecovery.js";
+import { markOtpSent, otpResendWaitMs } from "../../lib/otpThrottle.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
 import { safePreviewOAuthReturnPath } from "../../lib/oauthReturn.js";
 import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
@@ -24,7 +27,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
   const [step, setStep] = useState("email"), [email, setEmail] = useState("");
   const [password, setPassword] = useState(""), [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [busy, setBusy] = useState(false), [error, setError] = useState("");
+  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [failureKind, setFailureKind] = useState("");
   const attempt = useRef(0), mounted = useRef(true), principal = useRef(user?.id || null);
   principal.current = user?.id || null;
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; attempt.current++; }; }, []);
@@ -40,10 +43,13 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
     if (action === "password" && !password) { setError("הזינו את הסיסמה שלכם."); return; }
     const requestId = ++attempt.current;
     const current = () => mounted.current && requestId === attempt.current;
-    setBusy(true); setError("");
+    setBusy(true); setError(""); setFailureKind("");
     try {
       if (action === "email") {
+        // A second request inside the window would only cancel the code that was just sent.
+        if (otpResendWaitMs(address) > 0) { if (current() && !principal.current) { setEmail(address); setStep("code"); setError("הקוד שנשלח לפני רגע עדיין בתוקף. הזינו אותו כאן. אפשר לבקש קוד חדש בעוד כחצי דקה."); } return; }
         await requestEmailOtp(address, { shouldCreateUser: PUBLIC_READING_RELEASE || !preview || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" });
+        markOtpSent(address);
         if (current() && !principal.current) { setEmail(address); setStep("code"); }
       } else {
         const result = action === "password" ? await signInWithPassword(address, password) : await verifyEmailOtp(address, code);
@@ -52,20 +58,24 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
         }
       }
     } catch (failure) {
+      const kind = classifyAuthError(failure);
       // A 5xx from the code request (for example "Error sending confirmation email") does not prove that no mail left: the code may
       // still arrive. Never strand the person on the email step with nowhere to type it.
       if (action === "email" && Number(failure?.status) >= 500 && current() && !principal.current) {
-        setEmail(address); setStep("code");
+        setEmail(address); setStep("code"); setFailureKind(kind);
         setError("לא הצלחנו לאשר את שליחת הקוד, אבל ייתכן שהמייל בדרך. אם קיבלתם קוד, הזינו אותו כאן. אחרת אפשר לבקש קוד חדש.");
         return;
       }
       // 429: a code was just sent. Do not strand the person; the earlier email is still the valid one.
-      if (action === "email" && Number(failure?.status) === 429 && current() && !principal.current) {
-        setEmail(address); setStep("code");
-        setError("כבר שלחנו קוד לפני רגע. השתמשו בקוד מהמייל האחרון שהגיע (כל בקשה חדשה מבטלת את הקודם), או המתינו כחצי דקה ובקשו שוב.");
+      if (action === "email" && kind === "rate_limited" && current() && !principal.current) {
+        setEmail(address); setStep("code"); setFailureKind(kind); setError(AUTH_MESSAGES.rate_limited);
         return;
       }
-      if (current() && !principal.current) setError(action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? "הקוד שגוי, שכבר נוצל או שפג תוקפו. הקוד תקף פעם אחת, ורק האחרון שנשלח. אם כבר התחברתם — רעננו את הדף. אפשר גם להיכנס עם סיסמה." : "המייל או הסיסמה אינם נכונים. אפשר להיכנס גם עם קוד למייל.");
+      if (current() && !principal.current) {
+        const specific = ["blocked_by_worker", "stale_worker", "network", "server_error", "pkce_mismatch", "refresh_failed"].includes(kind);
+        setFailureKind(kind);
+        setError(specific ? AUTH_MESSAGES[kind] : action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? AUTH_MESSAGES[kind === "otp_consumed" ? "otp_consumed" : "otp_expired"] : AUTH_MESSAGES.invalid_credentials);
+      }
     } finally { if (current()) setBusy(false); }
   }
   async function federated(provider) {
@@ -102,6 +112,8 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
             {step === "password" ? <><label htmlFor={`${fieldId}-password`}>סיסמה</label><input id={`${fieldId}-password`} name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" dir="ltr" value={password} disabled={busy} required onChange={e => { setPassword(e.target.value); setError(""); }} /><button type="button" className="sod29-auth-link" aria-pressed={showPassword} disabled={busy} onClick={() => setShowPassword(value => !value)}>{showPassword ? "הסתרת סיסמה" : "הצגת סיסמה"}</button></> : null}
             {step === "code" ? <><label htmlFor={`${fieldId}-code`}>קוד כניסה מהמייל</label><input id={`${fieldId}-code`} name="code" className="sod29-auth-code" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={EMAIL_OTP_MAX_LENGTH} dir="ltr" value={code} disabled={busy} autoFocus required onChange={e => { setCode(sanitizeEmailOtp(e.target.value)); setError(""); }} /></> : null}
             {error ? <p className="sod29-auth-error" role="alert">{error}</p> : null}
+            {RECOVERABLE_BY_REFRESH.has(failureKind) ? <button type="button" className="sod29-auth-secondary" disabled={busy} data-auth-action="refresh-runtime" onClick={() => refreshAppRuntime()}>רענון האתר</button> : null}
+            {failureKind && failureKind !== "unknown" ? <small className="sod29-auth-method-note" dir="ltr" data-auth-diagnostic={failureKind}>{failureKind}</small> : null}
             <button className="sod29-auth-primary" type="submit" disabled={busy}>{busy ? "רגע, מתחברים…" : step === "email" ? "שלחו לי קוד כניסה" : "כניסה לחשבון ←"}</button>
           </form> : null}
           <div className="sod29-auth-alternatives">

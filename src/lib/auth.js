@@ -1,7 +1,8 @@
 import { supabase } from './supabase.js';
 import { PUBLIC_READING_RELEASE } from './publicReadingRelease2029.js';
 import { signupAttribution, visitorId } from './acquisition.js';
-import { providerOAuthRequest, rememberPreviewOAuthReturn } from './oauthReturn.js';
+import { providerOAuthRequest, rememberPreviewOAuthReturn, emailLinkRedirect } from './oauthReturn.js';
+import { classifyAuthError, reportAuthFailure } from './authDiagnostics.js';
 
 const SITE_URL = typeof window !== 'undefined' ? window.location.origin : '';
 // 🌱 עץ אחד: כלכלה (credits/xp/level) נקראת מ-profiles הקנונית (getMyProfile), לא מ-users.
@@ -30,7 +31,7 @@ export async function signInWithPassword(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email: (email || '').trim(), password: password || '',
   });
-  if (error) throw error;
+  if (error) { reportAuthFailure(error, 'password'); throw error; }
   return data;
 }
 
@@ -66,28 +67,47 @@ export async function requestEmailOtp(email, { shouldCreateUser = true } = {}) {
   if (createUser && !PUBLIC_READING_RELEASE) {
     try { data = { acquisition: signupAttribution(), visitor_id: visitorId() }; } catch { data = {}; }
   }
+  const linkRedirect = emailLinkRedirect(SITE_URL, { integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' });
   const { error } = await supabase.auth.signInWithOtp({
     email: email.trim(),
-    // No emailRedirectTo: the public-reading service worker admits /auth/v1/otp only with an
-    // empty query string (preview-deploy/admin-readonly-auth.js), so redirect_to would block the request.
-    options: { shouldCreateUser: createUser, data },
+    // The link in the e-mail returns to the exact callback; the code stays valid either way. The worker admits only this parameter.
+    options: { shouldCreateUser: createUser, data, ...(linkRedirect ? { emailRedirectTo: linkRedirect } : {}) },
   });
-  if (error) throw error;
+  if (error) { reportAuthFailure(error, 'request'); throw error; }
   return { ok: true };
 }
 
-// A code emailed to an account whose address is not confirmed yet is a signup
-// confirmation code, which Auth only accepts as type 'signup'; a confirmed account's
-// code is type 'email'. The person cannot tell them apart, so try 'email' first and,
-// only for an invalid/expired answer, 'signup' with the same code.
-export async function verifyEmailOtp(email, token, client = supabase) {
+// One canonical verifier. A code emailed to an account whose address is not confirmed yet is a signup confirmation code,
+// which Auth accepts as type 'signup'; a confirmed account's code is type 'email'. The person cannot tell them apart, so try
+// 'email' first and, only for an invalid/expired answer, 'signup' with the same code. Both types are admitted by the worker.
+// Repeated identical submissions (double click, Enter + click) share one request, because a code is single use.
+const verifyInFlight = new Map();
+export function verifyEmailOtp(email, token, client = supabase) {
   const params = { email: email.trim(), token: token.trim() };
+  const key = `${params.email.toLowerCase()}|${params.token}`;
+  const pending = verifyInFlight.get(client)?.get(key);
+  if (pending) return pending;
+  const run = verifyEmailOtpOnce(params, client).finally(() => { verifyInFlight.get(client)?.delete(key); });
+  if (!verifyInFlight.has(client)) verifyInFlight.set(client, new Map());
+  verifyInFlight.get(client).set(key, run);
+  return run;
+}
+async function verifyEmailOtpOnce(params, client) {
   let { data, error } = await client.auth.verifyOtp({ ...params, type: 'email' });
-  if (error && (error.code === 'otp_expired' || /expired or is invalid/i.test(error.message || ''))) {
+  if (error && classifyAuthError(error) === 'otp_expired') {
     const retry = await client.auth.verifyOtp({ ...params, type: 'signup' });
     if (!retry.error) { data = retry.data; error = null; }
+    else if (classifyAuthError(retry.error) === 'blocked_by_worker') error = retry.error;   // do not mask a stale-worker block as a bad code
   }
-  if (error) throw error;
+  if (error) {
+    // The code may already have been consumed by an earlier submission that signed this person in. Treat that as success.
+    try {
+      const { data: current } = (await client.auth.getSession?.()) || {};
+      if (current?.session?.user?.email?.toLowerCase() === params.email.toLowerCase()) return { session: current.session, user: current.session.user };
+    } catch { /* fall through to the original error */ }
+    reportAuthFailure(error, 'verify');
+    throw error;
+  }
   return data;
 }
 

@@ -23,7 +23,7 @@ export const PUBLIC_READING_READ_RPCS = Object.freeze([
 export const PUBLIC_READING_GET_RPCS = Object.freeze([
   ...PUBLIC_READING_READ_RPCS, "writer_public_contributions_page_v1", "canonical_follow_subject",
 ]);
-export const PUBLIC_READING_POLICY_ID = "public-reading-owned-account-continuity-20261103";
+export const PUBLIC_READING_POLICY_ID = "public-reading-owned-account-continuity-20261110";
 export const COMMUNITY_PUBLIC_FIELDS = "id,parent_id,author_name,author_user_id,author_contributor_id,title,body,reactions,origin,created_at,edited_at,is_deleted,total_count";
 
 // Kept as a function so Node VM tests execute precisely the emitted worker.
@@ -569,10 +569,14 @@ export async function startPublicReading(config, runtime) {
     })]);
     check(); clearTimeout(timer);
     await loadEntry(config.entry);
+    runtime.healed?.();
     return true;
   } catch (error) {
     cancelled = true;
     runtime.onFailure?.(error);
+    // One safe self-heal per tab session when a stale worker/cache keeps the page from opening: drop service workers and
+    // CacheStorage, then reload. Never touches the signed-in session (the SDK keeps it in its own storage).
+    if (error?.message !== "worker_required" && await runtime.recover?.(error)) return false;
     document.body.textContent = "העמוד לא נפתח. אפשר לרענן ולנסות שוב.";
     return false;
   } finally { clearTimeout(timer); for (const close of cleanup) close(); }
@@ -581,5 +585,5 @@ export async function startPublicReading(config, runtime) {
 export function publicReadingBootstrap(entry, sourceSha) {
   if (!/^\/assets\/[A-Za-z0-9_.-]+\.js$/.test(entry) || !/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("invalid_build_identity");
   const config = { entry, sourceSha, policy: PUBLIC_READING_POLICY_ID, timeoutMs: 10000 };
-  return `<script type="module">(${startPublicReading.toString()})(${JSON.stringify(config)},{navigator,document,MessageChannel,setTimeout,clearTimeout,loadEntry:entry=>import(entry)});</script>`;
+  return `<script type="module">(${startPublicReading.toString()})(${JSON.stringify(config)},{navigator,document,MessageChannel,setTimeout,clearTimeout,loadEntry:entry=>import(entry),healed:()=>{try{sessionStorage.removeItem("sod_runtime_heal")}catch{}},recover:async()=>{try{if(sessionStorage.getItem("sod_runtime_heal")==="1")return false;sessionStorage.setItem("sod_runtime_heal","1");const registrations=await navigator.serviceWorker.getRegistrations();await Promise.all(registrations.map(registration=>registration.unregister()));if(self.caches){const keys=await caches.keys();await Promise.all(keys.map(key=>caches.delete(key)))}location.reload();return true}catch{return false}}});</script>`;
 }
