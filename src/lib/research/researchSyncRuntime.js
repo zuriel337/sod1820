@@ -5,7 +5,8 @@ import { applyResearchOps, assertCloudSnapshot, emptyResearchState, normalizeRes
   newResearchId, principalToken, principalStateKey, principalContextKey, LEGACY_UNSCOPED_KEY,
   LEGACY_CONTEXT_SESSION_KEY } from './researchSyncState.js';
 import { normalizeResearchContext } from './researchContext.js';
-import { HEARTBEAT_MS, planPersist, planReap } from './researchJournalLifecycle.js';
+import { HEARTBEAT_MS, LEASE_TTL_MS, REAP_GRACE_MS, planPersist, planReap } from './researchJournalLifecycle.js';
+import { compactPassiveQueue } from './researchQueueCompaction.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
 const object = x => !!x && typeof x === 'object' && !Array.isArray(x);
@@ -27,7 +28,7 @@ function readLegacyContext(session) {
 }
 export function createResearchSyncRuntime({ userId = null, storage, session, readCloud, writeCloud,
   onContext = () => {}, idFactory = newResearchId, delay = 350, disabled = false, cloudEnabled = true,
-  resumePendingOnStart = true, now = () => Date.now(), heartbeatMs = HEARTBEAT_MS } = {}) {
+  resumePendingOnStart = true, now = () => Date.now(), heartbeatMs = HEARTBEAT_MS, leaseTtlMs = LEASE_TTL_MS, reapGraceMs = REAP_GRACE_MS } = {}) {
   const principal = principalToken(userId), key = principalStateKey(principal);
   const pointerKey = `${key}:journal`, selfId = idFactory();
   // Journal ownership (see researchJournalLifecycle.js): the journal key is claimed lazily, only when this tab has pending work to persist.
@@ -113,7 +114,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   // Claim (or re-claim) the journal this tab writes: its own, the one it restored from if that is free and unchanged, else a new copy.
   function claimJournal() {
     const plan = planPersist({ ownKey: journalKey, ownRecord: journalKey ? readRecord(journalKey) : null, pointerKey: restoredFrom, pointerRecord: restoredFrom ? readRecord(restoredFrom) : null,
-      restoredRecord: restoredSnapshot, now: now(), selfId, newKey: `${key}:pending:${idFactory()}` });
+      restoredRecord: restoredSnapshot, now: now(), selfId, ttl: leaseTtlMs, newKey: `${key}:pending:${idFactory()}` });
     if (plan.action === 'adopt') { restoredFrom = null; restoredRaw = null; }
     restoredSnapshot = null; journalKey = plan.key;
   }
@@ -168,7 +169,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
         const record = readRecord(name);
         if (record?.principal === principal && Array.isArray(record.queue)) rows.push({ key: name, record });
       }
-      const { reap } = planReap(rows, { now: now(), selfId, protectedKeys: new Set([journalKey, restoredFrom].filter(Boolean)) });
+      const { reap } = planReap(rows, { now: now(), selfId, ttl: leaseTtlMs, graceMs: reapGraceMs, protectedKeys: new Set([journalKey, restoredFrom].filter(Boolean)) });
       for (const name of reap) storage.removeItem(name);
     } catch { /* leftover journals are safer than lost state */ }
   }
@@ -259,7 +260,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     if (!safe.length || safe.length > 100) throw new Error('RESEARCH_OPS_BATCH_TOO_LARGE');
     state = applyResearchOps(state, safe);
     if (userId && cloudEnabled) {
-      queue = [...queue, { batch_id: idFactory(), ops: safe }];
+      queue = compactPassiveQueue([...queue, { batch_id: idFactory(), ops: safe }], { protectedBatchId: inflight?.batch_id ?? null });
       if (safe.some(op => !['context_set', 'history_add'].includes(op.kind))) writeIntent = true;
       if (!['error', 'conflict', 'local_error'].includes(status)) status = 'pending';
     }

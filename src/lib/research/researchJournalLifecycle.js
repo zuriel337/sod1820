@@ -22,17 +22,20 @@
 export const LEASE_TTL_MS = 45_000;
 export const HEARTBEAT_MS = 15_000;
 export const MAX_UNOWNED = 24;
+// A journal that is merely redundant (every batch also held by another free journal) is removed only after it has been idle this long: a
+// reloading tab, or a browser restoring a closed tab, still points at it through sessionStorage. Empty journals hold nothing and go at once.
+export const REAP_GRACE_MS = 24 * 60 * 60 * 1000;
 
 const sig = batch => `${batch.batch_id}\u0000${JSON.stringify(batch.ops)}`;
 export const isEmptyJournal = record => !record?.queue?.length && !record?.inflight;
 
 // 'own' | 'live' (another tab holds it) | 'free' (released or expired) | 'legacy' (no owner field)
-export function leaseState(record, now, selfId) {
+export function leaseState(record, now, selfId, ttl = LEASE_TTL_MS) {
   const owner = record?.owner;
   if (!owner || typeof owner !== 'object') return 'legacy';
   if (owner.id === selfId) return 'own';
   if (owner.released === true) return 'free';
-  return Number.isFinite(owner.at) && now - owner.at < LEASE_TTL_MS ? 'live' : 'free';
+  return Number.isFinite(owner.at) && now - owner.at < ttl ? 'live' : 'free';
 }
 
 const sameContent = (a, b) => Boolean(a && b) && a.revision === b.revision && JSON.stringify(a.queue || []) === JSON.stringify(b.queue || []) && JSON.stringify(a.inflight || null) === JSON.stringify(b.inflight || null);
@@ -42,10 +45,10 @@ const sameContent = (a, b) => Boolean(a && b) && a.revision === b.revision && JS
 //  pointerKey/pointerRecord: the journal named by this tab's sessionStorage pointer, restoredRecord: what this tab read from it at load.
 // Adopting in place also requires the stored content to be exactly what this tab restored (compare-and-set): if anyone changed it since,
 // this tab copies instead of overwriting.
-export function planPersist({ ownKey = null, ownRecord = null, pointerKey = null, pointerRecord = null, restoredRecord = null, now, selfId, newKey }) {
+export function planPersist({ ownKey = null, ownRecord = null, pointerKey = null, pointerRecord = null, restoredRecord = null, now, selfId, newKey, ttl = LEASE_TTL_MS }) {
   if (ownKey && ownRecord?.owner?.id === selfId) return { action: 'write-own', key: ownKey };
   if (!ownKey && pointerKey && pointerRecord) {
-    const state = leaseState(pointerRecord, now, selfId);
+    const state = leaseState(pointerRecord, now, selfId, ttl);
     if ((state === 'free' || state === 'own') && sameContent(pointerRecord, restoredRecord)) return { action: 'adopt', key: pointerKey };
   }
   return { action: 'copy', key: newKey };
@@ -59,18 +62,19 @@ const covers = (keeper, journal) => {
 };
 
 // journals: [{ key, record }] of ONE principal. protectedKeys: keys that must not be reaped (this tab's own and restored-from keys).
-export function planReap(journals, { now, selfId, protectedKeys = new Set() } = {}) {
+export function planReap(journals, { now, selfId, protectedKeys = new Set(), ttl = LEASE_TTL_MS, graceMs = REAP_GRACE_MS } = {}) {
   const reaped = new Set();
   const ordered = [...journals].sort((a, b) => (a.key < b.key ? -1 : 1));
-  const removable = entry => !protectedKeys.has(entry.key) && ['free', 'legacy'].includes(leaseState(entry.record, now, selfId));
+  const removable = entry => !protectedKeys.has(entry.key) && ['free', 'legacy'].includes(leaseState(entry.record, now, selfId, ttl));
   for (const entry of ordered) {
     if (!removable(entry)) continue;
     if (isEmptyJournal(entry.record)) { reaped.add(entry.key); continue; }
-    if (leaseState(entry.record, now, selfId) === 'legacy') continue;   // an older runtime may still use it: never collapse
+    if (leaseState(entry.record, now, selfId, ttl) === 'legacy') continue;   // an older runtime may still use it: never collapse
     // The keeper must itself be stable (free): a live tab may legitimately drop its batches (ack, or an explicit conflict resolution).
-    const keeper = ordered.find(other => other.key !== entry.key && !reaped.has(other.key) && !isEmptyJournal(other.record) && leaseState(other.record, now, selfId) === 'free' && covers(other.record, entry.record));
+    if (now - (Number.isFinite(entry.record.owner?.at) ? entry.record.owner.at : now) < graceMs) continue;   // recently used: its tab may still point at it
+    const keeper = ordered.find(other => other.key !== entry.key && !reaped.has(other.key) && !isEmptyJournal(other.record) && leaseState(other.record, now, selfId, ttl) === 'free' && covers(other.record, entry.record));
     if (keeper) reaped.add(entry.key);
   }
-  const kept = ordered.filter(entry => !reaped.has(entry.key) && !isEmptyJournal(entry.record) && !['own', 'live'].includes(leaseState(entry.record, now, selfId)));
+  const kept = ordered.filter(entry => !reaped.has(entry.key) && !isEmptyJournal(entry.record) && !['own', 'live'].includes(leaseState(entry.record, now, selfId, ttl)));
   return { reap: [...reaped], unowned: kept.length, overCap: kept.length > MAX_UNOWNED };
 }

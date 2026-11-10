@@ -1,7 +1,7 @@
 # Research pending journals — lifecycle proposal (10.11.2026)
 
-**Status: DRAFT implementation + evidence. NOT approved to merge or to activate.** (ZURIEL, 10.11: a separate Draft PR is allowed; merging or
-activating the lease change is not.) Base: `origin/main` `defc7c573` (includes the auth fix #1292, which this branch does not touch).
+**Status: implementation + evidence.** ZURIEL (10.11, second approval) allowed finishing the work, bounding the passive queue without loss, real-browser
+tests, and — if every test passes with no contract change and no risk of data loss — merging to `main`. NOT approved: activating the lease in production or deploying the site. Base: `origin/main` `defc7c573` (includes the auth fix #1292, which this branch does not touch).
 The approved two-tab contract tests pass unchanged. Nothing here is deployed, and no data is deleted or changed.
 
 ## Problem (measured on the unchanged runtime, `researchJournalLifecycle.test.js` BASELINE tests)
@@ -103,3 +103,34 @@ the whole `src/lib/research` suite passes (1586 tests).
 * `doc37-runtime-admission` "existing research journals are retained when cloud admission is closed": `stop()` must not rewrite a journal -> lease release moved out of `stop()`.
 * `doc37-research-reading-access`: a locked reading session registers no window listeners -> the `pagehide` listener is registered only when actions are allowed.
 After those two adjustments the 12 node-level tests that import the runtime or provider give the same result on this branch as on `main` (100 of 101; the one failure, "font failure or a never-settling font…", fails identically on `main` in this environment). `src/lib/research` passes (1586 of 1586). Browser-level tests of the provider were not run locally.
+
+
+## Second pass (approved 10.11): bounded passive queue, grace before reaping, real-browser proof
+
+### 1. The passive history queue is now bounded — losslessly (`researchQueueCompaction.js`)
+`history_add` and `context_set` never grant write intent, so a tab that records navigation appended one batch per load forever. Client
+(`applyResearchOps`) and server (`apply_ops`, migration 20260929123500) define them identically (history: drop same id, prepend, keep 50;
+`history_clear` empties; `context_set` replaces). An op is *overwritten* — it cannot change the final state whatever the starting state — when a
+later `history_clear` exists, a later `history_add` has the same id, 50 distinct ids are added after it, or (for context) a later `context_set` exists.
+Only a batch made entirely of overwritten ops is dropped; any batch with another op, the in-flight batch and order are untouched.
+* Proof: 4000 random queues x 3 random starting states (history pools of 8 and 120 ids, with clears, contexts, research items, collections, journeys): final state identical with and without compaction; boundary tests (the 50th newest entry is kept, the 51st dropped); mutation checks (off-by-one, context rule) fail the tests.
+* Real runtime: 300 page loads leave <= 50 passive batches and one journal; after a real action syncs, the server history equals the uncompacted result.
+* Bound: at most 50 history batches and 1 context batch remain, however many loads. Research items/collections/journeys are never compacted.
+
+### 2. A redundant journal is removed only after a grace period (24 h; empty journals still go at once)
+The first real-browser run exposed that collapsing a covered journal immediately could take a reloading tab's pending work out of its own
+queue (it stayed durable in the sibling's journal, but the reloaded tab no longer held it). `planReap` now keeps a covered journal until it has been idle for
+`REAP_GRACE_MS` (24 h): a reloading tab, or a browser restoring a closed tab, still points at it. Tests: node (default grace keeps a reloaded tab's own work; a day later the redundant journal collapses and nothing is lost) and the browser.
+
+### 3. Real-browser proof (`test/research-journal-browser-2029.browser.mjs`; real Chromium, real timers, real `localStorage`/`sessionStorage`, real `pagehide`)
+Real runtime bundled with esbuild; fixture server idempotent by batch id and compare-and-set on the revision; duplicated tab = `window.open` (Chromium clones sessionStorage), crash = CDP `Page.crash` (no `pagehide`).
+| Scenario | Result with the change | Unchanged runtime |
+|---|---|---|
+| Duplicated tab: distinct durable journals under real heartbeats; 24 reloads keep <= 2 journals, each tab keeps its own work | pass | fail |
+| 80 loads recording history: one journal, <= 51 batches; closing the page marks the lease released | pass | fail |
+| Crash (no pagehide) -> restore inside the lease copies, the crashed journal stays intact; after the TTL nothing multiplies; recover + sync -> server holds every action once; no journal left | pass | fail |
+| Two tabs offline with work, reloaded, connectivity returns: every action arrives once | pass | pass (safety, not growth) |
+Not covered: the provider component itself in a browser (the `pagehide` wiring is identical code in the harness and covered by the mounted-provider and reading-access tests); mobile/installed-app lifecycle on a real device; hidden-tab timer throttling beyond lease expiry.
+
+### Pre-existing limitation found (not changed here)
+A journal written before the first successful hydrate has `revision: null`; `recoverJournal` refuses such a journal (it requires an integer revision), so it can be restored by its own tab on reload but cannot be selected for explicit recovery from another tab. Unchanged by this work; worth its own decision.

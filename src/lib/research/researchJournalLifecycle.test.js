@@ -53,7 +53,7 @@ function createWorld(seed, { throttle = 0.2 } = {}) {
     reap: () => {
       const protectedKeys = new Set(live().flatMap(t => [t.ownKey, t.pointer, t.restoredFrom].filter(Boolean)));
       const entries = [...journals].map(([key, rec]) => ({ key, record: copy(rec) }));
-      for (const key of planReap(entries, { now, selfId: '-', protectedKeys }).reap) journals.delete(key);
+      for (const key of planReap(entries, { now, selfId: '-', protectedKeys, graceMs: 0 }).reap) journals.delete(key);
     },
     recover: () => {   // explicit recovery by the person: a tab with nothing pending takes a non-empty unowned journal
       const t = pick(live().filter(x => !x.mem.length)); if (!t) return;
@@ -96,7 +96,7 @@ test('MODEL: after everything is closed and the leases are gone, nothing is empt
     world.setNow(world.now + 10 * LEASE_TTL_MS); world.steps.reap(); world.check('final');
     const rows = [...world.journals].map(([key, record]) => ({ key, record }));
     assert.equal(rows.some(r => isEmptyJournal(r.record)), false, `empty journals reclaimed (seed ${seed})`);
-    const again = planReap(rows, { now: world.now, selfId: '-' });
+    const again = planReap(rows, { now: world.now, selfId: '-', graceMs: 0 });
     assert.deepEqual(again.reap, [], `reaping is idempotent: a second pass finds nothing redundant (seed ${seed})`);
     assert.ok(rows.length <= world.created.length, 'never more journals than batches ever created');
   }
@@ -141,9 +141,18 @@ test('SAFETY: legacy journals (no owner) are never adopted or collapsed, a chang
   assert.equal(planPersist({ pointerKey: 'old', pointerRecord: changed, restoredRecord: rec, now: 0, selfId: 'me', newKey: 'new' }).action, 'copy', 'someone added a batch since this tab restored: copy, do not overwrite');
   const small = { ...released, queue: rec.queue }, big = { ...released, queue: [...rec.queue, { batch_id: 'y', ops: [2] }] };
   const liveBig = { ...big, owner: { id: 'other', at: 100 } };
-  assert.deepEqual(planReap([{ key: 'a', record: small }, { key: 'b', record: liveBig }], { now: 200, selfId: 'me' }).reap, [], 'a live journal is not a safe keeper');
-  assert.deepEqual(planReap([{ key: 'a', record: small }, { key: 'b', record: { ...big, owner: { id: 'z', released: true } } }], { now: 200, selfId: 'me' }).reap, ['a'], 'a free superset is');
-  assert.deepEqual(planReap([{ key: 'a', record: { ...small, revision: 4 } }, { key: 'b', record: big }], { now: 200, selfId: 'me' }).reap, [], 'a different revision is never collapsed');
-  assert.equal(planReap(Array.from({ length: MAX_UNOWNED + 1 }, (_, i) => ({ key: `k${i}`, record: { ...released, revision: i } })), { now: 0, selfId: 'me' }).overCap, true, 'the cap only reports, it deletes nothing');
+  assert.deepEqual(planReap([{ key: 'a', record: small }, { key: 'b', record: liveBig }], { now: 200, selfId: 'me', graceMs: 0 }).reap, [], 'a live journal is not a safe keeper');
+  assert.deepEqual(planReap([{ key: 'a', record: small }, { key: 'b', record: { ...big, owner: { id: 'z', released: true } } }], { now: 200, selfId: 'me', graceMs: 0 }).reap, ['a'], 'a free superset is');
+  assert.deepEqual(planReap([{ key: 'a', record: { ...small, revision: 4 } }, { key: 'b', record: big }], { now: 200, selfId: 'me', graceMs: 0 }).reap, [], 'a different revision is never collapsed');
+  assert.equal(planReap(Array.from({ length: MAX_UNOWNED + 1 }, (_, i) => ({ key: `k${i}`, record: { ...released, revision: i } })), { now: 0, selfId: 'me', graceMs: 0 }).overCap, true, 'the cap only reports, it deletes nothing');
   void applyResearchOps;
+});
+
+test('GRACE: a redundant journal that was used recently is kept (its tab may still point at it); an old one goes; an empty one goes at once', () => {
+  const small = { principal: 'A', revision: 1, queue: [{ batch_id: 'x', ops: [1] }], inflight: null, owner: { id: 'gone', at: 1_000, released: true } };
+  const big = { ...small, queue: [...small.queue, { batch_id: 'y', ops: [2] }], owner: { id: 'gone2', at: 1_000, released: true } };
+  const rows = [{ key: 'small', record: small }, { key: 'big', record: big }];
+  assert.deepEqual(planReap(rows, { now: 1_000 + 60_000, selfId: 'me' }).reap, [], 'a minute after use: kept');
+  assert.deepEqual(planReap(rows, { now: 1_000 + 25 * 3_600_000, selfId: 'me' }).reap, ['small'], 'a day later: the redundant one collapses into the superset');
+  assert.deepEqual(planReap([{ key: 'e', record: { ...small, queue: [] } }], { now: 1_001, selfId: 'me' }).reap, ['e'], 'empty: at once');
 });

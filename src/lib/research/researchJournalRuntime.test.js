@@ -45,14 +45,14 @@ class Server {   // idempotent by batch id (durable receipts) and compare-and-se
 function rng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 const entity = id => ({ id, ref: id, type: 'number', title: id });
 
-function world(seed = 1) {
+function world(seed = 1, opts = {}) {
   const random = rng(seed), storage = new Storage(), server = new Server(), tabs = [], committed = [];
   let counter = 0, clock = 1_000_000;
   const idFactory = () => `id${++counter}`;
   const pick = list => list[Math.floor(random() * list.length)];
   const live = () => tabs.filter(t => t.alive);
   async function mount(session) {
-    const runtime = createResearchSyncRuntime({ userId: 'A', storage, session, readCloud: server.read, writeCloud: server.write, delay: 1e9, idFactory, now: () => clock, heartbeatMs: 0 });
+    const runtime = createResearchSyncRuntime({ userId: 'A', storage, session, readCloud: server.read, writeCloud: server.write, delay: 1e9, idFactory, now: () => clock, heartbeatMs: 0, reapGraceMs: opts.reapGraceMs ?? 0 });
     runtime.start(); await tick();
     const tab = { id: `tab${tabs.length + 1}`, alive: true, session, runtime }; tabs.push(tab); return tab;
   }
@@ -137,13 +137,26 @@ test('REAL RUNTIME, BOUND: one tab with pending work reloaded 200 times keeps ON
   assert.equal(tab.runtime.exportPending().queue.length, 1);
 });
 
-test('REAL RUNTIME, BOUND: a tab that records history on every load keeps one journal whose size is linear in the real batches (no copies)', async () => {
-  const w = world(14); const session = new Storage(); let tab = await w.mount(session);
-  for (let i = 1; i <= 100; i++) { tab.runtime.commit([op('history_add', { entity: entity(`h${i}`) })]); tab.runtime.release?.(); tab = await w.mount(session); w.advance(1000); }
-  assert.equal(tab.runtime.exportPending().queue.length, 100, 'no batch is dropped');
+test('REAL RUNTIME, BOUND: a tab that records history on every load keeps one journal of bounded size, and the server ends in exactly the state the full history would give', async () => {
+  const w = world(14); const session = new Storage(); let tab = await w.mount(session); const all = [];
+  for (let i = 1; i <= 300; i++) {
+    const o = op('history_add', { entity: entity(`h${i}`) }); all.push(o);
+    tab.runtime.commit([o]); tab.runtime.release?.(); tab = await w.mount(session); w.advance(1000);
+  }
+  const queue = tab.runtime.exportPending().queue;
+  assert.ok(queue.length <= 50, `the passive queue is bounded (${queue.length} of 300 loads)`);
   assert.equal(w.storage.journals().length, 1);
   const size = w.storage.getItem(w.storage.journals()[0]).length;
-  assert.ok(size < 100 * 400, `linear, not quadratic (${size} chars for 100 batches)`);
+  assert.ok(size < 50 * 450, `and so is its size (${size} chars)`);
+  // a real research action grants write intent: everything that remains is sent; the result equals applying ALL 300 operations
+  tab.runtime.commit([op('item_upsert', { bucket: 'library', entity: entity('real') })]);
+  await tab.runtime.flush(); for (let i = 0; i < 60; i++) await tab.runtime.flush();
+  assert.equal(w.server.state('A').receipts.size > 0, true);
+  const expected = applyResearchOps(emptyResearchState(), [...all, op('item_upsert', { bucket: 'library', entity: entity('real') })]);
+  const got = w.server.snapshot('A');
+  assert.deepEqual(got.history, expected.history, 'history on the server is identical to the uncompacted result');
+  assert.deepEqual(got.saved, expected.saved, 'the real research item arrived');
+  assert.equal(w.storage.journals().length, 0, 'and the drained journal is gone');
 });
 
 test('REAL RUNTIME, BOUND: repeated crashes -> journals only for distinct unsynced work, and same-tab crash/restore does not multiply them', async () => {
@@ -186,4 +199,21 @@ test('REAL RUNTIME, SAFETY: a stale tab never overwrites a journal that changed 
   b.runtime.commit([op('item_upsert', { bucket: 'library', entity: entity('b1') })]);   // b's view of the journal is stale now
   const stored = new Set(); for (const k of w.storage.journals()) for (const x of JSON.parse(w.storage.getItem(k)).queue) stored.add(JSON.stringify(x.ops[0].entity.id));
   for (const id of ['a1', 'c1', 'b1']) assert.ok(stored.has(JSON.stringify(id)), `${id} is still in a durable journal`);
+});
+
+test('REAL RUNTIME, INDEPENDENCE: reloading two tabs repeatedly never takes a tab\'s pending work away (default grace), and a day later the redundant journal collapses', async () => {
+  const day = 24 * 3600 * 1000, w = world(30, { reapGraceMs: day });
+  let a = await w.mount(new Storage());
+  a.runtime.commit([op('item_upsert', { bucket: 'library', entity: entity('a1') })]);
+  let b = await w.mount(a.session.clone());
+  b.runtime.commit([op('item_upsert', { bucket: 'library', entity: entity('b1') })]);
+  for (let i = 0; i < 12; i++) { a.runtime.release?.(); a.alive = false; a = await w.mount(a.session); b.runtime.release?.(); b.alive = false; b = await w.mount(b.session); w.advance(2000); }
+  assert.deepEqual(a.runtime.exportPending().queue.map(x => x.ops[0].entity.id), ['a1'], 'the reloaded tab still holds its own pending work');
+  assert.deepEqual(b.runtime.exportPending().queue.map(x => x.ops[0].entity.id), ['a1', 'b1']);
+  assert.equal(w.storage.journals().length, 2);
+  a.runtime.release?.(); b.runtime.release?.(); a.alive = b.alive = false; w.advance(day + 1000);
+  const later = await w.mount(new Storage()); void later;
+  assert.equal(w.storage.journals().length, 1, 'a day later the redundant journal collapses into the superset');
+  const ids = JSON.parse(w.storage.getItem(w.storage.journals()[0])).queue.map(x => x.ops[0].entity.id);
+  assert.deepEqual(ids, ['a1', 'b1'], 'and nothing is lost');
 });
