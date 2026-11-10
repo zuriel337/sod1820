@@ -88,3 +88,12 @@ test("the Home highlight: two phrases that both equal 1234 in the canonical regu
   assert.equal("title" in h, false, "no caption line above the two phrases");
   assert.equal(projectHomeFeaturedPost(row(), HOME_FEATURED_POST_2029).highlight.value, 1234);
 });
+
+test("the Home 1234 block links to the number's own window; each phrase to the same number focused on it", async () => {
+  const { numberExpressionFocusHref } = await import("../src/lib/research/numberExpressionFocus.js");
+  const { readFile } = await import("node:fs/promises");
+  assert.equal(numberExpressionFocusHref(1234, { method: "רגיל" }), "/2029/number/1234?method=%D7%A8%D7%92%D7%99%D7%9C");
+  assert.match(numberExpressionFocusHref(1234, { expression: "התגלות השכינה", method: "רגיל" }), /\/number\/1234\?focus=/);
+  const jsx = await readFile(new URL("../src/components/experience2029/HomeFeaturedPost2029.jsx", import.meta.url), "utf8");
+  assert.match(jsx, /data-home-featured-spot-link="number"/); assert.match(jsx, /data-home-featured-spot-link="phrase"/);
+});
