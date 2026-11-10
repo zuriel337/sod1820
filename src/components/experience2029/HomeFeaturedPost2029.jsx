@@ -36,18 +36,21 @@ export default function HomeFeaturedPost2029({ state }) {
         {post.message.map(line => <p key={line}>{line}</p>)}
       </div>
     </div>
-    {post.highlight ? (() => {
+    <div className="h29-featured-spots">
+    {post.highlights.map(group => {
       // The number opens its own number window (the same address the rest of the site uses for a number); each phrase opens it focused on that phrase.
-      const numberHref = numberExpressionFocusHref(post.highlight.value, { method: "רגיל" });
-      return <div className="h29-featured-spot" data-home-featured-spot={post.highlight.value}>
-        {numberHref ? <Link className="h29-featured-spot-value" to={numberHref} aria-label={`פתח את המספר ${post.highlight.value}`} data-home-featured-spot-link="number">{post.highlight.value}</Link>
-          : <b className="h29-featured-spot-value">{post.highlight.value}</b>}
-        <div>{post.highlight.phrases.map(phrase => {
-          const href = numberExpressionFocusHref(post.highlight.value, { expression: phrase, method: "רגיל" });
-          return <p key={phrase}>{href ? <Link to={href} data-home-featured-spot-link="phrase">{phrase}</Link> : phrase} <span>= {post.highlight.value}</span></p>;
+      const numberHref = numberExpressionFocusHref(group.value, { method: "רגיל" });
+      return <div className="h29-featured-spot" data-home-featured-spot={group.value} key={group.value}>
+        {numberHref ? <Link className="h29-featured-spot-value" to={numberHref} aria-label={`פתח את המספר ${group.value}`} data-home-featured-spot-link="number">{group.value}</Link>
+          : <b className="h29-featured-spot-value">{group.value}</b>}
+        <div>{group.phrases.map(phrase => {
+          const href = (group.numberOnly || []).includes(phrase) ? null : numberExpressionFocusHref(group.value, { expression: phrase, method: "רגיל" });
+          return <p key={phrase}>{href ? <Link to={href} data-home-featured-spot-link="phrase">{phrase}</Link> : phrase} <span>= {group.value}</span></p>;
         })}</div>
       </div>;
-    })() : null}
+    })}
+    {post.statement ? <p className="h29-featured-statement" data-home-featured-statement="true">{post.statement}</p> : null}
+    </div>
     <p className="h29-featured-note" data-home-featured-note="true">{post.note} <Link to={post.href}>{post.noteLink}</Link></p>
   </section>;
 }

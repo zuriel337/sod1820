@@ -101,6 +101,8 @@
 .sod29-nowpub-box-text>em{font-style:normal;font-size:var(--s29-type-small);color:var(--s29-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sod29-nowpub-box>.sod29-nowpub-list{padding:0 8px 10px}
 
+.sod29-nowpub-pin{font-weight:700;color:var(--s29-brand-gold)}
+.sod29-nowpub-row[data-now-pinned-row]{border-color:color-mix(in srgb,var(--s29-brand-gold) 55%,var(--s29-line))}
 /* Now window size (ZURIEL 5.11.2026): near full screen on mobile, wide and centered on desktop. Layout only; the #1203 badge rule is untouched.
    The backdrop keeps its bottom clearance (--s29-island-clearance) so the bottom bar stays reachable; only inline/top spacing is set here. */
 .sod29-root.native-frame .sod29-frame-backdrop:has([data-panel-kind="now"]){align-items:stretch;justify-content:center;padding-block-start:12px;padding-inline:16px}

@@ -40,6 +40,7 @@ function RowHead({ model, timeMode }) {
       <small className="sod29-nowpub-meta">
         {model.byline.length ? <span>{model.byline.join(" · ")}</span> : null}
         <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
+        {model.pinned ? <span className="sod29-nowpub-pin" data-now-pinned="true">📌 נעוץ</span> : null}
         <time dateTime={model.at || undefined}>{when}</time>
       </small>
     </span>

@@ -25,12 +25,15 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
     Object.freeze({ value: 67, phrase: "בינה" }),
     Object.freeze({ value: 64, phrase: "דין — וההיפוך שלו 46" }),
   ]),
-  // The prominent line under the message (ZURIEL 10.11.2026): two phrases with the same value, each read from the canonical engine
-  // fn_method_value('רגיל', phrase) on 2026-11-10 (ממשלת משיח בן דוד = 1234, התגלות השכינה = 1234). Arithmetic only, no claim beyond the equality.
-  highlight: Object.freeze({
-    value: 1234,
-    phrases: Object.freeze(["ממשלת משיח בן דוד", "התגלות השכינה"]),
-  }),
+  // The prominent numbers under the message (ZURIEL 10.11.2026): each phrase's value read from the canonical engine fn_method_value('רגיל', phrase)
+  // on 2026-11-10 (1234: ממשלת משיח בן דוד, התגלות השכינה · 1011: המשיח פועל במעשים, הגאלה תבא בהיסח הדעת, קץ זוהמת הנחש). The first 1011 line is the
+  // date of the Knesset swearing-in (10.11.2026) read as the number 1011, not a letter calculation. Arithmetic only.
+  highlights: Object.freeze([
+    Object.freeze({ value: 1234, phrases: Object.freeze(["ממשלת משיח בן דוד", "התגלות השכינה"]) }),
+    Object.freeze({ value: 1011, phrases: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים", "הגאלה תבא בהיסח הדעת", "קץ זוהמת הנחש"]), numberOnly: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26"]) }),
+  ]),
+  // The sentence the owner asked to keep with the numbers (also in the Post's update and in "עכשיו").
+  statement: "מה שאנחנו רואים בעיניים — הכול פעולות של הבורא, שפועל דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.",
   connectionsFootnote: null, // no spelling footnote: each number says what it is (ZURIEL 8.11.2026: "don't load")
   // ONE text under the message (ZURIEL 8.11.2026: merge the note and the bridge; say it once). The owner's tree note in the public discovery voice
   // (public_language_revelation_geula_law: "מחקר" is not the public default: "תהליך המחקר/ממצאים" became "תהליך הגילוי/חיבורים"), opened by the line that the
@@ -65,7 +68,7 @@ export function projectHomeFeaturedPost(row, config = HOME_FEATURED_POST_2029) {
   if (!row || Number(row.id) !== config.id || !row.slug || row.home_hidden === true || hasSuppressedPublicPostTag(row)) return null;
   const title = stripHtml(row.title == null ? "" : String(row.title)).trim();
   if (!title) return null;
-  return { id: config.id, slug: String(row.slug), message: config.message, messageTitle: config.messageTitle, noteLink: config.noteLink, video: config.video, title: config.headline || title, postTitle: title, headline: config.headline || null, connections: config.connections, connectionsTitle: config.connectionsTitle, connectionsFootnote: config.connectionsFootnote, highlight: config.highlight || null, poster: row.thumb_url || row.image_url || null, href: publicPostHref(row), note: config.note, numbers: config.numbers, numbersTitle: config.numbersTitle };
+  return { id: config.id, slug: String(row.slug), message: config.message, messageTitle: config.messageTitle, noteLink: config.noteLink, video: config.video, title: config.headline || title, postTitle: title, headline: config.headline || null, connections: config.connections, connectionsTitle: config.connectionsTitle, connectionsFootnote: config.connectionsFootnote, highlights: config.highlights || [], statement: config.statement || null, poster: row.thumb_url || row.image_url || null, href: publicPostHref(row), note: config.note, numbers: config.numbers, numbersTitle: config.numbersTitle };
 }
 
 export async function getHomeFeaturedPost2029({ client = null, signal, config = HOME_FEATURED_POST_2029 } = {}) {
@@ -77,8 +80,10 @@ export async function getHomeFeaturedPost2029({ client = null, signal, config = 
 /** One body: headline, note, the numbers on screen, the engine-checked connections and the interpretation — shown with the video on Home AND in "עכשיו". */
 export function featuredBodyText(config = HOME_FEATURED_POST_2029) {
   return [
-    config.headline, `${config.messageTitle}: ${config.message.join(" ")}`, config.note,
-    config.highlight ? config.highlight.phrases.map(phrase => `${phrase} = ${config.highlight.value}`).join(" · ") : null,
+    config.headline, `${config.messageTitle}: ${config.message.join(" ")}`,
+    config.statement || null,
+    ...(config.highlights || []).map(group => group.phrases.map(phrase => `${phrase} = ${group.value}`).join(" · ")),
+    config.note,
     `${config.numbersTitle}: ${config.numbers.map(item => `${item.value} (${item.label})`).join(" · ")}`,
     `${config.connectionsTitle}: ${config.connections.map(item => `${item.value} = ${item.phrase}`).join(" · ")}${config.connectionsFootnote ? `. ${config.connectionsFootnote}` : ""}`,
   ].filter(Boolean).join("\n");
@@ -90,7 +95,7 @@ export function featuredFeedItem(row, postRowToWorldUpdate, config = HOME_FEATUR
   const base = typeof postRowToWorldUpdate === "function" && projectHomeFeaturedPost(row, config) && postRowToWorldUpdate(row);
   if (!base) return null;
   const at = new Date(config.at).toISOString();
-  return { ...base, label: config.headline || base.label, summary: config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at };
+  return { ...base, label: config.headline || base.label, summary: config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: true };
 }
 
 // One public read shared by Home and the feed hook (cached for a minute): never two requests for the same Post.
