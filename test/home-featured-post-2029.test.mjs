@@ -57,7 +57,8 @@ test("language (public_language_revelation_geula_law): discovery/hint voice, no 
   const { existsSync } = await import("node:fs");
   const all = [HOME_FEATURED_POST_2029.note, HOME_FEATURED_POST_2029.messageTitle, ...HOME_FEATURED_POST_2029.message, HOME_FEATURED_POST_2029.connectionsTitle, HOME_FEATURED_POST_2029.connectionsFootnote, HOME_FEATURED_POST_2029.numbersTitle].join(" ");
   assert.doesNotMatch(all, /מחקר|ממצא/, "'מחקר' is not the public default voice");
-  assert.match(HOME_FEATURED_POST_2029.message[0], /כביכול.*כביכול/, "the bloc numbers are the owner's framing, not stated as fact");
+  assert.match(HOME_FEATURED_POST_2029.message[0], /משויך לגוש הימין.*ולא תיאור של חלוקת המנדטים הרשמית/, "the bloc numbers are framed as a reading, not as the official seat split; same wording as the Post's own block (ZURIEL 10.11.2026)");
+  assert.doesNotMatch(HOME_FEATURED_POST_2029.message[0], /כביכול/, "no repeated 'כביכול' on Home: the Post says it once, plainly");
   assert.ok(HOME_FEATURED_POST_2029.message.some(line => line.includes("46") && line.includes("64") && line.includes("67")));
   assert.doesNotMatch(all, /הוכיח|ודאי|בוודאות|המשיח הוא/, "no certainty, no messianic identification of a person");
   for (const path of [HOME_FEATURED_POST_2029.video.src, HOME_FEATURED_POST_2029.video.poster]) assert.ok(existsSync(new URL("../public" + path, import.meta.url)), path);

@@ -33,10 +33,10 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
   noteLink: "לפוסט ←",
   // The video (public/media/posts/…, the same place as the earlier post videos; it is served after the next deploy).
   video: Object.freeze({ src: "/media/posts/2026-11-sharshar-crown/sharshar-crown.mp4", poster: "/media/posts/2026-11-sharshar-crown/sharshar-crown-poster.jpg", credit: "מקור הסרטון: שרשר המלך" }),
-  // The message, in hint language: a framing in the owner's words ("כביכול"), arithmetic stated as arithmetic, interpretation labelled as such.
+  // The message, in hint language: its first line is the SAME wording as the Post's own message block (ZURIEL 10.11.2026), arithmetic stated as arithmetic, interpretation labelled as such.
   messageTitle: "המסר",
   message: Object.freeze([
-    "46 — המספר שקיבל גוש הימין כביכול. 67 — גוש השמאל, כביכול.",
+    "בקריאה המספרית המוצגת כאן, 46 משויך לגוש הימין ו־67 לגוש השינוי. אלה מספרים המשמשים בסיס להתבוננות ולחיבורים שבהמשך, ולא תיאור של חלוקת המנדטים הרשמית.",
     "46 הוא היפוך של 64, דין. וכשהופכים את המבט, מה שנראה דין מתגלה כרחמים — וזה סוד הבינה, 67.",
     "מאחורי שני הגושים עומד כוח אחד: הבורא. כך גם משתקף בשרשר = 1000 — אין בעולם אלא כוח אחד.",
   ]),
