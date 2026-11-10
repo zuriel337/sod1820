@@ -22,7 +22,7 @@ test("2029 left Companion and mobile Now share one public stream watcher and exa
   assert.match(companion, /feed\.rows\.map\(\(row\)/);
   assert.match(attention, /feed\.expandedRows/);
   // Rows are the shown models, in order; consecutive source rows may be grouped for display (collapseSourceRuns) but every model keeps its own row.
-  assert.match(attention, /collapseSourceRuns\(shown\)/);
+  assert.match(attention, /buildNowEntries\(shown\)/);
   assert.match(attention, /entries\.slice\(0,\s*count\)/);
   assert.match(attention, /entry\.models\.map\(row\)/);
   assert.match(attention, /const href = row\?\.href/);

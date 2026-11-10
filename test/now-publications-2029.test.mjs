@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, latestRunAt, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
+import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, latestRunAt, buildNowEntries, isRabbiBoxModel, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
 import { redactGroupText, groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
@@ -179,4 +179,25 @@ test("a collapsed run reports its newest valid time, whatever the row order, and
   assert.equal(latestRunAt([m(null), m("not a date"), m("2026-11-03T08:00:00Z")]), "2026-11-03T08:00:00.000Z");
   assert.equal(latestRunAt([m(null), m(undefined)]), null);
   assert.equal(latestRunAt(null), null);
+});
+
+test("Or HaGeula rabbi box: 'רב'/'הרב' as a word goes in; other updates and other channels stay out; the box sits at its newest member", () => {
+  const or = (id, text, at, extra = {}) => ({ id, title: text, fullText: text, summary: "", at, unverified: false, item: { sourceKind: "channel_update", channel: "or-geula" }, row: {}, ...extra });
+  const yes = ["קריאת קודש של הרב אלבז", "אזהרת הרב שמואל אליהו!", "דברי רב מופלא", "מהרב לעם", "והרב אמר", "לרב יש מסר", "שהרב כתב", "ברב עם"];
+  const no = ["בגין ז'ל נאום", "ארבעה מסרים", "שרב כבד", "תרבות", "הרבה מאוד", "כרב"];
+  for (const t of yes) assert.equal(isRabbiBoxModel(or("x", t, "2026-11-01")), true, t);
+  for (const t of no) assert.equal(isRabbiBoxModel(or("x", t, "2026-11-01")), false, t);
+  assert.equal(isRabbiBoxModel({ ...or("x", "הרב אלבז", "2026-11-01"), item: { sourceKind: "channel_update", channel: "site-news" } }), false, "only the Or HaGeula channel");
+  assert.equal(isRabbiBoxModel({ ...or("x", "הרב אלבז", "2026-11-01"), unverified: true }), false);
+  const models = [or("a", "סרטון פשוט", "2026-11-08T10:00:00Z"), or("b", "קריאת הרב אלבז", "2026-11-08T09:00:00Z"), or("c", "עוד סרטון", "2026-11-07T10:00:00Z"), or("d", "הרב אליהו מזהיר", "2026-11-06T10:00:00Z"), or("e", "סרטון אחרון", "2026-11-05T10:00:00Z")];
+  const entries = buildNowEntries(models);
+  assert.deepEqual(entries.map(e => e.kind === "box" ? "box" : e.kind === "run" ? "run" : e.model.id), ["a", "box", "c", "e"], "the box sits at its newest member, others keep their order");
+  assert.deepEqual(entries[1].models.map(m => m.id), ["b", "d"]);
+  assert.equal(entries[1].latest, "2026-11-08T09:00:00.000Z");
+  // a new update with the word lifts the whole box to the top
+  const lifted = buildNowEntries([or("n", "הרב חדש", "2026-11-09T10:00:00Z"), ...models]);
+  assert.equal(lifted[0].kind, "box"); assert.deepEqual(lifted[0].models.map(m => m.id), ["n", "b", "d"]);
+  // no member: no box, nothing else changes
+  assert.deepEqual(buildNowEntries([models[0], models[2]]).map(e => e.model.id), ["a", "c"]);
+  assert.equal(buildNowEntries(models, { rabbiBox: false }).some(e => e.kind === "box"), false);
 });

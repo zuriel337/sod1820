@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
-import { availableNowLenses, collapseSourceRuns, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowModels, nowLensCounts, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
+import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowModels, nowLensCounts, nowModels, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
 import "./nowPublications2029.css";
 
 // Compact "Now" publications window over the ONE shared system feed (feed.expandedRows).
@@ -46,20 +46,23 @@ function RowHead({ model, timeMode }) {
   </>;
 }
 
-function VideoOnDemand({ model }) {
-  const [armed, setArmed] = useState(false);
-  if (armed) return <video className="sod29-nowpub-video" src={model.mediaHref} poster={model.thumb || undefined} controls preload="metadata" playsInline aria-label={`סרטון · ${model.title}`} />;
+// A video starts when the reader asks for it: the ▶ on the row's picture (autoStart) or the player button. Never before.
+function VideoOnDemand({ model, autoStart = false }) {
+  const [armed, setArmed] = useState(autoStart);
+  useEffect(() => { if (autoStart) setArmed(true); }, [autoStart]);
+  const start = element => { if (element && typeof element.play === "function") element.play().catch(() => {}); };
+  if (armed) return <video ref={start} className="sod29-nowpub-video" src={model.mediaHref} poster={model.thumb || undefined} controls autoPlay preload="auto" playsInline aria-label={`סרטון · ${model.title}`} />;
   return <button type="button" className="sod29-nowpub-play" onClick={() => setArmed(true)} aria-label={`הצג את הנגן · ${model.title}`}>
     {model.thumb ? <img src={model.thumb} alt="" loading="lazy" decoding="async" /> : null}<span aria-hidden="true">▶</span>
   </button>;
 }
 
-function RowDetail({ model, onOpen, feed }) {
+function RowDetail({ model, onOpen, feed, autoPlay = false }) {
   const seriesHref = nowSeriesHref(model);
   const fullHref = model.href;
   const open = href => () => { feed?.see?.(model.row); onOpen?.(href); };
   return <div className="sod29-nowpub-detail">
-    {model.video && model.mediaHref ? <VideoOnDemand model={model} /> : model.image && model.mediaHref
+    {model.video && model.mediaHref ? <VideoOnDemand model={model} autoStart={autoPlay} /> : model.image && model.mediaHref
       ? <img className="sod29-nowpub-image" src={model.mediaHref} alt={`תמונה · ${model.title}`} loading="lazy" decoding="async" /> : null}
     {model.fullText && model.fullText !== model.title ? <p className="sod29-nowpub-body">{model.fullText}</p> : null}
     {model.item.fullTextTruncated ? <small>זהו קטע תחום מהעדכון הציבורי.</small> : null}
@@ -82,11 +85,29 @@ function RunGroup({ entry, children }) {
   </details></li>;
 }
 
+// The Or HaGeula rabbi box: every update with "רב"/"הרב" lives here; the box sits at its newest member, so a new update lifts the box.
+function BoxGroup({ entry, children }) {
+  const lead = entry.models[0], fresh = entry.models.some(model => model.row?.isNew);
+  return <li><details className={`sod29-nowpub-box${fresh ? " is-new" : ""}`} data-tone="gold" data-now-box="or-geula-rabbi">
+    <summary>
+      {lead.logo ? <img className="sod29-nowpub-box-logo" src={lead.logo.src} alt="" width="40" height="40" loading="lazy" decoding="async" /> : null}
+      <span className="sod29-nowpub-box-text">
+        <strong>{entry.label}</strong>
+        <span><span>{entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}</span>{fresh ? <b className="sod29-nowpub-box-new">חדש</b> : null}{entry.latest ? <span>עדכון אחרון · <time dateTime={entry.latest}>{recordTimeLabel(entry.latest, NOW_TIME_MODE, "")}</time></span> : null}</span>
+        <em>{lead.title}</em>
+      </span>
+    </summary>
+    <ul className="sod29-nowpub-list">{children}</ul>
+  </details></li>;
+}
+
 function Row({ model, onOpen, feed, timeMode }) {
+  // Tapping the ▶ on the picture opens the row AND starts that video (one tap), instead of only expanding it.
+  const [playIntent, setPlayIntent] = useState(false);
   const className = `sod29-nowpub-row is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""}`;
   if (model.canExpand) return <li><details className={className} data-tone={model.tone} onToggle={event => { if (event.currentTarget.open) feed?.see?.(model.row); }}>
-    <summary><RowHead model={model} timeMode={timeMode} /></summary>
-    <RowDetail model={model} onOpen={onOpen} feed={feed} />
+    <summary onClick={event => { if (model.video && event.target.closest?.(".sod29-nowpub-preview")) setPlayIntent(true); }}><RowHead model={model} timeMode={timeMode} /></summary>
+    <RowDetail model={model} onOpen={onOpen} feed={feed} autoPlay={playIntent} />
   </details></li>;
   return <li><button type="button" className={`${className} is-link`} data-tone={model.tone} disabled={!model.href}
     onClick={() => { feed?.see?.(model.row); if (model.href) onOpen?.(model.href); }}>
@@ -110,10 +131,10 @@ function useWide() {
 
 function WideRow({ model, selected, onSelect, timeMode }) {
   const className = `sod29-nowpub-row is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""} is-link${selected ? " is-selected" : ""}`;
-  return <li><button type="button" className={className} data-tone={model.tone} aria-pressed={selected} onClick={() => onSelect(model)}><RowHead model={model} timeMode={timeMode} /></button></li>;
+  return <li><button type="button" className={className} data-tone={model.tone} aria-pressed={selected} onClick={event => onSelect(model, Boolean(model.video && event.target.closest?.(".sod29-nowpub-preview")))}><RowHead model={model} timeMode={timeMode} /></button></li>;
 }
 
-function WideDetail({ model, onOpen, feed, timeMode }) {
+function WideDetail({ model, onOpen, feed, timeMode, autoPlay }) {
   if (!model) return <p className="sod29-nowpub-empty" role="status">בחרו פרסום מהרשימה.</p>;
   const when = recordTimeLabel(model.at, NOW_TIME_MODE, "זמן לא צוין");
   return <article className="sod29-nowpub-pane" data-tone={model.tone} aria-label={model.title}>
@@ -123,7 +144,7 @@ function WideDetail({ model, onOpen, feed, timeMode }) {
       <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
       <time dateTime={model.at || undefined}>{when}</time>
     </small>
-    <RowDetail key={model.id} model={model} onOpen={onOpen} feed={feed} />
+    <RowDetail key={model.id} model={model} onOpen={onOpen} feed={feed} autoPlay={autoPlay} />
   </article>;
 }
 
@@ -131,7 +152,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [source, setSource] = useState(""), [media, setMedia] = useState("");
   const [count, setCount] = useState(PAGE);
   const wide = useWide();
-  const [selectedId, setSelectedId] = useState(null);
+  const [selectedId, setSelectedId] = useState(null), [playId, setPlayId] = useState(null);
   useEffect(() => { feed?.requestNowDetails?.(); }, [feed?.requestNowDetails]);
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
   const models = useMemo(() => nowModels(rows), [rows]);
@@ -144,11 +165,11 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const shown = useMemo(() => filterNowModels(models, { lens: activeLens, series, source, media }), [models, activeLens, series, source, media]);
   // Only the mixed "all" view collapses consecutive source rows; a lens/filter the reader chose on purpose lists every row.
   const collapse = activeLens === "all" && !series && !source && !media;
-  const entries = useMemo(() => collapse ? collapseSourceRuns(shown) : shown.map(model => ({ kind: "row", model })), [shown, collapse]);
+  const entries = useMemo(() => collapse ? buildNowEntries(shown) : shown.map(model => ({ kind: "row", model })), [shown, collapse]);
   const visibleEntries = entries.slice(0, count);
-  const visibleCount = visibleEntries.reduce((sum, entry) => sum + (entry.kind === "run" ? entry.models.length : 1), 0);
+  const visibleCount = visibleEntries.reduce((sum, entry) => sum + (entry.models ? entry.models.length : 1), 0);
   const selected = wide ? (shown.find(model => model.id === selectedId) || shown[0] || null) : null;
-  const select = model => { setSelectedId(model.id); feed?.see?.(model.row); };
+  const select = (model, play = false) => { setSelectedId(model.id); setPlayId(play ? model.id : null); feed?.see?.(model.row); };
   const secondaryActive = Boolean(series || source || media);
   // A lens/choice that stopped existing (refresh, retry) must not leave an invisible empty filter.
   useEffect(() => {
@@ -199,14 +220,16 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
       ? <div className="sod29-nowpub-split">
         <ul className="sod29-nowpub-list">{visibleEntries.map(entry => {
           const wideRow = model => <WideRow key={model.id} model={model} selected={selected?.id === model.id} onSelect={select} timeMode={timeMode} />;
-          return entry.kind === "run" ? <RunGroup key={entry.id} entry={entry}>{entry.models.map(wideRow)}</RunGroup> : wideRow(entry.model);
+          return entry.kind === "run" ? <RunGroup key={entry.id} entry={entry}>{entry.models.map(wideRow)}</RunGroup>
+            : entry.kind === "box" ? <BoxGroup key={entry.id} entry={entry}>{entry.models.map(wideRow)}</BoxGroup> : wideRow(entry.model);
         })}</ul>
-        {shown.length ? <WideDetail model={selected} onOpen={onOpen} feed={feed} timeMode={timeMode} /> : null}
+        {shown.length ? <WideDetail model={selected} onOpen={onOpen} feed={feed} timeMode={timeMode} autoPlay={playId === selected?.id} /> : null}
       </div>
       : <ul className="sod29-nowpub-list">
         {visibleEntries.map(entry => {
           const row = model => <Row key={model.id} model={model} onOpen={onOpen} feed={feed} timeMode={timeMode} />;
-          return entry.kind === "run" ? <RunGroup key={entry.id} entry={entry}>{entry.models.map(row)}</RunGroup> : row(entry.model);
+          return entry.kind === "run" ? <RunGroup key={entry.id} entry={entry}>{entry.models.map(row)}</RunGroup>
+            : entry.kind === "box" ? <BoxGroup key={entry.id} entry={entry}>{entry.models.map(row)}</BoxGroup> : row(entry.model);
         })}
       </ul>}
     {count < entries.length ? <button type="button" className="sod29-action sod29-nowpub-more-btn" onClick={() => setCount(n => n + PAGE)}>עוד · {visibleCount} מתוך {shown.length}</button> : null}
