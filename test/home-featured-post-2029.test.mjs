@@ -29,7 +29,7 @@ test("Home: the featured card is the first area (before the ELS entry); its Post
   assert.ok(body.indexOf("<HomeFeaturedPost2029") > 0 && body.indexOf("<HomeFeaturedPost2029") < body.indexOf("elsEntry ? <Reveal"));
   assert.match(home, /featured\.post\?\.href,/); assert.match(home, /featured\.post\?\.slug,/);
   const css = await readFile(new URL("../src/components/experience2029/homeComposition2029.css", import.meta.url), "utf8");
-  assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 1000px; \}/, "height reserved while loading (544 + the 1234 and 1011 blocks and the sentence, ZURIEL 10.11.2026)");
+  assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 1150px; \}/, "height reserved while loading (544 + the 1234 and 1011 blocks and the sentence, ZURIEL 10.11.2026)");
 });
 
 test("the whole message is ONE feed item for 'עכשיו': same post:<id> identity, headline + note + numbers + connections + interpretation as one body", async () => {
@@ -41,7 +41,7 @@ test("the whole message is ONE feed item for 'עכשיו': same post:<id> identi
   const item = featuredFeedItem(row({ date: "2026-09-30T08:55:00Z", excerpt: "תקציר ישן" }), postRowToWorldUpdate);
   assert.equal(item.id, "post:5107"); assert.equal(item.label, HOME_FEATURED_POST_2029.headline);
   for (const part of ["הבורא מדבר דרך כל המציאות", "התיעוד הזה הוא חלק מעץ המציאות", "המסר:", "46 הוא היפוך של 64, דין", "מה שנראה דין מתגלה כרחמים", "סוד הבינה, 67", "1,437 (לייקים)", "618 = משיח צדקינו", "396 = הישועה = דויד בן ישי", "78 = מחל", "64 = דין", "פ״ז", "שרשר = 1000"]) assert.ok(item.fullText.includes(part), part);
-  assert.equal(item.at, "2026-11-08T04:18:00.000Z");
+  assert.equal(item.at, "2026-11-08T04:18:00.000Z"); assert.equal(item.pinned, true); assert.equal(item.liveDot, "עדכון חדש בפוסט");
   assert.equal(featuredFeedItem(row({ home_hidden: true }), postRowToWorldUpdate), null);
   // The stream's own item for the same Post can never make a second row: ours is listed first and wins.
   const streamItem = postRowToWorldUpdate(row({ date: "2026-11-07T00:00:00Z" }));

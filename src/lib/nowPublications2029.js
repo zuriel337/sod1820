@@ -140,6 +140,8 @@ export function nowRowModel(row) {
     tone: toneOf(lenses, unverified),
     // Pinned by the owner (the Home featured item): stays first in "עכשיו" whatever its time; how pinning is governed is to be set in the contracts.
     pinned: item.pinned === true,
+    // A blinking dot attached to the title marks an update the owner flagged (the Home featured Post update). Its label is the accessible name.
+    dot: typeof item.liveDot === "string" && item.liveDot ? item.liveDot : null,
     logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, author: item.author, seriesKey })] || null,
     at: row?.at || null, href, seriesKey, seriesLabel, sourceName,
     media: video ? "video" : image ? "image" : "text", video, image,

@@ -95,7 +95,7 @@ export function featuredFeedItem(row, postRowToWorldUpdate, config = HOME_FEATUR
   const base = typeof postRowToWorldUpdate === "function" && projectHomeFeaturedPost(row, config) && postRowToWorldUpdate(row);
   if (!base) return null;
   const at = new Date(config.at).toISOString();
-  return { ...base, label: config.headline || base.label, summary: config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: true };
+  return { ...base, label: config.headline || base.label, summary: config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: true, liveDot: "עדכון חדש בפוסט" };
 }
 
 // One public read shared by Home and the feed hook (cached for a minute): never two requests for the same Post.

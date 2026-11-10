@@ -43,10 +43,10 @@ export default function HomeFeaturedPost2029({ state }) {
       return <div className="h29-featured-spot" data-home-featured-spot={group.value} key={group.value}>
         {numberHref ? <Link className="h29-featured-spot-value" to={numberHref} aria-label={`פתח את המספר ${group.value}`} data-home-featured-spot-link="number">{group.value}</Link>
           : <b className="h29-featured-spot-value">{group.value}</b>}
-        <div>{group.phrases.map(phrase => {
+        <ul className="h29-featured-rows">{group.phrases.map(phrase => {
           const href = (group.numberOnly || []).includes(phrase) ? null : numberExpressionFocusHref(group.value, { expression: phrase, method: "רגיל" });
-          return <p key={phrase}>{href ? <Link to={href} data-home-featured-spot-link="phrase">{phrase}</Link> : phrase} <span>= {group.value}</span></p>;
-        })}</div>
+          return <li key={phrase}><span className="h29-featured-row-text">{href ? <Link to={href} data-home-featured-spot-link="phrase">{phrase}</Link> : phrase}</span><b className="h29-featured-row-eq">= {group.value}</b></li>;
+        })}</ul>
       </div>;
     })}
     {post.statement ? <p className="h29-featured-statement" data-home-featured-statement="true">{post.statement}</p> : null}

@@ -29,14 +29,17 @@ function RowPreview({ model }) {
   </span>;
 }
 
+// The dot sits INSIDE the title/lead text (first thing the eye reads), never at the end of the row.
+const LiveDot = ({ label }) => label ? <i className="sod29-nowpub-dot" role="img" aria-label={label} title={label} /> : null;
+
 function RowHead({ model, timeMode }) {
   const when = recordTimeLabel(model.at, NOW_TIME_MODE, "זמן לא צוין");
   const rich = Boolean(model.previewKind);
   return <>
     {rich ? <RowPreview model={model} /> : <Thumb model={model} />}
     <span className="sod29-nowpub-text">
-      {model.excerptIsLead ? null : <strong className="sod29-nowpub-title">{model.title}</strong>}
-      {model.excerpt ? <span className={`sod29-nowpub-excerpt${model.excerptIsLead ? " is-lead" : ""}`}>{model.excerpt}</span> : null}
+      {model.excerptIsLead ? null : <strong className="sod29-nowpub-title"><LiveDot label={model.dot} />{model.title}</strong>}
+      {model.excerpt ? <span className={`sod29-nowpub-excerpt${model.excerptIsLead ? " is-lead" : ""}`}>{model.excerptIsLead ? <LiveDot label={model.dot} /> : null}{model.excerpt}</span> : null}
       <small className="sod29-nowpub-meta">
         {model.byline.length ? <span>{model.byline.join(" · ")}</span> : null}
         <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
@@ -139,7 +142,7 @@ function WideDetail({ model, onOpen, feed, timeMode, autoPlay }) {
   if (!model) return <p className="sod29-nowpub-empty" role="status">בחרו פרסום מהרשימה.</p>;
   const when = recordTimeLabel(model.at, NOW_TIME_MODE, "זמן לא צוין");
   return <article className="sod29-nowpub-pane" data-tone={model.tone} aria-label={model.title}>
-    <h3 className="sod29-nowpub-pane-title">{model.title}</h3>
+    <h3 className="sod29-nowpub-pane-title"><LiveDot label={model.dot} />{model.title}</h3>
     <small className="sod29-nowpub-meta">
       {model.byline.length ? <span>{model.byline.join(" · ")}</span> : null}
       <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
