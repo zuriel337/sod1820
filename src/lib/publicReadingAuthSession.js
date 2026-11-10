@@ -21,7 +21,9 @@ export function readingSessionOptions(storage, location = globalThis.location, {
   const primary = canonical ? () => canonicalStorage || globalThis.localStorage : () => storage;
   const resilient = registerAuthStorage(createResilientAuthStorage({ primary, secondary: () => globalThis.sessionStorage }));
   // With no usable store at all the SDK keeps its own memory-only session, exactly as before; with any usable store it uses the resilient one.
-  const usable = (() => { try { return Boolean(primary() || globalThis.sessionStorage); } catch { return false; } })();
+  // Each store is probed on its own: a blocked localStorage throws on access and must not hide a working sessionStorage.
+  const available = get => { try { return Boolean(get()); } catch { return false; } };
+  const usable = available(primary) || available(() => globalThis.sessionStorage);
   return { persistSession: usable, autoRefreshToken: true,
     flowType: "pkce", detectSessionInUrl: location?.pathname === "/auth/callback",
     experimental: { appendPkceFlowIdToRedirects: false },

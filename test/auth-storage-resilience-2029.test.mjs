@@ -166,3 +166,15 @@ test('the storage report lists names and sizes only, masks identifiers and group
   assert.equal(report.entries.find(entry => entry.key.startsWith('ua_visit_')).count, 2);
   assert.ok(report.totalChars > 40 * 100); void key;
 });
+
+test('regression: a localStorage that THROWS on access must not switch the SDK to memory-only while sessionStorage works', async () => {
+  const { readingSessionOptions } = await import('../src/lib/publicReadingAuthSession.js');
+  const had = Object.getOwnPropertyDescriptor(globalThis, 'localStorage');
+  Object.defineProperty(globalThis, 'localStorage', { configurable: true, get() { throw new DOMException('Access is denied for this document.', 'SecurityError'); } });
+  try {
+    globalThis.sessionStorage = new MemoryStorage();
+    assert.equal(readingSessionOptions(undefined, { origin: SITE, pathname: '/' }, { productionArtifact: true }).persistSession, true, 'tab store usable -> resilient storage is used');
+    delete globalThis.sessionStorage;
+    assert.equal(readingSessionOptions(undefined, { origin: SITE, pathname: '/' }, { productionArtifact: true }).persistSession, false, 'nothing usable -> memory-only, as before');
+  } finally { delete globalThis.sessionStorage; if (had) Object.defineProperty(globalThis, 'localStorage', had); else delete globalThis.localStorage; }
+});
