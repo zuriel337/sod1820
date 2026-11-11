@@ -1,0 +1,18 @@
+--- nodes:foundation_closure_protocol_law@v7→v8.description (base)
++++ nodes:foundation_closure_protocol_law@v7→v8.description (proposed)
+@@ -92,9 +92,9 @@
+ 
+-[UPDATE v6 · Human-Gate ZURIEL · 17.9.2026 — STANDING AUTO-RELEASE BINDING · EXTEND_EXISTING]
+-AUTO-RELEASE BINDING. Once a bounded routine release scope has satisfied every applicable lower MUST, gate, dependency, current-main reconciliation, required specialist/security/privacy acceptance and release recovery condition, standing Human-Gate authorization under deploy_on_request v2 permits the Primary Owner to release without waiting for a separate “תעלה”. Gate-clean is the authorization condition.
+-NO-SKIP REMAINS ABSOLUTE. Standing authorization changes who triggers a clean release; it does not weaken any Foundation MUST or acceptance standard. קדימה/תעלה/auto-release never waive a blocker.
+-HUMAN-DECISION RESERVE. Explicit Human Gate remains for decisions that change canonical governed truth/publication where required, destructive irreversible state, paid product economics, major Legacy→2029 production cutover, material privacy/security weakening, permanent deletion/retirement of preserved history/capability, or another owner-specific Human decision.
+-RELEASE ADVICE. Gate closure/handoff must expose whether the scope is AUTO_RELEASE_NOW, BUNDLE_WITH, BLOCKED_BY, SAFE_INDEPENDENT_WAITING_RUNTIME, or DO_NOT_RELEASE_SUPERSEDED/PARKED, so ZURIEL is not required to infer dependencies.
++[UPDATE v6 · Human-Gate ZURIEL · 17.9.2026 — RELEASE BINDING · EXTEND_EXISTING · standing auto-release revoked by v8 (ZURIEL 10.11.2026)]
++RELEASE BINDING (v8). Once a bounded release scope has satisfied every applicable lower MUST, gate, dependency, current-main reconciliation, required specialist/security/privacy acceptance and release recovery condition, it is READY_FOR_APPROVAL: the Primary Owner presents the exact commit/deployment to ZURIEL and releases only after his explicit approval of that specific action (deploy_on_request, active version). Gate-clean is a precondition, never an authorization; there is no standing release authorization.
++NO-SKIP REMAINS ABSOLUTE. Explicit approval does not weaken any Foundation MUST or acceptance standard. קדימה/תעלה never waive a blocker.
++HUMAN-DECISION RESERVE. Explicit Human Gate remains for decisions that change canonical governed truth/publication where required, destructive irreversible state, paid product economics, material privacy/security weakening, permanent deletion/retirement of preserved history/capability, or another owner-specific Human decision.
++RELEASE ADVICE. Gate closure/handoff must expose whether the scope is READY_FOR_APPROVAL (formerly AUTO_RELEASE_NOW), BUNDLE_WITH, BLOCKED_BY, SAFE_INDEPENDENT_WAITING_RUNTIME, or DO_NOT_RELEASE_SUPERSEDED/PARKED, so ZURIEL is not required to infer dependencies.
+ 
+-OWNER CHECK: EXTEND_EXISTING foundation_closure_protocol_law + deploy_on_request v2. No new gate system.
++OWNER CHECK: EXTEND_EXISTING foundation_closure_protocol_law + deploy_on_request (active version). No new gate system.
+ 

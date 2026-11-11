@@ -1,0 +1,23 @@
+--- project_codex#1:_index.body (base)
++++ project_codex#1:_index.body (proposed)
+@@ -25,3 +25,3 @@
+ ROUTING MAP — בעלי-בית מרכזיים:
+-- One Tree / Reality Graph / identity-vs-representation / contextual center → reality_graph_law (+ unified_graph_law where referenced).
++- One Tree / Reality Graph / identity-vs-representation / contextual center → reality_graph_law (unified_graph_law is inactive — history only).
+ - Research intake/source/provenance/orchestration → research_intake_foundation_contract_law / project_codex research_intake_foundation_contract.
+@@ -30,3 +30,3 @@
+ - Experience ownership/lifecycle/localization/design crosswalk → experience_governance_foundation_v1_law.
+-- Public product language/visual language/typography/icons → SOD1820_DESIGN_CONTRACT_V1.md.
++- Public product language/visual language/typography/icons → SOD1820_DESIGN_CONTRACT_V2.md (2029 active; V1 = historical/Legacy provenance).
+ - Global navigation/context rail/bottom controls → docs/sod1820-system-frame-contract-v1.md.
+@@ -38,3 +38,4 @@
+ - Inter-agent scope/owner/specialist coordination → inter_agent_coordination_law (current active version).
+-- Release/merge/deploy → deploy_on_request + live git/deploy state.
++- Release/merge/deploy → deploy_on_request (active version) + live git/deploy state; every merge and every Production deployment needs ZURIEL's explicit approval for the specific action (10.11.2026).
++- Product plan and dated decision record («מסמך 37») → project_codex id 37 (sod1820_reality_stream_os_master_v3_20261016_draft): dated records — a later explicit ZURIEL decision supersedes an earlier one; not proof of live state and not release authorization (CLAUDE.md §0.1).
+ 
+@@ -53,3 +54,3 @@
+ ■ FOLLOW COMPLETION ROUTER — 7.9.2026
+-לכל בניית משטח תוכן עם מעקב, גם עתידי: קרא את הגרסה הפעילה של subscription_funnel_law, במיוחד סעיף v18 SHARED FOLLOW → VERIFIED IDENTITY → CONSENTED CHANNEL, ואת subscribe_gate_law. WatchButton (כל variants) + EmailVerify + notification_prefs + Dispatcher הקיימים הם אותו מנגנון; אין פתרון מיוחד למימד חמש. טבלת-קבלה למשטח חדש וגבולות identity/consent/delivery מפורטים בחוק, לא משוכפלים כאן. יומן התיאום: SHARED_FOLLOW_SIGNUP_COMPLETION_V1. GOVERNANCE APPROVED אינה הוכחת יישום/מסירה; מצב שחרור נבדק מול main/DB/tests. זהו pointer בלבד.
++לכל בניית משטח תוכן עם מעקב, גם עתידי: קרא את הגרסה הפעילה של subscription_funnel_law, במיוחד סעיף v18 SHARED FOLLOW → VERIFIED IDENTITY → CONSENTED CHANNEL, ואת subscribe_gate_law (כיום לא פעיל — היסטוריה בלבד; השער הקיים SubscribeGate.jsx מתועד ב-subscription_funnel_law). WatchButton (כל variants) + EmailVerify + notification_prefs + Dispatcher הקיימים הם אותו מנגנון; אין פתרון מיוחד למימד חמש. טבלת-קבלה למשטח חדש וגבולות identity/consent/delivery מפורטים בחוק, לא משוכפלים כאן. יומן התיאום: SHARED_FOLLOW_SIGNUP_COMPLETION_V1. GOVERNANCE APPROVED אינה הוכחת יישום/מסירה; מצב שחרור נבדק מול main/DB/tests. זהו pointer בלבד.
+ 

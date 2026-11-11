@@ -39,16 +39,19 @@ test("failed, malformed and differently resolved targets are unavailable, not ab
 });
 test("writer controls require an exact public canonical contributor; generic author text is insufficient", async () => {
   let calls = 0;
-  const client = { rpc: async () => { calls++; return { data: "author:אלון לוי" }; } };
+  // the Post is also a series member (decision 6); only the writer row is under test here
+  const client = { rpc: async (name, args) => { if (args.p_entity_type === "author") calls++; return { data: args.p_entity_type === "author" ? "author:אלון לוי" : "series:mah-kore-habora" }; } };
   const input = { post: post({ author: "אלון לוי" }), client };
-  assert.equal((await fetchPostFollowTargets2029({ ...input, writerLinks: noWriters }))[0].state, "unavailable");
+  const writer = rows => rows.find(row => row.entityType === "author");
+  assert.equal(writer(await fetchPostFollowTargets2029({ ...input, writerLinks: noWriters })).state, "unavailable");
   assert.equal(calls, 0);
-  assert.equal((await fetchPostFollowTargets2029({ ...input, writerLinks: async () => ({ "author:אלון לוי": "/community/researcher/alon" }) }))[0].state, "ready");
+  assert.equal(writer(await fetchPostFollowTargets2029({ ...input, writerLinks: async () => ({ "author:אלון לוי": "/community/researcher/alon" }) })).state, "ready");
 });
 test("an unavailable writer lookup leaves independently resolved category targets usable", async () => {
   const rows = await fetchPostFollowTargets2029({ post: post({ author: "אלון לוי", categories: ["תיעוד אירועים"] }),
     client: { rpc: async () => ({ data: "cat:תיעוד אירועים" }) }, writerLinks: async () => { throw Error("offline"); } });
-  assert.deepEqual(rows.map(row => row.state), ["ready", "unavailable"]);
+  assert.equal(rows[0].topic, "series:mah-kore-habora", "every Post of the exact author is in the series (decision 6)");
+  assert.deepEqual(rows.filter(row => row.entityType !== "series").map(row => row.state), ["ready", "unavailable"]);
 });
 test("title search uses an escaped column filter alongside public and exact series membership", async () => {
   assert.equal(postsSearch2029("  מילה  שנייה "), "מילה שנייה");
@@ -58,6 +61,6 @@ test("title search uses an escaped column filter alongside public and exact seri
   for (const name of ["select", "or", "eq", "order", "range", "ilike"]) query[name] = (...args) => { calls.push([name, ...args]); return query; };
   await fetchPostsCatalog2029({ scope: postsCatalogScope2029("series=dimension-five"), search: '50%_",or(x)', client: { from: () => query } });
   assert.deepEqual(calls.find(([name]) => name === "ilike"), ["ilike", "title", '%50\\%\\_",or(x)%']);
-  assert.ok(calls.some(c => c[0] === "eq" && c[2] === "בדרך לנצח"));
+  assert.ok(calls.some(c => c[0] === "or" && c[1].includes('author.eq."בדרך לנצח"')));
   assert.ok(calls.some(c => c[0] === "or" && c[1].includes("טיוטה,פורום")));
 });

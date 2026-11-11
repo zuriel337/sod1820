@@ -1,0 +1,57 @@
+
+# Branches & Deploy — Live 2026-09-23
+
+Canonical owner: `deploy_on_request v2`.
+This codex is an operational projection of the live owner + current `vercel.json`; it is not a second deployment law.
+
+## Production
+- `main` = production.
+- Merge/push to `main` may create a production Vercel deployment and must follow the release owner/gates.
+- Never use production as a workaround for Preview tooling.
+
+## Development branches
+Live `vercel.json` currently uses `git.deploymentEnabled`:
+- `gpt/g3-topic-golden-slug-rank-foundation-v1` → true (historical explicit exception)
+- `gpt/*` → false
+- `claude/*` → false
+
+Therefore normal GPT/CLAUDE development branches intentionally do **not** create Vercel Preview deployments and do not consume deployment quota.
+
+This supersedes the old operational note that `ignoreCommand` is the live non-main mechanism. Live verification on 2026-09-23 found no such active `ignoreCommand`; branch filtering is currently implemented by `git.deploymentEnabled`.
+
+## Authorized Preview lane
+Reserved branch namespace: `preview/*`.
+
+Purpose:
+- Human Visual Gate / temporary branch preview only.
+- Created only when preview/release is authorized by ZURIEL or the active release owner permits it.
+- Source must be an exact approved artifact head.
+- If branch creation alone does not fire Vercel Git Integration, create one inert carrier/marker commit on the `preview/*` branch to produce a real push event.
+- Marker must not modify application behavior.
+- Verify Vercel deployment metadata before sharing:
+  - Git ref starts with `preview/`;
+  - source artifact is known;
+  - `target=null` / Preview, never production;
+  - deployment reaches `READY`;
+  - requested preview route returns HTTP 200.
+- Generate/share a protected Preview URL when Deployment Protection is enabled.
+- Never merge/promote a preview carrier branch.
+- Close/delete preview carrier after Human Visual review when no longer needed.
+
+Why this works:
+Vercel `deploymentEnabled` uses minimatch; unspecified branches default to deployment enabled. The current `gpt/*` and `claude/*` rules remain false, while `preview/*` is outside those blocked namespaces.
+
+## F11 proof
+On 2026-09-23:
+- canonical F11 app artifact: PR #632 head `a00965851deb98b4601f1e38389a543fea49a850`
+- preview branch: `preview/f11-raziel-consumer-a0096585`
+- inert trigger commit: `facbb942874307a0114bef40bab60a5d55a88d3e`
+- Vercel deployment: `dpl_H5v9KuyiTDWECXFnvyMbog669YHU`
+- target: Preview (`null`), not production
+- state: READY
+- route `/2029/preview/synthesis/1820`: HTTP 200
+- production/main unchanged.
+
+## Safety
+Do not broaden `gpt/*` or `claude/*` to true merely to get a Preview.
+Use `preview/*` so development remains quota-protected and Preview creation remains an explicit, bounded action.

@@ -1,0 +1,22 @@
+--- nodes:platform_tiers_law@v5→v6.metadata (base)
++++ nodes:platform_tiers_law@v5→v6.metadata (proposed)
+@@ -92,3 +92,18 @@
+  },
+- "removal_requires_explicit_human_gate": true
++ "removal_requires_explicit_human_gate": true,
++ "v6_number_visible_depth_gated": {
++  "carried_from": "number_page_law v1 (2026-06-14)",
++  "human_gate": "ZURIEL 2026-11-10 (ד4)",
++  "no_new_system": true,
++  "not_carried": [
++   "three_layer_page_composition",
++   "layer1_hints",
++   "example_quota_20_of_250",
++   "tier_name_bnei_haheichal"
++  ],
++  "owner_check": "EXTEND_EXISTING",
++  "permission_change": false,
++  "principle": "המספר לא מוסתר, העומק כן",
++  "scope": "original scope only: foundation numbers and golden entities (especially 1820) and their number pages"
++ }
+ }

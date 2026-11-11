@@ -1,0 +1,29 @@
+{
+ "axis": "דין(אדום)→רם(תכלת)",
+ "compaction_v1": {
+  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "brand_design"
+ },
+ "g3_disposition_v1": {
+  "classification": "KEEP_SCOPED_SEMANTIC",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "src/lib/worlds.js remains a current semantic world/domain color owner consumed by 2029 and legacy components and referenced by the active Design Contract",
+  "revalidated_at": "2026-09-30"
+ },
+ "owner_routing": {
+  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+  "confidence": "high",
+  "domain": "brand_design",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ },
+ "shown_in": "ConvergenceMeter (התכנסות מילים) + legend",
+ "source": "src/lib/worlds.js"
+}

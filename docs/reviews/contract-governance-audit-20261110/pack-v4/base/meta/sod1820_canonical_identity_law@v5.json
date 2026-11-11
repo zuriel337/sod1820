@@ -1,0 +1,199 @@
+{
+ "ai_brand_context": {
+  "composite_canonical_assets_after_generation": true,
+  "consume_color_roles": true,
+  "consume_environment_role": true,
+  "consume_identity": true,
+  "consume_locale_expression": true,
+  "consume_safe_area": true,
+  "consume_typography_roles": true,
+  "consume_voice_truth_constraints": true,
+  "generate_scene_not_logo": true
+ },
+ "asset_pack_state": "MASTER_LOCKUP_APPROVED",
+ "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+ "compaction_v1": {
+  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "brand_design"
+ },
+ "exact_master_asset": {
+  "allowed_transformations": [
+   "uniform_scale",
+   "whole_lockup_position",
+   "opacity",
+   "external_glow_behind_lockup"
+  ],
+  "byte_size": 2405610,
+  "crown_position_locked": true,
+  "file_name": "sod1820_primary_hebrew_lockup_transparent_v1.png",
+  "forbidden_transformations": [
+   "move_crown_relative_to_wordmark",
+   "move_wordmark_relative_to_crown",
+   "change_spacing",
+   "change_relative_scale",
+   "crop_wordmark",
+   "crop_crown",
+   "warp",
+   "redraw",
+   "regenerate",
+   "retype"
+  ],
+  "geometry_locked": true,
+  "height": 1506,
+  "human_gate": "ZURIEL 2026-10-01",
+  "mime": "image/png",
+  "mode": "RGBA",
+  "relative_scale_locked": true,
+  "sha256": "d543689eb92bb2a01bb9d5cf1f3907b6fbb7f092c8cf0395c14815e072184b34",
+  "status": "APPROVED_EXACT_MASTER_PNG",
+  "symmetry_locked": true,
+  "width": 1664,
+  "wordmark_position_locked": true
+ },
+ "experience_projection_matrix_v1": {
+  "context_fields": [
+   "canonical_identity",
+   "master_mark",
+   "protected_wordmark",
+   "locale_expression",
+   "color_roles",
+   "typography_roles",
+   "surface_voice_role",
+   "motion_vocabulary",
+   "spatial_tier",
+   "voice_mode",
+   "caption_mode",
+   "environment_role",
+   "ai_visual_freedom",
+   "safe_area",
+   "truth_constraints",
+   "performance_fallback"
+  ],
+  "experience_owner": "experience_governance_foundation_v1_law v5",
+  "human_gate": "ZURIEL 2026-09-17",
+  "no_new_store_registry": true,
+  "no_separate_media_branding": true,
+  "one_context_many_renderers": true,
+  "renderers": [
+   "web_ui",
+   "interactive_motion",
+   "canvas",
+   "gpu_3d",
+   "ai_image",
+   "ai_video",
+   "share_card",
+   "remotion",
+   "audio_narration",
+   "future_xr"
+  ]
+ },
+ "g3_disposition_v1": {
+  "classification": "KEEP_SCOPED_SEMANTIC",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "scoped semantic contract currently unique enough to remain active; G3 implementation must consume it rather than legacy UI/code, and final G3 compaction may absorb/archive it after proving semantic preservation"
+ },
+ "hebrew_video_projection": {
+  "brand_mark": "hebrew_master_lockup_transparent",
+  "domain_separate_live_text": true,
+  "intro_outro_optional_domain": "sod1820.co.il",
+  "kingdom_rise": false
+ },
+ "human_gate": "ZURIEL 2026-10-01",
+ "inherits_rule": "sod1820_canonical_identity_law v2",
+ "motion": {
+  "canonical_semantics": [
+   "translate",
+   "scale",
+   "fade",
+   "reveal",
+   "restrained_glow",
+   "light_sweep",
+   "depth",
+   "orbit_context"
+  ],
+  "forbidden": [
+   "morph_master_mark",
+   "redraw_master_mark",
+   "distort_master_mark",
+   "regenerate_master_mark",
+   "retype_or_redraw_hebrew_wordmark"
+  ],
+  "owner": "src/lib/designTokens.js:MOTION",
+  "reduced_motion_required": true,
+  "remotion_is_projection": true
+ },
+ "no_new_system": true,
+ "owner_check": "EXTEND_EXISTING",
+ "owner_routing": {
+  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+  "confidence": "high",
+  "domain": "brand_design",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ },
+ "primary_lockup": {
+  "crown": "approved_blue_gold_crown",
+  "crown_alone_forbidden": true,
+  "english_inside_logo": false,
+  "hebrew_wordmark": "כי לה׳ המלוכה",
+  "inseparable": true
+ },
+ "projection_fields": [
+  "size",
+  "placement",
+  "crop",
+  "aspect_ratio",
+  "exact_timing",
+  "scene_background",
+  "density",
+  "optional_expression",
+  "optional_url",
+  "optional_title",
+  "safe_area_coordinates"
+ ],
+ "removed_asset_identity": "icon_crown_crop",
+ "required_asset_pack": [
+  "hebrew_master_lockup_transparent",
+  "asset_metadata_dimensions_checksum_clearspace"
+ ],
+ "safe_area": {
+  "coordinates_projection": true,
+  "no_required_brand_text_baked_into_background": true,
+  "principle_canonical": true,
+  "survive_crop": true
+ },
+ "supersedes_identity_version": 4,
+ "typography": {
+  "heritage_wordmark_is_artwork": true,
+  "live_roles": [
+   "F.ui",
+   "F.body",
+   "F.display",
+   "F.numeric"
+  ],
+  "new_font_owner": false
+ },
+ "video_brand_frame_projection_v1": {
+  "aspect_ratio": "9:16",
+  "center_content_must_remain_open": true,
+  "cta_73_position": "NEAR_END_BEFORE_OUTRO",
+  "frame_candidate_file": "sod1820_video_header_20_30_v1.png",
+  "frame_candidate_sha256": "4449b9ae242110b3c95e618dc7a5c85af70797e05d3e01fcfe0d135f25ce1af3",
+  "human_gate": "ZURIEL 2026-10-01",
+  "logo_asset_sha256": "d543689eb92bb2a01bb9d5cf1f3907b6fbb7f092c8cf0395c14815e072184b34",
+  "logo_must_be_exact_master_png": true,
+  "long_full_height_columns_forbidden": true,
+  "rendering_rule": "frame geometry may be ornamented/animated, but must preserve 20/30 bounds and exact canonical logo geometry",
+  "side_descender_max_height_pct": 30,
+  "status": "APPROVED_VIDEO_FRAME_GEOMETRY",
+  "top_structure_max_height_pct": 20
+ }
+}

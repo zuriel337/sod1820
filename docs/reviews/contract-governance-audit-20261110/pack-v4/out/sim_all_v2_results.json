@@ -1,0 +1,302 @@
+[
+ {
+  "name": "apply 10_p0_release_policy",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "apply 11_admin_suggestion_decide_text",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "apply 20_number_principles_to_2029_owners",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "apply 23_shared_contracts_groupB",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "apply 24_design_v1_v2_alignment",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "apply 21_retire_9_legacy_specs",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "apply 22_codex_stale_banners",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "apply 30_STAGE3_retire_number_laws",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "apply 50_plan37_series_decisions_6_7",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[1] no active standing-authorization grant: STANDING AUTHORIZATION\\. ZURIEL grants standing",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[1] no active standing-authorization grant: RELEASE WHEN READY, NOT WHEN ASKED",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[1] no active standing-authorization grant: without a second user prompt\\.$",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[1] no active standing-authorization grant: standing Human-Gate authorization under deploy_o",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[1] no active standing-authorization grant: no writer overlap under deploy_on_request v2",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[1] no active standing-authorization grant: כל push ל-main = פריסת Vercel",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[2] agents are not routed to Legacy as Production/owner: CURRENT PRODUCTION = legacy\\/transitional until ",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[2] agents are not routed to Legacy as Production/owner: ^- `main` = production\\.$",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[2] agents are not routed to Legacy as Production/owner: \\(Legacy, 2029, או אחר\\)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[2] agents are not routed to Legacy as Production/owner: לרבות Legacy אם הוזכר",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[2] agents are not routed to Legacy as Production/owner: Public product language\\/visual language\\/typogr",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[3] 9 Legacy specs inactive, rows kept; bnei_haheichal active",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[4] number principles live in active 2029 owners",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[4] the two Legacy number laws are inactive only after their successors are active",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[5] no proposal touches gematria_words / wa_word_review (2,894 pending words untouched)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[6] «בני ההיכל» spec untouched (label/description unchanged)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[7] no DELETE / TRUNCATE / DROP statement in any proposal",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[7] row counts only grow by the new versions; nothing removed",
+  "pass": true,
+  "detail": "{\"n\":54,\"c\":12,\"base\":39}"
+ },
+ {
+  "name": "[7] codex _index: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "4 edited lines"
+ },
+ {
+  "name": "[7] codex project_overview: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "0 edited lines"
+ },
+ {
+  "name": "[7] codex data_model_map: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "0 edited lines"
+ },
+ {
+  "name": "[7] codex publishing_conventions: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "5 edited lines"
+ },
+ {
+  "name": "[7] codex gematria_engine: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "1 edited lines"
+ },
+ {
+  "name": "[7] codex system_rules_index: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "0 edited lines"
+ },
+ {
+  "name": "[7] codex branches_deploy: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "19 edited lines"
+ },
+ {
+  "name": "[7] codex golden_entities: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "0 edited lines"
+ },
+ {
+  "name": "[7] codex number_page_1820: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "0 edited lines"
+ },
+ {
+  "name": "[7] codex convergence_law: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "0 edited lines"
+ },
+ {
+  "name": "[7] codex experience_governance_foundation_v1: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "3 edited lines"
+ },
+ {
+  "name": "[7] codex sod1820_reality_stream_os_master_v3_20261016_draft: final body = the reviewed proposal (md5)",
+  "pass": true,
+  "detail": "0 edited lines"
+ },
+ {
+  "name": "[7] branches_deploy rewrite keeps the F11 provenance lines verbatim",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[4b] platform_tiers_law v6 §19 keeps the original scope (foundation numbers / golden entities, subscription only)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[4b] canonical_methods_registry_law v7 §26 has no wording beyond v1 (no 'never typed by hand')",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[4b] Raziel's 600-char window of both successors states the carried principle",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[9] among the 49 frozen rules only the 4 exempted brand rules get a new version",
+  "pass": true,
+  "detail": "[\"brand_spelling_law\",\"canonical_colors_law\",\"logo_integrity_law\",\"sod1820_canonical_identity_law\"]"
+ },
+ {
+  "name": "[10] no active rule still names SOD1820_DESIGN_CONTRACT_V1.md as its owner (V1 stays only as history/previous_owner)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[11] no proposal statement touches posts, images, media, galleries, word data or WordPress ids",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[12] PLAN37 record is appended after the untouched original text",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 59_plan37_series_decisions_6_7_ROLLBACK",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 39_STAGE3_retire_number_laws_ROLLBACK",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 27_codex_stale_banners_ROLLBACK",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 28_retire_9_legacy_specs_ROLLBACK",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 25_design_v1_v2_alignment_ROLLBACK",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 26_shared_contracts_groupB_ROLLBACK",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 29_number_principles_ROLLBACK",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 18_admin_suggestion_decide_ROLLBACK",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 19_p0_release_policy_ROLLBACK",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after full rollback: active rules identical to base (version, description md5, metadata md5)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after full rollback: codex bodies identical to base",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after full rollback: spec states identical to base",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after full rollback: admin_suggestion_decide identical to base",
+  "pass": true,
+  "detail": ""
+ }
+]

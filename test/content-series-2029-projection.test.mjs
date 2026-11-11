@@ -7,6 +7,7 @@ import {
   contentSeriesMembershipFilter,
   projectContentSeriesItems,
 } from "../src/lib/research/contentSeries2029Projection.js";
+import { contentSeriesAdmissionFilter } from "../src/lib/research/contentSeries2029Identity.js";
 
 const byKey = Object.fromEntries(CONTENT_SERIES_2029.map((spec) => [spec.key, spec]));
 
@@ -51,14 +52,39 @@ test("membership filters use exact existing tag/category evidence", () => {
   );
 });
 
-test("Alon series includes only exact tagged Alon items and never all author material", () => {
+// ZURIEL decision 6 (11.11.2026) replaces the tag-only rule of DEC-SERIES-005: every Post of the exact author belongs to the series.
+test("Alon series includes every Post of the exact author, tagged or not, and never another author or an alias", () => {
   const projected = projectContentSeriesItems([
     post("exact", { author: "אלון לוי", tags: ["מה קורה הבורא"] }),
-    post("other-series", { author: "אלון לוי", tags: ["אחר"] }),
+    post("untagged", { author: "אלון לוי", tags: ["אחר"] }),
     post("wrong-author", { author: "אדם אחר", tags: ["מה קורה הבורא"] }),
+    post("alias", { author: " אלון לוי ", tags: ["מה קורה הבורא"] }),
   ], byKey["mah-kore-habora"]);
-  assert.deepEqual(projected.items.map((item) => item.id), ["exact"]);
-  assert.deepEqual(projected.excluded.map((item) => item.reason), ["membership_not_exact", "author_not_mapped"]);
+  assert.deepEqual(projected.items.map((item) => item.id), ["exact", "untagged"]);
+  assert.deepEqual(projected.items.map((item) => item.author), ["אלון לוי", "אלון לוי"], "the author credit is the Post's own");
+  assert.deepEqual(projected.excluded.map((item) => item.reason), ["author_not_mapped", "author_not_mapped"]);
+});
+
+// ZURIEL decision 7 (11.11.2026): 5003 and 5004 have dual membership; no other Post of another publisher is admitted.
+test("Dimension Five admits exactly the approved Posts 5003 and 5004 besides the exact publisher", () => {
+  const projected = projectContentSeriesItems([
+    post(5003, { categories: ["מימד חמש", "הצופן בסרטים"] }),
+    post(5004, { categories: ["מימד חמש", "הצופן בסרטים"] }),
+    post(5037, { categories: ["מימד חמש"] }),
+    post(5116, { author: "מדריך לריפוי 10 הספירות", categories: ["מימד חמש", "וידאו"] }),
+    post(5100, { author: "בדרך לנצח", categories: ["מימד חמש"] }),
+  ], byKey["dimension-five"]);
+  assert.deepEqual(projected.items.map((item) => String(item.id)), ["5003", "5004", "5100"]);
+  assert.deepEqual(projected.items.map((item) => item.author ?? null), [null, null, "בדרך לנצח"], "no invented publisher or author");
+  assert.deepEqual(projected.excluded.map((item) => item.reason), ["author_not_mapped", "author_not_mapped"]);
+});
+
+test("the server filter is the same admission as the row rule", () => {
+  assert.equal(contentSeriesAdmissionFilter(byKey["mah-kore-habora"]), 'author.eq."אלון לוי"');
+  assert.equal(contentSeriesAdmissionFilter(byKey["dimension-five"]), 'and(categories.cs.{"מימד חמש"},author.eq."בדרך לנצח"),id.in.(5003,5004)');
+  for (const key of ["reality-map", "sod-hashmal", "messages-from-righteous"]) {
+    assert.equal(contentSeriesAdmissionFilter(byKey[key]), contentSeriesMembershipFilter(byKey[key]), key);
+  }
 });
 
 test("Dimension Five includes text/audio/video membership only for the approved publisher", () => {

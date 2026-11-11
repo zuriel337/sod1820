@@ -1,0 +1,24 @@
+HEAD 9a60a720f18d25ca02e837a4a0694f1c52415ab0 (base 71709e4ba + scratch patch)
+ok [0] node scripts/build-public-reading-production.mjs ℹ pass 79 ℹ fail 0 
+  dist/heichal.html: absent
+  dist/preview.html: absent
+  dist/heichal-theme.mp3: absent
+  dist/tzofen.html: present
+ok [0] node scripts/test-legacy-retired.mjs 
+ok [0] node --test test/legacy-retired-static-pages-2029.test.mjs ℹ pass 9 ℹ fail 0 
+ok [0] node --test test/public-continuity-closure-2029.test.mjs ℹ pass 7 ℹ fail 0 
+ok [0] node --test test/public-reading-production-artifact.test.mjs test/personal-continuity-2029.test.mjs ℹ pass 37 ℹ fail 0 
+ok [0] node --test test/public-reading-asset-miss.test.mjs ℹ pass 6 ℹ fail 0 
+ok [0] node scripts/test-route-legitimacy-2029.mjs 
+ok [0] node --test test/ci-workflow-references-exist.test.mjs ℹ pass 8 ℹ fail 0 
+ok [0] node scripts/test-public-reading-main-release-contract.mjs 
+ok [0] node --test test/public-reading-main-release-contract.test.mjs ℹ pass 21 ℹ fail 0 
+ok [0] node scripts/test-2029-route-seo-behavior.mjs 
+ok [0] node scripts/test-2029-isolation.mjs 
+ok [0] node --test test/route-legitimacy-service-pages-2029.test.mjs test/legacy-routes-served-as-notice-2029.test.mjs ℹ pass 4 ℹ fail 0 
+ok [0] node scripts/test-2029-cheap-hardening.mjs 
+ok [0] node scripts/test-2029-server-seo-ai-parity.mjs ℹ pass 4 ℹ fail 0 
+ok [0] node scripts/test-2029-live-contracts.mjs ℹ pass 6 ℹ fail 0 
+ok [0] node scripts/test-2029-canonical-contract-wiring.mjs 
+ok [0] npm run -s test:one-tree-content ℹ pass 79 ℹ fail 0 
+legacy-production-lock.yml parses

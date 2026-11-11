@@ -1,0 +1,53 @@
+# Numeric Research Rule Family Index
+
+STATUS: INDEX ONLY — NOT A NEW OWNER / ENGINE / STORE / REGISTRY. Human-Gate ZURIEL 7.9.2026.
+
+## Branch A — ENGINE / GEMATRIA METHODS
+Owner: public.gematria_methods + canonical_methods_registry_law + gematria_methods_catalog.
+Contains deterministic gematria methods and their lifecycle: registered/active/in_engine/scannable/stored/displayed are separate. Examples: רגיל, גדול, משולש(קדמי), מילוי, מסתתר, אתבש, אלבם, ריבוע וכו׳ — only as live Registry says.
+
+## Branch B — ZURIEL NUMERIC RESEARCH LAWS
+Owner remains nodes type=rule + Research Intake §8 Rule Application Provenance. No second registry.
+Canonical family key: zuriel_numeric_research_laws.
+Current members: shitat_haechad_alef_law (חוק/שיטת האחד), zero_scale_law (חוק סדר-הגודל/האפס), zero_navigation (האפס הנע), moment_clock_law (חוק הרגע/השעון). Future ZURIEL-authored interpretive numeric laws join this branch only after OWNER CHECK + Human Gate.
+
+## Identity / Truth boundary
+Gematria Method ≠ Numeric Research Law ≠ Rule Application. A method calculates deterministically; a ZURIEL law transforms/reads/contextualizes a verified input; an application is a concrete occurrence recorded on research_objects.meta.ext.rule_application.applications[]. Rule application never changes raw engine truth, canonical status, or publication status.
+
+## Moment/Clock correction
+Legacy “שיטת הרגע” existed as an inactive historical rule and was promoted into gematria_methods as “ערך הזמן”. ZURIEL clarified that it belongs with his custom laws, not engine methods. Historical row is preserved inactive; canonical owner is moment_clock_law. Example 4:24→424 is a CLOCK occurrence/transform, not proof that 424 itself was computed by a gematria method.
+
+## Query intent
+Future research can filter by branch/family and ask: all applications of חוק הרגע; all zero-scale applications yielding 424; all one-law applications leaving remainder 424; separately, all engine methods producing 424.
+
+Foundation → Projection → Experience. Preserve capability, truth and provenance — not necessarily the legacy interface.
+
+## Public naming + explanation projection · Human-Gate ZURIEL · 8.9.2026
+
+PUBLIC NAME: Branch B is presented to users as `שיטות המערכת`, not «שיטות צוריאל». Historical authorship/provenance remains ZURIEL where true; the public product name is system-owned. Existing internal family key `zuriel_numeric_research_laws` is provenance/technical history and is not renamed by this decision.
+
+SYSTEM METHOD EXPLANATION CONTRACT: every System Method/Rule shown in a post, Research Center, Number Hub, Entity Hub or future journey must be openable to one canonical explanation projection containing: what the rule does; exact input; transform; rule_id + version; output; current application; source/provenance; truth boundary; and all governed examples/applications already recorded. A rule definition is not a rule application.
+
+TRACEABILITY: System-method derivations over time/date/number must show `RAW INPUT → COMPONENT/REPRESENTATION → RULE/TRANSFORM → OUTPUT → ENGINE MATCH (if any) → INTERPRETATION`. Never hide intermediate operations and never invent a transform to hit a target. Clock/date/zero/one-law applications reuse existing Rule Application Provenance in Research Intake §8.
+
+Families remain distinct: `שיטות הגימטריה` answer how a value is calculated; `שיטות המערכת` answer how verified inputs are transformed/read/contextualized for research. They may compose in one research chain but never collapse into one truth type.
+
+
+—— NUMERIC QUERY NORMALIZATION FANOUT · Human-Gate ZURIEL · 8.9.2026 ——
+
+This extends the existing Numeric Research Rule Family / number-reading infrastructure only. No new engine/store/registry.
+
+When a user/researcher queries a number N, the research response should fan out through all applicable GOVERNED numeric readings while preserving the raw input as the primary identity. At minimum, evaluate separately:
+1) EXACT N — direct engine/corpus matches for N.
+2) LEADING-ONE / THOUSAND REMAINDER when applicable under shitat_haechad_alef_law: 1xyz → xyz as an interpretive transform (example: 1456 → 456), preserving 1456 as raw input.
+3) ZERO-SCALE family under zero_scale_law / zero_navigation: N×10 and, where exact trailing zero exists, N÷10; recursively/boundedly where useful (example: 456 ↔ 4560; 45600 is same root family but must be ranked, not dumped blindly).
+4) DIGIT / OVERLAPPING READINGS already stored in number_readings (example: 45→56→456 overlapping reading).
+5) Other active System Methods / numeric research laws only when their applicability conditions are actually met.
+
+Truth boundary: NORMALIZATION/TRANSFORM ≠ GEMATRIA ENGINE RESULT ≠ FACT ≠ CANONICAL. Never replace the original value; show the transform and rule that produced every normalized candidate. Rank, Don’t Hide: return the relevant family, prioritize direct/exact hits first, then governed transforms, and avoid combinatorial spam. Human Gate remains ZURIEL.
+
+Canonical example for this decision: query 456 should surface 456 exact, 1456 via leading-one remainder, 4560 via zero-scale, and the stored 45→56→456 overlapping reading, with each relation explicitly labeled by its rule/reading type.
+
+
+## MOMENT CLOCK V2 ROUTING POINTER · Human-Gate ZURIEL · 13.9.2026
+Canonical semantics for dual 24h/12h clock representation now live in active `moment_clock_law` v2. This index does not duplicate the law body. Routing remains: Branch B `שיטות המערכת` → `moment_clock_law` → Research Intake Rule Application Provenance → canonical Gematria Registry/Engine for downstream calculation → Research Result Bundle/Research Strategy for convergence and dependency grouping → Truth Axes/Human Gate. No clock engine, method registry entry, store, graph or truth axis is created. The historical `gematria_methods.method_key=ערך הזמן` remains inactive provenance only.

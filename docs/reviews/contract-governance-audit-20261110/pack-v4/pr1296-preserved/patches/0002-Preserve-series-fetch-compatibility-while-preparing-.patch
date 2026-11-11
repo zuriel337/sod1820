@@ -1,0 +1,26 @@
+From 86d9c0d287a33f9adfbda75a024ba27cb688092d Mon Sep 17 00:00:00 2001
+From: zuriel337 <128194013+zuriel337@users.noreply.github.com>
+Date: Tue, 10 Nov 2026 18:33:49 +0200
+Subject: [PATCH 2/3] Preserve series fetch compatibility while preparing
+ author-based query
+
+---
+ src/lib/research/contentSeries2029Identity.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/lib/research/contentSeries2029Identity.js b/src/lib/research/contentSeries2029Identity.js
+index 5b71a6356..8377c1acb 100644
+--- a/src/lib/research/contentSeries2029Identity.js
++++ b/src/lib/research/contentSeries2029Identity.js
+@@ -65,7 +65,7 @@ export const CONTENT_SERIES_2029 = Object.freeze([
+     writerLabel: "אלון לוי",
+     publisherLabel: null,
+     priorityLane: "supporting_series",
+-    membership: Object.freeze([]),
++    membership: Object.freeze([Object.freeze({ field: "tags", value: "מה קורה הבורא" })]),
+     exactAuthor: "אלון לוי",
+     relationNote: "כל הפוסטים המזוהים עם אלון לוי שייכים לסדרה, גם ללא תגית; אין לשייך פוסטים של מחברים אחרים.",
+   }),
+-- 
+2.43.0
+

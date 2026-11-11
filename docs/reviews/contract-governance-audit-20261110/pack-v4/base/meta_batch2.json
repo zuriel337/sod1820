@@ -1,0 +1,364 @@
+{
+ "brand_spelling_law": {
+  "id": "bf28aabf-5dfb-44a3-8ec0-ce69d76112f0",
+  "v": 1,
+  "label": "כתיב המותג — «סוד 1820» (עברית, עם רווח) · «sod1820» (אנגלית, בלי רווח)",
+  "md5": "c46d41b030771dbe1c73fa72735d3cb6",
+  "len": 627,
+  "ok": true
+ },
+ "canonical_colors_law": {
+  "id": "a1a65bb3-6d88-4c83-8dbc-39e34daf6efa",
+  "v": 2,
+  "label": "חוק הצבעים הקנוני v2 — Semantic Theme Roles / One Palette Tree",
+  "md5": "1bee730eb63ac9ebfbb362ff13ecf620",
+  "len": 1514,
+  "ok": true
+ },
+ "canonical_methods_registry_law": {
+  "id": "bf80f86a-16d1-445a-b65c-e3d2a598ed88",
+  "v": 6,
+  "label": "רישום השיטות הקנוני v6 — One-Tree Method Presentation + Canonical Order",
+  "md5": "f921c88e9b9ac6b0bcda3933479edee8",
+  "len": 8188,
+  "ok": true
+ },
+ "canonical_ui_components_law": {
+  "id": "c245a170-7fa3-469a-8ae2-17ea4ca3c928",
+  "v": 12,
+  "label": "רכיבי UI קנוניים v12 — כניסה אחידה ושיטות אימות פעילות",
+  "md5": "7babed68333f7dce0b4fca0ab4f34b0b",
+  "len": 18131,
+  "ok": true
+ },
+ "corpus_admission_foundation_v1": {
+  "id": "ca5fdc3b-e936-478c-97b4-39fd6dad90c4",
+  "v": 1,
+  "label": "שער-קבלה-לקורפוס — corpus_admission_foundation_v1",
+  "md5": "5690521958eb0650392dbf18f67e5c3b",
+  "len": 1339,
+  "ok": true
+ },
+ "els_research_layer_law": {
+  "id": "cbeb4f61-fe06-4c16-9dc0-d61dfdb83f8d",
+  "v": 9,
+  "label": "חוק שכבת ELS v9 — Classic/Research Projection Profiles / One State",
+  "md5": "f46ac0ee485dcb0235f49d8d8c45f656",
+  "len": 44778,
+  "ok": true
+ },
+ "els_single_engine_law": {
+  "id": "2c88199e-1e4d-4b50-adb0-37177c22ef6a",
+  "v": 2,
+  "label": "⛔ ELS Engine Unity v2 — one canonical engine, interface-independent",
+  "md5": "737605fa9ad0d968557b1111227b75d2",
+  "len": 1118,
+  "ok": true
+ },
+ "experience_governance_foundation_v1_law": {
+  "id": "b763eb71-e80f-4024-8130-87ea3300476c",
+  "v": 10,
+  "label": "Experience Governance v10 — Focused Loading, Fresh Core and On-Demand Archive",
+  "md5": "6c92025b2ce47c82cb7ba4df8f04942b",
+  "len": 27705,
+  "ok": true
+ },
+ "gematria_auto_registry_law": {
+  "id": "737e53d8-0464-4058-b7f2-9753a2940b22",
+  "v": 2,
+  "label": "מאגר הגימטריה — קליטה אוטומטית מכל המערכת (חוק קבוע)",
+  "md5": "0fdee50a7cc821c9212e23f9f1e4e0d7",
+  "len": 2405,
+  "ok": true
+ },
+ "identity_architecture_law": {
+  "id": "f6ac9dc5-ef9e-4f84-8cc4-c72c10c1d0c6",
+  "v": 1,
+  "label": "ארכיטקטורת זהות — UGC + קהילה: אנונימי → מזוהה-רך → חשבון → חוקר → תורם → יוצר-מסעות",
+  "md5": "22d333a0e2546de45a3a29773fb2b5e8",
+  "len": 700,
+  "ok": true
+ },
+ "logo_integrity_law": {
+  "id": "64f66776-0368-441e-88ca-dfc5ff75b90a",
+  "v": 3,
+  "label": "Brand Mark Integrity v3 — Full Hebrew Lockup Only · Crown Never Alone",
+  "md5": "907e50b6ab2fced3a58241aedc0ddd78",
+  "len": 2069,
+  "ok": true
+ },
+ "no_row_without_number_law": {
+  "id": "30959747-8461-453b-be29-22894da4e041",
+  "v": 1,
+  "label": "לעולם לא שורה בלי מספר",
+  "md5": "bea683c751c32801e35cdcd3311853a1",
+  "len": 424,
+  "ok": true
+ },
+ "number_page_law": {
+  "id": "8887eff1-dfe2-4942-9580-8a0d1690a097",
+  "v": 1,
+  "label": "חוק דף המספר — 3 שכבות (יוקרה · הנגשה · עומק)",
+  "md5": "bad06d43f99af1b9364ca53e89ddfd98",
+  "len": 974,
+  "ok": true
+ },
+ "platform_tiers_law": {
+  "id": "f84d94bb-c5f7-4045-9cfc-a2190b2f18cc",
+  "v": 5,
+  "label": "👑 Access & Entitlement Foundation v5 — Raziel Gematria Premium Analysis",
+  "md5": "9619c2afc07a70314a97303703f29e7a",
+  "len": 6712,
+  "ok": true
+ },
+ "raziel_response_contract": {
+  "id": "bdfdba80-5df6-40d2-8264-4be962c1f712",
+  "v": 1,
+  "label": "חוזה-תגובת-רזיאל — המוח מחליט מסלולים, ה-UI מציג (raziel_response_contract)",
+  "md5": "4e4dac1ae68b41e7386d37f2da04c4a6",
+  "len": 1645,
+  "ok": true
+ },
+ "raziel_voice_law": {
+  "id": "107f1f1b-325d-492f-9ea5-6bc939294dc6",
+  "v": 1,
+  "label": "קול רזיאל — פרסונה אחת בכל הערוצים (raziel_voice_law)",
+  "md5": "935adc4ae8d5a6c3c809ddac7527210b",
+  "len": 1164,
+  "ok": true
+ },
+ "reality_stream_law": {
+  "id": "3defdfbc-9870-435e-b954-72eb30f5bbd3",
+  "v": 1,
+  "label": "חוק זרם המציאות (Reality Stream / Pulse)",
+  "md5": "b4d1eb938880a6ca3ef1d6005660fe8b",
+  "len": 1195,
+  "ok": true
+ },
+ "research_intake_foundation_contract_law": {
+  "id": "94e53f6b-6d6b-4f03-b35c-2dae2ac0ae55",
+  "v": 13,
+  "label": "Research Intake v13 — Source/Binary Media Retention + Cost Control",
+  "md5": "e67ebee861dd99133050588a1eb8101b",
+  "len": 21722,
+  "ok": true
+ },
+ "sod1820_canonical_identity_law": {
+  "id": "16502511-f625-4a95-b75b-9e14b537d3b0",
+  "v": 5,
+  "label": "Brand Core 2029 v5 — Inseparable Crown + Hebrew Wordmark",
+  "md5": "4d0d256bd950e10afe58f43c07fe8056",
+  "len": 4808,
+  "ok": true
+ },
+ "subscription_funnel_law": {
+  "id": "08a34366-1311-4210-b84e-f41b405e5b4c",
+  "v": 22,
+  "label": "🧲 חוק מנוע-המשפך — Follow → הרשמה לאורח / ערוצים לרשום (v22)",
+  "md5": "c677126201763faae5a8cd80cf397a81",
+  "len": 37364,
+  "ok": true
+ },
+ "system_suggestions_law": {
+  "id": "d42d4fa7-f7c6-42ac-989e-3831dab6912e",
+  "v": 5,
+  "label": "System Intelligence v5 — Resource-Aware Reliability + Incident Budget",
+  "md5": "9b5c19de501b1985da01ddfc9c646d3c",
+  "len": 17732,
+  "ok": true
+ },
+ "unified_tags_law": {
+  "id": "9dde92fc-8ae9-4d18-8507-99b42bf316f3",
+  "v": 1,
+  "label": "חוק יסוד — תגיות אחידות: tags = מקור אמת יחיד",
+  "md5": "1f246cf5378cd3298020663c3e1816cf",
+  "len": 741,
+  "ok": true
+ },
+ "video_transcription_law": {
+  "id": "e7887fe3-d82a-439b-a71c-366bc644d4ab",
+  "v": 1,
+  "label": "🎬 תמלול רב-לשוני לכל סרטון",
+  "md5": "7d90a4d9f556b222ca0de89144fb9224",
+  "len": 2089,
+  "ok": true
+ },
+ "word_approval_required_law": {
+  "id": "1033e041-1cec-4bbf-bebd-968d146c7941",
+  "v": 1,
+  "label": "אישור-חובה למילים חדשות",
+  "md5": "50cc7efe637a1ae16463dfb3fdf5707e",
+  "len": 334,
+  "ok": true
+ },
+ "worlds_color_law": {
+  "id": "2eff53d6-aa95-4bb6-b8b2-846c079feb89",
+  "v": 1,
+  "label": "חוק צבעי העולמות — פלטה גלובלית אחידה",
+  "md5": "28a7053c115b5f76be3bb5523d59e2fc",
+  "len": 635,
+  "ok": true
+ },
+ "codex:_index": {
+  "id": 1,
+  "md5": "fd0ac4629412ea51965cf9213fda18e2",
+  "len": 10904,
+  "updated": "2026-09-17 10:04:36",
+  "category": "meta",
+  "priority": 1,
+  "ok": true
+ },
+ "codex:project_overview": {
+  "id": 2,
+  "md5": "5bc8f3077940298711aa3f24eded41f8",
+  "len": 766,
+  "updated": "2026-06-14 22:25:44",
+  "category": "overview",
+  "priority": 1,
+  "ok": true
+ },
+ "codex:data_model_map": {
+  "id": 3,
+  "md5": "1354d2bf578e1153b3e4464b9b7ad11b",
+  "len": 1376,
+  "updated": "2026-06-14 22:25:44",
+  "category": "data_model",
+  "priority": 1,
+  "ok": true
+ },
+ "codex:publishing_conventions": {
+  "id": 4,
+  "md5": "26b473b72d55c57153c6678543d25094",
+  "len": 72651,
+  "updated": "2026-11-10 11:45:14",
+  "category": "conventions",
+  "priority": 2,
+  "ok": true
+ },
+ "codex:gematria_engine": {
+  "id": 5,
+  "md5": "f4202db738aae4e67297eb673378e00a",
+  "len": 6211,
+  "updated": "2026-09-24 11:51:21",
+  "category": "gematria",
+  "priority": 2,
+  "ok": true
+ },
+ "codex:entity_layer": {
+  "id": 6,
+  "md5": "72d93b6f0bcd465004324f30dfe474f1",
+  "len": 1158,
+  "updated": "2026-08-20 08:54:27",
+  "category": "entities",
+  "priority": 2,
+  "ok": true
+ },
+ "codex:cross_method": {
+  "id": 7,
+  "md5": "57e65622bf842e5628f802fa69706a94",
+  "len": 1290,
+  "updated": "2026-08-20 08:54:27",
+  "category": "cross",
+  "priority": 2,
+  "ok": true
+ },
+ "codex:system_rules_index": {
+  "id": 8,
+  "md5": "2676916a7e7bcf92bca909aeadfbc9c6",
+  "len": 929,
+  "updated": "2026-06-14 22:53:10",
+  "category": "rules",
+  "priority": 2,
+  "ok": true
+ },
+ "codex:branches_deploy": {
+  "id": 9,
+  "md5": "6cee6559506bba1be4f1e71a86693285",
+  "len": 2780,
+  "updated": "2026-09-23 19:36:29",
+  "category": "overview",
+  "priority": 2,
+  "ok": true
+ },
+ "codex:session_2026_06_14": {
+  "id": 10,
+  "md5": "dc69deeaf5dd1ec4ef15b93db3690945",
+  "len": 1283,
+  "updated": "2026-08-20 08:54:27",
+  "category": "session",
+  "priority": 3,
+  "ok": true
+ },
+ "codex:roadmap_open_threads": {
+  "id": 11,
+  "md5": "710552e66684ffd265e3d2e2cdcf4017",
+  "len": 585,
+  "updated": "2026-08-20 08:54:18",
+  "category": "pointer",
+  "priority": 2,
+  "ok": true
+ },
+ "codex:golden_entities": {
+  "id": 12,
+  "md5": "b523eba9b6b76085dd3452a37ac790d1",
+  "len": 8321,
+  "updated": "2026-09-23 22:16:34",
+  "category": "entities",
+  "priority": 1,
+  "ok": true
+ },
+ "codex:number_page_1820": {
+  "id": 13,
+  "md5": "17c2110a4fe667138e03bee053615a40",
+  "len": 804,
+  "updated": "2026-06-14 23:20:19",
+  "category": "cross",
+  "priority": 1,
+  "ok": true
+ },
+ "codex:convergence_law": {
+  "id": 15,
+  "md5": "0b14ba287ad2c7bc2c8017b0c76f847d",
+  "len": 2612,
+  "updated": "2026-09-20 01:32:29",
+  "category": "architecture",
+  "priority": 1,
+  "ok": true
+ },
+ "codex:research_intake_foundation_contract": {
+  "id": 22,
+  "md5": "51c4f1db4c17293ce945e06186008c0c",
+  "len": 79117,
+  "updated": "2026-09-24 20:03:44",
+  "category": "architecture",
+  "priority": 1,
+  "ok": true
+ },
+ "codex:corpus_admission_foundation_v1": {
+  "id": 26,
+  "md5": "4b64e715ed89d06470a2a1622ff35ae5",
+  "len": 5195,
+  "updated": "2026-08-26 13:09:57",
+  "category": "architecture",
+  "priority": 1,
+  "ok": true
+ },
+ "codex:experience_governance_foundation_v1": {
+  "id": 30,
+  "md5": "db2d0806e3a10df6b25a04f5388dac16",
+  "len": 60681,
+  "updated": "2026-10-16 18:15:24",
+  "category": "architecture",
+  "priority": 1,
+  "ok": true
+ },
+ "codex:numeric_rule_family_index": {
+  "id": 32,
+  "md5": "4fbc0eb8c74d63bfee03d201e4fd03bd",
+  "len": 5891,
+  "updated": "2026-09-13 14:59:18",
+  "category": "architecture_index",
+  "priority": 10,
+  "ok": true
+ }
+}

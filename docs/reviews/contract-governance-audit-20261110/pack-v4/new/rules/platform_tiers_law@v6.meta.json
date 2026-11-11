@@ -1,0 +1,109 @@
+{
+ "build_direction": "bottom_up_one_tree",
+ "compaction_v1": {
+  "canonical_owner": "platform_tiers_law",
+  "classification": "OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "access_product"
+ },
+ "els_dependency_chain": [
+  "els_research",
+  "els_spatial_3d",
+  "raziel_in_els",
+  "raziel_voice_over_els",
+  "guided_spatial_research",
+  "research_to_media"
+ ],
+ "future_hooks": [
+  "listen",
+  "talk_to_raziel",
+  "open_spatial",
+  "deep_research",
+  "create_brief",
+  "create_media",
+  "private_corpus",
+  "start_pulse"
+ ],
+ "g3_disposition_v1": {
+  "classification": "KEEP_CANONICAL_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "canonical owner survives into G3 unless explicitly superseded through owner gate"
+ },
+ "human_gate": "ZURIEL 2026-09-17",
+ "no_new_system": true,
+ "owner_check": "EXTEND_EXISTING",
+ "owner_routing": {
+  "canonical_owner": "platform_tiers_law",
+  "confidence": "high",
+  "domain": "access_product",
+  "normalized_at": "2026-09-15",
+  "resolution": "RESOLVED_G2_COMPACTION"
+ },
+ "planning_state_is_not_availability": true,
+ "planning_states": [
+  "NOW",
+  "NEXT",
+  "LATER",
+  "PARKED",
+  "CANCELLED",
+  "RETIRED"
+ ],
+ "preserve_by_default": true,
+ "preserved_product_concepts": [
+  "research_room",
+  "explain_what_im_looking_at",
+  "research_dossier"
+ ],
+ "priority_tree": {
+  "LATER": [
+   "research_to_media",
+   "proactive_research_pulse",
+   "cross_channel_companion",
+   "guided_high_end_spatial",
+   "xr_vr_projection"
+  ],
+  "NEXT": [
+   "els_spatial_3d",
+   "raziel_in_els_text",
+   "raziel_push_to_talk",
+   "raziel_live_voice_foundation",
+   "post_listen",
+   "research_audio_brief",
+   "private_research_corpus"
+  ],
+  "NOW": [
+   "experience_capability_infrastructure",
+   "els_2029_foundation"
+  ]
+ },
+ "raziel_gematria_analysis": {
+  "ai_on_typing_path": false,
+  "capability_key": "raziel_gematria_analysis",
+  "entitlement": "premium_required",
+  "explicit_invocation_required": true,
+  "human_gate": "ZURIEL 2026-09-24",
+  "owner_check": "EXTEND_EXISTING",
+  "pricing_locked": false,
+  "server_gate_before_expensive_io": true
+ },
+ "removal_requires_explicit_human_gate": true,
+ "v6_number_visible_depth_gated": {
+  "carried_from": "number_page_law v1 (2026-06-14)",
+  "human_gate": "ZURIEL 2026-11-10 (ד4)",
+  "no_new_system": true,
+  "not_carried": [
+   "three_layer_page_composition",
+   "layer1_hints",
+   "example_quota_20_of_250",
+   "tier_name_bnei_haheichal"
+  ],
+  "owner_check": "EXTEND_EXISTING",
+  "permission_change": false,
+  "principle": "המספר לא מוסתר, העומק כן",
+  "scope": "original scope only: foundation numbers and golden entities (especially 1820) and their number pages"
+ }
+}

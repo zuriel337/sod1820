@@ -1,0 +1,98 @@
+{
+ "challenge_work_log": "1eee4a69-72a1-46e1-9959-3bd9c68c70f2",
+ "command_semantics": {
+  "kadima": "within_current_gate_only",
+  "taale": "release_gate_clean_scope_only",
+  "waiver": "explicit_replan_or_supersession_only"
+ },
+ "compaction_v1": {
+  "canonical_owner": "foundation_closure_protocol_law",
+  "classification": "OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "foundation_governance"
+ },
+ "direction_work_log": "64c2eec3-79a4-43b5-ae60-dbf42d60e70b",
+ "g3_disposition_v1": {
+  "classification": "KEEP_CANONICAL_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "canonical owner survives into G3 unless explicitly superseded through owner gate"
+ },
+ "gates_over_existing_w_sequence": true,
+ "human_gate_date": "2026-09-11",
+ "no_new_system": true,
+ "owner_check": "EXTEND_EXISTING",
+ "owner_routing": {
+  "canonical_owner": "foundation_closure_protocol_law",
+  "confidence": "high",
+  "domain": "foundation_governance",
+  "normalized_at": "2026-09-15",
+  "resolution": "RESOLVED_G2_COMPACTION"
+ },
+ "parity_standard": "object_state",
+ "source": "ZURIEL Human Gate + GPT + Claude read-only challenge",
+ "v4_g1_agent_entry_binding": {
+  "fresh_agent_acceptance_required": true,
+  "human_gate": "ZURIEL 2026-09-12",
+  "no_g1_execution_while_g0_open": true,
+  "no_new_context_system": true,
+  "semantic_owner": "inter_agent_coordination_law"
+ },
+ "v5_canonical_compaction_binding": {
+  "g2_no_skip": true,
+  "g3_compaction_mandatory": true,
+  "gate_artifact": "audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md",
+  "human_gate": "ZURIEL 2026-09-15",
+  "no_new_system": true,
+  "owner_check": "EXTEND_EXISTING",
+  "principles": [
+   "0_orphan_active_laws",
+   "100_percent_active_rule_classification",
+   "owner_family_hierarchy",
+   "master_v3_compact",
+   "roadmap_compact",
+   "bounded_work_log_current",
+   "one_decision_one_canonical_body",
+   "future_admission_anti_inflation",
+   "fresh_agent_acceptance",
+   "preserve_provenance"
+  ]
+ },
+ "v6_auto_release_binding": {
+  "human_decision_reserve": true,
+  "human_gate": "ZURIEL 2026-09-17",
+  "no_skip_unchanged": true,
+  "owner_check": "EXTEND_EXISTING",
+  "separate_taale_required": false,
+  "standing_auto_release_for_gate_clean_routine_scope": true
+ },
+ "v7_bottom_up_closure_binding": {
+  "ascent_evidence_required": true,
+  "duplicate_maintenance_reconciliation_required": true,
+  "human_gate": "ZURIEL 2026-09-29",
+  "maintenance_acceptance_matrix": true,
+  "maintenance_shape": [
+   "OWNER",
+   "SIGNAL",
+   "ENFORCEMENT",
+   "PROJECTION"
+  ],
+  "maintenance_statuses": [
+   "LIVE_VERIFIED",
+   "IMPLEMENTED_NOT_LIVE",
+   "PLANNED_G3",
+   "LATER_STAGE",
+   "GAP"
+  ],
+  "no_new_monitoring_system": true,
+  "one_gap_one_descent": true,
+  "owner_check": "EXTEND_EXISTING",
+  "percentage_not_gate": true,
+  "post_closure_invariant_maintenance": true,
+  "privacy_by_design": true,
+  "verify_before_build": true
+ }
+}

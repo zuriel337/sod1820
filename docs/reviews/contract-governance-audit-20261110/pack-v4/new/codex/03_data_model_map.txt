@@ -1,0 +1,15 @@
+⚠️ STALE (סומן לפי הכרעת צוריאל 10.11.2026 · פרישת Legacy) — התוכן להלן משקף את האתר הראשון (Legacy) נכון ל-14.6.2026 בלבד ולא אומת מאז. Legacy פרש ב-5.11.2026; 2029 הוא המוצר הפעיל היחיד. קרא כרקע/כוונה מקורית, לא כמצב נוכחי. מצב נוכחי: SOD1820_MASTER_STATE.md ב-main + סכמת ה-DB החיה + work_log. המספרים בשורה (למשל ~1181 פוסטים) הם של 14.6.2026; מבנה הטבלאות עשוי להיות שונה כיום — לבדוק בסכמה החיה.
+
+---
+
+הטבלאות המרכזיות ב-Supabase ותפקידן:
+- `posts` — פוסטי תוכן (מ-WordPress + AI). שדות מפתח: id, wp_id, title, slug (לרוב מקודד-URL מוורדפרס), content(HTML), excerpt, date, modified, categories(text[]), tags(text[]), source('wordpress'/'ai'), image_url, author, verified, ai_touched. ~1181 פוסטים.
+- `gematria_words` — מילים/ביטויים עם 8 ערכי גימטריה (ragil,miluy,misratar,kadmi,gadol,siduri,atbash,albam) + all_values(int[]) + tags + node_id(→nodes) + is_verified + source + space/dna_status.
+- `nodes` — גרף-על רב-תכליתי. type='rule' (חוקי מערכת), type='entity' (ישויות זהב לגימטריה). שדות: label, description, metadata(jsonb), weight, is_active, rule_id, rule_version.
+- `edges` — קשרים בין nodes (from_node,to_node,relation_type,weight,metadata). קשרי הישויות: relation_type='related', metadata.source='entity_seed_v1'.
+- `work_log` — יומן עבודה (session_date, topic, numbers, what_we_did, status, open_threads).
+- `insights` — חידושים. origin='ai' (חידושי AI בבית המדרש), convergence_score/has_1820 (חידושי מערכת/התכנסות). source_ref מקשר לפוסט/גלריה.
+- `gallery_images` — תמונות גלריות רמזים, primary_value = המספר שבתמונה (מזין /number/<n> וה-sitemap).
+- `comments` — תגובות לפוסטים (post_wp_id). `contact_messages` — פניות מטופס צור-קשר.
+- `project_codex` — הטבלה הזו (קודקס ידע).
+- טבלאות גיבוי זמניות: למשל `posts_deleted_backup_20260614` (20 פוסטים שנמחקו, בר-שחזור).

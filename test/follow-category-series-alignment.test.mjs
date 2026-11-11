@@ -30,12 +30,17 @@ test("series membership is exact and keeps author, publisher and topic separate"
   assert.deepEqual(contentSeriesKeysForPost(post({ categories: ["רמזים מצדיקים"] })), ["messages-from-righteous"]);
   assert.deepEqual(contentSeriesKeysForPost(post({ categories: ["אור הגאולה"] })), [], "a source channel is not blanket series membership");
   assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", tags: ["מה קורה הבורא"] })), ["mah-kore-habora"]);
-  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", title: "מה קורה הבורא" })), []);
+  // ZURIEL decision 6 (11.11.2026): every Post of the exact author is in the series; a title alone never admits a Post.
+  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", title: "מה קורה הבורא" })), ["mah-kore-habora"]);
+  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אחר", title: "מה קורה הבורא" })), []);
   assert.deepEqual(contentSeriesKeysForPost(post({ author: null, categories: ["מימד חמש", "הצופן בסרטים"] })), []);
+  // ZURIEL decision 7 (11.11.2026): only the approved ids 5003/5004 get dual membership.
+  assert.deepEqual(contentSeriesKeysForPost(post({ id: 5003, author: null, categories: ["מימד חמש", "הצופן בסרטים"] })), ["dimension-five"]);
+  assert.deepEqual(contentSeriesKeysForPost(post({ id: 5037, author: null, categories: ["מימד חמש"] })), []);
   assert.deepEqual(contentSeriesKeysForPost(post({ author: "בדרך לנצח", categories: ["מימד חמש"] })), ["dimension-five"]);
   assert.deepEqual(contentSeriesKeysForPost(post({ author: "אחר", tags: ["סוד החשמל"] })), ["sod-hashmal"]);
   assert.deepEqual(contentSeriesKeysForPost(post({ author: " אלון לוי ", tags: ["מה קורה הבורא"] })), [], "no unapproved author alias");
-  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", tags: [" מה קורה הבורא "] })), [], "membership matches the exact server filter");
+  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אחר", tags: [" סוד החשמל "] })), [], "membership matches the exact server filter");
 });
 
 test("native destination filters reject ambiguous/unknown selections, preserve an approved rename", () => {
@@ -51,8 +56,9 @@ test("paginated series reader applies membership, author and public filters toge
   const io = client({ data: [post({ author: "בדרך לנצח", categories: ["מימד חמש"] })], count: 31 });
   await fetchPostsCatalog2029({ scope: postsCatalogScope2029("series=dimension-five"), page: 2, client: io });
   assert.ok(io.calls.some(call => call[0] === "or" && call[1].includes("tags.is.null") && call[1].includes("טיוטה,פורום")));
-  assert.ok(io.calls.some(call => call[0] === "or" && call[1] === 'categories.cs.{"מימד חמש"}'));
-  assert.ok(io.calls.some(call => call[0] === "eq" && call[1] === "author" && call[2] === "בדרך לנצח"));
+  // membership, exact publisher and the approved ids (decision 7) are one server filter, the same rule as the row check
+  assert.ok(io.calls.some(call => call[0] === "or" && call[1] === 'and(categories.cs.{"מימד חמש"},author.eq."בדרך לנצח"),id.in.(5003,5004)'));
+  assert.ok(!io.calls.some(call => call[0] === "eq" && call[1] === "author"));
   assert.deepEqual(io.calls.find(call => call[0] === "range"), ["range", 24, 47]);
   assert.equal(io.calls.filter(call => call[0] === "order").length, 2);
   assert.ok(!io.calls.find(call => call[0] === "select")[1].includes("content"), "no full corpus/card content download");
