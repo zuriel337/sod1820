@@ -1,0 +1,28 @@
+{
+  "_status": "PROPOSED ONLY — nothing written to nodes/edges. Needs ZURIEL Human Gate. Dedup: reuse existing nodes; do not mass-create.",
+  "existing_nodes": {
+    "בעתה אחישנה": "a7cec3e2-4286-49ef-8ef2-f63b693a16dc",
+    "משיח": "b0658bfe-85c8-4feb-8fc9-9037c3397b83",
+    "רוח": "1b3de154-fc96-4fe9-b69b-d293a71ff90f",
+    "יצחק": "2908a0e8-eb55-4588-8dfe-815751be7bad",
+    "גן עדן": "f545c5b5-9464-4e2e-8d32-25436c33c7ab",
+    "מערת המכפלה": "c617808c-ef43-489b-b200-5368c98dfe83",
+    "תפילה": "3cf20856-9c2e-4081-b1d9-9652bd6de3e0",
+    "ישעיהו (entity)": "61e3fcd9-5cd5-4e3b-b834-1f7b66ba303c",
+    "רבי נחמן": "24ef0e82-b3c8-48d7-a3f9-ac66fe20c57f"
+  },
+  "no_existing_node_found_candidates_only": ["ריח","יריחו","ראשון לציון","חדרה","עמק חפר","חשוון","אחישנה","זוג משיח","אלון לוי","מה קורה הבורא (series)"],
+  "proposed_edges": [
+    {"from":"post:this","to":"בעתה אחישנה","axis":"transcription_claim","ts":"03:31"},
+    {"from":"בעתה אחישנה","to":"משיח","axis":"engine_calculation","note":"אחישנה=374=זוג משיח; משיח=358 לבדו","ts":"05:57","status":"needs Method Trace"},
+    {"from":"post:this","to":"רוח","axis":"interpretation","note":"רוח/ריח/משיח לפי הדובר","ts":"17:20"},
+    {"from":"רוח","to":"משיח","axis":"source_fact","note":"איכה ד:כ","ts":"58:54"},
+    {"from":"post:this","to":"יצחק","axis":"transcription_claim","note":"בראשית כז:כז","ts":"30:59"},
+    {"from":"post:this","to":"מערת המכפלה","axis":"interpretation","note":"בכסף מלא (בראשית כג:ט) מול בתי יריחו","ts":"24:31"},
+    {"from":"post:this","to":"גן עדן","axis":"interpretation","note":"מסורות ריח וגן עדן — מקור לא אומת","ts":"25:23"},
+    {"from":"post:this","to":"תפילה","axis":"interpretation","ts":"1:06:44"},
+    {"from":"post:this","to":"ישעיהו (entity)","axis":"source_fact","note":"ס, יא, מא, ה, ל","ts":"03:31..55:14"},
+    {"from":"post:this","to":"רבי נחמן","axis":"transcription_claim","ts":"58:18","status":"verify reference"}
+  ],
+  "event_candidates_unverified_dates": ["ריח ראשון לציון","עשן עמק חפר/חדרה","8 בתים בפאתי יריחו"]
+}

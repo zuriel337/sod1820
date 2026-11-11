@@ -1,0 +1,20 @@
+{
+  "_status": "DRAFT_BRANCH_ONLY — not written to DB, not published",
+  "title": "מה קורה הבורא — סוד הריח: ראשון לציון, עמק חפר ויריחו | אלון לוי",
+  "subtitle": "שני אירועי ריח חריגים בארץ, ובמקביל שמונה משפחות יהודיות מתחילות להתיישב בפאתי יריחו — מה הקשר שחושף השיעור בין הריח, יריחו והמשיח?",
+  "slug": "mah-kore-smell-rishon-emek-hefer-jericho",
+  "excerpt": "אלון לוי מחבר בין מפגע הריח בראשון לציון, העשן באזור חדרה ועמק חפר והדיווח על בתים ביריחו, דרך ישעיהו, גימטריה 374 והרמז „ריח” ב„יריחו”. סיכום, מקורות וגימטריות מאומתות.",
+  "author": "אלון לוי",
+  "authors": ["אלון לוי"],
+  "categories": ["תיעוד אירועים", "וידאו"],
+  "tags": ["אלון לוי", "מה קורה הבורא", "גאולה", "משיח", "יריחו", "ריח"],
+  "theme": "auto",
+  "series_siblings": [5131, 5122, 5119, 5117, 5108, 5076],
+  "video": {"youtube": "PKqKLjO_0nc", "lang": "he", "approx_minutes": 72, "author_verified_via": "YouTube oEmbed: 'אלון לוי - מה קורה הבורא'"},
+  "official_video_title": "מה קורה הבורא | החוש של המשיח: הסוד הקבלי שמכין את השטח לגאולה",
+  "open_before_publish": [
+    "date fields (published/modified) left unset — set by owner at publish",
+    "image_url / thumb_url not chosen",
+    "transcript row in video_transcripts not created (no verbatim transcript available)"
+  ]
+}
