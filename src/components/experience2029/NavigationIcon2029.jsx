@@ -19,6 +19,8 @@ const SHAPES = {
   kingdom: <><path d="M5 21V10c0-4 3-6 7-8 4 2 7 4 7 8v11M9 21V11c0-2 1-3 3-4 2 1 3 2 3 4v10M2 21h7m6 0h7M3 10h2m14 0h2M3 15h2m14 0h2"/></>,
   discovery: <><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5ZM3 3l2 2m14 14 2 2m0-18-2 2M5 19l-2 2"/></>,
   upgrade: <><path d="m6 9 6-6 6 6M12 3v12M3 15v5h18v-5M6 20v-3m12 3v-3"/></>,
+  // Install the app to the home screen: a phone with an arrow into it (same 24×24 grid, round 1.8px strokes).
+  install: <><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M12 7v7m-3-3 3 3 3-3M10 18.5h4"/></>,
   journal: <><path d="M6 3h14v18H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3ZM7 3v18M12 3v7l2-1.5 2 1.5V3M11 15h5"/></>,
   focus: <><path d="M8 3H3v5m13-5h5v5M3 16v5h5m8 0h5v-5M12 8v8m-4-4h8"/></>,
   edit: <><path d="m4 16 12-12 4 4L8 20l-5 1ZM13 7l4 4M3 21h9"/></>,
