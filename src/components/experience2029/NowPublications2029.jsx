@@ -61,7 +61,7 @@ function RowHead({ model, timeMode }) {
         <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
         {model.pinned ? <span className="sod29-nowpub-pin" data-now-pinned="true">📌 נעוץ</span> : null}
         {/* Clear labels (ZURIEL 11.11.2026): "חדש" for an arrival the viewer has not seen, "עודכן" for a publication that received an update. */}
-        {model.row?.isNew ? <span className="sod29-nowpub-label is-new" data-now-label="new">חדש</span> : model.updated ? <span className="sod29-nowpub-label is-updated" data-now-label="updated">עודכן</span> : null}
+        {model.row?.isNew ? <span className="sod29-nowpub-label r29-badge is-new" data-now-label="new">חדש</span> : model.updated ? <span className="sod29-nowpub-label r29-badge is-updated" data-now-label="updated">עודכן</span> : null}
         <time dateTime={model.at || undefined}>{when}</time>
       </small>
     </span>
@@ -122,7 +122,7 @@ function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null }) {
 function RunGroup({ entry, children }) {
   // The closed group shows when its LAST update arrived (relative, same helper as every row).
   const latest = latestRunAt(entry.models);
-  return <li><details className="sod29-nowpub-run" data-tone="ember" data-now-run={entry.sourceName}>
+  return <li><details className="sod29-nowpub-run r29-card" data-tone="ember" data-now-run={entry.sourceName}>
     <summary><strong>{entry.sourceName}</strong><span>{entry.models.length} הודעות</span>{latest ? <span>עדכון אחרון · <time dateTime={latest}>{recordTimeLabel(latest, NOW_TIME_MODE, "")}</time></span> : null}<span className="is-unverified">מקור · טרם נבדק</span><em>{entry.models[0].title}</em></summary>
     <ul className="sod29-nowpub-list">{children}</ul>
   </details></li>;
@@ -151,7 +151,7 @@ function TodayBand({ band, onOpen }) {
 // The Or HaGeula rabbi box: every update with "רב"/"הרב" lives here; the box sits at its newest member, so a new update lifts the box.
 function BoxGroup({ entry, children }) {
   const lead = entry.models[0], fresh = entry.models.some(model => model.row?.isNew);
-  return <li><details className={`sod29-nowpub-box${fresh ? " is-new" : ""}`} data-tone="gold" data-now-box="or-geula-rabbi">
+  return <li><details className={`sod29-nowpub-box r29-card${fresh ? " is-new" : ""}`} data-tone="gold" data-now-box="or-geula-rabbi">
     <summary>
       {lead.logo ? <img className="sod29-nowpub-box-logo" src={lead.logo.src} alt="" width="40" height="40" loading="lazy" decoding="async" /> : null}
       <span className="sod29-nowpub-box-text">
@@ -167,7 +167,7 @@ function BoxGroup({ entry, children }) {
 function Row({ model, onOpen, feed, timeMode, onSource }) {
   // Tapping the ▶ on the picture opens the row AND starts that video (one tap), instead of only expanding it.
   const [playIntent, setPlayIntent] = useState(false);
-  const className = `sod29-nowpub-row is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""}`;
+  const className = `sod29-nowpub-row r29-card is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""}`;
   if (model.canExpand) return <li><details className={className} data-tone={model.tone} onToggle={event => { if (event.currentTarget.open) feed?.see?.(model.row); }}>
     <summary onClick={event => { if (model.video && event.target.closest?.(".sod29-nowpub-preview")) setPlayIntent(true); }}><RowHead model={model} timeMode={timeMode} /></summary>
     <RowDetail model={model} onOpen={onOpen} feed={feed} autoPlay={playIntent} onSource={onSource} />
@@ -193,7 +193,7 @@ function useWide() {
 }
 
 function WideRow({ model, selected, onSelect, timeMode }) {
-  const className = `sod29-nowpub-row is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""} is-link${selected ? " is-selected" : ""}`;
+  const className = `sod29-nowpub-row r29-card is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""} is-link${selected ? " is-selected" : ""}`;
   return <li><button type="button" className={className} data-tone={model.tone} aria-pressed={selected} onClick={event => onSelect(model, Boolean(model.video && event.target.closest?.(".sod29-nowpub-preview")))}><RowHead model={model} timeMode={timeMode} /></button></li>;
 }
 
@@ -260,7 +260,7 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const clear = () => { setLens("all"); setSeries(""); setSourceKey(""); setMedia(""); setCount(PAGE); };
   const chosenSource = sourceKey ? sourceChoices.find(item => item.id === sourceKey) : null;
 
-  return <section className="sod29-nowpub is-royal" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
+  return <section className="sod29-nowpub is-royal r29" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
     {pinned ? <NowPinnedMessage2029 pinned={pinned} onOpen={href => { feed?.see?.(pinned.model.row); onOpen?.(href); }} /> : todayBand ? <TodayBand band={todayBand} onOpen={onOpen} /> : null}
     <NowSourcePicker2029 choices={sourceChoices} value={sourceKey} onChange={pick(setSourceKey)} total={models.length} />
     {lenses.length > 1 || choices.series.length > 0 || choices.media.length > 1 ? <details className="sod29-nowpub-more" open={secondaryActive || undefined}>

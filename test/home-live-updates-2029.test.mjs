@@ -119,7 +119,7 @@ test("the pinned central message is the card on top (once): never repeated as a 
   assert.equal(card.length, 1);
   assert.equal(card[0].findByType("h3").children.join(""), "פוסט 5107", "the headline is the Post's own title (posts.title), never the update's heading");
   assert.equal(card[0].findAll(node => node.props["data-now-pinned-update"] === "true").length, 1, "the update is a separate layer under the Post title");
-  assert.deepEqual(card[0].findAll(node => node.props.className === "rc29-num").map(node => node.props["aria-label"]), ["פתח את המספר 1234", "פתח את המספר 1011"]);
+  assert.deepEqual(card[0].findAll(node => node.props.className === "rc29-num r29-coin").map(node => node.props["aria-label"]), ["פתח את המספר 1234", "פתח את המספר 1011"]);
   assert.equal(entries(root).some(node => node.props["data-home-update-item"] === "post:5107"), false, "not a second time as a row");
   const toggle = card[0].findAll(node => node.type === "button" && node.props["aria-expanded"] === false)[0];
   await act(async () => { toggle.props.onClick(); });
@@ -161,7 +161,7 @@ test("the pinned update hierarchy (ZURIEL 11.11.2026, second pass): the Post tit
   assert.equal(head.findByType("b").children.join(""), "עדכון חדש בפוסט"); assert.equal(head.findByType("time").children.join(""), "10.11.2026");
   assert.equal(update.findAll(node => node.props["data-now-pinned-summary"] === "true")[0].children.join(""),
     "הבורא פועל בהפוך על הפוך דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.", "a short summary, the owner's words");
-  assert.deepEqual(card.findAll(node => node.props.className === "rc29-num").map(node => node.props["aria-label"]), ["פתח את המספר 1011", "פתח את המספר 1234"], "mini numbers, clickable");
+  assert.deepEqual(card.findAll(node => node.props.className === "rc29-num r29-coin").map(node => node.props["aria-label"]), ["פתח את המספר 1011", "פתח את המספר 1234"], "mini numbers, clickable");
   assert.equal(card.findAll(node => node.props["data-now-pinned-full"] === "true").length, 0, "closed: the full update does not take the screen");
   assert.equal(card.findAll(node => node.props.className === "rc29-line").length, 0);
   assert.equal(card.findAll(node => node.props["data-now-pinned-post"] === "true").length, 1, "'לפוסט המלא' always present");

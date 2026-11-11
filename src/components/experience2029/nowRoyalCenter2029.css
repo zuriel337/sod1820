@@ -1,174 +1,101 @@
-/* "עכשיו · המרכז" (ZURIEL 11.11.2026, approved design): the Royal family of "עוד" (royalTiles2029.css). Existing tokens only — --s29-panel / -panel-soft /
-   -page / -line / -ink / -muted / -focus-ring, type tokens — and --s29-brand-gold as a bounded mix. No new colour, icon or logo. */
+/* "עכשיו · המרכז" — the first adopter of the shared Royal layer (royal2029.css, ZURIEL 11.11.2026). This file is LAYOUT ONLY: colour, depth,
+   medallions, coins, badges, chips, buttons and rows come from royal2029.css (.r29-*), which resolves every hue from the canonical --s29-* roles
+   per preset. No colour value is defined here. */
 
-.rc29,.rc29-pin,.rc29-src{--rc-g:var(--s29-brand-gold);--rc-hair:color-mix(in srgb,var(--rc-g) 30%,var(--s29-line));--rc-hair2:color-mix(in srgb,var(--rc-g) 52%,var(--s29-line));
-  --rc-surf:color-mix(in srgb,var(--rc-g) 6%,var(--s29-panel-soft,var(--s29-panel)));--rc-icon:color-mix(in srgb,var(--rc-g) 84%,var(--s29-ink))}
-.rc29{display:grid;gap:10px;box-sizing:border-box;color:var(--s29-ink);text-align:start}
+.rc29{display:grid;gap:12px;box-sizing:border-box;color:var(--s29-ink);text-align:start}
 .rc29 *,.rc29-pin *,.rc29-src *{box-sizing:border-box}
-.rc29-medal{display:grid;place-items:center;inline-size:34px;block-size:34px;border-radius:50%;border:1px solid var(--rc-hair2);color:var(--rc-icon);flex:none;overflow:hidden;
-  background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--rc-g) 22%,var(--s29-panel)),color-mix(in srgb,var(--s29-page) 40%,var(--s29-panel)))}
-.rc29-medal svg{inline-size:20px;block-size:20px}
-.rc29-head{display:flex;align-items:center;gap:10px}
-.rc29-head h2{margin:0;font:700 19px/1.2 var(--s29-font-display,var(--s29-font-ui,inherit));color:color-mix(in srgb,var(--rc-g) 80%,var(--s29-ink))}
-.rc29-head small{display:block;color:var(--s29-muted);font-size:13px;margin-top:2px}
+.rc29-head{display:flex;align-items:center;gap:12px}
+.rc29-head .r29-medal{--r29-medal:42px}
+.rc29-head h2{margin:0;font:750 20px/1.2 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink);letter-spacing:.01em}
+.rc29-head small{display:block;color:var(--s29-muted);font-size:13.5px;margin-top:3px}
 
-/* Pinned central message */
-.rc29-pin{position:relative;display:grid;align-content:start;gap:8px;padding:12px;border-radius:20px;border:1px solid var(--rc-hair2);color:var(--s29-ink);
-  background:radial-gradient(120% 80% at 100% 0%,color-mix(in srgb,var(--rc-g) 16%,transparent),transparent 60%),color-mix(in srgb,var(--rc-g) 8%,var(--s29-panel))}
-.rc29-pin-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:13px;color:var(--s29-muted)}
-.rc29-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid var(--rc-hair);background:color-mix(in srgb,var(--rc-g) 9%,var(--s29-panel));
-  color:var(--s29-ink);font-size:13.5px;font-weight:600}
-.rc29-tag.is-pin{border-color:var(--rc-hair2);color:color-mix(in srgb,var(--rc-g) 82%,var(--s29-ink))}
-.rc29-pin-title{margin:0;font:750 17px/1.35 var(--s29-font-display,var(--s29-font-ui,inherit))}
-.rc29-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
-.rc29-num{display:inline-flex;align-items:baseline;justify-content:center;gap:8px;padding:4px 12px;min-block-size:44px;border-radius:16px;border:1px solid var(--rc-hair2);
-  background:color-mix(in srgb,var(--rc-g) 12%,var(--s29-panel));text-decoration:none;color:inherit}
-.rc29-num b{font:800 30px/1.1 var(--s29-font-ui,inherit);color:color-mix(in srgb,var(--rc-g) 90%,var(--s29-ink));letter-spacing:.02em;font-variant-numeric:tabular-nums}
-.rc29-sum{margin:0;font-size:15px;line-height:1.5;color:color-mix(in srgb,var(--s29-ink) 88%,var(--s29-muted));display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.rc29-from{font-size:13px;color:var(--s29-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rc29-from b{color:var(--s29-ink);font-weight:600}
+/* ── The pinned Post: its own title, then the update layer (closed: a short summary + coins; open: the whole update) ───────────────────── */
+.rc29-pin{display:grid;align-content:start;gap:12px;padding:16px 14px 14px}
+.rc29-pin-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.rc29-tag svg{inline-size:14px;block-size:14px}
+.rc29-pin-title{margin:0;font:800 19px/1.4 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink);text-wrap:balance}
+.rc29-update{display:grid;gap:8px;padding:12px 14px;border-radius:var(--r29-radius-sm);
+  border:1px solid color-mix(in srgb,var(--r29-hue) 38%,transparent);border-inline-start:3px solid var(--r29-hue);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--r29-hue) var(--r29-wash-open),var(--s29-panel)),color-mix(in srgb,var(--r29-hue) 6%,var(--s29-panel)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 10%,transparent)}
+.rc29-update-head{margin:0;font:650 14px/1.3 var(--s29-font-ui,inherit);color:color-mix(in srgb,var(--r29-hue) 75%,var(--s29-ink))}
+.rc29-update-head b{font-weight:800}
+.rc29-sum{margin:0;font:500 16px/1.55 var(--s29-font-body,inherit);color:var(--s29-ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rc29-nums{display:flex;flex-wrap:wrap;gap:8px}
+.rc29-nums.is-mini .r29-coin{min-block-size:36px;font-size:19px;padding-inline:14px}
 .rc29-acts{display:flex;flex-wrap:wrap;gap:8px}
-.rc29-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-block-size:44px;padding:0 14px;border-radius:999px;border:1px solid var(--rc-hair2);cursor:pointer;
-  background:color-mix(in srgb,var(--rc-g) 15%,var(--s29-panel));color:var(--s29-ink);font:650 15px/1 var(--s29-font-ui,inherit);text-decoration:none}
-.rc29-btn.is-quiet{background:transparent;border-color:var(--rc-hair)}
-.rc29-btn svg{inline-size:18px;block-size:18px}
-.rc29-btn:focus-visible,.rc29-chip:focus-visible,.rc29-num:focus-visible,.rc29-line a:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:2px}
-.rc29-full{display:grid;gap:10px;padding:12px;border-radius:16px;border:1px solid var(--rc-hair);background:color-mix(in srgb,var(--s29-page) 30%,var(--s29-panel))}
-.rc29-group{display:grid;gap:2px}
-.rc29-group>.rc29-num{justify-self:center;margin-block:4px}
-.rc29-line{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 4px;border-block-end:1px solid color-mix(in srgb,var(--rc-g) 14%,var(--s29-line));font:600 16px/1.45 var(--s29-font-ui,inherit)}
+.rc29-acts .r29-btn{flex:1 1 auto}
+.rc29-full{display:grid;gap:12px;padding-block-start:4px}
+.rc29-lead{display:grid;gap:4px;padding-inline-start:12px;border-inline-start:3px solid var(--r29-gold)}
+.rc29-lead-text{font:800 19px/1.45 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink)}
+.rc29-lead p{margin:0;font:600 16px/1.5 var(--s29-font-ui,inherit);color:var(--s29-ink)}
+.rc29-full-title{display:block;font:800 18px/1.35 var(--s29-font-display,var(--s29-font-ui,inherit));text-align:center;color:var(--s29-ink)}
+.rc29-group{display:grid;gap:0}
+.rc29-group>.r29-coin{justify-self:center;margin-block:6px 4px;font-size:30px;min-block-size:52px;padding-inline:22px}
+.rc29-line{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 4px;font:600 16px/1.45 var(--s29-font-ui,inherit);
+  border-block-end:1px solid color-mix(in srgb,var(--r29-gold) 18%,var(--s29-line))}
 .rc29-line:last-child{border-block-end:0}
-.rc29-line a,.rc29-line b{color:color-mix(in srgb,var(--rc-g) 90%,var(--s29-ink));font-weight:800;text-decoration:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rc29-line :is(a,b){color:var(--r29-gold-ink);font-weight:800;text-decoration:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rc29-statement{margin:0;padding:12px 14px;border-radius:var(--r29-radius-sm);font:600 16px/1.65 var(--s29-font-ui,inherit);
+  border:1px solid color-mix(in srgb,var(--r29-violet) 34%,transparent);background:color-mix(in srgb,var(--r29-violet) var(--r29-wash-open),var(--s29-panel))}
 .rc29-owner{margin:0;font-size:13.5px;color:var(--s29-muted)}
+.rc29-line a:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:2px}
 
-/* Source picker */
-.rc29-src{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none;overscroll-behavior-inline:contain}
+/* ── The source picker ───────────────────────────────────────────────────────────────────────────────────────────────────────────────── */
+.rc29-src{display:flex;gap:8px;overflow-x:auto;padding:4px 4px 6px;scrollbar-width:none;overscroll-behavior-inline:contain}
 .rc29-src::-webkit-scrollbar{display:none}
-.rc29-chip{flex:none;display:inline-flex;align-items:center;gap:8px;min-block-size:44px;padding:4px 14px 4px 10px;border-radius:999px;border:1px solid var(--rc-hair);cursor:pointer;
-  background:var(--rc-surf);color:var(--s29-ink);white-space:nowrap;font:inherit;text-align:start}
-.rc29-chip[aria-pressed="true"]{border-color:var(--rc-hair2);background:color-mix(in srgb,var(--rc-g) 20%,var(--s29-panel));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rc-g) 30%,transparent)}
-.rc29-cm{inline-size:28px;block-size:28px;border-radius:50%;display:grid;place-items:center;color:var(--rc-icon);background:color-mix(in srgb,var(--s29-page) 35%,var(--s29-panel));overflow:hidden;flex:none}
-.rc29-cm svg{inline-size:16px;block-size:16px}
-.rc29-cm img{inline-size:100%;block-size:100%;object-fit:cover}
+.rc29-chip{flex:none}
 .rc29-chip>span:last-child{display:grid;line-height:1.15}
-.rc29-chip b{font:650 15px/1.15 var(--s29-font-ui,inherit)}
+.rc29-chip b{font:700 15px/1.15 var(--s29-font-ui,inherit)}
 .rc29-chip small{font-size:12px;color:var(--s29-muted)}
-.rc29-empty{margin:0;padding:10px 12px;border-radius:14px;border:1px dashed var(--rc-hair);color:var(--s29-muted);font-size:15px}
+.rc29-empty{margin:0;padding:10px 12px;border-radius:var(--r29-radius-sm);border:1px dashed color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line));color:var(--s29-muted);font-size:15px}
 
-/* "New" is a short, finite pulse (3×), never an endless blink; reduced motion = static (System Frame motion rule, §10.8 addendum 11.11.2026). */
-@keyframes rc29-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--s29-brand-gold) 55%,transparent)}100%{box-shadow:0 0 0 7px transparent}}
-.rc29-new{inline-size:8px;block-size:8px;border-radius:50%;background:var(--s29-brand-gold);display:inline-block;margin-inline-end:6px;vertical-align:middle;animation:rc29-pulse 1.4s ease-out 3}
-@media (prefers-reduced-motion:reduce){.rc29-new{animation:none}}
-
-/* The Home centre: the first content area of Home, under the frame. */
-.rc29.is-home{margin:8px 0 18px;padding:12px;border-radius:24px;border:1px solid var(--rc-hair);
-  background:radial-gradient(90% 55% at 50% 0%,color-mix(in srgb,var(--rc-g) 10%,transparent),transparent 70%),color-mix(in srgb,color-mix(in srgb,var(--rc-g) 5%,var(--s29-panel)) 94%,transparent);
-  box-shadow:0 18px 40px color-mix(in srgb,var(--s29-page) 50%,transparent)}
-.rc29-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.rc29-row>:is(a,button,div){display:grid;grid-template-columns:40px minmax(0,1fr);align-items:center;gap:10px;inline-size:100%;min-block-size:56px;padding:6px 10px;border-radius:16px;
-  border:1px solid var(--rc-hair);background:var(--rc-surf);color:var(--s29-ink);text-decoration:none;text-align:start;font:inherit;cursor:pointer}
-.rc29-row :is(.h29-live-thumb,.rc29-medal){inline-size:40px;block-size:40px;border-radius:12px;object-fit:cover;overflow:hidden}
+/* ── The Home centre: the first content area of Home ─────────────────────────────────────────────────────────────────────────────────── */
+.rc29.is-home{margin:8px 0 18px;padding:16px 12px}
+.rc29-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rc29 .h29-live-list.rc29-list{margin:0;grid-template-columns:minmax(0,1fr)}
+.rc29 .h29-live-item.rc29-row{block-size:auto;border:0;overflow:visible;background:none}
+.rc29 .h29-live-item.rc29-row.h29-skel{block-size:56px;border-radius:var(--r29-radius-sm)}
+.rc29-row>.r29-card{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center;gap:12px;inline-size:100%;min-block-size:60px;padding:8px 12px;
+  text-decoration:none;text-align:start;font:inherit;cursor:pointer;block-size:auto}
+.rc29-row .h29-live-thumb{inline-size:44px;block-size:44px;border-radius:12px;object-fit:cover;overflow:hidden;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 50%,transparent),0 0 0 3px color-mix(in srgb,var(--r29-hue) 30%,transparent)}
 .rc29-rt{min-inline-size:0;display:grid;gap:2px}
-.rc29-rt strong{font:650 16px/1.3 var(--s29-font-ui,inherit);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc29-rt strong{display:block;font:700 16px/1.3 var(--s29-font-ui,inherit);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-line-clamp:unset}
+.rc29-rt .rc29-new-badge{margin-inline-end:6px;vertical-align:2px}
 .rc29-rt .rc29-ex{font-size:14px;line-height:1.4;color:color-mix(in srgb,var(--s29-ink) 82%,var(--s29-muted));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rc29-rt small{font-size:13.5px;color:var(--s29-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rc29-rt small b{color:color-mix(in srgb,var(--rc-g) 75%,var(--s29-ink));font-weight:650}
+.rc29-rt small b{color:color-mix(in srgb,var(--r29-hue) 80%,var(--s29-ink));font-weight:700}
 .rc29-more{justify-self:center}
 @media (min-width:1000px){
-  .rc29.is-home{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);column-gap:18px;padding:20px 22px}
+  .rc29.is-home{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);column-gap:20px;padding:22px 24px}
   .rc29.is-home>:is(.rc29-head,.rc29-more){grid-column:1/-1}
   .rc29.is-home.has-pin>.rc29-pin{grid-column:1;grid-row:2/span 3;align-self:start}
   .rc29.is-home.has-pin>:is(.rc29-src,.rc29-list,.rc29-empty,.rc29-skel){grid-column:2}
   .rc29.is-home:not(.has-pin)>:is(.rc29-src,.rc29-list,.rc29-empty){grid-column:1/-1}
-  .rc29.is-home .rc29-num b{font-size:40px}
   .rc29.is-home .rc29-sum{-webkit-line-clamp:3}
+  .rc29.is-home .rc29-nums.is-mini .r29-coin{font-size:22px;min-block-size:42px}
 }
 
-/* The "עכשיו" sheet in the same family: royal compact rows over the existing row markup (one row = one publication, expanded in place). */
-.sod29-nowpub.is-royal{gap:10px}
-.sod29-nowpub.is-royal .sod29-nowpub-list{gap:6px}
-.sod29-nowpub.is-royal :is(.sod29-nowpub-row,.sod29-nowpub-run,.sod29-nowpub-box){--rc-g:var(--s29-brand-gold);border-radius:16px;border:1px solid color-mix(in srgb,var(--rc-g) 30%,var(--s29-line));
-  background:color-mix(in srgb,var(--rc-g) 6%,var(--s29-panel-soft,var(--s29-panel)))}
-.sod29-nowpub.is-royal :is(.sod29-nowpub-row[open],.sod29-nowpub-row.is-selected){border-color:color-mix(in srgb,var(--rc-g) 52%,var(--s29-line));background:color-mix(in srgb,var(--rc-g) 10%,var(--s29-panel))}
+/* ── The "עכשיו" sheet: the existing row markup takes the Royal card; thumbnails become medallions ─────────────────────────────────── */
+.sod29-nowpub.is-royal{gap:12px}
+.sod29-nowpub.is-royal .sod29-nowpub-list{gap:8px}
+.sod29-nowpub.is-royal .r29-card{overflow:hidden}
+.sod29-nowpub.is-royal .r29-card[data-tone]::before{inset-block:10px;inset-inline-start:0;inline-size:3px;inset-inline-end:auto;inset-block-start:10px;
+  background:var(--r29-hue);box-shadow:0 0 10px color-mix(in srgb,var(--r29-hue) 70%,transparent)}
+.sod29-nowpub.is-royal .r29-card[data-tone]:is([open],.is-selected)::before{inset-block:0}
+.sod29-nowpub.is-royal .r29-card.is-source{border-style:solid}
+.sod29-nowpub.is-royal .sod29-nowpub-thumb:is(.is-glyph,.is-logo){border-radius:50%;
+  color:color-mix(in srgb,var(--r29-hue) 85%,var(--s29-ink));
+  background:radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--r29-hue) 30%,var(--s29-panel)),color-mix(in srgb,var(--s29-page) 35%,var(--s29-panel)) 72%);
+  box-shadow:0 0 0 1.5px color-mix(in srgb,var(--r29-gold) 70%,transparent),0 0 0 3.5px color-mix(in srgb,var(--s29-panel) 80%,transparent),0 0 0 4.5px color-mix(in srgb,var(--r29-hue) 40%,transparent)}
+.sod29-nowpub.is-royal .sod29-nowpub-thumb:not(.is-glyph,.is-logo){border-radius:12px;box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 45%,transparent)}
+.sod29-nowpub.is-royal .sod29-nowpub-row>summary{position:relative;padding-inline-end:32px}
 .sod29-nowpub.is-royal .sod29-nowpub-excerpt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-
-/* The centre's rows replace the older strip look: one column, one royal row each (no strip separators, no fixed 76px height). */
-.rc29 .h29-live-list.rc29-list{margin:0;gap:6px;grid-template-columns:minmax(0,1fr)}
-.rc29 .h29-live-item.rc29-row{block-size:auto;border:0;overflow:visible}
-.rc29 .h29-live-item.rc29-row.h29-skel{block-size:56px;border-radius:16px}
-.rc29 .h29-live-item.rc29-row>:is(a,button,div){grid-template-columns:40px minmax(0,1fr);gap:10px;padding:6px 10px;block-size:auto;border:1px solid var(--rc-hair);border-radius:16px;background:var(--rc-surf)}
-.rc29 .h29-live-item.rc29-row .h29-live-thumb{inline-size:40px;block-size:40px;border-radius:12px}
-.rc29 .h29-live-item.rc29-row strong{display:block;-webkit-line-clamp:unset;font:650 16px/1.3 var(--s29-font-ui,inherit);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-/* The short central message (ZURIEL 11.11.2026): the owner's lead sentence first and prominent, its second line under it, then the numbers, compact. */
-.rc29-lead{display:grid;gap:4px;padding:8px 12px;border-inline-start:3px solid color-mix(in srgb,var(--rc-g) 70%,transparent);border-radius:12px;
-  background:color-mix(in srgb,var(--rc-g) 9%,var(--s29-panel))}
-.rc29-pin-title.is-lead{font:750 19px/1.4 var(--s29-font-display,var(--s29-font-ui,inherit));color:color-mix(in srgb,var(--rc-g) 55%,var(--s29-ink))}
-.rc29-lead p{margin:0;font:600 15.5px/1.5 var(--s29-font-ui,inherit);color:var(--s29-ink)}
-.rc29-nums.is-compact .rc29-num{min-block-size:40px;padding:2px 10px}
-.rc29-nums.is-compact .rc29-num b{font-size:24px}
-.rc29-full-title{font:750 17px/1.35 var(--s29-font-display,var(--s29-font-ui,inherit));text-align:center}
-.rc29-statement{margin:0;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--rc-g) 9%,var(--s29-panel));font:600 15.5px/1.6 var(--s29-font-ui,inherit)}
-@media (min-width:1000px){.rc29.is-home .rc29-nums.is-compact .rc29-num b{font-size:30px}}
-
-/* ── Royal, second pass (ZURIEL 11.11.2026): more depth and colour, lighter rows. Existing tokens only: --s29-*, the brand gold and the approved
-   Now tones (violet #7b55e0, teal #12a594, gold #c98a12, ember #e8742a, sky #2f7be0, rose #e0487a — nowPublications2029.css). ─────────────── */
-.rc29,.rc29-pin,.rc29-src,.sod29-nowpub.is-royal{--rc-violet:#7b55e0;--rc-teal:#12a594;--rc-amber:#c98a12;--rc-ember:#e8742a;--rc-sky:#2f7be0;--rc-rose:#e0487a;
-  --rc-gold-strong:color-mix(in srgb,var(--s29-brand-gold) 92%,var(--s29-ink))}
-
-/* The pinned Post: violet depth; its own title is the headline; the update is a distinct layer under it. */
-.rc29-pin{gap:10px;border-color:color-mix(in srgb,var(--rc-violet) 55%,var(--s29-line));
-  background:radial-gradient(130% 90% at 100% 0%,color-mix(in srgb,var(--rc-violet) 26%,transparent),transparent 62%),
-    linear-gradient(180deg,color-mix(in srgb,var(--rc-violet) 12%,var(--s29-panel)),color-mix(in srgb,var(--rc-violet) 6%,var(--s29-panel)))}
-.rc29-pin .rc29-tag.is-pin{border-color:color-mix(in srgb,var(--rc-violet) 60%,var(--s29-line));background:color-mix(in srgb,var(--rc-violet) 22%,var(--s29-panel));color:var(--s29-ink)}
-.rc29-pin .rc29-tag.is-kind{border-color:color-mix(in srgb,var(--rc-sky) 45%,var(--s29-line));background:color-mix(in srgb,var(--rc-sky) 14%,var(--s29-panel))}
-.rc29-pin-title{font:750 18px/1.4 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--rc-gold-strong);text-wrap:balance}
-.rc29-update{display:grid;gap:6px;padding:10px 12px;border-radius:14px;border-inline-start:3px solid var(--rc-ember);
-  background:color-mix(in srgb,var(--rc-ember) 10%,var(--s29-panel))}
-.rc29-update-head{margin:0;font-size:14px;color:color-mix(in srgb,var(--rc-ember) 70%,var(--s29-ink))}
-.rc29-update-head b{font-weight:750}
-.rc29-update .rc29-sum{-webkit-line-clamp:2;font-size:15.5px;color:var(--s29-ink)}
-.rc29-nums.is-mini{display:flex;gap:6px;flex-wrap:wrap}
-.rc29-nums.is-mini .rc29-num{min-block-size:32px;padding:0 10px;border-radius:999px}
-.rc29-nums.is-mini .rc29-num b{font-size:17px}
-.rc29-num b{color:var(--rc-gold-strong)}
-.rc29-btn.is-update{border-color:color-mix(in srgb,var(--rc-violet) 60%,var(--s29-line));background:color-mix(in srgb,var(--rc-violet) 30%,var(--s29-panel))}
-.rc29-pin.is-open .rc29-update{background:color-mix(in srgb,var(--rc-ember) 14%,var(--s29-panel))}
-.rc29-lead{border-inline-start-color:var(--s29-brand-gold)}
-.rc29-lead-text{font:750 18px/1.45 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--rc-gold-strong)}
-/* Inside the update layer the full update is not a third frame: it flows on the layer's own tint. */
-.rc29-update .rc29-full{padding:4px 0 0;border:0;border-radius:0;background:none}
-.rc29-update .rc29-lead{background:none}
-
-/* Source chips: one hue per kind (group turquoise, channel gold, series violet, the site sky). */
-.rc29-chip[data-kind="group"]{--chip:var(--rc-teal)}.rc29-chip[data-kind="channel"]{--chip:var(--rc-amber)}
-.rc29-chip[data-kind="series"]{--chip:var(--rc-violet)}.rc29-chip[data-kind="site"]{--chip:var(--rc-sky)}.rc29-chip[data-kind="all"]{--chip:var(--s29-brand-gold)}
-.rc29-chip{border-color:color-mix(in srgb,var(--chip) 40%,var(--s29-line));background:color-mix(in srgb,var(--chip) 7%,var(--s29-panel))}
-.rc29-chip .rc29-cm{color:var(--chip);background:color-mix(in srgb,var(--chip) 16%,var(--s29-panel))}
-.rc29-chip[aria-pressed="true"]{border-color:var(--chip);background:color-mix(in srgb,var(--chip) 26%,var(--s29-panel));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--chip) 45%,transparent)}
-
-/* Lighter rows: a thin tone accent instead of a heavy brown frame around every row; the open row gets a soft tone depth. */
-.sod29-nowpub.is-royal :is(.sod29-nowpub-row,.sod29-nowpub-run,.sod29-nowpub-box){border:1px solid color-mix(in srgb,var(--tone,var(--s29-line)) 20%,var(--s29-line));
-  background:color-mix(in srgb,var(--tone,var(--s29-panel)) 4%,var(--s29-panel))}
-.sod29-nowpub.is-royal :is(.sod29-nowpub-row[open],.sod29-nowpub-row.is-selected,.sod29-nowpub-run[open],.sod29-nowpub-box[open]){
-  border-color:color-mix(in srgb,var(--tone,var(--s29-brand-gold)) 50%,var(--s29-line));background:color-mix(in srgb,var(--tone,var(--s29-brand-gold)) 11%,var(--s29-panel))}
-.sod29-nowpub.is-royal .sod29-nowpub-row>summary{position:relative;padding-inline-end:30px}
-.sod29-nowpub-chev{position:absolute;inset-inline-end:10px;inset-block-start:50%;inline-size:9px;block-size:9px;margin-block-start:-6px;
-  border-inline-end:2px solid color-mix(in srgb,var(--tone,var(--s29-brand-gold)) 70%,var(--s29-ink));border-block-end:2px solid color-mix(in srgb,var(--tone,var(--s29-brand-gold)) 70%,var(--s29-ink));
+.sod29-nowpub-chev{position:absolute;inset-inline-end:12px;inset-block-start:50%;inline-size:9px;block-size:9px;margin-block-start:-6px;
+  border-inline-end:2px solid color-mix(in srgb,var(--r29-hue,currentColor) 80%,var(--s29-ink));border-block-end:2px solid color-mix(in srgb,var(--r29-hue,currentColor) 80%,var(--s29-ink));
   transform:rotate(45deg);transition:transform var(--s29-motion,180ms) ease}
 .sod29-nowpub-row[open]>summary .sod29-nowpub-chev{transform:rotate(-135deg);margin-block-start:-2px}
 .sod29-nowpub-row:not(details) .sod29-nowpub-chev{display:none}
-.sod29-nowpub-label{display:inline-flex;align-items:center;padding:0 8px;border-radius:999px;font-size:12px;font-weight:750;line-height:20px}
-.sod29-nowpub-label.is-new{background:color-mix(in srgb,var(--rc-ember) 24%,var(--s29-panel));color:color-mix(in srgb,var(--rc-ember) 80%,var(--s29-ink));animation:rc29-pulse 1.4s ease-out 3}
-.sod29-nowpub-label.is-updated{background:color-mix(in srgb,var(--rc-violet) 22%,var(--s29-panel));color:color-mix(in srgb,var(--rc-violet) 60%,var(--s29-ink))}
-.sod29-nowpub-body.is-summary{color:color-mix(in srgb,var(--s29-ink) 90%,var(--s29-muted))}
-@media (prefers-reduced-motion:reduce){.sod29-nowpub-label.is-new{animation:none}.sod29-nowpub-chev{transition:none}}
-
-/* Home centre rows: the same tone accent, lighter frames. */
-.rc29 .h29-live-item.rc29-row>:is(a,button,div){border-color:color-mix(in srgb,var(--tone,var(--s29-line)) 22%,var(--s29-line));
-  background:color-mix(in srgb,var(--tone,var(--s29-panel)) 5%,var(--s29-panel));border-inline-start:3px solid var(--tone,var(--s29-brand-gold))}
-.rc29 .h29-live-item[data-tone="sky"]{--tone:var(--rc-sky)}.rc29 .h29-live-item[data-tone="gold"]{--tone:var(--rc-amber)}
-.rc29 .h29-live-item[data-tone="teal"]{--tone:var(--rc-teal)}.rc29 .h29-live-item[data-tone="violet"]{--tone:var(--rc-violet)}
-.rc29 .h29-live-item[data-tone="rose"]{--tone:var(--rc-rose)}.rc29 .h29-live-item[data-tone="ember"]{--tone:var(--rc-ember)}
-.rc29.is-home{border-color:color-mix(in srgb,var(--s29-brand-gold) 38%,var(--s29-line))}
-.rc29-head h2{color:var(--rc-gold-strong)}
+.sod29-nowpub-body.is-summary{color:color-mix(in srgb,var(--s29-ink) 92%,var(--s29-muted))}
+@media (prefers-reduced-motion:reduce){.sod29-nowpub-chev{transition:none}}

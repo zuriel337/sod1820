@@ -299,7 +299,22 @@ test("rows open in place on what exists (full text, or the published summary, or
   assert.match(source, /data-now-detail="summary"/); assert.match(source, /data-now-detail="excerpt-note">זהו התקציר שפורסם; המשך הפרסום בעמוד המלא\./);
   assert.match(source, /data-now-action="source-all"/, "a row leads to every update from its source (the existing source picker)");
   assert.doesNotMatch(source, /autoPlay=\{true\}|autoplay=1/, "no autoplay");
-  const css = readFileSync(new URL("../src/components/experience2029/nowRoyalCenter2029.css", import.meta.url), "utf8");
-  assert.match(css, /\.sod29-nowpub-label\.is-new\{[^}]*animation:rc29-pulse 1\.4s ease-out 3\}/, "a finite pulse");
-  assert.match(css, /prefers-reduced-motion:reduce\)\{\.sod29-nowpub-label\.is-new\{animation:none\}/);
+  assert.match(source, /className="sod29-nowpub-label r29-badge is-new"/, "the shared Royal badge");
+  const royal = readFileSync(new URL("../src/components/experience2029/royal2029.css", import.meta.url), "utf8");
+  assert.match(royal, /\.r29-badge\.is-new\{[^}]*animation:r29-pulse 1\.4s ease-out 3\}/, "a finite pulse");
+  assert.match(royal, /prefers-reduced-motion:reduce\)\{\.r29 \.r29-badge\.is-new\{animation:none\}/);
+});
+
+// ── ROYAL 2029 (ZURIEL 11.11.2026): one shared Royal layer; every hue is a canonical --s29-* role; "עכשיו" is its first adopter ─────────
+test("the Royal layer defines no colour of its own: every hue resolves from the canonical 2029 palette roles, and the Now adapter defines none", () => {
+  const royal = readFileSync(new URL("../src/components/experience2029/royal2029.css", import.meta.url), "utf8");
+  const tokens = royal.slice(royal.indexOf(".r29{"), royal.indexOf("}", royal.indexOf(".r29{")));
+  for (const [name, role] of [["gold", "--s29-brand-gold"], ["violet", "--s29-accent-secondary"], ["sapphire", "--s29-brand-sapphire"], ["azure", "--s29-accent-text"], ["teal", "--s29-discovery"], ["amber", "--s29-warm-accent"]])
+    assert.match(tokens, new RegExp(`--r29-${name}:var\\(${role}\\)`), name);
+  assert.doesNotMatch(royal.replace(/\/\*[\s\S]*?\*\//g, ""), /#[0-9a-fA-F]{3,8}\b|rgb\(/, "no hex or rgb hue; only canonical roles");
+  const adapter = readFileSync(new URL("../src/components/experience2029/nowRoyalCenter2029.css", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.doesNotMatch(adapter, /#[0-9a-fA-F]{3,8}\b|rgb\(/, "the Now adapter is layout only");
+  assert.match(royal, /:where\(\.sod29-root\[data-frame-theme-preset="light"\],\.sod29-root\[data-frame-theme-preset="parchment"\]\) \.r29\{/, "Day and Parchment tune intensity only");
+  const pin = readFileSync(new URL("../src/components/experience2029/NowRoyalCenter2029.jsx", import.meta.url), "utf8");
+  assert.match(pin, /import "\.\/royal2029\.css";/); assert.match(pin, /className=\{`rc29-pin r29 r29-hall/);
 });
