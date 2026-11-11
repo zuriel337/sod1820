@@ -41,9 +41,9 @@
 .pa29-account{display:grid;gap:8px}
 .pa29-account :is(.sod29-workspace-account,.sod29-auth-card){margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
 .pa29-account .sod29-account-entry{inline-size:100%;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none}
-.pa29-account .sod29-account-entry[data-auth-state="signed-in"] :is(h2,.sod29-auth-eyebrow,p:not([role]),small,a.sod29-auth-primary,a.sod29-auth-secondary){display:none}
+.pa29-account .sod29-account-entry[data-auth-state="signed-in"]>:is(h2,.sod29-auth-eyebrow,p:not([role]),small,a.sod29-auth-primary,a.sod29-auth-secondary){display:none}
 .pa29-account .sod29-account-entry[data-auth-state="signed-in"]{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.pa29-account .sod29-account-entry[data-auth-state="signed-in"] :is(button,.sod29-auth-link){min-block-size:44px;padding:0 14px;border-radius:999px;font:700 14.5px/1.1 var(--s29-font-ui,inherit);text-decoration:none;
+.pa29-account .sod29-account-entry[data-auth-state="signed-in"]>:is(button,.sod29-auth-link),.pa29-account .sod29-account-entry[data-auth-state="signed-in"] .sod29-auth-set-password>button{min-block-size:44px;padding:0 14px;border-radius:999px;font:700 14.5px/1.1 var(--s29-font-ui,inherit);text-decoration:none;
   color:var(--s29-ink);border:1px solid color-mix(in srgb,var(--r29-sapphire) 50%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 14%,var(--s29-panel));cursor:pointer}
 .pa29-account .sod29-account-entry[data-auth-state="signed-in"] .sod29-auth-set-password,.pa29-account .sod29-account-entry[data-auth-state="signed-in"] .sod29-auth-set-password>*{inline-size:100%}
 .pa29-account .sod29-account-entry h2{margin:0 0 6px;font:750 18px/1.25 var(--s29-font-ui,inherit)}
