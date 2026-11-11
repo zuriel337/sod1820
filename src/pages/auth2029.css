@@ -37,13 +37,11 @@
 html:has(.sod29-auth){scroll-padding-block-end:calc(132px + env(safe-area-inset-bottom,0px) + 16px)}
 .sod29-auth-card :is(p,b,strong,small,label){overflow-wrap:anywhere}
 
-/* The save button of a password screen stays in view: it rides at the bottom of the screen above the bar (or at the very bottom while the keyboard is open),
-   so it can never be below the fold, under the bar or under the keyboard, however long the text above it is. */
-.sod29-auth-card[data-auth-state="password-recovery"] form>button[type="submit"],
-.sod29-auth-card[data-auth-state="password-setup"] form>button[type="submit"],
-[data-auth-state="password-setup"] form>button[type="submit"]{position:sticky;z-index:3;
-  inset-block-end:calc(var(--s29-island-clearance,90px) + env(safe-area-inset-bottom,0px) + 10px);box-shadow:0 0 0 6px var(--s29-panel-soft,var(--s29-panel)),0 -14px 18px -8px var(--s29-panel-soft,var(--s29-panel))}
-html.sod29-kbd-open .sod29-auth-card[data-auth-state="password-recovery"] form>button[type="submit"],
-html.sod29-kbd-open [data-auth-state="password-setup"] form>button[type="submit"]{inset-block-end:10px}
-/* Inside the personal panel the scroll area already ends above the bar. */
-[data-panel-kind="workspace"] [data-auth-state="password-setup"] form>button[type="submit"]{inset-block-end:8px}
+/* Password screens on a phone: the text above the fields is compact so the form and its save button fit on one screen where they can,
+   and the long address wraps instead of widening the card. */
+@media (max-width:520px){
+  .sod29-auth-card[data-auth-state="password-recovery"],.sod29-auth-card[data-auth-state="password-setup"]{padding:18px 16px}
+  .sod29-auth-card[data-auth-state="password-recovery"]>p{font-size:15px;line-height:1.55;margin:0 0 12px}
+  .sod29-auth-card[data-auth-state="password-recovery"] h2{font-size:21px;margin-bottom:6px}
+  .sod29-auth-card[data-auth-state="password-recovery"] form{gap:8px}
+}
