@@ -12,7 +12,26 @@
     "api_token": "none (api_token_hint empty; created_via meta_mcp)",
     "nonce": "26c1a8b43d3a9c7b",
     "fired_with": "fire_trigger (account-authenticated Claude Code Remote tool), not the token /fire API",
-    "fire_response": {"session_id": "cse_01H7739MjqsSy3Nv6324VnN8", "note": "This routine runs in this session, so its prompt arrives here as a new message. The text was not sent with it because it is already in this conversation."},
-    "arrival": "PENDING — filled in when the probe turn arrives"
+    "fire_response": {
+      "session_id": "cse_01H7739MjqsSy3Nv6324VnN8",
+      "note": "This routine runs in this session, so its prompt arrives here as a new message. The text was not sent with it because it is already in this conversation."
+    },
+    "arrival": {
+      "delivered_as": "a scheduled-task message inside this same conversation: 'Fired by routine \"SOD1820 same-session resume probe (single use)\" (trigger_id: trig_01He6N3WKUUqcMYGWzir4wVj)'",
+      "fired_at_utc": "2026-11-11T21:03:14.337Z",
+      "trigger_last_run": {
+        "status": "ROUTINE_RUN_STATUS_SUCCEEDED",
+        "finished_at": "2026-11-11T21:03:14.350Z",
+        "session_id": "cse_01H7739MjqsSy3Nv6324VnN8"
+      },
+      "read_in_session_at_utc": "2026-11-11T21:18:05Z",
+      "why_the_wait": "a turn was running when it fired; the message waited and was delivered when that turn ended (it does not interrupt a running turn)",
+      "get_session_in_receiving_turn": "session_01H7739MjqsSy3Nv6324VnN8",
+      "new_session_created": "none (list_sessions, own account, newest first: no session after 2026-11-11T13:25Z other than this one)",
+      "context_preserved": "yes: the receiving turn still had the BEFORE row 6f4fdd3c-..., the local probe log and the whole investigation",
+      "nonce_in_payload": "not carried: a fire from the same session does not resend its text (stated in the fire response); the local log nonce 26c1a8b43d3a9c7b is in the conversation only",
+      "trigger_deleted_at_utc": "2026-11-11T21:18Z",
+      "verdict": "VERIFIED for the account-authenticated path (same session, same conversation, no new session). NOT VERIFIED: a token /fire into a session-bound task, and delivery of text sent by an external caller."
+    }
   }
 }

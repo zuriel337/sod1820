@@ -42,7 +42,12 @@
    - אין לה טוקן API (‏`api_token_hint` ריק, ‏`created_via=meta_mcp`).
 3. **‏fire אחד עם nonce ‏`26c1a8b43d3a9c7b`:** התשובה הייתה `session_id: cse_01H7739MjqsSy3Nv6324VnN8`, וההודעה "This routine runs in this session, so its prompt arrives here as a new message".
    - כשה־fire יוצא מאותו סשן, הטקסט לא נשלח, כי הוא כבר בשיחה.
-4. **ההגעה:** ראו [evidence/session-id-and-probe](evidence/session-id-and-probe-20261111.json).
+4. **ההגעה:** ההודעה הגיעה **לאותה שיחה** כהודעת משימה מתוזמנת.
+   - הריצה: `ROUTINE_RUN_STATUS_SUCCEEDED`, ‏fired_at ‏21:03:14Z, ‏`session_id=cse_01H7739MjqsSy3Nv6324VnN8`.
+   - זמן ההגעה: נמסרה בסוף התור שרץ באותו רגע, ונקראה ב־21:18:05Z. היא לא קוטעת תור שרץ.
+   - בתור שקיבל אותה, `get_session` החזיר `session_01H7739MjqsSy3Nv6324VnN8`. לא נפתח סשן חדש (לפי `list_sessions`), וההקשר כולו נשמר.
+   - המשימה נמחקה.
+   - פירוט: [evidence/session-id-and-probe](evidence/session-id-and-probe-20261111.json).
 
 **מה זה מוכיח:** מסירה לסשן קיים לפי מזהה, דרך כלי החשבון בתוך Claude Code.
 **מה זה לא מוכיח:**
@@ -119,4 +124,4 @@
   - מסירת טקסט מגורם חיצוני;
   - ‏Projects;
   - ‏Codex.
-- **הבדיקה החיה:** משימה אחת `trig_01He6N3WKUUqcMYGWzir4wVj` נוצרה, הופעלה פעם אחת ונמחקה אחרי ההגעה.
+- **הבדיקה החיה:** משימה אחת `trig_01He6N3WKUUqcMYGWzir4wVj` נוצרה, הופעלה פעם אחת (21:03:14Z, אותו סשן) ונמחקה ב־21:18Z.
