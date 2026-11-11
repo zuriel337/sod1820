@@ -1,0 +1,18 @@
+{
+  "session_id_equivalence": {
+    "get_session(cse_01H7739MjqsSy3Nv6324VnN8)": "returns id session_01H7739MjqsSy3Nv6324VnN8 (this session)",
+    "get_session(session_01H7739NdxCcBK8pzTDcp7eG)": "returns the routine run of 2026-11-04 (cse_01H7739NdxCcBK8pzTDcp7eG): title '⚡ SOD1820 Agent Dispatch', origin fire_routine, a separate session",
+    "conclusion": "session_<x> and cse_<x> name the same session; the /fire receipt can be compared with a target session by the part after the prefix"
+  },
+  "same_session_probe": {
+    "trigger_id": "trig_01He6N3WKUUqcMYGWzir4wVj",
+    "created_at": "2026-11-11T21:02:48Z",
+    "persist_session": true,
+    "persistent_session_id": "session_01H7739MjqsSy3Nv6324VnN8",
+    "api_token": "none (api_token_hint empty; created_via meta_mcp)",
+    "nonce": "26c1a8b43d3a9c7b",
+    "fired_with": "fire_trigger (account-authenticated Claude Code Remote tool), not the token /fire API",
+    "fire_response": {"session_id": "cse_01H7739MjqsSy3Nv6324VnN8", "note": "This routine runs in this session, so its prompt arrives here as a new message. The text was not sent with it because it is already in this conversation."},
+    "arrival": "PENDING — filled in when the probe turn arrives"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "read_at_utc": "2026-11-11T20:55:00Z/21:05:00Z",
+  "canonical_project": "linswmnnkjxvweumprav",
+  "method": "read-only SELECTs through the Supabase connector and read-only Claude Code Remote tools; no secret value was read or stored",
+  "work_log_handoff_from_gpt": {"id": "e6a08738-7d08-4d66-8082-866e25ac0480", "task_key": "OWNER_EXISTING_CCR_B2565041_DIRECT_RESUME_20261111", "status": "PASSIVE_TARGETED_SESSION_HANDOFF_NO_DISPATCH"},
+  "dispatch_transport": {
+    "function": "public.agent_dispatch_emit(uuid)",
+    "vault_secret_names": ["CLAUDE_CODE_ROUTINE_FIRE_URL", "CLAUDE_CODE_ROUTINE_TOKEN"],
+    "vault_secrets_created_at": "2026-09-15T18:29Z",
+    "fire_url_routine_id": "trig_01XMNhGaBn3YVBdhRV9Ci2t8",
+    "fire_body": "{\"text\": <assignment locator>}; headers anthropic-beta experimental-cc-routine-2026-04-01",
+    "receipt": "agent_dispatch_reconcile_routine_response stores claude_code_session_id / claude_code_session_url from the /fire response"
+  },
+  "routine_trig_01XMNhGaBn3YVBdhRV9Ci2t8": {
+    "name": "SOD1820 Agent Dispatch", "persist_session": false, "created_via": "http_api", "has_api_token": true,
+    "last_run": {"fired_at": "2026-11-04T23:54:10Z", "session_id": "cse_01H7739NdxCcBK8pzTDcp7eG", "status": "SUCCEEDED"}
+  },
+  "dispatch_history_last_rows": "every recorded dispatch opened its own new session (cse_0126HMDvrkYkoRwx2EnMAgn6, cse_01KZPfbpCMMFgg6RGbVydDsb, cse_01Fmadpa9sfYmTUbjuFWTnwJ, ... ); last ASSIGNMENT 2026-11-04 fe3a6910-42d5-4324-a863-6f8007ea37cd",
+  "gpt_delivery_guard": {"trigger": "trg_work_log_zz_gpt_delivery_stop_v17", "function": "work_log_gpt_delivery_stop_v17", "enabled": true, "effect": "a row TO=GPT is rewritten TO=ZURIEL with dispatch NULL"},
+  "cron_jobs": [{"id": 125, "name": "g3-agent-dispatch-recovery", "active": false}, {"id": 126, "name": "g3-agent-routine-response-reconcile", "active": false}, {"id": 127, "name": "g3-gpt-result-wake-recovery", "active": false}],
+  "law": {"id": "inter_agent_coordination_law", "active_version": 18, "row_created_at": "2026-11-11T04:32:42Z", "clauses_used": ["v17 header (reports to ZURIEL; no delivery to GPT; activation only on explicit user instruction)", "§42", "§44", "§§68-74", "§93", "§96"]},
+  "this_session": {"id": "session_01H7739MjqsSy3Nv6324VnN8", "branch": "ccr-b2565041-d94syf", "environment_id": "env_01CCpAWAyPgCyMzdaWaJkNHC", "cross_session_inbound": "available"}
+}

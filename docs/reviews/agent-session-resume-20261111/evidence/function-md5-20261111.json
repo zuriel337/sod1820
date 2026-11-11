@@ -1,0 +1,13 @@
+{
+  "note": "md5(pg_get_functiondef(oid)). Live = canonical project, PostgreSQL 17.6, read 2026-11-11. Repo = the latest repository migration that defines the function, recreated on PostgreSQL 16 locally.",
+  "agent_dispatch_emit": {"live": "3ef4d7595c00a8b7b488f8a6e7c54432", "repo_migration": "20260918211933_g3_claude_write_autostart_enable_v3", "repo": "3ef4d7595c00a8b7b488f8a6e7c54432", "drift": false},
+  "agent_dispatch_claim": {"live": "869ce9c630871b43f340715566f6155e", "live_body_len": 927, "repo_migration": "20260915165100_g3_claude_code_routine_transport_v2", "repo": "ea81b51829cc9f4861035cb4a44eabe2", "repo_body_len": 1048, "drift": true},
+  "agent_dispatch_reconcile_routine_response": {"live": "57584429f94080a5ad253b0b1db318f9", "live_body_len": 3170, "repo_migration": "20260915165100_g3_claude_code_routine_transport_v2", "repo": "cf27486e614d904337c1f33d427e056a", "repo_body_len": 3817, "drift": true},
+  "agent_dispatch_finish": {"live": "97261c43add785423024d959d39cd053"},
+  "work_log_dispatch_prepare": {"live": "bba6f47639772c33d2eb7d774b2562b5"},
+  "work_log_dispatch_after_write": {"live": "dfac3f0c9cace0993c53ea8e967408ae"},
+  "work_log_gpt_delivery_stop_v17": {"live": "1492577ec06d4f38631d3ed70bede4a7"},
+  "schema_migrations": "the live ledger lists the same four g3 migrations (20260915193042, 20260915193117, 20260915193940, 20260918211933) and no later one for claim or reconcile, so their live text was changed outside a recorded migration",
+  "fixtures": "tests/sql/fixtures/agent_dispatch_live_base_20261111/ hold the live texts; the SQL test asserts every md5 above before running",
+  "proposal_emit_v1": "9e288f7253a6934d6c2878c0188e7249"
+}
