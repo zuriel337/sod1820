@@ -1,4 +1,4 @@
-import { REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_SHINSHIN_LINK, REVIEWED_ESTHER_LINK, reviewedCommunityAccountId, canonicalCommunityAuthorKey } from "./communityCanonicalIdentity2029.js";
+import { REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_SHINSHIN_LINK, REVIEWED_ESTHER_LINK, REVIEWED_AVI_ZOHAR_LINK, reviewedCommunityAccountId, canonicalCommunityAuthorKey } from "./communityCanonicalIdentity2029.js";
 import { supabase } from "../supabase.js";
 import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../publicLaunch2029.js";
 import { getPublicResearchClient } from "../research/researchViewMode.js";
@@ -82,7 +82,10 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
   [`user:${REVIEWED_ESTHER_LINK.accountId}`]: {
     name: "Esther Gem", accountUserId: REVIEWED_ESTHER_LINK.accountId,
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
-  "27c10d9a-14a6-4493-980b-2f5eda105ad7": { sourceUserId: "u_vtNX8TEGu5VV", name: "אביזוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"] },
+  // ZURIEL, 11.11.2026: his name as he writes it, and the account that owns the history (photo comes from that account).
+  [REVIEWED_AVI_ZOHAR_LINK.contributorId]: { sourceUserId: "u_vtNX8TEGu5VV", name: "אבי זוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"],
+    accountUserId: REVIEWED_AVI_ZOHAR_LINK.accountId },
+  [`user:${REVIEWED_AVI_ZOHAR_LINK.accountId}`]: { name: "אבי זוהר בן חיים", accountUserId: REVIEWED_AVI_ZOHAR_LINK.accountId },
   "4cd9c034-0464-4600-a35d-7156f0584d9b": { sourceUserId: "u_3knnZ5YC", name: "Sod1820", accountUserId: "02a0d207-0136-4beb-a34d-8ff57d10cd85" },
   "19936860-6b35-4386-bc44-113289858ff0": { sourceUserId: "u_3kuB1woMg6wz", name: "Yosi Viner", handle: "YosiViner559", accountUserId: "b6ce542a-2b07-4749-8aba-532c886f6de7" },
 });
@@ -97,6 +100,7 @@ const VERIFIED_OWNER_PAIRS = Object.freeze([
   { accountId: "5516d596-46d3-486d-a9c7-a35b36bc3755", contributorId: "e7581ab5-8c15-4832-b602-f361e41ff373" }, // ZURIEL, 8.11.2026: אמילי ↔ the account she verified and signed into.
   { accountId: REVIEWED_SHINSHIN_LINK.accountId, contributorId: REVIEWED_SHINSHIN_LINK.contributorId }, // ZURIEL, 8.11.2026: שינשין ↔ the account he verified and signed into.
   { accountId: REVIEWED_ESTHER_LINK.accountId, contributorId: REVIEWED_ESTHER_LINK.contributorId }, // ZURIEL, 8.11.2026: Esther26 ↔ Esther Gem.
+  { accountId: REVIEWED_AVI_ZOHAR_LINK.accountId, contributorId: REVIEWED_AVI_ZOHAR_LINK.contributorId }, // ZURIEL, 11.11.2026: אבי זוהר בן חיים ↔ his account.
 ]);
 
 export function communityAuthorIdentity(authorKey) {
@@ -408,3 +412,29 @@ export async function publishCommunityMessage({ body, parentId = null, authorNam
   });
 }
 
+
+
+// Which historical contributors are already connected to an account (so the "my account from the old chat" list offers only the others).
+// Server first: the optional RPC community_claimed_contributors(p_ids) returns only the ids that already have an owner (nothing else).
+// Until it is deployed (supabase/proposed), the reviewed links plus this snapshot of the owners read from contributors.user_id on 11.11.2026
+// keep the list honest; the claim itself is always decided by the server (contributors_claim_legacy).
+export const KNOWN_LINKED_LEGACY_CONTRIBUTORS = Object.freeze([
+  "b8c49719-6fd4-4027-ada1-1a986466eaf9", "8894bec6-b252-4405-bcd9-3773488e2a91",
+]);
+export function locallyKnownLinkedContributorIds() {
+  const ids = new Set(KNOWN_LINKED_LEGACY_CONTRIBUTORS);
+  for (const [id, profile] of Object.entries(VERIFIED_ARCHIVE_PROFILES)) if (profile.accountUserId && !id.startsWith("user:")) ids.add(id);
+  return ids;
+}
+export async function fetchClaimedContributorIds(ids, { client = communityReadClient() } = {}) {
+  const wanted = [...new Set((ids || []).filter(Boolean))].slice(0, 400);
+  const known = locallyKnownLinkedContributorIds();
+  const claimed = new Set(wanted.filter(id => known.has(id)));
+  if (!wanted.length || typeof client?.rpc !== "function") return claimed;
+  try {
+    const { data, error } = await client.rpc("community_claimed_contributors", { p_ids: wanted });
+    if (error || !Array.isArray(data)) return claimed;
+    for (const item of data) { const id = typeof item === "string" ? item : item?.id ?? item?.community_claimed_contributors; if (id) claimed.add(id); }
+  } catch { /* the function is optional until deployed */ }
+  return claimed;
+}
