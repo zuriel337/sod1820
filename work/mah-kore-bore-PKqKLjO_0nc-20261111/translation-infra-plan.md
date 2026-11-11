@@ -38,3 +38,18 @@ Batch (אסינכרוני, −50%): ≈ $0.09–0.26. כל הפרויקט (בנ�
 
 ## 9. שלבים (כל שער דורש אישור נפרד)
 0 סקירת תוכנית + Design owner (חינם) → 1 מודול policy + בדיקות מקומיות (ענף, חינם) → 2 החלת מיגרציה (אישור DB) → 3 הרחבת/פריסת video-transcribe (אישור פריסה) → 4 פיילוט draft לפוסט (אישור עלות) → 5 לשוניות בקורא (Design owner + אישור merge) → 6 פרסום תרגומים (אישור). «מה קורה הבורא» נשאר ללא שינוי עד סיום שלבים 1–4.
+
+---
+## עדכון 2 (אושר: טבלה כללית; מודול + בדיקות מקומיות + סימולציית מיגרציה מבודדת) — אין החלה ל-Production
+קבצים: `supabase/proposed/content_translations_v1_PROPOSAL.sql` (הועבר מ-work/, לא מוחל) · `tests/sql/content_translations_v1.sql` + `scripts/run-content-translations-sql-test.sh` (Postgres מקומי זמני) · `supabase/functions/_shared/entityTranslationPolicy.js` · `test/entity-translation-policy.test.mjs`.
+הרצה: `bash scripts/run-content-translations-sql-test.sh` · `node --test test/entity-translation-policy.test.mjs`.
+
+תיקון ממצא 1 — RLS עצמאי: מדיניות הקריאה על הטבלה עצמה דורשת status='published' + הפוסט-האב גלוי למשתמש (RLS של posts, כולל «טיוטה») + `source_hash` = ה-hash של המקור העברי הנוכחי. תרגום מיושן אינו קריא גם בקריאה ישירה לטבלה; ה-view הוא הקרנה בלבד. בנוסף טריגר publish-guard: גם service_role לא יכול לפרסם תרגום עם hash לא-עדכני.
+תיקון ממצא 2 — זהות ישויות: `entity_id` חייב להתאים ל-`^[1-9][0-9]{0,17}$` (אין סימן/אפסים/רווחים/ספרות יוניקוד/גלישת bigint); עמודה מחושבת `post_id bigint` מבצעת המרה רק כשהתבנית תקינה (המרה בטוחה, בלי חריגה); FK ל-posts(id) ON DELETE CASCADE (תרגום לא יכול להצביע על פוסט שאינו קיים; מחיקת פוסט מסירה רק נגזרות); אין ALTER ואין טריגר על posts. ממצא נוסף שהבדיקה חשפה: עמודה מחושבת אינה מחושבת ב-BEFORE trigger — ה-guard מחשב מ-entity_id.
+הוכחה: בדיקות SQL T0–T9 (hash parity, stale direct-read, draft post, draft אחרי הסרת/החזרת תג, פוסט ציבורי זהה לא פותח טיוטה, 14 מזהים פסולים, FK/unique/lang/status/hash, grants/עמודות, בידוד כתיבה, publish-guard, cascade, snapshot של catalog של posts). נבדקו 6 מוטציות: 5 נתפסו; «אין תנאי post_id במדיניות» נתפס אחרי הוספת T4c; «regex רופף» שקול (שכבה כפולה: עמודה מחושבת + check).
+מודול: parsePostId, planEntityTranslation (עברית אף פעם לא יעד), sourceHash (בייט-זהה ל-SQL), segmentHtml/reassemble/roundTrip (הפוסט האמיתי חוזר בייט-לבייט; המודל לא רואה תגיות/URL), ⟦K#⟧ למובאות עבריות מילוליות, verifyTranslation (keep/ספרות ASCII/הזרקת markup/מזהים/שלד תגיות), chunking לפי תקציב טוקנים, parseBatchAnswer קפדני. 17 בדיקות.
+
+### תיאום בעלות (נסרק 11.11, PRs פתוחים + ענפים מאז 6.11 + work_log)
+- Codex: אין ענפי codex/* מאז 10.11 ואין רשומות work_log מ/אל Codex ב-72 שעות; אין מה לתאם — ההפניה: AGENTS.md → CLAUDE.md §0.
+- חפיפות: **#1189 (GPT, draft)** מוסיף `PostSystemAddition2029.jsx` ומשנה `Post2029Page.jsx` («תוספות מערכת נפרדות» בפוסטים) — יחסי: (א) שלב לשוניות הקורא יתנגש בקובץ אותו; (ב) אם ימוזג, `posts.ai_addition` יוצג בנפרד ← יש לבחון אז את כפילות סעיפי «תוספת המערכת» שבתוך תוכן «מה קורה הבורא» מול ai-addition.html. #1296 (חוזה קשרי פוסט/סדרה) ו-#1288 (מסגרת וידאו בפוסט) — ללא קבצים חופפים. #1303 — PublicContinuity2029Page.jsx בלבד (לא נגעתי).
+- מה שנוסף בענף זה חדש בלבד: אין שינוי בחוזי קטגוריות/סדרות/מדיה, אין שינוי ב-package.json/CI/video-transcribe/Post2029Page.
