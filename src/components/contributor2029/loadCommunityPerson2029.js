@@ -1,4 +1,4 @@
-import { REVIEWED_TORAH_TAMIMA_LINK, canonicalCommunityAuthorKey } from "../../lib/community/communityCanonicalIdentity2029.js";
+import { REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_AVI_ZOHAR_LINK, canonicalCommunityAuthorKey } from "../../lib/community/communityCanonicalIdentity2029.js";
 import { getPublicResearchClient } from "../../lib/research/researchViewMode.js";
 import { fetchPublicAuthorActivityPage, fetchCommunityAuthorSummary, fetchLinkedAccountProfiles, resolveCommunityAuthorIdentity,
   VERIFIED_ARCHIVE_PROFILES } from "../../lib/community/communityArchive.js";
@@ -24,10 +24,11 @@ export async function loadCommunityPerson2029(rawAuthorKey, { client = getPublic
   if (!validCommunityAuthorKey(authorKey)) return null;
   // Exact public-image read only for the previously human-approved account link.
   const reviewedAvatar = async () => {
-    if (authorKey !== `user:${REVIEWED_TORAH_TAMIMA_LINK.accountId}`) return null;
+    const link = [REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_AVI_ZOHAR_LINK].find(candidate => authorKey === `user:${candidate.accountId}`);
+    if (!link) return null;
     try {
-      const accounts = await avatarReader([REVIEWED_TORAH_TAMIMA_LINK.accountId], { client });
-      return accounts?.[REVIEWED_TORAH_TAMIMA_LINK.accountId]?.avatar_url || null;
+      const accounts = await avatarReader([link.accountId], { client });
+      return accounts?.[link.accountId]?.avatar_url || null;
     } catch { return null; }
   };
   let writer = await writerReader(authorKey, { client });
@@ -61,7 +62,7 @@ export async function loadCommunityPerson2029(rawAuthorKey, { client = getPublic
   if (!page.rows.length) return null;
   const community = publicCommunity(authorKey, page, summary);
   const view = { kind: "community_person", canonicalHref: communityPersonHref(authorKey), noindex: true,
-    profile: { name: page.rows[0].authorName, avatar: accountAvatar, bio: VERIFIED_ARCHIVE_PROFILES[authorKey]?.publicBio || "", role: "" },
+    profile: { name: VERIFIED_ARCHIVE_PROFILES[authorKey]?.name || page.rows[0].authorName, avatar: accountAvatar, bio: VERIFIED_ARCHIVE_PROFILES[authorKey]?.publicBio || "", role: "" },
     items: [], sourceGroups: [], availability: {}, partial: false,
     communityAuthorKey: authorKey, communityFilter: "chat", community,
     entrySection: "community", sections: [SECTIONS.find(([key]) => key === "community"), ["all", "הכול"], ["sources", "תרומות"]],

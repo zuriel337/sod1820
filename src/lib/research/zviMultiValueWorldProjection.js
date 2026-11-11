@@ -1,5 +1,6 @@
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { contributorSourceLocator } from "./worldContributorSourceLocator.js";
+import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
 
 const ZVI_SOURCE_SLUG = "tzvi-opoc";
 
@@ -67,7 +68,7 @@ export function buildZviMultiValueWorldProjection(rows = []) {
         statement: String(row.statement || "").trim(),
         terms: Array.isArray(row.terms) ? row.terms : [],
         values: [...spec.values],
-        targets: spec.connectedValues.map((value) => ({ value, href: `/2029/number/${value}` })),
+        targets: spec.connectedValues.map((value) => ({ value, href: `${NUMBER_PAGE_BASE}/${value}` })),
         groupKind: spec.groupKind,
         source: contributorSourceLocator(row.source_ref, { slug: ZVI_SOURCE_SLUG }),
         review: {

@@ -1029,7 +1029,11 @@ export default async function handler(req, res) {
   if (productionReading && /^\/number\/[^/]+$/.test(key)) {
     const address = decodeURIComponent(key.slice('/number/'.length));
     const numeric = /^\d+$/.test(address);
+    // is_number_indexable takes a 32-bit integer and the admitted numbers (sitemap_numbers) are integers, so a larger number can
+    // never be admitted. It stays addressable and noindex; asking the RPC made the page answer 503 (e.g. /number/196500000000).
+    const beyondAdmittedRange = numeric && Number(address) > 2147483647;
     try {
+      if (beyondAdmittedRange) { robots = 'noindex, follow'; throw Object.assign(new Error('number-out-of-admitted-range'), { admittedRangeOnly: true }); }
       const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${numeric ? 'is_number_indexable' : 'is_phrase_indexable'}`, {
         method: 'POST', headers: { ...ogHeaders, 'Content-Type': 'application/json' },
         body: JSON.stringify(numeric ? { p_value: Number(address) } : { p_phrase: address }),
@@ -1040,7 +1044,7 @@ export default async function handler(req, res) {
       if (typeof indexable !== 'boolean') throw new Error('indexability-source-invalid');
       robots = indexable ? 'index, follow' : 'noindex, follow';
       if (!numeric) { title = `${address} · ${SITE_NAME}`; desc = `הביטוי ${address} במקורות הציבוריים של סוד 1820.`; }
-    } catch { documentStatus = 503; robots = 'noindex, follow'; }
+    } catch (error) { if (!error?.admittedRangeOnly) documentStatus = 503; robots = 'noindex, follow'; }
   }
 
   // וידוא תמונת שיתוף ידידותית לוואטסאפ (WebP → JPEG דרך render) — לפני בניית המטא וה-JSON-LD.

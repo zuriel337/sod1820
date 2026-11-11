@@ -27,6 +27,7 @@ import FeatureClosedNotice2029 from "./FeatureClosedNotice2029.jsx";
 import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { adminOpenClosedDestinations } from "./adminOpenDestinations2029.js";
 import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked, personalActionsLocked } from "../../lib/publicLaunch2029.js";
+import { NUMBER_PAGE_BASE, isNumberPagePath } from "../../lib/research/numberPageAddress.js";
 const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));
 import { makeEntity } from "../../lib/research/entity.js";
 import { getNotificationPrefs } from "../../lib/supabase.js";
@@ -1529,7 +1530,7 @@ function SystemFrame2029Body({
   const numberLocked = numberFeature.loading || numberFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
   const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
-  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
+  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || isNumberPagePath(item.to) ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
 
   // The crown settles into the bar once the page is scrolled, and the bar's line fills with how much of the page was read.
@@ -1847,7 +1848,7 @@ function SystemFrame2029Body({
           id: String(resultValue),
           type: "number",
           label: String(resultValue),
-          href: `/2029/number/${resultValue}`,
+          href: `${NUMBER_PAGE_BASE}/${resultValue}`,
         },
         selection: {
           entityId: sameSelection ? currentSelection.entityId : normalized.id,
@@ -2105,7 +2106,7 @@ function SystemFrame2029Body({
   useEffect(() => {
     if ((razielLocked && transientKind === TRANSIENT.RAZIEL) || (contextLocked && transientKind === TRANSIENT.CONTEXT)) setTransient(null);
   }, [razielLocked, contextLocked, transientKind]);
-  const numberPageRoute = surface === "number" && /^\/2029\/number\/[^/]+\/?$/.test(location.pathname);
+  const numberPageRoute = surface === "number" && /^\/(?:2029\/)?number\/[^/]+\/?$/.test(location.pathname);
   const subjectHref = pageContext?.subject?.href || "";
   const postTrail = surface === "post"
     && pageContext?.subject?.type === "post"

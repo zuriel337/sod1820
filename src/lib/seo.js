@@ -64,6 +64,8 @@ function upsertLink(rel, href) {
  * @param {string} [o.image]       תמונת שיתוף (URL מלא)
  * @param {string} [o.type]        og:type ("website" / "article")
  * @param {boolean} [o.noindex]    האם לחסום אינדוקס (דפי ניהול)
+ * @param {boolean} [o.follow]     עם noindex: דף ציבורי שאינו מאושר לאינדוקס אך הקישורים בו נשארים נסרקים ("noindex, follow", כמו התגית
+ *                                 מהשרת). בלי follow, noindex נשאר "noindex, nofollow" (דפים פרטיים, סגורים וניהול).
  * @param {string} [o.publishedTime] תאריך פרסום (ISO) — למאמרים
  * @param {string} [o.modifiedTime]  תאריך עדכון (ISO) — למאמרים
  * @param {string} [o.author]        שם הכותב — למאמרים
@@ -82,7 +84,10 @@ export function applySeo(o = {}) {
   document.title = title;
   upsertMeta("name", "description", description);
   const protectedPreview = import.meta.env?.VITE_INTEGRATED_PREVIEW === "true";
-  upsertMeta("name", "robots", (o.noindex || protectedPreview) ? "noindex, nofollow" : "index, follow");
+  // The browser tag and the server tag (api/og.js) are one decision: a public page that is not admitted for indexing is
+  // "noindex, follow"; private, closed and protected-review pages stay "noindex, nofollow".
+  upsertMeta("name", "robots", protectedPreview ? "noindex, nofollow"
+    : o.noindex ? (o.follow === true ? "noindex, follow" : "noindex, nofollow") : "index, follow");
   upsertLink("canonical", canonical);
 
   upsertMeta("property", "og:site_name", SITE_NAME);

@@ -118,6 +118,10 @@ jobs:
           src/lib/research/numberMathProfileFinding.test.js
           src/lib/research/numberPhrasePresentationOrder.test.js
           src/lib/research/number2029LiveGlass.test.js
+      - name: Number page, Typography V2 and public addresses (the 14px floor and the type roles, one H1, the canonical /number address and its one-hop 308, legacy focus=dna, the browser robots tag follows the server)
+        run: |
+          node --test test/number-typography-v2-2029.test.mjs test/number-address-canonical-2029.test.mjs test/seo-robots-follow-2029.test.mjs test/gematria-focus-foundation-2029.test.mjs test/public-canonical-parity-repair.test.mjs
+          node scripts/test-2029-number-links-public-flag.mjs
       # P0-A/B/C consumer contracts (PG2): source identity, occurrence and independence across Post, Topic, World and Number.
       # All seven were green on main but ran in no workflow; they read only repository files (no network, no browser, no git history). About 5 s together.
       # Proven on Node 24 on ci-verify/pg2-workflow-20261107 (71/71). world-corpus-continuation-2029 is bound to a committed snapshot (checksum): remove it from

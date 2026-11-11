@@ -172,7 +172,7 @@ test("safe suggestions reuse the one session: explicit submit, safe number navig
   assert.match(actions, /session\.submit\(\{ question: `בדוק את \$\{action\.subject\} בכל השיטות`, intelligenceLevel: "fast" \}\)/);
   assert.match(actions, /session\.saveCurrentSession\(\)/);
   assert.match(actions, /session\.submit\(\{ question: latestRaziel\.question, intelligenceLevel: "deep", again: true, continuationTurnId: latestRaziel\.turnId \}\)/);
-  assert.ok(actions.includes('if (/^\\/2029\\/number\\/[1-9]\\d{0,5}$/.test(action.href || ""))'));
+  assert.ok(actions.includes('if (/^\\/(?:2029\\/)?number\\/[1-9]\\d{0,5}$/.test(action.href || ""))'));
   assert.match(actions, /const navigate = useNavigate\(\)/);
   assert.match(actions, /navigate\(action\.href\)/);
   assert.doesNotMatch(actions, /location(?:\?|\.)|window\.open/, "canonical number navigation must preserve the one in-memory session, not reload the document");

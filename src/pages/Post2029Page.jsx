@@ -37,6 +37,7 @@ import { postBackground2029 } from "../lib/research/postBackground2029.js";
 import { postReadingClassName } from "./postReadingStyles2029.js";
 
 import AdSlot from "../components/AdSlot.jsx";
+import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 const normalize = (value) => String(value || "")
   .replace(/[״"']/g, "")
   .replace(/\s+/g, " ")
@@ -815,7 +816,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     explicitGematriaFocusRef.current = null;
     updateFocusContext();
     const subject = activeFocus.number
-      ? { id: String(activeFocus.number), type: "number", label: String(activeFocus.number), href: `/2029/number/${activeFocus.number}` }
+      ? { id: String(activeFocus.number), type: "number", label: String(activeFocus.number), href: `${NUMBER_PAGE_BASE}/${activeFocus.number}` }
       : { id: String(post.id), type: "post", label: post.title, href: publicPostHref(post) };
     research.updateResearchContext?.({
       subject,
@@ -838,7 +839,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       id: String(activeFocus.number),
       type: "number",
       label: String(activeFocus.number),
-      href: `/2029/number/${activeFocus.number}`,
+      href: `${NUMBER_PAGE_BASE}/${activeFocus.number}`,
     });
   };
 
@@ -992,7 +993,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       id: String(number),
       type: "number",
       label: String(number),
-      href: "/2029/number/" + number,
+      href: NUMBER_PAGE_BASE + "/" + number,
       source: "post-master-hero",
       number: Number(number),
       locator: targetRegion ? `#source-region-${targetRegion.id}` : null,

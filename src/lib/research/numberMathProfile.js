@@ -6,6 +6,16 @@ export const DEFAULT_NUMBER_MATH_BUDGET = Object.freeze({
 
 const OEIS = Object.freeze({
   prime: 'A000040',
+  twin_prime: 'A001097',
+  cousin_prime: 'A023200',
+  sexy_prime: 'A023201',
+  safe_prime: 'A005385',
+  sophie_germain_prime: 'A005384',
+  emirp: 'A006567',
+  circular_prime: 'A068652',
+  superprime: 'A006450',
+  left_truncatable_prime: 'A024785',
+  right_truncatable_prime: 'A024770',
   triangular: 'A000217',
   square: 'A000290',
   pentagonal: 'A000326',
@@ -285,6 +295,51 @@ function family(key, label, category, details = {}, oeis = null) {
   };
 }
 
+// Prime-family predicates for a prime n (Prime Lens plan, 22.9.2026). Every result is a deterministic base-10 / arithmetic
+// definition over isPrimeSafeInteger; an uncomputed ordinal never becomes a claim (superprime needs the exact index).
+const digitsOf = (n) => String(n).split('');
+function reverseNumber(n) { return Number(digitsOf(n).reverse().join('')); }
+function isCircularPrime(n) {
+  const d = digitsOf(n);
+  for (let i = 1; i < d.length; i += 1) if (!isPrimeSafeInteger(Number(d.slice(i).concat(d.slice(0, i)).join('')))) return false;
+  return true;
+}
+function isLeftTruncatablePrime(n) {
+  const d = digitsOf(n);
+  if (d.includes('0')) return false;
+  for (let i = 1; i < d.length; i += 1) if (!isPrimeSafeInteger(Number(d.slice(i).join('')))) return false;
+  return true;
+}
+function isRightTruncatablePrime(n) {
+  const d = digitsOf(n);
+  if (d.includes('0')) return false;
+  for (let i = 1; i < d.length; i += 1) if (!isPrimeSafeInteger(Number(d.slice(0, i).join('')))) return false;
+  return true;
+}
+export function primeFamilyPredicates(input, primeContext = null) {
+  const n = Number(input);
+  if (!Number.isSafeInteger(n) || n < 2 || !isPrimeSafeInteger(n)) return [];
+  const out = [];
+  const add = (key, label, details = {}) => out.push({ key, label, details });
+  const partners = (gap) => [n - gap, n + gap].filter(v => v >= 2 && isPrimeSafeInteger(v));
+  for (const [key, label, gap] of [['twin_prime', 'Twin prime', 2], ['cousin_prime', 'Cousin prime', 4], ['sexy_prime', 'Sexy prime', 6]]) {
+    const partner = partners(gap);
+    if (partner.length) add(key, label, { gap, partners: partner });
+  }
+  if (n >= 5 && (n - 1) % 2 === 0 && isPrimeSafeInteger((n - 1) / 2)) add('safe_prime', 'Safe prime', { sophie_germain_partner: (n - 1) / 2 });
+  if (Number.isSafeInteger(2 * n + 1) && isPrimeSafeInteger(2 * n + 1)) add('sophie_germain_prime', 'Sophie Germain prime', { safe_prime_partner: 2 * n + 1 });
+  const reversed = reverseNumber(n);
+  if (reversed !== n && isPrimeSafeInteger(reversed)) add('emirp', 'Emirp (base 10)', { reversed });
+  if (isCircularPrime(n)) add('circular_prime', 'Circular prime (base 10)');
+  if (isLeftTruncatablePrime(n)) add('left_truncatable_prime', 'Left-truncatable prime (base 10)');
+  if (isRightTruncatablePrime(n)) add('right_truncatable_prime', 'Right-truncatable prime (base 10)');
+  // Superprime: the prime's own index is prime. Only with an exact ordinal.
+  if (primeContext?.status === 'exact' && Number.isSafeInteger(primeContext.index) && isPrimeSafeInteger(primeContext.index)) {
+    add('superprime', 'Superprime (prime-indexed prime)', { index: primeContext.index });
+  }
+  return out;
+}
+
 function normalizeBudget(input = {}) {
   return {
     maxFactorChecks: boundedPositiveInteger(input.maxFactorChecks, DEFAULT_NUMBER_MATH_BUDGET.maxFactorChecks),
@@ -318,6 +373,8 @@ export function analyzeNumberMath(numberInput, options = {}) {
   if (digits.happy) families.push(family('happy_base10', 'Happy (base 10)', 'digit', {}, OEIS.happy_base10));
   if (digits.narcissistic) families.push(family('narcissistic_base10', 'Narcissistic / Armstrong (base 10)', 'digit', {}, OEIS.narcissistic_base10));
   if (prime && digits.palindrome) families.push(family('palindromic_prime_base10', 'Palindromic prime (base 10)', 'derived_composite_family', { depends_on: ['prime', 'palindrome_base10'] }));
+  const primeContext = prime ? primeContextForNumber(number) : null;
+  if (prime) for (const f of primeFamilyPredicates(number, primeContext)) families.push(family(f.key, f.label, 'prime_family', f.details, OEIS[f.key]));
 
   return {
     status: 'ok',
@@ -330,7 +387,7 @@ export function analyzeNumberMath(numberInput, options = {}) {
       factorization,
       ...arithmetic,
     },
-    prime_context: prime ? primeContextForNumber(number) : null,
+    prime_context: primeContext,
     digit_structure: digits,
     figurate,
     powers: {

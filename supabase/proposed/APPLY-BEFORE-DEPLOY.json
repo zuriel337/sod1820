@@ -25,6 +25,15 @@
       "introduced_by": "ba67fa5ae (DEF-001b)",
       "deployed_before_sql": "degrades_gracefully",
       "degradation_test": "test/push-subscription-rollout-order.test.mjs"
+    },
+    {
+      "rpc": "community_claimed_contributors",
+      "sql": "supabase/proposed/20261111160000_community_claimed_contributors.sql",
+      "rollback_sql": "supabase/proposed/ROLLBACK_20261111160000_community_claimed_contributors.sql",
+      "callers": ["src/lib/community/communityArchive.js"],
+      "introduced_by": "community legacy-account list (11.11.2026)",
+      "deployed_before_sql": "degrades_gracefully",
+      "degradation_test": "src/lib/community/communityAviZohar2029.test.js"
     }
   ],
   "known_missing_dormant": [

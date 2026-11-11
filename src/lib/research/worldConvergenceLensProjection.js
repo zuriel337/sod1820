@@ -1,6 +1,7 @@
 // World 2029 · Human-Gate Convergence Lens
 // EXTEND_EXISTING under research_gold_hints_law v3 + cross_vs_convergence_criteria v4.
 // Pure projection over already-authorized World material. No truth score/store/lifecycle is created.
+import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
 
 const NEGATIVE_TOKENS = [
   "MISMATCH",
@@ -360,7 +361,7 @@ function makeCandidateRow(row) {
     classification,
     href: topicSlug
       ? "/topic/" + encodeURIComponent(topicSlug)
-      : value != null ? "/2029/number/" + value : null,
+      : value != null ? NUMBER_PAGE_BASE + "/" + value : null,
   };
   out.explainWhy = [];
   if (decisionChanging) out.explainWhy.push("מועמד עם mismatch/contradiction מפורש שיכול לשנות החלטה קיימת.");

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { analyzeNumberMath, factorIntegerBounded, isPrimeSafeInteger } from './numberMathProfile.js';
+import { analyzeNumberMath, factorIntegerBounded, isPrimeSafeInteger, primeFamilyPredicates, primeContextForNumber } from './numberMathProfile.js';
 
 const familyKeys = profile => profile.families.map(x => x.key);
 
@@ -95,4 +95,25 @@ test('zero and one preserve honest edge semantics and zero-term figurate members
   assert.equal(one.arithmetic.abundance_class, 'deficient');
   assert.equal(one.digit_structure.happy, true);
   assert.equal(one.digit_structure.repdigit, false);
+});
+
+const primeKeys = (n) => primeFamilyPredicates(n, primeContextForNumber(n)).map(f => f.key);
+test('prime families are deterministic definitions with their evidence', () => {
+  assert.deepEqual(primeFamilyPredicates(4), [], 'a composite has no prime family');
+  assert.deepEqual(primeFamilyPredicates(1), []);
+  assert.ok(primeKeys(5).includes('twin_prime') && primeKeys(5).includes('sexy_prime') && primeKeys(5).includes('safe_prime') && primeKeys(5).includes('sophie_germain_prime'));
+  assert.ok(primeKeys(7).includes('cousin_prime') && !primeKeys(7).includes('sophie_germain_prime'));
+  assert.ok(primeKeys(11).includes('sophie_germain_prime') && primeKeys(11).includes('safe_prime'), '11 = 2*5+1 is safe and 5 is Sophie Germain');
+  assert.ok(primeKeys(23).includes('safe_prime') && primeKeys(23).includes('sophie_germain_prime'));
+  assert.ok(primeKeys(13).includes('emirp') && !primeKeys(11).includes('emirp'), 'a palindromic prime is not an emirp');
+  assert.ok(primeKeys(197).includes('circular_prime') && !primeKeys(19).includes('circular_prime'));
+  assert.ok(primeKeys(3797).includes('left_truncatable_prime') && primeKeys(3797).includes('right_truncatable_prime'));
+  assert.ok(!primeKeys(101).includes('left_truncatable_prime'), 'a zero digit is not truncatable');
+  for (const [n, yes] of [[3, true], [5, true], [11, true], [17, true], [7, false], [13, false]]) assert.equal(primeKeys(n).includes('superprime'), yes, 'superprime ' + n);
+  assert.deepEqual(primeFamilyPredicates(11).find(f => f.key === 'twin_prime').details.partners, [13]);
+  // above the exact-ordinal bound the ordinal is unknown, so nothing is claimed about superprime
+  assert.equal(primeKeys(1000003).includes('superprime'), false);
+  const profile = analyzeNumberMath(13);
+  assert.ok(profile.families.some(f => f.key === 'emirp' && f.category === 'prime_family' && f.reference.source_ref === 'OEIS:A006567'));
+  assert.equal(profile.prime_context.status, 'exact');
 });
