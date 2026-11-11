@@ -1,5 +1,6 @@
 import React from "react";
 import "./globalLivingRibbon2029.css";
+import { publicStorageMedia } from "../../lib/mediaEgressGuard.js";
 
 // Source details remain available to the existing Now sheet. The header notice
 // is static and does not consume, rotate or replace the shared feed data.
@@ -9,7 +10,9 @@ export function NowSourceDetail2029({ row, onOpen, feed }) {
   return <div className="sod29-now-source-detail">
     {item.fullText ? <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{item.fullText}</p> : null}
     {item.fullTextTruncated ? <small>זהו קטע תחום מהעדכון הציבורי.</small> : null}
-    {item.mediaHref ? /\.(?:mp4|webm|mov)$/i.test(item.mediaHref)
+    {item.mediaHref ? publicStorageMedia(item.mediaHref)?.kind === "audio"
+      ? <audio src={item.mediaHref} controls preload="none" aria-label="הקלטה מתוך עדכון ציבורי" style={{ width: "100%" }} />
+      : publicStorageMedia(item.mediaHref)?.kind === "video"
       ? <video src={item.mediaHref} controls preload="none" aria-label="סרטון מתוך עדכון ציבורי" style={{ maxWidth: "100%" }} />
       : <img src={item.mediaHref} loading="lazy" decoding="async" alt="מדיה מתוך העדכון הציבורי" style={{ maxWidth: "100%", height: "auto" }} /> : null}
     {row?.href ? <button type="button" className="sod29-action" onClick={() => { feed?.see?.(row);onOpen?.(row.href); }}>פתח את המקור</button>

@@ -76,6 +76,22 @@ test("only canonical public object media and redacted attribution reach the sour
   assert.equal(text.text.length, 1200); assert.equal(text.textTruncated, true);
 });
 
+test("new and historical public media share one rule: a version key keeps the item and its kind; signed and private stay out", () => {
+  const STORE = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object";
+  const intake = `${STORE}/public/media/sod1820/2029/video/2026/11/5d8e605b-5e32-4d79-a916-d4d13e989a1e/original.mp4`;
+  for (const [href, kind] of [[intake, "video"], [intake + "?v=2", "video"], [`${STORE}/public/gallery/sod1820/broadcasts/1.mp4?_=4`, "video"],
+    [`${STORE}/public/media/sod1820/2029/audio/2026/11/5d8e605b-5e32-4d79-a916-d4d13e989a1e/original.mp3`, "audio"],
+    [`${STORE}/public/media/uploads/2023/11/a.wav?_=12`, "audio"], [`${STORE}/public/gallery/sod1820/broadcasts/1.jpg?v=1786548126`, "image"]]) {
+    const value = publicOrGeulaItem2029(row({ image_url: href, thumb_url: `${STORE}/public/media/_thumb/p/5047.jpg?v=1786548126` }), { now: NOW });
+    assert.equal(value.mediaHref, href, href); assert.equal(value.mediaKind, kind, href);
+    assert.equal(value.posterHref, `${STORE}/public/media/_thumb/p/5047.jpg?v=1786548126`);
+  }
+  for (const href of [`${STORE}/sign/media/a.mp4?token=x`, `${STORE}/sign/media/a.mp4?_=4`, `${STORE}/public/submission-inbox/a.mp4`,
+    `${STORE}/public/media/a.mp4?v=1&token=x`, `${STORE}/public/media/a.mp4?download`, `${STORE}/public/media/a.jpg#t=1`]) {
+    assert.equal(publicOrGeulaItem2029(row({ image_url: href }), { now: NOW }).mediaHref, null, href);
+  }
+});
+
 test("collection reads a bounded stable page without changing occurrence identity", async () => {
   const rows = Array.from({ length: 19 }, (_, index) => row({ id: `10000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}` }));
   const f = fixture(rows);

@@ -549,3 +549,35 @@ test('Bible code save: a verified member saves to their own library with the exa
   const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/'+name,{body:{p_id:update.p_id,p_status:'published'}})).status,403,name);
  }
 });
+
+test('emitted worker: already-public storage media (one shared rule) loads natively with Range, version keys and a media start fragment; signed, private and other shapes stay guarded',async()=>{
+ let listener;const calls=[];
+ const ctx={Request,Response,URL,Set,Map,JSON,atob,fetch:async req=>{calls.push(req.url);return new Response('x');},self:{location:{origin:SITE},addEventListener:(type,fn)=>{if(type==='fetch')listener=fn;}}};
+ vm.runInNewContext(buildPublicReadingWorker('a'.repeat(40)),ctx);
+ const S='https://linswmnnkjxvweumprav.supabase.co/storage/v1';
+ const probe=(href,{destination='video',mode='no-cors',method='GET'}={})=>{let handled=false;const request=new Request(href,{method,headers:{Range:'bytes=0-'}});Object.defineProperty(request,'mode',{value:mode});Object.defineProperty(request,'destination',{value:destination});listener({request,clientId:'',respondWith(){handled=true;}});return handled;};
+ const native=[
+  [S+'/object/public/media/sod1820/2029/video/2026/11/5d8e605b-5e32-4d79-a916-d4d13e989a1e/original.mp4','video'],
+  [S+'/object/public/media/sod1820/2029/video/2026/11/5d8e605b-5e32-4d79-a916-d4d13e989a1e/original.mp4#t=0.1','video'],
+  [S+'/object/public/media/uploads/2024/03/4f63afb8e1288120.mp4?_=4','video'],
+  [S+'/object/public/gallery/sod1820/videos/a.mp4?v=2','video'],
+  [S+'/object/public/media/uploads/2023/11/6933fd7c8549be77.mp3','audio'],
+  [S+'/object/public/media/uploads/2023/11/a.wav?_=12','audio'],
+  [S+'/object/public/media/_thumb/p/5047.jpg?v=1786548126','image'],
+  [S+'/render/image/public/media/_thumb/p/5047.jpg?v=1786548126&width=480&quality=62&resize=contain','image'],
+  [S+'/object/public/gallery/sod1820/videos/a.he.vtt?v=1','track'],
+ ];
+ for(const [href,destination] of native){assert.equal(probe(href,{destination}),false,href);assert.equal(probe(href,{destination,mode:'cors'}),false,'cors '+href);}
+ const guarded=[
+  [S+'/object/sign/media/a.mp4?token=synthetic','video'],[S+'/object/sign/media/a.mp4?_=4','video'],
+  [S+'/object/public/submission-inbox/a.mp4','video'],[S+'/object/authenticated/media/a.mp4','video'],
+  [S+'/object/public/media/a.mp4?token=1','video'],[S+'/object/public/media/a.mp4?download','video'],[S+'/object/public/media/a.mp4?v=1&v=2','video'],
+  [S+'/object/public/media/a.mp4?_=4&x=1','video'],[S+'/object/public/media/a.mp4?v=%3Cx%3E','video'],[S+'/object/public/media/a.mp4#x','video'],
+  [S+'/object/public/media/a.jpg#t=1','image'],[S+'/render/image/public/media/a.jpg?v=1','image'],
+ ];
+ for(const [href,destination] of guarded)assert.equal(probe(href,{destination}),true,href);
+ // a script-initiated read and a write of a public object keep their existing worker handling
+ assert.equal(probe(S+'/object/public/media/a.mp4',{destination:''}),true);
+ assert.equal(probe(S+'/object/public/media/a.mp4',{method:'POST'}),true);
+ assert.equal(calls.length>0,true);
+});

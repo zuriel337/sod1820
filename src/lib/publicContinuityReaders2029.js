@@ -4,7 +4,7 @@ import { stripHtml } from "./format.js";
 import { publicPageShareUrl, publicPostHref } from "./publicPostUrls.js";
 import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./research/publicPostBoundary.js";
 import { publicVideoSourceQuery2029 } from "./research/publicVideo2029Reading.js";
-import { publicChannelToSystemItem, publicNowMediaHref } from "./research/systemFeedPublicSources2029.js";
+import { publicChannelToSystemItem, publicNowMediaHref, publicNowMediaKind } from "./research/systemFeedPublicSources2029.js";
 import { redactGroupText } from "./research/worldGroupSource.js";
 import historicalLecturePages from "../data/publicLegacyLecturePages2029.json" with { type: "json" };
 
@@ -146,7 +146,7 @@ export function publicOrGeulaItem2029(row, { now = Date.now() } = {}) {
     sourceLabel: admitted.sourceLabel, at: admitted.at,
     credit: publicText(row.credit) || null, speaker: publicText(row.speaker) || null,
     mediaHref: admitted.mediaHref,
-    mediaKind: admitted.mediaHref ? /\.(?:mp4|webm|mov|m4v|avi|mkv)$/i.test(admitted.mediaHref) ? "video" : "image" : null,
+    mediaKind: admitted.mediaHref ? ["video", "audio"].includes(publicNowMediaKind(admitted.mediaHref)) ? publicNowMediaKind(admitted.mediaHref) : "image" : null,
     posterHref: publicNowMediaHref(row.thumb_url),
     href: `/or-geula/video/${id}`,
   };

@@ -92,7 +92,8 @@ function SourceMedia({ item, start }) {
   const [failed, setFailed] = useState(false);
   if (!item.mediaHref) return null;
   return <figure className="continuity-source-media" data-media-state={failed ? "failed" : "ready"}>
-    {item.mediaKind === "video" ? <video controls playsInline preload="none" poster={item.posterHref || undefined}
+    {item.mediaKind === "audio" ? <audio controls preload="none" src={item.mediaHref} aria-label={item.title} onError={() => setFailed(true)} />
+      : item.mediaKind === "video" ? <video controls playsInline preload="none" poster={item.posterHref || undefined}
       src={item.mediaHref} aria-label={item.title} onError={() => setFailed(true)}
       onLoadedMetadata={event => {
         if (start > 0 && Number.isFinite(event.currentTarget.duration)) event.currentTarget.currentTime = Math.min(start, event.currentTarget.duration);
