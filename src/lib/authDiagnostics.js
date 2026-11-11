@@ -4,7 +4,7 @@
 export const AUTH_FAILURE_KINDS = Object.freeze([
   'blocked_by_worker', 'otp_expired', 'otp_consumed', 'rate_limited', 'invalid_verification_type', 'pkce_mismatch',
   'refresh_failed', 'stale_worker', 'callback_failed', 'invalid_credentials', 'storage_unavailable', 'network', 'server_error', 'unknown',
-  'link_expired', 'weak_password', 'same_password', 'session_missing', 'recovery_origin_unverified',
+  'link_expired', 'weak_password', 'same_password', 'session_missing', 'recovery_origin_unverified', 'reauth_needed',
 ]);
 
 import { isStorageError } from './authStorage.js';
@@ -27,7 +27,9 @@ export function classifyAuthError(error, { step = '' } = {}) {
   if (code === 'weak_password' || /password.*(weak|short|at least|should contain)/i.test(message)) return 'weak_password';
   if (code === 'same_password' || /different from the old password/i.test(message)) return 'same_password';
   // No live session to apply the change to: the recovery link was not completed in this browser, or the session ended meanwhile.
-  if (error.name === 'AuthSessionMissingError' || ['session_not_found', 'bad_jwt', 'no_authorization', 'reauthentication_needed', 'reauth_nonce_missing'].includes(code) || status === 401) return 'session_missing';
+  // The project requires a fresh login (or a nonce) to change a password from an ordinary session: the e-mailed link is the way.
+  if (code === 'reauthentication_needed' || code === 'reauth_nonce_missing' || /reauthentication/i.test(message)) return 'reauth_needed';
+  if (error.name === 'AuthSessionMissingError' || ['session_not_found', 'bad_jwt', 'no_authorization'].includes(code) || status === 401) return 'session_missing';
   if (code === 'bad_code_verifier' || code === 'flow_state_not_found' || code === 'flow_state_expired' || /code verifier|pkce/i.test(message)) return 'pkce_mismatch';
   if (code === 'refresh_token_not_found' || code === 'refresh_token_already_used' || /invalid refresh token/i.test(message)) return 'refresh_failed';
   if (code === 'invalid_credentials' || /invalid login credentials/i.test(message)) return 'invalid_credentials';
@@ -68,6 +70,7 @@ export const AUTH_MESSAGES = Object.freeze({
   weak_password: 'הסיסמה קצרה או חלשה מדי. בחרו סיסמה של 8 תווים לפחות.',
   same_password: 'זו אותה סיסמה שכבר מוגדרת בחשבון. בחרו סיסמה אחרת, או המשיכו עם הסיסמה הקיימת.',
   session_missing: 'החיבור לשחזור הסיסמה פג או שלא הושלם בדפדפן הזה. בקשו קישור חדש ופתחו אותו באותו דפדפן ובאותו מכשיר שבהם ביקשתם אותו.',
+  reauth_needed: 'לשינוי סיסמה מתוך חשבון מחובר נדרש אימות נוסף. אפשר לקבל קישור למייל של החשבון ולבחור סיסמה משם.',
   recovery_origin_unverified: 'שחזור סיסמה לא זמין בכתובת הזו כי כתובת החזרה שלה עדיין לא אושרה. אפשר להיכנס עם קוד למייל, או לבקש שחזור באתר הרשמי.',
 });
 export const RECOVERABLE_BY_REFRESH = new Set(['blocked_by_worker', 'stale_worker']);

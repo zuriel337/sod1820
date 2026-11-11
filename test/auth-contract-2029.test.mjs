@@ -558,3 +558,16 @@ test('drift guard (recovery): every Auth call the recovery flow makes goes throu
   assert.match(source, /\/auth\/v1\/recover/); assert.match(source, /PUT/);
   assert.equal(PUBLIC_READING_POLICY_ID, 'public-reading-password-recovery-20261111');
 });
+
+test('a signed-in person (Google, no password yet) sets a site password directly; a project that demands re-authentication gets a clear path', async () => {
+  resetPasswordRecoveryForTests();
+  const env = setup(); const { server, auth, client, worker } = env;
+  const user = await googleSignIn(env, 'direct.set@example.invalid');
+  assert.equal((await auth.updatePassword('direct-password-1')).user.id, user.id);
+  assert.equal(server.state.sent.length, 0, 'no e-mail involved'); assert.deepEqual(worker.denied, []);
+  await client.auth.signOut({ scope: 'local' });
+  assert.equal((await auth.signInWithPassword('direct.set@example.invalid', 'direct-password-1')).user.id, user.id);
+  assert.equal(classifyAuthError({ status: 422, code: 'reauthentication_needed', message: 'Password update requires reauthentication' }), 'reauth_needed');
+  assert.equal(classifyAuthError({ status: 422, code: 'reauth_nonce_missing', message: 'nonce required' }), 'reauth_needed');
+  assert.ok(AUTH_MESSAGES.reauth_needed);
+});

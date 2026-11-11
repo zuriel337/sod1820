@@ -6,6 +6,7 @@ import { useAuthMethods } from "../../lib/authMethods.js";
 import { AUTH_MESSAGES, RECOVERABLE_BY_REFRESH, classifyAuthError, recordAuthEvent } from "../../lib/authDiagnostics.js";
 import { authStorageStatus, probeAuthStorage, summarizeLocalStorage } from "../../lib/authStorage.js";
 import { refreshAppRuntime } from "../../lib/authRecovery.js";
+import NewPassword2029 from "./NewPassword2029.jsx";
 import { markOtpSent, otpResendWaitMs } from "../../lib/otpThrottle.js";
 import { passwordResetKey } from "../../lib/passwordResetThrottle.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
@@ -28,7 +29,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
   const fieldId = useId();
   const [step, setStep] = useState(initialStep === "reset" ? "reset" : "email"), [email, setEmail] = useState("");
   const [password, setPassword] = useState(""), [code, setCode] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false), [settingPassword, setSettingPassword] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [failureKind, setFailureKind] = useState(""), [storageNote, setStorageNote] = useState(null);
   const attempt = useRef(0), mounted = useRef(true), principal = useRef(user?.id || null);
   principal.current = user?.id || null;
@@ -124,6 +125,10 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
           {PUBLIC_READING_RELEASE ? <p>החשבון מחובר. השמורים, הפנקס והפרופיל שלכם נמצאים באזור האישי. כניסה לחשבון קיים אינה מפעילה מודל, חיוב או שינוי בהרשמה לדיוור.</p> : !inline ? <p>אפשר להמשיך מהמקום שבו עצרתם.</p> : null}
           {!inline ? <Link className="sod29-auth-primary" to={returnTo}>{nextLabel} ←</Link> : null}
           {!inline ? <Link className="sod29-auth-secondary" to={writerPersonalHref("research")}>האזור האישי שלי</Link> : null}
+          {variant === "account" || !inline ? <div className="sod29-auth-set-password">
+            <button className="sod29-auth-link" type="button" aria-expanded={settingPassword} data-auth-action="set-password" onClick={() => setSettingPassword(value => !value)}>{settingPassword ? "סגירת הגדרת הסיסמה" : "הגדרת סיסמה לאתר"}</button>
+            {settingPassword ? <NewPassword2029 embedded returnTo={returnTo} /> : null}
+          </div> : null}
           <button className="sod29-auth-link" type="button" disabled={busy} onClick={switchAccount}>{variant === "account" ? "התנתקות" : "כניסה עם חשבון אחר"}</button>
         </> : <>
           <h2 id={`${fieldId}-title`}>{step === "code" ? "הקוד בדרך אליכם" : step === "password" ? "כניסה עם סיסמה" : step === "reset" ? "שחזור סיסמה" : step === "reset-sent" ? "בדקו את המייל" : "כניסה והרשמה"}</h2>

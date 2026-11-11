@@ -268,6 +268,39 @@ for (const profile of ['desktop', 'mobile-browser']) {
   });
 }
 
+test('signed in with Google: "הגדרת סיסמה לאתר" in the account view sets a password without e-mail; password and Google then reach the SAME user_id', { skip: !canRun && 'playwright or the built artifact is unavailable', timeout: 180000 }, async () => {
+  const fixture = await startFixture();
+  const browser = await pw.chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
+  try {
+    const email = 'google.person@example.invalid';
+    const { context, page, problems } = await open(browser, 'mobile-browser', fixture);
+    await page.goto(fixture.origin + '/login', { waitUntil: 'domcontentloaded' }); await ready(page);
+    await page.getByRole('button', { name: 'המשך עם Google' }).click();
+    await page.waitForFunction(() => Object.keys(localStorage).some(k => /auth-token$/.test(k)), null, { timeout: 20000 });
+    const userId = await storedUserId(page);
+    await page.goto(fixture.origin + '/login', { waitUntil: 'domcontentloaded' });
+    await page.locator('[data-auth-state="signed-in"]').waitFor({ timeout: 20000 });
+    await page.locator('[data-auth-action="set-password"]').click();
+    await page.getByLabel('סיסמה חדשה', { exact: true }).fill('site-password-from-google-1'); await page.getByLabel('אימות הסיסמה', { exact: true }).fill('site-password-from-google-1');
+    await shot(page, 'set-password-signed-in-google');
+    await page.getByRole('button', { name: /שמירת הסיסמה/ }).click();
+    await page.getByText('הסיסמה נשמרה. מעכשיו אפשר להיכנס גם עם הסיסמה').waitFor({ timeout: 20000 });
+    assert.equal(fixture.auth.state.sent.length, 0, 'no e-mail was needed'); assert.deepEqual(fixture.auth.state.passwordChanges, [userId]);
+    await signOutViaUi(page);
+    await passwordSignIn(page, email, 'site-password-from-google-1');
+    await page.waitForFunction(() => Object.keys(localStorage).some(k => /auth-token$/.test(k)), null, { timeout: 20000 });
+    assert.equal(await storedUserId(page), userId, 'password sign-in: same user_id');
+    await signOutViaUi(page);
+    await page.goto(fixture.origin + '/login', { waitUntil: 'domcontentloaded' }); await ready(page);
+    await page.getByRole('button', { name: 'המשך עם Google' }).click();
+    await page.waitForFunction(() => Object.keys(localStorage).some(k => /auth-token$/.test(k)), null, { timeout: 20000 });
+    assert.equal(await storedUserId(page), userId, 'Google again: same user_id'); assert.equal(fixture.auth.users.size, 1);
+    assert.deepEqual(problems.authDenied, []); assert.deepEqual(unexpected(problems), []);
+    report.push({ scenario: 'signed-in-set-password', ok: true, userId });
+    await context.close();
+  } finally { await browser.close(); await fixture.close(); }
+});
+
 test('account with a password: "forgot" after a wrong-password error carries the address; reset replaces the password; the e-mail code still signs in', { skip: !canRun && 'playwright or the built artifact is unavailable', timeout: 180000 }, async () => {
   const fixture = await startFixture();
   const browser = await pw.chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
