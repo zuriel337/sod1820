@@ -19,7 +19,7 @@ Cases: 1440 / 390 / 320px; dark, light, parchment; `358`, `משיח`, a 36-lette
 |---|---|---|
 | Visible text below 14px (share of characters) | 63-76% | 0.2% (shared surface-map label "אתה כאן" and decorative glyphs) |
 | Text at 16px or more, phone | 15-23% | 49-58% |
-| Text at 16px or more, 1440px | n/a | 70-73% |
+| Text at 16px or more, 1440px | 16-30% | 70-73% |
 | Focal number | 104px (1440), 65.6px (390), 40.2px (320) | unchanged |
 | Expression heading | 18px (1440), 22px (phone) | 46 / 28 / 21 by length (1440 short/mid/long), 28 / 21 / 21 (phone) |
 | Horizontal page overflow | none | none |
