@@ -1,0 +1,14 @@
+{
+  "v6Md5": "98d4d88e16d2ec5f70dac6e5a7f98ea5",
+  "v6MetaMd5": "f4e5216a8eb44645ea0978b35161a82e",
+  "v6Chars": 17885,
+  "v5Md5": "9b5c19de501b1985da01ddfc9c646d3c",
+  "v5MetaMd5": "aa247fb211e2fec0454cb457dd4fc86d",
+  "v7Md5": "a594e1fe21d41c644961771353b23934",
+  "v7Sha256": "4a619909880dcfe6751ec792d785394ac8d56da89f3fee6ba0194a0003aa942a",
+  "v7Chars": 18606,
+  "v7MetaMd5": "d2236c320e6b312b0bf57b5fb12a5582",
+  "label": "System Intelligence v7 — Resource-Aware Reliability + Explicit Release Approval + Decision-Only Acceptance",
+  "fnNewMd5": "f44dc42fafdf4a8ef4ae3db700fbeacf",
+  "rulesCompanions": "deploy_on_request@4,inter_agent_coordination_law@18"
+}

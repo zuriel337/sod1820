@@ -1,0 +1,6 @@
+# tests 3280
+# pass 3215
+# fail 54
+# cancelled 0
+# skipped 11
+# todo 0

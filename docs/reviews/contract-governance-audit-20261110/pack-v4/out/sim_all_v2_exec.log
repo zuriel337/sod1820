@@ -1,0 +1,63 @@
+PASS  apply 10e_p0_release_policy_EXEC
+PASS  apply 11_admin_suggestion_decide_text
+PASS  apply 20_number_principles_to_2029_owners
+PASS  apply 23_shared_contracts_groupB
+PASS  apply 24_design_v1_v2_alignment
+PASS  apply 21_retire_9_legacy_specs
+PASS  apply 22_codex_stale_banners
+PASS  apply 30_STAGE3_retire_number_laws
+PASS  apply 50_plan37_series_decisions_6_7
+PASS  [1] no active standing-authorization grant: STANDING AUTHORIZATION\. ZURIEL grants standing
+PASS  [1] no active standing-authorization grant: RELEASE WHEN READY, NOT WHEN ASKED
+PASS  [1] no active standing-authorization grant: without a second user prompt\.$
+PASS  [1] no active standing-authorization grant: standing Human-Gate authorization under deploy_o
+PASS  [1] no active standing-authorization grant: no writer overlap under deploy_on_request v2
+PASS  [1] no active standing-authorization grant: כל push ל-main = פריסת Vercel
+PASS  [2] agents are not routed to Legacy as Production/owner: CURRENT PRODUCTION = legacy\/transitional until 
+PASS  [2] agents are not routed to Legacy as Production/owner: ^- `main` = production\.$
+PASS  [2] agents are not routed to Legacy as Production/owner: \(Legacy, 2029, או אחר\)
+PASS  [2] agents are not routed to Legacy as Production/owner: לרבות Legacy אם הוזכר
+PASS  [2] agents are not routed to Legacy as Production/owner: Public product language\/visual language\/typogr
+PASS  [3] 9 Legacy specs inactive, rows kept; bnei_haheichal active
+PASS  [4] number principles live in active 2029 owners
+PASS  [4] the two Legacy number laws are inactive only after their successors are active
+PASS  [5] no proposal touches gematria_words / wa_word_review (2,894 pending words untouched)
+PASS  [6] «בני ההיכל» spec untouched (label/description unchanged)
+PASS  [7] no DELETE / TRUNCATE / DROP statement in any proposal
+PASS  [7] row counts only grow by the new versions; nothing removed  — {"n":54,"c":12,"base":39}
+PASS  [7] codex _index: final body = the reviewed proposal (md5)  — 4 edited lines
+PASS  [7] codex project_overview: final body = the reviewed proposal (md5)  — 0 edited lines
+PASS  [7] codex data_model_map: final body = the reviewed proposal (md5)  — 0 edited lines
+PASS  [7] codex publishing_conventions: final body = the reviewed proposal (md5)  — 5 edited lines
+PASS  [7] codex gematria_engine: final body = the reviewed proposal (md5)  — 1 edited lines
+PASS  [7] codex system_rules_index: final body = the reviewed proposal (md5)  — 0 edited lines
+PASS  [7] codex branches_deploy: final body = the reviewed proposal (md5)  — 19 edited lines
+PASS  [7] codex golden_entities: final body = the reviewed proposal (md5)  — 0 edited lines
+PASS  [7] codex number_page_1820: final body = the reviewed proposal (md5)  — 0 edited lines
+PASS  [7] codex convergence_law: final body = the reviewed proposal (md5)  — 0 edited lines
+PASS  [7] codex experience_governance_foundation_v1: final body = the reviewed proposal (md5)  — 3 edited lines
+PASS  [7] codex sod1820_reality_stream_os_master_v3_20261016_draft: final body = the reviewed proposal (md5)  — 0 edited lines
+PASS  [7] branches_deploy rewrite keeps the F11 provenance lines verbatim
+PASS  [4b] platform_tiers_law v6 §19 keeps the original scope (foundation numbers / golden entities, subscription only)
+PASS  [4b] canonical_methods_registry_law v7 §26 has no wording beyond v1 (no 'never typed by hand')
+PASS  [4b] Raziel's 600-char window of both successors states the carried principle
+PASS  [9] among the 49 frozen rules only the 4 exempted brand rules get a new version  — ["brand_spelling_law","canonical_colors_law","logo_integrity_law","sod1820_canonical_identity_law"]
+PASS  [10] no active rule still names SOD1820_DESIGN_CONTRACT_V1.md as its owner (V1 stays only as history/previous_owner)
+PASS  [11] no proposal statement touches posts, images, media, galleries, word data or WordPress ids
+PASS  [12] PLAN37 record is appended after the untouched original text
+PASS  rollback 59_plan37_series_decisions_6_7_ROLLBACK
+PASS  rollback 39_STAGE3_retire_number_laws_ROLLBACK
+PASS  rollback 27_codex_stale_banners_ROLLBACK
+PASS  rollback 28_retire_9_legacy_specs_ROLLBACK
+PASS  rollback 25_design_v1_v2_alignment_ROLLBACK
+PASS  rollback 26_shared_contracts_groupB_ROLLBACK
+PASS  rollback 29_number_principles_ROLLBACK
+PASS  rollback 18_admin_suggestion_decide_ROLLBACK
+PASS  rollback 19e_p0_release_policy_ROLLBACK_EXEC
+PASS  after full rollback: active rules identical to base (version, description md5, metadata md5)
+PASS  after full rollback: codex bodies identical to base
+PASS  after full rollback: spec states identical to base
+PASS  after full rollback: admin_suggestion_decide identical to base
+
+60/60 checks passed
+exit=0

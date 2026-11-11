@@ -1,7 +1,7 @@
 import { publicPostHref } from "../publicPostUrls.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { canonicalPostCategories } from "../postCategoryIdentity.js";
-import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesKeysForPost, contentSeriesMembershipFilter, hasExactMembership, seriesShadowedCategories } from "./contentSeries2029Identity.js";
+import { CONTENT_SERIES_2029, contentSeriesAdmissionFilter, contentSeriesAdmits, contentSeriesByKey, contentSeriesKeysForPost, seriesShadowedCategories } from "./contentSeries2029Identity.js";
 import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./publicPostBoundary.js";
 import { publicWriterFollowLinks } from "../userCenter/writerPersonal2029.js";
 import { postsTaxonomyScope2029, postsTaxonomySelection2029, postMatchesTaxonomy2029, postsTaxonomyEvidence2029 } from "./postsTaxonomy2029Route.js";
@@ -183,10 +183,8 @@ function publicCatalogQuery({ scope, search, client, head = false, includeTotal 
     const values = selection.values.some(value => /[",{}\\]|^null$/i.test(value)) ? selection.arrayLiteral : selection.values;
     query = query[selection.operator](selection.field, values);
   }
-  if (spec) {
-    query = query.or(contentSeriesMembershipFilter(spec));
-    if (spec.exactAuthor) query = query.eq("author", spec.exactAuthor);
-  }
+  // One admission filter (membership + exact author + explicitly approved Post ids) shared with the row check below.
+  if (spec) query = query.or(contentSeriesAdmissionFilter(spec));
   const term = postsSearch2029(search);
   // One escaped column filter on the existing public catalog, not a second search index.
   if (term) query = query.ilike("title", `%${term.replace(/[\\%_*]/g, "\\$&")}%`);
@@ -203,7 +201,7 @@ function validatePostRows(data, spec, scope = null) {
   const taxonomy = scope?.kind === "category" || scope?.kind === "tag";
   if (!Array.isArray(data) || data.some(row => hasSuppressedPublicPostTag(row)
     || taxonomy && !postMatchesTaxonomy2029(row, scope)
-    || spec && (!hasExactMembership(row, spec) || spec.exactAuthor && row.author !== spec.exactAuthor))) {
+    || spec && !contentSeriesAdmits(row, spec))) {
     throw new Error("לא ניתן לאמת את שיוך התוכן.");
   }
 }

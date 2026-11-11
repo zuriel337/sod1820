@@ -1,0 +1,21 @@
+Sod1820 = ויקיפדיה חיה של רמזים ומספרים. לא לחייב הרשמה בהתחלה.
+פרטים מלאים: select what_we_did from work_log where topic='ארכיטקטורת זהות — אנונימי → חוקר (UGC Layer)' limit 1;
+
+מסלול הזהות:
+אנונימי (visitor_id)
+  ↓ [דיווח רמז / חיפושים / מסעות]
+מזוהה רך (visitor_id עם היסטוריה)
+  ↓ [הצעה רכה: "שמור תגליות"]
+חשבון (Supabase Auth)
+  ↓
+חוקר (פרופיל, ציון, תגיות)
+  ↓
+תורם (רמזים מאושרים, Collective Discovery)
+  ↓
+יוצר מסעות
+
+הפיצ'ר הראשון לבנות: ➕ דווח רמז
+- טבלה: community_hints (visitor_id, image_url, number, description, source_url, status=pending)
+- UI: כפתור בזרם המציאות + בדפי מספר
+- Admin: טאב אישור ב-AdminPage (community_review)
+- אחרי אישור: עובר ל-gallery_images עם source='community'

@@ -1,0 +1,25 @@
+--- nodes:foundation_closure_protocol_law@v7→v8.metadata (base)
++++ nodes:foundation_closure_protocol_law@v7→v8.metadata (proposed)
+@@ -4,3 +4,3 @@
+   "kadima": "within_current_gate_only",
+-  "taale": "release_gate_clean_scope_only",
++  "taale": "explicit_approval_for_exact_presented_scope",
+   "waiver": "explicit_replan_or_supersession_only"
+@@ -69,3 +69,5 @@
+   "separate_taale_required": false,
+-  "standing_auto_release_for_gate_clean_routine_scope": true
++  "standing_auto_release_for_gate_clean_routine_scope": true,
++  "status": "STANDING_AUTO_RELEASE_REVOKED_2026-11-10",
++  "superseded_by": "v8_explicit_release_approval_binding"
+  },
+@@ -96,2 +98,10 @@
+   "verify_before_build": true
++ },
++ "v8_explicit_release_approval_binding": {
++  "explicit_approval_per_merge_and_deploy": true,
++  "human_gate": "ZURIEL 2026-11-10",
++  "no_new_system": true,
++  "no_skip_unchanged": true,
++  "owner_check": "EXTEND_EXISTING",
++  "standing_auto_release": false
+  }

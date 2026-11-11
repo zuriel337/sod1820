@@ -1,0 +1,161 @@
+{
+ "audits_path": "audits/experience_governance_foundation_v1/EXPERIENCE_GOVERNANCE_V1_FOUNDATION_CONTRACT.md",
+ "branch": "claude/experience-governance-foundation-v1-1ki2s6",
+ "compaction_v1": {
+  "canonical_owner": "experience_governance_foundation_v1_law",
+  "classification": "OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "experience_ui"
+ },
+ "contextual_sidecar_v1": {
+  "date": "2026-10-02",
+  "desktop_projection": "left_context_sidecar",
+  "human_gate": "ZURIEL",
+  "mobile_projection": "bottom_context_sheet",
+  "no_new_system": true,
+  "owner_check": "EXTEND_EXISTING",
+  "single_active_rich_renderer": true,
+  "states": [
+   "REST",
+   "FOCUS",
+   "EXPLORE"
+  ]
+ },
+ "experience_projection_v1": {
+  "human_gate": "ZURIEL 2026-09-17",
+  "master_voice_profile_canonical": true,
+  "maximum_capability_selective_activation": true,
+  "motion_vocabulary": [
+   "REVEAL",
+   "PRESENCE",
+   "ORBIT",
+   "TRAVEL",
+   "FOCUS",
+   "SETTLE"
+  ],
+  "no_new_system": true,
+  "principle": "ONE_EXPERIENCE_CORE_MANY_RENDERERS",
+  "spatial_ladder": [
+   "S0_static_2d",
+   "S1_micro_motion_light",
+   "S2_layered_depth",
+   "S3_canvas_2_5d",
+   "S4_true_gpu_3d",
+   "S5_future_xr"
+  ],
+  "tts_provider_canonical": false
+ },
+ "focused_loading_v10": {
+  "adoption": "SCOPED_LOADING_POLICY_ONLY",
+  "canonical_body_project_codex_id": 30,
+  "canonical_body_section": "V10 — טעינה ממוקדת ותוכן טרי ב־2029",
+  "human_gate": "ZURIEL — focused-loading policy only; explicit governance/passive-log write confirmation received in chat after auto-review rejection",
+  "implementation": "NOT_IMPLEMENTED",
+  "owner_check": "EXTEND_EXISTING",
+  "remaining_v3": "DRAFT",
+  "source_body_md5": "b4b728fdbe6d25f7f4569c25bacf75aa",
+  "source_project_codex_id": 37,
+  "source_slug": "sod1820_reality_stream_os_master_v3_20261016_draft",
+  "task_key": "GPT_2029_FOCUSED_LOADING_POLICY_ADOPTION_20261016"
+ },
+ "g1_routing_amendment": {
+  "application_claim": "0426ca7e-03fc-4140-804f-8b366bf1bf66",
+  "applied_at": "2026-10-09T01:22:35.992707+00:00",
+  "approved_sha": "e3fb40f936036e54e67be8938861aeece6100498",
+  "human_gate_approval": "a05e003f-8cb4-40bb-adf9-84bd9a5abe7c",
+  "independent_main_review": "47652361-5bc2-4d3d-a591-366b9508c75b",
+  "scope": "2029_web_design_dependency_only",
+  "source_node_id": "c98f173c-49a6-4219-bbf4-ef52f9b30681",
+  "source_rule_version": 8,
+  "status": "APPLIED",
+  "task_key": "SOD1820_PRO_SESSION_2_G1_ROUTING_ACCEPTANCE_V1"
+ },
+ "g3_disposition_v1": {
+  "classification": "KEEP_CANONICAL_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "canonical owner survives into G3 unless explicitly superseded through owner gate"
+ },
+ "human_gate": "ZURIEL, 2026-08-29, work_log id f4811264-b47e-4020-b14f-bbfd187c1d04",
+ "human_gate_v8": "ZURIEL 2026-10-02",
+ "language_context_v2": {
+  "date": "2026-09-17",
+  "human_gate": "ZURIEL",
+  "owner_check": "EXTEND_EXISTING",
+  "principle": "ONE_VOICE_CONTEXTUAL_DEPTH_ACROSS_LOCALES"
+ },
+ "language_depth_v1": {
+  "date": "2026-09-17",
+  "human_gate": "ZURIEL",
+  "owner_check": "EXTEND_EXISTING",
+  "principle": "ONE_VOICE_ADAPTIVE_DEPTH",
+  "work_log_before": "7ca5a708-eace-4864-923f-5ce8119dd4f5"
+ },
+ "owner_routing": {
+  "canonical_owner": "experience_governance_foundation_v1_law",
+  "confidence": "high",
+  "domain": "experience_ui",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX",
+  "version": 1
+ },
+ "pr": "https://github.com/zuriel337/sod1820/pull/234",
+ "project_codex_slug": "experience_governance_foundation_v1",
+ "promotes_rule": "identity_architecture_law",
+ "unified_spatial_method_stage_v1": {
+  "canonical_inputs": [
+   "expression",
+   "method_identity",
+   "canonical_trace",
+   "provenance"
+  ],
+  "default_open_tier": "S2",
+  "explore_tier": "S3",
+  "local_numeric_truth_forbidden": true,
+  "milui_target": "Number Method Inspector shell + Letter Anatomy visual grammar + canonical spelling data",
+  "principle": "ONE_METHOD_STAGE_MANY_SURFACES",
+  "s4_reserved_for_material_geometry": true
+ },
+ "v11_legacy_removal_alignment": {
+  "closed_items": [
+   "BrandTicker duplicate marquee (component removed 2026-11-05)"
+  ],
+  "human_gate": "ZURIEL 2026-11-10 (§4 shared contracts)",
+  "owner_check": "EXTEND_EXISTING",
+  "semantics_changed": false
+ },
+ "v7_global_2029_cutover_2026_09_18": {
+  "contract_path": "docs/g3-2029-global-cutover-foundation-v1.md",
+  "human_gate": "ZURIEL",
+  "no_new_analytics_store": true,
+  "no_new_context_store": true,
+  "no_new_router": true,
+  "no_new_seo_registry": true,
+  "no_new_share_system": true,
+  "number_is_first_consumer_only": true,
+  "owner_check": "EXTEND_EXISTING",
+  "preserve": "capability_identity_provenance_access_continuity",
+  "replace": "legacy_presentation_geometry",
+  "strategy": "WHOLE_SITE_ONE_CUTOVER_FOUNDATION"
+ },
+ "work_log_chain": [
+  "b26475aa (BEFORE)",
+  "c3ce5850 (pass1 AFTER)",
+  "86daaade (GPT review pass1)",
+  "5a4b6756 (pass2 AFTER)",
+  "f4811264 (ZURIEL approval)"
+ ],
+ "world_human_projection_v1": {
+  "audit_work_log": "bdc8132f-857e-472a-9ce4-fc2aa503757f",
+  "date": "2026-09-17",
+  "human_gate": "ZURIEL",
+  "no_new_system": true,
+  "owner_check": "EXTEND_EXISTING",
+  "principle": "HUMAN_FIRST_STRUCTURE_SECOND_RAW_LAST",
+  "recommendations_locked": 8
+ }
+}

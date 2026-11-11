@@ -1,0 +1,64 @@
+--- nodes:deploy_on_request@v3→v4.metadata (base)
++++ nodes:deploy_on_request@v3→v4.metadata (proposed)
+@@ -1,11 +1,2 @@
+ {
+- "auto_release_preconditions": [
+-  "gate_clean",
+-  "dependencies_closed",
+-  "current_main_reconciled",
+-  "required_checks_green",
+-  "security_privacy_clean_if_applicable",
+-  "no_overlapping_writer",
+-  "rollback_recovery_known"
+- ],
+  "cited_by": [
+@@ -22,2 +13,3 @@
+  "complemented_by": "deploy_quota_protection",
++ "explicit_approval_required_per_action": true,
+  "explicit_human_gate_remaining": [
+@@ -26,3 +18,2 @@
+   "pricing_economics",
+-  "legacy_to_2029_cutover",
+   "privacy_security_weakening",
+@@ -39,2 +30,4 @@
+  "human_gate_v2": "ZURIEL 2026-09-17",
++ "human_gate_v4": "ZURIEL 2026-11-10",
++ "merge_is_not_deploy": true,
+  "owner_check": "EXTEND_EXISTING",
+@@ -49,4 +42,7 @@
+  },
++ "release_advice_state_aliases": {
++  "AUTO_RELEASE_NOW": "READY_FOR_APPROVAL"
++ },
+  "release_advice_states": [
+-  "AUTO_RELEASE_NOW",
++  "READY_FOR_APPROVAL",
+   "BUNDLE_WITH",
+@@ -62,5 +58,25 @@
+  "release_canary_override_reader": "fn_release_canary_override_status",
+- "separate_taale_required": false,
++ "release_preconditions": [
++  "gate_clean",
++  "dependencies_closed",
++  "current_main_reconciled",
++  "required_checks_green",
++  "security_privacy_clean_if_applicable",
++  "no_overlapping_writer",
++  "rollback_recovery_known"
++ ],
++ "separate_taale_required": true,
+  "source": "CLAUDE.md deploy section, mirror write approved by ZURIEL",
+- "standing_auto_release": true
++ "standing_auto_release": false,
++ "v4_explicit_release_approval": {
++  "active_product": "2029",
++  "decided_at": "2026-11-10",
++  "decision_text": "כל מיזוג ל-main וכל פריסה ל-Production דורשים אישור מפורש שלי לפעולה המסוימת. אין הרשאה עומדת.",
++  "legacy_retired": "2026-11-05",
++  "no_new_system": true,
++  "owner_check": "EXTEND_EXISTING",
++  "procedure_ref": "CLAUDE.md — נוהל פריסה ל-Production מסשן ענן",
++  "production_since": "2026-11-04",
++  "supersedes": "v2 standing authorization (§§1, 2, 8)"
++ }
+ }

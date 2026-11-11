@@ -1,0 +1,130 @@
+{
+ "compaction_v1": {
+  "canonical_owner": "canonical_methods_registry_law",
+  "classification": "OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "gematria"
+ },
+ "g3_disposition_v1": {
+  "classification": "KEEP_CANONICAL_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "canonical owner survives into G3 unless explicitly superseded through owner gate"
+ },
+ "owner_routing": {
+  "canonical_owner": "canonical_methods_registry_law",
+  "confidence": "high",
+  "domain": "gematria",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ },
+ "v4_method_explanation_2026_09_08": {
+  "human_gate": "ZURIEL",
+  "no_new_engine": true,
+  "no_new_store": true,
+  "owner_check": "EXTEND_EXISTING",
+  "principle": "METHOD DEFINITION ONCE → MANY PROJECTIONS"
+ },
+ "v5_conditional_equivalence_2026_09_13": {
+  "aliases": [
+   {
+    "canonical_method_key": "קדמי",
+    "display_label": "קדמי · משולש",
+    "names": [
+     "קדמי",
+     "משולש"
+    ]
+   },
+   {
+    "canonical_method_key": "משולש גדול",
+    "display_label": "קדמי גדול · משולש גדול",
+    "names": [
+     "קדמי גדול",
+     "משולש גדול"
+    ]
+   }
+  ],
+  "conditional_equivalence": {
+   "no_final_letters": {
+    "condition": "normalized operand contains none of ךםןףץ",
+    "groups": [
+     [
+      "רגיל",
+      "גדול"
+     ],
+     [
+      "קדמי",
+      "משולש גדול"
+     ],
+     [
+      "ריבוע",
+      "ריבוע גדול"
+     ],
+     [
+      "הכפלה",
+      "הכפלה גדולה"
+     ],
+     [
+      "מסתתר",
+      "מסתתר גדול"
+     ],
+     [
+      "סידורי",
+      "מיקום האות"
+     ]
+    ]
+   },
+   "single_word": {
+    "condition": "single Hebrew token under canonical whitespace normalization",
+    "groups": [
+     [
+      "ריבוע",
+      "משולש מילה"
+     ],
+     [
+      "משולש הפוך",
+      "משולש מדרגות"
+     ]
+    ]
+   }
+  },
+  "corpus_calibration": {
+   "bidim_distinct_phrases": 12639,
+   "multiword": 7801,
+   "no_final_letters": 7546,
+   "single_word": 4838,
+   "with_final_letters": 5093
+  },
+  "deep_view_preserves_all_methods": true,
+  "evidence_rule": "equivalent renderings are dependent calculation family, not independent evidence",
+  "human_gate": "ZURIEL 2026-09-13",
+  "no_formula_change": true,
+  "no_new_engine": true,
+  "no_new_registry": true,
+  "no_new_store": true,
+  "owner_check": "EXTEND_EXISTING",
+  "presentation_rule": "group only proven alias/equivalence; never group arbitrary equal values",
+  "principle": "CALCULATE ALL · PRESERVE IDENTITIES · COLLAPSE ONLY PROVEN EQUIVALENCE IN PROJECTION"
+ },
+ "v6_one_tree_presentation_2026_09_18": {
+  "equal_regular_phrase_order_authority": "public.gematria_words.lead_rank",
+  "human_gate": "ZURIEL",
+  "method_key_preserved": true,
+  "method_order_authority": "public.gematria_methods.sort_order",
+  "no_formula_change": true,
+  "no_new_registry": true,
+  "owner_check": "EXTEND_EXISTING",
+  "phrase_order_writer": "admin_set_lead_ranks / LeadOrderEditor",
+  "public_label_overrides": {
+   "משולש גדול": "משולש גדול",
+   "קדמי": "משולש",
+   "רגיל+משולש": "רגיל + משולש"
+  },
+  "quick_method_count_semantics": "adaptive_presentation_only"
+ }
+}

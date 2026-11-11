@@ -1,0 +1,87 @@
+{
+ "architecture": "adaptive_2027",
+ "compaction_v1": {
+  "canonical_owner": "research_workspace_law",
+  "classification": "OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "research_os"
+ },
+ "context_continuity": true,
+ "fixed_layout_required": false,
+ "fullscreen_allowed_with_context": true,
+ "g3_disposition_v1": {
+  "classification": "KEEP_CANONICAL_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "canonical owner survives into G3 unless explicitly superseded through owner gate"
+ },
+ "heichal_optional_deep_mode": true,
+ "journey_2029_v1": {
+  "approved_at": "2026-09-27",
+  "approved_by": "ZURIEL",
+  "compute_alone_is_journey": false,
+  "durable_path_store": "research_paths",
+  "exact_return_required": true,
+  "journey_kinds": [
+   "discovery",
+   "number_expression",
+   "person_life",
+   "name",
+   "els",
+   "source_book",
+   "topic_event",
+   "general_research"
+  ],
+  "journey_modes": [
+   "organic",
+   "guided"
+  ],
+  "legacy_excluded_from_2029_count": [
+   "journey_saves",
+   "user_research.journeys",
+   "legacy JourneyPage telemetry",
+   "ResearchProvider.addJourney legacy collection"
+  ],
+  "live_drift": {
+   "journey2029_surface_present": false,
+   "person_life_finding_traversal_built": false,
+   "research_path_revisions_rows": 0,
+   "research_paths_rows": 0,
+   "world_878_uses_legacy_addJourney": true
+  },
+  "no_new_journey_store": true,
+  "owner_check": "EXTEND_EXISTING",
+  "person_foundation_actions_are_journey_start": false,
+  "revision_store": "research_path_revisions",
+  "search_alone_is_journey": false
+ },
+ "my_workspace_projection": true,
+ "number_phrase_bridge": "CONNECT NOW · REDESIGN LATER",
+ "one_research_os": true,
+ "owner_routing": {
+  "canonical_owner": "docs/research-studio-v1-contract.md",
+  "domain": "research_os",
+  "normalized_at": "2026-09-09",
+  "resolution": "EXTEND_EXISTING"
+ },
+ "page_duality": "direct+SEO and integrated Research OS",
+ "previous_visual_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+ "supersession_note": "v1 preserved as history; v2 supersedes presentation-specific layout/palette/product-naming clauses",
+ "surface_transition_v1": {
+  "human_gate": "ZURIEL 2026-09-17",
+  "next_dependency_after_world": "NUMBER_EXPRESSION",
+  "no_new_system": true,
+  "principle": "ONE_CONTEXT_MANY_PRODUCT_HOMES",
+  "world_exit_gate": true
+ },
+ "v6_owner_alignment": {
+  "change": "design-contract owner V1 → V2 (V1 kept as history)",
+  "human_gate": "ZURIEL 2026-11-11 (החלטה 5 — הפניות לחוזה העיצוב התקף)",
+  "owner_check": "EXTEND_EXISTING",
+  "semantics_changed": false
+ },
+ "visual_owner": "SOD1820_DESIGN_CONTRACT_V2.md"
+}

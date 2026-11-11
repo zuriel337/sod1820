@@ -1,0 +1,51 @@
+CREATE OR REPLACE FUNCTION public.wa_word_review(p_id uuid, p_action text)
+ RETURNS text
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_prior jsonb;
+  v_new jsonb;
+  v_engine boolean;
+begin
+  if not public.rd_is_admin() then
+    raise exception 'admin only';
+  end if;
+  -- v2 (decision 4, 11.11.2026): never delete a word (post_gematria_links would cascade); reject instead
+  if p_action = 'delete' then
+    return 'delete_disabled_use_reject';
+  end if;
+  v_prior := public._corpus_word_state_v1(p_id);
+  if v_prior is null then
+    return 'not_found';
+  end if;
+  if coalesce(v_prior->>'visibility_reason','') in ('approved_by_admin','rejected_by_admin') then
+    return 'already_decided_by_admin:' || (v_prior->>'visibility_reason');
+  end if;
+
+  if p_action = 'approve' then
+    -- v2: is_verified stays engine-owned (corpus_admission_foundation_v1); the human decision is visibility_reason
+    v_engine := public.fn_verify_gematria_word_engine(p_id);
+    update gematria_words
+       set visibility_reason='approved_by_admin',
+           visibility_changed_at=now()
+     where id=p_id;
+    v_new := public._corpus_word_state_v1(p_id);
+    perform public._corpus_admission_ledger_v1('gematria_word', p_id::text, 'approve', v_prior, v_new,
+      jsonb_build_object('function', 'wa_word_review v2', 'action', p_action));
+    return 'approved:engine_verified=' || coalesce(v_engine, false)::text;
+  elsif p_action = 'reject' then
+    update gematria_words
+       set is_verified=false,
+           visibility_reason='rejected_by_admin',
+           visibility_changed_at=now()
+     where id=p_id;
+    v_new := public._corpus_word_state_v1(p_id);
+    perform public._corpus_admission_ledger_v1('gematria_word', p_id::text, 'reject', v_prior, v_new,
+      jsonb_build_object('function', 'wa_word_review v2', 'action', p_action));
+    return 'rejected';
+  end if;
+  return 'noop';
+end;
+$function$;

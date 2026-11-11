@@ -1,0 +1,185 @@
+{
+ "compaction_v1": {
+  "canonical_owner": "inter_agent_coordination_law",
+  "classification": "OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "agent_governance"
+ },
+ "g3_disposition_v1": {
+  "classification": "KEEP_CANONICAL_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "canonical owner survives into G3 unless explicitly superseded through owner gate"
+ },
+ "owner_routing": {
+  "canonical_owner": "inter_agent_coordination_law",
+  "confidence": "high",
+  "domain": "agent_governance",
+  "resolution": "RESOLVED",
+  "version": 1
+ },
+ "v10_g1_acceptance_scope": {
+  "human_gate": "ZURIEL 2026-09-12",
+  "no_new_context_system": true,
+  "owner_check": "EXTEND_EXISTING",
+  "product_domain_runtimes_use_boundary_acceptance": true,
+  "project_entry_agents_require_fresh_replay": true
+ },
+ "v11_g3_event_driven_dispatch_carry_forward": {
+  "discover_via": [
+   "SOD1820_MASTER_OWNER_INDEX.md",
+   "SOD1820_MASTER_ROADMAP.md"
+  ],
+  "event_driven_target": true,
+  "human_gate": "ZURIEL 2026-09-15",
+  "manual_polling_target": false,
+  "merge_deploy_publish_auto_authorization": false,
+  "no_parallel_agent_system": true,
+  "no_parallel_queue_authority": true,
+  "owner_check": "EXTEND_EXISTING",
+  "priority": "EARLY_G3_FOUNDATION_RUNTIME",
+  "read_only_auto_dispatch_allowed_future": true,
+  "runtime_state": "NOT_IMPLEMENTED_CARRY_FORWARD_ONLY",
+  "write_still_governed": true
+ },
+ "v12_2029_temporary_legacy_boundary": {
+  "current_production": "LEGACY_TRANSITIONAL_UNTIL_EXPLICIT_CUTOVER",
+  "fresh_agent_must_distinguish_current_vs_target": true,
+  "human_gate": "ZURIEL 2026-09-16",
+  "legacy_is_current_production_runtime": true,
+  "legacy_is_design_authority": false,
+  "new_site_cutover_declared": false,
+  "no_new_owner": true,
+  "owner_check": "EXTEND_EXISTING",
+  "target_architecture": "2029"
+ },
+ "v13_auto_release": {
+  "auto_canonicalization": false,
+  "dependency_order_agent_owned": true,
+  "human_gate": "ZURIEL 2026-09-17",
+  "owner_check": "EXTEND_EXISTING",
+  "release_advice_states": [
+   "AUTO_RELEASE_NOW",
+   "BUNDLE_WITH",
+   "BLOCKED_BY",
+   "SAFE_INDEPENDENT_WAITING_RUNTIME",
+   "DO_NOT_RELEASE_SUPERSEDED/PARKED"
+  ],
+  "release_recommendation_required": true,
+  "separate_taale_required": false,
+  "standing_auto_release": true,
+  "user_hold_overrides": true
+ },
+ "v14_visual_lane_one_directional_dispatch": {
+  "claude_result_wake": false,
+  "design_first_cycle": true,
+  "dispatch_direction": "GPT_TO_CLAUDE_ONLY",
+  "domain_lane_writer": "GPT",
+  "duplicate_cleanup": "after_adoption_per_item",
+  "evidence_7d": {
+   "claude_to_gpt_result_wake": 144,
+   "completed": 6,
+   "deferred": 138,
+   "gpt_to_claude_assignment_completed": 167
+  },
+  "human_gate": "ZURIEL 2026-10-11",
+  "no_new_owner": true,
+  "owner_check": "EXTEND_EXISTING",
+  "visual_lane_writer": "CLAUDE"
+ },
+ "v15_approved_visual_reference": {
+  "early_real_preview": true,
+  "extends_version": 14,
+  "human_gate": "ZURIEL 2026-10-11T19:23:04+03:00",
+  "no_implicit_paid_wake": true,
+  "no_new_coordination_system": true,
+  "no_production_release_by_this_decision": true,
+  "one_active_writer": true,
+  "owner_check": "EXTEND_EXISTING",
+  "palette_owner": "src/lib/palette.js",
+  "qualities": [
+   "compact precise rich composition",
+   "slim rails and borders",
+   "measured spacing and hierarchy",
+   "balanced images",
+   "progressive disclosure"
+  ],
+  "reference": {
+   "branch": "ccr-b9fd9245-z14usv",
+   "commit": "fa0e26f66d7905c99bd1ec6a0cc5227586480d38",
+   "deployment_id": "dpl_4NbUPi7U4rqEm3PBiVh4JNcE4u2s",
+   "deployment_state_verified": "READY",
+   "gpt_visual_browser_check": "NOT_PERFORMED_THIS_TURN",
+   "preview_url": "https://sod1820-git-ccr-b9fd9245-z14usv-sod1820-s-projects.vercel.app/2029/home-preview",
+   "route": "/2029/home-preview",
+   "task_key": "CLAUDE_HOME_LAYOUT_PREVIEW_20261011",
+   "visual_approval": "USER_APPROVED_DIRECTION"
+  },
+  "role_policy_source": "CLAUDE v14 verified; retained unchanged",
+  "scope": "SOD1820 2029 UI design and interface implementation",
+  "style_preserved_during_gpt_integration": true,
+  "technical_coordinator": "GPT",
+  "ui_design_build_lead": "CLAUDE"
+ },
+ "v16_mandatory_claude_visual_lane": {
+  "base_selection": "PENDING_ACTIVE_DESIGN_SESSION_EXACT_HEAD_HANDOFF",
+  "claude_result_wake": false,
+  "dispatch_direction": "GPT_TO_CLAUDE_ONLY",
+  "fallback_visual_writer_when_claude_unavailable": false,
+  "human_gate": "ZURIEL 2026-10-11T19:37:14+03:00",
+  "mandatory_visual_writer": "CLAUDE",
+  "manual_history_cleanup": "HOLD_UNTIL_G4_CLOSURE_THEN_EXISTING_WORK_LOG_OWNER",
+  "owner_check": "EXTEND_EXISTING",
+  "policy_change_requires": "NEW_EXPLICIT_ZURIEL_DECISION",
+  "scope": "ALL_SOD1820_2029_SURFACES_AND_VISUAL_COMPONENTS",
+  "technical_coordinator": "GPT",
+  "unilateral_policy_override": false
+ },
+ "v17_user_only_reporting": {
+  "automatic_specialist_activation": false,
+  "gpt_ack_required": false,
+  "gpt_delivery": false,
+  "human_gate": "ZURIEL 2026-10-14 06:15 Asia/Jerusalem",
+  "recipient": "ZURIEL"
+ },
+ "v8_fast_routing": {
+  "bulk_rule_loading_default": false,
+  "composition_over_explosion": true,
+  "human_gate": "ZURIEL 2026-09-09",
+  "owner_check": "EXTEND_EXISTING",
+  "profile_rule": "routing aliases only; no copied domain semantics",
+  "read_budget": {
+   "L1": "bootstrap + owner + direct dependencies",
+   "L2": "cross-domain/ambiguity/specialist contract",
+   "L3": "write/release/security/schema/cross-layer live verification"
+  },
+  "target_horizon": "2029",
+  "task_profiles": [
+   "publish_post",
+   "draft_post",
+   "post_visual",
+   "gallery_work",
+   "gematria_research",
+   "els_research",
+   "source_scan",
+   "roadmap_status",
+   "live_state_check",
+   "release_gate",
+   "ui_experience_work",
+   "db_write"
+  ]
+ },
+ "v9_g1_agent_entry_bootstrap_2029": {
+  "active_entry_surfaces_only": true,
+  "adapters_are_pointers": true,
+  "fresh_agent_acceptance_required": true,
+  "higher_gate_blocked_until_g1_entry_safe": true,
+  "human_gate": "ZURIEL 2026-09-12",
+  "no_new_context_system": true,
+  "owner_check": "EXTEND_EXISTING",
+  "parallel_ssot_forbidden": true
+ }
+}

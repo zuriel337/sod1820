@@ -1,0 +1,29 @@
+From ed4f7c757bc063d274d1572ae02c040bdda6ee0e Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 11 Nov 2026 01:45:41 +0000
+Subject: [PATCH 4/4] Pointers after SQL 24 (apply ONLY after
+ 24_design_v1_v2_alignment.sql is applied and verified):
+ research_workspace_law v6
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01H7739MjqsSy3Nv6324VnN8
+---
+ SOD1820_MASTER_OWNER_INDEX.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/SOD1820_MASTER_OWNER_INDEX.md b/SOD1820_MASTER_OWNER_INDEX.md
+index 5031b6c69..33b88742d 100644
+--- a/SOD1820_MASTER_OWNER_INDEX.md
++++ b/SOD1820_MASTER_OWNER_INDEX.md
+@@ -76,7 +76,7 @@ Owner families below are routing categories only — never umbrella super-laws.
+ | Responsibility | Canonical owner |
+ |---|---|
+ | Research OS / Research Context / Journey substrate | `docs/research-studio-v1-contract.md` baseline lineage |
+-| Workspace / one Research OS / projection consolidation | `research_workspace_law` **v5 ACTIVE** |
++| Workspace / one Research OS / projection consolidation | `research_workspace_law` **v6 ACTIVE** |
+ | adaptive semantic zones/layout | `workspace_layout_standard` |
+ | Research Strategy / Plan / Capability Fabric / bounded Context Compiler / temporal evidence reasoning | `research_strategy_layer_law` **v17 ACTIVE** |
+ | source-native research-object identity invariant | `research_object_identity_invariant_law` |
+-- 
+2.43.0
+

@@ -1,0 +1,194 @@
+[
+ {
+  "id": "2fa07a3e-5537-42c4-86ad-920920202cbd",
+  "label": "ארכיון ההתגלות — גלריה מאוחדת",
+  "is_active": true,
+  "identity_key": null,
+  "rule_id": "archive_revelation",
+  "d_md5": "d5f4f03d9094cf454e57c4e53969388c",
+  "m_md5": "13a7561468192ac56d36e8b3cd27c576",
+  "desc_len": 346,
+  "ok": true,
+  "metadata": {
+   "build_env": "claude_code",
+   "built_basis": [
+    "gallery_image_tree",
+    "ocr_numbers",
+    "occurred_at"
+   ]
+  }
+ },
+ {
+  "id": "abc9bf76-46f7-4598-a635-25240730b112",
+  "label": "בית המדרש — Mega Menu ושיטות",
+  "is_active": true,
+  "identity_key": null,
+  "rule_id": "beit_hamidrash",
+  "d_md5": "f9c9ce6eecaf7e3e201b1e431beb5717",
+  "m_md5": "4a505c348bbc8032feb55d485f6507e0",
+  "desc_len": 172,
+  "ok": true,
+  "metadata": {
+   "methods": [
+    "מסתתר",
+    "קדמי",
+    "מילוי",
+    "אלבם",
+    "אתבש",
+    "דילוגים"
+   ],
+   "build_env": "claude_code"
+  }
+ },
+ {
+  "id": "875ec683-603d-4c16-aaed-6a0002884f28",
+  "label": "בני ההיכל — אזור מנויים סגור",
+  "is_active": true,
+  "identity_key": null,
+  "rule_id": "bnei_haheichal",
+  "d_md5": "ad7de56f593916a7a4fe17043ce5e98a",
+  "m_md5": "f5df56f798a1092d1006c21c84be45e9",
+  "desc_len": 250,
+  "ok": true,
+  "metadata": {
+   "model": "subscribers",
+   "gating": "space=private",
+   "build_env": "claude_code"
+  }
+ },
+ {
+  "id": "0caadab6-fc1f-4d1d-a401-d613a3b6ef47",
+  "label": "הצופן התנ״כי — דף ELS + לוגו-צופן אוטומטי",
+  "is_active": true,
+  "identity_key": null,
+  "rule_id": "codes_els_page",
+  "d_md5": "9b6d8a84acca0e265cc3967aba9a0dc6",
+  "m_md5": "59d3483a94d87a57fbef716eee07d7c6",
+  "desc_len": 518,
+  "ok": true,
+  "metadata": {
+   "tool": "ELS",
+   "build_env": "claude_code",
+   "status_label": "בקרוב"
+  }
+ },
+ {
+  "id": "f8927670-babf-4ffe-87ed-7e833bedc5f0",
+  "label": "מבנה התפריט העליון (סופי)",
+  "is_active": true,
+  "identity_key": null,
+  "rule_id": "site_menu",
+  "d_md5": "5c100d488e957f2ba5392bfd71dd06ce",
+  "m_md5": "541f9febfef77901311c936a58fa2899",
+  "desc_len": 360,
+  "ok": true,
+  "metadata": {
+   "status": "final",
+   "pending_user_update": false
+  }
+ },
+ {
+  "id": "1ccaf4df-d985-4fc9-8b5d-4acbfeb5efb7",
+  "label": "מנגנון הקפצת תמונות גימטריה לפי הקשר",
+  "is_active": true,
+  "identity_key": null,
+  "rule_id": "image_boost_mechanism",
+  "d_md5": "1b7a3d73d576e9b65eaee84f43a5e2fc",
+  "m_md5": "2125373f0ff91591fd67baf5794e0946",
+  "desc_len": 338,
+  "ok": true,
+  "metadata": {
+   "needs": [
+    "boost_field_or_score",
+    "contextual_surface"
+   ],
+   "build_env": "claude_code"
+  }
+ },
+ {
+  "id": "64bb4f0d-1fad-4ac7-98cb-2dfbee23d4a0",
+  "label": "עמוד הבית — פריסה דינמית מלכותית",
+  "is_active": true,
+  "identity_key": null,
+  "rule_id": "site_home_layout",
+  "d_md5": "dff953f6fd6f13b4315d080daa435572",
+  "m_md5": "4ffe7986ae834ee78e88d50343d67912",
+  "desc_len": 397,
+  "ok": true,
+  "metadata": {
+   "build_env": "claude_code"
+  }
+ },
+ {
+  "id": "40af59bd-010e-47a2-819d-149a597a24e0",
+  "label": "ציר זמן הגאולה — מפרט בנייה (Claude Code)",
+  "is_active": true,
+  "identity_key": null,
+  "rule_id": "timeline_feature_build",
+  "d_md5": "eb9226b7d616468f1621a5a27bd7eca3",
+  "m_md5": "8096701f83d1043792a19bca32d597b3",
+  "desc_len": 2206,
+  "ok": true,
+  "metadata": {
+   "data": [
+    "gallery_images.occurred_at",
+    "posts.date",
+    "post_update blocks"
+   ],
+   "repo": "zuriel337/sod1820",
+   "mobile": "drawer",
+   "desktop": "left_rail_years",
+   "ordering": "strict_by_date",
+   "build_env": "claude_code",
+   "views_join": "posts.wp_id = legacy_traffic.post_id",
+   "views_note": "jetpack_partial_relative",
+   "date_source": {
+    "post": "posts.date",
+    "image": "gallery_images.occurred_at"
+   },
+   "featured_layer": "strong_hints_by_views",
+   "links_to_gallery_images": true
+  }
+ },
+ {
+  "id": "76ef74ea-e227-4760-9e24-d616e5ed71c3",
+  "label": "שורת פעילות חיה",
+  "is_active": true,
+  "identity_key": null,
+  "rule_id": "live_activity_bar",
+  "d_md5": "c09ab0e0b2c07b64e43454a3012faf27",
+  "m_md5": "dc38243d3299dca760302902e561a996",
+  "desc_len": 194,
+  "ok": true,
+  "metadata": {
+   "build_env": "claude_code",
+   "data_sources": [
+    "insights",
+    "posts",
+    "work_log",
+    "edges"
+   ]
+  }
+ },
+ {
+  "id": "f30c0148-e4c0-4937-a4ee-4cd26019587f",
+  "label": "תוכנית-אב לאתר — הרשת החיה",
+  "is_active": true,
+  "identity_key": null,
+  "rule_id": "site_master_plan",
+  "d_md5": "80672c41c3494650565e6b39ef2e0c5f",
+  "m_md5": "510e620804f21e9f6e849de19c73a6eb",
+  "desc_len": 2816,
+  "ok": true,
+  "metadata": {
+   "source": "user_master_plan",
+   "pillars": [
+    "timeline",
+    "archive",
+    "number_tree"
+   ],
+   "build_env": "claude_code",
+   "full_plan_saved": true
+  }
+ }
+]
