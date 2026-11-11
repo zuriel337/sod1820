@@ -19,7 +19,7 @@
 .pa29-avatar .sod29-user-avatar{inline-size:100%;block-size:100%;border:0;border-radius:50%;background:none;box-shadow:none;display:grid;place-items:center}
 .pa29-avatar .sod29-user-avatar :is(img,b){inline-size:100%;block-size:100%;object-fit:cover;border-radius:50%;display:grid;place-items:center;font:800 22px/1 var(--s29-font-ui,inherit)}
 .pa29-id-text{display:grid;gap:2px}
-.pa29-id-text strong{font:800 19px/1.25 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink)}
+.pa29-id-text strong{font:800 19px/1.25 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
 .pa29-id-text small{font-size:14px;color:var(--s29-muted);direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
 .pa29-badge[data-pa29-badge="out"]{--r29-hue:var(--r29-amber)}
 .pa29-coins{display:flex;flex-wrap:wrap;gap:8px}
@@ -31,6 +31,9 @@
   color:color-mix(in oklab,var(--r29-gold) 10%,black);border:1px solid color-mix(in srgb,var(--r29-gold) 85%,transparent);
   background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 86%,white),var(--r29-gold));
   box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 45%,transparent),0 10px 22px -12px color-mix(in srgb,var(--r29-gold) 85%,transparent)}
+/* Day and Parchment resolve the brand gold to a deep gold (readable on light surfaces): light ink on it, never dark on dark. */
+:where(.sod29-root[data-frame-theme-preset="light"],.sod29-root[data-frame-theme-preset="parchment"]) .pa29-primary{color:var(--s29-on-accent,#fff);
+  background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 88%,white),color-mix(in oklab,var(--r29-gold) 92%,black))}
 .pa29-primary:hover{filter:brightness(1.05)}
 .pa29-primary:focus-visible,.pa29 :is(.pa29-card,.pa29-more-head):focus-visible,.pa29 summary:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
 
@@ -73,6 +76,8 @@ button.pa29-card,.pa29-more-head{cursor:pointer}
 /* ── Lists that open on demand ───────────────────────────────────────────────────────────────────────────────────────────── */
 .pa29-lists{gap:8px}
 .pa29-more{padding:0;overflow:hidden}
+/* An open list takes the whole row of the card grid. */
+.pa29-cards>.pa29-more.is-open{grid-column:1/-1}
 .pa29-more-body{display:grid;gap:12px;padding:6px 12px 14px;min-inline-size:0}
 .pa29-more-body :where(img,video,table){max-inline-size:100%}
 .pa29-more-body .sod29-actions{display:flex;flex-wrap:wrap;gap:8px}

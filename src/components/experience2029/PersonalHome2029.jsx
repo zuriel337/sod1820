@@ -31,9 +31,9 @@ function Card({ card, onPress }) {
   return <button type="button" {...common} onClick={() => onPress(card)}>{body}</button>;
 }
 
-function Disclosure({ id, open, onToggle, icon, title, hint, children, hue = "research" }) {
+function Disclosure({ id, open, onToggle, icon, title, hint, children, hue = "research", cardId }) {
   const bodyId = `pa29-${id}-body`;
-  return <section className={`pa29-more r29-card${open ? " is-open" : ""}`} data-r29-kind={hue} data-workspace-section={id}>
+  return <section className={`pa29-more r29-card${open ? " is-open" : ""}`} data-r29-kind={hue} data-workspace-section={id} data-workspace-card={cardId || undefined}>
     <button type="button" className="pa29-more-head" aria-expanded={open} aria-controls={bodyId} onClick={() => onToggle(id)}>
       <span className="pa29-medal r29-medal" aria-hidden="true"><NavigationIcon2029 name={icon} size={20} /></span>
       <span className="pa29-card-text"><strong>{title}</strong>{hint ? <small>{hint}</small> : null}</span>
@@ -81,9 +81,7 @@ export default function PersonalHome2029({ signedIn, name, email, avatar, stats,
   ].filter(Boolean);
   const guestCards = signedIn ? null : cards.filter(card => card.state === "live");
   const listsNode = (
-      <section className="pa29-group pa29-lists" aria-label="רשימות">
-        <Disclosure id="research" open={!!open.research} onToggle={toggle} icon="research" title="המחקר והשמורים" hint="המסלול, השמורים, האוספים וההיסטוריה">{slots.research}</Disclosure>
-        <Disclosure id="follow" open={!!open.follow} onToggle={toggle} icon="signal" hue="connect" title="מעקב ועדכונים" hint={follows?.status === "ready" ? `${follows.topics.length} מעקבים` : "בחירה מפורשת בלבד"}>{slots.follow}</Disclosure>
+      <section className="pa29-group pa29-lists" aria-label="רזיאל">
         <Disclosure id="companion" open={!!open.companion} onToggle={toggle} icon="raziel" hue="hint" title="רזיאל באזור האישי" hint="הצעה לצעד הבא, לפי בקשה בלבד">{slots.raziel}</Disclosure>
       </section>
   );
@@ -112,6 +110,10 @@ export default function PersonalHome2029({ signedIn, name, email, avatar, stats,
           <ul className="pa29-guest-ul">{guestCards.map(card => <li key={card.id}><b>{card.title}</b><small>{card.hint}</small></li>)}</ul>
         </details>
       </section>
+      {guestLists ? <section className="pa29-group" aria-label="המחקר והמעקב">
+        <Disclosure id="research" open={!!open.research} onToggle={toggle} icon="research" title="המחקר והשמורים" hint="המסלול, השמורים, האוספים וההיסטוריה">{slots.research}</Disclosure>
+        <Disclosure id="follow" open={!!open.follow} onToggle={toggle} icon="signal" hue="connect" title="מעקב ועדכונים" hint="בחירה מפורשת בלבד">{slots.follow}</Disclosure>
+      </section> : null}
       {guestLists ? listsNode : null}
     </> : <>
       {PERSONAL_GROUPS.map(group => {
@@ -120,7 +122,9 @@ export default function PersonalHome2029({ signedIn, name, email, avatar, stats,
         const headId = `pa29-group-${group.id}`;
         return <section key={group.id} className="pa29-group" aria-labelledby={headId} data-pa29-group={group.id}>
           <h3 id={headId} className="pa29-h"><span className="r29-rule" aria-hidden="true">◆</span>{group.title}</h3>
-          <div className="pa29-cards">{rows.map(card => <Card key={card.id} card={card} onPress={press} />)}</div>
+          <div className="pa29-cards">{rows.map(card => card.to?.section === "research" || card.to?.section === "follow"
+            ? <Disclosure key={card.id} id={card.to.section} cardId={card.id} open={!!open[card.to.section]} onToggle={toggle} icon={card.icon} title={card.title} hint={card.hint}>{slots[card.to.section]}</Disclosure>
+            : <Card key={card.id} card={card} onPress={press} />)}</div>
         </section>;
       })}
       {listsNode}

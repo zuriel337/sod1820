@@ -62,7 +62,7 @@ export function personalCards({ signedIn = false, stats = null, follows = null, 
   add({ id: "follow", group: "connect", icon: "signal", title: "מעקב ועדכונים",
     hint: signedIn && inbox?.status === "ready" ? plural(inbox.unread, "עדכון חדש", "עדכונים חדשים") + (follows?.status === "ready" ? ` · ${follows.topics.length} מעקבים` : "")
       : follows?.status === "ready" ? plural(follows.topics.length, "מעקב", "מעקבים") : "מה אני עוקב אחריו",
-    to: needSignIn || { module: "notifications" }, owner: "FollowCenterController2029 (notification_prefs)" });
+    to: { section: "follow" }, owner: "notification_prefs (getNotificationPrefs) → FollowCenterController2029 (/2029/me/notifications)" });
   add({ id: "contributions", group: "connect", icon: "community", title: "התרומות שלי", hint: "התרומות שמוצגות בדף הציבורי שלי",
     to: needSignIn || { href: "/community/researcher/me" }, owner: "WriterMe2029Redirect → public writer page (research_contributions via contributors.user_id)" });
 
