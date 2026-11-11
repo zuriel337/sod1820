@@ -477,5 +477,32 @@ try {
     publicReadingProductionArtifact: true, query: { path: "/beit-midrash/standard/extra", crawler: "search" } }, deep);
   assert.equal(deep.statusCode, 404);
 } finally { globalThis.fetch = beitMidrashFetch; }
+// A number beyond the 32-bit range can never be admitted by sitemap_numbers(); the indexability reader is not asked (it takes an
+// integer and made the page answer 503). The address stays addressable and noindex; admitted values still use the reader.
+{
+  const calls = [];
+  const fetchImpl = async (url, init) => {
+    calls.push(String(url));
+    if (String(url).includes("/rpc/is_number_indexable")) return { ok: true, json: async () => JSON.parse(init.body).p_value === 358 };
+    return { ok: true, json: async () => [] };
+  };
+  const productionNumber = async (value) => {
+    const prev = globalThis.fetch; globalThis.fetch = fetchImpl;
+    try {
+      const res = makeRes();
+      await handler({ publicFoundationPreview: true, publicReadingRelease: PUBLIC_READING_PROFILE_ID, publicReadingProductionArtifact: true,
+        query: { path: "/number/" + value, crawler: "search" } }, res);
+      return res;
+    } finally { globalThis.fetch = prev; }
+  };
+  const before = calls.length;
+  const oversized = await productionNumber("196500000000");
+  assert.equal(oversized.statusCode, 200);
+  assert.match(oversized.body, /name="robots" content="noindex, follow"/);
+  assert.equal(calls.slice(before).some(url => url.includes("is_number_indexable")), false, "out-of-range number does not call the integer reader");
+  const admitted = await productionNumber("358");
+  assert.equal(admitted.statusCode, 200);
+  assert.match(admitted.body, /name="robots" content="index, follow"/);
+}
 execFileSync(process.execPath, ["--test", "test/public-sitemap-cache-2029.test.mjs"], { cwd: new URL("..", import.meta.url), stdio: "inherit" });
 console.log("2029 server/crawler SEO+AI metadata parity: PASS");

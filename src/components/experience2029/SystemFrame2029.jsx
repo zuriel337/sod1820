@@ -27,6 +27,7 @@ import FeatureClosedNotice2029 from "./FeatureClosedNotice2029.jsx";
 import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { adminOpenClosedDestinations } from "./adminOpenDestinations2029.js";
 import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked, personalActionsLocked } from "../../lib/publicLaunch2029.js";
+import { NUMBER_PAGE_BASE, isNumberPagePath } from "../../lib/research/numberPageAddress.js";
 const AccountEntry2029 = React.lazy(() => import("../auth2029/AccountEntry2029.jsx"));
 import { makeEntity } from "../../lib/research/entity.js";
 import { getNotificationPrefs } from "../../lib/supabase.js";
@@ -1062,6 +1063,10 @@ const RESEARCH_SECTIONS = [
   { key: "history", title: "אחרונים", limit: 8 },
 ];
 
+import { personalCards, personalPrimaryAction, personalCardHref } from "../../lib/userCenter/personalArea2029.js";
+import useKeyboardClearance2029 from "./useKeyboardClearance2029.js";
+const PersonalHomeLazy2029 = React.lazy(() => import("./PersonalHome2029.jsx"));
+
 function SavedItemEditor2029({ item, research }) {
   const [open,setOpen]=useState(false),[title,setTitle]=useState(item.title||""),[note,setNote]=useState(item.note||""),[status,setStatus]=useState("");
   const id=useId(),pending=useRef(false);
@@ -1141,10 +1146,21 @@ function AccountConnection2029() {
   </section>;
 }
 
+// "האזור האישי שלי" is one entry: PersonalHome2029 (account first, compact cards, lists on demand) over the existing owners.
+// A guest (or an account not yet verified) sees the account hall with the sign-in form and what opens after signing in.
+function PersonalGuestHome2029() {
+  const { loading } = useAuth();
+  const { openIssueReport } = use2029Shell();
+  const cards = personalCards({ signedIn: false });
+  return <PersonalHomeLazy2029 signedIn={false} onReport={() => openIssueReport({ capability: "personal_area", returnToWorkspace: true })} avatar={<UserAvatar2029 user={null} profile={null} size="header" />} cards={cards}
+    primary={null}
+    slots={{ account: <AccountConnection2029 />, guestNote: <FrameState kind="empty" title="האזור האישי שלך">התחברות לחשבון קיים תציג את הפרטים והשמורים שלך. שמירה ועריכה נעשות בפעולה מפורשת; התחברות אינה מפעילה רזיאל, חיוב או דיוור.</FrameState> }} />;
+}
+
 function WorkspaceProjection(props) {
   const auth = useAuth();
   const actionsLocked = personalActionsLocked(auth);
-  if (actionsLocked) return <><AccountConnection2029 /><FrameState kind="empty" title="האזור האישי שלך">התחברות לחשבון קיים תציג את הפרטים והשמורים שלך. שמירה ועריכה נעשות בפעולה מפורשת; התחברות אינה מפעילה רזיאל, חיוב או דיוור.</FrameState></>;
+  if (actionsLocked) return <PersonalGuestHome2029 />;
   return <WorkspaceProjectionOpen key={auth.user?.id || "guest"} {...props} />;
 }
 
@@ -1154,12 +1170,14 @@ function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, jo
   const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
   const [actionState, setActionState] = useState(null);
   const { user, profile, signOut, loading: authLoading } = useAuth();
+  const { openIssueReport } = use2029Shell();
   const userId = user?.id || null;
   const [follows, setFollows] = useState({ status: "loading", topics: [] });
   const [inbox, setInbox] = useState({ status: "loading", unread: null });
   const [stats, setStats] = useState(null);
   const razielSession = useOptionalRazielSession2029();
   const [workspaceSection, setWorkspaceSection] = useState("home");
+  const [focusSection, setFocusSection] = useState(null);   // a section the panel is asked to open (hooks stay above the early Raziel return)
   const [summaryAttempt, setSummaryAttempt] = useState(0);
 
   // Follow = canonical notification_prefs seam (user or approved guest getter); no new store.
@@ -1190,7 +1208,7 @@ function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, jo
     return () => { alive = false; };
   }, [userId, authLoading, summaryAttempt]);
 
-  const displayName = String(profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || user?.email || "").trim();
+  const profileName = String(profile?.display_name || profile?.full_name || profile?.username || user?.user_metadata?.full_name || "").trim();
 
   const savePath = async () => {
     if (!onSavePath || pathResume?.loading) return;
@@ -1267,24 +1285,26 @@ function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, jo
     />;
   }
 
-  const core = [
-    { id: "account", icon: "👤", title: "החשבון שלי", sub: userId ? (displayName || "מחובר") : "כניסה / הרשמה ושמירה בין מכשירים", state: "live", onClick: openAccount },
-    { id: "profile", icon: "⚙", title: "הפרופיל וההגדרות", sub: "שם, תמונה ופרטים אישיים", state: "live", onClick: () => openExistingModule("profile") },
-    { id: "public-page", icon: "👑", title: "הדף שלי", sub: "הדף הפומבי שלי — צפייה ועריכה", state: "live", onClick: () => openExistingModule("public-page") },
-    { id: "research", icon: "🧠", title: "המחקר שלי", sub: "המסלולים, השמורים וההמשך שלי", state: "live", onClick: openResearch },
-    { id: "notes", icon: "▤", title: "הפנקס שלי", sub: "ההערות הפרטיות מהחשבון הקיים", state: "live", onClick: () => openExistingModule("notes") },
-    { id: "progress", icon: "📈", title: "ההתקדמות שלי", sub: stats ? [stats.level != null && `שלב פעילות ${stats.level}`, stats.xp != null && `${stats.xp} XP`, stats.streak ? `רצף ${stats.streak}` : null].filter(Boolean).join(" · ") || "הנתונים עדיין אינם זמינים" : "שלב פעילות ו־XP אישיים", state: "live", onClick: () => openExistingModule("progress") },
-  ];
-
-  const personal = [
-    { id: "life-journey", icon: "✦", title: "מסע החיים שלי", sub: journeyLocked ? "נעול עד השלמת ההגדרה" : "שם, תאריך ומשפחה — פרטי", state: journeyLocked ? "building" : "live", locked: journeyLocked, onClick: journeyLocked ? null : () => go("/2029/journey") },
-    { id: "hints", icon: "🧩", title: "הרמזים שלי", sub: journeyLocked ? "נעול עד השלמת ההגדרה" : "רמזים פרטיים, בדיקה ופענוח במסע החיים", state: journeyLocked ? "building" : "live", locked: journeyLocked, onClick: journeyLocked ? null : openPrivateHints },
-    { id: "contributions", icon: "🤝", title: "התרומות שלי", sub: "הכניסה האישית תיפתח בהמשך; הכתבים זמינים בדף שלי", state: "building" },
-    { id: "messages", icon: "📨", title: "ההודעות שלי", sub: "הודעות פרטיות ותגובות אליי", state: "live", onClick: () => openExistingModule("messages") },
-    { id: "credits", icon: "◆", title: "הקרדיטים שלי", sub: stats?.credits != null ? `יתרה: ${stats.credits} · הפירוט יוצג בהמשך` : "היתרה אינה זמינה כרגע", state: "building" },
-    { id: "codes", icon: "⌁", title: "הצפנים שלי", sub: elsLocked ? "הצופן פתוח כרגע למנהל בלבד" : "צפנים ששמרתי ויצרתי", state: elsLocked ? "building" : "live", locked: elsLocked, onClick: elsLocked ? null : () => go("/els?library=mine") },
-    { id: "raziel", icon: "✦", title: "השיחות שלי", sub: razielLocked ? "השיחות השמורות זמינות; המשך עם רזיאל עדיין נעול" : "המשך מאיפה שעצרת", state: "live", onClick: () => setWorkspaceSection("raziel") },
-  ];
+  const cards = personalCards({
+    signedIn: !!userId, stats, follows, inbox, research, journeyLocked, elsLocked, razielLocked,
+    savedConversations: Array.isArray(razielSession?.savedSessions) ? razielSession.savedSessions.length : null,
+  });
+  const primary = personalPrimaryAction({ signedIn: !!userId, hasContext: !!subject?.href, hasSavedPath: !!savedSubject });
+  const returnTo = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+  const onNavigate = card => {
+    const href = personalCardHref(card, { returnTo });
+    if (!href) return;
+    go(href, card.to?.module ? { preserve: false } : undefined);
+  };
+  const onAction = card => {
+    if (card.to?.section === "raziel") setWorkspaceSection("raziel");
+    else if (card.to?.section === "hints") openPrivateHints();
+  };
+  const onPrimary = action => {
+    if (action.to?.resume && subject?.href) go(subject.href, { preserve: false });
+    else if (action.to?.resumePath) resumePath();
+    else if (action.to?.section) setFocusSection(action.to.section);
+  };
 
   const razielPresence = projectWorkspaceRazielPresence2029({
     subjectLabel: publicContextLabel(subject?.label),
@@ -1297,170 +1317,74 @@ function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, jo
     razielLocked,
   });
 
-  return (
-    <>
-      <div className="sod29-panel-lead">
-        <div className="sod29-kicker">האזור שלי · המשכיות</div>
-        <h3>המרחב האישי שלי</h3>
-        <p>לא עוד לוח־בקרה נפרד: מקום אחד שמחזיר אותך למה ששמרת, למסע שלך, למחקר שלך ולדברים שדורשים את תשומת הלב שלך.</p>
-      </div>
-
-      <section
-        className="sod29-workspace-raziel-presence"
-        aria-label="רזיאל באזור האישי"
-        data-workspace-raziel-presence="deterministic"
-        data-raziel-session-source="RazielSessionProvider2029"
-      >
-        <div className="sod29-workspace-raziel-mark" aria-hidden="true">✦</div>
-        <div className="sod29-workspace-raziel-copy">
-          <span>רזיאל איתך באזור האישי</span>
-          <strong>{razielPresence.location}</strong>
-          <p>{razielPresence.existingCopy}</p>
-          <small>{razielPresence.nextStep}</small>
-        </div>
-        <div className="sod29-workspace-raziel-actions">
-          <button
-            className="sod29-action primary"
-            type="button"
-            onClick={requestPersonalAreaCompanion}
-            disabled={!razielPresence.canAsk || razielSession?.busy || typeof razielSession?.submitPersonalAreaCompanion !== "function"}
-            data-raziel-explicit-action="submit-personal-area-companion"
-          >
-            {razielSession?.busy ? "רזיאל בודק…" : "עזור לי בצעד הבא"}
-          </button>
-          <button
-            className="sod29-action"
-            type="button"
-            onClick={onRaziel}
-            disabled={!razielPresence.canAsk}
-            data-raziel-explicit-action="open-existing-conversation"
-          >
-            {razielPresence.canAsk ? "שאל את רזיאל" : "רזיאל נעול זמנית"}
-          </button>
-          <button className="sod29-action" type="button" onClick={() => setWorkspaceSection("raziel")}>השיחות שלי</button>
+  const researchNode = <section data-workspace-section="research" className="sod29-workspace-research-section">
+    {subject ? (
+      <section className="sod29-workspace-resume-native">
+        <span>איפה אני עכשיו</span><strong>{contextDisplayTitle(context, subject) || "ההקשר הנוכחי"}</strong><small>{entityTypeNounHe(subject.type)}</small>
+        <div className="sod29-actions">
+          {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
+          <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
+          <button className="sod29-action" type="button" onClick={onRaziel} disabled={razielLocked}>{razielLocked ? "✦ רזיאל · נעול" : "✦ המשך עם רזיאל"}</button>
         </div>
       </section>
-
-      <section className="sod29-workspace-pulse" aria-label="תמונת מצב אישית" data-workspace-section="pulse">
-        <UserAvatar2029 user={user} profile={profile} size="header" />
-        <div className="sod29-workspace-pulse-id">
-          <strong>{userId ? (displayName || "אני") : "אורח"}</strong>
-          <small>{userId ? "מחובר" : "לא מחובר — ההודעות וההתקדמות זמינות אחרי התחברות"}</small>
-        </div>
-        <div className="sod29-workspace-pulse-stats">
-          <span><b>{follows.status === "ready" ? follows.topics.length : "–"}</b><small>עוקב</small></span>
-          <span><b>{inbox.status === "ready" ? inbox.unread : "–"}</b><small>חדשות</small></span>
-          {stats?.level != null ? <span><b>{stats.level}</b><small>שלב פעילות</small></span> : null}
-          {stats?.credits != null ? <span><b>{stats.credits}</b><small>קרדיטים</small></span> : null}
-        </div>
-      </section>
-
-      <AccountConnection2029 user={user} profile={profile} signOut={signOut} />
-
-      <section data-workspace-section="access-membership" aria-label="גישה ומנוי">
-        <FrameState kind="unavailable" title="גישה ומנוי · בהכנה">מידע על גישה ומנוי יוצג כאן בהמשך. ההצטרפות למסלול בתשלום אינה זמינה כאן כרגע.</FrameState>
-      </section>
-
-      <section className="sod29-workspace-home" aria-label="הדברים שלי">
-        <div className="sod29-workspace-section-head"><strong>הדברים שלי</strong><small>אותם owners · תצוגת 2029 אחת</small></div>
-        <div className="sod29-workspace-core-grid">
-          {core.map((item) => item.readOnly && item.state === "live" ? (
-            <div key={item.id} className="sod29-workspace-home-card is-live is-readonly" data-workspace-card={item.id}>
-              <span className="icon" aria-hidden="true">{item.icon}</span>
-              <span><strong>{item.title}</strong><small>{item.sub}</small></span>
-            </div>
-          ) : item.onClick ? (
-            <button key={item.id} type="button" className="sod29-workspace-home-card is-live" onClick={item.onClick}>
-              <span className="icon" aria-hidden="true">{item.icon}</span>
-              <span><strong>{item.title}</strong><small>{item.sub}</small></span>
-              <b>פתח</b>
-            </button>
-          ) : (
-            <div key={item.id} className="sod29-workspace-home-card is-building" aria-disabled="true">
-              <span className="icon" aria-hidden="true">{item.icon}</span>
-              <span><strong>{item.title}</strong><small>{item.sub}</small></span>
-              <b>בבנייה</b>
-            </div>
-          ))}
+    ) : null}
+    {savedSubject ? (
+      <section className="sod29-workspace-resume-native" data-research-path-resume="available">
+        <span>מסלול שמור (נפרד מפריטים שמורים)</span>
+        <strong>{savedSubject.label}</strong>
+        <small>
+          {savedSubject.type}
+          {pathResume?.latest?.revision_no ? ` · revision ${pathResume.latest.revision_no}` : ""}
+          {" · נשמר פרטי; התוכן נבדק מחדש כשפותחים אותו"}
+        </small>
+        <div className="sod29-actions">
+          <button className="sod29-action primary" type="button" onClick={resumePath} disabled={pathResume?.loading}>המשך מהמסלול השמור</button>
         </div>
       </section>
+    ) : null}
+    {!subject && !savedSubject && !pathResume?.loading ? (
+      <FrameState kind="empty" title="אין כרגע מסלול פעיל">פתח גילוי, מספר, מקור או עולם — ומשם אפשר לשמור ולהמשיך.</FrameState>
+    ) : null}
+    <ResearchStateSections research={research} go={go} onInspect={onInspect} onOpenNumber={onOpenNumber} onOpenSavedConversation={openSavedConversation} />
+    {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן את המסלול">המקום שבו אתה נמצא נשמר בזמן הסנכרון.</FrameState> : null}
+    {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">המסלול נשמר פרטי. המקור והפרסום לא משתנים.</FrameState> : null}
+    {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
+    {actionState?.kind === "conversation_error" ? <FrameState kind="error" title="השיחה אינה זמינה">לא הצלחנו לפתוח את השיחה כרגע.</FrameState> : null}
+  </section>;
 
-      <section className="sod29-workspace-home" aria-label="המשכיות אישית">
-        <div className="sod29-workspace-section-head"><strong>המשכיות אישית</strong><small>לא עוד מערכות נפרדות</small></div>
-        <div className="sod29-workspace-secondary-grid">
-          {personal.map((item) => item.readOnly && item.state === "live" ? (
-            <div key={item.id} className="sod29-workspace-mini-card is-live is-readonly" data-workspace-card={item.id}>
-              <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small>
-            </div>
-          ) : item.onClick ? (
-            <button key={item.id} type="button" className="sod29-workspace-mini-card is-live" data-workspace-card={item.id} onClick={item.onClick}>
-              <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small><b>פתח</b>
-            </button>
-          ) : (
-            <div key={item.id} className="sod29-workspace-mini-card is-building" aria-disabled="true" data-workspace-card={item.id}>
-              <span aria-hidden="true">{item.icon}</span><strong>{item.title}</strong><small>{item.sub}</small><b>{item.locked ? "נעול" : "בבנייה"}</b>
-            </div>
-          ))}
-        </div>
-      </section>
+  const followNode = <section className="sod29-workspace-follow" aria-label="אחרי מה אני עוקב" data-workspace-section="follow">
+    {follows.status === "loading" ? <FrameState kind="loading" title="טוען מעקבים">קורא את ההעדפות שלך.</FrameState> : null}
+    {follows.status === "error" ? <FrameState kind="error" title="המעקבים לא נטענו" action={<button type="button" className="sod29-action" onClick={() => setSummaryAttempt(n => n + 1)}>ניסיון נוסף</button>}>מצב המעקב אינו ידוע כרגע.</FrameState> : null}
+    {follows.status === "ready" && !follows.topics.length ? <FrameState kind="empty" title="אין עדיין מעקבים">לחץ 🔔 על מספר, קטגוריה או ערוץ כדי לעקוב.</FrameState> : null}
+    {inbox.status === "loading" ? <small>טוען את מספר העדכונים…</small> : null}
+    {inbox.status === "signed-out" ? <small>התחברות נדרשת כדי לראות עדכונים אישיים.</small> : null}
+    {inbox.status === "error" ? <FrameState kind="unavailable" title="מספר העדכונים אינו זמין" action={<button type="button" className="sod29-action" onClick={() => setSummaryAttempt(n => n + 1)}>ניסיון נוסף</button>}>לא ניתן לקבוע כרגע כמה עדכונים לא נקראו.</FrameState> : null}
+    {inbox.status === "ready" ? <small>{inbox.unread} עדכונים שלא נקראו</small> : null}
+    <button type="button" className="sod29-action" onClick={() => openExistingModule("notifications")}>{userId ? "לכל המעקבים והעדכונים" : "התחברות לניהול המעקבים והעדכונים"}</button>
+  </section>;
 
-      <section data-workspace-section="research" className="sod29-workspace-research-section">
-        <div className="sod29-workspace-section-head"><strong>המחקר שלי</strong><small>שמירה · חזרה מדויקת</small></div>
+  const razielNode = <section className="sod29-workspace-raziel-presence" aria-label="רזיאל באזור האישי" data-workspace-raziel-presence="deterministic" data-raziel-session-source="RazielSessionProvider2029">
+    <div className="sod29-workspace-raziel-copy">
+      <strong>{razielPresence.location}</strong>
+      <p>{razielPresence.existingCopy}</p>
+      <small>{razielPresence.nextStep}</small>
+    </div>
+    <div className="sod29-workspace-raziel-actions">
+      <button className="sod29-action primary" type="button" onClick={requestPersonalAreaCompanion}
+        disabled={!razielPresence.canAsk || razielSession?.busy || typeof razielSession?.submitPersonalAreaCompanion !== "function"} data-raziel-explicit-action="submit-personal-area-companion">
+        {razielSession?.busy ? "רזיאל בודק…" : "עזור לי בצעד הבא"}
+      </button>
+      <button className="sod29-action" type="button" onClick={onRaziel} disabled={!razielPresence.canAsk} data-raziel-explicit-action="open-existing-conversation">
+        {razielPresence.canAsk ? "שאל את רזיאל" : "רזיאל נעול זמנית"}
+      </button>
+      <button className="sod29-action" type="button" onClick={() => setWorkspaceSection("raziel")}>השיחות שלי</button>
+    </div>
+  </section>;
 
-        {subject ? (
-          <section className="sod29-workspace-resume-native">
-            <span>איפה אני עכשיו</span><strong>{contextDisplayTitle(context, subject) || "ההקשר הנוכחי"}</strong><small>{entityTypeNounHe(subject.type)}</small>
-            <div className="sod29-actions">
-              {subject.href ? <button className="sod29-action primary" type="button" onClick={() => go(subject.href, { preserve: false })}>המשך בדיוק</button> : null}
-              <button className="sod29-action" type="button" onClick={savePath} disabled={pathResume?.loading}>שמור מסלול</button>
-              <button className="sod29-action" type="button" onClick={onRaziel} disabled={razielLocked}>{razielLocked ? "✦ רזיאל · נעול" : "✦ המשך עם רזיאל"}</button>
-            </div>
-          </section>
-        ) : null}
-
-        {savedSubject ? (
-          <section className="sod29-workspace-resume-native" data-research-path-resume="available">
-            <span>מסלול שמור (נפרד מפריטים שמורים)</span>
-            <strong>{savedSubject.label}</strong>
-            <small>
-              {savedSubject.type}
-              {pathResume?.latest?.revision_no ? ` · revision ${pathResume.latest.revision_no}` : ""}
-              {" · נשמר פרטי; התוכן נבדק מחדש כשפותחים אותו"}
-            </small>
-            <div className="sod29-actions">
-              <button className="sod29-action primary" type="button" onClick={resumePath} disabled={pathResume?.loading}>המשך מהמסלול השמור</button>
-            </div>
-          </section>
-        ) : null}
-
-        {!subject && !savedSubject && !pathResume?.loading ? (
-          <FrameState kind="empty" title="אין כרגע מסלול פעיל">פתח גילוי, מספר, מקור או עולם — ומשם אפשר לשמור ולהמשיך.</FrameState>
-        ) : null}
-        <ResearchStateSections research={research} go={go} onInspect={onInspect} onOpenNumber={onOpenNumber} onOpenSavedConversation={openSavedConversation} />
-        {pathResume?.loading ? <FrameState kind="loading" title="מסנכרן את המסלול">המקום שבו אתה נמצא נשמר בזמן הסנכרון.</FrameState> : null}
-        {actionState?.kind === "saved" ? <FrameState title="המסלול נשמר">המסלול נשמר פרטי. המקור והפרסום לא משתנים.</FrameState> : null}
-        {actionState?.kind === "error" ? <FrameState kind="error" title="המסלול לא עודכן">{actionState.message}</FrameState> : null}
-        {actionState?.kind === "conversation_error" ? <FrameState kind="error" title="השיחה אינה זמינה">לא הצלחנו לפתוח את השיחה כרגע.</FrameState> : null}
-      </section>
-
-      <section className="sod29-workspace-follow" aria-label="אחרי מה אני עוקב" data-workspace-section="follow">
-        <div className="sod29-workspace-section-head"><strong>מעקב ועדכונים</strong><small>{follows.status === "ready" ? `${follows.topics.length} מעקבים · בחירה מפורשת בלבד` : "בחירה מפורשת בלבד"}</small></div>
-        {follows.status === "loading" ? <FrameState kind="loading" title="טוען מעקבים">קורא את ההעדפות שלך.</FrameState> : null}
-        {follows.status === "error" ? <FrameState kind="error" title="המעקבים לא נטענו" action={<button type="button" className="sod29-action" onClick={() => setSummaryAttempt(n => n + 1)}>ניסיון נוסף</button>}>מצב המעקב אינו ידוע כרגע.</FrameState> : null}
-        {follows.status === "ready" && !follows.topics.length ? <FrameState kind="empty" title="אין עדיין מעקבים">לחץ 🔔 על מספר, קטגוריה או ערוץ כדי לעקוב.</FrameState> : null}
-        {inbox.status === "loading" ? <small>טוען את מספר העדכונים…</small> : null}
-        {inbox.status === "signed-out" ? <small>התחברות נדרשת כדי לראות עדכונים אישיים.</small> : null}
-        {inbox.status === "error" ? <FrameState kind="unavailable" title="מספר העדכונים אינו זמין" action={<button type="button" className="sod29-action" onClick={() => setSummaryAttempt(n => n + 1)}>ניסיון נוסף</button>}>לא ניתן לקבוע כרגע כמה עדכונים לא נקראו.</FrameState> : null}
-        {inbox.status === "ready" ? <small>{inbox.unread} עדכונים שלא נקראו</small> : null}
-        <button type="button" className="sod29-action" onClick={() => openExistingModule("notifications")}>{userId ? "לכל המעקבים והעדכונים" : "התחברות לניהול המעקבים והעדכונים"}</button>
-        <div className="sod29-attention-lanes native">
-          <div className="sod29-attention-lane"><strong>רלוונטי אליי</strong><small>Signal אישי, לא Follow — בקרוב.</small></div>
-          <div className="sod29-attention-lane"><strong>רזיאל מציע</strong><small>Recommendation, לא אמת — בקרוב.</small></div>
-        </div>
-      </section>
-
-    </>
-  );
+  return <PersonalHomeLazy2029 signedIn={!!userId} onReport={() => openIssueReport({ capability: "personal_area", returnToWorkspace: true })} name={profileName} email={user?.email || ""} avatar={<UserAvatar2029 user={user} profile={profile} size="header" />}
+    stats={stats} follows={follows} inbox={inbox} cards={cards} primary={primary} onPrimary={onPrimary} onNavigate={onNavigate} onAction={onAction}
+    focusSection={focusSection} onSectionHandled={() => setFocusSection(null)} guestLists
+    slots={{ account: <AccountConnection2029 user={user} profile={profile} signOut={signOut} />, research: researchNode, follow: followNode, raziel: razielNode }} />;
 }
 
 // The visual comparison folds context independently from decorative intros.
@@ -1504,6 +1428,7 @@ function SystemFrame2029Body({
   symbol = "✦",
   introVariant = "hero",
 }) {
+  useKeyboardClearance2029();   // the bottom bar steps aside while the on-screen keyboard is open
   const location = useLocation();
   const recordTimeMode = surface === "home" ? "relative" : "bilingual";
   const navigate = useNavigate();
@@ -1529,7 +1454,7 @@ function SystemFrame2029Body({
   const numberLocked = numberFeature.loading || numberFeature.blocked;
   const worldLocked = worldFeature.loading || worldFeature.blocked;
   const homeNav = (corePublicViewer ? CORE_HOME_NAV : HOME_NAV).map((item) => item.to === "/heichal" ? { ...item, locked: heichalLocked && !heichalFeature.adminViewAllowed } : item.to === "/2029/journey" ? { ...item, locked: journeyLocked && !journeyFeature.adminViewAllowed } : item.label === "העולם" ? { ...item, locked: worldLocked } : item);
-  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || item.to?.startsWith("/2029/number/") ? { ...item, locked: numberLocked } : item);
+  const directNav = (corePublicViewer ? CORE_DIRECT_NAV : DIRECT_NAV).map((item) => item.to === "/els" ? { ...item, locked: elsFeature.loading || (elsFeature.blocked && !elsFeature.adminViewAllowed) } : item.to === "/books" ? { ...item, locked: booksLocked && !booksFeature.adminViewAllowed } : item.to === "/beit-midrash" ? beitMidrashNavItem(item, isAdmin) : item.action === "number-search" || isNumberPagePath(item.to) ? { ...item, locked: numberLocked } : item);
   const [navOpen, setNavOpen] = useState(false);
 
   // The crown settles into the bar once the page is scrolled, and the bar's line fills with how much of the page was read.
@@ -1782,7 +1707,8 @@ function SystemFrame2029Body({
 
   const closeTransient = useCallback(() => {
     if (transient?.kind === TRANSIENT.NEWSLETTER) dismissGuestNewsletterInvite2029();
-    setTransient(null);
+    // A report opened from "האזור האישי שלי" returns to it when it closes (ZURIEL 11.11), the same panel, not the page behind it.
+    setTransient(transient?.kind === TRANSIENT.ISSUE && transient.payload?.returnToWorkspace === true ? { kind: TRANSIENT.WORKSPACE, payload: null } : null);
     requestAnimationFrame(() => returnFocusRef.current?.focus?.());
   }, [transient?.kind]);
 
@@ -1847,7 +1773,7 @@ function SystemFrame2029Body({
           id: String(resultValue),
           type: "number",
           label: String(resultValue),
-          href: `/2029/number/${resultValue}`,
+          href: `${NUMBER_PAGE_BASE}/${resultValue}`,
         },
         selection: {
           entityId: sameSelection ? currentSelection.entityId : normalized.id,
@@ -1890,6 +1816,7 @@ function SystemFrame2029Body({
     capability: payload?.capability || null, concept: payload?.concept || null,
     learnStage: payload?.learnStage || null, actionTried: payload?.actionTried || null,
     initialText: typeof payload?.initialText === "string" ? payload.initialText : "",
+    returnToWorkspace: payload?.returnToWorkspace === true,
     sourceHref: contactSourceHref(location),
   }), [openTransient, location.pathname, location.search]);
   const closeRaziel = useCallback(() => { if ([TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(transient?.kind)) closeTransient(); }, [transient?.kind, closeTransient]);
@@ -2105,7 +2032,7 @@ function SystemFrame2029Body({
   useEffect(() => {
     if ((razielLocked && transientKind === TRANSIENT.RAZIEL) || (contextLocked && transientKind === TRANSIENT.CONTEXT)) setTransient(null);
   }, [razielLocked, contextLocked, transientKind]);
-  const numberPageRoute = surface === "number" && /^\/2029\/number\/[^/]+\/?$/.test(location.pathname);
+  const numberPageRoute = surface === "number" && /^\/(?:2029\/)?number\/[^/]+\/?$/.test(location.pathname);
   const subjectHref = pageContext?.subject?.href || "";
   const postTrail = surface === "post"
     && pageContext?.subject?.type === "post"

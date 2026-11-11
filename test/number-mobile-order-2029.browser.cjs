@@ -18,11 +18,11 @@ for(const width of widths)test('Number mobile geometry and inherited public orde
  const method=page.locator('.sod29-number-v10-method-card').filter({has:page.getByText('מילוי',{exact:true})}).first();await expect(method).toBeEnabled({timeout:30000});await expect(method.locator('strong')).toHaveText(/[0-9]/);
  const readyMs=Date.now()-started;await expect(page.locator('.sod29-number-v11-regular-track button').first()).toBeVisible();
  await expect.poll(()=>publicOrder.length).toBeGreaterThan(0);
- const expression=await page.locator('.sod29-number-v10-expression-line>strong').textContent();
+ const expression=await page.locator('.sod29-number-v10-expression-line>:is(h1,strong)').textContent();
  const displayedOrder=await page.locator('.sod29-number-v11-regular-track .sod29-number-v11-regular-select strong').allTextContents();
  const geometry=await page.locator('.sod29-number-v10-identity').evaluate(header=>{
   const box=element=>{const r=element.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom};};
-  const expression=header.querySelector('.sod29-number-v10-expression'),text=expression.querySelector('strong');
+  const expression=header.querySelector('.sod29-number-v10-expression'),text=expression.querySelector('h1,strong');
   const root=header.querySelector('.sod29-number-value'),life=header.querySelector('.sod29-number-v10-life-seal');
   return {header:box(header),expression:box(expression),text:box(text),number:box(root),life:box(life),fontSize:getComputedStyle(root).fontSize,overflow:document.documentElement.scrollWidth>innerWidth+1};
  });

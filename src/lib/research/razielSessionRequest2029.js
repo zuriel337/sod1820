@@ -30,6 +30,7 @@ import {
   normalizeElsMatrixReadingResult,
   isElsReadingJobId,
 } from "../../../supabase/functions/_shared/elsMatrixReadingAction.js";
+import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
 
 const RAZIEL_CANONICAL_RESEARCH_CONTRACT = "public-number-research-run-v1";
 export const RAZIEL_PERSONAL_AREA_COMPANION_ACTION = "personal_area_companion_v1";
@@ -839,7 +840,7 @@ export function normalizeRazielEvidenceSummary(value = null) {
   if (!isObject(value)) return null;
   const numberLink = (input) => {
     const value = cleanInteger(input);
-    return value && value >= 1 && value <= 999999 ? { value, href: `/2029/number/${value}` } : null;
+    return value && value >= 1 && value <= 999999 ? { value, href: `${NUMBER_PAGE_BASE}/${value}` } : null;
   };
   const calculations = (Array.isArray(value.calculations) ? value.calculations : []).slice(0, 6).flatMap((item) => {
     if (!isObject(item)) return [];
@@ -925,10 +926,10 @@ export function normalizeRazielSuggestedActions(value = null) {
       actions.push({ id: item.id, label: RAZIEL_SUGGESTED_ACTION_LABELS[item.id], subject });
     } else if (item.id === "open_number") {
       const href = typeof item.href === "string" ? item.href.trim() : "";
-      const match = href.match(/^\/2029\/number\/([1-9]\d{0,5})$/);
+      const match = href.match(/^\/(?:2029\/)?number\/([1-9]\d{0,5})$/);
       const number = match ? Number(match[1]) : 0;
       if (!Number.isSafeInteger(number) || number < 1 || number > 999999) continue;
-      actions.push({ id: item.id, label: `פתח את המספר ${number}`, href: `/2029/number/${number}` });
+      actions.push({ id: item.id, label: `פתח את המספר ${number}`, href: `${NUMBER_PAGE_BASE}/${number}` });
     } else if (item.id === "save_as_life_journey_hint") {
       if (item.href !== "/2029/journey?focus=hints") continue;
       actions.push({

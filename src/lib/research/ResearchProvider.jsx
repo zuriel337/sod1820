@@ -26,6 +26,7 @@ import {
 import { emitJourney2029 } from "./journey2029Telemetry.js";
 import { entityRef, makeResearchOp, principalToken } from "./researchSyncState.js";
 import { createResearchSyncRuntime } from "./researchSyncRuntime.js";
+import { isNumberPagePath, numberPageUsesPublicBase } from "./numberPageAddress.js";
 
 const MODE_ROLLOUT_KEY = "sod_mode_rollout_v1";
 const LEGACY_UNSCOPED_KEY = "sod_research_v1";
@@ -38,7 +39,8 @@ const invokeElsResearch = (body, signal) => supabase.functions.invoke("els-searc
 function numberRouteSelection(pathname, search = "") {
   const match = String(pathname || "").match(/^\/(2029\/)?number\/([^/?#]+)/);
   if (!match) return null;
-  const native2029 = Boolean(match[1]);
+  // The public release serves the native Number page at /number; the compatibility /2029/number is the same page.
+  const native2029 = Boolean(match[1]) || numberPageUsesPublicBase();
   let key = match[2];
   try { key = decodeURIComponent(key); } catch { /* keep raw key */ }
   key = String(key || "").trim();
@@ -53,7 +55,7 @@ function numberRouteSelection(pathname, search = "") {
       id,
       type: numeric ? "number" : "phrase",
       label: id,
-      href: `${native2029 ? "/2029" : ""}/number/${encodeURIComponent(id)}${native2029 ? search || "" : ""}`,
+      href: `${match[1] ? "/2029" : ""}/number/${encodeURIComponent(id)}${native2029 ? search || "" : ""}`,
     },
     selection: {
       entityId: id,
@@ -493,7 +495,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     };
     // A 2029 Workspace departure may carry only returnTo. Preserve it when
     // establishing the first Number subject; Legacy route behavior is unchanged.
-    const next = current?.subject || pathname.startsWith("/2029/number/")
+    const next = current?.subject || isNumberPagePath(pathname)
       ? mergeResearchContext(current, { subject: route.subject, selection: route.selection, lens: "number", dimensions: focusDimensions })
       : mergeResearchContext(null, { subject: route.subject, selection: route.selection, lens: "number", dimensions: focusDimensions });
     actions.setResearchContext(next);

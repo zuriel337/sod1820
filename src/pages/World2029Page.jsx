@@ -74,6 +74,7 @@ import {
   resolveWorldKnowledgeKind,
   worldLandingViewLocation,
 } from "../lib/research/worldLandingNavigation.js";
+import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 
 const WorldAllResearchTable = React.lazy(() => import("../components/research/WorldAllResearchTable.jsx"));
 const WorldKnowledgeTypes2029 = React.lazy(() => import("../components/research/WorldKnowledgeTypes2029.jsx"));
@@ -1541,7 +1542,7 @@ function AnchoredWorld({ research, shell, subject, context }) {
 
   const openNumberPage = () => {
     if (data?.identity?.type !== "number") return;
-    shell.go(focusedNumberHref || `/2029/number/${encodeURIComponent(data.identity.label)}`);
+    shell.go(focusedNumberHref || `${NUMBER_PAGE_BASE}/${encodeURIComponent(data.identity.label)}`);
   };
 
   const clearExpressionFocus = () => {

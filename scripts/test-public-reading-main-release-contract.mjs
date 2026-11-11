@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 import canonicalMiddleware, {config as canonicalConfig} from "../middleware.js";
 import publicMiddleware, {config as publicConfig} from "../public-reading-deploy/middleware.js";
 import {PUBLIC_READING_DEPLOYMENT_AUTHORIZATION} from "../public-reading-deploy/deployment-policy.js";
-import {PRODUCTION_REVIEW_BRANCH,REVIEW_BRANCH} from "../public-reading-deploy/review-admission.js";
+import {PRODUCTION_REVIEW_BRANCH,REVIEW_BRANCH,REVIEW_BRANCHES} from "../public-reading-deploy/review-admission.js";
 
 // Repository publication contract only. A PASS is neither a live deployment
 // receipt nor permission to merge/deploy a retired branch or move domains.
@@ -31,6 +31,7 @@ export function assertMainReleaseContract() {
   assertPublicationConfig(readPublicationConfig());
   assert.equal(PRODUCTION_REVIEW_BRANCH,"main","retired cutover branches cannot create new production candidates");
   assert.equal(REVIEW_BRANCH,"gpt/2029-main-live-state-reconcile-20261104","only the explicitly current integration branch is admitted for review");
+  assert.deepEqual([...REVIEW_BRANCHES],[REVIEW_BRANCH,"claude/number-typography-v2-20261111"],"review branches are an exact, recorded allowlist (ZURIEL 11.11.2026), never a pattern");
   assert.deepEqual(PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,{state:"dormant",approvedSourceSha:null,approvedDeploymentId:null,approvedAt:null});
   assert.equal(publicMiddleware,canonicalMiddleware);assert.deepEqual(publicConfig,canonicalConfig);
   return true;

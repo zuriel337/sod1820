@@ -50,6 +50,31 @@ const LEGACY_TAXONOMY_ALIASES = Object.freeze({
   "/tag/הרב-ציון-ברכה-זצל": "/tag/הרב-ציון-ברכה-זצ%22ל",
 });
 
+// Number / expression addresses (ZURIEL 11.11.2026). One pure owner for the canonical form, used by the server redirect, the
+// client router and the internal link helper (src/lib/research/numberPageAddress.js re-exports these). No imports: the route policy
+// is also evaluated as plain source by the release tests.
+// Digits only, no leading zeros; "0", "00" and "000" are the real zero. Works on any length (no Number conversion).
+export function canonicalNumericAddress(digits) {
+  const text = String(digits ?? "");
+  return /^\d+$/.test(text) ? text.replace(/^0+(?=\d)/, "") : text;
+}
+// One raw (still percent-encoded) path segment: a number loses leading zeros; an expression keeps the exact encoding it arrived with.
+export function canonicalNumberSegment(segment) {
+  const raw = String(segment ?? "");
+  let decoded;
+  try { decoded = decodeURIComponent(raw); } catch { return raw; }
+  return /^\d+$/.test(decoded) ? canonicalNumericAddress(decoded) : raw;
+}
+// /number/<address> or the compatibility /2029/number/<address> -> the canonical public path in one hop, or null when the path is
+// already canonical or is not a number address.
+export function canonicalNumberPagePath(pathname) {
+  const match = /^\/(2029\/)?number\/([^/]+)\/?$/.exec(String(pathname || ""));
+  if (!match) return null;
+  const segment = canonicalNumberSegment(match[2]);
+  if (!match[1] && segment === match[2] && !String(pathname).endsWith("/")) return null;
+  return `/number/${segment}`;
+}
+
 export function publicReadingContinuation(pathname, search = "", hash = "") {
   const path = addressPath(pathname);
   if (!path) return null;
@@ -89,6 +114,12 @@ export function publicReadingContinuation(pathname, search = "", hash = "") {
   if (["/tag/chat", "/tag/צאט", "/tag/צ'אט", "/tag/צ׳אט", "/tag/צ-אט"].includes(path)) target = "/community/chat";
   if (["/", "/2029"].includes(path) && query.get("preview") === "community") target = "/community/chat";
   if (path === "/research" && query.get("tool") === "gematria") target = "/gematria";
+  // Number / expression addresses (ZURIEL 11.11.2026): /2029/number/<address> and a number with leading zeros continue to the canonical
+  // /number/<address> in one hop. An expression keeps its exact encoded segment (never replaced by the number it computes to); the
+  // real zero stays; the query and the fragment are kept by the common tail below. The bare /2029/number base is mapped above.
+  const numberAddress = canonicalNumberPagePath(pathname);
+  if (numberAddress && !target && (typeof pathname === "string" && /^\/2029\/number\/[^/]+\/?$/.test(pathname)
+    || numberAddress !== String(pathname).replace(/\/+$/, ""))) target = numberAddress;
   // Use the raw encoded segment: an encoded slash can belong to a label.
   const book = /^\/books\/([^/]+)\/?$/.exec(pathname);
   if (book) target = `/book/${book[1]}`;

@@ -1,5 +1,6 @@
 import { isRegularMethodIdentity } from "./methodIdentity.js";
 import { publicPageShareUrl } from "../publicPostUrls.js";
+import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
 
 export { isRegularMethodIdentity } from "./methodIdentity.js";
 
@@ -59,15 +60,36 @@ export function numberExpressionFocusHref(root, {
   if (methodKey) params.set("method", methodKey);
   if (crossing) params.set("cross", crossing);
   const query = params.toString();
-  const prefix = (import.meta.env?.VITE_PUBLIC_FOUNDATION_PREVIEW === "true" || import.meta.env?.VITE_PUBLIC_READING_RELEASE === "public-reading-20261101") ? "/number" : "/2029/number";
+  const prefix = NUMBER_PAGE_BASE;
   return `${prefix}/${numeric}${query ? `?${query}` : ""}`;
 }
 
+// Legacy calculator links (/number/N?from=calc&focus=dna&method=<method>) used `focus=dna` as a section pointer, not as an
+// expression: "open the Number Page's convergence axes (צירי ההתכנסות)". ZURIEL (11.11.2026): restore that meaning. The pointer
+// opens the existing convergence rendering of the 2029 page (the "עולמות" section, built from the approved convergence cards; the
+// connections section when there are none) and is never an expression, so "dna" is not shown as one and nothing is computed for it.
+// The legacy `method` belonged to an expression that was never carried in the link, so it is not applied to a calculation; it is
+// kept as provenance (legacyMethod) and the address itself is left exactly as it was written.
+const LEGACY_FOCUS_SECTION_POINTERS = Object.freeze({ dna: "convergence" });
+
 export function parseNumberExpressionFocus(search = "") {
   const params = new URLSearchParams(String(search || "").replace(/^\?/, ""));
-  const expression = clean(params.get("focus"));
-  const method = clean(params.get("method"));
+  const rawExpression = clean(params.get("focus"));
+  const legacySection = Object.prototype.hasOwnProperty.call(LEGACY_FOCUS_SECTION_POINTERS, rawExpression.toLowerCase())
+    ? LEGACY_FOCUS_SECTION_POINTERS[rawExpression.toLowerCase()] : null;
   const crossingPartner = clean(params.get("cross"));
+  if (legacySection) {
+    return {
+      expression: null,
+      method: null,
+      crossingPartner: crossingPartner || null,
+      explicit: Boolean(crossingPartner),
+      legacySection,
+      legacyMethod: clean(params.get("method")) || null,
+    };
+  }
+  const expression = rawExpression;
+  const method = clean(params.get("method"));
   return {
     expression: expression || null,
     method: method || null,

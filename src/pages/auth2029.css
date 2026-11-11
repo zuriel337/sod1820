@@ -30,3 +30,21 @@
 .sod29-community-sign-in .sod29-account-entry input{width:100%;min-height:50px;flex:initial}
 .sod29-community-sign-in .sod29-account-entry[data-auth-state="signed-in"]{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;max-width:none;padding:0}
 .sod29-community-sign-in .sod29-account-entry[data-auth-state="signed-in"] h2{font-size:16px;margin:0}
+
+/* The fixed bottom bar must never cover the last control of a sign-in or password screen (ZURIEL 11.11.2026): the page ends above the bar,
+   and anything the browser scrolls into view (a focused field or button, a keyboard Tab) is left clear of it. 132px is the bar's tallest clearance. */
+.sod29-auth{padding-block-end:calc(var(--s29-island-clearance,90px) + env(safe-area-inset-bottom,0px) + 32px)}
+html:has(.sod29-auth){scroll-padding-block-end:calc(132px + env(safe-area-inset-bottom,0px) + 16px)}
+.sod29-auth-card :is(p,b,strong,small,label){overflow-wrap:anywhere}
+
+/* Password screens on a phone: the text above the fields is compact so the form and its save button fit on one screen where they can,
+   and the long address wraps instead of widening the card. */
+@media (max-width:520px){
+  .sod29-auth-card[data-auth-state="password-recovery"],.sod29-auth-card[data-auth-state="password-setup"]{padding:18px 16px}
+  .sod29-auth-card[data-auth-state="password-recovery"]>p{font-size:15px;line-height:1.55;margin:0 0 12px}
+  .sod29-auth-card[data-auth-state="password-recovery"] h2{font-size:21px;margin-bottom:6px}
+  .sod29-auth-card[data-auth-state="password-recovery"] form{gap:6px}
+  .sod29-auth-card[data-auth-state="password-recovery"] .sod29-auth-eyebrow{display:none}
+  .sod29-auth-card[data-auth-state="password-recovery"] input{min-height:46px}
+  .sod29-auth-card[data-auth-state="password-recovery"] .sod29-auth-link{min-height:40px}
+}

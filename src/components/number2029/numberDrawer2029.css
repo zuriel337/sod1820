@@ -13,9 +13,9 @@
   background:color-mix(in srgb,var(--s29-panel-soft) 86%,transparent);
 }
 .sod29-number-drawer-mode>div{display:grid;gap:3px;min-width:0}
-.sod29-number-drawer-mode span{color:var(--s29-accent-text);font-size:9px;font-weight:900;letter-spacing:.06em}
+.sod29-number-drawer-mode span{color:var(--s29-accent-text);font-size:var(--sod29-number-support,14px);font-weight:900;letter-spacing:.06em}
 .sod29-number-drawer-mode strong{color:var(--s29-ink);font-size:18px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sod29-number-drawer-mode small{color:var(--s29-muted);font-size:9px;line-height:1.45}
+.sod29-number-drawer-mode small{color:var(--s29-muted);font-size:var(--sod29-number-support,14px);line-height:1.45}
 .sod29-number-drawer-back{
   flex:0 0 auto;
   min-height:36px;
@@ -25,7 +25,7 @@
   color:var(--s29-ink);
   padding:6px 10px;
   font:inherit;
-  font-size:9px;
+  font-size:var(--sod29-number-support,14px);
   font-weight:850;
   cursor:pointer;
 }
@@ -63,7 +63,7 @@
   color:var(--s29-on-accent,#120d04);
   padding:7px 11px;
   font:inherit;
-  font-size:10px;
+  font-size:var(--sod29-number-ui,14px);
   font-weight:900;
   cursor:pointer;
 }
@@ -72,7 +72,7 @@
   border:1px dashed var(--s29-line);
   border-radius:12px;
   color:var(--s29-muted);
-  font-size:9px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-drawer-status.error{
   border-style:solid;
@@ -89,7 +89,7 @@
 .sod29-number-drawer-empty p{
   margin:0;
   color:var(--s29-muted);
-  font-size:10px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-drawer-empty form{
   display:flex;

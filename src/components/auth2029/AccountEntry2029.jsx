@@ -10,6 +10,7 @@ import NewPassword2029 from "./NewPassword2029.jsx";
 import { markOtpSent, otpResendWaitMs } from "../../lib/otpThrottle.js";
 import { passwordResetKey } from "../../lib/passwordResetThrottle.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
+import { ProviderMark2029 } from "./ProviderMark2029.jsx";
 import { safePreviewOAuthReturnPath } from "../../lib/oauthReturn.js";
 import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import { use2029Palette } from "../../lib/palette2029.js";
@@ -157,7 +158,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
             {methods.state === "ready" && methods.email ? <button className="sod29-auth-link" type="button" disabled={busy} onClick={() => changeStep(step === "email" ? "password" : step === "reset" || step === "reset-sent" ? "password" : "email")}>{step === "email" ? "כניסה עם סיסמה" : step === "code" ? "שינוי כתובת או בקשת קוד חדש" : step === "reset" || step === "reset-sent" ? "חזרה לכניסה עם סיסמה" : "כניסה עם קוד למייל"}</button> : null}
             {methods.state === "ready" && methods.email && (step === "reset" || step === "reset-sent") ? <button className="sod29-auth-link" type="button" disabled={busy} data-auth-action="reset-to-code" onClick={() => changeStep("email")}>כניסה עם קוד למייל</button> : null}
             {methods.state === "ready" && methods.email && (step === "password" || step === "email") ? <button className="sod29-auth-link" type="button" disabled={busy} data-auth-action="forgot-password" onClick={() => changeStep("reset")}>שכחתי סיסמה?</button> : null}
-            {methods.oauth.map(method => <button key={method.id} className="sod29-auth-secondary" type="button" disabled={busy || !method.available} aria-describedby={!method.available ? `${fieldId}-oauth-state` : undefined} onClick={() => federated(method.id)}>המשך עם {method.label}</button>)}
+            {methods.oauth.map(method => <button key={method.id} className="sod29-auth-secondary" type="button" data-auth-provider={method.id} disabled={busy || !method.available} aria-describedby={!method.available ? `${fieldId}-oauth-state` : undefined} onClick={() => federated(method.id)}><ProviderMark2029 id={method.id} /><span><span className="sod29-auth-provider-lead">המשך עם </span>{method.label}</span></button>)}
             {methods.oauth.some(method => !method.available) ? <p id={`${fieldId}-oauth-state`} className="sod29-auth-method-note">{"הכניסה עם Google ו־Facebook ממתינה לאישור כתובת החזרה. אפשר להיכנס עם מייל וסיסמה או קוד למייל."}</p> : null}
           </div>
         </>}

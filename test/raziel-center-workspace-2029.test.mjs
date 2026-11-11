@@ -15,9 +15,12 @@ test("My Workspace opens the Raziel conversation center before the existing chat
   const shell = frame.slice(frame.indexOf("function PanelShell("), frame.indexOf("function PanelShell(") + 2400);
   assert.match(shell, /<React\.Suspense fallback=\{<div role="status">[^<]*<\/div>\}>\{children\}<\/React\.Suspense>/);
   assert.match(frame, /<PanelShell \{\.\.\.common\} panelKind="workspace"[^\n]*><WorkspaceProjection /);
-  assert.match(frame, /id: "raziel"[\s\S]*state: "live", onClick: \(\) => setWorkspaceSection\("raziel"\)/);
-  assert.match(frame, /razielLocked \? "השיחות השמורות זמינות; המשך עם רזיאל עדיין נעול"/);
-  assert.doesNotMatch(frame, /onClick: razielLocked \? null : \(\) => setWorkspaceSection\("raziel"\)/);
+  // The card now comes from the personal-area model: always live (saved conversations stay reachable), opened in the panel, never gated on Raziel's lock.
+  const model = read("src/lib/userCenter/personalArea2029.js");
+  assert.match(model, /id: "raziel"[\s\S]{0,700}to: \{ section: "raziel" \}/);
+  assert.doesNotMatch(model, /id: "raziel"[^\n]*state: "(locked|building)"/);
+  assert.match(model, /razielLocked \? "השיחות השמורות זמינות; ההמשך נעול"/);
+  assert.match(frame, /card\.to\?\.section === "raziel"\) setWorkspaceSection\("raziel"\)/);
   assert.match(frame, /workspaceSection === "raziel"/);
   assert.match(frame, /<RazielCenter2029[\s\S]*onOpenConversation=\{onRaziel\}/);
   assert.doesNotMatch(center, /RazielSessionProvider2029|createContext|useReducer|askRaziel|transport|fetch\(|supabase|\.rpc\(/);

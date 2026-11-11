@@ -49,6 +49,16 @@ const MATH_FAMILY_HE = Object.freeze({
   happy_base10: "מספר שמח",
   narcissistic_base10: "Armstrong",
   palindromic_prime_base10: "ראשוני פלינדרומי",
+  twin_prime: "ראשוני תאום (הפרש 2)",
+  cousin_prime: "ראשוני בהפרש 4",
+  sexy_prime: "ראשוני בהפרש 6",
+  safe_prime: "ראשוני בטוח",
+  sophie_germain_prime: "ראשוני סופי ג׳רמן",
+  emirp: "ראשוני הפוך",
+  circular_prime: "ראשוני מעגלי",
+  left_truncatable_prime: "ראשוני קטום משמאל",
+  right_truncatable_prime: "ראשוני קטום מימין",
+  superprime: "ראשוני־על (אינדקס ראשוני)",
 });
 
 function technicalSourceText(value) {
@@ -221,6 +231,7 @@ export default function NumberLivingWorld2029({
   activityCount = 0,
   researchState = {},
   onOpenWorld,
+  focusSection = null,
   onOpenHeichal,
   onRazielAction,
   onOpenNumber,
@@ -357,6 +368,28 @@ export default function NumberLivingWorld2029({
   };
 
   const selectedScrub = scrubRows[Math.min(scrubIndex, Math.max(0, scrubRows.length - 1))] || null;
+  // Legacy `?focus=dna` ("open the convergence axes"): scroll to the existing convergence rendering. The worlds section is built
+  // from the approved convergence cards; with none, the connections section is the nearest existing one. Nothing is created.
+  // The sections above it (verses, expressions, sources) finish loading after the first paint and move it, so the scroll is
+  // repeated briefly, and stops at once when the reader scrolls, touches or presses a key.
+  const focusedSectionDone = useRef(null);
+  useEffect(() => {
+    if (focusSection !== "convergence") return undefined;
+    const marker = `${root}:${focusSection}`;
+    if (focusedSectionDone.current === marker) return undefined;
+    let touched = false;
+    const stop = () => { touched = true; };
+    const events = ["wheel", "touchstart", "keydown", "mousedown"];
+    events.forEach(name => window.addEventListener(name, stop, { passive: true, once: true }));
+    const go = () => {
+      if (touched) return;
+      const target = document.getElementById("number-worlds-live") || document.getElementById("number-connections-live");
+      if (target) target.scrollIntoView({ behavior: "auto", block: "start" });
+    };
+    const timers = [0, 400, 1200, 2600, 4500].map(delay => window.setTimeout(go, delay));
+    focusedSectionDone.current = marker;
+    return () => { timers.forEach(window.clearTimeout); events.forEach(name => window.removeEventListener(name, stop)); };
+  }, [focusSection, root]);
   const navItems = [
     ...(verseRows.length || versesLoading ? [["פסוקים", "number-verses"]] : []),
     ["עיקר", "number-essential"],
@@ -537,13 +570,17 @@ export default function NumberLivingWorld2029({
           <p>φ(n) = {math?.arithmetic?.totient ?? "—"} · שורש ספרות {math?.digit_structure?.digital_root ?? "—"} · סכום ספרות {math?.digit_structure?.digit_sum ?? "—"}</p>
         </div>
         <div className="sod29-lw-math-discoveries">
-          {(math?.families || []).slice(0, 3).map((family) => <span key={family.key}>{MATH_FAMILY_HE[family.key] || family.label}</span>)}
+          {(math?.families || []).filter((family) => family.category !== "prime_family").slice(0, 3).map((family) => <span key={family.key}>{MATH_FAMILY_HE[family.key] || family.label}</span>)}
           {!math?.families?.length ? <span>אין משפחה מיוחדת שזוהתה</span> : null}
         </div>
       </div>
       {math?.prime_context?.status === "exact" ? <div className="sod29-lw-prime-lens" data-experience-capability="number-prime-lens">
         <div><strong>עדשת הראשוניים · #{math.prime_context.index}</strong><p>ראשוני קודם {math.prime_context.previous ?? "—"} · הבא {math.prime_context.next} · פערים {math.prime_context.gapBefore ?? "—"} ו־{math.prime_context.gapAfter}</p><small>קשר מתמטי מחושב; ביטויים ומשמעות נבדקים בדף המספר הנגזר.</small></div>
         <DepthButton onClick={() => onOpenNumber?.(math.prime_context.index)}>פתח את מספר {math.prime_context.index}</DepthButton>
+        {(math?.families || []).some((family) => family.category === "prime_family") ? <div className="sod29-lw-prime-families" aria-label="משפחות ראשוניים">
+          {(math.families || []).filter((family) => family.category === "prime_family").map((family) => <span key={family.key} title={family.reference?.source_ref || undefined}>{MATH_FAMILY_HE[family.key] || family.label}</span>)}
+        </div> : null}
+        <Link className="sod29-action" to="/beit-midrash?section=numbers&concept=prime-lens#number-concept-prime-lens">מהי עדשת הראשוניים?</Link>
       </div> : null}
 
       <div className="sod29-lw-scrubber">

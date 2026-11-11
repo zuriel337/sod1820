@@ -11,7 +11,7 @@ for(const [mode,width]of[['delay',390],['delay',1440],['failed',390]])test('root
  const expression='אחת ארבע שבע ושתיים',address='/number/1820?focus='+encodeURIComponent(expression)+'&method='+encodeURIComponent('רגיל')+'&source=root-race&part=2&part=7#number-essential';
  await page.goto(origin+address);const root=page.locator('.sod29-number-root-open');await expect(root).toBeEnabled({timeout:60000});
  const rail=page.locator('.sod29-number-v11-regular-track button').first();const other=await rail.locator('strong').textContent();expect(other).not.toBe(expression);await rail.click();
- await expect(page.locator('.sod29-number-v10-expression-line>strong')).toHaveText(other);await expect(root).toBeEnabled({timeout:60000});
+ await expect(page.locator('.sod29-number-v10-expression-line>:is(h1,strong)')).toHaveText(other);await expect(root).toBeEnabled({timeout:60000});
  let release,arrive,failed=mode==='failed';const gate=new Promise(resolve=>{release=resolve;}),seen=new Promise(resolve=>{arrive=resolve;});
  await page.route('**/rest/v1/rpc/fn_method_profile',async route=>{
   if(route.request().postDataJSON()?.p_phrase!==expression)return route.fallback();arrive();await gate;
@@ -20,7 +20,7 @@ for(const [mode,width]of[['delay',390],['delay',1440],['failed',390]])test('root
  // Expire the bounded canonical reuse window so the original delayed/failed
  // response checks still exercise an actual read rather than a cached result.
  await page.evaluate(()=>{const actualNow=Date.now;Date.now=()=>actualNow()+31_000;});
- await page.goBack();await seen;await expect(page.locator('.sod29-number-v10-expression-line>strong')).toHaveText(expression);await expect(root).toBeDisabled();await expect(root).toHaveAttribute('aria-busy','true');
+ await page.goBack();await seen;await expect(page.locator('.sod29-number-v10-expression-line>:is(h1,strong)')).toHaveText(expression);await expect(root).toBeDisabled();await expect(root).toHaveAttribute('aria-busy','true');
  await root.evaluate(button=>button.click());await expect(page).toHaveURL(origin+address);await expect(page.getByRole('dialog')).toHaveCount(0);
  release();
  if(mode==='failed'){

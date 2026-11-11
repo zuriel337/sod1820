@@ -33,7 +33,7 @@ const server=http.createServer((req,res)=>{let file=path.resolve(dist,'.'+new UR
   await expect(page.locator('#number-content-live').getByRole('button',{name:'הצגת ממצאים למספר',exact:true})).toHaveCount(1);
   // Canonical reuse removes only the redundant Back read and preserves every
   // byte of the previous URL, including repeated parameters and its anchor.
-  const before=profileReads;const input=page.getByRole('textbox',{name:'חפש מילה ביטוי או מספר',exact:true});await input.fill('בראשית');await input.press('Enter');await expect(root).toHaveAttribute('data-number-root','913');await expect(page.locator('.sod29-number-v10-expression-line>strong')).toHaveText('בראשית');await expect(method).toBeEnabled();
+  const before=profileReads;const input=page.getByRole('textbox',{name:'חפש מילה ביטוי או מספר',exact:true});await input.fill('בראשית');await input.press('Enter');await expect(root).toHaveAttribute('data-number-root','913');await expect(page.locator('.sod29-number-v10-expression-line>:is(h1,strong)')).toHaveText('בראשית');await expect(method).toBeEnabled();
   const afterPhrase=profileReads;assert.ok(afterPhrase>before);await page.goBack();await expect(page).toHaveURL(origin+address);await expect(method).toBeEnabled();assert.equal(profileReads,afterPhrase);
   assert.deepEqual(errors,[]);results.push({width,primaryWhileMaterialPending:true,failedNotEmpty:true,retry:true,inertSourceEntry:true,exactBack:true,backReusesCanonicalProfile:true,remoteRequestsForwarded:0,modelsForwarded:0,reads});await context.close();
  }

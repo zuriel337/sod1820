@@ -1,0 +1,3 @@
+/* While the on-screen keyboard is open the bottom bar steps aside, so it never rides above the keyboard and covers the control being used. */
+html.sod29-kbd-open .sod29-command-island,html.sod29-kbd-open .sod29-root.native-frame .sod29-command-island,html.sod29-kbd-open .sod29-root.native-frame .sod29-command-island.is-unified-bar{display:none!important}
+html.sod29-kbd-open .sod29-root{--s29-island-clearance:0px}

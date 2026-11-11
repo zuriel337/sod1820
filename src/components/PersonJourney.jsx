@@ -68,6 +68,7 @@ import SignatureResearchIcon from "./SignatureResearchIcon.jsx";
 import CanonicalVerseCards2029 from "./experience2029/CanonicalVerseCards2029.jsx";
 import "./person-journey.css";
 import LifeJourneyResume2029 from "./experience2029/LifeJourneyResume2029.jsx";
+import { isNumberPagePath } from "../lib/research/numberPageAddress.js";
 
 const LifeJourneyMaps2029 = lazy(() => import("./experience2029/LifeJourneyMaps2029.jsx"));
 
@@ -467,9 +468,9 @@ function PrincipalPersonJourney({ variant = "legacy", CapabilitySurface = null, 
         }
         return;
       }
-      if (contextView === "finding" && !pathname.startsWith("/2029/number/")) {
+      if (contextView === "finding" && !isNumberPagePath(pathname)) {
         const timer = window.setTimeout(() => {
-          if (!window.location.pathname.startsWith("/2029/number/")) {
+          if (!isNumberPagePath(window.location.pathname)) {
             research.setResearchContext?.(buildLifeJourneyPersonContext(selfRef, research.context));
           }
         }, 0);
