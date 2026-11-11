@@ -32,7 +32,7 @@
   background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 86%,white),var(--r29-gold));
   box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 45%,transparent),0 10px 22px -12px color-mix(in srgb,var(--r29-gold) 85%,transparent)}
 /* Day and Parchment resolve the brand gold to a deep gold (readable on light surfaces): light ink on it, never dark on dark. */
-:where(.sod29-root[data-frame-theme-preset="light"],.sod29-root[data-frame-theme-preset="parchment"]) .pa29-primary{color:var(--s29-on-accent,#fff);
+:where(.sod29-root[data-frame-theme-preset="light"],.sod29-root[data-frame-theme-preset="parchment"]) .pa29-primary{color:var(--s29-on-accent);
   background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 88%,white),color-mix(in oklab,var(--r29-gold) 92%,black))}
 .pa29-primary:hover{filter:brightness(1.05)}
 .pa29-primary:focus-visible,.pa29 :is(.pa29-card,.pa29-more-head):focus-visible,.pa29 summary:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
