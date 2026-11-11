@@ -1063,6 +1063,7 @@ const RESEARCH_SECTIONS = [
 ];
 
 import { personalCards, personalPrimaryAction, personalCardHref } from "../../lib/userCenter/personalArea2029.js";
+import useKeyboardClearance2029 from "./useKeyboardClearance2029.js";
 const PersonalHomeLazy2029 = React.lazy(() => import("./PersonalHome2029.jsx"));
 
 function SavedItemEditor2029({ item, research }) {
@@ -1424,6 +1425,7 @@ function SystemFrame2029Body({
   symbol = "✦",
   introVariant = "hero",
 }) {
+  useKeyboardClearance2029();   // the bottom bar steps aside while the on-screen keyboard is open
   const location = useLocation();
   const recordTimeMode = surface === "home" ? "relative" : "bilingual";
   const navigate = useNavigate();

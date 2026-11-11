@@ -30,3 +30,20 @@
 .sod29-community-sign-in .sod29-account-entry input{width:100%;min-height:50px;flex:initial}
 .sod29-community-sign-in .sod29-account-entry[data-auth-state="signed-in"]{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;max-width:none;padding:0}
 .sod29-community-sign-in .sod29-account-entry[data-auth-state="signed-in"] h2{font-size:16px;margin:0}
+
+/* The fixed bottom bar must never cover the last control of a sign-in or password screen (ZURIEL 11.11.2026): the page ends above the bar,
+   and anything the browser scrolls into view (a focused field or button, a keyboard Tab) is left clear of it. 132px is the bar's tallest clearance. */
+.sod29-auth{padding-block-end:calc(var(--s29-island-clearance,90px) + env(safe-area-inset-bottom,0px) + 32px)}
+html:has(.sod29-auth){scroll-padding-block-end:calc(132px + env(safe-area-inset-bottom,0px) + 16px)}
+.sod29-auth-card :is(p,b,strong,small,label){overflow-wrap:anywhere}
+
+/* The save button of a password screen stays in view: it rides at the bottom of the screen above the bar (or at the very bottom while the keyboard is open),
+   so it can never be below the fold, under the bar or under the keyboard, however long the text above it is. */
+.sod29-auth-card[data-auth-state="password-recovery"] form>button[type="submit"],
+.sod29-auth-card[data-auth-state="password-setup"] form>button[type="submit"],
+[data-auth-state="password-setup"] form>button[type="submit"]{position:sticky;z-index:3;
+  inset-block-end:calc(var(--s29-island-clearance,90px) + env(safe-area-inset-bottom,0px) + 10px);box-shadow:0 0 0 6px var(--s29-panel-soft,var(--s29-panel)),0 -14px 18px -8px var(--s29-panel-soft,var(--s29-panel))}
+html.sod29-kbd-open .sod29-auth-card[data-auth-state="password-recovery"] form>button[type="submit"],
+html.sod29-kbd-open [data-auth-state="password-setup"] form>button[type="submit"]{inset-block-end:10px}
+/* Inside the personal panel the scroll area already ends above the bar. */
+[data-panel-kind="workspace"] [data-auth-state="password-setup"] form>button[type="submit"]{inset-block-end:8px}
