@@ -2,7 +2,7 @@ import React, { useState, useSyncExternalStore } from "react";
 import RoyalTile2029, { RoyalTileGrid2029 } from "./RoyalTile2029.jsx";
 import ShareActions from "../ShareActions.jsx";
 import { BRAND_LOCKUP_NAV_2029 } from "../../lib/brandAssets2029.js";
-import { installMenuKind, requestInstall, subscribeInstallOffer, suppressInstallSuggestion, INSTALL_ACCEPTED_DAYS } from "../../lib/installOffer2029.js";
+import { installBrowser, installManualSteps, installMenuKind, requestInstall, subscribeInstallOffer, suppressInstallSuggestion, INSTALL_ACCEPTED_DAYS } from "../../lib/installOffer2029.js";
 import "./morePanel2029.css";
 
 // The body of the ONE bottom-bar "עוד" panel (SystemFrame2029 TRANSIENT.MORE), in Royal Tiles 2029. A projection over existing
@@ -16,8 +16,11 @@ const REVIEW_KEY = "sod2029:royal-candidate-review";
 const reviewCandidate = () => { try { const v = localStorage.getItem(REVIEW_KEY); return ["palace", "grid", "glass"].includes(v) ? v : "palace"; } catch { return "palace"; } };
 
 const getServerKind = () => null;
-// Shown only when the device can really install: the browser's own offer (Android), the manual steps (iOS), or a note inside
-// the installed app. Desktop and browsers without an offer get no tile — never a dead button or an unsupported promise.
+// Shown whenever the device can really install, and only then: the browser's own offer (it opens the browser's window), the real
+// steps of this browser's menu (iPhone/iPad, Android without an offer, Samsung Internet, Firefox for Android, Chrome/Edge/Safari on a
+// computer, or an in-app browser that must open the site in a browser first), or a note inside the installed app. A browser that
+// cannot install gets no tile — never a dead button or an unsupported promise. The 14-day dismissal of the automatic suggestion does
+// not hide this explicit entry.
 export function MoreInstall2029() {
   const kind = useSyncExternalStore(subscribeInstallOffer, installMenuKind, getServerKind);
   const [outcome, setOutcome] = useState(null);
@@ -30,22 +33,26 @@ export function MoreInstall2029() {
     if (result === "accepted") suppressInstallSuggestion(INSTALL_ACCEPTED_DAYS);
     setOutcome(result || "unavailable");
   };
+  const manual = kind === "manual" || kind === "ios-manual";
+  const stepsList = manual ? installManualSteps() : [];
+  const browser = kind === "installed" ? null : installBrowser();
+  const hint = browser === "android-inapp" ? "פתיחה בדפדפן והתקנה משם" : browser?.startsWith("desktop-") ? "התקנה כאפליקציה במחשב" : "הוספה למסך הבית";
   const status = { pending: "חלון ההתקנה של הדפדפן פתוח…", accepted: "האפליקציה הותקנה. אפשר לפתוח אותה ממסך הבית.",
-    dismissed: "ההתקנה לא הושלמה. אפשר להתקין גם מתפריט הדפדפן.", unavailable: "הדפדפן לא מציע כרגע התקנה. אפשר להתקין מתפריט הדפדפן." }[outcome];
-  return <section className="sod29-more-section sod29-more-install sod29-royal-wide-wrap" data-more-section="install" data-install-kind={kind || "done"} aria-label="אפליקציית סוד 1820">
+    dismissed: "ההתקנה לא הושלמה. אפשר להתקין גם לפי ההוראות כאן.", unavailable: "הדפדפן לא פתח חלון התקנה. אפשר להתקין לפי ההוראות כאן." }[outcome];
+  return <section className="sod29-more-section sod29-more-install sod29-royal-wide-wrap" data-more-section="install" data-install-kind={kind || "done"}
+    data-install-browser={browser || undefined} aria-label="אפליקציית סוד 1820">
     {kind === "installed" ? <div className="sod29-royal-tile is-wide sod29-more-installed" data-royal-variant="wide">
       <span className="sod29-royal-tile-medal" aria-hidden="true">{art}</span>
       <span className="sod29-royal-tile-text"><strong>אפליקציית סוד 1820</strong><small>האפליקציה מותקנת במכשיר הזה.</small></span>
     </div> : null}
-    {kind === "native" && outcome !== "pending" ? <RoyalTile2029 variant="wide" art={art} title="אפליקציית סוד 1820" hint="פתיחה מהירה ממסך הבית"
+    {kind === "native" && outcome !== "pending" ? <RoyalTile2029 variant="wide" art={art} title="אפליקציית סוד 1820" hint={browser?.startsWith("desktop-") ? "התקנה כאפליקציה במחשב" : "פתיחה מהירה ממסך הבית"}
       action="התקנה" label="התקנה · אפליקציית סוד 1820" onClick={install} testId="install" /> : null}
-    {kind === "ios-manual" ? <RoyalTile2029 variant="wide" art={art} title="אפליקציית סוד 1820" hint="הוספה למסך הבית ב־Safari"
-      action={steps ? "סגירה" : "איך מתקינים"} label={`${steps ? "סגירה" : "איך מתקינים"} · אפליקציית סוד 1820`} onClick={() => setSteps(open => !open)} expanded={steps} controls="sod29-more-install-steps" testId="install-ios" /> : null}
+    {manual && stepsList.length ? <RoyalTile2029 variant="wide" art={art} title="אפליקציית סוד 1820" hint={hint}
+      action={steps ? "סגירה" : "איך מתקינים"} label={`${steps ? "סגירה" : "איך מתקינים"} · אפליקציית סוד 1820`} onClick={() => setSteps(open => !open)}
+      expanded={steps} controls="sod29-more-install-steps" testId={kind === "ios-manual" ? "install-ios" : "install-manual"} /> : null}
     {status ? <p className="sod29-more-install-status" role="status">{status}</p> : null}
-    {kind === "ios-manual" && steps ? <ol id="sod29-more-install-steps" className="sod29-more-install-steps">
-      <li>לחצו על כפתור השיתוף <span aria-hidden="true">⬆︎</span> בסרגל של Safari.</li>
-      <li>גללו ובחרו «הוסף למסך הבית».</li>
-      <li>אשרו ב«הוסף» — סוד 1820 יופיע במסך הבית.</li>
+    {manual && steps && stepsList.length ? <ol id="sod29-more-install-steps" className="sod29-more-install-steps">
+      {stepsList.map(step => <li key={step}>{step}</li>)}
     </ol> : null}
   </section>;
 }
