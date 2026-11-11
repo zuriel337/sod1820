@@ -49,7 +49,7 @@ test('release_gate: Foundation + canonical release owner + coordination', () => 
   pointsTo('Release authorization', 'deploy_on_request');
   const coordinationRows = index.split('\n').filter(line => line.startsWith('| task routing / owner creation / one-writer / handoff / fresh-agent entry /'));
   assert.equal(coordinationRows.length, 1, 'one current coordination owner row');
-  assert.match(coordinationRows[0], /`inter_agent_coordination_law` \*\*v17 ACTIVE/);
+  assert.match(coordinationRows[0], /`inter_agent_coordination_law` \*\*v18 ACTIVE/);
   assert.match(adapter, /ONE SCOPE — ONE ACTIVE WRITER/);
   assert.match(adapter, /Do not merge\/deploy\/push/);
   assert.match(adapter, /passive work_log records with to_actor=ZURIEL/);
