@@ -29,10 +29,9 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
   // on 2026-11-10 (1234: ממשלת משיח בן דוד, התגלות השכינה · 1011: המשיח פועל במעשים, הגאלה תבא בהיסח הדעת, קץ זוהמת הנחש). The first 1011 line is the
   // date of the Knesset swearing-in (10.11.2026) read as the number 1011, not a letter calculation. Arithmetic only.
   // Order of the owner's message (ZURIEL 11.11.2026): 1011 first, then 1234. Re-checked in the engine on 2026-11-11 (all = their group value).
-  // NOT listed (ZURIEL 11.11.2026, reported and waiting for the owner): "אירן ארהב ישראל" is 1010 in the engine (אירן = 261); only the spelling
-  // "איראן ארהב ישראל" is 1011 (איראן = 262). The owner's wording is never changed by the system, so neither spelling is shown until he decides.
+  // "איראן ארהב ישראל" (ZURIEL 11.11.2026, after the engine check: "אירן ארהב ישראל" = 1010, "איראן ארהב ישראל" = 1011; the owner chose איראן).
   highlights: Object.freeze([
-    Object.freeze({ value: 1011, phrases: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים", "הגאלה תבא בהיסח הדעת", "קץ זוהמת הנחש"]), numberOnly: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26"]) }),
+    Object.freeze({ value: 1011, phrases: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים", "הגאלה תבא בהיסח הדעת", "קץ זוהמת הנחש", "איראן ארהב ישראל"]), numberOnly: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26"]) }),
     Object.freeze({ value: 1234, phrases: Object.freeze(["ממשלת משיח בן דוד", "התגלות השכינה"]) }),
   ]),
   // The update of the day band at the top of "עכשיו" (ZURIEL 10.11.2026): shown for three days starting 10.11.2026 (Asia/Jerusalem), then it disappears by
@@ -47,7 +46,7 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
   // The SHORT central message (ZURIEL 11.11.2026), identical on Home, in "עכשיו" and in the World: the owner's lead sentence first, its second line
   // under it, then the numbers. "כל המסר והחיבורים" opens the whole update (fullTitle, every group, the statement) in place. Owner's wording, verbatim.
   central: Object.freeze({ lead: "הבורא פועל בהפוך על הפוך דרך כל המציאות", leadSub: "אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.",
-    kicker: "עדכון חדש בפוסט", date: "10.11.2026", fullTitle: "היום 10.11 = 1011", title: "ממשלת משיח בן דוד = 1234 · והיום 10.11 = 1011", anchor: "knesset-sworn-1234-1011" }),
+    kicker: "עדכון חדש בפוסט", date: "10.11.2026", fullTitle: "היום 10.11 = 1011", title: "היום 10.11 = 1011", anchor: "knesset-sworn-1234-1011" }),
   // The sentence the owner asked to keep with the numbers (also in the Post's update and in "עכשיו").
   // The owner's updated sentence (ZURIEL 11.11.2026, verbatim).
   statement: "מה שאנחנו רואים בעיניים הכול פעולות של הבורא, שפועל בהפוך על הפוך דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.",
