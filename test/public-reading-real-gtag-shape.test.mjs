@@ -24,9 +24,9 @@ function worker() {
   const context = { self, Request, Response, Headers, URL, URLSearchParams, atob, TextEncoder, console,
     fetch: async req => { calls.push(req); return new Response(null, { status: 204 }); } };
   vm.runInNewContext(buildPublicReadingWorker("a".repeat(40), { anonKey: "public-fixture", gaId: "G-TEST12345" }), context);
-  return { calls, async send(url, method = "POST") {
+  return { calls, async send(url, method = "POST", body = undefined) {
     let response = null;
-    listeners.fetch({ request: new Request(url, { method }), clientId: "window-1", respondWith: value => { response = Promise.resolve(value); } });
+    listeners.fetch({ request: new Request(url, { method, ...(body === undefined ? {} : { body, headers: { "Content-Type": "application/json" } }) }), clientId: "window-1", respondWith: value => { response = Promise.resolve(value); } });
     return response ? (await response).status : "passthrough";
   } };
 }
@@ -55,8 +55,8 @@ test("the SDK loader, enhanced events, custom parameters and identity keys are n
   }
 });
 
-test("the exemption is exact: other cross-origin writes (ads, Meta, arbitrary hosts) remain denied", async () => {
-  for (const url of ["https://www.google.com/search", "https://www.google.com/pagead/conversion/1/", "https://www.facebook.com/tr?id=1", "https://foreign.invalid/g/collect"]) {
+test("the exemption is exact: other cross-origin writes (arbitrary hosts, look-alike hosts, google.com search) remain denied", async () => {
+  for (const url of ["https://www.google.com/search", "https://foreign.invalid/g/collect", "https://evilfacebook.com/tr", "https://facebook.com.evil.invalid/tr", "https://googlesyndication.com.evil.invalid/x", "http://www.facebook.com/tr"]) {
     const w = worker();
     assert.equal(await w.send(url), 403, url);
     assert.equal(w.calls.length, 0, url);
@@ -71,4 +71,40 @@ test("the published CSP admits every host the real gtag.js transports use", () =
   for (const url of ["https://www.google-analytics.com/g/collect", "https://region1.google-analytics.com/g/collect", "https://region2.google-analytics.com/g/collect", "https://www.google.com/g/collect",
     "https://www.google.com/ccm/collect", "https://analytics.google.com/g/collect", "https://stats.g.doubleclick.net/g/collect", "https://www.googletagmanager.com/td"]) assert.ok(allowed(url), "connect-src must admit " + url);
   assert.ok(!allowed("https://foreign.invalid/g/collect"), "and nothing arbitrary");
+});
+
+test("Meta Pixel and AdSense transports pass through the worker untouched (ZURIEL, 11.11.2026), with the published CSP admitting their hosts", async () => {
+  const urls = ["https://www.facebook.com/tr/?id=1&ev=PageView", "https://connect.facebook.net/en_US/fbevents.js", "https://pagead2.googlesyndication.com/getconfig/abg_config?client=ca-pub-1",
+    "https://pagead2.googlesyndication.com/pagead/ping?e=1", "https://googleads.g.doubleclick.net/pagead/ads", "https://ep1.adtrafficquality.google/getconfig/sodar", "https://ep2.adtrafficquality.google/sodar/x",
+    "https://www.google.com/pagead/1p-user-list/1/", "https://adservice.google.co.il/adsid/integrator.js"];
+  for (const url of urls) for (const method of ["GET", "POST"]) {
+    const w = worker();
+    assert.equal(await w.send(url, method), "passthrough", method + " " + url);
+    assert.equal(w.calls.length, 0, "the worker neither answers nor forwards: " + url);
+  }
+  const config = JSON.parse(readFileSync(new URL("../public-reading-deploy/vercel.json", import.meta.url), "utf8"));
+  const csp = config.headers.flatMap(rule => rule.headers).find(header => header.key === "Content-Security-Policy").value;
+  const sources = csp.split(";").map(part => part.trim()).find(part => part.startsWith("connect-src ")).split(/\s+/).slice(1);
+  const allowed = url => { const u = new URL(url); return sources.some(source => source === "'self'" ? u.origin === SITE : /^https:\/\/\*\./.test(source) ? u.protocol === "https:" && u.hostname.endsWith(source.slice(9)) : u.origin === source); };
+  for (const url of urls.filter(url => !url.includes("fbevents.js") && !url.includes("integrator.js"))) assert.ok(allowed(url), "connect-src admits " + url);
+  assert.ok(!allowed("https://facebook.com.evil.invalid/tr") && !allowed("https://foreign.invalid/x"), "and nothing arbitrary");
+});
+
+test("Meta Conversions API relay: only an anonymous, bounded, fixed-shape POST reaches the edge function (rebuilt without the page's session)", async () => {
+  const capi = "https://linswmnnkjxvweumprav.supabase.co/functions/v1/meta-capi";
+  const good = { event_name: "PageView", event_id: "11111111-1111-4111-8111-111111111111", event_source_url: SITE + "/world", fbp: "fb.1.1.1", custom_data: {} };
+  const w = worker();
+  assert.equal(await w.send(capi, "POST", JSON.stringify(good)), 204);
+  assert.equal(w.calls.length, 1);
+  assert.equal(w.calls[0].url, capi);
+  assert.equal(w.calls[0].headers.get("apikey"), "public-fixture");
+  assert.equal(w.calls[0].credentials, "omit");
+  for (const [method, url, body, why] of [["GET", capi, undefined, "GET"], ["POST", capi + "?x=1", JSON.stringify(good), "query"], ["POST", capi, "not json", "not json"],
+    ["POST", capi, JSON.stringify({ ...good, user_email: "a@b.c" }), "extra field"], ["POST", capi, JSON.stringify({ ...good, event_name: "" }), "empty event"],
+    ["POST", capi, JSON.stringify({ ...good, event_name: "x".repeat(65) }), "long event"], ["POST", capi, JSON.stringify({ ...good, custom_data: [1] }), "custom_data array"],
+    ["POST", capi, JSON.stringify({ ...good, custom_data: { pad: "x".repeat(9000) } }), "too large"]]) {
+    const denied = worker();
+    assert.equal(await denied.send(url, method, body), 403, why);
+    assert.equal(denied.calls.length, 0, why);
+  }
 });

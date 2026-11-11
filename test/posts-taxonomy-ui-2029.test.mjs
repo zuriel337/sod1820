@@ -31,7 +31,7 @@ await build({ stdin: { contents: `
   const applySeo=value=>globalThis.__taxonomyUi.seo.push(value),track=()=>{},postContentEntry2029=()=>null;
   const humanContentTitle=value=>value,stripHtml=value=>value,bilingualDateLabel=value=>value;
   const NavigationIcon2029=()=>null,PostCategories2029=()=>null;
-  const PostFollowBox=()=>React.createElement('aside',{'data-follow-fixture':true});
+  const PostFollowBox=()=>React.createElement('aside',{'data-follow-fixture':true}),AdSlot=()=>null;
   const Sod2029Shell=({children})=>React.createElement(React.Fragment,null,children);
   const FrameState=({kind,title,children})=>React.createElement('section',{'data-frame-kind':kind},React.createElement('h2',null,title),children);
   ${page}

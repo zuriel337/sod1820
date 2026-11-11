@@ -40,6 +40,16 @@ function installPublicReadingWorker(policy) {
       || url.hostname === "analytics.google.com" || url.hostname.endsWith(".analytics.google.com")
       || url.hostname === "stats.g.doubleclick.net" || url.hostname === "www.googletagmanager.com")
     || url.hostname === "www.google.com" && /^\/(?:g\/|ccm\/|j\/)/.test(url.pathname));
+  // Meta Pixel and Google AdSense transports (ZURIEL 11.11.2026: no blocking of measurement or monetisation on 2029). Exact HTTPS hosts the
+  // real fbevents.js / adsbygoogle.js use (observed under the deployment CSP, docs/reviews/pixel-adsense-2029-20261111); the worker only
+  // lets the browser send them, nothing is read or rewritten. Any other cross-origin write stays denied.
+  const isMarketingRequest = url => url.protocol === "https:" && (
+    url.hostname === "connect.facebook.net" || url.hostname === "facebook.com" || url.hostname.endsWith(".facebook.com") || url.hostname.endsWith(".facebook.net")
+    || url.hostname === "googlesyndication.com" || url.hostname.endsWith(".googlesyndication.com")
+    || url.hostname === "doubleclick.net" || url.hostname.endsWith(".doubleclick.net")
+    || url.hostname.endsWith(".adtrafficquality.google") || url.hostname === "googleadservices.com" || url.hostname.endsWith(".googleadservices.com")
+    || url.hostname === "adservice.google.com" || url.hostname === "adservice.google.co.il"
+    || url.hostname === "www.google.com" && /^\/(?:pagead\/|ads\/)/.test(url.pathname));
   const denied = () => new Response(JSON.stringify({ error: "public_reading_operation_denied" }), {
     status: 403, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
@@ -191,6 +201,7 @@ function installPublicReadingWorker(policy) {
     // Every GA4 transport host and collection path passes straight through to the network: no event, parameter, page-title or referrer
     // validation, and no method denial. Only the GA4 collection hosts below are exempt from the read-only POST rule; nothing else is.
     if (isGoogleAnalyticsRequest(url)) return;
+    if (isMarketingRequest(url)) return;
     if (url.origin === self.location.origin && ["/api/ga-insights", "/api/vercel-insights", "/api/search-console"].includes(url.pathname)) {
       event.respondWith((async () => {
         if (req.method !== "GET" || [...url.searchParams.keys()].some(key => key !== "days") || url.searchParams.getAll("days").length > 1
@@ -342,6 +353,26 @@ function installPublicReadingWorker(policy) {
           if (req.signal.aborted) return denied();
           return readFetch(new Request(url.href, { method: "POST", signal: req.signal,
             headers: { apikey: key, Authorization: "Bearer " + (uid ? token : key), "Content-Type": "application/json" }, body: raw }));
+        })().catch(() => denied()));
+        return;
+      }
+      // Meta Conversions API relay (server-side twin of the Pixel event, deduplicated by event_id). Anonymous, bounded, fixed shape; the
+      // request is rebuilt without any session so no account data can reach it.
+      if (url.pathname === "/functions/v1/meta-capi") {
+        event.respondWith((async () => {
+          if (req.method !== "POST" || url.search || req.signal.aborted) return denied();
+          const raw = await req.clone().text();
+          if (raw.length > 8192) return denied();
+          let body; try { body = JSON.parse(raw); } catch { return denied(); }
+          const allowed = ["event_name", "event_id", "event_source_url", "fbp", "fbc", "custom_data"];
+          if (!plainObject(body) || Object.keys(body).some(key => !allowed.includes(key))
+            || typeof body.event_name !== "string" || body.event_name.length < 1 || body.event_name.length > 64
+            || typeof body.event_id !== "string" || body.event_id.length > 80
+            || body.event_source_url !== undefined && (typeof body.event_source_url !== "string" || body.event_source_url.length > 2048)
+            || body.custom_data !== undefined && !plainObject(body.custom_data)) return denied();
+          const key = policy.anonKey || req.headers.get("apikey") || "";
+          return readFetch(new Request(url.href, { method: "POST", signal: req.signal,
+            headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" }, body: raw }));
         })().catch(() => denied()));
         return;
       }
