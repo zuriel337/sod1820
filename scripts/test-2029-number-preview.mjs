@@ -380,3 +380,16 @@ assert.match(semanticAnimation, /Projection only: no arithmetic, DB, UI, rendere
   assert.match(coreSrc, /stageCrossing\.partner\} · \{publicMethodLabel\(method\)\} = \{method\.value\}/, "crossing chips must label each operand explicitly");
   console.log("Crossing operand ownership labels: PASS");
 }
+
+// Compact calculator on a plain page: canonical reader only, same-panel hand-off to the number view, exact return.
+{
+  const compact = drawer.slice(drawer.indexOf("function CompactCalculator"), drawer.indexOf("export default function NumberDrawer2029"));
+  assert.match(compact, /fetchNumberMethodProfile\(committed\)/, "compact calculator reads values only from the canonical method profile");
+  assert.match(compact, /filterProfileRowsForInput/, "compact calculator filters rows by input language like the full drawer");
+  assert.doesNotMatch(compact, /supabase\.rpc|\.from\(|fetchEntityHubProjection|getRecentNumbers|recent_number_opens/, "compact calculator owns no engine, query or statistics source");
+  assert.match(drawer, /data-compact-gematria="true"/);
+  assert.match(drawer, /originFocus\?\.compact/, "number view returns to the compact calculator");
+  assert.match(drawer, /openFromCompact/);
+  assert.doesNotMatch(read("src/components/experience2029/SystemFrame2029.jsx"), /getRecentNumbers|recent_number_opens/, "recent numbers stay hidden until coverage is verified");
+  console.log("Compact gematria calculator contract: PASS");
+}

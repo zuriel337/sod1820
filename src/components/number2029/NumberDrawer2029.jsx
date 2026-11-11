@@ -48,6 +48,91 @@ function defaultExpression(data, root, contextExpression) {
   return "";
 }
 
+// Compact view of the existing gematria calculator for a plain page (no selected number or phrase).
+// It owns no engine: values come only from fetchNumberMethodProfile (fn_method_profile), the same
+// canonical reader the full drawer and the calculator page use. A result or number hands off to the
+// drawer's own number view; nothing is invented, cached or counted here.
+function CompactCalculator({ initial, onOpenNumber, onOpenCalculator }) {
+  const [input, setInput] = useState(initial?.input || "");
+  const [committed, setCommitted] = useState(initial?.expression || "");
+  const [methodKey, setMethodKey] = useState(initial?.methodKey || "");
+  const [state, setState] = useState({ loading: false, rows: [], error: null, expression: "" });
+  const info = useMemo(() => classifyCalculatorInput(committed), [committed]);
+  const isNumeric = /^\d+$/.test(committed) && Number.isSafeInteger(Number(committed));
+  const methodKeyRef = useRef(methodKey);
+  methodKeyRef.current = methodKey;
+
+  useEffect(() => {
+    if (!committed || isNumeric || (!info.hebrewApplicable && !info.englishApplicable)) {
+      setState({ loading: false, rows: [], error: null, expression: committed });
+      return undefined;
+    }
+    let alive = true;
+    setState({ loading: true, rows: [], error: null, expression: committed });
+    fetchNumberMethodProfile(committed)
+      .then((rows) => {
+        if (!alive) return;
+        const applicable = filterProfileRowsForInput(rows, classifyCalculatorInput(committed));
+        setState({ loading: false, rows: applicable, error: null, expression: committed });
+        const wanted = clean(methodKeyRef.current);
+        const pick = applicable.find((row) => row.methodKey === wanted)
+          || applicable.find((row) => isRegularMethodIdentity(row.methodKey) || isRegularMethodIdentity(row.displayLabel))
+          || applicable[0] || null;
+        setMethodKey(pick?.methodKey || "");
+      })
+      .catch((error) => { if (alive) setState({ loading: false, rows: [], error, expression: committed }); });
+    return () => { alive = false; };
+  }, [committed]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const rows = state.expression === committed ? state.rows : EMPTY_METHOD_PROFILE;
+  const selected = methodProfileEntry(rows, methodKey);
+  const value = traceNumber(selected?.computedValue);
+  const label = selected?.displayLabel || selected?.methodKey || "";
+  const memo = { input: clean(input), expression: committed, methodKey: selected?.methodKey || methodKey || "" };
+
+  const submit = (event) => {
+    event?.preventDefault?.();
+    const raw = clean(input);
+    if (!raw) return;
+    if (raw !== committed) setMethodKey("");
+    setCommitted(raw);
+  };
+
+  return <div className="sod29-number-drawer-empty sod29-number-drawer-compact" data-compact-gematria="true">
+    <strong>גימטריה</strong>
+    <p>הקלד מספר או ביטוי, בחר שיטה וקבל את התוצאה מהמנוע הקנוני.</p>
+    <form onSubmit={submit}>
+      <input value={input} onChange={(event) => setInput(event.target.value)} placeholder="התגלות · 1237" aria-label="מספר או ביטוי" dir="auto" data-autofocus />
+      <button type="submit">חשב</button>
+    </form>
+
+    {isNumeric ? <button type="button" className="sod29-number-drawer-compact-result" data-compact-result="number" onClick={() => onOpenNumber(Number(committed), memo)}>
+      <span>מספר</span><b>{Number(committed)}</b><small>פתח את דף המספר</small>
+    </button> : null}
+
+    {state.loading ? <div className="sod29-number-drawer-status" role="status">מחשב דרך המנוע הקנוני…</div> : null}
+    {state.error ? <div className="sod29-number-drawer-status error" role="alert">השיטות לא נטענו כרגע מהמנוע הקנוני. לא מוצגת תוצאה.</div> : null}
+    {committed && !isNumeric && info.notice && info.kind !== CALCULATOR_INPUT_KIND.LATIN && !state.loading ? <div className="sod29-number-drawer-status">{info.notice}</div> : null}
+    {!state.loading && !state.error && committed && !isNumeric && (info.hebrewApplicable || info.englishApplicable) && !rows.length ? <div className="sod29-number-drawer-status">{info.englishApplicable && !info.hebrewApplicable
+      ? "השיטות באנגלית עדיין אינן פעילות במסלול הקנוני, ולכן אין כאן תוצאה. תצוגה מקדימה זמינה במחשבון המלא."
+      : "אין כרגע שיטה שמחזירה ערך לקלט הזה."}</div> : null}
+
+    {rows.length ? <>
+      <label className="sod29-number-drawer-compact-method">
+        <span>שיטה</span>
+        <select value={selected?.methodKey || ""} onChange={(event) => setMethodKey(event.target.value)} aria-label="שיטת חישוב">
+          {rows.map((row) => <option key={row.methodKey} value={row.methodKey}>{row.displayLabel || row.methodKey}{traceNumber(row.computedValue) != null ? ` · ${traceNumber(row.computedValue)}` : ""}</option>)}
+        </select>
+      </label>
+      {value != null ? <button type="button" className="sod29-number-drawer-compact-result" data-compact-result="expression" onClick={() => onOpenNumber(value, memo)}>
+        <span>{committed} · {label}</span><b>{value}</b><small>פתח את דף המספר</small>
+      </button> : <div className="sod29-number-drawer-status">לשיטה הזאת אין ערך לביטוי הזה.</div>}
+    </> : null}
+
+    <button type="button" className="sod29-number-drawer-compact-link" onClick={onOpenCalculator}>למחשבון המלא</button>
+  </div>;
+}
+
 export default function NumberDrawer2029({
   target,
   context,
@@ -76,6 +161,9 @@ export default function NumberDrawer2029({
     methodKey: initialMethodKey || null,
     root: traceNumber(initialRoot),
   } : null);
+  // A plain page has no selected subject: the drawer then opens as the compact calculator.
+  const [compactOpen, setCompactOpen] = useState(() => !target && !context?.subject && initialRoot == null && !initialExpression);
+  const [compactMemo, setCompactMemo] = useState(null);
   const [dataState, setDataState] = useState({ loading: false, data: null, error: null, key: null });
   const [profileState, setProfileState] = useState({ loading: false, rows: [], error: null, expression: "" });
   const inputInfo = useMemo(() => classifyCalculatorInput(expression), [expression]);
@@ -108,6 +196,7 @@ export default function NumberDrawer2029({
     setExpression(nextExpression);
     setInput(nextExpression || (nextRoot != null ? String(nextRoot) : ""));
     setSelectedMethodKey(nextMethodKey);
+    if (nextRoot != null || nextExpression) setCompactOpen(false);
     setSurfaceMode(nextExpression ? "focus" : "number");
     setOriginFocus(nextExpression ? {
       expression: nextExpression,
@@ -551,7 +640,32 @@ export default function NumberDrawer2029({
     setTraceOpen(false);
   };
 
+  const openFromCompact = (value, memo) => {
+    const next = traceNumber(value);
+    if (next == null) return;
+    setCompactMemo(memo || null);
+    setOriginFocus({ expression: memo?.expression || "", methodKey: memo?.methodKey || null, root: next, compact: true });
+    setCompactOpen(false);
+    setRoot(next);
+    setInput(String(next));
+    setExpression("");
+    setSelectedMethodKey("");
+    setSurfaceMode("number");
+    setTraceOpen(false);
+  };
+
   const restoreOriginFocus = () => {
+    if (originFocus?.compact) {
+      // Exact return to the compact calculator: same input, same expression, same method.
+      setCompactOpen(true);
+      setRoot(null);
+      setExpression("");
+      setSelectedMethodKey("");
+      setOriginFocus(null);
+      setSurfaceMode("number");
+      setTraceOpen(false);
+      return;
+    }
     if (!originFocus?.expression) return;
     setSurfaceMode("focus");
     setExpression(originFocus.expression);
@@ -618,14 +732,14 @@ export default function NumberDrawer2029({
     go?.("/world", { preserve: false });
   };
 
-  // A plain page has no selected subject. Its deliberate local calculation is
-  // still usable without first turning the page into saved research context.
-  if (!target && !context?.subject && root == null && !clean(expression)) {
-    return <div className="sod29-number-drawer-empty">
-      <strong>מספר / ביטוי</strong>
-      <p>בחר מספר או ביטוי בעמוד, או הקלד כאן.</p>
-      <form onSubmit={commitInput}><input value={input} onChange={(event) => setInput(event.target.value)} placeholder="התגלות · 1237" /><button type="submit">פתח</button></form>
-    </div>;
+  // A plain page has no selected subject. The existing calculator is shown in compact form; its
+  // deliberate local calculation does not turn the page into saved research context.
+  if (compactOpen) {
+    return <CompactCalculator
+      initial={compactMemo}
+      onOpenNumber={openFromCompact}
+      onOpenCalculator={() => go?.("/gematria")}
+    />;
   }
 
   return <div
@@ -641,12 +755,12 @@ export default function NumberDrawer2029({
           ? `${selectedProfile?.displayLabel || selectedProfile?.methodKey || clean(selectedMethodKey) || "בחר שיטה"} · אותה חלונית, אותו הקשר`
           : "תצוגת המספר באותה חלונית · בלי לפתוח Drawer נוסף"}</small>
       </div>
-      {surfaceMode === "number" && originFocus?.expression ? <button
+      {surfaceMode === "number" && (originFocus?.compact || originFocus?.expression) ? <button
         type="button"
         className="sod29-number-drawer-back"
         data-experience-action="contextual-number-back"
         onClick={restoreOriginFocus}
-      >↩ חזרה ל־{originFocus.expression}</button> : null}
+      >{originFocus.compact ? (originFocus.expression ? `↩ חזרה למחשבון · ${originFocus.expression}` : "↩ חזרה למחשבון") : `↩ חזרה ל־${originFocus.expression}`}</button> : null}
     </div>
 
     <form className="sod29-number-drawer-search" onSubmit={commitInput}>
