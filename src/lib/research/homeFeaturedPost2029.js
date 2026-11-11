@@ -36,6 +36,12 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
   // itself. It shows the WHOLE update — both number groups with every phrase (and the date line) and the sentence — taken from `highlights` and `statement`
   // above, so nothing is repeated or computed in the browser.
   band: Object.freeze({ from: "2026-11-10", days: 3, title: "עדכון היום · 10.11.2026" }),
+  // The ONE pin of "עכשיו" (ZURIEL 11.11.2026, System Frame v2 §10.8 addendum): at most 72 hours from `from`, then it expires by itself and the Post
+  // returns to its place by time. Pinned ≠ new ≠ true. A new pin is a code change approved by ZURIEL (no DB, no admin screen, no local flag).
+  pin: Object.freeze({ from: "2026-11-11T08:00:00+02:00", hours: 72 }),
+  // The central message shown in the pinned card before entering the Post: the heading of the Post's own section #knesset-sworn-1234-1011 (verified
+  // 11.11.2026 against posts.content of 5107) and the owner's lines in `highlights`. Shown verbatim; the system never rewrites it.
+  central: Object.freeze({ title: "ממשלת משיח בן דוד = 1234 · והיום 10.11 = 1011", kicker: "תיעוד אירועים", date: "10.11.2026", anchor: "knesset-sworn-1234-1011" }),
   // The sentence the owner asked to keep with the numbers (also in the Post's update and in "עכשיו").
   statement: "מה שאנחנו רואים בעיניים — הכול פעולות של הבורא, שפועל דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.",
   connectionsFootnote: null, // no spelling footnote: each number says what it is (ZURIEL 8.11.2026: "don't load")
@@ -81,6 +87,14 @@ export async function getHomeFeaturedPost2029({ client = null, signal, config = 
   return projectHomeFeaturedPost(row, config);
 }
 
+/** The pin window of a featured config: { active, until } (ISO). No pin, an invalid pin or a pin outside [from, from + hours) is inactive. */
+export function featuredPinState(config = HOME_FEATURED_POST_2029, now = Date.now()) {
+  const from = Date.parse(config?.pin?.from || ""), hours = Number(config?.pin?.hours);
+  if (!Number.isFinite(from) || !Number.isFinite(hours) || hours <= 0 || hours > 72) return { active: false, until: null };
+  const until = from + hours * 3600000;
+  return { active: now >= from && now < until, until: new Date(until).toISOString() };
+}
+
 /** One body: headline, note, the numbers on screen, the engine-checked connections and the interpretation — shown with the video on Home AND in "עכשיו". */
 export function featuredBodyText(config = HOME_FEATURED_POST_2029) {
   return [
@@ -94,12 +108,15 @@ export function featuredBodyText(config = HOME_FEATURED_POST_2029) {
 }
 
 /** The ONE shared-feed item of the featured Post: same identity as the stream's own `post:<id>` item (so it can never appear twice), enriched with the whole body. */
-export function featuredFeedItem(row, postRowToWorldUpdate, config = HOME_FEATURED_POST_2029) {
+export function featuredFeedItem(row, postRowToWorldUpdate, config = HOME_FEATURED_POST_2029, now = Date.now()) {
   // `postRowToWorldUpdate` is the stream's own projector (the same one that builds every Post item), passed in so this module stays light.
   const base = typeof postRowToWorldUpdate === "function" && projectHomeFeaturedPost(row, config) && postRowToWorldUpdate(row);
   if (!base) return null;
   const at = new Date(config.at).toISOString();
-  return { ...base, label: config.headline || base.label, summary: config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: true, liveDot: "עדכון חדש בפוסט", band: config.band ? { ...config.band, groups: (config.highlights || []).map(group => ({ value: group.value, phrases: [...group.phrases], numberOnly: [...(group.numberOnly || [])] })), statement: config.statement || null } : null };
+  const pin = featuredPinState(config, now);
+  const groups = (config.highlights || []).map(group => ({ value: group.value, phrases: [...group.phrases], numberOnly: [...(group.numberOnly || [])] }));
+  const central = config.central && groups.length ? { ...config.central, groups, postTitle: projectHomeFeaturedPost(row, config)?.postTitle || "" } : null;
+  return { ...base, label: config.headline || base.label, summary: config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: pin.active, pinUntil: pin.active ? pin.until : null, central, liveDot: pin.active ? "עדכון חדש בפוסט" : null, band: config.band ? { ...config.band, groups: (config.highlights || []).map(group => ({ value: group.value, phrases: [...group.phrases], numberOnly: [...(group.numberOnly || [])] })), statement: config.statement || null } : null };
 }
 
 // One public read shared by Home and the feed hook (cached for a minute): never two requests for the same Post.

@@ -1,0 +1,101 @@
+/* "עכשיו · המרכז" (ZURIEL 11.11.2026, approved design): the Royal family of "עוד" (royalTiles2029.css). Existing tokens only — --s29-panel / -panel-soft /
+   -page / -line / -ink / -muted / -focus-ring, type tokens — and --s29-brand-gold as a bounded mix. No new colour, icon or logo. */
+
+.rc29,.rc29-pin,.rc29-src{--rc-g:var(--s29-brand-gold);--rc-hair:color-mix(in srgb,var(--rc-g) 30%,var(--s29-line));--rc-hair2:color-mix(in srgb,var(--rc-g) 52%,var(--s29-line));
+  --rc-surf:color-mix(in srgb,var(--rc-g) 6%,var(--s29-panel-soft,var(--s29-panel)));--rc-icon:color-mix(in srgb,var(--rc-g) 84%,var(--s29-ink))}
+.rc29{display:grid;gap:10px;box-sizing:border-box;color:var(--s29-ink);text-align:start}
+.rc29 *,.rc29-pin *,.rc29-src *{box-sizing:border-box}
+.rc29-medal{display:grid;place-items:center;inline-size:34px;block-size:34px;border-radius:50%;border:1px solid var(--rc-hair2);color:var(--rc-icon);flex:none;overflow:hidden;
+  background:radial-gradient(circle at 50% 30%,color-mix(in srgb,var(--rc-g) 22%,var(--s29-panel)),color-mix(in srgb,var(--s29-page) 40%,var(--s29-panel)))}
+.rc29-medal svg{inline-size:20px;block-size:20px}
+.rc29-head{display:flex;align-items:center;gap:10px}
+.rc29-head h2{margin:0;font:700 19px/1.2 var(--s29-font-display,var(--s29-font-ui,inherit));color:color-mix(in srgb,var(--rc-g) 80%,var(--s29-ink))}
+.rc29-head small{display:block;color:var(--s29-muted);font-size:13px;margin-top:2px}
+
+/* Pinned central message */
+.rc29-pin{position:relative;display:grid;align-content:start;gap:8px;padding:12px;border-radius:20px;border:1px solid var(--rc-hair2);color:var(--s29-ink);
+  background:radial-gradient(120% 80% at 100% 0%,color-mix(in srgb,var(--rc-g) 16%,transparent),transparent 60%),color-mix(in srgb,var(--rc-g) 8%,var(--s29-panel))}
+.rc29-pin-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:13px;color:var(--s29-muted)}
+.rc29-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid var(--rc-hair);background:color-mix(in srgb,var(--rc-g) 9%,var(--s29-panel));
+  color:var(--s29-ink);font-size:13.5px;font-weight:600}
+.rc29-tag.is-pin{border-color:var(--rc-hair2);color:color-mix(in srgb,var(--rc-g) 82%,var(--s29-ink))}
+.rc29-pin-title{margin:0;font:750 17px/1.35 var(--s29-font-display,var(--s29-font-ui,inherit))}
+.rc29-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}
+.rc29-num{display:inline-flex;align-items:baseline;justify-content:center;gap:8px;padding:4px 12px;min-block-size:44px;border-radius:16px;border:1px solid var(--rc-hair2);
+  background:color-mix(in srgb,var(--rc-g) 12%,var(--s29-panel));text-decoration:none;color:inherit}
+.rc29-num b{font:800 30px/1.1 var(--s29-font-ui,inherit);color:color-mix(in srgb,var(--rc-g) 90%,var(--s29-ink));letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.rc29-sum{margin:0;font-size:15px;line-height:1.5;color:color-mix(in srgb,var(--s29-ink) 88%,var(--s29-muted));display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rc29-from{font-size:13px;color:var(--s29-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc29-from b{color:var(--s29-ink);font-weight:600}
+.rc29-acts{display:flex;flex-wrap:wrap;gap:8px}
+.rc29-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-block-size:44px;padding:0 14px;border-radius:999px;border:1px solid var(--rc-hair2);cursor:pointer;
+  background:color-mix(in srgb,var(--rc-g) 15%,var(--s29-panel));color:var(--s29-ink);font:650 15px/1 var(--s29-font-ui,inherit);text-decoration:none}
+.rc29-btn.is-quiet{background:transparent;border-color:var(--rc-hair)}
+.rc29-btn svg{inline-size:18px;block-size:18px}
+.rc29-btn:focus-visible,.rc29-chip:focus-visible,.rc29-num:focus-visible,.rc29-line a:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:2px}
+.rc29-full{display:grid;gap:10px;padding:12px;border-radius:16px;border:1px solid var(--rc-hair);background:color-mix(in srgb,var(--s29-page) 30%,var(--s29-panel))}
+.rc29-group{display:grid;gap:2px}
+.rc29-group>.rc29-num{justify-self:center;margin-block:4px}
+.rc29-line{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 4px;border-block-end:1px solid color-mix(in srgb,var(--rc-g) 14%,var(--s29-line));font:600 16px/1.45 var(--s29-font-ui,inherit)}
+.rc29-line:last-child{border-block-end:0}
+.rc29-line a,.rc29-line b{color:color-mix(in srgb,var(--rc-g) 90%,var(--s29-ink));font-weight:800;text-decoration:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rc29-owner{margin:0;font-size:13.5px;color:var(--s29-muted)}
+
+/* Source picker */
+.rc29-src{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none;overscroll-behavior-inline:contain}
+.rc29-src::-webkit-scrollbar{display:none}
+.rc29-chip{flex:none;display:inline-flex;align-items:center;gap:8px;min-block-size:44px;padding:4px 14px 4px 10px;border-radius:999px;border:1px solid var(--rc-hair);cursor:pointer;
+  background:var(--rc-surf);color:var(--s29-ink);white-space:nowrap;font:inherit;text-align:start}
+.rc29-chip[aria-pressed="true"]{border-color:var(--rc-hair2);background:color-mix(in srgb,var(--rc-g) 20%,var(--s29-panel));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rc-g) 30%,transparent)}
+.rc29-cm{inline-size:28px;block-size:28px;border-radius:50%;display:grid;place-items:center;color:var(--rc-icon);background:color-mix(in srgb,var(--s29-page) 35%,var(--s29-panel));overflow:hidden;flex:none}
+.rc29-cm svg{inline-size:16px;block-size:16px}
+.rc29-cm img{inline-size:100%;block-size:100%;object-fit:cover}
+.rc29-chip>span:last-child{display:grid;line-height:1.15}
+.rc29-chip b{font:650 15px/1.15 var(--s29-font-ui,inherit)}
+.rc29-chip small{font-size:12px;color:var(--s29-muted)}
+.rc29-empty{margin:0;padding:10px 12px;border-radius:14px;border:1px dashed var(--rc-hair);color:var(--s29-muted);font-size:15px}
+
+/* "New" is a short, finite pulse (3×), never an endless blink; reduced motion = static (System Frame motion rule, §10.8 addendum 11.11.2026). */
+@keyframes rc29-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--s29-brand-gold) 55%,transparent)}100%{box-shadow:0 0 0 7px transparent}}
+.rc29-new{inline-size:8px;block-size:8px;border-radius:50%;background:var(--s29-brand-gold);display:inline-block;margin-inline-end:6px;vertical-align:middle;animation:rc29-pulse 1.4s ease-out 3}
+@media (prefers-reduced-motion:reduce){.rc29-new{animation:none}}
+
+/* The Home centre: the first content area of Home, under the frame. */
+.rc29.is-home{margin:8px 0 18px;padding:12px;border-radius:24px;border:1px solid var(--rc-hair);
+  background:radial-gradient(90% 55% at 50% 0%,color-mix(in srgb,var(--rc-g) 10%,transparent),transparent 70%),color-mix(in srgb,color-mix(in srgb,var(--rc-g) 5%,var(--s29-panel)) 94%,transparent);
+  box-shadow:0 18px 40px color-mix(in srgb,var(--s29-page) 50%,transparent)}
+.rc29-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.rc29-row>:is(a,button,div){display:grid;grid-template-columns:40px minmax(0,1fr);align-items:center;gap:10px;inline-size:100%;min-block-size:56px;padding:6px 10px;border-radius:16px;
+  border:1px solid var(--rc-hair);background:var(--rc-surf);color:var(--s29-ink);text-decoration:none;text-align:start;font:inherit;cursor:pointer}
+.rc29-row :is(.h29-live-thumb,.rc29-medal){inline-size:40px;block-size:40px;border-radius:12px;object-fit:cover;overflow:hidden}
+.rc29-rt{min-inline-size:0;display:grid;gap:2px}
+.rc29-rt strong{font:650 16px/1.3 var(--s29-font-ui,inherit);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc29-rt .rc29-ex{font-size:14px;line-height:1.4;color:color-mix(in srgb,var(--s29-ink) 82%,var(--s29-muted));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc29-rt small{font-size:13.5px;color:var(--s29-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc29-rt small b{color:color-mix(in srgb,var(--rc-g) 75%,var(--s29-ink));font-weight:650}
+.rc29-more{justify-self:center}
+@media (min-width:1000px){
+  .rc29.is-home{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);column-gap:18px;padding:20px 22px}
+  .rc29.is-home>:is(.rc29-head,.rc29-more){grid-column:1/-1}
+  .rc29.is-home.has-pin>.rc29-pin{grid-column:1;grid-row:2/span 3;align-self:start}
+  .rc29.is-home.has-pin>:is(.rc29-src,.rc29-list,.rc29-empty,.rc29-skel){grid-column:2}
+  .rc29.is-home:not(.has-pin)>:is(.rc29-src,.rc29-list,.rc29-empty){grid-column:1/-1}
+  .rc29.is-home .rc29-num b{font-size:40px}
+  .rc29.is-home .rc29-sum{-webkit-line-clamp:3}
+}
+
+/* The "עכשיו" sheet in the same family: royal compact rows over the existing row markup (one row = one publication, expanded in place). */
+.sod29-nowpub.is-royal{gap:10px}
+.sod29-nowpub.is-royal .sod29-nowpub-list{gap:6px}
+.sod29-nowpub.is-royal :is(.sod29-nowpub-row,.sod29-nowpub-run,.sod29-nowpub-box){--rc-g:var(--s29-brand-gold);border-radius:16px;border:1px solid color-mix(in srgb,var(--rc-g) 30%,var(--s29-line));
+  background:color-mix(in srgb,var(--rc-g) 6%,var(--s29-panel-soft,var(--s29-panel)))}
+.sod29-nowpub.is-royal :is(.sod29-nowpub-row[open],.sod29-nowpub-row.is-selected){border-color:color-mix(in srgb,var(--rc-g) 52%,var(--s29-line));background:color-mix(in srgb,var(--rc-g) 10%,var(--s29-panel))}
+.sod29-nowpub.is-royal .sod29-nowpub-excerpt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* The centre's rows replace the older strip look: one column, one royal row each (no strip separators, no fixed 76px height). */
+.rc29 .h29-live-list.rc29-list{margin:0;gap:6px;grid-template-columns:minmax(0,1fr)}
+.rc29 .h29-live-item.rc29-row{block-size:auto;border:0;overflow:visible}
+.rc29 .h29-live-item.rc29-row.h29-skel{block-size:56px;border-radius:16px}
+.rc29 .h29-live-item.rc29-row>:is(a,button,div){grid-template-columns:40px minmax(0,1fr);gap:10px;padding:6px 10px;block-size:auto;border:1px solid var(--rc-hair);border-radius:16px;background:var(--rc-surf)}
+.rc29 .h29-live-item.rc29-row .h29-live-thumb{inline-size:40px;block-size:40px;border-radius:12px}
+.rc29 .h29-live-item.rc29-row strong{display:block;-webkit-line-clamp:unset;font:650 16px/1.3 var(--s29-font-ui,inherit);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

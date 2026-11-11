@@ -5,6 +5,7 @@
 // Series, source/channel, content family and media type stay SEPARATE dimensions (CONTENT-AUDIENCES-HYBRID-NOW).
 import { publicAuthorName, SYSTEM_BYLINE } from "./publicIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
+import { GROUP_SOURCE_CHANNELS } from "./research/worldGroupSource.js";
 
 // Public name of the shared series is "מסרים"; the historical source titles and the series key stay untouched.
 export const NOW_SERIES_PUBLIC_LABEL = Object.freeze({ "messages-from-righteous": "מסרים" });
@@ -122,6 +123,12 @@ export function nowRowModel(row) {
     : isPost ? (item.sourceLabel === "פוסט מקור באתר" ? "" : item.sourceLabel || "") || item.creator || ""
     : (item.creator || "");
   const unverified = isGroup;
+  // The SOURCE of the row by a stable key (ZURIEL 11.11.2026: one source picker is the primary control). A group is its group (Zvi stays the
+  // writer, never the source); a channel is its channel; a series Post is its series; any other Post is "פרסומי האתר". Series, category,
+  // source and Post identity stay separate: this key never reads a category.
+  const groupKey = isGroup ? clean(item.sourceGroup?.key) || "" : "";
+  const sourceKey = isGroup ? `group:${groupKey || "neutral"}` : isChannel && item.channel ? `channel:${item.channel}`
+    : isPost && seriesKey ? `series:${seriesKey}` : isPost ? "site:posts" : isGallery ? "site:reality" : row?.kind === "finding" || row?.kind === "convergence" ? "site:els" : "site:other";
   const typeLabel = unverified ? "מקור · טרם נבדק"
     : row?.kind === "convergence" ? "התכנסות" : row?.kind === "finding" ? "ממצא"
     : item.sourceUpdate ? "עדכון מקור" : video ? "סרטון" : image ? "תמונה" : isPost ? "פוסט" : "עדכון";
@@ -143,7 +150,9 @@ export function nowRowModel(row) {
     // A blinking dot attached to the title marks an update the owner flagged (the Home featured Post update). Its label is the accessible name.
     dot: typeof item.liveDot === "string" && item.liveDot ? item.liveDot : null,
     logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, author: item.author, seriesKey })] || null,
-    at: row?.at || null, href, seriesKey, seriesLabel, sourceName,
+    at: row?.at || null, href, seriesKey, seriesLabel, sourceName, sourceKey,
+    pinUntil: item.pinned === true && typeof item.pinUntil === "string" ? item.pinUntil : null,
+    central: item.pinned === true && item.central && Array.isArray(item.central.groups) ? item.central : null,
     media: video ? "video" : image ? "image" : "text", video, image,
     thumb: [!video && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
     groupLabel, creatorHref: isGroup ? item.creatorHref || null : null,
@@ -156,8 +165,8 @@ export function nowRowModel(row) {
   };
 }
 
-export const nowModels = rows => list(rows).filter(row => row?.id && row.title)
-  .map(nowRowModel)
+export const nowModels = (rows, now = Date.now()) => list(rows).filter(row => row?.id && row.title)
+  .map(nowRowModel).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinUntil: null, central: null, dot: null } : model)
   .sort((a, b) => (Number(b.pinned) - Number(a.pinned)) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 /** Primary lenses with at least one row; "all" is always available. */
@@ -289,6 +298,59 @@ export function nowTodayBand(models, now = Date.now(), timeZone = "Asia/Jerusale
   try { today = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now); } catch { return null; }
   const offset = dayIndex(today) - dayIndex(band.from);
   return offset >= 0 && offset < band.days ? { title: String(band.title || ""), groups, statement: band.statement ? String(band.statement) : null } : null;
+}
+
+// ── Source picker (ZURIEL 11.11.2026; PLAN37 NOW decision) ────────────────────────────────────────────────────────────────────
+// "הכול" first, then the known public groups (also when nothing of theirs is in the window: an honest empty state, never hidden), then
+// channels, series and the site's own publications. Every choice says what KIND of source it is. Built from the loaded rows only.
+export const NOW_SOURCE_KIND_LABEL = Object.freeze({ group: "קבוצה", channel: "ערוץ", series: "סדרה", site: "פרסומי האתר" });
+const SITE_SOURCE_LABEL = Object.freeze({ "site:posts": "פרסומי האתר", "site:reality": "זרם המציאות", "site:els": "הצופן התנ״כי", "site:other": "עוד מהאתר" });
+const KNOWN_GROUPS = Object.freeze(["torat-haremez", "ki-la-hamelucha-gematria"]);
+const KIND_ORDER = Object.freeze(["group", "channel", "series", "site"]);
+
+export function nowSourceChoices(models) {
+  const found = new Map();
+  for (const model of list(models)) {
+    const key = model?.sourceKey;
+    if (!key) continue;
+    const kind = key.split(":")[0];
+    const label = kind === "group" ? (model.groupLabel || GROUP_SOURCE_CHANNELS[key.slice(6)] || "קבוצת מקור")
+      : kind === "series" ? (model.seriesLabel || key.slice(7)) : kind === "site" ? SITE_SOURCE_LABEL[key] : (model.sourceName || key.slice(8));
+    const entry = found.get(key) || { id: key, kind, kindLabel: NOW_SOURCE_KIND_LABEL[kind], label, count: 0, logo: null };
+    entry.count += 1; if (!entry.logo && model.logo) entry.logo = model.logo;
+    found.set(key, entry);
+  }
+  for (const group of KNOWN_GROUPS) {
+    const key = `group:${group}`;
+    if (!found.has(key)) found.set(key, { id: key, kind: "group", kindLabel: NOW_SOURCE_KIND_LABEL.group, label: GROUP_SOURCE_CHANNELS[group], count: 0, logo: null });
+  }
+  const rank = entry => KIND_ORDER.indexOf(entry.kind) * 1000 + (entry.kind === "group" && KNOWN_GROUPS.includes(entry.id.slice(6)) ? KNOWN_GROUPS.indexOf(entry.id.slice(6)) : 100);
+  return [...found.values()].sort((a, b) => rank(a) - rank(b) || b.count - a.count || a.label.localeCompare(b.label, "he"));
+}
+
+export const filterNowBySource = (models, sourceKey = "") => list(models).filter(model => !sourceKey || model.sourceKey === sourceKey);
+
+/**
+ * The pinned central message (System Frame v2 §10.8 addendum, 11.11.2026): the ONE pinned row that carries an owner message, while its pin
+ * window is open (checked again here at render time, so an expired pin never stays on top). Null otherwise.
+ */
+export function nowPinnedMessage(models, now = Date.now()) {
+  const model = list(models).find(item => item?.pinned && item.central);
+  if (!model) return null;
+  const until = Date.parse(model.pinUntil || "");
+  if (!Number.isFinite(until) || now >= until) return null;
+  return { model, central: model.central, until: model.pinUntil, href: model.href };
+}
+
+/** "עד 14.11 · 10:00" in Israel time: the visible expiry of a pin. */
+export function nowPinUntilLabel(until, timeZone = "Asia/Jerusalem") {
+  const time = Date.parse(until || "");
+  if (!Number.isFinite(time)) return "";
+  try {
+    const parts = new Intl.DateTimeFormat("he-IL", { timeZone, day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(time);
+    const part = type => parts.find(item => item.type === type)?.value || "";
+    return `עד ${part("day")}.${part("month")} · ${part("hour")}:${part("minute")}`;
+  } catch { return ""; }
 }
 
 /** The series page for a model (series key is the existing approved identity). */

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
-import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowModels, nowLensCounts, nowModels, nowTodayBand, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
+import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowBySource, filterNowModels, nowLensCounts, nowModels, nowPinnedMessage, nowTodayBand, nowSecondaryChoices, nowSeriesHref, nowSourceChoices } from "../../lib/nowPublications2029.js";
+import { NowPinnedMessage2029, NowSourceEmpty2029, NowSourcePicker2029 } from "./NowRoyalCenter2029.jsx";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 import ShareActions from "../ShareActions.jsx";
 import { SHARE_SITE } from "../../lib/share.js";
@@ -190,36 +191,42 @@ function WideDetail({ model, onOpen, feed, timeMode, autoPlay }) {
 }
 
 export default function NowPublications2029({ feed, onOpen, timeMode }) {
-  const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [source, setSource] = useState(""), [media, setMedia] = useState("");
+  // ZURIEL 11.11.2026 (approved design): the source picker is the primary control ("הכול" by default); lens, series and media move to "מסננים נוספים".
+  const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [sourceKey, setSourceKey] = useState(""), [media, setMedia] = useState("");
   const [count, setCount] = useState(PAGE);
   const wide = useWide();
   const [selectedId, setSelectedId] = useState(null), [playId, setPlayId] = useState(null);
   useEffect(() => { feed?.requestNowDetails?.(); }, [feed?.requestNowDetails]);
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
-  const models = useMemo(() => nowModels(rows), [rows]);
+  const allModels = useMemo(() => nowModels(rows), [rows]);
+  // The pinned central message is shown ONCE, as the card above the list; the same publication is not repeated as a row.
+  const pinned = useMemo(() => nowPinnedMessage(allModels), [allModels]);
+  const models = useMemo(() => pinned ? allModels.filter(model => model.id !== pinned.model.id) : allModels, [allModels, pinned]);
+  const sourceChoices = useMemo(() => nowSourceChoices(models), [models]);
   const lenses = useMemo(() => availableNowLenses(models), [models]);
   // Entries per lens among the rows already loaded here: a count of loaded entries, never a site-wide total.
   const counts = useMemo(() => nowLensCounts(models), [models]);
   const choices = useMemo(() => nowSecondaryChoices(models), [models]);
   // Until the reader picks, the window opens on "all" (ZURIEL 6.11.2026), in time order.
   const activeLens = lens ?? defaultNowLens(models);
-  const shown = useMemo(() => filterNowModels(models, { lens: activeLens, series, source, media }), [models, activeLens, series, source, media]);
+  const shown = useMemo(() => filterNowModels(filterNowBySource(models, sourceKey), { lens: activeLens, series, media }), [models, sourceKey, activeLens, series, media]);
   // Only the mixed "all" view collapses consecutive source rows; a lens/filter the reader chose on purpose lists every row.
-  const collapse = activeLens === "all" && !series && !source && !media;
+  const collapse = activeLens === "all" && !series && !sourceKey && !media;
   const entries = useMemo(() => collapse ? buildNowEntries(shown) : shown.map(model => ({ kind: "row", model })), [shown, collapse]);
   const visibleEntries = entries.slice(0, count);
   const visibleCount = visibleEntries.reduce((sum, entry) => sum + (entry.models ? entry.models.length : 1), 0);
-  const todayBand = useMemo(() => nowTodayBand(models), [models]);
+  // The day band only when there is no pinned card (never the same message twice).
+  const todayBand = useMemo(() => pinned ? null : nowTodayBand(allModels), [allModels, pinned]);
   const selected = wide ? (shown.find(model => model.id === selectedId) || shown[0] || null) : null;
   const select = (model, play = false) => { setSelectedId(model.id); setPlayId(play ? model.id : null); feed?.see?.(model.row); };
-  const secondaryActive = Boolean(series || source || media);
+  const secondaryActive = Boolean(series || media || (lens && lens !== "all"));
   // A lens/choice that stopped existing (refresh, retry) must not leave an invisible empty filter.
   useEffect(() => {
     if (lens && lens !== "all" && !lenses.some(item => item.id === lens)) setLens(null);
     if (series && !choices.series.some(item => item.id === series)) setSeries("");
-    if (source && !choices.sources.some(item => item.id === source)) setSource("");
+    if (sourceKey && !sourceChoices.some(item => item.id === sourceKey)) setSourceKey("");
     if (media && !choices.media.some(item => item.id === media)) setMedia("");
-  }, [lenses, choices, lens, series, source, media]);
+  }, [lenses, choices, sourceChoices, lens, series, sourceKey, media]);
   const pick = setter => value => { setter(value); setCount(PAGE); };
   const additionalLoading = Boolean(feed?.nowSources && (!feed.nowSources.requested || feed.nowSources.loading));
   // An approved series occurrence that is no longer public reads as "access_filtered" by design (not a read failure).
@@ -229,20 +236,21 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const initialLoading = Boolean(feed?.loading && !models.length);
   // Nothing readable AND something failed: say so; never present a failed read as an empty world.
   const hardError = Boolean(!models.length && !initialLoading && !additionalLoading && (feed?.error || additionalUnavailable || partial));
-  const clear = () => { setLens("all"); setSeries(""); setSource(""); setMedia(""); setCount(PAGE); };
+  const clear = () => { setLens("all"); setSeries(""); setSourceKey(""); setMedia(""); setCount(PAGE); };
+  const chosenSource = sourceKey ? sourceChoices.find(item => item.id === sourceKey) : null;
 
-  return <section className="sod29-nowpub" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
-    {todayBand ? <TodayBand band={todayBand} onOpen={onOpen} /> : null}
-    <div className="sod29-nowpub-filters" role="group" aria-label="סינון פרסומים">
-      {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" data-tone={NOW_LENS_TONE[item.id]} aria-pressed={activeLens === item.id}
-        aria-label={`${item.label}, ${counts[item.id]} פרסומים שנטענו בחלונית`} title={`${counts[item.id]} פרסומים שנטענו בחלונית`}
-        onClick={() => pick(setLens)(item.id)}>{item.label}<span className="sod29-nowpub-chip-count" aria-hidden="true">{counts[item.id]}</span></button>)}
-    </div>
-    {choices.series.length + choices.sources.length > 1 || choices.media.length > 1 ? <details className="sod29-nowpub-more" open={secondaryActive || undefined}>
+  return <section className="sod29-nowpub is-royal" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
+    {pinned ? <NowPinnedMessage2029 pinned={pinned} onOpen={href => { feed?.see?.(pinned.model.row); onOpen?.(href); }} /> : todayBand ? <TodayBand band={todayBand} onOpen={onOpen} /> : null}
+    <NowSourcePicker2029 choices={sourceChoices} value={sourceKey} onChange={pick(setSourceKey)} total={models.length} />
+    {lenses.length > 1 || choices.series.length > 0 || choices.media.length > 1 ? <details className="sod29-nowpub-more" open={secondaryActive || undefined}>
       <summary>מסננים נוספים{secondaryActive ? " · פעיל" : ""}</summary>
+      <div className="sod29-nowpub-filters" role="group" aria-label="סינון פרסומים">
+        {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" data-tone={NOW_LENS_TONE[item.id]} aria-pressed={activeLens === item.id}
+          aria-label={`${item.label}, ${counts[item.id]} פרסומים שנטענו בחלונית`} title={`${counts[item.id]} פרסומים שנטענו בחלונית`}
+          onClick={() => pick(setLens)(item.id)}>{item.label}<span className="sod29-nowpub-chip-count" aria-hidden="true">{counts[item.id]}</span></button>)}
+      </div>
       <div className="sod29-nowpub-selects">
         {choices.series.length > 0 ? <label>סדרה<select value={series} onChange={event => pick(setSeries)(event.target.value)}><option value="">כל הסדרות</option>{choices.series.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label> : null}
-        {choices.sources.length > 1 ? <label>מקור<select value={source} onChange={event => pick(setSource)(event.target.value)}><option value="">כל המקורות</option>{choices.sources.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label> : null}
         {choices.media.length > 1 ? <label>מדיה<select value={media} onChange={event => pick(setMedia)(event.target.value)}><option value="">כל סוגי המדיה</option>{choices.media.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label> : null}
       </div>
     </details> : null}
@@ -255,9 +263,10 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
       {feed?.groupArrivals && feed.groupArrivals.state !== "connected" ? <p role="status">{feed.groupArrivals.message}</p> : null}
     </div>
 
-    {!initialLoading && !hardError && !additionalLoading && !shown.length
+    {!initialLoading && !hardError && chosenSource && !chosenSource.count ? <NowSourceEmpty2029 label={chosenSource.label} /> : null}
+    {!initialLoading && !hardError && !additionalLoading && !shown.length && !(chosenSource && !chosenSource.count)
       ? <p className="sod29-nowpub-empty" role="status">{models.length ? "אין פרסומים בסינון הזה." : "אין כרגע פרסומים להצגה."}
-        {models.length && (activeLens !== "all" || secondaryActive) ? <> <button type="button" className="sod29-nowpub-link" onClick={clear}>הצג הכול</button></> : null}</p> : null}
+        {models.length && (activeLens !== "all" || secondaryActive || sourceKey) ? <> <button type="button" className="sod29-nowpub-link" onClick={clear}>הצג הכול</button></> : null}</p> : null}
 
     {wide
       ? <div className="sod29-nowpub-split">

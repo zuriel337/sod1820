@@ -19,13 +19,15 @@ assert.ok(components.includes("function useHomeUpdates") && components.includes(
 const outfile = resolve(`.test-home-live-updates-${process.pid}.mjs`);
 await build({ stdin: { contents: `
   import React, {useMemo} from 'react';
-  import {nowModels} from './src/lib/nowPublications2029.js';
+  import {nowModels, buildNowEntries, filterNowBySource, nowPinnedMessage, nowSourceChoices} from './src/lib/nowPublications2029.js';
+  import NavigationIcon2029 from './src/components/experience2029/NavigationIcon2029.jsx';
+  import {NowPinnedMessage2029, NowSourceEmpty2029, NowSourcePicker2029} from './src/components/experience2029/NowRoyalCenter2029.jsx';
   import {relativeTimeLabel} from './src/lib/relativeTime2029.js';
   const Link = ({to,...props}) => React.createElement('a', {...props,href:to});
   const Media = ({src, className}) => React.createElement('img', {src, alt:'', className});
   ${components}
   export {HomeLiveUpdates, useHomeUpdates, HomeEntryBand};
-`, loader: "jsx", resolveDir: process.cwd() }, bundle: true, platform: "node", format: "esm", outfile, external: ["react"] });
+`, loader: "jsx", resolveDir: process.cwd() }, bundle: true, platform: "node", format: "esm", outfile, external: ["react"], loader: { ".css": "empty", ".js": "jsx" } });
 const { HomeLiveUpdates, useHomeUpdates, HomeEntryBand } = await import(pathToFileURL(outfile));
 after(async () => { await rm(outfile, { force: true }); });
 
@@ -35,9 +37,9 @@ const post = (id, hours, extra = {}) => ({ id, slug: `p-${id}`, title: `פוסט
 const gallery = (n, hours) => publicGalleryToSystemItem({ id: `10000000-0000-4000-8000-00000000000${n}`, image_url: `https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/g${n}.jpg`, name: `תמונה מזרם המציאות ${n}`, description: "", source: "update", published: 1, min_tier: 0, curator_hidden: false, stream_at: iso(hours), created_at: iso(hours), wp_gallery_id: 7 });
 const group = hours => groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "הודעת מקור שטרם נבדקה", created_at: iso(hours), contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" });
 const feedOf = (items, loading = false) => ({ loading, expandedRows: feedRows(items, { now: NOW, limit: 160, caps: { post: 40, group: 40, gallery: 10 } }) });
-function Probe({ feed, exclude = new Set(), postsOnly = false }) {
-  const updates = useHomeUpdates(feed, { exclude, postsOnly });
-  return React.createElement(HomeLiveUpdates, { updates, onOpenNow: () => {} });
+function Probe({ feed, exclude = new Set(), postsOnly = false, sourceKey = "" }) {
+  const updates = useHomeUpdates(feed, { exclude, postsOnly, sourceKey });
+  return React.createElement(HomeLiveUpdates, { updates, onOpenNow: () => {}, sourceKey, onSource: () => {}, onNavigateTo: () => {} });
 }
 const render = async props => { let root; await act(async () => { root = Renderer.create(React.createElement(Probe, props)); }); return root; };
 const entries = root => root.root.findAll(node => node.type === "li" && node.props["data-home-update-item"]);
@@ -55,10 +57,10 @@ test("newest first across kinds: a reality-stream image shows as an image with i
   await act(async () => { root.unmount(); });
 });
 
-test("at most four items; anything already shown by the flagship region or ciphers is not repeated; posts-only while the world is closed", async () => {
-  const items = [1, 2, 3, 4, 5].map(n => postRowToWorldUpdate(post(n, n))).concat([gallery(2, 0.5)]).filter(Boolean);
+test("at most six items; anything already shown by the flagship region or ciphers is not repeated; posts-only while the world is closed", async () => {
+  const items = [1, 2, 3, 4, 5, 6, 7].map(n => postRowToWorldUpdate(post(n, n))).concat([gallery(2, 0.5)]).filter(Boolean);
   let root = await render({ feed: feedOf(items) });
-  assert.equal(entries(root).length, 4);
+  assert.equal(entries(root).length, 6);
   await act(async () => { root.unmount(); });
   root = await render({ feed: feedOf(items), exclude: new Set(["/post/p-1"]) });
   assert.equal(entries(root).some(node => node.props["data-home-update-item"] === "post:1"), false);
@@ -70,7 +72,7 @@ test("at most four items; anything already shown by the flagship region or ciphe
 
 test("loading reserves rows; nothing to show or no feed renders nothing: no empty card and no error text", async () => {
   let root = await render({ feed: { loading: true, expandedRows: [] } });
-  assert.equal(root.root.findAll(node => node.type === "li" && String(node.props.className).includes("h29-skel")).length, 4);
+  assert.equal(root.root.findAll(node => node.type === "li" && String(node.props.className).includes("h29-skel")).length, 6);
   assert.equal(root.root.findAll(node => node.props["data-home-top-updates"] === "live")[0].props["aria-busy"], true);
   await act(async () => { root.unmount(); });
   for (const feed of [null, feedOf([]), feedOf([group(1)].filter(Boolean))]) {
@@ -80,9 +82,9 @@ test("loading reserves rows; nothing to show or no feed renders nothing: no empt
   }
 });
 
-test("Home order: ELS, latest ciphers, live updates, flagship region, entrances, other series; the end is statistics then the newsletter", () => {
+test("Home order (ZURIEL 11.11.2026): 'עכשיו · המרכז' first, then ELS, latest ciphers, flagship region, entrances, other series; the end is statistics then the newsletter", () => {
   const body = source.slice(source.indexOf(`data-experience-capability="home-composition"`));
-  const order = ["<HomeFeaturedPost2029", "elsEntry ? <Reveal", '<Section label="הצפנים האחרונים בתורה">', "<HomeLiveUpdates", "<HomeFlagshipRegion", "<HomeEntryBand", "<HomeOtherSeries"].map(marker => body.indexOf(marker));
+  const order = ["<HomeLiveUpdates", "elsEntry ? <Reveal", '<Section label="הצפנים האחרונים בתורה">', "<HomeFlagshipRegion", "<HomeEntryBand", "<HomeOtherSeries", "<HomeFeaturedPost2029", '<Reveal id="story"'].map(marker => body.indexOf(marker));
   assert.ok(order.every(index => index > 0) && order.every((index, i) => i === 0 || index > order[i - 1]), order.join(","));
   assert.ok(body.indexOf('data-home-newsletter="end"') > body.indexOf('aria-label="דופק ומצב בנייה"'), "newsletter after the statistics line, last");
   assert.equal((source.match(/<NewsletterSignup2029 \/>/g) || []).length, 1, "one newsletter component, only at the end");
@@ -103,5 +105,44 @@ test("entrances: Beit Midrash and the life-journey promo link only while open; a
   const closed = root.root.findAll(node => node.props["aria-disabled"] === "true");
   assert.equal(closed.length, 2);
   assert.match(closed.map(node => JSON.stringify(node.children.map(child => typeof child === "string" ? child : child.children?.join("")))).join(" "), /בבנייה/);
+  await act(async () => { root.unmount(); });
+});
+
+// ── "עכשיו · המרכז" (ZURIEL 11.11.2026): the pinned central message and the source picker over the same models ──────────────────────
+const pinnedItem = (untilHours, extra = {}) => ({ ...postRowToWorldUpdate(post(5107, 72, { slug: "sharshar" })), pinned: true, pinUntil: new Date(NOW + untilHours * 3600e3).toISOString(),
+  central: { title: "ממשלת משיח בן דוד = 1234 · והיום 10.11 = 1011", kicker: "תיעוד אירועים", date: "10.11.2026", postTitle: "פוסט 5107",
+    groups: [{ value: 1234, phrases: ["ממשלת משיח בן דוד", "התגלות השכינה"], numberOnly: [] }, { value: 1011, phrases: ["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים"], numberOnly: ["10.11.2026 — יום השבעת הכנסת ה־26"] }] }, ...extra });
+
+test("the pinned central message is the card on top (once): never repeated as a row, gone by itself after its pin window", async () => {
+  let root = await render({ feed: feedOf([pinnedItem(5), postRowToWorldUpdate(post(1, 2))].filter(Boolean)) });
+  const card = root.root.findAll(node => node.props["data-now-pinned-message"]);
+  assert.equal(card.length, 1);
+  assert.ok(card[0].findAll(node => node.type === "h3").some(node => node.children.join("") === "ממשלת משיח בן דוד = 1234 · והיום 10.11 = 1011"), "the owner's heading, verbatim");
+  assert.deepEqual(card[0].findAll(node => node.props.className === "rc29-num").map(node => node.props["aria-label"]), ["פתח את המספר 1234", "פתח את המספר 1011"]);
+  assert.equal(entries(root).some(node => node.props["data-home-update-item"] === "post:5107"), false, "not a second time as a row");
+  const toggle = card[0].findAll(node => node.type === "button" && node.props["aria-expanded"] === false)[0];
+  await act(async () => { toggle.props.onClick(); });
+  const lines = root.root.findAll(node => node.props.className === "rc29-line").map(node => node.findAllByType("span")[0].children.join(""));
+  assert.deepEqual(lines, ["ממשלת משיח בן דוד", "התגלות השכינה", "10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים"], "every line opens before entering the Post");
+  await act(async () => { root.unmount(); });
+  root = await render({ feed: feedOf([pinnedItem(-1), postRowToWorldUpdate(post(1, 2))].filter(Boolean)) });
+  assert.equal(root.root.findAll(node => node.props["data-now-pinned-message"]).length, 0, "an expired pin is no longer pinned");
+  await act(async () => { root.unmount(); });
+});
+
+test("one source picker: 'הכול' by default hides unverified group rows; picking the group shows them with their label; a known group with nothing new shows an honest empty state", async () => {
+  const items = [postRowToWorldUpdate(post(1, 3)), group(1)].filter(Boolean);
+  let root = await render({ feed: feedOf(items) });
+  const chips = root.root.findAll(node => node.props["data-now-source"]).map(node => node.props["data-now-source"]);
+  assert.equal(chips[0], "all"); assert.ok(chips.includes("group:ki-la-hamelucha-gematria"), "a known public group is listed even when empty");
+  assert.equal(entries(root).length, 1, "only the Post under 'הכול'");
+  await act(async () => { root.unmount(); });
+  const groupKey = chips.find(id => id.startsWith("group:") && id !== "group:ki-la-hamelucha-gematria" && id !== "group:torat-haremez") || "group:neutral";
+  root = await render({ feed: feedOf(items), sourceKey: groupKey });
+  assert.equal(entries(root).length, 1); assert.match(JSON.stringify(entries(root)[0].findAllByType("b").map(node => node.children)), /טרם נבדק/);
+  await act(async () => { root.unmount(); });
+  root = await render({ feed: feedOf(items), sourceKey: "group:ki-la-hamelucha-gematria" });
+  assert.equal(entries(root).length, 0);
+  assert.match(root.root.findAll(node => node.props.className === "rc29-empty")[0].children.join(""), /אין פרסום חדש/);
   await act(async () => { root.unmount(); });
 });

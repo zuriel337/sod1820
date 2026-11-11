@@ -23,10 +23,13 @@ test("a different, hidden or suppressed Post is never featured; nothing is inven
   assert.equal(projectHomeFeaturedPost(null), null);
 });
 
-test("Home: the featured card is the first area (before the ELS entry); its Post is excluded from the strips so it appears once", async () => {
+test("Home (ZURIEL 11.11.2026): 'עכשיו · המרכז' is the first area; the featured card moved to the stories, just before the plane story; its Post appears once", async () => {
   const home = await readFile(new URL("../src/components/experience2029/HomeComposition2029.jsx", import.meta.url), "utf8");
   const body = home.slice(home.indexOf('data-experience-capability="home-composition"'));
-  assert.ok(body.indexOf("<HomeFeaturedPost2029") > 0 && body.indexOf("<HomeFeaturedPost2029") < body.indexOf("elsEntry ? <Reveal"));
+  const centre = body.indexOf("<HomeLiveUpdates"), featured = body.indexOf("<HomeFeaturedPost2029"), els = body.indexOf("elsEntry ? <Reveal"), plane = body.indexOf('<Reveal id="story"');
+  assert.ok(centre > 0 && centre < els, "the centre comes before the ELS entry");
+  assert.ok(featured > els && featured < plane && !/<Reveal|<Section|<section/.test(body.slice(featured + 10, plane)), "the featured card sits directly before the plane story");
+  assert.match(body, /<HomeFeaturedPost2029 state=\{featured\} hideHighlights=\{Boolean\(updates\.pinned\)\} \/>/, "its numbers show once: in the pinned centre while the pin is open");
   assert.match(home, /featured\.post\?\.href,/); assert.match(home, /featured\.post\?\.slug,/);
   const css = await readFile(new URL("../src/components/experience2029/homeComposition2029.css", import.meta.url), "utf8");
   assert.match(css, /\.h29-featured\.h29-skel \{ min-height: 1140px; \}/, "height reserved while loading (544 + the 1234 and 1011 blocks and the sentence, ZURIEL 10.11.2026)");
@@ -38,10 +41,15 @@ test("the whole message is ONE feed item for 'עכשיו': same post:<id> identi
   const { mergeSystemFeedItems } = await import("../src/lib/systemFeed2029.js");
   const { nowModels } = await import("../src/lib/nowPublications2029.js");
   const { feedRows } = await import("../src/lib/systemFeed2029.js");
-  const item = featuredFeedItem(row({ date: "2026-09-30T08:55:00Z", excerpt: "תקציר ישן" }), postRowToWorldUpdate);
+  const inPin = Date.parse("2026-11-12T12:00:00Z"), afterPin = Date.parse("2026-11-14T06:00:00Z");
+  const item = featuredFeedItem(row({ date: "2026-09-30T08:55:00Z", excerpt: "תקציר ישן" }), postRowToWorldUpdate, HOME_FEATURED_POST_2029, inPin);
   assert.equal(item.id, "post:5107"); assert.equal(item.label, HOME_FEATURED_POST_2029.headline);
   for (const part of ["הבורא מדבר דרך כל המציאות", "התיעוד הזה הוא חלק מעץ המציאות", "המסר:", "46 הוא היפוך של 64, דין", "מה שנראה דין מתגלה כרחמים", "סוד הבינה, 67", "1,437 (לייקים)", "618 = משיח צדקינו", "396 = הישועה = דויד בן ישי", "78 = מחל", "64 = דין", "פ״ז", "שרשר = 1000"]) assert.ok(item.fullText.includes(part), part);
   assert.equal(item.at, "2026-11-08T04:18:00.000Z"); assert.equal(item.pinned, true); assert.equal(item.liveDot, "עדכון חדש בפוסט");
+  // The pin is ONE window of at most 72 hours (System Frame v2 §10.8 addendum, 11.11.2026): it expires by itself, the Post keeps its place by time.
+  assert.equal(item.pinUntil, "2026-11-14T06:00:00.000Z"); assert.equal(item.central.groups.map(group => group.value).join(","), "1234,1011");
+  const expired = featuredFeedItem(row({}), postRowToWorldUpdate, HOME_FEATURED_POST_2029, afterPin);
+  assert.equal(expired.pinned, false); assert.equal(expired.pinUntil, null); assert.equal(expired.liveDot, null);
   assert.equal(featuredFeedItem(row({ home_hidden: true }), postRowToWorldUpdate), null);
   // The stream's own item for the same Post can never make a second row: ours is listed first and wins.
   const streamItem = postRowToWorldUpdate(row({ date: "2026-11-07T00:00:00Z" }));

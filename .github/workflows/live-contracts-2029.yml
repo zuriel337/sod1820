@@ -227,6 +227,13 @@ jobs:
           test/world-topic-gallery-state-map-2029.test.mjs
           test/world-gallery-entry-follow-chain-2029.test.mjs
           test/world-one-tree-preview-2029.test.mjs
+      - name: Now centre contracts (ZURIEL 11.11.2026 — the pinned central message of at most 72 hours, the one source picker, the Home centre first and the featured card before the plane story; the Home strip test mounts the real component with react-test-renderer from the calculator step above; it was previously unwired and repaired)
+        run: >
+          node --test
+          test/now-publications-2029.test.mjs
+          test/home-live-updates-2029.test.mjs
+          test/home-featured-post-2029.test.mjs
+          test/companion-2029-one-feed-and-projector-rail.test.mjs
       - name: Connected golden theme contract (script runner)
         run: node scripts/test-connected-golden-2029.mjs
       - name: Robustness and rollout-order contracts (stale-chunk recovery and error boundary, /api/card deadline and glyphs, guest/member preferences split, push and RPC deploy-order manifests, ELS bridge anonymous bearer, missing-asset 404, client read de-duplication, bot-observability migrations; the asset-miss test reads the production build generated earlier in this job)
