@@ -53,3 +53,12 @@ Batch (אסינכרוני, −50%): ≈ $0.09–0.26. כל הפרויקט (בנ�
 - Codex: אין ענפי codex/* מאז 10.11 ואין רשומות work_log מ/אל Codex ב-72 שעות; אין מה לתאם — ההפניה: AGENTS.md → CLAUDE.md §0.
 - חפיפות: **#1189 (GPT, draft)** מוסיף `PostSystemAddition2029.jsx` ומשנה `Post2029Page.jsx` («תוספות מערכת נפרדות» בפוסטים) — יחסי: (א) שלב לשוניות הקורא יתנגש בקובץ אותו; (ב) אם ימוזג, `posts.ai_addition` יוצג בנפרד ← יש לבחון אז את כפילות סעיפי «תוספת המערכת» שבתוך תוכן «מה קורה הבורא» מול ai-addition.html. #1296 (חוזה קשרי פוסט/סדרה) ו-#1288 (מסגרת וידאו בפוסט) — ללא קבצים חופפים. #1303 — PublicContinuity2029Page.jsx בלבד (לא נגעתי).
 - מה שנוסף בענף זה חדש בלבד: אין שינוי בחוזי קטגוריות/סדרות/מדיה, אין שינוי ב-package.json/CI/video-transcribe/Post2029Page.
+
+---
+## סגירת שלב — PHASE_COMPLETE / IMPLEMENTATION_DEFERRED (החלטת ZURIEL 11.11.2026)
+המימוש נעצר; כל העבודה נשמרת להמשך. אין אישור למיגרציה, תרגום בתשלום, merge, פריסה או פרסום. הפוסט «מה קורה הבורא» ללא שינוי מאז 177d817 (post.html, post-meta.json, ai-addition.html).
+**הושלם**: תוכנית (§1–§9 + עדכון 2); טיוטת מיגרציה `supabase/proposed/content_translations_v1_PROPOSAL.sql` (RLS עצמאי מול source_hash, זהות ישות בטוחה, FK, publish-guard — לא מוחל); מודול `entityTranslationPolicy.js`; בדיקות: SQL T0–T9 + 17 בדיקות JS (עוברות מקומית).
+**לא מומש**: החלת מיגרציה; הרחבת video-transcribe (`translate_entity`) ופריסתה; כל קריאת תרגום/עלות ספק; פיילוט draft; לשוניות/בורר שפה בקורא; סימון translation-ready בפוסט; חיבור ל-CI/package.json.
+**נקודות פתוחות**: (1) חפיפה עם PR #1189 (`PostSystemAddition2029.jsx` + `Post2029Page.jsx`, draft של GPT) — מתנגש בלשוניות הקורא, ואם ימוזג יש לבחון כפילות בין סעיפי «תוספת המערכת» בתוך הפוסט ל-ai-addition.html. (2) בדיקת SQL הורצה על PostgreSQL 16 מקומי; **נדרשת הרצה על PostgreSQL 17.6 (גרסת הייצור)** — docker postgres:17 דרך `scripts/run-content-translations-sql-test.sh` או ענף Supabase (בעלות, באישור) — לפני כל בקשת אישור למיגרציה.
+**צעד ראשון בחידוש**: לבדוק מחדש את מצב #1189 ושאר ה-PRs על Post2029Page.jsx; להריץ את בדיקת ה-SQL על PostgreSQL 17; רק אז להגיש לצוריאל בקשת אישור נפרדת להחלת המיגרציה.
+**חידוש מהקומיט האחרון**: `git fetch origin claude/mah-kore-bore-completion-4oobnl`; בדיקות: `node --test test/entity-translation-policy.test.mjs` · `bash scripts/run-content-translations-sql-test.sh`. רשומות work_log: f60c0f6c (scope+after), 2db6d0ff (קבלה), ועוד קודמות — לא נמחקו.
