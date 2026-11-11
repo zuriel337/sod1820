@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { TYPEFACE } from "../../lib/designTokens.js";
 import { cleanName } from "../../lib/galleryName.js";
 import { topicConvergenceContentSections } from "../../lib/research/topicConvergence.js";
+import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 
 // 📜 TopicConvergenceContent — the ONE thin renderer of a Topic/Convergence Universal Finding's
 // authored body (LEGACY_CONTENT_TO_ONE_RESEARCH_OS_BRIDGE_V1, work_log 1af998d5).
@@ -101,7 +102,7 @@ export default function TopicConvergenceContent({ finding, palette: P, imgs = []
             {S.numericClaims.map(c => (
               <div key={c.sourcePath} style={{ display: "flex", gap: 10, alignItems: "baseline", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 12px" }}>
                 {c.value != null ? (
-                  <Link to={`/2029/number/${c.value}`} onClick={() => leave("number", { entityId: String(c.value), entityType: "number" })} style={ROW_VALUE_STYLE}>{c.value}</Link>
+                  <Link to={`${NUMBER_PAGE_BASE}/${c.value}`} onClick={() => leave("number", { entityId: String(c.value), entityType: "number" })} style={ROW_VALUE_STYLE}>{c.value}</Link>
                 ) : (
                   <span style={{ ...ROW_VALUE_STYLE, background: "transparent", color: P.inkSoft, border: `1px dashed ${P.border}` }}>—</span>
                 )}
@@ -126,7 +127,7 @@ export default function TopicConvergenceContent({ finding, palette: P, imgs = []
             {S.rows.map(r => (
               <div key={r.sourcePath} style={{ display: "flex", gap: 10, alignItems: "baseline", background: P.cardSoft, border: `1px solid ${P.border}`, borderRadius: 10, padding: "9px 12px" }}>
                 {r.value != null ? (
-                  <Link to={`/2029/number/${r.value}`} onClick={() => leave("number", { entityId: String(r.value), entityType: "number" })} style={ROW_VALUE_STYLE}>{r.value}</Link>
+                  <Link to={`${NUMBER_PAGE_BASE}/${r.value}`} onClick={() => leave("number", { entityId: String(r.value), entityType: "number" })} style={ROW_VALUE_STYLE}>{r.value}</Link>
                 ) : (
                   <span style={{ ...ROW_VALUE_STYLE, background: "transparent", color: P.inkSoft, border: `1px dashed ${P.border}` }}>—</span>
                 )}

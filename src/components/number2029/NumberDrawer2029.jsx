@@ -16,6 +16,7 @@ import {
 import { getAllValuePhrases, langLinksList } from "../../lib/supabase.js";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 import "./numberDrawer2029.css";
+import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 
 const NUMBER_METHOD_RESULT_CACHE = new Map();
 const EMPTY_METHOD_PROFILE = Object.freeze([]);
@@ -461,7 +462,7 @@ export default function NumberDrawer2029({
       method: activeMethodKey,
       resultValue: activeResultValue,
     };
-    const subject = { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` };
+    const subject = { id: String(root), type: "number", label: String(root), href: `${NUMBER_PAGE_BASE}/${root}` };
     internalContextSignatureRef.current = numberContextSignature(root, selection.expression, activeMethodKey);
     if (context?.subject?.type === "number" && String(context.subject.id) === String(root)) {
       research?.updateResearchContext?.({ selection, lens: "number", ...patch });
@@ -601,12 +602,12 @@ export default function NumberDrawer2029({
       resultValue: selectedProfile?.computedValue ?? null,
     };
     research?.setResearchContext?.({
-      subject: { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` },
+      subject: { id: String(root), type: "number", label: String(root), href: `${NUMBER_PAGE_BASE}/${root}` },
       selection,
       lens: "world",
-      dimensions: { ...(current.dimensions || {}), numberHome: `/2029/number/${root}` },
+      dimensions: { ...(current.dimensions || {}), numberHome: `${NUMBER_PAGE_BASE}/${root}` },
       returnTo: {
-        href: current?.subject?.href || `/2029/number/${root}`,
+        href: current?.subject?.href || `${NUMBER_PAGE_BASE}/${root}`,
         label: current?.subject?.label || `דף ${root}`,
         subject: current?.subject || null,
         selection: current?.selection || null,

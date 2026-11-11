@@ -7,6 +7,7 @@ import ContextualInspector2029 from "./ContextualInspector2029.jsx";
 import SurfaceProgressSpine2029 from "./SurfaceProgressSpine2029.jsx";
 import LearnMark2029 from "./LearnMark2029.jsx";
 import EventSequencePanel2029 from "./EventSequencePanel2029.jsx";
+import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 const GoldenProjectorModeLayer2029 = lazy(() => import("./GoldenProjectorModeLayer2029.jsx"));
 import ContextualVideoLayer2029 from "./ContextualVideoLayer2029.jsx";
 import {
@@ -183,7 +184,7 @@ export default function SurfaceContextRail2029({
       id: String(number),
       type: "number",
       label: String(number),
-      href: `/2029/number/${number}`,
+      href: `${NUMBER_PAGE_BASE}/${number}`,
       source: "contextual-learn",
     });
   };
@@ -211,7 +212,7 @@ export default function SurfaceContextRail2029({
       title={title}
       subtitle={subtitle}
       actions={<div className="sod29-surface-context-actions">
-        {hasNumber ? <button type="button" onClick={() => onOpenNumber?.({ id: String(number), type: "number", label: String(number), href: `/2029/number/${number}` })}>פתח את {number}</button> : null}
+        {hasNumber ? <button type="button" onClick={() => onOpenNumber?.({ id: String(number), type: "number", label: String(number), href: `${NUMBER_PAGE_BASE}/${number}` })}>פתח את {number}</button> : null}
         {onOpenWorld ? <button type="button" onClick={onOpenWorld}>פתח בעולם</button> : null}
         <button className="is-raziel" type="button" onClick={onAskRaziel} disabled={!onAskRaziel}>{onAskRaziel ? "✦ שאל את רזיאל" : "✦ רזיאל · נעול"}</button>
       </div>}

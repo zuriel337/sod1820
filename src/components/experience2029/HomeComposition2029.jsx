@@ -31,6 +31,7 @@ import { recentConvergence, readSeen, markSeen } from "../../lib/homeMotion2029.
 import PostCategories2029 from "./PostCategories2029.jsx";
 import "./homeMotion2029.css";
 import "./homeComposition2029.css";
+import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 
 const clean = (value) => stripHtml(value == null ? "" : String(value)).trim();
 
@@ -400,7 +401,7 @@ function HomeAvailabilityMap() {
     <ul><li><Link to="/2029/posts">פוסטים</Link><span>פתוח לציבור</span></li>
       <li><Link to="/gematria">מחשבון גימטריה</Link><span>פתוח לציבור</span></li>
       <AvailabilityItem label="העולם והגלריות" href="/world" flag="lock_world" />
-      <AvailabilityItem label="מספרים וביטויים" href="/2029/number/1820" flag="lock_number" />
+      <AvailabilityItem label="מספרים וביטויים" href={`${NUMBER_PAGE_BASE}/1820`} flag="lock_number" />
       <AvailabilityItem label="הצופן התנ״כי" href="/code" flag="lock_els" />
       <AvailabilityItem label="מסע החיים" href="/2029/journey" flag="lock_life_journey" />
       <AvailabilityItem label="רזיאל" href="/2029/raziel" flag="lock_raziel_site" />
@@ -552,7 +553,7 @@ export default function HomeComposition2029({
       <div className="h29-portions">
         {calculator}
         {corePublic && worldOpen ? <Link className="h29-portion k29-rv" to="/world" data-home-world="open"><span className="h29-portion-h"><NavigationIcon2029 name="cosmos" />העולם</span><small>מקורות, סיפורים וחיבורים במקום אחד</small></Link> : null}
-        {!corePublic && now ? <Link className="h29-portion k29-rv" to={`/2029/number/${now.value}`}><span className="h29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
+        {!corePublic && now ? <Link className="h29-portion k29-rv" to={`${NUMBER_PAGE_BASE}/${now.value}`}><span className="h29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
           <span className="h29-daynum">{now.value}</span><small>{now.yearLabel}</small></Link> : null}
         {corePublic ? <a className="h29-portion k29-rv" href="/community/chat"><span className="h29-portion-h"><NavigationIcon2029 name="community" />צ׳אט</span><small>לשיחות הקהילה</small></a>
           : <a className="h29-portion k29-rv" href="/archive"><span className="h29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></a>}

@@ -2,6 +2,7 @@ import { buildExactReturnPatch, normalizeResearchContext } from "./researchConte
 import { stableIdentityDigest } from "./researchRepresentations.js";
 import { buildResearchPathStep } from "./researchPathRuntime.js";
 import { LIFE_JOURNEY_FAMILY_SNAPSHOT_DIMENSION } from "./lifeJourneyFamilyResearchSnapshot.js";
+import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
 
 export const LIFE_JOURNEY_2029_HREF = "/2029/journey";
 export const LIFE_JOURNEY_PERSON_CONTEXT_CONTRACT = "life_journey_person_context_v1";
@@ -290,7 +291,7 @@ export function buildLifeJourneyHintReferencePatch(context, number) {
 
   const origin = buildLifeJourneyPersonContext(rootRef, safe);
   if (!origin) return null;
-  const href = `/2029/number/${value}`;
+  const href = `${NUMBER_PAGE_BASE}/${value}`;
   return normalizeResearchContext({
     ...safe,
     subject: { id: String(value), type: "number", label: String(value), href },
@@ -335,7 +336,7 @@ export function buildLifeJourneyFindingTraversalPatch(context, {
 
   const origin = buildLifeJourneyPersonContext(rootRef, safe);
   if (!origin) return null;
-  const href = `/2029/number/${number}`;
+  const href = `${NUMBER_PAGE_BASE}/${number}`;
   return normalizeResearchContext({
     ...safe,
     subject: { id: String(number), type: "number", label: String(number), href },

@@ -4,6 +4,7 @@
 // prominence. EXTEND_EXISTING only: no Topic store, rank engine, graph, truth or publication owner.
 
 import { normalizeOpenedRelations } from "./worldGraphRelationOpener2029.js";
+import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const asArray = (value) => Array.isArray(value) ? value : [];
@@ -21,7 +22,7 @@ function targetHref(target) {
   if (!target) return null;
   const type = clean(target.type);
   const label = clean(target.label);
-  if (type === "number" && /^\d+$/.test(label)) return `/2029/number/${label}`;
+  if (type === "number" && /^\d+$/.test(label)) return `${NUMBER_PAGE_BASE}/${label}`;
   return null;
 }
 

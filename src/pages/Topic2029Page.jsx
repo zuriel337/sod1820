@@ -25,6 +25,7 @@ import "./topic2029.css";
 import ConvergenceRatings2029 from "../components/experience2029/ConvergenceRatings2029.jsx";
 import TopicNumberResearch2029 from "../components/research/TopicNumberResearch2029.jsx";
 import StoryTreeSequence2029 from "../components/research/StoryTreeSequence2029.jsx";
+import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const textOf = (row) => clean(row?.text || row?.title || row?.phrase || row?.note);
@@ -117,7 +118,7 @@ function TopicFindings({ projection, onOpenExpression, openingKey = null }) {
               ? <button type="button" className="sod29-topic-equation-phrase" disabled={opening} onClick={open}>{phrase}</button>
               : <span className="sod29-topic-equation-phrase">{phrase || "חיבור מספרי"}</span>}
             {value != null ? <span className="sod29-topic-equation-equals">=</span> : null}
-            {value != null ? <Link className="sod29-topic-equation-value" to={"/2029/number/" + value} onClick={(event) => {
+            {value != null ? <Link className="sod29-topic-equation-value" to={NUMBER_PAGE_BASE + "/" + value} onClick={(event) => {
               if (!phrase || !onOpenExpression || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
               event.preventDefault();
               if (!opening) open();
@@ -151,7 +152,7 @@ function TopicAuthoredConnections({ projection }) {
         const number = Number(row.number);
         const labels = Array.isArray(row.links) ? row.links.filter(Boolean) : [];
         return <article className="sod29-topic-axis-card" key={row.sourcePath || index}>
-          {Number.isFinite(number) ? <Link className="sod29-topic-axis-number" to={"/2029/number/" + number}>{number}</Link> : null}
+          {Number.isFinite(number) ? <Link className="sod29-topic-axis-number" to={NUMBER_PAGE_BASE + "/" + number}>{number}</Link> : null}
           <strong>{labels.join(" · ") || textOf(row) || "קשר"}</strong>
           {row.note ? <p>{row.note}</p> : null}
         </article>;
@@ -766,7 +767,7 @@ function TopicBody() {
     <header className="sod29-topic-hero">
       <div className="sod29-topic-hero-copy">
         <div className="sod29-kicker">ציר</div>
-        {projection.heroNumber != null ? <Link className="sod29-topic-hero-number" to={"/2029/number/" + projection.heroNumber}>{projection.heroNumber}</Link> : null}
+        {projection.heroNumber != null ? <Link className="sod29-topic-hero-number" to={NUMBER_PAGE_BASE + "/" + projection.heroNumber}>{projection.heroNumber}</Link> : null}
         <h1>{projection.displayTitle || projection.title}</h1>
         <p className="sod29-topic-summary">{discoveryIntro || projection.description}</p>
         <div className="sod29-topic-meta">
@@ -782,7 +783,7 @@ function TopicBody() {
         </div>
       </div>
       {secondaryNumbers.length ? <div className="sod29-topic-anchor-cluster" aria-label="מספרים נוספים בציר">
-        {secondaryNumbers.map((value) => <Link to={"/2029/number/" + value} className="sod29-topic-anchor" key={value}><strong>{value}</strong><small>חיבור נוסף</small></Link>)}
+        {secondaryNumbers.map((value) => <Link to={NUMBER_PAGE_BASE + "/" + value} className="sod29-topic-anchor" key={value}><strong>{value}</strong><small>חיבור נוסף</small></Link>)}
       </div> : null}
     </header>
 
@@ -822,7 +823,7 @@ function TopicBody() {
       <p>אפשר לפתוח את המספר המוביל, לראות את הציר בעולם או לשאול את רזיאל על חיבור מסוים.</p>
       <div className="sod29-actions">
         <Link className="sod29-action primary" to="/world">פתח בעולם</Link>
-        {primaryNumbers[0] != null ? <Link className="sod29-action" to={"/2029/number/" + primaryNumbers[0]}>פתח מספר מוביל</Link> : null}
+        {primaryNumbers[0] != null ? <Link className="sod29-action" to={NUMBER_PAGE_BASE + "/" + primaryNumbers[0]}>פתח מספר מוביל</Link> : null}
         <button className="sod29-action" type="button" disabled={shell.razielLocked} onClick={() => shell.openRaziel({ topicSlug: projection.slug, topicTitle: projection.title, intent: "topic_next_step" })}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ מה כדאי לבדוק עכשיו?"}</button>
       </div>
     </section>

@@ -221,6 +221,7 @@ export default function NumberLivingWorld2029({
   activityCount = 0,
   researchState = {},
   onOpenWorld,
+  focusSection = null,
   onOpenHeichal,
   onRazielAction,
   onOpenNumber,
@@ -357,6 +358,28 @@ export default function NumberLivingWorld2029({
   };
 
   const selectedScrub = scrubRows[Math.min(scrubIndex, Math.max(0, scrubRows.length - 1))] || null;
+  // Legacy `?focus=dna` ("open the convergence axes"): scroll to the existing convergence rendering. The worlds section is built
+  // from the approved convergence cards; with none, the connections section is the nearest existing one. Nothing is created.
+  // The sections above it (verses, expressions, sources) finish loading after the first paint and move it, so the scroll is
+  // repeated briefly, and stops at once when the reader scrolls, touches or presses a key.
+  const focusedSectionDone = useRef(null);
+  useEffect(() => {
+    if (focusSection !== "convergence") return undefined;
+    const marker = `${root}:${focusSection}`;
+    if (focusedSectionDone.current === marker) return undefined;
+    let touched = false;
+    const stop = () => { touched = true; };
+    const events = ["wheel", "touchstart", "keydown", "mousedown"];
+    events.forEach(name => window.addEventListener(name, stop, { passive: true, once: true }));
+    const go = () => {
+      if (touched) return;
+      const target = document.getElementById("number-worlds-live") || document.getElementById("number-connections-live");
+      if (target) target.scrollIntoView({ behavior: "auto", block: "start" });
+    };
+    const timers = [0, 400, 1200, 2600, 4500].map(delay => window.setTimeout(go, delay));
+    focusedSectionDone.current = marker;
+    return () => { timers.forEach(window.clearTimeout); events.forEach(name => window.removeEventListener(name, stop)); };
+  }, [focusSection, root]);
   const navItems = [
     ...(verseRows.length || versesLoading ? [["פסוקים", "number-verses"]] : []),
     ["עיקר", "number-essential"],

@@ -85,7 +85,7 @@ assert.match(page, /\/post\//);
 assert.match(page, /resolveTopicExpressionFocus2029/);
 assert.match(page, /shell\.openNumber\?\./, "Topic expressions must open the existing Number sheet");
 assert.doesNotMatch(page, /navigate\(focus\.href\)/, "opening a Topic expression must keep the source page in place");
-assert.match(page, /\/2029\/number\//);
+assert.match(page, /NUMBER_PAGE_BASE \+ "\//, "Topic 2029 links go through the shared Number page base (/number in the public release)");
 assert.equal(/to=\{"\/number\//.test(page), false, "Topic 2029 must not hand Number interactions to the legacy /number route");
 assert.equal(page.includes("getTopicCardBySlug"), false);
 assert.equal(page.includes("getGalleryImagesByIds"), false);

@@ -10,6 +10,7 @@ import { WORLD_KNOWLEDGE_KIND } from "../../lib/research/worldLandingNavigation.
 import { buildPublicCipherContentProjection, buildPublicLanguageContentProjection, buildPublicMediaContentProjection } from "../../lib/research/worldKnowledgeContentProjection.js";
 import { fetchWorldLanguageTriageProjection } from "../../lib/research/worldLanguageTriageProjection.js";
 import { fetchWorldPublicBookContent } from "../../lib/research/worldBookContentProjection.js";
+import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 
 export const WORLD_KNOWLEDGE_OPTIONS = Object.freeze([
   { key: WORLD_KNOWLEDGE_KIND.NUMBERS, label: "מספרים ומילים", description: "מספרים, מילים וביטויים" },
@@ -51,7 +52,7 @@ function publicationStateLabel(value) {
 }
 
 function cardHref(card) {
-  return card.facet === "number" ? `/2029/number/${encodeURIComponent(card.refId)}` : card.href;
+  return card.facet === "number" ? `${NUMBER_PAGE_BASE}/${encodeURIComponent(card.refId)}` : card.href;
 }
 
 function selectedNumberCard(item) {
@@ -189,7 +190,7 @@ function SpatialShelf({ projection }) {
         </ol>
         {card.interpretation ? <details><summary>הפרשנות של המקור</summary><p>{card.interpretation}</p></details> : null}
         <details><summary>הופעות מקור מדויקות · {card.source.occurrenceCount}</summary><ul>{card.source.locators.map((item) => <li key={item.ref}><Link to={item.href}>{item.exact ? "פתח את ההופעה בספריית צבי" : "פתח את ספריית צבי"}</Link> · <code dir="ltr">{item.ref}</code></li>)}</ul></details>
-        <div className="sod29-actions"><Link className="sod29-action primary" to={`/2029/number/${card.value}`}>לערך {card.value}</Link><Link className="sod29-action" to={card.source.href}>לספריית צבי בעולם</Link></div>
+        <div className="sod29-actions"><Link className="sod29-action primary" to={`${NUMBER_PAGE_BASE}/${card.value}`}>לערך {card.value}</Link><Link className="sod29-action" to={card.source.href}>לספריית צבי בעולם</Link></div>
       </div>
     </article>)}</div>
     {projection.access?.sourceMedia === "unavailable" ? <p role="status" className="sod29-muted">תמונות המקור אינן זמינות כרגע; המבנים וקישורי ההופעות נשארים פתוחים.</p> : null}

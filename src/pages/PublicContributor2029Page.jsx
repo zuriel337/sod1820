@@ -16,6 +16,7 @@ import { contributorPersonView2029 } from "../components/contributor2029/contrib
 import ContributorActionsController2029 from "../components/contributor2029/ContributorActionsController2029.jsx";
 import { useContributorReading2029 } from "../components/contributor2029/ContributorReadingController2029.jsx";
 import QuickProfileAvatar2029 from "../components/contributor2029/QuickProfileAvatar2029.jsx";
+import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 
 const TYPE_LABELS = { sources: "מקור", findings: "ממצא", writings: "כתב", topics: "נושא" };
 const VERIFICATION = { match: "טענה אומתה מול המנוע", mismatch: "טענה נסתרה במנוע", not_tested: "לא נבדקה טענה מול המנוע", method_unknown: "השיטה לא זוהתה" };
@@ -113,7 +114,7 @@ function GeneralContributor2029View({ view, loading = false, error = false, onRe
             {item.type === "findings" ? <div className="pc-metrics">
               <span>חוזק: {item.strength ?? "לא דורג"}</span><span>איכות: {item.quality ?? "לא דורג"}</span>
               <span>{VERIFICATION[item.verification] || "לא הוצהר אימות"}</span>
-              {item.value !== null ? <Link to={`/2029/number/${item.value}`}>מספר <bdi className="pc-number">{item.value}</bdi></Link> : null}
+              {item.value !== null ? <Link to={`${NUMBER_PAGE_BASE}/${item.value}`}>מספר <bdi className="pc-number">{item.value}</bdi></Link> : null}
             </div> : null}
             <button className="pc-disclose" type="button" aria-expanded={expanded} aria-controls={`pc-detail-${encodeURIComponent(item.id)}`} onClick={() => change("item", expanded ? null : item.id)}>{expanded ? "סגירת הפרטים" : "לקריאה והקשר"} <span aria-hidden="true">{expanded ? "−" : "+"}</span></button>
             <div className="pc-item-actions">{reading.actions(item)}</div>

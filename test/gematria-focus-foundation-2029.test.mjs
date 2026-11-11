@@ -31,12 +31,16 @@ test("unrequested method retains existing regular-first behavior", async () => {
   assert.equal(result.root, 358); assert.equal(result.method, "רגיל");
 });
 
-test("legacy calculator links with focus=dna open the plain number: the section pointer is not an expression", () => {
-  const legacy = parseNumberExpressionFocus("?from=calc&focus=dna&method=" + encodeURIComponent("מילוי דמילוי"));
-  assert.deepEqual(legacy, { expression: null, method: null, crossingPartner: null, explicit: false });
+test("legacy calculator links with focus=dna open the convergence section: the pointer is a section, never an expression", () => {
+  const method = encodeURIComponent("מילוי דמילוי");
+  assert.deepEqual(parseNumberExpressionFocus("?from=calc&focus=dna&method=" + method),
+    { expression: null, method: null, crossingPartner: null, explicit: false, legacySection: "convergence", legacyMethod: "מילוי דמילוי" });
   assert.deepEqual(parseNumberExpressionFocus("?from=calc"), { expression: null, method: null, crossingPartner: null, explicit: false });
-  // The pointer is ignored only as an expression; a real expression, a cross partner and other words keep working.
+  assert.equal(parseNumberExpressionFocus("?focus=DNA").legacySection, "convergence");
   assert.equal(parseNumberExpressionFocus("?focus=DNA").expression, null);
-  assert.deepEqual(parseNumberExpressionFocus("?focus=dna&cross=" + encodeURIComponent("משיח")), { expression: null, method: null, crossingPartner: "משיח", explicit: true });
+  // A cross partner still works next to the pointer; real expressions (including Hebrew look-alikes) keep working.
+  assert.deepEqual(parseNumberExpressionFocus("?focus=dna&cross=" + encodeURIComponent("משיח")),
+    { expression: null, method: null, crossingPartner: "משיח", explicit: true, legacySection: "convergence", legacyMethod: null });
   assert.equal(parseNumberExpressionFocus("?focus=" + encodeURIComponent("דנא")).expression, "דנא");
+  assert.equal(parseNumberExpressionFocus("?focus=" + encodeURIComponent("דנא")).legacySection, undefined);
 });
