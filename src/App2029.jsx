@@ -203,6 +203,9 @@ function RouteEffects2029() {
         if (stopped) return;
         initGA({ publicReading: true, path: telemetryPath });
         trackPageview(telemetryPath, { publicReading: true });
+        // Meta Pixel (ZURIEL 11.11.2026): same admitted routes and idle timing as GA; bots are filtered inside marketing.js.
+        initMarketing();
+        trackMarketingPageview();
       };
       const schedule = () => {
         observer?.disconnect();

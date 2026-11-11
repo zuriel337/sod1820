@@ -57,7 +57,7 @@ export async function startFixture({ authOptions, deploymentCsp = false, port: w
   const goodWorker = readFileSync(resolve(dist, 'sw.js'), 'utf8');
   const csp = JSON.parse(readFileSync(resolve(root, 'public-reading-deploy/vercel.json'), 'utf8')).headers.flatMap(rule => rule.headers).find(header => header.key === 'Content-Security-Policy').value;
   const auth = createAuthServer(authOptions);
-  const state = { worker: 'good', documents: 0, workerFetches: 0, consoleLog: [], storage: [] };
+  const state = { worker: 'good', documents: 0, workerFetches: 0, consoleLog: [], storage: [], functions: [] };
   // A stale worker: still installs and activates, but answers the page handshake with another policy and denies Auth.
   const staleWorker = `self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('message',e=>{if(e.data?.type==='public-reading-policy'&&e.ports?.[0])e.ports[0].postMessage({policy:'public-reading-OLD',sourceSha:'0'.repeat(40)});});
@@ -72,6 +72,8 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
     try {
       if (host === SUPABASE_HOST) {
         const cors = { 'access-control-allow-origin': 'https://sod1820.co.il', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS', 'access-control-expose-headers': '*' };
+        // The real meta-capi function answers CORS with Allow-Headers: content-type only; a request carrying apikey/Authorization fails the preflight.
+        if (url.pathname === '/functions/v1/meta-capi') { cors['access-control-allow-origin'] = '*'; cors['access-control-allow-headers'] = 'content-type'; cors['access-control-allow-methods'] = 'POST, OPTIONS'; }
         if (req.method === 'OPTIONS') { res.writeHead(204, cors); return res.end(); }
         // A provider round trip: the person "signs in" at Google/Facebook and Auth redirects back with a PKCE code bound to the request's challenge.
         if (url.pathname === '/auth/v1/authorize' && req.method === 'GET') {
@@ -84,6 +86,8 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
           const response = await auth.handle(request);
           return send(response.status, 'application/json', await response.text(), cors);
         }
+        // Edge-function calls that really reach the Supabase origin (the worker's denials never get here); answered as before (404).
+        if (url.pathname.startsWith('/functions/v1/')) state.functions.push({ method: req.method, path: url.pathname, search: url.search, apikey: req.headers.apikey || null, authorization: req.headers.authorization || null, cookie: req.headers.cookie || null, body: body.toString('utf8') });
         const storage = /^\/storage\/v1\/(?:object\/(?:public|sign)|render\/image\/public)\/(?:media|gallery)\/fixture\/([a-z0-9.]+)$/.exec(url.pathname);
         if (storage && req.method === 'GET' && fixtureStorageFile(storage[1])) {
           const log = { path: url.pathname, search: url.search, range: req.headers.range || null };

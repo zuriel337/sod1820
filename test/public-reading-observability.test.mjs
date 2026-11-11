@@ -75,7 +75,7 @@ test("GA4 measurement is not blocked: every GA4 transport host passes through th
     for(const method of ["POST","GET"]){const w=worker();assert.equal(await w.request(url,null,{method}),null,method+" "+url.slice(0,60));assert.equal(w.calls.length,0,"the worker neither answers nor forwards it: the browser sends it itself");}
   }
   // The exemption is exact: other cross-origin writes stay denied.
-  for(const url of ["https://www.google.com/search","https://www.facebook.com/tr?id=1","https://connect.facebook.net/en_US/fbevents.js","https://foreign.invalid/g/collect"]){
+  for(const url of ["https://www.google.com/search","https://evilfacebook.com/tr?id=1","https://foreign.invalid/g/collect"]){
     const w=worker();const r=await w.request(url,null,{method:"POST"});assert.equal(r.status,403,url);assert.equal(w.calls.length,0);
   }
 });
@@ -126,7 +126,7 @@ test("the actual public RUM collector never creates/bridges identity and finaliz
   events.pagehide();assert.equal(posts.length,1);assert.equal(posts[0].url,DB+"/rest/v1/rpc/ingest_event");assert.equal(readingWebVitalBody(JSON.parse(posts[0].opts.body)),true);
   events.pagehide();assert.equal(posts.length,1);cleanup();
 });
-test("actual route effects restore first-party visits/engagement on the normalized route plus delayed public GA, preserving the marketing/identity/credit ceiling",async()=>{
+test("actual route effects restore first-party visits/engagement on the normalized route plus delayed public GA, with the Meta Pixel on the same admitted routes (ZURIEL, 11.11.2026), preserving the identity/credit ceiling",async()=>{
   const app=readFileSync("src/App2029.jsx","utf8");
   // The function ends at the first closing brace in column 0 after its start. (The previous end marker was a comment that no longer exists, so the slice ran to the end of
   // the file, pulled in `export default` and failed with "module is not defined": the proof of the route effects had silently stopped running.)
@@ -137,12 +137,12 @@ test("actual route effects restore first-party visits/engagement on the normaliz
     window:{location:{hostname:"sod1820.co.il"},requestIdleCallback:fn=>{idle=fn;return 1;},cancelIdleCallback:()=>{}},
     document:{querySelector:()=>ready?{}:null,getElementById:()=>({}),body:{}},MutationObserver:class{constructor(fn){mutation=fn;}observe(){}disconnect(){}},
     readingTelemetryPath,startWebVitals2029:opts=>{calls.push(["RUM",opts]);return ()=>{};},initGA:opts=>calls.push(["GA",opts]),trackPageview:(...args)=>calls.push(["page",...args]),
-    initMarketing:()=>assert.fail("marketing"),ensureIdentity:()=>assert.fail("identity bridge"),
+    initMarketing:()=>calls.push(["marketing"]),trackMarketingPageview:()=>calls.push(["marketing-page"]),ensureIdentity:()=>assert.fail("identity bridge"),
     startPageEngagement:(path,deps)=>{calls.push(["engagement",path,deps.getSodIdFn(),deps.sessionIdFn()]);return {};},setTimeout,clearTimeout};
   // visits.js is loaded lazily (kept out of the opening graph); its import is asserted on the source below.
   assert.match(source,/import\("\.\/lib\/visits\.js"\)\.then\(\(\{ trackVisit \}\) => trackVisit\(telemetryPath\)\)/);
   assert.doesNotMatch(app,/^import \{ trackVisit \}/m);
   vm.runInNewContext(code+";RouteEffects2029();",context);const cleanup=effects.map(fn=>fn());assert.equal(calls.length,2);assert.equal(calls[0][0],"RUM");assert.equal(calls[0][1].publicReading,true);
   assert.deepEqual(calls[1],["engagement","/",null,null]);
-  ready=true;mutation();assert.equal(calls.length,2);idle();assert.deepEqual(calls.map(x=>x[0]),["RUM","engagement","GA","page"]);assert.equal(calls[2][1].path,"/");assert.equal(calls[3][1],"/");cleanup.forEach(fn=>fn?.());
+  ready=true;mutation();assert.equal(calls.length,2);idle();assert.deepEqual(calls.map(x=>x[0]),["RUM","engagement","GA","page","marketing","marketing-page"]);assert.equal(calls[2][1].path,"/");assert.equal(calls[3][1],"/");cleanup.forEach(fn=>fn?.());
 });

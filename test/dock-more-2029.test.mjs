@@ -14,7 +14,11 @@ test("global dock: exactly five controls — כאן, גימטריה, רזיאל,
 });
 
 test("the עוד panel still carries actions, tools and the share section", () => {
-  const more = frame.slice(frame.indexOf("transientKind === TRANSIENT.MORE) return"), frame.indexOf("transientKind === TRANSIENT.TOOLS) return"));
-  assert.match(more, /openAction\(inspectTarget\)/); assert.match(more, /onClick=\{openTools\}/); assert.match(more, /data-share-owner="ShareActions"/);
-  assert.match(frame, /transientKind === TRANSIENT.TOOLS\) return[^\n]*חיפוש באתר/);
+  // The panel body lives in MorePanel2029.jsx (one projection over the frame's own openers); the frame wires them in.
+  const more = frame.slice(frame.indexOf("transientKind === TRANSIENT.MORE)"), frame.indexOf("transientKind === TRANSIENT.TOOLS)"));
+  const panel = readFileSync(new URL("../src/components/experience2029/MorePanel2029.jsx", import.meta.url), "utf8");
+  assert.match(more, /<MorePanel2029/); assert.match(more, /openAction\(inspectTarget\)/); assert.match(more, /onTools=\{openTools\}/); assert.match(more, /onSearch=\{openSiteSearch\}/);
+  assert.match(panel, /data-share-owner="ShareActions"/); assert.match(panel, /onClick=\{onAction\}/); assert.match(panel, /onClick=\{onTools\}/);
+  const tools = frame.slice(frame.indexOf("transientKind === TRANSIENT.TOOLS)"), frame.indexOf("transientKind === TRANSIENT.RAZIEL_LOCKED)"));
+  assert.match(tools, /חיפוש באתר/); assert.match(tools, /חזרה לעוד/);
 });

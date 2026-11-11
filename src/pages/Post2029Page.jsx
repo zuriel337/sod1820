@@ -36,6 +36,7 @@ import { postCharacterFor, matrixOpeningFor } from "../lib/postCharacters2029.js
 import { postBackground2029 } from "../lib/research/postBackground2029.js";
 import { postReadingClassName } from "./postReadingStyles2029.js";
 
+import AdSlot from "../components/AdSlot.jsx";
 const normalize = (value) => String(value || "")
   .replace(/[״"']/g, "")
   .replace(/\s+/g, " ")
@@ -1222,6 +1223,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     </details>
     {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
     {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} /> : null}
+    {!projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
     <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
       {classification.series.map(item => <a key={item.key} href={item.href} onClick={(event) => openConnection(event, item.href)}>עוד מ{item.name} ←</a>)}
       <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>

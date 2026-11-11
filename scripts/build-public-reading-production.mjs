@@ -75,12 +75,17 @@ await writeFile(resolve(templates, "protected-review-build.js"),
 process.env.SOD_BUILD_TARGET = "2029";
 const { build, loadEnv } = await import("vite");
 const gaId = process.env.VITE_GA_ID || loadEnv("production", root, "VITE_GA_ID").VITE_GA_ID || "";
+// Public marketing identifiers (Meta Pixel, AdSense publisher/slots) are public client identifiers; they come from the build
+// environment exactly like the GA id and are baked here so the artifact does not depend on implicit Vite env loading.
+const marketingKeys = ["VITE_META_PIXEL_ID", "VITE_ADSENSE_CLIENT", "VITE_ADSENSE_SLOT_POST", "VITE_ADSENSE_SLOT_LIST"];
+const marketingEnv = Object.fromEntries(marketingKeys.map(key => [key, process.env[key] || loadEnv("production", root, key)[key] || ""]));
 const previewFlags = ["VITE_PUBLIC_FRAME_PREVIEW", "VITE_PUBLIC_FOUNDATION_PREVIEW", "VITE_PUBLIC_LAUNCH_READ_ONLY_PREVIEW", "VITE_INTEGRATED_PREVIEW", "VITE_KINGDOM_PREVIEW", "VITE_BOOK_PUBLICATION_REVIEW_PREVIEW", "VITE_UNLOCKED_2029_PREVIEW", "VITE_FUNCTIONAL_UNIFIED_PREVIEW"];
 await build({ root, define: {
   ...Object.fromEntries(previewFlags.map(key => ["import.meta.env." + key, JSON.stringify("false")])),
   "import.meta.env.VITE_PUBLIC_READING_RELEASE": JSON.stringify(PUBLIC_READING_PROFILE_ID),
   "import.meta.env.VITE_AUTH_VERIFIED_PREVIEW_ORIGINS": JSON.stringify(JSON.stringify(oauthOrigins)),
   "import.meta.env.VITE_GA_ID": JSON.stringify(gaId),
+  ...Object.fromEntries(marketingKeys.map(key => ["import.meta.env." + key, JSON.stringify(marketingEnv[key])])),
   __SOD_PUBLIC_READING_PRODUCTION_ARTIFACT__: "true",
 }, build: { outDir: output, emptyOutDir: true, manifest: true } });
 let document = await readFile(resolve(output, "2029.html"), "utf8");

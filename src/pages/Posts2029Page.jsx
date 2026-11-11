@@ -19,6 +19,7 @@ import { capturePostsCatalogDeparture2029, readPostsCatalogViewport2029, remembe
 import { postsTaxonomyPage2029 } from "../lib/research/postsTaxonomy2029Route.js";
 import "./posts2029.css";
 
+import AdSlot from "../components/AdSlot.jsx";
 // The actual messages participate in intrinsic sizing. Only the active message
 // is exposed/focusable; no fixed height, clipped copy or withheld Post content.
 function SeriesReadingNotice2029({ pending, failed, pendingText, failureText, readyText, retryLabel, onRetry }) {
@@ -360,6 +361,7 @@ export default function Posts2029Page({ taxonomyScope = null, onSearchParams = n
           {mixedSeries ? mixedItems.map((item, index) => <PostIndexCard key={item.sourceRef} post={posts.find(post => `posts:${post.id}` === item.sourceRef)} seriesItem={item} index={index} />)
             : posts.map((post, index) => <PostIndexCard key={post.id || post.slug} post={post} index={index} publicationOrder={scope.kind === "series"} />)}
         </div>
+        <AdSlot place="list" />
       </section> : null}
       {!loading && !error && hasItems ? <nav className="sod29-posts-pagination" aria-label="עמודי הפוסטים">
         <button type="button" disabled={page <= 1} onClick={() => goToPage(page - 1)}>פוסטים חדשים יותר</button>
