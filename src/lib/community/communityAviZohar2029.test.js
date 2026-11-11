@@ -5,7 +5,7 @@ import { VERIFIED_ARCHIVE_PROFILES, communityAuthorIdentity, normalizeCommunityR
 
 const key = `user:${REVIEWED_AVI_ZOHAR_LINK.accountId}`;
 
-test("Avi Zohar Ben Haim: one person under his account, his name as he writes it, his whole history", () => {
+test("Avi Zohar Ben Haim: one person under his account, his name exactly as it always was, his whole history", () => {
   assert.ok(REVIEWED_COMMUNITY_HISTORY_LINKS.includes(REVIEWED_AVI_ZOHAR_LINK));
   assert.equal(canonicalCommunityAuthorKey(REVIEWED_AVI_ZOHAR_LINK.contributorId), key);
   assert.equal(reviewedCommunityAccountId(REVIEWED_AVI_ZOHAR_LINK.contributorId), REVIEWED_AVI_ZOHAR_LINK.accountId);
@@ -13,13 +13,13 @@ test("Avi Zohar Ben Haim: one person under his account, his name as he writes it
   // the history of both the account and the old contributor is read together
   assert.deepEqual(communityAuthorIdentity(key), { accountIds: [REVIEWED_AVI_ZOHAR_LINK.accountId], contributorIds: [REVIEWED_AVI_ZOHAR_LINK.contributorId], verifiedOwner: true });
   assert.deepEqual(communityAuthorIdentity(REVIEWED_AVI_ZOHAR_LINK.contributorId).accountIds, [REVIEWED_AVI_ZOHAR_LINK.accountId]);
-  assert.equal(VERIFIED_ARCHIVE_PROFILES[key].name, "אבי זוהר בן חיים");
+  assert.equal(VERIFIED_ARCHIVE_PROFILES[key].name, "אביזוהר בן חיים");
   assert.equal(VERIFIED_ARCHIVE_PROFILES[REVIEWED_AVI_ZOHAR_LINK.contributorId].accountUserId, REVIEWED_AVI_ZOHAR_LINK.accountId);
 });
 
 test("an old message of his carries his name and the account link (so the account photo shows)", () => {
   const row = normalizeCommunityRow({ id: "m1", author_name: "אביזוהר בן חיים", author_contributor_id: REVIEWED_AVI_ZOHAR_LINK.contributorId, body: "שלום", origin: "openweb", created_at: "2020-01-01T00:00:00Z" });
-  assert.equal(row.authorName, "אבי זוהר בן חיים");
+  assert.equal(row.authorName, "אביזוהר בן חיים");
   assert.equal(row.linkedUserId, REVIEWED_AVI_ZOHAR_LINK.accountId);
   assert.equal(row.authorKey, key);
 });

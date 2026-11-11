@@ -82,10 +82,10 @@ export const VERIFIED_ARCHIVE_PROFILES = Object.freeze({
   [`user:${REVIEWED_ESTHER_LINK.accountId}`]: {
     name: "Esther Gem", accountUserId: REVIEWED_ESTHER_LINK.accountId,
     publicBio: "מנהלת ותיקה בקהילת סוד 1820, פעילה ומלווה את הקהילה מזה כעשור." },
-  // ZURIEL, 11.11.2026: his name as he writes it, and the account that owns the history (photo comes from that account).
-  [REVIEWED_AVI_ZOHAR_LINK.contributorId]: { sourceUserId: "u_vtNX8TEGu5VV", name: "אבי זוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"],
+  // ZURIEL, 11.11.2026: his name exactly as it always was in the community (unchanged), and the account that owns the history (photo comes from that account).
+  [REVIEWED_AVI_ZOHAR_LINK.contributorId]: { sourceUserId: "u_vtNX8TEGu5VV", name: "אביזוהר בן חיים", ...PROFILE_BASELINES["אביזוהר בן חיים"],
     accountUserId: REVIEWED_AVI_ZOHAR_LINK.accountId },
-  [`user:${REVIEWED_AVI_ZOHAR_LINK.accountId}`]: { name: "אבי זוהר בן חיים", accountUserId: REVIEWED_AVI_ZOHAR_LINK.accountId },
+  [`user:${REVIEWED_AVI_ZOHAR_LINK.accountId}`]: { name: "אביזוהר בן חיים", accountUserId: REVIEWED_AVI_ZOHAR_LINK.accountId },
   "4cd9c034-0464-4600-a35d-7156f0584d9b": { sourceUserId: "u_3knnZ5YC", name: "Sod1820", accountUserId: "02a0d207-0136-4beb-a34d-8ff57d10cd85" },
   "19936860-6b35-4386-bc44-113289858ff0": { sourceUserId: "u_3kuB1woMg6wz", name: "Yosi Viner", handle: "YosiViner559", accountUserId: "b6ce542a-2b07-4749-8aba-532c886f6de7" },
 });
