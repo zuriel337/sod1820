@@ -1,3 +1,11 @@
+-- APPLIED 11.11.2026 with ZURIEL's approval, in a TIGHTER form than the body below (record of what is live):
+--   * guarded by the live md5 473ea5b4613fcf45b7dee3e2d8984715 (unchanged since this proposal), applied by replacing ONLY the link expression
+--     inside the live text (whitespace kept), so the rollback restores that exact md5;
+--   * before the redaction, a canonical YouTube address is trimmed to its canonical part (anything after the 11-character id — ?si= share
+--     tracking, &t=, paths — is dropped); then every other address is redacted exactly as before; e-mail and phone redaction unchanged;
+--   * new live md5 5e5168904f67f73c1ad1fcb6ecceb5bb; grants (anon, authenticated, service_role) and SECURITY DEFINER unchanged;
+--   * on the 213 eligible live rows exactly one body changed (youtu.be/-N099Nn6Yjo); no other address became visible.
+--   Rollback: supabase/proposed/world_group_source_youtube_links_v1_ROLLBACK.sql.
 -- PROPOSAL ONLY — NOT APPLIED. Not in supabase/migrations; needs an explicit ZURIEL decision (privacy + DB change, CLAUDE.md 0.4).
 -- Task: SOD1820 2029 media completion (11.11.2026). Owner: world group source provenance v2 (migration 20261008190000).
 --

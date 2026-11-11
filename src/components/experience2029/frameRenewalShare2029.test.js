@@ -150,7 +150,9 @@ test("global dock opens ShareActions directly with all approved choices and keep
       activeToolDock: null, shareHref: "https://sod1820.co.il/post/current", surface: "post", title: "Current", openAction() {}, openTools() {}, openSiteSearch() {},
       openWorkspace() {}, setTransient() {}, go() {}, setSystemDockMode() {}, user: null, profile: null,
       // The "עוד" panel also renders the administrator's list of still-closed destinations (#1214). This fixture is an ordinary visitor.
-      isAdmin: false, adminOpenClosedDestinations };
+      isAdmin: false, adminOpenClosedDestinations,
+      // "פעולות" and "כלים" closed · בבנייה (ZURIEL 11.11.2026): the frame passes the site_flags state of each to the panel.
+      actionsFeature: { blocked: true }, toolsFeature: { blocked: true } };
     vm.runInNewContext(code, context);
     const tree = context.render(), more = elements(tree).find(node => node.type === "MorePanel2029");
     assert.equal(tree.props.title, shareOnly ? "שיתוף העמוד" : "עוד");
@@ -158,6 +160,7 @@ test("global dock opens ShareActions directly with all approved choices and keep
     // The branch runs in its own realm: compare plain values.
     assert.equal(JSON.stringify(more.props.share), JSON.stringify({ href: context.shareHref, type: "post", title: "Current", surface: "post" }));
     assert.equal(JSON.stringify(more.props.adminDestinations), "[]");
+    assert.equal(more.props.actionsBuilding, true); assert.equal(more.props.toolsBuilding, true);
   }
   // Inside the panel: the one ShareActions with every approved channel on the exact URL, and the tools tile only in the full panel.
   const panel = await read("./MorePanel2029.jsx");
