@@ -268,6 +268,35 @@ jobs:
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real
   # Supabase client on the production URL (mapped to a local fixture; Auth is an in-memory model, nothing leaves the runner).
   # Existing account, new account, password, e-mail link, session persistence, desktop / mobile / installed-app presentation and a stale worker.
+  # Meta Pixel and AdSense on the 2029 public site (ZURIEL, 11.11.2026): the artifact is built WITH test marketing ids (the production ids come
+  # from the Vercel environment at deploy time) and run in a real Chromium with the real worker and the deployment's real CSP.
+  marketing-browser-2029:
+    name: marketing-browser-2029
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build the public-reading artifact with test marketing ids
+        run: node scripts/build-public-reading-production.mjs
+        env:
+          VITE_META_PIXEL_ID: "1234567890123456"
+          VITE_ADSENSE_CLIENT: ca-pub-0000000000000000
+          VITE_ADSENSE_SLOT_POST: "0000000001"
+          VITE_ADSENSE_SLOT_LIST: "0000000002"
+      - name: Install the pinned browser
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Meta Pixel and AdSense (real CSP header + real worker), bots excluded
+        run: node --test test/marketing-browser-2029.browser.mjs
+
   auth-browser-acceptance-2029:
     name: auth-browser-acceptance-2029
     # Pinned: Playwright 1.55 (pinned below) has no browser build for ubuntu-latest (26.04); the other browser gates use 24.04 too.

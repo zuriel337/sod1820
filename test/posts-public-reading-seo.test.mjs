@@ -33,7 +33,7 @@ for (const [name, foundation, release] of [["public", "false", "public-reading-2
     const trackPostsCatalogViewport2029=()=>()=>{},capturePostsCatalogDeparture2029=()=>{},rememberPostsCatalogViewport2029=()=>{},readPostsCatalogViewport2029=()=>null;
     const applySeo=value=>globalThis.__postsSeo.seo.push(value),track=()=>{},postContentEntry2029=()=>null;
     const humanContentTitle=value=>value,stripHtml=value=>value,bilingualDateLabel=value=>value;
-    const NavigationIcon2029=()=>null,PostCategories2029=()=>null,PostFollowBox=()=>null;
+    const NavigationIcon2029=()=>null,PostCategories2029=()=>null,PostFollowBox=()=>null,AdSlot=()=>null;
     const Sod2029Shell=({children})=>React.createElement(React.Fragment,null,children);
     const FrameState=({children})=>React.createElement('section',null,children);
     ${page}
