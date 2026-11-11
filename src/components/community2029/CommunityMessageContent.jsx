@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ExternalVideoFacade2029 from "../experience2029/ExternalVideoFacade2029.jsx";
 import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/messageLinks.js";
 import { parseMessageFormatting } from "../../lib/community/messageFormatting.js";
 import { use2029Palette } from "../../lib/palette2029.js";
@@ -29,22 +30,13 @@ function GenericLinkCard({ link, draft = false }) {
 }
 
 function LinkPreview({ link, draft = false }) {
-  const [playing, setPlaying] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
-  const provider = link.kind === "youtube" ? "YouTube" : "Vimeo";
   if (link.kind === "video") return <div className="sod29-community-video-card">{videoFailed ? <p>לא ניתן לנגן את הקובץ בדפדפן הזה. אפשר לפתוח את הסרטון בקישור.</p> : <video controls playsInline preload="metadata" src={link.href} aria-label="סרטון שצורף להודעה" onError={() => setVideoFailed(true)} />}<a href={link.href} target="_blank" rel="noopener noreferrer">פתיחת הסרטון המצורף ↗</a></div>;
   if (link.kind === "image") return <a className="sod29-community-attachment-image" href={link.href} target="_blank" rel="noopener noreferrer" aria-label="פתיחת התמונה המצורפת">{imageFailed ? <span role="status">התמונה לא נטענה. אפשר לפתוח אותה בקישור ↗</span> : <img src={link.href} alt="תמונה שצורפה להודעה" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setImageFailed(true)} />}</a>;
   if (link.kind === "file") return <a className="sod29-community-link-card" href={link.href} target="_blank" rel="noopener noreferrer"><strong>📎 קובץ {link.extension}</strong><small>פתיחת הקובץ המצורף ↗</small></a>;
   if (link.kind === "link") return <GenericLinkCard link={link} draft={draft} />;
-  return <div className="sod29-community-video-card">
-    {playing ? <iframe src={link.embed} title={`סרטון ${provider}`} allow="encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
-      : <button type="button" className="sod29-community-video-cover" onClick={() => setPlaying(true)} aria-label={`פתיחת נגן ${provider}`}>
-        {link.thumbnail && !imageFailed ? <img src={link.thumbnail} alt="" loading="lazy" onError={() => setImageFailed(true)} /> : null}
-        <span className="sod29-community-play" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 4v16l13-8Z" /></svg></span><span className="sod29-community-video-label">סרטון {provider}</span>
-      </button>}
-    <a href={link.href} target="_blank" rel="noopener noreferrer">צפייה ב־{provider} ↗</a>
-  </div>;
+  return <ExternalVideoFacade2029 link={link} className="sod29-community-video-card" />;
 }
 
 export default function CommunityMessageContent({ text, previewsOnly = false, bodyRef }) {

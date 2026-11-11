@@ -63,3 +63,36 @@ export function messageLinkPreviews(parts) {
     return [{ ...link, key }];
   });
 }
+
+// External video links (YouTube / Vimeo) inside a public text, through the same canonical detector; deduplicated, bounded.
+export function externalVideoLinksFromText(text = "", max = 2) {
+  return messageLinkPreviews(splitMessageLinks(String(text || ""))).filter(link => link.kind === "youtube" || link.kind === "vimeo").slice(0, max);
+}
+
+// The same detector over authored post HTML: iframe/anchor addresses and plain-text URLs (an approved, published post only).
+export function externalVideoLinksFromHtml(html = "", max = 3) {
+  const source = String(html || "");
+  const addresses = [...source.matchAll(/\s(?:src|href|data-video-src)\s*=\s*["']([^"'<>\s]+)["']/gi)].map(match => match[1].replace(/&amp;/g, "&"));
+  const text = source.replace(/<[^>]*>/g, " ");
+  return messageLinkPreviews(splitMessageLinks(`${addresses.join(" ")} ${text}`)).filter(link => link.kind === "youtube" || link.kind === "vimeo").slice(0, max);
+}
+
+// The player address of the shared click-to-load card: youtube-nocookie with the JS event channel (for the refusal signal)
+// and the page origin; Vimeo's own player. Only a link already described above (exact id) qualifies.
+const EMBED_REFUSED = new Set([100, 101, 150, 153]);
+export function externalVideoEmbedSrc(link, origin) {
+  if (link?.kind === "youtube" && /^[A-Za-z0-9_-]{11}$/.test(link.id || "")) {
+    const params = new URLSearchParams({ rel: "0", autoplay: "1", playsinline: "1", enablejsapi: "1" });
+    if (/^https?:\/\/[^/]+$/.test(origin || "")) params.set("origin", origin);
+    return `https://www.youtube-nocookie.com/embed/${link.id}?${params}`;
+  }
+  if (link?.kind === "vimeo" && /^[0-9]{1,12}$/.test(link.id || "")) return `https://player.vimeo.com/video/${link.id}?autoplay=1`;
+  return null;
+}
+
+// A YouTube player answers {"event":"onError","info":<code>} once the page says it is listening; 100/101/150/153 = not playable here.
+export function externalVideoRefusal(data) {
+  let message = data;
+  if (typeof message === "string") { try { message = JSON.parse(message); } catch { return null; } }
+  return message?.event === "onError" && EMBED_REFUSED.has(Number(message.info)) ? Number(message.info) : null;
+}

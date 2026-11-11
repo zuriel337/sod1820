@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
+import ExternalVideoFacade2029 from "./ExternalVideoFacade2029.jsx";
+import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowModels, nowLensCounts, nowModels, nowTodayBand, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
@@ -72,6 +74,9 @@ function RowDetail({ model, onOpen, feed, autoPlay = false }) {
       : model.image && model.mediaHref
       ? <img className="sod29-nowpub-image" src={model.mediaHref} alt={`תמונה · ${model.title}`} loading="lazy" decoding="async" /> : null}
     {model.fullText && model.fullText !== model.title ? <p className="sod29-nowpub-body">{model.fullText}</p> : null}
+    {/* YouTube / Vimeo links inside a PUBLIC update (never an unverified group source): the shared click-to-load card. */}
+    {!model.unverified ? externalVideoLinksFromText(model.fullText || model.title).map(link =>
+      <ExternalVideoFacade2029 key={link.key} link={link} title={model.title} context={model.sourceName ? `מתוך ${model.sourceName}` : ""} />) : null}
     {model.item.fullTextTruncated ? <small>זהו קטע תחום מהעדכון הציבורי.</small> : null}
     {model.unverified ? <small className="is-unverified">מקור · טרם נבדק. זו הודעת מקור כפי שנשמרה ולא ממצא מאומת.</small> : null}
     <div className="sod29-nowpub-actions">

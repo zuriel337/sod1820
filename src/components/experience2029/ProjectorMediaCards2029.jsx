@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CanonicalMediaFigure2029 from "./CanonicalMediaFigure2029.jsx";
+import ExternalVideoFacade2029 from "./ExternalVideoFacade2029.jsx";
 import { deriveContextNumbers } from "../../lib/research/galleryMediaEnvelope.js";
 
 // Shared gallery media inside the EXISTING Golden Projector / Contextual Sidecar layer.
@@ -13,7 +14,33 @@ const REASON = {
   source_metadata: "מקושר לפוסט לפי מטא־דאטה שמורה (לא קשר בגרף)",
 };
 
+// The post's own external videos (YouTube/Vimeo) in the same projector: the SAME published post (exact slug, the public post
+// reader and its public-source guard), the canonical link detector and the shared click-to-load card. No new source record.
+function ProjectorPostVideos2029({ postSlug }) {
+  const [videos, setVideos] = useState({ title: "", links: [] });
+  useEffect(() => {
+    if (!postSlug) { setVideos({ title: "", links: [] }); return undefined; }
+    let alive = true;
+    Promise.all([import("../../lib/supabase.js"), import("../../lib/research/post2029ReadingProjection.js"), import("../../lib/community/messageLinks.js")])
+      .then(async ([db, reading, links]) => {
+        const post = await db.getPostBySlug(postSlug);
+        if (!alive || !post || !reading.isPublicPostReadingSource(post)) return;
+        setVideos({ title: String(post.title || "").replace(/<[^>]*>/g, "").trim(), links: links.externalVideoLinksFromHtml(post.content || "", 3) });
+      })
+      .catch(() => { if (alive) setVideos({ title: "", links: [] }); });
+    return () => { alive = false; };
+  }, [postSlug]);
+  if (!videos.links.length) return null;
+  return <section className="sod29-projector-media" aria-label="סרטונים מתוך הפוסט" data-projector-video-count={videos.links.length}>
+    {videos.links.map(link => <ExternalVideoFacade2029 key={link.key} link={link} title={videos.title} context="סרטון שמוטמע בפוסט המקורי" />)}
+  </section>;
+}
+
 export default function ProjectorMediaCards2029({ postSlug, context = null }) {
+  return <><ProjectorPostVideos2029 postSlug={postSlug} /><ProjectorGalleryMedia2029 postSlug={postSlug} context={context} /></>;
+}
+
+function ProjectorGalleryMedia2029({ postSlug, context = null }) {
   const [state, setState] = useState({ status: "idle", items: [] });
   // Bounded numbers already in the existing context (no domain values hardcoded here).
   const numbersKey = deriveContextNumbers(context).join(",");

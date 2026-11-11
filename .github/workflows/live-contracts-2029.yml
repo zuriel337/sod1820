@@ -204,6 +204,7 @@ jobs:
           src/components/contributor2029/publicContributorPerson2029.test.js
           src/components/contributor2029/publicSourceCatalog2029.test.js
           src/lib/publicContinuityReaders2029.test.js
+          src/lib/community/messageLinks.test.js
           src/lib/research/eventObservationCompiler.test.js
           src/lib/research/eventSystemMethodRuntime.test.js
           src/lib/research/goldenProjectorModes.test.js

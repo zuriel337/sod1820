@@ -68,3 +68,46 @@ test("legacy image support does not turn unrelated, credentialed, signed or exec
     "https://images.spot.im/v1/" ]) assert.equal(describeMessageLink(url).kind, "link", url);
   assert.equal(describeMessageLink("https://name:password@images.spot.im/v1/abc"), null);
 });
+
+test("external video: one detector feeds every surface; click-to-load nocookie player, refusal signal, no look-alikes", async () => {
+  const { externalVideoLinksFromText, externalVideoLinksFromHtml, externalVideoEmbedSrc, externalVideoRefusal } = await import("./messageLinks.js");
+  const id = "dQw4w9WgXcQ";
+  const forms = [`https://www.youtube.com/watch?v=${id}&t=30`, `https://youtu.be/${id}?si=x`, `https://m.youtube.com/watch?v=${id}`,
+    `https://www.youtube.com/shorts/${id}`, `https://www.youtube.com/live/${id}`, `https://www.youtube-nocookie.com/embed/${id}`];
+  for (const url of forms) assert.deepEqual(externalVideoLinksFromText(`צפו כאן ${url} תודה`).map(link => [link.kind, link.id]), [["youtube", id]], url);
+  assert.equal(externalVideoLinksFromText(`${forms[0]} ${forms[1]} ${forms[3]}`).length, 1, "the same video once");
+  for (const url of ["https://youtube.com.evil.test/watch?v=" + id, "https://evil.test/youtube.com/watch?v=" + id, `https://www.youtube.com/watch?v=${id}X`,
+    "javascript:alert(1)", `https://user:pw@www.youtube.com/watch?v=${id}`, "https://music.youtube.com/watch?v=" + id]) assert.deepEqual(externalVideoLinksFromText(url), [], url);
+  const html = `<p>x</p><iframe src="https://www.youtube.com/embed/${id}?feature=oembed"></iframe><a href="https://youtu.be/${id}">y</a> https://www.youtube.com/shorts/abcdefghijk`;
+  assert.deepEqual(externalVideoLinksFromHtml(html).map(link => link.id), [id, "abcdefghijk"]);
+  const [link] = externalVideoLinksFromText(forms[0]);
+  const src = new URL(externalVideoEmbedSrc(link, "https://sod1820.co.il"));
+  assert.equal(src.origin, "https://www.youtube-nocookie.com"); assert.equal(src.pathname, `/embed/${id}`);
+  assert.equal(src.searchParams.get("enablejsapi"), "1"); assert.equal(src.searchParams.get("origin"), "https://sod1820.co.il"); assert.equal(src.searchParams.get("rel"), "0");
+  assert.equal(new URL(externalVideoEmbedSrc(link, "javascript:x")).searchParams.has("origin"), false);
+  assert.equal(externalVideoEmbedSrc({ kind: "youtube", id: "bad" }, ""), null);
+  assert.equal(externalVideoEmbedSrc({ kind: "vimeo", id: "123" }, ""), "https://player.vimeo.com/video/123?autoplay=1");
+  for (const code of [100, 101, 150, 153]) assert.equal(externalVideoRefusal(JSON.stringify({ event: "onError", info: code })), code);
+  for (const data of [JSON.stringify({ event: "onError", info: 2 }), JSON.stringify({ event: "infoDelivery", info: {} }), "not json", { event: "onError", info: 5 }])
+    assert.equal(externalVideoRefusal(data), null);
+});
+
+test("external video wiring: Community, Now, Or HaGeula, World and the projector share the one card; heavy player only after a click", async () => {
+  const { readFileSync } = await import("node:fs");
+  const read = path => readFileSync(new URL(`../../../${path}`, import.meta.url), "utf8");
+  const card = read("src/components/experience2029/ExternalVideoFacade2029.jsx");
+  assert.match(card, /state === "idle" \? <button type="button" className="sod29-external-video-cover"/);
+  assert.ok(card.indexOf("<iframe") > card.indexOf('state === "idle"'), "the iframe exists only after the idle cover");
+  assert.match(card, /event\.origin !== provider\.origin \|\| event\.source !== frame\.current\?\.contentWindow/);
+  assert.match(card, /setState\("refused"\)/); assert.match(card, /צפייה ב־\{provider\.name\} ↗/);
+  assert.doesNotMatch(card, /\bfetch\(|storage\.from|createSignedUrl|\.upload\(/, "the card never downloads, stores or copies a video");
+  for (const path of ["src/components/community2029/CommunityMessageContent.jsx", "src/components/experience2029/NowPublications2029.jsx",
+    "src/pages/PublicContinuity2029Page.jsx", "src/components/research/WorldPublicUpdates2029.jsx", "src/components/experience2029/ProjectorMediaCards2029.jsx"]) {
+    const source = read(path);
+    assert.match(source, /import ExternalVideoFacade2029 from "[./]+(?:components\/)?(?:experience2029\/)?ExternalVideoFacade2029\.jsx"/, path);
+    assert.doesNotMatch(source, /youtube-nocookie\.com\/embed/, `${path} builds no player address of its own`);
+  }
+  assert.match(read("src/components/experience2029/NowPublications2029.jsx"), /!model\.unverified \? externalVideoLinksFromText/);
+  assert.match(read("src/components/research/WorldPublicUpdates2029.jsx"), /!groupSourceAnchor\(item\) \? externalVideoLinksFromText/);
+  assert.match(read("src/components/experience2029/ProjectorMediaCards2029.jsx"), /reading\.isPublicPostReadingSource\(post\)/);
+});

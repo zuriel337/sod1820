@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
+import ExternalVideoFacade2029 from "../components/experience2029/ExternalVideoFacade2029.jsx";
+import { externalVideoLinksFromText } from "../lib/community/messageLinks.js";
 import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
@@ -125,6 +127,7 @@ function OrGeulaContent() {
         <div className="continuity-source-byline"><span>{item.sourceLabel}</span><SourceDate value={item.at} /></div>
         <SourceMedia key={item.id} item={item} start={publicContinuityPlaybackTime2029(location.search, location.hash)} />
         {item.text ? <p className="continuity-source-text" dir="auto">{item.text}</p> : null}
+        {externalVideoLinksFromText(item.text).map(link => <ExternalVideoFacade2029 key={link.key} link={link} title={item.title} context={`מתוך ${item.sourceLabel || "אור הגאולה"}`} />)}
         {item.textTruncated ? <p className="continuity-note">התיאור המוצג מקוצר.</p> : null}
         <dl className="continuity-source-credit">
           <div><dt>מקור</dt><dd>{item.credit || item.sourceLabel}</dd></div>
