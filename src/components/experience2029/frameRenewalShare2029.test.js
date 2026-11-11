@@ -145,7 +145,7 @@ test("global dock opens ShareActions directly with all approved choices and keep
   const { code } = await transformWithOxc(`function render(){${branch}}`, "share-branch.jsx", { jsx: { runtime: "classic" } });
   for (const shareOnly of [true, false]) {
     const context = { React: react, transientKind: "more", TRANSIENT: { MORE: "more" }, transient: { payload: { shareOnly } },
-      common: {}, PanelShell: "PanelShell", ShareActions: "ShareActions", FrameState: "FrameState", inspectTarget: null,
+      common: {}, PanelShell: "PanelShell", ShareActions: "ShareActions", FrameState: "FrameState", MoreInstall2029: "MoreInstall2029", inspectTarget: null,
       activeToolDock: null, shareHref: "https://sod1820.co.il/post/current", surface: "post", title: "Current", openAction() {}, openTools() {},
       // The "עוד" panel also renders the administrator's list of still-closed destinations (#1214). This fixture is an ordinary visitor, and the real
       // helper answers an empty list for anyone who is not the administrator, so the share branch is exercised exactly as before.

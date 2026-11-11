@@ -48,6 +48,7 @@ import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRi
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 const RazielCenter2029 = React.lazy(() => import("./RazielCenter2029.jsx"));
 const NowPublications2029 = React.lazy(() => import("./NowPublications2029.jsx"));
+const MoreInstall2029 = React.lazy(() => import("./MoreInstall2029.jsx"));
 import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";
 import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspaceRazielPresence2029.js";
 const RazielViewModeSelector2029 = React.lazy(() => import("./RazielViewModeSelector2029.jsx"));
@@ -2192,6 +2193,7 @@ function SystemFrame2029Body({
             {adminOpenClosedDestinations(isAdmin).map((item) => <button key={item.id} className="sod29-action" type="button" onClick={() => { setTransient(null); go(item.href); }}>{item.label}</button>)}
           </div>
         </section> : null}
+        <React.Suspense fallback={null}><MoreInstall2029 /></React.Suspense>
       </> : null}
       {shareHref ? <section className="sod29-panel-share" aria-label="שיתוף העמוד" data-share-owner="ShareActions"><h3>שיתוף</h3><ShareActions type={surface === "post" ? "post" : "page"} url={shareHref} title={title || "SOD1820"} sourceSurface={surface} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} style={{ flexWrap: "wrap", overflowX: "visible" }} force /></section> : <FrameState title="עמוד אישי">אין קישור ציבורי לשיתוף מתוך העמוד האישי.</FrameState>}
       {activeToolDock ? <button className="sod29-action" type="button" onClick={() => { setTransient(null); setSystemDockMode(false); }}>חזור לכלי הצופן</button> : null}
