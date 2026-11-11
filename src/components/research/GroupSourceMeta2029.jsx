@@ -17,6 +17,7 @@ export function GroupSourceMedia({ item, compact = false }) {
   if (media.kind === "image") {
     return <img className={`sod29-group-media is-image${compact ? " is-compact" : ""}`} src={media.url} alt={`תמונה מהקבוצה · ${item.sourceGroupLabel || ""}`.trim()} loading="lazy" decoding="async" />;
   }
+  if (media.kind === "audio") return <audio className="sod29-group-media is-audio" src={media.url} controls preload="none" aria-label={`הקלטה מהקבוצה · ${item.sourceGroupLabel || ""}`.trim()} />;
   if (armed) return <video className="sod29-group-media is-video" src={media.url} poster={media.thumbUrl || undefined} controls preload="metadata" playsInline aria-label={`סרטון מהקבוצה · ${item.sourceGroupLabel || ""}`.trim()} />;
   return <button type="button" className={`sod29-group-media is-video-poster${compact ? " is-compact" : ""}`} onClick={() => setArmed(true)} aria-label="הצג את הנגן">
     {media.thumbUrl ? <img src={media.thumbUrl} alt="" loading="lazy" decoding="async" /> : null}<span aria-hidden="true">▶</span>

@@ -127,7 +127,9 @@ test("ingest: ki-la joins only the proof path in code; guard and sender-JID proo
   const guard = ts.slice(ts.lastIndexOf("if (WORLD_GROUP_CHANNELS", at), at);
   assert.ok(guard.includes("!outgoing") && guard.includes("!imageUrl") && guard.includes("@g.us"));
   assert.ok(ts.slice(at, at + 400).includes("p_sender_jid: senderId"));
-  assert.ok(!/audioMessage/.test(ts), "audio ingest does not exist and is not claimed");
+  // Audio messages are admitted (11.11.2026) on the same private/live rule; a world group never makes them public.
+  assert.match(ts, /"audioMessage"/);
+  assert.ok(guard.includes("!imageUrl"), "a message with any media (audio included) never becomes a public group source");
 });
 
 test("World and Now components render the group label, media and member link from the shared fields", () => {
@@ -137,4 +139,15 @@ test("World and Now components render the group label, media and member link fro
   assert.match(read("src/components/research/ZviGroupTimeline2029.jsx"), /GroupSourceBadge/);
   assert.match(read("src/components/experience2029/NowPublications2029.jsx"), /data-now-action="creator-profile"/);
   assert.equal(existsSync(new URL("../src/components/research/groupSourceMeta2029.css", import.meta.url)), true);
+});
+
+test("the YouTube group-source proposal keeps every gate of the LIVE reader (it is a redaction-only change) and is not a migration", () => {
+  const proposal = read("supabase/proposed/world_group_source_youtube_links_v1_PROPOSAL.sql");
+  for (const gate of ["join public.channel_ingest_sources s", "s.channel in ('torat-haremez','gilui-yomi','ki-la-hamelucha-gematria','blaze-888')",
+    "s.enabled is true", "s.chat_id like '%@g.us'", "g.held_at is null", "g.identity_basis = 'verified_phone_unique'", "cu.group_source_intake_public is true",
+    "cu.image_url is null and cu.thumb_url is null", "wa\\.me/", "c.slug in ('tzvi-opoc','yaniv-levi','shachar-kandro','shimon-haimov')",
+    "general_feed_enabled", "'[דוא״ל]'", "'[מספר]'", "SECURITY DEFINER", "group_channel text", "473ea5b4613fcf45b7dee3e2d8984715"])
+    assert.ok(proposal.includes(gate), `live gate kept: ${gate}`);
+  assert.equal(proposal.slice(proposal.indexOf("CREATE OR REPLACE")).match(/\[קישור\]/g).length, 1, "one address redaction, now keeping only canonical YouTube ids");
+  assert.ok(!readdirSync(new URL("../supabase/migrations/", import.meta.url)).some(name => /youtube/i.test(name)), "never auto-applied");
 });

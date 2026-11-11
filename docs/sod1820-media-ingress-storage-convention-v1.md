@@ -107,6 +107,8 @@ Approved/system images use the public 2029 root. Unreviewed source material uses
 
 This package does not migrate old media, auto-publish submissions, fetch WhatsApp attachments, or promote private material to public/canonical state. Those remain separate governed actions over this same one-tree foundation.
 
+Correction, 11 November 2026 (ZURIEL decision item 8; branch `media-intake-youtube-world-2029`, effective only after the separately approved `wa-channel-ingest` deploy): the WhatsApp channel ingest (`supabase/functions/wa-channel-ingest`) does fetch channel attachments — image, video and audio. It writes them under this same convention and nowhere else: the `or-geula` live channel to `media/sod1820/2029/<kind>/YYYY/MM/<asset-id>/original.<ext>` (asset id = UUID v5 of channel + message id, `upsert:false`, an existing object is reused, the type is checked from the bytes), every other channel to the private `submission-inbox/.../unresolved/...` path with an opaque `storage-object:` reference. Existing legacy objects are never moved, and nothing private is promoted or published automatically.
+
 ## Personal hint media owner gate — 26 October 2026
 
 Task: `CENTRAL_2029_PERSONAL_HINTS_COMBINED_BASE_AND_MEDIA_OWNER_GATE_20261026`.

@@ -18,7 +18,8 @@ export function useHomeFeaturedPost() {
   return state;
 }
 
-export default function HomeFeaturedPost2029({ state }) {
+// hideHighlights (ZURIEL 11.11.2026): while the same message is pinned in "עכשיו · המרכז" above, its numbers are shown there only (one appearance on Home).
+export default function HomeFeaturedPost2029({ state, hideHighlights = false }) {
   const { post, loading } = state;
   if (loading) return <section className="h29-launch-card h29-featured h29-skel" aria-hidden="true" data-home-featured="loading" />;
   if (!post) return null;
@@ -36,7 +37,7 @@ export default function HomeFeaturedPost2029({ state }) {
         {post.message.map(line => <p key={line}>{line}</p>)}
       </div>
     </div>
-    <div className="h29-featured-spots">
+    {hideHighlights ? (post.statement ? <p className="h29-featured-statement" data-home-featured-statement="true">{post.statement}</p> : null) : <div className="h29-featured-spots">
     {post.highlights.map(group => {
       // The number opens its own number window (the same address the rest of the site uses for a number); each phrase opens it focused on that phrase.
       const method = group.method || "רגיל";
@@ -51,7 +52,7 @@ export default function HomeFeaturedPost2029({ state }) {
       </div>;
     })}
     {post.statement ? <p className="h29-featured-statement" data-home-featured-statement="true">{post.statement}</p> : null}
-    </div>
+    </div>}
     <p className="h29-featured-note" data-home-featured-note="true">{post.note} <Link to={post.href}>{post.noteLink}</Link></p>
   </section>;
 }

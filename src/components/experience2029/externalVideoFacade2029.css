@@ -1,0 +1,12 @@
+/* The shared external-video card (ExternalVideoFacade2029): a thumbnail until the person asks, then a 16:9 player. */
+.sod29-external-video{margin:10px 0;display:grid;gap:6px;max-width:560px}
+.sod29-external-video-cover,.sod29-external-video-frame,.sod29-external-video-refused{position:relative;display:block;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:0;padding:0;cursor:pointer}
+.sod29-external-video-cover img,.sod29-external-video-refused img{width:100%;height:100%;object-fit:cover;display:block}
+.sod29-external-video-play{position:absolute;inset:0;margin:auto;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:rgba(12,8,24,.72);color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.5)}
+.sod29-external-video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.sod29-external-video-status{position:absolute;inset-inline:0;bottom:0;padding:6px 10px;background:rgba(12,8,24,.8);color:#f5f0e8;font-size:.85rem}
+.sod29-external-video-refused{cursor:default}
+.sod29-external-video-refused p{position:absolute;inset-inline:0;bottom:0;margin:0;padding:8px 10px;background:rgba(12,8,24,.86);color:#f5f0e8}
+.sod29-external-video figcaption{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.sod29-external-video figcaption small{opacity:.8}
+.sod29-external-video-out{white-space:nowrap}

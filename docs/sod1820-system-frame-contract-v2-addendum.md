@@ -382,6 +382,8 @@ This does **not** authorize a new global Notification Engine or merged truth tab
 
 The Home surface may show a richer `Global Now` projection; the Command Island may show a compact peek; My Workspace may expose history/management. These are multiple projections over owned capabilities, not duplicate attention systems.
 
+**Pin, new and motion in `Now` (ZURIEL 11.11.2026, dated addendum).** At most **one** pinned item, set with ZURIEL's approval, for **at most 72 hours** from the moment it is set. The expiry is shown on the item and the pin ends by itself; after it the item returns to its place by time. **Pinned ≠ new ≠ true**: a pin is attention, never verification. "New" is marked with a short, **finite** pulse only (never an endless blink) and with no motion when reduced motion is requested. A pin creates no store, no local flag and no duplicate: it is the same publication, at its own address, shown once (the pinned card is not repeated as a row). The first pin is the update of Post 5107 (code: `HOME_FEATURED_POST_2029.pin`), with its central message shown verbatim in "עכשיו · המרכז" on Home and in the `Now` sheet.
+
 ### 10.9 One transient surface at a time
 
 On constrained/mobile layouts, the System Frame must coordinate transient surfaces so Quick Inspect, Now, Raziel, Tools and Workspace overlays do not stack into competing modal layers.
