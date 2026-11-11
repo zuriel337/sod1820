@@ -256,17 +256,19 @@ export function latestRunAt(models) {
   return best == null ? null : new Date(best).toISOString();
 }
 
-// ── Or HaGeula rabbi box (ZURIEL 10.11.2026) ─────────────────────────────────────────────────────────────────────────────────
-// Every Or HaGeula update whose own words contain "רב" or "הרב" (as a word: רב, הרב, and ו/ל/ב/ש/מה + הרב, ו/ל/ב + רב) goes
-// INTO one box; an Or HaGeula update without those words (e.g. a plain video) stays OUTSIDE as its own row. The box takes the place of
-// its newest member, so a new update lifts the whole box. Every member stays its own publication (same id, same order inside).
-// Pure presentation over the loaded rows: one function for Now and Home, no second reader, no re-ranking of anything else.
-const RABBI_WORD = /(?:^|[^\u05D0-\u05EA])(?:[ולבש]?ה|[ולב]|מה)?רב(?![\u05D0-\u05EA])/;
+// ── Or HaGeula box (ZURIEL 10.11.2026; widened 11.11.2026) ───────────────────────────────────────────────────────────────────
+// Or HaGeula is a SECOND tier: every one of its updates lives in ONE box, so however many arrive they take a single entry and never push a
+// first-tier publication (a reality-stream image, a Post, a series, the site's news) out of the window. The only update that stands outside is
+// one the owner marked himself (channel_updates.priority above the default → item.ownerFeatured), e.g. a popular video; and a series-approved
+// occurrence (item.seriesKey) keeps its series row. Popularity is NEVER inferred from views or shares. The box sits where its newest member sits;
+// every member stays its own publication (same id, same order inside). Pure presentation over the loaded rows: one function for Now and Home.
 export const RABBI_BOX_LABEL = "אור הגאולה";
-export function isRabbiBoxModel(model) {
-  if (!model || model.item?.sourceKind !== "channel_update" || model.item?.channel !== "or-geula" || model.unverified) return false;
-  return [model.title, model.fullText, model.summary].some(text => RABBI_WORD.test(String(text || "")));
+export function isOrGeulaBoxModel(model) {
+  const item = model?.item;
+  return Boolean(model && item?.sourceKind === "channel_update" && item.channel === "or-geula" && !model.unverified && item.ownerFeatured !== true && !item.seriesKey);
 }
+/** @deprecated name kept for existing callers: the box now holds every Or HaGeula update except the owner's featured one. */
+export const isRabbiBoxModel = isOrGeulaBoxModel;
 
 /**
  * Entries of the window: { kind: "row", model } | { kind: "run", ... } (consecutive source rows) | { kind: "box", id, label, models, latest }.

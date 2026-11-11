@@ -148,7 +148,7 @@ function TodayBand({ band, onOpen }) {
   </section>;
 }
 
-// The Or HaGeula rabbi box: every update with "רב"/"הרב" lives here; the box sits at its newest member, so a new update lifts the box.
+// The Or HaGeula box (second tier): every Or HaGeula update lives here except the owner's featured one; the box sits at its newest member.
 function BoxGroup({ entry, children }) {
   const lead = entry.models[0], fresh = entry.models.some(model => model.row?.isNew);
   return <li><details className={`sod29-nowpub-box r29-card${fresh ? " is-new" : ""}`} data-tone="gold" data-now-box="or-geula-rabbi">
@@ -156,7 +156,7 @@ function BoxGroup({ entry, children }) {
       {lead.logo ? <img className="sod29-nowpub-box-logo" src={lead.logo.src} alt="" width="40" height="40" loading="lazy" decoding="async" /> : null}
       <span className="sod29-nowpub-box-text">
         <strong>{entry.label}</strong>
-        <span><span>{entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}</span>{fresh ? <b className="sod29-nowpub-box-new">חדש</b> : null}{entry.latest ? <span>עדכון אחרון · <time dateTime={entry.latest}>{recordTimeLabel(entry.latest, NOW_TIME_MODE, "")}</time></span> : null}</span>
+        <span><span>{entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}</span>{fresh ? <b className="sod29-nowpub-box-new r29-badge is-new">חדש</b> : null}{entry.latest ? <span>עדכון אחרון · <time dateTime={entry.latest}>{recordTimeLabel(entry.latest, NOW_TIME_MODE, "")}</time></span> : null}</span>
         <em>{lead.title}</em>
       </span>
     </summary>
