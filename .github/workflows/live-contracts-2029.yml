@@ -11,6 +11,8 @@ name: 2029 Live Contracts
 # The top bar contract (the crown at the centre, dark glass, the rounded arc) lives here too.
 # The mounted calculator tests need react-test-renderer; it is installed for that one step only, pinned and without touching package.json or the lockfile, exactly as research-sync-gate.yml does.
 # No threshold, budget or baseline is added or changed here; every file below passed on a clean `npm ci` checkout before it was wired.
+# 11.11.2026: the first job also runs the G1 agent-routing smoke. It is the one step here that fetches anything: the single main commit that
+# G1 captured on 9.10.2026, by SHA, depth 1, from this public repository (no tags, no credentials). The release job also runs the content series contracts.
 
 on:
   pull_request:
@@ -38,6 +40,12 @@ jobs:
         run: node scripts/test-2029-live-contracts.mjs
       - name: Avatar rendition contract (public storage avatars are served as small renditions; animation is kept)
         run: node --test src/lib/avatar.test.js
+      # G1 reads three adapter files of its captured main commit with `git show <sha>:<path>`; a depth-1 checkout does not contain that commit,
+      # so it is fetched first. The SHA is read from G1's own captured baseline, so the fixture stays the single source.
+      - name: G1 captured main commit (the one commit the G1 smoke reads with git show; depth 1, no tags)
+        run: git fetch --no-tags --depth=1 origin "$(node -p "require('./audits/g1-agent-entry/G1_ROUTING_LIVE_BASELINE_20261009.json').main_sha")"
+      - name: G1 agent-routing smoke (the owner index and the adapters route to live owners, keep their safety literals, and the captured adapter blobs stay exact)
+        run: node --test scripts/test-g1-agent-routing-smoke.mjs
 
   perf-contracts-2029:
     name: perf-contracts-2029
@@ -140,6 +148,17 @@ jobs:
           test/public-reading-analytics-worker.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
+      # Content series and post classification (11.11.2026). All five were green on main but ran in no workflow. They read repository files and
+      # in-memory fixtures only (no network, no browser); they need the installed dependencies because the series modules import the Supabase client.
+      # Series admission is declared per series (by category, or by a declared author) and the same filter feeds the reader query and the row check.
+      - name: Content series and post classification contracts (series admission and catalog projection, post classification, follow targets and the follow-category alignment migration, post background artwork)
+        run: >
+          node --test
+          test/content-series-2029-projection.test.mjs
+          test/follow-category-series-alignment.test.mjs
+          test/post-backgrounds-2029.test.mjs
+          test/post-classification-2029.test.mjs
+          test/posts-follow-targets-2029.test.mjs
       - name: Top bar (the crown at the centre, dark glass, the rounded arc; one final design, one stylesheet, and the traps it hit stay handled)
         run: node --test test/topbar-crown-2029.test.mjs
       - name: Bottom command bar is one row (nothing lifts the Raziel orb off the centre line of the other four controls)

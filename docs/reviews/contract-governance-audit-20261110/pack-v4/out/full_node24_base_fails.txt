@@ -1,0 +1,57 @@
+2029 UI uses the shared record-time formatters instead of direct locale formatting
+Edge share renderer admits only exact allowed public candidate hosts
+Fable existing results project exact letters without search, AI, manual-finding mutation or axis loss
+Heichal projects Scripture discovery from the existing Research/Entity Hub seam
+Isolation browser guard rejects live writes, models, visitor drafts and unknown transports before I/O
+Preview/stage receipts cannot select public serving and default remains dormant
+Research exact skip above the page ceiling loads a canonical verified axis without remounting Classic
+Research has one regular/cross/advanced search surface with preserved drafts and no automatic work
+Research pair preparation is explicit, uses canonical crossed search and leaves Classic clean
+Research tools have their own full-width entry below the matrix without adding side actions or automatic work
+WWW redirects preserve raw encoded path and repeated query; old addresses and original path selector remain exact
+actual hosted adapters preserve old URLs/canonical metadata while review stays noindex and rejects spoofing
+an explicit cancel: the provider is asked, the end is awaited, and the thread says honestly what became of it and what it cost
+at most four items; anything already shown by the flagship region or ciphers is not repeated; posts-only while the world is closed
+built application keeps its installed identity and serves the approved icon in manifest and Apple metadata
+candidate installed-app metadata preserves Legacy identity and uses the complete existing 2029 mark
+canonical documents retain owner metadata; immutable staging is always noindex and no-store
+default artifact records raw dirtiness without any platform materialization authority
+deterministic template -> public/tzofen.html and lazy lexicon asset build sync
+direct document API remains noindex even for an eligible public post on the canonical host
+durable reading jobs: real isolated PostgreSQL transactions, permissions and races
+executable: batch verifier parity with single verifier + tk-letters oracle (Torah + Tanakh)
+executable: migration admits derived stream and Tanakh runs through the one engine
+executable: native private saves preserve ownership, RLS, updates and existing publication gates
+font failure or a never-settling font cannot prevent requesting the app render
+foreign hosts, path spoofing and unsupported methods reject before public readers
+generated receipt is statically traced into Node and Edge-compatible authorization; missing process fails closed
+genuine missing, closed, private, non-indexable and failed source states never become indexable successes
+global Raziel: three presets, 320/390/768/1440, mixed text, touch, keyboard and no automatic AI
+installed Realtime 2.116 works through the subset against a loopback Phoenix socket
+lesson pages are centred, enriched and calm in nine theme/width combinations
+loading reserves rows; nothing to show or no feed renders nothing: no empty card and no error text
+matrix analysis submits only on explicit action and keeps successive axis identities separate
+motion is gated by prefers-reduced-motion, one-shot, under five seconds, and uses frame tokens only
+native bridge: parent research updates during a state message cannot discard the completed result
+newest first across kinds: a reality-stream image shows as an image with its relative time; unverified source messages never appear
+public deployment proof never replaces caller JWT or private authorization
+real operation -> repository -> PostgreSQL: concurrent starts, lost attach response, reload and single cost receipt
+robots and XML allow canonical crawling while immutable stage stays private from indexing
+save panel: a guest sees a sign-in link, only a member gets the form and the library links
+stable Auth alias needs the exact generated Preview platform proof; canonical and unrelated aliases remain denied
+staged adapters accept only their immutable host and stay noindex before public source reads
+test/accent-text-contrast-2029.test.mjs
+test/post-reading-style-graph-2029.test.mjs
+test/public-calculator-canonical-compatibility.test.mjs
+test/public-canonical-parity-repair.test.mjs
+test/public-continuity-closure-2029.test.mjs
+test/public-reading-asset-miss.test.mjs
+test/public-reading-contributor-interactions-writable.test.mjs
+test/public-reading-observability.test.mjs
+test/public-reading-production-artifact.test.mjs
+test/public-reading-provider-readers.test.mjs
+test/public-url-continuity-2029.test.mjs
+test/public-url-exceptions-2029.test.mjs
+test/public-url-residual205-2029.test.mjs
+test/release-visual-egress-guard.test.mjs
+the built document declares the new icons without dropping the approved ones

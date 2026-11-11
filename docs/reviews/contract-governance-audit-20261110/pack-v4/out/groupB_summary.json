@@ -1,0 +1,59 @@
+{
+ "rules": {
+  "worlds_color_law": {
+   "from": 1,
+   "to": 2,
+   "base_md5": "28a7053c115b5f76be3bb5523d59e2fc",
+   "new_md5": "434338925f6a206cd7dd9e9c0dfe3712",
+   "label": "חוק צבעי העולמות v2 — פלטה גלובלית אחידה · בעלים: Design Contract V2"
+  },
+  "subscription_funnel_law": {
+   "from": 22,
+   "to": 23,
+   "base_md5": "c677126201763faae5a8cd80cf397a81",
+   "new_md5": "8aa41d4d766fce0381e02776c4fbe78f",
+   "label": "🧲 חוק מנוע-המשפך — Follow → הרשמה לאורח / ערוצים לרשום (v23 · יישור להסרת Legacy)"
+  },
+  "experience_governance_foundation_v1_law": {
+   "from": 10,
+   "to": 11,
+   "base_md5": "6c92025b2ce47c82cb7ba4df8f04942b",
+   "new_md5": "478a4514b6263900ec06ab697c88eba0",
+   "label": "Experience Governance v11 — Focused Loading, Fresh Core, On-Demand + Legacy removal alignment"
+  },
+  "identity_architecture_law": {
+   "from": 1,
+   "to": 2,
+   "base_md5": "22d333a0e2546de45a3a29773fb2b5e8",
+   "new_md5": "9c45502d5cc58c1a90d36c95c2ab56bf",
+   "label": "ארכיטקטורת זהות v2 — UGC + קהילה: אנונימי → מזוהה-רך → חשבון → חוקר → תורם (יישור להסרת Legacy)"
+  }
+ },
+ "codex": {
+  "_index": {
+   "id": 1,
+   "base_md5": "fd0ac4629412ea51965cf9213fda18e2",
+   "new_md5": "a409c228c4e561282d42659f87449807"
+  },
+  "experience_governance_foundation_v1": {
+   "id": 30,
+   "base_md5": "db2d0806e3a10df6b25a04f5388dac16",
+   "new_md5": "1c95f7fdbeaf94b1b4f70a057574f304"
+  },
+  "convergence_law": {
+   "id": 15,
+   "base_md5": "0b14ba287ad2c7bc2c8017b0c76f847d",
+   "new_md5": "85e9ec4561efc3eea4c962ec2e2509f8"
+  },
+  "gematria_engine": {
+   "id": 5,
+   "base_md5": "f4202db738aae4e67297eb673378e00a",
+   "new_md5": "e7bd907a3585c990bfac0c2805188f24"
+  },
+  "golden_entities": {
+   "id": 12,
+   "base_md5": "b523eba9b6b76085dd3452a37ac790d1",
+   "new_md5": "fd4711e2e78d330289bceaf297aff9f3"
+  }
+ }
+}

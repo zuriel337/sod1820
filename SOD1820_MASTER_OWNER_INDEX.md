@@ -1,6 +1,6 @@
 # SOD1820 — MASTER CANONICAL OWNER INDEX v2 COMPACT
 
-> **מצב חי, כללי שחרור ומשמעת סשן — מקור יחיד: [`CLAUDE.md`](CLAUDE.md) (Claude Code) ו־[`AGENTS.md`](AGENTS.md) (Codex); משמעת סשן ב־[`CLAUDE.md` §0](CLAUDE.md).** אינדקס זה הוא מפת ניתוב בלבד ואינו נושא עותק של מצב חי, כללי שחרור או היסטוריית פרסום. תמיד חל: 2029 הוא האתר החי ו־Legacy פרש (החלטת צוריאל 5.11: אין חזרה; הקוד בהיסטוריית Git בלבד); מצב חי נקרא מ־Vercel ומ־`origin/main` בזמן הפעולה, לא ממסמך; כל שינוי בפרודקשן (merge, פרסום, alias, DB, דגל) דורש אישור מפורש של ZURIEL לקומיט ולפריסה מדויקים; מדווחים לצוריאל בלבד (`inter_agent_coordination_law` v17), בלי הודעות או המתנה ל־GPT. ההיסטוריה של הפריסות והאישורים שנצרכו: [docs/reviews/main-live-state-reconciliation-20261104/README.md](docs/reviews/main-live-state-reconciliation-20261104/README.md).
+> **מצב חי, כללי שחרור ומשמעת סשן — מקור יחיד: [`CLAUDE.md`](CLAUDE.md) (Claude Code) ו־[`AGENTS.md`](AGENTS.md) (Codex); משמעת סשן ב־[`CLAUDE.md` §0](CLAUDE.md).** אינדקס זה הוא מפת ניתוב בלבד ואינו נושא עותק של מצב חי, כללי שחרור או היסטוריית פרסום. תמיד חל: 2029 הוא האתר החי ו־Legacy פרש (החלטת צוריאל 5.11: אין חזרה; הקוד בהיסטוריית Git בלבד); מצב חי נקרא מ־Vercel ומ־`origin/main` בזמן הפעולה, לא ממסמך; כל שינוי בפרודקשן (merge, פרסום, alias, DB, דגל) דורש אישור מפורש של ZURIEL לקומיט ולפריסה מדויקים; מדווחים לצוריאל בלבד (`inter_agent_coordination_law` v18, שנושא את כלל הדיווח של v17 ללא שינוי), בלי הודעות או המתנה ל־GPT. ההיסטוריה של הפריסות והאישורים שנצרכו: [docs/reviews/main-live-state-reconciliation-20261104/README.md](docs/reviews/main-live-state-reconciliation-20261104/README.md).
 
 
 **Date:** 2026-10-01  
@@ -54,10 +54,10 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 | Responsibility | Canonical owner |
 |---|---|
-| Foundation gate sequence / bottom-up closure / maintenance acceptance / compaction | `foundation_closure_protocol_law` **v7 ACTIVE** |
+| Foundation gate sequence / bottom-up closure / maintenance acceptance / compaction | `foundation_closure_protocol_law` **v8 ACTIVE** |
 | Live-state sync | `live_state_sync_law` |
 | Live-state conflict resolution | `live_state_resolution_law` under Live State |
-| Release authorization | `deploy_on_request` **v3 ACTIVE** |
+| Release authorization | `deploy_on_request` **v4 ACTIVE** |
 | Work-log current/history semantics | `work_log_authority_law` |
 | Capability availability | `site_flags_lock_law` |
 
@@ -65,9 +65,9 @@ Owner families below are routing categories only — never umbrella super-laws.
 
 | Responsibility | Canonical owner |
 |---|---|
-| task routing / owner creation / one-writer / handoff / fresh-agent entry / event-driven dispatch / visual-lane vs domain-lane writers | `inter_agent_coordination_law` **v17 ACTIVE** |
+| task routing / owner creation / one-writer / handoff / fresh-agent entry / event-driven dispatch / visual-lane vs domain-lane writers | `inter_agent_coordination_law` **v18 ACTIVE** |
 
-**Current reporting policy:** inter_agent_coordination_law v17: passive reports to ZURIEL only; GPT delivery and GPT ACK waits disabled. Scope ownership and release gates remain mandatory.
+**Current reporting policy:** inter_agent_coordination_law v18 (carries the v17 reporting rule unchanged): passive reports to ZURIEL only; GPT delivery and GPT ACK waits disabled. Scope ownership and release gates remain mandatory.
 
 **Writer lanes (v16 §§89–96):** CLAUDE is the mandatory writer for every 2029 surface and visual component (frame composition, shared kit, surface layout, final visual pass) under the Design / System Frame / Experience owners in section L; GPT writes capabilities, readers, truth/access, migrations and release. A surface is designed first (real-data preview → ZURIEL decision), then wired; visual duplicates are removed only after adoption. The adopted visual reference is Claude Home fa0e26f, including its bottom-bar structure; GPT preserves that presentation during integration. Changes to writer lanes or activation direction require a new explicit ZURIEL decision.
 
@@ -207,7 +207,7 @@ Product homes such as Home, World, Heichal, Archive, My Personal Area and surfac
 | Responsibility | Canonical owner |
 |---|---|
 | traffic / analytics measurement truth | `traffic_intelligence_law` **v11 ACTIVE** |
-| system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v5 ACTIVE** |
+| system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v7 ACTIVE** |
 | AI/tool completion/cost execution contract | `ai_analyze_contract` under System/Raziel routing |
 
 ## 4. Active-tree freeze — CLOSED G2 result

@@ -1,0 +1,40 @@
+{
+ "compaction_v1": {
+  "canonical_owner": "project_codex.numeric_rule_family_index",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "numeric_research"
+ },
+ "curiosity_cta": "✨ גלו מדוע 1820 נחשב לאחד המספרים המרכזיים במערכת",
+ "defined_by": "צוריאל פולייס",
+ "g3_disposition_v1": {
+  "classification": "LEGACY_COMPAT_RETIRE_WHEN_REPLACED",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": false,
+  "reason": "fixed three-layer legacy Number Page composition/premium assumptions are superseded by current Number/Expression, Research Workspace, Reality Graph and tier owners; preserve only compatibility provenance until legacy surface replacement",
+  "revalidated_at": "2026-09-30"
+ },
+ "immutable": true,
+ "layers": {
+  "1": "רמז קטן בכל מקום שמופיע המספר",
+  "2": "דף המספר — כל העולם נפתח",
+  "3": "עומק לבני ההיכל"
+ },
+ "owner_routing": {
+  "canonical_owner": "project_codex.numeric_rule_family_index",
+  "confidence": "high",
+  "domain": "numeric_research",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ },
+ "relates_to": [
+  "subscribe_gate_law",
+  "visibility_system",
+  "golden_entity_law"
+ ],
+ "rule_id": "number_page_law"
+}

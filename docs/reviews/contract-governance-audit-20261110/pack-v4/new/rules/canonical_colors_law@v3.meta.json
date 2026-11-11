@@ -1,0 +1,75 @@
+{
+ "canonical_implementation": "src/lib/palette.js",
+ "compaction_v1": {
+  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V2.md",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "brand_design",
+  "previous_canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
+ },
+ "control_roles": [
+  "primary",
+  "secondary",
+  "ghost",
+  "disabled",
+  "focus"
+ ],
+ "g3_disposition_v1": {
+  "classification": "KEEP_SCOPED_SEMANTIC",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "scoped semantic contract currently unique enough to remain active; G3 implementation must consume it rather than legacy UI/code, and final G3 compaction may absorb/archive it after proving semantic preservation"
+ },
+ "human_gate_v2": "ZURIEL 2026-09-08",
+ "iron": true,
+ "legacy_palette_v1": {
+  "gold": "#d4af37",
+  "goldBright": "#f6e27a",
+  "goldLight": "#e8c840",
+  "ink_on_gold": "#1a0e00"
+ },
+ "migration": "shared-components-first; no blind repository-wide restyle",
+ "owner_check": "EXTEND_EXISTING",
+ "owner_routing": {
+  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V2.md",
+  "confidence": "high",
+  "domain": "brand_design",
+  "normalized_at": "2026-11-11",
+  "previous_canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+  "resolution": "RESOLVED_G2_COMPACTION"
+ },
+ "separate_owners": {
+  "chrome": "chromeTheme.js",
+  "content_controls": "palette.js/usePalette",
+  "world_semantics": "worlds.js"
+ },
+ "status_roles": [
+  "building",
+  "success",
+  "warning",
+  "danger",
+  "info"
+ ],
+ "theme_chain": [
+  "themeMode",
+  "effectiveMode",
+  "usePalette",
+  "semantic role",
+  "canonical component",
+  "surface"
+ ],
+ "v3_owner_alignment": {
+  "change": "design-contract owner V1 → V2 (V1 kept as history)",
+  "frozen_exemption": {
+   "g3_disposition_v1_unchanged": true,
+   "g3_freeze_kept_for_everything_else": true,
+   "scope": "V1→V2 owner alignment only"
+  },
+  "human_gate": "ZURIEL 2026-11-11 (החלטה 5 — החרגה נקודתית מהקפאת G3 ליישור V1→V2 בלבד)",
+  "owner_check": "EXTEND_EXISTING",
+  "semantics_changed": false
+ }
+}

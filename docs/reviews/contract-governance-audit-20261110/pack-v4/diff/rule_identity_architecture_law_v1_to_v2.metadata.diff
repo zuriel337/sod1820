@@ -1,0 +1,12 @@
+--- nodes:identity_architecture_law@v1→v2.metadata (base)
++++ nodes:identity_architecture_law@v1→v2.metadata (proposed)
+@@ -37,3 +37,8 @@
+  "promoted_by": "work_log id 5a4b6756 (pass 2) -> f4811264 (approval) -> this closure pass",
+- "promoted_from": "CLAUDE.md prose (verbatim transcription, meaning preserved per ZURIEL instruction — not rewritten)"
++ "promoted_from": "CLAUDE.md prose (verbatim transcription, meaning preserved per ZURIEL instruction — not rewritten)",
++ "v2_legacy_removal_alignment": {
++  "human_gate": "ZURIEL 2026-11-10 (§4 shared contracts)",
++  "owner_check": "EXTEND_EXISTING",
++  "semantics_changed": false
++ }
+ }

@@ -13,11 +13,13 @@ test('approved series use exact source membership and preserve the existing auth
 
 test('unmapped posts, a title, a slug, a tag alone and a different publisher keep the general background',()=>{
   for(const post of [null,{}, {slug:'future-dim5',title:'מימד חמש'}, {tags:['מימד חמש'],author:'בדרך לנצח'},
-    {categories:['מימד חמש'],author:'manifestaffirms'}, {categories:['מה קורה הבורא'],author:'אלון לוי'},
+    {categories:['מימד חמש'],author:'manifestaffirms'}, {categories:['מה קורה הבורא'],author:'אחר'},
     {categories:['מימד חמש','הצופן בסרטים'],slug:'matrix-506',author:null},
     {categories:['שבילי שפה']}, {background_url:'https://untrusted.invalid/image.png'}]){
     assert.equal(postBackground2029(post).key,'general');
   }
+  // ZURIEL decision 6 (11.11.2026): every Post of the exact author is in the series, also without the tag
+  assert.equal(postBackground2029({categories:['מה קורה הבורא'],author:'אלון לוי'}).key,'mah-kore-habora');
 });
 
 test('ambiguous series and suppressed content never choose the first matching identity',()=>{

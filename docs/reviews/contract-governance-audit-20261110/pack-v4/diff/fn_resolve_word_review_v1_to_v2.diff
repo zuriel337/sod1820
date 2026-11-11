@@ -1,0 +1,108 @@
+--- live:resolve_word_review
++++ proposed:resolve_word_review v2
+@@ -11,23 +11,68 @@
+   v_word_id uuid;
+   v_engine_verified boolean;
+   v_actor text;
++  v_prior jsonb;
++  v_new jsonb;
+ BEGIN
+   if not public.rd_is_admin() then
+     raise exception 'admin only';
+   end if;
+   v_actor := auth.uid()::text;
+ 
+-  SELECT * INTO v FROM public.word_review_queue WHERE id = p_id;
++  SELECT * INTO v FROM public.word_review_queue WHERE id = p_id FOR UPDATE;
+   IF NOT FOUND THEN RETURN 'not_found'; END IF;
++  -- v2 (decision 4, 11.11.2026): a decided row is never decided again (no retroactive change of an admin decision)
++  IF v.status <> 'pending' THEN RETURN 'already_decided:' || v.status; END IF;
++  -- v2: delete is disabled; the queue row and its decision stay as history (use reject)
++  IF p_action = 'delete' THEN RETURN 'delete_disabled_use_reject'; END IF;
++
++  -- v2: a queue row that points at an EXISTING word (admin_corpus_enqueue_existing_words_v1)
++  IF v.entity_word_id IS NOT NULL THEN
++    v_word_id := v.entity_word_id;
++    v_prior := public._corpus_word_state_v1(v_word_id);
++    IF v_prior IS NULL THEN RETURN 'word_not_found'; END IF;
++    IF coalesce(v_prior->>'visibility_reason','') IN ('approved_by_admin','rejected_by_admin') THEN
++      RETURN 'already_decided_by_admin:' || (v_prior->>'visibility_reason');
++    END IF;
++    IF p_action = 'approve' THEN
++      -- is_verified stays engine-owned (corpus_admission_foundation_v1); the human decision is visibility_reason
++      v_engine_verified := public.fn_verify_gematria_word_engine(v_word_id);
++      UPDATE public.gematria_words SET visibility_reason = 'approved_by_admin', visibility_changed_at = now() WHERE id = v_word_id;
++      UPDATE public.word_review_queue SET status = 'approved', decided_by = v_actor, decided_at = now(), updated_at = now() WHERE id = p_id;
++      v_new := public._corpus_word_state_v1(v_word_id);
++      PERFORM public._corpus_admission_ledger_v1('gematria_word', v_word_id::text, 'approve', v_prior, v_new,
++        jsonb_build_object('function', 'resolve_word_review v2', 'queue_id', p_id, 'action', p_action));
++      RETURN 'approved_existing:engine_verified=' || coalesce(v_engine_verified, false)::text;
++    ELSIF p_action IN ('reject', 'block', 'hide') THEN
++      UPDATE public.gematria_words SET visibility_reason = 'rejected_by_admin', visibility_changed_at = now() WHERE id = v_word_id;
++      UPDATE public.word_review_queue SET status = CASE WHEN p_action = 'reject' THEN 'rejected' ELSE 'blocked' END,
++             decided_by = v_actor, decided_at = now(), updated_at = now() WHERE id = p_id;
++      v_new := public._corpus_word_state_v1(v_word_id);
++      PERFORM public._corpus_admission_ledger_v1('gematria_word', v_word_id::text, 'reject', v_prior, v_new,
++        jsonb_build_object('function', 'resolve_word_review v2', 'queue_id', p_id, 'action', p_action));
++      RETURN 'rejected_existing';
++    END IF;
++    -- edit / merge of an existing word change identity or links: a separate explicit decision, not this path
++    RETURN 'action_not_allowed_for_existing_word:' || coalesce(p_action, '');
++  END IF;
++
++  -- original queue path (behaviour of v1 kept; added: prior-admin-decision guard and ledger rows)
+   v_phrase := btrim(coalesce(nullif(p_edit,''), v.extracted));
+ 
+   IF p_action IN ('approve','edit') THEN
++    SELECT (public.fn_resolve_word_identity(v_phrase)->>'word_id')::uuid INTO v_word_id;
++    IF v_word_id IS NOT NULL AND EXISTS (SELECT 1 FROM public.gematria_words w WHERE w.id = v_word_id AND w.visibility_reason = 'rejected_by_admin') THEN
++      RETURN 'blocked_by_prior_admin_rejection';
++    END IF;
++    v_prior := CASE WHEN v_word_id IS NOT NULL THEN public._corpus_word_state_v1(v_word_id) END;
+     v_add_result := public.wa_add_word(v_phrase, coalesce(v.source,'review'), null);
+     IF v_add_result = 'possible_variant_queued' THEN
+       UPDATE public.word_review_queue
+          SET status='merged', extracted=v_phrase, decided_by=v_actor,
+              decided_at=now(), updated_at=now()
+        WHERE id=p_id;
++      PERFORM public._corpus_admission_ledger_v1('word_review_queue', p_id::text, 'merge', null, null,
++        jsonb_build_object('function', 'resolve_word_review v2', 'queue_id', p_id, 'action', p_action, 'reason', 'possible_variant_redirected'));
+       RETURN 'possible_variant_redirected:' || v_phrase;
+     END IF;
+ 
+@@ -43,6 +88,10 @@
+        SET status='approved', extracted=v_phrase, decided_by=v_actor,
+            decided_at=now(), updated_at=now()
+      WHERE id=p_id;
++    v_new := CASE WHEN v_word_id IS NOT NULL THEN public._corpus_word_state_v1(v_word_id) END;
++    PERFORM public._corpus_admission_ledger_v1(CASE WHEN v_word_id IS NOT NULL THEN 'gematria_word' ELSE 'word_review_queue' END,
++      coalesce(v_word_id::text, p_id::text), CASE WHEN p_action = 'edit' THEN 'modify' ELSE 'approve' END, v_prior, v_new,
++      jsonb_build_object('function', 'resolve_word_review v2', 'queue_id', p_id, 'action', p_action, 'reason', v_add_result));
+ 
+     RETURN 'approved:' || coalesce(v_add_result,'unknown') ||
+            CASE WHEN v_word_id IS NOT NULL
+@@ -50,17 +99,20 @@
+                 ELSE ':engine_verified=false' END;
+   ELSIF p_action = 'reject' THEN
+     UPDATE public.word_review_queue SET status='rejected', decided_by=v_actor, decided_at=now() WHERE id=p_id;
++    PERFORM public._corpus_admission_ledger_v1('word_review_queue', p_id::text, 'reject', null, null,
++      jsonb_build_object('function', 'resolve_word_review v2', 'queue_id', p_id, 'action', p_action));
+     RETURN 'rejected';
+   ELSIF p_action IN ('block','hide') THEN
+     UPDATE public.word_review_queue SET status='blocked', decided_by=v_actor, decided_at=now() WHERE id=p_id;
++    PERFORM public._corpus_admission_ledger_v1('word_review_queue', p_id::text, 'reject', null, null,
++      jsonb_build_object('function', 'resolve_word_review v2', 'queue_id', p_id, 'action', p_action));
+     RETURN 'blocked';
+   ELSIF p_action = 'merge' THEN
+     UPDATE public.word_review_queue SET status='merged', decided_by=v_actor, decided_at=now() WHERE id=p_id;
++    PERFORM public._corpus_admission_ledger_v1('word_review_queue', p_id::text, 'merge', null, null,
++      jsonb_build_object('function', 'resolve_word_review v2', 'queue_id', p_id, 'action', p_action));
+     RETURN 'merged';
+-  ELSIF p_action = 'delete' THEN
+-    DELETE FROM public.word_review_queue WHERE id=p_id;
+-    RETURN 'deleted';
+   END IF;
+   RETURN 'noop';
+ END;
+-$function$
++$function$;

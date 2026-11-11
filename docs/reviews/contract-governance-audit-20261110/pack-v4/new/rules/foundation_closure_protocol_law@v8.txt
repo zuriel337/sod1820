@@ -1,0 +1,127 @@
+FOUNDATION CLOSURE PROTOCOL v4 — HUMAN-GATE ZURIEL · 11.9.2026
+
+OWNER: foundation_closure_protocol_law. EXTEND_EXISTING. v3 supersedes v2 while preserving the Bedrock Ladder and all prior history. This is NOT a new roadmap, sequence, engine, store or governance system.
+
+CORE RULE
+Work moves Foundation → Projection → Experience. No higher-gate release/closure may proceed while a known lower-layer MUST FOUNDATION NOW remains unresolved. Safe evidence gathering/prototyping may continue branch-only; it never counts as closure.
+
+ONE SEQUENCE, NOT THREE
+The Master Roadmap W0–W9 remains the build/navigation sequence. G0–G8 are mandatory GATE SEMANTICS over that existing W-sequence, not a parallel plan. The Bedrock Ladder remains the closure procedure used INSIDE every gate:
+Bootstrap → Real Stress Test → Redesign-Risk Challenge → MUST/EXTENSION/LATER → Minimal Patch → Replay/Idempotency Proof → Live Verify → FOUNDATION SUFFICIENT/NOT SUFFICIENT.
+
+GATE ↔ W BINDING
+G0 = W0 hygiene precondition: live object-state parity, branch/PR hygiene, P0 security, owner-index accuracy.
+G1/G2 = W0 + W2 reconciliation: risk-triaged 2029 owner reconciliation + legacy knowledge/Topic/Post/route migration semantics.
+G3 = W1 + W2 foundation closure: fabric invariants + capability closure before Goldens.
+G3.5 = fixture readiness precondition for W4: Golden fixtures must be executable on live/replayable data.
+G4 = W4 Golden Experiences.
+G5 = post-W4 Value / Entitlement Product Matrix.
+G6 = W3 + W6 global/cross-surface closure.
+G7 = W4/W6 final design acceptance with measurable criteria.
+G8 = DESIGN CLOSED + release batching + final parity re-proof.
+
+G0 EVIDENCE STANDARD — OBJECT STATE, NOT MIGRATION HISTORY
+DB↔Git parity is proven against the actual live OBJECT STATE for the domains touched: columns, functions and bodies, SECURITY DEFINER/INVOKER, grants, RLS/policies, views/triggers/Edge implementations and corresponding current-main representation. Migration history is a hint only and may not be used as the parity oracle. G0 maintains a named divergence register: object → live state → git state → owning PR/lineage → decision KEEP/PORT/RETIRE/REBASE.
+Open PRs are classified EVIDENCE / REBASE-CANDIDATE / RETIRE-SUPERSEDED / RELEASE-CANDIDATE; stale PRs are never raw-merged merely because they are open.
+
+G1 RISK-TRIAGED, NOT BULK OWNER SCAN
+Do not load every rule. Reconcile first only owners that can force redesign or irreversible migration: identity, truth, authorization/access, temporal/history, publication/indexability, entitlement seam, ELS, Person/privacy/data lifecycle and any owner directly touched by the active gate. Other owners reconcile lazily when reached.
+
+G2 LEGACY KNOWLEDGE RECONCILIATION
+Legacy Topics/Convergences/Posts/Galleries/Books/routes are classified by semantic role, never bulk-promoted. Preserve the NO-SECOND-STORE invariant. Dynamic Lens / Canonical Subject / Event / Finding / Publication / Person / Book / Number etc remain distinct. Post canonical-family migration and language/source identity must be explicit before final ontology/design closure.
+
+G3 MUST FOUNDATION NOW BEFORE GOLDENS
+At minimum, where still unresolved live:
+A. Cross-capability shared-artifact reference/equivalent so independence/dependence is deterministic across Findings. This is a Research-Fabric invariant, not ELS-only.
+B. Temporal/history primitives sufficient to preserve occurred/recorded/published/discovered/researched/superseded/interpretation history without rewriting historical truth.
+C. Publication/content source-language identity marking; translation runtime may remain later, but identity cannot depend on display language.
+D. One server-authoritative entitlement seam separate from capability availability, publication/access and truth. Product pricing/tier allocation remains later.
+E. Privacy lifecycle primitives/owner path for consent, retention, export and erasure before opening longitudinal Person/Life/Raziel memory capabilities.
+F. ELS callable-core boundary under the ONE-engine invariant; Year/Time identity seam; no browser-only architecture may be treated as Future-Max closure.
+G. Replay/idempotency and failure/recovery semantics appropriate to each capability.
+Extension Point Now before Goldens: semantic analytics event vocabulary, machine/SEO contract, provider/model independence, spatial render-depth contract. Reporting dashboards, premium economics, extra locales runtime, 3D/AR/VR and collaboration may remain later when no redesign risk exists.
+
+G3.5 FIXTURE READINESS
+A Golden that cannot be run does not close a gate. ELS Goldens require exact replayable coordinates or an adjudicated modern fixture; Journey Goldens require a real replayable Journey/path instance; authorized deep-reader Goldens require a safe fixture for withheld/unpublished material. Missing fixtures are explicit blockers, not simulated PASSes.
+
+PREMIUM SPLIT
+Access architecture/seam is Foundation. Exact Free/Registered/Premium/Credits product allocation, names, prices and economics belong to G5 after Golden Experiences. Capability availability (site flags) must never be repurposed as entitlement, and entitlement never changes truth quality.
+
+SAFE PARALLELISM
+READ_ONLY evidence gathering, challenge and cross-verification are parallel-safe. WRITE may run in parallel only when owner/file/scope is explicitly non-overlapping in work_log. One owner/contract/map path = one active writer. Higher-gate prototypes may exist BRANCH-ONLY as evidence but may not be merged, deployed or cited as closure while lower MUSTs remain.
+Lower-layer security/truth/parity defects discovered later are fixed immediately at their owning layer; this does not silently certify or reopen unrelated work.
+
+NO-SKIP COMMAND SEMANTICS
+קדימה = proceed only WITHIN the current gate.
+תעלה = release authorization only for a scope that is ALREADY gate-clean.
+Neither command waives an unresolved MUST. Silence is not waiver.
+If a MUST blocks the requested action, the agent must state the blocker id/state and smallest closure path, then stop the blocked action.
+A MUST may be waived/superseded only by explicit Human-Gate REPLAN/SUPERSESSION recorded in work_log naming blocker, reason, accepted risk and owner. ZURIEL retains full Human-Gate authority; v3 prevents only accidental/silent bypass.
+
+CLOSURE EVIDENCE
+Every gate closure requires fresh live verification with the objects actually checked and an AFTER/evidence row. A branch artifact, stale audit, memory, roadmap sentence or migration ledger alone cannot close a gate. Every gate boundary performs closing reconciliation because live main/DB may drift during the gate itself.
+
+2029 PRINCIPLE
+Target 2029-ready Foundation with progressive implementation, not maximal-cost implementation everywhere. Preserve identity, capability, truth, provenance, history, authorization and extension seams now; defer expensive renderers/providers/features when they can attach later without redesign.
+
+Agents must proactively surface unknown-unknown redesign risks. ZURIEL is not required to know the architectural name of a missing primitive before the system raises it.
+
+[UPDATE v4 · Human-Gate ZURIEL · 12.9.2026 — G1 AGENT ENTRY ACCEPTANCE BINDING]
+This section supersedes only the G1 scope/closure wording above where needed; G0, G2–G8, the Bedrock Ladder and all no-skip semantics remain unchanged.
+
+G1 now explicitly includes AGENT ENTRY / BOOTSTRAP RECONCILIATION 2029 as a mandatory acceptance dimension alongside risk-triaged 2029 owner reconciliation. The semantic owner is the CURRENT ACTIVE inter_agent_coordination_law; this Foundation rule only binds G1 to that owner and MUST NOT copy its detailed bootstrap semantics.
+
+G1 closure rule: G1 is NOT SUFFICIENT until active agent-entry surfaces/pointers are reconciled to the current inter-agent owner and fresh-agent entry acceptance passes as defined there. Because gates are no-skip, no higher Gate may close while this G1 requirement is open. This does not authorize starting or closing G1 while G0 remains open; it only defines the future G1 acceptance criterion now by explicit Human-Gate direction.
+
+No new Context System, owner, store, registry, router or SSOT is created. G2 legacy-knowledge reconciliation remains separate and unchanged.
+
+
+[UPDATE v5 · Human-Gate ZURIEL · 15.9.2026 — G2 CANONICAL COMPACTION / OWNER HIERARCHY / ACTIVE TREE FREEZE BINDING]
+This section is additive and EXTEND_EXISTING. It creates no new Master, Roadmap, owner registry, archive system, context authority, store, graph or engine. The detailed acceptance body is preserved in `audits/g2-p0-containment/G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_GATE_V1.md`; this rule binds closure to that gate without duplicating its body.
+
+G2 CLOSURE BINDING: formal G2 closure is NOT SUFFICIENT until the Canonical Compaction / Owner Hierarchy / Active Tree Freeze gate passes in addition to all other active Foundation/Product Capability blockers. This is a no-skip condition under the existing command semantics; קדימה/תעלה do not waive it.
+
+MINIMUM BINDING OUTCOME: 0 material orphan active laws; 100% active-rule routing classification; owner-family hierarchy resolved without super-law duplication; compact Master current-state/pointer form with historical snapshot preserved; Roadmap reduced to navigation/priority/gates/sequence/open decisions; bounded current/open work-log routing; One Decision → One Canonical Body; exact surviving release states; fresh-agent acceptance PASS; historical provenance preserved.
+
+ANTI-INFLATION BINDING: after compaction, domain semantics live at their owner; atomic research lives in Research OS; coordination/release provenance lives in work_log; priority/sequence lives in Roadmap; Master records only material current state/Human-Gate/closure plus pointers. Importance does not justify copying a full audit/contract into Master.
+
+G3 BINDING: a second Implementation Compaction / Archive Pass is mandatory at the end of G3 to retire superseded prototypes/branches/audits from normal startup routing while preserving provenance. It is not a second roadmap or archive system.
+
+Closure evidence must include a fresh-agent replay over representative domains after compaction. Failure to route correctly with bounded reads keeps the gate OPEN.
+
+
+[UPDATE v6 · Human-Gate ZURIEL · 17.9.2026 — RELEASE BINDING · EXTEND_EXISTING · standing auto-release revoked by v8 (ZURIEL 10.11.2026)]
+RELEASE BINDING (v8). Once a bounded release scope has satisfied every applicable lower MUST, gate, dependency, current-main reconciliation, required specialist/security/privacy acceptance and release recovery condition, it is READY_FOR_APPROVAL: the Primary Owner presents the exact commit/deployment to ZURIEL and releases only after his explicit approval of that specific action (deploy_on_request, active version). Gate-clean is a precondition, never an authorization; there is no standing release authorization.
+NO-SKIP REMAINS ABSOLUTE. Explicit approval does not weaken any Foundation MUST or acceptance standard. קדימה/תעלה never waive a blocker.
+HUMAN-DECISION RESERVE. Explicit Human Gate remains for decisions that change canonical governed truth/publication where required, destructive irreversible state, paid product economics, material privacy/security weakening, permanent deletion/retirement of preserved history/capability, or another owner-specific Human decision.
+RELEASE ADVICE. Gate closure/handoff must expose whether the scope is READY_FOR_APPROVAL (formerly AUTO_RELEASE_NOW), BUNDLE_WITH, BLOCKED_BY, SAFE_INDEPENDENT_WAITING_RUNTIME, or DO_NOT_RELEASE_SUPERSEDED/PARKED, so ZURIEL is not required to infer dependencies.
+
+OWNER CHECK: EXTEND_EXISTING foundation_closure_protocol_law + deploy_on_request (active version). No new gate system.
+
+[UPDATE v7 · Human-Gate ZURIEL · 29.9.2026 — BOTTOM-UP CLOSURE / NO PREMATURE ASCENT + MAINTENANCE ACCEPTANCE · EXTEND_EXISTING]
+
+87) VERIFY-BEFORE-BUILD. Before any new WRITE intended to close a gate or lower-layer blocker, first verify live owner/runtime/current-main state to determine whether the required capability or acceptance evidence already exists. If the canonical runtime already satisfies the requirement, do not rebuild, duplicate or backfill merely because a raw storage field/audit snapshot appears incomplete. Evidence must be read through the owner-defined effective contract.
+
+88) LOWER DEPENDENCIES FIRST. Closure follows dependency order: Foundation → runtime seam → capability → projection → experience. A higher node may remain visible/branch-only as evidence, but it is not CLOSED while a load-bearing lower dependency is unresolved.
+
+89) ONE GAP → ONE DESCENT. A later-discovered lower-layer defect descends only to its owning branch/seam and the smallest affected dependency set. It does not reopen all of G2/G3 or unrelated closed work. After the gap is closed and reverified, execution resumes from the interrupted dependency point.
+
+90) ASCENT EVIDENCE REQUIRED. Before a layer is marked CLOSED, evidence must include, where applicable: current canonical owner resolution; live/runtime or replay evidence; at least one negative/failure path; proof of no parallel authority/system; exact-head tests/challenge when required; and current-main/live reconciliation. UI readiness, a Golden-looking screen, branch existence or a percentage complete are not closure evidence by themselves.
+
+91) NO PERCENTAGE-DRIVEN BUILDING. Completion percentages are dashboard context only. Dependency gates determine whether ascent is allowed. “95% complete” never waives a lower MUST, and a visible surface never authorizes skipping its unresolved substrate.
+
+92) POST-CLOSURE INVARIANT MAINTENANCE. A closed lower gate remains closed only while its routing/compaction invariants remain current. After any material owner-version promotion, the existing owner/coordination tooling must check classification inheritance, compaction metadata and current Owner Index pointer/routing. Version drift that changes only pointers/metadata is repaired without reopening unrelated architecture; semantic drift follows the owning gate.
+
+93) G3 MAINTENANCE ACCEPTANCE MATRIX — RECONCILIATION, NOT A NEW SYSTEM. Before formal G3 CLOSED, reconcile all operational maintenance/monitoring/control requirements gathered during G3 through the existing owners and projections. For every existing or planned operational capability, record exactly: OWNER → SIGNAL → ENFORCEMENT → PROJECTION, plus one status from LIVE_VERIFIED / IMPLEMENTED_NOT_LIVE / PLANNED_G3 / LATER_STAGE / GAP. No Monitoring/Watchman/Control/Cost system 2 may be created.
+
+94) MINIMUM G3 MAINTENANCE COVERAGE. The reconciliation must include at least: reliability/health; browser/runtime failures; dead-man; exact-SHA canary; operational trace/correlation; provider/AI cost; cache/billable state; egress; DB/query performance; capacity/growth/top-growers; retention/compaction; privacy/RLS failures; restore/recovery evidence; and release health. Each row resolves through its current canonical owner; later-stage items receive an explicit carry-forward and do not keep G3 open when no G3 redesign risk remains.
+
+95) OBSERVABILITY IS NOT ENFORCEMENT. If the original requirement is protective/guarding, a signal or dashboard alone is not acceptance-complete. The row is CLOSED only when the required owner-native enforcement exists and is verified. Example: an exact-SHA canary that records failure but cannot block the NEXT release where deploy_on_request requires that gate remains incomplete. Detection-only requirements may close as detection only when the owner contract says so.
+
+96) PRIVACY-BY-DESIGN FOR OPERATIONS. Maintenance telemetry is operational evidence, not a Truth Store. Preserve metadata/correlation/hashes/secure references where sufficient; do not copy raw private corpus, credentials or unrestricted personal payloads into trace/health/cost/incident stores.
+
+97) NO DUPLICATE MAINTENANCE IMPLEMENTATION. Final G3 closure must prove that parallel sessions did not implement the same maintenance requirement twice. Reconcile duplicate candidates to one canonical owner/runtime/projection; classify the others as superseded/absorbed/archive evidence while preserving provenance.
+
+98) G3 ASCENT BINDING. The active G3 route is bottom-up: small G2 routing hygiene only when live drift requires it → No-Black-Box effective acceptance → client/server correlation + material-path trace coverage → remaining lower-layer closure by dependency → ELS runtime closure/Goldens/statistical controls/provenance → global G3 reliability pre-close → Maintenance Acceptance Matrix reconciliation → Implementation Compaction → independent Foundation challenge → G3 CLOSED → G3.5. This is navigation over existing owners, not a second roadmap.
+
+OWNER CHECK: EXTEND_EXISTING foundation_closure_protocol_law v6 + existing domain owners + inter_agent_coordination_law + deploy_on_request. No new closure, monitoring, maintenance, trace, cost, control or roadmap system.

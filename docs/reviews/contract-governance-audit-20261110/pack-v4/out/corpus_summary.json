@@ -1,0 +1,18 @@
+{
+ "new_prosrc_md5": {
+  "public.resolve_word_review(uuid,text,text,text)": "9f247a5f6ca5a92f1954d628fb8aee73",
+  "public.wa_word_review(uuid,text)": "5bc6d76fd0a1bb94987ed6286e958171",
+  "public.admin_bulk_triage(text)": "c17f9ef70d8d111c9e4ac791986fad70",
+  "public.admin_hide_word(text)": "aeff932f605306120b97fbef5019e34e",
+  "public._corpus_word_state_v1(uuid)": "b58df24b27f3243163e83791df5102d1",
+  "public._corpus_admission_ledger_v1(text,text,text,jsonb,jsonb,jsonb)": "e7436d06197ca02bcb43dee02830f69e",
+  "public.admin_corpus_admission_state_v1()": "fa59bf8d01174a3fee79c531610c2772",
+  "public.admin_corpus_enqueue_existing_words_v1(uuid[],text)": "e3414edff8b7639cedf1582f18bb3523"
+ },
+ "base_functiondef_md5": {
+  "public.resolve_word_review(uuid,text,text,text)": "63a3e2f29a7d7ca206a5db7d3159317a",
+  "public.wa_word_review(uuid,text)": "b6a17fa640ca992a65368263cdcba28b",
+  "public.admin_bulk_triage(text)": "2a44326886e4d3011d6df36f78c411e2",
+  "public.admin_hide_word(text)": "fe5dfee95a705dcfb2ee969f7e544a5a"
+ }
+}

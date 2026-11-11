@@ -1,0 +1,28 @@
+{
+ "compaction_v1": {
+  "canonical_owner": "research_intake_foundation_contract_law",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "research_intake"
+ },
+ "date": "2026-07-05",
+ "decided_by": "zuriel",
+ "g3_disposition_v1": {
+  "classification": "LEGACY_COMPAT_RETIRE_WHEN_REPLACED",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": false,
+  "reason": "legacy word-specific approval gate is absorbed by current Truth/Human-Gate and Research Intake admission/review flows; keep only until remaining legacy word-review consumers are replaced",
+  "revalidated_at": "2026-09-30"
+ },
+ "owner_routing": {
+  "canonical_owner": "research_intake_foundation_contract_law",
+  "confidence": "high",
+  "domain": "research_intake",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ }
+}

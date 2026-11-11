@@ -1,0 +1,161 @@
+From a174089bec1127b2765040bf2735cc9981ad8395 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 11 Nov 2026 04:37:24 +0000
+Subject: [PATCH] Pointers after SQL 10 (applied and verified 11.11.2026):
+ v4/v18/v8/v6
+
+SQL 10 was applied once on 11.11.2026 at 04:32:42 UTC through its execution form
+10e_p0_release_policy_EXEC.sql (SHA-256 f2775634...cb85, content-identical to
+10_p0_release_policy.sql d1ac658b...), under ZURIEL's explicit approval for one run.
+Verified live: deploy_on_request v4, inter_agent_coordination_law v18,
+foundation_closure_protocol_law v8 and system_suggestions_law v6 are the active versions.
+
+CLAUDE.md, AGENTS.md and AGENT_HANDOFF.md name inter_agent_coordination_law v18, which carries the
+v17 reporting rule unchanged; the Owner Index and Roadmap pins move to deploy_on_request v4,
+foundation_closure_protocol_law v8 and system_suggestions_law v6; the G1 smoke pin follows (v17 -> v18).
+
+Checks (Node 24.21.0): scripts/test-g1-agent-routing-smoke.mjs 18/18, test-legacy-retired PASS,
+test-one-tree-content-contract 79/79. Local commit only, not pushed.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01H7739MjqsSy3Nv6324VnN8
+---
+ AGENTS.md                               |  2 +-
+ AGENT_HANDOFF.md                        |  2 +-
+ CLAUDE.md                               |  2 +-
+ SOD1820_MASTER_OWNER_INDEX.md           | 10 +++++-----
+ SOD1820_MASTER_ROADMAP.md               |  8 ++++----
+ scripts/test-g1-agent-routing-smoke.mjs |  2 +-
+ 6 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 40d54837a..e2be0c198 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -13,7 +13,7 @@
+ ## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
+ 
+ **אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
+-החוק הפעיל `inter_agent_coordination_law v17` מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
++החוק הפעיל `inter_agent_coordination_law v18` (נושא את כלל הדיווח של v17 ללא שינוי) מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
+ All agents report to ZURIEL in their active user conversation and write passive work_log records with to_actor=ZURIEL and dispatch_kind/state=NULL. No GPT-directed assignments, RESULT_WAKE, ACK waits or delivery retries. Do not automatically activate another agent to satisfy a reporting requirement; new activation requires explicit user instruction.
+ **ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
+ 
+diff --git a/AGENT_HANDOFF.md b/AGENT_HANDOFF.md
+index 7fdc3b908..5d69edc4a 100644
+--- a/AGENT_HANDOFF.md
++++ b/AGENT_HANDOFF.md
+@@ -3,7 +3,7 @@
+ ## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
+ 
+ **אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
+-החוק הפעיל `inter_agent_coordination_law v17` מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
++החוק הפעיל `inter_agent_coordination_law v18` (נושא את כלל הדיווח של v17 ללא שינוי) מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
+ All agents report to ZURIEL in their active user conversation and write passive work_log records with to_actor=ZURIEL and dispatch_kind/state=NULL. No GPT-directed assignments, RESULT_WAKE, ACK waits or delivery retries. Do not automatically activate another agent to satisfy a reporting requirement; new activation requires explicit user instruction.
+ **ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
+ Historical records are retained. No product semantics, visual ownership or release permission is changed. The live database guard blocks GPT delivery; repository changes do not authorize a site deployment.
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 64cd0a573..c09a4f3d0 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -86,7 +86,7 @@
+ ## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
+ 
+ **אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
+-החוק הפעיל `inter_agent_coordination_law v17` מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
++החוק הפעיל `inter_agent_coordination_law v18` (נושא את כלל הדיווח של v17 ללא שינוי) מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
+ All agents report to ZURIEL in their active user conversation and write passive work_log records with to_actor=ZURIEL and dispatch_kind/state=NULL. No GPT-directed assignments, RESULT_WAKE, ACK waits or delivery retries. Do not automatically activate another agent to satisfy a reporting requirement; new activation requires explicit user instruction.
+ **ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
+ Historical records are retained. No product semantics, visual ownership or release permission is changed. The live database guard blocks GPT delivery; repository changes do not authorize a site deployment.
+diff --git a/SOD1820_MASTER_OWNER_INDEX.md b/SOD1820_MASTER_OWNER_INDEX.md
+index 9ee730c2e..a682fda0a 100644
+--- a/SOD1820_MASTER_OWNER_INDEX.md
++++ b/SOD1820_MASTER_OWNER_INDEX.md
+@@ -54,10 +54,10 @@ Owner families below are routing categories only — never umbrella super-laws.
+ 
+ | Responsibility | Canonical owner |
+ |---|---|
+-| Foundation gate sequence / bottom-up closure / maintenance acceptance / compaction | `foundation_closure_protocol_law` **v7 ACTIVE** |
++| Foundation gate sequence / bottom-up closure / maintenance acceptance / compaction | `foundation_closure_protocol_law` **v8 ACTIVE** |
+ | Live-state sync | `live_state_sync_law` |
+ | Live-state conflict resolution | `live_state_resolution_law` under Live State |
+-| Release authorization | `deploy_on_request` **v3 ACTIVE** |
++| Release authorization | `deploy_on_request` **v4 ACTIVE** |
+ | Work-log current/history semantics | `work_log_authority_law` |
+ | Capability availability | `site_flags_lock_law` |
+ 
+@@ -65,9 +65,9 @@ Owner families below are routing categories only — never umbrella super-laws.
+ 
+ | Responsibility | Canonical owner |
+ |---|---|
+-| task routing / owner creation / one-writer / handoff / fresh-agent entry / event-driven dispatch / visual-lane vs domain-lane writers | `inter_agent_coordination_law` **v17 ACTIVE** |
++| task routing / owner creation / one-writer / handoff / fresh-agent entry / event-driven dispatch / visual-lane vs domain-lane writers | `inter_agent_coordination_law` **v18 ACTIVE** |
+ 
+-**Current reporting policy:** inter_agent_coordination_law v17: passive reports to ZURIEL only; GPT delivery and GPT ACK waits disabled. Scope ownership and release gates remain mandatory.
++**Current reporting policy:** inter_agent_coordination_law v18 (carries the v17 reporting rule unchanged): passive reports to ZURIEL only; GPT delivery and GPT ACK waits disabled. Scope ownership and release gates remain mandatory.
+ 
+ **Writer lanes (v16 §§89–96):** CLAUDE is the mandatory writer for every 2029 surface and visual component (frame composition, shared kit, surface layout, final visual pass) under the Design / System Frame / Experience owners in section L; GPT writes capabilities, readers, truth/access, migrations and release. A surface is designed first (real-data preview → ZURIEL decision), then wired; visual duplicates are removed only after adoption. The adopted visual reference is Claude Home fa0e26f, including its bottom-bar structure; GPT preserves that presentation during integration. Changes to writer lanes or activation direction require a new explicit ZURIEL decision.
+ 
+@@ -207,7 +207,7 @@ Product homes such as Home, World, Heichal, Archive, My Personal Area and surfac
+ | Responsibility | Canonical owner |
+ |---|---|
+ | traffic / analytics measurement truth | `traffic_intelligence_law` **v11 ACTIVE** |
+-| system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v5 ACTIVE** |
++| system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v6 ACTIVE** |
+ | AI/tool completion/cost execution contract | `ai_analyze_contract` under System/Raziel routing |
+ 
+ ## 4. Active-tree freeze — CLOSED G2 result
+diff --git a/SOD1820_MASTER_ROADMAP.md b/SOD1820_MASTER_ROADMAP.md
+index 66fa87a97..992a0f46a 100644
+--- a/SOD1820_MASTER_ROADMAP.md
++++ b/SOD1820_MASTER_ROADMAP.md
+@@ -153,7 +153,7 @@ Non-blocking maintenance debt remains routed to existing owners rather than reop
+ 
+ **NEXT:** use the already-defined G3→G4 transition lane (informal “G3.5” shorthand) to prepare/validate the next real Golden Experiences. Closing G3 does **not** by itself open English, entitlement/pricing, Voice/Multimodal, Spatial/3D/XR, governed publication, or a broad Legacy→2029 cutover; those remain under their existing Human-Gate/owner rules.
+ 
+-**BOTTOM-UP CLOSURE / NO PREMATURE ASCENT · Human-Gate ZURIEL · 2026-09-29:** active closure owner is `foundation_closure_protocol_law v7`. Before a new WRITE, verify whether the canonical owner/runtime already satisfies the requirement. Ascend only when the load-bearing dependency below is CLOSED or explicitly non-blocking/deferred. A discovered lower gap descends only to its owning seam, closes there, and resumes from the interrupted point; it does not reopen all of G2/G3. Completion percentage and visible UI are never closure authority.
++**BOTTOM-UP CLOSURE / NO PREMATURE ASCENT · Human-Gate ZURIEL · 2026-09-29:** active closure owner is `foundation_closure_protocol_law v8`. Before a new WRITE, verify whether the canonical owner/runtime already satisfies the requirement. Ascend only when the load-bearing dependency below is CLOSED or explicitly non-blocking/deferred. A discovered lower gap descends only to its owning seam, closes there, and resumes from the interrupted point; it does not reopen all of G2/G3. Completion percentage and visible UI are never closure authority.
+ 
+ **G3→G4 transition rule · 2026-09-28:** G4 does not activate later capabilities merely because the gate number changes. G3 must first close its implementation/compaction blockers; G4 then runs real/replayable **Golden Experiences** over the already-built 2029 capabilities. A capability becomes Golden only after its real journey passes; English, entitlement/pricing, Voice/Multimodal, Spatial/3D and XR remain governed by their later program stages and do not auto-open at G4.
+ 
+@@ -179,13 +179,13 @@ availability rule for genuinely unfinished systems remains. See Doc37 §12.29.
+ 
+ Detailed domain semantics live in owners, not here:
+ 
+-- Foundation gate sequence / bottom-up closure / maintenance acceptance → active `foundation_closure_protocol_law` **v7**;
++- Foundation gate sequence / bottom-up closure / maintenance acceptance → active `foundation_closure_protocol_law` **v8**;
+ - Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v8**;
+ - Continuous Raziel Research Companion / multimodal voice readiness → active `raziel_companion_layer_law` **v3**;
+ - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v17** + Research Workspace;
+ - Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v5**;
+ - Capability availability / building/open state → active `site_flags_lock_law` **v3**;
+-- No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliability → active `system_suggestions_law` **v5**;
++- No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliability → active `system_suggestions_law` **v6**;
+ - Translation / source-language evidence integrity → active `content_translation_law` **v4**;
+ - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
+ - Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v13**.
+@@ -200,7 +200,7 @@ G3 is **CLOSED**. Its dependency spine, opening order, maintenance/compaction re
+ 
+ Current closure pointers:
+ - documented current state and exact release evidence → `SOD1820_MASTER_STATE.md`;
+-- Foundation closure owner / acceptance law → active `foundation_closure_protocol_law v7`;
++- Foundation closure owner / acceptance law → active `foundation_closure_protocol_law v8`;
+ - implementation compaction / archive acceptance → `audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`;
+ - post-release Maintenance Acceptance Matrix refresh → `work_log.id=4220295a-1e98-40de-98c4-d127d8f20059`;
+ - final independent LIVE Foundation verdict → `work_log.id=663f93eb-1d16-4bdf-88dd-f3487508b7bc`;
+diff --git a/scripts/test-g1-agent-routing-smoke.mjs b/scripts/test-g1-agent-routing-smoke.mjs
+index 78d4fa068..7ea0ec445 100644
+--- a/scripts/test-g1-agent-routing-smoke.mjs
++++ b/scripts/test-g1-agent-routing-smoke.mjs
+@@ -49,7 +49,7 @@ test('release_gate: Foundation + canonical release owner + coordination', () =>
+   pointsTo('Release authorization', 'deploy_on_request');
+   const coordinationRows = index.split('\n').filter(line => line.startsWith('| task routing / owner creation / one-writer / handoff / fresh-agent entry /'));
+   assert.equal(coordinationRows.length, 1, 'one current coordination owner row');
+-  assert.match(coordinationRows[0], /`inter_agent_coordination_law` \*\*v17 ACTIVE/);
++  assert.match(coordinationRows[0], /`inter_agent_coordination_law` \*\*v18 ACTIVE/);
+   assert.match(adapter, /ONE SCOPE — ONE ACTIVE WRITER/);
+   assert.match(adapter, /Do not merge\/deploy\/push/);
+   assert.match(adapter, /passive work_log records with to_actor=ZURIEL/);
+-- 
+2.43.0
+

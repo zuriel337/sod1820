@@ -1,0 +1,12 @@
+--- admin_suggestion_decide (live def)
++++ admin_suggestion_decide (proposed)
+@@ -86,3 +86,3 @@
+           then 'MAJOR: branch/PR preparation only; release advice must be BLOCKED_BY Foundation redesign-risk challenge/Human Gate.'
+-          else 'PATCH/MINOR: branch/PR preparation only; after exact-head gates a release controller may classify AUTO_RELEASE_NOW under deploy_on_request v2. Radar current baseline is dynamic from origin/main; do not create a baseline-only DB migration.'
++          else 'PATCH/MINOR: branch/PR preparation only; after exact-head gates the release advice is READY_FOR_APPROVAL: merge and deploy only after explicit approval by ZURIEL of the exact action (deploy_on_request v4, no standing authorization). Radar current baseline is dynamic from origin/main; do not create a baseline-only DB migration.'
+         end,
+@@ -93,3 +93,3 @@
+         v_scope,
+-        'system_suggestions_law v3 + deploy_on_request v2 + inter_agent_coordination_law v13',
++        'system_suggestions_law v3 + deploy_on_request v4 + inter_agent_coordination_law v18',
+         'BRANCH_ONLY_NO_MERGE_NO_DEPLOY',

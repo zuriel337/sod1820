@@ -1,7 +1,7 @@
 # SOD1820 — SYSTEM FRAME CONTRACT · 2027 ADAPTIVE V2 ADDENDUM
 
 **Owner lineage:** `docs/sod1820-system-frame-contract-v1.md`  
-**Status:** ADDITIVE SUPERSESSION ADDENDUM · EXTEND_EXISTING · HUMAN-GATE ZURIEL · BRANCH ONLY UNTIL MERGED  
+**Status:** ADDITIVE SUPERSESSION ADDENDUM · EXTEND_EXISTING · HUMAN-GATE ZURIEL · MERGED (in main; the former «BRANCH ONLY UNTIL MERGED» banner is historical)  
 **Date:** 2026-09-09  
 **W0 source:** `docs/w0-2027-final-reconciliation-v1.md` + independent challenge `work_log d3c26a5c-1a01-47b9-9147-a94430c65f3c`
 
@@ -19,7 +19,7 @@ The invariant remains:
 
 ### Product-language inheritance · 2026-09-13
 
-Public labels used by the System Frame consume the current `SOD1820_DESIGN_CONTRACT_V1.md` Naming / product language owner and current Master Roadmap. Retained v1 examples such as `עולם המספרים` / `עולם המספרים והגימטריה` are historical wording only and MUST NOT be restored as formal product/navigation names unless Human Gate explicitly renames them. Current numeric-family navigation uses `דף המספר` for the public Number/Phrase product and neutral family labels such as `מספרים` / `מספרים וגימטריה` where a grouping label is needed.
+Public labels used by the System Frame consume the Naming / product language law in `SOD1820_DESIGN_CONTRACT_V2.md` (carried from V1 on 11.11.2026; V1 keeps the historical copy) and the current Master Roadmap. Retained v1 examples such as `עולם המספרים` / `עולם המספרים והגימטריה` are historical wording only and MUST NOT be restored as formal product/navigation names unless Human Gate explicitly renames them. Current numeric-family navigation uses `דף המספר` for the public Number/Phrase product and neutral family labels such as `מספרים` / `מספרים וגימטריה` where a grouping label is needed.
 
 ---
 

@@ -1,0 +1,13 @@
+⚠️ STALE (סומן 20.8.2026) — התוכן להלן משקף את המציאות נכון ל-14.6.2026 בלבד ולא אומת מאז. קרא כרקע/כוונה מקורית, לא כמצב נוכחי. מצב נוכחי: SOD1820_MASTER_STATE.md ב-main + סכמת ה-DB החיה + work_log. גיבוי: project_codex_backup_20260820.
+
+---
+
+מטרה: גרף ישויות-זהב שעליו נשען עמוד /cross (הצלבת שיטות). מאוחסן ב-nodes (type='entity') + edges, וכל ישות מחוברת ל-gematria_words דרך node_id. כל הרשומות מתויגות metadata.source='entity_seed_v1' — לכן הפיך לחלוטין (אפשר למחוק לפי התג).
+
+מצב נכון ל-2026-06-14: 297 ישויות · 34 עולמות · 683 קשרים · 151 תיאורים (description). weight = importance (1-5). metadata: {source, world, tags, importance}.
+
+צינור ההרחבה (idempotent):
+1. עורכים את WORLDS / WORLDS_EXT* ב-scripts/entities-seed.mjs. כל ישות: [label, importance, tags[], related[]] (+ תיאור ב-DESC או כפרמטר 5).
+2. `node scripts/entities-import-delta.mjs "שם-עולם" ...` → מחולל scripts/entities-import-delta.sql (insert ... where not exists — בטוח להריץ שוב).
+3. מריצים את ה-SQL מול Supabase. הקשרים נוצרים מ-related (דו-כיווני בתוך הזרע).
+עיקרון: ליבה קטנה ומדויקת, הרחבה ב-batch קטן ובדוק. לא מרוץ ל-1000. הבא בתור (פתוח): batch-3ג — שמות פרטיים + אקטואליה.

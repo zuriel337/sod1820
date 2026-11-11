@@ -1,0 +1,2084 @@
+TAP version 13
+# Subtest: approved content map keeps series distinct from topic and channel identities
+ok 1 - approved content map keeps series distinct from topic and channel identities
+  ---
+  duration_ms: 1.586886
+  type: 'test'
+  ...
+# Subtest: membership filters use exact existing tag/category evidence
+ok 2 - membership filters use exact existing tag/category evidence
+  ---
+  duration_ms: 0.260888
+  type: 'test'
+  ...
+# Subtest: Alon series includes only exact tagged Alon items and never all author material
+ok 3 - Alon series includes only exact tagged Alon items and never all author material
+  ---
+  duration_ms: 0.842006
+  type: 'test'
+  ...
+# Subtest: Dimension Five includes text/audio/video membership only for the approved publisher
+ok 4 - Dimension Five includes text/audio/video membership only for the approved publisher
+  ---
+  duration_ms: 0.277425
+  type: 'test'
+  ...
+# Subtest: Sod Hashmal series preserves per-item authorship instead of assigning the publisher
+ok 5 - Sod Hashmal series preserves per-item authorship instead of assigning the publisher
+  ---
+  duration_ms: 0.316096
+  type: 'test'
+  ...
+# Subtest: draft and forum rows never enter a public Home/World series preview
+ok 6 - draft and forum rows never enter a public Home/World series preview
+  ---
+  duration_ms: 0.19129
+  type: 'test'
+  ...
+# Subtest: shared catalog preserves unknown totals instead of inventing zero
+ok 7 - shared catalog preserves unknown totals instead of inventing zero
+  ---
+  duration_ms: 0.832503
+  type: 'test'
+  ...
+# Subtest: adopted projection consumes shared descriptors instead of copying a series identity map
+ok 8 - adopted projection consumes shared descriptors instead of copying a series identity map
+  ---
+  duration_ms: 0.692733
+  type: 'test'
+  ...
+# Subtest: only the exact approved source joins the existing reading identity
+ok 9 - only the exact approved source joins the existing reading identity
+  ---
+  duration_ms: 25.153578
+  type: 'test'
+  ...
+# Subtest: public gate rejects hidden, private, expired, wrong channel and malformed occurrence
+ok 10 - public gate rejects hidden, private, expired, wrong channel and malformed occurrence
+  ---
+  duration_ms: 1.459069
+  type: 'test'
+  ...
+# Subtest: a route requires exact public asset and occurrence, never a title or channel-only match
+ok 11 - a route requires exact public asset and occurrence, never a title or channel-only match
+  ---
+  duration_ms: 2.690889
+  type: 'test'
+  ...
+# Subtest: reader issues only exact metadata GETs and forwards cancellation to both stages
+ok 12 - reader issues only exact metadata GETs and forwards cancellation to both stages
+  ---
+  duration_ms: 3.273931
+  type: 'test'
+  ...
+# Subtest: denied/absent sources never initiate media lookup; failure stays distinct from empty
+ok 13 - denied/absent sources never initiate media lookup; failure stays distinct from empty
+  ---
+  duration_ms: 0.66909
+  type: 'test'
+  ...
+# Subtest: cancellation before, between and after reads never returns stale or partial sources
+ok 14 - cancellation before, between and after reads never returns stale or partial sources
+  ---
+  duration_ms: 1.402231
+  type: 'test'
+  ...
+# Subtest: mixed series retains both source kinds and keeps Posts when the channel fails
+ok 15 - mixed series retains both source kinds and keeps Posts when the channel fails
+  ---
+  duration_ms: 5.657257
+  type: 'test'
+  ...
+# Subtest: Home and series entrances do not fetch approved media until its series is selected
+ok 16 - Home and series entrances do not fetch approved media until its series is selected
+  ---
+  duration_ms: 1.931605
+  type: 'test'
+  ...
+# Subtest: same source or media occurrence groups once, but distinct authored Posts remain distinct
+ok 17 - same source or media occurrence groups once, but distinct authored Posts remain distinct
+  ---
+  duration_ms: 1.448077
+  type: 'test'
+  ...
+# Subtest: series publication order changes neither ordinary modified ordering nor numeric tie order
+ok 18 - series publication order changes neither ordinary modified ordering nor numeric tie order
+  ---
+  duration_ms: 3.267414
+  type: 'test'
+  ...
+# Subtest: source before, inside, after and exactly at a page boundary matches global bounded pagination
+ok 19 - source before, inside, after and exactly at a page boundary matches global bounded pagination
+  ---
+  duration_ms: 13.203383
+  type: 'test'
+  ...
+# Subtest: one source can create a real last page, including the empty-Post 416 response
+ok 20 - one source can create a real last page, including the empty-Post 416 response
+  ---
+  duration_ms: 2.980635
+  type: 'test'
+  ...
+# Subtest: search exclusion and source failure do not invent a source or another rank request
+ok 21 - search exclusion and source failure do not invent a source or another rank request
+  ---
+  duration_ms: 0.639339
+  type: 'test'
+  ...
+# Subtest: HEAD failure and cancellation preserve the already-readable Post result
+ok 22 - HEAD failure and cancellation preserve the already-readable Post result
+  ---
+  duration_ms: 1.760005
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: page2 waits for rank/predecessor assignment, then mounts only the canonical24 without changing requests
+ok 23 - page2 waits for rank/predecessor assignment, then mounts only the canonical24 without changing requests
+  ---
+  duration_ms: 87.597692
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: page1 retains already-readable Posts while source and rank are pending
+ok 24 - page1 retains already-readable Posts while source and rank are pending
+  ---
+  duration_ms: 29.271263
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: page1 POP/reload at a saved positive viewport waits for stable insertion order
+ok 25 - page1 POP/reload at a saved positive viewport waits for stable insertion order
+  ---
+  duration_ms: 24.188512
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: fresh/top page1 and invalid saved entries stay incremental, even after later tracking
+ok 26 - fresh/top page1 and invalid saved entries stay incremental, even after later tracking
+  ---
+  duration_ms: 81.43655
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: failed or access-filtered source preserves available held-page Posts without claiming measured empty
+ok 27 - failed or access-filtered source preserves available held-page Posts without claiming measured empty
+  ---
+  duration_ms: 109.30374
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: rank failure returns available Posts; successful empty is shown only after assignment completion
+ok 28 - rank failure returns available Posts; successful empty is shown only after assignment completion
+  ---
+  duration_ms: 22.92737
+  type: 'test'
+  ...
+# Subtest: late page2 completion cannot display under a later page and unmount aborts remaining readers
+ok 29 - late page2 completion cannot display under a later page and unmount aborts remaining readers
+  ---
+  duration_ms: 8.796396
+  type: 'test'
+  ...
+# Subtest: capture keeps router/history fields and exact encoded query/hash, storing layout metadata only
+ok 30 - capture keeps router/history fields and exact encoded query/hash, storing layout metadata only
+  ---
+  duration_ms: 3.061445
+  type: 'test'
+  ...
+# Subtest: saved-entry selector is read-only, POP-only, exact-entry validated and detached from later tracking
+ok 31 - saved-entry selector is read-only, POP-only, exact-entry validated and detached from later tracking
+  ---
+  duration_ms: 0.642636
+  type: 'test'
+  ...
+# Subtest: modifier/new-tab/download/external/local-anchor/canceled actions never capture departure
+ok 32 - modifier/new-tab/download/external/local-anchor/canceled actions never capture departure
+  ---
+  duration_ms: 0.63926
+  type: 'test'
+  ...
+# Subtest: wrong current key/path or malformed coordinates cannot create or replay a viewport
+ok 33 - wrong current key/path or malformed coordinates cannot create or replay a viewport
+  ---
+  duration_ms: 0.675232
+  type: 'test'
+  ...
+# Subtest: native initial entry without a key uses Router default, while PUSH/REPLACE never replay
+ok 34 - native initial entry without a key uses Router default, while PUSH/REPLACE never replay
+  ---
+  duration_ms: 0.47412
+  type: 'test'
+  ...
+# Subtest: POP waits for admitted mixed-page completion and repairs native short-document clamping exactly
+ok 35 - POP waits for admitted mixed-page completion and repairs native short-document clamping exactly
+  ---
+  duration_ms: 0.660611
+  type: 'test'
+  ...
+# Subtest: wheel/touch/pointer/key intent cancels even while source data is pending
+ok 36 - wheel/touch/pointer/key intent cancels even while source data is pending
+  ---
+  duration_ms: 0.701606
+  type: 'test'
+  ...
+# Subtest: input interrupts an in-flight native smooth restore and lets the user's default scroll win
+ok 37 - input interrupts an in-flight native smooth restore and lets the user's default scroll win
+  ---
+  duration_ms: 0.752015
+  type: 'test'
+  ...
+# Subtest: an input on a different history entry never interrupts that entry's viewport
+ok 38 - an input on a different history entry never interrupts that entry's viewport
+  ---
+  duration_ms: 1.822317
+  type: 'test'
+  ...
+# Subtest: route changes and time limits disconnect correction and cannot steal a later viewport
+ok 39 - route changes and time limits disconnect correction and cannot steal a later viewport
+  ---
+  duration_ms: 0.753079
+  type: 'test'
+  ...
+# Subtest: failed/short results settle with real height and stop without invented content or infinite retries
+ok 40 - failed/short results settle with real height and stop without invented content or infinite retries
+  ---
+  duration_ms: 0.288463
+  type: 'test'
+  ...
+# Subtest: settled scrolling keeps repeat returns fresh without recording initial clamp or per-scroll updates
+ok 41 - settled scrolling keeps repeat returns fresh without recording initial clamp or per-scroll updates
+  ---
+  duration_ms: 0.429905
+  type: 'test'
+  ...
+# Subtest: ordinary shared-menu links/buttons capture the departing Posts entry, and tracking is route-scoped
+ok 42 - ordinary shared-menu links/buttons capture the departing Posts entry, and tracking is route-scoped
+  ---
+  duration_ms: 0.882751
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: all canonical entrances are usable before metadata, and metadata adds no new navigation cards
+ok 43 - all canonical entrances are usable before metadata, and metadata adds no new navigation cards
+  ---
+  duration_ms: 31.301698
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: failure retains canonical links, exposes one retry, and aborts the old reader on retry
+ok 44 - failure retains canonical links, exposes one retry, and aborts the old reader on retry
+  ---
+  duration_ms: 19.115276
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: known series search is independent of source loading and remains stable after it completes
+ok 45 - known series search is independent of source loading and remains stable after it completes
+  ---
+  duration_ms: 6.021628
+  type: 'test'
+  ...
+# Subtest: pending, failure and completion retain intrinsic geometry and expose only the meaningful current message/action
+ok 46 - pending, failure and completion retain intrinsic geometry and expose only the meaningful current message/action
+  ---
+  duration_ms: 4.461227
+  type: 'test'
+  ...
+# Subtest: goldens: exact corpus id, zero-based coordinates, replay via canonical verify interface
+ok 47 - goldens: exact corpus id, zero-based coordinates, replay via canonical verify interface
+  ---
+  duration_ms: 3.611166
+  type: 'test'
+  ...
+# Subtest: goldens: fixture positions are an arithmetic progression skip*dir (fixture self-consistency)
+ok 48 - goldens: fixture positions are an arithmetic progression skip*dir (fixture self-consistency)
+  ---
+  duration_ms: 0.353898
+  type: 'test'
+  ...
+# Subtest: scanner: refuses to run without explicit hard budgets or with skipMax beyond the SQL integer domain
+ok 49 - scanner: refuses to run without explicit hard budgets or with skipMax beyond the SQL integer domain
+  ---
+  duration_ms: 1.102339
+  type: 'test'
+  ...
+# Subtest: scanner: every page call carries explicit bounded skip/stage/page limits; negatives + truncation preserved
+ok 50 - scanner: every page call carries explicit bounded skip/stage/page limits; negatives + truncation preserved
+  ---
+  duration_ms: 1.116492
+  type: 'test'
+  ...
+# Subtest: scanner: hard trial budget stops with explicit state
+ok 51 - scanner: hard trial budget stops with explicit state
+  ---
+  duration_ms: 0.954496
+  type: 'test'
+  ...
+# Subtest: scanner: candidate, depth, and wall-time budgets are enforced
+ok 52 - scanner: candidate, depth, and wall-time budgets are enforced
+  ---
+  duration_ms: 1.450225
+  type: 'test'
+  ...
+# Subtest: scanner: adapter failure is preserved, short terms need hot context, verify goes through injected adapter
+ok 53 - scanner: adapter failure is preserved, short terms need hot context, verify goes through injected adapter
+  ---
+  duration_ms: 1.028761
+  type: 'test'
+  ...
+# Subtest: scanner: computes no occurrences, no Engine2, no Math.random, no supabase/network
+ok 54 - scanner: computes no occurrences, no Engine2, no Math.random, no supabase/network
+  ---
+  duration_ms: 1.143468
+  type: 'test'
+  ...
+# Subtest: controls: same seed → identical schedule + p-value; different seed → different schedule
+ok 55 - controls: same seed → identical schedule + p-value; different seed → different schedule
+  ---
+  duration_ms: 2.1175
+  type: 'test'
+  ...
+# Subtest: controls: undeclared null model / seed / trials → CONTEXT_REQUIRED, no p-value
+ok 56 - controls: undeclared null model / seed / trials → CONTEXT_REQUIRED, no p-value
+  ---
+  duration_ms: 0.503681
+  type: 'test'
+  ...
+# Subtest: BH: known vector, monotonic q-values, input-order preserved
+ok 57 - BH: known vector, monotonic q-values, input-order preserved
+  ---
+  duration_ms: 0.719109
+  type: 'test'
+  ...
+# Subtest: no significance label without controls AND FDR; labels never promote truth
+ok 58 - no significance label without controls AND FDR; labels never promote truth
+  ---
+  duration_ms: 0.462084
+  type: 'test'
+  ...
+# Subtest: provenance migration: reverting v9→v3 reproduces the live v3 definitions byte-for-byte (md5)
+ok 59 - provenance migration: reverting v9→v3 reproduces the live v3 definitions byte-for-byte (md5)
+  ---
+  duration_ms: 2.130527
+  type: 'test'
+  ...
+# Subtest: provenance migration: only CREATE OR REPLACE of the four functions; no grants/DDL/data changes
+ok 60 - provenance migration: only CREATE OR REPLACE of the four functions; no grants/DDL/data changes
+  ---
+  duration_ms: 1.358195
+  type: 'test'
+  ...
+# Subtest: active code refs: elsW2Executor + bridge carry v9 only
+ok 61 - active code refs: elsW2Executor + bridge carry v9 only
+  ---
+  duration_ms: 0.396827
+  type: 'test'
+  ...
+# Subtest: colours come from the palette owner and host tokens, never literals
+ok 62 - colours come from the palette owner and host tokens, never literals
+  ---
+  duration_ms: 3.409287
+  type: 'test'
+  ...
+# Subtest: cheap presentation only: no filter/backdrop blur, WebGL, canvas, media, remote URL or new asset
+ok 63 - cheap presentation only: no filter/backdrop blur, WebGL, canvas, media, remote URL or new asset
+  ---
+  duration_ms: 0.391097
+  type: 'test'
+  ...
+# Subtest: one ambient motion: a single keyframe set that animates transform only
+ok 64 - one ambient motion: a single keyframe set that animates transform only
+  ---
+  duration_ms: 0.457325
+  type: 'test'
+  ...
+# Subtest: motion respects OS and frame preferences, pauses off-screen / hidden tab / by the user
+ok 65 - motion respects OS and frame preferences, pauses off-screen / hidden tab / by the user
+  ---
+  duration_ms: 0.321285
+  type: 'test'
+  ...
+# Subtest: the matrix is decoration; title, sentence and action are live UI
+ok 66 - the matrix is decoration; title, sentence and action are live UI
+  ---
+  duration_ms: 0.176619
+  type: 'test'
+  ...
+# Subtest: subtitle is exactly the wording ZURIEL specified (explicit Human Gate decision, 31.10.2026)
+ok 67 - subtitle is exactly the wording ZURIEL specified (explicit Human Gate decision, 31.10.2026)
+  ---
+  duration_ms: 1.25205
+  type: 'test'
+  ...
+# Subtest: availability is the existing feature state - nothing is enabled locally
+ok 68 - availability is the existing feature state - nothing is enabled locally
+  ---
+  duration_ms: 0.273283
+  type: 'test'
+  ...
+# Subtest: no ELS engine, scan, AI, Supabase or result reader is imported by the card
+ok 69 - no ELS engine, scan, AI, Supabase or result reader is imported by the card
+  ---
+  duration_ms: 0.862779
+  type: 'test'
+  ...
+# Subtest: /code keeps the existing cipher inside the canonical framed feature gate
+ok 70 - /code keeps the existing cipher inside the canonical framed feature gate
+  ---
+  duration_ms: 0.378172
+  type: 'test'
+  ...
+# Subtest: integration is one optional slot and one callsite; hero, posts and stream are untouched
+ok 71 - integration is one optional slot and one callsite; hero, posts and stream are untouched
+  ---
+  duration_ms: 0.518294
+  type: 'test'
+  ...
+# Subtest: layout is stable and centered: fixed ratio on mobile, min height on wide, no pinned dead field
+ok 72 - layout is stable and centered: fixed ratio on mobile, min height on wide, no pinned dead field
+  ---
+  duration_ms: 0.167832
+  type: 'test'
+  ...
+# els-search-bridge contract: PASS
+# Subtest: ELS server bridge delegates occurrence truth to canonical RPCs only
+ok 73 - ELS server bridge delegates occurrence truth to canonical RPCs only
+  ---
+  duration_ms: 2.602067
+  type: 'test'
+  ...
+# Subtest: ELS server bridge reuses canonical abuse protection and Operational Trace
+ok 74 - ELS server bridge reuses canonical abuse protection and Operational Trace
+  ---
+  duration_ms: 0.228454
+  type: 'test'
+  ...
+# Subtest: B0: capability gate precedes every canonical engine RPC, names lock_els, is traced and fails closed
+ok 75 - B0: capability gate precedes every canonical engine RPC, names lock_els, is traced and fails closed
+  ---
+  duration_ms: 0.357539
+  type: 'test'
+  ...
+# Subtest: B0: page search is explicitly bounded; verify keeps large exact skips
+ok 76 - B0: page search is explicitly bounded; verify keeps large exact skips
+  ---
+  duration_ms: 0.219211
+  type: 'test'
+  ...
+# Subtest: B0: trace root stays server-issued; interaction_id correlation preserved
+ok 77 - B0: trace root stays server-issued; interaction_id correlation preserved
+  ---
+  duration_ms: 0.142725
+  type: 'test'
+  ...
+# Subtest: Tanakh remains delegated to the canonical core without local corpus logic
+ok 78 - Tanakh remains delegated to the canonical core without local corpus logic
+  ---
+  duration_ms: 0.224142
+  type: 'test'
+  ...
+# Subtest: G3 verify_batch: delegates to the canonical batch verifier only, gate/rate/trace precede the RPC
+ok 79 - G3 verify_batch: delegates to the canonical batch verifier only, gate/rate/trace precede the RPC
+  ---
+  duration_ms: 0.32438
+  type: 'test'
+  ...
+# Subtest: G3 verify_batch: trace input hash binds term/scope/corpus_id/full candidate list/strategy
+ok 80 - G3 verify_batch: trace input hash binds term/scope/corpus_id/full candidate list/strategy
+  ---
+  duration_ms: 0.133915
+  type: 'test'
+  ...
+# Subtest: G3 verify_batch: separate rate bucket, strategy is allowlisted provenance only
+ok 81 - G3 verify_batch: separate rate bucket, strategy is allowlisted provenance only
+  ---
+  duration_ms: 0.390822
+  type: 'test'
+  ...
+# Subtest: edge payload cap uses UTF-8 byte length
+ok 82 - edge payload cap uses UTF-8 byte length
+  ---
+  duration_ms: 1.009588
+  type: 'test'
+  ...
+# Subtest: approved category rename recognizes both stored namespaces, without widening series intent
+ok 83 - approved category rename recognizes both stored namespaces, without widening series intent
+  ---
+  duration_ms: 2.04239
+  type: 'test'
+  ...
+# Subtest: series membership is exact and keeps author, publisher and topic separate
+ok 84 - series membership is exact and keeps author, publisher and topic separate
+  ---
+  duration_ms: 0.371346
+  type: 'test'
+  ...
+# Subtest: native destination filters reject ambiguous/unknown selections, preserve an approved rename
+ok 85 - native destination filters reject ambiguous/unknown selections, preserve an approved rename
+  ---
+  duration_ms: 0.730664
+  type: 'test'
+  ...
+# Subtest: paginated series reader applies membership, author and public filters together
+ok 86 - paginated series reader applies membership, author and public filters together
+  ---
+  duration_ms: 0.955639
+  type: 'test'
+  ...
+# Subtest: category reader covers both approved names; tag-only Sod Hashmal membership remains reachable
+ok 87 - category reader covers both approved names; tag-only Sod Hashmal membership remains reachable
+  ---
+  duration_ms: 0.756665
+  type: 'test'
+  ...
+# Subtest: missing counts, private/draft rows and mismatched membership fail rather than masquerade as zero
+ok 88 - missing counts, private/draft rows and mismatched membership fail rather than masquerade as zero
+  ---
+  duration_ms: 0.806553
+  type: 'test'
+  ...
+# Subtest: 2029 follows and reasons name approved series and stay native; unknown keys are not invented
+ok 89 - 2029 follows and reasons name approved series and stay native; unknown keys are not invented
+  ---
+  duration_ms: 1.619678
+  type: 'test'
+  ...
+# Subtest: generated server patch matches descriptors and has no historical preference rewrite
+ok 90 - generated server patch matches descriptors and has no historical preference rewrite
+  ---
+  duration_ms: 1.04838
+  type: 'test'
+  ...
+# follow center model 2029: PASS
+# Subtest: test/follow-center-model-2029.test.mjs
+ok 11 - test/follow-center-model-2029.test.mjs
+  ---
+  duration_ms: 147.191366
+  type: 'test'
+  ...
+# Subtest: exact reviewed artifacts match the shared descriptor build and release hashes
+ok 92 - exact reviewed artifacts match the shared descriptor build and release hashes
+  ---
+  duration_ms: 2.390167
+  type: 'test'
+  ...
+# Subtest: series release preserves Legacy category normalization and existing authorization primitives
+ok 93 - series release preserves Legacy category normalization and existing authorization primitives
+  ---
+  duration_ms: 0.448827
+  type: 'test'
+  ...
+# Subtest: apply and rollback refuse stale function and trigger bases without removing data
+ok 94 - apply and rollback refuse stale function and trigger bases without removing data
+  ---
+  duration_ms: 0.375115
+  type: 'test'
+  ...
+# Subtest: shares the exact public gallery occurrence on the current Preview, not Production
+ok 95 - shares the exact public gallery occurrence on the current Preview, not Production
+  ---
+  duration_ms: 1.686466
+  type: 'test'
+  ...
+# Subtest: a public-looking image alone is not permission or an exact destination
+ok 96 - a public-looking image alone is not permission or an exact destination
+  ---
+  duration_ms: 0.346291
+  type: 'test'
+  ...
+# Subtest: existing exact Topic source locator is allowed without minting a new route
+ok 97 - existing exact Topic source locator is allowed without minting a new route
+  ---
+  duration_ms: 0.465078
+  type: 'test'
+  ...
+# Subtest: signed, private, credential-bearing media and unsafe origins fail closed
+ok 98 - signed, private, credential-bearing media and unsafe origins fail closed
+  ---
+  duration_ms: 0.45171
+  type: 'test'
+  ...
+# Subtest: one shared icon variant reuses share execution; old channel row remains the default
+ok 99 - one shared icon variant reuses share execution; old channel row remains the default
+  ---
+  duration_ms: 0.939614
+  type: 'test'
+  ...
+# Subtest: historical mapping is a complete reference snapshot, not a runtime relation registry
+ok 100 - historical mapping is a complete reference snapshot, not a runtime relation registry
+  ---
+  duration_ms: 2.340895
+  type: 'test'
+  ...
+# Subtest: latest external series never replaces editorial documentation, including event-category series
+ok 101 - latest external series never replaces editorial documentation, including event-category series
+  ---
+  duration_ms: 2.156029
+  type: 'test'
+  ...
+# Subtest: documentation retains URL provenance and never promotes draft/hidden rows or modified time
+ok 102 - documentation retains URL provenance and never promotes draft/hidden rows or modified time
+  ---
+  duration_ms: 0.300114
+  type: 'test'
+  ...
+# Subtest: lead reader constrains public source before reading and propagates failure/cancellation
+ok 103 - lead reader constrains public source before reading and propagates failure/cancellation
+  ---
+  duration_ms: 0.922777
+  type: 'test'
+  ...
+# Subtest: Messages righteous is explicit post membership, OrGeula channel never becomes a series by name
+ok 104 - Messages righteous is explicit post membership, OrGeula channel never becomes a series by name
+  ---
+  duration_ms: 0.934974
+  type: 'test'
+  ...
+# Subtest: series reads keep independent failures distinct from measured-empty; signal forwarded
+ok 105 - series reads keep independent failures distinct from measured-empty; signal forwarded
+  ---
+  duration_ms: 3.624881
+  type: 'test'
+  ...
+# Subtest: Home summary admission suppresses all pulse reads, and admitted summary preserves existing reader
+ok 106 - Home summary admission suppresses all pulse reads, and admitted summary preserves existing reader
+  ---
+  duration_ms: 0.972761
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: newest first across kinds: a reality-stream image shows as an image with its relative time; unverified source messages never appear
+not ok 107 - newest first across kinds: a reality-stream image shows as an image with its relative time; unverified source messages never appear
+  ---
+  duration_ms: 13.261487
+  type: 'test'
+  location: '/tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/home-live-updates-2029.test.mjs:45:1'
+  failureType: 'testCodeFailure'
+  error: 'buildNowEntries is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/.test-home-live-updates-5312.mjs:460:5
+    mountMemo (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:6170:23)
+    Object.useMemo (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:17009:18)
+    process.env.NODE_ENV.exports.useMemo (/home/user/sod1820/node_modules/react/cjs/react.development.js:1297:34)
+    useHomeUpdates (file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/.test-home-live-updates-5312.mjs:458:18)
+    Probe (file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/home-live-updates-2029.test.mjs:39:19)
+    Object.react_stack_bottom_frame (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:16690:20)
+    renderWithHooks (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:5126:22)
+    updateFunctionComponent (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:7302:19)
+    beginWork (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:8851:18)
+  ...
+# Subtest: at most four items; anything already shown by the flagship region or ciphers is not repeated; posts-only while the world is closed
+not ok 108 - at most four items; anything already shown by the flagship region or ciphers is not repeated; posts-only while the world is closed
+  ---
+  duration_ms: 1.593899
+  type: 'test'
+  location: '/tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/home-live-updates-2029.test.mjs:58:1'
+  failureType: 'testCodeFailure'
+  error: 'buildNowEntries is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/.test-home-live-updates-5312.mjs:460:5
+    mountMemo (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:6170:23)
+    Object.useMemo (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:17009:18)
+    process.env.NODE_ENV.exports.useMemo (/home/user/sod1820/node_modules/react/cjs/react.development.js:1297:34)
+    useHomeUpdates (file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/.test-home-live-updates-5312.mjs:458:18)
+    Probe (file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/home-live-updates-2029.test.mjs:39:19)
+    Object.react_stack_bottom_frame (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:16690:20)
+    renderWithHooks (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:5126:22)
+    updateFunctionComponent (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:7302:19)
+    beginWork (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:8851:18)
+  ...
+# Subtest: loading reserves rows; nothing to show or no feed renders nothing: no empty card and no error text
+not ok 109 - loading reserves rows; nothing to show or no feed renders nothing: no empty card and no error text
+  ---
+  duration_ms: 1.026939
+  type: 'test'
+  location: '/tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/home-live-updates-2029.test.mjs:71:1'
+  failureType: 'testCodeFailure'
+  error: 'buildNowEntries is not defined'
+  code: 'ERR_TEST_FAILURE'
+  name: 'ReferenceError'
+  stack: |-
+    file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/.test-home-live-updates-5312.mjs:460:5
+    mountMemo (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:6170:23)
+    Object.useMemo (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:17009:18)
+    process.env.NODE_ENV.exports.useMemo (/home/user/sod1820/node_modules/react/cjs/react.development.js:1297:34)
+    useHomeUpdates (file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/.test-home-live-updates-5312.mjs:458:18)
+    Probe (file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/home-live-updates-2029.test.mjs:39:19)
+    Object.react_stack_bottom_frame (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:16690:20)
+    renderWithHooks (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:5126:22)
+    updateFunctionComponent (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:7302:19)
+    beginWork (/home/user/sod1820/node_modules/react-test-renderer/cjs/react-test-renderer.development.js:8851:18)
+  ...
+# Subtest: Home order: ELS, latest ciphers, live updates, flagship region, entrances, other series; the end is statistics then the newsletter
+ok 110 - Home order: ELS, latest ciphers, live updates, flagship region, entrances, other series; the end is statistics then the newsletter
+  ---
+  duration_ms: 0.400256
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: entrances: Beit Midrash and the life-journey promo link only while open; a closed gate shows its true state; the build note leads to the sign-up
+ok 111 - entrances: Beit Midrash and the life-journey promo link only while open; a closed gate shows its true state; the build note leads to the sign-up
+  ---
+  duration_ms: 12.533397
+  type: 'test'
+  ...
+# Subtest: standalone = in no series and not in the documentation pool, by the same predicates the other readers use
+ok 112 - standalone = in no series and not in the documentation pool, by the same predicates the other readers use
+  ---
+  duration_ms: 1.796974
+  type: 'test'
+  ...
+# Subtest: the three Home content sources never overlap for any post
+ok 113 - the three Home content sources never overlap for any post
+  ---
+  duration_ms: 9.652581
+  type: 'test'
+  ...
+# Subtest: projection: newest first, window enforced, hidden/draft/forum/no-slug/no-title rows dropped, exclusions and duplicates removed
+ok 114 - projection: newest first, window enforced, hidden/draft/forum/no-slug/no-title rows dropped, exclusions and duplicates removed
+  ---
+  duration_ms: 2.062252
+  type: 'test'
+  ...
+# Subtest: reader: one public read on the Posts boundary, windowed and bounded; no series, tag or category is written or assumed
+ok 115 - reader: one public read on the Posts boundary, windowed and bounded; no series, tag or category is written or assumed
+  ---
+  duration_ms: 1.155644
+  type: 'test'
+  ...
+# Subtest: the documentation pool reader and its behavior are unchanged by the standalone reader
+ok 116 - the documentation pool reader and its behavior are unchanged by the standalone reader
+  ---
+  duration_ms: 0.327951
+  type: 'test'
+  ...
+# Subtest: raw MP4/storage addresses never reach reading text; titles are short and cut at a word
+ok 117 - raw MP4/storage addresses never reach reading text; titles are short and cut at a word
+  ---
+  duration_ms: 2.136707
+  type: 'test'
+  ...
+# Subtest: public redaction keeps dates and exact public links but still hides phones, e-mail and foreign/credentialed links
+ok 118 - public redaction keeps dates and exact public links but still hides phones, e-mail and foreign/credentialed links
+  ---
+  duration_ms: 3.002333
+  type: 'test'
+  ...
+# Subtest: unverified source rows: opening words, source, time, 'מקור · טרם נבדק' and the exact raw source anchor
+ok 119 - unverified source rows: opening words, source, time, 'מקור · טרם נבדק' and the exact raw source anchor
+  ---
+  duration_ms: 1.941871
+  type: 'test'
+  ...
+# Subtest: series, messages and hints are separate lenses; series is not inferred from author or channel name
+ok 120 - series, messages and hints are separate lenses; series is not inferred from author or channel name
+  ---
+  duration_ms: 4.129854
+  type: 'test'
+  ...
+# Subtest: 'הכול' is chronological newest first, with a stable tie-break
+ok 121 - 'הכול' is chronological newest first, with a stable tie-break
+  ---
+  duration_ms: 0.884583
+  type: 'test'
+  ...
+# Subtest: one publication = one row: the approved Or HaGeula video enriches the same channel row (no second notice)
+ok 122 - one publication = one row: the approved Or HaGeula video enriches the same channel row (no second notice)
+  ---
+  duration_ms: 1.485713
+  type: 'test'
+  ...
+# Subtest: no activity/personal features are modelled as active: the projection exposes no follow/timeline/meter fields
+ok 123 - no activity/personal features are modelled as active: the projection exposes no follow/timeline/meter fields
+  ---
+  duration_ms: 0.578209
+  type: 'test'
+  ...
+# Subtest: series previews (same Home reader) keep every approved series present even when the shared recent window is full
+ok 124 - series previews (same Home reader) keep every approved series present even when the shared recent window is full
+  ---
+  duration_ms: 2.662367
+  type: 'test'
+  ...
+# Subtest: the words of the message are shown with its media; unverified source rows stay two lines
+ok 125 - the words of the message are shown with its media; unverified source rows stay two lines
+  ---
+  duration_ms: 1.230953
+  type: 'test'
+  ...
+# Subtest: collapseSourceRuns: only consecutive unverified rows of one source collapse; order and rows are kept, nothing merged
+ok 126 - collapseSourceRuns: only consecutive unverified rows of one source collapse; order and rows are kept, nothing merged
+  ---
+  duration_ms: 0.699248
+  type: 'test'
+  ...
+# Subtest: source logos mark OUR material only: system-byline posts, Or HaGeula, ELS findings; third-party series and named writers get none
+ok 127 - source logos mark OUR material only: system-byline posts, Or HaGeula, ELS findings; third-party series and named writers get none
+  ---
+  duration_ms: 0.733941
+  type: 'test'
+  ...
+# Subtest: a collapsed run reports its newest valid time, whatever the row order, and none when no row is dated
+ok 128 - a collapsed run reports its newest valid time, whatever the row order, and none when no row is dated
+  ---
+  duration_ms: 0.243236
+  type: 'test'
+  ...
+# Subtest: Or HaGeula rabbi box: 'רב'/'הרב' as a word goes in; other updates and other channels stay out; the box sits at its newest member
+ok 129 - Or HaGeula rabbi box: 'רב'/'הרב' as a word goes in; other updates and other channels stay out; the box sits at its newest member
+  ---
+  duration_ms: 0.843465
+  type: 'test'
+  ...
+# Subtest: a pinned item (the Home featured post) stays first in the Now window whatever its time
+ok 130 - a pinned item (the Home featured post) stays first in the Now window whatever its time
+  ---
+  duration_ms: 2.278193
+  type: 'test'
+  ...
+# Subtest: an owner-flagged update carries a dot label; rows without the flag carry none
+ok 131 - an owner-flagged update carries a dot label; rows without the flag carry none
+  ---
+  duration_ms: 0.346483
+  type: 'test'
+  ...
+# Subtest: the update-of-the-day band carries the whole update, shows for exactly its days (Asia/Jerusalem), then disappears; no band, no output
+ok 132 - the update-of-the-day band carries the whole update, shows for exactly its days (Asia/Jerusalem), then disappears; no band, no output
+  ---
+  duration_ms: 1.751545
+  type: 'test'
+  ...
+# Subtest: approved series use exact source membership and preserve the existing author constraints
+ok 133 - approved series use exact source membership and preserve the existing author constraints
+  ---
+  duration_ms: 1.277261
+  type: 'test'
+  ...
+# Subtest: unmapped posts, a title, a slug, a tag alone and a different publisher keep the general background
+ok 134 - unmapped posts, a title, a slug, a tag alone and a different publisher keep the general background
+  ---
+  duration_ms: 0.191457
+  type: 'test'
+  ...
+# Subtest: ambiguous series and suppressed content never choose the first matching identity
+ok 135 - ambiguous series and suppressed content never choose the first matching identity
+  ---
+  duration_ms: 0.129683
+  type: 'test'
+  ...
+# Subtest: every shipped background variant matches its reviewed bytes, identity and device budget
+ok 136 - every shipped background variant matches its reviewed bytes, identity and device budget
+  ---
+  duration_ms: 2.793087
+  type: 'test'
+  ...
+# Subtest: mobile portraits preserve native 9:16 framing and the existing thirty-kilobyte budget
+ok 137 - mobile portraits preserve native 9:16 framing and the existing thirty-kilobyte budget
+  ---
+  duration_ms: 0.918211
+  type: 'test'
+  ...
+# Subtest: versioned public backgrounds override the catch-all cache policy without caching content or private data
+ok 138 - versioned public backgrounds override the catch-all cache policy without caching content or private data
+  ---
+  duration_ms: 1.276847
+  type: 'test'
+  ...
+# Subtest: a new Post resolves an approved series and publisher without inheriting media or quality
+ok 139 - a new Post resolves an approved series and publisher without inheriting media or quality
+  ---
+  duration_ms: 1.605996
+  type: 'test'
+  ...
+# Subtest: an unresolved source classification remains reachable without a series/topic/publisher guess
+ok 140 - an unresolved source classification remains reachable without a series/topic/publisher guess
+  ---
+  duration_ms: 0.414574
+  type: 'test'
+  ...
+# Subtest: tag-only series membership and multiple series keep each existing identity
+ok 141 - tag-only series membership and multiple series keep each existing identity
+  ---
+  duration_ms: 0.173361
+  type: 'test'
+  ...
+# Subtest: suppressed sources expose no classification or attribution
+ok 142 - suppressed sources expose no classification or attribution
+  ---
+  duration_ms: 0.101955
+  type: 'test'
+  ...
+# Subtest: historical video and series URLs preserve their original result sets and describe the distinction
+ok 143 - historical video and series URLs preserve their original result sets and describe the distinction
+  ---
+  duration_ms: 1.27184
+  type: 'test'
+  ...
+# Subtest: one public Post open preserves exact series membership and the existing DIM5 world
+ok 144 - one public Post open preserves exact series membership and the existing DIM5 world
+  ---
+  duration_ms: 2.218972
+  type: 'test'
+  ...
+# Subtest: a shared category, title, tag or numeric value never invents a series, channel or preference
+ok 145 - a shared category, title, tag or numeric value never invents a series, channel or preference
+  ---
+  duration_ms: 0.520481
+  type: 'test'
+  ...
+# Subtest: source-only telemetry contains no post body, title, author, search string or user identity
+ok 146 - source-only telemetry contains no post body, title, author, search string or user identity
+  ---
+  duration_ms: 0.257475
+  type: 'test'
+  ...
+# Subtest: series entry resolves the owned key, ignoring caller-supplied filters and missing evidence
+ok 147 - series entry resolves the owned key, ignoring caller-supplied filters and missing evidence
+  ---
+  duration_ms: 0.712098
+  type: 'test'
+  ...
+# Subtest: future public posts use existing descriptors, preserve multiple series and do not guess other worlds
+ok 148 - future public posts use existing descriptors, preserve multiple series and do not guess other worlds
+  ---
+  duration_ms: 0.389601
+  type: 'test'
+  ...
+# Subtest: suppressed and malformed sources fail closed; ambiguous input never emits an event
+ok 149 - suppressed and malformed sources fail closed; ambiguous input never emits an event
+  ---
+  duration_ms: 0.192976
+  type: 'test'
+  ...
+# Subtest: admitted series, publisher and comparison channel retain different roles through the existing request
+ok 150 - admitted series, publisher and comparison channel retain different roles through the existing request
+  ---
+  duration_ms: 102.249745
+  type: 'test'
+  ...
+# Subtest: the actual bounded server semantic composer receives the roles and their non-evidence boundary
+ok 151 - the actual bounded server semantic composer receives the roles and their non-evidence boundary
+  ---
+  duration_ms: 55.609359
+  type: 'test'
+  ...
+# Subtest: wrong publisher, unknown series and channel-like source labels cannot invent membership
+ok 152 - wrong publisher, unknown series and channel-like source labels cannot invent membership
+  ---
+  duration_ms: 0.311238
+  type: 'test'
+  ...
+# Subtest: future post membership uses the same descriptors; multiple series require an explicit selection
+ok 153 - future post membership uses the same descriptors; multiple series require an explicit selection
+  ---
+  duration_ms: 0.42455
+  type: 'test'
+  ...
+# Subtest: suppressed sources and missing identities fail closed; no calculation is fabricated
+ok 154 - suppressed sources and missing identities fail closed; no calculation is fabricated
+  ---
+  duration_ms: 0.168712
+  type: 'test'
+  ...
+# Subtest: Post 2029 living-tree projection is a no-op without upstream experience data
+ok 155 - Post 2029 living-tree projection is a no-op without upstream experience data
+  ---
+  duration_ms: 1.932196
+  type: 'test'
+  ...
+# Subtest: Post 2029 living-tree projection preserves source/derivative separation and temporal roles
+ok 156 - Post 2029 living-tree projection preserves source/derivative separation and temporal roles
+  ---
+  duration_ms: 0.393713
+  type: 'test'
+  ...
+# Subtest: Post 2029 page exposes stable semantic capability seams
+ok 157 - Post 2029 page exposes stable semantic capability seams
+  ---
+  duration_ms: 1.34628
+  type: 'test'
+  ...
+# Subtest: System Frame locks one shared Contextual Inspector and keeps bottom trail separate from Global Navigation
+ok 158 - System Frame locks one shared Contextual Inspector and keeps bottom trail separate from Global Navigation
+  ---
+  duration_ms: 0.312107
+  type: 'test'
+  ...
+# Subtest: Golden Post architecture wireframe exposes the full structural preview without inventing product truth
+ok 159 - Golden Post architecture wireframe exposes the full structural preview without inventing product truth
+  ---
+  duration_ms: 1.485746
+  type: 'test'
+  ...
+# Subtest: Post timeline drops unknown temporal roles instead of asserting that an event occurred
+ok 160 - Post timeline drops unknown temporal roles instead of asserting that an event occurred
+  ---
+  duration_ms: 0.186359
+  type: 'test'
+  ...
+# Subtest: Research Path and commands share one physical System Frame bottom surface
+ok 161 - Research Path and commands share one physical System Frame bottom surface
+  ---
+  duration_ms: 1.408706
+  type: 'test'
+  ...
+# Subtest: Research Context preserves bounded trail and semantic surface map at runtime
+ok 162 - Research Context preserves bounded trail and semantic surface map at runtime
+  ---
+  duration_ms: 0.954527
+  type: 'test'
+  ...
+# Subtest: FZ1073 pilot builds bounded context without changing other posts
+ok 163 - FZ1073 pilot builds bounded context without changing other posts
+  ---
+  duration_ms: 1.723269
+  type: 'test'
+  ...
+# Subtest: Only the FZ1073 legacy URL is redirected into Post 2029
+ok 164 - Only the FZ1073 legacy URL is redirected into Post 2029
+  ---
+  duration_ms: 0.552157
+  type: 'test'
+  ...
+# Subtest: Posts-first High-Fidelity Golden reconciles onto current 2029 shell
+ok 165 - Posts-first High-Fidelity Golden reconciles onto current 2029 shell
+  ---
+  duration_ms: 1.888568
+  type: 'test'
+  ...
+# Subtest: Bennett and FZ1073 remain the two Post Master fixtures
+ok 166 - Bennett and FZ1073 remain the two Post Master fixtures
+  ---
+  duration_ms: 0.846386
+  type: 'test'
+  ...
+# Subtest: Post Master Bennett fixture opens canonical contextual number focus without a parallel renderer
+ok 167 - Post Master Bennett fixture opens canonical contextual number focus without a parallel renderer
+  ---
+  duration_ms: 1.07984
+  type: 'test'
+  ...
+# Subtest: Unified Experience exposes one shared rail and section navigation without a duplicate Post rail
+ok 168 - Unified Experience exposes one shared rail and section navigation without a duplicate Post rail
+  ---
+  duration_ms: 1.155433
+  type: 'test'
+  ...
+# Subtest: exact series membership never becomes category, publisher or per-post Follow
+ok 169 - exact series membership never becomes category, publisher or per-post Follow
+  ---
+  duration_ms: 2.412095
+  type: 'test'
+  ...
+# Subtest: known series names are not offered again as new category follows
+ok 170 - known series names are not offered again as new category follows
+  ---
+  duration_ms: 0.692691
+  type: 'test'
+  ...
+# Subtest: server-unsupported series remain explicit, without broadening to existing category
+ok 171 - server-unsupported series remain explicit, without broadening to existing category
+  ---
+  duration_ms: 0.476625
+  type: 'test'
+  ...
+# Subtest: failed, malformed and differently resolved targets are unavailable, not absent or accepted
+ok 172 - failed, malformed and differently resolved targets are unavailable, not absent or accepted
+  ---
+  duration_ms: 0.405349
+  type: 'test'
+  ...
+# Subtest: writer controls require an exact public canonical contributor; generic author text is insufficient
+ok 173 - writer controls require an exact public canonical contributor; generic author text is insufficient
+  ---
+  duration_ms: 1.164678
+  type: 'test'
+  ...
+# Subtest: an unavailable writer lookup leaves independently resolved category targets usable
+ok 174 - an unavailable writer lookup leaves independently resolved category targets usable
+  ---
+  duration_ms: 0.435341
+  type: 'test'
+  ...
+# Subtest: title search uses an escaped column filter alongside public and exact series membership
+ok 175 - title search uses an escaped column filter alongside public and exact series membership
+  ---
+  duration_ms: 1.056616
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public: catalog identity follows the existing release profile
+ok 176 - public: catalog identity follows the existing release profile
+  ---
+  duration_ms: 28.268257
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: foundation: catalog identity follows the existing release profile
+ok 177 - foundation: catalog identity follows the existing release profile
+  ---
+  duration_ms: 10.143713
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: golden: catalog identity follows the existing release profile
+ok 178 - golden: catalog identity follows the existing release profile
+  ---
+  duration_ms: 11.541759
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (q=synthetic)
+ok 179 - public catalog preserves selection privacy (q=synthetic)
+  ---
+  duration_ms: 8.090792
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (page=2)
+ok 180 - public catalog preserves selection privacy (page=2)
+  ---
+  duration_ms: 7.170065
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public catalog preserves selection privacy (series=synthetic-series)
+ok 181 - public catalog preserves selection privacy (series=synthetic-series)
+  ---
+  duration_ms: 12.704459
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: public verified collection keeps its own canonical identity and server-approved indexability
+ok 182 - public verified collection keeps its own canonical identity and server-approved indexability
+  ---
+  duration_ms: 5.867934
+  type: 'test'
+  ...
+# Subtest: public tag canonical and admitted taxonomy state are retained
+ok 183 - public tag canonical and admitted taxonomy state are retained
+  ---
+  duration_ms: 8.629093
+  type: 'test'
+  ...
+# (node:5399) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: actual Post hierarchy reaches the handler as public source context, not calculation, identity or consent
+ok 184 - actual Post hierarchy reaches the handler as public source context, not calculation, identity or consent
+  ---
+  duration_ms: 109.931965
+  type: 'test'
+  ...
+# Subtest: actual unknown membership stays unknown; a same-name category or channel label does not admit a series
+ok 185 - actual unknown membership stays unknown; a same-name category or channel label does not admit a series
+  ---
+  duration_ms: 29.188981
+  type: 'test'
+  ...
+# Subtest: future multi-series source keeps each explicit selection and its provenance
+ok 186 - future multi-series source keeps each explicit selection and its provenance
+  ---
+  duration_ms: 47.099603
+  type: 'test'
+  ...
+# Subtest: unavailable or suppressed source produces no Post hierarchy request
+ok 187 - unavailable or suppressed source produces no Post hierarchy request
+  ---
+  duration_ms: 0.239568
+  type: 'test'
+  ...
+# Subtest: a comparison from the actual Post context overrides stale arithmetic; explicit gematria still reaches its owner
+ok 188 - a comparison from the actual Post context overrides stale arithmetic; explicit gematria still reaches its owner
+  ---
+  duration_ms: 56.149502
+  type: 'test'
+  ...
+# Subtest: encoded taxonomy addresses select one exact namespace and only the admitted category alias
+ok 189 - encoded taxonomy addresses select one exact namespace and only the admitted category alias
+  ---
+  duration_ms: 2.775374
+  type: 'test'
+  ...
+# Subtest: exact stored membership preserves public Post provenance without admitting research or Follow
+ok 190 - exact stored membership preserves public Post provenance without admitting research or Follow
+  ---
+  duration_ms: 0.982525
+  type: 'test'
+  ...
+# Subtest: catalog queries combine exact tag membership, public exclusion, bounded stable pagination and escaped title refinement
+ok 191 - catalog queries combine exact tag membership, public exclusion, bounded stable pagination and escaped title refinement
+  ---
+  duration_ms: 1.121204
+  type: 'test'
+  ...
+# Subtest: PostgREST serialization preserves labels containing quotes, commas, braces, backslashes or NULL
+ok 192 - PostgREST serialization preserves labels containing quotes, commas, braces, backslashes or NULL
+  ---
+  duration_ms: 20.688074
+  type: 'test'
+  ...
+# Subtest: unknown and draft-only taxonomies are missing; a known taxonomy with zero title matches has a public witness
+ok 193 - unknown and draft-only taxonomies are missing; a known taxonomy with zero title matches has a public witness
+  ---
+  duration_ms: 0.954907
+  type: 'test'
+  ...
+# Subtest: a page beyond the exact public count is 404, including the PostgREST range response
+ok 194 - a page beyond the exact public count is 404, including the PostgREST range response
+  ---
+  duration_ms: 1.247402
+  type: 'test'
+  ...
+# Subtest: unverified responses fail closed rather than claim an empty or public collection
+ok 195 - unverified responses fail closed rather than claim an empty or public collection
+  ---
+  duration_ms: 1.510134
+  type: 'test'
+  ...
+# Subtest: taxonomy query changes preserve exact address, unrelated parameters and hash without crossing namespaces
+ok 196 - taxonomy query changes preserve exact address, unrelated parameters and hash without crossing namespaces
+  ---
+  duration_ms: 0.636507
+  type: 'test'
+  ...
+# Subtest: exact tag/category history entries restore their saved viewport using the existing lifecycle
+ok 197 - exact tag/category history entries restore their saved viewport using the existing lifecycle
+  ---
+  duration_ms: 1.435434
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: tag entry reuses Posts cards, source credit and media; a pathname does not invent Follow
+ok 198 - tag entry reuses Posts cards, source credit and media; a pathname does not invent Follow
+  ---
+  duration_ms: 39.703912
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: search, pagination and clearing retain taxonomy identity and the exact route anchor
+ok 199 - search, pagination and clearing retain taxonomy identity and the exact route anchor
+  ---
+  duration_ms: 43.644298
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: canonical category identity retains the old address and does not acquire series or channel rows
+ok 200 - canonical category identity retains the old address and does not acquire series or channel rows
+  ---
+  duration_ms: 8.044801
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: unknown, empty-search and unavailable reads remain different useful states
+ok 201 - unknown, empty-search and unavailable reads remain different useful states
+  ---
+  duration_ms: 23.78249
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: suppressed taxonomy and conflicting selectors never request or render public Posts
+ok 202 - suppressed taxonomy and conflicting selectors never request or render public Posts
+  ---
+  duration_ms: 10.593285
+  type: 'test'
+  ...
+# Subtest: malformed taxonomy pagination stays missing until an explicit return to the first page
+ok 203 - malformed taxonomy pagination stays missing until an explicit return to the first page
+  ---
+  duration_ms: 4.877889
+  type: 'test'
+  ...
+# node:internal/modules/esm/resolve:272
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/public-reading-deploy/.generated/protected-review-build.js' imported from /tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/public-reading-deploy/authorization.js
+#     at finalizeResolution (node:internal/modules/esm/resolve:272:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:879:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:1006:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:705:20)
+#     at \#resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:725:38)
+#     at ModuleLoader.resolveSync (node:internal/modules/esm/loader:763:56)
+#     at \#resolve (node:internal/modules/esm/loader:687:17)
+#     at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:607:35)
+#     at ModuleJob.syncLink (node:internal/modules/esm/module_job:276:33)
+#     at ModuleJob.link (node:internal/modules/esm/module_job:381:17) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/public-reading-deploy/.generated/protected-review-build.js'
+# }
+# Node.js v24.21.0
+# Subtest: test/public-canonical-parity-repair.test.mjs
+not ok 28 - test/public-canonical-parity-repair.test.mjs
+  ---
+  duration_ms: 84.133085
+  type: 'test'
+  location: '/tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/public-canonical-parity-repair.test.mjs:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: public video re-admits its exact source before loading playable metadata; no other placements
+ok 205 - public video re-admits its exact source before loading playable metadata; no other placements
+  ---
+  duration_ms: 3.79828
+  type: 'test'
+  ...
+# Subtest: hidden, page-only, expired and different source cannot trigger playable asset read
+ok 206 - hidden, page-only, expired and different source cannot trigger playable asset read
+  ---
+  duration_ms: 0.642644
+  type: 'test'
+  ...
+# Subtest: missing, denied and failed remain distinct; invalid address never reads
+ok 207 - missing, denied and failed remain distinct; invalid address never reads
+  ---
+  duration_ms: 1.200322
+  type: 'test'
+  ...
+# Subtest: source mismatch, changed primary and private media fail closed
+ok 208 - source mismatch, changed primary and private media fail closed
+  ---
+  duration_ms: 1.478698
+  type: 'test'
+  ...
+# Subtest: cancellation before, between and after reads discards partial data
+ok 209 - cancellation before, between and after reads discards partial data
+  ---
+  duration_ms: 0.907637
+  type: 'test'
+  ...
+# Subtest: authored Post keeps its old public URL and rejects suppressed tags
+ok 210 - authored Post keeps its old public URL and rejects suppressed tags
+  ---
+  duration_ms: 2.399204
+  type: 'test'
+  ...
+# Subtest: existing Home video and Story publication gates remain required
+ok 211 - existing Home video and Story publication gates remain required
+  ---
+  duration_ms: 0.717171
+  type: 'test'
+  ...
+# Subtest: 2029 uses the existing world media surface and shared Player, never the Legacy broad reader
+ok 212 - 2029 uses the existing world media surface and shared Player, never the Legacy broad reader
+  ---
+  duration_ms: 0.489986
+  type: 'test'
+  ...
+# Subtest: public-reading metadata uses the same source gate and preserves 404 versus 503
+ok 213 - public-reading metadata uses the same source gate and preserves 404 versus 503
+  ---
+  duration_ms: 13.698555
+  type: 'test'
+  ...
+# Subtest: Legacy video metadata keeps its existing single asset read
+ok 214 - Legacy video metadata keeps its existing single asset read
+  ---
+  duration_ms: 1.230602
+  type: 'test'
+  ...
+# Subtest: XML shares the exact public source gate, rejects stale aggregate claims and propagates outages
+ok 215 - XML shares the exact public source gate, rejects stale aggregate claims and propagates outages
+  ---
+  duration_ms: 1.704191
+  type: 'test'
+  ...
+# Subtest: XML source reads batch and deduplicate exact IDs, without per-asset HTTP or persistent cache
+ok 216 - XML source reads batch and deduplicate exact IDs, without per-asset HTTP or persistent cache
+  ---
+  duration_ms: 10.022516
+  type: 'test'
+  ...
+# Subtest: XML overlaps at most three authorized batches and preserves identities after out-of-order completion
+ok 217 - XML overlaps at most three authorized batches and preserves identities after out-of-order completion
+  ---
+  duration_ms: 71.971334
+  type: 'test'
+  ...
+# Subtest: a failed concurrent source batch rejects the whole XML admission instead of returning partial assets
+ok 218 - a failed concurrent source batch rejects the whole XML admission instead of returning partial assets
+  ---
+  duration_ms: 1.254339
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: loading: the approved sample card is first and static; no series link and no empty card
+ok 219 - loading: the approved sample card is first and static; no series link and no empty card
+  ---
+  duration_ms: 21.060067
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: the sample renders the Post's own letter tiles and total, with an accessible text, and no free text beyond the quote
+ok 220 - the sample renders the Post's own letter tiles and total, with an accessible text, and no free text beyond the quote
+  ---
+  duration_ms: 9.843545
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: family rows (option C): three exact category links in the family order and one non-link 'soon'; no member needed
+ok 221 - family rows (option C): three exact category links in the family order and one non-link 'soon'; no member needed
+  ---
+  duration_ms: 8.401752
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: loaded without a member: primary first, then the other series in their existing order
+ok 222 - loaded without a member: primary first, then the other series in their existing order
+  ---
+  duration_ms: 17.046228
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: with a member the primary card links the series page, shows the latest item, and keeps the sample
+ok 223 - with a member the primary card links the series page, shows the latest item, and keeps the sample
+  ---
+  duration_ms: 10.913324
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: a failed catalog read keeps the static approved sample and reports the failure for the rest
+ok 224 - a failed catalog read keeps the static approved sample and reports the failure for the rest
+  ---
+  duration_ms: 5.522719
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: a primary card is never empty: no sample and no member renders nothing
+ok 225 - a primary card is never empty: no sample and no member renders nothing
+  ---
+  duration_ms: 1.795531
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: hierarchy: logo and identity, then the title, then the leading sample, then the flagship products, then the families
+ok 226 - hierarchy: logo and identity, then the title, then the leading sample, then the flagship products, then the families
+  ---
+  duration_ms: 6.737047
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: family rows: each family shows the newest member of its OWN category, linking to that Post; members outside any family go to a short 'more' list; the sample stays outside
+ok 227 - family rows: each family shows the newest member of its OWN category, linking to that Post; members outside any family go to a short 'more' list; the sample stays outside
+  ---
+  duration_ms: 9.320947
+  type: 'test'
+  ...
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# react-test-renderer is deprecated. See https://react.dev/warnings/react-test-renderer
+# Subtest: adding the tag adds a Post to the list and removing it removes the Post (membership is read, never remembered)
+ok 228 - adding the tag adds a Post to the list and removing it removes the Post (membership is read, never remembered)
+  ---
+  duration_ms: 40.442184
+  type: 'test'
+  ...
+# Subtest: the sample is attached under its source Post's family row (שבילי שפה, post 5018): that row first, the sample inside it, no standalone sample
+ok 229 - the sample is attached under its source Post's family row (שבילי שפה, post 5018): that row first, the sample inside it, no standalone sample
+  ---
+  duration_ms: 16.175762
+  type: 'test'
+  ...
+# Subtest: a Post with the exact tag is recognised as מפת המציאות in Now, with its series link, and joins no other Now lens
+ok 230 - a Post with the exact tag is recognised as מפת המציאות in Now, with its series link, and joins no other Now lens
+  ---
+  duration_ms: 5.377588
+  type: 'test'
+  ...
+# Subtest: one Post appears once in the stream even when both sources carry it, and even with several series affiliations
+ok 231 - one Post appears once in the stream even when both sources carry it, and even with several series affiliations
+  ---
+  duration_ms: 1.975443
+  type: 'test'
+  ...
+# Subtest: a Post older than the shared stream window is still represented through the series catalog, with the same identity
+ok 232 - a Post older than the shared stream window is still represented through the series catalog, with the same identity
+  ---
+  duration_ms: 0.637012
+  type: 'test'
+  ...
+# Subtest: removing the tag removes the affiliation in Now without removing the Post
+ok 233 - removing the tag removes the affiliation in Now without removing the Post
+  ---
+  duration_ms: 0.868795
+  type: 'test'
+  ...
+# Subtest: Now order follows the stream's own rules (newest first), not the reality-map list order
+ok 234 - Now order follows the stream's own rules (newest first), not the reality-map list order
+  ---
+  duration_ms: 0.960244
+  type: 'test'
+  ...
+# Subtest: reality-map Posts stay out of the documentation pool and of the standalone area, so no Home source repeats them
+ok 235 - reality-map Posts stay out of the documentation pool and of the standalone area, so no Home source repeats them
+  ---
+  duration_ms: 0.338084
+  type: 'test'
+  ...
+# Subtest: reality-map is the first series and the other series keep their exact order
+ok 236 - reality-map is the first series and the other series keep their exact order
+  ---
+  duration_ms: 1.675778
+  type: 'test'
+  ...
+# Subtest: membership is the exact tag only: no category, author, channel or source admits an item
+ok 237 - membership is the exact tag only: no category, author, channel or source admits an item
+  ---
+  duration_ms: 0.583569
+  type: 'test'
+  ...
+# Subtest: existing series membership is unchanged by the new series
+ok 238 - existing series membership is unchanged by the new series
+  ---
+  duration_ms: 0.160589
+  type: 'test'
+  ...
+# Subtest: the series page reader lists tagged public Posts only and drops draft/forum sources
+ok 239 - the series page reader lists tagged public Posts only and drops draft/forum sources
+  ---
+  duration_ms: 0.646797
+  type: 'test'
+  ...
+# Subtest: the Home sample is shown only with an explicit approval, an exact source ref and a verbatim highlight
+ok 240 - the Home sample is shown only with an explicit approval, an exact source ref and a verbatim highlight
+  ---
+  duration_ms: 0.546384
+  type: 'test'
+  ...
+# Subtest: the sample never makes its source Post a member, and the catalog carries it only for the primary series
+ok 241 - the sample never makes its source Post a member, and the catalog carries it only for the primary series
+  ---
+  duration_ms: 0.909386
+  type: 'test'
+  ...
+# Subtest: family entrances are links to existing category pages (or a non-link soon), never membership, and never the strong-hints category
+ok 242 - family entrances are links to existing category pages (or a non-link soon), never membership, and never the strong-hints category
+  ---
+  duration_ms: 0.583318
+  type: 'test'
+  ...
+# Subtest: the Home reader reads reality-map deeper in the same single read, newest first by publication date; every other series keeps one item
+ok 243 - the Home reader reads reality-map deeper in the same single read, newest first by publication date; every other series keeps one item
+  ---
+  duration_ms: 2.406395
+  type: 'test'
+  ...
+# Subtest: the reader returns the members it finds in date order and nothing it was not asked to admit
+ok 244 - the reader returns the members it finds in date order and nothing it was not asked to admit
+  ---
+  duration_ms: 0.869941
+  type: 'test'
+  ...
+# Subtest: states: closed actions and unsupported/unavailable series are inert with the reason; only a resolved series is live
+ok 245 - states: closed actions and unsupported/unavailable series are inert with the reason; only a resolved series is live
+  ---
+  duration_ms: 0.975542
+  type: 'test'
+  ...
+# Subtest: wiring: the bell uses the one canonical WatchButton and the existing series resolver; no series falls back to a category, author or post
+ok 246 - wiring: the bell uses the one canonical WatchButton and the existing series resolver; no series falls back to a category, author or post
+  ---
+  duration_ms: 0.304131
+  type: 'test'
+  ...
+# Subtest: Home: one bell beside the flagship title and one beside every other series name
+ok 247 - Home: one bell beside the flagship title and one beside every other series name
+  ---
+  duration_ms: 0.146596
+  type: 'test'
+  ...
+# Subtest: every series declares its own explicit count; the flagship has no window and the others use 90 days; no single uniform cap
+ok 248 - every series declares its own explicit count; the flagship has no window and the others use 90 days; no single uniform cap
+  ---
+  duration_ms: 1.342834
+  type: 'test'
+  ...
+# Subtest: Home shape: each series shows at most its own count, only what is newer than 90 days; the flagship keeps old strong Posts
+ok 249 - Home shape: each series shows at most its own count, only what is newer than 90 days; the flagship keeps old strong Posts
+  ---
+  duration_ms: 0.746662
+  type: 'test'
+  ...
+# Subtest: feed details shape is exactly the previous one: first N rows per series (primary N too), no window, from the same rows
+ok 250 - feed details shape is exactly the previous one: first N rows per series (primary N too), no window, from the same rows
+  ---
+  duration_ms: 1.699764
+  type: 'test'
+  ...
+# Subtest: Home and the feed's details share ONE read: both call the default public reader, which caches a window-free superset per minute
+ok 251 - Home and the feed's details share ONE read: both call the default public reader, which caches a window-free superset per minute
+  ---
+  duration_ms: 8.63917
+  type: 'test'
+  ...
+# Subtest: the feed hook reuses Home-loaded details (under a minute old) only for the first Now opening; retry, polling and reopening re-read
+ok 252 - the feed hook reuses Home-loaded details (under a minute old) only for the first Now opening; retry, polling and reopening re-read
+  ---
+  duration_ms: 0.91261
+  type: 'test'
+  ...
+# Subtest: option C helper: one row per family from the family's own category, 'soon' for a family without one, the rest returned
+ok 253 - option C helper: one row per family from the family's own category, 'soon' for a family without one, the rest returned
+  ---
+  duration_ms: 1.234052
+  type: 'test'
+  ...
+# Subtest: the Biblical-cipher logo (approved 8.11.2026, version 3) sits in the ciphers header only
+ok 254 - the Biblical-cipher logo (approved 8.11.2026, version 3) sits in the ciphers header only
+  ---
+  duration_ms: 1.828209
+  type: 'test'
+  ...
+# Subtest: the public name is מסרים everywhere in the series identity; no series, descriptor or label carries the old name
+ok 255 - the public name is מסרים everywhere in the series identity; no series, descriptor or label carries the old name
+  ---
+  duration_ms: 1.432615
+  type: 'test'
+  ...
+# Subtest: membership is unchanged for real posts: the רמזים מצדיקים category, not the מסרים category
+ok 256 - membership is unchanged for real posts: the רמזים מצדיקים category, not the מסרים category
+  ---
+  duration_ms: 0.359557
+  type: 'test'
+  ...
+# Subtest: category מסרים stays followable and visible; the other same-name categories are still shown once as their series
+ok 257 - category מסרים stays followable and visible; the other same-name categories are still shown once as their series
+  ---
+  duration_ms: 0.997114
+  type: 'test'
+  ...
+# Subtest: classification keeps the מסרים category chip next to the series chip and hides only the series' own descriptor category
+ok 258 - classification keeps the מסרים category chip next to the series chip and hides only the series' own descriptor category
+  ---
+  duration_ms: 0.229686
+  type: 'test'
+  ...
+# Subtest: short/blank input reads nothing; invalid input is rejected before transport
+ok 259 - short/blank input reads nothing; invalid input is rejected before transport
+  ---
+  duration_ms: 3.224749
+  type: 'test'
+  ...
+# Subtest: real series identities complete partial input without an inferred new series
+ok 260 - real series identities complete partial input without an inferred new series
+  ---
+  duration_ms: 0.64977
+  type: 'test'
+  ...
+# Subtest: ready groups appear independently; failed sources are not measured empty
+ok 261 - ready groups appear independently; failed sources are not measured empty
+  ---
+  duration_ms: 4.89606
+  type: 'test'
+  ...
+# Subtest: abort prevents late callbacks even when a reader ignores cancellation
+ok 262 - abort prevents late callbacks even when a reader ignores cancellation
+  ---
+  duration_ms: 1.622591
+  type: 'test'
+  ...
+# Subtest: bounded display deduplicates identities but retains separate same-number topics
+ok 263 - bounded display deduplicates identities but retains separate same-number topics
+  ---
+  duration_ms: 0.855916
+  type: 'test'
+  ...
+# Subtest: post suggestions retain public suppression, literal search, small range and caller abort without count
+ok 264 - post suggestions retain public suppression, literal search, small range and caller abort without count
+  ---
+  duration_ms: 1.163973
+  type: 'test'
+  ...
+# Subtest: topic suggestions reuse public view, existing query/bounds and explicit anonymous client
+ok 265 - topic suggestions reuse public view, existing query/bounds and explicit anonymous client
+  ---
+  duration_ms: 0.709245
+  type: 'test'
+  ...
+# Subtest: source suggestions retain public eligibility and cannot page through the full directory
+ok 266 - source suggestions retain public eligibility and cannot page through the full directory
+  ---
+  duration_ms: 0.775899
+  type: 'test'
+  ...
+# Subtest: all optional readers fail closed before a request when already canceled
+ok 267 - all optional readers fail closed before a request when already canceled
+  ---
+  duration_ms: 0.567703
+  type: 'test'
+  ...
+# Subtest: top search is lazy and distinct from existing numeric callers and the bottom button
+ok 268 - top search is lazy and distinct from existing numeric callers and the bottom button
+  ---
+  duration_ms: 1.488712
+  type: 'test'
+  ...
+# Subtest: only explicit live non-page-only unexpired public channels enter Now; private metadata never enters DTO
+ok 269 - only explicit live non-page-only unexpired public channels enter Now; private metadata never enters DTO
+  ---
+  duration_ms: 2.588489
+  type: 'test'
+  ...
+# Subtest: real media-only updates remain represented, with public objects only and no fabricated link
+ok 270 - real media-only updates remain represented, with public objects only and no fabricated link
+  ---
+  duration_ms: 1.77318
+  type: 'test'
+  ...
+# Subtest: gallery activity preserves stream chronology, exact native image source and visibility
+ok 271 - gallery activity preserves stream chronology, exact native image source and visibility
+  ---
+  duration_ms: 0.517355
+  type: 'test'
+  ...
+# Subtest: Or HaGeula video pages open from Now by exact UUID only; the collection root, other paths and credentials stay closed
+ok 272 - Or HaGeula video pages open from Now by exact UUID only; the collection root, other paths and credentials stay closed
+  ---
+  duration_ms: 0.722048
+  type: 'test'
+  ...
+# Subtest: source URLs retain exact public parameters/anchors and reject private/Legacy landings or credentials
+ok 273 - source URLs retain exact public parameters/anchors and reject private/Legacy landings or credentials
+  ---
+  duration_ms: 0.484088
+  type: 'test'
+  ...
+# Subtest: Now and ticker retain one source identity and seen key; different numbers or wording cannot merge objects
+ok 274 - Now and ticker retain one source identity and seen key; different numbers or wording cannot merge objects
+  ---
+  duration_ms: 1.005471
+  type: 'test'
+  ...
+# Subtest: all added reads are bounded GET-style select queries; one failure cannot turn into measured empty or erase independent sources
+ok 275 - all added reads are bounded GET-style select queries; one failure cannot turn into measured empty or erase independent sources
+  ---
+  duration_ms: 4.250078
+  type: 'test'
+  ...
+# Subtest: canceling discards every partial result
+ok 276 - canceling discards every partial result
+  ---
+  duration_ms: 0.921345
+  type: 'test'
+  ...
+# Subtest: only approved Topic identities are subjects; Hashmal post is a source work
+ok 277 - only approved Topic identities are subjects; Hashmal post is a source work
+  ---
+  duration_ms: 1.938131
+  type: 'test'
+  ...
+# Subtest: all 205 approved Topics stay compatibility identities; Zvi remains a ranked 78-topic subset
+ok 278 - all 205 approved Topics stay compatibility identities; Zvi remains a ranked 78-topic subset
+  ---
+  duration_ms: 4.926292
+  type: 'test'
+  ...
+# Subtest: one unavailable source reader never turns unknown inventory into zero
+ok 279 - one unavailable source reader never turns unknown inventory into zero
+  ---
+  duration_ms: 0.362053
+  type: 'test'
+  ...
+# Subtest: media-only source does not show empty technical title
+ok 280 - media-only source does not show empty technical title
+  ---
+  duration_ms: 0.381705
+  type: 'test'
+  ...
+# Subtest: the single public World layout uses one category-free subject reader and keeps sources separate
+ok 281 - the single public World layout uses one category-free subject reader and keeps sources separate
+  ---
+  duration_ms: 1.570391
+  type: 'test'
+  ...
+# Subtest: the complete 2026-10-22 World triage report is present as a server-only snapshot
+ok 282 - the complete 2026-10-22 World triage report is present as a server-only snapshot
+  ---
+  duration_ms: 1.410478
+  type: 'test'
+  ...
+# Subtest: snapshot preserves exact rank, recommendation, target and semantic duplicate keep decision
+ok 283 - snapshot preserves exact rank, recommendation, target and semantic duplicate keep decision
+  ---
+  duration_ms: 0.465637
+  type: 'test'
+  ...
+# Subtest: strong continuation reconciles the full 183-card batch without mutating the historical totals
+ok 284 - strong continuation reconciles the full 183-card batch without mutating the historical totals
+  ---
+  duration_ms: 0.208607
+  type: 'test'
+  ...
+# Subtest: multi-target findings preserve every verified target and keep interpretation separate
+ok 285 - multi-target findings preserve every verified target and keep interpretation separate
+  ---
+  duration_ms: 0.348364
+  type: 'test'
+  ...
+# Subtest: misclassified duplicates keep their sources but receive their own exact targets
+ok 286 - misclassified duplicates keep their sources but receive their own exact targets
+  ---
+  duration_ms: 0.281152
+  type: 'test'
+  ...
+# Subtest: duplicate clusters distinguish the fullest display text from the snapshot keep pointer
+ok 287 - duplicate clusters distinguish the fullest display text from the snapshot keep pointer
+  ---
+  duration_ms: 0.14349
+  type: 'test'
+  ...
+# Subtest: blocked and set-aside findings remain review annotations only
+ok 288 - blocked and set-aside findings remain review annotations only
+  ---
+  duration_ms: 0.15344
+  type: 'test'
+  ...
+# Subtest: all 37 medium explicit matches stay blocked by their independent review gate
+ok 289 - all 37 medium explicit matches stay blocked by their independent review gate
+  ---
+  duration_ms: 0.225851
+  type: 'test'
+  ...
+# Subtest: layers stay separate: source / occurrence / finding / tree are distinct node kinds
+ok 290 - layers stay separate: source / occurrence / finding / tree are distinct node kinds
+  ---
+  duration_ms: 1.659373
+  type: 'test'
+  ...
+# Subtest: only the window reaches the canvas; the hidden remainder is counted honestly
+ok 291 - only the window reaches the canvas; the hidden remainder is counted honestly
+  ---
+  duration_ms: 0.188377
+  type: 'test'
+  ...
+# Subtest: unavailable source coverage yields no total, never a fabricated zero
+ok 292 - unavailable source coverage yields no total, never a fabricated zero
+  ---
+  duration_ms: 0.262436
+  type: 'test'
+  ...
+# Subtest: a tree edge exists only with edgeRef or governanceRef
+ok 293 - a tree edge exists only with edgeRef or governanceRef
+  ---
+  duration_ms: 0.299221
+  type: 'test'
+  ...
+# Subtest: provenance links are never tree edges and series/category/topic never create edges
+ok 294 - provenance links are never tree edges and series/category/topic never create edges
+  ---
+  duration_ms: 0.520295
+  type: 'test'
+  ...
+# Subtest: candidates are not edges
+ok 295 - candidates are not edges
+  ---
+  duration_ms: 0.324679
+  type: 'test'
+  ...
+# Subtest: inspector DTO keeps source, occurrence and finding semantics apart
+ok 296 - inspector DTO keeps source, occurrence and finding semantics apart
+  ---
+  duration_ms: 0.384636
+  type: 'test'
+  ...
+# Subtest: relation status copy never says 'no relation' for a partial, failed or unavailable window
+ok 297 - relation status copy never says 'no relation' for a partial, failed or unavailable window
+  ---
+  duration_ms: 0.334339
+  type: 'test'
+  ...
+# Subtest: opened relations render as tree edges only with an edge: ref, and keep existing nodes in place
+ok 298 - opened relations render as tree edges only with an edge: ref, and keep existing nodes in place
+  ---
+  duration_ms: 0.552517
+  type: 'test'
+  ...
+# Subtest: canonical opener marks a full window partial and never queries by itself
+ok 299 - canonical opener marks a full window partial and never queries by itself
+  ---
+  duration_ms: 61.594487
+  type: 'test'
+  ...
+# Subtest: arrow navigation follows RTL layers (left goes deeper) and stays in the layer for up/down
+ok 300 - arrow navigation follows RTL layers (left goes deeper) and stays in the layer for up/down
+  ---
+  duration_ms: 0.631155
+  type: 'test'
+  ...
+# Subtest: isolation: no reader, DB, router or legacy import in the shell files
+ok 301 - isolation: no reader, DB, router or legacy import in the shell files
+  ---
+  duration_ms: 1.363121
+  type: 'test'
+  ...
+# Subtest: World writer material keeps old Post addresses and uses the shared native Post policy
+ok 302 - World writer material keeps old Post addresses and uses the shared native Post policy
+  ---
+  duration_ms: 9.534811
+  type: 'test'
+  ...
+# Subtest: public people index follows the writer-page contract and includes non-trusted people
+ok 303 - public people index follows the writer-page contract and includes non-trusted people
+  ---
+  duration_ms: 0.991787
+  type: 'test'
+  ...
+# Subtest: anonymous index reader is paged, safe-field only and never uses People Directory
+ok 304 - anonymous index reader is paged, safe-field only and never uses People Directory
+  ---
+  duration_ms: 2.609532
+  type: 'test'
+  ...
+# Subtest: material keeps findings attached to source_ref, deduplicates source-native records and orders updated writings first
+ok 305 - material keeps findings attached to source_ref, deduplicates source-native records and orders updated writings first
+  ---
+  duration_ms: 1.545135
+  type: 'test'
+  ...
+# Subtest: selected contributor reuses all three public readers without N+1
+ok 306 - selected contributor reuses all three public readers without N+1
+  ---
+  duration_ms: 0.539731
+  type: 'test'
+  ...
+# Subtest: public material emits source-first state and later preserves promoted results
+ok 307 - public material emits source-first state and later preserves promoted results
+  ---
+  duration_ms: 0.606808
+  type: 'test'
+  ...
+# Subtest: sources become readable before delayed publications and research
+ok 308 - sources become readable before delayed publications and research
+  ---
+  duration_ms: 0.43061
+  type: 'test'
+  ...
+# Subtest: an already-public Universal Finding keeps its exact source provenance without creating a tree relation
+ok 309 - an already-public Universal Finding keeps its exact source provenance without creating a tree relation
+  ---
+  duration_ms: 0.74151
+  type: 'test'
+  ...
+# Subtest: an explicitly linked image/text pair stays two source identities inside one display cluster
+ok 310 - an explicitly linked image/text pair stays two source identities inside one display cluster
+  ---
+  duration_ms: 0.722887
+  type: 'test'
+  ...
+# Subtest: search and filters cover people, titles and numbers with stable pagination inputs
+ok 311 - search and filters cover people, titles and numbers with stable pagination inputs
+  ---
+  duration_ms: 0.532343
+  type: 'test'
+  ...
+# Subtest: World presents canonical source identities, exact occurrences and only verified source links
+ok 312 - World presents canonical source identities, exact occurrences and only verified source links
+  ---
+  duration_ms: 0.22274
+  type: 'test'
+  ...
+# Subtest: a source can offer exact documented tree edges only through its promoted node
+ok 313 - a source can offer exact documented tree edges only through its promoted node
+  ---
+  duration_ms: 0.472962
+  type: 'test'
+  ...
+# Subtest: one public envelope keeps source identity, occurrence, cluster, finding and tree relation distinct
+ok 314 - one public envelope keeps source identity, occurrence, cluster, finding and tree relation distinct
+  ---
+  duration_ms: 1.615611
+  type: 'test'
+  ...
+# Subtest: unavailable readers are explicit and never fabricate a zero
+ok 315 - unavailable readers are explicit and never fabricate a zero
+  ---
+  duration_ms: 0.802549
+  type: 'test'
+  ...
+# Subtest: shared author, number, category or title cannot create a tree relation
+ok 316 - shared author, number, category or title cannot create a tree relation
+  ---
+  duration_ms: 0.369703
+  type: 'test'
+  ...
+# Subtest: legacy Topics are compatibility only and no source-specific route exists
+ok 317 - legacy Topics are compatibility only and no source-specific route exists
+  ---
+  duration_ms: 0.228076
+  type: 'test'
+  ...
+# Subtest: the 78 legacy Zvi Topics remain addressable without becoming 78 corpus sources
+ok 318 - the 78 legacy Zvi Topics remain addressable without becoming 78 corpus sources
+  ---
+  duration_ms: 0.29042
+  type: 'test'
+  ...
+# Subtest: page composition deduplicates source identities across supplied public pages
+ok 319 - page composition deduplicates source identities across supplied public pages
+  ---
+  duration_ms: 0.463802
+  type: 'test'
+  ...
+# Subtest: page composition fails coverage closed when any supplied public page is unavailable
+ok 320 - page composition fails coverage closed when any supplied public page is unavailable
+  ---
+  duration_ms: 0.233501
+  type: 'test'
+  ...
+# Subtest: empty page composition reports unknown coverage rather than a fabricated empty corpus
+ok 321 - empty page composition reports unknown coverage rather than a fabricated empty corpus
+  ---
+  duration_ms: 0.1467
+  type: 'test'
+  ...
+# Subtest: landing keeps the lightweight public people index separate from not-yet-loaded corpus totals
+ok 322 - landing keeps the lightweight public people index separate from not-yet-loaded corpus totals
+  ---
+  duration_ms: 1.794849
+  type: 'test'
+  ...
+# Subtest: landing composes supplied public pages without treating legacy Topics as sources
+ok 323 - landing composes supplied public pages without treating legacy Topics as sources
+  ---
+  duration_ms: 1.588551
+  type: 'test'
+  ...
+1..323
+# tests 323
+# suites 0
+# pass 319
+# fail 4
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2512.563497

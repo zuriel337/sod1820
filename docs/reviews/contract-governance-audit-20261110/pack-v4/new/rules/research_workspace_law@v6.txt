@@ -1,0 +1,86 @@
+[v2 · Human-Gate ZURIEL · 9.9.2026 — 2027 ADAPTIVE SUPERSESSION]
+
+OWNER: Research OS / research workspace behavior. EXTEND_EXISTING; this v2 supersedes presentation-specific v1 while preserving its useful capability semantics and history.
+
+CORE INVARIANTS
+1. ONE RESEARCH OS. ResearchProvider/Research Context/Research Bus and the existing governed research/personal stores remain the shared substrate. No second Workspace, Context store, graph, saved-items system, Journey store or AI truth store may be created for a new surface.
+2. CONTEXT NEVER DISAPPEARS. Subject/root, selection, dimensions/lens, Journey position and exact return references travel across Number/Phrase, Book, ELS, World, Heichal, Post and other projections through the canonical Research Context/Journey owners. Context is navigation/research state, never truth.
+3. PAGE DUALITY. First-class products/content may remain directly addressable and SEO/deep-link capable while also participating in the shared Research OS. Heichal is optional deep-research mode, never a mandatory gateway.
+4. PERSONAL IS A PROJECTION. My Workspace composes research items, saved state, Journeys, notifications/messages, contributions, profile, credits/access/preferences from their existing owners. It is not a duplicate research system.
+5. SEMANTIC ACTIONS, NOT FIXED BUTTONS. Add-to-research, save, share, inspect, compare, run-tool, ask-Raziel, return-exact and related actions keep one semantic capability identity while presentation may be toolbar, dock, palette, rail, sheet, shortcut or contextual control. Reuse canonical components/readers when they exist.
+6. LOCAL-FIRST WHERE ALREADY SUPPORTED, CLOUD SYNC WHERE AUTHORIZED. Do not destroy or orphan existing personal research state during shell migration.
+7. PROGRESSIVE DISCLOSURE + MOBILE-FIRST remain product requirements: simple first use, deeper capability on demand, keyboard/mobile/accessibility equivalents for graph/drag interactions.
+8. TRUTH/HUMAN GATE. Tool/AI output is typed research state with provenance; AI may calculate through governed engines, interpret, rank and recommend but does not independently canonicalize or publish.
+9. EVENT/OBSERVABILITY CONTINUITY. Meaningful actions emit/track semantic events through existing event/telemetry owners. UI placement/button IDs are not analytical identity.
+10. VISUAL LANGUAGE IS NOT OWNED HERE. Colors, typography, spacing, motion and theme belong to the Design/semantic-theme owners and may be redesigned without changing Research OS semantics.
+
+2027 ADAPTIVE SHELL SUPERSESSION
+- v1 wording that mandates a fixed Header + Navigation + Footer, a fixed desktop side column, one permanent Bottom Sheet form, a fixed four-zone screen, or a specific palette is historical presentation guidance and is superseded.
+- The shell may project a persistent Orientation Header, a collapsible desktop Global Navigator/Sidebar, adaptive commands, contextual inspector, Raziel companion and My Workspace entry. Capability is stable; placement is responsive/task-specific.
+- Full-focus/fullscreen Book/ELS/Heichal/World modes are allowed when orientation, context, return path, accessibility and safe overlay behavior remain recoverable.
+
+NUMBER/PHRASE BRIDGE
+Number/Phrase remains directly addressable and connected now; full redesign is deliberately deferred until the wider 2027 system is visible. Preserve current high-value capabilities: vitality/pulse; convergence snapshot/map; real method-switching state with downstream updates; cross-method/hidden intersections where governed; AI number analysis re-presentable through Raziel; Discovery Engine findings; sources/relations/Books/ELS/Posts/Galleries/Events; save/research/return continuity. Presentation may later be rebuilt from first principles without dropping these capability contracts.
+
+IMPLEMENTATION-HONESTY
+Historical v1 claims that a canonical <ToolActions> merge already existed were later proven stale. Current implementation must always be verified from origin/main before claiming a component is implemented. Preserve capability intent, not stale implementation claims.
+
+
+[UPDATE v3 · Human-Gate ZURIEL · 15.9.2026 — G2 FINAL COMPACTION / RESEARCH OS CHILD CONSOLIDATION, additive; EXTEND_EXISTING]
+6. ONE RESEARCH OS, FEWER ACTIVE MICRO-LAWS. Historical UI/product rules such as Insight Card, Pearl, Research Dossier, Tzuriel Lab, four Research Space lenses, generic tools-interconnect and fixed researcher-page composition are preserved as provenance but no longer participate in normal active routing. Their useful capability survives as projections/actions over this owner + Research Context + domain owners.
+7. CONTRIBUTOR/RESEARCHER IS A LENS, NOT A STORE. Contributor pages/projected dossiers query the same canonical Posts, Findings, Media, Sources, Events, ELS results, Contributions and relations with attribution/provenance. No contributor-specific truth/content ontology. Legacy contributor media/content remains migration evidence only.
+8. RESEARCH CONTRIBUTIONS ARE AN INPUT PIPELINE, NOT A SECOND GOVERNANCE SYSTEM. Existing research_contributions data may continue to store community/research input. Any local moderation/research_state vocabulary cannot outrank Truth Axes. Candidate/approved/canonical/published transitions follow current Truth/Human-Gate owners; old contribution UI/lifecycle wording is historical where it conflicts.
+9. JOURNEY GUARDS ARE RUNTIME SAFETY, NOT SEMANTIC OWNER. The historical sessionStorage AI-message guard remains implementation provenance. G3 replay/idempotency/failure-recovery must provide general protection under Foundation/Research runtime; no separate Journey-AI law is required for routing.
+10. SPATIAL/LAYERED/3D ARE OPTIONAL PROJECTIONS, NOT A MANDATORY RESEARCH ARCHITECTURE LAYER. All renderers consume the same Research State/Findings/provenance. Current Experience/Design owners decide rendering depth. Legacy wording that 3D is “first-class NOW” does not force a renderer, route or product inheritance in G3.
+11. INTERPRETIVE FRAMEWORKS ARE RESEARCH CONTENT/LENSES. Source-supported facts and interpretations remain truth-distinct under Truth Axes. Tarot/astrology/mythology or other interpretive traditions, where researched, are opt-in research material, not global system law.
+12. KEEP DIRECT INVARIANTS SMALL. `research_object_identity_invariant_law` remains a direct live invariant because it enforces source-native object identity. `workspace_layout_standard` remains the scoped adaptive-layout child. Everything else should route through this Workspace owner, Research Strategy, Intake, Truth or the relevant domain owner.
+OWNER CHECK: EXTEND_EXISTING research_workspace_law. No new workspace/context/journey/store/graph.
+
+[UPDATE v4 · Human-Gate ZURIEL · 17.9.2026 — ONE CONTEXT / SURFACE TRANSITION CONTRACT · EXTEND_EXISTING]
+
+1. ONE SEMANTIC SUBJECT, MANY PRODUCT HOMES. Moving between World, Number/Expression, Heichal, Books/Sources, ELS, Journey, Workspace, Raziel and Inspect/Trace changes the projection/task mode, not the underlying identity, truth or Research OS. A surface never mints a duplicate subject merely because the user entered a different product home.
+
+2. SURFACE ROLE CONTRACT. World answers “מה מתחבר?” and owns breadth/discovery/contextual orientation. Number/Expression is the canonical-detail home for a Number or exact Expression and answers “מהו הדבר הזה בדיוק?” through governed projections; it does not own engine truth. Heichal answers “איך בודקים?” and is the action/deep-research home for calculate/compare/search/run/inspect operations. Books/Sources is the exact witness/source/locator home. ELS is the specialized cipher/search/replay home. Journey answers “לאן זה מוביל?” and owns path continuity/why-transition/exact-return state. Workspace is the personal saved/resumable projection. Raziel answers “מה כדאי לעשות עכשיו?” as the same companion over the current context and may act in-place without forcing navigation. Inspect/Trace/Explain-Why is the precision/provenance layer. Posts/Public Content remain narrative/public representations over the same identities and research.
+
+3. TRANSITION ROUTING. From any surface: choosing a stable Number/Expression and asking for exact identity/detail routes to Number/Expression; asking to calculate/compare/test/run a capability routes to Heichal; asking for the exact witness/locator routes to Books/Sources; asking for ELS search/coordinates/replay routes to ELS; asking to preserve/continue the path routes to Journey; asking to manage saved/personal research routes to Workspace; asking what to do next invokes Raziel in the current surface when possible; asking why/how exactly opens Inspect/Trace. These are semantic transitions, not URL-specific rules.
+
+4. CONTEXT HANDOFF IS LOSSLESS WITHIN AUTHORIZATION. Subject/root, exact selection, lens/dimensions, Journey position, why-transition, source/selection provenance where applicable, returnTo/exact-return and authorized personal context travel across transitions. Privacy/access filtering happens before composition. URL/route/display label are representations, never identity authority.
+
+5. WORLD SATURATION / EXIT GATE. World must not absorb every downstream capability. World is sufficient for an Anchor when it can: (a) orient the user human-first; (b) show the bounded important/typed connections honestly; (c) explain why an item is here; and (d) route any requested deepening to the correct product home while preserving exact return. After this gate, additional exact calculation detail, source inspection, tool execution, path management or personal management belongs to the relevant home rather than making World larger.
+
+6. NUMBER/EXPRESSION IS DETAIL, NOT A SECOND ENGINE. Number/Expression may compose identity profile, governed Gematria/method results, sources, relations, Research OS material, events/media/people and current curated anchor profile. Exact Expression remains distinct from Number and Concept. The surface never recalculates locally, never owns method truth and never duplicates World/Heichal stores.
+
+7. DEPENDENCY-AWARE IMPLEMENTATION DIRECTION. Do not wait for World to become an all-purpose finished universe before building the rest of the tree. Once the World Exit Gate is satisfied for representative rich/medium/sparse anchors, the next dependency is the canonical Number/Expression detail home, because World needs a stable deepening target. Then establish Heichal + Books/Sources deep-work/source paths; prove Journey exact-return across multiple homes; ELS remains the early Golden specialized experience; Raziel text/tools consumes the same Context after the underlying homes/capabilities are real. This is a dependency handoff, not permission to bypass lower engine/Research OS/access rails.
+
+8. ONE TREE ACCEPTANCE. A representative path such as World(1820) -> Number(1820) -> Expression -> Source -> Heichal action -> ELS/other capability -> Journey -> exact return must preserve identity, semantic state, provenance, access and why-transition without copying truth or requiring a parallel context store.
+
+OWNER CHECK: EXTEND_EXISTING research_workspace_law, consuming Reality Graph, Research Strategy/Context, Truth and Experience surface-role governance. No navigation store, surface graph, Number store, Journey graph, Context DB or page-specific truth system is created.
+
+[UPDATE 27.9.2026 — UNIFIED JOURNEY 2029 / ONE PATH FAMILY · Human-Gate ZURIEL]
+OWNER CHECK=EXTEND_EXISTING. Journey remains a Research OS capability under this Workspace/Research Context lineage. No second Journey engine, graph, context, history store or Life-Journey store is created.
+
+CANONICAL 2029 DURABLE SUBSTRATE. research_paths is the stable Journey/Path identity and research_path_revisions is its revision lineage. A saved/resumable 2029 Journey MUST persist through the existing bounded Research Path RPC/runtime family. research_plans is not a Journey store. Legacy journey_saves and user_research.journeys remain preserved compatibility/history input only and MUST NOT become authority for new Journey 2029 or its public metrics.
+
+JOURNEY IDENTITY. Path identity != revision != branch != Research Context != Finding != telemetry event. Research Context may carry journey.kind=research_path plus path/revision/position to preserve exact return. Forking creates a branch Path with preserved parent/revision/step lineage, not a duplicate truth tree.
+
+ONE FAMILY, MANY KINDS. All new Journey experiences consume the same Path/Context contract and differ only by journey_kind / lenses / subject. Initial controlled kinds: discovery, number_expression, person_life, name, els, source_book, topic_event, general_research. guided/organic is a journey_mode over the same kind, never a second store/system. New kinds require owner-approved semantic extension, not a new Journey implementation.
+
+START SEMANTICS. Opening a page, typing a query, executing one search, computing one number, or viewing one result is NOT by itself a Journey start. A 2029 Journey starts when either (a) the person explicitly invokes Start/Continue Journey for a valid Research Context, or (b) the person makes the first semantic transition from a valid root result/context into a connected second research state while Journey mode is active. Repeated steps in the same active Journey do not create additional starts.
+
+DISCOVERY/SEARCH JOURNEY. Search remains a Discovery action. It becomes journey_kind=discovery only when the user explicitly starts/continues a Journey or follows a connected result into the first Journey transition. Search totals and Journey totals remain separate. Raw search terms are not public Journey telemetry.
+
+NUMBER/EXPRESSION JOURNEY. Traversal from a Number/Expression root across governed relations, methods, sources, ELS, Topics/Convergences or other connected Findings uses journey_kind=number_expression and the same Research Path substrate. A method click or calculation alone is not a Journey start.
+
+PERSON/LIFE JOURNEY. journey_kind=person_life is a person-ref-scoped traversal across authorized Findings/relations about a person. The current Legacy PersonJourney.jsx foundation establishes self/family identity only and is NOT yet the full Person/Life Journey; save_self/add_member/add_relation events do not count as Journey starts. A true Person/Life Journey begins only when the person context enters Finding/relationship traversal under the unified 2029 contract. Private person/name/family values must never be copied into public telemetry.
+
+NAME JOURNEY. journey_kind=name traverses Universal Findings produced for a Name subject across governed lenses. NameLab findings may feed it, but Name Journey is traversal, not a Finding and not Person/Life Journey.
+
+ELS JOURNEY. journey_kind=els consumes the canonical ELS identity/replay coordinates through Research Context and Research Path. Existing ELS breadcrumb/replay capability is a consumer; it must not own a parallel Journey store.
+
+SOURCE/TOPIC/EVENT JOURNEYS. Books/Sources and Topic/Event roots remain ordinary kinds over the same Path identity/revision contract. Their exact locators/provenance travel in authorized Research Context/Path representations.
+
+LEGACY EXCLUSION. Legacy JourneyPage, journey_saves, user_research.journeys, surface=journey telemetry, journey_trace telemetry and historical addJourney collections may be preserved for continuity/migration evidence but MUST NOT be counted as Journey 2029 starts and MUST NOT be silently blended into 2029 public Pulse. Migration is adapter-first and explicit.
+
+CURRENT DRIFT / IMPLEMENTATION STATE 27.9.2026. research_paths=0 and research_path_revisions=0 live rows despite a live save/resume/fork runtime. World 2029 Golden Journey 878 still consumes ResearchProvider.addJourney/user-research Journey state rather than research_paths. No Journey2029 route/page is present. PersonJourney.jsx is foundation-only and explicitly says cross-Finding traversal is future. These are implementation gaps, not permission to create parallel systems.
+
+[v6 · 11.11.2026 · יישור בעלים (החלטת צוריאל 5, 11.11.2026)] בעל חוזה העיצוב: SOD1820_DESIGN_CONTRACT_V2.md (SOD1820_DESIGN_CONTRACT_V1.md נשמר כהיסטוריה). סמנטיקת סביבת המחקר לא השתנתה.
