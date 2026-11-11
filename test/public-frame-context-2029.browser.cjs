@@ -25,6 +25,8 @@ for(const width of [320,390,768,1440])test('compact centered island and no Compa
 });
 for(const width of [320,390,1440])test('personal card follows panel width, including a narrow panel on wide screen '+width,async({page},info)=>{
  await page.setViewportSize({width,height:900});await page.goto(base+'/');await expect(page.locator('.h29-hero')).toBeVisible();await page.locator('.sod29-header-workspace').click();
+ // Raziel's presence lives in the "רזיאל באזור האישי" list of the personal panel (PersonalHome2029): open it, then the same width/overflow contract applies.
+ await page.locator('[data-workspace-section="companion"] .pa29-more-head').click();
  const card=page.locator('.sod29-workspace-raziel-presence');await expect(card).toBeVisible();
  const results=[];
  for(const panelWidth of width===1440?[null,480,360]:[null]){
@@ -125,12 +127,12 @@ for(const width of [390,1440])test('real public Topic links populate additional 
 });
 for(const width of [320,1440])test('all personal action grids have equal columns, clear labels and preserved locks '+width,async({page},info)=>{
  await page.setViewportSize({width,height:900});await page.goto(base+'/');await page.locator('.sod29-header-workspace').click();const panel=page.locator('[data-panel-kind="workspace"]');await expect(panel).toBeVisible();
- const grids=await panel.evaluate(e=>[...e.querySelectorAll('.sod29-workspace-core-grid,.sod29-workspace-secondary-grid,.sod29-workspace-raziel-actions')].map(g=>({columns:getComputedStyle(g).gridTemplateColumns.split(' ').map(Number.parseFloat),items:[...g.children].map(x=>{const r=x.getBoundingClientRect();return {w:r.width,h:r.height,label:x.textContent.trim(),overflow:x.scrollWidth>x.clientWidth+1};})})));
+ const grids=await panel.evaluate(e=>[...e.querySelectorAll('.pa29-cards,.sod29-workspace-raziel-actions')].map(g=>({columns:getComputedStyle(g).gridTemplateColumns.split(' ').map(Number.parseFloat),items:[...g.children].map(x=>{const r=x.getBoundingClientRect();return {w:r.width,h:r.height,label:x.textContent.trim(),overflow:x.scrollWidth>x.clientWidth+1};})})));
  for(const grid of grids){expect(grid.items.length).toBeGreaterThan(0);for(const item of grid.items){expect(item.h).toBeGreaterThanOrEqual(44);expect(item.w).toBeGreaterThanOrEqual(44);expect(item.label).toBeTruthy();expect(item.overflow).toBe(false);}if(grid.columns.length===2)expect(Math.abs(grid.columns[0]-grid.columns[1])).toBeLessThan(1);}
  await expect(panel.locator('[data-workspace-card="life-journey"]')).toHaveAttribute('aria-disabled','true');await expect(panel.locator('[data-workspace-card="codes"]')).toHaveAttribute('aria-disabled','true');
  fs.writeFileSync(info.outputPath('personal-buttons.json'),JSON.stringify(grids,null,2));await page.screenshot({path:info.outputPath('personal-symmetric.png')});
- await panel.locator('.sod29-workspace-core-grid').scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('personal-core-buttons.png')});
- await panel.locator('.sod29-workspace-secondary-grid').scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('personal-module-buttons.png')});
+ await panel.locator('.pa29-cards').first().scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('personal-core-buttons.png')});
+ await panel.locator('.pa29-cards').last().scrollIntoViewIfNeeded();await page.screenshot({path:info.outputPath('personal-module-buttons.png')});
 });
 for(const width of [390,1440])test('ordinary Home link preserves exact return without selecting the displayed Post '+width,async({page})=>{
  await page.setViewportSize({width,height:900});const origin='/?home=1#home-plane';await page.goto(base+origin);await expect(page.locator('.h29-card-open').first()).toBeVisible({timeout:30000});

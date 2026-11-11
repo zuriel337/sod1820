@@ -14,7 +14,9 @@ test("My Workspace keeps a deterministic Raziel presence and explicit execution"
   assert.match(frame, /data-raziel-explicit-action="open-existing-conversation"/);
   assert.match(frame, /שאל את רזיאל/);
   const start = frame.indexOf('data-workspace-raziel-presence="deterministic"');
-  const end = frame.indexOf('aria-label="תמונת מצב אישית"', start);
+  // The presence is one section: it ends where that section closes (it now lives in the "רזיאל באזור האישי" list of PersonalHome2029).
+  const end = frame.indexOf('</section>;', start);
+  assert.ok(end > start, 'the presence section is delimited');
   const presence = frame.slice(start, end);
   assert.match(presence, /onClick=\{onRaziel\}/);
   assert.match(presence, /onClick=\{requestPersonalAreaCompanion\}/);
