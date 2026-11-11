@@ -13,10 +13,13 @@ test("the canonical Workspace uses the shared centered workspace projection", ()
   assert.match(frameCss, /data-panel-kind="workspace"[^}]*\.sod29-frame-panel-body\{[^}]*width:min\(100%,900px\);margin-inline:auto/);
   assert.match(frameCss, /data-panel-kind="workspace"[^}]*height:min\(92dvh,860px\)/);
   assert.match(workspaceCss, /data-panel-kind="workspace"[^}]*\.sod29-panel-lead\{text-align:center/);
-  for (const label of ["המחקר שלי", "השיחות שלי", "הדף שלי", "הפרופיל וההגדרות", "ההודעות שלי", "ההתקדמות שלי"]) {
-    assert.match(frame, new RegExp(label));
+  // The cards (labels, destinations) now live in one pure model, rendered by PersonalHome2029 inside the same frame panel.
+  const model = read("src/lib/userCenter/personalArea2029.js");
+  for (const label of ["המחקר והשמורים", "השיחות שלי עם רזיאל", "הדף שלי", "הפרופיל והתמונה", "הודעות פרטיות", "ההתקדמות שלי"]) {
+    assert.match(model, new RegExp(label));
   }
-  assert.match(frame, /title: "השיחות שלי"[\s\S]{0,220}state: "live"[\s\S]{0,120}setWorkspaceSection\("raziel"\)/);
+  assert.match(model, /id: "raziel"[\s\S]{0,700}to: \{ section: "raziel" \}/);
+  assert.match(frame, /card\.to\?\.section === "raziel"\) setWorkspaceSection\("raziel"\)/);
 });
 
 test("all personal modules consume one bounded balanced RTL layout", () => {
