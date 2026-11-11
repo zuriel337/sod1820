@@ -48,6 +48,7 @@ import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRi
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 const RazielCenter2029 = React.lazy(() => import("./RazielCenter2029.jsx"));
 const NowPublications2029 = React.lazy(() => import("./NowPublications2029.jsx"));
+const MorePanel2029 = React.lazy(() => import("./MorePanel2029.jsx"));
 import { workspaceResearchHref } from "../../lib/research/razielWorkspaceProjection2029.js";
 import { projectWorkspaceRazielPresence2029 } from "../../lib/research/workspaceRazielPresence2029.js";
 const RazielViewModeSelector2029 = React.lazy(() => import("./RazielViewModeSelector2029.jsx"));
@@ -2179,23 +2180,19 @@ function SystemFrame2029Body({
       ? <FrameState kind="gated" title="העולם ייפתח בהמשך">כעת אפשר לקרוא פוסטים, לחקור ELS ולהשתמש במחשבון הגימטריה.</FrameState>
       : <FrameState title="העולם פתוח"><Link to="/world" onClick={closeTransient}>למקורות ולחיבורים בעולם ←</Link></FrameState>
       : <AttentionProjection context={pageContext} onWorkspace={() => openTransient(TRANSIENT.WORKSPACE)} onOpen={go} feed={feed} timeMode={recordTimeMode} />}</PanelShell>;
-    if (transientKind === TRANSIENT.MORE) return <PanelShell {...common} icon={transient?.payload?.shareOnly ? "↗" : "◇"} kicker={transient?.payload?.shareOnly ? "שיתוף" : "עוד"} title={transient?.payload?.shareOnly ? "שיתוף" : "עוד"}>
-      {!transient?.payload?.shareOnly ? <>
-        {inspectTarget ? <div className="sod29-selection-summary"><span>ההקשר לפעולות</span><strong>{contextDisplayTitle(pageContext, inspectTarget) || publicContextLabel(inspectTarget.label) || entityTypeNounHe(inspectTarget.type)}</strong></div> : null}
-        <div className="sod29-panel-actions-grid">
-          <button className="sod29-action" type="button" onClick={() => openAction(inspectTarget)}>פעולות</button>
-          <button className="sod29-action" type="button" onClick={openTools}>כלים</button>
-        </div>
-        {adminOpenClosedDestinations(isAdmin).length ? <section className="sod29-panel-admin-open" aria-label="פתוח למנהל בלבד" data-admin-open-destinations="true">
-          <h3>בבנייה · פתוח למנהל בלבד</h3>
-          <div className="sod29-panel-actions-grid">
-            {adminOpenClosedDestinations(isAdmin).map((item) => <button key={item.id} className="sod29-action" type="button" onClick={() => { setTransient(null); go(item.href); }}>{item.label}</button>)}
-          </div>
-        </section> : null}
-      </> : null}
-      {shareHref ? <section className="sod29-panel-share" aria-label="שיתוף העמוד" data-share-owner="ShareActions"><h3>שיתוף</h3><ShareActions type={surface === "post" ? "post" : "page"} url={shareHref} title={title || "SOD1820"} sourceSurface={surface} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} style={{ flexWrap: "wrap", overflowX: "visible" }} force /></section> : <FrameState title="עמוד אישי">אין קישור ציבורי לשיתוף מתוך העמוד האישי.</FrameState>}
-      {activeToolDock ? <button className="sod29-action" type="button" onClick={() => { setTransient(null); setSystemDockMode(false); }}>חזור לכלי הצופן</button> : null}
-    </PanelShell>;
+    if (transientKind === TRANSIENT.MORE) {
+      const shareOnly = Boolean(transient?.payload?.shareOnly);
+      const contextTitle = inspectTarget ? (contextDisplayTitle(pageContext, inspectTarget) || publicContextLabel(inspectTarget.label) || entityTypeNounHe(inspectTarget.type)) : "";
+      return <PanelShell {...common} panelKind="more" icon={<NavigationIcon2029 name={shareOnly ? "share" : "kingdom"} />} kicker={shareOnly ? "שיתוף" : "סוד 1820"} title={shareOnly ? "שיתוף העמוד" : "עוד"}>
+        <MorePanel2029 shareOnly={shareOnly} context={contextTitle}
+          onAction={() => openAction(inspectTarget)} onTools={openTools} onSearch={openSiteSearch}
+          personal={{ signedIn: Boolean(user), name: profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || "", avatar: user ? <UserAvatar2029 user={user} profile={profile} /> : null }}
+          onPersonal={openWorkspace}
+          adminDestinations={adminOpenClosedDestinations(isAdmin)} onDestination={(item) => { setTransient(null); go(item.href); }}
+          toolDockReturn={activeToolDock ? () => { setTransient(null); setSystemDockMode(false); } : null}
+          share={shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", title: title || "SOD1820", surface } : null} />
+      </PanelShell>;
+    }
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><button className="sod29-action" type="button" onClick={openSiteSearch}>חיפוש באתר</button><ToolsProjection surface={surface} target={inspectTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} panelKind="raziel" icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={pageContext} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} onSignup={openWorkspace} /></PanelShell>;
