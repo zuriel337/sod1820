@@ -66,13 +66,18 @@ test("RUM cannot broaden report, identity, billing or generic event admission",a
 function collect(extra={}) {
   return "https://www.google-analytics.com/g/collect?"+new URLSearchParams({v:"2",tid:"G-TEST12345",en:"page_view",dl:SITE+"/",dt:"SOD1820",...extra});
 }
-test("GA4 transport admits only the configured collector and sanitized public page; marketing/private attempts fail closed",async()=>{
-  const w=worker();assert.equal((await w.request(collect(),null,{method:"POST"})).status,200);assert.equal(w.calls.length,1);
-  for(const extra of [{tid:"G-FOREIGN"},{dl:SITE+"/?email=private"},{dl:SITE+"/login"},{dl:"https://foreign.invalid/"},{dt:"Private person's name"},{en:"purchase"},{"up.email":"private"},{uid:UID}]){
-    const denied=worker();assert.equal((await denied.request(collect(extra),null,{method:"POST"})).status,403);assert.equal(denied.calls.length,0);
+test("GA4 measurement is not blocked: every GA4 transport host passes through the worker untouched (ZURIEL, 10.11.2026: no blocking on 2029)",async()=>{
+  // The worker no longer validates, rewrites or denies Google Analytics hits (before: only two hosts, five events, no params, exact page/title, no referrer).
+  // The page's own adapter still sends the normalized public route label only (see the GA adapter test below); that is the app's choice, not a block.
+  for(const url of [collect(),collect({en:"scroll","epn.percent_scrolled":"90"}),collect({en:"click"}),collect({tid:"G-OTHER"}),collect({dr:"https://elsewhere.invalid/"}),collect({uid:UID}),
+    "https://www.google.com/g/collect?v=2&tid=G-TEST12345&en=page_view","https://analytics.google.com/g/collect?v=2&tid=G-TEST12345","https://stats.g.doubleclick.net/g/collect?v=2&tid=G-TEST12345",
+    "https://region2.google-analytics.com/g/collect?v=2&tid=G-TEST12345","https://www.google.com/ccm/collect?en=page_view"]){
+    for(const method of ["POST","GET"]){const w=worker();assert.equal(await w.request(url,null,{method}),null,method+" "+url.slice(0,60));assert.equal(w.calls.length,0,"the worker neither answers nor forwards it: the browser sends it itself");}
   }
-  for(const opts of [{origin:"https://preview.invalid"},{clientPath:"/login"},{clientId:""}]){const denied=worker(opts);assert.equal((await denied.request(collect(),null,{method:"POST"})).status,403);assert.equal(denied.calls.length,0);}
-  const denied=worker();assert.equal((await denied.request("https://www.google-analytics.com/other",null,{method:"POST"})).status,403);
+  // The exemption is exact: other cross-origin writes stay denied.
+  for(const url of ["https://www.google.com/search","https://www.facebook.com/tr?id=1","https://connect.facebook.net/en_US/fbevents.js","https://foreign.invalid/g/collect"]){
+    const w=worker();const r=await w.request(url,null,{method:"POST"});assert.equal(r.status,403,url);assert.equal(w.calls.length,0);
+  }
 });
 function res(){return{code:null,headers:{},setHeader(k,v){this.headers[k.toLowerCase()]=v;},status(n){this.code=n;return this;},json(b){this.body=b;return this;}};}
 const adminReq=(extra={})=>({method:"GET",url:"/api/search-console?days=30",query:{days:"30"},headers:{host:"sod1820.co.il",authorization:"Bearer "+token},...extra});

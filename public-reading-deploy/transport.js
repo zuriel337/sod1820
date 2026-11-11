@@ -33,6 +33,13 @@ function installPublicReadingWorker(policy) {
   const reads = new Set(policy.reads);
   const getReads = new Set(policy.getReads);
   const safeMethods = new Set(["GET", "HEAD", "OPTIONS"]);
+  // GA4 transports: the regional/global analytics hosts, Google's collector and the consent/stats beacons gtag.js really sends
+  // (docs/reviews/main-live-state-reconciliation-20261104/public-observability/real-sdk-offline-result.json).
+  const isGoogleAnalyticsRequest = url => url.protocol === "https:" && (
+    (url.hostname === "google-analytics.com" || url.hostname.endsWith(".google-analytics.com")
+      || url.hostname === "analytics.google.com" || url.hostname.endsWith(".analytics.google.com")
+      || url.hostname === "stats.g.doubleclick.net" || url.hostname === "www.googletagmanager.com")
+    || url.hostname === "www.google.com" && /^\/(?:g\/|ccm\/|j\/)/.test(url.pathname));
   const denied = () => new Response(JSON.stringify({ error: "public_reading_operation_denied" }), {
     status: 403, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
@@ -180,31 +187,10 @@ function installPublicReadingWorker(policy) {
   self.addEventListener("fetch", event => {
     const req = event.request, url = new URL(req.url);
     const rpc = /^\/rest\/v1\/rpc\/([a-z_][a-z0-9_]*)$/.exec(url.pathname)?.[1];
-    // Only existing GA4 collection endpoints and the configured public
-    // measurement ID. No Ads/Meta conversion endpoints, user properties,
-    // raw expressions, private routes, query tokens or document titles.
-    if (["https://www.google-analytics.com", "https://region1.google-analytics.com"].includes(url.origin)) {
-      event.respondWith((async () => {
-        if (!["GET", "POST"].includes(req.method) || url.pathname !== "/g/collect" || !policy.gaId) return denied();
-        const clientPath = await measurementClient(event);
-        if (!clientPath) return denied();
-        const text = req.method === "POST" ? await req.clone().text() : "";
-        if (text.length > 8192 || /[\r\n]/.test(text)) return denied();
-        const params = new URLSearchParams(url.search);
-        for (const [key, value] of new URLSearchParams(text)) {
-          if (params.has(key)) return denied();
-          params.append(key, value);
-        }
-        if (params.getAll("tid").length !== 1 || params.get("tid") !== policy.gaId || params.get("v") !== "2"
-          || !["page_view", "user_engagement", "scroll", "session_start", "first_visit"].includes(params.get("en"))
-          || [...params.keys()].some(key => /^(?:uid|user_id|uip|up\.|upn\.|ep\.|epn\.)/.test(key))) return denied();
-        const page = new URL(params.get("dl") || "");
-        if (page.origin !== self.location.origin || page.search || page.hash || page.username || page.password
-          || page.pathname !== clientPath || params.get("dt") !== "SOD1820"
-          || params.get("dp") && params.get("dp") !== clientPath || params.get("dr")) return denied();
-        return fetch(new Request(req, { credentials: "omit", cache: "no-store", redirect: "error", referrerPolicy: "no-referrer" }));
-      })().catch(() => denied())); return;
-    }
+    // Google Analytics 4 measurement is NOT restricted (ZURIEL, 10.11.2026: no blocking on the 2029 public site; nothing here is secret).
+    // Every GA4 transport host and collection path passes straight through to the network: no event, parameter, page-title or referrer
+    // validation, and no method denial. Only the GA4 collection hosts below are exempt from the read-only POST rule; nothing else is.
+    if (isGoogleAnalyticsRequest(url)) return;
     if (url.origin === self.location.origin && ["/api/ga-insights", "/api/vercel-insights", "/api/search-console"].includes(url.pathname)) {
       event.respondWith((async () => {
         if (req.method !== "GET" || [...url.searchParams.keys()].some(key => key !== "days") || url.searchParams.getAll("days").length > 1

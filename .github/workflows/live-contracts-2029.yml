@@ -292,6 +292,8 @@ jobs:
         run: node --test test/auth-browser-acceptance-2029.browser.mjs test/auth-storage-browser-2029.browser.mjs
         env:
           AUTH_EVIDENCE_DIR: ${{ runner.temp }}/auth-evidence
+      - name: Google Analytics 4 is not blocked (real CSP header + real worker)
+        run: node --test test/ga-measurement-browser-2029.browser.mjs
       # Same built artifact, real worker and fixture: public storage video/audio play and seek (Range/206), images load, with and
       # without a version key or a media start fragment, first load and reload; a signed object never becomes a native load.
       - name: Public storage media through the real worker (play, seek, reload)
