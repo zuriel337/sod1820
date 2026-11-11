@@ -117,8 +117,9 @@ test("the pinned central message is the card on top (once): never repeated as a 
   let root = await render({ feed: feedOf([pinnedItem(5), postRowToWorldUpdate(post(1, 2))].filter(Boolean)) });
   const card = root.root.findAll(node => node.props["data-now-pinned-message"]);
   assert.equal(card.length, 1);
-  assert.ok(card[0].findAll(node => node.type === "h3").some(node => node.children.join("") === "ממשלת משיח בן דוד = 1234 · והיום 10.11 = 1011"), "the owner's heading, verbatim");
-  assert.deepEqual(card[0].findAll(node => node.props.className === "rc29-num").map(node => node.props["aria-label"]), ["פתח את המספר 1234", "פתח את המספר 1011"]);
+  assert.equal(card[0].findByType("h3").children.join(""), "פוסט 5107", "the headline is the Post's own title (posts.title), never the update's heading");
+  assert.equal(card[0].findAll(node => node.props["data-now-pinned-update"] === "true").length, 1, "the update is a separate layer under the Post title");
+  assert.deepEqual(card[0].findAll(node => node.props.className === "rc29-num r29-coin").map(node => node.props["aria-label"]), ["פתח את המספר 1234", "פתח את המספר 1011"]);
   assert.equal(entries(root).some(node => node.props["data-home-update-item"] === "post:5107"), false, "not a second time as a row");
   const toggle = card[0].findAll(node => node.type === "button" && node.props["aria-expanded"] === false)[0];
   await act(async () => { toggle.props.onClick(); });
@@ -147,25 +148,36 @@ test("one source picker: 'הכול' by default hides unverified group rows; pick
   await act(async () => { root.unmount(); });
 });
 
-test("the short central message (ZURIEL 11.11.2026): the owner's lead sentence first, its second line, then compact numbers; 'כל המסר והחיבורים' opens the whole update in place", async () => {
+test("the pinned update hierarchy (ZURIEL 11.11.2026, second pass): the Post title stays; '🔔 עדכון חדש בפוסט · date' with a short summary and mini numbers; 'פתיחת העדכון' opens the whole update, 'סגירת העדכון' closes it; 'לפוסט המלא' always separate", async () => {
   const withLead = pinnedItem(5, {});
-  withLead.central = { ...withLead.central, lead: "הבורא פועל בהפוך על הפוך דרך כל המציאות", leadSub: "אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.", fullTitle: "היום 10.11 = 1011",
+  withLead.central = { ...withLead.central, kicker: "עדכון חדש בפוסט", lead: "הבורא פועל בהפוך על הפוך דרך כל המציאות", leadSub: "אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.", fullTitle: "היום 10.11 = 1011",
     statement: "מה שאנחנו רואים בעיניים הכול פעולות של הבורא, שפועל בהפוך על הפוך דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.",
     groups: [...withLead.central.groups].reverse() };
   const root = await render({ feed: feedOf([withLead, postRowToWorldUpdate(post(1, 2))].filter(Boolean)) });
   const card = root.root.findAll(node => node.props["data-now-pinned-message"])[0];
-  const kids = card.children.filter(child => typeof child !== "string").map(child => child.props.className || child.props["data-now-pinned-lead"]);
-  const lead = card.findAll(node => node.props["data-now-pinned-lead"] === "true")[0];
-  assert.equal(lead.findByType("h3").children.join(""), "הבורא פועל בהפוך על הפוך דרך כל המציאות");
-  assert.equal(lead.findByType("p").children.join(""), "אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.");
-  assert.ok(kids.indexOf("rc29-lead") < kids.indexOf("rc29-nums is-compact"), "the message comes before the numbers");
-  assert.deepEqual(card.findAll(node => node.props.className === "rc29-num").map(node => node.props["aria-label"]), ["פתח את המספר 1011", "פתח את המספר 1234"]);
-  assert.equal(card.findAll(node => node.props.className === "rc29-sum").length, 0, "no list of phrases in the short card");
-  const toggle = card.findAll(node => node.type === "button" && node.props["aria-expanded"] === false)[0];
-  assert.equal(toggle.children.join(""), "כל המסר והחיבורים");
-  await act(async () => { toggle.props.onClick(); });
+  assert.equal(card.findByType("h3").children.join(""), "פוסט 5107", "the Post's own title, unchanged by the update");
+  const update = card.findAll(node => node.props["data-now-pinned-update"] === "true")[0];
+  const head = update.findAll(node => node.props.className === "rc29-update-head")[0];
+  assert.equal(head.findByType("b").children.join(""), "עדכון חדש בפוסט"); assert.equal(head.findByType("time").children.join(""), "10.11.2026");
+  assert.equal(update.findAll(node => node.props["data-now-pinned-summary"] === "true")[0].children.join(""),
+    "הבורא פועל בהפוך על הפוך דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.", "a short summary, the owner's words");
+  assert.deepEqual(card.findAll(node => node.props.className === "rc29-num r29-coin").map(node => node.props["aria-label"]), ["פתח את המספר 1011", "פתח את המספר 1234"], "mini numbers, clickable");
+  assert.equal(card.findAll(node => node.props["data-now-pinned-full"] === "true").length, 0, "closed: the full update does not take the screen");
+  assert.equal(card.findAll(node => node.props.className === "rc29-line").length, 0);
+  assert.equal(card.findAll(node => node.props["data-now-pinned-post"] === "true").length, 1, "'לפוסט המלא' always present");
+  const toggle = () => root.root.findAll(node => node.props["data-now-pinned-message"])[0].findAll(node => node.type === "button")[0];
+  assert.equal(toggle().children.join(""), "פתיחת העדכון"); assert.equal(toggle().props["aria-expanded"], false);
+  await act(async () => { toggle().props.onClick(); });
   const full = root.root.findAll(node => node.props["data-now-pinned-full"] === "true")[0];
+  assert.equal(full.findAll(node => node.props["data-now-pinned-lead"] === "true")[0].findAll(node => node.props.className === "rc29-lead-text")[0].children.join(""), "הבורא פועל בהפוך על הפוך דרך כל המציאות");
   assert.equal(full.findAll(node => node.props.className === "rc29-full-title")[0].children.join(""), "היום 10.11 = 1011");
+  assert.deepEqual(full.findAll(node => node.props.className === "rc29-line").map(node => node.findAllByType("span")[0].children.join("")),
+    ["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים", "ממשלת משיח בן דוד", "התגלות השכינה"], "every phrase of every group");
   assert.match(full.findAll(node => node.props["data-now-pinned-statement"] === "true")[0].children.join(""), /שפועל בהפוך על הפוך/);
+  assert.equal(root.root.findAll(node => node.props["data-now-pinned-summary"] === "true").length, 0);
+  assert.equal(toggle().children.join(""), "סגירת העדכון"); assert.equal(toggle().props["aria-expanded"], true);
+  await act(async () => { toggle().props.onClick(); });
+  assert.equal(root.root.findAll(node => node.props["data-now-pinned-full"] === "true").length, 0, "closes back to the summary");
+  assert.equal(root.root.findAll(node => node.props["data-now-pinned-post"] === "true").length, 1);
   await act(async () => { root.unmount(); });
 });

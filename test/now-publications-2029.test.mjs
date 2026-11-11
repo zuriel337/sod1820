@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, latestRunAt, buildNowEntries, isRabbiBoxModel, nowTodayBand, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel, filterNowBySource, nowPinUntilLabel, nowPinnedMessage, nowSourceChoices } from "../src/lib/nowPublications2029.js";
+import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, latestRunAt, buildNowEntries, isRabbiBoxModel, isOrGeulaBoxModel, nowTodayBand, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel, filterNowBySource, nowPinUntilLabel, nowPinnedMessage, nowSourceChoices } from "../src/lib/nowPublications2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
 import { redactGroupText, groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
@@ -182,25 +182,32 @@ test("a collapsed run reports its newest valid time, whatever the row order, and
   assert.equal(latestRunAt(null), null);
 });
 
-test("Or HaGeula rabbi box: 'רב'/'הרב' as a word goes in; other updates and other channels stay out; the box sits at its newest member", () => {
-  const or = (id, text, at, extra = {}) => ({ id, title: text, fullText: text, summary: "", at, unverified: false, item: { sourceKind: "channel_update", channel: "or-geula" }, row: {}, ...extra });
-  const yes = ["קריאת קודש של הרב אלבז", "אזהרת הרב שמואל אליהו!", "דברי רב מופלא", "מהרב לעם", "והרב אמר", "לרב יש מסר", "שהרב כתב", "ברב עם"];
-  const no = ["בגין ז'ל נאום", "ארבעה מסרים", "שרב כבד", "תרבות", "הרבה מאוד", "כרב"];
-  for (const t of yes) assert.equal(isRabbiBoxModel(or("x", t, "2026-11-01")), true, t);
-  for (const t of no) assert.equal(isRabbiBoxModel(or("x", t, "2026-11-01")), false, t);
-  assert.equal(isRabbiBoxModel({ ...or("x", "הרב אלבז", "2026-11-01"), item: { sourceKind: "channel_update", channel: "site-news" } }), false, "only the Or HaGeula channel");
-  assert.equal(isRabbiBoxModel({ ...or("x", "הרב אלבז", "2026-11-01"), unverified: true }), false);
-  const models = [or("a", "סרטון פשוט", "2026-11-08T10:00:00Z"), or("b", "קריאת הרב אלבז", "2026-11-08T09:00:00Z"), or("c", "עוד סרטון", "2026-11-07T10:00:00Z"), or("d", "הרב אליהו מזהיר", "2026-11-06T10:00:00Z"), or("e", "סרטון אחרון", "2026-11-05T10:00:00Z")];
+test("Or HaGeula is a second tier: every update goes in ONE box; only the owner's featured update (or a series occurrence) stands outside; a first-tier row is never pushed out", () => {
+  const or = (id, text, at, extra = {}, item = {}) => ({ id, title: text, fullText: text, summary: "", at, unverified: false, item: { sourceKind: "channel_update", channel: "or-geula", ...item }, row: {}, ...extra });
+  for (const t of ["קריאת קודש של הרב אלבז", "סרטון פשוט", "חודש טוב שמח ומבורך", ""]) assert.equal(isOrGeulaBoxModel(or("x", t, "2026-11-01")), true, t || "media only");
+  assert.equal(isOrGeulaBoxModel(or("x", "סרטון פופולרי", "2026-11-01", {}, { ownerFeatured: true })), false, "the owner's featured update stands outside");
+  assert.equal(isOrGeulaBoxModel(or("x", "בסדרה", "2026-11-01", {}, { seriesKey: "s" })), false, "a series occurrence keeps its series row");
+  assert.equal(isOrGeulaBoxModel({ ...or("x", "הרב אלבז", "2026-11-01"), item: { sourceKind: "channel_update", channel: "site-news" } }), false, "only the Or HaGeula channel");
+  assert.equal(isOrGeulaBoxModel({ ...or("x", "הרב אלבז", "2026-11-01"), unverified: true }), false);
+  assert.equal(isRabbiBoxModel, isOrGeulaBoxModel, "the old name is the same rule");
+  const reality = { id: "r", title: "תמונה מזרם המציאות", at: "2026-11-09T10:00:00Z", unverified: false, item: { sourceKind: "gallery_update" }, row: {} };
+  const models = [or("a", "חודש טוב", "2026-11-11T10:00:00Z"), or("b", "קריאת הרב", "2026-11-11T09:00:00Z"), or("p", "סרטון פופולרי", "2026-11-11T08:00:00Z", {}, { ownerFeatured: true }),
+    or("c", "עוד סרטון", "2026-11-10T10:00:00Z"), or("d", "תמונה", "2026-11-10T09:00:00Z"), reality, or("e", "ישן", "2026-11-08T10:00:00Z")];
   const entries = buildNowEntries(models);
-  assert.deepEqual(entries.map(e => e.kind === "box" ? "box" : e.kind === "run" ? "run" : e.model.id), ["a", "box", "c", "e"], "the box sits at its newest member, others keep their order");
-  assert.deepEqual(entries[1].models.map(m => m.id), ["b", "d"]);
-  assert.equal(entries[1].latest, "2026-11-08T09:00:00.000Z");
-  // a new update with the word lifts the whole box to the top
-  const lifted = buildNowEntries([or("n", "הרב חדש", "2026-11-09T10:00:00Z"), ...models]);
-  assert.equal(lifted[0].kind, "box"); assert.deepEqual(lifted[0].models.map(m => m.id), ["n", "b", "d"]);
-  // no member: no box, nothing else changes
-  assert.deepEqual(buildNowEntries([models[0], models[2]]).map(e => e.model.id), ["a", "c"]);
+  assert.deepEqual(entries.map(e => e.kind === "box" ? "box" : e.model.id), ["box", "p", "r"], "five Or HaGeula updates take ONE entry; the reality image two days back stays");
+  assert.deepEqual(entries[0].models.map(m => m.id), ["a", "b", "c", "d", "e"]);
+  assert.equal(entries[0].latest, "2026-11-11T10:00:00.000Z");
+  assert.ok(buildNowEntries(models).slice(0, 3).some(e => e.kind === "row" && e.model.id === "r"), "inside a short Home window the first-tier row survives");
+  assert.deepEqual(buildNowEntries([reality]).map(e => e.model.id), ["r"], "no member: no box");
   assert.equal(buildNowEntries(models, { rabbiBox: false }).some(e => e.kind === "box"), false);
+});
+
+test("the owner's mark is read from channel_updates.priority (above the default 50) and never inferred", () => {
+  const row = (priority) => ({ id: "10000000-0000-4000-8000-0000000000ab", channel: "or-geula", status: "live", page_only: false, created_at: "2026-11-11T08:00:00Z", text: "סרטון", image_url: null, priority });
+  assert.equal(publicChannelToSystemItem(row(100)).ownerFeatured, true);
+  for (const p of [50, 0, null, undefined, "x"]) assert.equal(publicChannelToSystemItem(row(p)).ownerFeatured, false, String(p));
+  const source = readFileSync(new URL("../src/lib/research/systemFeedPublicSources2029.js", import.meta.url), "utf8");
+  assert.match(source, /created_at,link_url,priority"\)/, "the public reader asks for the owner's mark");
 });
 
 test("a pinned item (the Home featured post) stays first in the Now window whatever its time", () => {
@@ -281,4 +288,40 @@ test("source picker: a stable key per source kind (group / channel / series / th
   assert.equal(choices.find(item => item.id === "site:posts").label, "פרסומי האתר");
   assert.deepEqual(filterNowBySource(models, "channel:or-geula").map(model => model.id), ["channel:00000000-0000-4000-8000-0000000000aa"]);
   assert.equal(filterNowBySource(models, "").length, models.length);
+});
+
+// ── "עכשיו · המרכז", second pass (ZURIEL 11.11.2026): almost every row opens in place; clear "חדש"/"עודכן"; one hue per source kind ────────
+test("rows open in place on what exists (full text, or the published summary, or media) and never on nothing; 'עודכן' marks a source update; tones by kind", () => {
+  const at = "2026-11-11T08:00:00Z";
+  const postRow = (o = {}) => ({ id: "post:1", at, title: "פוסט", href: "/post/p1", item: { sourceKind: "post", label: "פוסט", ...o } });
+  const withSummary = nowRowModel(postRow({ summary: "התקציר שפורסם" }));
+  assert.equal(withSummary.canExpand, true, "a Post with its published summary opens in place");
+  assert.equal(nowRowModel(postRow({})).canExpand, false, "nothing to show: no empty panel");
+  assert.equal(nowRowModel(postRow({ summary: "x", sourceUpdate: { at } })).updated, true, "a source update reads 'עודכן'");
+  assert.equal(withSummary.updated, false);
+  const groupModel = nowRowModel({ id: "g", at, item: groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "הודעה", created_at: at, contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" }) });
+  assert.equal(groupModel.tone, "teal", "group sources are turquoise"); assert.equal(groupModel.unverified, true, "the group label stays");
+  const source = readFileSync(new URL("../src/components/experience2029/NowPublications2029.jsx", import.meta.url), "utf8");
+  assert.match(source, /data-now-label="new">חדש</); assert.match(source, /data-now-label="updated">עודכן</);
+  assert.match(source, /data-now-detail="summary"/); assert.match(source, /data-now-detail="excerpt-note">זהו התקציר שפורסם; המשך הפרסום בעמוד המלא\./);
+  assert.match(source, /data-now-action="source-all"/, "a row leads to every update from its source (the existing source picker)");
+  assert.doesNotMatch(source, /autoPlay=\{true\}|autoplay=1/, "no autoplay");
+  assert.match(source, /className="sod29-nowpub-label r29-badge is-new"/, "the shared Royal badge");
+  const royal = readFileSync(new URL("../src/components/experience2029/royal2029.css", import.meta.url), "utf8");
+  assert.match(royal, /\.r29-badge\.is-new\{[^}]*animation:r29-pulse 1\.4s ease-out 3\}/, "a finite pulse");
+  assert.match(royal, /prefers-reduced-motion:reduce\)\{\.r29 \.r29-badge\.is-new\{animation:none\}/);
+});
+
+// ── ROYAL 2029 (ZURIEL 11.11.2026): one shared Royal layer; every hue is a canonical --s29-* role; "עכשיו" is its first adopter ─────────
+test("the Royal layer defines no colour of its own: every hue resolves from the canonical 2029 palette roles, and the Now adapter defines none", () => {
+  const royal = readFileSync(new URL("../src/components/experience2029/royal2029.css", import.meta.url), "utf8");
+  const tokens = royal.slice(royal.indexOf(".r29{"), royal.indexOf("}", royal.indexOf(".r29{")));
+  for (const [name, role] of [["gold", "--s29-brand-gold"], ["violet", "--s29-accent-secondary"], ["sapphire", "--s29-brand-sapphire"], ["azure", "--s29-accent-text"], ["teal", "--s29-discovery"], ["amber", "--s29-warm-accent"]])
+    assert.match(tokens, new RegExp(`--r29-${name}:var\\(${role}\\)`), name);
+  assert.doesNotMatch(royal.replace(/\/\*[\s\S]*?\*\//g, ""), /#[0-9a-fA-F]{3,8}\b|rgb\(/, "no hex or rgb hue; only canonical roles");
+  const adapter = readFileSync(new URL("../src/components/experience2029/nowRoyalCenter2029.css", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.doesNotMatch(adapter, /#[0-9a-fA-F]{3,8}\b|rgb\(/, "the Now adapter is layout only");
+  assert.match(royal, /:where\(\.sod29-root\[data-frame-theme-preset="light"\],\.sod29-root\[data-frame-theme-preset="parchment"\]\) \.r29\{/, "Day and Parchment tune intensity only");
+  const pin = readFileSync(new URL("../src/components/experience2029/NowRoyalCenter2029.jsx", import.meta.url), "utf8");
+  assert.match(pin, /import "\.\/royal2029\.css";/); assert.match(pin, /className=\{`rc29-pin r29 r29-hall/);
 });

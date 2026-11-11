@@ -40,8 +40,10 @@ export const NOW_MEDIA = Object.freeze([
 
 // Presentation-only colour family of a row / lens chip (never ranking, never a claim): drives CSS hue only.
 export const NOW_LENS_TONE = Object.freeze({ all: "sky", sources: "ember", messages: "gold", reality: "teal", series: "violet", hints: "rose" });
-const toneOf = (lenses, unverified) => unverified ? "ember" : lenses.has("messages") ? "gold" : lenses.has("reality") ? "teal"
-  : lenses.has("hints") ? "rose" : lenses.has("series") ? "violet" : "sky";
+// ZURIEL 11.11.2026 (Royal, second pass): one clear hue per KIND of publication, from the same approved tone set — a public group source
+// (unchecked) is turquoise, Or HaGeula / messages gold, a series violet, hints rose, the site's own Posts sky. Presentation only, never a claim.
+const toneOf = (lenses, unverified) => unverified ? "teal" : lenses.has("messages") ? "gold" : lenses.has("hints") ? "rose"
+  : lenses.has("series") ? "violet" : lenses.has("reality") ? "teal" : "sky";
 
 // Source logos (small webp copies of the approved logos: Or HaGeula = the broadcast logo, ELS = Bible-cipher research, site = the crown).
 // A logo only names WHERE a row comes from; it never claims verification. Unverified group sources get none. The series session adds
@@ -165,7 +167,11 @@ export function nowRowModel(row) {
     ...nowExcerpt({ unverified, title, fullText, summary }),
     // Unverified source rows stay two lines without a text excerpt; a group source WITH media still shows its preview.
     previewKind: (unverified && !(isGroup && (video || image))) ? null : video ? "video" : audio ? null : (image || media) ? "image" : null,
-    canExpand: Boolean(fullText || media),
+    // Almost every row opens in place (ZURIEL 11.11.2026): its full text when the item carries it, otherwise the approved summary (a Post's excerpt),
+    // otherwise its media. A row with nothing to show stays a plain link — never an empty panel, never an invented continuation.
+    canExpand: Boolean(fullText || summary || media),
+    // "עודכן": the publication itself received an update (a proven Post source update, or the owner's pinned update). "חדש" stays row.isNew.
+    updated: Boolean(item.sourceUpdate || item.pinned === true),
   };
 }
 
@@ -250,17 +256,19 @@ export function latestRunAt(models) {
   return best == null ? null : new Date(best).toISOString();
 }
 
-// ── Or HaGeula rabbi box (ZURIEL 10.11.2026) ─────────────────────────────────────────────────────────────────────────────────
-// Every Or HaGeula update whose own words contain "רב" or "הרב" (as a word: רב, הרב, and ו/ל/ב/ש/מה + הרב, ו/ל/ב + רב) goes
-// INTO one box; an Or HaGeula update without those words (e.g. a plain video) stays OUTSIDE as its own row. The box takes the place of
-// its newest member, so a new update lifts the whole box. Every member stays its own publication (same id, same order inside).
-// Pure presentation over the loaded rows: one function for Now and Home, no second reader, no re-ranking of anything else.
-const RABBI_WORD = /(?:^|[^\u05D0-\u05EA])(?:[ולבש]?ה|[ולב]|מה)?רב(?![\u05D0-\u05EA])/;
+// ── Or HaGeula box (ZURIEL 10.11.2026; widened 11.11.2026) ───────────────────────────────────────────────────────────────────
+// Or HaGeula is a SECOND tier: every one of its updates lives in ONE box, so however many arrive they take a single entry and never push a
+// first-tier publication (a reality-stream image, a Post, a series, the site's news) out of the window. The only update that stands outside is
+// one the owner marked himself (channel_updates.priority above the default → item.ownerFeatured), e.g. a popular video; and a series-approved
+// occurrence (item.seriesKey) keeps its series row. Popularity is NEVER inferred from views or shares. The box sits where its newest member sits;
+// every member stays its own publication (same id, same order inside). Pure presentation over the loaded rows: one function for Now and Home.
 export const RABBI_BOX_LABEL = "אור הגאולה";
-export function isRabbiBoxModel(model) {
-  if (!model || model.item?.sourceKind !== "channel_update" || model.item?.channel !== "or-geula" || model.unverified) return false;
-  return [model.title, model.fullText, model.summary].some(text => RABBI_WORD.test(String(text || "")));
+export function isOrGeulaBoxModel(model) {
+  const item = model?.item;
+  return Boolean(model && item?.sourceKind === "channel_update" && item.channel === "or-geula" && !model.unverified && item.ownerFeatured !== true && !item.seriesKey);
 }
+/** @deprecated name kept for existing callers: the box now holds every Or HaGeula update except the owner's featured one. */
+export const isRabbiBoxModel = isOrGeulaBoxModel;
 
 /**
  * Entries of the window: { kind: "row", model } | { kind: "run", ... } (consecutive source rows) | { kind: "box", id, label, models, latest }.
