@@ -1349,7 +1349,7 @@ function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, jo
     {actionState?.kind === "conversation_error" ? <FrameState kind="error" title="השיחה אינה זמינה">לא הצלחנו לפתוח את השיחה כרגע.</FrameState> : null}
   </section>;
 
-  const followNode = <section className="sod29-workspace-follow" aria-label="אחרי מה אני עוקב" data-workspace-section="follow-body">
+  const followNode = <section className="sod29-workspace-follow" aria-label="אחרי מה אני עוקב" data-workspace-section="follow">
     {follows.status === "loading" ? <FrameState kind="loading" title="טוען מעקבים">קורא את ההעדפות שלך.</FrameState> : null}
     {follows.status === "error" ? <FrameState kind="error" title="המעקבים לא נטענו" action={<button type="button" className="sod29-action" onClick={() => setSummaryAttempt(n => n + 1)}>ניסיון נוסף</button>}>מצב המעקב אינו ידוע כרגע.</FrameState> : null}
     {follows.status === "ready" && !follows.topics.length ? <FrameState kind="empty" title="אין עדיין מעקבים">לחץ 🔔 על מספר, קטגוריה או ערוץ כדי לעקוב.</FrameState> : null}

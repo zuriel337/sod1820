@@ -73,6 +73,11 @@ button.pa29-card,.pa29-more-head{cursor:pointer}
 .pa29-card.is-closed .pa29-state[data-pa29-state="building"]{--r29-hue:var(--r29-amber)}
 @media (hover:hover){button.pa29-card:hover,.pa29-more-head:hover{background:color-mix(in srgb,var(--r29-hue) 9%,transparent)}}
 
+/* Raziel's presence card, now inside a list: no card of its own, one column, the actions under the text. */
+.pa29 .sod29-workspace-raziel-presence{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:0;border:0;background:none;box-shadow:none}
+.pa29 .sod29-workspace-raziel-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:8px}
+.pa29 .sod29-workspace-raziel-copy{display:grid;gap:4px;min-inline-size:0}
+
 /* ── Lists that open on demand ───────────────────────────────────────────────────────────────────────────────────────────── */
 .pa29-lists{gap:8px}
 .pa29-more{padding:0;overflow:hidden}

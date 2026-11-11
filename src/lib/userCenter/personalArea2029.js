@@ -69,7 +69,7 @@ export function personalCards({ signedIn = false, stats = null, follows = null, 
   add({ id: "credits", group: "account", icon: "discovery", title: "הקרדיטים שלי",
     hint: credits != null ? `יתרה: ${credits} · פירוט התנועות ייפתח בהמשך` : "היתרה אינה זמינה כרגע", to: null, state: "building",
     reason: "פירוט התנועות עדיין לא נחשף: הקריאה אליו סגורה בשער הציבורי (membership_credit_summary_v1)", owner: "profiles.credits via getMyProfile (balance only)" });
-  add({ id: "access", group: "account", icon: "privacy", title: "גישה ומנוי", hint: "בהכנה · ההצטרפות למסלול בתשלום אינה זמינה", to: null, state: "building",
+  add({ id: "access", group: "account", icon: "privacy", title: "גישה ומנוי", hint: "גישה ומנוי · בהכנה: ההצטרפות למסלול בתשלום אינה זמינה", to: null, state: "building",
     reason: "אין מנוי פעיל במערכת; ההצטרפות בתשלום אינה נחשפת", owner: "—" });
   return cards;
 }

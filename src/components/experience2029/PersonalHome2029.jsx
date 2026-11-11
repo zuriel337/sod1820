@@ -27,7 +27,7 @@ function Card({ card, onPress }) {
   </>;
   const common = { className: `pa29-card r29-card${closed ? " is-closed" : ""}`, "data-r29-kind": HUE[card.group] || "me", "data-workspace-card": card.id, "data-card-state": card.state,
     "aria-describedby": hintId, title: closed && card.reason ? card.reason : undefined };
-  if (closed) return <div {...common} role="group" aria-label={`${card.title}: ${STATE_LABEL[card.state] || "סגור"}`}>{body}</div>;
+  if (closed) return <div {...common} role="group" aria-disabled="true" aria-label={`${card.title}: ${STATE_LABEL[card.state] || "סגור"}`}>{body}</div>;
   return <button type="button" {...common} onClick={() => onPress(card)}>{body}</button>;
 }
 
@@ -102,7 +102,7 @@ export default function PersonalHome2029({ signedIn, name, email, avatar, stats,
       <div className="pa29-account" data-workspace-section="account" ref={accountRef}>{slots.account}</div>
     </section>
 
-    {!signedIn ? <>
+    {!signedIn && !guestLists ? <>
       {slots.guestNote}
       <section className="pa29-more r29-card" data-r29-kind="research" aria-label="מה יש באזור האישי אחרי כניסה">
         <details className="pa29-guest-list">
@@ -110,11 +110,6 @@ export default function PersonalHome2029({ signedIn, name, email, avatar, stats,
           <ul className="pa29-guest-ul">{guestCards.map(card => <li key={card.id}><b>{card.title}</b><small>{card.hint}</small></li>)}</ul>
         </details>
       </section>
-      {guestLists ? <section className="pa29-group" aria-label="המחקר והמעקב">
-        <Disclosure id="research" open={!!open.research} onToggle={toggle} icon="research" title="המחקר והשמורים" hint="המסלול, השמורים, האוספים וההיסטוריה">{slots.research}</Disclosure>
-        <Disclosure id="follow" open={!!open.follow} onToggle={toggle} icon="signal" hue="connect" title="מעקב ועדכונים" hint="בחירה מפורשת בלבד">{slots.follow}</Disclosure>
-      </section> : null}
-      {guestLists ? listsNode : null}
     </> : <>
       {PERSONAL_GROUPS.map(group => {
         const rows = cards.filter(card => card.group === group.id);
