@@ -40,8 +40,10 @@ export const NOW_MEDIA = Object.freeze([
 
 // Presentation-only colour family of a row / lens chip (never ranking, never a claim): drives CSS hue only.
 export const NOW_LENS_TONE = Object.freeze({ all: "sky", sources: "ember", messages: "gold", reality: "teal", series: "violet", hints: "rose" });
-const toneOf = (lenses, unverified) => unverified ? "ember" : lenses.has("messages") ? "gold" : lenses.has("reality") ? "teal"
-  : lenses.has("hints") ? "rose" : lenses.has("series") ? "violet" : "sky";
+// ZURIEL 11.11.2026 (Royal, second pass): one clear hue per KIND of publication, from the same approved tone set — a public group source
+// (unchecked) is turquoise, Or HaGeula / messages gold, a series violet, hints rose, the site's own Posts sky. Presentation only, never a claim.
+const toneOf = (lenses, unverified) => unverified ? "teal" : lenses.has("messages") ? "gold" : lenses.has("hints") ? "rose"
+  : lenses.has("series") ? "violet" : lenses.has("reality") ? "teal" : "sky";
 
 // Source logos (small webp copies of the approved logos: Or HaGeula = the broadcast logo, ELS = Bible-cipher research, site = the crown).
 // A logo only names WHERE a row comes from; it never claims verification. Unverified group sources get none. The series session adds
@@ -165,7 +167,11 @@ export function nowRowModel(row) {
     ...nowExcerpt({ unverified, title, fullText, summary }),
     // Unverified source rows stay two lines without a text excerpt; a group source WITH media still shows its preview.
     previewKind: (unverified && !(isGroup && (video || image))) ? null : video ? "video" : audio ? null : (image || media) ? "image" : null,
-    canExpand: Boolean(fullText || media),
+    // Almost every row opens in place (ZURIEL 11.11.2026): its full text when the item carries it, otherwise the approved summary (a Post's excerpt),
+    // otherwise its media. A row with nothing to show stays a plain link — never an empty panel, never an invented continuation.
+    canExpand: Boolean(fullText || summary || media),
+    // "עודכן": the publication itself received an update (a proven Post source update, or the owner's pinned update). "חדש" stays row.isNew.
+    updated: Boolean(item.sourceUpdate || item.pinned === true),
   };
 }
 

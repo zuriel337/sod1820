@@ -315,7 +315,7 @@ function HomeLiveUpdates({ updates, onOpenNow, sourceKey, onSource, onNavigateTo
               <Media src={lead.logo?.src || lead.thumb} fallback="✦" className="h29-live-thumb" />
               <span className="rc29-rt"><strong>{lead.title}</strong><small className="h29-live-meta"><b>{entry.label}</b> · {entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}{entry.latest ? <> · <time dateTime={entry.latest}>{relativeTimeLabel(entry.latest)}</time></> : null}</small></span>
             </>;
-            return <li className={`h29-live-item rc29-row${index === 0 ? " is-lead" : ""}`} data-home-update-item={entry.id} data-home-update-box="or-geula-rabbi" key={entry.id}>
+            return <li className={`h29-live-item rc29-row${index === 0 ? " is-lead" : ""}`} data-tone="gold" data-home-update-item={entry.id} data-home-update-box="or-geula-rabbi" key={entry.id}>
               {onOpenNow ? <button type="button" className="h29-live-open" onClick={onOpenNow}>{body}</button> : <div>{body}</div>}
             </li>;
           }
@@ -326,7 +326,7 @@ function HomeLiveUpdates({ updates, onOpenNow, sourceKey, onSource, onNavigateTo
               {model.excerpt && !model.unverified ? <span className="rc29-ex">{model.excerpt}</span> : null}
               <small className="h29-live-meta"><b>{model.typeLabel}</b>{model.byline[0] ? ` · ${model.byline[0]}` : ""}{model.at && Number.isFinite(new Date(model.at).getTime()) ? <> · <time dateTime={new Date(model.at).toISOString()}>{relativeTimeLabel(model.at)}</time></> : null}</small></span>
           </>;
-          return <li className={`h29-live-item rc29-row${index === 0 ? " is-lead" : ""}`} data-home-update-item={model.id} key={model.id}>
+          return <li className={`h29-live-item rc29-row${index === 0 ? " is-lead" : ""}`} data-tone={model.tone} data-home-update-item={model.id} key={model.id}>
             {model.href?.startsWith("/") ? <Link to={model.href}>{body}</Link> : model.href ? <a href={model.href}>{body}</a> : <div>{body}</div>}
           </li>;
         })}

@@ -110,3 +110,65 @@
 .rc29-full-title{font:750 17px/1.35 var(--s29-font-display,var(--s29-font-ui,inherit));text-align:center}
 .rc29-statement{margin:0;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--rc-g) 9%,var(--s29-panel));font:600 15.5px/1.6 var(--s29-font-ui,inherit)}
 @media (min-width:1000px){.rc29.is-home .rc29-nums.is-compact .rc29-num b{font-size:30px}}
+
+/* ── Royal, second pass (ZURIEL 11.11.2026): more depth and colour, lighter rows. Existing tokens only: --s29-*, the brand gold and the approved
+   Now tones (violet #7b55e0, teal #12a594, gold #c98a12, ember #e8742a, sky #2f7be0, rose #e0487a — nowPublications2029.css). ─────────────── */
+.rc29,.rc29-pin,.rc29-src,.sod29-nowpub.is-royal{--rc-violet:#7b55e0;--rc-teal:#12a594;--rc-amber:#c98a12;--rc-ember:#e8742a;--rc-sky:#2f7be0;--rc-rose:#e0487a;
+  --rc-gold-strong:color-mix(in srgb,var(--s29-brand-gold) 92%,var(--s29-ink))}
+
+/* The pinned Post: violet depth; its own title is the headline; the update is a distinct layer under it. */
+.rc29-pin{gap:10px;border-color:color-mix(in srgb,var(--rc-violet) 55%,var(--s29-line));
+  background:radial-gradient(130% 90% at 100% 0%,color-mix(in srgb,var(--rc-violet) 26%,transparent),transparent 62%),
+    linear-gradient(180deg,color-mix(in srgb,var(--rc-violet) 12%,var(--s29-panel)),color-mix(in srgb,var(--rc-violet) 6%,var(--s29-panel)))}
+.rc29-pin .rc29-tag.is-pin{border-color:color-mix(in srgb,var(--rc-violet) 60%,var(--s29-line));background:color-mix(in srgb,var(--rc-violet) 22%,var(--s29-panel));color:var(--s29-ink)}
+.rc29-pin .rc29-tag.is-kind{border-color:color-mix(in srgb,var(--rc-sky) 45%,var(--s29-line));background:color-mix(in srgb,var(--rc-sky) 14%,var(--s29-panel))}
+.rc29-pin-title{font:750 18px/1.4 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--rc-gold-strong);text-wrap:balance}
+.rc29-update{display:grid;gap:6px;padding:10px 12px;border-radius:14px;border-inline-start:3px solid var(--rc-ember);
+  background:color-mix(in srgb,var(--rc-ember) 10%,var(--s29-panel))}
+.rc29-update-head{margin:0;font-size:14px;color:color-mix(in srgb,var(--rc-ember) 70%,var(--s29-ink))}
+.rc29-update-head b{font-weight:750}
+.rc29-update .rc29-sum{-webkit-line-clamp:2;font-size:15.5px;color:var(--s29-ink)}
+.rc29-nums.is-mini{display:flex;gap:6px;flex-wrap:wrap}
+.rc29-nums.is-mini .rc29-num{min-block-size:32px;padding:0 10px;border-radius:999px}
+.rc29-nums.is-mini .rc29-num b{font-size:17px}
+.rc29-num b{color:var(--rc-gold-strong)}
+.rc29-btn.is-update{border-color:color-mix(in srgb,var(--rc-violet) 60%,var(--s29-line));background:color-mix(in srgb,var(--rc-violet) 30%,var(--s29-panel))}
+.rc29-pin.is-open .rc29-update{background:color-mix(in srgb,var(--rc-ember) 14%,var(--s29-panel))}
+.rc29-lead{border-inline-start-color:var(--s29-brand-gold)}
+.rc29-lead-text{font:750 18px/1.45 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--rc-gold-strong)}
+/* Inside the update layer the full update is not a third frame: it flows on the layer's own tint. */
+.rc29-update .rc29-full{padding:4px 0 0;border:0;border-radius:0;background:none}
+.rc29-update .rc29-lead{background:none}
+
+/* Source chips: one hue per kind (group turquoise, channel gold, series violet, the site sky). */
+.rc29-chip[data-kind="group"]{--chip:var(--rc-teal)}.rc29-chip[data-kind="channel"]{--chip:var(--rc-amber)}
+.rc29-chip[data-kind="series"]{--chip:var(--rc-violet)}.rc29-chip[data-kind="site"]{--chip:var(--rc-sky)}.rc29-chip[data-kind="all"]{--chip:var(--s29-brand-gold)}
+.rc29-chip{border-color:color-mix(in srgb,var(--chip) 40%,var(--s29-line));background:color-mix(in srgb,var(--chip) 7%,var(--s29-panel))}
+.rc29-chip .rc29-cm{color:var(--chip);background:color-mix(in srgb,var(--chip) 16%,var(--s29-panel))}
+.rc29-chip[aria-pressed="true"]{border-color:var(--chip);background:color-mix(in srgb,var(--chip) 26%,var(--s29-panel));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--chip) 45%,transparent)}
+
+/* Lighter rows: a thin tone accent instead of a heavy brown frame around every row; the open row gets a soft tone depth. */
+.sod29-nowpub.is-royal :is(.sod29-nowpub-row,.sod29-nowpub-run,.sod29-nowpub-box){border:1px solid color-mix(in srgb,var(--tone,var(--s29-line)) 20%,var(--s29-line));
+  background:color-mix(in srgb,var(--tone,var(--s29-panel)) 4%,var(--s29-panel))}
+.sod29-nowpub.is-royal :is(.sod29-nowpub-row[open],.sod29-nowpub-row.is-selected,.sod29-nowpub-run[open],.sod29-nowpub-box[open]){
+  border-color:color-mix(in srgb,var(--tone,var(--s29-brand-gold)) 50%,var(--s29-line));background:color-mix(in srgb,var(--tone,var(--s29-brand-gold)) 11%,var(--s29-panel))}
+.sod29-nowpub.is-royal .sod29-nowpub-row>summary{position:relative;padding-inline-end:30px}
+.sod29-nowpub-chev{position:absolute;inset-inline-end:10px;inset-block-start:50%;inline-size:9px;block-size:9px;margin-block-start:-6px;
+  border-inline-end:2px solid color-mix(in srgb,var(--tone,var(--s29-brand-gold)) 70%,var(--s29-ink));border-block-end:2px solid color-mix(in srgb,var(--tone,var(--s29-brand-gold)) 70%,var(--s29-ink));
+  transform:rotate(45deg);transition:transform var(--s29-motion,180ms) ease}
+.sod29-nowpub-row[open]>summary .sod29-nowpub-chev{transform:rotate(-135deg);margin-block-start:-2px}
+.sod29-nowpub-row:not(details) .sod29-nowpub-chev{display:none}
+.sod29-nowpub-label{display:inline-flex;align-items:center;padding:0 8px;border-radius:999px;font-size:12px;font-weight:750;line-height:20px}
+.sod29-nowpub-label.is-new{background:color-mix(in srgb,var(--rc-ember) 24%,var(--s29-panel));color:color-mix(in srgb,var(--rc-ember) 80%,var(--s29-ink));animation:rc29-pulse 1.4s ease-out 3}
+.sod29-nowpub-label.is-updated{background:color-mix(in srgb,var(--rc-violet) 22%,var(--s29-panel));color:color-mix(in srgb,var(--rc-violet) 60%,var(--s29-ink))}
+.sod29-nowpub-body.is-summary{color:color-mix(in srgb,var(--s29-ink) 90%,var(--s29-muted))}
+@media (prefers-reduced-motion:reduce){.sod29-nowpub-label.is-new{animation:none}.sod29-nowpub-chev{transition:none}}
+
+/* Home centre rows: the same tone accent, lighter frames. */
+.rc29 .h29-live-item.rc29-row>:is(a,button,div){border-color:color-mix(in srgb,var(--tone,var(--s29-line)) 22%,var(--s29-line));
+  background:color-mix(in srgb,var(--tone,var(--s29-panel)) 5%,var(--s29-panel));border-inline-start:3px solid var(--tone,var(--s29-brand-gold))}
+.rc29 .h29-live-item[data-tone="sky"]{--tone:var(--rc-sky)}.rc29 .h29-live-item[data-tone="gold"]{--tone:var(--rc-amber)}
+.rc29 .h29-live-item[data-tone="teal"]{--tone:var(--rc-teal)}.rc29 .h29-live-item[data-tone="violet"]{--tone:var(--rc-violet)}
+.rc29 .h29-live-item[data-tone="rose"]{--tone:var(--rc-rose)}.rc29 .h29-live-item[data-tone="ember"]{--tone:var(--rc-ember)}
+.rc29.is-home{border-color:color-mix(in srgb,var(--s29-brand-gold) 38%,var(--s29-line))}
+.rc29-head h2{color:var(--rc-gold-strong)}

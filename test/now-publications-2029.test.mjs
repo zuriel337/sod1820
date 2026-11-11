@@ -282,3 +282,24 @@ test("source picker: a stable key per source kind (group / channel / series / th
   assert.deepEqual(filterNowBySource(models, "channel:or-geula").map(model => model.id), ["channel:00000000-0000-4000-8000-0000000000aa"]);
   assert.equal(filterNowBySource(models, "").length, models.length);
 });
+
+// ── "עכשיו · המרכז", second pass (ZURIEL 11.11.2026): almost every row opens in place; clear "חדש"/"עודכן"; one hue per source kind ────────
+test("rows open in place on what exists (full text, or the published summary, or media) and never on nothing; 'עודכן' marks a source update; tones by kind", () => {
+  const at = "2026-11-11T08:00:00Z";
+  const postRow = (o = {}) => ({ id: "post:1", at, title: "פוסט", href: "/post/p1", item: { sourceKind: "post", label: "פוסט", ...o } });
+  const withSummary = nowRowModel(postRow({ summary: "התקציר שפורסם" }));
+  assert.equal(withSummary.canExpand, true, "a Post with its published summary opens in place");
+  assert.equal(nowRowModel(postRow({})).canExpand, false, "nothing to show: no empty panel");
+  assert.equal(nowRowModel(postRow({ summary: "x", sourceUpdate: { at } })).updated, true, "a source update reads 'עודכן'");
+  assert.equal(withSummary.updated, false);
+  const groupModel = nowRowModel({ id: "g", at, item: groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "הודעה", created_at: at, contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique" }) });
+  assert.equal(groupModel.tone, "teal", "group sources are turquoise"); assert.equal(groupModel.unverified, true, "the group label stays");
+  const source = readFileSync(new URL("../src/components/experience2029/NowPublications2029.jsx", import.meta.url), "utf8");
+  assert.match(source, /data-now-label="new">חדש</); assert.match(source, /data-now-label="updated">עודכן</);
+  assert.match(source, /data-now-detail="summary"/); assert.match(source, /data-now-detail="excerpt-note">זהו התקציר שפורסם; המשך הפרסום בעמוד המלא\./);
+  assert.match(source, /data-now-action="source-all"/, "a row leads to every update from its source (the existing source picker)");
+  assert.doesNotMatch(source, /autoPlay=\{true\}|autoplay=1/, "no autoplay");
+  const css = readFileSync(new URL("../src/components/experience2029/nowRoyalCenter2029.css", import.meta.url), "utf8");
+  assert.match(css, /\.sod29-nowpub-label\.is-new\{[^}]*animation:rc29-pulse 1\.4s ease-out 3\}/, "a finite pulse");
+  assert.match(css, /prefers-reduced-motion:reduce\)\{\.sod29-nowpub-label\.is-new\{animation:none\}/);
+});
