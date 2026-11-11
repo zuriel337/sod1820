@@ -30,3 +30,13 @@ test("unrequested method retains existing regular-first behavior", async () => {
   const result = await resolveExpressionFocus("משיח", { profileReader });
   assert.equal(result.root, 358); assert.equal(result.method, "רגיל");
 });
+
+test("legacy calculator links with focus=dna open the plain number: the section pointer is not an expression", () => {
+  const legacy = parseNumberExpressionFocus("?from=calc&focus=dna&method=" + encodeURIComponent("מילוי דמילוי"));
+  assert.deepEqual(legacy, { expression: null, method: null, crossingPartner: null, explicit: false });
+  assert.deepEqual(parseNumberExpressionFocus("?from=calc"), { expression: null, method: null, crossingPartner: null, explicit: false });
+  // The pointer is ignored only as an expression; a real expression, a cross partner and other words keep working.
+  assert.equal(parseNumberExpressionFocus("?focus=DNA").expression, null);
+  assert.deepEqual(parseNumberExpressionFocus("?focus=dna&cross=" + encodeURIComponent("משיח")), { expression: null, method: null, crossingPartner: "משיח", explicit: true });
+  assert.equal(parseNumberExpressionFocus("?focus=" + encodeURIComponent("דנא")).expression, "דנא");
+});

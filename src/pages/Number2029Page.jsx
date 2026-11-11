@@ -922,7 +922,8 @@ function NumberPageBody({ resolvedAddress = null }) {
       lens: "number",
       dimensions: { ...(research.context?.dimensions || {}), expressionFocusExplicit: false },
     });
-    navigate(`/2029/number/${root}`, { replace: true });
+    // Public addresses stay /number/<root>; the compatibility prefix is only used outside the public release.
+    navigate(numberExpressionFocusHref(root) || `/2029/number/${root}`, { replace: true });
   };
 
   const returnToOriginTopic = () => {

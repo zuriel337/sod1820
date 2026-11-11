@@ -63,10 +63,18 @@ export function numberExpressionFocusHref(root, {
   return `${prefix}/${numeric}${query ? `?${query}` : ""}`;
 }
 
+// Legacy calculator links (/number/N?from=calc&focus=dna&method=<method>) used `focus=dna` as a section pointer ("open the
+// convergence axes"), not as an expression. Treating it as an expression showed the word "dna" as the page's expression, so the
+// legacy pointer (and its method, which belonged to an expression that was never carried in the link) is ignored. The number page
+// itself opens exactly as for a plain /number/N address; `cross` keeps working.
+const LEGACY_FOCUS_SECTION_POINTERS = new Set(["dna"]);
+
 export function parseNumberExpressionFocus(search = "") {
   const params = new URLSearchParams(String(search || "").replace(/^\?/, ""));
-  const expression = clean(params.get("focus"));
-  const method = clean(params.get("method"));
+  const rawExpression = clean(params.get("focus"));
+  const legacyPointer = LEGACY_FOCUS_SECTION_POINTERS.has(rawExpression.toLowerCase());
+  const expression = legacyPointer ? "" : rawExpression;
+  const method = legacyPointer ? "" : clean(params.get("method"));
   const crossingPartner = clean(params.get("cross"));
   return {
     expression: expression || null,
