@@ -1,18 +1,22 @@
--- SOD1820 · 11b · admin_suggestion_decide: accepting a recommendation does not activate an agent. PROPOSAL ONLY. NOT EXECUTED.
--- Task CONTRACT_GOVERNANCE_REVIEW_GAP_CLOSURE_20261111. Replaces 11_admin_suggestion_decide_text.sql: do not run 11_.
--- Needs its own explicit ZURIEL approval of this file's SHA-256, for one run (CLAUDE.md §0.4). Approval of this file is not approval of 18b.
+-- SOD1820 · 11b · admin_suggestion_decide: accepting a recommendation records a decision only. PROPOSAL ONLY. NOT EXECUTED.
+-- ZURIEL 11.11.2026: «קבלת המלצה מתעדת החלטה בלבד. התחלת עבודה דורשת הוראה מפורשת שלי לסוכן מסוים בשיחה.»
+-- Task CONTRACT_GOVERNANCE_REVIEW_GAP_CLOSURE_20261111. Replaces 11_admin_suggestion_decide_text.sql (superseded: do not run it).
+-- Needs its own explicit ZURIEL approval of this file's SHA-256, for one run (CLAUDE.md §0.4). Approval of this file is not approval of any other.
+-- ORDER: 1st. Then supabase/proposed/20261111120100_system_suggestions_law_v7_decision_record_only.sql
+--   (system_suggestions_law v6 → v7), which refuses until this file has run. This file refuses once v7 is active (check 4).
 -- One statement (one DO block), so it is all or nothing. Every condition below is checked inside; any mismatch raises and nothing changes.
 --   1. The embedded definition is intact: 6286 bytes, md5 f44dc42fafdf4a8ef4ae3db700fbeacf.
---   2. The live definition is the reviewed base: md5 12961a8c758d5eb86a3d6834bb54ac82 (refuses if 11_ ran, if 11b already ran, or on any drift).
+--   2. The live definition is the reviewed base: md5 12961a8c758d5eb86a3d6834bb54ac82 (refuses if 11_ ran, if this file already ran, or on any drift).
 --   3. Function metadata: SECURITY DEFINER, search_path=public, owner postgres, EXECUTE for postgres, authenticated and service_role only.
 --   4. Active laws: system_suggestions_law v6, deploy_on_request v4, inter_agent_coordination_law v18.
 --   5. work_log triggers, unique indexes and check constraints are exactly the ones the no-activation proof was run against.
 -- After: md5 f44dc42fafdf4a8ef4ae3db700fbeacf, same metadata and permissions (CREATE OR REPLACE keeps the ACL).
 -- What changes: the accepted dependency_upgrade_radar branch writes one passive record to ZURIEL (no dispatch fields, no TO=CLAUDE,
 -- no assignment mode) instead of a QUEUED ASSIGNMENT to CLAUDE. Everything before it is unchanged: admin check, status check,
--- row lock, payload validation, overlap guard and the status update. Exact diff: admin_suggestion_decide.diff
--- Rollback: 18b_admin_suggestion_decide_not_activated_ROLLBACK.sql restores the exact base, which turns the automatic assignment back on.
--- After an approved run, add the same definition as a migration under supabase/migrations so the repository matches the DB.
+-- row lock, payload validation, overlap guard and the status update.
+-- Exact diff: docs/reviews/contract-governance-audit-20261110/gap-closure-20261111/sql11b/admin_suggestion_decide.diff
+-- Rollback: ROLLBACK_20261111120000_admin_suggestion_decide.sql, which restores the exact base (and the automatic assignment);
+-- it refuses until ROLLBACK_20261111120100_system_suggestions_law_v7.sql has put v6 back.
 do $sod_11b$
 declare
   v_def constant text := $sod_def$CREATE OR REPLACE FUNCTION public.admin_suggestion_decide(p_id bigint, p_status text, p_note text DEFAULT NULL::text)

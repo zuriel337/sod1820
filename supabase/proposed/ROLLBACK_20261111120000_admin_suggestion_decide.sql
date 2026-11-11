@@ -1,5 +1,7 @@
 -- SOD1820 · 18b · ROLLBACK of 11b: restores the exact base admin_suggestion_decide (md5 12961a8c758d5eb86a3d6834bb54ac82). PROPOSAL ONLY. NOT EXECUTED.
 -- Needs its own explicit ZURIEL approval of this file's SHA-256, for one run (CLAUDE.md §0.4).
+-- ORDER: 2nd of the rollback. First ROLLBACK_20261111120100_system_suggestions_law_v7.sql must put system_suggestions_law back at v6;
+-- this file refuses while any other version is active, so the law never says «decision only» while the function activates an agent.
 -- Warning: the restored base inserts a QUEUED WRITE ASSIGNMENT to CLAUDE when a dependency_upgrade_radar suggestion is accepted,
 -- and work_log_dispatch_after_write then calls agent_dispatch_emit. That is the state before 11b.
 -- One statement (one DO block), all or nothing. Refuses unless the live definition is exactly the 11b result (md5 f44dc42fafdf4a8ef4ae3db700fbeacf)
@@ -128,6 +130,10 @@ begin
   perform set_config('search_path', 'public', true);
   if octet_length(v_def) <> 4951 or md5(v_def) <> '12961a8c758d5eb86a3d6834bb54ac82' then
     raise exception '18b refused: embedded definition is not intact (bytes %, md5 %)', octet_length(v_def), md5(v_def);
+  end if;
+  v_got := (select string_agg(n.rule_id||'@'||n.rule_version::text, ',' order by n.rule_version) from public.nodes n where n.type='rule' and n.is_active and n.rule_id='system_suggestions_law');
+  if v_got is distinct from 'system_suggestions_law@6' then
+    raise exception '18b refused: system_suggestions_law must be back at v6 first (run ROLLBACK_20261111120100_system_suggestions_law_v7.sql); active: %', v_got;
   end if;
   v_got := md5(pg_get_functiondef('public.admin_suggestion_decide(bigint,text,text)'::regprocedure));
   if v_got <> 'f44dc42fafdf4a8ef4ae3db700fbeacf' then

@@ -1,7 +1,17 @@
-// Generates 11b (apply) and 18b (rollback) from the exact definition files. Local only; never connects to a database.
+// Generates 11b (apply) and 18b (rollback) of admin_suggestion_decide from the exact definition files. Local only; never connects to a database.
+// Output: supabase/proposed/20261111120000_admin_suggestion_decide_decision_record_only_v1.sql (11b)
+//         supabase/proposed/ROLLBACK_20261111120000_admin_suggestion_decide.sql (18b)
 import { readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { pathToFileURL } from "node:url";
 const G = new URL("../", import.meta.url).pathname;
+const ROOT = new URL("../../../../../../", import.meta.url).pathname;
+export const FILES = {
+  apply: "supabase/proposed/20261111120000_admin_suggestion_decide_decision_record_only_v1.sql",
+  rollback: "supabase/proposed/ROLLBACK_20261111120000_admin_suggestion_decide.sql",
+  lawApply: "supabase/proposed/20261111120100_system_suggestions_law_v7_decision_record_only.sql",
+  lawRollback: "supabase/proposed/ROLLBACK_20261111120100_system_suggestions_law_v7.sql",
+};
 const md5 = (s) => createHash("md5").update(s, "utf8").digest("hex");
 const base = readFileSync(G + "base/admin_suggestion_decide.sql", "utf8");
 const neu = readFileSync(G + "new/admin_suggestion_decide.sql", "utf8");
@@ -9,7 +19,7 @@ for (const [n, s] of [["base", base], ["new", neu]]) {
   if (s.includes("$sod_def$")) throw new Error(n + " contains the payload tag");
   if (!s.endsWith("$function$\n")) throw new Error(n + " must end with $function$ + newline");
 }
-// Live values, read-only from linswmnnkjxvweumprav on 11.11.2026 (same expressions as the guards below).
+// Live values, read-only from linswmnnkjxvweumprav on 11.11.2026 (same expressions as the guards below); re-verified 11:18 UTC.
 const L = {
   baseMd5: md5(base), baseLen: Buffer.byteLength(base, "utf8"),
   newMd5: md5(neu), newLen: Buffer.byteLength(neu, "utf8"),
@@ -23,28 +33,33 @@ const FN = "'public.admin_suggestion_decide(bigint,text,text)'::regprocedure";
 export const EXPR = {
   META: "(select p.prosecdef::text||':'||array_to_string(p.proconfig,';')||':'||array_to_string(p.proacl::text[],',')||':'||p.proowner::regrole::text from pg_proc p where p.oid=" + FN + ")",
   RULES: "(select string_agg(n.rule_id||'@'||n.rule_version::text, ',' order by n.rule_id) from public.nodes n where n.type='rule' and n.is_active and n.rule_id in ('system_suggestions_law','deploy_on_request','inter_agent_coordination_law'))",
+  SSL: "(select string_agg(n.rule_id||'@'||n.rule_version::text, ',' order by n.rule_version) from public.nodes n where n.type='rule' and n.is_active and n.rule_id='system_suggestions_law')",
   TRG: "(select string_agg(t.tgname::text||':'||t.tgenabled::text||':'||p.proname::text||':'||md5(pg_get_functiondef(p.oid))||':'||md5(pg_get_triggerdef(t.oid)), ',' order by t.tgname) from pg_trigger t join pg_proc p on p.oid=t.tgfoid where t.tgrelid='public.work_log'::regclass and not t.tgisinternal)",
   UNQ: "(select string_agg(c.relname::text||':'||md5(pg_get_indexdef(i.indexrelid)), ',' order by c.relname) from pg_index i join pg_class c on c.oid=i.indexrelid where i.indrelid='public.work_log'::regclass and i.indisunique)",
   CHK: "(select string_agg(k.conname::text||':'||md5(pg_get_constraintdef(k.oid)), ',' order by k.conname) from pg_constraint k where k.conrelid='public.work_log'::regclass and k.contype='c')",
 };
-const { META, RULES, TRG, UNQ, CHK } = EXPR;
+const { META, RULES, SSL, TRG, UNQ, CHK } = EXPR;
 
 const apply = [
-  "-- SOD1820 · 11b · admin_suggestion_decide: accepting a recommendation does not activate an agent. PROPOSAL ONLY. NOT EXECUTED.",
-  "-- Task CONTRACT_GOVERNANCE_REVIEW_GAP_CLOSURE_20261111. Replaces 11_admin_suggestion_decide_text.sql: do not run 11_.",
-  "-- Needs its own explicit ZURIEL approval of this file's SHA-256, for one run (CLAUDE.md §0.4). Approval of this file is not approval of 18b.",
+  "-- SOD1820 · 11b · admin_suggestion_decide: accepting a recommendation records a decision only. PROPOSAL ONLY. NOT EXECUTED.",
+  "-- ZURIEL 11.11.2026: «קבלת המלצה מתעדת החלטה בלבד. התחלת עבודה דורשת הוראה מפורשת שלי לסוכן מסוים בשיחה.»",
+  "-- Task CONTRACT_GOVERNANCE_REVIEW_GAP_CLOSURE_20261111. Replaces 11_admin_suggestion_decide_text.sql (superseded: do not run it).",
+  "-- Needs its own explicit ZURIEL approval of this file's SHA-256, for one run (CLAUDE.md §0.4). Approval of this file is not approval of any other.",
+  "-- ORDER: 1st. Then " + FILES.lawApply,
+  "--   (system_suggestions_law v6 → v7), which refuses until this file has run. This file refuses once v7 is active (check 4).",
   "-- One statement (one DO block), so it is all or nothing. Every condition below is checked inside; any mismatch raises and nothing changes.",
   "--   1. The embedded definition is intact: " + L.newLen + " bytes, md5 " + L.newMd5 + ".",
-  "--   2. The live definition is the reviewed base: md5 " + L.baseMd5 + " (refuses if 11_ ran, if 11b already ran, or on any drift).",
+  "--   2. The live definition is the reviewed base: md5 " + L.baseMd5 + " (refuses if 11_ ran, if this file already ran, or on any drift).",
   "--   3. Function metadata: SECURITY DEFINER, search_path=public, owner postgres, EXECUTE for postgres, authenticated and service_role only.",
   "--   4. Active laws: system_suggestions_law v6, deploy_on_request v4, inter_agent_coordination_law v18.",
   "--   5. work_log triggers, unique indexes and check constraints are exactly the ones the no-activation proof was run against.",
   "-- After: md5 " + L.newMd5 + ", same metadata and permissions (CREATE OR REPLACE keeps the ACL).",
   "-- What changes: the accepted dependency_upgrade_radar branch writes one passive record to ZURIEL (no dispatch fields, no TO=CLAUDE,",
   "-- no assignment mode) instead of a QUEUED ASSIGNMENT to CLAUDE. Everything before it is unchanged: admin check, status check,",
-  "-- row lock, payload validation, overlap guard and the status update. Exact diff: admin_suggestion_decide.diff",
-  "-- Rollback: 18b_admin_suggestion_decide_not_activated_ROLLBACK.sql restores the exact base, which turns the automatic assignment back on.",
-  "-- After an approved run, add the same definition as a migration under supabase/migrations so the repository matches the DB.",
+  "-- row lock, payload validation, overlap guard and the status update.",
+  "-- Exact diff: docs/reviews/contract-governance-audit-20261110/gap-closure-20261111/sql11b/admin_suggestion_decide.diff",
+  "-- Rollback: ROLLBACK_20261111120000_admin_suggestion_decide.sql, which restores the exact base (and the automatic assignment);",
+  "-- it refuses until ROLLBACK_20261111120100_system_suggestions_law_v7.sql has put v6 back.",
   "do $sod_11b$",
   "declare",
   "  v_def constant text := $sod_def$" + neu + "$sod_def$;",
@@ -97,6 +112,8 @@ const apply = [
 const rollback = [
   "-- SOD1820 · 18b · ROLLBACK of 11b: restores the exact base admin_suggestion_decide (md5 " + L.baseMd5 + "). PROPOSAL ONLY. NOT EXECUTED.",
   "-- Needs its own explicit ZURIEL approval of this file's SHA-256, for one run (CLAUDE.md §0.4).",
+  "-- ORDER: 2nd of the rollback. First ROLLBACK_20261111120100_system_suggestions_law_v7.sql must put system_suggestions_law back at v6;",
+  "-- this file refuses while any other version is active, so the law never says «decision only» while the function activates an agent.",
   "-- Warning: the restored base inserts a QUEUED WRITE ASSIGNMENT to CLAUDE when a dependency_upgrade_radar suggestion is accepted,",
   "-- and work_log_dispatch_after_write then calls agent_dispatch_emit. That is the state before 11b.",
   "-- One statement (one DO block), all or nothing. Refuses unless the live definition is exactly the 11b result (md5 " + L.newMd5 + ")",
@@ -109,6 +126,10 @@ const rollback = [
   "  perform set_config('search_path', 'public', true);",
   "  if octet_length(v_def) <> " + L.baseLen + " or md5(v_def) <> '" + L.baseMd5 + "' then",
   "    raise exception '18b refused: embedded definition is not intact (bytes %, md5 %)', octet_length(v_def), md5(v_def);",
+  "  end if;",
+  "  v_got := " + SSL + ";",
+  "  if v_got is distinct from 'system_suggestions_law@6' then",
+  "    raise exception '18b refused: system_suggestions_law must be back at v6 first (run ROLLBACK_20261111120100_system_suggestions_law_v7.sql); active: %', v_got;",
   "  end if;",
   "  v_got := md5(pg_get_functiondef(" + FN + "));",
   "  if v_got <> '" + L.newMd5 + "' then",
@@ -134,10 +155,10 @@ const rollback = [
   "",
 ].join("\n");
 
-if (process.argv[2] === "--write") {
-  writeFileSync(G + "sql/11b_admin_suggestion_decide_not_activated.sql", apply);
-  writeFileSync(G + "sql/18b_admin_suggestion_decide_not_activated_ROLLBACK.sql", rollback);
+if (process.argv[2] === "--write" && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  writeFileSync(ROOT + FILES.apply, apply);
+  writeFileSync(ROOT + FILES.rollback, rollback);
   writeFileSync(G + "sim/literals.json", JSON.stringify(L, null, 2) + "\n");
-  console.log(JSON.stringify({ ...L, meta: undefined, wlTriggers: undefined, wlUnique: undefined, wlChecks: undefined }, null, 2));
+  console.log(JSON.stringify({ baseMd5: L.baseMd5, newMd5: L.newMd5, newLen: L.newLen, rules: L.rules }, null, 2));
 }
 export { L };

@@ -2,15 +2,15 @@
 
 > מסמך מסירה, ולא מקור אמת. הסמכות נשארת אצל החוקים החיים במסד `linswmnnkjxvweumprav`, אצל `origin/main`, ואצל הבעלים שמופיעים ב־`SOD1820_MASTER_OWNER_INDEX.md`. אין כאן אישור לביצוע: כל שינוי ב־Production, במסד או ב־main דורש אישור מפורש של ZURIEL לפעולה המדויקת (`CLAUDE.md` §0.4).
 
-## המצב, 11.11.2026 06:30 UTC
+## המצב, 11.11.2026 11:50 UTC
 | נושא | מצב | איפה |
 |---|---|---|
 | ‏SQL 10 (מדיניות השחרור, שש שורות) | **APPLIED** פעם אחת ב־04:32:42 UTC, ואומת | [`pack-v4/sql/STATUS.md`](pack-v4/sql/STATUS.md) |
 | ‏SQL 11_ | **SUPERSEDED — אין להריץ.** עדיין מפעיל סוכן כשמאשרים המלצה | אותו קובץ |
-| ‏SQL 11b ו־18b | **NOT EXECUTED.** הצעה שממתינה לשאלה אחת ולאישור DB | [`gap-closure-20261111/sql11b/`](gap-closure-20261111/sql11b/PROPOSAL.md) |
+| חבילת SQL 11b (11b, ‏11c, ‏18c, ‏18b) | **NOT EXECUTED.** הכיוון הוכרע: אישור המלצה מתעד החלטה בלבד. ממתינה לאישור DB לפי SHA-256: קודם 11b, אחריו 11c | [`gap-closure-20261111/sql11b/`](gap-closure-20261111/sql11b/PROPOSAL.md) · ‏`supabase/proposed/2026111112*` |
 | שאר קובצי ה־SQL (`19e_`, ‏`20_`–`59_`) | **NOT APPLIED / NOT EXECUTED** | [`pack-v4/sql/STATUS.md`](pack-v4/sql/STATUS.md) |
 | קוד, בדיקות ומסמכים בענף `ccr-b2565041-d94syf` | **COMMITTED, BRANCH-ONLY.** טיוטת PR; לא מוזג ולא נפרס | ה־PR |
-| חיבור G1 וחמש בדיקות הסדרות ל־CI | **בענף.** ממתין ל־CI ולביקורת | [`gap-closure-20261111/ci/CI.md`](gap-closure-20261111/ci/CI.md) |
+| חיבור G1 וחמש בדיקות הסדרות ל־CI | **בענף.** ‏CI ‏12/12 על `42028ea01`; ממתין לביקורת | [`gap-closure-20261111/ci/CI.md`](gap-closure-20261111/ci/CI.md) |
 | ‏`/heichal.html` ו־`/preview.html` | Production עדיין מגיש אותם. ה־patch מוצע ולא הוחל | [`gap-closure-20261111/legacy-pages/`](gap-closure-20261111/legacy-pages/PROPOSAL.md) |
 | ‏Production | חוץ מ־SQL 10 במסד, שום דבר לא שונה בעבודה הזו | — |
 
@@ -20,7 +20,7 @@
 - [`pack-v4/`](pack-v4/): החבילה הקריאה והדוח הגדול. **היסטוריים.** ההבדלים מה־ZIP: [`pack-v4/REPO-COPY.md`](pack-v4/REPO-COPY.md).
 
 ## מה ממתין להחלטה
-1. **SQL 11b:** איך מתחילה עבודה אחרי שמאשרים הצעת שדרוג. ההמלצה: רק בהוראה מפורשת בשיחה. אחרי ההחלטה: אישור DB לפי SHA-256, ועדכון §17 בגרסה הבאה של `system_suggestions_law`.
+1. **SQL 11b:** הכיוון הוכרע (ZURIEL, 11.11.2026). נשאר אישור הרצה לפי SHA-256 לכל קובץ, בסדר: 11b, אחריו 11c. אישור לקובצי ה־rollback (18c, ואחריו 18b) נדרש רק אם יוחלט לחזור.
 2. **דפי ה־Legacy:** האם לאשר את ההפניה של `/heichal.html` ואת ה־404 של `/preview.html`. נדרשים ארבעה אישורים: השער, ה־re-pin, המיזוג והפריסה.
 3. **סדרות:** האם לאשר את 54 ואת 5069 בסדרה ״מה קורא הבורא״, ומה דינם של תשעת המועמדים ל״מימד חמש״.
 4. **היתרה מהמסירה הקודמת:** שאר קובצי ה־SQL, הפוטר של #1296 והתווית ב־`LetterAnatomyGolden2029.jsx` (`HANDOFF-20261111.md` §7).
