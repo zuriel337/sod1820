@@ -14,6 +14,7 @@ import "./EntityHubMicroMotion.css";
 import "./EntityHubSpatial2029.css";
 import "./EntityHubLivingDoorway.css";
 import "./EntityHubSpatialModes.css";
+import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 
 const tools = [
   { name: "gematria", label: "גימטריה", sub: "אות ⇄ מספר", tone: "heritage", tier: "T2" },
@@ -162,7 +163,7 @@ function EntityHubPreviewBody() {
       research.updateResearchContext?.({ selection, lens: "number", dimensions });
     } else {
       research.setResearchContext?.({
-        subject: { id: String(root), type: "number", label: String(root), href: `/2029/number/${root}` },
+        subject: { id: String(root), type: "number", label: String(root), href: `${NUMBER_PAGE_BASE}/${root}` },
         selection,
         lens: "number",
         locale: current?.locale || "he",

@@ -75,7 +75,7 @@
   border-radius:999px;
   background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent);
   color:var(--s29-muted);
-  font-size:12px;
+  font-size:var(--sod29-number-text,16px);
 }
 .sod29-number-result b{color:var(--s29-ink)}
 .sod29-number-result strong{
@@ -135,7 +135,7 @@
 }
 .sod29-number-observatory-node>span{
   color:var(--s29-muted);
-  font-size:9px;
+  font-size:var(--sod29-number-support,14px);
   font-weight:850;
   letter-spacing:.06em;
 }
@@ -147,7 +147,7 @@
 }
 .sod29-number-observatory-node>small{
   color:var(--s29-muted);
-  font-size:9.5px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.4;
 }
 .sod29-number-observatory-center{
@@ -194,7 +194,7 @@
   margin:0;
   max-width:420px;
   color:var(--s29-muted);
-  font-size:11px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.62;
 }
 .sod29-number-observatory-reset{
@@ -245,7 +245,7 @@
   border-radius:999px;
   background:color-mix(in srgb,var(--s29-panel-soft) 88%,transparent);
   color:var(--s29-muted);
-  font-size:8.5px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-hero-media{
   width:min(900px,100%);
@@ -273,11 +273,11 @@
 .sod29-number-hero-media figcaption span,
 .sod29-number-hero-media figcaption small{
   color:var(--s29-muted);
-  font-size:9px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-hero-media figcaption strong{
   color:var(--s29-ink);
-  font-size:13px;
+  font-size:var(--sod29-number-text,16px);
   overflow-wrap:anywhere;
 }
 .sod29-number-actions{
@@ -303,7 +303,7 @@
   background:transparent;
   color:var(--s29-muted);
   font:inherit;
-  font-size:9.5px;
+  font-size:var(--sod29-number-ui,14px);
   cursor:pointer;
   padding:5px 7px;
 }
@@ -341,18 +341,18 @@
 }
 .sod29-number-signal>span{
   color:var(--s29-muted);
-  font-size:8.5px;
+  font-size:var(--sod29-number-support,14px);
   font-weight:850;
 }
 .sod29-number-signal>strong{
   color:var(--s29-ink);
-  font-size:12.5px;
+  font-size:var(--sod29-number-text,16px);
   line-height:1.35;
 }
 .sod29-number-signal>p{
   margin:0;
   color:var(--s29-muted);
-  font-size:9.5px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.5;
 }
 .sod29-number-next-step{
@@ -377,7 +377,7 @@
 .sod29-number-next-step p{
   margin:0;
   color:var(--s29-muted);
-  font-size:10.5px;
+  font-size:var(--sod29-number-support,14px);
 }
 
 /* Math passport */
@@ -399,7 +399,7 @@
 }
 .sod29-number-math-grid span{
   color:var(--s29-muted);
-  font-size:9px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-math-grid strong{
   color:var(--s29-hero);
@@ -409,7 +409,7 @@
 }
 .sod29-number-math-grid small{
   color:var(--s29-muted);
-  font-size:8.5px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.4;
 }
 .sod29-number-family-rail{
@@ -423,7 +423,7 @@
   border:1px solid var(--s29-line);
   border-radius:999px;
   color:var(--s29-muted);
-  font-size:9px;
+  font-size:var(--sod29-number-support,14px);
 }
 
 /* Methods + expressions */
@@ -459,7 +459,7 @@
 }
 .sod29-number-method-card>span{
   color:var(--s29-ink);
-  font-size:12px;
+  font-size:var(--sod29-number-text,16px);
   font-weight:850;
 }
 .sod29-number-method-card>strong{
@@ -469,12 +469,12 @@
 }
 .sod29-number-method-card>small{
   color:var(--s29-muted);
-  font-size:9px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-method-card>p{
   margin:4px 0 0;
   color:var(--s29-muted);
-  font-size:10px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.4;
   overflow-wrap:anywhere;
 }
@@ -496,7 +496,7 @@
   color:var(--s29-muted);
   padding:6px 10px;
   font:inherit;
-  font-size:10.5px;
+  font-size:var(--sod29-number-ui,14px);
   cursor:pointer;
 }
 .sod29-number-expression-chip.is-active{
@@ -523,7 +523,7 @@
 .sod29-number-trace-card p{
   margin:0;
   color:var(--s29-muted);
-  font-size:10.5px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.55;
 }
 .sod29-number-trace-steps{
@@ -541,7 +541,7 @@
   border-radius:999px;
   background:color-mix(in srgb,var(--s29-panel-soft) 90%,transparent);
   color:var(--s29-muted);
-  font-size:9.5px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-live-expressions{
   display:grid;
@@ -564,14 +564,14 @@
   cursor:pointer;
 }
 .sod29-number-live-expressions strong{
-  font-size:12px;
+  font-size:var(--sod29-number-text,16px);
   line-height:1.35;
   overflow-wrap:anywhere;
 }
 .sod29-number-live-expressions span,
 .sod29-number-live-expressions small{
   color:var(--s29-muted);
-  font-size:8.5px;
+  font-size:var(--sod29-number-support,14px);
 }
 
 /* Generic rich cards */
@@ -581,7 +581,7 @@
   border:1px dashed var(--s29-line);
   border-radius:14px;
   color:var(--s29-muted);
-  font-size:11px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-card-grid{
   display:grid;
@@ -605,7 +605,7 @@
 }
 .sod29-number-card small{
   color:var(--s29-muted);
-  font-size:10px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.5;
 }
 .sod29-number-card-meta{
@@ -618,7 +618,7 @@
   border:1px solid var(--s29-line);
   border-radius:999px;
   color:var(--s29-muted);
-  font-size:8px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-meeting .sod29-action{
   align-self:flex-start;
@@ -648,7 +648,7 @@
 }
 .sod29-number-path-summary span{
   color:var(--s29-muted);
-  font-size:10px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-path-actions{
   display:grid;
@@ -677,7 +677,7 @@
 }
 .sod29-number-feature-path span{
   color:var(--s29-muted);
-  font-size:8.5px;
+  font-size:var(--sod29-number-support,14px);
   font-weight:850;
 }
 .sod29-number-feature-path strong{
@@ -686,7 +686,7 @@
 }
 .sod29-number-feature-path small{
   color:var(--s29-muted);
-  font-size:9.5px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-zero-rail{
   display:flex;
@@ -717,7 +717,7 @@
   display:block;
   margin-top:2px;
   color:var(--s29-muted);
-  font-size:8.5px;
+  font-size:var(--sod29-number-support,14px);
 }
 
 /* Sources */
@@ -744,12 +744,12 @@
 }
 .sod29-number-source-row small{
   color:var(--s29-muted);
-  font-size:9.5px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-source-row>span{
   flex:0 0 auto;
   color:var(--s29-muted);
-  font-size:9px;
+  font-size:var(--sod29-number-support,14px);
   border:1px solid var(--s29-line);
   border-radius:999px;
   padding:4px 7px;
@@ -782,11 +782,11 @@
 }
 .sod29-number-media-grid strong{
   color:var(--s29-ink);
-  font-size:11px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-media-grid small{
   color:var(--s29-muted);
-  font-size:8.5px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-timeline{
   position:relative;
@@ -823,17 +823,17 @@
 .sod29-number-timeline time{
   grid-area:date;
   color:var(--s29-muted);
-  font-size:8.5px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-timeline strong{
   grid-area:title;
   color:var(--s29-ink);
-  font-size:11px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-timeline small{
   grid-area:meta;
   color:var(--s29-muted);
-  font-size:8.5px;
+  font-size:var(--sod29-number-support,14px);
 }
 
 @keyframes sod29-number-pulse{
@@ -879,8 +879,8 @@
     padding:8px;
     border-radius:14px;
   }
-  .sod29-number-observatory-node>strong{font-size:11px}
-  .sod29-number-observatory-node>small{font-size:7.8px}
+  .sod29-number-observatory-node>strong{font-size:var(--sod29-number-support,14px)}
+  .sod29-number-observatory-node>small{font-size:var(--sod29-number-support,14px)}
   .sod29-number-observatory-center{
     min-height:205px;
     padding:11px 7px;
@@ -892,12 +892,12 @@
   .sod29-number-observatory-center>p{
     max-height:60px;
     overflow:hidden;
-    font-size:8.5px;
+    font-size:var(--sod29-number-support,14px);
     line-height:1.45;
   }
   .sod29-number-observatory-reset{width:48px;height:48px}
   .sod29-number-observatory-pulse{width:44px;height:44px;border-radius:14px}
-  .sod29-number-observatory-context span{font-size:7px;padding:2px 5px}
+  .sod29-number-observatory-context span{font-size:var(--sod29-number-support,14px);padding:2px 5px}
   .sod29-number-hero-media{grid-template-columns:84px minmax(0,1fr)}
   .sod29-number-hero-media img{width:84px;height:64px}
   .sod29-number-signal-grid{
@@ -990,18 +990,18 @@
 }
 .sod29-number-state-strip span{
   color:var(--s29-muted);
-  font-size:8px;
+  font-size:var(--sod29-number-support,14px);
   font-weight:900;
   letter-spacing:.08em;
 }
 .sod29-number-state-strip strong{
   color:var(--s29-ink);
-  font-size:13px;
+  font-size:var(--sod29-number-text,16px);
   line-height:1.35;
 }
 .sod29-number-state-strip small{
   color:var(--s29-muted);
-  font-size:8.5px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.45;
 }
 .sod29-number-world-snapshot{
@@ -1027,7 +1027,7 @@
   margin:0;
   max-width:760px;
   color:var(--s29-muted);
-  font-size:10px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.55;
 }
 .sod29-number-world-metrics{
@@ -1046,7 +1046,7 @@
   border:1px solid var(--s29-line);
   border-radius:14px;
   color:var(--s29-muted);
-  font-size:9px;
+  font-size:var(--sod29-number-support,14px);
   text-align:center;
 }
 .sod29-number-world-metrics b{
@@ -1073,19 +1073,19 @@
 }
 .sod29-number-world-attention article>span{
   color:var(--s29-muted);
-  font-size:8px;
+  font-size:var(--sod29-number-support,14px);
   font-weight:900;
 }
 .sod29-number-world-attention article>strong{
   color:var(--s29-ink);
-  font-size:10.5px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.4;
   overflow-wrap:anywhere;
 }
 .sod29-number-world-attention article>p{
   margin:0;
   color:var(--s29-muted);
-  font-size:8.5px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.45;
   display:-webkit-box;
   -webkit-line-clamp:2;
@@ -1103,7 +1103,7 @@
   border:1px solid var(--s29-line);
   border-radius:999px;
   color:var(--s29-muted);
-  font-size:7px;
+  font-size:var(--sod29-number-support,14px);
   font-style:normal;
   font-weight:900;
 }
@@ -1136,7 +1136,7 @@
 }
 .sod29-number-world-continuations span{
   color:var(--s29-muted);
-  font-size:7.5px;
+  font-size:var(--sod29-number-support,14px);
   font-weight:900;
 }
 .sod29-number-world-continuations strong{
@@ -1144,7 +1144,7 @@
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
-  font-size:10px;
+  font-size:var(--sod29-number-support,14px);
 }
 .sod29-number-depth-nav{
   display:flex;
@@ -1159,7 +1159,7 @@
   color:var(--s29-muted);
   padding:7px 10px;
   font:inherit;
-  font-size:8.5px;
+  font-size:var(--sod29-number-ui,14px);
   font-weight:900;
   cursor:pointer;
 }
@@ -1193,7 +1193,7 @@
 /* Explicit Expression Focus — Research Workspace v4 projection, not a second Number surface. */
 .sod29-number-focus-ribbon{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 12px;padding:11px 14px;border:1px solid color-mix(in srgb,var(--s29-accent) 42%,var(--s29-line));border-radius:16px;background:color-mix(in srgb,var(--s29-panel) 92%,var(--s29-accent) 8%)}
 .sod29-number-focus-ribbon>div:first-child{display:grid;gap:2px;min-width:0}
-.sod29-number-focus-ribbon span{font-size:10px;font-weight:900;letter-spacing:.08em;color:var(--s29-muted)}
+.sod29-number-focus-ribbon span{font-size:var(--sod29-number-support,14px);font-weight:900;letter-spacing:.08em;color:var(--s29-muted)}
 .sod29-number-focus-ribbon strong{font-size:18px;color:var(--s29-ink);overflow-wrap:anywhere}
 .sod29-number-focus-ribbon small{color:var(--s29-muted);line-height:1.45}
 @media(max-width:680px){.sod29-number-focus-ribbon{align-items:flex-start;flex-direction:column}.sod29-number-focus-ribbon .sod29-actions{width:100%;justify-content:flex-start}}
@@ -1242,15 +1242,15 @@
 
 /* Keep the full Number page readable; the compact drawer retains its denser type. */
 .sod29-number-page .sod29-number-core2029.is-page :is(small,p){
-  font-size:12px;
+  font-size:var(--sod29-number-text,16px);
   line-height:1.45;
 }
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{
   width:76px;
   height:76px;
 }
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal>span:not(.sod29-number-v10-life-ring){font-size:10px}
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal>small{font-size:9px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal>span:not(.sod29-number-v10-life-ring){font-size:var(--sod29-number-support,14px)}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal>small{font-size:var(--sod29-number-support,14px)}
 .sod29-number-page .sod29-number-core2029.is-page :is(
   .sod29-number-v10-method-head,
   .sod29-number-v10-stage-head,
@@ -1259,21 +1259,21 @@
   .sod29-number-v11-regular-head
 ) span,
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-method-card>span{
-  font-size:12px;
+  font-size:var(--sod29-number-text,16px);
 }
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-method-card>small{font-size:11px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-method-card>small{font-size:var(--sod29-number-support,14px)}
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression>span,
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-calculation-card>span{font-size:12px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-calculation-card>span{font-size:var(--sod29-number-text,16px)}
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-calculation-card>strong,
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-chip-list strong{font-size:13px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-chip-list strong{font-size:var(--sod29-number-ui-lg,16px)}
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-chip-list{
   grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));
 }
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-pulse-row span,
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-loading.is-inline{font-size:11px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-loading.is-inline{font-size:var(--sod29-number-support,14px)}
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-crossing-more button{min-height:62px}
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-crossing-more strong{
-  font-size:12px;
+  font-size:var(--sod29-number-text,16px);
   line-height:1.3;
   white-space:normal;
 }
@@ -1287,7 +1287,7 @@
   gap:9px;
   padding:18px 16px;
 }
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-crossing-lead>span{font-size:12px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-crossing-lead>span{font-size:var(--sod29-number-text,16px)}
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-crossing-lead>strong{
   font-size:clamp(19px,2vw,24px);
   line-height:1.3;
@@ -1299,7 +1299,7 @@
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-crossing-methods span{
   max-width:100%;
   padding:6px 9px;
-  font-size:11px;
+  font-size:var(--sod29-number-support,14px);
   line-height:1.35;
   overflow-wrap:anywhere;
 }
@@ -1310,24 +1310,24 @@
   max-width:240px;
   min-height:60px;
 }
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button strong{font-size:13px}
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button small{font-size:11px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button strong{font-size:var(--sod29-number-ui-lg,16px)}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button small{font-size:var(--sod29-number-ui,14px)}
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-head strong{font-size:14px}
 .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-stage-cross-methods b,
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-focus-reset{font-size:11px}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-focus-reset{font-size:var(--sod29-number-support,14px)}
 @media(max-width:720px){
-  .sod29-number-page .sod29-number-core2029.is-page :is(small,p){font-size:11px}
+  .sod29-number-page .sod29-number-core2029.is-page :is(small,p){font-size:var(--sod29-number-support,14px)}
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-crossing-lead{
     min-height:156px;
     padding:15px 12px;
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-crossing-lead>strong{font-size:18px}
-  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-method-card>span{font-size:11px}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-method-card>span{font-size:var(--sod29-number-support,14px)}
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button{
     min-width:148px;
     max-width:200px;
   }
-  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button strong{font-size:12px}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v11-regular-track button strong{font-size:var(--sod29-number-ui-lg,16px)}
 }
 
 /* The full-page identity follows its available width, including a narrow pane
@@ -1342,7 +1342,7 @@
     flex:1 0 100%;width:100%;min-width:0;
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line{min-width:0;align-items:flex-start}
-  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line>strong{
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line>:is(strong,h1){
     min-width:0;font-size:clamp(22px,5cqi,30px);line-height:1.35;overflow-wrap:anywhere;
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-root{
@@ -1350,10 +1350,10 @@
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-root-line{flex-wrap:wrap;max-width:100%}
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-value{
-    font-size:clamp(16px,calc((100cqi - 140px) / var(--sod29-number-digits,4) * 1.45),76px);
-    white-space:nowrap;line-height:1.1;
+    font-size:clamp(28px,calc((100cqi - 140px) / var(--sod29-number-digits,4) * 1.45),76px);
+    white-space:normal;overflow-wrap:anywhere;line-height:1.1;
   }
-  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{flex:none;width:64px;height:64px}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{flex:none;width:74px;height:74px}
 
 }
 /* Viewport fallback for browsers without container-query support. */
@@ -1366,7 +1366,7 @@
     flex:1 0 100%;width:100%;min-width:0;
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line{min-width:0;align-items:flex-start}
-  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line>strong{
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line>:is(strong,h1){
     min-width:0;font-size:clamp(22px,5vw,30px);line-height:1.35;overflow-wrap:anywhere;
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-root{
@@ -1374,13 +1374,22 @@
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-root-line{flex-wrap:wrap;max-width:100%}
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-value{
-    font-size:clamp(16px,calc((90vw - 140px) / var(--sod29-number-digits,4) * 1.45),76px);
-    white-space:nowrap;line-height:1.1;
+    font-size:clamp(28px,calc((90vw - 140px) / var(--sod29-number-digits,4) * 1.45),76px);
+    white-space:normal;overflow-wrap:anywhere;line-height:1.1;
   }
-  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{flex:none;width:64px;height:64px}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{flex:none;width:74px;height:74px}
 
   }
 }
 
 /* Reserve the material section while canonical primary calculation is usable. */
 .sod29-number-material-pending { min-height: 28rem; }
+
+/* Typography V2: the page-level container rules above set a fixed expression size; the length tiers win at every width. */
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size]>:is(strong,h1){
+  line-height:1.25;overflow-wrap:anywhere;text-wrap:balance;font-weight:700;
+}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="short"]>:is(strong,h1){font-size:var(--sod29-number-title-short,28px)}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="medium"]>:is(strong,h1){font-size:var(--sod29-number-title-medium,28px)}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="long"]>:is(strong,h1){font-size:var(--sod29-number-title-long,21px)}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="xl"]>:is(strong,h1){font-size:var(--sod29-number-title-xl,21px);line-height:1.4;font-weight:600}

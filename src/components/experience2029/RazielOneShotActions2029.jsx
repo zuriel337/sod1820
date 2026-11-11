@@ -28,7 +28,7 @@ export default function RazielOneShotActions2029({ session, onRun, disabled = fa
   const runSuggestedAction = async (action) => {
     if (!action?.id || session.busy || disabled || actionState?.status === "pending") return;
     if (action.id === "open_number") {
-      if (/^\/2029\/number\/[1-9]\d{0,5}$/.test(action.href || "")) navigate(action.href);
+      if (/^\/(?:2029\/)?number\/[1-9]\d{0,5}$/.test(action.href || "")) navigate(action.href);
       return;
     }
     if (action.id === "save_as_life_journey_hint") {

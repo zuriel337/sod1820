@@ -30,7 +30,14 @@ export const REVIEWED_ESTHER_LINK = Object.freeze({
   contributorId: "99bcfb38-85be-4f38-89f0-7886f2f179e6",
 });
 
-export const REVIEWED_COMMUNITY_HISTORY_LINKS = Object.freeze([REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_EMILY_LINK, REVIEWED_SHINSHIN_LINK, REVIEWED_ESTHER_LINK]);
+// ZURIEL, 11.11.2026: the historical contributor "אבי זוהר בן חיים" (966 messages) ↔ the account (username mamra) that already owns it
+// server-side (contributors.user_id). Display/navigation only: his name, photo and the whole history under one person.
+export const REVIEWED_AVI_ZOHAR_LINK = Object.freeze({
+  accountId: "368a4606-d78b-43b5-862b-0baab95944e9",
+  contributorId: "27c10d9a-14a6-4493-980b-2f5eda105ad7",
+});
+
+export const REVIEWED_COMMUNITY_HISTORY_LINKS = Object.freeze([REVIEWED_TORAH_TAMIMA_LINK, REVIEWED_EMILY_LINK, REVIEWED_SHINSHIN_LINK, REVIEWED_ESTHER_LINK, REVIEWED_AVI_ZOHAR_LINK]);
 
 function findReviewedLink(authorKey) {
   return REVIEWED_COMMUNITY_HISTORY_LINKS.find(

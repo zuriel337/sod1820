@@ -35,6 +35,7 @@ import { defaultNumberReadingExpression } from "../lib/research/numberReadingOrd
 import { buildNumberCuration2029, fetchCurationCatalog2029 } from "../lib/research/curationProjection2029.js";
 import { DEFAULT_VERSE_GEMATRIA_LIMIT, fetchVersesByGematria } from "../lib/research/verseGematriaSources.js";
 import { GOLDEN_WORLD_JOURNEY_878 } from "../lib/research/worldJourneyProjection.js";
+import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 import "./number2029.css";
 
 const GOLDEN_878_JOURNEY_ID = GOLDEN_WORLD_JOURNEY_878.id;
@@ -207,6 +208,16 @@ const MATH_FAMILY_HE = {
   happy_base10: "מספר שמח",
   narcissistic_base10: "Armstrong",
   palindromic_prime_base10: "ראשוני פלינדרומי",
+  twin_prime: "ראשוני תאום (הפרש 2)",
+  cousin_prime: "ראשוני בהפרש 4",
+  sexy_prime: "ראשוני בהפרש 6",
+  safe_prime: "ראשוני בטוח",
+  sophie_germain_prime: "ראשוני סופי ג׳רמן",
+  emirp: "ראשוני הפוך",
+  circular_prime: "ראשוני מעגלי",
+  left_truncatable_prime: "ראשוני קטום משמאל",
+  right_truncatable_prime: "ראשוני קטום מימין",
+  superprime: "ראשוני־על (אינדקס ראשוני)",
 };
 
 function factorizationText(profile) {
@@ -892,7 +903,7 @@ function NumberPageBody({ resolvedAddress = null }) {
     expression: focusExpression || null,
     method: focusExplicit ? focusMethodKey : null,
     crossingPartner: focusExplicit ? focusedCrossingPartner : null,
-  }) || `/2029/number/${root}`;
+  }) || `${NUMBER_PAGE_BASE}/${root}`;
   const focusSelection = (entityId = root) => ({
     ...(research.context?.selection?.entityId === String(entityId)
       && (research.context.selection.expression || "") === focusExpression ? {
@@ -922,7 +933,8 @@ function NumberPageBody({ resolvedAddress = null }) {
       lens: "number",
       dimensions: { ...(research.context?.dimensions || {}), expressionFocusExplicit: false },
     });
-    navigate(`/2029/number/${root}`, { replace: true });
+    // Public addresses stay /number/<root>; the compatibility prefix is only used outside the public release.
+    navigate(numberExpressionFocusHref(root) || `${NUMBER_PAGE_BASE}/${root}`, { replace: true });
   };
 
   const returnToOriginTopic = () => {
@@ -1261,7 +1273,7 @@ function NumberPageBody({ resolvedAddress = null }) {
       {/* ZURIEL 5.11.2026: the Legacy Number page always offered the way back to the gematria calculator; so does this one. */}
       {/* ZURIEL 5.11.2026 (mobile first screen): the way back and the save action share one row on a phone, so the number rises; on wider screens this wrapper is display:contents and nothing moves. */}
       <div className="sod29-number-hero-bar">
-        <nav className="sod29-action-row sod29-number-calculator-return" aria-label="חזרה למחשבון">
+        <nav className="sod29-action-row sod29-number-calculator-return" aria-label="חזרה למחשבון" data-legacy-calculator-method={urlFocus.legacyMethod || undefined}>
           <ContextReturnAction2029
             returnTo={research.context?.returnTo}
             matches={isCalculatorReturnTarget}
@@ -1373,6 +1385,7 @@ function NumberPageBody({ resolvedAddress = null }) {
       </FrameState>
     </section> : <NumberLivingWorld2029
       root={root}
+      focusSection={urlFocus.legacySection || null}
       data={data}
       activeExpression={activeExpression}
       activeMethodLabel={activeMethodLabel}
@@ -1460,8 +1473,10 @@ export default function Number2029Page({ resolvedAddress = null } = {}) {
     applySeo({
       title: `${address || "מספר"} · דף המספר`,
       description: "דף המספר — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.",
-      path: resolvedAddress?.publicAddress ? `/number/${encodeURIComponent(address)}` : `/2029/number/${value || ""}`,
+      path: resolvedAddress?.publicAddress ? `/number/${encodeURIComponent(address)}` : `${NUMBER_PAGE_BASE}/${value || ""}`,
       noindex: !admitted,
+      // A public address that is not admitted stays "noindex, follow" like the server tag; a non-public alias stays nofollow.
+      follow: Boolean(resolvedAddress?.publicAddress),
     });
   }, [value, address, admitted, resolvedAddress?.publicAddress]);
 

@@ -7,6 +7,7 @@ import { useResearch } from "../../lib/research/ResearchProvider.jsx";
 import { bookToWorkspaceItem, fetchBookEntityBySlug } from "../../lib/research/bookResearchProjection.js";
 import { dossierSelectionSourceRef, selectionToWorkspaceItem } from "../../lib/research/bookSelectionAdapter.js";
 import "./ahavatBookEntry2029.css";
+import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 
 const DATASET_STATE_LABEL = Object.freeze({ closed: "טבלה קריאה", partial: "קריאה חלקית", open: "פתוח לקריאה", unknown: "טרם הוכרע" });
 
@@ -86,7 +87,7 @@ function SelectionActions({ page, selection, publicReadOnly = false }) {
   return <div className="ahavat29-selection-actions" aria-label="פעולות לבחירה הנוכחית">
     <a href={`#ahavat29-source`} onClick={event => { event.preventDefault(); selection?.onSource?.(); }}>המקור · PDF {page}</a>
     <a href={publicReadOnly ? `/book/${AHAVAT_BOOK_SLUG}?${sourceParams}` : `/2029/control?surface=books-unified-reader&book=${AHAVAT_BOOK_SLUG}&page=${page}`}>בקורא האחיד</a>
-    {numeric ? <a href={publicReadOnly ? `/number/${numeric}?returnTo=${encodeURIComponent(exactReturn)}` : `/2029/number/${numeric}`}>המספר {selection.total}</a> : null}
+    {numeric ? <a href={publicReadOnly ? `/number/${numeric}?returnTo=${encodeURIComponent(exactReturn)}` : `${NUMBER_PAGE_BASE}/${numeric}`}>המספר {selection.total}</a> : null}
     {subject?.href ? <a href={subject.href}>חזרה למחקר: {subject.label || "המחקר הנוכחי"}</a> : null}
     {book && selection ? <button type="button" onClick={addSelection}>הוסף למחקר</button> : null}
     {note ? <span role="status">{note}</span> : null}

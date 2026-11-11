@@ -88,7 +88,7 @@ async function numberFullPage(page,width,info,origin){
  const milui=()=>page.locator('.sod29-number-v10-method-card').filter({has:page.getByText('מילוי',{exact:true})}).first();
  await expect(milui()).toBeEnabled({timeout:30000});
  const result=Number((await milui().locator('strong').textContent()).replace(/,/g,''));
- const expression=await page.locator('.sod29-number-v10-expression-line>strong').textContent();
+ const expression=await page.locator('.sod29-number-v10-expression-line>:is(h1,strong)').textContent();
  expect(result).toBe(3928); // Recorded from the canonical public profile in the dbbe baseline.
  const miluiStarted=Date.now();await milui().click();
  await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root',String(result),{timeout:60000});
@@ -105,7 +105,7 @@ async function numberFullPage(page,width,info,origin){
  const rail=page.locator('.sod29-number-v11-regular-track button').first();await expect(rail).toBeVisible({timeout:30000});const phrase=await rail.locator('strong').textContent();
  await rail.click();await expect.poll(()=>new URL(page.url()).searchParams.get('focus')).toBe(phrase);expect(new URL(page.url()).searchParams.get('method')).toBe('רגיל');
  await expect(page.getByRole('dialog')).toHaveCount(0);await page.goBack();await expect(page).toHaveURL(origin+address);
- await expect(page.locator('.sod29-number-v10-expression-line>strong')).toHaveText(expression);
+ await expect(page.locator('.sod29-number-v10-expression-line>:is(h1,strong)')).toHaveText(expression);
  await page.locator('.sod29-number-root-open').click();expect(new URL(page.url()).pathname).toBe('/number/1820');expect(new URL(page.url()).searchParams.get('focus')).toBe(expression);expect(new URL(page.url()).searchParams.get('method')).toBe('רגיל');await expect(page.getByRole('dialog')).toHaveCount(0);await page.goBack();await expect(page).toHaveURL(origin+address);
  const sourceList=page.locator('.sod29-lw-source-list');await sourceList.scrollIntoViewIfNeeded();
  await expect(sourceList.getByRole('status')).toHaveCount(0,{timeout:60000});
@@ -172,7 +172,7 @@ async function directPublicAddresses(page,width,info,origin){
  for(const reload of[false,true]){
   if(reload)await page.reload();else await page.goto(direct);
   await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root','3928',{timeout:60000});
-  await expect(page.locator('.sod29-number-v10-expression-line>strong')).toHaveText('אחת ארבע שבע ושתיים');
+  await expect(page.locator('.sod29-number-v10-expression-line>:is(h1,strong)')).toHaveText('אחת ארבע שבע ושתיים');
   await expect(page.locator('.sod29-number-v10-method-card.is-active span').first()).toHaveText('מילוי',{timeout:30000});await expect(page).toHaveURL(direct);await expect(page.getByRole('dialog')).toHaveCount(0);
  }
  const posts=require('../docs/reviews/public-foundation-20261101/evidence/live-posts.json'),checked=[];

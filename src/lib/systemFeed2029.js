@@ -4,6 +4,7 @@
 // on a row; it must not conceal a newer, directly relevant source update.
 // Time is shown as relative time (relative_time_display_law); "new" = recent and not yet seen on this browser.
 import { isRecent, recentSource, recentConvergence } from "./homeMotion2029.js";
+import { NUMBER_PAGE_BASE } from "./research/numberPageAddress.js";
 
 const DAY = 86400000;
 
@@ -18,7 +19,7 @@ export function feedKindLabel(item) {
 export function feedHref(item) {
   if (item?.kind === "source") return item.href || (item.sourceKind === "group_message" ? "/world#world-sources" : null);
   if (item?.kind === "convergence" && item.slug) return `/topic/${encodeURIComponent(item.slug)}`;
-  if (item?.kind === "finding") return item.value != null ? `/2029/number/${item.value}` : "/world";
+  if (item?.kind === "finding") return item.value != null ? `${NUMBER_PAGE_BASE}/${item.value}` : "/world";
   return null;
 }
 

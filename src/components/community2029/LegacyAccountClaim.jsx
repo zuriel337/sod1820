@@ -2,7 +2,8 @@ import React, { useEffect, useId, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { claimLegacyContributor, isLegacyContributorId } from "../../lib/community/legacyClaim.js";
-import { VERIFIED_ARCHIVE_PROFILES } from "../../lib/community/communityArchive.js";
+import { VERIFIED_ARCHIVE_PROFILES, fetchClaimedContributorIds, locallyKnownLinkedContributorIds } from "../../lib/community/communityArchive.js";
+import { hasReviewedCommunityHistory } from "../../lib/community/communityCanonicalIdentity2029.js";
 import { communityPersonHref, communityPersonReturnHref } from "../../lib/community/communityPersonNavigation.js";
 import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import CommunitySignIn from "./CommunitySignIn.jsx";
@@ -59,22 +60,36 @@ export default function LegacyAccountClaim({ contributorId, embedded = false, on
 
 export function LegacyAccountClaimEntry({ rows = [], onClaimed }) {
   const dialog = useRef(null), trigger = useRef(null);
+  const { user } = useAuth();
   const [open, setOpen] = useState(false), [selected, setSelected] = useState("");
+  const [claimed, setClaimed] = useState(null);   // null = not checked yet; a Set = contributors that already have an account
   const titleId = useId(), selectId = useId();
-  const candidates = new Map(Object.entries(VERIFIED_ARCHIVE_PROFILES).filter(([, p]) => p.publicBio && p.name).map(([id, p]) => [id, p.name]));
+  const candidates = new Map(Object.entries(VERIFIED_ARCHIVE_PROFILES).filter(([id, p]) => !id.startsWith("user:") && p.publicBio && p.name).map(([id, p]) => [id, p.name]));
   for (const row of rows) if (row.origin === "openweb" && isLegacyContributorId(row.authorKey) && row.authorName) candidates.set(row.authorKey, row.authorName);
+  const candidateKey = [...candidates.keys()].sort().join(",");
   useEffect(() => {
     if (open) dialog.current?.showModal(); else if (dialog.current?.open) dialog.current.close();
   }, [open]);
+  // Only profiles that are not connected yet are offered: the server's answer (when available) plus the reviewed links.
+  useEffect(() => {
+    if (!open) return undefined;
+    let alive = true;
+    setClaimed(null);
+    fetchClaimedContributorIds(candidateKey ? candidateKey.split(",") : []).then(set => { if (alive) setClaimed(set); }).catch(() => { if (alive) setClaimed(locallyKnownLinkedContributorIds()); });
+    return () => { alive = false; };
+  }, [open, candidateKey]);
   const close = () => { setOpen(false); setSelected(""); requestAnimationFrame(() => trigger.current?.focus()); };
+  // An account that already owns its history has nothing to connect.
+  if (user?.id && hasReviewedCommunityHistory(`user:${user.id}`)) return null;
+  const offered = [...candidates].filter(([id]) => !(claimed || locallyKnownLinkedContributorIds()).has(id));
   return <>
     <button ref={trigger} type="button" className="sod29-community-text-action sod29-community-claim-entry" aria-haspopup="dialog" onClick={() => setOpen(true)}>החשבון שלי מהצ׳אט הישן</button>
     <dialog ref={dialog} className="sod29-community-claim-dialog" aria-labelledby={titleId} onCancel={event => { event.preventDefault(); close(); }}>
       {open ? <div className="sod29-community-claim-dialog-content">
         <header><h2 id={titleId}>חיבור החשבון מהצ׳אט הישן</h2><button type="button" className="sod29-community-secondary" aria-label="סגירת חלון חיבור החשבון הישן" onClick={close}>×</button></header>
-        <p>בחרו את הפרופיל שבו כתבתם בעבר. החיבור דורש את המייל המאומת ששימש אז.</p>
+        <p>בחרו את הפרופיל שבו כתבתם בעבר. החיבור דורש את המייל המאומת ששימש אז. ברשימה רק פרופילים שעדיין לא חוברו לחשבון.</p>
         <label htmlFor={selectId}>הפרופיל הישן שלי</label>
-        <select id={selectId} value={selected} onChange={event => setSelected(event.target.value)}><option value="">בחירת פרופיל…</option>{[...candidates].map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select>
+        <select id={selectId} value={selected} disabled={claimed === null} onChange={event => setSelected(event.target.value)}><option value="">{claimed === null ? "בודקים אילו פרופילים פנויים…" : offered.length ? "בחירת פרופיל…" : "אין כרגע פרופילים פנויים"}</option>{offered.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select>
         <p className="sod29-community-claim-help">הפרופיל אינו ברשימה? פתחו את שמכם דרך הודעה ישנה ובחרו ״זה החשבון הישן שלי״.</p>
         {selected ? <LegacyAccountClaim key={selected} contributorId={selected} embedded onClaimed={onClaimed} /> : null}
       </div> : null}

@@ -7,6 +7,12 @@
 export const REVIEW_PROJECT_ID = "prj_43q7k7QFAcWnin1tcBjce5xOi7Cq";
 export const REVIEW_BRANCH = "gpt/2029-main-live-state-reconcile-20261104";
 export const PRODUCTION_REVIEW_BRANCH = "main";
+// Additional protected-Preview review branches. ZURIEL approved this exact branch on 11.11.2026 (number page, SEO, Typography V2).
+// Exact names only, Preview target only: a Production target never admits them, no pattern or prefix match, and each further branch
+// needs its own recorded approval. The receipt still pins the exact source SHA, deployment id and host, and the runtime still
+// requires every platform field to match, so a branch name alone never authorizes anything.
+export const ADDITIONAL_REVIEW_BRANCHES = Object.freeze(["claude/number-typography-v2-20261111"]);
+export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES]);
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.
 export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";
@@ -14,13 +20,13 @@ const sourceShaPattern = /^[0-9a-f]{40}$/;
 const deploymentPattern = /^dpl_[A-Za-z0-9]+$/;
 const hostPattern = /^sod1820-[a-z0-9]+-sod1820-s-projects\.vercel\.app$/;
 function reviewPlatform(env, target = "preview") {
-  const branch = target === "preview" ? REVIEW_BRANCH
-    : target === "production" ? PRODUCTION_REVIEW_BRANCH : null;
-  return Boolean(branch) && Boolean(env) && typeof env === "object"
+  const branches = target === "preview" ? REVIEW_BRANCHES
+    : target === "production" ? [PRODUCTION_REVIEW_BRANCH] : [];
+  return branches.length > 0 && Boolean(env) && typeof env === "object"
     && env.VERCEL === "1" && env.VERCEL_ENV === target
     && env.VERCEL_TARGET_ENV === target
     && env.VERCEL_PROJECT_ID === REVIEW_PROJECT_ID
-    && env.VERCEL_GIT_COMMIT_REF === branch
+    && typeof env.VERCEL_GIT_COMMIT_REF === "string" && branches.includes(env.VERCEL_GIT_COMMIT_REF)
     && sourceShaPattern.test(env.VERCEL_GIT_COMMIT_SHA || "")
     && deploymentPattern.test(env.VERCEL_DEPLOYMENT_ID || "")
     && hostPattern.test(env.VERCEL_URL || "");
@@ -56,9 +62,10 @@ export function protectedReviewBuildIdentity({ env, sourceSha, sourceDirty, requ
     || requestedSourceSha !== sourceSha || env.VERCEL_GIT_COMMIT_SHA !== sourceSha)
     throw new Error("public_reading_protected_review_identity_rejected");
   return Object.freeze({ schema: 1, mode: reviewTarget === "production" ? "staged-production-review" : "protected-preview-review", target: reviewTarget,
-    sourceSha, branch: reviewTarget === "production" ? PRODUCTION_REVIEW_BRANCH : REVIEW_BRANCH, projectId: REVIEW_PROJECT_ID,
+    sourceSha, branch: reviewTarget === "production" ? PRODUCTION_REVIEW_BRANCH : env.VERCEL_GIT_COMMIT_REF, projectId: REVIEW_PROJECT_ID,
     deploymentId: env.VERCEL_DEPLOYMENT_ID, host: env.VERCEL_URL,
-    ...(reviewTarget === "preview" && env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST ? { authHost: REVIEW_AUTH_HOST } : {}),
+    // The stable auth callback host belongs to the original review branch only; an additional branch never inherits it.
+    ...(reviewTarget === "preview" && env.VERCEL_GIT_COMMIT_REF === REVIEW_BRANCH && env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST ? { authHost: REVIEW_AUTH_HOST } : {}),
     productionAuthorized: false, indexingAuthorized: false,
     ...(reviewTarget === "production" ? { cutoverAuthorized: false, domainAssignmentAuthorized: false } : {}) });
 }
@@ -75,7 +82,7 @@ export function protectedReviewRuntimeAuthorized(identity, env) {
     && identity.sourceSha === env.VERCEL_GIT_COMMIT_SHA
     && identity.deploymentId === env.VERCEL_DEPLOYMENT_ID
     && identity.host === env.VERCEL_URL
-    && (identity.authHost === undefined || target === "preview" && identity.authHost === REVIEW_AUTH_HOST && env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST);
+    && (identity.authHost === undefined || target === "preview" && identity.branch === REVIEW_BRANCH && identity.authHost === REVIEW_AUTH_HOST && env.VERCEL_BRANCH_URL === REVIEW_AUTH_HOST);
 }
 
 // Explicit public-capable Production candidate. It is created unrouted and

@@ -62,7 +62,7 @@ async function run(version,profile,{warmup=false,pair=0}={}){
  const ready=async(root,expression=null)=>{
   await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root',String(root),{timeout:60000});
   const method=page.locator('.sod29-number-v10-method-card').filter({has:page.getByText('מילוי',{exact:true})}).first();await expect(method).toBeEnabled({timeout:60000});await expect(method.locator('strong')).toHaveText(/[0-9]/);
-  if(expression)await expect(page.locator('.sod29-number-v10-expression-line>strong')).toHaveText(expression);
+  if(expression)await expect(page.locator('.sod29-number-v10-expression-line>:is(h1,strong)')).toHaveText(expression);
  };
  const menu=async label=>{if(profile.width<981){await page.locator('.sod29-mobile-menu-trigger').click();await page.locator('#sod29-mobile-navigation').getByRole('link',{name:label,exact:true}).click();}else await page.locator('.sod29-sidebar').getByRole('link',{name:label,exact:true}).click();};
  const address='/number/1820?focus='+encodeURIComponent('אחת ארבע שבע ושתיים')+'&method='+encodeURIComponent('רגיל')+'&source=number-speed#number-essential';

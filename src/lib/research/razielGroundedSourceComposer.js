@@ -6,6 +6,7 @@
 // honest deterministic fallback, expose canonical number-page navigation without inventing a
 // source URL, and derive bounded presentation candidates for the exploratory view. Candidate
 // ordering never changes the canonical evidence order or promotes a candidate to research truth.
+import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
 
 export const RAZIEL_GROUNDED_SOURCE_COMPOSER_VERSION = 15;
 
@@ -75,7 +76,7 @@ function subjectNavigation(subject) {
   return value == null ? null : {
     kind: "number",
     label: `פתח את דף המספר ${value}`,
-    href: `/2029/number/${value}`,
+    href: `${NUMBER_PAGE_BASE}/${value}`,
   };
 }
 
@@ -349,7 +350,7 @@ function navigationList(entries) {
     for (const method of list(entry.projection?.model_input?.calculation_profile)) {
       const value = safeNumber(method?.value);
       if (value == null) continue;
-      const href = `/2029/number/${value}`;
+      const href = `${NUMBER_PAGE_BASE}/${value}`;
       if (seen.has(href)) continue;
       seen.add(href);
       navigation.push({ kind: "number", label: `פתח את דף המספר ${value}`, href });
@@ -391,7 +392,7 @@ function visibleEvidenceSummary(entries) {
       const key = `${expression}|${method}|${value}`;
       if (!method || value == null || calculationKeys.has(key)) continue;
       calculationKeys.add(key);
-      calculations.push({ expression, method, value, href: `/2029/number/${value}` });
+      calculations.push({ expression, method, value, href: `${NUMBER_PAGE_BASE}/${value}` });
     }
   }
 
@@ -427,7 +428,7 @@ function visibleEvidenceSummary(entries) {
       label,
       lane,
       ...(method ? { method } : {}),
-      ...(value != null ? { value, href: `/2029/number/${value}` } : {}),
+      ...(value != null ? { value, href: `${NUMBER_PAGE_BASE}/${value}` } : {}),
       ...(methods.length ? { methods } : {}),
       ...(sourceName ? { source_name: sourceName } : {}),
     });

@@ -6,6 +6,7 @@ import { LAYOUT, RADIUS, SPACE, TYPE_SCALE_V2 as TYPE_SCALE, TYPEFACE as F } fro
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { galThumb } from "../../lib/img.js";
 import { sourceOccurrenceElementId } from "../../lib/research/worldContributorSourceLocator.js";
+import { NUMBER_PAGE_BASE } from "../../lib/research/numberPageAddress.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const genericSourceLabel = (text) => ["📷 עדכון", "🎬 עדכון וידאו", "עדכון"].includes(clean(text));
@@ -122,7 +123,7 @@ function SourceGroup({ group, P, S, researchUnavailable, timeMode, showDuplicate
     {(group.values?.length || group.terms?.length) ? <div style={{ display: "flex", gap: SPACE[2], flexWrap: "wrap", alignItems: "center" }}>
       {group.values?.map((value) => <Link
         key={value}
-        to={`/2029/number/${value}`}
+        to={`${NUMBER_PAGE_BASE}/${value}`}
         style={{ ...S.pill, textDecoration: "none", color: P.accentText, fontFamily: F.numeric }}
       >{value}</Link>)}
       {group.terms?.slice(0, 14).map((term) => <span key={term} style={{ ...S.pill, color: P.inkSoft }}>{term}</span>)}

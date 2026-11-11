@@ -14,6 +14,7 @@ import { buildCalculator2029FastPreview } from "../lib/research/calculator2029Fa
 import { applySeo } from "../lib/seo.js";
 import { stripHtml } from "../lib/format.js";
 import "./homePreview2029.css";
+import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 
 const NAV = [
   { name: "home", label: "בית", to: "/2029/home-preview", current: true },
@@ -121,7 +122,7 @@ function Hero({ now, lead, onSelect }) {
         <div className="hp29-hero-src">{now.sourceCount} מקורות{lead0?.sourceTitle ? <> · <b>{lead0.sourceTitle}</b></> : null}</div>
         <div className="hp29-actions">
           <Link className="hp29-btn is-primary" to="/world">פתח את החיבור בעולם ←</Link>
-          <Link className="hp29-btn" to={`/2029/number/${now.value}`}>לדף המספר</Link>
+          <Link className="hp29-btn" to={`${NUMBER_PAGE_BASE}/${now.value}`}>לדף המספר</Link>
         </div>
       </div>
     </section>;
@@ -198,7 +199,7 @@ function SelectionPanel({ selection, razielOpen, onClose }) {
         <div className="hp29-lbl">מקור והמשך</div>
         {selection.sourceHref ? <Link to={selection.sourceHref}><NavigationIcon2029 name="posts" />למקור</Link> : null}
         <Link to="/world"><NavigationIcon2029 name="world" />לחיבור בעולם</Link>
-        {selection.value ? <Link to={`/2029/number/${selection.value}`}><NavigationIcon2029 name="number" />לדף המספר {selection.value}</Link> : null}
+        {selection.value ? <Link to={`${NUMBER_PAGE_BASE}/${selection.value}`}><NavigationIcon2029 name="number" />לדף המספר {selection.value}</Link> : null}
       </div>
     </> : <div><div className="hp29-lbl">הבחירה שלך</div><h3>בחרו פריט בבית כדי לראות את ההקשר שלו</h3></div>}
     <div className="hp29-rz">
@@ -344,9 +345,9 @@ export default function HomePreview2029Page() {
         <Section label="כלים וכניסות">
           <div className="hp29-portions">
             <Calculator />
-            {now ? <Link className="hp29-portion" to={`/2029/number/${now.value}`}><span className="hp29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
+            {now ? <Link className="hp29-portion" to={`${NUMBER_PAGE_BASE}/${now.value}`}><span className="hp29-portion-h"><NavigationIcon2029 name="number" />מספר העת</span>
               <span className="hp29-daynum">{now.value}</span><small>{now.yearLabel}</small></Link>
-              : <Link className="hp29-portion" to={active?.value ? `/2029/number/${active.value}` : "/2029/gematria"}><span className="hp29-portion-h"><NavigationIcon2029 name="number" />דף המספר</span>
+              : <Link className="hp29-portion" to={active?.value ? `${NUMBER_PAGE_BASE}/${active.value}` : "/2029/gematria"}><span className="hp29-portion-h"><NavigationIcon2029 name="number" />דף המספר</span>
               <span className="hp29-daynum">{active?.value || "123"}</span><small>{active?.value ? "המספר מהבחירה שלכם" : "כל מספר עם השיטות שלו"}</small></Link>}
             <a className="hp29-portion" href="/archive"><span className="hp29-portion-h"><NavigationIcon2029 name="books" />ארכיון</span><small>שנים של פוסטים, לפי שנה ונושא</small></a>
             <Link className="hp29-portion" to="/2029/journey"><span className="hp29-portion-h"><NavigationIcon2029 name="personal" />מתחילים כאן</span><small>מסע קצר עם השם והתאריך שלכם</small></Link>
@@ -367,7 +368,7 @@ export default function HomePreview2029Page() {
 
     <footer className="hp29-bottom">
       <div className="hp29-ctx">
-        <Link className="hp29-btn is-primary" to={active?.value ? `/2029/number/${active.value}` : "/world"}><NavigationIcon2029 name="action" />{active?.value ? "פתח את המספר" : "פתח בעולם"}</Link>
+        <Link className="hp29-btn is-primary" to={active?.value ? `${NUMBER_PAGE_BASE}/${active.value}` : "/world"}><NavigationIcon2029 name="action" />{active?.value ? "פתח את המספר" : "פתח בעולם"}</Link>
         <span className="hp29-where">אתם ב<b>בית</b>{active ? <> · בחרתם <b>{active.value || "פוסט"}</b></> : null}</span>
       </div>
       <div className="hp29-rz-slot">

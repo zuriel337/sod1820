@@ -8,6 +8,7 @@ import { resolveResearchObjectPresentation, humanizeResearchSource } from "./res
 import { isGeneralResearchProjectionEligible } from "./researchObjectFinding.js";
 import { clusterWorldResearchRows } from "./worldFindingClusters.js";
 import { scopeWorldPreviewMaterial } from "./worldPreviewMaterialScope.js";
+import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const PAGE_SIZE = 500;
@@ -539,7 +540,7 @@ export function normalizeWorldAllResearchRow(row, family = "research_object") {
     treeMatchState: clean(row?.meta?.ext?.wa_channel_intake?.tree_match_state) || null,
     sourceHref: [sourceRef, ...metaSourceRefs, row.source].map(verifiedWebUrl).find(Boolean) || null,
     canonicalFindingHref: publicFindingHref(row.id),
-    href: value != null ? "/2029/number/" + value : null,
+    href: value != null ? NUMBER_PAGE_BASE + "/" + value : null,
   };
 }
 
