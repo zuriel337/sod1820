@@ -43,5 +43,8 @@ html:has(.sod29-auth){scroll-padding-block-end:calc(132px + env(safe-area-inset-
   .sod29-auth-card[data-auth-state="password-recovery"],.sod29-auth-card[data-auth-state="password-setup"]{padding:18px 16px}
   .sod29-auth-card[data-auth-state="password-recovery"]>p{font-size:15px;line-height:1.55;margin:0 0 12px}
   .sod29-auth-card[data-auth-state="password-recovery"] h2{font-size:21px;margin-bottom:6px}
-  .sod29-auth-card[data-auth-state="password-recovery"] form{gap:8px}
+  .sod29-auth-card[data-auth-state="password-recovery"] form{gap:6px}
+  .sod29-auth-card[data-auth-state="password-recovery"] .sod29-auth-eyebrow{display:none}
+  .sod29-auth-card[data-auth-state="password-recovery"] input{min-height:46px}
+  .sod29-auth-card[data-auth-state="password-recovery"] .sod29-auth-link{min-height:40px}
 }
