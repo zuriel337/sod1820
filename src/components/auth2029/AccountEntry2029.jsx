@@ -1,12 +1,13 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { requestEmailOtp, signInWithConfiguredProvider, signInWithPassword, verifyEmailOtp } from "../../lib/auth.js";
+import { requestEmailOtp, requestPasswordReset, signInWithConfiguredProvider, signInWithPassword, verifyEmailOtp } from "../../lib/auth.js";
 import { useAuthMethods } from "../../lib/authMethods.js";
 import { AUTH_MESSAGES, RECOVERABLE_BY_REFRESH, classifyAuthError, recordAuthEvent } from "../../lib/authDiagnostics.js";
 import { authStorageStatus, probeAuthStorage, summarizeLocalStorage } from "../../lib/authStorage.js";
 import { refreshAppRuntime } from "../../lib/authRecovery.js";
 import { markOtpSent, otpResendWaitMs } from "../../lib/otpThrottle.js";
+import { passwordResetKey } from "../../lib/passwordResetThrottle.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
 import { safePreviewOAuthReturnPath } from "../../lib/oauthReturn.js";
 import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
@@ -16,7 +17,7 @@ import { PUBLIC_LAUNCH_READ_ONLY_PREVIEW } from "../../lib/publicLaunch2029.js";
 import { PUBLIC_READING_RELEASE } from "../../lib/publicReadingRelease2029.js";
 
 // Canonical shared entry. Variants change presentation, never enabled providers.
-export default function AccountEntry2029({ returnHref = "/2029", inline = false, variant = "default" }) {
+export default function AccountEntry2029({ returnHref = "/2029", inline = false, variant = "default", initialStep = "email" }) {
   const { user, profile, isAdmin, loading, signOut } = useAuth();
   const palette = use2029Palette();
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
   const preview = import.meta.env.VITE_INTEGRATED_PREVIEW === "true";
   const methods = useAuthMethods((!PUBLIC_LAUNCH_READ_ONLY_PREVIEW || PUBLIC_READING_RELEASE) && !loading && !user);
   const fieldId = useId();
-  const [step, setStep] = useState("email"), [email, setEmail] = useState("");
+  const [step, setStep] = useState(initialStep === "reset" ? "reset" : "email"), [email, setEmail] = useState("");
   const [password, setPassword] = useState(""), [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false), [error, setError] = useState(""), [failureKind, setFailureKind] = useState(""), [storageNote, setStorageNote] = useState(null);
@@ -40,7 +41,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
     setStorageNote(level === "durable" && status.mode === "normal" ? null : { level, summary: summarizeLocalStorage() });
   }, [user?.id, failureKind]);
   const nextLabel = returnTo.startsWith("/community/chat") ? "להמשך לקהילה" : "להמשך הגלישה";
-  function changeStep(next) { if (busy) return; attempt.current++; setStep(next); setPassword(""); setShowPassword(false); setCode(""); setError(""); }
+  function changeStep(next) { if (busy) return; attempt.current++; setStep(next); setPassword(""); setShowPassword(false); setCode(""); setError(""); setFailureKind(""); }
   async function submit(event) {
     event.preventDefault();
     if (busy) return;
@@ -52,7 +53,15 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
     const current = () => mounted.current && requestId === attempt.current;
     setBusy(true); setError(""); setFailureKind("");
     try {
-      if (action === "email") {
+      if (action === "reset") {
+        // One answer for every address: Auth does not say whether an account exists, and neither does this page.
+        // A repeat inside the window (or Auth's own 429) means a link was just sent, which is what the same answer tells the person.
+        if (otpResendWaitMs(passwordResetKey(address)) > 0) { if (current() && !principal.current) { setEmail(address); setStep("reset-sent"); } return; }
+        try { await requestPasswordReset(address); }
+        catch (failure) { if (classifyAuthError(failure) !== "rate_limited") throw failure; }
+        markOtpSent(passwordResetKey(address));
+        if (current() && !principal.current) { setEmail(address); setStep("reset-sent"); }
+      } else if (action === "email") {
         // A second request inside the window would only cancel the code that was just sent.
         if (otpResendWaitMs(address) > 0) { if (current() && !principal.current) { setEmail(address); setStep("code"); setError("הקוד שנשלח לפני רגע עדיין בתוקף. הזינו אותו כאן. אפשר לבקש קוד חדש בעוד כחצי דקה."); } return; }
         await requestEmailOtp(address, { shouldCreateUser: PUBLIC_READING_RELEASE || !preview || import.meta.env.VITE_FUNCTIONAL_UNIFIED_PREVIEW === "true" });
@@ -79,9 +88,9 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
         return;
       }
       if (current() && !principal.current) {
-        const specific = ["blocked_by_worker", "stale_worker", "network", "server_error", "pkce_mismatch", "refresh_failed", "storage_unavailable"].includes(kind);
+        const specific = ["blocked_by_worker", "stale_worker", "network", "server_error", "pkce_mismatch", "refresh_failed", "storage_unavailable", "recovery_origin_unverified"].includes(kind);
         setFailureKind(kind);
-        setError(specific ? AUTH_MESSAGES[kind] : action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? AUTH_MESSAGES[kind === "otp_consumed" ? "otp_consumed" : "otp_expired"] : AUTH_MESSAGES.invalid_credentials);
+        setError(specific ? AUTH_MESSAGES[kind] : action === "reset" ? "לא הצלחנו לשלוח את המייל. בדקו את כתובת המייל ונסו שוב, או היכנסו עם קוד למייל." : action === "email" ? "לא הצלחנו לשלוח קוד. בדקו את כתובת המייל ונסו שוב." : action === "code" ? AUTH_MESSAGES[kind === "otp_consumed" ? "otp_consumed" : "otp_expired"] : AUTH_MESSAGES.invalid_credentials);
       }
     } finally { if (current()) setBusy(false); }
   }
@@ -117,15 +126,16 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
           {!inline ? <Link className="sod29-auth-secondary" to={writerPersonalHref("research")}>האזור האישי שלי</Link> : null}
           <button className="sod29-auth-link" type="button" disabled={busy} onClick={switchAccount}>{variant === "account" ? "התנתקות" : "כניסה עם חשבון אחר"}</button>
         </> : <>
-          <h2 id={`${fieldId}-title`}>{step === "code" ? "הקוד בדרך אליכם" : step === "password" ? "כניסה עם סיסמה" : "כניסה והרשמה"}</h2>
-          <p>{step === "code" ? <>שלחנו מייל אל <b dir="ltr">{email}</b>. אם יש בו קוד — הזינו אותו כאן. אם יש בו קישור — לחצו עליו, ותחזרו לאתר מחוברים.</> : step === "password" ? "השתמשו במייל ובסיסמה של החשבון שלכם." : "בחרו כיצד להיכנס לחשבון שלכם."}</p>
+          <h2 id={`${fieldId}-title`}>{step === "code" ? "הקוד בדרך אליכם" : step === "password" ? "כניסה עם סיסמה" : step === "reset" ? "שחזור סיסמה" : step === "reset-sent" ? "בדקו את המייל" : "כניסה והרשמה"}</h2>
+          <p>{step === "reset-sent" ? <>אם קיים חשבון עם הכתובת <b dir="ltr">{email}</b>, שלחנו אליה קישור לבחירת סיסמה. הקישור חד־פעמי, ורק האחרון שנשלח תקף. פתחו אותו באותו דפדפן ובאותו מכשיר שבהם ביקשתם אותו. לא הגיע? בדקו בספאם, והמתינו כחצי דקה לפני בקשה חוזרת.</> : step === "reset" ? "הזינו את כתובת המייל של החשבון ונשלח אליה קישור לבחירת סיסמה. זה מתאים גם למי שנרשם עם Google ועדיין אין לו סיסמה: זה אותו חשבון, עם אותו אזור אישי ואותה היסטוריה." : step === "code" ? <>שלחנו מייל אל <b dir="ltr">{email}</b>. אם יש בו קוד — הזינו אותו כאן. אם יש בו קישור — לחצו עליו, ותחזרו לאתר מחוברים.</> : step === "password" ? "השתמשו במייל ובסיסמה של החשבון שלכם." : "בחרו כיצד להיכנס לחשבון שלכם."}</p>
           {PUBLIC_READING_RELEASE ? <aside className="sod29-auth-method-note" data-signup-updates-policy="existing-site-default"><strong>הרשמה ועדכוני האתר</strong><p>בהרשמה לחשבון חדש תקבלו גם עדכוני אתר במייל. אפשר להסיר בכל מייל. הסרה קודמת נשמרת. כניסה לחשבון קיים אינה משנה את ההרשמה לעדכונים.</p></aside> : null}
           {methods.state === "loading" ? <p role="status">טוענים אפשרויות כניסה…</p> : methods.state === "unavailable" ? <div role="alert"><p>לא הצלחנו לטעון את אפשרויות הכניסה.</p><button type="button" className="sod29-auth-secondary" onClick={methods.retry}>נסו שוב</button></div> : null}
-          {methods.state === "ready" && methods.email ? <form onSubmit={submit} aria-busy={busy}>
+          {methods.state === "ready" && methods.email && step !== "reset-sent" ? <form onSubmit={submit} aria-busy={busy}>
             {step !== "code" ? <><label htmlFor={`${fieldId}-email`}>כתובת מייל</label><input id={`${fieldId}-email`} name="email" type="email" autoComplete="username" dir="ltr" placeholder="you@example.com" value={email} disabled={busy} required onChange={e => { setEmail(e.target.value); setError(""); }} /></> : null}
             {step === "password" ? <><label htmlFor={`${fieldId}-password`}>סיסמה</label><input id={`${fieldId}-password`} name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" dir="ltr" value={password} disabled={busy} required onChange={e => { setPassword(e.target.value); setError(""); }} /><button type="button" className="sod29-auth-link" aria-pressed={showPassword} disabled={busy} onClick={() => setShowPassword(value => !value)}>{showPassword ? "הסתרת סיסמה" : "הצגת סיסמה"}</button></> : null}
             {step === "code" ? <><label htmlFor={`${fieldId}-code`}>קוד כניסה מהמייל</label><input id={`${fieldId}-code`} name="code" className="sod29-auth-code" type="text" inputMode="numeric" autoComplete="one-time-code" maxLength={EMAIL_OTP_MAX_LENGTH} dir="ltr" value={code} disabled={busy} autoFocus required onChange={e => { setCode(sanitizeEmailOtp(e.target.value)); setError(""); }} /></> : null}
             {error ? <p className="sod29-auth-error" role="alert">{error}</p> : null}
+            {step === "password" && failureKind === "invalid_credentials" ? <button type="button" className="sod29-auth-secondary" disabled={busy} data-auth-action="forgot-password-after-error" onClick={() => changeStep("reset")}>שכחתי סיסמה: שלחו לי קישור לבחירת סיסמה</button> : null}
             {RECOVERABLE_BY_REFRESH.has(failureKind) ? <button type="button" className="sod29-auth-secondary" disabled={busy} data-auth-action="refresh-runtime" onClick={() => refreshAppRuntime()}>רענון האתר</button> : null}
             {failureKind && failureKind !== "unknown" ? <small className="sod29-auth-method-note" dir="ltr" data-auth-diagnostic={failureKind}>{failureKind}</small> : null}
             {storageNote ? <details className="sod29-auth-method-note" data-auth-storage={storageNote.level}>
@@ -133,12 +143,15 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
               <p>{storageNote.summary.available ? `נתוני האתר בדפדפן תופסים כ־${Math.round(storageNote.summary.totalChars / 1024).toLocaleString("he-IL")}KB (מכסה של בערך 5,000KB). הגדולים ביותר, שמות וגדלים בלבד:` : "הדפדפן אינו מאפשר לקרוא את נתוני האתר."}</p>
               <ul dir="ltr">{storageNote.summary.entries.map(entry => <li key={entry.key}>{entry.key}{entry.count > 1 ? ` ×${entry.count}` : ""} · {Math.round(entry.chars / 1024 * 10) / 10}KB</li>)}</ul>
             </details> : null}
-            <button className="sod29-auth-primary" type="submit" disabled={busy}>{busy ? "רגע, מתחברים…" : step === "email" ? "שלחו לי קוד כניסה" : "כניסה לחשבון ←"}</button>
+            <button className="sod29-auth-primary" type="submit" disabled={busy}>{busy ? (step === "reset" ? "רגע, שולחים…" : "רגע, מתחברים…") : step === "email" ? "שלחו לי קוד כניסה" : step === "reset" ? "שלחו לי קישור לבחירת סיסמה" : "כניסה לחשבון ←"}</button>
           </form> : null}
           <div className="sod29-auth-alternatives">
             {methods.state === "ready" && methods.email && step === "email" ? <button className="sod29-auth-link" type="button" disabled={busy} data-auth-action="have-code"
               onClick={() => { const address = email.trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) { setError("הזינו קודם את כתובת המייל שאליה נשלח הקוד."); return; } setEmail(address); setStep("code"); setError(""); }}>כבר קיבלתי קוד</button> : null}
-            {methods.state === "ready" && methods.email ? <button className="sod29-auth-link" type="button" disabled={busy} onClick={() => changeStep(step === "email" ? "password" : "email")}>{step === "email" ? "כניסה עם סיסמה" : step === "code" ? "שינוי כתובת או בקשת קוד חדש" : "כניסה עם קוד למייל"}</button> : null}
+            {methods.state === "ready" && methods.email && step === "reset-sent" ? <button className="sod29-auth-secondary" type="button" disabled={busy} data-auth-action="resend-reset" onClick={() => changeStep("reset")}>שליחה חוזרת או שינוי כתובת</button> : null}
+            {methods.state === "ready" && methods.email ? <button className="sod29-auth-link" type="button" disabled={busy} onClick={() => changeStep(step === "email" ? "password" : step === "reset" || step === "reset-sent" ? "password" : "email")}>{step === "email" ? "כניסה עם סיסמה" : step === "code" ? "שינוי כתובת או בקשת קוד חדש" : step === "reset" || step === "reset-sent" ? "חזרה לכניסה עם סיסמה" : "כניסה עם קוד למייל"}</button> : null}
+            {methods.state === "ready" && methods.email && (step === "reset" || step === "reset-sent") ? <button className="sod29-auth-link" type="button" disabled={busy} data-auth-action="reset-to-code" onClick={() => changeStep("email")}>כניסה עם קוד למייל</button> : null}
+            {methods.state === "ready" && methods.email && (step === "password" || step === "email") ? <button className="sod29-auth-link" type="button" disabled={busy} data-auth-action="forgot-password" onClick={() => changeStep("reset")}>שכחתי סיסמה?</button> : null}
             {methods.oauth.map(method => <button key={method.id} className="sod29-auth-secondary" type="button" disabled={busy || !method.available} aria-describedby={!method.available ? `${fieldId}-oauth-state` : undefined} onClick={() => federated(method.id)}>המשך עם {method.label}</button>)}
             {methods.oauth.some(method => !method.available) ? <p id={`${fieldId}-oauth-state`} className="sod29-auth-method-note">{"הכניסה עם Google ו־Facebook ממתינה לאישור כתובת החזרה. אפשר להיכנס עם מייל וסיסמה או קוד למייל."}</p> : null}
           </div>

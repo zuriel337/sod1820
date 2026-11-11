@@ -55,7 +55,8 @@ export function createAuthServer({ codeLength = 6, resendWindowMs = 60_000, now 
   const refresh = new Map();    // refresh_token -> userId
   const log = [];               // {method,path,status,errorCode} only: never credentials
   let id = 0, lastSent = new Map();
-  const state = { sent: [], rejectNextSend: null, failNetwork: false };
+  const recoveries = new Map(), lastRecovery = new Map();   // email -> pending recovery link / time of the last one
+  const state = { sent: [], rejectNextSend: null, failNetwork: false, passwordChanges: [] };
 
   const newUser = (email, confirmed, password = null) => {
     const user = { id: `00000000-0000-4000-8000-${String(++id).padStart(12, '0')}`, email, confirmed, password };
@@ -75,7 +76,7 @@ export function createAuthServer({ codeLength = 6, resendWindowMs = 60_000, now 
     if (state.failNetwork) throw new TypeError('Failed to fetch');   // the Auth server is unreachable
     const url = new URL(request.url);
     const path = url.pathname.replace('/auth/v1', '');
-    const body = request.method === 'POST' ? await request.clone().json().catch(() => ({})) : {};
+    const body = request.method === 'POST' || request.method === 'PUT' ? await request.clone().json().catch(() => ({})) : {};
     let response;
     if (path === '/settings') response = json({ external: { email: true, google: true, facebook: true, phone: false }, disable_signup: false });
     else if (path === '/otp') {
@@ -95,6 +96,21 @@ export function createAuthServer({ codeLength = 6, resendWindowMs = 60_000, now 
           codes.set(email, record); lastSent.set(email, now()); state.sent.push({ email, ...record });
           response = json({});
         }
+      }
+    } else if (path === '/recover') {
+      // GoTrue answers 200 for every address, with or without an account. Only an existing account gets a link (and the per-address
+      // send window); a mail-server failure (state.rejectNextSend) is the only visible error besides the rate limit.
+      const email = String(body.email || '').toLowerCase(), user = users.get(email), last = lastRecovery.get(email);
+      if (user && last && now() - last < resendWindowMs) response = err(429, 'over_email_send_rate_limit', `For security purposes, you can only request this after ${Math.ceil((resendWindowMs - (now() - last)) / 1000)} seconds.`);
+      else if (user && state.rejectNextSend) { response = err(state.rejectNextSend, 'unexpected_failure', 'Error sending recovery email'); state.rejectNextSend = null; }
+      else {
+        if (user) {
+          const authCode = randomBytes(8).toString('base64url');
+          authCodes.set(authCode, { userId: user.id, challenge: body.code_challenge });
+          const record = { link: `${url.searchParams.get('redirect_to') || SITE}?code=${authCode}`, authCode, sentAt: now() };
+          recoveries.set(email, record); lastRecovery.set(email, now()); state.sent.push({ email, kind: 'recovery', ...record });
+        }
+        response = json({});
       }
     } else if (path === '/verify') {
       const email = String(body.email || '').toLowerCase(), record = codes.get(email), user = users.get(email);
@@ -119,7 +135,13 @@ export function createAuthServer({ codeLength = 6, resendWindowMs = 60_000, now 
       const token = /^Bearer (.+)$/.exec(request.headers.get('authorization') || '')?.[1];
       let uid; try { uid = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString()).sub; } catch { /* unauthenticated */ }
       const user = uid && byId(uid);
-      response = user ? json({ id: user.id, email: user.email, aud: 'authenticated', role: 'authenticated' }) : err(401, 'bad_jwt', 'invalid JWT');
+      if (!user) response = err(401, 'bad_jwt', 'invalid JWT');
+      else if (request.method === 'PUT') {
+        // Only the password may change here (the worker admits nothing else); the update is applied to the token's own account.
+        if (typeof body.password !== 'string' || body.password.length < 8) response = err(422, 'weak_password', 'Password should be at least 8 characters.');
+        else if (body.password === user.password) response = err(422, 'same_password', 'New password should be different from the old password.');
+        else { user.password = body.password; state.passwordChanges.push(user.id); response = json({ id: user.id, email: user.email, aud: 'authenticated', role: 'authenticated' }); }
+      } else response = json({ id: user.id, email: user.email, aud: 'authenticated', role: 'authenticated' });
     } else if (path === '/logout') response = new Response(null, { status: 204 });
     else response = err(404, 'not_found', 'not found');
     log.push({ method: request.method, path, search: url.search.replace(/=[^&]*/g, '=…'), status: response.status });
@@ -127,8 +149,8 @@ export function createAuthServer({ codeLength = 6, resendWindowMs = 60_000, now 
   }
   // An OAuth provider round trip: the user signed in at the provider; Auth redirects back with a PKCE code bound to the request's challenge.
   const issueOAuthCode = (email, challenge) => { let user = users.get(email); if (!user) user = newUser(email, true); user.confirmed = true; const code = randomBytes(8).toString('base64url'); authCodes.set(code, { userId: user.id, challenge }); return code; };
-  return { handle, issueOAuthCode, users, codes, state, log, newUser, lastCode: email => codes.get(email.toLowerCase())?.code, lastLink: email => codes.get(email.toLowerCase())?.link,
-    reset: () => { lastSent = new Map(); } , forgetSendTimes: () => { lastSent = new Map(); } };
+  return { handle, issueOAuthCode, users, codes, state, log, newUser, lastCode: email => codes.get(email.toLowerCase())?.code, lastLink: email => codes.get(email.toLowerCase())?.link, lastRecoveryLink: email => recoveries.get(email.toLowerCase())?.link,
+    reset: () => { lastSent = new Map(); lastRecovery.clear(); } , forgetSendTimes: () => { lastSent = new Map(); lastRecovery.clear(); } };
 }
 
 // ---- the real worker, in a VM ------------------------------------------------------------------
@@ -174,6 +196,6 @@ export function loadAuthModule(client, { reading = true, location = { origin: SI
   vm.runInContext(load('src/lib/oauthReturn.js') + ';globalThis.providerOAuthRequest=providerOAuthRequest;', ctx);
   vm.runInContext(load('src/lib/authStorage.js') + ';globalThis.isStorageError=isStorageError;', ctx);
   vm.runInContext(load('src/lib/authDiagnostics.js') + ';globalThis.classifyAuthError=classifyAuthError;globalThis.reportAuthFailure=reportAuthFailure;', ctx);
-  vm.runInContext(load('src/lib/auth.js') + ';globalThis.api={requestEmailOtp,verifyEmailOtp,signInWithPassword,signOut,getSession,emailLinkRedirect};', ctx);
+  vm.runInContext(load('src/lib/auth.js') + ';globalThis.api={requestEmailOtp,verifyEmailOtp,signInWithPassword,signOut,getSession,emailLinkRedirect,requestPasswordReset,updatePassword};', ctx);
   return ctx.api;
 }

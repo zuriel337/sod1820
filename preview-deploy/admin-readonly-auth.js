@@ -1,7 +1,8 @@
 // Transport admission only. Supabase verifies credentials/JWT; the existing
 // same-user role reader grants access. Existing review builds retain their
 // password-only default. "existing" additionally admits OTP without signup;
-// true is the prepared full-account policy, not selected by the current build.
+// true is the full-account policy: sign-in by code, PKCE, password recovery (request and
+// choosing the new password) for the account whose e-mailed link was verified.
 export function interceptPublicReadingAdminAuth(event, authOrigin, { accountAccess = false, clientOrigin = "" } = {}) {
   const req = event.request, url = new URL(req.url);
   if (url.origin !== authOrigin || !url.pathname.startsWith('/auth/v1/')) return false;
@@ -29,6 +30,30 @@ export function interceptPublicReadingAdminAuth(event, authOrigin, { accountAcce
       catch { return new Response(JSON.stringify({error:'public_reading_auth_unreachable'}), {status:503,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}); }
     };
     if (req.method === 'GET' && !url.search && (url.pathname === '/auth/v1/settings' || url.pathname === '/auth/v1/user' && bearer)) return forward();
+    // Choosing a new password after a verified recovery: the signed-in Auth session sends PUT /auth/v1/user with the password and
+    // nothing else (the SDK adds two null PKCE fields). The worker admits only that exact body, bounded to the password length
+    // Auth accepts, and only after Auth itself has confirmed the bearer token belongs to a live session. The update is applied by
+    // Auth to the token's own account; no other attribute (email, phone, role, data) can travel on this request.
+    if (req.method === 'PUT' && accountAccess === true && url.pathname === '/auth/v1/user') {
+      if (!bearer || url.search || !req.headers.get('apikey')) return deny();
+      const text = await req.clone().text();
+      if (text.length > 1024) return deny();
+      const update = JSON.parse(text);
+      const nothing = value => value === null || value === undefined;
+      if (!update || Array.isArray(update) || typeof update !== 'object' || typeof update.password !== 'string'
+        || Object.keys(update).some(key => !['password','code_challenge','code_challenge_method'].includes(key))
+        || !nothing(update.code_challenge) || !nothing(update.code_challenge_method)) return deny();
+      const bytes = encodeURIComponent(update.password).replace(/%[0-9A-F]{2}/g, 'x').length;
+      // Auth owns the minimum-strength policy and answers it in words the page shows; the worker bounds only the size.
+      if (bytes < 1 || bytes > 72) return deny();
+      let session;
+      try { session = await fetch(new Request(url.origin + '/auth/v1/user', { method: 'GET', headers: { Authorization: req.headers.get('Authorization'), apikey: req.headers.get('apikey') }, cache: 'no-store', credentials: 'omit', redirect: 'error' })); }
+      catch { return new Response(JSON.stringify({error:'public_reading_auth_unreachable'}), {status:503,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}}); }
+      if (!session.ok) return session;   // expired or invalid session: Auth's own answer reaches the page and is classified there
+      const account = await session.json();
+      if (!account || typeof account.id !== 'string' || !account.id) return deny();
+      return forward();
+    }
     if (req.method !== 'POST') return deny();
     if (url.pathname === '/auth/v1/logout') return bearer && url.searchParams.size === 1 && url.searchParams.get('scope') === 'local' && !(await req.clone().text()) ? forward() : deny();
     const raw = await req.clone().text();
@@ -47,6 +72,14 @@ export function interceptPublicReadingAdminAuth(event, authOrigin, { accountAcce
         || !body.data || Array.isArray(body.data) || typeof body.data !== 'object' || Object.keys(body.data).length
         || !security(body.gotrue_meta_security) || !/^[A-Za-z0-9_-]{43}$/.test(body.code_challenge || '') || body.code_challenge_method !== 's256') return deny();
       return forward();
+    }
+    // Password recovery request (resetPasswordForEmail with PKCE): the e-mailed link returns to the exact /auth/callback and is
+    // exchanged for a session with the verifier kept in the requesting tab. A request without that exact destination is denied,
+    // because Auth would otherwise fall back to the site root, where nothing completes the recovery.
+    if (accountAccess === true && url.pathname === '/auth/v1/recover') {
+      return onlyCallbackRedirect && Object.keys(body).every(key => ['email','gotrue_meta_security','code_challenge','code_challenge_method'].includes(key))
+        && email(body.email) && security(body.gotrue_meta_security)
+        && /^[A-Za-z0-9_-]{43}$/.test(body.code_challenge || '') && body.code_challenge_method === 's256' ? forward() : deny();
     }
     if (accountAccess && !url.search && url.pathname === '/auth/v1/verify') {
       return Object.keys(body).every(key => ['email','token','type','gotrue_meta_security'].includes(key)) && email(body.email)

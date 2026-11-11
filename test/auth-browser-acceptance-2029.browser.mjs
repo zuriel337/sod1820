@@ -181,4 +181,162 @@ test('stale service worker: a poisoned worker heals once without clearing the se
   } finally { await browser.close(); await fixture.close(); }
 });
 
+
+// ---- password recovery (and the first password for an account that began with Google) ------------------------------------
+const storedUserId = page => page.evaluate(() => { const key = Object.keys(localStorage).find(item => /auth-token$/.test(item)); return key ? JSON.parse(localStorage.getItem(key))?.user?.id ?? null : null; });
+async function signOutViaUi(page) {
+  await page.goto('https://sod1820.co.il/login', { waitUntil: 'domcontentloaded' });
+  await page.locator('[data-auth-state="signed-in"]').waitFor({ timeout: 20000 });
+  await page.getByRole('button', { name: 'כניסה עם חשבון אחר' }).click();
+  await page.locator('[data-auth-state="guest"]').waitFor({ timeout: 20000 });
+  assert.equal(await storedUserId(page), null, 'the local session is gone');
+}
+async function askForResetLink(page, email, { viaPasswordStep = true } = {}) {
+  if (viaPasswordStep) { await page.getByRole('button', { name: 'כניסה עם סיסמה' }).click(); await page.getByRole('textbox', { name: 'כתובת מייל' }).fill(email); await page.getByRole('button', { name: 'שכחתי סיסמה?' }).click(); }
+  await page.getByRole('heading', { name: 'שחזור סיסמה' }).waitFor({ timeout: 15000 });
+  assert.equal(await page.getByRole('textbox', { name: 'כתובת מייל' }).inputValue(), email, 'the address already typed is carried over');
+  await page.getByRole('button', { name: 'שלחו לי קישור לבחירת סיסמה' }).click();
+}
+async function chooseNewPassword(tab, password) {
+  await tab.getByRole('heading', { name: 'בחירת סיסמה חדשה' }).waitFor({ timeout: 20000 });
+  await tab.getByLabel('סיסמה חדשה', { exact: true }).fill(password);
+  await tab.getByLabel('אימות הסיסמה', { exact: true }).fill(password);
+  await tab.getByRole('button', { name: /שמירת הסיסמה/ }).click();
+  await tab.getByRole('heading', { name: 'הסיסמה נשמרה' }).waitFor({ timeout: 20000 });
+}
+async function passwordSignIn(page, email, password) {
+  await page.goto('https://sod1820.co.il/login', { waitUntil: 'domcontentloaded' }); await ready(page);
+  await page.getByRole('button', { name: 'כניסה עם סיסמה' }).click();
+  await page.getByRole('textbox', { name: 'כתובת מייל' }).fill(email);
+  await page.getByLabel('סיסמה', { exact: true }).fill(password);
+  await page.getByRole('button', { name: /כניסה לחשבון/ }).click();
+}
+
+for (const profile of ['desktop', 'mobile-browser']) {
+  test(`[${profile}] Google-only account gets its first password by e-mail link; Google and password then reach the SAME user_id`, { skip: !canRun && 'playwright or the built artifact is unavailable', timeout: 180000 }, async () => {
+    const fixture = await startFixture();
+    const browser = await pw.chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
+    try {
+      const email = 'google.person@example.invalid';   // the address the fixture's Google round trip signs in
+      const { context, page, problems } = await open(browser, profile, fixture);
+      await page.goto(fixture.origin + '/login', { waitUntil: 'domcontentloaded' }); await ready(page);
+      await page.getByRole('button', { name: 'המשך עם Google' }).click();
+      await page.waitForFunction(() => Object.keys(localStorage).some(k => /auth-token$/.test(k)), null, { timeout: 20000 });
+      const userId = await storedUserId(page);
+      assert.ok(userId); assert.equal(fixture.auth.users.get(email).password, null, 'no password yet');
+      await signOutViaUi(page);
+      // An address with no account first, then the real one: the answer is identical. (Only the latest request from a browser can be
+      // completed there, because the PKCE verifier is kept per browser, which is why the page says "only the last link works".)
+      await askForResetLink(page, 'nobody.at.all@example.invalid');
+      await page.getByRole('heading', { name: 'בדקו את המייל' }).waitFor({ timeout: 15000 });
+      const unknown = await page.locator('.sod29-account-entry').innerText();
+      assert.match(unknown, /אם קיים חשבון עם הכתובת/); assert.equal(fixture.auth.state.sent.length, 0, 'no mail, no account created');
+      await page.getByRole('button', { name: 'שליחה חוזרת או שינוי כתובת' }).click();
+      await page.getByRole('textbox', { name: 'כתובת מייל' }).fill(email);
+      await page.getByRole('button', { name: 'שלחו לי קישור לבחירת סיסמה' }).click();
+      await page.getByRole('heading', { name: 'בדקו את המייל' }).waitFor({ timeout: 15000 });
+      const known = await page.locator('.sod29-account-entry').innerText();
+      await shot(page, `${profile}-recovery-1-sent`);
+      assert.equal(known.replace(email, 'X'), unknown.replace('nobody.at.all@example.invalid', 'X'), 'identical answer with and without an account');
+      assert.equal(fixture.auth.state.sent.filter(item => item.kind === 'recovery').length, 1, 'only the real account got a link');
+      assert.equal(fixture.auth.users.size, 1, 'no account was created by asking');
+      const link = fixture.auth.lastRecoveryLink(email);
+      assert.equal(new URL(link).pathname, '/auth/callback');
+      // The link opens in a new tab of the same browser.
+      const tab = await context.newPage();
+      await tab.goto(link, { waitUntil: 'domcontentloaded' });
+      await tab.getByRole('heading', { name: 'בחירת סיסמה חדשה' }).waitFor({ timeout: 30000 }); await tab.waitForTimeout(800);
+      await shot(tab, `${profile}-recovery-2-new-password`);
+      await chooseNewPassword(tab, 'first-ever-password-1');
+      await shot(tab, `${profile}-recovery-3-saved`);
+      assert.equal(await storedUserId(tab), userId, 'the recovery session is the same user_id');
+      assert.deepEqual(fixture.auth.state.passwordChanges, [userId]);
+      await signOutViaUi(tab);
+      await passwordSignIn(tab, email, 'first-ever-password-1');
+      await tab.waitForFunction(() => Object.keys(localStorage).some(k => /auth-token$/.test(k)), null, { timeout: 20000 });
+      assert.equal(await storedUserId(tab), userId, 'password sign-in: same user_id');
+      await signOutViaUi(tab);
+      await tab.goto(fixture.origin + '/login', { waitUntil: 'domcontentloaded' }); await ready(tab);
+      await tab.getByRole('button', { name: 'המשך עם Google' }).click();
+      await tab.waitForFunction(() => Object.keys(localStorage).some(k => /auth-token$/.test(k)), null, { timeout: 20000 });
+      assert.equal(await storedUserId(tab), userId, 'Google sign-in again: same user_id');
+      assert.equal(fixture.auth.users.size, 1);
+      assert.deepEqual(problems.authDenied, [], 'the worker blocked nothing'); assert.deepEqual(unexpected(problems), []);
+      report.push({ profile, scenario: 'google-only-first-password', ok: true, userId, authCalls: fixture.auth.log.map(line => `${line.method} ${line.path} ${line.status}`) });
+      await context.close();
+    } finally { await browser.close(); await fixture.close(); }
+  });
+}
+
+test('account with a password: "forgot" after a wrong-password error carries the address; reset replaces the password; the e-mail code still signs in', { skip: !canRun && 'playwright or the built artifact is unavailable', timeout: 180000 }, async () => {
+  const fixture = await startFixture();
+  const browser = await pw.chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
+  try {
+    const email = 'has.password@example.invalid'; const user = fixture.auth.newUser(email, true, 'old-password-123');
+    const { context, page, problems } = await open(browser, 'desktop', fixture);
+    await passwordSignIn(page, email, 'wrong-password-999');
+    await page.getByText('המייל או הסיסמה אינם נכונים').waitFor({ timeout: 15000 });
+    await shot(page, 'recovery-wrong-password-offers-reset');
+    await page.locator('[data-auth-action="forgot-password-after-error"]').click();
+    await askForResetLink(page, email, { viaPasswordStep: false });
+    await page.getByRole('heading', { name: 'בדקו את המייל' }).waitFor({ timeout: 15000 });
+    const tab = await context.newPage();
+    await tab.goto(fixture.auth.lastRecoveryLink(email), { waitUntil: 'domcontentloaded' });
+    await chooseNewPassword(tab, 'old-password-123').catch(() => {});   // the same password is refused with a clear message
+    await tab.getByText('זו אותה סיסמה שכבר מוגדרת בחשבון').waitFor({ timeout: 15000 });
+    await tab.getByLabel('סיסמה חדשה', { exact: true }).fill('replacement-pass-456'); await tab.getByLabel('אימות הסיסמה', { exact: true }).fill('replacement-pass-456');
+    await tab.getByRole('button', { name: /שמירת הסיסמה/ }).click(); await tab.getByRole('heading', { name: 'הסיסמה נשמרה' }).waitFor({ timeout: 15000 });
+    await signOutViaUi(tab);
+    await passwordSignIn(tab, email, 'old-password-123');
+    await tab.getByText('המייל או הסיסמה אינם נכונים').waitFor({ timeout: 15000 });
+    await passwordSignIn(tab, email, 'replacement-pass-456');
+    await tab.waitForFunction(() => Object.keys(localStorage).some(k => /auth-token$/.test(k)), null, { timeout: 20000 });
+    assert.equal(await storedUserId(tab), user.id);
+    await signOutViaUi(tab); fixture.auth.forgetSendTimes();
+    await tab.goto(fixture.origin + '/login', { waitUntil: 'domcontentloaded' }); await ready(tab);
+    await requestCode(tab, email); await submitCode(tab, fixture.auth.lastCode(email));
+    await tab.waitForFunction(() => Object.keys(localStorage).some(k => /auth-token$/.test(k)), null, { timeout: 20000 });
+    assert.equal(await storedUserId(tab), user.id, 'the existing code sign-in still works');
+    assert.deepEqual(problems.authDenied, []);
+    report.push({ scenario: 'existing-password-reset', ok: true });
+    await context.close();
+  } finally { await browser.close(); await fixture.close(); }
+});
+
+test('recovery failures each leave an action: expired link, another browser, mail-server error, no session; nothing is left half-done', { skip: !canRun && 'playwright or the built artifact is unavailable', timeout: 180000 }, async () => {
+  const fixture = await startFixture();
+  const browser = await pw.chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true, args: fixture.chromiumArgs, env: fixture.browserEnv });
+  try {
+    const email = 'fails@example.invalid'; fixture.auth.newUser(email, true);
+    const { context, page } = await open(browser, 'mobile-browser', fixture);
+    // 1. An expired or already used link comes back with Auth's error in the address.
+    await page.goto(fixture.origin + '/auth/callback?error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired', { waitUntil: 'domcontentloaded' });
+    await page.getByText('הקישור פג תוקף או שכבר נעשה בו שימוש').waitFor({ timeout: 30000 });
+    assert.equal(new URL(page.url()).search, '', 'the error is removed from the address');
+    await shot(page, 'recovery-failure-expired');
+    await page.getByRole('link', { name: 'בקשת קישור חדש לשחזור סיסמה' }).click();
+    await page.getByRole('heading', { name: 'שחזור סיסמה' }).waitFor({ timeout: 20000 });
+    // 2. A mail-server error while asking: a clear message and the other ways in, no dead end.
+    fixture.auth.state.rejectNextSend = 500;
+    await page.getByRole('textbox', { name: 'כתובת מייל' }).fill(email);
+    await page.getByRole('button', { name: 'שלחו לי קישור לבחירת סיסמה' }).click();
+    await page.getByText('השרת לא ענה כרגע').waitFor({ timeout: 15000 });
+    assert.ok(await page.getByRole('button', { name: 'המשך עם Google' }).isVisible()); assert.ok(await page.locator('[data-auth-action="reset-to-code"]').isVisible());
+    await shot(page, 'recovery-failure-server-error');
+    await page.getByRole('button', { name: 'שלחו לי קישור לבחירת סיסמה' }).click();   // the retry works once the server does
+    await page.getByRole('heading', { name: 'בדקו את המייל' }).waitFor({ timeout: 15000 });
+    // 3. The link opened in another browser (no verifier there): guidance plus a new-link action.
+    const link = fixture.auth.lastRecoveryLink(email);
+    const other = await open(browser, 'desktop', fixture);
+    await other.page.goto(link, { waitUntil: 'domcontentloaded' });
+    await other.page.getByText(/הכניסה לא הושלמה/).waitFor({ timeout: 30000 });
+    assert.ok(await other.page.getByRole('link', { name: 'בקשת קישור חדש לשחזור סיסמה' }).isVisible()); assert.ok(await other.page.getByRole('link', { name: /חזרה לכניסה/ }).isVisible());
+    assert.equal(await storedUserId(other.page), null, 'no session was created');
+    await shot(other.page, 'recovery-failure-other-browser');
+    assert.equal(fixture.auth.state.passwordChanges.length, 0, 'no password changed in any failure');
+    report.push({ scenario: 'recovery-failures', ok: true });
+    await other.context.close(); await context.close();
+  } finally { await browser.close(); await fixture.close(); }
+});
+
 test.after(() => { if (evidence && report.length) writeFileSync(join(evidence, 'report.json'), JSON.stringify(report, null, 2)); });

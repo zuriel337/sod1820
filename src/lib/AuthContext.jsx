@@ -1,14 +1,15 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef, useSyncExternalStore } from 'react';
 import { supabase, logActivity } from './supabase.js';
 import { fetchProfile, signOut as doSignOut, claimResearchLead } from './auth.js';
 import { getVisitorId } from './tracking.js';
 import { stitchLogin } from './identity.js';
 import { PUBLIC_READING_RELEASE } from './publicReadingRelease2029.js';
 import { verifyReadingSession } from './publicReadingAuthSession.js';
+import { getPasswordRecovery, subscribePasswordRecovery } from './passwordRecovery.js';
 
 const AuthContext = createContext({
   user: null, profile: null, loading: true,
-  isAdmin: false, isMember: false, canModerateGuests: false,
+  isAdmin: false, isMember: false, canModerateGuests: false, passwordRecovery: false,
   signOut: () => {}, refreshProfile: () => {},
 });
 
@@ -125,8 +126,11 @@ export function AuthProvider({ children }) {
 
   // An old account's delayed profile must never lend its name or role to a new one.
   const currentProfile = user?.id && profile?.id === user.id ? profile : null;
+  const recoveryMark = useSyncExternalStore(subscribePasswordRecovery, getPasswordRecovery, () => null);
   const value = {
     user, profile: currentProfile, loading,
+    // True only for the account whose recovery link created this session: the page then asks for a new password.
+    passwordRecovery: Boolean(user?.id && recoveryMark?.userId === user.id),
     verified: !!user && (!PUBLIC_READING_RELEASE || verified),
     isAdmin: currentProfile?.role === 'admin',
     isMember: currentProfile?.tier === 'member',
