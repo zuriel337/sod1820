@@ -1,0 +1,15 @@
+
+Human-Gate ZURIEL · 1.10.2026. EXTEND_EXISTING under SOD1820_DESIGN_CONTRACT_V2.md (written under V1; V1 is kept as history).
+
+1. CANONICAL LOGO = ONE INSEPARABLE LOCKUP. The SOD1820 logo is always the approved crown artwork together with the exact protected Hebrew wordmark «כי לה׳ המלוכה». Crown and wordmark are one visual identity.
+2. CROWN NEVER ALONE. The crown must never be used by itself as a logo, watermark, avatar, thumbnail mark, favicon brand substitute, video corner mark, share mark or any other branded projection.
+3. NO CROPPING / NO WORDMARK REMOVAL. Never crop, hide, remove or replace the Hebrew wordmark. If a surface is too small to preserve the full lockup legibly, omit the brand mark or use a non-logo neutral UI symbol; do not substitute crown-only.
+4. NO ENGLISH INSIDE THE LOGO. «KINGDOM RISE», «SOD1820» and any other Latin/English copy are not part of the canonical logo artwork.
+5. HEBREW VIDEO RULE. In authored Hebrew video, the in-video brand mark is the full canonical lockup only: crown + «כי לה׳ המלוכה». No English words are added to the logo.
+6. INTRO / OUTRO DOMAIN EXCEPTION. At the beginning and/or ending of an authored Hebrew video, the separate live-text domain «sod1820.co.il» may be added beneath or near the full canonical logo. The domain is supporting information, never part of the logo artwork, and is not required during the body of the video.
+7. EXACT ARTWORK. The crown and protected Hebrew wordmark are not regenerated, redrawn, retyped, morphed or reconstructed by AI. They are composited as exact protected artwork after any generated scene/background.
+8. SMALL USE. Small placement is allowed only by proportional scaling of the full lockup while preserving the Hebrew words. No crown-only small variant exists.
+9. HERITAGE. /logo.png remains preserved as Heritage compatibility where legacy runtime still depends on it; it does not redefine Primary 2029 identity.
+10. ONE OWNER. This rule extends SOD1820_DESIGN_CONTRACT_V2.md (formerly V1) / sod1820_canonical_identity_law and creates no parallel Brand System, Store, Registry or media-specific branding system.
+
+[v4 · 11.11.2026 · יישור בעלים — החרגה נקודתית מהקפאת G3 (החלטת צוריאל 5, 11.11.2026)] בעל חוזה העיצוב: SOD1820_DESIGN_CONTRACT_V2.md (SOD1820_DESIGN_CONTRACT_V1.md נשמר כהיסטוריה). כללי שלמות הסימן והלוקאפ לא השתנו.

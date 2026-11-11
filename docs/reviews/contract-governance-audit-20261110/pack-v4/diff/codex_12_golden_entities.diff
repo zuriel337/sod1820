@@ -1,0 +1,7 @@
+--- project_codex#12:golden_entities.body (base)
++++ project_codex#12:golden_entities.body (proposed)
+@@ -10,3 +10,3 @@
+ 
+-שכבת זהב משותפת: src/lib/goldTier.js (useGold + sortGoldFirst), מקור יחיד שמזהה tier=gold (labels + values). מוחל ל"זהב-ראשון + כוכב": /cross, דף המספר (מילים שוות), בית המדרש (עוגנים+תגית), GematriaCalculator. נותר להחיל גם על GematriaCalculator3D וחיפוש כללי.
++[היסטורי — goldTier.js, GematriaCalculator, GematriaCalculator3D, /cross ודף בית המדרש הישן הוסרו עם Legacy ב-5.11.2026; היישום הנוכחי של «זהב-ראשון» ב-2029 לא אומת בסבב זה] שכבת זהב משותפת: src/lib/goldTier.js (useGold + sortGoldFirst), מקור יחיד שמזהה tier=gold (labels + values). מוחל ל"זהב-ראשון + כוכב": /cross, דף המספר (מילים שוות), בית המדרש (עוגנים+תגית), GematriaCalculator. נותר להחיל גם על GematriaCalculator3D וחיפוש כללי.
+ 

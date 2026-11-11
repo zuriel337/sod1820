@@ -1,0 +1,60 @@
+{
+ "rules": {
+  "deploy_on_request": {
+   "from": 3,
+   "to": 4,
+   "base_md5": "f93e73ce0ad3bc66457e6ff07cdb2322",
+   "new_md5": "78d80d2264e0b5062b425319b25a3e3a",
+   "base_len": 5820,
+   "new_len": 6532,
+   "base_meta_md5_db": "8a4b80b7e9b824e79dca9e229549c1c4",
+   "label": "⛔ Release v4 — Explicit Approval per Merge & Deployment · No Standing Authorization"
+  },
+  "inter_agent_coordination_law": {
+   "from": 17,
+   "to": 18,
+   "base_md5": "02d188d1b92e32ea51907d059b18c47f",
+   "new_md5": "0ce1688c34a59353b42c2e1b53322c78",
+   "base_len": 40807,
+   "new_len": 42309,
+   "base_meta_md5_db": "982e7976d43d62a7a9b08b8d3a591e6f",
+   "label": "Inter-Agent Coordination v18 — 2029 Production · Explicit Release Approval"
+  },
+  "foundation_closure_protocol_law": {
+   "from": 7,
+   "to": 8,
+   "base_md5": "336934e50ca48dba8cb00cf64986b878",
+   "new_md5": "eb603a65f8a4a9a58e8d4548f0663e65",
+   "base_len": 16930,
+   "new_len": 17029,
+   "base_meta_md5_db": "b26961fac416ac5e4775e9a41b6deae8",
+   "label": "Foundation Closure Protocol v8 — Bottom-Up Closure + Explicit Release Approval"
+  },
+  "system_suggestions_law": {
+   "from": 5,
+   "to": 6,
+   "base_md5": "9b5c19de501b1985da01ddfc9c646d3c",
+   "new_md5": "98d4d88e16d2ec5f70dac6e5a7f98ea5",
+   "base_len": 17732,
+   "new_len": 17885,
+   "base_meta_md5_db": "aa247fb211e2fec0454cb457dd4fc86d",
+   "label": "System Intelligence v6 — Resource-Aware Reliability + Explicit Release Approval"
+  }
+ },
+ "codex": {
+  "publishing_conventions": {
+   "id": 4,
+   "base_md5": "26b473b72d55c57153c6678543d25094",
+   "new_md5": "f39efab93a4d4bfa851586d4fc4259f5",
+   "base_len": 72651,
+   "new_len": 72978
+  },
+  "branches_deploy": {
+   "id": 9,
+   "base_md5": "6cee6559506bba1be4f1e71a86693285",
+   "new_md5": "8d87b8459f2fec3c25f9bf7cea443d3b",
+   "base_len": 2780,
+   "new_len": 3079
+  }
+ }
+}

@@ -1,0 +1,7 @@
+--- project_codex#5:gematria_engine.body (base)
++++ project_codex#5:gematria_engine.body (proposed)
+@@ -52,3 +52,3 @@
+ - Heichal, Number, Beit Midrash, Raziel and Calculator must converge on the same method/result identity and provenance.
+-- Legacy GematriaCalculator/GematriaCalculatorLegacy remain compatibility/reference surfaces until cutover; they are not architectural authority for Calculator 2029.
++- Legacy GematriaCalculator/GematriaCalculatorLegacy were compatibility/reference surfaces until the cutover and were removed with Legacy on 5.11.2026; Calculator 2029 is the active surface.
+ - No new RPC/engine is implied when existing fn_method_profile/registered execution is sufficient.

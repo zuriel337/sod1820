@@ -1,0 +1,66 @@
+{
+ "auto_release_preconditions": [
+  "gate_clean",
+  "dependencies_closed",
+  "current_main_reconciled",
+  "required_checks_green",
+  "security_privacy_clean_if_applicable",
+  "no_overlapping_writer",
+  "rollback_recovery_known"
+ ],
+ "cited_by": [
+  "deploy_quota_protection",
+  "inter_agent_coordination_law"
+ ],
+ "compaction_v1": {
+  "canonical_owner": "deploy_on_request",
+  "classification": "OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "live_release_governance"
+ },
+ "complemented_by": "deploy_quota_protection",
+ "explicit_human_gate_remaining": [
+  "governed_truth_canonicalization_or_publication",
+  "destructive_irreversible_data_loss",
+  "pricing_economics",
+  "legacy_to_2029_cutover",
+  "privacy_security_weakening",
+  "permanent_capability_history_retirement"
+ ],
+ "g3_disposition_v1": {
+  "classification": "KEEP_CANONICAL_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "canonical owner survives into G3 unless explicitly superseded through owner gate"
+ },
+ "human_gate_v2": "ZURIEL 2026-09-17",
+ "owner_check": "EXTEND_EXISTING",
+ "owner_routing": {
+  "canonical_owner": "deploy_on_request",
+  "confidence": "high",
+  "domain": "live_release_governance",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ },
+ "release_advice_states": [
+  "AUTO_RELEASE_NOW",
+  "BUNDLE_WITH",
+  "BLOCKED_BY",
+  "SAFE_INDEPENDENT_WAITING_RUNTIME",
+  "DO_NOT_RELEASE_SUPERSEDED/PARKED"
+ ],
+ "release_canary_auto_rollback": false,
+ "release_canary_evidence_store": "github_commit_status",
+ "release_canary_gate": "github_status:sod1820/post-deploy-canary",
+ "release_canary_heartbeat_reader": "fn_reliability_heartbeat_status",
+ "release_canary_override": "fn_release_canary_override",
+ "release_canary_override_reader": "fn_release_canary_override_status",
+ "separate_taale_required": false,
+ "source": "CLAUDE.md deploy section, mirror write approved by ZURIEL",
+ "standing_auto_release": true
+}

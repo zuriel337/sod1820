@@ -1,0 +1,705 @@
+# Research Intake — Foundation Contract (5 Extension Points + §6 Contributor Scope) — **FROZEN 27.8.2026**
+
+**Status:** APPROVED (Human-Gate ZURIEL, 25.8.2026, `INTAKE_FOUNDATION_CLOSURE`). **עודכן 27.8.2026 — `FOUNDATION SUFFICIENT — FROZEN FOR CONTROLLED UNIVERSAL INGESTION`** (ר' §6-FREEZE למטה; N≥3 corpora שונים-במהות הושלמו: צבי/עמית/Article-145; Freeze≠ingestion-authorization, ר' §6-FREEZE לפירוט-המלא).
+**Scope:** documentation/naming-convention only. **0 schema/migration/table/engine/ledger חדשים.** לא נוגע בשורות היסטוריות (`research_objects`/`edges` — 0 UPDATE בפאס הזה).
+**מקור:** סגירת חמשת ה-Extension Points שנמצאו ב-Foundation Expansion Gate (§23.5) שהופעל על דומיין "Research Intake" (challenge-pass, 25.8.2026).
+**עקרון-על:** מרחיב `unified_graph_law`/`reality_graph_law`/§20 (Gate #18, Option C — Contract-over-Consolidation)/§22 (Foundation Delta v2) — אינו יוצר מנגנון מקביל לאף אחד מהם.
+
+---
+
+## 1. RESEARCH_OBJECT META REGISTRY
+
+`research_objects.meta` (jsonb) נשאר jsonb גמיש — **אין** CHECK constraint, **אין** סכמה קשיחה, **אין** מיגרציה להיסטוריה הקיימת (192 שורות, ~20 מפתחות אד-הוק שונים — נשארות כפי-שהן, provenance נשמר).
+
+מכאן ואילך, מפתחות מתחלקים לשתי קטגוריות:
+
+**Reserved canonical keys** (משמעות יציבה חוצת-דומיין, tooling עתידי רשאי להסתמך עליהם):
+- `layer`, `cluster`, `human_gate`, `provenance_type`, `attribution_type`, `contributor_id` — כבר בשימוש נרחב בפועל; מוכרזים-רשמית כ-reserved כפי-שהם (0 שינוי-משמעות).
+- `source_refs` (array) — **reserved canonical key (מתוקן 2.9.2026 — ר' §1-CORRECTION למטה)**: נדחה-לסעיף-2 — מפתח שמור לציטוטים-תומכים-נוספים לאותה Claim/Finding, לא legacy-בלבד. 192 השורות ההיסטוריות נשמרות ללא-שינוי; כתיבה חדשה מותרת ותואמת-סעיף-2.
+- `temporal_context` (jsonb, placeholder) — **reserved, מבנה לא-מוכרע**. נדחה במפורש ל-`docs/sod1820-research-time-and-extensible-laws.md` (Research Time Layer: FACT/DERIVED/INTERPRETATION/CONFIDENCE/PROVENANCE) + Roadmap Gate `OD-TIME-8` (`OPEN/BLOCKED`, ZURIEL Human-Gate — טרם-הוכרע). **אין כאן Time model מתחרה.** עד שה-Gate נסגר: כתיבה מותרת רק לתת-מפתח יחיד חופשי `temporal_context.note` (טקסט חופשי בלבד) — לא sub-fields מובנים.
+
+**Domain/experimental extension keys** (ללא-ערבות-משמעות חוצת-דומיין): כל מפתח שאינו ברשימה למעלה **חייב** להיות מקונן תחת `meta.ext.<domain>.<key>` (למשל `meta.ext.gold_weights.gold_shekels`) בכתיבות חדשות — כדי שההבחנה reserved/experimental תהיה לפי-נתיב, בלי לגעת בהיסטוריה.
+
+**לא-נעשה כאן:** תיקון 192 השורות הקיימות; הפיכת jsonb לסכמה; פתרון OD-TIME-8.
+
+---
+
+## 2. SOURCE / CITATION SEMANTICS
+
+`source` (text) — **ערוץ/מקור-המקור** של הטענה (לדוגמה: `'discovery-engine'`, `'wa-channel'`, `'מערכת כי לה׳ המלוכה'`, שם-תורם). ללא-שינוי מהשימוש הקיים.
+
+`source_ref` (text) — **הציטוט הראשי/היחיד** לטענה (slug של פוסט, מזהה הודעת-וואטסאפ, מראה-מקום פסוק, URL). מכאן ואילך: **הייצוג הקנוני לציטוט-בודד**.
+
+`meta.source_refs` (jsonb array) — **לא כפילות למחוק** (כפי שה-Challenge ביקש לא-להניח). סמנטיקה מדויקת: כאשר יש **יותר מציטוט אחד** לאותה טענה (למשל 3 מקורות-בלתי-תלויים מתכנסים על אותו קשר) — `source_ref` נושא את הציטוט **הראשי**, ו-`meta.source_refs[]` נושא את **שאר** הציטוטים התומכים. אם יש ציטוט יחיד — `source_ref` בלבד, בלי `meta.source_refs`.
+
+**Canonical representation מכאן-ואילך:** `source_ref`=ראשי (יחיד-או-ראשון), `meta.source_refs[]`=תוספת-בלבד-כשיש-ריבוי. לא נוצר מנגנון שלישי.
+
+**Extension point (לא-נבנה כרגע):** `Source`/`Book`/`Edition`/`Textual Version` — כשיידרשו כישויות-first-class, ייוצגו כ-`nodes` (`type='source'`/`'book'`/`'edition'`) לפי `entity_types`/`unified_graph_law` הקיימים — **לא** טבלה חדשה. `source_ref` יצביע-אליהם ברגע-שיקודמו. **הבהרה (Article Stress Test #3, 27.8.2026, לא-חוק-חדש):** claim מיקום-טקסטואלי (למשל "המילה ה-787 בפרשה") אינו-בר-שחזור-בטוח בלי corpus+book/section+edition+**tokenizer/version**+**counting convention**+position — כל-אלה נכנסים **תחת-אותו** Extension Point שכבר-הוגדר-כאן (Source/Book/Edition/Textual Version), לא-קטגוריה-חדשה: ברגע-שיוקם node מסוג `edition`, `meta.ext.text_position.{tokenizer,tokenizer_version,counting_convention}` נספח-אליו לפי-דפוס-`meta.ext.<domain>.<key>` הקיים (§1) — **ALREADY COVERED / CLARIFICATION ONLY**, אין בונים tokenizer בפאס-הזה.
+
+---
+
+## 1-CORRECTION. §1↔§2 DRIFT RESOLUTION (2.9.2026, ZURIEL Human-Gate — additive, סוגר רק את §1↔§2)
+
+**נמצא:** §1 (למעלה) תיאר את `meta.source_refs[]` כ-"reserved read-only-legacy... מפתח חדש לא-יכתוב לכאן", בעוד §2 (מיד-אחריו, באותו-פאס 25.8.2026) הכריז על אותו שדה בדיוק כ-"Canonical representation מכאן-ואילך" — סתירה-פנימית בין שני סעיפים באותו מסמך/פאס, שלא-תוקנה עד-עכשיו (§6.7 ב-26.8.2026 כבר-השתמש-בשדה כקנוני בלי-לשים-לב לסתירה; לא-נמצאה שום הצהרת-דריסה מפורשת קודמת).
+
+**החלטה (ZURIEL Human-Gate, 2.9.2026): §2 גובר. §1 מתוקן למעלה בהתאם.**
+- `research_objects.source_ref` = הציטוט היחיד, או העוגן-הטכני-הראשון לממצא/טענה.
+- `research_objects.meta.source_refs[]` = ציטוטי-מקור נוספים שתומכים **באופן-עצמאי** באותה Finding/Claim סמנטית — מפתח שמור-קנוני, לא legacy-בלבד.
+- **הבהרה מחייבת:** "ציטוט ראשי/ראשון" הוא סידור-פרובננס-טכני בלבד. **אינו** אומר: אמין-יותר · סמכותי-יותר · קנוני · מקור-מועדף · גלריה-עדיפה-על-פוסט · פוסט-עדיף-על-גלריה · סטטוס-פרסום. גלריה, פוסט, ייצוג-תמונה ו-Post Update/Segment נשארים source occurrences שווי-מעמד עד שהחלטת Human-Gate נפרדת ומפורשת קובעת סמכות.
+- **טענות-מקור סותרות:** אסור לאחד לתוך `meta.source_refs[]`. יוצרים/משמרים זהויות-Claim/Finding נבדלות, כל אחת עם פרובננס ו-verification_state משלה, ומקשרים ביניהן דרך מנגנוני ה-Research OS הקיימים (`relates`/`parent_id`/`derived_from`) — לא ממזגים.
+- 192 השורות ההיסטוריות נשארות ללא-שינוי. אין schema חדש, אין שדה חדש, אין store/מנגנון-ראיות חדש.
+- **היקף ההחלטה:** סוגר את סתירת §1↔§2 בלבד. **אינו** מאשר enrichment המוני ואינו-מאשר בניית writer — אלה נשארים החלטות-נפרדות-עתידיות.
+
+---
+
+## 3. RELATION TYPE VOCABULARY
+
+הפרדה מחייבת ב-`edges.relation_type` (text, ללא-שינוי-schema):
+
+- **שוויון-מספרי/גימטרי** (קיים, ללא-שינוי): `equals` (392) · `equals_word` (11) · `equals_by_depth` (3). **0 שורות היסטוריות נוגעות בפאס הזה.**
+- **זהות-ישויות/ייצוג** (חדש, שמור, 0 שימוש היסטורי מאומת): `same_as` · `alias_of` · `variant_of` — לשתי ייצוגים של **אותה ישות** ממשית (למשל שני-איות של אותו פסוק/ספר/אדם).
+
+**כלל:** כל יחס עתידי שנכתב ע"י Intake לצורך entity-resolution/מיזוג-ישויות **חייב** אחד משלושת ערכי-הזהות — **לעולם לא** `equals*` (השמור בלעדית לשוויון-מספרי). היסטוריה לא-נדרסת.
+
+---
+
+## 4. HUMAN-GATE PROVENANCE FOR RELATIONS
+
+**אין ledger נוסף.** נבדק חי: `decision_ledger` כבר משמש חוזה פוליאמורפי-מוכח (`subject_type`/`subject_ref` כטקסט-חופשי — `number`/`method`/`law_set`/`recommendation_type`, 13 שורות, 3 דומיינים). `edges` נבדק חי: `relation_type`/`weight`/`metadata jsonb` בלבד, אין FK-חזרה.
+
+**מוסכמה חדשה (מרחיבה את אותו דפוס, לא מחליפה):**
+- כאשר יחס מקודם ל-`edges` דרך Human-Gate: `decision_ledger` נכתב עם `subject_type='relation'`, `subject_ref = <edges.id>::text` — אותו דפוס-טקסט-חופשי-פוליאמורפי שכבר קיים, לא-מנגנון-שני.
+- הדדית: `edges.metadata` נושא `metadata.decision_ledger_id = <decision_ledger.id>` — צד-שני של הקישור, jsonb קיים, 0-schema-change.
+- קדימה-בלבד: לא-נרשמים 5,099 ה-edges הקיימים בפאס הזה.
+
+---
+
+## 5. PRIVACY PROMOTION LAW
+
+**נקבע-במפורש (עקרון-ממשל, אין קוד-חדש — נבדק חי: אין כיום שום פונקציה שמקדמת `research_objects`→`nodes`/`edges`):**
+
+> **Research Object פרטי (`privacy_scope='private'`) לעולם לא-יהפוך ליחס/ישות ציבורית בגרף (`nodes`/`edges`) רק-בגלל שעבר אימות-מנוע (`engine_verified=true`).** אימות-מנוע מוכיח נכונות-חישובית — הוא **אינו** אומר דבר על זכאות-נראות.
+
+- כל פונקציית-קידום עתידית (מ-`research_objects` ל-`nodes`/`edges`) **חייבת** לבדוק `privacy_scope='public_candidate'` (או החלטת-נראות מפורשת נפרדת) כשער **נבדל** מאישור-קנוני/מנוע, לפני כתיבה לגרף הציבורי.
+- מרחיב במפורש את `CANONICAL ≠ PUBLISHED` (§20) לשכבת-היחסים: **`PRIVATE CANONICAL ≠ PUBLIC`** — גם Research Object שעבר Human-Gate מלא ואושר-קנונית נשאר לא-ניתן-לקידום-לגרף-הציבורי כל-עוד `privacy_scope='private'`.
+- ברירת-המחדל הקיימת של העמודה (`private`) כבר fail-safe — עיקרון זה מקבע-אותה כחובה-ולא-רק-ברירת-מחדל-נוחה.
+
+---
+
+## 6. CONTRIBUTOR SCOPE & CORPUS COMPLETENESS (stress-test derived, 26.8.2026)
+
+**מקור:** נגזר מ-2 Corpus Stress Tests עצמאיים (Track A — צבי: WhatsApp/3D-Geometry corpus; Track עמית — Existing Corpus: media-archive multi-lingual/writer-method corpus), שנועדו לבחון אם החוזה מסעיפים 1-5 מחזיק גם על corpus/חוקר/מקור שונים לגמרי בלי redesign. **תוצאת המבחן: כן — בתנאי שמוסיפים את 6 העקרונות הבאים, כולם מנוסחים מעל primitives קיימים בלבד (0 טבלה/מנוע/schema חדשים).**
+
+### 6.1 Contributor Scope Separation Law
+כל ממצא הנוגע לתורם (contributor) מסווג תחילה לאחת משתי קטגוריות נבדלות, לפני כל עיבוד נוסף:
+- **ABOUT-CONTRIBUTOR** → שייך לדוסייה של התורם (`contributors` + `contributors.dossier_settings`) — מידע-זהות/ביוגרפי/מטא על האדם עצמו.
+- **BY-CONTRIBUTOR-ABOUT-WORLD** → מועמד למחקר אוניברסלי (`research_objects` עם `meta.contributor_id`) — תוכן/טענה/ממצא שהתורם יצר אודות העולם/גימטריה/מקורות, ולא אודות עצמו.
+שני הסוגים יכולים לשבת על אותה שורת-מקור (למשל הודעת WhatsApp אחת) — הסיווג הוא ברמת ה-תוכן, לא ברמת ה-שורה. אין הנחת-ברירת-מחדל ששורה שלמה שייכת לסוג אחד (פער ידוע — ראו בסוף הסעיף).
+
+### 6.2 Source-Window / Corpus Completeness Law
+הצהרת "corpus מוצה" (exhausted) אסורה ללא ראיה מפורשת, ומדורגת בשלוש רמות נבדלות שאסור לערבב:
+- **SOURCE EXHAUSTED** — כל הפריטים הידועים ממקור בודד ומזוהה (קובץ-ייצוא WhatsApp אחד, ערוץ אחד) נסרקו.
+- **KNOWN CORPUS EXHAUSTED** — כל המקורות הידועים-כרגע לתורם נסרקו (אך ייתכנו מקורות לא-ידועים/לא-מחוברים עדיין).
+- **CONTRIBUTOR CORPUS COMPLETE** — אין שום ראיה/אינדיקציה למקור נוסף כלשהו (הרמה הגבוהה ביותר, נדירה).
+כל דיווח-סטטוס-מיצוי חייב לנקוב באיזו משלוש הרמות מדובר.
+
+### 6.3 Representation Collapse Law
+אסור "לקפל" ישות-מקור ישירות לכדי ממצא-מאומת. השרשרת המחייבת:
+**SOURCE ARTIFACT** (הודעה/תמונה/קובץ גולמי) → **EXTRACTED CONTENT** (טקסט/OCR/תמלול שחולץ ממנו) → **CORE FINDING / CLAIM** (הטענה שהכותב מעלה) → **EVIDENCE / REPRESENTATIONS** (הצגות שונות של אותה טענה: גימטריה בעברית, תרגום, ציור-גיאומטרי, טבלה).
+כל שלב נשמר בנפרד ומקושר (`source_ref`, `meta.contributor_id`, `provenance_type`) — לא מוחלף. ריבוי ייצוגים של אותו CORE FINDING (למשל עברית+אנגלית, או טקסט+קוביה גיאומטרית) אינם ממצאים נפרדים ואינם כפילות.
+
+### 6.4 Access Is Orthogonal To Truth/Scope Law
+רמת-גישה (`privacy_scope`, `dossier_settings.visibility`, `sensitive=true`) היא ציר נפרד לגמרי מציר-האמת (CLAIM/VERIFIED/CANONICAL) ומציר ה-Scope (§6.1). תוכן פרטי/רגיש יכול להיות מאומת-מנוע (`engine_verified=true`) בלי להיות ציבורי (מרחיב את §5 PRIVATE CANONICAL≠PUBLIC). אין להסיק "לא ציבורי ⇐ פחות אמין", ואין להסיק "מאומת ⇐ מותר לפרסם". שינוי-גישה הוא תמיד פעולה נפרדת ומפורשת בשער-אנושי — לעולם לא תוצר-לוואי של אימות/סיווג.
+
+### 6.5 No Contributor-Specific Engine Law
+אין לבנות מנוע/פענוח/טבלה/ניקוד ייחודי לתורם בודד (למשל מנוע ייעודי לשיטת-כתיבה אישית, או מנוע-גיאומטריה ייעודי לתורם אחד). שיטת-כתיבה ייחודית לתורם (writer-method / WRITER_DECLARED_PATTERN) נשמרת כ-metadata מתועד (`meta.ext.writer_method.<name>`) ולא כלוגיקת-מנוע. קידום שיטה כזו לשיטה קנונית עובר תמיד דרך `agent_onboarding_law`/`method_priority` הרגילים (הגדרות נעולות של צוריאל), לא דרך קוד ספציפי-לתורם. מרחיב את `els_single_engine_law`/`gematria_engine_law` לכל דומיין-חוקר.
+
+### 6.6 Exhaustion Before Freeze Law
+הכרזת Contract Freeze על "חוזה חילוץ-מחקר אוניברסלי" אסורה לפני שלפחות N≥3 corpora שונים-במהות (חוקר שונה, מבנה-מקור שונה, שפה/שיטה שונה) עברו stress-test מלא ותועדו. **עודכן 27.8.2026: 3/3 הושלמו** — (1) צבי — Track A (WhatsApp/contributor-corpus, spatial/3D); (2) עמית — Existing Corpus (media-archive, multilingual/writer-method, private-contributor); (3) **Article 145** (`posts.id=145`, wp_id=31656, "סוד החשמל" — פוסט-מפורסם-ארוך, `source='wordpress'`, ציטוטים-מקראיים, ריבוי-שיטות-גימטריה, נגזרות-מתמטיות, תמונות, claims גיאומטריים/מיקום-טקסטואלי, midrash — **שונה-מהותית**: לא-קורפוס-תורם-פרטי אלא תוכן-עורכי-מפורסם). כל-שלושת ה-stress-tests הניבו **0 MUST FOUNDATION NOW** (ר' §6-FREEZE למטה לפירוט-Article-145). **N≥3 מתקיים — ר' §6-FREEZE להכרזת-הסגירה הפורמלית.**
+
+**סיווג 6 העקרונות (Foundation Expansion Gate):** כולם **EXTENSION POINT NOW** — מנוסחים מעל primitives קיימים בלבד (`contributor_id`, `source_ref`, `privacy_scope`, `meta.ext.<domain>.<key>`, §5), 0 schema חדש. אינם MUST FOUNDATION NOW (לא חוסמים עבודה קיימת) ואינם LATER (כבר נחוצים לפאס-הבא ב-stress-test).
+
+**פערים ידועים (מדווחים בכנות, לא נסגרים בפאס הזה):**
+- אין עדיין שדה-מבני לסימון ABOUT-vs-BY ברמת שורת-מקור בודדת (§6.1) — כרגע סיווג פרשני-ידני בלבד.
+- אין עדיין שדה-מבני ל-completeness tier (§6.2) — כרגע ניסוח טקסטואלי בדוח בלבד.
+שני הפערים מועמדים ל-Extension Point עתידי (`meta.ext.scope.*` / `meta.ext.corpus.*`) — לא לשינוי מבני מיידי.
+
+## 6-DELTA-2. CLOSURE DELTA #2 — GPT Amit Exhaustion Pass v2 stress-test findings (26.8.2026)
+
+**מקור:** המשך-ישיר לסטרס-טסט של עמית (§6 למעלה) — GPT המשיך למצות את הקורפוס (`work_log.id=5aa4cb1d-0f6f-4bed-890b-cd24395d7a01`, `d9e004f9-5689-40ba-a825-1afde815a82a`) ומצא 7 תבניות-ראיה נוספות. נבדק כל אחד מול החוזה הקיים (§1-§6) והתשתית החיה **לפני כתיבה** — ROUTE-FIRST, לא DUPLICATE.
+
+**⚠️ הבהרה-לדוח-הקודם (חובה לפי-הוראה, לא-לשמר-בלי-הסתייגות):** הדוח הקודם קבע "לא נמצא פער עתידי-סביר שיאלץ redesign". זה **נכון ברמת ה-schema** (אף אחד מ-7 הממצאים לא-דרש redesign/טבלה/engine חדש — 4 מהם נפתרו ב-delta תיעודי-מינימלי מעל primitives קיימים, 1 EXTENSION POINT כבר-מתועד במקום-אחר, 2 ALREADY-COVERED). אבל יש-להסתייג: "אין פער-עתידי" **אינו** אומר "כל צורות-הראיה כבר-מוכרות" — כל סבב-סטרס-טסט ממשיך-לחשוף **צורות** חדשות של ראיה (שכבת-פרשנות, procedure, גבול-נגזרת, זהות-סמל) שהחוזה לא-קרא-בשם עד עכשיו. הקריאה הנכונה: **"לא נמצא פער שובר-סכמה"**, לא **"החוזה כבר-ממצה את-כל-הצורות"**.
+
+### 6.7 Source Authorship ≠ Analyst Interpretation Law — **CONTRACT DELTA**
+`attribution_type` (§1, reserved key) ו-`contributor_id` כבר-קיימים-ונמצאו-בשימוש-חי (`engine_fact`/`research_interpretation`/`named_rabbi_interpretation`/`mixed_fact_interpretation` וכו') — אך ראיה-חיה (שורת `research_objects` על "הרב זיגדון", `attribution_type='mixed_fact_interpretation'`, `source='SOD1820 research synthesis'`) מראה **בלבול קיים בפועל**: לא-ברור אם ה-attribution מתאר את-הטענה-המקורית-של-בעל-המקור או את-שרשרת-הסינתזה-שנוספה-אחר-כך ע"י-אנליסט/AI. **החוק:** attribution הוא **per-object, לא-יורש**. כל `research_objects`/`edges` שנוצר ע"י ניתוח/קישור-מאוחר (GPT/AI/חוקר-אחר) על-גבי-טענה-של-תורם — נושא `attribution_type`/`contributor_id` **משלו**, המתאר-את-מי-שביצע-את-הניתוח/הקישור-הזה, **ואינו-יורש** אוטומטית את-ה-attribution-של-הטענה-שעליה-הוא-מבוסס. הטענה-המקורית-של-התורם (`source_authorship`) וההצטרפות/הפרשנות-המאוחרת (`analyst_interpretation`) הן שתי-שורות/attribution-נפרדות, מקושרות-ב-`derived_from`/`source_ref`, לעולם-לא-ממוזגות-לזהות-אחת. 0-schema (משתמש-חוזר ב-`attribution_type`+`contributor_id`+`meta.source_refs` הקיימים).
+
+### 6.8 Research Procedure Extraction Law — **CONTRACT DELTA**
+ראיה חיה (Amit "Prime Scan": tokenize-קורפוס → gematria-per-token → בדיקת-ראשוניות → findings) מראה **צורת-ראיה שלישית** שהחוזה-הקיים לא-קרא-בשם: לא-Claim בודד (Shared Expression Extraction v1, `X=Y`) ולא-Relation (§3) אלא **פרוצדורה** — רצף-שלבים על-קורפוס-שלם. **החוק:** פרוצדורה **אינה** kind חדש ב-`research_objects` (הערכים-הקיימים `observation/relation/hypothesis/fact/question` מספיקים) ואינה-מצדיקה-Engine-ייעודי (**אין Prime Engine, אין Tokenizer-Engine נפרד**). במקום-זאת: הפרוצדורה מתועדת כ-`meta.ext.procedure.steps[]` (רשימת-שלבים, כל שלב מפנה-לפרימיטיב-קיים: tokenizer/method_key מ-`gematria_methods`/פרדיקט-מתמטי-דטרמיניסטי), וכל-תוצר-ביניים/סופי הוא שורת `research_objects` (`kind='observation'`) רגילה, מקושרת בעורק `derived_from`/`contains` לפרוצדורה-האם. **Crosswalk:** כל-שלב-בודד (למשל token אחד = ערך-גימטריה) עדיין-עובר דרך `shared_expression_extraction_contract_v1` (AST→ENGINE→VERIFICATION) הקיים ללא-שינוי — הפרוצדורה היא-רק **הקיבוץ** של-הרצת-הפייפליין-הזה-שוב-ושוב-על-קורפוס, לא-פייפליין-מקביל.
+
+### 6.9 Private-Derivation Boundary Law — **CONTRACT DELTA** (מרחיב §5)
+§5 (PRIVACY PROMOTION LAW) קובע-במפורש-שרשומה-פרטית-לא-מתקדמת-לגרף-הציבורי-רק-כי-אומתה-מנוע — אך-אינו-אומר-מפורשות-מה-קורה-כש**derivation-chain** (למשל שרשרת `derived_from`) עובר-**דרך** אופרנד-פרטי (למשל שם-תורם) ומגיע-לערך-שנחזה-כללי (למשל 129). ראיה-חיה: עמית — שרשרת-129-דרך-שם-פרטי לעומת-ביטויי-129 כלליים-שאינם-תלויים-בשם. **החוק:** (א) כל `derived_from`-chain **יורש** את-ה-`privacy_scope` המחמיר-ביותר-לאורך-השרשרת — נגזרת-של-אופרנד-פרטי **נשארת-פרטית**, גם-אם-הערך-הסופי "נשמע-כללי". (ב) ממצא-כללי-נפרד שניתן **לגזור/לאמת-באופן-עצמאי** מאופרנדים-ציבוריים-בלבד (בלי-להזדקק-לאופרנד-הפרטי) הוא **שורת `research_objects` נפרדת-ומקבילה**, לא-אותה-שורה — יכול-להתקדם-בנפרד-לפי-`privacy_scope`-משלו. 0-schema (מרחיב-סמנטית את-`privacy_scope`+`derived_from` הקיימים; אין-flag-הורשה-אוטומטי-בקוד — enforcement נשאר-Human-Gate כרגע, EXTENSION POINT עתידי).
+
+### 6.10 Mathematical Symbol / Operation Identity Law — **CONTRACT DELTA** (מדויק-שוב, Reconciliation Pass 26.8.2026 — ר' §6-RECON למטה)
+`gematria_methods.method_key` כבר-מבטא-בדיוק-את-העיקרון-הנדרש (זהות-נעולה, נבדלת-מ-`display_label`) — אך **רק לשיטות-גימטריה**. ראיה-חיה: φ(888)=288 (Euler Totient) מול φ≈1.618 (Golden Ratio) — אותו-סמל, שתי-מתמטיקות-שונות-לגמרי; אותה-בעיה קיימת ל-π/MOD/XOR/is_prime/triangular/מספר-משולש. **החוק:** מרחיב את-**עיקרון**-ה-`method_key`-הנעול (זהות-יציבה≠display-label, מקור: `agent_onboarding_law`/`method_priority`) **לכל אופרטור/סמל מתמטי**, לא-רק-גימטריה — **לא** את-הטבלה-עצמה: `gematria_methods` **נשאר-ייעודי-לשיטות-גימטריה-בלבד** (ragil/atbash/miluy/מסתתר וכו׳) ולעולם-**לא-הופך** לרגיסטרי-כללי-של-כל-המתמטיקה (prime/MOD/XOR/Euler-totient/Fibonacci/π/binary אינם gematria_methods rows). לכל-פעולה מתמטית המוזכרת-בממצא נדרש `operation_key` **מפורש ומנוסה**, מובחן-מהגליף/הסמל-המוצג — מאוחסן ב-`meta.ext.numeric_op.<operation_key>` **או** ברגיסטרי-ייעודי-עתידי-נפרד (Numeric Operation Registry, `EXTENSION POINT`, לא-`gematria_methods`) — נמנע-מ-schema-חדש, אותו-דפוס-`meta.ext.<domain>.<key>` מ-§1. שני-סמלים-זהים-חזותית עם-משמעות-שונה = שני `operation_key` שונים, **לעולם-לא-מוזגים**. יישום-בפועל (רגיסטרי-אמיתי) נשאר `EXTENSION POINT` — ייתכן-בתוך `Sequence Lens`/Numeric Research Router (ר' Routing Crosswalk למטה) כשייבנה.
+
+### 6.11 Formula Instance ≠ New Law (Derivation Relation) — **CONTRACT DELTA** (מוסיף ל-§3 בלבד, לא-דורס)
+§3 (RELATION TYPE VOCABULARY) הגדיר-שתי-קטגוריות (שוויון-מספרי `equals*`, זהות-ישויות `same_as/alias_of/variant_of`) — אך **פספס קטגוריה-שלישית שכבר-חיה בפועל**: `edges.relation_type='derived_from'` (4 שורות-קיימות, למשל `"1024 = 512 × 2"`, `"512 = 256 × 2 ; 256=אהרן"`) — קשר-**נגזרת-אריתמטית**, לא-שוויון-ולא-זהות. ראיה-חיה תומכת: T37−T36=37 הוא-instance של-הנוסחה-הכללית T(n)−T(n−1)=n; שרשרת-הקדם-פקטור-של-עמית (888=296×3, 1480=296×5, 2368=296×8 → מקדמים 3,5,8) היא-אותה-צורה. **החוק:** `derived_from` מוכרז-בזאת **רשמית כקטגוריה-שלישית** ב-§3 (בנוסף-ל-equals*/same_as*, לא-במקומם): לקשר בין-ערך-לתוצר-פונקציה-דטרמיניסטית-שלו (הכפלה/נוסחת-משולש/מקדם-בפיבונאצ׳י/מיקום-בפאי וכו׳). `edges.metadata.operation` (טקסט-חופשי, כבר-בשימוש: `"×2"`) נושא-את-תיאור-הפעולה. **כאשר ממצא הוא instance של-נוסחה-כללית-ידועה — הוא מתועד כ-`derived_from`-edge עם-`operation`, ולעולם-לא כ-Method/Law חדש** ב-`gematria_methods`/`nodes(type='rule')`. 0-schema (relation_type הוא-text-חופשי-כבר, ללא-CHECK — לא-נדרש-migration).
+
+## Routing Crosswalk (Closure Delta #2, 26.8.2026) — pointers בלבד, לא-מכפילים לוגיקה
+- **π / Fibonacci / prime / MOD / binary / totient** → Numeric Research infrastructure (Master State §23.10, `sequence:<id>` registry ב-`sequenceLens.js`/`numericResearch.js`, ענפים `gpt/numeric-router-integration-v1-clean` PR #206 — **טרם-ממוזג**). `arithmetic_stride`/Number-as-Operator כבר-מתועד-שם כ-**EXTENSION POINT**, לא-נבנה — **לא-כפלנו כאן**.
+- **37/73 spatial claims** → Spatial/3D infrastructure הקנונית (`src/lib/spatialModels.js`+`Gematria3DPage.jsx`+`GematriaCube.jsx`, `/spatial-gematria` — זוהתה-במסלול-צבי). סיווג-פרובננס (SOURCE-BACKED/MULTI-SOURCE-COMPOSITE/EDITORIAL-SYNTHESIS/SOURCE-UNKNOWN/RETROSPECTIVE-EVIDENCE) כבר-הוגדר ב-Zvi Pass 4 — **ALREADY COVERED**, לא-נבנה-מסווג-מקביל.
+- **Multilingual material** → primitives קיימים בלבד: relation-vocabulary §3 (`same_as`/`alias_of`/`variant_of` לזהות-ישות-חוצת-שפה) + meta registry §1 (`meta.ext.<domain>.<key>`) — **Multilingual = EXTENSION POINT NOW** כבר-מוצהר ב-`shared_expression_extraction_contract_v1`. **ALREADY COVERED**, לא-נבנה-מנוע-שפה-נפרד.
+- **ABOUT AMIT / BY AMIT ABOUT WORLD** → §6.1 (Contributor Scope Separation) בדיוק-כפי-שכבר-נכתב. **ALREADY COVERED**.
+- **Per-member method provenance (item #4)** → **ALREADY COVERED**: `fn_composite_convergence_candidate`'s Eligibility Gate (domain-agnostic: `engine_verified`+`value`+`status`+`source_ref` לכל-חבר, לא-לקבוצה) + `unified_graph_law`/§9 עיקרון `group_size אסור-כמדד-חוזק` — קבוצה-מתכנסת אינה-פוטרת חבר-בודד מאימות-מנוע-משלו. "SOURCE ACCEPTED ≠ ENGINE VERIFIED" הוא-כבר-ההתנהגות-הנדרשת-מהשער-הקיים; לא-נוסף חוק-חדש.
+
+**Foundation Expansion Gate — Closure Delta #2 verdict:** 5/7 ממצאים → **CONTRACT DELTA מינימלי** (§6.7-§6.11, 0-schema, מעל-primitives-קיימים) · 1/7 → **EXTENSION POINT** (כבר-מתועד ב-Numeric Research Router, item #5) · 1/7 → **ALREADY COVERED** (item #4). **0 MUST FOUNDATION NOW.** Contract Freeze **עדיין-לא-נסגר בעת-כתיבת-הפסקה-הזו** (2/N≥3 corpora — זהו-אותו-קורפוס-עמית, לא-קורפוס-שלישי). **עודכן 27.8.2026: קורפוס-שלישי (Article 145) הושלם — ר' §6.6+§6-FREEZE למטה — N≥3 מתקיים, החוזה נסגר-שם.**
+
+## 6-RECON. PRE-INTEGRATION CROSS-CONTRACT RECONCILIATION (26.8.2026) — vs PR #206 (Numeric Research Router) + existing Research OS family
+
+**מקור:** לפני Controlled Admission של Zvi+Amit, נבדק-במפורש שאין Router/Contract/Truth-Lifecycle כפול. תגלית-מרכזית: **קיים כבר** משפחת-חוזים מלאה ("Research OS") שקדמה-לכל-זה — `docs/research-studio-v1-contract.md` (APPROVED ZURIEL 24.8.2026), `docs/research-universal-finding-contract.md` (APPROVED, ממוזג ב-PR #187), ו-Research DNA v1 Foundation Contract (`audits/research_dna_v1_foundation_contract/`, PR #166, CLOSED). PR #206 עצמו **כבר-כותב במפורש** "existing Research OS / Reality Graph" בטקסט-שלו — כלומר-כבר-ממקם-את-עצמו-כ-Lens **בתוך** המערכת-הזו, לא-כמתחרה.
+
+**מפת-בעלות מלאה (CHECK 1):**
+- **Research DNA v1** (existing, CLOSED) — בעלים: Claim/Calculation/Verification vocabulary (`verification_state`: match/mismatch/method_unknown/not_tested), World/Method/Premium Access Law.
+- **Intake** (`research_intake_foundation_contract`, זה) — בעלים: source-identity, extraction, attribution (source-authorship≠analyst-interpretation, §6.7), contributor-scope (§6.1), privacy/access-boundary (§5/§6.4/§6.9), representation-collapse (§6.3), procedure-decomposition (§6.8). פועל **לפני**-קיום-Finding — שכבת ה-`research_objects`-row/Discovery-candidate.
+- **Universal Finding Contract v1** (existing, APPROVED, merged PR #187) — בעלים: צורת-ה-envelope-עצמה (`subject/source/identity/verification/evidence/access/provenance/projection/view`), **פרויקציה בלבד, לא storage-owner** (מוצהר-מפורשות שם). `makeUniversalFinding()` ב-`src/lib/research/universalFinding.js` הוא-המימוש-הקנוני-היחיד — PR #206 **קורא-לו-ישירות ולא-משכפל-אותו** (אומת-חי בקוד).
+- **Research Studio v1** (existing, APPROVED) — בעלים: הזרימה-הכוללת Discovery→Universal Findings→Investigation→Judgment, טקסונומיית Lens/Dimension ("ELS, Number, Gematria, Entity/Graph, Sources, AI, **ו-future adapters**").
+- **Numeric Research Router / PR #206** — **Lens-family אחת** בתוך-הטקסונומיה-הקיימת (`sequence:pi`/`sequence:fibonacci`, רגיסטרי-מורחב). מוסיף **מושג-קטן-חדש-אחד**: Derived Numeric Root / bounded-depth-2-traversal — הרחבה-לגיטימית-של "Investigation", לא-שלב-מתחרה.
+- **Master State §20 Gate #18 / `decision_ledger`** — בעלים: Judgment/Human-Gate.
+- **`fn_composite_convergence_candidate`** — בעלים: Eligibility Gate לקבלת-קבוצת-ממצאים-מתכנסת (engine_verified+value+status+source_ref לכל-חבר).
+- **Spatial Gematria** (`spatialModels.js` וכו') — יכולת-קיימת; PR #206 עצמו כבר-מצהיר `EXISTING CAPABILITY — ADAPTER NEEDED`, לא Geometry Graph מתחרה.
+
+**בדיקת-התנגשות:** נבדק כל-זוג — **0 שני-חוזים תובעים-בעלות על-אותה-אחריות-lifecycle.** Router לא-עושה extraction/attribution (תחום-Intake); Intake לא-עושה lens-dispatch/derived-subject-traversal (תחום-Router); Router משתמש-חוזר ב-envelope-הקיים (לא-מגדיר-Finding-מקביל); Router מצהיר `canonical=false/published=false/automatic_canonical_promotion=false` בכל-תשובה (לא-עוקף-Human-Gate/Judgment). **CHECK 1 verdict: NO DRIFT.**
+
+**תיקון-ניסוח יחיד שבוצע (לא-חוק-חדש):** §1 (META REGISTRY) ו-Universal Finding Contract שניהם-מזכירים "provenance" — עבור **אובייקטים-שונים**: `research_objects.meta` (שורת-DB, קבועה) מול `Finding.provenance` (פרויקציה-ארעית, "never itself a storage owner"). **הבהרה:** כש-`research_objects`-row מוקרן ל-Finding, ה-Finding-`provenance.createdBy`/`source.sourceRef`/`identity.sourceIdentity` **נמלאים-מ**-Intake''s `contributor_id`/`source_ref`/`attribution_type` — לא-מוגדרים-מחדש-באופן-עצמאי. אין-schema-נוסף; זו-הבהרת-כיוון-מיפוי-בלבד.
+
+**CHECK 2 — §6.10 Operation Identity:** תוקן-ניסוח (ר' §6.10 למעלה) — `gematria_methods` **נשאר-ייעודי-לגימטריה-בלבד**; `operation_key` למתמטיקה-כללית חי ב-`meta.ext.numeric_op.<key>` או-ברגיסטרי-נפרד-עתידי, **לא** ב-`gematria_methods`. `method_key` הוא-**precedent-לעיקרון** (זהות-יציבה≠display-label), לא storage-home-אוניברסלי. **תוקן — לא-שונה-מהותית.**
+
+**CHECK 3 — Fibonacci/Derived-Sequences ([888,1480,2368]→296→[3,5,8]→Fibonacci):** נבדק-הרכב-בלי-subsystem-חדש: (א) common-factor/GCD = **operation_key חדש-אחד-בלבד** (§6.10/§6.11, `derived_from`-edges בדיוק-כמו-הדוגמאות-החיות-הקיימות `"1024=512×2"`), (ב) 3/5/8 עצמם **כבר-ניתנים-לבדיקה כיום** מול `fibonacciSequenceAdapter` הקיים ב-PR #206 (3 קריאות-נפרדות, ללא-שינוי-קוד — `first_position`: 3→איבר4, 5→איבר5, 8→איבר6), (ג) רציפות-האינדקסים (4,5,6) היא-בדיקה-אריתמטית-טריוויאלית, לא-engine. **0-רכיב-חדש נדרש מעבר ל-operation_key אחד. CHECK 3 verdict: EXTENSION POINT SUFFICIENT — לא Foundation Gap.**
+
+**CHECK 4 — Spatial:** ההכרעה הקיימת ב-PR #206 (`EXISTING CAPABILITY — ADAPTER NEEDED`, 4-שכבות Text→Gematria(מאומת)→Mathematical-Structure→Geometric-Form, `fact≠midrash`) **תואמת-במדויק** את-הניתוב שכבר-נכתב ב-§6-Routing-Crosswalk (Closure Delta #2) עבור-37/73 של-עמית וממצאי-צבי — **אותו Spatial Adapter-יחיד לשניהם, אין Geometry Engine שני.** **CHECK 4 verdict: CONFIRMED, ללא-סתירה.**
+
+**CHECK 5 — Admission Readiness:** צבי (source/image-provenance→Intake§1-2+Finding.source/identity; numeric/spatial-findings→Router+Spatial-Adapter[טרם-נבנה, אך research_objects-ישיר כבר-עובד כמו 1020/910/620 הקיימים]; operand-provenance-לא-ידוע [911]→`derived_from`+status מייצג; interpretation≠fact→Research-Studio-Core-Rule+attribution_type, **כבר-חי בפועל**) ועמית (convergence-families→`fn_composite_convergence_candidate`; 37/73/2701→numeric+spatial extension-points; π/Fibonacci→**כבר-ממומש** ב-PR#206; prime/MOD/binary/totient→`operation_key` extension-points; multilingual→§3+`shared_expression_extraction_v1`; private-derivations→§6.9; source-claims-לא-משוחזרים→`verification_state=mismatch/method_unknown` **בדיוק-הערך-הנכון-הקיים**) — **כולם מיוצגים-אוצרתית**, חלק-כ-Extension-Point-שטרם-נבנה (Spatial-Adapter, GCD/MOD/prime/totient operations) לא-כ-Foundation-Gap.
+
+**Foundation Expansion Gate (Reconciliation Pass):** **0 MUST FOUNDATION NOW.** EXTENSION POINT NOW: בניית-Spatial-Adapter · `operation_key` ל-GCD/MOD/prime/totient/binary · רגיסטרי-נפרד-לפעולות-מתמטיות (לא-`gematria_methods`). LATER: טוקנייזר-רב-לשוני-מלא · traversal-רקורסיבי-אוטומטי-מעבר-ל-Depth-2 · סריקה-המונית.
+
+**FOUNDATION SUFFICIENT FOR CONTROLLED ZVI+AMIT ADMISSION** — החוזים-יחד (Intake+Universal-Finding+Research-Studio-v1+Numeric-Router+Spatial-existing+Composite-Convergence) מסוגלים-לקבל-את-כל-סוגי-הממצאים-שנמנו, **ברמת-חוזה/אוצר**; מימושי-Lens/Adapter ספציפיים (Spatial, GCD/MOD/prime/totient) עדיין-ל-**Numeric Router''s own roadmap** להשלים — לא-חוסם-Admission-מבוקר (יש-מסלול-ישיר-קיים ל-research_objects, כפי-שכבר-משמש-לצבי).
+
+## 6-FREEZE. FINAL UNIVERSAL RESEARCH INTAKE CONTRACT CLOSURE (27.8.2026) — Article Stress Test #3 + Freeze Decision
+
+**מקור:** Closure Pass אחרון וממוקד, לא-audit-חדש. GPT ביצע READ-ONLY Article Corpus Stress Test על `posts.id=145` (`work_log.09ee30cd-86f1-47be-ab6b-f9d7b986afcf`) — Claude אימת-עצמאית (לא-מהזיכרון/handoff): הפוסט חי (`wp_id=31656`, `source='wordpress'`, 50,895 תווים, כותרת מזכירה-מפורשות מבנה-גיאומטרי-של-מגן-דוד ורמזי-73/37 — תואם-בדיוק את-תיאור-GPT). אומתו-ישירות מול-המנוע (לא-הונח): `בראשית ברא אלהים את השמים ואת הארץ`=2701 ✓ · `חכמה`=73 ✓ · `ישראל`=541 ✓ · `ציון`=156 ✓ · `156+385=541` ✓ · `שכינה`=385 ✓ · `גאולה`=`אדם`=45 ✓ · `הריון`=271 ✓ · `נקודה`(165)+`קו`(106)=271 ✓ · `אבן` ב-Gadol=703 ✓ (`fn_gadol`) · `חכמה` ב-Kadmi=271 ✓ (`kadmi_calc`) · **וגם ה-holds אומתו-כנכונים**: `מגן דוד`=107 ברגיל (לא-108 כפי-שהפוסט-טוען — קולל לא-מוצהר, `fn_ragil`).
+
+**Article 145 כ-Corpus #3 — קביעת-שוני-מהותי:** לא-קורפוס-תורם-פרטי (כמו-צבי/עמית) אלא **תוכן-עורכי-מפורסם** (`source='wordpress'`, פוסט-ציבורי-חי-באתר) — שוני-מבני-אמיתי (מקור/מבנה/קהל שונים לגמרי), מכיל: ציטוטים-מקראיים, תלות-איות-מדויק, ריבוי-שיטות-גימטריה (רגיל/גדול/קדמי), נגזרות-מתמטיות, תמונות, claims-גיאומטריים, claims-מיקום-טקסטואלי, מדרש/פרשנות. **כשירות מאושרת: כן, corpus שלישי שונה-מהותית.**
+
+**Article Deltas — 2 Extension Points, שניהם ALREADY COVERED/CLARIFICATION בלבד (0 CONTRACT DELTA מהותי, 0 MUST FOUNDATION NOW):**
+- **Text-Position Provenance** (למשל "המילה ה-787 בפרשה") — נבדק מול §2 הקיים: **ALREADY COVERED**. תוקן-ניסוח-מינורי בלבד ב-§2 (ר' למעלה) שמבהיר-שtokenizer/version+counting-convention נכנסים **תחת-אותו** Extension Point (Source/Book/Edition/Textual Version) שכבר-הוגדר — לא-קטגוריה-חדשה, לא-נבנה tokenizer.
+- **Spatial Counting Semantics** (ספירת-נקודות תלוית model-identity/order/region/boundary/interior/center/overlap-policy) — נבדק מול `src/lib/spatialModels.js`+PR#206's-own-Spatial-reconciliation: **EXTENSION POINT NOW — ADAPTER CONTRACT** (לא-Geometry-Engine-שני, לא-Graph/table/Intake-subsystem חדש) — **כבר-מתועד** ב-Routing Crosswalk (למעלה) + ב-PR#206's own Spatial section ("component counts, boundary/interior counts, vertices, intersections... construction identity, operation, parameters, verification, source provenance"). Article 145 הוא-**מופע-קונקרטי-נוסף** לאותו Extension Point שכבר-קיים, לא-גילוי-חדש. `meta.ext.spatial.*` (דפוס §1) הוא-המנגנון-כשייבנה.
+
+**הבהרה-נדרשת (Freeze אינו-כל-יודע — לא-לשמר-בלי-הסתייגות):** הכרזת-Freeze **אינה** טוענת ש"כל-צורות-הראיה-העתידיות ידועות". Freeze פירושו: ה-primitives וה-extension-mechanism (`meta.ext.<domain>.<key>`, `derived_from`, `attribution_type`/`contributor_id`, `privacy_scope`, `verification_state`) רחבים-מספיק כדי-להתחיל ingestion **בלי redesign-צפוי**. מותר-לגלות-בעתיד Lens/Adapter/`operation_key`/representation/source-type חדשים — הם **אינם** שוברים Freeze כל-עוד ניתנים-להרחבה דרך-החוזים-הקיימים בלי identity-break/schema-redesign/truth-lifecycle-redesign/מנוע-מקביל.
+
+**Future-Capability Challenge (13 צירים, נבדק-סופית):** Identity(§3/§6.7/§6.10, מכוסה) · Representations(§6.3, מכוסה) · Relations(§3/§6.11, מכוסה) · Time/Context(`OD-TIME-8` נשאר-בעלים-נפרד, לא-קונפליקט) · Provenance(§1/§2/§6.7/§6.9, מכוסה-בהרחבה) · Truth Lifecycle(`verification_state`+`engine_verified`+Human-Gate, מכוסה) · Engines(§6.5, אין-מנוע-חדש) · Extensibility(`meta.ext.<domain>.<key>` — המנגנון-עצמו, מוכח-חוזר-ונשנה) · Human Gate(§4, מכוסה) · Multilingual(EXTENSION POINT מוצהר, `shared_expression_extraction_v1`) · Cross-domain(§6-RECON ownership-map, 0-חפיפה) · Privacy(§5/§6.4/§6.9, מכוסה-בהרחבה) · Source/Corpus-Completeness(§6.2/§6.6, 3/3-הושלמו). **0 MUST FOUNDATION NOW נמצא בכל-13-הצירים.**
+
+**FOUNDATION VERDICT:**
+
+> ## FOUNDATION SUFFICIENT — RESEARCH INTAKE FOUNDATION CONTRACT FROZEN FOR CONTROLLED UNIVERSAL INGESTION
+
+**מה Freeze-זה אומר בפועל (§J, לא-הרשאת-ingestion-המונית):** הזרימה-הקנונית נשארת `SOURCE → EXTRACTION → CALCULATION/DISCOVERY → RESEARCH OBJECT/CANDIDATE → VERIFICATION → UNIVERSAL FINDING → HUMAN GATE → CANONICAL → (בנפרד) PUBLISHED/VISIBLE/ACCESSIBLE`. נשמר-במלואו: `HOT≠TRUE` · `VIP≠TRUE` · `CLAIM≠FACT` · `ENGINE VERIFIED≠CANONICAL` · `CANONICAL≠PUBLISHED` · `PRIVATE CANONICAL≠PUBLIC`. Freeze **אינו** מאשר source→canonical ואינו-מאשר ingestion-המוני — כל-הכנסת-חומר-נוספת נשארת Controlled/Human-Gated, כפי-שכבר-בוצע-בפועל ב-Zvi/Amit Admission (Master State §23.11-§23.13, §706f24dd).
+
+**מה לא-נעשה כאן (מפורש):** אין ingestion המוני · אין קורפוס-רביעי נסרק "רק-כדי-להיות-בטוחים" · אין פתיחה-מחדש-של-החלטות-שכבר-הוכרעו · אין Spatial Adapter נבנה · אין Numeric operations נבנה · אין Personal Hints נבנה · אין נגיעה-בקוד-PR#206 (READ-ONLY בלבד, אומת-לא-שונה) · אין קידום-Findings-לקנוני · אין פרסום. אין Universal-Extraction-Contract-שני/Article-Contract/Zvi-Contract/Amit-Contract נוצרו — **אותו חוזה-אחד, `research_intake_foundation_contract`, נסגר.**
+
+## Cross-reference
+- `unified_graph_law` / `reality_graph_law` — הגרף-האחד שהחוזה הזה חי מעליו.
+- Master State §20 (Gate #18) — Unified Judgment Contract, `decision_ledger`.
+- Master State §22/Roadmap `OD-TIME-8` — Time model הקנוני (לא-מוכרע, לא-מוחלף כאן).
+- Master State §23/§23.5 — Foundation-First + Foundation Expansion Gate (המקור לחמשת ה-Extension Points שהחוזה הזה סוגר).
+- `docs/sod1820-research-time-and-extensible-laws.md` — Research Time Layer (strategic, לא-מיושם).
+- Master State §23.11 — Contributor Scope & Corpus Completeness (§6 addition, 26.8.2026).
+- Zvi Corpus Track A (4 passes) + Amit Existing Corpus (2 passes) — stress-test evidence base ל-§6.
+- `docs/research-studio-v1-contract.md` — One Research OS (Discovery→Findings→Investigation→Judgment, Lens/Dimension taxonomy) — reconciled §6-RECON, 26.8.2026.
+- `docs/research-universal-finding-contract.md` — Universal Finding envelope (projection, not storage-owner) — reconciled §6-RECON.
+- `audits/research_dna_v1_foundation_contract/` (PR #166, CLOSED) — Claim/Calculation/Verification vocabulary (`verification_state`) reused verbatim by both Intake and Universal Finding.
+- Master State §23.13 — PRE-INTEGRATION CROSS-CONTRACT RECONCILIATION vs PR #206.
+- Master State §23.15 — FINAL UNIVERSAL RESEARCH INTAKE CONTRACT CLOSURE (Article 145 stress test #3 + Freeze Decision, 27.8.2026).
+- `posts.id=145` (wp_id=31656, "סוד החשמל") — Article Corpus stress-test evidence base for the Freeze decision (3rd corpus).
+
+
+## 7. EXTRACTION INTEGRITY PATCH — ZVI 3060 GOLDEN RECONSTRUCTION (27.8.2026)
+
+**Human-Gate:** ZURIEL explicitly ordered correction of the extraction contract after the 3060 reconstruction. This section is additive and supersedes only the earlier conclusion that the Zvi spatial specimen exposed 0 MUST-FOUNDATION-NOW extraction gaps. The historical Freeze text remains as provenance.
+
+### 7.1 Semantic Operand / Quantity Provenance Law — MUST FOUNDATION NOW
+An extracted arithmetic result is incomplete when a literal operand/quantity came from source meaning outside the calculation engine and that origin is lost. Every externally supplied operand/quantity that materially participates in a derivation must preserve **why this number is present**, not only its numeric value.
+
+Required semantic fields may live under existing flexible metadata (no schema change), for example `meta.ext.derivation.inputs[]`: `value`, `role`, `origin_type`, `origin_ref`/`origin_statement`, and verification/provenance state. `origin_type` may describe a source-declared quantity, corpus count, geometric count, textual position, temporal quantity, or another source-backed semantic origin. Domain-specific vocabularies belong to their domain adapter; Intake owns the universal requirement that the origin survive.
+
+Golden specimen: source says a cube has six faces and each face is `ישר=510`, producing `6×510=3060`. Preserving only `ישר=510` or only `6×510=3060` is an extraction-integrity failure if the fact that **6 means cube faces** is lost. Engine verification of arithmetic does not verify the semantic origin of the quantity.
+
+### 7.2 Source Media Reference Preservation Law — MUST FOUNDATION NOW
+A source artifact that explicitly references media must preserve the media reference as provenance even when the binary asset or URL cannot currently be resolved. `image_url IS NULL` does **not** mean “no image existed” when the source text contains markers such as `[Image 3848.jpg]`.
+
+New extraction must preserve, through existing metadata extension space (no new table required), the raw media marker/reference, source-artifact identity, resolution state (`resolved`/`unresolved`/`missing_asset`), and resolved URL/id when available. An unresolved marker is evidence of a missing attachment, not permission to silently drop the representation.
+
+Golden specimens: Zvi 3060 source rows contain `[Image 3848.jpg]`, `[Image 3850.jpg]`, `[Image 3855.jpg]`, `[Image 3856.jpg]` while `channel_updates.image_url` is NULL. The extraction must retain those references and explicitly mark them unresolved until reconciled.
+
+### 7.3 Extraction Fidelity Gate
+For complex sources, `ENGINE_VERIFIED` arithmetic is not sufficient evidence that extraction succeeded. Before declaring a source slice successfully extracted, verify that materially relevant roles survived across: SOURCE ARTIFACT → EXTRACTED CONTENT → PROCEDURE/DERIVATION → FINDING/CLAIM → EVIDENCE/REPRESENTATIONS.
+
+The gate specifically checks: semantic operand origins, media/source anchors, operation order/dependency, and distinct representations. Loss of any materially claim-bearing element is `EXTRACTION_INCOMPLETE`, even when all surviving calculations are correct.
+
+### 7.4 Spatial boundary
+This patch does **not** define Spatial Gematria domain laws and does not create a geometry engine/store/graph. Spatial-specific identity, region, containment, boundary/interior, face/vertex semantics remain the responsibility of the existing single Spatial capability (`spatialModels.js` and its future adapter). The only universal Intake rule added here is: when such semantics supply an operand or representation, Intake must not erase their provenance.
+
+### 7.5 Freeze correction
+The v5 Freeze remains historical provenance for the contract state reached before the 3060 Golden Reconstruction. For **complex extraction integrity**, that conclusion is superseded: `FOUNDATION PATCH REQUIRED / CONTRACT v6`. Controlled ingestion of already-covered simple shapes may continue, but further complex spatial/media ingestion must not be treated as extraction-complete until §7.1–§7.3 are implemented and the 3060 golden specimens pass end-to-end.
+
+**Foundation classification:** §7.1 MUST FOUNDATION NOW · §7.2 MUST FOUNDATION NOW · §7.3 MUST FOUNDATION NOW as an acceptance gate · domain-specific Spatial rules = EXTENSION POINT NOW and intentionally deferred to the dedicated category pass.
+
+
+---
+
+## 8. RULE / METHOD APPLICATION PROVENANCE (2.9.2026, ZURIEL Human-Gate, `RULE_APPLICATION_PROVENANCE_V1`)
+
+**מקור:** Foundation gap שנחשף בפאס-קריאה-בלבד (calibration case: C3a/C3b, זיקת-האפסים `zero_scale_law` 4530→453) — לפני-כתיבה: מתי כלל/שיטת-מחקר קנונית (`nodes type='rule'`, או `gematria_methods`) *מיושמת בפועל* על קלט לגזירת/פרשנות/תמיכת-יחס — עצם-השימוש חייב-להישאר בר-שחזור (מי, מתי, על-מה, איזו-פעולה, איזו-תוצאה, איזו-מחלקה). "מה נמצא" (research_objects/engine_detail) כבר-מתועד; "כיצד הגענו-לממצא" (Rule Usage Provenance) לא-היה-שם-מפורש עד-כה.
+
+**עקרון-זהות (Identity Law) — Rule Definition ≠ Rule Application:** הגדרת-הכלל (`nodes type='rule'`, למשל `zero_scale_law`) נשארת מקור-אמת יחיד וקנוני, ללא-שינוי. **שימוש** בכלל על ממצא ספציפי הוא **occurrence/application** — לא-כלל-חדש, לא-`research_objects`-מסוג-חדש (`kind`), לא-node-בגרף, לא-שיטת-מנוע חדשה. Rule Application חי **אך-ורק** כ-provenance/metadata על שורת `research_objects` הקיימת — לעולם-לא store/engine/graph מקביל.
+
+**מיקום קנוני — נבדק-חי לפני-בחירה (לא הונח `methodology`):** נסרקו-חי 17 דומיינים קיימים תחת `research_objects.meta->'ext'` (`writer_dossier`,`gematria`,`scope`,`stress_test_pass`,`family`,`procedure`,`note`,`text_position`,`derived_from_family`,`privacy_boundary`,`foundation_ref`,`needs_followup`,`foundation_challenge`,`zero_navigation_case`,`operand_provenance`,`golden_slice_786`,`continues_family`) — אף-אחד לא-מכסה "שימוש-בכלל-קנוני עם rule_id+rule_version+operation+chain+outcome". `operand_provenance` (§7.1, חי, לדוגמה שורת 911+909=1820) קרוב-בעיקרון אך-צר-יותר (מיפוי-שטוח operand→origin-note, בלי rule_id/version/chain/outcome). `procedure` (§6.8, חי, 24 שורות — כולל דוגמה חיה `steps[]` עם `operation`+`status` לכל-שלב, ספר-הפליאה) קרוב-במבנה אך-מיועד לפרוצדורת-קורפוס-שלמה מתוך מקור-חיצוני, לא-לשימוש-בכלל-קנוני-של-המערכת-עצמה על ממצא-בודד. **אין כפילות — נבחר דומיין-חדש, לא `methodology` (כפי-שהוזהר-במפורש בהנחיה), אלא `rule_application`, בהתאמה-מבנית-מלאה לדפוס-הקיים `meta.ext.<domain>.<arrayKey>[]` (בדיוק כמו `procedure.steps[]`):**
+
+> **`research_objects.meta.ext.rule_application.applications[]`**
+
+כל איבר במערך (field-level shape, ללא-CHECK, jsonb גמיש):
+```
+{
+  application_id,        // uuid מקומי — זהות ה-occurrence, לא זהות-הכלל
+  rule_id,                 // = nodes.rule_id (או gematria_methods.method_key) — הפניה-טקסטואלית-חופשית, אותו-דפוס-פוליאמורפי כמו decision_ledger.subject_ref
+  rule_version,             // snapshot של rule_version בזמן-השימוש — לעולם-לא live-join מאוחר-יותר
+  rule_family,              // "numeric_transform" | "gematria_method" | "els_cipher" | ... — איזה-רגיסטרי rule_id נגזר-ממנו
+  operation,                 // טקסט קנוני-קצר, למשל "÷10" — אותו-אידיום-חי-כבר-קיים (zeroScales() ב-src/lib/supabase.js + edges.metadata.operation)
+  inputs: [{ value, role, origin_type, origin_ref }],    // משתמש-חוזר-במבנה §7.1 (כבר MUST FOUNDATION NOW) — לא-כפילות
+  outputs: [{ value, role, target_ref }],                  // המקבילה-הסימטרית ל-inputs
+  application_class,        // enum סגור — ר׳ למטה
+  application_outcome,      // enum סגור — ר׳ למטה (MUST FOUNDATION NOW)
+  actor,                     // מי/מה ביצע (שם-סוכן, או ''human'')
+  applied_at,                // timestamptz, נבדל-מ-created_at של השורה
+  chain_position,            // אופציונלי: { step, previous_application_id } — קישור בלי-מיזוג-זהות
+  governance_ref,            // אופציונלי: decision_ledger.id — הפניה-בלבד, לא-שכפול-החלטה
+  provenance_note
+}
+```
+
+**application_class — אוצר-מילים סגור (לא-מרחיב `meta.layer` הקיים — `meta.layer` כבר-לא-עקבי בפועל, 19 ערכים אד-הוק נמצאו-חי בקורפוס, ואינו-מיועד-מבנית לסיווג-שימוש-בכלל):**
+`DIRECT_CALCULATION` · `TRANSFORM` · `DERIVATION` · `INTERPRETATION` · `RELATION_SUPPORT`
+
+**application_outcome — MUST FOUNDATION NOW (נבדק-חי-לפני-הצעה: `verification_state`/Research DNA v1 = מצב-אימות-מנוע-ישיר, לא-שימוש-בכלל · `research_objects.status` = מחזור-חיי-הממצא-כולו, לא-per-application · `decision_ledger.human_decision` = החלטת-ממשל, לא-מצב-מכני-גולמי · `decision_reevaluations.outcome.result` = ערך-בודד `decision_confirmed_unchanged` שנצפה-חי, לא-אוצר-סגור-לענייננו. אף-אחד לא-מכסה-בדיוק "האם-שימוש-הכלל-הזה נתמך/נדחה/הוחלף" — אוצר-מילים-חדש-מינימלי-וסגור, 4 ערכים, ללא-חפיפה):**
+`APPLIED_SUPPORTED` · `UNSUPPORTED` · `SUPERSEDED` · `REJECTED`
+
+**הבחנות-מחייבות (Truth Axes לא-נדרסות):**
+- `application_outcome` **נבדל-לחלוטין** מ-`engine_verified` / `research_objects.status` / `decision_ledger.human_decision` / canonical / publication — ציר-נפרד-לגמרי, כמו-כל-שאר-הצירים בחוזה-הזה.
+- שימוש-בכלל **לעולם-אינו** משנה `engine_verified`/`engine_detail` של-השורה-שעליה-הוא-יושב. (דוגמה-אילוסטרטיבית, לא-נכתבת: C3b נשאר `engine_verified=false`/mismatch מול-4530, גם-אחרי-שנרשם ש-`zero_scale_law v1`,`operation="÷10"` תומך-ב-453 כנגזרת-של-4530 מ-C3a.)
+- אין-דריסה של-ערך-מקור (453→4530) ואין-מיזוג-זהויות בין-שורות — כל-Rule-Application הוא-metadata-נלווה-בלבד, לא-מחליף-ולא-משנה את-הערך/הסטטוס-הישירים של-שום-שורה.
+- ממשל (governance) נשאר **אך-ורק** ב-`decision_ledger` — `governance_ref` הוא-הפניה-בלבד; לעולם-לא-מוכפל-לשדה-שני-של-החלטה בתוך ה-Rule-Application-עצמו.
+
+**Chaining:** `chain_position:{step,previous_application_id}` בתוך **אותו** מערך `applications[]`, או פרוש-על-פני-שורות-`research_objects`-נפרדות דרך `derived_from`/`contains` — בדיוק-הדפוס-הקיים-כבר ב-§6.8. כל-שלב שומר-זהות-נבדלת-משלו (`application_id`+`rule_id`+`rule_version`+`operation`), בלי-איבוד-מידע ובלי-מיזוג. **לא-נבנה workflow-engine כאן** — זו-הבטחת-ייצוג-בלבד, לא-הרצה.
+
+**Research DNA — מוכן-לשאילתות-עתידיות (לא-מיושם בפאס-הזה):** `jsonb_array_elements(meta->'ext'->'rule_application'->'applications')` מאפשר, ללא-schema-נוסף: כל-השימושים-ב-`zero_scale_law` · תדירות-שימוש-לכל-כלל · שיתוף-הופעה-בין-כללים (אותו-מערך) · שרשראות (`chain_position`) · נתמך-מול-לא-נתמך/נדחה (`application_outcome`) · התפלגות מקור/דומיין (`inputs[].origin_ref` + `source_ref`/`contributor_id` הקיימים-כבר על-השורה). **לא-נבנות אנליטיקות/dashboard/index כאן.**
+
+**0 schema/table/RPC/engine/graph חדשים.** מרחיב את §1 (META REGISTRY, `meta.ext.<domain>.<key>`) ואת §7.1 (Semantic Operand/Quantity Provenance, כבר-אושר MUST-FOUNDATION-NOW) — לא-מחליף-אף-אחד-מהם, לא-כפילות. C3a (`b4b40fe6-39d8-494b-9608-1c86f83dd6fc`) / C3b (`b80437d1-6a69-4eef-9168-fb12ce82fa64`) **לא-נגעו** בפאס-הזה — הדוגמה למעלה אילוסטרטיבית-בלבד, לא-שינוי-נתונים.
+
+**Cross-reference:** §1 (META REGISTRY) · §7.1 (Semantic Operand/Quantity Provenance Law) · §6.8 (Research Procedure Extraction Law, מקור-הדפוס `meta.ext.<domain>.<arrayKey>[]`) · `decision_ledger` (governance, subject_type polymorphic pattern) · `nodes.rule_id=''zero_scale_law''`/`''decimal_point_join_law''` (Rule Definitions, ללא-שינוי).
+
+
+---
+
+## 9. UNIVERSAL SOURCE DEEP RESEARCH ORCHESTRATION — CROSS-REFERENCE INDEX (3.9.2026, ZURIEL Human-Gate, `SOURCE_DEEP_RESEARCH_ORCHESTRATION_V1`)
+
+**מקור:** נגזר מ-stress-test מרובה-סבבים על ספר הפליאה (HebrewBooks 6355), מתואם בין סוכני GPT/Claude מקבילים לפי `inter_agent_coordination_law` v3 — **לא Book Foundation חדשה, לא Peli'ah Engine**. הפרק כולו pointer/cross-reference בלבד, לא-מכפיל לוגיקה קיימת. כל 10 הסעיפים מנוסחים מעל primitives קיימים בלבד (`gematria_methods`, `research_objects`, `edges`/`nodes`, `meta.ext.<domain>.<key>`, `decision_ledger`).
+
+### 9.1 New Source Family / Operator Admission Law
+`NEW SOURCE FAMILY → crosswalk to existing primitives first → extend representation/relation semantics only if needed → no new engine/store by default.` Targeted Witness Adjudication (§9.9, Witness Adjudication + Non-Resolution Provenance) הוא שלב-ראיה אורתוגונלי, Decision-Gated — לעולם לא תנאי-מקדים לשמירת Research Object/candidate. זרימת ה-Intake הקיימת (§1–§8) נשארת ללא-שינוי ולא-חסומה על-ידי מצב-adjudication.
+
+### 9.2 Identity Tiers ≠ Authority
+**Source Work ≠ Book ≠ Edition ≠ Textual Version ≠ Witness ≠ Digital Object ≠ Page/Span/Region** — שבע דרגות-זהות נבדלות, לעולם לא מתמזגות לאחת. Witness הוא manifestation נושא-provenance של מקור (PDF/סריקה/תעתיק/עותק-מהדורה ספציפי) — זהות בלבד. **Witness identity ≠ authority.** **Digital Object/storage URL ≠ Witness authority** — הפניית-קובץ-מאוחסן (למשל Storage URL) מזהה היכן עותק חי, לעולם לא שהוא-סמכותי. **Page/Span/Region = locator, לא זהות** של Source/Book/Edition/Witness — מיקום-בתוך-משהו, לא מחליף אף אחת מהדרגות למעלה.
+
+### 9.3 Source-of-Record Assignment
+סמכות מוקצית שאלה-אחר-שאלה, כ-research provenance/role, ממוקדת לטענה הספציפית — **לא** נשמרת דרך `decision_ledger` כברירת-מחדל. `decision_ledger` מופעל **רק** כש-ZURIEL/Human-Gate מקבל החלטת-ממשל מפורשת על אותה סמכות. **Governance ≠ Provenance.**
+
+### 9.4 Digital Discovery-Aid ≠ Authoritative Witness
+תעתיק דיגיטלי עשוי לאתר/לשחזר קריאה-מועמדת; הוא לעולם אינו מחליף קביעת §9.2/§9.3.
+
+### 9.5 Coverage Semantics — שלושה מושגים נפרדים-בבעלותם
+- **Research Map / Research Grammar Coverage** — כמה ממרחב-האופרטורים/הפרוצדורות של המקור זוהה וסווג-למשפחה.
+- **Exact-Witness Coverage** — כמה נשפט מול עד סמכותי (§9.2/§9.3).
+- **§6.2 Source/Corpus Exhaustion** — החוק התלת-רמתי הקיים, ללא-שינוי, לא-מוגדר-מחדש כאן.
+כיסוי-סריקה דיגיטלי/OCR/תעתיק הוא מדד-גילוי תפעולי בלבד — אינו ציר ה-Research Map ואסור לדווח כך.
+
+### 9.6 Research-Density Prioritization
+עיקרון אוניברסלי בלבד: לדרג אזורי-מקור שטרם-נסקרו לפי צפי-לצפיפות-מחקר-משנה-החלטה, תוך שימוש בראיה-זמינה של מקור/חילוץ/מחקר. **אין** הרשאה כאן למנוע/store/view של ניקוד.
+
+### 9.7 Foundation-Primitives-First Crosswalk Order
+כל משפחה/אופרטור חדש נבדק תחילה מול primitives של Foundation. Projection/Lens adapters הם reuse במורד-הזרם בלבד — לעולם אינם קובעים סמנטיקת-Foundation.
+
+### 9.8 Multi-Session Orchestration
+מפנה בלבד ל-`inter_agent_coordination_law` v3 (10)–(21). אפס שכפול.
+
+### 9.9 Witness Adjudication + Non-Resolution Provenance
+כל סבב targeted witness adjudication מסווג כל יעד כ-**VERIFIED EXACT / CORRECTED / STILL AMBIGUOUS**. דרישה סמנטית — **MUST FOUNDATION NOW**: מצב STILL AMBIGUOUS (או כל מצב לא-פתור) חייב לשמר **למה**. אוצר-מילים מנחה (לא DB enum/schema): `witness_unavailable` · `illegible` · `insufficiently_localized` · `conflicting_witnesses` · `genuinely_ambiguous`. ייצוג-אחסון — **EXTENSION POINT NOW**: לא schema/path חובה, לא DB enum; הדרישה היא שהסיבה תישמר איפשהו נושא-provenance, לא איזה שדה בדיוק.
+
+### 9.10 Cross-Source / Cross-Book Projection
+מפנה ל-Research DNA v1 §18 ול-`reality_graph_law`. **סגירת ה-Foundation של `WS-CROSS-ENGINE` כבר סגורה** (ברמת-חוזה). מימוש/פרויקציה מתקדמים עתידיים הם reuse במורד-הזרם ואינם תלות של §9.
+
+### Foundation Gate (§9)
+**MUST FOUNDATION NOW:** §9.1 · §9.2 · §9.3 · §9.4 · §9.5 · §9.7 · §9.8 · §9.9 (מחצית-סמנטית) · §9.10 (pointer/closure-record).
+**EXTENSION POINT NOW:** §9.6 (עיקרון) · §9.9 (מחצית storage-path).
+**LATER:** §9.6 (ניקוד/dashboard/UI אוטומטיים) · §9.10 (פרויקציה-מתקדמת עתידית).
+
+### Provenance (§9)
+ספר הפליאה (HebrewBooks 6355) הוא **stress-test provenance** ל-§9 — לא-נכנס כסמנטיקה אוניברסלית. מחקר-ספציפי-למקור (checkpoints, page loci, family closures) נשאר ב-Research OS (`research_objects`) וב-`work_log` handoffs; `work_log` אינו-SSOT (ר' `work_log_authority_law`). מלא-פרטים: `nodes.rule_id='research_intake_foundation_contract_law'` metadata מפתח `v8_source_deep_research_orchestration_2026_09_03`.
+
+**0 schema/table/RPC/engine/store/graph/`research_objects` חדשים נוצרו בפאס הזה.**
+
+
+---
+
+## 10. CONTEXTUAL SOURCE GAP / BOOK ACQUISITION ALERT — Human-Gate ZURIEL · 10.9.2026
+
+OWNER CHECK=EXTEND_EXISTING. This extends Research Intake Source/Book/Edition provenance only. No new source engine, book registry, store, graph or truth layer.
+
+When an active research thread reaches a claim/family that is insufficiently anchored in books already present in the canonical system, the Research OS should produce a CONTEXTUAL SOURCE GAP recommendation. The sequence is: (1) search existing Book/Source identities and exact loci first; (2) if existing material is insufficient, recommend missing books/sources; (3) for each recommendation preserve the specific claim/family it is expected to anchor, why it is relevant, priority P1/P2/P3, whether a Book/Witness/Digital Object is already present, and current acquisition/adjudication state; (4) notify/surface the recommendation to ZURIEL in the active research context and future research-status views; (5) when an adequate source is ingested and exact locus is verified, mark the gap resolved/superseded rather than deleting history.
+
+Truth boundary: SOURCE GAP ≠ SOURCE FACT ≠ BOOK AUTHORITY ≠ CANONICAL. A recommended book is a research acquisition candidate only. AI may propose and rank sources; it may not auto-ingest, assign source-of-record authority, canonicalize, publish, or claim that a book supports a statement before an exact locus is verified. Human Gate remains ZURIEL.
+
+Ranking should prefer decision-changing sources: primary/canonical domain sources before secondary summaries; exact direct treatment before generic thematic similarity; already-owned/available witnesses before unnecessary acquisition; and sources that can close multiple active gaps may rank higher, with the reason shown. No black-box score.
+
+Recommended projection fields (logical, no schema mandate): research_scope/topic; claim_or_family; existing_source_hits[]; missing_source_candidates[{book,reason,target_claim,priority,availability_state,witness_state}]; gap_state {open,partially_anchored,resolved,superseded}; exact_locus_required=true; provenance. Store using existing Research Object/meta.ext or recommendation primitives unless a future live audit proves a new storage need.
+
+Implementation status at this decision: CONTRACT/BEHAVIOR SAVED ONLY. Automatic runtime alerting/UI is NOT YET IMPLEMENTED or VERIFIED. Future implementation must reuse the existing Research Plan/Metatron/Research OS recommendation path and Book identities; do not create a parallel alert engine.
+
+
+---
+
+## §10 — 2029 DATA PLACEMENT / WRITE ROUTING (Human-Gate ZURIEL · 17.9.2026)
+
+**OWNER CHECK: EXTEND_EXISTING.** This section extends Research Intake; it creates no table, Store, Registry, Graph or parallel Research OS.
+
+### 10.1 IDENTIFY BEFORE STORE
+New 2029 writes are routed by semantic identity/role, not by page, feature, contributor, channel or current UI. The question is **what is this object?**, not **which table is convenient?**
+
+### 10.2 CANONICAL HOMES STAY DOMAIN-OWNED
+- Stable qualified identity/relation -> existing Reality Graph / domain identity owner (`nodes`/`edges` where qualified; Person identity remains under Person owner).
+- Atomic research material (observation/relation/hypothesis/question/finding-bearing research artifact) -> `research_objects` under its existing identity/provenance contract.
+- Personal workspace membership/state -> existing `research_items` / authorized `user_research` semantics; never mixed with shared research truth.
+- Posts/public authored content -> existing Post owner.
+- Gematria expressions/method outputs -> canonical Gematria owners/registries; do not copy calculation truth into Research Intake as a replacement authority.
+- Media/source artifacts remain under their current media/source owners and link to research/anchors by provenance/typed relations; representation != truth.
+
+### 10.3 CONTRIBUTOR / CHANNEL / SOURCE TABLES ARE NOT CONTENT SILOS
+A contributor, WhatsApp channel, imported feed, gallery placement or legacy page may remain a source/ingress/provenance home where operationally required. It must not become a second semantic research store. Zvi material, for example, is research material with attribution/source provenance; it is not moved into a contributor-specific truth store merely because Zvi authored it.
+
+### 10.4 UI NEVER OWNS STORAGE
+World, Number, Person, Contributor, Book, Heichal, Journey and future surfaces consume the same canonical identities and governed semantic outputs. A new screen/filter/lens never justifies a feature-specific table.
+
+### 10.5 WRITE RULE FROM THIS LOCK FORWARD
+Before a new persistent table or feature-local write path is proposed, the implementer must resolve the canonical domain owner and classify the write as one of: `CANONICAL_OWNER`, `SOURCE_INGRESS_PROVENANCE`, `PERSONAL_STATE`, `OPERATIONAL_RUNTIME`, or `LEGACY_COMPATIBILITY`. If an existing owner can carry it, **EXTEND_EXISTING** is mandatory. New physical storage requires live evidence that existing owners cannot preserve identity, provenance, access, lifecycle or scale safely.
+
+### 10.6 LEGACY TABLE CROSSWALK — MIGRATE BY SEMANTICS, NOT BULK COPY
+Legacy/current physical tables are not mass-moved merely to make the schema look clean. Each table is classified before retirement:
+1. **KEEP_OWNER** — still canonical for its domain.
+2. **KEEP_SOURCE** — historical/source/ingress data remains addressable and feeds governed adapters.
+3. **COMPATIBILITY** — old runtime/UI dependency; no new 2029 semantic authority may be added.
+4. **REVIEW_FOR_RETIREMENT** — only after reader/writer/dependency/provenance audit and Human/release gates.
+5. **NEEDS_ADJUDICATION** — ownership cannot yet be decided safely.
+No delete, merge, backfill or mass rewrite is authorized by this crosswalk.
+
+### 10.7 INITIAL LIVE CROSSWALK (calibration, not exhaustive)
+**KEEP_OWNER:** `research_objects`, `research_object_revisions`, `research_items`, `user_research` (scoped personal state), `nodes`, `edges`, `persons`, `identity_edges`, `posts`, `post_revisions`, `gematria_words`, `gematria_methods`, `research_contributions` (input pipeline only, not Truth owner).
+**KEEP_SOURCE / INGRESS / PROVENANCE:** `channel_updates` (source + active broadcast/media surface), `wa_msg_ext`, `wa_bot_log`, legacy source refs into WhatsApp/channel data, and `gallery_images` (representation/historical placement + active media/gallery surface).
+**LEGACY/COMPATIBILITY CANDIDATES:** `contributor_content` presentation silo, legacy gallery/publication helpers, historical backup tables, old page-specific caches/materializations. Exact retirement requires live dependency audit; this label does not authorize deletion.
+**NEEDS_ADJUDICATION:** any high-volume or actively-written table whose semantic owner is not proven by current owner/code inspection (for example `gematria_wall`, `raw_gematria`, legacy research helper tables). Do not guess.
+
+### 10.8 CONSUMER RULE
+2029 consumers prefer owner-native adapter / Universal Finding / Result Bundle / Research Context boundaries. Raw cross-table joins in a surface are a temporary gap, not the target architecture.
+
+**Result:** One semantic tree may still use multiple physical tables because different domains have different ownership, privacy and performance needs. “One Tree” means one identity/research model and one owner per semantic responsibility — not one giant SQL table.
+
+
+---
+
+## §10.9 — LIVE DATA CROSSWALK · 17.9.2026
+
+This is a routing map over existing physical stores, not a new registry/table. It is re-verified live before retirement or migration.
+
+**KEEP_OWNER / canonical domain home**
+- `research_objects`, `research_object_revisions` — atomic shared Research OS.
+- `research_items`, `user_research` — personal workspace/state only; never shared truth.
+- `nodes`, `edges` — canonical Reality Graph identities/relations where qualified.
+- `persons`, `identity_edges` — canonical Person identity fabric.
+- `posts`, `post_revisions` — authored/publication source under Post owner.
+- `gematria_words`, `gematria_methods` — canonical Gematria expression/method homes.
+- `research_contributions` — canonical contribution/input-pipeline home for community submissions; it is not a second Truth store and promotion still routes through governed Research/Graph/Truth boundaries.
+
+**KEEP_SOURCE / LIVE INGRESS / PROVENANCE**
+- `channel_updates` — source/ingress **and active live broadcast/media surface**; not merely historical. Existing research `source_ref` links make referenced rows provenance-protected.
+- `gallery_images` — source/representation + historical placement **and active live media/gallery product surface** (OCR/thumb/curation/social paths); not canonical research truth.
+- `wa_bot_log` — WhatsApp raw/interaction log with direct research provenance references and historical timeline consumers; hybrid SOURCE+OPERATIONAL.
+- `wa_deep_queue` — processing queue, but historical readers still consume completed rows; therefore not purge-safe merely because `status=done`.
+- `wa_vip_inbox` — raw VIP/author source intake used by extraction/attribution flows; KEEP_SOURCE until typed downstream provenance is sufficient for any retirement decision.
+
+**OPERATIONAL_RUNTIME / RETENTION REVIEW**
+- `wa_msg_ext` — message metadata/dedup index with no text payload; not a research home.
+- `wa_message_status` — delivery/stuck/reply operational state.
+- `wa_publish_log`, queue/status/config tables — operational/audit according to their domain; no semantic promotion by retention state.
+
+**COMPATIBILITY / REVIEW_FOR_RETIREMENT**
+- `contributor_content` — legacy contributor presentation silo; no new 2029 semantic authority.
+- historical backup/page-specific helper tables — preserve until dependency/provenance audit proves retirement safe.
+
+**NEEDS_ADJUDICATION**
+- `gematria_wall`, `raw_gematria` and any other high-volume/actively-written store without a proven current semantic owner. Do not migrate or delete by name alone.
+
+The crosswalk describes responsibility, not physical consolidation. A source row and the Research Object extracted from it may both remain because SOURCE != EXTRACTION != FINDING.
+
+---
+
+## §11 — 2029 SOURCE RETENTION / CLEANUP CONTROL (Human-Gate ZURIEL · 17.9.2026)
+
+**OWNER CHECK: EXTEND_EXISTING Research Intake + existing Privacy/Truth/domain operational owners.** No Retention Store, cleanup registry, archive DB or parallel source system is created.
+
+### 11.1 RETENTION IS NOT TRUTH
+Retention/deletion eligibility is an operational lifecycle decision. It never changes epistemic type, verification, governance, canonicality, publication or Research Strength.
+
+### 11.2 PROVENANCE-PROTECTED BEFORE AGE-BASED CLEANUP
+A row is not eligible for automatic purge merely because it is old, processed, hidden or terminal. Before deletion the system must prove that the row is not required by any canonical/source provenance, Research Object/source_ref, evidence/decision lineage, graph/source relation, publication/audit requirement, media/context thread, person/contributor attribution, exact replay or active runtime reader. Unknown dependency = HUMAN_REVIEW, not safe-to-delete.
+
+### 11.3 LOGICAL RETENTION CLASSES
+These are control-plane classifications, not a new DB enum:
+- `PROVENANCE_PROTECTED` — referenced source/evidence/replay/history; retain while dependency exists.
+- `ACTIVE_SOURCE` — still-written or live product/source surface; retain under domain owner.
+- `BOUNDED_RUNTIME` — operational log/queue/metadata that may receive a bounded retention window once readers and audit needs are proven.
+- `PURGE_CANDIDATE` — terminal/unreferenced operational material after a dependency-safe dry run.
+- `HUMAN_REVIEW` — ambiguous or destructive cleanup; no automatic deletion.
+
+### 11.4 INITIAL WHATSAPP/INGRESS RETENTION CALIBRATION
+- `channel_updates`: PROVENANCE_PROTECTED when referenced; ACTIVE_SOURCE while live/published/used by broadcast/media runtime. Unreferenced expired material may be reviewed later, never blanket-purged.
+- `wa_bot_log`: PROVENANCE_PROTECTED for rows referenced by Research OS or needed for historical contributor/person timelines; remaining raw chatter may become BOUNDED_RUNTIME only after dependency audit.
+- `wa_deep_queue`: currently terminal rows are **not yet purge-safe** because live historical timeline code reads the table; classify HUMAN_REVIEW/COMPATIBILITY until that dependency is migrated or explicitly retired.
+- `wa_vip_inbox`: KEEP_SOURCE / PROVENANCE_PROTECTED by default because it is raw VIP-author intake feeding phrase extraction and attribution; retirement requires proof that downstream typed provenance can replay the source.
+- `wa_msg_ext`: BOUNDED_RUNTIME candidate (metadata/dedup only, no message text), but retention duration is not guessed here.
+- `wa_message_status`: PURGE_CANDIDATE only for terminal, unreferenced delivery state after dry-run dependency proof; duration set by its operational owner.
+- `wa_publish_log`: operational/audit history; bounded retention only after audit/replay requirements are resolved.
+
+### 11.5 TWO-PHASE CLEANUP — PREVIEW THEN PURGE
+Every destructive cleanup path must first produce a **Dry Run / Preview** showing table, candidate count, date/status reason, bytes/rows where measurable, protected/reference count, unknown-dependency count and representative samples/IDs. Physical deletion is a separate authorized action. Dry-run eligibility never equals deletion authorization.
+
+### 11.6 CONTROL CENTER PROJECTION
+The future Admin/Command Center may project retention health from existing tables/adapters: current rows/size, growth, retention class, protected vs candidate counts, oldest/newest, why-protected, and cleanup preview. The UI is a projection only; it does not become a Retention truth store. It should support: `Preview cleanup`, `keep longer`, `exclude source/contributor`, `show blockers/references`, and an explicit destructive confirmation path governed by current Human-Gate/security rules.
+
+### 11.7 NO AUTOMATIC PURGE UNTIL EXECUTOR ACCEPTANCE
+This contract authorizes classification and dry-run design only. It does **not** authorize deleting current rows, installing an automatic purge cron, or choosing arbitrary 30/90/180-day windows. A future executor must prove reference-awareness, idempotency, negative tests, auditability, privacy compliance, and recovery/backup strategy before any automatic cleanup is enabled.
+
+
+---
+
+## §13 — SOURCE / BINARY MEDIA RETENTION + COST CONTROL
+**Human-Gate ZURIEL · 20.9.2026 · OWNER CHECK=EXTEND_EXISTING**
+
+### 13.1 Two independent retention decisions
+A Source occurrence and its heavy binary payload are not the same retention object. Text, source identity, contributor/channel/time provenance and replay metadata may remain while original image/video/audio/document bytes follow a separately governed media disposition. KEEP_SOURCE does not mean “keep every binary forever”.
+
+### 13.2 Load-bearing original
+Where §12 makes original media load-bearing for the research/source meaning, exact witness, geometry, annotation, OCR dispute or replay, the original is PROVENANCE_PROTECTED. OCR/transcript/thumbnail/AI description/derived 3D are derivatives and never substitute automatically for the original.
+
+### 13.3 No-research-signal material
+reviewed_no_structured_findings, source-only chatter or spam may be removed from default Research/Convergence worklists while the source occurrence remains addressable. Research attention is a projection; exclusion from research is not deletion and does not manufacture a Finding.
+
+### 13.4 Logical media disposition profile
+This is a projection vocabulary, not a DB enum or new store:
+- KEEP_ORIGINAL
+- KEEP_SOURCE_LIGHT
+- ARCHIVE_BINARY
+- PURGE_BINARY_CANDIDATE
+- HUMAN_REVIEW
+
+These are separate from §11 row-retention classes. A source row and its attached bytes can therefore have different retention decisions.
+
+### 13.5 Minimum durable media tombstone/fingerprint
+Before KEEP_SOURCE_LIGHT or purge of original bytes, an existing owner must retain enough durable provenance to prove the media existed and explain what happened: source occurrence identity; original/source locator where meaningful; stable media/object identity when present; hash/fingerprint where available; MIME; byte size; original/derivative relation; surviving thumbnail/OCR/transcript references where applicable; disposition reason; executor/decision provenance and time. If existing carriers cannot preserve this without a broken or misleading live reference, purge fails closed to ARCHIVE_BINARY / HUMAN_REVIEW. No new Media/Retention Store is authorized.
+
+### 13.6 Live-reader dependency
+Media used by an active Broadcast/Contributor/Gallery/Post/Topic/World surface, featured-media projection, OCR/transcription process or another live reader is not purge-safe merely because extraction finished. Runtime readers are dependencies.
+
+### 13.7 Physical dedup only
+Strong media identity may deduplicate physical bytes; it never merges source occurrences. Each occurrence retains attribution/context/provenance. Filename, OCR equality or visual similarity alone cannot prove identity.
+
+### 13.8 Derivatives
+Regenerable thumbnails/transcodes/previews may receive shorter bounded retention after their owner proves lineage and regeneration. Original and derivative permissions remain separate.
+
+### 13.9 Control Plane projection
+The existing admin_retention_preview() / admin_system_health() boundary should expose, without a new store: original/derivative bytes; KEEP_ORIGINAL/KEEP_SOURCE_LIGHT/ARCHIVE/PURGE_CANDIDATE/HUMAN_REVIEW counts and bytes; research/load-bearing and active-surface blockers; orphan/duplicate candidates; largest/oldest/newest; projected reclaimable bytes; unknown dependency bytes; and Explain-Why/blocking references. Unknown is never counted as reclaimable savings.
+
+### 13.10 Purge executor acceptance
+PREVIEW / DRY RUN -> separate Human-Gated PURGE. Any future binary executor re-checks dependencies immediately before mutation, is idempotent/auditable/privacy-safe/recoverable, preserves source/tombstone provenance and must not silently break live URLs. Source-row deletion and binary deletion are separate decisions.
+
+### 13.11 No guessed duration
+No 30/90/180-day cleanup window is established here. Duration is a later per-class operational decision based on measured cost/growth, privacy/legal/audit, replay and reader dependencies.
+
+### 13.12 Storage tiering
+Storage provider/location is implementation, not semantic identity. Moving protected media to a cheaper archive may be valid if addressability, provenance, access and replay survive.
+
+### 13.13 Governed self-maintenance
+system_suggestions_law may observe storage growth/large objects/egress/missing derivatives/orphan candidates and recommend maintenance with evidence and estimated savings. It never self-applies destructive data changes. Production purge remains independently Human-Gated/release-gated.
+
+### 13.14 Calibration only
+On 20.9.2026, live channel_updates had 2,111 rows, 457 with media; 448 matched Storage objects consumed ≈1,673.68 MB, largest ≈42.91 MB. Calibration is not a purge decision.
+
+**Result:** source fidelity and storage cost are both preserved. Provenance can survive without an unlimited binary-retention promise, while load-bearing media remains protected. No new retention/media system is created.
+
+
+---
+
+## §14 — OPEN GUIDED DEEPENING / DYNAMIC RESEARCH BRANCHES
+Human-Gate ZURIEL · 2026-09-23 · OWNER CHECK=EXTEND_EXISTING
+
+This section extends the existing Research Plan / Research Workspace / Experience projection. It creates no new Search Engine, Branch Store, Research OS, taxonomy owner or autonomous agent.
+
+### 14.1 NOT A CLOSED BRANCH ENUM
+The interface must not hard-code the universe of future research moves. Today we can name examples such as Source Context, Source-First Semantic Expansion, Cross-Method Comparison, Numeric Relation, Corpus Control, Contradiction Check, Alternate Representation, ELS, Sequence Research, Challenge and Explain-Why. These are examples, not a closed list.
+
+A future registered capability may become available without redesigning the research screen. The Research Planner resolves current capabilities/owners live and may propose a branch whenever it can materially reduce uncertainty, add independent evidence, explain a contradiction, expose provenance, or open a relevant source-defined path.
+
+### 14.2 RESULT -> NEW QUESTION -> OPTIONAL BRANCH
+Every meaningful Finding/Synthesis may produce zero or more proposed next branches. A proposed branch should explain:
+- what opened this branch;
+- why it is relevant now;
+- source/provenance/anchor that justified it;
+- expected evidence class / information gain;
+- estimated depth/cost/latency class where known;
+- whether it is deterministic, source retrieval, AI-assisted, challenge, or another registered capability;
+- stop/completion condition;
+- what would count as a useful or negative result.
+
+No branch is evidence merely because the Planner proposed it.
+
+### 14.3 SOURCE-FIRST EXPANSION
+When a source/source-locus itself supplies semantically related terms, phrases, persons, places, concepts or adjacent passages, the Planner may propose those as a bounded semantic expansion before looking at their numeric values.
+
+Preferred sequence:
+Exact Subject -> Exact Source/Locus -> Source-attested semantic family -> governed calculation/search -> normalized Cross -> Synthesis.
+
+This prevents target-fitting such as choosing a phrase only because it hits a desired number. Search normalization does not change calculation identity; every source phrase/orthographic representation is calculated independently.
+
+### 14.4 USER-VISIBLE "WHAT OPENED FROM THIS?"
+The research UI may project a bounded set of branch cards under a result/Synthesis, for example:
+- open the source context;
+- deepen this number;
+- follow a semantic family;
+- compare another representation;
+- challenge this interpretation;
+- inspect why this connection exists;
+- run a newly available registered capability.
+
+Each card is a projection of the underlying Research Plan/Capability identity. The UI does not own branch semantics.
+
+### 14.5 RECURSIVE BUT BOUNDED
+A chosen branch may itself generate new branches. Recursion is allowed only while bounded by explicit budget/depth/completion rules. Unlimited mining is forbidden.
+
+The user can move:
+answer -> branch -> deeper branch -> challenge/alternative -> synthesis,
+while Journey/Research Context preserves why/how the path was traversed.
+
+### 14.6 THE SYSTEM MAY TEACH THE USER NEW RESEARCH MOVES
+The Planner/Raziel may explain a newly relevant action in natural language:
+- "מצאתי מקור שמרחיב את הביטוי; רוצה לבדוק את המילים שהמקור עצמו נותן?"
+- "יש כאן שתי שיטות שתלויות זו בזו; רוצה שאחפש ראיות עצמאיות?"
+- "נפתח כלי חדש שמתאים לשאלה הזאת; רוצה להפעיל אותו?"
+
+This is guided research literacy, not an autonomous truth claim. New tools appear because they are registered under existing governance, not because AI invented a hidden capability.
+
+### 14.7 LEARNING: RANK BETTER, DO NOT SELF-REWRITE TRUTH
+System Suggestions / Champion-Challenger may learn which proposed branches tend to produce:
+- decision-changing new Findings;
+- independent evidence rather than duplicate derivations;
+- useful contradiction/negative results;
+- lower cost/latency for equivalent research value;
+- higher user continuation/clarity (Resonance only, not truth).
+
+Learning may change branch recommendation/ranking policy only through the existing governed Human-Gate path. It may not:
+- create or authorize an engine/owner;
+- alter canonical method semantics;
+- infer that a branch is true because users like it;
+- canonicalize/publish;
+- silently widen privacy/access;
+- turn frequency of selection into Research Strength.
+
+### 14.8 OPEN QUESTIONS ARE RESUMABLE
+A high-value branch that is not executed now may remain an existing Research Question/Open State under current Research OS semantics. It can be resumed later when budget, access, source material or a new capability becomes available.
+
+### 14.9 FUTURE-PROOF ACTION PROJECTION
+The renderer should consume a generic governed action/branch projection rather than one UI component per engine. Logical fields may include:
+branch_id / capability / action_label / why_now / source_anchor / expected_information_gain / depth_class / estimated_cost_class / access_state / evidence_target / completion_condition / provenance.
+
+This is a logical projection contract, not a schema mandate.
+
+### 14.10 SAME TRUTH AT EVERY DEPTH
+Going deeper may reveal more context, methods, sources, controls and alternative readings. It must not create a second truth system. Anonymous/Free/Premium differences may affect available volume, continuity, memory, tools and sustained depth, while correctness/verification standards remain governed by the same owners.
+
+### 14.11 CALIBRATION EXAMPLE — NAME -> NUMBERS 3:35 -> ORAITA
+The 2026-09-23 ZURIEL research session is the first worked UX calibration:
+צוריאל פולייס -> Numbers 3:35 -> צוריאל בן אביחיל / מררי / מחלי ומושי -> 450 / 1237 -> אוריתא/אורייתא -> source-attested family (אורייתא קדישא / חד שמא קדישא / סתים וגליא / ישראל / אתברי עלמא) -> normalized Cross.
+
+The decision-changing lesson is procedural, not personal truth:
+the source selected the next semantic terms before their numbers were tested.
+The UI should be able to expose that path and let the user choose which branch to deepen.
+
+### 14.12 IMPLEMENTATION STATUS
+DOCUMENTED BEHAVIOR / EXPERIENCE DIRECTION ONLY. No runtime Guided Deepening UI, branch executor or adaptive branch-ranking implementation is authorized by this section. Future implementation must extend existing Research Plan, Research Context/Journey, capability registry/adapters, System Suggestions learning and Experience projection. No parallel Search/Research system.
+
+
+---
+
+## §15 — G3 OPERATIONAL RETENTION CALIBRATION
+**Human-Gate ZURIEL · 24.9.2026 · EXTEND_EXISTING §11/§13**
+
+This section calibrates existing retention classes with current live decisions. It does not create a new retention system and does not override provenance/privacy/domain owners.
+
+### 15.1 KEEP FOREVER / HISTORY AUTHORITY
+- work_log;
+- decision_ledger;
+- Human-Gate provenance;
+- canonical research/source decision history required for replay/provenance.
+Age alone is never a deletion criterion.
+
+### 15.2 KEEP LONG-TERM
+- visitor_events;
+- site_visits;
+- traffic/analytics history including historical event partitions and GSC metrics;
+unless a later Human-Gate decision defines aggregation+archive that preserves required historical analytics. Age alone is not purge authority.
+
+### 15.3 BOUNDED RUNTIME
+Operational telemetry may use bounded retention only under its existing owner:
+- cron.job_run_details: current live retention = 14 days;
+- delivery/debug/queue/token-analysis logs: candidate for bounded retention after reader/audit/provenance proof;
+- wa_msg_ext and similar dedup/runtime metadata remain BOUNDED_RUNTIME candidates under §11.
+Changing the duration requires measured need and owner verification, not guesswork.
+
+### 15.4 ONE-OFF AUDIT / SNAPSHOT ARTIFACTS
+One-off audit tables are temporary operational evidence, not permanent runtime authorities.
+Lifecycle:
+ACTIVE_AUDIT -> PURPOSE_COMPLETE -> PROVENANCE_SNAPSHOT -> DEPENDENCY_SCAN -> ARCHIVE_THEN_DROP.
+A completed audit table with no live reader should not remain in the active DB merely because it may be historically interesting; durable provenance belongs in Git/work_log/approved archive evidence as appropriate.
+
+Calibration example executed 24.9.2026:
+public._audit_wp_thumb_candidates_20260828 was dependency-scanned, final counts preserved in work_log, Human-Gate drop authorized, then dropped; DB size fell by ~56 MiB. This is evidence for the lifecycle, not blanket permission to drop other audit tables.
+
+### 15.5 CADENCE AS RETENTION/COST CONTROL
+Polling and recovery cadence are part of operational cost control.
+- Live source capture may remain frequent where user-visible freshness requires it.
+- Heavy AI/research processing may run less frequently in batches if source capture remains lossless.
+- Recovery jobs should not run at high frequency by default when the primary event-driven path is healthy; cadence must reflect recovery SLA, not habit.
+Any cadence reduction must preserve backlog recovery, idempotency and freshness requirements.
+
+### 15.6 Cleanup order
+PREVIEW -> dependency proof -> provenance preservation -> Human Gate when destructive -> mutation -> live verification -> measured before/after capacity.
+Unknown dependency remains HUMAN_REVIEW.
+
+
+
+הרחבה מאושרת NOW-CENTRAL-HANDOFF-20261103: ההחלטה הקנונית המפורטת במסמך37 בסעיף זה. בתקופת הביניים חומרי צבי הציבוריים נשארים גלויים כמקור טרם נבדק; סינון מחקרי עתידי אינו תנאי לפרסום הנוכחי. מייל רק לאחר מיפוי מקורות ציבוריים. מקור/פרסום/אימות/שיוך נפרדים; אין חשיפת תיבה פרטית או מחיקת היסטוריה. גובר על ההמלצה הקודמת לסנן מיד. שינוי חוזה בלבד.

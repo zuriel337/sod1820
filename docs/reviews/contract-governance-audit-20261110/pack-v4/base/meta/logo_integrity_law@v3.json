@@ -1,0 +1,121 @@
+{
+ "added_by": "צוריאל",
+ "added_date": "2026-07-14",
+ "approved_reference": {
+  "actual_mime": "image/jpeg",
+  "created_at": "2026-09-17T09:25:45.159Z",
+  "file_id": "1Y3lDxlwRCJroaiUwBB8XTbtrMrJy-uvc",
+  "provider": "google_drive",
+  "role": "APPROVED_ARTWORK_REFERENCE_NOT_TRANSPARENT_MASTER",
+  "size_bytes": 406511,
+  "title": "sod1820-upload-test-middle-logo.png"
+ },
+ "asset_pack_state": "MASTER_LOCKUP_APPROVED",
+ "canonical_logo": "/logo.png",
+ "canonical_logo_semantics": {
+  "crown": "approved_blue_gold_crown",
+  "crown_alone_forbidden": true,
+  "english_inside_logo": false,
+  "hebrew_wordmark": "כי לה׳ המלוכה",
+  "inseparable_full_lockup": true
+ },
+ "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+ "compaction_v1": {
+  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "brand_design"
+ },
+ "exact_master_asset": {
+  "allowed_transformations": [
+   "uniform_scale",
+   "whole_lockup_position",
+   "opacity",
+   "external_glow_behind_lockup"
+  ],
+  "byte_size": 2405610,
+  "crown_position_locked": true,
+  "file_name": "sod1820_primary_hebrew_lockup_transparent_v1.png",
+  "forbidden_transformations": [
+   "move_crown_relative_to_wordmark",
+   "move_wordmark_relative_to_crown",
+   "change_spacing",
+   "change_relative_scale",
+   "crop_wordmark",
+   "crop_crown",
+   "warp",
+   "redraw",
+   "regenerate",
+   "retype"
+  ],
+  "geometry_locked": true,
+  "height": 1506,
+  "human_gate": "ZURIEL 2026-10-01",
+  "mime": "image/png",
+  "mode": "RGBA",
+  "relative_scale_locked": true,
+  "sha256": "d543689eb92bb2a01bb9d5cf1f3907b6fbb7f092c8cf0395c14815e072184b34",
+  "status": "APPROVED_EXACT_MASTER_PNG",
+  "symmetry_locked": true,
+  "width": 1664,
+  "wordmark_position_locked": true
+ },
+ "forbidden": [
+  "crown-icon.png (כתר בלבד)",
+  "favicon.svg (✦)",
+  "favicon.ico (לא קיים)",
+  "purpose:maskable"
+ ],
+ "forbidden_primary_variants": [
+  "crown_only",
+  "icon_crown_crop",
+  "wordmark_removed",
+  "english_inside_logo",
+  "kingdom_rise_inside_logo"
+ ],
+ "g3_disposition_v1": {
+  "classification": "KEEP_SCOPED_SEMANTIC",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "scoped semantic contract currently unique enough to remain active; G3 implementation must consume it rather than legacy UI/code, and final G3 compaction may absorb/archive it after proving semantic preservation"
+ },
+ "heritage_logo": {
+  "path": "/logo.png",
+  "preserve": true,
+  "primary_2029": false,
+  "role": "HERITAGE_COMPATIBILITY"
+ },
+ "human_gate": "ZURIEL 2026-10-01",
+ "no_heritage_fallback_for_primary_2029": true,
+ "owner_check": "EXTEND_EXISTING",
+ "owner_routing": {
+  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+  "confidence": "high",
+  "domain": "brand_design",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ },
+ "primary_2029": {
+  "canonical_hebrew_identity": "סוד 1820",
+  "canonical_latin_identity": "SOD1820",
+  "heritage_wordmark": "כי לה׳ המלוכה",
+  "master_mark": "blue_gold_crown",
+  "protected": true
+ },
+ "required_asset_pack": [
+  "hebrew_master_lockup_transparent",
+  "asset_metadata_dimensions_checksum_clearspace"
+ ],
+ "supersedes_logo_integrity_version": 2,
+ "video_hebrew": {
+  "body_logo": "FULL_LOCKUP_ONLY",
+  "domain_is_logo": false,
+  "english_words_in_logo": false,
+  "intro_outro_domain": "sod1820.co.il"
+ }
+}

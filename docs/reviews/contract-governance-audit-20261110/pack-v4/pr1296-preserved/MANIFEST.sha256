@@ -1,0 +1,10 @@
+c12d0807d283634e8e0b49305c1c24fe3ca8f698db9f2dc336f1a44a5156dba2  ./FINDINGS.md
+2b2784ec5ace986d9c0a34544f5b9de2549dcd38584ee30f68ba4e3ba1f10f51  ./README.md
+e22d4351b49f598f88ecccf8395aed2c4fb15599e230908c56a0191580326efa  ./docs/2029-post-connections-contract-20261110.md
+8b8826d17689126386d9c858c12905a048201820a6905d20f9367eef2160168f  ./footer-contract-docs-only.patch
+b908b4c53564c92f5102d84fdb3fcb516ac7e1cf00ed8a054d30de6d6b937925  ./patches/0001-Align-2029-series-membership-with-approved-author-an.patch
+38b4677adab0b6a212b2f5cb2aac67caf857c6fd91f26ab25d17cd8d82e086b6  ./patches/0002-Preserve-series-fetch-compatibility-while-preparing-.patch
+8b29442d6aaccca6bd0614b825c6852ba406623e8db9bd80b88cf173ce8da753  ./patches/0003-Document-unified-2029-post-connections-tags-and-seri.patch
+f0042818d97ad576b182af53000653faff4c597eacb5cb62969cfc0ae5ba33e8  ./provenance/2029-post-connections-contract-20261110.original-at-a377d0237.md
+565cae476450a91b99f82288c9102b361b2ee6d99bc6ca5bf4c181ebb07d7686  ./provenance/contentSeries2029Identity.at-a377d0237.js
+0f1f6c6a14002d892c91500d469bbe118fc0e3110e595e45a015b1908c3c48cc  ./provenance/pr1296-full.diff

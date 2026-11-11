@@ -1,0 +1,15 @@
+--- nodes:system_suggestions_law@v5→v6.metadata (base)
++++ nodes:system_suggestions_law@v5→v6.metadata (proposed)
+@@ -43,2 +43,12 @@
+  "human_gate_v5": "ZURIEL 2026-09-27",
++ "human_gate_v6_release": {
++  "changed": [
++   "§19: release reuses deploy_on_request (active version) only with explicit approval",
++   "SystemSuggestionsTab.jsx marked removed (5.11.2026, #1239)"
++  ],
++  "decision_text": "כל מיזוג ל-main וכל פריסה ל-Production דורשים אישור מפורש שלי לפעולה המסוימת. אין הרשאה עומדת.",
++  "human_gate": "ZURIEL 2026-11-10",
++  "no_new_system": true,
++  "owner_check": "EXTEND_EXISTING"
++ },
+  "incident_intelligence": true,

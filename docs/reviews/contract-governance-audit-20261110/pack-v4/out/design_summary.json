@@ -1,0 +1,73 @@
+{
+ "brand_spelling_law": {
+  "from": 1,
+  "to": 2,
+  "frozen_exempt": true,
+  "base_md5": "c46d41b030771dbe1c73fa72735d3cb6",
+  "new_md5": "e409e33ffe4bcf91bc71ea3b81bd035c",
+  "label": "כתיב המותג — «סוד 1820» (עברית, עם רווח) · «sod1820» (אנגלית, בלי רווח)",
+  "base_label": "כתיב המותג — «סוד 1820» (עברית, עם רווח) · «sod1820» (אנגלית, בלי רווח)",
+  "changed_desc_lines": 0,
+  "meta_paths_changed": [
+   "owner_routing.canonical_owner",
+   "compaction_v1.canonical_owner"
+  ]
+ },
+ "canonical_colors_law": {
+  "from": 2,
+  "to": 3,
+  "frozen_exempt": true,
+  "base_md5": "1bee730eb63ac9ebfbb362ff13ecf620",
+  "new_md5": "4acdef410c49fb89d0907ea80caa4d74",
+  "label": "חוק הצבעים הקנוני v3 — Semantic Theme Roles / One Palette Tree",
+  "base_label": "חוק הצבעים הקנוני v2 — Semantic Theme Roles / One Palette Tree",
+  "changed_desc_lines": 0,
+  "meta_paths_changed": [
+   "owner_routing.canonical_owner",
+   "compaction_v1.canonical_owner"
+  ]
+ },
+ "logo_integrity_law": {
+  "from": 3,
+  "to": 4,
+  "frozen_exempt": true,
+  "base_md5": "907e50b6ab2fced3a58241aedc0ddd78",
+  "new_md5": "831d3a87ecdc0052874525200f4eb39f",
+  "label": "Brand Mark Integrity v4 — Full Hebrew Lockup Only · Crown Never Alone",
+  "base_label": "Brand Mark Integrity v3 — Full Hebrew Lockup Only · Crown Never Alone",
+  "changed_desc_lines": 2,
+  "meta_paths_changed": [
+   "owner_routing.canonical_owner",
+   "compaction_v1.canonical_owner",
+   "canonical_owner"
+  ]
+ },
+ "sod1820_canonical_identity_law": {
+  "from": 5,
+  "to": 6,
+  "frozen_exempt": true,
+  "base_md5": "4d0d256bd950e10afe58f43c07fe8056",
+  "new_md5": "7fc06a4ebcc78e202ae2ff42b22a84d4",
+  "label": "Brand Core 2029 v6 — Inseparable Crown + Hebrew Wordmark",
+  "base_label": "Brand Core 2029 v5 — Inseparable Crown + Hebrew Wordmark",
+  "changed_desc_lines": 1,
+  "meta_paths_changed": [
+   "owner_routing.canonical_owner",
+   "compaction_v1.canonical_owner",
+   "canonical_owner"
+  ]
+ },
+ "research_workspace_law": {
+  "from": 5,
+  "to": 6,
+  "frozen_exempt": false,
+  "base_md5": "382683c7c6e98f7c7d3b6c19a9bb730a",
+  "new_md5": "7220cc852c3b74da52900462aede9718",
+  "label": "Research Workspace v6 — Unified Journey 2029 / One Path Family",
+  "base_label": "Research Workspace v5 — Unified Journey 2029 / One Path Family",
+  "changed_desc_lines": 0,
+  "meta_paths_changed": [
+   "visual_owner"
+  ]
+ }
+}

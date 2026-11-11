@@ -1,0 +1,7 @@
+Branch ccr-b2565041-d94syf (local, not pushed) — commits on top of base 01d96b627694d9c611b181721daa3a384284b300:
+921a3c15024f5f81014db00bf6284d83d68f8908 Contracts: align shared design, system-frame and roadmap docs with the Legacy removal; carry the Naming law to V2
+6ab74289f8dd14fdb584bed038ff5919ec02c834 Series admission per ZURIEL decisions 6-7: all Posts of the exact author «אלון לוי» join «מה קורה הבורא»; 5003/5004 get dual membership in «מימד חמש»
+a174089bec1127b2765040bf2735cc9981ad8395 Pointers after SQL 10 (applied and verified 11.11.2026): v4/v18/v8/v6
+
+origin/main at packaging: f250da9f74f64e701dc70a16258186e555edcef7
+ahead/behind HEAD...origin/main: 3	3
