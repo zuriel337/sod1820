@@ -8,3 +8,4 @@ task_key: MAH_KORE_BORE_PKqKLjO_0nc_20261111 · מקור: work_log e54570ed… +
 - graph-proposals.json — הצעות בלבד, ממתין ל-Human Gate
 - preview.html — פריוויו סטטי
 פתוח: תמלול מילולי לא נשמר (אין video_transcripts), Method Trace, תאריכים, תמונה, ייחוסי ספר יצירה/אבוחצירא/מדרש יצחק.
+- סיווג: categories=['תיעוד אירועים'] בלבד; 'וידאו' הוא מדיום (תיקון d521ea49). 'רמזים חזקים' — Human Gate.
