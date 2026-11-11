@@ -184,6 +184,7 @@ jobs:
           test/personal-area-balanced-rtl-2029.test.mjs
           test/content-title-presentation.test.mjs
           test/dock-more-2029.test.mjs
+          test/lock-actions-tools-2029.test.mjs
           src/components/experience2029/frameRenewalShare2029.test.js
       # These ran in no workflow before (they were only run by hand with npm run test:cn-sg-security), so nothing stood between a change to the edge
       # middleware and Production. The production entry re-exports the root middleware.js, so a change to either is covered by the same run.

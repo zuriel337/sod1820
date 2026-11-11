@@ -23,6 +23,7 @@ import { buildExactReturnPatch, researchContextNumber } from "../../lib/research
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { razielSavedSyncCopy, canRetryRazielSync, RAZIEL_LOCAL_SAVE_NOTICE } from "../../lib/research/razielSavedSync2029.js";
 import { useFeatureState } from "../MaintenanceLock.jsx";
+import FeatureClosedNotice2029 from "./FeatureClosedNotice2029.jsx";
 import { publicReadingPath } from "../../lib/publicReadingRelease2029.js";
 import { adminOpenClosedDestinations } from "./adminOpenDestinations2029.js";
 import { CORE_PUBLIC_LAUNCH_2029, publicLaunchActionsLocked, personalActionsLocked } from "../../lib/publicLaunch2029.js";
@@ -1516,6 +1517,10 @@ function SystemFrame2029Body({
   const booksFeature = useFeatureState("lock_books", { requireFlag: true });
   const numberFeature = useFeatureState("lock_number", { requireFlag: true });
   const elsFeature = useFeatureState("lock_els");
+  // "פעולות" and "כלים" (ZURIEL 11.11.2026: closed · בבנייה): availability comes ONLY from site_flags through the canonical hook. requireFlag fails
+  // closed when the row is missing; the administrator keeps the existing admin bypass. A closed panel renders the notice only (no projection, no read).
+  const actionsFeature = useFeatureState("lock_context_actions", { requireFlag: true });
+  const toolsFeature = useFeatureState("lock_context_tools", { requireFlag: true });
   const heichalLocked = heichalFeature.loading || heichalFeature.blocked;
   const contextLocked = authLoading || isAdmin !== true;
   const razielLocked = contextLocked || razielFeature.loading || razielFeature.blocked;
@@ -2156,6 +2161,7 @@ function SystemFrame2029Body({
     if (transientKind === TRANSIENT.NEWSLETTER) return <PanelShell {...common} panelKind="newsletter" icon="✉" kicker="עדכוני האתר" title="עולם חדש של גילוי נבנה עכשיו"><GuestNewsletterInvite2029 onClose={closeTransient} /></PanelShell>;
     if (transientKind === TRANSIENT.SEARCH) return <PanelShell {...common} icon="⌕" kicker="תוכן האתר" title="חיפוש באתר"><SiteSearch2029 query={siteSearchQuery} setQuery={setSiteSearchQuery} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.COMMAND) return <PanelShell {...common} icon="123" kicker="גימטריה" title="מספר / ביטוי"><CommandProjection query={commandQuery} setQuery={setCommandQuery} onSubmit={submitCommand} onClose={closeTransient} /></PanelShell>;
+    if (transientKind === TRANSIENT.ACTION && actionsFeature.blocked) return <PanelShell {...common} icon="◎" kicker="פעולות" title="פעולות"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><FeatureClosedNotice2029 state={actionsFeature} title="פעולות" compact /></PanelShell>;
     if (transientKind === TRANSIENT.ACTION) return <PanelShell {...common} icon="◎" kicker="פעולות" title={`פעולה · ${contextDisplayTitle(pageContext, inspectTarget) || "ההקשר הנוכחי"}`}><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><ActionProjection surface={surface} target={inspectTarget} context={pageContext} onInspect={openInspect} onCapability={openCapability} onRaziel={openRaziel} razielLocked={razielLocked} go={go} /></PanelShell>;
     if (transientKind === TRANSIENT.CAPABILITY) {
       const capability = transient?.payload?.capability || null;
@@ -2186,6 +2192,7 @@ function SystemFrame2029Body({
       return <PanelShell {...common} panelKind="more" icon={<NavigationIcon2029 name={shareOnly ? "share" : "kingdom"} />} kicker={shareOnly ? "שיתוף" : "סוד 1820"} title={shareOnly ? "שיתוף העמוד" : "עוד"}>
         <MorePanel2029 shareOnly={shareOnly} context={contextTitle}
           onAction={() => openAction(inspectTarget)} onTools={openTools} onSearch={openSiteSearch}
+          actionsBuilding={actionsFeature.blocked} toolsBuilding={toolsFeature.blocked}
           personal={{ signedIn: Boolean(user), name: profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || "", avatar: user ? <UserAvatar2029 user={user} profile={profile} /> : null }}
           onPersonal={openWorkspace}
           adminDestinations={adminOpenClosedDestinations(isAdmin)} onDestination={(item) => { setTransient(null); go(item.href); }}
@@ -2193,6 +2200,7 @@ function SystemFrame2029Body({
           share={shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", title: title || "SOD1820", surface } : null} />
       </PanelShell>;
     }
+    if (transientKind === TRANSIENT.TOOLS && toolsFeature.blocked) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><FeatureClosedNotice2029 state={toolsFeature} title="כלים" compact /></PanelShell>;
     if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><button className="sod29-action" type="button" onClick={openSiteSearch}>חיפוש באתר</button><ToolsProjection surface={surface} target={inspectTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} panelKind="raziel" icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={pageContext} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} onSignup={openWorkspace} /></PanelShell>;

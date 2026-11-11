@@ -58,16 +58,17 @@ export function MoreInstall2029() {
 }
 
 export default function MorePanel2029({ shareOnly = false, context = "", onAction, onTools, onSearch, personal, onPersonal,
-  adminDestinations = [], onDestination, toolDockReturn = null, share = null }) {
+  adminDestinations = [], onDestination, toolDockReturn = null, share = null, actionsBuilding = false, toolsBuilding = false }) {
   const [candidate] = useState(reviewCandidate);
   return <div className="sod29-more" data-more-panel={shareOnly ? "share" : "full"} data-royal-candidate={candidate}>
     {!shareOnly ? <>
       {context ? <p className="sod29-more-context"><small>ההקשר לפעולות</small><strong dir="auto">{context}</strong></p> : null}
       <section className="sod29-more-section" data-more-section="main" aria-label="פעולות, כלים ואזור אישי">
         <RoyalTileGrid2029 label="פעולות, כלים ואזור אישי" columns="4">
-          <RoyalTile2029 icon="action" title="פעולות" hint={context ? "על מה שמוצג כאן" : "על העמוד הזה"} onClick={onAction} testId="actions" />
+          {/* Closed · בבנייה comes from the frame's useFeatureState (site_flags), never from a local flag; the tile opens the closed notice. */}
+          <RoyalTile2029 icon="action" title="פעולות" hint={actionsBuilding ? "סגור · בבנייה" : context ? "על מה שמוצג כאן" : "על העמוד הזה"} onClick={onAction} testId="actions" />
           <RoyalTile2029 icon="search" title="חיפוש" hint="בכל האתר" onClick={onSearch} testId="search" />
-          <RoyalTile2029 icon="tools" title="כלים" hint="כלי המחקר לעמוד" onClick={onTools} testId="tools" />
+          <RoyalTile2029 icon="tools" title="כלים" hint={toolsBuilding ? "סגור · בבנייה" : "כלי המחקר לעמוד"} onClick={onTools} testId="tools" />
           <RoyalTile2029 icon="personal" art={personal?.avatar || null} title={personal?.signedIn ? "האזור שלי" : "כניסה"}
             hint={personal?.signedIn ? (personal.name || "שמירות ומסע אישי") : "לאזור האישי"} onClick={onPersonal} testId="personal" />
           {toolDockReturn ? <RoyalTile2029 icon="cipher" title="כלי הצופן" label="חזור לכלי הצופן" hint="חזרה לכלי שהיה פתוח" onClick={toolDockReturn} testId="tool-return" /> : null}
