@@ -1,4 +1,4 @@
-# סטטוס קובצי ה־SQL — נכון ל־11.11.2026 04:41 UTC
+# סטטוס קובצי ה־SQL — נכון ל־11.11.2026 04:41 UTC, עודכן 06:30 UTC (‏11_ הוחלף ב־11b)
 
 **כלל קריאה:** ההערות בראש כל קובץ נכתבו לפני ההרצה (״PROPOSAL ONLY. NOT EXECUTED.״), והקבצים נשמרו בלי שינוי, כדי שה־SHA-256 שלהם יישאר זהה לזה שאושר. **הסטטוס בפועל מופיע כאן.** המקור הקובע למצב החי הוא המסד `linswmnnkjxvweumprav`, ולא קובץ זה.
 
@@ -8,8 +8,10 @@
 | `10_p0_release_policy.sql` | `d1ac658b6e2ace922ac5d32a3021f6ef8aa88dc06390b05aca095da0d48963fb` | **CONTENT REFERENCE — NOT EXECUTED** | התוכן המאושר. הוחל באמצעות `10e_`, עם מצב סופי זהה (הוכח בסימולציה). הרצה שלו עכשיו תסורב (״a version above v3 already exists״) |
 | `19e_p0_release_policy_ROLLBACK_EXEC.sql` | `a1bbb3c2c73c0b5c3c5b31affecb4baa3461885734dbd810d3d3a52ed7526861` | **NOT EXECUTED — לא מאושר** | ה־rollback של SQL 10. תקף רק כל עוד שש השורות נשארות במצב שהוחל |
 | `19_p0_release_policy_ROLLBACK.sql` | `cbe420f72e2ad43bcf244aee1e49dd363ead9f4d1b499000c2ebc3adc0b0d9c4` | **NOT EXECUTED** | שקול ל־`19e_`, אבל שמונה פקודות וכ־26 אלף טוקנים |
-| `11_admin_suggestion_decide_text.sql` | `a43b12ca9542b74f49488c180ab6cccbaba8794437270c819bea6619c0a47a1a` | **NOT APPLIED** | דורש אישור DB נפרד. עד אז הפונקציה כותבת טקסט מיושן (v2) |
-| `18_admin_suggestion_decide_ROLLBACK.sql` | `da9d08e77f63f32c0be7ee2223e0da4f34729871c925b114fff96d2136681701` | **NOT EXECUTED** | |
+| `11_admin_suggestion_decide_text.sql` | `a43b12ca9542b74f49488c180ab6cccbaba8794437270c819bea6619c0a47a1a` | **SUPERSEDED — אין להריץ** (11.11.2026) | הקובץ משנה רק טקסט, והפונקציה ממשיכה ליצור ASSIGNMENT ל־CLAUDE שמופעל אוטומטית (סימולציה O5). מוחלף ב־11b. אם בכל זאת יורץ, 11b יסרב לרוץ אחריו |
+| `18_admin_suggestion_decide_ROLLBACK.sql` | `da9d08e77f63f32c0be7ee2223e0da4f34729871c925b114fff96d2136681701` | **SUPERSEDED** | ה־rollback של 11_ |
+| `11b_admin_suggestion_decide_not_activated.sql` (ב־`../../gap-closure-20261111/sql11b/sql/`) | `11c5097a59c35abcd6aa07da003e65114c79b78329aa10217e7acb627b173878` | **NOT EXECUTED — הצעה** | אישור המלצה בלי הפעלה: רשומה פסיבית ל־ZURIEL. ממתין להחלטה על השאלה ב־`PROPOSAL.md` ולאישור DB לפי SHA-256 |
+| `18b_admin_suggestion_decide_not_activated_ROLLBACK.sql` (באותה תיקייה) | `e4e8144e18261bbefaad1da7122103a4f66b8d8f6a6a14033091237ffef705b1` | **NOT EXECUTED** | משחזר את הבסיס, כולל ההפעלה האוטומטית |
 | `20_number_principles_to_2029_owners.sql` | `922aef030633ee0267cd502e904749fc362fe7b2cde40c1eb38fd3ecf91d367b` | **NOT APPLIED** | `platform_tiers_law` v5→v6 · `canonical_methods_registry_law` v6→v7 |
 | `29_number_principles_ROLLBACK.sql` | `6c9401c252a80b25be411c6bd512f819c92e47d94e9b0f228ab37a413c578bb9` | **NOT EXECUTED** | |
 | `30_STAGE3_retire_number_laws.sql` | `804c9bb7062fe9ba71f75028ef3591fcf284ab5ad8ac99ab988fc5a02b08ff8f` | **NOT APPLIED** | נעול: מסרב לרוץ לפני ש־`20_` הוחל ואומת |
