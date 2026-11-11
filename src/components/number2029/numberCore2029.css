@@ -2221,7 +2221,13 @@
   font-size:var(--sod29-number-ui,14px);
   overflow:hidden;
   text-overflow:ellipsis;
-  white-space:nowrap;
+  /* Typography V2: at the readable size a longer expression gets a second line before it is cut (a 17-letter chip was cut at 16px on 1440). */
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  line-height:1.25;
 }
 .sod29-number-v10-chip-list small{
   grid-area:method;
@@ -2443,9 +2449,10 @@
 .sod29-number-v10-calculation-card{
   width:100%;
   min-height:42px;
-  display:grid;
-  grid-template-columns:auto minmax(0,1fr) auto;
-  gap:8px;
+  /* Typography V2: the three parts wrap onto a second row instead of squeezing the title into a 66px column (it was cut to "משיח · …" at 16px on a phone). */
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px 8px;
   align-items:center;
   padding:8px 10px;
   border:1px solid color-mix(in srgb,var(--s29-accent) 24%,var(--s29-line));
@@ -2462,10 +2469,15 @@
   font-weight:900;
 }
 .sod29-number-v10-calculation-card>strong{
+  flex:1 1 150px;
   min-width:0;
   overflow:hidden;
   text-overflow:ellipsis;
-  white-space:nowrap;
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:2;
+  white-space:normal;
+  overflow-wrap:anywhere;
   color:var(--s29-ink);
   font-size:var(--sod29-number-support,14px);
 }
@@ -2473,6 +2485,7 @@
   color:var(--s29-muted);
   font-size:var(--sod29-number-support,14px);
   white-space:nowrap;
+  margin-inline-start:auto;
 }
 .sod29-number-v10-stage-actions{
   display:grid;

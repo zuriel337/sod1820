@@ -70,3 +70,22 @@ test("the life seal label has its own panel pill over the coverage ring and the 
   const page = read("src/pages/number2029.css");
   assert.doesNotMatch(page, /v10-life-seal\{flex:none;width:6\d?px/);
 });
+
+test("the expression chips in the chip list get a second line before they are cut, like the regular-expression chips", () => {
+  const css = read("src/components/number2029/numberCore2029.css");
+  const rule = css.match(/\.sod29-number-v10-chip-list strong\{[^}]*\}/)?.[0] || "";
+  assert.match(rule, /-webkit-line-clamp:\s*2/);
+  assert.match(rule, /white-space:\s*normal/);
+  assert.doesNotMatch(rule, /white-space:\s*nowrap/);
+});
+
+test("the calculation card wraps its parts instead of squeezing the title into a fixed column", () => {
+  const css = read("src/components/number2029/numberCore2029.css");
+  const card = css.match(/\.sod29-number-v10-calculation-card\{[^}]*\}/)?.[0] || "";
+  assert.match(card, /display:\s*flex/);
+  assert.match(card, /flex-wrap:\s*wrap/);
+  assert.doesNotMatch(card, /grid-template-columns:\s*auto minmax\(0,1fr\) auto/);
+  const title = css.match(/\.sod29-number-v10-calculation-card>strong\{[^}]*\}/)?.[0] || "";
+  assert.match(title, /-webkit-line-clamp:\s*2/);
+  assert.doesNotMatch(title, /white-space:\s*nowrap/);
+});

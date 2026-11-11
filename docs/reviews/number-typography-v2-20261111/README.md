@@ -5,7 +5,7 @@ The one handoff document of this work. Branch only: **not merged, not deployed, 
 | | |
 |---|---|
 | Branch | `claude/number-typography-v2-20261111` (PR #1311) |
-| Base | `origin/main` `367bd62ee` (merged in once, no conflicts; the branch is 0 commits behind) |
+| Base | `origin/main` `d5fa184f8` (#1312, "עכשיו · המרכז"), merged in with no conflict; the branch is 0 commits behind. See "Integration with `main`" below. |
 | Head | see the PR; the exact SHA under review is given with the Preview link in the hand-over message |
 | Protected Preview | built from the head SHA with `scripts/build-public-reading-production.mjs --protected-review` on the Preview target. Noindex, Production and cutover denied. The share link is given in chat only. |
 | Production when written | still the old behaviour (read with a Googlebot user agent): `/number/0358` answers 200 and `/2029/number/358` answers 200 |
@@ -16,7 +16,7 @@ The one handoff document of this work. Branch only: **not merged, not deployed, 
 
 | Area | Change | SEO policy touched? |
 |---|---|---|
-| Typography V2 | CSS only plus `data-expression-size` and one semantic `<h1>` (the expression or the number) in `NumberCore2029.jsx`. Every `font-size` literal below 14px on the number, expression and drawer surfaces (and the timeline, verse cards and method lens they embed) is an alias of the canonical `--s29-type-*` tokens: 14px micro floor (15px supporting labels, 16px tiny controls from 1024px), 16px small/ui. The expression heading follows its length (46px desktop / 28px phone, down to 21px for a verse) and wraps. Regular-expression chips get a second line; the activity chips wrap; the "life" seal is 74px with the label on its own pill so it reads over the coverage ring in day, parchment and night. The focal number is unchanged (only its fit-to-container floor rose from 16px to 28px). The compact drawer keeps the 14px floor. | No |
+| Typography V2 | CSS only plus `data-expression-size` and one semantic `<h1>` (the expression or the number) in `NumberCore2029.jsx`. Every `font-size` literal below 14px on the number, expression and drawer surfaces (and the timeline, verse cards and method lens they embed) is an alias of the canonical `--s29-type-*` tokens: 14px micro floor (15px supporting labels, 16px tiny controls from 1024px), 16px small/ui. The expression heading follows its length (46px desktop / 28px phone, down to 21px for a verse) and wraps. Regular-expression chips and the expression chips of the chip list get a second line before they are cut; the activity chips wrap; the "איך חישבנו?" card wraps its title onto a second row; the "life" seal is 74px with the label on its own pill so it reads over the coverage ring in day, parchment and night. The focal number is unchanged (only its fit-to-container floor rose from 16px to 28px). The compact drawer keeps the 14px floor. | No |
 | Canonical address | One resolver (`src/lib/research/numberPageAddress.js`, with the rule itself in `publicReadingRelease2029.js`). See the table below. About 40 files link through the shared base; the shared frame recognises `/number/`. | No (redirects only) |
 | `focus=dna` | The legacy calculator pointer `?focus=dna` (and its method) means "convergence axes": the page opens as the plain `/number/N` and scrolls to the existing convergence ("עולמות") section. It is never shown as an expression. `cross` still works. | No |
 | Robots | After render the browser tag is `noindex, follow` for a public page that is not admitted (it was `noindex, nofollow`, against the server tag); private and closed pages keep `nofollow`. A number beyond 32 bits answers 200 `noindex, follow` (it answered 503). | **Only this follow fix.** The admission rule is not changed. |
@@ -80,11 +80,22 @@ All in the public-release mode unless noted. "Both spellings" is `/number/<n>` a
 | `canonical-verse-cards-2029.css` | `CanonicalVerseCards2029` in the Number living world and in `PersonJourney` | the Number page and the **Life Journey** (closed to visitors: lock flag) |
 | `methodLens2029.css` | `MethodLens2029` in `NumberCore2029` and in the calculator pages | the Number page and **Calculator** (`/gematria`, Pro) |
 
-**What was checked on these screens:** in progress at the time of this commit (before/after measurement of text sizes and overflow on the Post timeline, the World timeline, the calculator method lens and the drawer opened from a Post). The result is added to this section when it is complete.
+**What was checked on these screens.** Read-only Chromium against live data; before = a build of clean `main` (`d5fa184f8`), after = this branch's build; 390 and 1440px, day, parchment and night; the share of visible characters by font size and the horizontal page overflow.
+
+| Screen (how it was opened) | Result |
+|---|---|
+| Number drawer, opened from a Post number signal (`/post/flydubai-fz1073-363-14000-remzei-geula`) | drawer text below 14px: 98% → 0%; at 14-16px: about 1% → 94-98% (the compact drawer keeps the 14px floor); no overflow |
+| The Post screen with that drawer open | text below 14px: 14.4% → 4.7% (390), 15.7% → 6.4% (1440); no overflow |
+| Post page timeline (`PostTimeline2029`) | **unchanged**: the figures are identical before and after (about 80% of the timeline's own characters are below 14px in both). Its sizes come from its own stylesheet, so this branch does not change it. Existing, outside this scope |
+| World flight-story timeline (`/world`) | unchanged; 0% below 14px; no overflow |
+| Calculator method lens (`/gematria?q=משיח&m=רגיל`) | unchanged; 0% below 14px in the lens; no overflow |
+| Life Journey verse cards | not reachable for visitors (lock flag); the same `CanonicalVerseCards2029` is measured through the Number page |
+
+The same measurement found two cuts that the larger text caused on the Number page itself. Both are fixed, each with a regression test: the expression chips of the chip list (a 17-letter chip was cut at 16px on 1440) get a second line, and the "איך חישבנו?" card wraps its title onto a second row instead of squeezing it into a 66px column on a phone.
 
 ## Measured on the Number page
 
-Historical (first local build of this branch against a local build of the base `71709e4ba`; Chromium, live Supabase data; 1440 / 390 / 320px, dark, light, parchment; `358`, `משיח`, a 36-letter and a 200-letter expression, 28 cases). Taken before the H1, the chip wrap and the life-seal pill.
+Historical, superseded by the table below (first local build of this branch against a local build of the base `71709e4ba`; Chromium, live Supabase data; 1440 / 390 / 320px, dark, light, parchment; `358`, `משיח`, a 36-letter and a 200-letter expression, 28 cases). Taken before the H1, the chip wrap and the life-seal pill.
 
 | | Before | After (at that time) |
 |---|---|---|
@@ -95,7 +106,22 @@ Historical (first local build of this branch against a local build of the base `
 | Expression heading | 18px (1440), 22px (phone) | 46 / 28 / 21 by length (1440 short/mid/long), 28 / 21 / 21 (phone) |
 | Horizontal page overflow | none | none |
 
-Current re-measurement at the head: in progress at the time of this commit; added here when complete.
+Re-measured on the merged head (the build of clean `main` `d5fa184f8` against this branch's build; the same 28 cases, measured one after the other with nothing else running):
+
+| | `main` | this branch |
+|---|---|---|
+| Text below 14px | 63.4-76.8% | 0.2% (the shared surface-map label "אתה כאן" and decorative glyphs) |
+| Text at 16px or more, phone (390, 320) | 14.7-23.4% | 48.5-57.6% |
+| Text at 16px or more, 1440px | 16.1-29.8% | 69.7-72.6% |
+| Focal number (1440 · 390 · 320) | 104 · 65.6 · 40.2px | unchanged |
+| Expression heading, a number or a short expression | 18px (1440), 22px (phone) | 46px (1440), 28px (phone) |
+| Expression heading, a sentence | 18px, 22px | 28px (1440), 21px (phone) |
+| Expression heading, a verse | 18px, 22px | 21px |
+| Elements cut with an ellipsis, over the 28 cases | 41 | 13 (no case has more than on `main`) |
+| Horizontal page overflow | none | none |
+| Page height for 358 (1440 · 390) | 8,908 · 11,487px | 9,540 · 12,380px (+7% · +8%) |
+
+A sentence or a verse on a phone is 21px, 1px under the earlier 22px: the heading steps down by length on purpose and wraps in full, while the text around it grew.
 
 ## Acceptance checklist on the Preview (desktop and phone, three themes)
 
@@ -108,6 +134,16 @@ Switch the theme with the header button "מראה: …" (יום / קלף / לי�
 5. **Deeper and back**: on `/number/358` tap the chip "משיח" in the regular-expression row: the address gets `?focus=משיח` and the heading changes; reload keeps it; "↩" returns to `/number/358`.
 6. **Old addresses**: `/2029/number/358?focus=משיח` and `/number/0358` each end at one canonical `/number/…` address.
 7. **`focus=dna`**: `/number/358?from=calc&focus=dna&method=גדול` opens the plain number page with the convergence section in view and no expression "dna".
+
+## Integration with `main` (#1312, "עכשיו · המרכז")
+
+`main` moved to `d5fa184f8` while this branch was under review. `HomeComposition2029.jsx` is the only file both sides edited (#1312: the Now · centre section; this branch: one import and two Number links). The merge had no conflict and was checked in both directions:
+
+- Nothing of #1312 is lost: the 29 files it changed are in the branch with exactly the same per-file change counts as in `main`.
+- Nothing of this branch is lost: the 81 files it changed differ from `main` exactly as they did before the merge.
+- In `HomeComposition2029.jsx` both survive: the Royal-layer markers (`r29 r29-hall`, `data-tone`, `r29-card`, the "חדש" badge) and `data-home-now-center` from #1312, next to the `NUMBER_PAGE_BASE` import and its two links. #1312 adds no Number link of its own.
+- After the merge: every step of the `release-contracts-2029` job (22, including "Now centre contracts") passes locally; 35 of the 36 Node steps of the 2029 Isolation Gate pass locally and the 36th (A3, a disposable Auth/Edge/PostgreSQL) is a CI-only job; 19 browser cases pass on the merged build.
+- `public-frame-context-2029.browser.cjs` (not wired to CI) fails 34 of 38 cases on clean `main` and on the merged branch alike (the same cases; the bottom-bar buttons "כאן" and "כלים" are closed by live site flags and the test was written when they were open). It is not a result of this branch.
 
 ## Not done and open
 
