@@ -1,14 +1,16 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-const frame = fs.readFileSync("src/components/experience2029/SystemFrame2029.jsx", "utf8");
+// The personal area is the frame's projection (SystemFrame2029) over the pure card model and the Royal presentation (PersonalHome2029).
+const frame = ["src/components/experience2029/SystemFrame2029.jsx", "src/components/experience2029/PersonalHome2029.jsx", "src/lib/userCenter/personalArea2029.js"]
+  .map(file => fs.readFileSync(file, "utf8")).join("\n");
 const css = fs.readFileSync("src/components/experience2029/myWorkspace2029.css", "utf8");
 
 for (const label of [
-  "המרחב האישי שלי",
+  "האזור האישי שלי",
   "החשבון שלי",
   "הדף שלי",
-  "המחקר שלי",
+  "המחקר והשמורים",
   "ההתקדמות שלי",
   "מעקב ועדכונים",
   "מסע החיים שלי",
@@ -19,9 +21,8 @@ for (const label of [
   "החיבור לרזיאל",
 ]) assert.match(frame, new RegExp(label));
 
-assert.match(frame, /go\("\/2029\/journey"\)/);
+assert.match(frame, /href: "\/2029\/journey"/);
 assert.match(frame, /data-workspace-section="research"/);
-assert.match(frame, /שמירה · חזרה מדויקת/);
 assert.match(frame, /בבנייה/);
 
 
@@ -46,7 +47,7 @@ for (const [name, publicReading, preview, functional, expected] of [
 ]) assert.equal(chooseCreation(publicReading, preview, functional), expected, name);
 assert.match(authEntry, /signOut\(\{ scope: "local" \}\)/);
 assert.match(frame, /signOut/);
-assert.match(frame, /onClick: openAccount/);
+assert.match(frame, /focusAccount/);
 assert.match(frame, /<AccountConnection2029 user=\{user\} profile=\{profile\} signOut=\{signOut\} \/>/);
 assert.doesNotMatch(frame, /AuthPage|goto?\("\/login/);
 assert.doesNotMatch(frame, /createClient\(/);
@@ -82,12 +83,16 @@ assert.match(frame, /<WorkspaceProjection key=\{authLoading \? "auth-loading" : 
 assert.match(frame, /data-workspace-section="follow"/);
 assert.match(frame, /אחרי מה אני עוקב/);
 assert.doesNotMatch(frame, /supabase\.from\(|\.rpc\(/);
-const membership = frame.slice(frame.indexOf('<section data-workspace-section="access-membership"'), frame.indexOf('<section className="sod29-workspace-home"'));
+// Access and membership is a closed card of the model: no price, checkout, entitlement or action of its own.
+const model = fs.readFileSync("src/lib/userCenter/personalArea2029.js", "utf8");
+const home = fs.readFileSync("src/components/experience2029/PersonalHome2029.jsx", "utf8");
+const membership = model.slice(model.indexOf('id: "access"'), model.indexOf("return cards;"));
 assert.match(membership, /גישה ומנוי · בהכנה/);
-assert.doesNotMatch(membership, /₪|checkout|cardcom|entitlement|active|monthly|annually|onClick|href=/i);
-// follow list sits after research section; summary count near top
-assert.ok(frame.indexOf('data-workspace-section="follow"') > frame.indexOf('<section data-workspace-section="research"'));
-assert.ok(frame.indexOf('data-workspace-section="pulse"') < frame.indexOf('<section data-workspace-section="research"'));
+assert.match(membership, /to: null/);
+assert.doesNotMatch(membership, /₪|checkout|cardcom|entitlement|active|monthly|annually|onClick|href/i);
+// the follow card comes after the research card; the account summary (pulse) is the first section and the research list opens from the cards below it
+assert.ok(model.indexOf('id: "follow"') > model.indexOf('id: "research"'));
+assert.ok(home.indexOf('data-workspace-section="pulse"') < home.lastIndexOf("PERSONAL_GROUPS.map"));
 // Personal entry: the single existing command bar reaches WORKSPACE through the typed Now "for me" tab,
 // and the top bar carries a visible sign-in / name control. No separate avatar button in the bar.
 assert.equal((frame.match(/data-command-mode="global"/g) || []).length, 1);
