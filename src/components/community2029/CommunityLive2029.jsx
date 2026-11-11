@@ -75,7 +75,8 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
   const location = useLocation();
   const accountId = row.authorUserId || row.linkedUserId || VERIFIED_ARCHIVE_PROFILES[row.authorKey]?.accountUserId;
   const account = accountId ? accountProfiles[accountId] : null;
-  const name = account?.display_name || account?.username || row.authorName;
+  // An account without a display name shows the reviewed name of its historical person (not its login name).
+  const name = account?.display_name || (accountId ? VERIFIED_ARCHIVE_PROFILES[`user:${accountId}`]?.name : null) || account?.username || row.authorName;
   const isOnline = Boolean(accountId) && onlinePresenceHolder.current.has(accountId);
   const badge = <UserBadge colorfulFallback online={isOnline} fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
     <CommunityMessageTime2029 value={row.createdAt} formatDate={formatDate} />
@@ -738,7 +739,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const baseline = VERIFIED_ARCHIVE_PROFILES[selectedAuthorId];
   const linkedAccountId = selectedAuthorId?.startsWith("user:") ? selectedAuthorId.slice(5) : profileRows.find((row) => row.linkedUserId)?.linkedUserId || baseline?.accountUserId;
   const linkedAccount = linkedAccountId ? accountProfiles[linkedAccountId] : null;
-  const memberName = linkedAccount?.display_name || linkedAccount?.username || baseline?.name || profileRows[0]?.authorName || "חבר הקהילה";
+  const memberName = linkedAccount?.display_name || baseline?.name || linkedAccount?.username || profileRows[0]?.authorName || "חבר הקהילה";
   const isOwner = Boolean(user?.id && (linkedAccountId === user.id || selectedAuthorId === `user:${user.id}`));
 
   const closeProfile = () => setParams((current) => {
@@ -908,10 +909,12 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           communityOwnProfileHref={!actionsLocked && isOwner ? writerPersonalHref("profile", { returnTo: window.location.pathname + window.location.search }) : null}
           onCommunityReply={actionsLocked ? undefined : (item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
-        {!actionsLocked ? <div className="sod29-community-entry-tools">{user ? <CommunitySignIn compact accountActions={<LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} />} /> : <div className="sod29-community-auth-buttons" role="group" aria-label="כניסה לקהילה">
+        {!actionsLocked ? <div className="sod29-community-entry-tools">{user ? <CommunitySignIn compact /> : <div className="sod29-community-auth-buttons" role="group" aria-label="כניסה לקהילה">
           <Link className="sod29-community-auth-btn" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>התחברות</Link>
           <Link className="sod29-community-auth-btn is-signup" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה</Link>
-        </div>}</div> : null}
+        </div>}
+          {/* ZURIEL 11.11: the "my account from the old chat" row is back, visible at the top of the chat (it had moved inside the settings menu). */}
+          <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /></div> : null}
         <CommunityTreeHints2029 hints={treeHints} />
         {canModerateGuests ? <CommunityGuestReviewPanel2029 pending={guestPending} onReview={reviewGuest} /> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
