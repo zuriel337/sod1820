@@ -207,7 +207,7 @@ Product homes such as Home, World, Heichal, Archive, My Personal Area and surfac
 | Responsibility | Canonical owner |
 |---|---|
 | traffic / analytics measurement truth | `traffic_intelligence_law` **v11 ACTIVE** |
-| system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v6 ACTIVE** |
+| system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v7 ACTIVE** |
 | AI/tool completion/cost execution contract | `ai_analyze_contract` under System/Raziel routing |
 
 ## 4. Active-tree freeze — CLOSED G2 result

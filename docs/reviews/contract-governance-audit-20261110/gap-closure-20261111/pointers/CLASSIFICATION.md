@@ -1,5 +1,7 @@
 # הפניות לגרסאות החוקים: מה פעיל, מה היסטורי
 
+> **עדכון, 11.11.2026 אחרי החלת 11c (12:15 UTC):** ‏`system_suggestions_law` v7 פעיל, ו־v6 נשמר כהיסטוריה. שתי ההפניות הפעילות לחוק הזה עודכנו מ־v6 ל־v7: `SOD1820_MASTER_OWNER_INDEX.md:210` ו־`SOD1820_MASTER_ROADMAP.md:188`. סריקה חוזרת של קובצי ההפניה הפעילים (`CLAUDE.md`, ‏`AGENTS.md`, ‏`AGENT_HANDOFF.md`, אינדקס הבעלים, ה־Roadmap ו־`SOD1820_MASTER_STATE.md`) לא מצאה הפניה פעילה נוספת לחוק הזה עם גרסה. ‏`SOD1820_MASTER_OWNER_INDEX.md:155` מציין את החוק בלי גרסה, ו־`SOD1820_MASTER_STATE.md:392` הוא checkpoint מתוארך (27.9.2026). שאר האזכורים נשארים כפי שסווגו: היסטוריים, SQL ותוויות Edge. מתחת לבאנר: הסיווג כפי שנכתב ב־05:32 UTC, בלי שינוי.
+
 הגרסאות הפעילות במסד (11.11.2026):
 - ‏`deploy_on_request` v4
 - ‏`inter_agent_coordination_law` v18
