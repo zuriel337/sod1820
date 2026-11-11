@@ -49,6 +49,7 @@ function installPublicReadingWorker(policy) {
     || url.hostname === "doubleclick.net" || url.hostname.endsWith(".doubleclick.net")
     || url.hostname.endsWith(".adtrafficquality.google") || url.hostname === "googleadservices.com" || url.hostname.endsWith(".googleadservices.com")
     || url.hostname === "adservice.google.com" || url.hostname === "adservice.google.co.il"
+    || url.hostname === "fundingchoicesmessages.google.com"
     || url.hostname === "www.google.com" && /^\/(?:pagead\/|ads\/)/.test(url.pathname));
   const denied = () => new Response(JSON.stringify({ error: "public_reading_operation_denied" }), {
     status: 403, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
@@ -370,9 +371,9 @@ function installPublicReadingWorker(policy) {
             || typeof body.event_id !== "string" || body.event_id.length > 80
             || body.event_source_url !== undefined && (typeof body.event_source_url !== "string" || body.event_source_url.length > 2048)
             || body.custom_data !== undefined && !plainObject(body.custom_data)) return denied();
-          const key = policy.anonKey || req.headers.get("apikey") || "";
-          return readFetch(new Request(url.href, { method: "POST", signal: req.signal,
-            headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" }, body: raw }));
+          // The function is public (verify_jwt off) and its CORS answer allows only the content-type header, so sending apikey/Authorization
+          // makes the browser's preflight fail and the POST never leaves (seen live on 11.11: only OPTIONS reached the function). No key, no session.
+          return readFetch(new Request(url.href, { method: "POST", signal: req.signal, headers: { "Content-Type": "application/json" }, body: raw }));
         })().catch(() => denied()));
         return;
       }

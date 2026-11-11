@@ -72,6 +72,8 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
     try {
       if (host === SUPABASE_HOST) {
         const cors = { 'access-control-allow-origin': 'https://sod1820.co.il', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS', 'access-control-expose-headers': '*' };
+        // The real meta-capi function answers CORS with Allow-Headers: content-type only; a request carrying apikey/Authorization fails the preflight.
+        if (url.pathname === '/functions/v1/meta-capi') { cors['access-control-allow-origin'] = '*'; cors['access-control-allow-headers'] = 'content-type'; cors['access-control-allow-methods'] = 'POST, OPTIONS'; }
         if (req.method === 'OPTIONS') { res.writeHead(204, cors); return res.end(); }
         // A provider round trip: the person "signs in" at Google/Facebook and Auth redirects back with a PKCE code bound to the request's challenge.
         if (url.pathname === '/auth/v1/authorize' && req.method === 'GET') {

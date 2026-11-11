@@ -76,7 +76,7 @@ test("the published CSP admits every host the real gtag.js transports use", () =
 test("Meta Pixel and AdSense transports pass through the worker untouched (ZURIEL, 11.11.2026), with the published CSP admitting their hosts", async () => {
   const urls = ["https://www.facebook.com/tr/?id=1&ev=PageView", "https://connect.facebook.net/en_US/fbevents.js", "https://pagead2.googlesyndication.com/getconfig/abg_config?client=ca-pub-1",
     "https://pagead2.googlesyndication.com/pagead/ping?e=1", "https://googleads.g.doubleclick.net/pagead/ads", "https://ep1.adtrafficquality.google/getconfig/sodar", "https://ep2.adtrafficquality.google/sodar/x",
-    "https://www.google.com/pagead/1p-user-list/1/", "https://adservice.google.co.il/adsid/integrator.js"];
+    "https://www.google.com/pagead/1p-user-list/1/", "https://adservice.google.co.il/adsid/integrator.js", "https://fundingchoicesmessages.google.com/el/AGSKWxX?abc=1"];
   for (const url of urls) for (const method of ["GET", "POST"]) {
     const w = worker();
     assert.equal(await w.send(url, method), "passthrough", method + " " + url);
@@ -97,7 +97,8 @@ test("Meta Conversions API relay: only an anonymous, bounded, fixed-shape POST r
   assert.equal(await w.send(capi, "POST", JSON.stringify(good)), 204);
   assert.equal(w.calls.length, 1);
   assert.equal(w.calls[0].url, capi);
-  assert.equal(w.calls[0].headers.get("apikey"), "public-fixture");
+  // The function allows only content-type in its CORS answer: any other header would fail the browser preflight (seen live on 11.11).
+  assert.deepEqual([...w.calls[0].headers.keys()], ["content-type"]);
   assert.equal(w.calls[0].credentials, "omit");
   for (const [method, url, body, why] of [["GET", capi, undefined, "GET"], ["POST", capi + "?x=1", JSON.stringify(good), "query"], ["POST", capi, "not json", "not json"],
     ["POST", capi, JSON.stringify({ ...good, user_email: "a@b.c" }), "extra field"], ["POST", capi, JSON.stringify({ ...good, event_name: "" }), "empty event"],
