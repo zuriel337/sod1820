@@ -49,9 +49,10 @@ assert.match(worker, /PUBLIC_VIDEO_CHANNELS = \["or-geula", "torat-haremez"\]/);
 assert.match(worker, /const allowStt = body\?\.allow_stt === true/);
 assert.match(worker, /thumbnailMetadata\(row\)/);
 assert.match(worker, /nearbyContext\(row\)/);
-assert.match(ingest, /sod1820\/2029\/video\/\$\{yyyy\}\/\$\{mm\}\/\$\{assetId\}\/original\.\$\{ext\}/);
+// New public WhatsApp video (and image/audio) land on the one 2029 path with a stable per-message asset id (waMediaAsset.js).
+assert.match(ingest, /const path = waPublicMediaPath\(kind, assetId, sourceTs, ext\)/);
+assert.match(read("supabase/functions/_shared/waMediaAsset.js"), /sod1820\/2029\/\$\{kind\}\/\$\{d\.getUTCFullYear\(\)\}\/\$\{String\(d\.getUTCMonth\(\) \+ 1\)\.padStart\(2, "0"\)\}\/\$\{assetId\}\/original\.\$\{ext\}/);
 assert.match(ingest, /MEDIA_2029_BUCKET = "media"/);
-assert.match(ingest, /if \(kind === "video"\)/);
 assert.match(ingest, /upsert: false/);
 
 // Research OS receives Representation/Admission only; no truth promotion.

@@ -47,6 +47,7 @@
 .sod29-nowpub-detail{display:grid;gap:10px;padding:2px 10px 12px;min-width:0}
 .sod29-nowpub-body{margin:0;font-size:var(--s29-type-body);line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere;max-height:40vh;overflow:auto}
 .sod29-nowpub-image,.sod29-nowpub-video{display:block;max-width:100%;max-height:44vh;border-radius:12px;background:#000;object-fit:contain}
+.sod29-nowpub-audio{display:block;width:100%;margin:6px 0}
 .sod29-nowpub-play{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:16/9;max-height:44vh;border:1px solid var(--s29-line);border-radius:12px;overflow:hidden;background:color-mix(in srgb,var(--s29-panel) 80%,#000);cursor:pointer;padding:0}
 .sod29-nowpub-play img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .sod29-nowpub-play span{position:relative;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--s29-page) 82%,transparent);color:var(--s29-ink);font-size:20px;box-shadow:0 0 0 1px var(--s29-line-strong)}

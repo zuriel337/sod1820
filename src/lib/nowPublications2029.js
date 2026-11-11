@@ -5,6 +5,7 @@
 // Series, source/channel, content family and media type stay SEPARATE dimensions (CONTENT-AUDIENCES-HYBRID-NOW).
 import { publicAuthorName, SYSTEM_BYLINE } from "./publicIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
+import { publicStorageMedia } from "./mediaEgressGuard.js";
 import { GROUP_SOURCE_CHANNELS } from "./research/worldGroupSource.js";
 
 // Public name of the shared series is "מסרים"; the historical source titles and the series key stay untouched.
@@ -61,6 +62,8 @@ const logoKeyOf = ({ unverified, isChannel, channel, kind, isPost, author, serie
 };
 
 const VIDEO_URL = /\.(?:mp4|webm|mov|m4v)(?:[?#].*)?$/i;
+// Audio is recognised by the shared public-media rule (kind from the canonical path), so only admitted public storage audio plays here.
+const isPublicAudio = url => publicStorageMedia(url)?.kind === "audio";
 // Raw media addresses are storage plumbing, never reading text.
 const RAW_MEDIA_URL = /(?:https?:)?\/\/[^\s<>"'\])]+\.(?:mp4|webm|mov|m4v)(?:\?[^\s<>"'\])]*)?/gi;
 
@@ -112,7 +115,8 @@ export function nowRowModel(row) {
   const groupMediaKind = isGroup ? item.media?.kind : null; // a group source declares its own media kind
   const video = groupMediaKind === "video" || (!groupMediaKind && Boolean(media && VIDEO_URL.test(media))) || /^\/video\/[^/]+\/?$/.test(href || "")
     || (isPost && categories.includes(VIDEO_CATEGORY));
-  const image = !video && (groupMediaKind ? groupMediaKind === "image" : Boolean(media || isGallery));
+  const audio = !video && (groupMediaKind ? groupMediaKind === "audio" : Boolean(media && isPublicAudio(media)));
+  const image = !video && !audio && (groupMediaKind ? groupMediaKind === "image" : Boolean(media || isGallery));
   const seriesKey = item.seriesKey || (isPost ? contentSeriesKeysForPost({ categories, tags, author: item.author })[0] || null : null);
   const seriesLabel = seriesKey ? nowSeriesLabel(seriesKey, item.seriesLabel || contentSeriesByKey(seriesKey)?.label || "") : "";
   // A public group source is labelled by its GROUP (the source); the writer stays in the byline.
@@ -131,7 +135,7 @@ export function nowRowModel(row) {
     : isPost && seriesKey ? `series:${seriesKey}` : isPost ? "site:posts" : isGallery ? "site:reality" : row?.kind === "finding" || row?.kind === "convergence" ? "site:els" : "site:other";
   const typeLabel = unverified ? "מקור · טרם נבדק"
     : row?.kind === "convergence" ? "התכנסות" : row?.kind === "finding" ? "ממצא"
-    : item.sourceUpdate ? "עדכון מקור" : video ? "סרטון" : image ? "תמונה" : isPost ? "פוסט" : "עדכון";
+    : item.sourceUpdate ? "עדכון מקור" : video ? "סרטון" : audio ? "הקלטה" : image ? "תמונה" : isPost ? "פוסט" : "עדכון";
   const lenses = new Set(["all"]);
   if (seriesKey) lenses.add("series");
   if (isGroup) lenses.add("sources");
@@ -153,14 +157,14 @@ export function nowRowModel(row) {
     at: row?.at || null, href, seriesKey, seriesLabel, sourceName, sourceKey,
     pinUntil: item.pinned === true && typeof item.pinUntil === "string" ? item.pinUntil : null,
     central: item.pinned === true && item.central && Array.isArray(item.central.groups) ? item.central : null,
-    media: video ? "video" : image ? "image" : "text", video, image,
-    thumb: [!video && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
+    media: video ? "video" : audio ? "audio" : image ? "image" : "text", video, audio, image,
+    thumb: [!video && !audio && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
     groupLabel, creatorHref: isGroup ? item.creatorHref || null : null,
     mediaHref: media, lenses,
     fullText, summary: summary && summary !== title ? summary : "",
     ...nowExcerpt({ unverified, title, fullText, summary }),
     // Unverified source rows stay two lines without a text excerpt; a group source WITH media still shows its preview.
-    previewKind: (unverified && !(isGroup && (video || image))) ? null : video ? "video" : (image || media) ? "image" : null,
+    previewKind: (unverified && !(isGroup && (video || image))) ? null : video ? "video" : audio ? null : (image || media) ? "image" : null,
     canExpand: Boolean(fullText || media),
   };
 }

@@ -90,3 +90,46 @@ assert.match(migration, /perform public\.notify_admin/);
 assert.match(migration, /topic = '🚨 ניטור ערוצי WhatsApp \(אוטומטי\)'/);
 
 console.log("PASS wa-channel → Research/World 2029 backend contract");
+
+// WhatsApp media → the one 2029 public media identity (ingress convention): image, video and audio, stable per message.
+{
+  const media = await import("../supabase/functions/_shared/waMediaAsset.js");
+  assert.match(ingest, /from "\.\.\/_shared\/waMediaAsset\.js"/);
+  assert.ok(!/LEGACY_PUBLIC_BUCKET|sod1820\/broadcasts|upsert: true/.test(ingest), "new public media never go to the legacy overwritable broadcast path");
+  assert.match(ingest, /const assetId = await waStableAssetId\(channel, msgId\)/);
+  assert.match(ingest, /storage\.from\(MEDIA_2029_BUCKET\)\.upload\(path, buf, \{ contentType: ct, upsert: false \}\)/);
+  assert.match(ingest, /"audioMessage"/);
+  assert.match(ingest, /const sniffed = waSniffMedia\(buf, kind\)/);
+  // the private inbox path and the public/live rule are untouched
+  assert.match(ingest, /sod1820\/2029\/unresolved\/\$\{yyyy\}\/\$\{mm\}\/\$\{submissionId\}\/\$\{kind\}\/original\.\$\{ext\}/);
+  assert.ok(ingest.indexOf('if (privateMedia)') < ingest.indexOf('const assetId = await waStableAssetId'), "private media leave before any public path is built");
+
+  const a = await media.waStableAssetId("or-geula", "3EB0ABCDEF"), b = await media.waStableAssetId("or-geula", "3EB0ABCDEF");
+  assert.equal(a, b, "a repeated or recovered run maps the same message to the same asset id");
+  assert.match(a, /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  assert.notEqual(a, await media.waStableAssetId("or-geula", "3EB0ABCDEG"));
+  assert.notEqual(a, await media.waStableAssetId("other-channel", "3EB0ABCDEF"));
+  assert.equal(media.waPublicMediaPath("image", a, Date.UTC(2026, 10, 11) / 1000, "jpg"), `sod1820/2029/image/2026/11/${a}/original.jpg`);
+  assert.equal(media.waPublicMediaPath("audio", a, Date.UTC(2026, 0, 2) / 1000, "ogg"), `sod1820/2029/audio/2026/01/${a}/original.ogg`);
+  assert.throws(() => media.waPublicMediaPath("document", a, 0, "pdf"));
+  assert.throws(() => media.waPublicMediaPath("image", "../x", 0, "jpg"));
+
+  const bytes = (...head) => { const out = new Uint8Array(64); out.set(head.map(x => typeof x === "string" ? [...x].map(c => c.charCodeAt(0)) : [x]).flat()); return out; };
+  const cases = [
+    ["image", bytes(0xff, 0xd8, 0xff, 0xe0), "image/jpeg"], ["image", bytes("\x89PNG\r\n\x1a\n"), "image/png"], ["image", bytes("RIFF", 0, 0, 0, 0, "WEBP"), "image/webp"],
+    ["video", bytes(0, 0, 0, 0x20, "ftypisom"), "video/mp4"], ["video", bytes(0x1a, 0x45, 0xdf, 0xa3), "video/webm"],
+    ["audio", bytes("OggS"), "audio/ogg"], ["audio", bytes("ID3"), "audio/mpeg"], ["audio", bytes(0xff, 0xfb, 0x90), "audio/mpeg"],
+    ["audio", bytes(0, 0, 0, 0x20, "ftypM4A "), "audio/mp4"], ["audio", bytes("RIFF", 0, 0, 0, 0, "WAVE"), "audio/wav"], ["audio", bytes(0xff, 0xf1, 0x50), "audio/aac"],
+  ];
+  for (const [kind, data, type] of cases) assert.equal(media.waSniffMedia(data, kind)?.contentType, type, `${kind} ${type}`);
+  for (const [kind, data] of [["image", bytes("<!doctype html>")], ["video", bytes("OggS")], ["audio", bytes(0xff, 0xd8, 0xff)], ["image", bytes("OggS")],
+    ["video", bytes(0, 0, 0, 0x20, "ftypM4A ")], ["audio", new Uint8Array(4)]])
+    assert.equal(media.waSniffMedia(data, kind), null, `${kind} rejects a foreign or truncated body`);
+  assert.equal(media.waMessageMediaKind("audioMessage", ""), "audio");
+  assert.equal(media.waMessageMediaKind("quotedMessage", "audio/ogg; codecs=opus"), "audio");
+  assert.ok(!/"stickerMessage"|"documentMessage"/.test(ingest), "stickers and documents are never admitted by the message-type list");
+  assert.equal(media.waMessageMediaKind("documentMessage", "application/pdf"), null);
+  assert.equal(media.waUploadAlreadyExists({ statusCode: "409", message: "The resource already exists" }), true);
+  assert.equal(media.waUploadAlreadyExists({ statusCode: "403", message: "new row violates row-level security" }), false);
+  assert.equal(media.waUploadAlreadyExists(null), false);
+}

@@ -1,4 +1,6 @@
 import React, { useMemo, useState } from "react";
+import ExternalVideoFacade2029 from "../experience2029/ExternalVideoFacade2029.jsx";
+import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
 import { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import {
   CANONICAL_PUBLIC_UI_COPY,
@@ -115,6 +117,8 @@ export default function WorldPublicUpdates2029({
           <h3>{item.label}</h3>
           {item.creator ? <p className="sod29-world-update-creator">{item.creator}</p> : null}
           {item.summary ? <p>{item.summary}</p> : null}
+          {!groupSourceAnchor(item) ? externalVideoLinksFromText(`${item.summary || ""} ${item.fullText || ""}`, 1).map(link =>
+            <ExternalVideoFacade2029 key={link.key} link={link} title={item.label} context={item.creator ? `מקור · ${item.creator}` : ""} />) : null}
           {groupSourceAnchor(item) ? <details className="sod29-world-group-source" id={groupSourceAnchor(item)}
             onToggle={(event) => { if (event.currentTarget.open) onOpen?.(item, { inline: true }); }}
             open={selectedSourceHash === `#${groupSourceAnchor(item)}` || undefined}>
