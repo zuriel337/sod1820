@@ -1807,8 +1807,13 @@
 .sod29-number-v10-life-seal>small{
   color:var(--s29-muted);
   font-size:var(--sod29-number-support,14px);
-  line-height:1;
+  line-height:1.1;
   font-weight:850;
+  /* The label sits over the coverage ring; its own panel-coloured pill keeps it readable in day, parchment and night. */
+  padding:1px 6px;
+  border-radius:999px;
+  background:color-mix(in srgb,var(--s29-panel) 94%,transparent);
+  white-space:nowrap;
 }
 @keyframes sod29-life-pulse{
   0%,100%{transform:scale(.9);opacity:.72}

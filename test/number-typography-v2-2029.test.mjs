@@ -61,3 +61,12 @@ test("the number pulse chips wrap instead of side-scrolling, so a larger label i
   assert.match(row, /flex-wrap:\s*wrap/);
   assert.doesNotMatch(row, /overflow-x:\s*auto/);
 });
+
+test("the life seal label has its own panel pill over the coverage ring and the seal is large enough for the 14px label", () => {
+  const css = read("src/components/number2029/numberCore2029.css");
+  const label = css.match(/\.sod29-number-v10-life-seal>small\{[^}]*\}/)?.[0] || "";
+  assert.match(label, /background:\s*color-mix\(in srgb,var\(--s29-panel\)/);
+  assert.match(label, /white-space:\s*nowrap/);
+  const page = read("src/pages/number2029.css");
+  assert.doesNotMatch(page, /v10-life-seal\{flex:none;width:6\d?px/);
+});
