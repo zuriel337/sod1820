@@ -80,6 +80,9 @@ test("external video: one detector feeds every surface; click-to-load nocookie p
     "javascript:alert(1)", `https://user:pw@www.youtube.com/watch?v=${id}`, "https://music.youtube.com/watch?v=" + id]) assert.deepEqual(externalVideoLinksFromText(url), [], url);
   const html = `<p>x</p><iframe src="https://www.youtube.com/embed/${id}?feature=oembed"></iframe><a href="https://youtu.be/${id}">y</a> https://www.youtube.com/shorts/abcdefghijk`;
   assert.deepEqual(externalVideoLinksFromHtml(html).map(link => link.id), [id, "abcdefghijk"]);
+  // The fallback "watch on YouTube" goes to the watch page even when the post embedded an iframe address.
+  assert.deepEqual(externalVideoLinksFromHtml(html).map(link => link.watch), [`https://www.youtube.com/watch?v=${id}`, "https://www.youtube.com/watch?v=abcdefghijk"]);
+  assert.equal(externalVideoLinksFromText("https://vimeo.com/76979871")[0].watch, "https://vimeo.com/76979871");
   const [link] = externalVideoLinksFromText(forms[0]);
   const src = new URL(externalVideoEmbedSrc(link, "https://sod1820.co.il"));
   assert.equal(src.origin, "https://www.youtube-nocookie.com"); assert.equal(src.pathname, `/embed/${id}`);

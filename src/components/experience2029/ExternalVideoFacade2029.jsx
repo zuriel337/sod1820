@@ -40,7 +40,8 @@ export default function ExternalVideoFacade2029({ link, title = "", context = ""
 
   if (!provider || !src) return null;
   const label = title ? `${title} · ${provider.name}` : `סרטון ${provider.name}`;
-  const watch = <a className="sod29-external-video-out" href={link.href} target="_blank" rel="noopener noreferrer">צפייה ב־{provider.name} ↗</a>;
+  // The way out is the provider's own watch page (an embed address would refuse again), never the raw source address.
+  const watch = <a className="sod29-external-video-out" href={link.watch || link.href} target="_blank" rel="noopener noreferrer">צפייה ב־{provider.name} ↗</a>;
   const cover = <>
     {link.thumbnail && !imageFailed ? <img src={link.thumbnail} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setImageFailed(true)} /> : null}
   </>;

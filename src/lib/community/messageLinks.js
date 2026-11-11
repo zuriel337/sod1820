@@ -26,12 +26,12 @@ export function describeMessageLink(raw) {
       : /^\/(?:embed|shorts|live|v)\/([^/]+)\/?$/.exec(url.pathname)?.[1];
     if (/^[A-Za-z0-9_-]{11}$/.test(candidate || "")) {
       const id = youtubeId(`https://www.youtube.com/watch?v=${candidate}`);
-      return { ...link, kind: "youtube", id, embed: `https://www.youtube-nocookie.com/embed/${id}?rel=0`, thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg` };
+      return { ...link, kind: "youtube", id, embed: `https://www.youtube-nocookie.com/embed/${id}?rel=0`, thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`, watch: `https://www.youtube.com/watch?v=${id}` };
     }
   }
   if (["vimeo.com", "www.vimeo.com", "player.vimeo.com"].includes(url.hostname)) {
     const id = /^\/(?:video\/)?([0-9]{1,12})\/?$/.exec(url.pathname)?.[1];
-    if (id) return { ...link, kind: "vimeo", id, embed: `https://player.vimeo.com/video/${id}` };
+    if (id) return { ...link, kind: "vimeo", id, embed: `https://player.vimeo.com/video/${id}`, watch: `https://vimeo.com/${id}` };
   }
   return link;
 }
