@@ -1,0 +1,29 @@
+{
+ "added_by": "agent",
+ "compaction_v1": {
+  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "brand_design"
+ },
+ "date": "2026-09-03",
+ "for": "ZURIEL",
+ "g3_disposition_v1": {
+  "classification": "KEEP_SCOPED_SEMANTIC",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "scoped semantic contract currently unique enough to remain active; G3 implementation must consume it rather than legacy UI/code, and final G3 compaction may absorb/archive it after proving semantic preservation"
+ },
+ "owner_routing": {
+  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+  "confidence": "high",
+  "domain": "brand_design",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ }
+}

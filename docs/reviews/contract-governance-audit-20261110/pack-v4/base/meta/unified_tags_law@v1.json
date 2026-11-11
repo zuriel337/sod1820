@@ -1,0 +1,40 @@
+{
+ "categories": [
+  "מקור",
+  "נושא",
+  "מספר-אם",
+  "method",
+  "ציר",
+  "sefirah",
+  "concept"
+ ],
+ "clean_names": true,
+ "compaction_v1": {
+  "canonical_owner": "research_intake_foundation_contract_law",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "representation_taxonomy"
+ },
+ "g3_disposition_v1": {
+  "classification": "LEGACY_COMPAT_RETIRE_WHEN_REPLACED",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": false,
+  "reason": "tags-as-global-source-of-truth formulation is superseded by Research Intake/Reality Graph/identity owners; tags remain facets/junction data, not ontology authority",
+  "revalidated_at": "2026-09-30"
+ },
+ "junctions": [
+  "word_tags",
+  "discovery_tags"
+ ],
+ "link_pattern": "/tag/<name>/",
+ "owner_routing": {
+  "canonical_owner": "research_intake_foundation_contract_law",
+  "confidence": "high",
+  "domain": "representation_taxonomy",
+  "normalized_at": "2026-09-15",
+  "resolution": "RESOLVED_G2_COMPACTION"
+ },
+ "source_of_truth": "tags"
+}

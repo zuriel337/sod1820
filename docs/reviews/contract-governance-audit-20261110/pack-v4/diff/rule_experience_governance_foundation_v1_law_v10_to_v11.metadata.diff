@@ -1,0 +1,13 @@
+--- nodes:experience_governance_foundation_v1_law@v10→v11.metadata (base)
++++ nodes:experience_governance_foundation_v1_law@v10→v11.metadata (proposed)
+@@ -122,2 +122,10 @@
+  },
++ "v11_legacy_removal_alignment": {
++  "closed_items": [
++   "BrandTicker duplicate marquee (component removed 2026-11-05)"
++  ],
++  "human_gate": "ZURIEL 2026-11-10 (§4 shared contracts)",
++  "owner_check": "EXTEND_EXISTING",
++  "semantics_changed": false
++ },
+  "v7_global_2029_cutover_2026_09_18": {

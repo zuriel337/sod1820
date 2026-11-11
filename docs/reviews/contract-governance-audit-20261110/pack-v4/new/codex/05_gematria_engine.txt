@@ -1,0 +1,71 @@
+G2 FINAL COMPACTION · Human-Gate ZURIEL · 15.9.2026
+
+PURPOSE
+`project_codex.gematria_engine` owns deterministic Gematria execution/verification routing. It is not the Method Registry and it no longer carries a fixed method count or duplicate method-definition catalog.
+
+CURRENT OWNER TREE
+- Method identity / labels / lifecycle-capable metadata: `public.gematria_methods`, governed by active `canonical_methods_registry_law` (current v5).
+- Method lifecycle: `method_lifecycle`.
+- Execution/scanning authority: `engine_governance_registry_authority_law`.
+- Canonical execution/verification gate: active `gematria_engine_law` (current v2) + registered SQL/function execution path.
+- System/ZURIEL numeric research operators that are not Gematria-method identity live under `project_codex.numeric_rule_family_index`, not in this engine body.
+
+NO FIXED METHOD COUNT
+The engine must resolve the live Registry; it must never assume “8 methods” or another hard-coded total. Registered != executable != engine_verified != active != scannable != published. The Registry owns those distinctions.
+
+METHOD DEFINITION ONCE
+Exact current method identity/behavior metadata comes from `gematria_methods` and canonical execution/Trace: `method_key`, `display_label`, mathematical family, word-boundary behavior, final-letter sensitivity, derived/dependency rules, execution kind/function/operator, source/provenance and verification state. Legacy `nodes` method-definition rules are historical provenance/on-demand evidence after their semantics are represented by the Registry/engine; they are not normal startup authority.
+
+ALIASES / CONDITIONAL EQUIVALENCE
+Use active `canonical_methods_registry_law` v5. Alias is one method identity; conditional equivalence is input-dependent projection, not method merge. Equivalence must not inflate evidence and must fail closed unless explicitly governed and engine/formula-proven.
+
+EXECUTION TRUTH
+When verification matters, use the canonical registered engine/functions/Trace. General-model arithmetic, memory or guessed formulas are NOT authoritative SOD1820 output. Source claim != engine verified.
+
+RESEARCH / INTERPRETATION BOUNDARY
+Mathematical/algorithmic result is engine truth. Method meaning, research priority, convergence and interpretation remain under their current Research/Truth owners and never rewrite deterministic results.
+
+WRITE / GOVERNANCE
+Adding a method identity, formula, dependency/equivalence or execution path must obey Registry/Method Lifecycle/Engine Governance/Human Gate. No local screen, post, calculator, AI agent or research session may create a parallel Gematria engine or private method catalog.
+
+ARCHIVE
+Pre-compaction body is preserved at `docs/archive/project-codex/GEMATRIA_ENGINE_PRE_G2_COMPACTION_20260915.md` on the G2 compaction branch and in repository history.
+
+OWNER CHECK: EXTEND_EXISTING. One Registry, one execution authority, no parallel engine/store/registry.
+
+G2 COMPACTION ADDENDUM · 15.9.2026
+- ATOMIC CALCULATION IDENTITY: a deterministic Gematria result is preserved as exact Expression/operand + canonical method identity/version + value + Trace/provenance. Historical `bidim` view may remain an implementation/read model; it is not a separate truth owner.
+- ANAGRAM DEPENDENCY: expressions with the same normalized letter multiset do not create independent novelty/convergence merely because order-insensitive additive methods return the same value. Order-sensitive/transform methods may still yield distinct results. Dependency/novelty classification belongs to the current Convergence/Research owners, not a second anagram law family.
+- COMPUTE VS WRITE: canonical deterministic calculations may execute without per-calculation Human approval when the registered engine permits them. Calculation does not authorize DB/core mutation, method registration, canonicalization, publication, merge or deploy; those remain under current write/governance/Human-Gate owners.
+- Source-specific interpretive method research (including historical Christina/key-method material) belongs in Research OS/provenance unless a method identity is admitted through the Method Registry.
+
+
+[UPDATE · Human-Gate ZURIEL · 24.9.2026 — CALCULATOR 2029 CONSUMER-ONLY EXECUTION BOUNDARY]
+
+Calculator 2029 is a CONSUMER of the canonical Gematria execution fabric. Its public interaction contract is owned by experience_governance_foundation_v1.
+
+Execution invariants:
+- Calculator 2029 MUST resolve live method identity/order/state from the canonical Registry.
+- Authoritative calculation/verification uses the registered engine/Profile/Trace path.
+- Calculator 2029 MUST NOT create or treat local screen formulas, legacy JavaScript method arrays or a copied method catalog as canonical authority.
+- A fast UI may cache/project already-authoritative calculation results, but performance optimization never creates a second calculation truth source.
+- Heichal, Number, Beit Midrash, Raziel and Calculator must converge on the same method/result identity and provenance.
+- Legacy GematriaCalculator/GematriaCalculatorLegacy were compatibility/reference surfaces until the cutover and were removed with Legacy on 5.11.2026; Calculator 2029 is the active surface.
+- No new RPC/engine is implied when existing fn_method_profile/registered execution is sufficient.
+
+OWNER CHECK: EXTEND_EXISTING. No parallel engine/Registry/store.
+
+
+
+[UPDATE · Human-Gate ZURIEL · 24.9.2026 — METHOD LENS NORMALIZATION / EVIDENCE BOUNDARY]
+
+Method Lens consumes canonical execution plus existing relation/dependency normalization. Its normalization may group/label/order evidence but may not replace actual matching items with aggregate prose.
+
+- Exact method/value matches remain inspectable.
+- Dependency/equivalence normalization determines effective independence, not existence.
+- Raw and effective counts must remain distinguishable when shown.
+- fn_relation_candidate / dependency-group semantics may be consumed for deterministic relation classification; a UI must not reimplement those rules locally.
+- General-model/LLM prose is not required for deterministic Method Lens output and is never calculation authority.
+
+OWNER CHECK: EXTEND_EXISTING. No parallel relation engine/search engine.
+

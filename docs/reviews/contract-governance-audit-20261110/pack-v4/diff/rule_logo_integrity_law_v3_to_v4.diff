@@ -1,0 +1,13 @@
+--- nodes:logo_integrity_law@v3→v4.description (base)
++++ nodes:logo_integrity_law@v3→v4.description (proposed)
+@@ -1,3 +1,3 @@
+ 
+-Human-Gate ZURIEL · 1.10.2026. EXTEND_EXISTING under SOD1820_DESIGN_CONTRACT_V1.md.
++Human-Gate ZURIEL · 1.10.2026. EXTEND_EXISTING under SOD1820_DESIGN_CONTRACT_V2.md (written under V1; V1 is kept as history).
+ 
+@@ -12,3 +12,4 @@
+ 9. HERITAGE. /logo.png remains preserved as Heritage compatibility where legacy runtime still depends on it; it does not redefine Primary 2029 identity.
+-10. ONE OWNER. This rule extends SOD1820_DESIGN_CONTRACT_V1.md / sod1820_canonical_identity_law and creates no parallel Brand System, Store, Registry or media-specific branding system.
++10. ONE OWNER. This rule extends SOD1820_DESIGN_CONTRACT_V2.md (formerly V1) / sod1820_canonical_identity_law and creates no parallel Brand System, Store, Registry or media-specific branding system.
+ 
++[v4 · 11.11.2026 · יישור בעלים — החרגה נקודתית מהקפאת G3 (החלטת צוריאל 5, 11.11.2026)] בעל חוזה העיצוב: SOD1820_DESIGN_CONTRACT_V2.md (SOD1820_DESIGN_CONTRACT_V1.md נשמר כהיסטוריה). כללי שלמות הסימן והלוקאפ לא השתנו.

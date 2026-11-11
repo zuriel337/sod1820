@@ -1,0 +1,172 @@
+[
+ {
+  "name": "stage 3 refuses to run before the principles are carried (successor guard)",
+  "pass": true,
+  "detail": "S30: successor missing — platform_tiers_law v6 §19 not active"
+ },
+ {
+  "name": "after the refusal both number laws are still active",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "20 (principles → v6/v7) applies on the reviewed base",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "platform_tiers_law: v6 active with reviewed md5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "platform_tiers_law: governed metadata kept",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "canonical_methods_registry_law: v7 active with reviewed md5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "canonical_methods_registry_law: governed metadata kept",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "platform_tiers_law v6 states «המספר לא מוסתר, העומק כן» and no permission change",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "platform_tiers_law v6 does not carry the quota or the tier name as rules",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "canonical_methods_registry_law v7 keeps the authored-content truth boundary",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "stage 3 applies once successors are active",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "both number laws inactive, rows kept with unchanged content",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "21 (9 Legacy specs) applies",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "exactly 9 specs inactive, bnei_haheichal still active, all 10 rows kept",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "22 (STALE banners) applies",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "codex project_overview: banner prepended, original body intact",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "codex data_model_map: banner prepended, original body intact",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "codex system_rules_index: banner prepended, original body intact",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "codex number_page_1820: banner prepended, original body intact",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 27 runs",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 28 runs",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 39 runs",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback 29 runs",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after rollbacks platform_tiers_law v5 active again with base md5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after rollbacks canonical_methods_registry_law v6 active again with base md5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after rollbacks number_page_law v1 active again with base md5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after rollbacks no_row_without_number_law v1 active again with base md5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after rollback all 10 specs active again",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after rollback codex project_overview body = base",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after rollback codex data_model_map body = base",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after rollback codex system_rules_index body = base",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "after rollback codex number_page_1820 body = base",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "21 refuses when a spec row changed",
+  "pass": true,
+  "detail": "S21 spec drift or missing: שורת פעילות חיה (76ef74ea-e227-4760-9e24-d616e5ed71c3"
+ },
+ {
+  "name": "after refusal all 10 specs still active",
+  "pass": true,
+  "detail": ""
+ }
+]

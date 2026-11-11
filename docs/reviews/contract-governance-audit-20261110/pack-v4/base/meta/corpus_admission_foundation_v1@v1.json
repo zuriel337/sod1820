@@ -1,0 +1,111 @@
+{
+ "branch": "claude/corpus-admission-198-fresh-port",
+ "closure_pass_2": {
+  "corpus_approved_field_gap": "no single column means CORPUS APPROVED uniformly across all writers -- reported, not schema-expanded this pass",
+  "functions_not_yet_wired": [
+   "promote_finding_to_dict",
+   "admin_promote_contrib_card",
+   "wizard_build_convergence"
+  ],
+  "functions_wired": [
+   "enqueue_word_review",
+   "wa_add_word",
+   "wa_add_vip_word",
+   "admin_add_word",
+   "add_entity",
+   "admin_add_alias",
+   "admin_edit_alias"
+  ],
+  "one_gate_function": "fn_corpus_admission_gate",
+  "possible_variant_noise_fixed": true,
+  "safe_to_auto_bypass_closed": true,
+  "vip_bypass_closed": true
+ },
+ "closure_pass_3": {
+  "add_entity_verdict": "legitimate per gematria_auto_registry_law, admin gate kept as stricter-than-minimum",
+  "admission_status_verdict": "NOT NEEDED -- existing fields sufficient once resolve_word_review fixed",
+  "created_by_added": [
+   "admin_add_word",
+   "add_entity",
+   "admin_add_alias",
+   "admin_edit_alias",
+   "promote_finding_to_dict"
+  ],
+  "created_by_not_yet_added": [
+   "admin_promote_contrib_card",
+   "wizard_build_convergence"
+  ],
+  "gate_claim_fix": "research_objects only written when p_claimed_value is not null",
+  "reconciled_against": "audits/research_dna_v1_foundation_contract/CORPUS_APPROVAL_LIFECYCLE.md",
+  "resolve_word_review_fix": "is_verified now flips true on approve (was visibility_reason only)",
+  "writers_wired_this_pass": [
+   "promote_finding_to_dict",
+   "admin_promote_contrib_card",
+   "wizard_build_convergence"
+  ]
+ },
+ "closure_pass_4": {
+  "all_10_writers_use_gate": true,
+  "created_by_completed_for": [
+   "admin_promote_contrib_card",
+   "wizard_build_convergence"
+  ],
+  "merged": false
+ },
+ "codex_slug": "corpus_admission_foundation_v1",
+ "commit": "fb60c078",
+ "compaction_v1": {
+  "canonical_owner": "research_intake_foundation_contract_law",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "research_intake"
+ },
+ "db_functions_changed": [
+  "add_entity",
+  "resolve_word_review"
+ ],
+ "db_functions_created": [
+  "fn_resolve_word_identity"
+ ],
+ "deployed": true,
+ "g3_disposition_v1": {
+  "classification": "KEEP_SCOPED_SEMANTIC",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "scoped semantic contract currently unique enough to remain active; G3 implementation must consume it rather than legacy UI/code, and final G3 compaction may absorb/archive it after proving semantic preservation"
+ },
+ "head_sha": "6decc4eea7b6a29ee4d7f644b8b16623bf84656c",
+ "main_sha": "06087fcacec22c2402f0ecfd4b1b105999f816c9",
+ "merged": true,
+ "merged_via_pr": 199,
+ "owner_routing": {
+  "canonical_owner": "research_intake_foundation_contract_law",
+  "confidence": "high",
+  "domain": "research_intake",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ },
+ "pr_198_state": "closed_unmerged_superseded",
+ "pr_199_state": "merged",
+ "pr_number": 199,
+ "pr_url": "https://github.com/zuriel337/sod1820/pull/199",
+ "reconciliation_note": "PR #198 opened against stale main (2a5a25c1), could not raw-merge after #197/#196 (mergeable_state=dirty). Unique content fresh-ported to new branch, opened as PR #199, merged to main at 06087fca. PR #198 closed unmerged, body marked SUPERSEDED BY #199, no content lost. created_by coverage corrected to 7/7 in the fresh-port (was reported 6/7 in prior closure passes).",
+ "rls_policies_changed": [
+  "gematria_words INSERT"
+ ],
+ "status": "FOUNDATION_SUFFICIENT_MERGED_VERIFIED",
+ "superseded_198_pointer": {
+  "branch": "claude/corpus-admission-foundation-v1",
+  "head_sha": "365b40a878530d7d2b94a05e5071c0a1063305e9",
+  "note": "historical -- opened against stale main, could not raw-merge, closed unmerged, superseded by PR #199",
+  "pr_number": 198,
+  "pr_url": "https://github.com/zuriel337/sod1820/pull/198"
+ },
+ "superseded_pr": 198,
+ "vip_whatsapp_behavior_changed": false
+}

@@ -1,0 +1,110 @@
+{
+ "_word_is_spam(v text)": {
+  "file": "base/fn/corpus/word_is_spam_v_text.sql",
+  "md5": "ca4e8d18f35b9a9160fe52cec0ab00e9",
+  "local_md5_ok": true,
+  "len": 400
+ },
+ "_word_rec(v text, fam integer)": {
+  "file": "base/fn/corpus/word_rec_v_text_fam_integer.sql",
+  "md5": "3847cccb06bff80ba88debf7937ad4a3",
+  "local_md5_ok": true,
+  "len": 518
+ },
+ "admin_bulk_triage(p_action text)": {
+  "file": "base/fn/corpus/admin_bulk_triage_p_action_text.sql",
+  "md5": "2a44326886e4d3011d6df36f78c411e2",
+  "local_md5_ok": true,
+  "len": 1077
+ },
+ "admin_hide_word(p_phrase text)": {
+  "file": "base/fn/corpus/admin_hide_word_p_phrase_text.sql",
+  "md5": "fe5dfee95a705dcfb2ee969f7e544a5a",
+  "local_md5_ok": true,
+  "len": 811
+ },
+ "admin_triage_counts()": {
+  "file": "base/fn/corpus/admin_triage_counts.sql",
+  "md5": "1bb9226ddf1b41161055a7449adc1ba8",
+  "local_md5_ok": true,
+  "len": 893
+ },
+ "admin_words_console(p_scope text, p_q text, p_limit integer, p_offset integer)": {
+  "file": "base/fn/corpus/admin_words_console_p_scope_text_p_q_text_p_limit_integer_p_offset_integer.sql",
+  "md5": "3fc94514db333819f5fdd780bcfe28ac",
+  "local_md5_ok": true,
+  "len": 3247
+ },
+ "admin_words_console(p_scope text, p_q text, p_limit integer, p_offset integer, p_world text)": {
+  "file": "base/fn/corpus/admin_words_console_p_scope_text_p_q_text_p_limit_integer_p_offset_integer_p_world_text.sql",
+  "md5": "faa71aadc8d9006c1e8fb807e7a8e120",
+  "local_md5_ok": true,
+  "len": 3884
+ },
+ "enqueue_word_review(p_original text, p_extracted text, p_kind text, p_word_count integer, p_flags jsonb, p_quality integer, p_confidence integer, p_reason text, p_source text, p_safe_to_auto boolean)": {
+  "file": "base/fn/corpus/enqueue_word_review_p_original_text_p_extracted_text_p_kind_text_p_word_count_integer_p_flags_jsonb_p_quality_integer_p_confidence_integer_p_reason_text_p_source_text_p_safe_to_auto_boolean.sql",
+  "md5": "0de87d9665eb31fa8a40da59a3aae2af",
+  "local_md5_ok": true,
+  "len": 1363
+ },
+ "find_similar_words(p_phrase text)": {
+  "file": "base/fn/corpus/find_similar_words_p_phrase_text.sql",
+  "md5": "4a1fb79fbfb44985da08ae245fa3b258",
+  "local_md5_ok": true,
+  "len": 1340
+ },
+ "fn_corpus_admission_gate(p_phrase text, p_source text, p_source_ref text, p_contributor text, p_claimed_value integer)": {
+  "file": "base/fn/corpus/fn_corpus_admission_gate_p_phrase_text_p_source_text_p_source_ref_text_p_contributor_text_p_claimed_value_integer.sql",
+  "md5": "ff9d0525a0374554ab6c99d3a28dc8e0",
+  "local_md5_ok": true,
+  "len": 1714
+ },
+ "fn_normalize_for_calc(input text)": {
+  "file": "base/fn/corpus/fn_normalize_for_calc_input_text.sql",
+  "md5": "d5b422bbf93e28e9040f093d9a755573",
+  "local_md5_ok": true,
+  "len": 545
+ },
+ "fn_resolve_word_identity(p_phrase text)": {
+  "file": "base/fn/corpus/fn_resolve_word_identity_p_phrase_text.sql",
+  "md5": "41a8ce9d9570dc7cae7ec47bf3817a7d",
+  "local_md5_ok": true,
+  "len": 1343
+ },
+ "fn_verify_gematria_word_engine(p_word_id uuid)": {
+  "file": "base/fn/corpus/fn_verify_gematria_word_engine_p_word_id_uuid.sql",
+  "md5": "0e77ef33d4e92a1fc1d8e9e480604da4",
+  "local_md5_ok": true,
+  "len": 1138
+ },
+ "gw_enforce_engine()": {
+  "file": "base/fn/corpus/gw_enforce_engine.sql",
+  "md5": "0734290fcc02ba406e2d8f874a7da06f",
+  "local_md5_ok": true,
+  "len": 1282
+ },
+ "rd_is_admin()": {
+  "file": "base/fn/corpus/rd_is_admin.sql",
+  "md5": "3005d3f9ef5e4e58203452a42899fc9c",
+  "local_md5_ok": true,
+  "len": 251
+ },
+ "resolve_word_review(p_id uuid, p_action text, p_edit text, p_by text)": {
+  "file": "base/fn/corpus/resolve_word_review_p_id_uuid_p_action_text_p_edit_text_p_by_text.sql",
+  "md5": "63a3e2f29a7d7ca206a5db7d3159317a",
+  "local_md5_ok": true,
+  "len": 2511
+ },
+ "wa_add_word(p_phrase text, p_source text, p_note text)": {
+  "file": "base/fn/corpus/wa_add_word_p_phrase_text_p_source_text_p_note_text.sql",
+  "md5": "519fd0960ff636d85b30bf34399ccf53",
+  "local_md5_ok": true,
+  "len": 1732
+ },
+ "wa_word_review(p_id uuid, p_action text)": {
+  "file": "base/fn/corpus/wa_word_review_p_id_uuid_p_action_text.sql",
+  "md5": "b6a17fa640ca992a65368263cdcba28b",
+  "local_md5_ok": true,
+  "len": 837
+ }
+}

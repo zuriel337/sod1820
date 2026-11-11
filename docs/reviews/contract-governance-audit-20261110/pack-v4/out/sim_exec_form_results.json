@@ -1,0 +1,352 @@
+[
+ {
+  "name": "10_ SHA-256 = approved d1ac658b…",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "19_ SHA-256 = approved cbe420f7…",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "10e_ SHA-256 = build summary",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "19e_ SHA-256 = build summary",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "10e_ is a single statement (one DO block, no BEGIN/COMMIT)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "19e_ is a single statement (one DO block, no BEGIN/COMMIT)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "10_ applies on the reviewed base",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "10e_ applies on the reviewed base",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "EQUIVALENCE: 10e_ end state = 10_ end state (labels, texts, metadata, versions, flags, codex bodies)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "deploy_on_request: one active row v4 with md5 78d80d22…",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "deploy_on_request: metadata md5 = 10_ literal (4620b9f9…)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "inter_agent_coordination_law: one active row v18 with md5 0ce1688c…",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "inter_agent_coordination_law: metadata md5 = 10_ literal (e69f38e5…)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "foundation_closure_protocol_law: one active row v8 with md5 eb603a65…",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "foundation_closure_protocol_law: metadata md5 = 10_ literal (6b786f67…)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "system_suggestions_law: one active row v6 with md5 98d4d88e…",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "system_suggestions_law: metadata md5 = 10_ literal (f4e5216a…)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "codex publishing_conventions: body md5 = f39efab9…",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "codex branches_deploy: body md5 = 8d87b845…",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "codex updated_at refreshed (as in 10_)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: STANDING AUTHORIZATION\\. ZURIEL grants standing",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: RELEASE WHEN READY, NOT WHEN ASKED",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: A separate “תעלה” \\/ “העלה” message is no longer r",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: proceeds through merge\\/migration\\/deploy\\/live ve",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: כל push ל-main = פריסת Vercel",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: under deploy_on_request v2 standing authorization",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "Raziel 600-char window of deploy_on_request states explicit approval + 2029",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "canary gate preserved in deploy_on_request v4",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "10e_ second run refused (v4 already active)",
+  "pass": true,
+  "detail": "P0 deploy_on_request: active version is v4 (expected v3)"
+ },
+ {
+  "name": "refused second run wrote nothing",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "19e_ rollback runs after 10e_",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback deploy_on_request: base v3 single active with base md5; v4 kept inactive",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback inter_agent_coordination_law: base v17 single active with base md5; v18 kept inactive",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback foundation_closure_protocol_law: base v7 single active with base md5; v8 kept inactive",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback system_suggestions_law: base v5 single active with base md5; v6 kept inactive",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback codex publishing_conventions: exact base body",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback codex branches_deploy: exact base body",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no row deleted (rules: predecessor + base + new = 3 each)",
+  "pass": true,
+  "detail": "12"
+ },
+ {
+  "name": "re-applying 10e_ after rollback is refused (a version above the base exists)",
+  "pass": true,
+  "detail": "P0 deploy_on_request: a version above v3 already exists"
+ },
+ {
+  "name": "re-applying 10_ after rollback is refused as well",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "19_ rollback runs after 10_",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "EQUIVALENCE: content after 10e_+19e_ = after 10_+19_",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "cross: 19_ rolls back 10e_",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "cross: 19e_ rolls back 10_",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "cross: both cross-rollbacks give the same content",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "drift (deploy_on_request description) refuses 10e_",
+  "pass": true,
+  "detail": "P0 deploy_on_request: description drift (md5 9fd19ff72ec6e1d4cf3a9c9b30491b2a)"
+ },
+ {
+  "name": "drift (deploy_on_request description): nothing written",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "drift (inter_agent_coordination_law description) refuses 10e_",
+  "pass": true,
+  "detail": "P0 inter_agent_coordination_law: description drift (md5 5fa9c517f993e3fc4ae24633"
+ },
+ {
+  "name": "drift (inter_agent_coordination_law description): nothing written",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "drift (foundation_closure_protocol_law metadata) refuses 10e_",
+  "pass": true,
+  "detail": "P0 foundation_closure_protocol_law: metadata drift (md5 82fc041ccfe4e5ea686ce17c"
+ },
+ {
+  "name": "drift (foundation_closure_protocol_law metadata): nothing written",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "drift (system_suggestions_law newer version exists) refuses 10e_",
+  "pass": true,
+  "detail": "P0 system_suggestions_law: a version above v5 already exists"
+ },
+ {
+  "name": "drift (system_suggestions_law newer version exists): nothing written",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "drift (codex #4 concurrent edit) refuses 10e_",
+  "pass": true,
+  "detail": "P0 codex publishing_conventions: body drift (md5 f78acb8c5161f040dfc9a0e80cf0bca"
+ },
+ {
+  "name": "drift (codex #4 concurrent edit): nothing written",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "drift (codex #9 concurrent edit) refuses 10e_",
+  "pass": true,
+  "detail": "P0 codex branches_deploy: body drift (md5 8d569022f695283bbee8c87c0205ebd9)"
+ },
+ {
+  "name": "drift (codex #9 concurrent edit): nothing written",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "truncated 10e_ at 11 points: every run fails and writes nothing",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "10e_ without its final ';' still is the complete statement (applies fully, not partially)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "flip point lies inside the replacement text of fragment 1",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "one-character error in the replacement text is refused",
+  "pass": true,
+  "detail": "P0e deploy_on_request: rebuilt text differs from the approved literal of 10_ (md5 e512dfb9"
+ },
+ {
+  "name": "one-character error in the replacement text: nothing written",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "one-character error in the anchor text is refused",
+  "pass": true,
+  "detail": "P0e deploy_on_request: fragment 1 not found"
+ },
+ {
+  "name": "one-character error in the anchor text: nothing written",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "one-character error in the metadata delta is refused",
+  "pass": true,
+  "detail": "P0e deploy_on_request: rebuilt metadata differs from 10_ (md5 ebab785ff049477651dfde1cb40d"
+ },
+ {
+  "name": "one-character error in the metadata delta: nothing written",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "19e_ on the unapplied base is refused and writes nothing",
+  "pass": true,
+  "detail": "rollback codex branches_deploy: body is not the applied version"
+ },
+ {
+  "name": "19e_ refuses if codex #4 was edited after the apply (rollback window closed) and writes nothing",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "19_ refuses in the same situation",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "one-character error in 19e_ is refused and writes nothing",
+  "pass": true,
+  "detail": "P0e rollback codex branches_deploy: fragment 1 not found"
+ }
+]

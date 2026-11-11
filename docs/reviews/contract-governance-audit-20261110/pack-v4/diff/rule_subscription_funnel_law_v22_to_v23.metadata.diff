@@ -1,0 +1,23 @@
+--- nodes:subscription_funnel_law@v22→v23.metadata (base)
++++ nodes:subscription_funnel_law@v22→v23.metadata (proposed)
+@@ -81,2 +81,20 @@
+   "work_log": "197e6bdc-ed5c-4b5e-bda6-b6c0415db992"
++ },
++ "v23_legacy_removal_alignment": {
++  "human_gate": "ZURIEL 2026-11-10 (§4 shared contracts)",
++  "owner_check": "EXTEND_EXISTING",
++  "removed_components_marked": [
++   "UserCenter",
++   "ToolActions",
++   "QuickActions",
++   "CollectiveBadge",
++   "ForumThreadPage",
++   "Discourse",
++   "SubmitChidush",
++   "RecentSearches",
++   "JoinPage",
++   "ProfilePage",
++   "Navbar"
++  ],
++  "semantics_changed": false
+  }

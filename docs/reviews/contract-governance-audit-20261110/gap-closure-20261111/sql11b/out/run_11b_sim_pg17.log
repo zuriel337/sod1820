@@ -1,0 +1,75 @@
+== SOD1820 · 11b/18b simulation · PostgreSQL (local, disposable) 17.7
+sha256 11b 7423150b1224367829316018233e0fe7f59e5232fcde346cc9c92440dd4f584e
+sha256 18b 027ad77cf11b1aa99b72ccae1c8c0fd0b1168a65c23abddcc4d22a5e4f056e90
+PASS  F1 base admin_suggestion_decide md5 = live 12961a8c…
+PASS  F2 function metadata and permissions = live
+PASS  F3 work_log trigger set (names, enabled, function md5, trigger md5) = live
+PASS  F4 work_log unique indexes = live
+PASS  F5 work_log check constraints = live
+PASS  F6 active law versions = live (v6 / v4 / v18)
+PASS  F7 rd_is_admin and fn_system_suggestion_notify_high md5 = live
+PASS  F8 new definition file md5 = literal in 11b
+PASS  O1 base: accept radar suggestion → ASSIGNMENT to CLAUDE, QUEUED, WRITE
+PASS  O2 base: agent_dispatch_emit called once for the CLAUDE row (automatic activation)
+PASS  O3 base: the row is picked up by the agent discovery scan
+PASS  O4 base: Legacy build instruction and v2/v3/v13 owners in the row
+PASS  O5 prior proposal 11_ (text only) still activates: 1 emit to CLAUDE
+PASS  A1 11b applies on the reviewed base
+PASS  A2 resulting md5 = f44dc42f…, equal to the definition file
+PASS  A3 metadata and permissions unchanged (SECURITY DEFINER, search_path, owner, ACL)
+PASS  A4 pg_get_functiondef text = definition file, byte for byte
+PASS  N1 accept: suggestion status=accepted, decided_at set, note cut to 300
+PASS  N2 exactly one record, passive: from ZURIEL to ZURIEL
+PASS  N3 no dispatch fields: kind, state, next attempt and assignment mode all NULL
+PASS  N4 agent_dispatch_emit and agent_dispatch_emit_gpt not called (no activation)
+PASS  N5 not visible to the agent discovery scan (status and topic not claimable)
+PASS  N6 task_key kept for traceability: AUTO_DEP_UPGRADE_REACT_18_3_2_S101
+PASS  N7 status SUGGESTION_ACCEPTED_NOT_ACTIVATED; release state NOT_ACTIVATED_NO_MERGE_NO_DEPLOY
+PASS  N8 owner resolved from the active laws: v6 + v4 + v18  — system_suggestions_law v6 + deploy_on_request v4 + inter_agent_coordination_law v18
+PASS  N9 evidence kept: suggestion id, package, current, latest, delta, human decision
+PASS  N10 activation recorded as NOT_ACTIVATED, auto_maintenance false, intended scope kept
+PASS  N11 the record does not occupy the writer scope (assignment_scope = task_key, not the maintenance scope)
+PASS  N12 2029 build only, no Legacy; release advice at most READY_FOR_APPROVAL, no AUTO_RELEASE_NOW
+PASS  N13 topic has no TO=/FROM=/task= tokens
+PASS  N14 re-accept / later / accept again: still one record, still no emit
+PASS  N15 even a manual dispatch_state flip on the record does not emit
+PASS  N16 major: open_threads MAJOR … BLOCKED_BY Foundation redesign-risk challenge/Human Gate
+PASS  N17 scoped package slug unchanged (SUPABASE_SUPABASE_JS)
+PASS  N18 after three accepted suggestions: 0 emits, 0 ASSIGNMENT rows, 0 rows to CLAUDE/GPT
+PASS  N19 rejected / later / pending / non-radar accepted → no record, no emit
+PASS  N20 invalid payloads refused (unsupported package / semver / delta)
+PASS  N21 refused decisions change nothing (status, records)
+PASS  N22 bad status and missing suggestion refused
+PASS  N23 non-admin and anonymous caller refused (admin only)
+PASS  N24 role anon has no EXECUTE; role authenticated + admin succeeds (SECURITY DEFINER)
+PASS  N25 the authenticated call wrote one passive record and no emit
+PASS  N26 overlap guard kept: active maintenance → 'dependency maintenance already active', nothing changes
+PASS  N27 after that maintenance is COMPLETED, accept works and adds one passive record
+PASS  N28 owner text cites the version active at decision time (v7 after a bump), no stale pointer
+PASS  N29 fallback owner text when no law row is active
+PASS  N30 admin high-severity notification behaviour identical before and after 11b  — 1 / 1
+PASS  S1 new definition: no TO=CLAUDE, no Legacy (the only 'legacy' is the forbidden npm flag --legacy-peer-deps), no AUTO_RELEASE_NOW, no v2/v3/v13 owner text
+PASS  S2 the insert writes no dispatch or assignment columns and no CLAUDE/ASSIGNMENT/QUEUED/WRITE literal
+PASS  S3 everything before the record block is byte-identical to the base (except the added v_owner declaration)
+PASS  R1 refuses on drift of the base definition  — 11b refused: live admin_suggestion_decide is not the reviewed base (md5 7a8c17e7286de7a5a696c82321145969)
+PASS  R2 refuses when 11_ already ran  — 11b refused: live admin_suggestion_decide is not the reviewed base (md5 abf4efb39202258ccce63cec5fe6bb58)
+PASS  R3 refuses on a changed law version  — 11b refused: active law versions changed: deploy_on_request@5,inter_agent_coordination_law@18,system_suggestio
+PASS  R4 refuses on a changed work_log trigger function  — 11b refused: work_log triggers changed: trg_work_log_dispatch_00_gpt_event:O:work_log_dispatch_gpt_after_write
+PASS  R5 refuses on an extra work_log trigger  — 11b refused: work_log triggers changed: trg_extra:O:work_log_dispatch_after_write:dfac3f0c9cace0993c53ea8e9674
+PASS  R6 refuses on a dropped unique index  — 11b refused: work_log unique indexes changed: work_log_assignment_idempotency_uidx:d0ff7092e20754986de6832b2ea
+PASS  R7 refuses on a dropped check constraint  — 11b refused: work_log check constraints changed: work_log_assignment_mode_ck:e8946be6403885be8060d5e7df574521,
+PASS  R8 refuses on changed permissions (EXECUTE granted to anon)  — 11b refused: function metadata or permissions changed: true:search_path=public:postgres=X/postgres,authenticat
+PASS  R9 a second run refuses (already applied) and changes nothing
+PASS  R10 one changed character in the embedded definition → refused  — 11b refused: embedded definition is not intact (bytes 6286, md5 fab5b0155a2f7bf1b045f368d13039c6)
+PASS  R11 truncated file (8 cut points): nothing applied; every cut after the statement start raises  — 600:no-op 2276:no-op 2297:error 4617:error 6596:error 9894:error 12533:error 13190:error
+PASS  R12 a failing post-check rolls the whole statement back (atomic)  — 11b failed after apply: resulting md5 f44dc42fafdf4a8ef4ae3db700fbeacf (expected f44dc42fafdf4a8ef4ae3db700fbe
+PASS  B1 18b after 11b restores the exact base md5 12961a8c…
+PASS  B2 metadata and permissions unchanged after rollback
+PASS  B3 after rollback the base behaviour returns (1 emit to CLAUDE) — as the 18b header warns
+PASS  B4 18b refuses on the base (11b not applied)  — 18b refused: live admin_suggestion_decide is not the 11b result (md5 12961a8c758d5eb86a3d6834bb54ac82)
+PASS  B5 18b refuses when the 11b result drifted
+PASS  B6 18b with one changed character → refused, 11b result kept
+PASS  B7 18b failing post-check rolls back (11b result kept)
+PASS  B8 18b refuses while system_suggestions_law v7 is active (rollback order: 18c first), 11b result kept  — 18b refused: system_suggestions_law must be back at v6 first (run ROLLBACK_20261111120100_system_sug
+
+70/70 PASS

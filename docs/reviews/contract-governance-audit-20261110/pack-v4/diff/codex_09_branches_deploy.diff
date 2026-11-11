@@ -1,0 +1,65 @@
+--- project_codex#9:branches_deploy.body (base)
++++ project_codex#9:branches_deploy.body (proposed)
+@@ -1,5 +1,5 @@
+ 
+-# Branches & Deploy — Live 2026-09-23
++# Branches & Deploy — vercel.json re-read at main 932aba4bd (11.11.2026); release policy per ZURIEL 10.11.2026
+ 
+-Canonical owner: `deploy_on_request v2`.
++Canonical owner: `deploy_on_request` (active version).
+ This codex is an operational projection of the live owner + current `vercel.json`; it is not a second deployment law.
+@@ -7,4 +7,5 @@
+ ## Production
+-- `main` = production.
+-- Merge/push to `main` may create a production Vercel deployment and must follow the release owner/gates.
++- 2029 is the only active product: Production since 2026-11-04. Legacy was retired on 2026-11-05 and is not a deployment, Preview or rollback target.
++- `main` is the release source, not an automatic deployment. A merge or push to `main` does not create a Production deployment: `git.deploymentEnabled=false` in both `vercel.json` roots (repository root and `public-reading-deploy`), and per CLAUDE.md the project's Ignored Build Step skips `main` builds.
++- A Production deployment is a separate, manual action for an exact `main` SHA (Vercel MCP, per CLAUDE.md «נוהל פריסה ל-Production מסשן ענן»). Every merge to `main` and every Production deployment, alias change or rollback requires ZURIEL's explicit approval for that specific action. There is no standing authorization.
+ - Never use production as a workaround for Preview tooling.
+@@ -12,34 +13,12 @@
+ ## Development branches
+-Live `vercel.json` currently uses `git.deploymentEnabled`:
+-- `gpt/g3-topic-golden-slug-rank-foundation-v1` → true (historical explicit exception)
+-- `gpt/*` → false
+-- `claude/*` → false
++Current `vercel.json` (both roots) sets `git.deploymentEnabled: false` globally. By Vercel's semantics no branch — `main`, `gpt/*`, `claude/*`, `preview/*` or any other — creates a deployment merely by being pushed. (Live Vercel project settings were not re-read in this pass.)
+ 
+-Therefore normal GPT/CLAUDE development branches intentionally do **not** create Vercel Preview deployments and do not consume deployment quota.
++Superseded, kept as history (2026-09-23): the per-branch map (`gpt/g3-topic-golden-slug-rank-foundation-v1` → true; `gpt/*` → false; `claude/*` → false) and the earlier `ignoreCommand` note no longer describe the configuration.
+ 
+-This supersedes the old operational note that `ignoreCommand` is the live non-main mechanism. Live verification on 2026-09-23 found no such active `ignoreCommand`; branch filtering is currently implemented by `git.deploymentEnabled`.
++## Preview
++A Preview deployment is created only as an explicitly approved, bounded action (CLAUDE.md rule 7: a protected Preview requires ZURIEL's explicit approval), from an exact approved artifact head, never as production (`target=null`). Verify before sharing: source artifact known; Preview target; `READY`; requested route returns HTTP 200. Generate/share a protected Preview URL when Deployment Protection is enabled. Never merge or promote a preview carrier branch.
+ 
+-## Authorized Preview lane
+-Reserved branch namespace: `preview/*`.
++Historical mechanism (2026-09-23): a `preview/*` carrier branch with an inert marker commit triggered Vercel Git Integration because `preview/*` was outside the blocked namespaces. With the global `deploymentEnabled: false` a push to `preview/*` no longer deploys by itself; the record below is provenance only.
+ 
+-Purpose:
+-- Human Visual Gate / temporary branch preview only.
+-- Created only when preview/release is authorized by ZURIEL or the active release owner permits it.
+-- Source must be an exact approved artifact head.
+-- If branch creation alone does not fire Vercel Git Integration, create one inert carrier/marker commit on the `preview/*` branch to produce a real push event.
+-- Marker must not modify application behavior.
+-- Verify Vercel deployment metadata before sharing:
+-  - Git ref starts with `preview/`;
+-  - source artifact is known;
+-  - `target=null` / Preview, never production;
+-  - deployment reaches `READY`;
+-  - requested preview route returns HTTP 200.
+-- Generate/share a protected Preview URL when Deployment Protection is enabled.
+-- Never merge/promote a preview carrier branch.
+-- Close/delete preview carrier after Human Visual review when no longer needed.
+-
+-Why this works:
+-Vercel `deploymentEnabled` uses minimatch; unspecified branches default to deployment enabled. The current `gpt/*` and `claude/*` rules remain false, while `preview/*` is outside those blocked namespaces.
+-
+-## F11 proof
++## F11 proof (historical, 2026-09-23)
+ On 2026-09-23:
+@@ -55,4 +34,2 @@
+ ## Safety
+-Do not broaden `gpt/*` or `claude/*` to true merely to get a Preview.
+-Use `preview/*` so development remains quota-protected and Preview creation remains an explicit, bounded action.
+-
++Do not enable Git deployments (globally or per branch) merely to get a Preview. Preview and Production creation remain explicit, bounded, approved actions.

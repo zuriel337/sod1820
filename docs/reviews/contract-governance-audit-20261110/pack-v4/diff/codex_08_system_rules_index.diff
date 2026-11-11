@@ -1,0 +1,8 @@
+--- project_codex#8:system_rules_index.body (base)
++++ project_codex#8:system_rules_index.body (proposed)
+@@ -1 +1,5 @@
++⚠️ STALE (סומן לפי הכרעת צוריאל 10.11.2026 · פרישת Legacy) — התוכן להלן משקף את האתר הראשון (Legacy) נכון ל-14.6.2026 בלבד ולא אומת מאז. Legacy פרש ב-5.11.2026; 2029 הוא המוצר הפעיל היחיד. קרא כרקע/כוונה מקורית, לא כמצב נוכחי. מצב נוכחי: SOD1820_MASTER_STATE.md ב-main + סכמת ה-DB החיה + work_log. רכיבי הקוד הנזכרים (למשל VerifiedBadge.jsx, InsightCard.jsx) אינם קיימים עוד, וחלק מהחוקים כאן אינם פעילים. רשימת החוקים הפעילים: nodes (type='rule' AND is_active) + SOD1820_MASTER_OWNER_INDEX.md.
++
++---
++
+ חוקי המערכת נשמרים ב-nodes (type='rule', עם rule_id, rule_version, is_active). שינוי חוק = גרסה חדשה, לא מוחקים. לקריאה: `select rule_id,label,metadata from nodes where type='rule' and is_active;`

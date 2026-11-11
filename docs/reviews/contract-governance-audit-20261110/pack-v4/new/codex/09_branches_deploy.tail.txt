@@ -1,0 +1,3 @@
+
+## Safety
+Do not enable Git deployments (globally or per branch) merely to get a Preview. Preview and Production creation remain explicit, bounded, approved actions.

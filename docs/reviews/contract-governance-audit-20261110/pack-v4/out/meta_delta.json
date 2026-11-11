@@ -1,0 +1,42 @@
+{
+ "rules": {
+  "deploy_on_request": {
+   "base_md5": "8a4b80b7e9b824e79dca9e229549c1c4",
+   "new_md5": "4620b9f9d94ecf9c3ca603910b12691c",
+   "removed": [
+    "auto_release_preconditions"
+   ],
+   "delta": "{\"human_gate_v4\": \"ZURIEL 2026-11-10\", \"merge_is_not_deploy\": true, \"release_advice_states\": [\"READY_FOR_APPROVAL\", \"BUNDLE_WITH\", \"BLOCKED_BY\", \"SAFE_INDEPENDENT_WAITING_RUNTIME\", \"DO_NOT_RELEASE_SUPERSEDED/PARKED\"], \"release_preconditions\": [\"gate_clean\", \"dependencies_closed\", \"current_main_reconciled\", \"required_checks_green\", \"security_privacy_clean_if_applicable\", \"no_overlapping_writer\", \"rollback_recovery_known\"], \"standing_auto_release\": false, \"separate_taale_required\": true, \"release_advice_state_aliases\": {\"AUTO_RELEASE_NOW\": \"READY_FOR_APPROVAL\"}, \"v4_explicit_release_approval\": {\"decided_at\": \"2026-11-10\", \"supersedes\": \"v2 standing authorization (§§1, 2, 8)\", \"owner_check\": \"EXTEND_EXISTING\", \"decision_text\": \"כל מיזוג ל-main וכל פריסה ל-Production דורשים אישור מפורש שלי לפעולה המסוימת. אין הרשאה עומדת.\", \"no_new_system\": true, \"procedure_ref\": \"CLAUDE.md — נוהל פריסה ל-Production מסשן ענן\", \"active_product\": \"2029\", \"legacy_retired\": \"2026-11-05\", \"production_since\": \"2026-11-04\"}, \"explicit_human_gate_remaining\": [\"governed_truth_canonicalization_or_publication\", \"destructive_irreversible_data_loss\", \"pricing_economics\", \"privacy_security_weakening\", \"permanent_capability_history_retirement\"], \"explicit_approval_required_per_action\": true}",
+   "delta_chars": 1276,
+   "rebuilt_md5": "4620b9f9d94ecf9c3ca603910b12691c",
+   "ok": true
+  },
+  "inter_agent_coordination_law": {
+   "base_md5": "982e7976d43d62a7a9b08b8d3a591e6f",
+   "new_md5": "e69f38e5bfa1e25973d6656076cc169c",
+   "removed": [],
+   "delta": "{\"v13_auto_release\": {\"status\": \"STANDING_AUTO_RELEASE_REVOKED_2026-11-10\", \"human_gate\": \"ZURIEL 2026-09-17\", \"owner_check\": \"EXTEND_EXISTING\", \"superseded_by\": \"v18_2029_production_explicit_release\", \"user_hold_overrides\": true, \"auto_canonicalization\": false, \"release_advice_states\": [\"AUTO_RELEASE_NOW\", \"BUNDLE_WITH\", \"BLOCKED_BY\", \"SAFE_INDEPENDENT_WAITING_RUNTIME\", \"DO_NOT_RELEASE_SUPERSEDED/PARKED\"], \"standing_auto_release\": true, \"separate_taale_required\": false, \"dependency_order_agent_owned\": true, \"release_recommendation_required\": true}, \"v12_2029_temporary_legacy_boundary\": {\"status\": \"HISTORICAL_PRE_CUTOVER\", \"human_gate\": \"ZURIEL 2026-09-16\", \"owner_check\": \"EXTEND_EXISTING\", \"no_new_owner\": true, \"superseded_by\": \"v18_2029_production_explicit_release\", \"current_production\": \"LEGACY_TRANSITIONAL_UNTIL_EXPLICIT_CUTOVER\", \"target_architecture\": \"2029\", \"new_site_cutover_declared\": false, \"legacy_is_design_authority\": false, \"legacy_is_current_production_runtime\": true, \"fresh_agent_must_distinguish_current_vs_target\": true}, \"v18_2029_production_explicit_release\": {\"human_gate\": \"ZURIEL 2026-11-10\", \"owner_check\": \"EXTEND_EXISTING\", \"decision_text\": \"כל מיזוג ל-main וכל פריסה ל-Production דורשים אישור מפורש שלי לפעולה המסוימת. אין הרשאה עומדת.\", \"no_new_system\": true, \"legacy_retired\": \"2026-11-05\", \"label_corrected\": \"label read 'v16' while rule_version was 17\", \"production_since\": \"2026-11-04\", \"current_production\": \"2029\", \"release_advice_states\": [\"READY_FOR_APPROVAL\", \"BUNDLE_WITH\", \"BLOCKED_BY\", \"SAFE_INDEPENDENT_WAITING_RUNTIME\", \"DO_NOT_RELEASE_SUPERSEDED/PARKED\"], \"standing_auto_release\": false, \"release_advice_state_aliases\": {\"AUTO_RELEASE_NOW\": \"READY_FOR_APPROVAL\"}, \"legacy_is_current_production_runtime\": false, \"explicit_approval_per_merge_and_deploy\": true}}",
+   "delta_chars": 1816,
+   "rebuilt_md5": "e69f38e5bfa1e25973d6656076cc169c",
+   "ok": true
+  },
+  "foundation_closure_protocol_law": {
+   "base_md5": "b26961fac416ac5e4775e9a41b6deae8",
+   "new_md5": "6b786f67bc7613c52a5e1640982e58bb",
+   "removed": [],
+   "delta": "{\"command_semantics\": {\"taale\": \"explicit_approval_for_exact_presented_scope\", \"kadima\": \"within_current_gate_only\", \"waiver\": \"explicit_replan_or_supersession_only\"}, \"v6_auto_release_binding\": {\"status\": \"STANDING_AUTO_RELEASE_REVOKED_2026-11-10\", \"human_gate\": \"ZURIEL 2026-09-17\", \"owner_check\": \"EXTEND_EXISTING\", \"superseded_by\": \"v8_explicit_release_approval_binding\", \"no_skip_unchanged\": true, \"human_decision_reserve\": true, \"separate_taale_required\": false, \"standing_auto_release_for_gate_clean_routine_scope\": true}, \"v8_explicit_release_approval_binding\": {\"human_gate\": \"ZURIEL 2026-11-10\", \"owner_check\": \"EXTEND_EXISTING\", \"no_new_system\": true, \"no_skip_unchanged\": true, \"standing_auto_release\": false, \"explicit_approval_per_merge_and_deploy\": true}}",
+   "delta_chars": 770,
+   "rebuilt_md5": "6b786f67bc7613c52a5e1640982e58bb",
+   "ok": true
+  },
+  "system_suggestions_law": {
+   "base_md5": "aa247fb211e2fec0454cb457dd4fc86d",
+   "new_md5": "f4e5216a8eb44645ea0978b35161a82e",
+   "removed": [],
+   "delta": "{\"human_gate_v6_release\": {\"changed\": [\"§19: release reuses deploy_on_request (active version) only with explicit approval\", \"SystemSuggestionsTab.jsx marked removed (5.11.2026, #1239)\"], \"human_gate\": \"ZURIEL 2026-11-10\", \"owner_check\": \"EXTEND_EXISTING\", \"decision_text\": \"כל מיזוג ל-main וכל פריסה ל-Production דורשים אישור מפורש שלי לפעולה המסוימת. אין הרשאה עומדת.\", \"no_new_system\": true}}",
+   "delta_chars": 395,
+   "rebuilt_md5": "f4e5216a8eb44645ea0978b35161a82e",
+   "ok": true
+  }
+ }
+}
