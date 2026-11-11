@@ -17,7 +17,7 @@ const executablePath = process.env.CHROMIUM_PATH || process.env.CHROMIUM_EXECUTA
 const builtWithIds = () => { try { const dir = join(dist, 'assets'); return readdirSync(dir).filter(f => f.endsWith('.js')).some(f => readFileSync(join(dir, f), 'utf8').includes(PIXEL)); } catch { return false; } };
 const skip = !(Boolean(pw) && existsSync(join(dist, 'sw.js')) && builtWithIds()) && 'playwright, or an artifact built with the test marketing ids, is unavailable';
 
-const HOSTS = /^https:\/\/(connect\.facebook\.net|www\.facebook\.com|pagead2\.googlesyndication\.com|googleads\.g\.doubleclick\.net|ep1\.adtrafficquality\.google|ep2\.adtrafficquality\.google|www\.google\.com|tracker\.invalid)\//;
+const HOSTS = /^https:\/\/(connect\.facebook\.net|www\.facebook\.com|pagead2\.googlesyndication\.com|googleads\.g\.doubleclick\.net|ep1\.adtrafficquality\.google|ep2\.adtrafficquality\.google|fundingchoicesmessages\.google\.com|www\.google\.com|tracker\.invalid)\//;
 const FBEVENTS = `(function(){var q=(window.fbq&&window.fbq.queue||[]).slice();window.__fbCalls=q.map(function(a){return Array.prototype.slice.call(a)});
 fetch('https://www.facebook.com/tr/?id=${PIXEL}&ev=PageView',{method:'POST',body:'x',mode:'no-cors',keepalive:true}).catch(function(){});})();`;
 const ADSBYGOOGLE = `window.__adsLoaded=true;`;
@@ -60,7 +60,7 @@ test('Meta Pixel starts on an admitted public route; CAPI relay and every Pixel/
     const sentBody = JSON.parse(relayed[0].body);
     assert.equal(sentBody.event_name, 'PageView');
     assert.equal(sentBody.event_id, view[3].eventID, 'same event id as the browser Pixel event, so Meta deduplicates');
-    assert.ok(relayed.every(call => call.cookie === null && /^Bearer /.test(call.authorization || '') && call.apikey), 'rebuilt anonymously: key only, no cookies');
+    assert.ok(relayed.every(call => call.cookie === null && call.authorization === null && call.apikey === null), 'rebuilt anonymously: no key, no session, no cookies (the function allows only content-type in CORS)');
     assert.ok(capi.every(item => item.status !== 403), 'the worker did not deny the relay');
     // AdSense transports as the real script uses them (observed in a real run under this CSP), from the page.
     const sent = await page.evaluate(async () => {
@@ -70,7 +70,7 @@ test('Meta Pixel starts on an admitted public route; CAPI relay and every Pixel/
       await new Promise(done => { script.onload = script.onerror = done; document.head.appendChild(script); });
       out.push(['script', window.__adsLoaded === true]);
       for (const url of ['https://pagead2.googlesyndication.com/getconfig/abg_config?client=ca-pub-0000000000000000', 'https://pagead2.googlesyndication.com/pagead/ping?e=1',
-        'https://ep1.adtrafficquality.google/getconfig/sodar?sv=200', 'https://ep2.adtrafficquality.google/sodar/sodar2/x.html', 'https://googleads.g.doubleclick.net/pagead/id']) {
+        'https://ep1.adtrafficquality.google/getconfig/sodar?sv=200', 'https://ep2.adtrafficquality.google/sodar/sodar2/x.html', 'https://googleads.g.doubleclick.net/pagead/id', 'https://fundingchoicesmessages.google.com/el/AGSKWxX']) {
         try { await fetch(url, { method: 'POST', body: 'x', mode: 'no-cors', keepalive: true }); out.push([url.split('?')[0], 'sent']); } catch (error) { out.push([url.split('?')[0], 'failed: ' + error.message]); }
       }
       out.push(['sendBeacon', navigator.sendBeacon('https://pagead2.googlesyndication.com/pagead/ping?e=2', 'x')]);
@@ -81,7 +81,7 @@ test('Meta Pixel starts on an admitted public route; CAPI relay and every Pixel/
     const violations = await page.evaluate(() => window.__csp);
     assert.equal(sent[0][1], true, 'the AdSense script loads');
     for (const bare of ['https://pagead2.googlesyndication.com/getconfig/abg_config', 'https://pagead2.googlesyndication.com/pagead/ping', 'https://ep1.adtrafficquality.google/getconfig/sodar',
-      'https://ep2.adtrafficquality.google/sodar/sodar2/x.html', 'https://googleads.g.doubleclick.net/pagead/id']) {
+      'https://ep2.adtrafficquality.google/sodar/sodar2/x.html', 'https://googleads.g.doubleclick.net/pagead/id', 'https://fundingchoicesmessages.google.com/el/AGSKWxX']) {
       assert.ok(reached.includes(bare), `${bare} reaches the network; ${JSON.stringify(sent.find(row => row[0] === bare))}`);
       assert.ok(!violations.includes(bare), `${bare} is not blocked by the CSP`);
     }
