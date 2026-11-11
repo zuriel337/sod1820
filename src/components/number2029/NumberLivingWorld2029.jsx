@@ -49,6 +49,16 @@ const MATH_FAMILY_HE = Object.freeze({
   happy_base10: "מספר שמח",
   narcissistic_base10: "Armstrong",
   palindromic_prime_base10: "ראשוני פלינדרומי",
+  twin_prime: "ראשוני תאום (הפרש 2)",
+  cousin_prime: "ראשוני בהפרש 4",
+  sexy_prime: "ראשוני בהפרש 6",
+  safe_prime: "ראשוני בטוח",
+  sophie_germain_prime: "ראשוני סופי ג׳רמן",
+  emirp: "ראשוני הפוך",
+  circular_prime: "ראשוני מעגלי",
+  left_truncatable_prime: "ראשוני קטום משמאל",
+  right_truncatable_prime: "ראשוני קטום מימין",
+  superprime: "ראשוני־על (אינדקס ראשוני)",
 });
 
 function technicalSourceText(value) {
@@ -560,13 +570,17 @@ export default function NumberLivingWorld2029({
           <p>φ(n) = {math?.arithmetic?.totient ?? "—"} · שורש ספרות {math?.digit_structure?.digital_root ?? "—"} · סכום ספרות {math?.digit_structure?.digit_sum ?? "—"}</p>
         </div>
         <div className="sod29-lw-math-discoveries">
-          {(math?.families || []).slice(0, 3).map((family) => <span key={family.key}>{MATH_FAMILY_HE[family.key] || family.label}</span>)}
+          {(math?.families || []).filter((family) => family.category !== "prime_family").slice(0, 3).map((family) => <span key={family.key}>{MATH_FAMILY_HE[family.key] || family.label}</span>)}
           {!math?.families?.length ? <span>אין משפחה מיוחדת שזוהתה</span> : null}
         </div>
       </div>
       {math?.prime_context?.status === "exact" ? <div className="sod29-lw-prime-lens" data-experience-capability="number-prime-lens">
         <div><strong>עדשת הראשוניים · #{math.prime_context.index}</strong><p>ראשוני קודם {math.prime_context.previous ?? "—"} · הבא {math.prime_context.next} · פערים {math.prime_context.gapBefore ?? "—"} ו־{math.prime_context.gapAfter}</p><small>קשר מתמטי מחושב; ביטויים ומשמעות נבדקים בדף המספר הנגזר.</small></div>
         <DepthButton onClick={() => onOpenNumber?.(math.prime_context.index)}>פתח את מספר {math.prime_context.index}</DepthButton>
+        {(math?.families || []).some((family) => family.category === "prime_family") ? <div className="sod29-lw-prime-families" aria-label="משפחות ראשוניים">
+          {(math.families || []).filter((family) => family.category === "prime_family").map((family) => <span key={family.key} title={family.reference?.source_ref || undefined}>{MATH_FAMILY_HE[family.key] || family.label}</span>)}
+        </div> : null}
+        <Link className="sod29-action" to="/beit-midrash?section=numbers&concept=prime-lens#number-concept-prime-lens">מהי עדשת הראשוניים?</Link>
       </div> : null}
 
       <div className="sod29-lw-scrubber">

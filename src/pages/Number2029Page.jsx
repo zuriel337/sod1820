@@ -208,6 +208,16 @@ const MATH_FAMILY_HE = {
   happy_base10: "מספר שמח",
   narcissistic_base10: "Armstrong",
   palindromic_prime_base10: "ראשוני פלינדרומי",
+  twin_prime: "ראשוני תאום (הפרש 2)",
+  cousin_prime: "ראשוני בהפרש 4",
+  sexy_prime: "ראשוני בהפרש 6",
+  safe_prime: "ראשוני בטוח",
+  sophie_germain_prime: "ראשוני סופי ג׳רמן",
+  emirp: "ראשוני הפוך",
+  circular_prime: "ראשוני מעגלי",
+  left_truncatable_prime: "ראשוני קטום משמאל",
+  right_truncatable_prime: "ראשוני קטום מימין",
+  superprime: "ראשוני־על (אינדקס ראשוני)",
 };
 
 function factorizationText(profile) {
@@ -1465,6 +1475,8 @@ export default function Number2029Page({ resolvedAddress = null } = {}) {
       description: "דף המספר — עולמות, קשרים, מתמטיקה, מקורות ומסע סביב המספר.",
       path: resolvedAddress?.publicAddress ? `/number/${encodeURIComponent(address)}` : `${NUMBER_PAGE_BASE}/${value || ""}`,
       noindex: !admitted,
+      // A public address that is not admitted stays "noindex, follow" like the server tag; a non-public alias stays nofollow.
+      follow: Boolean(resolvedAddress?.publicAddress),
     });
   }, [value, address, admitted, resolvedAddress?.publicAddress]);
 

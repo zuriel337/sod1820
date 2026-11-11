@@ -45,3 +45,12 @@ test("the expression size follows its length and the focal number keeps its fit-
   // The default focal size is unchanged (it is not reduced to the 46px reference).
   assert.match(page, /\.sod29-number-value\{[^}]*font-size:clamp\(74px,17vw,126px\)/);
 });
+
+test("the page has one semantic H1 (the expression or number); the compact drawer keeps a strong", () => {
+  const jsx = read("src/components/number2029/NumberCore2029.jsx");
+  assert.match(jsx, /compact \? <strong>\{projection\.expression \|\| root\}<\/strong> : <h1 className="sod29-number-v10-h1">/);
+  assert.equal((jsx.match(/<h1\b/g) || []).length, 1, "exactly one H1 in the number core");
+  for (const file of ["src/pages/number2029.css", "src/components/number2029/numberCore2029.css"]) {
+    assert.match(read(file), /\.sod29-number-v10-expression-line\[data-expression-size="short"\]>:is\(strong,h1\)/, file);
+  }
+});

@@ -684,3 +684,7 @@
 .sod29-lw-fib-card.is-active{opacity:1;transform:scale(1.06);border-color:var(--s29-line-strong);box-shadow:0 0 22px var(--s29-glow)}
 .sod29-lw-fib-card.is-active strong{color:var(--s29-hero);font-size:21px}
 @media (prefers-reduced-motion:reduce){.sod29-lw-fib-card{transition:none}}
+
+/* Prime Lens families (Prime Lens plan): deterministic, definition-only chips under the lens; they follow the 14px floor. */
+.sod29-lw-prime-lens .sod29-lw-prime-families{display:flex;flex-wrap:wrap;gap:6px;grid-column:1/-1}
+.sod29-lw-prime-lens .sod29-lw-prime-families span{display:inline-flex;align-items:center;min-height:32px;padding:4px 10px;border:1px solid var(--s29-line);border-radius:999px;color:var(--s29-ink);font-size:var(--sod29-number-support,14px)}

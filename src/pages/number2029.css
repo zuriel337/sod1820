@@ -1342,7 +1342,7 @@
     flex:1 0 100%;width:100%;min-width:0;
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line{min-width:0;align-items:flex-start}
-  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line>strong{
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line>:is(strong,h1){
     min-width:0;font-size:clamp(22px,5cqi,30px);line-height:1.35;overflow-wrap:anywhere;
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-root{
@@ -1366,7 +1366,7 @@
     flex:1 0 100%;width:100%;min-width:0;
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line{min-width:0;align-items:flex-start}
-  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line>strong{
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line>:is(strong,h1){
     min-width:0;font-size:clamp(22px,5vw,30px);line-height:1.35;overflow-wrap:anywhere;
   }
   .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-root{
@@ -1386,10 +1386,10 @@
 .sod29-number-material-pending { min-height: 28rem; }
 
 /* Typography V2: the page-level container rules above set a fixed expression size; the length tiers win at every width. */
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size]>strong{
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size]>:is(strong,h1){
   line-height:1.25;overflow-wrap:anywhere;text-wrap:balance;font-weight:700;
 }
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="short"]>strong{font-size:var(--sod29-number-title-short,28px)}
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="medium"]>strong{font-size:var(--sod29-number-title-medium,28px)}
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="long"]>strong{font-size:var(--sod29-number-title-long,21px)}
-.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="xl"]>strong{font-size:var(--sod29-number-title-xl,21px);line-height:1.4;font-weight:600}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="short"]>:is(strong,h1){font-size:var(--sod29-number-title-short,28px)}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="medium"]>:is(strong,h1){font-size:var(--sod29-number-title-medium,28px)}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="long"]>:is(strong,h1){font-size:var(--sod29-number-title-long,21px)}
+.sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-expression-line[data-expression-size="xl"]>:is(strong,h1){font-size:var(--sod29-number-title-xl,21px);line-height:1.4;font-weight:600}

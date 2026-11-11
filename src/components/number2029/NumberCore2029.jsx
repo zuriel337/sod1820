@@ -337,7 +337,8 @@ export default function NumberCore2029({
       <div className="sod29-number-v10-expression">
         <span>ביטוי / מספר</span>
         <div className="sod29-number-v10-expression-line" data-expression-size={expressionSizeTier(projection.expression || root)}>
-          <strong>{projection.expression || root}</strong>
+          {/* The one semantic H1 of the page: the expression or number itself is the focal identity. The compact drawer keeps a strong. */}
+          {compact ? <strong>{projection.expression || root}</strong> : <h1 className="sod29-number-v10-h1">{projection.expression || root}</h1>}
           {activeExpressionCuration?.type === "entity" ? <CurationMark2029
             item={activeExpressionCuration}
             related={curation?.anchor ? [curation.anchor] : []}
