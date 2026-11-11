@@ -69,7 +69,12 @@ export const CONTENT_SERIES_2029 = Object.freeze([
       Object.freeze({ field: "tags", value: "מה קורה הבורא" }),
     ]),
     exactAuthor: "אלון לוי",
-    relationNote: "אלון לוי הוא הכתב; חברות בסדרה נקבעת רק מהתגית המדויקת, לא מכל חומריו.",
+    // ZURIEL decision 6 (11.11.2026): every public Post whose author is exactly «אלון לוי» belongs to this series, with or without
+    // the tag. Identity was verified on 11.11.2026: each of his 13 Posts embeds or is written from his own channel «אלון לוי - מה קורה
+    // הבורא» (youtube.com/@alonlevifaithfull). Exact author only (no display-name variant, no other author), one Post with no copy,
+    // and the author credit stays the Post's own. The PLAN37 record of this decision is pending (a DB write that needs approval).
+    admission: Object.freeze({ exactAuthorAllPosts: true, decisionRef: "ZURIEL/20261111/series-decision-6", plan37: "PENDING-PLAN37-RECORD" }),
+    relationNote: "כל הפוסטים של אלון לוי (מחבר מדויק) שייכים לסדרה, גם בלי התגית; פוסטים של מחברים אחרים אינם נכללים.",
   }),
   Object.freeze({
     key: "dimension-five",
@@ -83,7 +88,11 @@ export const CONTENT_SERIES_2029 = Object.freeze([
       Object.freeze({ field: "categories", value: "מימד חמש" }),
     ]),
     exactAuthor: "בדרך לנצח",
-    relationNote: "סדרת תודעה של בדרך לנצח; טקסט, אודיו ווידאו מותרים. פריטים של מפרסם אחר נשארים לבדיקת מיפוי.",
+    // ZURIEL decision 7 (11.11.2026): dual membership for Posts 5003 (מטריקס) and 5004 (משחקי הדיונון). They stay in the
+    // «הצופן בסרטים» family/category and keep their own author field; no copy and no invented publisher. Only these two ids are
+    // admitted; the other category Posts of other publishers stay out until a separate decision. The PLAN37 record is pending.
+    admission: Object.freeze({ approvedPostIds: Object.freeze([5003, 5004]), decisionRef: "ZURIEL/20261111/series-decision-7", plan37: "PENDING-PLAN37-RECORD" }),
+    relationNote: "סדרת תודעה של בדרך לנצח; טקסט, אודיו ווידאו מותרים. 5003 ו־5004 בשיוך כפול באישור; פריטים אחרים של מפרסם אחר נשארים לבדיקת מיפוי.",
   }),
   Object.freeze({
     key: "sod-hashmal",
@@ -160,7 +169,37 @@ export function contentSeriesByKey(key) {
   return CONTENT_SERIES_2029.find(spec => spec.key === key) || null;
 }
 
+// Explicit, bounded admission (`spec.admission`): a short list of approved Post ids, or every Post of the exact author.
+// Never a category, title, channel or display-name inference.
+export function isApprovedSeriesPost(row, spec) {
+  const ids = spec?.admission?.approvedPostIds;
+  const id = Number(row?.id);
+  return Array.isArray(ids) && Number.isSafeInteger(id) && ids.includes(id);
+}
+
+// null = admitted; otherwise the reason it is not (the same reasons the projections already report).
+export function contentSeriesExclusionReason(row, spec) {
+  if (!spec) return "membership_not_exact";
+  if (isApprovedSeriesPost(row, spec)) return null;
+  const allPostsOfAuthor = Boolean(spec.exactAuthor && spec.admission?.exactAuthorAllPosts);
+  if (!allPostsOfAuthor && !hasExactMembership(row, spec)) return "membership_not_exact";
+  if (spec.exactAuthor && row?.author !== spec.exactAuthor) return "author_not_mapped";
+  return null;
+}
+
+export const contentSeriesAdmits = (row, spec) => contentSeriesExclusionReason(row, spec) === null;
+
+// The same admission as one PostgREST `or` filter, so the query and the row check can never disagree.
+export function contentSeriesAdmissionFilter(spec) {
+  const membership = contentSeriesMembershipFilter(spec);
+  const author = spec?.exactAuthor && postgrestValue(spec.exactAuthor) ? `author.eq."${postgrestValue(spec.exactAuthor)}"` : null;
+  let core = membership || null;
+  if (author && spec.admission?.exactAuthorAllPosts) core = author;
+  else if (author && membership) core = membership.includes(",") ? `and(or(${membership}),${author})` : `and(${membership},${author})`;
+  const ids = (Array.isArray(spec?.admission?.approvedPostIds) ? spec.admission.approvedPostIds : []).map(Number).filter(Number.isSafeInteger);
+  return [core, ids.length ? `id.in.(${ids.join(",")})` : null].filter(Boolean).join(",");
+}
+
 export function contentSeriesKeysForPost(row) {
-  return CONTENT_SERIES_2029.filter(spec => hasExactMembership(row, spec)
-    && (!spec.exactAuthor || row?.author === spec.exactAuthor)).map(spec => spec.key);
+  return CONTENT_SERIES_2029.filter(spec => contentSeriesAdmits(row, spec)).map(spec => spec.key);
 }
