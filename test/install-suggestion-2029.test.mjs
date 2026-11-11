@@ -6,8 +6,9 @@ import { build } from "esbuild";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { rm } from "node:fs/promises";
+import * as require_fs from "node:fs";
 import { isAndroidBrowser, isIosBrowser, installOfferKind, installSuggestionSuppressed, suppressInstallSuggestion, hasInstallOffer, requestInstall, installMenuKind, listenForInstallOffer,
-  INSTALL_DISMISS_DAYS, INSTALL_ACCEPTED_DAYS } from "../src/lib/installOffer2029.js";
+  installBrowser, installManualSteps, INSTALL_MANUAL_STEPS, INSTALL_DISMISS_DAYS, INSTALL_ACCEPTED_DAYS } from "../src/lib/installOffer2029.js";
 
 // The component is JSX with a CSS import: bundle it once, keeping React and the router external.
 const outfile = resolve(`.test-install-suggestion-${process.pid}.mjs`);
@@ -95,18 +96,19 @@ test("the explicit install action (\"עוד\" panel) still works after a 14-day 
   assert.equal(prevented, 0, "during a dismissal the browser's own install UI is left alone");
   assert.equal(installMenuKind(win), "native", "but the offer is kept for an explicit, person-initiated install");
   assert.equal(await requestInstall(), "accepted");
-  assert.equal(installMenuKind(win), null, "a used offer is never shown as a dead button");
+  assert.equal(installMenuKind(win), "manual", "a used offer is never a dead button: the browser's menu steps take its place");
   const fresh = memory(), win2 = fakeWindow(android);
   listenForInstallOffer(win2, () => fresh);
   win2.handlers.beforeinstallprompt(offer);
   assert.equal(prevented, 1, "without a dismissal the automatic suggestion owns the offer, as before");
   win2.handlers.appinstalled();
-  assert.equal(installMenuKind(win2), null); assert.equal(installSuggestionSuppressed(fresh), true);
+  assert.equal(installMenuKind(win2), "installed", "after installing, the panel says so and promises nothing more"); assert.equal(installSuggestionSuppressed(fresh), true);
   const iphone = fakeWindow("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Safari/604.1");
   assert.equal(listenForInstallOffer(iphone), false);
   assert.equal(installMenuKind(iphone), "ios-manual", "iOS gets the manual steps even after a dismissal");
   assert.equal(installMenuKind(fakeWindow(android, { installed: true })), "installed");
-  assert.equal(installMenuKind(fakeWindow("Mozilla/5.0 (Windows NT 10.0) Chrome/140.0")), null, "desktop: no install promise");
+  assert.equal(installMenuKind(fakeWindow("Mozilla/5.0 (Windows NT 10.0) Chrome/140.0")), "manual", "Chrome on a computer: its real menu steps");
+  assert.equal(installMenuKind(fakeWindow("Mozilla/5.0 (Windows NT 10.0; rv:140.0) Gecko/20100101 Firefox/140.0")), null, "a browser that cannot install: no promise");
   assert.equal(installMenuKind(null), null);
 });
 
@@ -148,4 +150,37 @@ test("Royal Tiles CSS: existing tokens only, three variants, 44px floor, reduced
   for (const width of css.match(/border(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?:\s*(\d+)px/g) || []) assert.ok(Number(/(\d+)px/.exec(width)[1]) <= 1, `thin frames only: ${width}`);
   const glows = [...css.matchAll(/0 0 (\d+)px/g)].map(m => Number(m[1]));
   assert.ok(glows.every(px => px <= 18), `no heavy glow: ${glows}`);
+});
+
+test("every browser that can install gets its own real steps; one that cannot gets none", () => {
+  const w = (ua, touch = 0) => ({ navigator: { userAgent: ua, maxTouchPoints: touch }, matchMedia: () => ({ matches: false }) });
+  const cases = {
+    "ios-safari": w("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Version/17.0 Mobile/15E148 Safari/604.1"),
+    "ios-other": w("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 CriOS/140.0 Mobile/15E148 Safari/604.1"),
+    "android-chrome": w("Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 Chrome/140.0 Mobile Safari/537.36"),
+    "android-inapp": w("Mozilla/5.0 (Linux; Android 14; Pixel 7; wv) AppleWebKit/537.36 Version/4.0 Chrome/140.0 Mobile Safari/537.36"),
+    "android-samsung": w("Mozilla/5.0 (Linux; Android 14; SM-S911B) AppleWebKit/537.36 SamsungBrowser/25.0 Chrome/121.0 Mobile Safari/537.36"),
+    "android-firefox": w("Mozilla/5.0 (Android 14; Mobile; rv:140.0) Gecko/140.0 Firefox/140.0"),
+    "desktop-chrome": w("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140.0 Safari/537.36"),
+    "desktop-edge": w("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140.0 Safari/537.36 Edg/140.0"),
+    "desktop-safari": w("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/17.4 Safari/605.1.15"),
+  };
+  for (const [family, win] of Object.entries(cases)) {
+    assert.equal(installBrowser(win), family, family);
+    assert.ok(installManualSteps(win).length >= 2, `${family}: real steps`);
+    assert.equal(installMenuKind(win), family.startsWith("ios-") ? "ios-manual" : "manual", family);
+  }
+  assert.equal(installBrowser(w("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/17.0 Safari/605.1.15", 5)), "ios-safari", "iPadOS reports a Mac");
+  for (const ua of ["Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/16.6 Safari/605.1.15", ""]) {
+    assert.equal(installMenuKind(w(ua)), null, ua || "no user agent"); assert.deepEqual(installManualSteps(w(ua)), []);
+  }
+  assert.equal(installMenuKind({ ...cases["android-chrome"], matchMedia: () => ({ matches: true }) }), "installed", "inside the installed app: a state, not a promise");
+  assert.ok(Object.values(INSTALL_MANUAL_STEPS).flat().every(step => !/[\u2190-\u21FF\u2B00-\u2BFF\uFE0F]/.test(step.replace(/←/g, ""))), "words, not stand-in symbols");
+});
+
+test("the automatic suggestion stays phone-only: a computer's offer feeds only the explicit menu entry", () => {
+  const { readFileSync } = require_fs;
+  const source = readFileSync("src/lib/installOffer2029.js", "utf8");
+  assert.match(source, /installSuggestionSuppressed\(\) \|\| !isAndroidBrowser\(window\.navigator\?\.userAgent\) \? null : "native"/);
+  assert.match(source, /if \(android && !installSuggestionSuppressed\(storage\(\)\)\) event\.preventDefault\(\)/, "the browser's own UI is replaced only on Android");
 });
