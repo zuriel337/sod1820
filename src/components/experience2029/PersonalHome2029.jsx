@@ -99,7 +99,9 @@ export default function PersonalHome2029({ signedIn, name, email, avatar, stats,
         {coins.map(coin => <span key={coin.k} className="r29-coin pa29-coin" data-pa29-coin={coin.k}><b>{coin.v}</b><small>{coin.l}</small></span>)}
       </div> : null}
       {primary ? <div className="pa29-actions"><button type="button" className="pa29-primary" data-pa29-primary={primary.id} onClick={() => act(primary)}>{primary.label}</button></div> : null}
-      <div className="pa29-account" data-workspace-section="account" ref={accountRef}>{slots.account}</div>
+      {/* The "account" section marker belongs to ONE element: the account entry itself (AccountConnection2029 in the frame, the contract's owner).
+          This wrapper only lays it out and is the focus/scroll target, under its own hook. */}
+      <div className="pa29-account" data-pa29-account ref={accountRef}>{slots.account}</div>
     </section>
 
     <aside className="pa29-build r29-card" data-r29-kind="ember" data-pa29-build aria-label="האזור האישי בבנייה">

@@ -104,3 +104,13 @@ test("keyboard watcher toggles the page class, cleans up, and is inert without a
   assert.deepEqual(Object.keys(handlers), []);
   assert.equal(typeof watchKeyboardClearance({}, doc), "function");
 });
+
+test('the "account" workspace-section marker has exactly one owner (a strict locator must resolve to one element)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const read = f => readFileSync(new URL(`../${f}`, import.meta.url), 'utf8');
+  const count = text => (text.match(/<[a-z]+\s[^>]*data-workspace-section="account"/g) || []).length;   // an element carrying the marker (not a selector string)
+  const home = read('src/components/experience2029/PersonalHome2029.jsx'), frame = read('src/components/experience2029/SystemFrame2029.jsx');
+  assert.equal(count(home), 0, 'the new wrapper must not carry the account marker');
+  assert.equal(count(frame), 1, 'the account entry in the frame is the single owner');
+  assert.match(home, /data-pa29-account/);
+});
