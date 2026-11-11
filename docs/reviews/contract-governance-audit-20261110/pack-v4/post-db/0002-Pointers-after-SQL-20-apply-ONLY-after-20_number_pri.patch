@@ -1,0 +1,52 @@
+From 97c7be488ef6731aca52f7ef38a722495e56621d Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 11 Nov 2026 01:45:41 +0000
+Subject: [PATCH 2/4] Pointers after SQL 20 (apply ONLY after
+ 20_number_principles_to_2029_owners.sql is applied and verified):
+ platform_tiers_law v6, canonical_methods_registry_law v7
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01H7739MjqsSy3Nv6324VnN8
+---
+ SOD1820_MASTER_OWNER_INDEX.md | 4 ++--
+ SOD1820_MASTER_ROADMAP.md     | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/SOD1820_MASTER_OWNER_INDEX.md b/SOD1820_MASTER_OWNER_INDEX.md
+index a682fda0a..2f44797b3 100644
+--- a/SOD1820_MASTER_OWNER_INDEX.md
++++ b/SOD1820_MASTER_OWNER_INDEX.md
+@@ -124,7 +124,7 @@ Old Convergence layout/trigger/one-per-value/single-anchor/display laws are Arch
+ | Responsibility | Canonical owner |
+ |---|---|
+ | deterministic Gematria execution/verification routing | `project_codex.gematria_engine` + active `gematria_engine_law` v2 |
+-| Method identity / registry / aliases / conditional equivalence | `canonical_methods_registry_law` **v6 ACTIVE** |
++| Method identity / registry / aliases / conditional equivalence | `canonical_methods_registry_law` **v7 ACTIVE** |
+ | Method lifecycle | `method_lifecycle` |
+ | execution/scanning authority | `engine_governance_registry_authority_law` |
+ | numeric/system rule-family routing | `project_codex.numeric_rule_family_index` |
+@@ -164,7 +164,7 @@ Historical `unified_ai_brain_law` and `metatron_single_mind_law` carry explicit
+ |---|---|
+ | Person / group / personal-data processing / Personal Reality projection | `person_foundation_contract_law` **v6 ACTIVE** |
+ | Follow / notification / subscription funnel | `subscription_funnel_law` v22 (3.11.2026; new verified-account default site-updates decision, runtime proposal pending; v21 preserved inactive) |
+-| entitlement/access product seam | `platform_tiers_law` **v5 ACTIVE** |
++| entitlement/access product seam | `platform_tiers_law` **v6 ACTIVE** |
+ | one credit currency | `unified_credit_system` under Access |
+ 
+ `person_foundation_contract_law v6` owns Personal Reality as an authorized contextual projection over the same One Reality: personal context may change relevance/resume/emphasis but never global truth; private material is filtered before composition; private→public research is explicit and Human-Gated; Follow ≠ inferred relevance ≠ Raziel suggestion.
+diff --git a/SOD1820_MASTER_ROADMAP.md b/SOD1820_MASTER_ROADMAP.md
+index 992a0f46a..92d7b42be 100644
+--- a/SOD1820_MASTER_ROADMAP.md
++++ b/SOD1820_MASTER_ROADMAP.md
+@@ -183,7 +183,7 @@ Detailed domain semantics live in owners, not here:
+ - Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v8**;
+ - Continuous Raziel Research Companion / multimodal voice readiness → active `raziel_companion_layer_law` **v3**;
+ - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v17** + Research Workspace;
+-- Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v5**;
++- Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v6**;
+ - Capability availability / building/open state → active `site_flags_lock_law` **v3**;
+ - No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliability → active `system_suggestions_law` **v6**;
+ - Translation / source-language evidence integrity → active `content_translation_law` **v4**;
+-- 
+2.43.0
+

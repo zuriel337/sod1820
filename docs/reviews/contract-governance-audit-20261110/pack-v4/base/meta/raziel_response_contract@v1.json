@@ -1,0 +1,37 @@
+{
+ "capabilities": [
+  "meaning",
+  "gematria",
+  "sources",
+  "languages",
+  "connections",
+  "hints"
+ ],
+ "compaction_v1": {
+  "canonical_owner": "raziel_companion_layer_law",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "raziel_ai"
+ },
+ "contract_version": 1,
+ "decided_by": "brain",
+ "g3_disposition_v1": {
+  "classification": "KEEP_SCOPED_SEMANTIC",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "live AskRaziel/supabase client/ai-analyze still consume the response envelope and render-only UI boundary",
+  "revalidated_at": "2026-09-30"
+ },
+ "owner_routing": {
+  "canonical_owner": "raziel_companion_layer_law",
+  "confidence": "high",
+  "domain": "raziel_ai",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ },
+ "ui_role": "render_only"
+}

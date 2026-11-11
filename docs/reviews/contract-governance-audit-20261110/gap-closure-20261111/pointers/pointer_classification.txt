@@ -1,0 +1,76 @@
+== ACTIVE_POINTER: 12 mentions; not matching live version: 0
+   OK  AGENTS.md:16 inter_agent_coordination_law v18 | החוק הפעיל `inter_agent_coordination_law v18` (נושא את כלל הדיווח של v17 ללא שינוי) מחליף כל הוראת מסירה סותרת
+   OK  AGENT_HANDOFF.md:6 inter_agent_coordination_law v18 | החוק הפעיל `inter_agent_coordination_law v18` (נושא את כלל הדיווח של v17 ללא שינוי) מחליף כל הוראת מסירה סותרת
+   OK  CLAUDE.md:89 inter_agent_coordination_law v18 | החוק הפעיל `inter_agent_coordination_law v18` (נושא את כלל הדיווח של v17 ללא שינוי) מחליף כל הוראת מסירה סותרת
+   OK  SOD1820_MASTER_OWNER_INDEX.md:57 foundation_closure_protocol_law v8 | | Foundation gate sequence / bottom-up closure / maintenance acceptance / compaction | `foundation_closure_pro
+   OK  SOD1820_MASTER_OWNER_INDEX.md:60 deploy_on_request v4 | | Release authorization | `deploy_on_request` **v4 ACTIVE** |
+   OK  SOD1820_MASTER_OWNER_INDEX.md:68 inter_agent_coordination_law v18 | | task routing / owner creation / one-writer / handoff / fresh-agent entry / event-driven dispatch / visual-la
+   OK  SOD1820_MASTER_OWNER_INDEX.md:70 inter_agent_coordination_law v18 | **Current reporting policy:** inter_agent_coordination_law v18 (carries the v17 reporting rule unchanged): pas
+   OK  SOD1820_MASTER_OWNER_INDEX.md:210 system_suggestions_law v6 | | system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v6 ACTIVE** |
+   OK  SOD1820_MASTER_ROADMAP.md:156 foundation_closure_protocol_law v8 | **BOTTOM-UP CLOSURE / NO PREMATURE ASCENT · Human-Gate ZURIEL · 2026-09-29:** active closure owner is `foundat
+   OK  SOD1820_MASTER_ROADMAP.md:182 foundation_closure_protocol_law v8 | - Foundation gate sequence / bottom-up closure / maintenance acceptance → active `foundation_closure_protocol_
+   OK  SOD1820_MASTER_ROADMAP.md:188 system_suggestions_law v6 | - No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliab
+   OK  SOD1820_MASTER_ROADMAP.md:203 foundation_closure_protocol_law v8 | - Foundation closure owner / acceptance law → active `foundation_closure_protocol_law v8`;
+== CODE_OR_TEST_PROVENANCE: 6 mentions; not matching live version: 6
+   OLD scripts/test-replayable-golden-no-black-box.mjs:142 system_suggestions_law v3 | ownerRuleRefs: ["research_strategy_layer_law v15", "system_suggestions_law v3"],
+   OLD src/lib/research/interactionCorrelation.js:1 system_suggestions_law v5 | // SOD1820 — client interaction correlation (No-Black-Box, system_suggestions_law v5).
+   OLD src/lib/research/providerOrchestration.js:9 system_suggestions_law v3 | // - system_suggestions_law v3: trace/cost/routing observability + suggestions;
+   OLD test/fixtures/g3-reliability-preclose.behaviour.sql:64 deploy_on_request v3 | -- deploy_on_request v3 extends v2, v2 deactivated
+   OLD test/system-self-maintenance-v1-contract.test.mjs:61 deploy_on_request v2 | assert.match(mig, /deploy_on_request v2/);
+   OLD tests/sql/raziel_phase_m_cross_surface_golden_v1.sql:163 inter_agent_coordination_law v13 | and p->'trace'->'operator'->>'capability' = 'work_now' and r->'trace'->'operator'->>'owner' = 'inter_agent_coo
+== DOC_PROVENANCE: 15 mentions; not matching live version: 15
+   OLD AGENTS.md:44 inter_agent_coordination_law v17 | 4. Coordination identity: `GPT` is the existing ledger actor label under which Codex work is recorded, a label
+   OLD SOD1820_MASTER_OWNER_INDEX.md:3 inter_agent_coordination_law v17 | > **מצב חי, כללי שחרור ומשמעת סשן — מקור יחיד: [`CLAUDE.md`](CLAUDE.md) (Claude Code) ו־[`AGENTS.md`](AGENTS.m
+   OLD SOD1820_MASTER_ROADMAP.md:316 inter_agent_coordination_law v13 | - exact remaining hardening/coverage mechanics for the G3 event-driven dispatcher, under `inter_agent_coordina
+   OLD docs/2029-data-placement-retention-crosswalk.md:78 system_suggestions_law v5 | | `security_log` | system_suggestions_law v5 | SECURITY_INCIDENT_LOG | OPERATIONAL_RUNTIME | log_security, che
+   OLD docs/2029-data-placement-retention-crosswalk.md:79 system_suggestions_law v5 | | `op_trace_spans` | system_suggestions_law v5 | OPERATIONAL_TRACE_SPANS | OPERATIONAL_RUNTIME | table comment
+   OLD docs/2029-media-performance-delivery-map-v1.md:19 system_suggestions_law v2 | - `system_suggestions_law v2` for operational trace/cost;
+   OLD docs/2029-provider-orchestration-v1.md:10 system_suggestions_law v3 | - `system_suggestions_law v3`
+   OLD docs/bot-resilient-experience-projection-v1.md:24 inter_agent_coordination_law v8 | | Active rules read live | `inter_agent_coordination_law` v8 · `traffic_intelligence_law` v8 · `canonical_ui_c
+   OLD docs/bot-resilient-experience-projection-v1.md:87 inter_agent_coordination_law v8 | | Inter-agent coordination | `inter_agent_coordination_law` v8 — journal only, ZURIEL never relays | Followed.
+   OLD docs/els-claude-visual-handoff-20261011.md:5 inter_agent_coordination_law v16 | Actor: GPT. Task: `ELS_RESEARCH_CLAUDE_VISUAL_PREVIEW_20261011_V1`. Live coordination owner: `inter_agent_coor
+   OLD docs/g3-2029-cutover-acceptance-checklist.md:40 deploy_on_request v3 | **Not changed here:** runtime, routing, DB, release authority (`deploy_on_request` v3), Human-Gate requirement
+   OLD docs/g3-2029-cutover-acceptance-checklist.md:95 deploy_on_request v3 | - **Release authority** for a rollback resolves from `deploy_on_request` v3 like any release. This document gr
+   OLD docs/research-intake-contributor-scope-v1-addendum.md:222 inter_agent_coordination_law v3 | **Source:** derived from a multi-round stress-test on ספר הפליאה (Sefer HaPeliah, HebrewBooks 6355), coordinat
+   OLD docs/research-intake-contributor-scope-v1-addendum.md:249 inter_agent_coordination_law v3 | Points only to `inter_agent_coordination_law` v3 (10)–(21). Zero restatement.
+   OLD docs/w0-2027-plan-integrity-review-v1.md:13 deploy_on_request v1 | OWNER CHECK = EXTEND_EXISTING. Relevant owners actually read: System Frame; Research Studio; Master State gove
+== HISTORICAL_DOC: 8 mentions; not matching live version: 8
+   OLD SOD1820_MASTER_ROADMAP.md:176 deploy_on_request v3 | **Historical release-semantics pointer (superseded for current coordination and this cutover authorization):**
+   OLD SOD1820_MASTER_ROADMAP.md:176 inter_agent_coordination_law v13 | **Historical release-semantics pointer (superseded for current coordination and this cutover authorization):**
+   OLD SOD1820_MASTER_STATE.md:295 inter_agent_coordination_law v13 | - final owner versions after remediation: `inter_agent_coordination_law v13`, `research_workspace_law v3`, `re
+   OLD SOD1820_MASTER_STATE.md:392 system_suggestions_law v5 | **Current live checkpoint · 27.9.2026:** origin/main is `96b3d5dc7dab3c91fd72972b77095a10a440342c`. Active cur
+   OLD SOD1820_MASTER_STATE.md:392 inter_agent_coordination_law v13 | **Current live checkpoint · 27.9.2026:** origin/main is `96b3d5dc7dab3c91fd72972b77095a10a440342c`. Active cur
+   OLD SOD1820_MASTER_STATE.md:396 inter_agent_coordination_law v13 | 1. **Inter-agent event-driven dispatch runtime** under `inter_agent_coordination_law v13` so work_log assignme
+   OLD docs/2029-research-learning-champion-challenger-v1.md:15 system_suggestions_law v3 | - `system_suggestions_law v3` — active canonical owner that absorbed the historical `ai_style_learning_law` st
+   OLD docs/home-unified-release-20261012.md:45 deploy_on_request v3 | Release remains blocked by these concrete checks; no main merge/production release performed. Earlier broad re
+== HISTORICAL_MIGRATION: 93 mentions; not matching live version: 93
+== RUNTIME_LABEL_EDGE: 27 mentions; not matching live version: 27
+   OLD supabase/functions/ai-analyze/index.ts:1396 system_suggestions_law v5 | system_overview: { calls: [{ rpc: "admin_system_health", args: {} }], owner: "system_suggestions_law v5" },
+   OLD supabase/functions/ai-analyze/index.ts:1397 system_suggestions_law v5 | system_faults: { calls: [{ rpc: "admin_system_health", args: {} }], owner: "system_suggestions_law v5" },
+   OLD supabase/functions/ai-analyze/index.ts:1398 system_suggestions_law v5 | ai_cost_week: { calls: [{ rpc: "admin_ai_tokens", args: { p_days: 7 } }], owner: "system_suggestions_law v5" }
+   OLD supabase/functions/ai-analyze/index.ts:2080 deploy_on_request v3 | // secret, never the caller JWT, no Vercel API). Evidence follows the post-deploy-canary workflow / deploy_on_
+   OLD supabase/functions/ai-analyze/index.ts:2088 deploy_on_request v3 | const RAZIEL_GH_OWNER = "live_state_resolution_law v2 + deploy_on_request v3";
+   OLD supabase/functions/ai-analyze/index.ts:2193 inter_agent_coordination_law v13 | work_now: { calls: [{ rpc: "get_work_log_current", args: {} }], owner: "inter_agent_coordination_law v13" },
+   OLD supabase/functions/ai-analyze/index.ts:2194 inter_agent_coordination_law v13 | work_active: { calls: [{ rpc: "get_work_log_current", args: {} }], owner: "inter_agent_coordination_law v13" }
+   OLD supabase/functions/ai-analyze/index.ts:2195 inter_agent_coordination_law v13 | work_ready: { calls: [{ rpc: "get_work_log_current", args: {} }], owner: "inter_agent_coordination_law v13" },
+   OLD supabase/functions/ai-analyze/index.ts:2196 inter_agent_coordination_law v13 | work_today: { calls: [{ rpc: "get_work_log_current", args: {} }], owner: "inter_agent_coordination_law v13" },
+   OLD supabase/functions/ai-analyze/index.ts:2197 system_suggestions_law v5 | agents_status: { calls: [{ rpc: "admin_agents_dashboard", args: {} }], owner: "system_suggestions_law v5" },
+   OLD supabase/functions/ai-analyze/index.ts:2199 system_suggestions_law v5 | owner: "system_suggestions_law v5 + inter_agent_coordination_law v13" },
+   OLD supabase/functions/ai-analyze/index.ts:2199 inter_agent_coordination_law v13 | owner: "system_suggestions_law v5 + inter_agent_coordination_law v13" },
+   OLD supabase/functions/ai-analyze/index.ts:2615 system_suggestions_law v3 | ownerRef: "ai_analyze_contract v2 + system_suggestions_law v3",
+   OLD supabase/functions/ai-analyze/index.ts:2692 system_suggestions_law v3 | ownerRuleRefs: ["ai_analyze_contract v2", "system_suggestions_law v3"],
+   OLD supabase/functions/ai-analyze/index.ts:4137 system_suggestions_law v3 | ownerRef: "system_suggestions_law v3 + ai_analyze_contract v2",
+   OLD supabase/functions/ai-analyze/index.ts:4255 system_suggestions_law v3 | ownerRuleRefs: ["research_strategy_layer_law v15", "ai_analyze_contract v2", "system_suggestions_law v3"],
+   OLD supabase/functions/ai-analyze/index.ts:4382 system_suggestions_law v3 | ownerRuleRefs: ["ai_analyze_contract v2", "system_suggestions_law v3", "truth_axes_foundation_law v3"],
+   OLD supabase/functions/ai-analyze/index.ts:4449 system_suggestions_law v3 | ownerRuleRefs: ["ai_analyze_contract v2", "truth_axes_foundation_law v3", "system_suggestions_law v3"],
+   OLD supabase/functions/ai-analyze/index.ts:4504 system_suggestions_law v3 | owner_ref: "ai_analyze_contract v2 + system_suggestions_law v3",
+   OLD supabase/functions/ai-analyze/index.ts:4512 system_suggestions_law v3 | ownerRuleRefs: ["ai_analyze_contract v2", "system_suggestions_law v3", "truth_axes_foundation_law v3"],
+   OLD supabase/functions/field-router/index.ts:16 system_suggestions_law v5 | const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
+   OLD supabase/functions/gallery-ocr/index.ts:13 system_suggestions_law v5 | const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
+   OLD supabase/functions/lab-teacher/index.ts:13 system_suggestions_law v5 | const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
+   OLD supabase/functions/number-researcher/index.ts:23 system_suggestions_law v5 | const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
+   OLD supabase/functions/raziel-attention/index.ts:28 system_suggestions_law v5 | const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
+   OLD supabase/functions/wa-raziel/index.ts:65 system_suggestions_law v5 | owner_ref: "raziel_companion_layer_law v3 + system_suggestions_law v5",
+   OLD supabase/functions/wa-video-enrich/index.ts:46 system_suggestions_law v5 | owner_ref: "research_strategy_layer_law v17 + system_suggestions_law v5",
+== WORKFLOW_COMMENT: 1 mentions; not matching live version: 1
+   OLD .github/workflows/release-visual-gate.yml:19 deploy_on_request v3 | # G3_RELIABILITY_PRECLOSE — deploy_on_request v3 preflight: the NEXT release requires the latest exact-SHA

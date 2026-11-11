@@ -1,0 +1,40 @@
+== SOD1820 · 11b/11c order, law row and concurrency · PostgreSQL 17.7 (local, disposable)
+PASS  F1 base admin_suggestion_decide md5 = live 12961a8c…
+PASS  F2 rule-versioning guard function md5 = live 56b90b0a…, trigger definition = live  — 56b90b0ae0f9c5915b730314d13ca7a0
+PASS  F3 nodes unique indexes = live (5)
+PASS  F4 v6 row = live (active, description md5 98d4d88e…, metadata md5 f4e5216a…, 17885 characters)
+PASS  F5 v5 row = live history (inactive, md5 9b5c19de… / aa247fb2…)
+PASS  F6 work_log trigger set = live (the no-activation proof depends on it)
+PASS  O1 11c before 11b → refused (run 11b first); the law is unchanged  — 11c refused: admin_suggestion_decide is not the 11b result (md5 12961a8c758d5eb86a3d6834bb
+PASS  O2 11b then 11c → both apply
+PASS  O3 v7 row as reviewed: active, supersedes 6, md5 / SHA-256 / length / metadata md5 = literals, text = v7 file
+PASS  O4 v7 label, depends_on and weight carried over; ZURIEL's decision text recorded; v3 and v6 metadata records kept
+PASS  O5 v6 kept as unchanged inactive history; v5 untouched; exactly one active version
+PASS  O6 a second 11b or 11c refuses and changes nothing
+PASS  O7 after 11b + 11c an accepted suggestion cites the live law versions (v7 / v4 / v18) and dispatches nothing  — system_suggestions_law v7 + deploy_on_request v4 + inter_agent_coordination_law v18
+PASS  O8 18b while v7 is active → refused (rollback order: 18c first); function unchanged  — 18b refused: system_suggestions_law must be back at v6 first (run ROLLBACK_20261111120100_
+PASS  O9 18c → v6 active again (unchanged), v7 kept as inactive history, one active version
+PASS  O10 18b → the exact base function (md5 12961a8c…); the package is fully rolled back
+PASS  O11 18c a second time refuses (v7 is no longer active)
+PASS  O12 11c refuses on a drifted v6 description  — 11c refused: v6 description drift (md5 450aabf0e3e6cf569f76b549743b7452)
+PASS  O13 11c refuses when a companion law moved (deploy_on_request v5)  — 11c refused: companion law versions changed: deploy_on_request@5,inter_agent_coordination_
+PASS  O14 11c refuses when the v5 history row changed  — 11c refused: v5 history row missing or changed
+PASS  O15 a failure after v6 was deactivated rolls the whole statement back (v6 still active, no v7 row)
+PASS  O16 one changed character in the new wording → refused (rebuilt text differs), nothing changes
+PASS  O17 a truncated 11c (4 cut points) applies nothing  — 1817:no-op 1848:error 5817:error 11630:error
+PASS  O18 the intact 11c still applies afterwards
+PASS  O19 the live versioning guard stays in force: a second active version is refused
+PASS  C1 [11b only] two sessions accept suggestion 101 at once: B waits on the row lock while A's transaction is open  — active Lock
+PASS  C2 [11b only] both calls succeed; exactly one passive record (to ZURIEL), zero dispatch calls, zero dispatch rows  — records 1, emits 0
+PASS  C3 [11b only] the later decision is the one kept on the suggestion (status accepted, note B)
+PASS  C1 [11b + 11c] two sessions accept suggestion 101 at once: B waits on the row lock while A's transaction is open  — active Lock
+PASS  C2 [11b + 11c] both calls succeed; exactly one passive record (to ZURIEL), zero dispatch calls, zero dispatch rows  — records 1, emits 0
+PASS  C3 [11b + 11c] the later decision is the one kept on the suggestion (status accepted, note B)
+PASS  C4 A rolls back while B waits → B writes the record: exactly one, zero dispatch calls  — records 1
+PASS  C5 B under REPEATABLE READ gets a serialization failure (40001) instead of a duplicate  — 40001
+PASS  C6 B's retry is idempotent: still one record, zero dispatch calls
+PASS  C7 eight sessions accept the same suggestion at the same moment: all succeed, one record, zero dispatch calls  — ok,ok,ok,ok,ok,ok,ok,ok
+PASS  C8 two different suggestions accepted at once: both succeed, one record each, zero dispatch calls (no false overlap block)  — ok | ok
+PASS  C9 contrast — the live base function in the same race: one QUEUED ASSIGNMENT to CLAUDE and one dispatch call (B refused by the overlap guard)  — rows 1, emits 1, B refused
+
+37/37 PASS

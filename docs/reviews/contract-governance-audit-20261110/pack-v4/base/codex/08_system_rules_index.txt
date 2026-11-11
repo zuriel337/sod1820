@@ -1,0 +1,7 @@
+חוקי המערכת נשמרים ב-nodes (type='rule', עם rule_id, rule_version, is_active). שינוי חוק = גרסה חדשה, לא מוחקים. לקריאה: `select rule_id,label,metadata from nodes where type='rule' and is_active;`
+חוקים שמומשו בקוד (בית המדרש ועוד):
+- verified_badge_law — סמל מאומת = לוגו + ✓. רכיב src/components/VerifiedBadge.jsx (variants: ai/post/gematria).
+- insight_card_law — כרטיס חידוש נפתח. src/components/InsightCard.jsx (אם מקושר לפוסט — לחיצה מנווטת).
+- subscribe_gate_law (v2) — שער הרשמה עם אימות מייל אמיתי (Supabase Auth OTP); 2 חידושים חינם ואז רישום. רכיבים: SubscribeGate.jsx, EmailVerify.jsx, lib/auth.js, AuthProvider.jsx.
+- stream_separation_law — הפרדת זרמים בדף הבית: "עדכונים אחרונים"=פוסטים (LatestPostsRail); "חידושי AI"=תיבה (AiInsightsBox, origin='ai').
+- golden_entity_law — ישות זהב (tier=gold): הדרגה העליונה, כוכב זהב, קופצת לראש בכל הופעת המספר (ראו slug=golden_entities). חברה ראשונה: השם המלא של האתר = 1820.

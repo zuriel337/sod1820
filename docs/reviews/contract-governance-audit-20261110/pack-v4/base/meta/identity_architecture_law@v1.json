@@ -1,0 +1,39 @@
+{
+ "compaction_v1": {
+  "canonical_owner": "person_foundation_contract_law",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "person_identity"
+ },
+ "foundation_contract": "audits/experience_governance_foundation_v1/EXPERIENCE_GOVERNANCE_V1_FOUNDATION_CONTRACT.md",
+ "g3_disposition_v1": {
+  "classification": "KEEP_SCOPED_SEMANTIC",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "live community/public identity/contributor flows and current G3 community runtime still consume the anonymous-to-contributor identity semantics",
+  "revalidated_at": "2026-09-30"
+ },
+ "governs_live_code": [
+  "src/lib/publicIdentity.js",
+  "src/lib/authors.js",
+  "src/lib/community.js",
+  "src/pages/ContributorPage.jsx",
+  "src/components/ReportHint.jsx",
+  "src/pages/EntityPage.jsx",
+  "src/pages/WelcomePage.jsx"
+ ],
+ "human_gate": "ZURIEL, 2026-08-29, work_log id f4811264-b47e-4020-b14f-bbfd187c1d04",
+ "owner_routing": {
+  "canonical_owner": "person_foundation_contract_law",
+  "confidence": "high",
+  "domain": "person_identity",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ },
+ "promoted_by": "work_log id 5a4b6756 (pass 2) -> f4811264 (approval) -> this closure pass",
+ "promoted_from": "CLAUDE.md prose (verbatim transcription, meaning preserved per ZURIEL instruction — not rewritten)"
+}

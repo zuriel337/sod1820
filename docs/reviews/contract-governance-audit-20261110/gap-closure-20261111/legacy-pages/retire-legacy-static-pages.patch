@@ -1,0 +1,258 @@
+diff --git a/.github/workflows/legacy-production-lock.yml b/.github/workflows/legacy-production-lock.yml
+index cd255cd..4742595 100644
+--- a/.github/workflows/legacy-production-lock.yml
++++ b/.github/workflows/legacy-production-lock.yml
+@@ -18,8 +18,10 @@ jobs:
+       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+         with:
+           persist-credentials: false
+-      - name: Verify Legacy is retired (no Legacy document, rollback worker or catch-all)
++      - name: Verify Legacy is retired (no Legacy document, rollback worker or catch-all; no retired Legacy static page)
+         run: node scripts/test-legacy-retired.mjs
++      - name: Verify the retired static pages gate catches a restored page, a missing redirect and a new link (negative cases)
++        run: node --test test/legacy-retired-static-pages-2029.test.mjs
+       - name: Install the existing locked middleware dependencies
+         run: npm ci --ignore-scripts --no-audit --no-fund
+       - name: Verify explicit 2029 publication and deployment separation
+diff --git a/public-reading-deploy/vercel.json b/public-reading-deploy/vercel.json
+index e4cb816..9a66f3b 100644
+--- a/public-reading-deploy/vercel.json
++++ b/public-reading-deploy/vercel.json
+@@ -2964,6 +2964,11 @@
+       "destination": "/code",
+       "permanent": false
+     },
++    {
++      "source": "/heichal.html",
++      "destination": "/heichal",
++      "permanent": true
++    },
+     {
+       "source": "/posts",
+       "destination": "/post",
+diff --git a/scripts/accept-legacy-static-pages-retired.mjs b/scripts/accept-legacy-static-pages-retired.mjs
+new file mode 100644
+index 0000000..92a8f60
+--- /dev/null
++++ b/scripts/accept-legacy-static-pages-retired.mjs
+@@ -0,0 +1,42 @@
++// Read-only acceptance for the retired Legacy static pages, against a deployed origin (default: Production).
++// Usage: node scripts/accept-legacy-static-pages-retired.mjs [https://sod1820.co.il]
++// GET requests only, no cookies, no writes. A browser user agent is used because the edge refuses unknown clients (curl gets 403).
++// Exit 0 only when every check passes; each line says what was observed.
++const origin = new URL(process.argv[2] || "https://sod1820.co.il").origin;
++const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
++const get = async (path, headers = {}) => {
++  const res = await fetch(origin + path, { redirect: "manual", headers: { "user-agent": UA, ...headers } });
++  const body = res.status >= 300 && res.status < 400 ? "" : await res.text();
++  return { status: res.status, location: res.headers.get("location"), robots: res.headers.get("x-robots-tag") || "", body };
++};
++const title = (html) => (html.match(/<title>([^<]*)<\/title>/) || [])[1] || "";
++const results = [];
++const check = (name, ok, observed) => { results.push(ok); console.log(`${ok ? "PASS" : "FAIL"}  ${name} — ${observed}`); };
++
++const heichalHtml = await get("/heichal.html");
++const target = heichalHtml.location ? new URL(heichalHtml.location, origin) : null;
++check("/heichal.html continues permanently to /heichal on the same origin", heichalHtml.status === 308 && target?.origin === origin && target?.pathname === "/heichal",
++  `${heichalHtml.status} ${heichalHtml.location || "(no location)"}`);
++
++const heichal = await get("/heichal");
++check("/heichal is the 2029 Heichal document (closed notice 503 while closed, or 200 once opened), not the Legacy hall",
++  [200, 503].includes(heichal.status) && /SOD1820/.test(title(heichal.body)) && !/היכל השערים/.test(heichal.body.slice(0, 4000)),
++  `${heichal.status} "${title(heichal.body)}"`);
++
++const preview = await get("/preview.html");
++check("/preview.html answers the 2029 404, not indexed, without the Legacy mockup",
++  preview.status === 404 && /noindex/i.test(preview.robots + preview.body.slice(0, 4000)) && /SOD1820/.test(title(preview.body)) && !/סוד 1820 — היכל/.test(preview.body),
++  `${preview.status} "${title(preview.body)}"`);
++
++const music = await get("/heichal-theme.mp3");
++check("/heichal-theme.mp3 is no longer served", music.status === 404, `${music.status}`);
++
++const embed = await get("/tzofen.html", { "sec-fetch-dest": "iframe" });
++check("unchanged: the ELS tool embed /tzofen.html still loads in a frame", embed.status === 200, `${embed.status}`);
++const doc = await get("/tzofen.html", { "sec-fetch-dest": "document" });
++check("unchanged: opening /tzofen.html as a page still continues to /code", doc.status >= 300 && doc.status < 400 && new URL(doc.location || "/", origin).pathname === "/code",
++  `${doc.status} ${doc.location || ""}`);
++
++const failed = results.filter((ok) => !ok).length;
++console.log(`\n${results.length - failed}/${results.length} PASS · ${origin} · ${new Date().toISOString()}`);
++process.exit(failed ? 1 : 0);
+diff --git a/scripts/test-legacy-retired.mjs b/scripts/test-legacy-retired.mjs
+index 51e3a4f..866a9ea 100644
+--- a/scripts/test-legacy-retired.mjs
++++ b/scripts/test-legacy-retired.mjs
+@@ -31,6 +31,34 @@ const catchAll = (rootConfig.rewrites || []).find((rule) => rule.source === "/(.
+ assert.ok(catchAll, "the root catch-all rewrite must exist");
+ assert.equal(catchAll.destination, "/2029.html", "the root catch-all must serve the 2029 document");
+ 
++// Retired Legacy static pages. The Legacy Hall of Gates (/heichal.html, with its music /heichal-theme.mp3) and the Legacy home mockup
++// (/preview.html) stayed in public/ after the Legacy removal and were served by Production. They are not part of 2029; Git history keeps them.
++// The old Heichal address continues permanently to the 2029 Heichal route, which answers its own closed notice while the area is closed.
++// The mockup has no 2029 counterpart, so it answers the 2029 404. Nothing may link to, rewrite to or redirect to the retired files.
++const RETIRED_STATIC = ["public/heichal.html", "public/preview.html", "public/heichal-theme.mp3"];
++for (const path of RETIRED_STATIC) assert.equal(fs.existsSync(path), false, `${path} is a retired Legacy page or asset and must not be in the served tree`);
++const retiredUrls = RETIRED_STATIC.map((path) => path.slice("public".length));
++for (const [name, config] of configs) {
++  for (const rule of [...(config.rewrites || []), ...(config.redirects || [])]) {
++    assert.equal(retiredUrls.includes(String(rule.destination || "")), false, `${name}: ${rule.source} must not lead to the retired ${rule.destination}`);
++  }
++}
++for (const [name, config] of configs.slice(0, 2)) {
++  const heichalRedirects = (config.redirects || []).filter((rule) => rule.source === "/heichal.html");
++  assert.equal(heichalRedirects.length, 1, `${name}: /heichal.html needs exactly one redirect`);
++  assert.deepEqual(heichalRedirects[0], { source: "/heichal.html", destination: "/heichal", permanent: true },
++    `${name}: /heichal.html continues permanently, unconditionally, to the 2029 Heichal route`);
++}
++// A link to a retired file from the 2029 code or document (relative or absolute). A file name inside another name
++// (journey-preview-1237.html, finding-preview.html) or after a hyphen in prose ("ל-heichal.html") is not a link.
++const retiredLink = /(?<![A-Za-z0-9_-])(?:heichal|preview)\.html(?![A-Za-z0-9_-])|(?<![A-Za-z0-9_-])heichal-theme\.mp3/;
++const sources = ["2029.html", ...fs.readdirSync("src", { recursive: true }).map((path) => `src/${path}`)]
++  .filter((path) => /\.(?:jsx?|mjs|cjs|tsx?|css|html|json)$/.test(path) && fs.statSync(path).isFile());
++for (const path of sources) {
++  const hit = read(path).match(retiredLink);
++  assert.equal(hit, null, `${path} links to the retired ${hit?.[0]}`);
++}
++
+ const releaseBuild = read("scripts/build-public-reading-production.mjs");
+ assert.equal(/legacy-sw|legacyRollbackWorker|public\/sw\.js/.test(releaseBuild), false, "the release artifact must not carry a Legacy rollback worker");
+ 
+diff --git a/test/legacy-retired-static-pages-2029.test.mjs b/test/legacy-retired-static-pages-2029.test.mjs
+new file mode 100644
+index 0000000..9dd8ce0
+--- /dev/null
++++ b/test/legacy-retired-static-pages-2029.test.mjs
+@@ -0,0 +1,102 @@
++// Negative cases for the retired Legacy static pages in scripts/test-legacy-retired.mjs. The gate runs unchanged against a small fixture
++// tree (real configuration files, a one-file src/, an empty public/) outside any Git checkout, so it reads the fixture's working files.
++// Each case changes one thing and must make the gate fail with its own message; the clean fixture must pass.
++import test from "node:test";
++import assert from "node:assert/strict";
++import { spawnSync } from "node:child_process";
++import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
++import { tmpdir } from "node:os";
++import { join, resolve } from "node:path";
++
++const root = resolve(new URL("..", import.meta.url).pathname);
++const gate = join(root, "scripts/test-legacy-retired.mjs");
++const publicationPath = "public-reading-deploy/vercel.json";
++
++function fixture(change = () => {}) {
++  const dir = mkdtempSync(join(tmpdir(), "legacy-retired-"));
++  for (const file of ["vercel.json", publicationPath, "scripts/build-public-reading-production.mjs", "package.json", "2029.html"]) {
++    mkdirSync(join(dir, file, ".."), { recursive: true });
++    cpSync(join(root, file), join(dir, file));
++  }
++  mkdirSync(join(dir, "public"), { recursive: true });
++  mkdirSync(join(dir, "src/components"), { recursive: true });
++  writeFileSync(join(dir, "src/components/Clean.jsx"), "// דפוס זהה ל-heichal.html (prose, not a link)\nexport const a = '/journey-preview-1237.html';\nexport const b = '/research-studio-finding-preview.html';\n");
++  change(dir);
++  const run = spawnSync(process.execPath, [gate], { cwd: dir, encoding: "utf8" });
++  rmSync(dir, { recursive: true, force: true });
++  return { code: run.status, out: `${run.stdout}${run.stderr}` };
++}
++const editJson = (dir, file, edit) => {
++  const path = join(dir, file);
++  const json = JSON.parse(readFileSync(path, "utf8"));
++  edit(json);
++  writeFileSync(path, JSON.stringify(json, null, 2) + "\n");
++};
++
++test("the clean fixture passes, including prose and longer file names that only contain the retired names", () => {
++  const r = fixture();
++  assert.equal(r.code, 0, r.out);
++  assert.match(r.out, /Legacy retired gate: PASS/);
++});
++
++for (const file of ["public/heichal.html", "public/preview.html", "public/heichal-theme.mp3"]) {
++  test(`a restored ${file} fails the gate`, () => {
++    const r = fixture((dir) => writeFileSync(join(dir, file), "<!doctype html><title>restored</title>"));
++    assert.notEqual(r.code, 0);
++    assert.match(r.out, new RegExp(`${file.replace(".", "\\.")} is a retired Legacy page or asset`));
++  });
++}
++
++test("a missing /heichal.html redirect fails the gate, in either configuration", () => {
++  for (const file of ["vercel.json", publicationPath]) {
++    const r = fixture((dir) => editJson(dir, file, (c) => { c.redirects = c.redirects.filter((x) => x.source !== "/heichal.html"); }));
++    assert.notEqual(r.code, 0, file);
++    assert.match(r.out, /\/heichal\.html needs exactly one redirect/);
++  }
++});
++
++test("a temporary, conditional or other-destination /heichal.html redirect fails the gate", () => {
++  for (const variant of [{ permanent: false }, { destination: "/" }, { has: [{ type: "header", key: "sec-fetch-dest", value: "document" }] }]) {
++    const r = fixture((dir) => editJson(dir, publicationPath, (c) => {
++      const i = c.redirects.findIndex((x) => x.source === "/heichal.html");
++      c.redirects[i] = { ...c.redirects[i], ...variant };
++    }));
++    assert.notEqual(r.code, 0, JSON.stringify(variant));
++    assert.match(r.out, /continues permanently, unconditionally, to the 2029 Heichal route/);
++  }
++});
++
++test("a second /heichal.html redirect fails the gate", () => {
++  const r = fixture((dir) => editJson(dir, publicationPath, (c) => { c.redirects.unshift({ source: "/heichal.html", destination: "/heichal", permanent: true }); }));
++  assert.notEqual(r.code, 0);
++  assert.match(r.out, /needs exactly one redirect/);
++});
++
++test("a rewrite or redirect that leads to a retired file fails the gate, in either configuration", () => {
++  const cases = [
++    ["vercel.json", (c) => { c.rewrites.unshift({ source: "/heichal", destination: "/heichal.html" }); }],
++    [publicationPath, (c) => { c.redirects.unshift({ source: "/home-preview", destination: "/preview.html", permanent: false }); }],
++    [publicationPath, (c) => { c.rewrites.unshift({ source: "/music", destination: "/heichal-theme.mp3" }); }],
++  ];
++  for (const [file, edit] of cases) {
++    const r = fixture((dir) => editJson(dir, file, edit));
++    assert.notEqual(r.code, 0, file);
++    assert.match(r.out, /must not lead to the retired/);
++  }
++});
++
++test("a link to a retired file in src/ or in the 2029 document fails the gate, relative or absolute", () => {
++  const plants = [
++    ["src/components/Link.jsx", "export const to = '/heichal.html';\n"],
++    ["src/lib/abs.js", "export const u = 'https://sod1820.co.il/preview.html';\n"],
++    ["src/styles/x.css", ".a{background:url(/heichal-theme.mp3)}\n"],
++  ];
++  for (const [file, body] of plants) {
++    const r = fixture((dir) => { mkdirSync(join(dir, file, ".."), { recursive: true }); writeFileSync(join(dir, file), body); });
++    assert.notEqual(r.code, 0, file);
++    assert.match(r.out, new RegExp(`${file.replace(/[.]/g, "\\.")} links to the retired`));
++  }
++  const r = fixture((dir) => writeFileSync(join(dir, "2029.html"), readFileSync(join(dir, "2029.html"), "utf8") + '\n<a href="/preview.html">x</a>\n'));
++  assert.notEqual(r.code, 0);
++  assert.match(r.out, /2029\.html links to the retired preview\.html/);
++});
+diff --git a/test/public-continuity-closure-2029.test.mjs b/test/public-continuity-closure-2029.test.mjs
+index 0f0d9d3..1987f6b 100644
+--- a/test/public-continuity-closure-2029.test.mjs
++++ b/test/public-continuity-closure-2029.test.mjs
+@@ -35,8 +35,8 @@ test('three exact public historical pages retain original body bytes, dates, par
+  assert.equal(publicReadingContinuation('/','?p=3798&p=3288'),null);
+  const config=JSON.parse(read('public-reading-deploy/vercel.json'));
+  assert.ok(!config.redirects.some(r=>decodeURI(r.source).replace(/\/$/,'')==='/משיח-בשנת-התשעו'));
+- // Root vercel.json is pinned by content hash to the last approved main version (42ff15120: #1191 deploymentEnabled=false, #1253 /tzofen.html). A hash, not `git show`, so the pin needs no commit history and also holds in the shallow CI checkout. Re-pin only with an explicit approval of the config change.
+- assert.equal(createHash('sha256').update(readFileSync(new URL('../vercel.json',import.meta.url))).digest('hex'),'62144d03db717f2f6c1283bb08ba647ba7d76631043d8a0b34c76f875d600887','root vercel.json changed since the approved pin 42ff15120');
++ // Root vercel.json is pinned by content hash to the last approved main version (42ff15120: #1191 deploymentEnabled=false, #1253 /tzofen.html; re-pinned with the approved retirement of the Legacy static pages: /heichal.html continues permanently to /heichal). A hash, not `git show`, so the pin needs no commit history and also holds in the shallow CI checkout. Re-pin only with an explicit approval of the config change.
++ assert.equal(createHash('sha256').update(readFileSync(new URL('../vercel.json',import.meta.url))).digest('hex'),'800f5c837ea0724d67557d43fb821a50b9693b47e7e94cad0b5c315ab25f67f7','root vercel.json changed since the approved pin (42ff15120 + the /heichal.html redirect)');
+ });
+ 
+ test('original historical documents have exact self canonicals without querying a guessed Post identity',async()=>{
+diff --git a/vercel.json b/vercel.json
+index 2469556..8c10542 100644
+--- a/vercel.json
++++ b/vercel.json
+@@ -489,6 +489,11 @@
+       ],
+       "destination": "/code",
+       "permanent": false
++    },
++    {
++      "source": "/heichal.html",
++      "destination": "/heichal",
++      "permanent": true
+     }
+   ],
+   "rewrites": [

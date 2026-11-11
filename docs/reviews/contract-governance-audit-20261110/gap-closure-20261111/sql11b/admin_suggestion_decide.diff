@@ -1,0 +1,115 @@
+--- base/admin_suggestion_decide.sql
++++ new/admin_suggestion_decide.sql
+@@ -13,6 +13,7 @@
+   v_slug text;
+   v_task text;
+   v_scope text;
++  v_owner text;
+ begin
+   if not public.rd_is_admin() then raise exception 'admin only'; end if;
+   if p_status not in ('accepted','rejected','later','pending') then raise exception 'bad status'; end if;
+@@ -68,49 +69,61 @@
+     v_task := 'AUTO_DEP_UPGRADE_' || upper(v_slug) || '_' || replace(v_latest,'.','_') || '_S' || p_id::text;
+     v_scope := 'dependency-maintenance:runtime-packages';
+ 
+-    begin
+-      insert into public.work_log(
+-        session_date,topic,what_we_did,status,open_threads,
+-        task_key,from_actor,to_actor,assignment_mode,assignment_scope,
+-        primary_owner,release_authorization_state,
+-        dispatch_kind,dispatch_state,dispatch_next_attempt_at,dispatch_context
+-      ) values (
+-        current_date,
+-        format('actor=SYSTEM FROM=ZURIEL TO=CLAUDE task=%s — AUTO_MAINTENANCE_PREP',v_task),
+-        format(
+-          'Accepted Upgrade Radar suggestion %s. Reverify origin/main and authoritative stable provider metadata before editing. Expected package=%s current=%s latest=%s delta=%s. If origin/main current no longer equals %s, or provider stable latest no longer equals %s, STOP as stale/no-op. Create one isolated branch, change only the accepted dependency/runtime files and required lockfile/peer pair, never use --force or --legacy-peer-deps, run npm ci + full Legacy/2029 build + relevant isolation/visual/security gates, and open a PR. Do not merge/deploy from this assignment.',
+-          p_id,v_pkg,v_current,v_latest,v_delta,v_current,v_latest
+-        ),
+-        'QUEUED_ACCEPTED_UPGRADE_MAINTENANCE',
+-        case when v_delta='major'
+-          then 'MAJOR: branch/PR preparation only; release advice must be BLOCKED_BY Foundation redesign-risk challenge/Human Gate.'
+-          else 'PATCH/MINOR: branch/PR preparation only; after exact-head gates a release controller may classify AUTO_RELEASE_NOW under deploy_on_request v2. Radar current baseline is dynamic from origin/main; do not create a baseline-only DB migration.'
+-        end,
+-        v_task,
+-        'ZURIEL',
+-        'CLAUDE',
+-        'WRITE',
+-        v_scope,
+-        'system_suggestions_law v3 + deploy_on_request v2 + inter_agent_coordination_law v13',
+-        'BRANCH_ONLY_NO_MERGE_NO_DEPLOY',
+-        'ASSIGNMENT',
+-        'QUEUED',
+-        now(),
+-        jsonb_build_object(
+-          'source','system_suggestions',
+-          'suggestion_id',p_id,
+-          'detector','dependency_upgrade_radar',
+-          'package',v_pkg,
+-          'current',v_current,
+-          'latest',v_latest,
+-          'delta',v_delta,
+-          'human_decision','accepted',
+-          'auto_maintenance',true
+-        )
+-      );
+-    exception when unique_violation then
+-      null; -- same package+target already has one canonical assignment
+-    end;
++    -- Accepting a recommendation is not an activation (inter_agent_coordination_law, from v17):
++    -- record the decision passively for ZURIEL. No assignment, no dispatch, no release authority.
++    select coalesce(
++             string_agg(n.rule_id || ' v' || n.rule_version::text, ' + '
++               order by array_position(array['system_suggestions_law','deploy_on_request','inter_agent_coordination_law'], n.rule_id)),
++             'system_suggestions_law + deploy_on_request + inter_agent_coordination_law')
++      into v_owner
++      from public.nodes n
++     where n.type='rule'
++       and n.is_active
++       and n.rule_id in ('system_suggestions_law','deploy_on_request','inter_agent_coordination_law');
++
++    if not exists (select 1 from public.work_log w where w.task_key=v_task) then
++      begin
++        insert into public.work_log(
++          session_date,topic,what_we_did,status,open_threads,
++          task_key,from_actor,to_actor,
++          primary_owner,release_authorization_state,dispatch_context
++        ) values (
++          current_date,
++          format('actor=SYSTEM · Upgrade Radar suggestion %s accepted by ZURIEL · %s · NOT ACTIVATED',p_id,v_task),
++          format(
++            'ZURIEL accepted Upgrade Radar suggestion %s: package=%s current=%s latest=%s delta=%s. This records a recommendation decision only: no agent was activated and no work was dispatched. Starting the work needs an explicit ZURIEL instruction to a named agent in a session, citing task_key %s. That agent re-verifies origin/main and authoritative stable provider metadata before editing, and stops as stale/no-op if current is no longer %s or the stable latest is no longer %s. It creates one isolated branch, changes only the accepted dependency/runtime files and the required lockfile/peer pair, never uses --force or --legacy-peer-deps, runs npm ci, npm run build and the relevant CI, visual and security gates, and opens a PR. Merge or deployment needs a separate explicit ZURIEL approval of the exact commit and deployment.',
++            p_id,v_pkg,v_current,v_latest,v_delta,v_task,v_current,v_latest
++          ),
++          'SUGGESTION_ACCEPTED_NOT_ACTIVATED',
++          case when v_delta='major'
++            then 'MAJOR: not activated; starting the work needs an explicit ZURIEL instruction. Release advice stays BLOCKED_BY Foundation redesign-risk challenge/Human Gate.'
++            else 'PATCH/MINOR: not activated; starting the work needs an explicit ZURIEL instruction. After exact-head gates the release advice is at most READY_FOR_APPROVAL: presented to ZURIEL for explicit approval of the exact merge and deployment, never an automatic merge or deploy. Radar current baseline is dynamic from origin/main; do not create a baseline-only DB migration.'
++          end,
++          v_task,
++          'ZURIEL',
++          'ZURIEL',
++          v_owner,
++          'NOT_ACTIVATED_NO_MERGE_NO_DEPLOY',
++          jsonb_build_object(
++            'source','system_suggestions',
++            'suggestion_id',p_id,
++            'detector','dependency_upgrade_radar',
++            'package',v_pkg,
++            'current',v_current,
++            'latest',v_latest,
++            'delta',v_delta,
++            'human_decision','accepted',
++            'activation','NOT_ACTIVATED',
++            'activation_requires','explicit ZURIEL instruction to a named agent',
++            'release_requires','explicit ZURIEL approval of the exact merge and deployment',
++            'intended_scope',v_scope,
++            'auto_maintenance',false
++          )
++        );
++      exception when unique_violation then
++        null; -- the same suggestion already has its decision record
++      end;
++    end if;
+   end if;
+ end;
+ $function$

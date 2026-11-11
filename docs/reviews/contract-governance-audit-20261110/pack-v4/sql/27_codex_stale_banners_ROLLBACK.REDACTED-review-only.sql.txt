@@ -1,0 +1,68 @@
+-- REDACTED COPY FOR REVIEW ONLY — NOT EXECUTABLE AS IS. One personal email address was replaced by a placeholder,
+-- so the md5 guards of this file no longer match the live row and it would refuse to run. The executable original
+-- is listed with its SHA-256 in ../REPO-COPY.md and is kept only in the private pack. NOT EXECUTED.
+-- SOD1820 · ROLLBACK of 22_codex_stale_banners.sql — PROPOSAL ONLY. NOT EXECUTED.
+-- Prepared 10–11.11.2026 against origin/main 932aba4bdd8eaa7030c57932ce9606f9ca5ebe18 and live DB rows read the same day.
+-- Requires ZURIEL's explicit approval of this exact file (md5 in the handoff report) before any execution (CLAUDE.md §0.4).
+-- Every block refuses to run if the live row differs from the reviewed base (md5 guards) and verifies its result. Nothing is deleted.
+begin;
+
+-- rollback project_codex #13 number_page_1820: restore the exact base body (md5 17c2110a4fe667138e03bee053615a40)
+do $sod_rb$
+begin
+  if (select md5(body) from public.project_codex where id=13) <> '2ea18d8d21fd5a7a49d98a1b548e2a67' then raise exception 'rollback codex number_page_1820: body is not the applied version'; end if;
+  update public.project_codex set body=$sod_txt$חוק: number_page_law (nodes type=rule). דגם תצוגה למספרי-יסוד/ישויות זהב, שילוב יוקרה+הנגשה+עומק.
+שכבה 1 (כולם): בכל הופעת המספר — רמז קטן בלבד ("✦ מספר יסוד" / "👑 1820 • חתימת האתר"), בלי הסבר. רכיב משותף קטן.
+שכבה 2 (דף המספר): נפתח הכל — 👑 חתימת האתר, 📜 חתימת המחקר, 🌳 עץ הקשרים (edges), 🧬 DNA המספר (8 שיטות), 🔢 כל הגימטריות, 🖼️ גלריות, 📚 פוסטים, 🧩 צפנים, 🎥 סרטונים, 🕰️ ציר ההתגלות, ✨ "קח אותי למסע". כפתור סקרנות ליד המספר.
+שכבה 3 (בני ההיכל, לפי subscribe_gate_law): טעימה חינם (~20/250 התאמות, DNA בסיסי, החתימות); עומק נעול (AI, כל מסלולי הגרף, מסר אישי, הצלבות נדירות, מסעות, דוחות).
+מצב כיום: /cross מציג חלק (חתימות זהב, מסר מרכזי, ישויות קרובות, DNA חלקי). חסר: דף מספר ייעודי שמאגד הכל + רמז שכבה-1 + שכבת הגייט. אזהרת אמת (golden_entity_law): גימטריה=עובדה; טענה היסטורית נלווית טעונה מקור.$sod_txt$, updated_at=now() where id=13;
+end
+$sod_rb$;
+
+-- rollback project_codex #8 system_rules_index: restore the exact base body (md5 2676916a7e7bcf92bca909aeadfbc9c6)
+do $sod_rb$
+begin
+  if (select md5(body) from public.project_codex where id=8) <> '646ac75aa6d240d75f87f9cb1a5b7af7' then raise exception 'rollback codex system_rules_index: body is not the applied version'; end if;
+  update public.project_codex set body=$sod_txt$חוקי המערכת נשמרים ב-nodes (type='rule', עם rule_id, rule_version, is_active). שינוי חוק = גרסה חדשה, לא מוחקים. לקריאה: `select rule_id,label,metadata from nodes where type='rule' and is_active;`
+חוקים שמומשו בקוד (בית המדרש ועוד):
+- verified_badge_law — סמל מאומת = לוגו + ✓. רכיב src/components/VerifiedBadge.jsx (variants: ai/post/gematria).
+- insight_card_law — כרטיס חידוש נפתח. src/components/InsightCard.jsx (אם מקושר לפוסט — לחיצה מנווטת).
+- subscribe_gate_law (v2) — שער הרשמה עם אימות מייל אמיתי (Supabase Auth OTP); 2 חידושים חינם ואז רישום. רכיבים: SubscribeGate.jsx, EmailVerify.jsx, lib/auth.js, AuthProvider.jsx.
+- stream_separation_law — הפרדת זרמים בדף הבית: "עדכונים אחרונים"=פוסטים (LatestPostsRail); "חידושי AI"=תיבה (AiInsightsBox, origin='ai').
+- golden_entity_law — ישות זהב (tier=gold): הדרגה העליונה, כוכב זהב, קופצת לראש בכל הופעת המספר (ראו slug=golden_entities). חברה ראשונה: השם המלא של האתר = 1820.$sod_txt$, updated_at=now() where id=8;
+end
+$sod_rb$;
+
+-- rollback project_codex #3 data_model_map: restore the exact base body (md5 1354d2bf578e1153b3e4464b9b7ad11b)
+do $sod_rb$
+begin
+  if (select md5(body) from public.project_codex where id=3) <> 'dd9ecbf9d573349a791928c3402b4e87' then raise exception 'rollback codex data_model_map: body is not the applied version'; end if;
+  update public.project_codex set body=$sod_txt$הטבלאות המרכזיות ב-Supabase ותפקידן:
+- `posts` — פוסטי תוכן (מ-WordPress + AI). שדות מפתח: id, wp_id, title, slug (לרוב מקודד-URL מוורדפרס), content(HTML), excerpt, date, modified, categories(text[]), tags(text[]), source('wordpress'/'ai'), image_url, author, verified, ai_touched. ~1181 פוסטים.
+- `gematria_words` — מילים/ביטויים עם 8 ערכי גימטריה (ragil,miluy,misratar,kadmi,gadol,siduri,atbash,albam) + all_values(int[]) + tags + node_id(→nodes) + is_verified + source + space/dna_status.
+- `nodes` — גרף-על רב-תכליתי. type='rule' (חוקי מערכת), type='entity' (ישויות זהב לגימטריה). שדות: label, description, metadata(jsonb), weight, is_active, rule_id, rule_version.
+- `edges` — קשרים בין nodes (from_node,to_node,relation_type,weight,metadata). קשרי הישויות: relation_type='related', metadata.source='entity_seed_v1'.
+- `work_log` — יומן עבודה (session_date, topic, numbers, what_we_did, status, open_threads).
+- `insights` — חידושים. origin='ai' (חידושי AI בבית המדרש), convergence_score/has_1820 (חידושי מערכת/התכנסות). source_ref מקשר לפוסט/גלריה.
+- `gallery_images` — תמונות גלריות רמזים, primary_value = המספר שבתמונה (מזין /number/<n> וה-sitemap).
+- `comments` — תגובות לפוסטים (post_wp_id). `contact_messages` — פניות מטופס צור-קשר.
+- `project_codex` — הטבלה הזו (קודקס ידע).
+- טבלאות גיבוי זמניות: למשל `posts_deleted_backup_20260614` (20 פוסטים שנמחקו, בר-שחזור).$sod_txt$, updated_at=now() where id=3;
+end
+$sod_rb$;
+
+-- rollback project_codex #2 project_overview: restore the exact base body (md5 5bc8f3077940298711aa3f24eded41f8)
+do $sod_rb$
+begin
+  if (select md5(body) from public.project_codex where id=2) <> '5e7fe5420f54b5b46e398b3bae8c8fb7' then raise exception 'rollback codex project_overview: body is not the applied version'; end if;
+  update public.project_codex set body=$sod_txt$SOD1820 הוא אתר תוכן בעברית סביב גאולה, גימטריה, צפנים ורמזי אחרית-הימים. "1820" = מספר היסוד (שם ה׳ בתורה מופיע 1820 פעם; פוסט היסוד wp_id=17).
+
+סטאק טכני: React 18 + Vite, פרוס ב-Vercel. נתונים מ-Supabase (project id: linswmnnkjxvweumprav). בדיקת build: `npm run build`.
+פריסה: רק ענף `main` נפרס לפרודקשן ב-Vercel. ענפי feature (claude/*) לא נפרסים — משמשים לפיתוח/Preview. כדי להעלות עבודה מענף — ממזגים ל-main.
+דומיין: sod1820.co.il. יש wp.sod1820.co.il (וורדפרס מקורי) שממנו היגרו פוסטים; חלק מהמדיה מוגשת דרכו (rewrite ב-vercel.json) ותמונות הועתקו ל-Storage של Supabase.
+
+עורך/בעלים: צוריאל ([REDACTED: owner email]). הקוד הישן הגדול נמצא ב-src/legacy/legacy.jsx (דפי פוסט, קטגוריה, צור-קשר, בית-מדרש ועוד). הקוד החדש מחולק ל-src/pages, src/components, src/lib.$sod_txt$, updated_at=now() where id=2;
+end
+$sod_rb$;
+
+commit;

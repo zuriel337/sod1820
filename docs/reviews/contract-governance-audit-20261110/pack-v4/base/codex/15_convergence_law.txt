@@ -1,0 +1,24 @@
+[2029 AUTHORITY NOTE · 20.9.2026] This document is historical architecture guidance. Where it says topic_cards is the source of convergence truth, that is superseded by reality_graph_law v8 + cross_vs_convergence_criteria v4 + writer_material_home_law v3. In 2029, topic_cards is legacy/projection/migration material; canonical semantics live under Reality Graph + Research OS + Truth/Human Gate. Preserve history, do not build new Topic truth from this document alone.
+
+זהו הגזע של SOD1820. כל סוכן/מנוע חייב לקרוא זאת לפני שהוא נוגע בגלריות, מספרים, כרטיסים או כל פיצ׳ר. החומר כאן הוא זהב — וכשהוא מחובר יחד הוא יהלום. אסור לאבד חיבורים ואסור ליצור מערכות מקבילות.
+
+■ עיקרון-העל: עץ ידע אחד.
+כל האתר הוא גרף אחד (nodes + edges). אין "גלריות", "גימטריה", "פוסטים" כעולמות נפרדים — יש ישויות וקשרים. כל דבר הוא node: number, entity (כולל זהב), convergence (צירי התכנסות), event, year, post, word, phrase, image. כל עמוד באתר הוא רק "עדשה" על אותו גרף.
+
+■ הכלל המעשי: מציירים פעם אחת, מפנים מכל מקום.
+לכל ישות עמוד קנוני אחד: מספר → /number/:n · התכנסות → /topic/:slug · ישות/ביטוי → /number/:label. בכל מקום אחר (מגירת מספר, רצועת בית, שורה עליונה, /cross, ציר ההתגלות) מופיע רק תקציר/צ׳יפ שמקשר לעמוד הקנוני — לעולם לא עותק של התוכן. אסור לבנות מערכת שנייה לאותו דבר.
+
+■ לא לאבד הצלבות (זה הלב).
+לפני הוספת פיצ׳ר — לחבר אותו לגרף. number ↔ convergence ↔ /cross ↔ ישות זהב ↔ גלריה ↔ פוסט ↔ אירוע חייבים לראות זה את זה דרך edges. דוגמה חיה: 1820 ↔ שתי ישויות הזהב (=שתי החתימות) ↔ /topic/1820 ↔ תמונות מירון ↔ אירוע מירון.
+
+■ מלמטה למעלה: שורשים → גזע → ענפים → עלים.
+שורשים = נתון (OCR, gematria_words, ocr_numbers, nodes). גזע = הגרף (nodes/edges). ענפים = העדשות (/number, /topic, /cross, /timeline, בית המדרש). עלים = משטחי UI (רצועת הבית, השורה העליונה, מגירות). מתחילים תמיד מהשורש; משטח חדש = שאילתה על הגרף, לא טבלה חדשה.
+
+■ שכבת ההתכנסות (convergence).
+topic_cards = המקור הערוך של צירי ההתכנסות (כותרת, ממצאים, רמז משלים, הסתייגות, מספרים מובלטים, איכות, status). באישור — מוקרן לגרף כ-node type=convergence + edges (contains→number, related→entity, reveals→event). convergence_meter (0-100) מזין quality/weight. כל החלונות (שורה עליונה, רצועת הבית, מדור בית המדרש, /topic) קוראים אותו מקור.
+
+■ כבוד לרמז + יושר מחקרי: תמיד להפריד גימטריה (עובדה) מפרשנות (רמז משלים).
+
+■ SEO: לכל ציר URL קבוע (/topic/:slug) + meta/canonical/OG; חובה ב-sitemap (scripts/gen-sitemap.mjs) + JSON-LD.
+
+קבצים: src/pages/TopicPage.jsx, src/components/ConvergenceAxis.jsx, src/lib/topicCards.js, src/pages/CrossMethodPage.jsx, src/pages/EntityPage.jsx, src/pages/BeitMidrashPage.jsx, src/components/layout/LiveActivityBar.jsx.

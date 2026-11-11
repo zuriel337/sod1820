@@ -1,0 +1,87 @@
+{
+ "platform_tiers_law": {
+  "from": 5,
+  "to": 6,
+  "base_md5": "9619c2afc07a70314a97303703f29e7a",
+  "new_md5": "45b7856d096b2867aeb82061af3ef2f6",
+  "label": "👑 Access & Entitlement Foundation v6 — Number Visible, Depth Gated · המספר לא מוסתר, העומק כן"
+ },
+ "canonical_methods_registry_law": {
+  "from": 6,
+  "to": 7,
+  "base_md5": "f921c88e9b9ac6b0bcda3933479edee8",
+  "new_md5": "11aa631dca1c39bb4a490e64b23d001d",
+  "label": "רישום השיטות הקנוני v7 — One-Tree Method Presentation + ערך ליד כל שורת התאמה"
+ },
+ "specs_retire": [
+  {
+   "id": "2fa07a3e-5537-42c4-86ad-920920202cbd",
+   "label": "ארכיון ההתגלות — גלריה מאוחדת",
+   "d_md5": "d5f4f03d9094cf454e57c4e53969388c"
+  },
+  {
+   "id": "abc9bf76-46f7-4598-a635-25240730b112",
+   "label": "בית המדרש — Mega Menu ושיטות",
+   "d_md5": "f9c9ce6eecaf7e3e201b1e431beb5717"
+  },
+  {
+   "id": "0caadab6-fc1f-4d1d-a401-d613a3b6ef47",
+   "label": "הצופן התנ״כי — דף ELS + לוגו-צופן אוטומטי",
+   "d_md5": "9b6d8a84acca0e265cc3967aba9a0dc6"
+  },
+  {
+   "id": "f8927670-babf-4ffe-87ed-7e833bedc5f0",
+   "label": "מבנה התפריט העליון (סופי)",
+   "d_md5": "5c100d488e957f2ba5392bfd71dd06ce"
+  },
+  {
+   "id": "1ccaf4df-d985-4fc9-8b5d-4acbfeb5efb7",
+   "label": "מנגנון הקפצת תמונות גימטריה לפי הקשר",
+   "d_md5": "1b7a3d73d576e9b65eaee84f43a5e2fc"
+  },
+  {
+   "id": "64bb4f0d-1fad-4ac7-98cb-2dfbee23d4a0",
+   "label": "עמוד הבית — פריסה דינמית מלכותית",
+   "d_md5": "dff953f6fd6f13b4315d080daa435572"
+  },
+  {
+   "id": "40af59bd-010e-47a2-819d-149a597a24e0",
+   "label": "ציר זמן הגאולה — מפרט בנייה (Claude Code)",
+   "d_md5": "eb9226b7d616468f1621a5a27bd7eca3"
+  },
+  {
+   "id": "76ef74ea-e227-4760-9e24-d616e5ed71c3",
+   "label": "שורת פעילות חיה",
+   "d_md5": "c09ab0e0b2c07b64e43454a3012faf27"
+  },
+  {
+   "id": "f30c0148-e4c0-4937-a4ee-4cd26019587f",
+   "label": "תוכנית-אב לאתר — הרשת החיה",
+   "d_md5": "80672c41c3494650565e6b39ef2e0c5f"
+  }
+ ],
+ "codex_project_overview": {
+  "id": 2,
+  "base_md5": "5bc8f3077940298711aa3f24eded41f8",
+  "new_md5": "5e7fe5420f54b5b46e398b3bae8c8fb7"
+ },
+ "codex_data_model_map": {
+  "id": 3,
+  "base_md5": "1354d2bf578e1153b3e4464b9b7ad11b",
+  "new_md5": "dd9ecbf9d573349a791928c3402b4e87"
+ },
+ "codex_system_rules_index": {
+  "id": 8,
+  "base_md5": "2676916a7e7bcf92bca909aeadfbc9c6",
+  "new_md5": "646ac75aa6d240d75f87f9cb1a5b7af7"
+ },
+ "codex_number_page_1820": {
+  "id": 13,
+  "base_md5": "17c2110a4fe667138e03bee053615a40",
+  "new_md5": "2ea18d8d21fd5a7a49d98a1b548e2a67"
+ },
+ "stage3": {
+  "number_page_law_md5": "bad06d43f99af1b9364ca53e89ddfd98",
+  "no_row_without_number_law_md5": "bea683c751c32801e35cdcd3311853a1"
+ }
+}

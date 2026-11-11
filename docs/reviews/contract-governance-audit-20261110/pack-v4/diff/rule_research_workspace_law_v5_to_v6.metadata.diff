@@ -1,0 +1,17 @@
+--- nodes:research_workspace_law@v5→v6.metadata (base)
++++ nodes:research_workspace_law@v5→v6.metadata (proposed)
+@@ -70,2 +70,3 @@
+  "page_duality": "direct+SEO and integrated Research OS",
++ "previous_visual_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+  "supersession_note": "v1 preserved as history; v2 supersedes presentation-specific layout/palette/product-naming clauses",
+@@ -78,3 +79,9 @@
+  },
+- "visual_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
++ "v6_owner_alignment": {
++  "change": "design-contract owner V1 → V2 (V1 kept as history)",
++  "human_gate": "ZURIEL 2026-11-11 (החלטה 5 — הפניות לחוזה העיצוב התקף)",
++  "owner_check": "EXTEND_EXISTING",
++  "semantics_changed": false
++ },
++ "visual_owner": "SOD1820_DESIGN_CONTRACT_V2.md"
+ }

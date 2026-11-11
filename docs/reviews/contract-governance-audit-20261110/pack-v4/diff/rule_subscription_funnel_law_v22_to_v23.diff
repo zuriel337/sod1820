@@ -1,0 +1,25 @@
+--- nodes:subscription_funnel_law@v22→v23.description (base)
++++ nodes:subscription_funnel_law@v22→v23.description (proposed)
+@@ -11,3 +11,3 @@
+ 
+-👤 מרכז-משתמש אחד «🔔 מרכז העדכונים שלי» (UserCenter): «מה יש היום?» (Feed מאוחד: צופן/פוסט/מספר/כתב/אור-הגאולה/סרטון/שרשור חדשים לפי המנויים) + «אחרי מה אני עוקב» (לפי קטגוריות) + «ערוצים פעילים» + בורר-מייל אחד (בתוך-האתר/מייל/דיג'סט).
++👤 מרכז-משתמש אחד «🔔 מרכז העדכונים שלי» (UserCenter — רכיב Legacy שהוסר ב-5.11.2026; האזור האישי ב-2029: /2029/me/*): «מה יש היום?» (Feed מאוחד: צופן/פוסט/מספר/כתב/אור-הגאולה/סרטון/שרשור חדשים לפי המנויים) + «אחרי מה אני עוקב» (לפי קטגוריות) + «ערוצים פעילים» + בורר-מייל אחד (בתוך-האתר/מייל/דיג'סט).
+ 
+@@ -51,3 +51,3 @@
+ עיקרון: לא מוסיפים עוד «עקוב» נקודתי. קובעים שפה אחת לכל האתר. 3 פעולות שלעולם לא מתערבבות באותו אשכול:
+-• 📤 שיתוף = אני מפיץ לאחרים (ShareActions) · • 🔖 שמירה/איסוף = אני שומר אצלי (ToolActions/QuickActions · הוסף למחקר/ספרייה) · • 🔔 מעקב = המערכת תודיע לי כשיש חדש (WatchButton). מעקב הוא פעולה עצמאית, לא ענקית, ולעולם לא בתוך אשכול-השיתוף.
++• 📤 שיתוף = אני מפיץ לאחרים (ShareActions) · • 🔖 שמירה/איסוף = אני שומר אצלי (ToolActions/QuickActions — הוסרו ב-5.11.2026 · הוסף למחקר/ספרייה) · • 🔔 מעקב = המערכת תודיע לי כשיש חדש (WatchButton). מעקב הוא פעולה עצמאית, לא ענקית, ולעולם לא בתוך אשכול-השיתוף.
+ 
+@@ -153,3 +153,3 @@
+ 
+-【שערי-הרשמה שכבר קיימים — לא לבנות חדשים, לחבר אליהם】 CollectiveBadge(/login, בדף-מספר וגם ForumThreadPage) · Discourse(«התחברו לפרופיל קבוע») · MaintenanceLock(אזורים נעולים) · SubscribeGate(code/els-research/verified-posts/beit-midrash/convergence) · SubmitChidush · RecentSearches(«הירשמו לראות עוד») · JoinPage · ProfilePage · Navbar. רגעי-הערך של צעד 6 = לחבר את הפעולות לשערים האלה, לא להמציא.
++【שערי-הרשמה שכבר קיימים — לא לבנות חדשים, לחבר אליהם】 [עדכון 11.11.2026: מתוך הרשימה שלהלן קיימים ב-2029 רק MaintenanceLock ו-SubscribeGate; CollectiveBadge, ForumThreadPage, Discourse, SubmitChidush, RecentSearches, JoinPage, ProfilePage ו-Navbar הוסרו עם Legacy ב-5.11.2026 — אין לחבר אליהם.] CollectiveBadge(/login, בדף-מספר וגם ForumThreadPage) · Discourse(«התחברו לפרופיל קבוע») · MaintenanceLock(אזורים נעולים) · SubscribeGate(code/els-research/verified-posts/beit-midrash/convergence) · SubmitChidush · RecentSearches(«הירשמו לראות עוד») · JoinPage · ProfilePage · Navbar. רגעי-הערך של צעד 6 = לחבר את הפעולות לשערים האלה, לא להמציא.
+ 
+@@ -211,3 +211,3 @@
+ כולם client-side, בעלים=Funnel, נכנסים בעתיד ל-world:mine (משותף) **דרך קריאה בלבד — בלי לשנות מנגנון**:
+-1. QuickActions שמור/הוסף-למחקר → research_items + ResearchProvider → שער: SubscribeGate/login → יעד: world:mine (cart/library).
++1. QuickActions (הוסר ב-5.11.2026) שמור/הוסף-למחקר → research_items + ResearchProvider → שער: SubscribeGate/login → יעד: world:mine (cart/library).
+ 2. הערות-מחקר (sod_notes_v1 + saveCloudNotes) → שער: login → יעד: world:mine (notes).
+@@ -265 +265,2 @@
+ 
++[v23 · 11.11.2026 · יישור להסרת Legacy — EXTEND_EXISTING] רכיבים שהוסרו עם Legacy ב-5.11.2026 סומנו במקומם (UserCenter, ToolActions/QuickActions, CollectiveBadge, ForumThreadPage, Discourse, SubmitChidush, RecentSearches, JoinPage, ProfilePage, Navbar). SubscribeGate, MaintenanceLock, WatchButton, ShareActions ו-ResearchProvider (כיום src/lib/research/) קיימים. סמנטיקת המשפך, המעקב, ההסכמה והערוצים לא שונתה.
