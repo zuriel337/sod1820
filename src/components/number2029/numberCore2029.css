@@ -1736,8 +1736,9 @@
 .sod29-number-v10-raziel-orb span{font-size:var(--sod29-number-support,14px);font-weight:900}
 .sod29-number-v10-life-seal{
   position:relative;
-  width:66px;
-  height:66px;
+  /* 78px: the "N שכבות" label at the 14px floor needs the chord of the circle, 66px clipped it. */
+  width:78px;
+  height:78px;
   display:grid;
   place-items:center;
   align-content:center;
@@ -2085,14 +2086,14 @@
 .sod29-number-v10-vitality b{color:var(--s29-ink);font-size:var(--sod29-number-support,14px)}
 .sod29-number-v10-vitality>div:last-child small{color:var(--s29-muted);font-size:var(--sod29-number-support,14px);line-height:1.35}
 .sod29-number-v10-pulse-row{
+  /* Wraps instead of side-scrolling: at the 14px floor a clipped chip hid its own label on a 390px phone. */
   display:flex;
-  gap:5px;
-  overflow-x:auto;
-  scrollbar-width:none;
+  flex-wrap:wrap;
+  gap:6px;
 }
-.sod29-number-v10-pulse-row::-webkit-scrollbar{display:none}
 .sod29-number-v10-pulse-row span{
-  flex:0 0 auto;
+  flex:0 1 auto;
+  max-width:100%;
   padding:4px 8px;
   border:1px solid var(--s29-line);
   border-radius:999px;
@@ -2512,7 +2513,8 @@
   .sod29-number-v10-root{min-width:58px}
   .sod29-number-v10-root b{font-size:28px}
   .sod29-number-v10-raziel-orb{width:42px;height:42px}
-  .sod29-number-v10-life-seal{width:58px;height:58px}
+  .sod29-number-v10-life-seal{width:76px;height:76px}
+  .sod29-number-v10-life-seal>small{white-space:nowrap}
   .sod29-number-v10-life-ring{width:25px;height:25px}
   .sod29-number-v10-search input{font-size:var(--sod29-number-ui,14px);min-height:40px}
   .sod29-number-v10-search button{min-height:40px;padding:0 12px}

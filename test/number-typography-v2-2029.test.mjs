@@ -54,3 +54,10 @@ test("the page has one semantic H1 (the expression or number); the compact drawe
     assert.match(read(file), /\.sod29-number-v10-expression-line\[data-expression-size="short"\]>:is\(strong,h1\)/, file);
   }
 });
+
+test("the number pulse chips wrap instead of side-scrolling, so a larger label is never clipped on a phone", () => {
+  const css = read("src/components/number2029/numberCore2029.css");
+  const row = css.match(/\.sod29-number-v10-pulse-row\{[^}]*\}/)?.[0] || "";
+  assert.match(row, /flex-wrap:\s*wrap/);
+  assert.doesNotMatch(row, /overflow-x:\s*auto/);
+});

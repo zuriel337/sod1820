@@ -1353,7 +1353,7 @@
     font-size:clamp(28px,calc((100cqi - 140px) / var(--sod29-number-digits,4) * 1.45),76px);
     white-space:normal;overflow-wrap:anywhere;line-height:1.1;
   }
-  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{flex:none;width:64px;height:64px}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{flex:none;width:74px;height:74px}
 
 }
 /* Viewport fallback for browsers without container-query support. */
@@ -1377,7 +1377,7 @@
     font-size:clamp(28px,calc((90vw - 140px) / var(--sod29-number-digits,4) * 1.45),76px);
     white-space:normal;overflow-wrap:anywhere;line-height:1.1;
   }
-  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{flex:none;width:64px;height:64px}
+  .sod29-number-page .sod29-number-core2029.is-page .sod29-number-v10-life-seal{flex:none;width:74px;height:74px}
 
   }
 }
