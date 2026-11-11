@@ -787,6 +787,40 @@ jobs:
           });
 
 
+          // A page this spec opens is closed only after it is quiet: every request it started has been answered or has failed, and it has
+          // started none for quietMs. Playwright 1.55 does not hand the requests of a closing page to the context guard, and some of them then
+          // leave the browser (shown behind the local tripwire, Release Visual egress review of 11.11.2026). Waiting for quiet keeps every
+          // request of the page inside the guard; the guard, its policy and the leak audit are unchanged.
+          function trackPageQuiet(target, { quietMs = 500, timeoutMs = 20_000 } = {}) {
+            const context = target.context();
+            const pending = new Set();
+            let last = Date.now();
+            const mine = (request) => { try { return request.frame().page() === target; } catch { return false; } };
+            const onRequest = (request) => { if (mine(request)) { pending.add(request); last = Date.now(); } };
+            const onDone = (request) => { if (pending.delete(request)) last = Date.now(); };
+            const onResponse = (response) => onDone(response.request());
+            context.on('request', onRequest);
+            context.on('response', onResponse);
+            context.on('requestfailed', onDone);
+            return {
+              async closeWhenQuiet() {
+                try {
+                  const end = Date.now() + timeoutMs;
+                  while (pending.size || Date.now() - last < quietMs) {
+                    if (Date.now() > end) throw new Error(`release_visual_close_not_quiet: ${pending.size} request(s) of this page were still pending`);
+                    await new Promise((resolve) => setTimeout(resolve, 25));
+                  }
+                  await egressByContext.get(context).settle();
+                } finally {
+                  context.off('request', onRequest);
+                  context.off('response', onResponse);
+                  context.off('requestfailed', onDone);
+                }
+                await target.close();
+              },
+            };
+          }
+
           test('Calculator 2029 viral Golden completes compute discovery Raziel share loop', async ({ page }) => {
             test.setTimeout(120_000);
             const calculatorPath = '/2029/gematria/viral';
@@ -901,6 +935,7 @@ jobs:
               });
 
               const shared = await page.context().newPage();
+              const sharedQuiet = trackPageQuiet(shared);
               await shared.setViewportSize({ width, height: width < 600 ? 844 : 1000 });
               await install2029Rewrite(shared);
               await shared.goto(shareUrl, { waitUntil: 'domcontentloaded' });
@@ -911,7 +946,7 @@ jobs:
               await shared.getByRole('button', { name: 'מה מסתתר בשם שלך?' }).click();
               await expect(shared.locator('#calculator-2029-input')).toBeFocused();
               await expect(shared.locator('#calculator-2029-input')).toHaveValue('');
-              await shared.close();
+              await sharedQuiet.closeWhenQuiet();
 
               if (width === 390) {
                 await page.getByRole('button', { name: 'עוד כלים', exact: true }).click();
