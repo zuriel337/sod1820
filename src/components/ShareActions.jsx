@@ -69,17 +69,19 @@ export default function ShareActions({
     try { onShare?.(channel, fullUrl); } catch { /* consumer callback must not break sharing */ }
   }, [type, destSlug, fullUrl, image, intent, onShare]);
 
+  // A share is recorded only when it happened: the system sheet completed (not cancelled, not failed) or the link was copied.
+  // The channel links (WhatsApp, Telegram, Facebook…) open the channel itself, whose outcome the page cannot see; they record
+  // the opened share, as before.
   const native = useCallback(async () => {
-    logShare("native", resolveModality({ ...intent, modality: "link" }, {}));
-    await nativeShare({ title: text, url: attributedShareUrl(fullUrl, "native") });
+    const shared = await nativeShare({ title: text, url: attributedShareUrl(fullUrl, "native") });
+    if (shared) logShare("native", resolveModality({ ...intent, modality: "link" }, {}));
   }, [text, fullUrl, logShare, intent]);
 
   const copy = useCallback(async () => {
-    logShare("copy", resolveModality({ ...intent, modality: "link" }, {}));
     clearTimeout(copyTimer.current);
     const ok = await copyLink(attributedShareUrl(fullUrl, "copy"));
     setCopied(ok); setCopyFailed(!ok);
-    if (ok) copyTimer.current = setTimeout(() => setCopied(false), 1600);
+    if (ok) { logShare("copy", resolveModality({ ...intent, modality: "link" }, {})); copyTimer.current = setTimeout(() => setCopied(false), 1600); }
   }, [fullUrl, logShare, intent]);
 
   // 🖼️ שיתוף התמונה עצמה כקובץ (הבאנר 1200×630) — כך התצוגה-המקדימה מגיעה מיד, בלי תלות ב-OG.
@@ -99,14 +101,15 @@ export default function ShareActions({
     const resolved = resolveModality({ ...intent, modality: "image_file" }, { canShareFile: Boolean(file && canShareFile(file)) });
     // ⚠️ meta.platform="image" נשמר כפי-שהיה (סמנטיקה היסטורית של האנליטיקס) — ההפרדה
     //    האמיתית בין ערוץ למודאליות נרשמת רק ב-meta.share_object, בלי לשנות פרשנות קיימת.
-    logShare("image", resolved);
+    //    נרשם רק אחרי שיתוף שהושלם או הורדה שבוצעה — ביטול (AbortError) אינו נרשם.
     try {
-      if (file && canShareFile(file)) { await shareImageFile(file, { title: text, text }); setImgBusy(false); return; }
+      if (file && canShareFile(file)) { await shareImageFile(file, { title: text, text }); logShare("image", resolved); setImgBusy(false); return; }
       const a = document.createElement("a"); a.href = image; a.download = "sod1820.png";
       document.body.appendChild(a); a.click(); a.remove();
+      logShare("image", resolved);
     } catch (e) {
       if (e && e.name === "AbortError") { setImgBusy(false); return; }
-      try { const a = document.createElement("a"); a.href = image; a.download = "sod1820.png"; document.body.appendChild(a); a.click(); a.remove(); } catch { /* noop */ }
+      try { const a = document.createElement("a"); a.href = image; a.download = "sod1820.png"; document.body.appendChild(a); a.click(); a.remove(); logShare("image", resolved); } catch { /* noop */ }
     }
     setImgBusy(false);
   }, [image, imgBusy, text, logShare, intent]);
