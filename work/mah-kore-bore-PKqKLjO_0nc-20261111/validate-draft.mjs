@@ -25,6 +25,8 @@ t("gematria table values == method-trace.md", () => {
 });
 t("354/353 caveat for לה׳ present", () => { assert.ok(post.includes("353")); assert.equal(trace.match(/אשה הוא לה׳ \| (\d+)/)[1], "353"); });
 t("Sefer Yetzirah quote present + evidence files", () => { assert.ok(post.includes("המליך אות נ׳ בריח")); for (const f of ["evidence/sefer-yetzirah-pdf189-nun-line.png","evidence/sefer-yetzirah-pdf189-word-barich.png"]) assert.ok(fs.existsSync(new URL(f, dir)), f); });
+t("all numbers in post have a trace entry", () => { const trVals = new Set([...trace.matchAll(/\| (\d+) \|/g)].map(m => m[1])); const extra = post.match(/ערכים נוספים[^<]*/)[0].match(/\d+/g); for (const n of extra) assert.ok(trVals.has(n), n); });
+t("Vitebsk/Abuhatzeira statuses present", () => { assert.ok(post.includes("kikar.co.il/actualy/svgumn")); assert.ok(post.includes("לא נמצא סרטון או מקור כתוב")); assert.ok(post.includes("עדות משנית לא מאומתת")); });
 t("no mgketer/guessed links", () => assert.ok(!post.includes("mgketer")));
 t("graph: all proposals are candidates, no writes", () => { assert.ok(g.proposed_edges.every(e => e.state === "candidate")); assert.ok(g._status.startsWith("PROPOSED ONLY")); });
 t("media: image prepared, not uploaded", () => { assert.equal(meta.image.status, "PREPARED_NOT_UPLOADED"); for (const f of meta.image.files) assert.ok(fs.existsSync(new URL(f, dir)), f); });
