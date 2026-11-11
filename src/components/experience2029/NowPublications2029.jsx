@@ -87,9 +87,10 @@ function RowDetail({ model, onOpen, feed, autoPlay = false }) {
       : model.image && model.mediaHref
       ? <img className="sod29-nowpub-image" src={model.mediaHref} alt={`תמונה · ${model.title}`} loading="lazy" decoding="async" /> : null}
     {model.fullText && model.fullText !== model.title ? <p className="sod29-nowpub-body">{model.fullText}</p> : null}
-    {/* YouTube / Vimeo links inside a PUBLIC update (never an unverified group source): the shared click-to-load card. */}
-    {!model.unverified ? externalVideoLinksFromText(model.fullText || model.title).map(link =>
-      <ExternalVideoFacade2029 key={link.key} link={link} title={model.title} context={model.sourceName ? `מתוך ${model.sourceName}` : ""} />) : null}
+    {/* YouTube / Vimeo links: the shared click-to-load card. A public group source shows it too (ZURIEL 11.11.2026): the group reader only lets a
+        canonical YouTube address through (world_group_source_arrivals_v2) and the row keeps its "מקור · טרם נבדק" label below. */}
+    {externalVideoLinksFromText(model.fullText || model.title).map(link =>
+      <ExternalVideoFacade2029 key={link.key} link={link} title={model.title} context={model.unverified ? `מקור · טרם נבדק · ${model.sourceName}` : model.sourceName ? `מתוך ${model.sourceName}` : ""} />)}
     {model.item.fullTextTruncated ? <small>זהו קטע תחום מהעדכון הציבורי.</small> : null}
     {model.unverified ? <small className="is-unverified">מקור · טרם נבדק. זו הודעת מקור כפי שנשמרה ולא ממצא מאומת.</small> : null}
     <div className="sod29-nowpub-actions">

@@ -110,7 +110,9 @@ test("external video wiring: Community, Now, Or HaGeula, World and the projector
     assert.match(source, /import ExternalVideoFacade2029 from "[./]+(?:components\/)?(?:experience2029\/)?ExternalVideoFacade2029\.jsx"/, path);
     assert.doesNotMatch(source, /youtube-nocookie\.com\/embed/, `${path} builds no player address of its own`);
   }
-  assert.match(read("src/components/experience2029/NowPublications2029.jsx"), /!model\.unverified \? externalVideoLinksFromText/);
-  assert.match(read("src/components/research/WorldPublicUpdates2029.jsx"), /!groupSourceAnchor\(item\) \? externalVideoLinksFromText/);
+  // ZURIEL 11.11.2026: a public group source shows the same card too (its reader only lets a canonical YouTube address through), always labelled
+  // as an unchecked source; see test/group-youtube-card-2029.test.mjs.
+  assert.match(read("src/components/experience2029/NowPublications2029.jsx"), /context=\{model\.unverified \? `מקור · טרם נבדק/);
+  assert.match(read("src/components/research/WorldPublicUpdates2029.jsx"), /context=\{groupSourceAnchor\(item\) \? `מקור · טרם נבדק/);
   assert.match(read("src/components/experience2029/ProjectorMediaCards2029.jsx"), /reading\.isPublicPostReadingSource\(post\)/);
 });
