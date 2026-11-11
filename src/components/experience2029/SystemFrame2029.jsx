@@ -1151,7 +1151,7 @@ function PersonalGuestHome2029() {
   const { loading } = useAuth();
   const { openIssueReport } = use2029Shell();
   const cards = personalCards({ signedIn: false });
-  return <PersonalHomeLazy2029 signedIn={false} onReport={() => openIssueReport({ capability: "personal_area" })} avatar={<UserAvatar2029 user={null} profile={null} size="header" />} cards={cards}
+  return <PersonalHomeLazy2029 signedIn={false} onReport={() => openIssueReport({ capability: "personal_area", returnToWorkspace: true })} avatar={<UserAvatar2029 user={null} profile={null} size="header" />} cards={cards}
     primary={null}
     slots={{ account: <AccountConnection2029 />, guestNote: <FrameState kind="empty" title="האזור האישי שלך">התחברות לחשבון קיים תציג את הפרטים והשמורים שלך. שמירה ועריכה נעשות בפעולה מפורשת; התחברות אינה מפעילה רזיאל, חיוב או דיוור.</FrameState> }} />;
 }
@@ -1380,7 +1380,7 @@ function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, jo
     </div>
   </section>;
 
-  return <PersonalHomeLazy2029 signedIn={!!userId} onReport={() => openIssueReport({ capability: "personal_area" })} name={profileName} email={user?.email || ""} avatar={<UserAvatar2029 user={user} profile={profile} size="header" />}
+  return <PersonalHomeLazy2029 signedIn={!!userId} onReport={() => openIssueReport({ capability: "personal_area", returnToWorkspace: true })} name={profileName} email={user?.email || ""} avatar={<UserAvatar2029 user={user} profile={profile} size="header" />}
     stats={stats} follows={follows} inbox={inbox} cards={cards} primary={primary} onPrimary={onPrimary} onNavigate={onNavigate} onAction={onAction}
     focusSection={focusSection} onSectionHandled={() => setFocusSection(null)} guestLists
     slots={{ account: <AccountConnection2029 user={user} profile={profile} signOut={signOut} />, research: researchNode, follow: followNode, raziel: razielNode }} />;
@@ -1706,7 +1706,8 @@ function SystemFrame2029Body({
 
   const closeTransient = useCallback(() => {
     if (transient?.kind === TRANSIENT.NEWSLETTER) dismissGuestNewsletterInvite2029();
-    setTransient(null);
+    // A report opened from "האזור האישי שלי" returns to it when it closes (ZURIEL 11.11), the same panel, not the page behind it.
+    setTransient(transient?.kind === TRANSIENT.ISSUE && transient.payload?.returnToWorkspace === true ? { kind: TRANSIENT.WORKSPACE, payload: null } : null);
     requestAnimationFrame(() => returnFocusRef.current?.focus?.());
   }, [transient?.kind]);
 
@@ -1814,6 +1815,7 @@ function SystemFrame2029Body({
     capability: payload?.capability || null, concept: payload?.concept || null,
     learnStage: payload?.learnStage || null, actionTried: payload?.actionTried || null,
     initialText: typeof payload?.initialText === "string" ? payload.initialText : "",
+    returnToWorkspace: payload?.returnToWorkspace === true,
     sourceHref: contactSourceHref(location),
   }), [openTransient, location.pathname, location.search]);
   const closeRaziel = useCallback(() => { if ([TRANSIENT.RAZIEL, TRANSIENT.RAZIEL_LOCKED].includes(transient?.kind)) closeTransient(); }, [transient?.kind, closeTransient]);

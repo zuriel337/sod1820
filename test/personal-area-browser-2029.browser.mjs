@@ -57,7 +57,7 @@ for (const [name, options] of Object.entries(PROFILES)) {
       await page.locator("[data-pa29-report]").click();
       await page.getByRole("dialog").getByText(/דווחו על בעיה/).first().waitFor({ timeout: 15000 });
       await page.keyboard.press("Escape");
-      await openPanel(page);
+      await page.locator('[data-panel-kind="workspace"] [data-pa29-build]').waitFor({ timeout: 15000 });   // closing the report returns to the personal panel
       await page.keyboard.press("Escape");
       // 2. sign in, the signed-in panel
       await signInWithCode(page, fixture, A);
@@ -83,6 +83,7 @@ for (const [name, options] of Object.entries(PROFILES)) {
       // 4. keyboard: Enter opens and focus moves inside; Escape closes and focus returns to the opener
       await page.goto(fixture.origin + "/", { waitUntil: "domcontentloaded" }); await ready(page); await page.waitForTimeout(1200);
       await opener(page).focus(); await page.keyboard.press("Enter"); await page.locator('[data-panel-kind="workspace"]').waitFor();
+      await page.waitForFunction(() => Boolean(document.activeElement?.closest('[data-panel-kind="workspace"]')), null, { timeout: 5000 }).catch(() => {});   // focus settles after the panel's lazy content mounts
       assert.equal(await page.evaluate(() => Boolean(document.activeElement?.closest('[data-panel-kind="workspace"]'))), true, "focus moves into the panel");
       await page.keyboard.press("Escape"); await page.waitForTimeout(500);
       assert.equal(await page.locator('[data-panel-kind="workspace"]').count(), 0);
