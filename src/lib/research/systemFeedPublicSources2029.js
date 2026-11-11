@@ -53,7 +53,9 @@ export function publicChannelToSystemItem(row, { now = Date.now() } = {}) {
     fullTextTruncated: body.length === 1200,
     creator: NOW_PUBLIC_CHANNELS_2029[row.channel], at, arrivalAt: at, recordedAt: at,
     sourceRef: `channel_updates:${row.id}`, publicState: "published_channel_update",
-    href: publicNowSourceHref(row.link_url), researchCount: 0, numbers: [] };
+    href: publicNowSourceHref(row.link_url), researchCount: 0, numbers: [],
+    // The owner's own mark (channel_updates.priority above the default 50): the one update of a second-tier channel that stands on its own.
+    ownerFeatured: Number.isFinite(Number(row.priority)) && Number(row.priority) > 50 };
 }
 export function publicGalleryToSystemItem(row) {
   if (!UUID.test(row?.id || "") || row.source !== "update" || row.min_tier == null || Number(row.min_tier) !== 0 || Number(row.published) !== 1 || row.curator_hidden === true) return null;
@@ -101,7 +103,7 @@ export async function fetchSystemFeedPublicSources2029({ client = null, signal =
   const catalogRead = fetchContentSeriesCatalog2029({ client: api, limitPerSeries: 4, homeOnly: true, signal }).then(catalog => ({ catalog }), error => ({ error }));
   const results = await Promise.allSettled([
     ...keys.map(channel => read(api.from("channel_updates")
-      .select("id,text,image_url,thumb_url,channel,status,page_only,expires_at,created_at,link_url")
+      .select("id,text,image_url,thumb_url,channel,status,page_only,expires_at,created_at,link_url,priority")
       .eq("status", "live").eq("page_only", false).eq("channel", channel)
       .or(`expires_at.is.null,expires_at.gt.${new Date(now).toISOString()}`)
       .order("created_at", { ascending: false }).limit(12))),
