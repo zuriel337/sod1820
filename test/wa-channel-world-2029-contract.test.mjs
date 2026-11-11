@@ -12,10 +12,20 @@ const syntax = spawnSync(process.execPath, ["--check", "supabase/functions/wa-ch
 assert.equal(syntax.status, 0, syntax.stderr || syntax.stdout || "wa-channel-ingest TypeScript syntax check failed");
 
 // Or-Geula stays story/live; heavy research channels become private source ingress.
-assert.match(ingest, /RESEARCH_FIRST_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "sfot-vheker"\]\)/);
-assert.match(ingest, /STORY_LIVE_CHANNELS = new Set\(\["or-geula"\]\)/);
+// ZURIEL 11.11.2026: «הגילוי היומי» (gilui-yomi) enters automatically like Or HaGeula — story/live at ingest.
+assert.match(ingest, /RESEARCH_FIRST_CHANNELS = new Set\(\["torat-haremez", "sfot-vheker"\]\)/);
+assert.match(ingest, /STORY_LIVE_CHANNELS = new Set\(\["or-geula", "gilui-yomi"\]\)/);
 assert.match(ingest, /return STORY_LIVE_CHANNELS\.has\(channel\) \? "live" : "private"/);
 assert.match(ingest, /status: channelStatus\(src\.channel\)/);
+// A live channel row is ONE public row: it never also enters the unverified group-source path (marker + proof).
+assert.match(ingest, /const groupIntake = WORLD_GROUP_CHANNELS\.has\(src\.channel\) && !STORY_LIVE_CHANNELS\.has\(src\.channel\) && !outgoing && !imageUrl/);
+assert.match(ingest, /group_source_intake_public: groupIntake,/);
+assert.match(ingest, /if \(WORLD_GROUP_CHANNELS\.has\(src\.channel\) && !STORY_LIVE_CHANNELS\.has\(src\.channel\) && !outgoing && !imageUrl && String\(chatId\)\.endsWith\("@g\.us"\)\) \{/);
+// Writer pins come from the registry by sender number only, for live incoming rows; the column is sent only when pinned.
+assert.match(ingest, /import \{ waPinUntil \} from "\.\.\/_shared\/waChannelPin\.js"/);
+assert.match(ingest, /waPinUntil\(src, \{ senderId, outgoing, ts, status: channelStatus\(src\.channel\) \}\)/);
+assert.match(ingest, /\.\.\.\(pinnedUntil \? \{ pinned_until: pinnedUntil \} : \{\}\)/);
+assert.doesNotMatch(ingest, /waPinUntil\([^)]*senderName/);
 assert.match(ingest, /waAdmin\("getStateInstance", \{\}, "GET"\)/);
 assert.match(ingest, /providerState !== "authorized"/);
 assert.match(ingest, /error: "green_not_authorized"/);

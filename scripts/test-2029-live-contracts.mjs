@@ -115,8 +115,9 @@ test("WhatsApp channel edge functions: research-first channels stay private, the
   const ingest = read("supabase/functions/wa-channel-ingest/index.ts");
   const edge = read("supabase/functions/live-whatsapp-feed/index.ts");
   // Research/source state stays unchanged: Torat remains research-first/private at ingest.
-  assert.match(ingest, /RESEARCH_FIRST_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "sfot-vheker"\]\)/);
-  assert.match(ingest, /STORY_LIVE_CHANNELS = new Set\(\["or-geula"\]\)/);
+  // ZURIEL 11.11.2026: gilui-yomi moved to story/live at ingest (like Or HaGeula); Torat is untouched.
+  assert.match(ingest, /RESEARCH_FIRST_CHANNELS = new Set\(\["torat-haremez", "sfot-vheker"\]\)/);
+  assert.match(ingest, /STORY_LIVE_CHANNELS = new Set\(\["or-geula", "gilui-yomi"\]\)/);
   // Public projection is fixed to Torat, bounded, and strips private storage refs from media output.
   assert.match(edge, /\.eq\("channel", "torat-haremez"\)/);
   assert.match(edge, /Math\.min\([^,]+, 60\)/);

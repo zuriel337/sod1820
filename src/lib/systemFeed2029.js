@@ -48,14 +48,21 @@ export function feedRows(items = [], { now = Date.now(), seen = {}, strongIds = 
   // One kind must not drown the others (source-group messages arrive in bursts): cap each bucket by newest first.
   // An item with an approved series identity is bucketed by series, so a series is represented even when the shared recent window is full.
   const bucket = (row) => row.item?.seriesKey ? `series:${row.item.seriesKey}` : (row.kind === "source" ? (row.item.sourceKind === "group_message" ? "group" : row.item.sourceKind === "channel_update" ? `channel:${row.item.channel}` : row.item.sourceKind === "gallery_update" ? "gallery" : "post") : row.kind);
+  // A pinned item (the owner's pin, or a writer pin while its pinUntil is ahead) is never dropped by a bucket cap or the limit:
+  // it takes its place first and the other rows fill what is left. The output order stays chronological.
+  const pinned = (row) => row.item?.pinned === true && !(row.item.pinUntil && !(now < Date.parse(row.item.pinUntil)));
   const taken = {};
   const newestFirst = [...rows].sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || a.index - b.index);
   const kept = newestFirst.filter((row) => {
+    if (pinned(row)) return true;
     const key = bucket(row); taken[key] = (taken[key] || 0) + 1;
     return taken[key] <= (caps[key] ?? (key.startsWith("series:") ? 12 : 2));
   });
   kept.sort((a, b) => (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || a.index - b.index);
-  return kept.slice(0, limit);
+  const pins = kept.filter(pinned);
+  if (!pins.length) return kept.slice(0, limit);
+  const chosen = new Set([...pins.slice(0, limit), ...kept.filter((row) => !pinned(row)).slice(0, Math.max(0, limit - pins.length))]);
+  return kept.filter((row) => chosen.has(row));
 }
 
 // Dedupe actual source occurrences, never a number, wording or inferred topic.

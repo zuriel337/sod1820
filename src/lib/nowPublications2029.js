@@ -147,12 +147,17 @@ export function nowRowModel(row) {
   const fullText = cleanNowText(item.fullText);
   const summary = cleanNowText(item.summary);
   const title = shortNowTitle(row?.title || item.label) || (video ? "סרטון" : image ? "תמונה" : "עדכון");
-  const byline = [seriesLabel, sourceName, isGroup ? item.creator : ""].filter((part, index, all) => part && all.indexOf(part) === index);
+  // A channel row names its writer only when the ingest proved him by his number (item.writer, set with a writer pin).
+  const byline = [seriesLabel, sourceName, isGroup ? item.creator : isChannel ? clean(item.writer) : ""].filter((part, index, all) => part && all.indexOf(part) === index);
+  // Two pin kinds, one order: the owner's own pin (the Home featured item) leads; a writer pin (a channel row whose sender number is listed
+  // in the source registry, e.g. «הגילוי היומי») follows it; then everything else by time.
+  const pinKind = item.pinned === true ? (isChannel && item.pinKind === "writer" ? "writer" : "owner") : null;
   return {
     id: row?.id, row, item, title, byline, typeLabel, unverified,
     tone: toneOf(lenses, unverified),
     // Pinned by the owner (the Home featured item): stays first in "עכשיו" whatever its time; how pinning is governed is to be set in the contracts.
-    pinned: item.pinned === true,
+    // A writer pin (pinKind "writer") stays at the top too, under the owner's pin, until its pinUntil.
+    pinned: item.pinned === true, pinKind,
     // A blinking dot attached to the title marks an update the owner flagged (the Home featured Post update). Its label is the accessible name.
     dot: typeof item.liveDot === "string" && item.liveDot ? item.liveDot : null,
     logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, author: item.author, seriesKey })] || null,
@@ -171,13 +176,16 @@ export function nowRowModel(row) {
     // otherwise its media. A row with nothing to show stays a plain link — never an empty panel, never an invented continuation.
     canExpand: Boolean(fullText || summary || media),
     // "עודכן": the publication itself received an update (a proven Post source update, or the owner's pinned update). "חדש" stays row.isNew.
-    updated: Boolean(item.sourceUpdate || item.pinned === true),
+    // A writer pin is not an update of the publication, so it never says "עודכן".
+    updated: Boolean(item.sourceUpdate || pinKind === "owner"),
   };
 }
 
+const PIN_RANK = Object.freeze({ owner: 2, writer: 1 });
+const pinRank = model => model.pinned ? PIN_RANK[model.pinKind] || PIN_RANK.owner : 0;
 export const nowModels = (rows, now = Date.now()) => list(rows).filter(row => row?.id && row.title)
-  .map(nowRowModel).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinUntil: null, central: null, dot: null } : model)
-  .sort((a, b) => (Number(b.pinned) - Number(a.pinned)) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
+  .map(nowRowModel).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
+  .sort((a, b) => (pinRank(b) - pinRank(a)) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 /** Primary lenses with at least one row; "all" is always available. */
 export function availableNowLenses(models) {

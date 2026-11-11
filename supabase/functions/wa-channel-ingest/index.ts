@@ -10,10 +10,13 @@
 // 2029 media: every NEW public image, video and audio -> media/sod1820/2029/<kind>/YYYY/MM/<asset-id>/original.*, with a
 // stable asset id derived from the message (no overwrite, no second copy on a repeated run); legacy URLs are never moved.
 // Private media keeps submission-inbox semantics. Content type is taken from the bytes and must match the message kind.
+// 📌 pin_ids (JIDs) + pin_hours in the registry (ZURIEL 11.11.2026): an incoming LIVE message whose senderId is listed gets
+// pinned_until = message time + pin_hours. Identity is the sender number only, never the display name.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 import { buildWriterIndex, resolveWriterContributorId } from "../_shared/waWriterIdentity.js";
 import { WA_MEDIA_MAX_BYTES, waMessageMediaKind, waPublicMediaPath, waSniffMedia, waStableAssetId, waUploadAlreadyExists } from "../_shared/waMediaAsset.js";
+import { waPinUntil } from "../_shared/waChannelPin.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CEIL = 60 * 60 * 30;
@@ -21,8 +24,10 @@ const STALE_RECOVERY_AFTER = 60 * 60;
 const NORMAL_HISTORY_COUNT = 30;
 const RECOVERY_HISTORY_COUNT = 1000;
 const RECOVERY_BATCH = 10;
-const RESEARCH_FIRST_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "sfot-vheker"]);
-const STORY_LIVE_CHANNELS = new Set(["or-geula"]);
+// ZURIEL 11.11.2026: «הגילוי היומי» enters automatically like Or HaGeula (story/live at ingest); research intake keeps its own
+// registry policy (channel_ingest_sources.intake_mode), so its research path does not change.
+const RESEARCH_FIRST_CHANNELS = new Set(["torat-haremez", "sfot-vheker"]);
+const STORY_LIVE_CHANNELS = new Set(["or-geula", "gilui-yomi"]);
 const MEDIA_2029_BUCKET = "media";
 const MAX_MEDIA = WA_MEDIA_MAX_BYTES;
 const BOT_CREDIT = "רזיאל · AI";
@@ -86,7 +91,8 @@ function pickHistory<T>(v: any): { ok: boolean; rows: T[] } {
   return { ok: false, rows: [] };
 }
 // Public source groups. ki-la-hamelucha-gematria joins ONLY the proof/flag path (code); its intake scope (admin_only) is a separate gated config change.
-const WORLD_GROUP_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "ki-la-hamelucha-gematria"]);
+// blaze-888 is the value that was live in v33 (deployed outside the repo); both are kept so the repo and the deployed function match.
+const WORLD_GROUP_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "ki-la-hamelucha-gematria", "blaze-888"]);
 function channelStatus(channel: string): "live" | "private" {
   return STORY_LIVE_CHANNELS.has(channel) ? "live" : "private";
 }
@@ -313,6 +319,11 @@ async function ingestSource(
     const source = isBotApi ? "ai" : "auto";
     // Stable writer id only on an unambiguous human alias hit; bot/API, ambiguous and unmatched stay null.
     const contributorId = resolveWriterContributorId(rawCredit, writerIndex, { isBotApi });
+    // A live (story) channel row is already a public publication: it never also enters the unverified group-source path,
+    // so one message stays ONE public row (and its pin is not lost to a second representation).
+    const groupIntake = WORLD_GROUP_CHANNELS.has(src.channel) && !STORY_LIVE_CHANNELS.has(src.channel) && !outgoing && !imageUrl && String(chatId).endsWith("@g.us");
+    const pinnedUntil = waPinUntil(src, { senderId, outgoing, ts, status: channelStatus(src.channel) });
+    if (pinnedUntil) trace.push({ msgId, step: "pinned", channel: src.channel, until: pinnedUntil });
 
     const ins = await sb.from("channel_updates").insert({
       channel: src.channel,
@@ -321,9 +332,11 @@ async function ingestSource(
       source,
       credit,
       contributor_id: contributorId,
-      group_source_intake_public: WORLD_GROUP_CHANNELS.has(src.channel) && !outgoing && !imageUrl && String(chatId).endsWith("@g.us"),
+      group_source_intake_public: groupIntake,
       priority: src.priority ?? 50,
       status: channelStatus(src.channel),
+      // Sent only when the row is pinned, so an unpinned insert never depends on the pinned_until column.
+      ...(pinnedUntil ? { pinned_until: pinnedUntil } : {}),
       ext_msg_id: msgId,
       created_at: new Date(ts * 1000).toISOString(),
     }).select("id").single();
@@ -332,7 +345,7 @@ async function ingestSource(
       n++;
       // Positive group provenance (private side table). Identity comes ONLY from senderId (JID) -> contributors.phone,
       // never from senderName/credit. Any failure leaves the row without proof => excluded from public World reads.
-      if (WORLD_GROUP_CHANNELS.has(src.channel) && !outgoing && !imageUrl && String(chatId).endsWith("@g.us")) {
+      if (WORLD_GROUP_CHANNELS.has(src.channel) && !STORY_LIVE_CHANNELS.has(src.channel) && !outgoing && !imageUrl && String(chatId).endsWith("@g.us")) {
         const pr = await sb.rpc("record_channel_update_group_proof_v1", {
           p_update_id: ins.data?.id, p_source_id: src.id, p_ext_msg_id: msgId, p_group_chat_id: chatId,
           p_sender_jid: senderId, p_incoming: true, p_type_message: typ,
