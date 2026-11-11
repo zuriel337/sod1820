@@ -43,10 +43,11 @@ export function publicNowMediaKind(value) {
   return media && !media.rendition ? media.kind : null;
 }
 // Writer pins (ZURIEL 11.11.2026): channel_updates.pinned_until is written ONLY by the ingest for a sender whose WhatsApp number is in
-// the source registry (channel_ingest_sources.pin_ids) — e.g. שחר יצחק קנדרו and יניב לוי in «הגילוי היומי». While it is in the future
+// the source registry (channel_ingest_sources.pin_writers) — e.g. שחר יצחק קנדרו and יניב לוי in «הגילוי היומי». While it is in the future
 // the row is pinned at the top of Now, under the owner's own pin. Because the number proved who wrote it, only such a row shows its
-// writer's name (redacted like the text); every other channel row keeps the channel name only. Only the pin read selects
-// pinned_until and credit, so in Now the name is shown while the row is pinned; the per-channel reads never depend on the new column.
+// writer's name (the registry name, redacted like the text); every other channel row keeps the channel name only — and the ingest
+// already stores a live row of any other member without a name (credit = the group, no contributor link), so the public data matches.
+// Only the pin read selects pinned_until and credit; the per-channel reads never depend on the new column.
 export const NOW_PIN_READ_LIMIT_2029 = 8;
 function channelPin(row, now) {
   const until = date(row?.pinned_until);

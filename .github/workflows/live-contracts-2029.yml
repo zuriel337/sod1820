@@ -227,7 +227,7 @@ jobs:
           test/or-geula-video-share-2029.test.mjs
           test/install-suggestion-2029.test.mjs
           test/wa-channel-world-2029-contract.test.mjs
-          test/wa-channel-pin-2029.test.mjs
+          test/wa-channel-live-policy-2029.test.mjs
           test/wa-trusted-author-tree-routing.test.mjs
           test/world-topic-gallery-state-map-2029.test.mjs
           test/world-gallery-entry-follow-chain-2029.test.mjs
