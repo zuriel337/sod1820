@@ -67,7 +67,9 @@ function RowDetail({ model, onOpen, feed, autoPlay = false }) {
   const fullHref = model.href;
   const open = href => () => { feed?.see?.(model.row); onOpen?.(href); };
   return <div className="sod29-nowpub-detail">
-    {model.video && model.mediaHref ? <VideoOnDemand model={model} autoStart={autoPlay} /> : model.image && model.mediaHref
+    {model.video && model.mediaHref ? <VideoOnDemand model={model} autoStart={autoPlay} />
+      : model.audio && model.mediaHref ? <audio className="sod29-nowpub-audio" src={model.mediaHref} controls preload="none" aria-label={`הקלטה · ${model.title}`} />
+      : model.image && model.mediaHref
       ? <img className="sod29-nowpub-image" src={model.mediaHref} alt={`תמונה · ${model.title}`} loading="lazy" decoding="async" /> : null}
     {model.fullText && model.fullText !== model.title ? <p className="sod29-nowpub-body">{model.fullText}</p> : null}
     {model.item.fullTextTruncated ? <small>זהו קטע תחום מהעדכון הציבורי.</small> : null}

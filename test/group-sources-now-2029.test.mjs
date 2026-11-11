@@ -127,7 +127,9 @@ test("ingest: ki-la joins only the proof path in code; guard and sender-JID proo
   const guard = ts.slice(ts.lastIndexOf("if (WORLD_GROUP_CHANNELS", at), at);
   assert.ok(guard.includes("!outgoing") && guard.includes("!imageUrl") && guard.includes("@g.us"));
   assert.ok(ts.slice(at, at + 400).includes("p_sender_jid: senderId"));
-  assert.ok(!/audioMessage/.test(ts), "audio ingest does not exist and is not claimed");
+  // Audio messages are admitted (11.11.2026) on the same private/live rule; a world group never makes them public.
+  assert.match(ts, /"audioMessage"/);
+  assert.ok(guard.includes("!imageUrl"), "a message with any media (audio included) never becomes a public group source");
 });
 
 test("World and Now components render the group label, media and member link from the shared fields", () => {

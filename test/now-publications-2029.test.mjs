@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, latestRunAt, buildNowEntries, isRabbiBoxModel, nowTodayBand, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
 import { redactGroupText, groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
@@ -227,4 +228,23 @@ test("the update-of-the-day band carries the whole update, shows for exactly its
   assert.equal(nowTodayBand([{ item: {} }], at("2026-11-11T10:00:00Z")), null);
   assert.equal(nowTodayBand(null), null);
   for (const bad of [{ ...band, days: 0 }, { ...band, from: "10.11.2026" }, { ...band, groups: [] }, { ...band, groups: [{ value: "1011", phrases: ["ג"] }] }]) assert.equal(nowTodayBand([{ item: { band: bad } }], at("2026-11-11T10:00:00Z")), null);
+});
+
+test("Now plays public storage audio from the shared media rule; a version key keeps the kind; signed and private audio never play", () => {
+  const STORE = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object";
+  const audio = `${STORE}/public/media/sod1820/2029/audio/2026/11/5d8e605b-5e32-4d79-a916-d4d13e989a1e/original.ogg`;
+  const row = (image_url) => ({ id: "channel:x", at: "2026-11-11T08:00:00Z", item: publicChannelToSystemItem({ id: "10000000-0000-4000-8000-0000000000aa", channel: "or-geula",
+    status: "live", page_only: false, created_at: "2026-11-11T08:00:00Z", text: "", image_url }) });
+  for (const url of [audio, audio + "?v=2", `${STORE}/public/media/uploads/2024/09/a.wav?_=3`]) {
+    const model = nowRowModel(row(url));
+    assert.equal(model.audio, true, url); assert.equal(model.video, false); assert.equal(model.image, false);
+    assert.equal(model.media, "audio"); assert.equal(model.typeLabel, "הקלטה"); assert.equal(model.thumb, null); assert.equal(model.previewKind, null);
+    assert.equal(model.mediaHref, url);
+  }
+  for (const url of [`${STORE}/sign/media/a.ogg?token=x`, `${STORE}/public/submission-inbox/a.ogg`]) {
+    const item = row(url).item;
+    assert.ok(!item || !item.mediaHref, `${url} is not admitted as public media`);
+  }
+  const source = readFileSync(new URL("../src/components/experience2029/NowPublications2029.jsx", import.meta.url), "utf8");
+  assert.match(source, /model\.audio && model\.mediaHref \? <audio className="sod29-nowpub-audio" src=\{model\.mediaHref\} controls preload="none"/);
 });
