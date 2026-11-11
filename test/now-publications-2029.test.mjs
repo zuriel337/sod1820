@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, latestRunAt, buildNowEntries, isRabbiBoxModel, nowTodayBand, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel } from "../src/lib/nowPublications2029.js";
+import { cleanNowText, shortNowTitle, nowRowModel, nowModels, availableNowLenses, defaultNowLens, collapseSourceRuns, latestRunAt, buildNowEntries, isRabbiBoxModel, nowTodayBand, nowLensCounts, nowExcerpt, nowSecondaryChoices, filterNowModels, nowSeriesHref, nowSeriesLabel, filterNowBySource, nowPinUntilLabel, nowPinnedMessage, nowSourceChoices } from "../src/lib/nowPublications2029.js";
 import { feedRows, mergeSystemFeedItems } from "../src/lib/systemFeed2029.js";
 import { redactGroupText, groupRowToWorldUpdate } from "../src/lib/research/worldGroupSource.js";
 import { postRowToWorldUpdate } from "../src/lib/research/worldDiscoveryStream.js";
@@ -247,4 +247,38 @@ test("Now plays public storage audio from the shared media rule; a version key k
   }
   const source = readFileSync(new URL("../src/components/experience2029/NowPublications2029.jsx", import.meta.url), "utf8");
   assert.match(source, /model\.audio && model\.mediaHref \? <audio className="sod29-nowpub-audio" src=\{model\.mediaHref\} controls preload="none"/);
+});
+
+// ── "עכשיו · המרכז" (ZURIEL 11.11.2026): one pin of at most 72 hours, one source picker by a stable key ─────────────────────────────
+test("the pin is a window: while open the pinned row stays first and carries the central message; once expired it returns to its place by time", () => {
+  const central = { title: "כותרת המסר", groups: [{ value: 1234, phrases: ["ממשלת משיח בן דוד"], numberOnly: [] }] };
+  const mk = (id, at, extra = {}) => ({ id, title: "כותרת " + id, at, item: { sourceKind: "post", label: "כותרת " + id, ...extra }, href: "/post/" + id });
+  const pinned = { pinned: true, pinUntil: "2026-11-14T08:00:00.000Z", central, liveDot: "עדכון חדש בפוסט" };
+  const open = nowModels([mk("a", "2026-11-10T10:00:00Z"), mk("b", "2026-11-01T10:00:00Z", pinned)], Date.parse("2026-11-12T00:00:00Z"));
+  assert.deepEqual(open.map(x => x.id), ["b", "a"]);
+  const message = nowPinnedMessage(open, Date.parse("2026-11-12T00:00:00Z"));
+  assert.equal(message.model.id, "b"); assert.equal(message.central.title, "כותרת המסר"); assert.equal(message.href, "/post/b");
+  assert.equal(nowPinnedMessage(open, Date.parse("2026-11-14T08:00:00Z")), null, "no pinned card at or after the expiry");
+  const expired = nowModels([mk("a", "2026-11-10T10:00:00Z"), mk("b", "2026-11-01T10:00:00Z", pinned)], Date.parse("2026-11-15T00:00:00Z"));
+  assert.deepEqual(expired.map(x => x.id), ["a", "b"]); assert.equal(expired[1].pinned, false); assert.equal(expired[1].dot, null, "no 'new' flag after the pin");
+  assert.equal(nowPinUntilLabel("2026-11-14T08:00:00.000Z"), "עד 14.11 · 10:00", "Israel time");
+});
+
+test("source picker: a stable key per source kind (group / channel / series / the site), never the display name or a category; known groups always listed", () => {
+  const groupRow = groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000001", body: "הודעת מקור", created_at: "2026-11-03T10:00:00Z", contributor_slug: "tzvi-opoc", contributor_name: "צבי", group_proof: true, proof_basis: "verified_phone_unique", group_channel: "torat-haremez" });
+  const channel = { id: "channel:00000000-0000-4000-8000-0000000000aa", kind: "update", title: "עדכון", at: "2026-11-03T09:00:00Z", item: { sourceKind: "channel_update", channel: "or-geula", sourceLabel: "אור הגאולה", label: "עדכון" }, href: null };
+  const sitePost = { id: "post:9", kind: "update", title: "פוסט", at: "2026-11-03T08:00:00Z", item: { sourceKind: "post", label: "פוסט", categories: ["תיעוד אירועים"], tags: [], author: "SOD1820" }, href: "/post/p9" };
+  const models = nowModels([...rows([groupRow].filter(Boolean)), channel, sitePost]);
+  const byId = Object.fromEntries(models.map(model => [model.id, model.sourceKey]));
+  assert.equal(byId["channel:00000000-0000-4000-8000-0000000000aa"], "channel:or-geula");
+  assert.equal(byId["post:9"], "site:posts", "a Post outside a series is the site's publication; its category never becomes the source");
+  const groupKey = models.find(model => model.unverified)?.sourceKey;
+  assert.match(groupKey, /^group:/);
+  const choices = nowSourceChoices(models);
+  assert.deepEqual(choices.slice(0, 2).map(item => item.kind), ["group", "group"], "groups first");
+  assert.ok(choices.some(item => item.id === "group:ki-la-hamelucha-gematria" && item.count === 0 && item.label === "כי לה׳ המלוכה — גימטריות"));
+  assert.equal(choices.find(item => item.id === "channel:or-geula").kindLabel, "ערוץ");
+  assert.equal(choices.find(item => item.id === "site:posts").label, "פרסומי האתר");
+  assert.deepEqual(filterNowBySource(models, "channel:or-geula").map(model => model.id), ["channel:00000000-0000-4000-8000-0000000000aa"]);
+  assert.equal(filterNowBySource(models, "").length, models.length);
 });

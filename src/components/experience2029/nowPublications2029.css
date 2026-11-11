@@ -102,7 +102,7 @@
 .sod29-nowpub-box-text>em{font-style:normal;font-size:var(--s29-type-small);color:var(--s29-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sod29-nowpub-box>.sod29-nowpub-list{padding:0 8px 10px}
 
-.sod29-nowpub-dot{display:inline-block;inline-size:.62em;block-size:.62em;margin-inline-end:.45em;border-radius:50%;background:#e8483f;box-shadow:0 0 0 0 rgb(232 72 63/.55);vertical-align:.04em;animation:sod29-nowpub-blink 1.4s ease-in-out infinite}
+.sod29-nowpub-dot{display:inline-block;inline-size:.62em;block-size:.62em;margin-inline-end:.45em;border-radius:50%;background:#e8483f;box-shadow:0 0 0 0 rgb(232 72 63/.55);vertical-align:.04em;animation:sod29-nowpub-blink 1.4s ease-in-out 3}
 @keyframes sod29-nowpub-blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgb(232 72 63/.55)}50%{opacity:.35;box-shadow:0 0 0 .5em rgb(232 72 63/0)}}
 .sod29-nowpub-pin{font-weight:700;color:var(--s29-brand-gold)}
 .sod29-nowpub-row[data-now-pinned-row]{border-color:color-mix(in srgb,var(--s29-brand-gold) 55%,var(--s29-line))}
