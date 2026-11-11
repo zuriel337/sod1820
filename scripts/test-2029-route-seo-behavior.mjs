@@ -93,7 +93,7 @@ const DECISIONS = {
   "/verified": { kind: "collection" },
   "/or-geula": { kind: "collection" },
   "/number/:value": { kind: "number" },
-  "/2029/number/:value": { kind: "number", canonical: "/number/x" },
+  "/2029/number/:value": { kind: "redirect", to: "/number/x", then: { kind: "number" }, note: "ZURIEL 11.11.2026: the compatibility prefix continues to the public address in one permanent hop" },
   "/post/:slug": { kind: "item" },
   "/:slug": { kind: "item", note: "post slug address; unknown addresses end in a noindex 404" },
   "*": { kind: "item", note: "wildcard: unknown address" },

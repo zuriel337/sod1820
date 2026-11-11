@@ -8,7 +8,7 @@ import { spawnSync } from "node:child_process";
 import vm from "node:vm";
 import { build } from "esbuild";
 import { protectedReviewBuildIdentity, protectedReviewRuntimeAuthorized, protectedReviewConfigMaterialization,
-  REVIEW_BRANCH, REVIEW_PROJECT_ID, REVIEW_AUTH_HOST } from "../public-reading-deploy/review-admission.js";
+  REVIEW_BRANCH, REVIEW_BRANCHES, ADDITIONAL_REVIEW_BRANCHES, PRODUCTION_REVIEW_BRANCH, REVIEW_PROJECT_ID, REVIEW_AUTH_HOST } from "../public-reading-deploy/review-admission.js";
 
 // All platform identities and responses in this file are synthetic. Real Vercel
 // identity is never forged for a build or deployment. No fetch may reach network.
@@ -285,4 +285,38 @@ test('stable Auth alias needs the exact generated Preview platform proof; canoni
  assert.equal(ctx.admission.publicReadingOriginAllowed('https://'+fixtureEnv.VERCEL_URL),true);
  for(const origin of ['https://sod1820.co.il','https://www.sod1820.co.il','https://sod1820.vercel.app','https://other.vercel.app','https://'+REVIEW_AUTH_HOST+'.evil.invalid'])assert.equal(ctx.admission.publicReadingOriginAllowed(origin),false,origin);
  ctx.process.env={...env,VERCEL_ENV:'production'};assert.equal(ctx.admission.deploymentAuthorized(),false);
+});
+
+test("an additional review branch is an exact, Preview-only allowlist entry; nothing else is admitted", () => {
+  const extra = ADDITIONAL_REVIEW_BRANCHES[0];
+  assert.deepEqual([...ADDITIONAL_REVIEW_BRANCHES], ["claude/number-typography-v2-20261111"]);
+  assert.deepEqual([...REVIEW_BRANCHES], [REVIEW_BRANCH, extra]);
+  assert.ok(Object.isFrozen(REVIEW_BRANCHES) && Object.isFrozen(ADDITIONAL_REVIEW_BRANCHES));
+  const env = { ...fixtureEnv, VERCEL_GIT_COMMIT_REF: extra };
+  const identity = protectedReviewBuildIdentity({ env, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha });
+  assert.equal(identity.branch, extra);
+  assert.equal(identity.mode, "protected-preview-review");
+  assert.equal(identity.productionAuthorized, false);
+  assert.equal(identity.indexingAuthorized, false);
+  assert.equal(protectedReviewRuntimeAuthorized(identity, env), true);
+  // The receipt is bound to the branch it was built on and to every platform field.
+  assert.equal(protectedReviewRuntimeAuthorized(identity, { ...env, VERCEL_GIT_COMMIT_REF: REVIEW_BRANCH }), false);
+  assert.equal(protectedReviewRuntimeAuthorized(identity, { ...env, VERCEL_DEPLOYMENT_ID: "dpl_Other" }), false);
+  assert.equal(protectedReviewRuntimeAuthorized(identity, { ...env, VERCEL_URL: "sod1820-other-sod1820-s-projects.vercel.app" }), false);
+  // No pattern, prefix, case or look-alike is admitted, and the Production target never admits an additional branch.
+  for (const ref of ["claude/number-typography-v2-20261111/x", "claude/number-typography-v2-20261111 ", "CLAUDE/number-typography-v2-20261111",
+    "claude/number-typography-v2", "claude/other-branch", "gpt/other-branch", "refs/heads/" + extra, "", undefined, null, 1]) {
+    assert.throws(() => protectedReviewBuildIdentity({ env: { ...fixtureEnv, VERCEL_GIT_COMMIT_REF: ref }, sourceSha: sha,
+      sourceDirty: false, requestedSourceSha: sha }), /identity_rejected/, String(ref));
+  }
+  assert.throws(() => protectedReviewBuildIdentity({ env: { ...fixtureEnv, VERCEL_ENV: "production", VERCEL_TARGET_ENV: "production", VERCEL_GIT_COMMIT_REF: extra },
+    sourceSha: sha, sourceDirty: false, requestedSourceSha: sha, reviewTarget: "production" }), /identity_rejected/);
+  assert.equal(PRODUCTION_REVIEW_BRANCH, "main");
+});
+
+test("the stable auth callback host stays with the original review branch only", () => {
+  const extra = ADDITIONAL_REVIEW_BRANCHES[0];
+  const withHost = (ref) => ({ ...fixtureEnv, VERCEL_GIT_COMMIT_REF: ref, VERCEL_BRANCH_URL: REVIEW_AUTH_HOST });
+  assert.equal(protectedReviewBuildIdentity({ env: withHost(REVIEW_BRANCH), sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }).authHost, REVIEW_AUTH_HOST);
+  assert.equal(protectedReviewBuildIdentity({ env: withHost(extra), sourceSha: sha, sourceDirty: false, requestedSourceSha: sha }).authHost, undefined);
 });

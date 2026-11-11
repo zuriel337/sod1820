@@ -63,7 +63,7 @@ async function run(version,profile,{warmup=false,pair=0}={}){
 
  const readyNumber=async(root,expression)=>{
   await expect(page.locator('.sod29-number-page')).toHaveAttribute('data-number-root',String(root),{timeout:60000});
-  await expect(page.locator('.sod29-number-v10-expression-line>strong')).toHaveText(expression,{timeout:60000});
+  await expect(page.locator('.sod29-number-v10-expression-line>:is(h1,strong)')).toHaveText(expression,{timeout:60000});
   await expect(page.locator('.sod29-number-v10-method-card').filter({has:page.getByText('מילוי',{exact:true})}).first()).toBeEnabled({timeout:60000});
  };
  const readyHome=async()=>{await expect(page.locator('.h29-card-open').first()).toBeVisible({timeout:60000});await expect(page.locator('.h29-hero')).not.toContainText('טוען',{timeout:60000});};

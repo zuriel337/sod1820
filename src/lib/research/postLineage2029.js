@@ -3,6 +3,7 @@
 // not feed Home / World / the updates feed. Relations are declared per existing post identity (same declaration
 // level as the Post experience trail); unit marks come from the proven source-unit registry.
 import { PROVEN_POST_SOURCE_UPDATES, orderedSourceUpdates } from "./postSourceUpdates2029.js";
+import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
 
 const POSTS = Object.freeze({
   5107: Object.freeze({ slug: "sharshar-elections-redemption-hints-draft", label: "פוסט הבחירות", parent: null, via: null, origins: [] }),
@@ -34,7 +35,7 @@ function changedAt(postId, presentIds) {
 }
 
 const AXES = Object.freeze({
-  631: Object.freeze({ id: "axis-631", label: "ציר 631", href: "/2029/number/631", opensIn: 5107, continuesIn: 5113 }),
+  631: Object.freeze({ id: "axis-631", label: "ציר 631", href: `${NUMBER_PAGE_BASE}/631`, opensIn: 5107, continuesIn: 5113 }),
 });
 
 const rootOf = (postId) => { let id = Number(postId); while (POSTS[id]?.parent) id = POSTS[id].parent; return id; };

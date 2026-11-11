@@ -167,6 +167,16 @@ function MethodInspector({
   </div>;
 }
 
+// Typography V2: the expression is the focal identity of the page. Its size follows its length (visible letters, not niqqud)
+// so a long verse wraps as readable text instead of shrinking or overflowing. Display only; no data or structure changes.
+function expressionSizeTier(value) {
+  const length = [...String(value ?? "").replace(/[\u0591-\u05C7]/g, "").replace(/\s+/g, " ").trim()].length;
+  if (length <= 14) return "short";
+  if (length <= 32) return "medium";
+  if (length <= 64) return "long";
+  return "xl";
+}
+
 export default function NumberCore2029({
   projection,
   curation = null,
@@ -326,8 +336,9 @@ export default function NumberCore2029({
     <header className="sod29-number-v10-identity">
       <div className="sod29-number-v10-expression">
         <span>ביטוי / מספר</span>
-        <div className="sod29-number-v10-expression-line">
-          <strong>{projection.expression || root}</strong>
+        <div className="sod29-number-v10-expression-line" data-expression-size={expressionSizeTier(projection.expression || root)}>
+          {/* The one semantic H1 of the page: the expression or number itself is the focal identity. The compact drawer keeps a strong. */}
+          {compact ? <strong>{projection.expression || root}</strong> : <h1 className="sod29-number-v10-h1">{projection.expression || root}</h1>}
           {activeExpressionCuration?.type === "entity" ? <CurationMark2029
             item={activeExpressionCuration}
             related={curation?.anchor ? [curation.anchor] : []}

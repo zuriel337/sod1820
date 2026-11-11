@@ -1,5 +1,6 @@
 // Read-only views over the existing session and ResearchProvider. No persistence,
 // inferred identity, topic classifier or independent map/document lifecycle.
+import { NUMBER_PAGE_BASE } from "./numberPageAddress.js";
 const list = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === "string" ? value : "";
 const knownCount = value => Number.isSafeInteger(value) && value >= 0 ? value : null;
@@ -72,5 +73,5 @@ export function workspaceResearchHref(entity) {
   if (!href.startsWith("/") || href.startsWith("//") || /[\\\u0000-\u0020\u007f]/.test(href)) return null;
   // Keep the existing exact locator/query/hash. Never put a title, question,
   // conversation identifier or private Context in a newly generated URL.
-  return href.replace(/^\/number\//, "/2029/number/");
+  return href.replace(/^\/(?:2029\/)?number\//, NUMBER_PAGE_BASE + "/");
 }

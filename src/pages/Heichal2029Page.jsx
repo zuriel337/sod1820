@@ -13,6 +13,7 @@ import { publicReadingActionsLocked } from "../lib/publicReadingRelease2029.js";
 import { applySeo } from "../lib/seo.js";
 import GematriaOpeningProjection from "../components/heichal/GematriaOpeningProjection.jsx";
 import { fetchTanachVerseByOrdinal, TANACH_ORDINAL_SCOPE } from "../lib/research/tanachOrdinalSources.js";
+import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 
 const ACTIONS = [
   { id: "calculate", label: "חשב", detail: "Gematria Calculator", to: "/2029/gematria", live: true },
@@ -128,7 +129,7 @@ function NoContextEntry() {
     if (numeric) {
       const id = String(Number(raw));
       research.setResearchContext?.({
-        subject: { id, type: "number", label: id, href: `/2029/number/${id}` },
+        subject: { id, type: "number", label: id, href: `${NUMBER_PAGE_BASE}/${id}` },
         selection: { entityId: id, entityType: "number" },
         lens: "heichal",
         locale: "he",

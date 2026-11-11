@@ -9,6 +9,7 @@ import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { buildCalculator2029FastPreview } from "../lib/research/calculator2029FastPreview.js";
 import { buildUnifiedResearchEntry } from "../lib/research/unifiedResearchEntry.js";
 import { applySeo, PUBLIC_HOME_SEO } from "../lib/seo.js";
+import { NUMBER_PAGE_BASE } from "../lib/research/numberPageAddress.js";
 const WorldFlightStory2029 = lazy(() => import("../components/research/WorldFlightStory2029.jsx"));
 import "./home-world-story2029.css";
 import SourceArrivalList2029 from "../components/research/SourceArrivalList2029.jsx";
@@ -365,7 +366,7 @@ function HomeBody({ primaryReader = null } = {}) {
       ? String(primary.value ?? primary.label ?? raw)
       : String(primary?.label || raw);
     const type = primary?.type === "number" ? "number" : "phrase";
-    const href = type === "number" ? `/2029/number/${encodeURIComponent(id)}` : "/world";
+    const href = type === "number" ? `${NUMBER_PAGE_BASE}/${encodeURIComponent(id)}` : "/world";
 
     research.setResearchContext?.({
       subject: { id, type, label: id, href },
@@ -385,7 +386,7 @@ function HomeBody({ primaryReader = null } = {}) {
     if (!item) return;
     const id = String(item.value);
     research.setResearchContext?.({
-      subject: { id, type: "number", label: id, href: `/2029/number/${id}` },
+      subject: { id, type: "number", label: id, href: `${NUMBER_PAGE_BASE}/${id}` },
       selection: { entityId: id, entityType: "number" },
       lens: item.worldLens || "time",
       locale: "he",

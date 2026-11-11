@@ -196,7 +196,8 @@ export function razielStatusLabel({ closed = false, busy = false, status = "idle
 // or restored message can never render a link to anything else.
 // The check mirrors the shared resolver (without loading it eagerly): number page, world, or an exact SITE_LINK_REGISTRY_V1
 // href (internal, or one of the four verified external destinations). Nothing else renders.
-const CANONICAL_NAVIGATION_HREF = /^(?:\/2029\/number\/[1-9]\d{0,5}|\/world)$/;
+// The Number page has two spellings: /number/<n> (public release) and the older /2029/number/<n> (saved messages, compatibility).
+const CANONICAL_NAVIGATION_HREF = /^(?:\/(?:2029\/)?number\/[1-9]\d{0,5}|\/world)$/;
 export function razielNavigationButton(message) {
   const action = message?.role === "raziel" ? message.navigationAction : null;
   if (!action || typeof action !== "object") return null;

@@ -579,12 +579,12 @@ assert.match(worldPeopleSourcesComponent, /selected \? <section className="sod29
 assert.equal(world.includes("CONVERGENCES_LABEL} בולטות"), false, "landing must not render a second generic prominent-convergences surface");
 assert.match(worldAnchorMapSource, /עוגנים נבחרים/);
 assert.match(worldAnchorMapSource, /אינה רשימת כל העוגנים בעולם/);
-assert.match(contributorFindingsComponent, /\/2029\/number\/\$\{value\}/);
+assert.match(contributorFindingsComponent, /\$\{NUMBER_PAGE_BASE\}\/\$\{value\}/);
 assert.equal(contributorFindingsComponent.includes("to={\`/number/"), false, "Contributor Findings must not jump back to Legacy Number");
-assert.match(worldAllResearchSource, /"\/2029\/number\/" \+ value/);
-assert.match(worldConvergenceLensSource, /"\/2029\/number\/" \+ value/);
-assert.match(topicConvergenceContent, /\/2029\/number\/\$\{c\.value\}/);
-assert.match(topicConvergenceContent, /\/2029\/number\/\$\{r\.value\}/);
+assert.match(worldAllResearchSource, /NUMBER_PAGE_BASE \+ "\/" \+ value/);
+assert.match(worldConvergenceLensSource, /NUMBER_PAGE_BASE \+ "\/" \+ value/);
+assert.match(topicConvergenceContent, /\$\{NUMBER_PAGE_BASE\}\/\$\{c\.value\}/);
+assert.match(topicConvergenceContent, /\$\{NUMBER_PAGE_BASE\}\/\$\{r\.value\}/);
 assert.match(worldAllResearchComponent, /הממצאים המובילים/);
 assert.match(worldAllResearchComponent, /aria-label="מדדי ממצא נפרדים"/,
   "the adopted World review separates finding strength and evidence quality");
