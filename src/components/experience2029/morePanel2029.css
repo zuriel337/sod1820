@@ -1,38 +1,52 @@
-/* The bottom-bar "עוד" panel (MorePanel2029 inside the one SystemFrame2029 sheet), in Royal Tiles 2029.
-   Existing tokens only. A compact sheet that sizes to its content above the bottom bar, never a full-height empty panel. */
+/* The bottom-bar "עוד" panel (MorePanel2029 inside the one SystemFrame2029 sheet). LAYOUT ONLY: every colour, border, surface and
+   icon tint comes from the frame's existing panel card (myWorkspace2029.css), IconTile2029 (shared treatment resolver) and the
+   panel/action styles of systemFrame2029.css. No local colour, mixture, glow, ornament or radius scale (Design V2, 25.10.2026 §6). */
 
+/* A compact sheet that sizes to its content above the bottom bar, never a full-height empty panel. */
 .sod29-root.native-frame .sod29-frame-backdrop:has([data-panel-kind="more"]){align-items:flex-end;justify-content:center}
 .sod29-root.native-frame .sod29-frame-panel[data-panel-kind="more"]{
-  width:min(500px,100%);height:auto;margin-inline:auto;
+  width:min(640px,100%);height:auto;margin-inline:auto;overscroll-behavior:contain;
   max-block-size:calc(100dvh - var(--s29-island-clearance,90px) - env(safe-area-inset-bottom,0px) - 24px);
-  border-color:color-mix(in srgb,var(--s29-brand-gold) 30%,var(--s29-line-strong));
-  background:
-    radial-gradient(90% 60% at 50% 0%,color-mix(in srgb,var(--s29-brand-gold) 9%,transparent),transparent 70%),
-    color-mix(in srgb,color-mix(in srgb,var(--s29-brand-gold) 5%,var(--s29-panel)) 94%,transparent);
-  overscroll-behavior:contain;
 }
-.sod29-frame-panel[data-panel-kind="more"] .sod29-frame-panel-head{border-block-end-color:color-mix(in srgb,var(--s29-brand-gold) 20%,var(--s29-line))}
-.sod29-frame-panel[data-panel-kind="more"] .sod29-frame-panel-icon{color:color-mix(in srgb,var(--s29-brand-gold) 84%,var(--s29-ink));display:inline-grid;place-items:center}
-.sod29-frame-panel[data-panel-kind="more"] .sod29-frame-panel-icon svg{inline-size:22px;block-size:22px}
-.sod29-frame-panel[data-panel-kind="more"] .sod29-frame-panel-body{padding:12px 14px 16px;gap:0}
-
-.sod29-more{display:grid;gap:14px}
-.sod29-more-section{display:grid;gap:8px;margin:0}
-.sod29-more-section>h3{margin:0;padding-inline:2px;font:600 var(--s29-type-small,15px)/1.3 var(--s29-font-ui,inherit);
-  color:color-mix(in srgb,var(--s29-brand-gold) 55%,var(--s29-muted))}
-.sod29-more-context{margin:0;padding:8px 12px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;border-radius:12px;
-  border:1px dashed color-mix(in srgb,var(--s29-brand-gold) 22%,var(--s29-line))}
-.sod29-more-context small{color:var(--s29-muted);font-size:var(--s29-type-small,15px)}
-.sod29-more-context strong{font:600 var(--s29-type-ui,16px)/1.35 var(--s29-font-ui,inherit);overflow-wrap:anywhere}
-.sod29-more-note{margin:0;padding:2px;color:var(--s29-muted);font-size:var(--s29-type-small,15px)}
-.sod29-more-installed{cursor:default}
-.sod29-more-install-status{margin:0;font-size:var(--s29-type-small,15px);color:var(--s29-muted)}
-.sod29-more-install-steps{margin:0;padding-block:10px;padding-inline:26px 14px;display:grid;gap:6px;border-radius:14px;
-  border:1px solid color-mix(in srgb,var(--s29-brand-gold) 18%,var(--s29-line));font-size:var(--s29-type-body,16px);line-height:1.5}
-.sod29-frame-panel[data-panel-kind="more"] .sod29-panel-share{padding-block-start:12px;border-block-start:1px solid color-mix(in srgb,var(--s29-brand-gold) 16%,var(--s29-line))}
-
+.sod29-frame-panel[data-panel-kind="more"] .sod29-frame-panel-body{container-type:inline-size;container-name:more-panel}
 @media (max-width:980px){
   .sod29-root.native-frame .sod29-frame-backdrop:has([data-panel-kind="more"]){padding-inline:8px}
-  .sod29-root.native-frame .sod29-frame-panel[data-panel-kind="more"]{width:100%;border-radius:22px;border-block-end:1px solid color-mix(in srgb,var(--s29-brand-gold) 30%,var(--s29-line-strong));padding-block-end:0}
-  .sod29-frame-panel[data-panel-kind="more"] .sod29-frame-panel-head{padding:10px 12px}
+  .sod29-root.native-frame .sod29-frame-panel[data-panel-kind="more"]{width:100%}
 }
+
+.sod29-more{display:grid;gap:14px;min-inline-size:0}
+
+/* Squares: the frame's panel card, centred, icon over title over hint. Two per row on a phone, four when the sheet has room.
+   The square is the minimum shape; a row takes the height of its tallest card, so text is never clipped or truncated. */
+/* Rows share one height (grid-auto-rows:1fr, as the workspace grids do), so the squares stay even. */
+.sod29-more-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;grid-auto-rows:1fr}
+@container more-panel (min-width:560px){
+  /* A square is the minimum: the row is at least as tall as a column is wide, and grows when the words need it (never clipped). */
+  .sod29-more-tiles{grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(calc((100cqi - 24px) / 4),auto)}
+}
+.sod29-more-tile.sod29-workspace-mini-card{grid-template-columns:minmax(0,1fr);grid-auto-rows:auto;align-content:center;justify-items:center;gap:6px;
+  min-block-size:120px;padding:12px 8px;text-align:center}
+.sod29-more-tile.sod29-workspace-mini-card :is(strong,small,b){grid-column:1/-1;justify-self:center}
+.sod29-more-tile.sod29-workspace-mini-card strong{font-size:var(--s29-type-ui,16px)}
+.sod29-more-tile.sod29-workspace-mini-card small{font-size:var(--s29-type-small,16px);line-height:1.35}
+.sod29-more-tile.is-live:hover{border-color:var(--s29-line-strong)}
+.sod29-more-tile:disabled{cursor:not-allowed}
+.sod29-more-tile-person{display:grid;place-items:center;inline-size:48px;block-size:48px;border-radius:999px;overflow:hidden}
+.sod29-more-tile-person>*{inline-size:100%;block-size:100%}
+.sod29-frame-panel[data-panel-kind="more"] :is(button,a):focus-visible{outline:2px solid var(--s29-accent-text);outline-offset:3px}
+
+/* The app: the frame's wide panel card. On a narrow sheet the button moves under the text, full width. */
+.sod29-more-install{display:grid;gap:8px}
+.sod29-more-app.sod29-workspace-home-card{min-block-size:84px}
+.sod29-more-app strong,.sod29-more-app small{display:block}
+.sod29-more-app small{font-size:var(--s29-type-small,16px)}
+.sod29-more-app .sod29-action{min-block-size:44px}
+@container more-panel (max-width:400px){
+  .sod29-more-app.sod29-workspace-home-card{grid-template-columns:48px minmax(0,1fr)}
+  .sod29-more-app .sod29-action{grid-column:1/-1;inline-size:100%;justify-content:center}
+}
+.sod29-more-install-status,.sod29-more-note{margin:0;color:var(--s29-muted);font-size:var(--s29-type-small,16px)}
+.sod29-more-install-steps{margin:0;padding-block:10px;padding-inline:26px 14px;display:grid;gap:6px;border:1px solid var(--s29-line);border-radius:16px;
+  font-size:var(--s29-type-body,18px);line-height:1.5}
+
+.sod29-frame-panel[data-panel-kind="more"] :is(.sod29-panel-admin-open,.sod29-panel-share)>h3{margin:0 0 8px;font-size:var(--s29-type-ui,16px)}

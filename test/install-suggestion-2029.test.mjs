@@ -110,42 +110,52 @@ test("the explicit install action (\"עוד\" panel) still works after a 14-day 
   assert.equal(installMenuKind(null), null);
 });
 
-// Royal Tiles 2029 + the "עוד" panel: one shared tile, three variants, a real control each, and the panel's fixed order.
-const royalOut = resolve(`.test-royal-tiles-${process.pid}.mjs`);
-await build({ entryPoints: ["src/components/experience2029/MorePanel2029.jsx"], bundle: true, platform: "node", format: "esm", outfile: royalOut,
+// The "עוד" panel: squares built from the frame's existing panel card + IconTile2029 (Design V2 · canonical_ui_components_law).
+// No second tile family, no local colours, no new icon; "כלים" is under construction (ZURIEL 11.11.2026).
+const moreOut = resolve(`.test-more-panel-${process.pid}.mjs`);
+await build({ entryPoints: ["src/components/experience2029/MorePanel2029.jsx"], bundle: true, platform: "node", format: "esm", outfile: moreOut,
   external: ["react", "react/jsx-runtime", "react-router-dom"], loader: { ".css": "empty", ".png": "empty", ".webp": "empty" }, define: { "import.meta.env": "{}" } });
-const { default: MorePanel2029 } = await import(pathToFileURL(royalOut));
-after(() => rm(royalOut, { force: true }));
+const { default: MorePanel2029 } = await import(pathToFileURL(moreOut));
+after(() => rm(moreOut, { force: true }));
 
-test("Royal Tiles: the More panel is a tile grid (square), a wide app tile only when installable, and the existing share owner", async () => {
+test("More panel: squares are the frame's panel card with IconTile2029, fixed order, tools locked and marked בבנייה, existing share owner", async () => {
   const noop = () => {};
   const { MemoryRouter } = await import("react-router-dom");
   const inRouter = element => React.createElement(MemoryRouter, null, element);
-  const html = renderToStaticMarkup(inRouter(React.createElement(MorePanel2029, { context: "פוסט · 1234", onAction: noop, onTools: noop, onSearch: noop, onPersonal: noop,
-    personal: { signedIn: false }, adminDestinations: [{ id: "lab", label: "מעבדה", href: "/lab" }], onDestination: noop,
-    share: { href: "https://sod1820.co.il/post/x", type: "post", title: "x", surface: "post" } })));
-  const order = ["data-royal-tile=\"actions\"", "data-royal-tile=\"search\"", "data-royal-tile=\"tools\"", "data-royal-tile=\"personal\"", "data-more-section=\"admin\"", "data-more-section=\"share\""]
+  const props = { context: "פוסט · 1234", onAction: noop, onTools: noop, onSearch: noop, onPersonal: noop, personal: { signedIn: false },
+    adminDestinations: [{ id: "lab", label: "מעבדה", href: "/lab" }], onDestination: noop, share: { href: "https://sod1820.co.il/post/x", type: "post", title: "x", surface: "post" } };
+  const html = renderToStaticMarkup(inRouter(React.createElement(MorePanel2029, props)));
+  const order = ['data-more-tile="actions"', 'data-more-tile="search"', 'data-more-tile="tools"', 'data-more-tile="personal"', 'data-more-section="admin"', 'data-more-section="share"']
     .map(needle => html.indexOf(needle));
-  assert.ok(order.every((at, i) => at > 0 && (i === 0 || at > order[i - 1])), `fixed order: here → tools/search → personal → admin → share ${order}`);
-  assert.equal((html.match(/<button[^>]*class="sod29-royal-tile is-square"/g) || []).length, 4, "four square tiles are real buttons");
-  assert.match(html, /class="sod29-royal-tile is-compact"[^>]*data-royal-variant="compact"/, "secondary destinations use the compact variant");
-  assert.match(html, /data-share-owner="ShareActions"/); assert.match(html, /ההקשר לפעולות/);
-  assert.doesNotMatch(html, /data-more-section="install"/, "server/desktop: no install tile is promised");
-  assert.match(html, /data-royal-candidate="palace"/, "the recommended candidate is the default");
-  for (const tile of html.match(/<button[^>]*sod29-royal-tile[^>]*>/g)) assert.match(tile, /type="button"/);
-  assert.match(html, /aria-describedby="sod29-royal-hint-search"/, "the hint is part of the accessible description");
+  assert.ok(order.every((at, i) => at > 0 && (i === 0 || at > order[i - 1])), `fixed order: here → search → tools → personal → admin → share ${order}`);
+  const tiles = html.match(/<button[^>]*sod29-more-tile[^>]*>/g) || [];
+  assert.equal(tiles.length, 4, "four squares, each a real button");
+  for (const tile of tiles) { assert.match(tile, /type="button"/); assert.match(tile, /class="sod29-workspace-mini-card sod29-more-tile /, "the frame's existing panel card"); }
+  assert.equal((html.match(/class="sod29-icon-tile"[^>]*data-purpose="ordinary"/g) || []).length, 4, "icons come from IconTile2029 (shared treatment resolver), ordinary purpose");
+  const tools = tiles.find(tile => tile.includes('data-more-tile="tools"'));
+  assert.match(tools, /disabled=""/); assert.match(tools, /is-building/); assert.match(tools, /title="כלים בבנייה · למנהל בלבד"/);
+  assert.match(html, /data-more-tile="tools"[\s\S]*?data-state="unavailable"[\s\S]*?<b>בבנייה<\/b>/, "locked tools: the owned unavailable treatment and the words, not colour alone");
+  const admin = renderToStaticMarkup(inRouter(React.createElement(MorePanel2029, { ...props, toolsLocked: false })));
+  const adminTools = admin.match(/<button[^>]*data-more-tile="tools"[^>]*>/)[0];
+  assert.doesNotMatch(adminTools, /disabled/); assert.match(adminTools, /title="כלים בבנייה · גישת מנהל"/);
+  assert.match(admin, /data-more-tile="tools"[\s\S]*?<b>בבנייה<\/b>/, "the administrator also sees that tools are under construction");
+  assert.match(html, /data-admin-open-destinations="true"[\s\S]*?<button class="sod29-action" type="button">מעבדה<\/button>/, "admin destinations stay the existing action buttons");
+  assert.match(html, /data-share-owner="ShareActions"/); assert.match(html, /class="sod29-selection-summary"><span>ההקשר לפעולות<\/span>/);
+  assert.doesNotMatch(html, /data-more-section="install"/, "server/desktop: no install card is promised");
+  assert.match(html, /aria-describedby="sod29-more-hint-search"/, "the hint is part of the accessible description");
   const shareOnly = renderToStaticMarkup(inRouter(React.createElement(MorePanel2029, { shareOnly: true, share: { href: "https://sod1820.co.il/", type: "page", title: "x", surface: "home" } })));
-  assert.doesNotMatch(shareOnly, /sod29-royal-tile/); assert.match(shareOnly, /data-more-panel="share"/);
+  assert.doesNotMatch(shareOnly, /sod29-more-tile/); assert.match(shareOnly, /data-more-panel="share"/);
 });
 
-test("Royal Tiles CSS: existing tokens only, three variants, 44px floor, reduced motion, no thick gold or heavy glow", async () => {
-  const { readFileSync } = await import("node:fs");
-  const css = readFileSync("src/components/experience2029/royalTiles2029.css", "utf8");
-  for (const variant of ["is-square", "is-wide", "is-compact"]) assert.ok(css.includes(`.sod29-royal-tile.${variant}`), variant);
-  assert.match(css, /min-block-size:44px/); assert.match(css, /prefers-reduced-motion:reduce/); assert.match(css, /forced-colors:active/);
-  const colors = css.replace(/\/\*[\s\S]*?\*\//g, "").match(/#[0-9a-f]{3,8}\b|rgba?\(/gi) || [];
-  assert.deepEqual(colors, [], "no literal colours: every colour comes from the palette tokens");
-  for (const width of css.match(/border(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?:\s*(\d+)px/g) || []) assert.ok(Number(/(\d+)px/.exec(width)[1]) <= 1, `thin frames only: ${width}`);
-  const glows = [...css.matchAll(/0 0 (\d+)px/g)].map(m => Number(m[1]));
-  assert.ok(glows.every(px => px <= 18), `no heavy glow: ${glows}`);
+test("More panel CSS is layout only: no colour, mixture, glow, gradient, ornament or second tile family; the frame gates every way into Tools", async () => {
+  const { readFileSync, existsSync } = await import("node:fs");
+  const css = readFileSync("src/components/experience2029/morePanel2029.css", "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.deepEqual(css.match(/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(|color-mix|gradient|box-shadow|backdrop-filter|--s29-brand|::?before|::?after|background\s*:/gi) || [], [],
+    "colours, surfaces and tints belong to the panel card and the shared treatment resolver");
+  assert.ok(!existsSync("src/components/experience2029/RoyalTile2029.jsx") && !existsSync("src/components/experience2029/royalTiles2029.css"), "no second tile family");
+  const frame = readFileSync("src/components/experience2029/SystemFrame2029.jsx", "utf8");
+  const toolsPanel = frame.slice(frame.indexOf("if (transientKind === TRANSIENT.TOOLS)"), frame.indexOf("if (transientKind === TRANSIENT.RAZIEL_LOCKED)"));
+  assert.match(toolsPanel, /^if \(transientKind === TRANSIENT\.TOOLS\) return contextLocked\s*\?/, "one lock for every entry point, before any tool renders");
+  assert.ok(toolsPanel.indexOf("ToolsProjection") > toolsPanel.indexOf("הכלים בבנייה"), "the locked branch renders no tool");
+  assert.match(frame, /<MorePanel2029[\s\S]*?toolsLocked=\{contextLocked\}/, "the More tile reads the same lock");
 });

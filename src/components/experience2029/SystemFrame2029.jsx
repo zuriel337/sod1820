@@ -2183,9 +2183,9 @@ function SystemFrame2029Body({
     if (transientKind === TRANSIENT.MORE) {
       const shareOnly = Boolean(transient?.payload?.shareOnly);
       const contextTitle = inspectTarget ? (contextDisplayTitle(pageContext, inspectTarget) || publicContextLabel(inspectTarget.label) || entityTypeNounHe(inspectTarget.type)) : "";
-      return <PanelShell {...common} panelKind="more" icon={<NavigationIcon2029 name={shareOnly ? "share" : "kingdom"} />} kicker={shareOnly ? "שיתוף" : "סוד 1820"} title={shareOnly ? "שיתוף העמוד" : "עוד"}>
+      return <PanelShell {...common} panelKind="more" icon={shareOnly ? "↗" : "◇"} kicker={shareOnly ? "שיתוף" : "עוד"} title={shareOnly ? "שיתוף" : "עוד"}>
         <MorePanel2029 shareOnly={shareOnly} context={contextTitle}
-          onAction={() => openAction(inspectTarget)} onTools={openTools} onSearch={openSiteSearch}
+          onAction={() => openAction(inspectTarget)} onTools={openTools} onSearch={openSiteSearch} toolsLocked={contextLocked}
           personal={{ signedIn: Boolean(user), name: profile?.display_name || profile?.full_name || user?.user_metadata?.full_name || "", avatar: user ? <UserAvatar2029 user={user} profile={profile} /> : null }}
           onPersonal={openWorkspace}
           adminDestinations={adminOpenClosedDestinations(isAdmin)} onDestination={(item) => { setTransient(null); go(item.href); }}
@@ -2193,7 +2193,11 @@ function SystemFrame2029Body({
           share={shareHref ? { href: shareHref, type: surface === "post" ? "post" : "page", title: title || "SOD1820", surface } : null} />
       </PanelShell>;
     }
-    if (transientKind === TRANSIENT.TOOLS) return <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><button className="sod29-action" type="button" onClick={openSiteSearch}>חיפוש באתר</button><ToolsProjection surface={surface} target={inspectTarget} go={go} onCapability={openCapability} /></PanelShell>;
+    // Tools are under construction (ZURIEL 11.11.2026): every way in (the "עוד" tile, a context link, the frame API) lands here, so the
+    // lock lives once, the same way as "כאן": closed to everyone but the administrator, and said in words.
+    if (transientKind === TRANSIENT.TOOLS) return contextLocked
+      ? <PanelShell {...common} icon="◇" kicker="כלים" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><FrameState kind="gated" title="הכלים בבנייה">כלי המחקר לעמוד ייפתחו בהמשך. בינתיים אפשר לחפש באתר ולפתוח את הפעולות על העמוד.</FrameState></PanelShell>
+      : <PanelShell {...common} icon="◇" kicker="כלים · בבנייה" title="כלים"><button className="sod29-action" type="button" onClick={openMore}>חזרה לעוד</button><button className="sod29-action" type="button" onClick={openSiteSearch}>חיפוש באתר</button><ToolsProjection surface={surface} target={inspectTarget} go={go} onCapability={openCapability} /></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL_LOCKED) return <PanelShell {...common} icon="◇" kicker="רזיאל" title="רזיאל נעול"><FrameState kind="gated" title="רזיאל נעול זמנית">החיבור לרזיאל ייפתח לאחר השלמת ההגדרה והאימות שלו.</FrameState></PanelShell>;
     if (transientKind === TRANSIENT.RAZIEL) return razielLocked ? null : <PanelShell {...common} panelKind="raziel" icon="●" kicker="רזיאל" title="רזיאל"><RazielProjection target={activeTarget} context={pageContext} numberCoreFocus={transient?.payload?.numberCoreFocus || null} microIntent={transient?.payload?.razielMicroIntent || null} readingFocus={transient?.payload?.readingFocus || null} elsSurfaceContext={transient?.payload?.elsSurfaceContext || null} razielRouteAction={transient?.payload?.razielRouteAction || null} onSignup={openWorkspace} /></PanelShell>;
     if (transientKind === TRANSIENT.ISSUE) return <PanelShell {...common} icon="!" kicker="דיווח / קשר" title="דווחו על בעיה"><ContactGateway

@@ -24,6 +24,8 @@ test("the public never gets the admin list; an admin gets every closed destinati
 test("the עוד panel renders the admin list only through the helper and closes the panel before navigating", () => {
   const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
   assert.match(frame, /adminOpenClosedDestinations\(isAdmin\)/);
-  assert.match(frame, /data-admin-open-destinations="true"/);
+  const panel = readFileSync(new URL("../src/components/experience2029/MorePanel2029.jsx", import.meta.url), "utf8");
+  assert.match(panel, /data-admin-open-destinations="true"/, "the More panel body (MorePanel2029) renders the list it is given");
+  assert.match(frame, /adminDestinations=\{adminOpenClosedDestinations\(isAdmin\)\}/, "and the frame gives it only the helper's list");
   assert.match(frame, /setTransient\(null\); go\(item\.href\)/);
 });
