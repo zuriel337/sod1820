@@ -74,3 +74,26 @@ test("internal links use one shared helper; /number in the public release and th
   assert.equal(isNumberPagePath("/number"), false);
   assert.equal(isNumberPagePath("/numbers/358"), false);
 });
+
+// A link the build emits in one spelling must be accepted by every consumer that validates it: in the public release the producers
+// emit /number/<n>, while saved messages, Posts and research paths still carry /2029/number/<n>. node tests do not set the public
+// release flag, so the consumers are checked here for both spellings.
+test("consumers that validate a number link accept both /number/<n> and the older /2029/number/<n>", async () => {
+  const { readFileSync } = await import("node:fs");
+  const read = (path) => readFileSync(new URL("../" + path, import.meta.url), "utf8");
+  const { razielNavigationButton } = await import("../src/components/experience2029/razielSessionSeam2029.js");
+  for (const href of ["/number/358", "/2029/number/358"]) {
+    assert.ok(razielNavigationButton({ role: "raziel", navigationAction: { href, label: "פתח" } }), `${href} renders`);
+  }
+  assert.equal(razielNavigationButton({ role: "raziel", navigationAction: { href: "/number/abc", label: "פתח" } }), null);
+  for (const path of [
+    "src/components/experience2029/RazielOneShotActions2029.jsx",
+    "src/lib/research/razielSessionRequest2029.js",
+    "src/lib/research/post2029ReadingProjection.js",
+    "src/lib/research/lifeJourneyPersonContext.js",
+  ]) {
+    const source = read(path);
+    assert.doesNotMatch(source, /\/\^\\\/2029\\\/number\\\//, `${path} must not accept only the /2029 spelling`);
+    assert.match(source, /\\\/\(\?:2029\\\/\)\?number\\\//, `${path} accepts both spellings`);
+  }
+});

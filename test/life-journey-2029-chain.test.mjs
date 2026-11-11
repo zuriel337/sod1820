@@ -260,7 +260,7 @@ test("Life Journey 2029 extends the existing Person owner and unified entry", ()
   assert.match(personContext, /stableIdentityDigest/);
   assert.match(personContext, /life-journey-finding:/);
   assert.match(personContext, /buildLifeJourneyHintReferencePatch/);
-  assert.match(personContext, /\/2029\/number\/\$\{value\}/);
+  assert.match(personContext, /\$\{NUMBER_PAGE_BASE\}\/\$\{value\}/);
   assert.match(nameAdapter, /runLifeJourneyNameResearch/);
   assert.match(nameAdapter, /profile\?\.firstName/);
   assert.match(nameAdapter, /מסר מנורמל/);

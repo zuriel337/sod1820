@@ -82,7 +82,7 @@ export function isLifeJourneyPathReceipt(snapshot, personRef, expectedContext = 
     && context.subject?.href === href
     && (!context.dimensions.lifeJourneyMemberRef || isLifeJourneyMemberRef(personRef, context.dimensions.lifeJourneyMemberRef))
     && (!Array.isArray(context.dimensions.lifeJourneySelectedMemberRefs) || context.dimensions.lifeJourneySelectedMemberRefs.every(ref => isLifeJourneyMemberRef(personRef, ref)))
-    && (href === LIFE_JOURNEY_2029_HREF || (view === "finding" && /^\/2029\/number\/\d+$/.test(href)))
+    && (href === LIFE_JOURNEY_2029_HREF || (view === "finding" && /^\/(?:2029\/)?number\/\d+$/.test(href)))
     && (!expectedContext || JSON.stringify(lifeJourneyCheckpointState(context, personRef))
       === JSON.stringify(lifeJourneyCheckpointState(expectedContext, personRef))));
 }

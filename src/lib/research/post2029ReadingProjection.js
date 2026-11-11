@@ -393,7 +393,7 @@ export async function resolvePostExperienceConnections(experience, { readPost = 
     const rawHref = clean(connection.href);
     const sourceLocator = rawHref === "/topic/india-axis#topic-source-media-post-5112-source-region-smit-machchhar" ? rawHref.slice(rawHref.indexOf("#")) : "";
     const href = sourceLocator ? rawHref.slice(0, rawHref.indexOf("#")) : rawHref;
-    if (/^\/2029\/number\/\d+$/.test(href)) return connection;
+    if (/^\/(?:2029\/)?number\/\d+$/.test(href)) return connection;
     // Never turn an external URL, malformed path or arbitrary route into a Post.
     if (!href.startsWith("/") || href.startsWith("//") || /[?#]/.test(href)) return unavailable();
     const parts = href.split("/").filter(Boolean);

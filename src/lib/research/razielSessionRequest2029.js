@@ -926,7 +926,7 @@ export function normalizeRazielSuggestedActions(value = null) {
       actions.push({ id: item.id, label: RAZIEL_SUGGESTED_ACTION_LABELS[item.id], subject });
     } else if (item.id === "open_number") {
       const href = typeof item.href === "string" ? item.href.trim() : "";
-      const match = href.match(/^\/2029\/number\/([1-9]\d{0,5})$/);
+      const match = href.match(/^\/(?:2029\/)?number\/([1-9]\d{0,5})$/);
       const number = match ? Number(match[1]) : 0;
       if (!Number.isSafeInteger(number) || number < 1 || number > 999999) continue;
       actions.push({ id: item.id, label: `פתח את המספר ${number}`, href: `${NUMBER_PAGE_BASE}/${number}` });
