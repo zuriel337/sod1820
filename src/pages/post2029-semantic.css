@@ -1,0 +1,166 @@
+/* Post reading — semantic finish (presentation only, Posts scope; ZURIEL 12.11.2026 decisions 1–6, 9).
+   Loaded after post2029-legacy-grade.css. Every colour is a canonical 2029 palette token (--s29-*), so Day / Parchment / Night
+   keep working and no page palette exists here. Gold and sapphire are DECORATION and identity, never a rating or a verification.
+   Voice (data-post-voice) comes from postVoice2029.js: system = full royal finish, external / unspecified = rich but calm,
+   original = the early WordPress colours are left alone (only measure and rhythm are tuned). Motion: none beyond colour/opacity. */
+
+.sod29-reading-post[data-post-voice]{
+  --sv-accent:var(--s29-accent);
+  --sv-accent2:var(--s29-accent);
+  --sv-wash:0%;
+  --sv-frame:color-mix(in srgb,var(--s29-line-strong,var(--s29-line)) 80%,transparent);
+}
+.sod29-reading-post[data-post-voice="system"]{
+  --sv-accent:var(--s29-brand-gold,var(--s29-accent));
+  --sv-accent2:var(--s29-brand-sapphire,var(--s29-accent));
+  --sv-wash:14%;
+  --sv-frame:linear-gradient(135deg,color-mix(in srgb,var(--s29-brand-gold,var(--s29-accent)) 72%,transparent),color-mix(in srgb,var(--s29-brand-sapphire,var(--s29-accent)) 62%,transparent));
+}
+.sod29-reading-post[data-post-voice="external"],
+.sod29-reading-post[data-post-voice="unspecified"]{--sv-wash:6%}
+
+/* The reading column: a thin royal rule above the story (system) or a quiet hairline (calm). */
+.sod29-reading-post:is([data-post-voice="system"],[data-post-voice="external"],[data-post-voice="unspecified"]) .sod29-reading-source{position:relative}
+.sod29-reading-post:is([data-post-voice="system"],[data-post-voice="external"],[data-post-voice="unspecified"]) .sod29-reading-source::before{
+  content:"";position:absolute;inset-inline:clamp(18px,4.4vw,64px);top:0;height:2px;border-radius:2px;background:var(--sv-frame);pointer-events:none;
+}
+.sod29-reading-post[data-post-voice="system"] .sod29-reading-source{
+  background:
+    radial-gradient(90% 38% at 50% 0,color-mix(in srgb,var(--s29-brand-sapphire,var(--s29-accent)) var(--sv-wash),transparent),transparent 70%),
+    radial-gradient(70% 30% at 50% 100%,color-mix(in srgb,var(--s29-brand-gold,var(--s29-accent)) 8%,transparent),transparent 70%),
+    color-mix(in srgb,var(--s29-panel) 94%,transparent);
+}
+
+/* Original WordPress colours stay: no wash, no recolouring — only a readable measure for long text. */
+.sod29-reading-post[data-post-voice="original"] .sod29-reading-source [data-sod-role="prose"]{line-height:1.9;text-wrap:pretty}
+
+/* ───────────── Roles & smart centering ───────────── */
+/* The original WordPress layout (voice "original") keeps its own alignment, widths and colours: only the roles are marked. */
+.sod29-reading-post:not([data-post-voice="original"]) .sod29-reading-source [data-sod-align="center"]{text-align:center}
+.sod29-reading-post:not([data-post-voice="original"]) .sod29-reading-source [data-sod-align="start"]{text-align:start}
+.sod29-reading-source [data-sod-role="title"]{text-wrap:balance}
+.sod29-reading-source [data-sod-role="prose"]{line-height:1.85;text-wrap:pretty}
+.sod29-reading-post:not([data-post-voice="original"]) .sod29-reading-source :is([data-sod-role="prose"],[data-sod-role="short"]){max-width:38rem;margin-inline:auto}
+.sod29-reading-post:not([data-post-voice="original"]) .sod29-reading-source [data-sod-role="source"]{
+  max-width:38rem;margin-inline:auto;font-size:.92em;line-height:1.7;color:var(--s29-muted);
+  padding-inline-start:12px;border-inline-start:2px solid color-mix(in srgb,var(--sv-accent) 38%,transparent);
+}
+.sod29-reading-post:not([data-post-voice="original"]) .sod29-reading-source [data-sod-role="verse"]{
+  max-width:34rem;margin-inline:auto;font-family:var(--s29-font-display,inherit);font-size:1.12em;line-height:1.9;
+  padding-block:.55em;border-block:1px solid color-mix(in srgb,var(--sv-accent) 26%,transparent);
+}
+.sod29-reading-post:not([data-post-voice="original"]) .sod29-reading-source [data-sod-role="peak"]{
+  font-family:var(--s29-font-numeric,var(--s29-font-display,inherit));letter-spacing:-.01em;
+  color:var(--sv-accent)!important;text-shadow:0 0 28px color-mix(in srgb,var(--sv-accent) 34%,transparent);
+}
+.sod29-reading-post:not([data-post-voice="original"]) .sod29-reading-source [data-sod-role="number"]{font-family:var(--s29-font-numeric,inherit);font-variant-numeric:tabular-nums;color:var(--sv-accent)}
+/* A display number is centred as a whole even when an existing rule made the block an inline box at the reading edge. */
+.sod29-reading-post:not([data-post-voice="original"]) .sod29-reading-source :is(p,div)[data-sod-role="peak"][data-sod-align="center"],
+.sod29-reading-post:not([data-post-voice="original"]) .sod29-reading-source :is(p,div)[data-sod-role="number"][data-sod-align="center"]{display:flex!important;justify-content:center;width:auto}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-reading-source [data-sod-role="peak"]{text-shadow:none}
+.sod29-reading-source [data-sod-role="peak"] [data-gem],.sod29-reading-source [data-sod-role="number"] [data-gem]{color:inherit}
+
+/* ───────────── Units: identity, anchor, peak moment ───────────── */
+.sod29-reading-source [data-sod-unit]{
+  --u-accent:var(--sv-accent);--u-accent2:var(--sv-accent2);
+  position:relative;scroll-margin-block-start:calc(var(--s29-bar-height,64px) + 20px);
+}
+.sod29-reading-source [data-sod-accent="royal"]{--u-accent:var(--s29-brand-gold,var(--s29-accent));--u-accent2:var(--s29-brand-sapphire,var(--s29-accent))}
+.sod29-reading-source [data-sod-accent="sapphire"]{--u-accent:var(--s29-brand-sapphire,var(--s29-accent));--u-accent2:var(--s29-brand-sapphire,var(--s29-accent))}
+.sod29-reading-source [data-sod-accent="gold"]{--u-accent:var(--s29-brand-gold,var(--s29-accent));--u-accent2:var(--s29-brand-gold,var(--s29-accent))}
+.sod29-reading-source [data-sod-accent="calm"]{--u-accent:var(--s29-accent);--u-accent2:var(--s29-accent)}
+.sod29-reading-source [data-sod-unit] [data-sod-role="peak"],
+.sod29-reading-source [data-sod-unit] [data-sod-role="number"]{color:var(--u-accent)!important}
+/* A peak moment (automatic, or chosen by an editor) gets a frame; "off" removes it, "on" adds it. Editorial mark, not a truth mark. */
+.sod29-reading-source [data-sod-unit][data-sod-peak="auto"]:not([data-sod-peak-choice="off"]),
+.sod29-reading-source [data-sod-unit][data-sod-peak-choice="on"]{
+  padding:clamp(18px,3vw,30px) clamp(12px,3vw,28px);border-radius:20px;
+  border:1px solid color-mix(in srgb,var(--u-accent) 44%,transparent);
+  background:
+    radial-gradient(80% 60% at 50% 0,color-mix(in srgb,var(--u-accent2) 11%,transparent),transparent 72%),
+    color-mix(in srgb,var(--s29-panel-soft,var(--s29-panel)) 60%,transparent);
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--u-accent) 12%,transparent),0 18px 44px color-mix(in srgb,var(--s29-page,#000) 28%,transparent);
+}
+.sod29-reading-source [data-sod-unit][data-sod-unit-align="center"] :is([data-sod-role="prose"],[data-sod-role="short"],[data-sod-role="source"]){text-align:center!important;border-inline-start:0;padding-inline-start:0}
+
+/* ───────────── "מה התחדש בפוסט": the update stack, head of the story ───────────── */
+.sod29-reading-source .sod29-update-stack{
+  max-width:44rem;margin:0 auto clamp(26px,4vw,44px);padding:clamp(14px,2.4vw,22px);border-radius:24px;
+  border:1px solid color-mix(in srgb,var(--sv-accent) 42%,transparent);
+  background:
+    linear-gradient(to bottom,color-mix(in srgb,var(--sv-accent) 8%,transparent),transparent 120px),
+    color-mix(in srgb,var(--s29-panel-soft,var(--s29-panel)) 70%,transparent);
+}
+.sod29-reading-source .sod29-update-stack-head{
+  display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between;margin:0 0 10px;max-width:none;
+  font-size:.95rem;color:var(--s29-muted);text-align:start;
+}
+.sod29-reading-source .sod29-update-stack-head strong{font-family:var(--s29-font-display,inherit);font-size:1.15rem;color:var(--s29-ink)}
+.sod29-reading-source .sod29-update-unit{margin-block:0 clamp(18px,3vw,28px)}
+.sod29-reading-source .sod29-update-unit:last-child{margin-block-end:0}
+.sod29-reading-source .sod29-update-unit>[data-sod-unit]{margin-block:0}
+.sod29-reading-source .sod29-update-meta{
+  display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;max-width:none;margin:0 0 6px;
+  font-size:.88rem;line-height:1.4;color:var(--s29-muted);text-align:start!important;
+}
+.sod29-reading-source .sod29-update-meta i{font-style:normal;margin-inline-end:5px;color:var(--sv-accent)}
+.sod29-reading-source .sod29-update-added{color:var(--s29-ink);font-weight:700}
+.sod29-reading-source .sod29-story-divider{
+  display:flex;align-items:center;gap:14px;max-width:44rem;margin:0 auto clamp(22px,3.4vw,38px);font-size:.9rem;color:var(--s29-muted)!important;text-align:center!important;
+}
+.sod29-reading-source .sod29-story-divider::before,
+.sod29-reading-source .sod29-story-divider::after{content:"";flex:1;height:1px;background:linear-gradient(to left,transparent,color-mix(in srgb,var(--sv-accent) 40%,transparent),transparent)}
+.sod29-reading-source .sod29-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ───────────── Admin unit tools (small edit button, preview-local) ───────────── */
+.sod29-unit-tools{position:absolute;inset-block-start:6px;inset-inline-end:6px;z-index:2;display:inline-flex}
+.sod29-unit-tools-btn{
+  min-width:44px;min-height:44px;display:inline-grid;place-items:center;border:0;background:transparent;color:var(--s29-muted);cursor:pointer;border-radius:12px;font:inherit;
+}
+.sod29-unit-tools-btn span{
+  display:grid;place-items:center;width:28px;height:28px;border-radius:9px;font-size:.95rem;
+  border:1px solid color-mix(in srgb,var(--s29-line-strong,var(--s29-line)) 80%,transparent);background:color-mix(in srgb,var(--s29-panel) 86%,transparent);
+}
+.sod29-unit-tools-btn:hover span,.sod29-unit-tools-btn:focus-visible span{color:var(--s29-ink);border-color:var(--s29-accent)}
+.sod29-unit-tools-btn:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:2px}
+.sod29-unit-editor{
+  position:absolute;inset-block-start:50px;inset-inline-end:6px;z-index:5;width:min(300px,calc(100vw - 32px));padding:14px;border-radius:16px;text-align:start;
+  background:var(--s29-panel);color:var(--s29-ink);border:1px solid var(--s29-line-strong,var(--s29-line));box-shadow:0 18px 48px rgba(0,0,0,.35);font-size:.92rem;line-height:1.5;
+}
+.sod29-unit-editor fieldset{border:0;margin:0 0 10px;padding:0}
+.sod29-unit-editor legend{font-weight:700;margin-bottom:4px;padding:0}
+.sod29-unit-editor label{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-inline-end:10px;cursor:pointer}
+.sod29-unit-editor .sod29-unit-editor-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.sod29-unit-editor button{min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--s29-line-strong,var(--s29-line));background:var(--s29-panel-soft,var(--s29-panel));color:var(--s29-ink);font:inherit;cursor:pointer}
+.sod29-unit-editor button.is-primary{background:var(--s29-accent-btn,var(--s29-accent));color:var(--s29-on-accent,#fff);border-color:transparent}
+.sod29-unit-editor small{display:block;color:var(--s29-muted);margin-top:8px}
+.sod29-unit-swatch{width:14px;height:14px;border-radius:50%;display:inline-block;border:1px solid var(--s29-line-strong,var(--s29-line))}
+
+/* ───────────── Legend & external source units ───────────── */
+.sod29-semantic-legend{max-width:44rem;margin:0 auto 18px;font-size:.92rem;color:var(--s29-muted)}
+.sod29-semantic-legend summary{min-height:44px;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--s29-muted)}
+.sod29-semantic-legend dl{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:6px 0 0;padding:12px 14px;border-radius:14px;border:1px solid var(--s29-line);background:color-mix(in srgb,var(--s29-panel) 90%,transparent)}
+.sod29-semantic-legend dt{font-weight:700;color:var(--s29-ink);white-space:nowrap}
+.sod29-semantic-legend dd{margin:0}
+.sod29-source-unit{
+  max-width:44rem;margin:clamp(18px,3vw,30px) auto;padding:clamp(14px,2.4vw,20px);border-radius:18px;text-align:start;
+  border:1px solid var(--s29-line-strong,var(--s29-line));background:color-mix(in srgb,var(--s29-panel-soft,var(--s29-panel)) 70%,transparent);
+  border-inline-start:3px solid var(--s29-discovery,var(--s29-accent));
+}
+.sod29-source-unit header{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;color:var(--s29-muted);font-size:.9rem}
+.sod29-source-unit header strong{color:var(--s29-ink);font-size:1rem}
+.sod29-source-unit .sod29-source-unit-demo{margin-inline-start:auto;padding:2px 10px;border-radius:999px;border:1px dashed var(--s29-line-strong,var(--s29-line));font-size:.8rem}
+.sod29-source-unit blockquote{margin:10px 0;padding:0;font-size:1.05rem;line-height:1.8}
+.sod29-source-unit .sod29-source-unit-hint{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:8px 0}
+.sod29-source-unit .sod29-source-unit-hint b{font-family:var(--s29-font-numeric,inherit);font-size:1.5rem;color:var(--sv-accent,var(--s29-accent))}
+.sod29-source-unit .sod29-engine{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 10px;border-radius:12px;border:1px solid var(--s29-line);background:transparent;color:var(--s29-muted);font:inherit;cursor:pointer}
+.sod29-source-unit .sod29-engine[data-engine="verified"]{color:var(--s29-ink);border-color:var(--s29-accent)}
+.sod29-source-unit .sod29-engine[data-engine="mismatch"]{color:var(--s29-ink);border-color:var(--s29-line-strong,var(--s29-line));border-style:dashed}
+.sod29-source-unit .sod29-engine-detail{margin:4px 0 0;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--s29-panel) 90%,transparent);font-size:.9rem;color:var(--s29-muted)}
+.sod29-source-unit footer a{color:var(--s29-accent-text,var(--s29-accent));display:inline-flex;align-items:center;min-height:44px}
+
+@media (max-width:560px){
+  .sod29-reading-source .sod29-update-stack{padding:12px;border-radius:18px}
+  .sod29-reading-source [data-sod-role="verse"]{font-size:1.06em}
+}
+@media (prefers-reduced-motion:reduce){.sod29-unit-editor{transition:none}}

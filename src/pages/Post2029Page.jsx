@@ -24,7 +24,12 @@ import { track } from "../lib/tracking.js";
 import { hardenPassiveMediaHtml } from "../lib/mediaEgressGuard.js";
 import { humanContentTitle } from "../lib/presentation/contentTitle.js";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
-import { provenSourceUpdatesFor, provenUpdateForHash, formatUpdateDate } from "../lib/research/postSourceUpdates2029.js";
+import { provenSourceUpdatesFor, provenUpdateForHash, addedDateLabel } from "../lib/research/postSourceUpdates2029.js";
+import { postVoiceFor } from "../lib/postVoice2029.js";
+import { annotatePostSource } from "../lib/research/postSemanticDesign2029.js";
+import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
+import PostUnitEditors2029 from "../components/experience2029/PostUnitEditors2029.jsx";
+const PostExternalSourcesPreview2029 = React.lazy(() => import("../components/experience2029/PostExternalSourcesPreview2029.jsx"));
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import { postClassification2029, postHierarchyContext2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
@@ -71,7 +76,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const location = useLocation();
   const shell = use2029Shell();
   const research = useResearch();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
+  // Prototype layers (semantic design, updates first, voice finish). ?proto=0 shows the page exactly as before; ?proto=sources adds sample source units.
+  const protoMode = new URLSearchParams(location.search).get("proto");
+  const protoOn = protoMode !== "0";
   const [sourceMediaOpen, setSourceMediaOpen] = useState(null);
   const [sourceMediaMissing, setSourceMediaMissing] = useState(false);
   const [reloadTick, setReloadTick] = useState(0);
@@ -92,8 +100,11 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   entryRef.current = { context: research.context, hash: location.hash };
   const restoredRegionRef = useRef(null);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
-  const passiveSourceHtml = useMemo(() => hardenPassiveMediaHtml(postReadingHtml2029(state.projection?.post?.content || "")),
-    [state.projection?.post?.content]);
+  const postVoice = postVoiceFor(state.projection?.post).voice;
+  const passiveSourceHtml = useMemo(() => {
+    const hardened = hardenPassiveMediaHtml(postReadingHtml2029(state.projection?.post?.content || ""));
+    return protoOn ? annotatePostSource(hardened, { postId: state.projection?.post?.id, voice: postVoice }) : hardened;
+  }, [state.projection?.post?.content, state.projection?.post?.id, postVoice, protoOn]);
   const [activeRegionId, setActiveRegionId] = useState(null);
   const [sourceUpdates, setSourceUpdates] = useState([]);
 
@@ -1009,6 +1020,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     data-architecture-wireframe={experience.wireframe ? "true" : undefined}
     data-post-slug={post.slug}
     data-post-character={character}
+    data-post-voice={protoOn ? postVoice : undefined}
     data-post-background={background.key}
     style={{
       "--post-background-desktop": `url("${background.desktop}")`,
@@ -1080,19 +1092,20 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       <span className="sod29-update-strip-kicker">עודכן</span>
       <button type="button" className="sod29-update-strip-link" onClick={() => jumpToSourceUpdate(sourceUpdates[0])}>
         <strong>{sourceUpdates[0].label}</strong>
-        <small>{sourceUpdates[0].attribution} · <time dateTime={sourceUpdates[0].updatedAt}>{formatUpdateDate(sourceUpdates[0].updatedAt)}</time></small>
+        <small>{sourceUpdates[0].attribution} · {addedDateLabel(sourceUpdates[0]) ? <time dateTime={sourceUpdates[0].updatedAt}>{addedDateLabel(sourceUpdates[0])}</time> : "תאריך ההוספה אינו מוכח"}</small>
       </button>
       {sourceUpdates.length > 1 ? <details className="sod29-update-strip-more">
         <summary>עוד {sourceUpdates.length - 1}</summary>
         <ul>
           {sourceUpdates.slice(1, 6).map((entry) => <li key={entry.id}>
             <button type="button" onClick={() => jumpToSourceUpdate(entry)}>
-              <span>{entry.label}</span><small><time dateTime={entry.updatedAt}>{formatUpdateDate(entry.updatedAt)}</time></small>
+              <span>{entry.label}</span><small>{addedDateLabel(entry) ? <time dateTime={entry.updatedAt}>{addedDateLabel(entry)}</time> : null}</small>
             </button>
           </li>)}
         </ul>
       </details> : null}
     </aside> : null}
+    {protoOn && postVoice !== "original" ? <PostSemanticLegend2029 /> : null}
     {coverItem ? <figure className="sod29-reading-cover" data-experience-capability="post-reading-cover">
       <CanonicalMediaFigure2029 item={coverItem} primary loading="eager" fetchPriority="high" alt={`פתח את תמונת הפוסט: ${coverItem.label}`} contextNote={null} />
     </figure> : null}
@@ -1139,6 +1152,8 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         }}
         dangerouslySetInnerHTML={{ __html: passiveSourceHtml }}
       />
+      {protoOn && isAdmin ? <PostUnitEditors2029 rootRef={sourceRef} postId={post.id} htmlKey={passiveSourceHtml.length} /> : null}
+      {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
 
 
     </div>

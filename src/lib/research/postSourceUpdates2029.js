@@ -4,6 +4,16 @@ import { publicPostHref } from "../publicPostUrls.js";
 // or other snapshots are never listed. Posts without an entry show no strip.
 // The strip additionally requires the authored fragment to exist in the live
 // source HTML, so a removed fragment hides the strip instead of lying.
+//
+// Time axes (ZURIEL 12.11.2026, decision 8) are kept apart on every entry:
+//   updatedAt  = when the unit was ADDED to the post. This is the central date. `timeBasis` says how it is proven:
+//                "exact_pair"        - a BEFORE/AFTER snapshot pair taken at the same instant (the original proof);
+//                "snapshot_interval" - the unit is ABSENT from the snapshot at `notBefore` and PRESENT in the one at `updatedAt`
+//                                      (`updatedAt` is that later snapshot, so the real addition is inside (notBefore, updatedAt]).
+//                                      A date is shown only when both ends fall on the same Asia/Jerusalem day.
+//   eventDate  = the day the event the unit talks about happened (only when the unit's own text states it).
+//   sourceDate = the day the cited source was published (only when the unit's own text states it).
+//   A later edit of design or metadata never changes any of these.
 export const PROVEN_POST_SOURCE_UPDATES = Object.freeze({
   5113: Object.freeze([
     ...[
@@ -53,9 +63,49 @@ export const PROVEN_POST_SOURCE_UPDATES = Object.freeze({
       titleId: "netanyahu-77-title",
       label: "נתניהו בן 77 — מזל ופרשת בראשית",
       date: "2026-10-10",
+      timeBasis: "exact_pair",
+      // The unit's own text: the Hebrew 77th birthday fell on Friday 9.10.2026.
+      eventDate: "2026-10-09",
       beforeRevision: 183,
       afterRevision: 184,
       attribution: "תוספת מחברת שפורסמה בפוסט",
+    }),
+    // Rev 261 -> 262 (BEFORE "77.7%" snapshot 2026-11-10 12:14:26 -> first snapshot holding the unit 12:25:40, Asia/Jerusalem).
+    Object.freeze({
+      id: "election-turnout-777-news-signal",
+      sourceSlug: "sharshar-elections-redemption-hints-draft",
+      // posts.modified of the certified version this anchor was verified against (revision 265).
+      sourceModifiedAt: "2026-11-10T16:56:00.412935Z",
+      updatedAt: "2026-11-10T10:25:40.166190Z",
+      notBefore: "2026-11-10T10:14:26.781804Z",
+      timeBasis: "snapshot_interval",
+      targetId: "election-turnout-777-news-signal",
+      titleId: null,
+      label: "ציר השבע — 77.7% כפי שפורסם בחדשות",
+      date: "2026-11-10",
+      // The unit's own text: the 77.7% was reported on 27.10.2026; the final 77.9% was published on 30.10.2026.
+      eventDate: "2026-10-27",
+      beforeRevision: 261,
+      afterRevision: 262,
+      attribution: "תוספת לפוסט",
+    }),
+    // Rev 263 -> 264 (snapshot 2026-11-10 17:21:21 lacks the unit; the one at 17:39:37 holds it, Asia/Jerusalem).
+    Object.freeze({
+      id: "knesset-sworn-1234-1011",
+      sourceSlug: "sharshar-elections-redemption-hints-draft",
+      sourceModifiedAt: "2026-11-10T16:56:00.412935Z",
+      updatedAt: "2026-11-10T15:39:37.816125Z",
+      notBefore: "2026-11-10T15:21:21.587481Z",
+      timeBasis: "snapshot_interval",
+      targetId: "knesset-sworn-1234-1011",
+      titleId: "knesset-sworn-title",
+      label: "ממשלת משיח בן דוד = 1234 · והיום 10.11 = 1011",
+      date: "2026-11-10",
+      // The unit's own text: 10.11.2026 is the day the 26th Knesset was sworn in.
+      eventDate: "2026-11-10",
+      beforeRevision: 263,
+      afterRevision: 264,
+      attribution: "תוספת לפוסט",
     }),
   ]),
 });
@@ -150,4 +200,27 @@ export function formatUpdateDate(iso) {
   if (!Number.isFinite(time)) return "";
   return new Intl.DateTimeFormat("he-IL", { timeZone: "Asia/Jerusalem", day: "2-digit", month: "2-digit", year: "numeric" })
     .format(new Date(time)).replace(/\//g, ".");
+}
+
+const jerusalemDay = (iso) => {
+  const time = Date.parse(iso);
+  if (!Number.isFinite(time)) return "";
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(time));
+};
+
+// The central date of a unit: when it was added to the post. A snapshot-interval proof shows a date only when the whole
+// interval sits inside one Asia/Jerusalem day; otherwise the unit is still listed, with no date (never a guessed one).
+export function addedDateLabel(entry) {
+  if (!entry?.updatedAt) return "";
+  if (entry.timeBasis === "snapshot_interval") {
+    const day = jerusalemDay(entry.updatedAt);
+    if (!day || day !== jerusalemDay(entry.notBefore)) return "";
+  }
+  return formatUpdateDate(entry.updatedAt);
+}
+
+// A calendar day written in the unit's own text (event day / source day), as dd.mm.yyyy. No clock time, no timezone shift.
+export function plainDayLabel(day) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(day || ""));
+  return match ? `${match[3]}.${match[2]}.${match[1]}` : "";
 }
