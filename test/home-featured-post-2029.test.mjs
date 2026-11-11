@@ -47,7 +47,9 @@ test("the whole message is ONE feed item for 'עכשיו': same post:<id> identi
   for (const part of ["הבורא מדבר דרך כל המציאות", "התיעוד הזה הוא חלק מעץ המציאות", "המסר:", "46 הוא היפוך של 64, דין", "מה שנראה דין מתגלה כרחמים", "סוד הבינה, 67", "1,437 (לייקים)", "618 = משיח צדקינו", "396 = הישועה = דויד בן ישי", "78 = מחל", "64 = דין", "פ״ז", "שרשר = 1000"]) assert.ok(item.fullText.includes(part), part);
   assert.equal(item.at, "2026-11-08T04:18:00.000Z"); assert.equal(item.pinned, true); assert.equal(item.liveDot, "עדכון חדש בפוסט");
   // The pin is ONE window of at most 72 hours (System Frame v2 §10.8 addendum, 11.11.2026): it expires by itself, the Post keeps its place by time.
-  assert.equal(item.pinUntil, "2026-11-14T06:00:00.000Z"); assert.equal(item.central.groups.map(group => group.value).join(","), "1234,1011");
+  assert.equal(item.pinUntil, "2026-11-14T06:00:00.000Z"); assert.equal(item.central.groups.map(group => group.value).join(","), "1011,1234");
+  // The short central message is the item's summary while pinned (the same words on Home, in "עכשיו" and in the World).
+  assert.equal(item.central.lead, "הבורא פועל בהפוך על הפוך דרך כל המציאות"); assert.equal(item.summary, "הבורא פועל בהפוך על הפוך דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.");
   const expired = featuredFeedItem(row({}), postRowToWorldUpdate, HOME_FEATURED_POST_2029, afterPin);
   assert.equal(expired.pinned, false); assert.equal(expired.pinUntil, null); assert.equal(expired.liveDot, null);
   assert.equal(featuredFeedItem(row({ home_hidden: true }), postRowToWorldUpdate), null);
@@ -92,13 +94,14 @@ test("no single stray numbers, and Home shows words only: the numbers live insid
   assert.doesNotMatch(home, /bridge/, "no second line");
 });
 
-test("the Home numbers: 1234 and 1011, each phrase read from the canonical regular method (engine, 10.11.2026), plus the owner's sentence; no caption line", () => {
-  const [g1234, g1011] = HOME_FEATURED_POST_2029.highlights;
-  assert.deepEqual([g1234.value, g1011.value], [1234, 1011]);
+test("the Home numbers (ZURIEL 11.11.2026: 1011 first, then 1234), each phrase read from the canonical regular method (engine, 10.11.2026), plus the owner's sentence; no caption line", () => {
+  const [g1011, g1234] = HOME_FEATURED_POST_2029.highlights;
+  assert.deepEqual([g1011.value, g1234.value], [1011, 1234]);
+  assert.ok(!JSON.stringify(HOME_FEATURED_POST_2029.highlights).includes("ארהב"), "the Iran line is not listed: 'אירן ארהב ישראל' is 1010 in the engine, waiting for the owner");
   assert.ok(!JSON.stringify(HOME_FEATURED_POST_2029).includes("1437"), "1437 lives only in the Post itself (ZURIEL 10.11.2026), not on Home");
   assert.deepEqual([...g1234.phrases], ["ממשלת משיח בן דוד", "התגלות השכינה"]);
   assert.deepEqual([...g1011.phrases], ["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים", "הגאלה תבא בהיסח הדעת", "קץ זוהמת הנחש"]);
-  assert.equal(HOME_FEATURED_POST_2029.statement, "מה שאנחנו רואים בעיניים — הכול פעולות של הבורא, שפועל דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.");
+  assert.equal(HOME_FEATURED_POST_2029.statement, "מה שאנחנו רואים בעיניים הכול פעולות של הבורא, שפועל בהפוך על הפוך דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.");
   assert.ok(!JSON.stringify(HOME_FEATURED_POST_2029.highlights).includes("תתאה גבר"));
   const card = projectHomeFeaturedPost(row(), HOME_FEATURED_POST_2029);
   assert.equal(card.highlights.length, 2); assert.equal(card.statement, HOME_FEATURED_POST_2029.statement);
@@ -118,7 +121,7 @@ test("the Now band is carried by the featured feed item and holds the WHOLE upda
   const { postRowToWorldUpdate } = await import("../src/lib/research/worldDiscoveryStream.js");
   const item = featuredFeedItem(row({ date: "2026-09-30T08:55:00Z" }), postRowToWorldUpdate);
   assert.deepEqual({ from: item.band.from, days: item.band.days }, { from: "2026-11-10", days: 3 });
-  assert.deepEqual(item.band.groups.map(g => g.value), [1234, 1011]);
+  assert.deepEqual(item.band.groups.map(g => g.value), [1011, 1234]);
   assert.deepEqual(item.band.groups.flatMap(g => g.phrases), HOME_FEATURED_POST_2029.highlights.flatMap(g => [...g.phrases]));
   assert.equal(item.band.statement, HOME_FEATURED_POST_2029.statement);
 });

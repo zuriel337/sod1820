@@ -146,3 +146,26 @@ test("one source picker: 'הכול' by default hides unverified group rows; pick
   assert.match(root.root.findAll(node => node.props.className === "rc29-empty")[0].children.join(""), /אין פרסום חדש/);
   await act(async () => { root.unmount(); });
 });
+
+test("the short central message (ZURIEL 11.11.2026): the owner's lead sentence first, its second line, then compact numbers; 'כל המסר והחיבורים' opens the whole update in place", async () => {
+  const withLead = pinnedItem(5, {});
+  withLead.central = { ...withLead.central, lead: "הבורא פועל בהפוך על הפוך דרך כל המציאות", leadSub: "אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.", fullTitle: "היום 10.11 = 1011",
+    statement: "מה שאנחנו רואים בעיניים הכול פעולות של הבורא, שפועל בהפוך על הפוך דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.",
+    groups: [...withLead.central.groups].reverse() };
+  const root = await render({ feed: feedOf([withLead, postRowToWorldUpdate(post(1, 2))].filter(Boolean)) });
+  const card = root.root.findAll(node => node.props["data-now-pinned-message"])[0];
+  const kids = card.children.filter(child => typeof child !== "string").map(child => child.props.className || child.props["data-now-pinned-lead"]);
+  const lead = card.findAll(node => node.props["data-now-pinned-lead"] === "true")[0];
+  assert.equal(lead.findByType("h3").children.join(""), "הבורא פועל בהפוך על הפוך דרך כל המציאות");
+  assert.equal(lead.findByType("p").children.join(""), "אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.");
+  assert.ok(kids.indexOf("rc29-lead") < kids.indexOf("rc29-nums is-compact"), "the message comes before the numbers");
+  assert.deepEqual(card.findAll(node => node.props.className === "rc29-num").map(node => node.props["aria-label"]), ["פתח את המספר 1011", "פתח את המספר 1234"]);
+  assert.equal(card.findAll(node => node.props.className === "rc29-sum").length, 0, "no list of phrases in the short card");
+  const toggle = card.findAll(node => node.type === "button" && node.props["aria-expanded"] === false)[0];
+  assert.equal(toggle.children.join(""), "כל המסר והחיבורים");
+  await act(async () => { toggle.props.onClick(); });
+  const full = root.root.findAll(node => node.props["data-now-pinned-full"] === "true")[0];
+  assert.equal(full.findAll(node => node.props.className === "rc29-full-title")[0].children.join(""), "היום 10.11 = 1011");
+  assert.match(full.findAll(node => node.props["data-now-pinned-statement"] === "true")[0].children.join(""), /שפועל בהפוך על הפוך/);
+  await act(async () => { root.unmount(); });
+});

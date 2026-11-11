@@ -28,9 +28,12 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
   // The prominent numbers under the message (ZURIEL 10.11.2026): each phrase's value read from the canonical engine fn_method_value('רגיל', phrase)
   // on 2026-11-10 (1234: ממשלת משיח בן דוד, התגלות השכינה · 1011: המשיח פועל במעשים, הגאלה תבא בהיסח הדעת, קץ זוהמת הנחש). The first 1011 line is the
   // date of the Knesset swearing-in (10.11.2026) read as the number 1011, not a letter calculation. Arithmetic only.
+  // Order of the owner's message (ZURIEL 11.11.2026): 1011 first, then 1234. Re-checked in the engine on 2026-11-11 (all = their group value).
+  // NOT listed (ZURIEL 11.11.2026, reported and waiting for the owner): "אירן ארהב ישראל" is 1010 in the engine (אירן = 261); only the spelling
+  // "איראן ארהב ישראל" is 1011 (איראן = 262). The owner's wording is never changed by the system, so neither spelling is shown until he decides.
   highlights: Object.freeze([
-    Object.freeze({ value: 1234, phrases: Object.freeze(["ממשלת משיח בן דוד", "התגלות השכינה"]) }),
     Object.freeze({ value: 1011, phrases: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26", "המשיח פועל במעשים", "הגאלה תבא בהיסח הדעת", "קץ זוהמת הנחש"]), numberOnly: Object.freeze(["10.11.2026 — יום השבעת הכנסת ה־26"]) }),
+    Object.freeze({ value: 1234, phrases: Object.freeze(["ממשלת משיח בן דוד", "התגלות השכינה"]) }),
   ]),
   // The update of the day band at the top of "עכשיו" (ZURIEL 10.11.2026): shown for three days starting 10.11.2026 (Asia/Jerusalem), then it disappears by
   // itself. It shows the WHOLE update — both number groups with every phrase (and the date line) and the sentence — taken from `highlights` and `statement`
@@ -41,9 +44,13 @@ export const HOME_FEATURED_POST_2029 = Object.freeze({
   pin: Object.freeze({ from: "2026-11-11T08:00:00+02:00", hours: 72 }),
   // The central message shown in the pinned card before entering the Post: the heading of the Post's own section #knesset-sworn-1234-1011 (verified
   // 11.11.2026 against posts.content of 5107) and the owner's lines in `highlights`. Shown verbatim; the system never rewrites it.
-  central: Object.freeze({ title: "ממשלת משיח בן דוד = 1234 · והיום 10.11 = 1011", kicker: "תיעוד אירועים", date: "10.11.2026", anchor: "knesset-sworn-1234-1011" }),
+  // The SHORT central message (ZURIEL 11.11.2026), identical on Home, in "עכשיו" and in the World: the owner's lead sentence first, its second line
+  // under it, then the numbers. "כל המסר והחיבורים" opens the whole update (fullTitle, every group, the statement) in place. Owner's wording, verbatim.
+  central: Object.freeze({ lead: "הבורא פועל בהפוך על הפוך דרך כל המציאות", leadSub: "אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.",
+    kicker: "עדכון חדש בפוסט", date: "10.11.2026", fullTitle: "היום 10.11 = 1011", title: "ממשלת משיח בן דוד = 1234 · והיום 10.11 = 1011", anchor: "knesset-sworn-1234-1011" }),
   // The sentence the owner asked to keep with the numbers (also in the Post's update and in "עכשיו").
-  statement: "מה שאנחנו רואים בעיניים — הכול פעולות של הבורא, שפועל דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.",
+  // The owner's updated sentence (ZURIEL 11.11.2026, verbatim).
+  statement: "מה שאנחנו רואים בעיניים הכול פעולות של הבורא, שפועל בהפוך על הפוך דרך כל המציאות. אין כאן שום ימין ושום שמאל. הכול — אין עוד מלבדו.",
   connectionsFootnote: null, // no spelling footnote: each number says what it is (ZURIEL 8.11.2026: "don't load")
   // ONE text under the message (ZURIEL 8.11.2026: merge the note and the bridge; say it once). The owner's tree note in the public discovery voice
   // (public_language_revelation_geula_law: "מחקר" is not the public default: "תהליך המחקר/ממצאים" became "תהליך הגילוי/חיבורים"), opened by the line that the
@@ -115,8 +122,10 @@ export function featuredFeedItem(row, postRowToWorldUpdate, config = HOME_FEATUR
   const at = new Date(config.at).toISOString();
   const pin = featuredPinState(config, now);
   const groups = (config.highlights || []).map(group => ({ value: group.value, phrases: [...group.phrases], numberOnly: [...(group.numberOnly || [])] }));
-  const central = config.central && groups.length ? { ...config.central, groups, postTitle: projectHomeFeaturedPost(row, config)?.postTitle || "" } : null;
-  return { ...base, label: config.headline || base.label, summary: config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: pin.active, pinUntil: pin.active ? pin.until : null, central, liveDot: pin.active ? "עדכון חדש בפוסט" : null, band: config.band ? { ...config.band, groups: (config.highlights || []).map(group => ({ value: group.value, phrases: [...group.phrases], numberOnly: [...(group.numberOnly || [])] })), statement: config.statement || null } : null };
+  const central = config.central && groups.length ? { ...config.central, groups, statement: config.statement || null, postTitle: projectHomeFeaturedPost(row, config)?.postTitle || "" } : null;
+  // While pinned, the short central message is THE summary of this item, so every projection of the shared feed (Home, "עכשיו", World) shows the same words.
+  const shortMessage = pin.active && config.central?.lead ? [config.central.lead, config.central.leadSub].filter(Boolean).join(". ") : null;
+  return { ...base, label: config.headline || base.label, summary: shortMessage || config.message[1].slice(0, 240), fullText: featuredBodyText(config), at, arrivalAt: at, pinned: pin.active, pinUntil: pin.active ? pin.until : null, central, liveDot: pin.active ? "עדכון חדש בפוסט" : null, band: config.band ? { ...config.band, groups: (config.highlights || []).map(group => ({ value: group.value, phrases: [...group.phrases], numberOnly: [...(group.numberOnly || [])] })), statement: config.statement || null } : null };
 }
 
 // One public read shared by Home and the feed hook (cached for a minute): never two requests for the same Post.
