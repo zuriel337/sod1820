@@ -1149,9 +1149,10 @@ function AccountConnection2029() {
 // A guest (or an account not yet verified) sees the account hall with the sign-in form and what opens after signing in.
 function PersonalGuestHome2029() {
   const { loading } = useAuth();
+  const { openIssueReport } = use2029Shell();
   const cards = personalCards({ signedIn: false });
-  return <PersonalHomeLazy2029 signedIn={false} avatar={<UserAvatar2029 user={null} profile={null} size="header" />} cards={cards}
-    primary={loading ? null : personalPrimaryAction({ signedIn: false })}
+  return <PersonalHomeLazy2029 signedIn={false} onReport={() => openIssueReport({ capability: "personal_area" })} avatar={<UserAvatar2029 user={null} profile={null} size="header" />} cards={cards}
+    primary={null}
     slots={{ account: <AccountConnection2029 />, guestNote: <FrameState kind="empty" title="האזור האישי שלך">התחברות לחשבון קיים תציג את הפרטים והשמורים שלך. שמירה ועריכה נעשות בפעולה מפורשת; התחברות אינה מפעילה רזיאל, חיוב או דיוור.</FrameState> }} />;
 }
 
@@ -1168,6 +1169,7 @@ function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, jo
   const savedSubject = normalizeTarget(savedContext?.subject, "saved-research-path");
   const [actionState, setActionState] = useState(null);
   const { user, profile, signOut, loading: authLoading } = useAuth();
+  const { openIssueReport } = use2029Shell();
   const userId = user?.id || null;
   const [follows, setFollows] = useState({ status: "loading", topics: [] });
   const [inbox, setInbox] = useState({ status: "loading", unread: null });
@@ -1378,7 +1380,7 @@ function WorkspaceProjectionOpen({ context, go, onRaziel, onOpenPrivateHints, jo
     </div>
   </section>;
 
-  return <PersonalHomeLazy2029 signedIn={!!userId} name={profileName} email={user?.email || ""} avatar={<UserAvatar2029 user={user} profile={profile} size="header" />}
+  return <PersonalHomeLazy2029 signedIn={!!userId} onReport={() => openIssueReport({ capability: "personal_area" })} name={profileName} email={user?.email || ""} avatar={<UserAvatar2029 user={user} profile={profile} size="header" />}
     stats={stats} follows={follows} inbox={inbox} cards={cards} primary={primary} onPrimary={onPrimary} onNavigate={onNavigate} onAction={onAction}
     focusSection={focusSection} onSectionHandled={() => setFocusSection(null)} guestLists
     slots={{ account: <AccountConnection2029 user={user} profile={profile} signOut={signOut} />, research: researchNode, follow: followNode, raziel: razielNode }} />;

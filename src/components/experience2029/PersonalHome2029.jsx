@@ -45,7 +45,7 @@ function Disclosure({ id, open, onToggle, icon, title, hint, children, hue = "re
 }
 
 export default function PersonalHome2029({ signedIn, name, email, avatar, stats, follows, inbox, cards, primary, onPrimary, onNavigate, onAction,
-  slots = {}, focusSection = null, onSectionHandled, guestLists = false }) {
+  slots = {}, focusSection = null, onSectionHandled, guestLists = false, onReport }) {
   const [open, setOpen] = useState({});
   const accountRef = useRef(null);
   const toggle = id => setOpen(value => ({ ...value, [id]: !value[id] }));
@@ -102,8 +102,14 @@ export default function PersonalHome2029({ signedIn, name, email, avatar, stats,
       <div className="pa29-account" data-workspace-section="account" ref={accountRef}>{slots.account}</div>
     </section>
 
+    <aside className="pa29-build r29-card" data-r29-kind="ember" data-pa29-build aria-label="האזור האישי בבנייה">
+      <span className="r29-badge pa29-build-badge" aria-hidden="true">בבנייה</span>
+      <p><strong>האזור האישי בבנייה.</strong> חלק מהכרטיסים עדיין נסגרים בכוונה, וכל כרטיס כזה אומר מה חסר.</p>
+      {onReport ? <button type="button" className="pa29-report" data-pa29-report onClick={onReport}>נתקלתם בתקלה? דווחו כאן ←</button> : null}
+    </aside>
+
     {!signedIn && !guestLists ? <>
-      {slots.guestNote}
+      {slots.guestNote ? <div className="pa29-note r29-card" data-r29-kind="research">{slots.guestNote}</div> : null}
       <section className="pa29-more r29-card" data-r29-kind="research" aria-label="מה יש באזור האישי אחרי כניסה">
         <details className="pa29-guest-list">
           <summary><span className="pa29-card-text"><strong>מה יש באזור האישי</strong><small>אחרי כניסה: פרופיל, דף, שמורים, הודעות ועוד</small></span><span className="pa29-chev" aria-hidden="true" /></summary>

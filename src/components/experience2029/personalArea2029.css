@@ -102,3 +102,56 @@ button.pa29-card,.pa29-more-head{cursor:pointer}
 }
 @media (prefers-reduced-motion:reduce){.pa29 *{transition:none!important}}
 @media (forced-colors:active){.pa29-primary{border:2px solid ButtonText;background:ButtonFace;color:ButtonText}.pa29-chev{border-color:ButtonText}}
+
+/* ── Royal sign-in inside the hall (ZURIEL 11.11): gold-ink headings, lit fields, ONE gold action, providers side by side with their real marks,
+   then the quiet links. Order of a guest's form: email → main action → "או" → Google | Facebook → notes → links. ─────────────────────── */
+.pa29-account .sod29-account-entry[data-auth-state="guest"]{display:grid;gap:10px;text-align:center;justify-items:stretch}
+.pa29-account .sod29-account-entry[data-auth-state="guest"] h2{font:800 21px/1.3 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink);margin:0}
+.pa29-account .sod29-account-entry[data-auth-state="guest"]>p{margin:0;font-size:15px;line-height:1.55;color:var(--s29-muted)}
+.pa29-account .sod29-account-entry [data-signup-updates-policy]{margin:0;padding:10px 12px;border-radius:var(--r29-radius-sm);text-align:start;
+  border:1px solid color-mix(in srgb,var(--r29-sapphire) 38%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 10%,var(--s29-panel))}
+.pa29-account .sod29-account-entry [data-signup-updates-policy] strong{font-size:14px;color:var(--r29-gold-ink)}
+.pa29-account .sod29-account-entry [data-signup-updates-policy] p{margin:4px 0 0;font-size:13px;line-height:1.5;color:var(--s29-muted)}
+.pa29-account .sod29-account-entry form{display:grid;gap:8px;text-align:start}
+.pa29-account .sod29-account-entry label{font:750 14px/1.2 var(--s29-font-ui,inherit);color:var(--r29-gold-ink)}
+.pa29-account .sod29-account-entry input{min-block-size:50px;border-radius:var(--r29-radius-sm);color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-gold) 45%,var(--s29-line));
+  background:linear-gradient(180deg,color-mix(in srgb,var(--r29-sapphire) 12%,var(--s29-panel)),color-mix(in srgb,var(--s29-page) 40%,var(--s29-panel)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 10%,transparent)}
+.pa29-account .sod29-account-entry input:focus-visible{outline:2px solid var(--s29-focus-ring,var(--r29-gold));outline-offset:2px;border-color:var(--r29-gold)}
+.pa29-account .sod29-account-entry input::placeholder{color:color-mix(in srgb,var(--s29-muted) 80%,transparent)}
+/* the main action of the form: gold, like the hall's */
+.pa29-account .sod29-account-entry button.sod29-auth-primary[type="submit"]{min-block-size:50px;margin-top:2px;border-radius:999px;font:800 16px/1.2 var(--s29-font-ui,inherit);
+  color:color-mix(in oklab,var(--r29-gold) 10%,black);border:1px solid color-mix(in srgb,var(--r29-gold) 85%,transparent);
+  background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 86%,white),var(--r29-gold));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 45%,transparent),0 10px 22px -12px color-mix(in srgb,var(--r29-gold) 85%,transparent)}
+:where(.sod29-root[data-frame-theme-preset="light"],.sod29-root[data-frame-theme-preset="parchment"]) .pa29-account .sod29-account-entry button.sod29-auth-primary[type="submit"]{color:var(--s29-on-accent);
+  background:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 88%,white),color-mix(in oklab,var(--r29-gold) 92%,black))}
+.pa29-account .sod29-account-entry button.sod29-auth-primary[type="submit"]:disabled{opacity:.6}
+/* alternatives: "או" rule, the providers in two columns, then the links */
+.pa29-account .sod29-auth-alternatives{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:2px}
+.pa29-account .sod29-auth-alternatives::before{content:"◆  או  ◆";grid-column:1/-1;order:0;display:block;text-align:center;font:700 12.5px/1 var(--s29-font-ui,inherit);letter-spacing:.08em;color:var(--r29-gold);padding:2px 0}
+.pa29-account .sod29-auth-alternatives>[data-auth-provider]{order:1;margin:0;min-block-size:50px;gap:9px;border-radius:999px;padding:0 10px;font:750 14.5px/1.1 var(--s29-font-ui,inherit);color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-gold) 50%,var(--s29-line));background:linear-gradient(180deg,color-mix(in srgb,var(--r29-sapphire) 16%,var(--s29-panel)),color-mix(in srgb,var(--r29-sapphire) 6%,var(--s29-panel)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 12%,transparent),0 6px 16px -10px color-mix(in srgb,var(--r29-sapphire) 80%,transparent)}
+.pa29-account .sod29-auth-alternatives>[data-auth-provider]:disabled{opacity:.62}
+@media (hover:hover){.pa29-account .sod29-auth-alternatives>[data-auth-provider]:not(:disabled):hover{border-color:var(--r29-gold);filter:brightness(1.08)}}
+.pa29-account .sod29-auth-alternatives>.sod29-auth-method-note{order:2;grid-column:1/-1;margin:0;text-align:center;font-size:13px;line-height:1.5;color:var(--s29-muted)}
+.pa29-account .sod29-auth-alternatives>:is(.sod29-auth-link,.sod29-auth-secondary:not([data-auth-provider])){order:3;grid-column:1/-1;margin:0;min-block-size:42px;color:var(--r29-gold-ink);font-size:14.5px;font-weight:700}
+.sod29-provider-mark{flex:none;inline-size:22px;block-size:22px;display:block}
+.pa29-account .sod29-auth-alternatives>[data-auth-provider] span{min-inline-size:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:360px){.pa29-account .sod29-auth-alternatives{grid-template-columns:minmax(0,1fr)}}
+
+/* ── The build notice: what is closed, and where to report a fault ─────────────────────────────────────────────────────────── */
+.pa29-build{--r29-hue:var(--r29-amber);display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 10px;padding:10px 14px 10px 12px}
+.pa29-build-badge{--r29-hue:var(--r29-amber)}
+.pa29-build p{margin:0;font-size:14px;line-height:1.5;color:var(--s29-ink)}
+.pa29-build p strong{color:var(--r29-gold-ink)}
+.pa29-report{grid-column:1/-1;justify-self:start;min-block-size:44px;padding:0 6px;border:0;background:none;cursor:pointer;font:750 14.5px/1.2 var(--s29-font-ui,inherit);color:var(--r29-gold-ink);text-decoration:underline;text-underline-offset:4px}
+.pa29-report:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px;border-radius:8px}
+.pa29-account .sod29-auth-provider-lead{position:absolute;inline-size:1px;block-size:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.pa29-account .sod29-auth-alternatives>[data-auth-provider]{position:relative}
+.pa29-note{padding:10px 14px;text-align:start}
+.pa29-note :is(h2,h3,h4,strong){margin:0;font:750 15px/1.3 var(--s29-font-ui,inherit);color:var(--r29-gold-ink)}
+.pa29-note :is(p,div,span){margin:2px 0 0;font:500 13.5px/1.5 var(--s29-font-body,var(--s29-font-ui,inherit));color:var(--s29-muted)}
+.pa29-note :is(svg,.sod29-frame-state-icon){display:none}

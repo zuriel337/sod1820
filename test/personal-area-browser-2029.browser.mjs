@@ -48,6 +48,16 @@ for (const [name, options] of Object.entries(PROFILES)) {
       assert.ok(await page.locator('[data-panel-kind="workspace"] input[type="email"]').count() > 0, "the guest panel carries the sign-in form on top");
       assert.match(await panelText(page), /אורח/); assert.doesNotMatch(await panelText(page), /example\.invalid/);
       const guestOverflow = await overflow(page); assert.ok(guestOverflow.panel <= 1 && guestOverflow.body <= 1 && guestOverflow.docX <= 1, "guest panel: no horizontal overflow " + JSON.stringify(guestOverflow));
+      // the build notice says the area is under construction and the fault link opens the existing issue report; the provider buttons carry their real marks
+      assert.match(await page.locator("[data-pa29-build]").innerText(), /האזור האישי בבנייה/);
+      for (const provider of ["google", "facebook"]) {
+        const button = page.locator(`[data-auth-provider="${provider}"]`);
+        if (await button.count()) { assert.equal(await button.locator(`svg[data-provider-mark="${provider}"]`).count(), 1, provider + " mark"); assert.match(await button.getAttribute("aria-label") || await button.innerText() || "", /./); }
+      }
+      await page.locator("[data-pa29-report]").click();
+      await page.getByRole("dialog").getByText(/דווחו על בעיה/).first().waitFor({ timeout: 15000 });
+      await page.keyboard.press("Escape");
+      await openPanel(page);
       await page.keyboard.press("Escape");
       // 2. sign in, the signed-in panel
       await signInWithCode(page, fixture, A);

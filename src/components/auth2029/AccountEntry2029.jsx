@@ -8,6 +8,7 @@ import { authStorageStatus, probeAuthStorage, summarizeLocalStorage } from "../.
 import { refreshAppRuntime } from "../../lib/authRecovery.js";
 import { markOtpSent, otpResendWaitMs } from "../../lib/otpThrottle.js";
 import { EMAIL_OTP_MAX_LENGTH, isValidEmailOtp, sanitizeEmailOtp } from "../../lib/emailOtp.js";
+import { ProviderMark2029 } from "./ProviderMark2029.jsx";
 import { safePreviewOAuthReturnPath } from "../../lib/oauthReturn.js";
 import { writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import { use2029Palette } from "../../lib/palette2029.js";
@@ -139,7 +140,7 @@ export default function AccountEntry2029({ returnHref = "/2029", inline = false,
             {methods.state === "ready" && methods.email && step === "email" ? <button className="sod29-auth-link" type="button" disabled={busy} data-auth-action="have-code"
               onClick={() => { const address = email.trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) { setError("הזינו קודם את כתובת המייל שאליה נשלח הקוד."); return; } setEmail(address); setStep("code"); setError(""); }}>כבר קיבלתי קוד</button> : null}
             {methods.state === "ready" && methods.email ? <button className="sod29-auth-link" type="button" disabled={busy} onClick={() => changeStep(step === "email" ? "password" : "email")}>{step === "email" ? "כניסה עם סיסמה" : step === "code" ? "שינוי כתובת או בקשת קוד חדש" : "כניסה עם קוד למייל"}</button> : null}
-            {methods.oauth.map(method => <button key={method.id} className="sod29-auth-secondary" type="button" disabled={busy || !method.available} aria-describedby={!method.available ? `${fieldId}-oauth-state` : undefined} onClick={() => federated(method.id)}>המשך עם {method.label}</button>)}
+            {methods.oauth.map(method => <button key={method.id} className="sod29-auth-secondary" type="button" data-auth-provider={method.id} disabled={busy || !method.available} aria-describedby={!method.available ? `${fieldId}-oauth-state` : undefined} onClick={() => federated(method.id)}><ProviderMark2029 id={method.id} /><span><span className="sod29-auth-provider-lead">המשך עם </span>{method.label}</span></button>)}
             {methods.oauth.some(method => !method.available) ? <p id={`${fieldId}-oauth-state`} className="sod29-auth-method-note">{"הכניסה עם Google ו־Facebook ממתינה לאישור כתובת החזרה. אפשר להיכנס עם מייל וסיסמה או קוד למייל."}</p> : null}
           </div>
         </>}
