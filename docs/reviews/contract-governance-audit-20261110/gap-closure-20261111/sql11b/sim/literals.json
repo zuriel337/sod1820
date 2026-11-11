@@ -1,0 +1,11 @@
+{
+  "baseMd5": "12961a8c758d5eb86a3d6834bb54ac82",
+  "baseLen": 4951,
+  "newMd5": "f44dc42fafdf4a8ef4ae3db700fbeacf",
+  "newLen": 6286,
+  "meta": "true:search_path=public:postgres=X/postgres,authenticated=X/postgres,service_role=X/postgres:postgres",
+  "rules": "deploy_on_request@4,inter_agent_coordination_law@18,system_suggestions_law@6",
+  "wlTriggers": "trg_work_log_dispatch_00_gpt_event:O:work_log_dispatch_gpt_after_write:a00ff986e51296e9e3f13a4f6d9b3dc6:cd6bdf501a101a57b27c33e9f0eeb28f,trg_work_log_dispatch_event:O:work_log_dispatch_after_write:dfac3f0c9cace0993c53ea8e967408ae:4b0735c8ada910e1084f8e09d0cae77b,trg_work_log_dispatch_prepare:O:work_log_dispatch_prepare:bba6f47639772c33d2eb7d774b2562b5:c8656de489529a748f0fed10fa6cd493,trg_work_log_zz_gpt_delivery_stop_v17:O:work_log_gpt_delivery_stop_v17:1492577ec06d4f38631d3ed70bede4a7:9a3ab0c02d17b34aaa700933f3d318f3",
+  "wlUnique": "work_log_assignment_idempotency_uidx:d0ff7092e20754986de6832b2ea35bb7,work_log_one_active_writer_scope_uidx:9b48809210921d799fd96f7611d01ce9,work_log_pkey:7626b73061ca271b8a5bdcf2b18dec08",
+  "wlChecks": "work_log_assignment_mode_ck:e8946be6403885be8060d5e7df574521,work_log_dispatch_attempts_ck:c33f41675ce5fbcfb6ae1cf292af237f,work_log_dispatch_kind_ck:d1918784965683712fdb60beddee6b5b,work_log_dispatch_state_ck:7135a05432c7ff6927a9036b8188cf9c,work_log_from_actor_ck:968810e0e64aebcbb85078ffb5ada0d2,work_log_no_self_supersede:6ad1bc61808f15cf4144bb9e34a57672,work_log_to_actor_ck:5c8d82bcbd624e6536a26c620296619e"
+}

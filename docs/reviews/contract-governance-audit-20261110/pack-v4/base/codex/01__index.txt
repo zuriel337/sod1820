@@ -1,0 +1,116 @@
+טבלה זו (project_codex) היא ספריית מפרטים/הקשר ותיעוד של SOD1820. היא אינה bootstrap חובה, אינה Owner Index ואינה מקור-אמת מקביל. ברירת-המחדל: פתור owner קודם דרך `SOD1820_MASTER_OWNER_INDEX.md` + הבעלים החיים, ואז קרא רק את ה-slug/המפרט שאליו אותו owner מפנה. אין לקרוא את כל project_codex לפי הסדר בתחילת משימה.
+
+מקורות ידע משלימים בתוך ה-DB (לא רק כאן):
+- `work_log` — Coordination/Provenance Ledger בלבד. לבוטסטרפ קוראים רק רשומות CURRENT ורלוונטיות לסקופ (`work_log_current` או שאילתה שקולה), לא dump היסטורי מלא.
+- `nodes where type='rule' and is_active` — חוקי המערכת הפעילים (מנוהלי-גרסאות, לא נמחקים).
+- `nodes where type='entity' and metadata->>'source'='entity_seed_v1'` — גרף ישויות הגימטריה (+ `edges`, + `gematria_words`).
+- בריפו: `CLAUDE.md` (הנחיות פרויקט) ו-`docs/`.
+
+עקרון-על של הפרויקט: "אני הכי למטה בעץ ותמיד אפשר להרחיב" — ליבה קטנה, מדויקת ומקובעת, שכל תוספת נתלית עליה. מעדיפים עומק על פני כמות. הרחבות = batch קטן ובדוק, לא מרוץ למספרים.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+■ G1 AUTHORITY SPLIT / LIVE-FIRST (עודכן 12.9.2026)\nהקודקס הוא pointer/context בלבד. אין startup chain קבוע של Roadmap + Master + CLAUDE + כל rules.\nAuthority נשמר לפי תפקיד: live DB + `origin/main` + Production הרלוונטי = live reality; owner דומייני פעיל = semantics; Master State = documented state; Roadmap = navigation/priority; work_log = coordination/provenance; adapters/codex/memory = pointers/context.\nאם pointer בקודקס סותר owner/live state — מדווחים DRIFT וה-owner/live state גוברים. Master/Roadmap נטענים רק כשהמשימה דורשת documented-state/navigation או reconciliation.\n\nשורות מסומנות ⚠️ STALE אינן משקפות מצב נוכחי. שורה בקטגוריה pointer היא שלט-הפניה בלבד.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+■ AGENT GOVERNANCE OWNER ROUTER v1 — קרא לפני יצירת חוזה/חוק/מערכת (ZURIEL Human-Gate, 7.9.2026)
+
+מטרה: זהו Router/Index בלבד — לא Source of Truth חדש, לא חוזה נוסף, לא טבלה חדשה. הוא מפנה כל סוכן לבעל-הבית הקנוני הנכון לפני עבודה.
+
+BOOTSTRAP / G1 TASK START (pointer-only):\n1. natural-language task → intent/capability/domain (Task Profile רק כשמועיל).\n2. resolve current canonical owner from Owner Index + live owner infrastructure.\n3. load owner + smallest direct dependencies under Read Budget.\n4. read recent relevant CURRENT work_log/assignment context בלבד.\n5. verify the live source appropriate to the claim, then execute/verify/handoff.\nFull Master State, full Roadmap, all active rules, all project_codex, broad branch archaeology and unrelated contracts are NOT default startup reads.\n\nOWNER CHECK חובה לפני Contract/Law/System/Store/Engine/Registry/global UI owner חדש:
+- בדוק owners קיימים ב-nodes/project_codex/main.
+- החזר verdict אחד בלבד: EXTEND_EXISTING / SUPERSEDE_EXISTING / GENUINELY_NEW_DOMAIN.
+- ברירת-מחדל = EXTEND_EXISTING. GENUINELY_NEW_DOMAIN דורש הוכחה שאף owner קיים אינו מתאים.
+- שמות דומים אינם הוכחה לכפילות; בודקים אחריות/סמכות/צרכנים.
+
+ROUTING MAP — בעלי-בית מרכזיים:
+- One Tree / Reality Graph / identity-vs-representation / contextual center → reality_graph_law (+ unified_graph_law where referenced).
+- Research intake/source/provenance/orchestration → research_intake_foundation_contract_law / project_codex research_intake_foundation_contract.
+- Research OS / Context / Finding / Journey / Workspace composition → docs/research-studio-v1-contract.md + docs/research-universal-finding-contract.md + existing ResearchProvider/Workspace owners.
+- Truth / verification / governance / publication-access separation → truth_axes_foundation_law.
+- Experience ownership/lifecycle/localization/design crosswalk → experience_governance_foundation_v1_law.
+- Public product language/visual language/typography/icons → SOD1820_DESIGN_CONTRACT_V1.md.
+- Global navigation/context rail/bottom controls → docs/sod1820-system-frame-contract-v1.md.
+- Traffic/analytics measurement truth → traffic_intelligence_law. Product experiments consume it; they do not create a second analytics truth owner.
+- Follow/notifications/channels → subscription_funnel_law.
+- Gematria method identity/registry/lifecycle/execution-scan governance → canonical_methods_registry_law + method_lifecycle + engine_governance_registry_authority_law; no local method truth.
+- ELS → els_single_engine_law + els_research_layer_law; one engine, many projections.
+- Person/personal-data identity foundation → person_foundation_contract_law + identity_architecture_law where applicable.
+- Inter-agent scope/owner/specialist coordination → inter_agent_coordination_law (current active version).
+- Release/merge/deploy → deploy_on_request + live git/deploy state.
+
+STATE CHECK — לעולם לא לערבב:
+PROPOSED ≠ APPROVED ≠ IMPLEMENTED ≠ MERGED ≠ DEPLOYED ≠ LIVE ≠ VERIFIED. Branch-only ≠ missing; work_log claim ≠ implementation; canonical ≠ published.
+
+PRESERVATION / NO-LOSS:
+- אין מחיקת היסטוריה כדי 'לנקות'. supersede/archive/deprecate עם provenance.
+- לפני איחוד: שמור כל משמעות ייחודית, identity, truth, provenance, decisions ו-release evidence; מותר להחליף interface/wording/legacy owner.
+- work_log נשאר provenance/coordination ויכול להיארכב מאוחר יותר; הוא אינו Product SSOT.
+- Codex/Rule ישן שסותר owner מאוחר יותר מסומן HISTORICAL/STALE/SUPERSEDED — לא נשאר בעל-בית פעיל במקביל.
+
+Agent mantra: FIND OWNER → VERIFY LIVE → EXTEND FIRST → PRESERVE HISTORY → HUMAN GATE → IMPLEMENT → VERIFY RELEASE STATE.
+
+
+■ FOLLOW COMPLETION ROUTER — 7.9.2026
+לכל בניית משטח תוכן עם מעקב, גם עתידי: קרא את הגרסה הפעילה של subscription_funnel_law, במיוחד סעיף v18 SHARED FOLLOW → VERIFIED IDENTITY → CONSENTED CHANNEL, ואת subscribe_gate_law. WatchButton (כל variants) + EmailVerify + notification_prefs + Dispatcher הקיימים הם אותו מנגנון; אין פתרון מיוחד למימד חמש. טבלת-קבלה למשטח חדש וגבולות identity/consent/delivery מפורטים בחוק, לא משוכפלים כאן. יומן התיאום: SHARED_FOLLOW_SIGNUP_COMPLETION_V1. GOVERNANCE APPROVED אינה הוכחת יישום/מסירה; מצב שחרור נבדק מול main/DB/tests. זהו pointer בלבד.
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+■ LAW TREE / CLASSIFICATION ROUTER v1 — 8.9.2026 (ZURIEL Human-Gate)
+
+מטרה: למנוע Law Sprawl ובלבול-סוכנים. החוקים מסודרים לפי אחריות, לא לפי עמוד/feature/שפה. Feature חדש אינו מקבל אוטומטית חוק חדש.
+
+שרשרת הקריאה המחייבת:
+0. META / OWNER ROUTER → project_codex._index + SOD1820_MASTER_OWNER_INDEX.md
+1. FOUNDATION / GOVERNANCE → בעל-הבית הארכיטקטוני של התחום
+2. DOMAIN STATE OWNER → חוק אחד שמחזיק את הסמנטיקה של התחום
+3. CONFIG / DATA → רשומות מצב/קונפיגורציה תחת אותו owner; אינן חוקים
+4. PROJECTION OWNERS → שפה/ייצוג/עיצוב/ניווט; צורכים את ה-state ואינם משכפלים אותו
+5. IMPLEMENTATION CONSUMERS → routes/components/readers/writers/SEO adapters
+
+CLASSIFICATION PATHS מרכזיים:
+- governance/agents/owners → inter_agent_coordination_law + live_state_sync_law
+- foundation/reality → reality_graph_law
+- experience/governance → experience_governance_foundation_v1_law
+- experience/access/availability → site_flags_lock_law (ACTIVE v3)
+- experience/localization/content → content_translation_law
+- experience/ui/components → canonical_ui_components_law
+- experience/frame/navigation → docs/sod1820-system-frame-contract-v1.md
+- research/* → Research OS owners listed above
+
+INHERITANCE RULE: חוק-על אינו משוכפל בחוקי-ילד. הילד מצביע לבעל-הבית ומוסיף רק סמנטיקה ייחודית לתחום שלו. Feature-specific state (למשל lock_forum) הוא DATA תחת site_flags_lock_law, לא forum_lock_law. שפה היא Projection: אין lock_forum_en/ru ואין availability נפרד לכל locale.
+
+AGENT DECISION: לפני חוק חדש, מצא classification_path + owner קיים. אם ניתן לתלות את השינוי ב-owner קיים → EXTEND_EXISTING. מסך/שם/שפה/feature חדשים לבדם לעולם אינם GENUINELY_NEW_DOMAIN.
+
+GLOBAL CHANGE EXAMPLE: "סגור פורום" → update אחד ב-site_flags.lock_forum → resolver קנוני → כל routes/home/community/post/entity/cipher/nav/feed/counters/write-actions וכל locale מציגים אותו מצב. תרגום משנה copy בלבד, לא access semantics.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+■ AGENT MEDIA UPLOAD CAPABILITY POINTER — 9.9.2026
+
+Current live capability: GPT can upload real image binaries to canonical Supabase Storage through the existing AGENT_MEDIA_UPLOAD_BRIDGE_V1 / agent-upload Edge path. The release is recorded in work_log AFTER id 0010c1de-aebd-4051-90ef-c2a5a6c6052a (MERGED · EDGE LIVE · E2E real PNG verified). Base64 mode exists specifically for GPT runtime and supports image uploads up to 8 MiB; larger binaries use the bridge raw/signed modes.
+
+ROUTING RULE: when ZURIEL asks GPT to upload a generated/selected image to the site, do NOT infer inability merely because the GitHub connector cannot write binary files. Resolve the live media-upload capability first and use the existing bridge if still live. This is a runtime-capability pointer, not a permanent guarantee: freshness-check the bridge/live project before write. Reuse only; no second upload system. Canonical project remains linswmnnkjxvweumprav.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━
+■ AGENT MEDIA STORAGE / INGRESS 2029 — Human-Gate ZURIEL · 17.9.2026
+
+OWNER CHECK=EXTEND_EXISTING. Transport owner remains AGENT_MEDIA_UPLOAD_BRIDGE_V1 / agent-upload; media/source/provenance semantics remain under the live Research Intake / Representation owners. No new media registry/store/graph/truth owner. `media_map` is not repurposed as a 2029 registry.
+
+FORWARD-ONLY PHYSICAL STORAGE CONVENTION for all NEW AGENT-ORIGINATED 2029 media:
+- bucket: `media`
+- root: `sod1820/agent/2029/<kind>/YYYY/MM/<asset-id>/...`
+- kind: image | video | audio | document
+- asset-id: UUID generated once; title/slug is not identity.
+- original source binary: `original.<ext>`
+- derivatives: `derivatives/<role>.<ext>` (hero/card/thumb/og/poster/preview etc.)
+- captions: `captions/<lang>.vtt` under the same video asset-id.
+- immutable default: no overwrite of original; preserve original separately from web derivatives.
+
+CURRENT VERIFIED CHATGPT MOBILE IMAGE INGRESS:
+ChatGPT attachment/generated file → Dropbox temporary file → Dropbox single-use temporary download URL → live `agent-upload?mode=url` → canonical Supabase `media` path → read-back size/MIME/SHA/public-URL verification. Dropbox is transport only and may be cleaned after verified persistence.
+
+VIDEO: storage location is already locked to the same tree (`.../video/...`). Large-video transport is NOT yet declared implemented: do not push large video through the buffered image URL relay. Build/use resumable/direct TUS/signed/multipart transport as a separate bounded implementation that lands in this SAME tree.
+
+LEGACY: do not move/rename/backfill historical paths merely for cleanliness (`gallery/sod1820/videos`, `media/uploads/*`, `gallery/posts/*`, `media/sod1820/videos`, etc.). They remain compatibility/provenance until an explicit migration gate.
+
+Repo implementation convention candidate: `docs/sod1820-media-ingress-storage-convention-v1.md` + `scripts/agent-media-path.mjs` on task G3_MEDIA_INGRESS_STORAGE_CONVENTION_2029_V1. Until merged, exact repo state remains BRANCH-ONLY; this Codex block records the Human-Gate storage decision and routing only.

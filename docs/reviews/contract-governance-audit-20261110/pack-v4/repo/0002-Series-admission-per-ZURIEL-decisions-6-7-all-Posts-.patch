@@ -1,0 +1,371 @@
+From 6ab74289f8dd14fdb584bed038ff5919ec02c834 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 11 Nov 2026 03:05:10 +0000
+Subject: [PATCH 2/2] =?UTF-8?q?Series=20admission=20per=20ZURIEL=20decisio?=
+ =?UTF-8?q?ns=206-7:=20all=20Posts=20of=20the=20exact=20author=20=C2=AB?=
+ =?UTF-8?q?=D7=90=D7=9C=D7=95=D7=9F=20=D7=9C=D7=95=D7=99=C2=BB=20join=20?=
+ =?UTF-8?q?=C2=AB=D7=9E=D7=94=20=D7=A7=D7=95=D7=A8=D7=94=20=D7=94=D7=91?=
+ =?UTF-8?q?=D7=95=D7=A8=D7=90=C2=BB;=205003/5004=20get=20dual=20membership?=
+ =?UTF-8?q?=20in=20=C2=AB=D7=9E=D7=99=D7=9E=D7=93=20=D7=97=D7=9E=D7=A9?=
+ =?UTF-8?q?=C2=BB?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- contentSeries2029Identity: an explicit, bounded `admission` per series (exactAuthorAllPosts, approvedPostIds)
+  with one rule for the row check (contentSeriesExclusionReason / contentSeriesAdmits) and the PostgREST
+  filter (contentSeriesAdmissionFilter), so the query and the check cannot disagree.
+- postsCatalog2029Projection / contentSeries2029Projection use that one filter instead of
+  `.or(membership)` + `.eq("author")`; the other series' filters are unchanged.
+- Identity verified 11.11.2026 (read-only): the 13 Posts embed or are written from the channel
+  «אלון לוי - מה קורה הבורא»; 5003/5004 keep their categories and author field; no copies.
+  The other category Posts of other publishers are not admitted.
+- Tests updated where they encoded DEC-SERIES-005 (tag only) or DEC-SERIES-003 (5003/5004 excluded);
+  new tests for both decisions and for the shared filter.
+- CFC: a dated note after the 6.11 snapshot table; the PLAN37 record is pending (DB write, needs approval).
+
+Branch-only. No DB write, no merge, no deployment. PR #1296 (draft) overlaps this file and is untouched.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01H7739MjqsSy3Nv6324VnN8
+---
+ SOD1820_CONTENT_FOUNDATION_CONTRACT.md        |  2 +
+ src/lib/research/contentSeries2029Identity.js | 47 +++++++++++++++++--
+ .../research/contentSeries2029Projection.js   | 14 ++----
+ .../research/postsCatalog2029Projection.js    | 10 ++--
+ test/content-series-2029-projection.test.mjs  | 34 ++++++++++++--
+ .../follow-category-series-alignment.test.mjs | 14 ++++--
+ test/post-backgrounds-2029.test.mjs           |  4 +-
+ test/post-classification-2029.test.mjs        |  4 +-
+ test/posts-follow-targets-2029.test.mjs       | 13 +++--
+ 9 files changed, 108 insertions(+), 34 deletions(-)
+
+diff --git a/SOD1820_CONTENT_FOUNDATION_CONTRACT.md b/SOD1820_CONTENT_FOUNDATION_CONTRACT.md
+index 15d97c52f..a2d811e74 100644
+--- a/SOD1820_CONTENT_FOUNDATION_CONTRACT.md
++++ b/SOD1820_CONTENT_FOUNDATION_CONTRACT.md
+@@ -243,6 +243,8 @@ collision-check חי: workstream-המחקר (Shared Expression v1) **מוזג+ה
+ | **משחקי הדיונון** (5004) | מימד חמש · הצופן בסרטים | — | אין | כנ"ל |
+ | **5009** עטרת תפארתכם = 1820 | סוד 1820 · סוד האותיות והמספרים | — | אין | התגית «גאולה» אינה סיווג-רמז (§12.4) |
+ 
++> **עדכון 11.11.2026 — החלטות צוריאל 6–7 (הרישום ב־PLAN37 ממתין לאישור DB: `50_plan37_series_decisions_6_7.sql`):** «מה קורה הבורא» = כל פוסט ציבורי שהמחבר שלו בדיוק «אלון לוי» (13 פוסטים; הזהות אומתה מול ערוץ היוטיוב שלו), גם בלי התגית. 5003 ו־5004 בשיוך כפול ל«מימד חמש», והם נשארים ב«הצופן בסרטים»; שדה המחבר לא שונה ואין עותקים. לגבי אלה, ההחלטות מחליפות את כלל ״תגית בלבד״ של DEC-SERIES-005 ואת ההוצאה שב־DEC-SERIES-003. הטבלה שלמעלה היא תצלום מ־6.11 ונשארת כפי שהיא. מימוש בענף: `admission` ב־`contentSeries2029Identity.js`, וכלל אחד לשאילתה ולבדיקת השורה.
++
+ - קשרים קיימים (נבדק 6.11.2026 בקריאה בלבד, ר' טבלאות `research_objects`/`world_contributor_research_v1` לפי `source_ref`, `post_gematria_links`, `post_qa`, `post_revisions`, `news_ticker*`, `entity_links`, `edges.metadata`, `nodes.metadata`): **5018, 5084 ו-5009** מחוברים לשורת `research_objects` אחת כל אחד במצב `candidate` (`source_ref` = `posts:<id>#…`), שנוצרה ב-backfill של 7.10.2026; **5003 ו-5004 — לא נמצא קשר**. אין edge/entity_link/nodes לאף אחד מהחמישה. ללא שינוי; קשר `candidate` אינו אישור, אינו סדרה ואינו סיווג-רמז (§12.4).
+ - אין להכניסם אוטומטית לחלונית-הרמזים. אין למחוק אף פוסט.
+ 
+diff --git a/src/lib/research/contentSeries2029Identity.js b/src/lib/research/contentSeries2029Identity.js
+index 4d819e867..274e380e5 100644
+--- a/src/lib/research/contentSeries2029Identity.js
++++ b/src/lib/research/contentSeries2029Identity.js
+@@ -69,7 +69,12 @@ export const CONTENT_SERIES_2029 = Object.freeze([
+       Object.freeze({ field: "tags", value: "מה קורה הבורא" }),
+     ]),
+     exactAuthor: "אלון לוי",
+-    relationNote: "אלון לוי הוא הכתב; חברות בסדרה נקבעת רק מהתגית המדויקת, לא מכל חומריו.",
++    // ZURIEL decision 6 (11.11.2026): every public Post whose author is exactly «אלון לוי» belongs to this series, with or without
++    // the tag. Identity was verified on 11.11.2026: each of his 13 Posts embeds or is written from his own channel «אלון לוי - מה קורה
++    // הבורא» (youtube.com/@alonlevifaithfull). Exact author only (no display-name variant, no other author), one Post with no copy,
++    // and the author credit stays the Post's own. The PLAN37 record of this decision is pending (a DB write that needs approval).
++    admission: Object.freeze({ exactAuthorAllPosts: true, decisionRef: "ZURIEL/20261111/series-decision-6", plan37: "PENDING-PLAN37-RECORD" }),
++    relationNote: "כל הפוסטים של אלון לוי (מחבר מדויק) שייכים לסדרה, גם בלי התגית; פוסטים של מחברים אחרים אינם נכללים.",
+   }),
+   Object.freeze({
+     key: "dimension-five",
+@@ -83,7 +88,11 @@ export const CONTENT_SERIES_2029 = Object.freeze([
+       Object.freeze({ field: "categories", value: "מימד חמש" }),
+     ]),
+     exactAuthor: "בדרך לנצח",
+-    relationNote: "סדרת תודעה של בדרך לנצח; טקסט, אודיו ווידאו מותרים. פריטים של מפרסם אחר נשארים לבדיקת מיפוי.",
++    // ZURIEL decision 7 (11.11.2026): dual membership for Posts 5003 (מטריקס) and 5004 (משחקי הדיונון). They stay in the
++    // «הצופן בסרטים» family/category and keep their own author field; no copy and no invented publisher. Only these two ids are
++    // admitted; the other category Posts of other publishers stay out until a separate decision. The PLAN37 record is pending.
++    admission: Object.freeze({ approvedPostIds: Object.freeze([5003, 5004]), decisionRef: "ZURIEL/20261111/series-decision-7", plan37: "PENDING-PLAN37-RECORD" }),
++    relationNote: "סדרת תודעה של בדרך לנצח; טקסט, אודיו ווידאו מותרים. 5003 ו־5004 בשיוך כפול באישור; פריטים אחרים של מפרסם אחר נשארים לבדיקת מיפוי.",
+   }),
+   Object.freeze({
+     key: "sod-hashmal",
+@@ -160,7 +169,37 @@ export function contentSeriesByKey(key) {
+   return CONTENT_SERIES_2029.find(spec => spec.key === key) || null;
+ }
+ 
++// Explicit, bounded admission (`spec.admission`): a short list of approved Post ids, or every Post of the exact author.
++// Never a category, title, channel or display-name inference.
++export function isApprovedSeriesPost(row, spec) {
++  const ids = spec?.admission?.approvedPostIds;
++  const id = Number(row?.id);
++  return Array.isArray(ids) && Number.isSafeInteger(id) && ids.includes(id);
++}
++
++// null = admitted; otherwise the reason it is not (the same reasons the projections already report).
++export function contentSeriesExclusionReason(row, spec) {
++  if (!spec) return "membership_not_exact";
++  if (isApprovedSeriesPost(row, spec)) return null;
++  const allPostsOfAuthor = Boolean(spec.exactAuthor && spec.admission?.exactAuthorAllPosts);
++  if (!allPostsOfAuthor && !hasExactMembership(row, spec)) return "membership_not_exact";
++  if (spec.exactAuthor && row?.author !== spec.exactAuthor) return "author_not_mapped";
++  return null;
++}
++
++export const contentSeriesAdmits = (row, spec) => contentSeriesExclusionReason(row, spec) === null;
++
++// The same admission as one PostgREST `or` filter, so the query and the row check can never disagree.
++export function contentSeriesAdmissionFilter(spec) {
++  const membership = contentSeriesMembershipFilter(spec);
++  const author = spec?.exactAuthor && postgrestValue(spec.exactAuthor) ? `author.eq."${postgrestValue(spec.exactAuthor)}"` : null;
++  let core = membership || null;
++  if (author && spec.admission?.exactAuthorAllPosts) core = author;
++  else if (author && membership) core = membership.includes(",") ? `and(or(${membership}),${author})` : `and(${membership},${author})`;
++  const ids = (Array.isArray(spec?.admission?.approvedPostIds) ? spec.admission.approvedPostIds : []).map(Number).filter(Number.isSafeInteger);
++  return [core, ids.length ? `id.in.(${ids.join(",")})` : null].filter(Boolean).join(",");
++}
++
+ export function contentSeriesKeysForPost(row) {
+-  return CONTENT_SERIES_2029.filter(spec => hasExactMembership(row, spec)
+-    && (!spec.exactAuthor || row?.author === spec.exactAuthor)).map(spec => spec.key);
++  return CONTENT_SERIES_2029.filter(spec => contentSeriesAdmits(row, spec)).map(spec => spec.key);
+ }
+diff --git a/src/lib/research/contentSeries2029Projection.js b/src/lib/research/contentSeries2029Projection.js
+index 3899e8d71..9f404e7ca 100644
+--- a/src/lib/research/contentSeries2029Projection.js
++++ b/src/lib/research/contentSeries2029Projection.js
+@@ -6,7 +6,7 @@ import { publicPostHref } from "../publicPostUrls.js";
+ const clean = (value) => value == null ? "" : String(value).trim();
+ 
+ // Adopted from 780db978a9dce428aef31d9b68cf5437170b1677; shared exact compatibility descriptors keep Home/World and Follow in step.
+-import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesMembershipFilter, hasExactMembership } from "./contentSeries2029Identity.js";
++import { CONTENT_SERIES_2029, contentSeriesAdmissionFilter, contentSeriesByKey, contentSeriesExclusionReason } from "./contentSeries2029Identity.js";
+ export { CONTENT_SERIES_2029, contentSeriesMembershipFilter } from "./contentSeries2029Identity.js";
+ 
+ function isSuppressedPost(row) {
+@@ -174,12 +174,9 @@ export function projectContentSeriesItems(rows = [], spec = {}) {
+   const excluded = [];
+   const seen = new Set();
+   for (const row of Array.isArray(rows) ? rows : []) {
+-    if (!hasExactMembership(row, spec)) {
+-      excluded.push({ id: row?.id == null ? null : String(row.id), reason: "membership_not_exact" });
+-      continue;
+-    }
+-    if (spec.exactAuthor && row?.author !== spec.exactAuthor) {
+-      excluded.push({ id: row?.id == null ? null : String(row.id), reason: "author_not_mapped" });
++    const notAdmitted = contentSeriesExclusionReason(row, spec);
++    if (notAdmitted) {
++      excluded.push({ id: row?.id == null ? null : String(row.id), reason: notAdmitted });
+       continue;
+     }
+     if (isSuppressedPost(row)) {
+@@ -271,14 +268,13 @@ export function buildContentSeriesCatalog2029(results = [], { homeOnly = false }
+ }
+ 
+ async function fetchSeriesPreview(spec, { client, limit, homeOnly, signal }) {
+-  const filter = contentSeriesMembershipFilter(spec);
++  const filter = contentSeriesAdmissionFilter(spec);
+   if (!client || !filter) return { key: spec.key, rows: [], total: null, failed: true };
+   let query = client
+     .from("posts")
+     .select("id,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified,home_hidden,source,link,wp_id", { count: "exact" })
+     .or(filter)
+     .or(publicPostOnlyFilter());
+-  if (spec.exactAuthor) query = query.eq("author", spec.exactAuthor);
+   if (homeOnly) query = query.eq("home_hidden", false);
+   if (signal) query = query.abortSignal(signal);
+   const { data, error, count } = await query
+diff --git a/src/lib/research/postsCatalog2029Projection.js b/src/lib/research/postsCatalog2029Projection.js
+index aca47b1fe..ac5845412 100644
+--- a/src/lib/research/postsCatalog2029Projection.js
++++ b/src/lib/research/postsCatalog2029Projection.js
+@@ -1,7 +1,7 @@
+ import { publicPostHref } from "../publicPostUrls.js";
+ import { getPublicResearchClient } from "./researchViewMode.js";
+ import { canonicalPostCategories } from "../postCategoryIdentity.js";
+-import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesKeysForPost, contentSeriesMembershipFilter, hasExactMembership, seriesShadowedCategories } from "./contentSeries2029Identity.js";
++import { CONTENT_SERIES_2029, contentSeriesAdmissionFilter, contentSeriesAdmits, contentSeriesByKey, contentSeriesKeysForPost, seriesShadowedCategories } from "./contentSeries2029Identity.js";
+ import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./publicPostBoundary.js";
+ import { publicWriterFollowLinks } from "../userCenter/writerPersonal2029.js";
+ import { postsTaxonomyScope2029, postsTaxonomySelection2029, postMatchesTaxonomy2029, postsTaxonomyEvidence2029 } from "./postsTaxonomy2029Route.js";
+@@ -183,10 +183,8 @@ function publicCatalogQuery({ scope, search, client, head = false, includeTotal
+     const values = selection.values.some(value => /[",{}\\]|^null$/i.test(value)) ? selection.arrayLiteral : selection.values;
+     query = query[selection.operator](selection.field, values);
+   }
+-  if (spec) {
+-    query = query.or(contentSeriesMembershipFilter(spec));
+-    if (spec.exactAuthor) query = query.eq("author", spec.exactAuthor);
+-  }
++  // One admission filter (membership + exact author + explicitly approved Post ids) shared with the row check below.
++  if (spec) query = query.or(contentSeriesAdmissionFilter(spec));
+   const term = postsSearch2029(search);
+   // One escaped column filter on the existing public catalog, not a second search index.
+   if (term) query = query.ilike("title", `%${term.replace(/[\\%_*]/g, "\\$&")}%`);
+@@ -203,7 +201,7 @@ function validatePostRows(data, spec, scope = null) {
+   const taxonomy = scope?.kind === "category" || scope?.kind === "tag";
+   if (!Array.isArray(data) || data.some(row => hasSuppressedPublicPostTag(row)
+     || taxonomy && !postMatchesTaxonomy2029(row, scope)
+-    || spec && (!hasExactMembership(row, spec) || spec.exactAuthor && row.author !== spec.exactAuthor))) {
++    || spec && !contentSeriesAdmits(row, spec))) {
+     throw new Error("לא ניתן לאמת את שיוך התוכן.");
+   }
+ }
+diff --git a/test/content-series-2029-projection.test.mjs b/test/content-series-2029-projection.test.mjs
+index 10ef189fa..d8716acd6 100644
+--- a/test/content-series-2029-projection.test.mjs
++++ b/test/content-series-2029-projection.test.mjs
+@@ -7,6 +7,7 @@ import {
+   contentSeriesMembershipFilter,
+   projectContentSeriesItems,
+ } from "../src/lib/research/contentSeries2029Projection.js";
++import { contentSeriesAdmissionFilter } from "../src/lib/research/contentSeries2029Identity.js";
+ 
+ const byKey = Object.fromEntries(CONTENT_SERIES_2029.map((spec) => [spec.key, spec]));
+ 
+@@ -51,14 +52,39 @@ test("membership filters use exact existing tag/category evidence", () => {
+   );
+ });
+ 
+-test("Alon series includes only exact tagged Alon items and never all author material", () => {
++// ZURIEL decision 6 (11.11.2026) replaces the tag-only rule of DEC-SERIES-005: every Post of the exact author belongs to the series.
++test("Alon series includes every Post of the exact author, tagged or not, and never another author or an alias", () => {
+   const projected = projectContentSeriesItems([
+     post("exact", { author: "אלון לוי", tags: ["מה קורה הבורא"] }),
+-    post("other-series", { author: "אלון לוי", tags: ["אחר"] }),
++    post("untagged", { author: "אלון לוי", tags: ["אחר"] }),
+     post("wrong-author", { author: "אדם אחר", tags: ["מה קורה הבורא"] }),
++    post("alias", { author: " אלון לוי ", tags: ["מה קורה הבורא"] }),
+   ], byKey["mah-kore-habora"]);
+-  assert.deepEqual(projected.items.map((item) => item.id), ["exact"]);
+-  assert.deepEqual(projected.excluded.map((item) => item.reason), ["membership_not_exact", "author_not_mapped"]);
++  assert.deepEqual(projected.items.map((item) => item.id), ["exact", "untagged"]);
++  assert.deepEqual(projected.items.map((item) => item.author), ["אלון לוי", "אלון לוי"], "the author credit is the Post's own");
++  assert.deepEqual(projected.excluded.map((item) => item.reason), ["author_not_mapped", "author_not_mapped"]);
++});
++
++// ZURIEL decision 7 (11.11.2026): 5003 and 5004 have dual membership; no other Post of another publisher is admitted.
++test("Dimension Five admits exactly the approved Posts 5003 and 5004 besides the exact publisher", () => {
++  const projected = projectContentSeriesItems([
++    post(5003, { categories: ["מימד חמש", "הצופן בסרטים"] }),
++    post(5004, { categories: ["מימד חמש", "הצופן בסרטים"] }),
++    post(5037, { categories: ["מימד חמש"] }),
++    post(5116, { author: "מדריך לריפוי 10 הספירות", categories: ["מימד חמש", "וידאו"] }),
++    post(5100, { author: "בדרך לנצח", categories: ["מימד חמש"] }),
++  ], byKey["dimension-five"]);
++  assert.deepEqual(projected.items.map((item) => String(item.id)), ["5003", "5004", "5100"]);
++  assert.deepEqual(projected.items.map((item) => item.author ?? null), [null, null, "בדרך לנצח"], "no invented publisher or author");
++  assert.deepEqual(projected.excluded.map((item) => item.reason), ["author_not_mapped", "author_not_mapped"]);
++});
++
++test("the server filter is the same admission as the row rule", () => {
++  assert.equal(contentSeriesAdmissionFilter(byKey["mah-kore-habora"]), 'author.eq."אלון לוי"');
++  assert.equal(contentSeriesAdmissionFilter(byKey["dimension-five"]), 'and(categories.cs.{"מימד חמש"},author.eq."בדרך לנצח"),id.in.(5003,5004)');
++  for (const key of ["reality-map", "sod-hashmal", "messages-from-righteous"]) {
++    assert.equal(contentSeriesAdmissionFilter(byKey[key]), contentSeriesMembershipFilter(byKey[key]), key);
++  }
+ });
+ 
+ test("Dimension Five includes text/audio/video membership only for the approved publisher", () => {
+diff --git a/test/follow-category-series-alignment.test.mjs b/test/follow-category-series-alignment.test.mjs
+index b5cd43ba1..c897b8e12 100644
+--- a/test/follow-category-series-alignment.test.mjs
++++ b/test/follow-category-series-alignment.test.mjs
+@@ -30,12 +30,17 @@ test("series membership is exact and keeps author, publisher and topic separate"
+   assert.deepEqual(contentSeriesKeysForPost(post({ categories: ["רמזים מצדיקים"] })), ["messages-from-righteous"]);
+   assert.deepEqual(contentSeriesKeysForPost(post({ categories: ["אור הגאולה"] })), [], "a source channel is not blanket series membership");
+   assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", tags: ["מה קורה הבורא"] })), ["mah-kore-habora"]);
+-  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", title: "מה קורה הבורא" })), []);
++  // ZURIEL decision 6 (11.11.2026): every Post of the exact author is in the series; a title alone never admits a Post.
++  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", title: "מה קורה הבורא" })), ["mah-kore-habora"]);
++  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אחר", title: "מה קורה הבורא" })), []);
+   assert.deepEqual(contentSeriesKeysForPost(post({ author: null, categories: ["מימד חמש", "הצופן בסרטים"] })), []);
++  // ZURIEL decision 7 (11.11.2026): only the approved ids 5003/5004 get dual membership.
++  assert.deepEqual(contentSeriesKeysForPost(post({ id: 5003, author: null, categories: ["מימד חמש", "הצופן בסרטים"] })), ["dimension-five"]);
++  assert.deepEqual(contentSeriesKeysForPost(post({ id: 5037, author: null, categories: ["מימד חמש"] })), []);
+   assert.deepEqual(contentSeriesKeysForPost(post({ author: "בדרך לנצח", categories: ["מימד חמש"] })), ["dimension-five"]);
+   assert.deepEqual(contentSeriesKeysForPost(post({ author: "אחר", tags: ["סוד החשמל"] })), ["sod-hashmal"]);
+   assert.deepEqual(contentSeriesKeysForPost(post({ author: " אלון לוי ", tags: ["מה קורה הבורא"] })), [], "no unapproved author alias");
+-  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", tags: [" מה קורה הבורא "] })), [], "membership matches the exact server filter");
++  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אחר", tags: [" סוד החשמל "] })), [], "membership matches the exact server filter");
+ });
+ 
+ test("native destination filters reject ambiguous/unknown selections, preserve an approved rename", () => {
+@@ -51,8 +56,9 @@ test("paginated series reader applies membership, author and public filters toge
+   const io = client({ data: [post({ author: "בדרך לנצח", categories: ["מימד חמש"] })], count: 31 });
+   await fetchPostsCatalog2029({ scope: postsCatalogScope2029("series=dimension-five"), page: 2, client: io });
+   assert.ok(io.calls.some(call => call[0] === "or" && call[1].includes("tags.is.null") && call[1].includes("טיוטה,פורום")));
+-  assert.ok(io.calls.some(call => call[0] === "or" && call[1] === 'categories.cs.{"מימד חמש"}'));
+-  assert.ok(io.calls.some(call => call[0] === "eq" && call[1] === "author" && call[2] === "בדרך לנצח"));
++  // membership, exact publisher and the approved ids (decision 7) are one server filter, the same rule as the row check
++  assert.ok(io.calls.some(call => call[0] === "or" && call[1] === 'and(categories.cs.{"מימד חמש"},author.eq."בדרך לנצח"),id.in.(5003,5004)'));
++  assert.ok(!io.calls.some(call => call[0] === "eq" && call[1] === "author"));
+   assert.deepEqual(io.calls.find(call => call[0] === "range"), ["range", 24, 47]);
+   assert.equal(io.calls.filter(call => call[0] === "order").length, 2);
+   assert.ok(!io.calls.find(call => call[0] === "select")[1].includes("content"), "no full corpus/card content download");
+diff --git a/test/post-backgrounds-2029.test.mjs b/test/post-backgrounds-2029.test.mjs
+index 1e6a0e985..c9f459336 100644
+--- a/test/post-backgrounds-2029.test.mjs
++++ b/test/post-backgrounds-2029.test.mjs
+@@ -13,11 +13,13 @@ test('approved series use exact source membership and preserve the existing auth
+ 
+ test('unmapped posts, a title, a slug, a tag alone and a different publisher keep the general background',()=>{
+   for(const post of [null,{}, {slug:'future-dim5',title:'מימד חמש'}, {tags:['מימד חמש'],author:'בדרך לנצח'},
+-    {categories:['מימד חמש'],author:'manifestaffirms'}, {categories:['מה קורה הבורא'],author:'אלון לוי'},
++    {categories:['מימד חמש'],author:'manifestaffirms'}, {categories:['מה קורה הבורא'],author:'אחר'},
+     {categories:['מימד חמש','הצופן בסרטים'],slug:'matrix-506',author:null},
+     {categories:['שבילי שפה']}, {background_url:'https://untrusted.invalid/image.png'}]){
+     assert.equal(postBackground2029(post).key,'general');
+   }
++  // ZURIEL decision 6 (11.11.2026): every Post of the exact author is in the series, also without the tag
++  assert.equal(postBackground2029({categories:['מה קורה הבורא'],author:'אלון לוי'}).key,'mah-kore-habora');
+ });
+ 
+ test('ambiguous series and suppressed content never choose the first matching identity',()=>{
+diff --git a/test/post-classification-2029.test.mjs b/test/post-classification-2029.test.mjs
+index 62ca7cdd3..eb7454726 100644
+--- a/test/post-classification-2029.test.mjs
++++ b/test/post-classification-2029.test.mjs
+@@ -21,7 +21,9 @@ test("an unresolved source classification remains reachable without a series/top
+   assert.deepEqual(result.sourceCategories.map(item => item.name), row.categories);
+   assert.ok(result.items.every(item => item.role === "source-category" && item.href.startsWith("/2029/posts?category=")));
+   assert.deepEqual(postClassification2029({ categories: [], tags: [] }).items, [], "no invented general-series membership");
+-  assert.deepEqual(postClassification2029({ categories: ["מה קורה הבורא"], author: "אלון לוי" }).series, [], "category is not the approved exact series tag");
++  assert.deepEqual(postClassification2029({ categories: ["מה קורה הבורא"], author: "אחר" }).series, [], "a category is not series membership");
++  // ZURIEL decision 6 (11.11.2026): every Post of the exact author belongs to the series
++  assert.deepEqual(postClassification2029({ categories: ["מה קורה הבורא"], author: "אלון לוי" }).series.map(item => item.key), ["mah-kore-habora"]);
+ });
+ 
+ test("tag-only series membership and multiple series keep each existing identity", () => {
+diff --git a/test/posts-follow-targets-2029.test.mjs b/test/posts-follow-targets-2029.test.mjs
+index 8fd3924a0..687f5fee1 100644
+--- a/test/posts-follow-targets-2029.test.mjs
++++ b/test/posts-follow-targets-2029.test.mjs
+@@ -39,16 +39,19 @@ test("failed, malformed and differently resolved targets are unavailable, not ab
+ });
+ test("writer controls require an exact public canonical contributor; generic author text is insufficient", async () => {
+   let calls = 0;
+-  const client = { rpc: async () => { calls++; return { data: "author:אלון לוי" }; } };
++  // the Post is also a series member (decision 6); only the writer row is under test here
++  const client = { rpc: async (name, args) => { if (args.p_entity_type === "author") calls++; return { data: args.p_entity_type === "author" ? "author:אלון לוי" : "series:mah-kore-habora" }; } };
+   const input = { post: post({ author: "אלון לוי" }), client };
+-  assert.equal((await fetchPostFollowTargets2029({ ...input, writerLinks: noWriters }))[0].state, "unavailable");
++  const writer = rows => rows.find(row => row.entityType === "author");
++  assert.equal(writer(await fetchPostFollowTargets2029({ ...input, writerLinks: noWriters })).state, "unavailable");
+   assert.equal(calls, 0);
+-  assert.equal((await fetchPostFollowTargets2029({ ...input, writerLinks: async () => ({ "author:אלון לוי": "/community/researcher/alon" }) }))[0].state, "ready");
++  assert.equal(writer(await fetchPostFollowTargets2029({ ...input, writerLinks: async () => ({ "author:אלון לוי": "/community/researcher/alon" }) })).state, "ready");
+ });
+ test("an unavailable writer lookup leaves independently resolved category targets usable", async () => {
+   const rows = await fetchPostFollowTargets2029({ post: post({ author: "אלון לוי", categories: ["תיעוד אירועים"] }),
+     client: { rpc: async () => ({ data: "cat:תיעוד אירועים" }) }, writerLinks: async () => { throw Error("offline"); } });
+-  assert.deepEqual(rows.map(row => row.state), ["ready", "unavailable"]);
++  assert.equal(rows[0].topic, "series:mah-kore-habora", "every Post of the exact author is in the series (decision 6)");
++  assert.deepEqual(rows.filter(row => row.entityType !== "series").map(row => row.state), ["ready", "unavailable"]);
+ });
+ test("title search uses an escaped column filter alongside public and exact series membership", async () => {
+   assert.equal(postsSearch2029("  מילה  שנייה "), "מילה שנייה");
+@@ -58,6 +61,6 @@ test("title search uses an escaped column filter alongside public and exact seri
+   for (const name of ["select", "or", "eq", "order", "range", "ilike"]) query[name] = (...args) => { calls.push([name, ...args]); return query; };
+   await fetchPostsCatalog2029({ scope: postsCatalogScope2029("series=dimension-five"), search: '50%_",or(x)', client: { from: () => query } });
+   assert.deepEqual(calls.find(([name]) => name === "ilike"), ["ilike", "title", '%50\\%\\_",or(x)%']);
+-  assert.ok(calls.some(c => c[0] === "eq" && c[2] === "בדרך לנצח"));
++  assert.ok(calls.some(c => c[0] === "or" && c[1].includes('author.eq."בדרך לנצח"')));
+   assert.ok(calls.some(c => c[0] === "or" && c[1].includes("טיוטה,פורום")));
+ });
+-- 
+2.43.0
+

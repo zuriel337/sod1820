@@ -1,0 +1,327 @@
+[
+ {
+  "name": "parity metadata md5 deploy_on_request@v3",
+  "pass": true,
+  "detail": "8a4b80b7e9b824e79dca9e229549c1c4"
+ },
+ {
+  "name": "parity description md5 deploy_on_request@v3",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "parity metadata md5 inter_agent_coordination_law@v17",
+  "pass": true,
+  "detail": "982e7976d43d62a7a9b08b8d3a591e6f"
+ },
+ {
+  "name": "parity description md5 inter_agent_coordination_law@v17",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "parity metadata md5 foundation_closure_protocol_law@v7",
+  "pass": true,
+  "detail": "b26961fac416ac5e4775e9a41b6deae8"
+ },
+ {
+  "name": "parity description md5 foundation_closure_protocol_law@v7",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "parity metadata md5 system_suggestions_law@v5",
+  "pass": true,
+  "detail": "aa247fb211e2fec0454cb457dd4fc86d"
+ },
+ {
+  "name": "parity description md5 system_suggestions_law@v5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "parity admin_suggestion_decide pg_get_functiondef md5 = live",
+  "pass": true,
+  "detail": "12961a8c758d5eb86a3d6834bb54ac82"
+ },
+ {
+  "name": "P0 applies cleanly on the reviewed base",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "deploy_on_request: exactly one active row, v4",
+  "pass": true,
+  "detail": "[4]"
+ },
+ {
+  "name": "deploy_on_request: new description md5 matches the reviewed proposal",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "deploy_on_request: supersedes_version = 3",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "deploy_on_request: governed metadata kept (g3/compaction/owner_routing)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "deploy_on_request: v3 kept as inactive history",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "inter_agent_coordination_law: exactly one active row, v18",
+  "pass": true,
+  "detail": "[18]"
+ },
+ {
+  "name": "inter_agent_coordination_law: new description md5 matches the reviewed proposal",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "inter_agent_coordination_law: supersedes_version = 17",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "inter_agent_coordination_law: governed metadata kept (g3/compaction/owner_routing)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "inter_agent_coordination_law: v17 kept as inactive history",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "foundation_closure_protocol_law: exactly one active row, v8",
+  "pass": true,
+  "detail": "[8]"
+ },
+ {
+  "name": "foundation_closure_protocol_law: new description md5 matches the reviewed proposal",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "foundation_closure_protocol_law: supersedes_version = 7",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "foundation_closure_protocol_law: governed metadata kept (g3/compaction/owner_routing)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "foundation_closure_protocol_law: v7 kept as inactive history",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "system_suggestions_law: exactly one active row, v6",
+  "pass": true,
+  "detail": "[6]"
+ },
+ {
+  "name": "system_suggestions_law: new description md5 matches the reviewed proposal",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "system_suggestions_law: supersedes_version = 5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "system_suggestions_law: governed metadata kept (g3/compaction/owner_routing)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "system_suggestions_law: v5 kept as inactive history",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "codex publishing_conventions: body md5 matches proposal",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "codex publishing_conventions: updated_at refreshed",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "codex branches_deploy: body md5 matches proposal",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "codex branches_deploy: updated_at refreshed",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: STANDING AUTHORIZATION\\. ZURIEL grants standing",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: RELEASE WHEN READY, NOT WHEN ASKED",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: A separate “תעלה” \\/ “העלה” message is no longer required",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: proceeds through merge\\/migration\\/deploy\\/live verification",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: standing Human-Gate authorization under deploy_on_request v2",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: may be released only after[^.]*under deploy_on_request v2",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: כל push ל-main = פריסת Vercel",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text grants standing release authorization: “תעלה” REMAINS AN OVERRIDE\\/EXPEDITE COMMAND, NOT A REQUIRED",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active metadata asserts standing_auto_release=true without a revoked marker",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text treats Legacy as Production: CURRENT PRODUCTION = legacy\\/transitional until ex",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text treats Legacy as Production: main` = production\\.",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text treats Legacy as Production: מכבדים את היעד שנקבע \\(Legacy, 2029, או אחר\\)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "no active text treats Legacy as Production: לרבות Legacy אם הוזכר",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "deploy_on_request: Raziel's 600-char window states explicit approval + 2029",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "deploy_on_request: canary gate preserved",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "modified-date requirement kept for 2029 (re-scoped, not dropped)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "admin_suggestion_decide proposal applies and verifies its own md5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "admin_suggestion_decide: new advice text emitted (READY_FOR_APPROVAL, no AUTO_RELEASE_NOW)",
+  "pass": true,
+  "detail": "PATCH/MINOR: branch/PR preparation only; after exact-head gates the release advice is READY_FOR_APPROVAL: merge and depl"
+ },
+ {
+  "name": "admin_suggestion_decide: provenance cites v4/v18",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "admin_suggestion_decide rollback restores the live definition",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "P0 rollback runs",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback deploy_on_request: base v3 active again with base md5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback inter_agent_coordination_law: base v17 active again with base md5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback foundation_closure_protocol_law: base v7 active again with base md5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback system_suggestions_law: base v5 active again with base md5",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback codex publishing_conventions: base body restored",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "rollback codex branches_deploy: base body restored",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "re-applying after rollback is refused (version above base exists) — no double version",
+  "pass": true,
+  "detail": "P0 deploy_on_request: a version above v3 already exists"
+ },
+ {
+  "name": "no row was deleted at any step (rules: base + predecessor + new)",
+  "pass": true,
+  "detail": "12"
+ },
+ {
+  "name": "drift in publishing_conventions refuses the batch",
+  "pass": true,
+  "detail": "P0 codex publishing_conventions: body drift (md5 f78acb8c5161f040dfc9a0e80cf0bcaf)"
+ },
+ {
+  "name": "after refusal nothing changed (all base versions still active)",
+  "pass": true,
+  "detail": "[{\"rule_id\":\"deploy_on_request\",\"v\":3},{\"rule_id\":\"foundation_closure_protocol_law\",\"v\":7},{\"rule_id\":\"inter_agent_coordination_law\",\"v\":17},{\"rule_id\":\"system_suggestions_law\",\"v\":5}]"
+ }
+]

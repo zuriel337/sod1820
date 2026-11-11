@@ -21,7 +21,9 @@ test("an unresolved source classification remains reachable without a series/top
   assert.deepEqual(result.sourceCategories.map(item => item.name), row.categories);
   assert.ok(result.items.every(item => item.role === "source-category" && item.href.startsWith("/2029/posts?category=")));
   assert.deepEqual(postClassification2029({ categories: [], tags: [] }).items, [], "no invented general-series membership");
-  assert.deepEqual(postClassification2029({ categories: ["מה קורה הבורא"], author: "אלון לוי" }).series, [], "category is not the approved exact series tag");
+  assert.deepEqual(postClassification2029({ categories: ["מה קורה הבורא"], author: "אחר" }).series, [], "a category is not series membership");
+  // ZURIEL decision 6 (11.11.2026): every Post of the exact author belongs to the series
+  assert.deepEqual(postClassification2029({ categories: ["מה קורה הבורא"], author: "אלון לוי" }).series.map(item => item.key), ["mah-kore-habora"]);
 });
 
 test("tag-only series membership and multiple series keep each existing identity", () => {

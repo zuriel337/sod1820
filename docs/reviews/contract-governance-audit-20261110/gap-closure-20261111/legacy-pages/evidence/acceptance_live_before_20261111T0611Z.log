@@ -1,0 +1,8 @@
+FAIL  /heichal.html continues permanently to /heichal on the same origin — 200 (no location)
+PASS  /heichal is the 2029 Heichal document (closed notice 503 while closed, or 200 once opened), not the Legacy hall — 503 "ההיכל · SOD1820"
+FAIL  /preview.html answers the 2029 404, not indexed, without the Legacy mockup — 200 "סוד 1820 — היכל"
+FAIL  /heichal-theme.mp3 is no longer served — 200
+PASS  unchanged: the ELS tool embed /tzofen.html still loads in a frame — 200
+PASS  unchanged: opening /tzofen.html as a page still continues to /code — 307 /code
+
+3/6 PASS · https://sod1820.co.il · 2026-11-11T06:11:07.936Z

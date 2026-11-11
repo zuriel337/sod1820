@@ -1,0 +1,152 @@
+ישות זהב (metadata.tier=gold) = הדרגה הגבוהה ביותר בתוצאות, מעל weight 1-5 הרגיל. החוק: nodes type=rule, rule_id=golden_entity_law.
+סימון: כוכב/סמל זהב + מסגרת זהב, ומוקפצת לראש בכל מקום שמופיע המספר שלה (metadata.value).
+מופעים נדרשים: /cross, /number/<value>, דף הישות, וגם פוסט/תגית שמכילים את המספר — בכולם צריך לראות את ישות הזהב.
+שמורה אך ורק לפלאים חשבוניים סגורים שאי אפשר לסתור. דרגה עתידית שמורה: tier=diamond (מעל זהב).
+
+חברת הזהב הראשונה: "סוד אלף שמונה מאות עשרים כי לה המלוכה" = 1820 ברגיל (חתימת המערכת; השם המלא של האתר עולה בדיוק למספר הופעות שם ה׳ בתורה). מקושרת ל-gematria_word source='sod1820' (החתימה המקורית של צוריאל). מטא: tier=gold, display='כי לה׳ המלוכה', world='חתימת המערכת', value=1820. בונוס: סידורי=326 (ממספרי ההתכנסות).
+זיהוי ב-SQL: select * from nodes where type='entity' and metadata->>'tier'='gold';
+
+ישויות-על / חתימות 1820 (role=signature, world="חתימות 1820", tier=gold): 👑 חתימת האתר "סוד אלף שמונה מאות עשרים כי לה המלוכה"=1820 · 📜 חתימת המחקר "מספר שמות יהוה בכל התורה"=1820 (גם גדול). מתכנסות לאותו מספר = "טבעת חתימות". אזהרת אמת: ערך הגימטריה=עובדה מחושבת; טענה היסטורית נלווית (מספר הופעות בתורה) טעונה מקור נפרד. חוק: golden_entity_law v2.
+
+[היסטורי — goldTier.js, GematriaCalculator, GematriaCalculator3D, /cross ודף בית המדרש הישן הוסרו עם Legacy ב-5.11.2026; היישום הנוכחי של «זהב-ראשון» ב-2029 לא אומת בסבב זה] שכבת זהב משותפת: src/lib/goldTier.js (useGold + sortGoldFirst), מקור יחיד שמזהה tier=gold (labels + values). מוחל ל"זהב-ראשון + כוכב": /cross, דף המספר (מילים שוות), בית המדרש (עוגנים+תגית), GematriaCalculator. נותר להחיל גם על GematriaCalculator3D וחיפוש כללי.
+
+---
+
+## GOLD AXIS MODEL · 604 · Human Gate ZURIEL · 2026-09-23
+
+EXTEND_EXISTING — no Gold store, graph, registry or scoring system.
+
+Gold is not inherited by every numerical match. Gold is Human Curation attached to a qualified core identity/anchor. The surrounding verified calculation relations are witnesses of that Gold axis.
+
+### First canonical example: 604
+- Number 604 → tier=gold, role=anchor
+- תדר → Gold core identity
+- משיח בן דוד → Gold core identity
+- canonical engine:
+  - תדר = 604 in ragil
+  - משיח בן דוד = 604 in misratar
+  - משיח בן דוד = 424 in ragil
+- existing typed graph edges equals_word and equals_by_depth carry the calculation identity and are curated as gold_witness.
+
+### Growth rule
+When new methods/engines/corpus work discover additional verified expressions that converge on 604, those results may automatically join the witness field through the canonical engine/graph/convergence flow. They do not become Gold identities merely by matching 604.
+
+AI may:
+- discover a new witness;
+- explain which method produced it;
+- compare evidence independence/dependency;
+- recommend a witness for Human promotion.
+
+AI may not:
+- assign tier=gold;
+- infer Gold from match count/popularity;
+- turn every witness into a core identity.
+
+Only ZURIEL/Human Gate promotes another stable identity/anchor to Gold.
+
+### Projection meaning
+A Gold Axis should render as:
+core anchor / core identities first → bounded verified witnesses → why this axis matters → next research action.
+Do not dump every equality by default. Contextual Prominence / Silence Gate chooses what is worth showing.
+
+### David / Gold semantic calibration
+Canonical engine verifies דוד=14 and זהב=14. This is a SOD1820 semantic calibration for the Gold vocabulary, not an automatic rule that every item mentioning David/redemption becomes Gold.
+
+
+---
+
+## GOLD CORE · דוד / גאולה · Human Gate ZURIEL · 2026-09-23
+
+Approved Gold Core identities:
+דוד · גאולה · משיח · בן דוד · משיח בן דוד · תדר · ביאת המשיח · גאולה שלמה · מלך הגאולה · גואל ישראל · שורש דוד בן ישי · התגלות משיח · תשועת יהוה · קיבוץ גלויות · בית המקדש השלישי · תחיית המתים.
+
+These are Human-curated core identities, not automatic outcomes of numeric matching. Each retains its own canonical calculations, provenance, graph relations and truth axes.
+
+Semantic calibration:
+- דוד = 14
+- זהב = 14
+This supports the internal Gold vocabulary of the David/Geula family but does not auto-promote every David/Geula expression.
+
+Witness rule remains:
+method-specific equalities / discoveries / crossings may support a Gold identity or Gold Anchor without inheriting tier=gold.
+
+
+---
+
+## HUMAN CURATION v4 · DIAMOND CROWN / GOLD AXIS · Human Gate ZURIEL · 2026-09-23
+
+### Active hierarchy
+- DIAMOND CORE — exceptionally rare Crown Signature identities, Human Gate only.
+- DIAMOND WITNESS — typed source/calculation/structure/time/corpus support around a Crown; no tier inheritance.
+- GOLD CORE — Human-curated core identity/anchor.
+- GOLD WITNESS — typed support around Gold; no tier inheritance.
+- SILVER — preserved legacy curation; meaning TBD after census.
+- REGULAR — all other qualified identities/findings remain fully valid in the One Reality Graph.
+
+### Current Diamond Crown
+Crown Anchor: 1820.
+Exactly two Diamond Core identities:
+1. סוד אלף שמונה מאות עשרים כי לה המלוכה
+2. מספר שמות יהוה בכל התורה
+
+The Number 1820 is Crown Anchor, not a third Diamond.
+
+### Current 1820 Diamond Witness classes
+- SOURCE — אהבת תורה, HebrewBooks 5635, p.6 / DS-01: book subtotals 165+398+311+396+550=1820.
+- CALCULATION / STRUCTURE — סוד=70 and יהוה=26 → 70×26=1820, plus governed arithmetic relations.
+- TIME / REVELATION — עת, המשיח בימינו, זה היום עשה יהוה at 1820 through canonical methods.
+- CORPUS GEMATRIA CLUSTER — seven independently replayed regular-gematria expressions at 1820 from post 5009.
+- SPATIAL STRUCTURE — Birkat Kohanim outer-frame sum = 1820 in regular gematria.
+
+These Witnesses strengthen/explain the Crown but remain their native Source/Finding/Calculation identities. They do not become Diamond Core and do not inherit tier=diamond.
+
+### Growth law
+Future verified 1820 hits may join the Diamond Witness field through existing Engine/Graph/Research flows. They remain witnesses until ZURIEL explicitly promotes a stable identity to Diamond Core. No amount of match count automatically creates a new Diamond.
+
+
+---
+
+## GOLD NUMBER ANCHORS · CORE IDENTITY SPLIT · Human Gate ZURIEL · 2026-09-23
+
+Semantic lock:
+- Gold Entity = stable semantic core identity; role=core_identity.
+- Gold Number Anchor = numeric research center; type=number, tier=gold, role=anchor.
+- Witness = typed relation/finding that states how an identity reaches a Number Anchor, preserving exact method/source/provenance.
+- Crown Anchor = higher presentation role currently used by 1820; the number itself is not a Diamond Core identity.
+
+Approved Gold Number Anchors:
+14 · 45 · 358 · 424 · 604 · 776 · 1202.
+
+Current examples:
+- דוד —[רגיל]→ 14
+- גאולה —[רגיל]→ 45
+- משיח —[רגיל]→ 358
+- משיח בן דוד —[רגיל]→ 424
+- משיח בן דוד —[מסתתר]→ 604
+- תדר —[רגיל]→ 604
+- ביאת המשיח —[רגיל]→ 776
+- התגלות משיח / תשועת יהוה —[רגיל]→ 1202
+
+Numbers 140 · 420 · 581 · 1192 · 1323 · 1516 remain ordinary Number identities for now even though a Gold Core Identity currently has that value. A Gold Entity does not automatically promote its numeric value to a Gold Number Anchor.
+
+14 is explicitly anchored as 14 = דוד = זהב. Canonical engine replay verified דוד=14 and זהב=14 in regular Gematria.
+
+One identity may connect to several Number Anchors through different methods. One Number Anchor may gather several identities. Number and identity never collapse into each other.
+
+
+---
+
+## 2029 PROJECTION CONTRACT · CURATION MARKS / TREASURES · Human Gate ZURIEL · 2026-09-24
+
+This is presentation-only and 2029-only.
+
+- Diamond Core identity: always exposes Diamond mark when the identity is surfaced.
+- Gold Core identity: always exposes Gold mark when the identity is surfaced.
+- Gold Number Anchor: exposes Gold Anchor mark when the Number itself is surfaced as a curated research center.
+- Crown Anchor 1820: crown-anchor presentation; never counted/rendered as a third Diamond identity.
+- Diamond/Gold Witness: does not inherit Core tier mark; may expose a secondary “linked to / witness of” hint.
+- Clicking a curation mark explains the class, why it was curated, its Anchor/Core relation and a bounded witness preview.
+- Full collection is on-demand and grouped separately: Diamonds / Gold Core / Number Anchors. Witnesses stay contextual under the selected item. Silver is omitted until its semantics are decided.
+- Number2029 remains compact: local curation only + one disclosure entry; never dump the full global collection into the page.
+
+Global projection reads the existing One Reality Graph and curation metadata. It creates no new store.

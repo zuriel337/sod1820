@@ -1,0 +1,7 @@
+SOD1820 הוא אתר תוכן בעברית סביב גאולה, גימטריה, צפנים ורמזי אחרית-הימים. "1820" = מספר היסוד (שם ה׳ בתורה מופיע 1820 פעם; פוסט היסוד wp_id=17).
+
+סטאק טכני: React 18 + Vite, פרוס ב-Vercel. נתונים מ-Supabase (project id: linswmnnkjxvweumprav). בדיקת build: `npm run build`.
+פריסה: רק ענף `main` נפרס לפרודקשן ב-Vercel. ענפי feature (claude/*) לא נפרסים — משמשים לפיתוח/Preview. כדי להעלות עבודה מענף — ממזגים ל-main.
+דומיין: sod1820.co.il. יש wp.sod1820.co.il (וורדפרס מקורי) שממנו היגרו פוסטים; חלק מהמדיה מוגשת דרכו (rewrite ב-vercel.json) ותמונות הועתקו ל-Storage של Supabase.
+
+עורך/בעלים: צוריאל ([REDACTED: owner email]). הקוד הישן הגדול נמצא ב-src/legacy/legacy.jsx (דפי פוסט, קטגוריה, צור-קשר, בית-מדרש ועוד). הקוד החדש מחולק ל-src/pages, src/components, src/lib.

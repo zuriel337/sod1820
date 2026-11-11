@@ -1,0 +1,6 @@
+--- project_codex#15:convergence_law.body (base)
++++ project_codex#15:convergence_law.body (proposed)
+@@ -23,2 +23,2 @@
+ 
+-קבצים: src/pages/TopicPage.jsx, src/components/ConvergenceAxis.jsx, src/lib/topicCards.js, src/pages/CrossMethodPage.jsx, src/pages/EntityPage.jsx, src/pages/BeitMidrashPage.jsx, src/components/layout/LiveActivityBar.jsx.
++[היסטורי — כל הקבצים ברשימה הוסרו עם Legacy ב-5.11.2026] קבצים: src/pages/TopicPage.jsx, src/components/ConvergenceAxis.jsx, src/lib/topicCards.js, src/pages/CrossMethodPage.jsx, src/pages/EntityPage.jsx, src/pages/BeitMidrashPage.jsx, src/components/layout/LiveActivityBar.jsx.

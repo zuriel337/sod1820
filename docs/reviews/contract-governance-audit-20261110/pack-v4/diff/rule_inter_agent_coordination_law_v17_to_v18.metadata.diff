@@ -1,0 +1,38 @@
+--- nodes:inter_agent_coordination_law@v17→v18.metadata (base)
++++ nodes:inter_agent_coordination_law@v17→v18.metadata (proposed)
+@@ -56,2 +56,4 @@
+   "owner_check": "EXTEND_EXISTING",
++  "status": "HISTORICAL_PRE_CUTOVER",
++  "superseded_by": "v18_2029_production_explicit_release",
+   "target_architecture": "2029"
+@@ -73,2 +75,4 @@
+   "standing_auto_release": true,
++  "status": "STANDING_AUTO_RELEASE_REVOKED_2026-11-10",
++  "superseded_by": "v18_2029_production_explicit_release",
+   "user_hold_overrides": true
+@@ -146,2 +150,25 @@
+   "recipient": "ZURIEL"
++ },
++ "v18_2029_production_explicit_release": {
++  "current_production": "2029",
++  "decision_text": "כל מיזוג ל-main וכל פריסה ל-Production דורשים אישור מפורש שלי לפעולה המסוימת. אין הרשאה עומדת.",
++  "explicit_approval_per_merge_and_deploy": true,
++  "human_gate": "ZURIEL 2026-11-10",
++  "label_corrected": "label read 'v16' while rule_version was 17",
++  "legacy_is_current_production_runtime": false,
++  "legacy_retired": "2026-11-05",
++  "no_new_system": true,
++  "owner_check": "EXTEND_EXISTING",
++  "production_since": "2026-11-04",
++  "release_advice_state_aliases": {
++   "AUTO_RELEASE_NOW": "READY_FOR_APPROVAL"
++  },
++  "release_advice_states": [
++   "READY_FOR_APPROVAL",
++   "BUNDLE_WITH",
++   "BLOCKED_BY",
++   "SAFE_INDEPENDENT_WAITING_RUNTIME",
++   "DO_NOT_RELEASE_SUPERSEDED/PARKED"
++  ],
++  "standing_auto_release": false
+  },

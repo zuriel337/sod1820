@@ -1,0 +1,658 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 40d54837a..e2be0c198 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -13,7 +13,7 @@
+ ## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
+ 
+ **אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
+-החוק הפעיל `inter_agent_coordination_law v17` מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
++החוק הפעיל `inter_agent_coordination_law v18` (נושא את כלל הדיווח של v17 ללא שינוי) מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
+ All agents report to ZURIEL in their active user conversation and write passive work_log records with to_actor=ZURIEL and dispatch_kind/state=NULL. No GPT-directed assignments, RESULT_WAKE, ACK waits or delivery retries. Do not automatically activate another agent to satisfy a reporting requirement; new activation requires explicit user instruction.
+ **ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
+ 
+diff --git a/AGENT_HANDOFF.md b/AGENT_HANDOFF.md
+index 7fdc3b908..5d69edc4a 100644
+--- a/AGENT_HANDOFF.md
++++ b/AGENT_HANDOFF.md
+@@ -3,7 +3,7 @@
+ ## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
+ 
+ **אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
+-החוק הפעיל `inter_agent_coordination_law v17` מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
++החוק הפעיל `inter_agent_coordination_law v18` (נושא את כלל הדיווח של v17 ללא שינוי) מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
+ All agents report to ZURIEL in their active user conversation and write passive work_log records with to_actor=ZURIEL and dispatch_kind/state=NULL. No GPT-directed assignments, RESULT_WAKE, ACK waits or delivery retries. Do not automatically activate another agent to satisfy a reporting requirement; new activation requires explicit user instruction.
+ **ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
+ Historical records are retained. No product semantics, visual ownership or release permission is changed. The live database guard blocks GPT delivery; repository changes do not authorize a site deployment.
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 64cd0a573..c09a4f3d0 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -86,7 +86,7 @@
+ ## הוראה מחייבת — מדווחים לצוריאל בלבד (v17, 14.10.2026)
+ 
+ **אין לשלוח הודעות ל-GPT. אין להמתין ל-ACK מ-GPT.**
+-החוק הפעיל `inter_agent_coordination_law v17` מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
++החוק הפעיל `inter_agent_coordination_law v18` (נושא את כלל הדיווח של v17 ללא שינוי) מחליף כל הוראת מסירה סותרת בהמשך מסמך זה ובמסמכי תיאום ישנים.
+ All agents report to ZURIEL in their active user conversation and write passive work_log records with to_actor=ZURIEL and dispatch_kind/state=NULL. No GPT-directed assignments, RESULT_WAKE, ACK waits or delivery retries. Do not automatically activate another agent to satisfy a reporting requirement; new activation requires explicit user instruction.
+ **ONE FILE / SCOPE — ONE ACTIVE WRITER remains mandatory.** Read relevant current ownership before editing; use isolated branches/worktrees. Do not overwrite overlapping work or treat branch isolation as ownership transfer. A real conflict is reported to ZURIEL; independent work continues. Record scope, exact base/head, files, outcome and tests in one bounded BEFORE/AFTER batch. No per-step message chatter.
+ Historical records are retained. No product semantics, visual ownership or release permission is changed. The live database guard blocks GPT delivery; repository changes do not authorize a site deployment.
+diff --git a/SOD1820_CONTENT_FOUNDATION_CONTRACT.md b/SOD1820_CONTENT_FOUNDATION_CONTRACT.md
+index 5f0074cf9..a2d811e74 100644
+--- a/SOD1820_CONTENT_FOUNDATION_CONTRACT.md
++++ b/SOD1820_CONTENT_FOUNDATION_CONTRACT.md
+@@ -2,11 +2,11 @@
+ 
+ > **מטרה:** לסגור חוזה-Foundation **מינימלי, מדויק וניתן-להרחבה** למימד-חמש + Content Taxonomy + Media/Representation + Multilingual Video — כך שנוכל להמשיך ל-Posts Program **בלי redesign / migration / identity-break**.
+ >
+-> **סטטוס:** `FOUNDATION CANONICALIZED` (26.8.2026 — approved-in-principle ZURIEL/GPT + תיקון-אחד, ר' §5). ה-canonicalization הוחל **חי** על `nodes`/`project_codex` (§8 — עדכון אדיטיבי, rule_versioning). קבצי-מסמך (חוזה/CLAUDE.md/Roadmap-anchor) על **ענף-בלבד, לא-מוזג, לא-פרוס**.
++> **סטטוס:** `FOUNDATION CANONICALIZED` (26.8.2026 — approved-in-principle ZURIEL/GPT + תיקון-אחד, ר' §5). ה-canonicalization הוחל **חי** על `nodes`/`project_codex` (§8 — עדכון אדיטיבי, rule_versioning). קבצי-מסמך (חוזה/CLAUDE.md/Roadmap-anchor) היו ב-26.8.2026 על **ענף-בלבד, לא-מוזג, לא-פרוס**; המסמך נמצא כיום ב-main (עדכון 11.11.2026).
+ >
+ > **Human-Gate:** כל 8 ההחלטות = **מאושרות ע"י ZURIEL**. תיקון-review יחיד הוחל ב-26.8.2026 על ייצוג «מימד חמש»; **הוחלף ב-6.11.2026 בהפניה ל-PLAN37 ולקוד הקנוני (§5)**. נשאר בתוקף: **אין כלל המחייב Series להיכתב גם כ-Category**.
+ 
+-> **עדכון 6.11.2026 (תכנוני בלבד · ענף-בלבד · לא-מוזג · לא-פרוס):** נוסף §12 — הבחנה מחייבת בין סדרות, מפת-המציאות, זרם-המציאות וחלונית-הרמזים, ושישה צירי-סיווג נפרדים. §1–§11 נשארים כתיעוד-היסטורי של 26.8.2026; כל סתירה מדווחת ב-§12.7 ולא נפתרת בשקט.
++> **עדכון 6.11.2026 (תכנוני בלבד · נכתב בענף; המסמך מוזג מאז ל-main — ראו PR #1278):** נוסף §12 — הבחנה מחייבת בין סדרות, מפת-המציאות, זרם-המציאות וחלונית-הרמזים, ושישה צירי-סיווג נפרדים. §1–§11 נשארים כתיעוד-היסטורי של 26.8.2026; כל סתירה מדווחת ב-§12.7 ולא נפתרת בשקט.
+ 
+ ---
+ 
+@@ -180,7 +180,7 @@ collision-check חי: workstream-המחקר (Shared Expression v1) **מוזג+ה
+ 
+ ---
+ 
+-## 12. עדכון 6.11.2026 — תוכן-ליבה, סדרות, מפת-המציאות וחלונית-הרמזים  [תכנון + מימוש בענף, ללא מיזוג/פריסה · ממתין ל-Human Gate]
++## 12. עדכון 6.11.2026 — תוכן-ליבה, סדרות, מפת-המציאות וחלונית-הרמזים  [תכנון + מימוש שלבי · נכתב בענף ומוזג ל-main ב-PR #1278 · מצב פריסה ושלבים נוספים: לבדוק מול Vercel ו-Human Gate]
+ 
+ > **היקף:** חוזה/תכנון, והמימוש השלבי שבענף מתועד ב-§12.9. אין שינוי DB, API, פוסטים, סיווגים או פרודקשן. כל ההפניות לבעלים מצביעות על בעלים קיימים; מסמך זה אינו מקור-אמת חלופי להם.
+ 
+@@ -243,6 +243,8 @@ collision-check חי: workstream-המחקר (Shared Expression v1) **מוזג+ה
+ | **משחקי הדיונון** (5004) | מימד חמש · הצופן בסרטים | — | אין | כנ"ל |
+ | **5009** עטרת תפארתכם = 1820 | סוד 1820 · סוד האותיות והמספרים | — | אין | התגית «גאולה» אינה סיווג-רמז (§12.4) |
+ 
++> **עדכון 11.11.2026 — החלטות צוריאל 6–7 (הרישום ב־PLAN37 ממתין לאישור DB: `50_plan37_series_decisions_6_7.sql`):** «מה קורה הבורא» = כל פוסט ציבורי שהמחבר שלו בדיוק «אלון לוי» (13 פוסטים; הזהות אומתה מול ערוץ היוטיוב שלו), גם בלי התגית. 5003 ו־5004 בשיוך כפול ל«מימד חמש», והם נשארים ב«הצופן בסרטים»; שדה המחבר לא שונה ואין עותקים. לגבי אלה, ההחלטות מחליפות את כלל ״תגית בלבד״ של DEC-SERIES-005 ואת ההוצאה שב־DEC-SERIES-003. הטבלה שלמעלה היא תצלום מ־6.11 ונשארת כפי שהיא. מימוש בענף: `admission` ב־`contentSeries2029Identity.js`, וכלל אחד לשאילתה ולבדיקת השורה.
++
+ - קשרים קיימים (נבדק 6.11.2026 בקריאה בלבד, ר' טבלאות `research_objects`/`world_contributor_research_v1` לפי `source_ref`, `post_gematria_links`, `post_qa`, `post_revisions`, `news_ticker*`, `entity_links`, `edges.metadata`, `nodes.metadata`): **5018, 5084 ו-5009** מחוברים לשורת `research_objects` אחת כל אחד במצב `candidate` (`source_ref` = `posts:<id>#…`), שנוצרה ב-backfill של 7.10.2026; **5003 ו-5004 — לא נמצא קשר**. אין edge/entity_link/nodes לאף אחד מהחמישה. ללא שינוי; קשר `candidate` אינו אישור, אינו סדרה ואינו סיווג-רמז (§12.4).
+ - אין להכניסם אוטומטית לחלונית-הרמזים. אין למחוק אף פוסט.
+ 
+diff --git a/SOD1820_DESIGN_CONTRACT_V2.md b/SOD1820_DESIGN_CONTRACT_V2.md
+index 651055258..eaf02131a 100644
+--- a/SOD1820_DESIGN_CONTRACT_V2.md
++++ b/SOD1820_DESIGN_CONTRACT_V2.md
+@@ -1,7 +1,7 @@
+ # SOD1820 DESIGN CONTRACT V2
+ 
+ **Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026; shared icon color resolution and state precedence approved 25.10.2026; balanced RTL composition approved 26.10.2026
+-**Owner:** experience_governance_foundation_v1_law v9 → canonical_colors_law / canonical_ui_components_law / Brand Core
++**Owner:** experience_governance_foundation_v1_law (active version; v9 when written) → canonical_colors_law / canonical_ui_components_law / Brand Core
+ **Verdict:** SUPERSEDE_EXISTING for the 2029 web product visual foundation. V1 remains historical/Legacy provenance.
+ 
+ ## 1. Product goal
+@@ -19,7 +19,7 @@ User presets:
+ 
+ These are three projections of the same semantic roles, not three design systems.
+ 
+-Legacy binary consumers may continue to read light/dark. Parchment projects as light to Legacy compatibility. New 2029 UI reads the full preset.
++2029 UI reads the full preset. (Historical: until the Legacy removal of 5.11.2026, Legacy binary consumers read light/dark and Parchment projected as light for Legacy compatibility; those consumers no longer exist.)
+ 
+ ## 3. 2029 color identity
+ Primary identity colors:
+@@ -49,7 +49,7 @@ Modern Day follows the light color treatment of review option 7, with cool white
+ 
+ Across Home, World, Post, Calculator, ELS, Heichal and personal panels: thin polished borders, restrained translucency, readable cream/white text in Night, and short transform/opacity feedback respecting reduced motion. The original full Crown lockup and sapphire/gold artwork remain unchanged. Purple supplies depth and Raziel presence; cyan supplies discovery/focus. Status colors remain owned semantic roles.
+ 
+-This refinement extends this existing contract and `palette.js`, without a new theme store, page palette or primary plan. Legacy palettes remain intact. Branch/Preview acceptance does not imply a production cutover.
++This refinement extends this existing contract and the canonical 2029 palette (`src/lib/paletteTokens2029.js` + `src/lib/palette2029.js`; the former `palette.js` and the Legacy palettes were removed on 5.11.2026), without a new theme store, page palette or primary plan. Branch/Preview acceptance does not imply a Production release; every merge and deployment needs ZURIEL's explicit approval.
+ 
+ Exact component mixtures come from the palette owner; page-local copies are forbidden.
+ 
+@@ -101,7 +101,7 @@ Browser acceptance must inspect computed styles, not only source declarations:
+ - at desktop width (reference: **1440px**), meaningful supporting sentences are at least 15px, UI/control labels are at least 16px and body copy is at least 18px;
+ - at **320px and 390px**, no meaningful text falls below the 14px global floor and controls retain at least 44×44px targets;
+ - representative mixed Hebrew/numeric values prove that Hebrew resolves to the UI/body family and only the numeric run resolves to the numeric family;
+-- density changes introduce no horizontal page overflow and do not alter truth, publication, privacy, navigation or Legacy behavior.
++- density changes introduce no horizontal page overflow and do not alter truth, publication, privacy or navigation behavior.
+ 
+ ### 5.4 Hebrew display weight and optical density · Preview proposal 23.10.2026
+ 
+@@ -126,7 +126,7 @@ An environment must never force a fourth theme or silently override the user pre
+ - **Night / default product:** Global Chrome, Home, World, Posts, Calculator, Community, Journey and ordinary content surfaces retain the selected deep black + warm black-brown + restrained Crown-gold atmosphere. The shared precision finish is thin polished borders, controlled radius and compact readable content (§4, §8). Do not restyle these surfaces blue just because Number uses blue.
+ - **Night / Number identity:** The canonical `/2029/number/:value` content surface intentionally uses a *deep sapphire/navy research-blue* atmosphere (canvas, bounded cards, subtle focus and spatial depth) instead of the default black-brown content canvas. The numeric expression/value, verified calculation methods, relations and existing layer-depth visualization are the hero; keep these data live. The user-reviewed Number 1820 capture on 13.10.2026 guides the atmospheric direction, **not** a mandate to copy Legacy layout, large radii or heavy frames. Exact accessible values are calibrated in Preview by the single palette owner.
+ - **Contextual Number:** Opening the existing Number window/inspector from a Post, Calculator, World or another host projects the same *scoped Number research-blue* **inside the Number content area only**. The host page and Global Chrome keep their selected preset and ambient identity. Reuse the existing contextual Number owner; preserve expression, method, Research Context and exact return. Never add a competing drawer, palette provider or navigation system.
+-- **Shared Research Lab guard:** `RESEARCH_LAB` is also used by Books, Heichal and ELS. Do **not** turn every `research_lab` environment blue. Resolve the Night Number-focused variant using a semantic **Number surface/Number-inspector scope** through the existing `src/lib/palette.js`, `themeMode.js` and System Frame consumers. Pages consume shared palette roles / frame CSS variables rather than redefining hex values locally; coordinate the palette-token owner once across concurrent work.
++- **Shared Research Lab guard:** `RESEARCH_LAB` is also used by Books, Heichal and ELS. Do **not** turn every `research_lab` environment blue. Resolve the Night Number-focused variant using a semantic **Number surface/Number-inspector scope** through the existing 2029 palette (`src/lib/paletteTokens2029.js` / `palette2029.js`), the theme preset store (`src/lib/themePreset2029.js`) and System Frame consumers (`palette.js` and `themeMode.js` were removed on 5.11.2026). Pages consume shared palette roles / frame CSS variables rather than redefining hex values locally; coordinate the palette-token owner once across concurrent work.
+ - **Day and Parchment:** Retain the approved Modern Day and Parchment identities and the user's selected three-mode control `יום | קלף | לילה`. Number remains a research experience in both modes, but the Night blue override must not replace their backgrounds or user preference.
+ - **Semantic and accessibility safeguards:** Royal-blue actions, violet/Raziel depth, cyan discovery, Crown sapphire/gold identity and true status/research-strength indicators keep their existing separate meanings. A blue Number backdrop, light/glow and gold decoration are **not** proof, verification or quality rankings. Preserve sufficient contrast, touch targets ≥44×44px, text minima from §5, keyboard focus, RTL and reduced-motion behavior.
+ 
+@@ -153,7 +153,7 @@ The full approved lockup is the visual reference, resolved only through
+ The raster contains highlights, shadows and gradients, not a single flat brand
+ color. Representative opaque source pixels selected for this projection are
+ gold `#F9BA3F` and sapphire `#1957D9`; these are design reference samples, not a
+-replacement Brand artwork specification. `palette.js` owns all runtime values:
++replacement Brand artwork specification. `paletteTokens2029.js` (formerly `palette.js`) owns all runtime values:
+ Night gold `#F9BA3F`, Day gold `#875E13`, Parchment gold `#80570E`; sapphire
+ `#1957D9` supplies atmosphere/depth in all presets. Day/Parchment gold is a
+ contrast-adapted derivative rather than a claim of exact pixel matching.
+@@ -205,9 +205,9 @@ This is a composition rule, not a command to center every Hebrew sentence. Page
+ 
+ ## 9. Migration
+ - 2029 migrates through shared tokens/components first.
+-- Legacy remains Legacy until its own redesign pass.
+-- `theme.js` is compatibility/Legacy; new 2029 visual semantics come from palette.js + designTokens.js.
+-- `chromeTheme.js` remains Legacy/global chrome owner until the future chrome architecture pass; do not create a second chrome palette.
++- [Historical] Legacy was retired on 5.11.2026; there is no Legacy redesign pass.
++- `src/theme.js` is a documented removal residue awaiting ZURIEL's decision (REMOVAL.md); new 2029 visual semantics come from paletteTokens2029.js + designTokens.js.
++- `chromeTheme.js` was removed on 5.11.2026; do not create a second chrome palette.
+ - The existing theme store is extended, never forked.
+ - Research truth/calculation owners are untouched by visual migration.
+ 
+@@ -369,7 +369,7 @@ A 2029 visual-foundation change must prove:
+ 3. readable Hebrew and focus states;
+ 4. reduced-motion compatibility;
+ 5. no truth/status meaning encoded only by decoration;
+-6. Legacy routes are not mass-restyled accidentally;
++6. historical (WordPress-era) posts are not mass-restyled accidentally (former wording: «Legacy routes are not mass-restyled accidentally» — no Legacy routes remain since 5.11.2026);
+ 7. no new palette/theme store or page-local color owner.
+ 8. the primary content plane is centered with balanced inline gutters; RTL text alignment has not pinned the whole composition to the right;
+ 9. Personal Area, My Page, Messages and My Research are checked as a shared visual family at 320px, 390px, 768px and 1440px, with screenshots or browser geometry proving no unexplained opposite-side dead field or narrow right-hand column.
+@@ -437,11 +437,11 @@ become less chromatic; primary numeric identity remains indigo, discovery uses
+ its existing cyan (warm discovery in Parchment), and spatial Signature icons use
+ secondary violet. Shared content actions use the same NavigationIcon2029 geometry:
+ share, copy, save, check and add. Social channel marks retain CHANNELS brand identity.
+-V2 successText/dangerText live in palette.js; success color requires a successful
++V2 successText/dangerText live in paletteTokens2029.js (formerly palette.js); success color requires a successful
+ copy or save outcome, with text and accessible status retained. Save state denotes
+ an item in the existing research library, not publication or cloud-sync completion.
+-The original ShareActions and ResearchProvider remain behavior owners. Legacy
+-QuickActions/DocActions are not silently replaced by this bounded 2029 projection.
++The original ShareActions and ResearchProvider remain behavior owners. The former Legacy
++QuickActions/DocActions were removed on 5.11.2026; this bounded 2029 projection is the active one.
+ 
+ 
+ ## Royal color and shared press refinement · 10.10.2026
+@@ -454,7 +454,7 @@ ending in violet. Violet is reserved for spatial depth/secondary focus. Discover
+ and share use cyan/teal in all three presets, including Parchment. Gold/champagne
+ remains restrained identity ornament (including a thin content-intro impression),
+ never a verification signal or the default control color. Lab alters surfaces
+-while preserving these control meanings. Legacy palette values remain unchanged.
++while preserving these control meanings. (The Legacy palettes were removed on 5.11.2026.)
+ 
+ Shared SVG-bearing controls respond to pointer pressure and keyboard focus.
+ Feedback is finite, transform/opacity based, does not intercept navigation or
+@@ -510,3 +510,17 @@ no new palette, icon registry, theme store or domain owner.
+    shared consumers across Day/Parchment/Night at 320/390/1440. Preserve text/icon contrast,
+    44px targets, keyboard focus, reduced motion and non-color status labels. Do not introduce a
+    runtime alternate-color system merely to test this policy.
++
++
++## Naming / product language law — carried from V1 · 11.11.2026
++
++Carried from `SOD1820_DESIGN_CONTRACT_V1.md` (§ Naming / product language law) so that public naming is owned by the active 2029 contract (Owner Index: «visual language / typography / public naming» → V2). V1 keeps its copy as history; where they differ, this section governs. The bullets are V1's wording; one factual correction is marked inline.
++
++- Public name: `היכל`, not `היכל הגילוי`.
++- `דף המספר` remains the public Number/Phrase product name and `/number` remains its entry family.
++- `עולם המספרים` and `עולם המספרים והגימטריה` are **not** formal future product/navigation names. They may appear only as ordinary descriptive prose when they are clearly not styled or routed as a named product/surface.
++- Active navigation/build-map labels for the numeric family should use neutral descriptive wording such as `מספרים` / `מספרים וגימטריה` unless Human Gate explicitly renames the product later.
++- Historical/archived references are preserved as provenance; they never override the current public product vocabulary. Before adding or restoring a public label, search the current Roadmap + this section for superseded names instead of copying text from older maps/contracts.
++- The site-wide construction message describes the whole site, not only the Heichal.
++- Never hard-code a lens label. The canonical labels are kingdom = `כי לה׳ המלוכה`, reality = `קוד המציאות`. *(Correction 11.11.2026: V1 said «Read it from `STREAMS`»; that constant no longer exists in the 2029 code, and several 2029 components currently repeat the literal labels — one shared source is an open follow-up for the Design/Experience owner.)*
++- Before broad UI/copy changes, read `SOD1820_MASTER_ROADMAP.md` and current canonical sources.
+diff --git a/SOD1820_MASTER_OWNER_INDEX.md b/SOD1820_MASTER_OWNER_INDEX.md
+index 9ee730c2e..a682fda0a 100644
+--- a/SOD1820_MASTER_OWNER_INDEX.md
++++ b/SOD1820_MASTER_OWNER_INDEX.md
+@@ -54,10 +54,10 @@ Owner families below are routing categories only — never umbrella super-laws.
+ 
+ | Responsibility | Canonical owner |
+ |---|---|
+-| Foundation gate sequence / bottom-up closure / maintenance acceptance / compaction | `foundation_closure_protocol_law` **v7 ACTIVE** |
++| Foundation gate sequence / bottom-up closure / maintenance acceptance / compaction | `foundation_closure_protocol_law` **v8 ACTIVE** |
+ | Live-state sync | `live_state_sync_law` |
+ | Live-state conflict resolution | `live_state_resolution_law` under Live State |
+-| Release authorization | `deploy_on_request` **v3 ACTIVE** |
++| Release authorization | `deploy_on_request` **v4 ACTIVE** |
+ | Work-log current/history semantics | `work_log_authority_law` |
+ | Capability availability | `site_flags_lock_law` |
+ 
+@@ -65,9 +65,9 @@ Owner families below are routing categories only — never umbrella super-laws.
+ 
+ | Responsibility | Canonical owner |
+ |---|---|
+-| task routing / owner creation / one-writer / handoff / fresh-agent entry / event-driven dispatch / visual-lane vs domain-lane writers | `inter_agent_coordination_law` **v17 ACTIVE** |
++| task routing / owner creation / one-writer / handoff / fresh-agent entry / event-driven dispatch / visual-lane vs domain-lane writers | `inter_agent_coordination_law` **v18 ACTIVE** |
+ 
+-**Current reporting policy:** inter_agent_coordination_law v17: passive reports to ZURIEL only; GPT delivery and GPT ACK waits disabled. Scope ownership and release gates remain mandatory.
++**Current reporting policy:** inter_agent_coordination_law v18 (carries the v17 reporting rule unchanged): passive reports to ZURIEL only; GPT delivery and GPT ACK waits disabled. Scope ownership and release gates remain mandatory.
+ 
+ **Writer lanes (v16 §§89–96):** CLAUDE is the mandatory writer for every 2029 surface and visual component (frame composition, shared kit, surface layout, final visual pass) under the Design / System Frame / Experience owners in section L; GPT writes capabilities, readers, truth/access, migrations and release. A surface is designed first (real-data preview → ZURIEL decision), then wired; visual duplicates are removed only after adoption. The adopted visual reference is Claude Home fa0e26f, including its bottom-bar structure; GPT preserves that presentation during integration. Changes to writer lanes or activation direction require a new explicit ZURIEL decision.
+ 
+@@ -207,7 +207,7 @@ Product homes such as Home, World, Heichal, Archive, My Personal Area and surfac
+ | Responsibility | Canonical owner |
+ |---|---|
+ | traffic / analytics measurement truth | `traffic_intelligence_law` **v11 ACTIVE** |
+-| system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v5 ACTIVE** |
++| system diagnostics / recommendations / Incident Intelligence | `system_suggestions_law` **v6 ACTIVE** |
+ | AI/tool completion/cost execution contract | `ai_analyze_contract` under System/Raziel routing |
+ 
+ ## 4. Active-tree freeze — CLOSED G2 result
+diff --git a/SOD1820_MASTER_ROADMAP.md b/SOD1820_MASTER_ROADMAP.md
+index b47298341..992a0f46a 100644
+--- a/SOD1820_MASTER_ROADMAP.md
++++ b/SOD1820_MASTER_ROADMAP.md
+@@ -153,7 +153,7 @@ Non-blocking maintenance debt remains routed to existing owners rather than reop
+ 
+ **NEXT:** use the already-defined G3→G4 transition lane (informal “G3.5” shorthand) to prepare/validate the next real Golden Experiences. Closing G3 does **not** by itself open English, entitlement/pricing, Voice/Multimodal, Spatial/3D/XR, governed publication, or a broad Legacy→2029 cutover; those remain under their existing Human-Gate/owner rules.
+ 
+-**BOTTOM-UP CLOSURE / NO PREMATURE ASCENT · Human-Gate ZURIEL · 2026-09-29:** active closure owner is `foundation_closure_protocol_law v7`. Before a new WRITE, verify whether the canonical owner/runtime already satisfies the requirement. Ascend only when the load-bearing dependency below is CLOSED or explicitly non-blocking/deferred. A discovered lower gap descends only to its owning seam, closes there, and resumes from the interrupted point; it does not reopen all of G2/G3. Completion percentage and visible UI are never closure authority.
++**BOTTOM-UP CLOSURE / NO PREMATURE ASCENT · Human-Gate ZURIEL · 2026-09-29:** active closure owner is `foundation_closure_protocol_law v8`. Before a new WRITE, verify whether the canonical owner/runtime already satisfies the requirement. Ascend only when the load-bearing dependency below is CLOSED or explicitly non-blocking/deferred. A discovered lower gap descends only to its owning seam, closes there, and resumes from the interrupted point; it does not reopen all of G2/G3. Completion percentage and visible UI are never closure authority.
+ 
+ **G3→G4 transition rule · 2026-09-28:** G4 does not activate later capabilities merely because the gate number changes. G3 must first close its implementation/compaction blockers; G4 then runs real/replayable **Golden Experiences** over the already-built 2029 capabilities. A capability becomes Golden only after its real journey passes; English, entitlement/pricing, Voice/Multimodal, Spatial/3D and XR remain governed by their later program stages and do not auto-open at G4.
+ 
+@@ -173,19 +173,19 @@ availability rule for genuinely unfinished systems remains. See Doc37 §12.29.
+ - source/writer retirement still requires replacement proof + live-consumer proof under existing owners; destructive/permanent retirement and major route cutover remain Human-Gated;
+ - target end-state: one 2029 product tree; Legacy survives only as bounded source/adapter/provenance until safely absorbed or retired. Decision 5.11 (ZURIEL): Legacy is retired — no return; its code is kept in Git history only, and the live site is 2029.
+ 
+-**Historical release-semantics pointer (superseded for current coordination and this cutover authorization):** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. At that checkpoint, `deploy_on_request` **v3** + `inter_agent_coordination_law` **v13** provided standing Human-Gate authorization for routine gate-clean, dependency-clean releases; older planning wording requiring a fresh `תעלה` for every routine merge/deploy was superseded. Current coordination is v17 via AGENTS/Owner Index; the 22.10 Legacy lock and later explicit task restrictions govern this candidate. No standing routine-release wording grants 2029 cutover, main push or guard modification. Governed publication, irreversible changes, pricing, privacy/security weakening and permanent retirement retain their owner/Human-Gate requirements.
++**Historical release-semantics pointer (superseded for current coordination and this cutover authorization):** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. At that checkpoint, `deploy_on_request` **v3** + `inter_agent_coordination_law` **v13** provided standing Human-Gate authorization for routine gate-clean, dependency-clean releases; older planning wording requiring a fresh `תעלה` for every routine merge/deploy was superseded. Current coordination resolves from the live owners via AGENTS/Owner Index; the 22.10 Legacy lock is historical (CLAUDE.md: «None of this is a current state or restriction»). Since 10.11.2026 (ZURIEL) every merge to main and every Production deployment requires explicit approval for the specific action; there is no standing authorization. No standing routine-release wording grants 2029 cutover, main push or guard modification. Governed publication, irreversible changes, pricing, privacy/security weakening and permanent retirement retain their owner/Human-Gate requirements.
+ 
+ ## 2029 North Star — owner pointers only
+ 
+ Detailed domain semantics live in owners, not here:
+ 
+-- Foundation gate sequence / bottom-up closure / maintenance acceptance → active `foundation_closure_protocol_law` **v7**;
++- Foundation gate sequence / bottom-up closure / maintenance acceptance → active `foundation_closure_protocol_law` **v8**;
+ - Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v8**;
+ - Continuous Raziel Research Companion / multimodal voice readiness → active `raziel_companion_layer_law` **v3**;
+ - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v17** + Research Workspace;
+ - Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v5**;
+ - Capability availability / building/open state → active `site_flags_lock_law` **v3**;
+-- No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliability → active `system_suggestions_law` **v5**;
++- No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliability → active `system_suggestions_law` **v6**;
+ - Translation / source-language evidence integrity → active `content_translation_law` **v4**;
+ - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
+ - Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v13**.
+@@ -200,7 +200,7 @@ G3 is **CLOSED**. Its dependency spine, opening order, maintenance/compaction re
+ 
+ Current closure pointers:
+ - documented current state and exact release evidence → `SOD1820_MASTER_STATE.md`;
+-- Foundation closure owner / acceptance law → active `foundation_closure_protocol_law v7`;
++- Foundation closure owner / acceptance law → active `foundation_closure_protocol_law v8`;
+ - implementation compaction / archive acceptance → `audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`;
+ - post-release Maintenance Acceptance Matrix refresh → `work_log.id=4220295a-1e98-40de-98c4-d127d8f20059`;
+ - final independent LIVE Foundation verdict → `work_log.id=663f93eb-1d16-4bdf-88dd-f3487508b7bc`;
+diff --git a/docs/research-studio-v1-contract.md b/docs/research-studio-v1-contract.md
+index 05b4b861e..7d2a63735 100644
+--- a/docs/research-studio-v1-contract.md
++++ b/docs/research-studio-v1-contract.md
+@@ -7,9 +7,9 @@ Scope: product/architecture contract. No DB/schema migration, no production depl
+ This contract does not stand alone. It is written to compose with, never compete with or re-decide, the following already-CLOSED decisions:
+ 
+ - **Research DNA v1 Foundation Contract** (`audits/research_dna_v1_foundation_contract/RESEARCH_DNA_V1_FOUNDATION_CONTRACT.md`, PR #166, `CONTRACT: CLOSED`): §1 (Claim/Calculation/Verification Contract — `verification_state` vocabulary), §4 (World/Method/Premium Access Law), §11 (Method Profile Contract), §27–§28 (Number Coverage, FINAL access-tier decisions).
+-- **`SOD1820_MASTER_STATE.md` §20 — Gate #18, Unified Judgment & Human-Gate Contract**, CLOSED 2026-08-23: Option C, "Contract-over-Consolidation" — no physical pipeline consolidation, no new Judgment system, `decision_ledger` is an append-only audit trail only, never a source of truth.
+-- **`convergence_one_per_value`** (locked `nodes type='rule'`): exactly one canonical convergence per value, checked across `topic_cards`, `nodes type='convergence'`, and `convergences`, before any new one is created.
+-- **`research_workspace_law` / `workspace_layout_standard`** (locked `nodes type='rule'`): the global research environment (3-column standard, `ResearchProvider.jsx` + `ResearchCenter.jsx`) already exists.
++- **`SOD1820_MASTER_STATE.md` §20 — Gate #18, Unified Judgment & Human-Gate Contract** *(reference note 11.11.2026: §20 is no longer present in the compacted current Master State; the decision remains in git history)*, CLOSED 2026-08-23: Option C, "Contract-over-Consolidation" — no physical pipeline consolidation, no new Judgment system, `decision_ledger` is an append-only audit trail only, never a source of truth.
++- **`convergence_one_per_value`** (was a locked `nodes type='rule'`; now inactive, history kept in `nodes`): exactly one canonical convergence per value, checked across `topic_cards`, `nodes type='convergence'`, and `convergences`, before any new one is created.
++- **`research_workspace_law` / `workspace_layout_standard`** (locked `nodes type='rule'`): the global research environment (3-column standard; `ResearchProvider.jsx` now lives in `src/lib/research/`, and `ResearchCenter.jsx` was removed on 5.11.2026) already exists.
+ - **`OD-F10a` — Person-Identity Contract** (commit `687dfdc7`, approved-as-contract-only, not yet merged): `person-ref` = `person:<owner_person_id>:{self|p:<ref>}`, one logical identity shared across every lens.
+ 
+ Where this contract's earlier draft used different vocabulary than these closed decisions (e.g. `stage`/`status` instead of `verification_state`, "Judgment surface" without citing Gate #18, "NumberHub" as a new page, "Global Research Workspace" as if newly built), this reconciliation pass corrects the wording. **No architecture changes as a result — only accurate citation of what was already decided.**
+diff --git a/docs/sod1820-system-frame-contract-v1.md b/docs/sod1820-system-frame-contract-v1.md
+index 429ced4cc..55f5f2988 100644
+--- a/docs/sod1820-system-frame-contract-v1.md
++++ b/docs/sod1820-system-frame-contract-v1.md
+@@ -153,7 +153,7 @@ Mobile and desktop are the same system, not separate products. Responsive presen
+ Mobile favors the compact floating Dock and sheets. Desktop may use wider presentation and the Raziel Companion Rail, but must not create a second navigation/research/AI architecture.
+ 
+ ### Rollout / migration law
+-During gated rollout, role/feature gates may temporarily show the new Dock to approved users while preserving legacy launchers for everyone else. Never remove a legacy entry point for users who cannot yet access its replacement.
++[Historical — completed: the gated rollout ended with the 2029 Production cutover (4.11.2026) and the Legacy removal (5.11.2026); no Legacy launchers remain.] During gated rollout, role/feature gates may temporarily show the new Dock to approved users while preserving legacy launchers for everyone else. Never remove a legacy entry point for users who cannot yet access its replacement.
+ 
+ Retire legacy surfaces only after capability parity is verified. Preserve capability, truth and provenance — not necessarily the legacy interface.
+ 
+diff --git a/docs/sod1820-system-frame-contract-v2-addendum.md b/docs/sod1820-system-frame-contract-v2-addendum.md
+index 2dd1b3aef..8b9c87b01 100644
+--- a/docs/sod1820-system-frame-contract-v2-addendum.md
++++ b/docs/sod1820-system-frame-contract-v2-addendum.md
+@@ -1,7 +1,7 @@
+ # SOD1820 — SYSTEM FRAME CONTRACT · 2027 ADAPTIVE V2 ADDENDUM
+ 
+ **Owner lineage:** `docs/sod1820-system-frame-contract-v1.md`  
+-**Status:** ADDITIVE SUPERSESSION ADDENDUM · EXTEND_EXISTING · HUMAN-GATE ZURIEL · BRANCH ONLY UNTIL MERGED  
++**Status:** ADDITIVE SUPERSESSION ADDENDUM · EXTEND_EXISTING · HUMAN-GATE ZURIEL · MERGED (in main; the former «BRANCH ONLY UNTIL MERGED» banner is historical)  
+ **Date:** 2026-09-09  
+ **W0 source:** `docs/w0-2027-final-reconciliation-v1.md` + independent challenge `work_log d3c26a5c-1a01-47b9-9147-a94430c65f3c`
+ 
+@@ -19,7 +19,7 @@ The invariant remains:
+ 
+ ### Product-language inheritance · 2026-09-13
+ 
+-Public labels used by the System Frame consume the current `SOD1820_DESIGN_CONTRACT_V1.md` Naming / product language owner and current Master Roadmap. Retained v1 examples such as `עולם המספרים` / `עולם המספרים והגימטריה` are historical wording only and MUST NOT be restored as formal product/navigation names unless Human Gate explicitly renames them. Current numeric-family navigation uses `דף המספר` for the public Number/Phrase product and neutral family labels such as `מספרים` / `מספרים וגימטריה` where a grouping label is needed.
++Public labels used by the System Frame consume the Naming / product language law in `SOD1820_DESIGN_CONTRACT_V2.md` (carried from V1 on 11.11.2026; V1 keeps the historical copy) and the current Master Roadmap. Retained v1 examples such as `עולם המספרים` / `עולם המספרים והגימטריה` are historical wording only and MUST NOT be restored as formal product/navigation names unless Human Gate explicitly renames them. Current numeric-family navigation uses `דף המספר` for the public Number/Phrase product and neutral family labels such as `מספרים` / `מספרים וגימטריה` where a grouping label is needed.
+ 
+ ---
+ 
+diff --git a/scripts/test-g1-agent-routing-smoke.mjs b/scripts/test-g1-agent-routing-smoke.mjs
+index 78d4fa068..7ea0ec445 100644
+--- a/scripts/test-g1-agent-routing-smoke.mjs
++++ b/scripts/test-g1-agent-routing-smoke.mjs
+@@ -49,7 +49,7 @@ test('release_gate: Foundation + canonical release owner + coordination', () =>
+   pointsTo('Release authorization', 'deploy_on_request');
+   const coordinationRows = index.split('\n').filter(line => line.startsWith('| task routing / owner creation / one-writer / handoff / fresh-agent entry /'));
+   assert.equal(coordinationRows.length, 1, 'one current coordination owner row');
+-  assert.match(coordinationRows[0], /`inter_agent_coordination_law` \*\*v17 ACTIVE/);
++  assert.match(coordinationRows[0], /`inter_agent_coordination_law` \*\*v18 ACTIVE/);
+   assert.match(adapter, /ONE SCOPE — ONE ACTIVE WRITER/);
+   assert.match(adapter, /Do not merge\/deploy\/push/);
+   assert.match(adapter, /passive work_log records with to_actor=ZURIEL/);
+diff --git a/src/lib/research/contentSeries2029Identity.js b/src/lib/research/contentSeries2029Identity.js
+index 4d819e867..274e380e5 100644
+--- a/src/lib/research/contentSeries2029Identity.js
++++ b/src/lib/research/contentSeries2029Identity.js
+@@ -69,7 +69,12 @@ export const CONTENT_SERIES_2029 = Object.freeze([
+       Object.freeze({ field: "tags", value: "מה קורה הבורא" }),
+     ]),
+     exactAuthor: "אלון לוי",
+-    relationNote: "אלון לוי הוא הכתב; חברות בסדרה נקבעת רק מהתגית המדויקת, לא מכל חומריו.",
++    // ZURIEL decision 6 (11.11.2026): every public Post whose author is exactly «אלון לוי» belongs to this series, with or without
++    // the tag. Identity was verified on 11.11.2026: each of his 13 Posts embeds or is written from his own channel «אלון לוי - מה קורה
++    // הבורא» (youtube.com/@alonlevifaithfull). Exact author only (no display-name variant, no other author), one Post with no copy,
++    // and the author credit stays the Post's own. The PLAN37 record of this decision is pending (a DB write that needs approval).
++    admission: Object.freeze({ exactAuthorAllPosts: true, decisionRef: "ZURIEL/20261111/series-decision-6", plan37: "PENDING-PLAN37-RECORD" }),
++    relationNote: "כל הפוסטים של אלון לוי (מחבר מדויק) שייכים לסדרה, גם בלי התגית; פוסטים של מחברים אחרים אינם נכללים.",
+   }),
+   Object.freeze({
+     key: "dimension-five",
+@@ -83,7 +88,11 @@ export const CONTENT_SERIES_2029 = Object.freeze([
+       Object.freeze({ field: "categories", value: "מימד חמש" }),
+     ]),
+     exactAuthor: "בדרך לנצח",
+-    relationNote: "סדרת תודעה של בדרך לנצח; טקסט, אודיו ווידאו מותרים. פריטים של מפרסם אחר נשארים לבדיקת מיפוי.",
++    // ZURIEL decision 7 (11.11.2026): dual membership for Posts 5003 (מטריקס) and 5004 (משחקי הדיונון). They stay in the
++    // «הצופן בסרטים» family/category and keep their own author field; no copy and no invented publisher. Only these two ids are
++    // admitted; the other category Posts of other publishers stay out until a separate decision. The PLAN37 record is pending.
++    admission: Object.freeze({ approvedPostIds: Object.freeze([5003, 5004]), decisionRef: "ZURIEL/20261111/series-decision-7", plan37: "PENDING-PLAN37-RECORD" }),
++    relationNote: "סדרת תודעה של בדרך לנצח; טקסט, אודיו ווידאו מותרים. 5003 ו־5004 בשיוך כפול באישור; פריטים אחרים של מפרסם אחר נשארים לבדיקת מיפוי.",
+   }),
+   Object.freeze({
+     key: "sod-hashmal",
+@@ -160,7 +169,37 @@ export function contentSeriesByKey(key) {
+   return CONTENT_SERIES_2029.find(spec => spec.key === key) || null;
+ }
+ 
++// Explicit, bounded admission (`spec.admission`): a short list of approved Post ids, or every Post of the exact author.
++// Never a category, title, channel or display-name inference.
++export function isApprovedSeriesPost(row, spec) {
++  const ids = spec?.admission?.approvedPostIds;
++  const id = Number(row?.id);
++  return Array.isArray(ids) && Number.isSafeInteger(id) && ids.includes(id);
++}
++
++// null = admitted; otherwise the reason it is not (the same reasons the projections already report).
++export function contentSeriesExclusionReason(row, spec) {
++  if (!spec) return "membership_not_exact";
++  if (isApprovedSeriesPost(row, spec)) return null;
++  const allPostsOfAuthor = Boolean(spec.exactAuthor && spec.admission?.exactAuthorAllPosts);
++  if (!allPostsOfAuthor && !hasExactMembership(row, spec)) return "membership_not_exact";
++  if (spec.exactAuthor && row?.author !== spec.exactAuthor) return "author_not_mapped";
++  return null;
++}
++
++export const contentSeriesAdmits = (row, spec) => contentSeriesExclusionReason(row, spec) === null;
++
++// The same admission as one PostgREST `or` filter, so the query and the row check can never disagree.
++export function contentSeriesAdmissionFilter(spec) {
++  const membership = contentSeriesMembershipFilter(spec);
++  const author = spec?.exactAuthor && postgrestValue(spec.exactAuthor) ? `author.eq."${postgrestValue(spec.exactAuthor)}"` : null;
++  let core = membership || null;
++  if (author && spec.admission?.exactAuthorAllPosts) core = author;
++  else if (author && membership) core = membership.includes(",") ? `and(or(${membership}),${author})` : `and(${membership},${author})`;
++  const ids = (Array.isArray(spec?.admission?.approvedPostIds) ? spec.admission.approvedPostIds : []).map(Number).filter(Number.isSafeInteger);
++  return [core, ids.length ? `id.in.(${ids.join(",")})` : null].filter(Boolean).join(",");
++}
++
+ export function contentSeriesKeysForPost(row) {
+-  return CONTENT_SERIES_2029.filter(spec => hasExactMembership(row, spec)
+-    && (!spec.exactAuthor || row?.author === spec.exactAuthor)).map(spec => spec.key);
++  return CONTENT_SERIES_2029.filter(spec => contentSeriesAdmits(row, spec)).map(spec => spec.key);
+ }
+diff --git a/src/lib/research/contentSeries2029Projection.js b/src/lib/research/contentSeries2029Projection.js
+index 3899e8d71..9f404e7ca 100644
+--- a/src/lib/research/contentSeries2029Projection.js
++++ b/src/lib/research/contentSeries2029Projection.js
+@@ -6,7 +6,7 @@ import { publicPostHref } from "../publicPostUrls.js";
+ const clean = (value) => value == null ? "" : String(value).trim();
+ 
+ // Adopted from 780db978a9dce428aef31d9b68cf5437170b1677; shared exact compatibility descriptors keep Home/World and Follow in step.
+-import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesMembershipFilter, hasExactMembership } from "./contentSeries2029Identity.js";
++import { CONTENT_SERIES_2029, contentSeriesAdmissionFilter, contentSeriesByKey, contentSeriesExclusionReason } from "./contentSeries2029Identity.js";
+ export { CONTENT_SERIES_2029, contentSeriesMembershipFilter } from "./contentSeries2029Identity.js";
+ 
+ function isSuppressedPost(row) {
+@@ -174,12 +174,9 @@ export function projectContentSeriesItems(rows = [], spec = {}) {
+   const excluded = [];
+   const seen = new Set();
+   for (const row of Array.isArray(rows) ? rows : []) {
+-    if (!hasExactMembership(row, spec)) {
+-      excluded.push({ id: row?.id == null ? null : String(row.id), reason: "membership_not_exact" });
+-      continue;
+-    }
+-    if (spec.exactAuthor && row?.author !== spec.exactAuthor) {
+-      excluded.push({ id: row?.id == null ? null : String(row.id), reason: "author_not_mapped" });
++    const notAdmitted = contentSeriesExclusionReason(row, spec);
++    if (notAdmitted) {
++      excluded.push({ id: row?.id == null ? null : String(row.id), reason: notAdmitted });
+       continue;
+     }
+     if (isSuppressedPost(row)) {
+@@ -271,14 +268,13 @@ export function buildContentSeriesCatalog2029(results = [], { homeOnly = false }
+ }
+ 
+ async function fetchSeriesPreview(spec, { client, limit, homeOnly, signal }) {
+-  const filter = contentSeriesMembershipFilter(spec);
++  const filter = contentSeriesAdmissionFilter(spec);
+   if (!client || !filter) return { key: spec.key, rows: [], total: null, failed: true };
+   let query = client
+     .from("posts")
+     .select("id,slug,title,excerpt,author,categories,tags,image_url,thumb_url,date,modified,home_hidden,source,link,wp_id", { count: "exact" })
+     .or(filter)
+     .or(publicPostOnlyFilter());
+-  if (spec.exactAuthor) query = query.eq("author", spec.exactAuthor);
+   if (homeOnly) query = query.eq("home_hidden", false);
+   if (signal) query = query.abortSignal(signal);
+   const { data, error, count } = await query
+diff --git a/src/lib/research/postsCatalog2029Projection.js b/src/lib/research/postsCatalog2029Projection.js
+index aca47b1fe..ac5845412 100644
+--- a/src/lib/research/postsCatalog2029Projection.js
++++ b/src/lib/research/postsCatalog2029Projection.js
+@@ -1,7 +1,7 @@
+ import { publicPostHref } from "../publicPostUrls.js";
+ import { getPublicResearchClient } from "./researchViewMode.js";
+ import { canonicalPostCategories } from "../postCategoryIdentity.js";
+-import { CONTENT_SERIES_2029, contentSeriesByKey, contentSeriesKeysForPost, contentSeriesMembershipFilter, hasExactMembership, seriesShadowedCategories } from "./contentSeries2029Identity.js";
++import { CONTENT_SERIES_2029, contentSeriesAdmissionFilter, contentSeriesAdmits, contentSeriesByKey, contentSeriesKeysForPost, seriesShadowedCategories } from "./contentSeries2029Identity.js";
+ import { hasSuppressedPublicPostTag, publicPostOnlyFilter } from "./publicPostBoundary.js";
+ import { publicWriterFollowLinks } from "../userCenter/writerPersonal2029.js";
+ import { postsTaxonomyScope2029, postsTaxonomySelection2029, postMatchesTaxonomy2029, postsTaxonomyEvidence2029 } from "./postsTaxonomy2029Route.js";
+@@ -183,10 +183,8 @@ function publicCatalogQuery({ scope, search, client, head = false, includeTotal
+     const values = selection.values.some(value => /[",{}\\]|^null$/i.test(value)) ? selection.arrayLiteral : selection.values;
+     query = query[selection.operator](selection.field, values);
+   }
+-  if (spec) {
+-    query = query.or(contentSeriesMembershipFilter(spec));
+-    if (spec.exactAuthor) query = query.eq("author", spec.exactAuthor);
+-  }
++  // One admission filter (membership + exact author + explicitly approved Post ids) shared with the row check below.
++  if (spec) query = query.or(contentSeriesAdmissionFilter(spec));
+   const term = postsSearch2029(search);
+   // One escaped column filter on the existing public catalog, not a second search index.
+   if (term) query = query.ilike("title", `%${term.replace(/[\\%_*]/g, "\\$&")}%`);
+@@ -203,7 +201,7 @@ function validatePostRows(data, spec, scope = null) {
+   const taxonomy = scope?.kind === "category" || scope?.kind === "tag";
+   if (!Array.isArray(data) || data.some(row => hasSuppressedPublicPostTag(row)
+     || taxonomy && !postMatchesTaxonomy2029(row, scope)
+-    || spec && (!hasExactMembership(row, spec) || spec.exactAuthor && row.author !== spec.exactAuthor))) {
++    || spec && !contentSeriesAdmits(row, spec))) {
+     throw new Error("לא ניתן לאמת את שיוך התוכן.");
+   }
+ }
+diff --git a/test/content-series-2029-projection.test.mjs b/test/content-series-2029-projection.test.mjs
+index 10ef189fa..d8716acd6 100644
+--- a/test/content-series-2029-projection.test.mjs
++++ b/test/content-series-2029-projection.test.mjs
+@@ -7,6 +7,7 @@ import {
+   contentSeriesMembershipFilter,
+   projectContentSeriesItems,
+ } from "../src/lib/research/contentSeries2029Projection.js";
++import { contentSeriesAdmissionFilter } from "../src/lib/research/contentSeries2029Identity.js";
+ 
+ const byKey = Object.fromEntries(CONTENT_SERIES_2029.map((spec) => [spec.key, spec]));
+ 
+@@ -51,14 +52,39 @@ test("membership filters use exact existing tag/category evidence", () => {
+   );
+ });
+ 
+-test("Alon series includes only exact tagged Alon items and never all author material", () => {
++// ZURIEL decision 6 (11.11.2026) replaces the tag-only rule of DEC-SERIES-005: every Post of the exact author belongs to the series.
++test("Alon series includes every Post of the exact author, tagged or not, and never another author or an alias", () => {
+   const projected = projectContentSeriesItems([
+     post("exact", { author: "אלון לוי", tags: ["מה קורה הבורא"] }),
+-    post("other-series", { author: "אלון לוי", tags: ["אחר"] }),
++    post("untagged", { author: "אלון לוי", tags: ["אחר"] }),
+     post("wrong-author", { author: "אדם אחר", tags: ["מה קורה הבורא"] }),
++    post("alias", { author: " אלון לוי ", tags: ["מה קורה הבורא"] }),
+   ], byKey["mah-kore-habora"]);
+-  assert.deepEqual(projected.items.map((item) => item.id), ["exact"]);
+-  assert.deepEqual(projected.excluded.map((item) => item.reason), ["membership_not_exact", "author_not_mapped"]);
++  assert.deepEqual(projected.items.map((item) => item.id), ["exact", "untagged"]);
++  assert.deepEqual(projected.items.map((item) => item.author), ["אלון לוי", "אלון לוי"], "the author credit is the Post's own");
++  assert.deepEqual(projected.excluded.map((item) => item.reason), ["author_not_mapped", "author_not_mapped"]);
++});
++
++// ZURIEL decision 7 (11.11.2026): 5003 and 5004 have dual membership; no other Post of another publisher is admitted.
++test("Dimension Five admits exactly the approved Posts 5003 and 5004 besides the exact publisher", () => {
++  const projected = projectContentSeriesItems([
++    post(5003, { categories: ["מימד חמש", "הצופן בסרטים"] }),
++    post(5004, { categories: ["מימד חמש", "הצופן בסרטים"] }),
++    post(5037, { categories: ["מימד חמש"] }),
++    post(5116, { author: "מדריך לריפוי 10 הספירות", categories: ["מימד חמש", "וידאו"] }),
++    post(5100, { author: "בדרך לנצח", categories: ["מימד חמש"] }),
++  ], byKey["dimension-five"]);
++  assert.deepEqual(projected.items.map((item) => String(item.id)), ["5003", "5004", "5100"]);
++  assert.deepEqual(projected.items.map((item) => item.author ?? null), [null, null, "בדרך לנצח"], "no invented publisher or author");
++  assert.deepEqual(projected.excluded.map((item) => item.reason), ["author_not_mapped", "author_not_mapped"]);
++});
++
++test("the server filter is the same admission as the row rule", () => {
++  assert.equal(contentSeriesAdmissionFilter(byKey["mah-kore-habora"]), 'author.eq."אלון לוי"');
++  assert.equal(contentSeriesAdmissionFilter(byKey["dimension-five"]), 'and(categories.cs.{"מימד חמש"},author.eq."בדרך לנצח"),id.in.(5003,5004)');
++  for (const key of ["reality-map", "sod-hashmal", "messages-from-righteous"]) {
++    assert.equal(contentSeriesAdmissionFilter(byKey[key]), contentSeriesMembershipFilter(byKey[key]), key);
++  }
+ });
+ 
+ test("Dimension Five includes text/audio/video membership only for the approved publisher", () => {
+diff --git a/test/follow-category-series-alignment.test.mjs b/test/follow-category-series-alignment.test.mjs
+index b5cd43ba1..c897b8e12 100644
+--- a/test/follow-category-series-alignment.test.mjs
++++ b/test/follow-category-series-alignment.test.mjs
+@@ -30,12 +30,17 @@ test("series membership is exact and keeps author, publisher and topic separate"
+   assert.deepEqual(contentSeriesKeysForPost(post({ categories: ["רמזים מצדיקים"] })), ["messages-from-righteous"]);
+   assert.deepEqual(contentSeriesKeysForPost(post({ categories: ["אור הגאולה"] })), [], "a source channel is not blanket series membership");
+   assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", tags: ["מה קורה הבורא"] })), ["mah-kore-habora"]);
+-  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", title: "מה קורה הבורא" })), []);
++  // ZURIEL decision 6 (11.11.2026): every Post of the exact author is in the series; a title alone never admits a Post.
++  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", title: "מה קורה הבורא" })), ["mah-kore-habora"]);
++  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אחר", title: "מה קורה הבורא" })), []);
+   assert.deepEqual(contentSeriesKeysForPost(post({ author: null, categories: ["מימד חמש", "הצופן בסרטים"] })), []);
++  // ZURIEL decision 7 (11.11.2026): only the approved ids 5003/5004 get dual membership.
++  assert.deepEqual(contentSeriesKeysForPost(post({ id: 5003, author: null, categories: ["מימד חמש", "הצופן בסרטים"] })), ["dimension-five"]);
++  assert.deepEqual(contentSeriesKeysForPost(post({ id: 5037, author: null, categories: ["מימד חמש"] })), []);
+   assert.deepEqual(contentSeriesKeysForPost(post({ author: "בדרך לנצח", categories: ["מימד חמש"] })), ["dimension-five"]);
+   assert.deepEqual(contentSeriesKeysForPost(post({ author: "אחר", tags: ["סוד החשמל"] })), ["sod-hashmal"]);
+   assert.deepEqual(contentSeriesKeysForPost(post({ author: " אלון לוי ", tags: ["מה קורה הבורא"] })), [], "no unapproved author alias");
+-  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אלון לוי", tags: [" מה קורה הבורא "] })), [], "membership matches the exact server filter");
++  assert.deepEqual(contentSeriesKeysForPost(post({ author: "אחר", tags: [" סוד החשמל "] })), [], "membership matches the exact server filter");
+ });
+ 
+ test("native destination filters reject ambiguous/unknown selections, preserve an approved rename", () => {
+@@ -51,8 +56,9 @@ test("paginated series reader applies membership, author and public filters toge
+   const io = client({ data: [post({ author: "בדרך לנצח", categories: ["מימד חמש"] })], count: 31 });
+   await fetchPostsCatalog2029({ scope: postsCatalogScope2029("series=dimension-five"), page: 2, client: io });
+   assert.ok(io.calls.some(call => call[0] === "or" && call[1].includes("tags.is.null") && call[1].includes("טיוטה,פורום")));
+-  assert.ok(io.calls.some(call => call[0] === "or" && call[1] === 'categories.cs.{"מימד חמש"}'));
+-  assert.ok(io.calls.some(call => call[0] === "eq" && call[1] === "author" && call[2] === "בדרך לנצח"));
++  // membership, exact publisher and the approved ids (decision 7) are one server filter, the same rule as the row check
++  assert.ok(io.calls.some(call => call[0] === "or" && call[1] === 'and(categories.cs.{"מימד חמש"},author.eq."בדרך לנצח"),id.in.(5003,5004)'));
++  assert.ok(!io.calls.some(call => call[0] === "eq" && call[1] === "author"));
+   assert.deepEqual(io.calls.find(call => call[0] === "range"), ["range", 24, 47]);
+   assert.equal(io.calls.filter(call => call[0] === "order").length, 2);
+   assert.ok(!io.calls.find(call => call[0] === "select")[1].includes("content"), "no full corpus/card content download");
+diff --git a/test/post-backgrounds-2029.test.mjs b/test/post-backgrounds-2029.test.mjs
+index 1e6a0e985..c9f459336 100644
+--- a/test/post-backgrounds-2029.test.mjs
++++ b/test/post-backgrounds-2029.test.mjs
+@@ -13,11 +13,13 @@ test('approved series use exact source membership and preserve the existing auth
+ 
+ test('unmapped posts, a title, a slug, a tag alone and a different publisher keep the general background',()=>{
+   for(const post of [null,{}, {slug:'future-dim5',title:'מימד חמש'}, {tags:['מימד חמש'],author:'בדרך לנצח'},
+-    {categories:['מימד חמש'],author:'manifestaffirms'}, {categories:['מה קורה הבורא'],author:'אלון לוי'},
++    {categories:['מימד חמש'],author:'manifestaffirms'}, {categories:['מה קורה הבורא'],author:'אחר'},
+     {categories:['מימד חמש','הצופן בסרטים'],slug:'matrix-506',author:null},
+     {categories:['שבילי שפה']}, {background_url:'https://untrusted.invalid/image.png'}]){
+     assert.equal(postBackground2029(post).key,'general');
+   }
++  // ZURIEL decision 6 (11.11.2026): every Post of the exact author is in the series, also without the tag
++  assert.equal(postBackground2029({categories:['מה קורה הבורא'],author:'אלון לוי'}).key,'mah-kore-habora');
+ });
+ 
+ test('ambiguous series and suppressed content never choose the first matching identity',()=>{
+diff --git a/test/post-classification-2029.test.mjs b/test/post-classification-2029.test.mjs
+index 62ca7cdd3..eb7454726 100644
+--- a/test/post-classification-2029.test.mjs
++++ b/test/post-classification-2029.test.mjs
+@@ -21,7 +21,9 @@ test("an unresolved source classification remains reachable without a series/top
+   assert.deepEqual(result.sourceCategories.map(item => item.name), row.categories);
+   assert.ok(result.items.every(item => item.role === "source-category" && item.href.startsWith("/2029/posts?category=")));
+   assert.deepEqual(postClassification2029({ categories: [], tags: [] }).items, [], "no invented general-series membership");
+-  assert.deepEqual(postClassification2029({ categories: ["מה קורה הבורא"], author: "אלון לוי" }).series, [], "category is not the approved exact series tag");
++  assert.deepEqual(postClassification2029({ categories: ["מה קורה הבורא"], author: "אחר" }).series, [], "a category is not series membership");
++  // ZURIEL decision 6 (11.11.2026): every Post of the exact author belongs to the series
++  assert.deepEqual(postClassification2029({ categories: ["מה קורה הבורא"], author: "אלון לוי" }).series.map(item => item.key), ["mah-kore-habora"]);
+ });
+ 
+ test("tag-only series membership and multiple series keep each existing identity", () => {
+diff --git a/test/posts-follow-targets-2029.test.mjs b/test/posts-follow-targets-2029.test.mjs
+index 8fd3924a0..687f5fee1 100644
+--- a/test/posts-follow-targets-2029.test.mjs
++++ b/test/posts-follow-targets-2029.test.mjs
+@@ -39,16 +39,19 @@ test("failed, malformed and differently resolved targets are unavailable, not ab
+ });
+ test("writer controls require an exact public canonical contributor; generic author text is insufficient", async () => {
+   let calls = 0;
+-  const client = { rpc: async () => { calls++; return { data: "author:אלון לוי" }; } };
++  // the Post is also a series member (decision 6); only the writer row is under test here
++  const client = { rpc: async (name, args) => { if (args.p_entity_type === "author") calls++; return { data: args.p_entity_type === "author" ? "author:אלון לוי" : "series:mah-kore-habora" }; } };
+   const input = { post: post({ author: "אלון לוי" }), client };
+-  assert.equal((await fetchPostFollowTargets2029({ ...input, writerLinks: noWriters }))[0].state, "unavailable");
++  const writer = rows => rows.find(row => row.entityType === "author");
++  assert.equal(writer(await fetchPostFollowTargets2029({ ...input, writerLinks: noWriters })).state, "unavailable");
+   assert.equal(calls, 0);
+-  assert.equal((await fetchPostFollowTargets2029({ ...input, writerLinks: async () => ({ "author:אלון לוי": "/community/researcher/alon" }) }))[0].state, "ready");
++  assert.equal(writer(await fetchPostFollowTargets2029({ ...input, writerLinks: async () => ({ "author:אלון לוי": "/community/researcher/alon" }) })).state, "ready");
+ });
+ test("an unavailable writer lookup leaves independently resolved category targets usable", async () => {
+   const rows = await fetchPostFollowTargets2029({ post: post({ author: "אלון לוי", categories: ["תיעוד אירועים"] }),
+     client: { rpc: async () => ({ data: "cat:תיעוד אירועים" }) }, writerLinks: async () => { throw Error("offline"); } });
+-  assert.deepEqual(rows.map(row => row.state), ["ready", "unavailable"]);
++  assert.equal(rows[0].topic, "series:mah-kore-habora", "every Post of the exact author is in the series (decision 6)");
++  assert.deepEqual(rows.filter(row => row.entityType !== "series").map(row => row.state), ["ready", "unavailable"]);
+ });
+ test("title search uses an escaped column filter alongside public and exact series membership", async () => {
+   assert.equal(postsSearch2029("  מילה  שנייה "), "מילה שנייה");
+@@ -58,6 +61,6 @@ test("title search uses an escaped column filter alongside public and exact seri
+   for (const name of ["select", "or", "eq", "order", "range", "ilike"]) query[name] = (...args) => { calls.push([name, ...args]); return query; };
+   await fetchPostsCatalog2029({ scope: postsCatalogScope2029("series=dimension-five"), search: '50%_",or(x)', client: { from: () => query } });
+   assert.deepEqual(calls.find(([name]) => name === "ilike"), ["ilike", "title", '%50\\%\\_",or(x)%']);
+-  assert.ok(calls.some(c => c[0] === "eq" && c[2] === "בדרך לנצח"));
++  assert.ok(calls.some(c => c[0] === "or" && c[1].includes('author.eq."בדרך לנצח"')));
+   assert.ok(calls.some(c => c[0] === "or" && c[1].includes("טיוטה,פורום")));
+ });

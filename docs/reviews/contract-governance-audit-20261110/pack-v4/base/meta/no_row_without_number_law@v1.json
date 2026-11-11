@@ -1,0 +1,29 @@
+{
+ "applies": "כל משטח, כל סוכן",
+ "compaction_v1": {
+  "canonical_owner": "project_codex.numeric_rule_family_index",
+  "classification": "CHILD_OF_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "numeric_research"
+ },
+ "fix": "metadata.value ?? calcGem(label)",
+ "g3_disposition_v1": {
+  "classification": "LEGACY_COMPAT_RETIRE_WHEN_REPLACED",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": false,
+  "reason": "legacy numeric-row presentation assumption is not a universal 2029 truth invariant; modern findings/results may be nonnumeric and current numeric owners govern value-bearing projections",
+  "revalidated_at": "2026-09-30"
+ },
+ "origin": "TopicPage bubble-axis — שורות בלי ערך",
+ "owner_routing": {
+  "canonical_owner": "project_codex.numeric_rule_family_index",
+  "confidence": "high",
+  "domain": "numeric_research",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ }
+}

@@ -1,7 +1,7 @@
 # SOD1820 DESIGN CONTRACT V2
 
 **Human Gate:** ZURIEL · 4.10.2026; selected color/density refinement approved 11.10.2026; Night Number research-blue scope approved 13.10.2026; desktop readability and mixed Hebrew/numeric typography approved 23.10.2026; shared icon color resolution and state precedence approved 25.10.2026; balanced RTL composition approved 26.10.2026
-**Owner:** experience_governance_foundation_v1_law v9 → canonical_colors_law / canonical_ui_components_law / Brand Core
+**Owner:** experience_governance_foundation_v1_law (active version; v9 when written) → canonical_colors_law / canonical_ui_components_law / Brand Core
 **Verdict:** SUPERSEDE_EXISTING for the 2029 web product visual foundation. V1 remains historical/Legacy provenance.
 
 ## 1. Product goal
@@ -19,7 +19,7 @@ User presets:
 
 These are three projections of the same semantic roles, not three design systems.
 
-Legacy binary consumers may continue to read light/dark. Parchment projects as light to Legacy compatibility. New 2029 UI reads the full preset.
+2029 UI reads the full preset. (Historical: until the Legacy removal of 5.11.2026, Legacy binary consumers read light/dark and Parchment projected as light for Legacy compatibility; those consumers no longer exist.)
 
 ## 3. 2029 color identity
 Primary identity colors:
@@ -49,7 +49,7 @@ Modern Day follows the light color treatment of review option 7, with cool white
 
 Across Home, World, Post, Calculator, ELS, Heichal and personal panels: thin polished borders, restrained translucency, readable cream/white text in Night, and short transform/opacity feedback respecting reduced motion. The original full Crown lockup and sapphire/gold artwork remain unchanged. Purple supplies depth and Raziel presence; cyan supplies discovery/focus. Status colors remain owned semantic roles.
 
-This refinement extends this existing contract and `palette.js`, without a new theme store, page palette or primary plan. Legacy palettes remain intact. Branch/Preview acceptance does not imply a production cutover.
+This refinement extends this existing contract and the canonical 2029 palette (`src/lib/paletteTokens2029.js` + `src/lib/palette2029.js`; the former `palette.js` and the Legacy palettes were removed on 5.11.2026), without a new theme store, page palette or primary plan. Branch/Preview acceptance does not imply a Production release; every merge and deployment needs ZURIEL's explicit approval.
 
 Exact component mixtures come from the palette owner; page-local copies are forbidden.
 
@@ -101,7 +101,7 @@ Browser acceptance must inspect computed styles, not only source declarations:
 - at desktop width (reference: **1440px**), meaningful supporting sentences are at least 15px, UI/control labels are at least 16px and body copy is at least 18px;
 - at **320px and 390px**, no meaningful text falls below the 14px global floor and controls retain at least 44×44px targets;
 - representative mixed Hebrew/numeric values prove that Hebrew resolves to the UI/body family and only the numeric run resolves to the numeric family;
-- density changes introduce no horizontal page overflow and do not alter truth, publication, privacy, navigation or Legacy behavior.
+- density changes introduce no horizontal page overflow and do not alter truth, publication, privacy or navigation behavior.
 
 ### 5.4 Hebrew display weight and optical density · Preview proposal 23.10.2026
 
@@ -126,7 +126,7 @@ An environment must never force a fourth theme or silently override the user pre
 - **Night / default product:** Global Chrome, Home, World, Posts, Calculator, Community, Journey and ordinary content surfaces retain the selected deep black + warm black-brown + restrained Crown-gold atmosphere. The shared precision finish is thin polished borders, controlled radius and compact readable content (§4, §8). Do not restyle these surfaces blue just because Number uses blue.
 - **Night / Number identity:** The canonical `/2029/number/:value` content surface intentionally uses a *deep sapphire/navy research-blue* atmosphere (canvas, bounded cards, subtle focus and spatial depth) instead of the default black-brown content canvas. The numeric expression/value, verified calculation methods, relations and existing layer-depth visualization are the hero; keep these data live. The user-reviewed Number 1820 capture on 13.10.2026 guides the atmospheric direction, **not** a mandate to copy Legacy layout, large radii or heavy frames. Exact accessible values are calibrated in Preview by the single palette owner.
 - **Contextual Number:** Opening the existing Number window/inspector from a Post, Calculator, World or another host projects the same *scoped Number research-blue* **inside the Number content area only**. The host page and Global Chrome keep their selected preset and ambient identity. Reuse the existing contextual Number owner; preserve expression, method, Research Context and exact return. Never add a competing drawer, palette provider or navigation system.
-- **Shared Research Lab guard:** `RESEARCH_LAB` is also used by Books, Heichal and ELS. Do **not** turn every `research_lab` environment blue. Resolve the Night Number-focused variant using a semantic **Number surface/Number-inspector scope** through the existing `src/lib/palette.js`, `themeMode.js` and System Frame consumers. Pages consume shared palette roles / frame CSS variables rather than redefining hex values locally; coordinate the palette-token owner once across concurrent work.
+- **Shared Research Lab guard:** `RESEARCH_LAB` is also used by Books, Heichal and ELS. Do **not** turn every `research_lab` environment blue. Resolve the Night Number-focused variant using a semantic **Number surface/Number-inspector scope** through the existing 2029 palette (`src/lib/paletteTokens2029.js` / `palette2029.js`), the theme preset store (`src/lib/themePreset2029.js`) and System Frame consumers (`palette.js` and `themeMode.js` were removed on 5.11.2026). Pages consume shared palette roles / frame CSS variables rather than redefining hex values locally; coordinate the palette-token owner once across concurrent work.
 - **Day and Parchment:** Retain the approved Modern Day and Parchment identities and the user's selected three-mode control `יום | קלף | לילה`. Number remains a research experience in both modes, but the Night blue override must not replace their backgrounds or user preference.
 - **Semantic and accessibility safeguards:** Royal-blue actions, violet/Raziel depth, cyan discovery, Crown sapphire/gold identity and true status/research-strength indicators keep their existing separate meanings. A blue Number backdrop, light/glow and gold decoration are **not** proof, verification or quality rankings. Preserve sufficient contrast, touch targets ≥44×44px, text minima from §5, keyboard focus, RTL and reduced-motion behavior.
 
@@ -153,7 +153,7 @@ The full approved lockup is the visual reference, resolved only through
 The raster contains highlights, shadows and gradients, not a single flat brand
 color. Representative opaque source pixels selected for this projection are
 gold `#F9BA3F` and sapphire `#1957D9`; these are design reference samples, not a
-replacement Brand artwork specification. `palette.js` owns all runtime values:
+replacement Brand artwork specification. `paletteTokens2029.js` (formerly `palette.js`) owns all runtime values:
 Night gold `#F9BA3F`, Day gold `#875E13`, Parchment gold `#80570E`; sapphire
 `#1957D9` supplies atmosphere/depth in all presets. Day/Parchment gold is a
 contrast-adapted derivative rather than a claim of exact pixel matching.
@@ -205,9 +205,9 @@ This is a composition rule, not a command to center every Hebrew sentence. Page 
 
 ## 9. Migration
 - 2029 migrates through shared tokens/components first.
-- Legacy remains Legacy until its own redesign pass.
-- `theme.js` is compatibility/Legacy; new 2029 visual semantics come from palette.js + designTokens.js.
-- `chromeTheme.js` remains Legacy/global chrome owner until the future chrome architecture pass; do not create a second chrome palette.
+- [Historical] Legacy was retired on 5.11.2026; there is no Legacy redesign pass.
+- `src/theme.js` is a documented removal residue awaiting ZURIEL's decision (REMOVAL.md); new 2029 visual semantics come from paletteTokens2029.js + designTokens.js.
+- `chromeTheme.js` was removed on 5.11.2026; do not create a second chrome palette.
 - The existing theme store is extended, never forked.
 - Research truth/calculation owners are untouched by visual migration.
 
@@ -369,7 +369,7 @@ A 2029 visual-foundation change must prove:
 3. readable Hebrew and focus states;
 4. reduced-motion compatibility;
 5. no truth/status meaning encoded only by decoration;
-6. Legacy routes are not mass-restyled accidentally;
+6. historical (WordPress-era) posts are not mass-restyled accidentally (former wording: «Legacy routes are not mass-restyled accidentally» — no Legacy routes remain since 5.11.2026);
 7. no new palette/theme store or page-local color owner.
 8. the primary content plane is centered with balanced inline gutters; RTL text alignment has not pinned the whole composition to the right;
 9. Personal Area, My Page, Messages and My Research are checked as a shared visual family at 320px, 390px, 768px and 1440px, with screenshots or browser geometry proving no unexplained opposite-side dead field or narrow right-hand column.
@@ -437,11 +437,11 @@ become less chromatic; primary numeric identity remains indigo, discovery uses
 its existing cyan (warm discovery in Parchment), and spatial Signature icons use
 secondary violet. Shared content actions use the same NavigationIcon2029 geometry:
 share, copy, save, check and add. Social channel marks retain CHANNELS brand identity.
-V2 successText/dangerText live in palette.js; success color requires a successful
+V2 successText/dangerText live in paletteTokens2029.js (formerly palette.js); success color requires a successful
 copy or save outcome, with text and accessible status retained. Save state denotes
 an item in the existing research library, not publication or cloud-sync completion.
-The original ShareActions and ResearchProvider remain behavior owners. Legacy
-QuickActions/DocActions are not silently replaced by this bounded 2029 projection.
+The original ShareActions and ResearchProvider remain behavior owners. The former Legacy
+QuickActions/DocActions were removed on 5.11.2026; this bounded 2029 projection is the active one.
 
 
 ## Royal color and shared press refinement · 10.10.2026
@@ -454,7 +454,7 @@ ending in violet. Violet is reserved for spatial depth/secondary focus. Discover
 and share use cyan/teal in all three presets, including Parchment. Gold/champagne
 remains restrained identity ornament (including a thin content-intro impression),
 never a verification signal or the default control color. Lab alters surfaces
-while preserving these control meanings. Legacy palette values remain unchanged.
+while preserving these control meanings. (The Legacy palettes were removed on 5.11.2026.)
 
 Shared SVG-bearing controls respond to pointer pressure and keyboard focus.
 Feedback is finite, transform/opacity based, does not intercept navigation or
@@ -510,3 +510,17 @@ no new palette, icon registry, theme store or domain owner.
    shared consumers across Day/Parchment/Night at 320/390/1440. Preserve text/icon contrast,
    44px targets, keyboard focus, reduced motion and non-color status labels. Do not introduce a
    runtime alternate-color system merely to test this policy.
+
+
+## Naming / product language law — carried from V1 · 11.11.2026
+
+Carried from `SOD1820_DESIGN_CONTRACT_V1.md` (§ Naming / product language law) so that public naming is owned by the active 2029 contract (Owner Index: «visual language / typography / public naming» → V2). V1 keeps its copy as history; where they differ, this section governs. The bullets are V1's wording; one factual correction is marked inline.
+
+- Public name: `היכל`, not `היכל הגילוי`.
+- `דף המספר` remains the public Number/Phrase product name and `/number` remains its entry family.
+- `עולם המספרים` and `עולם המספרים והגימטריה` are **not** formal future product/navigation names. They may appear only as ordinary descriptive prose when they are clearly not styled or routed as a named product/surface.
+- Active navigation/build-map labels for the numeric family should use neutral descriptive wording such as `מספרים` / `מספרים וגימטריה` unless Human Gate explicitly renames the product later.
+- Historical/archived references are preserved as provenance; they never override the current public product vocabulary. Before adding or restoring a public label, search the current Roadmap + this section for superseded names instead of copying text from older maps/contracts.
+- The site-wide construction message describes the whole site, not only the Heichal.
+- Never hard-code a lens label. The canonical labels are kingdom = `כי לה׳ המלוכה`, reality = `קוד המציאות`. *(Correction 11.11.2026: V1 said «Read it from `STREAMS`»; that constant no longer exists in the 2029 code, and several 2029 components currently repeat the literal labels — one shared source is an open follow-up for the Design/Experience owner.)*
+- Before broad UI/copy changes, read `SOD1820_MASTER_ROADMAP.md` and current canonical sources.

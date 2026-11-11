@@ -1,0 +1,355 @@
+{
+ "compaction_v1": {
+  "canonical_owner": "els_research_layer_law",
+  "classification": "OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+  "owner_family": "els_cipher"
+ },
+ "core_principle": "ELS verifies what was already found; it is a layer, not a standalone tool; not the entry point",
+ "current_state": "layer_1_built (tools/els/els-code.template.html -> public/tzofen.html, single iframe via TzofenEmbed.jsx; Els.jsx/ElsGrid removed 15.8.2026, els_single_engine_law); Pass 1/2 (24.8.2026) added Worker/adaptive search + Geometry Contract + FORMS/Split-Join",
+ "extends": [
+  "unified_graph_law",
+  "research_workspace_law",
+  "identity_architecture_law"
+ ],
+ "g3_disposition_v1": {
+  "classification": "KEEP_CANONICAL_OWNER",
+  "classified_at": "2026-09-15",
+  "gate": "G3_IMPLEMENTATION_COMPACTION_ARCHIVE_PASS",
+  "no_automatic_runtime_inheritance": true,
+  "normal_startup": true,
+  "reason": "canonical owner survives into G3 unless explicitly superseded through owner gate"
+ },
+ "layers": [
+  "1_basic_engine",
+  "2_els_score",
+  "3_graph_edges",
+  "4_ai_explain",
+  "5_collective_discovery",
+  "6_multilayer_journey",
+  "7_number_page_research_layers",
+  "8_gated_advanced_step"
+ ],
+ "owner_routing": {
+  "canonical_owner": "els_research_layer_law",
+  "confidence": "high",
+  "domain": "els_cipher",
+  "normalized_at": "2026-09-08",
+  "resolution": "RESOLVED",
+  "source": "SOD1820_MASTER_OWNER_INDEX/project_codex._index/existing_owner_contracts",
+  "version": 1
+ },
+ "pipeline": "entity → gematria → convergences → ELS → AI → knowledge_graph",
+ "status": "layer_1_built_pass1_2_hardening; layers_2_8_future_roadmap",
+ "v3_addition": {
+  "callable_engine_boundary_required": true,
+  "claude_challenge_reconciled": "f8245467-4add-4f68-9d1c-b329978ce04a",
+  "human_gate": "ZURIEL 2026-09-14",
+  "iframe_is_engine_authority": false,
+  "legacy_live_calibration": {
+   "records_total": 135,
+   "with_corpus_id": 26,
+   "with_start_index": 23
+  },
+  "no_new_system": true,
+  "owner_check": "EXTEND_EXISTING"
+ },
+ "v4_open_discovery": {
+  "ai_tokens_s0_s5": 0,
+  "calibration_2026_09_27": {
+   "density_verdict": "NOT_SUFFICIENT_ALONE_CONTROLS_MANDATORY",
+   "maftech_lexicon_rows": 43510,
+   "replayable_axes_tested": [
+    "ירושלים/71",
+    "משיחאלול/517",
+    "שמו אחד/721",
+    "בריוחאי/1001",
+    "מלחמת/1274",
+    "משיח טבת עשירי/1820",
+    "שם הקדוש/3441"
+   ]
+  },
+  "controls_required_for_significance": true,
+  "cost_owner": "system_suggestions_law:v4 + ai_analyze_contract:v2",
+  "deterministic_before_ai": true,
+  "dynamic_lexicon": true,
+  "human_gate": "ZURIEL 2026-09-27",
+  "language_signature": "CROSS_MATRIX_HYPOTHESIS_ONLY",
+  "no_new_system": true,
+  "open_discovery": "BOUNDED_CONTEXT_GATED",
+  "owner_check": "EXTEND_EXISTING",
+  "planning_token_bands": {
+   "deep": {
+    "max_input_tokens": 24000,
+    "max_output_tokens": 6000,
+    "requires_explicit_plan_or_human_for_above": true
+   },
+   "micro": {
+    "max_input_tokens": 4000,
+    "max_output_tokens": 1000
+   },
+   "standard": {
+    "max_input_tokens": 12000,
+    "max_output_tokens": 3000
+   }
+  },
+  "stages": [
+   "S0_REPLAY_AND_SOURCE",
+   "S1_LOCAL_GEOMETRY",
+   "S2_DYNAMIC_LEXICON",
+   "S3_OPEN_SEQUENCE_SEGMENTATION",
+   "S4_STATISTICAL_CHALLENGE",
+   "S5_CROSS_MATRIX_LANGUAGE_SIGNATURE",
+   "S6_AI_EXPLANATION_OR_CLUSTERING",
+   "S7_HUMAN_GATE_DECISION"
+  ]
+ },
+ "v5_scientific_calibration": {
+  "closure_calibration_2026_09_27": {
+   "exact_replay_match": 17,
+   "geometry_examples": {
+    "אמלוך/252": [
+     12,
+     12,
+     13
+    ],
+    "ירושלים/71": [
+     17,
+     24,
+     25
+    ]
+   },
+   "legacy_axes_with_start_tested": 19,
+   "legacy_monte_carlo_seeded": false,
+   "mismatches": [
+    "האלטלנה/581",
+    "משיחמשיח/13962"
+   ],
+   "replay_mismatch": 2
+  },
+  "frozen_manifest_required": true,
+  "geometry_robustness_vector": true,
+  "human_gate": "ZURIEL 2026-09-27",
+  "legacy_unseeded_monte_carlo": "EXPLORATORY_ONLY",
+  "lexicon_pack_classes": [
+   "CORPUS_NATIVE",
+   "GOVERNED_CORE",
+   "CONTEXT_PRE_REGISTERED",
+   "USER_PRE_REGISTERED",
+   "EXTERNAL_MODERN",
+   "POST_HOC_DERIVED"
+  ],
+  "modes": [
+   "EXPLORATORY_DISCOVERY",
+   "FROZEN_CONFIRMATION",
+   "CONTROL_DECOY",
+   "REPLAY_ONLY"
+  ],
+  "motif_grammar": [
+   "SAME_AXIS_EXTENSION",
+   "REVERSE_NEAR_PARALLEL",
+   "EXACT_INTERSECTION",
+   "SOURCE_TEXT_CROSSING",
+   "HEAD_TAIL_CHAIN",
+   "MULTI_AXIS_CLUSTER",
+   "GEOMETRY_STABLE_RECURRENCE",
+   "LEXICAL_MORPHOLOGICAL_FAMILY",
+   "TRANSFORM_MIRROR_RELATION",
+   "SOURCE_CONTEXT_RELATION"
+  ],
+  "multiple_hypothesis_accounting": true,
+  "no_new_system": true,
+  "owner_check": "EXTEND_EXISTING",
+  "replayable_seeded_null_required_for_significance": true,
+  "replication_levels": [
+   "SAME_OCCURRENCE",
+   "SAME_WINDOW",
+   "SAME_ANCHOR",
+   "CROSS_ANCHOR_SAME_CORPUS",
+   "CROSS_CORPUS"
+  ]
+ },
+ "v6_vector_geometry": {
+  "distance_components": [
+   "TO_PRIMARY_AXIS",
+   "BETWEEN_RELATED_LINES",
+   "TO_INTERSECTION",
+   "ALONG_OCCURRENCE_STEP"
+  ],
+  "exact_parallel_requires_constant_offset": true,
+  "golden_torah_kedosha": {
+   "axis": {
+    "dir": 1,
+    "skip": 10065,
+    "start0": 50890,
+    "term": "תורהקדשה"
+   },
+   "lattice_offset_cells": 3,
+   "members": [
+    {
+     "dir": -1,
+     "invariant_c_minus_r": 542,
+     "primitive": [
+      1,
+      1
+     ],
+     "raw_vector": [
+      -2,
+      -2
+     ],
+     "skip": 20132,
+     "start0": 131400,
+     "term": "התורה"
+    },
+    {
+     "dir": -1,
+     "invariant_c_minus_r": 545,
+     "primitive": [
+      1,
+      1
+     ],
+     "raw_vector": [
+      -1,
+      -1
+     ],
+     "skip": 10066,
+     "start0": 111271,
+     "term": "אמיתית"
+    }
+   ],
+   "paired_gaps": [
+    3,
+    3,
+    3
+   ],
+   "record_id": "efe4a200-8794-43df-81f7-36fb4df3dd24",
+   "shared_row_support": 3,
+   "transversal": {
+    "intersection_pos0": 60941,
+    "skip": 2,
+    "start0": 60935,
+    "term": "בריתאור"
+   }
+  },
+  "human_gate": "ZURIEL 2026-09-27",
+  "motifs": [
+   "EXACT_PARALLEL_FAMILY",
+   "NEAR_PARALLEL_FAMILY",
+   "PARALLEL_CLUSTER",
+   "TRANSVERSAL_CROSSING"
+  ],
+  "no_new_system": true,
+  "owner_check": "EXTEND_EXISTING",
+  "primitive_direction_from_coordinates": true,
+  "raw_skip_not_direction_identity": true
+ },
+ "v7_corpus_native_depth": {
+  "base_window_origin_required": true,
+  "cross_slice_motifs": [
+   "SAME_LOCAL_CELL_DIFFERENT_DEPTH",
+   "DEPTH_ALIGNED_AXIS",
+   "DEPTH_PARALLEL",
+   "DEPTH_INTERSECTION_NEAR_CROSSING"
+  ],
+  "depth_unit": "axis_width_or_primary_skip_S",
+  "golden_torah_50": {
+   "corpus_origin_note": "start0=5 is the ת of בראשית",
+   "dir": 1,
+   "nearby_verified_occurrence": {
+    "dir": 1,
+    "end0": 275,
+    "role": "finding_inside_research_volume_not_depth_origin",
+    "skip": 3,
+    "start0": 254,
+    "term": "קודים אמת"
+   },
+   "positions": [
+    5,
+    55,
+    105,
+    155
+   ],
+   "skip": 50,
+   "start0": 5,
+   "term": "תורה"
+  },
+  "human_gate": "ZURIEL 2026-09-27",
+  "independent_evidence": false,
+  "no_new_system": true,
+  "owner_check": "EXTEND_EXISTING",
+  "renderer_owns_depth_semantics": false,
+  "transform": "corpus_index_z = base_corpus_index + z * axis_width",
+  "whole_window_transform": true
+ },
+ "v8_dynamic_matrix_volume": {
+  "calibration_1820": {
+   "existing_related": "אליהו/1820",
+   "extension_length": 18,
+   "near_candidate": "ישועה/10",
+   "same_axis_extension": "משיח טבת עשירי בהתחול",
+   "short_low_priority_examples": [
+    "נביא",
+    "ציון"
+   ]
+  },
+  "default_research_order": [
+   "REPLAY_SOURCE",
+   "SAME_LINE_EXTENSION",
+   "PLANE_RELATIONS",
+   "SLICE_SHIFT_COMPARISON",
+   "TRUE_VOLUME_DEPTH",
+   "BOUNDED_PRIMITIVE_DIRECTIONS",
+   "HOT_GATED_SHORT_TOKENS",
+   "CONTROLS_CHALLENGE",
+   "OPTIONAL_AI_EXPLANATION"
+  ],
+  "default_true_volume_basis": {
+   "eX": "+1",
+   "eY": "+S",
+   "eZ": "+(S*H)",
+   "index_formula": "origin + x + y*S + z*(S*H)"
+  },
+  "dynamic_box": {
+   "asymmetric_expansion": true,
+   "expansion_requires_information_gain": true,
+   "short_token_can_create_hot_state_alone": false,
+   "short_token_hot_gate": true,
+   "short_token_scan_cold_box": false,
+   "start": "SMALLEST_SUFFICIENT"
+  },
+  "human_gate": "ZURIEL 2026-09-27",
+  "no_new_system": true,
+  "one_scanner": true,
+  "owner_check": "EXTEND_EXISTING",
+  "slice_shift_formula": "baseCorpusIndex + k * S",
+  "slice_shift_is_independent_z": false
+ },
+ "v9_matrix_profiles": {
+  "default_2029_profile": "RESEARCH",
+  "human_gate": "ZURIEL 2026-09-27",
+  "legacy_ui_canonical": false,
+  "mode_switch_preserves_state": true,
+  "mode_switch_replay_required": false,
+  "one_engine": true,
+  "one_research_state": true,
+  "owner_check": "EXTEND_EXISTING",
+  "profiles": {
+   "CLASSIC": {
+    "adaptive_expansion": false,
+    "ai_required": false,
+    "heavy_io_on_entry": false,
+    "manual_first": true,
+    "representation_default": "2D"
+   },
+   "RESEARCH": {
+    "adaptive_capability": true,
+    "ai_required": false,
+    "heavy_io_on_entry": false,
+    "progressive_disclosure": true,
+    "representation_default": "2D"
+   }
+  },
+  "renderer_axis_orthogonal_to_profile": true
+ }
+}

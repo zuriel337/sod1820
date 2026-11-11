@@ -153,7 +153,7 @@ Mobile and desktop are the same system, not separate products. Responsive presen
 Mobile favors the compact floating Dock and sheets. Desktop may use wider presentation and the Raziel Companion Rail, but must not create a second navigation/research/AI architecture.
 
 ### Rollout / migration law
-During gated rollout, role/feature gates may temporarily show the new Dock to approved users while preserving legacy launchers for everyone else. Never remove a legacy entry point for users who cannot yet access its replacement.
+[Historical — completed: the gated rollout ended with the 2029 Production cutover (4.11.2026) and the Legacy removal (5.11.2026); no Legacy launchers remain.] During gated rollout, role/feature gates may temporarily show the new Dock to approved users while preserving legacy launchers for everyone else. Never remove a legacy entry point for users who cannot yet access its replacement.
 
 Retire legacy surfaces only after capability parity is verified. Preserve capability, truth and provenance — not necessarily the legacy interface.
 

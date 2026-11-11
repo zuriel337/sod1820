@@ -1,0 +1,672 @@
+TAP version 13
+# 3:02:26 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+# 3:02:27 AM [vite] (client) [optimizer] scanning dependencies...
+# 3:02:30 AM [vite] (client) [console.warn] No routes matched location "/world?view=sources&source=tzvi-opoc\#world-contributor-material" 
+# Subtest: Beit Midrash hall fits 320/390/desktop in day, card and night
+ok 1 - Beit Midrash hall fits 320/390/desktop in day, card and night
+  ---
+  duration_ms: 5122.07718
+  type: 'test'
+  ...
+# Subtest: lesson pages are centred, enriched and calm in nine theme/width combinations
+ok 2 - lesson pages are centred, enriched and calm in nine theme/width combinations
+  ---
+  duration_ms: 11182.659473
+  type: 'test'
+  ...
+# Subtest: loading skeleton keeps the lesson stable even when the registry is slow
+ok 3 - loading skeleton keeps the lesson stable even when the registry is slow
+  ---
+  duration_ms: 15899.441887
+  type: 'test'
+  ...
+# Subtest: teaching illustrations are presentational, bounded, quiet and motion-safe
+ok 4 - teaching illustrations are presentational, bounded, quiet and motion-safe
+  ---
+  duration_ms: 9566.956916
+  type: 'test'
+  ...
+# Subtest: source-reading lesson: seven-step strip, centred lesson, explained exercise, no stored progress
+ok 5 - source-reading lesson: seven-step strip, centred lesson, explained exercise, no stored progress
+  ---
+  duration_ms: 8327.816941
+  type: 'test'
+  ...
+# 3:03:17 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+# 3:03:18 AM [vite] (client) [optimizer] scanning dependencies...
+# Subtest: global reading: navigate while running, exact return through real ELS page, cancel, completion and reload
+ok 6 - global reading: navigate while running, exact return through real ELS page, cancel, completion and reload
+  ---
+  duration_ms: 3302.629291
+  type: 'test'
+  ...
+# (node:1178) ExperimentalWarning: stripTypeScriptTypes is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: one click end to end: start, minutes of polling with progress, the batch ends, the engine verifies, and the Raziel thread receives ONE final message
+ok 7 - one click end to end: start, minutes of polling with progress, the batch ends, the engine verifies, and the Raziel thread receives ONE final message
+  ---
+  duration_ms: 280.273419
+  type: 'test'
+  ...
+# Subtest: an explicit cancel: the provider is asked, the end is awaited, and the thread says honestly what became of it and what it cost
+ok 8 - an explicit cancel: the provider is asked, the end is awaited, and the thread says honestly what became of it and what it cost
+  ---
+  duration_ms: 69.585128
+  type: 'test'
+  ...
+# Subtest: a cut-off answer reaches the thread as NOT completed, with its cost and no findings
+ok 9 - a cut-off answer reaches the thread as NOT completed, with its cost and no findings
+  ---
+  duration_ms: 54.199617
+  type: 'test'
+  ...
+# Subtest: a non-admin, an inactive layer and a preview are answered in the thread without polling
+ok 10 - a non-admin, an inactive layer and a preview are answered in the thread without polling
+  ---
+  duration_ms: 36.528857
+  type: 'test'
+  ...
+# Subtest: an older ai-analyze that ignores the action never has its ordinary answer shown as a reading
+ok 11 - an older ai-analyze that ignores the action never has its ordinary answer shown as a reading
+  ---
+  duration_ms: 1.009309
+  type: 'test'
+  ...
+# Subtest: an unmount (abort) while waiting stops quietly: no cancel is sent and the provider keeps the job
+ok 12 - an unmount (abort) while waiting stops quietly: no cancel is sent and the provider keeps the job
+  ---
+  duration_ms: 33.236825
+  type: 'test'
+  ...
+# 3:03:21 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+# 3:03:22 AM [vite] (client) [optimizer] scanning dependencies...
+# 3:03:24 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:03:24.559Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# 3:03:29 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:03:29.664Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# 3:03:34 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:03:34.448Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# 3:03:39 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:03:39.485Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# Subtest: Research tools have their own full-width entry below the matrix without adding side actions or automatic work
+ok 13 - Research tools have their own full-width entry below the matrix without adding side actions or automatic work
+  ---
+  duration_ms: 21643.959403
+  type: 'test'
+  ...
+# 3:03:45 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:03:45.251Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# 3:03:50 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:03:50.991Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# 3:03:56 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:03:56.798Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# 3:04:02 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:04:02.567Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# 3:04:08 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:04:08.452Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# Subtest: matrix toolbar is compact, preserves every display action and clears the real dock in all presets
+ok 14 - matrix toolbar is compact, preserves every display action and clears the real dock in all presets
+  ---
+  duration_ms: 30683.48044
+  type: 'test'
+  ...
+# Subtest: manual letter selection uses canonical UI state, survives profiles, rejects stale controls and never scans
+ok 15 - manual letter selection uses canonical UI state, survives profiles, rejects stale controls and never scans
+  ---
+  duration_ms: 30128.718628
+  type: 'test'
+  ...
+# Subtest: letter occurrence actions choose the same verified scan target and open its exact matrix
+ok 16 - letter occurrence actions choose the same verified scan target and open its exact matrix
+  ---
+  duration_ms: 4534.964379
+  type: 'test'
+  ...
+# Subtest: matrix share: explicit, private-safe and exact canonical replay across all profiles
+ok 17 - matrix share: explicit, private-safe and exact canonical replay across all profiles
+  ---
+  duration_ms: 8989.509767
+  type: 'test'
+  ...
+# Subtest: Research has one regular/cross/advanced search surface with preserved drafts and no automatic work
+ok 18 - Research has one regular/cross/advanced search surface with preserved drafts and no automatic work
+  ---
+  duration_ms: 13016.064899
+  type: 'test'
+  ...
+# Subtest: unchecked third term preserves pairs, checked third requires three, and verified optional matches reach the matrix
+ok 19 - unchecked third term preserves pairs, checked third requires three, and verified optional matches reach the matrix
+  ---
+  duration_ms: 7606.154967
+  type: 'test'
+  ...
+# Subtest: Research pair preparation is explicit, uses canonical crossed search and leaves Classic clean
+ok 20 - Research pair preparation is explicit, uses canonical crossed search and leaves Classic clean
+  ---
+  duration_ms: 15981.480345
+  type: 'test'
+  ...
+# Subtest: Research occurrence inspection uses exact loaded axes, is explicit and preserves the matrix
+ok 21 - Research occurrence inspection uses exact loaded axes, is explicit and preserves the matrix
+  ---
+  duration_ms: 4708.503022
+  type: 'test'
+  ...
+# Subtest: Research occurrence queue caps selection, cancels late work and resets on a new results page
+ok 22 - Research occurrence queue caps selection, cancels late work and resets on a new results page
+  ---
+  duration_ms: 5408.773529
+  type: 'test'
+  ...
+# Subtest: CI: native UI browser regression must not be skipped when required
+ok 23 - CI: native UI browser regression must not be skipped when required
+  ---
+  duration_ms: 0.397018
+  type: 'test'
+  ...
+# Subtest: background return restores verified manual findings and view through the existing engine load
+ok 24 - background return restores verified manual findings and view through the existing engine load
+  ---
+  duration_ms: 4770.498514
+  type: 'test'
+  ...
+# Subtest: research structures are explicit, preserve Classic and compare exact snapshots without lexicon or AI
+ok 25 - research structures are explicit, preserve Classic and compare exact snapshots without lexicon or AI
+  ---
+  duration_ms: 25800.96389
+  type: 'test'
+  ...
+# Subtest: discovery plans and source-direction filtering stay explicit on the actual canonical scan
+ok 26 - discovery plans and source-direction filtering stay explicit on the actual canonical scan
+  ---
+  duration_ms: 10888.813935
+  type: 'test'
+  ...
+# Subtest: Research language wizard reuses the canonical reader and admits exact phrases without auto work
+ok 27 - Research language wizard reuses the canonical reader and admits exact phrases without auto work
+  ---
+  duration_ms: 13644.726671
+  type: 'test'
+  ...
+# Subtest: explicit Research lexicon is lazy, exact, cancellable and responsive without AI
+ok 28 - explicit Research lexicon is lazy, exact, cancellable and responsive without AI
+  ---
+  duration_ms: 34552.567342
+  type: 'test'
+  ...
+# Subtest: explicit lexicon cancellation discards late download and permits a fresh explicit run
+ok 29 - explicit lexicon cancellation discards late download and permits a fresh explicit run
+  ---
+  duration_ms: 4669.184985
+  type: 'test'
+  ...
+# Subtest: completed phrase has no redundant skip continuation in Classic or Research; a lone axis explains pairs
+ok 30 - completed phrase has no redundant skip continuation in Classic or Research; a lone axis explains pairs
+  ---
+  duration_ms: 12864.03529
+  type: 'test'
+  ...
+# Subtest: Fable existing results project exact letters without search, AI, manual-finding mutation or axis loss
+ok 31 - Fable existing results project exact letters without search, AI, manual-finding mutation or axis loss
+  ---
+  duration_ms: 6904.840197
+  type: 'test'
+  ...
+# Subtest: Classic opens on unmarked Genesis letters, right aligned, with no sample cipher
+ok 32 - Classic opens on unmarked Genesis letters, right aligned, with no sample cipher
+  ---
+  duration_ms: 4897.172617
+  type: 'test'
+  ...
+# Subtest: native UI: one unified rail scans exact primary and secondary targets without moving the matrix
+ok 33 - native UI: one unified rail scans exact primary and secondary targets without moving the matrix
+  ---
+  duration_ms: 5584.308568
+  type: 'test'
+  ...
+# Subtest: native UI: selected targets are invalidated by radius, hiding, removal and a new main axis
+ok 34 - native UI: selected targets are invalidated by radius, hiding, removal and a new main axis
+  ---
+  duration_ms: 7582.050595
+  type: 'test'
+  ...
+# Subtest: native UI: inline mobile tools and wide 90% panels preserve geometry, pan and reachable height controls
+ok 35 - native UI: inline mobile tools and wide 90% panels preserve geometry, pan and reachable height controls
+  ---
+  duration_ms: 6584.378796
+  type: 'test'
+  ...
+# Subtest: native UI: mobile scan is inline below the matrix and supports native clipboard paste
+ok 36 - native UI: mobile scan is inline below the matrix and supports native clipboard paste
+  ---
+  duration_ms: 13247.168613
+  type: 'test'
+  ...
+# 3:08:18 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:08:18.283Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# 3:08:24 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:08:24.617Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# 3:08:30 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:08:30.373Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# Subtest: native UI: actual SystemFrame dock owns search, tools, Raziel and registration cleanup
+ok 37 - native UI: actual SystemFrame dock owns search, tools, Raziel and registration cleanup
+  ---
+  duration_ms: 18355.243605
+  type: 'test'
+  ...
+# Subtest: native UI: vivid colors and exact finding focus stay readable in every theme without changing research
+ok 38 - native UI: vivid colors and exact finding focus stay readable in every theme without changing research
+  ---
+  duration_ms: 8925.834473
+  type: 'test'
+  ...
+# Subtest: native UI: unified scan recovers from Classic; heat paints only unmarked cells without changing research state
+ok 39 - native UI: unified scan recovers from Classic; heat paints only unmarked cells without changing research state
+  ---
+  duration_ms: 3890.931744
+  type: 'test'
+  ...
+# Subtest: native UI: fresh anonymous 2029 searches bypass legacy demo gates while canonical verification remains required
+ok 40 - native UI: fresh anonymous 2029 searches bypass legacy demo gates while canonical verification remains required
+  ---
+  duration_ms: 5667.679297
+  type: 'test'
+  ...
+# Subtest: native UI: compact findings, vowels and classic letters retain exact base letters and source indices
+ok 41 - native UI: compact findings, vowels and classic letters retain exact base letters and source indices
+  ---
+  duration_ms: 6990.308839
+  type: 'test'
+  ...
+# Subtest: native UI: cross meetings have exact numbered navigation, real compact bounds and adaptive expansion
+ok 42 - native UI: cross meetings have exact numbered navigation, real compact bounds and adaptive expansion
+  ---
+  duration_ms: 12233.89518
+  type: 'test'
+  ...
+# Subtest: native transition: minus-two reading layout preserves exact cells and opens names cross without refresh
+ok 43 - native transition: minus-two reading layout preserves exact cells and opens names cross without refresh
+  ---
+  duration_ms: 5327.963793
+  type: 'test'
+  ...
+# Subtest: native transition: a failed cross labels the retained result and retry replaces it in the same tab
+ok 44 - native transition: a failed cross labels the retained result and retry replaces it in the same tab
+  ---
+  duration_ms: 6292.428367
+  type: 'test'
+  ...
+# Subtest: native reliability: both user examples, reversed roles, literal source inspection and compact cross geometry
+ok 45 - native reliability: both user examples, reversed roles, literal source inspection and compact cross geometry
+  ---
+  duration_ms: 9012.499953
+  type: 'test'
+  ...
+# Subtest: native reliability: cancel aborts verification, rolls back secondary edits and rejects late progress after replacement
+ok 46 - native reliability: cancel aborts verification, rolls back secondary edits and rejects late progress after replacement
+  ---
+  duration_ms: 5314.795171
+  type: 'test'
+  ...
+# Subtest: Research matrix scrolls and drags vertically as well as horizontally, and has no side +/- zoom
+ok 47 - Research matrix scrolls and drags vertically as well as horizontally, and has no side +/- zoom
+  ---
+  duration_ms: 2598.454529
+  type: 'test'
+  ...
+# Subtest: native save: cloud-only, published to the research file by default unless the person ticks "do not publish"
+ok 48 - native save: cloud-only, published to the research file by default unless the person ticks "do not publish"
+  ---
+  duration_ms: 3048.475156
+  type: 'test'
+  ...
+# Subtest: native save: private retry, same-record update and exact restore preserve findings without legacy dialogs or public uploads
+ok 49 - native save: private retry, same-record update and exact restore preserve findings without legacy dialogs or public uploads
+  ---
+  duration_ms: 6195.313097
+  type: 'test'
+  ...
+# Subtest: native fixture handshake loads its Golden once and never replays it over a user-selected axis
+ok 50 - native fixture handshake loads its Golden once and never replays it over a user-selected axis
+  ---
+  duration_ms: 2422.31492
+  type: 'test'
+  ...
+# Subtest: an opened personal cipher updates its exact saved record after findings change
+ok 51 - an opened personal cipher updates its exact saved record after findings change
+  ---
+  duration_ms: 4840.107435
+  type: 'test'
+  ...
+# Subtest: privacy F4: real Classic save of opened private row and native-to-Classic keep images private; failed update never publishes
+ok 52 - privacy F4: real Classic save of opened private row and native-to-Classic keep images private; failed update never publishes
+  ---
+  duration_ms: 5958.378556
+  type: 'test'
+  ...
+# Subtest: privacy F4: explicit private targets, missing access, lookup failures and account changes fail before public uploads
+ok 53 - privacy F4: explicit private targets, missing access, lookup failures and account changes fail before public uploads
+  ---
+  duration_ms: 2805.894741
+  type: 'test'
+  ...
+# Subtest: privacy F4: public heuristic re-save by another member or guest keeps the existing pending-variant path
+ok 54 - privacy F4: public heuristic re-save by another member or guest keeps the existing pending-variant path
+  ---
+  duration_ms: 5541.254944
+  type: 'test'
+  ...
+# Subtest: privacy F4: new and existing public Classic saves retain permitted uploads and update flow
+ok 55 - privacy F4: new and existing public Classic saves retain permitted uploads and update flow
+  ---
+  duration_ms: 3264.058884
+  type: 'test'
+  ...
+# Subtest: native reliability: cancellation terminates discovery and cross workers; partial progress belongs only to its request
+ok 56 - native reliability: cancellation terminates discovery and cross workers; partial progress belongs only to its request
+  ---
+  duration_ms: 7372.200522
+  type: 'test'
+  ...
+# 3:10:22 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+# 3:10:23 AM [vite] (client) [optimizer] scanning dependencies...
+# Subtest: native library: paginated existing records, legacy disclosure and account changes remain scoped
+ok 57 - native library: paginated existing records, legacy disclosure and account changes remain scoped
+  ---
+  duration_ms: 2781.835944
+  type: 'test'
+  ...
+# 3:10:25 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+# 3:10:26 AM [vite] (client) [optimizer] scanning dependencies...
+# Subtest: native presentation: verse words alternate from either entry and camera reveals admitted findings without engine changes
+ok 58 - native presentation: verse words alternate from either entry and camera reveals admitted findings without engine changes
+  ---
+  duration_ms: 12907.068717
+  type: 'test'
+  ...
+# Subtest: guided discovery inspects at most four exact occurrences, keeps raw runs advanced and fits 320px
+ok 59 - guided discovery inspects at most four exact occurrences, keeps raw runs advanced and fits 320px
+  ---
+  duration_ms: 5776.134509
+  type: 'test'
+  ...
+# Subtest: guided golden: מקדש ירד keeps two exact axes and recognizes the general defective spelling ירושלם
+ok 60 - guided golden: מקדש ירד keeps two exact axes and recognizes the general defective spelling ירושלם
+  ---
+  duration_ms: 4640.675684
+  type: 'test'
+  ...
+# Subtest: guided three-term cross stays bounded and never promotes a partial result
+ok 61 - guided three-term cross stays bounded and never promotes a partial result
+  ---
+  duration_ms: 7681.485156
+  type: 'test'
+  ...
+# Subtest: guided three-term cross displays only canonically replayed complete meetings
+ok 62 - guided three-term cross displays only canonically replayed complete meetings
+  ---
+  duration_ms: 3670.635228
+  type: 'test'
+  ...
+# Subtest: native results: regular and crossed searches expose selectable results in Torah and Tanakh, with terminal recovery
+ok 63 - native results: regular and crossed searches expose selectable results in Torah and Tanakh, with terminal recovery
+  ---
+  duration_ms: 10433.038551
+  type: 'test'
+  ...
+# Subtest: native bridge: parent research updates during a state message cannot discard the completed result
+ok 64 - native bridge: parent research updates during a state message cannot discard the completed result
+  ---
+  duration_ms: 2389.868736
+  type: 'test'
+  ...
+# Subtest: native form: crossing terms stay adjacent before the shared submit on mobile and desktop
+ok 65 - native form: crossing terms stay adjacent before the shared submit on mobile and desktop
+  ---
+  duration_ms: 6879.676234
+  type: 'test'
+  ...
+# Subtest: matrix analysis submits only on explicit action and keeps successive axis identities separate
+ok 66 - matrix analysis submits only on explicit action and keeps successive axis identities separate
+  ---
+  duration_ms: 7442.667251
+  type: 'test'
+  ...
+# Subtest: shared matrix AI card is available across profiles without automatic submission
+ok 67 - shared matrix AI card is available across profiles without automatic submission
+  ---
+  duration_ms: 14578.622885
+  type: 'test'
+  ...
+# Subtest: Research removes the redundant unified button but regular search still accepts the complete phrase
+ok 68 - Research removes the redundant unified button but regular search still accepts the complete phrase
+  ---
+  duration_ms: 6176.855609
+  type: 'test'
+  ...
+# Subtest: research form: optional third axis uses the existing verified triple or the original pair path
+ok 69 - research form: optional third axis uses the existing verified triple or the original pair path
+  ---
+  duration_ms: 12320.239821
+  type: 'test'
+  ...
+# Subtest: three-term research can continue the available axes after a bounded first wave
+ok 70 - three-term research can continue the available axes after a bounded first wave
+  ---
+  duration_ms: 5201.53148
+  type: 'test'
+  ...
+# {"first":"empty","second":"empty","firstScanned":450,"secondScanned":900,"available":9859}
+# Subtest: research keeps the additional third-axis tool hidden while its engine contract stays verified
+ok 71 - research keeps the additional third-axis tool hidden while its engine contract stays verified
+  ---
+  duration_ms: 3755.640838
+  type: 'test'
+  ...
+# Subtest: matrix pinch zoom changes only presentation on mobile
+ok 72 - matrix pinch zoom changes only presentation on mobile
+  ---
+  duration_ms: 5049.326779
+  type: 'test'
+  ...
+# Subtest: connected cross results expose only adjacent letters
+ok 73 - connected cross results expose only adjacent letters
+  ---
+  duration_ms: 21930.424588
+  type: 'test'
+  ...
+# {"width":320,"scope":"torah","status":"done","items":2}
+# {"width":320,"scope":"torah","gap":20,"status":"done","items":3}
+# {"width":320,"scope":"tanakh","status":"empty","items":0}
+# {"width":320,"scope":"tanakh","gap":20,"status":"done","items":3}
+# {"width":1440,"scope":"torah","status":"done","items":2}
+# {"width":1440,"scope":"torah","gap":20,"status":"done","items":3}
+# {"width":1440,"scope":"tanakh","status":"empty","items":0}
+# {"width":1440,"scope":"tanakh","gap":20,"status":"done","items":3}
+# Subtest: native form: a phrase and its split-and-cross action stay in one centered search bundle
+ok 74 - native form: a phrase and its split-and-cross action stay in one centered search bundle
+  ---
+  duration_ms: 5696.4801
+  type: 'test'
+  ...
+# Subtest: Research exact probe is one-shot across repeated ready before and after verification
+ok 75 - Research exact probe is one-shot across repeated ready before and after verification
+  ---
+  duration_ms: 2327.805473
+  type: 'test'
+  ...
+# Subtest: Research exact probe ignores delayed success after a newer no-hit request and allows explicit retry
+ok 76 - Research exact probe ignores delayed success after a newer no-hit request and allows explicit retry
+  ---
+  duration_ms: 1831.72939
+  type: 'test'
+  ...
+# Subtest: Research exact probe queued before iframe readiness survives load without duplicate work on iframe reload
+ok 77 - Research exact probe queued before iframe readiness survives load without duplicate work on iframe reload
+  ---
+  duration_ms: 3019.031055
+  type: 'test'
+  ...
+# Subtest: Research exact skip above the page ceiling loads a canonical verified axis without remounting Classic
+ok 78 - Research exact skip above the page ceiling loads a canonical verified axis without remounting Classic
+  ---
+  duration_ms: 2637.175805
+  type: 'test'
+  ...
+# 3:12:51 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+# 3:12:52 AM [vite] (client) [optimizer] scanning dependencies...
+# Subtest: native folder: bounded recent cards, collapse, save refresh and library return preserve the workspace
+ok 79 - native folder: bounded recent cards, collapse, save refresh and library return preserve the workspace
+  ---
+  duration_ms: 2306.974617
+  type: 'test'
+  ...
+# 3:12:53 AM [vite] (client) Re-optimizing dependencies because vite config has changed
+# 3:12:54 AM [vite] (client) [optimizer] scanning dependencies...
+# Subtest: historical search repairs: pending identity, saved skip, ordered continuation and finding pages
+ok 80 - historical search repairs: pending identity, saved skip, ordered continuation and finding pages
+  ---
+  duration_ms: 7164.439864
+  type: 'test'
+  ...
+# Subtest: historical cross repairs: every found meeting is pageable and continuation advances the unscanned tail
+ok 81 - historical cross repairs: every found meeting is pageable and continuation advances the unscanned tail
+  ---
+  duration_ms: 4533.50513
+  type: 'test'
+  ...
+# 3:13:07 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:13:07.553Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# 3:13:13 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:13:13.932Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# 3:13:20 AM [vite] (client) [console.warn] GoTrueClient@sb-linswmnnkjxvweumprav-auth-token:1 (2.119.0) 2026-11-11T03:13:20.606Z Multiple GoTrueClient instances detected in the same browser context. It is not an error, but this should be avoided as it may produce undefined behavior when used concurrently under the same storage key.
+# Subtest: design integration: royal controls preserve matrix identity and stable touch targets in all presets and widths
+ok 82 - design integration: royal controls preserve matrix identity and stable touch targets in all presets and widths
+  ---
+  duration_ms: 21135.967936
+  type: 'test'
+  ...
+# Subtest: canonical tk-letters witness hashes match the assignment admission constants
+ok 83 - canonical tk-letters witness hashes match the assignment admission constants
+  ---
+  duration_ms: 13.63162
+  type: 'test'
+  ...
+# Subtest: bounded Tanakh Goldens are fixed (canonical tk-letters oracle) and reach past the Torah boundary
+ok 84 - bounded Tanakh Goldens are fixed (canonical tk-letters oracle) and reach past the Torah boundary
+  ---
+  duration_ms: 0.825015
+  type: 'test'
+  ...
+# Subtest: migration: derived relation shape, RLS, service-only, hard admission before function replacement
+ok 85 - migration: derived relation shape, RLS, service-only, hard admission before function replacement
+  ---
+  duration_ms: 0.638428
+  type: 'test'
+  ...
+# Subtest: migration: MISSING_ADAPTER removed from executable code; one generator; no duplicated search semantics
+ok 86 - migration: MISSING_ADAPTER removed from executable code; one generator; no duplicated search semantics
+  ---
+  duration_ms: 0.886326
+  type: 'test'
+  ...
+# Subtest: migration: helper/generator grants are service-only
+ok 87 - migration: helper/generator grants are service-only
+  ---
+  duration_ms: 0.453431
+  type: 'test'
+  ...
+# Subtest: executable: migration admits derived stream and Tanakh runs through the one engine
+not ok 88 - executable: migration admits derived stream and Tanakh runs through the one engine
+  ---
+  duration_ms: 1085.820262
+  type: 'test'
+  location: '/tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/els-tanakh-canonical-stream.test.mjs:112:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    psql: error: /tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/els-tanakh-canonical-stream-fixture.sql: Permission denied
+    
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/els-tanakh-canonical-stream.test.mjs:133:88)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: static: one set-wise verifier, service-only ACL, caps, corpus binding before verification
+ok 89 - static: one set-wise verifier, service-only ACL, caps, corpus binding before verification
+  ---
+  duration_ms: 1.263949
+  type: 'test'
+  ...
+# Subtest: CI: executable SQL gate must not be skipped
+ok 90 - CI: executable SQL gate must not be skipped
+  ---
+  duration_ms: 0.179032
+  type: 'test'
+  ...
+# Subtest: saved record projection preserves zero/backward anchors and marks historical records without inventing identity
+ok 91 - saved record projection preserves zero/backward anchors and marks historical records without inventing identity
+  ---
+  duration_ms: 0.609239
+  type: 'test'
+  ...
+# Subtest: executable: native private saves preserve ownership, RLS, updates and existing publication gates
+not ok 92 - executable: native private saves preserve ownership, RLS, updates and existing publication gates
+  ---
+  duration_ms: 889.576308
+  type: 'test'
+  location: '/tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/els-verify-batch.test.mjs:65:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    test/els-native-save-fixture.sql: psql: error: /tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/els-native-save-fixture.sql: Permission denied
+    
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/els-verify-batch.test.mjs:75:14)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+# Subtest: executable: batch verifier parity with single verifier + tk-letters oracle (Torah + Tanakh)
+not ok 93 - executable: batch verifier parity with single verifier + tk-letters oracle (Torah + Tanakh)
+  ---
+  duration_ms: 875.176607
+  type: 'test'
+  location: '/tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/els-verify-batch.test.mjs:80:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    psql: error: /tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/els-tanakh-canonical-stream-fixture.sql: Permission denied
+    
+    
+    1 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 1
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///tmp/claude-0/-home-user-sod1820/a0e1057f-583d-5146-a7ff-2fa62b42ebc6/scratchpad/wt-base/test/els-verify-batch.test.mjs:101:70)
+    Test.runInAsyncScope (node:async_hooks:227:14)
+    Test.run (node:internal/test_runner/test:1402:25)
+    Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+    Test.postRun (node:internal/test_runner/test:1542:19)
+    Test.run (node:internal/test_runner/test:1467:12)
+    async Test.processPendingSubtests (node:internal/test_runner/test:974:7)
+  ...
+1..93
+# tests 93
+# suites 0
+# pass 90
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 663860.558385

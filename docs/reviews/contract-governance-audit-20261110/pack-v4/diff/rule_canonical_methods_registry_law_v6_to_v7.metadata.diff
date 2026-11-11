@@ -1,0 +1,16 @@
+--- nodes:canonical_methods_registry_law@v6→v7.metadata (base)
++++ nodes:canonical_methods_registry_law@v6→v7.metadata (proposed)
+@@ -128,2 +128,13 @@
+   "quick_method_count_semantics": "adaptive_presentation_only"
++ },
++ "v7_value_beside_gematria_match_row": {
++  "behavior_change": false,
++  "carried_from": "no_row_without_number_law v1 (2026-07-07)",
++  "human_gate": "ZURIEL 2026-11-10 (ד1)",
++  "narrowing": "a value stated once for the whole list may be shown once (ZURIEL 2026-11-10, ד1)",
++  "no_new_system": true,
++  "owner_check": "EXTEND_EXISTING",
++  "scope": "original context only: lists of expressions/entities/signatures presented as gematria matches or value connections",
++  "truth_boundary": "truth_axes_foundation_law: authored phrase without authored value shows no number; authored value keeps the author method label; never re-resolved",
++  "value_source": "stored value, else the canonical engine at render time (as in v1: calcGem / fn_ragil)"
+  }

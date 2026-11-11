@@ -1,0 +1,187 @@
+[
+ {
+  "name": "[T1] the 2,894 copied rows reproduce the live state checksum",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T2] parity: public.resolve_word_review(uuid,text,text,text) pg_get_functiondef md5 = live",
+  "pass": true,
+  "detail": "63a3e2f29a7d7ca206a5db7d3159317a"
+ },
+ {
+  "name": "[T2] parity: public.wa_word_review(uuid,text) pg_get_functiondef md5 = live",
+  "pass": true,
+  "detail": "b6a17fa640ca992a65368263cdcba28b"
+ },
+ {
+  "name": "[T2] parity: public.admin_bulk_triage(text) pg_get_functiondef md5 = live",
+  "pass": true,
+  "detail": "2a44326886e4d3011d6df36f78c411e2"
+ },
+ {
+  "name": "[T2] parity: public.admin_hide_word(text) pg_get_functiondef md5 = live",
+  "pass": true,
+  "detail": "fe5dfee95a705dcfb2ee969f7e544a5a"
+ },
+ {
+  "name": "[T3] 40_ applies on the reviewed definitions",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T3] applying 40_ changes no word state and no row count",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T3] the 2,894 checksum is unchanged after 40_",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T3] a second run of 40_ is refused (definitions are no longer the reviewed base)",
+  "pass": true,
+  "detail": "S40: public.resolve_word_review(uuid,text,text,text) differs from the reviewed d"
+ },
+ {
+  "name": "[T4] state report refuses a non-admin",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T4] state report: exact counts per admission state (2,894 + 2 synthetic)",
+  "pass": true,
+  "detail": "{\"CHANNEL_PENDING\":42,\"NO_REASON_IMPORT\":635,\"REJECTED_BY_ADMIN\":1388,\"HUMAN_GATE_AUTHORED\":11,\"OTHER_PENDING_REVIEW\":1,\"CULTURE_CIPHER_SOURCE\":6,\"BULK_HIDDEN_2026_07_03\":115,\"EXPOSED_LABEL_UNVERIFIED\":590,\"ENGINE_UNVERIFIABLE_FORMAT\":108}"
+ },
+ {
+  "name": "[T5] enqueue: a pending word is queued",
+  "pass": true,
+  "detail": "{\"ok\":true,\"results\":[{\"result\":\"already_decided_by_admin:rejected_by_admin\",\"word_id\":\"0002e48c-696d-4bf0-aa55-0225650b1f0f\"},{\"result\":\"queued\",\"word_id\":\"06a1a3e9-da0c-49c6-960e-0750e7bef05b\"},{\"result\":\"queued\",\"word_id\":\"0a25f601-185b-461c-9ef8-f99c42407f65\"},{\"result\":\"queued\",\"word_id\":\"11111111-0000-4000-8000-000000000002\"},{\"result\":\"already_verified\",\"word_id\":\"11111111-0000-4000-8000-000000000003\"},{\"result\":\"not_found\",\"word_id\":\"99999999-0000-4000-8000-000000000009\"}]}"
+ },
+ {
+  "name": "[T5] enqueue: a rejected_by_admin word is kept as decided (no retroactive change)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T5] enqueue: a verified word and an unknown id are refused",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T5] the queue row keeps the prior state and has no submitted_by (no contribution credit)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T5] enqueue changed no word state",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T6] a second enqueue of the same word does not duplicate it",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T7] approve (existing word): visibility_reason=approved_by_admin; is_verified set by the engine",
+  "pass": true,
+  "detail": "approved_existing:engine_verified=true"
+ },
+ {
+  "name": "[T7] approve writes one ledger row with admin identity, prior and new state",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T7] no contribution credit is created for an admin-queued existing word",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T8] a decided queue row cannot be decided again",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T9] reject (existing word): rejected_by_admin, row kept, ledger row written",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T10] delete on a queue row is refused and the row stays",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T11] wa_word_review delete is refused; the word and its post link stay",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T12] wa_word_review approve on a rejected word keeps the admin decision",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T13] wa_word_review approve on a non-Hebrew phrase: approved_by_admin but is_verified stays false (engine-owned)",
+  "pass": true,
+  "detail": "approved:engine_verified=false"
+ },
+ {
+  "name": "[T14] admin_bulk_triage is disabled for an admin and changes nothing",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T15] non-admins: resolve / wa_word_review raise, bulk returns -1, enqueue forbidden",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T16] original queue path still creates and approves a new word, with a ledger row",
+  "pass": true,
+  "detail": "approved:queued:engine_verified=true"
+ },
+ {
+  "name": "[T17] original path never flips a word that an admin rejected",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T18] grants: anon cannot run the new functions; helpers are not callable by clients; authenticated reaches the admin-checked entry points",
+  "pass": true,
+  "detail": "{\"a1\":false,\"a2\":false,\"a3\":false,\"a4\":false,\"a5\":true}"
+ },
+ {
+  "name": "[T19] only the three explicitly decided rows changed among the 2,894",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T20] 49_ rollback runs after 40_",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T20] after rollback: the 4 live definitions are back byte-exact and the 4 new functions are gone",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T20] after rollback: the 2,894 checksum is unchanged",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T20] a rollback without 40_ applied is refused",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "name": "[T21] 40_ has no INSERT/UPDATE/DELETE/TRUNCATE/DROP outside function bodies",
+  "pass": true,
+  "detail": ""
+ }
+]

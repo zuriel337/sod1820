@@ -153,7 +153,7 @@ Non-blocking maintenance debt remains routed to existing owners rather than reop
 
 **NEXT:** use the already-defined G3→G4 transition lane (informal “G3.5” shorthand) to prepare/validate the next real Golden Experiences. Closing G3 does **not** by itself open English, entitlement/pricing, Voice/Multimodal, Spatial/3D/XR, governed publication, or a broad Legacy→2029 cutover; those remain under their existing Human-Gate/owner rules.
 
-**BOTTOM-UP CLOSURE / NO PREMATURE ASCENT · Human-Gate ZURIEL · 2026-09-29:** active closure owner is `foundation_closure_protocol_law v7`. Before a new WRITE, verify whether the canonical owner/runtime already satisfies the requirement. Ascend only when the load-bearing dependency below is CLOSED or explicitly non-blocking/deferred. A discovered lower gap descends only to its owning seam, closes there, and resumes from the interrupted point; it does not reopen all of G2/G3. Completion percentage and visible UI are never closure authority.
+**BOTTOM-UP CLOSURE / NO PREMATURE ASCENT · Human-Gate ZURIEL · 2026-09-29:** active closure owner is `foundation_closure_protocol_law v8`. Before a new WRITE, verify whether the canonical owner/runtime already satisfies the requirement. Ascend only when the load-bearing dependency below is CLOSED or explicitly non-blocking/deferred. A discovered lower gap descends only to its owning seam, closes there, and resumes from the interrupted point; it does not reopen all of G2/G3. Completion percentage and visible UI are never closure authority.
 
 **G3→G4 transition rule · 2026-09-28:** G4 does not activate later capabilities merely because the gate number changes. G3 must first close its implementation/compaction blockers; G4 then runs real/replayable **Golden Experiences** over the already-built 2029 capabilities. A capability becomes Golden only after its real journey passes; English, entitlement/pricing, Voice/Multimodal, Spatial/3D and XR remain governed by their later program stages and do not auto-open at G4.
 
@@ -173,19 +173,19 @@ availability rule for genuinely unfinished systems remains. See Doc37 §12.29.
 - source/writer retirement still requires replacement proof + live-consumer proof under existing owners; destructive/permanent retirement and major route cutover remain Human-Gated;
 - target end-state: one 2029 product tree; Legacy survives only as bounded source/adapter/provenance until safely absorbed or retired. Decision 5.11 (ZURIEL): Legacy is retired — no return; its code is kept in Git history only, and the live site is 2029.
 
-**Historical release-semantics pointer (superseded for current coordination and this cutover authorization):** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. At that checkpoint, `deploy_on_request` **v3** + `inter_agent_coordination_law` **v13** provided standing Human-Gate authorization for routine gate-clean, dependency-clean releases; older planning wording requiring a fresh `תעלה` for every routine merge/deploy was superseded. Current coordination is v17 via AGENTS/Owner Index; the 22.10 Legacy lock and later explicit task restrictions govern this candidate. No standing routine-release wording grants 2029 cutover, main push or guard modification. Governed publication, irreversible changes, pricing, privacy/security weakening and permanent retirement retain their owner/Human-Gate requirements.
+**Historical release-semantics pointer (superseded for current coordination and this cutover authorization):** the detailed dependency plan is navigation only. Release authority always resolves from the live owners. At that checkpoint, `deploy_on_request` **v3** + `inter_agent_coordination_law` **v13** provided standing Human-Gate authorization for routine gate-clean, dependency-clean releases; older planning wording requiring a fresh `תעלה` for every routine merge/deploy was superseded. Current coordination resolves from the live owners via AGENTS/Owner Index; the 22.10 Legacy lock is historical (CLAUDE.md: «None of this is a current state or restriction»). Since 10.11.2026 (ZURIEL) every merge to main and every Production deployment requires explicit approval for the specific action; there is no standing authorization. No standing routine-release wording grants 2029 cutover, main push or guard modification. Governed publication, irreversible changes, pricing, privacy/security weakening and permanent retirement retain their owner/Human-Gate requirements.
 
 ## 2029 North Star — owner pointers only
 
 Detailed domain semantics live in owners, not here:
 
-- Foundation gate sequence / bottom-up closure / maintenance acceptance → active `foundation_closure_protocol_law` **v7**;
+- Foundation gate sequence / bottom-up closure / maintenance acceptance → active `foundation_closure_protocol_law` **v8**;
 - Unified Experience / Audio / Motion / Spatial projection → active `experience_governance_foundation_v1_law` **v8**;
 - Continuous Raziel Research Companion / multimodal voice readiness → active `raziel_companion_layer_law` **v3**;
 - Capability Fabric / bounded Context Compiler / Context Pack → active `research_strategy_layer_law` **v17** + Research Workspace;
 - Capability preservation / Premium-readiness / entitlement semantics → active `platform_tiers_law` **v5**;
 - Capability availability / building/open state → active `site_flags_lock_law` **v3**;
-- No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliability → active `system_suggestions_law` **v5**;
+- No Black Box / full execution trace / system recommendations / Incident Intelligence / resource-aware reliability → active `system_suggestions_law` **v7**;
 - Translation / source-language evidence integrity → active `content_translation_law` **v4**;
 - Personal Reality / authorized Person-Life relevance projection → active `person_foundation_contract_law` **v6**;
 - Contextual Source Gap / missing-source research task → active `research_intake_foundation_contract_law` **v13**.
@@ -200,7 +200,7 @@ G3 is **CLOSED**. Its dependency spine, opening order, maintenance/compaction re
 
 Current closure pointers:
 - documented current state and exact release evidence → `SOD1820_MASTER_STATE.md`;
-- Foundation closure owner / acceptance law → active `foundation_closure_protocol_law v7`;
+- Foundation closure owner / acceptance law → active `foundation_closure_protocol_law v8`;
 - implementation compaction / archive acceptance → `audits/g3-implementation-compaction/G3_IMPLEMENTATION_COMPACTION_ARCHIVE_GATE_V1.md`;
 - post-release Maintenance Acceptance Matrix refresh → `work_log.id=4220295a-1e98-40de-98c4-d127d8f20059`;
 - final independent LIVE Foundation verdict → `work_log.id=663f93eb-1d16-4bdf-88dd-f3487508b7bc`;

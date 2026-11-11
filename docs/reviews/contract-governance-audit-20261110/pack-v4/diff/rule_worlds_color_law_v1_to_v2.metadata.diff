@@ -1,0 +1,33 @@
+--- nodes:worlds_color_law@v1→v2.metadata (base)
++++ nodes:worlds_color_law@v1→v2.metadata (proposed)
+@@ -3,3 +3,3 @@
+  "compaction_v1": {
+-  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
++  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V2.md",
+   "classification": "CHILD_OF_OWNER",
+@@ -7,3 +7,4 @@
+   "gate": "G2_CANONICAL_COMPACTION_ACTIVE_TREE_FREEZE_V1",
+-  "owner_family": "brand_design"
++  "owner_family": "brand_design",
++  "previous_canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md"
+  },
+@@ -18,6 +19,7 @@
+  "owner_routing": {
+-  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
++  "canonical_owner": "SOD1820_DESIGN_CONTRACT_V2.md",
+   "confidence": "high",
+   "domain": "brand_design",
+-  "normalized_at": "2026-09-08",
++  "normalized_at": "2026-11-11",
++  "previous_canonical_owner": "SOD1820_DESIGN_CONTRACT_V1.md",
+   "resolution": "RESOLVED",
+@@ -27,3 +29,8 @@
+  "shown_in": "ConvergenceMeter (התכנסות מילים) + legend",
+- "source": "src/lib/worlds.js"
++ "source": "src/lib/worlds.js",
++ "v2_owner_alignment": {
++  "change": "canonical owner V1 → V2; values unchanged",
++  "human_gate": "ZURIEL 2026-11-10 (§4 shared contracts)",
++  "owner_check": "EXTEND_EXISTING"
++ }
+ }
