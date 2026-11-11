@@ -36,22 +36,28 @@
   },
   "official_video_title": "מה קורה הבורא | החוש של המשיח: הסוד הקבלי שמכין את השטח לגאולה",
   "open_before_publish": [
-    "date fields (published/modified) left unset — set by owner at publish",
-    "image_url / thumb_url not chosen",
-    "transcript row in video_transcripts not created (no verbatim transcript available)"
+    "date fields set by owner at publish",
+    "transcript row: no verbatim transcript exists (see README contract gaps)",
+    "self-hosted source video not available (YouTube embed only) — publishing-contract decision for ZURIEL"
   ],
   "_classification": "Series=מה קורה הבורא (membership separate); Category=תיעוד אירועים only; Medium=video derived from embed. 'וידאו' NOT a category (work_log d521ea49). 'רמזים חזקים' not added — ZURIEL Human Gate.",
   "series": "מה קורה הבורא",
   "medium": "video (derived from YouTube embed; not a category)",
   "image": {
-    "status": "PREPARED_NOT_UPLOADED",
-    "files": [
-      "image/hero.png",
-      "image/hero.webp",
-      "image/hero.avif"
-    ],
-    "intended_storage_path": "sod1820/2029/image/2026/11/<uuid-to-generate-at-upload>/derivatives/hero.avif",
-    "image_url_field": "unset until upload approval"
+    "status": "PREPARED_NOT_UPLOADED — awaiting ZURIEL approval",
+    "subject_policy": "no people (typographic graphic) — complies with POST IMAGE SUBJECT POLICY V1",
+    "files": {
+      "original": "image/original.png (1600x840 PNG, 531014 B)",
+      "reading": "image/derivatives/reading.jpg (1600x840 JPEG q88, 38853 B; budget ≤600000)",
+      "preview": "image/derivatives/preview.jpg (480x252 JPEG q80, 7736 B; budget ≤100000)"
+    },
+    "intended_storage": "media/sod1820/2029/image/2026/11/<uuid-generated-at-upload>/{original.png,derivatives/reading.jpg,derivatives/preview.jpg}",
+    "posts_fields_on_save": {
+      "image_url": "…/derivatives/reading.jpg",
+      "thumb_url": "…/derivatives/preview.jpg"
+    },
+    "og": "reading.jpg (JPG, post_og_image_law)"
   },
-  "_title_note": "APPROVED by ZURIEL 11.11.2026: 'מה קורה הבורא — סוד הריח והמשיח: ראשון לציון, עמק חפר ויריחו | אלון לוי'"
+  "_title_note": "APPROVED by ZURIEL 11.11.2026: 'מה קורה הבורא — סוד הריח והמשיח: ראשון לציון, עמק חפר ויריחו | אלון לוי'",
+  "ai_addition_file": "ai-addition.html (mirrors the system-verification pattern of posts 5129/5130; store in posts.ai_addition on approved save)"
 }

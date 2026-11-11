@@ -29,6 +29,8 @@ t("all numbers in post have a trace entry", () => { const trVals = new Set([...t
 t("Vitebsk/Abuhatzeira statuses present", () => { assert.ok(post.includes("kikar.co.il/actualy/svgumn")); assert.ok(post.includes("לא נמצא סרטון או מקור כתוב")); assert.ok(post.includes("עדות משנית לא מאומתת")); });
 t("no mgketer/guessed links", () => assert.ok(!post.includes("mgketer")));
 t("graph: all proposals are candidates, no writes", () => { assert.ok(g.proposed_edges.every(e => e.state === "candidate")); assert.ok(g._status.startsWith("PROPOSED ONLY")); });
-t("media: image prepared, not uploaded", () => { assert.equal(meta.image.status, "PREPARED_NOT_UPLOADED"); for (const f of meta.image.files) assert.ok(fs.existsSync(new URL(f, dir)), f); });
+t("media: JPG/PNG triple prepared within budgets, not uploaded", () => { assert.ok(meta.image.status.startsWith("PREPARED_NOT_UPLOADED")); for (const [f, max] of [["image/original.png", Infinity], ["image/derivatives/reading.jpg", 600000], ["image/derivatives/preview.jpg", 100000]]) { const u = new URL(f, dir); assert.ok(fs.existsSync(u), f); assert.ok(fs.statSync(u).size <= max, f + " over budget"); } });
+t("system additions are separate data-origin sections; no inline 'בדיקת המערכת:' labels", () => { assert.ok(!post.includes("בדיקת המערכת:")); const n = (post.match(/data-origin="system-verification"/g) || []).length; assert.ok(n >= 6, "sections " + n); });
+t("ai-addition.html: single system section, short, mirrors pattern", () => { const a = rd("ai-addition.html"); assert.ok(a.startsWith('<section dir="rtl" data-origin="system-verification"')); assert.ok(a.length < 800); assert.ok(a.includes("מועמדים בלבד")); });
 for (const [s, n] of results) console.log(s, n);
 process.exit(results.some(([s]) => s === "FAIL") ? 1 : 0);
