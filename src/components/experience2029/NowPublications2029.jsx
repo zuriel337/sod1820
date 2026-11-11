@@ -4,7 +4,19 @@ import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js"
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowModels, nowLensCounts, nowModels, nowTodayBand, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
+import ShareActions from "../ShareActions.jsx";
+import { SHARE_SITE } from "../../lib/share.js";
+import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/messageLinks.js";
 import "./nowPublications2029.css";
+
+// An Or HaGeula video shown in Now is shared to its own canonical item address (the same one its full page uses), through the ONE
+// ShareActions. Only a published Or HaGeula update has that address; other rows are unchanged.
+const OR_GEULA_ITEM = /^channel:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+function orGeulaVideoShareUrl(model) {
+  const video = model?.video || messageLinkPreviews(splitMessageLinks(`${model?.title || ""} ${model?.fullText || ""}`)).some(link => link.kind === "youtube" || link.kind === "vimeo");
+  const match = video && !model.unverified && model.item?.channel === "or-geula" && model.item?.sourceKind === "channel_update" && OR_GEULA_ITEM.exec(model.item.id || "");
+  return match ? `${SHARE_SITE}/or-geula/video/${match[1].toLowerCase()}` : null;
+}
 
 // Compact "Now" publications window over the ONE shared system feed (feed.expandedRows).
 // No reader, store, polling or ranking of its own: the same rows power the left rail and this sheet.
@@ -84,6 +96,10 @@ function RowDetail({ model, onOpen, feed, autoPlay = false }) {
       {seriesHref ? <button type="button" className="sod29-action" onClick={open(seriesHref)}>לסדרה{model.seriesLabel ? ` · ${model.seriesLabel}` : ""}</button> : null}
       {model.creatorHref ? <button type="button" className="sod29-action" data-now-action="creator-profile" onClick={open(model.creatorHref)}>לפרופיל · {model.item.creator}</button> : null}
     </div>
+    {orGeulaVideoShareUrl(model) ? <div className="sod29-nowpub-share" data-share-target={orGeulaVideoShareUrl(model)} aria-label="שיתוף הסרטון">
+      <ShareActions force compact type="video" url={orGeulaVideoShareUrl(model)} title={model.title} entityId={model.item.id} sourceSurface="now-or-geula"
+        poster={model.thumb || null} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} style={{ flexWrap: "wrap", overflowX: "visible" }} />
+    </div> : null}
   </div>;
 }
 

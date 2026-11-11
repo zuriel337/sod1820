@@ -223,6 +223,7 @@ jobs:
           test/research-viewer-graph-readpath.test.mjs
           test/now-publications-2029.test.mjs
           test/group-sources-now-2029.test.mjs
+          test/or-geula-video-share-2029.test.mjs
           test/install-suggestion-2029.test.mjs
           test/wa-channel-world-2029-contract.test.mjs
           test/wa-trusted-author-tree-routing.test.mjs
