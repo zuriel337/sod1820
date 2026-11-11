@@ -1,0 +1,132 @@
+/* ROYAL 2029 — the shared Royal design layer of SOD1820 (ZURIEL 11.11.2026). Prototype surface: "עכשיו · המרכז".
+   Opt-in: only an element carrying .r29 (and its subtree) uses it, so no other surface changes until it is adopted on purpose.
+
+   NO parallel palette. Every colour below is a role of the canonical 2029 palette (paletteTokens2029.js → SystemFrame2029 shellStyle → --s29-*),
+   resolved per preset (Day / Parchment / Night) by the frame itself:
+     gold      ← --s29-brand-gold          (crown gold; the identity)
+     violet    ← --s29-accent-secondary    (Design V2 "violet depth")
+     sapphire  ← --s29-brand-sapphire      (royal blue)
+     azure     ← --s29-accent-text         (readable royal blue on the surface)
+     teal      ← --s29-discovery           (discovery / turquoise)
+     amber     ← --s29-warm-accent         (warm gold)
+   Surfaces, ink, lines, focus, type and motion are the canonical --s29-* tokens. Intensity is the only thing tuned per preset
+   (deep glow at Night, a lighter wash in Day and Parchment) so the same component reads richly and legibly in all three.
+
+   Components:  .r29-hall (a royal surface with layered light and a double hairline frame) · .r29-medal (medallion) · .r29-coin (a number)
+                .r29-badge (new / updated / pinned / kind) · .r29-chip (a choice with a medallion) · .r29-btn (primary / gold / quiet)
+                .r29-card (a row in a hue, open = deeper) · .r29-rule (an ornamental divider)
+   Hue per kind: [data-r29-kind] or the existing [data-tone] → --r29-hue. */
+
+.r29{
+  --r29-gold:var(--s29-brand-gold);
+  --r29-gold-ink:color-mix(in oklab,var(--s29-brand-gold) 82%,var(--s29-ink));
+  --r29-violet:var(--s29-accent-secondary);
+  --r29-violet-deep:color-mix(in oklab,var(--s29-accent-secondary) 58%,var(--s29-brand-sapphire));  /* royal purple: violet depth × sapphire */
+  --r29-sapphire:var(--s29-brand-sapphire);
+  --r29-azure:var(--s29-accent-text);
+  --r29-teal:var(--s29-discovery);
+  --r29-amber:var(--s29-warm-accent);
+  --r29-rose:color-mix(in oklab,var(--s29-accent-secondary) 62%,var(--s29-brand-gold));
+  /* intensity (Night) */
+  --r29-wash:10%;--r29-wash-open:18%;--r29-glow:34%;--r29-frame:46%;--r29-hair:26%;
+  --r29-shadow:0 18px 44px -18px color-mix(in srgb,var(--s29-page) 85%,transparent),0 2px 0 0 color-mix(in srgb,var(--s29-ink) 4%,transparent) inset;
+  --r29-radius:20px;--r29-radius-sm:14px;
+  --r29-shine:white;  /* neutral specular light (not a hue) */
+  --r29-hue:var(--r29-gold);
+}
+:where(.sod29-root[data-frame-theme-preset="light"],.sod29-root[data-frame-theme-preset="parchment"]) .r29{
+  --r29-wash:6%;--r29-wash-open:12%;--r29-glow:16%;--r29-frame:48%;--r29-hair:30%;
+  --r29-shadow:0 14px 34px -20px color-mix(in srgb,var(--s29-ink) 40%,transparent),0 1px 0 0 color-mix(in srgb,var(--r29-shine) 70%,transparent) inset;
+}
+
+/* Hue by kind — one mapping for the whole site. */
+.r29 :is([data-r29-kind="post"],[data-r29-kind="site"],[data-tone="sky"]){--r29-hue:var(--r29-azure)}
+.r29 :is([data-r29-kind="channel"],[data-r29-kind="all"],[data-tone="gold"]){--r29-hue:var(--r29-gold)}
+.r29 :is([data-r29-kind="group"],[data-tone="teal"]){--r29-hue:var(--r29-teal)}
+.r29 :is([data-r29-kind="series"],[data-tone="violet"]){--r29-hue:var(--r29-violet)}
+.r29[data-r29-kind="pinned"],.r29 [data-r29-kind="pinned"]{--r29-hue:var(--r29-violet-deep)}
+.r29 :is([data-r29-kind="hint"],[data-tone="rose"]){--r29-hue:var(--r29-rose)}
+.r29 [data-r29-kind="update"]{--r29-hue:var(--r29-gold)}
+.r29 [data-tone="ember"]{--r29-hue:var(--r29-amber)}
+/* the older Now tones resolve to the same canonical roles inside a Royal surface */
+.r29 [data-tone]{--tone:var(--r29-hue)}
+
+/* Hall: layered royal light (gold crown light from above, violet depth, sapphire floor), a double hairline frame and a top sheen. */
+.r29-hall{position:relative;isolation:isolate;border-radius:var(--r29-radius);color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-hue) var(--r29-frame),var(--s29-line));
+  background:
+    radial-gradient(90% 60% at 50% -12%,color-mix(in srgb,var(--r29-gold) var(--r29-glow),transparent),transparent 70%),
+    radial-gradient(70% 70% at 100% 10%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 65%),
+    radial-gradient(80% 60% at 0% 110%,color-mix(in srgb,var(--r29-sapphire) var(--r29-glow),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+  box-shadow:var(--r29-shadow),inset 0 0 0 3px color-mix(in srgb,var(--s29-panel) 70%,transparent),inset 0 0 0 4px color-mix(in srgb,var(--r29-hue) var(--r29-hair),transparent)}
+.r29-hall.is-feature{--r29-wash:calc(var(--r29-wash-open) * 1.6)}  /* a featured hall (the pinned Post): the deep hue carries the surface */
+.r29-hall::before{content:"";position:absolute;z-index:-1;inset-inline:18%;inset-block-start:-1px;block-size:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 90%,var(--r29-shine)),transparent)}
+
+/* Medallion: a gold-ringed disc holding an approved icon or logo. */
+.r29-medal{display:grid;place-items:center;flex:none;inline-size:var(--r29-medal,40px);block-size:var(--r29-medal,40px);border-radius:50%;overflow:hidden;
+  color:color-mix(in srgb,var(--r29-hue) 85%,var(--s29-ink));
+  background:radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--r29-hue) 30%,var(--s29-panel)),color-mix(in srgb,var(--s29-page) 35%,var(--s29-panel)) 72%);
+  box-shadow:0 0 0 1.5px color-mix(in srgb,var(--r29-gold) 70%,transparent),0 0 0 3.5px color-mix(in srgb,var(--s29-panel) 80%,transparent),0 0 0 4.5px color-mix(in srgb,var(--r29-hue) 40%,transparent),
+    0 6px 14px -6px color-mix(in srgb,var(--r29-hue) 60%,transparent)}
+.r29-medal :is(img){inline-size:100%;block-size:100%;object-fit:cover}
+.r29-medal svg{inline-size:55%;block-size:55%}
+
+/* Coin: a number, struck in gold. */
+.r29-coin{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-block-size:44px;padding:2px 14px;border-radius:999px;text-decoration:none;color:var(--r29-gold-ink);
+  border:1px solid color-mix(in srgb,var(--r29-gold) 70%,transparent);
+  background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 30%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 10%,var(--s29-panel)) 70%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 22%,transparent),inset 0 -2px 0 color-mix(in srgb,var(--s29-page) 30%,transparent),0 4px 12px -6px color-mix(in srgb,var(--r29-gold) 70%,transparent)}
+.r29-coin b{font:800 1em/1.1 var(--s29-font-numeric,var(--s29-font-ui,inherit));letter-spacing:.03em;font-variant-numeric:tabular-nums;color:inherit}
+
+/* Badge: new (gold, finite pulse) · updated (violet) · pinned (violet, static) · kind (its hue, quiet). */
+.r29-badge{display:inline-flex;align-items:center;gap:5px;padding:0 9px;min-block-size:22px;border-radius:999px;font:750 12.5px/1 var(--s29-font-ui,inherit);white-space:nowrap;
+  color:color-mix(in srgb,var(--r29-hue) 78%,var(--s29-ink));border:1px solid color-mix(in srgb,var(--r29-hue) 45%,transparent);background:color-mix(in srgb,var(--r29-hue) 16%,var(--s29-panel))}
+.r29-badge.is-new{--r29-hue:var(--r29-gold);color:var(--s29-page);border-color:transparent;background:var(--r29-gold);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 35%,transparent);
+  animation:r29-pulse 1.4s ease-out 3}
+.r29-badge.is-updated,.r29-badge.is-pinned{--r29-hue:var(--r29-violet)}
+.r29 .r29-btn.is-primary{color:var(--s29-ink)}
+:where(.sod29-root[data-frame-theme-preset="light"],.sod29-root[data-frame-theme-preset="parchment"]) .r29 .r29-badge.is-new{background:color-mix(in oklab,var(--r29-gold) 78%,var(--s29-ink))}
+:where(.sod29-root[data-frame-theme-preset="light"],.sod29-root[data-frame-theme-preset="parchment"]) .r29 .r29-btn.is-primary{color:var(--s29-on-accent);
+  background:linear-gradient(180deg,color-mix(in oklab,var(--r29-violet-deep) 92%,var(--s29-ink)),color-mix(in oklab,var(--r29-violet-deep) 78%,var(--s29-ink)))}
+@keyframes r29-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--r29-hue) 60%,transparent)}100%{box-shadow:0 0 0 7px transparent}}
+
+/* Chip: a choice with its medallion; pressed = lit in its hue. */
+.r29-chip{display:inline-flex;align-items:center;gap:8px;min-block-size:46px;padding:4px 14px 4px 8px;border-radius:999px;cursor:pointer;font:inherit;color:var(--s29-ink);text-align:start;white-space:nowrap;
+  border:1px solid color-mix(in srgb,var(--r29-hue) 38%,var(--s29-line));background:color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel));
+  transition:background-color var(--s29-motion,180ms) ease,border-color var(--s29-motion,180ms) ease,box-shadow var(--s29-motion,180ms) ease}
+.r29-chip .r29-medal{--r29-medal:30px}
+.r29-chip[aria-pressed="true"]{border-color:color-mix(in srgb,var(--r29-hue) 85%,transparent);
+  background:radial-gradient(120% 120% at 50% 0%,color-mix(in srgb,var(--r29-hue) 34%,var(--s29-panel)),color-mix(in srgb,var(--r29-hue) 16%,var(--s29-panel)));
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-hue) 40%,transparent),0 6px 18px -8px color-mix(in srgb,var(--r29-hue) 80%,transparent)}
+
+/* Buttons. */
+.r29-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-block-size:44px;padding:0 16px;border-radius:999px;cursor:pointer;text-decoration:none;
+  font:700 15px/1 var(--s29-font-ui,inherit);color:var(--s29-ink);border:1px solid color-mix(in srgb,var(--r29-hue) 50%,var(--s29-line));background:color-mix(in srgb,var(--r29-hue) 12%,var(--s29-panel))}
+.r29-btn.is-primary{--r29-hue:var(--r29-violet-deep);border-color:color-mix(in srgb,var(--r29-violet) 70%,transparent);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--r29-violet-deep) 72%,var(--s29-panel)),color-mix(in srgb,var(--r29-violet-deep) 50%,var(--s29-panel)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 22%,transparent),0 8px 20px -8px color-mix(in srgb,var(--r29-violet-deep) 90%,transparent)}
+.r29-btn.is-gold{--r29-hue:var(--r29-gold)}
+.r29-btn.is-quiet{background:transparent;border-color:color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line))}
+
+/* Card: a thin row in its hue — a lit edge, a soft wash; open = a deeper wash and a full hue frame. */
+.r29-card{position:relative;border-radius:var(--r29-radius-sm);color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-hue) var(--r29-hair),var(--s29-line));
+  background:linear-gradient(90deg,color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel)),color-mix(in srgb,var(--s29-panel) 92%,transparent))}
+.r29-card::before{content:"";position:absolute;inset-block:10px;inset-inline-start:-1px;inline-size:3px;border-radius:3px;background:var(--r29-hue);
+  box-shadow:0 0 10px color-mix(in srgb,var(--r29-hue) 70%,transparent)}
+.r29-card:is([open],.is-open,.is-selected){border-color:color-mix(in srgb,var(--r29-hue) var(--r29-frame),var(--s29-line));
+  background:radial-gradient(120% 70% at 100% 0%,color-mix(in srgb,var(--r29-hue) var(--r29-wash-open),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+  box-shadow:var(--r29-shadow)}
+.r29-card:is([open],.is-open,.is-selected)::before{inset-block:0}
+
+/* Ornamental rule: a gold line with a diamond. */
+.r29-rule{display:flex;align-items:center;gap:10px;color:var(--r29-gold);font-size:10px}
+.r29-rule::before,.r29-rule::after{content:"";flex:1;block-size:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 60%,transparent))}
+.r29-rule::after{transform:scaleX(-1)}
+
+.r29 :is(.r29-btn,.r29-chip,.r29-coin):focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.r29 .r29-badge.is-new{animation:none}.r29 :is(.r29-chip,.r29-btn){transition:none}}
+@media (forced-colors:active){.r29 :is(.r29-hall,.r29-card,.r29-chip,.r29-btn,.r29-coin,.r29-badge){border:1px solid CanvasText;background:Canvas;box-shadow:none}.r29-card::before{background:Highlight}}

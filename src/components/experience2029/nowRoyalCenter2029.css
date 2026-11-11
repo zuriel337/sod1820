@@ -1,0 +1,101 @@
+/* "עכשיו · המרכז" — the first adopter of the shared Royal layer (royal2029.css, ZURIEL 11.11.2026). This file is LAYOUT ONLY: colour, depth,
+   medallions, coins, badges, chips, buttons and rows come from royal2029.css (.r29-*), which resolves every hue from the canonical --s29-* roles
+   per preset. No colour value is defined here. */
+
+.rc29{display:grid;gap:12px;box-sizing:border-box;color:var(--s29-ink);text-align:start}
+.rc29 *,.rc29-pin *,.rc29-src *{box-sizing:border-box}
+.rc29-head{display:flex;align-items:center;gap:12px}
+.rc29-head .r29-medal{--r29-medal:42px}
+.rc29-head h2{margin:0;font:750 20px/1.2 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink);letter-spacing:.01em}
+.rc29-head small{display:block;color:var(--s29-muted);font-size:13.5px;margin-top:3px}
+
+/* ── The pinned Post: its own title, then the update layer (closed: a short summary + coins; open: the whole update) ───────────────────── */
+.rc29-pin{display:grid;align-content:start;gap:12px;padding:16px 14px 14px}
+.rc29-pin-top{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.rc29-tag svg{inline-size:14px;block-size:14px}
+.rc29-pin-title{margin:0;font:800 19px/1.4 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink);text-wrap:balance}
+.rc29-update{display:grid;gap:8px;padding:12px 14px;border-radius:var(--r29-radius-sm);
+  border:1px solid color-mix(in srgb,var(--r29-hue) 38%,transparent);border-inline-start:3px solid var(--r29-hue);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--r29-hue) var(--r29-wash-open),var(--s29-panel)),color-mix(in srgb,var(--r29-hue) 6%,var(--s29-panel)));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 10%,transparent)}
+.rc29-update-head{margin:0;font:650 14px/1.3 var(--s29-font-ui,inherit);color:color-mix(in srgb,var(--r29-hue) 75%,var(--s29-ink))}
+.rc29-update-head b{font-weight:800}
+.rc29-sum{margin:0;font:500 16px/1.55 var(--s29-font-body,inherit);color:var(--s29-ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rc29-nums{display:flex;flex-wrap:wrap;gap:8px}
+.rc29-nums.is-mini .r29-coin{min-block-size:36px;font-size:19px;padding-inline:14px}
+.rc29-acts{display:flex;flex-wrap:wrap;gap:8px}
+.rc29-acts .r29-btn{flex:1 1 auto}
+.rc29-full{display:grid;gap:12px;padding-block-start:4px}
+.rc29-lead{display:grid;gap:4px;padding-inline-start:12px;border-inline-start:3px solid var(--r29-gold)}
+.rc29-lead-text{font:800 19px/1.45 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink)}
+.rc29-lead p{margin:0;font:600 16px/1.5 var(--s29-font-ui,inherit);color:var(--s29-ink)}
+.rc29-full-title{display:block;font:800 18px/1.35 var(--s29-font-display,var(--s29-font-ui,inherit));text-align:center;color:var(--s29-ink)}
+.rc29-group{display:grid;gap:0}
+.rc29-group>.r29-coin{justify-self:center;margin-block:6px 4px;font-size:30px;min-block-size:52px;padding-inline:22px}
+.rc29-line{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 4px;font:600 16px/1.45 var(--s29-font-ui,inherit);
+  border-block-end:1px solid color-mix(in srgb,var(--r29-gold) 18%,var(--s29-line))}
+.rc29-line:last-child{border-block-end:0}
+.rc29-line :is(a,b){color:var(--r29-gold-ink);font-weight:800;text-decoration:none;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rc29-statement{margin:0;padding:12px 14px;border-radius:var(--r29-radius-sm);font:600 16px/1.65 var(--s29-font-ui,inherit);
+  border:1px solid color-mix(in srgb,var(--r29-violet) 34%,transparent);background:color-mix(in srgb,var(--r29-violet) var(--r29-wash-open),var(--s29-panel))}
+.rc29-owner{margin:0;font-size:13.5px;color:var(--s29-muted)}
+.rc29-line a:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:2px}
+
+/* ── The source picker ───────────────────────────────────────────────────────────────────────────────────────────────────────────────── */
+.rc29-src{display:flex;gap:8px;overflow-x:auto;padding:4px 4px 6px;scrollbar-width:none;overscroll-behavior-inline:contain}
+.rc29-src::-webkit-scrollbar{display:none}
+.rc29-chip{flex:none}
+.rc29-chip>span:last-child{display:grid;line-height:1.15}
+.rc29-chip b{font:700 15px/1.15 var(--s29-font-ui,inherit)}
+.rc29-chip small{font-size:12px;color:var(--s29-muted)}
+.rc29-empty{margin:0;padding:10px 12px;border-radius:var(--r29-radius-sm);border:1px dashed color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line));color:var(--s29-muted);font-size:15px}
+
+/* ── The Home centre: the first content area of Home ─────────────────────────────────────────────────────────────────────────────────── */
+.rc29.is-home{margin:8px 0 18px;padding:16px 12px}
+.rc29-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.rc29 .h29-live-list.rc29-list{margin:0;grid-template-columns:minmax(0,1fr)}
+.rc29 .h29-live-item.rc29-row{block-size:auto;border:0;overflow:visible;background:none}
+.rc29 .h29-live-item.rc29-row.h29-skel{block-size:56px;border-radius:var(--r29-radius-sm)}
+.rc29-row>.r29-card{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center;gap:12px;inline-size:100%;min-block-size:60px;padding:8px 12px;
+  text-decoration:none;text-align:start;font:inherit;cursor:pointer;block-size:auto}
+.rc29-row .h29-live-thumb{inline-size:44px;block-size:44px;border-radius:12px;object-fit:cover;overflow:hidden;
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 50%,transparent),0 0 0 3px color-mix(in srgb,var(--r29-hue) 30%,transparent)}
+.rc29-rt{min-inline-size:0;display:grid;gap:2px}
+.rc29-rt strong{display:block;font:700 16px/1.3 var(--s29-font-ui,inherit);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-line-clamp:unset}
+.rc29-rt .rc29-new-badge{margin-inline-end:6px;vertical-align:2px}
+.rc29-rt .rc29-ex{font-size:14px;line-height:1.4;color:color-mix(in srgb,var(--s29-ink) 82%,var(--s29-muted));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc29-rt small{font-size:13.5px;color:var(--s29-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rc29-rt small b{color:color-mix(in srgb,var(--r29-hue) 80%,var(--s29-ink));font-weight:700}
+.rc29-more{justify-self:center}
+@media (min-width:1000px){
+  .rc29.is-home{grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);column-gap:20px;padding:22px 24px}
+  .rc29.is-home>:is(.rc29-head,.rc29-more){grid-column:1/-1}
+  .rc29.is-home.has-pin>.rc29-pin{grid-column:1;grid-row:2/span 3;align-self:start}
+  .rc29.is-home.has-pin>:is(.rc29-src,.rc29-list,.rc29-empty,.rc29-skel){grid-column:2}
+  .rc29.is-home:not(.has-pin)>:is(.rc29-src,.rc29-list,.rc29-empty){grid-column:1/-1}
+  .rc29.is-home .rc29-sum{-webkit-line-clamp:3}
+  .rc29.is-home .rc29-nums.is-mini .r29-coin{font-size:22px;min-block-size:42px}
+}
+
+/* ── The "עכשיו" sheet: the existing row markup takes the Royal card; thumbnails become medallions ─────────────────────────────────── */
+.sod29-nowpub.is-royal{gap:12px}
+.sod29-nowpub.is-royal .sod29-nowpub-list{gap:8px}
+.sod29-nowpub.is-royal .r29-card{overflow:hidden}
+.sod29-nowpub.is-royal .r29-card[data-tone]::before{inset-block:10px;inset-inline-start:0;inline-size:3px;inset-inline-end:auto;inset-block-start:10px;
+  background:var(--r29-hue);box-shadow:0 0 10px color-mix(in srgb,var(--r29-hue) 70%,transparent)}
+.sod29-nowpub.is-royal .r29-card[data-tone]:is([open],.is-selected)::before{inset-block:0}
+.sod29-nowpub.is-royal .r29-card.is-source{border-style:solid}
+.sod29-nowpub.is-royal .sod29-nowpub-thumb:is(.is-glyph,.is-logo){border-radius:50%;
+  color:color-mix(in srgb,var(--r29-hue) 85%,var(--s29-ink));
+  background:radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--r29-hue) 30%,var(--s29-panel)),color-mix(in srgb,var(--s29-page) 35%,var(--s29-panel)) 72%);
+  box-shadow:0 0 0 1.5px color-mix(in srgb,var(--r29-gold) 70%,transparent),0 0 0 3.5px color-mix(in srgb,var(--s29-panel) 80%,transparent),0 0 0 4.5px color-mix(in srgb,var(--r29-hue) 40%,transparent)}
+.sod29-nowpub.is-royal .sod29-nowpub-thumb:not(.is-glyph,.is-logo){border-radius:12px;box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 45%,transparent)}
+.sod29-nowpub.is-royal .sod29-nowpub-row>summary{position:relative;padding-inline-end:32px}
+.sod29-nowpub.is-royal .sod29-nowpub-excerpt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sod29-nowpub-chev{position:absolute;inset-inline-end:12px;inset-block-start:50%;inline-size:9px;block-size:9px;margin-block-start:-6px;
+  border-inline-end:2px solid color-mix(in srgb,var(--r29-hue,currentColor) 80%,var(--s29-ink));border-block-end:2px solid color-mix(in srgb,var(--r29-hue,currentColor) 80%,var(--s29-ink));
+  transform:rotate(45deg);transition:transform var(--s29-motion,180ms) ease}
+.sod29-nowpub-row[open]>summary .sod29-nowpub-chev{transform:rotate(-135deg);margin-block-start:-2px}
+.sod29-nowpub-row:not(details) .sod29-nowpub-chev{display:none}
+.sod29-nowpub-body.is-summary{color:color-mix(in srgb,var(--s29-ink) 92%,var(--s29-muted))}
+@media (prefers-reduced-motion:reduce){.sod29-nowpub-chev{transition:none}}

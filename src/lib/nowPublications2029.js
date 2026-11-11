@@ -5,6 +5,8 @@
 // Series, source/channel, content family and media type stay SEPARATE dimensions (CONTENT-AUDIENCES-HYBRID-NOW).
 import { publicAuthorName, SYSTEM_BYLINE } from "./publicIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
+import { publicStorageMedia } from "./mediaEgressGuard.js";
+import { GROUP_SOURCE_CHANNELS } from "./research/worldGroupSource.js";
 
 // Public name of the shared series is "מסרים"; the historical source titles and the series key stay untouched.
 export const NOW_SERIES_PUBLIC_LABEL = Object.freeze({ "messages-from-righteous": "מסרים" });
@@ -38,8 +40,10 @@ export const NOW_MEDIA = Object.freeze([
 
 // Presentation-only colour family of a row / lens chip (never ranking, never a claim): drives CSS hue only.
 export const NOW_LENS_TONE = Object.freeze({ all: "sky", sources: "ember", messages: "gold", reality: "teal", series: "violet", hints: "rose" });
-const toneOf = (lenses, unverified) => unverified ? "ember" : lenses.has("messages") ? "gold" : lenses.has("reality") ? "teal"
-  : lenses.has("hints") ? "rose" : lenses.has("series") ? "violet" : "sky";
+// ZURIEL 11.11.2026 (Royal, second pass): one clear hue per KIND of publication, from the same approved tone set — a public group source
+// (unchecked) is turquoise, Or HaGeula / messages gold, a series violet, hints rose, the site's own Posts sky. Presentation only, never a claim.
+const toneOf = (lenses, unverified) => unverified ? "teal" : lenses.has("messages") ? "gold" : lenses.has("hints") ? "rose"
+  : lenses.has("series") ? "violet" : lenses.has("reality") ? "teal" : "sky";
 
 // Source logos (small webp copies of the approved logos: Or HaGeula = the broadcast logo, ELS = Bible-cipher research, site = the crown).
 // A logo only names WHERE a row comes from; it never claims verification. Unverified group sources get none. The series session adds
@@ -60,6 +64,8 @@ const logoKeyOf = ({ unverified, isChannel, channel, kind, isPost, author, serie
 };
 
 const VIDEO_URL = /\.(?:mp4|webm|mov|m4v)(?:[?#].*)?$/i;
+// Audio is recognised by the shared public-media rule (kind from the canonical path), so only admitted public storage audio plays here.
+const isPublicAudio = url => publicStorageMedia(url)?.kind === "audio";
 // Raw media addresses are storage plumbing, never reading text.
 const RAW_MEDIA_URL = /(?:https?:)?\/\/[^\s<>"'\])]+\.(?:mp4|webm|mov|m4v)(?:\?[^\s<>"'\])]*)?/gi;
 
@@ -111,7 +117,8 @@ export function nowRowModel(row) {
   const groupMediaKind = isGroup ? item.media?.kind : null; // a group source declares its own media kind
   const video = groupMediaKind === "video" || (!groupMediaKind && Boolean(media && VIDEO_URL.test(media))) || /^\/video\/[^/]+\/?$/.test(href || "")
     || (isPost && categories.includes(VIDEO_CATEGORY));
-  const image = !video && (groupMediaKind ? groupMediaKind === "image" : Boolean(media || isGallery));
+  const audio = !video && (groupMediaKind ? groupMediaKind === "audio" : Boolean(media && isPublicAudio(media)));
+  const image = !video && !audio && (groupMediaKind ? groupMediaKind === "image" : Boolean(media || isGallery));
   const seriesKey = item.seriesKey || (isPost ? contentSeriesKeysForPost({ categories, tags, author: item.author })[0] || null : null);
   const seriesLabel = seriesKey ? nowSeriesLabel(seriesKey, item.seriesLabel || contentSeriesByKey(seriesKey)?.label || "") : "";
   // A public group source is labelled by its GROUP (the source); the writer stays in the byline.
@@ -122,9 +129,15 @@ export function nowRowModel(row) {
     : isPost ? (item.sourceLabel === "פוסט מקור באתר" ? "" : item.sourceLabel || "") || item.creator || ""
     : (item.creator || "");
   const unverified = isGroup;
+  // The SOURCE of the row by a stable key (ZURIEL 11.11.2026: one source picker is the primary control). A group is its group (Zvi stays the
+  // writer, never the source); a channel is its channel; a series Post is its series; any other Post is "פרסומי האתר". Series, category,
+  // source and Post identity stay separate: this key never reads a category.
+  const groupKey = isGroup ? clean(item.sourceGroup?.key) || "" : "";
+  const sourceKey = isGroup ? `group:${groupKey || "neutral"}` : isChannel && item.channel ? `channel:${item.channel}`
+    : isPost && seriesKey ? `series:${seriesKey}` : isPost ? "site:posts" : isGallery ? "site:reality" : row?.kind === "finding" || row?.kind === "convergence" ? "site:els" : "site:other";
   const typeLabel = unverified ? "מקור · טרם נבדק"
     : row?.kind === "convergence" ? "התכנסות" : row?.kind === "finding" ? "ממצא"
-    : item.sourceUpdate ? "עדכון מקור" : video ? "סרטון" : image ? "תמונה" : isPost ? "פוסט" : "עדכון";
+    : item.sourceUpdate ? "עדכון מקור" : video ? "סרטון" : audio ? "הקלטה" : image ? "תמונה" : isPost ? "פוסט" : "עדכון";
   const lenses = new Set(["all"]);
   if (seriesKey) lenses.add("series");
   if (isGroup) lenses.add("sources");
@@ -143,21 +156,27 @@ export function nowRowModel(row) {
     // A blinking dot attached to the title marks an update the owner flagged (the Home featured Post update). Its label is the accessible name.
     dot: typeof item.liveDot === "string" && item.liveDot ? item.liveDot : null,
     logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, author: item.author, seriesKey })] || null,
-    at: row?.at || null, href, seriesKey, seriesLabel, sourceName,
-    media: video ? "video" : image ? "image" : "text", video, image,
-    thumb: [!video && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
+    at: row?.at || null, href, seriesKey, seriesLabel, sourceName, sourceKey,
+    pinUntil: item.pinned === true && typeof item.pinUntil === "string" ? item.pinUntil : null,
+    central: item.pinned === true && item.central && Array.isArray(item.central.groups) ? item.central : null,
+    media: video ? "video" : audio ? "audio" : image ? "image" : "text", video, audio, image,
+    thumb: [!video && !audio && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
     groupLabel, creatorHref: isGroup ? item.creatorHref || null : null,
     mediaHref: media, lenses,
     fullText, summary: summary && summary !== title ? summary : "",
     ...nowExcerpt({ unverified, title, fullText, summary }),
     // Unverified source rows stay two lines without a text excerpt; a group source WITH media still shows its preview.
-    previewKind: (unverified && !(isGroup && (video || image))) ? null : video ? "video" : (image || media) ? "image" : null,
-    canExpand: Boolean(fullText || media),
+    previewKind: (unverified && !(isGroup && (video || image))) ? null : video ? "video" : audio ? null : (image || media) ? "image" : null,
+    // Almost every row opens in place (ZURIEL 11.11.2026): its full text when the item carries it, otherwise the approved summary (a Post's excerpt),
+    // otherwise its media. A row with nothing to show stays a plain link — never an empty panel, never an invented continuation.
+    canExpand: Boolean(fullText || summary || media),
+    // "עודכן": the publication itself received an update (a proven Post source update, or the owner's pinned update). "חדש" stays row.isNew.
+    updated: Boolean(item.sourceUpdate || item.pinned === true),
   };
 }
 
-export const nowModels = rows => list(rows).filter(row => row?.id && row.title)
-  .map(nowRowModel)
+export const nowModels = (rows, now = Date.now()) => list(rows).filter(row => row?.id && row.title)
+  .map(nowRowModel).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinUntil: null, central: null, dot: null } : model)
   .sort((a, b) => (Number(b.pinned) - Number(a.pinned)) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 /** Primary lenses with at least one row; "all" is always available. */
@@ -237,17 +256,19 @@ export function latestRunAt(models) {
   return best == null ? null : new Date(best).toISOString();
 }
 
-// ── Or HaGeula rabbi box (ZURIEL 10.11.2026) ─────────────────────────────────────────────────────────────────────────────────
-// Every Or HaGeula update whose own words contain "רב" or "הרב" (as a word: רב, הרב, and ו/ל/ב/ש/מה + הרב, ו/ל/ב + רב) goes
-// INTO one box; an Or HaGeula update without those words (e.g. a plain video) stays OUTSIDE as its own row. The box takes the place of
-// its newest member, so a new update lifts the whole box. Every member stays its own publication (same id, same order inside).
-// Pure presentation over the loaded rows: one function for Now and Home, no second reader, no re-ranking of anything else.
-const RABBI_WORD = /(?:^|[^\u05D0-\u05EA])(?:[ולבש]?ה|[ולב]|מה)?רב(?![\u05D0-\u05EA])/;
+// ── Or HaGeula box (ZURIEL 10.11.2026; widened 11.11.2026) ───────────────────────────────────────────────────────────────────
+// Or HaGeula is a SECOND tier: every one of its updates lives in ONE box, so however many arrive they take a single entry and never push a
+// first-tier publication (a reality-stream image, a Post, a series, the site's news) out of the window. The only update that stands outside is
+// one the owner marked himself (channel_updates.priority above the default → item.ownerFeatured), e.g. a popular video; and a series-approved
+// occurrence (item.seriesKey) keeps its series row. Popularity is NEVER inferred from views or shares. The box sits where its newest member sits;
+// every member stays its own publication (same id, same order inside). Pure presentation over the loaded rows: one function for Now and Home.
 export const RABBI_BOX_LABEL = "אור הגאולה";
-export function isRabbiBoxModel(model) {
-  if (!model || model.item?.sourceKind !== "channel_update" || model.item?.channel !== "or-geula" || model.unverified) return false;
-  return [model.title, model.fullText, model.summary].some(text => RABBI_WORD.test(String(text || "")));
+export function isOrGeulaBoxModel(model) {
+  const item = model?.item;
+  return Boolean(model && item?.sourceKind === "channel_update" && item.channel === "or-geula" && !model.unverified && item.ownerFeatured !== true && !item.seriesKey);
 }
+/** @deprecated name kept for existing callers: the box now holds every Or HaGeula update except the owner's featured one. */
+export const isRabbiBoxModel = isOrGeulaBoxModel;
 
 /**
  * Entries of the window: { kind: "row", model } | { kind: "run", ... } (consecutive source rows) | { kind: "box", id, label, models, latest }.
@@ -289,6 +310,59 @@ export function nowTodayBand(models, now = Date.now(), timeZone = "Asia/Jerusale
   try { today = new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(now); } catch { return null; }
   const offset = dayIndex(today) - dayIndex(band.from);
   return offset >= 0 && offset < band.days ? { title: String(band.title || ""), groups, statement: band.statement ? String(band.statement) : null } : null;
+}
+
+// ── Source picker (ZURIEL 11.11.2026; PLAN37 NOW decision) ────────────────────────────────────────────────────────────────────
+// "הכול" first, then the known public groups (also when nothing of theirs is in the window: an honest empty state, never hidden), then
+// channels, series and the site's own publications. Every choice says what KIND of source it is. Built from the loaded rows only.
+export const NOW_SOURCE_KIND_LABEL = Object.freeze({ group: "קבוצה", channel: "ערוץ", series: "סדרה", site: "פרסומי האתר" });
+const SITE_SOURCE_LABEL = Object.freeze({ "site:posts": "פרסומי האתר", "site:reality": "זרם המציאות", "site:els": "הצופן התנ״כי", "site:other": "עוד מהאתר" });
+const KNOWN_GROUPS = Object.freeze(["torat-haremez", "ki-la-hamelucha-gematria"]);
+const KIND_ORDER = Object.freeze(["group", "channel", "series", "site"]);
+
+export function nowSourceChoices(models) {
+  const found = new Map();
+  for (const model of list(models)) {
+    const key = model?.sourceKey;
+    if (!key) continue;
+    const kind = key.split(":")[0];
+    const label = kind === "group" ? (model.groupLabel || GROUP_SOURCE_CHANNELS[key.slice(6)] || "קבוצת מקור")
+      : kind === "series" ? (model.seriesLabel || key.slice(7)) : kind === "site" ? SITE_SOURCE_LABEL[key] : (model.sourceName || key.slice(8));
+    const entry = found.get(key) || { id: key, kind, kindLabel: NOW_SOURCE_KIND_LABEL[kind], label, count: 0, logo: null };
+    entry.count += 1; if (!entry.logo && model.logo) entry.logo = model.logo;
+    found.set(key, entry);
+  }
+  for (const group of KNOWN_GROUPS) {
+    const key = `group:${group}`;
+    if (!found.has(key)) found.set(key, { id: key, kind: "group", kindLabel: NOW_SOURCE_KIND_LABEL.group, label: GROUP_SOURCE_CHANNELS[group], count: 0, logo: null });
+  }
+  const rank = entry => KIND_ORDER.indexOf(entry.kind) * 1000 + (entry.kind === "group" && KNOWN_GROUPS.includes(entry.id.slice(6)) ? KNOWN_GROUPS.indexOf(entry.id.slice(6)) : 100);
+  return [...found.values()].sort((a, b) => rank(a) - rank(b) || b.count - a.count || a.label.localeCompare(b.label, "he"));
+}
+
+export const filterNowBySource = (models, sourceKey = "") => list(models).filter(model => !sourceKey || model.sourceKey === sourceKey);
+
+/**
+ * The pinned central message (System Frame v2 §10.8 addendum, 11.11.2026): the ONE pinned row that carries an owner message, while its pin
+ * window is open (checked again here at render time, so an expired pin never stays on top). Null otherwise.
+ */
+export function nowPinnedMessage(models, now = Date.now()) {
+  const model = list(models).find(item => item?.pinned && item.central);
+  if (!model) return null;
+  const until = Date.parse(model.pinUntil || "");
+  if (!Number.isFinite(until) || now >= until) return null;
+  return { model, central: model.central, until: model.pinUntil, href: model.href };
+}
+
+/** "עד 14.11 · 10:00" in Israel time: the visible expiry of a pin. */
+export function nowPinUntilLabel(until, timeZone = "Asia/Jerusalem") {
+  const time = Date.parse(until || "");
+  if (!Number.isFinite(time)) return "";
+  try {
+    const parts = new Intl.DateTimeFormat("he-IL", { timeZone, day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(time);
+    const part = type => parts.find(item => item.type === type)?.value || "";
+    return `עד ${part("day")}.${part("month")} · ${part("hour")}:${part("minute")}`;
+  } catch { return ""; }
 }
 
 /** The series page for a model (series key is the existing approved identity). */

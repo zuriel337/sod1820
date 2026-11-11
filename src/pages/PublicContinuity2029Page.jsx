@@ -1,4 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
+import ExternalVideoFacade2029 from "../components/experience2029/ExternalVideoFacade2029.jsx";
+import { externalVideoLinksFromText } from "../lib/community/messageLinks.js";
 import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
@@ -13,6 +15,9 @@ import {
   publicForumChatHref2029,
   publicHistoricalLecturePage2029, historicalLectureHtml2029,
 } from "../lib/publicContinuityReaders2029.js";
+import ShareActions from "../components/ShareActions.jsx";
+import { SHARE_SITE } from "../lib/share.js";
+import { messageLinkPreviews, splitMessageLinks } from "../lib/community/messageLinks.js";
 import "./publicContinuity2029.css";
 import { postReadingClassName } from "./postReadingStyles2029.js";
 
@@ -102,6 +107,15 @@ function SourceMedia({ item, start }) {
   </figure>;
 }
 
+// Sharing an Or HaGeula item: the ONE ShareActions, always to the item's own canonical address (/or-geula/video/<id>), never to the
+// collection, a media file or an embed. That address reopens exactly this public item (a private or removed one answers "not found"),
+// and its preview (title, description, thumbnail or the branded Or HaGeula card) comes from the existing api/og.
+const orGeulaShareUrl = item => item?.href && /^\/or-geula\/video\/[0-9a-f-]{36}$/i.test(item.href) ? `${SHARE_SITE}${item.href}` : null;
+const SHARE_CHANNELS = ["native", "whatsapp", "telegram", "facebook", "copy"];
+// A video is either the item's own video file or a YouTube/Vimeo link in its text (found by the canonical link detector).
+const orGeulaHasVideo = item => item?.mediaKind === "video"
+  || messageLinkPreviews(splitMessageLinks(`${item?.title || ""} ${item?.text || ""}`)).some(link => link.kind === "youtube" || link.kind === "vimeo");
+
 function OrGeulaContent() {
   const { id } = useParams();
   const location = useLocation();
@@ -125,12 +139,18 @@ function OrGeulaContent() {
         <div className="continuity-source-byline"><span>{item.sourceLabel}</span><SourceDate value={item.at} /></div>
         <SourceMedia key={item.id} item={item} start={publicContinuityPlaybackTime2029(location.search, location.hash)} />
         {item.text ? <p className="continuity-source-text" dir="auto">{item.text}</p> : null}
+        {externalVideoLinksFromText(item.text).map(link => <ExternalVideoFacade2029 key={link.key} link={link} title={item.title} context={`מתוך ${item.sourceLabel || "אור הגאולה"}`} />)}
         {item.textTruncated ? <p className="continuity-note">התיאור המוצג מקוצר.</p> : null}
         <dl className="continuity-source-credit">
           <div><dt>מקור</dt><dd>{item.credit || item.sourceLabel}</dd></div>
           {item.speaker ? <div><dt>דובר</dt><dd>{item.speaker}</dd></div> : null}
         </dl>
         <Link className="continuity-action" to={publicOrGeulaOccurrenceHref2029(item.id, location)}>קישור לפריט הזה</Link>
+        {orGeulaShareUrl(item) ? <section className="continuity-share" aria-label={orGeulaHasVideo(item) ? "שיתוף הסרטון" : "שיתוף הפריט"} data-share-target={item.href}>
+          <h2>{orGeulaHasVideo(item) ? "שיתוף הסרטון" : "שיתוף הפריט"}</h2>
+          <ShareActions force type={orGeulaHasVideo(item) ? "video" : "or-geula"} url={orGeulaShareUrl(item)} title={item.title} entityId={item.id}
+            sourceSurface="or-geula" poster={item.posterHref || null} channels={SHARE_CHANNELS} style={{ flexWrap: "wrap", overflowX: "visible" }} />
+        </section> : null}
       </article> : <ul className="continuity-source-grid">
         {(state.items || []).map(source => <li key={source.id} data-source-ref={source.sourceRef}>
           <Link className="continuity-source-card" to={publicOrGeulaOccurrenceHref2029(source.id, location)}>
@@ -145,6 +165,9 @@ function OrGeulaContent() {
               <SourceDate value={source.at} /><span className="continuity-card-open">פתיחת הפריט ←</span>
             </div>
           </Link>
+          {orGeulaHasVideo(source) && orGeulaShareUrl(source) ? <ShareActions force variant="icon" type="video" url={orGeulaShareUrl(source)} title={source.title}
+            entityId={source.id} sourceSurface="or-geula-card" poster={source.posterHref || null}
+            iconLabel={`שיתוף הסרטון · ${source.title}`} iconCopiedLabel="הקישור לסרטון הועתק" style={{ position: "absolute", insetBlockStart: 10, insetInlineEnd: 10 }} /> : null}
         </li>)}
       </ul>}
     </ReadBoundary>

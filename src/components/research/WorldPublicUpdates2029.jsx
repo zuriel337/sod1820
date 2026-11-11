@@ -1,4 +1,6 @@
 import React, { useMemo, useState } from "react";
+import ExternalVideoFacade2029 from "../experience2029/ExternalVideoFacade2029.jsx";
+import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
 import { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import {
   CANONICAL_PUBLIC_UI_COPY,
@@ -115,6 +117,10 @@ export default function WorldPublicUpdates2029({
           <h3>{item.label}</h3>
           {item.creator ? <p className="sod29-world-update-creator">{item.creator}</p> : null}
           {item.summary ? <p>{item.summary}</p> : null}
+          {/* The shared click-to-load card, for a public group source too (ZURIEL 11.11.2026): the group reader only lets a canonical YouTube
+              address through; the group item keeps its "מקור · טרם נבדק" framing. */}
+          {externalVideoLinksFromText(`${item.summary || ""} ${item.fullText || ""}`, 1).map(link =>
+            <ExternalVideoFacade2029 key={link.key} link={link} title={item.label} context={groupSourceAnchor(item) ? `מקור · טרם נבדק${item.creator ? ` · ${item.creator}` : ""}` : item.creator ? `מקור · ${item.creator}` : ""} />)}
           {groupSourceAnchor(item) ? <details className="sod29-world-group-source" id={groupSourceAnchor(item)}
             onToggle={(event) => { if (event.currentTarget.open) onOpen?.(item, { inline: true }); }}
             open={selectedSourceHash === `#${groupSourceAnchor(item)}` || undefined}>

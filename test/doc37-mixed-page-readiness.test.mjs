@@ -38,7 +38,7 @@ await build({ stdin: { contents: `
   const postClassification2029=()=>({credit:null});
   const AUTHORS={},POST_BACKGROUND_ASSETS_2029={};
   const NavigationIcon2029=()=>null,PostCategories2029=()=>null;
-  const PostFollowBox=()=>React.createElement('aside',{'data-follow-fixture':true});
+  const PostFollowBox=()=>React.createElement('aside',{'data-follow-fixture':true}),AdSlot=()=>null;
   const Link=({to,...props})=>React.createElement('a',{...props,href:to});
   const Sod2029Shell=({children})=>React.createElement(React.Fragment,null,children);
   const FrameState=({kind,title,children})=>React.createElement('section',{'data-frame-kind':kind},React.createElement('h2',null,title),children);

@@ -140,23 +140,32 @@ test("global share follows the current public destination and suppresses persona
 
 test("global dock opens ShareActions directly with all approved choices and keeps More/tools and Now separate", async () => {
   const source = await read("./SystemFrame2029.jsx");
-  const begin = source.indexOf("    if (transientKind === TRANSIENT.MORE) return");
+  // The "עוד" branch hands its body to MorePanel2029 (the frame's own openers, the one ShareActions); run the branch as written.
+  const begin = source.indexOf("    if (transientKind === TRANSIENT.MORE) {");
   const branch = source.slice(begin, source.indexOf("    if (transientKind === TRANSIENT.TOOLS)", begin));
   const { code } = await transformWithOxc(`function render(){${branch}}`, "share-branch.jsx", { jsx: { runtime: "classic" } });
   for (const shareOnly of [true, false]) {
     const context = { React: react, transientKind: "more", TRANSIENT: { MORE: "more" }, transient: { payload: { shareOnly } },
-      common: {}, PanelShell: "PanelShell", ShareActions: "ShareActions", FrameState: "FrameState", inspectTarget: null,
-      activeToolDock: null, shareHref: "https://sod1820.co.il/post/current", surface: "post", title: "Current", openAction() {}, openTools() {},
-      // The "עוד" panel also renders the administrator's list of still-closed destinations (#1214). This fixture is an ordinary visitor, and the real
-      // helper answers an empty list for anyone who is not the administrator, so the share branch is exercised exactly as before.
-      isAdmin: false, adminOpenClosedDestinations };
+      common: {}, PanelShell: "PanelShell", MorePanel2029: "MorePanel2029", NavigationIcon2029: "NavigationIcon2029", UserAvatar2029: "UserAvatar2029", inspectTarget: null, pageContext: null,
+      activeToolDock: null, shareHref: "https://sod1820.co.il/post/current", surface: "post", title: "Current", openAction() {}, openTools() {}, openSiteSearch() {},
+      openWorkspace() {}, setTransient() {}, go() {}, setSystemDockMode() {}, user: null, profile: null,
+      // The "עוד" panel also renders the administrator's list of still-closed destinations (#1214). This fixture is an ordinary visitor.
+      isAdmin: false, adminOpenClosedDestinations,
+      // "פעולות" and "כלים" closed · בבנייה (ZURIEL 11.11.2026): the frame passes the site_flags state of each to the panel.
+      actionsFeature: { blocked: true }, toolsFeature: { blocked: true } };
     vm.runInNewContext(code, context);
-    const tree = context.render(), share = elements(tree).find(node => node.type === "ShareActions");
-    assert.equal(tree.props.title, shareOnly ? "שיתוף" : "עוד");
-    assert.equal(JSON.stringify(share.props.channels), JSON.stringify(["native", "whatsapp", "telegram", "facebook", "copy"]));
-    assert.equal(share.props.url, context.shareHref);
-    assert.equal(elements(tree).some(node => node.type === "button" && node.props.children.includes("כלים")), !shareOnly);
+    const tree = context.render(), more = elements(tree).find(node => node.type === "MorePanel2029");
+    assert.equal(tree.props.title, shareOnly ? "שיתוף העמוד" : "עוד");
+    assert.equal(more.props.shareOnly, shareOnly);
+    // The branch runs in its own realm: compare plain values.
+    assert.equal(JSON.stringify(more.props.share), JSON.stringify({ href: context.shareHref, type: "post", title: "Current", surface: "post" }));
+    assert.equal(JSON.stringify(more.props.adminDestinations), "[]");
+    assert.equal(more.props.actionsBuilding, true); assert.equal(more.props.toolsBuilding, true);
   }
+  // Inside the panel: the one ShareActions with every approved channel on the exact URL, and the tools tile only in the full panel.
+  const panel = await read("./MorePanel2029.jsx");
+  assert.match(panel, /<ShareActions type=\{share\.type\} url=\{share\.href\}[^>]*channels=\{\["native", "whatsapp", "telegram", "facebook", "copy"\]\}/);
+  assert.match(panel, /\{!shareOnly \? <>[\s\S]*title="כלים"[\s\S]*<\/> : null\}[\s\S]*<ShareActions/);
   assert.match(source, /const openShare = useCallback\(\(\) => openTransient\(TRANSIENT\.MORE, \{ shareOnly: true \}\)/);
   assert.match(source, /<GlobalLivingRibbon2029 \/>/);
   assert.match(source, /sourceHref: contactSourceHref\(location\)/);

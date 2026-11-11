@@ -7,11 +7,13 @@
 // quotedMessage = תגובה/reply (למשל תגובה על תמונה) — נקלטת כעדכון (טקסט התגובה; אם צורפה תמונה חדשה — נקלטת גם היא).
 // 🔗 איחוד-זהות (20.7.2026): שם-שולח גולמי מוואטסאפ (למשל «אריאל ואצאפ») ממופה לשם התורם הקנוני לפי contributors.wa_names.
 // G0: cron/internal invocation uses existing FB_ADMIN_KEY header; no static/query credential in source.
-// 2029 media: new PUBLIC video only -> media/sod1820/2029/video/YYYY/MM/<asset-id>/original.*;
-// legacy URLs are never moved. Private media keeps submission-inbox semantics.
+// 2029 media: every NEW public image, video and audio -> media/sod1820/2029/<kind>/YYYY/MM/<asset-id>/original.*, with a
+// stable asset id derived from the message (no overwrite, no second copy on a repeated run); legacy URLs are never moved.
+// Private media keeps submission-inbox semantics. Content type is taken from the bytes and must match the message kind.
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { waAdmin as waGreen } from "../_shared/waGreen.ts";
 import { buildWriterIndex, resolveWriterContributorId } from "../_shared/waWriterIdentity.js";
+import { WA_MEDIA_MAX_BYTES, waMessageMediaKind, waPublicMediaPath, waSniffMedia, waStableAssetId, waUploadAlreadyExists } from "../_shared/waMediaAsset.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
 const CEIL = 60 * 60 * 30;
@@ -21,10 +23,8 @@ const RECOVERY_HISTORY_COUNT = 1000;
 const RECOVERY_BATCH = 10;
 const RESEARCH_FIRST_CHANNELS = new Set(["torat-haremez", "gilui-yomi", "sfot-vheker"]);
 const STORY_LIVE_CHANNELS = new Set(["or-geula"]);
-const LEGACY_PUBLIC_BUCKET = "gallery";
-const LEGACY_PUBLIC_MEDIA_DIR = "sod1820/broadcasts";
 const MEDIA_2029_BUCKET = "media";
-const MAX_MEDIA = 45 * 1024 * 1024;
+const MAX_MEDIA = WA_MEDIA_MAX_BYTES;
 const BOT_CREDIT = "רזיאל · AI";
 
 const sb = createClient(Deno.env.get("SUPABASE_URL") ?? "", Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "");
@@ -122,9 +122,10 @@ function normalizeProviderMediaUrl(raw: string): string {
 async function rehost(
   url: string,
   msgId: string,
-  kind: "image" | "video",
+  kind: "image" | "video" | "audio",
   privateMedia: boolean,
   sourceTs: number,
+  channel: string,
 ): Promise<string | null> {
   try {
     const normalizedUrl = normalizeProviderMediaUrl(url);
@@ -136,8 +137,9 @@ async function rehost(
     if (!res.ok) { trace.push({ msgId, step: "fetch", status: res.status }); return null; }
     const buf = new Uint8Array(await res.arrayBuffer());
     if (buf.byteLength > MAX_MEDIA) { trace.push({ msgId, step: "toobig", bytes: buf.byteLength }); return null; }
-    const ct = res.headers.get("content-type") || (kind === "video" ? "video/mp4" : "image/jpeg");
-    const ext = ct.includes("png") ? "png" : ct.includes("webp") ? "webp" : ct.includes("webm") ? "webm" : ct.includes("video") ? "mp4" : "jpg";
+    const sniffed = waSniffMedia(buf, kind);
+    if (!sniffed) { trace.push({ msgId, step: "media-type-rejected", kind, header: String(res.headers.get("content-type") || "").slice(0, 60) }); return null; }
+    const ct = sniffed.contentType, ext = sniffed.ext;
 
     if (privateMedia) {
       const d = new Date(sourceTs * 1000);
@@ -155,25 +157,15 @@ async function rehost(
       return `storage-object:${up.data.id}`;
     }
 
-    // Forward-only 2029 rule: every NEW public video receives one immutable asset UUID.
-    // Existing broadcasts stay on their legacy URLs; images retain the legacy public path until
-    // the shared image derivative pipeline takes ownership. No migration/copy happens here.
-    if (kind === "video") {
-      const d = new Date(sourceTs * 1000);
-      const yyyy = String(d.getUTCFullYear());
-      const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
-      const assetId = crypto.randomUUID();
-      const path = `sod1820/2029/video/${yyyy}/${mm}/${assetId}/original.${ext}`;
-      const up = await sb.storage.from(MEDIA_2029_BUCKET).upload(path, buf, { contentType: ct, upsert: false });
-      if (up.error) { trace.push({ msgId, step: "video-2029-upload", error: String(up.error.message || up.error) }); return null; }
-      trace.push({ msgId, step: "video-2029-uploaded", assetId });
-      return sb.storage.from(MEDIA_2029_BUCKET).getPublicUrl(path).data.publicUrl;
-    }
-
-    const path = `${LEGACY_PUBLIC_MEDIA_DIR}/${msgId}.${ext}`;
-    const up = await sb.storage.from(LEGACY_PUBLIC_BUCKET).upload(path, buf, { contentType: ct, upsert: true });
-    if (up.error) { trace.push({ msgId, step: "upload", error: String(up.error.message || up.error) }); return null; }
-    return sb.storage.from(LEGACY_PUBLIC_BUCKET).getPublicUrl(path).data.publicUrl;
+    // Forward-only 2029 rule: every NEW public image, video and audio receives one immutable asset UUID, stable per message
+    // (UUID v5 over channel + message id). Existing broadcasts stay on their legacy URLs; no migration/copy happens here.
+    // upsert:false never overwrites; an object that already exists for this message is the same asset and is reused.
+    const assetId = await waStableAssetId(channel, msgId);
+    const path = waPublicMediaPath(kind, assetId, sourceTs, ext);
+    const up = await sb.storage.from(MEDIA_2029_BUCKET).upload(path, buf, { contentType: ct, upsert: false });
+    if (up.error && !waUploadAlreadyExists(up.error)) { trace.push({ msgId, step: `${kind}-2029-upload`, error: String(up.error.message || up.error) }); return null; }
+    trace.push({ msgId, step: up.error ? `${kind}-2029-existing` : `${kind}-2029-uploaded`, assetId });
+    return sb.storage.from(MEDIA_2029_BUCKET).getPublicUrl(path).data.publicUrl;
   } catch (e) { trace.push({ msgId, step: "throw", error: String(e) }); return null; }
 }
 
@@ -253,7 +245,7 @@ async function ingestSource(
 
     // Targeted repair is source-local and never advances checkpoints.
     if (!targeted && ts > maxTs) maxTs = ts;
-    if (!["textMessage", "extendedTextMessage", "imageMessage", "videoMessage", "quotedMessage"].includes(typ)) continue;
+    if (!["textMessage", "extendedTextMessage", "imageMessage", "videoMessage", "audioMessage", "quotedMessage"].includes(typ)) continue;
 
     if (outgoing) {
       if (!captureOutgoing) continue;
@@ -267,8 +259,10 @@ async function ingestSource(
     if (dup && !targeted) continue;
 
     const mime = m.mimeType || m.fileMessageData?.mimeType || "";
-    const isImg = typ === "imageMessage" || mime.startsWith("image");
-    const isVid = typ === "videoMessage" || mime.startsWith("video");
+    const mediaKind = waMessageMediaKind(typ, mime);
+    const isImg = mediaKind === "image";
+    const isVid = mediaKind === "video";
+    const isAud = mediaKind === "audio";
     const caption = m.caption || m.fileMessageData?.caption || "";
     const bodyText = m.textMessage || m.extendedTextMessage?.text || caption || "";
 
@@ -278,7 +272,7 @@ async function ingestSource(
     }
 
     let imageUrl: string | null = null;
-    if (isImg || isVid) {
+    if (isImg || isVid || isAud) {
       let dl = m.downloadUrl || m.fileMessageData?.downloadUrl || "";
       if (!dl) {
         try {
@@ -289,9 +283,10 @@ async function ingestSource(
       if (dl) imageUrl = await rehost(
         dl,
         msgId,
-        isVid ? "video" : "image",
+        mediaKind as "image" | "video" | "audio",
         channelStatus(src.channel) === "private",
         ts,
+        src.channel,
       );
     }
 
@@ -307,7 +302,7 @@ async function ingestSource(
     }
 
     if (!bodyText && !imageUrl) continue;
-    const text = bodyText || (isVid ? "🎬 עדכון וידאו" : "📷 עדכון");
+    const text = bodyText || (isVid ? "🎬 עדכון וידאו" : isAud ? "🎧 הקלטה" : "📷 עדכון");
     const isBotApi = outgoing && !!m.sendByApi;
     const rawCredit = isBotApi
       ? BOT_CREDIT

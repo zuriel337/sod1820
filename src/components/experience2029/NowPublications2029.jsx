@@ -1,8 +1,23 @@
 import React, { useEffect, useMemo, useState } from "react";
+import ExternalVideoFacade2029 from "./ExternalVideoFacade2029.jsx";
+import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
-import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowModels, nowLensCounts, nowModels, nowTodayBand, nowSecondaryChoices, nowSeriesHref } from "../../lib/nowPublications2029.js";
+import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowBySource, filterNowModels, nowLensCounts, nowModels, nowPinnedMessage, nowTodayBand, nowSecondaryChoices, nowSeriesHref, nowSourceChoices } from "../../lib/nowPublications2029.js";
+import { NowPinnedMessage2029, NowSourceEmpty2029, NowSourcePicker2029 } from "./NowRoyalCenter2029.jsx";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
+import ShareActions from "../ShareActions.jsx";
+import { SHARE_SITE } from "../../lib/share.js";
+import { messageLinkPreviews, splitMessageLinks } from "../../lib/community/messageLinks.js";
 import "./nowPublications2029.css";
+
+// An Or HaGeula video shown in Now is shared to its own canonical item address (the same one its full page uses), through the ONE
+// ShareActions. Only a published Or HaGeula update has that address; other rows are unchanged.
+const OR_GEULA_ITEM = /^channel:([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/i;
+function orGeulaVideoShareUrl(model) {
+  const video = model?.video || messageLinkPreviews(splitMessageLinks(`${model?.title || ""} ${model?.fullText || ""}`)).some(link => link.kind === "youtube" || link.kind === "vimeo");
+  const match = video && !model.unverified && model.item?.channel === "or-geula" && model.item?.sourceKind === "channel_update" && OR_GEULA_ITEM.exec(model.item.id || "");
+  return match ? `${SHARE_SITE}/or-geula/video/${match[1].toLowerCase()}` : null;
+}
 
 // Compact "Now" publications window over the ONE shared system feed (feed.expandedRows).
 // No reader, store, polling or ranking of its own: the same rows power the left rail and this sheet.
@@ -45,9 +60,12 @@ function RowHead({ model, timeMode }) {
         {model.byline.length ? <span>{model.byline.join(" · ")}</span> : null}
         <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
         {model.pinned ? <span className="sod29-nowpub-pin" data-now-pinned="true">📌 נעוץ</span> : null}
+        {/* Clear labels (ZURIEL 11.11.2026): "חדש" for an arrival the viewer has not seen, "עודכן" for a publication that received an update. */}
+        {model.row?.isNew ? <span className="sod29-nowpub-label r29-badge is-new" data-now-label="new">חדש</span> : model.updated ? <span className="sod29-nowpub-label r29-badge is-updated" data-now-label="updated">עודכן</span> : null}
         <time dateTime={model.at || undefined}>{when}</time>
       </small>
     </span>
+    {model.canExpand ? <span className="sod29-nowpub-chev" aria-hidden="true" /> : null}
   </>;
 }
 
@@ -62,21 +80,41 @@ function VideoOnDemand({ model, autoStart = false }) {
   </button>;
 }
 
-function RowDetail({ model, onOpen, feed, autoPlay = false }) {
+// A site Post shared from "עכשיו" goes to its own canonical address through the ONE ShareActions (never an embed or a feed address).
+const postShareUrl = model => !model.unverified && model.item?.sourceKind === "post" && /^\/(?:post|posts)\/[^/?#]+$/.test(model.href || "") ? `${SHARE_SITE}${model.href}` : null;
+
+function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null }) {
   const seriesHref = nowSeriesHref(model);
   const fullHref = model.href;
   const open = href => () => { feed?.see?.(model.row); onOpen?.(href); };
   return <div className="sod29-nowpub-detail">
-    {model.video && model.mediaHref ? <VideoOnDemand model={model} autoStart={autoPlay} /> : model.image && model.mediaHref
+    {model.video && model.mediaHref ? <VideoOnDemand model={model} autoStart={autoPlay} />
+      : model.audio && model.mediaHref ? <audio className="sod29-nowpub-audio" src={model.mediaHref} controls preload="none" aria-label={`הקלטה · ${model.title}`} />
+      : model.image && model.mediaHref
       ? <img className="sod29-nowpub-image" src={model.mediaHref} alt={`תמונה · ${model.title}`} loading="lazy" decoding="async" /> : null}
-    {model.fullText && model.fullText !== model.title ? <p className="sod29-nowpub-body">{model.fullText}</p> : null}
+    {model.fullText && model.fullText !== model.title ? <p className="sod29-nowpub-body">{model.fullText}</p>
+      : model.summary ? <p className="sod29-nowpub-body is-summary" data-now-detail="summary">{model.summary}</p> : null}
+    {!model.fullText && model.summary && model.href ? <small data-now-detail="excerpt-note">זהו התקציר שפורסם; המשך הפרסום בעמוד המלא.</small> : null}
+    {/* YouTube / Vimeo links: the shared click-to-load card. A public group source shows it too (ZURIEL 11.11.2026): the group reader only lets a
+        canonical YouTube address through (world_group_source_arrivals_v2) and the row keeps its "מקור · טרם נבדק" label below. */}
+    {externalVideoLinksFromText(model.fullText || model.title).map(link =>
+      <ExternalVideoFacade2029 key={link.key} link={link} title={model.title} context={model.unverified ? `מקור · טרם נבדק · ${model.sourceName}` : model.sourceName ? `מתוך ${model.sourceName}` : ""} />)}
     {model.item.fullTextTruncated ? <small>זהו קטע תחום מהעדכון הציבורי.</small> : null}
     {model.unverified ? <small className="is-unverified">מקור · טרם נבדק. זו הודעת מקור כפי שנשמרה ולא ממצא מאומת.</small> : null}
     <div className="sod29-nowpub-actions">
       {fullHref ? <button type="button" className="sod29-action primary" onClick={open(fullHref)}>{model.unverified ? "למקור" : "לפרסום המלא"}</button> : <small>אין קישור מדויק לפריט; הוא מוצג כאן במלואו.</small>}
       {seriesHref ? <button type="button" className="sod29-action" onClick={open(seriesHref)}>לסדרה{model.seriesLabel ? ` · ${model.seriesLabel}` : ""}</button> : null}
       {model.creatorHref ? <button type="button" className="sod29-action" data-now-action="creator-profile" onClick={open(model.creatorHref)}>לפרופיל · {model.item.creator}</button> : null}
+      {onSource && model.sourceKey ? <button type="button" className="sod29-action" data-now-action="source-all" onClick={() => onSource(model.sourceKey)}>כל העדכונים מ{model.sourceName || "המקור"}</button> : null}
     </div>
+    {postShareUrl(model) ? <div className="sod29-nowpub-share" data-share-target={postShareUrl(model)} aria-label="שיתוף הפרסום">
+      <ShareActions force compact type="post" url={postShareUrl(model)} title={model.title} entityId={model.item.id} sourceSurface="now-post"
+        channels={["native", "whatsapp", "telegram", "facebook", "copy"]} style={{ flexWrap: "wrap", overflowX: "visible" }} />
+    </div> : null}
+    {orGeulaVideoShareUrl(model) ? <div className="sod29-nowpub-share" data-share-target={orGeulaVideoShareUrl(model)} aria-label="שיתוף הסרטון">
+      <ShareActions force compact type="video" url={orGeulaVideoShareUrl(model)} title={model.title} entityId={model.item.id} sourceSurface="now-or-geula"
+        poster={model.thumb || null} channels={["native", "whatsapp", "telegram", "facebook", "copy"]} style={{ flexWrap: "wrap", overflowX: "visible" }} />
+    </div> : null}
   </div>;
 }
 
@@ -84,7 +122,7 @@ function RowDetail({ model, onOpen, feed, autoPlay = false }) {
 function RunGroup({ entry, children }) {
   // The closed group shows when its LAST update arrived (relative, same helper as every row).
   const latest = latestRunAt(entry.models);
-  return <li><details className="sod29-nowpub-run" data-tone="ember" data-now-run={entry.sourceName}>
+  return <li><details className="sod29-nowpub-run r29-card" data-tone="ember" data-now-run={entry.sourceName}>
     <summary><strong>{entry.sourceName}</strong><span>{entry.models.length} הודעות</span>{latest ? <span>עדכון אחרון · <time dateTime={latest}>{recordTimeLabel(latest, NOW_TIME_MODE, "")}</time></span> : null}<span className="is-unverified">מקור · טרם נבדק</span><em>{entry.models[0].title}</em></summary>
     <ul className="sod29-nowpub-list">{children}</ul>
   </details></li>;
@@ -110,15 +148,15 @@ function TodayBand({ band, onOpen }) {
   </section>;
 }
 
-// The Or HaGeula rabbi box: every update with "רב"/"הרב" lives here; the box sits at its newest member, so a new update lifts the box.
+// The Or HaGeula box (second tier): every Or HaGeula update lives here except the owner's featured one; the box sits at its newest member.
 function BoxGroup({ entry, children }) {
   const lead = entry.models[0], fresh = entry.models.some(model => model.row?.isNew);
-  return <li><details className={`sod29-nowpub-box${fresh ? " is-new" : ""}`} data-tone="gold" data-now-box="or-geula-rabbi">
+  return <li><details className={`sod29-nowpub-box r29-card${fresh ? " is-new" : ""}`} data-tone="gold" data-now-box="or-geula-rabbi">
     <summary>
       {lead.logo ? <img className="sod29-nowpub-box-logo" src={lead.logo.src} alt="" width="40" height="40" loading="lazy" decoding="async" /> : null}
       <span className="sod29-nowpub-box-text">
         <strong>{entry.label}</strong>
-        <span><span>{entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}</span>{fresh ? <b className="sod29-nowpub-box-new">חדש</b> : null}{entry.latest ? <span>עדכון אחרון · <time dateTime={entry.latest}>{recordTimeLabel(entry.latest, NOW_TIME_MODE, "")}</time></span> : null}</span>
+        <span><span>{entry.models.length} {entry.models.length === 1 ? "עדכון" : "עדכונים"}</span>{fresh ? <b className="sod29-nowpub-box-new r29-badge is-new">חדש</b> : null}{entry.latest ? <span>עדכון אחרון · <time dateTime={entry.latest}>{recordTimeLabel(entry.latest, NOW_TIME_MODE, "")}</time></span> : null}</span>
         <em>{lead.title}</em>
       </span>
     </summary>
@@ -126,13 +164,13 @@ function BoxGroup({ entry, children }) {
   </details></li>;
 }
 
-function Row({ model, onOpen, feed, timeMode }) {
+function Row({ model, onOpen, feed, timeMode, onSource }) {
   // Tapping the ▶ on the picture opens the row AND starts that video (one tap), instead of only expanding it.
   const [playIntent, setPlayIntent] = useState(false);
-  const className = `sod29-nowpub-row is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""}`;
+  const className = `sod29-nowpub-row r29-card is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""}`;
   if (model.canExpand) return <li><details className={className} data-tone={model.tone} onToggle={event => { if (event.currentTarget.open) feed?.see?.(model.row); }}>
     <summary onClick={event => { if (model.video && event.target.closest?.(".sod29-nowpub-preview")) setPlayIntent(true); }}><RowHead model={model} timeMode={timeMode} /></summary>
-    <RowDetail model={model} onOpen={onOpen} feed={feed} autoPlay={playIntent} />
+    <RowDetail model={model} onOpen={onOpen} feed={feed} autoPlay={playIntent} onSource={onSource} />
   </details></li>;
   return <li><button type="button" className={`${className} is-link`} data-tone={model.tone} disabled={!model.href}
     onClick={() => { feed?.see?.(model.row); if (model.href) onOpen?.(model.href); }}>
@@ -155,11 +193,11 @@ function useWide() {
 }
 
 function WideRow({ model, selected, onSelect, timeMode }) {
-  const className = `sod29-nowpub-row is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""} is-link${selected ? " is-selected" : ""}`;
+  const className = `sod29-nowpub-row r29-card is-${model.media}${model.previewKind ? " has-preview" : ""}${model.unverified ? " is-source" : ""}${model.row.isNew ? " is-new" : ""} is-link${selected ? " is-selected" : ""}`;
   return <li><button type="button" className={className} data-tone={model.tone} aria-pressed={selected} onClick={event => onSelect(model, Boolean(model.video && event.target.closest?.(".sod29-nowpub-preview")))}><RowHead model={model} timeMode={timeMode} /></button></li>;
 }
 
-function WideDetail({ model, onOpen, feed, timeMode, autoPlay }) {
+function WideDetail({ model, onOpen, feed, timeMode, autoPlay, onSource }) {
   if (!model) return <p className="sod29-nowpub-empty" role="status">בחרו פרסום מהרשימה.</p>;
   const when = recordTimeLabel(model.at, NOW_TIME_MODE, "זמן לא צוין");
   return <article className="sod29-nowpub-pane" data-tone={model.tone} aria-label={model.title}>
@@ -169,41 +207,47 @@ function WideDetail({ model, onOpen, feed, timeMode, autoPlay }) {
       <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
       <time dateTime={model.at || undefined}>{when}</time>
     </small>
-    <RowDetail key={model.id} model={model} onOpen={onOpen} feed={feed} autoPlay={autoPlay} />
+    <RowDetail key={model.id} model={model} onOpen={onOpen} feed={feed} autoPlay={autoPlay} onSource={onSource} />
   </article>;
 }
 
 export default function NowPublications2029({ feed, onOpen, timeMode }) {
-  const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [source, setSource] = useState(""), [media, setMedia] = useState("");
+  // ZURIEL 11.11.2026 (approved design): the source picker is the primary control ("הכול" by default); lens, series and media move to "מסננים נוספים".
+  const [lens, setLens] = useState(null), [series, setSeries] = useState(""), [sourceKey, setSourceKey] = useState(""), [media, setMedia] = useState("");
   const [count, setCount] = useState(PAGE);
   const wide = useWide();
   const [selectedId, setSelectedId] = useState(null), [playId, setPlayId] = useState(null);
   useEffect(() => { feed?.requestNowDetails?.(); }, [feed?.requestNowDetails]);
   const rows = Array.isArray(feed?.expandedRows) ? feed.expandedRows : Array.isArray(feed?.rows) ? feed.rows : [];
-  const models = useMemo(() => nowModels(rows), [rows]);
+  const allModels = useMemo(() => nowModels(rows), [rows]);
+  // The pinned central message is shown ONCE, as the card above the list; the same publication is not repeated as a row.
+  const pinned = useMemo(() => nowPinnedMessage(allModels), [allModels]);
+  const models = useMemo(() => pinned ? allModels.filter(model => model.id !== pinned.model.id) : allModels, [allModels, pinned]);
+  const sourceChoices = useMemo(() => nowSourceChoices(models), [models]);
   const lenses = useMemo(() => availableNowLenses(models), [models]);
   // Entries per lens among the rows already loaded here: a count of loaded entries, never a site-wide total.
   const counts = useMemo(() => nowLensCounts(models), [models]);
   const choices = useMemo(() => nowSecondaryChoices(models), [models]);
   // Until the reader picks, the window opens on "all" (ZURIEL 6.11.2026), in time order.
   const activeLens = lens ?? defaultNowLens(models);
-  const shown = useMemo(() => filterNowModels(models, { lens: activeLens, series, source, media }), [models, activeLens, series, source, media]);
+  const shown = useMemo(() => filterNowModels(filterNowBySource(models, sourceKey), { lens: activeLens, series, media }), [models, sourceKey, activeLens, series, media]);
   // Only the mixed "all" view collapses consecutive source rows; a lens/filter the reader chose on purpose lists every row.
-  const collapse = activeLens === "all" && !series && !source && !media;
+  const collapse = activeLens === "all" && !series && !sourceKey && !media;
   const entries = useMemo(() => collapse ? buildNowEntries(shown) : shown.map(model => ({ kind: "row", model })), [shown, collapse]);
   const visibleEntries = entries.slice(0, count);
   const visibleCount = visibleEntries.reduce((sum, entry) => sum + (entry.models ? entry.models.length : 1), 0);
-  const todayBand = useMemo(() => nowTodayBand(models), [models]);
+  // The day band only when there is no pinned card (never the same message twice).
+  const todayBand = useMemo(() => pinned ? null : nowTodayBand(allModels), [allModels, pinned]);
   const selected = wide ? (shown.find(model => model.id === selectedId) || shown[0] || null) : null;
   const select = (model, play = false) => { setSelectedId(model.id); setPlayId(play ? model.id : null); feed?.see?.(model.row); };
-  const secondaryActive = Boolean(series || source || media);
+  const secondaryActive = Boolean(series || media || (lens && lens !== "all"));
   // A lens/choice that stopped existing (refresh, retry) must not leave an invisible empty filter.
   useEffect(() => {
     if (lens && lens !== "all" && !lenses.some(item => item.id === lens)) setLens(null);
     if (series && !choices.series.some(item => item.id === series)) setSeries("");
-    if (source && !choices.sources.some(item => item.id === source)) setSource("");
+    if (sourceKey && !sourceChoices.some(item => item.id === sourceKey)) setSourceKey("");
     if (media && !choices.media.some(item => item.id === media)) setMedia("");
-  }, [lenses, choices, lens, series, source, media]);
+  }, [lenses, choices, sourceChoices, lens, series, sourceKey, media]);
   const pick = setter => value => { setter(value); setCount(PAGE); };
   const additionalLoading = Boolean(feed?.nowSources && (!feed.nowSources.requested || feed.nowSources.loading));
   // An approved series occurrence that is no longer public reads as "access_filtered" by design (not a read failure).
@@ -213,20 +257,21 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
   const initialLoading = Boolean(feed?.loading && !models.length);
   // Nothing readable AND something failed: say so; never present a failed read as an empty world.
   const hardError = Boolean(!models.length && !initialLoading && !additionalLoading && (feed?.error || additionalUnavailable || partial));
-  const clear = () => { setLens("all"); setSeries(""); setSource(""); setMedia(""); setCount(PAGE); };
+  const clear = () => { setLens("all"); setSeries(""); setSourceKey(""); setMedia(""); setCount(PAGE); };
+  const chosenSource = sourceKey ? sourceChoices.find(item => item.id === sourceKey) : null;
 
-  return <section className="sod29-nowpub" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
-    {todayBand ? <TodayBand band={todayBand} onOpen={onOpen} /> : null}
-    <div className="sod29-nowpub-filters" role="group" aria-label="סינון פרסומים">
-      {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" data-tone={NOW_LENS_TONE[item.id]} aria-pressed={activeLens === item.id}
-        aria-label={`${item.label}, ${counts[item.id]} פרסומים שנטענו בחלונית`} title={`${counts[item.id]} פרסומים שנטענו בחלונית`}
-        onClick={() => pick(setLens)(item.id)}>{item.label}<span className="sod29-nowpub-chip-count" aria-hidden="true">{counts[item.id]}</span></button>)}
-    </div>
-    {choices.series.length + choices.sources.length > 1 || choices.media.length > 1 ? <details className="sod29-nowpub-more" open={secondaryActive || undefined}>
+  return <section className="sod29-nowpub is-royal r29" aria-label="פרסומים" aria-busy={initialLoading || additionalLoading}>
+    {pinned ? <NowPinnedMessage2029 pinned={pinned} onOpen={href => { feed?.see?.(pinned.model.row); onOpen?.(href); }} /> : todayBand ? <TodayBand band={todayBand} onOpen={onOpen} /> : null}
+    <NowSourcePicker2029 choices={sourceChoices} value={sourceKey} onChange={pick(setSourceKey)} total={models.length} />
+    {lenses.length > 1 || choices.series.length > 0 || choices.media.length > 1 ? <details className="sod29-nowpub-more" open={secondaryActive || undefined}>
       <summary>מסננים נוספים{secondaryActive ? " · פעיל" : ""}</summary>
+      <div className="sod29-nowpub-filters" role="group" aria-label="סינון פרסומים">
+        {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" data-tone={NOW_LENS_TONE[item.id]} aria-pressed={activeLens === item.id}
+          aria-label={`${item.label}, ${counts[item.id]} פרסומים שנטענו בחלונית`} title={`${counts[item.id]} פרסומים שנטענו בחלונית`}
+          onClick={() => pick(setLens)(item.id)}>{item.label}<span className="sod29-nowpub-chip-count" aria-hidden="true">{counts[item.id]}</span></button>)}
+      </div>
       <div className="sod29-nowpub-selects">
         {choices.series.length > 0 ? <label>סדרה<select value={series} onChange={event => pick(setSeries)(event.target.value)}><option value="">כל הסדרות</option>{choices.series.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label> : null}
-        {choices.sources.length > 1 ? <label>מקור<select value={source} onChange={event => pick(setSource)(event.target.value)}><option value="">כל המקורות</option>{choices.sources.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label> : null}
         {choices.media.length > 1 ? <label>מדיה<select value={media} onChange={event => pick(setMedia)(event.target.value)}><option value="">כל סוגי המדיה</option>{choices.media.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label> : null}
       </div>
     </details> : null}
@@ -239,9 +284,10 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
       {feed?.groupArrivals && feed.groupArrivals.state !== "connected" ? <p role="status">{feed.groupArrivals.message}</p> : null}
     </div>
 
-    {!initialLoading && !hardError && !additionalLoading && !shown.length
+    {!initialLoading && !hardError && chosenSource && !chosenSource.count ? <NowSourceEmpty2029 label={chosenSource.label} /> : null}
+    {!initialLoading && !hardError && !additionalLoading && !shown.length && !(chosenSource && !chosenSource.count)
       ? <p className="sod29-nowpub-empty" role="status">{models.length ? "אין פרסומים בסינון הזה." : "אין כרגע פרסומים להצגה."}
-        {models.length && (activeLens !== "all" || secondaryActive) ? <> <button type="button" className="sod29-nowpub-link" onClick={clear}>הצג הכול</button></> : null}</p> : null}
+        {models.length && (activeLens !== "all" || secondaryActive || sourceKey) ? <> <button type="button" className="sod29-nowpub-link" onClick={clear}>הצג הכול</button></> : null}</p> : null}
 
     {wide
       ? <div className="sod29-nowpub-split">
@@ -250,11 +296,11 @@ export default function NowPublications2029({ feed, onOpen, timeMode }) {
           return entry.kind === "run" ? <RunGroup key={entry.id} entry={entry}>{entry.models.map(wideRow)}</RunGroup>
             : entry.kind === "box" ? <BoxGroup key={entry.id} entry={entry}>{entry.models.map(wideRow)}</BoxGroup> : wideRow(entry.model);
         })}</ul>
-        {shown.length ? <WideDetail model={selected} onOpen={onOpen} feed={feed} timeMode={timeMode} autoPlay={playId === selected?.id} /> : null}
+        {shown.length ? <WideDetail model={selected} onOpen={onOpen} feed={feed} timeMode={timeMode} autoPlay={playId === selected?.id} onSource={sourceKey ? null : pick(setSourceKey)} /> : null}
       </div>
       : <ul className="sod29-nowpub-list">
         {visibleEntries.map(entry => {
-          const row = model => <Row key={model.id} model={model} onOpen={onOpen} feed={feed} timeMode={timeMode} />;
+          const row = model => <Row key={model.id} model={model} onOpen={onOpen} feed={feed} timeMode={timeMode} onSource={sourceKey ? null : pick(setSourceKey)} />;
           return entry.kind === "run" ? <RunGroup key={entry.id} entry={entry}>{entry.models.map(row)}</RunGroup>
             : entry.kind === "box" ? <BoxGroup key={entry.id} entry={entry}>{entry.models.map(row)}</BoxGroup> : row(entry.model);
         })}

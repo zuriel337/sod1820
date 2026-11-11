@@ -203,6 +203,7 @@ jobs:
           test/personal-area-balanced-rtl-2029.test.mjs
           test/content-title-presentation.test.mjs
           test/dock-more-2029.test.mjs
+          test/lock-actions-tools-2029.test.mjs
           src/components/experience2029/frameRenewalShare2029.test.js
       # These ran in no workflow before (they were only run by hand with npm run test:cn-sg-security), so nothing stood between a change to the edge
       # middleware and Production. The production entry re-exports the root middleware.js, so a change to either is covered by the same run.
@@ -223,6 +224,7 @@ jobs:
           src/components/contributor2029/publicContributorPerson2029.test.js
           src/components/contributor2029/publicSourceCatalog2029.test.js
           src/lib/publicContinuityReaders2029.test.js
+          src/lib/community/messageLinks.test.js
           src/lib/research/eventObservationCompiler.test.js
           src/lib/research/eventSystemMethodRuntime.test.js
           src/lib/research/goldenProjectorModes.test.js
@@ -239,11 +241,23 @@ jobs:
           test/raziel-site-links.test.mjs
           test/research-viewer-entity-graph-lens.test.mjs
           test/research-viewer-graph-readpath.test.mjs
+          test/now-publications-2029.test.mjs
+          test/group-sources-now-2029.test.mjs
+          test/or-geula-video-share-2029.test.mjs
+          test/install-suggestion-2029.test.mjs
           test/wa-channel-world-2029-contract.test.mjs
           test/wa-trusted-author-tree-routing.test.mjs
           test/world-topic-gallery-state-map-2029.test.mjs
           test/world-gallery-entry-follow-chain-2029.test.mjs
           test/world-one-tree-preview-2029.test.mjs
+      - name: Now centre contracts (ZURIEL 11.11.2026 — the pinned central message of at most 72 hours, the one source picker, the Home centre first and the featured card before the plane story; the Home strip test mounts the real component with react-test-renderer from the calculator step above; it was previously unwired and repaired)
+        run: >
+          node --test
+          test/now-publications-2029.test.mjs
+          test/home-live-updates-2029.test.mjs
+          test/home-featured-post-2029.test.mjs
+          test/companion-2029-one-feed-and-projector-rail.test.mjs
+          test/group-youtube-card-2029.test.mjs
       - name: Connected golden theme contract (script runner)
         run: node scripts/test-connected-golden-2029.mjs
       - name: Robustness and rollout-order contracts (stale-chunk recovery and error boundary, /api/card deadline and glyphs, guest/member preferences split, push and RPC deploy-order manifests, ELS bridge anonymous bearer, missing-asset 404, client read de-duplication, bot-observability migrations; the asset-miss test reads the production build generated earlier in this job)
@@ -287,6 +301,35 @@ jobs:
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real
   # Supabase client on the production URL (mapped to a local fixture; Auth is an in-memory model, nothing leaves the runner).
   # Existing account, new account, password, e-mail link, session persistence, desktop / mobile / installed-app presentation and a stale worker.
+  # Meta Pixel and AdSense on the 2029 public site (ZURIEL, 11.11.2026): the artifact is built WITH test marketing ids (the production ids come
+  # from the Vercel environment at deploy time) and run in a real Chromium with the real worker and the deployment's real CSP.
+  marketing-browser-2029:
+    name: marketing-browser-2029
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build the public-reading artifact with test marketing ids
+        run: node scripts/build-public-reading-production.mjs
+        env:
+          VITE_META_PIXEL_ID: "1234567890123456"
+          VITE_ADSENSE_CLIENT: ca-pub-0000000000000000
+          VITE_ADSENSE_SLOT_POST: "0000000001"
+          VITE_ADSENSE_SLOT_LIST: "0000000002"
+      - name: Install the pinned browser
+        run: |
+          npm install --no-save --no-package-lock @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Meta Pixel and AdSense (real CSP header + real worker), bots excluded
+        run: node --test test/marketing-browser-2029.browser.mjs
+
   auth-browser-acceptance-2029:
     name: auth-browser-acceptance-2029
     # Pinned: Playwright 1.55 (pinned below) has no browser build for ubuntu-latest (26.04); the other browser gates use 24.04 too.

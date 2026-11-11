@@ -48,13 +48,26 @@ test('closed Follow never mounts its controller, creates identity or reads prefe
   assert.deepEqual(globalThis.__closedEffects, []);
 });
 
-test('reading profile suppresses both telemetry sinks, marketing and sharing credits before attempted IO', () => {
+test('reading profile suppresses both telemetry sinks and sharing credits before attempted IO', () => {
   globalThis.__closedEffects = [];
   globalThis.window = { fbq: () => assert.fail('pixel'), gtag: () => assert.fail('ads') };
   tracking.track('home'); tracking.trackShare('facebook', 'fixture'); tracking.trackWhatsappJoin('home');
   tracking.captureArrivalSource(); tracking.captureAcquisition(); tracking.initAppInstallTracking();
-  events.emit('home', 'view'); marketing.initMarketing(); marketing.trackMarketingPageview(); marketing.trackConversion('share');
+  events.emit('home', 'view');
   assert.deepEqual(globalThis.__closedEffects, []);
+});
+
+// ZURIEL, 11.11.2026: the Meta Pixel is enabled on the 2029 public site, so the reading profile no longer suppresses marketing for people (proved with
+// a real browser in test/marketing-browser-2029.browser.mjs). A bot (edge verdict or automation) still gets nothing: no script, no fbq call, no event.
+test('a bot gets no Pixel script, no fbq call and no marketing event in the reading profile', () => {
+  globalThis.__closedEffects = [];
+  const original = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  Object.defineProperty(globalThis, 'navigator', { value: { userAgent: 'Mozilla/5.0 HeadlessChrome/124', webdriver: true }, configurable: true });
+  try {
+    globalThis.window = { fbq: () => assert.fail('pixel'), gtag: () => assert.fail('ads') }; globalThis.document = undefined;
+    marketing.initMarketing(); marketing.trackMarketingPageview();
+    assert.deepEqual(globalThis.__closedEffects, []);
+  } finally { if (original) Object.defineProperty(globalThis, 'navigator', original); else delete globalThis.navigator; }
 });
 
 test('reading errors remain locally visible, sanitized and deduplicated with zero telemetry IO', () => {
