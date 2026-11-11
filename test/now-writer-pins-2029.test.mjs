@@ -1,136 +1,149 @@
-// Writer pins in "עכשיו" (ZURIEL 11.11.2026): «הגילוי היומי» enters like Or HaGeula, and the messages of the writers whose WhatsApp
-// number is listed in the source registry (שחר יצחק קנדרו, יניב לוי) are pinned at the top — under the owner's own pin — until pinned_until.
+// «הגילוי היומי» in "עכשיו" (ZURIEL 11.11.2026): exactly the Zvi / «תורת הרמז» model — a message is public ONLY as a group-source
+// arrival the server proved (group proof + verified_phone_unique + approved writer + editorial flag, world_group_source_arrivals_v2).
+// On top of that one path, an arrival by שחר יצחק קנדרו or יניב לוי in «הגילוי היומי» is pinned at the top of Now for 24 hours.
+// No all-members live publication, no channel writer name, no pinned_until column, no ingest change.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { fetchSystemFeedPublicSources2029, publicChannelToSystemItem, NOW_PIN_READ_LIMIT_2029 } from "../src/lib/research/systemFeedPublicSources2029.js";
+import { existsSync, readFileSync } from "node:fs";
+import {
+  APPROVED_GROUP_WRITERS, GROUP_SOURCE_CHANNELS, GROUP_SOURCE_LABEL, GROUP_WRITER_PINS_2029, GROUP_WRITER_PIN_HOURS_2029,
+  WORLD_GROUP_SOURCE_READER, groupRowToWorldUpdate, groupWriterPin, groupWriterPinListed,
+} from "../src/lib/research/worldGroupSource.js";
 import { feedRows } from "../src/lib/systemFeed2029.js";
-import { nowModels, nowPinnedMessage, buildNowEntries } from "../src/lib/nowPublications2029.js";
+import { buildNowEntries, nowModels, nowPinnedMessage, nowRowModel } from "../src/lib/nowPublications2029.js";
 
 const NOW = Date.parse("2026-11-11T12:00:00Z");
-const uuid = n => `20000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const hours = h => new Date(NOW + h * 3600000).toISOString();
-const row = (n, extra = {}) => ({ id: uuid(n), channel: "gilui-yomi", status: "live", page_only: false, expires_at: null,
-  created_at: hours(-n), text: `גילוי ${n}`, link_url: null, priority: 55, ...extra });
-
-test("a row pinned by the ingest is pinned while pinned_until is ahead, and names its proven writer (redacted)", () => {
-  const live = publicChannelToSystemItem(row(1, { pinned_until: hours(20), credit: "יצחק שחר קנדרו" }), { now: NOW });
-  assert.equal(live.pinned, true);
-  assert.equal(live.pinKind, "writer");
-  assert.equal(live.pinUntil, hours(20));
-  assert.equal(live.writer, "יצחק שחר קנדרו");
-  assert.equal(live.creator, "הגילוי היומי", "the source stays the channel");
-  assert.equal("credit" in live, false, "the raw credit never enters the DTO");
-  const expired = publicChannelToSystemItem(row(2, { pinned_until: hours(-1), credit: "יניב לוי" }), { now: NOW });
-  assert.equal(expired.pinned, undefined, "an expired pin is not a pin");
-  assert.equal(expired.writer, "יניב לוי", "a row proved by the number keeps its writer when it carries pinned_until (in Now only the pin read selects it)");
-  const phone = publicChannelToSystemItem(row(3, { pinned_until: hours(5), credit: "+972 50-123-4567" }), { now: NOW });
-  assert.ok(!phone.writer.includes("972") && !phone.writer.includes("4567"), "a phone-like display name is redacted");
+const uuid = n => `30000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+const NAMES = { "shachar-kandro": "שחר יצחק קנדרו", "yaniv-levi": "יניב לוי", "tzvi-opoc": "צבי", "shimon-haimov": "שמעון חיימוב" };
+// A row exactly as the public reader returns it (server-side proof already passed).
+const arrival = (n, slug, { channel = "gilui-yomi", at = hours(-n), ...extra } = {}) => groupRowToWorldUpdate({
+  id: uuid(n), body: `גילוי ${n}`, created_at: at, contributor_slug: slug, contributor_name: NAMES[slug] || slug,
+  group_proof: true, proof_basis: "verified_phone_unique", group_channel: channel, ...extra,
 });
-
-test("an unpinned channel row never shows a writer name, even when the row carries a credit", () => {
-  const plain = publicChannelToSystemItem(row(4, { credit: "חבר בקבוצה" }), { now: NOW });
-  assert.equal(plain.pinned, undefined);
-  assert.equal(plain.writer, undefined);
-  assert.equal("credit" in plain, false);
-});
-
+const models = (items, now = NOW, opts = {}) => nowModels(feedRows(items, { now, limit: 160, caps: { group: 40, post: 40 }, ...opts }), now);
 const owner = { id: "post:5107", kind: "source", sourceKind: "post", label: "הודעת הבעלים", at: hours(-30), pinned: true, pinUntil: hours(40),
   central: { groups: [{ value: 1820, phrases: ["סוד הוי״ה"] }] } };
-const models = items => nowModels(feedRows(items, { now: NOW, limit: 160, caps: { post: 40, "channel:gilui-yomi": 12 } }), NOW);
 
-test("order: the owner's pin leads, writer pins follow newest first, then everything else by time", () => {
-  const items = [
-    owner,
-    publicChannelToSystemItem(row(1), { now: NOW }),
-    publicChannelToSystemItem(row(9, { pinned_until: hours(15), credit: "יצחק שחר קנדרו" }), { now: NOW }),
-    publicChannelToSystemItem(row(5, { pinned_until: hours(19), credit: "יניב לוי" }), { now: NOW }),
-    publicChannelToSystemItem(row(2), { now: NOW }),
-  ];
+test("the pin list is exactly Kandro and Levi in «הגילוי היומי», 24 hours, and both are approved group writers", () => {
+  assert.deepEqual(JSON.parse(JSON.stringify(GROUP_WRITER_PINS_2029)), { "gilui-yomi": ["shachar-kandro", "yaniv-levi"] });
+  assert.equal(GROUP_WRITER_PIN_HOURS_2029, 24);
+  for (const slug of GROUP_WRITER_PINS_2029["gilui-yomi"]) assert.ok(APPROVED_GROUP_WRITERS.includes(slug), slug);
+  assert.ok(Object.isFrozen(GROUP_WRITER_PINS_2029) && Object.isFrozen(GROUP_WRITER_PINS_2029["gilui-yomi"]));
+  for (const [channel, slug] of [["torat-haremez", "shachar-kandro"], ["gilui-yomi", "tzvi-opoc"], ["gilui-yomi", "shimon-haimov"],
+    ["constructor", "yaniv-levi"], ["__proto__", "yaniv-levi"], ["gilui-yomi", "קנדרו"], ["", "yaniv-levi"]]) {
+    assert.equal(groupWriterPinListed(channel, slug), false, `${channel}/${slug}`);
+  }
+});
+
+test("a server-proved arrival by Kandro or Levi in «הגילוי היומי» carries a 24-hour writer pin from its arrival", () => {
+  for (const slug of ["shachar-kandro", "yaniv-levi"]) {
+    const item = arrival(3, slug);
+    assert.equal(item.pinned, true, slug);
+    assert.equal(item.pinKind, "writer");
+    assert.equal(item.pinUntil, new Date(Date.parse(hours(-3)) + 24 * 3600000).toISOString());
+    // The pin never changes what the row is: the same unverified group source, the same group, the same writer.
+    assert.equal(item.sourceKind, "group_message");
+    assert.equal(item.publicState, "group_source_message_unverified");
+    assert.equal(item.stateLabel, GROUP_SOURCE_LABEL);
+    assert.deepEqual(item.sourceGroup, { key: "gilui-yomi", label: "הגילוי היומי" });
+    assert.equal(item.creatorSlug, slug);
+  }
+  assert.deepEqual(groupWriterPin({ channel: "gilui-yomi", slug: "yaniv-levi", arrivalAt: "not-a-date" }), null);
+});
+
+test("no pin anywhere else: other writers, other groups, the neutral reader row, and never on a row without proof", () => {
+  for (const item of [arrival(1, "tzvi-opoc"), arrival(2, "shimon-haimov"), arrival(3, "shachar-kandro", { channel: "torat-haremez" }),
+    arrival(4, "yaniv-levi", { channel: "ki-la-hamelucha-gematria" }), arrival(5, "yaniv-levi", { group_channel: null })]) {
+    assert.ok(item, "still a public arrival");
+    assert.equal("pinned" in item || "pinKind" in item || "pinUntil" in item, false, item.id);
+  }
+  // Every server gate still excludes the row entirely — a pin cannot exist without the row.
+  assert.equal(arrival(6, "shachar-kandro", { proof_basis: "unverified" }), null);
+  assert.equal(arrival(7, "shachar-kandro", { group_proof: false }), null);
+  assert.equal(arrival(8, "lookalike-kandro"), null);
+  assert.equal(arrival(9, "yaniv-levi", { group_channel: "or-geula" }), null, "a channel outside the public source groups is dropped, never pinned");
+});
+
+test("order in Now: the owner's pin leads, then writer pins newest first, then everything else by time", () => {
+  const items = [owner, arrival(1, "tzvi-opoc", { channel: "torat-haremez" }), arrival(9, "shachar-kandro"), arrival(5, "yaniv-levi"),
+    { id: "post:1", kind: "source", sourceKind: "post", label: "פוסט", at: hours(-2) }];
   const all = models(items);
-  assert.deepEqual(all.map(m => m.id), ["post:5107", `channel:${uuid(5)}`, `channel:${uuid(9)}`, `channel:${uuid(1)}`, `channel:${uuid(2)}`]);
+  assert.deepEqual(all.map(m => m.id), ["post:5107", `group:${uuid(5)}`, `group:${uuid(9)}`, `group:${uuid(1)}`, "post:1"]);
   assert.deepEqual(all.map(m => m.pinKind), ["owner", "writer", "writer", null, null]);
   const levi = all[1];
-  assert.ok(levi.byline.includes("יניב לוי") && levi.byline.includes("הגילוי היומי"), "writer and channel are both in the byline");
+  assert.equal(levi.pinned, true);
+  assert.equal(levi.typeLabel, "מקור · טרם נבדק", "a pin keeps the row's source status");
+  assert.equal(levi.unverified, true);
+  assert.ok(levi.byline.includes("הגילוי היומי") && levi.byline.includes("יניב לוי"), "the group is the source, the writer is in the byline");
   assert.equal(levi.updated, false, "a writer pin is not an update of the publication");
-  assert.equal(all[0].updated, true, "the owner's pin keeps its existing meaning");
+  assert.equal(levi.central, null);
+  assert.equal(all[0].updated, true, "the owner's pin keeps its meaning");
   assert.equal(nowPinnedMessage(all, NOW).model.id, "post:5107", "the central pinned message is still only the owner's");
-  assert.equal(all[3].byline.includes("יניב לוי"), false);
 });
 
-test("a writer pin ends by itself at pinUntil and falls back into the time order", () => {
-  const pinned = publicChannelToSystemItem(row(9, { pinned_until: hours(1), credit: "יצחק שחר קנדרו" }), { now: NOW });
-  const later = NOW + 2 * 3600000;
-  const all = nowModels(feedRows([pinned, publicChannelToSystemItem(row(1), { now: NOW })], { now: later, limit: 20, caps: { "channel:gilui-yomi": 12 } }), later);
-  assert.deepEqual(all.map(m => [m.id, m.pinned, m.pinKind]), [[`channel:${uuid(1)}`, false, null], [`channel:${uuid(9)}`, false, null]]);
+test("a writer pin ends by itself 24 hours after the arrival and the row falls back into the time order", () => {
+  const items = [arrival(2, "shachar-kandro"), arrival(1, "tzvi-opoc", { channel: "torat-haremez" })];
+  const during = models(items, NOW);
+  assert.deepEqual(during.map(m => [m.id, m.pinKind]), [[`group:${uuid(2)}`, "writer"], [`group:${uuid(1)}`, null]]);
+  const after = NOW + 23 * 3600000;
+  assert.deepEqual(models(items, after).map(m => [m.id, m.pinned, m.pinKind]), [[`group:${uuid(1)}`, false, null], [`group:${uuid(2)}`, false, null]]);
 });
 
-test("a pinned row is never dropped by a bucket cap or the limit; an expired pin gets no exemption", () => {
-  const items = [1, 2, 3, 4].map(n => publicChannelToSystemItem(row(n), { now: NOW }))
-    .concat(publicChannelToSystemItem(row(30, { pinned_until: hours(10), credit: "יניב לוי" }), { now: NOW }));
+test("one pin per writer: his newest arrival holds it; his older arrival in the window is a regular row", () => {
+  const items = [arrival(1, "shachar-kandro"), arrival(4, "shachar-kandro"), arrival(2, "yaniv-levi"), arrival(3, "tzvi-opoc", { channel: "torat-haremez" })];
+  const rows = feedRows(items, { now: NOW, limit: 160, caps: { group: 40 } });
+  const older = rows.find(r => r.id === `group:${uuid(4)}`);
+  assert.equal(older.item.pinned, false);
+  assert.equal(older.item.pinKind, null);
+  assert.equal(items.find(i => i.id === `group:${uuid(4)}`).pinned, true, "the source item is not mutated");
+  const all = nowModels(rows, NOW);
+  assert.deepEqual(all.filter(m => m.pinned).map(m => m.id), [`group:${uuid(1)}`, `group:${uuid(2)}`]);
+  assert.deepEqual(all.filter(m => !m.pinned).map(m => m.id), [`group:${uuid(3)}`, `group:${uuid(4)}`]);
+});
+
+test("a held pin is never dropped by the group cap or the limit; an ended pin gets no exemption", () => {
+  const busy = [1, 2, 3, 4, 5, 6].map(n => arrival(n, "tzvi-opoc", { channel: "torat-haremez" }));
+  const items = [...busy, arrival(20, "yaniv-levi")];
   const compact = feedRows(items, { now: NOW, limit: 3 });
-  assert.ok(compact.some(r => r.id === `channel:${uuid(30)}`), "kept despite the default cap of 2 per channel and the limit of 3");
   assert.equal(compact.length, 3);
-  assert.deepEqual(compact.map(r => r.id), [`channel:${uuid(1)}`, `channel:${uuid(2)}`, `channel:${uuid(30)}`], "output order stays chronological");
-  const afterPin = feedRows(items, { now: NOW + 11 * 3600000, limit: 3 });
-  assert.equal(afterPin.some(r => r.id === `channel:${uuid(30)}`), false);
+  assert.deepEqual(compact.map(r => r.id), [`group:${uuid(1)}`, `group:${uuid(2)}`, `group:${uuid(20)}`], "kept despite the cap of 4 and the limit; order stays chronological");
+  const later = feedRows(items, { now: NOW - 20 * 3600000 + 25 * 3600000, limit: 3 });
+  assert.equal(later.some(r => r.id === `group:${uuid(20)}`), false);
 });
 
-test("writer pins come before the Or HaGeula box in the window entries", () => {
-  const box = { id: `channel:${uuid(40)}`, kind: "source", sourceKind: "channel_update", channel: "or-geula", label: "שיעור", at: hours(-0.5) };
-  const pin = publicChannelToSystemItem(row(8, { pinned_until: hours(16), credit: "יניב לוי" }), { now: NOW });
-  const entries = buildNowEntries(models([box, pin]));
+test("a pinned group row is always its own row, never folded into a collapsed run", () => {
+  const items = [arrival(1, "shachar-kandro"), arrival(2, "shimon-haimov"), arrival(3, "shimon-haimov")];
+  const entries = buildNowEntries(models(items));
   assert.equal(entries[0].kind, "row");
-  assert.equal(entries[0].model.id, `channel:${uuid(8)}`);
-  assert.equal(entries[1].kind, "box");
+  assert.equal(entries[0].model.id, `group:${uuid(1)}`);
+  assert.equal(entries[1].kind, "run", "the other two arrivals of the same group still collapse");
+  assert.deepEqual(entries[1].models.map(m => m.id), [`group:${uuid(2)}`, `group:${uuid(3)}`]);
 });
 
-function fakeClient(results) {
-  const calls = [];
-  return { calls, from(table) {
-    const ops = [], q = {};
-    for (const name of ["select", "eq", "in", "gt", "or", "not", "order", "limit", "abortSignal"]) q[name] = (...args) => { ops.push([name, ...args]); return q; };
-    q.then = (resolve, reject) => {
-      calls.push({ table, ops });
-      const channel = ops.find(x => x[0] === "eq" && x[1] === "channel")?.[2];
-      const key = channel || (table === "channel_updates" && ops.some(x => x[0] === "gt" && x[1] === "pinned_until") ? "pins" : table);
-      return Promise.resolve(results[key] || { data: [], error: null }).then(resolve, reject);
-    };
-    return q;
-  } };
-}
-
-test("the pin read is one bounded live read across the public channels; it brings back pins that fell out of the newest 12", async () => {
-  const newest = Array.from({ length: 12 }, (_, i) => row(i + 1));
-  const old = row(20, { pinned_until: new Date(Date.now() + 10 * 3600000).toISOString(), credit: "יצחק שחר קנדרו" });
-  const inWindow = { ...newest[0], pinned_until: new Date(Date.now() + 5 * 3600000).toISOString(), credit: "יניב לוי" };
-  const api = fakeClient({ "gilui-yomi": { data: newest, error: null }, pins: { data: [old, inWindow], error: null } });
-  const result = await fetchSystemFeedPublicSources2029({ client: api });
-  const pinCall = api.calls.find(c => c.ops.some(x => x[0] === "gt" && x[1] === "pinned_until"));
-  assert.ok(pinCall, "one pin read");
-  assert.equal(api.calls.filter(c => c.ops.some(x => x[0] === "gt" && x[1] === "pinned_until")).length, 1);
-  assert.ok(pinCall.ops.some(x => x[0] === "eq" && x[1] === "status" && x[2] === "live"));
-  assert.ok(pinCall.ops.some(x => x[0] === "eq" && x[1] === "page_only" && x[2] === false));
-  assert.ok(pinCall.ops.some(x => x[0] === "in" && x[1] === "channel" && x[2].includes("gilui-yomi") && !x[2].includes("torat-haremez")));
-  assert.ok(pinCall.ops.some(x => x[0] === "limit" && x[1] === NOW_PIN_READ_LIMIT_2029 && x[1] <= 12));
-  assert.ok(pinCall.ops.some(x => x[0] === "or" && /expires_at\.is\.null/.test(x[1])));
-  const perChannel = api.calls.filter(c => c !== pinCall && c.table === "channel_updates" && c.ops.some(x => x[0] === "eq" && x[1] === "channel")
-    && c.ops.some(x => x[0] === "limit" && x[1] === 12) && c.ops.some(x => x[0] === "eq" && x[1] === "page_only"));
-  assert.equal(perChannel.length, 5, "the five per-channel reads are unchanged");
-  for (const c of perChannel) {
-    assert.doesNotMatch(c.ops[0][1], /pinned_until|credit/, "the per-channel reads do not depend on the new column and never read the credit");
-  }
-  const gilui = result.items.filter(item => item.channel === "gilui-yomi");
-  assert.equal(gilui.length, 13, "12 newest + the older pinned row, each once");
-  assert.equal(new Set(gilui.map(item => item.id)).size, 13);
-  assert.equal(gilui.find(item => item.id === `channel:${uuid(20)}`).pinned, true);
-  assert.equal(gilui.find(item => item.id === `channel:${uuid(1)}`).pinned, true, "the pinned representation replaces the plain one");
-  assert.equal(result.sourceStates.find(s => s.source === "pins").status, "read");
+test("a writer pin on anything but a listed, proved group arrival with an end time is ignored", () => {
+  const model = item => nowRowModel({ id: item.id, item, kind: item.kind, at: item.at, title: item.label });
+  const channel = { id: "channel:x", kind: "source", sourceKind: "channel_update", channel: "gilui-yomi", label: "x", at: hours(-1),
+    pinned: true, pinKind: "writer", pinUntil: hours(10) };
+  assert.equal(model(channel).pinned, false, "a channel row can no longer be a writer pin");
+  const levi = arrival(1, "yaniv-levi");
+  assert.equal(model({ ...levi, pinKind: undefined }).pinned, false, "a group arrival is never an owner pin");
+  assert.equal(model({ ...levi, pinUntil: null }).pinned, false, "a writer pin needs a real end time");
+  assert.equal(model({ ...arrival(2, "tzvi-opoc"), pinned: true, pinKind: "writer", pinUntil: hours(10) }).pinned, false, "only a listed writer");
+  assert.equal(model({ ...levi, sourceGroup: { key: "torat-haremez", label: "תורת הרמז" } }).pinned, false, "only in its listed group");
+  assert.equal(model(levi).pinned, true);
 });
 
-test("a failed pin read leaves every channel row in place and is reported, never shown as an empty success", async () => {
-  const api = fakeClient({ "gilui-yomi": { data: [row(1), row(2)], error: null }, pins: { data: null, error: { code: "42703", message: "column does not exist" } } });
-  const result = await fetchSystemFeedPublicSources2029({ client: api });
-  assert.equal(result.items.filter(item => item.channel === "gilui-yomi").length, 2);
-  assert.equal(result.sourceStates.find(s => s.source === "pins").status, "failed");
-  assert.equal(result.sourceStates.find(s => s.source === "gilui-yomi").status, "read");
+test("parity with «תורת הרמז»: one reader, one label, one set of public groups; no all-members live path in the tree", () => {
+  assert.equal(WORLD_GROUP_SOURCE_READER, "world_group_source_arrivals_v2");
+  assert.equal(GROUP_SOURCE_CHANNELS["gilui-yomi"], "הגילוי היומי");
+  assert.equal(GROUP_SOURCE_CHANNELS["torat-haremez"], "תורת הרמז");
+  const ingest = readFileSync(new URL("../supabase/functions/wa-channel-ingest/index.ts", import.meta.url), "utf8");
+  assert.match(ingest, /RESEARCH_FIRST_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "sfot-vheker"\]\)/);
+  assert.match(ingest, /return STORY_LIVE_CHANNELS\.has\(channel\) \? "live" : "private"/);
+  assert.match(ingest, /status: channelStatus\(src\.channel\),/);
+  assert.doesNotMatch(ingest, /pinned_until|waChannelPolicy|live_from|pin_writers/);
+  assert.equal(existsSync(new URL("../supabase/functions/_shared/waChannelPolicy.js", import.meta.url)), false);
+  const reader = readFileSync(new URL("../src/lib/research/systemFeedPublicSources2029.js", import.meta.url), "utf8");
+  assert.doesNotMatch(reader, /pinned_until|credit/, "the public channel reader selects no pin column and no writer credit");
 });

@@ -250,7 +250,6 @@ jobs:
           test/or-geula-video-share-2029.test.mjs
           test/install-suggestion-2029.test.mjs
           test/wa-channel-world-2029-contract.test.mjs
-          test/wa-channel-live-policy-2029.test.mjs
           test/wa-trusted-author-tree-routing.test.mjs
           test/world-topic-gallery-state-map-2029.test.mjs
           test/world-gallery-entry-follow-chain-2029.test.mjs
@@ -303,6 +302,8 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - name: DEF-001, DEF-001b, DEF-004 and DEF-005 SQL regression (anon and authenticated cannot read e-mail addresses or visitor ids; proposed Storage policies and RPC grants behave as specified)
         run: bash scripts/run-def001-sql-test.sh
+      - name: «הגילוי היומי» = «תורת הרמז» intake proposal (only admin_only changes; a second run and every changed live state refuse; the rollback restores the exact row)
+        run: bash scripts/run-gilui-yomi-zvi-parity-sql-test.sh
 
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real
   # Supabase client on the production URL (mapped to a local fixture; Auth is an in-memory model, nothing leaves the runner).

@@ -121,10 +121,7 @@ test("proposed SQL: extends the one reader, keeps every privacy filter, adds onl
 
 test("ingest: ki-la joins only the proof path in code; guard and sender-JID proof are unchanged", () => {
   const ts = read("supabase/functions/wa-channel-ingest/index.ts");
-  // blaze-888 was live in the deployed v33 outside the repo (DRIFT reported 11.11.2026); the repo now carries the live value too, so the
-  // repo and the deployed function are the same file. A live row (Or HaGeula, or a group after its activation moment) never takes this path.
-  assert.match(ts, /WORLD_GROUP_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "ki-la-hamelucha-gematria", "blaze-888"\]\)/);
-  assert.match(ts, /if \(WORLD_GROUP_CHANNELS\.has\(src\.channel\) && policy\.status !== "live" && !outgoing && !imageUrl/);
+  assert.match(ts, /WORLD_GROUP_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "ki-la-hamelucha-gematria"\]\)/);
   assert.ok(!/WORLD_GROUP_CHANNELS[^;]*or-geula/.test(ts));
   const at = ts.indexOf('rpc("record_channel_update_group_proof_v1"');
   const guard = ts.slice(ts.lastIndexOf("if (WORLD_GROUP_CHANNELS", at), at);

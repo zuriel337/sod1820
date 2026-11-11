@@ -42,27 +42,13 @@ export function publicNowMediaKind(value) {
   const media = publicStorageMedia(value);
   return media && !media.rendition ? media.kind : null;
 }
-// Writer pins (ZURIEL 11.11.2026): channel_updates.pinned_until is written ONLY by the ingest for a sender whose WhatsApp number is in
-// the source registry (channel_ingest_sources.pin_writers) — e.g. שחר יצחק קנדרו and יניב לוי in «הגילוי היומי». While it is in the future
-// the row is pinned at the top of Now, under the owner's own pin. Because the number proved who wrote it, only such a row shows its
-// writer's name (the registry name, redacted like the text); every other channel row keeps the channel name only — and the ingest
-// already stores a live row of any other member without a name (credit = the group, no contributor link), so the public data matches.
-// Only the pin read selects pinned_until and credit; the per-channel reads never depend on the new column.
-export const NOW_PIN_READ_LIMIT_2029 = 8;
-function channelPin(row, now) {
-  const until = date(row?.pinned_until);
-  const writer = until ? text(row.credit).slice(0, 80) : "";
-  return { pin: until && Date.parse(until) > now ? { pinned: true, pinUntil: until, pinKind: "writer" } : null, writer };
-}
 export function publicChannelToSystemItem(row, { now = Date.now() } = {}) {
   if (!UUID.test(row?.id || "") || !NOW_PUBLIC_CHANNELS_2029[row.channel] || row.status !== "live" || row.page_only !== false
     || row.expires_at && (!date(row.expires_at) || Date.parse(row.expires_at) <= now)) return null;
   const body = text(row.text), at = date(row.created_at), mediaHref = publicNowMediaHref(row.image_url);
   if (!at || !body && !mediaHref) return null;
   const label = body || `${publicNowMediaKind(mediaHref) === "video" ? "סרטון" : publicNowMediaKind(mediaHref) === "audio" ? "הקלטה" : "תמונה"} · ${NOW_PUBLIC_CHANNELS_2029[row.channel]}`;
-  const { pin, writer } = channelPin(row, now);
-  return { ...(pin || {}), ...(writer ? { writer } : {}),
-    id: `channel:${row.id}`, kind: "source", sourceKind: "channel_update", channel: row.channel,
+  return { id: `channel:${row.id}`, kind: "source", sourceKind: "channel_update", channel: row.channel,
     sourceLabel: NOW_PUBLIC_CHANNELS_2029[row.channel], label: label.slice(0, 160), fullText: body, mediaHref, thumbUrl: publicNowMediaHref(row.thumb_url),
     fullTextTruncated: body.length === 1200,
     creator: NOW_PUBLIC_CHANNELS_2029[row.channel], at, arrivalAt: at, recordedAt: at,
@@ -115,14 +101,6 @@ export async function fetchSystemFeedPublicSources2029({ client = null, signal =
   const seriesSpecs = CONTENT_SERIES_2029.filter(spec => spec.approvedSources?.length);
   const seriesRead = Promise.allSettled(seriesSpecs.map(spec => fetchApprovedContentSeriesSources2029(spec.key, { client: api, signal, now })));
   const catalogRead = fetchContentSeriesCatalog2029({ client: api, limitPerSeries: 4, homeOnly: true, signal }).then(catalog => ({ catalog }), error => ({ error }));
-  // Active writer pins, read on their own so a busy channel's newest 12 rows can never push a pinned row out of Now.
-  // A separate read in parallel: if it fails, the channel reads below are untouched and only the pins are missing (reported as "pins").
-  const pinRead = (async () => read(api.from("channel_updates")
-    .select("id,text,image_url,thumb_url,channel,status,page_only,expires_at,created_at,link_url,priority,pinned_until,credit")
-    .eq("status", "live").eq("page_only", false).in("channel", keys).gt("pinned_until", new Date(now).toISOString())
-    .or(`expires_at.is.null,expires_at.gt.${new Date(now).toISOString()}`)
-    .order("pinned_until", { ascending: false }).limit(NOW_PIN_READ_LIMIT_2029)))()
-    .then(value => ({ status: "fulfilled", value }), reason => ({ status: "rejected", reason }));
   const results = await Promise.allSettled([
     ...keys.map(channel => read(api.from("channel_updates")
       .select("id,text,image_url,thumb_url,channel,status,page_only,expires_at,created_at,link_url,priority")
@@ -133,7 +111,6 @@ export async function fetchSystemFeedPublicSources2029({ client = null, signal =
       .eq("source", "update").eq("published", 1).eq("min_tier", 0).not("curator_hidden", "is", true)
       .order("stream_at", { ascending: false, nullsFirst: false }).order("created_at", { ascending: false }).limit(10)),
   ]);
-  const pinResult = await pinRead;
   const seriesResults = await seriesRead;
   const catalogResult = await catalogRead;
   if (signal?.aborted) throw new DOMException("Now source read canceled", "AbortError");
@@ -144,16 +121,10 @@ export async function fetchSystemFeedPublicSources2029({ client = null, signal =
   const seriesStates = seriesResults.map((r, i) => ({ source: `series:${seriesSpecs[i].key}`,
     status: r.status === "rejected" ? "failed" : r.value.sourceStates.some(state => state.state === "access_filtered") ? "access_filtered"
       : r.value.sourceStates.some(state => state.state !== "measured") ? "failed" : r.value.items.length ? "read" : "measured_empty" }));
-  const pinnedItems = pinResult.status === "fulfilled" ? pinResult.value.map(row => publicChannelToSystemItem(row, { now })).filter(item => item?.pinned === true) : [];
-  const pinState = { source: "pins", status: pinResult.status === "rejected" ? String(pinResult.reason?.code) === "42501" ? "access_filtered" : "failed"
-    : pinnedItems.length ? "read" : "measured_empty" };
-  // The pinned representation of a row replaces its plain one (same id = same publication); pinned rows that were outside the 12 join.
-  const pinnedById = new Map(pinnedItems.map(item => [item.id, item]));
-  const baseItems = results.flatMap((r, i) => r.status === "fulfilled" ? r.value.map(row => i < keys.length ? publicChannelToSystemItem(row, { now }) : publicGalleryToSystemItem(row)).filter(Boolean) : []);
-  const channelItems = [...pinnedItems, ...baseItems.filter(item => !pinnedById.has(item.id))];
+  const channelItems = results.flatMap((r, i) => r.status === "fulfilled" ? r.value.map(row => i < keys.length ? publicChannelToSystemItem(row, { now }) : publicGalleryToSystemItem(row)).filter(Boolean) : []);
   // Series-approved occurrences go first: the same channel id keeps ONE row, enriched with its exact video/series.
   const ids = new Set(seriesItems.map(item => item.id));
   const catalogItems = catalogResult.catalog ? seriesCatalogToSystemItems(catalogResult.catalog) : [];
   const catalogState = { source: "series-posts", status: catalogResult.error ? "failed" : catalogResult.catalog.series.some(series => series.readState === "failed") ? "failed" : catalogItems.length ? "read" : "measured_empty" };
-  return { items: [...seriesItems, ...channelItems.filter(item => !ids.has(item.id)), ...catalogItems], sourceStates: [...sourceStates, pinState, ...seriesStates, catalogState] };
+  return { items: [...seriesItems, ...channelItems.filter(item => !ids.has(item.id)), ...catalogItems], sourceStates: [...sourceStates, ...seriesStates, catalogState] };
 }

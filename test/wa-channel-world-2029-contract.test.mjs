@@ -15,30 +15,13 @@ assert.equal(syntax.status, 0, syntax.stderr || syntax.stdout || "wa-channel-ing
 assert.match(ingest, /RESEARCH_FIRST_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "sfot-vheker"\]\)/);
 assert.match(ingest, /STORY_LIVE_CHANNELS = new Set\(\["or-geula"\]\)/);
 assert.match(ingest, /return STORY_LIVE_CHANNELS\.has\(channel\) \? "live" : "private"/);
-// ZURIEL 11.11.2026 («הגילוי היומי»): any other channel goes live only by the registry's activation moment (live_from), decided per
-// MESSAGE time by the shared policy — the code alone opens nothing, and an earlier message stays private when processed later.
-assert.match(ingest, /import \{ waAllowlistAdmits, waRowPolicy \} from "\.\.\/_shared\/waChannelPolicy\.js"/);
-assert.match(ingest, /if \(!waAllowlistAdmits\(src, senderId, ts\)\) continue;/);
-assert.match(ingest, /const policy = waRowPolicy\(src, \{ ts, senderId, outgoing, storyLive: channelStatus\(src\.channel\) === "live" \}\)/);
-assert.match(ingest, /status: policy\.status,/);
-assert.doesNotMatch(ingest, /waRowPolicy\([^)]*nowSec/, "policy never reads the processing time");
-assert.doesNotMatch(ingest, /waAllowlistAdmits\([^)]*nowSec/);
-// A live row never carries a regular member's name or contributor link; a listed writer is named from the registry.
-assert.match(ingest, /: policy\.pinWriter \? policy\.pinWriter\.name\n\s+: policy\.anonymousMember \? brandCredit/);
-assert.match(ingest, /: policy\.anonymousMember \? null\n/);
-// A live row is ONE public row: it never also enters the unverified group-source path (marker + proof).
-assert.match(ingest, /const groupIntake = WORLD_GROUP_CHANNELS\.has\(src\.channel\) && policy\.status !== "live" && !outgoing && !imageUrl/);
-assert.match(ingest, /group_source_intake_public: groupIntake,/);
-assert.match(ingest, /if \(WORLD_GROUP_CHANNELS\.has\(src\.channel\) && policy\.status !== "live" && !outgoing && !imageUrl && String\(chatId\)\.endsWith\("@g\.us"\)\) \{/);
-// Writer pins come from the policy; the column is sent only for a pinned row.
-assert.match(ingest, /const pinnedUntil = policy\.pinnedUntil;/);
-assert.match(ingest, /\.\.\.\(pinnedUntil \? \{ pinned_until: pinnedUntil \} : \{\}\)/);
+assert.match(ingest, /status: channelStatus\(src\.channel\)/);
 assert.match(ingest, /waAdmin\("getStateInstance", \{\}, "GET"\)/);
 assert.match(ingest, /providerState !== "authorized"/);
 assert.match(ingest, /error: "green_not_authorized"/);
 assert.match(ingest, /status: 503/);
 assert.match(ingest, /storage\.from\("submission-inbox"\)\.upload/);
-assert.match(ingest, /policy\.status === "private",/);
+assert.match(ingest, /channelStatus\(src\.channel\) === "private"/);
 assert.match(ingest, /return \`storage-object:\$\{up\.data\.id\}\`/);
 assert.match(ingest, /function normalizeProviderMediaUrl/);
 assert.match(ingest, /candidate = `https:\/\/\$\{v\}`/);

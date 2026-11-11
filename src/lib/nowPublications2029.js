@@ -6,7 +6,7 @@
 import { publicAuthorName, SYSTEM_BYLINE } from "./publicIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
 import { publicStorageMedia } from "./mediaEgressGuard.js";
-import { GROUP_SOURCE_CHANNELS } from "./research/worldGroupSource.js";
+import { GROUP_SOURCE_CHANNELS, groupWriterPinListed } from "./research/worldGroupSource.js";
 
 // Public name of the shared series is "מסרים"; the historical source titles and the series key stay untouched.
 export const NOW_SERIES_PUBLIC_LABEL = Object.freeze({ "messages-from-righteous": "מסרים" });
@@ -147,23 +147,27 @@ export function nowRowModel(row) {
   const fullText = cleanNowText(item.fullText);
   const summary = cleanNowText(item.summary);
   const title = shortNowTitle(row?.title || item.label) || (video ? "סרטון" : image ? "תמונה" : "עדכון");
-  // A channel row names its writer only when the ingest proved him by his number (item.writer, set with a writer pin).
-  const byline = [seriesLabel, sourceName, isGroup ? item.creator : isChannel ? clean(item.writer) : ""].filter((part, index, all) => part && all.indexOf(part) === index);
-  // Two pin kinds, one order: the owner's own pin (the Home featured item) leads; a writer pin (a channel row whose sender number is listed
-  // in the source registry, e.g. «הגילוי היומי») follows it; then everything else by time.
-  const pinKind = item.pinned === true ? (isChannel && item.pinKind === "writer" ? "writer" : "owner") : null;
+  const byline = [seriesLabel, sourceName, isGroup ? item.creator : ""].filter((part, index, all) => part && all.indexOf(part) === index);
+  // Two pin kinds, one order (ZURIEL 11.11.2026): the owner's own pin (the Home featured item) leads; a writer pin follows it; then everything
+  // else by time. A writer pin exists ONLY on a public group arrival (already proved by the server: group proof, verified number, approved
+  // writer) whose writer is listed for its group (GROUP_WRITER_PINS_2029 — שחר יצחק קנדרו and יניב לוי in «הגילוי היומי») and that has a
+  // real end time. A group arrival is never an owner pin; a writer pin on anything else is ignored.
+  const writerPin = isGroup && item.pinned === true && item.pinKind === "writer" && typeof item.pinUntil === "string"
+    && Number.isFinite(Date.parse(item.pinUntil)) && groupWriterPinListed(item.sourceGroup?.key, item.creatorSlug);
+  const pinKind = writerPin ? "writer" : item.pinned === true && !isGroup && item.pinKind !== "writer" ? "owner" : null;
   return {
     id: row?.id, row, item, title, byline, typeLabel, unverified,
     tone: toneOf(lenses, unverified),
     // Pinned by the owner (the Home featured item): stays first in "עכשיו" whatever its time; how pinning is governed is to be set in the contracts.
-    // A writer pin (pinKind "writer") stays at the top too, under the owner's pin, until its pinUntil.
-    pinned: item.pinned === true, pinKind,
+    // A writer pin (pinKind "writer") stays at the top too, under the owner's pin, until its pinUntil. It keeps the row's source status
+    // ("מקור · טרם נבדק"): a pin changes the order only, never what the row is.
+    pinned: Boolean(pinKind), pinKind,
     // A blinking dot attached to the title marks an update the owner flagged (the Home featured Post update). Its label is the accessible name.
     dot: typeof item.liveDot === "string" && item.liveDot ? item.liveDot : null,
     logo: NOW_SOURCE_LOGOS[logoKeyOf({ unverified, isChannel, channel: item.channel, kind: row?.kind, isPost, author: item.author, seriesKey })] || null,
     at: row?.at || null, href, seriesKey, seriesLabel, sourceName, sourceKey,
-    pinUntil: item.pinned === true && typeof item.pinUntil === "string" ? item.pinUntil : null,
-    central: item.pinned === true && item.central && Array.isArray(item.central.groups) ? item.central : null,
+    pinUntil: pinKind && typeof item.pinUntil === "string" ? item.pinUntil : null,
+    central: pinKind === "owner" && item.central && Array.isArray(item.central.groups) ? item.central : null,
     media: video ? "video" : audio ? "audio" : image ? "image" : "text", video, audio, image,
     thumb: [!video && !audio && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,
     groupLabel, creatorHref: isGroup ? item.creatorHref || null : null,
@@ -246,9 +250,11 @@ export function collapseSourceRuns(models, { min = 2 } = {}) {
   };
   let run = [];
   for (const model of all) {
-    if (model.unverified && (!run.length || run[0].sourceName === model.sourceName)) { run.push(model); continue; }
+    // A pinned row (a writer pin on a group arrival) is always its own row: folding it into a run would hide the pin.
+    const runnable = model.unverified && !model.pinned;
+    if (runnable && (!run.length || run[0].sourceName === model.sourceName)) { run.push(model); continue; }
     flush(run); run = [];
-    if (model.unverified) run.push(model); else entries.push({ kind: "row", model });
+    if (runnable) run.push(model); else entries.push({ kind: "row", model });
   }
   flush(run);
   return entries;
