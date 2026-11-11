@@ -11,18 +11,141 @@
     "ישעיהו (entity)": "61e3fcd9-5cd5-4e3b-b834-1f7b66ba303c",
     "רבי נחמן": "24ef0e82-b3c8-48d7-a3f9-ac66fe20c57f"
   },
-  "no_existing_node_found_candidates_only": ["ריח","יריחו","ראשון לציון","חדרה","עמק חפר","חשוון","אחישנה","זוג משיח","אלון לוי","מה קורה הבורא (series)"],
-  "proposed_edges": [
-    {"from":"post:this","to":"בעתה אחישנה","axis":"transcription_claim","ts":"03:31"},
-    {"from":"בעתה אחישנה","to":"משיח","axis":"engine_calculation","note":"אחישנה=374=זוג משיח; משיח=358 לבדו","ts":"05:57","status":"needs Method Trace"},
-    {"from":"post:this","to":"רוח","axis":"interpretation","note":"רוח/ריח/משיח לפי הדובר","ts":"17:20"},
-    {"from":"רוח","to":"משיח","axis":"source_fact","note":"איכה ד:כ","ts":"58:54"},
-    {"from":"post:this","to":"יצחק","axis":"transcription_claim","note":"בראשית כז:כז","ts":"30:59"},
-    {"from":"post:this","to":"מערת המכפלה","axis":"interpretation","note":"בכסף מלא (בראשית כג:ט) מול בתי יריחו","ts":"24:31"},
-    {"from":"post:this","to":"גן עדן","axis":"interpretation","note":"מסורות ריח וגן עדן — מקור לא אומת","ts":"25:23"},
-    {"from":"post:this","to":"תפילה","axis":"interpretation","ts":"1:06:44"},
-    {"from":"post:this","to":"ישעיהו (entity)","axis":"source_fact","note":"ס, יא, מא, ה, ל","ts":"03:31..55:14"},
-    {"from":"post:this","to":"רבי נחמן","axis":"transcription_claim","ts":"58:18","status":"verify reference"}
+  "no_existing_node_found_candidates_only": [
+    "ריח",
+    "יריחו",
+    "ראשון לציון",
+    "חדרה",
+    "עמק חפר",
+    "חשוון",
+    "אחישנה",
+    "זוג משיח",
+    "אלון לוי",
+    "מה קורה הבורא (series)"
   ],
-  "event_candidates_unverified_dates": ["ריח ראשון לציון","עשן עמק חפר/חדרה","8 בתים בפאתי יריחו"]
+  "proposed_edges": [
+    {
+      "from": "post:this",
+      "to": "בעתה אחישנה",
+      "axis": "transcription_claim",
+      "ts": "03:31",
+      "state": "candidate"
+    },
+    {
+      "from": "בעתה אחישנה",
+      "to": "משיח",
+      "axis": "engine_calculation",
+      "note": "אחישנה=374=זוג משיח; משיח=358 לבדו",
+      "ts": "05:57",
+      "status": "needs Method Trace",
+      "state": "candidate"
+    },
+    {
+      "from": "post:this",
+      "to": "רוח",
+      "axis": "interpretation",
+      "note": "רוח/ריח/משיח לפי הדובר",
+      "ts": "17:20",
+      "state": "candidate"
+    },
+    {
+      "from": "רוח",
+      "to": "משיח",
+      "axis": "source_fact",
+      "note": "איכה ד:כ",
+      "ts": "58:54",
+      "state": "candidate"
+    },
+    {
+      "from": "post:this",
+      "to": "יצחק",
+      "axis": "transcription_claim",
+      "note": "בראשית כז:כז",
+      "ts": "30:59",
+      "state": "candidate"
+    },
+    {
+      "from": "post:this",
+      "to": "מערת המכפלה",
+      "axis": "interpretation",
+      "note": "בכסף מלא (בראשית כג:ט) מול בתי יריחו",
+      "ts": "24:31",
+      "state": "candidate"
+    },
+    {
+      "from": "post:this",
+      "to": "גן עדן",
+      "axis": "interpretation",
+      "note": "מסורות ריח וגן עדן — מקור לא אומת",
+      "ts": "25:23",
+      "state": "candidate"
+    },
+    {
+      "from": "post:this",
+      "to": "תפילה",
+      "axis": "interpretation",
+      "ts": "1:06:44",
+      "state": "candidate"
+    },
+    {
+      "from": "post:this",
+      "to": "ישעיהו (entity)",
+      "axis": "source_fact",
+      "note": "ס, יא, מא, ה, ל",
+      "ts": "03:31..55:14",
+      "state": "candidate"
+    },
+    {
+      "from": "post:this",
+      "to": "רבי נחמן",
+      "axis": "transcription_claim",
+      "ts": "58:18",
+      "status": "verify reference",
+      "state": "candidate"
+    },
+    {
+      "from": "post:this",
+      "to": "חשון (candidate node)",
+      "axis": "source_fact",
+      "note": "ספר יצירה (נוסח הגר״א) ה: נ=ריח=חשון",
+      "ts": "29:00",
+      "state": "candidate"
+    },
+    {
+      "from": "post:this",
+      "to": "event:ריח ראשון לציון 2.11.2026",
+      "axis": "source_fact",
+      "note": "mako 2.11.26 17:58",
+      "state": "candidate"
+    },
+    {
+      "from": "post:this",
+      "to": "event:עשן טולכרם→חדרה/עמק חפר 5.11.2026",
+      "axis": "source_fact",
+      "note": "mako+מעריב 5.11.26",
+      "state": "candidate"
+    },
+    {
+      "from": "post:this",
+      "to": "event:כניסה ל-8 בתים בעין דיוק התחתא 4.11.2026",
+      "axis": "source_fact",
+      "note": "JPost 5.11.26; פרסום ≠ אירוע; מחלוקת",
+      "state": "candidate"
+    }
+  ],
+  "event_candidates_unverified_dates": [
+    "ריח ראשון לציון",
+    "עשן עמק חפר/חדרה",
+    "8 בתים בפאתי יריחו"
+  ],
+  "_dedup_check_11_11_2026": {
+    "existing_edges_among_the_9_existing_nodes": 0,
+    "duplicate_post_for_PKqKLjO_0nc": "none (posts table searched by youtube id, slug, title)",
+    "candidate_nodes_found_in_nodes_table": "none for ריח / יריחו / ראשון לציון / חדרה / עמק חפר / חשון / אחישנה / אלון לוי / series",
+    "near_duplicates_to_avoid": {
+      "בעתה אחישנה ברחמים": "25e30e7b-a47c-48ad-bb9d-5370c66765c0 (different phrase; do not merge)",
+      "sibling series post nodes": "e.g. aad7acea-adce-486a-9c66-3b232f344fcf (post 5108) — link via Series, not new edges"
+    }
+  },
+  "_rule": "All edges/nodes are candidates for ZURIEL Human Gate. No Graph promotion. No new type/contract."
 }
