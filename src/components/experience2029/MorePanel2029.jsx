@@ -38,9 +38,9 @@ export function MoreInstall2029() {
       <span className="sod29-royal-tile-text"><strong>אפליקציית סוד 1820</strong><small>האפליקציה מותקנת במכשיר הזה.</small></span>
     </div> : null}
     {kind === "native" && outcome !== "pending" ? <RoyalTile2029 variant="wide" art={art} title="אפליקציית סוד 1820" hint="פתיחה מהירה ממסך הבית"
-      action="התקנה" onClick={install} testId="install" /> : null}
+      action="התקנה" label="התקנה · אפליקציית סוד 1820" onClick={install} testId="install" /> : null}
     {kind === "ios-manual" ? <RoyalTile2029 variant="wide" art={art} title="אפליקציית סוד 1820" hint="הוספה למסך הבית ב־Safari"
-      action={steps ? "סגירה" : "איך מתקינים"} onClick={() => setSteps(open => !open)} expanded={steps} controls="sod29-more-install-steps" testId="install-ios" /> : null}
+      action={steps ? "סגירה" : "איך מתקינים"} label={`${steps ? "סגירה" : "איך מתקינים"} · אפליקציית סוד 1820`} onClick={() => setSteps(open => !open)} expanded={steps} controls="sod29-more-install-steps" testId="install-ios" /> : null}
     {status ? <p className="sod29-more-install-status" role="status">{status}</p> : null}
     {kind === "ios-manual" && steps ? <ol id="sod29-more-install-steps" className="sod29-more-install-steps">
       <li>לחצו על כפתור השיתוף <span aria-hidden="true">⬆︎</span> בסרגל של Safari.</li>
@@ -63,7 +63,7 @@ export default function MorePanel2029({ shareOnly = false, context = "", onActio
           <RoyalTile2029 icon="tools" title="כלים" hint="כלי המחקר לעמוד" onClick={onTools} testId="tools" />
           <RoyalTile2029 icon="personal" art={personal?.avatar || null} title={personal?.signedIn ? "האזור שלי" : "כניסה"}
             hint={personal?.signedIn ? (personal.name || "שמירות ומסע אישי") : "לאזור האישי"} onClick={onPersonal} testId="personal" />
-          {toolDockReturn ? <RoyalTile2029 icon="cipher" title="כלי הצופן" hint="חזרה לכלי שהיה פתוח" onClick={toolDockReturn} testId="tool-return" /> : null}
+          {toolDockReturn ? <RoyalTile2029 icon="cipher" title="כלי הצופן" label="חזור לכלי הצופן" hint="חזרה לכלי שהיה פתוח" onClick={toolDockReturn} testId="tool-return" /> : null}
         </RoyalTileGrid2029>
       </section>
       {adminDestinations.length ? <section className="sod29-more-section" data-more-section="admin" aria-labelledby="sod29-more-admin">

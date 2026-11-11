@@ -12,7 +12,7 @@ import "./royalTiles2029.css";
 
 export const ROYAL_TILE_VARIANTS = Object.freeze(["square", "wide", "compact"]);
 
-export default function RoyalTile2029({ variant = "square", icon = "tools", art = null, title, hint = "", action = "", onClick, href,
+export default function RoyalTile2029({ variant = "square", icon = "tools", art = null, title, label = "", hint = "", action = "", onClick, href,
   expanded, controls, disabled = false, testId, className = "" }) {
   const kind = ROYAL_TILE_VARIANTS.includes(variant) ? variant : "square";
   const hintId = hint && testId ? `sod29-royal-hint-${testId}` : undefined;
@@ -24,8 +24,9 @@ export default function RoyalTile2029({ variant = "square", icon = "tools", art 
     </span>
     {action ? <span className="sod29-royal-tile-action" aria-hidden="true">{action}</span> : null}
   </>;
+  // The accessible name is the title alone (or an explicit label); the hint is the description, not part of the name.
   const common = { className: `sod29-royal-tile is-${kind} ${className}`.trim(), "data-royal-variant": kind, "data-royal-tile": testId || undefined,
-    "aria-describedby": hintId };
+    "aria-label": label || (typeof title === "string" ? title : undefined), "aria-describedby": hintId };
   if (href) return <a {...common} href={href}>{body}</a>;
   return <button {...common} type="button" onClick={onClick} disabled={disabled} aria-expanded={expanded} aria-controls={controls}>{body}</button>;
 }
