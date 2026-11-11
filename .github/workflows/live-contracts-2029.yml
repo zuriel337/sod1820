@@ -304,6 +304,8 @@ jobs:
         run: bash scripts/run-def001-sql-test.sh
       - name: «הגילוי היומי» = «תורת הרמז» intake proposal (only admin_only changes; a second run and every changed live state refuse; the rollback restores the exact row)
         run: bash scripts/run-gilui-yomi-zvi-parity-sql-test.sh
+      - name: Kandro in «הגילוי היומי» (the number binding refuses unless one admin sender signed קנדרו and the number is no one else's; old proofs stand; the source rows of the group stay without the 24-hour expiry; both roll back exactly; live functions byte for byte)
+        run: bash scripts/run-gilui-yomi-kandro-sql-test.sh
 
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real
   # Supabase client on the production URL (mapped to a local fixture; Auth is an in-memory model, nothing leaves the runner).
