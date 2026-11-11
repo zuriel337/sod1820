@@ -24,6 +24,7 @@ t("gematria table values == method-trace.md", () => {
   for (const [, ph, v] of rows) { const keys = (alias[ph] ? [alias[ph]] : ph.split(" / ")).map(s => s.trim()); for (const k of keys) { assert.ok(tr.has(k), "no trace for " + k); assert.equal(tr.get(k), Number(v), k); } }
 });
 t("354/353 caveat for לה׳ present", () => { assert.ok(post.includes("353")); assert.equal(trace.match(/אשה הוא לה׳ \| (\d+)/)[1], "353"); });
+t("Sefer Yetzirah quote present + evidence files", () => { assert.ok(post.includes("המליך אות נ׳ בריח")); for (const f of ["evidence/sefer-yetzirah-pdf189-nun-line.png","evidence/sefer-yetzirah-pdf189-word-barich.png"]) assert.ok(fs.existsSync(new URL(f, dir)), f); });
 t("no mgketer/guessed links", () => assert.ok(!post.includes("mgketer")));
 t("graph: all proposals are candidates, no writes", () => { assert.ok(g.proposed_edges.every(e => e.state === "candidate")); assert.ok(g._status.startsWith("PROPOSED ONLY")); });
 t("media: image prepared, not uploaded", () => { assert.equal(meta.image.status, "PREPARED_NOT_UPLOADED"); for (const f of meta.image.files) assert.ok(fs.existsSync(new URL(f, dir)), f); });
