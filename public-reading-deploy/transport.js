@@ -4,7 +4,7 @@ import { interceptOpeningMail } from "../preview-deploy/opening-mail-transport.j
 import { interceptPublicReadingAdminAuth } from "../preview-deploy/admin-readonly-auth.js";
 import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPolicy.js";
 import { publicStorageMedia } from "../src/lib/mediaEgressGuard.js";
-import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEngagementBody } from "../src/lib/publicReadingTelemetry2029.js";
+import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEngagementBody, readingActionSpec, readingActionBody } from "../src/lib/publicReadingTelemetry2029.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
 // which records are public. Explicit verified-admin actions retain the existing
@@ -65,6 +65,7 @@ function installPublicReadingWorker(policy) {
   const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
   const readFetch = req => fetch(new Request(req, { cache: "no-store", credentials: "omit", redirect: "error" }));
   const metricDocuments = new Map();
+  const actionWindows = new Map();
   const measurementClient = async event => {
     if (!event.clientId || !["https://sod1820.co.il", "https://www.sod1820.co.il"].includes(self.location.origin)) return null;
     const client = await self.clients.get(event.clientId);
@@ -289,6 +290,21 @@ function installPublicReadingWorker(policy) {
           // Page engagement is flushed on route change (the window has already moved on) or at pagehide,
           // so it is bound to an admitted public-site window rather than to that window's current route.
           return policy.anonKey && readingEngagementBody(body) && await measurementClient(event) !== null ? anonymous() : denied();
+        }
+        // Product actions and public content views (ZURIEL 12.11.2026): the exact bounded family, bound to the sending window's
+        // normalized route, anonymous key only, at most 60 per window per 10 minutes.
+        if (url.pathname.endsWith("/ingest_event") && readingActionBody(body)) {
+          if (!policy.anonKey || await measurementClient(event) !== body.p_path) return denied();
+          const now = Date.now();
+          for (const [key, value] of actionWindows) if (now - value.at > 600000) actionWindows.delete(key);
+          let windowRecord = actionWindows.get(event.clientId);
+          if (!windowRecord) {
+            if (actionWindows.size >= 500) return denied();
+            windowRecord = { at: now, count: 0 };
+            actionWindows.set(event.clientId, windowRecord);
+          }
+          if (++windowRecord.count > 60) return denied();
+          return anonymous();
         }
         if (url.pathname.endsWith("/ingest_event")) {
           if (body.p_surface === "performance") {
@@ -519,7 +535,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 
