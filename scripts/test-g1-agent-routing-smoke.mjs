@@ -78,7 +78,7 @@ import { createHash } from 'node:crypto';
 import { parseLawsSnapshot, validateLawsSnapshot, compareLawsSnapshots, migrationTableViolations, ownerResolves, tablesCreated,
   parseLawApprovals, validateLawApprovals, unroutedContractFiles, ownerIndexOwnerViolations, registeredContractChangeViolations,
   structuresCreated, applyPlanSqlPaths, isContractFile, parseCodexSlugs, newestDated, checkSnapshotTransition, codexAdditionViolations,
-  lexSql } from './lib/g1LawsSnapshotRules.mjs';
+  lexSql, registeredDocumentOwners, newDocumentOwnerViolations, selectIntoTables } from './lib/g1LawsSnapshotRules.mjs';
 
 test('captured main Codex/Claude/Design blobs remain exact historical evidence; current adapters retain safety gates', () => {
   // Oct9 hashes seal the Oct9 source, not every later authorized adapter update.
@@ -321,12 +321,19 @@ const currentLaws = parseLawsSnapshot(readFileSync(resolve(root, CURRENT_LAWS_FI
 const currentCodex = parseCodexSlugs(readFileSync(resolve(root, CURRENT_CODEX_FILE), 'utf8'));
 const fileExists = path => existsSync(resolve(root, path));
 const RETIRED_WITHOUT_SUCCESSOR = ['agent_onboarding_law', 'corpus_admission_lifecycle_law', 'meshulash_kadmi_law'];
-const ENFORCE_CTX = { index, fileExists, codexSlugs, retiredWithoutSuccessor: RETIRED_WITHOUT_SUCCESSOR };
-const CURRENT_CTX = { index, fileExists, codexSlugs: currentCodex, retiredWithoutSuccessor: RETIRED_WITHOUT_SUCCESSOR };
+// Round 3 known gap, named and frozen (it may only shrink): documents that active laws name as their canonical owner although the
+// Owner Index does not register them as owners. SOD1820_DESIGN_CONTRACT_V1.md owns five active Brand Core laws (the protected Brand
+// provenance exception of the 9.10.2026 baseline); the Owner Index routes visual language to V2 and calls V1 "preserved Legacy
+// provenance". The mapping decision (register V1 as the Brand Core provenance owner, or move the five laws in new versions) belongs
+// to the contracts session and ZURIEL. Any OTHER unregistered document owner is refused.
+const DOCUMENT_OWNERS_NOT_IN_INDEX = ['SOD1820_DESIGN_CONTRACT_V1.md'];
+const registeredDocs = registeredDocumentOwners(index);
+const ENFORCE_CTX = { index, fileExists, codexSlugs, retiredWithoutSuccessor: RETIRED_WITHOUT_SUCCESSOR, unregisteredDocumentOwners: DOCUMENT_OWNERS_NOT_IN_INDEX };
+const CURRENT_CTX = { index, fileExists, codexSlugs: currentCodex, retiredWithoutSuccessor: RETIRED_WITHOUT_SUCCESSOR, unregisteredDocumentOwners: DOCUMENT_OWNERS_NOT_IN_INDEX };
 const clone = x => JSON.parse(JSON.stringify(x));
 const REF = 'work_log:a3d65374-a73a-4131-a00f-d3a050851064';
-const ownerOk = owner => ownerResolves(owner, new Set(lawsSnapshot.active.map(l => l.rule_id)), fileExists, codexSlugs);
-const currentOwnerOk = owner => ownerResolves(owner, new Set(currentLaws.active.map(l => l.rule_id)), fileExists, currentCodex);
+const ownerOk = owner => ownerResolves(owner, new Set(lawsSnapshot.active.map(l => l.rule_id)), fileExists, codexSlugs, registeredDocs);
+const currentOwnerOk = owner => ownerResolves(owner, new Set(currentLaws.active.map(l => l.rule_id)), fileExists, currentCodex, registeredDocs);
 const currentActiveIds = new Set(currentLaws.active.map(l => l.rule_id));
 const currentRetiredIds = new Set(currentLaws.retired.map(l => l.rule_id));
 
@@ -524,7 +531,7 @@ test('apply packages (real): every SQL file a docs/reviews/*/apply-plan.json wil
 });
 
 test('real tree: the Owner Index routes only to active laws, and no contract-like file is unrouted outside the dated baseline', () => {
-  assert.deepEqual(ownerIndexOwnerViolations(index, { activeIds: currentActiveIds, retiredIds: currentRetiredIds, codexSlugs: currentCodex }), []);
+  assert.deepEqual(ownerIndexOwnerViolations(index, { activeIds: currentActiveIds, retiredIds: currentRetiredIds, codexSlugs: currentCodex, fileExists }), []);
   const files = git('ls-files').split('\n').filter(Boolean).filter(isContractFile)
     .map(p => ({ path: p, head: readFileSync(resolve(root, p), 'utf8').split('\n').slice(0, 15).join('\n') }));
   assert.deepEqual(unroutedContractFiles(files, { index, activeIds: currentActiveIds, codexSlugs: currentCodex, baseline: contractBaseline }), []);
@@ -547,9 +554,9 @@ test('ROUND 2 · newest snapshot is the current state: a version bump that point
 
 test('ROUND 2 · project_codex.<slug> resolves only for a proven codex item; the prefix alone is refused everywhere', () => {
   const active = new Set(lawsSnapshot.active.map(l => l.rule_id));
-  assert.equal(ownerResolves('project_codex.gematria_engine', active, fileExists, codexSlugs), true);
-  assert.equal(ownerResolves('project_codex.invented_item', active, fileExists, codexSlugs), false);
-  assert.equal(ownerResolves('project_codex.gematria_engine', active, fileExists, undefined), false, 'no proven list means no codex owner resolves');
+  assert.equal(ownerResolves('project_codex.gematria_engine', active, fileExists, codexSlugs, registeredDocs), true);
+  assert.equal(ownerResolves('project_codex.invented_item', active, fileExists, codexSlugs, registeredDocs), false);
+  assert.equal(ownerResolves('project_codex.gematria_engine', active, fileExists, undefined, registeredDocs), false, 'no proven list means no codex owner resolves');
   const s = clone(lawsSnapshot); s.active.find(l => l.rule_id === 'big_number').owner = 'project_codex.invented_item';
   assert.match(validateLawsSnapshot(s, ENFORCE_CTX).join('\n'), /big_number: owner project_codex\.invented_item does not resolve/);
   const ictx = { activeIds: activeIdSet, retiredIds: retiredIdSet, codexSlugs };
@@ -625,6 +632,124 @@ test('ROUND 2 · new store: owner existence and permission to create a store are
   assert.match(run('-- OWNER-CHECK: EXTEND_EXISTING traffic_intelligence_law APPROVAL:' + REF), /needs an Intake classification/);
   const hg = []; assert.deepEqual(migrationTableViolations([{ path: 's.sql', text: '-- OWNER-CHECK: EXTEND_EXISTING traffic_intelligence_law OPERATIONAL_RUNTIME APPROVAL:' + REF + '\n' + sql }], new Set(), { ownerOk, humanGate: hg }), []);
   assert.deepEqual(hg, ['s.sql public.new_store_x <- ' + REF + ' (authenticity: human gate)']);
+});
+
+// ── Round 3 (new main-audit session, 12.11.2026; handoff b0f471dcd). Each rule has a refusal for its reason AND an allowed case; the
+// same cases run end to end on a real base and head in run-ci-scenarios.sh (R10..R15). Technical vs human gate is stated per assertion.
+test('ROUND 3 · a document owner must be REGISTERED in the Owner Index, not merely an existing file; a new document owner also needs an approval', () => {
+  const active = new Set(lawsSnapshot.active.map(l => l.rule_id));
+  // registration: the owner cell of an Owner Index row that is not history
+  assert.ok(registeredDocs.has('docs/research-studio-v1-contract.md') && registeredDocs.has('SOD1820_DESIGN_CONTRACT_V2.md'));
+  assert.equal(registeredDocs.has('AGENTS.md'), false); assert.ok(fileExists('AGENTS.md'), 'the fixture file exists: existence is not registration');
+  assert.equal(ownerResolves('AGENTS.md', active, fileExists, codexSlugs, registeredDocs), false, 'an existing file that is not registered does not resolve');
+  assert.equal(ownerResolves('docs/research-studio-v1-contract.md', active, fileExists, codexSlugs, registeredDocs), true);
+  assert.equal(ownerResolves('docs/research-studio-v1-contract.md', active, fileExists, codexSlugs, undefined), false, 'no registered set means no document owner resolves (fail-closed)');
+  assert.equal(ownerResolves('docs/no-such-file.md', active, () => false, codexSlugs, new Set(['docs/no-such-file.md'])), false, 'a registered path whose file is missing does not resolve');
+  const a = clone(lawsSnapshot); a.active.find(l => l.rule_id === 'big_number').owner = 'AGENTS.md';
+  assert.match(validateLawsSnapshot(a, ENFORCE_CTX).join('\n'), /big_number: owner document AGENTS\.md exists but is not registered as an owner in the Owner Index/);
+  const hist = { ...ENFORCE_CTX, index: index + '\n| old duty | `AGENTS.md` (היסטוריה, לא פעיל) |' };
+  assert.match(validateLawsSnapshot(a, hist).join('\n'), /AGENTS\.md exists but is not registered/, 'a history row does not register an owner');
+  assert.deepEqual(validateLawsSnapshot(a, { ...ENFORCE_CTX, index: index + '\n| new duty | `AGENTS.md` |' }), [], 'registered by an Owner Index owner cell: resolves');
+  const mv = ownerIndexOwnerViolations(index + '\n| new duty | `docs/no-such-owner-contract.md` |', { activeIds: activeIdSet, retiredIds: retiredIdSet, codexSlugs, fileExists });
+  assert.match(mv.join('\n'), /routes to document docs\/no-such-owner-contract\.md, which does not exist in the repository/);
+  // the named known gap: without the explicit list the real 12.11 tree is refused for exactly that document, and for nothing else
+  const withoutGap = validateLawsSnapshot(lawsSnapshot, { ...ENFORCE_CTX, unregisteredDocumentOwners: [] });
+  assert.equal(withoutGap.length, 5); for (const m of withoutGap) assert.match(m, /owner document SOD1820_DESIGN_CONTRACT_V1\.md exists but is not registered/);
+  for (const d of DOCUMENT_OWNERS_NOT_IN_INDEX) { // the list may only shrink: every entry is still an owner AND still unregistered
+    assert.ok(currentLaws.active.some(l => l.owner === d), 'known gap entry no longer owns a law; remove it: ' + d);
+    assert.ok(!registeredDocs.has(d), 'known gap entry is registered now; remove it: ' + d);
+  }
+  // authorization: a document that becomes an owner for the first time needs D|<path>|work_log:<uuid>|date (authenticity: human gate)
+  const next = clone(lawsSnapshot); const t = next.active.find(l => l.rule_id === 'platform_tiers_law'); t.version = 6; t.md5 = 'abcdefabcdef'; t.owner = 'SOD1820_DESIGN_CONTRACT_V2.md';
+  assert.deepEqual(validateLawsSnapshot(next, ENFORCE_CTX), [], 'V2 is registered, so the newer snapshot alone is valid');
+  assert.match(newDocumentOwnerViolations(lawsSnapshot, next, []).join('\n'), /SOD1820_DESIGN_CONTRACT_V2\.md: new document owner without a recorded approval/);
+  assert.match(checkSnapshotTransition(lawsSnapshot, next, { ...ENFORCE_CTX, approvals: [] }).join('\n'), /new document owner without a recorded approval/);
+  assert.match(newDocumentOwnerViolations(lawsSnapshot, next, parseLawApprovals('D|SOD1820_DESIGN_CONTRACT_V2.md|ZURIEL said yes|2026-11-13')).join('\n'), /without a recorded approval/);
+  const okD = parseLawApprovals('D|SOD1820_DESIGN_CONTRACT_V2.md|' + REF + '|2026-11-13');
+  assert.deepEqual(checkSnapshotTransition(lawsSnapshot, next, { ...ENFORCE_CTX, approvals: okD }), []);
+  assert.deepEqual(validateLawApprovals(okD, next).humanGate, ['document owner SOD1820_DESIGN_CONTRACT_V2.md <- ' + REF + ' (authenticity: human gate)']);
+  assert.match(validateLawApprovals(parseLawApprovals('D|not-a-document|' + REF + '|2026-11-13'), next).violations.join('\n'), /approval line malformed/);
+  assert.deepEqual(newDocumentOwnerViolations(lawsSnapshot, lawsSnapshot, []), [], 'a document that already was an owner needs nothing new');
+});
+
+test('ROUND 3 · the ownership chain must end at a valid root: a cycle and a broken link at any depth are refused; a valid chain is allowed', () => {
+  const bump = (snap, id, owner) => { const l = snap.active.find(x => x.rule_id === id); l.owner = owner; l.version += 1; l.md5 = 'abcdefabcdef'; return l; };
+  const child = lawsSnapshot.active.find(l => l.owner !== l.rule_id && activeIdSet.has(l.owner));
+  const root = lawsSnapshot.active.find(l => l.rule_id === child.owner); assert.equal(root.owner, root.rule_id, 'the fixture child hangs under a self-owned root');
+  // a valid chain of depth 2: another law becomes a child of the child
+  const other = lawsSnapshot.active.find(l => l.owner === l.rule_id && l.rule_id !== root.rule_id);
+  const deep = clone(lawsSnapshot); bump(deep, other.rule_id, child.rule_id);
+  assert.deepEqual(validateLawsSnapshot(deep, ENFORCE_CTX), [], other.rule_id + ' -> ' + child.rule_id + ' -> ' + root.rule_id + ' ends at a self-owned root');
+  // a cycle: the root moves under its own child (every single link is an ACTIVE law, so only the chain walk can see it)
+  const cyc = clone(lawsSnapshot); bump(cyc, root.rule_id, child.rule_id);
+  const cv = validateLawsSnapshot(cyc, ENFORCE_CTX).join('\n');
+  assert.match(cv, new RegExp(root.rule_id + ': ownership chain is a cycle \\(' + root.rule_id + ' -> ' + child.rule_id + ' -> ' + root.rule_id + '\\)'));
+  assert.match(cv, new RegExp(child.rule_id + ': ownership chain is a cycle'));
+  assert.match(checkSnapshotTransition(lawsSnapshot, cyc, { ...ENFORCE_CTX, approvals: [] }).join('\n'), /ownership chain is a cycle/, 'refused in a real transition too');
+  // a broken link at depth 2: the grandchild is refused for the chain, not only the child for its own owner
+  const retiredId = lawsSnapshot.retired.find(r => r.owner !== '-').rule_id;
+  const broken = clone(lawsSnapshot); bump(broken, other.rule_id, child.rule_id); broken.active.find(l => l.rule_id === child.rule_id).owner = retiredId;
+  const bv = validateLawsSnapshot(broken, ENFORCE_CTX).join('\n');
+  assert.match(bv, new RegExp(child.rule_id + ': owner ' + retiredId + ' is a retired law'));
+  assert.match(bv, new RegExp(other.rule_id + ': ownership chain reaches ' + child.rule_id + ', whose owner ' + retiredId + ' is a retired law'));
+  const ghost = clone(lawsSnapshot); bump(ghost, other.rule_id, child.rule_id); ghost.active.find(l => l.rule_id === child.rule_id).owner = 'never_existed_law';
+  assert.match(validateLawsSnapshot(ghost, ENFORCE_CTX).join('\n'), new RegExp(other.rule_id + ': ownership chain reaches ' + child.rule_id + ', whose owner never_existed_law does not resolve'));
+  // real data: the deepest chain today is one link, and every chain ends at a root
+  assert.deepEqual(validateLawsSnapshot(currentLaws, CURRENT_CTX).filter(m => /ownership chain/.test(m)), []);
+});
+
+test('ROUND 3 · SQL: a top-level SELECT ... INTO creates a table and needs OWNER-CHECK; INTO a PL/pgSQL variable, INSERT INTO and TEMP are not counted', () => {
+  // Verified on a throwaway PostgreSQL 16 (12.11.2026): top-level SELECT INTO, WITH ... SELECT INTO and INTO [UNLOGGED] TABLE create a
+  // table; inside PL/pgSQL "SELECT a INTO v" assigns a variable and EXECUTE of SELECT ... INTO raises "is not implemented".
+  const into = (q) => [...selectIntoTables(q)];
+  assert.deepEqual(into('select a into public.t1 from x;'), ['public.t1']);
+  assert.deepEqual(into('SELECT a, b INTO TABLE t2 FROM x;'), ['public.t2']);
+  assert.deepEqual(into('with c as (select 1 as y) select y into unlogged table public.t3 from c;'), ['public.t3']);
+  assert.deepEqual(into('select a\n  into\n  "Quoted Into" from x;'), ['public.quoted into']);
+  assert.deepEqual(into('select (select max(b) from y) as m into "S"."T7" from x union all select 2;'), ['s.t7']);
+  assert.deepEqual(into('select a from x where b in (select c from d); select 1 into t8;'), ['public.t8'], 'every top-level statement is read');
+  assert.deepEqual(into("SELECT '--'; select 1 into public.g1_into_probe;"), ['public.g1_into_probe'], 'a string is not a comment here either');
+  for (const q of ['select a into temp t4 from x;', 'select a into temporary table t4b from x;', 'insert into public.t5 select a from x;',
+    'with c as (select 1) insert into t6 select * from c;', 'with ins as (insert into t values (1) returning *) select * from ins;',
+    'merge into t9 using s on true when matched then do nothing;', "select 'into public.fake' as s from x;", '-- select a into public.commented from x;\nselect 1;',
+    'do $$ declare v int; begin select a into v from x; end $$;',
+    'create function f() returns int language plpgsql as $f$ declare v int; begin select 1 into strict v; return v; end $f$;']) assert.deepEqual(into(q), [], q);
+  assert.equal(lexSql('do $$ begin select a into v from x; end $$; select 1;').top.includes('into'), false, 'top-level code excludes dollar-quoted bodies');
+  assert.ok(lexSql('do $$ begin create table public.in_do (x int); end $$;').code.includes('create table public.in_do'), 'the full code still includes them');
+  const run = (text) => migrationTableViolations([{ path: 'i.sql', text }], new Set(), { ownerOk }).join('\n');
+  assert.match(run('select a into public.into_store from public.src;'), /i\.sql: new table public\.into_store has no "-- OWNER-CHECK:"/);
+  assert.equal(run('-- OWNER-CHECK: EXTEND_EXISTING traffic_intelligence_law OPERATIONAL_RUNTIME APPROVAL:' + REF + '\nselect a into public.into_store from public.src;'), '');
+  assert.equal(run('do $$ declare v_md5 text; begin select def_md5 into v_md5 from g1rg_before; end $$;'), '', 'the CL-16 apply file pattern is not a store');
+  assert.equal(migrationTableViolations([{ path: 'b.sql', text: 'select a into public.already_there from x;' }], new Set(['public.already_there']), { ownerOk }).join('\n'), '', 'a table in the baseline needs nothing');
+});
+
+test('ROUND 3 · successor of a retired law: two sources are accepted (the owner recorded at retirement, or a later retired_routing_v1 record); a silent rewrite is refused', () => {
+  const src = 'retired_routing_v1:' + REF;
+  const row = (snap, id) => snap.retired.find(r => r.rule_id === id);
+  assert.equal(parseLawsSnapshot('R|x_law|1|reality_graph_law|' + src).retired[0].routing, src);
+  assert.equal(parseLawsSnapshot('R|x_law|1|reality_graph_law|').retired[0].routing, '', 'source 1: the owner recorded at retirement (history)');
+  // source 2: a known gap receives its successor through retired_routing_v1
+  const mapped = clone(lawsSnapshot); Object.assign(row(mapped, 'agent_onboarding_law'), { owner: 'inter_agent_coordination_law', routing: src });
+  assert.deepEqual(validateLawsSnapshot(mapped, ENFORCE_CTX), []);
+  assert.deepEqual(compareLawsSnapshots(lawsSnapshot, mapped), [], 'a successor added through retired_routing_v1 is a proper later mapping (authenticity: human gate)');
+  // refused: the same change without the record (it would be a rewrite of the retired row's owner)
+  const silent = clone(lawsSnapshot); row(silent, 'agent_onboarding_law').owner = 'inter_agent_coordination_law';
+  assert.match(compareLawsSnapshots(lawsSnapshot, silent).join('\n'), /agent_onboarding_law: recorded successor changed \(- -> inter_agent_coordination_law\) without a retired_routing_v1 record/);
+  const moved = clone(lawsSnapshot); row(moved, 'ai_quota_law').owner = 'reality_graph_law';
+  assert.match(compareLawsSnapshots(lawsSnapshot, moved).join('\n'), /ai_quota_law: recorded successor changed \(platform_tiers_law -> reality_graph_law\) without a retired_routing_v1 record/);
+  // refused: a malformed source, a source without a successor, and a routing to a retired or missing successor
+  const bad = clone(lawsSnapshot); Object.assign(row(bad, 'agent_onboarding_law'), { owner: 'inter_agent_coordination_law', routing: 'retired_routing_v1:ZURIEL said yes' });
+  assert.match(validateLawsSnapshot(bad, ENFORCE_CTX).join('\n'), /agent_onboarding_law: successor source is not retired_routing_v1:work_log:<uuid>/);
+  assert.match(compareLawsSnapshots(lawsSnapshot, bad).join('\n'), /without a retired_routing_v1 record/);
+  const empty = clone(lawsSnapshot); row(empty, 'agent_onboarding_law').routing = src;
+  assert.match(validateLawsSnapshot(empty, ENFORCE_CTX).join('\n'), /agent_onboarding_law: a retired_routing_v1 source without a successor/);
+  const toRetired = clone(lawsSnapshot); Object.assign(row(toRetired, 'agent_onboarding_law'), { owner: 'unified_graph_law', routing: src });
+  assert.match(validateLawsSnapshot(toRetired, ENFORCE_CTX).join('\n'), /agent_onboarding_law: recorded successor unified_graph_law is itself retired/);
+  const toGhost = clone(lawsSnapshot); Object.assign(row(toGhost, 'agent_onboarding_law'), { owner: 'never_existed_law', routing: src });
+  assert.match(validateLawsSnapshot(toGhost, ENFORCE_CTX).join('\n'), /agent_onboarding_law: recorded successor never_existed_law does not resolve/);
+  // source 1 stays valid and untouched: the 12.11 record has 41 successors recorded at retirement and none through retired_routing_v1
+  assert.equal(lawsSnapshot.retired.filter(r => r.owner !== '-' && r.routing === '').length, 41);
+  assert.equal(lawsSnapshot.retired.filter(r => r.routing !== '').length, 0);
 });
 
 // BASE vs HEAD (real). In CI the base is the PR base (G1_BASE_SHA, fetched by the workflow); locally the merge-base with origin/main.

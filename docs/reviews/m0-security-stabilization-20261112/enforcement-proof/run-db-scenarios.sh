@@ -24,7 +24,7 @@ for which in live proposed; do
   grep -E 'GUARD md5|=>|AS EXPECTED|UNEXPECTED|ERROR' <<<"$out"
   grep -q 'PSQL_EXIT=0' <<<"$out" || FAIL=1
   if [ "$which" = live ] && ! grep -q 'GUARD md5 56b90b0ae0f9c5915b730314d13ca7a0' <<<"$out"; then echo "MISMATCH: the live copy no longer matches the live md5"; FAIL=1; fi
-  if [ "$which" = proposed ] && ! grep -q 'GUARD md5 8a75cb63eecfbc61e70d85deb6a1fe51' <<<"$out"; then echo "MISMATCH: the applied body is not the reviewed AFTER md5"; FAIL=1; fi
+  if [ "$which" = proposed ] && ! grep -q 'GUARD md5 7b03b1a78f4e04962c15399feb1668ff' <<<"$out"; then echo "MISMATCH: the applied body is not the reviewed AFTER md5"; FAIL=1; fi
 done
 [ $FAIL -eq 0 ] && echo "RESULT: every case behaved as expected" || echo "RESULT: UNEXPECTED OUTCOME(S)"
 exit $FAIL

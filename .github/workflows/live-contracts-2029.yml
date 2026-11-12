@@ -55,6 +55,16 @@ jobs:
           echo "G1_BASE_SHA=$BASE" >> "$GITHUB_ENV"
       - name: G1 agent-routing smoke (the owner index and the adapters route to live owners, keep their safety literals, and the captured adapter blobs stay exact)
         run: node --test scripts/test-g1-agent-routing-smoke.mjs
+      # 12.11.2026 (round 3): when a change touches the G1 enforcement code, its end-to-end proof runs on that exact head. Each scenario
+      # is the real G1 smoke on a real base and head in a temporary worktree (local commits only, nothing is pushed); every scenario has
+      # an expected outcome and a refusal must be for its reason. Any unexpected outcome, or a scenario that did not run, fails.
+      - name: G1 enforcement scenarios (only when the enforcement code changes; 47 scenarios on this exact head, each must refuse or allow as recorded)
+        run: |
+          if git diff --name-only "$G1_BASE_SHA" HEAD -- scripts/lib/g1LawsSnapshotRules.mjs scripts/test-g1-agent-routing-smoke.mjs docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-ci-scenarios.sh | grep -q .; then
+            bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-ci-scenarios.sh
+          else
+            echo "The G1 enforcement code is unchanged against $G1_BASE_SHA: the scenarios are not needed for this change."
+          fi
 
   perf-contracts-2029:
     name: perf-contracts-2029
@@ -343,9 +353,9 @@ jobs:
         run: bash scripts/run-m0a-db-permissions-sql-test.sh
       - name: M0-B ai_quota_check refuses a missing identity (exact live body, rollback restores it)
         run: bash scripts/run-m0b-ai-quota-sql-test.sh
-      - name: G1 rule guard (CL-16) proposal lifecycle (missing function and drift stop both files, exact apply, no-op re-apply, exact rollback; M0 files do not touch it)
+      - name: G1 rule guard (CL-16) proposal lifecycle (25 cases; a missing function, drift, a MISSING or DISABLED trigger stop both files; exact apply, no-op re-apply, exact rollback; M0 files do not touch it)
         run: bash scripts/run-g1-rule-guard-sql-test.sh
-      - name: G1 rule guard (CL-16) case matrix, live vs applied (40 cases, each with an expected outcome and refusal reason)
+      - name: G1 rule guard (CL-16) case matrix, live vs applied (64 cases, each with an expected outcome and refusal reason)
         run: bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-db-scenarios.sh
       - name: M0-D contributor research view admits public candidates (one token, status kept, private and person-only excluded, exact rollback)
         run: bash scripts/run-m0d-contributor-view-sql-test.sh

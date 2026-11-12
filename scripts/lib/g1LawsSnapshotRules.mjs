@@ -14,19 +14,25 @@ export function parseLawsSnapshot(text) {
     if (!line || line.startsWith('#')) continue;
     const [kind, ...f] = line.split('|');
     if (kind === 'L') active.push({ rule_id: f[0], version: Number(f[1]), owner: f[2], family: f[3], md5: f[4] });
-    else if (kind === 'R') retired.push({ rule_id: f[0], version: Number(f[1]), owner: f[2] });
+    else if (kind === 'R') retired.push({ rule_id: f[0], version: Number(f[1]), owner: f[2], routing: f[3] || '' });
     else throw new Error('unknown snapshot row: ' + line);
   }
   return { active, retired };
 }
 
-// ctx: { index: Owner Index text, fileExists(path): boolean, retiredWithoutSuccessor: string[], codexSlugs: Set of proven slugs }
+// ctx: { index: Owner Index text, fileExists(path): boolean, retiredWithoutSuccessor: string[], codexSlugs: Set of proven slugs,
+//        registeredDocs (optional; defaults to registeredDocumentOwners(index)), unregisteredDocumentOwners (optional known gaps) }
 // project_codex.<slug> resolves ONLY when the slug is in the newest dated record of existing project_codex items
 // (audits/g1-agent-entry/G1_PROJECT_CODEX_SLUGS_YYYYMMDD.txt). The prefix alone is not proof; no list means no codex owner resolves.
-export function ownerResolves(owner, activeIds, fileExists, codexSlugs) {
+// A DOCUMENT owner (round 3) resolves ONLY when the file exists AND it is REGISTERED: named as an owner in the owner cell of an
+// Owner Index row that is not classified as history. An existing file is not an owner by existing; no registered set means no
+// document owner resolves (fail-closed, like the codex list).
+export const isDocumentOwner = (owner) => /\.md$/.test(owner || '');
+export function ownerResolves(owner, activeIds, fileExists, codexSlugs, registeredDocs) {
   if (!owner) return false;
   if (owner.startsWith('project_codex.')) return !!codexSlugs && codexSlugs.has(owner.slice('project_codex.'.length));
-  return activeIds.has(owner) || (/\.md$/.test(owner) && fileExists(owner));
+  if (isDocumentOwner(owner)) return fileExists(owner) && !!registeredDocs && registeredDocs.has(owner);
+  return activeIds.has(owner);
 }
 export function parseCodexSlugs(text) {
   const out = new Set();
@@ -44,22 +50,53 @@ export function newestDated(names, kind) {
   return names.filter((n) => re.test(n)).sort().pop() || null;
 }
 
+// The successor of a retired law comes from ONE of two sources (contracts session, alignment README section 16.4):
+//   (1) the owner recorded at retirement (metadata.compaction_v1.canonical_owner): history, never rewritten; the R row's 5th field is empty;
+//   (2) a later mapping in metadata.retired_routing_v1: the 5th field is 'retired_routing_v1:work_log:<uuid>' (its approval reference).
+export const RETIRED_ROUTING_SOURCE = /^retired_routing_v1:work_log:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
 export function validateLawsSnapshot(snap, ctx) {
   const v = [];
   const activeIds = new Set(snap.active.map(x => x.rule_id));
   const retiredIds = new Set(snap.retired.map(x => x.rule_id));
+  const registeredDocs = ctx.registeredDocs ?? registeredDocumentOwners(ctx.index || '');
+  const knownUnregistered = new Set(ctx.unregisteredDocumentOwners || []);
+  // one statement of what is wrong with the DIRECT owner of a law (null = it resolves)
+  const ownerProblem = (law) => {
+    if (!law.owner || law.owner === '-') return 'no canonical owner';
+    if (retiredIds.has(law.owner)) return 'owner ' + law.owner + ' is a retired law';
+    if (isDocumentOwner(law.owner) && ctx.fileExists(law.owner) && !registeredDocs.has(law.owner)) {
+      return knownUnregistered.has(law.owner) ? null : 'owner document ' + law.owner + ' exists but is not registered as an owner in the Owner Index';
+    }
+    if (!ownerResolves(law.owner, activeIds, ctx.fileExists, ctx.codexSlugs, registeredDocs)) return 'owner ' + law.owner + ' does not resolve';
+    return null;
+  };
   if (activeIds.size !== snap.active.length) v.push('duplicate active rule_id');
+  const byId = new Map(snap.active.map((l) => [l.rule_id, l]));
   for (const law of snap.active) {
-    if (!law.owner || law.owner === '-') { v.push(law.rule_id + ': no canonical owner'); continue; }
-    if (retiredIds.has(law.owner)) v.push(law.rule_id + ': owner ' + law.owner + ' is a retired law');
-    else if (!ownerResolves(law.owner, activeIds, ctx.fileExists, ctx.codexSlugs)) v.push(law.rule_id + ': owner ' + law.owner + ' does not resolve');
+    const direct = ownerProblem(law);
+    if (direct) { v.push(law.rule_id + ': ' + direct); continue; }
     if (law.owner === law.rule_id && !ctx.index.includes('`' + law.rule_id + '`')) v.push(law.rule_id + ': owner law missing from the Owner Index');
+    // the chain of owners must end at a valid root: a self-owned active law, a proven codex item or a registered document.
+    // A broken link at any depth and a chain that returns to a law already on it (a cycle) are refused.
+    const seen = [law.rule_id]; let cur = law;
+    while (cur.owner !== cur.rule_id && byId.has(cur.owner)) {
+      if (seen.includes(cur.owner)) { v.push(law.rule_id + ': ownership chain is a cycle (' + [...seen, cur.owner].join(' -> ') + ')'); break; }
+      seen.push(cur.owner); cur = byId.get(cur.owner);
+      const deep = ownerProblem(cur);
+      if (deep) { v.push(law.rule_id + ': ownership chain reaches ' + cur.rule_id + ', whose ' + deep); break; }
+      if (seen.length > 16) { v.push(law.rule_id + ': ownership chain is longer than 16 links (' + seen.join(' -> ') + ')'); break; }
+    }
   }
   for (const r of snap.retired) {
     if (activeIds.has(r.rule_id)) v.push(r.rule_id + ': listed both active and retired');
-    if (r.owner === '-') { if (!ctx.retiredWithoutSuccessor.includes(r.rule_id)) v.push(r.rule_id + ': retired without a recorded successor (not a known gap)'); }
+    if (r.routing && !RETIRED_ROUTING_SOURCE.test(r.routing)) v.push(r.rule_id + ': successor source is not retired_routing_v1:work_log:<uuid> (' + r.routing + ')');
+    if (r.owner === '-') {
+      if (r.routing) v.push(r.rule_id + ': a retired_routing_v1 source without a successor');
+      else if (!ctx.retiredWithoutSuccessor.includes(r.rule_id)) v.push(r.rule_id + ': retired without a recorded successor (not a known gap)');
+    }
     else if (retiredIds.has(r.owner)) v.push(r.rule_id + ': recorded successor ' + r.owner + ' is itself retired');
-    else if (!ownerResolves(r.owner, activeIds, ctx.fileExists, ctx.codexSlugs)) v.push(r.rule_id + ': recorded successor ' + r.owner + ' does not resolve');
+    else if (!ownerResolves(r.owner, activeIds, ctx.fileExists, ctx.codexSlugs, registeredDocs)) v.push(r.rule_id + ': recorded successor ' + r.owner + ' does not resolve');
   }
   return v;
 }
@@ -88,6 +125,26 @@ export function compareLawsSnapshots(prev, next, opts = {}) {
       ? id + ': a retired law was activated again without a recorded approval'
       : id + ': new law without a recorded approval (explain why the existing owner is not enough)');
   }
+  // the successor recorded for a retired law is history: it changes only through a later retired_routing_v1 record (never by rewriting
+  // the owner of the retired row, and never silently). Authenticity of the referenced approval is a human gate.
+  const prevRetiredRows = new Map(prev.retired.map((x) => [x.rule_id, x]));
+  for (const r of next.retired) {
+    const b = prevRetiredRows.get(r.rule_id);
+    if (!b || b.owner === r.owner) continue;
+    if (!RETIRED_ROUTING_SOURCE.test(r.routing || '')) v.push(r.rule_id + ': recorded successor changed (' + b.owner + ' -> ' + r.owner + ') without a retired_routing_v1 record (the owner recorded at retirement is history and is not rewritten)');
+  }
+  return v;
+}
+
+// A document that becomes the canonical owner of a law for the FIRST time (no law of the previous snapshot named it) is a new document
+// owner. Registration (the Owner Index, validateLawsSnapshot) is one check; AUTHORIZATION is a separate recorded approval line
+// 'D|<path>|work_log:<uuid>|YYYY-MM-DD' in the approvals record. The form is technical; that it is ZURIEL's approval is a human gate.
+export function newDocumentOwnerViolations(prev, next, entries) {
+  const v = []; const had = new Set([...prev.active, ...prev.retired].map((x) => x.owner).filter(isDocumentOwner));
+  const approved = new Set((entries || []).filter((e) => e.kind === 'D' && APPROVAL_REF.test(e.ref || '') && /^\d{4}-\d{2}-\d{2}$/.test(e.date || '')).map((e) => e.rule_id));
+  for (const d of new Set(next.active.map((x) => x.owner).filter(isDocumentOwner))) {
+    if (!had.has(d) && !approved.has(d)) v.push(d + ': new document owner without a recorded approval (D|' + d + '|work_log:<uuid>|date)');
+  }
   return v;
 }
 
@@ -115,6 +172,12 @@ export function validateLawApprovals(entries, next) {
       else humanGate.push('project_codex.' + e.rule_id + ' <- ' + e.ref + ' (authenticity: human gate)');
       continue;
     }
+    if (e.kind === 'D') { // a new document owner approval (newDocumentOwnerViolations decides whether it is needed); form only
+      if (!isDocumentOwner(e.rule_id) || !/^\d{4}-\d{2}-\d{2}$/.test(e.date || '')) violations.push('approval line malformed: ' + e.line);
+      else if (!APPROVAL_REF.test(e.ref || '')) violations.push(e.rule_id + ': approval reference is not work_log:<uuid> (' + e.ref + ')');
+      else humanGate.push('document owner ' + e.rule_id + ' <- ' + e.ref + ' (authenticity: human gate)');
+      continue;
+    }
     if (e.kind !== 'A' || !e.rule_id || !e.ref || !/^\d{4}-\d{2}-\d{2}$/.test(e.date || '')) { violations.push('approval line malformed: ' + e.line); continue; }
     if (!APPROVAL_REF.test(e.ref)) { violations.push(e.rule_id + ': approval reference is not work_log:<uuid> (' + e.ref + ')'); continue; }
     if (!active.has(e.rule_id)) violations.push(e.rule_id + ': approval names a law that is not in the new snapshot');
@@ -133,6 +196,7 @@ export function checkSnapshotTransition(prev, next, ctx) {
   return [
     ...compareLawsSnapshots(prev, next, { approvals: ctx.approvals || [] }),
     ...validateLawsSnapshot(next, ctx),
+    ...newDocumentOwnerViolations(prev, next, ctx.approvals || []),
     ...validateLawApprovals(ctx.approvals || [], next).violations,
   ];
 }
@@ -197,8 +261,31 @@ export function unroutedContractFiles(files, ctx) {
 // owners), and a project_codex.<slug> owner must be a proven codex item, unless the OWNER CELL classifies that reference explicitly as
 // history (HISTORY_STATUS). Recognised rows: any markdown table row (leading pipe, any spacing).
 const LAW_LIKE = /^[a-z][a-z0-9_]*(_law|_contract|_protocol|_registry|_system|_foundation_v\d+)$/;
+const DOC_IN_CELL = /`([A-Za-z0-9_.\/-]+\.md)`/g;
+// The owner cells of the Owner Index rows (any markdown table row), with the explicit history classification of each cell.
+function ownerCells(index) {
+  const out = [];
+  for (const line of (index || '').split('\n')) {
+    if (!/^\s*\|/.test(line) || /^\s*\|[\s:|-]+\|?\s*$/.test(line)) continue;
+    const ownerCell = line.split('|').map((c) => c.trim())[2] || '';
+    out.push({ line, ownerCell, history: HISTORY_STATUS.test(ownerCell) });
+  }
+  return out;
+}
+// REGISTERED document owners (round 3): the documents named (backticked path) in the owner cell of an Owner Index row that is not
+// classified as history. This is the only registration of a document as an owner; a file that merely exists is not registered.
+export function registeredDocumentOwners(index) {
+  const out = new Set();
+  for (const { ownerCell, history } of ownerCells(index)) if (!history) for (const [, path] of ownerCell.matchAll(DOC_IN_CELL)) out.add(path);
+  return out;
+}
 export function ownerIndexOwnerViolations(index, ctx) {
   const v = [];
+  // a document named as an owner must exist in the repository (ctx.fileExists; skipped when the caller cannot see the tree)
+  if (ctx.fileExists) for (const { line, ownerCell, history } of ownerCells(index)) {
+    if (history) continue;
+    for (const [, path] of ownerCell.matchAll(DOC_IN_CELL)) if (!ctx.fileExists(path)) v.push('Owner Index row routes to document ' + path + ', which does not exist in the repository: ' + line.trim().slice(0, 140));
+  }
   for (const line of index.split('\n')) {
     if (!/^\s*\|/.test(line) || /^\s*\|[\s:|-]+\|?\s*$/.test(line)) continue;
     const cells = line.split('|').map((c) => c.trim());
@@ -244,15 +331,18 @@ export function registeredContractChangeViolations(changes, ctx) {
 // function body runs its DDL); this over-detects a create statement inside a dollar-quoted literal, which is the safe side. "..." is an
 // identifier and is kept. Block comments nest, as in PostgreSQL.
 export function lexSql(sql) {
-  const strings = []; const comments = []; let code = '';
+  // code: everything that can run, dollar-quoted bodies included. top: the same WITHOUT the dollar-quoted bodies, i.e. the statements
+  // the file itself runs at top level (round 3: SELECT ... INTO creates a table there, and assigns a variable inside PL/pgSQL).
+  const strings = []; const comments = []; let code = ''; let top = '';
+  const emit = (x) => { code += x; top += x; };
   let i = 0; const n = sql.length;
   while (i < n) {
     const c = sql[i]; const c2 = sql.slice(i, i + 2);
-    if (c2 === '--') { const j = sql.indexOf('\n', i); const end = j < 0 ? n : j; comments.push(sql.slice(i + 2, end)); code += ' '; i = end; continue; }
+    if (c2 === '--') { const j = sql.indexOf('\n', i); const end = j < 0 ? n : j; comments.push(sql.slice(i + 2, end)); emit(' '); i = end; continue; }
     if (c2 === '/*') {
       let depth = 1; let j = i + 2;
       while (j < n && depth > 0) { if (sql.startsWith('/*', j)) { depth++; j += 2; } else if (sql.startsWith('*/', j)) { depth--; j += 2; } else j++; }
-      comments.push(sql.slice(i + 2, Math.max(i + 2, j - 2))); code += ' '; i = j; continue;
+      comments.push(sql.slice(i + 2, Math.max(i + 2, j - 2))); emit(' '); i = j; continue;
     }
     if (c === "'" || ((c === 'E' || c === 'e') && sql[i + 1] === "'" && !/[A-Za-z0-9_$]/.test(sql[i - 1] || ''))) {
       const esc = c !== "'"; let j = i + (esc ? 2 : 1); let s = '';
@@ -261,24 +351,44 @@ export function lexSql(sql) {
         if (sql[j] === "'") { if (sql[j + 1] === "'") { s += "'"; j += 2; continue; } j++; break; }
         s += sql[j]; j++;
       }
-      strings.push(s); code += "''"; i = j; continue;
+      strings.push(s); emit("''"); i = j; continue;
     }
-    if (c === '"') { const j = sql.indexOf('"', i + 1); const end = j < 0 ? n : j + 1; code += sql.slice(i, end); i = end; continue; }
+    if (c === '"') { const j = sql.indexOf('"', i + 1); const end = j < 0 ? n : j + 1; emit(sql.slice(i, end)); i = end; continue; }
     const dq = c === '$' && !/[A-Za-z0-9_]/.test(sql[i - 1] || '') ? /^\$([A-Za-z_][A-Za-z0-9_]*)?\$/.exec(sql.slice(i)) : null;
     if (dq) {
       const tag = dq[0]; const j = sql.indexOf(tag, i + tag.length); const end = j < 0 ? n : j;
       const inner = lexSql(sql.slice(i + tag.length, end));
-      strings.push(...inner.strings); comments.push(...inner.comments); code += ' ' + inner.code + ' '; i = j < 0 ? n : j + tag.length; continue;
+      strings.push(...inner.strings); comments.push(...inner.comments); code += ' ' + inner.code + ' '; top += " '' "; i = j < 0 ? n : j + tag.length; continue;
     }
-    code += c; i++;
+    emit(c); i++;
   }
-  return { code, strings, comments };
+  return { code, strings, comments, top };
 }
 export function stripSqlComments(sql) { return lexSql(sql).code; }
 
-// ── New structures in SQL: UNLOGGED, PARTITION OF, CREATE TABLE ... AS, materialized views, ALTER TABLE ... RENAME TO and dynamic
-// EXECUTE of a string that creates a table are recognised. A plain view is a projection, not a store, and is not counted; TEMP
-// tables are session-local and are not counted.
+// ── New structures in SQL: UNLOGGED, PARTITION OF, CREATE TABLE ... AS, materialized views, ALTER TABLE ... RENAME TO, dynamic
+// EXECUTE of a string that creates a table, and (round 3) a top-level SELECT ... INTO <table> are recognised. A plain view is a
+// projection, not a store, and is not counted; TEMP tables are session-local and are not counted.
+//
+// SELECT ... INTO: at the top level of a file, 'SELECT ... INTO [UNLOGGED] [TABLE] name' (also after a WITH clause) creates a table.
+// Inside a PL/pgSQL body the same words assign variables, PL/pgSQL refuses EXECUTE of SELECT ... INTO, and an SQL-language function
+// may not contain it (all three verified on PostgreSQL 16: scripts/test-g1-agent-routing-smoke.mjs names the probe). So only the
+// TOP-LEVEL statements are searched (lexSql().top), at parenthesis depth 0, and only when the statement starts with SELECT or WITH.
+//
+// KNOWN LIMITS OF THIS DETECTION (stated, not hidden; anything here that creates a store is NOT seen by CI):
+//   1. a function or DO body written as a single-quoted string (not dollar-quoted) is data: its CREATE TABLE is seen only by the
+//      dynamic check below, and only when the same file has the word EXECUTE;
+//   2. dynamic SQL assembled from pieces ('cre' || 'ate table ...', format() with the keyword in an argument, a variable);
+//   3. dynamic CREATE MATERIALIZED VIEW (the dynamic check looks for CREATE TABLE only), and SQL passed as a string to a scheduler or
+//      a remote executor (cron.schedule, dblink_exec) when written in single quotes;
+//   4. CREATE FOREIGN TABLE, ALTER TABLE ... SET SCHEMA, ALTER TABLE ... ATTACH PARTITION, CREATE EXTENSION (an extension may create
+//      tables), CREATE SCHEMA and sequences/types are not counted as stores here;
+//   5. psql meta-commands: \i / \ir includes are not followed, \gexec runs the result of a query as SQL;
+//   6. over-detection (the safe side): a function BODY that creates a table is counted when the function is defined, not when it runs,
+//      and a CREATE TABLE inside a dollar-quoted literal that is only data is counted too;
+//   7. scope: only supabase/migrations and the SQL files of docs/reviews/*/apply-plan.json are read. SQL elsewhere (other proposed
+//      files, Edge function code, scripts) and anything run directly on the database is not seen; the baseline covers the tables the
+//      migrations create (41 of the live public tables), not the live schema.
 const IDENT = '(?:"([^"]+)"|([A-Za-z_][A-Za-z0-9_$]*))';
 const QNAME = '(?:' + IDENT + '\\s*\\.\\s*)?' + IDENT;
 const STRUCT_RE = [
@@ -286,8 +396,19 @@ const STRUCT_RE = [
   new RegExp('create\\s+materialized\\s+view\\s+(?:if\\s+not\\s+exists\\s+)?' + QNAME, 'gi'),
   new RegExp('alter\\s+table\\s+(?:if\\s+exists\\s+)?(?:only\\s+)?(?:' + IDENT + '\\s*\\.\\s*)?' + IDENT + '\\s+rename\\s+to\\s+' + IDENT, 'gi'),
 ];
+const stripParens = (t) => { let prev; do { prev = t; t = t.replace(/\([^()]*\)/g, ' '); } while (t !== prev); return t; };
+const SELECT_INTO = new RegExp('^\\s*(?:with\\b[\\s\\S]*?\\bselect\\b|select\\b)[\\s\\S]*?\\binto\\s+(temp\\s+|temporary\\s+|unlogged\\s+)?(?:table\\s+)?' + QNAME, 'i');
+export function selectIntoTables(sql) {
+  const out = new Set();
+  for (const stmt of lexSql(sql).top.split(';')) {
+    const m = SELECT_INTO.exec(stripParens(stmt));
+    if (!m || /^temp/i.test(m[1] || '')) continue;
+    out.add(((m[2] ?? m[3]) || 'public').toLowerCase() + '.' + (m[4] ?? m[5]).toLowerCase());
+  }
+  return out;
+}
 export function structuresCreated(sql) {
-  const { code, strings } = lexSql(sql); const out = new Set();
+  const { code, strings } = lexSql(sql); const out = selectIntoTables(sql);
   for (const re of STRUCT_RE.slice(0, 2)) for (const m of code.matchAll(re)) {
     const schema = (m[1] ?? m[2]) || 'public'; const name = m[3] ?? m[4];
     out.add(schema.toLowerCase() + '.' + name.toLowerCase());

@@ -7,27 +7,46 @@
 --
 -- Extends the SAME live guard and its SAME trigger (EXTEND_EXISTING; no new function, table or store). For rule rows only
 -- (type = 'rule'), it refuses: a type change of a rule row, a new id, an in-place change of rule_id / rule_version /
--- supersedes_version / identity_key, a body (description, label) or owner change without a new version (active or not; a retired row
--- that never recorded an owner may record one), DELETE of a rule row, TRUNCATE of nodes, a new or newly activated v1 without an
--- owner-creation verdict, a non-extension verdict without an approval reference, a REVIVAL of a retired family at any version without a
--- verdict AND an approval reference, an owner move in a new version without SUPERSEDE_EXISTING + approval, an owner that is retired or
--- does not exist (an active rule or an existing project_codex slug; a file owner is checked by the CI snapshot), and an approval
--- reference that is not work_log:<uuid> of an existing work_log row naming the rule.
+-- supersedes_version / identity_key, a body (description, label) or owner change without a new version (active or not, with no
+-- exception: the historical owner of a version is never rewritten), DELETE of a rule row, TRUNCATE of nodes, a new or newly activated
+-- v1 without an owner-creation verdict, a non-extension verdict without an approval reference, a REVIVAL of a retired family at any
+-- version without a verdict AND an approval reference, an owner move in a new version without SUPERSEDE_EXISTING + approval, and an
+-- approval reference that is not work_log:<uuid> of an existing work_log row naming the rule.
+-- OWNER CHAIN (round 3): the owner must resolve AND its chain of owners must end at a valid root. A root is a self-owned active rule,
+-- an existing project_codex.<slug>, or a document. Refused: an owner that is retired or does not exist, a chain that passes through a
+-- retired or missing owner at any depth, a chain that returns to a rule already on it (a cycle), a chain longer than 16 links, and an
+-- owner that is not a rule id, a project_codex.<slug> or a document path.
+-- DOCUMENT OWNER (round 3): the database cannot see repository files. A document owner is REGISTERED when another active rule (or the
+-- previous version of this rule) already names it as its owner; otherwise it is a NEW document owner and is AUTHORIZED only by an
+-- approval reference (owner_routing.human_gate). That the file exists and is routed in the Owner Index is checked by the CI snapshot.
+-- SUCCESSOR OF A RETIRED RULE (round 3, contracts session section 16.4): recorded in metadata.retired_routing_v1 only
+-- ({successor, relation, approval_ref, ...}); the owner fields of the retired row stay as they were. The key is allowed on a retired
+-- row only; a new or changed record needs a successor that resolves (an active rule, an existing codex item or a document), a relation
+-- (REPLACED / COMPLETED / ABSORBED / PARTIAL) and an approval reference that resolves; a record cannot be removed.
 -- metadata.rule_guard.deactivated_in_xact is written by the guard on a real retirement (is_active true -> false) and cannot be written
 -- by anyone else: a version inserted in the SAME transaction is a supersession; anything else re-activating a retired family is a revival.
 -- Rows that are not rules are not blocked by anything new (the trigger also fires on their type/label/description/id/identity_key
 -- updates and returns at once). TRUNCATE is table-wide: it cannot spare rule rows, so it is refused as a whole.
--- HUMAN GATE (not enforceable here): that the referenced work_log row really is ZURIEL's approval of this change; semantic duplication;
--- anything done by a role that can DISABLE TRIGGER or replace this function (DDL privileges).
+-- NOT ENFORCED HERE (stated, not hidden):
+--   * the chain is checked when a rule row is written. Retiring an owner that active rules still route to is NOT refused by this guard
+--     (a row trigger cannot tell a retirement from the first half of a supersession); the CI snapshot check refuses the resulting tree,
+--     and the next write to such a child is refused here.
+--   * HUMAN GATE: that the referenced work_log row really is ZURIEL's approval of this change; semantic duplication.
+--   * anything done by a role that can DISABLE TRIGGER, replace this function, or write with session_replication_role = replica.
+--     Read-only on 12.11.2026: public.nodes and this function are owned by postgres (the role of the SQL editor and of the MCP
+--     execute_sql / apply_migration tools), so postgres can do the first two; service_role is not the owner and cannot; only a
+--     superuser can set session_replication_role (no parameter grant exists).
 -- Effect on reading: the trigger is replaced with CREATE OR REPLACE TRIGGER (no DROP), so readers of public.nodes are not blocked.
 -- The guard reads public.work_log and public.project_codex as the writing role; a writer without SELECT on them is refused (fail-closed).
 --
--- Full-match guards (same pattern as M0-B):
---   BEFORE = live 12.11.2026: function md5 56b90b0ae0f9c5915b730314d13ca7a0, the trigger text below, no TRUNCATE trigger;
---   AFTER  = function md5 8a75cb63eecfbc61e70d85deb6a1fe51 (as PostgreSQL prints it), the two trigger texts below.
---   The live state must be exactly BEFORE (then it is replaced) or exactly AFTER (already applied; re-created, a no-op). Any other state
---   stops the file before anything changes. After the change: AFTER exactly, and owner, privileges, SECURITY DEFINER (off),
---   search_path and volatility equal what they were before this file ran.
+-- Full-match guards (same pattern as M0-B), FAIL-CLOSED (round 3): the state is read into non-null values ('(missing)' for an absent
+-- trigger, the enabled flag next to the text) and the file continues ONLY on an exact match; every other state, including a missing or
+-- disabled trigger, stops it before anything changes. CREATE OR REPLACE TRIGGER would silently re-enable a disabled trigger, so a
+-- disabled trigger is never "repaired" here: it is drift and needs a decision.
+--   BEFORE = live 12.11.2026: function md5 56b90b0ae0f9c5915b730314d13ca7a0, the trigger text below ENABLED (origin), no TRUNCATE trigger;
+--   AFTER  = function md5 7b03b1a78f4e04962c15399feb1668ff (as PostgreSQL prints it), the two trigger texts below, both ENABLED (origin).
+--   The live state must be exactly BEFORE (then it is replaced) or exactly AFTER (already applied; re-created, a no-op). After the
+--   change: AFTER exactly, and owner, privileges, SECURITY DEFINER (off), search_path and volatility equal what they were before.
 begin;
 set local lock_timeout = '5s';
 set local statement_timeout = '30s';
@@ -37,16 +56,27 @@ create temp table g1rg_before on commit drop as
     from pg_proc p where p.oid = to_regprocedure('public.fn_rule_compaction_integrity_guard_v1()');
 
 do $$
-declare v_md5 text; v_trg text; v_trunc text;
+declare
+  v_md5 text; v_trg text; v_trunc text; v_before boolean; v_after boolean;
+  c_before_md5 constant text := '56b90b0ae0f9c5915b730314d13ca7a0';
+  c_after_md5 constant text := '7b03b1a78f4e04962c15399feb1668ff';
+  c_before_trg constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';
+  c_after_trg constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version, description, label, type, id, identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';
+  c_after_trunc constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1_truncate BEFORE TRUNCATE ON public.nodes FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';
 begin
   select def_md5 into v_md5 from g1rg_before;
   if v_md5 is null then raise exception 'G1 rule guard precondition: public.fn_rule_compaction_integrity_guard_v1() not found; stop, nothing changed'; end if;
-  select pg_get_triggerdef(t.oid) into v_trg from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1';
-  select pg_get_triggerdef(t.oid) into v_trunc from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1_truncate';
-  if v_md5 = '8a75cb63eecfbc61e70d85deb6a1fe51' and v_trg = 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version, description, label, type, id, identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1()' and v_trunc = 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1_truncate BEFORE TRUNCATE ON public.nodes FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1()' then
+  -- a missing trigger reads as '(missing)', never as NULL; the enabled flag is part of the compared text
+  v_trg := coalesce((select pg_get_triggerdef(t.oid) || ' [enabled=' || t.tgenabled::text || ']' from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1' and not t.tgisinternal), '(missing)');
+  v_trunc := coalesce((select pg_get_triggerdef(t.oid) || ' [enabled=' || t.tgenabled::text || ']' from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1_truncate' and not t.tgisinternal), '(missing)');
+  v_after := v_md5 = c_after_md5 and v_trg = c_after_trg and v_trunc = c_after_trunc;
+  v_before := v_md5 = c_before_md5 and v_trg = c_before_trg and v_trunc = '(missing)';
+  if v_after is true then
     raise notice 'G1 rule guard: already applied; re-creating the same objects (no-op)';
-  elsif not (v_md5 = '56b90b0ae0f9c5915b730314d13ca7a0' and v_trg = 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1()' and v_trunc is null) then
-    raise exception 'G1 rule guard drift: function md5 %, trigger %, truncate trigger % is neither the live state read on 12.11.2026 nor the applied state; stop', v_md5, coalesce(v_trg, '(none)'), coalesce(v_trunc, '(none)');
+  elsif v_before is true then
+    null; -- exactly the live 12.11.2026 state: continue
+  else
+    raise exception 'G1 rule guard drift: function md5 %, trigger %, truncate trigger % is neither the live state read on 12.11.2026 nor the applied state; stop', v_md5, v_trg, v_trunc;
   end if;
 end $$;
 
@@ -64,6 +94,16 @@ declare
   v_activation boolean;
   v_revival boolean := false;
   v_xact text := pg_current_xact_id()::text;
+  v_rr jsonb;
+  v_rr_old jsonb;
+  v_succ text;
+  v_ref text;
+  v_cur text;
+  v_next text;
+  v_seen text[];
+  c_ref constant text := '^work_log:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$';
+  c_rule constant text := '^[a-z][a-z0-9_]*$';
+  c_doc constant text := '^[A-Za-z0-9_./-]+\.md$';
 begin
   if tg_level = 'STATEMENT' then
     raise exception 'TRUNCATE of public.nodes is refused (rule history must not be erased)';
@@ -98,17 +138,52 @@ begin
   elsif (coalesce(new.metadata,'{}'::jsonb)->'rule_guard') is distinct from (coalesce(old.metadata,'{}'::jsonb)->'rule_guard') then
     raise exception 'rule % v%: metadata.rule_guard is written by the rule guard only', new.rule_id, new.rule_version;
   end if;
-  -- body and owner are immutable within a version, active or not (history is not rewritten). The one exception: a retired row that
-  -- never recorded an owner may record one (a successor record). A successor at retirement goes to superseded_by / superseded_by_owner.
+  -- body and owner are immutable within a version, active or not, with no exception: history is not rewritten. A successor of a
+  -- retired rule is recorded in metadata.retired_routing_v1 (below), never by writing an owner onto the retired row.
   if tg_op = 'UPDATE' and old.type = 'rule' then
     if old.description is distinct from new.description or old.label is distinct from new.label then
       raise exception 'rule % v% body changed without a new version', new.rule_id, new.rule_version;
     end if;
-    if ((old.metadata#>>'{owner_routing,canonical_owner}') is distinct from (new.metadata#>>'{owner_routing,canonical_owner}')
-        or (old.metadata#>>'{compaction_v1,canonical_owner}') is distinct from (new.metadata#>>'{compaction_v1,canonical_owner}'))
-       and not (not coalesce(old.is_active,false) and not coalesce(new.is_active,false)
-                and (old.metadata#>>'{owner_routing,canonical_owner}') is null and (old.metadata#>>'{compaction_v1,canonical_owner}') is null) then
+    if (old.metadata#>>'{owner_routing,canonical_owner}') is distinct from (new.metadata#>>'{owner_routing,canonical_owner}')
+       or (old.metadata#>>'{compaction_v1,canonical_owner}') is distinct from (new.metadata#>>'{compaction_v1,canonical_owner}') then
       raise exception 'rule % v% owner changed without a new version', new.rule_id, new.rule_version;
+    end if;
+  end if;
+  -- successor routing of a RETIRED rule: metadata.retired_routing_v1. Allowed on a retired row only. A new or changed record needs a
+  -- successor that resolves, a relation and an approval reference to an existing work_log row naming the rule. No removal.
+  v_rr := coalesce(new.metadata,'{}'::jsonb)->'retired_routing_v1';
+  if tg_op = 'UPDATE' and old.type = 'rule' then v_rr_old := coalesce(old.metadata,'{}'::jsonb)->'retired_routing_v1'; end if;
+  if coalesce(new.is_active,false) then
+    if v_rr is not null then
+      raise exception 'rule % v%: retired_routing_v1 belongs to a retired row (an active rule cannot carry it)', new.rule_id, new.rule_version;
+    end if;
+  elsif v_rr is distinct from v_rr_old then
+    if v_rr is null then
+      raise exception 'rule % v%: retired_routing_v1 cannot be removed (record a new approved routing instead)', new.rule_id, new.rule_version;
+    end if;
+    v_succ := case when jsonb_typeof(v_rr) = 'object' then nullif(v_rr->>'successor','') end;
+    v_ref := case when jsonb_typeof(v_rr) = 'object' then nullif(v_rr->>'approval_ref','') end;
+    if v_succ is null or v_succ = new.rule_id then
+      raise exception 'rule % v%: retired_routing_v1 requires a successor other than the rule itself', new.rule_id, new.rule_version;
+    end if;
+    if (v_rr->>'relation') is null or (v_rr->>'relation') not in ('REPLACED','COMPLETED','ABSORBED','PARTIAL') then
+      raise exception 'rule % v%: retired_routing_v1 requires a relation (REPLACED, COMPLETED, ABSORBED or PARTIAL)', new.rule_id, new.rule_version;
+    end if;
+    if v_succ ~ c_rule then
+      if not exists (select 1 from public.nodes r where r.type='rule' and r.rule_id=v_succ and r.is_active) then
+        raise exception 'rule % v%: retired_routing_v1 successor % is not an active rule', new.rule_id, new.rule_version, v_succ;
+      end if;
+    elsif v_succ like 'project_codex.%' then
+      if not exists (select 1 from public.project_codex c where c.slug = substr(v_succ, 15)) then
+        raise exception 'rule % v%: retired_routing_v1 successor % is a codex entry which does not exist', new.rule_id, new.rule_version, v_succ;
+      end if;
+    elsif v_succ !~ c_doc then
+      raise exception 'rule % v%: retired_routing_v1 successor % is not a rule id, a project_codex.<slug> or a document path', new.rule_id, new.rule_version, v_succ;
+    end if;
+    if v_ref is null or v_ref !~ c_ref
+       or not exists (select 1 from public.work_log w where w.id = substr(v_ref, 10)::uuid
+                       and (position(new.rule_id in coalesce(w.topic,'')) > 0 or position(new.rule_id in coalesce(w.what_we_did,'')) > 0)) then
+      raise exception 'rule % v%: retired_routing_v1 approval reference % does not resolve to a work_log record naming the rule', new.rule_id, new.rule_version, coalesce(v_ref,'(none)');
     end if;
   end if;
   if not coalesce(new.is_active,false) then return new; end if;
@@ -211,20 +286,56 @@ begin
       v_revival := true;
     end if;
   end if;
-  -- the owner resolves: a rule-like owner must be an active rule (or the rule itself); a project_codex.<slug> owner must exist
-  if v_owner ~ '^[a-z][a-z0-9_]*$' and v_owner <> new.rule_id then
-    if exists (select 1 from public.nodes r where r.type='rule' and r.rule_id=v_owner)
-       and not exists (select 1 from public.nodes r where r.type='rule' and r.rule_id=v_owner and r.is_active) then
-      raise exception 'rule % routes to retired owner %', new.rule_id, v_owner;
-    end if;
-    if not exists (select 1 from public.nodes r where r.type='rule' and r.rule_id=v_owner and r.is_active) then
-      raise exception 'rule % routes to owner % which does not exist', new.rule_id, v_owner;
-    end if;
-  elsif v_owner like 'project_codex.%' and not exists (select 1 from public.project_codex c where c.slug = substr(v_owner, 15)) then
-    raise exception 'rule % routes to codex entry % which does not exist', new.rule_id, v_owner;
+  -- the owner resolves, and its chain of owners ends at a valid root: a self-owned active rule, an existing project_codex.<slug>,
+  -- or a document. A retired or missing link at any depth, a cycle and an unrecognised owner form are refused.
+  if v_owner <> new.rule_id then
+    v_cur := v_owner; v_seen := array[new.rule_id];
+    loop
+      if v_cur like 'project_codex.%' then
+        if not exists (select 1 from public.project_codex c where c.slug = substr(v_cur, 15)) then
+          if v_cur = v_owner then raise exception 'rule % routes to codex entry % which does not exist', new.rule_id, v_cur; end if;
+          raise exception 'rule % ownership chain reaches codex entry % which does not exist', new.rule_id, v_cur;
+        end if;
+        exit;
+      elsif v_cur ~ c_doc then
+        -- a document root. The DIRECT owner is checked here; a document deeper in the chain was checked when its own child was written.
+        -- REGISTERED: another active rule, or this rule's previous version, already names it. Otherwise AUTHORIZED by an approval only.
+        if v_cur = v_owner and v_activation and v_gate is null
+           and not exists (select 1 from public.nodes r where r.type='rule' and r.is_active and r.id <> new.id
+                            and (r.metadata#>>'{owner_routing,canonical_owner}') = v_owner)
+           and not (new.rule_version > 1 and v_prev.id is not null and (v_prev.metadata#>>'{owner_routing,canonical_owner}') = v_owner) then
+          raise exception 'rule % routes to document % which no active rule names as its owner; a new document owner requires owner_routing.human_gate', new.rule_id, v_owner;
+        end if;
+        exit;
+      elsif v_cur !~ c_rule then
+        raise exception 'rule % owner % is not a rule id, a project_codex.<slug> or a document path', new.rule_id, v_cur;
+      end if;
+      if v_cur = any(v_seen) then
+        raise exception 'rule % ownership chain is a cycle (% returns to %)', new.rule_id, array_to_string(v_seen, ' -> '), v_cur;
+      end if;
+      if array_length(v_seen, 1) > 16 then
+        raise exception 'rule % ownership chain is longer than 16 links (%)', new.rule_id, array_to_string(v_seen, ' -> ');
+      end if;
+      v_next := null;
+      select r.metadata#>>'{owner_routing,canonical_owner}' into v_next from public.nodes r where r.type='rule' and r.rule_id=v_cur and r.is_active;
+      if not found then
+        if exists (select 1 from public.nodes r where r.type='rule' and r.rule_id=v_cur) then
+          if v_cur = v_owner then raise exception 'rule % routes to retired owner %', new.rule_id, v_cur; end if;
+          raise exception 'rule % ownership chain reaches retired owner % (through %)', new.rule_id, v_cur, array_to_string(v_seen[2:], ' -> ');
+        end if;
+        if v_cur = v_owner then raise exception 'rule % routes to owner % which does not exist', new.rule_id, v_cur; end if;
+        raise exception 'rule % ownership chain reaches owner % which does not exist (through %)', new.rule_id, v_cur, array_to_string(v_seen[2:], ' -> ');
+      end if;
+      if nullif(v_next,'') is null then
+        raise exception 'rule % ownership chain reaches % which records no owner', new.rule_id, v_cur;
+      end if;
+      v_seen := v_seen || v_cur;
+      exit when v_next = v_cur; -- a self-owned active rule: a valid root
+      v_cur := v_next;
+    end loop;
   end if;
   -- an approval reference must resolve to an existing work_log row that names this rule (authenticity: human gate)
-  if v_gate is not null and (v_gate !~ '^work_log:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+  if v_gate is not null and (v_gate !~ c_ref
        or not exists (select 1 from public.work_log w where w.id = substr(v_gate, 10)::uuid
                        and (position(new.rule_id in coalesce(w.topic,'')) > 0 or position(new.rule_id in coalesce(w.what_we_did,'')) > 0))) then
     raise exception 'rule % approval reference % does not resolve to a work_log record naming the rule', new.rule_id, v_gate;
@@ -270,12 +381,12 @@ begin
   select * into b from g1rg_before;
   select md5(pg_get_functiondef(p.oid)) as def_md5, p.proowner, p.proacl::text as acl, p.prosecdef, p.proconfig, p.provolatile into a
     from pg_proc p where p.oid = 'public.fn_rule_compaction_integrity_guard_v1()'::regprocedure;
-  if a.def_md5 <> '8a75cb63eecfbc61e70d85deb6a1fe51' then raise exception 'G1 rule guard postcondition: body md5 % is not the reviewed body', a.def_md5; end if;
+  if a.def_md5 is distinct from '7b03b1a78f4e04962c15399feb1668ff' then raise exception 'G1 rule guard postcondition: body md5 % is not the reviewed body', a.def_md5; end if;
   if a.proowner <> b.proowner or a.acl is distinct from b.acl or a.prosecdef <> b.prosecdef or a.proconfig is distinct from b.proconfig or a.provolatile <> b.provolatile then
     raise exception 'G1 rule guard postcondition: owner, privileges, SECURITY DEFINER, search_path or volatility changed';
   end if;
-  if (select pg_get_triggerdef(t.oid) from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1' and t.tgenabled = 'O') is distinct from 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version, description, label, type, id, identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1()'
-     or (select pg_get_triggerdef(t.oid) from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1_truncate' and t.tgenabled = 'O') is distinct from 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1_truncate BEFORE TRUNCATE ON public.nodes FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1()' then
+  if coalesce((select pg_get_triggerdef(t.oid) || ' [enabled=' || t.tgenabled::text || ']' from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1' and not t.tgisinternal), '(missing)') <> 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version, description, label, type, id, identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]'
+     or coalesce((select pg_get_triggerdef(t.oid) || ' [enabled=' || t.tgenabled::text || ']' from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1_truncate' and not t.tgisinternal), '(missing)') <> 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1_truncate BEFORE TRUNCATE ON public.nodes FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]' then
     raise exception 'G1 rule guard postcondition: the triggers are not exactly the reviewed ones (enabled)';
   end if;
 end $$;

@@ -3,24 +3,30 @@
  "depends_on_tracks": [
   "M0 SQL steps 1-10 applied (docs/reviews/m0-security-stabilization-20261112/apply-plan.json)"
  ],
- "test": "bash scripts/run-g1-rule-guard-sql-test.sh (lifecycle) and bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-db-scenarios.sh (40 cases, live vs applied)",
+ "test": "bash scripts/run-g1-rule-guard-sql-test.sh (lifecycle: 25 cases, each run of the two files with an expected outcome; also checks that the sha256 values in this plan are the files) and bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-db-scenarios.sh (64 cases, live vs applied, with refusal reasons)",
  "steps": [
   {
    "step": "G1",
    "file": "supabase/proposed/20261112200000_g1_rule_guard_cl16.sql",
-   "sha256": "0a7bd2daa4a9f2e2beceab60d410f9b0a55f7d8d2c34651be6a35eb14875b3f5",
+   "sha256": "96cfc15cebe861afd7c5d40562b81b3cf5f7ea024a420e95956d4595169fd8fb",
    "rollback": "supabase/proposed/ROLLBACK_20261112200000_g1_rule_guard_cl16.sql",
-   "rollback_sha256": "28d38a5e270979f9e136240e3d540f48acb8d55a249f3e1a985b042517d7c816",
+   "rollback_sha256": "a167f7346e83fdfee51147c11d66c4c2c8b1d3ff0dc53540f181fec57fdb6c25",
    "status": "proposed",
    "depends_on": [
     "M0 SQL steps 1-10"
    ],
-   "verify": "function md5 8a75cb63eecfbc61e70d85deb6a1fe51; the two trigger texts in the file header; owner, privileges, search_path, volatility unchanged (all checked inside the file)",
-   "what": "Extend the live rule guard (same function, same trigger, plus a TRUNCATE trigger): rule identity immutable, body and owner immutable within a version, revival of a retired family needs a verdict and an approval reference, DELETE/TRUNCATE refused, owner and approval references resolve. Rows that are not rules are not blocked."
+   "verify": "function md5 7b03b1a78f4e04962c15399feb1668ff; the two trigger texts in the file header, both enabled; owner, privileges, search_path, volatility unchanged (all checked inside the file). The md5 is identical on throwaway PostgreSQL 16.15 and 17.12; live is 17.6 (not run there). If the live server printed the new body differently, the file would stop on its own postcondition and change nothing.",
+   "what": "Extend the live rule guard (same function, same trigger, plus a TRUNCATE trigger): rule identity immutable; body and owner immutable within a version (no exception); revival of a retired family needs a verdict and an approval reference; DELETE/TRUNCATE refused; the owner resolves and its chain ends at a valid root (no retired or missing link at any depth, no cycle); a document owner is registered (already named by an active rule) or authorized (approval reference); the successor of a retired rule is recorded in metadata.retired_routing_v1 only, with a resolving approval. Rows that are not rules are not blocked.",
+   "preflight": "Fail-closed: the file continues only when the state is exactly BEFORE or exactly AFTER. A missing function, a changed body, a changed trigger text, a MISSING trigger and a DISABLED trigger (also replica-only) all stop it before anything changes; the same holds for the rollback."
   }
  ],
  "rollback_order": [
   "1. ROLLBACK file of step G1 (restores the live 12.11.2026 function body and trigger exactly; drops the TRUNCATE trigger)"
  ],
- "not_undone_by_rollback": "metadata.rule_guard stamps written on retirements while the extension was applied (audit metadata; the live guard ignores the key)"
+ "not_undone_by_rollback": "metadata.rule_guard stamps written on retirements and metadata.retired_routing_v1 records written while the extension was applied (audit metadata; the live guard ignores both keys)",
+ "not_enforced_by_this_step": [
+  "Retiring an owner that active rules still route to is not refused by the row trigger (it cannot tell a retirement from the first half of a supersession); the CI snapshot check refuses the resulting tree and the next write to such a child is refused.",
+  "That the referenced work_log row really is ZURIEL's approval (human gate).",
+  "Anything done by a role that can DISABLE TRIGGER, replace the function or write with session_replication_role = replica. Read-only on 12.11.2026: public.nodes and the function are owned by postgres (the role of the SQL editor and of the MCP execute_sql / apply_migration tools), which can do the first two; service_role is not the owner and cannot; only a superuser can set session_replication_role (no parameter grant exists)."
+ ]
 }

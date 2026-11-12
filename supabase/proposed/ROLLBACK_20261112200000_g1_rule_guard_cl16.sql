@@ -1,9 +1,13 @@
 -- ROLLBACK of 20261112200000_g1_rule_guard_cl16.sql — PROPOSAL, NOT APPLIED. Runs only with ZURIEL's explicit approval (CLAUDE.md 0.4).
 -- Restores the live 12.11.2026 state exactly: the function body (md5 56b90b0ae0f9c5915b730314d13ca7a0), the original trigger and no
--- TRUNCATE trigger. Full-match guards: the state must be exactly AFTER (then restored) or exactly BEFORE (already rolled back; a no-op).
--- A missing function stops it and nothing is created; any other state (drift) stops it before anything changes.
--- Not undone: metadata.rule_guard stamps written on retirements while the extension was applied stay as audit metadata (the live guard
--- ignores the key); removing them would be a separate data change that needs its own approval.
+-- TRUNCATE trigger. Full-match guards, FAIL-CLOSED (round 3): the state is read into non-null values ('(missing)' for an absent
+-- trigger, the enabled flag next to the text) and the file continues ONLY when the state is exactly AFTER (then restored) or exactly
+-- BEFORE (already rolled back; a no-op). Every other state stops it before anything changes: a missing function (nothing is created),
+-- a missing trigger, a missing TRUNCATE trigger, a DISABLED trigger (CREATE OR REPLACE TRIGGER would silently re-enable it), or any
+-- other body or trigger text.
+-- Not undone: metadata.rule_guard stamps written on retirements and metadata.retired_routing_v1 records written while the extension
+-- was applied stay as audit metadata (the live guard ignores both keys); removing them would be a separate data change that needs
+-- its own approval.
 -- Lock: DROP TRIGGER of the TRUNCATE trigger takes a brief exclusive lock on public.nodes (lock_timeout 5s).
 begin;
 set local lock_timeout = '5s';
@@ -14,16 +18,27 @@ create temp table g1rg_before on commit drop as
     from pg_proc p where p.oid = to_regprocedure('public.fn_rule_compaction_integrity_guard_v1()');
 
 do $$
-declare v_md5 text; v_trg text; v_trunc text;
+declare
+  v_md5 text; v_trg text; v_trunc text; v_before boolean; v_after boolean;
+  c_before_md5 constant text := '56b90b0ae0f9c5915b730314d13ca7a0';
+  c_after_md5 constant text := '7b03b1a78f4e04962c15399feb1668ff';
+  c_before_trg constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';
+  c_after_trg constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version, description, label, type, id, identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';
+  c_after_trunc constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1_truncate BEFORE TRUNCATE ON public.nodes FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';
 begin
   select def_md5 into v_md5 from g1rg_before;
   if v_md5 is null then raise exception 'G1 rule guard rollback: public.fn_rule_compaction_integrity_guard_v1() not found; stop, nothing created'; end if;
-  select pg_get_triggerdef(t.oid) into v_trg from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1';
-  select pg_get_triggerdef(t.oid) into v_trunc from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1_truncate';
-  if v_md5 = '56b90b0ae0f9c5915b730314d13ca7a0' and v_trg = 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1()' and v_trunc is null then
+  -- a missing trigger reads as '(missing)', never as NULL; the enabled flag is part of the compared text
+  v_trg := coalesce((select pg_get_triggerdef(t.oid) || ' [enabled=' || t.tgenabled::text || ']' from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1' and not t.tgisinternal), '(missing)');
+  v_trunc := coalesce((select pg_get_triggerdef(t.oid) || ' [enabled=' || t.tgenabled::text || ']' from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1_truncate' and not t.tgisinternal), '(missing)');
+  v_before := v_md5 = c_before_md5 and v_trg = c_before_trg and v_trunc = '(missing)';
+  v_after := v_md5 = c_after_md5 and v_trg = c_after_trg and v_trunc = c_after_trunc;
+  if v_before is true then
     raise notice 'G1 rule guard rollback: already the live 12.11.2026 state; re-creating it (no-op)';
-  elsif not (v_md5 = '8a75cb63eecfbc61e70d85deb6a1fe51' and v_trg = 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version, description, label, type, id, identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1()' and v_trunc = 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1_truncate BEFORE TRUNCATE ON public.nodes FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1()') then
-    raise exception 'G1 rule guard rollback drift: function md5 %, trigger %, truncate trigger % is neither the applied state nor the live 12.11.2026 state; stop', v_md5, coalesce(v_trg, '(none)'), coalesce(v_trunc, '(none)');
+  elsif v_after is true then
+    null; -- exactly the applied state: restore
+  else
+    raise exception 'G1 rule guard rollback drift: function md5 %, trigger %, truncate trigger % is neither the applied state nor the live 12.11.2026 state; stop', v_md5, v_trg, v_trunc;
   end if;
 end $$;
 
@@ -139,11 +154,11 @@ begin
   select * into b from g1rg_before;
   select md5(pg_get_functiondef(p.oid)) as def_md5, p.proowner, p.proacl::text as acl, p.prosecdef, p.proconfig, p.provolatile into a
     from pg_proc p where p.oid = 'public.fn_rule_compaction_integrity_guard_v1()'::regprocedure;
-  if a.def_md5 <> '56b90b0ae0f9c5915b730314d13ca7a0' then raise exception 'G1 rule guard rollback postcondition: body md5 % is not the live 12.11.2026 body', a.def_md5; end if;
+  if a.def_md5 is distinct from '56b90b0ae0f9c5915b730314d13ca7a0' then raise exception 'G1 rule guard rollback postcondition: body md5 % is not the live 12.11.2026 body', a.def_md5; end if;
   if a.proowner <> b.proowner or a.acl is distinct from b.acl or a.prosecdef <> b.prosecdef or a.proconfig is distinct from b.proconfig or a.provolatile <> b.provolatile then
     raise exception 'G1 rule guard rollback postcondition: owner, privileges, SECURITY DEFINER, search_path or volatility changed';
   end if;
-  if (select pg_get_triggerdef(t.oid) from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1' and t.tgenabled = 'O') is distinct from 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1()'
+  if coalesce((select pg_get_triggerdef(t.oid) || ' [enabled=' || t.tgenabled::text || ']' from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1' and not t.tgisinternal), '(missing)') <> 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]'
      or exists (select 1 from pg_trigger t where t.tgrelid = 'public.nodes'::regclass and t.tgname = 'trg_rule_compaction_integrity_guard_v1_truncate') then
     raise exception 'G1 rule guard rollback postcondition: the triggers are not exactly the live 12.11.2026 ones';
   end if;

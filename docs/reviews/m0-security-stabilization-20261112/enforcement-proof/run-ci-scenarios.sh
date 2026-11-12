@@ -2,27 +2,35 @@
 # EVIDENCE + SELF-CHECK: runs the REAL G1 smoke (scripts/test-g1-agent-routing-smoke.mjs) in CI mode against a REAL base, once per
 # scenario, in a temporary detached worktree (local commits only, never pushed; removed at the end). Every scenario has an expected
 # outcome; a FAIL must fail for the expected reason. ANY unexpected result makes this script exit 1.
+# The number of scenarios is fixed (EXPECTED_SCENARIOS), so a scenario that silently did not run fails the script too.
+# Runs in CI (live-contracts-2029.yml) whenever the G1 enforcement code or this script changes, on the exact head of the change.
+# The snapshot scenarios are built from the dated 12.11.2026 records and write a 20261113 successor: when a newer dated laws snapshot
+# lands, update the scenarios in the same change (they then fail for "must be dated after", loudly, not silently).
+# The working tree must be COMMITTED: the scenarios start from the base commit, not from uncommitted edits.
 # Usage: bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-ci-scenarios.sh [base-ref, default HEAD]
 set -u
 P=$(cd "$(dirname "$0")" && pwd); ROOT=$(git -C "$P" rev-parse --show-toplevel); BASE=$(git -C "$ROOT" rev-parse "${1:-HEAD}")
 WT=$(mktemp -d)/wt; git -C "$ROOT" worktree add -q --detach "$WT" "$BASE"
 trap 'git -C "$ROOT" worktree remove --force "$WT" >/dev/null 2>&1' EXIT
-MISMATCH=0
+MISMATCH=0; COUNT=0; EXPECTED_SCENARIOS=47
 reset() { git -C "$WT" reset -q --hard "$BASE" && git -C "$WT" clean -qfd; }
 commit() { git -C "$WT" add -A && git -C "$WT" -c user.email=proof@local -c user.name=proof commit -q -m "$1"; }
 py() { python3 - "$WT" "$@"; }
 # expect <id> <PASS|FAIL> <regex for the FAIL reason> <description>
 expect() {
   local id="$1" want="$2" why="$3" desc="$4" out rc got
+  COUNT=$((COUNT+1))
   out=$(cd "$WT" && G1_BASE_SHA="$BASE" GITHUB_ACTIONS=true node --test scripts/test-g1-agent-routing-smoke.mjs 2>&1); rc=$?
   got=PASS; [ $rc -ne 0 ] && got=FAIL
   if [ "$got" != "$want" ]; then echo "MISMATCH $id: expected $want, got $got — $desc"; MISMATCH=1
   elif [ "$want" = FAIL ] && ! grep -Eq "$why" <<<"$out"; then echo "MISMATCH $id: failed, but not for the expected reason /$why/ — $desc"; MISMATCH=1
   else echo "ok $id $got — $desc"; fi
 }
-OI='| traffic / analytics measurement truth | `traffic_intelligence_law` **v11 ACTIVE** |'
-add_oi() { py "$OI" "$1" <<'PY'
-import sys; p=sys.argv[1]+'/SOD1820_MASTER_OWNER_INDEX.md'; s=open(p).read(); assert sys.argv[2] in s; open(p,'w').write(s.replace(sys.argv[2], sys.argv[2]+'\n'+sys.argv[3]))
+# add_oi appends one row to the first table of the Owner Index (after its first data row; no fixed line text is assumed)
+add_oi() { py "$1" <<'PY'
+import sys,re; p=sys.argv[1]+'/SOD1820_MASTER_OWNER_INDEX.md'; L=open(p).read().split('\n')
+i=next(k for k,l in enumerate(L) if re.match(r'^\s*\|[\s:|-]+\|?\s*$', l) and k+1 < len(L) and L[k+1].lstrip().startswith('|'))
+L.insert(i+2, sys.argv[2]); open(p,'w').write('\n'.join(L))
 PY
 }
 edit_v2() { py "$1" <<'PY'
@@ -33,8 +41,8 @@ if sys.argv[2]=='record': lines.insert(i+1,'\n> CHANGE-RECORD: 12.11.2026 v2.1 a
 open(p,'w').write('\n'.join(lines))
 if sys.argv[2]=='index':
     q=sys.argv[1]+'/SOD1820_MASTER_OWNER_INDEX.md'; t=open(q).read()
-    a='| visual language / typography / public naming | `SOD1820_DESIGN_CONTRACT_V2.md` — **2029 ACTIVE**; V1 = preserved Legacy provenance |'
-    assert a in t; open(q,'w').write(t.replace(a, a.replace('**2029 ACTIVE**','**2029 ACTIVE** (v2.1, 12.11.2026)')))
+    rows=[l for l in t.split('\n') if l.lstrip().startswith('|') and '`SOD1820_DESIGN_CONTRACT_V2.md`' in l and '2029 ACTIVE' in l]
+    assert len(rows)==1, rows; a=rows[0]; open(q,'w').write(t.replace(a, a.replace('**2029 ACTIVE**','**2029 ACTIVE** (v2.1, 12.11.2026)')))
 PY
 }
 snap_next() { py "$1" "${2:-20261113}" <<'PY'
@@ -43,9 +51,26 @@ if mode=='activate':
     s=[l for l in s if not l.startswith('R|ai_quota_law|')]; s.append('L|ai_quota_law|4|platform_tiers_law|ai|0123456789aa')
 elif mode=='owner': s=[('L|platform_tiers_law|5|reality_graph_law|'+'|'.join(l.split('|')[4:]) if l.startswith('L|platform_tiers_law|') else l) for l in s]
 elif mode=='body': s=[('|'.join(l.split('|')[:5])+'|eeeeeeeeeeee' if l.startswith('L|number_page_law|') else l) for l in s]
-elif mode in ('bump-bad-owner','bump-codex-owner','bump-ok'):
-    owner={'bump-bad-owner':'never_existed_law','bump-codex-owner':'project_codex.invented_item','bump-ok':'platform_tiers_law'}[mode]
+elif mode in ('bump-bad-owner','bump-codex-owner','bump-ok','doc-unregistered','doc-new'):
+    owner={'bump-bad-owner':'never_existed_law','bump-codex-owner':'project_codex.invented_item','bump-ok':'platform_tiers_law',
+           'doc-unregistered':'AGENTS.md','doc-new':'SOD1820_DESIGN_CONTRACT_V2.md'}[mode]
     s=[('L|platform_tiers_law|6|'+owner+'|'+l.split('|')[4]+'|abcdefabcdef' if l.startswith('L|platform_tiers_law|') else l) for l in s]
+elif mode in ('cycle','deep-ok','deep-broken'):
+    # round 3: the first child of a self-owned root, that root, and another self-owned root (read from the real 12.11 record)
+    L=[l.split('|') for l in s if l.startswith('L|')]; own={f[1]:f[3] for f in L}
+    child=next(f[1] for f in L if f[3]!=f[1] and own.get(f[3])==f[3]); root=own[child]
+    other=next(f[1] for f in L if f[3]==f[1] and f[1]!=root)
+    def bump(line, owner):
+        f=line.split('|'); return '|'.join([f[0],f[1],str(int(f[2])+1),owner,f[4],'abcdefabcdef'])
+    if mode=='cycle': s=[(bump(l,child) if l.startswith('L|'+root+'|') else l) for l in s]            # the root moves under its own child
+    else:
+        s=[(bump(l,child) if l.startswith('L|'+other+'|') else l) for l in s]                         # other -> child -> root
+        if mode=='deep-broken':                                                                        # ... and the child now hangs under a retired law
+            s=[(bump(l,'ai_quota_law') if l.startswith('L|'+child+'|') else l) for l in s]
+elif mode in ('succ-silent','succ-routed'):
+    src='retired_routing_v1:work_log:a3d65374-a73a-4131-a00f-d3a050851064' if mode=='succ-routed' else ''
+    assert any(l=='R|agent_onboarding_law|1|-|' for l in s)
+    s=[('R|agent_onboarding_law|1|inter_agent_coordination_law|'+src if l=='R|agent_onboarding_law|1|-|' else l) for l in s]
 open(d+'G1_LAWS_ACTIVE_SNAPSHOT_'+sys.argv[3]+'.txt','w').write('\n'.join(s))
 PY
 }
@@ -96,5 +121,20 @@ reset; printf "SELECT '--'; CREATE TABLE public.g1_probe (id int);\n" > "$WT/sup
 reset; printf -- "-- OWNER-CHECK: EXTEND_EXISTING traffic_intelligence_law OPERATIONAL_RUNTIME\ncreate table public.g1_store (id int);\n" > "$WT/supabase/migrations/29991231000002_g1_store.sql"; commit r8; expect R8 FAIL 'permission to create a new store is separate' "new store under an existing owner without a store permission"
 reset; printf -- "-- OWNER-CHECK: EXTEND_EXISTING traffic_intelligence_law OPERATIONAL_RUNTIME APPROVAL:%s\ncreate table public.g1_store (id int);\n" "$APPR" > "$WT/supabase/migrations/29991231000002_g1_store.sql"; commit r8b; expect R8b PASS '' "same, with owner, classification and store permission"
 reset; snap_next bump-ok 20261101; commit r9; expect R9 FAIL 'must be dated after G1_LAWS_ACTIVE_SNAPSHOT_20261112' "a back-dated snapshot is added"
-[ $MISMATCH -eq 0 ] && echo "RESULT: every scenario behaved as expected" || echo "RESULT: UNEXPECTED OUTCOME(S) — see MISMATCH lines"
+# ── Round 3 (new main-audit session on b0f471dcd): registered document owners, the owner chain, SELECT ... INTO, successor sources ──
+reset; snap_next doc-unregistered; commit r10; expect R10 FAIL 'platform_tiers_law: owner document AGENTS.md exists but is not registered as an owner in the Owner Index' "newer snapshot: owner is an existing file that is not a registered owner"
+reset; snap_next doc-new; commit r10b; expect R10b FAIL 'SOD1820_DESIGN_CONTRACT_V2.md: new document owner without a recorded approval' "newer snapshot: a registered document becomes an owner for the first time, no approval"
+reset; snap_next doc-new; printf 'D|SOD1820_DESIGN_CONTRACT_V2.md|%s|2026-11-13\n' "$APPR" >> "$WT/audits/g1-agent-entry/G1_LAW_APPROVALS.txt"; commit r10c; expect R10c PASS '' "same, with a well-formed approval line (authenticity: human gate)"
+reset; snap_next cycle; commit r11; expect R11 FAIL 'ownership chain is a cycle' "newer snapshot: a root moves under its own child (every link is an active law)"
+reset; snap_next deep-ok; commit r11b; expect R11b PASS '' "newer snapshot: a chain of depth 2 that ends at a self-owned root"
+reset; snap_next deep-broken; commit r11c; expect R11c FAIL 'ownership chain reaches .*, whose owner ai_quota_law is a retired law' "newer snapshot: a child of a child of a retired owner"
+reset; printf "select 1 as id into public.g1_into_store;\n" > "$WT/supabase/migrations/29991231000003_g1_into.sql"; commit r12; expect R12 FAIL 'new table public.g1_into_store has no "-- OWNER-CHECK:"' "a table created by a top-level SELECT ... INTO"
+reset; printf -- "-- OWNER-CHECK: EXTEND_EXISTING traffic_intelligence_law OPERATIONAL_RUNTIME APPROVAL:%s\nselect 1 as id into public.g1_into_store;\n" "$APPR" > "$WT/supabase/migrations/29991231000003_g1_into.sql"; commit r12b; expect R12b PASS '' "same, with owner, classification and store permission"
+reset; printf 'do $$ declare v int; begin select 1 into v; end $$;\n' > "$WT/supabase/migrations/29991231000004_g1_into_var.sql"; commit r12c; expect R12c PASS '' "SELECT ... INTO a PL/pgSQL variable is not a store"
+reset; snap_next succ-silent; commit r13; expect R13 FAIL 'agent_onboarding_law: recorded successor changed .* without a retired_routing_v1 record' "newer snapshot: a successor appears on a retired row without a retired_routing_v1 record"
+reset; snap_next succ-routed; commit r13b; expect R13b PASS '' "same, recorded through retired_routing_v1 with an approval reference (authenticity: human gate)"
+reset; add_oi '| some duty | `docs/no-such-owner-contract.md` |'; commit r14; expect R14 FAIL 'routes to document docs/no-such-owner-contract.md, which does not exist in the repository' "Owner Index row routes to a document that does not exist"
+reset; add_oi '| research workspace duty | `docs/research-studio-v1-contract.md` |'; commit r14b; expect R14b PASS '' "Owner Index row routes to an existing registered document"
+[ $COUNT -eq $EXPECTED_SCENARIOS ] || { echo "MISMATCH: $COUNT scenarios ran, $EXPECTED_SCENARIOS expected"; MISMATCH=1; }
+[ $MISMATCH -eq 0 ] && echo "RESULT: every scenario behaved as expected ($COUNT)" || echo "RESULT: UNEXPECTED OUTCOME(S) — see MISMATCH lines"
 exit $MISMATCH
