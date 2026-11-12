@@ -1,8 +1,7 @@
--- PROPOSAL ONLY (ZURIEL, 12.11.2026): not applied. Community chat — (1) bump a thread to the top when a
--- REGISTERED member replies (also reply-to-reply: the ROOT rises), (2) public list of staff ids for the «צוות» label.
--- Live finding: community_feed_page orders by created_at, and last_activity_at is also touched by reactions,
--- so a dedicated column is used; reactions and guest messages never bump.
--- Apply in the Supabase dashboard SQL editor (DDL via the MCP shows an invisible confirmation card).
+-- Community chat (ZURIEL, 12.11.2026): (1) a registered member's approved reply bumps the ROOT thread to the top
+-- (also reply-to-reply); guests, pending/deleted replies and reactions never bump. (2) public staff ids for the «צוות» chip.
+-- APPLIED LIVE 12.11.2026 via the Supabase dashboard (three parts); this file is the repository record.
+-- Rollback: supabase/proposed/20261112100000_community_thread_bump_staff_v1_ROLLBACK.sql
 begin;
 
 alter table public.research_contributions add column if not exists thread_bumped_at timestamptz;

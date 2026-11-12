@@ -13,7 +13,7 @@ insert into research_contributions(id,parent_id,author_user_id,author_name,body,
 ('00000000-0000-4000-8000-000000000002',null,'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','B','newer root','community_2029','approved','2026-10-02'),
 ('00000000-0000-4000-8000-000000000003',null,'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','B','newest root','community_2029','approved','2026-10-03'),
 ('00000000-0000-4000-8000-000000000004','00000000-0000-4000-8000-000000000001','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','B','first reply','community_2029','approved','2026-10-01 01:00');
-\i supabase/proposed/20261112100000_community_thread_bump_staff_v1_PROPOSAL.sql
+\i supabase/migrations/20261112100000_community_thread_bump_staff_v1.sql
 begin;
 -- before any bump: created_at order (the migration only acts on new events)
 select public.test_assert((select array_agg(id order by ord) from (select id, row_number() over () ord from public.community_feed_page(0,10,'newest')) s)

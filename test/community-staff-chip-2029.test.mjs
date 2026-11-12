@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 
 const page = readFileSync(new URL("../src/components/community2029/CommunityLive2029.jsx", import.meta.url), "utf8");
 const lib = readFileSync(new URL("../src/lib/community/communityPresence.js", import.meta.url), "utf8");
-const sql = readFileSync(new URL("../supabase/proposed/20261112100000_community_thread_bump_staff_v1_PROPOSAL.sql", import.meta.url), "utf8");
+const sql = readFileSync(new URL("../supabase/migrations/20261112100000_community_thread_bump_staff_v1.sql", import.meta.url), "utf8");
 
 test("staff chip is wired to the public staff RPC and degrades to nothing", () => {
   assert.match(lib, /rpc\("community_staff_user_ids_v1"\)/);

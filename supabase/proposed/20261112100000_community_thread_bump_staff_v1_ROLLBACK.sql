@@ -1,4 +1,4 @@
--- ROLLBACK for 20261112100000_community_thread_bump_staff_v1_PROPOSAL.sql (restores the live feed function text of 12.11.2026).
+-- ROLLBACK for supabase/migrations/20261112100000_community_thread_bump_staff_v1.sql (restores the live feed function text of 12.11.2026).
 begin;
 drop trigger if exists trg_community_thread_bump_v1 on public.research_contributions;
 drop function if exists public.fn_community_thread_bump_v1();
