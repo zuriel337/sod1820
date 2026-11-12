@@ -11,7 +11,8 @@ FILES=(tests/sql/m0a_db_permissions_v1.sql
   supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql supabase/proposed/ROLLBACK_20261112130500_m0a_legacy_client_writes_close.sql
   supabase/proposed/20261112131000_m0a_dormant_write_policies_admin_only.sql supabase/proposed/ROLLBACK_20261112131000_m0a_dormant_write_policies_admin_only.sql
   supabase/proposed/20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql supabase/proposed/ROLLBACK_20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql
-  supabase/proposed/20261112132000_def005b_revoke_uncalled_client_rpcs_OPTIONAL.sql supabase/proposed/ROLLBACK_20261112132000_def005b.sql)
+  supabase/proposed/20261112132000_def005b_revoke_uncalled_client_rpcs_OPTIONAL.sql supabase/proposed/ROLLBACK_20261112132000_def005b.sql
+  supabase/proposed/20261112133000_m0a_add_contribution_client_address.sql supabase/proposed/ROLLBACK_20261112133000_m0a_add_contribution_client_address.sql)
 for f in "${FILES[@]}"; do mkdir -p "$W/$(dirname "$f")"; cp "$ROOT/$f" "$W/$f"; done
 chmod -R a+rX "$W"
 check() { tee "$W/out.txt"; grep -q 'M0-A permissions regression: ALL PASS' "$W/out.txt" || { echo "FAIL: M0-A regression did not reach ALL PASS" >&2; exit 1; }; }

@@ -18,7 +18,7 @@ const walk = (p, out = []) => {
 const shipped = SHIPPED.flatMap((p) => walk(p)).map((f) => [f, read(f)]);
 const grepShipped = (re) => shipped.filter(([, t]) => re.test(t)).map(([f]) => f);
 const PROPOSED = "supabase/proposed";
-const m0Files = fs.readdirSync(path.join(root, PROPOSED)).filter((f) => /^(?:ROLLBACK_)?(?:20261112130000|20261112130500|20261112131000|20261112131500|20261112132000|20261106131000)_/.test(f) || /^ROLLBACK_(?:20261106131000|20261112132000)_/.test(f));
+const m0Files = fs.readdirSync(path.join(root, PROPOSED)).filter((f) => /^(?:ROLLBACK_)?(?:20261112130000|20261112130500|20261112131000|20261112131500|20261112132000|20261112133000|20261106131000)_/.test(f) || /^ROLLBACK_(?:20261106131000|20261112132000)_/.test(f));
 
 test("no shipped code writes the seven Legacy tables M0-A closes, and no client reads lab_*", () => {
   for (const t of ["words", "syncs", "chat_messages", "chiddush_submissions", "metatron_beta_feedback", "lab_notes", "lab_messages"]) {

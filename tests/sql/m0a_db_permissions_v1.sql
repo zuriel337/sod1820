@@ -370,6 +370,122 @@ insert into cron.job (jobid, jobname, schedule, active, command) values
   (40, 'security_spike_hourly', '0 * * * *', true, 'select public.check_security_spike()');
 select setval('cron.job_jobid_seq', 1000);
 
+
+-- add_contribution (exact live body) and the objects its guest path touches
+create table public.anon_contrib_log (ip text, created_at timestamptz default now());
+create table public.contributors (id uuid primary key default gen_random_uuid(), user_id uuid, trusted boolean);
+create table public.research_contributions (id uuid primary key default gen_random_uuid(), author_user_id uuid, author_contributor_id uuid, author_name text,
+  intent text, origin text, research_state text, status text, target_type text, target_id text, parent_id uuid, title text, body text,
+  gematria_claim jsonb, image_url text, last_activity_at timestamptz);
+create table public.contribution_events (user_id uuid, kind text, ref text, value numeric, source text, metadata jsonb);
+create function public.contribution_weight(text, boolean, boolean, boolean) returns numeric language sql immutable as $$ select 1::numeric $$;
+CREATE OR REPLACE FUNCTION public.add_contribution(p_intent text, p_origin text, p_body text, p_target_type text DEFAULT NULL::text, p_target_id text DEFAULT NULL::text, p_parent_id uuid DEFAULT NULL::uuid, p_title text DEFAULT NULL::text, p_gematria_claim jsonb DEFAULT NULL::jsonb, p_author_name text DEFAULT NULL::text, p_image_url text DEFAULT NULL::text)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_uid uuid := auth.uid();
+  v_cid uuid;
+  v_name text;
+  v_status text;
+  v_state text;
+  new_id uuid;
+  v_ip text;
+  v_recent int;
+  v_trusted boolean := false;
+  v_intent text := nullif(btrim(coalesce(p_intent,'')), '');
+begin
+  if p_body is null or length(btrim(p_body)) = 0 then raise exception 'empty body'; end if;
+
+  if v_intent is null or not (v_intent = any(array[
+    'תגובה','חידוש','שאלה','תיקון','תצפית','השערה','מקור','צופן','גימטריה','קשר'
+  ]::text[])) then
+    raise exception 'invalid intent';
+  end if;
+
+  if v_uid is not null then
+    select id, coalesce(trusted,false)
+      into v_cid, v_trusted
+    from public.contributors
+    where user_id = v_uid
+    limit 1;
+
+    v_status := case when v_intent = 'תגובה' then 'approved' else 'pending' end;
+    v_state  := case
+      when v_intent = 'תגובה' then 'discussion'
+      when v_trusted then 'validated'
+      else 'idea'
+    end;
+
+    select coalesce(nullif(display_name,''), nullif(username,''))
+      into v_name
+    from public.users
+    where id = v_uid
+    limit 1;
+  else
+    v_ip := split_part(coalesce((current_setting('request.headers', true)::json)->>'x-forwarded-for',''), ',', 1);
+    v_ip := nullif(btrim(v_ip), '');
+    if v_ip is not null then
+      select count(*) into v_recent
+      from public.anon_contrib_log
+      where ip = v_ip and created_at > now() - interval '1 hour';
+      if v_recent >= 5 then raise exception 'rate_limited'; end if;
+      insert into public.anon_contrib_log(ip) values (v_ip);
+    end if;
+    v_status := 'pending';
+    v_state  := 'discussion';
+    v_name := left(coalesce(nullif(btrim(p_author_name),''), 'אורח'), 40);
+  end if;
+
+  insert into public.research_contributions
+    (author_user_id, author_contributor_id, author_name, intent, origin, research_state, status,
+     target_type, target_id, parent_id, title, body, gematria_claim, image_url)
+  values
+    (v_uid, v_cid, v_name, v_intent, coalesce(nullif(p_origin,''),'beit_midrash'),
+     v_state, v_status, p_target_type, p_target_id, p_parent_id, p_title,
+     left(p_body, 6000), p_gematria_claim, nullif(btrim(p_image_url), ''))
+  returning id into new_id;
+
+  if p_parent_id is not null then
+    update public.research_contributions
+       set last_activity_at = now()
+     where id = p_parent_id;
+  end if;
+
+  if v_uid is not null and v_status = 'approved' then
+    insert into public.contribution_events (user_id, kind, ref, value, source, metadata)
+    values (
+      v_uid,
+      'contribution_posted',
+      new_id::text,
+      public.contribution_weight(v_intent, false, false, coalesce(nullif(p_origin,''),'beit_midrash') <> 'broadcast'),
+      coalesce(nullif(p_origin,''),'beit_midrash'),
+      jsonb_build_object('intent', v_intent, 'parent_id', p_parent_id, 'auto', true)
+    );
+  end if;
+
+  return new_id;
+end;
+$function$
+;
+select public.m0a_assert(md5(pg_get_functiondef('public.add_contribution(text,text,text,text,text,uuid,text,jsonb,text,text)'::regprocedure)) = 'a2110027d793b61e461bb62954a4be69', 'fixture add_contribution = live md5');
+create function public.m0a_contrib_burst(p_n int) returns int language plpgsql as $$
+declare i int; ok int := 0;
+begin
+  for i in 1..p_n loop
+    begin
+      perform set_config('request.headers', json_build_object('cf-connecting-ip', '203.0.113.7', 'x-forwarded-for', '198.51.100.' || i || ', 203.0.113.7')::text, true);
+      perform public.add_contribution('שאלה', 'beit_midrash', 'גוף ' || i);
+      ok := ok + 1;
+    exception when others then if sqlerrm <> 'rate_limited' then raise; end if;
+    end;
+  end loop;
+  delete from public.anon_contrib_log; delete from public.research_contributions;
+  return ok;
+end $$;
+
 -- fixtures reproduce the live bodies byte for byte
 select public.m0a_assert(md5(pg_get_functiondef('public.admin_resolve_translit(text,text,boolean)'::regprocedure)) = '2aab330cb1f1fc77e51d902dfae5041b', 'fixture admin_resolve_translit = live md5');
 select public.m0a_assert(md5(pg_get_functiondef('public.admin_ai_cost(integer)'::regprocedure)) = '0487c48ca5e930f132c3b30cceb69ca9', 'fixture admin_ai_cost = live md5');
@@ -384,7 +500,8 @@ begin
   foreach f in array array['public.fn_edge_grant_audit()','public.fn_rls_grant_audit()','public.check_security_spike()','public.snapshot_seo_wave(integer,integer)',
     'public.fn_detect_patterns(integer,text)','public.fn_detect_pattern_contradictions()','public.fn_scan_reeval(text,text)','public.fn_outbox_bump(text)',
     'public.fn_raziel_claim(text)','public.fn_raziel_claims_gc()','public.ai_quota_check(text,text,integer)','public.router_rate_check(uuid,integer)',
-    'public.admin_resolve_translit(text,text,boolean)','public.admin_ai_cost(integer)','public.link_visitor_identity(text)','public.wa_msg_count(uuid)'] loop
+    'public.admin_resolve_translit(text,text,boolean)','public.admin_ai_cost(integer)','public.link_visitor_identity(text)','public.wa_msg_count(uuid)',
+    'public.add_contribution(text,text,text,text,text,uuid,text,jsonb,text,text)'] loop
     foreach r in array array['anon','authenticated','service_role'] loop
       insert into public.m0a_snap values (p_tag, 'exec:' || f || ':' || r, has_function_privilege(r, f, 'EXECUTE')::text);
     end loop;
@@ -414,6 +531,7 @@ select public.m0a_assert(public.m0a_val('anon', null, 'select count(*)::text fro
 select public.m0a_assert(public.m0a_try('anon', null, 'insert into public.words (w) values (''x'')') = 'ok', 'before: anon inserts into words');
 select public.m0a_assert(public.m0a_val('anon', null, 'select count(*)::text from public.lab_notes') = '1', 'before: anon reads lab_notes');
 select public.m0a_assert(public.m0a_val('authenticated', '00000000-0000-4000-8000-00000000000c', 'select count(*)::text from public.hint_sets') = '2', 'before: non-admin reads unpublished hint_sets');
+select public.m0a_assert(public.m0a_contrib_burst(8) = 8, 'before: a rotating fake first X-Forwarded-For hop bypasses the guest limit');
 -- visitor hijack demonstration (rolled back)
 select public.m0a_try('authenticated', '00000000-0000-4000-8000-00000000000b', 'select public.link_visitor_identity(''visitor-bbbbbb'')', true);
 select public.m0a_try('authenticated', '00000000-0000-4000-8000-00000000000c', 'select public.link_visitor_identity(''visitor-bbbbbb'')', true);
@@ -426,6 +544,7 @@ delete from public.visitor_identity;
 \i supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql
 \i supabase/proposed/20261112131000_m0a_dormant_write_policies_admin_only.sql
 \i supabase/proposed/20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql
+\i supabase/proposed/20261112133000_m0a_add_contribution_client_address.sql
 
 -- ===== AFTER =====
 do $$
@@ -489,6 +608,8 @@ select public.m0a_assert(public.m0a_val('authenticated', '00000000-0000-4000-800
 select public.m0a_assert(public.m0a_val('anon', null, 'select count(*)::text from public.hint_sets') = '1', 'after: public read of published hint sets unchanged');
 select public.m0a_assert(public.m0a_val('authenticated', '00000000-0000-4000-8000-00000000000a', 'select count(*)::text from public.hint_sets') = '2', 'after: admin sees all hint sets');
 select public.m0a_assert(public.m0a_try('authenticated', '00000000-0000-4000-8000-00000000000a', 'insert into public.hint_sets (status) values (''x'')') = '42501', 'after: client writes stay inert (no grant) - unchanged');
+-- add_contribution guest limit
+select public.m0a_assert(public.m0a_contrib_burst(8) = 5, 'after: the guest limit (5/hour) holds for one platform address whatever the first XFF hop');
 -- cron
 select public.m0a_assert((select count(*) from cron.job where jobid in (6, 7, 22, 24)) = 0, 'after: the four secret-carrying jobs are gone');
 select public.m0a_assert((select active from cron.job where jobname = 'security_spike_hourly'), 'after: active jobs untouched');
@@ -509,6 +630,7 @@ begin
 end $$;
 
 -- ===== ROLLBACK (reverse order) and exact restore =====
+\i supabase/proposed/ROLLBACK_20261112133000_m0a_add_contribution_client_address.sql
 \i supabase/proposed/ROLLBACK_20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql
 \i supabase/proposed/ROLLBACK_20261112131000_m0a_dormant_write_policies_admin_only.sql
 \i supabase/proposed/ROLLBACK_20261112130500_m0a_legacy_client_writes_close.sql

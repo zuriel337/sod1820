@@ -12,6 +12,7 @@
 | `20261112130500_m0a_legacy_client_writes_close.sql` | שבע טבלאות ה־Legacy נסגרות לכתיבה מהלקוח. קריאת `lab_*` למנהל בלבד. אף שורה לא נמחקת | `ROLLBACK_20261112130500_…` |
 | `20261112131000_m0a_dormant_write_policies_admin_only.sql` | שבעה policies רדומים של ״כל מחובר כותב״ נעשים מנהל בלבד, באותו שם | `ROLLBACK_20261112131000_…` |
 | `20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql` | הסרת 4 משימות cron כבויות שהסוד מוטבע בכתובת שלהן | `ROLLBACK_20261112131500_…` (משחזר כבויות, בלי הסוד) |
+| `20261112133000_m0a_add_contribution_client_address.sql` | מגבלת האורח (5 בשעה) ב־`add_contribution` הייתה לפי ה־hop הראשון ב־X-Forwarded-For, שהמבקש שולט בו. עכשיו `cf-connecting-ip` קודם, כמו ב־`add_guest_community_message` (נמצא ב־M0-B, §6 סעיף 7) | `ROLLBACK_20261112133000_…` |
 | `20261112132000_def005b_…_OPTIONAL.sql` | **אופציונלי, דורש סימון נפרד:** 15 השמות הנותרים מרשימת 6.11. אין להם קורא בקוד המשלוח, ולכן הם עוברים לשרת בלבד | `ROLLBACK_20261112132000_def005b.sql` (מחזיר את ההרשאות המדויקות) |
 | DEF-001b שלב 1 + שלב 2 (קיימים, נבדקו מול החי) | `feedback` לקריאת מנהל בלבד. ‏`visitor_id` יוצא מ־`els_records`. ‏`push_subscriptions` דרך שתי RPC, ואחר כך נעילת הגישה הישירה לאנונימי | `ROLLBACK_20261106121000_def001b.sql` |
 

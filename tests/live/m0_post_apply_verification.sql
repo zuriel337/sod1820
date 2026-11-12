@@ -11,6 +11,7 @@ select 'A1 server-only: ' || sig as check, not has_function_privilege('anon', si
 union all select 'A2 admin guard admin_resolve_translit', md5(pg_get_functiondef('public.admin_resolve_translit(text,text,boolean)'::regprocedure)) = '29151b32c06ed3c36fab0211f243403b'
 union all select 'A2 admin guard admin_ai_cost', md5(pg_get_functiondef('public.admin_ai_cost(integer)'::regprocedure)) = 'd33b0bfbaf9d1f39177333bef3024b9f'
 union all select 'A3 link_visitor_identity no overwrite', md5(pg_get_functiondef('public.link_visitor_identity(text)'::regprocedure)) = '310dde303e978757604318a3f82a652a'
+union all select 'A8 add_contribution keyed by the platform client address', md5(pg_get_functiondef('public.add_contribution(text,text,text,text,text,uuid,text,jsonb,text,text)'::regprocedure)) = '19759e2793b11c1f7ad0e095343ede42'
 union all select 'A3 owner-rights callers intact (research_level_of executable by anon)', has_function_privilege('anon', 'public.research_level_of(uuid)', 'EXECUTE')
 union all select 'A4 gematria_wall private hidden', exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'gematria_wall'
   and policyname = 'wall public read' and qual like '%private%rd_is_admin%')
