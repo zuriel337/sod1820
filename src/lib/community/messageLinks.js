@@ -11,6 +11,10 @@ export function describeMessageLink(raw) {
   if (url.origin === "https://linswmnnkjxvweumprav.supabase.co") {
     const file = /^\/storage\/v1\/object\/public\/gallery\/community\/(?:[0-9a-f-]{36}\/)?[0-9a-f-]{36}\.(jpg|jpeg|png|webp|gif|pdf|txt|docx|mp4|webm|mov)$/i.exec(url.pathname);
     if (file) return { ...link, kind: /^(jpg|jpeg|png|webp|gif)$/i.test(file[1]) ? "image" : /^(mp4|webm|mov)$/i.test(file[1]) ? "video" : "file", extension: file[1].toUpperCase() };
+    // The public copy of a picture or video from a source group («הגילוי היומי»): the exact path the ingest writes
+    // (media/sod1820/2029/<image|video>/YYYY/MM/<uuid>/original.<ext>), nothing else in that bucket.
+    const group = /^\/storage\/v1\/object\/public\/media\/sod1820\/2029\/(image|video)\/\d{4}\/\d{2}\/[0-9a-f-]{36}\/original\.(jpg|jpeg|png|webp|gif|mp4|webm|mov)$/i.exec(url.pathname);
+    if (group && (group[1].toLowerCase() === "image" ? /^(jpg|jpeg|png|webp|gif)$/i : /^(mp4|webm|mov)$/i).test(group[2])) return { ...link, kind: group[1].toLowerCase(), extension: group[2].toUpperCase(), source: "group" };
   }
   // Original OpenWeb image attachments use public opaque IDs without a file
   // extension. Keep their existing URL; do not treat arbitrary external links,
