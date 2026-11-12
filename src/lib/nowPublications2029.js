@@ -185,11 +185,18 @@ export function nowRowModel(row) {
   };
 }
 
-const PIN_RANK = Object.freeze({ owner: 2, writer: 1 });
-const pinRank = model => model.pinned ? PIN_RANK[model.pinKind] || PIN_RANK.owner : 0;
+// ZURIEL 12.11.2026: whatever was pinned LAST is on top, whoever pinned it. Every pin is a fixed window ending at pinUntil, so the later end
+// is the later pin (a pin with no end, the owner's standing pin, stays first). Non-pinned rows follow by time. This replaces the 11.11
+// order "owner's pin always above writer pins".
+const pinEnd = model => !model.pinned ? null : model.pinUntil && Number.isFinite(Date.parse(model.pinUntil)) ? Date.parse(model.pinUntil) : Infinity;
+const byPinnedLast = (a, b) => {
+  const ea = pinEnd(a), eb = pinEnd(b);
+  if (ea === null || eb === null) return (eb === null ? 0 : 1) - (ea === null ? 0 : 1);
+  return ea === eb ? 0 : eb > ea ? 1 : -1;
+};
 export const nowModels = (rows, now = Date.now()) => list(rows).filter(row => row?.id && row.title)
   .map(nowRowModel).map(model => model.pinned && model.pinUntil && !(now < Date.parse(model.pinUntil)) ? { ...model, pinned: false, pinKind: null, pinUntil: null, central: null, dot: null } : model)
-  .sort((a, b) => (pinRank(b) - pinRank(a)) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
+  .sort((a, b) => byPinnedLast(a, b) || (Date.parse(b.at || 0) - Date.parse(a.at || 0)) || String(a.id).localeCompare(String(b.id)));
 
 /** Primary lenses with at least one row; "all" is always available. */
 export function availableNowLenses(models) {
