@@ -1,3 +1,5 @@
+import { enforcePublicComputeLimits } from "../_shared/edgeCallerLimits.js";
+
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 
@@ -74,18 +76,20 @@ async function resolveUser(req: Request): Promise<string | null> {
   }
 }
 
+// M0-B public-compute containment over the existing atomic edge_rate_limit_check. The subject is the verified
+// user id, else a server-salted hash of the platform client address (CF-Connecting-IP; never the client-set
+// first X-Forwarded-For hop, never user-agent, never a body field), so rotating any client value does not
+// open a fresh bucket. One global bucket per op class caps bursts (120/minute; observed peak 29/minute).
+// Limiter infrastructure failure fails OPEN: the public ELS engine stays available; an explicit denial is 429.
 async function rateLimit(req: Request, userId: string | null, op = "page") {
-  const forwarded = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-  const ip = forwarded || req.headers.get("cf-connecting-ip") || "unknown";
-  const ua = (req.headers.get("user-agent") || "").slice(0, 120);
   // verify_batch has its own bucket/limits: one governed search fans out to a few batches (regular 1,
-  // cross 1/term, FORMS up to 8) and must not starve the page/verify budget.
+  // cross 1/term, FORMS up to 8) and must not starve the page/verify budget. The live limiter clamps every
+  // bucket to 120, so verify_batch is 120/hour for guests and users alike (the effective value before M0-B).
   const batch = op === "verify_batch";
-  const key = await sha256(`els-search-bridge${batch ? "|verify_batch" : ""}|${userId ? `user:${userId}` : `anon:${ip}:${ua}`}`);
-  return await serviceRpc("edge_rate_limit_check", {
-    p_key_hash: key,
-    p_window_seconds: 3600,
-    p_limit: batch ? (userId ? 600 : 240) : (userId ? 120 : 60),
+  return await enforcePublicComputeLimits({
+    serviceRpc, secret: SERVICE_KEY, scope: `els-search-bridge${batch ? "|verify_batch" : ""}`, req, userId,
+    subjectLimit: batch ? 120 : (userId ? 120 : 60), subjectWindowSeconds: 3600,
+    globalLimit: 120, globalWindowSeconds: 60,
   });
 }
 
@@ -233,10 +237,10 @@ Deno.serve(async (req: Request) => {
   if (!op || term.length < 2) return json({ error: "invalid_request" }, 400);
 
   const userId = await resolveUser(req);
-  let rate;
-  try { rate = await rateLimit(req, userId, op); }
-  catch { return json({ error: "rate_limit_backend" }, 503); }
-  if (rate?.allowed !== true) return json({ error: "rate_limited", rate }, 429);
+  const limits = await rateLimit(req, userId, op);
+  if (limits.state === "denied") return json({ error: "rate_limited", rate: limits.decision ?? null, retry_after_seconds: limits.retryAfter }, 429);
+  // Fail-open: when the limiter is unavailable the request proceeds and `rate` is null.
+  const rate = limits.decision ?? null;
 
   // verify_batch: validate shape/caps before spending a trace; the trace input hash binds the FULL
   // normalized term/scope/corpus_id/candidate list/strategy (not just a count).
