@@ -5,6 +5,7 @@ import { stripHtml } from "../format.js";
 import { researchSourceOccurrenceKey } from "./sourceBundleProjection.js";
 import { fetchGroupSourceArrivals, GROUP_ARRIVALS_CONNECTED } from "./worldGroupSource.js";
 import { publicProvenPostSourceUpdate } from "./postSourceUpdates2029.js";
+import { RESEARCH_VERIFIED_PUBLIC_STATUSES, researchPublicStatusPresentation } from "./researchObjectPresentation.js";
 
 const clean = (value) => value == null ? "" : String(value).trim();
 export const GROUP_ARRIVALS_AVAILABILITY = Object.freeze({
@@ -126,7 +127,11 @@ export function topicRowToWorldUpdate(row, { publicPeople = [] } = {}) {
 export function researchRowToWorldUpdate(row, { publicPeople = [] } = {}) {
   if (!row?.id) return null;
   const status = clean(row.status).toLowerCase();
-  if (!["approved", "canonical"].includes(status)) return null;
+  const governance = researchPublicStatusPresentation(status);
+  if (!governance) return null;
+  // A candidate is public only in its own public scope (ZURIEL 12.11.2026); it is labelled, never promoted.
+  if (!governance.verified && (clean(row.privacy_scope).toLowerCase() !== "public"
+    || clean(row?.meta?.ext?.personal_scope?.scope).toLowerCase() === "person_only")) return null;
   const createdAt = safeDate(row.created_at);
   const value = finite(row.value);
   const contributor = clean(row.contributor);
@@ -147,6 +152,10 @@ export function researchRowToWorldUpdate(row, { publicPeople = [] } = {}) {
     numbers: value == null ? [] : [value],
     sourceRef: clean(row.source_ref) || `research_objects:${row.id}`,
     publicState: "authorized_research_projection",
+    status,
+    statusLabel: governance.label,
+    humanGateVerified: governance.verified,
+    publicTier: governance.tier,
   };
 }
 
@@ -173,6 +182,10 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
     .filter((item) => {
       const source = sourceByOccurrence.get(researchSourceOccurrenceKey(item.sourceRef));
       if (!source) return true;
+      if (!item.humanGateVerified) {
+        source.unverifiedResearchCount = (source.unverifiedResearchCount || 0) + 1;
+        return false;
+      }
       source.researchCount += 1;
       if (item.at && (!source.researchUpdatedAt || Date.parse(item.at) > Date.parse(source.researchUpdatedAt))) {
         source.researchUpdatedAt = item.at;
@@ -180,10 +193,11 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
       return false;
     });
 
+  const unverifiedFindings = findingItems.filter((item) => item.humanGateVerified === false);
   const candidates = [
     ...sourceItems,
     ...topicRows.map((row) => topicRowToWorldUpdate(row, { publicPeople })),
-    ...findingItems,
+    ...findingItems.filter((item) => item.humanGateVerified !== false),
   ].filter(Boolean);
 
   const max = Math.max(1, Math.min(Number(limit) || 18, 40));
@@ -192,10 +206,18 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
     const atB = b.at ? Date.parse(b.at) : 0;
     return atB - atA || a.id.localeCompare(b.id);
   };
-  const items = candidates
-    .filter((item) => safeCreator === "all" || item.creator === safeCreator)
-    .sort(byTime)
-    .slice(0, max);
+  // The existing window is computed exactly as before; public "טרם אומת" findings form a bounded
+  // second tier after it (newest first), so they can never displace a source, Topic or verified finding.
+  const items = [
+    ...candidates
+      .filter((item) => safeCreator === "all" || item.creator === safeCreator)
+      .sort(byTime)
+      .slice(0, max),
+    ...unverifiedFindings
+      .filter((item) => safeCreator === "all" || item.creator === safeCreator)
+      .sort(byTime)
+      .slice(0, Math.ceil(max / 3)),
+  ];
 
   const creators = [...new Set(candidates.map((item) => item.creator).filter(Boolean))];
   // Creator chips come from every candidate, but the visible list is only the last N. Expose how many of each
@@ -223,9 +245,10 @@ export function buildWorldDiscoveryStream(input = [], { creator = "all", limit =
     sourceCounts: {
       sources: candidates.filter((item) => item.kind === "source").length,
       findings: candidates.filter((item) => item.kind === "finding").length,
+      unverifiedFindings: unverifiedFindings.length,
       convergences: candidates.filter((item) => item.kind === "convergence").length,
     },
-    note: "Latest authorized source posts + Research Findings + approved public Convergences. Source arrival is not research verification; order is time, never truth rank.",
+    note: "Latest authorized source posts + Research Findings + approved public Convergences, then a bounded tier of public findings labelled טרם אומת. Source arrival is not research verification; order is time within each tier, never truth rank.",
   };
 }
 
@@ -238,14 +261,25 @@ export async function fetchWorldDiscoveryStream({ limit = 18, publicPeople = [],
   });
   const researchPromise = includeResearch
     ? import("../supabase.js").then(async ({ supabase }) => {
-        const { data, error } = await supabase
-          .from("research_objects")
-          .select("id,created_at,kind,statement,evidence,value,source_ref,contributor,status")
-          .in("status", ["approved", "canonical"])
-          .order("created_at", { ascending: false })
-          .limit(Math.min(80, Math.max(requested * 2, 40)));
-        if (error) throw error;
-        return Array.isArray(data) ? data : [];
+        const fields = "id,created_at,kind,statement,evidence,value,source_ref,contributor,status,privacy_scope";
+        const [verified, unverified] = await Promise.all([
+          supabase.from("research_objects").select(fields)
+            .in("status", RESEARCH_VERIFIED_PUBLIC_STATUSES)
+            .order("created_at", { ascending: false })
+            .limit(Math.min(80, Math.max(requested * 2, 40))),
+          // Separate bounded read: only privacy_scope='public' candidates, person_only excluded.
+          supabase.from("research_objects").select(fields)
+            .eq("status", "candidate").eq("privacy_scope", "public")
+            .or("meta->ext->personal_scope->>scope.is.null,meta->ext->personal_scope->>scope.neq.person_only")
+            .order("created_at", { ascending: false })
+            .limit(Math.min(40, Math.max(requested, 12))),
+        ]);
+        if (verified.error) throw verified.error;
+        return [
+          ...(Array.isArray(verified.data) ? verified.data : []),
+          // A failed candidate read never hides verified findings or sources.
+          ...(!unverified.error && Array.isArray(unverified.data) ? unverified.data : []),
+        ];
       })
     : Promise.resolve([]);
 

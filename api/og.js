@@ -808,7 +808,9 @@ export default async function handler(req, res) {
     canonical = SITE + '/world';
     if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestedFindingId)) {
       try {
-        const apiUrl = `${SUPABASE_URL}/rest/v1/research_objects?id=eq.${encodeURIComponent(requestedFindingId)}&privacy_scope=eq.public&status=in.(approved,canonical)&select=id,created_at,statement,kind,source,source_ref,contributor,meta,status,privacy_scope&limit=1`;
+        // ZURIEL 12.11.2026: a public candidate is viewable and shareable with its "טרם אומת" label;
+        // only approved/canonical findings are indexable (the SEO decision is unchanged).
+        const apiUrl = `${SUPABASE_URL}/rest/v1/research_objects?id=eq.${encodeURIComponent(requestedFindingId)}&privacy_scope=eq.public&status=in.(approved,canonical,candidate)&select=id,created_at,statement,kind,source,source_ref,contributor,meta,status,privacy_scope&limit=1`;
         const response = await fetch(apiUrl, { headers: ogHeaders, signal: AbortSignal.timeout(5000) });
         if (!response.ok) throw new Error('public_finding_lookup_failed');
         const rows = await response.json();
@@ -826,17 +828,20 @@ export default async function handler(req, res) {
             && String(sourceRows[0]?.channel || '').toLowerCase() !== 'or-geula';
         }
         if (row?.id === requestedFindingId && row.privacy_scope === 'public'
-            && ['approved', 'canonical'].includes(row.status) && !excluded && exactSourceAllowed) {
+            && ['approved', 'canonical', 'candidate'].includes(row.status) && !excluded && exactSourceAllowed) {
+          const unverified = row.status === 'candidate';
           const presented = resolveResearchObjectPresentation(row, { locale: 'he' });
           const preview = worldFindingShareCard({ title: presented.title,
             typeLabel: presented.typeLabel, sourceLabel: presented.sourceLabel,
-            attributionLabel: presented.attributionLabel, summary: presented.summary });
+            attributionLabel: presented.attributionLabel, summary: presented.summary,
+            statusLabel: unverified ? 'טרם אומת' : null });
           if (preview) {
-            title = preview.title + ' · ' + SITE_NAME;
+            title = preview.title + (unverified ? ' · טרם אומת' : '') + ' · ' + SITE_NAME;
             desc = preview.description;
             image = preview.image; // existing 1200x630 branded /api/card; no unreviewed source image
             canonical = `${SITE}/world?finding=${encodeURIComponent(row.id)}#finding-${encodeURIComponent(row.id)}`;
-            robots = 'index, follow';
+            // Not-yet-verified findings stay out of the index, exactly as before.
+            robots = unverified ? 'noindex, nofollow' : 'index, follow';
           }
         }
       } catch { /* Fail closed; never substitute admin data or expose the requested id. */ }

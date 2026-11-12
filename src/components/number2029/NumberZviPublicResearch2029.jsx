@@ -1,3 +1,4 @@
+import { isResearchPublicVisibleStatus } from "../../lib/research/researchObjectPresentation.js";
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getPublicResearchClient } from "../../lib/research/researchViewMode.js";
@@ -70,6 +71,8 @@ export default function NumberZviPublicResearch2029({
   const currentValue = useRef(value);
   currentValue.current = value;
   const validValue = Number.isSafeInteger(value) && value >= 0;
+  const sectionRef = useRef(null);
+  const loadRef = useRef(null);
 
   useEffect(() => {
     epoch.current += 1;
@@ -96,7 +99,8 @@ export default function NumberZviPublicResearch2029({
       }
       const rows = page.rows.filter((row) => {
         const status = row?.publicationState ?? row?.status;
-        return ["approved", "canonical"].includes(status)
+        // Public verified or "טרם אומת" status, exactly as the reader admitted it (ZURIEL 12.11.2026).
+        return isResearchPublicVisibleStatus(status)
           && (!row?.status || row.status === status)
           && (!row?.publicationState || row.publicationState === status)
           && (row?.privacy_scope == null || row.privacy_scope === "public")
@@ -130,9 +134,22 @@ export default function NumberZviPublicResearch2029({
     }
   }
 
+  loadRef.current = load;
+  // Design Contract V2 §8.3 (content visible before entry): the findings open by themselves when the
+  // section is read, armed by IntersectionObserver like the source cards in NumberLivingWorld2029.
+  // The button below remains only as a manual fallback; the first render still makes no request.
+  useEffect(() => {
+    if (!validValue || typeof IntersectionObserver === "undefined" || !sectionRef.current) return undefined;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) { observer.disconnect(); void loadRef.current?.(); }
+    }, { rootMargin: "250px" });
+    observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, [value, validValue]);
+
   if (!validValue) return null;
   const returnTo = `${location.pathname}${location.search}${location.hash}`;
-  return <section className="zvi-research" aria-label="ממצאים ציבוריים למספר" dir="rtl">
+  return <section ref={sectionRef} className="zvi-research" aria-label="ממצאים ציבוריים למספר" dir="rtl" data-content-autoload="visible">
     <header className="zvi-research__header">
       <h3 className="zvi-research__title">ממצאים ממקורות העולם</h3>
       <p className="zvi-research__intro">ממצאים שבהם מופיע המספר. המקור ומצב הבדיקה זמינים בכל ממצא.</p>

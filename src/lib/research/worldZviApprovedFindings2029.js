@@ -2,6 +2,7 @@ import { channelUpdateOccurrenceId, contributorSourceLocator } from "./worldCont
 import { worldPreviewMaterialExclusion } from "./worldPreviewMaterialScope.js";
 import { ZVI_REVIEWED_FINDINGS } from "./zviReviewedFindings2029.js";
 import { universalFindingId } from "./universalFinding.js";
+import { researchPublicStatusPresentation } from "./researchObjectPresentation.js";
 
 // This reader is bounded to the existing public contributor view. The source
 // contributor is provenance, not a claim that the source owner authored a row.
@@ -42,10 +43,14 @@ function personalOnly(meta) {
 }
 
 function project(row, { reviewed = false, contributorId = ZVI_SOURCE_CONTRIBUTOR_ID,
-  admittedSourceRef = null, admittedSourceHref = null } = {}) {
+  admittedSourceRef = null, admittedSourceHref = null, allowUnverified = false } = {}) {
+  const governance = researchPublicStatusPresentation(text(row?.status));
   if (!UUID.test(text(row?.id)) || (contributorId && text(row?.source_contributor_id) !== contributorId)
     || text(row?.privacy_scope).toLowerCase() !== "public"
-    || !["approved", "canonical"].includes(text(row?.status).toLowerCase()) || personalOnly(row?.meta)
+    // The Zvi lists below are Human-Gate verified lists and stay fail-closed to a candidate. The
+    // shared public discovery projection (allowUnverified) also admits a public candidate with its
+    // stored status and the "טרם אומת" label (ZURIEL 12.11.2026).
+    || !governance || (!governance.verified && !allowUnverified) || personalOnly(row?.meta)
     || (!reviewed && !acceptedResearch(row))
     || mentionsOwner(row?.statement) || mentionsOwner(row?.contributor)
     || hasContactDetails(row?.statement) || hasContactDetails(row?.contributor)) return null;
@@ -67,12 +72,14 @@ function project(row, { reviewed = false, contributorId = ZVI_SOURCE_CONTRIBUTOR
     publicationState: text(row.status).toLowerCase(),
     // This DTO does not carry enough scoped truth evidence to certify a state.
     verificationState: null,
-    title: chars.slice(0, 240).join("") || "ממצא ציבורי מאושר",
+    title: chars.slice(0, 240).join("") || (governance.verified ? "ממצא ציבורי מאושר" : "ממצא ציבורי"),
     summaryTruncated: chars.length > 240,
     contributor: text(row.contributor) || null,
     kindLabel: KIND_LABELS[text(row.kind).toLowerCase()] || "ממצא מחקר",
     roleLabel: ROLE_LABELS[researchRole(row)] || null,
     status: text(row.status).toLowerCase(),
+    statusLabel: governance.label,
+    humanGateVerified: governance.verified,
     createdAt: TIMESTAMP.test(text(row.created_at)) ? text(row.created_at) : null,
     ocrNeedsReview: /ocr/i.test(text(row.statement))
       || ocrFlags.some((flag) => flag === true || text(flag).toLowerCase() === "true"),
@@ -84,7 +91,7 @@ function project(row, { reviewed = false, contributorId = ZVI_SOURCE_CONTRIBUTOR
 // Shared admission/presentation seam, not another contributor-specific corpus.
 // Public discovery must keep these guards instead of admitting every approved row.
 export async function publicResearchPresentationEligible(row, { subtle = globalThis.crypto?.subtle } = {}) {
-  if (!project(row, { reviewed: true, contributorId: null })
+  if (!project(row, { reviewed: true, contributorId: null, allowUnverified: true })
     || worldPreviewMaterialExclusion(row, "research_object")) return false;
   if (acceptedResearch(row)) return true;
   // This historical manifest reviews exact Zvi identities only. It cannot certify
@@ -96,7 +103,7 @@ export async function publicResearchPresentationEligible(row, { subtle = globalT
 
 export function projectPublicResearchFinding(row, { sourceRef, sourceHref = null } = {}) {
   if (!sourceRef) return null;
-  return project(row, { reviewed: true, contributorId: null,
+  return project(row, { reviewed: true, contributorId: null, allowUnverified: true,
     admittedSourceRef: sourceRef, admittedSourceHref: sourceHref });
 }
 
