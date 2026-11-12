@@ -9,6 +9,7 @@ import { normalizeCommunityThreadFocus } from "../src/lib/community/communityThr
 import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
 import { publicPostLinkedMedia } from "../src/lib/research/publicPostSourceLinks2029.js";
 import { publicPostUrl } from "../src/lib/publicPostUrls.js";
+import { previewUnitOgMeta } from "../src/lib/research/postPreviewUnits2029.js";
 import { hasSuppressedPublicPostTag } from "../src/lib/research/publicPostBoundary.js";
 import { fetchPublicVideo2029 } from "../src/lib/research/publicVideo2029Reading.js";
 import { createVideoAssetReader, createVideoAssetSource, VIDEO_ASSET_MV } from "../src/lib/research/publicVideoAssetReader2029.js";
@@ -355,6 +356,10 @@ export default async function handler(req, res) {
             image = cardUrl({ w: heroTitle, sub: cat || "כי לה' המלוכה", cap: 'לקריאת הרמז המלא ←' });
           }
           type = 'article';
+          // A preview unit link (?unit=<id>) shares the unit's own title and royal card. The helper itself is gated on the exact preview branch
+          // of the protected Preview (VERCEL_ENV=preview + that branch ref); anywhere else it returns null and nothing changes.
+          const unitMeta = req.query?.unit ? previewUnitOgMeta({ postId: post.id, unitId: String(req.query.unit), env: process.env, origin: process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : SITE }) : null;
+          if (unitMeta) { title = unitMeta.title + ' · ' + SITE_NAME; desc = unitMeta.description; image = unitMeta.image; robots = unitMeta.robots; }
           break;
         }
       } catch { postLookupFailed = true; /* try next variant */ }

@@ -13,7 +13,7 @@ const dateLabel = (iso) => {
   return Number.isFinite(t) ? new Intl.DateTimeFormat("he-IL", { timeZone: "Asia/Jerusalem", day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(t)).replace(/\//g, ".") : "";
 };
 
-function ClaimRow({ claim, skipEngine, readProfile }) {
+export function ClaimRow({ claim, skipEngine, readProfile }) {
   const [check, setCheck] = useState({ state: HINT_STATES.unchecked });
   const [open, setOpen] = useState(false);
   useEffect(() => {

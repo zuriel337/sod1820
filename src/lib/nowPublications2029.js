@@ -3,7 +3,7 @@
 // One publication is ONE row: identity comes from feed row ids / sourceRefs (see mergeSystemFeedItems);
 // the same row model feeds the compact Now list, its filters and its detail. Similar wording never merges rows.
 // Series, source/channel, content family and media type stay SEPARATE dimensions (CONTENT-AUDIENCES-HYBRID-NOW).
-import { resolveUnitMessage } from "./research/postSemanticDesign2029.js";
+import { resolveUnitMessage, featuredCentralWithUnit } from "./research/postSemanticDesign2029.js";
 import { realityMapPreviewEnabled } from "./research/realityMap2029.js";
 import { publicAuthorName, SYSTEM_BYLINE } from "./publicIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./research/contentSeries2029Identity.js";
@@ -174,7 +174,7 @@ export function nowRowModel(row) {
     pinUntil: pinKind && typeof item.pinUntil === "string" ? item.pinUntil : null,
     central: pinKind === "owner" && item.central && Array.isArray(item.central.groups)
       // Re-read at model time: a main message saved after the feed was built still reaches the pinned card (same canonical unit record).
-      ? (() => { const text = realityMapPreviewEnabled() && item.central.anchor ? resolveUnitMessage(item.central.postId, item.central.anchor) : null; return text ? { ...item.central, lead: text, leadSub: "", fromMainMessage: true } : item.central; })()
+      ? (realityMapPreviewEnabled() ? featuredCentralWithUnit(item.central.postId, item.central) : null) || item.central
       : null,
     media: video ? "video" : audio ? "audio" : image ? "image" : "text", video, audio, image,
     thumb: [!video && !audio && media, item.thumbUrl, item.imageUrl].find(url => /^https:\/\//.test(url || "")) || null,

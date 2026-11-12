@@ -55,7 +55,7 @@ export function buildPostUnitModels(root, { post, postHref = "", seriesKey = "re
       message: resolveUnitMessage(postId, key),
       media, numbers, links,
       references: Array.isArray(choices[key]?.refs) ? choices[key].refs.map(({ kind, ref, href, mode }) => ({ kind, ref, href, mode })) : [],
-      seriesKey,
+      seriesKey, preview: unit.hasAttribute("data-preview-unit"),
     });
   }
   return out;

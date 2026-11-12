@@ -15,6 +15,7 @@
 //   w  = מילה/ביטוי להבליט (למשל "משיח") — מוצג ענק, ומתחתיו "= n".
 //   t  = כותרת חופשית (לטופיקים) — מחליפה את ברירת המחדל.
 //   sub= שורת-משנה חופשית (אם רוצים לעקוף את השליפה האוטומטית).
+//   v=unit + nums=2026,5787,1237,1158 = כרטיס יחידה (כחול־רויאל וזהב): t כותרת, sub שורת משנה, nums ארבעה מספרים, cap כיתוב.
 
 import React from 'react';
 import { ImageResponse } from '@vercel/og';
@@ -129,6 +130,24 @@ export default async function handler(req) {
   const t = text('t');
   const subParam = text('sub');
   const n = nRaw && /^\d+$/.test(nRaw) ? parseInt(nRaw, 10) : null;
+  // 👑 כרטיס יחידה בסדרת "מפת המציאות" (כחול־רויאל וזהב): כותרת + עד חמישה מספרים. אותו מנגנון כרטיס, אותו פונט ואותו סינון תווים.
+  if ((searchParams.get('v') || '') === 'unit') {
+    const nums = (searchParams.get('nums') || '').split(',').map((x) => x.trim()).filter((x) => /^\d{1,6}$/.test(x)).slice(0, 5);
+    const title = t || w || 'סוד 1820';
+    const subLine = subParam;
+    const capLine = text('cap') || 'מפת המציאות';
+    const titleSize = title.length <= 20 ? 88 : title.length <= 34 ? 70 : 54;
+    const gold = '#e6c35c';
+    const unitTree = h('div', { style: { width: '1200px', height: '630px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'Heebo', position: 'relative',
+        background: 'radial-gradient(circle at 50% 18%, #1d3a8a 0%, #11235f 42%, #070f33 100%)' } },
+      h('div', { style: { display: 'flex', color: gold, fontSize: '30px', letterSpacing: '5px', marginBottom: '14px' } }, rev('סוד 1820') + '  ·  ' + rev(capLine)),
+      h('div', { style: { display: 'flex', fontSize: `${titleSize}px`, fontWeight: 800, color: '#fff3c4', lineHeight: 1.12, textShadow: '0 0 36px rgba(230,195,92,0.5)', padding: '4px 40px', maxWidth: '1100px', textAlign: 'center' } }, rev(title)),
+      subLine ? h('div', { style: { display: 'flex', fontSize: '40px', color: '#bcd0ff', marginTop: '18px', textAlign: 'center', maxWidth: '1060px' } }, rev(subLine)) : null,
+      nums.length ? h('div', { style: { display: 'flex', flexDirection: 'row-reverse', gap: '18px', marginTop: '44px' } },
+        ...nums.map((n) => h('div', { style: { display: 'flex', fontSize: '58px', fontWeight: 800, color: '#fff3c4', padding: '6px 30px', borderRadius: '999px', border: `3px solid ${gold}`, background: 'rgba(8,18,58,0.72)' } }, n))) : null,
+      h('div', { style: { display: 'flex', fontSize: '28px', color: '#9fb4e8', marginTop: '40px' } }, rev('פוסט הבחירות') + ' · sod1820.co.il'));
+    return new ImageResponse(unitTree, { width: 1200, height: 630, fonts: [{ name: 'Heebo', data: font, weight: 800, style: 'normal' }] });
+  }
   // 📸 פורמט סטורי (אינסטגרם/וואטסאפ) — 1080×1920 לאורך; ברירת מחדל 1200×630.
   const story = (searchParams.get('format') || '') === 'story';
   const W = story ? 1080 : 1200;

@@ -11,6 +11,8 @@
 //      each keeping its own source id (so exact return, hash entry and the update strip keep working);
 //   3. a manual per-unit choice (admin, preview-local) outranks the automatic one.
 import { PROVEN_POST_SOURCE_UPDATES, orderedSourceUpdates, addedDateLabel, plainDayLabel } from "./postSourceUpdates2029.js";
+import { previewUnitIdsFor, previewUnitDefinition } from "./postPreviewUnits2029.js";
+import { injectPreviewUnits } from "./postPreviewUnitDom2029.js";
 
 export const SEMANTIC_ROLES = Object.freeze({
   title: "title", peak: "peak", number: "number", verse: "verse", source: "source", short: "short", prose: "prose", media: "media",
@@ -175,6 +177,8 @@ export function annotatePostSource(html, { postId = null, voice = "unspecified",
   annotateBlocks(root, { voice });
   markUnits(root, voice);
   if (placeUpdates) placeProvenUpdatesFirst(root, postId, document);
+  // Preview-only units of the flagship series (flag-gated inside; nothing is injected in any other build).
+  if (placeUpdates) injectPreviewUnits(root, postId, document);
   if (unitChoices) for (const [id, choice] of Object.entries(unitChoices)) applyUnitChoice(root.querySelector(`[data-sod-unit="${CSS.escape(id)}"]`), choice);
   return template.innerHTML;
 }
@@ -215,4 +219,26 @@ export function writeLocalUnitChoice(postId, unitId, choice) {
 export function resolveUnitMessage(postId, unitId) {
   const choice = readLocalUnitChoices(postId)[unitId];
   return choice?.primary === true && typeof choice.message === "string" && choice.message.trim() ? choice.message : null;
+}
+
+// ONE update event per Post in "עכשיו" (no duplicated Post): the first unit that carries a main message wins — the Post's preview units first
+// (newest unit of the Post), then the Post's older pinned anchor. Same canonical local record; nothing is copied.
+export function resolveFeaturedUnit(postId, anchor) {
+  for (const unitId of [...previewUnitIdsFor(postId), anchor]) {
+    if (!unitId) continue;
+    const text = resolveUnitMessage(postId, unitId);
+    if (text) return { unitId, text, preview: previewUnitDefinition(postId, unitId) };
+  }
+  return null;
+}
+export const resolveFeaturedUnitMessage = (postId, anchor) => resolveFeaturedUnit(postId, anchor)?.text || null;
+// The pinned central message with the winning unit's main message. A preview unit brings ITS OWN title and numbers (never the older update's
+// date or numbers), so the card is one coherent update of the same Post.
+export function featuredCentralWithUnit(postId, central) {
+  const found = resolveFeaturedUnit(postId, central?.anchor);
+  if (!found) return null;
+  if (!found.preview) return { ...central, lead: found.text, leadSub: "", fromMainMessage: true };
+  const { preview } = found;
+  return { ...central, lead: found.text, leadSub: "", fromMainMessage: true, kicker: "יחידה חדשה בפוסט", date: null, fullTitle: preview.title, title: preview.title,
+    anchor: preview.id, groups: preview.numbers.map((value) => ({ value, phrases: [], numberOnly: [] })), statement: null };
 }

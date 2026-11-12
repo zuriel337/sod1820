@@ -225,3 +225,70 @@
   border:1px solid color-mix(in srgb,var(--r29-gold) 66%,transparent);background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 28%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 9%,var(--s29-panel)) 70%);
   box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 20%,transparent),0 4px 12px -6px color-mix(in srgb,var(--r29-gold) 65%,transparent)}
 .sod29-companion.r29 .sod29-companion-numbermap sup{font-size:.62em;margin-inline-start:3px;color:var(--r29-azure)}
+
+/* ───────────── The preview unit "זה לעומת זה עשה האלוהים — ימין ושמאול תפרצי" (ZURIEL 12.11.2026) ─────────────
+   Royal blue + gold, centred headings, clickable number coins. Only canonical roles (--r29-*, --s29-*); no new palette.
+   Each source identity gets its own quiet edge so no writer is read as the author of another voice. */
+.sod29-reading-post[data-reality-map] .sod29-pu{
+  position:relative;margin-block:.5rem 1.2rem;padding:clamp(18px,3vw,36px) clamp(14px,3vw,40px);border-radius:var(--r29-radius);
+  border:var(--rm-frame);background:var(--rm-hall);box-shadow:var(--r29-shadow),var(--rm-double);color:var(--s29-ink);scroll-margin-block-start:84px;
+}
+.sod29-pu:focus{outline:none}
+.sod29-pu:focus-visible{outline:2px solid var(--r29-gold);outline-offset:3px}
+.sod29-pu-badge{display:inline-block}
+.sod29-pu-head{text-align:center;display:grid;gap:.55rem;justify-items:center;padding-bottom:1rem;border-bottom:1px solid color-mix(in srgb,var(--r29-gold) var(--r29-frame),transparent)}
+.sod29-pu-head h2{margin:0;font:850 clamp(1.7rem,3.6vw,2.7rem)/1.15 var(--rm-display);letter-spacing:-.01em;text-wrap:balance;color:var(--rm-gold-ink);text-shadow:0 0 34px color-mix(in srgb,var(--r29-gold) 26%,transparent)}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-pu-head h2{text-shadow:none}
+.sod29-pu-subtitle{margin:0;font:700 clamp(1.05rem,2vw,1.4rem)/1.4 var(--rm-display);color:var(--rm-azure);text-wrap:balance}
+.sod29-pu-kicker{margin:0;color:var(--s29-muted);font:600 1rem/1.6 var(--s29-font-ui,inherit);max-width:46ch}
+.sod29-pu-numbers{margin:.3rem 0 0;display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;direction:ltr}
+.sod29-pu [data-gem][role="button"]{
+  display:inline-block;cursor:pointer;padding:.05em .55em;border-radius:999px;font-variant-numeric:tabular-nums;font-weight:800;line-height:1.5;
+  color:var(--rm-gold-ink);border:1px solid color-mix(in srgb,var(--r29-gold) 60%,transparent);
+  background:linear-gradient(180deg,color-mix(in srgb,var(--rm-floor) 26%,var(--s29-panel)),var(--s29-panel));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 30%,transparent);transition:transform .12s,box-shadow .12s;
+}
+.sod29-pu-numbers [data-gem][role="button"]{font-size:clamp(1.15rem,2.4vw,1.6rem);padding:.1em .8em}
+.sod29-pu [data-gem][role="button"]:hover{transform:translateY(-1px);box-shadow:0 0 0 2px color-mix(in srgb,var(--r29-gold) 35%,transparent)}
+.sod29-pu [data-gem][role="button"]:focus-visible{outline:2px solid var(--r29-gold);outline-offset:2px}
+.sod29-pu-body{display:grid;gap:1rem;padding-top:1.1rem;max-width:62ch;margin-inline:auto}
+.sod29-pu-body p{margin:0;line-height:1.95;font-size:1.06rem}
+.sod29-pu-body [data-sod-align="center"]{text-align:center}
+.sod29-pu-rule{border:0;block-size:1px;inline-size:60%;margin:.4rem auto;background:linear-gradient(90deg,transparent,var(--r29-gold),transparent)}
+.sod29-pu-h3{margin:.6rem 0 0;text-align:center;font:800 clamp(1.2rem,2.3vw,1.6rem)/1.3 var(--rm-display);color:var(--rm-gold-ink);text-wrap:balance}
+.sod29-pu-verse{margin:.2rem auto;padding:.7rem 1.1rem;max-width:44ch;text-align:center;font:700 1.15rem/1.8 var(--rm-display);color:var(--s29-ink);
+  border-inline:2px solid color-mix(in srgb,var(--r29-gold) 70%,transparent);background:color-mix(in srgb,var(--rm-floor) 12%,transparent);border-radius:var(--r29-radius-sm)}
+.sod29-pu-verse[data-quote-identity="baal-hasulam"]{border-inline-color:var(--rm-azure);font-style:normal}
+.sod29-pu-claim{font-weight:800;color:var(--rm-gold-ink)}
+.sod29-pu-closing{padding:.8rem 1rem;font:850 clamp(1.25rem,2.6vw,1.8rem)/1.5 var(--rm-display);color:var(--rm-gold-ink);text-wrap:balance;
+  border-block:1px solid color-mix(in srgb,var(--r29-gold) 55%,transparent)}
+.sod29-pu-body [data-sod-role="peak"]{font:900 clamp(2.6rem,7vw,4.4rem)/1.1 var(--rm-display)}
+.sod29-pu-body [data-sod-role="peak"] [data-gem]{font-size:inherit;padding:.02em .5em;background-image:linear-gradient(180deg,color-mix(in oklab,var(--r29-gold) 92%,white),var(--r29-gold));-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+:is([data-theme-2029="light"],[data-theme-2029="parchment"]) .sod29-pu-body [data-sod-role="peak"] [data-gem]{background-image:linear-gradient(180deg,var(--r29-gold),var(--s29-ink));}
+.sod29-pu-group{padding:.8rem 1rem;border-radius:var(--r29-radius-sm);border:1px solid var(--s29-line);border-inline-start:3px solid var(--rm-azure);display:grid;gap:.8rem;background:color-mix(in srgb,var(--s29-panel) 70%,transparent)}
+.sod29-pu-group[data-source-identity="shachar-kandro"]{border-inline-start-color:var(--r29-gold)}
+.sod29-pu-group[data-source-identity="editorial-phrase"]{border-inline-start-color:var(--s29-muted);border-style:dashed}
+.sod29-pu-group-label{font:800 .85rem/1.4 var(--s29-font-ui,inherit);color:var(--rm-azure);letter-spacing:.02em}
+.sod29-pu-group[data-source-identity="shachar-kandro"] .sod29-pu-group-label{color:var(--rm-gold-ink)}
+.sod29-pu-table{border-collapse:collapse;margin:0 auto;font-size:1rem;max-width:100%}
+.sod29-pu-table th,.sod29-pu-table td{padding:.45rem .8rem;border:1px solid color-mix(in srgb,var(--r29-gold) 28%,var(--s29-line));text-align:center}
+.sod29-pu-table th{background:color-mix(in srgb,var(--rm-floor) 22%,var(--s29-panel));color:var(--rm-gold-ink)}
+.sod29-pu-foot{margin-top:1.2rem;display:grid;grid-template-columns:minmax(0,1fr);gap:1rem;padding-top:1rem;border-top:1px solid color-mix(in srgb,var(--r29-gold) var(--r29-frame),transparent)}
+.sod29-pu-host:empty{display:none}
+.sod29-pu-host h4{margin:0 0 .4rem;font:800 1.05rem/1.4 var(--rm-display);color:var(--rm-gold-ink)}
+.sod29-pu-sources-note{margin:.2rem 0 .6rem;font-size:.9rem;color:var(--s29-muted);line-height:1.6}
+.sod29-pu-bar{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;justify-content:center;margin:0 0 1rem;padding:.55rem .9rem;border-radius:999px;
+  border:1px solid color-mix(in srgb,var(--r29-gold) 55%,transparent);background:color-mix(in srgb,var(--rm-floor) 18%,var(--s29-panel));font-size:.92rem}
+.sod29-pu-bar button,.sod29-pu-link{cursor:pointer;font:700 .9rem/1.4 var(--s29-font-ui,inherit);color:var(--rm-gold-ink);background:transparent;border:1px solid color-mix(in srgb,var(--r29-gold) 60%,transparent);border-radius:999px;padding:.25rem .85rem;text-decoration:none}
+.sod29-pu-bar button:disabled{opacity:.45;cursor:default}
+.sod29-pu-link{display:inline-block;margin-top:.5rem;direction:ltr;font-weight:600;overflow-wrap:anywhere;border:0;padding:0;color:var(--rm-azure);text-decoration:underline}
+.sod29-pu-images{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.8rem}
+.sod29-pu-image{margin:0;display:grid;gap:.4rem;justify-items:center;text-align:center;padding:1rem;border-radius:var(--r29-radius-sm);border:1px dashed color-mix(in srgb,var(--r29-gold) 55%,transparent);background:color-mix(in srgb,var(--rm-floor) 10%,transparent)}
+.sod29-pu-image div{font-size:2rem;opacity:.8}
+.sod29-pu-image span{display:block;color:var(--s29-muted);font-size:.88rem}
+.sod29-pu-engine summary{cursor:pointer;font-weight:800;color:var(--rm-azure)}
+.sod29-pu-engine-row{display:grid;gap:.15rem;margin-bottom:.5rem}
+.sod29-pu-engine-row>small{color:var(--s29-muted)}
+@media (max-width:560px){.sod29-reading-post[data-reality-map] .sod29-pu{padding-inline:12px}.sod29-pu-table th,.sod29-pu-table td{padding:.35rem .4rem;font-size:.92rem}}
+
+.sod29-pu-foot>*{min-width:0;max-width:100%}.sod29-pu-foot .sod29-source-unit blockquote{overflow-wrap:anywhere;white-space:pre-wrap}

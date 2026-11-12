@@ -7,6 +7,7 @@
 //             highlight in the unit, what opens on a click and what stays on the Number page. Only canonical REFERENCES are kept.
 // Saving: there is NO authorized persistence path for any of this today (no column, no table, no approved store), so "שמירה" keeps it in
 // THIS browser only and says so. A main message is part of the one canonical unit record (never a second copy for "עכשיו").
+import { previewUnitDefinition } from "../../lib/research/postPreviewUnits2029.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { use2029Shell } from "./Sod2029Shell.jsx";
@@ -172,7 +173,9 @@ function UnitEditorDialog({ unit, postId, postHref, onClose, shell }) {
   const unitTitle = unitTitleOf(unit) || unitId;
   const unitNumbers = useMemo(() => unitNumbersOf(unit), [unit]);
   const saved = readLocalUnitChoices(postId)[unitId] || {};
-  const [draft, setDraft] = useState(saved);
+  // A preview unit offers its proposed main message as a DRAFT only (never primary, never saved until "שמירה" and the flag are chosen).
+  const proposed = unit.hasAttribute("data-preview-unit") ? previewUnitDefinition(postId, unitId)?.suggestedMainMessage : null;
+  const [draft, setDraft] = useState(!saved.message && proposed ? { ...saved, message: proposed } : saved);
   const [tab, setTab] = useState("message");
   const [pendingQuery, setPendingQuery] = useState("");
   const [note, setNote] = useState("");

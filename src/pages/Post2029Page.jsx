@@ -30,6 +30,7 @@ import { annotatePostSource, resolveUnitMessage, subscribeUnitChoices } from "..
 import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
 import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
 import PostUnitEditors2029 from "../components/experience2029/PostUnitEditors2029.jsx";
+import PreviewUnitExtras2029 from "../components/experience2029/PreviewUnitExtras2029.jsx";
 import { buildPostUnitModels } from "../lib/research/postUnitModel2029.js";
 import { setPostUnits, setActivePostUnit, clearPostUnits, unitContextStrings } from "../lib/research/postUnitStore2029.js";
 const PostExternalSourcesPreview2029 = React.lazy(() => import("../components/experience2029/PostExternalSourcesPreview2029.jsx"));
@@ -419,8 +420,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     // An explicitly selected source image wins over the default story region.
     // Native author hashes still keep their existing exact-return precedence.
     const selectedSource = !location.hash && sourceRef.current.querySelector('[data-legacy-attachment-focus="true"]');
-    const requested = selectedSource ? null : resolvePostReadingRegion(state.projection, entryRef.current?.context, location.hash);
-    if(selectedSource)restoredRegionRef.current=null;
+    const unitLanding = location.state?.puWhole === true || (new URLSearchParams(location.search).has("unit") && Boolean(location.hash)); // a unit link or "continue to the whole post" names its own place
+    const requested = selectedSource || unitLanding ? null : resolvePostReadingRegion(state.projection, entryRef.current?.context, location.hash);
+    if(selectedSource||unitLanding)restoredRegionRef.current=null;
     const restored = mapped.find(({ region }) => region.id === requested);
     let frame = null;
     // Late source images/fonts can move an already-restored heading. Keep that
@@ -648,6 +650,20 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       for (const name of events) window.removeEventListener(name, release);
     };
   }, [state.projection?.post?.id, location.pathname, location.search, location.hash]);
+
+  useEffect(() => {
+    // A unit link (?unit=<id>) lands on that exact unit even if the fragment was dropped by a messenger. Preview units only.
+    const wanted = new URLSearchParams(location.search).get("unit");
+    if (!wanted || location.hash || !state.projection || !sourceRef.current) return undefined;
+    const target = [...sourceRef.current.querySelectorAll("[data-preview-unit][id]")].find((node) => node.id === wanted);
+    if (!target) return undefined;
+    const frame = requestAnimationFrame(() => {
+      target.scrollIntoView({ block: "start", behavior: "instant" });
+      target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [state.projection, location.search, location.hash]);
 
   useEffect(() => {
     // Native IDs and snapshot-bound presentation locators survive refresh/Back.
@@ -1203,6 +1219,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         dangerouslySetInnerHTML={{ __html: passiveSourceHtml }}
       />
       {protoOn && realityMap.active ? <PostUnitEditors2029 rootRef={sourceRef} postId={post.id} postHref={publicPostHref(post)} htmlKey={passiveSourceHtml.length} editable={editorEnabled} /> : null}
+      {protoOn && realityMap.active ? <PreviewUnitExtras2029 rootRef={sourceRef} post={post} htmlKey={passiveSourceHtml.length} /> : null}
       {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
 
 
