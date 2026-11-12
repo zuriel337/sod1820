@@ -1,24 +1,55 @@
 ======== live guard
 GUARD md5 56b90b0ae0f9c5915b730314d13ca7a0
-D1 second active version of owner_a_law => REFUSED: rule owner_a_law v2 requires unambiguous immediate predecessor v1 (got supersedes_version=
-D2 VALID new version v2 (v1 retired first, same owner) => ALLOWED
-D3 new family duplicating owner_a_law, no verdict => ALLOWED
-D4 VALID new scoped child extending active owner_a_law => ALLOWED
-D5 new child routed to RETIRED retired_r_law => ALLOWED
-D6 contract change v2 silently moves the owner => ALLOWED
-D7 VALID contract change v2 moves owner via SUPERSEDE_EXISTING + human_gate => ALLOWED
-D8 VALID metadata touch on an existing active row (legacy verdict) => ALLOWED
-D9a GENUINELY_NEW_DOMAIN without human_gate => ALLOWED
-D9b VALID GENUINELY_NEW_DOMAIN with human_gate => ALLOWED
+D01 second active version, no lineage => REFUSED (rule owner_a_law v2 requires unambiguous immediate predecessor v1 (got supersedes_version=<NULL>))
+D02 VALID new version, same owner => ALLOWED
+D03 new family duplicating an owner, no verdict => ALLOWED
+D04 VALID scoped child of an active owner => ALLOWED
+D05 new child routed to a retired owner => ALLOWED
+D06 new version moves the owner silently => ALLOWED
+D07 VALID real owner swap A->B with SUPERSEDE_EXISTING and a resolving approval => ALLOWED
+D07b owner swap with an approval reference that does not exist => ALLOWED
+D07c owner swap with an invented approval text => ALLOWED
+D08 VALID metadata touch, no owner change => ALLOWED
+D09a new domain without an approval reference => ALLOWED
+D09b VALID new domain with a resolving approval reference => ALLOWED
+D10 a law inserted inactive is activated without a verdict => ALLOWED
+D10b VALID activation with a scoped-child verdict, same owner => ALLOWED
+D11 owner changed at the same version => ALLOWED
+D12 body edited without a new version (active) => ALLOWED
+D12b history row edited (inactive version) => ALLOWED
+D13 owner that does not exist => ALLOWED
+D13b codex owner that does not exist => ALLOWED
+D13c VALID codex owner that exists => ALLOWED
+D13d VALID file owner (not checkable in the DB; the CI snapshot check resolves it) => ALLOWED
+D14 DELETE of a rule row => ALLOWED
+D15 TRUNCATE of nodes => ALLOWED
+D16 VALID retirement (is_active=false, body unchanged) => ALLOWED
+psql:test.sql:90: NOTICE:  ALL 24 CASES AS EXPECTED for live
 ======== proposed guard
-GUARD md5 9b92691263c37e501c94fc930e92a1f3
-D1 second active version of owner_a_law => REFUSED: rule owner_a_law v2 requires unambiguous immediate predecessor v1 (got supersedes_version=
-D2 VALID new version v2 (v1 retired first, same owner) => ALLOWED
-D3 new family duplicating owner_a_law, no verdict => REFUSED: new rule family owner_a_copy_law requires an owner-creation verdict (owner_routing.resolut
-D4 VALID new scoped child extending active owner_a_law => ALLOWED
-D5 new child routed to RETIRED retired_r_law => REFUSED: rule retired_child_law routes to retired owner retired_r_law
-D6 contract change v2 silently moves the owner => REFUSED: rule legacy_child_law v2 changes its canonical owner without SUPERSEDE_EXISTING + human_ga
-D7 VALID contract change v2 moves owner via SUPERSEDE_EXISTING + human_gate => ALLOWED
-D8 VALID metadata touch on an existing active row (legacy verdict) => ALLOWED
-D9a GENUINELY_NEW_DOMAIN without human_gate => REFUSED: new rule family new_domain_law (GENUINELY_NEW_DOMAIN) requires owner_routing.human_gate
-D9b VALID GENUINELY_NEW_DOMAIN with human_gate => ALLOWED
+GUARD md5 1c22aa55ee691d331cf691d226551fe0
+D01 second active version, no lineage => REFUSED (rule owner_a_law v2 requires unambiguous immediate predecessor v1 (got supersedes_version=<NULL>))
+D02 VALID new version, same owner => ALLOWED
+D03 new family duplicating an owner, no verdict => REFUSED (new rule family owner_a_copy_law requires an owner-creation verdict (owner_routing.resolution))
+D04 VALID scoped child of an active owner => ALLOWED
+D05 new child routed to a retired owner => REFUSED (rule retired_child_law routes to retired owner retired_r_law)
+D06 new version moves the owner silently => REFUSED (rule legacy_child_law v2 changes its canonical owner without SUPERSEDE_EXISTING + human_gate)
+D07 VALID real owner swap A->B with SUPERSEDE_EXISTING and a resolving approval => ALLOWED
+D07b owner swap with an approval reference that does not exist => REFUSED (rule legacy_child_law approval reference work_log:99999999-8888-4777-8666-555555555555 does not resolve to a w)
+D07c owner swap with an invented approval text => REFUSED (rule legacy_child_law approval reference ZURIEL said yes does not resolve to a work_log record naming the rule)
+D08 VALID metadata touch, no owner change => ALLOWED
+D09a new domain without an approval reference => REFUSED (new rule family new_domain_law (GENUINELY_NEW_DOMAIN) requires owner_routing.human_gate)
+D09b VALID new domain with a resolving approval reference => ALLOWED
+D10 a law inserted inactive is activated without a verdict => REFUSED (new rule family dormant_law requires an owner-creation verdict (owner_routing.resolution))
+D10b VALID activation with a scoped-child verdict, same owner => ALLOWED
+D11 owner changed at the same version => REFUSED (rule legacy_child_law v1 owner changed without a new version)
+D12 body edited without a new version (active) => REFUSED (rule body_law v1 body changed without a new version)
+D12b history row edited (inactive version) => REFUSED (rule hist_law v1 body changed without a new version)
+D13 owner that does not exist => REFUSED (rule ghost_child_law routes to owner never_existed_law which does not exist)
+D13b codex owner that does not exist => REFUSED (rule codex_child_law routes to codex entry project_codex.no_such_slug which does not exist)
+D13c VALID codex owner that exists => ALLOWED
+D13d VALID file owner (not checkable in the DB; the CI snapshot check resolves it) => ALLOWED
+D14 DELETE of a rule row => REFUSED (DELETE of rule hist_law v1 is refused (retire it with is_active=false instead))
+D15 TRUNCATE of nodes => REFUSED (TRUNCATE of public.nodes is refused (rule history must not be erased))
+D16 VALID retirement (is_active=false, body unchanged) => ALLOWED
+psql:test.sql:90: NOTICE:  ALL 24 CASES AS EXPECTED for proposed
+RESULT: every case behaved as expected

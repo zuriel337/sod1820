@@ -100,3 +100,5 @@ begin
   return new;
 end
 $function$;
+CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version ON public.nodes
+  FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1();

@@ -1,31 +1,19 @@
-== S0 no change (baseline)
-RESULT: ALLOWED (0 new; 18 frozen in the baseline)
-exit=0
-== S1 FORBIDDEN new contract file, no routing
-FAIL R1 docs/search-indexing-contract-v1.md: unrouted contract-like file (not in Owner Index, no OWNER-ROUTING header)
-RESULT: REFUSED (1 new violation(s); 18 frozen in the baseline)
-exit=1
-== S2 VALID new file declared EXTEND_EXISTING of an active owner
-RESULT: ALLOWED (0 new; 18 frozen in the baseline)
-exit=0
-== S3 FORBIDDEN new file extends a RETIRED owner
-FAIL R1 docs/search-indexing-contract-v1.md: EXTEND_EXISTING names an owner that is not active / not routed: research_engine_law
-RESULT: REFUSED (1 new violation(s); 18 frozen in the baseline)
-exit=1
-== S4 FORBIDDEN Owner Index row routes to a RETIRED owner
-FAIL R2 SOD1820_MASTER_OWNER_INDEX.md: row routes to retired owner ai_quota_law: | paid AI daily quota | `ai_quota_law` |
-RESULT: REFUSED (1 new violation(s); 18 frozen in the baseline)
-exit=1
-== S5 VALID Owner Index row extends an ACTIVE owner
-RESULT: ALLOWED (0 new; 18 frozen in the baseline)
-exit=0
-== S6 FORBIDDEN silent change to a registered contract
-FAIL R3 SOD1820_DESIGN_CONTRACT_V2.md: registered contract changed without a dated change record or an Owner Index update
-RESULT: REFUSED (1 new violation(s); 18 frozen in the baseline)
-exit=1
-== S7 VALID change to a registered contract with a dated change record
-RESULT: ALLOWED (0 new; 18 frozen in the baseline)
-exit=0
-== S8 VALID change to a registered contract together with its Owner Index row
-RESULT: ALLOWED (0 new; 18 frozen in the baseline)
-exit=0
+ok S0 PASS — no change
+ok S1 FAIL — new contract file without routing
+ok S2 PASS — new file declared EXTEND_EXISTING of an active owner
+ok S3 FAIL — new file extends a retired owner
+ok S4 FAIL — Owner Index row routes to a retired owner
+ok S4b FAIL — Owner Index row routes to an owner that does not exist
+ok S5 PASS — Owner Index row extends an active owner
+ok S6 FAIL — silent change to a registered contract
+ok S7 PASS — registered contract change with a dated CHANGE-RECORD
+ok S8 PASS — registered contract change with its Owner Index line
+ok S9 FAIL — dated laws snapshot edited in place
+ok S10 FAIL — a new file hidden by adding it to the frozen baseline
+ok S11 FAIL — new snapshot activates a retired law without approval
+ok S12 PASS — same, with a well-formed approval (authenticity stays a human gate)
+ok S12b FAIL — same, with an invented approval text
+ok S13 FAIL — new snapshot changes an owner at the same version
+ok S14 FAIL — new snapshot edits a body without a new version
+ok S15 FAIL — apply package gains a new store without OWNER-CHECK
+RESULT: every scenario behaved as expected
