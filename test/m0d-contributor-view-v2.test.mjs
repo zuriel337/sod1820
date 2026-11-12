@@ -13,8 +13,9 @@ import { fetchWorldPublicFindingsPage } from "../src/lib/research/worldPublicFin
 
 const root = new URL("..", import.meta.url).pathname;
 const read = (p) => readFileSync(root + p, "utf8");
-// The code live in Production on 12.11.2026: 146f2f0e7 until about 14:38 UTC, then ed30dc05b (#1323). Each is checked.
-const LIVE_COMMITS = ["146f2f0e7e5e6dcd17f49af33e70808e7549ea1f", "ed30dc05bab6f079b771669de6206a99413dd5de"];
+// The code live in Production on 12.11.2026: 146f2f0e7 until about 14:38 UTC, then ed30dc05b (#1323), then from about 16:38 UTC
+// aa0f6bc82 (#1324-#1327: community chat, Home/Now pins, the header verse line hidden; dpl_FEzrHi2GLSpdHPN1cJDu6rhXtswZ). Each is checked.
+const LIVE_COMMITS = ["146f2f0e7e5e6dcd17f49af33e70808e7549ea1f", "ed30dc05bab6f079b771669de6206a99413dd5de", "aa0f6bc82b8c94286374b1f51208037502994eab"];
 const has = (rev) => { try { execFileSync("git", ["-C", root, "cat-file", "-e", `${rev}^{commit}`], { stdio: "ignore" }); return true; } catch { return false; } };
 const MISSING = { code: "PGRST205", message: "Could not find the table 'public.world_contributor_research_v2' in the schema cache" };
 

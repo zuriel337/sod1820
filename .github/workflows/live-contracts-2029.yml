@@ -162,11 +162,11 @@ jobs:
           test/m0e-contact-notify.test.mjs
           test/m0c-gallery-upload-contract.test.mjs
           test/public-research-candidates-visible-2029.test.mjs
-      # The rollback package and the intermediate-state checks read six exact commits (Production ed30dc05b and before it 146f2f0e7, base 949c24ad5 and the deployed sources of
+      # The rollback package and the intermediate-state checks read seven exact commits (Production aa0f6bc82, before it ed30dc05b and 146f2f0e7, base 949c24ad5 and the deployed sources of
       # number-researcher, wa-raziel, els-search-bridge). The checkout is depth 1, so fetch just those commits; without them the git-sourced
       # checks report SKIPPED, never passed.
       - name: Fetch the pre-M0 commits the Edge rollback sources come from
-        run: git fetch --no-tags --depth=1 origin ed30dc05bab6f079b771669de6206a99413dd5de 146f2f0e7e5e6dcd17f49af33e70808e7549ea1f 949c24ad549ae9e95ced528a4ee8159670b52678 065aa022b9ecf1152c14aaf1be3460c7c8136e6c b4d5ec47132ed8003b822cc70de9e1b82447cb7c cf16b8cf9c54c7f5aa426d21ddd34a95852d2b1e
+        run: git fetch --no-tags --depth=1 origin aa0f6bc82b8c94286374b1f51208037502994eab ed30dc05bab6f079b771669de6206a99413dd5de 146f2f0e7e5e6dcd17f49af33e70808e7549ea1f 949c24ad549ae9e95ced528a4ee8159670b52678 065aa022b9ecf1152c14aaf1be3460c7c8136e6c b4d5ec47132ed8003b822cc70de9e1b82447cb7c cf16b8cf9c54c7f5aa426d21ddd34a95852d2b1e
       - name: M0 Edge rollback package, intermediate states (SQL / Edge / site in any order) and the contributor view v2 (old tabs keep v1)
         run: node --test test/m0-edge-rollback-manifest.test.mjs test/m0-intermediate-states.test.mjs test/m0d-contributor-view-v2.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment

@@ -58,9 +58,10 @@ test("any order of SQL and site: no M0 SQL file changes world_contributor_resear
 });
 
 // Production read from Vercel on 12.11.2026: sod1820.co.il -> dpl_9sJPZEwhbu7a13cakoeTbjXasm3A, built from 146f2f0e7 (#1318); from about
-// 14:38 UTC the same day -> dpl_8wFDbWJmUPWCF7Gm5fBuFFyzMRkK, built from ed30dc05b (#1322 + #1323, community chat and .gitignore only).
-// The base the M0 branch was cut from (949c24ad5) was Production earlier the same day. All three are checked.
-for (const [label, rev] of [["Production ed30dc05b", "ed30dc05bab6f079b771669de6206a99413dd5de"], ["Production 146f2f0e7", "146f2f0e7e5e6dcd17f49af33e70808e7549ea1f"], ["base 949c24ad5", "949c24ad549ae9e95ced528a4ee8159670b52678"]]) {
+// 14:38 UTC the same day -> dpl_8wFDbWJmUPWCF7Gm5fBuFFyzMRkK, built from ed30dc05b (#1322 + #1323, community chat and .gitignore only);
+// from about 16:38 UTC -> dpl_FEzrHi2GLSpdHPN1cJDu6rhXtswZ, built from aa0f6bc82 (#1324-#1327, display only).
+// The base the M0 branch was cut from (949c24ad5) was Production earlier the same day. All four are checked.
+for (const [label, rev] of [["Production aa0f6bc82", "aa0f6bc82b8c94286374b1f51208037502994eab"], ["Production ed30dc05b", "ed30dc05bab6f079b771669de6206a99413dd5de"], ["Production 146f2f0e7", "146f2f0e7e5e6dcd17f49af33e70808e7549ea1f"], ["base 949c24ad5", "949c24ad549ae9e95ced528a4ee8159670b52678"]]) {
   test(`why v1 must never change: the ${label} contributor reader has no status filter of its own`, { skip: has(rev) ? false : `commit ${rev.slice(0, 9)} not in this clone` }, () => {
     const live = show(rev, "src/lib/research/contributorFindingsProjection.js");
     const fetchFn = live.slice(live.indexOf("async function fetchResearchObjects"), live.indexOf("async function fetchContributorContributions"));

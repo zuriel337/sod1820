@@ -1,6 +1,6 @@
 // M0-D (round 4): a tab left open during the site deploy, and the mandatory rollback order, in a real browser.
 // Two BUILT sites run side by side against one mocked Supabase origin (nothing leaves the machine):
-//   OLD_DIST = the site that is live now (a build of the live commit, e.g. `git worktree add <dir> ed30dc05b && npm run build`;
+//   OLD_DIST = the site that is live now (a build of the live commit, e.g. `git worktree add <dir> aa0f6bc82 && npm run build`;
 //              round 4 ran it with 146f2f0e7, whose contributor readers are identical)
 //   NEW_DIST = this branch (default: ./dist from `npm run build`)
 // The mock answers world_contributor_research_v1 with a verified (canonical, promoted) finding only, and world_contributor_research_v2
