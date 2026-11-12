@@ -33,6 +33,11 @@ union all select 'P els_records visitor_id hidden from anon (DEF-001b step 1)', 
   and has_column_privilege('anon', 'public.els_records', 'title', 'SELECT')
 union all select 'P push_subscriptions anon table access removed (DEF-001b step 2)', not has_table_privilege('anon', 'public.push_subscriptions', 'SELECT')
   and not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'push_subscriptions' and policyname like 'ps_anon_%')
+union all select 'B ai_quota_check refuses a missing identity (M0-B SQL)', position('missing_identity' in pg_get_functiondef('public.ai_quota_check(text,text,integer)'::regprocedure)) > 0
+union all select 'C gallery 120 MiB ceiling, no bucket MIME list, still public', exists (select 1 from storage.buckets where id = 'gallery' and file_size_limit = 125829120 and allowed_mime_types is null and public)
+union all select 'C gallery client policies replaced (old public_upload / community_anon_upload gone)', not exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname in ('public_upload', 'community_anon_upload'))
+  and (select count(*) from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname in ('gallery_flat_image_upload_v1', 'gallery_client_upload_scoped_v1', 'gallery_admin_upload_v1')) = 3
+union all select 'C gallery public read unchanged', exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname = 'public_read' and cmd = 'SELECT')
 union all select 'R public research readable by anon', has_table_privilege('anon', 'public.research_objects', 'SELECT')
 union all select 'D contributor view admits public candidates (status kept)', position($a$'candidate'::text$a$ in pg_get_viewdef('public.world_contributor_research_v1'::regclass, true)) > 0
   and has_table_privilege('anon', 'public.world_contributor_research_v1', 'SELECT')
