@@ -1,7 +1,9 @@
 // Group source arrivals for World: ONE narrow sanitized reader (RPC), projected into the existing
 // worldDiscoveryStream. A group message is a SOURCE occurrence: unverified, never research, never a Finding.
 // Eligibility is proved server-side (private proof row: real group JID + incoming text + sender JID -> unique contributor phone,
-// no human hold, editorial flag on the contributor). This file is the second line: it never trusts a row without slug + group proof and re-redacts.
+// no human hold, editorial flag on the contributor). An image or video additionally needs its recorded public copy (proposal
+// supabase/proposed/20261111234000_group_source_media_v1: media_kind / media_url / thumb_url on the same reader).
+// This file is the second line: it never trusts a row without slug + group proof and re-redacts.
 import { publicPageShareUrl } from "../publicPostUrls.js";
 import { publicReadingPath } from "../publicReadingRelease2029.js";
 
