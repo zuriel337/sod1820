@@ -346,3 +346,228 @@ test('the worker admits no request the application cannot emit and the applicati
   assert.match(source, /\/auth\/v1\/verify/); assert.match(source, /onlyCallbackRedirect/);
 });
 async function fetch_settings(worker) { const response = await worker.workerFetch(API + '/auth/v1/settings', { headers: { apikey: 'k' } }); assert.equal(response.status, 200); }
+
+// ---- password recovery (also the first password for an account that began with Google) --------------------------------
+import {
+  watchPasswordRecovery, getPasswordRecovery, clearPasswordRecovery, recoveryAppliesTo, subscribePasswordRecovery,
+  resetPasswordRecoveryForTests, PASSWORD_RECOVERY_TTL_MS, PASSWORD_RECOVERY_KEY,
+} from '../src/lib/passwordRecovery.js';
+import { passwordResetKey } from '../src/lib/passwordResetThrottle.js';
+
+const challenge = 'a'.repeat(43);
+const recoverBody = (extra = {}) => JSON.stringify({ email: 'x@example.invalid', code_challenge: challenge, code_challenge_method: 's256', gotrue_meta_security: {}, ...extra });
+const authCodeOf = link => new URL(link).searchParams.get('code');
+async function googleSignIn(env, email) {
+  const request = await env.client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: CALLBACK, skipBrowserRedirect: true } });
+  const code = env.server.issueOAuthCode(email, new URL(request.data.url).searchParams.get('code_challenge'));
+  const exchanged = await env.client.auth.exchangeCodeForSession(code);
+  assert.equal(exchanged.error, null);
+  return exchanged.data.session.user;
+}
+
+test('recovery request: the answer is identical for an address with and without an account, and only the account gets a link', async () => {
+  resetPasswordRecoveryForTests();
+  const { server, auth, worker } = setup();
+  server.newUser('known@example.invalid', true);
+  const known = await auth.requestPasswordReset('  known@example.invalid ');
+  const unknown = await auth.requestPasswordReset('nobody@example.invalid');
+  assert.equal(JSON.stringify(known), '{"ok":true}'); assert.equal(JSON.stringify(unknown), JSON.stringify(known));
+  assert.deepEqual(worker.denied, [], 'the production client\'s own request is admitted by the worker');
+  assert.equal(server.state.sent.filter(item => item.kind === 'recovery').length, 1);
+  const link = new URL(server.lastRecoveryLink('known@example.invalid'));
+  assert.equal(link.origin + link.pathname, CALLBACK, 'the link returns to the exact callback');
+  const recover = server.log.filter(item => item.path === '/recover');
+  assert.equal(recover.length, 2); assert.ok(recover.every(item => item.search === '?redirect_to=…' && item.status === 200));
+});
+
+test('recovery request and password update: the worker admits only the exact shapes', async () => {
+  const exact = SITE + '/auth/callback';
+  const post = (workerFetch, query, body, method = 'POST') => workerFetch(API + '/auth/v1/recover' + query, { method, headers: { apikey: 'k' }, body });
+  const cases = [
+    ['no destination at all', '', recoverBody()],
+    ['a foreign destination', '?redirect_to=' + encodeURIComponent('https://evil.invalid/auth/callback'), recoverBody()],
+    ['the callback with a query', '?redirect_to=' + encodeURIComponent(exact + '?next=1'), recoverBody()],
+    ['another path on this site', '?redirect_to=' + encodeURIComponent(SITE + '/'), recoverBody()],
+    ['an extra query parameter', '?redirect_to=' + encodeURIComponent(exact) + '&type=signup', recoverBody()],
+    ['a role/data field', '?redirect_to=' + encodeURIComponent(exact), recoverBody({ data: { role: 'admin' } })],
+    ['no PKCE challenge', '?redirect_to=' + encodeURIComponent(exact), JSON.stringify({ email: 'x@example.invalid' })],
+    ['a plain challenge method', '?redirect_to=' + encodeURIComponent(exact), recoverBody({ code_challenge_method: 'plain' })],
+    ['a phone number', '?redirect_to=' + encodeURIComponent(exact), JSON.stringify({ phone: '+15555555555', code_challenge: challenge, code_challenge_method: 's256' })],
+  ];
+  for (const [name, query, body] of cases) {
+    const { server, worker } = setup();
+    assert.equal((await post(worker.workerFetch, query, body)).status, 403, name);
+    assert.equal(server.log.length, 0, name + ': nothing reaches Auth');
+  }
+  { const { server, worker } = setup(); assert.equal((await post(worker.workerFetch, '?redirect_to=' + encodeURIComponent(exact), recoverBody(), 'GET').catch(() => ({ status: 403 }))).status, 403); assert.equal(server.log.length, 0); }
+  // The password update: bearer-bound, password only, bounded.
+  const bearer = 'Bearer ' + jwtFor();
+  const put = (workerFetch, body, { query = '', headers = { Authorization: bearer, apikey: 'k' }, method = 'PUT' } = {}) =>
+    workerFetch(API + '/auth/v1/user' + query, { method, headers, body: typeof body === 'string' ? body : JSON.stringify(body) });
+  const update = [
+    ['an e-mail change', { password: 'long-enough-1', email: 'other@example.invalid' }], ['user data', { password: 'long-enough-1', data: { role: 'admin' } }],
+    ['no password', { code_challenge: null }], ['a non-string password', { password: 12345678 }], ['a PKCE challenge', { password: 'long-enough-1', code_challenge: challenge }],
+    ['a password over 72 bytes', { password: 'x'.repeat(73) }], ['an empty password', { password: '' }], ['an array', ['password']], ['not JSON', '{'],
+  ];
+  for (const [name, body] of update) {
+    const { server, worker } = setup();
+    assert.equal((await put(worker.workerFetch, body)).status, 403, name);
+    assert.equal(server.log.length, 0, name + ': nothing reaches Auth');
+  }
+  for (const [name, options] of [['a query string', { query: '?x=1' }], ['no bearer token', { headers: { apikey: 'k' } }], ['no api key', { headers: { Authorization: bearer } }], ['a non-JWT bearer', { headers: { Authorization: 'Bearer abc', apikey: 'k' } }]]) {
+    const { server, worker } = setup();
+    assert.equal((await put(worker.workerFetch, { password: 'long-enough-1' }, options)).status, 403, name);
+    assert.equal(server.log.length, 0, name);
+  }
+  for (const method of ['PATCH', 'DELETE']) { const { server, worker } = setup(); assert.equal((await put(worker.workerFetch, { password: 'long-enough-1' }, { method })).status, 403, method); assert.equal(server.log.length, 0); }
+});
+function jwtFor(sub = '00000000-0000-4000-8000-000000000001') { const b = value => Buffer.from(JSON.stringify(value)).toString('base64url'); return `${b({ alg: 'HS256' })}.${b({ sub, role: 'authenticated' })}.${b('sig')}`; }
+
+test('a forged or expired bearer token reaches Auth only as a preflight read and never changes a password', async () => {
+  const { server, worker } = setup();
+  server.newUser('victim@example.invalid', true, 'old-password-1');
+  const forged = await worker.workerFetch(API + '/auth/v1/user', { method: 'PUT', headers: { Authorization: 'Bearer ' + jwtFor('99999999-9999-4999-8999-999999999999'), apikey: 'k' }, body: JSON.stringify({ password: 'attacker-pass-1' }) });
+  assert.equal(forged.status, 401);
+  assert.deepEqual(server.log.map(item => item.method + ' ' + item.path), ['GET /user'], 'Auth confirmed the session first and the update never left the worker');
+  assert.deepEqual(server.state.passwordChanges, []);
+  assert.equal(server.users.get('victim@example.invalid').password, 'old-password-1');
+  server.state.failNetwork = true;
+  const down = await worker.workerFetch(API + '/auth/v1/user', { method: 'PUT', headers: { Authorization: 'Bearer ' + jwtFor(server.users.get('victim@example.invalid').id), apikey: 'k' }, body: JSON.stringify({ password: 'new-password-1' }) });
+  assert.equal(down.status, 503, 'an unreachable Auth is a network failure, not a policy denial');
+});
+
+test('Google-only account: reset by e-mail sets the FIRST password on the same user_id; Google and password both return that user', async () => {
+  resetPasswordRecoveryForTests();
+  const env = setup(); const { server, auth, client } = env;
+  watchPasswordRecovery(client);
+  const email = 'esther.like@example.invalid';
+  const viaGoogle = await googleSignIn(env, email);                         // the account exists because of Google; no password yet
+  assert.equal(server.users.get(email).password, null);
+  await assert.rejects(auth.signInWithPassword(email, 'anything-1'), error => classifyAuthError(error) === 'invalid_credentials');
+  await client.auth.signOut({ scope: 'local' });
+  assert.equal(await auth.requestPasswordReset(email).then(result => result.ok), true);
+  // The link opens in the same browser (same storage): the SDK exchanges the code and announces a recovery session.
+  const exchanged = await client.auth.exchangeCodeForSession(authCodeOf(server.lastRecoveryLink(email)));
+  assert.equal(exchanged.error, null); assert.equal(exchanged.data.session.user.id, viaGoogle.id, 'the link signs in the existing user');
+  assert.equal(getPasswordRecovery()?.userId, viaGoogle.id); assert.equal(recoveryAppliesTo(viaGoogle.id), true);
+  const saved = await auth.updatePassword('first-password-1');
+  assert.equal(saved.user.id, viaGoogle.id); assert.deepEqual(server.state.passwordChanges, [viaGoogle.id]);
+  clearPasswordRecovery(); assert.equal(getPasswordRecovery(), null);
+  await client.auth.signOut({ scope: 'local' });
+  const byPassword = await auth.signInWithPassword(email, 'first-password-1');
+  assert.equal(byPassword.user.id, viaGoogle.id, 'password sign-in reaches the same user_id');
+  await client.auth.signOut({ scope: 'local' });
+  const again = await googleSignIn(env, email);
+  assert.equal(again.id, viaGoogle.id, 'Google still returns the same user_id'); assert.equal(server.users.size, 1, 'no second account was created');
+});
+
+test('account that already has a password: reset replaces it; the old password stops working and e-mail code sign-in keeps working', async () => {
+  resetPasswordRecoveryForTests();
+  const { server, auth, client } = setup(); watchPasswordRecovery(client);
+  const user = server.newUser('has.password@example.invalid', true, 'old-password-1');
+  await auth.requestPasswordReset('has.password@example.invalid');
+  assert.equal((await client.auth.exchangeCodeForSession(authCodeOf(server.lastRecoveryLink('has.password@example.invalid')))).error, null);
+  await assert.rejects(auth.updatePassword('old-password-1'), error => classifyAuthError(error) === 'same_password');
+  await assert.rejects(auth.updatePassword('abc1234'), error => classifyAuthError(error) === 'weak_password');
+  assert.equal((await auth.updatePassword('brand-new-password-2')).user.id, user.id);
+  await client.auth.signOut({ scope: 'local' });
+  await assert.rejects(auth.signInWithPassword('has.password@example.invalid', 'old-password-1'), error => classifyAuthError(error) === 'invalid_credentials');
+  assert.equal((await auth.signInWithPassword('has.password@example.invalid', 'brand-new-password-2')).user.id, user.id);
+  await client.auth.signOut({ scope: 'local' }); server.forgetSendTimes();
+  assert.equal((await loginOk(auth, server, 'has.password@example.invalid')).user.id, user.id, 'the existing code sign-in is unchanged');
+});
+
+test('failure paths: another browser, a used link, an expired link, rate limit, server error, no session', async () => {
+  resetPasswordRecoveryForTests();
+  const { server, auth, client } = setup(); watchPasswordRecovery(client);
+  server.newUser('fail@example.invalid', true, 'old-password-1');
+  await auth.requestPasswordReset('fail@example.invalid');
+  const link = server.lastRecoveryLink('fail@example.invalid');
+  // Opened in another browser or the installed app: no verifier there. Classified (not blocked) and no recovery session appears.
+  const other = createProductionLikeClient({ server, pathname: '/auth/callback' }); watchPasswordRecovery(other.client);
+  const foreign = await other.client.auth.exchangeCodeForSession(authCodeOf(link));
+  assert.equal(classifyAuthError(foreign.error), 'pkce_mismatch'); assert.equal(getPasswordRecovery(), null);
+  const otherAuth = loadAuthModule(other.client);
+  await assert.rejects(otherAuth.updatePassword('attempt-password-1', other.client), error => classifyAuthError(error) === 'session_missing');
+  assert.equal(server.log.filter(item => item.method === 'PUT').length, 0, 'with no session nothing is even sent');
+  // The same link, used once in the right browser and then again.
+  assert.equal((await client.auth.exchangeCodeForSession(authCodeOf(link))).error, null);
+  const reused = await client.auth.exchangeCodeForSession(authCodeOf(link));
+  assert.ok(reused.error, 'a link is single use'); assert.ok(['pkce_mismatch', 'link_expired'].includes(classifyAuthError(reused.error)));
+  // What Auth appends to the callback address for an expired or used link.
+  const fromAddress = classifyAuthError({ code: 'otp_expired', message: 'Email link is invalid or has expired' }, { step: 'callback' });
+  assert.equal(fromAddress, 'link_expired'); assert.ok(AUTH_MESSAGES.link_expired && AUTH_FAILURE_KINDS.includes('link_expired'));
+  // Rate limit and mail-server failure while requesting.
+  await assert.rejects(auth.requestPasswordReset('fail@example.invalid'), error => classifyAuthError(error) === 'rate_limited');
+  server.forgetSendTimes(); server.state.rejectNextSend = 500;
+  await assert.rejects(auth.requestPasswordReset('fail@example.invalid'), error => error.status === 500 && classifyAuthError(error) === 'server_error');
+  server.state.failNetwork = true;
+  await assert.rejects(auth.requestPasswordReset('fail@example.invalid'), error => classifyAuthError(error) === 'network');
+});
+
+test('an unverified preview origin never asks Auth for a recovery link (it would land on the production site root)', async () => {
+  const { server, client } = setup();
+  const auth = loadAuthModule(client, { location: { origin: 'https://unlisted-preview.vercel.app' } });
+  await assert.rejects(auth.requestPasswordReset('p@example.invalid'), error => error.code === 'RECOVERY_ORIGIN_UNVERIFIED' && classifyAuthError(error) === 'recovery_origin_unverified');
+  assert.equal(server.log.length, 0); assert.ok(AUTH_MESSAGES.recovery_origin_unverified);
+});
+
+test('the recovery mark: bound to one user, expires, survives a reload of the same tab, and ends with sign-out', () => {
+  const store = new Map(); globalThis.sessionStorage = { getItem: key => store.get(key) ?? null, setItem: (key, value) => store.set(key, value), removeItem: key => store.delete(key) };
+  try {
+    resetPasswordRecoveryForTests();
+    const calls = []; let handler; const client = { auth: { onAuthStateChange: fn => { handler = fn; return { data: { subscription: {} } }; } } };
+    watchPasswordRecovery(client);
+    handler('SIGNED_IN', { user: { id: 'u1' } }); assert.equal(getPasswordRecovery(), null, 'an ordinary sign-in is not a recovery');
+    handler('PASSWORD_RECOVERY', { user: { id: 'u1' } });
+    assert.equal(recoveryAppliesTo('u1'), true); assert.equal(recoveryAppliesTo('u2'), false, 'another account never inherits it');
+    assert.deepEqual(Object.keys(JSON.parse(store.get(PASSWORD_RECOVERY_KEY))).sort(), ['createdAt', 'userId'], 'only the id and a time are kept');
+    resetPasswordRecoveryForTests(); assert.equal(getPasswordRecovery()?.userId, 'u1', 'a reload of the tab still knows');
+    const stored = JSON.parse(store.get(PASSWORD_RECOVERY_KEY)); stored.createdAt -= PASSWORD_RECOVERY_TTL_MS + 1000; store.set(PASSWORD_RECOVERY_KEY, JSON.stringify(stored));
+    resetPasswordRecoveryForTests(); assert.equal(getPasswordRecovery(), null, 'it expires');
+    const stop = subscribePasswordRecovery(() => calls.push('changed'));
+    handler('PASSWORD_RECOVERY', { user: { id: 'u3' } }); handler('SIGNED_OUT', null); assert.equal(getPasswordRecovery(), null);
+    assert.deepEqual([...calls], ['changed', 'changed']); stop();
+    assert.notEqual(passwordResetKey('A@b.co '), 'a@b.co', 'reset requests are throttled apart from code requests'); assert.equal(passwordResetKey('A@b.co '), passwordResetKey('a@b.co'));
+  } finally { delete globalThis.sessionStorage; resetPasswordRecoveryForTests(); }
+});
+
+test('new failure kinds are classified, have a plain explanation and never record secrets', () => {
+  const cases = [
+    [{ status: 422, code: 'weak_password', message: 'Password should be at least 8 characters.' }, 'weak_password'],
+    [{ status: 422, code: 'same_password', message: 'New password should be different from the old password.' }, 'same_password'],
+    [{ name: 'AuthSessionMissingError', status: 400, message: 'Auth session missing!' }, 'session_missing'],
+    [{ status: 401, code: 'bad_jwt', message: 'invalid JWT' }, 'session_missing'],
+    [{ status: 403, code: 'otp_expired', message: 'Email link is invalid or has expired' }, 'otp_expired'],
+  ];
+  for (const [error, kind] of cases) { assert.equal(classifyAuthError(error), kind, JSON.stringify(error)); assert.ok(AUTH_FAILURE_KINDS.includes(kind)); assert.ok(AUTH_MESSAGES[kind]); }
+  for (const kind of AUTH_FAILURE_KINDS) assert.ok(AUTH_MESSAGES[kind], 'every kind has a message: ' + kind);
+});
+
+test('drift guard (recovery): every Auth call the recovery flow makes goes through the real worker without a denial', async () => {
+  resetPasswordRecoveryForTests();
+  const { server, auth, client, worker } = setup(); watchPasswordRecovery(client);
+  server.newUser('drift2@example.invalid', true);
+  await auth.requestPasswordReset('drift2@example.invalid');
+  await client.auth.exchangeCodeForSession(authCodeOf(server.lastRecoveryLink('drift2@example.invalid')));
+  await auth.updatePassword('drift-password-1');
+  await client.auth.getUser(); await client.auth.signOut({ scope: 'local' });
+  await auth.signInWithPassword('drift2@example.invalid', 'drift-password-1');
+  assert.deepEqual(worker.denied, [], 'the worker denied a request the client emitted');
+  const source = buildPublicReadingWorker(SHA);
+  assert.match(source, /\/auth\/v1\/recover/); assert.match(source, /PUT/);
+  assert.equal(PUBLIC_READING_POLICY_ID, 'public-reading-password-recovery-20261111');
+});
+
+test('a signed-in person (Google, no password yet) sets a site password directly; a project that demands re-authentication gets a clear path', async () => {
+  resetPasswordRecoveryForTests();
+  const env = setup(); const { server, auth, client, worker } = env;
+  const user = await googleSignIn(env, 'direct.set@example.invalid');
+  assert.equal((await auth.updatePassword('direct-password-1')).user.id, user.id);
+  assert.equal(server.state.sent.length, 0, 'no e-mail involved'); assert.deepEqual(worker.denied, []);
+  await client.auth.signOut({ scope: 'local' });
+  assert.equal((await auth.signInWithPassword('direct.set@example.invalid', 'direct-password-1')).user.id, user.id);
+  assert.equal(classifyAuthError({ status: 422, code: 'reauthentication_needed', message: 'Password update requires reauthentication' }), 'reauth_needed');
+  assert.equal(classifyAuthError({ status: 422, code: 'reauth_nonce_missing', message: 'nonce required' }), 'reauth_needed');
+  assert.ok(AUTH_MESSAGES.reauth_needed);
+});

@@ -21,6 +21,21 @@ export const GROUP_SOURCE_CHANNELS = Object.freeze({
 });
 export const GROUP_SOURCE_NEUTRAL_LABEL = "קבוצת מקור";
 
+// Writer pins in «עכשיו» (ZURIEL 11.11.2026): «הגילוי היומי» follows the Zvi / «תורת הרמז» model exactly — every member's message is
+// research intake, and only an arrival the server proved (group proof + verified_phone_unique + an approved writer + editorial flag)
+// is public. On top of that ONE path, an arrival by שחר יצחק קנדרו or יניב לוי in «הגילוי היומי» is pinned at the top of Now for
+// 24 hours from its arrival. The pin is a display rule only: it never makes a row public, never changes its status, its source or its
+// writer, and it ends by itself. A display name, a credit or a number typed in the text never pins; only the proved writer slug does.
+export const GROUP_WRITER_PINS_2029 = Object.freeze({ "gilui-yomi": Object.freeze(["shachar-kandro", "yaniv-levi"]) });
+export const GROUP_WRITER_PIN_HOURS_2029 = 24;
+export const groupWriterPinListed = (channel, slug) => Object.hasOwn(GROUP_WRITER_PINS_2029, clean(channel))
+  && GROUP_WRITER_PINS_2029[clean(channel)].includes(clean(slug)) && APPROVED_GROUP_WRITERS.includes(clean(slug));
+export function groupWriterPin({ channel, slug, arrivalAt } = {}) {
+  const at = Date.parse(clean(arrivalAt));
+  if (!groupWriterPinListed(channel, slug) || !Number.isFinite(at)) return null;
+  return { pinned: true, pinKind: "writer", pinUntil: new Date(at + GROUP_WRITER_PIN_HOURS_2029 * 3600000).toISOString() };
+}
+
 // Canonical member page of a contributor: only for a contributor the server already proved for this row
 // (verified phone -> unique contributor -> approved writer). Never guessed from a display name.
 export const groupWriterProfileHref = (slug) => APPROVED_GROUP_WRITERS.includes(clean(slug)) ? `/community/researcher/${encodeURIComponent(clean(slug))}` : null;
@@ -111,7 +126,10 @@ export function groupRowToWorldUpdate(row) {
   if (!occurrences.some((event) => event.id === clean(row.id))) return null;
   const at = Date.parse(clean(row.created_at));
   const arrivalAt = Number.isFinite(at) ? new Date(at).toISOString() : null;
+  // Only a row that already passed every gate above can carry a writer pin; the pin window is checked again when Now renders.
+  const pin = groupWriterPin({ channel, slug, arrivalAt });
   return {
+    ...(pin || {}),
     id: `group:${row.id}`,
     kind: "source",
     sourceKind: "group_message",

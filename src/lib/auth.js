@@ -112,6 +112,34 @@ async function verifyEmailOtpOnce(params, client) {
   return data;
 }
 
+// ── שחזור סיסמה (גם הגדרת סיסמה ראשונה לחשבון שנוצר דרך Google) ──
+// The same account, the same user_id: Auth sends a single-use link to the address on the account, the link returns to the exact
+// /auth/callback (PKCE: the verifier stays in the requesting tab), and the page then sets the password with updateUser for the
+// session that link created. Auth answers identically for an address with and without an account, so neither does this module.
+export async function requestPasswordReset(email) {
+  const address = (email || '').trim();
+  const redirectTo = emailLinkRedirect(SITE_URL, { integratedPreview: import.meta.env.VITE_INTEGRATED_PREVIEW === 'true' });
+  if (!redirectTo) {
+    // An unverified preview origin has no allowed return address: Auth would send the link to the production site root instead.
+    const error = Object.assign(new Error('RECOVERY_ORIGIN_UNVERIFIED'), { code: 'RECOVERY_ORIGIN_UNVERIFIED' });
+    reportAuthFailure(error, 'recover'); throw error;
+  }
+  const { error } = await supabase.auth.resetPasswordForEmail(address, { redirectTo });
+  if (error) { reportAuthFailure(error, 'recover'); throw error; }
+  return { ok: true };
+}
+
+// Applies the new password to the account of the current (verified) session only, and confirms that Auth answered for that same user.
+export async function updatePassword(password, client = supabase) {
+  const { data: current } = (await client.auth.getSession?.()) || {};
+  const expected = current?.session?.user?.id;
+  if (!expected) { const error = Object.assign(new Error('Auth session missing!'), { name: 'AuthSessionMissingError', status: 400 }); reportAuthFailure(error, 'password_update'); throw error; }
+  const { data, error } = await client.auth.updateUser({ password });
+  if (error) { reportAuthFailure(error, 'password_update'); throw error; }
+  if (data?.user?.id !== expected) throw new Error('PASSWORD_UPDATE_NOT_CONFIRMED');
+  return data;
+}
+
 export async function getSession() {
   const { data } = await supabase.auth.getSession();
   return data?.session ?? null;

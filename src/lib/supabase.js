@@ -2,6 +2,7 @@ import { PUBLIC_READING_RELEASE, PUBLIC_READING_PRODUCTION_ARTIFACT } from "./pu
 import { readingSessionOptions } from "./publicReadingAuthSession.js";
 import { sharedReadDedupe } from "./readDedupe.js";
 import { createClient } from '@supabase/supabase-js';
+import { watchPasswordRecovery } from './passwordRecovery.js';
 import { sideEffectAllowed } from "./botVerdict.js"; // 🤖 BOT_READ_NO_SIDE_EFFECT_V1 — קריאה של בוט לא מייצרת תופעת-לוואי
 import { signupAttribution } from './acquisition.js';
 import { isAnon } from './privacy.js';
@@ -28,6 +29,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
     : {}),
   global: { fetch: readDedupe.fetch },
 });
+
+// Registered before any component exists: the SDK announces a recovery link's session while it processes the callback URL.
+watchPasswordRecovery(supabase);
 
 export default supabase;
 export { supabase };

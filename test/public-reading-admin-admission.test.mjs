@@ -5,6 +5,7 @@ import vm from 'node:vm';
 import { transform } from 'esbuild';
 import { verifyReadingSession, readingSessionOptions } from '../src/lib/publicReadingAuthSession.js';
 import { publicReadingPath, publicReadingFeatureLock } from '../src/lib/publicReadingRelease2029.js';
+import { getPasswordRecovery, subscribePasswordRecovery, markPasswordRecovery, clearPasswordRecovery, resetPasswordRecoveryForTests } from '../src/lib/passwordRecovery.js';
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 const flush = () => new Promise(resolve => setImmediate(resolve));
 
@@ -63,13 +64,13 @@ async function mountAuth({profileReader=async id=>({id,role:'admin'}),verify=asy
  const calls=[];
  const React={createContext:()=>({Provider:'context'}),useContext:()=>null,useEffect:fn=>{effects.push(fn);},
   useState:initial=>{const i=si++;if(first)states[i]=initial;return [states[i],value=>states[i]=typeof value==='function'?value(states[i]):value];},
-  useRef:initial=>{const i=ri++;if(first)refs[i]={current:initial};return refs[i];},useCallback:fn=>fn,
+  useRef:initial=>{const i=ri++;if(first)refs[i]={current:initial};return refs[i];},useCallback:fn=>fn,useSyncExternalStore:(subscribe,getSnapshot)=>getSnapshot(),
   createElement:(_type,props)=>props.value};
  const supabase={auth:{getSession:async()=>({data:{session:null}}),getUser:verify,onAuthStateChange:fn=>{callback=fn;return {data:{subscription:{unsubscribe(){}}}};}},rpc:(...args)=>calls.push(args)};
  let source=read('src/lib/AuthContext.jsx').replace(/^import .*;\n/gm,'').replaceAll("import.meta.env.VITE_INTEGRATED_PREVIEW",'"false"').replace('export const useAuth','const useAuth').replace('export function AuthProvider','function AuthProvider');
  const compiled=(await transform(source,{loader:'jsx',format:'cjs'})).code;
  const context={React,...React,supabase,PUBLIC_READING_RELEASE:true,verifyReadingSession,fetchProfile:profileReader,
-  logActivity:(...args)=>calls.push(args),stitchLogin:(...args)=>calls.push(args),claimResearchLead:(...args)=>calls.push(args),getVisitorId:()=>{calls.push('visitor');return 'visitor';},doSignOut:async()=>({}),localStorage:{getItem:()=>{calls.push('localStorage');return null;},setItem:()=>calls.push('storageWrite')},Date,console};
+  logActivity:(...args)=>calls.push(args),stitchLogin:(...args)=>calls.push(args),claimResearchLead:(...args)=>calls.push(args),getVisitorId:()=>{calls.push('visitor');return 'visitor';},doSignOut:async()=>({}),getPasswordRecovery,subscribePasswordRecovery,localStorage:{getItem:()=>{calls.push('localStorage');return null;},setItem:()=>calls.push('storageWrite')},Date,console};
  vm.createContext(context);vm.runInContext(compiled+';globalThis.AuthProvider=AuthProvider;',context);
  const render=()=>{si=0;ri=0;effects=[];const initial=first;const result=context.AuthProvider({children:null});first=false;if(!initial)effects.slice(1).forEach(fn=>fn());return result;};
  render();const cleanup=effects.map(fn=>fn());await flush();
@@ -193,4 +194,28 @@ test('role revoke/regrant cannot reuse cached flags before the fresh policy read
  assert.equal(render(true).loading,true);assert.equal(render(true).lock,null);commit();
  reads.shift()({});await flush();assert.equal(render(true).lock,null,'required flag removed on server must not reuse the old flag');
  cleanup?.();
+});
+
+test('password-recovery state: set only for the account whose link created the session; never grants a role, never leaks to another account',async()=>{
+ resetPasswordRecoveryForTests();
+ const app=await mountAuth();
+ app.emit({access_token:'a',user:{id:'a'}});await flush();await flush();
+ assert.equal(app.render().passwordRecovery,false,'an ordinary sign-in is not a recovery');
+ markPasswordRecovery('a');
+ const recovering=app.render();assert.equal(recovering.passwordRecovery,true);assert.equal(recovering.user.id,'a');assert.equal(recovering.isAdmin,true,'roles still come only from the verified profile');
+ // another account in the same tab does not inherit the mark
+ app.emit({access_token:'b',user:{id:'b'}});await flush();await flush();
+ assert.equal(app.render().user.id,'b');assert.equal(app.render().passwordRecovery,false);
+ // the mark is cleared once the password is saved, and the context follows
+ app.emit({access_token:'a',user:{id:'a'}});await flush();await flush();assert.equal(app.render().passwordRecovery,true);
+ clearPasswordRecovery();assert.equal(app.render().passwordRecovery,false);
+ // a signed-out visitor never has it, even with a stale mark
+ markPasswordRecovery('a');app.emit(null);await flush();assert.equal(app.render().user,null);assert.equal(app.render().passwordRecovery,false);
+ assert.deepEqual(app.calls,[],'no credits, marketing or visitor side effect from recovery');
+ clearPasswordRecovery();app.dispose();resetPasswordRecoveryForTests();
+});
+test('the recovery mark has subscribers that React can follow and unsubscribe',()=>{
+ resetPasswordRecoveryForTests();const seen=[];const stop=subscribePasswordRecovery(()=>seen.push(getPasswordRecovery()?.userId??null));
+ markPasswordRecovery('u1');clearPasswordRecovery();stop();markPasswordRecovery('u2');
+ assert.deepEqual(seen,['u1',null]);clearPasswordRecovery();resetPasswordRecoveryForTests();
 });

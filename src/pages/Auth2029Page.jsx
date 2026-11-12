@@ -15,7 +15,7 @@ export default function Auth2029Page() {
   return <Sod2029Shell surface="community" title="כניסה לחשבון" introVariant="none" status="חשבון" symbol="◎">
     <main className="sod29-auth" data-experience-surface="auth-2029" dir="rtl">
       <header className="sod29-auth-intro"><span className="sod29-auth-eyebrow">{"החשבון שלכם באתר"}</span><h1>טוב לראות אתכם כאן</h1><p>{"השיחות, ההודעות והאזור האישי שלכם — באותו חשבון. חלקים בבנייה פתוחים למנהל בלבד."}</p><Link className="sod29-auth-return" to={returnTo}>חזרה לגלישה ←</Link></header>
-      <AccountEntry2029 returnHref={returnTo} />
+      <AccountEntry2029 returnHref={returnTo} initialStep={new URLSearchParams(location.search).get("reset") === "1" ? "reset" : "email"} />
       <footer className="sod29-auth-footer">החשבון שלכם נשאר פרטי. פרופיל ציבורי מוצג רק בהתאם לבחירות שלכם.</footer>
     </main>
   </Sod2029Shell>;
