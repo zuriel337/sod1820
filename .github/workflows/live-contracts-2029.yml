@@ -259,6 +259,7 @@ jobs:
           node --test
           test/now-publications-2029.test.mjs
           test/now-writer-pins-2029.test.mjs
+          test/now-media-centred-2029.test.mjs
           test/home-live-updates-2029.test.mjs
           test/home-featured-post-2029.test.mjs
           test/companion-2029-one-feed-and-projector-rail.test.mjs
