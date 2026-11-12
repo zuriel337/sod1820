@@ -1,3 +1,4 @@
+import { isResearchPublicVisibleStatus } from "../../lib/research/researchObjectPresentation.js";
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getPublicResearchClient } from "../../lib/research/researchViewMode.js";
@@ -96,7 +97,8 @@ export default function NumberZviPublicResearch2029({
       }
       const rows = page.rows.filter((row) => {
         const status = row?.publicationState ?? row?.status;
-        return ["approved", "canonical"].includes(status)
+        // Public verified or "טרם אומת" status, exactly as the reader admitted it (ZURIEL 12.11.2026).
+        return isResearchPublicVisibleStatus(status)
           && (!row?.status || row.status === status)
           && (!row?.publicationState || row.publicationState === status)
           && (row?.privacy_scope == null || row.privacy_scope === "public")

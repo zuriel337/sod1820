@@ -56,6 +56,9 @@ function mergeActivity({ items, arrivals, people }) {
     item,
     activity: canonicalPublicActivityPresentation(item),
   })).sort((left, right) => {
+    // Public "טרם אומת" findings keep their own tier after verified activity (never displacing it).
+    const tier = (Number(left.item.publicTier) || 0) - (Number(right.item.publicTier) || 0);
+    if (tier) return tier;
     const a = left.activity.at ? Date.parse(left.activity.at) : 0;
     const b = right.activity.at ? Date.parse(right.activity.at) : 0;
     return b - a || String(left.item.id).localeCompare(String(right.item.id), "he");
@@ -110,6 +113,10 @@ export default function WorldPublicUpdates2029({
         {visible.map(({ item, activity: state }) => <article key={item.id}>
           <div className="sod29-world-update-meta">
             <span className={`sod29-world-update-state is-${state.tone}`}>{state.label}</span>
+            {item.kind === "finding" && item.statusLabel
+              ? <span className={`sod29-research-status${item.humanGateVerified ? "" : " is-unverified"}`}
+                data-public-research-status={item.status}>{item.statusLabel}</span>
+              : null}
             <time dateTime={state.at || undefined}>{state.at
               ? `${state.dateLabel} · ${bilingualDateLabel(state.at)}`
               : "אין נתון"}</time>
