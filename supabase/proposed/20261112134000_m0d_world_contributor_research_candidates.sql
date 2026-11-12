@@ -13,9 +13,10 @@
 -- v2 = the live v1 definition with exactly one token added ('candidate' in the status array). Same security_invoker and
 -- security_barrier, same owner, and the same privileges as v1 (copied from v1's ACL, then compared). Everything else - privacy_scope
 -- = 'public', the person_only exclusion, the live-source check and the postgres/service_role/admin branches - is v1's text.
--- Guards: the status anchor occurs exactly once in v1 (live 12.11.2026: md5 of pg_get_viewdef(v1) = 81581396c9167206a67a117bdd406f70);
--- an existing v2 must already be exactly this (then: no-op), otherwise stop. After creation v1 must be unchanged and v2 minus the
--- token must equal v1. No row and no status changes anywhere.
+-- Guards: v1 must be exactly the definition reviewed on 12.11.2026 (md5 of pg_get_viewdef(v1, true) = 81581396c9167206a67a117bdd406f70,
+-- enforced below) and the status anchor occurs exactly once in it. An existing v2 is never replaced and never accepted on its text
+-- alone: it goes through the same postconditions as a new one (round 5). After the block: v1 unchanged, v2 minus the token equals
+-- v1, and v2's owner, options and privileges equal v1's. No row and no status changes anywhere.
 -- Rollback: ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql (drops v2 only). Test: tests/sql/m0d_world_contributor_research_candidates_v1.sql.
 do $$
 declare
@@ -26,12 +27,14 @@ declare
 begin
   v1 := 'public.world_contributor_research_v1'::regclass;
   d := pg_get_viewdef(v1, true);
-  if to_regclass('public.world_contributor_research_v2') is not null then
-    if replace(pg_get_viewdef('public.world_contributor_research_v2'::regclass, true), v_tok, ']') = d then
-      raise notice 'M0-D: world_contributor_research_v2 already present'; return;
-    end if;
-    raise exception 'M0-D drift: world_contributor_research_v2 exists with a definition other than v1 + candidate; stop';
+  if md5(d) <> '81581396c9167206a67a117bdd406f70' then
+    raise exception 'M0-D drift: world_contributor_research_v1 differs from the definition reviewed on 12.11.2026; stop';
   end if;
+  -- Round 5 (independent review): an existing v2 is NOT accepted on its text alone. It is never replaced; it must pass every
+  -- postcondition below (definition, owner, options, privileges) exactly like a freshly created one, or the script stops.
+  if to_regclass('public.world_contributor_research_v2') is not null then
+    raise notice 'M0-D: world_contributor_research_v2 already present; verifying it instead of creating it';
+  else
   if (length(d) - length(replace(d, v_from, ''))) <> length(v_from) then
     raise exception 'M0-D drift: the reviewed status filter is not present exactly once in world_contributor_research_v1';
   end if;
@@ -49,6 +52,8 @@ begin
   end loop;
   comment on view public.world_contributor_research_v2 is
     'world_contributor_research_v1 plus PUBLIC research candidates (status kept; the 2029 site labels them «טרם אומת»). Read by the 2029 site from M0-D on; v1 stays unchanged for older clients.';
+  end if;
+  v2 := 'public.world_contributor_research_v2'::regclass;
   if pg_get_viewdef(v1, true) <> d then raise exception 'M0-D: world_contributor_research_v1 changed; stop'; end if;
   if replace(pg_get_viewdef(v2, true), v_tok, ']') <> d then
     raise exception 'M0-D: world_contributor_research_v2 differs from v1 beyond the candidate token';
@@ -56,12 +61,16 @@ begin
   if (select relowner from pg_class where oid = v2) <> (select relowner from pg_class where oid = v1) then
     raise exception 'M0-D: v2 owner differs from v1 owner; stop';
   end if;
-  if (select coalesce(reloptions, '{}') from pg_class where oid = v2) <> (select coalesce(reloptions, '{}') from pg_class where oid = v1) then
+  if (select array_agg(o order by o) from pg_class c, unnest(coalesce(c.reloptions, '{}')) o where c.oid = v2)
+     is distinct from (select array_agg(o order by o) from pg_class c, unnest(coalesce(c.reloptions, '{}')) o where c.oid = v1) then
     raise exception 'M0-D: v2 options differ from v1';
   end if;
-  if (select array_agg(a.grantee::text || ':' || a.privilege_type order by 1) from pg_class c, aclexplode(c.relacl) a where c.oid = v2 and a.grantee <> c.relowner)
+  -- Sorted by the entry itself (an aggregate's "order by 1" would sort by the constant 1).
+  if (select array_agg(e order by e) from (select a.grantee::text || ':' || a.privilege_type as e from pg_class c, aclexplode(c.relacl) a
+        where c.oid = v2 and a.grantee <> c.relowner) s)
      is distinct from
-     (select array_agg(a.grantee::text || ':' || a.privilege_type order by 1) from pg_class c, aclexplode(c.relacl) a where c.oid = v1 and a.grantee <> c.relowner) then
+     (select array_agg(e order by e) from (select a.grantee::text || ':' || a.privilege_type as e from pg_class c, aclexplode(c.relacl) a
+        where c.oid = v1 and a.grantee <> c.relowner) s) then
     raise exception 'M0-D: v2 privileges differ from v1';
   end if;
 end $$;

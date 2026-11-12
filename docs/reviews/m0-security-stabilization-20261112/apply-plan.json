@@ -118,7 +118,7 @@
   {
    "step": "11",
    "file": "supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql",
-   "sha256": "b39e59d0692e69b6fc617ff22e773549927fc51b5d1a90e9c1569af1c2a74c2b",
+   "sha256": "242511115878f3ff0f8e6ebdf7a68cb2c8052df571e00a5a62f399c7bbf2bfce",
    "rollback": "supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql",
    "rollback_sha256": "77ccd15cfb0c2d136ee93ad89b511f1c1a9bd5f73857df747d2e1c99e1c1100f",
    "status": "mandatory",

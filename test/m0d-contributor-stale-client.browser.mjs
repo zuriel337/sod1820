@@ -3,12 +3,18 @@
 //   OLD_DIST = the site that is live now (a build of the live commit, e.g. `git worktree add <dir> ed30dc05b && npm run build`;
 //              round 4 ran it with 146f2f0e7, whose contributor readers are identical)
 //   NEW_DIST = this branch (default: ./dist from `npm run build`)
-// The mock answers world_contributor_research_v1 with a verified finding only, and world_contributor_research_v2 (when it
-// "exists") with the same finding plus a public candidate. The checks follow the release and rollback order:
+// The mock answers world_contributor_research_v1 with a verified (canonical, promoted) finding only, and world_contributor_research_v2
+// (when it "exists") with the same finding plus a public candidate. Round 5 (independent review): the mock now APPLIES the PostgREST
+// filters the page sends (eq / is / not.is / like / in), exactly as the database would, and fails the test on any filter it does not
+// understand. Round 4's mock ignored them and so showed a candidate on the contributor page that production never returns: that page
+// reads the source library profile (status=eq.canonical, promoted_node_id not null), so a candidate never reaches it.
+// The checks follow the release and rollback order:
 //   A. SQL step 11 applied, old tab still open (old code): it reads v1 only and never sees the candidate.
-//   B. New site with v2: it reads v2; the candidate is on the page.
+//   B. New site with v2: it reads v2; its own canonical filter keeps the candidate off this page (as in production).
 //   C. Rollback step 1 (v2 dropped) while the new site is still live: PGRST205 -> it reads v1, no fault, no candidate.
 //   D. A permission error on v2 is NOT a missing view: no silent fallback to v1.
+// Candidates DO appear, labelled «טרם אומת», on the World source reader (worldPublicFindingReader, candidate tier); that surface is
+// covered by test/m0d-contributor-view-v2.test.mjs and the component tests, not here.
 // Skips (never passes) when either build or the browser is missing.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -37,7 +43,7 @@ const row = (id, status, statement) => ({
   source_ref: null, contributor: 'כותב בדיקה', confidence: null, engine_verified: true, engine_detail: null, evidence: null, status,
   promoted_node_id: null, parent_id: null, meta: {}, privacy_scope: 'public', source_contributor_id: CONTRIBUTOR.id,
 });
-const VERIFIED = row('11111111-1111-4111-8111-111111111111', 'approved', 'ממצא מאושר לבדיקה');
+const VERIFIED = { ...row('11111111-1111-4111-8111-111111111111', 'canonical', 'ממצא מאושר לבדיקה'), promoted_node_id: '33333333-3333-4333-8333-333333333333' };
 const CANDIDATE = row('22222222-2222-4222-8222-222222222222', 'candidate', 'ממצא מועמד לבדיקה');
 
 function serve(dist) {
@@ -55,8 +61,28 @@ function serve(dist) {
   return new Promise((done) => server.listen(0, '127.0.0.1', () => done(server)));
 }
 
+// PostgREST filters as the database applies them. `or` is the contributor-attribution filter: every fixture row belongs to the
+// test contributor, so it admits all rows. Any other operator is recorded and fails the test instead of being ignored.
+function applyFilters(rows, params, unknown) {
+  const skip = new Set(['select', 'order', 'limit', 'offset', 'or']);
+  return rows.filter((r) => [...params].every(([key, raw]) => {
+    if (skip.has(key)) return true;
+    if (!(key in r)) { unknown.push(`${key}=${raw}`); return true; }
+    const value = r[key];
+    if (raw === 'is.null') return value === null || value === undefined;
+    if (raw === 'not.is.null') return value !== null && value !== undefined;
+    if (raw.startsWith('eq.')) return value !== null && String(value) === raw.slice(3);
+    if (raw.startsWith('in.(')) return raw.slice(4, -1).split(',').map((v) => v.replace(/^"|"$/g, '')).includes(String(value));
+    if (raw.startsWith('like.')) {
+      const pattern = new RegExp(`^${raw.slice(5).replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/[%*]/g, '.*')}$`);
+      return value !== null && value !== undefined && pattern.test(String(value));
+    }
+    unknown.push(`${key}=${raw}`); return true;
+  }));
+}
+
 // v2: 'present' | 'missing' (PGRST205, the view was never created or was dropped) | 'denied' (42501)
-async function wire(page, state, log) {
+async function wire(page, state, log, unknown = []) {
   await page.route('**/*', async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -70,11 +96,13 @@ async function wire(page, state, log) {
     if (table === 'contributors') {
       return String(request.headers().accept || '').includes('vnd.pgrst.object') ? json(200, CONTRIBUTOR) : json(200, [CONTRIBUTOR]);
     }
-    if (table === 'world_contributor_research_v1') return json(200, [VERIFIED], { 'content-range': '0-0/1' });
+    const rows = (list) => { const out = applyFilters(list, url.searchParams, unknown);
+      return json(200, out, { 'content-range': out.length ? `0-${out.length - 1}/${out.length}` : '*/0' }); };
+    if (table === 'world_contributor_research_v1') return rows([VERIFIED]);
     if (table === 'world_contributor_research_v2') {
       if (state.v2 === 'missing') return json(404, { code: 'PGRST205', details: null, hint: null, message: "Could not find the table 'public.world_contributor_research_v2' in the schema cache" });
       if (state.v2 === 'denied') return json(401, { code: '42501', details: null, hint: null, message: 'permission denied for view world_contributor_research_v2' });
-      return json(200, [VERIFIED, CANDIDATE], { 'content-range': '0-1/2' });
+      return rows([VERIFIED, CANDIDATE]);
     }
     if (table === 'site_flags') return json(200, ['lock_world', 'lock_heichal', 'lock_raziel_site', 'lock_life_journey', 'lock_books', 'lock_number'].map((key) => ({ key, enabled: false, message: '', mode: 'all' })));
     return json(200, [], { 'content-range': '*/0' });
@@ -84,12 +112,13 @@ async function wire(page, state, log) {
 async function visit(browser, base, state) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' });
   const page = await context.newPage();
-  const errors = [], log = [];
+  const errors = [], log = [], unknown = [];
   page.on('pageerror', (error) => errors.push(String(error)));
-  await wire(page, state, log);
+  await wire(page, state, log, unknown);
   await page.goto(`${base}/community/researcher/${SLUG}`);
   await page.getByText('ממצא מאושר לבדיקה').first().waitFor({ timeout: 30000 });
   await page.waitForTimeout(800);   // let every paged read settle
+  assert.deepEqual(unknown, [], 'the mock understood every filter the page sent');
   return { context, page, errors, log, text: await page.locator('body').innerText() };
 }
 
@@ -109,17 +138,14 @@ test('stale tab and rollback order: old code reads v1 only; new code reads v2, f
     report.A = { reads: [...new Set(a.log)].filter((t) => t.startsWith('world_contributor')), candidateShown: a.text.includes('ממצא מועמד לבדיקה') };
     await a.context.close();
 
-    // B. New site, v2 present: reads v2 and shows the candidate.
+    // B. New site, v2 present: reads v2; the page's own canonical filter keeps the candidate off the contributor page.
     const b = await visit(browser, newBase, { v2: 'present' });
     assert.ok(b.log.includes('world_contributor_research_v2'), 'new code reads v2');
     assert.ok(!b.log.includes('world_contributor_research_v1'), 'no v1 read while v2 answers');
-    assert.ok(b.text.includes('ממצא מועמד לבדיקה'), 'the candidate is on the page');
-    // The candidate carries its public label, and the verified finding stays ahead of it (Human-Gate tier first).
-    const labels = await b.page.locator('[data-public-research-status]').evaluateAll((nodes) => nodes.map((node) => [node.dataset.publicResearchStatus, node.textContent.trim()]));
-    assert.ok(labels.some(([status, text]) => status === 'candidate' && text === 'טרם אומת'), `candidate labelled "טרם אומת": ${JSON.stringify(labels)}`);
-    assert.ok(labels.findIndex(([status]) => status === 'approved') < labels.findIndex(([status]) => status === 'candidate'), 'verified first, then the candidate');
+    assert.ok(!b.text.includes('ממצא מועמד לבדיקה'), 'the contributor page reads canonical promoted findings only (as in production)');
+    assert.equal(await b.page.locator('[data-public-research-status="candidate"]').count(), 0);
     assert.deepEqual(b.errors, []);
-    report.B = { reads: [...new Set(b.log)].filter((t) => t.startsWith('world_contributor')), candidateShown: true, labels };
+    report.B = { reads: [...new Set(b.log)].filter((t) => t.startsWith('world_contributor')), candidateShown: false };
     await b.context.close();
 
     // C. Rollback step 1: v2 dropped while the new site is still live.

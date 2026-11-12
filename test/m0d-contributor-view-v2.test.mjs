@@ -90,7 +90,10 @@ test("World finding reader: the verified tier stays on v1; a contributor's candi
   const calls = [];
   const c = client({ world_contributor_research_v1: { data: [row(1, "approved")], error: null },
     world_contributor_research_v2: { data: [row(2, "candidate")], error: null } }, calls);
-  await fetchWorldPublicFindingsPage({ client: c, contributorId: UUID(99), pageSize: 5 }).catch(() => null);
+  const page = await fetchWorldPublicFindingsPage({ client: c, contributorId: UUID(99), pageSize: 5 });
+  // Round 5: the call must complete; an error is no longer swallowed. Both tiers were read in this one page (the minimal fixture rows
+  // are then held back by the reader's own presentation rules, which this test does not cover).
+  assert.equal(page.coverage.examined, 2, "the verified row and the candidate row were both read");
   const views = calls.filter((x) => x.table.startsWith("world_contributor_research")).map((x) => [x.table, x.filters.find((f) => f[1] === "status")?.[0]]);
   assert.ok(views.some(([t, op]) => t === "world_contributor_research_v1" && op === "in"), "verified tier on v1");
   assert.ok(views.some(([t, op]) => t === "world_contributor_research_v2" && op === "eq"), "candidate tier on v2");
@@ -128,9 +131,10 @@ test("the SQL creates v2 and leaves v1 byte for byte; the rollback drops v2 only
   assert.doesNotMatch(rb, /create or replace view/i);
 });
 
-// Round 4 (browser check test/m0d-contributor-stale-client.browser.mjs found it): the public contributor page rendered a v2
-// candidate WITHOUT its "טרם אומת" label. The page now carries the stored status on each finding item and labels it; verified
-// findings stay first. Static and model checks here so CI holds it without the old build the browser check needs.
+// Round 4 added a "טרם אומת" label on the public contributor page after a browser check showed a v2 candidate there without it.
+// Round 5 correction (independent review): that check's mock ignored PostgREST filters. The page reads the source-library profile
+// (status=eq.canonical, promoted_node_id not null), so a candidate never reaches it in production. The label stays as defense in
+// depth: if a future reader on this page ever admits a candidate, it carries its stored status and its label, after verified items.
 test("contributor page: a public candidate keeps its stored status, is labelled 'טרם אומת', and verified findings come first", async () => {
   const { buildPublicContributorView, selectContributorItems } = await import("../src/components/contributor2029/publicContributor2029Model.js");
   const { fixtureIdentity, fixtureProjection } = await import("../src/components/contributor2029/publicContributor2029Fixtures.js");

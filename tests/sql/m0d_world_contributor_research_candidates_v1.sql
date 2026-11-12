@@ -48,7 +48,8 @@ declare t text; begin
   reset role; return t;
 end $$;
 create function pg_temp.acl_set(v regclass) returns text language sql as $$
-  select string_agg(a.grantee::regrole::text || ':' || a.privilege_type, ',' order by 1) from pg_class c, aclexplode(c.relacl) a where c.oid = v and a.grantee <> c.relowner $$;
+  select string_agg(e, ',' order by e) from (select a.grantee::regrole::text || ':' || a.privilege_type as e from pg_class c, aclexplode(c.relacl) a
+   where c.oid = v and a.grantee <> c.relowner) s $$;
 do $$ begin
   if pg_temp.anon_rows('public.world_contributor_research_v1') is distinct from 'approved public' then raise exception 'BEFORE: expected only the approved row in v1'; end if;
   if to_regclass('public.world_contributor_research_v2') is not null then raise exception 'BEFORE: v2 must not exist'; end if;
@@ -82,10 +83,67 @@ create view public.world_contributor_research_v2 as select 1 as x;
 \set ON_ERROR_STOP off
 \i supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql
 \set ON_ERROR_STOP on
+\if :ERROR
+\else
+do $$ begin raise exception 'NEGATIVE (foreign v2): the proposal did not stop'; end $$;
+\endif
 do $$ begin
   if pg_get_viewdef('public.world_contributor_research_v2'::regclass, true) not like '%1 AS x%' then raise exception 'NEGATIVE: the foreign v2 was replaced'; end if;
   if pg_get_viewdef('public.world_contributor_research_v1'::regclass, true) <> (select d from public.m0d_before) then raise exception 'NEGATIVE: v1 changed'; end if;
 end $$;
 drop view public.world_contributor_research_v2;
+-- Round 5 (independent review): a hand-made v2 with the right TEXT but without security_invoker, or with broader grants, must stop the
+-- proposal (an existing v2 is verified, never accepted on its text alone) and must not be replaced.
+create function pg_temp.v2_text() returns text language sql as $$
+  select rtrim(btrim(replace(pg_get_viewdef('public.world_contributor_research_v1'::regclass, true),
+    $a$(ro.status = ANY (ARRAY['approved'::text, 'canonical'::text]))$a$,
+    $a$(ro.status = ANY (ARRAY['approved'::text, 'canonical'::text, 'candidate'::text]))$a$)), ';') $$;
+do $$ begin execute 'create view public.world_contributor_research_v2 as ' || pg_temp.v2_text(); end $$;
+revoke all on public.world_contributor_research_v2 from anon, authenticated;
+grant select on public.world_contributor_research_v2 to anon, authenticated;
+\set ON_ERROR_STOP off
+\i supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql
+\set ON_ERROR_STOP on
+\if :ERROR
+\else
+do $$ begin raise exception 'NEGATIVE (options): the proposal did not stop'; end $$;
+\endif
+do $$ begin
+  if exists (select 1 from pg_class where oid = 'public.world_contributor_research_v2'::regclass and reloptions @> array['security_invoker=true']) then
+    raise exception 'NEGATIVE (options): the hand-made v2 was replaced or altered'; end if;
+end $$;
+drop view public.world_contributor_research_v2;
+do $$ begin execute 'create view public.world_contributor_research_v2 with (security_invoker = true, security_barrier = true) as ' || pg_temp.v2_text(); end $$;
+revoke all on public.world_contributor_research_v2 from public, anon, authenticated, service_role;
+grant select on public.world_contributor_research_v2 to anon, authenticated;
+grant all on public.world_contributor_research_v2 to service_role;
+grant insert on public.world_contributor_research_v2 to anon;
+\set ON_ERROR_STOP off
+\i supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql
+\set ON_ERROR_STOP on
+\if :ERROR
+\else
+do $$ begin raise exception 'NEGATIVE (privileges): the proposal did not stop'; end $$;
+\endif
+do $$ begin
+  if not has_table_privilege('anon', 'public.world_contributor_research_v2', 'INSERT') then raise exception 'NEGATIVE (privileges): the hand-made v2 was changed'; end if;
+end $$;
+drop view public.world_contributor_research_v2;
+-- Round 5: v1 that differs from the reviewed definition (here: one extra "AND true") must stop the proposal before anything is created.
+do $$ begin
+  execute 'create or replace view public.world_contributor_research_v1 as ' || rtrim(btrim(replace(
+    pg_get_viewdef('public.world_contributor_research_v1'::regclass, true), $a$ro.privacy_scope = 'public'::text$a$,
+    $a$ro.privacy_scope = 'public'::text AND true$a$)), ';');
+end $$;
+\set ON_ERROR_STOP off
+\i supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql
+\set ON_ERROR_STOP on
+\if :ERROR
+\else
+do $$ begin raise exception 'NEGATIVE (v1 drift): the proposal did not stop'; end $$;
+\endif
+do $$ begin
+  if to_regclass('public.world_contributor_research_v2') is not null then raise exception 'NEGATIVE (v1 drift): v2 was created'; end if;
+end $$;
 \o
 \echo 'M0-D contributor research view regression: PASS'
