@@ -44,6 +44,15 @@ jobs:
       # so it is fetched first. The SHA is read from G1's own captured baseline, so the fixture stays the single source.
       - name: G1 captured main commit (the one commit the G1 smoke reads with git show; depth 1, no tags)
         run: git fetch --no-tags --depth=1 origin "$(node -p "require('./audits/g1-agent-entry/G1_ROUTING_LIVE_BASELINE_20261009.json').main_sha")"
+      # 12.11.2026: the G1 base-vs-head checks compare the PR head with its REAL base (dated records, contract changes, laws snapshots).
+      # The base is the PR base commit; on a manual dispatch it is the tip of main. Depth 1, no tags. Without it the test FAILS in CI.
+      - name: G1 base commit (the PR base, or main on a manual dispatch; depth 1, no tags)
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          BASE="${PR_BASE_SHA:-$(git ls-remote origin refs/heads/main | cut -f1)}"
+          git fetch --no-tags --depth=1 origin "$BASE"
+          echo "G1_BASE_SHA=$BASE" >> "$GITHUB_ENV"
       - name: G1 agent-routing smoke (the owner index and the adapters route to live owners, keep their safety literals, and the captured adapter blobs stay exact)
         run: node --test scripts/test-g1-agent-routing-smoke.mjs
 
