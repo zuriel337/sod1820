@@ -3,8 +3,8 @@
   "post": "92",
   "theme": "dark",
   "dev": "desktop",
-  "sourceMs": 3527,
-  "idleMs": 7134,
+  "sourceMs": 4401,
+  "idleMs": 8550,
   "overflowX": -15,
   "dupIds": 0,
   "units": 0,
@@ -12,15 +12,15 @@
   "companion": true,
   "basis": "series_tag",
   "voice": "original",
-  "dcl": 315,
-  "load": 317
+  "dcl": 355,
+  "load": 405
  },
  {
   "post": "92",
   "theme": "dark",
   "dev": "mobile",
-  "sourceMs": 3750,
-  "idleMs": 7613,
+  "sourceMs": 4444,
+  "idleMs": 9063,
   "overflowX": 0,
   "dupIds": 0,
   "units": 0,
@@ -28,15 +28,15 @@
   "companion": false,
   "basis": "series_tag",
   "voice": "original",
-  "dcl": 327,
-  "load": 329
+  "dcl": 365,
+  "load": 367
  },
  {
   "post": "92",
   "theme": "light",
   "dev": "desktop",
-  "sourceMs": 3467,
-  "idleMs": 7034,
+  "sourceMs": 4676,
+  "idleMs": 9851,
   "overflowX": -15,
   "dupIds": 0,
   "units": 0,
@@ -44,15 +44,15 @@
   "companion": true,
   "basis": "series_tag",
   "voice": "original",
-  "dcl": 305,
-  "load": 307
+  "dcl": 351,
+  "load": 353
  },
  {
   "post": "92",
   "theme": "light",
   "dev": "mobile",
-  "sourceMs": 3852,
-  "idleMs": 7638,
+  "sourceMs": 5754,
+  "idleMs": 9658,
   "overflowX": 0,
   "dupIds": 0,
   "units": 0,
@@ -60,15 +60,15 @@
   "companion": false,
   "basis": "series_tag",
   "voice": "original",
-  "dcl": 285,
-  "load": 289
+  "dcl": 520,
+  "load": 524
  },
  {
   "post": "92",
   "theme": "parchment",
   "dev": "desktop",
-  "sourceMs": 4808,
-  "idleMs": 8620,
+  "sourceMs": 4473,
+  "idleMs": 8591,
   "overflowX": -15,
   "dupIds": 0,
   "units": 0,
@@ -76,15 +76,15 @@
   "companion": true,
   "basis": "series_tag",
   "voice": "original",
-  "dcl": 289,
-  "load": 292
+  "dcl": 337,
+  "load": 339
  },
  {
   "post": "92",
   "theme": "parchment",
   "dev": "mobile",
-  "sourceMs": 3825,
-  "idleMs": 7817,
+  "sourceMs": 3870,
+  "idleMs": 7775,
   "overflowX": 0,
   "dupIds": 0,
   "units": 0,
@@ -92,15 +92,15 @@
   "companion": false,
   "basis": "series_tag",
   "voice": "original",
-  "dcl": 326,
-  "load": 328
+  "dcl": 342,
+  "load": 346
  },
  {
   "post": "5107",
   "theme": "dark",
   "dev": "desktop",
-  "sourceMs": 4852,
-  "idleMs": 7678,
+  "sourceMs": 5935,
+  "idleMs": 8945,
   "overflowX": -15,
   "dupIds": 0,
   "units": 8,
@@ -108,15 +108,15 @@
   "companion": true,
   "basis": "preview_acceptance_exception",
   "voice": "system",
-  "dcl": 312,
-  "load": 315
+  "dcl": 301,
+  "load": 303
  },
  {
   "post": "5107",
   "theme": "dark",
   "dev": "mobile",
-  "sourceMs": 4785,
-  "idleMs": 7534,
+  "sourceMs": 4816,
+  "idleMs": 7708,
   "overflowX": 0,
   "dupIds": 0,
   "units": 8,
@@ -124,15 +124,15 @@
   "companion": false,
   "basis": "preview_acceptance_exception",
   "voice": "system",
-  "dcl": 328,
-  "load": 330
+  "dcl": 339,
+  "load": 341
  },
  {
   "post": "5107",
   "theme": "light",
   "dev": "desktop",
-  "sourceMs": 4702,
-  "idleMs": 7836,
+  "sourceMs": 5829,
+  "idleMs": 9351,
   "overflowX": -15,
   "dupIds": 0,
   "units": 8,
@@ -140,15 +140,15 @@
   "companion": true,
   "basis": "preview_acceptance_exception",
   "voice": "system",
-  "dcl": 295,
-  "load": 342
+  "dcl": 317,
+  "load": 320
  },
  {
   "post": "5107",
   "theme": "light",
   "dev": "mobile",
-  "sourceMs": 4664,
-  "idleMs": 8414,
+  "sourceMs": 5204,
+  "idleMs": 8120,
   "overflowX": 0,
   "dupIds": 0,
   "units": 8,
@@ -156,15 +156,15 @@
   "companion": false,
   "basis": "preview_acceptance_exception",
   "voice": "system",
-  "dcl": 268,
-  "load": 270
+  "dcl": 368,
+  "load": 377
  },
  {
   "post": "5107",
   "theme": "parchment",
   "dev": "desktop",
-  "sourceMs": 4681,
-  "idleMs": 7925,
+  "sourceMs": 5409,
+  "idleMs": 8186,
   "overflowX": -15,
   "dupIds": 0,
   "units": 8,
@@ -172,15 +172,15 @@
   "companion": true,
   "basis": "preview_acceptance_exception",
   "voice": "system",
-  "dcl": 278,
-  "load": 280
+  "dcl": 329,
+  "load": 332
  },
  {
   "post": "5107",
   "theme": "parchment",
   "dev": "mobile",
-  "sourceMs": 5179,
-  "idleMs": 7964,
+  "sourceMs": 5017,
+  "idleMs": 7887,
   "overflowX": 0,
   "dupIds": 0,
   "units": 8,
@@ -188,15 +188,15 @@
   "companion": false,
   "basis": "preview_acceptance_exception",
   "voice": "system",
-  "dcl": 283,
-  "load": 285
+  "dcl": 324,
+  "load": 326
  },
  {
   "post": "5112",
   "theme": "dark",
   "dev": "desktop",
-  "sourceMs": 5893,
-  "idleMs": 8700,
+  "sourceMs": 6608,
+  "idleMs": 9598,
   "overflowX": -15,
   "dupIds": 0,
   "units": 6,
@@ -204,15 +204,15 @@
   "companion": true,
   "basis": "preview_acceptance_exception",
   "voice": "unspecified",
-  "dcl": 251,
-  "load": 253
+  "dcl": 368,
+  "load": 373
  },
  {
   "post": "5112",
   "theme": "dark",
   "dev": "mobile",
-  "sourceMs": 5488,
-  "idleMs": 8406,
+  "sourceMs": 6146,
+  "idleMs": 10401,
   "overflowX": 0,
   "dupIds": 0,
   "units": 6,
@@ -220,15 +220,15 @@
   "companion": false,
   "basis": "preview_acceptance_exception",
   "voice": "unspecified",
-  "dcl": 279,
-  "load": 281
+  "dcl": 320,
+  "load": 322
  },
  {
   "post": "5112",
   "theme": "light",
   "dev": "desktop",
-  "sourceMs": 5595,
-  "idleMs": 8395,
+  "sourceMs": 6280,
+  "idleMs": 8951,
   "overflowX": -15,
   "dupIds": 0,
   "units": 6,
@@ -236,15 +236,15 @@
   "companion": true,
   "basis": "preview_acceptance_exception",
   "voice": "unspecified",
-  "dcl": 262,
-  "load": 264
+  "dcl": 351,
+  "load": 353
  },
  {
   "post": "5112",
   "theme": "light",
   "dev": "mobile",
-  "sourceMs": 5743,
-  "idleMs": 8690,
+  "sourceMs": 6022,
+  "idleMs": 9333,
   "overflowX": 0,
   "dupIds": 0,
   "units": 6,
@@ -252,15 +252,15 @@
   "companion": false,
   "basis": "preview_acceptance_exception",
   "voice": "unspecified",
-  "dcl": 275,
-  "load": 277
+  "dcl": 300,
+  "load": 303
  },
  {
   "post": "5112",
   "theme": "parchment",
   "dev": "desktop",
-  "sourceMs": 5809,
-  "idleMs": 8568,
+  "sourceMs": 6024,
+  "idleMs": 8716,
   "overflowX": -15,
   "dupIds": 0,
   "units": 6,
@@ -268,15 +268,15 @@
   "companion": true,
   "basis": "preview_acceptance_exception",
   "voice": "unspecified",
-  "dcl": 277,
-  "load": 280
+  "dcl": 365,
+  "load": 368
  },
  {
   "post": "5112",
   "theme": "parchment",
   "dev": "mobile",
-  "sourceMs": 5529,
-  "idleMs": 8285,
+  "sourceMs": 5845,
+  "idleMs": 9625,
   "overflowX": 0,
   "dupIds": 0,
   "units": 6,
@@ -284,7 +284,7 @@
   "companion": false,
   "basis": "preview_acceptance_exception",
   "voice": "unspecified",
-  "dcl": 272,
-  "load": 274
+  "dcl": 318,
+  "load": 320
  }
 ]

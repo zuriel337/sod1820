@@ -208,3 +208,20 @@
   background:color-mix(in srgb,var(--r29-gold) 7%,var(--s29-panel))!important;
   border-color:color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line))!important;
 }
+
+/* Companion content by Post character: the live-timeline Post leads with its update timeline, the numeric-research Post with its number map. */
+.sod29-companion.r29 :is(.sod29-companion-timeline,.sod29-companion-numbermap){margin:0 0 12px;padding:0 0 10px;border-bottom:1px solid color-mix(in srgb,var(--r29-gold) 26%,var(--s29-line))}
+.sod29-companion.r29 :is(.sod29-companion-timeline,.sod29-companion-numbermap)>small{display:flex;align-items:center;gap:8px;color:var(--r29-gold-ink);font-weight:800;letter-spacing:.02em}
+.sod29-companion.r29 :is(.sod29-companion-timeline,.sod29-companion-numbermap)>small::before{content:"◆";font-size:10px;color:var(--r29-gold)}
+.sod29-companion.r29 .sod29-companion-timeline ol{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px;position:relative}
+.sod29-companion.r29 .sod29-companion-timeline li a{display:flex;flex-direction:column;gap:2px;min-height:44px;justify-content:center;padding:6px 12px;border-radius:12px;text-decoration:none;color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-sapphire) 38%,var(--s29-line));background:color-mix(in srgb,var(--r29-sapphire) 9%,var(--s29-panel));border-inline-start:3px solid var(--r29-sapphire)}
+.sod29-companion.r29 .sod29-companion-timeline li a b{font:750 .94rem/1.35 var(--s29-font-ui)}
+.sod29-companion.r29 .sod29-companion-timeline li a span{color:var(--s29-muted);font-size:.84rem}
+.sod29-companion.r29 .sod29-companion-timeline li.is-active a{border-color:var(--r29-gold);border-inline-start-color:var(--r29-gold);
+  background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 26%,var(--s29-panel)),color-mix(in srgb,var(--r29-violet-deep) 14%,var(--s29-panel)));box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 40%,transparent),0 6px 16px -8px color-mix(in srgb,var(--r29-gold) 70%,transparent)}
+.sod29-companion.r29 .sod29-companion-numbermap p{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
+.sod29-companion.r29 .sod29-companion-numbermap button{min-height:44px;min-width:44px;padding:0 12px;border-radius:999px;cursor:pointer;color:var(--r29-gold-ink);font:800 1rem/1 var(--s29-font-numeric,var(--s29-font-ui));font-variant-numeric:tabular-nums;
+  border:1px solid color-mix(in srgb,var(--r29-gold) 66%,transparent);background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 28%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 9%,var(--s29-panel)) 70%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 20%,transparent),0 4px 12px -6px color-mix(in srgb,var(--r29-gold) 65%,transparent)}
+.sod29-companion.r29 .sod29-companion-numbermap sup{font-size:.62em;margin-inline-start:3px;color:var(--r29-azure)}
