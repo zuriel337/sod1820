@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { fetchGroupSourceArrivals } from "../../lib/research/worldGroupSource.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
-import { GroupSourceBadge, GroupSourceMedia } from "./GroupSourceMeta2029.jsx";
+import { GroupMessageText, GroupSourceBadge, GroupSourceMedia } from "./GroupSourceMeta2029.jsx";
 import "./ZviGroupTimeline2029.css";
 
 const PAGE = 40;
@@ -95,7 +95,7 @@ export default function ZviGroupTimeline2029({ recentItems = [] }) {
                 <GroupSourceBadge item={item} />
               </summary>
               <GroupSourceMedia item={item} compact />
-              {item.fullText ? <p>{item.fullText}</p> : null}
+              {item.fullText ? <p><GroupMessageText text={item.fullText} /></p> : null}
               <small>דברי צבי · הודעת מקור</small>
             </details>
           </li>;

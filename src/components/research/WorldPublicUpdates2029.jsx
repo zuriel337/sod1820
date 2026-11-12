@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import ExternalVideoFacade2029 from "../experience2029/ExternalVideoFacade2029.jsx";
+import { GroupMessageText } from "./GroupSourceMeta2029.jsx";
 import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
 import { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import {
@@ -125,7 +126,7 @@ export default function WorldPublicUpdates2029({
             onToggle={(event) => { if (event.currentTarget.open) onOpen?.(item, { inline: true }); }}
             open={selectedSourceHash === `#${groupSourceAnchor(item)}` || undefined}>
             <summary>קריאת הודעת המקור</summary>
-            <p>{item.fullText}</p>
+            <p><GroupMessageText text={item.fullText} /></p>
             {item.fullText.length >= 1200 ? <p>ההודעה מוצגת כאן באופן חלקי.</p> : null}
             {item.occurrenceCount > 1 ? <p>{item.occurrenceCount} הופעות בנוסח המוצג.</p> : null}
             <p>הודעת מקור שטרם נבדקה.</p>
