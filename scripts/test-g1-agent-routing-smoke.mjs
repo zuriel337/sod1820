@@ -3,7 +3,7 @@
 // The live inter_agent_coordination_law owner and work_log decide real assignments.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -295,4 +295,55 @@ test('post-apply case expectations resolve actual successors without granting wr
     assert.equal(replay.read_trace, null);
     assert.equal(replay.after_work_log_id, null);
   }
+});
+
+// ── Dated active-laws snapshot (focused alignment, ZURIEL 12.11.2026) ─────────────────────────────────────────────
+// Reads audits/g1-agent-entry/G1_LAWS_ACTIVE_SNAPSHOT_20261112.txt: a NEW dated, read-only copy of the active rule tree
+// (no service key, nothing written to the database). The historical 9.10.2026 baseline above is untouched.
+// Scope, stated honestly: this proves the dated copy is internally consistent and consistent with the repository files
+// it points to (Owner Index, owner files). It cannot see live drift after its date; refresh it with a new dated file.
+const lawsSnapshotPath = resolve(root, 'audits/g1-agent-entry/G1_LAWS_ACTIVE_SNAPSHOT_20261112.txt');
+const lawsSnapshot = (() => {
+  const active = []; const retired = [];
+  for (const line of readFileSync(lawsSnapshotPath, 'utf8').split('\n')) {
+    if (!line || line.startsWith('#')) continue;
+    const [kind, ...f] = line.split('|');
+    if (kind === 'L') active.push({ rule_id: f[0], version: Number(f[1]), owner: f[2], family: f[3], md5: f[4] });
+    else if (kind === 'R') retired.push({ rule_id: f[0], version: Number(f[1]), owner: f[2] });
+    else assert.fail('unknown snapshot row: ' + line);
+  }
+  return { active, retired };
+})();
+const activeLawIds = new Set(lawsSnapshot.active.map(x => x.rule_id));
+const ownerResolves = owner => activeLawIds.has(owner) || owner.startsWith('project_codex.') || existsSync(resolve(root, owner));
+// Retired laws that were retired WITHOUT a recorded successor (compaction_v1/owner_routing). Known on 12.11.2026; a fourth one must fail.
+const RETIRED_WITHOUT_RECORDED_SUCCESSOR = ['agent_onboarding_law', 'corpus_admission_lifecycle_law', 'meshulash_kadmi_law'];
+
+test('dated laws snapshot: 87 unique active laws, each with a recorded canonical owner and one version', () => {
+  assert.equal(lawsSnapshot.active.length, 87);
+  assert.equal(activeLawIds.size, 87, 'no duplicate rule_id');
+  for (const law of lawsSnapshot.active) {
+    assert.ok(law.owner && law.owner !== '-', law.rule_id + ' has a canonical owner');
+    assert.ok(Number.isInteger(law.version) && law.version >= 1, law.rule_id + ' has one active version');
+    assert.match(law.md5, /^[0-9a-f]{12}$/);
+  }
+});
+
+test('dated laws snapshot: every canonical owner resolves to an active law, a codex pointer or an existing repository file', () => {
+  const unresolved = lawsSnapshot.active.filter(x => !ownerResolves(x.owner)).map(x => x.rule_id + ' -> ' + x.owner);
+  assert.deepEqual(unresolved, []);
+});
+
+test('dated laws snapshot: every law that owns itself is routed by the Owner Index', () => {
+  const missing = lawsSnapshot.active.filter(x => x.owner === x.rule_id && !index.includes('`' + x.rule_id + '`')).map(x => x.rule_id);
+  assert.deepEqual(missing, []);
+});
+
+test('dated laws snapshot: a retired law that an active law still names keeps a recorded successor, except the three known gaps', () => {
+  const withoutSuccessor = lawsSnapshot.retired.filter(x => x.owner === '-').map(x => x.rule_id).sort();
+  assert.deepEqual(withoutSuccessor, [...RETIRED_WITHOUT_RECORDED_SUCCESSOR].sort());
+  const dangling = lawsSnapshot.retired.filter(x => x.owner !== '-' && !ownerResolves(x.owner)).map(x => x.rule_id + ' -> ' + x.owner);
+  assert.deepEqual(dangling, []);
+  const reactivated = lawsSnapshot.retired.filter(x => activeLawIds.has(x.rule_id)).map(x => x.rule_id);
+  assert.deepEqual(reactivated, [], 'a retired law cannot also be listed as active');
 });
