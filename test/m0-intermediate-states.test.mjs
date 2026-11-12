@@ -50,15 +50,18 @@ test("SQL before the site: the contributor view admitting candidates is ordered 
   assert.equal(Number(view.step), Math.max(...plan.steps.filter((s) => s.status !== "optional").map((s) => Number(s.step))), "it is the last mandatory step");
 });
 
-test("why that order: the LIVE (949c24ad5) contributor reader has no status filter of its own", { skip: has("949c24ad549ae9e95ced528a4ee8159670b52678") ? false : "base commit not in this clone" }, () => {
-  const live = show("949c24ad549ae9e95ced528a4ee8159670b52678", "src/lib/research/contributorFindingsProjection.js");
-  const fetchFn = live.slice(live.indexOf("async function fetchResearchObjects"), live.indexOf("async function fetchContributorContributions"));
-  assert.match(fetchFn, /from\("world_contributor_research_v1"\)/);
-  assert.doesNotMatch(fetchFn, /\.in\("status"|\.eq\("status", "candidate"/, "the live reader would pass candidates straight through");
-  // ...while the branch reader carries the governance status into the shared label
-  const branch = read("src/lib/research/researchObjectPresentation.js");
-  assert.match(branch, /researchPublicStatusPresentation/);
-});
+// Production read from Vercel on 12.11.2026: sod1820.co.il -> dpl_9sJPZEwhbu7a13cakoeTbjXasm3A, built from 146f2f0e7 (#1318).
+// The base the M0 branch was cut from (949c24ad5) was Production earlier the same day. Both are checked.
+for (const [label, rev] of [["Production 146f2f0e7", "146f2f0e7e5e6dcd17f49af33e70808e7549ea1f"], ["base 949c24ad5", "949c24ad549ae9e95ced528a4ee8159670b52678"]]) {
+  test(`why that order: the ${label} contributor reader has no status filter of its own`, { skip: has(rev) ? false : `commit ${rev.slice(0, 9)} not in this clone` }, () => {
+    const live = show(rev, "src/lib/research/contributorFindingsProjection.js");
+    const fetchFn = live.slice(live.indexOf("async function fetchResearchObjects"), live.indexOf("async function fetchContributorContributions"));
+    assert.match(fetchFn, /from\("world_contributor_research_v1"\)/);
+    assert.doesNotMatch(fetchFn, /\.in\("status"|\.eq\("status", "candidate"/, "the live reader would pass candidates straight through");
+    assert.doesNotMatch(show(rev, "src/lib/research/researchObjectPresentation.js"), /researchPublicStatusPresentation/, "the live site has no candidate label yet");
+    assert.match(read("src/lib/research/researchObjectPresentation.js"), /researchPublicStatusPresentation/, "the branch carries the label");
+  });
+}
 
 // SQL before Edge: the old deployed code keeps calling the functions DEF-005 / M0-B revoke from clients, but only with the service role.
 const gitNeeded = (slug) => rb.functions[slug].files.map((f) => f.source.git).filter(Boolean).find((rev) => !has(rev));

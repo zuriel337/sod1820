@@ -1,7 +1,8 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createMaterialGate } from "../_shared/materialGate.js";
 
-// journey-message — Journey UX under ai_quota_law v3 / journey_ai_guard_law.
+// journey-message — Journey UX. Access owner: platform_tiers_law v5 (ACTIVE, Owner Index: entitlement/access seam).
+// ai_quota_law v3 and journey_ai_guard_law are inactive (history only); OWNER_REF below is the unchanged trace label.
 // M0-B (ZURIEL, 12.11.2026): this is a PAID AI call and runs only for a verified signed-in user
 // (Supabase session JWT verified server-side). A guest receives 401 sign_in_required before any limiter,
 // trace, gate or provider I/O. Abuse containment reuses the existing atomic edge limiter (per account

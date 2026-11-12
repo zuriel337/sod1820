@@ -16,6 +16,7 @@ test("the manifest covers exactly the nine M0 Edge deploys with version, verify_
   assert.deepEqual(Object.keys(manifest.functions).sort(), [...NINE].sort());
   for (const [slug, fn] of Object.entries(manifest.functions)) {
     assert.ok(Number.isInteger(fn.version) && typeof fn.verify_jwt === "boolean" && fn.entrypoint && fn.files.length > 0, slug);
+    assert.match(String(fn.deployed_ezbr_sha256), /^[0-9a-f]{64}$/, `${slug}: deployed bundle hash recorded for the pre-deploy drift gate`);
     for (const f of fn.files) assert.match(f.rollback_sha256, /^[0-9a-f]{64}$/, `${slug}/${f.deploy_path}`);
   }
 });

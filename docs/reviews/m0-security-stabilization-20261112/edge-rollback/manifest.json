@@ -3,7 +3,7 @@
  "read_at": "2026-11-12",
  "project": "linswmnnkjxvweumprav",
  "base": "949c24ad549ae9e95ced528a4ee8159670b52678",
- "how_to_use": "node scripts/m0-edge-rollback-assemble.mjs <slug> <out-dir>  (needs git history back to 2026-09-20: git fetch --shallow-since=2026-09-20 origin main). The script rebuilds the deployed file layout and checks every SHA-256; it never deploys.",
+ "how_to_use": "node scripts/m0-edge-rollback-assemble.mjs <slug> <out-dir>  (needs the four source commits: git fetch --shallow-since=2026-09-20 origin main, or fetch them by SHA as CI does). The script rebuilds the deployed file layout and checks every SHA-256; it never deploys.",
  "functions": {
   "lab-teacher": {
    "version": 3,
@@ -33,8 +33,8 @@
      "deployed_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb"
     }
    ],
-   "deployed_ezbr_sha256": null,
-   "deployed_updated_at_ms": null,
+   "deployed_ezbr_sha256": "5ba666a2bd55090bb77db6910af3b654785bd3ac9fc0da43be41ff2866a75666",
+   "deployed_updated_at_ms": 1790756181656,
    "env_names_read": [
     "ANALYZE_MODEL",
     "ANTHROPIC_API_KEY",
@@ -72,8 +72,8 @@
      "verified": "inspection (same text as the byte-verified lab-teacher copy)"
     }
    ],
-   "deployed_ezbr_sha256": null,
-   "deployed_updated_at_ms": null,
+   "deployed_ezbr_sha256": "ef48bb9454ea73e0866bc56db502d3beb1be741de5860b4e10fed39c031309a7",
+   "deployed_updated_at_ms": 1792856680509,
    "env_names_read": [
     "ANTHROPIC_API_KEY",
     "SUPABASE_ANON_KEY",
@@ -109,8 +109,8 @@
      "verified": "inspection (same text as the byte-verified lab-teacher copy)"
     }
    ],
-   "deployed_ezbr_sha256": null,
-   "deployed_updated_at_ms": null,
+   "deployed_ezbr_sha256": "bb3c913bd46e11ec0ee11ea27914adef7dcad193837abaccc4adacfd3583ffa6",
+   "deployed_updated_at_ms": 1790756094548,
    "env_names_read": [
     "ANTHROPIC_API_KEY",
     "ROUTER_DAILY_CAP",
@@ -148,8 +148,8 @@
      "verified": "inspection (same text as the byte-verified lab-teacher copy)"
     }
    ],
-   "deployed_ezbr_sha256": null,
-   "deployed_updated_at_ms": null,
+   "deployed_ezbr_sha256": "c94555c1a7be5081d06eb00dfe9bc8ed597de66c4c5bfb4da7e61fab844e7175",
+   "deployed_updated_at_ms": 1790756193015,
    "env_names_read": [
     "ANALYZE_MODEL",
     "ANTHROPIC_API_KEY",
@@ -233,8 +233,8 @@
      "deployed_sha256": "ea27aaa54482b9016ad697b03aa1292be38b13d69c1c103def2eee6073f77cd2"
     }
    ],
-   "deployed_ezbr_sha256": null,
-   "deployed_updated_at_ms": null,
+   "deployed_ezbr_sha256": "0343aef476d97d6457b82a3b92e73b180c2c3d044d77c49472bb9fc5cc9c2847",
+   "deployed_updated_at_ms": 1791752052308,
    "env_names_read": [
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_URL"
@@ -320,8 +320,8 @@
      "note": "functional equivalent of v1: identical except the recipient is read from CONTACT_NOTIFY_TO (the same address must be set); v1 bytes are not stored because they contain that address"
     }
    ],
-   "deployed_ezbr_sha256": null,
-   "deployed_updated_at_ms": null,
+   "deployed_ezbr_sha256": "3e0e293bbe1d7b79928855299c14e2eceaad923b8e3fa9af604e7b77f6645ae6",
+   "deployed_updated_at_ms": 1794168888673,
    "env_names_read": [
     "CONTACT_NOTIFY_TO",
     "NEWSLETTER_FROM",
@@ -334,5 +334,6 @@
    ]
   }
  },
- "settings_note": "Values are never stored. env_names_read = secrets/env the deployed version reads; proposal_env_names_added = names the M0 entry file reads in addition (shared modules may add none)."
+ "settings_note": "Values are never stored. env_names_read = secrets/env the deployed version reads; proposal_env_names_added = names the M0 entry file reads in addition (shared modules may add none).",
+ "drift_gate": "Before any M0 Edge deploy: list_edge_functions must show, for each of the nine, the same version and the same ezbr_sha256 as here (read 12.11.2026). Any difference = stop and report; the rollback source here would no longer be the deployed one."
 }

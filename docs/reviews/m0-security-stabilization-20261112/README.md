@@ -1,7 +1,7 @@
 # M0 — חבילת אבטחה וייצוב מאוחדת · בקשת אישור אחת (12.11.2026)
 
 > **מצב:** COMMITTED · BRANCH-ONLY. לא מוזג, לא נפרס, לא הוחל על המסד, ולא שונו secrets או דגלים.
-> **מאגר / ענף:** `zuriel337/sod1820` · `claude/sod1820-system-audit-roadmap-3793us`. בסיס: `origin/main` = Production = `949c24ad5`. הראש מופיע בדוח המסירה.
+> **מאגר / ענף:** `zuriel337/sod1820` · `claude/sod1820-system-audit-roadmap-3793us`. **בסיס הבנייה:** `949c24ad5` (היה Production מוקדם יותר ב־12.11; הפריסה של `146f2f0e7` נוצרה ב־12.11 ‏10:30 UTC בערך). **`origin/main` ו־Production עכשיו:** `146f2f0e7` (#1318; ‏Vercel: ‏`sod1820.co.il` ← ‏`dpl_9sJPZEwhbu7a13cakoeTbjXasm3A`, נקרא ב־12.11). הוא מוזג לענף בקומיט `2a9753287`, והענף ‏0 קומיטים מאחורי `main`. בין שני הבסיסים לא השתנה אף קובץ שבתחום M0. **הראש המדויק** מופיע בדוח המסירה ובטיוטת ה־PR. אין לכתוב אותו כאן, כי כל קומיט משנה אותו.
 > **מקור הסמכות:** מפת ההרשאות `SOD1820_PERMISSIONS_MAP_20261112` §6 (עשר ההגנות) ואישור הבעלים המאוחד מ־12.11. הוא כולל את ההחלטות: AI בתשלום — מחובר בלבד; Legacy — לסגור את כל השבע; גלריה — נתיבים ותקרת 120MB עם החרגת מנהל; סעיף 9 בתוך M0, ועמו כלל הברזל ״תוכן גלוי לפני כניסה״; ״גם תתקן מדידה״.
 > **מה האישור הזה לא כולל:** הרשאה גורפת להרצת SQL, למיזוג, לפריסה, למחיקת נתונים או לשינוי מערך התשלומים. כל פעולה כאן מפורטת בנפרד ומחכה לאישור מפורש.
 
@@ -11,7 +11,7 @@
 |---|---|---|---|
 | 1 | 12 פונקציות מערכת לשרת בלבד; בדיקת מנהל ל־`admin_resolve_translit`; ‏`wa_msg_count` לשרת או לבעלים | **A** | DEF-005 בנוסח M0 (בדיוק 12) · ‏admin guard · ‏`wa_msg_count` לשרת. **נוסף באימות:** `admin_ai_cost` (חשף מזהי צ׳אט ושמות לכל מחובר) |
 | 2 | `push_subscriptions` | **A** | DEF-001b שלב 1 ושלב 2 (קיימים, נבדקו מול החי) |
-| 3 | AI בתשלום: זהות שרת, מכסה שנכשלת סגור, שער דגל לניתוח המספר | **B** | מחובר בלבד; מכסה לחשבון, שעתית גלובלית ויומית; `visitor_id` לא זהות; הנתיב `guide` נסגר לאורח |
+| 3 | AI בתשלום: זהות שרת, מכסה שנכשלת סגור, שער דגל לניתוח המספר | **B** | מחובר בלבד; מכסה לחשבון, שעתית גלובלית ויומית; `visitor_id` לא זהות. **הנתיב `guide`:** אורח → 401, ומשתמש עובר את המגבלות המשותפות (20 / 60 / 300) לפני הספק (סבב 2). טבלת הכיסוי המלאה: `ai-coverage.md` |
 | 4 | גלריה: תפקיד, נתיב, סוג וגודל | **C** | DEF-004 בנוסח M0. אורח: תמונות raster בנתיב הקהילה בלבד. משתמש וכותב: קובץ מצורף לקהילה תחת המזהה שלו, אווטאר וכרטיס צופן. מנהל: כל נתיב. תקרת דלי של 120 MiB (הקובץ הקיים הגדול ביותר: 109.6 MiB). קבצים קיימים, קריאה ציבורית ושאר הדליים ללא שינוי. מנהל מעל 120 MiB: דרך `media-upload-intent` הקיים לדלי `media` (בלי תקרה, עד 2 GiB), בלי שינוי Edge |
 | 5 | טבלאות Legacy | **A** | שבע הטבלאות נסגרות לכתיבת לקוח; `lab_*` לקריאת מנהל בלבד; אף שורה לא נמחקת |
 | 6 | `feedback` למנהל; ‏`gematria_wall` פרטי מוסתר | **A** | ‏DEF-001b שלב 1 (`feedback`) · ‏policy חדשה ל־`gematria_wall` |
@@ -30,7 +30,7 @@
 | אשכול | תחום | בעלים קנוני (Owner Index) | כותב | מסמך |
 |---|---|---|---|---|
 | A | הרשאות מסד, ניהול, חשבון, Legacy, cron | תוכנית האבטחה S2 + שרשרת DEF | CLAUDE (הסשן) | `cluster-A-db-permissions.md` |
-| B | AI בתשלום, מכסה, גבולות קצב, PII ב־Edge | `ai_quota_law` / `platform_tiers_law` (דרך `materialGate`) | CLAUDE (worktree מבודד) | `cluster-B-ai-limits.md` |
+| B | AI בתשלום, מכסה, גבולות קצב, PII ב־Edge | `platform_tiers_law` **v5 ACTIVE** (גישה וזכאות) · `unified_credit_system` (מטבע). ‏`ai_quota_law` v3 ו־`journey_ai_guard_law` **אינם פעילים** (היסטוריה). המנגנון החי: ה־RPC `ai_quota_check`. לא שונה אף חוק | CLAUDE (worktree מבודד) | `cluster-B-ai-limits.md` · `ai-coverage.md` |
 | C | העלאות לגלריה | ספריות העלאת המדיה + DEF-004 | CLAUDE (worktree מבודד) | `cluster-C-gallery.md` |
 | D | ממצאים גלויים + תוכן לפני כניסה | `SOD1820_DESIGN_CONTRACT_V2.md` · `truth_axes_foundation_law` v3 · `canonical_ui_components_law` v12 | CLAUDE (worktree מבודד) | `cluster-D-visible-content.md` |
 | E | 8 Edge לא מסווגות | תוכנית האבטחה (S2) | CLAUDE (הסשן) | `cluster-E-edge-unknown.md` |
@@ -45,22 +45,28 @@
 ### שלב 0 — לפני (קריאה בלבד, בלי אישור)
 - `tests/live/m0_post_apply_verification.sql`: ריצת ״לפני״ על החי ב־12.11. כל ההגנות `false`, וכל השמורות (קריאה ציבורית, קוראים בבעלות, משימות פעילות, שום שורה לא נמחקה) `true`.
 - `node scripts/m0-public-readonly-smoke.mjs`: על החי ב־12.11 — **ALL OK (11/11)**.
-- **שער סטייה ל־Edge:** לפני כל פריסת Edge קוראים את הקוד הפרוס (`get_edge_function`) ומשווים לבסיס `949c24ad5`. סטייה = עצירה ודיווח. ל־`ai-analyze` (v91, 31.10) ול־`wa-raziel` (v21, 26.10) ב־`main` יש שינוי מאוחר יותר (4.11, #1191). לא אומת שהם זהים.
+- **שער סטייה ל־Edge (הושלם בסבב 2, ראו `edge-drift-and-rollback.md`):** ההשוואה בוצעה לכל התשע. שלוש זהות לבסיס, שלוש ישנות ממנו (`number-researcher`, ‏`wa-raziel`, ‏`els-search-bridge`), שני bundles שלא ניתנים לשחזור מההיסטוריה (`ai-analyze`, ‏`research-run`), ופונקציה אחת בלי מקור (`contact-notify`). ה־rollback נשמר מהקוד **הפרוס בפועל**. לפני הפריסה: ‏`list_edge_functions` חייב להראות לכל אחת אותה גרסה ואותו `ezbr_sha256` שב־manifest. כל הבדל: עוצרים.
 
-### שלב 1 — מסד (`apply_migration`, קובץ אחר קובץ, ואחרי כל אחד שאילתת האימות)
-| # | קובץ (`supabase/proposed/`) | rollback | לסמן |
-|---|---|---|---|
-| 1 | `20261106121000_def001b_visitor_id_exposure_step1.sql` | `ROLLBACK_20261106121000_def001b.sql` | ☐ |
-| 2 | `20261106131000_def005_revoke_internal_rpcs_from_clients.sql` (נוסח M0) | `ROLLBACK_20261106131000_def005.sql` | ☐ |
-| 3 | `20261112130000_m0a_admin_and_account_guards.sql` | `ROLLBACK_20261112130000_…` | ☐ |
-| 4 | `20261112130500_m0a_legacy_client_writes_close.sql` | `ROLLBACK_20261112130500_…` | ☐ |
-| 5 | `20261112131000_m0a_dormant_write_policies_admin_only.sql` | `ROLLBACK_20261112131000_…` | ☐ |
-| 6 | `20261112133000_m0a_add_contribution_client_address.sql` | `ROLLBACK_20261112133000_…` | ☐ |
-| 7 | `20261112120000_m0b_ai_quota_fail_closed.sql` | `ROLLBACK_20261112120000_…` | ☐ |
-| 8 | `20261106130000_def004_gallery_storage_upload_policies.sql` (נוסח M0; נעצר אם קיים אובייקט מעל 120 MiB או אם יש סטייה) | `ROLLBACK_20261106130000_def004_gallery_storage_upload_policies.sql` | ☐ |
-| 9 | `20261106121500_def001b_push_subscriptions_lockdown.sql` (שלב 2; ה־frontend שמשתמש ב־RPC כבר חי) | `ROLLBACK_20261106121000_def001b.sql` | ☐ |
-| 9b | `20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql` | `ROLLBACK_20261112131500_…` (בלי הסוד) | ☐ |
-| 11 | **אופציונלי:** `20261112132000_def005b_…_OPTIONAL.sql` (15 שמות בלי קורא) | `ROLLBACK_20261112132000_def005b.sql` | ☐ |
+### שלב 1 — מסד (`apply_migration`, קובץ אחר קובץ; אחרי כל אחד `tests/live/m0_post_apply_verification.sql`)
+מקור אחד לרשימה: **`apply-plan.json`**. ה־SHA-256 נבדק במבחן `m0-intermediate-states`, וקובץ שהשתנה מפיל את ה־CI. ב־12.11 אחרי הסבב נבדק בקריאה בלבד שה־md5 ״לפני״ של כל גוף שמתוקן עדיין תואם לחי.
+
+| # | מצב | קובץ (נתיב מלא) · SHA-256 | rollback (נתיב מלא) · SHA-256 | תלות | אימות | לסמן |
+|---|---|---|---|---|---|---|
+| 1 | חובה | `supabase/proposed/20261106121000_def001b_visitor_id_exposure_step1.sql`<br>`6d4afa5e8cb38e02d2ece0e7c3d37c7963304a518f3c8fe5ae38abf5494cac07` | `supabase/proposed/ROLLBACK_20261106121000_def001b.sql`<br>`6ebdaca92701505136bac8ca624b3a2563d0ec6ea988a756ee70d549445cc1f0` | — | P push RPCs exist; P feedback admin-only; P els_records visitor_id hidden | ☐ |
+| 2 | חובה | `supabase/proposed/20261106131000_def005_revoke_internal_rpcs_from_clients.sql`<br>`d87e236981a5e44166003eab04d154a1e6ceab088552bf2df90c91b61e9681d2` | `supabase/proposed/ROLLBACK_20261106131000_def005.sql`<br>`205b76f706f2abbbff0a425e4c5b6f744b69c7fd8478040b2e8cd94341667566` | — | A1 (12 rows + wa_msg_count) | ☐ |
+| 3 | חובה | `supabase/proposed/20261112120000_m0b_ai_quota_fail_closed.sql`<br>`1a382f6e1cf5322d093296ec81605dcf6c63f5b6156724a0e56ce9fb002112aa` | `supabase/proposed/ROLLBACK_20261112120000_m0b_ai_quota_fail_closed.sql`<br>`11117fdf3129854cfef6c6389b54eee3fa1e72afbbe0ab01602e0fa79b15722f` | — | B | ☐ |
+| 4 | חובה | `supabase/proposed/20261112130000_m0a_admin_and_account_guards.sql`<br>`ad34d69e55c8414c892b19de219727c3176e91e49880d8c77f4ea636cc1b8b9f` | `supabase/proposed/ROLLBACK_20261112130000_m0a_admin_and_account_guards.sql`<br>`2cdecea692457a30533bd1be01262cadbbba7152ab574e695c84d7227e1c35b5` | — | A2, A3, A4 | ☐ |
+| 5 | חובה | `supabase/proposed/20261112130500_m0a_legacy_client_writes_close.sql`<br>`818c350110b12b1a0b22066aa73c6fb950a3532c4c086c1e208a272fe30e28c1` | `supabase/proposed/ROLLBACK_20261112130500_m0a_legacy_client_writes_close.sql`<br>`51190d4d20605682448acee7c4bee58eb90a71c924feaa0f358ad142da22b38a` | — | A5 | ☐ |
+| 6 | חובה | `supabase/proposed/20261112131000_m0a_dormant_write_policies_admin_only.sql`<br>`0ed383b016bf9a3f63351a8fe327143112b163ded91c58a87a6b72158921bf4a` | `supabase/proposed/ROLLBACK_20261112131000_m0a_dormant_write_policies_admin_only.sql`<br>`015de4c2836b8eca81e713ca0d1596704a97d29b2e3d340f747a73063e355dff` | — | A6 | ☐ |
+| 7 | חובה | `supabase/proposed/20261112133000_m0a_add_contribution_client_address.sql`<br>`a8da6c8572b1a0eb5741dd54052d5b085a432cb4fc9c620195037f2118dc7d11` | `supabase/proposed/ROLLBACK_20261112133000_m0a_add_contribution_client_address.sql`<br>`bdf305917ca92fe70a2bd44b77c4402b0186dd30f33d03a5dd4429e8c16ba850` | — | A8 | ☐ |
+| 8 | חובה | `supabase/proposed/20261106130000_def004_gallery_storage_upload_policies.sql`<br>`15d2eb42433ceaf43fdddfec6760979365f10611eca4437966127c12c0a76b89` | `supabase/proposed/ROLLBACK_20261106130000_def004_gallery_storage_upload_policies.sql`<br>`44b81f03249be344c5145501578ffd6ef5e359e30c9223ea62b62f25d514bff9` | — | C (3 rows) | ☐ |
+| 9 | חובה | `supabase/proposed/20261106121500_def001b_push_subscriptions_lockdown.sql`<br>`e299af193952d796ec2002381f2d5ac5b7c9444344b28a485cfaf825fb132667` | `supabase/proposed/ROLLBACK_20261106121000_def001b.sql`<br>`6ebdaca92701505136bac8ca624b3a2563d0ec6ea988a756ee70d549445cc1f0` | 1; frontend that calls push_subscription_*_v1 is live (true since 949c24ad5) | P push_subscriptions anon table access removed | ☐ |
+| 10 | חובה | `supabase/proposed/20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql`<br>`cd7e57e604103c8c759f49c59ef09ad67d4c9dbf0034d4a7039ba62ab345b1b2` | `supabase/proposed/ROLLBACK_20261112131500_m0a_cron_inactive_secret_jobs_unschedule.sql`<br>`2cc82bc32a2553dbc1196bafdaefe6dde01a93ce9c658249604b9df255479a8a` | — | A7 | ☐ |
+| 11 | **חובה — רק אחרי האתר** | `supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql`<br>`6516a3eece4269fb15cf5246eb6072cded0b88238a0efe0550a500b1aff4186a` | `supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql`<br>`dda82b15f957467f53fb2dbc03436c0e2139dbd1e7dccc7f43531bc00a21390e` | site deploy containing M0-D (the label code) is LIVE and verified | D | ☐ |
+| 12 | אופציונלי | `supabase/proposed/20261112132000_def005b_revoke_uncalled_client_rpcs_OPTIONAL.sql`<br>`265c8ab92f5252408b3094e57fa923ac5d0f96985b0b738ffa45823fbd8ed80b` | `supabase/proposed/ROLLBACK_20261112132000_def005b.sql`<br>`dbafeabfea62486f47b6d09af527e61a6989c6e23a5789160476100e581e1889` | — | (def005b: has_function_privilege for the fifteen names) | ☐ |
+
+**מצב ה־view של דף התורם (שלב 11) — במפורש:** ‏PROPOSAL, NOT APPLIED. בחי היום ה־view מכניס רק `approved` ו־`canonical`. הקובץ מוסיף מילה אחת (`'candidate'`; ה־anchor מופיע פעם אחת בחי; md5 של ההגדרה החיה `81581396…`). **אסור להחיל אותו לפני שהאתר עם M0-D חי ואומת**, כי קורא דף התורם ב־Production (`146f2f0e7`) לא מסנן לפי status ואין בו התווית ״טרם אומת״. עד שיוחל, דפי התורם פשוט לא מראים מועמדים.
+**נדחה, לא ב־M0:** site Raziel guest sign-in (lock_raziel_site keeps it closed to all but the admin; changing it rewrites 12 quota/trace tests; decide with the flag opening) · admin dashboards reading the new public events (M1 reader change (visitor_events/page_views -> events)) · per-route upload size caps below 120 MiB (Storage RLS cannot see size; needs client uploads through media-upload-intent (M1)).
 
 ### שלב 2 — secrets (שמות בלבד; הערכים לא נכתבים במאגר)
 - `CONTACT_NOTIFY_TO` ל־`contact-notify`. **חובה לפני פריסתה**; בלעדיו הפונקציה מחזירה 503.
@@ -69,10 +75,11 @@
 
 ### שלב 3 — Edge (לכל אחת: שער הסטייה ← פריסה ← בדיקה בלי קריאת AI בתשלום)
 `els-search-bridge` (v5) · `research-run` (v9) · `ai-analyze` (v91) · `number-researcher` (v12) · `lab-teacher` (v3) · `journey-message` (v13) · `field-router` (v10) · `wa-raziel` (v21) · `contact-notify` (v1) — ☐.
-`verify_jwt` ללא שינוי. עם כל אחת נשלחים `_shared/edgeCallerLimits.js`, ומי שמייבאת גם `_shared/materialGate.js`. Rollback: פריסה חוזרת של הגרסה הקודמת.
+`verify_jwt` ללא שינוי. עם כל אחת נשלחים `_shared/edgeCallerLimits.js`, ומי שמייבאת גם `_shared/materialGate.js`. **Rollback:** מהמקור הפרוס בפועל, דרך `node scripts/m0-edge-rollback-assemble.mjs <slug> <dir>`: בדיקת SHA-256 לכל קובץ, אותו entrypoint ואותו `verify_jwt`. הסקריפט לא פורס. בחמש פונקציות, פריסה מהענף מעלה גם קוד מ־`main` שעוד לא נפרס (`edge-drift-and-rollback.md` §1).
 
 ### שלב 4 — קוד האתר (מיזוג ל־`main` ופריסה של ה־SHA המדויק בנוהל המתועד)
 המדידה (F), הממצאים הגלויים וכלל הברזל (D), ושינוי ה־Service Worker. מיזוג ☐ · פריסה ☐ · קנרית 15,000ms ללא override.
+**רק אחרי שהאתר הזה חי ואומת** חוזרים לשלב 1, צעד 11 (ה־view של דף התורם).
 
 ### שלב 5 — אימות אחרי
 - שאילתת האימות: כל השורות `true`.
@@ -85,18 +92,19 @@
   - בקשת 130 MiB לשער (מחזיר נתיב `media`);
   - מחיקה של אובייקטי הבדיקה בלבד.
 - אירועי `events` החדשים מופיעים (surface `content` / `share` / `arrival` / `calculator_2029`).
-- ‏E2E ״תוכן גלוי לפני כניסה״ מול האתר החי (`BASE_URL=https://sod1820.co.il node scripts/test-content-visible-before-entry-e2e.mjs`). לפני: 46/54, והכשלים הם בדיוק החלקים שטרם נפרסו. ענף מקומי: **58/58** (מחשב + iPhone 13).
+- ‏E2E ״תוכן גלוי לפני כניסה״ מול האתר החי (`BASE_URL=https://sod1820.co.il node scripts/test-content-visible-before-entry-e2e.mjs`). לפני (נמדד מול Production ‏`949c24ad5`, לפני ש־`146f2f0e7` נפרס): 46/54, והכשלים הם בדיוק החלקים שטרם נפרסו. ענף מקומי: **58/58** (מחשב + iPhone 13).
 
-## 4. בדיקות (מקומית; CI ירוץ על ה־PR כשייפתח)
+## 4. בדיקות (מקומית; תוצאות ה־CI לפי SHA — בדוח המסירה)
 - **SQL זמני:** DEF-004 (C) **PASS**: 27 מקרים משחזרים את המצב החי ו־108 מקרים אחרי השינוי (תמונה, וידאו וקובץ בכל מסלול ולכל שחקן; בדיוק 120 MiB עובר, בייט אחד מעל — 413), עם rollback מדויק, מצב שלילי ובקרה שלילית · M0-A **ALL PASS** (לפני, אחרי, idempotent, עצירה על drift, rollback זהה בתצלום קטלוג מלא; בדיקות מוטציה תופסות) · M0-B PASS · ‏DEF-001/001b/004/005/003 PASS 
 - **Node:** ממצאים גלויים 12/12 · gallery contract 8/8 · M0-A contract 5/5 · ‏DEF-005 4/4 · ‏M0-B 23 · ‏contact-notify 6/6 · מדידה 6/6 + חבילות האנליטיקה, ה־worker וה־bot-sink הקיימות (25/25) · ‏Legacy retired PASS · ‏module boundary PASS · בנייה ציבורית exit 0.
-- **חיווט CI:** `live-contracts-2029.yml` — שלב ״M0 security contracts״, מבחן המדידה בשלב האנליטיקה, ושני רצי SQL ב־`security-sql-contracts`.
+- **סבב 2:** ‏M0-B ‏22/22 (כולל 7 מבחני `guide`: אף קריאה לספק כשהדלי לחשבון, הגלובלי או היומי חוסם, או כשהמגביל לא זמין) · ‏intermediate states ‏20/20 · ‏rollback manifest ‏4/4. ב־clone רדוד בלי הקומיטים, המבחנים שתלויים ב־git מדווחים SKIP ולא PASS.
+- **חיווט CI:** `live-contracts-2029.yml` — שלב ״M0 security contracts״; שלב שמושך את חמשת הקומיטים לפי SHA ומריץ את מבחני ה־rollback ומצבי הביניים; מבחן המדידה בשלב האנליטיקה; רצי SQL ‏(m0a, m0b, m0d) ב־`security-sql-contracts`.
 - **ריצה רחבה:** כל קובץ מבחן שהשתנה, וכל מבחן שנוגע במודול שהשתנה — 594 קבצים, 4,494 מבחנים. **אין אף כשל חדש מול `949c24ad5`**: אותם 33 כשלים קיימים גם על `main` נקי בסביבה הזאת (חבילות חסרות כמו `react-test-renderer`, מבחני דפדפן ותזמון). גם שערי הבנייה עברו: Legacy retired, ‏module boundary, ‏first-load graph (תקציב גרף הפתיחה), ‏route SEO decisions (58), ‏World surface, ‏canonical presentation, `npm run build`, והבנייה הציבורית.
 - **ידוע, לא קשור ל־M0:** 4 מבחנים שנכשלים גם על `main` נקי בסביבה הזאת: `doc37-mixed-page-readiness`, ‏`posts-public-reading-seo`, ‏`posts-taxonomy-ui-2029`, ‏`release-visual-egress-guard`.
 
 ## 5. החלטות שנשארו לצוריאל (לא חוסמות את החבילה)
 1. **DEF-005b (אופציונלי)** — 15 פונקציות בלי קורא, לשרת בלבד. המלצה: כן.
-2. **רזיאל באתר** סגור היום לכולם חוץ מהמנהל (`lock_raziel_site`). כשייפתח, אורח עדיין יוכל להשתמש בו במכסת שרת. לפי ההחלטה (״מחובר בלבד״), מומלץ לחייב כניסה באותו שינוי שיפתח את הדגל. לא בוצע עכשיו, כי זה משכתב 12 בדיקות מכסה ו־trace.
+2. **רזיאל באתר** סגור היום לכולם חוץ מהמנהל (`lock_raziel_site`). כשייפתח, אורח עדיין יוכל להשתמש בו במכסה לזהות, בלי דלי שעה ובלי תקרה יומית גלובלית (`ai-coverage.md` §ג). לפי ההחלטה (״מחובר בלבד״), מומלץ לחייב כניסה ולהוסיף את המגבלות המשותפות באותו שינוי שיפתח את הדגל. לא בוצע עכשיו, כי זה משכתב 12 בדיקות מכסה ו־trace.
 3. **התקרה היומית** ל־AI בתשלום משתמשת במונה היומי הקיים `ai_quota_check`, כי ל־`edge_rate_limit_check` יש חלון מרבי של שעה. לא נוצר מנגנון חדש.
 4. **ניתוח AI בדף המספר כפוף ל־`lock_number`.** נעילת הדף תנעל גם את הניתוח.
 5. **לוחות הניהול:** דוחות שקוראים `visitor_events` / `page_views` צריכים לקרוא את `events` החדשים (M1).
@@ -105,3 +113,12 @@
 8. **מגבלת גודל לכל מסלול מתחת ל־120 MiB** נאכפת רק בלקוח וב־worker, כי RLS לא רואה גודל. אכיפה מלאה בשרת = ניתוב העלאות הלקוח דרך `media-upload-intent` (M1).
 9. **ממצאים גלויים:** הטקסט של מועמדים נקלט אוטומטית ולא נבדק על ידי אדם. השומרים הקיימים חלים: פרטי קשר, אזכור הבעלים, חומר מוחרג, מקור חי. האם גם רשימות צבי הייעודיות ודוגמאות בית המדרש יציגו מועמדים? נשארו סגורות כשער מכוון. בכרטיס המלא ״טרם אומת״ (ציר הממשל) מופיע ליד ״מצב בדיקה: אומת״ (ציר המנוע), וזה עלול לבלבל — הצעה לניסוח ב־M1. כמו כן נדרש מצביע ב־`canonical_ui_components_law` (במסד) ל־§8.3 (מצביע בלבד).
 10. **יומן התיאום** (`work_log`): לא נכתבו שורות BEFORE/AFTER, כי האישור אינו הרשאה גורפת להרצת SQL על המסד החי. אכתוב אותן ברגע שתאשר.
+11. **אין תקרת הוצאה בכסף** באף נתיב AI. כל המגבלות הן מכסות בקשות, וההוצאה נמדדת רק בדיעבד (`ai-coverage.md`). תקרה אמיתית תחת `unified_credit_system` היא החלטת M1.
+12. **15 פונקציות AI שמוגנות במפתח מנהל או שרת** מקבלות כותרת ריקה אם הסוד לא מוגדר (`"" === ""`), חוץ מ־`video-transcribe`. לא בדקתי שכל הסודות מוגדרים. ההקשחה היא שורה אחת לכל פונקציה (M1), ולא הוכנה.
+13. **תוויות owner ישנות בקוד:** ‏`owner_ref` ו־`ownerRuleRefs` ב־trace של `ai-analyze`, ‏`research-run` ו־`els-search-bridge` מזכירים את `ai_quota_law` v3 ואת `platform_tiers_law` v4. אלה נתוני replay שנרשמים בכל trace, ולכן לא שיניתי אותם. תיקנתי רק את ההערה בראש `journey-message`, שנגעתי בה. ה־DRIFT מדווח; אם לעדכן את התוויות — החלטה שלך.
+
+## 6. ראיות סבב 2
+- `ai-coverage.md` — כל נתיבי ה־AI בתשלום: זהות, מגבלות, היקף המונה, פטורים, דגל, כשל, והמבחן שמוכיח. כולל ההבחנה בין מכסת בקשות לתקרת הוצאה.
+- `edge-drift-and-rollback.md` — השוואה של תשע הפונקציות הפרוסות לבסיס ולהצעה, ו־rollback מהמקור הפרוס עם תלויות והגדרות. אין secrets במאגר.
+- `intermediate-states.md` — מצבי הביניים בין SQL, ‏Edge והאתר, אמון בכותרות הכתובת, והתנהגות כשהמגביל לא זמין.
+- `apply-plan.json` — רשימת ההחלה האחידה (שלב 1 למעלה).

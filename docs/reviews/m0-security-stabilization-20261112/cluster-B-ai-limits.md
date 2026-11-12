@@ -3,6 +3,7 @@
 > ענף עבודה מבודד (worktree), בסיס `origin/main` `949c24ad549ae9e95ced528a4ee8159670b52678`.
 > **שום דבר כאן לא מוזג, לא נפרס ולא הוחל.** לא שונו Production, מסד נתונים, Edge Functions, secrets, Vercel או דגלים.
 > קריאות חיות שבוצעו: SELECT בלבד על קטלוג (`pg_proc`, `pg_policies`, `information_schema`, `cron.job`), ספירות מצרפיות, `query_logs` ו-`list_edge_functions` — קריאה בלבד. לא הופעלה אף נקודת קצה חיה.
+> **סבב 2 (12.11.2026):** ‏`kind=guide` עובר עכשיו את המגבלות המשותפות, ואורח מקבל 401 (§2). השורה הישנה ״אורח עדיין מותר״ בוטלה. בעלים לפי ה־Owner Index: ‏`platform_tiers_law` v5 ACTIVE (גישה וזכאות) ו־`unified_credit_system`. ‏`ai_quota_law` v3 ו־`journey_ai_guard_law` אינם פעילים, והמנגנון החי הוא ה־RPC `ai_quota_check`. לא שונה אף חוק. טבלת הכיסוי לכל נתיבי ה־AI: `ai-coverage.md`. השוואת הפריסות וה־rollback: `edge-drift-and-rollback.md`.
 > ההחלטה המחייבת: ZURIEL, 12.11.2026 — קריאות AI בתשלום רק למשתמש מחובר ומאומת בשרת, מכסה לכל חשבון ותקרה יומית גלובלית; `visitor_id` מהדפדפן לעולם אינו זהות מכסה; אורח מקבל סירוב "התחברו" עם קוד יציב; WhatsApp רזיאל ונתיבי שרת-לשרת מהימנים נשארים בדיוק כפי שהם.
 
 ## 0. לוח מצב
@@ -16,7 +17,7 @@
 | מגבלות קצב למחשוב ציבורי (`els-search-bridge`, `research-run`) | **IMPLEMENTED**, נכשל פתוח בתקלת מגביל | שתי הפונקציות + בדיקות | אישור פריסה |
 | מידע אישי בקוד Edge (`wa-raziel`, הערות ב-`ai-analyze`) | **IMPLEMENTED** | מספרים ומזהי קבוצות עברו למשתני סביבה | הגדרת secrets (§8, לא חוסם) |
 | מלאי כתיבות-אורח (§3.3 במפת ההרשאות) | **INVENTORY ONLY** | §7 | הכרעה M0/M1 |
-| חיווט CI לבדיקות החדשות | **לא בוצע (מחוץ לתחום)** | השורות המדויקות ב-§11 | אישור לשינוי workflow |
+| חיווט CI לבדיקות החדשות | **בוצע** (בענף המשולב) | `live-contracts-2029.yml`: שלב ״M0 security contracts״ ו־`security-sql-contracts` | — |
 
 ## 1. מה נמצא בקריאה החיה (לפני השינוי)
 
@@ -37,7 +38,7 @@
 | `ai-analyze` נתיב גנרי — ניתוח דף המספר וכל ה-kinds הגנריים (v91, `verify_jwt=true`) | אורח מותר; מכסה לפי `visitor_id`/IP; `p_flag_key: null` | אורח → **401 `sign_in_required`** לפני כל I/O נוסף. משתמש מאומת: דלי חשבון 30/שעה, דלי גלובלי 120/שעה, תקרה יומית גלובלית 600 — כולם נכשלים סגור (503 `rate_limit_unavailable`, 429 `rate_limited`/`daily_cap_reached` עם `Retry-After`). אחר כך השער הקנוני כרגיל (מכסה יומית לכל חשבון ב-`ai_quota`). `kind=number` עובר גם את דגל הזמינות הקיים `lock_number` (כיום כבוי=פתוח; מנהל עוקף). קריאה פנימית עם מפתח service-role — ללא שינוי. |
 | `ai-analyze` persona=raziel (אתר) | זמינות לפי `lock_raziel_site` (כיום סגור לכולם חוץ ממנהל); מכסה fail-open; זהות אורח `visitor_id` | הזמינות לא השתנתה. זהות המכסה לאורח = HMAC של כתובת הפלטפורמה; זהות ריקה → אין ספירה ואין מודל. כשל מכסה → `quota_unavailable` (תשובות דטרמיניסטיות ממשיכות כרגיל, בלי מודל). |
 | `ai-analyze` ערוץ WhatsApp המהימן (`trusted_channel` + מפתח service) | — | **ללא שינוי**, כולל fail-open של המכסה. |
-| `ai-analyze` kind=guide | מכסה לפי `visitor_id`, fail-open | זהות שרת; fail-closed (`quota_unavailable`). אורח עדיין מותר (לא נכלל בהחלטה). |
+| `ai-analyze` kind=guide | מכסה לפי `visitor_id`, fail-open | **סבב 2:** אורח → **401 `sign_in_required`**. משתמש מאומת: דלי חשבון 20 לשעה, גלובלי 60 לשעה ותקרה יומית גלובלית 300 (`enforcePaidAiLimits`, ‏scope `ai-analyze:guide`; נכשל סגור: 503 / 429 + `Retry-After`). אחריהם מכסת האנטי־לולאה הקיימת (300 ליום לחשבון). מנהל פטור מהתקרה היומית; קריאת service-role — ללא שינוי. שימוש: 3 קריאות ב־60 יום. |
 | `number-researcher` (v12, `verify_jwt=false`) | אורח מותר, מכסה לפי `visitor_id` | אורח → 401. משתמש: חשבון 20/שעה, גלובלי 60/שעה, יומי גלובלי 300, ואז השער הקנוני (300/יום לחשבון). `op: "interview"`/`"history"` — ללא שינוי (אין מודל). |
 | `lab-teacher` (v3, `verify_jwt=false`) | אורח מותר | אורח → 401. משתמש: חשבון 30/שעה, גלובלי 60/שעה, יומי גלובלי 300, ואז השער הקנוני. |
 | `journey-message` (v13, `verify_jwt=false`) | אורח 12/שעה לפי IP, מאומת 40/שעה, גלובלי 120/שעה, נכשל סגור | אורח → 401 לפני כל limiter. מאומת 40/שעה וגלובלי 120/שעה — **ללא שינוי**; נוספה תקרה יומית גלובלית 500 (נדרשת בהחלטת הבעלים). תקציב השער נשאר `none`. |
@@ -131,7 +132,7 @@
 | פעולה | חזרה |
 |---|---|
 | SQL | `supabase/proposed/ROLLBACK_20261112120000_m0b_ai_quota_fail_closed.sql` (הגוף החי המדויק מ-12.11.2026; נבדק בבדיקת ה-SQL) |
-| Edge | פריסה מחדש מהמקור בבסיס `949c24ad5` (אותן פקודות אריזה). גרסאות פרוסות כרגע: `ai-analyze` v91, `number-researcher` v12, `lab-teacher` v3, `journey-message` v13, `field-router` v10, `wa-raziel` v21, `els-search-bridge` v5, `research-run` v9. **לא אומת** שהמקור הפרוס של כל גרסה זהה ל-`main` — לקרוא `get_edge_function` לפני הפריסה. |
+| Edge | **סבב 2:** מהמקור **הפרוס בפועל**, לא מהבסיס: `node scripts/m0-edge-rollback-assemble.mjs <slug> <dir>` (`edge-rollback/manifest.json`). חמש מהתשע אינן זהות לבסיס (`edge-drift-and-rollback.md`). לפני הפריסה: אותה גרסה ואותו `ezbr_sha256` ב־`list_edge_functions`. |
 | Secrets | הקוד הישן אינו קורא אותם; אין צורך בחזרה. |
 
 ## 10. סיכונים, סטיות והחלטות פתוחות
@@ -143,7 +144,7 @@
 5. **`field-router`** נשאר סגור לכולם (אין tier≥3), כולל מנהלים — כפי שהוא היום. לא נוסף עקיפת מנהל.
 6. **מפתח service-role הוא מלח ה-HMAC:** סיבוב המפתח מאפס את הדליים (פעם אחת, לא מזיק).
 7. **ה-SQL החי עדיין מאפשר ל-anon לקרוא ל-`ai_quota_check`** עד ש-M0-A יוחל. התקרה הגלובלית מוגנת כי הזהות אטומה (HMAC).
-8. **`contact-notify`** פרוס בלי מקור בריפו — DRIFT, לא נבדק.
+8. **`contact-notify`** פרוס בלי מקור בריפו. נבדק באשכול E: המקור הוכנס, הנמען עבר ל־env ונוספו גבולות קצב. ה־rollback הוא שווה־ערך פונקציונלי.
 9. **ניתוח AI בדף המספר לחבר רגיל:** בשרת הוא כעת פתוח למחובר; ה-SW עדיין חוסם לא-מנהלים. פתיחה ציבורית היא החלטה נפרדת על ה-SW.
 
 ## 11. אימות אחרי פריסה (בלי שום קריאת AI בתשלום)
@@ -159,7 +160,7 @@
 
 ## 12. בדיקות
 
-- חדשות: `node --test test/m0b-caller-limits.test.mjs test/m0b-paid-ai-handlers.test.mjs` (8 + 14), `bash scripts/run-m0b-ai-quota-sql-test.sh` (Postgres 16 זמני, פורט 55442).
+- חדשות: `node --test test/m0b-caller-limits.test.mjs test/m0b-paid-ai-handlers.test.mjs` (8 + 22, כולל 7 מבחני `guide` בסבב 2), `bash scripts/run-m0b-ai-quota-sql-test.sh` (Postgres 16 זמני, פורט 55442).
 - קיימות שעודכנו מינימלית (מקודדות התנהגות שהבעלים שינה): `test/helpers/ai-analyze-handler.mjs`, `test/helpers/research-run-handler.mjs`, `test/helpers/raziel-ordinary-stages.mjs`, `test/raziel-ordinary-route-contract.test.mjs`, `test/fixtures/raziel-interview-787.mjs`, `test/emergency-p0-containment-20261024.test.mjs`, `test/els-search-bridge-resolve-user.test.mjs`, `test/els-search-bridge.test.mjs`, `test/raziel-quota-trace.test.mjs`, `test/raziel-ai-analyze-generic-numeric-guard-runtime.test.mjs`, `src/lib/research/razielPhaseEToolResearch.test.js`, `scripts/test-g3-d2-public-material-path.mjs`.
-- חיווט CI שנדרש (מחוץ לתחום, לא בוצע): ב-`.github/workflows/2029-isolation-gate.yml`, בשלב "AI-Analyze early paid paths trace coverage acceptance", להוסיף `node --test test/m0b-caller-limits.test.mjs test/m0b-paid-ai-handlers.test.mjs`; ב-`.github/workflows/live-contracts-2029.yml` ליד בדיקות ה-SQL הקיימות להוסיף `bash scripts/run-m0b-ai-quota-sql-test.sh`; ולהוסיף את `supabase/functions/_shared/edgeCallerLimits.js` לרשימות `paths` שמכילות את הפונקציות המושפעות.
+- חיווט CI: **בוצע** ב־`live-contracts-2029.yml` (הנוסח המקורי, להיסטוריה:) ב-`.github/workflows/2029-isolation-gate.yml`, בשלב "AI-Analyze early paid paths trace coverage acceptance", להוסיף `node --test test/m0b-caller-limits.test.mjs test/m0b-paid-ai-handlers.test.mjs`; ב-`.github/workflows/live-contracts-2029.yml` ליד בדיקות ה-SQL הקיימות להוסיף `bash scripts/run-m0b-ai-quota-sql-test.sh`; ולהוסיף את `supabase/functions/_shared/edgeCallerLimits.js` לרשימות `paths` שמכילות את הפונקציות המושפעות.
 - `deno` אינו מותקן בסביבה — לא בוצע type-check של Deno. הקוד הורץ במלואו בבדיקות דרך `stripTypeScriptTypes`/rolldown.
