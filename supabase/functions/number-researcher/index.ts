@@ -20,6 +20,8 @@ const SB_ANON = Deno.env.get("SUPABASE_ANON_KEY") || SB_SVC;
 const mg = createMaterialGate({ supabaseUrl: SB_URL, serviceKey: SB_SVC, anonKey: SB_ANON });
 const interview = createRazielInterview({ supabaseUrl: SB_URL, serviceKey: SB_SVC, anonKey: SB_ANON });
 const CAPABILITY = "number-researcher:chat";
+// M0-B (ZURIEL 12.11.2026): paid AI — verified signed-in users only; per-account + global limits fail CLOSED.
+const PAID_LIMITS = { scope: "number-researcher", accountLimit: 20, globalLimit: 60, globalDailyCap: 300 };
 const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
 const H = { apikey: SB_SVC, Authorization: `Bearer ${SB_SVC}`, "Content-Type": "application/json" };
 const CORS = {
@@ -228,9 +230,13 @@ Deno.serve(async (req: Request) => {
     const message = String(body?.message || "").slice(0, 2000);
     if (!values.length && !message) return json({ answer: null, error: "no_value" });
 
-    // G3 D2 — canonical gate BEFORE any context load / provider spend; fails closed. Public contract preserved:
-    // guests may still chat (entitlement "public"); metering reuses ai_quota (ai-analyze guide anti-loop numbers).
+    // M0-B — a guest is refused before any limiter/trace/context/provider I/O; a verified user passes the
+    // per-account + global limits (fail CLOSED), then the canonical G3 D2 gate (per-account ai_quota) below.
     const caller = await mg.resolveCaller(req, body);
+    const limits = await mg.paidAiLimits(caller, PAID_LIMITS);
+    if (limits.state === "refused") return json({ answer: null, error: "sign_in_required", message: limits.message }, 401);
+    if (limits.state === "unavailable") return json({ answer: null, error: "rate_limit_unavailable" }, 503);
+    if (limits.state === "denied") return new Response(JSON.stringify({ answer: null, error: limits.bucket === "global_daily" ? "daily_cap_reached" : "rate_limited", retry_after_seconds: limits.retryAfter }), { status: 429, headers: { "Content-Type": "application/json", "Retry-After": String(limits.retryAfter), ...CORS } });
     const trace = await mg.beginTrace({
       capability: CAPABILITY, surface: "raziel-room", ownerRef: OWNER_REF,
       identityClass: caller.tier, rootName: "number-researcher",

@@ -147,7 +147,9 @@ test("closed site denies a guest before execution even with forged admin and tru
   assertAvailabilityDenied(r);
   const gate = r.calls.find((call) => call.name === "fn_capability_execution_gate_v1");
   assert.equal(gate.payload.p_user_ref, null);
-  assert.equal(gate.payload.p_identity, "v:fixture-visitor");
+  // M0-B (ZURIEL 12.11.2026): guest identity is the server-salted platform address, never body.visitor_id.
+  assert.match(gate.payload.p_identity, /^ip:[0-9a-f]{64}$/);
+  assert.equal(gate.payload.p_visitor, null);
 });
 
 test("closed site denies a verified ordinary user's advanced request and keeps real caller identity", async () => {

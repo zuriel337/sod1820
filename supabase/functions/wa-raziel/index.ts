@@ -11,13 +11,17 @@ import {
 } from "../_shared/razielNavigationActions.js";
 
 const ADMIN_KEY = (Deno.env.get("FB_ADMIN_KEY") || "").trim();
-const CHRISTINA_PHONE = "972507555102";
-const AMIT_GROUP = "120363411357326507@g.us";
-const GILUI_GROUP = "120363397037220315@g.us";
-const OPEN_GROUPS = ["120363428363475524@g.us", "120363407205030411@g.us", GILUI_GROUP];
+// M0-B: contact and group identifiers are runtime configuration (Edge secrets), never source literals.
+// Unset → the dependent branch matches nothing (no phone/group is ever guessed). Group handling is also
+// behind GROUPS_ENABLED=false below, so with the secrets set the live behavior is byte-for-byte the same.
+const envText = (name) => (Deno.env.get(name) || "").trim();
+const CHRISTINA_PHONE = envText("WA_RAZIEL_CHRISTINA_PHONE").replace(/[^0-9]/g, "");
+const AMIT_GROUP = envText("WA_RAZIEL_AMIT_GROUP");
+const GILUI_GROUP = envText("WA_RAZIEL_GILUI_GROUP");
+const OPEN_GROUPS = [...envText("WA_RAZIEL_OPEN_GROUPS").split(",").map((g) => g.trim()).filter(Boolean), GILUI_GROUP].filter(Boolean);
 const ANTHROPIC = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const MODEL = Deno.env.get("ANALYZE_MODEL") || "claude-sonnet-5";
-const ZURIEL = Deno.env.get("ZURIEL_WA") || "972556651237@c.us";
+const ZURIEL = envText("ZURIEL_WA");
 const SITE = "https://sod1820.co.il";
 const MAX_PER_RUN = 2;
 const MAX_DM_CHATS_PER_RUN = 8;
@@ -776,7 +780,7 @@ async function initiativeBudget(chatId) {
 }
 
 async function handleGroup(chatId, nowSec) {
-  const isAmitGroup = chatId === AMIT_GROUP;
+  const isAmitGroup = !!AMIT_GROUP && chatId === AMIT_GROUP;
   let hist; try { hist=await waAdmin("getChatHistory",{chatId,count:20}); } catch { return 0; }
   const msgs = pick(hist).filter((m)=>{
     const typ=m.typeMessage||""; const ok=["textMessage","extendedTextMessage","quotedMessage","imageMessage"].includes(typ);
@@ -788,7 +792,7 @@ async function handleGroup(chatId, nowSec) {
     const snd=m.senderId||chatId; const sname=m.senderName||"";
     const sphone=String(snd).replace(/[^0-9]/g,"");
     const text=m.textMessage||m.extendedTextMessage?.text||m.caption||""; const isImg=m.typeMessage==="imageMessage";
-    const isChristina=String(snd).includes(CHRISTINA_PHONE);
+    const isChristina=!!CHRISTINA_PHONE && String(snd).includes(CHRISTINA_PHONE);
     if (!isImg && clean(text).length>=2) { const id = await resolveIdentity(snd); await remember(id?.user_ref ?? null, chatId, text, "conversation", "personal"); }
     if (isAmitGroup) {
       const triggering = RAZIEL_TRIGGER.test(text);
@@ -814,7 +818,7 @@ async function handleGroup(chatId, nowSec) {
       if (!allowed) { await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,text_in:text.slice(0,500),reply_out:"[no raziel_access]",action:"christina_auto"}); continue; }
     }
     if (isImg&&!clean(text)) {
-      try { await waAdmin("sendMessage",{chatId:ZURIEL,message:`🔔 ${sname||snd} שלח/ה תמונה.`}); } catch { /* noop */ }
+      if (ZURIEL) { try { await waAdmin("sendMessage",{chatId:ZURIEL,message:`🔔 ${sname||snd} שלח/ה תמונה.`}); } catch { /* noop */ } }
       await logBot({group_id:"group",msg_id:msgId,sender:snd,sender_name:sname,action:"christina_auto",text_in:"[image]",reply_out:"[notified zuriel]"}); n++; continue;
     }
     if (clean(text).length<2) continue;
@@ -1130,7 +1134,7 @@ Deno.serve(async(req)=>{
   try { n+=await handleAllDMs(nowSec, pol); } catch(e){ trace.push({src:"dm",e:String(e)}); }
   if (GROUPS_ENABLED) {
     for (const g of OPEN_GROUPS) { try { n+=await handleGroup(g,nowSec); } catch(e){ trace.push({group:g,e:String(e)}); } }
-    try { n+=await handleGroup(AMIT_GROUP,nowSec); } catch(e){ trace.push({group:"amit",e:String(e)}); }
+    if (AMIT_GROUP) { try { n+=await handleGroup(AMIT_GROUP,nowSec); } catch(e){ trace.push({group:"amit",e:String(e)}); } }
   }
   return new Response(JSON.stringify({replied:n,trace:u.searchParams.get("debug")==="1"?trace:undefined}),{headers:{"Content-Type":"application/json"}});
 });
