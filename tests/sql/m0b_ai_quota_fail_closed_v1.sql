@@ -1,5 +1,6 @@
 -- Throwaway-Postgres regression for 20261112120000_m0b_ai_quota_fail_closed.sql (never run against a live project).
--- 1) installs the live 12.11.2026 body (the ROLLBACK file) and documents the old empty-identity allowance;
+-- 0) round 5 (Codex): with NO ai_quota_check, the ROLLBACK stops and creates nothing;
+-- 1) installs the live 12.11.2026 body (the separate fixture, not the ROLLBACK) and documents the old empty-identity allowance;
 -- 2) applies the proposal and checks: empty/NULL/blank identity refused with no write; counting, the admin bypass,
 --    a zero limit and the global-cap identity used by the Edge code behave exactly as before;
 -- 3) applies the rollback and checks the original behavior is restored.
@@ -15,8 +16,20 @@ create table public.ai_usage(
   primary key (day, identity)
 );
 
+-- G0. The function does not exist: the live ROLLBACK must stop and create nothing (it is not a fixture installer).
+do $$ begin assert to_regprocedure('public.ai_quota_check(text,text,integer)') is null, 'no function before G0'; end $$;
+\set ON_ERROR_STOP off
 \i supabase/proposed/ROLLBACK_20261112120000_m0b_ai_quota_fail_closed.sql
+\set ON_ERROR_STOP on
 do $$ begin
+  assert to_regprocedure('public.ai_quota_check(text,text,integer)') is null, 'NEGATIVE: the rollback created a missing function';
+  assert not exists (select 1 from pg_proc where proname = 'ai_quota_check'), 'NEGATIVE: no ai_quota_check of any signature was created';
+end $$;
+
+\i tests/sql/fixtures/m0b_ai_quota_live_base_20261112/ai_quota_check.sql
+do $$ begin
+  assert md5(pg_get_functiondef('public.ai_quota_check(text,text,integer)'::regprocedure)) = '7981f2a5ba9e2b64c2a4b54d82b96bad',
+    'the fixture is byte-identical to the live body (and to what the ROLLBACK restores)';
   assert (public.ai_quota_check('', 'anon', 5)->>'allowed')::boolean, 'baseline: live body allows an empty identity';
   assert (public.ai_quota_check(null, 'anon', 5)->>'allowed')::boolean, 'baseline: live body allows a NULL identity';
 end $$;

@@ -5,7 +5,8 @@
 -- restored) or exactly the original (md5 7981f2a5ba9e2b64c2a4b54d82b96bad, already rolled back: the same body is re-created, a
 -- no-op). Any other body - someone changed the function after M0-B - stops the rollback without overwriting that change. After the
 -- restore the body must be exactly the original, with the same owner, privileges, volatility and settings as before this file ran.
--- This file is ALSO the test fixture of the live body: on a throwaway PostgreSQL with no ai_quota_check it just creates it.
+-- A MISSING function is not "already rolled back": it stops the rollback and nothing is created (round 5, Codex). The test fixture of the
+-- live body is a separate file, tests/sql/fixtures/m0b_ai_quota_live_base_20261112/ai_quota_check.sql.
 begin;
 set local lock_timeout = '5s';
 set local statement_timeout = '30s';
@@ -19,7 +20,7 @@ declare v_md5 text;
 begin
   select def_md5 into v_md5 from m0b_rb_before;
   if v_md5 is null then
-    raise notice 'M0B rollback: ai_quota_check does not exist here (test fixture); creating the original body';
+    raise exception 'M0B rollback: public.ai_quota_check(text,text,integer) not found; stop, nothing created';
   elsif v_md5 = '7981f2a5ba9e2b64c2a4b54d82b96bad' then
     raise notice 'M0B rollback: ai_quota_check already has the original body; re-creating the same body (no-op)';
   elsif v_md5 <> '17e71b6f6661f07aca809242c112ad13' then
@@ -86,7 +87,7 @@ begin
   if a.prosecdef is not true or a.proconfig is distinct from array['search_path=public'] then
     raise exception 'M0B rollback: SECURITY DEFINER or search_path not as original';
   end if;
-  if b.def_md5 is not null and (a.proowner <> b.proowner or a.acl is distinct from b.acl or a.provolatile <> b.provolatile) then
+  if a.proowner <> b.proowner or a.acl is distinct from b.acl or a.provolatile <> b.provolatile then
     raise exception 'M0B rollback: owner, privileges or volatility changed';
   end if;
 end $$;
