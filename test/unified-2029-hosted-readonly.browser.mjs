@@ -50,8 +50,7 @@ try {
       assert.equal(await page.locator('.sod29-header').count(),1,path);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth+1),false,path);
       if (['/2029','/world','/2029/posts'].includes(path)) {
-        await page.locator('.sod29-living-ribbon').waitFor();
-        assert.equal(await page.locator('.sod29-living-ribbon').count(),1,path);
+                assert.equal(await page.locator('.sod29-living-ribbon').count(),0,path); // hidden 12.11.2026
       }
       if (path === '/world') await page.screenshot({ path: `${out}/world-${width}-${theme}.png` });
       cases.push({ width, theme, path, rendered: true });

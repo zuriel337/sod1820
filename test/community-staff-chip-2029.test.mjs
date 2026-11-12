@@ -10,7 +10,7 @@ test("staff chip is wired to the public staff RPC and degrades to nothing", () =
   assert.match(lib, /rpc\("community_staff_user_ids_v1"\)/);
   assert.match(lib, /if \(error \|\| !Array\.isArray\(data\)\) return \[\]/);
   assert.match(page, /staffIdsHolder\.current\.has\(accountId\)/);
-  assert.match(page, /sod29-community-staff-chip[^>]*>צוות</);
+  assert.match(page, /nameSuffix=\{isStaff \? <span className="sod29-community-staff-chip"[^>]*>צוות</);
 });
 
 test("thread bump only counts registered, approved, live replies and never reactions", () => {

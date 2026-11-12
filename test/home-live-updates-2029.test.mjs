@@ -181,3 +181,34 @@ test("the pinned update hierarchy (ZURIEL 11.11.2026, second pass): the Post tit
   assert.equal(root.root.findAll(node => node.props["data-now-pinned-post"] === "true").length, 1);
   await act(async () => { root.unmount(); });
 });
+
+// ── ZURIEL 12.11.2026: a pinned writer message shows on Home, newest pin first, and is clickable ──────────────────────────────────────────
+const levi = hours => groupRowToWorldUpdate({ id: "20000000-0000-4000-8000-000000000009", body: "גילוי של יניב", created_at: iso(hours), contributor_slug: "yaniv-levi", contributor_name: "יניב לוי", group_proof: true, proof_basis: "verified_phone_unique", group_channel: "gilui-yomi" });
+test("Home shows a pinned writer message first, with a pin badge and a link to its source message; an unpinned source message stays out", async () => {
+  const root = await render({ feed: feedOf([postRowToWorldUpdate(post(1, 2)), levi(1), group(3)].filter(Boolean)) });
+  const list = entries(root);
+  const ids = list.map(node => node.props["data-home-update-item"]);
+  assert.equal(ids[0], "group:20000000-0000-4000-8000-000000000009", "the pinned message leads on Home");
+  assert.ok(!ids.includes("group:20000000-0000-4000-8000-000000000001"), "an unpinned source message stays out of Home");
+  assert.equal(list[0].findAll(node => node.props["data-home-update-pinned"] === "true").length, 1, "pin badge");
+  const links = list[0].findAll(node => node.type === "a" && String(node.props.href).startsWith("/world#group-source-20000000-0000-4000-8000-000000000009"));
+  assert.equal(links.length, 1, "the row is a link to the source message");
+  await act(async () => { root.unmount(); });
+});
+
+test("a pinned row without any address still opens the Now sheet (never a dead card)", async () => {
+  let opened = 0;
+  const noAddress = { ...levi(1), href: null, url: null };
+  function OpenProbe({ feed }) {
+    const updates = useHomeUpdates(feed, { exclude: new Set(), postsOnly: false, sourceKey: "" });
+    updates.models = updates.models.map(entry => entry.model ? { ...entry, model: { ...entry.model, href: null } } : entry);
+    return React.createElement(HomeLiveUpdates, { updates, onOpenNow: () => { opened += 1; }, sourceKey: "", onSource: () => {}, onNavigateTo: () => {} });
+  }
+  let root;
+  await act(async () => { root = Renderer.create(React.createElement(OpenProbe, { feed: feedOf([noAddress].filter(Boolean)) })); });
+  const open = root.root.findAll(node => node.type === "button" && node.props["data-home-update-opens-now"] === "true");
+  assert.equal(open.length, 1);
+  await act(async () => { open[0].props.onClick(); });
+  assert.equal(opened, 1);
+  await act(async () => { root.unmount(); });
+});
