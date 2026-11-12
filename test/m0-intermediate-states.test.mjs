@@ -107,6 +107,20 @@ test("Edge before SQL: the proposal Edge code calls only RPCs that exist live to
   assert.deepEqual(missing, [], "an Edge deploy before the SQL would call an RPC that does not exist yet");
   // the limiter RPCs are server-only both before and after DEF-005, and the helper always uses the caller's service RPC
   assert.match(read("supabase/functions/_shared/edgeCallerLimits.js"), /serviceRpc\("edge_rate_limit_check"/);
+  // CL-13 (12.11.2026): ONE RPC is called before it exists, on purpose. Its name is a constant of the shared policy module, so the
+  // scan above does not see it; it is named here so that the exception is explicit. Every caller reaches it only through
+  // readPersonalMemoryPolicy, where a missing function means "closed" (no write, no read): proven on a database without the
+  // function in test/cl13-personal-memory-pg.test.mjs (BEFORE 0-5) and for every unclear answer in cl13-personal-memory-policy.test.mjs.
+  const policyModule = read("supabase/functions/_shared/personalMemoryPolicy.js");
+  const policyRpc = /export const PERSONAL_MEMORY_POLICY_RPC = "([a-z_0-9]+)";/.exec(policyModule)?.[1];
+  assert.equal(policyRpc, "fn_personal_memory_policy_v1");
+  assert.equal(LIVE_RPCS_READ_20261112.has(policyRpc), false, "when the CL-13 SQL is applied, add the function to the live list and drop this exception");
+  assert.match(policyModule, /try \{ return normalizePersonalMemoryPolicy\(await callRpc\(PERSONAL_MEMORY_POLICY_RPC, \{ p_user_ref: ref \}\)\); \}\s*catch \{ return closed\("policy_unavailable"\); \}/);
+  for (const f of ["ai-analyze", "number-researcher", "wa-raziel"]) {
+    const src = read(`supabase/functions/${f}/index.ts`);
+    assert.match(src, /readPersonalMemoryPolicy\(/, `${f} asks the policy through the shared module`);
+    assert.doesNotMatch(src, /fn_personal_memory_policy_v1["'`]|rpc\/fn_personal_memory_policy_v1/, `${f} never calls the policy function directly`);
+  }
 });
 
 test("old site with new Edge: the public worker still forwards paid AI only for the administrator", () => {

@@ -95,6 +95,7 @@ insert into public.agent_user_memory(user_ref, channel, agent, memory_type, memo
  (:'UA', '972500000001@c.us', 'raziel', 'conversation', 'personal', 'wa', null, 'OLD-DM-A', '{}'),
  (:'UA', '972500000001@c.us', 'raziel', 'personal_context', 'personal', 'profile', 'birthday_hebrew', 'OLD-FACT-A', '{"kind":"birthday_hebrew"}'),
  ('wa:972500000001', '972500000001@c.us', 'raziel', 'conversation', 'personal', 'wa', null, 'PRE-LINK-MEMORY-OF-A', '{}'),
+ ('972500000001', '972500000001@c.us', 'raziel', 'conversation', 'personal', 'wa', null, 'BARE-PHONE-MEMORY-OF-A', '{}'),
  ('wa:972500000009', '972500000009@c.us', 'raziel', 'conversation', 'personal', 'wa', null, 'OLD-DM-UNLINKED', '{}'),
  ('wa:972500000009', '972500000009@c.us', 'raziel', 'personal_context', 'personal', 'profile', 'name', 'OLD-FACT-UNLINKED', '{"kind":"name"}'),
  (:'UA', '120363000000000001@g.us', 'raziel', 'conversation', 'personal', 'wa', null, 'OLD-FROM-GROUP-A', '{}'),
@@ -116,6 +117,8 @@ create temp table stamp0 as select pg_temp.stamp() as s;
 select pg_temp.ok('B1 live: an old memory is read as context without any consent',
   (public.fn_raziel_context(:'UA', 'site') #>> '{user_context,summary}') like '%OLD-SITE-THREAD-A1%'
   and (public.fn_raziel_context(:'UA', 'site') #>> '{privacy,personal_memory_allowed}')::boolean);
+select pg_temp.ok('B4 live: a memory recorded under the bare phone is merged into the account through the link (the identity bridge)',
+  public.fn_raziel_context(:'UA', 'site')::text like '%BARE-PHONE-MEMORY-OF-A%' and public.fn_raziel_context(:'UA', 'site')::text not like '%PRE-LINK-MEMORY-OF-A%');
 select pg_temp.ok('B2 live: profile facts of a sender without an account are read back',
   (public.fn_raziel_context('wa:972500000009', '972500000009@c.us') #> '{user_context,profile}')::text like '%OLD-FACT-UNLINKED%');
 do $$ declare v uuid; begin
@@ -245,7 +248,7 @@ create temp table ctx as
   select 'group', public.fn_raziel_context(:'UA', '120363000000000001@g.us') union all
   select 'nobody', public.fn_raziel_context(null, 'site');
 select pg_temp.ok('R1 no memory text of any kind in a built context',
-  not exists (select 1 from ctx where c::text ~ 'OLD-|PRE-LINK|BOT-|NEW-|UNVERIFIED'), (select string_agg(k, ',') from ctx where c::text ~ 'OLD-|PRE-LINK|BOT-|NEW-|UNVERIFIED'));
+  not exists (select 1 from ctx where c::text ~ 'OLD-|PRE-LINK|BARE-PHONE|BOT-|NEW-|UNVERIFIED'), (select string_agg(k, ',') from ctx where c::text ~ 'OLD-|PRE-LINK|BARE-PHONE|BOT-|NEW-|UNVERIFIED'));
 select pg_temp.ok('R2 the personal context is empty and the caller is told so',
   (select bool_and(c -> 'user_context' = '{"approved_preferences":[],"research_threads":[],"summary":null,"profile":[],"recent_conversation":[]}'::jsonb
      and (c #>> '{privacy,personal_memory_allowed}') = 'false' and (c #>> '{privacy,personal_memory_write_allowed}') = 'false'
@@ -267,7 +270,7 @@ create or replace function public.fn_personal_memory_policy_v1(p_user_ref text) 
 select pg_temp.ok('S1 with consent the person''s own rows are read', (public.fn_raziel_context(:'UA', 'site') #>> '{user_context,summary}') like '%OLD-SITE-THREAD-A1%'
   and (public.fn_raziel_context(:'UA', 'site') #>> '{privacy,personal_memory_allowed}') = 'true');
 select pg_temp.ok('S2 no implied merge: memory recorded under the phone before the link is NOT read for the account (M-6)',
-  public.fn_raziel_context(:'UA', 'site')::text not like '%PRE-LINK-MEMORY-OF-A%');
+  public.fn_raziel_context(:'UA', 'site')::text not like '%PRE-LINK-MEMORY-OF-A%' and public.fn_raziel_context(:'UA', 'site')::text not like '%BARE-PHONE-MEMORY-OF-A%');
 select pg_temp.ok('S3 the consent of one person opens nobody else', public.fn_raziel_context(:'UB', 'site')::text not like '%OLD-SITE-THREAD-B%'
   and public.fn_raziel_context('wa:972500000009', '972500000009@c.us')::text not like '%OLD-%');
 select pg_temp.ok('S4 even with consent nothing personal is returned in a group (M-7)',
@@ -277,6 +280,28 @@ do $$ declare v uuid; begin
   v := public.fn_raziel_remember('11111111-1111-4111-8111-111111111111', 'site', 'SAVED-WITH-CONSENT');
   perform pg_temp.ok('S6 with the pause lifted for a person a row is saved and the status says so', v is not null and exists (select 1 from public.agent_user_memory where id = v));
   perform pg_temp.ok('S7 and still not for anybody else', public.fn_raziel_remember('22222222-2222-4222-8222-222222222222', 'site', 'NOT-SAVED') is null);
+  delete from public.agent_user_memory where id = v;
+end $$;
+-- D-CL13-3: a consent to memory does NOT open profile facts. The simulated policy above grants memory only.
+create temp table s9 as
+  select 'fact' as k, to_jsonb(public.fn_raziel_fact('11111111-1111-4111-8111-111111111111', '972500000001@c.us', 'city', 'FACT-WITH-MEMORY-CONSENT-ONLY')) as j union all
+  select 'mem_add', to_jsonb(public.fn_mem_add('11111111-1111-4111-8111-111111111111', 'raziel', 'personal_context', 'FACT-THROUGH-MEM-ADD', 'city')) union all
+  select 'direct', public.as_user('service_role', null, $q$insert into public.agent_user_memory(user_ref, channel, agent, memory_type, memory_scope, source, topic, content) values ('11111111-1111-4111-8111-111111111111', '972500000001@c.us', 'raziel', 'personal_context', 'personal', 'profile', 'city', 'FACT-DIRECT') returning '{}'::jsonb$q$) union all
+  select 'retype', public.as_user('service_role', null, $q$update public.agent_user_memory set memory_type = 'personal_context', source = 'profile', topic = 'city' where content = 'OLD-DM-A' returning '{}'::jsonb$q$);
+select pg_temp.ok('S9 with a consent to memory only, no writer saves a profile fact',
+  (select j is null from s9 where k = 'fact') and (select j is null from s9 where k = 'mem_add')
+  and (select j ->> 'error' from s9 where k = 'direct') = 'a profile fact requires a linked account and an explicit approval (CL-13): INSERT of a personal_context row for agent raziel is refused; nothing was saved'
+  and (select j ->> 'error' from s9 where k = 'retype') like 'a profile fact requires a linked account and an explicit approval (CL-13): UPDATE of a personal_context row%'
+  and not exists (select 1 from public.agent_user_memory where content like 'FACT-%'), (select string_agg(k || '=' || coalesce(j::text, 'NULL'), ' ') from s9));
+create or replace function public.fn_personal_memory_policy_v1(p_user_ref text) returns jsonb language sql stable set search_path to 'public', 'pg_temp' as $$
+  select jsonb_build_object('policy', 'SIMULATED_CONSENT_AND_FACT_APPROVAL', 'write_personal', p_user_ref = '11111111-1111-4111-8111-111111111111',
+    'write_profile_facts', p_user_ref = '11111111-1111-4111-8111-111111111111',
+    'read_personal', p_user_ref = '11111111-1111-4111-8111-111111111111', 'research_output_write', true, 'research_output_as_personal_context', false, 'reason', 'no consent') $$;
+do $$ declare v uuid; begin
+  v := public.fn_raziel_fact('11111111-1111-4111-8111-111111111111', '972500000001@c.us', 'city', 'FACT-APPROVED');
+  perform pg_temp.ok('S10 with the explicit grant for profile facts the fact is saved, for that person only', v is not null
+    and exists (select 1 from public.agent_user_memory where id = v and memory_type = 'personal_context' and content = 'FACT-APPROVED')
+    and public.fn_raziel_fact('wa:972500000009', '972500000009@c.us', 'city', 'FACT-OF-A-SENDER-WITHOUT-AN-ACCOUNT') is null);
   delete from public.agent_user_memory where id = v;
 end $$;
 do $$ begin execute (select def from sim_saved); end $$;
@@ -294,8 +319,8 @@ create temp table ex as
   select 'sender', public.as_user('service_role', null, $q$select public.fn_personal_memory_export('972500000009@c.us')$q$) union all
   select 'no-sender', public.as_user('service_role', null, $q$select public.fn_personal_memory_export('')$q$);
 select pg_temp.ok('E1 the account holder exports the account rows AND the rows recorded under the phone they verified',
-  (select j::text like '%OLD-SITE-THREAD-A1%' and j::text like '%OLD-FACT-A%' and j::text like '%PRE-LINK-MEMORY-OF-A%' and j::text like '%OLD-FROM-GROUP-A%'
-      and jsonb_array_length(j -> 'rows') = 6 and j::text not like '%OLD-SITE-THREAD-B%' and j::text not like '%UNLINKED%' from ex where k = 'A'), (select j::text from ex where k = 'A'));
+  (select j::text like '%OLD-SITE-THREAD-A1%' and j::text like '%OLD-FACT-A%' and j::text like '%PRE-LINK-MEMORY-OF-A%' and j::text like '%BARE-PHONE-MEMORY-OF-A%' and j::text like '%OLD-FROM-GROUP-A%'
+      and jsonb_array_length(j -> 'rows') = 7 and j::text not like '%OLD-SITE-THREAD-B%' and j::text not like '%UNLINKED%' from ex where k = 'A'), (select j::text from ex where k = 'A'));
 select pg_temp.ok('E2 a phone that was not verified is not part of the holder''s export', (select jsonb_array_length(j -> 'rows') = 1 and j::text not like '%UNVERIFIED-PHONE-OF-B%' from ex where k = 'B'));
 select pg_temp.ok('E3 nobody signed in gets nothing', (select j = '{"ok":false,"error":"not_authenticated"}'::jsonb from ex where k = 'nobody'));
 select pg_temp.ok('E4 a guest may not call it', (select j ->> 'error' like 'permission denied%' from ex where k = 'anon'));
@@ -314,8 +339,8 @@ create temp table er2 as
   select 'bot-person-default', public.as_user('service_role', null, $q$select public.fn_personal_memory_erase('972511111111')$q$);
 select pg_temp.ok('X2 the sender without an account erased their two rows', (select j = '{"ok":true,"deleted_personal_memory":2,"deleted_research_output":0,"kept_research_output":0,"account_deleted":false}'::jsonb from er2 where k = 'sender'));
 select pg_temp.ok('X3 the account holder erased their memory and the account is untouched',
-  (select (j ->> 'deleted_personal_memory')::int = 6 and (j ->> 'account_deleted') = 'false' from er2 where k = 'A')
-  and not exists (select 1 from public.agent_user_memory where user_ref in ('11111111-1111-4111-8111-111111111111', 'wa:972500000001'))
+  (select (j ->> 'deleted_personal_memory')::int = 7 and (j ->> 'account_deleted') = 'false' from er2 where k = 'A')
+  and not exists (select 1 from public.agent_user_memory where user_ref in ('11111111-1111-4111-8111-111111111111', 'wa:972500000001', '972500000001', '972500000001@c.us'))
   and exists (select 1 from public.wa_account_links where user_id = '11111111-1111-4111-8111-111111111111'));
 select pg_temp.ok('X4 an erasure touches nobody else', exists (select 1 from public.agent_user_memory where content = 'OLD-SITE-THREAD-B') and exists (select 1 from public.agent_user_memory where content = 'UNVERIFIED-PHONE-OF-B'));
 select pg_temp.ok('X5 research output is kept unless the person asks for it too', (select (j ->> 'deleted_personal_memory')::int = 1 and (j ->> 'kept_research_output')::int = 3 from er2 where k = 'bot-person-default')

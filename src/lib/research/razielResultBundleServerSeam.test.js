@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { runAiAnalyze, UID, USER_JWT } from "../../../test/helpers/ai-analyze-handler.mjs";
+import { CONSENT_POLICY } from "../../../test/helpers/personal-memory-policy-fixture.mjs";
 import { buildRazielSessionRequest, prepareRazielSessionSubmission } from "./razielSessionRequest2029.js";
 import { createInitialRazielSessionState } from "./razielSession2029.js";
 import { makeUniversalFinding } from "./universalFinding.js";
@@ -1604,21 +1605,38 @@ test("semantic classifier never runs for Legacy or when a client envelope was re
   assert.match(rejectedEnvelope.result.raziel.answer, /לא אנסח תשובה בלי ראיות/);
 });
 
-test("Legacy authenticated request preserves its existing persistent-memory read and write", async () => {
-  const run = await runAiAnalyze({
-    answer: numberContextAnswer(776),
-    allowed: true,
-    bearer: USER_JWT,
-    verifiedUid: UID,
-    legacyContext: { user_context: { summary: LEGACY_MEMORY } },
-    body: {
-      subject: "מה זה 776?",
-      visitor_id: "vlegacymemoryparity",
-      intelligence_level: "fast",
-      conversation_resolution: conversation([776]),
-    },
-    numberContextByNumber: numberContext(776),
-  });
+// CL-13 (decision of ZURIEL, 12.11.2026): the persistent memory of a request without the research contract is read and written
+// only with a permission of the personal-memory policy for this person. The answer path itself is unchanged in both cases.
+const legacyMemoryRun = (extra = {}) => runAiAnalyze({
+  answer: numberContextAnswer(776),
+  allowed: true,
+  bearer: USER_JWT,
+  verifiedUid: UID,
+  // the stored context as the database returned it before the policy existed: content, and "allowed"
+  legacyContext: { user_context: { summary: LEGACY_MEMORY }, privacy: { personal_memory_allowed: true, personal_memory_write_allowed: true } },
+  body: {
+    subject: "מה זה 776?",
+    visitor_id: "vlegacymemoryparity",
+    intelligence_level: "fast",
+    conversation_resolution: conversation([776]),
+  },
+  numberContextByNumber: numberContext(776),
+  ...extra,
+});
+
+test("Legacy authenticated request: while personal memory is paused there is no persistent-memory read or write, and the answer is produced", async () => {
+  const run = await legacyMemoryRun();
+
+  assert.equal(run.calls.filter((call) => call.name === "fn_personal_memory_policy_v1").length, 1);
+  assert.equal(run.calls.filter((call) => call.name === "fn_raziel_context").length, 0);
+  assert.equal(run.calls.filter((call) => call.name === "fn_raziel_remember").length, 0);
+  assert.equal(run.models.length, 1);
+  assert.doesNotMatch(run.models[0].user, new RegExp(LEGACY_MEMORY));
+  assert.equal(run.calls.filter((call) => call.name === "research-run").length, 0);
+});
+
+test("Legacy authenticated request: with a permission of the policy the persistent-memory read and write are as before", async () => {
+  const run = await legacyMemoryRun({ memoryPolicy: CONSENT_POLICY, rememberResult: "33333333-3333-4333-8333-333333333333" });
 
   assert.equal(run.calls.filter((call) => call.name === "fn_raziel_context").length, 1);
   assert.equal(run.calls.filter((call) => call.name === "fn_raziel_remember").length, 1);

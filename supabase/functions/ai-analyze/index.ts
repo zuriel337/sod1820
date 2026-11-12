@@ -13,6 +13,7 @@ import { readElsRazielReadingContext, elsRazielReadingText } from "../_shared/el
 import { verifyFunctionalPreviewIdentity } from "../_shared/functionalPreviewIdentity.js";
 import { enforcePaidAiLimits, limiterKey, platformClientIp, SIGN_IN_REQUIRED, SIGN_IN_REQUIRED_MESSAGE } from "../_shared/edgeCallerLimits.js";
 import { publicNumberPageHref } from "../../../src/lib/research/numberPageAddress.js";
+import { readPersonalMemoryPolicy, gatePersonalContext, PERSONAL_MEMORY_CLOSED } from "../_shared/personalMemoryPolicy.js";
 // ai-analyze — ניתוח AI גנרי. fast=true → Haiku (מהיר, לכלים אינטראקטיביים); אחרת Sonnet (עומק).
 // יושר: מפרש רק עובדות שסופקו, לא מחשב גימטריה, מפריד עובדה מפרשנות, בלי נבואות.
 //
@@ -835,21 +836,35 @@ async function fetchRazielContext(userRef: string, channel: string): Promise<any
   } catch { /* noop */ }
   return null;
 }
-async function razielRemember(userRef: string, channel: string, content: string, topic: string | null = null) {
-  if (!userRef || !content || content.trim().length < 2) return;
+// CL-13 — the database owns the personal-memory decision (fn_personal_memory_policy_v1). Fail-closed: an error, a missing
+// function or a malformed answer all mean "no write, no read".
+async function razielMemoryPolicy(userRef: string | null) {
+  return readPersonalMemoryPolicy(async (fn: string, args: unknown) => {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/${fn}`, { method: "POST", headers: svcHeaders(), body: JSON.stringify(args) });
+    if (!r.ok) throw new Error(`policy_${r.status}`);
+    return await r.json();
+  }, userRef);
+}
+// Returns the id of the stored row, or null (= not saved). The caller decides from the policy whether to call it at all.
+async function razielRemember(userRef: string, channel: string, content: string, topic: string | null = null): Promise<string | null> {
+  if (!userRef || !content || content.trim().length < 2) return null;
   try {
-    await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_remember`, {
+    const r = await fetch(`${SB_URL}/rest/v1/rpc/fn_raziel_remember`, {
       method: "POST", headers: svcHeaders(),
       body: JSON.stringify({ p_user_ref: userRef, p_channel: channel, p_content: content.slice(0, 3000), p_memory_type: "conversation", p_scope: "personal", p_topic: topic, p_visibility: "private" }),
     });
-  } catch { /* לא חוסם */ }
+    if (!r.ok) return null;
+    const id = await r.json().catch(() => null);
+    return typeof id === "string" && id ? id : null;
+  } catch { return null; /* לא חוסם */ }
 }
 // זיכרון → טקסט-רקע לפרומפט (רק ב-DM/אתר-מזוהה; פרטי בלבד).
+// CL-13: only a context that passed gatePersonalContext with an explicit permission contributes text (never by default).
 function razielContextText(ctx: any): string {
   if (!ctx) return "";
   const parts: string[] = [];
   const u = ctx.user_context || {};
-  if (ctx.privacy?.personal_memory_allowed !== false) {
+  if (ctx.privacy?.personal_memory_allowed === true) {
     if (u.summary) parts.push(`מה שאתה יודע על המשתמש: ${u.summary}`);
     if (Array.isArray(u.research_threads) && u.research_threads.length) parts.push(`נושאים שחקר לאחרונה: ${u.research_threads.slice(0, 5).join(" · ")}`);
     if (Array.isArray(u.approved_preferences) && u.approved_preferences.length) parts.push(`העדפות מאושרות: ${u.approved_preferences.join(" · ")}`);
@@ -3822,12 +3837,18 @@ Deno.serve(async (req: Request) => {
         }
       }
 
-      const [persona, ctx] = await Promise.all([
+      // CL-13: one policy read (in parallel with the persona, so the paused path costs no extra round trip). It decides
+      // whether an old personal memory joins the prompt and whether this turn is remembered. The stored context is fetched
+      // only with a permission to read, and its personal part survives only when the context itself also allows it.
+      const [persona, rMemoryPolicy] = await Promise.all([
         fetchRazielPersona(rTrusted ? "wa" : "site"),
         userRef && rLegacyPersistentMemoryAllowed
-          ? fetchRazielContext(userRef, rTrusted ? "wa" : "site")
-          : Promise.resolve(null),
+          ? razielMemoryPolicy(userRef)
+          : Promise.resolve(PERSONAL_MEMORY_CLOSED),
       ]);
+      const ctx = gatePersonalContext(
+        rMemoryPolicy.read_personal ? await fetchRazielContext(userRef as string, rTrusted ? "wa" : "site") : null,
+        rMemoryPolicy);
       // Source focus: an attached source is answered from the source + current ask only; personal memory joins only on an explicit continuity cue.
       const ctxText = rTrusted?.media && !rTrusted.continuity ? "" : razielContextText(ctx);
 
@@ -4109,7 +4130,8 @@ Deno.serve(async (req: Request) => {
             ? "personal_area_companion_output_contract_rejected"
             : "numeric_truth_guard_untrusted_literal");
       // כתיבת-זיכרון (fire-and-forget) — אותו fn_raziel_remember של הוואטסאפ.
-      if (userRef && rSubject && !rTrusted && rLegacyPersistentMemoryAllowed) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }   // WA adapter already remembers inbound DMs
+      // CL-13: nothing is sent to the writer unless the policy allows a new personal-memory row for this person.
+      if (userRef && rSubject && !rTrusted && rLegacyPersistentMemoryAllowed && rMemoryPolicy.write_personal) { try { await razielRemember(userRef, "site", rSubject, rSubject.slice(0, 80)); } catch { /* noop */ } }   // WA adapter already remembers inbound DMs
 
       let contract = parseContract(out.text || "");
       const elsOccurrenceReceipt = rElsGroundingRequested && !responseDegraded
@@ -4157,7 +4179,7 @@ Deno.serve(async (req: Request) => {
         // truth law still holds — plan/context_sources describe HOW the answer was built, not facts.
         if (rMode) {
           contract.plan = rPlan;
-          contract.context_sources = { canonical: !!rzMtxVersion, personal: !!(userRef && ctx), surface: !!surfaceText };
+          contract.context_sources = { canonical: !!rzMtxVersion, personal: !!ctxText, surface: !!surfaceText };
         }
         if (!responseDegraded) await finishOperationalTrace(activeTrace, "success");
         return rzJson({ raziel: contract, ...elsOccurrenceReceipt, ...(rMatrix && !responseDegraded ? { els_matrix_status: "verified_axis_unverified_presentation_v1" } : {}), evidence_summary: rCanonicalEvidenceSummary, engine: "claude", model: rModel, intelligence_level: rLevel, intelligence_selection: rSelMeta, degraded: responseDegraded || undefined, context_version: rzMtxVersion, trace_id: activeTrace?.traceId || null });

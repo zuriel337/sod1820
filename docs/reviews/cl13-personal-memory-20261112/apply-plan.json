@@ -3,23 +3,26 @@
  "depends_on_tracks": [
   "none (it touches only the memory functions and public.agent_user_memory; no M0 file touches them)"
  ],
- "test": "bash scripts/run-cl13-personal-memory-sql-test.sh (database half) and node --test test/cl13-personal-memory-handlers.test.mjs (the Edge handlers)",
+ "test": "bash scripts/run-cl13-personal-memory-sql-test.sh (the proposal alone: 15 lifecycle cases, 71 behaviour checks); bash scripts/run-cl13-personal-memory-handlers-test.sh (the real Edge handlers on the throwaway database: 19 tests, M-1..M-15, before the proposal / paused / simulated consent / after rollback); node --test test/cl13-personal-memory-policy.test.mjs (the Edge policy module and unclear database answers: 12 tests)",
  "steps": [
   {
    "step": "CL13-1",
    "file": "supabase/proposed/20261112230000_cl13_personal_memory_pause.sql",
-   "sha256": "a9e4e39441a7e20f4f845973c2ce5fca1c9df6cf686cdc9097ff98449c5643ff",
+   "sha256": "f7c47ac010777f425edea9d77396012486a3064a865a8f84d2e063dd834eab23",
    "rollback": "supabase/proposed/ROLLBACK_20261112230000_cl13_personal_memory_pause.sql",
-   "rollback_sha256": "745f117a6b20b3a2983b3246622b53a0a99b3964840ae6b42610d55281a22298",
+   "rollback_sha256": "1d905b0b98a2089174ae57d996dba624b7573be329a181c388fe7eb0b3edf2bf",
    "status": "proposed",
-   "depends_on": [],
+   "depends_on": [
+    "EDGE-CL13 (the Edge code of this branch for wa-raziel, ai-analyze and number-researcher is deployed first; see required_order)"
+   ],
    "verify": "the state text pinned in the file (the md5 of each of the 14 function definitions and the trigger text, enabled); owner, privileges, SECURITY DEFINER, search_path and volatility of the five replaced functions unchanged; no client role may execute a server-only function (all checked inside the file)",
-   "what": "One policy owner (fn_personal_memory_policy_v1 = the pause); the writers return a real status and write nothing; a trigger on public.agent_user_memory refuses every other writer with an error; fn_raziel_context returns an empty personal context without a verified consent and never in a group; export and erasure of memory without deleting the account. Research output of the two research bots continues and is never personal context.",
+   "what": "One policy owner (fn_personal_memory_policy_v1 = the pause); the writers return a real status and write nothing; a trigger on public.agent_user_memory refuses every other writer with an error; fn_raziel_context returns an empty personal context without a verified consent and never in a group; export and erasure of memory without deleting the account. Research output of the two research bots continues and is never personal context. Profile facts have their own policy key (write_profile_facts): a consent to memory does not open them (D-CL13-3).",
    "preflight": "Fail-closed: the file continues only when the state is exactly the live 12.11.2026 state or exactly the applied state."
   }
  ],
  "rollback_order": [
-  "1. ROLLBACK file of step CL13-1 (restores the five live bodies exactly, drops the trigger and the nine new functions). It brings back writing on every message and reading without consent: decide that before running it."
+  "1. ROLLBACK file of step CL13-1 (restores the five live bodies exactly, drops the trigger and the nine new functions). It brings back writing by every writer that ignores the policy and reading without consent in the database: decide that before running it.",
+  "2. The Edge code may stay: without the policy function it is closed (no write, no read), which is tested after the rollback. Rolling the Edge functions back to the deployed sources restores writing on every message and reading without consent: decide that too."
  ],
  "not_in_this_step": [
   "a consent record store and the consent wording (a new store needs its own approval)",
@@ -27,5 +30,58 @@
   "the WhatsApp commands that call the export and erasure functions",
   "the Edge functions that read the table directly (changed in the Edge code of this branch; deployed separately)",
   "admin_person_facts (an administrator still reads stored profile facts: an open decision)"
- ]
+ ],
+ "required_order": [
+  "1. EDGE-CL13: deploy the Edge code of this branch for the functions that are live writers or readers of personal memory. wa-raziel, ai-analyze and number-researcher are three of the nine functions of the M0 Edge deployment (docs/reviews/m0-security-stabilization-20261112): deploying M0 from this head carries the pause for them. The Edge code asks public.fn_personal_memory_policy_v1 and is closed when it does not exist, so it is safe before step 2 (tests BEFORE 0-5).",
+  "2. CL13-1: the database proposal. It must NOT run before step 1: with the Edge code of origin/main the stored site thread still wins over the new turns and raziel-attention reports persisted=true without a row (README section 4, local evidence).",
+  "3. raziel-attention, wa-hatishbi and wa-uriel also carry the Edge half but are NOT in the M0 Edge package: no rollback source was prepared from their deployed code. They are not deployed until one is (README section 4, item 3)."
+ ],
+ "edge_functions": [
+  {
+   "slug": "wa-raziel",
+   "deployed_version": 21,
+   "deployed_ezbr_sha256": "6167766567cca19de23f2b10756227a9e1d4cc0cab9cd9fa4cd76ed36d221e1b",
+   "in_m0_edge_package": true,
+   "scheduled": "cron every 2 minutes (active on 12.11.2026)"
+  },
+  {
+   "slug": "ai-analyze",
+   "deployed_version": 91,
+   "deployed_ezbr_sha256": "2c8100726a5cdd353bd10efb7bec0ec1b30339995787c824d262707294cb57eb",
+   "in_m0_edge_package": true,
+   "scheduled": "on request"
+  },
+  {
+   "slug": "number-researcher",
+   "deployed_version": 12,
+   "deployed_ezbr_sha256": "c94555c1a7be5081d06eb00dfe9bc8ed597de66c4c5bfb4da7e61fab844e7175",
+   "in_m0_edge_package": true,
+   "scheduled": "on request (no caller in the 2029 interface)"
+  },
+  {
+   "slug": "raziel-attention",
+   "deployed_version": 4,
+   "deployed_ezbr_sha256": "931386e340e527f71738fb3f8908c0cdcccefa64710324bc8ba2e1098d1cf45b",
+   "in_m0_edge_package": false,
+   "scheduled": "on request, administrator only (no caller in the 2029 interface)",
+   "rollback_source": "NOT PREPARED"
+  },
+  {
+   "slug": "wa-hatishbi",
+   "deployed_version": 8,
+   "deployed_ezbr_sha256": "d027d9231c273ee2f351c2c1ea615e6fed3fbbbf9733e0aff253ffe55d6692c5",
+   "in_m0_edge_package": false,
+   "scheduled": "no cron (last write 19.7.2026)",
+   "rollback_source": "NOT PREPARED"
+  },
+  {
+   "slug": "wa-uriel",
+   "deployed_version": 18,
+   "deployed_ezbr_sha256": "832270a385dec748180e3088ad66578f482f206867655bfade46ed494ac89851",
+   "in_m0_edge_package": false,
+   "scheduled": "no cron (last write 25.8.2026)",
+   "rollback_source": "NOT PREPARED"
+  }
+ ],
+ "edge_drift_gate": "Before any Edge deployment: list_edge_functions must show, for each function above, the same version and ezbr_sha256 (read on 12.11.2026). Any difference: stop and report. Every one of the six bundles must include supabase/functions/_shared/personalMemoryPolicy.js."
 }

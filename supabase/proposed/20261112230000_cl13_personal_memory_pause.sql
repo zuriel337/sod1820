@@ -45,7 +45,7 @@ create temp table cl13_before on commit drop as
 do $$
 declare v_state text;
   c_before constant text := 'fn_personal_memory_policy_v1=(missing) | fn_personal_memory_is_research_output_v1=(missing) | fn_personal_memory_write_guard_v1=(missing) | fn_raziel_remember=5598acf902200444827efe54305466e1 | fn_raziel_fact=ebd32bd78f3d6e6af11132c9533a2834 | fn_raziel_upsert_summary=85f60b9a552c5c03d01955dec113156a | fn_mem_add=6a26f9e5d1a05fd6c3fc25b8179951b7 | fn_raziel_context=56ffd0cfc5e29945e56044439a01f81e | fn_personal_memory_refs_v1=(missing) | fn_personal_memory_sender_refs_v1=(missing) | export_my_personal_memory=(missing) | erase_my_personal_memory=(missing) | fn_personal_memory_export=(missing) | fn_personal_memory_erase=(missing) | trigger=(missing) | other_triggers=0';
-  c_after constant text := 'fn_personal_memory_policy_v1=91e25de7b04a5bf1e843a493d5f406df | fn_personal_memory_is_research_output_v1=07be6e8f5bd24db2a2fa79862a6c4d30 | fn_personal_memory_write_guard_v1=d8495012268d00346741382459a3de2c | fn_raziel_remember=5376c5c1d3253578db401be5ad67f4f1 | fn_raziel_fact=5c10015acf922a4ae0f01ffc3e9ca372 | fn_raziel_upsert_summary=0179dfe9830d631e782001dad63ef15e | fn_mem_add=33dba62a07a1fbee3e2dceaf7cde74f1 | fn_raziel_context=6b92c8daafb6619269f021f49101497b | fn_personal_memory_refs_v1=8ef502be78cdd85ee3300eb6e484a28e | fn_personal_memory_sender_refs_v1=e61a31defa02ff6e716c413c9d54e21a | export_my_personal_memory=ce0be8394a059e093b77250a5c47e3af | erase_my_personal_memory=c161d38374a5faeb68e17284f275847b | fn_personal_memory_export=0a676c24ff3fc2f7630a897a7a9e45d5 | fn_personal_memory_erase=38c8ca85ab562a780e256337b05132b7 | trigger=CREATE TRIGGER trg_personal_memory_pause_v1 BEFORE INSERT OR UPDATE ON public.agent_user_memory FOR EACH ROW EXECUTE FUNCTION fn_personal_memory_write_guard_v1() [enabled=O] | other_triggers=0';
+  c_after constant text := 'fn_personal_memory_policy_v1=473a942f9890a360b3b4641a69bc461a | fn_personal_memory_is_research_output_v1=07be6e8f5bd24db2a2fa79862a6c4d30 | fn_personal_memory_write_guard_v1=e09a70f39516cc7824a5de107d67a7d0 | fn_raziel_remember=5376c5c1d3253578db401be5ad67f4f1 | fn_raziel_fact=468a7a6980890b5db87fdd62870aa5c2 | fn_raziel_upsert_summary=0179dfe9830d631e782001dad63ef15e | fn_mem_add=8d1f5271d5ababe492e92816f2f2b94e | fn_raziel_context=6b92c8daafb6619269f021f49101497b | fn_personal_memory_refs_v1=8ef502be78cdd85ee3300eb6e484a28e | fn_personal_memory_sender_refs_v1=e61a31defa02ff6e716c413c9d54e21a | export_my_personal_memory=ce0be8394a059e093b77250a5c47e3af | erase_my_personal_memory=c161d38374a5faeb68e17284f275847b | fn_personal_memory_export=0a676c24ff3fc2f7630a897a7a9e45d5 | fn_personal_memory_erase=38c8ca85ab562a780e256337b05132b7 | trigger=CREATE TRIGGER trg_personal_memory_pause_v1 BEFORE INSERT OR UPDATE ON public.agent_user_memory FOR EACH ROW EXECUTE FUNCTION fn_personal_memory_write_guard_v1() [enabled=O] | other_triggers=0';
 begin
   if to_regclass('public.agent_user_memory') is null then raise exception 'CL13 precondition: public.agent_user_memory not found; stop, nothing changed'; end if;
   v_state := 'fn_personal_memory_policy_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_policy_v1(text)')), '(missing)')
@@ -85,9 +85,12 @@ AS $function$
   -- read only with a verified consent of the same person. No consent record exists yet, so nobody is readable. p_user_ref is the
   -- seam for the consent lookup of a later version; it changes nothing here. Research output of the research bots is not personal
   -- memory and continues to be written, but it is NOT thereby allowed as personal context.
+  -- write_profile_facts is a SEPARATE key (D-CL13-3): a consent to memory does not open profile facts; they need a linked account
+  -- and an explicit approval of the fact, and a later version must grant them explicitly.
   select jsonb_build_object(
     'policy', 'cl13_pause_v1',
     'write_personal', false,
+    'write_profile_facts', false,
     'read_personal', false,
     'research_output_write', true,
     'research_output_as_personal_context', false,
@@ -119,7 +122,13 @@ begin
      and (tg_op = 'INSERT' or public.fn_personal_memory_is_research_output_v1(old.agent, old.memory_type)) then
     return new;
   end if;
-  if coalesce((public.fn_personal_memory_policy_v1(new.user_ref) ->> 'write_personal')::boolean, false) then return new; end if;
+  if coalesce((public.fn_personal_memory_policy_v1(new.user_ref) ->> 'write_personal')::boolean, false) then
+    -- A profile fact needs more than a consent to memory: a linked account and an explicit approval of the fact (D-CL13-3).
+    if new.memory_type is distinct from 'personal_context' or coalesce((public.fn_personal_memory_policy_v1(new.user_ref) ->> 'write_profile_facts')::boolean, false) then return new; end if;
+    raise exception 'a profile fact requires a linked account and an explicit approval (CL-13): % of a personal_context row for agent % is refused; nothing was saved',
+      tg_op, coalesce(new.agent, '(null)')
+      using errcode = 'P0001', hint = 'A consent to memory does not open profile facts (D-CL13-3).';
+  end if;
   raise exception 'personal memory is paused (CL-13): % of a % row for agent % is refused; nothing was saved',
     tg_op, coalesce(new.memory_type, '(null)'), coalesce(new.agent, '(null)')
     using errcode = 'P0001', hint = 'No new personal memory until consent, retention, export and erasure controls are ready.';
@@ -154,7 +163,8 @@ declare v_id uuid; v_merged jsonb;
 begin
   if coalesce(p_user_ref,'')='' or coalesce(p_kind,'')='' or coalesce(p_value,'')='' then return null; end if;
   -- CL-13 (W2): profile facts. While personal memory is paused no fact is written or updated and NULL (= not saved) is returned.
-  if not coalesce((public.fn_personal_memory_policy_v1(p_user_ref) ->> 'write_personal')::boolean, false) then return null; end if;
+  -- A consent to memory is not enough for a fact: the policy must grant profile facts explicitly (D-CL13-3).
+  if not coalesce((public.fn_personal_memory_policy_v1(p_user_ref) ->> 'write_personal')::boolean, false) or not coalesce((public.fn_personal_memory_policy_v1(p_user_ref) ->> 'write_profile_facts')::boolean, false) then return null; end if;
   if p_visibility not in ('private','team','public') then p_visibility := 'private'; end if;
   v_merged := coalesce(p_data,'{}'::jsonb) || jsonb_build_object('kind',p_kind,'value',p_value);
   update agent_user_memory
@@ -216,6 +226,7 @@ begin
   if p_memory_type is null or p_memory_type not in ('conversation','personal_context','research_note','method_discovery','preference') then return null; end if;
   if not public.fn_personal_memory_is_research_output_v1(p_agent, p_memory_type)
      and not coalesce((public.fn_personal_memory_policy_v1(p_user) ->> 'write_personal')::boolean, false) then return null; end if;
+  if p_memory_type = 'personal_context' and not coalesce((public.fn_personal_memory_policy_v1(p_user) ->> 'write_profile_facts')::boolean, false) then return null; end if;
   insert into public.agent_user_memory(user_ref,channel,agent,memory_type,topic,content,data,source,confidence,visibility,status)
   values (p_user, coalesce(p_channel,'wa'), p_agent, p_memory_type,
     p_topic, p_content, coalesce(p_data,'{}'::jsonb), coalesce(p_source,'wa'), p_confidence,
@@ -421,7 +432,7 @@ grant execute on function public.export_my_personal_memory(), public.erase_my_pe
 
 do $$
 declare v_state text;
-  c_after constant text := 'fn_personal_memory_policy_v1=91e25de7b04a5bf1e843a493d5f406df | fn_personal_memory_is_research_output_v1=07be6e8f5bd24db2a2fa79862a6c4d30 | fn_personal_memory_write_guard_v1=d8495012268d00346741382459a3de2c | fn_raziel_remember=5376c5c1d3253578db401be5ad67f4f1 | fn_raziel_fact=5c10015acf922a4ae0f01ffc3e9ca372 | fn_raziel_upsert_summary=0179dfe9830d631e782001dad63ef15e | fn_mem_add=33dba62a07a1fbee3e2dceaf7cde74f1 | fn_raziel_context=6b92c8daafb6619269f021f49101497b | fn_personal_memory_refs_v1=8ef502be78cdd85ee3300eb6e484a28e | fn_personal_memory_sender_refs_v1=e61a31defa02ff6e716c413c9d54e21a | export_my_personal_memory=ce0be8394a059e093b77250a5c47e3af | erase_my_personal_memory=c161d38374a5faeb68e17284f275847b | fn_personal_memory_export=0a676c24ff3fc2f7630a897a7a9e45d5 | fn_personal_memory_erase=38c8ca85ab562a780e256337b05132b7 | trigger=CREATE TRIGGER trg_personal_memory_pause_v1 BEFORE INSERT OR UPDATE ON public.agent_user_memory FOR EACH ROW EXECUTE FUNCTION fn_personal_memory_write_guard_v1() [enabled=O] | other_triggers=0';
+  c_after constant text := 'fn_personal_memory_policy_v1=473a942f9890a360b3b4641a69bc461a | fn_personal_memory_is_research_output_v1=07be6e8f5bd24db2a2fa79862a6c4d30 | fn_personal_memory_write_guard_v1=e09a70f39516cc7824a5de107d67a7d0 | fn_raziel_remember=5376c5c1d3253578db401be5ad67f4f1 | fn_raziel_fact=468a7a6980890b5db87fdd62870aa5c2 | fn_raziel_upsert_summary=0179dfe9830d631e782001dad63ef15e | fn_mem_add=8d1f5271d5ababe492e92816f2f2b94e | fn_raziel_context=6b92c8daafb6619269f021f49101497b | fn_personal_memory_refs_v1=8ef502be78cdd85ee3300eb6e484a28e | fn_personal_memory_sender_refs_v1=e61a31defa02ff6e716c413c9d54e21a | export_my_personal_memory=ce0be8394a059e093b77250a5c47e3af | erase_my_personal_memory=c161d38374a5faeb68e17284f275847b | fn_personal_memory_export=0a676c24ff3fc2f7630a897a7a9e45d5 | fn_personal_memory_erase=38c8ca85ab562a780e256337b05132b7 | trigger=CREATE TRIGGER trg_personal_memory_pause_v1 BEFORE INSERT OR UPDATE ON public.agent_user_memory FOR EACH ROW EXECUTE FUNCTION fn_personal_memory_write_guard_v1() [enabled=O] | other_triggers=0';
 begin
   v_state := 'fn_personal_memory_policy_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_policy_v1(text)')), '(missing)')
     || ' | ' || 'fn_personal_memory_is_research_output_v1=' || coalesce((select md5(pg_get_functiondef(p.oid)) from pg_proc p where p.oid = to_regprocedure('public.fn_personal_memory_is_research_output_v1(text,text)')), '(missing)')

@@ -188,6 +188,16 @@ jobs:
         run: git fetch --no-tags --depth=1 origin aa0f6bc82b8c94286374b1f51208037502994eab ed30dc05bab6f079b771669de6206a99413dd5de 146f2f0e7e5e6dcd17f49af33e70808e7549ea1f 949c24ad549ae9e95ced528a4ee8159670b52678 065aa022b9ecf1152c14aaf1be3460c7c8136e6c b4d5ec47132ed8003b822cc70de9e1b82447cb7c cf16b8cf9c54c7f5aa426d21ddd34a95852d2b1e
       - name: M0 Edge rollback package, intermediate states (SQL / Edge / site in any order) and the contributor view v2 (old tabs keep v1)
         run: node --test test/m0-edge-rollback-manifest.test.mjs test/m0-intermediate-states.test.mjs test/m0d-contributor-view-v2.test.mjs
+      # CL-13 (12.11.2026): personal memory between conversations is paused (decision of ZURIEL). The Edge code asks the database
+      # policy and is closed on every unclear answer; the real handlers run with mocked providers. The three existing files below
+      # cover the handlers this change touches and did not run in any workflow before; they are wired here with it.
+      - name: CL-13 personal memory, Edge half (the policy module fails closed on every unclear answer; ai-analyze, wa-raziel and number-researcher neither read, write nor claim "saved" without a clear grant)
+        run: >
+          node --test
+          test/cl13-personal-memory-policy.test.mjs
+          test/raziel-interview-pilot.test.mjs
+          src/lib/research/razielResultBundleServerSeam.test.js
+          src/lib/research/razielPhaseHRealityNumberContext.test.js
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
       # Content series and post classification (11.11.2026). All five were green on main but ran in no workflow. They read repository files and
@@ -369,6 +379,17 @@ jobs:
         run: bash scripts/run-gilui-yomi-kandro-sql-test.sh
       - name: Group images and videos (proposal; text arrivals byte-identical; only a verified, approved, unheld writer's image or video with a recorded public copy at the exact path and of the same type and size; every gate refuses; hold and takedown; grants; the 10.11 backfill; both roll back exactly; live functions byte for byte)
         run: bash scripts/run-group-source-media-sql-test.sh
+      # CL-13 (12.11.2026): the pause of personal memory between conversations. First the database proposal alone (lifecycle and
+      # behaviour), then the REAL Edge handlers against the same throwaway database in three states: before the proposal (the Edge
+      # code deployed first), with it, and with a simulated consent. Providers are mocks; the functions, the trigger and the rows are
+      # real. Counts are pinned in the runners: a case or a test that did not run fails.
+      - name: CL-13 personal memory, database proposal (15 lifecycle cases and 71 behaviour checks; writers return a real status, the trigger refuses every other writer, the reader is consent-gated, export and erasure without deleting the account; exact rollback)
+        run: bash scripts/run-cl13-personal-memory-sql-test.sh
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: CL-13 personal memory, the real Edge handlers on the throwaway database (19 tests, M-1..M-15; before the proposal, paused, simulated consent, after rollback; full-content stamp of every existing row)
+        run: bash scripts/run-cl13-personal-memory-handlers-test.sh
 
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real
   # Supabase client on the production URL (mapped to a local fixture; Auth is an in-memory model, nothing leaves the runner).

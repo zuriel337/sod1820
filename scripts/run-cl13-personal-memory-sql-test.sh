@@ -9,7 +9,7 @@
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 EXPECTED_CASES=15
-EXPECTED_CHECKS=68
+EXPECTED_CHECKS=71
 # The apply plan names the two files by sha256: a plan whose checksums are not the files is a stale request and fails here.
 node -e '
 const fs = require("fs"); const crypto = require("crypto"); const root = process.argv[1]; const plan = require(root + "/docs/reviews/cl13-personal-memory-20261112/apply-plan.json");

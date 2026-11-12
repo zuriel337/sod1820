@@ -5,6 +5,7 @@ import { runInNewContext } from "node:vm";
 import { webcrypto } from "node:crypto";
 import { createMaterialGate, conversationalLimit } from "../../supabase/functions/_shared/materialGate.js";
 import { createRazielInterview } from "../../supabase/functions/_shared/razielInterview.js";
+import { readPersonalMemoryPolicy, gatePersonalContext, personalMemorySaveStatus } from "../../supabase/functions/_shared/personalMemoryPolicy.js";
 import { TOKEN, SERVICE, ANON } from "../fixtures/raziel-interview-787.mjs";
 
 // Execute the actual Deno endpoint. All dependencies/I/O are real modules or mocks;
@@ -14,6 +15,8 @@ export function numberResearcherHandler(f, configured = true) {
   assert.deepEqual([...source.matchAll(/^import .*;$/gm)].map(([line])=>line),[
     'import { createMaterialGate, conversationalLimit } from "../_shared/materialGate.js";',
     'import { createRazielInterview } from "../_shared/razielInterview.js";',
+    // CL-13: the Edge half of the personal-memory policy (pure; its only I/O is the RPC the handler passes in). The real module runs.
+    'import { readPersonalMemoryPolicy, gatePersonalContext, personalMemorySaveStatus } from "../_shared/personalMemoryPolicy.js";',
   ],"new handler dependencies require explicit review");
   let fn;
   const env = { SUPABASE_URL:"https://fixture.invalid",SUPABASE_SERVICE_ROLE_KEY:SERVICE,SUPABASE_ANON_KEY:ANON,ANTHROPIC_API_KEY:configured?"synthetic-model-key":"" };
@@ -21,6 +24,7 @@ export function numberResearcherHandler(f, configured = true) {
     Deno:{env:{get:k=>env[k]},serve:f=>{fn=f;}},
     createMaterialGate: opts=>createMaterialGate({...opts,fetchImpl:f.fetchImpl}), conversationalLimit,
     createRazielInterview: opts=>createRazielInterview({...opts,fetchImpl:f.fetchImpl}),
+    readPersonalMemoryPolicy, gatePersonalContext, personalMemorySaveStatus,
     fetch:f.fetchImpl,Request,Response,Headers,URL,AbortController,AbortSignal,TextEncoder,TextDecoder,
     crypto:webcrypto,setTimeout,clearTimeout,
   });

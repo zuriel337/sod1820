@@ -31,6 +31,8 @@ import { ELS_RAZIEL_GROUNDING, normalizeElsRazielOccurrence, sameElsRazielOccurr
 import { readElsRazielReadingContext, elsRazielReadingText } from "../../supabase/functions/_shared/elsRazielReadingContext.js";
 import { verifyFunctionalPreviewIdentity } from "../../supabase/functions/_shared/functionalPreviewIdentity.js";
 import { enforcePaidAiLimits, limiterKey, platformClientIp, SIGN_IN_REQUIRED, SIGN_IN_REQUIRED_MESSAGE } from "../../supabase/functions/_shared/edgeCallerLimits.js";
+import { readPersonalMemoryPolicy, gatePersonalContext, PERSONAL_MEMORY_CLOSED } from "../../supabase/functions/_shared/personalMemoryPolicy.js";
+import { PAUSED_POLICY, POLICY_FUNCTION_MISSING } from "./personal-memory-policy-fixture.mjs";
 
 export const UID = "11111111-2222-4333-8444-555555555555";
 export const OTHER_UID = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
@@ -74,6 +76,8 @@ export async function runAiAnalyze({
   researchBundleByExpression = {},
   elsVerifyStatus = null,
   researchRunFailure = null, legacyContext = null, genericProviderText = null,
+  memoryPolicy = PAUSED_POLICY,   // CL-13: the answer of fn_personal_memory_policy_v1 (default: the pause of the reviewed proposal)
+  rememberResult = null,          // what fn_raziel_remember returns (the id of the stored row, or null = not saved)
   role = "user", extraRoute = null, envOverrides = {}, previewIdentity = null, previewVerifier = verifyFunctionalPreviewIdentity,
   clientIp = CLIENT_IP, edgeLimitAllowed = true,
   source = readFileSync(new URL("../../supabase/functions/ai-analyze/index.ts", import.meta.url), "utf8"),
@@ -152,8 +156,11 @@ export async function runAiAnalyze({
           case "op_trace_record_span_v1":
           case "op_trace_finish_v1":
           case "op_trace_link_ai_cost_v1": return response({ ok: true });
+          case "fn_personal_memory_policy_v1":
+            assert.equal(call.headers.authorization, `Bearer ${SERVICE_KEY}`, "the policy is read with the service key only");
+            return memoryPolicy === POLICY_FUNCTION_MISSING ? response({ code: "PGRST202", message: "function not found" }, 404) : response(memoryPolicy);
+          case "fn_raziel_remember": return response(rememberResult);
           case "fn_raziel_persona":
-          case "fn_raziel_remember":
           case "metatron_context": return response(null);
           case "fn_raziel_context": return response(legacyContext);
         }
@@ -168,7 +175,7 @@ export async function runAiAnalyze({
     ...envOverrides,
   };
   const imports = [...source.matchAll(/^import .*;$/gm)].map(([line]) => line);
-  assert.equal(imports.length, 15, "review any new handler dependency before mocking it");
+  assert.equal(imports.length, 16, "review any new handler dependency before mocking it");
   assert.ok(imports[0].includes('import { callClaudeReliable }'));
   assert.ok(imports[1].includes('import { selectRazielIntelligence, RAZIEL_LEVELS }'));
   assert.ok(imports[2].includes('import { whatsappSurfaceProfileText, continuationHrefFromSurface }'));
@@ -191,6 +198,8 @@ export async function runAiAnalyze({
   assert.equal(imports[13], 'import { enforcePaidAiLimits, limiterKey, platformClientIp, SIGN_IN_REQUIRED, SIGN_IN_REQUIRED_MESSAGE } from "../_shared/edgeCallerLimits.js";');
   // N14: the public number address (pure; no network, no env). Reviewed: it only builds /number/<address>.
   assert.equal(imports[14], 'import { publicNumberPageHref } from "../../../src/lib/research/numberPageAddress.js";');
+  // CL-13: the Edge half of the personal-memory policy (pure; its only I/O is the RPC the handler passes in). The real module runs.
+  assert.equal(imports[15], 'import { readPersonalMemoryPolicy, gatePersonalContext, PERSONAL_MEMORY_CLOSED } from "../_shared/personalMemoryPolicy.js";');
   let handler;
   runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
     Deno: { env: { get: (key) => env[key] }, serve: (fn) => { handler = fn; } },
@@ -204,6 +213,7 @@ export async function runAiAnalyze({
     buildRazielGroundedSourceComposer,
     razielMethodLayerNumbers,
     publicNumberPageHref,
+    readPersonalMemoryPolicy, gatePersonalContext, PERSONAL_MEMORY_CLOSED,
     RAZIEL_SEMANTIC_INTENT_VERSION,
     isRazielCurrentSurfaceQuestion,
     resolveRazielCanonicalRequest,
