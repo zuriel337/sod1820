@@ -124,3 +124,29 @@ test("the SQL creates v2 and leaves v1 byte for byte; the rollback drops v2 only
   assert.match(rb, /drop view public\.world_contributor_research_v2;/);
   assert.doesNotMatch(rb, /create or replace view/i);
 });
+
+// Round 4 (browser check test/m0d-contributor-stale-client.browser.mjs found it): the public contributor page rendered a v2
+// candidate WITHOUT its "טרם אומת" label. The page now carries the stored status on each finding item and labels it; verified
+// findings stay first. Static and model checks here so CI holds it without the old build the browser check needs.
+test("contributor page: a public candidate keeps its stored status, is labelled 'טרם אומת', and verified findings come first", async () => {
+  const { buildPublicContributorView, selectContributorItems } = await import("../src/components/contributor2029/publicContributor2029Model.js");
+  const { fixtureIdentity, fixtureProjection } = await import("../src/components/contributor2029/publicContributor2029Fixtures.js");
+  const { researchPublicStatusPresentation } = await import("../src/lib/research/researchObjectPresentation.js");
+  const view = buildPublicContributorView(fixtureProjection(), fixtureIdentity);
+  const finding = view.items.find((item) => item.type === "findings");
+  assert.equal(finding.publicStatus, "candidate", "the stored status, unchanged");
+  assert.equal(researchPublicStatusPresentation(finding.publicStatus).label, "טרם אומת");
+  const items = [
+    { id: "finding:new-candidate", type: "findings", date: "2026-11-12T10:00:00Z", publicStatus: "candidate" },
+    { id: "finding:old-approved", type: "findings", date: "2026-11-01T10:00:00Z", publicStatus: "approved" },
+    { id: "source:middle", type: "sources", date: "2026-11-05T10:00:00Z" },
+  ];
+  assert.deepEqual(selectContributorItems({ items }, "all", "newest").rows.map((item) => item.id),
+    ["source:middle", "finding:old-approved", "finding:new-candidate"], "verified tier first, each tier keeps the requested order");
+  const page = read("src/pages/PublicContributor2029Page.jsx");
+  assert.match(page, /data-public-research-status=\{item\.publicStatus\}/);
+  assert.match(page, /researchPublicStatusPresentation\(item\.publicStatus\)\.label/);
+  const surface = read("src/components/research/FindingSurface.jsx");
+  assert.match(surface, /data-public-research-status=\{publicStatus\.status\}/);
+  assert.match(read("src/components/research/ContributorFindingsLens.jsx"), /orderResearchByPublicStatusTier\(group\.universalFindings/);
+});
