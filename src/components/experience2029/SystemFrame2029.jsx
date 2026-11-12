@@ -47,6 +47,8 @@ import CanonicalProgress from "../CanonicalProgress.jsx";
 import ContactGateway from "./ContactGatewayOnDemand2029.jsx";
 import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 import GlobalLivingRibbon2029, { LivingRibbonDetail2029 } from "./GlobalLivingRibbon2029.jsx";
+// ZURIEL 12.11.2026: the header verse line («הנה אנכי שולח לכם את אליה הנביא…») is hidden on every page. One switch: set true to show it again.
+const LIVING_RIBBON_VISIBLE_2029 = false;
 import RazielSessionMount2029, { useOptionalRazielSession2029 } from "./RazielSessionMount2029.jsx";
 const RazielCenter2029 = React.lazy(() => import("./RazielCenter2029.jsx"));
 const NowPublications2029 = React.lazy(() => import("./NowPublications2029.jsx"));
@@ -2252,7 +2254,7 @@ function SystemFrame2029Body({
             </div>
             </div>
           </header>
-          <GlobalLivingRibbon2029 />
+          {LIVING_RIBBON_VISIBLE_2029 ? <GlobalLivingRibbon2029 /> : null}
           </div>
 
           {orientation.mode !== "hidden" && orientation.manifest ? (() => {

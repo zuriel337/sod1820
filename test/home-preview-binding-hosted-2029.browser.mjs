@@ -56,8 +56,7 @@ try {
       if (path === '/2029') {
         await page.locator('.h29').waitFor();
         await page.locator('.h29-hero, .sod29-home-now-card').first().waitFor();
-        await page.locator('.sod29-living-ribbon').waitFor();
-        assert.equal(await page.locator('.sod29-living-ribbon').count(),1);
+                assert.equal(await page.locator('.sod29-living-ribbon').count(),0); // hidden 12.11.2026
         await page.locator('.els-hm__rig').waitFor();
         assert.equal(await page.locator('.els-hm__rig').first().evaluate(el => getComputedStyle(el).animationDuration),'20s');
         await page.locator('.h29-stream').scrollIntoViewIfNeeded();
