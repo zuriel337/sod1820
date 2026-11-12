@@ -1,5 +1,5 @@
-# run-ci-scenarios.sh output: 47 scenarios (S0-S15, R1-R9 of rounds 1-2, R10-R14 of round 3).
-# Ran on commit 7ddd9faaa547901bf014a3a90d903f7aacf66163 (the round-3 code commit; base = that commit, scenarios are local commits on top of it in a temporary worktree). Exit 0.
+# run-ci-scenarios.sh output: 51 scenarios (S0-S15, R1-R9 of rounds 1-2, R10-R14 of round 3, R15-R15d of round 4).
+# Ran on commit 83005653617eb385103c0331c3be80c305e231e0 (the round-4 code commit; base = that commit, scenarios are local commits on top of it in a temporary worktree). Exit 0.
 # The same script runs in CI (live-contracts-2029.yml) whenever the G1 enforcement code changes.
 ok S0 PASS — no change
 ok S1 FAIL — new contract file without routing
@@ -48,4 +48,8 @@ ok R13 FAIL — newer snapshot: a successor appears on a retired row without a r
 ok R13b PASS — same, recorded through retired_routing_v1 with an approval reference (authenticity: human gate)
 ok R14 FAIL — Owner Index row routes to a document that does not exist
 ok R14b PASS — Owner Index row routes to an existing registered document
-RESULT: every scenario behaved as expected (47)
+ok R15 FAIL — new runtime code names a retired law
+ok R15b PASS — the same code names the recorded successor
+ok R15c FAIL — the new reference is hidden by adding it to a newer record
+ok R15d PASS — an existing reader is repointed to the successor and a newer, smaller record is published
+RESULT: every scenario behaved as expected (51)

@@ -1,6 +1,7 @@
-# run-db-scenarios.sh output: 64 cases x 2 variants (the live guard fixture, and the same fixture after the real apply file).
-# Ran on commit 7ddd9faaa547901bf014a3a90d903f7aacf66163, on a throwaway postgres (PostgreSQL) 17.12 (Ubuntu 17.12-1.pgdg24.04+1); the same run on PostgreSQL 16.15 gave the same outcomes and the same two md5 values. Exit 0.
+# run-db-scenarios.sh output: 72 cases x 2 variants (the live guard fixture, and the same fixture after the real apply file).
+# Ran on commit 83005653617eb385103c0331c3be80c305e231e0, on a throwaway postgres (PostgreSQL) 17.12 (Ubuntu 17.12-1.pgdg24.04+1); the same run on PostgreSQL 16.15 gave the same outcomes and the same two md5 values. Exit 0.
 # Never run against a live project.
+PostgreSQL: postgres (PostgreSQL) 17.12 (Ubuntu 17.12-1.pgdg24.04+1)
 ======== live guard
 GUARD md5 56b90b0ae0f9c5915b730314d13ca7a0
 D01 second active version, no lineage => REFUSED (rule owner_a_law v2 requires unambiguous immediate predecessor v1 (got supersedes_version=<NULL>))
@@ -58,6 +59,9 @@ D25h VALID replacement of a recorded successor routing by a new approved one => 
 D25i VALID other metadata on a retired row that carries a successor routing => ALLOWED
 D25j revival of a retired rule that still carries its successor routing => ALLOWED
 D25k VALID revival with a verdict and an approval that drops the successor routing => ALLOWED
+D25l successor routing written on an older version of a retired family => ALLOWED
+D25m successor routing written on a retired version of a family that is still active => ALLOWED
+D25n VALID successor routing on the last version of a retired family that has two versions => ALLOWED
 D26 child of a child of a retired owner (chain, depth 2) => ALLOWED
 D26b VALID chain of depth 2 that ends at a self-owned active rule => ALLOWED
 D26c owner inside an ownership cycle (a -> b -> a, no root) => ALLOWED
@@ -67,9 +71,14 @@ D26f VALID chain that ends at an existing codex item => ALLOWED
 D26g chain through an active rule that records no owner => ALLOWED
 D26h VALID chain that ends at a registered document => ALLOWED
 D26i chain through an owner that does not exist (depth 2) => ALLOWED
-psql:test.sql:236: NOTICE:  ALL 64 CASES AS EXPECTED for live
+D27 a new rule row without a rule_id, active and marked for the assistant context => ALLOWED
+D27b a legacy rule row without a rule_id is activated => ALLOWED
+D27c VALID metadata note on a legacy rule row without a rule_id => ALLOWED
+D27d body of a legacy rule row without a rule_id is rewritten => ALLOWED
+D27e a row that is not a rule becomes a rule row without a rule_id => ALLOWED
+psql:test.sql:262: NOTICE:  ALL 72 CASES AS EXPECTED for live
 ======== proposed guard
-GUARD md5 7b03b1a78f4e04962c15399feb1668ff
+GUARD md5 90b5917b1412be02f66d1f805241018c
 D01 second active version, no lineage => REFUSED (rule owner_a_law v2 requires unambiguous immediate predecessor v1 (got supersedes_version=<NULL>))
 D02 VALID new version, same owner => ALLOWED
 D03 new family duplicating an owner, no verdict => REFUSED (new rule family owner_a_copy_law requires an owner-creation verdict (owner_routing.resolution))
@@ -125,6 +134,9 @@ D25h VALID replacement of a recorded successor routing by a new approved one => 
 D25i VALID other metadata on a retired row that carries a successor routing => ALLOWED
 D25j revival of a retired rule that still carries its successor routing => REFUSED (rule routed_retired_law v1: retired_routing_v1 belongs to a retired row (an active rule cannot carry it))
 D25k VALID revival with a verdict and an approval that drops the successor routing => ALLOWED
+D25l successor routing written on an older version of a retired family => REFUSED (rule revived_law v1: retired_routing_v1 is recorded on the last version of the family only)
+D25m successor routing written on a retired version of a family that is still active => REFUSED (rule hist_law v1: retired_routing_v1 is recorded on a retired family only (the rule has an active version))
+D25n VALID successor routing on the last version of a retired family that has two versions => ALLOWED
 D26 child of a child of a retired owner (chain, depth 2) => REFUSED (rule grandchild_law ownership chain reaches retired owner retired_r_law (through mid_retired_law))
 D26b VALID chain of depth 2 that ends at a self-owned active rule => ALLOWED
 D26c owner inside an ownership cycle (a -> b -> a, no root) => REFUSED (rule grandchild_law ownership chain is a cycle (grandchild_law -> cyc_a_law -> cyc_b_law returns to cyc_a_law))
@@ -134,5 +146,10 @@ D26f VALID chain that ends at an existing codex item => ALLOWED
 D26g chain through an active rule that records no owner => REFUSED (rule grandchild_law ownership chain reaches no_owner_mid_law which records no owner)
 D26h VALID chain that ends at a registered document => ALLOWED
 D26i chain through an owner that does not exist (depth 2) => REFUSED (rule grandchild_law ownership chain reaches owner never_existed_law which does not exist (through mid_ghost_law))
-psql:test.sql:236: NOTICE:  ALL 64 CASES AS EXPECTED for proposed
+D27 a new rule row without a rule_id, active and marked for the assistant context => REFUSED (a rule row requires a rule_id (a rule without an identity cannot be governed))
+D27b a legacy rule row without a rule_id is activated => REFUSED (a rule row without a rule_id cannot be active)
+D27c VALID metadata note on a legacy rule row without a rule_id => ALLOWED
+D27d body of a legacy rule row without a rule_id is rewritten => REFUSED (rule row without a rule_id: body changed (history is not rewritten))
+D27e a row that is not a rule becomes a rule row without a rule_id => REFUSED (a rule row requires a rule_id (a rule without an identity cannot be governed))
+psql:test.sql:262: NOTICE:  ALL 72 CASES AS EXPECTED for proposed
 RESULT: every case behaved as expected
