@@ -312,6 +312,8 @@ jobs:
         run: bash scripts/run-gilui-yomi-kandro-sql-test.sh
       - name: Group images and videos (proposal; text arrivals byte-identical; only a verified, approved, unheld writer's image or video with a recorded public copy at the exact path and of the same type and size; every gate refuses; hold and takedown; grants; the 10.11 backfill; both roll back exactly; live functions byte for byte)
         run: bash scripts/run-group-source-media-sql-test.sh
+      - name: Group «גילוי יומי» to community chat (proposal; daily thread, writers allow-list, consent gates, censoring parity, media wait, hold takedown, kill switch, ingest never breaks; rolls back)
+        run: bash scripts/run-group-chat-sync-sql-test.sh
 
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real
   # Supabase client on the production URL (mapped to a local fixture; Auth is an in-memory model, nothing leaves the runner).
