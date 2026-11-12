@@ -1,6 +1,6 @@
 // M0-D round 3 (12.11.2026): public candidates come from a NEW view, world_contributor_research_v2; v1 never changes.
 // Proves (1) the new site reads v2 and falls back to v1 only when v2 does not exist, (2) a real error never falls back,
-// (3) the code that is LIVE now (146f2f0e7) and every reader that keeps its own status gate read v1 only, so a tab left
+// (3) the code that is LIVE now (146f2f0e7, then ed30dc05b) and every reader that keeps its own status gate read v1 only, so a tab left
 // open after the site deploy never receives a candidate, (4) the SQL creates v2 without touching v1 and the rollback drops v2 only.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -13,7 +13,8 @@ import { fetchWorldPublicFindingsPage } from "../src/lib/research/worldPublicFin
 
 const root = new URL("..", import.meta.url).pathname;
 const read = (p) => readFileSync(root + p, "utf8");
-const LIVE = "146f2f0e7e5e6dcd17f49af33e70808e7549ea1f";
+// The code live in Production on 12.11.2026: 146f2f0e7 until about 14:38 UTC, then ed30dc05b (#1323). Each is checked.
+const LIVE_COMMITS = ["146f2f0e7e5e6dcd17f49af33e70808e7549ea1f", "ed30dc05bab6f079b771669de6206a99413dd5de"];
 const has = (rev) => { try { execFileSync("git", ["-C", root, "cat-file", "-e", `${rev}^{commit}`], { stdio: "ignore" }); return true; } catch { return false; } };
 const MISSING = { code: "PGRST205", message: "Could not find the table 'public.world_contributor_research_v2' in the schema cache" };
 
@@ -104,15 +105,17 @@ test("readers that keep their own status gate stay on v1 (Zvi lists, number card
   }
 });
 
-test(`a tab still running the LIVE code (${LIVE.slice(0, 9)}) reads v1 only, so it can never receive a candidate`, { skip: has(LIVE) ? false : "live commit not in this clone" }, () => {
-  const files = execFileSync("git", ["-C", root, "grep", "-l", "world_contributor_research_v", LIVE, "--", "src", "api"]).toString().trim().split("\n");
-  assert.ok(files.length >= 3);
-  for (const entry of files) {
-    const [, path] = entry.split(":");
-    const src = execFileSync("git", ["-C", root, "show", `${LIVE}:${path}`], { maxBuffer: 16 << 20 }).toString();
-    assert.doesNotMatch(src, /world_contributor_research_v2/, path);
-  }
-});
+for (const LIVE of LIVE_COMMITS) {
+  test(`a tab still running the LIVE code (${LIVE.slice(0, 9)}) reads v1 only, so it can never receive a candidate`, { skip: has(LIVE) ? false : "live commit not in this clone" }, () => {
+    const files = execFileSync("git", ["-C", root, "grep", "-l", "world_contributor_research_v", LIVE, "--", "src", "api"]).toString().trim().split("\n");
+    assert.ok(files.length >= 3);
+    for (const entry of files) {
+      const [, path] = entry.split(":");
+      const src = execFileSync("git", ["-C", root, "show", `${LIVE}:${path}`], { maxBuffer: 16 << 20 }).toString();
+      assert.doesNotMatch(src, /world_contributor_research_v2/, path);
+    }
+  });
+}
 
 test("the SQL creates v2 and leaves v1 byte for byte; the rollback drops v2 only; old and new readers never share a changed relation", () => {
   const sql = read("supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql");
