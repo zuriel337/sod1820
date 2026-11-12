@@ -33,5 +33,7 @@ union all select 'P els_records visitor_id hidden from anon (DEF-001b step 1)', 
   and has_column_privilege('anon', 'public.els_records', 'title', 'SELECT')
 union all select 'P push_subscriptions anon table access removed (DEF-001b step 2)', not has_table_privilege('anon', 'public.push_subscriptions', 'SELECT')
   and not exists (select 1 from pg_policies where schemaname = 'public' and tablename = 'push_subscriptions' and policyname like 'ps_anon_%')
-union all select 'R public research readable by anon (item 9 needs no DB change)', has_table_privilege('anon', 'public.research_objects', 'SELECT')
+union all select 'R public research readable by anon', has_table_privilege('anon', 'public.research_objects', 'SELECT')
+union all select 'D contributor view admits public candidates (status kept)', position($a$'candidate'::text$a$ in pg_get_viewdef('public.world_contributor_research_v1'::regclass, true)) > 0
+  and has_table_privilege('anon', 'public.world_contributor_research_v1', 'SELECT')
 order by 1;
