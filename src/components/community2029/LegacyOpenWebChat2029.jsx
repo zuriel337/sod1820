@@ -30,7 +30,7 @@ export default function LegacyOpenWebChat2029() {
   // asks for it (a click, or a direct #legacy-chat link).
   const readOnlyPreview = (actionsLocked && !PUBLIC_READING_PRODUCTION_ARTIFACT) || import.meta.env.VITE_INTEGRATED_PREVIEW === "true"
     || (typeof document !== "undefined" && Boolean(document.querySelector('[data-raziel-preview-transport="mock-only"]')));
-  const [active, setActive] = useState(() => !readOnlyPreview && wantsHistoryNow());
+  const [active, setActive] = useState(() => !readOnlyPreview);
 
   useEffect(() => {
     let frame;

@@ -895,8 +895,10 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   guestReviewHolder.current = guestReview;
   treeHintHolder.current = treeHintControl;
   onlinePresenceHolder.current = onlineIds;
+  const pairLayout = Boolean(trailingContent) && !memberId && !claimId && !hasThreadRequest;
   return <Sod2029Shell surface="community" title="הקהילה" introVariant="none" status="קהילה" symbol="◎">
     {!memberId ? leadingContent : null}
+    <div className={pairLayout ? "sod29-chat-pair" : undefined} style={pairLayout ? undefined : { display: "contents" }}>
     <main id="community-new-chat" className={`sod29-community sod29-community--artwork${!memberId && !claimId ? " sod29-community--full" : ""}`} data-community-mode="connected-preview" dir="rtl" style={{ "--community-input": `color-mix(in srgb, ${palette.cardRaised} 94%, ${palette.accentText})`, "--community-discovery": palette.accentDiscovery, "--community-depth": palette.accentSecondary, "--community-warm": palette.warmAccent, "--community-success": palette.successText, "--community-action-fill": palette.accentBtn, "--community-danger": palette.dangerText }}>
       {claimId ? actionsLocked ? <FrameState kind="empty" title="קישור החשבון הישן עדיין אינו זמין"><p>ההודעות הציבוריות נשמרו לקריאה. קישור חשבונות דורש את פעולות החשבון הקיימות ואינו פעיל בגרסה זו.</p><Link to={threadReturnHref}>חזרה לשיחות</Link></FrameState> : <LegacyAccountClaim key={claimId} contributorId={claimId} palette={palette} /> : null}
       {!memberId && !claimId ? <header className="sod29-community-intro"><h1>צ'אט הקהילה {!hasThreadRequest ? <ConversationCount /> : null}</h1><p>שיחות, שאלות וגילויים, פתוח לכולם.</p>
@@ -1014,5 +1016,6 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       </div> : null}
     </main>
     {!memberId && !claimId && !hasThreadRequest ? trailingContent : null}
+    </div>
   </Sod2029Shell>;
 }

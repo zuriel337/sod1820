@@ -8,3 +8,7 @@
 .sod29-legacy-chat-open:hover,.sod29-legacy-chat-open:focus-visible{background:color-mix(in srgb,var(--s29-ink) 6%,transparent)}
 #community-new-chat,#legacy-chat{scroll-margin-top:96px}
 @media(max-width:600px){.sod29-legacy-chat{width:calc(100% - 24px);margin-top:16px;padding:14px}}
+
+/* PROTOTYPE (not for merge): old + new chat side by side on desktop, old first on mobile */
+@media(min-width:1024px){.sod29-chat-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;max-width:1600px;margin:0 auto;padding:0 20px;align-items:start}.sod29-chat-pair>.sod29-legacy-chat{width:auto;margin:24px 0 40px}}
+@media(max-width:1023px){.sod29-chat-pair{display:flex;flex-direction:column}.sod29-chat-pair>.sod29-legacy-chat{order:-1}}
