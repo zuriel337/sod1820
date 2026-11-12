@@ -156,6 +156,7 @@ jobs:
           test/m0b-caller-limits.test.mjs
           test/m0b-paid-ai-handlers.test.mjs
           test/m0e-contact-notify.test.mjs
+          test/m0c-gallery-upload-contract.test.mjs
       - name: Navigation symbols (every destination has its own catalogued picture; none is shared and none falls back to the tools grid) and icon treatment
         run: node --test test/navigation-symbols-distinct-2029.test.mjs test/icon-treatment-2029.test.mjs
       # Content series and post classification (11.11.2026). All five were green on main but ran in no workflow. They read repository files and
