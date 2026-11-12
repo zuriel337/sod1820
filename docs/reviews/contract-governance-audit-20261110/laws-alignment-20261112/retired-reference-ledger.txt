@@ -10,59 +10,74 @@
 #         REPOINT_EDGE = a row in public.edges (extends_rule) points at the retired law   NO_SUCCESSOR = retired with no recorded mapping: a decision is needed
 #         MOOT_AFTER_30 = the dependent law is itself retired by proposal 30 (number_page_law, no_row_without_number_law)
 # consumer: db:<function> | code:<file> (c = comment only) | edge:<function> | test:<file> | edges:<table row> | none
-# columns: dependent|version|retired_target|kind|recorded_successor|consumer|action
-ai_analyze_contract|2|never_silent_metatron_law|FUNC|raziel_companion_layer_law|db:fn_metatron_status (reads is_active, returns false); edge:wa-raziel/index.ts:414 (prompt text)|REPOINT_CONSUMER
-auto_share_uses_live_post_law|1|social_autonomy_law|EXT|project_codex.publishing_conventions|none|REPOINT_TEXT
-auto_share_uses_live_post_law|1|social_publish_law|EXT|project_codex.publishing_conventions|none|REPOINT_TEXT
-canonical_ui_components_law|12|dim5_upload_law|FUNC|project_codex.publishing_conventions|none|REPOINT_TEXT
-canonical_ui_components_law|12|everything_additive_law|HIST|foundation_closure_protocol_law|none|KEEP
-canonical_ui_components_law|12|rule_versioning|HIST|foundation_closure_protocol_law|none|KEEP
-canonical_ui_components_law|12|unified_graph_law|EXT|reality_graph_law|code:src/lib/research/entity.js (c), src/lib/contributions.js (c)|REPOINT_TEXT
-corpus_admission_foundation_v1|1|corpus_admission_lifecycle_law|HIST|-|none|NO_SUCCESSOR
-cross_vs_convergence_criteria|4|convergence_cross_link_law|HIST|reality_graph_law|none|KEEP
-cross_vs_convergence_criteria|4|convergence_display_law|HIST|reality_graph_law|code:TopicConvergenceContent.jsx (c), topicConvergence.js (c), src/theme.js (c)|KEEP
-cross_vs_convergence_criteria|4|convergence_evidence_law|HIST|reality_graph_law|none|KEEP
-cross_vs_convergence_criteria|4|convergence_growth_law|HIST|reality_graph_law|none|KEEP
-cross_vs_convergence_criteria|4|convergence_layout_law|HIST|reality_graph_law|db:fn_generate_convergence_candidates (rule-id array; retired ids silently dropped)|REPOINT_CONSUMER
-cross_vs_convergence_criteria|4|convergence_number_method_law|HIST|reality_graph_law|code:TopicConvergenceContent.jsx (c)|KEEP
-cross_vs_convergence_criteria|4|convergence_one_per_value|HIST|reality_graph_law|db:fn_generate_convergence_candidates, fn_number_dossier, admin_candidate_from_researcher (fn_rules_snapshot arrays; returns active rows only)|REPOINT_CONSUMER
-cross_vs_convergence_criteria|4|convergence_single_anchor_law|HIST|reality_graph_law|none|KEEP
-cross_vs_convergence_criteria|4|convergence_single_trigger|HIST|reality_graph_law|none|KEEP
-cross_vs_convergence_criteria|4|gold_seal_convergence|HIST|reality_graph_law|db:fn_generate_convergence_candidates, fn_number_dossier, admin_candidate_from_researcher (fn_rules_snapshot arrays)|REPOINT_CONSUMER
-deploy_on_request|4|deploy_quota_protection|REL|deploy_on_request|none (metadata cited_by: the retired law cites this one)|KEEP
-els_research_layer_law|9|unified_graph_law|EXT|reality_graph_law|edges:extends_rule from els_research_layer_law v2 (inactive version)|REPOINT_TEXT
-engine_governance_registry_authority_law|1|meshulash_kadmi_law|FUNC|-|code:src/lib/gematria.js (c), src/lib/research/compositeMethods.js (c: "locked alias")|NO_SUCCESSOR
-engine_governance_registry_authority_law|1|rabbati_letter_method_law|FUNC|project_codex.gematria_engine|none|REPOINT_TEXT
-experience_governance_foundation_v1_law|10|lens_law|HIST|experience_governance_foundation_v1_law|db:fn_generate_convergence_candidates (rule-id array)|REPOINT_CONSUMER
-experience_governance_foundation_v1_law|10|spatial_gematria_law|HIST|experience_governance_foundation_v1_law|none|KEEP
-gematria_auto_registry_law|2|corpus_admission_lifecycle_law|FUNC|-|none|NO_SUCCESSOR
-graph_privacy_foundation_law|1|entity_structure_law|EXT|reality_graph_law|edges:extends_rule graph_privacy_foundation_law v1 -> entity_structure_law|REPOINT_EDGE
-graph_privacy_foundation_law|1|unified_graph_law|EXT|reality_graph_law|edges:extends_rule graph_privacy_foundation_law v1 -> unified_graph_law|REPOINT_EDGE
-inter_agent_coordination_law|18|agent_onboarding_law|EXT|-|none|NO_SUCCESSOR
-live_state_resolution_law|3|agent_onboarding_law|HIST|-|none (text already says: the historical law is not reactivated)|KEEP
-live_state_sync_law|1|everything_additive_law|HIST|foundation_closure_protocol_law|none|KEEP
-mobile_acceptance_law|1|human_date_input_law|HIST|truth_axes_foundation_law|code:src/components/HumanDateInput.jsx (c)|KEEP
-no_row_without_number_law|1|convergence_display_law|HIST|reality_graph_law|none|MOOT_AFTER_30
-number_page_law|1|subscribe_gate_law|FUNC|subscription_funnel_law|code:src/components/SubscribeGate.jsx (c)|MOOT_AFTER_30
-number_page_law|1|visibility_system|REL|truth_axes_foundation_law|none|MOOT_AFTER_30
-person_foundation_contract_law|6|everything_additive_law|HIST|foundation_closure_protocol_law|none|KEEP
-person_foundation_contract_law|6|rule_versioning|HIST|foundation_closure_protocol_law|none|KEEP
-person_foundation_contract_law|6|unified_graph_law|EXT|reality_graph_law|none (metadata extends list already contains reality_graph_law)|REPOINT_TEXT
-post_og_image_law|1|post_publish_law|REL|project_codex.publishing_conventions|code:src/lib/supabase.js (c)|REPOINT_TEXT
-reality_graph_law|8|unified_graph_law|REL|reality_graph_law|code:src/lib/research/researchW2ExecutorsBase.js (owner: 'unified_graph_law' x4, stored in records) + researchW2FoundationHardening.test.js asserts it|REPOINT_CONSUMER
-relative_time_display_law|4|whats_new_law|REL|experience_governance_foundation_v1_law|none (metadata already annotates it "inactive v3")|KEEP
-research_gold_hints_law|4|convergence_explanation_law|EXT|reality_graph_law|none|REPOINT_TEXT
-research_gold_hints_law|4|revelation_signal_law|HIST|research_gold_hints_law|none (text says: superseded for 2029)|KEEP
-research_object_identity_invariant_law|2|everything_additive_law|HIST|foundation_closure_protocol_law|none|KEEP
-research_object_identity_invariant_law|2|post_update_on_top|FUNC|project_codex.publishing_conventions|none|REPOINT_TEXT
-research_object_identity_invariant_law|2|rule_versioning|HIST|foundation_closure_protocol_law|none|KEEP
-research_strategy_layer_law|17|research_two_pass_law|HIST|docs/research-studio-v1-contract.md|none (text says: principle absorbed, no separate owner)|KEEP
-signal_vs_curation|2|zuriel_focus_law|FUNC|truth_axes_foundation_law|none|REPOINT_TEXT
-source_video_publish_law|1|dim5_upload_law|EXT|project_codex.publishing_conventions|none|REPOINT_TEXT
-source_video_publish_law|1|orgeula_video_pipeline_law|EXT|project_codex.publishing_conventions|none|REPOINT_TEXT
-subscription_funnel_law|22|subscribe_gate_law|FUNC|subscription_funnel_law|code:src/components/SubscribeGate.jsx (c)|KEEP
-system_suggestions_law|7|ai_style_learning_law|EXT|system_suggestions_law|code:src/lib/supabase.js (c); test:src/lib/research/researchLearningPolicy.test.js:125 (test title)|KEEP
-truth_axes_foundation_law|3|everything_additive_law|HIST|foundation_closure_protocol_law|none|KEEP
-video_transcription_law|1|rls_client_read_protocol|FUNC|person_foundation_contract_law|db:fn_rls_grant_audit (message text); code:src/lib/supabase.js (c), researchW2ExecutorsBase.js (c)|REPOINT_CONSUMER
-work_log_authority_law|2|agent_onboarding_law|REL|-|none|NO_SUCCESSOR
-work_log_authority_law|2|rls_client_read_protocol|REL|person_foundation_contract_law|none|REPOINT_TEXT
+# columns (round 2): dependent|version|retired_target|kind|recorded_successor|consumer|action
+# ROUND 3 (12.11.2026, full reading of every affected law and successor section - README §11): two columns added -> columns: dependent|version|retired_target|kind|recorded_successor|consumer|action|r3_target|r3_support
+# r3 action values (set after full reading; replace REPOINT_TEXT, NO_SUCCESSOR, one KEEP and one REPOINT_EDGE):
+#   REPOINT_SUPPORTED = the target section was verified to carry the semantics; change at the dependent's next version (text or metadata), with approval
+#   REPOINT_OTHER_TARGET = the semantics live in a DIFFERENT owner/section than recorded_successor (recorded canonical_owner alone is not proof)
+#   KEEP_HISTORY = stays as a historical citation (semantics restated in the dependent, or retired on purpose, or the recorded target lacks it)
+#   SEMANTIC_GAP = no active owner text carries the semantics; a re-home decision is needed (README §9 CL-19 / CL-20)
+#   unchanged values: KEEP, REPOINT_CONSUMER (audit session), MOOT_AFTER_30, REPOINT_EDGE
+# round-3 counts: KEEP 23 · KEEP_HISTORY 8 · REPOINT_SUPPORTED 9 · REPOINT_OTHER_TARGET 2 · SEMANTIC_GAP 2 · REPOINT_CONSUMER 7 · MOOT_AFTER_30 3 · REPOINT_EDGE 1 (=55)
+# nothing here is applied: every change is a live-law or DB change that needs ZURIEL's explicit approval
+ai_analyze_contract|2|never_silent_metatron_law|FUNC|raziel_companion_layer_law|db:fn_metatron_status (reads is_active, returns false); edge:wa-raziel/index.ts:414 (prompt text)|REPOINT_CONSUMER|text: raziel_full_answer_and_route_law v3 (2),(א) + ai_analyze_contract v2 §D-§E (per archive_reason; recorded owner raziel_companion_layer_law has 0 never-silent text)|retired law itself not read fully in round 3
+auto_share_uses_live_post_law|1|social_autonomy_law|EXT|project_codex.publishing_conventions|none|KEEP_HISTORY|-|retired because it CONFLICTS with current Human Gate (retired-row metadata); must not be inherited; mention at chars 432-453 of 534 is cut by fn_active_method_rules left(400)
+auto_share_uses_live_post_law|1|social_publish_law|EXT|project_codex.publishing_conventions|none|SEMANTIC_GAP|- (CL-19)|codex4 publishing_conventions: 0 hits for the social tooling; 9 live SECURITY DEFINER functions (service_role only; 0 cron)
+canonical_ui_components_law|12|dim5_upload_law|FUNC|project_codex.publishing_conventions|none|REPOINT_OTHER_TARGET|SOD1820_CONTENT_FOUNDATION_CONTRACT.md §5 -> PLAN37 DEC-SERIES-003..006 + src/lib/research/contentSeries2029Identity.js|content contract §5 [updated 6.11.2026] replaces "Series = tag"; codex4 26.8 taxonomy line and content contract §6:116 still say it (CL-21)
+canonical_ui_components_law|12|everything_additive_law|HIST|foundation_closure_protocol_law|none|KEEP|-|-
+canonical_ui_components_law|12|rule_versioning|HIST|foundation_closure_protocol_law|none|KEEP|-|-
+canonical_ui_components_law|12|unified_graph_law|EXT|reality_graph_law|code:src/lib/research/entity.js (c), src/lib/contributions.js (c)|REPOINT_SUPPORTED|reality_graph_law (metadata.extends; v1 opening line stays history)|reality_graph_law v8 v1 head "Zero-Duplicate-Code ... Graph אחד·Ontology אחת·Entity Hub אחד"; v5 §10 RETIRE, DO NOT DUPLICATE
+corpus_admission_foundation_v1|1|corpus_admission_lifecycle_law|HIST|-|none|KEEP_HISTORY|-|history; successor proposal in the block at the end
+cross_vs_convergence_criteria|4|convergence_cross_link_law|HIST|reality_graph_law|none|KEEP|-|-
+cross_vs_convergence_criteria|4|convergence_display_law|HIST|reality_graph_law|code:TopicConvergenceContent.jsx (c), topicConvergence.js (c), src/theme.js (c)|KEEP|-|-
+cross_vs_convergence_criteria|4|convergence_evidence_law|HIST|reality_graph_law|none|KEEP|-|-
+cross_vs_convergence_criteria|4|convergence_growth_law|HIST|reality_graph_law|none|KEEP|-|-
+cross_vs_convergence_criteria|4|convergence_layout_law|HIST|reality_graph_law|db:fn_generate_convergence_candidates (rule-id array; retired ids silently dropped)|REPOINT_CONSUMER|-|-
+cross_vs_convergence_criteria|4|convergence_number_method_law|HIST|reality_graph_law|code:TopicConvergenceContent.jsx (c)|KEEP|-|-
+cross_vs_convergence_criteria|4|convergence_one_per_value|HIST|reality_graph_law|db:fn_generate_convergence_candidates, fn_number_dossier, admin_candidate_from_researcher (fn_rules_snapshot arrays; returns active rows only)|REPOINT_CONSUMER|-|-
+cross_vs_convergence_criteria|4|convergence_single_anchor_law|HIST|reality_graph_law|none|KEEP|-|-
+cross_vs_convergence_criteria|4|convergence_single_trigger|HIST|reality_graph_law|none|KEEP|-|-
+cross_vs_convergence_criteria|4|gold_seal_convergence|HIST|reality_graph_law|db:fn_generate_convergence_candidates, fn_number_dossier, admin_candidate_from_researcher (fn_rules_snapshot arrays)|REPOINT_CONSUMER|-|-
+deploy_on_request|4|deploy_quota_protection|REL|deploy_on_request|none (metadata cited_by: the retired law cites this one)|KEEP|-|-
+els_research_layer_law|9|unified_graph_law|EXT|reality_graph_law|edges:extends_rule from els_research_layer_law v2 (inactive version)|REPOINT_SUPPORTED|reality_graph_law (metadata.extends)|reality_graph_law v1 + v5 §3, §4; dependent v3 OWNER CHECK already consumes Reality Graph; edge from inactive v2 = history
+engine_governance_registry_authority_law|1|meshulash_kadmi_law|FUNC|-|code:src/lib/gematria.js (c), src/lib/research/compositeMethods.js (c: "locked alias")|KEEP_HISTORY|-|semantic restated in the dependent (רגיל+משולש=[רגיל,קדמי]); successor proposal in the block at the end
+engine_governance_registry_authority_law|1|rabbati_letter_method_law|FUNC|project_codex.gematria_engine|none|KEEP_HISTORY|-|codex5 gematria_engine: 0 hits for רבתי; reason restated in HG-E1; live gate gematria_methods אות רבתי scannable=false
+experience_governance_foundation_v1_law|10|lens_law|HIST|experience_governance_foundation_v1_law|db:fn_generate_convergence_candidates (rule-id array)|REPOINT_CONSUMER|-|-
+experience_governance_foundation_v1_law|10|spatial_gematria_law|HIST|experience_governance_foundation_v1_law|none|KEEP|-|-
+gematria_auto_registry_law|2|corpus_admission_lifecycle_law|FUNC|-|none|REPOINT_SUPPORTED|corpus_admission_foundation_v1 (docs contract §6) + truth_axes_foundation_law v3|docs/corpus-admission-foundation-v1-contract.md:86 "Supersedes/completes corpus_admission_lifecycle_law"; §6 separate axes
+graph_privacy_foundation_law|1|entity_structure_law|EXT|reality_graph_law|edges:extends_rule graph_privacy_foundation_law v1 -> entity_structure_law|KEEP_HISTORY|-|space vocabulary restated in graph_privacy §4 + fn_graph_space_is_public; reality_graph_law (v8 + codex id 18) has 0 space/private vocabulary; entity_structure_law itself not read fully
+graph_privacy_foundation_law|1|unified_graph_law|EXT|reality_graph_law|edges:extends_rule graph_privacy_foundation_law v1 -> unified_graph_law|REPOINT_EDGE|reality_graph_law (edge row, MA, CL-08)|reality_graph_law v1
+inter_agent_coordination_law|18|agent_onboarding_law|EXT|-|none|KEEP_HISTORY|-|reference sits in the block "HISTORICAL V1–V16"; entry procedure now §33-34, §38, §49, §55-56 of the same law
+live_state_resolution_law|3|agent_onboarding_law|HIST|-|none (text already says: the historical law is not reactivated)|REPOINT_SUPPORTED|metadata.clarification_v2 only (text stays): live_state_resolution_law v2 clarification + inter_agent_coordination_law §40 + CLAUDE.md §12|metadata calls the retired law's write requirement "standing"
+live_state_sync_law|1|everything_additive_law|HIST|foundation_closure_protocol_law|none|KEEP|-|-
+mobile_acceptance_law|1|human_date_input_law|HIST|truth_axes_foundation_law|code:src/components/HumanDateInput.jsx (c)|KEEP|-|-
+no_row_without_number_law|1|convergence_display_law|HIST|reality_graph_law|none|MOOT_AFTER_30|-|-
+number_page_law|1|subscribe_gate_law|FUNC|subscription_funnel_law|code:src/components/SubscribeGate.jsx (c)|MOOT_AFTER_30|-|-
+number_page_law|1|visibility_system|REL|truth_axes_foundation_law|none|MOOT_AFTER_30|-|-
+person_foundation_contract_law|6|everything_additive_law|HIST|foundation_closure_protocol_law|none|KEEP|-|-
+person_foundation_contract_law|6|rule_versioning|HIST|foundation_closure_protocol_law|none|KEEP|-|-
+person_foundation_contract_law|6|unified_graph_law|EXT|reality_graph_law|none (metadata extends list already contains reality_graph_law)|REPOINT_SUPPORTED|reality_graph_law (text only)|reality_graph_law v4 (Entity Identity Promotion Contract) + v5 §1
+post_og_image_law|1|post_publish_law|REL|project_codex.publishing_conventions|code:src/lib/supabase.js (c)|REPOINT_SUPPORTED|project_codex.publishing_conventions (metadata related)|Owner Index:178; codex4 "modified קובע סדר בלבד" (SOD1820_DESIGN_CONTRACT_V2.md §8.1)
+reality_graph_law|8|unified_graph_law|REL|reality_graph_law|code:src/lib/research/researchW2ExecutorsBase.js (owner: 'unified_graph_law' x4, stored in records) + researchW2FoundationHardening.test.js asserts it|REPOINT_CONSUMER|-|-
+relative_time_display_law|4|whats_new_law|REL|experience_governance_foundation_v1_law|none (metadata already annotates it "inactive v3")|KEEP|-|-
+research_gold_hints_law|4|convergence_explanation_law|EXT|reality_graph_law|none|REPOINT_OTHER_TARGET|cross_vs_convergence_criteria v4 §6 (family owner reality_graph_law)|§6 EXPLAIN WHY IS LOAD-BEARING; reality_graph_law has media-only Explain-Why (v7 §3, §5); retired-row archive_reason names cross_vs v4
+research_gold_hints_law|4|revelation_signal_law|HIST|research_gold_hints_law|none (text says: superseded for 2029)|KEEP|-|-
+research_object_identity_invariant_law|2|everything_additive_law|HIST|foundation_closure_protocol_law|none|KEEP|-|-
+research_object_identity_invariant_law|2|post_update_on_top|FUNC|project_codex.publishing_conventions|none|KEEP_HISTORY|-|parser reads the historic header "עדכון · [תאריך] · [שם]" (retired-row metadata.header_format); codex4 G2 addendum 15.9: update-on-top = legacy presentation; codex4 7.9 §2 still says it applies (CL-22)
+research_object_identity_invariant_law|2|rule_versioning|HIST|foundation_closure_protocol_law|none|KEEP|-|-
+research_strategy_layer_law|17|research_two_pass_law|HIST|docs/research-studio-v1-contract.md|none (text says: principle absorbed, no separate owner)|KEEP|-|-
+signal_vs_curation|2|zuriel_focus_law|FUNC|truth_axes_foundation_law|none|KEEP_HISTORY|-|truth_axes v3 (read fully) lacks focus binding / discovered_not_selected / 786 calibration / decision_ledger; principle restated in the dependent
+source_video_publish_law|1|dim5_upload_law|EXT|project_codex.publishing_conventions|none|REPOINT_SUPPORTED|project_codex.publishing_conventions|codex4 "UNIVERSAL MEDIA DEFAULTS FROM DIMENSION FIVE GOLDEN" 5.10.2026 §2 (self-hosted source video required)
+source_video_publish_law|1|orgeula_video_pipeline_law|EXT|project_codex.publishing_conventions|none|REPOINT_SUPPORTED|project_codex.publishing_conventions|codex4 5.10 §2 + G2 addendum 15.9 (legacy recipes are on-demand history)
+subscription_funnel_law|22|subscribe_gate_law|FUNC|subscription_funnel_law|code:src/components/SubscribeGate.jsx (c)|KEEP|-|-
+system_suggestions_law|7|ai_style_learning_law|EXT|system_suggestions_law|code:src/lib/supabase.js (c); test:src/lib/research/researchLearningPolicy.test.js:125 (test title)|KEEP|-|-
+truth_axes_foundation_law|3|everything_additive_law|HIST|foundation_closure_protocol_law|none|KEEP|-|-
+video_transcription_law|1|rls_client_read_protocol|FUNC|person_foundation_contract_law|db:fn_rls_grant_audit (message text); code:src/lib/supabase.js (c), researchW2ExecutorsBase.js (c)|REPOINT_CONSUMER|blocked by SEMANTIC_GAP (row work_log_authority_law -> rls_client_read_protocol; CL-20)|-
+work_log_authority_law|2|agent_onboarding_law|REL|-|none|REPOINT_SUPPORTED|inter_agent_coordination_law (v9 §55-§56)|§55 ONE AGENT ENTRY CONTRACT; §56 canonical task-start sequence
+work_log_authority_law|2|rls_client_read_protocol|REL|person_foundation_contract_law|none|SEMANTIC_GAP|- (CL-20)|person_foundation v6 (read fully) lacks the RLS/GRANT protocol; live cron rls-grant-audit-weekly (0 3 * * 0) -> fn_rls_grant_audit()
+# SUCCESSOR PROPOSALS (round 3; metadata compaction_v1/owner_routing on the RETIRED row; no reactivation; NOT applied; ZURIEL approval)
+# retired_law|proposed_successor|type|supporting_section
+agent_onboarding_law|inter_agent_coordination_law|REPLACED (the read-all clause is explicitly NOT inherited)|v18 §55, §56, §34, §49, §40; write clause -> live_state_resolution_law v3 + CLAUDE.md §12; gematria clause -> canonical_methods_registry_law / engine_governance_registry_authority_law
+corpus_admission_lifecycle_law|corpus_admission_foundation_v1|COMPLETED (explicit) + upper axes by interpretation|docs/corpus-admission-foundation-v1-contract.md:86 + §6; truth_axes_foundation_law v3 for CLAIM APPROVED / GRAPH CANONICAL / PUBLISHED
+meshulash_kadmi_law|canonical_methods_registry_law|ABSORBED (explicit)|v5 §12 alias קדמי=משולש (method_key=קדמי); v6 §21 public label משולש; metadata aliases + public_label_overrides
+metatron_brain_persona_lens_law|raziel_companion_layer_law|PARTIAL (interpretation)|companion v3 §1; raziel_routing_law v2 §9-§10; "context_version per answer" is in no active law read -> kept as a requirement (README §8.1 RT-6/RT-8); not referenced by any active law (outside the 55-row set)

@@ -1,8 +1,26 @@
-# יישור ממוקד וסגירת בסיס — 12.11.2026 (קריאה בלבד)
+# יישור ממוקד וסגירת בסיס — 12.11.2026 (קריאה בלבד) · כולל סבב השלמה 3
 
-> תוספת למסירת הביקורת הקיימת ([HANDOFF-20261111.md](../HANDOFF-20261111.md), §16). לא מקור אמת ולא קובץ MASTER. אין כאן הרצת SQL, שינוי חוק חי, מיזוג או פריסה.
-> בסיס: `origin/main` = `aa0f6bc82` (Production חי: `dpl_FEzrHi2GLSpdHPN1cJDu6rhXtswZ`). ראש #1321 שנבדק: `01e590f84` (145 קבצים; merge-base = `aa0f6bc82`); בדיקה קודמת על `e110ba6a5` (144 קבצים) נתנה אותה תוצאה לגבי הקבצים שהמסירה הזו נוגעת בהם.
-> נתוני מסד: SELECT קריאה בלבד על `linswmnnkjxvweumprav`, 12.11.2026. מה לא נבדק מסומן בכל סעיף.
+> תוספת למסירת הביקורת הקיימת ([HANDOFF-20261111.md](../HANDOFF-20261111.md), §8). זה לא מקור אמת ולא קובץ MASTER.
+> אין כאן הרצת SQL שמשנה מצב, שינוי חוק חי, שינוי הרשאות, מיזוג או פריסה.
+>
+> **בסיס:** `origin/main` = `aa0f6bc82` (Production חי: `dpl_FEzrHi2GLSpdHPN1cJDu6rhXtswZ`). נבדק שוב ב־`git fetch` לפני הכתיבה בסבב 3 — לא השתנה.
+>
+> **#1321:**
+> - ההתאמה שהתבקשה — בראש `6352be19d`: ‏157 קבצים, **0 חפיפה** עם הענף הזה.
+> - הראש הנוכחי — `c45dd3740` (נוספו `ab83e6b8c` ו־`c45dd3740`): ‏160 קבצים. פירוט ב־§4.
+>
+> **נתוני מסד:** SELECT בקריאה בלבד על `linswmnnkjxvweumprav`, ‏12.11.2026. מה שלא נבדק מסומן בכל סעיף.
+>
+> **סבב 3** (אחרי ביקורת Codex על `0a5882774`):
+> - עודכנו §§0, 1, 3, 4, 5, 6, 7, 8, 9, 10.
+> - נוספו: §11 (פסקי ההפניות והיורשים), §12 (CL-03), §13 (קבלה מחייבת לאכיפה), §14 (מטריצת CL-13), §15 (מסירה לסשן הביקורת).
+> - ה־ledger עודכן באותו סבב.
+>
+> **חלוקת הכתיבה (ZURIEL, 12.11):**
+> - **סשן החוזים (CT):** משמעות החוזים, הבעלות ומטריצות ההתנהגות הנדרשות.
+> - **סשן הביקורת הראשית (MA):** **הכותב הטכני היחיד** של G1, של משמרי המסד ושל תיקוני ה־Runtime.
+> - **Codex:** מרכז ומבקר.
+> - **ZURIEL:** כל הכרעה וכל שינוי חי.
 
 ## 0. תיקון למסירות קודמות שלי (גילוי נאות)
 
@@ -10,6 +28,27 @@
 2. **"אין יורש רשום" — שגוי.** לכל החוקים שפרשו שנבדקו יש `compaction_v1` + `owner_routing` עם `canonical_owner` ו־`archive_reason`. רק **שלושה** פרשו בלי מיפוי: `agent_onboarding_law`, `corpus_admission_lifecycle_law`, `meshulash_kadmi_law`.
 3. **סעיף 5 בטבלת ההחלטות (בעלות על `research_contributions`) — ההנחה שגויה.** ראו §1.
 4. **סעיף 8 (החלפת בעלים של `research_object_identity_invariant_law` מקובץ V1 לחוק) — נסוג.** לא הוכחה התנגשות אחריות. ראו §2.
+5. **‏CL-02 נסוג.**
+   - קראתי במלואו את `writer_material_home_law` v6 (node `918e5e51…`, ‏md5 `b8be155d…`, ‏15,377 תווים). **אין בו הפניה** ל־`research_contribution_law`.
+   - ההנחה באה מספירת ה־19 שבוטלה (פריט 1). §1 פריט 2 תוקן.
+6. **"הבדיקות מוכיחות אכיפה" — טענה מוגזמת.** בדיקות G1 שלי הן בדיקות CI על תצלום מתוארך:
+   - הן לא רואות כתיבה ישירה למסד, ולא סטייה חיה אחרי 12.11.
+   - `ownerResolves` מקבל **כל** מחרוזת `project_codex.*`, גם slug שלא קיים.
+   - הוא מקבל גם **כל** קובץ קיים, גם קובץ שאינו רשום כבעלים (`scripts/lib/g1LawsSnapshotRules.mjs:24–26` — כך גם בראש #1321, ‏`c45dd3740`).
+
+   זו אינה אכיפה מלאה. הקבלה המחייבת — §13.
+7. **E5 ו־E4 שלי — לא מספיקים:**
+   - **E5** ("BEFORE DELETE שמסרב ל־`type='rule'`"): טריגר ברמת שורה (`BEFORE DELETE … FOR EACH ROW`) **אינו נורה ב־`TRUNCATE`**. נדרש טריגר `BEFORE TRUNCATE` ברמת statement, או שלילת ההרשאה.
+   - **E4** ("להוסיף `description` לרשימת העמודות"): ההוספה רק גורמת לטריגר להיקרא. דרושה גם לוגיקה בפונקציה שמסרבת לשינוי `description` — בשורה פעילה באותה גרסה, וגם בשורת היסטוריה.
+   - סשן הביקורת מתקן ומוכיח זאת טכנית: D12, ‏D12b, ‏D14 ו־D15 בהצעה שלו (§13).
+8. **"ארבעה ענפים פעילים עורכים את `live-contracts-2029.yml`" — הסקה שגויה.**
+   - קיום ענף אינו הוכחה לבעלות פעילה. ידוע רק ש־#1321 נוגע בקובץ. מצב הענפים האחרים לא נבדק כבעלות.
+   - המשפט הועתק לרשימת הביקורת (`foundation-closure-list.md` §1.G, שורת CL-17), וצריך לתקן אותו גם שם.
+9. **"יורש רשום" אינו הוכחה שהסמנטיקה עברה.** בסבב 3 קראתי במלואם את החוקים המושפעים ואת סעיפי היורש. מתוך 14 ההפניות:
+   - 4 נשארות היסטוריה;
+   - 2 חושפות פער סמנטי;
+   - 2 מוחלפות **ליעד אחר מהרשום** (§11).
+10. **נמצא חוק רביעי שפרש בלי מיפוי:** `metatron_brain_persona_lens_law`. אין חוק פעיל שמפנה אליו, ולכן הוא לא היה ב־ledger (§7.0, ‏§11.3).
 
 ## 1. `research_contributions`: מה כבר מוגדר, ומה הפער שנותר
 
@@ -28,12 +67,12 @@
 **הפער שנותר (שלושה פריטים, מצומצמים בהרבה ממה שהצעתי):**
 
 1. **ניתוב:** ב־`SOD1820_MASTER_OWNER_INDEX.md` אין שורה שמנתבת משימת "צ'אט קהילה / פורום / `research_contributions`" אל `research_workspace_law` §8 + `writer_material_home_law` + ה־crosswalk. (נבדק: `grep -i research_contributions` על ה־Owner Index = 0 תוצאות.) סוכן שמתחיל מאפס מגיע ל־`research_contribution_law` שפרש. זה פער ניתוב — תיקון בשורה אחת במסמך, **לא גרסה חדשה של Intake**.
-2. **שרשרת הפניות:** `writer_material_home_law` v6 עדיין מציין תלות ב־`research_contribution_law` (שפרש); המיפוי הרשום מפנה ל־`docs/research-studio-v1-contract.md` ול־Workspace §8. תיקון טקסט בגרסה הבאה של אותו חוק בלבד (ראו ledger).
-3. **שאלת חוזה פתוחה אמיתית — הקרנת קבוצות לצ'אט (v2, טרם הוחלה):** ההקרנה שהכנתי (`claude/group-chat-sync-20261112`) כותבת שורת צ'אט ב־`research_contributions` עם **עותק של גוף ההודעה** (+ קישור מדיה) וקישור מקור (`target_type='channel_update'`). `writer_material_home_law` §23 קובע "הפניה, לא העתקה" להקרנות של Topic/Researcher/World. הצ'אט קורא את גוף ההודעה ישירות מ־`research_contributions` (`community_feed_page`), ולכן העתק הוא המצב היום. **צריך החלטה: חריג מתועד** (שורת צ'אט היא משטח הקרנה שחייב להכיל טקסט, עם `source_ref` מחייב) **או** קריאה-בהפניה (שינוי ב־RPC). עד ההחלטה: **אל תחילו את v2.** זה הפער שהצדקת Intake v14 נשענה עליו, ואם יוחלט על חריג — הוא ייכתב בגרסה הבאה של `writer_material_home_law` (הבעלים של הנתיב), לא ב־Intake.
+2. ~~**שרשרת הפניות**~~ — **נסוג** (CL-02; §0 פריט 5). `writer_material_home_law` v6 אינו מפנה ל־`research_contribution_law`. אין צורך בתיקון טקסט.
+3. **שאלת חוזה פתוחה אמיתית — הקרנת קבוצות לצ'אט (v2, טרם הוחלה):** ההקרנה שהכנתי (`claude/group-chat-sync-20261112`) כותבת שורת צ'אט ב־`research_contributions` עם **עותק של גוף ההודעה** (+ קישור מדיה) וקישור מקור (`target_type='channel_update'`). `writer_material_home_law` §23 קובע "הפניה, לא העתקה" להקרנות של Topic/Researcher/World. הצ'אט קורא את גוף ההודעה ישירות מ־`research_contributions` (`community_feed_page`), ולכן העתק הוא המצב היום. **צריך החלטה — המלצה אחת מנומקת ב־§12: חריג מתועד** (שורת צ'אט היא משטח הקרנה שחייב להכיל טקסט, עם `source_ref` מחייב) **או** קריאה-בהפניה (שינוי ב־RPC). עד ההחלטה: **אל תחילו את v2.** זה הפער שהצדקת Intake v14 נשענה עליו, ואם יוחלט על חריג — הוא ייכתב בגרסה הבאה של `writer_material_home_law` (הבעלים של הנתיב), לא ב־Intake.
 
-**המלצה:** לא להציע Intake v14 כרגע. פעולות: שורת Owner Index (מסמך בלבד), תיקון ההפניה ב־`writer_material_home_law` בגרסה הבאה, והחלטה על חריג ההקרנה לפני v2.
+**המלצה:** לא להציע Intake v14 כרגע. פעולות: שורת Owner Index (מסמך בלבד, CL-01), והכרעה ב־CL-03 לפני v2 (§12).
 
-**לא נבדק:** האם `writer_material_home_law` §23 חל על שורות צ'אט (הטקסט מזכיר Topic/Researcher/World); קראתי את הסעיפים הרלוונטיים, לא את כל 6 הגרסאות.
+**נבדק בסבב 3:** האם §23 חל על שורות צ'אט — §12. החוק נקרא במלואו (v6).
 
 ## 2. היררכיית הבעלויות לא משתנה — הוכחת התנגשות לפני כל שינוי
 
@@ -51,6 +90,8 @@
 
 סיווג 55 ההפניות ([ledger](retired-reference-ledger.txt)): `HIST` 26 · `EXT` 12 · `FUNC` 10 · `REL` 7. פעולה: `KEEP` 24 · `REPOINT_TEXT` 14 · **`REPOINT_CONSUMER` 7** · `NO_SUCCESSOR` 5 (3 חוקים) · `MOOT_AFTER_30` 3 · `REPOINT_EDGE` 2.
 
+**אחרי סבב 3** (§11): `KEEP` 23 · `KEEP_HISTORY` 8 · `REPOINT_SUPPORTED` 9 · `REPOINT_OTHER_TARGET` 2 · `SEMANTIC_GAP` 2 · `REPOINT_CONSUMER` 7 · `MOOT_AFTER_30` 3 · `REPOINT_EDGE` 1.
+
 **צרכנים שקוראים מזהה חוק שפרש בפועל (ולכן אין לסווגם קוסמטיים):**
 
 | צרכן | מה הוא עושה | התנהגות היום | יעד |
@@ -65,13 +106,31 @@
 
 הערות בקוד (`HumanDateInput.jsx`, `SubscribeGate.jsx`, `src/lib/gematria.js` ועוד) הן הערות בלבד.
 
-**שלושת החוקים שפרשו בלי מיפוי** — דורשים החלטה, לא תיקון טקסט: `agent_onboarding_law` (נטען ע"י `inter_agent_coordination_law` כ"הרחבה", וע"י `live_state_resolution_law` כ"היסטורי, אינו מופעל מחדש"), `corpus_admission_lifecycle_law` (יורש טבעי: `corpus_admission_foundation_v1`, לא רשום), `meshulash_kadmi_law` (`compositeMethods.js` קורא לו "locked alias" של קדמי; יורש טבעי: `canonical_methods_registry_law`, לא רשום). **המלצה:** להוסיף מיפוי metadata לשלושתם (שינוי metadata בלבד, באישור) — לא להפעיל מחדש.
+**שלושת החוקים שפרשו בלי מיפוי** — דורשים החלטה, לא תיקון טקסט: `agent_onboarding_law` (נטען ע"י `inter_agent_coordination_law` כ"הרחבה", וע"י `live_state_resolution_law` כ"היסטורי, אינו מופעל מחדש"), `corpus_admission_lifecycle_law` (יורש טבעי: `corpus_admission_foundation_v1`, לא רשום), `meshulash_kadmi_law` (`compositeMethods.js` קורא לו "locked alias" של קדמי; יורש טבעי: `canonical_methods_registry_law`, לא רשום). **המלצה:** להוסיף מיפוי metadata לשלושתם (שינוי metadata בלבד, באישור) — לא להפעיל מחדש. **סבב 3:** שלושתם נקראו במלואם. הצעת יורש לכל אחד — §11.3, ונמצא גם רביעי.
 
-**לא נבדק:** 14 ההפניות שסומנו `REPOINT_TEXT` נקראו בהקשר של שורה אחת (≈150 תווים), לא בכל טקסט החוק; לפני תיקון בפועל יש לקרוא את החוק במלואו.
+**סבב 3:** 14 ההפניות נקראו במלואן, יחד עם סעיפי היורש (§11.1). הפסקים:
+- 6 נתמכות;
+- 2 ליעד אחר מהרשום;
+- 4 נשארות היסטוריה;
+- 2 הן פער סמנטי.
 
-## 4. מטריצת השפעה מול הראש העדכני של #1321 (`01e590f84`)
+ב־ledger עודכנה עמודת `action`, ונוספו שתי עמודות: `r3_target` ו־`r3_support`.
 
-#1321 (M0) משנה 145 קבצים (בראש `01e590f84`): `docs/reviews` (22), `src/lib` (21), `supabase/proposed` (20), `supabase/functions` (13), `src/components` (11), `tests/sql` (5), `test/helpers` (5), `src/pages` (4), ועוד. **הוא לא נוגע** ב־Owner Index, `ROADMAP`, `MASTER_STATE`, `CLAUDE.md`, `AGENTS.md`, `scripts/test-g1-*`, `audits/g1-agent-entry`, `docs/2029-data-placement-retention-crosswalk.md`, ולא בקבצי החוזים של תיקיית הביקורת. כן נוגע ב־`.github/workflows/live-contracts-2029.yml` (בנוסף לשלושה ענפים פעילים נוספים — `claude/group-chat-sync-20261112`, `more-install-explicit-2029`, `more-panel-2029-redesign`) וב־`public-reading-deploy/transport.js`.
+## 4. מטריצת השפעה מול #1321 — בראש `6352be19d` (המבוקש) ובראש `c45dd3740` (הנוכחי)
+
+**סבב 3 — ההתאמה:**
+- **בראש `6352be19d`** (המבוקש): #1321 משנה 157 קבצים, ו**אינו חופף** לענף הזה — 0 קבצים.
+- **בראש הנוכחי `c45dd3740`:** נוספו `ab83e6b8c` ("G1 unified extension…") ו־`c45dd3740` ("runners fail on unexpected outcomes; closure list v2"). ‏160 קבצים, וחפיפה של 4. כל הארבעה הם קובצי G1 שהעברתי (§15):
+  - שני קובצי `audits/` — זהים בבתים;
+  - שני קובצי הקוד — הורחבו שם.
+- **בשני הראשים #1321 אינו נוגע ב:** Owner Index, ‏ROADMAP, ‏MASTER_STATE, ‏CLAUDE.md, ‏AGENTS.md, ה־crosswalk, ‏`src/lib/worlds.js`, ‏`test/admin-system-health-contract.test.mjs` (נבדק ב־`git diff --name-only`).
+- **בשני הראשים #1321 כן נוגע ב:** `.github/workflows/live-contracts-2029.yml`, ‏`public-reading-deploy/transport.js`, ‏`supabase/functions/_shared/materialGate.js`, ‏`ai-analyze`, ‏`research-run`, ‏`wa-raziel`.
+
+**תיקון:** בסבב 2 כתבתי ששלושה ענפים נוספים "פעילים" בקובץ ה־workflow. זו הייתה הסקה מעצם קיום הענף, והיא נסוגה (§0 פריט 8).
+
+**הטבלה למטה חושבה בראש `01e590f84`.** בשאלה "האם #1321 נוגע בקובץ", השורות שלה תקפות בשני הראשים. שני סייגים:
+- מספרי השורות בקבצי ה־Edge עשויים לזוז.
+- שורת "הרחבת G1" כבר לא כאן — היא עברה ל־#1321 (§15).
 
 | הצעה | מה משתנה (DB בלבד, טרם הורץ) | קבצים / בדיקות שמזכירים את החוקים (בראש #1321) | #1321 נוגע בהם? | התאמת תיעוד / התנהגות |
 |---|---|---|---|---|
@@ -90,7 +149,7 @@
 - `audits/g1-agent-entry/G1_LAWS_ACTIVE_SNAPSHOT_20261112.txt` — 87 חוקים פעילים (גרסה, בעלים, משפחה, md5 של הטקסט) ו־44 חוקים שפרשו ושחוק פעיל עדיין מציין (עם היורש הרשום). בלי מפתח שירות, בלי כתיבה למסד.
 - `audits/g1-agent-entry/G1_MIGRATION_TABLES_BASELINE_20261112.txt` — 41 הטבלאות שהמיגרציות ב־`supabase/migrations` יוצרות ב־`aa0f6bc82`. **כיסוי חלקי במכוון:** במסד החי 305 טבלאות ב־`public`; טבלה שנוצרה מחוץ למיגרציות לא נראית ל־CI.
 - `scripts/lib/g1LawsSnapshotRules.mjs` — פונקציות טהורות (בלי I/O): `validateLawsSnapshot`, `compareLawsSnapshots`, `migrationTableViolations`.
-- `scripts/test-g1-agent-routing-smoke.mjs` — +7 בדיקות (18 → 25). הקובץ כבר מורץ ב־`live-contracts-2029.yml:48`; ה־workflow לא נערך (4 ענפים פעילים עורכים אותו).
+- `scripts/test-g1-agent-routing-smoke.mjs` — +7 בדיקות (18 → 25). הקובץ כבר מורץ ב־`live-contracts-2029.yml:48`; ה־workflow לא נערך. (הנימוק שנכתב כאן בסבב 2, "4 ענפים פעילים עורכים אותו", נסוג — §0 פריט 8.)
 
 **הוכחה — שלושת המקרים, כל אחד עם סירוב ועם אישור (fixtures בבדיקות 20–25):**
 
@@ -103,6 +162,11 @@
 **תוצאה:** 25/25 עוברות (18 קיימות, 7 חדשות; בדיקה 19 רצה על הנתונים האמיתיים: 87 חוקים, 44 שפרשו, 0 הפרות; בדיקה 24 סורקת את 429 המיגרציות האמיתיות: 0 טבלאות מחוץ לבסיס). שינוי מכוון של נתוני התצלום האמיתי (בעלים → `no_such_owner_law`, יורש → `-`) גרם להכשלת הבדיקות המתאימות ושחזור החזיר ירוק.
 
 **מה הבדיקות אינן:** (א) לא רואות סטייה חיה אחרי 12.11 — רענון = קובץ מתוארך חדש; (ב) `compareLawsSnapshots` מתחילה לפעול בפועל רק כשיהיה תצלום שני — היום מוכחת בפיקסצ'רים בלבד; (ג) לא רואות כתיבה ישירה למסד (ראו §6).
+
+**סבב 3 — מסירה ותיקון:**
+- ארבעת הקבצים שבסעיף הזה הועברו לסשן הביקורת (#1321, ‏`ab83e6b8c`). מעכשיו הוא הכותב היחיד שלהם, והם הוסרו מראש הענף הזה (§15).
+- התיאור למעלה נשאר כתיעוד של מה שהוכן ב־`0a5882774`.
+- **"הוכחה" כאן פירושה מקרי בדיקה בפיקסצ'רים — אחד שמסרב ואחד שמאשר. זו לא אכיפה מלאה** (§0 פריט 6; הקבלה המחייבת — §13).
 
 ## 6. אכיפה: הרחבת המנגנונים הקיימים, והפרדה בין CI ל"כתיבה ישירה"
 
@@ -128,9 +192,65 @@
 
 **הפרדה במפורש:** E1/E2/E3(CI) הם בדיקות CI — הן עוצרות PR, ואינן עוצרות מי שיש לו `service_role` / `postgres` (הם כותבים ישירות, מחוץ ל־Git). רק E3(DB)/E4/E5 הם אכיפה ברמת מסד שחלה גם על כתיבה ישירה. כל שינוי במסד (E4, E5, הרחבת E1/E3) הוא DDL שדורש אישור מפורש של ZURIEL (§0.4) ובדיקת PG מבודד — **לא הוצעו להרצה כאן**.
 
+**תיקון בסבב 3 לשורות E4 ו־E5** (§0 פריט 7; §13):
+- **E4** — ההוספה של `description` לרשימת העמודות רק מפעילה את הטריגר. נדרשת גם לוגיקה בפונקציה שמסרבת לשינוי (D12, ‏D12b).
+- **E5** — `BEFORE DELETE` אינו נורה ב־`TRUNCATE`. נדרש `BEFORE TRUNCATE` ברמת statement (D15), או שלילת ההרשאה.
+- **שני הדברים מתוקנים ומוכחים על ידי סשן הביקורת.**
+
 **לא נבדק:** האם `service_role` רשאי להשבית את הטריגר (דורש בעלות על הטבלה — לא אומת); אם קיימים כותבים חיים ל־`nodes` מחוץ ל־Edge functions.
 
 ## 7. תוכנית־האב → החלטות מאוחרות (כולל מסמך 37) → בעלים → חוזה → מימוש → פער → מבחן קבלה
+
+### 7.0 היררכיית המקורות — תוכנית־האב מיולי–אוגוסט (סבב 3)
+
+**החלטת ZURIEL (12.11, מפורשת):**
+- דרישות שלא מומשו ולא בוטלו נשמרות ומתועדפות להמשך. אין לשאול שוב אם לבטל אותן.
+- `f30c0148` לא נפרש בשלב זה.
+
+**כלל הקדימות:** החלטה מאוחרת ומפורשת גוברת על החלטה מוקדמת שסותרת אותה (מסמך 37, 2.11.2026; CLAUDE.md §0.1). התוכנית אינה הוכחה למצב החי. את המצב החי קוראים מהמסד ומ־`origin/main`.
+
+**מקרא:** **מ** = החלטה מאוחרת מפורשת, עם מקור ותאריך · **פ** = פרשנות שלי · **ל"נ** = תחום שלא נבדק.
+
+**7.0.א המקורות**
+
+| # | מקור | מזהה | תאריך | גרסה / מעמד | טביעה | נקרא |
+|---|---|---|---|---|---|---|
+| S0 | ספק "תוכנית-אב לאתר — הרשת החיה" (R1–R16 — הטבלה בהמשך הסעיף) | `nodes f30c0148-e4c0-4937-a4ee-4cd26019587f` (spec) | 11.6.2026 | פעיל | md5 `80672c41…` | במלואו (סבב 2) |
+| S1 | "תוכנית-על: «עץ אחד» טכני + רזיאל כשכבת-ליווי" | `work_log 45f5a7e6-2888-4d49-abc8-befd9af29a1b` | 23.7.2026, ‏19:09Z | v1 · ‏`plan_recorded` | md5 `ba54ad05…` | במלואו |
+| S2 | "תוכנית-על מאוחדת «עץ אחד» v2". מוצהרת כמקור האמת של התוכנית | `work_log 43a78e4c-d9cc-4613-a77c-07a7b00f4421` | 23.7.2026, ‏19:19Z | v2 · מחליפה את S1 | md5 `39412d12…` | במלואו |
+| S2a | `metatron_brain_persona_lens_law` (נחקק במסגרת התוכנית) | `nodes`, rule v1 | 23.7.2026 | פרש · אין מיפוי | md5 `0fdbdf3d…` | במלואו |
+| S3 | "תוכנית-אב · דפי הכתבים (writers_page_law)". אין חוק בשם הזה (0 שורות) | `work_log 57a42125-cb78-4493-94f8-3dfa0457be17` | 8.8.2026 | ‏`canonical_plan_locked` (ZURIEL) | md5 `434e543c…` | במלואו |
+| S4 | `sod1820-master-architecture-draft` | `project_codex.id=21` | 17.8.2026, ‏15:02Z | **טיוטה, לא מחייבת** (כך כתוב בגוף) | md5 `7345b7fc…` | במלואו |
+| S5 | ‏Master Roadmap v3, ‏v4, ‏v5 טיוטה, ‏v5 קנוני; סקירת שחזור; מעבר ספיגה | `work_log` ‏`e6b0b302…`, ‏`9d14daad…`, ‏`a5c57882…`, ‏`7614ce69…`, ‏`f0561b5c…`, ‏`beb4efe2…` | 20–22.8.2026 | ניווט ועדיפות, לא בעלים | — | **ל"נ** — לא נקרא. היסטוריית Git מתחילה ב־5.11 (`4e67dc9cc`), ולכן הגרסאות האלה קיימות רק ביומן |
+
+**7.0.ב הדרישות מול החלטות מאוחרות, מסמך 37 והבעלים**
+
+| # | דרישה (מקור) | החלטה מאוחרת | בעלים קיים | מימוש (מה נבדק) | סיווג |
+|---|---|---|---|---|---|
+| J1 | רזיאל = שכבת ליווי לכל האתר, בשלוש שכבות: בית ב"המחקר שלי"; נוכחות בכל עמוד, עם הקשר העמוד; ליווי יזום. וואטסאפ = אותו סוכן (S1, ‏S2) | **מ:** `raziel_companion_layer_law` v3 §1 (17.9): "one Raziel, many modes". פרופיל משטח WA (6.10): הקרנה על אותו מוח. ‏`raziel_voice_law` v1 (23.7): קול אחד. ‏`raziel_routing_law` v2 §10 (8.9). **פ:** "ליווי יזום" בוואטסאפ מוגבל באיסור על הודעות שלא התבקשו (המתאם, פריט 10). **ל"נ:** מסמך 37 לגבי השכבה השלישית | `raziel_companion_layer_law` v3 | `lock_raziel_site` פעיל, ‏mode=all: באתר רזיאל נעול לכולם, חוץ ממנהל ותצוגה מקדימה (אומת). ‏DM פעיל | **F** — נשמר. תלוי ב־§8.1 ובהחלטה על הנעילה |
+| J2 | "מוח אחד" = `metatron_context` {חוקים דרך `fn_active_method_rules`, עובדות, זיכרון, קולקטיב}. לכל תשובה `context_version` ו־Manifest (S2, ‏S2a) | **מ:** `ai_analyze_contract` v2 §F (8.9): Top-K בעלים רלוונטיים דרך ה־Owner Index, "לא dump". זה משנה את מקור החוקים. ‏`raziel_routing_law` v2 §9 (Trace). **פ:** ה־Manifest ≈ ה־Trace של §9. **"context_version לכל תשובה" לא נמצא באף חוק פעיל** — נשמר כדרישה (§8.1, ‏RT-6) | `raziel_companion_layer_law` + `ai_analyze_contract` | `fn_active_method_rules` מחזירה 6 חוקים, ‏400 תווים לחוק, לכל נושא. ה־Top-K קיים רק ב־`raziel-attention` (אומת) | **F** (P1) — CL-24 |
+| J3 | ארבעה חוקים שנחקקו לתוכנית: `unified_ai_brain_law`, ‏`metatron_single_mind_law`, ‏`metatron_brain_persona_lens_law`, ‏`metatron_rollout_law` (S2) | **מ (G2, ‏15.9):** כולם פרשו. המיפוי, לפי הסדר: `raziel_companion_layer_law`; ‏`research_strategy_layer_law`; **אין מיפוי**; ‏`system_suggestions_law` (archive: "absorbed by foundation_closure_protocol_law v5") | כמפורט | — | **F** — CL-23 |
+| J4 | כפתורי הקשר: חקור איתי, מצא קשרים, חפש במקורות, מצא הצלבות, קיבלתי רמז (S1) | **מ (אותו יום):** `raziel_response_contract` v1 (23.7): "רזיאל בוחר דינמית … בלי רשימה קשיחה" | `raziel_companion_layer_law` | השרת מחליף את בחירת המודל ברשימה סגורה (דיווח קורא, §8) | **F** (P3) |
+| J5 | מסנן "גדול — אותה סופית" ב־buildFacts (S1) | **מ:** `gadol_convergence_needs_different_sofit_law` פרש, ונספג ב־`canonical_methods_registry_law` v5 (לפי ה־archive). שם: §14 FINAL-LETTER EQUIVALENCE ו־§18 (נקרא במלואו) | `canonical_methods_registry_law` v6 | ליבת `raziel_brain#1` עדיין מצטטת את החוק שפרש (אומת) | **B** — CL-11 |
+| J6 | השלבים של S2: ‏1a — חיווט החוקים ל־`metatron_context`; ‏1b/2 — הנתיב הכללי והוואטסאפ; ‏3 — סוללת הערכה; ‏4 — בטא "חיפוש אחד ביום"; ‏5 — ממשק רזיאל בשלוש שכבות | **מ:** `raziel_full_answer_and_route_law` v3 (8.9) משאיר בתוקף את (2): "אין שער־מכסה שמחליף תשובה". ‏`raziel_routing_law` v2 §7 (8.9): הזכאות קובעת נפח ועומק — "return the truthful available result + explain the gated deeper action". **פ:** מגבלה של "חיפוש אחד ביום" מותרת רק כשער של עומק ותקציב, לא כהחלפת תשובה. **ל"נ:** שלב 3 | `raziel_*` | שלב 1a קיים (`ai-analyze:1048`). המכסה מחליפה תשובה (`ai-analyze:3720–3724`, אומת) — סותר את (2). ‏#1321 מוסיף כשל סגור `quota_unavailable` (§8) | **F**. ההכרעה על המכסה — ZURIEL (§8) |
+| W1 | דף כתב = עדשה על `research_contributions`. "חוק ברזל: אין מאגר נוסף". העדשות הנלוות הן מצביעים, לא העתקים (S3) | **מ:** `writer_material_home_law` v6 (30.9) §1, ‏§5, ‏§20, ‏§21, ‏§23; ‏`research_workspace_law` v5 §7–8 | `research_intake_foundation_contract_law` ← `writer_material_home_law`; ‏`research_workspace_law` | **ל"נ:** דפי הכתב ב־2029 (שתי כתובות — D14 של הביקורת). ‏CL-03 הוא המקרה החי של "מצביעים, לא העתקים" | **F**; ‏CL-03 = **R** (v2) |
+| W2 | `page_config`, מדיניות עדכון־בעלים (`user_id=auth.uid()`, עמודות בטוחות) ומסך עריכה. חמש תכונות: #2 התראה על רמז, #3 דרגה ומוניטין, #4 שאל את הכותב, #5 פעילים לאחרונה, #6 אוסף נבחר — כולן על `page_config` (S3) | **מ:** ‏`person_foundation` v3, ‏Root-of-Trust: שירות עצמי לשדות תצוגה בלבד. ‏`research_gold_hints_law` §4: מוניטין לא מגדיל משקל ראייתי. ‏`canonical_ui_components_law` v9 והבהרת 27.10: מעקב רק ביעד בעל משמעות מתמשכת | `writer_material_home_law`; ‏`person_foundation`; ‏`canonical_ui` | **ל"נ** (`contributors.page_config`) | **F** (P3) |
+| W3 | רעיונות: אקדמיה ודרגות; קרדיטים; ציר אירועים לכותב; דפי קטלוג (גילוי יומי 91, תורת הרמז 1003); ‏Collective Discovery (5+ דיווחים) (S3) | **מ:** S3 עצמו מסמן אותם כרעיונות. ‏`els_research_layer_law` v9, שכבה 5: "נחקר", לא "אמיתי" | — | — | **רעיונות**, לא דרישות. נשמרים |
+| A1 | עולמות זהות: כי לה׳ המלוכה בראש; סוד החשמל; חכמת החיבור; מימד חמש; זרם המציאות; אור הגאולה = משפך; קוד המציאות = עדשה, לא הוכרע (S4, טיוטה) | **מ:** מסמך 37, ‏DEC-SERIES-003…006 (APPROVED): מימד חמש = סדרת תודעה; הצופן בסרטים = נושא תחת כי לה׳ המלוכה; סוד החשמל = מקור מפרסם וגם סדרה. ‏`reality_graph_law` v5 §3 (13.9): עולם הוא הקרנה כברירת מחדל, ועולם ריק אסור. **ל"נ:** "קוד המציאות"; שפות | `reality_graph_law`; ‏PLAN37; ‏content contract §5 | — | **טיוטה**; חלקים אומצו |
+| A2 | Interest/Follow בלי הרשמה; קבוצת WA; מייל שבועי וחודשי (S4) | **מ:** `subscription_funnel_law` v22 (3.11): הסכמה מפורשת לכל ערוץ, בלי opt-in אוטומטי. ‏`person_foundation` v6: "never infer delivery consent". ‏`canonical_ui` v9 והבהרת 27.10 | `subscription_funnel_law` | **ל"נ** | **טיוטה**; מוגבלת בדרישת הסכמה מפורשת |
+| A3 | לולאת הפצה; קרדיטים; ייחוס A→B→C→D; מדדי מסלול מעורבות (S4) | **ל"נ** מול `traffic_intelligence_law` v11 (לא נקרא בסבב 3). קשור לשורות C, ‏X ו־I.1 של הביקורת | ‏TI v11 | — | **F** |
+| A4 | מיפוי סמנטי — הצעה בלבד (1,256 פריטים). רזיאל מציע קישורים, עם רמת ביטחון, לאישור (S4) | **מ:** `reality_graph_law` v8 §5 (16.9): "AI PROPOSES DELTAS; HUMAN GATE CURATES". ‏v4 (6.9): ממצא או מועמד של AI אינו יוצר זהות קנונית | `reality_graph_law` | **ל"נ** | **אומץ כעיקרון** |
+| A5 | רשימת 10 ההחלטות הפתוחות (S4) | **ל"נ** — לא נבדקה פריט אחר פריט | — | — | **ל"נ** |
+
+**מסקנה לסבב 3:** מהמקורות של יולי–אוגוסט עולים רק שני חסמי בסיס:
+- מזהי חוקים שפרשו בליבת רזיאל (J5 ← CL-11);
+- מחרוזות גרסה ישנות (CL-12).
+
+שניהם בגבול ה־runtime של רזיאל (v18 §65). כל השאר הם דרישות שנשמרות, טיוטות או רעיונות.
+
+**כיסוי מסמך 37:** נבדקו רק השורות הממוקדות (DEC-SERIES-003…006). "לא נמצאה החלטה" אינו "אין החלטה" (§10).
+
+**7.1 הספק מ־11.6 (S0) מול החלטות מאוחרות — מסבב 2:**
 
 מקור הדרישות: ספק `nodes.id = f30c0148-e4c0-4937-a4ee-4cd26019587f` ("תוכנית-אב לאתר — הרשת החיה", 11.6.2026, `is_active=true`; כל 10 שורות ה־spec פעילות). הדרישות ממוספרות כאן R1–R16 לפי סדר הופעתן בספק. מסמך 37 = `project_codex.id=37` (621,302 תווים, עודכן 11.11.2026 07:17 UTC, סעיף אחרון 12.57).
 
@@ -154,7 +274,7 @@
 
 **מסקנות לסגירת בסיס:**
 1. **אף דרישה מהתוכנית אינה פער יסוד שחוסם עבודה בטוחה.** כולן מתועדות כדרישות עתידיות עם עדיפות (טבלה לעיל); אין מחיקת היסטוריה.
-2. **הצעה 21 ו־`f30c0148`:** שורת spec שמקבלת `is_active=false` נשמרת במסד (אין מחיקה); מה שהיה חסר הוא מקום לדרישות הלא־מומשות — והוא ניתן עכשיו בטבלה שלמעלה. המלצה: פרישת `f30c0148` ניתנת לביצוע **אחרי** ש־ZURIEL מאשר שהטבלה הזו היא הרשומה; עד אז להשאיר אותה מחוץ להרצת 21.
+2. **הצעה 21 ו־`f30c0148`:** שורת spec שמקבלת `is_active=false` נשמרת במסד (אין מחיקה); מה שהיה חסר הוא מקום לדרישות הלא־מומשות — והוא ניתן עכשיו בטבלה שלמעלה. המלצה: פרישת `f30c0148` ניתנת לביצוע **אחרי** ש־ZURIEL מאשר שהטבלה הזו היא הרשומה; עד אז להשאיר אותה מחוץ להרצת 21. **הוכרע (ZURIEL, 12.11):** `f30c0148` לא נפרש בשלב זה. דרישות שלא מומשו ולא בוטלו נשמרות ומתועדפות.
 3. **ארבעה פריטים דורשים החלטת ZURIEL ולא הנדסה:** R6 (סדר הבית מול מתג הצפנים), R8 (שם), R2 (הרכב סופי), והבחנה אם R9/R13 נשארות רצויות.
 
 ## 8. הקשר שרזיאל מקבל בפועל, והפערים בו (קריאה בלבד; בלי מאגר חוקים או מערכת הקשר מקבילים)
@@ -181,36 +301,173 @@
 
 **מה שיש לתקן בעקבות התיקון של מזהי החוקים (צרכנים בלבד, לא נערך כאן):** `raziel_brain#1.core` (3 חוקים שפרשו) + `wa-raziel/index.ts:412–415,447`; `ai_quota_law v3` ב־`ai-analyze:3202,4173,4178`, `materialGate.js:16,168`, `research-run:419,424`, ו־`fn_capability_execution_gate_v1`; גרסאות ישנות (`system_suggestions_law v5/v3`, `research_strategy_layer_law v15`, `inter_agent_coordination_law v13`, `live_state_resolution_law v2`, `deploy_on_request v3`, `platform_tiers_law v4`) ב־`ai-analyze`, `raziel-attention:28`, `wa-raziel:65`, `razielRouteGrammar.js`, `fn_raziel_plan`; בדיקות שננעלות על המחרוזות: `tests/sql/raziel_phase_m_cross_surface_golden_v1.sql:163,166`, `scripts/test-replayable-golden-no-black-box.mjs:134,142`, `test/g3-client-correlation.test.mjs:52`. #1321 (ראש `01e590f84`) לא משנה את מזהי החוקים בקבצים האלה; הוא משנה זהות אורח, כשל-סגור של מכסה (`quota_unavailable`) וקישורי `/number/<n>` — **חלק מהפערים למעלה (מכסה מחליפה תשובה) מחמיר אחרי המיזוג שלו**.
 
-## 9. רשימת סגירה משותפת (סשן החוזים + סשן הביקורת הראשית; לביקורת Codex)
+### 8.1 חוזה ההקשר של רזיאל לפי ערוץ — דרך המנגנונים הקיימים (סבב 3)
 
-חלוקת תפקידים (מההוראה): **סשן החוזים (CT)** — מיפוי והצעות חוזיות. **סשן הביקורת הראשית (MA)** — מימוש, בדיקות טכניות, שערי אכיפה, סדר החלה ושחזור, השלמת M0, תיקון המדידה הקיימת. **ZURIEL** — כל החלטה, כל שינוי חי. הרחבת אנליטיקס **אינה** ברשימה (תוצג בנפרד על ידי MA עם מטרה, נתונים והרשאות). "חוסם" = פער יסוד שמונע עבודה בטוחה; האחרים נשמרים ומתועדפים.
+> הצעה חוזית. המימוש אצל סשן הביקורת.
 
-| # | ממצא | מקור | בעל אחריות חוזי | כותב אחד | אובייקטים / קבצים מושפעים | תיקון מוצע | תלות | מבחן קבלה | שער אישור | חוסם? |
-|---|---|---|---|---|---|---|---|---|---|---|
-| CL-01 | אין ניתוב ל־`research_contributions`/צ'אט ב־Owner Index | §1 | `research_workspace_law` v5 §8 + `writer_material_home_law` | CT | `SOD1820_MASTER_OWNER_INDEX.md` (שורה אחת) | שורת ניתוב למסמך | — | `scripts/test-g1…` מצא בדיוק שורה אחת; grep מחזיר שורה | מיזוג למסמך: ZURIEL | לא |
-| CL-02 | `writer_material_home_law` v6 מפנה ל־`research_contribution_law` שפרש | §1, ledger | `research_intake_foundation_contract_law` (ילד) | CT | חוק v7 (טקסט) | החלפת ההפניה ביורש הרשום + רישום החלטת CL-03 | CL-03 | שורת ledger → KEEP/בוצע; G1 snapshot מתעדכן | ZURIEL (כתיבת חוק חי) | לא |
-| CL-03 | הקרנת קבוצות לצ'אט (v2) מעתיקה את גוף ההודעה אל `research_contributions.body`; סעיף 23 אוסר לשכפל את גוף הודעת הוואטסאפ | §1 | **חוזה:** `writer_material_home_law` (node `918e5e51-e0ba-4150-8891-bfadfa84aaba`), **גרסה פעילה 6**, md5 `b8be155dcfb7f5562d1f33d6de440193`, **סעיף 23**: "REFERENCE, DO NOT COPY. Future Topic/Researcher/World projections MUST resolve original contributor text through source_ref/source identity (for example channel_updates:<id>)… Do not duplicate the entire WhatsApp body into topic_cards or a new Topic store. Exact source lineage is required." (ציטוט מקוצר. הסעיף מדבר על Topic/Researcher/World; חלותו על שורת צ'אט היא בדיוק השאלה הפתוחה) | ZURIEL מחליט; CT מנסח | **מימוש v2 הנבדק:** ענף `claude/group-chat-sync-20261112`, ראש `8cbbaa12e6b174a3f3aa31ae4f96327172210306`. קבצים: `supabase/proposed/20261112150000_group_chat_sync_gilui_v2_PROPOSAL.sql` (העתקת הגוף: שורות 45–47; הכנסת השורה עם `body`, `target_type='channel_update'`, `target_id`: שורות 54–60), `…_ROLLBACK.sql`, `tests/sql/group_chat_sync_v2.sql`, `scripts/run-group-chat-sync-sql-test.sh`, שורה ב־`.github/workflows/live-contracts-2029.yml` | חריג מתועד (שורת צ'אט = משטח הקרנה עם `source_ref` חובה) **או** קריאה-בהפניה ב־RPC | — | אם חריג: סעיף בחוק + `tests/sql/group_chat_sync_v2.sql`; אם הפניה: בדיקת RPC | ZURIEL. **v2 לא הוחל ואין להחילו לפני הכרעה** | **כן — רק ל־v2** |
-| CL-04 | 3 חוקים פרשו בלי מיפוי יורש | §3 | `inter_agent_coordination_law`; `corpus_admission_foundation_v1`; `canonical_methods_registry_law` (מועמדים טבעיים — להכרעה) | CT | `metadata` של 3 שורות | מיפוי `compaction_v1` בלבד, בלי הפעלה מחדש | קריאת הטקסט המלא של כל אחד | `RETIRED_WITHOUT_RECORDED_SUCCESSOR` ב־G1 מתרוקן | ZURIEL (שינוי חי) | לא |
-| CL-05 | 14 הפניות `REPOINT_TEXT` | ledger | הבעלים של כל חוק תלוי | CT | טקסט 12 חוקים | החלפה ביורש הרשום בגרסה הבאה של כל חוק | קריאת החוק במלואו לפני כל תיקון | ledger: 14 → KEEP/0 | ZURIEL | לא |
-| CL-06 | צרכני DB קוראים מזהים שפרשו: `fn_metatron_status` (תמיד false), `fn_number_dossier` (`rules_snapshot=[]`), `admin_candidate_from_researcher`, `fn_generate_convergence_candidates`, `fn_rls_grant_audit` | §3 | `reality_graph_law`; `raziel_companion_layer_law`; `person_foundation_contract_law` | MA | 5 פונקציות DB | כיוון מערכי המזהים ליורשים הפעילים | בדיקת PG מבודד | לפני/אחרי: `rules_snapshot` לא ריק; המשמר true | ZURIEL (DDL) | לא |
-| CL-07 | `owner: 'unified_graph_law'` נשמר ברשומות (`researchW2ExecutorsBase.js` ×4 + בדיקה) | §3 | `reality_graph_law` | MA | קובץ + `researchW2FoundationHardening.test.js:557` | החלטה: תווית היסטורית מול יורש; נתונים קיימים לא משתנים | החלטה | הבדיקה מעודכנת | ZURIEL | לא |
-| CL-08 | 2 קשתות `extends_rule` מצביעות על חוקים שפרשו | §3 | `reality_graph_law` | MA | `edges` | הצבעה ליורש | — | שאילתת קריאה: 0 קשתות לחוק שפרש | ZURIEL (DB) | לא |
-| CL-09 | הצעות 20→30, 23, 24 ממתינות; נעילות גרסה במסמכי מצביעים | §4 | לפי החוק | ZURIEL מריץ; CT מעדכן מסמכים | `OWNER_INDEX:79,127,166,167,193`, `ROADMAP:41,186`, `STATE:41,392` | סדר: 20→30; 23, 24 עצמאיות; עדכון נעילות גרסה אחרי כל הרצה | CL-10 | G1 + תצלום מתוארך חדש | ZURIEL | לא |
-| CL-10 | הצעה 21: `f30c0148` (תוכנית־אב) | §7 | — | CT | שורת spec | להשאיר אותה מחוץ להרצה עד אישור טבלת §7 | — | טבלת §7 מאושרת | ZURIEL | לא |
-| CL-11 | טקסט רזיאל ב־DB ובפונקציות מצטט 3 חוקים שפרשו; `addon_wa` ריק | §8 | `raziel_companion_layer_law` v3 | MA | `raziel_brain#1`, `wa-raziel/index.ts:412–415,447` | עדכון הטקסט ליורשים; סכמת JSON ל־WhatsApp לפי החלטה | CL-13 | בדיקה: אין מזהה שפרש בפרומפט | ZURIEL (DB + פריסת Edge) | לא |
-| CL-12 | מחרוזות `owner_ref`/גרסאות ישנות ב־Edge, ב־DB וב־`razielRouteGrammar.js` | §8 | `raziel_*` + `platform_tiers_law` | MA (אחרי #1321) | `ai-analyze`, `research-run`, `materialGate.js`, `fn_capability_execution_gate_v1`, `fn_raziel_plan`, `razielRouteGrammar.js`, 3 בדיקות נעולות | יישור למספרי הגרסה החיים; בדיקות נעילה מתעדכנות | מיזוג #1321; CL-06 | `git grep` של מזהי חוק שפרשו = 0; goldens ירוקים | ZURIEL | לא |
-| CL-13 | כתיבה לזיכרון ולפרופיל מכל הודעת DM בוואטסאפ, גם משולח לא־מקושר (`user_ref = "wa:<phone>"`), בלי מסלול בדיקה של קישור חשבון / הרשאת שמירה / הסכמה לפני הכתיבה בקטע שנקרא | **עצם הכתיבה אומת בידי Codex בקוד הפרוס ובפונקציות המסד.** אימתתי גם בקוד המקור (`origin/main` `aa0f6bc82`) ובהגדרות הפונקציות החיות ב־12.11; **לא אימתתי** איזו גרסת Edge נפרסה | `raziel_whatsapp_access_adapter_law` (פריטים 3 ו־5) + `raziel_group_privacy_law` | MA | `supabase/functions/wa-raziel/index.ts`: `handleAllDMs` (918; שורות 933–936: `iref = identity.user_ref \|\| "wa:"+phone`, `savePersonalData` 935, `remember` 936), `savePersonalData` (193–199 → `fn_raziel_fact`), `remember` (247 → `fn_raziel_remember`). DB: `fn_raziel_fact` (upsert ל־`agent_user_memory`, `memory_type='personal_context'`, `visibility='private'`), `fn_raziel_remember` (insert, `source='wa'`, עד 4,000 תווים; בודק רק ש־`user_ref` והתוכן אינם ריקים) | **הבדיקה כוללת גם `remember`, ומפרידה בין ארבעה ממדים:** (1) קישור חשבון (מקושר מול `wa:<phone>`), (2) הרשאת שמירה, (3) הסכמה, (4) נראות פרטית. הדרישה בכל ממד נגזרת מהחוזים הקיימים; **אין צורך בהכרעת ZURIEL על המונח "mutation"** | `isExplicitConfirmation` / `evaluateWhatsappActionBoundary` ב־`waRazielRender.ts` — לא נקראות מ־`wa-raziel/index.ts` (נבדק: אין התאמה) | **מטריצת קבלה (נרשמת לפני הקוד):** שולח {מקושר, לא־מקושר, קבוצה `@g.us`} × כתיבה {`remember`, `fact`} × ממד {1–4}. לכל תא: מה נכתב, תחת איזה `user_ref`, באיזו נראות ועם איזו הסכמה. הרצה בבסיס PG מבודד ובבדיקת Edge עם mock; לא בנתונים חיים | ZURIEL — אישור שינוי DB / פריסת Edge בלבד | **כן — בטיחות פרטיות, ממצא מאומת** |
-| CL-14 | תווית «צוות» נדחית לאורחים (`public_reading_operation_denied`) | נמצא בפריסה 12.11 | משטח קהילה (`experience_governance…`) | MA (`transport.js` בבעלות M0) | `public-reading-deploy/transport.js` (רשימת קריאות) | הוספת `community_staff_user_ids_v1` לרשימה + בדיקה | #1321 (אותו קובץ) | דפדפן אורח: 200 | ZURIEL + ביקורת אבטחה | לא |
-| CL-15 | אכיפת CI: הפניה לבעלים שפרש, שינוי חוזה, מבנה חדש | §5 | G1 | CT (קבצי G1 בלבד) | `scripts/lib/g1LawsSnapshotRules.mjs`, `scripts/test-g1-agent-routing-smoke.mjs`, שני קובצי audits | **מומש בענף המקומי** — 25/25, סירוב ואישור לכל מקרה | ביקורת Codex | 25/25 + קובצי הוכחה | ביקורת + מיזוג: ZURIEL | לא |
-| CL-16 | פרצות במשמר ה־DB: `description` בלי גרסה, DELETE/TRUNCATE, בעלים לא מאומת | §6 | G1 / חוק `inter_agent_coordination_law` | MA | טריגר `trg_rule_compaction_integrity_guard_v1`; event trigger חדש ל־CREATE TABLE | E1(DB)/E3(DB)/E4/E5 | CL-15 | PG מבודד: מסרב ל־UPDATE description, DELETE; מאשר העלאת גרסה | ZURIEL (DDL) | לא — **דחוף** (פער אכיפה מתועד) |
-| CL-17 | תפקיד workflow: חיווט נוסף ל־CI | §5 | — | MA (הקובץ משותף ל־4 ענפים) | `.github/workflows/live-contracts-2029.yml` | **לא נערך כאן** — דרוש רק אם יתווספו קבצי בדיקה חדשים; הבדיקות הנוכחיות כלולות בקובץ הקיים | — | — | תיאום בעלות | לא |
-| CL-18 | דרישות תוכנית־האב שלא מומשו ולא בוטלו | §7 | לפי הטבלה | ZURIEL (עדיפויות) | הטבלה ב־§7 | רשומה אחת ב־§7; החלטות R1, R2, R6, R8, R9/R13 | — | החלטה לכל פריט | ZURIEL | לא |
+**מקורות** (כולם נקראו במלואם):
+- **`ai_analyze_contract` v2, ‏§F (8.9):** "Question → Identity/Channel/Access → Capability → Research/Action Plan → Context/Tools → Intelligence Level → Model/Provider → Completion Gate → Response. Rule retrieval צריך להביא Top-K owners רלוונטיים בלבד דרך Owner Index/project_codex router, לא dump של כל החוקים."
+- **`raziel_routing_law` v2:**
+  - §1 — סדר הניתוב.
+  - §6 — מנהל: היקף קריאה מלא; זה אינו חשיפה בערוץ ציבורי, ואינו כתיבה.
+  - §7 — הזכאות קובעת עומק ונפח, לא אמת.
+  - §9 — Trace.
+  - §10 — אין מערכת מקבילה; המתאמים נבדלים רק בערוץ ובהרשאה.
+  - `effective_scope=min(expert.permission_scope,user.context_type)`.
+- **`raziel_companion_layer_law` v3:** §1 (אותה זהות, אותו Research Context, אותם גבולות אמת וזיכרון **מורשה**), §3.
+- **פרטיות:** `raziel_group_privacy_law` v1; ‏`raziel_whatsapp_access_adapter_law` v1 (פריטים 3, 5, 6 ו־LINK RULE); ‏`person_foundation_contract_law` v6 (PRIVACY BEFORE COMPOSITION).
+- **`metatron_brain_persona_lens_law`** (פרש; §11.3):
+  - "context_version — כל תשובה נושאת את גרסת-החוקים";
+  - "מבחן עץ אחד: שינוי חוק ב-nodes משנה התנהגות בלי קוד".
+- **`inter_agent_coordination_law` v18:**
+  - §52 — פרומפטים הם מצביעים, לא מקור אמת;
+  - §65 — runtime של מוצר נבדק בגבול שלו: הוא צורך את הבעלים הנוכחיים, בלי סמכות מיושנת או מקבילה.
 
-**מחוץ לרשימה, במפורש:** הרחבת אנליטיקס; תיקון המדידה הקיימת (נשאר בעבודה הקיימת של MA); כל הרצת SQL, שינוי הרשאות, מיזוג או פריסה.
+**חמשת הרכיבים שכל ערוץ חייב לקבל.** כל רכיב נישא על מנגנון קיים — בלי מאגר חוקים נוסף ובלי הזרקה של כל החוקים:
+
+| רכיב | מה חייב להגיע | מנגנון קיים | הרחבה נדרשת (EXTEND_EXISTING) |
+|---|---|---|---|
+| **בעלים וגרסה** | לכל טקסט חוק בהקשר: `rule_id`, הגרסה הפעילה ו־`canonical_owner`, נקראים חי בזמן הקריאה | `fn_raziel_relevant_rules(p_query,p_domains,p_limit)` — מחזירה `rule_id`, ‏`label`, ‏`description`, ‏`score`, **בלי גרסה ובלי בעלים**; ברירת מחדל 8, עד 20. ‏`fn_active_method_rules()` — 6 חוקי שיטה עם `propagate=true`, ‏400 תווים לחוק, בטקסט מאוחד | להחזיר גם `rule_version` ו־`canonical_owner`. לסמן כל חוק מופץ כ־`rule_id@version`. להסיר מהקוד מחרוזות גרסה נעולות |
+| **הרשאות** | מחלקת זהות (אנונימי / מזוהה / WA מקושר / `wa:<phone>` / מנהל), ערוץ, זכאות ותקציב, `effective_scope`. סינון הפרטיות נעשה **לפני** ההרכבה | `fn_capability_execution_gate_v1`; ‏`fn_raziel_context(p_user_ref,p_channel)`; ‏`lock_raziel_site`; ‏`materialGate.js` | להעביר לליבה את מזהה הצ'אט או הערוץ, כדי שהאכיפה בשכבת הנתונים תפעל. היום `ai-analyze` לא מקבל `@g.us` (§8) |
+| **מקור** | לכל עובדה: `source_ref`, ‏Trace מנוע או Result Bundle. העובדה נפרדת מהפרשנות | facts של `metatron_context`; ‏Result Bundle של `research-run`; ‏`facts[]` ב־`raziel_response_contract` | — |
+| **כלי קנוני** | הכלי הקנוני של היכולת: לגימטריה — `fn_method_value` ורישום השיטות; ל־ELS — מנוע ELS הקנוני; למחקר — Result Bundle. המודל מפרש, לא מחשב | משפחות היכולת (`raziel_routing_law` v2 §4); ‏`materialGate` | — |
+| **הקשר המשימה** | השאלה; הישות או העמוד הנוכחיים; Research Context והחזרה מדויקת. ב־DM: המשכיות רק כשיש רמז המשכיות (המתאם, פריט 3) | `metatron_context(p_request)`; הקשר העמוד; ‏`fn_raziel_context` | לבחור את ה־Top-K לפי בעל היכולת שנפתר ב־Owner Index, ולא לפי מילות מפתח בלבד |
+
+**מטריצה לפי ערוץ:**
+
+| ערוץ (המנגנון היום) | בעלים וגרסה | הרשאות | זיכרון אישי | אסור |
+|---|---|---|---|---|
+| **אתר — רזיאל** (`ai-analyze`, ‏persona raziel). היום נעול: `lock_raziel_site` פעיל, ‏mode=all | ‏Top-K לפי בעל היכולת. במשימות גימטריה — גם 6 חוקי השיטה. כל חוק כ־`rule_id@version` | אנונימי: קריאה ציבורית בלבד. מזוהה: גם מצב מחקר אישי (JWT). מנהל: קריאה מלאה, בלי כתיבה, ולא עומק כברירת מחדל | מזוהה בלבד, פרטי, לפי §14 (R7–R8) | ‏dump חוקים; מזהי חוקים שפרשו; גרסאות נעולות; חשיפת מידע פרטי |
+| **אתר — בקשת חוזה קנוני 2029** (Result Bundle) | כמו באתר | כמו באתר | **אין:** `context=null`, ו־0 קריאות ל־remember (`razielResultBundleServerSeam.test.js:1458–1459`) | כמו באתר |
+| **WhatsApp DM** (`wa-raziel` ← `ai-analyze`) | כמו באתר | מקושר: הקשר אישי בגבולות ההרשאה (פריט 6). לא מקושר: אין הקשר מקושר; שליפת `wa:<phone>` לפי D-CL13-2 | לפי §14 (R1–R2, ‏R4–R5) | כמו באתר. וגם: פעולה אישית בלי אישור מפורש (פריט 5) |
+| **WhatsApp קבוצה** (`@g.us`). הנתיב היום כבוי: `GROUPS_ENABLED=false` (דיווח קורא) | כמו באתר | הקשר קבוצה בלבד. ‏`user_context` ריק — אכיפת `raziel_group_privacy_law` | **אסור** לשלוף או לחשוף. כתיבה לפי §14 (R3, ‏R6) | כל זיכרון אישי; הרחבת גישה מכוח הקבוצה |
+| **מנהל — `raziel-attention`.** קורא היום ל־`fn_raziel_relevant_rules` עם `p_limit: 8` (שורה 224) | ‏Top-K, עם גרסה ובעלים | היקף קריאה מלא (routing §6). כתיבה רק באישור | של המנהל בלבד | חשיפה בערוץ ציבורי; כתיבה משתמעת |
+| **חוקר מספר — `number-researcher`** (persona site + `fn_raziel_context` + `metatron_context`) | כמו באתר | כמו באתר | כמו באתר | כמו באתר |
+
+**מבחני קבלה — שליפת ההקשר הרלוונטי (RT):**
+- **RT-1** — "חפש גימטריה על 358": ה־Top-K כולל את `canonical_methods_registry_law`, את `engine_governance_registry_authority_law`, ואת בעל ההרחבה המספרית (`inter_agent` v18 §35). הוא **לא** כולל וידאו, ניוזלטר, פורום או RLS (הכיול של §37).
+- **RT-2** — שאלת ELS: `els_research_layer_law` נמצא ב־Top-K.
+- **RT-3** — שאלה על חומר קבוצות או על הצ'אט: `writer_material_home_law` ו־`research_workspace_law` נמצאים ב־Top-K.
+- **RT-4** — הכמות חסומה:
+  - K ≤ 8 כברירת מחדל, ו־K ≤ 20 כגבול קשיח;
+  - האורך הכולל ≤ K×600 תווים;
+  - לעולם לא כל החוקים.
+- **RT-5** — דטרמיניזם: אותה שאלה, באותו מצב חי, מחזירה אותו סט.
+- **RT-6** — לכל פריט יש `rule_id`, גרסה ובעלים, ושלושתם שווים לגרסה הפעילה בזמן הקריאה. זו דרישת ה־context_version.
+- **RT-7** — סינון הרשאות:
+  - בקבוצה, או לשולח לא מקושר — אין זיכרון אישי בהקשר;
+  - לאנונימי — אין מצב מחקר פרטי;
+  - למנהל — אין כלי כתיבה.
+- **RT-8** — ה־Trace רושם את רשימת הבעלים והגרסאות שהיו בשימוש (routing §9).
+
+**מבחני קבלה — זיהוי הפניות מיושנות (ST):**
+- **ST-1 — אין מזהה של חוק שפרש** באף אחד מהמקומות הבאים:
+  - הפרסונה (`raziel_brain`: ‏core, ‏addon_site, ‏addon_wa) ופלט `fn_raziel_persona`;
+  - מחרוזות הפרומפט ב־Edge: `wa-raziel`, ‏`ai-analyze`, ‏`raziel-attention`, ‏`number-researcher`;
+  - `razielRouteGrammar.js` ו־`materialGate.js`;
+  - גוף `fn_raziel_plan` ו־`fn_raziel_answer`.
+
+  **היום נכשל:**
+  - `raziel_brain#1.core` מצטט 3 חוקים שפרשו: `messiah_frequency_in_every_person_law`, ‏`intent_before_compute_law`, ‏`gadol_convergence_needs_different_sofit_law`;
+  - `wa-raziel/index.ts:414` מצטט את `never_silent_metatron_law`.
+- **ST-2 — אין מחרוזת גרסה נעולה** ששונה מהגרסה הפעילה. **היום נכשל:**
+  - `platform_tiers_law v4` (הגרסה החיה היא v5) ו־`ai_quota_law v3` (פרש), ב־`ai-analyze` וב־`research-run`;
+  - `razielRouteGrammar.js:11–14`.
+- **ST-3 — חוקים מופצים** (`fn_active_method_rules`) לא מכניסים לפרומפט מזהה של חוק שפרש. **היום עובר:** ב־`auto_share_uses_live_post_law` האזכורים נמצאים בתווים 432 ו־453 מתוך 534, והחיתוך ל־400 מוריד אותם. המבחן חייב לבדוק את הטקסט שאחרי החיתוך, ולא לסמוך על המיקום.
+- **ST-4 — רענון:** כשחוק מקבל גרסה חדשה, הגרסה החדשה מופיעה כבר בקריאה הבאה, בלי שינוי קוד ("מבחן עץ אחד").
+- **ST-5 — מקור הרשימה:** רשימת החוקים שפרשו נלקחת מתצלום G1 המתוארך (שורות `R`) ומבדיקה חיה בקריאה בלבד. אין רשימה ידנית נוספת.
+
+**איפה זה חי:**
+- ST-1, ST-2 ו־ST-5 — בהרחבת G1 הסטטית (`git grep` על הקבצים), ובבדיקה חיה בקריאה בלבד של `raziel_brain` ושל גופי הפונקציות.
+- RT — מבחני יחידה ל־`fn_raziel_relevant_rules` המורחבת, על PG מבודד.
+- אין מאגר, רישום או גרף חדשים. החוקים נשארים ב־`nodes`, והנתב הוא ה־Owner Index והפונקציה הקיימת.
+
+**כותב:** סשן הביקורת, אחרי A4 (CL-11, ‏CL-12, ‏CL-24). **שער:** ZURIEL (DB ו־Edge).
+
+**פער מוצהר שלא מוכרע כאן:** החוקים הפעילים לא קובעים במפורש אם מותר לשלוף זיכרון של `wa:<phone>` ב־DM לא מקושר (D-CL13-2).
+
+## 9. רשימת סגירה מאוחדת — סשן החוזים מול רשימת הביקורת (סבב 3)
+
+**מקור ההתאמה:** `docs/reviews/m0-security-stabilization-20261112/foundation-closure-list.md` בראש `c45dd3740` (גרסה 2). גרסה 1 נמצאת בראש `6352be19d`. ההבדלים בין הגרסאות:
+- A4 פוצל ל־A4a/A4b.
+- B4 יצא מסימון ★: הוא בא אחרי A2, ואינו תנאי ל־M0.
+- נוספו §1.G (שורות CL שבהן הכותב הוא הביקורת), §1.H (מטריצת CL-13) ו־§1.I (דרישות עתידיות).
+
+**חלוקת הכותבים (ZURIEL, 12.11):**
+- **CT — סשן החוזים:** משמעות החוזים, בעלות, מטריצות התנהגות, מסמכים, שורות ב־Owner Index, והצעות טקסט ו־metadata לחוקים.
+- **MA — סשן הביקורת הראשית:** הכותב הטכני **היחיד** של G1, של משמרי המסד ושל תיקוני ה־Runtime (Edge, פונקציות, `edges`, קוד).
+- **ZURIEL:** כל הכרעה וכל שינוי חי.
+- **בעלות פעילה** נקבעת רק מרשומה ביומן או מהוראת ZURIEL. קיום של ענף אינו מוכיח בעלות.
+
+**מקרא — סיווג:**
+- **R** = חוסם שחרור מסוים (השחרור מצוין בשורה).
+- **B** = חוסם סגירת בסיס.
+- **F** = שיפור עתידי; נשמר ומתועדף.
+- **✔** = נסגר או נסוג.
+
+**מחוץ לרשימה, במפורש:**
+- הרחבת אנליטיקס (X1–X4) — מוצגת בנפרד על ידי MA.
+- תיקון המדידה הקיימת (C1–C6) — נשאר בעבודה הקיימת של MA.
+- כל הרצת SQL, שינוי הרשאות, מיזוג או פריסה.
+
+### 9.1 שורות סשן החוזים (CL)
+
+| # | ממצא | מקביל ברשימת הביקורת | סיווג | כותב | בעלים חוזי / מקור | תלות | מבחן קבלה | שער |
+|---|---|---|---|---|---|---|---|---|
+| CL-01 | אין ב־Owner Index ניתוב ל־`research_contributions` / לצ'אט | ‏F (שורת CL-01) | **B** — לפי G1 (v18 §61), מסלול הכניסה מגיע היום לחוק שפרש | CT | `research_workspace_law` v5 §8 + `writer_material_home_law` v6 | — | G1: שורת OI אחת (S5) | מיזוג |
+| CL-02 | ‏`writer_material_home_law` מפנה לחוק שפרש | ‏F | **✔ נסוג** (§0 פריט 5) | — | — | — | — | — |
+| CL-03 | הקרנת הקבוצות ב־v2 מעתיקה את גוף ההודעה | ‏F (שורת CL-03) | **R** — לשחרור v2 בלבד | הכרעה: ZURIEL; ניסוח: CT; מימוש: ייקבע | `writer_material_home_law` v6 §23 (+§5, ‏§20); §12 | — | ‏§12, מבחנים (1)–(7) | ZURIEL; ‏DB לפני ההחלה |
+| CL-04 | ארבעה חוקים שפרשו בלי מיפוי יורש | ‏F (שורת CL-04) | שלושה חוקים שיש אליהם הפניה: **B** (G1 — יעד שמפנים אליו בלי יורש). ‏`metatron_brain_persona_lens_law`, שאין אליו הפניה: **F** | CT (metadata) | ‏§11.3 | — | G1: ‏`RETIRED_WITHOUT_RECORDED_SUCCESSOR` ריק; תצלום מתוארך חדש (MA) | חוק חי |
+| CL-05 | ‏14 הפניות | ‏F (שורת CL-05) | **F** — חוץ מ־Series, שעבר ל־CL-21 | CT | ‏§11.1 | — | ‏ledger: 8 שינויים בגרסה הבאה של כל חוק; 4 נשארים; 2 עוברים ל־CL-19 ול־CL-20 | חוק חי |
+| CL-06 | צרכני DB שקוראים מזהים שפרשו | ‏G (CL-06) | **F** (P1) | MA | ‏§3; ‏§11.2 (שורות 14 ו־66) | A2. שורה 66 — גם CL-20 | ‏md5 לפני ואחרי | DB / DDL |
+| CL-07 | התווית `unified_graph_law` נשמרת ברשומות | ‏G (CL-07) | **F** | MA | `reality_graph_law` | הכרעה | מבחן | מיזוג |
+| CL-08 | קשתות `extends_rule` לחוקים שפרשו | ‏G (CL-08) | **F**. בסבב 3: רק הקשת ל־`unified_graph_law` מוחלפת. הקשת ל־`entity_structure_law` נשארת (§11.2) | MA | `reality_graph_law` | — | קריאה: קשת אחת בלבד לחוק שפרש | DB |
+| CL-09 | הצעות 20 ← 30, ‏23 ו־24 ממתינות; נעילות גרסה במסמכי המצביעים | ‏F (שורת CL-09) | **F** | ZURIEL מריץ; CT מעדכן את המסמכים | לפי החוק | — | G1 + תצלום חדש | DB |
+| CL-10 | `f30c0148` | ‏F (שורת CL-10) | **✔ הוכרע** (ZURIEL, 12.11): לא נפרש בשלב זה, ונשאר מחוץ להצעה 21 | — | — | — | — | — |
+| CL-11 | פרסונת רזיאל מצטטת 3 חוקים שפרשו; `addon_wa` ריק | ‏G (CL-11) | **B** — v18 §65: runtime של מוצר נבדק בגבול שלו, בלי סמכות מיושנת | MA | `raziel_companion_layer_law` v3 | אחרי A4 | ‏§8.1, ‏ST-1 | DB + Edge |
+| CL-12 | מחרוזות גרסה ובעלים ישנות | ‏G (CL-12) | **B** — v18 §53 (רעננות) ו־§65 | MA | `raziel_*`, ‏`platform_tiers_law` | אחרי A4 | ‏ST-2 | Edge |
+| CL-13 | כתיבה אוטומטית לזיכרון ולפרופיל מ־DM | ‏§1.H; ‏A4b★ | **R** — פריסת `wa-raziel` (A4b). **B** — `foundation_closure_protocol_law` v8 §E | MA (מימוש ומבחנים); CT (המטריצה, §14) | ‏§14 | D-CL13-1, ‏D-CL13-2, ‏D-CL13-3 | R1–R8 | ZURIEL; פריסת Edge |
+| CL-14 | תווית «צוות» לא מוצגת לאורח | ‏G (CL-14) | **F** (P1) | MA | Experience | A6 | ‏worker: הקריאה עוברת לאורח | מוצר ← מיזוג ← פריסה |
+| CL-15 | אכיפה ב־CI | ‏B1★, ‏B2★, ‏B3★ | **B** | MA (יחיד) | v18 §28–31; v8 | — | מקרי S, ובנוסף §13 (A2, ‏A3, ‏A4) | מיזוג; B6 |
+| CL-16 | פערים בשער המסד | ‏B4 | **B** — לסגירת הבסיס. **אינו** תנאי ל־M0 | MA | v8 · v18 | אחרי A2 | ‏D12, ‏D12b, ‏D13*, ‏D14, ‏D15; ובנוסף §13 (D2, ‏E4) | DDL |
+| CL-17 | ה־workflow המשותף | ‏G (CL-17) | **F**. הטענה על ארבעה ענפים פעילים — נסוגה (§0 פריט 8) | MA | — | מיזוג מסודר | `ci-workflow-references-exist` | מיזוג |
+| CL-18 | דרישות תוכנית־האב | חלק מ־F4 ו־F5 | **F** — נשמרות ומתועדפות (ZURIEL, 12.11) | ZURIEL (עדיפויות) | ‏§7, ‏§7.0 | — | — | — |
+| CL-19 | **חדש:** כלי פרסום חיצוני חיים בלי בעלים פעיל. 9 פונקציות SECURITY DEFINER; ‏service_role בלבד; 0 משימות cron | — | **B** — יכולת חיה של פרסום חיצוני, שהטקסט היחיד שמנהל אותה פרש | CT (טקסט בעלים: EXTEND_EXISTING `publishing_conventions`); MA (בדיקת הרשאות) | `publishing_conventions` (מוצע) | הכרעה | הבעלים כותב: יעדים, ‏dry-run, אישור Human Gate, ומי מריץ | קודקס (ZURIEL) |
+| CL-20 | **חדש:** לפרוטוקול RLS/GRANT אין בעלים פעיל, בזמן שה־cron השבועי פעיל | — | **B** — מנגנון אבטחה פעיל בלי בעלים פעיל | CT (טקסט: EXTEND_EXISTING `person_foundation_contract_law`); MA (ההודעה ב־`fn_rls_grant_audit`, ‏CL-06) | `person_foundation_contract_law` (הבעלים המשפחתי של security_privacy) | — | הפרוטוקול כתוב בבעלים פעיל; שורות ledger 14 ו־66 נסגרות | חוק חי |
+| CL-21 | **חדש:** "Series = תג" — מקור אמת שהוחלף ב־6.11, ועדיין כתוב בשלושה מקומות | — | **B** — v18 §58: הוראה סותרת אצל בעלים פעיל | CT | content contract §5; ‏PLAN37 ‏DEC-SERIES | — | שלוש השורות מפנות ל־§5 | חוק חי + קודקס + מיזוג |
+| CL-22 | **חדש:** קודקס 4 — הסעיף מ־7.9 ("post_update_on_top ממשיך לחול") מול ההחלטה מ־15.9 | — | **F** — ההחלטה המאוחרת מפורשת | CT | `publishing_conventions` | — | הערה בעדכון הבא של הקודקס | קודקס |
+| CL-23 | **חדש:** `metatron_brain_persona_lens_law` בלי מיפוי; דרישת context_version | — | **F** | CT | ‏§11.3; ‏§8.1 | — | RT-6, ‏RT-8 | חוק חי |
+| CL-24 | **חדש:** חוזה ההקשר של רזיאל — שליפת Top-K של בעלים עם גרסה וסינון הרשאות | — | **F** (P1) לשליפה. ‏ST כלול ב־CL-11 ו־CL-12 (B); ‏RT-7 כלול ב־CL-13 | MA | ‏§8.1 | A4 | RT-1–RT-8 | Edge + DB |
+| CL-25 | **חדש:** פערי קבלה שמקרי S/D לא מכסים | — | **B** | MA | ‏§13 | — | מקרים חדשים: A2 (CI), ‏A3, ‏A4, ‏D2, ‏E4; ציון מפורש של B3 ו־E5 | מיזוג; DDL |
+
+### 9.2 שורות ברשימת הביקורת שהכותב שלהן הוא סשן החוזים
+
+הסיווג כאן תואם את סימון ★ שלהם.
+
+| שורה שלהם | ממצא | סיווג | הערה מסבב 3 |
+|---|---|---|---|
+| B9★ | "המפה" ניתנת לפירוש כמסמך 37 | **B** | נוסח — ממתין להחלטת ZURIEL |
+| B10 | ל־Roadmap אין שושלת מקורות | **F** | §7.0 נותן את המקורות (S5: מזהי היומן של v3–v5) |
+| C7 | מקורות M0-F בתוך TI | **R** — לשחרור M0-F, לפניו או איתו | — |
+| C8 | סימון NON-OBSERVING ב־TI | **F** | — |
+| C9 | בעלים לפרטיות האנליטיקס | **F** — חוסם את X בלבד | — |
+| D1★ | שורת בעלים ל־SEO | **B** | — |
+| D8 | ‏7 קובצי html סטטיים | **F** | — |
+| D14 | שתי כתובות לכותב | **F** | — |
+| E3 | שורות `lock_galleries` / `lock_research` | **F** | — |
+| F1 | ‏18 קבצים דמויי־חוזה לא מנותבים | **F** | — |
+| F2 | הפניות ישנות ובאנרים (OI:36) | **F** | ה־ledger עוקב |
+| F3 | רישום החלטת האינדוקס מ־4.11 | **F** | — |
+| F4 | סתירות נתיב בין מסמך 37 לתוכנית־האב | **F** | הבסיס: §7.0. החלטה מאוחרת גוברת |
+| F5 | ‏19 פריטים ב־HANDOFF §7 | **F** | — |
+
+**שורות A, ‏C1–C6, ‏D (חוץ מ־D1, ‏D8 ו־D14), ‏E (חוץ מ־E3) ו־X** — אצל הביקורת, בלי שינוי מכאן.
+
+**סדר ההחלה:** בלי שינוי לסדר שלהם (§2 שם). כל פריט מסד או Edge מכאן נכנס **אחרי** A2/A4, לפי הטבלה שלהם.
 
 ## 10. מי הם "שני הקוראים", תחומם, ומה לא נבדק
 
-"שני הקוראים" הם שני תת־סוכנים **בקריאה בלבד**, שהופעלו על ידי סשן החוזים בלבד כדי לקרוא מסמכים גדולים; לא הופעלו אחרים ולא יופעלו; **אין להם בעלות כתיבה** ולא כתבו דבר (SELECT ו־`git show`/`git grep` בלבד). הדיווחים שלהם הם פלט מודל — אימתתי בעצמי את הנקודות המסומנות כ"אימתתי" ב־§7–§8, ואת השאר אני מציג כדיווח קורא.
+"שני הקוראים" הם שני תת־סוכנים **בקריאה בלבד**, שהופעלו על ידי סשן החוזים בלבד כדי לקרוא מסמכים גדולים; לא הופעלו אחרים ולא יופעלו. **בסבב 3 לא הופעלו קוראים או סוכנים** — כל הקריאה בסבב נעשתה ישירות. **אין להם בעלות כתיבה** ולא כתבו דבר (SELECT ו־`git show`/`git grep` בלבד). הדיווחים שלהם הם פלט מודל — אימתתי בעצמי את הנקודות המסומנות כ"אימתתי" ב־§7–§8, ואת השאר אני מציג כדיווח קורא.
 
 | קורא | תחום | מה החזיר | מגבלה |
 |---|---|---|---|
@@ -225,7 +482,363 @@
 | **אומת בידי Codex (לפי ZURIEL)** | עצם הכתיבה של DM בוואטסאפ לזיכרון ולפרופיל — בקוד הפרוס ובפונקציות המסד (CL-13) |
 | **דיווח קורא בלבד — לא אומת עצמאית** | פרטי הקשר רזיאל שמעבר לאמור למעלה (מספרי שורות אחרים, פירוט 470 שורות הזיכרון, גוף `fn_raziel_plan`/`fn_raziel_answer`, גרסאות Edge שנפרסו); כל טבלת R1–R16 מלבד השורות שצוינו; כיסוי מסמך 37 (~19% מילולי) והממצא "לא נמצאה החלטה" |
 | **מגבלה מפורשת** | כיסוי מסמך 37 **חלקי**, ו**היעדר החלטה עדיין לא הוכח** — "לא נמצאה החלטה" אינו "אין החלטה" |
+| **אומת עצמאית בסבב 3 (קריאה מלאה, SELECT או `git`)** | **חוקים פעילים:** `engine_governance_registry_authority_law` v1, ‏`research_object_identity_invariant_law` v2, ‏`research_gold_hints_law` v4, ‏`canonical_ui_components_law` v12, ‏`els_research_layer_law` v9, ‏`inter_agent_coordination_law` v18, ‏`reality_graph_law` v8, ‏`canonical_methods_registry_law` v6, ‏`graph_privacy_foundation_law` v1, ‏`cross_vs_convergence_criteria` v4 §6, ‏`writer_material_home_law` v6, ‏`truth_axes_foundation_law` v3, ‏`person_foundation_contract_law` v6, ‏`raziel_group_privacy_law` v1, ‏`raziel_whatsapp_access_adapter_law` v1, ‏`raziel_companion_layer_law` v3; שישה חוקי רזיאל נוספים (`ai_analyze_contract` v2, ‏`raziel_routing_law` v2, ‏`raziel_full_answer_and_route_law` v3, ‏`raziel_response_contract` v1, ‏`raziel_voice_law` v1, ‏`bot_delivery_law` v1); התלויים מסבב 1 (`auto_share…`, ‏`post_og…`, ‏`source_video…`, ‏`signal_vs_curation`, ‏`work_log_authority…`, ‏`live_state_resolution…`, ‏`corpus_admission_foundation_v1`, ‏`gematria_auto_registry…`). **חוקים שפרשו:** ה־14 ו־`metatron_brain_persona_lens_law`. **מקורות התוכנית:** S1–S4. **סעיפים וקבצים:** סעיפי קודקס 4 (26.8, ‏7.9, ‏15.9, ‏5.10); ‏content contract §5–§6; ‏`docs/corpus-admission-foundation-v1-contract.md` (שורה 86, §6); ‏`CORPUS_APPROVAL_LIFECYCLE.md` §1–§3. **מצב חי:** ה־cron ‏`rls-grant-audit-weekly`; ההרשאות של 9 פונקציות הפרסום; ‏`ownerResolves` ב־`c45dd3740`; ה־blobs והחפיפה מול #1321; החתימות והקוראים של מנגנוני ההקשר של רזיאל; ‏`ai-analyze` (שורות 837, ‏2746, ‏3069, ‏3207, ‏4060) ו־`wa-raziel:247`; מיקומי האזכורים ב־`auto_share…` |
+| **לא נבדק בסבב 3** | קודקס 4 במלואו; ‏`never_silent_metatron_law`; ‏`entity_structure_law`; ‏Roadmap v3–v5 (S5); 10 ההחלטות הפתוחות ב־S4; מימוש דפי הכתב (W1–W2); ‏`RAZIEL_PERSONALIZATION_LAW.md` במלואו (נבדק רק במילות מפתח); האם זיכרון `wa:<phone>` נשלף בפועל ב־DM לא מקושר; מסמך 37 מעבר לשורות DEC-SERIES הממוקדות; גוף `fn_rls_grant_audit`; ‏`traffic_intelligence_law` v11 |
 
-**מה לא נבדק במסירה כולה:** (1) קריאה מלאה של מסמך 37 (נדרש קורא עצמאי אם סגירה תלויה בהיעדר החלטה); (2) 14 ההפניות `REPOINT_TEXT` בהקשר של שורה אחת בלבד — חובה לקרוא את החוק במלואו לפני תיקון; (3) הנתונים החיים אחרי 12.11; (4) האם `service_role` יכול להשבית טריגר; (5) טבלאות שנוצרו מחוץ ל־`supabase/migrations`; (6) `test/admin-system-health-contract.test.mjs` — האם נועלת גרסת `subscription_funnel_law` (לבדוק לפני הרצת 23).
+**מה לא נבדק במסירה כולה:** (1) קריאה מלאה של מסמך 37 (נדרש קורא עצמאי אם סגירה תלויה בהיעדר החלטה); (2) ~~14 ההפניות `REPOINT_TEXT` בהקשר של שורה אחת בלבד~~ — נקראו במלואן בסבב 3 (§11); (3) הנתונים החיים אחרי 12.11; (4) האם `service_role` יכול להשבית טריגר; (5) טבלאות שנוצרו מחוץ ל־`supabase/migrations`; (6) `test/admin-system-health-contract.test.mjs` — האם נועלת גרסת `subscription_funnel_law` (לבדוק לפני הרצת 23).
 
-**קבצים בענף המקומי `claude/laws-alignment-20261112` (לא נדחפו; ללא PR):** `docs/reviews/contract-governance-audit-20261110/laws-alignment-20261112/README.md`, `.../retired-reference-ledger.txt`, `.../HANDOFF-20261111.md` (סעיף 8), `audits/g1-agent-entry/G1_LAWS_ACTIVE_SNAPSHOT_20261112.txt`, `audits/g1-agent-entry/G1_MIGRATION_TABLES_BASELINE_20261112.txt`, `scripts/lib/g1LawsSnapshotRules.mjs`, `scripts/test-g1-agent-routing-smoke.mjs`. **לא נגעתי:** `.github/workflows/*`, `public-reading-deploy/*`, `supabase/functions/*`, `src/*`, `supabase/migrations/*`, ו־Owner Index/ROADMAP/STATE.
+**קבצים בענף `claude/laws-alignment-20261112`** (נדחף בסבב 2, בלי force ובלי PR; הראש לפני סבב 3: `0a5882774`):
+- `docs/reviews/contract-governance-audit-20261110/laws-alignment-20261112/README.md`
+- `.../retired-reference-ledger.txt`
+- `.../HANDOFF-20261111.md` (§8)
+
+**אחרי סבב 3 — מסמכים בלבד:**
+- ארבעת קובצי הקוד והנתונים של G1 הועברו לסשן הביקורת (§15).
+- `scripts/test-g1-agent-routing-smoke.mjs` הוחזר לגרסת `aa0f6bc82`.
+
+**לא נגעתי ב:** `.github/workflows/*`, ‏`public-reading-deploy/*`, ‏`supabase/functions/*`, ‏`src/*`, ‏`supabase/migrations/*`, ‏Owner Index, ‏ROADMAP, ‏STATE.
+
+## 11. פסקי ההפניות והיורשים — אחרי קריאה מלאה (סבב 3)
+
+**מה נקרא במלואו** (בעצמי, SELECT על `nodes` ו־`project_codex`, 12.11):
+- החוקים התלויים של 14 ההפניות ושל 5 שורות `NO_SUCCESSOR`.
+- 14 החוקים שפרשו (סבב 2–3), ועוד `metatron_brain_persona_lens_law`.
+- סעיפי היורש.
+
+בקודקס 4 (72,978 תווים, עודכן 11.11) נקראו במלואם רק הסעיפים שמצוטטים כאן, לא כל הקודקס.
+
+**כלל העבודה:** `canonical_owner` רשום הוא נקודת התחלה, לא הוכחה. הפסק נקבע רק אחרי שמצאתי את הסמנטיקה בסעיף יורש מסוים. אם לא מצאתי — ההפניה נשארת היסטוריה, או נרשמת כפער.
+
+**אין כאן שינוי:**
+- כל החלפה היא שינוי טקסט או metadata בגרסה הבאה של החוק התלוי, ודורשת אישור ZURIEL.
+- הפניה היסטורית תקינה נשארת היסטוריה.
+- אחרי כל שינוי חי — תצלום G1 מתוארך חדש (סשן הביקורת).
+
+### 11.1 ארבע־עשרה ההפניות
+
+| # | חוק תלוי (גרסה · node · md5) | ההפניה ומה הטקסט אומר | יעד רשום | פסק | יעד מוצע | סעיף תומך ביעד | צרכנים מושפעים |
+|---|---|---|---|---|---|---|---|
+| 1 | `auto_share_uses_live_post_law` v1 · `0bb6b4ad…` · `3843180a…` | `social_autonomy_law` (EXT): "הרחבה של social_publish_law / social_autonomy_law" | `project_codex.publishing_conventions` | **KEEP_HISTORY — אסור להחליף.** ה־metadata של החוק שפרש: "historical autonomous-publish policy CONFLICTS with current Human Gate". החלפה תיצור ירושה כוזבת של מדיניות הפרסום האוטונומי | בגרסה הבאה: הערה "מדיניות הפרסום האוטונומי פרשה ואינה נורשת; פרסום חיצוני נשאר תחת Human Gate" | CLAUDE.md §11; `truth_axes_foundation_law` v3 | החוק `propagate=true`. האזכור בתווים 432–453 מתוך 534, ולכן `fn_active_method_rules` (חיתוך ל־400) **לא מעביר אותו לפרומפט** (אומת). ה־RPC `social_share_post` לא קורא את המזהה |
+| 2 | כנ"ל | `social_publish_law` (EXT) | קודקס 4 | **SEMANTIC_GAP.** סמנטיקת הכלים (`FB_ADMIN_KEY`, ‏`fb_publish_*`, ‏`ig_publish`, ‏`social_admin`; "עדיין לאשר מול ZURIEL") **לא נמצאה** בקודקס 4 (0 התאמות) | — (אין בעלים פעיל) → CL-19 | — | 9 פונקציות חיות, כולן SECURITY DEFINER. anon ו־authenticated: אין EXECUTE. ‏service_role: EXECUTE לכולן חוץ מ־`social_share_post`. ‏0 משימות cron (אומת 12.11) |
+| 3 | `canonical_ui_components_law` v12 · `c245a170…` · `7babed68…` | `dim5_upload_law` (FUNC). ‏v2 (26.8): "מקורות-אמת: זהות = posts row · סיווג = posts.categories · Series = תג (dim5_upload_law v2)" | קודקס 4 | **REPOINT_OTHER_TARGET.** "Series = תג" **הוחלף ב־6.11**: `SOD1820_CONTENT_FOUNDATION_CONTRACT.md` §5 — "מסמך זה אינו מגדיר סדרות ואינו מגדיר חברות בסדרה… PLAN37 … DEC-SERIES-003/004/005/006… `contentSeries2029Identity.js`". הנוסח הישן מסומן שם "היסטורי · לא נורמטיבי". קודקס 4 עדיין כותב "Series (תג «מימד חמש»)" (הרחבה מ־26.8), ולכן **אינו** היעד | content contract §5 ← PLAN37 ‏DEC-SERIES-003…006 + `src/lib/research/contentSeries2029Identity.js` | content contract §5 (עודכן 6.11.2026); מסמך 37: ‏DEC-SERIES-003…006 ‏APPROVED (נקראו רק השורות הממוקדות) | הערות קוד בלבד (`categoryIcons.js`, ‏`DimensionFiveBadge`). **הניסוח הישן עדיין כתוב בשלושה מקומות** (CL-21): השורה הזו; קודקס 4 (26.8); ‏content contract §6, שורה 116 |
+| 4 | כנ"ל | `unified_graph_law` (EXT). שורת הפתיחה של v1: "חוק-על (הרחבת unified_graph_law לשכבת ה-UI)"; ‏`metadata.extends='unified_graph_law'` | `reality_graph_law` | **REPOINT_SUPPORTED** — ב־metadata. שורת v1 נשארת היסטוריה | `reality_graph_law` v8 | ראש v1: "Zero-Duplicate-Code: רכיב חדש עובד על כל type בלי שכפול… Graph אחד·Ontology אחת·Entity Hub אחד"; ‏v5 §10 RETIRE, DO NOT DUPLICATE | הערות: `src/lib/research/entity.js`, ‏`src/lib/contributions.js` |
+| 5 | `els_research_layer_law` v9 · `cbeb4f61…` · `f46ac0ee…` | `unified_graph_law` (EXT). ‏v1: "ה-PIPELINE (הרחבת unified_graph_law)"; שכבה 3: "כל תוצאת ELS הופכת ל-Edges בגרף"; ‏`metadata.extends` | `reality_graph_law` | **REPOINT_SUPPORTED** — ב־metadata | `reality_graph_law` v8 | ‏v1 "כל קשר Edge"; ‏v5 §3 ONE ANCHOR, MANY PROJECTIONS; ‏v5 §4 ONE OBJECT · MANY TYPED RELATIONS. החוק התלוי כבר צורך את Reality Graph (OWNER CHECK של v3) | קשת `extends_rule` שיוצאת משורה **לא פעילה** (v2). זו היסטוריה, בלי שינוי |
+| 6 | `engine_governance_registry_authority_law` v1 · `ca3796f7…` · `368095df…` | `rabbati_letter_method_law` (FUNC). ‏HG-E1: "«אות רבתי» … אסור לסרוק אותה אוטומטית (rabbati_letter_method_law — הערך אינו פונקציה טהורה של הביטוי לבדו)" | `project_codex.gematria_engine` | **KEEP_HISTORY.** בקודקס 5 אין "רבתי" (0 התאמות). הנימוק כתוב בחוק התלוי עצמו, והשער חי: שורת הרישום `אות רבתי` (`fn_rabbati`) היא active, עם `scannable=false` | — | החוק התלוי, HG-E1; ‏`public.gematria_methods` | אין |
+| 7 | `person_foundation_contract_law` v6 · `8b957f76…` · `84c7e2e0…` | `unified_graph_law` (EXT, בטקסט) | `reality_graph_law` | **REPOINT_SUPPORTED** — בטקסט בלבד; `metadata.extends` כבר כולל את `reality_graph_law` | `reality_graph_law` v8 | ‏v4 (6.9) Entity Identity Promotion Contract (Person); ‏v5 §1 | אין |
+| 8 | `post_og_image_law` v1 · `2fa1a2a9…` · `6e1b616d…` | `post_publish_law` (REL — ברשימת `related`) | קודקס 4 | **REPOINT_SUPPORTED** | `project_codex.publishing_conventions` | ‏Owner Index:178 ("publishing conventions / Post identity"); קודקס 4: "modified קובע סדר בלבד ואינו אות ל״עדכון חדש״ (SOD1820_DESIGN_CONTRACT_V2.md §8.1)" | הערה ב־`src/lib/supabase.js` |
+| 9 | `research_gold_hints_law` v4 · `09d69629…` · `44f22b82…` | `convergence_explanation_law` (EXT). ‏OWNER CHECK של v4 (30.9): "Consumes signal_vs_curation v2 + convergence_explanation_law v1 + …" | `reality_graph_law` | **REPOINT_OTHER_TARGET.** ב־`reality_graph_law` יש Explain-Why למדיה בלבד (v7 §3, §5). הסמנטיקה הכללית נמצאת ב־`cross_vs_convergence_criteria` v4 §6: לשון פשוטה, עובדה מול פרשנות, לא שוויון ערכים בלבד. ה־`archive_reason` של החוק שפרש מציין אותו | `cross_vs_convergence_criteria` v4 §6 (הבעלים המשפחתי: `reality_graph_law`) | ‏§6: "EXPLAIN WHY IS LOAD-BEARING … plain language and inspectably … What is verified fact versus claim/interpretation … A bare graph edge or value equality is never sufficient" | אין. "אסור לאשר או לפרסם התכנסות בלי הסבר" לא כתוב שם מילולית. הכיסוי דרך "Every surfaced convergence must…" הוא פרשנות |
+| 10 | `research_object_identity_invariant_law` v2 · `e9cf65c7…` · `37619075…` | `post_update_on_top` (FUNC). ‏v2 (2.9): הפרגמנט `#update:<תאריך>:<label>` נקרא "מילולית מהכותרת … (לפי post_update_on_top)" | קודקס 4 | **KEEP_HISTORY.** הפרסר קורא כותרות של פוסטים קיימים, שנכתבו לפי המוסכמה ההיסטורית `עדכון · [תאריך] · [שם]`. המוסכמה כתובה **רק** ב־`metadata.header_format` של השורה שפרשה. בקודקס 4, תוספת G2 (15.9): "The historical “update-on-top” layout is a legacy presentation choice … Experience governs layout" | — | קודקס 4, תוספת G2 (15.9, ‏POST TEMPORAL HISTORY); ‏Owner Index:179 | **סתירה בתוך קודקס 4** (CL-22): הסעיף מ־7.9 (§2) עדיין קובע "post_update_on_top ממשיך לחול" על עדכון אירוע. ההחלטה מ־15.9 מאוחרת וגוברת לגבי הפריסה |
+| 11 | `signal_vs_curation` v2 · `21b70c56…` · `cf293d95…` | `zuriel_focus_law` (FUNC): "הפירוט המלא: zuriel_focus_law" | `truth_axes_foundation_law` | **KEEP_HISTORY.** קראתי את `truth_axes` v3 במלואו. אין בו את קשירת המיקוד של ZURIEL, את `discovered_not_selected`, את כיול 786 ואת `decision_ledger`. העיקרון עצמו (Discovery ≠ Presentation, Suggest ≠ Include ≠ Publish) כבר כתוב בחוק התלוי | — | — | אין. הפירוט נשמר כדרישה — הוא לא בוטל. להעביר אותו לגרסה הבאה של `signal_vs_curation`, כשייגעו בחוק |
+| 12 | `source_video_publish_law` v1 · `06278103…` · `d26b651c…` | `dim5_upload_law` (EXT): "מרחיב … עקרון ה-self-host שכבר קיים ב-dim5_upload_law וב-orgeula_video_pipeline_law" | קודקס 4 | **REPOINT_SUPPORTED** | `project_codex.publishing_conventions` | קודקס 4, "UNIVERSAL MEDIA DEFAULTS FROM DIMENSION FIVE GOLDEN · Human-Gate ZURIEL · 5.10.2026", ‏§2: "Publishing a video means the self-hosted source video itself is present". באותו סעיף: "dim5_upload_law v4 is a Golden/legacy calibration source, not a new owner" | אין |
+| 13 | כנ"ל | `orgeula_video_pipeline_law` (EXT) | קודקס 4 | **REPOINT_SUPPORTED** | `project_codex.publishing_conventions` | כמו #12, ובנוסף תוספת G2 (15.9): "LEGACY OPERATIONAL RECIPES ARE ON-DEMAND HISTORY … orgeula_video_pipeline_law … do not define 2029 publication architecture" | אין |
+| 14 | `work_log_authority_law` v2 · `a716dac5…` · `7b5ffedf…` | `rls_client_read_protocol` (REL, ‏`sibling_laws`) | `person_foundation_contract_law` | **SEMANTIC_GAP.** קראתי את `person_foundation` v6 במלואו. יש בו ציר הרשאות ו־Root-of-Trust, אבל **אין** בו את פרוטוקול RLS/GRANT: ‏RLS בלי policy חוסם בשקט; GRANT ברמת עמודה; הגלאי `rls_grant_gaps()`; רשימת התעלמות; ביקורת שבועית | — (אין בעלים פעיל) → CL-20 | — | **צרכן חי:** ה־cron `rls-grant-audit-weekly` (`0 3 * * 0`, פעיל) קורא ל־`fn_rls_grant_audit()` (אומת 12.11); ‏`video_transcription_law` v1 (FUNC, שורת ledger 66) |
+
+**סיכום:**
+
+| פסק | הפניות |
+|---|---|
+| REPOINT_SUPPORTED | 6 (#4, #5, #7, #8, #12, #13) |
+| REPOINT_OTHER_TARGET | 2 (#3, #9) |
+| KEEP_HISTORY | 4 (#1, #6, #10, #11) |
+| SEMANTIC_GAP | 2 (#2, #14) |
+
+שינויי הטקסט וה־metadata (8 הפניות ב־6 חוקים) נעשים בגרסה הבאה של כל חוק, באישור.
+
+### 11.2 שורות נוספות ב־ledger שהפסק שלהן השתנה בסבב 3
+
+| שורה | חוק תלוי ← יעד | ממצא | פסק חדש |
+|---|---|---|---|
+| 42 | `live_state_resolution_law` v3 (`447569e9…`, `fc45009b…`) ← `agent_onboarding_law` | הטקסט אומר "היסטורי, אינו מופעל מחדש". אבל ב־`metadata.clarification_v2` כתוב: "does not weaken the standing, separate agent_onboarding_law requirement that every DB WRITE needs live-schema verification + work_log coordination". זו הפניה פונקציונלית שמכנה חוק שפרש "standing" | **REPOINT_SUPPORTED** — ב־metadata בלבד. יעד: `live_state_resolution_law` (הבהרה v2) + `inter_agent_coordination_law` v18 §40 ("Before CLAIMED_WRITE it MUST live-reverify canonical owner, current main/DB, and overlapping active writers") + CLAUDE.md §12 |
+| 14 | `ai_analyze_contract` v2 ← `never_silent_metatron_law` (REPOINT_CONSUMER, סשן הביקורת) | הבעלים הרשום, `raziel_companion_layer_law`, אינו מזכיר שתיקה (0 התאמות, 12.11). ה־`archive_reason`: "completion/full-answer semantics absorbed by raziel_full_answer_and_route_law v3 + ai_analyze completion contract" | יעד הטקסט (הצעה): `raziel_full_answer_and_route_law` v3, סעיפים (2) ו־(א), + `ai_analyze_contract` v2 §D–§E. **את החוק שפרש עצמו לא קראתי במלואו** — לבדוק לפני שינוי הצרכן (CL-06) |
+| 66 | `video_transcription_law` ← `rls_client_read_protocol` (REPOINT_CONSUMER) | הבעלים הרשום חסר את הסמנטיקה (#14) | **חסום** עד CL-20. אין להפנות ל־`person_foundation` לפני שהפרוטוקול יעבור לבעלים פעיל |
+| 39 | `graph_privacy_foundation_law` v1 (2,449 תווים, `0906daac…`, נקרא במלואו) ← `entity_structure_law` (קשת) | אוצר המילים `space ∈ core / lab / private` (§5 של `entity_structure_law`) מנוסח מחדש ב־§4 של החוק התלוי, ונאכף דרך `fn_graph_space_is_public`. ב־`reality_graph_law` (גם בחוק v8 וגם בקודקס id 18) אין אוצר מילים של space/private (0 התאמות) | **KEEP_HISTORY** — הקשת נשארת. את `entity_structure_law` עצמו לא קראתי במלואו |
+| 40 | כנ"ל ← `unified_graph_law` (קשת) | — | **REPOINT_EDGE** ל־`reality_graph_law` (v1) — נתמך. הקשת היא שורת DB: סשן הביקורת (CL-08), באישור ZURIEL |
+
+### 11.3 יורשים לחוקים שפרשו בלי מיפוי (ארבעה)
+
+| חוק שפרש (נקרא במלואו) | מה קבע | יורש מוצע | סוג | סעיף תומך | מה קורה להפניות התלויות |
+|---|---|---|---|---|---|
+| `agent_onboarding_law` v1 (14.6) | כל סוכן קורא את **כל** החוקים ואת `project_codex` לפני כל חישוב או שינוי; גימטריה לפי הגדרות נעולות; חישוב אוטומטי, וכתיבה לליבה באישור | `inter_agent_coordination_law` v18 | **הוחלף, לא נספג.** הדרישה "לקרוא הכול" **מבוטלת במפורש**, ואינה עוברת ליורש | ‏§55 "ONE AGENT ENTRY CONTRACT … through this existing inter-agent owner"; ‏§56 "all active rules, all project_codex … NOT mandatory startup reads"; ‏§34, ‏§49 (תקציב קריאה); ‏§40 (אימות חי לפני כתיבה). דרישת הכתיבה עוברת ל־`live_state_resolution_law` v3 ול־CLAUDE.md §12. דרישת הגימטריה — ל־`canonical_methods_registry_law` ול־`engine_governance_registry_authority_law` | `inter_agent_coordination_law` — ההפניה בבלוק HISTORICAL V1: ‏KEEP_HISTORY. ‏`work_log_authority_law` (REL): ‏REPOINT_SUPPORTED. ‏`live_state_resolution_law` (metadata): ‏REPOINT_SUPPORTED |
+| `corpus_admission_lifecycle_law` v1 (26.8) | שש רמות: ENGINE CALCULATED · CORPUS PENDING · CORPUS APPROVED (`visibility_reason=approved_by_admin`) · CLAIM APPROVED · GRAPH CANONICAL · PUBLISHED; ‏`is_verified` אינו אישור אנושי | `corpus_admission_foundation_v1`, ובנוסף `truth_axes_foundation_law` v3 לשלוש הרמות העליונות | **הושלם במפורש** לגבי מחזור החיים. לגבי הצירים העליונים — פרשנות | ‏`docs/corpus-admission-foundation-v1-contract.md` שורה 86: "Supersedes/completes corpus_admission_lifecycle_law"; ‏§6: "EXTRACTED → … → CORPUS APPROVED. Independent of graph-canonical, publication… (all separate axes)"; מעבר סגירה 3 (`resolve_word_review`); ‏`CORPUS_APPROVAL_LIFECYCLE.md` §1–§3 (22.8). השרשרת המילולית בת שש הרמות לא מופיעה בקודקס 26 (0 התאמות) | `corpus_admission_foundation_v1` (HIST): ‏KEEP_HISTORY. ‏`gematria_auto_registry_law` v2 §6 (FUNC: "separate axes per corpus_admission_lifecycle_law + truth_axes"): ‏REPOINT_SUPPORTED ← `corpus_admission_foundation_v1` §6 + `truth_axes` v3 |
+| `meshulash_kadmi_law` v1 (3.7) | משולש == קדמי — אותה שיטה, צבירה. ‏ZURIEL אומר "משולש", ובקוד kadmi. אין פונקציה או עמודה חדשה | `canonical_methods_registry_law` v6 | **נספג במפורש** | ‏v5 §12 (13.9): "קדמי ומשולש הם שני שמות לאותה זהות-שיטה: method_key=קדמי … אין rename פיזי"; ‏v6 §21 (18.9): "For method_key=קדמי the public Hebrew label is משולש"; ב־metadata: ‏`aliases` (`[קדמי, משולש] → קדמי`) ו־`public_label_overrides` | `engine_governance_registry_authority_law` (FUNC): ‏KEEP_HISTORY. הסמנטיקה כתובה שם: "«רגיל+משולש» מרכיב את קדמי", ו־HG-E2: `רגיל+משולש=[רגיל,קדמי]`. הערות קוד: `gematria.js`, ‏`compositeMethods.js` |
+| `metatron_brain_persona_lens_law` v1 (23.7). **אף חוק פעיל לא מפנה אליו**, ולכן הוא לא היה ב־ledger | מטטרון = שכבת ההקשר והחוקים; רזיאל = הפנים והקול; פרסונה = CORE+ROLE+STYLE. **"context_version: כל תשובה … נושאת את גרסת-החוקים שעליה נשענה"**. מבחן "עץ אחד": שינוי חוק ב־nodes משנה התנהגות בלי לגעת בקוד | `raziel_companion_layer_law` v3, ובנוסף `raziel_routing_law` v2 §9 | **פרשנות** — ספיגה חלקית | ‏companion v3 §1 (one Raziel, many modes); ‏routing v2 §9 (Trace) ו־§10 (אין מערכת מקבילה); ‏`raziel_full_answer_and_route_law` v3 ב׳. **"context_version לכל תשובה" לא כתוב באף חוק פעיל שקראתי.** הדרישה נשמרת ונכנסת לחוזה ההקשר (§8.1, ‏RT-6, ‏RT-8) | אין תלויים פעילים |
+
+כל הצעה כאן היא metadata (`compaction_v1` / `owner_routing`) על השורה שפרשה. אין הפעלה מחדש. זה שינוי חוק חי, ולכן נדרש אישור ZURIEL. אחרי ההחלה — תצלום G1 מתוארך חדש (סשן הביקורת).
+
+**לא נבדק בסעיף הזה:**
+- קודקס 4 במלואו — נקראו רק הסעיפים שצוטטו.
+- `never_silent_metatron_law` במלואו.
+- `entity_structure_law` במלואו.
+- גוף `fn_rls_grant_audit` — נקראו רק ההודעה והתזמון.
+
+## 12. ‏CL-03 — תחולת `writer_material_home_law` §23 על הקרנת הקבוצות לצ'אט, והמלצה אחת
+
+**החוזה (נקרא במלואו):** `writer_material_home_law` v6.
+- node: `918e5e51-e0ba-4150-8891-bfadfa84aaba`
+- תאריך: 30.9.2026
+- md5: `b8be155dcfb7f5562d1f33d6de440193`
+
+**תחולה — מה מפורש ומה פרשנות:**
+
+| שאלה | תשובה | סוג |
+|---|---|---|
+| האם §23 מזכיר את צ'אט הקהילה? | **לא.** הרשימה המילולית: "Future Topic/Researcher/World projections", וכן "topic_cards or a new Topic store" | מפורש |
+| האם המטרה של §23 חלה? | **כן.** §23 דורש לפתור את טקסט התורם דרך `source_ref` (`channel_updates:<id>`), אוסר לשכפל את גוף הודעת הוואטסאפ, ודורש "Exact source lineage". שורת צ'אט שמעתיקה את הגוף היא בדיוק עותק שני של גוף הוואטסאפ | פרשנות לפי תכלית |
+| סעיפים תומכים באותו חוק | ‏§5 NO WHATSAPP TREE: תורי WA גולמיים הם ראיית קליטה; אין קליטה חוזרת עיוורת כשהחומר כבר קיים; נדרשים dedup ושושלת. ‏§20 SOURCE WORDS SURVIVE IN FULL: רשומת מקור אחת, שלא נכתבת מחדש ולא נקטעת. ‏§21: מקור מול ניתוח. ‏§25: תוויות תצוגה | מפורש |
+| החלטה קודמת של ZURIEL | תוכנית־האב לדפי הכתבים (`work_log 57a42125-cb78-4493-94f8-3dfa0457be17`, ‏8.8.2026, ‏`canonical_plan_locked`): העדשות הנלוות, ובהן `channel_updates`, הן "מצביעים, לא העתקים". ו"חוק ברזל: אין מאגר נוסף" | מפורש (תוכנית נעולה) |
+| הבעלים של `research_contributions` | `research_workspace_law` v5 §7–8: צינור קלט; עדשה, לא מאגר | מפורש |
+
+**מסקנה:** §23 חל לפי תכליתו, יחד עם §5, ‏§20 ותוכנית 8.8. זו פרשנות. כל המקורות מצביעים לאותו כיוון, ואין מקור שמתיר עותק.
+
+**מה המימוש המוצע (v2) עושה היום** — ענף `claude/group-chat-sync-20261112` @ `8cbbaa12e6b174a3f3aa31ae4f96327172210306`, הקובץ `supabase/proposed/20261112150000_group_chat_sync_gilui_v2_PROPOSAL.sql` (נקרא במלואו):
+- **העתקה:** מעתיק את הגוף (אחרי הצנזורה של הקורא) ואת "📎 תמונה/סרטון + URL" אל `research_contributions.body` — שורות 45–47; ההכנסה בשורות 54–60.
+- **זכאות:** נבדקת רק בזמן ההכנסה, דרך `world_group_source_arrivals_v2`.
+- **כפילות:** אינדקסים ייחודיים חלקיים על `target_id` (`channel_update` / `group_day`, ‏`origin=community_2029`), בדיקת קיום ונעילה.
+- **ביטול** (`deleted_at`): רק כש־`held_at` נקבע, או כש־`status` יוצא מ־live/private.
+- **לא מטופל** — ובכל המקרים האלה העותק נשאר גלוי:
+  - עריכה במקור;
+  - שינוי זכאות ברמת הקורא: הסכמה, ‏`general_feed_enabled`, מקור מאופשר, צנזורה;
+  - הסרת מדיה;
+  - ‏DELETE של שורת `channel_updates`.
+
+**המלצה אחת: הקרנה בהפניה.**
+
+1. **מקור קנוני.** שורת הצ'אט ב־`research_contributions` שומרת רק:
+   - מיקום — שורש היום, שרשור, זמן;
+   - ייחוס — קרדיט המקור;
+   - הפניה מדויקת — `target_type='channel_update'`, ‏`target_id`.
+
+   אין בה גוף ואין קישור מדיה. השורש היומי הוא מיכל מבני בלי טקסט מקור.
+2. **הרשאות.** ה־RPCs של הקהילה (`community_feed_page`, תגובות, הקשר, חיפוש) מרכיבים את הגוף והמדיה **בזמן הקריאה**, דרך אותו קורא ציבורי `world_group_source_arrivals_v2`. כך יש מקור אחד לזכאות, להסכמה ולצנזורה. ההרשאות של ה־RPCs לא משתנות.
+3. **עדכון.** עריכה במקור מופיעה מיד, בלי סנכרון.
+4. **מחיקה או משיכה.** כשהקורא לא מחזיר את המקור — השורה מוצגת "הוסר במקור" או מוסתרת, בלי דליפת טקסט. זה כולל: ביטול הסכמה, ‏`general_feed_enabled=false`, צנזורה, ‏`held_at`, ‏DELETE.
+5. **כפילות.** האינדקסים הייחודיים הקיימים על `target_id` נשארים. אין צורך במאגר נוסף.
+6. **חיפוש.** חיפוש הקהילה עובר דרך הקורא, ולא על טקסט מועתק.
+
+**החלופה שנדחתה:** חריג מתועד, עם עותק וטריגרי סנכרון. שלוש סיבות:
+- היא יוצרת עותק שני של גוף הוואטסאפ, בניגוד לתכלית של §5, ‏§20 ותוכנית 8.8.
+- היא חושפת לדליפה של טקסט ישן או מצונזר.
+- היא דורשת טריגר לכל אחד מהמקרים הלא־מטופלים.
+
+**הבהרה בחוק (רשות):** בגרסה הבאה של `writer_material_home_law` אפשר להוסיף שורה: "§23 חל גם על הקרנות של `channel_updates` לצ'אט ולפורום". כך הפרשנות הופכת למפורשת. ניסוח: סשן החוזים. אישור: ZURIEL.
+
+**מבחני קבלה** — על PG מבודד, לא על נתונים חיים:
+1. עריכה במקור מופיעה בצ'אט בלי שלב סנכרון.
+2. ביטול הסכמה, ‏`general_feed_enabled=false` או צנזורה — הטקסט לא מוחזר בקריאה הבאה.
+3. ‏DELETE ב־`channel_updates` — מוצגת מצבה, עם 0 תווי מקור.
+4. סנכרון כפול — שורה אחת.
+5. קריאה של anon או authenticated רק דרך ה־RPCs; ההרשאות לא השתנו.
+6. לשורות `target_type='channel_update'` אין `body` מקור (בדיקה או CHECK).
+7. החיפוש לא מחזיר טקסט של מקור שנמשך.
+
+**מצב:**
+- v2 **לא הוחל**. החסם מוגבל ל־v2, ואינו חל על M0 או על עבודה אחרת.
+- ההכרעה: ZURIEL.
+- הכותב להמשך: ייקבע בידי ZURIEL. הענף נכתב בסשן החוזים, ואין לפתוח מימוש לפני ההכרעה ("אין פתיחת עבודות מוצר חדשות").
+- לפי ההמלצה, השינוי הוא ב־RPCs של הקהילה (קריאה), ולא בחוק.
+
+## 13. קבלה מחייבת לאכיפה — מה חייב להיחסם ומה מותר
+
+> הסעיף הזה עובר לביקורת. המימוש וההוכחה אצל סשן הביקורת.
+
+**שלוש שכבות נפרדות:**
+- **CI** — עוצר PR. לא רואה כתיבה ישירה למסד. מייעץ בלבד עד שיוגדרו required checks (B6).
+- **מסד** — חל על כל כותב, כולל `service_role` ו־`postgres` דרך MCP. החריג: מי שיכול להשבית טריגר או להחליף פונקציה.
+- **הרשאות כלים** — `execute_sql` נמצא ברשימת ההיתרים ב־`.claude/settings.json` ורץ בלי הודעה טכנית. ההגנה היחידה בשכבה הזו היא אישור מפורש (B7).
+
+**מיפוי למקרים הקיימים:** S0–S15 (CI) ו־D01–D16 (מסד) — `docs/reviews/m0-security-stabilization-20261112/enforcement-proof/README.md` בראש `c45dd3740`.
+
+**מקרא לעמודת "פער":** "חדש" = נדרש מקרה שאינו קיים היום; "—" = מכוסה.
+
+### 13.1 טבלת הקבלה
+
+| # | דרישה | חייב להיחסם | חייב להיות מותר | שכבה | מקרה קיים | פער |
+|---|---|---|---|---|---|---|
+| A1 | בעלים מסוג **חוק** | בעלים שהוא חוק שפרש; ‏`rule_id` שלא קיים; בעלים ריק | חוק פעיל | CI + מסד | S3, ‏S4, ‏S4b; ‏D05, ‏D13 (מוצע) | — |
+| A2 | בעלים מסוג **קודקס** | `project_codex.<slug>` שלא קיים | slug קיים | מסד (CI — לא) | ‏D13b, ‏D13c (מוצע) | **ב־CI אין בדיקה.** `ownerResolves` מקבל כל מחרוזת שמתחילה ב־`project_codex.` (`scripts/lib/g1LawsSnapshotRules.mjs:25` בראש `c45dd3740`). צריך תצלום slugs מתוארך, או לכתוב במפורש שהבדיקה נעשית רק במסד, בזמן הכתיבה |
+| A3 | בעלים מסוג **מסמך רשום** | קובץ שקיים אבל **אינו רשום** (לא מנותב ב־Owner Index ולא ברשימת קובצי החוזה); קובץ שלא קיים | מסמך רשום, למשל `docs/research-studio-v1-contract.md` (Owner Index:78) | CI (במסד אי אפשר) | ‏S1 חוסם קובץ חוזה **חדש** לא מנותב; ‏D13d — המסד לא בודק | **חדש:** בעלים = קובץ קיים לא רשום → סירוב; קובץ רשום → היתר. היום `fileExists` מספיק כדי לעבור (שורה 25) |
+| A4 | שרשרת בעלות | ילד שהבעלים שלו הוא ילד של בעלים שפרש | שרשרת שמסתיימת בבעלים פעיל | CI + מסד | ‏D05 (רמה אחת) | לא ידוע אם נבדקת יותר מרמה אחת — לבדוק |
+| A5 | בעלים ב־Owner Index | שורה שמפנה לחוק שפרש או לבעלים שלא קיים | שורה לחוק פעיל | CI | ‏S4, ‏S4b; ‏S5 | — |
+| B1 | **טקסט** של חוק פעיל באותה גרסה | עריכה במקום | גרסה חדשה עם טקסט שהשתנה ושושלת תקינה | מסד + CI | ‏D12 (מוצע), ‏S14; ‏D02, ‏S7, ‏S8 | — |
+| B2 | טקסט של **שורת היסטוריה** | עריכת גוף בגרסה לא פעילה | פרישה (`is_active=false`, הגוף לא משתנה) | מסד | ‏D12b; ‏D16 | — |
+| B3 | העלאת גרסה בלי שינוי טקסט | גרסה ריקה | — | CI | `compareLawsSnapshots` | במסד לא נבדק. פער קטן — לציין במפורש |
+| B4 | **בעלים** באותה גרסה | שינוי בעלים בלי גרסה | — | מסד + CI | ‏D11, ‏S13 | — |
+| B5 | בעלים בגרסה חדשה | העברה שקטה; אישור שלא קיים; אישור מומצא | החלפה אמיתית A→B, עם `SUPERSEDE_EXISTING` והפניה לרשומת אישור קיימת | מסד | ‏D06; ‏D07b, ‏D07c; ‏D07 | — |
+| B6 | metadata בלי שינוי בעלים | — | מותר | מסד | ‏D08 | — |
+| B7 | רשומות מתוארכות (תצלום, CHANGE-RECORD) | עריכה או מחיקה של רשומה קיימת; הסתרת קובץ ב־baseline | רשומה מתוארכת חדשה | CI | ‏S6, ‏S9, ‏S10; ‏S7 | — |
+| C1 | **יצירת חוק** או משפחה חדשה | בלי הכרעת בעלות; בלי אישור רשום | עם אישור שמפנה לרשומה קיימת | מסד + CI | ‏D03, ‏D09a; ‏D09b; ‏`G1_LAW_APPROVALS.txt` | — |
+| C2 | **הפעלת** חוק שהוכנס כלא פעיל | בלי הכרעה | עם הכרעה, אותו בעלים | מסד | ‏D10; ‏D10b | — |
+| C3 | הפעלה מחדש של חוק שפרש | בלי אישור; אישור מומצא (טקסט חופשי) | אישור תקין בצורתו | CI | ‏S11, ‏S12b; ‏S12 | האם האישור אמיתי — שער אנושי |
+| C4 | שלמות גרסאות | שתי גרסאות פעילות; קפיצת גרסה; בעלים ריק | — | מסד (חי היום) | ‏D01 | — |
+| D1 | **יצירת טבלה** במיגרציה או בחבילת החלה | טבלה או MV חדשים בלי `-- OWNER-CHECK:` | `EXTEND_EXISTING <בעלים פעיל>`, או `NEW <סיווג Intake §10> <בעלים> APPROVAL:<ref>` | CI | ‏S15; ‏S2 | הכיסוי: 41 מתוך 305 טבלאות. טבלה שנוצרה מחוץ למיגרציות אינה נראית ל־CI |
+| D2 | **יצירת טבלה ישירות במסד** (לא דרך Git) | לפחות: אין יצירה בלי רישום. חסימה בלי סימון אישור — לפי הכרעת ZURIEL | יצירה עם רישום, ואם יוחלט — גם עם סימון אישור | מסד | **אין.** ‏`ensure_rls` רק מפעיל RLS | **חדש:** event trigger מאותה משפחה (`ddl_command_end`) שרושם כל `CREATE TABLE` / `CREATE MATERIALIZED VIEW` ב־`public` עם מבצע וזמן |
+| E1 | **כתיבה ישירה:** DELETE של שורת חוק | חסימה | — | מסד | ‏D14 (מוצע) | — |
+| E2 | **כתיבה ישירה:** TRUNCATE של `nodes` | חסימה — טריגר `BEFORE TRUNCATE … FOR EACH STATEMENT`, או שלילת ההרשאה | — | מסד | ‏D15 (מוצע) | — |
+| E3 | **כתיבה ישירה:** פרישה | — | מותר: `is_active=false`, הגוף לא משתנה | מסד | ‏D16 | — |
+| E4 | **עקיפה:** `DISABLE TRIGGER` / `CREATE OR REPLACE FUNCTION` | לא ניתן לחסום טכנית למי שמחזיק הרשאת DDL | — | הרשאות | — | **חדש:** שאילתת קריאה שמראה מי הבעלים של `nodes` ושל פונקציית השער, ומי יכול להשבית טריגר. היום לא אומת אם `service_role` יכול |
+| E5 | כתיבה ל־`project_codex` | slug חדש מסוג master (B5 של הביקורת); שינוי גוף בלי רשומה | — | CI (B5) | **אין** (B5 טרם מומש) | אין שער טקסט לקודקס בשום שכבה — לציין במפורש |
+
+### 13.2 דרישות ההוכחה
+
+- **סירוב והיתר:** לכל "חייב להיחסם" — פיקסצ'ר שנכשל, עם הסיבה הצפויה. לכל "חייב להיות מותר" — פיקסצ'ר שעובר. המריצים יוצאים עם exit 1 על תוצאה לא צפויה (כך היום ב־`c45dd3740`).
+- **מקרי המסד:** רצים על PG מבודד, עם הפונקציה המוצעת המדויקת ועם rollback (`CREATE OR REPLACE` לגוף החי, md5 ‏`56b90b0a…`).
+- **החלה חיה:** רק אחרי A2, ובאישור DDL של ZURIEL.
+
+### 13.3 תיקון הטענות במסירה הקודמת
+
+1. **הבדיקות אינן אכיפה מלאה** — לא שלי ולא ההרחבה שלהן. הן CI בלבד: על תצלום מתוארך ועל מה שעובר ב־Git. הן מייעצות עד B6, והצעות המסד לא הוחלו.
+2. **‏BEFORE DELETE אינו חוסם TRUNCATE.** טריגר ברמת שורה אינו נורה ב־TRUNCATE. נדרש טריגר `BEFORE TRUNCATE` ברמת statement (ההצעה שלהם, D15), או שלילת ההרשאה.
+3. **הוספת `description` לרשימת העמודות של הטריגר אינה מספיקה.** היא רק גורמת לטריגר להיקרא. הפונקציה צריכה גם להשוות `OLD.description` מול `NEW.description` בשורה פעילה באותה גרסה, ובשורת היסטוריה, ולסרב. זה D12 ו־D12b שלהם.
+4. **סשן הביקורת מתקן ומוכיח טכנית.** הפערים שנשארים פתוחים אחרי ההצעה שלהם: A2 (ב־CI), ‏A3, ‏A4, ‏D2, ‏E4, ‏E5. הם מסוכמים ב־CL-25.
+
+## 14. ‏CL-13 — מטריצת `remember` ו־`savePersonalData`: קישור זהות, הרשאת שמירה, הסכמה ונראות
+
+לכל דרישה במטריצה מצוין מקור חוזי.
+
+### 14.1 עובדות הקוד
+
+**וואטסאפ** — `origin/main` `aa0f6bc82`, קובץ `wa-raziel/index.ts`:
+- **`handleAllDMs`** (שורות 918–937): המזהה הוא `iref = identity.user_ref || "wa:"+phone`.
+  - `savePersonalData` (שורות 193–203) קוראת ל־`fn_raziel_fact`, עם ערך עד 200 תווים.
+  - `remember` (שורה 247) קוראת ל־`fn_raziel_remember`. בקוד התוכן נחתך ל־3,000 תווים; המסד מקבל עד 4,000, ובודק רק ש־`user_ref` והתוכן אינם ריקים.
+- **נתיב הקבוצות:** `remember` נקראת רק לשולח מקושר (שורה 796 בראש #1321).
+
+**אתר** — קובץ `ai-analyze`:
+- `razielRemember` (שורה 837): עד 3,000 תווים, ‏`scope=personal`, ‏`visibility=private`.
+- היא נקראת בשורה 4060, ורק כשמתקיימים שלושה תנאים:
+  - `userRef` הוא משתמש מאומת JWT (`rVerifiedRef`, שורות 3069 ו־3207);
+  - הערוץ אינו ערוץ מהימן;
+  - אין opt-in לחבילה הקנונית (`rLegacyPersistentMemoryAllowed`, שורה 2746).
+- בבקשות חוזה קנוני של 2029 אין זיכרון בכלל (`razielResultBundleServerSeam.test.js:1458–1459`).
+
+**מסד:**
+- `fn_raziel_fact` — upsert אל `agent_user_memory`, עם `memory_type='personal_context'` ו־`visibility='private'`.
+- `fn_raziel_remember` — insert, עם `source='wa'`.
+- לשתי הפונקציות: ל־anon ול־authenticated אין EXECUTE (אומת בסבב 2).
+
+**מאמת:** עצם הכתיבה אומת בידי Codex בקוד הפרוס ובפונקציות המסד. המספרים והשורות כאן אומתו בידי.
+
+### 14.2 מקורות החוזה (כולם נקראו במלואם)
+
+| קיצור | חוק | node | תאריך | md5 |
+|---|---|---|---|---|
+| S-GP | `raziel_group_privacy_law` v1 | `8ab3b939…` | 17.7 | `35d28c8f…` |
+| S-AD | `raziel_whatsapp_access_adapter_law` v1, + תוספת "פרופיל משטח WA" (6.10) | `b0504b6c…` | 16.7 | `d3fc4037…` |
+| S-CO | `raziel_companion_layer_law` v3 | `e7a56c5f…` | 17.9 | `2dfd8aab…` |
+| S-PF | `person_foundation_contract_law` v6 | `8b957f76…` | 15.9 | `84c7e2e0…` |
+| S-TA | `truth_axes_foundation_law` v3 | `af98045a…` | 8.9 | `3a375940…` |
+| S-FC | `foundation_closure_protocol_law` v8 | `26f2537c…` | 11.11 | `eb603a65…` |
+| S-SF | `subscription_funnel_law` v22 | `08a34366…` | 3.11 | `c6771262…` |
+| S-GPF | `graph_privacy_foundation_law` v1 | — | 30.8 | `0906daac…` |
+| S-XR | `cross_reference_is_not_disclosure` v1 | `b9d52b1b…` | 30.7 | `f8b009e0…` |
+
+### 14.3 החריג לכתיבה אוטומטית — נוסח מדויק והיקף
+
+**הנוסח** (S-GP): "Memory≠Response — לזכור זול (INSERT), לענות יקר (LLM); לכן זוכרים את כולם כולל בקבוצות, ועונים לפי מדיניות נפרדת."
+
+**ההיקף:**
+- **מכסה:** INSERT של זיכרון שיחה (`remember`) לכל שולח, כולל בקבוצות וכולל שולח לא מקושר. המזהה `wa:<phone>` "זמני, אף אחד לא נעלם".
+- **לא מכסה:**
+  - שליפה או חשיפה;
+  - תשובות (שלהן יש "מדיניות נפרדת");
+  - עובדות פרופיל (`savePersonalData`). הסעיף מדבר על "לזכור", לא על personal-state. **פ:** הגבול בין "זיכרון" ל"עובדת פרופיל" — עובדת פרופיל היא personal-state, ולכן חל עליה S-AD פריט 5.
+- **תנאי מאוחר:** S-FC §E (11.11): "Privacy lifecycle primitives/owner path for consent, retention, export and erasure before opening longitudinal Person/Life/Raziel memory capabilities."
+  - S-FC מאוחר מ־S-GP (17.7), ולכן גובר.
+  - **פ:** האם §E חל גם על יכולת שכבר פתוחה — פרשנות. ההכרעה: D-CL13-1.
+
+**פרטי ≠ הסכמה:**
+- S-TA, ‏P3: "A missing gate is not consent".
+- S-PF v6: "never infer delivery consent".
+- S-GPF §7: אין היפוך אוטומטי מפרטי לציבורי. שני הכיוונים דורשים Human Gate מפורש.
+- S-GPF §9: `privacy_scope='private'` פירושו "טרם אושר", לא "סודי".
+
+**מסקנה:** `visibility='private'` קובעת מי רשאי לקרוא. היא לא אומרת שהמשתמש הסכים לשמירה.
+
+### 14.4 המטריצה
+
+**מקרא:** "פ" = פרשנות שלי; "D" = החלטה שנדרשת (§14.5).
+
+| # | כתיבה · מחלקת שולח | קישור זהות | הרשאת שמירה | הסכמה | נראות | היום (קוד) | צפוי (מהחוזים) | מבחן קבלה |
+|---|---|---|---|---|---|---|---|---|
+| R1 | `remember` · ‏DM מקושר | `user_ref` מקושר. דרך זיהוי: טלפון ← `wa_account_links` ← `user_id` (S-GP) | **החריג המפורש** (S-GP) מתיר INSERT. נתיב שרת בלבד: SECURITY DEFINER, בלי EXECUTE ל־anon/auth. ‏S-PF §4: קיום SECURITY DEFINER אינו הרשאה בפני עצמו — כאן ההרשאה היא החריג | **אין** מסלול הסכמה, שמירה, ייצוא או מחיקה. S-FC §E דורש אותם (מאוחר וגובר) | ‏private. נקרא רק ב־DM של אותו משתמש (S-GP; ‏S-AD פריט 6; ‏S-PF v6 PRIVACY BEFORE COMPOSITION) | נכתב בכל DM (עד 3,000 תווים), private | נכתב לפי החריג, **בכפוף ל־§E**. עד שיתקיימו רכיבי §E — לפי D-CL13-1 | ‏handler אמיתי + PG מבודד: הכתיבה לפי ההחלטה. קריאת הקשר בקבוצה מחזירה 0 שורות אישיות |
+| R2 | `remember` · ‏DM לא מקושר (`wa:<phone>`) | ‏`wa:<phone>` מותר במפורש כמזהה זמני (S-GP) | החריג ("זוכרים את כולם") | אין חשבון, ולכן אין מסלול הסכמה; §E. מספר הטלפון הוא PII, והוא משמש כמזהה | ‏private. **שליפה:** S-AD פריט 6 מתיר "linked user/person context" בלבד. אין סעיף שמתיר במפורש לשלוף זיכרון של `wa:<phone>` — **פ**, ‏D-CL13-2 | נכתב. **השליפה — לא אימתתי** | ‏INSERT מותר לפי החריג, בכפוף ל־§E. שליפה לפי D-CL13-2 | כמו R1, ובנוסף שליפה לפי ההחלטה |
+| R3 | `remember` · קבוצה | מקושר: כן. לא מקושר: לפי החריג | החריג אומר במפורש "כולל בקבוצות" | ‏§E | ‏private. **אסור** לשלוף או לחשוף בקבוצה (S-GP; ‏S-AD פריט 6; ‏S-PF v6) | נשמר לשולח מקושר בלבד. נתיב הקבוצות כבוי (`GROUPS_ENABLED=false`, דיווח קורא) | מותר. הקוד צר מהחוזה, ולכן בטוח יותר. ההרחבה לשולח לא מקושר אינה חובה — החריג מתיר, לא מחייב | ‏`fn_raziel_context` לערוץ קבוצה מחזיר `user_context` ריק |
+| R4 | `savePersonalData` · ‏DM מקושר | כן | **אין חריג** לעובדות פרופיל (חיפוש בכל החוקים הפעילים, סבבים 2–3). ‏S-AD פריט 5: "Before a meaningful personal-state mutation … obtain explicit user confirmation unless an existing owner contract already defines a safe deterministic write". חוזה כזה לא נמצא. ‏S-PF Root-of-Trust: שינוי פרופיל בשירות עצמי מוגבל לשדות תצוגה (`display_name`, ‏`username`, ‏`avatar_url`) | **אישור מפורש** לפעולה, ובנוסף §E | ‏private. לא נשלף בקבוצה | נכתב אוטומטית מכל DM (עד 200 תווים לערך). ‏`isExplicitConfirmation` ו־`evaluateWhatsappActionBoundary` קיימות ב־`waRazielRender.ts`, ולא נקראות | **לא נכתב בלי אישור מפורש.** קליטה כמועמד או כממתין מותרת ("Candidate/pending intake is not canonicalization", ‏S-AD פריט 5). **פ:** האם שורה ממתינה היא "כתיבה" | הודעה עם תאריך לידה בלי אישור → 0 שורות `personal_context`. עם אישור מפורש → שורה אחת, private |
+| R5 | `savePersonalData` · ‏DM לא מקושר | ‏`wa:<phone>`. אין "linked person" (S-AD פריט 6) | אין חריג, ואין Person שהפרופיל שייך לו. ‏S-PF §5: מעבר מוגן נכשל סגור בלי זהות מאומתת. **פ** | אין | ‏private | נכתב אוטומטית | **לא נכתב** עד קישור ואישור. **פ** — ‏D-CL13-3 | ‏0 שורות פרופיל ל־`wa:<phone>` |
+| R6 | `savePersonalData` · קבוצה | — | אין סעיף שמתיר. ‏S-AD פריט 6: "group context not authority to widen access" | — | — | לא נקרא (`handleAllDMs` מטפל רק ב־DM) | **לעולם לא** | הודעת קבוצה עם תאריך לידה → 0 שורות |
+| R7 | `remember` · אתר, משתמש מזוהה | ‏`u:<uid>` מאומת (S-PF §5) | החריג כתוב בחוק הפרטיות של רזיאל בלי הגבלת ערוץ. **פ:** הוא חל גם על האתר. ‏S-CO §1: הזיכרון חייב להיות "AUTHORIZED" | ‏§E | ‏private. קריאה "רק ב-DM/אתר-מזוהה" (`ai-analyze`) | נושא השאלה נשמר כזיכרון, כשאין opt-in לחבילה הקנונית | כמו R1 (בכפוף ל־§E) | כמו R1 |
+| R8 | `remember` · אתר, אנונימי | אין | — | — | — | לא נכתב (`userRef` ריק) | לא נכתב | **לא אימתתי** שקיים מבחן |
+
+### 14.5 מה הוכרע מהחוזים, ומה נשאר להחלטה
+
+**נגזר מהחוזים — לא דורש החלטה:**
+- `savePersonalData` בלי אישור מפורש אסור (S-AD פריט 5; אין חוזה בעלים שמגדיר כתיבה בטוחה).
+- אין שליפה או חשיפה של זיכרון אישי בקבוצה (S-GP; ‏S-AD פריט 6; ‏S-PF v6).
+- פרטי ≠ הסכמה (S-TA P3; ‏S-PF v6).
+- אין היפוך אוטומטי מפרטי לציבורי (S-GPF §7).
+- אין צורך בהכרעה על המונח "mutation" (ZURIEL).
+
+**החלטות ZURIEL — מינימליות:**
+- **D-CL13-1:** עד שיתקיימו רכיבי §E (הסכמה, שמירה, ייצוא, מחיקה) — האם החריג מ־17.7 ממשיך לכסות את כתיבת הזיכרון, או שהכתיבה מושהית? הכלל המאוחר גובר; השאלה היא רק מה עושים בינתיים.
+- **D-CL13-2:** האם מותר לשלוף זיכרון של `wa:<phone>` ב־DM לא מקושר? (אין סעיף מפורש.)
+- **D-CL13-3:** עובדות פרופיל של שולח לא מקושר — לא לשמור, או לשמור כמועמד שממתין לקישור ולאישור?
+
+### 14.6 התאמה לרשימת הביקורת ושער A4b
+
+**התאמה ל־§1.H של הביקורת:**
+
+| השורה שלהם | השורות כאן |
+|---|---|
+| ‏DM מקושר | R1, ‏R4 |
+| ‏DM לא מקושר | R2, ‏R5 |
+| מספר מערכת | מדולג — תקין |
+| קבוצה, מקושר | R3 |
+| קבוצה, לא מקושר | R3 — לא נשמר, תקין |
+
+עמודות "?" אצלם (הרשאת שמירה, הסכמה) מולאו כאן, עם מקור לכל ערך.
+
+**שער A4b** (פריסת `wa-raziel`): הפריסה ממתינה לשני דברים:
+1. מבחנים על ה־handler האמיתי לשורות R1–R6, לפי עמודת "צפוי".
+2. החלטות D-CL13-1 עד D-CL13-3.
+
+## 15. מסירה לסשן הביקורת הראשית (דרך ZURIEL)
+
+**1. הקוד שהוכן — הועבר, ולא ימשיך כאן.** ארבעה קבצים, שמקורם בענף הזה:
+
+| קובץ | blob בענף הזה (`0a5882774`) | sha256 (ברשומת היומן `a3d65374…`) | ב־#1321 |
+|---|---|---|---|
+| `scripts/lib/g1LawsSnapshotRules.mjs` | `4381a8a3…` | `e813c422…` | הורחב ב־`ab83e6b8c` (blob `2943cb00…`). כל 7 הייצואים שלי קיימים שם, ועוד 13 חדשים |
+| `scripts/test-g1-agent-routing-smoke.mjs` | `b4a1488b…` | `fdeb88ed…` | הורחב (blob `87a32eee…`) |
+| `audits/g1-agent-entry/G1_LAWS_ACTIVE_SNAPSHOT_20261112.txt` | `4f6d0b7c…` | `a545a6b6…` | זהה בבתים |
+| `audits/g1-agent-entry/G1_MIGRATION_TABLES_BASELINE_20261112.txt` | `88e829ca…` | `513bd89a…` | זהה בבתים |
+
+**בקומיט של סבב 3, ראש הענף הזה כבר לא נושא את הקוד:**
+- שלושת הקבצים החדשים הוסרו.
+- קובץ הבדיקה הוחזר לגרסה שב־`origin/main` `aa0f6bc82`.
+- ההיסטוריה נשמרת בקומיטים `649ad4875`, ‏`87d77ade1` ו־`0a5882774`.
+
+**למה:** כדי שלא יישאר מימוש מקביל, ושלא תיווצר התנגשות add/add במיזוג. מכאן הענף נושא מסמכים בלבד: README, ‏ledger ו־HANDOFF.
+
+**2. מה לתקן ולהוכיח (לפי §13):**
+- A2 — slug של קודקס ב־CI;
+- A3 — מסמך רשום (`ownerResolves`, שורה 25);
+- A4 — שרשרת;
+- D2 — ‏`CREATE TABLE` ישיר;
+- E4 — שאילתת הרשאות: מי יכול להשבית טריגר או להחליף פונקציה;
+- §0 פריטים 6–7. ‏D12, ‏D12b, ‏D14 ו־D15 כבר בהצעה שלכם.
+
+**3. בדיקות חוזה ההקשר של רזיאל** (§8.1): ‏ST-1 עד ST-5, ו־RT-1 עד RT-8. אחרי A4 (CL-11, ‏CL-12, ‏CL-24).
+
+**4. מבחני CL-13** (§14, ‏R1–R8): על ה־handler האמיתי ועל PG מבודד. לפני A4b, ואחרי ההחלטות D-CL13-1 עד D-CL13-3.
+
+**5. ‏CL-03** (§12): מבחני הקבלה (1)–(7) — אם יוחלט על הקרנה בהפניה, ואם ZURIEL יקבע שהכותב הוא סשן הביקורת.
+
+**6. תיקון בטקסט שלכם:** ב־`foundation-closure-list.md` §1.G, שורת CL-17 מצטטת "ארבעה ענפים פעילים". הטענה נסוגה (§0 פריט 8).
+
+**7. סדר:** אין כאן שינוי לסדר ההחלה שלכם. כל פריט מסד או Edge — באישור ZURIEL.
+
+**קישורים נעוצים:**
+- [השוואה `aa0f6bc82…6352be19d`](https://github.com/zuriel337/sod1820/compare/aa0f6bc82b8c94286374b1f51208037502994eab...6352be19dbe6b2ecc73099d603429d7448410aac)
+- [`foundation-closure-list.md` @ `c45dd3740`](https://github.com/zuriel337/sod1820/blob/c45dd3740e4db5c5a6d83d4c15728e95078e1ff7/docs/reviews/m0-security-stabilization-20261112/foundation-closure-list.md)
+- [`enforcement-proof/README.md` @ `c45dd3740`](https://github.com/zuriel337/sod1820/blob/c45dd3740e4db5c5a6d83d4c15728e95078e1ff7/docs/reviews/m0-security-stabilization-20261112/enforcement-proof/README.md)
+- [`g1LawsSnapshotRules.mjs` @ `c45dd3740`](https://github.com/zuriel337/sod1820/blob/c45dd3740e4db5c5a6d83d4c15728e95078e1ff7/scripts/lib/g1LawsSnapshotRules.mjs)

@@ -3,7 +3,7 @@
 // The live inter_agent_coordination_law owner and work_log decide real assignments.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -75,7 +75,6 @@ test('fresh adapter: L1 default, minimal owner reads, history is fail-closed', (
 // declare PRIMARY/BUILDER/REVIEWER/ACCEPTANCE, and provide AFTER provenance.
 
 import { createHash } from 'node:crypto';
-import { parseLawsSnapshot, validateLawsSnapshot, compareLawsSnapshots, migrationTableViolations, ownerResolves, tablesCreated } from './lib/g1LawsSnapshotRules.mjs';
 
 test('captured main Codex/Claude/Design blobs remain exact historical evidence; current adapters retain safety gates', () => {
   // Oct9 hashes seal the Oct9 source, not every later authorized adapter update.
@@ -296,98 +295,4 @@ test('post-apply case expectations resolve actual successors without granting wr
     assert.equal(replay.read_trace, null);
     assert.equal(replay.after_work_log_id, null);
   }
-});
-
-// ── Dated active-laws snapshot and enforcement fixtures (focused alignment, ZURIEL 12.11.2026) ───────────────────
-// Real data: audits/g1-agent-entry/G1_LAWS_ACTIVE_SNAPSHOT_20261112.txt (read-only dated copy, no service key) and
-// audits/g1-agent-entry/G1_MIGRATION_TABLES_BASELINE_20261112.txt. The historical 9.10.2026 baseline above is untouched.
-// Scope, stated honestly: CI sees only what passes through Git. A direct database write (service_role / postgres) is not seen here;
-// see the alignment README section 6 for what the database trigger does and does not enforce.
-const lawsText = readFileSync(resolve(root, 'audits/g1-agent-entry/G1_LAWS_ACTIVE_SNAPSHOT_20261112.txt'), 'utf8');
-const lawsSnapshot = parseLawsSnapshot(lawsText);
-const fileExists = path => existsSync(resolve(root, path));
-const ENFORCE_CTX = { index, fileExists, retiredWithoutSuccessor: ['agent_onboarding_law', 'corpus_admission_lifecycle_law', 'meshulash_kadmi_law'] };
-const clone = x => JSON.parse(JSON.stringify(x));
-const ownerOk = owner => ownerResolves(owner, new Set(lawsSnapshot.active.map(l => l.rule_id)), fileExists);
-
-test('dated laws snapshot (real data): 87 active laws pass every ownership rule; 44 retired laws keep a recorded successor except the three known gaps', () => {
-  assert.equal(lawsSnapshot.active.length, 87);
-  assert.equal(lawsSnapshot.retired.length, 44);
-  assert.deepEqual(validateLawsSnapshot(lawsSnapshot, ENFORCE_CTX), []);
-});
-
-test('ENFORCEMENT 1 · reference to a retired owner: refused', () => {
-  const retiredId = lawsSnapshot.retired.find(r => r.owner !== '-').rule_id;
-  const a = clone(lawsSnapshot); a.active.find(l => l.rule_id === 'big_number').owner = retiredId;
-  assert.match(validateLawsSnapshot(a, ENFORCE_CTX).join('\n'), /big_number: owner .* is a retired law/);
-  const b = clone(lawsSnapshot); b.active.find(l => l.rule_id === 'big_number').owner = 'no_such_owner_law';
-  assert.match(validateLawsSnapshot(b, ENFORCE_CTX).join('\n'), /big_number: owner no_such_owner_law does not resolve/);
-  const c = clone(lawsSnapshot); c.active.find(l => l.rule_id === 'big_number').owner = 'docs/no-such-file.md';
-  assert.match(validateLawsSnapshot(c, ENFORCE_CTX).join('\n'), /does not resolve/);
-  const d = clone(lawsSnapshot); d.retired.push({ rule_id: 'brand_new_retired_law', version: 1, owner: '-' });
-  assert.match(validateLawsSnapshot(d, ENFORCE_CTX).join('\n'), /brand_new_retired_law: retired without a recorded successor/);
-  const e = clone(lawsSnapshot); e.retired.find(r => r.rule_id === 'ai_quota_law').owner = 'unified_graph_law';
-  assert.match(validateLawsSnapshot(e, ENFORCE_CTX).join('\n'), /ai_quota_law: recorded successor unified_graph_law is itself retired/);
-  const f = clone(lawsSnapshot); f.active.find(l => l.rule_id === 'deploy_on_request').rule_id = 'deploy_on_request_renamed';
-  f.active.find(l => l.rule_id === 'deploy_on_request_renamed').owner = 'deploy_on_request_renamed';
-  assert.match(validateLawsSnapshot(f, ENFORCE_CTX).join('\n'), /deploy_on_request_renamed: owner law missing from the Owner Index/);
-});
-
-test('ENFORCEMENT 1 · proper extension: allowed', () => {
-  const a = clone(lawsSnapshot);
-  a.active.push({ rule_id: 'new_child_of_intake_law', version: 1, owner: 'research_intake_foundation_contract_law', family: 'research_intake', md5: '0123456789ab' });
-  a.active.push({ rule_id: 'new_child_of_codex_pointer', version: 1, owner: 'project_codex.gematria_engine', family: 'gematria', md5: '0123456789ac' });
-  a.active.push({ rule_id: 'new_child_with_file_owner', version: 1, owner: 'SOD1820_DESIGN_CONTRACT_V2.md', family: 'brand_design', md5: '0123456789ad' });
-  assert.deepEqual(validateLawsSnapshot(a, ENFORCE_CTX), [], 'children of an active owner, a codex pointer or an existing file are valid extensions');
-  const b = clone(lawsSnapshot); b.retired.push({ rule_id: 'newly_retired_law', version: 2, owner: 'reality_graph_law' });
-  assert.deepEqual(validateLawsSnapshot(b, ENFORCE_CTX), [], 'a retired law with a recorded active successor is valid');
-  const c = clone(lawsSnapshot); c.active.push({ rule_id: 'new_owner_law_in_index', version: 1, owner: 'new_owner_law_in_index', family: 'x', md5: '0123456789ae' });
-  assert.deepEqual(validateLawsSnapshot(c, { ...ENFORCE_CTX, index: index + '\n| new topic | `new_owner_law_in_index` |' }), [], 'a new self-owning law is valid once the Owner Index routes it');
-});
-
-test('ENFORCEMENT 2 · change of an existing contract: in-place edit, silent removal and backwards version refused; a new version allowed', () => {
-  const next = clone(lawsSnapshot);
-  assert.deepEqual(compareLawsSnapshots(lawsSnapshot, next), [], 'identical snapshots: nothing changed');
-  const inPlace = clone(lawsSnapshot); inPlace.active.find(l => l.rule_id === 'platform_tiers_law').md5 = 'ffffffffffff';
-  assert.match(compareLawsSnapshots(lawsSnapshot, inPlace).join('\n'), /platform_tiers_law: text changed in place at v5/);
-  const removed = clone(lawsSnapshot); removed.active = removed.active.filter(l => l.rule_id !== 'number_page_law');
-  assert.match(compareLawsSnapshots(lawsSnapshot, removed).join('\n'), /number_page_law: removed from the active tree without a retirement record/);
-  const back = clone(lawsSnapshot); back.active.find(l => l.rule_id === 'platform_tiers_law').version = 4;
-  assert.match(compareLawsSnapshots(lawsSnapshot, back).join('\n'), /platform_tiers_law: version went backwards/);
-  const emptyBump = clone(lawsSnapshot); emptyBump.active.find(l => l.rule_id === 'platform_tiers_law').version = 6;
-  assert.match(compareLawsSnapshots(lawsSnapshot, emptyBump).join('\n'), /version bumped without any text change/);
-  const bump = clone(lawsSnapshot); const t = bump.active.find(l => l.rule_id === 'platform_tiers_law'); t.version = 6; t.md5 = 'abcdefabcdef';
-  assert.deepEqual(compareLawsSnapshots(lawsSnapshot, bump), [], 'a new version with changed text is the proper way to change a contract');
-  const retire = clone(lawsSnapshot); retire.active = retire.active.filter(l => l.rule_id !== 'number_page_law'); retire.retired.push({ rule_id: 'number_page_law', version: 1, owner: 'platform_tiers_law' });
-  assert.deepEqual(compareLawsSnapshots(lawsSnapshot, retire), [], 'retirement with a retirement record is allowed (the approval gate is outside CI)');
-});
-
-test('ENFORCEMENT 3a · a new law needs a recorded approval; with one it is allowed', () => {
-  const next = clone(lawsSnapshot);
-  next.active.push({ rule_id: 'brand_new_law', version: 1, owner: 'reality_graph_law', family: 'reality_graph', md5: '0123456789af' });
-  assert.match(compareLawsSnapshots(lawsSnapshot, next).join('\n'), /brand_new_law: new law without a recorded approval/);
-  assert.deepEqual(compareLawsSnapshots(lawsSnapshot, next, { approvedNewLaws: ['brand_new_law'] }), []);
-});
-
-test('ENFORCEMENT 3b · a new table in a migration: real migrations create nothing outside the dated baseline', () => {
-  const baseline = new Set(readFileSync(resolve(root, 'audits/g1-agent-entry/G1_MIGRATION_TABLES_BASELINE_20261112.txt'), 'utf8').split('\n').filter(l => l && !l.startsWith('#')));
-  assert.ok(baseline.size >= 41);
-  const dir = resolve(root, 'supabase/migrations');
-  const files = readdirSync(dir).filter(f => f.endsWith('.sql')).map(f => ({ path: 'supabase/migrations/' + f, text: readFileSync(resolve(dir, f), 'utf8') }));
-  assert.deepEqual(migrationTableViolations(files, baseline, { ownerOk }), []);
-});
-
-test('ENFORCEMENT 3b · new table fixtures: refused without a justification, allowed with a valid one', () => {
-  const baseline = new Set(['public.account_link_events']);
-  const ctx = { ownerOk };
-  const sql = 'create table if not exists public.brand_new_store (id uuid primary key);';
-  assert.deepEqual(tablesCreated(sql), new Set(['public.brand_new_store']));
-  assert.match(migrationTableViolations([{ path: 'm1.sql', text: sql }], baseline, ctx).join('\n'), /m1\.sql: new table public\.brand_new_store has no "-- OWNER-CHECK:" justification/);
-  assert.match(migrationTableViolations([{ path: 'm2.sql', text: '-- OWNER-CHECK: EXTEND_EXISTING no_such_owner_law\n' + sql }], baseline, ctx).join('\n'), /does not resolve to an active owner/);
-  assert.match(migrationTableViolations([{ path: 'm3.sql', text: '-- OWNER-CHECK: NEW SOME_CLASS research_intake_foundation_contract_law APPROVAL:x\n' + sql }], baseline, ctx).join('\n'), /needs an Intake classification/);
-  assert.match(migrationTableViolations([{ path: 'm4.sql', text: '-- OWNER-CHECK: NEW SOURCE_INGRESS_PROVENANCE research_intake_foundation_contract_law\n' + sql }], baseline, ctx).join('\n'), /needs APPROVAL:<reference>/);
-  assert.deepEqual(migrationTableViolations([{ path: 'ok1.sql', text: '-- OWNER-CHECK: EXTEND_EXISTING research_intake_foundation_contract_law\n' + sql }], baseline, ctx), [], 'extending an existing owner is allowed');
-  assert.deepEqual(migrationTableViolations([{ path: 'ok2.sql', text: '-- OWNER-CHECK: NEW SOURCE_INGRESS_PROVENANCE research_intake_foundation_contract_law APPROVAL:ZURIEL-12.11\n' + sql }], baseline, ctx), [], 'a justified, approved new structure is allowed');
-  assert.deepEqual(migrationTableViolations([{ path: 'ok3.sql', text: 'create table public.account_link_events (id int);' }], baseline, ctx), [], 'a table already in the baseline needs nothing');
-  assert.deepEqual(tablesCreated('create table private.hidden_x (a int); CREATE TABLE IF NOT EXISTS "public"."Quoted_Y" (a int);'), new Set(['private.hidden_x', 'public.quoted_y']));
 });
