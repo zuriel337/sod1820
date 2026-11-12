@@ -31,3 +31,11 @@ export function normalizeCommunityPresence(data) {
   }
   return people;
 }
+
+// Chat staff (moderators + admins): only ids are public; the page shows a «צוות» chip next to them.
+// Missing RPC (not yet applied) or any error → no chips, nothing else changes.
+export async function fetchCommunityStaffIds(client = supabase) {
+  const { data, error } = await client.rpc("community_staff_user_ids_v1");
+  if (error || !Array.isArray(data)) return [];
+  return data.map((row) => (typeof row === "string" ? row : row?.user_id)).filter((id) => typeof id === "string" && id);
+}

@@ -67,3 +67,6 @@
   gap: .4rem;
   max-width: 100%;
 }
+
+/* «צוות» chip next to chat moderators/admins (ZURIEL, 12.11.2026) */
+.sod29-community-staff-chip { display: inline-flex; align-items: center; margin-inline-start: 6px; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; font-size: 11px; font-weight: 700; line-height: 1.5; letter-spacing: .02em; opacity: .85; white-space: nowrap; flex: none; }
