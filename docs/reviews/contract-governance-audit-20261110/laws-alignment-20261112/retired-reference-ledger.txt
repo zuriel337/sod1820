@@ -76,6 +76,7 @@ video_transcription_law|1|rls_client_read_protocol|FUNC|person_foundation_contra
 work_log_authority_law|2|agent_onboarding_law|REL|-|none|REPOINT_SUPPORTED|inter_agent_coordination_law (v9 §55-§56)|§55 ONE AGENT ENTRY CONTRACT; §56 canonical task-start sequence
 work_log_authority_law|2|rls_client_read_protocol|REL|person_foundation_contract_law|none|SEMANTIC_GAP|- (CL-20)|person_foundation v6 (read fully) lacks the RLS/GRANT protocol; live cron rls-grant-audit-weekly (0 3 * * 0) -> fn_rls_grant_audit()
 # SUCCESSOR PROPOSALS (round 3; metadata compaction_v1/owner_routing on the RETIRED row; no reactivation; NOT applied; ZURIEL approval)
+# round 4: proposed archive_reason / owner_family per row in README §16.4; proposed owner wording for the two SEMANTIC_GAP rows in README §16.1 (CL-19) and §16.2 (CL-20); Series wording in §16.3 (CL-21). Still NOT applied.
 # retired_law|proposed_successor|type|supporting_section
 agent_onboarding_law|inter_agent_coordination_law|REPLACED (the read-all clause is explicitly NOT inherited)|v18 §55, §56, §34, §49, §40; write clause -> live_state_resolution_law v3 + CLAUDE.md §12; gematria clause -> canonical_methods_registry_law / engine_governance_registry_authority_law
 corpus_admission_lifecycle_law|corpus_admission_foundation_v1|COMPLETED (explicit) + upper axes by interpretation|docs/corpus-admission-foundation-v1-contract.md:86 + §6; truth_axes_foundation_law v3 for CLAIM APPROVED / GRAPH CANONICAL / PUBLISHED
