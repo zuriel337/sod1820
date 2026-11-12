@@ -79,18 +79,17 @@ function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showA
   const name = account?.display_name || (accountId ? VERIFIED_ARCHIVE_PROFILES[`user:${accountId}`]?.name : null) || account?.username || row.authorName;
   const isOnline = Boolean(accountId) && onlinePresenceHolder.current.has(accountId);
   const isStaff = Boolean(accountId) && staffIdsHolder.current.has(accountId);
-  const badge = <UserBadge colorfulFallback online={isOnline} fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
+  const badge = <UserBadge colorfulFallback online={isOnline} nameSuffix={isStaff ? <span className="sod29-community-staff-chip" title="חבר צוות הצ׳אט — מנהל או מודרטור">צוות</span> : null} fallbackSeed={row.authorKey || name} name={name} avatarUrl={showAvatar ? account?.avatar_url || row.avatarUrl : null} fallbackImage={showAvatar ? historicalCommunityAvatar(row) : null} avatarClassName="sod29-community-avatar">
     <CommunityMessageTime2029 value={row.createdAt} formatDate={formatDate} />
   </UserBadge>;
-  const staffChip = isStaff ? <span className="sod29-community-staff-chip" title="חבר צוות הצ׳אט — מנהל או מודרטור">צוות</span> : null;
   // ZURIEL, 8.11.2026: the "history united" seal stays inside the profile card (opened by
   // clicking the author) — it no longer shows next to a message out in the general feed.
-  if (!row.authorKey || !linkAuthor) return <div className="sod29-community-author-identity"><span className="sod29-community-author-link">{badge}</span>{staffChip}</div>;
+  if (!row.authorKey || !linkAuthor) return <div className="sod29-community-author-identity"><span className="sod29-community-author-link">{badge}</span></div>;
   const target = new URLSearchParams(currentParams);
   target.set("memberCard", canonicalCommunityAuthorKey(row.authorKey)); target.delete("member");
   return <div className="sod29-community-author-identity"><Link className="sod29-community-author-link" to={communityChatHref(target, location.hash)} aria-label={`פתיחת כרטיס הכותב של ${name}`}>
     {badge}
-  </Link>{staffChip}</div>;
+  </Link></div>;
 }
 
 function LiveLike({ row }) {
