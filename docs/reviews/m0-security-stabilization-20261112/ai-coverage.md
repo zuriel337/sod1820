@@ -26,26 +26,33 @@
 | `contact-notify` (v1 · false) — **דוא״ל בתשלום, לא AI** | אין (טופס ציבורי) | 5 לשעה לכתובת פלטפורמה · 30 לשעה גלובלי | HMAC של כתובת · גלובלי | — | — | **סגור**: בלי מגביל, נמען או מפתח ספק — לא נשלח דוא״ל | `test/m0e-contact-notify.test.mjs` (6) |
 | `els-search-bridge` (v5 · true), `research-run` (v9 · true) — **חישוב ציבורי, לא AI** | משתמש, אחרת HMAC של כתובת הפלטפורמה | ELS: ‏60 לשעה לאורח / 120 למשתמש לכל פעולה, ‏batch ‏120 · ‏research-run: ‏120 לשעה · שניהם: 120 לדקה גלובלי | לנושא · גלובלי | — | `lock_els` (ELS) | **פתוח** בתקלת מגביל; 429 רק בדחייה מפורשת | ״els-search-bridge: limiter outage fails OPEN…״, ״research-run: limiter outage fails OPEN…״, ״public compute fails OPEN on limiter failure…״ |
 
-## ב. נתיבי AI בתשלום ש־M0 לא משנה (מוגנים בזהות מנהל או שרת)
+## ב. נתיבי AI בתשלום ש־M0 לא משנה (מוגנים בזהות מנהל או שרת) — לפי הקוד הפרוס
 
-15 פונקציות פרוסות נוספות קוראות לספק AI. M0 לא נוגע בהן. הסיווג נעשה מקוד המאגר (זהה ב־`949c24ad5` וב־`146f2f0e7`). את הקוד הפרוס שלהן **לא השוויתי** למאגר; נרשמו רק הגרסה ו־`verify_jwt` מ־`list_edge_functions`.
+**תיקון סבב 3 (ביקורת Codex):** בסבב 2 נכתב כאן שההשוואה למפתח מקבלת כותרת ריקה כשהסוד לא מוגדר. **הטענה הייתה שגויה.** נבדקה מקוד המאגר בלבד, ושורת החסימה שלפני ההשוואה נעלמה מעיניי. עכשיו כל שורה נבדקה **בקוד הפרוס** (`get_edge_function`, ‏12.11, קריאה בלבד). בכל אחת קיימת חסימה של סוד חסר לפני ההשוואה, או שער מחמיר ממנה. **לא נוספה אף הגנה.**
 
-| פונקציה (גרסה · `verify_jwt`) | בדיקת הקורא בקוד | מגבלה פנימית |
-|---|---|---|
-| `gallery-ocr` (v18 · true) | `x-run-key` = ‏`OCR_RUN_KEY` | `MAX_BYTES` |
-| `post-to-storyboard` (v12 · false) | `x-run-key` = ‏`STORYBOARD_RUN_KEY` | — |
-| `post-ai-edit` (v5 · true) | `rd_is_admin()` עם ה־JWT של הקורא | — |
-| `raziel-attention` (v4 · true) | `users.role='admin'` לפרופיל היחיד שנתמך; כל פרופיל אחר → 400 | — |
-| `claude-raziel` (v1 · true, בלי מקור במאגר) | JWT אמיתי של משתמש + `role='admin'` (אשכול E) | — |
-| `lab-reflect` (v3), `research-extract` (v8), `wa-ocr` (v9) — כולן false | `x-fb-admin-key` = ‏`FB_ADMIN_KEY` | — |
-| `research-nurture` (v9 · false) | כנ״ל | `MAX_NURTURES` |
-| `video-transcribe` (v7 · false) | כנ״ל, **וגם** מסרבת כשהמפתח לא מוגדר | — |
-| `wa-video-enrich` (v11 · false) | כנ״ל | `MAX_STT_BYTES` |
-| `wa-gabriel` (v16), `wa-hatishbi` (v8), `wa-michael` (v7), `wa-uriel` (v18) — false | כנ״ל | `MAX_PER_HOUR` |
-| `wa-mora` (v6 · false) | כנ״ל | `MAX_PER_RUN` |
-| `wa-raziel` (v21 · false; בתוך M0 רק להוצאת מזהים אישיים) | כנ״ל; ה־AI עצמו עובר ב־`ai-analyze` בערוץ המהימן | — |
+| פונקציה · גרסה · `verify_jwt` · ‏`ezbr_sha256` | הסדר בקוד הפרוס (לפני כל קריאה לספק) | בלי הסוד | מגבלה פנימית |
+|---|---|---|---|
+| `gallery-ocr` · v18 · true · `470c1167…` | **חריג:** עם `OCR_RUN_KEY` — ‏`x-run-key` חייב להיות שווה לו (אחרת 401). **בלי** `OCR_RUN_KEY` — רק סשן מנהל מאומת (`caller.verified && tier === "admin"`, מ־`users.role`), אחרת 401. אחרי זה מפתח הספק, ואז `fn_capability_execution_gate_v1` | מנהל מאומת בלבד | `MAX_BYTES` ‏4.5MB לתמונה · עד 50 תמונות לקריאה |
+| `post-to-storyboard` · v12 · false · `5f85c49c…` | `if (!RUN_KEY) → 503 not_configured`; ‏`x-run-key` שונה → 401 | 503 | — |
+| `post-ai-edit` · v5 · true · `e9d042c5…` | **חריג:** אין מפתח. ‏`rd_is_admin()` עם ה־JWT של הקורא (`requireCanonicalAdmin`) → אחרת 403 | — | — |
+| `raziel-attention` · v4 · true · `931386e3…` | **חריג:** ‏`op: "history"` מחזיר רק את השיחה של המשתמש המאומת עצמו, בלי מודל. כל השאר: פרופיל `ZURIEL_RESEARCH` דורש `users.role = 'admin'` (אחרת 403); כל פרופיל אחר → 400 | — | — |
+| `claude-raziel` · v1 · true · `50882540…` (בלי מקור במאגר) | JWT אמיתי של משתמש + `role = 'admin'` (אשכול E, נקרא מהקוד הפרוס ב־12.11) | — | — |
+| `lab-reflect` · v3 · false · `75c4793f…` | `if (!ADMIN_KEY) → 503`; ‏`x-fb-admin-key` שונה → 403 | 503 | — |
+| `research-extract` · v8 · false · `7d645942…` | כנ״ל (503 / 403) | 503 | עד 20 אובייקטים לקריאה |
+| `research-nurture` · v9 · false · `1475732b…` | **חריג:** בקשת `?unsub=<token>` מטופלת קודם: עדכון `unsub` לפי האסימון בלבד, בלי AI ובלי מפתח. אחריה 503 / 403 כמו השאר | 503 | `MAX_NURTURES` ‏3 · ‏`BATCH` ‏15 |
+| `video-transcribe` · v7 · false · `8e957ab3…` | `if (!ADMIN_KEY || כותרת שונה) → 401` (בדיקה אחת) | 401 | — |
+| `wa-video-enrich` · v11 · false · `876989e2…` | 503 / 403. תמלול רק עם `allow_stt=true` מפורש, אף פעם לא מה־cron | 503 | `MAX_STT_BYTES` ‏24MiB · עד 10 שורות |
+| `wa-gabriel` · v16 · false · `2d45c6a0…` | 503 / 403 | 503 | `MAX_PER_HOUR` ‏20 |
+| `wa-hatishbi` · v8 · false · `d027d923…` | 503 / 403 | 503 | `MAX_PER_HOUR` ‏8 |
+| `wa-michael` · v7 · false · `63fa75cf…` | 503 / 403 | 503 | `MAX_PER_HOUR` ‏30 · ‏`MAX_TOOL_LOOPS` ‏10 |
+| `wa-uriel` · v18 · false · `832270a3…` | 503 / 403 | 503 | `MAX_PER_HOUR` ‏6 |
+| `wa-mora` · v6 · false · `fe6c11db…` | 503 / 403 | 503 | `MAX_PER_RUN` ‏20, קריאת AI אחת לריצה |
+| `wa-ocr` · v9 · false · `4dbc2ee4…` | 503 / 403 | 503 | — |
+| `wa-raziel` · v21 · false · `61677665…` (index = ‏`b4d5ec47`) | 503 / 403. ה־AI עצמו עובר ב־`ai-analyze` בערוץ המהימן | 503 | — |
 
-**סיכון שנשאר (לא שונה, M1):** ההשוואה `req.headers.get("x-fb-admin-key") !== ADMIN_KEY` (וכך גם `x-run-key`) מקבלת כותרת **ריקה** אם הסוד לא מוגדר, כי `"" === ""`. רק `video-transcribe` בודקת את זה. לא יכולתי לוודא שכל הסודות מוגדרים: הכלים שלי מציגים שמות של secrets רק דרך לוח הבקרה. ההקשחה המוצעת היא שורה אחת לכל פונקציה, `if (!ADMIN_KEY) return 403`. היא לא הוכנה כאן, כי היא מחוץ להחלטת M0.
+**ראיה:** לכל שורה, הקוד הפרוס בגרסה הרשומה, כפי שהוחזר מ־`get_edge_function` ב־12.11, וה־`ezbr_sha256` מ־`list_edge_functions` באותו יום. המגבלות הפנימיות הן קבועים בקוד, לא מכסה של שרת.
+
+**שנשאר, דיווח בלבד (לא M0, לא שונה):** ב־`wa-gabriel`, ‏`wa-hatishbi`, ‏`wa-michael` ו־`wa-uriel` הפרוסים (וגם במאגר) יש מזהי טלפון וקבוצה אישיים כמחרוזות בקוד. זה אותו סוג ש־M0 הוציא מ־`wa-raziel` למשתני סביבה. הערכים לא מועתקים לכאן. ההחלטה אם לטפל בהם (M1) היא שלך.
 
 ## ג. מה עוד לא מכוסה, במפורש
 - **רזיאל באתר כשהדגל ייפתח:** אורח יוכל להשתמש בו במכסה לזהות, בלי דלי שעה ובלי תקרה יומית גלובלית. לפי ההחלטה ״מחובר בלבד״, צריך לחייב כניסה ולהוסיף את המגבלות המשותפות באותו שינוי שפותח את `lock_raziel_site`. זה נדחה בכוונה (`apply-plan.json` → `deferred_not_in_m0`).
