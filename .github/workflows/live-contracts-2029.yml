@@ -58,7 +58,7 @@ jobs:
       # 12.11.2026 (round 3): when a change touches the G1 enforcement code, its end-to-end proof runs on that exact head. Each scenario
       # is the real G1 smoke on a real base and head in a temporary worktree (local commits only, nothing is pushed); every scenario has
       # an expected outcome and a refusal must be for its reason. Any unexpected outcome, or a scenario that did not run, fails.
-      - name: G1 enforcement scenarios (only when the enforcement code changes; 47 scenarios on this exact head, each must refuse or allow as recorded)
+      - name: G1 enforcement scenarios (only when the enforcement code changes; 51 scenarios on this exact head, each must refuse or allow as recorded)
         run: |
           if git diff --name-only "$G1_BASE_SHA" HEAD -- scripts/lib/g1LawsSnapshotRules.mjs scripts/test-g1-agent-routing-smoke.mjs docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-ci-scenarios.sh | grep -q .; then
             bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-ci-scenarios.sh
@@ -355,8 +355,12 @@ jobs:
         run: bash scripts/run-m0b-ai-quota-sql-test.sh
       - name: G1 rule guard (CL-16) proposal lifecycle (25 cases; a missing function, drift, a MISSING or DISABLED trigger stop both files; exact apply, no-op re-apply, exact rollback; M0 files do not touch it)
         run: bash scripts/run-g1-rule-guard-sql-test.sh
-      - name: G1 rule guard (CL-16) case matrix, live vs applied (64 cases, each with an expected outcome and refusal reason)
+      - name: G1 rule guard (CL-16) case matrix, live vs applied (72 cases, each with an expected outcome and refusal reason)
         run: bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-db-scenarios.sh
+      # 12.11.2026 (round 4): recording a successor does not prove that the system uses it. Database rows are written through the
+      # proposed guard, read by the ONE snapshot reader (scripts/sql/g1_laws_snapshot.sql) and checked by the real G1 rules.
+      - name: G1 successor of a retired rule, end to end (database row, guard, snapshot reader, G1; 18 checks with expected outcomes)
+        run: bash scripts/run-g1-laws-snapshot-reader-test.sh
       - name: M0-D contributor research view admits public candidates (one token, status kept, private and person-only excluded, exact rollback)
         run: bash scripts/run-m0d-contributor-view-sql-test.sh
       - name: «הגילוי היומי» = «תורת הרמז» intake proposal (only admin_only changes; a second run and every changed live state refuse; the rollback restores the exact row)

@@ -12,7 +12,7 @@ set -u
 P=$(cd "$(dirname "$0")" && pwd); ROOT=$(git -C "$P" rev-parse --show-toplevel); BASE=$(git -C "$ROOT" rev-parse "${1:-HEAD}")
 WT=$(mktemp -d)/wt; git -C "$ROOT" worktree add -q --detach "$WT" "$BASE"
 trap 'git -C "$ROOT" worktree remove --force "$WT" >/dev/null 2>&1' EXIT
-MISMATCH=0; COUNT=0; EXPECTED_SCENARIOS=47
+MISMATCH=0; COUNT=0; EXPECTED_SCENARIOS=51
 reset() { git -C "$WT" reset -q --hard "$BASE" && git -C "$WT" clean -qfd; }
 commit() { git -C "$WT" add -A && git -C "$WT" -c user.email=proof@local -c user.name=proof commit -q -m "$1"; }
 py() { python3 - "$WT" "$@"; }
@@ -135,6 +135,20 @@ reset; snap_next succ-silent; commit r13; expect R13 FAIL 'agent_onboarding_law:
 reset; snap_next succ-routed; commit r13b; expect R13b PASS '' "same, recorded through retired_routing_v1 with an approval reference (authenticity: human gate)"
 reset; add_oi '| some duty | `docs/no-such-owner-contract.md` |'; commit r14; expect R14 FAIL 'routes to document docs/no-such-owner-contract.md, which does not exist in the repository' "Owner Index row routes to a document that does not exist"
 reset; add_oi '| research workspace duty | `docs/research-studio-v1-contract.md` |'; commit r14b; expect R14b PASS '' "Owner Index row routes to an existing registered document"
+# ── Round 4: readers of the rule tree in runtime code (a recorded successor proves nothing until the readers use it) ──
+refs_next() { py "$1" <<'PY'
+import sys; d=sys.argv[1]+'/audits/g1-agent-entry/'; L=open(d+'G1_RETIRED_LAW_REFERENCES_20261112.txt').read().rstrip('\n').split('\n')
+if sys.argv[2]=='add': L.append('F|src/lib/g1ProofReader.js|ai_quota_law|platform_tiers_law')
+elif sys.argv[2]=='drop':
+    n=len(L); L=[l for l in L if l!='F|src/components/SubscribeGate.jsx|subscribe_gate_law|subscription_funnel_law']; assert len(L)==n-1
+    p=sys.argv[1]+'/src/components/SubscribeGate.jsx'; t=open(p).read(); assert 'subscribe_gate_law' in t; open(p,'w').write(t.replace('subscribe_gate_law','subscription_funnel_law'))
+open(d+'G1_RETIRED_LAW_REFERENCES_20261113.txt','w').write('\n'.join(L)+'\n')
+PY
+}
+reset; printf 'export const quotaOwner = "ai_quota_law";\n' > "$WT/src/lib/g1ProofReader.js"; commit r15; expect R15 FAIL 'src/lib/g1ProofReader.js: names retired law ai_quota_law; its recorded successor is platform_tiers_law' "new runtime code names a retired law"
+reset; printf 'export const quotaOwner = "platform_tiers_law";\n' > "$WT/src/lib/g1ProofReader.js"; commit r15b; expect R15b PASS '' "the same code names the recorded successor"
+reset; printf 'export const quotaOwner = "ai_quota_law";\n' > "$WT/src/lib/g1ProofReader.js"; refs_next add; commit r15c; expect R15c FAIL 'src/lib/g1ProofReader.js \| ai_quota_law was added \(the record may only shrink' "the new reference is hidden by adding it to a newer record"
+reset; refs_next drop; commit r15d; expect R15d PASS '' "an existing reader is repointed to the successor and a newer, smaller record is published"
 [ $COUNT -eq $EXPECTED_SCENARIOS ] || { echo "MISMATCH: $COUNT scenarios ran, $EXPECTED_SCENARIOS expected"; MISMATCH=1; }
 [ $MISMATCH -eq 0 ] && echo "RESULT: every scenario behaved as expected ($COUNT)" || echo "RESULT: UNEXPECTED OUTCOME(S) — see MISMATCH lines"
 exit $MISMATCH

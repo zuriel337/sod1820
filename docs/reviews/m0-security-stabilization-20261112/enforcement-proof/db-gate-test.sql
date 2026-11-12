@@ -2,8 +2,10 @@
 -- variant is the live fixture PLUS the real apply file supabase/proposed/20261112200000_g1_rule_guard_cl16.sql (run-db-scenarios.sh).
 -- Every case has an expected outcome for each variant; ANY difference raises at the end, so psql (and the runner) exits non-zero.
 -- Round 3 (on handoff b0f471dcd): D13d..D13h a document owner is registered or authorized; D22b the owner of a retired row is never
--- written; D25..D25k the successor of a retired rule is recorded in metadata.retired_routing_v1 (contracts session section 16.4);
+-- written; D25..D25n the successor of a retired rule is recorded in metadata.retired_routing_v1 (contracts session section 16.4), on
+-- the last version of a family that has no active version only (the one row the snapshot reader reads);
 -- D26..D26i the owner chain ends at a valid root (retired or missing links at depth 2, cycles, codex and document roots).
+-- Round 4: D27..D27e a rule row without a rule_id cannot be created or be active (readers that do not filter rule_id read it).
 \set ON_ERROR_STOP on
 create table public.nodes (id uuid primary key default gen_random_uuid(), type text not null, label text not null, description text,
   metadata jsonb default '{}'::jsonb, is_active boolean default true, created_at timestamptz default now(), rule_id text, rule_version integer default 1,
@@ -12,7 +14,7 @@ create unique index nodes_identity_rule_uidx on public.nodes (rule_id, rule_vers
 create unique index nodes_one_active_rule_per_id_uidx on public.nodes (rule_id) where type='rule' and is_active and rule_id is not null;
 create table public.work_log (id uuid primary key, topic text, what_we_did text);
 create table public.project_codex (id serial primary key, slug text unique);
-insert into public.work_log values ('11111111-2222-4333-8444-555555555555', 'ZURIEL approval: legacy_child_law, new_domain_law, revived_law, owner_a_law, doc_new_law, ownerless_retired_law, routed_retired_law', 'fixture');
+insert into public.work_log values ('11111111-2222-4333-8444-555555555555', 'ZURIEL approval: legacy_child_law, new_domain_law, revived_law, owner_a_law, doc_new_law, ownerless_retired_law, routed_retired_law, hist_law', 'fixture');
 insert into public.project_codex(slug) values ('publishing_conventions');
 \i GUARD_FILE
 select 'GUARD md5 ' || md5(pg_get_functiondef('public.fn_rule_compaction_integrity_guard_v1()'::regprocedure));
@@ -43,6 +45,7 @@ insert into public.nodes(type,label,description,rule_id,rule_version,is_active,m
  ('rule','no owner mid','m5','no_owner_mid_law',1,true,'{}'::jsonb),                                   -- an active rule that records no owner
  ('rule','doc child','d1','doc_child_law',1,true,pg_temp.m('docs/registered-owner-contract.md','RESOLVED')), -- registers the document
  ('rule','solo doc','d2','solo_doc_law',1,true,pg_temp.m('docs/solo-owner-contract.md','RESOLVED')),  -- the only rule that names its document
+ ('rule','legacy rule without an id','legacy text',null,null,false,'{}'::jsonb),                                   -- as the 18 live rows: type rule, no rule_id, inactive
  ('rule','routed retired','rr','routed_retired_law',1,false,pg_temp.m('owner_a_law','RESOLVED') || '{"retired_routing_v1":{"successor":"owner_b_law","relation":"REPLACED","approval_ref":"work_log:11111111-2222-4333-8444-555555555555"}}'),
  ('note','a note','not a rule',null,null,true,'{}'::jsonb);
 update public.nodes set supersedes_version=1 where rule_id in ('hist_law','revived_law') and rule_version=2;
@@ -117,6 +120,9 @@ select pg_temp.try('D25h VALID replacement of a recorded successor routing by a 
 select pg_temp.try('D25i VALID other metadata on a retired row that carries a successor routing', $q$update public.nodes set metadata = metadata || '{"note":"x"}' where rule_id='routed_retired_law'$q$);
 select pg_temp.try('D25j revival of a retired rule that still carries its successor routing', format($q$update public.nodes set is_active=true, metadata = pg_temp.m('owner_a_law','EXTEND_EXISTING_SCOPED_CHILD',%L) || jsonb_build_object('retired_routing_v1', metadata->'retired_routing_v1') where rule_id='routed_retired_law'$q$, :'W1'));
 select pg_temp.try('D25k VALID revival with a verdict and an approval that drops the successor routing', format($q$update public.nodes set is_active=true, metadata = pg_temp.m('owner_a_law','EXTEND_EXISTING_SCOPED_CHILD',%L) where rule_id='routed_retired_law'$q$, :'W1'));
+select pg_temp.try('D25l successor routing written on an older version of a retired family', format($q$update public.nodes set metadata = metadata || pg_temp.rr('owner_b_law','REPLACED',%L) where rule_id='revived_law' and rule_version=1$q$, :'W1'));
+select pg_temp.try('D25m successor routing written on a retired version of a family that is still active', format($q$update public.nodes set metadata = metadata || pg_temp.rr('owner_b_law','REPLACED',%L) where rule_id='hist_law' and rule_version=1$q$, :'W1'));
+select pg_temp.try('D25n VALID successor routing on the last version of a retired family that has two versions', format($q$update public.nodes set metadata = metadata || pg_temp.rr('owner_b_law','REPLACED',%L) where rule_id='revived_law' and rule_version=2$q$, :'W1'));
 select pg_temp.try('D26 child of a child of a retired owner (chain, depth 2)', $q$insert into public.nodes(type,label,rule_id,rule_version,is_active,metadata) values ('rule','gc','grandchild_law',1,true,pg_temp.m('mid_retired_law','EXTEND_EXISTING_SCOPED_CHILD'))$q$);
 select pg_temp.try('D26b VALID chain of depth 2 that ends at a self-owned active rule', $q$insert into public.nodes(type,label,rule_id,rule_version,is_active,metadata) values ('rule','gc','grandchild_law',1,true,pg_temp.m('legacy_child_law','EXTEND_EXISTING_SCOPED_CHILD'))$q$);
 select pg_temp.try('D26c owner inside an ownership cycle (a -> b -> a, no root)', $q$insert into public.nodes(type,label,rule_id,rule_version,is_active,metadata) values ('rule','gc','grandchild_law',1,true,pg_temp.m('cyc_a_law','EXTEND_EXISTING_SCOPED_CHILD'))$q$);
@@ -126,6 +132,12 @@ select pg_temp.try('D26f VALID chain that ends at an existing codex item', $q$in
 select pg_temp.try('D26g chain through an active rule that records no owner', $q$insert into public.nodes(type,label,rule_id,rule_version,is_active,metadata) values ('rule','gc','grandchild_law',1,true,pg_temp.m('no_owner_mid_law','EXTEND_EXISTING_SCOPED_CHILD'))$q$);
 select pg_temp.try('D26h VALID chain that ends at a registered document', $q$insert into public.nodes(type,label,rule_id,rule_version,is_active,metadata) values ('rule','gc','grandchild_law',1,true,pg_temp.m('doc_child_law','EXTEND_EXISTING_SCOPED_CHILD'))$q$);
 select pg_temp.try('D26i chain through an owner that does not exist (depth 2)', $q$insert into public.nodes(type,label,rule_id,rule_version,is_active,metadata) values ('rule','gc','grandchild_law',1,true,pg_temp.m('mid_ghost_law','EXTEND_EXISTING_SCOPED_CHILD'))$q$);
+-- round 4: a rule row without a rule_id (read by readers that do not filter rule_id, e.g. the assistant context)
+select pg_temp.try('D27 a new rule row without a rule_id, active and marked for the assistant context', $q$insert into public.nodes(type,label,description,is_active,metadata) values ('rule','ungoverned','read by the assistant',true,'{"propagate":"true"}')$q$);
+select pg_temp.try('D27b a legacy rule row without a rule_id is activated', $q$update public.nodes set is_active=true, metadata = metadata || '{"propagate":"true"}' where label='legacy rule without an id'$q$);
+select pg_temp.try('D27c VALID metadata note on a legacy rule row without a rule_id', $q$update public.nodes set metadata = metadata || '{"note":"x"}' where label='legacy rule without an id'$q$);
+select pg_temp.try('D27d body of a legacy rule row without a rule_id is rewritten', $q$update public.nodes set description='rewritten' where label='legacy rule without an id'$q$);
+select pg_temp.try('D27e a row that is not a rule becomes a rule row without a rule_id', $q$update public.nodes set type='rule' where label='a note'$q$);
 create temp table expected(case_id text primary key, live text, proposed text);
 insert into expected values
  ('D01 second active version, no lineage','REFUSED','REFUSED'), ('D02 VALID new version, same owner','ALLOWED','ALLOWED'),
@@ -166,6 +178,9 @@ insert into expected values
  ('D25i VALID other metadata on a retired row that carries a successor routing','ALLOWED','ALLOWED'),
  ('D25j revival of a retired rule that still carries its successor routing','ALLOWED','REFUSED'),
  ('D25k VALID revival with a verdict and an approval that drops the successor routing','ALLOWED','ALLOWED'),
+ ('D25l successor routing written on an older version of a retired family','ALLOWED','REFUSED'),
+ ('D25m successor routing written on a retired version of a family that is still active','ALLOWED','REFUSED'),
+ ('D25n VALID successor routing on the last version of a retired family that has two versions','ALLOWED','ALLOWED'),
  ('D26 child of a child of a retired owner (chain, depth 2)','ALLOWED','REFUSED'),
  ('D26b VALID chain of depth 2 that ends at a self-owned active rule','ALLOWED','ALLOWED'),
  ('D26c owner inside an ownership cycle (a -> b -> a, no root)','ALLOWED','REFUSED'),
@@ -174,7 +189,12 @@ insert into expected values
  ('D26f VALID chain that ends at an existing codex item','ALLOWED','ALLOWED'),
  ('D26g chain through an active rule that records no owner','ALLOWED','REFUSED'),
  ('D26h VALID chain that ends at a registered document','ALLOWED','ALLOWED'),
- ('D26i chain through an owner that does not exist (depth 2)','ALLOWED','REFUSED');
+ ('D26i chain through an owner that does not exist (depth 2)','ALLOWED','REFUSED'),
+ ('D27 a new rule row without a rule_id, active and marked for the assistant context','ALLOWED','REFUSED'),
+ ('D27b a legacy rule row without a rule_id is activated','ALLOWED','REFUSED'),
+ ('D27c VALID metadata note on a legacy rule row without a rule_id','ALLOWED','ALLOWED'),
+ ('D27d body of a legacy rule row without a rule_id is rewritten','ALLOWED','REFUSED'),
+ ('D27e a row that is not a rule becomes a rule row without a rule_id','ALLOWED','REFUSED');
 -- every expected REFUSAL must also refuse for its reason (a refusal for another reason is an unexpected outcome)
 create temp table expected_reason(case_id text primary key, needle text);
 insert into expected_reason values
@@ -214,12 +234,18 @@ insert into expected_reason values
  ('D25f removal of a recorded successor routing','retired_routing_v1 cannot be removed'),
  ('D25g successor routing without a relation','retired_routing_v1 requires a relation'),
  ('D25j revival of a retired rule that still carries its successor routing','retired_routing_v1 belongs to a retired row'),
+ ('D25l successor routing written on an older version of a retired family','retired_routing_v1 is recorded on the last version of the family only'),
+ ('D25m successor routing written on a retired version of a family that is still active','retired_routing_v1 is recorded on a retired family only'),
  ('D26 child of a child of a retired owner (chain, depth 2)','ownership chain reaches retired owner retired_r_law'),
  ('D26c owner inside an ownership cycle (a -> b -> a, no root)','ownership chain is a cycle'),
  ('D26d new version that would close a cycle (an owner moves under its own child)','ownership chain is a cycle'),
  ('D26e chain that ends at a codex item which does not exist','ownership chain reaches codex entry project_codex.no_such_slug which does not exist'),
  ('D26g chain through an active rule that records no owner','ownership chain reaches no_owner_mid_law which records no owner'),
  ('D26i chain through an owner that does not exist (depth 2)','ownership chain reaches owner never_existed_law which does not exist'),
+ ('D27 a new rule row without a rule_id, active and marked for the assistant context','a rule row requires a rule_id'),
+ ('D27b a legacy rule row without a rule_id is activated','a rule row without a rule_id cannot be active'),
+ ('D27d body of a legacy rule row without a rule_id is rewritten','rule row without a rule_id: body changed'),
+ ('D27e a row that is not a rule becomes a rule row without a rule_id','a rule row requires a rule_id'),
  ('D24 a row that is not a rule promoted to an active rule without a verdict','requires an owner-creation verdict');
 select r.case_id || ' => ' || r.outcome || case when r.detail <> '' then ' (' || r.detail || ')' else '' end from result r order by 1;
 do $$ declare n int; m text; begin

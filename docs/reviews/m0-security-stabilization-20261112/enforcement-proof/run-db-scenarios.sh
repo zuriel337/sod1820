@@ -5,7 +5,7 @@
 # per variant; any unexpected outcome (or a changed md5) exits 1. Never connects to a live project. Runs in CI (live-contracts-2029.yml).
 set -u
 P=$(cd "$(dirname "$0")" && pwd); ROOT=$(git -C "$P" rev-parse --show-toplevel); FAIL=0
-BIN=$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | tail -1)
+BIN=${G1_PG_BIN:-$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | tail -1)}; [ -n "$BIN" ] && echo "PostgreSQL: $("$BIN/postgres" --version)"
 run() { if [ "$(id -u)" = 0 ]; then su postgres -c "$*"; else bash -c "$*"; fi; }
 for which in live proposed; do
   D=$(mktemp -d); W=$(mktemp -d); [ "$(id -u)" = 0 ] && chown postgres "$D"
@@ -24,7 +24,7 @@ for which in live proposed; do
   grep -E 'GUARD md5|=>|AS EXPECTED|UNEXPECTED|ERROR' <<<"$out"
   grep -q 'PSQL_EXIT=0' <<<"$out" || FAIL=1
   if [ "$which" = live ] && ! grep -q 'GUARD md5 56b90b0ae0f9c5915b730314d13ca7a0' <<<"$out"; then echo "MISMATCH: the live copy no longer matches the live md5"; FAIL=1; fi
-  if [ "$which" = proposed ] && ! grep -q 'GUARD md5 7b03b1a78f4e04962c15399feb1668ff' <<<"$out"; then echo "MISMATCH: the applied body is not the reviewed AFTER md5"; FAIL=1; fi
+  if [ "$which" = proposed ] && ! grep -q 'GUARD md5 90b5917b1412be02f66d1f805241018c' <<<"$out"; then echo "MISMATCH: the applied body is not the reviewed AFTER md5"; FAIL=1; fi
 done
 [ $FAIL -eq 0 ] && echo "RESULT: every case behaved as expected" || echo "RESULT: UNEXPECTED OUTCOME(S)"
 exit $FAIL

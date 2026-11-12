@@ -78,7 +78,8 @@ import { createHash } from 'node:crypto';
 import { parseLawsSnapshot, validateLawsSnapshot, compareLawsSnapshots, migrationTableViolations, ownerResolves, tablesCreated,
   parseLawApprovals, validateLawApprovals, unroutedContractFiles, ownerIndexOwnerViolations, registeredContractChangeViolations,
   structuresCreated, applyPlanSqlPaths, isContractFile, parseCodexSlugs, newestDated, checkSnapshotTransition, codexAdditionViolations,
-  lexSql, registeredDocumentOwners, newDocumentOwnerViolations, selectIntoTables } from './lib/g1LawsSnapshotRules.mjs';
+  lexSql, registeredDocumentOwners, newDocumentOwnerViolations, selectIntoTables, RUNTIME_CODE_DIRS, isRuntimeCodeFile,
+  retiredLawReferences, parseRetiredReferences, retiredReferenceViolations, retiredReferenceRecordViolations } from './lib/g1LawsSnapshotRules.mjs';
 
 test('captured main Codex/Claude/Design blobs remain exact historical evidence; current adapters retain safety gates', () => {
   // Oct9 hashes seal the Oct9 source, not every later authorized adapter update.
@@ -752,6 +753,54 @@ test('ROUND 3 · successor of a retired law: two sources are accepted (the owner
   assert.equal(lawsSnapshot.retired.filter(r => r.routing !== '').length, 0);
 });
 
+// ── Round 4: the READERS of the rule tree. A recorded successor proves nothing until the readers use it. Runtime code that names
+// a retired law is such a reader; the database-side readers are read by tests/live/g1_rule_reader_conformance.sql (read-only), and
+// the path "database row -> guard -> snapshot reader -> G1" is tested end to end by scripts/run-g1-laws-snapshot-reader-test.sh.
+const CURRENT_REFS_FILE = 'audits/g1-agent-entry/' + newestDated(readdirSync(AUDIT_DIR), 'RETIRED_LAW_REFERENCES');
+const recordedRefs = parseRetiredReferences(readFileSync(resolve(root, CURRENT_REFS_FILE), 'utf8'));
+function runtimeReferencesToRetiredLaws(snap) {
+  const ids = snap.retired.map(r => r.rule_id); let out = '';
+  try { out = execFileSync('git', ['-C', root, 'grep', '-n', '-w', '-F', ...ids.flatMap(i => ['-e', i]), '--', ...RUNTIME_CODE_DIRS], { encoding: 'utf8', maxBuffer: 64 << 20, stdio: ['ignore', 'pipe', 'ignore'] }); }
+  catch (e) { if (e.status !== 1) throw e; } // exit 1 = no match
+  return retiredLawReferences(out.split('\n').filter(Boolean), ids);
+}
+test('ROUND 4 · readers: runtime code that names a retired law is refused unless recorded; the message names the successor (either source); the record only shrinks', () => {
+  const lines = ['src/new/reader.js:3:  const owner = "ai_quota_law"; // quota', 'src/new/reader.js:9:  owner_ref: "ai_quota_law v3"',
+    'supabase/functions/x/index.ts:1:// see agent_onboarding_law and platform_tiers_law', 'src/new/reader.test.js:1: "ai_quota_law"',
+    'docs/x.md:1: ai_quota_law', 'src/new/other.js:2: my_ai_quota_law_helper()', 'src/new/ok.js:1: "platform_tiers_law"'];
+  const ids = lawsSnapshot.retired.map(r => r.rule_id);
+  const refs = retiredLawReferences(lines, ids);
+  assert.deepEqual(refs, [{ path: 'src/new/reader.js', rule_id: 'ai_quota_law' }, { path: 'supabase/functions/x/index.ts', rule_id: 'agent_onboarding_law' }],
+    'one pair per file and law; test files, documents, longer identifiers and active laws are not readers of a retired law');
+  assert.equal(isRuntimeCodeFile('src/a/b.jsx'), true); assert.equal(isRuntimeCodeFile('scripts/x.mjs'), false); assert.equal(isRuntimeCodeFile('src/a/__tests__/b.js'), false);
+  const v = retiredReferenceViolations(refs, [], lawsSnapshot).join('\n');
+  assert.match(v, /src\/new\/reader\.js: names retired law ai_quota_law; its recorded successor is platform_tiers_law/);
+  assert.match(v, /supabase\/functions\/x\/index\.ts: names retired law agent_onboarding_law; no successor is recorded for it/);
+  // the successor in the message follows the snapshot: once a retired_routing_v1 mapping is recorded, that is the successor to use
+  const routed = clone(lawsSnapshot); Object.assign(routed.retired.find(r => r.rule_id === 'agent_onboarding_law'), { owner: 'inter_agent_coordination_law', routing: 'retired_routing_v1:' + REF });
+  assert.match(retiredReferenceViolations(refs, [], routed).join('\n'), /agent_onboarding_law; its recorded successor is inter_agent_coordination_law/);
+  assert.deepEqual(retiredReferenceViolations(refs, [{ path: 'src/new/reader.js', rule_id: 'ai_quota_law' }, { path: 'supabase/functions/x/index.ts', rule_id: 'agent_onboarding_law' }], lawsSnapshot), [], 'a recorded reference is allowed');
+  assert.deepEqual(retiredReferenceViolations(retiredLawReferences(['src/new/ok.js:1: "platform_tiers_law"'], ids), [], lawsSnapshot), [], 'naming the active successor is the proper reader');
+  // the record: dropping a line is fine; adding one is refused unless the law retired in this change
+  const prev = [{ path: 'src/a.js', rule_id: 'ai_quota_law' }];
+  assert.deepEqual(retiredReferenceRecordViolations(prev, [], lawsSnapshot), []);
+  assert.match(retiredReferenceRecordViolations(prev, [...prev, { path: 'src/b.js', rule_id: 'ai_quota_law' }], lawsSnapshot).join('\n'), /src\/b\.js \| ai_quota_law was added \(the record may only shrink/);
+  assert.deepEqual(retiredReferenceRecordViolations(prev, [...prev, { path: 'src/b.js', rule_id: 'platform_tiers_law' }], lawsSnapshot), [], 'a law that was active in the previous snapshot retired in this change: its readers are recorded');
+  assert.throws(() => parseRetiredReferences('X|a|b|c'), /unknown retired-reference row/);
+});
+
+test('real tree · readers: every runtime reference to a retired law is recorded, and every recorded reference still exists', () => {
+  const refs = runtimeReferencesToRetiredLaws(currentLaws);
+  assert.deepEqual(retiredReferenceViolations(refs, recordedRefs, currentLaws), []);
+  const now = new Set(refs.map(r => r.path + '|' + r.rule_id));
+  for (const e of recordedRefs) {
+    // a recorded line whose law is active again (revived), or is no longer listed by the newest snapshot, is inert: it is neither
+    // a violation nor proof of anything, and a later dated record may drop it
+    if (!currentRetiredIds.has(e.rule_id)) continue;
+    assert.ok(now.has(e.path + '|' + e.rule_id), 'recorded reference no longer exists; publish a NEW dated record without it: ' + e.path + ' | ' + e.rule_id);
+  }
+});
+
 // BASE vs HEAD (real). In CI the base is the PR base (G1_BASE_SHA, fetched by the workflow); locally the merge-base with origin/main.
 function resolveBase() {
   const candidates = [];
@@ -782,7 +831,7 @@ test('REAL base vs head: dated records never edited in place, the contract basel
   // laws snapshots and codex records: the NEWEST dated record at head is the current state. It is compared with the newest at base
   // AND validated on its own (owners, Owner Index, approvals). A newly added record must be dated after the newest one at base.
   let baseNames = []; try { baseNames = git('ls-tree', '--name-only', base, 'audits/g1-agent-entry/').split('\n').map(p => p.split('/').pop()); } catch { /* none */ }
-  for (const kind of ['LAWS_ACTIVE_SNAPSHOT', 'PROJECT_CODEX_SLUGS']) {
+  for (const kind of ['LAWS_ACTIVE_SNAPSHOT', 'PROJECT_CODEX_SLUGS', 'RETIRED_LAW_REFERENCES']) {
     const baseNewest = newestDated(baseNames, kind);
     for (const c of changed) if (c.st === 'A' && new RegExp('^audits/g1-agent-entry/G1_' + kind + '_\\d{8}\\.txt$').test(c.path) && baseNewest && c.path.split('/').pop() <= baseNewest) violations.push(c.path + ': a new dated ' + kind + ' must be dated after ' + baseNewest);
   }
@@ -791,5 +840,12 @@ test('REAL base vs head: dated records never edited in place, the contract basel
   const baseCodex = newestDated(baseNames, 'PROJECT_CODEX_SLUGS');
   if (baseCodex && baseCodex !== CURRENT_CODEX_FILE.split('/').pop()) violations.push(...codexAdditionViolations(parseCodexSlugs(atRev(base, 'audits/g1-agent-entry/' + baseCodex)), currentCodex, approvals));
   violations.push(...validateLawApprovals(approvals, currentLaws).violations);
+  // the record of runtime references to retired laws: a newer dated record may only shrink (or record the readers of a law that
+  // retired in this change). When the base has no such record yet, the first one is the baseline.
+  const baseRefs = newestDated(baseNames, 'RETIRED_LAW_REFERENCES');
+  if (baseRefs && baseRefs !== CURRENT_REFS_FILE.split('/').pop()) {
+    const prevSnap = baseLaws ? parseLawsSnapshot(atRev(base, 'audits/g1-agent-entry/' + baseLaws)) : currentLaws;
+    violations.push(...retiredReferenceRecordViolations(parseRetiredReferences(atRev(base, 'audits/g1-agent-entry/' + baseRefs)), recordedRefs, prevSnap));
+  }
   assert.deepEqual(violations, [], 'base ' + base.slice(0, 9) + ' -> HEAD');
 });

@@ -132,7 +132,7 @@ do $$ begin assert pg_temp.state() = (select s from live_state), 'N2: restored t
 \set ON_ERROR_STOP on
 create temp table applied_state as select pg_temp.state() as s;
 do $$ begin
-  assert (select s from applied_state) = '7b03b1a78f4e04962c15399feb1668ff | CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version, description, label, type, id, identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O] | CREATE TRIGGER trg_rule_compaction_integrity_guard_v1_truncate BEFORE TRUNCATE ON public.nodes FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]',
+  assert (select s from applied_state) = '90b5917b1412be02f66d1f805241018c | CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version, description, label, type, id, identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O] | CREATE TRIGGER trg_rule_compaction_integrity_guard_v1_truncate BEFORE TRUNCATE ON public.nodes FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]',
     'G3: exact applied state: ' || (select s from applied_state);
 end $$;
 create function pg_temp.m(owner text, res text, gate text default null) returns jsonb language sql as $$
@@ -177,10 +177,10 @@ do $$ begin assert pg_temp.state() = (select s from applied_state), 'G4: a secon
 drop trigger trg_rule_compaction_integrity_guard_v1 on public.nodes;
 select pg_temp.mark();
 \set ON_ERROR_STOP off
-\warn @@CASE N3-apply-after-trigger-missing REFUSE G1 rule guard drift: function md5 7b03b1a78f4e04962c15399feb1668ff, trigger (missing), truncate trigger CREATE TRIGGER
+\warn @@CASE N3-apply-after-trigger-missing REFUSE G1 rule guard drift: function md5 90b5917b1412be02f66d1f805241018c, trigger (missing), truncate trigger CREATE TRIGGER
 \i supabase/proposed/20261112200000_g1_rule_guard_cl16.sql
 \warn @@END
-\warn @@CASE N3-rollback-after-trigger-missing REFUSE G1 rule guard rollback drift: function md5 7b03b1a78f4e04962c15399feb1668ff, trigger (missing), truncate trigger CREATE TRIGGER
+\warn @@CASE N3-rollback-after-trigger-missing REFUSE G1 rule guard rollback drift: function md5 90b5917b1412be02f66d1f805241018c, trigger (missing), truncate trigger CREATE TRIGGER
 \i supabase/proposed/ROLLBACK_20261112200000_g1_rule_guard_cl16.sql
 \warn @@END
 \set ON_ERROR_STOP on
@@ -237,10 +237,10 @@ do $$ begin assert pg_temp.state() = (select s from applied_state), 'N6: restore
 CREATE OR REPLACE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1();
 select pg_temp.mark();
 \set ON_ERROR_STOP off
-\warn @@CASE G5-apply-drifted-trigger REFUSE G1 rule guard drift: function md5 7b03b1a78f4e04962c15399feb1668ff, trigger CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata ON public.nodes
+\warn @@CASE G5-apply-drifted-trigger REFUSE G1 rule guard drift: function md5 90b5917b1412be02f66d1f805241018c, trigger CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata ON public.nodes
 \i supabase/proposed/20261112200000_g1_rule_guard_cl16.sql
 \warn @@END
-\warn @@CASE G5-rollback-drifted-trigger REFUSE G1 rule guard rollback drift: function md5 7b03b1a78f4e04962c15399feb1668ff, trigger CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata ON public.nodes
+\warn @@CASE G5-rollback-drifted-trigger REFUSE G1 rule guard rollback drift: function md5 90b5917b1412be02f66d1f805241018c, trigger CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata ON public.nodes
 \i supabase/proposed/ROLLBACK_20261112200000_g1_rule_guard_cl16.sql
 \warn @@END
 \set ON_ERROR_STOP on

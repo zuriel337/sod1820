@@ -3,20 +3,20 @@
  "depends_on_tracks": [
   "M0 SQL steps 1-10 applied (docs/reviews/m0-security-stabilization-20261112/apply-plan.json)"
  ],
- "test": "bash scripts/run-g1-rule-guard-sql-test.sh (lifecycle: 25 cases, each run of the two files with an expected outcome; also checks that the sha256 values in this plan are the files) and bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-db-scenarios.sh (64 cases, live vs applied, with refusal reasons)",
+ "test": "bash scripts/run-g1-rule-guard-sql-test.sh (lifecycle: 25 cases, each run of the two files with an expected outcome; also checks that the sha256 values in this plan are the files) and bash docs/reviews/m0-security-stabilization-20261112/enforcement-proof/run-db-scenarios.sh (72 cases, live vs applied, with refusal reasons); bash scripts/run-g1-laws-snapshot-reader-test.sh (database row -> guard -> snapshot reader -> G1, 18 checks)",
  "steps": [
   {
    "step": "G1",
    "file": "supabase/proposed/20261112200000_g1_rule_guard_cl16.sql",
-   "sha256": "96cfc15cebe861afd7c5d40562b81b3cf5f7ea024a420e95956d4595169fd8fb",
+   "sha256": "7e367b196655668238d4fba5b843d52dfab4023d086354d50c8f064210b64ee8",
    "rollback": "supabase/proposed/ROLLBACK_20261112200000_g1_rule_guard_cl16.sql",
-   "rollback_sha256": "a167f7346e83fdfee51147c11d66c4c2c8b1d3ff0dc53540f181fec57fdb6c25",
+   "rollback_sha256": "60aa076c22461b80c97f8d91ff28f9e8a2b5c98268ff8d6a0a6e8b8c1611a2c5",
    "status": "proposed",
    "depends_on": [
     "M0 SQL steps 1-10"
    ],
-   "verify": "function md5 7b03b1a78f4e04962c15399feb1668ff; the two trigger texts in the file header, both enabled; owner, privileges, search_path, volatility unchanged (all checked inside the file). The md5 is identical on throwaway PostgreSQL 16.15 and 17.12; live is 17.6 (not run there). If the live server printed the new body differently, the file would stop on its own postcondition and change nothing.",
-   "what": "Extend the live rule guard (same function, same trigger, plus a TRUNCATE trigger): rule identity immutable; body and owner immutable within a version (no exception); revival of a retired family needs a verdict and an approval reference; DELETE/TRUNCATE refused; the owner resolves and its chain ends at a valid root (no retired or missing link at any depth, no cycle); a document owner is registered (already named by an active rule) or authorized (approval reference); the successor of a retired rule is recorded in metadata.retired_routing_v1 only, with a resolving approval. Rows that are not rules are not blocked.",
+   "verify": "function md5 90b5917b1412be02f66d1f805241018c; the two trigger texts in the file header, both enabled; owner, privileges, search_path, volatility unchanged (all checked inside the file). The md5 is identical on throwaway PostgreSQL 16.15 and 17.12; live is 17.6 (not run there). If the live server printed the new body differently, the file would stop on its own postcondition and change nothing.",
+   "what": "Extend the live rule guard (same function, same trigger, plus a TRUNCATE trigger): rule identity immutable; body and owner immutable within a version (no exception); revival of a retired family needs a verdict and an approval reference; DELETE/TRUNCATE refused; the owner resolves and its chain ends at a valid root (no retired or missing link at any depth, no cycle); a document owner is registered (already named by an active rule) or authorized (approval reference); the successor of a retired rule is recorded in metadata.retired_routing_v1 only, with a resolving approval. A rule row without a rule_id cannot be created or be active. Rows that are not rules are not blocked.",
    "preflight": "Fail-closed: the file continues only when the state is exactly BEFORE or exactly AFTER. A missing function, a changed body, a changed trigger text, a MISSING trigger and a DISABLED trigger (also replica-only) all stop it before anything changes; the same holds for the rollback."
   }
  ],

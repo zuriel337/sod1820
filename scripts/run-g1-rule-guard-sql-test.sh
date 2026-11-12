@@ -67,7 +67,7 @@ if ! compgen -G '/usr/lib/postgresql/*/bin' >/dev/null; then
   exit
 fi
 
-BIN=$(ls -d /usr/lib/postgresql/*/bin | tail -1)
+BIN=${G1_PG_BIN:-$(ls -d /usr/lib/postgresql/*/bin | tail -1)}; echo "PostgreSQL: $("$BIN/postgres" --version)"
 D=$(mktemp -d)
 run() { if [ "$(id -u)" = 0 ]; then su postgres -c "$*"; else bash -c "$*"; fi; }
 if [ "$(id -u)" = 0 ]; then chown postgres "$D"; fi

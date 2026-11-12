@@ -211,6 +211,55 @@ export function codexAdditionViolations(prevSlugs, nextSlugs, entries) {
   return v;
 }
 
+// ── Readers of the rule tree in RUNTIME CODE (round 4, 12.11.2026). Recording a successor does not prove that anything uses it:
+// code that names a law that has retired is a reader that still points at the old law. The retired laws and their successors are
+// read from the R rows of the newest laws snapshot (so both successor sources are honoured). Existing references are frozen in
+// a dated record (audits/g1-agent-entry/G1_RETIRED_LAW_REFERENCES_YYYYMMDD.txt, 'F|path|rule_id|successor_when_recorded'); a
+// reference that is not in the record is refused and the message names the successor to use. The record may only shrink, except
+// for a law that retired in the same change (its existing readers are recorded, never hidden).
+// HUMAN GATE: whether a remaining reference is a deliberate historical citation or a live dependency (the contracts ledger).
+export const RUNTIME_CODE_DIRS = ['supabase/functions', 'src', 'api', 'public-reading-deploy'];
+export const isRuntimeCodeFile = (p) => RUNTIME_CODE_DIRS.some((d) => p.startsWith(d + '/')) && /\.(js|jsx|ts|tsx|mjs|cjs)$/.test(p)
+  && !/\.test\.[a-z]+$/.test(p) && !/(^|\/)__tests__\//.test(p);
+// grepLines: 'path:line:text' lines (git grep -n). retiredIds: iterable of rule ids. Returns unique {path, rule_id} pairs.
+export function retiredLawReferences(grepLines, retiredIds) {
+  const ids = [...retiredIds]; if (!ids.length) return [];
+  const re = new RegExp('(?<![A-Za-z0-9_])(' + ids.join('|') + ')(?![A-Za-z0-9_])', 'g'); const seen = new Set(); const out = [];
+  for (const l of grepLines) {
+    const m = /^([^:]+):\d+:(.*)$/.exec(l); if (!m || !isRuntimeCodeFile(m[1])) continue;
+    for (const [, id] of m[2].matchAll(re)) { const k = m[1] + '|' + id; if (!seen.has(k)) { seen.add(k); out.push({ path: m[1], rule_id: id }); } }
+  }
+  return out.sort((a, b) => (a.path + '|' + a.rule_id < b.path + '|' + b.rule_id ? -1 : 1));
+}
+export function parseRetiredReferences(text) {
+  const out = [];
+  for (const line of text.split('\n')) {
+    if (!line || line.startsWith('#')) continue;
+    const [kind, path, rule_id, successor] = line.split('|');
+    if (kind !== 'F' || !path || !rule_id) throw new Error('unknown retired-reference row: ' + line);
+    out.push({ path, rule_id, successor: successor || '-' });
+  }
+  return out;
+}
+// refs: current references; recorded: entries of the newest dated record; snap: the newest laws snapshot (successors).
+export function retiredReferenceViolations(refs, recorded, snap) {
+  const v = []; const known = new Set(recorded.map((e) => e.path + '|' + e.rule_id));
+  const successor = new Map(snap.retired.map((r) => [r.rule_id, r.owner]));
+  for (const r of refs) {
+    if (known.has(r.path + '|' + r.rule_id)) continue;
+    const s = successor.get(r.rule_id);
+    v.push(r.path + ': names retired law ' + r.rule_id + (s && s !== '-' ? '; its recorded successor is ' + s : '; no successor is recorded for it') + ' (a new reference to a retired law is refused)');
+  }
+  return v;
+}
+// A newer dated record may drop entries; it may ADD an entry only for a law that was still active in the previous laws snapshot
+// (it retired in this change, so its existing readers are recorded).
+export function retiredReferenceRecordViolations(prevRecorded, nextRecorded, prevSnap) {
+  const v = []; const had = new Set(prevRecorded.map((e) => e.path + '|' + e.rule_id)); const wasActive = new Set(prevSnap.active.map((l) => l.rule_id));
+  for (const e of nextRecorded) if (!had.has(e.path + '|' + e.rule_id) && !wasActive.has(e.rule_id)) v.push('retired-law references record: ' + e.path + ' | ' + e.rule_id + ' was added (the record may only shrink, except for a law that retired in this change)');
+  return v;
+}
+
 // ── Repository contract files (12.11.2026, round 2): new structure, owner references in the Owner Index, change of a registered contract ──
 export const CONTRACT_FILE = /(CONTRACT|_LAW|LAW_|MASTER|REGISTRY|FINAL)[^/]*\.md$/i;
 export const CONTRACT_EXEMPT_DIR = /^(docs\/reviews\/|docs\/archive\/|docs\/audit-evidence\/|docs\/planning\/|docs\/research-notes\/|audits\/|planning\/|research-notes\/|research-library\/|drafts\/)/;

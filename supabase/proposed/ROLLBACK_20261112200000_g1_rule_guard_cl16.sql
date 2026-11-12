@@ -21,7 +21,7 @@ do $$
 declare
   v_md5 text; v_trg text; v_trunc text; v_before boolean; v_after boolean;
   c_before_md5 constant text := '56b90b0ae0f9c5915b730314d13ca7a0';
-  c_after_md5 constant text := '7b03b1a78f4e04962c15399feb1668ff';
+  c_after_md5 constant text := '90b5917b1412be02f66d1f805241018c';
   c_before_trg constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';
   c_after_trg constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version, description, label, type, id, identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';
   c_after_trunc constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1_truncate BEFORE TRUNCATE ON public.nodes FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';

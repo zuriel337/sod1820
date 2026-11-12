@@ -21,10 +21,15 @@
 -- approval reference (owner_routing.human_gate). That the file exists and is routed in the Owner Index is checked by the CI snapshot.
 -- SUCCESSOR OF A RETIRED RULE (round 3, contracts session section 16.4): recorded in metadata.retired_routing_v1 only
 -- ({successor, relation, approval_ref, ...}); the owner fields of the retired row stay as they were. The key is allowed on a retired
--- row only; a new or changed record needs a successor that resolves (an active rule, an existing codex item or a document), a relation
--- (REPLACED / COMPLETED / ABSORBED / PARTIAL) and an approval reference that resolves; a record cannot be removed.
+-- row only, and only on the LAST version of a family that has no active version: that is the one row every reader reads
+-- (scripts/sql/g1_laws_snapshot.sql). A new or changed record needs a successor that resolves (an active rule, an existing codex
+-- item or a document), a relation (REPLACED / COMPLETED / ABSORBED / PARTIAL) and an approval reference that resolves; a record
+-- cannot be removed. A family that is revived keeps the old record as history; readers ignore it while the family is active.
 -- metadata.rule_guard.deactivated_in_xact is written by the guard on a real retirement (is_active true -> false) and cannot be written
 -- by anyone else: a version inserted in the SAME transaction is a supersession; anything else re-activating a retired family is a revival.
+-- RULE ROW WITHOUT A rule_id (round 4): it cannot be created or be active, and its body is not rewritten. The live guard and the
+-- round-3 proposal returned at once for such a row, while fn_active_method_rules (the assistant context) reads every active rule
+-- row marked propagate without filtering rule_id. 18 such rows exist on 12.11.2026, all inactive; they stay as history.
 -- Rows that are not rules are not blocked by anything new (the trigger also fires on their type/label/description/id/identity_key
 -- updates and returns at once). TRUNCATE is table-wide: it cannot spare rule rows, so it is refused as a whole.
 -- NOT ENFORCED HERE (stated, not hidden):
@@ -44,7 +49,7 @@
 -- disabled trigger, stops it before anything changes. CREATE OR REPLACE TRIGGER would silently re-enable a disabled trigger, so a
 -- disabled trigger is never "repaired" here: it is drift and needs a decision.
 --   BEFORE = live 12.11.2026: function md5 56b90b0ae0f9c5915b730314d13ca7a0, the trigger text below ENABLED (origin), no TRUNCATE trigger;
---   AFTER  = function md5 7b03b1a78f4e04962c15399feb1668ff (as PostgreSQL prints it), the two trigger texts below, both ENABLED (origin).
+--   AFTER  = function md5 90b5917b1412be02f66d1f805241018c (as PostgreSQL prints it), the two trigger texts below, both ENABLED (origin).
 --   The live state must be exactly BEFORE (then it is replaced) or exactly AFTER (already applied; re-created, a no-op). After the
 --   change: AFTER exactly, and owner, privileges, SECURITY DEFINER (off), search_path and volatility equal what they were before.
 begin;
@@ -59,7 +64,7 @@ do $$
 declare
   v_md5 text; v_trg text; v_trunc text; v_before boolean; v_after boolean;
   c_before_md5 constant text := '56b90b0ae0f9c5915b730314d13ca7a0';
-  c_after_md5 constant text := '7b03b1a78f4e04962c15399feb1668ff';
+  c_after_md5 constant text := '90b5917b1412be02f66d1f805241018c';
   c_before_trg constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';
   c_after_trg constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1 BEFORE INSERT OR DELETE OR UPDATE OF is_active, metadata, rule_id, rule_version, supersedes_version, description, label, type, id, identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';
   c_after_trunc constant text := 'CREATE TRIGGER trg_rule_compaction_integrity_guard_v1_truncate BEFORE TRUNCATE ON public.nodes FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=O]';
@@ -126,7 +131,22 @@ begin
       raise exception 'rule % v% cannot change its identity or version in place (a new version is a new row)', old.rule_id, old.rule_version;
     end if;
   end if;
-  if new.type is distinct from 'rule' or new.rule_id is null then return new; end if;
+  if new.type is distinct from 'rule' then return new; end if;
+  -- A rule row WITHOUT a rule_id has no identity, version or owner, so nothing below could govern it; yet readers that do not
+  -- filter rule_id (fn_active_method_rules feeds the assistant context from every active rule row marked propagate) would still
+  -- read it. No such row may be created or be active; the legacy ones (18 inactive rows on 12.11.2026) stay as history.
+  if new.rule_id is null then
+    if tg_op = 'INSERT' or old.type is distinct from 'rule' then
+      raise exception 'a rule row requires a rule_id (a rule without an identity cannot be governed)';
+    end if;
+    if coalesce(new.is_active,false) then
+      raise exception 'a rule row without a rule_id cannot be active';
+    end if;
+    if old.description is distinct from new.description or old.label is distinct from new.label then
+      raise exception 'rule row without a rule_id: body changed (history is not rewritten)';
+    end if;
+    return new;
+  end if;
   -- metadata.rule_guard is written by this guard only: on a real retirement (is_active true -> false) it records the transaction,
   -- so that a new version inserted in the SAME transaction is a supersession and anything else is a revival.
   if tg_op = 'INSERT' or old.type is distinct from 'rule' then
@@ -160,6 +180,14 @@ begin
   elsif v_rr is distinct from v_rr_old then
     if v_rr is null then
       raise exception 'rule % v%: retired_routing_v1 cannot be removed (record a new approved routing instead)', new.rule_id, new.rule_version;
+    end if;
+    -- one place for every reader: the row of the LAST version of a family that has no active version
+    -- (scripts/sql/g1_laws_snapshot.sql reads exactly that row; a record anywhere else would never be read)
+    if exists (select 1 from public.nodes r where r.type='rule' and r.rule_id=new.rule_id and r.is_active and r.id <> new.id) then
+      raise exception 'rule % v%: retired_routing_v1 is recorded on a retired family only (the rule has an active version)', new.rule_id, new.rule_version;
+    end if;
+    if exists (select 1 from public.nodes r where r.type='rule' and r.rule_id=new.rule_id and r.rule_version > new.rule_version and r.id <> new.id) then
+      raise exception 'rule % v%: retired_routing_v1 is recorded on the last version of the family only', new.rule_id, new.rule_version;
     end if;
     v_succ := case when jsonb_typeof(v_rr) = 'object' then nullif(v_rr->>'successor','') end;
     v_ref := case when jsonb_typeof(v_rr) = 'object' then nullif(v_rr->>'approval_ref','') end;
@@ -381,7 +409,7 @@ begin
   select * into b from g1rg_before;
   select md5(pg_get_functiondef(p.oid)) as def_md5, p.proowner, p.proacl::text as acl, p.prosecdef, p.proconfig, p.provolatile into a
     from pg_proc p where p.oid = 'public.fn_rule_compaction_integrity_guard_v1()'::regprocedure;
-  if a.def_md5 is distinct from '7b03b1a78f4e04962c15399feb1668ff' then raise exception 'G1 rule guard postcondition: body md5 % is not the reviewed body', a.def_md5; end if;
+  if a.def_md5 is distinct from '90b5917b1412be02f66d1f805241018c' then raise exception 'G1 rule guard postcondition: body md5 % is not the reviewed body', a.def_md5; end if;
   if a.proowner <> b.proowner or a.acl is distinct from b.acl or a.prosecdef <> b.prosecdef or a.proconfig is distinct from b.proconfig or a.provolatile <> b.provolatile then
     raise exception 'G1 rule guard postcondition: owner, privileges, SECURITY DEFINER, search_path or volatility changed';
   end if;
