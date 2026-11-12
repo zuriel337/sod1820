@@ -1,3 +1,4 @@
+import { CONTRIBUTOR_RESEARCH_VIEW_FALLBACK, readContributorResearchView } from "./contributorResearchView.js";
 import { publicPostHref } from "../publicPostUrls.js";
 import { getPublicResearchClient } from "./researchViewMode.js";
 import { publicResearchPresentationEligible, projectPublicResearchFinding,
@@ -260,17 +261,24 @@ export async function fetchWorldPublicFindingsPage({ client = getPublicResearchC
   // (privacy_scope='public', person_only excluded by ro_public_read and again by the filter below).
   const readTier = async (tier, tierCursor, limit) => {
     const fromView = tier === "verified" || Boolean(contributorId);
-    let request = client.from(fromView ? "world_contributor_research_v1" : "research_objects")
-      .select(fromView ? DISCOVERY_FIELDS : DISCOVERY_TABLE_FIELDS).eq("privacy_scope", "public");
-    request = tier === "verified" ? request.in("status", RESEARCH_VERIFIED_PUBLIC_STATUSES) : request.eq("status", "candidate");
-    if (!fromView) request = request.or("meta->ext->personal_scope->>scope.is.null,meta->ext->personal_scope->>scope.neq.person_only");
-    if (value != null) request = request.eq("value", value);
-    if (contributorId) request = request.eq("source_contributor_id", contributorId);
-    // User text is a literal substring, never an interpolated PostgREST .or().
-    if (q) request = request.ilike("statement", `%${q.replace(/[\\%_*]/g, "\\$&")}%`);
-    if (source) request = request.or(`source_ref.eq.${source.ref},source_ref.like.${source.ref}#%`);
-    if (tierCursor) request = request.or(`created_at.lt."${tierCursor.createdAt}",and(created_at.eq."${tierCursor.createdAt}",id.lt.${tierCursor.id})`);
-    const result = await request.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(limit + 1);
+    // Verified tier: v1, unchanged. Candidate tier inside a contributor scope: v2 (v1 + public candidates), falling back to v1
+    // while v2 does not exist yet - v1 has no public candidates, so the tier is then simply empty.
+    const run = (table) => {
+      let request = client.from(table)
+        .select(fromView ? DISCOVERY_FIELDS : DISCOVERY_TABLE_FIELDS).eq("privacy_scope", "public");
+      request = tier === "verified" ? request.in("status", RESEARCH_VERIFIED_PUBLIC_STATUSES) : request.eq("status", "candidate");
+      if (!fromView) request = request.or("meta->ext->personal_scope->>scope.is.null,meta->ext->personal_scope->>scope.neq.person_only");
+      if (value != null) request = request.eq("value", value);
+      if (contributorId) request = request.eq("source_contributor_id", contributorId);
+      // User text is a literal substring, never an interpolated PostgREST .or().
+      if (q) request = request.ilike("statement", `%${q.replace(/[\\%_*]/g, "\\$&")}%`);
+      if (source) request = request.or(`source_ref.eq.${source.ref},source_ref.like.${source.ref}#%`);
+      if (tierCursor) request = request.or(`created_at.lt."${tierCursor.createdAt}",and(created_at.eq."${tierCursor.createdAt}",id.lt.${tierCursor.id})`);
+      return request.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(limit + 1);
+    };
+    const result = !fromView ? await run("research_objects")
+      : tier === "verified" ? await run(CONTRIBUTOR_RESEARCH_VIEW_FALLBACK)
+      : await readContributorResearchView(run);
     if (result.error || !Array.isArray(result.data)) throw result.error || new Error("public_discovery_unavailable");
     return result.data.filter((row) => (tier === "verified"
       ? RESEARCH_VERIFIED_PUBLIC_STATUSES.includes(clean(row?.status).toLowerCase())

@@ -39,6 +39,9 @@ union all select 'C gallery client policies replaced (old public_upload / commun
   and (select count(*) from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname in ('gallery_flat_image_upload_v1', 'gallery_client_upload_scoped_v1', 'gallery_admin_upload_v1')) = 3
 union all select 'C gallery public read unchanged', exists (select 1 from pg_policies where schemaname = 'storage' and tablename = 'objects' and policyname = 'public_read' and cmd = 'SELECT')
 union all select 'R public research readable by anon', has_table_privilege('anon', 'public.research_objects', 'SELECT')
-union all select 'D contributor view admits public candidates (status kept)', position($a$'candidate'::text$a$ in pg_get_viewdef('public.world_contributor_research_v1'::regclass, true)) > 0
-  and has_table_privilege('anon', 'public.world_contributor_research_v1', 'SELECT')
+union all select 'D contributor view v2 admits public candidates (status kept); anon may read it', coalesce(to_regclass('public.world_contributor_research_v2') is not null
+  and position($a$'candidate'::text$a$ in pg_get_viewdef(to_regclass('public.world_contributor_research_v2'), true)) > 0
+  and has_table_privilege('anon', to_regclass('public.world_contributor_research_v2'), 'SELECT')
+  and not has_table_privilege('anon', to_regclass('public.world_contributor_research_v2'), 'INSERT'), false)
+union all select 'D v1 unchanged for older clients (definition md5 as reviewed 12.11)', md5(pg_get_viewdef('public.world_contributor_research_v1'::regclass, true)) = '81581396c9167206a67a117bdd406f70'
 order by 1;

@@ -1,3 +1,4 @@
+import { readContributorResearchView } from "./contributorResearchView.js";
 import { supabase } from "../supabase.js";
 import { getPublicResearchClient, PROJECTOR_MODE } from "./researchViewMode.js";
 import { fetchTopicCardList } from "./topicConvergence.js";
@@ -650,9 +651,9 @@ async function fetchResearchObjects(client, contributorId, aliases, sourceRef = 
   ].join(",");
   const occurrenceId = channelUpdateOccurrenceId(sourceRef);
   const exactSourceRef = occurrenceId ? `channel_updates:${occurrenceId}` : null;
-  const result = await paged((start, end, first) => {
+  const result = await readContributorResearchView((view) => paged((start, end, first) => {
     let query = client
-      .from("world_contributor_research_v1")
+      .from(view)
       .select(fields, first ? { count: "exact" } : undefined)
       .or(contributorFilter);
     if (exactSourceRef) query = query.like("source_ref", `${exactSourceRef}%`);
@@ -665,7 +666,7 @@ async function fetchResearchObjects(client, contributorId, aliases, sourceRef = 
     pageSize: exactSourceRef ? 100 : RESEARCH_PAGE,
     max: exactSourceRef ? 100 : MAX_CONTRIBUTOR_RESEARCH,
     concurrency: exactSourceRef ? 1 : 4,
-  });
+  }));
   return { rows: result.rows, total: result.total, truncated: result.truncated };
 }
 

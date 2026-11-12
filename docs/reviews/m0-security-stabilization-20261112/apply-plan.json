@@ -118,15 +118,13 @@
   {
    "step": "11",
    "file": "supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql",
-   "sha256": "6516a3eece4269fb15cf5246eb6072cded0b88238a0efe0550a500b1aff4186a",
+   "sha256": "b39e59d0692e69b6fc617ff22e773549927fc51b5d1a90e9c1569af1c2a74c2b",
    "rollback": "supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql",
-   "rollback_sha256": "dda82b15f957467f53fb2dbc03436c0e2139dbd1e7dccc7f43531bc00a21390e",
-   "status": "mandatory-after-site",
-   "depends_on": [
-    "site deploy containing M0-D (the label code) is LIVE and verified"
-   ],
-   "verify": "D",
-   "what": "contributor view admits PUBLIC candidates. MUST NOT run before the M0-D site is live: the live 949c24ad5 contributor reader has no status filter and older code labels non-canonical findings as approved"
+   "rollback_sha256": "77ccd15cfb0c2d136ee93ad89b511f1c1a9bd5f73857df747d2e1c99e1c1100f",
+   "status": "mandatory",
+   "depends_on": [],
+   "verify": "D (v2 exists, admits public candidates, same ACL/options as v1; v1 definition md5 unchanged)",
+   "what": "creates world_contributor_research_v2 = v1 + PUBLIC candidates (status kept); v1 is not changed. The new site reads v2 and falls back to v1 while v2 is missing; a tab still running older code reads v1 only, so apply order relative to the site deploy does not matter (round 3: an in-place change of v1 would have exposed candidates without «טרם אומת» to open old tabs)"
   },
   {
    "step": "12",
@@ -153,5 +151,12 @@
    "item": "per-route upload size caps below 120 MiB",
    "why": "Storage RLS cannot see size; needs client uploads through media-upload-intent (M1)"
   }
- ]
+ ],
+ "rollback_order": [
+  "1. SQL step 11 rollback: drop world_contributor_research_v2 (v1 untouched) - ALWAYS before rolling the site back",
+  "2. Site: re-alias Production to the previous 2029 deployment (read it from get_alias before the forward move)",
+  "3. Edge: redeploy each function from edge-rollback/ (node scripts/m0-edge-rollback-assemble.mjs <slug>), same entrypoint and verify_jwt",
+  "4. Remaining SQL steps in reverse order of the apply list, each with its ROLLBACK file"
+ ],
+ "rollback_order_reason": "The fixed order keeps the public site from ever running code older than the data it reads. With v2 the reverse order is also safe (an old site reads v1 only), but the plan keeps one order so that no rollback depends on that reasoning being re-checked."
 }

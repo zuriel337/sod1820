@@ -81,7 +81,7 @@
 
 ## 7. פריטים שממתינים לאישור (לא בוצעו)
 
-1. **DB — תצוגה `world_contributor_research_v1`:** להחליף בתנאי הציבורי `ro.status = any(array['approved','canonical'])` ב־`ro.status = any(array['approved','canonical','candidate'])`, ולשמור את כל השאר (`security_invoker=true`, `security_barrier=true`, הרשאות SELECT ל־anon/authenticated, `privacy_scope='public'`, החרגת `person_only`, דרישת מקור קיים). בלי זה דפי מקור של כותב (סינון תורם) מציגים רק מאומתים. הקוד כבר מוכן (שכבת המועמדים פשוט ריקה עד אז).
+1. **DB — תצוגה חדשה `world_contributor_research_v2` (סבב 3, במקום שינוי v1):** v2 היא ההגדרה של v1 ועוד `'candidate'` במערך הסטטוס, עם אותן אפשרויות, אותו בעלים ואותן הרשאות. **v1 לא משתנה**, כי לשונית שנשארה פתוחה עם הקוד הישן מציגה כל שורה של v1 בלי תווית סטטוס. דף התורם ושכבת המועמדים של העולם בהקשר כותב קוראים את v2 (`src/lib/research/contributorResearchView.js`), ועוברים ל־v1 רק כש־v2 לא קיים. קוראים שיש להם שער סטטוס משלהם (רשימות צבי, כרטיסי המספר, סקירת מנהל) נשארים על v1. קובץ: `supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql`; מבחנים: `test/m0d-contributor-view-v2.test.mjs`, ‏`scripts/run-m0d-contributor-view-sql-test.sh`.
 2. **חוק DB `canonical_ui_components_law`:** מצביע ל־§8.3 ולעוזר `researchPublicStatusPresentation` כ־primitive של תווית ממשל ציבורית. לא נערך (מוחזק ב־DB).
 3. **החלטה לבעלים:** האם רשימות צבי הייעודיות («ממצאי צבי») ודוגמאות בית המדרש יציגו גם «טרם אומת» (כרגע נשמרו כשערים מכוונים), והאם המונח «טרם אומת» לממשל עלול להתבלבל עם ציר אימות המנוע («מצב בדיקה: אומת») בכרטיס הממצא המלא — שני הצירים מוצגים בנפרד.
 

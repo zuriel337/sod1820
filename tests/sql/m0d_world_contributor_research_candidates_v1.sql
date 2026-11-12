@@ -1,4 +1,5 @@
 -- M0-D regression on a DISPOSABLE PostgreSQL: the live view shape (12.11.2026), before -> apply -> after -> re-run -> rollback.
+-- Round 3: the proposal creates world_contributor_research_v2 and must leave v1 byte for byte (older clients keep reading v1).
 \set ON_ERROR_STOP on
 \set QUIET on
 set client_min_messages = warning;
@@ -30,32 +31,61 @@ create view public.world_contributor_research_v1 with (security_invoker = true, 
      LEFT JOIN channel_updates cu ON split_part(COALESCE(ro.source_ref, ''::text), '#'::text, 1) = ('channel_updates:'::text || cu.id::text)
   WHERE (CURRENT_USER = ANY (ARRAY['postgres'::name, 'service_role'::name])) OR ( SELECT rd_is_admin() AS rd_is_admin) OR ro.privacy_scope = 'public'::text AND (ro.status = ANY (ARRAY['approved'::text, 'canonical'::text])) AND COALESCE(ro.meta #>> '{ext,personal_scope,scope}'::text[], ''::text) <> 'person_only'::text AND (split_part(COALESCE(ro.source_ref, ''::text), '#'::text, 1) !~~ 'channel_updates:%'::text OR cu.id IS NOT NULL);
 grant select on public.world_contributor_research_v1 to anon, authenticated;
+grant all on public.world_contributor_research_v1 to service_role;
+-- Worst case for a NEW object: default privileges that would hand anon and authenticated every privilege (as supabase_admin's do).
+alter default privileges in schema public grant all on tables to anon, authenticated;
 insert into public.research_objects (statement, status, privacy_scope, meta) values
   ('approved public', 'approved', 'public', '{}'), ('candidate public', 'candidate', 'public', '{}'),
   ('candidate private', 'candidate', 'private', '{}'), ('candidate person only', 'candidate', 'public', '{"ext":{"personal_scope":{"scope":"person_only"}}}'),
   ('rejected public', 'rejected', 'public', '{}'), ('candidate on a missing channel update', 'candidate', 'public', '{}');
 update public.research_objects set source_ref = 'channel_updates:' || gen_random_uuid() where statement = 'candidate on a missing channel update';
-create table public.m0d_before as select pg_get_viewdef('public.world_contributor_research_v1'::regclass, true) d;
-create function pg_temp.anon_rows() returns text language plpgsql as $$
-declare v text; begin
+create table public.m0d_before as select pg_get_viewdef('public.world_contributor_research_v1'::regclass, true) d,
+  (select relacl::text from pg_class where oid = 'public.world_contributor_research_v1'::regclass) acl;
+create function pg_temp.anon_rows(v regclass) returns text language plpgsql as $$
+declare t text; begin
   set local role anon;
-  select string_agg(statement, ' | ' order by statement) into v from public.world_contributor_research_v1;
-  reset role; return v;
+  execute format('select string_agg(statement, %L order by statement) from %s', ' | ', v) into t;
+  reset role; return t;
 end $$;
-do $$ begin if pg_temp.anon_rows() is distinct from 'approved public' then raise exception 'BEFORE: expected only the approved row, got %', pg_temp.anon_rows(); end if; end $$;
+create function pg_temp.acl_set(v regclass) returns text language sql as $$
+  select string_agg(a.grantee::regrole::text || ':' || a.privilege_type, ',' order by 1) from pg_class c, aclexplode(c.relacl) a where c.oid = v and a.grantee <> c.relowner $$;
+do $$ begin
+  if pg_temp.anon_rows('public.world_contributor_research_v1') is distinct from 'approved public' then raise exception 'BEFORE: expected only the approved row in v1'; end if;
+  if to_regclass('public.world_contributor_research_v2') is not null then raise exception 'BEFORE: v2 must not exist'; end if;
+end $$;
 \i supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql
 do $$ begin
-  if pg_temp.anon_rows() is distinct from 'approved public | candidate public' then raise exception 'AFTER: expected approved + public candidate, got %', pg_temp.anon_rows(); end if;
+  if pg_temp.anon_rows('public.world_contributor_research_v2') is distinct from 'approved public | candidate public' then
+    raise exception 'AFTER: v2 expected approved + public candidate, got %', pg_temp.anon_rows('public.world_contributor_research_v2'); end if;
+  if pg_temp.anon_rows('public.world_contributor_research_v1') is distinct from 'approved public' then raise exception 'AFTER: v1 rows changed'; end if;
+  if pg_get_viewdef('public.world_contributor_research_v1'::regclass, true) <> (select d from public.m0d_before) then raise exception 'AFTER: v1 definition changed'; end if;
+  if (select relacl::text from pg_class where oid = 'public.world_contributor_research_v1'::regclass) <> (select acl from public.m0d_before) then raise exception 'AFTER: v1 privileges changed'; end if;
   if (select status from public.research_objects where statement = 'candidate public') <> 'candidate' then raise exception 'AFTER: a status changed'; end if;
-  if not has_table_privilege('anon', 'public.world_contributor_research_v1', 'SELECT') then raise exception 'AFTER: anon grant lost'; end if;
-  if not exists (select 1 from pg_class where oid = 'public.world_contributor_research_v1'::regclass
-     and reloptions @> array['security_invoker=true', 'security_barrier=true']) then raise exception 'AFTER: view options lost'; end if;
+  if pg_temp.acl_set('public.world_contributor_research_v2') is distinct from pg_temp.acl_set('public.world_contributor_research_v1') then
+    raise exception 'AFTER: v2 privileges % differ from v1 %', pg_temp.acl_set('public.world_contributor_research_v2'), pg_temp.acl_set('public.world_contributor_research_v1'); end if;
+  if has_table_privilege('anon', 'public.world_contributor_research_v2', 'INSERT') or has_table_privilege('authenticated', 'public.world_contributor_research_v2', 'UPDATE') then
+    raise exception 'AFTER: default privileges leaked a write grant onto v2'; end if;
+  if not exists (select 1 from pg_class where oid = 'public.world_contributor_research_v2'::regclass
+     and reloptions @> array['security_invoker=true', 'security_barrier=true']) then raise exception 'AFTER: v2 options missing'; end if;
 end $$;
+-- Re-run is a no-op; a foreign v2 makes the proposal stop.
 \i supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql
 \i supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql
 do $$ begin
-  if pg_get_viewdef('public.world_contributor_research_v1'::regclass, true) <> (select d from public.m0d_before) then raise exception 'ROLLBACK: definition not restored exactly'; end if;
-  if pg_temp.anon_rows() is distinct from 'approved public' then raise exception 'ROLLBACK: rows differ'; end if;
+  if to_regclass('public.world_contributor_research_v2') is not null then raise exception 'ROLLBACK: v2 still present'; end if;
+  if pg_get_viewdef('public.world_contributor_research_v1'::regclass, true) <> (select d from public.m0d_before) then raise exception 'ROLLBACK: v1 changed'; end if;
+  if pg_temp.anon_rows('public.world_contributor_research_v1') is distinct from 'approved public' then raise exception 'ROLLBACK: v1 rows differ'; end if;
 end $$;
+\i supabase/proposed/ROLLBACK_20261112134000_m0d_world_contributor_research_candidates.sql
+-- Negative control: a foreign world_contributor_research_v2 must make the proposal stop without replacing it.
+create view public.world_contributor_research_v2 as select 1 as x;
+\set ON_ERROR_STOP off
+\i supabase/proposed/20261112134000_m0d_world_contributor_research_candidates.sql
+\set ON_ERROR_STOP on
+do $$ begin
+  if pg_get_viewdef('public.world_contributor_research_v2'::regclass, true) not like '%1 AS x%' then raise exception 'NEGATIVE: the foreign v2 was replaced'; end if;
+  if pg_get_viewdef('public.world_contributor_research_v1'::regclass, true) <> (select d from public.m0d_before) then raise exception 'NEGATIVE: v1 changed'; end if;
+end $$;
+drop view public.world_contributor_research_v2;
 \o
 \echo 'M0-D contributor research view regression: PASS'

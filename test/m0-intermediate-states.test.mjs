@@ -35,7 +35,7 @@ test("apply plan: every SQL file and rollback exists and matches its SHA-256; st
       assert.ok(existsSync(root + f), f);
       assert.equal(createHash("sha256").update(readFileSync(root + f)).digest("hex"), h, `${f} changed since the apply plan was written`);
     }
-    assert.ok(["mandatory", "mandatory-after-site", "optional"].includes(s.status), s.step);
+    assert.ok(["mandatory", "optional"].includes(s.status), s.step);
     assert.ok(s.verify && s.what, s.step);
   }
   const lockdown = plan.steps.find((s) => s.file.endsWith("def001b_push_subscriptions_lockdown.sql"));
@@ -43,17 +43,24 @@ test("apply plan: every SQL file and rollback exists and matches its SHA-256; st
   assert.ok(Number(lockdown.step) > Number(step1.step) && lockdown.depends_on.includes(step1.step), "push lockdown only after step 1");
 });
 
-test("SQL before the site: the contributor view admitting candidates is ordered AFTER the M0-D site deploy", () => {
+test("any order of SQL and site: no M0 SQL file changes world_contributor_research_v1; step 11 creates v2; the rollback order is fixed", () => {
+  for (const st of plan.steps) {
+    for (const f of [st.file, st.rollback]) assert.doesNotMatch(read(f), /(create or replace|alter|drop)\s+view\s+(if exists\s+)?public\.world_contributor_research_v1\b/i, f);
+  }
   const view = plan.steps.find((s) => s.file.endsWith("m0d_world_contributor_research_candidates.sql"));
-  assert.equal(view.status, "mandatory-after-site");
-  assert.match(view.depends_on.join(" "), /site deploy containing M0-D/);
-  assert.equal(Number(view.step), Math.max(...plan.steps.filter((s) => s.status !== "optional").map((s) => Number(s.step))), "it is the last mandatory step");
+  assert.equal(view.status, "mandatory");
+  assert.deepEqual(view.depends_on, [], "no ordering against the site deploy is needed any more");
+  assert.match(read(view.file), /create view public\.world_contributor_research_v2/);
+  assert.ok(Array.isArray(plan.rollback_order) && plan.rollback_order.length >= 4);
+  const viewFirst = plan.rollback_order.findIndex((x) => /world_contributor_research_v2/.test(x));
+  const site = plan.rollback_order.findIndex((x) => /^\d+\. Site:/.test(x));
+  assert.ok(viewFirst === 0 && site > viewFirst, "drop v2 BEFORE the site goes back");
 });
 
 // Production read from Vercel on 12.11.2026: sod1820.co.il -> dpl_9sJPZEwhbu7a13cakoeTbjXasm3A, built from 146f2f0e7 (#1318).
 // The base the M0 branch was cut from (949c24ad5) was Production earlier the same day. Both are checked.
 for (const [label, rev] of [["Production 146f2f0e7", "146f2f0e7e5e6dcd17f49af33e70808e7549ea1f"], ["base 949c24ad5", "949c24ad549ae9e95ced528a4ee8159670b52678"]]) {
-  test(`why that order: the ${label} contributor reader has no status filter of its own`, { skip: has(rev) ? false : `commit ${rev.slice(0, 9)} not in this clone` }, () => {
+  test(`why v1 must never change: the ${label} contributor reader has no status filter of its own`, { skip: has(rev) ? false : `commit ${rev.slice(0, 9)} not in this clone` }, () => {
     const live = show(rev, "src/lib/research/contributorFindingsProjection.js");
     const fetchFn = live.slice(live.indexOf("async function fetchResearchObjects"), live.indexOf("async function fetchContributorContributions"));
     assert.match(fetchFn, /from\("world_contributor_research_v1"\)/);
