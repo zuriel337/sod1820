@@ -6,11 +6,9 @@ import PostExternalSourceUnit2029 from "./PostExternalSourceUnit2029.jsx";
 import { fetchGroupSourceArrivals } from "../../lib/research/worldGroupSource.js";
 import { detectNumbersAndExpressions } from "../../lib/research/unitTextSuggestions2029.js";
 
-// Sample data, labelled as such on screen. 1237 is NOT checked in the engine here (unchecked by design); the second sample states a
-// wrong number on purpose to show the distinct mismatch state with the engine's real value.
+// Sample data, labelled as such on screen. Only ONE sample remains: it states a wrong number on purpose to show the distinct mismatch
+// state with the engine's real value. Both Shachar Kandro and Yaniv Levi are now REAL public sources (read through the public reader).
 export const DEMO_SOURCE_UNITS = Object.freeze([
-  Object.freeze({ id: "demo-1237", demo: true, writerName: "שחר (הדגמה)", groupLabel: "הגילוי היומי", dateIso: "2026-11-11T18:00:00+02:00",
-    text: "הודעת הדגמה: ביטוי שטרם נבדק במנוע.", phrase: "ביטוי לדוגמה", number: 1237, skipEngine: true, href: null }),
   Object.freeze({ id: "demo-mismatch", demo: true, writerName: "כותב לדוגמה (הדגמה)", groupLabel: "הגילוי היומי", dateIso: "2026-11-11T19:00:00+02:00",
     text: "הודעת הדגמה: מספר נטען שאינו תואם את המנוע.", phrase: "נתניהו", number: 77, href: null }),
 ]);

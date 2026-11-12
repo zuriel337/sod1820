@@ -33,3 +33,9 @@ test('a source line of the form number בגימטריא phrase is a claim too', 
   const found = detectNumbersAndExpressions('566 בגימטריא: "משיח בן יוסף"\n901="ויעש הישר"');
   assert.deepEqual(found.filter((f) => f.kind === "claim").map((f) => [f.phrase, f.number]), [["משיח בן יוסף", 566], ["ויעש הישר", 901]]);
 });
+
+test('WhatsApp bold markers and a trailing method are read as a claim', () => {
+  const found = detectNumbersAndExpressions('*גדעון איזנקוט ראש הממשלה=1237*\n*רוסיה איראן סין ארהב=1237 מסתתר*\n\n *ה ת ח ל ה  ח ד ש ה = 1237* *מסתתר* \n\n*מתן כהנא=566* \n(משיח בן יוסף)');
+  const claims = found.filter((f) => f.kind === 'claim').map((f) => [f.phrase.replace(/\s+/g, ' '), f.number, f.methodText]);
+  assert.deepEqual(claims, [['גדעון איזנקוט ראש הממשלה', 1237, null], ['רוסיה איראן סין ארהב', 1237, 'מסתתר'], ['ה ת ח ל ה ח ד ש ה', 1237, 'מסתתר'], ['מתן כהנא', 566, null]]);
+});

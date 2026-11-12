@@ -42,7 +42,8 @@ const CLAIM_LINE = /^\s*(.+?)\s*=\s*(\d{1,6})\s*(.*)$/u;
 export function detectNumbersAndExpressions(text) {
   const out = [];
   const clean = String(text ?? "");
-  for (const line of clean.split("\n")) {
+  for (const rawLine of clean.split("\n")) {
+    const line = rawLine.replace(/\*/g, " "); // WhatsApp bold markers are formatting, not part of a phrase
     const m = CLAIM_LINE.exec(line.replace(/[״"“”]/g, ""));
     if (m && wordsOf(m[1]).length && !/^\d/.test(m[1].trim())) out.push({ kind: "claim", phrase: m[1].trim(), number: Number(m[2]), methodText: m[3].replace(/[()]/g, "").trim() || null });
     else {

@@ -30,7 +30,9 @@ export function hintStateFromProfile(stated, rows, { methodText = null } = {}) {
   const list = Array.isArray(rows) ? rows : [];
   const { row: regular, reason } = resolveMethodRow(rows, methodText);
   const value = exactInt(regular?.computedValue);
-  if (claimed == null || value == null) return { state: HINT_STATES.unchecked, claimed, value: null, method: null, reason: reason || null, methodText: methodText || null };
+  // A value of 0 means the engine could not read the text as an expression (for example letters spaced apart one by one): that is
+  // "not checked", never a verdict, and the text is not silently re-spelled into something the engine can read.
+  if (claimed == null || value == null || value === 0) return { state: HINT_STATES.unchecked, claimed, value: null, method: null, reason: reason || (value === 0 ? "expression_not_readable_by_engine" : null), methodText: methodText || null };
   const method = { key: regular.methodKey || null, label: regular.displayLabel || regular.methodKey || null, version: regular.definitionVersion ?? null };
   const state = value === claimed ? HINT_STATES.verified : HINT_STATES.mismatch;
   // No method was named and the regular method differs: say in WHICH other engine methods the stated number does come out, as information

@@ -35,7 +35,8 @@ function ClaimRow({ claim, skipEngine, readProfile }) {
       {state === HINT_STATES.verified ? `נבדק במנוע בשיטת ${check.method?.label || "רגילה"}: ${check.value}. אימות חישוב אינו אימות פרשנות.` : null}
       {state === HINT_STATES.mismatch ? `במקור נכתב ${check.claimed}; המנוע (שיטת ${check.method?.label || "רגילה"}) נותן ${check.value}. שני הערכים נשמרים.${check.otherMethods?.length ? ` המספר הנטען יוצא בשיטות: ${check.otherMethods.join(", ")} — השיטה לא צוינה במקור.` : ""}` : null}
       {state === HINT_STATES.unchecked && check.reason === "method_not_a_single_engine_method" ? `השיטה שנכתבה במקור (״${check.methodText}״) אינה שיטה בודדת במנוע, ולכן לא נבדקה. המספר מוצג כפי שנכתב.` : null}
-      {state === HINT_STATES.unchecked && check.reason !== "method_not_a_single_engine_method" ? "הביטוי טרם נבדק במנוע. זה מצב ניטרלי: המספר מוצג כפי שנכתב במקור." : null}
+      {state === HINT_STATES.unchecked && check.reason === "expression_not_readable_by_engine" ? "המנוע לא קורא את הניסוח כפי שנכתב (למשל אותיות מרווחות), ולכן לא נבדק. הניסוח לא תוקן בשקט; המספר מוצג כפי שנכתב." : null}
+      {state === HINT_STATES.unchecked && !["method_not_a_single_engine_method", "expression_not_readable_by_engine"].includes(check.reason) ? "הביטוי טרם נבדק במנוע. זה מצב ניטרלי: המספר מוצג כפי שנכתב במקור." : null}
     </p> : null}
   </div>;
 }

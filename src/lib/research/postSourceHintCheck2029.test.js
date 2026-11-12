@@ -44,3 +44,8 @@ test("a bare claim that differs in the regular method lists the other engine met
   assert.deepEqual([r.state, r.value, r.otherMethods], [HINT_STATES.mismatch, 384, ["משולש", "משולש גדול"]]);
   assert.deepEqual(hintStateFromProfile(1437, profile, { methodText: "משולש" }).otherMethods, []);
 });
+
+test("an expression the engine cannot read (value 0) stays unchecked and is not re-spelled", () => {
+  const r = hintStateFromProfile(1237, [{ methodKey: "מסתתר", displayLabel: "מסתתר", computedValue: 0 }], { methodText: "מסתתר" });
+  assert.deepEqual([r.state, r.reason], [HINT_STATES.unchecked, "expression_not_readable_by_engine"]);
+});
