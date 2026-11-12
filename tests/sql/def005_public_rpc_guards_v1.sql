@@ -1,4 +1,5 @@
 -- DEF-005 regression for the PROPOSED grants change, on a DISPOSABLE PostgreSQL. Fixture functions carry the production default (PUBLIC execute).
+-- Revised 12.11.2026 (M0): DEF-005 = the twelve system functions; the other fifteen 6.11 names are the optional DEF-005b file.
 \set ON_ERROR_STOP on
 \set QUIET on
 do $$ begin
@@ -17,7 +18,7 @@ begin
   foreach n in array array['check_security_spike','fn_detect_pattern_contradictions','fn_detect_patterns','fn_raziel_claims_gc','fn_rls_grant_audit','fn_scan_reeval',
     'snapshot_seo_wave','refresh_traffic_daily','enqueue_word_review','trusted_contributor_uids','push_sub_count','fn_metatron_gaps','fn_metatron_status',
     'fn_cohort_acceptance','fn_decision_reeval_check','contrib_unlock','record_feedback','vote_translit','log_translit_query','increment_post_share_by_slug',
-    'log_edge_geo','fn_outbox_bump','fn_raziel_claim','router_rate_check','blocked_countries','ai_quota_check',
+    'log_edge_geo','fn_outbox_bump','fn_raziel_claim','router_rate_check','blocked_countries','ai_quota_check','fn_edge_grant_audit',
     'ingest_event','track_visit','log_crawl','log_edge','log_security','log_journey_ab','log_journey_save','fn_log_name_research','recent_number_opens',
     'propose_community_word','lang_link_add','ai_signal','increment_post_share','add_wall_word','save_wall_word_private','fn_els_search','community_feed_page']
   loop
@@ -39,32 +40,46 @@ end $$;
 
 \i supabase/proposed/20261106131000_def005_revoke_internal_rpcs_from_clients.sql
 
--- Set A: no client role; service_role keeps it
+-- DEF-005 (M0): the twelve system functions - no client role; service_role keeps them
 do $$
 declare n text; sig text;
 begin
-  foreach n in array array['check_security_spike','fn_detect_pattern_contradictions','fn_detect_patterns','fn_raziel_claims_gc','fn_rls_grant_audit','fn_scan_reeval',
-    'snapshot_seo_wave','refresh_traffic_daily','enqueue_word_review','trusted_contributor_uids','push_sub_count','fn_metatron_gaps','fn_metatron_status',
-    'fn_cohort_acceptance','fn_decision_reeval_check','contrib_unlock','record_feedback','vote_translit','log_translit_query','increment_post_share_by_slug',
-    'fn_outbox_bump','fn_raziel_claim','router_rate_check','blocked_countries']
+  foreach n in array array['fn_edge_grant_audit','fn_rls_grant_audit','check_security_spike','snapshot_seo_wave','fn_detect_patterns',
+    'fn_detect_pattern_contradictions','fn_scan_reeval','fn_outbox_bump','fn_raziel_claim','fn_raziel_claims_gc','ai_quota_check','router_rate_check']
   loop
     sig := format('public.%I()', n);
-    if pg_temp.can('anon', sig) then raise exception 'Set A: anon can still execute %', n; end if;
-    if pg_temp.can('authenticated', sig) then raise exception 'Set A: authenticated can still execute %', n; end if;
-    if not pg_temp.can('service_role', sig) then raise exception 'Set A: service_role lost %', n; end if;
+    if pg_temp.can('anon', sig) then raise exception 'DEF-005: anon can still execute %', n; end if;
+    if pg_temp.can('authenticated', sig) then raise exception 'DEF-005: authenticated can still execute %', n; end if;
+    if not pg_temp.can('service_role', sig) then raise exception 'DEF-005: service_role lost %', n; end if;
+  end loop;
+  -- the optional names are untouched by DEF-005 itself
+  foreach n in array array['refresh_traffic_daily','enqueue_word_review','trusted_contributor_uids','push_sub_count','fn_metatron_gaps','fn_metatron_status',
+    'fn_cohort_acceptance','fn_decision_reeval_check','contrib_unlock','record_feedback','vote_translit','log_translit_query','increment_post_share_by_slug','blocked_countries']
+  loop
+    if not pg_temp.can('anon', format('public.%I()', n)) then raise exception 'DEF-005 must not touch optional %', n; end if;
+  end loop;
+  if not pg_temp.can('anon', 'public.log_edge_geo(text)') then raise exception 'DEF-005 must not touch optional log_edge_geo'; end if;
+end $$;
+
+\i supabase/proposed/20261112132000_def005b_revoke_uncalled_client_rpcs_OPTIONAL.sql
+
+-- DEF-005b (optional): the fifteen uncalled helpers - no client role; service_role keeps them
+do $$
+declare n text; sig text;
+begin
+  foreach n in array array['refresh_traffic_daily','enqueue_word_review','trusted_contributor_uids','push_sub_count','fn_metatron_gaps','fn_metatron_status',
+    'fn_cohort_acceptance','fn_decision_reeval_check','contrib_unlock','record_feedback','vote_translit','log_translit_query','increment_post_share_by_slug','blocked_countries']
+  loop
+    sig := format('public.%I()', n);
+    if pg_temp.can('anon', sig) then raise exception 'DEF-005b: anon can still execute %', n; end if;
+    if pg_temp.can('authenticated', sig) then raise exception 'DEF-005b: authenticated can still execute %', n; end if;
+    if not pg_temp.can('service_role', sig) then raise exception 'DEF-005b: service_role lost %', n; end if;
   end loop;
   -- both overloads of log_edge_geo
   foreach sig in array array['public.log_edge_geo()', 'public.log_edge_geo(text)'] loop
-    if pg_temp.can('anon', sig) or pg_temp.can('authenticated', sig) then raise exception 'Set A: % still client-executable', sig; end if;
-    if not pg_temp.can('service_role', sig) then raise exception 'Set A: service_role lost %', sig; end if;
+    if pg_temp.can('anon', sig) or pg_temp.can('authenticated', sig) then raise exception 'DEF-005b: % still client-executable', sig; end if;
+    if not pg_temp.can('service_role', sig) then raise exception 'DEF-005b: service_role lost %', sig; end if;
   end loop;
-end $$;
-
--- Set B: signed-in kept, anonymous removed
-do $$ begin
-  if pg_temp.can('anon', 'public.ai_quota_check()') then raise exception 'Set B: anon can still execute ai_quota_check'; end if;
-  if not pg_temp.can('authenticated', 'public.ai_quota_check()') then raise exception 'Set B: authenticated lost ai_quota_check'; end if;
-  if not pg_temp.can('service_role', 'public.ai_quota_check()') then raise exception 'Set B: service_role lost ai_quota_check'; end if;
 end $$;
 
 -- Everything with a client or middleware caller stays executable for anon and authenticated; so does fn_els_search (INVOKER dependent)
