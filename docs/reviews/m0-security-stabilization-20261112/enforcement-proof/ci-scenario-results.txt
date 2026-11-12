@@ -1,5 +1,6 @@
-# run-ci-scenarios.sh output (34 scenarios: S0-S15 + R1-R9). Ran locally on the G1 round-2 working state BEFORE the CL-16 apply files were added;
-# not re-run on the final pushed head. Exit 0.
+# run-ci-scenarios.sh output: 47 scenarios (S0-S15, R1-R9 of rounds 1-2, R10-R14 of round 3).
+# Ran on commit 7ddd9faaa547901bf014a3a90d903f7aacf66163 (the round-3 code commit; base = that commit, scenarios are local commits on top of it in a temporary worktree). Exit 0.
+# The same script runs in CI (live-contracts-2029.yml) whenever the G1 enforcement code changes.
 ok S0 PASS — no change
 ok S1 FAIL — new contract file without routing
 ok S2 PASS — new file declared EXTEND_EXISTING of an active owner
@@ -34,4 +35,17 @@ ok R7 FAIL — a table hidden after a '--' inside a string
 ok R8 FAIL — new store under an existing owner without a store permission
 ok R8b PASS — same, with owner, classification and store permission
 ok R9 FAIL — a back-dated snapshot is added
-RESULT: every scenario behaved as expected
+ok R10 FAIL — newer snapshot: owner is an existing file that is not a registered owner
+ok R10b FAIL — newer snapshot: a registered document becomes an owner for the first time, no approval
+ok R10c PASS — same, with a well-formed approval line (authenticity: human gate)
+ok R11 FAIL — newer snapshot: a root moves under its own child (every link is an active law)
+ok R11b PASS — newer snapshot: a chain of depth 2 that ends at a self-owned root
+ok R11c FAIL — newer snapshot: a child of a child of a retired owner
+ok R12 FAIL — a table created by a top-level SELECT ... INTO
+ok R12b PASS — same, with owner, classification and store permission
+ok R12c PASS — SELECT ... INTO a PL/pgSQL variable is not a store
+ok R13 FAIL — newer snapshot: a successor appears on a retired row without a retired_routing_v1 record
+ok R13b PASS — same, recorded through retired_routing_v1 with an approval reference (authenticity: human gate)
+ok R14 FAIL — Owner Index row routes to a document that does not exist
+ok R14b PASS — Owner Index row routes to an existing registered document
+RESULT: every scenario behaved as expected (47)

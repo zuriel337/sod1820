@@ -1,0 +1,31 @@
+# scripts/run-g1-rule-guard-sql-test.sh: the 25 lifecycle cases of the CL-16 proposal and of its rollback (verdict lines only).
+# Ran on commit 7ddd9faaa547901bf014a3a90d903f7aacf66163, on a throwaway postgres (PostgreSQL) 17.12 (Ubuntu 17.12-1.pgdg24.04+1); the same run on PostgreSQL 16.15 gave the same outcomes. Exit 0.
+M0 apply plan: 23 SQL files, none touches public.nodes or the rule guard
+CL-16 apply plan: sha256 of the proposal and of its rollback match the files
+ g1_rule_guard_cl16_v1: PASS
+ok G0-apply-no-function REFUSED [G1 rule guard precondition: public.fn_rule_compaction_integrity_guard_v1() not found; stop]
+ok G0-rollback-no-function REFUSED [G1 rule guard rollback: public.fn_rule_compaction_integrity_guard_v1() not found; stop, no]
+ok G2-apply-drifted-body REFUSED [G1 rule guard drift: function md5]
+ok G2-rollback-drifted-body REFUSED [G1 rule guard rollback drift: function md5]
+ok N1-apply-before-trigger-missing REFUSED [G1 rule guard drift: function md5 56b90b0ae0f9c5915b730314d13ca7a0, trigger (missing), tru]
+ok N1-rollback-before-trigger-missing REFUSED [G1 rule guard rollback drift: function md5 56b90b0ae0f9c5915b730314d13ca7a0, trigger (miss]
+ok N2-apply-before-trigger-disabled REFUSED [supersedes_version ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integr]
+ok N2-rollback-before-trigger-disabled REFUSED [G1 rule guard rollback drift: function md5 56b90b0ae0f9c5915b730314d13ca7a0, trigger CREAT]
+ok N2-apply-before-trigger-replica-only REFUSED [[enabled=R], truncate trigger (missing)]
+ok N2-rollback-before-trigger-replica-only REFUSED [[enabled=R], truncate trigger (missing)]
+ok G3-apply-exact-live-state RAN
+ok G4-apply-again-noop RAN
+ok N3-apply-after-trigger-missing REFUSED [G1 rule guard drift: function md5 7b03b1a78f4e04962c15399feb1668ff, trigger (missing), tru]
+ok N3-rollback-after-trigger-missing REFUSED [G1 rule guard rollback drift: function md5 7b03b1a78f4e04962c15399feb1668ff, trigger (miss]
+ok N4-apply-after-truncate-trigger-missing REFUSED [[enabled=O], truncate trigger (missing) is neither the live state]
+ok N4-rollback-after-truncate-trigger-missing REFUSED [[enabled=O], truncate trigger (missing) is neither the applied state]
+ok N5-apply-after-trigger-disabled REFUSED [identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_gu]
+ok N5-rollback-after-trigger-disabled REFUSED [identity_key ON public.nodes FOR EACH ROW EXECUTE FUNCTION fn_rule_compaction_integrity_gu]
+ok N6-apply-after-truncate-trigger-disabled REFUSED [FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=D] is]
+ok N6-rollback-after-truncate-trigger-disabled REFUSED [FOR EACH STATEMENT EXECUTE FUNCTION fn_rule_compaction_integrity_guard_v1() [enabled=D] is]
+ok G5-apply-drifted-trigger REFUSED [G1 rule guard drift: function md5 7b03b1a78f4e04962c15399feb1668ff, trigger CREATE TRIGGER]
+ok G5-rollback-drifted-trigger REFUSED [G1 rule guard rollback drift: function md5 7b03b1a78f4e04962c15399feb1668ff, trigger CREAT]
+ok G6-rollback-exact-applied-state RAN
+ok G6-rollback-again-noop RAN
+ok G7-apply-after-rollback RAN
+RESULT: all 25 lifecycle cases behaved as expected
