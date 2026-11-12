@@ -21,7 +21,10 @@
 //  every one is provolatile='s' (STABLE) - Postgres rejects data-modifying statements inside a STABLE function - and the
 //  source of each was read: SELECT / RETURN only, and every public-schema function it calls is STABLE or IMMUTABLE
 //  (fn_number_dossier / fn_number_journey call rd_is_admin(), which is why the TTL is anonymous-only).
-//    world_group_source_arrivals_v2(int, timestamptz)   STABLE SECURITY DEFINER sql   no custom callees
+//    world_group_source_arrivals_v2(int, timestamptz)   STABLE SECURITY DEFINER sql   no custom callees (live, 11.11.2026). The proposed
+//                                                       media extension (supabase/proposed/20261111234000_group_source_media_v1) keeps
+//                                                       it STABLE and adds one STABLE sql callee (group_source_media_publishable_v1) and
+//                                                       SELECTs on storage.objects; still read-only.
 //    fn_number_lookup(bigint, int, text)                STABLE sql                    callees: fn_composite_calc, fn_method_* (stable)
 //    fn_number_dossier(int)                             STABLE SECURITY DEFINER       callees stable/immutable (rd_is_admin stable)
 //    fn_number_journey(int)                             STABLE SECURITY DEFINER       callees stable/immutable

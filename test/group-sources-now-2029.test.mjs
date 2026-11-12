@@ -119,17 +119,22 @@ test("proposed SQL: extends the one reader, keeps every privacy filter, adds onl
   assert.ok(!migrations.some((name) => /group_source.*(extend|ki_la)/i.test(name)), "proposals are not in supabase/migrations (not auto-applied)");
 });
 
-test("ingest: ki-la joins only the proof path in code; guard and sender-JID proof are unchanged", () => {
+test("ingest: the live set of public groups; text proof for text only; images/videos only through the media proof; sender-JID identity", () => {
   const ts = read("supabase/functions/wa-channel-ingest/index.ts");
-  assert.match(ts, /WORLD_GROUP_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "ki-la-hamelucha-gematria"\]\)/);
+  // The deployed v33 set (11.11.2026), the same three channels the proof table admits; ki-la stays a separate gated change.
+  assert.match(ts, /WORLD_GROUP_CHANNELS = new Set\(\["torat-haremez", "gilui-yomi", "blaze-888"\]\)/);
   assert.ok(!/WORLD_GROUP_CHANNELS[^;]*or-geula/.test(ts));
   const at = ts.indexOf('rpc("record_channel_update_group_proof_v1"');
-  const guard = ts.slice(ts.lastIndexOf("if (WORLD_GROUP_CHANNELS", at), at);
-  assert.ok(guard.includes("!outgoing") && guard.includes("!imageUrl") && guard.includes("@g.us"));
+  const guard = ts.slice(ts.lastIndexOf("if (route.groupSource", at), at);
+  assert.equal(guard.trim(), "if (route.groupSource && !imageUrl) {\n        const pr = await sb.", "the text proof only for a message without media");
   assert.ok(ts.slice(at, at + 400).includes("p_sender_jid: senderId"));
+  assert.match(ts, /const route = waGroupMessageRoute\(\{ worldGroup: WORLD_GROUP_CHANNELS\.has\(src\.channel\), outgoing, chatId, typeMessage: typ, mediaKind \}\)/);
+  assert.match(ts, /group_source_intake_public: waGroupIntakePublic\(route, imageUrl\),/);
+  assert.match(ts, /\} else if \(route\.groupMedia && route\.kind && waIsPrivateMediaRef\(imageUrl\) && keep\.media\) \{/);
   // Audio messages are admitted (11.11.2026) on the same private/live rule; a world group never makes them public.
   assert.match(ts, /"audioMessage"/);
-  assert.ok(guard.includes("!imageUrl"), "a message with any media (audio included) never becomes a public group source");
+  const media = read("supabase/functions/_shared/waGroupMedia.js");
+  assert.match(media, /WA_GROUP_MEDIA_TYPES = Object\.freeze\(\{ imageMessage: "image", videoMessage: "video" \}\)/, "audio is never a group media type");
 });
 
 test("World and Now components render the group label, media and member link from the shared fields", () => {

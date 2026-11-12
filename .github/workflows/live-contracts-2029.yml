@@ -264,6 +264,8 @@ jobs:
           test/home-featured-post-2029.test.mjs
           test/companion-2029-one-feed-and-projector-rail.test.mjs
           test/group-youtube-card-2029.test.mjs
+      - name: Group images and videos on the Zvi path (proposal; the ingest routes only plain images/videos of public groups, the public copy is written only after the server's publishable answer, Edge and SQL derive the same path, the client shows a media row with the existing projection)
+        run: node --test test/group-source-media-2029.test.mjs
       - name: Connected golden theme contract (script runner)
         run: node scripts/test-connected-golden-2029.mjs
       - name: Robustness and rollout-order contracts (stale-chunk recovery and error boundary, /api/card deadline and glyphs, guest/member preferences split, push and RPC deploy-order manifests, ELS bridge anonymous bearer, missing-asset 404, client read de-duplication, bot-observability migrations; the asset-miss test reads the production build generated earlier in this job)
@@ -307,6 +309,8 @@ jobs:
         run: bash scripts/run-gilui-yomi-zvi-parity-sql-test.sh
       - name: Kandro in «הגילוי היומי» (the number binding refuses unless one admin sender signed קנדרו and the number is no one else's; old proofs stand; the source rows of the group stay without the 24-hour expiry; both roll back exactly; live functions byte for byte)
         run: bash scripts/run-gilui-yomi-kandro-sql-test.sh
+      - name: Group images and videos (proposal; text arrivals byte-identical; only a verified, approved, unheld writer's image or video with a recorded public copy at the exact path and of the same type and size; every gate refuses; hold and takedown; grants; the 10.11 backfill; both roll back exactly; live functions byte for byte)
+        run: bash scripts/run-group-source-media-sql-test.sh
 
   # Permanent browser gate for sign-in: a real Chromium, the built public-reading artifact with its real service worker and the real
   # Supabase client on the production URL (mapped to a local fixture; Auth is an in-memory model, nothing leaves the runner).
