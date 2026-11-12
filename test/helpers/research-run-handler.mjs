@@ -12,7 +12,8 @@ import {createGematriaCorpusCrossingW2Executor} from '../../src/lib/research/gem
 import {createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE} from '../../src/lib/research/gematriaRelationW2Executor.js';
 import {PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,PUBLIC_EXPRESSION_CROSSING_CAPABILITY,PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest} from '../../src/lib/research/researchRunRequest.js';
 import {mergeNumberPhrasePresentationOrder,NUMBER_PHRASE_PRESENTATION_AUTHORITY,NUMBER_PHRASE_PRESENTATION_LIMIT} from '../../src/lib/research/numberPhrasePresentationOrder.js';
-export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,gematriaResult=null,crossingRows=[],leadRows=[],leadReadFailure=false,confirmedRelationRows=[],methodSemanticRows=[],methodRegistryRows=[],publicPhrases=[],confirmedRelationReadFailure=false,methodSemanticReadFailure=false,methodRegistryReadFailure=false,publicPhraseReadFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
+import {enforcePublicComputeLimits} from '../../supabase/functions/_shared/edgeCallerLimits.js';
+export function isolatedResearchRun({rateAllowed=true,failure=null,failures=[],gateAllowed=true,composerFailure=false,authenticatedUser=false,relationCandidate=null,gematriaResult=null,crossingRows=[],leadRows=[],leadReadFailure=false,confirmedRelationRows=[],methodSemanticRows=[],methodRegistryRows=[],publicPhrases=[],confirmedRelationReadFailure=false,methodSemanticReadFailure=false,methodRegistryReadFailure=false,publicPhraseReadFailure=false,source=readFileSync(new URL('../../supabase/functions/research-run/index.ts',import.meta.url),'utf8')}={}) {
   const roots=new Map(),spans=new Map(),calls=[],unexpected=[];
   const faults=[failure,...failures].filter(Boolean);
   const origin='http://127.0.0.1:1',anon='test-anon-key',service='test-service-key';
@@ -84,7 +85,7 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
       if(fault.mode==='false')return response(false);
       return response({message:'Isolated persistence outage'},503);
     }
-    if(name.startsWith('op_trace_')||name==='fn_capability_execution_gate_v1')assert.equal(req.headers.get('authorization'),`Bearer ${service}`);
+    if(name.startsWith('op_trace_')||name==='fn_capability_execution_gate_v1'||name==='edge_rate_limit_check')assert.equal(req.headers.get('authorization'),`Bearer ${service}`);
     else assert.equal(req.headers.get('authorization'),`Bearer ${anon}`,'canonical executors must retain caller credential');
     if(name==='op_trace_begin_v1'){
       assert.ok(!roots.has(body.p_trace_id));
@@ -100,6 +101,7 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
       // Canonical migration returns boolean true only after finalization writes.
       assert.ok(roots.has(body.p_trace_id));Object.assign(roots.get(body.p_trace_id),{finished:true,outcome:body.p_outcome,stopReason:body.p_stop_reason});return response(true);
     }
+    if(name==='edge_rate_limit_check'){assert.match(body.p_key_hash,/^[0-9a-f]{64}$/);return response({allowed:rateAllowed,count:1,limit:body.p_limit,window_seconds:body.p_window_seconds});}
     if(name==='fn_capability_execution_gate_v1')return response({allowed:gateAllowed,entitlement:{entitlement:'public',is_admin:false}});
     // Representative numeric source: exact literal, source identity and governed
     // truth axes. The canonical composer/executors, not this fixture, emit Findings.
@@ -135,6 +137,7 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
     'import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";',
     'import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, PUBLIC_EXPRESSION_CROSSING_CAPABILITY, PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";',
     'import { mergeNumberPhrasePresentationOrder, NUMBER_PHRASE_PRESENTATION_AUTHORITY, NUMBER_PHRASE_PRESENTATION_LIMIT } from "../../../src/lib/research/numberPhrasePresentationOrder.js";',
+    'import { enforcePublicComputeLimits } from "../_shared/edgeCallerLimits.js";',
   ],'Review new Edge imports before executing them');
   let handler;
   const env={SUPABASE_URL:origin,SUPABASE_ANON_KEY:anon,SUPABASE_SERVICE_ROLE_KEY:service};
@@ -144,6 +147,7 @@ export function isolatedResearchRun({failure=null,failures=[],gateAllowed=true,c
     createPublicNumberW2Executors,createGematriaMethodProfileW2Executor,createGematriaCorpusCrossingW2Executor,createGematriaRelationW2Executor,GEMATRIA_RELATION_PAIR_MODE,
     PERSONAL_GEMATRIA_PAIR_CAPABILITY,PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT,PUBLIC_EXPRESSION_CROSSING_CAPABILITY,PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT,normalizeResearchRunRequest,
     mergeNumberPhrasePresentationOrder,NUMBER_PHRASE_PRESENTATION_AUTHORITY,NUMBER_PHRASE_PRESENTATION_LIMIT,
+    enforcePublicComputeLimits,
     Request,Response,Headers,URL,crypto:{randomUUID},
   },{filename:'research-run/index.ts',timeout:5000});
   const fetch=async(input,init)=>{

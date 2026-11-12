@@ -13,7 +13,7 @@ export function ordinaryRazielStages(route) {
   return {
     deterministic: at('if (det && det.enabled === true && det.mode === "deterministic" && det.needs_synthesis === false)'),
     selector: at('const rSel = selectRazielIntelligence('),
-    quota: at('const q = await checkQuota(rBudgetIdentity, tier, rLimitOverride);'),
+    quota: at('const q = await checkQuota(rBudgetIdentity, tier, rLimitOverride, { failOpen: !!rTrusted });'),
     trace: at('activeTrace = await beginOperationalTrace({\n        body,\n        identityClass: tier,\n        capability: rPersonalAreaCompanion'),
     model: at('const rel = await callClaudeReliable({\n        apiKey: ANTHROPIC_KEY, model: rModel, system: rzSys, user,'),
   };

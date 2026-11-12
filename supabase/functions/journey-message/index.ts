@@ -1,9 +1,12 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createMaterialGate } from "../_shared/materialGate.js";
 
-// journey-message — intentionally public Journey UX under ai_quota_law v3 / journey_ai_guard_law.
-// Abuse containment reuses the existing atomic edge limiter. It is operational protection only:
-// the Journey remains free/public and is not converted into the generic paid AI quota product.
+// journey-message — Journey UX under ai_quota_law v3 / journey_ai_guard_law.
+// M0-B (ZURIEL, 12.11.2026): this is a PAID AI call and runs only for a verified signed-in user
+// (Supabase session JWT verified server-side). A guest receives 401 sign_in_required before any limiter,
+// trace, gate or provider I/O. Abuse containment reuses the existing atomic edge limiter (per account
+// 40/hour + global 120/hour, unchanged) plus a global daily cap over ai_quota_check; any limiter failure
+// fails CLOSED. The Journey budget stays "none" (it is not converted into the generic ai_quota product).
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -23,6 +26,7 @@ type JourneyCaller = {
 type JourneyMaterialGate = {
   serviceRpc: (name: string, args: Record<string, unknown>) => Promise<any>;
   resolveCaller: (req: Request, body?: Record<string, unknown>) => Promise<JourneyCaller>;
+  paidAiLimits: (caller: JourneyCaller, options: Record<string, unknown>) => Promise<any>;
   beginTrace: (args: Record<string, unknown>) => Promise<any>;
   runGate: (trace: any, args: Record<string, unknown>) => Promise<any>;
   providerSpan: (trace: any, args: Record<string, unknown>) => Promise<any>;
@@ -30,7 +34,7 @@ type JourneyMaterialGate = {
 };
 
 // G3 D2: canonical server capability gate + Operational Trace before provider spend (service role only).
-// Journey stays a FREE public experience: budget_kind "none" — availability/entitlement only, no ai_quota.
+// Journey budget_kind stays "none" — availability/entitlement only, no per-account ai_quota row.
 // materialGate is shared JavaScript without a declaration file; keep the cast at this one boundary.
 const mg = createMaterialGate({
   supabaseUrl: Deno.env.get("SUPABASE_URL") || "",
@@ -40,21 +44,15 @@ const mg = createMaterialGate({
 const CAPABILITY = "journey-message:msg";
 const OWNER_REF = "ai_quota_law v3 + journey_ai_guard_law + platform_tiers_law v5";
 const RATE_WINDOW_SECONDS = 60 * 60;
-const RATE_LIMIT_ANON = 12;
 const RATE_LIMIT_VERIFIED = 40;
 const RATE_LIMIT_GLOBAL = 120;
+const DAILY_CAP_GLOBAL = 500;
 const MAX_REQUEST_BYTES = 16 * 1024;
 const MAX_PATH_ITEMS = 20;
 const MAX_PATH_ITEM_CHARS = 160;
 
 const json = (body: unknown, status = 200, extraHeaders: Record<string, string> = {}) =>
   new Response(JSON.stringify(body), { status, headers: { ...CORS, ...extraHeaders } });
-
-async function sha256(value: string): Promise<string> {
-  const bytes = new TextEncoder().encode(value);
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(digest)].map((x) => x.toString(16).padStart(2, "0")).join("");
-}
 
 async function readBoundedJson(req: Request): Promise<
   { ok: true; body: Record<string, unknown> } |
@@ -103,66 +101,6 @@ async function readBoundedJson(req: Request): Promise<
   } catch {
     return { ok: false, error: "bad_json" };
   }
-}
-
-function networkIdentity(req: Request): string {
-  const cloudflare = String(req.headers.get("cf-connecting-ip") || "").trim();
-  const forwarded = String(req.headers.get("x-forwarded-for") || "")
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
-  // Prefer the platform-injected Cloudflare address. Otherwise use the last
-  // proxy hop, not the client-controlled first XFF value. Do not include UA:
-  // rotating it must not create a fresh anonymous bucket.
-  const ip = cloudflare || forwarded.at(-1) || "unknown";
-  return `anon:${ip}`;
-}
-
-function retryAfterSeconds(windowSeconds = RATE_WINDOW_SECONDS): number {
-  const supplied = Number(windowSeconds);
-  const safeWindow = Number.isFinite(supplied) && supplied > 0
-    ? Math.min(RATE_WINDOW_SECONDS, Math.max(60, Math.floor(supplied)))
-    : RATE_WINDOW_SECONDS;
-  const seconds = Math.floor(Date.now() / 1000);
-  return Math.max(1, safeWindow - (seconds % safeWindow));
-}
-
-async function enforceRateLimit(req: Request, caller: any): Promise<
-  { state: "allowed" } |
-  { state: "denied"; retryAfter: number } |
-  { state: "unavailable" }
-> {
-  const verified = caller?.verified === true && typeof caller?.userRef === "string";
-  const identity = verified ? `user:${caller.userRef}` : networkIdentity(req);
-  const identityKey = await sha256(`journey-message|identity|${identity}`);
-  const globalKey = await sha256("journey-message|global");
-  const identityLimit = verified ? RATE_LIMIT_VERIFIED : RATE_LIMIT_ANON;
-
-  const identityDecision = await mg.serviceRpc("edge_rate_limit_check", {
-    p_key_hash: identityKey,
-    p_window_seconds: RATE_WINDOW_SECONDS,
-    p_limit: identityLimit,
-  });
-  if (!identityDecision || typeof identityDecision.allowed !== "boolean") {
-    return { state: "unavailable" };
-  }
-  if (!identityDecision.allowed) {
-    return { state: "denied", retryAfter: retryAfterSeconds(identityDecision.window_seconds) };
-  }
-
-  const globalDecision = await mg.serviceRpc("edge_rate_limit_check", {
-    p_key_hash: globalKey,
-    p_window_seconds: RATE_WINDOW_SECONDS,
-    p_limit: RATE_LIMIT_GLOBAL,
-  });
-  if (!globalDecision || typeof globalDecision.allowed !== "boolean") {
-    return { state: "unavailable" };
-  }
-  if (!globalDecision.allowed) {
-    return { state: "denied", retryAfter: retryAfterSeconds(globalDecision.window_seconds) };
-  }
-
-  return { state: "allowed" };
 }
 
 function cleanName(raw: unknown): string {
@@ -224,22 +162,29 @@ Deno.serve(async (req: Request) => {
 
     const MODEL = "claude-haiku-4-5";
 
-    // Atomic server-side containment BEFORE trace/gate/provider spend. The limiter key is a hash;
-    // raw IP, user id and user-agent are never persisted in the rate-limit bucket.
+    // Signed-in only, then atomic server-side containment BEFORE trace/gate/provider spend. Limiter keys
+    // are server-keyed hashes; raw user ids are never persisted in a rate-limit bucket.
     const caller = await mg.resolveCaller(req, body);
-    const rate = await enforceRateLimit(req, caller);
+    if (!caller.verified) return json({ message: null, error: "sign_in_required" }, 401);
+    const rate = await mg.paidAiLimits(caller, {
+      scope: "journey-message",
+      accountLimit: RATE_LIMIT_VERIFIED, accountWindowSeconds: RATE_WINDOW_SECONDS,
+      globalLimit: RATE_LIMIT_GLOBAL, globalWindowSeconds: RATE_WINDOW_SECONDS,
+      globalDailyCap: DAILY_CAP_GLOBAL,
+    });
+    if (rate.state === "refused") return json({ message: null, error: "sign_in_required" }, 401);
     if (rate.state === "unavailable") {
       return json({ message: null, error: "rate_limit_unavailable" }, 503);
     }
     if (rate.state === "denied") {
       return json(
-        { message: null, error: "rate_limited", retry_after_seconds: rate.retryAfter },
+        { message: null, error: rate.bucket === "global_daily" ? "daily_cap_reached" : "rate_limited", retry_after_seconds: rate.retryAfter },
         429,
         { "Retry-After": String(rate.retryAfter) },
       );
     }
 
-    // Gate BEFORE the provider call; fails closed. Public contract preserved (guests allowed).
+    // Gate BEFORE the provider call; fails closed.
     const trace = await mg.beginTrace({
       capability: CAPABILITY, surface: "journey", ownerRef: OWNER_REF,
       identityClass: caller.tier, rootName: "journey-message", subjectRef: Number.isSafeInteger(value) && value > 0 ? `number:${value}` : null,

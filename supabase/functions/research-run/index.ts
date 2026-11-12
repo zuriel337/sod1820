@@ -36,6 +36,7 @@ import { createGematriaCorpusCrossingW2Executor } from "../../../src/lib/researc
 import { createGematriaRelationW2Executor, GEMATRIA_RELATION_PAIR_MODE } from "../../../src/lib/research/gematriaRelationW2Executor.js";
 import { PERSONAL_GEMATRIA_PAIR_CAPABILITY, PERSONAL_GEMATRIA_PAIR_RESEARCH_RUN_CONTRACT, PUBLIC_EXPRESSION_CROSSING_CAPABILITY, PUBLIC_EXPRESSION_CROSSING_RESEARCH_RUN_CONTRACT, normalizeResearchRunRequest } from "../../../src/lib/research/researchRunRequest.js";
 import { mergeNumberPhrasePresentationOrder, NUMBER_PHRASE_PRESENTATION_AUTHORITY, NUMBER_PHRASE_PRESENTATION_LIMIT } from "../../../src/lib/research/numberPhrasePresentationOrder.js";
+import { enforcePublicComputeLimits } from "../_shared/edgeCallerLimits.js";
 
 const SUPABASE_URL = (Deno.env.get("SUPABASE_URL") || "").trim();
 const ANON_KEY = (Deno.env.get("SUPABASE_ANON_KEY") || "").trim();
@@ -343,6 +344,22 @@ Deno.serve(async (req: Request) => {
 
   const identity = userId ? `u:${userId}` : `v:${visitorId}`;
   const identityClass = userId ? "authenticated_user" : "public_user";
+
+  // ── M0-B public-compute containment (before trace/gate/executor I/O) ────────────────────
+  // Existing atomic edge_rate_limit_check. Subject = Auth-verified user id, else a server-salted hash of
+  // the platform client address; body.visitor_id stays a trace/gate label only and never a limit key.
+  // 120/hour per subject (observed peak 55/hour for the whole site) + 120/minute global (peak 7/minute).
+  // Limiter infrastructure failure fails OPEN so public research stays available; a denial is 429.
+  const limits = await enforcePublicComputeLimits({
+    serviceRpc, secret: SERVICE_KEY, scope: "research-run", req, userId,
+    subjectLimit: 120, subjectWindowSeconds: 3600, globalLimit: 120, globalWindowSeconds: 60,
+  });
+  if (limits.state === "denied") {
+    return new Response(JSON.stringify({ status: "error", error: "rate_limited", retry_after_seconds: limits.retryAfter }), {
+      status: 429,
+      headers: { "Content-Type": "application/json; charset=utf-8", "Retry-After": String(limits.retryAfter), ...CORS },
+    });
+  }
   const executionCapability = personalPair
     ? "research-w2:gematria-relations"
     : expressionCrossing

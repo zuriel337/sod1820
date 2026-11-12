@@ -132,6 +132,9 @@ export function fixture() {
           return reply({ ok: true, status: row.status });
         }
       }
+      // M0-B paid-AI containment for verified callers: server-keyed account/global buckets + global daily cap.
+      if (name === "edge_rate_limit_check") { assert.equal(token, SERVICE); assert.match(body.p_key_hash, /^[0-9a-f]{64}$/); return reply({ allowed: true, count: 1, limit: body.p_limit, window_seconds: body.p_window_seconds }); }
+      if (name === "ai_quota_check") { assert.equal(token, SERVICE); assert.match(body.p_identity, /^g:[0-9a-f]{64}$/); return reply({ allowed: true, used: 1, limit: body.p_limit_override, tier: body.p_tier }); }
       if (name === "fn_capability_execution_gate_v1") return reply({ allowed: gateAllowed, availability: { allowed: true }, entitlement: { allowed: true }, budget: { allowed: gateAllowed } });
       if (name === "op_trace_begin_v1") return reply({ trace_id: body.p_trace_id, root_span_id: body.p_root_span_id });
       if (["op_trace_record_span_v1", "op_trace_finish_v1", "op_trace_link_ai_cost_v1"].includes(name)) return reply({ ok: true });

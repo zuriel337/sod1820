@@ -12,7 +12,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { stripTypeScriptTypes } from 'node:module';
 import { runInNewContext } from 'node:vm';
-import { createHash } from 'node:crypto';
+import { enforcePublicComputeLimits, limiterKey } from '../supabase/functions/_shared/edgeCallerLimits.js';
 
 const SOURCE = readFileSync(new URL('../supabase/functions/els-search-bridge/index.ts', import.meta.url), 'utf8');
 
@@ -59,12 +59,15 @@ function load({ env = { SUPABASE_URL: ORIGIN, SUPABASE_SERVICE_ROLE_KEY: SERVICE
     unexpected.push(url);
     throw new Error('Unexpected request');
   };
+  // M0-B: the bridge imports the shared limiter decision module; review any further import before mocking it.
+  const imports = [...SOURCE.matchAll(/^import .*;$/gm)].map(([line]) => line);
+  assert.deepEqual(imports, ['import { enforcePublicComputeLimits } from "../_shared/edgeCallerLimits.js";']);
   const ctx = {
     Deno: { env: { get: (k) => env[k] }, serve: (fn) => { handler = fn; } },
-    fetch: transport,
+    fetch: transport, enforcePublicComputeLimits,
     Request, Response, Headers, URL, TextEncoder, TextDecoder, atob, crypto: globalThis.crypto,
   };
-  runInNewContext(stripTypeScriptTypes(SOURCE), ctx, { filename: 'els-search-bridge/index.ts', timeout: 5000 });
+  runInNewContext(stripTypeScriptTypes(SOURCE.replace(/^import .*;\n/gm, '')), ctx, { filename: 'els-search-bridge/index.ts', timeout: 5000 });
   assert.equal(typeof ctx.resolveUser, 'function', 'resolveUser must remain a top-level function of the handler');
   assert.equal(typeof handler, 'function', 'Deno.serve must register the handler');
   const authCalls = () => calls.filter((c) => c.path === '/auth/v1/user');
@@ -190,7 +193,10 @@ test('missing server configuration still short-circuits before any network, even
 
 // End to end through the real handler: the identity that reaches the rate limiter (and so the capability gate and
 // the trace) is what resolveUser decided. The stub rate limiter denies, so nothing past it is exercised.
-const sha256 = (text) => createHash('sha256').update(text).digest('hex');
+// M0-B (ZURIEL 12.11.2026): the anonymous bucket is a server-salted hash of the platform client address
+// (no user-agent, no client-set first XFF hop); a user bucket is keyed by the Auth-verified id.
+const anonBucket = () => limiterKey(SERVICE_KEY, 'els-search-bridge', 'ip:203.0.113.7');
+const userBucket = () => limiterKey(SERVICE_KEY, 'els-search-bridge', `user:${USER_ID}`);
 const pageBody = JSON.stringify({ op: 'page', term: 'תורה', skip_max: 100 });
 const handlerRequest = (authorization) => new Request(`${ORIGIN}/functions/v1/els-search-bridge`, {
   method: 'POST',
@@ -203,13 +209,13 @@ const rateCall = (rt) => {
   return rate[0];
 };
 
-test('handler: a guest (anon key) reaches the rate limiter as the anonymous ip+ua bucket without touching Auth', async () => {
+test('handler: a guest (anon key) reaches the rate limiter as the anonymous platform-address bucket without touching Auth', async () => {
   const rt = load();
   const res = await rt.handler(handlerRequest(bearer(ANON_KEY_JWT)));
   assert.equal(res.status, 429);
   assert.equal(rt.authCalls().length, 0, 'guest traffic produces zero Auth requests');
   const { body } = rateCall(rt);
-  assert.equal(body.p_key_hash, sha256('els-search-bridge|anon:203.0.113.7:synthetic-agent/1.0'));
+  assert.equal(body.p_key_hash, await anonBucket());
   assert.equal(body.p_limit, 60, 'anonymous page limit is unchanged');
   assert.deepEqual(rt.unexpected, []);
 });
@@ -219,7 +225,7 @@ test('handler: a request with no authorization header is the same anonymous buck
   const res = await rt.handler(handlerRequest(null));
   assert.equal(res.status, 429);
   assert.equal(rt.authCalls().length, 0);
-  assert.equal(rateCall(rt).body.p_key_hash, sha256('els-search-bridge|anon:203.0.113.7:synthetic-agent/1.0'));
+  assert.equal(rateCall(rt).body.p_key_hash, await anonBucket());
 });
 
 test('handler: a real user is still resolved through Auth and reaches the rate limiter as that user', async () => {
@@ -229,7 +235,7 @@ test('handler: a real user is still resolved through Auth and reaches the rate l
   assert.equal(rt.authCalls().length, 1);
   assert.equal(rt.authCalls()[0].headers.authorization, bearer(HEBREW_USER_JWT));
   const { body } = rateCall(rt);
-  assert.equal(body.p_key_hash, sha256(`els-search-bridge|user:${USER_ID}`));
+  assert.equal(body.p_key_hash, await userBucket());
   assert.equal(body.p_limit, 120, 'authenticated page limit is unchanged');
   assert.deepEqual(rt.unexpected, []);
 });
@@ -239,7 +245,7 @@ test('handler: a user token Auth rejects falls back to the anonymous bucket exac
   const res = await rt.handler(handlerRequest(bearer(USER_JWT)));
   assert.equal(res.status, 429);
   assert.equal(rt.authCalls().length, 1);
-  assert.equal(rateCall(rt).body.p_key_hash, sha256('els-search-bridge|anon:203.0.113.7:synthetic-agent/1.0'));
+  assert.equal(rateCall(rt).body.p_key_hash, await anonBucket());
 });
 
 test('source guard: only the Auth-bound path was touched - the verifier call and its headers are unchanged', () => {

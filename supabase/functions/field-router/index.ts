@@ -10,32 +10,47 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") || "";
 const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 // G3 D2 classification: bespoke controls (verified JWT + profiles.tier>=3 + router_rate_check daily cap) are
-// retained as the capability control → TRACE ONLY here (no second gate). Residual fail-open branches noted in AFTER.
+// retained as the capability control → TRACE ONLY here (no second gate). M0-B closed the residual fail-open
+// branches: missing/unreadable profile and an unavailable router_rate_check now refuse.
 const mg = createMaterialGate({ supabaseUrl: SUPABASE_URL, serviceKey: SERVICE_KEY, anonKey: ANON_KEY });
 const CAPABILITY = "field-router:lens";
 const OWNER_REF = "platform_tiers_law v5 + system_suggestions_law v5";
 const DAILY_CAP = Number(Deno.env.get("ROUTER_DAILY_CAP") || "20");
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // 🔐 GATE — מאמת משתמש מחובר + rate-limit. ללא גישה → fallback בטוח (בלי קריאה ל-Claude, בלי עלות).
 async function gate(req: Request): Promise<{ ok: true; uid: string } | { ok: false; reason: string }> {
   const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   if (!token) return { ok: false, reason: "auth" };
   // אימות ה-JWT של המשתמש מול Supabase Auth
-  const ures = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { apikey: ANON_KEY, Authorization: `Bearer ${token}` } });
-  if (!ures.ok) return { ok: false, reason: "auth" };
-  const user = await ures.json();
+  let user: any = null;
+  try {
+    const ures = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: { apikey: ANON_KEY, Authorization: `Bearer ${token}` } });
+    if (!ures.ok) return { ok: false, reason: "auth" };
+    user = await ures.json();
+  } catch { return { ok: false, reason: "auth" }; }
   if (!user?.id) return { ok: false, reason: "auth" };
-  // tier — אם קיימת טבלת profiles, דרוש tier≥3 (לא חוסם אם אין טבלה/שורה)
+  // tier — M0-B: fails CLOSED. A missing profile row, a non-numeric tier or an unreadable profiles table
+  // is a refusal (previously each of these passed). tier>=3 is still the only admission.
+  if (!UUID_RE.test(String(user.id))) return { ok: false, reason: "auth" };
+  let tier: number | null = null;
   try {
     const pr = await fetch(`${SUPABASE_URL}/rest/v1/profiles?user_id=eq.${user.id}&select=tier`, { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } });
-    if (pr.ok) { const rows = await pr.json(); if (Array.isArray(rows) && rows[0] && typeof rows[0].tier === "number" && rows[0].tier < 3) return { ok: false, reason: "tier" }; }
-  } catch { /* אין profiles → לא חוסם */ }
-  // rate-limit פר-משתמש ליום
-  const rl = await fetch(`${SUPABASE_URL}/rest/v1/rpc/router_rate_check`, {
-    method: "POST", headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ p_user: user.id, p_cap: DAILY_CAP }),
-  });
-  if (rl.ok) { const allowed = await rl.json(); if (allowed === false) return { ok: false, reason: "rate" }; }
+    if (!pr.ok) return { ok: false, reason: "tier_unavailable" };
+    const rows = await pr.json();
+    if (Array.isArray(rows) && rows[0] && typeof rows[0].tier === "number") tier = rows[0].tier;
+  } catch { return { ok: false, reason: "tier_unavailable" }; }
+  if (tier === null || tier < 3) return { ok: false, reason: "tier" };
+  // rate-limit פר-משתמש ליום — M0-B: only an explicit `true` admits; a failed/garbled limiter refuses.
+  try {
+    const rl = await fetch(`${SUPABASE_URL}/rest/v1/rpc/router_rate_check`, {
+      method: "POST", headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_user: user.id, p_cap: DAILY_CAP }),
+    });
+    if (!rl.ok) return { ok: false, reason: "rate_unavailable" };
+    const allowed = await rl.json();
+    if (allowed !== true) return { ok: false, reason: allowed === false ? "rate" : "rate_unavailable" };
+  } catch { return { ok: false, reason: "rate_unavailable" }; }
   return { ok: true, uid: user.id };
 }
 
