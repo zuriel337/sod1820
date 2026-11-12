@@ -6,3 +6,7 @@
 .sod29-group-media.is-video-poster span{position:relative;display:grid;place-items:center;width:56px;height:56px;margin:auto;border-radius:50%;background:rgba(0,0,0,.55)}
 a.sod29-group-creator{display:inline-flex;align-items:center;min-height:44px;color:var(--s29-accent-text);text-decoration:underline;text-underline-offset:3px}
 .sod29-group-creator{overflow-wrap:anywhere}
+
+/* A standalone number inside a public group message links to its Number page (display only). */
+.sod29-group-number { color: inherit; font-weight: 700; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 3px; }
+.sod29-group-number:is(:hover, :focus-visible) { text-decoration-style: solid; }

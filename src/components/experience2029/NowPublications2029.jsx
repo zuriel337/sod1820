@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ExternalVideoFacade2029 from "./ExternalVideoFacade2029.jsx";
+import { GroupMessageText } from "../research/GroupSourceMeta2029.jsx";
 import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
 import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowBySource, filterNowModels, nowLensCounts, nowModels, nowPinnedMessage, nowTodayBand, nowSecondaryChoices, nowSeriesHref, nowSourceChoices } from "../../lib/nowPublications2029.js";
@@ -92,7 +93,7 @@ function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null }) {
       : model.audio && model.mediaHref ? <audio className="sod29-nowpub-audio" src={model.mediaHref} controls preload="none" aria-label={`הקלטה · ${model.title}`} />
       : model.image && model.mediaHref
       ? <img className="sod29-nowpub-image" src={model.mediaHref} alt={`תמונה · ${model.title}`} loading="lazy" decoding="async" /> : null}
-    {model.fullText && model.fullText !== model.title ? <p className="sod29-nowpub-body">{model.fullText}</p>
+    {model.fullText && model.fullText !== model.title ? <p className="sod29-nowpub-body">{model.item?.sourceKind === "group_message" ? <GroupMessageText text={model.fullText} onNumber={(href) => onOpen?.(href)} /> : model.fullText}</p>
       : model.summary ? <p className="sod29-nowpub-body is-summary" data-now-detail="summary">{model.summary}</p> : null}
     {!model.fullText && model.summary && model.href ? <small data-now-detail="excerpt-note">זהו התקציר שפורסם; המשך הפרסום בעמוד המלא.</small> : null}
     {/* YouTube / Vimeo links: the shared click-to-load card. A public group source shows it too (ZURIEL 11.11.2026): the group reader only lets a
