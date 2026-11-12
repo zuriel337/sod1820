@@ -199,7 +199,7 @@ create table t_media as select store_media('gilui-yomi', 'image', 'image/jpeg', 
 select media_proof((select id from t_media), '000000000101@c.us', 'imageMessage');
 select expect((select count(*) from public.research_contributions where target_id = (select id::text from t_media)) = 0, 'media waits for the public copy');
 select publish((select id from t_media), null, null);
-select expect((select body like E'תמונה\n📷 https://%/storage/v1/object/public/media/sod1820/2029/image/%' from public.research_contributions where target_id = (select id::text from t_media)), 'media message carries the public URL after the copy is published');
+select expect((select body like E'תמונה\n\n📎 תמונה\nhttps://%/storage/v1/object/public/media/sod1820/2029/image/%' from public.research_contributions where target_id = (select id::text from t_media)), 'media message carries the public URL after the copy is published');
 
 -- hold after copy soft-deletes; unheld rows stay
 update public.channel_update_group_proof set held_at = now() where update_id = (select id from t_live);

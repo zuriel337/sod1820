@@ -43,7 +43,8 @@ begin
   select * into c from public.contributors where slug = a.contributor_slug and active is true;
   if not found then return null; end if;
   v_body := coalesce(a.body, '');
-  if a.media_url is not null then v_body := btrim(v_body || E'\n' || case when a.media_kind = 'video' then '🎬 ' else '📷 ' end || a.media_url, E'\n'); end if;
+  -- the chat's own attachment form («📎 name» + URL), which the chat shows inline when the URL is the public copy of a group picture or video
+  if a.media_url is not null then v_body := btrim(v_body || E'\n\n📎 ' || case when a.media_kind = 'video' then 'סרטון' else 'תמונה' end || E'\n' || a.media_url, E'\n'); end if;
   if nullif(btrim(v_body), '') is null then return null; end if;
 
   v_day := (a.created_at at time zone 'Asia/Jerusalem')::date;
