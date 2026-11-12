@@ -45,3 +45,59 @@ test("no secret and no personal data in the manifest or the artifacts", () => {
     assert.doesNotMatch(t, /\b9725\d{8}\b|\b05\d-?\d{7}\b/);
   }
 });
+
+test("every rollback source states its kind; exact sources carry the deployed hash of every file, including the shared materialGate copies", () => {
+  const kinds = { exact_source: [], source_with_comment_redaction: [], behavioral_equivalent: [] };
+  for (const [slug, fn] of Object.entries(manifest.functions)) {
+    assert.ok(fn.rollback_kind in kinds, `${slug}: rollback_kind`);
+    kinds[fn.rollback_kind].push(slug);
+    for (const f of fn.files) {
+      if (fn.rollback_kind === "exact_source") assert.equal(f.deployed_sha256, f.rollback_sha256, `${slug}/${f.deploy_path}: rollback == deployed bytes`);
+      if (fn.rollback_kind === "source_with_comment_redaction") assert.notEqual(f.deployed_sha256, f.rollback_sha256, `${slug}: redacted copy differs from the deployed bytes`);
+      if (fn.rollback_kind === "behavioral_equivalent") assert.equal(f.deployed_sha256 ?? null, null, `${slug}: no deployed hash is claimed`);
+    }
+  }
+  assert.deepEqual(kinds.source_with_comment_redaction, ["ai-analyze"]);
+  assert.deepEqual(kinds.behavioral_equivalent, ["contact-notify"]);
+  assert.equal(kinds.exact_source.length, 7);
+  for (const slug of ["lab-teacher", "journey-message", "field-router", "number-researcher"]) {
+    const mg = manifest.functions[slug].files.find((f) => f.deploy_path.endsWith("materialGate.js"));
+    assert.equal(mg.deployed_sha256, "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb", `${slug} materialGate`);
+  }
+});
+
+test("the comment redaction in the ai-analyze rollback touches comment lines only", () => {
+  const text = gunzipSync(readFileSync(new URL("ai-analyze.v91.index.ts.gz", DIR))).toString("utf8");
+  const marked = text.split("\n").filter((l) => l.includes("<redacted personal address>"));
+  assert.equal(marked.length, 2);
+  for (const l of marked) assert.match(l.trim(), /^\/\/ <redacted personal address>$/);
+});
+
+// Behavioural check of the contact-notify rollback equivalent with dummy values only (no real recipient or key is used or stored).
+async function runContactNotifyRollback(env) {
+  const { stripTypeScriptTypes } = await import("node:module");
+  const { runInNewContext } = await import("node:vm");
+  const source = gunzipSync(readFileSync(new URL("contact-notify.v1-equivalent.index.ts.gz", DIR))).toString("utf8");
+  const calls = [];
+  let handler;
+  const fetchStub = async (url, init) => { calls.push({ url: String(url), body: JSON.parse(init.body) }); return new Response(JSON.stringify({ id: "x" }), { status: 200 }); };
+  runInNewContext(stripTypeScriptTypes(source.replace(/^import .*;\n/gm, "")), {
+    Deno: { env: { get: (k) => env[k] }, serve: (fn) => { handler = fn; } }, fetch: fetchStub, Request, Response, JSON, String,
+  });
+  const post = () => handler(new Request("https://edge.invalid/contact-notify", { method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ name: "t", email: "sender@example.org", subject: "s", message: "hello" }) }));
+  return { res: await post(), calls };
+}
+
+test("contact-notify rollback depends on CONTACT_NOTIFY_TO: without it no e-mail is sent (503); with it, exactly one send to that recipient", async () => {
+  const missing = await runContactNotifyRollback({ RESEND_API_KEY: "dummy-key" });
+  assert.equal(missing.res.status, 503);
+  assert.equal(missing.calls.length, 0, "no provider call without the recipient secret");
+  const set = await runContactNotifyRollback({ RESEND_API_KEY: "dummy-key", CONTACT_NOTIFY_TO: "recipient@example.org" });
+  assert.equal(set.res.status, 200);
+  assert.equal(set.calls.length, 1);
+  assert.match(set.calls[0].url, /^https:\/\/api\.resend\.com\/emails$/);
+  assert.deepEqual([].concat(set.calls[0].body.to), ["recipient@example.org"]);
+  const fn = manifest.functions["contact-notify"];
+  assert.ok(fn.env_names_read.includes("CONTACT_NOTIFY_TO"), "the manifest names the dependency (name only)");
+});

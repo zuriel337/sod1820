@@ -43,7 +43,8 @@
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_URL"
    ],
-   "proposal_env_names_added": []
+   "proposal_env_names_added": [],
+   "rollback_kind": "exact_source"
   },
   "journey-message": {
    "version": 13,
@@ -69,7 +70,9 @@
       "path": "supabase/functions/_shared/materialGate.js"
      },
      "rollback_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
-     "verified": "inspection (same text as the byte-verified lab-teacher copy)"
+     "verified": "inspection (same text as the byte-verified lab-teacher copy)",
+     "deployed_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
+     "deployed_hash_evidence": "get_edge_function 12.11.2026: deployed file transcribed and hashed (11710 bytes); equal to git blob 949c24ad5:supabase/functions/_shared/materialGate.js (unchanged since 065aa022)"
     }
    ],
    "deployed_ezbr_sha256": "ef48bb9454ea73e0866bc56db502d3beb1be741de5860b4e10fed39c031309a7",
@@ -80,7 +83,8 @@
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_URL"
    ],
-   "proposal_env_names_added": []
+   "proposal_env_names_added": [],
+   "rollback_kind": "exact_source"
   },
   "field-router": {
    "version": 10,
@@ -106,7 +110,9 @@
       "path": "supabase/functions/_shared/materialGate.js"
      },
      "rollback_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
-     "verified": "inspection (same text as the byte-verified lab-teacher copy)"
+     "verified": "inspection (same text as the byte-verified lab-teacher copy)",
+     "deployed_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
+     "deployed_hash_evidence": "get_edge_function 12.11.2026: deployed file transcribed and hashed (11710 bytes); equal to git blob 949c24ad5:supabase/functions/_shared/materialGate.js (unchanged since 065aa022)"
     }
    ],
    "deployed_ezbr_sha256": "bb3c913bd46e11ec0ee11ea27914adef7dcad193837abaccc4adacfd3583ffa6",
@@ -119,7 +125,8 @@
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_URL"
    ],
-   "proposal_env_names_added": []
+   "proposal_env_names_added": [],
+   "rollback_kind": "exact_source"
   },
   "number-researcher": {
    "version": 12,
@@ -145,7 +152,9 @@
       "path": "supabase/functions/_shared/materialGate.js"
      },
      "rollback_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
-     "verified": "inspection (same text as the byte-verified lab-teacher copy)"
+     "verified": "inspection (same text as the byte-verified lab-teacher copy)",
+     "deployed_sha256": "1f60200076d3d653d4bf09dd1772de94b3c9bb2545949c0283cc7690ff2fa8fb",
+     "deployed_hash_evidence": "get_edge_function 12.11.2026: deployed file transcribed and hashed (11710 bytes); equal to git blob 949c24ad5:supabase/functions/_shared/materialGate.js (unchanged since 065aa022)"
     }
    ],
    "deployed_ezbr_sha256": "c94555c1a7be5081d06eb00dfe9bc8ed597de66c4c5bfb4da7e61fab844e7175",
@@ -157,7 +166,8 @@
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_URL"
    ],
-   "proposal_env_names_added": []
+   "proposal_env_names_added": [],
+   "rollback_kind": "exact_source"
   },
   "wa-raziel": {
    "version": 21,
@@ -213,7 +223,8 @@
     "WA_RAZIEL_CHRISTINA_PHONE",
     "WA_RAZIEL_GILUI_GROUP",
     "WA_RAZIEL_OPEN_GROUPS"
-   ]
+   ],
+   "rollback_kind": "exact_source"
   },
   "els-search-bridge": {
    "version": 5,
@@ -239,7 +250,8 @@
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_URL"
    ],
-   "proposal_env_names_added": []
+   "proposal_env_names_added": [],
+   "rollback_kind": "exact_source"
   },
   "ai-analyze": {
    "version": 91,
@@ -275,7 +287,8 @@
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_URL"
    ],
-   "proposal_env_names_added": []
+   "proposal_env_names_added": [],
+   "rollback_kind": "source_with_comment_redaction"
   },
   "research-run": {
    "version": 9,
@@ -301,7 +314,8 @@
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_URL"
    ],
-   "proposal_env_names_added": []
+   "proposal_env_names_added": [],
+   "rollback_kind": "exact_source"
   },
   "contact-notify": {
    "version": 1,
@@ -331,9 +345,15 @@
    "proposal_env_names_added": [
     "SUPABASE_SERVICE_ROLE_KEY",
     "SUPABASE_URL"
-   ]
+   ],
+   "rollback_kind": "behavioral_equivalent"
   }
  },
  "settings_note": "Values are never stored. env_names_read = secrets/env the deployed version reads; proposal_env_names_added = names the M0 entry file reads in addition (shared modules may add none).",
- "drift_gate": "Before any M0 Edge deploy: list_edge_functions must show, for each of the nine, the same version and the same ezbr_sha256 as here (read 12.11.2026). Any difference = stop and report; the rollback source here would no longer be the deployed one."
+ "drift_gate": "Before any M0 Edge deploy: list_edge_functions must show, for each of the nine, the same version and the same ezbr_sha256 as here (read 12.11.2026). Any difference = stop and report; the rollback source here would no longer be the deployed one.",
+ "rollback_kinds": {
+  "exact_source": "every file rebuilds the deployed bytes (SHA-256 of the deployed file == rollback file)",
+  "source_with_comment_redaction": "deployed bytes except two comment-only lines holding personal e-mail addresses, replaced by a fixed marker; no code token differs",
+  "behavioral_equivalent": "deployed v1 has no repository source and hard-codes a personal recipient; the stored file reproduces its validation, escaping, provider call and response shapes, reads the recipient from CONTACT_NOTIFY_TO and refuses (503) without it. Exact v1 bytes exist only in the live deployment and are not stored here."
+ }
 }
