@@ -532,3 +532,14 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
 .sod29-tree-pin-numbers{flex:none;display:flex;gap:4px}
 .sod29-tree-pin-numbers b{font:inherit;font-weight:700;font-size:12px;line-height:1;padding:2px 6px;border-radius:999px;background:color-mix(in srgb,var(--s29-gold,var(--s29-ink)) 16%,transparent);color:var(--s29-ink)}
 .sod29-tree-pin-line{min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--s29-type-small,15px)}
+
+/* Smart thread line (ZURIEL, 12.11.2026): the line is a button (click = collapse) and lights up where a reply is new. */
+.sod29-community--full .sod29-community-feed .sod29-community-thread-group>.sod29-community-replies{position:relative}
+.sod29-community-line-toggle{position:absolute;inset-inline-start:-13px;inset-block:0;width:25px;padding:0;border:0;background:transparent;cursor:pointer;z-index:1}
+.sod29-community-line-toggle::after{content:"";position:absolute;inset-block:0;inset-inline-start:12px;width:3px;border-radius:3px;background:transparent;transition:background-color .15s}
+.sod29-community-line-toggle:hover::after{background:color-mix(in srgb,var(--community-discovery,var(--s29-accent-text)) 55%,transparent)}
+.sod29-community-replies-summary{color:var(--s29-muted);font-weight:400}
+.sod29-community-thread-group.is-new-reply::after{content:"";position:absolute;inset-inline-start:-21px;inset-block:0;width:3px;border-radius:3px;background:var(--community-discovery,var(--s29-accent-text));pointer-events:none}
+.sod29-community--full .sod29-community-feed .sod29-community-replies>.sod29-community-thread-group.is-new-reply::before{border-block-end:2px solid var(--community-discovery,var(--s29-accent-text))}
+@media(prefers-reduced-motion:no-preference){.sod29-community-thread-group.is-new-reply::after{animation:sod29-line-new 1.6s ease-out 2}@keyframes sod29-line-new{0%{opacity:.25}50%{opacity:1}100%{opacity:.85}}}
+@media(max-width:600px){.sod29-community-replies .sod29-community-replies .sod29-community-line-toggle{display:none}}

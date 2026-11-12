@@ -64,6 +64,7 @@ async function harness(file, names, overrides = {}) {
     fetchTreeHints: async () => [], setTreeHint: async () => {}, parseTreeHintNumbers: () => [],
     pingCommunityPresence: async () => {}, fetchCommunityPresenceOnline: async () => [], COMMUNITY_PRESENCE_PING_MS: 45000,
     fetchCommunityArchivePage: async () => ({ rows: [], nextOffset: 0, count: 0 }),
+    getThreadSeenAt: () => null, markThreadSeen() {}, isNewReply: () => false, repliesAuthorSummary: () => "",
     fetchLinkedAccountProfiles: async () => ({}), fetchCommunityReplyCounts: async () => ({}),
     startCommunityRefresh: () => () => {}, applySeo() {}, restoreCommunityScrollAnchor() {},
     ...overrides,

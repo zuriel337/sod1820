@@ -3,6 +3,7 @@ import { canonicalCommunityAuthorKey } from "../../lib/community/communityCanoni
 import React, { lazy, Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { getThreadSeenAt, isNewReply, markThreadSeen, repliesAuthorSummary } from "../../lib/community/threadSeen2029.js";
 import AccountEntry2029 from "../auth2029/AccountEntry2029.jsx";
 import { clearGuestPost, peekGuestPost, stashGuestPost } from "../../lib/community/communityGuestPost.js";
 import { fetchGuestUnreviewed, guestBodyHasLink, guestPublishErrorMessage, publishGuestCommunityMessage, reviewGuestMessage } from "../../lib/community/communityGuestApi.js";
@@ -175,7 +176,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
   </article>;
 }
 
-function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoaded, refreshToken, ancestors = [], focusPath = [], messageActions, newReplies = null, onReplyCountKnown }) {
+function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoaded, refreshToken, ancestors = [], focusPath = [], messageActions, newReplies = null, onReplyCountKnown, seenSince = null, newReply = false }) {
   const focusIndex = focusPath.indexOf(row.id);
   const focusChildId = focusIndex >= 0 ? focusPath[focusIndex + 1] || null : null;
   const focused = focusPath.length > 0 && focusPath[focusPath.length - 1] === row.id;
@@ -194,6 +195,22 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   const count = replyTotal ?? knownCount;
   const canExpand = count > 0 || replies.length > 0;
   const childrenId = `community-replies-${row.id}`;
+  // Smart thread line: the root remembers when the reader last saw it; newer replies light their segment.
+  const seenSinceRef = useRef(undefined);
+  if (seenSinceRef.current === undefined) seenSinceRef.current = ancestors.length === 0 ? getThreadSeenAt(row.id) : null;
+  const rootSeenSince = ancestors.length === 0 ? seenSinceRef.current : seenSince;
+  const currentUserId = useAuth().user?.id || null;
+  useEffect(() => {
+    if (ancestors.length !== 0 || typeof IntersectionObserver === "undefined" || !groupRef.current) return undefined;
+    let timer = null;
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.some((entry) => entry.isIntersecting);
+      if (visible && !timer) timer = setTimeout(() => { markThreadSeen(row.id); }, 2500);
+      else if (!visible && timer) { clearTimeout(timer); timer = null; }
+    }, { threshold: 0.15 });
+    observer.observe(groupRef.current);
+    return () => { observer.disconnect(); if (timer) clearTimeout(timer); };
+  }, [row.id, ancestors.length]);
 
   useEffect(() => {
     if (!focusChildId) return undefined;
@@ -278,14 +295,15 @@ function LiveThread({ row, onReply, accountProfiles, replyCounts, onRepliesLoade
   useEffect(() => { if (expanded && !focusChildId && !document.hidden && (!rootPreview || previewRequested.current && previewInRange.current)) loadReplies(0, rootPreview ? Math.max(2, Math.min(100, nextReplyOffset)) : null); }, [refreshToken, focusChildId]);
   useLayoutEffect(() => { restoreCommunityScrollAnchor(replyAnchorRef.current); replyAnchorRef.current = null; }, [replies]);
 
-  return <div ref={groupRef} className="sod29-community-thread-group" data-thread-level={ancestors.length}>
+  return <div ref={groupRef} className={`sod29-community-thread-group${newReply ? " is-new-reply" : ""}`} data-thread-level={ancestors.length} data-new-reply={newReply ? "true" : undefined}>
     {newReplies?.count > 0 ? <div className="sod29-community-new-replies"><Link to={communityReadingHref(newReplies)}>{newReplies.count === 1 ? "תגובה חדשה" : `${newReplies.count.toLocaleString("he-IL")} תגובות חדשות`} <span aria-hidden="true">←</span></Link></div> : null}
     <LiveMessage row={row} onReply={onReply} accountProfiles={accountProfiles} focused={focused} messageActions={messageActions} sharePath={[...ancestors, row.id]} />
-    {!expanded && canExpand ? <button type="button" className="sod29-community-replies-toggle" aria-expanded="false" aria-controls={childrenId} disabled={loadingReplies} onClick={toggleReplies}>פתיחת תגובות{count != null ? ` (${count.toLocaleString("he-IL")})` : ""}</button> : null}
+    {!expanded && canExpand ? <button type="button" className="sod29-community-replies-toggle" aria-expanded="false" aria-controls={childrenId} disabled={loadingReplies} onClick={toggleReplies}>פתיחת תגובות{count != null ? ` (${count.toLocaleString("he-IL")})` : ""}{replies.length ? <span className="sod29-community-replies-summary"> · {repliesAuthorSummary(replies)}</span> : null}</button> : null}
     <div id={childrenId} className="sod29-community-replies" role="group" aria-label={`תגובות להודעה של ${row.authorName}`} hidden={!expanded || !replies.length && !replyError && !loadingReplies}>
+      {expanded && replies.length > 0 ? <button type="button" className="sod29-community-line-toggle" tabIndex={-1} aria-hidden="true" title="לחיצה על הקו מכווצת את התגובות" onClick={toggleReplies} /> : null}
       {replyError ? <p role="alert">{replyError} <button type="button" onClick={() => focusChildId ? setFocusAttempt(value => value + 1) : loadReplies(nextReplyOffset)}>ניסיון נוסף</button></p> : null}
       {loadingReplies && !replies.length ? <p role="status">טוען תגובות…</p> : null}
-      {expanded && replies.map((reply) => <LiveThread key={reply.id} row={reply} onReply={onReply} accountProfiles={accountProfiles} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={refreshToken} ancestors={[...ancestors, row.id]} focusPath={focusPath} messageActions={messageActions} onReplyCountKnown={onReplyCountKnown} />)}
+      {expanded && replies.map((reply) => <LiveThread key={reply.id} row={reply} onReply={onReply} accountProfiles={accountProfiles} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={refreshToken} ancestors={[...ancestors, row.id]} focusPath={focusPath} messageActions={messageActions} onReplyCountKnown={onReplyCountKnown} seenSince={rootSeenSince} newReply={isNewReply(reply, rootSeenSince, currentUserId)} />)}
       {expanded && !focusChildId && replyTotal != null && nextReplyOffset < replyTotal ? <button type="button" className="sod29-community-more-replies" disabled={loadingReplies} onClick={() => loadReplies(nextReplyOffset)}>{loadingReplies ? "טוען…" : replyTotal - nextReplyOffset === 1 ? "תגובה נוספת אחת" : `עוד ${replyTotal - nextReplyOffset} תגובות`}</button> : null}
       {expanded && replies.length > 0 ? <button type="button" className="sod29-community-replies-toggle" aria-expanded="true" aria-controls={childrenId} onClick={toggleReplies}>{ancestors.length && row.authorName ? `סגירת תגובות ל${row.authorName}` : "סגירת תגובות"}</button> : null}
     </div>
