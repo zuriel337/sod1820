@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import {
-  APPROVED_GROUP_WRITERS, GROUP_SOURCE_CHANNELS, GROUP_SOURCE_LABEL, GROUP_WRITER_PINS_2029, GROUP_WRITER_PIN_HOURS_2029,
+  APPROVED_GROUP_WRITERS, GROUP_ROW_PINS_2029, GROUP_SOURCE_CHANNELS, GROUP_SOURCE_LABEL, GROUP_WRITER_PINS_2029, GROUP_WRITER_PIN_HOURS_2029,
   WORLD_GROUP_SOURCE_READER, groupRowToWorldUpdate, groupWriterPin, groupWriterPinListed,
 } from "../src/lib/research/worldGroupSource.js";
 import { feedRows } from "../src/lib/systemFeed2029.js";
@@ -146,4 +146,39 @@ test("parity with «תורת הרמז»: one reader, one label, one set of publi
   assert.equal(existsSync(new URL("../supabase/functions/_shared/waChannelPolicy.js", import.meta.url)), false);
   const reader = readFileSync(new URL("../src/lib/research/systemFeedPublicSources2029.js", import.meta.url), "utf8");
   assert.doesNotMatch(reader, /pinned_until|credit/, "the public channel reader selects no pin column and no writer credit");
+});
+
+test("an editorial extension moves the pin end of ONE proved arrival later, only for a listed writer, never earlier", () => {
+  const ID = "8d30aba8-e510-443b-9de0-456df8875a22";
+  assert.deepEqual(JSON.parse(JSON.stringify(GROUP_ROW_PINS_2029)), { [ID]: "2026-11-13T06:00:00.000Z" });
+  assert.ok(Object.isFrozen(GROUP_ROW_PINS_2029));
+  const arrival10 = "2026-11-10T22:41:49.000Z";
+  const pin = groupWriterPin({ channel: "gilui-yomi", slug: "shachar-kandro", arrivalAt: arrival10, id: ID });
+  assert.equal(pin.pinKind, "writer");
+  assert.equal(pin.pinUntil, "2026-11-13T06:00:00.000Z");
+  // Any other row id, a missing id, a prototype key: the natural 24 hours from arrival only.
+  for (const id of ["00000000-0000-4000-8000-000000000000", undefined, "constructor", "__proto__"]) {
+    assert.equal(groupWriterPin({ channel: "gilui-yomi", slug: "shachar-kandro", arrivalAt: arrival10, id }).pinUntil, "2026-11-11T22:41:49.000Z", String(id));
+  }
+  // Never for an unlisted writer or another group, even with the listed id; and never earlier than the natural end.
+  assert.equal(groupWriterPin({ channel: "gilui-yomi", slug: "tzvi-opoc", arrivalAt: arrival10, id: ID }), null);
+  assert.equal(groupWriterPin({ channel: "torat-haremez", slug: "shachar-kandro", arrivalAt: arrival10, id: ID }), null);
+  assert.equal(groupWriterPin({ channel: "gilui-yomi", slug: "shachar-kandro", arrivalAt: "2026-11-20T00:00:00Z", id: ID }).pinUntil, "2026-11-21T00:00:00.000Z");
+});
+
+test("Now: the 10.11 picture row is pinned at the top while the extension is ahead, a picture, and unpinned by itself after", () => {
+  const ID = "8d30aba8-e510-443b-9de0-456df8875a22";
+  const base = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/sod1820/2029/image/2026/11/62e3180b-9c28-5b94-b41d-d39d6de4bc69/original.jpg";
+  const item = groupRowToWorldUpdate({ id: ID, body: "כיתוב", created_at: "2026-11-10T22:41:49Z", contributor_slug: "shachar-kandro", contributor_name: "שחר יצחק קנדרו",
+    group_proof: true, proof_basis: "verified_phone_unique", group_channel: "gilui-yomi", media_kind: "image", media_url: base, thumb_url: null });
+  const other = arrival(9, "tzvi-opoc", { channel: "torat-haremez", at: "2026-11-12T01:00:00Z" });
+  const at = Date.parse("2026-11-12T02:00:00Z");
+  const during = nowModels(feedRows([other, item], { now: at, limit: 160, caps: { group: 40 } }), at);
+  assert.equal(during[0].id, `group:${ID}`);
+  assert.equal(during[0].pinKind, "writer");
+  assert.equal(during[0].media, "image");
+  assert.equal(during[0].pinUntil, "2026-11-13T06:00:00.000Z");
+  const after = Date.parse("2026-11-13T06:00:01Z");
+  const later = nowModels(feedRows([other, item], { now: after, limit: 160, caps: { group: 40 } }), after);
+  assert.ok(later.every((model) => !model.pinned), "no pin after its end");
 });
