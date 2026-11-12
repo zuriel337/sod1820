@@ -44,4 +44,14 @@ union all select 'D contributor view v2 admits public candidates (status kept); 
   and has_table_privilege('anon', to_regclass('public.world_contributor_research_v2'), 'SELECT')
   and not has_table_privilege('anon', to_regclass('public.world_contributor_research_v2'), 'INSERT'), false)
 union all select 'D v1 unchanged for older clients (definition md5 as reviewed 12.11)', md5(pg_get_viewdef('public.world_contributor_research_v1'::regclass, true)) = '81581396c9167206a67a117bdd406f70'
+-- Round 5 (independent review): v2's owner, options and privileges equal v1's (the proposal enforces it; this re-reads it after apply).
+union all select 'D v2 owner, options (security_invoker, security_barrier) and privileges equal v1', coalesce(
+  (select relowner from pg_class where oid = to_regclass('public.world_contributor_research_v2'))
+    = (select relowner from pg_class where oid = 'public.world_contributor_research_v1'::regclass)
+  and (select array_agg(o order by o) from pg_class c, unnest(coalesce(c.reloptions, '{}')) o where c.oid = to_regclass('public.world_contributor_research_v2'))
+    is not distinct from (select array_agg(o order by o) from pg_class c, unnest(coalesce(c.reloptions, '{}')) o where c.oid = 'public.world_contributor_research_v1'::regclass)
+  and (select array_agg(e order by e) from (select a.grantee::text || ':' || a.privilege_type as e from pg_class c, aclexplode(c.relacl) a
+        where c.oid = to_regclass('public.world_contributor_research_v2') and a.grantee <> c.relowner) x)
+    is not distinct from (select array_agg(e order by e) from (select a.grantee::text || ':' || a.privilege_type as e from pg_class c, aclexplode(c.relacl) a
+        where c.oid = 'public.world_contributor_research_v1'::regclass and a.grantee <> c.relowner) y), false)
 order by 1;
