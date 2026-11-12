@@ -1,0 +1,125 @@
+{
+ "captured_at": "2026-11-12T23:19:13.340Z",
+ "origin": "https://sod1820.co.il",
+ "mode": "reads allowed for 13 verified read-only RPC names",
+ "scripts_fetched_once_as_files": [
+  "https://connect.facebook.net/en_US/fbevents.js",
+  "https://connect.facebook.net/signals/config/992562036849823",
+  "https://www.googletagmanager.com/gtag/js?id=G-V3H3E20FLY"
+ ],
+ "first_party_non_get_paths_not_delivered": [
+  "/functions/v1/meta-capi",
+  "rpc:ingest_event",
+  "rpc:track_visit"
+ ],
+ "read_rpcs_delivered": [
+  "world_group_source_arrivals_v2"
+ ],
+ "summary": [
+  {
+   "family": "arrival with campaign and click ids",
+   "steps": [
+    {
+     "step": "direct entry",
+     "http_status": 200,
+     "href": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028?utm_source=whatsapp&utm_medium=share&utm_campaign=audit&fbclid=AUDITFB&gclid=AUDITG&q=secret-term",
+     "document_title": "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות · SOD1820",
+     "h1": "איך יוצאים מתת־המודע דרך עץ ישראל? | מדריך לריפוי 10 הספירות",
+     "canonical": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028",
+     "robots": "index, follow",
+     "bot_verdict_cookie": "browser",
+     "service_worker_controls_page": true,
+     "home_primary": null,
+     "app_gtag_calls": [],
+     "ga_events": [
+      {
+       "en": "view_search_results",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "ep.search_term": "secret-term"
+       },
+       "campaign": {
+        "gcd": "13l3l3l3l3l1"
+       },
+       "keys": "_eu _fv _nsi _p _s _ss _tu ae cid dl dma dp dr dt en ep.search_term frm gcd gtm lps ngs npa pscdl rcb sct seg sid sr tag_exp tfd tid uaa uab uafvl uam uamb uap uapv uaw ul v"
+      },
+      {
+       "en": "page_view",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {},
+       "campaign": {
+        "gcd": "13l3l3l3l3l1"
+       },
+       "keys": "_ee _et _eu _p _s _tu cid dl dma dp dr dt en frm gcd gtm lps ngs npa pscdl rcb sct seg sid sr tag_exp tfd tid uaa uab uafvl uam uamb uap uapv uaw ul v"
+      },
+      {
+       "en": "scroll",
+       "dl": "https://sod1820.co.il/post/:item",
+       "dt": "SOD1820",
+       "dr": "",
+       "ep": {
+        "epn.percent_scrolled": "90"
+       },
+       "campaign": {
+        "gcd": "13l3l3l3l3l1"
+       },
+       "keys": "_et _eu _p _s _tu ae cid dl dma dp dr dt en epn.percent_scrolled frm gcd gtm lps ngs npa pscdl rcb sct seg sid sr tag_exp tfd tid uaa uab uafvl uam uamb uap uapv uaw ul v"
+      }
+     ],
+     "ga_page_views": 1,
+     "first_ga_hit_after_ms": 2195,
+     "app_fbq_calls": [
+      [
+       "track",
+       "PageView"
+      ]
+     ],
+     "pixel": [
+      {
+       "ev": "PageView",
+       "dl": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028?utm_source=whatsapp&utm_medium=share&utm_campaign=audit&fbclid=AUDITFB&gclid=AUDITG&q=secret-term",
+       "rl": ""
+      }
+     ],
+     "capi": [
+      {
+       "event_name": "PageView",
+       "event_source_url": "https://sod1820.co.il/post/eikh-yotzim-mehatat-moda-sefirot-yisrael-20261028?utm_source=whatsapp&utm_medium=share&utm_campaign=audit&fbclid=AUDITFB&gclid=AUDITG&q=secret-term",
+       "via_worker": true
+      }
+     ],
+     "first_party_writes_not_delivered": [
+      {
+       "path": "/rest/v1/rpc/ingest_event",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_sod_id\":null,\"p_surface\":\"page\",\"p_event_type\":\"engagement\",\"p_path\":\"/post/:item\",\"p_session_id\":null,\"p_app_context\":\"chrome\",\"p_is_bot\":false,\"p_props\":{\"visible_ms\":0,\"engaged_ms\":0,\"max_scroll_pct\":0,\"flush_reason\":\"route_change\",\"engagement_version\":1,\"idle_threshold_ms\":20000}}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"e2d1a2de-5b31-4ec6-9cef-9e1c055684c0\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      },
+      {
+       "path": "/rest/v1/rpc/track_visit",
+       "method": "POST",
+       "via_worker": true,
+       "body": "{\"p_path\":\"/post/:item\",\"p_referrer\":null,\"p_visitor\":\"e2d1a2de-5b31-4ec6-9cef-9e1c055684c0\",\"p_device\":\"desktop\",\"p_is_bot\":false}"
+      }
+     ],
+     "read_rpcs_allowed": [
+      "world_group_source_arrivals_v2"
+     ],
+     "other_third_party": [
+      "GET https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+     ]
+    }
+   ]
+  }
+ ]
+}
